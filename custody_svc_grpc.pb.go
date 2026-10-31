@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/custody_svc.g.proto
+// source: loft/custody_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,18 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CustodyService_Add_FullMethodName               = "/rove.CustodyService/Add"
-	CustodyService_Get_FullMethodName               = "/rove.CustodyService/Get"
-	CustodyService_Patch_FullMethodName             = "/rove.CustodyService/Patch"
-	CustodyService_Apply_FullMethodName             = "/rove.CustodyService/Apply"
-	CustodyService_Erase_FullMethodName             = "/rove.CustodyService/Erase"
-	CustodyService_List_FullMethodName              = "/rove.CustodyService/List"
-	CustodyService_Watch_FullMethodName             = "/rove.CustodyService/Watch"
-	CustodyService_Acknowledge_FullMethodName       = "/rove.CustodyService/Acknowledge"
-	CustodyService_Return_FullMethodName            = "/rove.CustodyService/Return"
-	CustodyService_Extend_FullMethodName            = "/rove.CustodyService/Extend"
-	CustodyService_Outstanding_FullMethodName       = "/rove.CustodyService/Outstanding"
-	CustodyService_ExportOutstanding_FullMethodName = "/rove.CustodyService/ExportOutstanding"
+	CustodyService_Add_FullMethodName               = "/loft.CustodyService/Add"
+	CustodyService_Get_FullMethodName               = "/loft.CustodyService/Get"
+	CustodyService_Patch_FullMethodName             = "/loft.CustodyService/Patch"
+	CustodyService_Apply_FullMethodName             = "/loft.CustodyService/Apply"
+	CustodyService_Erase_FullMethodName             = "/loft.CustodyService/Erase"
+	CustodyService_List_FullMethodName              = "/loft.CustodyService/List"
+	CustodyService_Watch_FullMethodName             = "/loft.CustodyService/Watch"
+	CustodyService_Acknowledge_FullMethodName       = "/loft.CustodyService/Acknowledge"
+	CustodyService_Return_FullMethodName            = "/loft.CustodyService/Return"
+	CustodyService_Extend_FullMethodName            = "/loft.CustodyService/Extend"
+	CustodyService_Outstanding_FullMethodName       = "/loft.CustodyService/Outstanding"
+	CustodyService_ExportOutstanding_FullMethodName = "/loft.CustodyService/ExportOutstanding"
 )
 
 // CustodyServiceClient is the client API for CustodyService service.
@@ -71,11 +71,11 @@ type CustodyServiceClient interface {
 	// late -- a page at a time, and how much is out in all. It names who has
 	// each, as they are called now and told apart from whoever else goes by
 	// their name, and is a read of them on the access record -- of a team it
-	// tells them apart by, too (rove#136, D54); and nobody's address or number.
+	// tells them apart by, too (loft#136, D54); and nobody's address or number.
 	Outstanding(ctx context.Context, in *CustodyOutstandingRequest, opts ...grpc.CallOption) (*CustodyOutstandingResponse, error)
 	// ExportOutstanding writes every row of it as a CSV, whatever the page: a
 	// download of the people it names, which says what it is for in
-	// `payday-reason-bin`, and is refused without (rove#136).
+	// `payday-reason-bin`, and is refused without (loft#136).
 	ExportOutstanding(ctx context.Context, in *CustodyOutstandingRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
@@ -254,11 +254,11 @@ type CustodyServiceServer interface {
 	// late -- a page at a time, and how much is out in all. It names who has
 	// each, as they are called now and told apart from whoever else goes by
 	// their name, and is a read of them on the access record -- of a team it
-	// tells them apart by, too (rove#136, D54); and nobody's address or number.
+	// tells them apart by, too (loft#136, D54); and nobody's address or number.
 	Outstanding(context.Context, *CustodyOutstandingRequest) (*CustodyOutstandingResponse, error)
 	// ExportOutstanding writes every row of it as a CSV, whatever the page: a
 	// download of the people it names, which says what it is for in
-	// `payday-reason-bin`, and is refused without (rove#136).
+	// `payday-reason-bin`, and is refused without (loft#136).
 	ExportOutstanding(context.Context, *CustodyOutstandingRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedCustodyServiceServer()
 }
@@ -540,7 +540,7 @@ func _CustodyService_ExportOutstanding_Handler(srv interface{}, ctx context.Cont
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CustodyService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.CustodyService",
+	ServiceName: "loft.CustodyService",
 	HandlerType: (*CustodyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -595,16 +595,16 @@ var CustodyService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/custody_svc.g.proto",
+	Metadata: "loft/custody_svc.g.proto",
 }
 
 const (
-	CustodyLineService_Add_FullMethodName   = "/rove.CustodyLineService/Add"
-	CustodyLineService_Get_FullMethodName   = "/rove.CustodyLineService/Get"
-	CustodyLineService_Patch_FullMethodName = "/rove.CustodyLineService/Patch"
-	CustodyLineService_Apply_FullMethodName = "/rove.CustodyLineService/Apply"
-	CustodyLineService_Erase_FullMethodName = "/rove.CustodyLineService/Erase"
-	CustodyLineService_List_FullMethodName  = "/rove.CustodyLineService/List"
+	CustodyLineService_Add_FullMethodName   = "/loft.CustodyLineService/Add"
+	CustodyLineService_Get_FullMethodName   = "/loft.CustodyLineService/Get"
+	CustodyLineService_Patch_FullMethodName = "/loft.CustodyLineService/Patch"
+	CustodyLineService_Apply_FullMethodName = "/loft.CustodyLineService/Apply"
+	CustodyLineService_Erase_FullMethodName = "/loft.CustodyLineService/Erase"
+	CustodyLineService_List_FullMethodName  = "/loft.CustodyLineService/List"
 )
 
 // CustodyLineServiceClient is the client API for CustodyLineService service.
@@ -870,7 +870,7 @@ func _CustodyLineService_List_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CustodyLineService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.CustodyLineService",
+	ServiceName: "loft.CustodyLineService",
 	HandlerType: (*CustodyLineServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -899,5 +899,5 @@ var CustodyLineService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/custody_svc.g.proto",
+	Metadata: "loft/custody_svc.g.proto",
 }

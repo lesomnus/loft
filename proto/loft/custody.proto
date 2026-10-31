@@ -1,0 +1,174 @@
+edition = "2023";
+
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "loft/asset.proto";
+import "loft/org.proto";
+import "loft/stock.proto";
+import "loft/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/loft";
+
+// Custody is a document handing assets to somebody: an issue for keeps or a
+// loan with a due date. Adding one opens the custodian stewardships of its
+// lines; returning closes them (design D6).
+message Custody {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // The hand-over's memo, in the words of whoever made it -- what the
+  // hand-over was for, and often who it was for -- which `custody.issue` says
+  // as its reason: personal, as every reason is (payday#92), so the trail
+  // records that it was written and never what it said. Taking that reason
+  // out takes it out of here too (design D56).
+  string desc = 6 [(payday.field) = {personal: true}];
+
+  Party party = 8 [(orm.edge) = {immutable: true}];
+  // issue | loan
+  string kind = 9 [(payday.field) = {personal: false}];
+  // open | returned | cancelled
+  string status = 10 [(payday.field) = {personal: false}];
+  google.protobuf.Timestamp issued_at = 11 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp due_at = 12 [(orm.field) = {nullable: true}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp acknowledged_at = 16 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  google.protobuf.Timestamp returned_at = 17 [(orm.field) = {nullable: true}];
+  bytes reservation_id = 18 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  bytes issued_by = 19 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  bool overdue_noticed = 20;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "party"
+        refs: [{name: "party", number: 8}, {name: "issued_at", number: 11}]
+      },
+      // What is out in a workspace, the soonest due first: what the report
+      // of it reads (design 9.14), and the sweep that tells who is late. A
+      // workspace's hand-overs are nearly all back, and without this each read
+      // went through every one of them.
+      {
+        name: "open"
+        refs: [{name: "tenant", number: 2}, {name: "status", number: 10}, {name: "due_at", number: 12}]
+      },
+      // What fulfilled a reservation, which its history reads (D45), and the
+      // report of how what may be booked was used of each reservation it
+      // reads (design 9.14).
+      {
+        name: "reservation"
+        refs: [{name: "reservation_id", number: 18}]
+      },
+      // A workspace's hand-overs made in a period: what the report of how
+      // what may be booked was used reads of what was handed over with no
+      // reservation (design 9.14, D53), a period of them rather than all it
+      // ever made.
+      {
+        name: "issued"
+        refs: [{name: "tenant", number: 2}, {name: "issued_at", number: 11}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 21
+    tenanted: {via: "tenant", agrees: ["party.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "party"}, {name: "status"}, {name: "kind"}, {name: "reservation_id"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// CustodyLine is one thing a custody handed over: an asset, or a quantity of a
+// stock.
+message CustodyLine {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Custody custody = 8 [(orm.edge) = {immutable: true}];
+  Asset asset = 9 [(orm.edge) = {
+    immutable: true
+    nullable: true
+  }];
+  Stock stock = 10 [(orm.edge) = {
+    immutable: true
+    nullable: true
+  }];
+  int64 quantity = 11;
+  int64 returned_quantity = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp out_at = 16 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp returned_at = 17 [(orm.field) = {nullable: true}];
+  string condition_out = 18;
+  string condition_in = 19;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "custody"
+        refs: [{name: "custody", number: 8}]
+      },
+      {
+        name: "asset"
+        refs: [{name: "asset", number: 9}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 22
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["custody.tenant", "asset.tenant", "stock.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "custody"}, {name: "asset"}, {name: "stock"}]
+      size: 200
+      max: 1000
+    }
+  };
+}

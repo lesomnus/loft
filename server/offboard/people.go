@@ -7,13 +7,13 @@ import (
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/invitation"
-	"github.com/lesomnus/rove/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/invitation"
+	"github.com/lesomnus/loft/internal/ent/party"
 )
 
 // People is whose data an export of `tenant` carries, as the access record
-// names them (rove#136): every person record, every membership, and everybody
+// names them (loft#136): every person record, every membership, and everybody
 // an invitation was addressed to. An export is a download of all of them, and
 // its row says so.
 func (d Deployment) People(ctx context.Context, tenant pdid.Id) ([]access.Subject, error) {

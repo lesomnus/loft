@@ -1,4 +1,4 @@
-import { choose, expect, field, momentAt, owner, people, refused, rpc, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
+import { choose, expect, field, momentAt, owner, people, refused, rpc, said, signIn, test, unique, weekdayAt, workspace } from './loft.js'
 
 // What is out takes its time (design 4, D53): a thing lent at the desk is not
 // booked by anybody for the hours it is out, and a booking made before it was

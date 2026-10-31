@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/asset_svc.g.proto
+// source: loft/asset_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,29 +19,29 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AssetService_Add_FullMethodName           = "/rove.AssetService/Add"
-	AssetService_AddMany_FullMethodName       = "/rove.AssetService/AddMany"
-	AssetService_Get_FullMethodName           = "/rove.AssetService/Get"
-	AssetService_Patch_FullMethodName         = "/rove.AssetService/Patch"
-	AssetService_Apply_FullMethodName         = "/rove.AssetService/Apply"
-	AssetService_Erase_FullMethodName         = "/rove.AssetService/Erase"
-	AssetService_List_FullMethodName          = "/rove.AssetService/List"
-	AssetService_Watch_FullMethodName         = "/rove.AssetService/Watch"
-	AssetService_Move_FullMethodName          = "/rove.AssetService/Move"
-	AssetService_SetAttributes_FullMethodName = "/rove.AssetService/SetAttributes"
-	AssetService_Assign_FullMethodName        = "/rove.AssetService/Assign"
-	AssetService_Relate_FullMethodName        = "/rove.AssetService/Relate"
-	AssetService_Correct_FullMethodName       = "/rove.AssetService/Correct"
-	AssetService_Timeline_FullMethodName      = "/rove.AssetService/Timeline"
-	AssetService_QueryAt_FullMethodName       = "/rove.AssetService/QueryAt"
-	AssetService_Diff_FullMethodName          = "/rove.AssetService/Diff"
-	AssetService_Search_FullMethodName        = "/rove.AssetService/Search"
-	AssetService_Report_FullMethodName        = "/rove.AssetService/Report"
-	AssetService_Export_FullMethodName        = "/rove.AssetService/Export"
-	AssetService_Form_FullMethodName          = "/rove.AssetService/Form"
-	AssetService_ReadSheet_FullMethodName     = "/rove.AssetService/ReadSheet"
-	AssetService_Census_FullMethodName        = "/rove.AssetService/Census"
-	AssetService_ExportCensus_FullMethodName  = "/rove.AssetService/ExportCensus"
+	AssetService_Add_FullMethodName           = "/loft.AssetService/Add"
+	AssetService_AddMany_FullMethodName       = "/loft.AssetService/AddMany"
+	AssetService_Get_FullMethodName           = "/loft.AssetService/Get"
+	AssetService_Patch_FullMethodName         = "/loft.AssetService/Patch"
+	AssetService_Apply_FullMethodName         = "/loft.AssetService/Apply"
+	AssetService_Erase_FullMethodName         = "/loft.AssetService/Erase"
+	AssetService_List_FullMethodName          = "/loft.AssetService/List"
+	AssetService_Watch_FullMethodName         = "/loft.AssetService/Watch"
+	AssetService_Move_FullMethodName          = "/loft.AssetService/Move"
+	AssetService_SetAttributes_FullMethodName = "/loft.AssetService/SetAttributes"
+	AssetService_Assign_FullMethodName        = "/loft.AssetService/Assign"
+	AssetService_Relate_FullMethodName        = "/loft.AssetService/Relate"
+	AssetService_Correct_FullMethodName       = "/loft.AssetService/Correct"
+	AssetService_Timeline_FullMethodName      = "/loft.AssetService/Timeline"
+	AssetService_QueryAt_FullMethodName       = "/loft.AssetService/QueryAt"
+	AssetService_Diff_FullMethodName          = "/loft.AssetService/Diff"
+	AssetService_Search_FullMethodName        = "/loft.AssetService/Search"
+	AssetService_Report_FullMethodName        = "/loft.AssetService/Report"
+	AssetService_Export_FullMethodName        = "/loft.AssetService/Export"
+	AssetService_Form_FullMethodName          = "/loft.AssetService/Form"
+	AssetService_ReadSheet_FullMethodName     = "/loft.AssetService/ReadSheet"
+	AssetService_Census_FullMethodName        = "/loft.AssetService/Census"
+	AssetService_ExportCensus_FullMethodName  = "/loft.AssetService/ExportCensus"
 )
 
 // AssetServiceClient is the client API for AssetService service.
@@ -106,18 +106,18 @@ type AssetServiceClient interface {
 	Report(ctx context.Context, in *AssetReportRequest, opts ...grpc.CallOption) (*AssetReportResponse, error)
 	// Export writes the register as a CSV, to read. Nothing reads one back: a
 	// restore is of the workspace's own export, and a sheet that edited the
-	// register by tag is gone (design D34). A CSV and never a workbook: rove
+	// register by tag is gone (design D34). A CSV and never a workbook: loft
 	// neither reads nor writes one (design 9.13).
 	//
 	// It is a download of the people the register names, so it says what it is
-	// for, in `payday-reason-bin`, and is refused without (rove#136).
+	// for, in `payday-reason-bin`, and is refused without (loft#136).
 	Export(ctx context.Context, in *AssetExportRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 	// Form writes the form bulk registration reads (ReadSheet): its header and
 	// nothing of the register, so it is no download of anybody.
 	Form(ctx context.Context, in *AssetFormRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
-	// `rove register` read a sheet with it, so that the form is read in one
+	// `loft register` read a sheet with it, so that the form is read in one
 	// place and the two read it alike. A workbook is refused unopened: what
 	// one person uploads is read in the process every workspace is served by,
 	// and a workbook takes a library as large as Excel to read (design 9.13).
@@ -128,7 +128,7 @@ type AssetServiceClient interface {
 	// the few hundred rows it comes to. It names nobody.
 	Census(ctx context.Context, in *AssetCensusRequest, opts ...grpc.CallOption) (*AssetCensusResponse, error)
 	// ExportCensus writes the census as a CSV, which names nobody and so is no
-	// download of anybody (rove#136).
+	// download of anybody (loft#136).
 	ExportCensus(ctx context.Context, in *AssetCensusRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
@@ -441,18 +441,18 @@ type AssetServiceServer interface {
 	Report(context.Context, *AssetReportRequest) (*AssetReportResponse, error)
 	// Export writes the register as a CSV, to read. Nothing reads one back: a
 	// restore is of the workspace's own export, and a sheet that edited the
-	// register by tag is gone (design D34). A CSV and never a workbook: rove
+	// register by tag is gone (design D34). A CSV and never a workbook: loft
 	// neither reads nor writes one (design 9.13).
 	//
 	// It is a download of the people the register names, so it says what it is
-	// for, in `payday-reason-bin`, and is refused without (rove#136).
+	// for, in `payday-reason-bin`, and is refused without (loft#136).
 	Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error)
 	// Form writes the form bulk registration reads (ReadSheet): its header and
 	// nothing of the register, so it is no download of anybody.
 	Form(context.Context, *AssetFormRequest) (*AssetExportResponse, error)
 	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
-	// `rove register` read a sheet with it, so that the form is read in one
+	// `loft register` read a sheet with it, so that the form is read in one
 	// place and the two read it alike. A workbook is refused unopened: what
 	// one person uploads is read in the process every workspace is served by,
 	// and a workbook takes a library as large as Excel to read (design 9.13).
@@ -463,7 +463,7 @@ type AssetServiceServer interface {
 	// the few hundred rows it comes to. It names nobody.
 	Census(context.Context, *AssetCensusRequest) (*AssetCensusResponse, error)
 	// ExportCensus writes the census as a CSV, which names nobody and so is no
-	// download of anybody (rove#136).
+	// download of anybody (loft#136).
 	ExportCensus(context.Context, *AssetCensusRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedAssetServiceServer()
 }
@@ -976,7 +976,7 @@ func _AssetService_ExportCensus_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AssetService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.AssetService",
+	ServiceName: "loft.AssetService",
 	HandlerType: (*AssetServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1075,7 +1075,7 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/asset_svc.g.proto",
+	Metadata: "loft/asset_svc.g.proto",
 }
 
 // TreeLockServiceClient is the client API for TreeLockService service.
@@ -1131,11 +1131,11 @@ func RegisterTreeLockServiceServer(s grpc.ServiceRegistrar, srv TreeLockServiceS
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TreeLockService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.TreeLockService",
+	ServiceName: "loft.TreeLockService",
 	HandlerType: (*TreeLockServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams:     []grpc.StreamDesc{},
-	Metadata:    "rove/asset_svc.g.proto",
+	Metadata:    "loft/asset_svc.g.proto",
 }
 
 // TagCounterServiceClient is the client API for TagCounterService service.
@@ -1191,25 +1191,25 @@ func RegisterTagCounterServiceServer(s grpc.ServiceRegistrar, srv TagCounterServ
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TagCounterService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.TagCounterService",
+	ServiceName: "loft.TagCounterService",
 	HandlerType: (*TagCounterServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams:     []grpc.StreamDesc{},
-	Metadata:    "rove/asset_svc.g.proto",
+	Metadata:    "loft/asset_svc.g.proto",
 }
 
 const (
-	TenantDomainService_Add_FullMethodName      = "/rove.TenantDomainService/Add"
-	TenantDomainService_Get_FullMethodName      = "/rove.TenantDomainService/Get"
-	TenantDomainService_Patch_FullMethodName    = "/rove.TenantDomainService/Patch"
-	TenantDomainService_Apply_FullMethodName    = "/rove.TenantDomainService/Apply"
-	TenantDomainService_Erase_FullMethodName    = "/rove.TenantDomainService/Erase"
-	TenantDomainService_List_FullMethodName     = "/rove.TenantDomainService/List"
-	TenantDomainService_Watch_FullMethodName    = "/rove.TenantDomainService/Watch"
-	TenantDomainService_Verify_FullMethodName   = "/rove.TenantDomainService/Verify"
-	TenantDomainService_Activate_FullMethodName = "/rove.TenantDomainService/Activate"
-	TenantDomainService_Retire_FullMethodName   = "/rove.TenantDomainService/Retire"
-	TenantDomainService_Status_FullMethodName   = "/rove.TenantDomainService/Status"
+	TenantDomainService_Add_FullMethodName      = "/loft.TenantDomainService/Add"
+	TenantDomainService_Get_FullMethodName      = "/loft.TenantDomainService/Get"
+	TenantDomainService_Patch_FullMethodName    = "/loft.TenantDomainService/Patch"
+	TenantDomainService_Apply_FullMethodName    = "/loft.TenantDomainService/Apply"
+	TenantDomainService_Erase_FullMethodName    = "/loft.TenantDomainService/Erase"
+	TenantDomainService_List_FullMethodName     = "/loft.TenantDomainService/List"
+	TenantDomainService_Watch_FullMethodName    = "/loft.TenantDomainService/Watch"
+	TenantDomainService_Verify_FullMethodName   = "/loft.TenantDomainService/Verify"
+	TenantDomainService_Activate_FullMethodName = "/loft.TenantDomainService/Activate"
+	TenantDomainService_Retire_FullMethodName   = "/loft.TenantDomainService/Retire"
+	TenantDomainService_Status_FullMethodName   = "/loft.TenantDomainService/Status"
 )
 
 // TenantDomainServiceClient is the client API for TenantDomainService service.
@@ -1672,7 +1672,7 @@ func _TenantDomainService_Status_Handler(srv interface{}, ctx context.Context, d
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TenantDomainService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.TenantDomainService",
+	ServiceName: "loft.TenantDomainService",
 	HandlerType: (*TenantDomainServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1723,21 +1723,21 @@ var TenantDomainService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/asset_svc.g.proto",
+	Metadata: "loft/asset_svc.g.proto",
 }
 
 const (
-	LabelService_Add_FullMethodName     = "/rove.LabelService/Add"
-	LabelService_Get_FullMethodName     = "/rove.LabelService/Get"
-	LabelService_Patch_FullMethodName   = "/rove.LabelService/Patch"
-	LabelService_Apply_FullMethodName   = "/rove.LabelService/Apply"
-	LabelService_Erase_FullMethodName   = "/rove.LabelService/Erase"
-	LabelService_List_FullMethodName    = "/rove.LabelService/List"
-	LabelService_Watch_FullMethodName   = "/rove.LabelService/Watch"
-	LabelService_Print_FullMethodName   = "/rove.LabelService/Print"
-	LabelService_Bind_FullMethodName    = "/rove.LabelService/Bind"
-	LabelService_Unbind_FullMethodName  = "/rove.LabelService/Unbind"
-	LabelService_Resolve_FullMethodName = "/rove.LabelService/Resolve"
+	LabelService_Add_FullMethodName     = "/loft.LabelService/Add"
+	LabelService_Get_FullMethodName     = "/loft.LabelService/Get"
+	LabelService_Patch_FullMethodName   = "/loft.LabelService/Patch"
+	LabelService_Apply_FullMethodName   = "/loft.LabelService/Apply"
+	LabelService_Erase_FullMethodName   = "/loft.LabelService/Erase"
+	LabelService_List_FullMethodName    = "/loft.LabelService/List"
+	LabelService_Watch_FullMethodName   = "/loft.LabelService/Watch"
+	LabelService_Print_FullMethodName   = "/loft.LabelService/Print"
+	LabelService_Bind_FullMethodName    = "/loft.LabelService/Bind"
+	LabelService_Unbind_FullMethodName  = "/loft.LabelService/Unbind"
+	LabelService_Resolve_FullMethodName = "/loft.LabelService/Resolve"
 )
 
 // LabelServiceClient is the client API for LabelService service.
@@ -2198,7 +2198,7 @@ func _LabelService_Resolve_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LabelService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.LabelService",
+	ServiceName: "loft.LabelService",
 	HandlerType: (*LabelServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -2249,19 +2249,19 @@ var LabelService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/asset_svc.g.proto",
+	Metadata: "loft/asset_svc.g.proto",
 }
 
 const (
-	AttachmentService_Add_FullMethodName    = "/rove.AttachmentService/Add"
-	AttachmentService_Get_FullMethodName    = "/rove.AttachmentService/Get"
-	AttachmentService_Patch_FullMethodName  = "/rove.AttachmentService/Patch"
-	AttachmentService_Apply_FullMethodName  = "/rove.AttachmentService/Apply"
-	AttachmentService_Erase_FullMethodName  = "/rove.AttachmentService/Erase"
-	AttachmentService_List_FullMethodName   = "/rove.AttachmentService/List"
-	AttachmentService_Watch_FullMethodName  = "/rove.AttachmentService/Watch"
-	AttachmentService_Upload_FullMethodName = "/rove.AttachmentService/Upload"
-	AttachmentService_Url_FullMethodName    = "/rove.AttachmentService/Url"
+	AttachmentService_Add_FullMethodName    = "/loft.AttachmentService/Add"
+	AttachmentService_Get_FullMethodName    = "/loft.AttachmentService/Get"
+	AttachmentService_Patch_FullMethodName  = "/loft.AttachmentService/Patch"
+	AttachmentService_Apply_FullMethodName  = "/loft.AttachmentService/Apply"
+	AttachmentService_Erase_FullMethodName  = "/loft.AttachmentService/Erase"
+	AttachmentService_List_FullMethodName   = "/loft.AttachmentService/List"
+	AttachmentService_Watch_FullMethodName  = "/loft.AttachmentService/Watch"
+	AttachmentService_Upload_FullMethodName = "/loft.AttachmentService/Upload"
+	AttachmentService_Url_FullMethodName    = "/loft.AttachmentService/Url"
 )
 
 // AttachmentServiceClient is the client API for AttachmentService service.
@@ -2652,7 +2652,7 @@ func _AttachmentService_Url_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AttachmentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.AttachmentService",
+	ServiceName: "loft.AttachmentService",
 	HandlerType: (*AttachmentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -2695,5 +2695,5 @@ var AttachmentService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/asset_svc.g.proto",
+	Metadata: "loft/asset_svc.g.proto",
 }

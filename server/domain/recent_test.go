@@ -11,8 +11,8 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/audit"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/audit"
 )
 
 // The workspace's feed and its trail, newest first and a page at a time: each

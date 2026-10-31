@@ -1,0 +1,1178 @@
+{
+  "kinds": {
+    "access.review": "loft.AccessReviewed",
+    "account.depart": "loft.AccountDeparted",
+    "asset.add": "loft.AssetAdded",
+    "asset.add_many": "loft.AssetsAdded",
+    "asset.assign": "loft.AssetAssigned",
+    "asset.correct": "loft.AssetCorrected",
+    "asset.move": "loft.AssetMoved",
+    "asset.relate": "loft.AssetRelated",
+    "asset.set": "loft.AssetAttributesSet",
+    "asset.void": "loft.AssetVoided",
+    "attachment.add": "loft.AttachmentAdded",
+    "bookable.add": "loft.BookableSaved",
+    "bookable.update": "loft.BookableSaved",
+    "count.close": "loft.CountDelimited",
+    "count.reconcile": "loft.CountReconciled",
+    "count.resolve": "loft.CountResolved",
+    "count.scan": "loft.CountScanned",
+    "count.start": "loft.CountDelimited",
+    "custody.acknowledge": "loft.CustodyAcknowledged",
+    "custody.extend": "loft.CustodyExtended",
+    "custody.issue": "loft.CustodyIssued",
+    "custody.overdue": "loft.CustodyOverdue",
+    "custody.return": "loft.CustodyReturned",
+    "domain.activate": "loft.TenantDomainActivated",
+    "domain.add": "loft.TenantDomainAdded",
+    "domain.lapse": "loft.TenantDomainLapsed",
+    "domain.retire": "loft.TenantDomainRetired",
+    "domain.verify": "loft.TenantDomainVerified",
+    "event.redact": "loft.EventRedacted",
+    "invitation.accept": "loft.InvitationAccepted",
+    "invitation.add": "loft.InvitationAdded",
+    "invitation.claim": "loft.InvitationChanged",
+    "invitation.deny": "loft.InvitationChanged",
+    "invitation.revoke": "loft.InvitationChanged",
+    "label.bind": "loft.LabelBound",
+    "label.print": "loft.LabelsPrinted",
+    "label.unbind": "loft.LabelUnbound",
+    "model.add": "loft.ItemModelSaved",
+    "model.update": "loft.ItemModelSaved",
+    "party.add": "loft.PartySaved",
+    "party.deactivate": "loft.PartyDeactivated",
+    "party.invite": "loft.PartyInvited",
+    "party.password": "loft.PartyPasswordSet",
+    "party.pseudonymize": "loft.PartyPseudonymized",
+    "party.role": "loft.PartyRoleSet",
+    "party.update": "loft.PartySaved",
+    "purchase.add": "loft.PurchaseAdded",
+    "purchase.receive": "loft.PurchaseReceived",
+    "reservation.add": "loft.ReservationAdded",
+    "reservation.approve": "loft.ReservationDecided",
+    "reservation.cancel": "loft.ReservationDecided",
+    "reservation.checkin": "loft.ReservationDecided",
+    "reservation.complete": "loft.ReservationDecided",
+    "reservation.confirm": "loft.ReservationConfirmed",
+    "reservation.expire": "loft.ReservationReleased",
+    "reservation.let_go": "loft.ReservationAllocationChanged",
+    "reservation.no_show": "loft.ReservationReleased",
+    "reservation.reject": "loft.ReservationDecided",
+    "reservation.resolve": "loft.ReservationAllocationChanged",
+    "reservation.take": "loft.ReservationAllocationChanged",
+    "reservation.wait": "loft.ReservationAllocationChanged",
+    "retention.expired": "loft.RetentionExpired",
+    "stock.add": "loft.StockAdded",
+    "stock.adjust": "loft.StockChanged",
+    "stock.consume": "loft.StockChanged",
+    "stock.convert": "loft.StockConverted",
+    "stock.receive": "loft.StockChanged",
+    "stock.transfer": "loft.StockTransferred",
+    "type.add": "loft.AssetTypeSaved",
+    "type.update": "loft.AssetTypeSaved",
+    "work.cancelled": "loft.WorkOrderFinished",
+    "work.done": "loft.WorkOrderFinished",
+    "work.open": "loft.WorkOrderSaved",
+    "work.update": "loft.WorkOrderSaved",
+    "workspace.close": "loft.WorkspaceClosed",
+    "workspace.configure": "loft.WorkspaceConfigured",
+    "workspace.import": "loft.WorkspaceImported",
+    "workspace.restore": "loft.WorkspaceRestored"
+  },
+  "messages": {
+    "loft.AccessReviewed": {
+      "1": {
+        "json": "review",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "from",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "3": {
+        "json": "to",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "4": {
+        "json": "calls",
+        "kind": "uint32"
+      },
+      "5": {
+        "json": "downloads",
+        "kind": "uint32"
+      },
+      "6": {
+        "json": "refused",
+        "kind": "uint32"
+      }
+    },
+    "loft.AccountDeparted": {
+      "1": {
+        "json": "held",
+        "kind": "uint32"
+      },
+      "2": {
+        "json": "ownerless",
+        "kind": "bool"
+      }
+    },
+    "loft.AssetAdded": {
+      "1": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "tag",
+        "kind": "string"
+      },
+      "5": {
+        "json": "name",
+        "kind": "string"
+      },
+      "6": {
+        "json": "kind",
+        "kind": "string"
+      }
+    },
+    "loft.AssetAssigned": {
+      "1": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "tag",
+        "kind": "string"
+      },
+      "3": {
+        "json": "role",
+        "kind": "string"
+      },
+      "4": {
+        "json": "party",
+        "kind": "bytes"
+      }
+    },
+    "loft.AssetAttributesSet": {
+      "1": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "tag",
+        "kind": "string"
+      },
+      "12": {
+        "json": "set",
+        "kind": "string",
+        "list": true
+      },
+      "13": {
+        "json": "cleared",
+        "kind": "string",
+        "list": true
+      }
+    },
+    "loft.AssetCorrected": {
+      "1": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "tag",
+        "kind": "string"
+      },
+      "3": {
+        "json": "role",
+        "kind": "string"
+      },
+      "8": {
+        "json": "row",
+        "kind": "bytes"
+      },
+      "9": {
+        "json": "key",
+        "kind": "string"
+      },
+      "10": {
+        "json": "retract",
+        "kind": "bool"
+      },
+      "11": {
+        "json": "validFrom",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      }
+    },
+    "loft.AssetMoved": {
+      "1": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "tag",
+        "kind": "string"
+      },
+      "14": {
+        "json": "to",
+        "kind": "bytes"
+      },
+      "15": {
+        "json": "toTag",
+        "kind": "string"
+      },
+      "16": {
+        "json": "mode",
+        "kind": "string"
+      },
+      "17": {
+        "json": "slot",
+        "kind": "string"
+      },
+      "18": {
+        "json": "uFrom",
+        "kind": "int32"
+      },
+      "19": {
+        "json": "uTo",
+        "kind": "int32"
+      }
+    },
+    "loft.AssetRelated": {
+      "1": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "tag",
+        "kind": "string"
+      },
+      "20": {
+        "json": "target",
+        "kind": "bytes"
+      },
+      "21": {
+        "json": "targetTag",
+        "kind": "string"
+      },
+      "22": {
+        "json": "relation",
+        "kind": "string"
+      },
+      "23": {
+        "json": "end",
+        "kind": "bool"
+      },
+      "24": {
+        "json": "required",
+        "kind": "bool"
+      }
+    },
+    "loft.AssetTypeSaved": {
+      "1": {
+        "json": "type",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "3": {
+        "json": "kind",
+        "kind": "string"
+      }
+    },
+    "loft.AssetVoided": {
+      "1": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "tag",
+        "kind": "string"
+      }
+    },
+    "loft.AssetsAdded": {
+      "7": {
+        "json": "count",
+        "kind": "uint32"
+      }
+    },
+    "loft.AttachmentAdded": {
+      "1": {
+        "json": "attachment",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "subject",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "name",
+        "kind": "string"
+      },
+      "4": {
+        "json": "contentType",
+        "kind": "string"
+      },
+      "5": {
+        "json": "size",
+        "kind": "uint64"
+      }
+    },
+    "loft.BookableSaved": {
+      "1": {
+        "json": "bookable",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "tag",
+        "kind": "string"
+      }
+    },
+    "loft.CountDelimited": {
+      "1": {
+        "json": "count",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "3": {
+        "json": "scope",
+        "kind": "bytes"
+      }
+    },
+    "loft.CountReconciled": {
+      "1": {
+        "json": "count",
+        "kind": "bytes"
+      },
+      "4": {
+        "json": "missing",
+        "kind": "uint32"
+      }
+    },
+    "loft.CountResolved": {
+      "1": {
+        "json": "count",
+        "kind": "bytes"
+      },
+      "5": {
+        "json": "finding",
+        "kind": "bytes"
+      },
+      "6": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "7": {
+        "json": "resolution",
+        "kind": "string"
+      }
+    },
+    "loft.CountScanned": {
+      "1": {
+        "json": "count",
+        "kind": "bytes"
+      },
+      "6": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "8": {
+        "json": "label",
+        "kind": "bytes"
+      },
+      "9": {
+        "json": "space",
+        "kind": "bytes"
+      },
+      "10": {
+        "json": "code",
+        "kind": "string"
+      }
+    },
+    "loft.CustodyAcknowledged": {
+      "1": {
+        "json": "custody",
+        "kind": "bytes"
+      }
+    },
+    "loft.CustodyExtended": {
+      "1": {
+        "json": "custody",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "due",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      }
+    },
+    "loft.CustodyIssued": {
+      "1": {
+        "json": "custody",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "due",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "4": {
+        "json": "kind",
+        "kind": "string"
+      },
+      "5": {
+        "json": "lines",
+        "kind": "uint32"
+      },
+      "6": {
+        "json": "reservation",
+        "kind": "bytes"
+      },
+      "7": {
+        "json": "asset",
+        "kind": "bytes"
+      }
+    },
+    "loft.CustodyOverdue": {
+      "1": {
+        "json": "custody",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "due",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "7": {
+        "json": "asset",
+        "kind": "bytes"
+      }
+    },
+    "loft.CustodyReturned": {
+      "1": {
+        "json": "custody",
+        "kind": "bytes"
+      },
+      "7": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "8": {
+        "json": "to",
+        "kind": "bytes"
+      }
+    },
+    "loft.EventRedacted": {
+      "1": {
+        "json": "event",
+        "kind": "bytes"
+      }
+    },
+    "loft.InvitationAccepted": {
+      "1": {
+        "json": "invitation",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "role",
+        "kind": "string"
+      },
+      "4": {
+        "json": "holder",
+        "kind": "bytes"
+      }
+    },
+    "loft.InvitationAdded": {
+      "1": {
+        "json": "invitation",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "role",
+        "kind": "string"
+      },
+      "3": {
+        "json": "party",
+        "kind": "bytes"
+      }
+    },
+    "loft.InvitationChanged": {
+      "1": {
+        "json": "invitation",
+        "kind": "bytes"
+      }
+    },
+    "loft.ItemModelSaved": {
+      "1": {
+        "json": "model",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "3": {
+        "json": "maker",
+        "kind": "string"
+      }
+    },
+    "loft.LabelBound": {
+      "1": {
+        "json": "label",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "tag",
+        "kind": "string"
+      }
+    },
+    "loft.LabelUnbound": {
+      "1": {
+        "json": "label",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "4": {
+        "json": "void",
+        "kind": "bool"
+      }
+    },
+    "loft.LabelsPrinted": {
+      "5": {
+        "json": "batch",
+        "kind": "string"
+      },
+      "6": {
+        "json": "count",
+        "kind": "uint32"
+      },
+      "7": {
+        "json": "assets",
+        "kind": "bytes",
+        "list": true
+      }
+    },
+    "loft.PartyDeactivated": {
+      "1": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "holder",
+        "kind": "bytes"
+      }
+    },
+    "loft.PartyInvited": {
+      "1": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "holder",
+        "kind": "bytes"
+      },
+      "4": {
+        "json": "role",
+        "kind": "string"
+      }
+    },
+    "loft.PartyPasswordSet": {
+      "1": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "holder",
+        "kind": "bytes"
+      },
+      "5": {
+        "json": "own",
+        "kind": "bool"
+      }
+    },
+    "loft.PartyPseudonymized": {
+      "7": {
+        "json": "held",
+        "kind": "uint32"
+      }
+    },
+    "loft.PartyRoleSet": {
+      "1": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "holder",
+        "kind": "bytes"
+      },
+      "4": {
+        "json": "role",
+        "kind": "string"
+      },
+      "6": {
+        "json": "by",
+        "kind": "string"
+      }
+    },
+    "loft.PartySaved": {
+      "1": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "kind",
+        "kind": "string"
+      }
+    },
+    "loft.PurchaseAdded": {
+      "1": {
+        "json": "purchase",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "3": {
+        "json": "total",
+        "kind": "int64"
+      },
+      "4": {
+        "json": "currency",
+        "kind": "string"
+      },
+      "5": {
+        "json": "lines",
+        "kind": "uint32"
+      },
+      "6": {
+        "json": "vendor",
+        "kind": "bytes"
+      }
+    },
+    "loft.PurchaseReceived": {
+      "1": {
+        "json": "purchase",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "7": {
+        "json": "into",
+        "kind": "bytes"
+      }
+    },
+    "loft.ReservationAdded": {
+      "1": {
+        "json": "reservation",
+        "kind": "bytes"
+      },
+      "4": {
+        "json": "status",
+        "kind": "string"
+      },
+      "5": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "6": {
+        "json": "occurrences",
+        "kind": "uint32"
+      },
+      "7": {
+        "json": "beginsAt",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "8": {
+        "json": "endsAt",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "9": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "10": {
+        "json": "assetName",
+        "kind": "string"
+      },
+      "11": {
+        "json": "override",
+        "kind": "bool"
+      }
+    },
+    "loft.ReservationAllocationChanged": {
+      "1": {
+        "json": "reservation",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "7": {
+        "json": "beginsAt",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "9": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "10": {
+        "json": "assetName",
+        "kind": "string"
+      },
+      "11": {
+        "json": "override",
+        "kind": "bool"
+      },
+      "14": {
+        "json": "units",
+        "kind": "uint32"
+      }
+    },
+    "loft.ReservationConfirmed": {
+      "1": {
+        "json": "reservation",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "4": {
+        "json": "status",
+        "kind": "string"
+      }
+    },
+    "loft.ReservationDecided": {
+      "1": {
+        "json": "reservation",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "3": {
+        "json": "series",
+        "kind": "bool"
+      },
+      "12": {
+        "json": "ended",
+        "kind": "bool"
+      }
+    },
+    "loft.ReservationReleased": {
+      "1": {
+        "json": "reservation",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "13": {
+        "json": "from",
+        "kind": "string"
+      }
+    },
+    "loft.RetentionExpired": {
+      "1": {
+        "json": "before",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "2": {
+        "json": "placements",
+        "kind": "uint32"
+      },
+      "3": {
+        "json": "links",
+        "kind": "uint32"
+      },
+      "4": {
+        "json": "stewardships",
+        "kind": "uint32"
+      },
+      "5": {
+        "json": "facts",
+        "kind": "uint32"
+      },
+      "6": {
+        "json": "events",
+        "kind": "uint32"
+      },
+      "7": {
+        "json": "reservations",
+        "kind": "uint32"
+      },
+      "8": {
+        "json": "custodies",
+        "kind": "uint32"
+      },
+      "9": {
+        "json": "counts",
+        "kind": "uint32"
+      },
+      "10": {
+        "json": "workOrders",
+        "kind": "uint32"
+      },
+      "11": {
+        "json": "stockMovements",
+        "kind": "uint32"
+      },
+      "12": {
+        "json": "attachments",
+        "kind": "uint32"
+      }
+    },
+    "loft.StockAdded": {
+      "1": {
+        "json": "stock",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "4": {
+        "json": "quantity",
+        "kind": "int64"
+      },
+      "5": {
+        "json": "model",
+        "kind": "bytes"
+      },
+      "6": {
+        "json": "space",
+        "kind": "bytes"
+      },
+      "7": {
+        "json": "spaceName",
+        "kind": "string"
+      }
+    },
+    "loft.StockChanged": {
+      "1": {
+        "json": "stock",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "3": {
+        "json": "delta",
+        "kind": "int64"
+      }
+    },
+    "loft.StockConverted": {
+      "1": {
+        "json": "stock",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "4": {
+        "json": "quantity",
+        "kind": "int64"
+      }
+    },
+    "loft.StockTransferred": {
+      "1": {
+        "json": "stock",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "4": {
+        "json": "quantity",
+        "kind": "int64"
+      },
+      "8": {
+        "json": "toSpace",
+        "kind": "bytes"
+      },
+      "9": {
+        "json": "toSpaceName",
+        "kind": "string"
+      }
+    },
+    "loft.TenantDomainActivated": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      }
+    },
+    "loft.TenantDomainAdded": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      },
+      "4": {
+        "json": "source",
+        "kind": "string"
+      }
+    },
+    "loft.TenantDomainLapsed": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      },
+      "5": {
+        "json": "failingSince",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "6": {
+        "json": "failures",
+        "kind": "uint32"
+      }
+    },
+    "loft.TenantDomainRetired": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      },
+      "7": {
+        "json": "force",
+        "kind": "bool"
+      },
+      "8": {
+        "json": "labels",
+        "kind": "uint32"
+      }
+    },
+    "loft.TenantDomainVerified": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      },
+      "9": {
+        "json": "again",
+        "kind": "bool"
+      }
+    },
+    "loft.WorkOrderFinished": {
+      "1": {
+        "json": "workOrder",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "name",
+        "kind": "string"
+      },
+      "7": {
+        "json": "cost",
+        "kind": "int64"
+      },
+      "8": {
+        "json": "currency",
+        "kind": "string"
+      }
+    },
+    "loft.WorkOrderSaved": {
+      "1": {
+        "json": "workOrder",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "name",
+        "kind": "string"
+      },
+      "4": {
+        "json": "tag",
+        "kind": "string"
+      },
+      "5": {
+        "json": "kind",
+        "kind": "string"
+      },
+      "6": {
+        "json": "status",
+        "kind": "string"
+      }
+    },
+    "loft.WorkspaceClosed": {
+      "1": {
+        "json": "by",
+        "kind": "string"
+      },
+      "2": {
+        "json": "destroy",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      }
+    },
+    "loft.WorkspaceConfigured": {
+      "3": {
+        "json": "timezone",
+        "kind": "string"
+      },
+      "4": {
+        "json": "currency",
+        "kind": "string"
+      },
+      "5": {
+        "json": "noShowMinutes",
+        "kind": "int32"
+      },
+      "6": {
+        "json": "keepDays",
+        "kind": "uint32"
+      },
+      "7": {
+        "json": "keepFrom",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "8": {
+        "json": "accessKeepDays",
+        "kind": "uint32"
+      },
+      "9": {
+        "json": "accessKeepFrom",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "10": {
+        "json": "restoreDays",
+        "kind": "uint32"
+      },
+      "21": {
+        "json": "name",
+        "kind": "string"
+      }
+    },
+    "loft.WorkspaceImported": {
+      "11": {
+        "json": "exportedAt",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "12": {
+        "json": "manifest",
+        "kind": "string"
+      },
+      "13": {
+        "json": "signedBy",
+        "kind": "string"
+      },
+      "14": {
+        "json": "rows",
+        "kind": "uint32"
+      },
+      "15": {
+        "json": "files",
+        "kind": "uint32"
+      },
+      "16": {
+        "json": "asked",
+        "kind": "string"
+      },
+      "17": {
+        "json": "released",
+        "kind": "string",
+        "list": true
+      },
+      "18": {
+        "json": "unlinked",
+        "kind": "uint32"
+      },
+      "19": {
+        "json": "reopened",
+        "kind": "bool"
+      },
+      "20": {
+        "json": "left",
+        "kind": "uint32",
+        "map": "string"
+      }
+    },
+    "loft.WorkspaceRestored": {
+      "1": {
+        "json": "by",
+        "kind": "string"
+      }
+    }
+  }
+}

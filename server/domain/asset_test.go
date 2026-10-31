@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 const day = 24 * time.Hour
@@ -250,7 +250,7 @@ func TestARegistrationSentAgainIsTheSameAsset(t *testing.T) {
 
 // TestTheWallHoldsUnderTheDomainLayer: on PostgreSQL, SQL that goes around the
 // domain layer and the gate -- a script, a hand-run fix -- still cannot make a
-// row of one tenant name a row of another (`rove_same_tenant`, design 6, D11).
+// row of one tenant name a row of another (`loft_same_tenant`, design 6, D11).
 // It is refused as a foreign key is, with 23503, written or changed.
 func TestTheWallHoldsUnderTheDomainLayer(t *testing.T) {
 	e := newEnv(t)
@@ -429,7 +429,7 @@ func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
 // is said to whoever watches it by its content version -- once a transaction,
 // however much of it changed. Three things made into a room at once move the
 // room's version by one, where they moved it by three, each a write of its own
-// through every layer (rove#103); the next change moves it again.
+// through every layer (loft#103); the next change moves it again.
 func TestAContainerIsToldOnceATransaction(t *testing.T) {
 	e := newEnv(t)
 	x := e.x

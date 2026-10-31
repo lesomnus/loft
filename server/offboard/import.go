@@ -24,13 +24,13 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	"github.com/lesomnus/rove/internal/ent/attachment"
-	"github.com/lesomnus/rove/internal/ent/migrate"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	"github.com/lesomnus/loft/internal/ent/attachment"
+	"github.com/lesomnus/loft/internal/ent/migrate"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // ImportOptions is what an operator says of a restore beyond the export.
@@ -40,7 +40,7 @@ type ImportOptions struct {
 	Alias string
 
 	// Reuse takes the address though another workspace's hold is on it, as
-	// `rove tenant alias --reuse` does. A hold put on it when this workspace
+	// `loft tenant alias --reuse` does. A hold put on it when this workspace
 	// left is taken back without being asked: it was held for this one.
 	Reuse bool
 
@@ -90,7 +90,7 @@ type Restored struct {
 	// Unlinked is the members, by alias, whose accounts this deployment's
 	// roster does not have: an export from another deployment, or from this
 	// one after its roster forgot them. They are restored naming no account,
-	// which is what `rove identity migrate` gives one to.
+	// which is what `loft identity migrate` gives one to.
 	Unlinked []string
 
 	// Manifest and Key are the export's [Fingerprints], which the restore's
@@ -444,7 +444,7 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 
 // restore writes back every row of one table the export has, as it was.
 // Imported is the act a restore is on the trail as.
-const Imported = "rove.workspace.import"
+const Imported = "loft.workspace.import"
 
 func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, out *Restored, restored *[]pdid.Id) (int, error) {
 	f, err := z.Open("rows/" + p.table + ".jsonl")
@@ -512,7 +512,7 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 var adjusts = map[string]func(ctx context.Context, d Deployment, v protoreflect.Message, out *Restored) error{
 	// A member whose account is not this roster's names none: an account by
 	// an identifier this directory does not have is nobody here, and the
-	// member is somebody to give one to (`rove identity migrate`).
+	// member is somebody to give one to (`loft identity migrate`).
 	"holder": func(ctx context.Context, d Deployment, v protoreflect.Message, out *Restored) error {
 		h := v.Interface().(*app.Holder)
 		if len(h.GetAccount()) == 0 || d.Known == nil {
@@ -596,7 +596,7 @@ func planOf(table string) (*plan, error) {
 	var mt protoreflect.MessageType
 	protoregistry.GlobalTypes.RangeMessages(func(v protoreflect.MessageType) bool {
 		d := v.Descriptor()
-		if d.ParentFile().Package() == "rove" && d.Parent() == d.ParentFile() && strings.ToLower(string(d.Name())) == table {
+		if d.ParentFile().Package() == "loft" && d.Parent() == d.ParentFile() && strings.ToLower(string(d.Name())) == table {
 			mt = v
 			return false
 		}

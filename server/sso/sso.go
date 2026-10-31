@@ -48,9 +48,9 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"golang.org/x/oauth2"
 
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/landing"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/landing"
 )
 
 // Config is the issuer this deployment signs people in through.
@@ -98,7 +98,7 @@ type Ways struct {
 	Password bool `json:"password"`
 	// Handoff says that this is a workspace's own domain, where nobody signs
 	// in: the page sends the browser to the service's address to be signed
-	// in, and back (`server/session`'s handoff, rove#155).
+	// in, and back (`server/session`'s handoff, loft#155).
 	Handoff bool `json:"handoff,omitempty"`
 }
 
@@ -114,7 +114,7 @@ type Arrive func(ctx context.Context, p identity.Person) error
 // The cookie that binds a browser to the round trip it started, and the one
 // thing a session keeps from it.
 const (
-	stateCookie = "rove_sso"
+	stateCookie = "loft_sso"
 	hint        = "id_token"
 )
 

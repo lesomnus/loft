@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 # Every job names its image rather than `ubuntu-latest`, so that the runner
-# moves when this file says so and not on GitHub's schedule (rove#57).
+# moves when this file says so and not on GitHub's schedule (loft#57).
 #
 # And every action is named by the commit its version had when it was written
 # here, with that version after it: a tag is moved by whoever can push to the
@@ -30,7 +30,7 @@ jobs:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
           # go.sum alone, so whichever job finished first -- `vuln` -- saved
-          # it, and every job built rove from cold on what govulncheck left.
+          # it, and every job built loft from cold on what govulncheck left.
           cache: false
       # What the `go` job compiled last time: every package and every test,
       # which is what the other jobs build a part of.
@@ -84,13 +84,13 @@ jobs:
       - name: PostgreSQL
         run: |
           docker run -d --name postgres -p 5432:5432 \
-            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
+            -e POSTGRES_USER=loft -e POSTGRES_PASSWORD=loft -e POSTGRES_DB=loft postgres:18
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
           # go.sum alone, so whichever job finished first -- `vuln` -- saved
-          # it, and every job built rove from cold on what govulncheck left.
+          # it, and every job built loft from cold on what govulncheck left.
           cache: false
       # A cache of its own, beside the `go` job's: what it keeps of a run is
       # the tests' results on PostgreSQL, so that a package nothing changed in
@@ -109,11 +109,11 @@ jobs:
             go-${{ runner.os }}-
       - name: PostgreSQL is up
         run: |
-          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U loft && exit 0; sleep 1; done
           docker logs postgres; exit 1
       - name: test on PostgreSQL
         env:
-          PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
+          PDTEST_POSTGRES: postgres://loft:loft@localhost:5432/loft?sslmode=disable
         run: go test ./...
       - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
@@ -133,7 +133,7 @@ jobs:
   # And from the oldest build a deployment still runs, beside it: a migration
   # from the build just before is one step, and a deployment that skipped some
   # takes several at once -- on SQLite a table the schema changes is made
-  # again, and a step's own data, read after that, is not there (rove#163's
+  # again, and a step's own data, read after that, is not there (loft#163's
   # contract terms, found going from staging's build). It costs a second old
   # build, from its own modules, a minute or two of this job. Moved forward
   # when no deployment runs it any more.
@@ -143,11 +143,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      # Started first, so that it is up by the time rove is built.
+      # Started first, so that it is up by the time loft is built.
       - name: PostgreSQL
         run: |
           docker run -d --name postgres -p 5432:5432 \
-            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
+            -e POSTGRES_USER=loft -e POSTGRES_PASSWORD=loft -e POSTGRES_DB=loft postgres:18
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
@@ -165,35 +165,35 @@ jobs:
       - name: this build, the one it comes after, and the oldest a deployment runs
         env:
           BEFORE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          # Staging's (rove#99), 533795a.
+          # Staging's (loft#99), 533795a.
           OLDEST: 533795a1d94d46e851c8b060c1697ba7db6e5d20
         run: |
-          go build -o "${RUNNER_TEMP}/rove-now" ./cmd/rove
+          go build -o "${RUNNER_TEMP}/loft-now" ./cmd/loft
           git worktree add --detach "${RUNNER_TEMP}/before" "${BEFORE}"
-          (cd "${RUNNER_TEMP}/before" && go build -o "${RUNNER_TEMP}/rove-before" ./cmd/rove)
+          (cd "${RUNNER_TEMP}/before" && go build -o "${RUNNER_TEMP}/loft-before" ./cmd/loft)
           git worktree add --detach "${RUNNER_TEMP}/oldest" "${OLDEST}"
-          (cd "${RUNNER_TEMP}/oldest" && go build -o "${RUNNER_TEMP}/rove-oldest" ./cmd/rove)
+          (cd "${RUNNER_TEMP}/oldest" && go build -o "${RUNNER_TEMP}/loft-oldest" ./cmd/loft)
       - name: PostgreSQL is up
         run: |
-          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U loft && exit 0; sleep 1; done
           docker logs postgres; exit 1
       - name: what the build before made, migrated by this one
         env:
-          UPGRADE_POSTGRES: postgres://rove:rove@localhost:5432
+          UPGRADE_POSTGRES: postgres://loft:loft@localhost:5432
         run: |
-          docker exec postgres psql -U rove -qc 'create database upgrade_rove' -c 'create database upgrade_roster'
-          scripts/upgrade.sh "${RUNNER_TEMP}/rove-before" "${RUNNER_TEMP}/rove-now"
+          docker exec postgres psql -U loft -qc 'create database upgrade_loft' -c 'create database upgrade_roster'
+          scripts/upgrade.sh "${RUNNER_TEMP}/loft-before" "${RUNNER_TEMP}/loft-now"
       - name: what the oldest build a deployment runs made, migrated by this one
         env:
-          UPGRADE_POSTGRES: postgres://rove:rove@localhost:5432
+          UPGRADE_POSTGRES: postgres://loft:loft@localhost:5432
         run: |
-          docker exec postgres psql -U rove -qc 'drop database upgrade_rove' -c 'drop database upgrade_roster' \
-            -c 'create database upgrade_rove' -c 'create database upgrade_roster'
-          scripts/upgrade.sh "${RUNNER_TEMP}/rove-oldest" "${RUNNER_TEMP}/rove-now"
+          docker exec postgres psql -U loft -qc 'drop database upgrade_loft' -c 'drop database upgrade_roster' \
+            -c 'create database upgrade_loft' -c 'create database upgrade_roster'
+          scripts/upgrade.sh "${RUNNER_TEMP}/loft-oldest" "${RUNNER_TEMP}/loft-now"
 
   # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
   # deployment runs, with its security plugin on -- TLS on the demo
-  # certificates -- and Rove signed in with the role README says it needs,
+  # certificates -- and Loft signed in with the role README says it needs,
   # which is how a permission it lacks shows up here rather than at an
   # operator's. The tests are the ones that ask for a cluster
   # (internal/opensearchtest); without one they skip.
@@ -209,7 +209,7 @@ jobs:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
           # go.sum alone, so whichever job finished first -- `vuln` -- saved
-          # it, and every job built rove from cold on what govulncheck left.
+          # it, and every job built loft from cold on what govulncheck left.
           cache: false
       # What the `go` job compiled last time: every package and every test,
       # which is what the other jobs build a part of.
@@ -223,10 +223,10 @@ jobs:
             go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
             go-${{ runner.os }}-
       - name: OpenSearch is up
-        run: scripts/opensearch.sh ready 'rovetest-*' | grep '^PDTEST_' >> "${GITHUB_ENV}"
+        run: scripts/opensearch.sh ready 'lofttest-*' | grep '^PDTEST_' >> "${GITHUB_ENV}"
       - name: the tests that search
         run: |
-          pkgs="$(go list -f '{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}' ./... | awk '{ for (i = 2; i <= NF; i++) if ($i == "github.com/lesomnus/rove/internal/opensearchtest") { print $1; break } }')"
+          pkgs="$(go list -f '{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}' ./... | awk '{ for (i = 2; i <= NF; i++) if ($i == "github.com/lesomnus/loft/internal/opensearchtest") { print $1; break } }')"
           echo "${pkgs}"
           go test ${pkgs}
       - if: failure()
@@ -249,7 +249,7 @@ jobs:
       - run: npx vite build
 
   # The deployment bundle (Dockerfile, deploy/compose) as an operator brings
-  # it up: the image built, PostgreSQL, the migration, two `rove serve` behind
+  # it up: the image built, PostgreSQL, the migration, two `loft serve` behind
   # Caddy and the operator's entry point, search on OpenSearch and
   # workspaces' own domains as README turns them on -- and a workspace made,
   # signed in to and asked through the proxy, searched, listed at the entry
@@ -262,7 +262,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # The image's Go build cache, as the `cluster` job left it, so that
-      # compose's build compiles what changed and not all of rove.
+      # compose's build compiles what changed and not all of loft.
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/gocache
@@ -276,10 +276,10 @@ jobs:
       - name: what an operator fills in, made up
         run: |
           cp .env.example .env
-          sed -i -e "s/^ROVE_DOMAIN=.*/ROVE_DOMAIN=localhost/" \
+          sed -i -e "s/^LOFT_DOMAIN=.*/LOFT_DOMAIN=localhost/" \
             -e "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" \
-            -e "s/^ROVE_SIGNING_KEY=.*/ROVE_SIGNING_KEY=$(openssl rand -hex 32)/" \
-            -e "s/^ROVE_VERSION=.*/ROVE_VERSION=ci/" .env
+            -e "s/^LOFT_SIGNING_KEY=.*/LOFT_SIGNING_KEY=$(openssl rand -hex 32)/" \
+            -e "s/^LOFT_VERSION=.*/LOFT_VERSION=ci/" .env
           mkdir -m 700 secrets
           openssl genpkey -algorithm ed25519 -out secrets/checkpoints.pem
           openssl rand -base64 32 > secrets/digest.key
@@ -290,7 +290,7 @@ jobs:
           # own CA, since nothing here is reached for Let's Encrypt to ask.
           ./search-init.sh
           echo 'COMPOSE_FILE=compose.yaml:compose.search.yaml:compose.domains.yaml' >> .env
-          sed -i -e "s/^ROVE_EDGE_OPTIONS=.*/ROVE_EDGE_OPTIONS=local_certs/" .env
+          sed -i -e "s/^LOFT_EDGE_OPTIONS=.*/LOFT_EDGE_OPTIONS=local_certs/" .env
       - run: docker compose up -d --build
       - name: it answers through the proxy
         run: |
@@ -298,18 +298,18 @@ jobs:
           exit 1
       - name: a workspace, signed in to and asked
         run: |
-          docker compose run --rm rove --config /etc/rove/rove.yaml init \
+          docker compose run --rm loft --config /etc/loft/loft.yaml init \
             --tenant acme --name ACME --login owner --person Owner --email owner@example.com --password owner-pass-1234
           curl -skf -c jar -H 'content-type: application/json' \
             -d '{"login":"owner","password":"owner-pass-1234"}' https://localhost/session
           # Each to whichever replica Caddy picks: a session is the database's.
           for i in 1 2 3 4; do
             curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
-              -d '{}' https://localhost/rove.PartyService/Me > /dev/null
+              -d '{}' https://localhost/loft.PartyService/Me > /dev/null
           done
           curl -sf -H "authorization: Bearer $(cat secrets/admin_key)" \
             http://127.0.0.1:8081/admin/workspaces | grep -q '"alias":"acme"'
-          docker run --rm rove:ci version
+          docker run --rm loft:ci version
       - name: the trail's newest checkpoint, as its witness heard it
         run: |
           # Every start runs a pass, which ends in a checkpoint the witnesses
@@ -318,8 +318,8 @@ jobs:
           # directory. A witness that cannot hear stops nothing, so this is
           # where it would be seen.
           for i in $(seq 1 30); do
-            if out="$(docker compose run --rm rove --config /etc/rove/rove.yaml trail verify 2>&1)"; then
-              case "${out}" in *"heard by store:/var/lib/rove/witness: checkpoint "*) exit 0 ;; esac
+            if out="$(docker compose run --rm loft --config /etc/loft/loft.yaml trail verify 2>&1)"; then
+              case "${out}" in *"heard by store:/var/lib/loft/witness: checkpoint "*) exit 0 ;; esac
             fi
             sleep 2
           done
@@ -329,7 +329,7 @@ jobs:
         run: |
           rpc() {
             curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
-              -d "$2" "https://localhost/rove.AssetService/$1"
+              -d "$2" "https://localhost/loft.AssetService/$1"
           }
           rpc Add '{"name":"고성능GPU서버","kind":"item","tag":"SV-1"}' > /dev/null
           # A word with a particle on it, which the database's LIKE never
@@ -340,15 +340,15 @@ jobs:
             sleep 1
           done
           echo "${out}"
-          docker compose logs rove | grep search
+          docker compose logs loft | grep search
           exit 1
       - name: a workspace's own domain, on a certificate taken on demand
         run: |
           # Added as its settings page adds it, and verified as its DNS would
           # be: the runner serves no DNS of its own.
           curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
-            -d '{"host":"assets.acme.test"}' https://localhost/rove.TenantDomainService/Add > /dev/null
-          docker compose exec -T postgres psql -U rove -d rove -qc \
+            -d '{"host":"assets.acme.test"}' https://localhost/loft.TenantDomainService/Add > /dev/null
+          docker compose exec -T postgres psql -U loft -d loft -qc \
             "UPDATE tenantdomain SET state = 'active', verified_at = now() WHERE host = 'assets.acme.test'"
           # Served, on a certificate Caddy took once the entry point said
           # yes; and none for a host nobody verified.
@@ -365,7 +365,7 @@ jobs:
       - if: failure()
         run: docker compose ps -a && docker compose logs
 
-  # What the Go vulnerability database says of the code this calls (rove#40):
+  # What the Go vulnerability database says of the code this calls (loft#40):
   # a known issue in a module, or in the standard library this is built with,
   # that a path from here reaches. Red the day one is published, which is when
   # it is worth knowing -- but for what `accepted` names, each with why.
@@ -378,7 +378,7 @@ jobs:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
           # go.sum alone, so whichever job finished first -- `vuln` -- saved
-          # it, and every job built rove from cold on what govulncheck left.
+          # it, and every job built loft from cold on what govulncheck left.
           cache: false
       # What the `go` job compiled last time: every package and every test,
       # which is what the other jobs build a part of.
@@ -410,7 +410,7 @@ jobs:
           fi
           echo "govulncheck: nothing called${accepted:+ but ${accepted}}"
 
-  # The reference deployment on Kubernetes (deploy/k8s, rove#39): k3d, the
+  # The reference deployment on Kubernetes (deploy/k8s, loft#39): k3d, the
   # image this checkout builds, through the rig's overlay -- admitted under
   # `restricted`, signed in to through the ingress, the operator's entry point
   # reached by port-forward and by nothing else, and a new build rolled out
@@ -430,7 +430,7 @@ jobs:
           chmod +x "${RUNNER_TEMP}/bin/k3d"
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
       # The image's Go build cache as the last run left it, so that building
-      # the image compiles what changed and not all of rove: without it, each
+      # the image compiles what changed and not all of loft: without it, each
       # build was 100 to 130 seconds of compiling (scripts/gocache.sh).
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -454,7 +454,7 @@ jobs:
           key: image-go-${{ hashFiles('go.sum') }}-${{ github.sha }}
 
   # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
-  # the built page, against a rove built here that Playwright starts with
+  # the built page, against a loft built here that Playwright starts with
   # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh) -- on SQLite, and
   # on the PostgreSQL a deployment runs, the `go` job's; and on SQLite
   # searching with OpenSearch (D31), beside the run that does not.
@@ -470,7 +470,7 @@ jobs:
     name: e2e (${{ matrix.db }}${{ matrix.search && format(', {0}', matrix.search) || '' }})
     runs-on: ubuntu-26.04
     # A run takes about three minutes: one or so until the tests start and
-    # two of tests, and up to two more when rove is built from cold. Ten is
+    # two of tests, and up to two more when loft is built from cold. Ten is
     # a run that is stuck, not a slow one.
     timeout-minutes: 10
     strategy:
@@ -492,7 +492,7 @@ jobs:
       # that its browser is the one that version drives and a bump of it in
       # ts/package.json moves the image too: nothing here names a version.
       # And of the Ubuntu the runner is, so that what is built here runs in it.
-      # Pulled in the background while the page and rove are built, as the
+      # Pulled in the background while the page and loft are built, as the
       # databases below come up.
       - name: Playwright's image
         working-directory: .
@@ -503,26 +503,26 @@ jobs:
           docker pull -q "${image}" > "${RUNNER_TEMP}/playwright-pull.log" 2>&1 &
       # Started first and left to come up in the background, as PostgreSQL
       # is below: the image builds and the node starts while the page and
-      # rove are built (scripts/opensearch.sh).
+      # loft are built (scripts/opensearch.sh).
       - name: OpenSearch with nori
         if: matrix.search == 'opensearch'
         working-directory: .
         run: scripts/opensearch.sh start
       # As the `go` job has it, and started first, so that it is up by the
-      # time the page and rove are built. The servers make their own
+      # time the page and loft are built. The servers make their own
       # databases on it, fresh (ts/e2e/serve.sh).
       - name: PostgreSQL
         if: matrix.db == 'postgres'
         working-directory: .
         run: |
           docker run -d --name postgres -p 5432:5432 \
-            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
+            -e POSTGRES_USER=loft -e POSTGRES_PASSWORD=loft -e POSTGRES_DB=loft postgres:18
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
           # go.sum alone, so whichever job finished first -- `vuln` -- saved
-          # it, and every job built rove from cold on what govulncheck left.
+          # it, and every job built loft from cold on what govulncheck left.
           cache: false
       # What the `go` job compiled last time: every package and every test,
       # which is what the other jobs build a part of.
@@ -544,10 +544,10 @@ jobs:
       - run: npx vite build
       # Once, for every server the tests stand up; and the issuer one of them
       # signs people in through (ts/e2e/issuer.sh).
-      - name: build rove
+      - name: build loft
         working-directory: .
         run: |
-          go build -o "$RUNNER_TEMP/rove" ./cmd/rove
+          go build -o "$RUNNER_TEMP/loft" ./cmd/loft
           go build -o "$RUNNER_TEMP/oidctest" ./internal/oidctest/cmd/oidctest
       # The pull the first step started: done by now, or joined here, or --
       # had it failed -- tried again, and its error said.
@@ -556,7 +556,7 @@ jobs:
       - name: PostgreSQL is up
         if: matrix.db == 'postgres'
         run: |
-          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U loft && exit 0; sleep 1; done
           docker logs postgres; exit 1
       - name: OpenSearch is up
         if: matrix.search == 'opensearch'
@@ -571,17 +571,17 @@ jobs:
       # running Chromium.
       - name: browser tests
         env:
-          E2E_ROVE: ${{ runner.temp }}/rove
+          E2E_LOFT: ${{ runner.temp }}/loft
           E2E_ISSUER: ${{ runner.temp }}/oidctest
-          E2E_POSTGRES: ${{ matrix.db == 'postgres' && 'postgres://rove:rove@127.0.0.1:5432/rove?sslmode=disable' || '' }}
+          E2E_POSTGRES: ${{ matrix.db == 'postgres' && 'postgres://loft:loft@127.0.0.1:5432/loft?sslmode=disable' || '' }}
         run: |
           docker run --rm --init --ipc=host --network=host \
             --user "$(id -u):$(id -g)" -e HOME=/tmp \
             -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -v "${RUNNER_TEMP}:${RUNNER_TEMP}" -w "${PWD}" \
-            -e CI -e E2E_ROVE -e E2E_ISSUER -e E2E_POSTGRES -e E2E_OPENSEARCH -e E2E_OPENSEARCH_CA \
+            -e CI -e E2E_LOFT -e E2E_ISSUER -e E2E_POSTGRES -e E2E_OPENSEARCH -e E2E_OPENSEARCH_CA \
             "${PLAYWRIGHT_IMAGE}" npx playwright test
       # What a failure leaves: the report, with each failed test's trace and
-      # screenshot, and each server's database and log (test-results/rove-*).
+      # screenshot, and each server's database and log (test-results/loft-*).
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
@@ -609,7 +609,7 @@ jobs:
     runs-on: ubuntu-26.04
     permissions:
       contents: read
-      packages: write # ghcr.io/lesomnus/rove
+      packages: write # ghcr.io/lesomnus/loft
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # The BuildKit that builds what is pushed, by its version and digest,
@@ -626,7 +626,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       # The source label is what links the package to this repository on
-      # GHCR, and the commit is the one `rove version` names beside `edge`.
+      # GHCR, and the commit is the one `loft version` names beside `edge`.
       #
       # `:edge` only moves forward. Merges made one after another run side
       # by side and finish in any order, and the last to push won: a run of
@@ -642,11 +642,11 @@ jobs:
         run: |
           # On that builder, and loaded into the runner's Docker, which pushes
           # it and reads its digest back as before.
-          docker buildx build --load -t ghcr.io/lesomnus/rove:edge \
+          docker buildx build --load -t ghcr.io/lesomnus/loft:edge \
             --build-arg VERSION=edge \
             --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
             --label org.opencontainers.image.revision=${{ github.sha }} .
-          held="$(docker buildx imagetools inspect ghcr.io/lesomnus/rove:edge \
+          held="$(docker buildx imagetools inspect ghcr.io/lesomnus/loft:edge \
             --format '{{ index .Image.Config.Labels "org.opencontainers.image.revision" }}' 2>/dev/null || true)"
           if [ -n "${held}" ] && [ "${held}" != "${GITHUB_SHA}" ]; then
             # Ahead, or diverged from a history rewritten, moves it; behind
@@ -657,6 +657,6 @@ jobs:
               exit 0
             fi
           fi
-          docker push ghcr.io/lesomnus/rove:edge
-          digest="$(docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/lesomnus/rove:edge)"
+          docker push ghcr.io/lesomnus/loft:edge
+          digest="$(docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/lesomnus/loft:edge)"
           echo "pushed \`${digest}\` (${{ github.sha }})" | tee -a "${GITHUB_STEP_SUMMARY}"

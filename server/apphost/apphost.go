@@ -1,4 +1,4 @@
-// Package apphost is the workspace a request's host serves alone (rove#155).
+// Package apphost is the workspace a request's host serves alone (loft#155).
 //
 // A workspace may have a domain of its own that its whole app is on: an
 // active `app` domain (design 9.9). A request that came to one is pinned to

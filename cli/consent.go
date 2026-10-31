@@ -10,7 +10,7 @@ import (
 	"github.com/lesomnus/xli/flg"
 )
 
-// NewCmdConsent is `rove consent`: what this deployment asks of the account
+// NewCmdConsent is `loft consent`: what this deployment asks of the account
 // before it is used -- its terms and its privacy policy, at the versions in
 // force -- and agreeing to them, having read them (design 9.11). Until it has
 // agreed, every call this terminal makes is refused, as every page is.
@@ -55,7 +55,7 @@ func NewCmdConsent() *xli.Command {
 				self.Printf("owed\t%s (%s)\t%s\t%s\n", d.Title, d.Name, d.Version, d.Url)
 			}
 			if !agree {
-				self.Printf("read them, then `rove consent --agree`\n")
+				self.Printf("read them, then `loft consent --agree`\n")
 				return next(ctx)
 			}
 			body := map[string]map[string]string{"agree": {}}

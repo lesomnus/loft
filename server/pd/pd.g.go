@@ -15,6 +15,56 @@ import (
 	json "encoding/json"
 	errors "errors"
 	fmt "fmt"
+	loft "github.com/lesomnus/loft"
+	ent "github.com/lesomnus/loft/internal/ent"
+	entAccess "github.com/lesomnus/loft/internal/ent/access"
+	entAccessReview "github.com/lesomnus/loft/internal/ent/accessreview"
+	entAliasHold "github.com/lesomnus/loft/internal/ent/aliashold"
+	entAllocation "github.com/lesomnus/loft/internal/ent/allocation"
+	entArchived "github.com/lesomnus/loft/internal/ent/archived"
+	entAsset "github.com/lesomnus/loft/internal/ent/asset"
+	entAssetType "github.com/lesomnus/loft/internal/ent/assettype"
+	entAttachment "github.com/lesomnus/loft/internal/ent/attachment"
+	entAudit "github.com/lesomnus/loft/internal/ent/audit"
+	entBookable "github.com/lesomnus/loft/internal/ent/bookable"
+	entCliLogin "github.com/lesomnus/loft/internal/ent/clilogin"
+	entCountFinding "github.com/lesomnus/loft/internal/ent/countfinding"
+	entCustody "github.com/lesomnus/loft/internal/ent/custody"
+	entCustodyLine "github.com/lesomnus/loft/internal/ent/custodyline"
+	entEvent "github.com/lesomnus/loft/internal/ent/event"
+	entFact "github.com/lesomnus/loft/internal/ent/fact"
+	entHandoff "github.com/lesomnus/loft/internal/ent/handoff"
+	entHolder "github.com/lesomnus/loft/internal/ent/holder"
+	entInventoryCount "github.com/lesomnus/loft/internal/ent/inventorycount"
+	entInvitation "github.com/lesomnus/loft/internal/ent/invitation"
+	entItemModel "github.com/lesomnus/loft/internal/ent/itemmodel"
+	entLabel "github.com/lesomnus/loft/internal/ent/label"
+	entLegalHold "github.com/lesomnus/loft/internal/ent/legalhold"
+	entLink "github.com/lesomnus/loft/internal/ent/link"
+	entNotification "github.com/lesomnus/loft/internal/ent/notification"
+	entOutbox "github.com/lesomnus/loft/internal/ent/outbox"
+	entOwed "github.com/lesomnus/loft/internal/ent/owed"
+	entParty "github.com/lesomnus/loft/internal/ent/party"
+	entPlacement "github.com/lesomnus/loft/internal/ent/placement"
+	predicate "github.com/lesomnus/loft/internal/ent/predicate"
+	entPurchase "github.com/lesomnus/loft/internal/ent/purchase"
+	entPurchaseLine "github.com/lesomnus/loft/internal/ent/purchaseline"
+	entReservation "github.com/lesomnus/loft/internal/ent/reservation"
+	entReservationItem "github.com/lesomnus/loft/internal/ent/reservationitem"
+	entRowSeal "github.com/lesomnus/loft/internal/ent/rowseal"
+	entSearchStale "github.com/lesomnus/loft/internal/ent/searchstale"
+	entSession "github.com/lesomnus/loft/internal/ent/session"
+	entSignInFailure "github.com/lesomnus/loft/internal/ent/signinfailure"
+	entStewardship "github.com/lesomnus/loft/internal/ent/stewardship"
+	entStock "github.com/lesomnus/loft/internal/ent/stock"
+	entStockMovement "github.com/lesomnus/loft/internal/ent/stockmovement"
+	entTagCounter "github.com/lesomnus/loft/internal/ent/tagcounter"
+	entTenant "github.com/lesomnus/loft/internal/ent/tenant"
+	entTenantContract "github.com/lesomnus/loft/internal/ent/tenantcontract"
+	entTenantDomain "github.com/lesomnus/loft/internal/ent/tenantdomain"
+	entTreeLock "github.com/lesomnus/loft/internal/ent/treelock"
+	entWorkOrder "github.com/lesomnus/loft/internal/ent/workorder"
+	bare "github.com/lesomnus/loft/server/bare"
 	log "github.com/lesomnus/otx/log"
 	access "github.com/lesomnus/payday/access"
 	audit "github.com/lesomnus/payday/audit"
@@ -37,56 +87,6 @@ import (
 	version "github.com/lesomnus/payday/version"
 	watch "github.com/lesomnus/payday/watch"
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
-	rove "github.com/lesomnus/rove"
-	ent "github.com/lesomnus/rove/internal/ent"
-	entAccess "github.com/lesomnus/rove/internal/ent/access"
-	entAccessReview "github.com/lesomnus/rove/internal/ent/accessreview"
-	entAliasHold "github.com/lesomnus/rove/internal/ent/aliashold"
-	entAllocation "github.com/lesomnus/rove/internal/ent/allocation"
-	entArchived "github.com/lesomnus/rove/internal/ent/archived"
-	entAsset "github.com/lesomnus/rove/internal/ent/asset"
-	entAssetType "github.com/lesomnus/rove/internal/ent/assettype"
-	entAttachment "github.com/lesomnus/rove/internal/ent/attachment"
-	entAudit "github.com/lesomnus/rove/internal/ent/audit"
-	entBookable "github.com/lesomnus/rove/internal/ent/bookable"
-	entCliLogin "github.com/lesomnus/rove/internal/ent/clilogin"
-	entCountFinding "github.com/lesomnus/rove/internal/ent/countfinding"
-	entCustody "github.com/lesomnus/rove/internal/ent/custody"
-	entCustodyLine "github.com/lesomnus/rove/internal/ent/custodyline"
-	entEvent "github.com/lesomnus/rove/internal/ent/event"
-	entFact "github.com/lesomnus/rove/internal/ent/fact"
-	entHandoff "github.com/lesomnus/rove/internal/ent/handoff"
-	entHolder "github.com/lesomnus/rove/internal/ent/holder"
-	entInventoryCount "github.com/lesomnus/rove/internal/ent/inventorycount"
-	entInvitation "github.com/lesomnus/rove/internal/ent/invitation"
-	entItemModel "github.com/lesomnus/rove/internal/ent/itemmodel"
-	entLabel "github.com/lesomnus/rove/internal/ent/label"
-	entLegalHold "github.com/lesomnus/rove/internal/ent/legalhold"
-	entLink "github.com/lesomnus/rove/internal/ent/link"
-	entNotification "github.com/lesomnus/rove/internal/ent/notification"
-	entOutbox "github.com/lesomnus/rove/internal/ent/outbox"
-	entOwed "github.com/lesomnus/rove/internal/ent/owed"
-	entParty "github.com/lesomnus/rove/internal/ent/party"
-	entPlacement "github.com/lesomnus/rove/internal/ent/placement"
-	predicate "github.com/lesomnus/rove/internal/ent/predicate"
-	entPurchase "github.com/lesomnus/rove/internal/ent/purchase"
-	entPurchaseLine "github.com/lesomnus/rove/internal/ent/purchaseline"
-	entReservation "github.com/lesomnus/rove/internal/ent/reservation"
-	entReservationItem "github.com/lesomnus/rove/internal/ent/reservationitem"
-	entRowSeal "github.com/lesomnus/rove/internal/ent/rowseal"
-	entSearchStale "github.com/lesomnus/rove/internal/ent/searchstale"
-	entSession "github.com/lesomnus/rove/internal/ent/session"
-	entSignInFailure "github.com/lesomnus/rove/internal/ent/signinfailure"
-	entStewardship "github.com/lesomnus/rove/internal/ent/stewardship"
-	entStock "github.com/lesomnus/rove/internal/ent/stock"
-	entStockMovement "github.com/lesomnus/rove/internal/ent/stockmovement"
-	entTagCounter "github.com/lesomnus/rove/internal/ent/tagcounter"
-	entTenant "github.com/lesomnus/rove/internal/ent/tenant"
-	entTenantContract "github.com/lesomnus/rove/internal/ent/tenantcontract"
-	entTenantDomain "github.com/lesomnus/rove/internal/ent/tenantdomain"
-	entTreeLock "github.com/lesomnus/rove/internal/ent/treelock"
-	entWorkOrder "github.com/lesomnus/rove/internal/ent/workorder"
-	bare "github.com/lesomnus/rove/server/bare"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
 	sqljson "github.com/protobuf-orm/ent/dialect/sql/sqljson"
@@ -183,52 +183,52 @@ const (
 )
 
 func init() {
-	pdid.Register("rove.Access", AccessDomain, "access")
-	pdid.Register("rove.AccessReview", AccessReviewDomain, "access-review")
-	pdid.Register("rove.AliasHold", AliasHoldDomain, "alias-hold")
-	pdid.Register("rove.Allocation", AllocationDomain, "allocation")
-	pdid.Register("rove.Archived", ArchivedDomain, "archived")
-	pdid.Register("rove.Asset", AssetDomain, "asset")
-	pdid.Register("rove.AssetType", AssetTypeDomain, "asset-type")
-	pdid.Register("rove.Attachment", AttachmentDomain, "attachment")
-	pdid.Register("rove.Audit", AuditDomain, "audit")
-	pdid.Register("rove.Bookable", BookableDomain, "bookable")
-	pdid.Register("rove.CliLogin", CliLoginDomain, "cli-login")
-	pdid.Register("rove.CountFinding", CountFindingDomain, "count-finding")
-	pdid.Register("rove.Custody", CustodyDomain, "custody")
-	pdid.Register("rove.CustodyLine", CustodyLineDomain, "custody-line")
-	pdid.Register("rove.Event", EventDomain, "event")
-	pdid.Register("rove.Fact", FactDomain, "fact")
-	pdid.Register("rove.Handoff", HandoffDomain, "handoff")
-	pdid.Register("rove.Holder", HolderDomain, "holder")
-	pdid.Register("rove.InventoryCount", InventoryCountDomain, "inventory-count")
-	pdid.Register("rove.Invitation", InvitationDomain, "invitation")
-	pdid.Register("rove.ItemModel", ItemModelDomain, "item-model")
-	pdid.Register("rove.Label", LabelDomain, "label")
-	pdid.Register("rove.LegalHold", LegalHoldDomain, "legal-hold")
-	pdid.Register("rove.Link", LinkDomain, "link")
-	pdid.Register("rove.Notification", NotificationDomain, "notification")
-	pdid.Register("rove.Outbox", OutboxDomain, "outbox")
-	pdid.Register("rove.Owed", OwedDomain, "owed")
-	pdid.Register("rove.Party", PartyDomain, "party")
-	pdid.Register("rove.Placement", PlacementDomain, "placement")
-	pdid.Register("rove.Purchase", PurchaseDomain, "purchase")
-	pdid.Register("rove.PurchaseLine", PurchaseLineDomain, "purchase-line")
-	pdid.Register("rove.Reservation", ReservationDomain, "reservation")
-	pdid.Register("rove.ReservationItem", ReservationItemDomain, "reservation-item")
-	pdid.Register("rove.RowSeal", RowSealDomain, "row-seal")
-	pdid.Register("rove.SearchStale", SearchStaleDomain, "search-stale")
-	pdid.Register("rove.Session", SessionDomain, "session")
-	pdid.Register("rove.SignInFailure", SignInFailureDomain, "sign-in-failure")
-	pdid.Register("rove.Stewardship", StewardshipDomain, "stewardship")
-	pdid.Register("rove.Stock", StockDomain, "stock")
-	pdid.Register("rove.StockMovement", StockMovementDomain, "stock-movement")
-	pdid.Register("rove.TagCounter", TagCounterDomain, "tag-counter")
-	pdid.Register("rove.Tenant", TenantDomain, "tenant")
-	pdid.Register("rove.TenantContract", TenantContractDomain, "tenant-contract")
-	pdid.Register("rove.TenantDomain", TenantDomainDomain, "tenant-domain")
-	pdid.Register("rove.TreeLock", TreeLockDomain, "tree-lock")
-	pdid.Register("rove.WorkOrder", WorkOrderDomain, "work-order")
+	pdid.Register("loft.Access", AccessDomain, "access")
+	pdid.Register("loft.AccessReview", AccessReviewDomain, "access-review")
+	pdid.Register("loft.AliasHold", AliasHoldDomain, "alias-hold")
+	pdid.Register("loft.Allocation", AllocationDomain, "allocation")
+	pdid.Register("loft.Archived", ArchivedDomain, "archived")
+	pdid.Register("loft.Asset", AssetDomain, "asset")
+	pdid.Register("loft.AssetType", AssetTypeDomain, "asset-type")
+	pdid.Register("loft.Attachment", AttachmentDomain, "attachment")
+	pdid.Register("loft.Audit", AuditDomain, "audit")
+	pdid.Register("loft.Bookable", BookableDomain, "bookable")
+	pdid.Register("loft.CliLogin", CliLoginDomain, "cli-login")
+	pdid.Register("loft.CountFinding", CountFindingDomain, "count-finding")
+	pdid.Register("loft.Custody", CustodyDomain, "custody")
+	pdid.Register("loft.CustodyLine", CustodyLineDomain, "custody-line")
+	pdid.Register("loft.Event", EventDomain, "event")
+	pdid.Register("loft.Fact", FactDomain, "fact")
+	pdid.Register("loft.Handoff", HandoffDomain, "handoff")
+	pdid.Register("loft.Holder", HolderDomain, "holder")
+	pdid.Register("loft.InventoryCount", InventoryCountDomain, "inventory-count")
+	pdid.Register("loft.Invitation", InvitationDomain, "invitation")
+	pdid.Register("loft.ItemModel", ItemModelDomain, "item-model")
+	pdid.Register("loft.Label", LabelDomain, "label")
+	pdid.Register("loft.LegalHold", LegalHoldDomain, "legal-hold")
+	pdid.Register("loft.Link", LinkDomain, "link")
+	pdid.Register("loft.Notification", NotificationDomain, "notification")
+	pdid.Register("loft.Outbox", OutboxDomain, "outbox")
+	pdid.Register("loft.Owed", OwedDomain, "owed")
+	pdid.Register("loft.Party", PartyDomain, "party")
+	pdid.Register("loft.Placement", PlacementDomain, "placement")
+	pdid.Register("loft.Purchase", PurchaseDomain, "purchase")
+	pdid.Register("loft.PurchaseLine", PurchaseLineDomain, "purchase-line")
+	pdid.Register("loft.Reservation", ReservationDomain, "reservation")
+	pdid.Register("loft.ReservationItem", ReservationItemDomain, "reservation-item")
+	pdid.Register("loft.RowSeal", RowSealDomain, "row-seal")
+	pdid.Register("loft.SearchStale", SearchStaleDomain, "search-stale")
+	pdid.Register("loft.Session", SessionDomain, "session")
+	pdid.Register("loft.SignInFailure", SignInFailureDomain, "sign-in-failure")
+	pdid.Register("loft.Stewardship", StewardshipDomain, "stewardship")
+	pdid.Register("loft.Stock", StockDomain, "stock")
+	pdid.Register("loft.StockMovement", StockMovementDomain, "stock-movement")
+	pdid.Register("loft.TagCounter", TagCounterDomain, "tag-counter")
+	pdid.Register("loft.Tenant", TenantDomain, "tenant")
+	pdid.Register("loft.TenantContract", TenantContractDomain, "tenant-contract")
+	pdid.Register("loft.TenantDomain", TenantDomainDomain, "tenant-domain")
+	pdid.Register("loft.TreeLock", TreeLockDomain, "tree-lock")
+	pdid.Register("loft.WorkOrder", WorkOrderDomain, "work-order")
 
 	pdid.RegisterTenant(TenantDomain)
 }
@@ -236,52 +236,52 @@ func init() {
 // Domains is the domain of each entity by the full name of its message,
 // which is the name a [Minter] is asked about.
 var Domains = map[string]pdid.Domain{
-	"rove.Access":          AccessDomain,
-	"rove.AccessReview":    AccessReviewDomain,
-	"rove.AliasHold":       AliasHoldDomain,
-	"rove.Allocation":      AllocationDomain,
-	"rove.Archived":        ArchivedDomain,
-	"rove.Asset":           AssetDomain,
-	"rove.AssetType":       AssetTypeDomain,
-	"rove.Attachment":      AttachmentDomain,
-	"rove.Audit":           AuditDomain,
-	"rove.Bookable":        BookableDomain,
-	"rove.CliLogin":        CliLoginDomain,
-	"rove.CountFinding":    CountFindingDomain,
-	"rove.Custody":         CustodyDomain,
-	"rove.CustodyLine":     CustodyLineDomain,
-	"rove.Event":           EventDomain,
-	"rove.Fact":            FactDomain,
-	"rove.Handoff":         HandoffDomain,
-	"rove.Holder":          HolderDomain,
-	"rove.InventoryCount":  InventoryCountDomain,
-	"rove.Invitation":      InvitationDomain,
-	"rove.ItemModel":       ItemModelDomain,
-	"rove.Label":           LabelDomain,
-	"rove.LegalHold":       LegalHoldDomain,
-	"rove.Link":            LinkDomain,
-	"rove.Notification":    NotificationDomain,
-	"rove.Outbox":          OutboxDomain,
-	"rove.Owed":            OwedDomain,
-	"rove.Party":           PartyDomain,
-	"rove.Placement":       PlacementDomain,
-	"rove.Purchase":        PurchaseDomain,
-	"rove.PurchaseLine":    PurchaseLineDomain,
-	"rove.Reservation":     ReservationDomain,
-	"rove.ReservationItem": ReservationItemDomain,
-	"rove.RowSeal":         RowSealDomain,
-	"rove.SearchStale":     SearchStaleDomain,
-	"rove.Session":         SessionDomain,
-	"rove.SignInFailure":   SignInFailureDomain,
-	"rove.Stewardship":     StewardshipDomain,
-	"rove.Stock":           StockDomain,
-	"rove.StockMovement":   StockMovementDomain,
-	"rove.TagCounter":      TagCounterDomain,
-	"rove.Tenant":          TenantDomain,
-	"rove.TenantContract":  TenantContractDomain,
-	"rove.TenantDomain":    TenantDomainDomain,
-	"rove.TreeLock":        TreeLockDomain,
-	"rove.WorkOrder":       WorkOrderDomain,
+	"loft.Access":          AccessDomain,
+	"loft.AccessReview":    AccessReviewDomain,
+	"loft.AliasHold":       AliasHoldDomain,
+	"loft.Allocation":      AllocationDomain,
+	"loft.Archived":        ArchivedDomain,
+	"loft.Asset":           AssetDomain,
+	"loft.AssetType":       AssetTypeDomain,
+	"loft.Attachment":      AttachmentDomain,
+	"loft.Audit":           AuditDomain,
+	"loft.Bookable":        BookableDomain,
+	"loft.CliLogin":        CliLoginDomain,
+	"loft.CountFinding":    CountFindingDomain,
+	"loft.Custody":         CustodyDomain,
+	"loft.CustodyLine":     CustodyLineDomain,
+	"loft.Event":           EventDomain,
+	"loft.Fact":            FactDomain,
+	"loft.Handoff":         HandoffDomain,
+	"loft.Holder":          HolderDomain,
+	"loft.InventoryCount":  InventoryCountDomain,
+	"loft.Invitation":      InvitationDomain,
+	"loft.ItemModel":       ItemModelDomain,
+	"loft.Label":           LabelDomain,
+	"loft.LegalHold":       LegalHoldDomain,
+	"loft.Link":            LinkDomain,
+	"loft.Notification":    NotificationDomain,
+	"loft.Outbox":          OutboxDomain,
+	"loft.Owed":            OwedDomain,
+	"loft.Party":           PartyDomain,
+	"loft.Placement":       PlacementDomain,
+	"loft.Purchase":        PurchaseDomain,
+	"loft.PurchaseLine":    PurchaseLineDomain,
+	"loft.Reservation":     ReservationDomain,
+	"loft.ReservationItem": ReservationItemDomain,
+	"loft.RowSeal":         RowSealDomain,
+	"loft.SearchStale":     SearchStaleDomain,
+	"loft.Session":         SessionDomain,
+	"loft.SignInFailure":   SignInFailureDomain,
+	"loft.Stewardship":     StewardshipDomain,
+	"loft.Stock":           StockDomain,
+	"loft.StockMovement":   StockMovementDomain,
+	"loft.TagCounter":      TagCounterDomain,
+	"loft.Tenant":          TenantDomain,
+	"loft.TenantContract":  TenantContractDomain,
+	"loft.TenantDomain":    TenantDomainDomain,
+	"loft.TreeLock":        TreeLockDomain,
+	"loft.WorkOrder":       WorkOrderDomain,
 }
 
 // EventKinds is the message each kind of this app's events holds, by kind:
@@ -293,84 +293,84 @@ var Domains = map[string]pdid.Domain{
 // the schema, `past.lock`, is what keeps every kind in it, and the message
 // it holds, for as long as a row of it may be.
 var EventKinds = map[string]protoreflect.MessageType{
-	"access.review":        (*rove.AccessReviewed)(nil).ProtoReflect().Type(),
-	"account.depart":       (*rove.AccountDeparted)(nil).ProtoReflect().Type(),
-	"asset.add":            (*rove.AssetAdded)(nil).ProtoReflect().Type(),
-	"asset.add_many":       (*rove.AssetsAdded)(nil).ProtoReflect().Type(),
-	"asset.assign":         (*rove.AssetAssigned)(nil).ProtoReflect().Type(),
-	"asset.correct":        (*rove.AssetCorrected)(nil).ProtoReflect().Type(),
-	"asset.move":           (*rove.AssetMoved)(nil).ProtoReflect().Type(),
-	"asset.relate":         (*rove.AssetRelated)(nil).ProtoReflect().Type(),
-	"asset.set":            (*rove.AssetAttributesSet)(nil).ProtoReflect().Type(),
-	"asset.void":           (*rove.AssetVoided)(nil).ProtoReflect().Type(),
-	"attachment.add":       (*rove.AttachmentAdded)(nil).ProtoReflect().Type(),
-	"bookable.add":         (*rove.BookableSaved)(nil).ProtoReflect().Type(),
-	"bookable.update":      (*rove.BookableSaved)(nil).ProtoReflect().Type(),
-	"count.close":          (*rove.CountDelimited)(nil).ProtoReflect().Type(),
-	"count.reconcile":      (*rove.CountReconciled)(nil).ProtoReflect().Type(),
-	"count.resolve":        (*rove.CountResolved)(nil).ProtoReflect().Type(),
-	"count.scan":           (*rove.CountScanned)(nil).ProtoReflect().Type(),
-	"count.start":          (*rove.CountDelimited)(nil).ProtoReflect().Type(),
-	"custody.acknowledge":  (*rove.CustodyAcknowledged)(nil).ProtoReflect().Type(),
-	"custody.extend":       (*rove.CustodyExtended)(nil).ProtoReflect().Type(),
-	"custody.issue":        (*rove.CustodyIssued)(nil).ProtoReflect().Type(),
-	"custody.overdue":      (*rove.CustodyOverdue)(nil).ProtoReflect().Type(),
-	"custody.return":       (*rove.CustodyReturned)(nil).ProtoReflect().Type(),
-	"domain.activate":      (*rove.TenantDomainActivated)(nil).ProtoReflect().Type(),
-	"domain.add":           (*rove.TenantDomainAdded)(nil).ProtoReflect().Type(),
-	"domain.lapse":         (*rove.TenantDomainLapsed)(nil).ProtoReflect().Type(),
-	"domain.retire":        (*rove.TenantDomainRetired)(nil).ProtoReflect().Type(),
-	"domain.verify":        (*rove.TenantDomainVerified)(nil).ProtoReflect().Type(),
-	"event.redact":         (*rove.EventRedacted)(nil).ProtoReflect().Type(),
-	"invitation.accept":    (*rove.InvitationAccepted)(nil).ProtoReflect().Type(),
-	"invitation.add":       (*rove.InvitationAdded)(nil).ProtoReflect().Type(),
-	"invitation.claim":     (*rove.InvitationChanged)(nil).ProtoReflect().Type(),
-	"invitation.deny":      (*rove.InvitationChanged)(nil).ProtoReflect().Type(),
-	"invitation.revoke":    (*rove.InvitationChanged)(nil).ProtoReflect().Type(),
-	"label.bind":           (*rove.LabelBound)(nil).ProtoReflect().Type(),
-	"label.print":          (*rove.LabelsPrinted)(nil).ProtoReflect().Type(),
-	"label.unbind":         (*rove.LabelUnbound)(nil).ProtoReflect().Type(),
-	"model.add":            (*rove.ItemModelSaved)(nil).ProtoReflect().Type(),
-	"model.update":         (*rove.ItemModelSaved)(nil).ProtoReflect().Type(),
-	"party.add":            (*rove.PartySaved)(nil).ProtoReflect().Type(),
-	"party.deactivate":     (*rove.PartyDeactivated)(nil).ProtoReflect().Type(),
-	"party.invite":         (*rove.PartyInvited)(nil).ProtoReflect().Type(),
-	"party.password":       (*rove.PartyPasswordSet)(nil).ProtoReflect().Type(),
-	"party.pseudonymize":   (*rove.PartyPseudonymized)(nil).ProtoReflect().Type(),
-	"party.role":           (*rove.PartyRoleSet)(nil).ProtoReflect().Type(),
-	"party.update":         (*rove.PartySaved)(nil).ProtoReflect().Type(),
-	"purchase.add":         (*rove.PurchaseAdded)(nil).ProtoReflect().Type(),
-	"purchase.receive":     (*rove.PurchaseReceived)(nil).ProtoReflect().Type(),
-	"reservation.add":      (*rove.ReservationAdded)(nil).ProtoReflect().Type(),
-	"reservation.approve":  (*rove.ReservationDecided)(nil).ProtoReflect().Type(),
-	"reservation.cancel":   (*rove.ReservationDecided)(nil).ProtoReflect().Type(),
-	"reservation.checkin":  (*rove.ReservationDecided)(nil).ProtoReflect().Type(),
-	"reservation.complete": (*rove.ReservationDecided)(nil).ProtoReflect().Type(),
-	"reservation.confirm":  (*rove.ReservationConfirmed)(nil).ProtoReflect().Type(),
-	"reservation.expire":   (*rove.ReservationReleased)(nil).ProtoReflect().Type(),
-	"reservation.let_go":   (*rove.ReservationAllocationChanged)(nil).ProtoReflect().Type(),
-	"reservation.no_show":  (*rove.ReservationReleased)(nil).ProtoReflect().Type(),
-	"reservation.reject":   (*rove.ReservationDecided)(nil).ProtoReflect().Type(),
-	"reservation.resolve":  (*rove.ReservationAllocationChanged)(nil).ProtoReflect().Type(),
-	"reservation.take":     (*rove.ReservationAllocationChanged)(nil).ProtoReflect().Type(),
-	"reservation.wait":     (*rove.ReservationAllocationChanged)(nil).ProtoReflect().Type(),
-	"retention.expired":    (*rove.RetentionExpired)(nil).ProtoReflect().Type(),
-	"stock.add":            (*rove.StockAdded)(nil).ProtoReflect().Type(),
-	"stock.adjust":         (*rove.StockChanged)(nil).ProtoReflect().Type(),
-	"stock.consume":        (*rove.StockChanged)(nil).ProtoReflect().Type(),
-	"stock.convert":        (*rove.StockConverted)(nil).ProtoReflect().Type(),
-	"stock.receive":        (*rove.StockChanged)(nil).ProtoReflect().Type(),
-	"stock.transfer":       (*rove.StockTransferred)(nil).ProtoReflect().Type(),
-	"type.add":             (*rove.AssetTypeSaved)(nil).ProtoReflect().Type(),
-	"type.update":          (*rove.AssetTypeSaved)(nil).ProtoReflect().Type(),
-	"work.cancelled":       (*rove.WorkOrderFinished)(nil).ProtoReflect().Type(),
-	"work.done":            (*rove.WorkOrderFinished)(nil).ProtoReflect().Type(),
-	"work.open":            (*rove.WorkOrderSaved)(nil).ProtoReflect().Type(),
-	"work.update":          (*rove.WorkOrderSaved)(nil).ProtoReflect().Type(),
-	"workspace.close":      (*rove.WorkspaceClosed)(nil).ProtoReflect().Type(),
-	"workspace.configure":  (*rove.WorkspaceConfigured)(nil).ProtoReflect().Type(),
-	"workspace.import":     (*rove.WorkspaceImported)(nil).ProtoReflect().Type(),
-	"workspace.restore":    (*rove.WorkspaceRestored)(nil).ProtoReflect().Type(),
+	"access.review":        (*loft.AccessReviewed)(nil).ProtoReflect().Type(),
+	"account.depart":       (*loft.AccountDeparted)(nil).ProtoReflect().Type(),
+	"asset.add":            (*loft.AssetAdded)(nil).ProtoReflect().Type(),
+	"asset.add_many":       (*loft.AssetsAdded)(nil).ProtoReflect().Type(),
+	"asset.assign":         (*loft.AssetAssigned)(nil).ProtoReflect().Type(),
+	"asset.correct":        (*loft.AssetCorrected)(nil).ProtoReflect().Type(),
+	"asset.move":           (*loft.AssetMoved)(nil).ProtoReflect().Type(),
+	"asset.relate":         (*loft.AssetRelated)(nil).ProtoReflect().Type(),
+	"asset.set":            (*loft.AssetAttributesSet)(nil).ProtoReflect().Type(),
+	"asset.void":           (*loft.AssetVoided)(nil).ProtoReflect().Type(),
+	"attachment.add":       (*loft.AttachmentAdded)(nil).ProtoReflect().Type(),
+	"bookable.add":         (*loft.BookableSaved)(nil).ProtoReflect().Type(),
+	"bookable.update":      (*loft.BookableSaved)(nil).ProtoReflect().Type(),
+	"count.close":          (*loft.CountDelimited)(nil).ProtoReflect().Type(),
+	"count.reconcile":      (*loft.CountReconciled)(nil).ProtoReflect().Type(),
+	"count.resolve":        (*loft.CountResolved)(nil).ProtoReflect().Type(),
+	"count.scan":           (*loft.CountScanned)(nil).ProtoReflect().Type(),
+	"count.start":          (*loft.CountDelimited)(nil).ProtoReflect().Type(),
+	"custody.acknowledge":  (*loft.CustodyAcknowledged)(nil).ProtoReflect().Type(),
+	"custody.extend":       (*loft.CustodyExtended)(nil).ProtoReflect().Type(),
+	"custody.issue":        (*loft.CustodyIssued)(nil).ProtoReflect().Type(),
+	"custody.overdue":      (*loft.CustodyOverdue)(nil).ProtoReflect().Type(),
+	"custody.return":       (*loft.CustodyReturned)(nil).ProtoReflect().Type(),
+	"domain.activate":      (*loft.TenantDomainActivated)(nil).ProtoReflect().Type(),
+	"domain.add":           (*loft.TenantDomainAdded)(nil).ProtoReflect().Type(),
+	"domain.lapse":         (*loft.TenantDomainLapsed)(nil).ProtoReflect().Type(),
+	"domain.retire":        (*loft.TenantDomainRetired)(nil).ProtoReflect().Type(),
+	"domain.verify":        (*loft.TenantDomainVerified)(nil).ProtoReflect().Type(),
+	"event.redact":         (*loft.EventRedacted)(nil).ProtoReflect().Type(),
+	"invitation.accept":    (*loft.InvitationAccepted)(nil).ProtoReflect().Type(),
+	"invitation.add":       (*loft.InvitationAdded)(nil).ProtoReflect().Type(),
+	"invitation.claim":     (*loft.InvitationChanged)(nil).ProtoReflect().Type(),
+	"invitation.deny":      (*loft.InvitationChanged)(nil).ProtoReflect().Type(),
+	"invitation.revoke":    (*loft.InvitationChanged)(nil).ProtoReflect().Type(),
+	"label.bind":           (*loft.LabelBound)(nil).ProtoReflect().Type(),
+	"label.print":          (*loft.LabelsPrinted)(nil).ProtoReflect().Type(),
+	"label.unbind":         (*loft.LabelUnbound)(nil).ProtoReflect().Type(),
+	"model.add":            (*loft.ItemModelSaved)(nil).ProtoReflect().Type(),
+	"model.update":         (*loft.ItemModelSaved)(nil).ProtoReflect().Type(),
+	"party.add":            (*loft.PartySaved)(nil).ProtoReflect().Type(),
+	"party.deactivate":     (*loft.PartyDeactivated)(nil).ProtoReflect().Type(),
+	"party.invite":         (*loft.PartyInvited)(nil).ProtoReflect().Type(),
+	"party.password":       (*loft.PartyPasswordSet)(nil).ProtoReflect().Type(),
+	"party.pseudonymize":   (*loft.PartyPseudonymized)(nil).ProtoReflect().Type(),
+	"party.role":           (*loft.PartyRoleSet)(nil).ProtoReflect().Type(),
+	"party.update":         (*loft.PartySaved)(nil).ProtoReflect().Type(),
+	"purchase.add":         (*loft.PurchaseAdded)(nil).ProtoReflect().Type(),
+	"purchase.receive":     (*loft.PurchaseReceived)(nil).ProtoReflect().Type(),
+	"reservation.add":      (*loft.ReservationAdded)(nil).ProtoReflect().Type(),
+	"reservation.approve":  (*loft.ReservationDecided)(nil).ProtoReflect().Type(),
+	"reservation.cancel":   (*loft.ReservationDecided)(nil).ProtoReflect().Type(),
+	"reservation.checkin":  (*loft.ReservationDecided)(nil).ProtoReflect().Type(),
+	"reservation.complete": (*loft.ReservationDecided)(nil).ProtoReflect().Type(),
+	"reservation.confirm":  (*loft.ReservationConfirmed)(nil).ProtoReflect().Type(),
+	"reservation.expire":   (*loft.ReservationReleased)(nil).ProtoReflect().Type(),
+	"reservation.let_go":   (*loft.ReservationAllocationChanged)(nil).ProtoReflect().Type(),
+	"reservation.no_show":  (*loft.ReservationReleased)(nil).ProtoReflect().Type(),
+	"reservation.reject":   (*loft.ReservationDecided)(nil).ProtoReflect().Type(),
+	"reservation.resolve":  (*loft.ReservationAllocationChanged)(nil).ProtoReflect().Type(),
+	"reservation.take":     (*loft.ReservationAllocationChanged)(nil).ProtoReflect().Type(),
+	"reservation.wait":     (*loft.ReservationAllocationChanged)(nil).ProtoReflect().Type(),
+	"retention.expired":    (*loft.RetentionExpired)(nil).ProtoReflect().Type(),
+	"stock.add":            (*loft.StockAdded)(nil).ProtoReflect().Type(),
+	"stock.adjust":         (*loft.StockChanged)(nil).ProtoReflect().Type(),
+	"stock.consume":        (*loft.StockChanged)(nil).ProtoReflect().Type(),
+	"stock.convert":        (*loft.StockConverted)(nil).ProtoReflect().Type(),
+	"stock.receive":        (*loft.StockChanged)(nil).ProtoReflect().Type(),
+	"stock.transfer":       (*loft.StockTransferred)(nil).ProtoReflect().Type(),
+	"type.add":             (*loft.AssetTypeSaved)(nil).ProtoReflect().Type(),
+	"type.update":          (*loft.AssetTypeSaved)(nil).ProtoReflect().Type(),
+	"work.cancelled":       (*loft.WorkOrderFinished)(nil).ProtoReflect().Type(),
+	"work.done":            (*loft.WorkOrderFinished)(nil).ProtoReflect().Type(),
+	"work.open":            (*loft.WorkOrderSaved)(nil).ProtoReflect().Type(),
+	"work.update":          (*loft.WorkOrderSaved)(nil).ProtoReflect().Type(),
+	"workspace.close":      (*loft.WorkspaceClosed)(nil).ProtoReflect().Type(),
+	"workspace.configure":  (*loft.WorkspaceConfigured)(nil).ProtoReflect().Type(),
+	"workspace.import":     (*loft.WorkspaceImported)(nil).ProtoReflect().Type(),
+	"workspace.restore":    (*loft.WorkspaceRestored)(nil).ProtoReflect().Type(),
 }
 
 // IndexRenames are the indexes this schema names, by what an earlier build
@@ -1007,11 +1007,11 @@ func (s Sink) WithNamer(n slug.Namer) Sink {
 	return s
 }
 
-var _ rove.Server = Sink{}
-var _ enttx.Binder[rove.Server] = Sink{}
+var _ loft.Server = Sink{}
+var _ enttx.Binder[loft.Server] = Sink{}
 
 // WithDriver answers with this server running on `drv`; see [Gate.WithDriver].
-func (s Sink) WithDriver(drv dialect.Driver) (rove.Server, error) {
+func (s Sink) WithDriver(drv dialect.Driver) (loft.Server, error) {
 	v, err := s.Server.WithDriver(drv)
 	if err != nil {
 		return nil, err
@@ -1024,14 +1024,14 @@ func (s Sink) WithDriver(drv dialect.Driver) (rove.Server, error) {
 }
 
 type sinkAccess struct {
-	rove.AccessServiceServer
+	loft.AccessServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Access() rove.AccessServiceServer {
+func (s Sink) Access() loft.AccessServiceServer {
 	return sinkAccess{s.Server.Access(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -1093,7 +1093,7 @@ const (
 
 // List answers with the Accesss that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkAccess) List(ctx context.Context, req *rove.AccessListRequest) (*rove.AccessListResponse, error) {
+func (s sinkAccess) List(ctx context.Context, req *loft.AccessListRequest) (*loft.AccessListResponse, error) {
 	q := s.store.Db.Access.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -1158,12 +1158,12 @@ func (s sinkAccess) List(ctx context.Context, req *rove.AccessListRequest) (*rov
 		us = us[:size]
 	}
 
-	items := make([]*rove.Access, len(us))
+	items := make([]*loft.Access, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.AccessListResponse_builder{Items: items}.Build()
+	res := loft.AccessListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -1179,7 +1179,7 @@ func (s sinkAccess) List(ctx context.Context, req *rove.AccessListRequest) (*rov
 // filterAccess turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterAccess(f *rove.AccessFilter) (predicate.Access, error) {
+func filterAccess(f *loft.AccessFilter) (predicate.Access, error) {
 	ps := make([]predicate.Access, 0, 1)
 	if f.HasActorId() {
 		k, err := entuuid.FromBytes(f.GetActorId())
@@ -1216,14 +1216,14 @@ func filterAccess(f *rove.AccessFilter) (predicate.Access, error) {
 }
 
 type sinkAccessReview struct {
-	rove.AccessReviewServiceServer
+	loft.AccessReviewServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) AccessReview() rove.AccessReviewServiceServer {
+func (s Sink) AccessReview() loft.AccessReviewServiceServer {
 	return sinkAccessReview{s.Server.AccessReview(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -1231,7 +1231,7 @@ func (s Sink) AccessReview() rove.AccessReviewServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkAccessReview) Erase(ctx context.Context, req *rove.AccessReviewRef) (*rove.AccessReviewEraseResponse, error) {
+func (s sinkAccessReview) Erase(ctx context.Context, req *loft.AccessReviewRef) (*loft.AccessReviewEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "AccessReview", req)
 
 	return s.AccessReviewServiceServer.Erase(ctx, req)
@@ -1240,7 +1240,7 @@ func (s sinkAccessReview) Erase(ctx context.Context, req *rove.AccessReviewRef) 
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkAccessReview) Apply(ctx context.Context, req *rove.AccessReviewApplyRequest) (*rove.AccessReview, error) {
+func (s sinkAccessReview) Apply(ctx context.Context, req *loft.AccessReviewApplyRequest) (*loft.AccessReview, error) {
 	seen.Forget(s.store.Db.Driver(), "AccessReview", req.GetRef())
 
 	return s.AccessReviewServiceServer.Apply(ctx, req)
@@ -1248,7 +1248,7 @@ func (s sinkAccessReview) Apply(ctx context.Context, req *rove.AccessReviewApply
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkAccessReview.Apply].
-func (s sinkAccessReview) Patch(ctx context.Context, req *rove.AccessReviewPatchRequest) (*rove.AccessReview, error) {
+func (s sinkAccessReview) Patch(ctx context.Context, req *loft.AccessReviewPatchRequest) (*loft.AccessReview, error) {
 	seen.Forget(s.store.Db.Driver(), "AccessReview", req.GetRef())
 
 	return s.AccessReviewServiceServer.Patch(ctx, req)
@@ -1312,7 +1312,7 @@ const (
 
 // List answers with the AccessReviews that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkAccessReview) List(ctx context.Context, req *rove.AccessReviewListRequest) (*rove.AccessReviewListResponse, error) {
+func (s sinkAccessReview) List(ctx context.Context, req *loft.AccessReviewListRequest) (*loft.AccessReviewListResponse, error) {
 	q := s.store.Db.AccessReview.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -1358,12 +1358,12 @@ func (s sinkAccessReview) List(ctx context.Context, req *rove.AccessReviewListRe
 		us = us[:size]
 	}
 
-	items := make([]*rove.AccessReview, len(us))
+	items := make([]*loft.AccessReview, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.AccessReviewListResponse_builder{Items: items}.Build()
+	res := loft.AccessReviewListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -1377,14 +1377,14 @@ func (s sinkAccessReview) List(ctx context.Context, req *rove.AccessReviewListRe
 }
 
 type sinkAllocation struct {
-	rove.AllocationServiceServer
+	loft.AllocationServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Allocation() rove.AllocationServiceServer {
+func (s Sink) Allocation() loft.AllocationServiceServer {
 	v := sinkAllocation{s.Server.Allocation(), s.Server.Store, s.w, s.namer, s.joined}
 	v.AllocationServiceServer = bare.AllocationWithAddRule(v.AllocationServiceServer, v.admit)
 	return v
@@ -1394,7 +1394,7 @@ func (s Sink) Allocation() rove.AllocationServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Allocation].
-func (s sinkAllocation) admit(ctx context.Context, req *rove.AllocationAddRequest) (*rove.AllocationAddRequest, error) {
+func (s sinkAllocation) admit(ctx context.Context, req *loft.AllocationAddRequest) (*loft.AllocationAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -1412,7 +1412,7 @@ func (s sinkAllocation) admit(ctx context.Context, req *rove.AllocationAddReques
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkAllocation) Erase(ctx context.Context, req *rove.AllocationRef) (*rove.AllocationEraseResponse, error) {
+func (s sinkAllocation) Erase(ctx context.Context, req *loft.AllocationRef) (*loft.AllocationEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Allocation", req)
 
 	return s.AllocationServiceServer.Erase(ctx, req)
@@ -1421,7 +1421,7 @@ func (s sinkAllocation) Erase(ctx context.Context, req *rove.AllocationRef) (*ro
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkAllocation) Apply(ctx context.Context, req *rove.AllocationApplyRequest) (*rove.Allocation, error) {
+func (s sinkAllocation) Apply(ctx context.Context, req *loft.AllocationApplyRequest) (*loft.Allocation, error) {
 	seen.Forget(s.store.Db.Driver(), "Allocation", req.GetRef())
 
 	return s.AllocationServiceServer.Apply(ctx, req)
@@ -1429,14 +1429,14 @@ func (s sinkAllocation) Apply(ctx context.Context, req *rove.AllocationApplyRequ
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkAllocation.Apply].
-func (s sinkAllocation) Patch(ctx context.Context, req *rove.AllocationPatchRequest) (*rove.Allocation, error) {
+func (s sinkAllocation) Patch(ctx context.Context, req *loft.AllocationPatchRequest) (*loft.Allocation, error) {
 	seen.Forget(s.store.Db.Driver(), "Allocation", req.GetRef())
 
 	return s.AllocationServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkAllocation) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkAllocation) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -1463,7 +1463,7 @@ func (s sinkAllocation) tenantAtTenant(ctx context.Context, ref *rove.TenantRef)
 }
 
 // tenantAtResourceTenant is the tenant "resource.tenant" arrives at.
-func (s sinkAllocation) tenantAtResourceTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkAllocation) tenantAtResourceTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("resource", "required: it is what says which tenant this belongs to")
 	}
@@ -1494,7 +1494,7 @@ func (s sinkAllocation) tenantAtResourceTenant(ctx context.Context, ref *rove.As
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkAllocation) tenancy(ctx context.Context, req *rove.AllocationAddRequest) error {
+func (s sinkAllocation) tenancy(ctx context.Context, req *loft.AllocationAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -1576,7 +1576,7 @@ const (
 
 // List answers with the Allocations that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkAllocation) List(ctx context.Context, req *rove.AllocationListRequest) (*rove.AllocationListResponse, error) {
+func (s sinkAllocation) List(ctx context.Context, req *loft.AllocationListRequest) (*loft.AllocationListResponse, error) {
 	q := s.store.Db.Allocation.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -1641,12 +1641,12 @@ func (s sinkAllocation) List(ctx context.Context, req *rove.AllocationListReques
 		us = us[:size]
 	}
 
-	items := make([]*rove.Allocation, len(us))
+	items := make([]*loft.Allocation, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.AllocationListResponse_builder{Items: items}.Build()
+	res := loft.AllocationListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -1662,7 +1662,7 @@ func (s sinkAllocation) List(ctx context.Context, req *rove.AllocationListReques
 // filterAllocation turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterAllocation(f *rove.AllocationFilter) (predicate.Allocation, error) {
+func filterAllocation(f *loft.AllocationFilter) (predicate.Allocation, error) {
 	ps := make([]predicate.Allocation, 0, 1)
 	if f.HasRef() {
 		p, err := bare.AllocationPick(f.GetRef())
@@ -1716,14 +1716,14 @@ func filterAllocation(f *rove.AllocationFilter) (predicate.Allocation, error) {
 }
 
 type sinkAsset struct {
-	rove.AssetServiceServer
+	loft.AssetServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Asset() rove.AssetServiceServer {
+func (s Sink) Asset() loft.AssetServiceServer {
 	return sinkAsset{s.Server.Asset(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -1731,7 +1731,7 @@ func (s Sink) Asset() rove.AssetServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkAsset) Erase(ctx context.Context, req *rove.AssetRef) (*rove.AssetEraseResponse, error) {
+func (s sinkAsset) Erase(ctx context.Context, req *loft.AssetRef) (*loft.AssetEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Asset", req)
 
 	return s.AssetServiceServer.Erase(ctx, req)
@@ -1740,7 +1740,7 @@ func (s sinkAsset) Erase(ctx context.Context, req *rove.AssetRef) (*rove.AssetEr
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkAsset) Apply(ctx context.Context, req *rove.AssetApplyRequest) (*rove.Asset, error) {
+func (s sinkAsset) Apply(ctx context.Context, req *loft.AssetApplyRequest) (*loft.Asset, error) {
 	seen.Forget(s.store.Db.Driver(), "Asset", req.GetRef())
 
 	return s.AssetServiceServer.Apply(ctx, req)
@@ -1748,7 +1748,7 @@ func (s sinkAsset) Apply(ctx context.Context, req *rove.AssetApplyRequest) (*rov
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkAsset.Apply].
-func (s sinkAsset) Patch(ctx context.Context, req *rove.AssetPatchRequest) (*rove.Asset, error) {
+func (s sinkAsset) Patch(ctx context.Context, req *loft.AssetPatchRequest) (*loft.Asset, error) {
 	seen.Forget(s.store.Db.Driver(), "Asset", req.GetRef())
 
 	return s.AssetServiceServer.Patch(ctx, req)
@@ -1812,7 +1812,7 @@ const (
 
 // List answers with the Assets that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkAsset) List(ctx context.Context, req *rove.AssetListRequest) (*rove.AssetListResponse, error) {
+func (s sinkAsset) List(ctx context.Context, req *loft.AssetListRequest) (*loft.AssetListResponse, error) {
 	q := s.store.Db.Asset.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -1877,12 +1877,12 @@ func (s sinkAsset) List(ctx context.Context, req *rove.AssetListRequest) (*rove.
 		us = us[:size]
 	}
 
-	items := make([]*rove.Asset, len(us))
+	items := make([]*loft.Asset, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.AssetListResponse_builder{Items: items}.Build()
+	res := loft.AssetListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -1898,7 +1898,7 @@ func (s sinkAsset) List(ctx context.Context, req *rove.AssetListRequest) (*rove.
 // filterAsset turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterAsset(f *rove.AssetFilter) (predicate.Asset, error) {
+func filterAsset(f *loft.AssetFilter) (predicate.Asset, error) {
 	ps := make([]predicate.Asset, 0, 1)
 	if f.HasRef() {
 		p, err := bare.AssetPick(f.GetRef())
@@ -2042,7 +2042,7 @@ func filterAsset(f *rove.AssetFilter) (predicate.Asset, error) {
 // AssetService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Asset. A service is named for the entity it
 // is about, so the name carries it.
-var AssetService = watch.ServiceOf(rove.AssetService_Get_FullMethodName)
+var AssetService = watch.ServiceOf(loft.AssetService_Get_FullMethodName)
 
 // Watch answers with the Assets this caller may see, as they are now and as
 // they change.
@@ -2051,7 +2051,7 @@ var AssetService = watch.ServiceOf(rove.AssetService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkAsset) Watch(req *rove.AssetWatchRequest, out grpc.ServerStreamingServer[rove.AssetWatchResponse]) error {
+func (s sinkAsset) Watch(req *loft.AssetWatchRequest, out grpc.ServerStreamingServer[loft.AssetWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -2085,7 +2085,7 @@ func (s sinkAsset) Watch(req *rove.AssetWatchRequest, out grpc.ServerStreamingSe
 
 	return watch.Stream(ctx, s.w, AssetService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.AssetWatchItem, 0, len(ks))
+			items := make([]*loft.AssetWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -2099,7 +2099,7 @@ func (s sinkAsset) Watch(req *rove.AssetWatchRequest, out grpc.ServerStreamingSe
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.AssetWatchItem_builder{
+				items = append(items, loft.AssetWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -2109,7 +2109,7 @@ func (s sinkAsset) Watch(req *rove.AssetWatchRequest, out grpc.ServerStreamingSe
 				return nil
 			}
 
-			return out.Send(rove.AssetWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.AssetWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -2117,12 +2117,12 @@ func (s sinkAsset) Watch(req *rove.AssetWatchRequest, out grpc.ServerStreamingSe
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkAsset) watchNow(
-	ctx context.Context, req *rove.AssetWatchRequest, out grpc.ServerStreamingServer[rove.AssetWatchResponse],
+	ctx context.Context, req *loft.AssetWatchRequest, out grpc.ServerStreamingServer[loft.AssetWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.AssetListRequest_builder{
+		res, err := s.List(ctx, loft.AssetListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -2130,7 +2130,7 @@ func (s sinkAsset) watchNow(
 			return err
 		}
 
-		items := make([]*rove.AssetWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.AssetWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -2140,10 +2140,10 @@ func (s sinkAsset) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.AssetWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.AssetWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.AssetWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.AssetWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -2165,15 +2165,15 @@ func (s sinkAsset) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkAsset) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Asset, error) {
+) (*loft.Asset, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.AssetGetRequest_builder{
-		Ref: rove.AssetRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.AssetGetRequest_builder{
+		Ref: loft.AssetRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -2196,7 +2196,7 @@ func (s sinkAsset) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkAsset) watchAssetKeys(
-	ctx context.Context, fs []*rove.AssetFilter,
+	ctx context.Context, fs []*loft.AssetFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -2205,7 +2205,7 @@ func (s sinkAsset) watchAssetKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.AssetGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.AssetGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -2222,14 +2222,14 @@ func (s sinkAsset) watchAssetKeys(
 }
 
 type sinkAssetType struct {
-	rove.AssetTypeServiceServer
+	loft.AssetTypeServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) AssetType() rove.AssetTypeServiceServer {
+func (s Sink) AssetType() loft.AssetTypeServiceServer {
 	return sinkAssetType{s.Server.AssetType(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -2237,7 +2237,7 @@ func (s Sink) AssetType() rove.AssetTypeServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkAssetType) Erase(ctx context.Context, req *rove.AssetTypeRef) (*rove.AssetTypeEraseResponse, error) {
+func (s sinkAssetType) Erase(ctx context.Context, req *loft.AssetTypeRef) (*loft.AssetTypeEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "AssetType", req)
 
 	return s.AssetTypeServiceServer.Erase(ctx, req)
@@ -2246,7 +2246,7 @@ func (s sinkAssetType) Erase(ctx context.Context, req *rove.AssetTypeRef) (*rove
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkAssetType) Apply(ctx context.Context, req *rove.AssetTypeApplyRequest) (*rove.AssetType, error) {
+func (s sinkAssetType) Apply(ctx context.Context, req *loft.AssetTypeApplyRequest) (*loft.AssetType, error) {
 	seen.Forget(s.store.Db.Driver(), "AssetType", req.GetRef())
 
 	return s.AssetTypeServiceServer.Apply(ctx, req)
@@ -2254,7 +2254,7 @@ func (s sinkAssetType) Apply(ctx context.Context, req *rove.AssetTypeApplyReques
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkAssetType.Apply].
-func (s sinkAssetType) Patch(ctx context.Context, req *rove.AssetTypePatchRequest) (*rove.AssetType, error) {
+func (s sinkAssetType) Patch(ctx context.Context, req *loft.AssetTypePatchRequest) (*loft.AssetType, error) {
 	seen.Forget(s.store.Db.Driver(), "AssetType", req.GetRef())
 
 	return s.AssetTypeServiceServer.Patch(ctx, req)
@@ -2318,7 +2318,7 @@ const (
 
 // List answers with the AssetTypes that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkAssetType) List(ctx context.Context, req *rove.AssetTypeListRequest) (*rove.AssetTypeListResponse, error) {
+func (s sinkAssetType) List(ctx context.Context, req *loft.AssetTypeListRequest) (*loft.AssetTypeListResponse, error) {
 	q := s.store.Db.AssetType.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -2383,12 +2383,12 @@ func (s sinkAssetType) List(ctx context.Context, req *rove.AssetTypeListRequest)
 		us = us[:size]
 	}
 
-	items := make([]*rove.AssetType, len(us))
+	items := make([]*loft.AssetType, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.AssetTypeListResponse_builder{Items: items}.Build()
+	res := loft.AssetTypeListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -2404,7 +2404,7 @@ func (s sinkAssetType) List(ctx context.Context, req *rove.AssetTypeListRequest)
 // filterAssetType turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterAssetType(f *rove.AssetTypeFilter) (predicate.AssetType, error) {
+func filterAssetType(f *loft.AssetTypeFilter) (predicate.AssetType, error) {
 	ps := make([]predicate.AssetType, 0, 1)
 	if f.HasRef() {
 		p, err := bare.AssetTypePick(f.GetRef())
@@ -2435,7 +2435,7 @@ func filterAssetType(f *rove.AssetTypeFilter) (predicate.AssetType, error) {
 // AssetTypeService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a AssetType. A service is named for the entity it
 // is about, so the name carries it.
-var AssetTypeService = watch.ServiceOf(rove.AssetTypeService_Get_FullMethodName)
+var AssetTypeService = watch.ServiceOf(loft.AssetTypeService_Get_FullMethodName)
 
 // Watch answers with the AssetTypes this caller may see, as they are now and as
 // they change.
@@ -2444,7 +2444,7 @@ var AssetTypeService = watch.ServiceOf(rove.AssetTypeService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkAssetType) Watch(req *rove.AssetTypeWatchRequest, out grpc.ServerStreamingServer[rove.AssetTypeWatchResponse]) error {
+func (s sinkAssetType) Watch(req *loft.AssetTypeWatchRequest, out grpc.ServerStreamingServer[loft.AssetTypeWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -2478,7 +2478,7 @@ func (s sinkAssetType) Watch(req *rove.AssetTypeWatchRequest, out grpc.ServerStr
 
 	return watch.Stream(ctx, s.w, AssetTypeService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.AssetTypeWatchItem, 0, len(ks))
+			items := make([]*loft.AssetTypeWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -2492,7 +2492,7 @@ func (s sinkAssetType) Watch(req *rove.AssetTypeWatchRequest, out grpc.ServerStr
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.AssetTypeWatchItem_builder{
+				items = append(items, loft.AssetTypeWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -2502,7 +2502,7 @@ func (s sinkAssetType) Watch(req *rove.AssetTypeWatchRequest, out grpc.ServerStr
 				return nil
 			}
 
-			return out.Send(rove.AssetTypeWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.AssetTypeWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -2510,12 +2510,12 @@ func (s sinkAssetType) Watch(req *rove.AssetTypeWatchRequest, out grpc.ServerStr
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkAssetType) watchNow(
-	ctx context.Context, req *rove.AssetTypeWatchRequest, out grpc.ServerStreamingServer[rove.AssetTypeWatchResponse],
+	ctx context.Context, req *loft.AssetTypeWatchRequest, out grpc.ServerStreamingServer[loft.AssetTypeWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.AssetTypeListRequest_builder{
+		res, err := s.List(ctx, loft.AssetTypeListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -2523,7 +2523,7 @@ func (s sinkAssetType) watchNow(
 			return err
 		}
 
-		items := make([]*rove.AssetTypeWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.AssetTypeWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -2533,10 +2533,10 @@ func (s sinkAssetType) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.AssetTypeWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.AssetTypeWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.AssetTypeWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.AssetTypeWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -2558,15 +2558,15 @@ func (s sinkAssetType) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkAssetType) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.AssetType, error) {
+) (*loft.AssetType, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.AssetTypeGetRequest_builder{
-		Ref: rove.AssetTypeRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.AssetTypeGetRequest_builder{
+		Ref: loft.AssetTypeRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -2589,7 +2589,7 @@ func (s sinkAssetType) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkAssetType) watchAssetTypeKeys(
-	ctx context.Context, fs []*rove.AssetTypeFilter,
+	ctx context.Context, fs []*loft.AssetTypeFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -2598,7 +2598,7 @@ func (s sinkAssetType) watchAssetTypeKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.AssetTypeGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.AssetTypeGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -2615,14 +2615,14 @@ func (s sinkAssetType) watchAssetTypeKeys(
 }
 
 type sinkAttachment struct {
-	rove.AttachmentServiceServer
+	loft.AttachmentServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Attachment() rove.AttachmentServiceServer {
+func (s Sink) Attachment() loft.AttachmentServiceServer {
 	return sinkAttachment{s.Server.Attachment(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -2630,7 +2630,7 @@ func (s Sink) Attachment() rove.AttachmentServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkAttachment) Erase(ctx context.Context, req *rove.AttachmentRef) (*rove.AttachmentEraseResponse, error) {
+func (s sinkAttachment) Erase(ctx context.Context, req *loft.AttachmentRef) (*loft.AttachmentEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Attachment", req)
 
 	return s.AttachmentServiceServer.Erase(ctx, req)
@@ -2639,7 +2639,7 @@ func (s sinkAttachment) Erase(ctx context.Context, req *rove.AttachmentRef) (*ro
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkAttachment) Apply(ctx context.Context, req *rove.AttachmentApplyRequest) (*rove.Attachment, error) {
+func (s sinkAttachment) Apply(ctx context.Context, req *loft.AttachmentApplyRequest) (*loft.Attachment, error) {
 	seen.Forget(s.store.Db.Driver(), "Attachment", req.GetRef())
 
 	return s.AttachmentServiceServer.Apply(ctx, req)
@@ -2647,7 +2647,7 @@ func (s sinkAttachment) Apply(ctx context.Context, req *rove.AttachmentApplyRequ
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkAttachment.Apply].
-func (s sinkAttachment) Patch(ctx context.Context, req *rove.AttachmentPatchRequest) (*rove.Attachment, error) {
+func (s sinkAttachment) Patch(ctx context.Context, req *loft.AttachmentPatchRequest) (*loft.Attachment, error) {
 	seen.Forget(s.store.Db.Driver(), "Attachment", req.GetRef())
 
 	return s.AttachmentServiceServer.Patch(ctx, req)
@@ -2711,7 +2711,7 @@ const (
 
 // List answers with the Attachments that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkAttachment) List(ctx context.Context, req *rove.AttachmentListRequest) (*rove.AttachmentListResponse, error) {
+func (s sinkAttachment) List(ctx context.Context, req *loft.AttachmentListRequest) (*loft.AttachmentListResponse, error) {
 	q := s.store.Db.Attachment.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -2776,12 +2776,12 @@ func (s sinkAttachment) List(ctx context.Context, req *rove.AttachmentListReques
 		us = us[:size]
 	}
 
-	items := make([]*rove.Attachment, len(us))
+	items := make([]*loft.Attachment, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.AttachmentListResponse_builder{Items: items}.Build()
+	res := loft.AttachmentListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -2797,7 +2797,7 @@ func (s sinkAttachment) List(ctx context.Context, req *rove.AttachmentListReques
 // filterAttachment turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterAttachment(f *rove.AttachmentFilter) (predicate.Attachment, error) {
+func filterAttachment(f *loft.AttachmentFilter) (predicate.Attachment, error) {
 	ps := make([]predicate.Attachment, 0, 1)
 	if f.HasRef() {
 		p, err := bare.AttachmentPick(f.GetRef())
@@ -2825,7 +2825,7 @@ func filterAttachment(f *rove.AttachmentFilter) (predicate.Attachment, error) {
 // AttachmentService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Attachment. A service is named for the entity it
 // is about, so the name carries it.
-var AttachmentService = watch.ServiceOf(rove.AttachmentService_Get_FullMethodName)
+var AttachmentService = watch.ServiceOf(loft.AttachmentService_Get_FullMethodName)
 
 // Watch answers with the Attachments this caller may see, as they are now and as
 // they change.
@@ -2834,7 +2834,7 @@ var AttachmentService = watch.ServiceOf(rove.AttachmentService_Get_FullMethodNam
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkAttachment) Watch(req *rove.AttachmentWatchRequest, out grpc.ServerStreamingServer[rove.AttachmentWatchResponse]) error {
+func (s sinkAttachment) Watch(req *loft.AttachmentWatchRequest, out grpc.ServerStreamingServer[loft.AttachmentWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -2868,7 +2868,7 @@ func (s sinkAttachment) Watch(req *rove.AttachmentWatchRequest, out grpc.ServerS
 
 	return watch.Stream(ctx, s.w, AttachmentService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.AttachmentWatchItem, 0, len(ks))
+			items := make([]*loft.AttachmentWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -2882,7 +2882,7 @@ func (s sinkAttachment) Watch(req *rove.AttachmentWatchRequest, out grpc.ServerS
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.AttachmentWatchItem_builder{
+				items = append(items, loft.AttachmentWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -2892,7 +2892,7 @@ func (s sinkAttachment) Watch(req *rove.AttachmentWatchRequest, out grpc.ServerS
 				return nil
 			}
 
-			return out.Send(rove.AttachmentWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.AttachmentWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -2900,12 +2900,12 @@ func (s sinkAttachment) Watch(req *rove.AttachmentWatchRequest, out grpc.ServerS
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkAttachment) watchNow(
-	ctx context.Context, req *rove.AttachmentWatchRequest, out grpc.ServerStreamingServer[rove.AttachmentWatchResponse],
+	ctx context.Context, req *loft.AttachmentWatchRequest, out grpc.ServerStreamingServer[loft.AttachmentWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.AttachmentListRequest_builder{
+		res, err := s.List(ctx, loft.AttachmentListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -2913,7 +2913,7 @@ func (s sinkAttachment) watchNow(
 			return err
 		}
 
-		items := make([]*rove.AttachmentWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.AttachmentWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -2923,10 +2923,10 @@ func (s sinkAttachment) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.AttachmentWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.AttachmentWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.AttachmentWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.AttachmentWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -2948,15 +2948,15 @@ func (s sinkAttachment) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkAttachment) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Attachment, error) {
+) (*loft.Attachment, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.AttachmentGetRequest_builder{
-		Ref: rove.AttachmentRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.AttachmentGetRequest_builder{
+		Ref: loft.AttachmentRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -2979,7 +2979,7 @@ func (s sinkAttachment) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkAttachment) watchAttachmentKeys(
-	ctx context.Context, fs []*rove.AttachmentFilter,
+	ctx context.Context, fs []*loft.AttachmentFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -2988,7 +2988,7 @@ func (s sinkAttachment) watchAttachmentKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.AttachmentGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.AttachmentGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -3005,14 +3005,14 @@ func (s sinkAttachment) watchAttachmentKeys(
 }
 
 type sinkAudit struct {
-	rove.AuditServiceServer
+	loft.AuditServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Audit() rove.AuditServiceServer {
+func (s Sink) Audit() loft.AuditServiceServer {
 	return sinkAudit{s.Server.Audit(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -3020,7 +3020,7 @@ func (s Sink) Audit() rove.AuditServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkAudit) Erase(ctx context.Context, req *rove.AuditRef) (*rove.AuditEraseResponse, error) {
+func (s sinkAudit) Erase(ctx context.Context, req *loft.AuditRef) (*loft.AuditEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Audit", req)
 
 	return s.AuditServiceServer.Erase(ctx, req)
@@ -3029,7 +3029,7 @@ func (s sinkAudit) Erase(ctx context.Context, req *rove.AuditRef) (*rove.AuditEr
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkAudit) Apply(ctx context.Context, req *rove.AuditApplyRequest) (*rove.Audit, error) {
+func (s sinkAudit) Apply(ctx context.Context, req *loft.AuditApplyRequest) (*loft.Audit, error) {
 	seen.Forget(s.store.Db.Driver(), "Audit", req.GetRef())
 
 	return s.AuditServiceServer.Apply(ctx, req)
@@ -3037,7 +3037,7 @@ func (s sinkAudit) Apply(ctx context.Context, req *rove.AuditApplyRequest) (*rov
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkAudit.Apply].
-func (s sinkAudit) Patch(ctx context.Context, req *rove.AuditPatchRequest) (*rove.Audit, error) {
+func (s sinkAudit) Patch(ctx context.Context, req *loft.AuditPatchRequest) (*loft.Audit, error) {
 	seen.Forget(s.store.Db.Driver(), "Audit", req.GetRef())
 
 	return s.AuditServiceServer.Patch(ctx, req)
@@ -3101,7 +3101,7 @@ const (
 
 // List answers with the Audits that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkAudit) List(ctx context.Context, req *rove.AuditListRequest) (*rove.AuditListResponse, error) {
+func (s sinkAudit) List(ctx context.Context, req *loft.AuditListRequest) (*loft.AuditListResponse, error) {
 	q := s.store.Db.Audit.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -3166,12 +3166,12 @@ func (s sinkAudit) List(ctx context.Context, req *rove.AuditListRequest) (*rove.
 		us = us[:size]
 	}
 
-	items := make([]*rove.Audit, len(us))
+	items := make([]*loft.Audit, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.AuditListResponse_builder{Items: items}.Build()
+	res := loft.AuditListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -3187,7 +3187,7 @@ func (s sinkAudit) List(ctx context.Context, req *rove.AuditListRequest) (*rove.
 // filterAudit turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterAudit(f *rove.AuditFilter) (predicate.Audit, error) {
+func filterAudit(f *loft.AuditFilter) (predicate.Audit, error) {
 	ps := make([]predicate.Audit, 0, 1)
 	if f.HasObjectId() {
 		k, err := entuuid.FromBytes(f.GetObjectId())
@@ -3237,14 +3237,14 @@ func filterAudit(f *rove.AuditFilter) (predicate.Audit, error) {
 }
 
 type sinkBookable struct {
-	rove.BookableServiceServer
+	loft.BookableServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Bookable() rove.BookableServiceServer {
+func (s Sink) Bookable() loft.BookableServiceServer {
 	v := sinkBookable{s.Server.Bookable(), s.Server.Store, s.w, s.namer, s.joined}
 	v.BookableServiceServer = bare.BookableWithAddRule(v.BookableServiceServer, v.admit)
 	return v
@@ -3254,7 +3254,7 @@ func (s Sink) Bookable() rove.BookableServiceServer {
 // it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Bookable].
-func (s sinkBookable) admit(ctx context.Context, req *rove.BookableAddRequest) (*rove.BookableAddRequest, error) {
+func (s sinkBookable) admit(ctx context.Context, req *loft.BookableAddRequest) (*loft.BookableAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -3272,7 +3272,7 @@ func (s sinkBookable) admit(ctx context.Context, req *rove.BookableAddRequest) (
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkBookable) Erase(ctx context.Context, req *rove.BookableRef) (*rove.BookableEraseResponse, error) {
+func (s sinkBookable) Erase(ctx context.Context, req *loft.BookableRef) (*loft.BookableEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Bookable", req)
 
 	return s.BookableServiceServer.Erase(ctx, req)
@@ -3281,7 +3281,7 @@ func (s sinkBookable) Erase(ctx context.Context, req *rove.BookableRef) (*rove.B
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkBookable) Apply(ctx context.Context, req *rove.BookableApplyRequest) (*rove.Bookable, error) {
+func (s sinkBookable) Apply(ctx context.Context, req *loft.BookableApplyRequest) (*loft.Bookable, error) {
 	seen.Forget(s.store.Db.Driver(), "Bookable", req.GetRef())
 
 	return s.BookableServiceServer.Apply(ctx, req)
@@ -3289,14 +3289,14 @@ func (s sinkBookable) Apply(ctx context.Context, req *rove.BookableApplyRequest)
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkBookable.Apply].
-func (s sinkBookable) Patch(ctx context.Context, req *rove.BookablePatchRequest) (*rove.Bookable, error) {
+func (s sinkBookable) Patch(ctx context.Context, req *loft.BookablePatchRequest) (*loft.Bookable, error) {
 	seen.Forget(s.store.Db.Driver(), "Bookable", req.GetRef())
 
 	return s.BookableServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkBookable) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkBookable) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -3323,7 +3323,7 @@ func (s sinkBookable) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) (
 }
 
 // tenantAtAssetTenant is the tenant "asset.tenant" arrives at.
-func (s sinkBookable) tenantAtAssetTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkBookable) tenantAtAssetTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("asset", "required: it is what says which tenant this belongs to")
 	}
@@ -3354,7 +3354,7 @@ func (s sinkBookable) tenantAtAssetTenant(ctx context.Context, ref *rove.AssetRe
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkBookable) tenancy(ctx context.Context, req *rove.BookableAddRequest) error {
+func (s sinkBookable) tenancy(ctx context.Context, req *loft.BookableAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -3436,7 +3436,7 @@ const (
 
 // List answers with the Bookables that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkBookable) List(ctx context.Context, req *rove.BookableListRequest) (*rove.BookableListResponse, error) {
+func (s sinkBookable) List(ctx context.Context, req *loft.BookableListRequest) (*loft.BookableListResponse, error) {
 	q := s.store.Db.Bookable.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -3501,12 +3501,12 @@ func (s sinkBookable) List(ctx context.Context, req *rove.BookableListRequest) (
 		us = us[:size]
 	}
 
-	items := make([]*rove.Bookable, len(us))
+	items := make([]*loft.Bookable, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.BookableListResponse_builder{Items: items}.Build()
+	res := loft.BookableListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -3522,7 +3522,7 @@ func (s sinkBookable) List(ctx context.Context, req *rove.BookableListRequest) (
 // filterBookable turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterBookable(f *rove.BookableFilter) (predicate.Bookable, error) {
+func filterBookable(f *loft.BookableFilter) (predicate.Bookable, error) {
 	ps := make([]predicate.Bookable, 0, 1)
 	if f.HasRef() {
 		p, err := bare.BookablePick(f.GetRef())
@@ -3573,7 +3573,7 @@ func filterBookable(f *rove.BookableFilter) (predicate.Bookable, error) {
 // BookableService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Bookable. A service is named for the entity it
 // is about, so the name carries it.
-var BookableService = watch.ServiceOf(rove.BookableService_Get_FullMethodName)
+var BookableService = watch.ServiceOf(loft.BookableService_Get_FullMethodName)
 
 // Watch answers with the Bookables this caller may see, as they are now and as
 // they change.
@@ -3582,7 +3582,7 @@ var BookableService = watch.ServiceOf(rove.BookableService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkBookable) Watch(req *rove.BookableWatchRequest, out grpc.ServerStreamingServer[rove.BookableWatchResponse]) error {
+func (s sinkBookable) Watch(req *loft.BookableWatchRequest, out grpc.ServerStreamingServer[loft.BookableWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -3616,7 +3616,7 @@ func (s sinkBookable) Watch(req *rove.BookableWatchRequest, out grpc.ServerStrea
 
 	return watch.Stream(ctx, s.w, BookableService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.BookableWatchItem, 0, len(ks))
+			items := make([]*loft.BookableWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -3630,7 +3630,7 @@ func (s sinkBookable) Watch(req *rove.BookableWatchRequest, out grpc.ServerStrea
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.BookableWatchItem_builder{
+				items = append(items, loft.BookableWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -3640,7 +3640,7 @@ func (s sinkBookable) Watch(req *rove.BookableWatchRequest, out grpc.ServerStrea
 				return nil
 			}
 
-			return out.Send(rove.BookableWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.BookableWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -3648,12 +3648,12 @@ func (s sinkBookable) Watch(req *rove.BookableWatchRequest, out grpc.ServerStrea
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkBookable) watchNow(
-	ctx context.Context, req *rove.BookableWatchRequest, out grpc.ServerStreamingServer[rove.BookableWatchResponse],
+	ctx context.Context, req *loft.BookableWatchRequest, out grpc.ServerStreamingServer[loft.BookableWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.BookableListRequest_builder{
+		res, err := s.List(ctx, loft.BookableListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -3661,7 +3661,7 @@ func (s sinkBookable) watchNow(
 			return err
 		}
 
-		items := make([]*rove.BookableWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.BookableWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -3671,10 +3671,10 @@ func (s sinkBookable) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.BookableWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.BookableWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.BookableWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.BookableWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -3696,15 +3696,15 @@ func (s sinkBookable) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkBookable) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Bookable, error) {
+) (*loft.Bookable, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.BookableGetRequest_builder{
-		Ref: rove.BookableRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.BookableGetRequest_builder{
+		Ref: loft.BookableRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -3727,7 +3727,7 @@ func (s sinkBookable) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkBookable) watchBookableKeys(
-	ctx context.Context, fs []*rove.BookableFilter,
+	ctx context.Context, fs []*loft.BookableFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -3736,7 +3736,7 @@ func (s sinkBookable) watchBookableKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.BookableGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.BookableGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -3753,14 +3753,14 @@ func (s sinkBookable) watchBookableKeys(
 }
 
 type sinkCountFinding struct {
-	rove.CountFindingServiceServer
+	loft.CountFindingServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) CountFinding() rove.CountFindingServiceServer {
+func (s Sink) CountFinding() loft.CountFindingServiceServer {
 	v := sinkCountFinding{s.Server.CountFinding(), s.Server.Store, s.w, s.namer, s.joined}
 	v.CountFindingServiceServer = bare.CountFindingWithAddRule(v.CountFindingServiceServer, v.admit)
 	return v
@@ -3770,7 +3770,7 @@ func (s Sink) CountFinding() rove.CountFindingServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.CountFinding].
-func (s sinkCountFinding) admit(ctx context.Context, req *rove.CountFindingAddRequest) (*rove.CountFindingAddRequest, error) {
+func (s sinkCountFinding) admit(ctx context.Context, req *loft.CountFindingAddRequest) (*loft.CountFindingAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -3788,7 +3788,7 @@ func (s sinkCountFinding) admit(ctx context.Context, req *rove.CountFindingAddRe
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkCountFinding) Erase(ctx context.Context, req *rove.CountFindingRef) (*rove.CountFindingEraseResponse, error) {
+func (s sinkCountFinding) Erase(ctx context.Context, req *loft.CountFindingRef) (*loft.CountFindingEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "CountFinding", req)
 
 	return s.CountFindingServiceServer.Erase(ctx, req)
@@ -3797,7 +3797,7 @@ func (s sinkCountFinding) Erase(ctx context.Context, req *rove.CountFindingRef) 
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkCountFinding) Apply(ctx context.Context, req *rove.CountFindingApplyRequest) (*rove.CountFinding, error) {
+func (s sinkCountFinding) Apply(ctx context.Context, req *loft.CountFindingApplyRequest) (*loft.CountFinding, error) {
 	seen.Forget(s.store.Db.Driver(), "CountFinding", req.GetRef())
 
 	return s.CountFindingServiceServer.Apply(ctx, req)
@@ -3805,14 +3805,14 @@ func (s sinkCountFinding) Apply(ctx context.Context, req *rove.CountFindingApply
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkCountFinding.Apply].
-func (s sinkCountFinding) Patch(ctx context.Context, req *rove.CountFindingPatchRequest) (*rove.CountFinding, error) {
+func (s sinkCountFinding) Patch(ctx context.Context, req *loft.CountFindingPatchRequest) (*loft.CountFinding, error) {
 	seen.Forget(s.store.Db.Driver(), "CountFinding", req.GetRef())
 
 	return s.CountFindingServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkCountFinding) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkCountFinding) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -3839,7 +3839,7 @@ func (s sinkCountFinding) tenantAtTenant(ctx context.Context, ref *rove.TenantRe
 }
 
 // tenantAtCountTenant is the tenant "count.tenant" arrives at.
-func (s sinkCountFinding) tenantAtCountTenant(ctx context.Context, ref *rove.InventoryCountRef) ([]byte, error) {
+func (s sinkCountFinding) tenantAtCountTenant(ctx context.Context, ref *loft.InventoryCountRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("count", "required: it is what says which tenant this belongs to")
 	}
@@ -3866,7 +3866,7 @@ func (s sinkCountFinding) tenantAtCountTenant(ctx context.Context, ref *rove.Inv
 }
 
 // tenantAtAssetTenant is the tenant "asset.tenant" arrives at.
-func (s sinkCountFinding) tenantAtAssetTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkCountFinding) tenantAtAssetTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("asset", "required: it is what says which tenant this belongs to")
 	}
@@ -3897,7 +3897,7 @@ func (s sinkCountFinding) tenantAtAssetTenant(ctx context.Context, ref *rove.Ass
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkCountFinding) tenancy(ctx context.Context, req *rove.CountFindingAddRequest) error {
+func (s sinkCountFinding) tenancy(ctx context.Context, req *loft.CountFindingAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -3994,7 +3994,7 @@ const (
 
 // List answers with the CountFindings that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkCountFinding) List(ctx context.Context, req *rove.CountFindingListRequest) (*rove.CountFindingListResponse, error) {
+func (s sinkCountFinding) List(ctx context.Context, req *loft.CountFindingListRequest) (*loft.CountFindingListResponse, error) {
 	q := s.store.Db.CountFinding.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -4059,12 +4059,12 @@ func (s sinkCountFinding) List(ctx context.Context, req *rove.CountFindingListRe
 		us = us[:size]
 	}
 
-	items := make([]*rove.CountFinding, len(us))
+	items := make([]*loft.CountFinding, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.CountFindingListResponse_builder{Items: items}.Build()
+	res := loft.CountFindingListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -4080,7 +4080,7 @@ func (s sinkCountFinding) List(ctx context.Context, req *rove.CountFindingListRe
 // filterCountFinding turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterCountFinding(f *rove.CountFindingFilter) (predicate.CountFinding, error) {
+func filterCountFinding(f *loft.CountFindingFilter) (predicate.CountFinding, error) {
 	ps := make([]predicate.CountFinding, 0, 1)
 	if f.HasRef() {
 		p, err := bare.CountFindingPick(f.GetRef())
@@ -4156,7 +4156,7 @@ func filterCountFinding(f *rove.CountFindingFilter) (predicate.CountFinding, err
 // CountFindingService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a CountFinding. A service is named for the entity it
 // is about, so the name carries it.
-var CountFindingService = watch.ServiceOf(rove.CountFindingService_Get_FullMethodName)
+var CountFindingService = watch.ServiceOf(loft.CountFindingService_Get_FullMethodName)
 
 // Watch answers with the CountFindings this caller may see, as they are now and as
 // they change.
@@ -4165,7 +4165,7 @@ var CountFindingService = watch.ServiceOf(rove.CountFindingService_Get_FullMetho
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkCountFinding) Watch(req *rove.CountFindingWatchRequest, out grpc.ServerStreamingServer[rove.CountFindingWatchResponse]) error {
+func (s sinkCountFinding) Watch(req *loft.CountFindingWatchRequest, out grpc.ServerStreamingServer[loft.CountFindingWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -4199,7 +4199,7 @@ func (s sinkCountFinding) Watch(req *rove.CountFindingWatchRequest, out grpc.Ser
 
 	return watch.Stream(ctx, s.w, CountFindingService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.CountFindingWatchItem, 0, len(ks))
+			items := make([]*loft.CountFindingWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -4213,7 +4213,7 @@ func (s sinkCountFinding) Watch(req *rove.CountFindingWatchRequest, out grpc.Ser
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.CountFindingWatchItem_builder{
+				items = append(items, loft.CountFindingWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -4223,7 +4223,7 @@ func (s sinkCountFinding) Watch(req *rove.CountFindingWatchRequest, out grpc.Ser
 				return nil
 			}
 
-			return out.Send(rove.CountFindingWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.CountFindingWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -4231,12 +4231,12 @@ func (s sinkCountFinding) Watch(req *rove.CountFindingWatchRequest, out grpc.Ser
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkCountFinding) watchNow(
-	ctx context.Context, req *rove.CountFindingWatchRequest, out grpc.ServerStreamingServer[rove.CountFindingWatchResponse],
+	ctx context.Context, req *loft.CountFindingWatchRequest, out grpc.ServerStreamingServer[loft.CountFindingWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.CountFindingListRequest_builder{
+		res, err := s.List(ctx, loft.CountFindingListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -4244,7 +4244,7 @@ func (s sinkCountFinding) watchNow(
 			return err
 		}
 
-		items := make([]*rove.CountFindingWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.CountFindingWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -4254,10 +4254,10 @@ func (s sinkCountFinding) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.CountFindingWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.CountFindingWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.CountFindingWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.CountFindingWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -4279,15 +4279,15 @@ func (s sinkCountFinding) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkCountFinding) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.CountFinding, error) {
+) (*loft.CountFinding, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.CountFindingGetRequest_builder{
-		Ref: rove.CountFindingRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.CountFindingGetRequest_builder{
+		Ref: loft.CountFindingRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -4310,7 +4310,7 @@ func (s sinkCountFinding) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkCountFinding) watchCountFindingKeys(
-	ctx context.Context, fs []*rove.CountFindingFilter,
+	ctx context.Context, fs []*loft.CountFindingFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -4319,7 +4319,7 @@ func (s sinkCountFinding) watchCountFindingKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.CountFindingGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.CountFindingGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -4336,14 +4336,14 @@ func (s sinkCountFinding) watchCountFindingKeys(
 }
 
 type sinkCustody struct {
-	rove.CustodyServiceServer
+	loft.CustodyServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Custody() rove.CustodyServiceServer {
+func (s Sink) Custody() loft.CustodyServiceServer {
 	v := sinkCustody{s.Server.Custody(), s.Server.Store, s.w, s.namer, s.joined}
 	v.CustodyServiceServer = bare.CustodyWithAddRule(v.CustodyServiceServer, v.admit)
 	return v
@@ -4353,7 +4353,7 @@ func (s Sink) Custody() rove.CustodyServiceServer {
 // it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Custody].
-func (s sinkCustody) admit(ctx context.Context, req *rove.CustodyAddRequest) (*rove.CustodyAddRequest, error) {
+func (s sinkCustody) admit(ctx context.Context, req *loft.CustodyAddRequest) (*loft.CustodyAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -4371,7 +4371,7 @@ func (s sinkCustody) admit(ctx context.Context, req *rove.CustodyAddRequest) (*r
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkCustody) Erase(ctx context.Context, req *rove.CustodyRef) (*rove.CustodyEraseResponse, error) {
+func (s sinkCustody) Erase(ctx context.Context, req *loft.CustodyRef) (*loft.CustodyEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Custody", req)
 
 	return s.CustodyServiceServer.Erase(ctx, req)
@@ -4380,7 +4380,7 @@ func (s sinkCustody) Erase(ctx context.Context, req *rove.CustodyRef) (*rove.Cus
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkCustody) Apply(ctx context.Context, req *rove.CustodyApplyRequest) (*rove.Custody, error) {
+func (s sinkCustody) Apply(ctx context.Context, req *loft.CustodyApplyRequest) (*loft.Custody, error) {
 	seen.Forget(s.store.Db.Driver(), "Custody", req.GetRef())
 
 	return s.CustodyServiceServer.Apply(ctx, req)
@@ -4388,14 +4388,14 @@ func (s sinkCustody) Apply(ctx context.Context, req *rove.CustodyApplyRequest) (
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkCustody.Apply].
-func (s sinkCustody) Patch(ctx context.Context, req *rove.CustodyPatchRequest) (*rove.Custody, error) {
+func (s sinkCustody) Patch(ctx context.Context, req *loft.CustodyPatchRequest) (*loft.Custody, error) {
 	seen.Forget(s.store.Db.Driver(), "Custody", req.GetRef())
 
 	return s.CustodyServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkCustody) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkCustody) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -4422,7 +4422,7 @@ func (s sinkCustody) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([
 }
 
 // tenantAtPartyTenant is the tenant "party.tenant" arrives at.
-func (s sinkCustody) tenantAtPartyTenant(ctx context.Context, ref *rove.PartyRef) ([]byte, error) {
+func (s sinkCustody) tenantAtPartyTenant(ctx context.Context, ref *loft.PartyRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("party", "required: it is what says which tenant this belongs to")
 	}
@@ -4453,7 +4453,7 @@ func (s sinkCustody) tenantAtPartyTenant(ctx context.Context, ref *rove.PartyRef
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkCustody) tenancy(ctx context.Context, req *rove.CustodyAddRequest) error {
+func (s sinkCustody) tenancy(ctx context.Context, req *loft.CustodyAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -4535,7 +4535,7 @@ const (
 
 // List answers with the Custodys that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkCustody) List(ctx context.Context, req *rove.CustodyListRequest) (*rove.CustodyListResponse, error) {
+func (s sinkCustody) List(ctx context.Context, req *loft.CustodyListRequest) (*loft.CustodyListResponse, error) {
 	q := s.store.Db.Custody.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -4600,12 +4600,12 @@ func (s sinkCustody) List(ctx context.Context, req *rove.CustodyListRequest) (*r
 		us = us[:size]
 	}
 
-	items := make([]*rove.Custody, len(us))
+	items := make([]*loft.Custody, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.CustodyListResponse_builder{Items: items}.Build()
+	res := loft.CustodyListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -4621,7 +4621,7 @@ func (s sinkCustody) List(ctx context.Context, req *rove.CustodyListRequest) (*r
 // filterCustody turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterCustody(f *rove.CustodyFilter) (predicate.Custody, error) {
+func filterCustody(f *loft.CustodyFilter) (predicate.Custody, error) {
 	ps := make([]predicate.Custody, 0, 1)
 	if f.HasRef() {
 		p, err := bare.CustodyPick(f.GetRef())
@@ -4680,7 +4680,7 @@ func filterCustody(f *rove.CustodyFilter) (predicate.Custody, error) {
 // CustodyService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Custody. A service is named for the entity it
 // is about, so the name carries it.
-var CustodyService = watch.ServiceOf(rove.CustodyService_Get_FullMethodName)
+var CustodyService = watch.ServiceOf(loft.CustodyService_Get_FullMethodName)
 
 // Watch answers with the Custodys this caller may see, as they are now and as
 // they change.
@@ -4689,7 +4689,7 @@ var CustodyService = watch.ServiceOf(rove.CustodyService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkCustody) Watch(req *rove.CustodyWatchRequest, out grpc.ServerStreamingServer[rove.CustodyWatchResponse]) error {
+func (s sinkCustody) Watch(req *loft.CustodyWatchRequest, out grpc.ServerStreamingServer[loft.CustodyWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -4723,7 +4723,7 @@ func (s sinkCustody) Watch(req *rove.CustodyWatchRequest, out grpc.ServerStreami
 
 	return watch.Stream(ctx, s.w, CustodyService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.CustodyWatchItem, 0, len(ks))
+			items := make([]*loft.CustodyWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -4737,7 +4737,7 @@ func (s sinkCustody) Watch(req *rove.CustodyWatchRequest, out grpc.ServerStreami
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.CustodyWatchItem_builder{
+				items = append(items, loft.CustodyWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -4747,7 +4747,7 @@ func (s sinkCustody) Watch(req *rove.CustodyWatchRequest, out grpc.ServerStreami
 				return nil
 			}
 
-			return out.Send(rove.CustodyWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.CustodyWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -4755,12 +4755,12 @@ func (s sinkCustody) Watch(req *rove.CustodyWatchRequest, out grpc.ServerStreami
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkCustody) watchNow(
-	ctx context.Context, req *rove.CustodyWatchRequest, out grpc.ServerStreamingServer[rove.CustodyWatchResponse],
+	ctx context.Context, req *loft.CustodyWatchRequest, out grpc.ServerStreamingServer[loft.CustodyWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.CustodyListRequest_builder{
+		res, err := s.List(ctx, loft.CustodyListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -4768,7 +4768,7 @@ func (s sinkCustody) watchNow(
 			return err
 		}
 
-		items := make([]*rove.CustodyWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.CustodyWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -4778,10 +4778,10 @@ func (s sinkCustody) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.CustodyWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.CustodyWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.CustodyWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.CustodyWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -4803,15 +4803,15 @@ func (s sinkCustody) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkCustody) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Custody, error) {
+) (*loft.Custody, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.CustodyGetRequest_builder{
-		Ref: rove.CustodyRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.CustodyGetRequest_builder{
+		Ref: loft.CustodyRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -4834,7 +4834,7 @@ func (s sinkCustody) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkCustody) watchCustodyKeys(
-	ctx context.Context, fs []*rove.CustodyFilter,
+	ctx context.Context, fs []*loft.CustodyFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -4843,7 +4843,7 @@ func (s sinkCustody) watchCustodyKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.CustodyGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.CustodyGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -4860,14 +4860,14 @@ func (s sinkCustody) watchCustodyKeys(
 }
 
 type sinkCustodyLine struct {
-	rove.CustodyLineServiceServer
+	loft.CustodyLineServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) CustodyLine() rove.CustodyLineServiceServer {
+func (s Sink) CustodyLine() loft.CustodyLineServiceServer {
 	v := sinkCustodyLine{s.Server.CustodyLine(), s.Server.Store, s.w, s.namer, s.joined}
 	v.CustodyLineServiceServer = bare.CustodyLineWithAddRule(v.CustodyLineServiceServer, v.admit)
 	return v
@@ -4877,7 +4877,7 @@ func (s Sink) CustodyLine() rove.CustodyLineServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.CustodyLine].
-func (s sinkCustodyLine) admit(ctx context.Context, req *rove.CustodyLineAddRequest) (*rove.CustodyLineAddRequest, error) {
+func (s sinkCustodyLine) admit(ctx context.Context, req *loft.CustodyLineAddRequest) (*loft.CustodyLineAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -4895,7 +4895,7 @@ func (s sinkCustodyLine) admit(ctx context.Context, req *rove.CustodyLineAddRequ
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkCustodyLine) Erase(ctx context.Context, req *rove.CustodyLineRef) (*rove.CustodyLineEraseResponse, error) {
+func (s sinkCustodyLine) Erase(ctx context.Context, req *loft.CustodyLineRef) (*loft.CustodyLineEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "CustodyLine", req)
 
 	return s.CustodyLineServiceServer.Erase(ctx, req)
@@ -4904,7 +4904,7 @@ func (s sinkCustodyLine) Erase(ctx context.Context, req *rove.CustodyLineRef) (*
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkCustodyLine) Apply(ctx context.Context, req *rove.CustodyLineApplyRequest) (*rove.CustodyLine, error) {
+func (s sinkCustodyLine) Apply(ctx context.Context, req *loft.CustodyLineApplyRequest) (*loft.CustodyLine, error) {
 	seen.Forget(s.store.Db.Driver(), "CustodyLine", req.GetRef())
 
 	return s.CustodyLineServiceServer.Apply(ctx, req)
@@ -4912,14 +4912,14 @@ func (s sinkCustodyLine) Apply(ctx context.Context, req *rove.CustodyLineApplyRe
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkCustodyLine.Apply].
-func (s sinkCustodyLine) Patch(ctx context.Context, req *rove.CustodyLinePatchRequest) (*rove.CustodyLine, error) {
+func (s sinkCustodyLine) Patch(ctx context.Context, req *loft.CustodyLinePatchRequest) (*loft.CustodyLine, error) {
 	seen.Forget(s.store.Db.Driver(), "CustodyLine", req.GetRef())
 
 	return s.CustodyLineServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkCustodyLine) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkCustodyLine) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -4946,7 +4946,7 @@ func (s sinkCustodyLine) tenantAtTenant(ctx context.Context, ref *rove.TenantRef
 }
 
 // tenantAtCustodyTenant is the tenant "custody.tenant" arrives at.
-func (s sinkCustodyLine) tenantAtCustodyTenant(ctx context.Context, ref *rove.CustodyRef) ([]byte, error) {
+func (s sinkCustodyLine) tenantAtCustodyTenant(ctx context.Context, ref *loft.CustodyRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("custody", "required: it is what says which tenant this belongs to")
 	}
@@ -4973,7 +4973,7 @@ func (s sinkCustodyLine) tenantAtCustodyTenant(ctx context.Context, ref *rove.Cu
 }
 
 // tenantAtAssetTenant is the tenant "asset.tenant" arrives at.
-func (s sinkCustodyLine) tenantAtAssetTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkCustodyLine) tenantAtAssetTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("asset", "required: it is what says which tenant this belongs to")
 	}
@@ -5000,7 +5000,7 @@ func (s sinkCustodyLine) tenantAtAssetTenant(ctx context.Context, ref *rove.Asse
 }
 
 // tenantAtStockTenant is the tenant "stock.tenant" arrives at.
-func (s sinkCustodyLine) tenantAtStockTenant(ctx context.Context, ref *rove.StockRef) ([]byte, error) {
+func (s sinkCustodyLine) tenantAtStockTenant(ctx context.Context, ref *loft.StockRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("stock", "required: it is what says which tenant this belongs to")
 	}
@@ -5031,7 +5031,7 @@ func (s sinkCustodyLine) tenantAtStockTenant(ctx context.Context, ref *rove.Stoc
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkCustodyLine) tenancy(ctx context.Context, req *rove.CustodyLineAddRequest) error {
+func (s sinkCustodyLine) tenancy(ctx context.Context, req *loft.CustodyLineAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -5143,7 +5143,7 @@ const (
 
 // List answers with the CustodyLines that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkCustodyLine) List(ctx context.Context, req *rove.CustodyLineListRequest) (*rove.CustodyLineListResponse, error) {
+func (s sinkCustodyLine) List(ctx context.Context, req *loft.CustodyLineListRequest) (*loft.CustodyLineListResponse, error) {
 	q := s.store.Db.CustodyLine.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -5208,12 +5208,12 @@ func (s sinkCustodyLine) List(ctx context.Context, req *rove.CustodyLineListRequ
 		us = us[:size]
 	}
 
-	items := make([]*rove.CustodyLine, len(us))
+	items := make([]*loft.CustodyLine, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.CustodyLineListResponse_builder{Items: items}.Build()
+	res := loft.CustodyLineListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -5229,7 +5229,7 @@ func (s sinkCustodyLine) List(ctx context.Context, req *rove.CustodyLineListRequ
 // filterCustodyLine turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterCustodyLine(f *rove.CustodyLineFilter) (predicate.CustodyLine, error) {
+func filterCustodyLine(f *loft.CustodyLineFilter) (predicate.CustodyLine, error) {
 	ps := make([]predicate.CustodyLine, 0, 1)
 	if f.HasRef() {
 		p, err := bare.CustodyLinePick(f.GetRef())
@@ -5322,14 +5322,14 @@ func filterCustodyLine(f *rove.CustodyLineFilter) (predicate.CustodyLine, error)
 }
 
 type sinkEvent struct {
-	rove.EventServiceServer
+	loft.EventServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Event() rove.EventServiceServer {
+func (s Sink) Event() loft.EventServiceServer {
 	return sinkEvent{s.Server.Event(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -5391,7 +5391,7 @@ const (
 
 // List answers with the Events that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkEvent) List(ctx context.Context, req *rove.EventListRequest) (*rove.EventListResponse, error) {
+func (s sinkEvent) List(ctx context.Context, req *loft.EventListRequest) (*loft.EventListResponse, error) {
 	q := s.store.Db.Event.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -5456,12 +5456,12 @@ func (s sinkEvent) List(ctx context.Context, req *rove.EventListRequest) (*rove.
 		us = us[:size]
 	}
 
-	items := make([]*rove.Event, len(us))
+	items := make([]*loft.Event, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.EventListResponse_builder{Items: items}.Build()
+	res := loft.EventListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -5477,7 +5477,7 @@ func (s sinkEvent) List(ctx context.Context, req *rove.EventListRequest) (*rove.
 // filterEvent turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterEvent(f *rove.EventFilter) (predicate.Event, error) {
+func filterEvent(f *loft.EventFilter) (predicate.Event, error) {
 	ps := make([]predicate.Event, 0, 1)
 	if f.HasRef() {
 		p, err := bare.EventPick(f.GetRef())
@@ -5522,21 +5522,21 @@ func filterEvent(f *rove.EventFilter) (predicate.Event, error) {
 }
 
 type sinkFact struct {
-	rove.FactServiceServer
+	loft.FactServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Fact() rove.FactServiceServer {
+func (s Sink) Fact() loft.FactServiceServer {
 	return sinkFact{s.Server.Fact(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkFact) Apply(ctx context.Context, req *rove.FactApplyRequest) (*rove.Fact, error) {
+func (s sinkFact) Apply(ctx context.Context, req *loft.FactApplyRequest) (*loft.Fact, error) {
 	seen.Forget(s.store.Db.Driver(), "Fact", req.GetRef())
 
 	return s.FactServiceServer.Apply(ctx, req)
@@ -5544,7 +5544,7 @@ func (s sinkFact) Apply(ctx context.Context, req *rove.FactApplyRequest) (*rove.
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkFact.Apply].
-func (s sinkFact) Patch(ctx context.Context, req *rove.FactPatchRequest) (*rove.Fact, error) {
+func (s sinkFact) Patch(ctx context.Context, req *loft.FactPatchRequest) (*loft.Fact, error) {
 	seen.Forget(s.store.Db.Driver(), "Fact", req.GetRef())
 
 	return s.FactServiceServer.Patch(ctx, req)
@@ -5608,7 +5608,7 @@ const (
 
 // List answers with the Facts that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkFact) List(ctx context.Context, req *rove.FactListRequest) (*rove.FactListResponse, error) {
+func (s sinkFact) List(ctx context.Context, req *loft.FactListRequest) (*loft.FactListResponse, error) {
 	q := s.store.Db.Fact.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -5673,12 +5673,12 @@ func (s sinkFact) List(ctx context.Context, req *rove.FactListRequest) (*rove.Fa
 		us = us[:size]
 	}
 
-	items := make([]*rove.Fact, len(us))
+	items := make([]*loft.Fact, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.FactListResponse_builder{Items: items}.Build()
+	res := loft.FactListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -5694,7 +5694,7 @@ func (s sinkFact) List(ctx context.Context, req *rove.FactListRequest) (*rove.Fa
 // filterFact turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterFact(f *rove.FactFilter) (predicate.Fact, error) {
+func filterFact(f *loft.FactFilter) (predicate.Fact, error) {
 	ps := make([]predicate.Fact, 0, 1)
 	if f.HasRef() {
 		p, err := bare.FactPick(f.GetRef())
@@ -5723,14 +5723,14 @@ func filterFact(f *rove.FactFilter) (predicate.Fact, error) {
 }
 
 type sinkHolder struct {
-	rove.HolderServiceServer
+	loft.HolderServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Holder() rove.HolderServiceServer {
+func (s Sink) Holder() loft.HolderServiceServer {
 	v := sinkHolder{s.Server.Holder(), s.Server.Store, s.w, s.namer, s.joined}
 	v.HolderServiceServer = bare.HolderWithAddRule(v.HolderServiceServer, v.admit)
 	return v
@@ -5746,14 +5746,14 @@ func (s Sink) Holder() rove.HolderServiceServer {
 // when nothing was -- for the reason `bare.Minter` makes a key up. An app
 // whose rows have to be named says so with `slug.Required`; see
 // `slug.Names` for why that is the way round it is.
-func (s sinkHolder) admit(ctx context.Context, req *rove.HolderAddRequest) (*rove.HolderAddRequest, error) {
+func (s sinkHolder) admit(ctx context.Context, req *loft.HolderAddRequest) (*loft.HolderAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
 	// changing a value they can read back.
 	r := proto.CloneOf(req)
 
-	v, err := slug.NameWith(ctx, s.namer, "rove.Holder", req.GetAlias(), req)
+	v, err := slug.NameWith(ctx, s.namer, "loft.Holder", req.GetAlias(), req)
 	if err != nil {
 		return nil, pderr.At("alias", err)
 	}
@@ -5766,7 +5766,7 @@ func (s sinkHolder) admit(ctx context.Context, req *rove.HolderAddRequest) (*rov
 //
 // The name is [sinkHolder.admit]'s, and every try goes through it, so a
 // name made up is made up again and a name given is the same each time.
-func (s sinkHolder) Add(ctx context.Context, req *rove.HolderAddRequest) (*rove.Holder, error) {
+func (s sinkHolder) Add(ctx context.Context, req *loft.HolderAddRequest) (*loft.Holder, error) {
 	// How many names to try. More than one only when the caller named
 	// nothing -- then the name is this server's and a collision is this
 	// server's to resolve. A name the caller gave is theirs, and quietly
@@ -5804,7 +5804,7 @@ func (s sinkHolder) Add(ctx context.Context, req *rove.HolderAddRequest) (*rove.
 //
 // And it forgets what the transaction was told about the row; see
 // [sinkHolder.Apply].
-func (s sinkHolder) Patch(ctx context.Context, req *rove.HolderPatchRequest) (*rove.Holder, error) {
+func (s sinkHolder) Patch(ctx context.Context, req *loft.HolderPatchRequest) (*loft.Holder, error) {
 	seen.Forget(s.store.Db.Driver(), "Holder", req.GetRef())
 
 	if !req.HasAlias() {
@@ -5826,7 +5826,7 @@ func (s sinkHolder) Patch(ctx context.Context, req *rove.HolderPatchRequest) (*r
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkHolder) Erase(ctx context.Context, req *rove.HolderRef) (*rove.HolderEraseResponse, error) {
+func (s sinkHolder) Erase(ctx context.Context, req *loft.HolderRef) (*loft.HolderEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Holder", req)
 
 	return s.HolderServiceServer.Erase(ctx, req)
@@ -5835,7 +5835,7 @@ func (s sinkHolder) Erase(ctx context.Context, req *rove.HolderRef) (*rove.Holde
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkHolder) Apply(ctx context.Context, req *rove.HolderApplyRequest) (*rove.Holder, error) {
+func (s sinkHolder) Apply(ctx context.Context, req *loft.HolderApplyRequest) (*loft.Holder, error) {
 	seen.Forget(s.store.Db.Driver(), "Holder", req.GetRef())
 
 	return s.HolderServiceServer.Apply(ctx, req)
@@ -5899,7 +5899,7 @@ const (
 
 // List answers with the Holders that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkHolder) List(ctx context.Context, req *rove.HolderListRequest) (*rove.HolderListResponse, error) {
+func (s sinkHolder) List(ctx context.Context, req *loft.HolderListRequest) (*loft.HolderListResponse, error) {
 	q := s.store.Db.Holder.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -5964,12 +5964,12 @@ func (s sinkHolder) List(ctx context.Context, req *rove.HolderListRequest) (*rov
 		us = us[:size]
 	}
 
-	items := make([]*rove.Holder, len(us))
+	items := make([]*loft.Holder, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.HolderListResponse_builder{Items: items}.Build()
+	res := loft.HolderListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -5985,7 +5985,7 @@ func (s sinkHolder) List(ctx context.Context, req *rove.HolderListRequest) (*rov
 // filterHolder turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterHolder(f *rove.HolderFilter) (predicate.Holder, error) {
+func filterHolder(f *loft.HolderFilter) (predicate.Holder, error) {
 	ps := make([]predicate.Holder, 0, 1)
 	if f.HasRef() {
 		p, err := bare.HolderPick(f.GetRef())
@@ -6046,7 +6046,7 @@ func filterHolder(f *rove.HolderFilter) (predicate.Holder, error) {
 // HolderService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Holder. A service is named for the entity it
 // is about, so the name carries it.
-var HolderService = watch.ServiceOf(rove.HolderService_Get_FullMethodName)
+var HolderService = watch.ServiceOf(loft.HolderService_Get_FullMethodName)
 
 // Watch answers with the Holders this caller may see, as they are now and as
 // they change.
@@ -6055,7 +6055,7 @@ var HolderService = watch.ServiceOf(rove.HolderService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkHolder) Watch(req *rove.HolderWatchRequest, out grpc.ServerStreamingServer[rove.HolderWatchResponse]) error {
+func (s sinkHolder) Watch(req *loft.HolderWatchRequest, out grpc.ServerStreamingServer[loft.HolderWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -6089,7 +6089,7 @@ func (s sinkHolder) Watch(req *rove.HolderWatchRequest, out grpc.ServerStreaming
 
 	return watch.Stream(ctx, s.w, HolderService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.HolderWatchItem, 0, len(ks))
+			items := make([]*loft.HolderWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -6103,7 +6103,7 @@ func (s sinkHolder) Watch(req *rove.HolderWatchRequest, out grpc.ServerStreaming
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.HolderWatchItem_builder{
+				items = append(items, loft.HolderWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -6113,7 +6113,7 @@ func (s sinkHolder) Watch(req *rove.HolderWatchRequest, out grpc.ServerStreaming
 				return nil
 			}
 
-			return out.Send(rove.HolderWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.HolderWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -6121,12 +6121,12 @@ func (s sinkHolder) Watch(req *rove.HolderWatchRequest, out grpc.ServerStreaming
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkHolder) watchNow(
-	ctx context.Context, req *rove.HolderWatchRequest, out grpc.ServerStreamingServer[rove.HolderWatchResponse],
+	ctx context.Context, req *loft.HolderWatchRequest, out grpc.ServerStreamingServer[loft.HolderWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.HolderListRequest_builder{
+		res, err := s.List(ctx, loft.HolderListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -6134,7 +6134,7 @@ func (s sinkHolder) watchNow(
 			return err
 		}
 
-		items := make([]*rove.HolderWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.HolderWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -6144,10 +6144,10 @@ func (s sinkHolder) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.HolderWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.HolderWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.HolderWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.HolderWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -6169,15 +6169,15 @@ func (s sinkHolder) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkHolder) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Holder, error) {
+) (*loft.Holder, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.HolderGetRequest_builder{
-		Ref: rove.HolderRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.HolderGetRequest_builder{
+		Ref: loft.HolderRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -6200,7 +6200,7 @@ func (s sinkHolder) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkHolder) watchHolderKeys(
-	ctx context.Context, fs []*rove.HolderFilter,
+	ctx context.Context, fs []*loft.HolderFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -6209,7 +6209,7 @@ func (s sinkHolder) watchHolderKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.HolderGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.HolderGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -6226,14 +6226,14 @@ func (s sinkHolder) watchHolderKeys(
 }
 
 type sinkInventoryCount struct {
-	rove.InventoryCountServiceServer
+	loft.InventoryCountServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) InventoryCount() rove.InventoryCountServiceServer {
+func (s Sink) InventoryCount() loft.InventoryCountServiceServer {
 	v := sinkInventoryCount{s.Server.InventoryCount(), s.Server.Store, s.w, s.namer, s.joined}
 	v.InventoryCountServiceServer = bare.InventoryCountWithAddRule(v.InventoryCountServiceServer, v.admit)
 	return v
@@ -6243,7 +6243,7 @@ func (s Sink) InventoryCount() rove.InventoryCountServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.InventoryCount].
-func (s sinkInventoryCount) admit(ctx context.Context, req *rove.InventoryCountAddRequest) (*rove.InventoryCountAddRequest, error) {
+func (s sinkInventoryCount) admit(ctx context.Context, req *loft.InventoryCountAddRequest) (*loft.InventoryCountAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -6261,7 +6261,7 @@ func (s sinkInventoryCount) admit(ctx context.Context, req *rove.InventoryCountA
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkInventoryCount) Erase(ctx context.Context, req *rove.InventoryCountRef) (*rove.InventoryCountEraseResponse, error) {
+func (s sinkInventoryCount) Erase(ctx context.Context, req *loft.InventoryCountRef) (*loft.InventoryCountEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "InventoryCount", req)
 
 	return s.InventoryCountServiceServer.Erase(ctx, req)
@@ -6270,7 +6270,7 @@ func (s sinkInventoryCount) Erase(ctx context.Context, req *rove.InventoryCountR
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkInventoryCount) Apply(ctx context.Context, req *rove.InventoryCountApplyRequest) (*rove.InventoryCount, error) {
+func (s sinkInventoryCount) Apply(ctx context.Context, req *loft.InventoryCountApplyRequest) (*loft.InventoryCount, error) {
 	seen.Forget(s.store.Db.Driver(), "InventoryCount", req.GetRef())
 
 	return s.InventoryCountServiceServer.Apply(ctx, req)
@@ -6278,14 +6278,14 @@ func (s sinkInventoryCount) Apply(ctx context.Context, req *rove.InventoryCountA
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkInventoryCount.Apply].
-func (s sinkInventoryCount) Patch(ctx context.Context, req *rove.InventoryCountPatchRequest) (*rove.InventoryCount, error) {
+func (s sinkInventoryCount) Patch(ctx context.Context, req *loft.InventoryCountPatchRequest) (*loft.InventoryCount, error) {
 	seen.Forget(s.store.Db.Driver(), "InventoryCount", req.GetRef())
 
 	return s.InventoryCountServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkInventoryCount) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkInventoryCount) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -6312,7 +6312,7 @@ func (s sinkInventoryCount) tenantAtTenant(ctx context.Context, ref *rove.Tenant
 }
 
 // tenantAtScopeTenant is the tenant "scope.tenant" arrives at.
-func (s sinkInventoryCount) tenantAtScopeTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkInventoryCount) tenantAtScopeTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("scope", "required: it is what says which tenant this belongs to")
 	}
@@ -6343,7 +6343,7 @@ func (s sinkInventoryCount) tenantAtScopeTenant(ctx context.Context, ref *rove.A
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkInventoryCount) tenancy(ctx context.Context, req *rove.InventoryCountAddRequest) error {
+func (s sinkInventoryCount) tenancy(ctx context.Context, req *loft.InventoryCountAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -6425,7 +6425,7 @@ const (
 
 // List answers with the InventoryCounts that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkInventoryCount) List(ctx context.Context, req *rove.InventoryCountListRequest) (*rove.InventoryCountListResponse, error) {
+func (s sinkInventoryCount) List(ctx context.Context, req *loft.InventoryCountListRequest) (*loft.InventoryCountListResponse, error) {
 	q := s.store.Db.InventoryCount.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -6490,12 +6490,12 @@ func (s sinkInventoryCount) List(ctx context.Context, req *rove.InventoryCountLi
 		us = us[:size]
 	}
 
-	items := make([]*rove.InventoryCount, len(us))
+	items := make([]*loft.InventoryCount, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.InventoryCountListResponse_builder{Items: items}.Build()
+	res := loft.InventoryCountListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -6511,7 +6511,7 @@ func (s sinkInventoryCount) List(ctx context.Context, req *rove.InventoryCountLi
 // filterInventoryCount turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterInventoryCount(f *rove.InventoryCountFilter) (predicate.InventoryCount, error) {
+func filterInventoryCount(f *loft.InventoryCountFilter) (predicate.InventoryCount, error) {
 	ps := make([]predicate.InventoryCount, 0, 1)
 	if f.HasRef() {
 		p, err := bare.InventoryCountPick(f.GetRef())
@@ -6559,7 +6559,7 @@ func filterInventoryCount(f *rove.InventoryCountFilter) (predicate.InventoryCoun
 // InventoryCountService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a InventoryCount. A service is named for the entity it
 // is about, so the name carries it.
-var InventoryCountService = watch.ServiceOf(rove.InventoryCountService_Get_FullMethodName)
+var InventoryCountService = watch.ServiceOf(loft.InventoryCountService_Get_FullMethodName)
 
 // Watch answers with the InventoryCounts this caller may see, as they are now and as
 // they change.
@@ -6568,7 +6568,7 @@ var InventoryCountService = watch.ServiceOf(rove.InventoryCountService_Get_FullM
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkInventoryCount) Watch(req *rove.InventoryCountWatchRequest, out grpc.ServerStreamingServer[rove.InventoryCountWatchResponse]) error {
+func (s sinkInventoryCount) Watch(req *loft.InventoryCountWatchRequest, out grpc.ServerStreamingServer[loft.InventoryCountWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -6602,7 +6602,7 @@ func (s sinkInventoryCount) Watch(req *rove.InventoryCountWatchRequest, out grpc
 
 	return watch.Stream(ctx, s.w, InventoryCountService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.InventoryCountWatchItem, 0, len(ks))
+			items := make([]*loft.InventoryCountWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -6616,7 +6616,7 @@ func (s sinkInventoryCount) Watch(req *rove.InventoryCountWatchRequest, out grpc
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.InventoryCountWatchItem_builder{
+				items = append(items, loft.InventoryCountWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -6626,7 +6626,7 @@ func (s sinkInventoryCount) Watch(req *rove.InventoryCountWatchRequest, out grpc
 				return nil
 			}
 
-			return out.Send(rove.InventoryCountWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.InventoryCountWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -6634,12 +6634,12 @@ func (s sinkInventoryCount) Watch(req *rove.InventoryCountWatchRequest, out grpc
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkInventoryCount) watchNow(
-	ctx context.Context, req *rove.InventoryCountWatchRequest, out grpc.ServerStreamingServer[rove.InventoryCountWatchResponse],
+	ctx context.Context, req *loft.InventoryCountWatchRequest, out grpc.ServerStreamingServer[loft.InventoryCountWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.InventoryCountListRequest_builder{
+		res, err := s.List(ctx, loft.InventoryCountListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -6647,7 +6647,7 @@ func (s sinkInventoryCount) watchNow(
 			return err
 		}
 
-		items := make([]*rove.InventoryCountWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.InventoryCountWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -6657,10 +6657,10 @@ func (s sinkInventoryCount) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.InventoryCountWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.InventoryCountWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.InventoryCountWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.InventoryCountWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -6682,15 +6682,15 @@ func (s sinkInventoryCount) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkInventoryCount) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.InventoryCount, error) {
+) (*loft.InventoryCount, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.InventoryCountGetRequest_builder{
-		Ref: rove.InventoryCountRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.InventoryCountGetRequest_builder{
+		Ref: loft.InventoryCountRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -6713,7 +6713,7 @@ func (s sinkInventoryCount) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkInventoryCount) watchInventoryCountKeys(
-	ctx context.Context, fs []*rove.InventoryCountFilter,
+	ctx context.Context, fs []*loft.InventoryCountFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -6722,7 +6722,7 @@ func (s sinkInventoryCount) watchInventoryCountKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.InventoryCountGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.InventoryCountGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -6739,14 +6739,14 @@ func (s sinkInventoryCount) watchInventoryCountKeys(
 }
 
 type sinkInvitation struct {
-	rove.InvitationServiceServer
+	loft.InvitationServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Invitation() rove.InvitationServiceServer {
+func (s Sink) Invitation() loft.InvitationServiceServer {
 	return sinkInvitation{s.Server.Invitation(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -6754,7 +6754,7 @@ func (s Sink) Invitation() rove.InvitationServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkInvitation) Erase(ctx context.Context, req *rove.InvitationRef) (*rove.InvitationEraseResponse, error) {
+func (s sinkInvitation) Erase(ctx context.Context, req *loft.InvitationRef) (*loft.InvitationEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Invitation", req)
 
 	return s.InvitationServiceServer.Erase(ctx, req)
@@ -6763,7 +6763,7 @@ func (s sinkInvitation) Erase(ctx context.Context, req *rove.InvitationRef) (*ro
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequest) (*rove.Invitation, error) {
+func (s sinkInvitation) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
 	seen.Forget(s.store.Db.Driver(), "Invitation", req.GetRef())
 
 	return s.InvitationServiceServer.Apply(ctx, req)
@@ -6771,7 +6771,7 @@ func (s sinkInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequ
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkInvitation.Apply].
-func (s sinkInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequest) (*rove.Invitation, error) {
+func (s sinkInvitation) Patch(ctx context.Context, req *loft.InvitationPatchRequest) (*loft.Invitation, error) {
 	seen.Forget(s.store.Db.Driver(), "Invitation", req.GetRef())
 
 	return s.InvitationServiceServer.Patch(ctx, req)
@@ -6835,7 +6835,7 @@ const (
 
 // List answers with the Invitations that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkInvitation) List(ctx context.Context, req *rove.InvitationListRequest) (*rove.InvitationListResponse, error) {
+func (s sinkInvitation) List(ctx context.Context, req *loft.InvitationListRequest) (*loft.InvitationListResponse, error) {
 	q := s.store.Db.Invitation.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -6900,12 +6900,12 @@ func (s sinkInvitation) List(ctx context.Context, req *rove.InvitationListReques
 		us = us[:size]
 	}
 
-	items := make([]*rove.Invitation, len(us))
+	items := make([]*loft.Invitation, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.InvitationListResponse_builder{Items: items}.Build()
+	res := loft.InvitationListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -6921,7 +6921,7 @@ func (s sinkInvitation) List(ctx context.Context, req *rove.InvitationListReques
 // filterInvitation turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterInvitation(f *rove.InvitationFilter) (predicate.Invitation, error) {
+func filterInvitation(f *loft.InvitationFilter) (predicate.Invitation, error) {
 	ps := make([]predicate.Invitation, 0, 1)
 	if f.HasRef() {
 		p, err := bare.InvitationPick(f.GetRef())
@@ -6975,14 +6975,14 @@ func filterInvitation(f *rove.InvitationFilter) (predicate.Invitation, error) {
 }
 
 type sinkItemModel struct {
-	rove.ItemModelServiceServer
+	loft.ItemModelServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) ItemModel() rove.ItemModelServiceServer {
+func (s Sink) ItemModel() loft.ItemModelServiceServer {
 	return sinkItemModel{s.Server.ItemModel(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -6990,7 +6990,7 @@ func (s Sink) ItemModel() rove.ItemModelServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkItemModel) Erase(ctx context.Context, req *rove.ItemModelRef) (*rove.ItemModelEraseResponse, error) {
+func (s sinkItemModel) Erase(ctx context.Context, req *loft.ItemModelRef) (*loft.ItemModelEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "ItemModel", req)
 
 	return s.ItemModelServiceServer.Erase(ctx, req)
@@ -6999,7 +6999,7 @@ func (s sinkItemModel) Erase(ctx context.Context, req *rove.ItemModelRef) (*rove
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkItemModel) Apply(ctx context.Context, req *rove.ItemModelApplyRequest) (*rove.ItemModel, error) {
+func (s sinkItemModel) Apply(ctx context.Context, req *loft.ItemModelApplyRequest) (*loft.ItemModel, error) {
 	seen.Forget(s.store.Db.Driver(), "ItemModel", req.GetRef())
 
 	return s.ItemModelServiceServer.Apply(ctx, req)
@@ -7007,7 +7007,7 @@ func (s sinkItemModel) Apply(ctx context.Context, req *rove.ItemModelApplyReques
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkItemModel.Apply].
-func (s sinkItemModel) Patch(ctx context.Context, req *rove.ItemModelPatchRequest) (*rove.ItemModel, error) {
+func (s sinkItemModel) Patch(ctx context.Context, req *loft.ItemModelPatchRequest) (*loft.ItemModel, error) {
 	seen.Forget(s.store.Db.Driver(), "ItemModel", req.GetRef())
 
 	return s.ItemModelServiceServer.Patch(ctx, req)
@@ -7071,7 +7071,7 @@ const (
 
 // List answers with the ItemModels that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkItemModel) List(ctx context.Context, req *rove.ItemModelListRequest) (*rove.ItemModelListResponse, error) {
+func (s sinkItemModel) List(ctx context.Context, req *loft.ItemModelListRequest) (*loft.ItemModelListResponse, error) {
 	q := s.store.Db.ItemModel.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -7136,12 +7136,12 @@ func (s sinkItemModel) List(ctx context.Context, req *rove.ItemModelListRequest)
 		us = us[:size]
 	}
 
-	items := make([]*rove.ItemModel, len(us))
+	items := make([]*loft.ItemModel, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.ItemModelListResponse_builder{Items: items}.Build()
+	res := loft.ItemModelListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -7157,7 +7157,7 @@ func (s sinkItemModel) List(ctx context.Context, req *rove.ItemModelListRequest)
 // filterItemModel turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterItemModel(f *rove.ItemModelFilter) (predicate.ItemModel, error) {
+func filterItemModel(f *loft.ItemModelFilter) (predicate.ItemModel, error) {
 	ps := make([]predicate.ItemModel, 0, 1)
 	if f.HasRef() {
 		p, err := bare.ItemModelPick(f.GetRef())
@@ -7202,7 +7202,7 @@ func filterItemModel(f *rove.ItemModelFilter) (predicate.ItemModel, error) {
 // ItemModelService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a ItemModel. A service is named for the entity it
 // is about, so the name carries it.
-var ItemModelService = watch.ServiceOf(rove.ItemModelService_Get_FullMethodName)
+var ItemModelService = watch.ServiceOf(loft.ItemModelService_Get_FullMethodName)
 
 // Watch answers with the ItemModels this caller may see, as they are now and as
 // they change.
@@ -7211,7 +7211,7 @@ var ItemModelService = watch.ServiceOf(rove.ItemModelService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkItemModel) Watch(req *rove.ItemModelWatchRequest, out grpc.ServerStreamingServer[rove.ItemModelWatchResponse]) error {
+func (s sinkItemModel) Watch(req *loft.ItemModelWatchRequest, out grpc.ServerStreamingServer[loft.ItemModelWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -7245,7 +7245,7 @@ func (s sinkItemModel) Watch(req *rove.ItemModelWatchRequest, out grpc.ServerStr
 
 	return watch.Stream(ctx, s.w, ItemModelService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.ItemModelWatchItem, 0, len(ks))
+			items := make([]*loft.ItemModelWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -7259,7 +7259,7 @@ func (s sinkItemModel) Watch(req *rove.ItemModelWatchRequest, out grpc.ServerStr
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.ItemModelWatchItem_builder{
+				items = append(items, loft.ItemModelWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -7269,7 +7269,7 @@ func (s sinkItemModel) Watch(req *rove.ItemModelWatchRequest, out grpc.ServerStr
 				return nil
 			}
 
-			return out.Send(rove.ItemModelWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.ItemModelWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -7277,12 +7277,12 @@ func (s sinkItemModel) Watch(req *rove.ItemModelWatchRequest, out grpc.ServerStr
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkItemModel) watchNow(
-	ctx context.Context, req *rove.ItemModelWatchRequest, out grpc.ServerStreamingServer[rove.ItemModelWatchResponse],
+	ctx context.Context, req *loft.ItemModelWatchRequest, out grpc.ServerStreamingServer[loft.ItemModelWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.ItemModelListRequest_builder{
+		res, err := s.List(ctx, loft.ItemModelListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -7290,7 +7290,7 @@ func (s sinkItemModel) watchNow(
 			return err
 		}
 
-		items := make([]*rove.ItemModelWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.ItemModelWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -7300,10 +7300,10 @@ func (s sinkItemModel) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.ItemModelWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.ItemModelWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.ItemModelWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.ItemModelWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -7325,15 +7325,15 @@ func (s sinkItemModel) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkItemModel) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.ItemModel, error) {
+) (*loft.ItemModel, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.ItemModelGetRequest_builder{
-		Ref: rove.ItemModelRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.ItemModelGetRequest_builder{
+		Ref: loft.ItemModelRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -7356,7 +7356,7 @@ func (s sinkItemModel) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkItemModel) watchItemModelKeys(
-	ctx context.Context, fs []*rove.ItemModelFilter,
+	ctx context.Context, fs []*loft.ItemModelFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -7365,7 +7365,7 @@ func (s sinkItemModel) watchItemModelKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.ItemModelGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.ItemModelGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -7382,14 +7382,14 @@ func (s sinkItemModel) watchItemModelKeys(
 }
 
 type sinkLabel struct {
-	rove.LabelServiceServer
+	loft.LabelServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Label() rove.LabelServiceServer {
+func (s Sink) Label() loft.LabelServiceServer {
 	return sinkLabel{s.Server.Label(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -7397,7 +7397,7 @@ func (s Sink) Label() rove.LabelServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkLabel) Erase(ctx context.Context, req *rove.LabelRef) (*rove.LabelEraseResponse, error) {
+func (s sinkLabel) Erase(ctx context.Context, req *loft.LabelRef) (*loft.LabelEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Label", req)
 
 	return s.LabelServiceServer.Erase(ctx, req)
@@ -7406,7 +7406,7 @@ func (s sinkLabel) Erase(ctx context.Context, req *rove.LabelRef) (*rove.LabelEr
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkLabel) Apply(ctx context.Context, req *rove.LabelApplyRequest) (*rove.Label, error) {
+func (s sinkLabel) Apply(ctx context.Context, req *loft.LabelApplyRequest) (*loft.Label, error) {
 	seen.Forget(s.store.Db.Driver(), "Label", req.GetRef())
 
 	return s.LabelServiceServer.Apply(ctx, req)
@@ -7414,7 +7414,7 @@ func (s sinkLabel) Apply(ctx context.Context, req *rove.LabelApplyRequest) (*rov
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkLabel.Apply].
-func (s sinkLabel) Patch(ctx context.Context, req *rove.LabelPatchRequest) (*rove.Label, error) {
+func (s sinkLabel) Patch(ctx context.Context, req *loft.LabelPatchRequest) (*loft.Label, error) {
 	seen.Forget(s.store.Db.Driver(), "Label", req.GetRef())
 
 	return s.LabelServiceServer.Patch(ctx, req)
@@ -7478,7 +7478,7 @@ const (
 
 // List answers with the Labels that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkLabel) List(ctx context.Context, req *rove.LabelListRequest) (*rove.LabelListResponse, error) {
+func (s sinkLabel) List(ctx context.Context, req *loft.LabelListRequest) (*loft.LabelListResponse, error) {
 	q := s.store.Db.Label.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -7543,12 +7543,12 @@ func (s sinkLabel) List(ctx context.Context, req *rove.LabelListRequest) (*rove.
 		us = us[:size]
 	}
 
-	items := make([]*rove.Label, len(us))
+	items := make([]*loft.Label, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.LabelListResponse_builder{Items: items}.Build()
+	res := loft.LabelListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -7564,7 +7564,7 @@ func (s sinkLabel) List(ctx context.Context, req *rove.LabelListRequest) (*rove.
 // filterLabel turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterLabel(f *rove.LabelFilter) (predicate.Label, error) {
+func filterLabel(f *loft.LabelFilter) (predicate.Label, error) {
 	ps := make([]predicate.Label, 0, 1)
 	if f.HasRef() {
 		p, err := bare.LabelPick(f.GetRef())
@@ -7598,7 +7598,7 @@ func filterLabel(f *rove.LabelFilter) (predicate.Label, error) {
 // LabelService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Label. A service is named for the entity it
 // is about, so the name carries it.
-var LabelService = watch.ServiceOf(rove.LabelService_Get_FullMethodName)
+var LabelService = watch.ServiceOf(loft.LabelService_Get_FullMethodName)
 
 // Watch answers with the Labels this caller may see, as they are now and as
 // they change.
@@ -7607,7 +7607,7 @@ var LabelService = watch.ServiceOf(rove.LabelService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkLabel) Watch(req *rove.LabelWatchRequest, out grpc.ServerStreamingServer[rove.LabelWatchResponse]) error {
+func (s sinkLabel) Watch(req *loft.LabelWatchRequest, out grpc.ServerStreamingServer[loft.LabelWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -7641,7 +7641,7 @@ func (s sinkLabel) Watch(req *rove.LabelWatchRequest, out grpc.ServerStreamingSe
 
 	return watch.Stream(ctx, s.w, LabelService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.LabelWatchItem, 0, len(ks))
+			items := make([]*loft.LabelWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -7655,7 +7655,7 @@ func (s sinkLabel) Watch(req *rove.LabelWatchRequest, out grpc.ServerStreamingSe
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.LabelWatchItem_builder{
+				items = append(items, loft.LabelWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -7665,7 +7665,7 @@ func (s sinkLabel) Watch(req *rove.LabelWatchRequest, out grpc.ServerStreamingSe
 				return nil
 			}
 
-			return out.Send(rove.LabelWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.LabelWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -7673,12 +7673,12 @@ func (s sinkLabel) Watch(req *rove.LabelWatchRequest, out grpc.ServerStreamingSe
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkLabel) watchNow(
-	ctx context.Context, req *rove.LabelWatchRequest, out grpc.ServerStreamingServer[rove.LabelWatchResponse],
+	ctx context.Context, req *loft.LabelWatchRequest, out grpc.ServerStreamingServer[loft.LabelWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.LabelListRequest_builder{
+		res, err := s.List(ctx, loft.LabelListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -7686,7 +7686,7 @@ func (s sinkLabel) watchNow(
 			return err
 		}
 
-		items := make([]*rove.LabelWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.LabelWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -7696,10 +7696,10 @@ func (s sinkLabel) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.LabelWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.LabelWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.LabelWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.LabelWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -7721,15 +7721,15 @@ func (s sinkLabel) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkLabel) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Label, error) {
+) (*loft.Label, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.LabelGetRequest_builder{
-		Ref: rove.LabelRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.LabelGetRequest_builder{
+		Ref: loft.LabelRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -7752,7 +7752,7 @@ func (s sinkLabel) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkLabel) watchLabelKeys(
-	ctx context.Context, fs []*rove.LabelFilter,
+	ctx context.Context, fs []*loft.LabelFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -7761,7 +7761,7 @@ func (s sinkLabel) watchLabelKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.LabelGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.LabelGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -7778,14 +7778,14 @@ func (s sinkLabel) watchLabelKeys(
 }
 
 type sinkLegalHold struct {
-	rove.LegalHoldServiceServer
+	loft.LegalHoldServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) LegalHold() rove.LegalHoldServiceServer {
+func (s Sink) LegalHold() loft.LegalHoldServiceServer {
 	return sinkLegalHold{s.Server.LegalHold(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -7793,7 +7793,7 @@ func (s Sink) LegalHold() rove.LegalHoldServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkLegalHold) Erase(ctx context.Context, req *rove.LegalHoldRef) (*rove.LegalHoldEraseResponse, error) {
+func (s sinkLegalHold) Erase(ctx context.Context, req *loft.LegalHoldRef) (*loft.LegalHoldEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "LegalHold", req)
 
 	return s.LegalHoldServiceServer.Erase(ctx, req)
@@ -7802,7 +7802,7 @@ func (s sinkLegalHold) Erase(ctx context.Context, req *rove.LegalHoldRef) (*rove
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkLegalHold) Apply(ctx context.Context, req *rove.LegalHoldApplyRequest) (*rove.LegalHold, error) {
+func (s sinkLegalHold) Apply(ctx context.Context, req *loft.LegalHoldApplyRequest) (*loft.LegalHold, error) {
 	seen.Forget(s.store.Db.Driver(), "LegalHold", req.GetRef())
 
 	return s.LegalHoldServiceServer.Apply(ctx, req)
@@ -7810,7 +7810,7 @@ func (s sinkLegalHold) Apply(ctx context.Context, req *rove.LegalHoldApplyReques
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkLegalHold.Apply].
-func (s sinkLegalHold) Patch(ctx context.Context, req *rove.LegalHoldPatchRequest) (*rove.LegalHold, error) {
+func (s sinkLegalHold) Patch(ctx context.Context, req *loft.LegalHoldPatchRequest) (*loft.LegalHold, error) {
 	seen.Forget(s.store.Db.Driver(), "LegalHold", req.GetRef())
 
 	return s.LegalHoldServiceServer.Patch(ctx, req)
@@ -7874,7 +7874,7 @@ const (
 
 // List answers with the LegalHolds that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkLegalHold) List(ctx context.Context, req *rove.LegalHoldListRequest) (*rove.LegalHoldListResponse, error) {
+func (s sinkLegalHold) List(ctx context.Context, req *loft.LegalHoldListRequest) (*loft.LegalHoldListResponse, error) {
 	q := s.store.Db.LegalHold.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -7939,12 +7939,12 @@ func (s sinkLegalHold) List(ctx context.Context, req *rove.LegalHoldListRequest)
 		us = us[:size]
 	}
 
-	items := make([]*rove.LegalHold, len(us))
+	items := make([]*loft.LegalHold, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.LegalHoldListResponse_builder{Items: items}.Build()
+	res := loft.LegalHoldListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -7960,7 +7960,7 @@ func (s sinkLegalHold) List(ctx context.Context, req *rove.LegalHoldListRequest)
 // filterLegalHold turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterLegalHold(f *rove.LegalHoldFilter) (predicate.LegalHold, error) {
+func filterLegalHold(f *loft.LegalHoldFilter) (predicate.LegalHold, error) {
 	ps := make([]predicate.LegalHold, 0, 1)
 	if f.HasRef() {
 		p, err := bare.LegalHoldPick(f.GetRef())
@@ -7978,14 +7978,14 @@ func filterLegalHold(f *rove.LegalHoldFilter) (predicate.LegalHold, error) {
 }
 
 type sinkLink struct {
-	rove.LinkServiceServer
+	loft.LinkServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Link() rove.LinkServiceServer {
+func (s Sink) Link() loft.LinkServiceServer {
 	v := sinkLink{s.Server.Link(), s.Server.Store, s.w, s.namer, s.joined}
 	v.LinkServiceServer = bare.LinkWithAddRule(v.LinkServiceServer, v.admit)
 	return v
@@ -7995,7 +7995,7 @@ func (s Sink) Link() rove.LinkServiceServer {
 // refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Link].
-func (s sinkLink) admit(ctx context.Context, req *rove.LinkAddRequest) (*rove.LinkAddRequest, error) {
+func (s sinkLink) admit(ctx context.Context, req *loft.LinkAddRequest) (*loft.LinkAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -8013,7 +8013,7 @@ func (s sinkLink) admit(ctx context.Context, req *rove.LinkAddRequest) (*rove.Li
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkLink) Erase(ctx context.Context, req *rove.LinkRef) (*rove.LinkEraseResponse, error) {
+func (s sinkLink) Erase(ctx context.Context, req *loft.LinkRef) (*loft.LinkEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Link", req)
 
 	return s.LinkServiceServer.Erase(ctx, req)
@@ -8022,7 +8022,7 @@ func (s sinkLink) Erase(ctx context.Context, req *rove.LinkRef) (*rove.LinkErase
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkLink) Apply(ctx context.Context, req *rove.LinkApplyRequest) (*rove.Link, error) {
+func (s sinkLink) Apply(ctx context.Context, req *loft.LinkApplyRequest) (*loft.Link, error) {
 	seen.Forget(s.store.Db.Driver(), "Link", req.GetRef())
 
 	return s.LinkServiceServer.Apply(ctx, req)
@@ -8030,14 +8030,14 @@ func (s sinkLink) Apply(ctx context.Context, req *rove.LinkApplyRequest) (*rove.
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkLink.Apply].
-func (s sinkLink) Patch(ctx context.Context, req *rove.LinkPatchRequest) (*rove.Link, error) {
+func (s sinkLink) Patch(ctx context.Context, req *loft.LinkPatchRequest) (*loft.Link, error) {
 	seen.Forget(s.store.Db.Driver(), "Link", req.GetRef())
 
 	return s.LinkServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkLink) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkLink) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -8064,7 +8064,7 @@ func (s sinkLink) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]by
 }
 
 // tenantAtSourceTenant is the tenant "source.tenant" arrives at.
-func (s sinkLink) tenantAtSourceTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkLink) tenantAtSourceTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("source", "required: it is what says which tenant this belongs to")
 	}
@@ -8091,7 +8091,7 @@ func (s sinkLink) tenantAtSourceTenant(ctx context.Context, ref *rove.AssetRef) 
 }
 
 // tenantAtTargetTenant is the tenant "target.tenant" arrives at.
-func (s sinkLink) tenantAtTargetTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkLink) tenantAtTargetTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("target", "required: it is what says which tenant this belongs to")
 	}
@@ -8122,7 +8122,7 @@ func (s sinkLink) tenantAtTargetTenant(ctx context.Context, ref *rove.AssetRef) 
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkLink) tenancy(ctx context.Context, req *rove.LinkAddRequest) error {
+func (s sinkLink) tenancy(ctx context.Context, req *loft.LinkAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -8219,7 +8219,7 @@ const (
 
 // List answers with the Links that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkLink) List(ctx context.Context, req *rove.LinkListRequest) (*rove.LinkListResponse, error) {
+func (s sinkLink) List(ctx context.Context, req *loft.LinkListRequest) (*loft.LinkListResponse, error) {
 	q := s.store.Db.Link.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -8284,12 +8284,12 @@ func (s sinkLink) List(ctx context.Context, req *rove.LinkListRequest) (*rove.Li
 		us = us[:size]
 	}
 
-	items := make([]*rove.Link, len(us))
+	items := make([]*loft.Link, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.LinkListResponse_builder{Items: items}.Build()
+	res := loft.LinkListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -8305,7 +8305,7 @@ func (s sinkLink) List(ctx context.Context, req *rove.LinkListRequest) (*rove.Li
 // filterLink turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterLink(f *rove.LinkFilter) (predicate.Link, error) {
+func filterLink(f *loft.LinkFilter) (predicate.Link, error) {
 	ps := make([]predicate.Link, 0, 1)
 	if f.HasRef() {
 		p, err := bare.LinkPick(f.GetRef())
@@ -8376,14 +8376,14 @@ func filterLink(f *rove.LinkFilter) (predicate.Link, error) {
 }
 
 type sinkNotification struct {
-	rove.NotificationServiceServer
+	loft.NotificationServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Notification() rove.NotificationServiceServer {
+func (s Sink) Notification() loft.NotificationServiceServer {
 	v := sinkNotification{s.Server.Notification(), s.Server.Store, s.w, s.namer, s.joined}
 	v.NotificationServiceServer = bare.NotificationWithAddRule(v.NotificationServiceServer, v.admit)
 	return v
@@ -8393,7 +8393,7 @@ func (s Sink) Notification() rove.NotificationServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Notification].
-func (s sinkNotification) admit(ctx context.Context, req *rove.NotificationAddRequest) (*rove.NotificationAddRequest, error) {
+func (s sinkNotification) admit(ctx context.Context, req *loft.NotificationAddRequest) (*loft.NotificationAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -8411,7 +8411,7 @@ func (s sinkNotification) admit(ctx context.Context, req *rove.NotificationAddRe
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkNotification) Erase(ctx context.Context, req *rove.NotificationRef) (*rove.NotificationEraseResponse, error) {
+func (s sinkNotification) Erase(ctx context.Context, req *loft.NotificationRef) (*loft.NotificationEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Notification", req)
 
 	return s.NotificationServiceServer.Erase(ctx, req)
@@ -8420,7 +8420,7 @@ func (s sinkNotification) Erase(ctx context.Context, req *rove.NotificationRef) 
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkNotification) Apply(ctx context.Context, req *rove.NotificationApplyRequest) (*rove.Notification, error) {
+func (s sinkNotification) Apply(ctx context.Context, req *loft.NotificationApplyRequest) (*loft.Notification, error) {
 	seen.Forget(s.store.Db.Driver(), "Notification", req.GetRef())
 
 	return s.NotificationServiceServer.Apply(ctx, req)
@@ -8428,14 +8428,14 @@ func (s sinkNotification) Apply(ctx context.Context, req *rove.NotificationApply
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkNotification.Apply].
-func (s sinkNotification) Patch(ctx context.Context, req *rove.NotificationPatchRequest) (*rove.Notification, error) {
+func (s sinkNotification) Patch(ctx context.Context, req *loft.NotificationPatchRequest) (*loft.Notification, error) {
 	seen.Forget(s.store.Db.Driver(), "Notification", req.GetRef())
 
 	return s.NotificationServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkNotification) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkNotification) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -8462,7 +8462,7 @@ func (s sinkNotification) tenantAtTenant(ctx context.Context, ref *rove.TenantRe
 }
 
 // tenantAtHolderTenant is the tenant "holder.tenant" arrives at.
-func (s sinkNotification) tenantAtHolderTenant(ctx context.Context, ref *rove.HolderRef) ([]byte, error) {
+func (s sinkNotification) tenantAtHolderTenant(ctx context.Context, ref *loft.HolderRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("holder", "required: it is what says which tenant this belongs to")
 	}
@@ -8493,7 +8493,7 @@ func (s sinkNotification) tenantAtHolderTenant(ctx context.Context, ref *rove.Ho
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkNotification) tenancy(ctx context.Context, req *rove.NotificationAddRequest) error {
+func (s sinkNotification) tenancy(ctx context.Context, req *loft.NotificationAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -8575,7 +8575,7 @@ const (
 
 // List answers with the Notifications that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkNotification) List(ctx context.Context, req *rove.NotificationListRequest) (*rove.NotificationListResponse, error) {
+func (s sinkNotification) List(ctx context.Context, req *loft.NotificationListRequest) (*loft.NotificationListResponse, error) {
 	q := s.store.Db.Notification.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -8640,12 +8640,12 @@ func (s sinkNotification) List(ctx context.Context, req *rove.NotificationListRe
 		us = us[:size]
 	}
 
-	items := make([]*rove.Notification, len(us))
+	items := make([]*loft.Notification, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.NotificationListResponse_builder{Items: items}.Build()
+	res := loft.NotificationListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -8661,7 +8661,7 @@ func (s sinkNotification) List(ctx context.Context, req *rove.NotificationListRe
 // filterNotification turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterNotification(f *rove.NotificationFilter) (predicate.Notification, error) {
+func filterNotification(f *loft.NotificationFilter) (predicate.Notification, error) {
 	ps := make([]predicate.Notification, 0, 1)
 	if f.HasRef() {
 		p, err := bare.NotificationPick(f.GetRef())
@@ -8707,14 +8707,14 @@ func filterNotification(f *rove.NotificationFilter) (predicate.Notification, err
 }
 
 type sinkParty struct {
-	rove.PartyServiceServer
+	loft.PartyServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Party() rove.PartyServiceServer {
+func (s Sink) Party() loft.PartyServiceServer {
 	return sinkParty{s.Server.Party(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -8722,7 +8722,7 @@ func (s Sink) Party() rove.PartyServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkParty) Erase(ctx context.Context, req *rove.PartyRef) (*rove.PartyEraseResponse, error) {
+func (s sinkParty) Erase(ctx context.Context, req *loft.PartyRef) (*loft.PartyEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Party", req)
 
 	return s.PartyServiceServer.Erase(ctx, req)
@@ -8731,7 +8731,7 @@ func (s sinkParty) Erase(ctx context.Context, req *rove.PartyRef) (*rove.PartyEr
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkParty) Apply(ctx context.Context, req *rove.PartyApplyRequest) (*rove.Party, error) {
+func (s sinkParty) Apply(ctx context.Context, req *loft.PartyApplyRequest) (*loft.Party, error) {
 	seen.Forget(s.store.Db.Driver(), "Party", req.GetRef())
 
 	return s.PartyServiceServer.Apply(ctx, req)
@@ -8739,7 +8739,7 @@ func (s sinkParty) Apply(ctx context.Context, req *rove.PartyApplyRequest) (*rov
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkParty.Apply].
-func (s sinkParty) Patch(ctx context.Context, req *rove.PartyPatchRequest) (*rove.Party, error) {
+func (s sinkParty) Patch(ctx context.Context, req *loft.PartyPatchRequest) (*loft.Party, error) {
 	seen.Forget(s.store.Db.Driver(), "Party", req.GetRef())
 
 	return s.PartyServiceServer.Patch(ctx, req)
@@ -8803,7 +8803,7 @@ const (
 
 // List answers with the Partys that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkParty) List(ctx context.Context, req *rove.PartyListRequest) (*rove.PartyListResponse, error) {
+func (s sinkParty) List(ctx context.Context, req *loft.PartyListRequest) (*loft.PartyListResponse, error) {
 	q := s.store.Db.Party.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -8868,12 +8868,12 @@ func (s sinkParty) List(ctx context.Context, req *rove.PartyListRequest) (*rove.
 		us = us[:size]
 	}
 
-	items := make([]*rove.Party, len(us))
+	items := make([]*loft.Party, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.PartyListResponse_builder{Items: items}.Build()
+	res := loft.PartyListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -8889,7 +8889,7 @@ func (s sinkParty) List(ctx context.Context, req *rove.PartyListRequest) (*rove.
 // filterParty turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterParty(f *rove.PartyFilter) (predicate.Party, error) {
+func filterParty(f *loft.PartyFilter) (predicate.Party, error) {
 	ps := make([]predicate.Party, 0, 1)
 	if f.HasRef() {
 		p, err := bare.PartyPick(f.GetRef())
@@ -8961,7 +8961,7 @@ func filterParty(f *rove.PartyFilter) (predicate.Party, error) {
 // PartyService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Party. A service is named for the entity it
 // is about, so the name carries it.
-var PartyService = watch.ServiceOf(rove.PartyService_Get_FullMethodName)
+var PartyService = watch.ServiceOf(loft.PartyService_Get_FullMethodName)
 
 // Watch answers with the Partys this caller may see, as they are now and as
 // they change.
@@ -8970,7 +8970,7 @@ var PartyService = watch.ServiceOf(rove.PartyService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkParty) Watch(req *rove.PartyWatchRequest, out grpc.ServerStreamingServer[rove.PartyWatchResponse]) error {
+func (s sinkParty) Watch(req *loft.PartyWatchRequest, out grpc.ServerStreamingServer[loft.PartyWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -9004,7 +9004,7 @@ func (s sinkParty) Watch(req *rove.PartyWatchRequest, out grpc.ServerStreamingSe
 
 	return watch.Stream(ctx, s.w, PartyService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.PartyWatchItem, 0, len(ks))
+			items := make([]*loft.PartyWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -9018,7 +9018,7 @@ func (s sinkParty) Watch(req *rove.PartyWatchRequest, out grpc.ServerStreamingSe
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.PartyWatchItem_builder{
+				items = append(items, loft.PartyWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -9028,7 +9028,7 @@ func (s sinkParty) Watch(req *rove.PartyWatchRequest, out grpc.ServerStreamingSe
 				return nil
 			}
 
-			return out.Send(rove.PartyWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.PartyWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -9036,12 +9036,12 @@ func (s sinkParty) Watch(req *rove.PartyWatchRequest, out grpc.ServerStreamingSe
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkParty) watchNow(
-	ctx context.Context, req *rove.PartyWatchRequest, out grpc.ServerStreamingServer[rove.PartyWatchResponse],
+	ctx context.Context, req *loft.PartyWatchRequest, out grpc.ServerStreamingServer[loft.PartyWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.PartyListRequest_builder{
+		res, err := s.List(ctx, loft.PartyListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -9049,7 +9049,7 @@ func (s sinkParty) watchNow(
 			return err
 		}
 
-		items := make([]*rove.PartyWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.PartyWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -9059,10 +9059,10 @@ func (s sinkParty) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.PartyWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.PartyWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.PartyWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.PartyWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -9084,15 +9084,15 @@ func (s sinkParty) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkParty) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Party, error) {
+) (*loft.Party, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.PartyGetRequest_builder{
-		Ref: rove.PartyRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.PartyGetRequest_builder{
+		Ref: loft.PartyRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -9115,7 +9115,7 @@ func (s sinkParty) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkParty) watchPartyKeys(
-	ctx context.Context, fs []*rove.PartyFilter,
+	ctx context.Context, fs []*loft.PartyFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -9124,7 +9124,7 @@ func (s sinkParty) watchPartyKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.PartyGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.PartyGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -9141,14 +9141,14 @@ func (s sinkParty) watchPartyKeys(
 }
 
 type sinkPlacement struct {
-	rove.PlacementServiceServer
+	loft.PlacementServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Placement() rove.PlacementServiceServer {
+func (s Sink) Placement() loft.PlacementServiceServer {
 	v := sinkPlacement{s.Server.Placement(), s.Server.Store, s.w, s.namer, s.joined}
 	v.PlacementServiceServer = bare.PlacementWithAddRule(v.PlacementServiceServer, v.admit)
 	return v
@@ -9158,7 +9158,7 @@ func (s Sink) Placement() rove.PlacementServiceServer {
 // it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Placement].
-func (s sinkPlacement) admit(ctx context.Context, req *rove.PlacementAddRequest) (*rove.PlacementAddRequest, error) {
+func (s sinkPlacement) admit(ctx context.Context, req *loft.PlacementAddRequest) (*loft.PlacementAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -9176,7 +9176,7 @@ func (s sinkPlacement) admit(ctx context.Context, req *rove.PlacementAddRequest)
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkPlacement) Erase(ctx context.Context, req *rove.PlacementRef) (*rove.PlacementEraseResponse, error) {
+func (s sinkPlacement) Erase(ctx context.Context, req *loft.PlacementRef) (*loft.PlacementEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Placement", req)
 
 	return s.PlacementServiceServer.Erase(ctx, req)
@@ -9185,7 +9185,7 @@ func (s sinkPlacement) Erase(ctx context.Context, req *rove.PlacementRef) (*rove
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkPlacement) Apply(ctx context.Context, req *rove.PlacementApplyRequest) (*rove.Placement, error) {
+func (s sinkPlacement) Apply(ctx context.Context, req *loft.PlacementApplyRequest) (*loft.Placement, error) {
 	seen.Forget(s.store.Db.Driver(), "Placement", req.GetRef())
 
 	return s.PlacementServiceServer.Apply(ctx, req)
@@ -9193,14 +9193,14 @@ func (s sinkPlacement) Apply(ctx context.Context, req *rove.PlacementApplyReques
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkPlacement.Apply].
-func (s sinkPlacement) Patch(ctx context.Context, req *rove.PlacementPatchRequest) (*rove.Placement, error) {
+func (s sinkPlacement) Patch(ctx context.Context, req *loft.PlacementPatchRequest) (*loft.Placement, error) {
 	seen.Forget(s.store.Db.Driver(), "Placement", req.GetRef())
 
 	return s.PlacementServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkPlacement) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkPlacement) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -9227,7 +9227,7 @@ func (s sinkPlacement) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) 
 }
 
 // tenantAtChildTenant is the tenant "child.tenant" arrives at.
-func (s sinkPlacement) tenantAtChildTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkPlacement) tenantAtChildTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("child", "required: it is what says which tenant this belongs to")
 	}
@@ -9254,7 +9254,7 @@ func (s sinkPlacement) tenantAtChildTenant(ctx context.Context, ref *rove.AssetR
 }
 
 // tenantAtParentTenant is the tenant "parent.tenant" arrives at.
-func (s sinkPlacement) tenantAtParentTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkPlacement) tenantAtParentTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("parent", "required: it is what says which tenant this belongs to")
 	}
@@ -9285,7 +9285,7 @@ func (s sinkPlacement) tenantAtParentTenant(ctx context.Context, ref *rove.Asset
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkPlacement) tenancy(ctx context.Context, req *rove.PlacementAddRequest) error {
+func (s sinkPlacement) tenancy(ctx context.Context, req *loft.PlacementAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -9382,7 +9382,7 @@ const (
 
 // List answers with the Placements that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkPlacement) List(ctx context.Context, req *rove.PlacementListRequest) (*rove.PlacementListResponse, error) {
+func (s sinkPlacement) List(ctx context.Context, req *loft.PlacementListRequest) (*loft.PlacementListResponse, error) {
 	q := s.store.Db.Placement.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -9447,12 +9447,12 @@ func (s sinkPlacement) List(ctx context.Context, req *rove.PlacementListRequest)
 		us = us[:size]
 	}
 
-	items := make([]*rove.Placement, len(us))
+	items := make([]*loft.Placement, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.PlacementListResponse_builder{Items: items}.Build()
+	res := loft.PlacementListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -9468,7 +9468,7 @@ func (s sinkPlacement) List(ctx context.Context, req *rove.PlacementListRequest)
 // filterPlacement turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterPlacement(f *rove.PlacementFilter) (predicate.Placement, error) {
+func filterPlacement(f *loft.PlacementFilter) (predicate.Placement, error) {
 	ps := make([]predicate.Placement, 0, 1)
 	if f.HasRef() {
 		p, err := bare.PlacementPick(f.GetRef())
@@ -9536,14 +9536,14 @@ func filterPlacement(f *rove.PlacementFilter) (predicate.Placement, error) {
 }
 
 type sinkPurchase struct {
-	rove.PurchaseServiceServer
+	loft.PurchaseServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Purchase() rove.PurchaseServiceServer {
+func (s Sink) Purchase() loft.PurchaseServiceServer {
 	return sinkPurchase{s.Server.Purchase(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -9551,7 +9551,7 @@ func (s Sink) Purchase() rove.PurchaseServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkPurchase) Erase(ctx context.Context, req *rove.PurchaseRef) (*rove.PurchaseEraseResponse, error) {
+func (s sinkPurchase) Erase(ctx context.Context, req *loft.PurchaseRef) (*loft.PurchaseEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Purchase", req)
 
 	return s.PurchaseServiceServer.Erase(ctx, req)
@@ -9560,7 +9560,7 @@ func (s sinkPurchase) Erase(ctx context.Context, req *rove.PurchaseRef) (*rove.P
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkPurchase) Apply(ctx context.Context, req *rove.PurchaseApplyRequest) (*rove.Purchase, error) {
+func (s sinkPurchase) Apply(ctx context.Context, req *loft.PurchaseApplyRequest) (*loft.Purchase, error) {
 	seen.Forget(s.store.Db.Driver(), "Purchase", req.GetRef())
 
 	return s.PurchaseServiceServer.Apply(ctx, req)
@@ -9568,7 +9568,7 @@ func (s sinkPurchase) Apply(ctx context.Context, req *rove.PurchaseApplyRequest)
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkPurchase.Apply].
-func (s sinkPurchase) Patch(ctx context.Context, req *rove.PurchasePatchRequest) (*rove.Purchase, error) {
+func (s sinkPurchase) Patch(ctx context.Context, req *loft.PurchasePatchRequest) (*loft.Purchase, error) {
 	seen.Forget(s.store.Db.Driver(), "Purchase", req.GetRef())
 
 	return s.PurchaseServiceServer.Patch(ctx, req)
@@ -9632,7 +9632,7 @@ const (
 
 // List answers with the Purchases that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkPurchase) List(ctx context.Context, req *rove.PurchaseListRequest) (*rove.PurchaseListResponse, error) {
+func (s sinkPurchase) List(ctx context.Context, req *loft.PurchaseListRequest) (*loft.PurchaseListResponse, error) {
 	q := s.store.Db.Purchase.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -9697,12 +9697,12 @@ func (s sinkPurchase) List(ctx context.Context, req *rove.PurchaseListRequest) (
 		us = us[:size]
 	}
 
-	items := make([]*rove.Purchase, len(us))
+	items := make([]*loft.Purchase, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.PurchaseListResponse_builder{Items: items}.Build()
+	res := loft.PurchaseListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -9718,7 +9718,7 @@ func (s sinkPurchase) List(ctx context.Context, req *rove.PurchaseListRequest) (
 // filterPurchase turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterPurchase(f *rove.PurchaseFilter) (predicate.Purchase, error) {
+func filterPurchase(f *loft.PurchaseFilter) (predicate.Purchase, error) {
 	ps := make([]predicate.Purchase, 0, 1)
 	if f.HasRef() {
 		p, err := bare.PurchasePick(f.GetRef())
@@ -9766,7 +9766,7 @@ func filterPurchase(f *rove.PurchaseFilter) (predicate.Purchase, error) {
 // PurchaseService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Purchase. A service is named for the entity it
 // is about, so the name carries it.
-var PurchaseService = watch.ServiceOf(rove.PurchaseService_Get_FullMethodName)
+var PurchaseService = watch.ServiceOf(loft.PurchaseService_Get_FullMethodName)
 
 // Watch answers with the Purchases this caller may see, as they are now and as
 // they change.
@@ -9775,7 +9775,7 @@ var PurchaseService = watch.ServiceOf(rove.PurchaseService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkPurchase) Watch(req *rove.PurchaseWatchRequest, out grpc.ServerStreamingServer[rove.PurchaseWatchResponse]) error {
+func (s sinkPurchase) Watch(req *loft.PurchaseWatchRequest, out grpc.ServerStreamingServer[loft.PurchaseWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -9809,7 +9809,7 @@ func (s sinkPurchase) Watch(req *rove.PurchaseWatchRequest, out grpc.ServerStrea
 
 	return watch.Stream(ctx, s.w, PurchaseService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.PurchaseWatchItem, 0, len(ks))
+			items := make([]*loft.PurchaseWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -9823,7 +9823,7 @@ func (s sinkPurchase) Watch(req *rove.PurchaseWatchRequest, out grpc.ServerStrea
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.PurchaseWatchItem_builder{
+				items = append(items, loft.PurchaseWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -9833,7 +9833,7 @@ func (s sinkPurchase) Watch(req *rove.PurchaseWatchRequest, out grpc.ServerStrea
 				return nil
 			}
 
-			return out.Send(rove.PurchaseWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.PurchaseWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -9841,12 +9841,12 @@ func (s sinkPurchase) Watch(req *rove.PurchaseWatchRequest, out grpc.ServerStrea
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkPurchase) watchNow(
-	ctx context.Context, req *rove.PurchaseWatchRequest, out grpc.ServerStreamingServer[rove.PurchaseWatchResponse],
+	ctx context.Context, req *loft.PurchaseWatchRequest, out grpc.ServerStreamingServer[loft.PurchaseWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.PurchaseListRequest_builder{
+		res, err := s.List(ctx, loft.PurchaseListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -9854,7 +9854,7 @@ func (s sinkPurchase) watchNow(
 			return err
 		}
 
-		items := make([]*rove.PurchaseWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.PurchaseWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -9864,10 +9864,10 @@ func (s sinkPurchase) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.PurchaseWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.PurchaseWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.PurchaseWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.PurchaseWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -9889,15 +9889,15 @@ func (s sinkPurchase) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkPurchase) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Purchase, error) {
+) (*loft.Purchase, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.PurchaseGetRequest_builder{
-		Ref: rove.PurchaseRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.PurchaseGetRequest_builder{
+		Ref: loft.PurchaseRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -9920,7 +9920,7 @@ func (s sinkPurchase) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkPurchase) watchPurchaseKeys(
-	ctx context.Context, fs []*rove.PurchaseFilter,
+	ctx context.Context, fs []*loft.PurchaseFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -9929,7 +9929,7 @@ func (s sinkPurchase) watchPurchaseKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.PurchaseGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.PurchaseGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -9946,14 +9946,14 @@ func (s sinkPurchase) watchPurchaseKeys(
 }
 
 type sinkPurchaseLine struct {
-	rove.PurchaseLineServiceServer
+	loft.PurchaseLineServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) PurchaseLine() rove.PurchaseLineServiceServer {
+func (s Sink) PurchaseLine() loft.PurchaseLineServiceServer {
 	v := sinkPurchaseLine{s.Server.PurchaseLine(), s.Server.Store, s.w, s.namer, s.joined}
 	v.PurchaseLineServiceServer = bare.PurchaseLineWithAddRule(v.PurchaseLineServiceServer, v.admit)
 	return v
@@ -9963,7 +9963,7 @@ func (s Sink) PurchaseLine() rove.PurchaseLineServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.PurchaseLine].
-func (s sinkPurchaseLine) admit(ctx context.Context, req *rove.PurchaseLineAddRequest) (*rove.PurchaseLineAddRequest, error) {
+func (s sinkPurchaseLine) admit(ctx context.Context, req *loft.PurchaseLineAddRequest) (*loft.PurchaseLineAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -9981,7 +9981,7 @@ func (s sinkPurchaseLine) admit(ctx context.Context, req *rove.PurchaseLineAddRe
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkPurchaseLine) Erase(ctx context.Context, req *rove.PurchaseLineRef) (*rove.PurchaseLineEraseResponse, error) {
+func (s sinkPurchaseLine) Erase(ctx context.Context, req *loft.PurchaseLineRef) (*loft.PurchaseLineEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "PurchaseLine", req)
 
 	return s.PurchaseLineServiceServer.Erase(ctx, req)
@@ -9990,7 +9990,7 @@ func (s sinkPurchaseLine) Erase(ctx context.Context, req *rove.PurchaseLineRef) 
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkPurchaseLine) Apply(ctx context.Context, req *rove.PurchaseLineApplyRequest) (*rove.PurchaseLine, error) {
+func (s sinkPurchaseLine) Apply(ctx context.Context, req *loft.PurchaseLineApplyRequest) (*loft.PurchaseLine, error) {
 	seen.Forget(s.store.Db.Driver(), "PurchaseLine", req.GetRef())
 
 	return s.PurchaseLineServiceServer.Apply(ctx, req)
@@ -9998,14 +9998,14 @@ func (s sinkPurchaseLine) Apply(ctx context.Context, req *rove.PurchaseLineApply
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkPurchaseLine.Apply].
-func (s sinkPurchaseLine) Patch(ctx context.Context, req *rove.PurchaseLinePatchRequest) (*rove.PurchaseLine, error) {
+func (s sinkPurchaseLine) Patch(ctx context.Context, req *loft.PurchaseLinePatchRequest) (*loft.PurchaseLine, error) {
 	seen.Forget(s.store.Db.Driver(), "PurchaseLine", req.GetRef())
 
 	return s.PurchaseLineServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkPurchaseLine) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkPurchaseLine) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -10032,7 +10032,7 @@ func (s sinkPurchaseLine) tenantAtTenant(ctx context.Context, ref *rove.TenantRe
 }
 
 // tenantAtPurchaseTenant is the tenant "purchase.tenant" arrives at.
-func (s sinkPurchaseLine) tenantAtPurchaseTenant(ctx context.Context, ref *rove.PurchaseRef) ([]byte, error) {
+func (s sinkPurchaseLine) tenantAtPurchaseTenant(ctx context.Context, ref *loft.PurchaseRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("purchase", "required: it is what says which tenant this belongs to")
 	}
@@ -10063,7 +10063,7 @@ func (s sinkPurchaseLine) tenantAtPurchaseTenant(ctx context.Context, ref *rove.
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkPurchaseLine) tenancy(ctx context.Context, req *rove.PurchaseLineAddRequest) error {
+func (s sinkPurchaseLine) tenancy(ctx context.Context, req *loft.PurchaseLineAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -10145,7 +10145,7 @@ const (
 
 // List answers with the PurchaseLines that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkPurchaseLine) List(ctx context.Context, req *rove.PurchaseLineListRequest) (*rove.PurchaseLineListResponse, error) {
+func (s sinkPurchaseLine) List(ctx context.Context, req *loft.PurchaseLineListRequest) (*loft.PurchaseLineListResponse, error) {
 	q := s.store.Db.PurchaseLine.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -10210,12 +10210,12 @@ func (s sinkPurchaseLine) List(ctx context.Context, req *rove.PurchaseLineListRe
 		us = us[:size]
 	}
 
-	items := make([]*rove.PurchaseLine, len(us))
+	items := make([]*loft.PurchaseLine, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.PurchaseLineListResponse_builder{Items: items}.Build()
+	res := loft.PurchaseLineListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -10231,7 +10231,7 @@ func (s sinkPurchaseLine) List(ctx context.Context, req *rove.PurchaseLineListRe
 // filterPurchaseLine turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterPurchaseLine(f *rove.PurchaseLineFilter) (predicate.PurchaseLine, error) {
+func filterPurchaseLine(f *loft.PurchaseLineFilter) (predicate.PurchaseLine, error) {
 	ps := make([]predicate.PurchaseLine, 0, 1)
 	if f.HasRef() {
 		p, err := bare.PurchaseLinePick(f.GetRef())
@@ -10299,14 +10299,14 @@ func filterPurchaseLine(f *rove.PurchaseLineFilter) (predicate.PurchaseLine, err
 }
 
 type sinkReservation struct {
-	rove.ReservationServiceServer
+	loft.ReservationServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Reservation() rove.ReservationServiceServer {
+func (s Sink) Reservation() loft.ReservationServiceServer {
 	v := sinkReservation{s.Server.Reservation(), s.Server.Store, s.w, s.namer, s.joined}
 	v.ReservationServiceServer = bare.ReservationWithAddRule(v.ReservationServiceServer, v.admit)
 	return v
@@ -10316,7 +10316,7 @@ func (s Sink) Reservation() rove.ReservationServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Reservation].
-func (s sinkReservation) admit(ctx context.Context, req *rove.ReservationAddRequest) (*rove.ReservationAddRequest, error) {
+func (s sinkReservation) admit(ctx context.Context, req *loft.ReservationAddRequest) (*loft.ReservationAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -10334,7 +10334,7 @@ func (s sinkReservation) admit(ctx context.Context, req *rove.ReservationAddRequ
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkReservation) Erase(ctx context.Context, req *rove.ReservationRef) (*rove.ReservationEraseResponse, error) {
+func (s sinkReservation) Erase(ctx context.Context, req *loft.ReservationRef) (*loft.ReservationEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Reservation", req)
 
 	return s.ReservationServiceServer.Erase(ctx, req)
@@ -10343,7 +10343,7 @@ func (s sinkReservation) Erase(ctx context.Context, req *rove.ReservationRef) (*
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkReservation) Apply(ctx context.Context, req *rove.ReservationApplyRequest) (*rove.Reservation, error) {
+func (s sinkReservation) Apply(ctx context.Context, req *loft.ReservationApplyRequest) (*loft.Reservation, error) {
 	seen.Forget(s.store.Db.Driver(), "Reservation", req.GetRef())
 
 	return s.ReservationServiceServer.Apply(ctx, req)
@@ -10351,14 +10351,14 @@ func (s sinkReservation) Apply(ctx context.Context, req *rove.ReservationApplyRe
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkReservation.Apply].
-func (s sinkReservation) Patch(ctx context.Context, req *rove.ReservationPatchRequest) (*rove.Reservation, error) {
+func (s sinkReservation) Patch(ctx context.Context, req *loft.ReservationPatchRequest) (*loft.Reservation, error) {
 	seen.Forget(s.store.Db.Driver(), "Reservation", req.GetRef())
 
 	return s.ReservationServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkReservation) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkReservation) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -10385,7 +10385,7 @@ func (s sinkReservation) tenantAtTenant(ctx context.Context, ref *rove.TenantRef
 }
 
 // tenantAtPartyTenant is the tenant "party.tenant" arrives at.
-func (s sinkReservation) tenantAtPartyTenant(ctx context.Context, ref *rove.PartyRef) ([]byte, error) {
+func (s sinkReservation) tenantAtPartyTenant(ctx context.Context, ref *loft.PartyRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("party", "required: it is what says which tenant this belongs to")
 	}
@@ -10416,7 +10416,7 @@ func (s sinkReservation) tenantAtPartyTenant(ctx context.Context, ref *rove.Part
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkReservation) tenancy(ctx context.Context, req *rove.ReservationAddRequest) error {
+func (s sinkReservation) tenancy(ctx context.Context, req *loft.ReservationAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -10498,7 +10498,7 @@ const (
 
 // List answers with the Reservations that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkReservation) List(ctx context.Context, req *rove.ReservationListRequest) (*rove.ReservationListResponse, error) {
+func (s sinkReservation) List(ctx context.Context, req *loft.ReservationListRequest) (*loft.ReservationListResponse, error) {
 	q := s.store.Db.Reservation.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -10563,12 +10563,12 @@ func (s sinkReservation) List(ctx context.Context, req *rove.ReservationListRequ
 		us = us[:size]
 	}
 
-	items := make([]*rove.Reservation, len(us))
+	items := make([]*loft.Reservation, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.ReservationListResponse_builder{Items: items}.Build()
+	res := loft.ReservationListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -10584,7 +10584,7 @@ func (s sinkReservation) List(ctx context.Context, req *rove.ReservationListRequ
 // filterReservation turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterReservation(f *rove.ReservationFilter) (predicate.Reservation, error) {
+func filterReservation(f *loft.ReservationFilter) (predicate.Reservation, error) {
 	ps := make([]predicate.Reservation, 0, 1)
 	if f.HasRef() {
 		p, err := bare.ReservationPick(f.GetRef())
@@ -10640,7 +10640,7 @@ func filterReservation(f *rove.ReservationFilter) (predicate.Reservation, error)
 // ReservationService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Reservation. A service is named for the entity it
 // is about, so the name carries it.
-var ReservationService = watch.ServiceOf(rove.ReservationService_Get_FullMethodName)
+var ReservationService = watch.ServiceOf(loft.ReservationService_Get_FullMethodName)
 
 // Watch answers with the Reservations this caller may see, as they are now and as
 // they change.
@@ -10649,7 +10649,7 @@ var ReservationService = watch.ServiceOf(rove.ReservationService_Get_FullMethodN
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkReservation) Watch(req *rove.ReservationWatchRequest, out grpc.ServerStreamingServer[rove.ReservationWatchResponse]) error {
+func (s sinkReservation) Watch(req *loft.ReservationWatchRequest, out grpc.ServerStreamingServer[loft.ReservationWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -10683,7 +10683,7 @@ func (s sinkReservation) Watch(req *rove.ReservationWatchRequest, out grpc.Serve
 
 	return watch.Stream(ctx, s.w, ReservationService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.ReservationWatchItem, 0, len(ks))
+			items := make([]*loft.ReservationWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -10697,7 +10697,7 @@ func (s sinkReservation) Watch(req *rove.ReservationWatchRequest, out grpc.Serve
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.ReservationWatchItem_builder{
+				items = append(items, loft.ReservationWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -10707,7 +10707,7 @@ func (s sinkReservation) Watch(req *rove.ReservationWatchRequest, out grpc.Serve
 				return nil
 			}
 
-			return out.Send(rove.ReservationWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.ReservationWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -10715,12 +10715,12 @@ func (s sinkReservation) Watch(req *rove.ReservationWatchRequest, out grpc.Serve
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkReservation) watchNow(
-	ctx context.Context, req *rove.ReservationWatchRequest, out grpc.ServerStreamingServer[rove.ReservationWatchResponse],
+	ctx context.Context, req *loft.ReservationWatchRequest, out grpc.ServerStreamingServer[loft.ReservationWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.ReservationListRequest_builder{
+		res, err := s.List(ctx, loft.ReservationListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -10728,7 +10728,7 @@ func (s sinkReservation) watchNow(
 			return err
 		}
 
-		items := make([]*rove.ReservationWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.ReservationWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -10738,10 +10738,10 @@ func (s sinkReservation) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.ReservationWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.ReservationWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.ReservationWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.ReservationWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -10763,15 +10763,15 @@ func (s sinkReservation) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkReservation) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Reservation, error) {
+) (*loft.Reservation, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.ReservationGetRequest_builder{
-		Ref: rove.ReservationRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.ReservationGetRequest_builder{
+		Ref: loft.ReservationRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -10794,7 +10794,7 @@ func (s sinkReservation) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkReservation) watchReservationKeys(
-	ctx context.Context, fs []*rove.ReservationFilter,
+	ctx context.Context, fs []*loft.ReservationFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -10803,7 +10803,7 @@ func (s sinkReservation) watchReservationKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.ReservationGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.ReservationGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -10820,14 +10820,14 @@ func (s sinkReservation) watchReservationKeys(
 }
 
 type sinkReservationItem struct {
-	rove.ReservationItemServiceServer
+	loft.ReservationItemServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) ReservationItem() rove.ReservationItemServiceServer {
+func (s Sink) ReservationItem() loft.ReservationItemServiceServer {
 	v := sinkReservationItem{s.Server.ReservationItem(), s.Server.Store, s.w, s.namer, s.joined}
 	v.ReservationItemServiceServer = bare.ReservationItemWithAddRule(v.ReservationItemServiceServer, v.admit)
 	return v
@@ -10837,7 +10837,7 @@ func (s Sink) ReservationItem() rove.ReservationItemServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.ReservationItem].
-func (s sinkReservationItem) admit(ctx context.Context, req *rove.ReservationItemAddRequest) (*rove.ReservationItemAddRequest, error) {
+func (s sinkReservationItem) admit(ctx context.Context, req *loft.ReservationItemAddRequest) (*loft.ReservationItemAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -10855,7 +10855,7 @@ func (s sinkReservationItem) admit(ctx context.Context, req *rove.ReservationIte
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkReservationItem) Erase(ctx context.Context, req *rove.ReservationItemRef) (*rove.ReservationItemEraseResponse, error) {
+func (s sinkReservationItem) Erase(ctx context.Context, req *loft.ReservationItemRef) (*loft.ReservationItemEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "ReservationItem", req)
 
 	return s.ReservationItemServiceServer.Erase(ctx, req)
@@ -10864,7 +10864,7 @@ func (s sinkReservationItem) Erase(ctx context.Context, req *rove.ReservationIte
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkReservationItem) Apply(ctx context.Context, req *rove.ReservationItemApplyRequest) (*rove.ReservationItem, error) {
+func (s sinkReservationItem) Apply(ctx context.Context, req *loft.ReservationItemApplyRequest) (*loft.ReservationItem, error) {
 	seen.Forget(s.store.Db.Driver(), "ReservationItem", req.GetRef())
 
 	return s.ReservationItemServiceServer.Apply(ctx, req)
@@ -10872,14 +10872,14 @@ func (s sinkReservationItem) Apply(ctx context.Context, req *rove.ReservationIte
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkReservationItem.Apply].
-func (s sinkReservationItem) Patch(ctx context.Context, req *rove.ReservationItemPatchRequest) (*rove.ReservationItem, error) {
+func (s sinkReservationItem) Patch(ctx context.Context, req *loft.ReservationItemPatchRequest) (*loft.ReservationItem, error) {
 	seen.Forget(s.store.Db.Driver(), "ReservationItem", req.GetRef())
 
 	return s.ReservationItemServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkReservationItem) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkReservationItem) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -10906,7 +10906,7 @@ func (s sinkReservationItem) tenantAtTenant(ctx context.Context, ref *rove.Tenan
 }
 
 // tenantAtReservationTenant is the tenant "reservation.tenant" arrives at.
-func (s sinkReservationItem) tenantAtReservationTenant(ctx context.Context, ref *rove.ReservationRef) ([]byte, error) {
+func (s sinkReservationItem) tenantAtReservationTenant(ctx context.Context, ref *loft.ReservationRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("reservation", "required: it is what says which tenant this belongs to")
 	}
@@ -10933,7 +10933,7 @@ func (s sinkReservationItem) tenantAtReservationTenant(ctx context.Context, ref 
 }
 
 // tenantAtResourceTenant is the tenant "resource.tenant" arrives at.
-func (s sinkReservationItem) tenantAtResourceTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkReservationItem) tenantAtResourceTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("resource", "required: it is what says which tenant this belongs to")
 	}
@@ -10964,7 +10964,7 @@ func (s sinkReservationItem) tenantAtResourceTenant(ctx context.Context, ref *ro
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkReservationItem) tenancy(ctx context.Context, req *rove.ReservationItemAddRequest) error {
+func (s sinkReservationItem) tenancy(ctx context.Context, req *loft.ReservationItemAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -11061,7 +11061,7 @@ const (
 
 // List answers with the ReservationItems that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkReservationItem) List(ctx context.Context, req *rove.ReservationItemListRequest) (*rove.ReservationItemListResponse, error) {
+func (s sinkReservationItem) List(ctx context.Context, req *loft.ReservationItemListRequest) (*loft.ReservationItemListResponse, error) {
 	q := s.store.Db.ReservationItem.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -11126,12 +11126,12 @@ func (s sinkReservationItem) List(ctx context.Context, req *rove.ReservationItem
 		us = us[:size]
 	}
 
-	items := make([]*rove.ReservationItem, len(us))
+	items := make([]*loft.ReservationItem, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.ReservationItemListResponse_builder{Items: items}.Build()
+	res := loft.ReservationItemListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -11147,7 +11147,7 @@ func (s sinkReservationItem) List(ctx context.Context, req *rove.ReservationItem
 // filterReservationItem turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterReservationItem(f *rove.ReservationItemFilter) (predicate.ReservationItem, error) {
+func filterReservationItem(f *loft.ReservationItemFilter) (predicate.ReservationItem, error) {
 	ps := make([]predicate.ReservationItem, 0, 1)
 	if f.HasRef() {
 		p, err := bare.ReservationItemPick(f.GetRef())
@@ -11215,14 +11215,14 @@ func filterReservationItem(f *rove.ReservationItemFilter) (predicate.Reservation
 }
 
 type sinkStewardship struct {
-	rove.StewardshipServiceServer
+	loft.StewardshipServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Stewardship() rove.StewardshipServiceServer {
+func (s Sink) Stewardship() loft.StewardshipServiceServer {
 	v := sinkStewardship{s.Server.Stewardship(), s.Server.Store, s.w, s.namer, s.joined}
 	v.StewardshipServiceServer = bare.StewardshipWithAddRule(v.StewardshipServiceServer, v.admit)
 	return v
@@ -11232,7 +11232,7 @@ func (s Sink) Stewardship() rove.StewardshipServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Stewardship].
-func (s sinkStewardship) admit(ctx context.Context, req *rove.StewardshipAddRequest) (*rove.StewardshipAddRequest, error) {
+func (s sinkStewardship) admit(ctx context.Context, req *loft.StewardshipAddRequest) (*loft.StewardshipAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -11250,7 +11250,7 @@ func (s sinkStewardship) admit(ctx context.Context, req *rove.StewardshipAddRequ
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkStewardship) Erase(ctx context.Context, req *rove.StewardshipRef) (*rove.StewardshipEraseResponse, error) {
+func (s sinkStewardship) Erase(ctx context.Context, req *loft.StewardshipRef) (*loft.StewardshipEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Stewardship", req)
 
 	return s.StewardshipServiceServer.Erase(ctx, req)
@@ -11259,7 +11259,7 @@ func (s sinkStewardship) Erase(ctx context.Context, req *rove.StewardshipRef) (*
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkStewardship) Apply(ctx context.Context, req *rove.StewardshipApplyRequest) (*rove.Stewardship, error) {
+func (s sinkStewardship) Apply(ctx context.Context, req *loft.StewardshipApplyRequest) (*loft.Stewardship, error) {
 	seen.Forget(s.store.Db.Driver(), "Stewardship", req.GetRef())
 
 	return s.StewardshipServiceServer.Apply(ctx, req)
@@ -11267,14 +11267,14 @@ func (s sinkStewardship) Apply(ctx context.Context, req *rove.StewardshipApplyRe
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkStewardship.Apply].
-func (s sinkStewardship) Patch(ctx context.Context, req *rove.StewardshipPatchRequest) (*rove.Stewardship, error) {
+func (s sinkStewardship) Patch(ctx context.Context, req *loft.StewardshipPatchRequest) (*loft.Stewardship, error) {
 	seen.Forget(s.store.Db.Driver(), "Stewardship", req.GetRef())
 
 	return s.StewardshipServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkStewardship) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkStewardship) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -11301,7 +11301,7 @@ func (s sinkStewardship) tenantAtTenant(ctx context.Context, ref *rove.TenantRef
 }
 
 // tenantAtAssetTenant is the tenant "asset.tenant" arrives at.
-func (s sinkStewardship) tenantAtAssetTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkStewardship) tenantAtAssetTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("asset", "required: it is what says which tenant this belongs to")
 	}
@@ -11328,7 +11328,7 @@ func (s sinkStewardship) tenantAtAssetTenant(ctx context.Context, ref *rove.Asse
 }
 
 // tenantAtPartyTenant is the tenant "party.tenant" arrives at.
-func (s sinkStewardship) tenantAtPartyTenant(ctx context.Context, ref *rove.PartyRef) ([]byte, error) {
+func (s sinkStewardship) tenantAtPartyTenant(ctx context.Context, ref *loft.PartyRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("party", "required: it is what says which tenant this belongs to")
 	}
@@ -11359,7 +11359,7 @@ func (s sinkStewardship) tenantAtPartyTenant(ctx context.Context, ref *rove.Part
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkStewardship) tenancy(ctx context.Context, req *rove.StewardshipAddRequest) error {
+func (s sinkStewardship) tenancy(ctx context.Context, req *loft.StewardshipAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -11456,7 +11456,7 @@ const (
 
 // List answers with the Stewardships that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkStewardship) List(ctx context.Context, req *rove.StewardshipListRequest) (*rove.StewardshipListResponse, error) {
+func (s sinkStewardship) List(ctx context.Context, req *loft.StewardshipListRequest) (*loft.StewardshipListResponse, error) {
 	q := s.store.Db.Stewardship.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -11521,12 +11521,12 @@ func (s sinkStewardship) List(ctx context.Context, req *rove.StewardshipListRequ
 		us = us[:size]
 	}
 
-	items := make([]*rove.Stewardship, len(us))
+	items := make([]*loft.Stewardship, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.StewardshipListResponse_builder{Items: items}.Build()
+	res := loft.StewardshipListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -11542,7 +11542,7 @@ func (s sinkStewardship) List(ctx context.Context, req *rove.StewardshipListRequ
 // filterStewardship turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterStewardship(f *rove.StewardshipFilter) (predicate.Stewardship, error) {
+func filterStewardship(f *loft.StewardshipFilter) (predicate.Stewardship, error) {
 	ps := make([]predicate.Stewardship, 0, 1)
 	if f.HasRef() {
 		p, err := bare.StewardshipPick(f.GetRef())
@@ -11613,14 +11613,14 @@ func filterStewardship(f *rove.StewardshipFilter) (predicate.Stewardship, error)
 }
 
 type sinkStock struct {
-	rove.StockServiceServer
+	loft.StockServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Stock() rove.StockServiceServer {
+func (s Sink) Stock() loft.StockServiceServer {
 	v := sinkStock{s.Server.Stock(), s.Server.Store, s.w, s.namer, s.joined}
 	v.StockServiceServer = bare.StockWithAddRule(v.StockServiceServer, v.admit)
 	return v
@@ -11630,7 +11630,7 @@ func (s Sink) Stock() rove.StockServiceServer {
 // refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.Stock].
-func (s sinkStock) admit(ctx context.Context, req *rove.StockAddRequest) (*rove.StockAddRequest, error) {
+func (s sinkStock) admit(ctx context.Context, req *loft.StockAddRequest) (*loft.StockAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -11648,7 +11648,7 @@ func (s sinkStock) admit(ctx context.Context, req *rove.StockAddRequest) (*rove.
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkStock) Erase(ctx context.Context, req *rove.StockRef) (*rove.StockEraseResponse, error) {
+func (s sinkStock) Erase(ctx context.Context, req *loft.StockRef) (*loft.StockEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Stock", req)
 
 	return s.StockServiceServer.Erase(ctx, req)
@@ -11657,7 +11657,7 @@ func (s sinkStock) Erase(ctx context.Context, req *rove.StockRef) (*rove.StockEr
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkStock) Apply(ctx context.Context, req *rove.StockApplyRequest) (*rove.Stock, error) {
+func (s sinkStock) Apply(ctx context.Context, req *loft.StockApplyRequest) (*loft.Stock, error) {
 	seen.Forget(s.store.Db.Driver(), "Stock", req.GetRef())
 
 	return s.StockServiceServer.Apply(ctx, req)
@@ -11665,14 +11665,14 @@ func (s sinkStock) Apply(ctx context.Context, req *rove.StockApplyRequest) (*rov
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkStock.Apply].
-func (s sinkStock) Patch(ctx context.Context, req *rove.StockPatchRequest) (*rove.Stock, error) {
+func (s sinkStock) Patch(ctx context.Context, req *loft.StockPatchRequest) (*loft.Stock, error) {
 	seen.Forget(s.store.Db.Driver(), "Stock", req.GetRef())
 
 	return s.StockServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkStock) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkStock) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -11699,7 +11699,7 @@ func (s sinkStock) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]b
 }
 
 // tenantAtModelTenant is the tenant "model.tenant" arrives at.
-func (s sinkStock) tenantAtModelTenant(ctx context.Context, ref *rove.ItemModelRef) ([]byte, error) {
+func (s sinkStock) tenantAtModelTenant(ctx context.Context, ref *loft.ItemModelRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("model", "required: it is what says which tenant this belongs to")
 	}
@@ -11726,7 +11726,7 @@ func (s sinkStock) tenantAtModelTenant(ctx context.Context, ref *rove.ItemModelR
 }
 
 // tenantAtSpaceTenant is the tenant "space.tenant" arrives at.
-func (s sinkStock) tenantAtSpaceTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkStock) tenantAtSpaceTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("space", "required: it is what says which tenant this belongs to")
 	}
@@ -11757,7 +11757,7 @@ func (s sinkStock) tenantAtSpaceTenant(ctx context.Context, ref *rove.AssetRef) 
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkStock) tenancy(ctx context.Context, req *rove.StockAddRequest) error {
+func (s sinkStock) tenancy(ctx context.Context, req *loft.StockAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -11854,7 +11854,7 @@ const (
 
 // List answers with the Stocks that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkStock) List(ctx context.Context, req *rove.StockListRequest) (*rove.StockListResponse, error) {
+func (s sinkStock) List(ctx context.Context, req *loft.StockListRequest) (*loft.StockListResponse, error) {
 	q := s.store.Db.Stock.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -11919,12 +11919,12 @@ func (s sinkStock) List(ctx context.Context, req *rove.StockListRequest) (*rove.
 		us = us[:size]
 	}
 
-	items := make([]*rove.Stock, len(us))
+	items := make([]*loft.Stock, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.StockListResponse_builder{Items: items}.Build()
+	res := loft.StockListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -11940,7 +11940,7 @@ func (s sinkStock) List(ctx context.Context, req *rove.StockListRequest) (*rove.
 // filterStock turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterStock(f *rove.StockFilter) (predicate.Stock, error) {
+func filterStock(f *loft.StockFilter) (predicate.Stock, error) {
 	ps := make([]predicate.Stock, 0, 1)
 	if f.HasRef() {
 		p, err := bare.StockPick(f.GetRef())
@@ -12010,7 +12010,7 @@ func filterStock(f *rove.StockFilter) (predicate.Stock, error) {
 // StockService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a Stock. A service is named for the entity it
 // is about, so the name carries it.
-var StockService = watch.ServiceOf(rove.StockService_Get_FullMethodName)
+var StockService = watch.ServiceOf(loft.StockService_Get_FullMethodName)
 
 // Watch answers with the Stocks this caller may see, as they are now and as
 // they change.
@@ -12019,7 +12019,7 @@ var StockService = watch.ServiceOf(rove.StockService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkStock) Watch(req *rove.StockWatchRequest, out grpc.ServerStreamingServer[rove.StockWatchResponse]) error {
+func (s sinkStock) Watch(req *loft.StockWatchRequest, out grpc.ServerStreamingServer[loft.StockWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -12053,7 +12053,7 @@ func (s sinkStock) Watch(req *rove.StockWatchRequest, out grpc.ServerStreamingSe
 
 	return watch.Stream(ctx, s.w, StockService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.StockWatchItem, 0, len(ks))
+			items := make([]*loft.StockWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -12067,7 +12067,7 @@ func (s sinkStock) Watch(req *rove.StockWatchRequest, out grpc.ServerStreamingSe
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.StockWatchItem_builder{
+				items = append(items, loft.StockWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -12077,7 +12077,7 @@ func (s sinkStock) Watch(req *rove.StockWatchRequest, out grpc.ServerStreamingSe
 				return nil
 			}
 
-			return out.Send(rove.StockWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.StockWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -12085,12 +12085,12 @@ func (s sinkStock) Watch(req *rove.StockWatchRequest, out grpc.ServerStreamingSe
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkStock) watchNow(
-	ctx context.Context, req *rove.StockWatchRequest, out grpc.ServerStreamingServer[rove.StockWatchResponse],
+	ctx context.Context, req *loft.StockWatchRequest, out grpc.ServerStreamingServer[loft.StockWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.StockListRequest_builder{
+		res, err := s.List(ctx, loft.StockListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -12098,7 +12098,7 @@ func (s sinkStock) watchNow(
 			return err
 		}
 
-		items := make([]*rove.StockWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.StockWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -12108,10 +12108,10 @@ func (s sinkStock) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.StockWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.StockWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.StockWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.StockWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -12133,15 +12133,15 @@ func (s sinkStock) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkStock) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.Stock, error) {
+) (*loft.Stock, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.StockGetRequest_builder{
-		Ref: rove.StockRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.StockGetRequest_builder{
+		Ref: loft.StockRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -12164,7 +12164,7 @@ func (s sinkStock) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkStock) watchStockKeys(
-	ctx context.Context, fs []*rove.StockFilter,
+	ctx context.Context, fs []*loft.StockFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -12173,7 +12173,7 @@ func (s sinkStock) watchStockKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.StockGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.StockGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -12190,14 +12190,14 @@ func (s sinkStock) watchStockKeys(
 }
 
 type sinkStockMovement struct {
-	rove.StockMovementServiceServer
+	loft.StockMovementServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) StockMovement() rove.StockMovementServiceServer {
+func (s Sink) StockMovement() loft.StockMovementServiceServer {
 	v := sinkStockMovement{s.Server.StockMovement(), s.Server.Store, s.w, s.namer, s.joined}
 	v.StockMovementServiceServer = bare.StockMovementWithAddRule(v.StockMovementServiceServer, v.admit)
 	return v
@@ -12207,7 +12207,7 @@ func (s Sink) StockMovement() rove.StockMovementServiceServer {
 // writes: it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.StockMovement].
-func (s sinkStockMovement) admit(ctx context.Context, req *rove.StockMovementAddRequest) (*rove.StockMovementAddRequest, error) {
+func (s sinkStockMovement) admit(ctx context.Context, req *loft.StockMovementAddRequest) (*loft.StockMovementAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -12225,7 +12225,7 @@ func (s sinkStockMovement) admit(ctx context.Context, req *rove.StockMovementAdd
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkStockMovement) Erase(ctx context.Context, req *rove.StockMovementRef) (*rove.StockMovementEraseResponse, error) {
+func (s sinkStockMovement) Erase(ctx context.Context, req *loft.StockMovementRef) (*loft.StockMovementEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "StockMovement", req)
 
 	return s.StockMovementServiceServer.Erase(ctx, req)
@@ -12234,7 +12234,7 @@ func (s sinkStockMovement) Erase(ctx context.Context, req *rove.StockMovementRef
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkStockMovement) Apply(ctx context.Context, req *rove.StockMovementApplyRequest) (*rove.StockMovement, error) {
+func (s sinkStockMovement) Apply(ctx context.Context, req *loft.StockMovementApplyRequest) (*loft.StockMovement, error) {
 	seen.Forget(s.store.Db.Driver(), "StockMovement", req.GetRef())
 
 	return s.StockMovementServiceServer.Apply(ctx, req)
@@ -12242,14 +12242,14 @@ func (s sinkStockMovement) Apply(ctx context.Context, req *rove.StockMovementApp
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkStockMovement.Apply].
-func (s sinkStockMovement) Patch(ctx context.Context, req *rove.StockMovementPatchRequest) (*rove.StockMovement, error) {
+func (s sinkStockMovement) Patch(ctx context.Context, req *loft.StockMovementPatchRequest) (*loft.StockMovement, error) {
 	seen.Forget(s.store.Db.Driver(), "StockMovement", req.GetRef())
 
 	return s.StockMovementServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkStockMovement) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkStockMovement) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -12276,7 +12276,7 @@ func (s sinkStockMovement) tenantAtTenant(ctx context.Context, ref *rove.TenantR
 }
 
 // tenantAtStockTenant is the tenant "stock.tenant" arrives at.
-func (s sinkStockMovement) tenantAtStockTenant(ctx context.Context, ref *rove.StockRef) ([]byte, error) {
+func (s sinkStockMovement) tenantAtStockTenant(ctx context.Context, ref *loft.StockRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("stock", "required: it is what says which tenant this belongs to")
 	}
@@ -12307,7 +12307,7 @@ func (s sinkStockMovement) tenantAtStockTenant(ctx context.Context, ref *rove.St
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkStockMovement) tenancy(ctx context.Context, req *rove.StockMovementAddRequest) error {
+func (s sinkStockMovement) tenancy(ctx context.Context, req *loft.StockMovementAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -12389,7 +12389,7 @@ const (
 
 // List answers with the StockMovements that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkStockMovement) List(ctx context.Context, req *rove.StockMovementListRequest) (*rove.StockMovementListResponse, error) {
+func (s sinkStockMovement) List(ctx context.Context, req *loft.StockMovementListRequest) (*loft.StockMovementListResponse, error) {
 	q := s.store.Db.StockMovement.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -12454,12 +12454,12 @@ func (s sinkStockMovement) List(ctx context.Context, req *rove.StockMovementList
 		us = us[:size]
 	}
 
-	items := make([]*rove.StockMovement, len(us))
+	items := make([]*loft.StockMovement, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.StockMovementListResponse_builder{Items: items}.Build()
+	res := loft.StockMovementListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -12475,7 +12475,7 @@ func (s sinkStockMovement) List(ctx context.Context, req *rove.StockMovementList
 // filterStockMovement turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterStockMovement(f *rove.StockMovementFilter) (predicate.StockMovement, error) {
+func filterStockMovement(f *loft.StockMovementFilter) (predicate.StockMovement, error) {
 	ps := make([]predicate.StockMovement, 0, 1)
 	if f.HasRef() {
 		p, err := bare.StockMovementPick(f.GetRef())
@@ -12521,14 +12521,14 @@ func filterStockMovement(f *rove.StockMovementFilter) (predicate.StockMovement, 
 }
 
 type sinkTenant struct {
-	rove.TenantServiceServer
+	loft.TenantServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) Tenant() rove.TenantServiceServer {
+func (s Sink) Tenant() loft.TenantServiceServer {
 	v := sinkTenant{s.Server.Tenant(), s.Server.Store, s.w, s.namer, s.joined}
 	v.TenantServiceServer = bare.TenantWithAddRule(v.TenantServiceServer, v.admit)
 	return v
@@ -12544,14 +12544,14 @@ func (s Sink) Tenant() rove.TenantServiceServer {
 // when nothing was -- for the reason `bare.Minter` makes a key up. An app
 // whose rows have to be named says so with `slug.Required`; see
 // `slug.Names` for why that is the way round it is.
-func (s sinkTenant) admit(ctx context.Context, req *rove.TenantAddRequest) (*rove.TenantAddRequest, error) {
+func (s sinkTenant) admit(ctx context.Context, req *loft.TenantAddRequest) (*loft.TenantAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
 	// changing a value they can read back.
 	r := proto.CloneOf(req)
 
-	v, err := slug.NameWith(ctx, s.namer, "rove.Tenant", req.GetAlias(), req)
+	v, err := slug.NameWith(ctx, s.namer, "loft.Tenant", req.GetAlias(), req)
 	if err != nil {
 		return nil, pderr.At("alias", err)
 	}
@@ -12564,7 +12564,7 @@ func (s sinkTenant) admit(ctx context.Context, req *rove.TenantAddRequest) (*rov
 //
 // The name is [sinkTenant.admit]'s, and every try goes through it, so a
 // name made up is made up again and a name given is the same each time.
-func (s sinkTenant) Add(ctx context.Context, req *rove.TenantAddRequest) (*rove.Tenant, error) {
+func (s sinkTenant) Add(ctx context.Context, req *loft.TenantAddRequest) (*loft.Tenant, error) {
 	// How many names to try. More than one only when the caller named
 	// nothing -- then the name is this server's and a collision is this
 	// server's to resolve. A name the caller gave is theirs, and quietly
@@ -12602,7 +12602,7 @@ func (s sinkTenant) Add(ctx context.Context, req *rove.TenantAddRequest) (*rove.
 //
 // And it forgets what the transaction was told about the row; see
 // [sinkTenant.Apply].
-func (s sinkTenant) Patch(ctx context.Context, req *rove.TenantPatchRequest) (*rove.Tenant, error) {
+func (s sinkTenant) Patch(ctx context.Context, req *loft.TenantPatchRequest) (*loft.Tenant, error) {
 	seen.Forget(s.store.Db.Driver(), "Tenant", req.GetRef())
 
 	if !req.HasAlias() {
@@ -12624,7 +12624,7 @@ func (s sinkTenant) Patch(ctx context.Context, req *rove.TenantPatchRequest) (*r
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkTenant) Erase(ctx context.Context, req *rove.TenantRef) (*rove.TenantEraseResponse, error) {
+func (s sinkTenant) Erase(ctx context.Context, req *loft.TenantRef) (*loft.TenantEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "Tenant", req)
 
 	return s.TenantServiceServer.Erase(ctx, req)
@@ -12633,7 +12633,7 @@ func (s sinkTenant) Erase(ctx context.Context, req *rove.TenantRef) (*rove.Tenan
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkTenant) Apply(ctx context.Context, req *rove.TenantApplyRequest) (*rove.Tenant, error) {
+func (s sinkTenant) Apply(ctx context.Context, req *loft.TenantApplyRequest) (*loft.Tenant, error) {
 	seen.Forget(s.store.Db.Driver(), "Tenant", req.GetRef())
 
 	return s.TenantServiceServer.Apply(ctx, req)
@@ -12697,7 +12697,7 @@ const (
 
 // List answers with the Tenants that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkTenant) List(ctx context.Context, req *rove.TenantListRequest) (*rove.TenantListResponse, error) {
+func (s sinkTenant) List(ctx context.Context, req *loft.TenantListRequest) (*loft.TenantListResponse, error) {
 	q := s.store.Db.Tenant.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -12762,12 +12762,12 @@ func (s sinkTenant) List(ctx context.Context, req *rove.TenantListRequest) (*rov
 		us = us[:size]
 	}
 
-	items := make([]*rove.Tenant, len(us))
+	items := make([]*loft.Tenant, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.TenantListResponse_builder{Items: items}.Build()
+	res := loft.TenantListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -12783,7 +12783,7 @@ func (s sinkTenant) List(ctx context.Context, req *rove.TenantListRequest) (*rov
 // filterTenant turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterTenant(f *rove.TenantFilter) (predicate.Tenant, error) {
+func filterTenant(f *loft.TenantFilter) (predicate.Tenant, error) {
 	ps := make([]predicate.Tenant, 0, 1)
 	if f.HasRef() {
 		p, err := bare.TenantPick(f.GetRef())
@@ -12801,14 +12801,14 @@ func filterTenant(f *rove.TenantFilter) (predicate.Tenant, error) {
 }
 
 type sinkTenantContract struct {
-	rove.TenantContractServiceServer
+	loft.TenantContractServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) TenantContract() rove.TenantContractServiceServer {
+func (s Sink) TenantContract() loft.TenantContractServiceServer {
 	return sinkTenantContract{s.Server.TenantContract(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -12816,7 +12816,7 @@ func (s Sink) TenantContract() rove.TenantContractServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkTenantContract) Erase(ctx context.Context, req *rove.TenantContractRef) (*rove.TenantContractEraseResponse, error) {
+func (s sinkTenantContract) Erase(ctx context.Context, req *loft.TenantContractRef) (*loft.TenantContractEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "TenantContract", req)
 
 	return s.TenantContractServiceServer.Erase(ctx, req)
@@ -12825,7 +12825,7 @@ func (s sinkTenantContract) Erase(ctx context.Context, req *rove.TenantContractR
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkTenantContract) Apply(ctx context.Context, req *rove.TenantContractApplyRequest) (*rove.TenantContract, error) {
+func (s sinkTenantContract) Apply(ctx context.Context, req *loft.TenantContractApplyRequest) (*loft.TenantContract, error) {
 	seen.Forget(s.store.Db.Driver(), "TenantContract", req.GetRef())
 
 	return s.TenantContractServiceServer.Apply(ctx, req)
@@ -12833,7 +12833,7 @@ func (s sinkTenantContract) Apply(ctx context.Context, req *rove.TenantContractA
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkTenantContract.Apply].
-func (s sinkTenantContract) Patch(ctx context.Context, req *rove.TenantContractPatchRequest) (*rove.TenantContract, error) {
+func (s sinkTenantContract) Patch(ctx context.Context, req *loft.TenantContractPatchRequest) (*loft.TenantContract, error) {
 	seen.Forget(s.store.Db.Driver(), "TenantContract", req.GetRef())
 
 	return s.TenantContractServiceServer.Patch(ctx, req)
@@ -12897,7 +12897,7 @@ const (
 
 // List answers with the TenantContracts that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkTenantContract) List(ctx context.Context, req *rove.TenantContractListRequest) (*rove.TenantContractListResponse, error) {
+func (s sinkTenantContract) List(ctx context.Context, req *loft.TenantContractListRequest) (*loft.TenantContractListResponse, error) {
 	q := s.store.Db.TenantContract.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -12962,12 +12962,12 @@ func (s sinkTenantContract) List(ctx context.Context, req *rove.TenantContractLi
 		us = us[:size]
 	}
 
-	items := make([]*rove.TenantContract, len(us))
+	items := make([]*loft.TenantContract, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.TenantContractListResponse_builder{Items: items}.Build()
+	res := loft.TenantContractListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -12983,7 +12983,7 @@ func (s sinkTenantContract) List(ctx context.Context, req *rove.TenantContractLi
 // filterTenantContract turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterTenantContract(f *rove.TenantContractFilter) (predicate.TenantContract, error) {
+func filterTenantContract(f *loft.TenantContractFilter) (predicate.TenantContract, error) {
 	ps := make([]predicate.TenantContract, 0, 1)
 	if f.HasRef() {
 		p, err := bare.TenantContractPick(f.GetRef())
@@ -13001,14 +13001,14 @@ func filterTenantContract(f *rove.TenantContractFilter) (predicate.TenantContrac
 }
 
 type sinkTenantDomain struct {
-	rove.TenantDomainServiceServer
+	loft.TenantDomainServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) TenantDomain() rove.TenantDomainServiceServer {
+func (s Sink) TenantDomain() loft.TenantDomainServiceServer {
 	return sinkTenantDomain{s.Server.TenantDomain(), s.Server.Store, s.w, s.namer, s.joined}
 }
 
@@ -13016,7 +13016,7 @@ func (s Sink) TenantDomain() rove.TenantDomainServiceServer {
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkTenantDomain) Erase(ctx context.Context, req *rove.TenantDomainRef) (*rove.TenantDomainEraseResponse, error) {
+func (s sinkTenantDomain) Erase(ctx context.Context, req *loft.TenantDomainRef) (*loft.TenantDomainEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "TenantDomain", req)
 
 	return s.TenantDomainServiceServer.Erase(ctx, req)
@@ -13025,7 +13025,7 @@ func (s sinkTenantDomain) Erase(ctx context.Context, req *rove.TenantDomainRef) 
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkTenantDomain) Apply(ctx context.Context, req *rove.TenantDomainApplyRequest) (*rove.TenantDomain, error) {
+func (s sinkTenantDomain) Apply(ctx context.Context, req *loft.TenantDomainApplyRequest) (*loft.TenantDomain, error) {
 	seen.Forget(s.store.Db.Driver(), "TenantDomain", req.GetRef())
 
 	return s.TenantDomainServiceServer.Apply(ctx, req)
@@ -13033,7 +13033,7 @@ func (s sinkTenantDomain) Apply(ctx context.Context, req *rove.TenantDomainApply
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkTenantDomain.Apply].
-func (s sinkTenantDomain) Patch(ctx context.Context, req *rove.TenantDomainPatchRequest) (*rove.TenantDomain, error) {
+func (s sinkTenantDomain) Patch(ctx context.Context, req *loft.TenantDomainPatchRequest) (*loft.TenantDomain, error) {
 	seen.Forget(s.store.Db.Driver(), "TenantDomain", req.GetRef())
 
 	return s.TenantDomainServiceServer.Patch(ctx, req)
@@ -13097,7 +13097,7 @@ const (
 
 // List answers with the TenantDomains that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkTenantDomain) List(ctx context.Context, req *rove.TenantDomainListRequest) (*rove.TenantDomainListResponse, error) {
+func (s sinkTenantDomain) List(ctx context.Context, req *loft.TenantDomainListRequest) (*loft.TenantDomainListResponse, error) {
 	q := s.store.Db.TenantDomain.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -13162,12 +13162,12 @@ func (s sinkTenantDomain) List(ctx context.Context, req *rove.TenantDomainListRe
 		us = us[:size]
 	}
 
-	items := make([]*rove.TenantDomain, len(us))
+	items := make([]*loft.TenantDomain, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.TenantDomainListResponse_builder{Items: items}.Build()
+	res := loft.TenantDomainListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -13183,7 +13183,7 @@ func (s sinkTenantDomain) List(ctx context.Context, req *rove.TenantDomainListRe
 // filterTenantDomain turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterTenantDomain(f *rove.TenantDomainFilter) (predicate.TenantDomain, error) {
+func filterTenantDomain(f *loft.TenantDomainFilter) (predicate.TenantDomain, error) {
 	ps := make([]predicate.TenantDomain, 0, 1)
 	if f.HasRef() {
 		p, err := bare.TenantDomainPick(f.GetRef())
@@ -13209,7 +13209,7 @@ func filterTenantDomain(f *rove.TenantDomainFilter) (predicate.TenantDomain, err
 // TenantDomainService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a TenantDomain. A service is named for the entity it
 // is about, so the name carries it.
-var TenantDomainService = watch.ServiceOf(rove.TenantDomainService_Get_FullMethodName)
+var TenantDomainService = watch.ServiceOf(loft.TenantDomainService_Get_FullMethodName)
 
 // Watch answers with the TenantDomains this caller may see, as they are now and as
 // they change.
@@ -13218,7 +13218,7 @@ var TenantDomainService = watch.ServiceOf(rove.TenantDomainService_Get_FullMetho
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkTenantDomain) Watch(req *rove.TenantDomainWatchRequest, out grpc.ServerStreamingServer[rove.TenantDomainWatchResponse]) error {
+func (s sinkTenantDomain) Watch(req *loft.TenantDomainWatchRequest, out grpc.ServerStreamingServer[loft.TenantDomainWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -13252,7 +13252,7 @@ func (s sinkTenantDomain) Watch(req *rove.TenantDomainWatchRequest, out grpc.Ser
 
 	return watch.Stream(ctx, s.w, TenantDomainService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.TenantDomainWatchItem, 0, len(ks))
+			items := make([]*loft.TenantDomainWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -13266,7 +13266,7 @@ func (s sinkTenantDomain) Watch(req *rove.TenantDomainWatchRequest, out grpc.Ser
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.TenantDomainWatchItem_builder{
+				items = append(items, loft.TenantDomainWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -13276,7 +13276,7 @@ func (s sinkTenantDomain) Watch(req *rove.TenantDomainWatchRequest, out grpc.Ser
 				return nil
 			}
 
-			return out.Send(rove.TenantDomainWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.TenantDomainWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -13284,12 +13284,12 @@ func (s sinkTenantDomain) Watch(req *rove.TenantDomainWatchRequest, out grpc.Ser
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkTenantDomain) watchNow(
-	ctx context.Context, req *rove.TenantDomainWatchRequest, out grpc.ServerStreamingServer[rove.TenantDomainWatchResponse],
+	ctx context.Context, req *loft.TenantDomainWatchRequest, out grpc.ServerStreamingServer[loft.TenantDomainWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.TenantDomainListRequest_builder{
+		res, err := s.List(ctx, loft.TenantDomainListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -13297,7 +13297,7 @@ func (s sinkTenantDomain) watchNow(
 			return err
 		}
 
-		items := make([]*rove.TenantDomainWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.TenantDomainWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -13307,10 +13307,10 @@ func (s sinkTenantDomain) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.TenantDomainWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.TenantDomainWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.TenantDomainWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.TenantDomainWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -13332,15 +13332,15 @@ func (s sinkTenantDomain) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkTenantDomain) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.TenantDomain, error) {
+) (*loft.TenantDomain, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.TenantDomainGetRequest_builder{
-		Ref: rove.TenantDomainRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.TenantDomainGetRequest_builder{
+		Ref: loft.TenantDomainRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -13363,7 +13363,7 @@ func (s sinkTenantDomain) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkTenantDomain) watchTenantDomainKeys(
-	ctx context.Context, fs []*rove.TenantDomainFilter,
+	ctx context.Context, fs []*loft.TenantDomainFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -13372,7 +13372,7 @@ func (s sinkTenantDomain) watchTenantDomainKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.TenantDomainGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.TenantDomainGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -13389,14 +13389,14 @@ func (s sinkTenantDomain) watchTenantDomainKeys(
 }
 
 type sinkWorkOrder struct {
-	rove.WorkOrderServiceServer
+	loft.WorkOrderServiceServer
 	store  bare.Store
 	w      *watch.Watch
 	namer  slug.Namer
 	joined bool
 }
 
-func (s Sink) WorkOrder() rove.WorkOrderServiceServer {
+func (s Sink) WorkOrder() loft.WorkOrderServiceServer {
 	v := sinkWorkOrder{s.Server.WorkOrder(), s.Server.Store, s.w, s.namer, s.joined}
 	v.WorkOrderServiceServer = bare.WorkOrderWithAddRule(v.WorkOrderServiceServer, v.admit)
 	return v
@@ -13406,7 +13406,7 @@ func (s Sink) WorkOrder() rove.WorkOrderServiceServer {
 // it refuses it when its paths to a tenant do not agree.
 //
 // It is asked of an Add and of every item of an AddMany; see [Sink.WorkOrder].
-func (s sinkWorkOrder) admit(ctx context.Context, req *rove.WorkOrderAddRequest) (*rove.WorkOrderAddRequest, error) {
+func (s sinkWorkOrder) admit(ctx context.Context, req *loft.WorkOrderAddRequest) (*loft.WorkOrderAddRequest, error) {
 	// Copied rather than written to: the request belongs to whoever called,
 	// and for a call made in this process that is a message they may still
 	// be holding -- a server that changed a caller's own field would be
@@ -13424,7 +13424,7 @@ func (s sinkWorkOrder) admit(ctx context.Context, req *rove.WorkOrderAddRequest)
 // erased: whether a frame may see it, and where a walk from it arrives.
 // Neither is true of a row that is gone, nor of another put under its
 // key. See [seen.Forget].
-func (s sinkWorkOrder) Erase(ctx context.Context, req *rove.WorkOrderRef) (*rove.WorkOrderEraseResponse, error) {
+func (s sinkWorkOrder) Erase(ctx context.Context, req *loft.WorkOrderRef) (*loft.WorkOrderEraseResponse, error) {
 	seen.Forget(s.store.Db.Driver(), "WorkOrder", req)
 
 	return s.WorkOrderServiceServer.Erase(ctx, req)
@@ -13433,7 +13433,7 @@ func (s sinkWorkOrder) Erase(ctx context.Context, req *rove.WorkOrderRef) (*rove
 // Apply forgets what the transaction was told about the row, before it is
 // written: a document may move it to a set the caller cannot see. See
 // [seen.Forget].
-func (s sinkWorkOrder) Apply(ctx context.Context, req *rove.WorkOrderApplyRequest) (*rove.WorkOrder, error) {
+func (s sinkWorkOrder) Apply(ctx context.Context, req *loft.WorkOrderApplyRequest) (*loft.WorkOrder, error) {
 	seen.Forget(s.store.Db.Driver(), "WorkOrder", req.GetRef())
 
 	return s.WorkOrderServiceServer.Apply(ctx, req)
@@ -13441,14 +13441,14 @@ func (s sinkWorkOrder) Apply(ctx context.Context, req *rove.WorkOrderApplyReques
 
 // Patch forgets what the transaction was told about the row, before it is
 // written; see [sinkWorkOrder.Apply].
-func (s sinkWorkOrder) Patch(ctx context.Context, req *rove.WorkOrderPatchRequest) (*rove.WorkOrder, error) {
+func (s sinkWorkOrder) Patch(ctx context.Context, req *loft.WorkOrderPatchRequest) (*loft.WorkOrder, error) {
 	seen.Forget(s.store.Db.Driver(), "WorkOrder", req.GetRef())
 
 	return s.WorkOrderServiceServer.Patch(ctx, req)
 }
 
 // tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkWorkOrder) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
+func (s sinkWorkOrder) tenantAtTenant(ctx context.Context, ref *loft.TenantRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
 	}
@@ -13475,7 +13475,7 @@ func (s sinkWorkOrder) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) 
 }
 
 // tenantAtAssetTenant is the tenant "asset.tenant" arrives at.
-func (s sinkWorkOrder) tenantAtAssetTenant(ctx context.Context, ref *rove.AssetRef) ([]byte, error) {
+func (s sinkWorkOrder) tenantAtAssetTenant(ctx context.Context, ref *loft.AssetRef) ([]byte, error) {
 	if ref == nil {
 		return nil, pderr.Invalidf("asset", "required: it is what says which tenant this belongs to")
 	}
@@ -13506,7 +13506,7 @@ func (s sinkWorkOrder) tenantAtAssetTenant(ctx context.Context, ref *rove.AssetR
 //
 // The request is already this server's copy by the time it arrives, so it
 // is written to rather than cloned again.
-func (s sinkWorkOrder) tenancy(ctx context.Context, req *rove.WorkOrderAddRequest) error {
+func (s sinkWorkOrder) tenancy(ctx context.Context, req *loft.WorkOrderAddRequest) error {
 	want, err := s.tenantAtTenant(ctx, req.GetTenant())
 	if err != nil {
 		return err
@@ -13588,7 +13588,7 @@ const (
 
 // List answers with the WorkOrders that match any of the given filters, or with
 // every one there is if the request named none, a page at a time.
-func (s sinkWorkOrder) List(ctx context.Context, req *rove.WorkOrderListRequest) (*rove.WorkOrderListResponse, error) {
+func (s sinkWorkOrder) List(ctx context.Context, req *loft.WorkOrderListRequest) (*loft.WorkOrderListResponse, error) {
 	q := s.store.Db.WorkOrder.Query()
 
 	// Through the same narrowing every generated read goes through, and not
@@ -13653,12 +13653,12 @@ func (s sinkWorkOrder) List(ctx context.Context, req *rove.WorkOrderListRequest)
 		us = us[:size]
 	}
 
-	items := make([]*rove.WorkOrder, len(us))
+	items := make([]*loft.WorkOrder, len(us))
 	for i, u := range us {
 		items[i] = u.Proto()
 	}
 
-	res := rove.WorkOrderListResponse_builder{Items: items}.Build()
+	res := loft.WorkOrderListResponse_builder{Items: items}.Build()
 	if more {
 		v, err := next(us[len(us)-1], tag)
 		if err != nil {
@@ -13674,7 +13674,7 @@ func (s sinkWorkOrder) List(ctx context.Context, req *rove.WorkOrderListRequest)
 // filterWorkOrder turns one filter into the predicate that selects what it
 // names. Naming nothing is refused, since the request asked for "these" and
 // did not say which.
-func filterWorkOrder(f *rove.WorkOrderFilter) (predicate.WorkOrder, error) {
+func filterWorkOrder(f *loft.WorkOrderFilter) (predicate.WorkOrder, error) {
 	ps := make([]predicate.WorkOrder, 0, 1)
 	if f.HasRef() {
 		p, err := bare.WorkOrderPick(f.GetRef())
@@ -13750,7 +13750,7 @@ func filterWorkOrder(f *rove.WorkOrderFilter) (predicate.WorkOrder, error) {
 // WorkOrderService is the prefix of every Rpc of that service, which is how a
 // change is known to be about a WorkOrder. A service is named for the entity it
 // is about, so the name carries it.
-var WorkOrderService = watch.ServiceOf(rove.WorkOrderService_Get_FullMethodName)
+var WorkOrderService = watch.ServiceOf(loft.WorkOrderService_Get_FullMethodName)
 
 // Watch answers with the WorkOrders this caller may see, as they are now and as
 // they change.
@@ -13759,7 +13759,7 @@ var WorkOrderService = watch.ServiceOf(rove.WorkOrderService_Get_FullMethodName)
 // that missed something still correct: the next item about a row carries the
 // whole of it, so a client converges rather than replays. It is also what
 // makes the first message safe to duplicate against the ones after it.
-func (s sinkWorkOrder) Watch(req *rove.WorkOrderWatchRequest, out grpc.ServerStreamingServer[rove.WorkOrderWatchResponse]) error {
+func (s sinkWorkOrder) Watch(req *loft.WorkOrderWatchRequest, out grpc.ServerStreamingServer[loft.WorkOrderWatchResponse]) error {
 	ctx := out.Context()
 
 	// A watch with no filters is the whole table, forever. It is the one
@@ -13793,7 +13793,7 @@ func (s sinkWorkOrder) Watch(req *rove.WorkOrderWatchRequest, out grpc.ServerStr
 
 	return watch.Stream(ctx, s.w, WorkOrderService, snapshot,
 		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*rove.WorkOrderWatchItem, 0, len(ks))
+			items := make([]*loft.WorkOrderWatchItem, 0, len(ks))
 			for k, action := range ks {
 				u, err := s.watchRead(ctx, watching, k)
 				if err != nil {
@@ -13807,7 +13807,7 @@ func (s sinkWorkOrder) Watch(req *rove.WorkOrderWatchRequest, out grpc.ServerStr
 				}
 
 				sent[k] = u != nil
-				items = append(items, rove.WorkOrderWatchItem_builder{
+				items = append(items, loft.WorkOrderWatchItem_builder{
 					Id:     k.Bytes(),
 					Value:  u,
 					Action: action,
@@ -13817,7 +13817,7 @@ func (s sinkWorkOrder) Watch(req *rove.WorkOrderWatchRequest, out grpc.ServerStr
 				return nil
 			}
 
-			return out.Send(rove.WorkOrderWatchResponse_builder{Items: items}.Build())
+			return out.Send(loft.WorkOrderWatchResponse_builder{Items: items}.Build())
 		})
 }
 
@@ -13825,12 +13825,12 @@ func (s sinkWorkOrder) Watch(req *rove.WorkOrderWatchRequest, out grpc.ServerStr
 // would have called -- so what a stream begins with and what a list answers
 // cannot disagree, and a client does not have to do both and race them.
 func (s sinkWorkOrder) watchNow(
-	ctx context.Context, req *rove.WorkOrderWatchRequest, out grpc.ServerStreamingServer[rove.WorkOrderWatchResponse],
+	ctx context.Context, req *loft.WorkOrderWatchRequest, out grpc.ServerStreamingServer[loft.WorkOrderWatchResponse],
 	sent watch.Seen,
 ) error {
 	after := ""
 	for {
-		res, err := s.List(ctx, rove.WorkOrderListRequest_builder{
+		res, err := s.List(ctx, loft.WorkOrderListRequest_builder{
 			Filters: req.GetFilters(),
 			After:   after,
 		}.Build())
@@ -13838,7 +13838,7 @@ func (s sinkWorkOrder) watchNow(
 			return err
 		}
 
-		items := make([]*rove.WorkOrderWatchItem, 0, len(res.GetItems()))
+		items := make([]*loft.WorkOrderWatchItem, 0, len(res.GetItems()))
 		for _, u := range res.GetItems() {
 			k, err := pdid.From(u.GetId())
 			if err != nil {
@@ -13848,10 +13848,10 @@ func (s sinkWorkOrder) watchNow(
 			sent[k] = true
 			// No action: this is not something anybody asked for, it is
 			// what is already there.
-			items = append(items, rove.WorkOrderWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+			items = append(items, loft.WorkOrderWatchItem_builder{Id: u.GetId(), Value: u}.Build())
 		}
 		if len(items) > 0 {
-			if err := out.Send(rove.WorkOrderWatchResponse_builder{Items: items}.Build()); err != nil {
+			if err := out.Send(loft.WorkOrderWatchResponse_builder{Items: items}.Build()); err != nil {
 				return err
 			}
 		}
@@ -13873,15 +13873,15 @@ func (s sinkWorkOrder) watchNow(
 // a row they may not see comes back NotFound and is never sent.
 func (s sinkWorkOrder) watchRead(
 	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*rove.WorkOrder, error) {
+) (*loft.WorkOrder, error) {
 	// Not one of the rows this stream is about. Asked before the read, so a
 	// busy table costs a stream nothing for the rows it does not watch.
 	if !slices.Contains(watching, k) {
 		return nil, nil
 	}
 
-	v, err := s.Get(ctx, rove.WorkOrderGetRequest_builder{
-		Ref: rove.WorkOrderRef_builder{Id: k.Bytes()}.Build(),
+	v, err := s.Get(ctx, loft.WorkOrderGetRequest_builder{
+		Ref: loft.WorkOrderRef_builder{Id: k.Bytes()}.Build(),
 	}.Build())
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -13904,7 +13904,7 @@ func (s sinkWorkOrder) watchRead(
 // row renamed while the stream is open goes on being the row that was asked
 // for -- which is what somebody watching a thing meant.
 func (s sinkWorkOrder) watchWorkOrderKeys(
-	ctx context.Context, fs []*rove.WorkOrderFilter,
+	ctx context.Context, fs []*loft.WorkOrderFilter,
 ) ([]pdid.Id, error) {
 	ks := make([]pdid.Id, 0, len(fs))
 	for i, f := range fs {
@@ -13913,7 +13913,7 @@ func (s sinkWorkOrder) watchWorkOrderKeys(
 				"filters[%d]: a watch says which rows it is about by naming them", i)
 		}
 
-		v, err := s.Get(ctx, rove.WorkOrderGetRequest_builder{Ref: f.GetRef()}.Build())
+		v, err := s.Get(ctx, loft.WorkOrderGetRequest_builder{Ref: f.GetRef()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -13976,7 +13976,7 @@ func pdReverse(by []sqlpage.Order) []sqlpage.Order {
 //
 //	s, err := app.Build(walled, core.Build(), pd.AuditBuild(), pd.GateBuild())
 type Gate struct {
-	rove.Overlay
+	loft.Overlay
 
 	// drv is the driver this stack was put on, and nil for one that was not:
 	// a transaction it runs in keeps what the gate has asked, for the rest
@@ -13984,13 +13984,13 @@ type Gate struct {
 	drv dialect.Driver
 }
 
-func NewGate(next rove.Server) Gate {
-	return Gate{Overlay: rove.NewOverlay(next)}
+func NewGate(next loft.Server) Gate {
+	return Gate{Overlay: loft.NewOverlay(next)}
 }
 
-var _ rove.Server = Gate{}
+var _ loft.Server = Gate{}
 
-var _ enttx.Binder[rove.Server] = Gate{}
+var _ enttx.Binder[loft.Server] = Gate{}
 
 // WithDriver answers with this stack running on `drv`, which is how several
 // servers are put on one transaction.
@@ -13999,30 +13999,30 @@ var _ enttx.Binder[rove.Server] = Gate{}
 // behind it and has no way to make itself again, so a layer that did not
 // write it would be missing from the rebuilt stack and the requests inside
 // the transaction would go around it.
-func (s Gate) WithDriver(drv dialect.Driver) (rove.Server, error) {
+func (s Gate) WithDriver(drv dialect.Driver) (loft.Server, error) {
 	next, err := enttx.Rebind(s.Next(), drv)
 	if err != nil {
 		return nil, err
 	}
 
-	return Gate{Overlay: rove.NewOverlay(next), drv: drv}, nil
+	return Gate{Overlay: loft.NewOverlay(next), drv: drv}, nil
 }
 
 // GateBuild makes a builder of this layer so that it can be stacked.
-func GateBuild() rove.Builder { return gateBuilder{} }
+func GateBuild() loft.Builder { return gateBuilder{} }
 
 type gateBuilder struct{}
 
-func (gateBuilder) Build(next rove.Server) (rove.Server, error) {
+func (gateBuilder) Build(next loft.Server) (loft.Server, error) {
 	return NewGate(next), nil
 }
 
 type gateTenant struct {
 	Gate
-	rove.TenantServiceServer
+	loft.TenantServiceServer
 }
 
-func (s Gate) Tenant() rove.TenantServiceServer {
+func (s Gate) Tenant() loft.TenantServiceServer {
 	v := gateTenant{s, s.Next().Tenant()}
 	v.TenantServiceServer = bare.TenantWithAddRule(v.TenantServiceServer, v.admit)
 	return v
@@ -14031,22 +14031,22 @@ func (s Gate) Tenant() rove.TenantServiceServer {
 // admit refuses every row: no tenant is served by an Add, nor by an
 // AddMany if the entity had one. A tenant is put up by whoever runs the
 // deployment, through a server this layer is not in front of.
-func (s gateTenant) admit(ctx context.Context, req *rove.TenantAddRequest) (*rove.TenantAddRequest, error) {
+func (s gateTenant) admit(ctx context.Context, req *loft.TenantAddRequest) (*loft.TenantAddRequest, error) {
 	return nil, gate.ErrDeployment("put up")
 }
 
 // Erase is not served either, and it would take everything in the tenant
 // with it.
-func (s gateTenant) Erase(ctx context.Context, req *rove.TenantRef) (*rove.TenantEraseResponse, error) {
+func (s gateTenant) Erase(ctx context.Context, req *loft.TenantRef) (*loft.TenantEraseResponse, error) {
 	return nil, gate.ErrDeployment("taken down")
 }
 
 type gateHolder struct {
 	Gate
-	rove.HolderServiceServer
+	loft.HolderServiceServer
 }
 
-func (s Gate) Holder() rove.HolderServiceServer {
+func (s Gate) Holder() loft.HolderServiceServer {
 	v := gateHolder{s, s.Next().Holder()}
 	v.HolderServiceServer = bare.HolderWithAddRule(v.HolderServiceServer, v.admit)
 	return v
@@ -14075,7 +14075,7 @@ func (s Gate) Holder() rove.HolderServiceServer {
 //
 // It is what an Add of a holder is asked, and an AddMany of every item it
 // carries if the entity had one; see [ruled].
-func (s gateHolder) admit(ctx context.Context, req *rove.HolderAddRequest) (*rove.HolderAddRequest, error) {
+func (s gateHolder) admit(ctx context.Context, req *loft.HolderAddRequest) (*loft.HolderAddRequest, error) {
 	if _, err := gate.Actor(ctx); err != nil {
 		return nil, err
 	}
@@ -14085,7 +14085,7 @@ func (s gateHolder) admit(ctx context.Context, req *rove.HolderAddRequest) (*rov
 	}
 
 	if err := seen.Visible(ctx, s.Gate.drv, "Tenant", req.GetTenant(), func() error {
-		_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+		_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 			Ref: req.GetTenant(),
 		}.Build())
 		return err
@@ -14102,10 +14102,10 @@ func (s gateHolder) admit(ctx context.Context, req *rove.HolderAddRequest) (*rov
 
 type gateAccessReview struct {
 	Gate
-	rove.AccessReviewServiceServer
+	loft.AccessReviewServiceServer
 }
 
-func (s Gate) AccessReview() rove.AccessReviewServiceServer {
+func (s Gate) AccessReview() loft.AccessReviewServiceServer {
 	v := gateAccessReview{s, s.Next().AccessReview()}
 	v.AccessReviewServiceServer = bare.AccessReviewWithAddRule(v.AccessReviewServiceServer, v.admit)
 	return v
@@ -14125,10 +14125,10 @@ func (s Gate) AccessReview() rove.AccessReviewServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.AccessReview].
-func (s gateAccessReview) admit(ctx context.Context, req *rove.AccessReviewAddRequest) (*rove.AccessReviewAddRequest, error) {
+func (s gateAccessReview) admit(ctx context.Context, req *loft.AccessReviewAddRequest) (*loft.AccessReviewAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14143,7 +14143,7 @@ func (s gateAccessReview) admit(ctx context.Context, req *rove.AccessReviewAddRe
 
 	if ref := req.GetReviewer(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14161,10 +14161,10 @@ func (s gateAccessReview) admit(ctx context.Context, req *rove.AccessReviewAddRe
 
 type gateAllocation struct {
 	Gate
-	rove.AllocationServiceServer
+	loft.AllocationServiceServer
 }
 
-func (s Gate) Allocation() rove.AllocationServiceServer {
+func (s Gate) Allocation() loft.AllocationServiceServer {
 	v := gateAllocation{s, s.Next().Allocation()}
 	v.AllocationServiceServer = bare.AllocationWithAddRule(v.AllocationServiceServer, v.admit)
 	return v
@@ -14184,10 +14184,10 @@ func (s Gate) Allocation() rove.AllocationServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Allocation].
-func (s gateAllocation) admit(ctx context.Context, req *rove.AllocationAddRequest) (*rove.AllocationAddRequest, error) {
+func (s gateAllocation) admit(ctx context.Context, req *loft.AllocationAddRequest) (*loft.AllocationAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14202,7 +14202,7 @@ func (s gateAllocation) admit(ctx context.Context, req *rove.AllocationAddReques
 
 	if ref := req.GetResource(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14220,10 +14220,10 @@ func (s gateAllocation) admit(ctx context.Context, req *rove.AllocationAddReques
 
 type gateAsset struct {
 	Gate
-	rove.AssetServiceServer
+	loft.AssetServiceServer
 }
 
-func (s Gate) Asset() rove.AssetServiceServer {
+func (s Gate) Asset() loft.AssetServiceServer {
 	v := gateAsset{s, s.Next().Asset()}
 	v.AssetServiceServer = bare.AssetWithAddRule(v.AssetServiceServer, v.admit)
 	return v
@@ -14243,10 +14243,10 @@ func (s Gate) Asset() rove.AssetServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Asset].
-func (s gateAsset) admit(ctx context.Context, req *rove.AssetAddRequest) (*rove.AssetAddRequest, error) {
+func (s gateAsset) admit(ctx context.Context, req *loft.AssetAddRequest) (*loft.AssetAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14261,7 +14261,7 @@ func (s gateAsset) admit(ctx context.Context, req *rove.AssetAddRequest) (*rove.
 
 	if ref := req.GetType(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "AssetType", ref, func() error {
-			_, err := s.Gate.Next().AssetType().Get(ctx, rove.AssetTypeGetRequest_builder{
+			_, err := s.Gate.Next().AssetType().Get(ctx, loft.AssetTypeGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14276,7 +14276,7 @@ func (s gateAsset) admit(ctx context.Context, req *rove.AssetAddRequest) (*rove.
 
 	if ref := req.GetModel(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "ItemModel", ref, func() error {
-			_, err := s.Gate.Next().ItemModel().Get(ctx, rove.ItemModelGetRequest_builder{
+			_, err := s.Gate.Next().ItemModel().Get(ctx, loft.ItemModelGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14291,7 +14291,7 @@ func (s gateAsset) admit(ctx context.Context, req *rove.AssetAddRequest) (*rove.
 
 	if ref := req.GetCustodian(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14313,10 +14313,10 @@ func (s gateAsset) admit(ctx context.Context, req *rove.AssetAddRequest) (*rove.
 // write points **at**. An edge is a read -- a `Select` walks it -- so one
 // moved out of the caller's scope is a way through the wall one hop later,
 // exactly as it would have been at `Add`.
-func (s gateAsset) Patch(ctx context.Context, req *rove.AssetPatchRequest) (*rove.Asset, error) {
+func (s gateAsset) Patch(ctx context.Context, req *loft.AssetPatchRequest) (*loft.Asset, error) {
 	if ref := req.GetType(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "AssetType", ref, func() error {
-			_, err := s.Gate.Next().AssetType().Get(ctx, rove.AssetTypeGetRequest_builder{
+			_, err := s.Gate.Next().AssetType().Get(ctx, loft.AssetTypeGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14331,7 +14331,7 @@ func (s gateAsset) Patch(ctx context.Context, req *rove.AssetPatchRequest) (*rov
 
 	if ref := req.GetModel(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "ItemModel", ref, func() error {
-			_, err := s.Gate.Next().ItemModel().Get(ctx, rove.ItemModelGetRequest_builder{
+			_, err := s.Gate.Next().ItemModel().Get(ctx, loft.ItemModelGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14346,7 +14346,7 @@ func (s gateAsset) Patch(ctx context.Context, req *rove.AssetPatchRequest) (*rov
 
 	if ref := req.GetCustodian(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14369,7 +14369,7 @@ func (s gateAsset) Patch(ctx context.Context, req *rove.AssetPatchRequest) (*rov
 // behind writes that key into the column as it is -- compiling a document
 // reads nothing. So the read Patch is asked is asked here of the key the
 // document lands in the column, compiled the way the server behind will.
-func (s gateAsset) Apply(ctx context.Context, req *rove.AssetApplyRequest) (*rove.Asset, error) {
+func (s gateAsset) Apply(ctx context.Context, req *loft.AssetApplyRequest) (*loft.Asset, error) {
 	if !req.HasPatch() {
 		// Nothing written, and the server behind refuses it in its own words.
 		return s.AssetServiceServer.Apply(ctx, req)
@@ -14388,9 +14388,9 @@ func (s gateAsset) Apply(ctx context.Context, req *rove.AssetApplyRequest) (*rov
 	}
 	if w, ok := plan.WriteTo(9); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.AssetTypeRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.AssetTypeRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "AssetType", ref, func() error {
-				_, err := s.Gate.Next().AssetType().Get(ctx, rove.AssetTypeGetRequest_builder{
+				_, err := s.Gate.Next().AssetType().Get(ctx, loft.AssetTypeGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -14405,9 +14405,9 @@ func (s gateAsset) Apply(ctx context.Context, req *rove.AssetApplyRequest) (*rov
 	}
 	if w, ok := plan.WriteTo(10); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.ItemModelRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.ItemModelRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "ItemModel", ref, func() error {
-				_, err := s.Gate.Next().ItemModel().Get(ctx, rove.ItemModelGetRequest_builder{
+				_, err := s.Gate.Next().ItemModel().Get(ctx, loft.ItemModelGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -14422,9 +14422,9 @@ func (s gateAsset) Apply(ctx context.Context, req *rove.AssetApplyRequest) (*rov
 	}
 	if w, ok := plan.WriteTo(21); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.PartyRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.PartyRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-				_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+				_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -14443,14 +14443,14 @@ func (s gateAsset) Apply(ctx context.Context, req *rove.AssetApplyRequest) (*rov
 
 // gateAssetEntity is what a Asset document is compiled against: the entity
 // parsed from the file that declares it, as the server behind parses it.
-var gateAssetEntity = ormpatch.MustEntityOf((*rove.Asset)(nil).ProtoReflect().Descriptor().ParentFile(), "Asset")
+var gateAssetEntity = ormpatch.MustEntityOf((*loft.Asset)(nil).ProtoReflect().Descriptor().ParentFile(), "Asset")
 
 type gateAssetType struct {
 	Gate
-	rove.AssetTypeServiceServer
+	loft.AssetTypeServiceServer
 }
 
-func (s Gate) AssetType() rove.AssetTypeServiceServer {
+func (s Gate) AssetType() loft.AssetTypeServiceServer {
 	v := gateAssetType{s, s.Next().AssetType()}
 	v.AssetTypeServiceServer = bare.AssetTypeWithAddRule(v.AssetTypeServiceServer, v.admit)
 	return v
@@ -14470,10 +14470,10 @@ func (s Gate) AssetType() rove.AssetTypeServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.AssetType].
-func (s gateAssetType) admit(ctx context.Context, req *rove.AssetTypeAddRequest) (*rove.AssetTypeAddRequest, error) {
+func (s gateAssetType) admit(ctx context.Context, req *loft.AssetTypeAddRequest) (*loft.AssetTypeAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14491,10 +14491,10 @@ func (s gateAssetType) admit(ctx context.Context, req *rove.AssetTypeAddRequest)
 
 type gateAttachment struct {
 	Gate
-	rove.AttachmentServiceServer
+	loft.AttachmentServiceServer
 }
 
-func (s Gate) Attachment() rove.AttachmentServiceServer {
+func (s Gate) Attachment() loft.AttachmentServiceServer {
 	v := gateAttachment{s, s.Next().Attachment()}
 	v.AttachmentServiceServer = bare.AttachmentWithAddRule(v.AttachmentServiceServer, v.admit)
 	return v
@@ -14514,10 +14514,10 @@ func (s Gate) Attachment() rove.AttachmentServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Attachment].
-func (s gateAttachment) admit(ctx context.Context, req *rove.AttachmentAddRequest) (*rove.AttachmentAddRequest, error) {
+func (s gateAttachment) admit(ctx context.Context, req *loft.AttachmentAddRequest) (*loft.AttachmentAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14535,10 +14535,10 @@ func (s gateAttachment) admit(ctx context.Context, req *rove.AttachmentAddReques
 
 type gateBookable struct {
 	Gate
-	rove.BookableServiceServer
+	loft.BookableServiceServer
 }
 
-func (s Gate) Bookable() rove.BookableServiceServer {
+func (s Gate) Bookable() loft.BookableServiceServer {
 	v := gateBookable{s, s.Next().Bookable()}
 	v.BookableServiceServer = bare.BookableWithAddRule(v.BookableServiceServer, v.admit)
 	return v
@@ -14558,10 +14558,10 @@ func (s Gate) Bookable() rove.BookableServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Bookable].
-func (s gateBookable) admit(ctx context.Context, req *rove.BookableAddRequest) (*rove.BookableAddRequest, error) {
+func (s gateBookable) admit(ctx context.Context, req *loft.BookableAddRequest) (*loft.BookableAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14576,7 +14576,7 @@ func (s gateBookable) admit(ctx context.Context, req *rove.BookableAddRequest) (
 
 	if ref := req.GetAsset(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14594,10 +14594,10 @@ func (s gateBookable) admit(ctx context.Context, req *rove.BookableAddRequest) (
 
 type gateCountFinding struct {
 	Gate
-	rove.CountFindingServiceServer
+	loft.CountFindingServiceServer
 }
 
-func (s Gate) CountFinding() rove.CountFindingServiceServer {
+func (s Gate) CountFinding() loft.CountFindingServiceServer {
 	v := gateCountFinding{s, s.Next().CountFinding()}
 	v.CountFindingServiceServer = bare.CountFindingWithAddRule(v.CountFindingServiceServer, v.admit)
 	return v
@@ -14617,10 +14617,10 @@ func (s Gate) CountFinding() rove.CountFindingServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.CountFinding].
-func (s gateCountFinding) admit(ctx context.Context, req *rove.CountFindingAddRequest) (*rove.CountFindingAddRequest, error) {
+func (s gateCountFinding) admit(ctx context.Context, req *loft.CountFindingAddRequest) (*loft.CountFindingAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14635,7 +14635,7 @@ func (s gateCountFinding) admit(ctx context.Context, req *rove.CountFindingAddRe
 
 	if ref := req.GetCount(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "InventoryCount", ref, func() error {
-			_, err := s.Gate.Next().InventoryCount().Get(ctx, rove.InventoryCountGetRequest_builder{
+			_, err := s.Gate.Next().InventoryCount().Get(ctx, loft.InventoryCountGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14650,7 +14650,7 @@ func (s gateCountFinding) admit(ctx context.Context, req *rove.CountFindingAddRe
 
 	if ref := req.GetAsset(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14668,10 +14668,10 @@ func (s gateCountFinding) admit(ctx context.Context, req *rove.CountFindingAddRe
 
 type gateCustody struct {
 	Gate
-	rove.CustodyServiceServer
+	loft.CustodyServiceServer
 }
 
-func (s Gate) Custody() rove.CustodyServiceServer {
+func (s Gate) Custody() loft.CustodyServiceServer {
 	v := gateCustody{s, s.Next().Custody()}
 	v.CustodyServiceServer = bare.CustodyWithAddRule(v.CustodyServiceServer, v.admit)
 	return v
@@ -14691,14 +14691,14 @@ func (s Gate) Custody() rove.CustodyServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Custody].
-func (s gateCustody) admit(ctx context.Context, req *rove.CustodyAddRequest) (*rove.CustodyAddRequest, error) {
+func (s gateCustody) admit(ctx context.Context, req *loft.CustodyAddRequest) (*loft.CustodyAddRequest, error) {
 	if req.HasAcknowledgedAt() {
 		return nil, pderr.Invalidf("acknowledged_at", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14713,7 +14713,7 @@ func (s gateCustody) admit(ctx context.Context, req *rove.CustodyAddRequest) (*r
 
 	if ref := req.GetParty(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14731,10 +14731,10 @@ func (s gateCustody) admit(ctx context.Context, req *rove.CustodyAddRequest) (*r
 
 type gateCustodyLine struct {
 	Gate
-	rove.CustodyLineServiceServer
+	loft.CustodyLineServiceServer
 }
 
-func (s Gate) CustodyLine() rove.CustodyLineServiceServer {
+func (s Gate) CustodyLine() loft.CustodyLineServiceServer {
 	v := gateCustodyLine{s, s.Next().CustodyLine()}
 	v.CustodyLineServiceServer = bare.CustodyLineWithAddRule(v.CustodyLineServiceServer, v.admit)
 	return v
@@ -14754,10 +14754,10 @@ func (s Gate) CustodyLine() rove.CustodyLineServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.CustodyLine].
-func (s gateCustodyLine) admit(ctx context.Context, req *rove.CustodyLineAddRequest) (*rove.CustodyLineAddRequest, error) {
+func (s gateCustodyLine) admit(ctx context.Context, req *loft.CustodyLineAddRequest) (*loft.CustodyLineAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14772,7 +14772,7 @@ func (s gateCustodyLine) admit(ctx context.Context, req *rove.CustodyLineAddRequ
 
 	if ref := req.GetCustody(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Custody", ref, func() error {
-			_, err := s.Gate.Next().Custody().Get(ctx, rove.CustodyGetRequest_builder{
+			_, err := s.Gate.Next().Custody().Get(ctx, loft.CustodyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14787,7 +14787,7 @@ func (s gateCustodyLine) admit(ctx context.Context, req *rove.CustodyLineAddRequ
 
 	if ref := req.GetAsset(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14802,7 +14802,7 @@ func (s gateCustodyLine) admit(ctx context.Context, req *rove.CustodyLineAddRequ
 
 	if ref := req.GetStock(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Stock", ref, func() error {
-			_, err := s.Gate.Next().Stock().Get(ctx, rove.StockGetRequest_builder{
+			_, err := s.Gate.Next().Stock().Get(ctx, loft.StockGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14820,10 +14820,10 @@ func (s gateCustodyLine) admit(ctx context.Context, req *rove.CustodyLineAddRequ
 
 type gateEvent struct {
 	Gate
-	rove.EventServiceServer
+	loft.EventServiceServer
 }
 
-func (s Gate) Event() rove.EventServiceServer {
+func (s Gate) Event() loft.EventServiceServer {
 	v := gateEvent{s, s.Next().Event()}
 	v.EventServiceServer = bare.EventWithAddRule(v.EventServiceServer, v.admit)
 	return v
@@ -14843,10 +14843,10 @@ func (s Gate) Event() rove.EventServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Event].
-func (s gateEvent) admit(ctx context.Context, req *rove.EventAddRequest) (*rove.EventAddRequest, error) {
+func (s gateEvent) admit(ctx context.Context, req *loft.EventAddRequest) (*loft.EventAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14864,10 +14864,10 @@ func (s gateEvent) admit(ctx context.Context, req *rove.EventAddRequest) (*rove.
 
 type gateFact struct {
 	Gate
-	rove.FactServiceServer
+	loft.FactServiceServer
 }
 
-func (s Gate) Fact() rove.FactServiceServer {
+func (s Gate) Fact() loft.FactServiceServer {
 	v := gateFact{s, s.Next().Fact()}
 	v.FactServiceServer = bare.FactWithAddRule(v.FactServiceServer, v.admit)
 	return v
@@ -14887,14 +14887,14 @@ func (s Gate) Fact() rove.FactServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Fact].
-func (s gateFact) admit(ctx context.Context, req *rove.FactAddRequest) (*rove.FactAddRequest, error) {
+func (s gateFact) admit(ctx context.Context, req *loft.FactAddRequest) (*loft.FactAddRequest, error) {
 	if req.HasSupersededAt() {
 		return nil, pderr.Invalidf("superseded_at", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14912,10 +14912,10 @@ func (s gateFact) admit(ctx context.Context, req *rove.FactAddRequest) (*rove.Fa
 
 type gateInventoryCount struct {
 	Gate
-	rove.InventoryCountServiceServer
+	loft.InventoryCountServiceServer
 }
 
-func (s Gate) InventoryCount() rove.InventoryCountServiceServer {
+func (s Gate) InventoryCount() loft.InventoryCountServiceServer {
 	v := gateInventoryCount{s, s.Next().InventoryCount()}
 	v.InventoryCountServiceServer = bare.InventoryCountWithAddRule(v.InventoryCountServiceServer, v.admit)
 	return v
@@ -14935,10 +14935,10 @@ func (s Gate) InventoryCount() rove.InventoryCountServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.InventoryCount].
-func (s gateInventoryCount) admit(ctx context.Context, req *rove.InventoryCountAddRequest) (*rove.InventoryCountAddRequest, error) {
+func (s gateInventoryCount) admit(ctx context.Context, req *loft.InventoryCountAddRequest) (*loft.InventoryCountAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14953,7 +14953,7 @@ func (s gateInventoryCount) admit(ctx context.Context, req *rove.InventoryCountA
 
 	if ref := req.GetScope(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -14971,10 +14971,10 @@ func (s gateInventoryCount) admit(ctx context.Context, req *rove.InventoryCountA
 
 type gateInvitation struct {
 	Gate
-	rove.InvitationServiceServer
+	loft.InvitationServiceServer
 }
 
-func (s Gate) Invitation() rove.InvitationServiceServer {
+func (s Gate) Invitation() loft.InvitationServiceServer {
 	v := gateInvitation{s, s.Next().Invitation()}
 	v.InvitationServiceServer = bare.InvitationWithAddRule(v.InvitationServiceServer, v.admit)
 	return v
@@ -14994,10 +14994,10 @@ func (s Gate) Invitation() rove.InvitationServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Invitation].
-func (s gateInvitation) admit(ctx context.Context, req *rove.InvitationAddRequest) (*rove.InvitationAddRequest, error) {
+func (s gateInvitation) admit(ctx context.Context, req *loft.InvitationAddRequest) (*loft.InvitationAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15012,7 +15012,7 @@ func (s gateInvitation) admit(ctx context.Context, req *rove.InvitationAddReques
 
 	if ref := req.GetInviter(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15027,7 +15027,7 @@ func (s gateInvitation) admit(ctx context.Context, req *rove.InvitationAddReques
 
 	if ref := req.GetParty(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15042,7 +15042,7 @@ func (s gateInvitation) admit(ctx context.Context, req *rove.InvitationAddReques
 
 	if ref := req.GetHolder(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15064,10 +15064,10 @@ func (s gateInvitation) admit(ctx context.Context, req *rove.InvitationAddReques
 // write points **at**. An edge is a read -- a `Select` walks it -- so one
 // moved out of the caller's scope is a way through the wall one hop later,
 // exactly as it would have been at `Add`.
-func (s gateInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequest) (*rove.Invitation, error) {
+func (s gateInvitation) Patch(ctx context.Context, req *loft.InvitationPatchRequest) (*loft.Invitation, error) {
 	if ref := req.GetParty(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15082,7 +15082,7 @@ func (s gateInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequ
 
 	if ref := req.GetHolder(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15105,7 +15105,7 @@ func (s gateInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequ
 // behind writes that key into the column as it is -- compiling a document
 // reads nothing. So the read Patch is asked is asked here of the key the
 // document lands in the column, compiled the way the server behind will.
-func (s gateInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequest) (*rove.Invitation, error) {
+func (s gateInvitation) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
 	if !req.HasPatch() {
 		// Nothing written, and the server behind refuses it in its own words.
 		return s.InvitationServiceServer.Apply(ctx, req)
@@ -15124,9 +15124,9 @@ func (s gateInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequ
 	}
 	if w, ok := plan.WriteTo(11); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.PartyRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.PartyRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-				_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+				_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -15141,9 +15141,9 @@ func (s gateInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequ
 	}
 	if w, ok := plan.WriteTo(19); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.HolderRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.HolderRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-				_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+				_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -15162,14 +15162,14 @@ func (s gateInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequ
 
 // gateInvitationEntity is what a Invitation document is compiled against: the entity
 // parsed from the file that declares it, as the server behind parses it.
-var gateInvitationEntity = ormpatch.MustEntityOf((*rove.Invitation)(nil).ProtoReflect().Descriptor().ParentFile(), "Invitation")
+var gateInvitationEntity = ormpatch.MustEntityOf((*loft.Invitation)(nil).ProtoReflect().Descriptor().ParentFile(), "Invitation")
 
 type gateItemModel struct {
 	Gate
-	rove.ItemModelServiceServer
+	loft.ItemModelServiceServer
 }
 
-func (s Gate) ItemModel() rove.ItemModelServiceServer {
+func (s Gate) ItemModel() loft.ItemModelServiceServer {
 	v := gateItemModel{s, s.Next().ItemModel()}
 	v.ItemModelServiceServer = bare.ItemModelWithAddRule(v.ItemModelServiceServer, v.admit)
 	return v
@@ -15189,10 +15189,10 @@ func (s Gate) ItemModel() rove.ItemModelServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.ItemModel].
-func (s gateItemModel) admit(ctx context.Context, req *rove.ItemModelAddRequest) (*rove.ItemModelAddRequest, error) {
+func (s gateItemModel) admit(ctx context.Context, req *loft.ItemModelAddRequest) (*loft.ItemModelAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15207,7 +15207,7 @@ func (s gateItemModel) admit(ctx context.Context, req *rove.ItemModelAddRequest)
 
 	if ref := req.GetType(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "AssetType", ref, func() error {
-			_, err := s.Gate.Next().AssetType().Get(ctx, rove.AssetTypeGetRequest_builder{
+			_, err := s.Gate.Next().AssetType().Get(ctx, loft.AssetTypeGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15229,10 +15229,10 @@ func (s gateItemModel) admit(ctx context.Context, req *rove.ItemModelAddRequest)
 // write points **at**. An edge is a read -- a `Select` walks it -- so one
 // moved out of the caller's scope is a way through the wall one hop later,
 // exactly as it would have been at `Add`.
-func (s gateItemModel) Patch(ctx context.Context, req *rove.ItemModelPatchRequest) (*rove.ItemModel, error) {
+func (s gateItemModel) Patch(ctx context.Context, req *loft.ItemModelPatchRequest) (*loft.ItemModel, error) {
 	if ref := req.GetType(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "AssetType", ref, func() error {
-			_, err := s.Gate.Next().AssetType().Get(ctx, rove.AssetTypeGetRequest_builder{
+			_, err := s.Gate.Next().AssetType().Get(ctx, loft.AssetTypeGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15255,7 +15255,7 @@ func (s gateItemModel) Patch(ctx context.Context, req *rove.ItemModelPatchReques
 // behind writes that key into the column as it is -- compiling a document
 // reads nothing. So the read Patch is asked is asked here of the key the
 // document lands in the column, compiled the way the server behind will.
-func (s gateItemModel) Apply(ctx context.Context, req *rove.ItemModelApplyRequest) (*rove.ItemModel, error) {
+func (s gateItemModel) Apply(ctx context.Context, req *loft.ItemModelApplyRequest) (*loft.ItemModel, error) {
 	if !req.HasPatch() {
 		// Nothing written, and the server behind refuses it in its own words.
 		return s.ItemModelServiceServer.Apply(ctx, req)
@@ -15274,9 +15274,9 @@ func (s gateItemModel) Apply(ctx context.Context, req *rove.ItemModelApplyReques
 	}
 	if w, ok := plan.WriteTo(10); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.AssetTypeRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.AssetTypeRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "AssetType", ref, func() error {
-				_, err := s.Gate.Next().AssetType().Get(ctx, rove.AssetTypeGetRequest_builder{
+				_, err := s.Gate.Next().AssetType().Get(ctx, loft.AssetTypeGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -15295,14 +15295,14 @@ func (s gateItemModel) Apply(ctx context.Context, req *rove.ItemModelApplyReques
 
 // gateItemModelEntity is what a ItemModel document is compiled against: the entity
 // parsed from the file that declares it, as the server behind parses it.
-var gateItemModelEntity = ormpatch.MustEntityOf((*rove.ItemModel)(nil).ProtoReflect().Descriptor().ParentFile(), "ItemModel")
+var gateItemModelEntity = ormpatch.MustEntityOf((*loft.ItemModel)(nil).ProtoReflect().Descriptor().ParentFile(), "ItemModel")
 
 type gateLabel struct {
 	Gate
-	rove.LabelServiceServer
+	loft.LabelServiceServer
 }
 
-func (s Gate) Label() rove.LabelServiceServer {
+func (s Gate) Label() loft.LabelServiceServer {
 	v := gateLabel{s, s.Next().Label()}
 	v.LabelServiceServer = bare.LabelWithAddRule(v.LabelServiceServer, v.admit)
 	return v
@@ -15322,10 +15322,10 @@ func (s Gate) Label() rove.LabelServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Label].
-func (s gateLabel) admit(ctx context.Context, req *rove.LabelAddRequest) (*rove.LabelAddRequest, error) {
+func (s gateLabel) admit(ctx context.Context, req *loft.LabelAddRequest) (*loft.LabelAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15340,7 +15340,7 @@ func (s gateLabel) admit(ctx context.Context, req *rove.LabelAddRequest) (*rove.
 
 	if ref := req.GetDomain(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "TenantDomain", ref, func() error {
-			_, err := s.Gate.Next().TenantDomain().Get(ctx, rove.TenantDomainGetRequest_builder{
+			_, err := s.Gate.Next().TenantDomain().Get(ctx, loft.TenantDomainGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15362,10 +15362,10 @@ func (s gateLabel) admit(ctx context.Context, req *rove.LabelAddRequest) (*rove.
 // write points **at**. An edge is a read -- a `Select` walks it -- so one
 // moved out of the caller's scope is a way through the wall one hop later,
 // exactly as it would have been at `Add`.
-func (s gateLabel) Patch(ctx context.Context, req *rove.LabelPatchRequest) (*rove.Label, error) {
+func (s gateLabel) Patch(ctx context.Context, req *loft.LabelPatchRequest) (*loft.Label, error) {
 	if ref := req.GetDomain(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "TenantDomain", ref, func() error {
-			_, err := s.Gate.Next().TenantDomain().Get(ctx, rove.TenantDomainGetRequest_builder{
+			_, err := s.Gate.Next().TenantDomain().Get(ctx, loft.TenantDomainGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15388,7 +15388,7 @@ func (s gateLabel) Patch(ctx context.Context, req *rove.LabelPatchRequest) (*rov
 // behind writes that key into the column as it is -- compiling a document
 // reads nothing. So the read Patch is asked is asked here of the key the
 // document lands in the column, compiled the way the server behind will.
-func (s gateLabel) Apply(ctx context.Context, req *rove.LabelApplyRequest) (*rove.Label, error) {
+func (s gateLabel) Apply(ctx context.Context, req *loft.LabelApplyRequest) (*loft.Label, error) {
 	if !req.HasPatch() {
 		// Nothing written, and the server behind refuses it in its own words.
 		return s.LabelServiceServer.Apply(ctx, req)
@@ -15407,9 +15407,9 @@ func (s gateLabel) Apply(ctx context.Context, req *rove.LabelApplyRequest) (*rov
 	}
 	if w, ok := plan.WriteTo(8); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.TenantDomainRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.TenantDomainRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "TenantDomain", ref, func() error {
-				_, err := s.Gate.Next().TenantDomain().Get(ctx, rove.TenantDomainGetRequest_builder{
+				_, err := s.Gate.Next().TenantDomain().Get(ctx, loft.TenantDomainGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -15428,14 +15428,14 @@ func (s gateLabel) Apply(ctx context.Context, req *rove.LabelApplyRequest) (*rov
 
 // gateLabelEntity is what a Label document is compiled against: the entity
 // parsed from the file that declares it, as the server behind parses it.
-var gateLabelEntity = ormpatch.MustEntityOf((*rove.Label)(nil).ProtoReflect().Descriptor().ParentFile(), "Label")
+var gateLabelEntity = ormpatch.MustEntityOf((*loft.Label)(nil).ProtoReflect().Descriptor().ParentFile(), "Label")
 
 type gateLegalHold struct {
 	Gate
-	rove.LegalHoldServiceServer
+	loft.LegalHoldServiceServer
 }
 
-func (s Gate) LegalHold() rove.LegalHoldServiceServer {
+func (s Gate) LegalHold() loft.LegalHoldServiceServer {
 	v := gateLegalHold{s, s.Next().LegalHold()}
 	v.LegalHoldServiceServer = bare.LegalHoldWithAddRule(v.LegalHoldServiceServer, v.admit)
 	return v
@@ -15455,10 +15455,10 @@ func (s Gate) LegalHold() rove.LegalHoldServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.LegalHold].
-func (s gateLegalHold) admit(ctx context.Context, req *rove.LegalHoldAddRequest) (*rove.LegalHoldAddRequest, error) {
+func (s gateLegalHold) admit(ctx context.Context, req *loft.LegalHoldAddRequest) (*loft.LegalHoldAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15476,10 +15476,10 @@ func (s gateLegalHold) admit(ctx context.Context, req *rove.LegalHoldAddRequest)
 
 type gateLink struct {
 	Gate
-	rove.LinkServiceServer
+	loft.LinkServiceServer
 }
 
-func (s Gate) Link() rove.LinkServiceServer {
+func (s Gate) Link() loft.LinkServiceServer {
 	v := gateLink{s, s.Next().Link()}
 	v.LinkServiceServer = bare.LinkWithAddRule(v.LinkServiceServer, v.admit)
 	return v
@@ -15499,14 +15499,14 @@ func (s Gate) Link() rove.LinkServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Link].
-func (s gateLink) admit(ctx context.Context, req *rove.LinkAddRequest) (*rove.LinkAddRequest, error) {
+func (s gateLink) admit(ctx context.Context, req *loft.LinkAddRequest) (*loft.LinkAddRequest, error) {
 	if req.HasSupersededAt() {
 		return nil, pderr.Invalidf("superseded_at", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15521,7 +15521,7 @@ func (s gateLink) admit(ctx context.Context, req *rove.LinkAddRequest) (*rove.Li
 
 	if ref := req.GetSource(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15536,7 +15536,7 @@ func (s gateLink) admit(ctx context.Context, req *rove.LinkAddRequest) (*rove.Li
 
 	if ref := req.GetTarget(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15554,10 +15554,10 @@ func (s gateLink) admit(ctx context.Context, req *rove.LinkAddRequest) (*rove.Li
 
 type gateNotification struct {
 	Gate
-	rove.NotificationServiceServer
+	loft.NotificationServiceServer
 }
 
-func (s Gate) Notification() rove.NotificationServiceServer {
+func (s Gate) Notification() loft.NotificationServiceServer {
 	v := gateNotification{s, s.Next().Notification()}
 	v.NotificationServiceServer = bare.NotificationWithAddRule(v.NotificationServiceServer, v.admit)
 	return v
@@ -15577,10 +15577,10 @@ func (s Gate) Notification() rove.NotificationServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Notification].
-func (s gateNotification) admit(ctx context.Context, req *rove.NotificationAddRequest) (*rove.NotificationAddRequest, error) {
+func (s gateNotification) admit(ctx context.Context, req *loft.NotificationAddRequest) (*loft.NotificationAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15595,7 +15595,7 @@ func (s gateNotification) admit(ctx context.Context, req *rove.NotificationAddRe
 
 	if ref := req.GetHolder(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15613,10 +15613,10 @@ func (s gateNotification) admit(ctx context.Context, req *rove.NotificationAddRe
 
 type gateParty struct {
 	Gate
-	rove.PartyServiceServer
+	loft.PartyServiceServer
 }
 
-func (s Gate) Party() rove.PartyServiceServer {
+func (s Gate) Party() loft.PartyServiceServer {
 	v := gateParty{s, s.Next().Party()}
 	v.PartyServiceServer = bare.PartyWithAddRule(v.PartyServiceServer, v.admit)
 	return v
@@ -15636,10 +15636,10 @@ func (s Gate) Party() rove.PartyServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Party].
-func (s gateParty) admit(ctx context.Context, req *rove.PartyAddRequest) (*rove.PartyAddRequest, error) {
+func (s gateParty) admit(ctx context.Context, req *loft.PartyAddRequest) (*loft.PartyAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15654,7 +15654,7 @@ func (s gateParty) admit(ctx context.Context, req *rove.PartyAddRequest) (*rove.
 
 	if ref := req.GetHolder(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15676,10 +15676,10 @@ func (s gateParty) admit(ctx context.Context, req *rove.PartyAddRequest) (*rove.
 // write points **at**. An edge is a read -- a `Select` walks it -- so one
 // moved out of the caller's scope is a way through the wall one hop later,
 // exactly as it would have been at `Add`.
-func (s gateParty) Patch(ctx context.Context, req *rove.PartyPatchRequest) (*rove.Party, error) {
+func (s gateParty) Patch(ctx context.Context, req *loft.PartyPatchRequest) (*loft.Party, error) {
 	if ref := req.GetHolder(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15702,7 +15702,7 @@ func (s gateParty) Patch(ctx context.Context, req *rove.PartyPatchRequest) (*rov
 // behind writes that key into the column as it is -- compiling a document
 // reads nothing. So the read Patch is asked is asked here of the key the
 // document lands in the column, compiled the way the server behind will.
-func (s gateParty) Apply(ctx context.Context, req *rove.PartyApplyRequest) (*rove.Party, error) {
+func (s gateParty) Apply(ctx context.Context, req *loft.PartyApplyRequest) (*loft.Party, error) {
 	if !req.HasPatch() {
 		// Nothing written, and the server behind refuses it in its own words.
 		return s.PartyServiceServer.Apply(ctx, req)
@@ -15721,9 +15721,9 @@ func (s gateParty) Apply(ctx context.Context, req *rove.PartyApplyRequest) (*rov
 	}
 	if w, ok := plan.WriteTo(10); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.HolderRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.HolderRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-				_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+				_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -15742,14 +15742,14 @@ func (s gateParty) Apply(ctx context.Context, req *rove.PartyApplyRequest) (*rov
 
 // gatePartyEntity is what a Party document is compiled against: the entity
 // parsed from the file that declares it, as the server behind parses it.
-var gatePartyEntity = ormpatch.MustEntityOf((*rove.Party)(nil).ProtoReflect().Descriptor().ParentFile(), "Party")
+var gatePartyEntity = ormpatch.MustEntityOf((*loft.Party)(nil).ProtoReflect().Descriptor().ParentFile(), "Party")
 
 type gatePlacement struct {
 	Gate
-	rove.PlacementServiceServer
+	loft.PlacementServiceServer
 }
 
-func (s Gate) Placement() rove.PlacementServiceServer {
+func (s Gate) Placement() loft.PlacementServiceServer {
 	v := gatePlacement{s, s.Next().Placement()}
 	v.PlacementServiceServer = bare.PlacementWithAddRule(v.PlacementServiceServer, v.admit)
 	return v
@@ -15769,14 +15769,14 @@ func (s Gate) Placement() rove.PlacementServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Placement].
-func (s gatePlacement) admit(ctx context.Context, req *rove.PlacementAddRequest) (*rove.PlacementAddRequest, error) {
+func (s gatePlacement) admit(ctx context.Context, req *loft.PlacementAddRequest) (*loft.PlacementAddRequest, error) {
 	if req.HasSupersededAt() {
 		return nil, pderr.Invalidf("superseded_at", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15791,7 +15791,7 @@ func (s gatePlacement) admit(ctx context.Context, req *rove.PlacementAddRequest)
 
 	if ref := req.GetChild(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15806,7 +15806,7 @@ func (s gatePlacement) admit(ctx context.Context, req *rove.PlacementAddRequest)
 
 	if ref := req.GetParent(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15824,10 +15824,10 @@ func (s gatePlacement) admit(ctx context.Context, req *rove.PlacementAddRequest)
 
 type gatePurchase struct {
 	Gate
-	rove.PurchaseServiceServer
+	loft.PurchaseServiceServer
 }
 
-func (s Gate) Purchase() rove.PurchaseServiceServer {
+func (s Gate) Purchase() loft.PurchaseServiceServer {
 	v := gatePurchase{s, s.Next().Purchase()}
 	v.PurchaseServiceServer = bare.PurchaseWithAddRule(v.PurchaseServiceServer, v.admit)
 	return v
@@ -15847,10 +15847,10 @@ func (s Gate) Purchase() rove.PurchaseServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Purchase].
-func (s gatePurchase) admit(ctx context.Context, req *rove.PurchaseAddRequest) (*rove.PurchaseAddRequest, error) {
+func (s gatePurchase) admit(ctx context.Context, req *loft.PurchaseAddRequest) (*loft.PurchaseAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15865,7 +15865,7 @@ func (s gatePurchase) admit(ctx context.Context, req *rove.PurchaseAddRequest) (
 
 	if ref := req.GetVendor(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15887,10 +15887,10 @@ func (s gatePurchase) admit(ctx context.Context, req *rove.PurchaseAddRequest) (
 // write points **at**. An edge is a read -- a `Select` walks it -- so one
 // moved out of the caller's scope is a way through the wall one hop later,
 // exactly as it would have been at `Add`.
-func (s gatePurchase) Patch(ctx context.Context, req *rove.PurchasePatchRequest) (*rove.Purchase, error) {
+func (s gatePurchase) Patch(ctx context.Context, req *loft.PurchasePatchRequest) (*loft.Purchase, error) {
 	if ref := req.GetVendor(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15913,7 +15913,7 @@ func (s gatePurchase) Patch(ctx context.Context, req *rove.PurchasePatchRequest)
 // behind writes that key into the column as it is -- compiling a document
 // reads nothing. So the read Patch is asked is asked here of the key the
 // document lands in the column, compiled the way the server behind will.
-func (s gatePurchase) Apply(ctx context.Context, req *rove.PurchaseApplyRequest) (*rove.Purchase, error) {
+func (s gatePurchase) Apply(ctx context.Context, req *loft.PurchaseApplyRequest) (*loft.Purchase, error) {
 	if !req.HasPatch() {
 		// Nothing written, and the server behind refuses it in its own words.
 		return s.PurchaseServiceServer.Apply(ctx, req)
@@ -15932,9 +15932,9 @@ func (s gatePurchase) Apply(ctx context.Context, req *rove.PurchaseApplyRequest)
 	}
 	if w, ok := plan.WriteTo(8); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.PartyRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.PartyRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-				_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+				_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -15953,14 +15953,14 @@ func (s gatePurchase) Apply(ctx context.Context, req *rove.PurchaseApplyRequest)
 
 // gatePurchaseEntity is what a Purchase document is compiled against: the entity
 // parsed from the file that declares it, as the server behind parses it.
-var gatePurchaseEntity = ormpatch.MustEntityOf((*rove.Purchase)(nil).ProtoReflect().Descriptor().ParentFile(), "Purchase")
+var gatePurchaseEntity = ormpatch.MustEntityOf((*loft.Purchase)(nil).ProtoReflect().Descriptor().ParentFile(), "Purchase")
 
 type gatePurchaseLine struct {
 	Gate
-	rove.PurchaseLineServiceServer
+	loft.PurchaseLineServiceServer
 }
 
-func (s Gate) PurchaseLine() rove.PurchaseLineServiceServer {
+func (s Gate) PurchaseLine() loft.PurchaseLineServiceServer {
 	v := gatePurchaseLine{s, s.Next().PurchaseLine()}
 	v.PurchaseLineServiceServer = bare.PurchaseLineWithAddRule(v.PurchaseLineServiceServer, v.admit)
 	return v
@@ -15980,10 +15980,10 @@ func (s Gate) PurchaseLine() rove.PurchaseLineServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.PurchaseLine].
-func (s gatePurchaseLine) admit(ctx context.Context, req *rove.PurchaseLineAddRequest) (*rove.PurchaseLineAddRequest, error) {
+func (s gatePurchaseLine) admit(ctx context.Context, req *loft.PurchaseLineAddRequest) (*loft.PurchaseLineAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -15998,7 +15998,7 @@ func (s gatePurchaseLine) admit(ctx context.Context, req *rove.PurchaseLineAddRe
 
 	if ref := req.GetPurchase(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Purchase", ref, func() error {
-			_, err := s.Gate.Next().Purchase().Get(ctx, rove.PurchaseGetRequest_builder{
+			_, err := s.Gate.Next().Purchase().Get(ctx, loft.PurchaseGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16013,7 +16013,7 @@ func (s gatePurchaseLine) admit(ctx context.Context, req *rove.PurchaseLineAddRe
 
 	if ref := req.GetModel(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "ItemModel", ref, func() error {
-			_, err := s.Gate.Next().ItemModel().Get(ctx, rove.ItemModelGetRequest_builder{
+			_, err := s.Gate.Next().ItemModel().Get(ctx, loft.ItemModelGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16035,10 +16035,10 @@ func (s gatePurchaseLine) admit(ctx context.Context, req *rove.PurchaseLineAddRe
 // write points **at**. An edge is a read -- a `Select` walks it -- so one
 // moved out of the caller's scope is a way through the wall one hop later,
 // exactly as it would have been at `Add`.
-func (s gatePurchaseLine) Patch(ctx context.Context, req *rove.PurchaseLinePatchRequest) (*rove.PurchaseLine, error) {
+func (s gatePurchaseLine) Patch(ctx context.Context, req *loft.PurchaseLinePatchRequest) (*loft.PurchaseLine, error) {
 	if ref := req.GetModel(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "ItemModel", ref, func() error {
-			_, err := s.Gate.Next().ItemModel().Get(ctx, rove.ItemModelGetRequest_builder{
+			_, err := s.Gate.Next().ItemModel().Get(ctx, loft.ItemModelGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16061,7 +16061,7 @@ func (s gatePurchaseLine) Patch(ctx context.Context, req *rove.PurchaseLinePatch
 // behind writes that key into the column as it is -- compiling a document
 // reads nothing. So the read Patch is asked is asked here of the key the
 // document lands in the column, compiled the way the server behind will.
-func (s gatePurchaseLine) Apply(ctx context.Context, req *rove.PurchaseLineApplyRequest) (*rove.PurchaseLine, error) {
+func (s gatePurchaseLine) Apply(ctx context.Context, req *loft.PurchaseLineApplyRequest) (*loft.PurchaseLine, error) {
 	if !req.HasPatch() {
 		// Nothing written, and the server behind refuses it in its own words.
 		return s.PurchaseLineServiceServer.Apply(ctx, req)
@@ -16080,9 +16080,9 @@ func (s gatePurchaseLine) Apply(ctx context.Context, req *rove.PurchaseLineApply
 	}
 	if w, ok := plan.WriteTo(9); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.ItemModelRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.ItemModelRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "ItemModel", ref, func() error {
-				_, err := s.Gate.Next().ItemModel().Get(ctx, rove.ItemModelGetRequest_builder{
+				_, err := s.Gate.Next().ItemModel().Get(ctx, loft.ItemModelGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -16101,14 +16101,14 @@ func (s gatePurchaseLine) Apply(ctx context.Context, req *rove.PurchaseLineApply
 
 // gatePurchaseLineEntity is what a PurchaseLine document is compiled against: the entity
 // parsed from the file that declares it, as the server behind parses it.
-var gatePurchaseLineEntity = ormpatch.MustEntityOf((*rove.PurchaseLine)(nil).ProtoReflect().Descriptor().ParentFile(), "PurchaseLine")
+var gatePurchaseLineEntity = ormpatch.MustEntityOf((*loft.PurchaseLine)(nil).ProtoReflect().Descriptor().ParentFile(), "PurchaseLine")
 
 type gateReservation struct {
 	Gate
-	rove.ReservationServiceServer
+	loft.ReservationServiceServer
 }
 
-func (s Gate) Reservation() rove.ReservationServiceServer {
+func (s Gate) Reservation() loft.ReservationServiceServer {
 	v := gateReservation{s, s.Next().Reservation()}
 	v.ReservationServiceServer = bare.ReservationWithAddRule(v.ReservationServiceServer, v.admit)
 	return v
@@ -16128,10 +16128,10 @@ func (s Gate) Reservation() rove.ReservationServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Reservation].
-func (s gateReservation) admit(ctx context.Context, req *rove.ReservationAddRequest) (*rove.ReservationAddRequest, error) {
+func (s gateReservation) admit(ctx context.Context, req *loft.ReservationAddRequest) (*loft.ReservationAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16146,7 +16146,7 @@ func (s gateReservation) admit(ctx context.Context, req *rove.ReservationAddRequ
 
 	if ref := req.GetParty(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16164,10 +16164,10 @@ func (s gateReservation) admit(ctx context.Context, req *rove.ReservationAddRequ
 
 type gateReservationItem struct {
 	Gate
-	rove.ReservationItemServiceServer
+	loft.ReservationItemServiceServer
 }
 
-func (s Gate) ReservationItem() rove.ReservationItemServiceServer {
+func (s Gate) ReservationItem() loft.ReservationItemServiceServer {
 	v := gateReservationItem{s, s.Next().ReservationItem()}
 	v.ReservationItemServiceServer = bare.ReservationItemWithAddRule(v.ReservationItemServiceServer, v.admit)
 	return v
@@ -16187,10 +16187,10 @@ func (s Gate) ReservationItem() rove.ReservationItemServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.ReservationItem].
-func (s gateReservationItem) admit(ctx context.Context, req *rove.ReservationItemAddRequest) (*rove.ReservationItemAddRequest, error) {
+func (s gateReservationItem) admit(ctx context.Context, req *loft.ReservationItemAddRequest) (*loft.ReservationItemAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16205,7 +16205,7 @@ func (s gateReservationItem) admit(ctx context.Context, req *rove.ReservationIte
 
 	if ref := req.GetReservation(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Reservation", ref, func() error {
-			_, err := s.Gate.Next().Reservation().Get(ctx, rove.ReservationGetRequest_builder{
+			_, err := s.Gate.Next().Reservation().Get(ctx, loft.ReservationGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16220,7 +16220,7 @@ func (s gateReservationItem) admit(ctx context.Context, req *rove.ReservationIte
 
 	if ref := req.GetResource(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16238,10 +16238,10 @@ func (s gateReservationItem) admit(ctx context.Context, req *rove.ReservationIte
 
 type gateStewardship struct {
 	Gate
-	rove.StewardshipServiceServer
+	loft.StewardshipServiceServer
 }
 
-func (s Gate) Stewardship() rove.StewardshipServiceServer {
+func (s Gate) Stewardship() loft.StewardshipServiceServer {
 	v := gateStewardship{s, s.Next().Stewardship()}
 	v.StewardshipServiceServer = bare.StewardshipWithAddRule(v.StewardshipServiceServer, v.admit)
 	return v
@@ -16261,14 +16261,14 @@ func (s Gate) Stewardship() rove.StewardshipServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Stewardship].
-func (s gateStewardship) admit(ctx context.Context, req *rove.StewardshipAddRequest) (*rove.StewardshipAddRequest, error) {
+func (s gateStewardship) admit(ctx context.Context, req *loft.StewardshipAddRequest) (*loft.StewardshipAddRequest, error) {
 	if req.HasSupersededAt() {
 		return nil, pderr.Invalidf("superseded_at", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16283,7 +16283,7 @@ func (s gateStewardship) admit(ctx context.Context, req *rove.StewardshipAddRequ
 
 	if ref := req.GetAsset(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16298,7 +16298,7 @@ func (s gateStewardship) admit(ctx context.Context, req *rove.StewardshipAddRequ
 
 	if ref := req.GetParty(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16316,10 +16316,10 @@ func (s gateStewardship) admit(ctx context.Context, req *rove.StewardshipAddRequ
 
 type gateStock struct {
 	Gate
-	rove.StockServiceServer
+	loft.StockServiceServer
 }
 
-func (s Gate) Stock() rove.StockServiceServer {
+func (s Gate) Stock() loft.StockServiceServer {
 	v := gateStock{s, s.Next().Stock()}
 	v.StockServiceServer = bare.StockWithAddRule(v.StockServiceServer, v.admit)
 	return v
@@ -16339,10 +16339,10 @@ func (s Gate) Stock() rove.StockServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Stock].
-func (s gateStock) admit(ctx context.Context, req *rove.StockAddRequest) (*rove.StockAddRequest, error) {
+func (s gateStock) admit(ctx context.Context, req *loft.StockAddRequest) (*loft.StockAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16357,7 +16357,7 @@ func (s gateStock) admit(ctx context.Context, req *rove.StockAddRequest) (*rove.
 
 	if ref := req.GetModel(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "ItemModel", ref, func() error {
-			_, err := s.Gate.Next().ItemModel().Get(ctx, rove.ItemModelGetRequest_builder{
+			_, err := s.Gate.Next().ItemModel().Get(ctx, loft.ItemModelGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16372,7 +16372,7 @@ func (s gateStock) admit(ctx context.Context, req *rove.StockAddRequest) (*rove.
 
 	if ref := req.GetSpace(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16390,10 +16390,10 @@ func (s gateStock) admit(ctx context.Context, req *rove.StockAddRequest) (*rove.
 
 type gateStockMovement struct {
 	Gate
-	rove.StockMovementServiceServer
+	loft.StockMovementServiceServer
 }
 
-func (s Gate) StockMovement() rove.StockMovementServiceServer {
+func (s Gate) StockMovement() loft.StockMovementServiceServer {
 	v := gateStockMovement{s, s.Next().StockMovement()}
 	v.StockMovementServiceServer = bare.StockMovementWithAddRule(v.StockMovementServiceServer, v.admit)
 	return v
@@ -16413,10 +16413,10 @@ func (s Gate) StockMovement() rove.StockMovementServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.StockMovement].
-func (s gateStockMovement) admit(ctx context.Context, req *rove.StockMovementAddRequest) (*rove.StockMovementAddRequest, error) {
+func (s gateStockMovement) admit(ctx context.Context, req *loft.StockMovementAddRequest) (*loft.StockMovementAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16431,7 +16431,7 @@ func (s gateStockMovement) admit(ctx context.Context, req *rove.StockMovementAdd
 
 	if ref := req.GetStock(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Stock", ref, func() error {
-			_, err := s.Gate.Next().Stock().Get(ctx, rove.StockGetRequest_builder{
+			_, err := s.Gate.Next().Stock().Get(ctx, loft.StockGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16449,10 +16449,10 @@ func (s gateStockMovement) admit(ctx context.Context, req *rove.StockMovementAdd
 
 type gateTenantContract struct {
 	Gate
-	rove.TenantContractServiceServer
+	loft.TenantContractServiceServer
 }
 
-func (s Gate) TenantContract() rove.TenantContractServiceServer {
+func (s Gate) TenantContract() loft.TenantContractServiceServer {
 	v := gateTenantContract{s, s.Next().TenantContract()}
 	v.TenantContractServiceServer = bare.TenantContractWithAddRule(v.TenantContractServiceServer, v.admit)
 	return v
@@ -16472,10 +16472,10 @@ func (s Gate) TenantContract() rove.TenantContractServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.TenantContract].
-func (s gateTenantContract) admit(ctx context.Context, req *rove.TenantContractAddRequest) (*rove.TenantContractAddRequest, error) {
+func (s gateTenantContract) admit(ctx context.Context, req *loft.TenantContractAddRequest) (*loft.TenantContractAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16493,10 +16493,10 @@ func (s gateTenantContract) admit(ctx context.Context, req *rove.TenantContractA
 
 type gateTenantDomain struct {
 	Gate
-	rove.TenantDomainServiceServer
+	loft.TenantDomainServiceServer
 }
 
-func (s Gate) TenantDomain() rove.TenantDomainServiceServer {
+func (s Gate) TenantDomain() loft.TenantDomainServiceServer {
 	v := gateTenantDomain{s, s.Next().TenantDomain()}
 	v.TenantDomainServiceServer = bare.TenantDomainWithAddRule(v.TenantDomainServiceServer, v.admit)
 	return v
@@ -16516,14 +16516,14 @@ func (s Gate) TenantDomain() rove.TenantDomainServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.TenantDomain].
-func (s gateTenantDomain) admit(ctx context.Context, req *rove.TenantDomainAddRequest) (*rove.TenantDomainAddRequest, error) {
+func (s gateTenantDomain) admit(ctx context.Context, req *loft.TenantDomainAddRequest) (*loft.TenantDomainAddRequest, error) {
 	if req.HasVerifiedAt() {
 		return nil, pderr.Invalidf("verified_at", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16541,10 +16541,10 @@ func (s gateTenantDomain) admit(ctx context.Context, req *rove.TenantDomainAddRe
 
 type gateWorkOrder struct {
 	Gate
-	rove.WorkOrderServiceServer
+	loft.WorkOrderServiceServer
 }
 
-func (s Gate) WorkOrder() rove.WorkOrderServiceServer {
+func (s Gate) WorkOrder() loft.WorkOrderServiceServer {
 	v := gateWorkOrder{s, s.Next().WorkOrder()}
 	v.WorkOrderServiceServer = bare.WorkOrderWithAddRule(v.WorkOrderServiceServer, v.admit)
 	return v
@@ -16564,10 +16564,10 @@ func (s Gate) WorkOrder() rove.WorkOrderServiceServer {
 //
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.WorkOrder].
-func (s gateWorkOrder) admit(ctx context.Context, req *rove.WorkOrderAddRequest) (*rove.WorkOrderAddRequest, error) {
+func (s gateWorkOrder) admit(ctx context.Context, req *loft.WorkOrderAddRequest) (*loft.WorkOrderAddRequest, error) {
 	if ref := req.GetTenant(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16582,7 +16582,7 @@ func (s gateWorkOrder) admit(ctx context.Context, req *rove.WorkOrderAddRequest)
 
 	if ref := req.GetAsset(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Asset", ref, func() error {
-			_, err := s.Gate.Next().Asset().Get(ctx, rove.AssetGetRequest_builder{
+			_, err := s.Gate.Next().Asset().Get(ctx, loft.AssetGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16597,7 +16597,7 @@ func (s gateWorkOrder) admit(ctx context.Context, req *rove.WorkOrderAddRequest)
 
 	if ref := req.GetVendor(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16619,10 +16619,10 @@ func (s gateWorkOrder) admit(ctx context.Context, req *rove.WorkOrderAddRequest)
 // write points **at**. An edge is a read -- a `Select` walks it -- so one
 // moved out of the caller's scope is a way through the wall one hop later,
 // exactly as it would have been at `Add`.
-func (s gateWorkOrder) Patch(ctx context.Context, req *rove.WorkOrderPatchRequest) (*rove.WorkOrder, error) {
+func (s gateWorkOrder) Patch(ctx context.Context, req *loft.WorkOrderPatchRequest) (*loft.WorkOrder, error) {
 	if ref := req.GetVendor(); ref != nil {
 		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
@@ -16645,7 +16645,7 @@ func (s gateWorkOrder) Patch(ctx context.Context, req *rove.WorkOrderPatchReques
 // behind writes that key into the column as it is -- compiling a document
 // reads nothing. So the read Patch is asked is asked here of the key the
 // document lands in the column, compiled the way the server behind will.
-func (s gateWorkOrder) Apply(ctx context.Context, req *rove.WorkOrderApplyRequest) (*rove.WorkOrder, error) {
+func (s gateWorkOrder) Apply(ctx context.Context, req *loft.WorkOrderApplyRequest) (*loft.WorkOrder, error) {
 	if !req.HasPatch() {
 		// Nothing written, and the server behind refuses it in its own words.
 		return s.WorkOrderServiceServer.Apply(ctx, req)
@@ -16664,9 +16664,9 @@ func (s gateWorkOrder) Apply(ctx context.Context, req *rove.WorkOrderApplyReques
 	}
 	if w, ok := plan.WriteTo(16); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := rove.PartyRef_builder{Id: k.Key.Bytes()}.Build()
+			ref := loft.PartyRef_builder{Id: k.Key.Bytes()}.Build()
 			if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-				_, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+				_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
@@ -16685,7 +16685,7 @@ func (s gateWorkOrder) Apply(ctx context.Context, req *rove.WorkOrderApplyReques
 
 // gateWorkOrderEntity is what a WorkOrder document is compiled against: the entity
 // parsed from the file that declares it, as the server behind parses it.
-var gateWorkOrderEntity = ormpatch.MustEntityOf((*rove.WorkOrder)(nil).ProtoReflect().Descriptor().ParentFile(), "WorkOrder")
+var gateWorkOrderEntity = ormpatch.MustEntityOf((*loft.WorkOrder)(nil).ProtoReflect().Descriptor().ParentFile(), "WorkOrder")
 
 // Audit is the layer that refuses a trail row written by hand.
 //
@@ -16697,18 +16697,18 @@ var gateWorkOrderEntity = ormpatch.MustEntityOf((*rove.WorkOrder)(nil).ProtoRefl
 // far plainer for having them. A deployment serves none of the ones that
 // write: a trail somebody can edit is evidence of nothing.
 type Audit struct {
-	rove.Overlay
+	loft.Overlay
 }
 
-func NewAudit(next rove.Server) Audit {
-	return Audit{rove.NewOverlay(next)}
+func NewAudit(next loft.Server) Audit {
+	return Audit{loft.NewOverlay(next)}
 }
 
-var _ rove.Server = Audit{}
-var _ enttx.Binder[rove.Server] = Audit{}
+var _ loft.Server = Audit{}
+var _ enttx.Binder[loft.Server] = Audit{}
 
 // WithDriver answers with this stack running on `drv`; see [Gate.WithDriver].
-func (s Audit) WithDriver(drv dialect.Driver) (rove.Server, error) {
+func (s Audit) WithDriver(drv dialect.Driver) (loft.Server, error) {
 	next, err := enttx.Rebind(s.Next(), drv)
 	if err != nil {
 		return nil, err
@@ -16718,36 +16718,36 @@ func (s Audit) WithDriver(drv dialect.Driver) (rove.Server, error) {
 }
 
 // AuditBuild makes a builder of this layer so that it can be stacked.
-func AuditBuild() rove.Builder { return auditBuilder{} }
+func AuditBuild() loft.Builder { return auditBuilder{} }
 
 type auditBuilder struct{}
 
-func (auditBuilder) Build(next rove.Server) (rove.Server, error) {
+func (auditBuilder) Build(next loft.Server) (loft.Server, error) {
 	return NewAudit(next), nil
 }
 
 type auditService struct {
 	Audit
-	rove.AuditServiceServer
+	loft.AuditServiceServer
 }
 
-func (s Audit) Audit() rove.AuditServiceServer {
+func (s Audit) Audit() loft.AuditServiceServer {
 	return auditService{s, s.Next().Audit()}
 }
 
-func (s auditService) Add(ctx context.Context, req *rove.AuditAddRequest) (*rove.Audit, error) {
+func (s auditService) Add(ctx context.Context, req *loft.AuditAddRequest) (*loft.Audit, error) {
 	return nil, errTrail()
 }
 
-func (s auditService) Patch(ctx context.Context, req *rove.AuditPatchRequest) (*rove.Audit, error) {
+func (s auditService) Patch(ctx context.Context, req *loft.AuditPatchRequest) (*loft.Audit, error) {
 	return nil, errTrail()
 }
 
-func (s auditService) Apply(ctx context.Context, req *rove.AuditApplyRequest) (*rove.Audit, error) {
+func (s auditService) Apply(ctx context.Context, req *loft.AuditApplyRequest) (*loft.Audit, error) {
 	return nil, errTrail()
 }
 
-func (s auditService) Erase(ctx context.Context, req *rove.AuditRef) (*rove.AuditEraseResponse, error) {
+func (s auditService) Erase(ctx context.Context, req *loft.AuditRef) (*loft.AuditEraseResponse, error) {
 	return nil, errTrail()
 }
 
@@ -16760,16 +16760,16 @@ func errTrail() error {
 
 // Event is the past's Event as the Audit layer serves it: read as any
 // entity is, and written by the `past` package alone ([pastWrite]).
-func (s Audit) Event() rove.EventServiceServer {
+func (s Audit) Event() loft.EventServiceServer {
 	return auditEvent{s, s.Next().Event()}
 }
 
 type auditEvent struct {
 	Audit
-	rove.EventServiceServer
+	loft.EventServiceServer
 }
 
-func (s auditEvent) Add(ctx context.Context, req *rove.EventAddRequest) (*rove.Event, error) {
+func (s auditEvent) Add(ctx context.Context, req *loft.EventAddRequest) (*loft.Event, error) {
 	if !isPastWrite(ctx) {
 		return nil, errPast()
 	}
@@ -16777,7 +16777,7 @@ func (s auditEvent) Add(ctx context.Context, req *rove.EventAddRequest) (*rove.E
 	return s.EventServiceServer.Add(ctx, req)
 }
 
-func (s auditEvent) AddMany(ctx context.Context, req *rove.EventAddManyRequest) (*rove.EventAddManyResponse, error) {
+func (s auditEvent) AddMany(ctx context.Context, req *loft.EventAddManyRequest) (*loft.EventAddManyResponse, error) {
 	if !isPastWrite(ctx) {
 		return nil, errPast()
 	}
@@ -16787,16 +16787,16 @@ func (s auditEvent) AddMany(ctx context.Context, req *rove.EventAddManyRequest) 
 
 // Fact is the past's Fact as the Audit layer serves it: read as any
 // entity is, and written by the `past` package alone ([pastWrite]).
-func (s Audit) Fact() rove.FactServiceServer {
+func (s Audit) Fact() loft.FactServiceServer {
 	return auditFact{s, s.Next().Fact()}
 }
 
 type auditFact struct {
 	Audit
-	rove.FactServiceServer
+	loft.FactServiceServer
 }
 
-func (s auditFact) Add(ctx context.Context, req *rove.FactAddRequest) (*rove.Fact, error) {
+func (s auditFact) Add(ctx context.Context, req *loft.FactAddRequest) (*loft.Fact, error) {
 	if !isPastWrite(ctx) {
 		return nil, errPast()
 	}
@@ -16804,7 +16804,7 @@ func (s auditFact) Add(ctx context.Context, req *rove.FactAddRequest) (*rove.Fac
 	return s.FactServiceServer.Add(ctx, req)
 }
 
-func (s auditFact) AddMany(ctx context.Context, req *rove.FactAddManyRequest) (*rove.FactAddManyResponse, error) {
+func (s auditFact) AddMany(ctx context.Context, req *loft.FactAddManyRequest) (*loft.FactAddManyResponse, error) {
 	if !isPastWrite(ctx) {
 		return nil, errPast()
 	}
@@ -16812,7 +16812,7 @@ func (s auditFact) AddMany(ctx context.Context, req *rove.FactAddManyRequest) (*
 	return s.FactServiceServer.AddMany(ctx, req)
 }
 
-func (s auditFact) Patch(ctx context.Context, req *rove.FactPatchRequest) (*rove.Fact, error) {
+func (s auditFact) Patch(ctx context.Context, req *loft.FactPatchRequest) (*loft.Fact, error) {
 	if !isPastWrite(ctx) {
 		return nil, errPast()
 	}
@@ -16820,7 +16820,7 @@ func (s auditFact) Patch(ctx context.Context, req *rove.FactPatchRequest) (*rove
 	return s.FactServiceServer.Patch(ctx, req)
 }
 
-func (s auditFact) Apply(ctx context.Context, req *rove.FactApplyRequest) (*rove.Fact, error) {
+func (s auditFact) Apply(ctx context.Context, req *loft.FactApplyRequest) (*loft.Fact, error) {
 	if !isPastWrite(ctx) {
 		return nil, errPast()
 	}
@@ -16999,7 +16999,7 @@ func (r recorder) Record(ctx context.Context, s bare.Server, c bare.Change) erro
 		return keepSeals(ctx, s.Store.Db, sealing.in(tenant))
 	}
 
-	_, err = s.Audit().Add(ctx, rove.AuditAddRequest_builder{
+	_, err = s.Audit().Add(ctx, loft.AuditAddRequest_builder{
 		Id:                  at.Id[:],
 		DateCreated:         timestamppb.New(at.Created),
 		TenantId:            tenant[:],
@@ -17171,142 +17171,142 @@ func describe(m proto.Message, secret, personal []protoreflect.FieldNumber) desc
 }
 
 var (
-	describedAccess = describe((*rove.Access)(nil),
+	describedAccess = describe((*loft.Access)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedAccessReview = describe((*rove.AccessReview)(nil),
+	describedAccessReview = describe((*loft.AccessReview)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
-	describedAliasHold = describe((*rove.AliasHold)(nil),
+	describedAliasHold = describe((*loft.AliasHold)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedAllocation = describe((*rove.Allocation)(nil),
+	describedAllocation = describe((*loft.Allocation)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedArchived = describe((*rove.Archived)(nil),
+	describedArchived = describe((*loft.Archived)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedAsset = describe((*rove.Asset)(nil),
+	describedAsset = describe((*loft.Asset)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedAssetType = describe((*rove.AssetType)(nil),
+	describedAssetType = describe((*loft.AssetType)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedAttachment = describe((*rove.Attachment)(nil),
+	describedAttachment = describe((*loft.Attachment)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedAudit = describe((*rove.Audit)(nil),
+	describedAudit = describe((*loft.Audit)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedBookable = describe((*rove.Bookable)(nil),
+	describedBookable = describe((*loft.Bookable)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedCliLogin = describe((*rove.CliLogin)(nil),
+	describedCliLogin = describe((*loft.CliLogin)(nil),
 		[]protoreflect.FieldNumber{8},
 		[]protoreflect.FieldNumber{})
-	describedCountFinding = describe((*rove.CountFinding)(nil),
+	describedCountFinding = describe((*loft.CountFinding)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
-	describedCustody = describe((*rove.Custody)(nil),
+	describedCustody = describe((*loft.Custody)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
-	describedCustodyLine = describe((*rove.CustodyLine)(nil),
+	describedCustodyLine = describe((*loft.CustodyLine)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedEvent = describe((*rove.Event)(nil),
+	describedEvent = describe((*loft.Event)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{11})
-	describedFact = describe((*rove.Fact)(nil),
+	describedFact = describe((*loft.Fact)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedHandoff = describe((*rove.Handoff)(nil),
+	describedHandoff = describe((*loft.Handoff)(nil),
 		[]protoreflect.FieldNumber{8, 12},
 		[]protoreflect.FieldNumber{})
-	describedHolder = describe((*rove.Holder)(nil),
+	describedHolder = describe((*loft.Holder)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{4, 5, 6, 7})
-	describedInventoryCount = describe((*rove.InventoryCount)(nil),
+	describedInventoryCount = describe((*loft.InventoryCount)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
-	describedInvitation = describe((*rove.Invitation)(nil),
+	describedInvitation = describe((*loft.Invitation)(nil),
 		[]protoreflect.FieldNumber{20},
 		[]protoreflect.FieldNumber{9})
-	describedItemModel = describe((*rove.ItemModel)(nil),
+	describedItemModel = describe((*loft.ItemModel)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedLabel = describe((*rove.Label)(nil),
+	describedLabel = describe((*loft.Label)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedLegalHold = describe((*rove.LegalHold)(nil),
+	describedLegalHold = describe((*loft.LegalHold)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedLink = describe((*rove.Link)(nil),
+	describedLink = describe((*loft.Link)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedNotification = describe((*rove.Notification)(nil),
+	describedNotification = describe((*loft.Notification)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{5, 6})
-	describedOutbox = describe((*rove.Outbox)(nil),
+	describedOutbox = describe((*loft.Outbox)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedOwed = describe((*rove.Owed)(nil),
+	describedOwed = describe((*loft.Owed)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedParty = describe((*rove.Party)(nil),
+	describedParty = describe((*loft.Party)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{5, 6, 7, 11, 12, 16})
-	describedPlacement = describe((*rove.Placement)(nil),
+	describedPlacement = describe((*loft.Placement)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedPurchase = describe((*rove.Purchase)(nil),
+	describedPurchase = describe((*loft.Purchase)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
-	describedPurchaseLine = describe((*rove.PurchaseLine)(nil),
+	describedPurchaseLine = describe((*loft.PurchaseLine)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedReservation = describe((*rove.Reservation)(nil),
+	describedReservation = describe((*loft.Reservation)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
-	describedReservationItem = describe((*rove.ReservationItem)(nil),
+	describedReservationItem = describe((*loft.ReservationItem)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedRowSeal = describe((*rove.RowSeal)(nil),
+	describedRowSeal = describe((*loft.RowSeal)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedSearchStale = describe((*rove.SearchStale)(nil),
+	describedSearchStale = describe((*loft.SearchStale)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedSession = describe((*rove.Session)(nil),
+	describedSession = describe((*loft.Session)(nil),
 		[]protoreflect.FieldNumber{9, 16},
 		[]protoreflect.FieldNumber{})
-	describedSignInFailure = describe((*rove.SignInFailure)(nil),
+	describedSignInFailure = describe((*loft.SignInFailure)(nil),
 		[]protoreflect.FieldNumber{8},
 		[]protoreflect.FieldNumber{})
-	describedStewardship = describe((*rove.Stewardship)(nil),
+	describedStewardship = describe((*loft.Stewardship)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedStock = describe((*rove.Stock)(nil),
+	describedStock = describe((*loft.Stock)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedStockMovement = describe((*rove.StockMovement)(nil),
+	describedStockMovement = describe((*loft.StockMovement)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedTagCounter = describe((*rove.TagCounter)(nil),
+	describedTagCounter = describe((*loft.TagCounter)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedTenant = describe((*rove.Tenant)(nil),
+	describedTenant = describe((*loft.Tenant)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{10})
-	describedTenantContract = describe((*rove.TenantContract)(nil),
+	describedTenantContract = describe((*loft.TenantContract)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedTenantDomain = describe((*rove.TenantDomain)(nil),
+	describedTenantDomain = describe((*loft.TenantDomain)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedTreeLock = describe((*rove.TreeLock)(nil),
+	describedTreeLock = describe((*loft.TreeLock)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedWorkOrder = describe((*rove.WorkOrder)(nil),
+	describedWorkOrder = describe((*loft.WorkOrder)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
 )
@@ -17329,43 +17329,43 @@ func hidden(key pdid.Id, p *patchpb.Patch) *patchpb.Patch {
 // AddMany's for one of its items. See `bare.Change.By`.
 func added(by string) bool {
 	switch by {
-	case rove.AccessReviewService_Add_FullMethodName,
-		rove.AllocationService_Add_FullMethodName,
-		rove.AssetService_Add_FullMethodName,
-		rove.AssetService_AddMany_FullMethodName,
-		rove.AssetTypeService_Add_FullMethodName,
-		rove.AttachmentService_Add_FullMethodName,
-		rove.AuditService_Add_FullMethodName,
-		rove.BookableService_Add_FullMethodName,
-		rove.CountFindingService_Add_FullMethodName,
-		rove.CustodyService_Add_FullMethodName,
-		rove.CustodyLineService_Add_FullMethodName,
-		rove.EventService_Add_FullMethodName,
-		rove.EventService_AddMany_FullMethodName,
-		rove.FactService_Add_FullMethodName,
-		rove.FactService_AddMany_FullMethodName,
-		rove.HolderService_Add_FullMethodName,
-		rove.InventoryCountService_Add_FullMethodName,
-		rove.InvitationService_Add_FullMethodName,
-		rove.ItemModelService_Add_FullMethodName,
-		rove.LabelService_Add_FullMethodName,
-		rove.LegalHoldService_Add_FullMethodName,
-		rove.LinkService_Add_FullMethodName,
-		rove.NotificationService_Add_FullMethodName,
-		rove.PartyService_Add_FullMethodName,
-		rove.PlacementService_Add_FullMethodName,
-		rove.PlacementService_AddMany_FullMethodName,
-		rove.PurchaseService_Add_FullMethodName,
-		rove.PurchaseLineService_Add_FullMethodName,
-		rove.ReservationService_Add_FullMethodName,
-		rove.ReservationItemService_Add_FullMethodName,
-		rove.StewardshipService_Add_FullMethodName,
-		rove.StockService_Add_FullMethodName,
-		rove.StockMovementService_Add_FullMethodName,
-		rove.TenantService_Add_FullMethodName,
-		rove.TenantContractService_Add_FullMethodName,
-		rove.TenantDomainService_Add_FullMethodName,
-		rove.WorkOrderService_Add_FullMethodName:
+	case loft.AccessReviewService_Add_FullMethodName,
+		loft.AllocationService_Add_FullMethodName,
+		loft.AssetService_Add_FullMethodName,
+		loft.AssetService_AddMany_FullMethodName,
+		loft.AssetTypeService_Add_FullMethodName,
+		loft.AttachmentService_Add_FullMethodName,
+		loft.AuditService_Add_FullMethodName,
+		loft.BookableService_Add_FullMethodName,
+		loft.CountFindingService_Add_FullMethodName,
+		loft.CustodyService_Add_FullMethodName,
+		loft.CustodyLineService_Add_FullMethodName,
+		loft.EventService_Add_FullMethodName,
+		loft.EventService_AddMany_FullMethodName,
+		loft.FactService_Add_FullMethodName,
+		loft.FactService_AddMany_FullMethodName,
+		loft.HolderService_Add_FullMethodName,
+		loft.InventoryCountService_Add_FullMethodName,
+		loft.InvitationService_Add_FullMethodName,
+		loft.ItemModelService_Add_FullMethodName,
+		loft.LabelService_Add_FullMethodName,
+		loft.LegalHoldService_Add_FullMethodName,
+		loft.LinkService_Add_FullMethodName,
+		loft.NotificationService_Add_FullMethodName,
+		loft.PartyService_Add_FullMethodName,
+		loft.PlacementService_Add_FullMethodName,
+		loft.PlacementService_AddMany_FullMethodName,
+		loft.PurchaseService_Add_FullMethodName,
+		loft.PurchaseLineService_Add_FullMethodName,
+		loft.ReservationService_Add_FullMethodName,
+		loft.ReservationItemService_Add_FullMethodName,
+		loft.StewardshipService_Add_FullMethodName,
+		loft.StockService_Add_FullMethodName,
+		loft.StockMovementService_Add_FullMethodName,
+		loft.TenantService_Add_FullMethodName,
+		loft.TenantContractService_Add_FullMethodName,
+		loft.TenantDomainService_Add_FullMethodName,
+		loft.WorkOrderService_Add_FullMethodName:
 		return true
 	}
 
@@ -17385,7 +17385,7 @@ func added(by string) bool {
 func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message, keep bool) (uuid.UUID, []byte, error) {
 	switch key.Domain() {
 	case AccessDomain:
-		row, ok := image.(*rove.Access)
+		row, ok := image.(*loft.Access)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17408,7 +17408,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case AccessReviewDomain:
-		row, ok := image.(*rove.AccessReview)
+		row, ok := image.(*loft.AccessReview)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17416,7 +17416,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.AccessReview)
+			kept = proto.Clone(row).(*loft.AccessReview)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17440,7 +17440,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case AllocationDomain:
-		row, ok := image.(*rove.Allocation)
+		row, ok := image.(*loft.Allocation)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17467,7 +17467,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case AssetDomain:
-		row, ok := image.(*rove.Asset)
+		row, ok := image.(*loft.Asset)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17494,7 +17494,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case AssetTypeDomain:
-		row, ok := image.(*rove.AssetType)
+		row, ok := image.(*loft.AssetType)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17521,7 +17521,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case AttachmentDomain:
-		row, ok := image.(*rove.Attachment)
+		row, ok := image.(*loft.Attachment)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17548,7 +17548,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case AuditDomain:
-		row, ok := image.(*rove.Audit)
+		row, ok := image.(*loft.Audit)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17571,7 +17571,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case BookableDomain:
-		row, ok := image.(*rove.Bookable)
+		row, ok := image.(*loft.Bookable)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17598,7 +17598,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case CountFindingDomain:
-		row, ok := image.(*rove.CountFinding)
+		row, ok := image.(*loft.CountFinding)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17606,7 +17606,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.CountFinding)
+			kept = proto.Clone(row).(*loft.CountFinding)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17630,7 +17630,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case CustodyDomain:
-		row, ok := image.(*rove.Custody)
+		row, ok := image.(*loft.Custody)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17638,7 +17638,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Custody)
+			kept = proto.Clone(row).(*loft.Custody)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17662,7 +17662,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case CustodyLineDomain:
-		row, ok := image.(*rove.CustodyLine)
+		row, ok := image.(*loft.CustodyLine)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17689,7 +17689,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case EventDomain:
-		row, ok := image.(*rove.Event)
+		row, ok := image.(*loft.Event)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17697,7 +17697,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Event)
+			kept = proto.Clone(row).(*loft.Event)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17721,7 +17721,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case FactDomain:
-		row, ok := image.(*rove.Fact)
+		row, ok := image.(*loft.Fact)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17748,7 +17748,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case HolderDomain:
-		row, ok := image.(*rove.Holder)
+		row, ok := image.(*loft.Holder)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17756,7 +17756,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Holder)
+			kept = proto.Clone(row).(*loft.Holder)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17780,7 +17780,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case InventoryCountDomain:
-		row, ok := image.(*rove.InventoryCount)
+		row, ok := image.(*loft.InventoryCount)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17788,7 +17788,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.InventoryCount)
+			kept = proto.Clone(row).(*loft.InventoryCount)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17812,7 +17812,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case InvitationDomain:
-		row, ok := image.(*rove.Invitation)
+		row, ok := image.(*loft.Invitation)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17820,7 +17820,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Invitation)
+			kept = proto.Clone(row).(*loft.Invitation)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17844,7 +17844,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case ItemModelDomain:
-		row, ok := image.(*rove.ItemModel)
+		row, ok := image.(*loft.ItemModel)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17871,7 +17871,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case LabelDomain:
-		row, ok := image.(*rove.Label)
+		row, ok := image.(*loft.Label)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17898,7 +17898,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case LegalHoldDomain:
-		row, ok := image.(*rove.LegalHold)
+		row, ok := image.(*loft.LegalHold)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17925,7 +17925,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case LinkDomain:
-		row, ok := image.(*rove.Link)
+		row, ok := image.(*loft.Link)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17952,7 +17952,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case NotificationDomain:
-		row, ok := image.(*rove.Notification)
+		row, ok := image.(*loft.Notification)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17960,7 +17960,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Notification)
+			kept = proto.Clone(row).(*loft.Notification)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17984,7 +17984,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case PartyDomain:
-		row, ok := image.(*rove.Party)
+		row, ok := image.(*loft.Party)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -17992,7 +17992,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Party)
+			kept = proto.Clone(row).(*loft.Party)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -18016,7 +18016,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case PlacementDomain:
-		row, ok := image.(*rove.Placement)
+		row, ok := image.(*loft.Placement)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18043,7 +18043,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case PurchaseDomain:
-		row, ok := image.(*rove.Purchase)
+		row, ok := image.(*loft.Purchase)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18051,7 +18051,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Purchase)
+			kept = proto.Clone(row).(*loft.Purchase)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -18075,7 +18075,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case PurchaseLineDomain:
-		row, ok := image.(*rove.PurchaseLine)
+		row, ok := image.(*loft.PurchaseLine)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18102,7 +18102,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case ReservationDomain:
-		row, ok := image.(*rove.Reservation)
+		row, ok := image.(*loft.Reservation)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18110,7 +18110,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Reservation)
+			kept = proto.Clone(row).(*loft.Reservation)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -18134,7 +18134,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case ReservationItemDomain:
-		row, ok := image.(*rove.ReservationItem)
+		row, ok := image.(*loft.ReservationItem)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18161,7 +18161,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case StewardshipDomain:
-		row, ok := image.(*rove.Stewardship)
+		row, ok := image.(*loft.Stewardship)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18188,7 +18188,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case StockDomain:
-		row, ok := image.(*rove.Stock)
+		row, ok := image.(*loft.Stock)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18215,7 +18215,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case StockMovementDomain:
-		row, ok := image.(*rove.StockMovement)
+		row, ok := image.(*loft.StockMovement)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18242,7 +18242,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case TenantDomain:
-		row, ok := image.(*rove.Tenant)
+		row, ok := image.(*loft.Tenant)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18250,7 +18250,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.Tenant)
+			kept = proto.Clone(row).(*loft.Tenant)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -18270,7 +18270,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case TenantContractDomain:
-		row, ok := image.(*rove.TenantContract)
+		row, ok := image.(*loft.TenantContract)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18297,7 +18297,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case TenantDomainDomain:
-		row, ok := image.(*rove.TenantDomain)
+		row, ok := image.(*loft.TenantDomain)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18324,7 +18324,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		return k, b, nil
 
 	case WorkOrderDomain:
-		row, ok := image.(*rove.WorkOrder)
+		row, ok := image.(*loft.WorkOrder)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -18332,7 +18332,7 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
-			kept = proto.Clone(row).(*rove.WorkOrder)
+			kept = proto.Clone(row).(*loft.WorkOrder)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -18819,7 +18819,7 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 	out := audit.Rows{Skipped: []audit.Skipped{
 		{Kind: "handoff", Why: "a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's"},
 		{Kind: "search-stale", Why: "the search index's queue: that a document is to be made again, which the indexer takes within seconds"},
-		{Kind: "session", Why: "a sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (rove#136)"},
+		{Kind: "session", Why: "a sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (loft#136)"},
 		{Kind: "sign-in-failure", Why: "a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act"},
 		{Kind: "tag-counter", Why: "the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to"},
 		{Kind: "tree-lock", Why: "the lock every change of the placement tree takes, and its version: bookkeeping, not a fact"},
@@ -21931,20 +21931,20 @@ var _ *patchpb.Patch
 // ordinary way to ask for a row -- and an error there would make the
 // common call the failing one.
 type Secret struct {
-	rove.Overlay
+	loft.Overlay
 }
 
-func NewSecret(next rove.Server) Secret {
-	return Secret{rove.NewOverlay(next)}
+func NewSecret(next loft.Server) Secret {
+	return Secret{loft.NewOverlay(next)}
 }
 
-var _ rove.Server = Secret{}
+var _ loft.Server = Secret{}
 
 // WithDriver answers with this stack running on `drv`.
 //
 // Every layer writes this and none can inherit it: an overlay holds what
 // is behind it and cannot make itself again.
-func (s Secret) WithDriver(drv dialect.Driver) (rove.Server, error) {
+func (s Secret) WithDriver(drv dialect.Driver) (loft.Server, error) {
 	next, err := enttx.Rebind(s.Next(), drv)
 	if err != nil {
 		return nil, err
@@ -21953,48 +21953,48 @@ func (s Secret) WithDriver(drv dialect.Driver) (rove.Server, error) {
 	return NewSecret(next), nil
 }
 
-func SecretBuild() rove.Builder { return secretBuilder{} }
+func SecretBuild() loft.Builder { return secretBuilder{} }
 
 type secretBuilder struct{}
 
-func (secretBuilder) Build(next rove.Server) (rove.Server, error) {
+func (secretBuilder) Build(next loft.Server) (loft.Server, error) {
 	return NewSecret(next), nil
 }
 
-func (s Secret) Invitation() rove.InvitationServiceServer {
+func (s Secret) Invitation() loft.InvitationServiceServer {
 	return secretInvitation{s, s.Next().Invitation()}
 }
 
 type secretInvitation struct {
 	Secret
-	rove.InvitationServiceServer
+	loft.InvitationServiceServer
 }
 
-func (s secretInvitation) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
+func (s secretInvitation) Add(ctx context.Context, req *loft.InvitationAddRequest) (*loft.Invitation, error) {
 	v, err := s.InvitationServiceServer.Add(ctx, req)
 
 	return hideInvitation(v), err
 }
 
-func (s secretInvitation) Get(ctx context.Context, req *rove.InvitationGetRequest) (*rove.Invitation, error) {
+func (s secretInvitation) Get(ctx context.Context, req *loft.InvitationGetRequest) (*loft.Invitation, error) {
 	v, err := s.InvitationServiceServer.Get(ctx, req)
 
 	return hideInvitation(v), err
 }
 
-func (s secretInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequest) (*rove.Invitation, error) {
+func (s secretInvitation) Patch(ctx context.Context, req *loft.InvitationPatchRequest) (*loft.Invitation, error) {
 	v, err := s.InvitationServiceServer.Patch(ctx, req)
 
 	return hideInvitation(v), err
 }
 
-func (s secretInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequest) (*rove.Invitation, error) {
+func (s secretInvitation) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
 	v, err := s.InvitationServiceServer.Apply(ctx, req)
 
 	return hideInvitation(v), err
 }
 
-func (s secretInvitation) List(ctx context.Context, req *rove.InvitationListRequest) (*rove.InvitationListResponse, error) {
+func (s secretInvitation) List(ctx context.Context, req *loft.InvitationListRequest) (*loft.InvitationListResponse, error) {
 	v, err := s.InvitationServiceServer.List(ctx, req)
 	if v == nil {
 		return v, err
@@ -22024,7 +22024,7 @@ func (s secretInvitation) List(ctx context.Context, req *rove.InvitationListRequ
 // with" says; one without presence reads as its zero value either way.
 // And the numbers are the ones `hidden` filters the trail's patch by, so
 // the two cannot come to disagree about which fields they are.
-func hideInvitation(v *rove.Invitation) *rove.Invitation {
+func hideInvitation(v *loft.Invitation) *loft.Invitation {
 	if v == nil {
 		return nil
 	}
@@ -22059,7 +22059,7 @@ func hideInvitation(v *rove.Invitation) *rove.Invitation {
 // because that is what this call is actually being made on. `FullMethod`
 // is the same constant the wire uses.
 type Intercept struct {
-	rove.Overlay
+	loft.Overlay
 
 	unary  grpc.UnaryServerInterceptor
 	stream grpc.StreamServerInterceptor
@@ -22072,9 +22072,9 @@ type Intercept struct {
 //
 // Several of one kind run outermost-first, the way `grpc.ChainUnaryInterceptor`
 // orders them.
-func NewIntercept(next rove.Server, unary []grpc.UnaryServerInterceptor, stream []grpc.StreamServerInterceptor) Intercept {
+func NewIntercept(next loft.Server, unary []grpc.UnaryServerInterceptor, stream []grpc.StreamServerInterceptor) Intercept {
 	return Intercept{
-		Overlay: rove.NewOverlay(next),
+		Overlay: loft.NewOverlay(next),
 		unary:   grpcx.ChainUnary(unary),
 		stream:  grpcx.ChainStream(stream),
 	}
@@ -22085,8 +22085,8 @@ func NewIntercept(next rove.Server, unary []grpc.UnaryServerInterceptor, stream 
 // With nothing to run it builds nothing: the stack is `next` itself, so a
 // deployment that assembles its interceptors from configuration and ends
 // up with none pays for no layer.
-func InterceptBuild(unary []grpc.UnaryServerInterceptor, stream []grpc.StreamServerInterceptor) rove.Builder {
-	return rove.BuilderFunc(func(next rove.Server) (rove.Server, error) {
+func InterceptBuild(unary []grpc.UnaryServerInterceptor, stream []grpc.StreamServerInterceptor) loft.Builder {
+	return loft.BuilderFunc(func(next loft.Server) (loft.Server, error) {
 		if len(unary) == 0 && len(stream) == 0 {
 			return next, nil
 		}
@@ -22095,9 +22095,9 @@ func InterceptBuild(unary []grpc.UnaryServerInterceptor, stream []grpc.StreamSer
 	})
 }
 
-var _ rove.Server = Intercept{}
+var _ loft.Server = Intercept{}
 
-var _ enttx.Binder[rove.Server] = Intercept{}
+var _ enttx.Binder[loft.Server] = Intercept{}
 
 // WithDriver answers with this stack running on `drv`.
 //
@@ -22105,1829 +22105,1829 @@ var _ enttx.Binder[rove.Server] = Intercept{}
 // is behind it and cannot make itself again. The interceptors are carried
 // across as they are -- a transaction is the same stack on another
 // connection, not another stack.
-func (s Intercept) WithDriver(drv dialect.Driver) (rove.Server, error) {
+func (s Intercept) WithDriver(drv dialect.Driver) (loft.Server, error) {
 	next, err := enttx.Rebind(s.Next(), drv)
 	if err != nil {
 		return nil, err
 	}
 
-	return Intercept{Overlay: rove.NewOverlay(next), unary: s.unary, stream: s.stream}, nil
+	return Intercept{Overlay: loft.NewOverlay(next), unary: s.unary, stream: s.stream}, nil
 }
 
-func (s Intercept) Tenant() rove.TenantServiceServer {
+func (s Intercept) Tenant() loft.TenantServiceServer {
 	return interceptTenant{s, s.Next().Tenant()}
 }
 
 type interceptTenant struct {
 	Intercept
-	rove.TenantServiceServer
+	loft.TenantServiceServer
 }
 
-func (s interceptTenant) Add(ctx context.Context, req *rove.TenantAddRequest) (*rove.Tenant, error) {
+func (s interceptTenant) Add(ctx context.Context, req *loft.TenantAddRequest) (*loft.Tenant, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Add_FullMethodName, req, s.TenantServiceServer.Add)
+		loft.TenantService_Add_FullMethodName, req, s.TenantServiceServer.Add)
 }
 
-func (s interceptTenant) Get(ctx context.Context, req *rove.TenantGetRequest) (*rove.Tenant, error) {
+func (s interceptTenant) Get(ctx context.Context, req *loft.TenantGetRequest) (*loft.Tenant, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Get_FullMethodName, req, s.TenantServiceServer.Get)
+		loft.TenantService_Get_FullMethodName, req, s.TenantServiceServer.Get)
 }
 
-func (s interceptTenant) Patch(ctx context.Context, req *rove.TenantPatchRequest) (*rove.Tenant, error) {
+func (s interceptTenant) Patch(ctx context.Context, req *loft.TenantPatchRequest) (*loft.Tenant, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Patch_FullMethodName, req, s.TenantServiceServer.Patch)
+		loft.TenantService_Patch_FullMethodName, req, s.TenantServiceServer.Patch)
 }
 
-func (s interceptTenant) Apply(ctx context.Context, req *rove.TenantApplyRequest) (*rove.Tenant, error) {
+func (s interceptTenant) Apply(ctx context.Context, req *loft.TenantApplyRequest) (*loft.Tenant, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Apply_FullMethodName, req, s.TenantServiceServer.Apply)
+		loft.TenantService_Apply_FullMethodName, req, s.TenantServiceServer.Apply)
 }
 
-func (s interceptTenant) Erase(ctx context.Context, req *rove.TenantRef) (*rove.TenantEraseResponse, error) {
+func (s interceptTenant) Erase(ctx context.Context, req *loft.TenantRef) (*loft.TenantEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Erase_FullMethodName, req, s.TenantServiceServer.Erase)
+		loft.TenantService_Erase_FullMethodName, req, s.TenantServiceServer.Erase)
 }
 
-func (s interceptTenant) List(ctx context.Context, req *rove.TenantListRequest) (*rove.TenantListResponse, error) {
+func (s interceptTenant) List(ctx context.Context, req *loft.TenantListRequest) (*loft.TenantListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_List_FullMethodName, req, s.TenantServiceServer.List)
+		loft.TenantService_List_FullMethodName, req, s.TenantServiceServer.List)
 }
 
-func (s interceptTenant) Close(ctx context.Context, req *rove.TenantCloseRequest) (*rove.Tenant, error) {
+func (s interceptTenant) Close(ctx context.Context, req *loft.TenantCloseRequest) (*loft.Tenant, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Close_FullMethodName, req, s.TenantServiceServer.Close)
+		loft.TenantService_Close_FullMethodName, req, s.TenantServiceServer.Close)
 }
 
-func (s interceptTenant) Restore(ctx context.Context, req *rove.TenantRestoreRequest) (*rove.Tenant, error) {
+func (s interceptTenant) Restore(ctx context.Context, req *loft.TenantRestoreRequest) (*loft.Tenant, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Restore_FullMethodName, req, s.TenantServiceServer.Restore)
+		loft.TenantService_Restore_FullMethodName, req, s.TenantServiceServer.Restore)
 }
 
-func (s interceptTenant) Configure(ctx context.Context, req *rove.TenantConfigureRequest) (*rove.Tenant, error) {
+func (s interceptTenant) Configure(ctx context.Context, req *loft.TenantConfigureRequest) (*loft.Tenant, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Configure_FullMethodName, req, s.TenantServiceServer.Configure)
+		loft.TenantService_Configure_FullMethodName, req, s.TenantServiceServer.Configure)
 }
 
-func (s interceptTenant) Preview(ctx context.Context, req *rove.TenantPreviewRequest) (*rove.TenantPreviewResponse, error) {
+func (s interceptTenant) Preview(ctx context.Context, req *loft.TenantPreviewRequest) (*loft.TenantPreviewResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
-		rove.TenantService_Preview_FullMethodName, req, s.TenantServiceServer.Preview)
+		loft.TenantService_Preview_FullMethodName, req, s.TenantServiceServer.Preview)
 }
 
-func (s Intercept) AssetType() rove.AssetTypeServiceServer {
+func (s Intercept) AssetType() loft.AssetTypeServiceServer {
 	return interceptAssetType{s, s.Next().AssetType()}
 }
 
 type interceptAssetType struct {
 	Intercept
-	rove.AssetTypeServiceServer
+	loft.AssetTypeServiceServer
 }
 
-func (s interceptAssetType) Add(ctx context.Context, req *rove.AssetTypeAddRequest) (*rove.AssetType, error) {
+func (s interceptAssetType) Add(ctx context.Context, req *loft.AssetTypeAddRequest) (*loft.AssetType, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetTypeServiceServer,
-		rove.AssetTypeService_Add_FullMethodName, req, s.AssetTypeServiceServer.Add)
+		loft.AssetTypeService_Add_FullMethodName, req, s.AssetTypeServiceServer.Add)
 }
 
-func (s interceptAssetType) Get(ctx context.Context, req *rove.AssetTypeGetRequest) (*rove.AssetType, error) {
+func (s interceptAssetType) Get(ctx context.Context, req *loft.AssetTypeGetRequest) (*loft.AssetType, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetTypeServiceServer,
-		rove.AssetTypeService_Get_FullMethodName, req, s.AssetTypeServiceServer.Get)
+		loft.AssetTypeService_Get_FullMethodName, req, s.AssetTypeServiceServer.Get)
 }
 
-func (s interceptAssetType) Patch(ctx context.Context, req *rove.AssetTypePatchRequest) (*rove.AssetType, error) {
+func (s interceptAssetType) Patch(ctx context.Context, req *loft.AssetTypePatchRequest) (*loft.AssetType, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetTypeServiceServer,
-		rove.AssetTypeService_Patch_FullMethodName, req, s.AssetTypeServiceServer.Patch)
+		loft.AssetTypeService_Patch_FullMethodName, req, s.AssetTypeServiceServer.Patch)
 }
 
-func (s interceptAssetType) Apply(ctx context.Context, req *rove.AssetTypeApplyRequest) (*rove.AssetType, error) {
+func (s interceptAssetType) Apply(ctx context.Context, req *loft.AssetTypeApplyRequest) (*loft.AssetType, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetTypeServiceServer,
-		rove.AssetTypeService_Apply_FullMethodName, req, s.AssetTypeServiceServer.Apply)
+		loft.AssetTypeService_Apply_FullMethodName, req, s.AssetTypeServiceServer.Apply)
 }
 
-func (s interceptAssetType) Erase(ctx context.Context, req *rove.AssetTypeRef) (*rove.AssetTypeEraseResponse, error) {
+func (s interceptAssetType) Erase(ctx context.Context, req *loft.AssetTypeRef) (*loft.AssetTypeEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetTypeServiceServer,
-		rove.AssetTypeService_Erase_FullMethodName, req, s.AssetTypeServiceServer.Erase)
+		loft.AssetTypeService_Erase_FullMethodName, req, s.AssetTypeServiceServer.Erase)
 }
 
-func (s interceptAssetType) List(ctx context.Context, req *rove.AssetTypeListRequest) (*rove.AssetTypeListResponse, error) {
+func (s interceptAssetType) List(ctx context.Context, req *loft.AssetTypeListRequest) (*loft.AssetTypeListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetTypeServiceServer,
-		rove.AssetTypeService_List_FullMethodName, req, s.AssetTypeServiceServer.List)
+		loft.AssetTypeService_List_FullMethodName, req, s.AssetTypeServiceServer.List)
 }
 
-func (s interceptAssetType) Watch(req *rove.AssetTypeWatchRequest, out grpc.ServerStreamingServer[rove.AssetTypeWatchResponse]) error {
+func (s interceptAssetType) Watch(req *loft.AssetTypeWatchRequest, out grpc.ServerStreamingServer[loft.AssetTypeWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.AssetTypeServiceServer,
-		rove.AssetTypeService_Watch_FullMethodName, req, out, s.AssetTypeServiceServer.Watch)
+		loft.AssetTypeService_Watch_FullMethodName, req, out, s.AssetTypeServiceServer.Watch)
 }
 
-func (s interceptAssetType) Update(ctx context.Context, req *rove.AssetTypeUpdateRequest) (*rove.AssetType, error) {
+func (s interceptAssetType) Update(ctx context.Context, req *loft.AssetTypeUpdateRequest) (*loft.AssetType, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetTypeServiceServer,
-		rove.AssetTypeService_Update_FullMethodName, req, s.AssetTypeServiceServer.Update)
+		loft.AssetTypeService_Update_FullMethodName, req, s.AssetTypeServiceServer.Update)
 }
 
-func (s Intercept) ItemModel() rove.ItemModelServiceServer {
+func (s Intercept) ItemModel() loft.ItemModelServiceServer {
 	return interceptItemModel{s, s.Next().ItemModel()}
 }
 
 type interceptItemModel struct {
 	Intercept
-	rove.ItemModelServiceServer
+	loft.ItemModelServiceServer
 }
 
-func (s interceptItemModel) Add(ctx context.Context, req *rove.ItemModelAddRequest) (*rove.ItemModel, error) {
+func (s interceptItemModel) Add(ctx context.Context, req *loft.ItemModelAddRequest) (*loft.ItemModel, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
-		rove.ItemModelService_Add_FullMethodName, req, s.ItemModelServiceServer.Add)
+		loft.ItemModelService_Add_FullMethodName, req, s.ItemModelServiceServer.Add)
 }
 
-func (s interceptItemModel) Get(ctx context.Context, req *rove.ItemModelGetRequest) (*rove.ItemModel, error) {
+func (s interceptItemModel) Get(ctx context.Context, req *loft.ItemModelGetRequest) (*loft.ItemModel, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
-		rove.ItemModelService_Get_FullMethodName, req, s.ItemModelServiceServer.Get)
+		loft.ItemModelService_Get_FullMethodName, req, s.ItemModelServiceServer.Get)
 }
 
-func (s interceptItemModel) Patch(ctx context.Context, req *rove.ItemModelPatchRequest) (*rove.ItemModel, error) {
+func (s interceptItemModel) Patch(ctx context.Context, req *loft.ItemModelPatchRequest) (*loft.ItemModel, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
-		rove.ItemModelService_Patch_FullMethodName, req, s.ItemModelServiceServer.Patch)
+		loft.ItemModelService_Patch_FullMethodName, req, s.ItemModelServiceServer.Patch)
 }
 
-func (s interceptItemModel) Apply(ctx context.Context, req *rove.ItemModelApplyRequest) (*rove.ItemModel, error) {
+func (s interceptItemModel) Apply(ctx context.Context, req *loft.ItemModelApplyRequest) (*loft.ItemModel, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
-		rove.ItemModelService_Apply_FullMethodName, req, s.ItemModelServiceServer.Apply)
+		loft.ItemModelService_Apply_FullMethodName, req, s.ItemModelServiceServer.Apply)
 }
 
-func (s interceptItemModel) Erase(ctx context.Context, req *rove.ItemModelRef) (*rove.ItemModelEraseResponse, error) {
+func (s interceptItemModel) Erase(ctx context.Context, req *loft.ItemModelRef) (*loft.ItemModelEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
-		rove.ItemModelService_Erase_FullMethodName, req, s.ItemModelServiceServer.Erase)
+		loft.ItemModelService_Erase_FullMethodName, req, s.ItemModelServiceServer.Erase)
 }
 
-func (s interceptItemModel) List(ctx context.Context, req *rove.ItemModelListRequest) (*rove.ItemModelListResponse, error) {
+func (s interceptItemModel) List(ctx context.Context, req *loft.ItemModelListRequest) (*loft.ItemModelListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
-		rove.ItemModelService_List_FullMethodName, req, s.ItemModelServiceServer.List)
+		loft.ItemModelService_List_FullMethodName, req, s.ItemModelServiceServer.List)
 }
 
-func (s interceptItemModel) Watch(req *rove.ItemModelWatchRequest, out grpc.ServerStreamingServer[rove.ItemModelWatchResponse]) error {
+func (s interceptItemModel) Watch(req *loft.ItemModelWatchRequest, out grpc.ServerStreamingServer[loft.ItemModelWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.ItemModelServiceServer,
-		rove.ItemModelService_Watch_FullMethodName, req, out, s.ItemModelServiceServer.Watch)
+		loft.ItemModelService_Watch_FullMethodName, req, out, s.ItemModelServiceServer.Watch)
 }
 
-func (s interceptItemModel) Update(ctx context.Context, req *rove.ItemModelUpdateRequest) (*rove.ItemModel, error) {
+func (s interceptItemModel) Update(ctx context.Context, req *loft.ItemModelUpdateRequest) (*loft.ItemModel, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
-		rove.ItemModelService_Update_FullMethodName, req, s.ItemModelServiceServer.Update)
+		loft.ItemModelService_Update_FullMethodName, req, s.ItemModelServiceServer.Update)
 }
 
-func (s interceptItemModel) Search(ctx context.Context, req *rove.ItemModelSearchRequest) (*rove.ItemModelSearchResponse, error) {
+func (s interceptItemModel) Search(ctx context.Context, req *loft.ItemModelSearchRequest) (*loft.ItemModelSearchResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
-		rove.ItemModelService_Search_FullMethodName, req, s.ItemModelServiceServer.Search)
+		loft.ItemModelService_Search_FullMethodName, req, s.ItemModelServiceServer.Search)
 }
 
-func (s Intercept) Holder() rove.HolderServiceServer {
+func (s Intercept) Holder() loft.HolderServiceServer {
 	return interceptHolder{s, s.Next().Holder()}
 }
 
 type interceptHolder struct {
 	Intercept
-	rove.HolderServiceServer
+	loft.HolderServiceServer
 }
 
-func (s interceptHolder) Add(ctx context.Context, req *rove.HolderAddRequest) (*rove.Holder, error) {
+func (s interceptHolder) Add(ctx context.Context, req *loft.HolderAddRequest) (*loft.Holder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.HolderServiceServer,
-		rove.HolderService_Add_FullMethodName, req, s.HolderServiceServer.Add)
+		loft.HolderService_Add_FullMethodName, req, s.HolderServiceServer.Add)
 }
 
-func (s interceptHolder) Get(ctx context.Context, req *rove.HolderGetRequest) (*rove.Holder, error) {
+func (s interceptHolder) Get(ctx context.Context, req *loft.HolderGetRequest) (*loft.Holder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.HolderServiceServer,
-		rove.HolderService_Get_FullMethodName, req, s.HolderServiceServer.Get)
+		loft.HolderService_Get_FullMethodName, req, s.HolderServiceServer.Get)
 }
 
-func (s interceptHolder) Patch(ctx context.Context, req *rove.HolderPatchRequest) (*rove.Holder, error) {
+func (s interceptHolder) Patch(ctx context.Context, req *loft.HolderPatchRequest) (*loft.Holder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.HolderServiceServer,
-		rove.HolderService_Patch_FullMethodName, req, s.HolderServiceServer.Patch)
+		loft.HolderService_Patch_FullMethodName, req, s.HolderServiceServer.Patch)
 }
 
-func (s interceptHolder) Apply(ctx context.Context, req *rove.HolderApplyRequest) (*rove.Holder, error) {
+func (s interceptHolder) Apply(ctx context.Context, req *loft.HolderApplyRequest) (*loft.Holder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.HolderServiceServer,
-		rove.HolderService_Apply_FullMethodName, req, s.HolderServiceServer.Apply)
+		loft.HolderService_Apply_FullMethodName, req, s.HolderServiceServer.Apply)
 }
 
-func (s interceptHolder) Erase(ctx context.Context, req *rove.HolderRef) (*rove.HolderEraseResponse, error) {
+func (s interceptHolder) Erase(ctx context.Context, req *loft.HolderRef) (*loft.HolderEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.HolderServiceServer,
-		rove.HolderService_Erase_FullMethodName, req, s.HolderServiceServer.Erase)
+		loft.HolderService_Erase_FullMethodName, req, s.HolderServiceServer.Erase)
 }
 
-func (s interceptHolder) List(ctx context.Context, req *rove.HolderListRequest) (*rove.HolderListResponse, error) {
+func (s interceptHolder) List(ctx context.Context, req *loft.HolderListRequest) (*loft.HolderListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.HolderServiceServer,
-		rove.HolderService_List_FullMethodName, req, s.HolderServiceServer.List)
+		loft.HolderService_List_FullMethodName, req, s.HolderServiceServer.List)
 }
 
-func (s interceptHolder) Watch(req *rove.HolderWatchRequest, out grpc.ServerStreamingServer[rove.HolderWatchResponse]) error {
+func (s interceptHolder) Watch(req *loft.HolderWatchRequest, out grpc.ServerStreamingServer[loft.HolderWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.HolderServiceServer,
-		rove.HolderService_Watch_FullMethodName, req, out, s.HolderServiceServer.Watch)
+		loft.HolderService_Watch_FullMethodName, req, out, s.HolderServiceServer.Watch)
 }
 
-func (s Intercept) Party() rove.PartyServiceServer {
+func (s Intercept) Party() loft.PartyServiceServer {
 	return interceptParty{s, s.Next().Party()}
 }
 
 type interceptParty struct {
 	Intercept
-	rove.PartyServiceServer
+	loft.PartyServiceServer
 }
 
-func (s interceptParty) Add(ctx context.Context, req *rove.PartyAddRequest) (*rove.Party, error) {
+func (s interceptParty) Add(ctx context.Context, req *loft.PartyAddRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Add_FullMethodName, req, s.PartyServiceServer.Add)
+		loft.PartyService_Add_FullMethodName, req, s.PartyServiceServer.Add)
 }
 
-func (s interceptParty) Get(ctx context.Context, req *rove.PartyGetRequest) (*rove.Party, error) {
+func (s interceptParty) Get(ctx context.Context, req *loft.PartyGetRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Get_FullMethodName, req, s.PartyServiceServer.Get)
+		loft.PartyService_Get_FullMethodName, req, s.PartyServiceServer.Get)
 }
 
-func (s interceptParty) Patch(ctx context.Context, req *rove.PartyPatchRequest) (*rove.Party, error) {
+func (s interceptParty) Patch(ctx context.Context, req *loft.PartyPatchRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Patch_FullMethodName, req, s.PartyServiceServer.Patch)
+		loft.PartyService_Patch_FullMethodName, req, s.PartyServiceServer.Patch)
 }
 
-func (s interceptParty) Apply(ctx context.Context, req *rove.PartyApplyRequest) (*rove.Party, error) {
+func (s interceptParty) Apply(ctx context.Context, req *loft.PartyApplyRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Apply_FullMethodName, req, s.PartyServiceServer.Apply)
+		loft.PartyService_Apply_FullMethodName, req, s.PartyServiceServer.Apply)
 }
 
-func (s interceptParty) Erase(ctx context.Context, req *rove.PartyRef) (*rove.PartyEraseResponse, error) {
+func (s interceptParty) Erase(ctx context.Context, req *loft.PartyRef) (*loft.PartyEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Erase_FullMethodName, req, s.PartyServiceServer.Erase)
+		loft.PartyService_Erase_FullMethodName, req, s.PartyServiceServer.Erase)
 }
 
-func (s interceptParty) List(ctx context.Context, req *rove.PartyListRequest) (*rove.PartyListResponse, error) {
+func (s interceptParty) List(ctx context.Context, req *loft.PartyListRequest) (*loft.PartyListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_List_FullMethodName, req, s.PartyServiceServer.List)
+		loft.PartyService_List_FullMethodName, req, s.PartyServiceServer.List)
 }
 
-func (s interceptParty) Watch(req *rove.PartyWatchRequest, out grpc.ServerStreamingServer[rove.PartyWatchResponse]) error {
+func (s interceptParty) Watch(req *loft.PartyWatchRequest, out grpc.ServerStreamingServer[loft.PartyWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.PartyServiceServer,
-		rove.PartyService_Watch_FullMethodName, req, out, s.PartyServiceServer.Watch)
+		loft.PartyService_Watch_FullMethodName, req, out, s.PartyServiceServer.Watch)
 }
 
-func (s interceptParty) Me(ctx context.Context, req *rove.PartyMeRequest) (*rove.PartyMeResponse, error) {
+func (s interceptParty) Me(ctx context.Context, req *loft.PartyMeRequest) (*loft.PartyMeResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Me_FullMethodName, req, s.PartyServiceServer.Me)
+		loft.PartyService_Me_FullMethodName, req, s.PartyServiceServer.Me)
 }
 
-func (s interceptParty) Update(ctx context.Context, req *rove.PartyUpdateRequest) (*rove.Party, error) {
+func (s interceptParty) Update(ctx context.Context, req *loft.PartyUpdateRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Update_FullMethodName, req, s.PartyServiceServer.Update)
+		loft.PartyService_Update_FullMethodName, req, s.PartyServiceServer.Update)
 }
 
-func (s interceptParty) Invite(ctx context.Context, req *rove.PartyInviteRequest) (*rove.PartyInviteResponse, error) {
+func (s interceptParty) Invite(ctx context.Context, req *loft.PartyInviteRequest) (*loft.PartyInviteResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Invite_FullMethodName, req, s.PartyServiceServer.Invite)
+		loft.PartyService_Invite_FullMethodName, req, s.PartyServiceServer.Invite)
 }
 
-func (s interceptParty) SetRole(ctx context.Context, req *rove.PartySetRoleRequest) (*rove.Party, error) {
+func (s interceptParty) SetRole(ctx context.Context, req *loft.PartySetRoleRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_SetRole_FullMethodName, req, s.PartyServiceServer.SetRole)
+		loft.PartyService_SetRole_FullMethodName, req, s.PartyServiceServer.SetRole)
 }
 
-func (s interceptParty) SetPassword(ctx context.Context, req *rove.PartySetPasswordRequest) (*rove.PartySetPasswordResponse, error) {
+func (s interceptParty) SetPassword(ctx context.Context, req *loft.PartySetPasswordRequest) (*loft.PartySetPasswordResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_SetPassword_FullMethodName, req, s.PartyServiceServer.SetPassword)
+		loft.PartyService_SetPassword_FullMethodName, req, s.PartyServiceServer.SetPassword)
 }
 
-func (s interceptParty) Deactivate(ctx context.Context, req *rove.PartyDeactivateRequest) (*rove.Party, error) {
+func (s interceptParty) Deactivate(ctx context.Context, req *loft.PartyDeactivateRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Deactivate_FullMethodName, req, s.PartyServiceServer.Deactivate)
+		loft.PartyService_Deactivate_FullMethodName, req, s.PartyServiceServer.Deactivate)
 }
 
-func (s interceptParty) Pseudonymize(ctx context.Context, req *rove.PartyPseudonymizeRequest) (*rove.Party, error) {
+func (s interceptParty) Pseudonymize(ctx context.Context, req *loft.PartyPseudonymizeRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Pseudonymize_FullMethodName, req, s.PartyServiceServer.Pseudonymize)
+		loft.PartyService_Pseudonymize_FullMethodName, req, s.PartyServiceServer.Pseudonymize)
 }
 
-func (s interceptParty) Search(ctx context.Context, req *rove.PartySearchRequest) (*rove.PartySearchResponse, error) {
+func (s interceptParty) Search(ctx context.Context, req *loft.PartySearchRequest) (*loft.PartySearchResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		rove.PartyService_Search_FullMethodName, req, s.PartyServiceServer.Search)
+		loft.PartyService_Search_FullMethodName, req, s.PartyServiceServer.Search)
 }
 
-func (s Intercept) Invitation() rove.InvitationServiceServer {
+func (s Intercept) Invitation() loft.InvitationServiceServer {
 	return interceptInvitation{s, s.Next().Invitation()}
 }
 
 type interceptInvitation struct {
 	Intercept
-	rove.InvitationServiceServer
+	loft.InvitationServiceServer
 }
 
-func (s interceptInvitation) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
+func (s interceptInvitation) Add(ctx context.Context, req *loft.InvitationAddRequest) (*loft.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Add_FullMethodName, req, s.InvitationServiceServer.Add)
+		loft.InvitationService_Add_FullMethodName, req, s.InvitationServiceServer.Add)
 }
 
-func (s interceptInvitation) Get(ctx context.Context, req *rove.InvitationGetRequest) (*rove.Invitation, error) {
+func (s interceptInvitation) Get(ctx context.Context, req *loft.InvitationGetRequest) (*loft.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Get_FullMethodName, req, s.InvitationServiceServer.Get)
+		loft.InvitationService_Get_FullMethodName, req, s.InvitationServiceServer.Get)
 }
 
-func (s interceptInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequest) (*rove.Invitation, error) {
+func (s interceptInvitation) Patch(ctx context.Context, req *loft.InvitationPatchRequest) (*loft.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Patch_FullMethodName, req, s.InvitationServiceServer.Patch)
+		loft.InvitationService_Patch_FullMethodName, req, s.InvitationServiceServer.Patch)
 }
 
-func (s interceptInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequest) (*rove.Invitation, error) {
+func (s interceptInvitation) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Apply_FullMethodName, req, s.InvitationServiceServer.Apply)
+		loft.InvitationService_Apply_FullMethodName, req, s.InvitationServiceServer.Apply)
 }
 
-func (s interceptInvitation) Erase(ctx context.Context, req *rove.InvitationRef) (*rove.InvitationEraseResponse, error) {
+func (s interceptInvitation) Erase(ctx context.Context, req *loft.InvitationRef) (*loft.InvitationEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Erase_FullMethodName, req, s.InvitationServiceServer.Erase)
+		loft.InvitationService_Erase_FullMethodName, req, s.InvitationServiceServer.Erase)
 }
 
-func (s interceptInvitation) List(ctx context.Context, req *rove.InvitationListRequest) (*rove.InvitationListResponse, error) {
+func (s interceptInvitation) List(ctx context.Context, req *loft.InvitationListRequest) (*loft.InvitationListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_List_FullMethodName, req, s.InvitationServiceServer.List)
+		loft.InvitationService_List_FullMethodName, req, s.InvitationServiceServer.List)
 }
 
-func (s interceptInvitation) Revoke(ctx context.Context, req *rove.InvitationRevokeRequest) (*rove.Invitation, error) {
+func (s interceptInvitation) Revoke(ctx context.Context, req *loft.InvitationRevokeRequest) (*loft.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Revoke_FullMethodName, req, s.InvitationServiceServer.Revoke)
+		loft.InvitationService_Revoke_FullMethodName, req, s.InvitationServiceServer.Revoke)
 }
 
-func (s interceptInvitation) Claim(ctx context.Context, req *rove.InvitationClaimRequest) (*rove.Invitation, error) {
+func (s interceptInvitation) Claim(ctx context.Context, req *loft.InvitationClaimRequest) (*loft.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Claim_FullMethodName, req, s.InvitationServiceServer.Claim)
+		loft.InvitationService_Claim_FullMethodName, req, s.InvitationServiceServer.Claim)
 }
 
-func (s interceptInvitation) Accept(ctx context.Context, req *rove.InvitationAcceptRequest) (*rove.Invitation, error) {
+func (s interceptInvitation) Accept(ctx context.Context, req *loft.InvitationAcceptRequest) (*loft.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Accept_FullMethodName, req, s.InvitationServiceServer.Accept)
+		loft.InvitationService_Accept_FullMethodName, req, s.InvitationServiceServer.Accept)
 }
 
-func (s interceptInvitation) Deny(ctx context.Context, req *rove.InvitationDenyRequest) (*rove.Invitation, error) {
+func (s interceptInvitation) Deny(ctx context.Context, req *loft.InvitationDenyRequest) (*loft.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		rove.InvitationService_Deny_FullMethodName, req, s.InvitationServiceServer.Deny)
+		loft.InvitationService_Deny_FullMethodName, req, s.InvitationServiceServer.Deny)
 }
 
-func (s Intercept) Asset() rove.AssetServiceServer {
+func (s Intercept) Asset() loft.AssetServiceServer {
 	return interceptAsset{s, s.Next().Asset()}
 }
 
 type interceptAsset struct {
 	Intercept
-	rove.AssetServiceServer
+	loft.AssetServiceServer
 }
 
-func (s interceptAsset) Add(ctx context.Context, req *rove.AssetAddRequest) (*rove.Asset, error) {
+func (s interceptAsset) Add(ctx context.Context, req *loft.AssetAddRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Add_FullMethodName, req, s.AssetServiceServer.Add)
+		loft.AssetService_Add_FullMethodName, req, s.AssetServiceServer.Add)
 }
 
-func (s interceptAsset) AddMany(ctx context.Context, req *rove.AssetAddManyRequest) (*rove.AssetAddManyResponse, error) {
+func (s interceptAsset) AddMany(ctx context.Context, req *loft.AssetAddManyRequest) (*loft.AssetAddManyResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_AddMany_FullMethodName, req, s.AssetServiceServer.AddMany)
+		loft.AssetService_AddMany_FullMethodName, req, s.AssetServiceServer.AddMany)
 }
 
-func (s interceptAsset) Get(ctx context.Context, req *rove.AssetGetRequest) (*rove.Asset, error) {
+func (s interceptAsset) Get(ctx context.Context, req *loft.AssetGetRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Get_FullMethodName, req, s.AssetServiceServer.Get)
+		loft.AssetService_Get_FullMethodName, req, s.AssetServiceServer.Get)
 }
 
-func (s interceptAsset) Patch(ctx context.Context, req *rove.AssetPatchRequest) (*rove.Asset, error) {
+func (s interceptAsset) Patch(ctx context.Context, req *loft.AssetPatchRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Patch_FullMethodName, req, s.AssetServiceServer.Patch)
+		loft.AssetService_Patch_FullMethodName, req, s.AssetServiceServer.Patch)
 }
 
-func (s interceptAsset) Apply(ctx context.Context, req *rove.AssetApplyRequest) (*rove.Asset, error) {
+func (s interceptAsset) Apply(ctx context.Context, req *loft.AssetApplyRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Apply_FullMethodName, req, s.AssetServiceServer.Apply)
+		loft.AssetService_Apply_FullMethodName, req, s.AssetServiceServer.Apply)
 }
 
-func (s interceptAsset) Erase(ctx context.Context, req *rove.AssetRef) (*rove.AssetEraseResponse, error) {
+func (s interceptAsset) Erase(ctx context.Context, req *loft.AssetRef) (*loft.AssetEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Erase_FullMethodName, req, s.AssetServiceServer.Erase)
+		loft.AssetService_Erase_FullMethodName, req, s.AssetServiceServer.Erase)
 }
 
-func (s interceptAsset) List(ctx context.Context, req *rove.AssetListRequest) (*rove.AssetListResponse, error) {
+func (s interceptAsset) List(ctx context.Context, req *loft.AssetListRequest) (*loft.AssetListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_List_FullMethodName, req, s.AssetServiceServer.List)
+		loft.AssetService_List_FullMethodName, req, s.AssetServiceServer.List)
 }
 
-func (s interceptAsset) Watch(req *rove.AssetWatchRequest, out grpc.ServerStreamingServer[rove.AssetWatchResponse]) error {
+func (s interceptAsset) Watch(req *loft.AssetWatchRequest, out grpc.ServerStreamingServer[loft.AssetWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.AssetServiceServer,
-		rove.AssetService_Watch_FullMethodName, req, out, s.AssetServiceServer.Watch)
+		loft.AssetService_Watch_FullMethodName, req, out, s.AssetServiceServer.Watch)
 }
 
-func (s interceptAsset) Move(ctx context.Context, req *rove.AssetMoveRequest) (*rove.Asset, error) {
+func (s interceptAsset) Move(ctx context.Context, req *loft.AssetMoveRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Move_FullMethodName, req, s.AssetServiceServer.Move)
+		loft.AssetService_Move_FullMethodName, req, s.AssetServiceServer.Move)
 }
 
-func (s interceptAsset) SetAttributes(ctx context.Context, req *rove.AssetSetAttributesRequest) (*rove.Asset, error) {
+func (s interceptAsset) SetAttributes(ctx context.Context, req *loft.AssetSetAttributesRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_SetAttributes_FullMethodName, req, s.AssetServiceServer.SetAttributes)
+		loft.AssetService_SetAttributes_FullMethodName, req, s.AssetServiceServer.SetAttributes)
 }
 
-func (s interceptAsset) Assign(ctx context.Context, req *rove.AssetAssignRequest) (*rove.Asset, error) {
+func (s interceptAsset) Assign(ctx context.Context, req *loft.AssetAssignRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Assign_FullMethodName, req, s.AssetServiceServer.Assign)
+		loft.AssetService_Assign_FullMethodName, req, s.AssetServiceServer.Assign)
 }
 
-func (s interceptAsset) Relate(ctx context.Context, req *rove.AssetRelateRequest) (*rove.Asset, error) {
+func (s interceptAsset) Relate(ctx context.Context, req *loft.AssetRelateRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Relate_FullMethodName, req, s.AssetServiceServer.Relate)
+		loft.AssetService_Relate_FullMethodName, req, s.AssetServiceServer.Relate)
 }
 
-func (s interceptAsset) Correct(ctx context.Context, req *rove.AssetCorrectRequest) (*rove.Asset, error) {
+func (s interceptAsset) Correct(ctx context.Context, req *loft.AssetCorrectRequest) (*loft.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Correct_FullMethodName, req, s.AssetServiceServer.Correct)
+		loft.AssetService_Correct_FullMethodName, req, s.AssetServiceServer.Correct)
 }
 
-func (s interceptAsset) Timeline(ctx context.Context, req *rove.AssetTimelineRequest) (*rove.AssetTimelineResponse, error) {
+func (s interceptAsset) Timeline(ctx context.Context, req *loft.AssetTimelineRequest) (*loft.AssetTimelineResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Timeline_FullMethodName, req, s.AssetServiceServer.Timeline)
+		loft.AssetService_Timeline_FullMethodName, req, s.AssetServiceServer.Timeline)
 }
 
-func (s interceptAsset) QueryAt(ctx context.Context, req *rove.AssetQueryAtRequest) (*rove.AssetQueryAtResponse, error) {
+func (s interceptAsset) QueryAt(ctx context.Context, req *loft.AssetQueryAtRequest) (*loft.AssetQueryAtResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_QueryAt_FullMethodName, req, s.AssetServiceServer.QueryAt)
+		loft.AssetService_QueryAt_FullMethodName, req, s.AssetServiceServer.QueryAt)
 }
 
-func (s interceptAsset) Diff(ctx context.Context, req *rove.AssetDiffRequest) (*rove.AssetDiffResponse, error) {
+func (s interceptAsset) Diff(ctx context.Context, req *loft.AssetDiffRequest) (*loft.AssetDiffResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Diff_FullMethodName, req, s.AssetServiceServer.Diff)
+		loft.AssetService_Diff_FullMethodName, req, s.AssetServiceServer.Diff)
 }
 
-func (s interceptAsset) Search(ctx context.Context, req *rove.AssetSearchRequest) (*rove.AssetSearchResponse, error) {
+func (s interceptAsset) Search(ctx context.Context, req *loft.AssetSearchRequest) (*loft.AssetSearchResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Search_FullMethodName, req, s.AssetServiceServer.Search)
+		loft.AssetService_Search_FullMethodName, req, s.AssetServiceServer.Search)
 }
 
-func (s interceptAsset) Report(ctx context.Context, req *rove.AssetReportRequest) (*rove.AssetReportResponse, error) {
+func (s interceptAsset) Report(ctx context.Context, req *loft.AssetReportRequest) (*loft.AssetReportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Report_FullMethodName, req, s.AssetServiceServer.Report)
+		loft.AssetService_Report_FullMethodName, req, s.AssetServiceServer.Report)
 }
 
-func (s interceptAsset) Export(ctx context.Context, req *rove.AssetExportRequest) (*rove.AssetExportResponse, error) {
+func (s interceptAsset) Export(ctx context.Context, req *loft.AssetExportRequest) (*loft.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Export_FullMethodName, req, s.AssetServiceServer.Export)
+		loft.AssetService_Export_FullMethodName, req, s.AssetServiceServer.Export)
 }
 
-func (s interceptAsset) Form(ctx context.Context, req *rove.AssetFormRequest) (*rove.AssetExportResponse, error) {
+func (s interceptAsset) Form(ctx context.Context, req *loft.AssetFormRequest) (*loft.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Form_FullMethodName, req, s.AssetServiceServer.Form)
+		loft.AssetService_Form_FullMethodName, req, s.AssetServiceServer.Form)
 }
 
-func (s interceptAsset) ReadSheet(ctx context.Context, req *rove.AssetReadSheetRequest) (*rove.AssetReadSheetResponse, error) {
+func (s interceptAsset) ReadSheet(ctx context.Context, req *loft.AssetReadSheetRequest) (*loft.AssetReadSheetResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_ReadSheet_FullMethodName, req, s.AssetServiceServer.ReadSheet)
+		loft.AssetService_ReadSheet_FullMethodName, req, s.AssetServiceServer.ReadSheet)
 }
 
-func (s interceptAsset) Census(ctx context.Context, req *rove.AssetCensusRequest) (*rove.AssetCensusResponse, error) {
+func (s interceptAsset) Census(ctx context.Context, req *loft.AssetCensusRequest) (*loft.AssetCensusResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Census_FullMethodName, req, s.AssetServiceServer.Census)
+		loft.AssetService_Census_FullMethodName, req, s.AssetServiceServer.Census)
 }
 
-func (s interceptAsset) ExportCensus(ctx context.Context, req *rove.AssetCensusRequest) (*rove.AssetExportResponse, error) {
+func (s interceptAsset) ExportCensus(ctx context.Context, req *loft.AssetCensusRequest) (*loft.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_ExportCensus_FullMethodName, req, s.AssetServiceServer.ExportCensus)
+		loft.AssetService_ExportCensus_FullMethodName, req, s.AssetServiceServer.ExportCensus)
 }
 
-func (s Intercept) TenantDomain() rove.TenantDomainServiceServer {
+func (s Intercept) TenantDomain() loft.TenantDomainServiceServer {
 	return interceptTenantDomain{s, s.Next().TenantDomain()}
 }
 
 type interceptTenantDomain struct {
 	Intercept
-	rove.TenantDomainServiceServer
+	loft.TenantDomainServiceServer
 }
 
-func (s interceptTenantDomain) Add(ctx context.Context, req *rove.TenantDomainAddRequest) (*rove.TenantDomain, error) {
+func (s interceptTenantDomain) Add(ctx context.Context, req *loft.TenantDomainAddRequest) (*loft.TenantDomain, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Add_FullMethodName, req, s.TenantDomainServiceServer.Add)
+		loft.TenantDomainService_Add_FullMethodName, req, s.TenantDomainServiceServer.Add)
 }
 
-func (s interceptTenantDomain) Get(ctx context.Context, req *rove.TenantDomainGetRequest) (*rove.TenantDomain, error) {
+func (s interceptTenantDomain) Get(ctx context.Context, req *loft.TenantDomainGetRequest) (*loft.TenantDomain, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Get_FullMethodName, req, s.TenantDomainServiceServer.Get)
+		loft.TenantDomainService_Get_FullMethodName, req, s.TenantDomainServiceServer.Get)
 }
 
-func (s interceptTenantDomain) Patch(ctx context.Context, req *rove.TenantDomainPatchRequest) (*rove.TenantDomain, error) {
+func (s interceptTenantDomain) Patch(ctx context.Context, req *loft.TenantDomainPatchRequest) (*loft.TenantDomain, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Patch_FullMethodName, req, s.TenantDomainServiceServer.Patch)
+		loft.TenantDomainService_Patch_FullMethodName, req, s.TenantDomainServiceServer.Patch)
 }
 
-func (s interceptTenantDomain) Apply(ctx context.Context, req *rove.TenantDomainApplyRequest) (*rove.TenantDomain, error) {
+func (s interceptTenantDomain) Apply(ctx context.Context, req *loft.TenantDomainApplyRequest) (*loft.TenantDomain, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Apply_FullMethodName, req, s.TenantDomainServiceServer.Apply)
+		loft.TenantDomainService_Apply_FullMethodName, req, s.TenantDomainServiceServer.Apply)
 }
 
-func (s interceptTenantDomain) Erase(ctx context.Context, req *rove.TenantDomainRef) (*rove.TenantDomainEraseResponse, error) {
+func (s interceptTenantDomain) Erase(ctx context.Context, req *loft.TenantDomainRef) (*loft.TenantDomainEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Erase_FullMethodName, req, s.TenantDomainServiceServer.Erase)
+		loft.TenantDomainService_Erase_FullMethodName, req, s.TenantDomainServiceServer.Erase)
 }
 
-func (s interceptTenantDomain) List(ctx context.Context, req *rove.TenantDomainListRequest) (*rove.TenantDomainListResponse, error) {
+func (s interceptTenantDomain) List(ctx context.Context, req *loft.TenantDomainListRequest) (*loft.TenantDomainListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_List_FullMethodName, req, s.TenantDomainServiceServer.List)
+		loft.TenantDomainService_List_FullMethodName, req, s.TenantDomainServiceServer.List)
 }
 
-func (s interceptTenantDomain) Watch(req *rove.TenantDomainWatchRequest, out grpc.ServerStreamingServer[rove.TenantDomainWatchResponse]) error {
+func (s interceptTenantDomain) Watch(req *loft.TenantDomainWatchRequest, out grpc.ServerStreamingServer[loft.TenantDomainWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Watch_FullMethodName, req, out, s.TenantDomainServiceServer.Watch)
+		loft.TenantDomainService_Watch_FullMethodName, req, out, s.TenantDomainServiceServer.Watch)
 }
 
-func (s interceptTenantDomain) Verify(ctx context.Context, req *rove.TenantDomainVerifyRequest) (*rove.TenantDomain, error) {
+func (s interceptTenantDomain) Verify(ctx context.Context, req *loft.TenantDomainVerifyRequest) (*loft.TenantDomain, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Verify_FullMethodName, req, s.TenantDomainServiceServer.Verify)
+		loft.TenantDomainService_Verify_FullMethodName, req, s.TenantDomainServiceServer.Verify)
 }
 
-func (s interceptTenantDomain) Activate(ctx context.Context, req *rove.TenantDomainActivateRequest) (*rove.TenantDomain, error) {
+func (s interceptTenantDomain) Activate(ctx context.Context, req *loft.TenantDomainActivateRequest) (*loft.TenantDomain, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Activate_FullMethodName, req, s.TenantDomainServiceServer.Activate)
+		loft.TenantDomainService_Activate_FullMethodName, req, s.TenantDomainServiceServer.Activate)
 }
 
-func (s interceptTenantDomain) Retire(ctx context.Context, req *rove.TenantDomainRetireRequest) (*rove.TenantDomain, error) {
+func (s interceptTenantDomain) Retire(ctx context.Context, req *loft.TenantDomainRetireRequest) (*loft.TenantDomain, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Retire_FullMethodName, req, s.TenantDomainServiceServer.Retire)
+		loft.TenantDomainService_Retire_FullMethodName, req, s.TenantDomainServiceServer.Retire)
 }
 
-func (s interceptTenantDomain) Status(ctx context.Context, req *rove.TenantDomainStatusRequest) (*rove.TenantDomainStatusResponse, error) {
+func (s interceptTenantDomain) Status(ctx context.Context, req *loft.TenantDomainStatusRequest) (*loft.TenantDomainStatusResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		rove.TenantDomainService_Status_FullMethodName, req, s.TenantDomainServiceServer.Status)
+		loft.TenantDomainService_Status_FullMethodName, req, s.TenantDomainServiceServer.Status)
 }
 
-func (s Intercept) Label() rove.LabelServiceServer {
+func (s Intercept) Label() loft.LabelServiceServer {
 	return interceptLabel{s, s.Next().Label()}
 }
 
 type interceptLabel struct {
 	Intercept
-	rove.LabelServiceServer
+	loft.LabelServiceServer
 }
 
-func (s interceptLabel) Add(ctx context.Context, req *rove.LabelAddRequest) (*rove.Label, error) {
+func (s interceptLabel) Add(ctx context.Context, req *loft.LabelAddRequest) (*loft.Label, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Add_FullMethodName, req, s.LabelServiceServer.Add)
+		loft.LabelService_Add_FullMethodName, req, s.LabelServiceServer.Add)
 }
 
-func (s interceptLabel) Get(ctx context.Context, req *rove.LabelGetRequest) (*rove.Label, error) {
+func (s interceptLabel) Get(ctx context.Context, req *loft.LabelGetRequest) (*loft.Label, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Get_FullMethodName, req, s.LabelServiceServer.Get)
+		loft.LabelService_Get_FullMethodName, req, s.LabelServiceServer.Get)
 }
 
-func (s interceptLabel) Patch(ctx context.Context, req *rove.LabelPatchRequest) (*rove.Label, error) {
+func (s interceptLabel) Patch(ctx context.Context, req *loft.LabelPatchRequest) (*loft.Label, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Patch_FullMethodName, req, s.LabelServiceServer.Patch)
+		loft.LabelService_Patch_FullMethodName, req, s.LabelServiceServer.Patch)
 }
 
-func (s interceptLabel) Apply(ctx context.Context, req *rove.LabelApplyRequest) (*rove.Label, error) {
+func (s interceptLabel) Apply(ctx context.Context, req *loft.LabelApplyRequest) (*loft.Label, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Apply_FullMethodName, req, s.LabelServiceServer.Apply)
+		loft.LabelService_Apply_FullMethodName, req, s.LabelServiceServer.Apply)
 }
 
-func (s interceptLabel) Erase(ctx context.Context, req *rove.LabelRef) (*rove.LabelEraseResponse, error) {
+func (s interceptLabel) Erase(ctx context.Context, req *loft.LabelRef) (*loft.LabelEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Erase_FullMethodName, req, s.LabelServiceServer.Erase)
+		loft.LabelService_Erase_FullMethodName, req, s.LabelServiceServer.Erase)
 }
 
-func (s interceptLabel) List(ctx context.Context, req *rove.LabelListRequest) (*rove.LabelListResponse, error) {
+func (s interceptLabel) List(ctx context.Context, req *loft.LabelListRequest) (*loft.LabelListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_List_FullMethodName, req, s.LabelServiceServer.List)
+		loft.LabelService_List_FullMethodName, req, s.LabelServiceServer.List)
 }
 
-func (s interceptLabel) Watch(req *rove.LabelWatchRequest, out grpc.ServerStreamingServer[rove.LabelWatchResponse]) error {
+func (s interceptLabel) Watch(req *loft.LabelWatchRequest, out grpc.ServerStreamingServer[loft.LabelWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.LabelServiceServer,
-		rove.LabelService_Watch_FullMethodName, req, out, s.LabelServiceServer.Watch)
+		loft.LabelService_Watch_FullMethodName, req, out, s.LabelServiceServer.Watch)
 }
 
-func (s interceptLabel) Print(ctx context.Context, req *rove.LabelPrintRequest) (*rove.LabelPrintResponse, error) {
+func (s interceptLabel) Print(ctx context.Context, req *loft.LabelPrintRequest) (*loft.LabelPrintResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Print_FullMethodName, req, s.LabelServiceServer.Print)
+		loft.LabelService_Print_FullMethodName, req, s.LabelServiceServer.Print)
 }
 
-func (s interceptLabel) Bind(ctx context.Context, req *rove.LabelBindRequest) (*rove.Label, error) {
+func (s interceptLabel) Bind(ctx context.Context, req *loft.LabelBindRequest) (*loft.Label, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Bind_FullMethodName, req, s.LabelServiceServer.Bind)
+		loft.LabelService_Bind_FullMethodName, req, s.LabelServiceServer.Bind)
 }
 
-func (s interceptLabel) Unbind(ctx context.Context, req *rove.LabelUnbindRequest) (*rove.Label, error) {
+func (s interceptLabel) Unbind(ctx context.Context, req *loft.LabelUnbindRequest) (*loft.Label, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Unbind_FullMethodName, req, s.LabelServiceServer.Unbind)
+		loft.LabelService_Unbind_FullMethodName, req, s.LabelServiceServer.Unbind)
 }
 
-func (s interceptLabel) Resolve(ctx context.Context, req *rove.LabelResolveRequest) (*rove.LabelResolveResponse, error) {
+func (s interceptLabel) Resolve(ctx context.Context, req *loft.LabelResolveRequest) (*loft.LabelResolveResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		rove.LabelService_Resolve_FullMethodName, req, s.LabelServiceServer.Resolve)
+		loft.LabelService_Resolve_FullMethodName, req, s.LabelServiceServer.Resolve)
 }
 
-func (s Intercept) Attachment() rove.AttachmentServiceServer {
+func (s Intercept) Attachment() loft.AttachmentServiceServer {
 	return interceptAttachment{s, s.Next().Attachment()}
 }
 
 type interceptAttachment struct {
 	Intercept
-	rove.AttachmentServiceServer
+	loft.AttachmentServiceServer
 }
 
-func (s interceptAttachment) Add(ctx context.Context, req *rove.AttachmentAddRequest) (*rove.Attachment, error) {
+func (s interceptAttachment) Add(ctx context.Context, req *loft.AttachmentAddRequest) (*loft.Attachment, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AttachmentServiceServer,
-		rove.AttachmentService_Add_FullMethodName, req, s.AttachmentServiceServer.Add)
+		loft.AttachmentService_Add_FullMethodName, req, s.AttachmentServiceServer.Add)
 }
 
-func (s interceptAttachment) Get(ctx context.Context, req *rove.AttachmentGetRequest) (*rove.Attachment, error) {
+func (s interceptAttachment) Get(ctx context.Context, req *loft.AttachmentGetRequest) (*loft.Attachment, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AttachmentServiceServer,
-		rove.AttachmentService_Get_FullMethodName, req, s.AttachmentServiceServer.Get)
+		loft.AttachmentService_Get_FullMethodName, req, s.AttachmentServiceServer.Get)
 }
 
-func (s interceptAttachment) Patch(ctx context.Context, req *rove.AttachmentPatchRequest) (*rove.Attachment, error) {
+func (s interceptAttachment) Patch(ctx context.Context, req *loft.AttachmentPatchRequest) (*loft.Attachment, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AttachmentServiceServer,
-		rove.AttachmentService_Patch_FullMethodName, req, s.AttachmentServiceServer.Patch)
+		loft.AttachmentService_Patch_FullMethodName, req, s.AttachmentServiceServer.Patch)
 }
 
-func (s interceptAttachment) Apply(ctx context.Context, req *rove.AttachmentApplyRequest) (*rove.Attachment, error) {
+func (s interceptAttachment) Apply(ctx context.Context, req *loft.AttachmentApplyRequest) (*loft.Attachment, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AttachmentServiceServer,
-		rove.AttachmentService_Apply_FullMethodName, req, s.AttachmentServiceServer.Apply)
+		loft.AttachmentService_Apply_FullMethodName, req, s.AttachmentServiceServer.Apply)
 }
 
-func (s interceptAttachment) Erase(ctx context.Context, req *rove.AttachmentRef) (*rove.AttachmentEraseResponse, error) {
+func (s interceptAttachment) Erase(ctx context.Context, req *loft.AttachmentRef) (*loft.AttachmentEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AttachmentServiceServer,
-		rove.AttachmentService_Erase_FullMethodName, req, s.AttachmentServiceServer.Erase)
+		loft.AttachmentService_Erase_FullMethodName, req, s.AttachmentServiceServer.Erase)
 }
 
-func (s interceptAttachment) List(ctx context.Context, req *rove.AttachmentListRequest) (*rove.AttachmentListResponse, error) {
+func (s interceptAttachment) List(ctx context.Context, req *loft.AttachmentListRequest) (*loft.AttachmentListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AttachmentServiceServer,
-		rove.AttachmentService_List_FullMethodName, req, s.AttachmentServiceServer.List)
+		loft.AttachmentService_List_FullMethodName, req, s.AttachmentServiceServer.List)
 }
 
-func (s interceptAttachment) Watch(req *rove.AttachmentWatchRequest, out grpc.ServerStreamingServer[rove.AttachmentWatchResponse]) error {
+func (s interceptAttachment) Watch(req *loft.AttachmentWatchRequest, out grpc.ServerStreamingServer[loft.AttachmentWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.AttachmentServiceServer,
-		rove.AttachmentService_Watch_FullMethodName, req, out, s.AttachmentServiceServer.Watch)
+		loft.AttachmentService_Watch_FullMethodName, req, out, s.AttachmentServiceServer.Watch)
 }
 
-func (s interceptAttachment) Upload(ctx context.Context, req *rove.AttachmentUploadRequest) (*rove.Attachment, error) {
+func (s interceptAttachment) Upload(ctx context.Context, req *loft.AttachmentUploadRequest) (*loft.Attachment, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AttachmentServiceServer,
-		rove.AttachmentService_Upload_FullMethodName, req, s.AttachmentServiceServer.Upload)
+		loft.AttachmentService_Upload_FullMethodName, req, s.AttachmentServiceServer.Upload)
 }
 
-func (s interceptAttachment) Url(ctx context.Context, req *rove.AttachmentUrlRequest) (*rove.AttachmentUrlResponse, error) {
+func (s interceptAttachment) Url(ctx context.Context, req *loft.AttachmentUrlRequest) (*loft.AttachmentUrlResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AttachmentServiceServer,
-		rove.AttachmentService_Url_FullMethodName, req, s.AttachmentServiceServer.Url)
+		loft.AttachmentService_Url_FullMethodName, req, s.AttachmentServiceServer.Url)
 }
 
-func (s Intercept) Bookable() rove.BookableServiceServer {
+func (s Intercept) Bookable() loft.BookableServiceServer {
 	return interceptBookable{s, s.Next().Bookable()}
 }
 
 type interceptBookable struct {
 	Intercept
-	rove.BookableServiceServer
+	loft.BookableServiceServer
 }
 
-func (s interceptBookable) Add(ctx context.Context, req *rove.BookableAddRequest) (*rove.Bookable, error) {
+func (s interceptBookable) Add(ctx context.Context, req *loft.BookableAddRequest) (*loft.Bookable, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_Add_FullMethodName, req, s.BookableServiceServer.Add)
+		loft.BookableService_Add_FullMethodName, req, s.BookableServiceServer.Add)
 }
 
-func (s interceptBookable) Get(ctx context.Context, req *rove.BookableGetRequest) (*rove.Bookable, error) {
+func (s interceptBookable) Get(ctx context.Context, req *loft.BookableGetRequest) (*loft.Bookable, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_Get_FullMethodName, req, s.BookableServiceServer.Get)
+		loft.BookableService_Get_FullMethodName, req, s.BookableServiceServer.Get)
 }
 
-func (s interceptBookable) Patch(ctx context.Context, req *rove.BookablePatchRequest) (*rove.Bookable, error) {
+func (s interceptBookable) Patch(ctx context.Context, req *loft.BookablePatchRequest) (*loft.Bookable, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_Patch_FullMethodName, req, s.BookableServiceServer.Patch)
+		loft.BookableService_Patch_FullMethodName, req, s.BookableServiceServer.Patch)
 }
 
-func (s interceptBookable) Apply(ctx context.Context, req *rove.BookableApplyRequest) (*rove.Bookable, error) {
+func (s interceptBookable) Apply(ctx context.Context, req *loft.BookableApplyRequest) (*loft.Bookable, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_Apply_FullMethodName, req, s.BookableServiceServer.Apply)
+		loft.BookableService_Apply_FullMethodName, req, s.BookableServiceServer.Apply)
 }
 
-func (s interceptBookable) Erase(ctx context.Context, req *rove.BookableRef) (*rove.BookableEraseResponse, error) {
+func (s interceptBookable) Erase(ctx context.Context, req *loft.BookableRef) (*loft.BookableEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_Erase_FullMethodName, req, s.BookableServiceServer.Erase)
+		loft.BookableService_Erase_FullMethodName, req, s.BookableServiceServer.Erase)
 }
 
-func (s interceptBookable) List(ctx context.Context, req *rove.BookableListRequest) (*rove.BookableListResponse, error) {
+func (s interceptBookable) List(ctx context.Context, req *loft.BookableListRequest) (*loft.BookableListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_List_FullMethodName, req, s.BookableServiceServer.List)
+		loft.BookableService_List_FullMethodName, req, s.BookableServiceServer.List)
 }
 
-func (s interceptBookable) Watch(req *rove.BookableWatchRequest, out grpc.ServerStreamingServer[rove.BookableWatchResponse]) error {
+func (s interceptBookable) Watch(req *loft.BookableWatchRequest, out grpc.ServerStreamingServer[loft.BookableWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.BookableServiceServer,
-		rove.BookableService_Watch_FullMethodName, req, out, s.BookableServiceServer.Watch)
+		loft.BookableService_Watch_FullMethodName, req, out, s.BookableServiceServer.Watch)
 }
 
-func (s interceptBookable) Update(ctx context.Context, req *rove.BookableUpdateRequest) (*rove.Bookable, error) {
+func (s interceptBookable) Update(ctx context.Context, req *loft.BookableUpdateRequest) (*loft.Bookable, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_Update_FullMethodName, req, s.BookableServiceServer.Update)
+		loft.BookableService_Update_FullMethodName, req, s.BookableServiceServer.Update)
 }
 
-func (s interceptBookable) Availability(ctx context.Context, req *rove.BookableAvailabilityRequest) (*rove.BookableAvailabilityResponse, error) {
+func (s interceptBookable) Availability(ctx context.Context, req *loft.BookableAvailabilityRequest) (*loft.BookableAvailabilityResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_Availability_FullMethodName, req, s.BookableServiceServer.Availability)
+		loft.BookableService_Availability_FullMethodName, req, s.BookableServiceServer.Availability)
 }
 
-func (s interceptBookable) Usage(ctx context.Context, req *rove.BookableUsageRequest) (*rove.BookableUsageResponse, error) {
+func (s interceptBookable) Usage(ctx context.Context, req *loft.BookableUsageRequest) (*loft.BookableUsageResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_Usage_FullMethodName, req, s.BookableServiceServer.Usage)
+		loft.BookableService_Usage_FullMethodName, req, s.BookableServiceServer.Usage)
 }
 
-func (s interceptBookable) ExportUsage(ctx context.Context, req *rove.BookableUsageRequest) (*rove.AssetExportResponse, error) {
+func (s interceptBookable) ExportUsage(ctx context.Context, req *loft.BookableUsageRequest) (*loft.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
-		rove.BookableService_ExportUsage_FullMethodName, req, s.BookableServiceServer.ExportUsage)
+		loft.BookableService_ExportUsage_FullMethodName, req, s.BookableServiceServer.ExportUsage)
 }
 
-func (s Intercept) Reservation() rove.ReservationServiceServer {
+func (s Intercept) Reservation() loft.ReservationServiceServer {
 	return interceptReservation{s, s.Next().Reservation()}
 }
 
 type interceptReservation struct {
 	Intercept
-	rove.ReservationServiceServer
+	loft.ReservationServiceServer
 }
 
-func (s interceptReservation) Add(ctx context.Context, req *rove.ReservationAddRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Add(ctx context.Context, req *loft.ReservationAddRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Add_FullMethodName, req, s.ReservationServiceServer.Add)
+		loft.ReservationService_Add_FullMethodName, req, s.ReservationServiceServer.Add)
 }
 
-func (s interceptReservation) Get(ctx context.Context, req *rove.ReservationGetRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Get(ctx context.Context, req *loft.ReservationGetRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Get_FullMethodName, req, s.ReservationServiceServer.Get)
+		loft.ReservationService_Get_FullMethodName, req, s.ReservationServiceServer.Get)
 }
 
-func (s interceptReservation) Patch(ctx context.Context, req *rove.ReservationPatchRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Patch(ctx context.Context, req *loft.ReservationPatchRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Patch_FullMethodName, req, s.ReservationServiceServer.Patch)
+		loft.ReservationService_Patch_FullMethodName, req, s.ReservationServiceServer.Patch)
 }
 
-func (s interceptReservation) Apply(ctx context.Context, req *rove.ReservationApplyRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Apply(ctx context.Context, req *loft.ReservationApplyRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Apply_FullMethodName, req, s.ReservationServiceServer.Apply)
+		loft.ReservationService_Apply_FullMethodName, req, s.ReservationServiceServer.Apply)
 }
 
-func (s interceptReservation) Erase(ctx context.Context, req *rove.ReservationRef) (*rove.ReservationEraseResponse, error) {
+func (s interceptReservation) Erase(ctx context.Context, req *loft.ReservationRef) (*loft.ReservationEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Erase_FullMethodName, req, s.ReservationServiceServer.Erase)
+		loft.ReservationService_Erase_FullMethodName, req, s.ReservationServiceServer.Erase)
 }
 
-func (s interceptReservation) List(ctx context.Context, req *rove.ReservationListRequest) (*rove.ReservationListResponse, error) {
+func (s interceptReservation) List(ctx context.Context, req *loft.ReservationListRequest) (*loft.ReservationListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_List_FullMethodName, req, s.ReservationServiceServer.List)
+		loft.ReservationService_List_FullMethodName, req, s.ReservationServiceServer.List)
 }
 
-func (s interceptReservation) Watch(req *rove.ReservationWatchRequest, out grpc.ServerStreamingServer[rove.ReservationWatchResponse]) error {
+func (s interceptReservation) Watch(req *loft.ReservationWatchRequest, out grpc.ServerStreamingServer[loft.ReservationWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.ReservationServiceServer,
-		rove.ReservationService_Watch_FullMethodName, req, out, s.ReservationServiceServer.Watch)
+		loft.ReservationService_Watch_FullMethodName, req, out, s.ReservationServiceServer.Watch)
 }
 
-func (s interceptReservation) Confirm(ctx context.Context, req *rove.ReservationDecideRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Confirm(ctx context.Context, req *loft.ReservationDecideRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Confirm_FullMethodName, req, s.ReservationServiceServer.Confirm)
+		loft.ReservationService_Confirm_FullMethodName, req, s.ReservationServiceServer.Confirm)
 }
 
-func (s interceptReservation) Approve(ctx context.Context, req *rove.ReservationDecideRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Approve(ctx context.Context, req *loft.ReservationDecideRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Approve_FullMethodName, req, s.ReservationServiceServer.Approve)
+		loft.ReservationService_Approve_FullMethodName, req, s.ReservationServiceServer.Approve)
 }
 
-func (s interceptReservation) Reject(ctx context.Context, req *rove.ReservationDecideRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Reject(ctx context.Context, req *loft.ReservationDecideRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Reject_FullMethodName, req, s.ReservationServiceServer.Reject)
+		loft.ReservationService_Reject_FullMethodName, req, s.ReservationServiceServer.Reject)
 }
 
-func (s interceptReservation) Cancel(ctx context.Context, req *rove.ReservationDecideRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Cancel(ctx context.Context, req *loft.ReservationDecideRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Cancel_FullMethodName, req, s.ReservationServiceServer.Cancel)
+		loft.ReservationService_Cancel_FullMethodName, req, s.ReservationServiceServer.Cancel)
 }
 
-func (s interceptReservation) CheckIn(ctx context.Context, req *rove.ReservationDecideRequest) (*rove.Reservation, error) {
+func (s interceptReservation) CheckIn(ctx context.Context, req *loft.ReservationDecideRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_CheckIn_FullMethodName, req, s.ReservationServiceServer.CheckIn)
+		loft.ReservationService_CheckIn_FullMethodName, req, s.ReservationServiceServer.CheckIn)
 }
 
-func (s interceptReservation) Complete(ctx context.Context, req *rove.ReservationDecideRequest) (*rove.Reservation, error) {
+func (s interceptReservation) Complete(ctx context.Context, req *loft.ReservationDecideRequest) (*loft.Reservation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Complete_FullMethodName, req, s.ReservationServiceServer.Complete)
+		loft.ReservationService_Complete_FullMethodName, req, s.ReservationServiceServer.Complete)
 }
 
-func (s interceptReservation) Calendar(ctx context.Context, req *rove.ReservationCalendarRequest) (*rove.ReservationCalendarResponse, error) {
+func (s interceptReservation) Calendar(ctx context.Context, req *loft.ReservationCalendarRequest) (*loft.ReservationCalendarResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Calendar_FullMethodName, req, s.ReservationServiceServer.Calendar)
+		loft.ReservationService_Calendar_FullMethodName, req, s.ReservationServiceServer.Calendar)
 }
 
-func (s interceptReservation) Timeline(ctx context.Context, req *rove.ReservationTimelineRequest) (*rove.ReservationTimelineResponse, error) {
+func (s interceptReservation) Timeline(ctx context.Context, req *loft.ReservationTimelineRequest) (*loft.ReservationTimelineResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Timeline_FullMethodName, req, s.ReservationServiceServer.Timeline)
+		loft.ReservationService_Timeline_FullMethodName, req, s.ReservationServiceServer.Timeline)
 }
 
-func (s interceptReservation) Pickup(ctx context.Context, req *rove.ReservationPickupRequest) (*rove.ReservationPickupResponse, error) {
+func (s interceptReservation) Pickup(ctx context.Context, req *loft.ReservationPickupRequest) (*loft.ReservationPickupResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
-		rove.ReservationService_Pickup_FullMethodName, req, s.ReservationServiceServer.Pickup)
+		loft.ReservationService_Pickup_FullMethodName, req, s.ReservationServiceServer.Pickup)
 }
 
-func (s Intercept) ReservationItem() rove.ReservationItemServiceServer {
+func (s Intercept) ReservationItem() loft.ReservationItemServiceServer {
 	return interceptReservationItem{s, s.Next().ReservationItem()}
 }
 
 type interceptReservationItem struct {
 	Intercept
-	rove.ReservationItemServiceServer
+	loft.ReservationItemServiceServer
 }
 
-func (s interceptReservationItem) Add(ctx context.Context, req *rove.ReservationItemAddRequest) (*rove.ReservationItem, error) {
+func (s interceptReservationItem) Add(ctx context.Context, req *loft.ReservationItemAddRequest) (*loft.ReservationItem, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationItemServiceServer,
-		rove.ReservationItemService_Add_FullMethodName, req, s.ReservationItemServiceServer.Add)
+		loft.ReservationItemService_Add_FullMethodName, req, s.ReservationItemServiceServer.Add)
 }
 
-func (s interceptReservationItem) Get(ctx context.Context, req *rove.ReservationItemGetRequest) (*rove.ReservationItem, error) {
+func (s interceptReservationItem) Get(ctx context.Context, req *loft.ReservationItemGetRequest) (*loft.ReservationItem, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationItemServiceServer,
-		rove.ReservationItemService_Get_FullMethodName, req, s.ReservationItemServiceServer.Get)
+		loft.ReservationItemService_Get_FullMethodName, req, s.ReservationItemServiceServer.Get)
 }
 
-func (s interceptReservationItem) Patch(ctx context.Context, req *rove.ReservationItemPatchRequest) (*rove.ReservationItem, error) {
+func (s interceptReservationItem) Patch(ctx context.Context, req *loft.ReservationItemPatchRequest) (*loft.ReservationItem, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationItemServiceServer,
-		rove.ReservationItemService_Patch_FullMethodName, req, s.ReservationItemServiceServer.Patch)
+		loft.ReservationItemService_Patch_FullMethodName, req, s.ReservationItemServiceServer.Patch)
 }
 
-func (s interceptReservationItem) Apply(ctx context.Context, req *rove.ReservationItemApplyRequest) (*rove.ReservationItem, error) {
+func (s interceptReservationItem) Apply(ctx context.Context, req *loft.ReservationItemApplyRequest) (*loft.ReservationItem, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationItemServiceServer,
-		rove.ReservationItemService_Apply_FullMethodName, req, s.ReservationItemServiceServer.Apply)
+		loft.ReservationItemService_Apply_FullMethodName, req, s.ReservationItemServiceServer.Apply)
 }
 
-func (s interceptReservationItem) Erase(ctx context.Context, req *rove.ReservationItemRef) (*rove.ReservationItemEraseResponse, error) {
+func (s interceptReservationItem) Erase(ctx context.Context, req *loft.ReservationItemRef) (*loft.ReservationItemEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationItemServiceServer,
-		rove.ReservationItemService_Erase_FullMethodName, req, s.ReservationItemServiceServer.Erase)
+		loft.ReservationItemService_Erase_FullMethodName, req, s.ReservationItemServiceServer.Erase)
 }
 
-func (s interceptReservationItem) List(ctx context.Context, req *rove.ReservationItemListRequest) (*rove.ReservationItemListResponse, error) {
+func (s interceptReservationItem) List(ctx context.Context, req *loft.ReservationItemListRequest) (*loft.ReservationItemListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ReservationItemServiceServer,
-		rove.ReservationItemService_List_FullMethodName, req, s.ReservationItemServiceServer.List)
+		loft.ReservationItemService_List_FullMethodName, req, s.ReservationItemServiceServer.List)
 }
 
-func (s Intercept) Allocation() rove.AllocationServiceServer {
+func (s Intercept) Allocation() loft.AllocationServiceServer {
 	return interceptAllocation{s, s.Next().Allocation()}
 }
 
 type interceptAllocation struct {
 	Intercept
-	rove.AllocationServiceServer
+	loft.AllocationServiceServer
 }
 
-func (s interceptAllocation) Add(ctx context.Context, req *rove.AllocationAddRequest) (*rove.Allocation, error) {
+func (s interceptAllocation) Add(ctx context.Context, req *loft.AllocationAddRequest) (*loft.Allocation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AllocationServiceServer,
-		rove.AllocationService_Add_FullMethodName, req, s.AllocationServiceServer.Add)
+		loft.AllocationService_Add_FullMethodName, req, s.AllocationServiceServer.Add)
 }
 
-func (s interceptAllocation) Get(ctx context.Context, req *rove.AllocationGetRequest) (*rove.Allocation, error) {
+func (s interceptAllocation) Get(ctx context.Context, req *loft.AllocationGetRequest) (*loft.Allocation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AllocationServiceServer,
-		rove.AllocationService_Get_FullMethodName, req, s.AllocationServiceServer.Get)
+		loft.AllocationService_Get_FullMethodName, req, s.AllocationServiceServer.Get)
 }
 
-func (s interceptAllocation) Patch(ctx context.Context, req *rove.AllocationPatchRequest) (*rove.Allocation, error) {
+func (s interceptAllocation) Patch(ctx context.Context, req *loft.AllocationPatchRequest) (*loft.Allocation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AllocationServiceServer,
-		rove.AllocationService_Patch_FullMethodName, req, s.AllocationServiceServer.Patch)
+		loft.AllocationService_Patch_FullMethodName, req, s.AllocationServiceServer.Patch)
 }
 
-func (s interceptAllocation) Apply(ctx context.Context, req *rove.AllocationApplyRequest) (*rove.Allocation, error) {
+func (s interceptAllocation) Apply(ctx context.Context, req *loft.AllocationApplyRequest) (*loft.Allocation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AllocationServiceServer,
-		rove.AllocationService_Apply_FullMethodName, req, s.AllocationServiceServer.Apply)
+		loft.AllocationService_Apply_FullMethodName, req, s.AllocationServiceServer.Apply)
 }
 
-func (s interceptAllocation) Erase(ctx context.Context, req *rove.AllocationRef) (*rove.AllocationEraseResponse, error) {
+func (s interceptAllocation) Erase(ctx context.Context, req *loft.AllocationRef) (*loft.AllocationEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AllocationServiceServer,
-		rove.AllocationService_Erase_FullMethodName, req, s.AllocationServiceServer.Erase)
+		loft.AllocationService_Erase_FullMethodName, req, s.AllocationServiceServer.Erase)
 }
 
-func (s interceptAllocation) List(ctx context.Context, req *rove.AllocationListRequest) (*rove.AllocationListResponse, error) {
+func (s interceptAllocation) List(ctx context.Context, req *loft.AllocationListRequest) (*loft.AllocationListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AllocationServiceServer,
-		rove.AllocationService_List_FullMethodName, req, s.AllocationServiceServer.List)
+		loft.AllocationService_List_FullMethodName, req, s.AllocationServiceServer.List)
 }
 
-func (s Intercept) InventoryCount() rove.InventoryCountServiceServer {
+func (s Intercept) InventoryCount() loft.InventoryCountServiceServer {
 	return interceptInventoryCount{s, s.Next().InventoryCount()}
 }
 
 type interceptInventoryCount struct {
 	Intercept
-	rove.InventoryCountServiceServer
+	loft.InventoryCountServiceServer
 }
 
-func (s interceptInventoryCount) Add(ctx context.Context, req *rove.InventoryCountAddRequest) (*rove.InventoryCount, error) {
+func (s interceptInventoryCount) Add(ctx context.Context, req *loft.InventoryCountAddRequest) (*loft.InventoryCount, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Add_FullMethodName, req, s.InventoryCountServiceServer.Add)
+		loft.InventoryCountService_Add_FullMethodName, req, s.InventoryCountServiceServer.Add)
 }
 
-func (s interceptInventoryCount) Get(ctx context.Context, req *rove.InventoryCountGetRequest) (*rove.InventoryCount, error) {
+func (s interceptInventoryCount) Get(ctx context.Context, req *loft.InventoryCountGetRequest) (*loft.InventoryCount, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Get_FullMethodName, req, s.InventoryCountServiceServer.Get)
+		loft.InventoryCountService_Get_FullMethodName, req, s.InventoryCountServiceServer.Get)
 }
 
-func (s interceptInventoryCount) Patch(ctx context.Context, req *rove.InventoryCountPatchRequest) (*rove.InventoryCount, error) {
+func (s interceptInventoryCount) Patch(ctx context.Context, req *loft.InventoryCountPatchRequest) (*loft.InventoryCount, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Patch_FullMethodName, req, s.InventoryCountServiceServer.Patch)
+		loft.InventoryCountService_Patch_FullMethodName, req, s.InventoryCountServiceServer.Patch)
 }
 
-func (s interceptInventoryCount) Apply(ctx context.Context, req *rove.InventoryCountApplyRequest) (*rove.InventoryCount, error) {
+func (s interceptInventoryCount) Apply(ctx context.Context, req *loft.InventoryCountApplyRequest) (*loft.InventoryCount, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Apply_FullMethodName, req, s.InventoryCountServiceServer.Apply)
+		loft.InventoryCountService_Apply_FullMethodName, req, s.InventoryCountServiceServer.Apply)
 }
 
-func (s interceptInventoryCount) Erase(ctx context.Context, req *rove.InventoryCountRef) (*rove.InventoryCountEraseResponse, error) {
+func (s interceptInventoryCount) Erase(ctx context.Context, req *loft.InventoryCountRef) (*loft.InventoryCountEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Erase_FullMethodName, req, s.InventoryCountServiceServer.Erase)
+		loft.InventoryCountService_Erase_FullMethodName, req, s.InventoryCountServiceServer.Erase)
 }
 
-func (s interceptInventoryCount) List(ctx context.Context, req *rove.InventoryCountListRequest) (*rove.InventoryCountListResponse, error) {
+func (s interceptInventoryCount) List(ctx context.Context, req *loft.InventoryCountListRequest) (*loft.InventoryCountListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_List_FullMethodName, req, s.InventoryCountServiceServer.List)
+		loft.InventoryCountService_List_FullMethodName, req, s.InventoryCountServiceServer.List)
 }
 
-func (s interceptInventoryCount) Watch(req *rove.InventoryCountWatchRequest, out grpc.ServerStreamingServer[rove.InventoryCountWatchResponse]) error {
+func (s interceptInventoryCount) Watch(req *loft.InventoryCountWatchRequest, out grpc.ServerStreamingServer[loft.InventoryCountWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Watch_FullMethodName, req, out, s.InventoryCountServiceServer.Watch)
+		loft.InventoryCountService_Watch_FullMethodName, req, out, s.InventoryCountServiceServer.Watch)
 }
 
-func (s interceptInventoryCount) Scan(ctx context.Context, req *rove.InventoryCountScanRequest) (*rove.CountFinding, error) {
+func (s interceptInventoryCount) Scan(ctx context.Context, req *loft.InventoryCountScanRequest) (*loft.CountFinding, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Scan_FullMethodName, req, s.InventoryCountServiceServer.Scan)
+		loft.InventoryCountService_Scan_FullMethodName, req, s.InventoryCountServiceServer.Scan)
 }
 
-func (s interceptInventoryCount) Reconcile(ctx context.Context, req *rove.InventoryCountReconcileRequest) (*rove.InventoryCountReconcileResponse, error) {
+func (s interceptInventoryCount) Reconcile(ctx context.Context, req *loft.InventoryCountReconcileRequest) (*loft.InventoryCountReconcileResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Reconcile_FullMethodName, req, s.InventoryCountServiceServer.Reconcile)
+		loft.InventoryCountService_Reconcile_FullMethodName, req, s.InventoryCountServiceServer.Reconcile)
 }
 
-func (s interceptInventoryCount) Resolve(ctx context.Context, req *rove.InventoryCountResolveRequest) (*rove.CountFinding, error) {
+func (s interceptInventoryCount) Resolve(ctx context.Context, req *loft.InventoryCountResolveRequest) (*loft.CountFinding, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Resolve_FullMethodName, req, s.InventoryCountServiceServer.Resolve)
+		loft.InventoryCountService_Resolve_FullMethodName, req, s.InventoryCountServiceServer.Resolve)
 }
 
-func (s interceptInventoryCount) Close(ctx context.Context, req *rove.InventoryCountCloseRequest) (*rove.InventoryCount, error) {
+func (s interceptInventoryCount) Close(ctx context.Context, req *loft.InventoryCountCloseRequest) (*loft.InventoryCount, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Close_FullMethodName, req, s.InventoryCountServiceServer.Close)
+		loft.InventoryCountService_Close_FullMethodName, req, s.InventoryCountServiceServer.Close)
 }
 
-func (s interceptInventoryCount) Results(ctx context.Context, req *rove.InventoryCountResultsRequest) (*rove.InventoryCountResultsResponse, error) {
+func (s interceptInventoryCount) Results(ctx context.Context, req *loft.InventoryCountResultsRequest) (*loft.InventoryCountResultsResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_Results_FullMethodName, req, s.InventoryCountServiceServer.Results)
+		loft.InventoryCountService_Results_FullMethodName, req, s.InventoryCountServiceServer.Results)
 }
 
-func (s interceptInventoryCount) ExportResults(ctx context.Context, req *rove.InventoryCountResultsRequest) (*rove.AssetExportResponse, error) {
+func (s interceptInventoryCount) ExportResults(ctx context.Context, req *loft.InventoryCountResultsRequest) (*loft.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
-		rove.InventoryCountService_ExportResults_FullMethodName, req, s.InventoryCountServiceServer.ExportResults)
+		loft.InventoryCountService_ExportResults_FullMethodName, req, s.InventoryCountServiceServer.ExportResults)
 }
 
-func (s Intercept) CountFinding() rove.CountFindingServiceServer {
+func (s Intercept) CountFinding() loft.CountFindingServiceServer {
 	return interceptCountFinding{s, s.Next().CountFinding()}
 }
 
 type interceptCountFinding struct {
 	Intercept
-	rove.CountFindingServiceServer
+	loft.CountFindingServiceServer
 }
 
-func (s interceptCountFinding) Add(ctx context.Context, req *rove.CountFindingAddRequest) (*rove.CountFinding, error) {
+func (s interceptCountFinding) Add(ctx context.Context, req *loft.CountFindingAddRequest) (*loft.CountFinding, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CountFindingServiceServer,
-		rove.CountFindingService_Add_FullMethodName, req, s.CountFindingServiceServer.Add)
+		loft.CountFindingService_Add_FullMethodName, req, s.CountFindingServiceServer.Add)
 }
 
-func (s interceptCountFinding) Get(ctx context.Context, req *rove.CountFindingGetRequest) (*rove.CountFinding, error) {
+func (s interceptCountFinding) Get(ctx context.Context, req *loft.CountFindingGetRequest) (*loft.CountFinding, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CountFindingServiceServer,
-		rove.CountFindingService_Get_FullMethodName, req, s.CountFindingServiceServer.Get)
+		loft.CountFindingService_Get_FullMethodName, req, s.CountFindingServiceServer.Get)
 }
 
-func (s interceptCountFinding) Patch(ctx context.Context, req *rove.CountFindingPatchRequest) (*rove.CountFinding, error) {
+func (s interceptCountFinding) Patch(ctx context.Context, req *loft.CountFindingPatchRequest) (*loft.CountFinding, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CountFindingServiceServer,
-		rove.CountFindingService_Patch_FullMethodName, req, s.CountFindingServiceServer.Patch)
+		loft.CountFindingService_Patch_FullMethodName, req, s.CountFindingServiceServer.Patch)
 }
 
-func (s interceptCountFinding) Apply(ctx context.Context, req *rove.CountFindingApplyRequest) (*rove.CountFinding, error) {
+func (s interceptCountFinding) Apply(ctx context.Context, req *loft.CountFindingApplyRequest) (*loft.CountFinding, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CountFindingServiceServer,
-		rove.CountFindingService_Apply_FullMethodName, req, s.CountFindingServiceServer.Apply)
+		loft.CountFindingService_Apply_FullMethodName, req, s.CountFindingServiceServer.Apply)
 }
 
-func (s interceptCountFinding) Erase(ctx context.Context, req *rove.CountFindingRef) (*rove.CountFindingEraseResponse, error) {
+func (s interceptCountFinding) Erase(ctx context.Context, req *loft.CountFindingRef) (*loft.CountFindingEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CountFindingServiceServer,
-		rove.CountFindingService_Erase_FullMethodName, req, s.CountFindingServiceServer.Erase)
+		loft.CountFindingService_Erase_FullMethodName, req, s.CountFindingServiceServer.Erase)
 }
 
-func (s interceptCountFinding) List(ctx context.Context, req *rove.CountFindingListRequest) (*rove.CountFindingListResponse, error) {
+func (s interceptCountFinding) List(ctx context.Context, req *loft.CountFindingListRequest) (*loft.CountFindingListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CountFindingServiceServer,
-		rove.CountFindingService_List_FullMethodName, req, s.CountFindingServiceServer.List)
+		loft.CountFindingService_List_FullMethodName, req, s.CountFindingServiceServer.List)
 }
 
-func (s interceptCountFinding) Watch(req *rove.CountFindingWatchRequest, out grpc.ServerStreamingServer[rove.CountFindingWatchResponse]) error {
+func (s interceptCountFinding) Watch(req *loft.CountFindingWatchRequest, out grpc.ServerStreamingServer[loft.CountFindingWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.CountFindingServiceServer,
-		rove.CountFindingService_Watch_FullMethodName, req, out, s.CountFindingServiceServer.Watch)
+		loft.CountFindingService_Watch_FullMethodName, req, out, s.CountFindingServiceServer.Watch)
 }
 
-func (s Intercept) Stock() rove.StockServiceServer {
+func (s Intercept) Stock() loft.StockServiceServer {
 	return interceptStock{s, s.Next().Stock()}
 }
 
 type interceptStock struct {
 	Intercept
-	rove.StockServiceServer
+	loft.StockServiceServer
 }
 
-func (s interceptStock) Add(ctx context.Context, req *rove.StockAddRequest) (*rove.Stock, error) {
+func (s interceptStock) Add(ctx context.Context, req *loft.StockAddRequest) (*loft.Stock, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Add_FullMethodName, req, s.StockServiceServer.Add)
+		loft.StockService_Add_FullMethodName, req, s.StockServiceServer.Add)
 }
 
-func (s interceptStock) Get(ctx context.Context, req *rove.StockGetRequest) (*rove.Stock, error) {
+func (s interceptStock) Get(ctx context.Context, req *loft.StockGetRequest) (*loft.Stock, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Get_FullMethodName, req, s.StockServiceServer.Get)
+		loft.StockService_Get_FullMethodName, req, s.StockServiceServer.Get)
 }
 
-func (s interceptStock) Patch(ctx context.Context, req *rove.StockPatchRequest) (*rove.Stock, error) {
+func (s interceptStock) Patch(ctx context.Context, req *loft.StockPatchRequest) (*loft.Stock, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Patch_FullMethodName, req, s.StockServiceServer.Patch)
+		loft.StockService_Patch_FullMethodName, req, s.StockServiceServer.Patch)
 }
 
-func (s interceptStock) Apply(ctx context.Context, req *rove.StockApplyRequest) (*rove.Stock, error) {
+func (s interceptStock) Apply(ctx context.Context, req *loft.StockApplyRequest) (*loft.Stock, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Apply_FullMethodName, req, s.StockServiceServer.Apply)
+		loft.StockService_Apply_FullMethodName, req, s.StockServiceServer.Apply)
 }
 
-func (s interceptStock) Erase(ctx context.Context, req *rove.StockRef) (*rove.StockEraseResponse, error) {
+func (s interceptStock) Erase(ctx context.Context, req *loft.StockRef) (*loft.StockEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Erase_FullMethodName, req, s.StockServiceServer.Erase)
+		loft.StockService_Erase_FullMethodName, req, s.StockServiceServer.Erase)
 }
 
-func (s interceptStock) List(ctx context.Context, req *rove.StockListRequest) (*rove.StockListResponse, error) {
+func (s interceptStock) List(ctx context.Context, req *loft.StockListRequest) (*loft.StockListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_List_FullMethodName, req, s.StockServiceServer.List)
+		loft.StockService_List_FullMethodName, req, s.StockServiceServer.List)
 }
 
-func (s interceptStock) Watch(req *rove.StockWatchRequest, out grpc.ServerStreamingServer[rove.StockWatchResponse]) error {
+func (s interceptStock) Watch(req *loft.StockWatchRequest, out grpc.ServerStreamingServer[loft.StockWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.StockServiceServer,
-		rove.StockService_Watch_FullMethodName, req, out, s.StockServiceServer.Watch)
+		loft.StockService_Watch_FullMethodName, req, out, s.StockServiceServer.Watch)
 }
 
-func (s interceptStock) Receive(ctx context.Context, req *rove.StockChangeRequest) (*rove.Stock, error) {
+func (s interceptStock) Receive(ctx context.Context, req *loft.StockChangeRequest) (*loft.Stock, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Receive_FullMethodName, req, s.StockServiceServer.Receive)
+		loft.StockService_Receive_FullMethodName, req, s.StockServiceServer.Receive)
 }
 
-func (s interceptStock) Consume(ctx context.Context, req *rove.StockChangeRequest) (*rove.Stock, error) {
+func (s interceptStock) Consume(ctx context.Context, req *loft.StockChangeRequest) (*loft.Stock, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Consume_FullMethodName, req, s.StockServiceServer.Consume)
+		loft.StockService_Consume_FullMethodName, req, s.StockServiceServer.Consume)
 }
 
-func (s interceptStock) Adjust(ctx context.Context, req *rove.StockChangeRequest) (*rove.Stock, error) {
+func (s interceptStock) Adjust(ctx context.Context, req *loft.StockChangeRequest) (*loft.Stock, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Adjust_FullMethodName, req, s.StockServiceServer.Adjust)
+		loft.StockService_Adjust_FullMethodName, req, s.StockServiceServer.Adjust)
 }
 
-func (s interceptStock) Transfer(ctx context.Context, req *rove.StockTransferRequest) (*rove.Stock, error) {
+func (s interceptStock) Transfer(ctx context.Context, req *loft.StockTransferRequest) (*loft.Stock, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Transfer_FullMethodName, req, s.StockServiceServer.Transfer)
+		loft.StockService_Transfer_FullMethodName, req, s.StockServiceServer.Transfer)
 }
 
-func (s interceptStock) Convert(ctx context.Context, req *rove.StockConvertRequest) (*rove.StockConvertResponse, error) {
+func (s interceptStock) Convert(ctx context.Context, req *loft.StockConvertRequest) (*loft.StockConvertResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Convert_FullMethodName, req, s.StockServiceServer.Convert)
+		loft.StockService_Convert_FullMethodName, req, s.StockServiceServer.Convert)
 }
 
-func (s interceptStock) Flow(ctx context.Context, req *rove.StockFlowRequest) (*rove.StockFlowResponse, error) {
+func (s interceptStock) Flow(ctx context.Context, req *loft.StockFlowRequest) (*loft.StockFlowResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_Flow_FullMethodName, req, s.StockServiceServer.Flow)
+		loft.StockService_Flow_FullMethodName, req, s.StockServiceServer.Flow)
 }
 
-func (s interceptStock) ExportFlow(ctx context.Context, req *rove.StockFlowRequest) (*rove.AssetExportResponse, error) {
+func (s interceptStock) ExportFlow(ctx context.Context, req *loft.StockFlowRequest) (*loft.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
-		rove.StockService_ExportFlow_FullMethodName, req, s.StockServiceServer.ExportFlow)
+		loft.StockService_ExportFlow_FullMethodName, req, s.StockServiceServer.ExportFlow)
 }
 
-func (s Intercept) StockMovement() rove.StockMovementServiceServer {
+func (s Intercept) StockMovement() loft.StockMovementServiceServer {
 	return interceptStockMovement{s, s.Next().StockMovement()}
 }
 
 type interceptStockMovement struct {
 	Intercept
-	rove.StockMovementServiceServer
+	loft.StockMovementServiceServer
 }
 
-func (s interceptStockMovement) Add(ctx context.Context, req *rove.StockMovementAddRequest) (*rove.StockMovement, error) {
+func (s interceptStockMovement) Add(ctx context.Context, req *loft.StockMovementAddRequest) (*loft.StockMovement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockMovementServiceServer,
-		rove.StockMovementService_Add_FullMethodName, req, s.StockMovementServiceServer.Add)
+		loft.StockMovementService_Add_FullMethodName, req, s.StockMovementServiceServer.Add)
 }
 
-func (s interceptStockMovement) Get(ctx context.Context, req *rove.StockMovementGetRequest) (*rove.StockMovement, error) {
+func (s interceptStockMovement) Get(ctx context.Context, req *loft.StockMovementGetRequest) (*loft.StockMovement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockMovementServiceServer,
-		rove.StockMovementService_Get_FullMethodName, req, s.StockMovementServiceServer.Get)
+		loft.StockMovementService_Get_FullMethodName, req, s.StockMovementServiceServer.Get)
 }
 
-func (s interceptStockMovement) Patch(ctx context.Context, req *rove.StockMovementPatchRequest) (*rove.StockMovement, error) {
+func (s interceptStockMovement) Patch(ctx context.Context, req *loft.StockMovementPatchRequest) (*loft.StockMovement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockMovementServiceServer,
-		rove.StockMovementService_Patch_FullMethodName, req, s.StockMovementServiceServer.Patch)
+		loft.StockMovementService_Patch_FullMethodName, req, s.StockMovementServiceServer.Patch)
 }
 
-func (s interceptStockMovement) Apply(ctx context.Context, req *rove.StockMovementApplyRequest) (*rove.StockMovement, error) {
+func (s interceptStockMovement) Apply(ctx context.Context, req *loft.StockMovementApplyRequest) (*loft.StockMovement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockMovementServiceServer,
-		rove.StockMovementService_Apply_FullMethodName, req, s.StockMovementServiceServer.Apply)
+		loft.StockMovementService_Apply_FullMethodName, req, s.StockMovementServiceServer.Apply)
 }
 
-func (s interceptStockMovement) Erase(ctx context.Context, req *rove.StockMovementRef) (*rove.StockMovementEraseResponse, error) {
+func (s interceptStockMovement) Erase(ctx context.Context, req *loft.StockMovementRef) (*loft.StockMovementEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockMovementServiceServer,
-		rove.StockMovementService_Erase_FullMethodName, req, s.StockMovementServiceServer.Erase)
+		loft.StockMovementService_Erase_FullMethodName, req, s.StockMovementServiceServer.Erase)
 }
 
-func (s interceptStockMovement) List(ctx context.Context, req *rove.StockMovementListRequest) (*rove.StockMovementListResponse, error) {
+func (s interceptStockMovement) List(ctx context.Context, req *loft.StockMovementListRequest) (*loft.StockMovementListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StockMovementServiceServer,
-		rove.StockMovementService_List_FullMethodName, req, s.StockMovementServiceServer.List)
+		loft.StockMovementService_List_FullMethodName, req, s.StockMovementServiceServer.List)
 }
 
-func (s Intercept) Custody() rove.CustodyServiceServer {
+func (s Intercept) Custody() loft.CustodyServiceServer {
 	return interceptCustody{s, s.Next().Custody()}
 }
 
 type interceptCustody struct {
 	Intercept
-	rove.CustodyServiceServer
+	loft.CustodyServiceServer
 }
 
-func (s interceptCustody) Add(ctx context.Context, req *rove.CustodyAddRequest) (*rove.Custody, error) {
+func (s interceptCustody) Add(ctx context.Context, req *loft.CustodyAddRequest) (*loft.Custody, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Add_FullMethodName, req, s.CustodyServiceServer.Add)
+		loft.CustodyService_Add_FullMethodName, req, s.CustodyServiceServer.Add)
 }
 
-func (s interceptCustody) Get(ctx context.Context, req *rove.CustodyGetRequest) (*rove.Custody, error) {
+func (s interceptCustody) Get(ctx context.Context, req *loft.CustodyGetRequest) (*loft.Custody, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Get_FullMethodName, req, s.CustodyServiceServer.Get)
+		loft.CustodyService_Get_FullMethodName, req, s.CustodyServiceServer.Get)
 }
 
-func (s interceptCustody) Patch(ctx context.Context, req *rove.CustodyPatchRequest) (*rove.Custody, error) {
+func (s interceptCustody) Patch(ctx context.Context, req *loft.CustodyPatchRequest) (*loft.Custody, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Patch_FullMethodName, req, s.CustodyServiceServer.Patch)
+		loft.CustodyService_Patch_FullMethodName, req, s.CustodyServiceServer.Patch)
 }
 
-func (s interceptCustody) Apply(ctx context.Context, req *rove.CustodyApplyRequest) (*rove.Custody, error) {
+func (s interceptCustody) Apply(ctx context.Context, req *loft.CustodyApplyRequest) (*loft.Custody, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Apply_FullMethodName, req, s.CustodyServiceServer.Apply)
+		loft.CustodyService_Apply_FullMethodName, req, s.CustodyServiceServer.Apply)
 }
 
-func (s interceptCustody) Erase(ctx context.Context, req *rove.CustodyRef) (*rove.CustodyEraseResponse, error) {
+func (s interceptCustody) Erase(ctx context.Context, req *loft.CustodyRef) (*loft.CustodyEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Erase_FullMethodName, req, s.CustodyServiceServer.Erase)
+		loft.CustodyService_Erase_FullMethodName, req, s.CustodyServiceServer.Erase)
 }
 
-func (s interceptCustody) List(ctx context.Context, req *rove.CustodyListRequest) (*rove.CustodyListResponse, error) {
+func (s interceptCustody) List(ctx context.Context, req *loft.CustodyListRequest) (*loft.CustodyListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_List_FullMethodName, req, s.CustodyServiceServer.List)
+		loft.CustodyService_List_FullMethodName, req, s.CustodyServiceServer.List)
 }
 
-func (s interceptCustody) Watch(req *rove.CustodyWatchRequest, out grpc.ServerStreamingServer[rove.CustodyWatchResponse]) error {
+func (s interceptCustody) Watch(req *loft.CustodyWatchRequest, out grpc.ServerStreamingServer[loft.CustodyWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.CustodyServiceServer,
-		rove.CustodyService_Watch_FullMethodName, req, out, s.CustodyServiceServer.Watch)
+		loft.CustodyService_Watch_FullMethodName, req, out, s.CustodyServiceServer.Watch)
 }
 
-func (s interceptCustody) Acknowledge(ctx context.Context, req *rove.CustodyAcknowledgeRequest) (*rove.Custody, error) {
+func (s interceptCustody) Acknowledge(ctx context.Context, req *loft.CustodyAcknowledgeRequest) (*loft.Custody, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Acknowledge_FullMethodName, req, s.CustodyServiceServer.Acknowledge)
+		loft.CustodyService_Acknowledge_FullMethodName, req, s.CustodyServiceServer.Acknowledge)
 }
 
-func (s interceptCustody) Return(ctx context.Context, req *rove.CustodyReturnRequest) (*rove.Custody, error) {
+func (s interceptCustody) Return(ctx context.Context, req *loft.CustodyReturnRequest) (*loft.Custody, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Return_FullMethodName, req, s.CustodyServiceServer.Return)
+		loft.CustodyService_Return_FullMethodName, req, s.CustodyServiceServer.Return)
 }
 
-func (s interceptCustody) Extend(ctx context.Context, req *rove.CustodyExtendRequest) (*rove.Custody, error) {
+func (s interceptCustody) Extend(ctx context.Context, req *loft.CustodyExtendRequest) (*loft.Custody, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Extend_FullMethodName, req, s.CustodyServiceServer.Extend)
+		loft.CustodyService_Extend_FullMethodName, req, s.CustodyServiceServer.Extend)
 }
 
-func (s interceptCustody) Outstanding(ctx context.Context, req *rove.CustodyOutstandingRequest) (*rove.CustodyOutstandingResponse, error) {
+func (s interceptCustody) Outstanding(ctx context.Context, req *loft.CustodyOutstandingRequest) (*loft.CustodyOutstandingResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_Outstanding_FullMethodName, req, s.CustodyServiceServer.Outstanding)
+		loft.CustodyService_Outstanding_FullMethodName, req, s.CustodyServiceServer.Outstanding)
 }
 
-func (s interceptCustody) ExportOutstanding(ctx context.Context, req *rove.CustodyOutstandingRequest) (*rove.AssetExportResponse, error) {
+func (s interceptCustody) ExportOutstanding(ctx context.Context, req *loft.CustodyOutstandingRequest) (*loft.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
-		rove.CustodyService_ExportOutstanding_FullMethodName, req, s.CustodyServiceServer.ExportOutstanding)
+		loft.CustodyService_ExportOutstanding_FullMethodName, req, s.CustodyServiceServer.ExportOutstanding)
 }
 
-func (s Intercept) CustodyLine() rove.CustodyLineServiceServer {
+func (s Intercept) CustodyLine() loft.CustodyLineServiceServer {
 	return interceptCustodyLine{s, s.Next().CustodyLine()}
 }
 
 type interceptCustodyLine struct {
 	Intercept
-	rove.CustodyLineServiceServer
+	loft.CustodyLineServiceServer
 }
 
-func (s interceptCustodyLine) Add(ctx context.Context, req *rove.CustodyLineAddRequest) (*rove.CustodyLine, error) {
+func (s interceptCustodyLine) Add(ctx context.Context, req *loft.CustodyLineAddRequest) (*loft.CustodyLine, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyLineServiceServer,
-		rove.CustodyLineService_Add_FullMethodName, req, s.CustodyLineServiceServer.Add)
+		loft.CustodyLineService_Add_FullMethodName, req, s.CustodyLineServiceServer.Add)
 }
 
-func (s interceptCustodyLine) Get(ctx context.Context, req *rove.CustodyLineGetRequest) (*rove.CustodyLine, error) {
+func (s interceptCustodyLine) Get(ctx context.Context, req *loft.CustodyLineGetRequest) (*loft.CustodyLine, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyLineServiceServer,
-		rove.CustodyLineService_Get_FullMethodName, req, s.CustodyLineServiceServer.Get)
+		loft.CustodyLineService_Get_FullMethodName, req, s.CustodyLineServiceServer.Get)
 }
 
-func (s interceptCustodyLine) Patch(ctx context.Context, req *rove.CustodyLinePatchRequest) (*rove.CustodyLine, error) {
+func (s interceptCustodyLine) Patch(ctx context.Context, req *loft.CustodyLinePatchRequest) (*loft.CustodyLine, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyLineServiceServer,
-		rove.CustodyLineService_Patch_FullMethodName, req, s.CustodyLineServiceServer.Patch)
+		loft.CustodyLineService_Patch_FullMethodName, req, s.CustodyLineServiceServer.Patch)
 }
 
-func (s interceptCustodyLine) Apply(ctx context.Context, req *rove.CustodyLineApplyRequest) (*rove.CustodyLine, error) {
+func (s interceptCustodyLine) Apply(ctx context.Context, req *loft.CustodyLineApplyRequest) (*loft.CustodyLine, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyLineServiceServer,
-		rove.CustodyLineService_Apply_FullMethodName, req, s.CustodyLineServiceServer.Apply)
+		loft.CustodyLineService_Apply_FullMethodName, req, s.CustodyLineServiceServer.Apply)
 }
 
-func (s interceptCustodyLine) Erase(ctx context.Context, req *rove.CustodyLineRef) (*rove.CustodyLineEraseResponse, error) {
+func (s interceptCustodyLine) Erase(ctx context.Context, req *loft.CustodyLineRef) (*loft.CustodyLineEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyLineServiceServer,
-		rove.CustodyLineService_Erase_FullMethodName, req, s.CustodyLineServiceServer.Erase)
+		loft.CustodyLineService_Erase_FullMethodName, req, s.CustodyLineServiceServer.Erase)
 }
 
-func (s interceptCustodyLine) List(ctx context.Context, req *rove.CustodyLineListRequest) (*rove.CustodyLineListResponse, error) {
+func (s interceptCustodyLine) List(ctx context.Context, req *loft.CustodyLineListRequest) (*loft.CustodyLineListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyLineServiceServer,
-		rove.CustodyLineService_List_FullMethodName, req, s.CustodyLineServiceServer.List)
+		loft.CustodyLineService_List_FullMethodName, req, s.CustodyLineServiceServer.List)
 }
 
-func (s Intercept) Placement() rove.PlacementServiceServer {
+func (s Intercept) Placement() loft.PlacementServiceServer {
 	return interceptPlacement{s, s.Next().Placement()}
 }
 
 type interceptPlacement struct {
 	Intercept
-	rove.PlacementServiceServer
+	loft.PlacementServiceServer
 }
 
-func (s interceptPlacement) Add(ctx context.Context, req *rove.PlacementAddRequest) (*rove.Placement, error) {
+func (s interceptPlacement) Add(ctx context.Context, req *loft.PlacementAddRequest) (*loft.Placement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
-		rove.PlacementService_Add_FullMethodName, req, s.PlacementServiceServer.Add)
+		loft.PlacementService_Add_FullMethodName, req, s.PlacementServiceServer.Add)
 }
 
-func (s interceptPlacement) AddMany(ctx context.Context, req *rove.PlacementAddManyRequest) (*rove.PlacementAddManyResponse, error) {
+func (s interceptPlacement) AddMany(ctx context.Context, req *loft.PlacementAddManyRequest) (*loft.PlacementAddManyResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
-		rove.PlacementService_AddMany_FullMethodName, req, s.PlacementServiceServer.AddMany)
+		loft.PlacementService_AddMany_FullMethodName, req, s.PlacementServiceServer.AddMany)
 }
 
-func (s interceptPlacement) Get(ctx context.Context, req *rove.PlacementGetRequest) (*rove.Placement, error) {
+func (s interceptPlacement) Get(ctx context.Context, req *loft.PlacementGetRequest) (*loft.Placement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
-		rove.PlacementService_Get_FullMethodName, req, s.PlacementServiceServer.Get)
+		loft.PlacementService_Get_FullMethodName, req, s.PlacementServiceServer.Get)
 }
 
-func (s interceptPlacement) Patch(ctx context.Context, req *rove.PlacementPatchRequest) (*rove.Placement, error) {
+func (s interceptPlacement) Patch(ctx context.Context, req *loft.PlacementPatchRequest) (*loft.Placement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
-		rove.PlacementService_Patch_FullMethodName, req, s.PlacementServiceServer.Patch)
+		loft.PlacementService_Patch_FullMethodName, req, s.PlacementServiceServer.Patch)
 }
 
-func (s interceptPlacement) Apply(ctx context.Context, req *rove.PlacementApplyRequest) (*rove.Placement, error) {
+func (s interceptPlacement) Apply(ctx context.Context, req *loft.PlacementApplyRequest) (*loft.Placement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
-		rove.PlacementService_Apply_FullMethodName, req, s.PlacementServiceServer.Apply)
+		loft.PlacementService_Apply_FullMethodName, req, s.PlacementServiceServer.Apply)
 }
 
-func (s interceptPlacement) Erase(ctx context.Context, req *rove.PlacementRef) (*rove.PlacementEraseResponse, error) {
+func (s interceptPlacement) Erase(ctx context.Context, req *loft.PlacementRef) (*loft.PlacementEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
-		rove.PlacementService_Erase_FullMethodName, req, s.PlacementServiceServer.Erase)
+		loft.PlacementService_Erase_FullMethodName, req, s.PlacementServiceServer.Erase)
 }
 
-func (s interceptPlacement) List(ctx context.Context, req *rove.PlacementListRequest) (*rove.PlacementListResponse, error) {
+func (s interceptPlacement) List(ctx context.Context, req *loft.PlacementListRequest) (*loft.PlacementListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
-		rove.PlacementService_List_FullMethodName, req, s.PlacementServiceServer.List)
+		loft.PlacementService_List_FullMethodName, req, s.PlacementServiceServer.List)
 }
 
-func (s Intercept) Link() rove.LinkServiceServer {
+func (s Intercept) Link() loft.LinkServiceServer {
 	return interceptLink{s, s.Next().Link()}
 }
 
 type interceptLink struct {
 	Intercept
-	rove.LinkServiceServer
+	loft.LinkServiceServer
 }
 
-func (s interceptLink) Add(ctx context.Context, req *rove.LinkAddRequest) (*rove.Link, error) {
+func (s interceptLink) Add(ctx context.Context, req *loft.LinkAddRequest) (*loft.Link, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LinkServiceServer,
-		rove.LinkService_Add_FullMethodName, req, s.LinkServiceServer.Add)
+		loft.LinkService_Add_FullMethodName, req, s.LinkServiceServer.Add)
 }
 
-func (s interceptLink) Get(ctx context.Context, req *rove.LinkGetRequest) (*rove.Link, error) {
+func (s interceptLink) Get(ctx context.Context, req *loft.LinkGetRequest) (*loft.Link, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LinkServiceServer,
-		rove.LinkService_Get_FullMethodName, req, s.LinkServiceServer.Get)
+		loft.LinkService_Get_FullMethodName, req, s.LinkServiceServer.Get)
 }
 
-func (s interceptLink) Patch(ctx context.Context, req *rove.LinkPatchRequest) (*rove.Link, error) {
+func (s interceptLink) Patch(ctx context.Context, req *loft.LinkPatchRequest) (*loft.Link, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LinkServiceServer,
-		rove.LinkService_Patch_FullMethodName, req, s.LinkServiceServer.Patch)
+		loft.LinkService_Patch_FullMethodName, req, s.LinkServiceServer.Patch)
 }
 
-func (s interceptLink) Apply(ctx context.Context, req *rove.LinkApplyRequest) (*rove.Link, error) {
+func (s interceptLink) Apply(ctx context.Context, req *loft.LinkApplyRequest) (*loft.Link, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LinkServiceServer,
-		rove.LinkService_Apply_FullMethodName, req, s.LinkServiceServer.Apply)
+		loft.LinkService_Apply_FullMethodName, req, s.LinkServiceServer.Apply)
 }
 
-func (s interceptLink) Erase(ctx context.Context, req *rove.LinkRef) (*rove.LinkEraseResponse, error) {
+func (s interceptLink) Erase(ctx context.Context, req *loft.LinkRef) (*loft.LinkEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LinkServiceServer,
-		rove.LinkService_Erase_FullMethodName, req, s.LinkServiceServer.Erase)
+		loft.LinkService_Erase_FullMethodName, req, s.LinkServiceServer.Erase)
 }
 
-func (s interceptLink) List(ctx context.Context, req *rove.LinkListRequest) (*rove.LinkListResponse, error) {
+func (s interceptLink) List(ctx context.Context, req *loft.LinkListRequest) (*loft.LinkListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LinkServiceServer,
-		rove.LinkService_List_FullMethodName, req, s.LinkServiceServer.List)
+		loft.LinkService_List_FullMethodName, req, s.LinkServiceServer.List)
 }
 
-func (s Intercept) Stewardship() rove.StewardshipServiceServer {
+func (s Intercept) Stewardship() loft.StewardshipServiceServer {
 	return interceptStewardship{s, s.Next().Stewardship()}
 }
 
 type interceptStewardship struct {
 	Intercept
-	rove.StewardshipServiceServer
+	loft.StewardshipServiceServer
 }
 
-func (s interceptStewardship) Add(ctx context.Context, req *rove.StewardshipAddRequest) (*rove.Stewardship, error) {
+func (s interceptStewardship) Add(ctx context.Context, req *loft.StewardshipAddRequest) (*loft.Stewardship, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StewardshipServiceServer,
-		rove.StewardshipService_Add_FullMethodName, req, s.StewardshipServiceServer.Add)
+		loft.StewardshipService_Add_FullMethodName, req, s.StewardshipServiceServer.Add)
 }
 
-func (s interceptStewardship) Get(ctx context.Context, req *rove.StewardshipGetRequest) (*rove.Stewardship, error) {
+func (s interceptStewardship) Get(ctx context.Context, req *loft.StewardshipGetRequest) (*loft.Stewardship, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StewardshipServiceServer,
-		rove.StewardshipService_Get_FullMethodName, req, s.StewardshipServiceServer.Get)
+		loft.StewardshipService_Get_FullMethodName, req, s.StewardshipServiceServer.Get)
 }
 
-func (s interceptStewardship) Patch(ctx context.Context, req *rove.StewardshipPatchRequest) (*rove.Stewardship, error) {
+func (s interceptStewardship) Patch(ctx context.Context, req *loft.StewardshipPatchRequest) (*loft.Stewardship, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StewardshipServiceServer,
-		rove.StewardshipService_Patch_FullMethodName, req, s.StewardshipServiceServer.Patch)
+		loft.StewardshipService_Patch_FullMethodName, req, s.StewardshipServiceServer.Patch)
 }
 
-func (s interceptStewardship) Apply(ctx context.Context, req *rove.StewardshipApplyRequest) (*rove.Stewardship, error) {
+func (s interceptStewardship) Apply(ctx context.Context, req *loft.StewardshipApplyRequest) (*loft.Stewardship, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StewardshipServiceServer,
-		rove.StewardshipService_Apply_FullMethodName, req, s.StewardshipServiceServer.Apply)
+		loft.StewardshipService_Apply_FullMethodName, req, s.StewardshipServiceServer.Apply)
 }
 
-func (s interceptStewardship) Erase(ctx context.Context, req *rove.StewardshipRef) (*rove.StewardshipEraseResponse, error) {
+func (s interceptStewardship) Erase(ctx context.Context, req *loft.StewardshipRef) (*loft.StewardshipEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StewardshipServiceServer,
-		rove.StewardshipService_Erase_FullMethodName, req, s.StewardshipServiceServer.Erase)
+		loft.StewardshipService_Erase_FullMethodName, req, s.StewardshipServiceServer.Erase)
 }
 
-func (s interceptStewardship) List(ctx context.Context, req *rove.StewardshipListRequest) (*rove.StewardshipListResponse, error) {
+func (s interceptStewardship) List(ctx context.Context, req *loft.StewardshipListRequest) (*loft.StewardshipListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.StewardshipServiceServer,
-		rove.StewardshipService_List_FullMethodName, req, s.StewardshipServiceServer.List)
+		loft.StewardshipService_List_FullMethodName, req, s.StewardshipServiceServer.List)
 }
 
-func (s Intercept) Notification() rove.NotificationServiceServer {
+func (s Intercept) Notification() loft.NotificationServiceServer {
 	return interceptNotification{s, s.Next().Notification()}
 }
 
 type interceptNotification struct {
 	Intercept
-	rove.NotificationServiceServer
+	loft.NotificationServiceServer
 }
 
-func (s interceptNotification) Add(ctx context.Context, req *rove.NotificationAddRequest) (*rove.Notification, error) {
+func (s interceptNotification) Add(ctx context.Context, req *loft.NotificationAddRequest) (*loft.Notification, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_Add_FullMethodName, req, s.NotificationServiceServer.Add)
+		loft.NotificationService_Add_FullMethodName, req, s.NotificationServiceServer.Add)
 }
 
-func (s interceptNotification) Get(ctx context.Context, req *rove.NotificationGetRequest) (*rove.Notification, error) {
+func (s interceptNotification) Get(ctx context.Context, req *loft.NotificationGetRequest) (*loft.Notification, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_Get_FullMethodName, req, s.NotificationServiceServer.Get)
+		loft.NotificationService_Get_FullMethodName, req, s.NotificationServiceServer.Get)
 }
 
-func (s interceptNotification) Patch(ctx context.Context, req *rove.NotificationPatchRequest) (*rove.Notification, error) {
+func (s interceptNotification) Patch(ctx context.Context, req *loft.NotificationPatchRequest) (*loft.Notification, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_Patch_FullMethodName, req, s.NotificationServiceServer.Patch)
+		loft.NotificationService_Patch_FullMethodName, req, s.NotificationServiceServer.Patch)
 }
 
-func (s interceptNotification) Apply(ctx context.Context, req *rove.NotificationApplyRequest) (*rove.Notification, error) {
+func (s interceptNotification) Apply(ctx context.Context, req *loft.NotificationApplyRequest) (*loft.Notification, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_Apply_FullMethodName, req, s.NotificationServiceServer.Apply)
+		loft.NotificationService_Apply_FullMethodName, req, s.NotificationServiceServer.Apply)
 }
 
-func (s interceptNotification) Erase(ctx context.Context, req *rove.NotificationRef) (*rove.NotificationEraseResponse, error) {
+func (s interceptNotification) Erase(ctx context.Context, req *loft.NotificationRef) (*loft.NotificationEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_Erase_FullMethodName, req, s.NotificationServiceServer.Erase)
+		loft.NotificationService_Erase_FullMethodName, req, s.NotificationServiceServer.Erase)
 }
 
-func (s interceptNotification) List(ctx context.Context, req *rove.NotificationListRequest) (*rove.NotificationListResponse, error) {
+func (s interceptNotification) List(ctx context.Context, req *loft.NotificationListRequest) (*loft.NotificationListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_List_FullMethodName, req, s.NotificationServiceServer.List)
+		loft.NotificationService_List_FullMethodName, req, s.NotificationServiceServer.List)
 }
 
-func (s interceptNotification) Inbox(ctx context.Context, req *rove.NotificationInboxRequest) (*rove.NotificationInboxResponse, error) {
+func (s interceptNotification) Inbox(ctx context.Context, req *loft.NotificationInboxRequest) (*loft.NotificationInboxResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_Inbox_FullMethodName, req, s.NotificationServiceServer.Inbox)
+		loft.NotificationService_Inbox_FullMethodName, req, s.NotificationServiceServer.Inbox)
 }
 
-func (s interceptNotification) MarkRead(ctx context.Context, req *rove.NotificationMarkReadRequest) (*rove.NotificationMarkReadResponse, error) {
+func (s interceptNotification) MarkRead(ctx context.Context, req *loft.NotificationMarkReadRequest) (*loft.NotificationMarkReadResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_MarkRead_FullMethodName, req, s.NotificationServiceServer.MarkRead)
+		loft.NotificationService_MarkRead_FullMethodName, req, s.NotificationServiceServer.MarkRead)
 }
 
-func (s interceptNotification) SetMail(ctx context.Context, req *rove.NotificationSetMailRequest) (*rove.NotificationSetMailResponse, error) {
+func (s interceptNotification) SetMail(ctx context.Context, req *loft.NotificationSetMailRequest) (*loft.NotificationSetMailResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
-		rove.NotificationService_SetMail_FullMethodName, req, s.NotificationServiceServer.SetMail)
+		loft.NotificationService_SetMail_FullMethodName, req, s.NotificationServiceServer.SetMail)
 }
 
-func (s Intercept) TenantContract() rove.TenantContractServiceServer {
+func (s Intercept) TenantContract() loft.TenantContractServiceServer {
 	return interceptTenantContract{s, s.Next().TenantContract()}
 }
 
 type interceptTenantContract struct {
 	Intercept
-	rove.TenantContractServiceServer
+	loft.TenantContractServiceServer
 }
 
-func (s interceptTenantContract) Add(ctx context.Context, req *rove.TenantContractAddRequest) (*rove.TenantContract, error) {
+func (s interceptTenantContract) Add(ctx context.Context, req *loft.TenantContractAddRequest) (*loft.TenantContract, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantContractServiceServer,
-		rove.TenantContractService_Add_FullMethodName, req, s.TenantContractServiceServer.Add)
+		loft.TenantContractService_Add_FullMethodName, req, s.TenantContractServiceServer.Add)
 }
 
-func (s interceptTenantContract) Get(ctx context.Context, req *rove.TenantContractGetRequest) (*rove.TenantContract, error) {
+func (s interceptTenantContract) Get(ctx context.Context, req *loft.TenantContractGetRequest) (*loft.TenantContract, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantContractServiceServer,
-		rove.TenantContractService_Get_FullMethodName, req, s.TenantContractServiceServer.Get)
+		loft.TenantContractService_Get_FullMethodName, req, s.TenantContractServiceServer.Get)
 }
 
-func (s interceptTenantContract) Patch(ctx context.Context, req *rove.TenantContractPatchRequest) (*rove.TenantContract, error) {
+func (s interceptTenantContract) Patch(ctx context.Context, req *loft.TenantContractPatchRequest) (*loft.TenantContract, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantContractServiceServer,
-		rove.TenantContractService_Patch_FullMethodName, req, s.TenantContractServiceServer.Patch)
+		loft.TenantContractService_Patch_FullMethodName, req, s.TenantContractServiceServer.Patch)
 }
 
-func (s interceptTenantContract) Apply(ctx context.Context, req *rove.TenantContractApplyRequest) (*rove.TenantContract, error) {
+func (s interceptTenantContract) Apply(ctx context.Context, req *loft.TenantContractApplyRequest) (*loft.TenantContract, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantContractServiceServer,
-		rove.TenantContractService_Apply_FullMethodName, req, s.TenantContractServiceServer.Apply)
+		loft.TenantContractService_Apply_FullMethodName, req, s.TenantContractServiceServer.Apply)
 }
 
-func (s interceptTenantContract) Erase(ctx context.Context, req *rove.TenantContractRef) (*rove.TenantContractEraseResponse, error) {
+func (s interceptTenantContract) Erase(ctx context.Context, req *loft.TenantContractRef) (*loft.TenantContractEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantContractServiceServer,
-		rove.TenantContractService_Erase_FullMethodName, req, s.TenantContractServiceServer.Erase)
+		loft.TenantContractService_Erase_FullMethodName, req, s.TenantContractServiceServer.Erase)
 }
 
-func (s interceptTenantContract) List(ctx context.Context, req *rove.TenantContractListRequest) (*rove.TenantContractListResponse, error) {
+func (s interceptTenantContract) List(ctx context.Context, req *loft.TenantContractListRequest) (*loft.TenantContractListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.TenantContractServiceServer,
-		rove.TenantContractService_List_FullMethodName, req, s.TenantContractServiceServer.List)
+		loft.TenantContractService_List_FullMethodName, req, s.TenantContractServiceServer.List)
 }
 
-func (s Intercept) LegalHold() rove.LegalHoldServiceServer {
+func (s Intercept) LegalHold() loft.LegalHoldServiceServer {
 	return interceptLegalHold{s, s.Next().LegalHold()}
 }
 
 type interceptLegalHold struct {
 	Intercept
-	rove.LegalHoldServiceServer
+	loft.LegalHoldServiceServer
 }
 
-func (s interceptLegalHold) Add(ctx context.Context, req *rove.LegalHoldAddRequest) (*rove.LegalHold, error) {
+func (s interceptLegalHold) Add(ctx context.Context, req *loft.LegalHoldAddRequest) (*loft.LegalHold, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LegalHoldServiceServer,
-		rove.LegalHoldService_Add_FullMethodName, req, s.LegalHoldServiceServer.Add)
+		loft.LegalHoldService_Add_FullMethodName, req, s.LegalHoldServiceServer.Add)
 }
 
-func (s interceptLegalHold) Get(ctx context.Context, req *rove.LegalHoldGetRequest) (*rove.LegalHold, error) {
+func (s interceptLegalHold) Get(ctx context.Context, req *loft.LegalHoldGetRequest) (*loft.LegalHold, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LegalHoldServiceServer,
-		rove.LegalHoldService_Get_FullMethodName, req, s.LegalHoldServiceServer.Get)
+		loft.LegalHoldService_Get_FullMethodName, req, s.LegalHoldServiceServer.Get)
 }
 
-func (s interceptLegalHold) Patch(ctx context.Context, req *rove.LegalHoldPatchRequest) (*rove.LegalHold, error) {
+func (s interceptLegalHold) Patch(ctx context.Context, req *loft.LegalHoldPatchRequest) (*loft.LegalHold, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LegalHoldServiceServer,
-		rove.LegalHoldService_Patch_FullMethodName, req, s.LegalHoldServiceServer.Patch)
+		loft.LegalHoldService_Patch_FullMethodName, req, s.LegalHoldServiceServer.Patch)
 }
 
-func (s interceptLegalHold) Apply(ctx context.Context, req *rove.LegalHoldApplyRequest) (*rove.LegalHold, error) {
+func (s interceptLegalHold) Apply(ctx context.Context, req *loft.LegalHoldApplyRequest) (*loft.LegalHold, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LegalHoldServiceServer,
-		rove.LegalHoldService_Apply_FullMethodName, req, s.LegalHoldServiceServer.Apply)
+		loft.LegalHoldService_Apply_FullMethodName, req, s.LegalHoldServiceServer.Apply)
 }
 
-func (s interceptLegalHold) Erase(ctx context.Context, req *rove.LegalHoldRef) (*rove.LegalHoldEraseResponse, error) {
+func (s interceptLegalHold) Erase(ctx context.Context, req *loft.LegalHoldRef) (*loft.LegalHoldEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LegalHoldServiceServer,
-		rove.LegalHoldService_Erase_FullMethodName, req, s.LegalHoldServiceServer.Erase)
+		loft.LegalHoldService_Erase_FullMethodName, req, s.LegalHoldServiceServer.Erase)
 }
 
-func (s interceptLegalHold) List(ctx context.Context, req *rove.LegalHoldListRequest) (*rove.LegalHoldListResponse, error) {
+func (s interceptLegalHold) List(ctx context.Context, req *loft.LegalHoldListRequest) (*loft.LegalHoldListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LegalHoldServiceServer,
-		rove.LegalHoldService_List_FullMethodName, req, s.LegalHoldServiceServer.List)
+		loft.LegalHoldService_List_FullMethodName, req, s.LegalHoldServiceServer.List)
 }
 
-func (s Intercept) AccessReview() rove.AccessReviewServiceServer {
+func (s Intercept) AccessReview() loft.AccessReviewServiceServer {
 	return interceptAccessReview{s, s.Next().AccessReview()}
 }
 
 type interceptAccessReview struct {
 	Intercept
-	rove.AccessReviewServiceServer
+	loft.AccessReviewServiceServer
 }
 
-func (s interceptAccessReview) Add(ctx context.Context, req *rove.AccessReviewAddRequest) (*rove.AccessReview, error) {
+func (s interceptAccessReview) Add(ctx context.Context, req *loft.AccessReviewAddRequest) (*loft.AccessReview, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
-		rove.AccessReviewService_Add_FullMethodName, req, s.AccessReviewServiceServer.Add)
+		loft.AccessReviewService_Add_FullMethodName, req, s.AccessReviewServiceServer.Add)
 }
 
-func (s interceptAccessReview) Get(ctx context.Context, req *rove.AccessReviewGetRequest) (*rove.AccessReview, error) {
+func (s interceptAccessReview) Get(ctx context.Context, req *loft.AccessReviewGetRequest) (*loft.AccessReview, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
-		rove.AccessReviewService_Get_FullMethodName, req, s.AccessReviewServiceServer.Get)
+		loft.AccessReviewService_Get_FullMethodName, req, s.AccessReviewServiceServer.Get)
 }
 
-func (s interceptAccessReview) Patch(ctx context.Context, req *rove.AccessReviewPatchRequest) (*rove.AccessReview, error) {
+func (s interceptAccessReview) Patch(ctx context.Context, req *loft.AccessReviewPatchRequest) (*loft.AccessReview, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
-		rove.AccessReviewService_Patch_FullMethodName, req, s.AccessReviewServiceServer.Patch)
+		loft.AccessReviewService_Patch_FullMethodName, req, s.AccessReviewServiceServer.Patch)
 }
 
-func (s interceptAccessReview) Apply(ctx context.Context, req *rove.AccessReviewApplyRequest) (*rove.AccessReview, error) {
+func (s interceptAccessReview) Apply(ctx context.Context, req *loft.AccessReviewApplyRequest) (*loft.AccessReview, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
-		rove.AccessReviewService_Apply_FullMethodName, req, s.AccessReviewServiceServer.Apply)
+		loft.AccessReviewService_Apply_FullMethodName, req, s.AccessReviewServiceServer.Apply)
 }
 
-func (s interceptAccessReview) Erase(ctx context.Context, req *rove.AccessReviewRef) (*rove.AccessReviewEraseResponse, error) {
+func (s interceptAccessReview) Erase(ctx context.Context, req *loft.AccessReviewRef) (*loft.AccessReviewEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
-		rove.AccessReviewService_Erase_FullMethodName, req, s.AccessReviewServiceServer.Erase)
+		loft.AccessReviewService_Erase_FullMethodName, req, s.AccessReviewServiceServer.Erase)
 }
 
-func (s interceptAccessReview) List(ctx context.Context, req *rove.AccessReviewListRequest) (*rove.AccessReviewListResponse, error) {
+func (s interceptAccessReview) List(ctx context.Context, req *loft.AccessReviewListRequest) (*loft.AccessReviewListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
-		rove.AccessReviewService_List_FullMethodName, req, s.AccessReviewServiceServer.List)
+		loft.AccessReviewService_List_FullMethodName, req, s.AccessReviewServiceServer.List)
 }
 
-func (s Intercept) Access() rove.AccessServiceServer {
+func (s Intercept) Access() loft.AccessServiceServer {
 	return interceptAccess{s, s.Next().Access()}
 }
 
 type interceptAccess struct {
 	Intercept
-	rove.AccessServiceServer
+	loft.AccessServiceServer
 }
 
-func (s interceptAccess) Get(ctx context.Context, req *rove.AccessGetRequest) (*rove.Access, error) {
+func (s interceptAccess) Get(ctx context.Context, req *loft.AccessGetRequest) (*loft.Access, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessServiceServer,
-		rove.AccessService_Get_FullMethodName, req, s.AccessServiceServer.Get)
+		loft.AccessService_Get_FullMethodName, req, s.AccessServiceServer.Get)
 }
 
-func (s interceptAccess) List(ctx context.Context, req *rove.AccessListRequest) (*rove.AccessListResponse, error) {
+func (s interceptAccess) List(ctx context.Context, req *loft.AccessListRequest) (*loft.AccessListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessServiceServer,
-		rove.AccessService_List_FullMethodName, req, s.AccessServiceServer.List)
+		loft.AccessService_List_FullMethodName, req, s.AccessServiceServer.List)
 }
 
-func (s interceptAccess) Review(ctx context.Context, req *rove.AccessReviewRequest) (*rove.AccessReviewResponse, error) {
+func (s interceptAccess) Review(ctx context.Context, req *loft.AccessReviewRequest) (*loft.AccessReviewResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessServiceServer,
-		rove.AccessService_Review_FullMethodName, req, s.AccessServiceServer.Review)
+		loft.AccessService_Review_FullMethodName, req, s.AccessServiceServer.Review)
 }
 
-func (s Intercept) Audit() rove.AuditServiceServer {
+func (s Intercept) Audit() loft.AuditServiceServer {
 	return interceptAudit{s, s.Next().Audit()}
 }
 
 type interceptAudit struct {
 	Intercept
-	rove.AuditServiceServer
+	loft.AuditServiceServer
 }
 
-func (s interceptAudit) Add(ctx context.Context, req *rove.AuditAddRequest) (*rove.Audit, error) {
+func (s interceptAudit) Add(ctx context.Context, req *loft.AuditAddRequest) (*loft.Audit, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AuditServiceServer,
-		rove.AuditService_Add_FullMethodName, req, s.AuditServiceServer.Add)
+		loft.AuditService_Add_FullMethodName, req, s.AuditServiceServer.Add)
 }
 
-func (s interceptAudit) Get(ctx context.Context, req *rove.AuditGetRequest) (*rove.Audit, error) {
+func (s interceptAudit) Get(ctx context.Context, req *loft.AuditGetRequest) (*loft.Audit, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AuditServiceServer,
-		rove.AuditService_Get_FullMethodName, req, s.AuditServiceServer.Get)
+		loft.AuditService_Get_FullMethodName, req, s.AuditServiceServer.Get)
 }
 
-func (s interceptAudit) Patch(ctx context.Context, req *rove.AuditPatchRequest) (*rove.Audit, error) {
+func (s interceptAudit) Patch(ctx context.Context, req *loft.AuditPatchRequest) (*loft.Audit, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AuditServiceServer,
-		rove.AuditService_Patch_FullMethodName, req, s.AuditServiceServer.Patch)
+		loft.AuditService_Patch_FullMethodName, req, s.AuditServiceServer.Patch)
 }
 
-func (s interceptAudit) Apply(ctx context.Context, req *rove.AuditApplyRequest) (*rove.Audit, error) {
+func (s interceptAudit) Apply(ctx context.Context, req *loft.AuditApplyRequest) (*loft.Audit, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AuditServiceServer,
-		rove.AuditService_Apply_FullMethodName, req, s.AuditServiceServer.Apply)
+		loft.AuditService_Apply_FullMethodName, req, s.AuditServiceServer.Apply)
 }
 
-func (s interceptAudit) Erase(ctx context.Context, req *rove.AuditRef) (*rove.AuditEraseResponse, error) {
+func (s interceptAudit) Erase(ctx context.Context, req *loft.AuditRef) (*loft.AuditEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AuditServiceServer,
-		rove.AuditService_Erase_FullMethodName, req, s.AuditServiceServer.Erase)
+		loft.AuditService_Erase_FullMethodName, req, s.AuditServiceServer.Erase)
 }
 
-func (s interceptAudit) List(ctx context.Context, req *rove.AuditListRequest) (*rove.AuditListResponse, error) {
+func (s interceptAudit) List(ctx context.Context, req *loft.AuditListRequest) (*loft.AuditListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AuditServiceServer,
-		rove.AuditService_List_FullMethodName, req, s.AuditServiceServer.List)
+		loft.AuditService_List_FullMethodName, req, s.AuditServiceServer.List)
 }
 
-func (s interceptAudit) Recent(ctx context.Context, req *rove.AuditRecentRequest) (*rove.AuditRecentResponse, error) {
+func (s interceptAudit) Recent(ctx context.Context, req *loft.AuditRecentRequest) (*loft.AuditRecentResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AuditServiceServer,
-		rove.AuditService_Recent_FullMethodName, req, s.AuditServiceServer.Recent)
+		loft.AuditService_Recent_FullMethodName, req, s.AuditServiceServer.Recent)
 }
 
-func (s Intercept) Event() rove.EventServiceServer {
+func (s Intercept) Event() loft.EventServiceServer {
 	return interceptEvent{s, s.Next().Event()}
 }
 
 type interceptEvent struct {
 	Intercept
-	rove.EventServiceServer
+	loft.EventServiceServer
 }
 
-func (s interceptEvent) Add(ctx context.Context, req *rove.EventAddRequest) (*rove.Event, error) {
+func (s interceptEvent) Add(ctx context.Context, req *loft.EventAddRequest) (*loft.Event, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
-		rove.EventService_Add_FullMethodName, req, s.EventServiceServer.Add)
+		loft.EventService_Add_FullMethodName, req, s.EventServiceServer.Add)
 }
 
-func (s interceptEvent) AddMany(ctx context.Context, req *rove.EventAddManyRequest) (*rove.EventAddManyResponse, error) {
+func (s interceptEvent) AddMany(ctx context.Context, req *loft.EventAddManyRequest) (*loft.EventAddManyResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
-		rove.EventService_AddMany_FullMethodName, req, s.EventServiceServer.AddMany)
+		loft.EventService_AddMany_FullMethodName, req, s.EventServiceServer.AddMany)
 }
 
-func (s interceptEvent) Get(ctx context.Context, req *rove.EventGetRequest) (*rove.Event, error) {
+func (s interceptEvent) Get(ctx context.Context, req *loft.EventGetRequest) (*loft.Event, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
-		rove.EventService_Get_FullMethodName, req, s.EventServiceServer.Get)
+		loft.EventService_Get_FullMethodName, req, s.EventServiceServer.Get)
 }
 
-func (s interceptEvent) List(ctx context.Context, req *rove.EventListRequest) (*rove.EventListResponse, error) {
+func (s interceptEvent) List(ctx context.Context, req *loft.EventListRequest) (*loft.EventListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
-		rove.EventService_List_FullMethodName, req, s.EventServiceServer.List)
+		loft.EventService_List_FullMethodName, req, s.EventServiceServer.List)
 }
 
-func (s interceptEvent) Recent(ctx context.Context, req *rove.EventRecentRequest) (*rove.EventRecentResponse, error) {
+func (s interceptEvent) Recent(ctx context.Context, req *loft.EventRecentRequest) (*loft.EventRecentResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
-		rove.EventService_Recent_FullMethodName, req, s.EventServiceServer.Recent)
+		loft.EventService_Recent_FullMethodName, req, s.EventServiceServer.Recent)
 }
 
-func (s interceptEvent) Redact(ctx context.Context, req *rove.EventRedactRequest) (*rove.Event, error) {
+func (s interceptEvent) Redact(ctx context.Context, req *loft.EventRedactRequest) (*loft.Event, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
-		rove.EventService_Redact_FullMethodName, req, s.EventServiceServer.Redact)
+		loft.EventService_Redact_FullMethodName, req, s.EventServiceServer.Redact)
 }
 
-func (s Intercept) Fact() rove.FactServiceServer {
+func (s Intercept) Fact() loft.FactServiceServer {
 	return interceptFact{s, s.Next().Fact()}
 }
 
 type interceptFact struct {
 	Intercept
-	rove.FactServiceServer
+	loft.FactServiceServer
 }
 
-func (s interceptFact) Add(ctx context.Context, req *rove.FactAddRequest) (*rove.Fact, error) {
+func (s interceptFact) Add(ctx context.Context, req *loft.FactAddRequest) (*loft.Fact, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.FactServiceServer,
-		rove.FactService_Add_FullMethodName, req, s.FactServiceServer.Add)
+		loft.FactService_Add_FullMethodName, req, s.FactServiceServer.Add)
 }
 
-func (s interceptFact) AddMany(ctx context.Context, req *rove.FactAddManyRequest) (*rove.FactAddManyResponse, error) {
+func (s interceptFact) AddMany(ctx context.Context, req *loft.FactAddManyRequest) (*loft.FactAddManyResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.FactServiceServer,
-		rove.FactService_AddMany_FullMethodName, req, s.FactServiceServer.AddMany)
+		loft.FactService_AddMany_FullMethodName, req, s.FactServiceServer.AddMany)
 }
 
-func (s interceptFact) Get(ctx context.Context, req *rove.FactGetRequest) (*rove.Fact, error) {
+func (s interceptFact) Get(ctx context.Context, req *loft.FactGetRequest) (*loft.Fact, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.FactServiceServer,
-		rove.FactService_Get_FullMethodName, req, s.FactServiceServer.Get)
+		loft.FactService_Get_FullMethodName, req, s.FactServiceServer.Get)
 }
 
-func (s interceptFact) Patch(ctx context.Context, req *rove.FactPatchRequest) (*rove.Fact, error) {
+func (s interceptFact) Patch(ctx context.Context, req *loft.FactPatchRequest) (*loft.Fact, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.FactServiceServer,
-		rove.FactService_Patch_FullMethodName, req, s.FactServiceServer.Patch)
+		loft.FactService_Patch_FullMethodName, req, s.FactServiceServer.Patch)
 }
 
-func (s interceptFact) Apply(ctx context.Context, req *rove.FactApplyRequest) (*rove.Fact, error) {
+func (s interceptFact) Apply(ctx context.Context, req *loft.FactApplyRequest) (*loft.Fact, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.FactServiceServer,
-		rove.FactService_Apply_FullMethodName, req, s.FactServiceServer.Apply)
+		loft.FactService_Apply_FullMethodName, req, s.FactServiceServer.Apply)
 }
 
-func (s interceptFact) List(ctx context.Context, req *rove.FactListRequest) (*rove.FactListResponse, error) {
+func (s interceptFact) List(ctx context.Context, req *loft.FactListRequest) (*loft.FactListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.FactServiceServer,
-		rove.FactService_List_FullMethodName, req, s.FactServiceServer.List)
+		loft.FactService_List_FullMethodName, req, s.FactServiceServer.List)
 }
 
-func (s Intercept) WorkOrder() rove.WorkOrderServiceServer {
+func (s Intercept) WorkOrder() loft.WorkOrderServiceServer {
 	return interceptWorkOrder{s, s.Next().WorkOrder()}
 }
 
 type interceptWorkOrder struct {
 	Intercept
-	rove.WorkOrderServiceServer
+	loft.WorkOrderServiceServer
 }
 
-func (s interceptWorkOrder) Add(ctx context.Context, req *rove.WorkOrderAddRequest) (*rove.WorkOrder, error) {
+func (s interceptWorkOrder) Add(ctx context.Context, req *loft.WorkOrderAddRequest) (*loft.WorkOrder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Add_FullMethodName, req, s.WorkOrderServiceServer.Add)
+		loft.WorkOrderService_Add_FullMethodName, req, s.WorkOrderServiceServer.Add)
 }
 
-func (s interceptWorkOrder) Get(ctx context.Context, req *rove.WorkOrderGetRequest) (*rove.WorkOrder, error) {
+func (s interceptWorkOrder) Get(ctx context.Context, req *loft.WorkOrderGetRequest) (*loft.WorkOrder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Get_FullMethodName, req, s.WorkOrderServiceServer.Get)
+		loft.WorkOrderService_Get_FullMethodName, req, s.WorkOrderServiceServer.Get)
 }
 
-func (s interceptWorkOrder) Patch(ctx context.Context, req *rove.WorkOrderPatchRequest) (*rove.WorkOrder, error) {
+func (s interceptWorkOrder) Patch(ctx context.Context, req *loft.WorkOrderPatchRequest) (*loft.WorkOrder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Patch_FullMethodName, req, s.WorkOrderServiceServer.Patch)
+		loft.WorkOrderService_Patch_FullMethodName, req, s.WorkOrderServiceServer.Patch)
 }
 
-func (s interceptWorkOrder) Apply(ctx context.Context, req *rove.WorkOrderApplyRequest) (*rove.WorkOrder, error) {
+func (s interceptWorkOrder) Apply(ctx context.Context, req *loft.WorkOrderApplyRequest) (*loft.WorkOrder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Apply_FullMethodName, req, s.WorkOrderServiceServer.Apply)
+		loft.WorkOrderService_Apply_FullMethodName, req, s.WorkOrderServiceServer.Apply)
 }
 
-func (s interceptWorkOrder) Erase(ctx context.Context, req *rove.WorkOrderRef) (*rove.WorkOrderEraseResponse, error) {
+func (s interceptWorkOrder) Erase(ctx context.Context, req *loft.WorkOrderRef) (*loft.WorkOrderEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Erase_FullMethodName, req, s.WorkOrderServiceServer.Erase)
+		loft.WorkOrderService_Erase_FullMethodName, req, s.WorkOrderServiceServer.Erase)
 }
 
-func (s interceptWorkOrder) List(ctx context.Context, req *rove.WorkOrderListRequest) (*rove.WorkOrderListResponse, error) {
+func (s interceptWorkOrder) List(ctx context.Context, req *loft.WorkOrderListRequest) (*loft.WorkOrderListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_List_FullMethodName, req, s.WorkOrderServiceServer.List)
+		loft.WorkOrderService_List_FullMethodName, req, s.WorkOrderServiceServer.List)
 }
 
-func (s interceptWorkOrder) Watch(req *rove.WorkOrderWatchRequest, out grpc.ServerStreamingServer[rove.WorkOrderWatchResponse]) error {
+func (s interceptWorkOrder) Watch(req *loft.WorkOrderWatchRequest, out grpc.ServerStreamingServer[loft.WorkOrderWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Watch_FullMethodName, req, out, s.WorkOrderServiceServer.Watch)
+		loft.WorkOrderService_Watch_FullMethodName, req, out, s.WorkOrderServiceServer.Watch)
 }
 
-func (s interceptWorkOrder) Update(ctx context.Context, req *rove.WorkOrderUpdateRequest) (*rove.WorkOrder, error) {
+func (s interceptWorkOrder) Update(ctx context.Context, req *loft.WorkOrderUpdateRequest) (*loft.WorkOrder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Update_FullMethodName, req, s.WorkOrderServiceServer.Update)
+		loft.WorkOrderService_Update_FullMethodName, req, s.WorkOrderServiceServer.Update)
 }
 
-func (s interceptWorkOrder) Complete(ctx context.Context, req *rove.WorkOrderCompleteRequest) (*rove.WorkOrder, error) {
+func (s interceptWorkOrder) Complete(ctx context.Context, req *loft.WorkOrderCompleteRequest) (*loft.WorkOrder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Complete_FullMethodName, req, s.WorkOrderServiceServer.Complete)
+		loft.WorkOrderService_Complete_FullMethodName, req, s.WorkOrderServiceServer.Complete)
 }
 
-func (s interceptWorkOrder) Cancel(ctx context.Context, req *rove.WorkOrderCompleteRequest) (*rove.WorkOrder, error) {
+func (s interceptWorkOrder) Cancel(ctx context.Context, req *loft.WorkOrderCompleteRequest) (*loft.WorkOrder, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.WorkOrderServiceServer,
-		rove.WorkOrderService_Cancel_FullMethodName, req, s.WorkOrderServiceServer.Cancel)
+		loft.WorkOrderService_Cancel_FullMethodName, req, s.WorkOrderServiceServer.Cancel)
 }
 
-func (s Intercept) Purchase() rove.PurchaseServiceServer {
+func (s Intercept) Purchase() loft.PurchaseServiceServer {
 	return interceptPurchase{s, s.Next().Purchase()}
 }
 
 type interceptPurchase struct {
 	Intercept
-	rove.PurchaseServiceServer
+	loft.PurchaseServiceServer
 }
 
-func (s interceptPurchase) Add(ctx context.Context, req *rove.PurchaseAddRequest) (*rove.Purchase, error) {
+func (s interceptPurchase) Add(ctx context.Context, req *loft.PurchaseAddRequest) (*loft.Purchase, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseServiceServer,
-		rove.PurchaseService_Add_FullMethodName, req, s.PurchaseServiceServer.Add)
+		loft.PurchaseService_Add_FullMethodName, req, s.PurchaseServiceServer.Add)
 }
 
-func (s interceptPurchase) Get(ctx context.Context, req *rove.PurchaseGetRequest) (*rove.Purchase, error) {
+func (s interceptPurchase) Get(ctx context.Context, req *loft.PurchaseGetRequest) (*loft.Purchase, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseServiceServer,
-		rove.PurchaseService_Get_FullMethodName, req, s.PurchaseServiceServer.Get)
+		loft.PurchaseService_Get_FullMethodName, req, s.PurchaseServiceServer.Get)
 }
 
-func (s interceptPurchase) Patch(ctx context.Context, req *rove.PurchasePatchRequest) (*rove.Purchase, error) {
+func (s interceptPurchase) Patch(ctx context.Context, req *loft.PurchasePatchRequest) (*loft.Purchase, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseServiceServer,
-		rove.PurchaseService_Patch_FullMethodName, req, s.PurchaseServiceServer.Patch)
+		loft.PurchaseService_Patch_FullMethodName, req, s.PurchaseServiceServer.Patch)
 }
 
-func (s interceptPurchase) Apply(ctx context.Context, req *rove.PurchaseApplyRequest) (*rove.Purchase, error) {
+func (s interceptPurchase) Apply(ctx context.Context, req *loft.PurchaseApplyRequest) (*loft.Purchase, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseServiceServer,
-		rove.PurchaseService_Apply_FullMethodName, req, s.PurchaseServiceServer.Apply)
+		loft.PurchaseService_Apply_FullMethodName, req, s.PurchaseServiceServer.Apply)
 }
 
-func (s interceptPurchase) Erase(ctx context.Context, req *rove.PurchaseRef) (*rove.PurchaseEraseResponse, error) {
+func (s interceptPurchase) Erase(ctx context.Context, req *loft.PurchaseRef) (*loft.PurchaseEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseServiceServer,
-		rove.PurchaseService_Erase_FullMethodName, req, s.PurchaseServiceServer.Erase)
+		loft.PurchaseService_Erase_FullMethodName, req, s.PurchaseServiceServer.Erase)
 }
 
-func (s interceptPurchase) List(ctx context.Context, req *rove.PurchaseListRequest) (*rove.PurchaseListResponse, error) {
+func (s interceptPurchase) List(ctx context.Context, req *loft.PurchaseListRequest) (*loft.PurchaseListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseServiceServer,
-		rove.PurchaseService_List_FullMethodName, req, s.PurchaseServiceServer.List)
+		loft.PurchaseService_List_FullMethodName, req, s.PurchaseServiceServer.List)
 }
 
-func (s interceptPurchase) Watch(req *rove.PurchaseWatchRequest, out grpc.ServerStreamingServer[rove.PurchaseWatchResponse]) error {
+func (s interceptPurchase) Watch(req *loft.PurchaseWatchRequest, out grpc.ServerStreamingServer[loft.PurchaseWatchResponse]) error {
 	return grpcx.RunStream(s.stream, s.PurchaseServiceServer,
-		rove.PurchaseService_Watch_FullMethodName, req, out, s.PurchaseServiceServer.Watch)
+		loft.PurchaseService_Watch_FullMethodName, req, out, s.PurchaseServiceServer.Watch)
 }
 
-func (s interceptPurchase) Receive(ctx context.Context, req *rove.PurchaseReceiveRequest) (*rove.PurchaseReceiveResponse, error) {
+func (s interceptPurchase) Receive(ctx context.Context, req *loft.PurchaseReceiveRequest) (*loft.PurchaseReceiveResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseServiceServer,
-		rove.PurchaseService_Receive_FullMethodName, req, s.PurchaseServiceServer.Receive)
+		loft.PurchaseService_Receive_FullMethodName, req, s.PurchaseServiceServer.Receive)
 }
 
-func (s Intercept) PurchaseLine() rove.PurchaseLineServiceServer {
+func (s Intercept) PurchaseLine() loft.PurchaseLineServiceServer {
 	return interceptPurchaseLine{s, s.Next().PurchaseLine()}
 }
 
 type interceptPurchaseLine struct {
 	Intercept
-	rove.PurchaseLineServiceServer
+	loft.PurchaseLineServiceServer
 }
 
-func (s interceptPurchaseLine) Add(ctx context.Context, req *rove.PurchaseLineAddRequest) (*rove.PurchaseLine, error) {
+func (s interceptPurchaseLine) Add(ctx context.Context, req *loft.PurchaseLineAddRequest) (*loft.PurchaseLine, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseLineServiceServer,
-		rove.PurchaseLineService_Add_FullMethodName, req, s.PurchaseLineServiceServer.Add)
+		loft.PurchaseLineService_Add_FullMethodName, req, s.PurchaseLineServiceServer.Add)
 }
 
-func (s interceptPurchaseLine) Get(ctx context.Context, req *rove.PurchaseLineGetRequest) (*rove.PurchaseLine, error) {
+func (s interceptPurchaseLine) Get(ctx context.Context, req *loft.PurchaseLineGetRequest) (*loft.PurchaseLine, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseLineServiceServer,
-		rove.PurchaseLineService_Get_FullMethodName, req, s.PurchaseLineServiceServer.Get)
+		loft.PurchaseLineService_Get_FullMethodName, req, s.PurchaseLineServiceServer.Get)
 }
 
-func (s interceptPurchaseLine) Patch(ctx context.Context, req *rove.PurchaseLinePatchRequest) (*rove.PurchaseLine, error) {
+func (s interceptPurchaseLine) Patch(ctx context.Context, req *loft.PurchaseLinePatchRequest) (*loft.PurchaseLine, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseLineServiceServer,
-		rove.PurchaseLineService_Patch_FullMethodName, req, s.PurchaseLineServiceServer.Patch)
+		loft.PurchaseLineService_Patch_FullMethodName, req, s.PurchaseLineServiceServer.Patch)
 }
 
-func (s interceptPurchaseLine) Apply(ctx context.Context, req *rove.PurchaseLineApplyRequest) (*rove.PurchaseLine, error) {
+func (s interceptPurchaseLine) Apply(ctx context.Context, req *loft.PurchaseLineApplyRequest) (*loft.PurchaseLine, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseLineServiceServer,
-		rove.PurchaseLineService_Apply_FullMethodName, req, s.PurchaseLineServiceServer.Apply)
+		loft.PurchaseLineService_Apply_FullMethodName, req, s.PurchaseLineServiceServer.Apply)
 }
 
-func (s interceptPurchaseLine) Erase(ctx context.Context, req *rove.PurchaseLineRef) (*rove.PurchaseLineEraseResponse, error) {
+func (s interceptPurchaseLine) Erase(ctx context.Context, req *loft.PurchaseLineRef) (*loft.PurchaseLineEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseLineServiceServer,
-		rove.PurchaseLineService_Erase_FullMethodName, req, s.PurchaseLineServiceServer.Erase)
+		loft.PurchaseLineService_Erase_FullMethodName, req, s.PurchaseLineServiceServer.Erase)
 }
 
-func (s interceptPurchaseLine) List(ctx context.Context, req *rove.PurchaseLineListRequest) (*rove.PurchaseLineListResponse, error) {
+func (s interceptPurchaseLine) List(ctx context.Context, req *loft.PurchaseLineListRequest) (*loft.PurchaseLineListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PurchaseLineServiceServer,
-		rove.PurchaseLineService_List_FullMethodName, req, s.PurchaseLineServiceServer.List)
+		loft.PurchaseLineService_List_FullMethodName, req, s.PurchaseLineServiceServer.List)
 }
 
 // WatchRecorder answers with the recorder that remembers a write for `w`.
@@ -25018,13 +25018,13 @@ func (s trailStore) Kept(ctx context.Context, key any, by []pdid.Id) error {
 // It opens no database, deliberately: what an archive is for is outliving
 // the deployment that wrote it, and a reader that needed the deployment
 // would be answering the question at the one moment nobody can.
-func TrailOf(fn func(*rove.Audit) error) func(doc []byte) error {
+func TrailOf(fn func(*loft.Audit) error) func(doc []byte) error {
 	return func(doc []byte) error {
 		if accessDoc(doc) {
 			return nil
 		}
 
-		v := &rove.Audit{}
+		v := &loft.Audit{}
 		if err := protojson.Unmarshal(doc, v); err != nil {
 			return err
 		}
@@ -25052,7 +25052,7 @@ func TrailOf(fn func(*rove.Audit) error) func(doc []byte) error {
 // Its writes are the only ones of Event and Fact the Audit layer lets
 // through, wherever in `next` that layer is: each is marked for it, on the
 // context handed to the servers and no other ([pastWrite]).
-func Past(next rove.Server, drv dialect.Driver, content audit.Contents) (past.Store, error) {
+func Past(next loft.Server, drv dialect.Driver, content audit.Contents) (past.Store, error) {
 	s, err := enttx.Rebind(next, drv)
 	if err != nil {
 		return nil, err
@@ -25062,7 +25062,7 @@ func Past(next rove.Server, drv dialect.Driver, content audit.Contents) (past.St
 }
 
 type pastStore struct {
-	next    rove.Server
+	next    loft.Server
 	drv     dialect.Driver
 	db      *ent.Client
 	content audit.Contents
@@ -25081,10 +25081,10 @@ func (s pastStore) Driver() dialect.Driver { return s.drv }
 func (s pastStore) AddEvents(ctx context.Context, vs []past.EventRow) ([]pdid.Id, error) {
 	ctx = pastWriting(ctx)
 
-	reqs := make([]*rove.EventAddRequest, len(vs))
+	reqs := make([]*loft.EventAddRequest, len(vs))
 	for i, v := range vs {
-		req := rove.EventAddRequest_builder{
-			Tenant:      rove.TenantRef_builder{Id: v.Tenant.Bytes()}.Build(),
+		req := loft.EventAddRequest_builder{
+			Tenant:      loft.TenantRef_builder{Id: v.Tenant.Bytes()}.Build(),
 			Kind:        v.Kind,
 			OccurredAt:  timestamppb.New(v.At),
 			Reason:      v.Reason,
@@ -25123,7 +25123,7 @@ func (s pastStore) AddEvents(ctx context.Context, vs []past.EventRow) ([]pdid.Id
 		return append(out, id), nil
 	}
 	for page := range slices.Chunk(reqs, bare.EventAddManyMax) {
-		res, err := s.next.Event().AddMany(ctx, rove.EventAddManyRequest_builder{Items: page}.Build())
+		res, err := s.next.Event().AddMany(ctx, loft.EventAddManyRequest_builder{Items: page}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -25144,11 +25144,11 @@ func (s pastStore) AddEvents(ctx context.Context, vs []past.EventRow) ([]pdid.Id
 func (s pastStore) AddFacts(ctx context.Context, vs []past.FactRow) error {
 	ctx = pastWriting(ctx)
 
-	reqs := make([]*rove.FactAddRequest, len(vs))
+	reqs := make([]*loft.FactAddRequest, len(vs))
 	for i, v := range vs {
 		field, domain := uint32(v.Field), uint32(v.Domain)
-		reqs[i] = rove.FactAddRequest_builder{
-			Tenant:      rove.TenantRef_builder{Id: v.Tenant.Bytes()}.Build(),
+		reqs[i] = loft.FactAddRequest_builder{
+			Tenant:      loft.TenantRef_builder{Id: v.Tenant.Bytes()}.Build(),
 			SubjectId:   v.Subject.Bytes(),
 			Key:         v.Key,
 			Value:       v.Value,
@@ -25165,7 +25165,7 @@ func (s pastStore) AddFacts(ctx context.Context, vs []past.FactRow) error {
 		return err
 	}
 	for page := range slices.Chunk(reqs, bare.FactAddManyMax) {
-		if _, err := s.next.Fact().AddMany(ctx, rove.FactAddManyRequest_builder{Items: page}.Build()); err != nil {
+		if _, err := s.next.Fact().AddMany(ctx, loft.FactAddManyRequest_builder{Items: page}.Build()); err != nil {
 			return err
 		}
 	}
@@ -25179,8 +25179,8 @@ func (s pastStore) Supersede(ctx context.Context, vs []past.FactRow, at time.Tim
 	ctx = pastWriting(ctx)
 
 	for _, v := range vs {
-		if _, err := s.next.Fact().Patch(ctx, rove.FactPatchRequest_builder{
-			Ref:          rove.FactRef_builder{Id: v.Id.Bytes()}.Build(),
+		if _, err := s.next.Fact().Patch(ctx, loft.FactPatchRequest_builder{
+			Ref:          loft.FactRef_builder{Id: v.Id.Bytes()}.Build(),
 			DateUpdated:  timestamppb.New(v.Version),
 			SupersededAt: timestamppb.New(at),
 			SupersededBy: by.Bytes(),
@@ -25733,7 +25733,7 @@ func (s pastStore) Erased(ctx context.Context, action string, ids []pdid.Id) err
 // the store marks what it hands the servers, and the context `f` is given
 // is no write of the past's, so a row `f` writes by hand with it is refused
 // as any other is ([pastWrite]).
-func PastIn(ungated rove.Server, drv dialect.Driver, content audit.Contents) func(ctx context.Context, tenant pdid.Id, f func(ctx context.Context, s past.Store) error) error {
+func PastIn(ungated loft.Server, drv dialect.Driver, content audit.Contents) func(ctx context.Context, tenant pdid.Id, f func(ctx context.Context, s past.Store) error) error {
 	return func(ctx context.Context, tenant pdid.Id, f func(ctx context.Context, s past.Store) error) error {
 		ctx = frame.Into(ctx, frame.New(pdid.Nil, tenant, frame.Grant{}).WithScope(frame.Only(tenant)))
 
@@ -25814,7 +25814,7 @@ var (
 
 func init() {
 	{
-		md := (&rove.AccessReview{}).ProtoReflect().Descriptor()
+		md := (&loft.AccessReview{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25825,11 +25825,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.AccessReviewRef{}).ProtoReflect().Descriptor()
+		r := (&loft.AccessReviewRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.CountFinding{}).ProtoReflect().Descriptor()
+		md := (&loft.CountFinding{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25840,11 +25840,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.CountFindingRef{}).ProtoReflect().Descriptor()
+		r := (&loft.CountFindingRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Custody{}).ProtoReflect().Descriptor()
+		md := (&loft.Custody{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25855,11 +25855,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.CustodyRef{}).ProtoReflect().Descriptor()
+		r := (&loft.CustodyRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Event{}).ProtoReflect().Descriptor()
+		md := (&loft.Event{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25870,11 +25870,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.EventRef{}).ProtoReflect().Descriptor()
+		r := (&loft.EventRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Holder{}).ProtoReflect().Descriptor()
+		md := (&loft.Holder{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25888,11 +25888,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.HolderRef{}).ProtoReflect().Descriptor()
+		r := (&loft.HolderRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.InventoryCount{}).ProtoReflect().Descriptor()
+		md := (&loft.InventoryCount{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25903,11 +25903,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.InventoryCountRef{}).ProtoReflect().Descriptor()
+		r := (&loft.InventoryCountRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Invitation{}).ProtoReflect().Descriptor()
+		md := (&loft.Invitation{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25918,11 +25918,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.InvitationRef{}).ProtoReflect().Descriptor()
+		r := (&loft.InvitationRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Notification{}).ProtoReflect().Descriptor()
+		md := (&loft.Notification{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25934,11 +25934,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.NotificationRef{}).ProtoReflect().Descriptor()
+		r := (&loft.NotificationRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Party{}).ProtoReflect().Descriptor()
+		md := (&loft.Party{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25954,11 +25954,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.PartyRef{}).ProtoReflect().Descriptor()
+		r := (&loft.PartyRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Purchase{}).ProtoReflect().Descriptor()
+		md := (&loft.Purchase{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25969,11 +25969,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.PurchaseRef{}).ProtoReflect().Descriptor()
+		r := (&loft.PurchaseRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Reservation{}).ProtoReflect().Descriptor()
+		md := (&loft.Reservation{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25984,11 +25984,11 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.ReservationRef{}).ProtoReflect().Descriptor()
+		r := (&loft.ReservationRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.Tenant{}).ProtoReflect().Descriptor()
+		md := (&loft.Tenant{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -25996,11 +25996,11 @@ func init() {
 				fs.ByNumber(10),
 			},
 		}
-		r := (&rove.TenantRef{}).ProtoReflect().Descriptor()
+		r := (&loft.TenantRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&rove.WorkOrder{}).ProtoReflect().Descriptor()
+		md := (&loft.WorkOrder{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
 			key: fs.ByNumber(1),
@@ -26011,7 +26011,7 @@ func init() {
 				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
 			},
 		}
-		r := (&rove.WorkOrderRef{}).ProtoReflect().Descriptor()
+		r := (&loft.WorkOrderRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 }
@@ -26258,57 +26258,57 @@ type accessKept struct{ call *access.Call }
 // data left and erased, which are what say whose it was.
 func (accessRecorder) Snapshots(method string) bare.SnapshotOptions {
 	switch method {
-	case rove.AccessReviewService_Add_FullMethodName,
-		rove.AccessReviewService_Patch_FullMethodName,
-		rove.AccessReviewService_Apply_FullMethodName,
-		rove.CountFindingService_Add_FullMethodName,
-		rove.CountFindingService_Patch_FullMethodName,
-		rove.CountFindingService_Apply_FullMethodName,
-		rove.CustodyService_Add_FullMethodName,
-		rove.CustodyService_Patch_FullMethodName,
-		rove.CustodyService_Apply_FullMethodName,
-		rove.EventService_Add_FullMethodName,
-		rove.EventService_AddMany_FullMethodName,
-		rove.HolderService_Add_FullMethodName,
-		rove.HolderService_Patch_FullMethodName,
-		rove.HolderService_Apply_FullMethodName,
-		rove.InventoryCountService_Add_FullMethodName,
-		rove.InventoryCountService_Patch_FullMethodName,
-		rove.InventoryCountService_Apply_FullMethodName,
-		rove.InvitationService_Add_FullMethodName,
-		rove.InvitationService_Patch_FullMethodName,
-		rove.InvitationService_Apply_FullMethodName,
-		rove.NotificationService_Add_FullMethodName,
-		rove.NotificationService_Patch_FullMethodName,
-		rove.NotificationService_Apply_FullMethodName,
-		rove.PartyService_Add_FullMethodName,
-		rove.PartyService_Patch_FullMethodName,
-		rove.PartyService_Apply_FullMethodName,
-		rove.PurchaseService_Add_FullMethodName,
-		rove.PurchaseService_Patch_FullMethodName,
-		rove.PurchaseService_Apply_FullMethodName,
-		rove.ReservationService_Add_FullMethodName,
-		rove.ReservationService_Patch_FullMethodName,
-		rove.ReservationService_Apply_FullMethodName,
-		rove.TenantService_Add_FullMethodName,
-		rove.TenantService_Patch_FullMethodName,
-		rove.TenantService_Apply_FullMethodName,
-		rove.WorkOrderService_Add_FullMethodName,
-		rove.WorkOrderService_Patch_FullMethodName,
-		rove.WorkOrderService_Apply_FullMethodName:
+	case loft.AccessReviewService_Add_FullMethodName,
+		loft.AccessReviewService_Patch_FullMethodName,
+		loft.AccessReviewService_Apply_FullMethodName,
+		loft.CountFindingService_Add_FullMethodName,
+		loft.CountFindingService_Patch_FullMethodName,
+		loft.CountFindingService_Apply_FullMethodName,
+		loft.CustodyService_Add_FullMethodName,
+		loft.CustodyService_Patch_FullMethodName,
+		loft.CustodyService_Apply_FullMethodName,
+		loft.EventService_Add_FullMethodName,
+		loft.EventService_AddMany_FullMethodName,
+		loft.HolderService_Add_FullMethodName,
+		loft.HolderService_Patch_FullMethodName,
+		loft.HolderService_Apply_FullMethodName,
+		loft.InventoryCountService_Add_FullMethodName,
+		loft.InventoryCountService_Patch_FullMethodName,
+		loft.InventoryCountService_Apply_FullMethodName,
+		loft.InvitationService_Add_FullMethodName,
+		loft.InvitationService_Patch_FullMethodName,
+		loft.InvitationService_Apply_FullMethodName,
+		loft.NotificationService_Add_FullMethodName,
+		loft.NotificationService_Patch_FullMethodName,
+		loft.NotificationService_Apply_FullMethodName,
+		loft.PartyService_Add_FullMethodName,
+		loft.PartyService_Patch_FullMethodName,
+		loft.PartyService_Apply_FullMethodName,
+		loft.PurchaseService_Add_FullMethodName,
+		loft.PurchaseService_Patch_FullMethodName,
+		loft.PurchaseService_Apply_FullMethodName,
+		loft.ReservationService_Add_FullMethodName,
+		loft.ReservationService_Patch_FullMethodName,
+		loft.ReservationService_Apply_FullMethodName,
+		loft.TenantService_Add_FullMethodName,
+		loft.TenantService_Patch_FullMethodName,
+		loft.TenantService_Apply_FullMethodName,
+		loft.WorkOrderService_Add_FullMethodName,
+		loft.WorkOrderService_Patch_FullMethodName,
+		loft.WorkOrderService_Apply_FullMethodName:
 		return bare.SnapshotOptions{Value: true}
-	case rove.AccessReviewService_Erase_FullMethodName,
-		rove.CountFindingService_Erase_FullMethodName,
-		rove.CustodyService_Erase_FullMethodName,
-		rove.HolderService_Erase_FullMethodName,
-		rove.InventoryCountService_Erase_FullMethodName,
-		rove.InvitationService_Erase_FullMethodName,
-		rove.NotificationService_Erase_FullMethodName,
-		rove.PartyService_Erase_FullMethodName,
-		rove.PurchaseService_Erase_FullMethodName,
-		rove.ReservationService_Erase_FullMethodName,
-		rove.TenantService_Erase_FullMethodName,
-		rove.WorkOrderService_Erase_FullMethodName:
+	case loft.AccessReviewService_Erase_FullMethodName,
+		loft.CountFindingService_Erase_FullMethodName,
+		loft.CustodyService_Erase_FullMethodName,
+		loft.HolderService_Erase_FullMethodName,
+		loft.InventoryCountService_Erase_FullMethodName,
+		loft.InvitationService_Erase_FullMethodName,
+		loft.NotificationService_Erase_FullMethodName,
+		loft.PartyService_Erase_FullMethodName,
+		loft.PurchaseService_Erase_FullMethodName,
+		loft.ReservationService_Erase_FullMethodName,
+		loft.TenantService_Erase_FullMethodName,
+		loft.WorkOrderService_Erase_FullMethodName:
 		return bare.SnapshotOptions{Previous: true}
 	}
 
@@ -26395,13 +26395,13 @@ func touches(p *patchpb.Patch, md protoreflect.MessageDescriptor, fields []proto
 // access record's rows as the messages they are, and passes over the
 // trail's: what `policy.Read` and `policy.ReadTenant` are handed for them.
 // [TrailOf] is the other half, and passes over these.
-func AccessOf(fn func(*rove.Access) error) func(doc []byte) error {
+func AccessOf(fn func(*loft.Access) error) func(doc []byte) error {
 	return func(doc []byte) error {
 		if !accessDoc(doc) {
 			return nil
 		}
 
-		v := &rove.Access{}
+		v := &loft.Access{}
 		if err := protojson.Unmarshal(doc, v); err != nil {
 			return err
 		}
@@ -26433,20 +26433,20 @@ func accessDoc(doc []byte) bool {
 // the rest.
 func Cost(method string, req any) int {
 	switch method {
-	case rove.AssetService_AddMany_FullMethodName:
-		if v, ok := req.(*rove.AssetAddManyRequest); ok {
+	case loft.AssetService_AddMany_FullMethodName:
+		if v, ok := req.(*loft.AssetAddManyRequest); ok {
 			return max(len(v.GetItems()), 1)
 		}
-	case rove.EventService_AddMany_FullMethodName:
-		if v, ok := req.(*rove.EventAddManyRequest); ok {
+	case loft.EventService_AddMany_FullMethodName:
+		if v, ok := req.(*loft.EventAddManyRequest); ok {
 			return max(len(v.GetItems()), 1)
 		}
-	case rove.FactService_AddMany_FullMethodName:
-		if v, ok := req.(*rove.FactAddManyRequest); ok {
+	case loft.FactService_AddMany_FullMethodName:
+		if v, ok := req.(*loft.FactAddManyRequest); ok {
 			return max(len(v.GetItems()), 1)
 		}
-	case rove.PlacementService_AddMany_FullMethodName:
-		if v, ok := req.(*rove.PlacementAddManyRequest); ok {
+	case loft.PlacementService_AddMany_FullMethodName:
+		if v, ok := req.(*loft.PlacementAddManyRequest); ok {
 			return max(len(v.GetItems()), 1)
 		}
 	}
@@ -26476,7 +26476,7 @@ var _ grpcx.Cost = Cost
 // transaction is begun on it and a `*ent.Client` does not hand out the
 // driver it was built with. The app has one: it is what it built the client
 // from.
-func Batch(s rove.Server, drv dialect.Driver, guard batch.Guard) (pdpb.BatchServiceServer, error) {
+func Batch(s loft.Server, drv dialect.Driver, guard batch.Guard) (pdpb.BatchServiceServer, error) {
 	if guard.IsZero() {
 		// Nobody filled it in. It is the zero value and not a judgement about
 		// how open the deployment is: `config.ServerConfig.Guard` always sets
@@ -26502,7 +26502,7 @@ func Batch(s rove.Server, drv dialect.Driver, guard batch.Guard) (pdpb.BatchServ
 type batchServer struct {
 	pdpb.UnimplementedBatchServiceServer
 
-	s     rove.Server
+	s     loft.Server
 	drv   dialect.Driver
 	guard batch.Guard
 }
@@ -26602,558 +26602,558 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 
 	var v proto.Message
 	switch m {
-	case rove.TenantService_Add_FullMethodName:
-		v = &rove.TenantAddRequest{}
-	case rove.TenantService_Get_FullMethodName:
-		v = &rove.TenantGetRequest{}
-	case rove.TenantService_Patch_FullMethodName:
-		v = &rove.TenantPatchRequest{}
-	case rove.TenantService_Apply_FullMethodName:
-		v = &rove.TenantApplyRequest{}
-	case rove.TenantService_Erase_FullMethodName:
-		v = &rove.TenantRef{}
-	case rove.TenantService_List_FullMethodName:
-		v = &rove.TenantListRequest{}
-	case rove.TenantService_Close_FullMethodName:
-		v = &rove.TenantCloseRequest{}
-	case rove.TenantService_Restore_FullMethodName:
-		v = &rove.TenantRestoreRequest{}
-	case rove.TenantService_Configure_FullMethodName:
-		v = &rove.TenantConfigureRequest{}
-	case rove.TenantService_Preview_FullMethodName:
-		v = &rove.TenantPreviewRequest{}
-	case rove.AssetTypeService_Add_FullMethodName:
-		v = &rove.AssetTypeAddRequest{}
-	case rove.AssetTypeService_Get_FullMethodName:
-		v = &rove.AssetTypeGetRequest{}
-	case rove.AssetTypeService_Patch_FullMethodName:
-		v = &rove.AssetTypePatchRequest{}
-	case rove.AssetTypeService_Apply_FullMethodName:
-		v = &rove.AssetTypeApplyRequest{}
-	case rove.AssetTypeService_Erase_FullMethodName:
-		v = &rove.AssetTypeRef{}
-	case rove.AssetTypeService_List_FullMethodName:
-		v = &rove.AssetTypeListRequest{}
-	case rove.AssetTypeService_Update_FullMethodName:
-		v = &rove.AssetTypeUpdateRequest{}
-	case rove.ItemModelService_Add_FullMethodName:
-		v = &rove.ItemModelAddRequest{}
-	case rove.ItemModelService_Get_FullMethodName:
-		v = &rove.ItemModelGetRequest{}
-	case rove.ItemModelService_Patch_FullMethodName:
-		v = &rove.ItemModelPatchRequest{}
-	case rove.ItemModelService_Apply_FullMethodName:
-		v = &rove.ItemModelApplyRequest{}
-	case rove.ItemModelService_Erase_FullMethodName:
-		v = &rove.ItemModelRef{}
-	case rove.ItemModelService_List_FullMethodName:
-		v = &rove.ItemModelListRequest{}
-	case rove.ItemModelService_Update_FullMethodName:
-		v = &rove.ItemModelUpdateRequest{}
-	case rove.ItemModelService_Search_FullMethodName:
-		v = &rove.ItemModelSearchRequest{}
-	case rove.HolderService_Add_FullMethodName:
-		v = &rove.HolderAddRequest{}
-	case rove.HolderService_Get_FullMethodName:
-		v = &rove.HolderGetRequest{}
-	case rove.HolderService_Patch_FullMethodName:
-		v = &rove.HolderPatchRequest{}
-	case rove.HolderService_Apply_FullMethodName:
-		v = &rove.HolderApplyRequest{}
-	case rove.HolderService_Erase_FullMethodName:
-		v = &rove.HolderRef{}
-	case rove.HolderService_List_FullMethodName:
-		v = &rove.HolderListRequest{}
-	case rove.PartyService_Add_FullMethodName:
-		v = &rove.PartyAddRequest{}
-	case rove.PartyService_Get_FullMethodName:
-		v = &rove.PartyGetRequest{}
-	case rove.PartyService_Patch_FullMethodName:
-		v = &rove.PartyPatchRequest{}
-	case rove.PartyService_Apply_FullMethodName:
-		v = &rove.PartyApplyRequest{}
-	case rove.PartyService_Erase_FullMethodName:
-		v = &rove.PartyRef{}
-	case rove.PartyService_List_FullMethodName:
-		v = &rove.PartyListRequest{}
-	case rove.PartyService_Me_FullMethodName:
-		v = &rove.PartyMeRequest{}
-	case rove.PartyService_Update_FullMethodName:
-		v = &rove.PartyUpdateRequest{}
-	case rove.PartyService_Invite_FullMethodName:
-		v = &rove.PartyInviteRequest{}
-	case rove.PartyService_SetRole_FullMethodName:
-		v = &rove.PartySetRoleRequest{}
-	case rove.PartyService_SetPassword_FullMethodName:
-		v = &rove.PartySetPasswordRequest{}
-	case rove.PartyService_Deactivate_FullMethodName:
-		v = &rove.PartyDeactivateRequest{}
-	case rove.PartyService_Pseudonymize_FullMethodName:
-		v = &rove.PartyPseudonymizeRequest{}
-	case rove.PartyService_Search_FullMethodName:
-		v = &rove.PartySearchRequest{}
-	case rove.InvitationService_Add_FullMethodName:
-		v = &rove.InvitationAddRequest{}
-	case rove.InvitationService_Get_FullMethodName:
-		v = &rove.InvitationGetRequest{}
-	case rove.InvitationService_Patch_FullMethodName:
-		v = &rove.InvitationPatchRequest{}
-	case rove.InvitationService_Apply_FullMethodName:
-		v = &rove.InvitationApplyRequest{}
-	case rove.InvitationService_Erase_FullMethodName:
-		v = &rove.InvitationRef{}
-	case rove.InvitationService_List_FullMethodName:
-		v = &rove.InvitationListRequest{}
-	case rove.InvitationService_Revoke_FullMethodName:
-		v = &rove.InvitationRevokeRequest{}
-	case rove.InvitationService_Claim_FullMethodName:
-		v = &rove.InvitationClaimRequest{}
-	case rove.InvitationService_Accept_FullMethodName:
-		v = &rove.InvitationAcceptRequest{}
-	case rove.InvitationService_Deny_FullMethodName:
-		v = &rove.InvitationDenyRequest{}
-	case rove.AssetService_Add_FullMethodName:
-		v = &rove.AssetAddRequest{}
-	case rove.AssetService_AddMany_FullMethodName:
-		v = &rove.AssetAddManyRequest{}
-	case rove.AssetService_Get_FullMethodName:
-		v = &rove.AssetGetRequest{}
-	case rove.AssetService_Patch_FullMethodName:
-		v = &rove.AssetPatchRequest{}
-	case rove.AssetService_Apply_FullMethodName:
-		v = &rove.AssetApplyRequest{}
-	case rove.AssetService_Erase_FullMethodName:
-		v = &rove.AssetRef{}
-	case rove.AssetService_List_FullMethodName:
-		v = &rove.AssetListRequest{}
-	case rove.AssetService_Move_FullMethodName:
-		v = &rove.AssetMoveRequest{}
-	case rove.AssetService_SetAttributes_FullMethodName:
-		v = &rove.AssetSetAttributesRequest{}
-	case rove.AssetService_Assign_FullMethodName:
-		v = &rove.AssetAssignRequest{}
-	case rove.AssetService_Relate_FullMethodName:
-		v = &rove.AssetRelateRequest{}
-	case rove.AssetService_Correct_FullMethodName:
-		v = &rove.AssetCorrectRequest{}
-	case rove.AssetService_Timeline_FullMethodName:
-		v = &rove.AssetTimelineRequest{}
-	case rove.AssetService_QueryAt_FullMethodName:
-		v = &rove.AssetQueryAtRequest{}
-	case rove.AssetService_Diff_FullMethodName:
-		v = &rove.AssetDiffRequest{}
-	case rove.AssetService_Search_FullMethodName:
-		v = &rove.AssetSearchRequest{}
-	case rove.AssetService_Report_FullMethodName:
-		v = &rove.AssetReportRequest{}
-	case rove.AssetService_Export_FullMethodName:
-		v = &rove.AssetExportRequest{}
-	case rove.AssetService_Form_FullMethodName:
-		v = &rove.AssetFormRequest{}
-	case rove.AssetService_ReadSheet_FullMethodName:
-		v = &rove.AssetReadSheetRequest{}
-	case rove.AssetService_Census_FullMethodName:
-		v = &rove.AssetCensusRequest{}
-	case rove.AssetService_ExportCensus_FullMethodName:
-		v = &rove.AssetCensusRequest{}
-	case rove.TenantDomainService_Add_FullMethodName:
-		v = &rove.TenantDomainAddRequest{}
-	case rove.TenantDomainService_Get_FullMethodName:
-		v = &rove.TenantDomainGetRequest{}
-	case rove.TenantDomainService_Patch_FullMethodName:
-		v = &rove.TenantDomainPatchRequest{}
-	case rove.TenantDomainService_Apply_FullMethodName:
-		v = &rove.TenantDomainApplyRequest{}
-	case rove.TenantDomainService_Erase_FullMethodName:
-		v = &rove.TenantDomainRef{}
-	case rove.TenantDomainService_List_FullMethodName:
-		v = &rove.TenantDomainListRequest{}
-	case rove.TenantDomainService_Verify_FullMethodName:
-		v = &rove.TenantDomainVerifyRequest{}
-	case rove.TenantDomainService_Activate_FullMethodName:
-		v = &rove.TenantDomainActivateRequest{}
-	case rove.TenantDomainService_Retire_FullMethodName:
-		v = &rove.TenantDomainRetireRequest{}
-	case rove.TenantDomainService_Status_FullMethodName:
-		v = &rove.TenantDomainStatusRequest{}
-	case rove.LabelService_Add_FullMethodName:
-		v = &rove.LabelAddRequest{}
-	case rove.LabelService_Get_FullMethodName:
-		v = &rove.LabelGetRequest{}
-	case rove.LabelService_Patch_FullMethodName:
-		v = &rove.LabelPatchRequest{}
-	case rove.LabelService_Apply_FullMethodName:
-		v = &rove.LabelApplyRequest{}
-	case rove.LabelService_Erase_FullMethodName:
-		v = &rove.LabelRef{}
-	case rove.LabelService_List_FullMethodName:
-		v = &rove.LabelListRequest{}
-	case rove.LabelService_Print_FullMethodName:
-		v = &rove.LabelPrintRequest{}
-	case rove.LabelService_Bind_FullMethodName:
-		v = &rove.LabelBindRequest{}
-	case rove.LabelService_Unbind_FullMethodName:
-		v = &rove.LabelUnbindRequest{}
-	case rove.LabelService_Resolve_FullMethodName:
-		v = &rove.LabelResolveRequest{}
-	case rove.AttachmentService_Add_FullMethodName:
-		v = &rove.AttachmentAddRequest{}
-	case rove.AttachmentService_Get_FullMethodName:
-		v = &rove.AttachmentGetRequest{}
-	case rove.AttachmentService_Patch_FullMethodName:
-		v = &rove.AttachmentPatchRequest{}
-	case rove.AttachmentService_Apply_FullMethodName:
-		v = &rove.AttachmentApplyRequest{}
-	case rove.AttachmentService_Erase_FullMethodName:
-		v = &rove.AttachmentRef{}
-	case rove.AttachmentService_List_FullMethodName:
-		v = &rove.AttachmentListRequest{}
-	case rove.AttachmentService_Upload_FullMethodName:
-		v = &rove.AttachmentUploadRequest{}
-	case rove.AttachmentService_Url_FullMethodName:
-		v = &rove.AttachmentUrlRequest{}
-	case rove.BookableService_Add_FullMethodName:
-		v = &rove.BookableAddRequest{}
-	case rove.BookableService_Get_FullMethodName:
-		v = &rove.BookableGetRequest{}
-	case rove.BookableService_Patch_FullMethodName:
-		v = &rove.BookablePatchRequest{}
-	case rove.BookableService_Apply_FullMethodName:
-		v = &rove.BookableApplyRequest{}
-	case rove.BookableService_Erase_FullMethodName:
-		v = &rove.BookableRef{}
-	case rove.BookableService_List_FullMethodName:
-		v = &rove.BookableListRequest{}
-	case rove.BookableService_Update_FullMethodName:
-		v = &rove.BookableUpdateRequest{}
-	case rove.BookableService_Availability_FullMethodName:
-		v = &rove.BookableAvailabilityRequest{}
-	case rove.BookableService_Usage_FullMethodName:
-		v = &rove.BookableUsageRequest{}
-	case rove.BookableService_ExportUsage_FullMethodName:
-		v = &rove.BookableUsageRequest{}
-	case rove.ReservationService_Add_FullMethodName:
-		v = &rove.ReservationAddRequest{}
-	case rove.ReservationService_Get_FullMethodName:
-		v = &rove.ReservationGetRequest{}
-	case rove.ReservationService_Patch_FullMethodName:
-		v = &rove.ReservationPatchRequest{}
-	case rove.ReservationService_Apply_FullMethodName:
-		v = &rove.ReservationApplyRequest{}
-	case rove.ReservationService_Erase_FullMethodName:
-		v = &rove.ReservationRef{}
-	case rove.ReservationService_List_FullMethodName:
-		v = &rove.ReservationListRequest{}
-	case rove.ReservationService_Confirm_FullMethodName:
-		v = &rove.ReservationDecideRequest{}
-	case rove.ReservationService_Approve_FullMethodName:
-		v = &rove.ReservationDecideRequest{}
-	case rove.ReservationService_Reject_FullMethodName:
-		v = &rove.ReservationDecideRequest{}
-	case rove.ReservationService_Cancel_FullMethodName:
-		v = &rove.ReservationDecideRequest{}
-	case rove.ReservationService_CheckIn_FullMethodName:
-		v = &rove.ReservationDecideRequest{}
-	case rove.ReservationService_Complete_FullMethodName:
-		v = &rove.ReservationDecideRequest{}
-	case rove.ReservationService_Calendar_FullMethodName:
-		v = &rove.ReservationCalendarRequest{}
-	case rove.ReservationService_Timeline_FullMethodName:
-		v = &rove.ReservationTimelineRequest{}
-	case rove.ReservationService_Pickup_FullMethodName:
-		v = &rove.ReservationPickupRequest{}
-	case rove.ReservationItemService_Add_FullMethodName:
-		v = &rove.ReservationItemAddRequest{}
-	case rove.ReservationItemService_Get_FullMethodName:
-		v = &rove.ReservationItemGetRequest{}
-	case rove.ReservationItemService_Patch_FullMethodName:
-		v = &rove.ReservationItemPatchRequest{}
-	case rove.ReservationItemService_Apply_FullMethodName:
-		v = &rove.ReservationItemApplyRequest{}
-	case rove.ReservationItemService_Erase_FullMethodName:
-		v = &rove.ReservationItemRef{}
-	case rove.ReservationItemService_List_FullMethodName:
-		v = &rove.ReservationItemListRequest{}
-	case rove.AllocationService_Add_FullMethodName:
-		v = &rove.AllocationAddRequest{}
-	case rove.AllocationService_Get_FullMethodName:
-		v = &rove.AllocationGetRequest{}
-	case rove.AllocationService_Patch_FullMethodName:
-		v = &rove.AllocationPatchRequest{}
-	case rove.AllocationService_Apply_FullMethodName:
-		v = &rove.AllocationApplyRequest{}
-	case rove.AllocationService_Erase_FullMethodName:
-		v = &rove.AllocationRef{}
-	case rove.AllocationService_List_FullMethodName:
-		v = &rove.AllocationListRequest{}
-	case rove.InventoryCountService_Add_FullMethodName:
-		v = &rove.InventoryCountAddRequest{}
-	case rove.InventoryCountService_Get_FullMethodName:
-		v = &rove.InventoryCountGetRequest{}
-	case rove.InventoryCountService_Patch_FullMethodName:
-		v = &rove.InventoryCountPatchRequest{}
-	case rove.InventoryCountService_Apply_FullMethodName:
-		v = &rove.InventoryCountApplyRequest{}
-	case rove.InventoryCountService_Erase_FullMethodName:
-		v = &rove.InventoryCountRef{}
-	case rove.InventoryCountService_List_FullMethodName:
-		v = &rove.InventoryCountListRequest{}
-	case rove.InventoryCountService_Scan_FullMethodName:
-		v = &rove.InventoryCountScanRequest{}
-	case rove.InventoryCountService_Reconcile_FullMethodName:
-		v = &rove.InventoryCountReconcileRequest{}
-	case rove.InventoryCountService_Resolve_FullMethodName:
-		v = &rove.InventoryCountResolveRequest{}
-	case rove.InventoryCountService_Close_FullMethodName:
-		v = &rove.InventoryCountCloseRequest{}
-	case rove.InventoryCountService_Results_FullMethodName:
-		v = &rove.InventoryCountResultsRequest{}
-	case rove.InventoryCountService_ExportResults_FullMethodName:
-		v = &rove.InventoryCountResultsRequest{}
-	case rove.CountFindingService_Add_FullMethodName:
-		v = &rove.CountFindingAddRequest{}
-	case rove.CountFindingService_Get_FullMethodName:
-		v = &rove.CountFindingGetRequest{}
-	case rove.CountFindingService_Patch_FullMethodName:
-		v = &rove.CountFindingPatchRequest{}
-	case rove.CountFindingService_Apply_FullMethodName:
-		v = &rove.CountFindingApplyRequest{}
-	case rove.CountFindingService_Erase_FullMethodName:
-		v = &rove.CountFindingRef{}
-	case rove.CountFindingService_List_FullMethodName:
-		v = &rove.CountFindingListRequest{}
-	case rove.StockService_Add_FullMethodName:
-		v = &rove.StockAddRequest{}
-	case rove.StockService_Get_FullMethodName:
-		v = &rove.StockGetRequest{}
-	case rove.StockService_Patch_FullMethodName:
-		v = &rove.StockPatchRequest{}
-	case rove.StockService_Apply_FullMethodName:
-		v = &rove.StockApplyRequest{}
-	case rove.StockService_Erase_FullMethodName:
-		v = &rove.StockRef{}
-	case rove.StockService_List_FullMethodName:
-		v = &rove.StockListRequest{}
-	case rove.StockService_Receive_FullMethodName:
-		v = &rove.StockChangeRequest{}
-	case rove.StockService_Consume_FullMethodName:
-		v = &rove.StockChangeRequest{}
-	case rove.StockService_Adjust_FullMethodName:
-		v = &rove.StockChangeRequest{}
-	case rove.StockService_Transfer_FullMethodName:
-		v = &rove.StockTransferRequest{}
-	case rove.StockService_Convert_FullMethodName:
-		v = &rove.StockConvertRequest{}
-	case rove.StockService_Flow_FullMethodName:
-		v = &rove.StockFlowRequest{}
-	case rove.StockService_ExportFlow_FullMethodName:
-		v = &rove.StockFlowRequest{}
-	case rove.StockMovementService_Add_FullMethodName:
-		v = &rove.StockMovementAddRequest{}
-	case rove.StockMovementService_Get_FullMethodName:
-		v = &rove.StockMovementGetRequest{}
-	case rove.StockMovementService_Patch_FullMethodName:
-		v = &rove.StockMovementPatchRequest{}
-	case rove.StockMovementService_Apply_FullMethodName:
-		v = &rove.StockMovementApplyRequest{}
-	case rove.StockMovementService_Erase_FullMethodName:
-		v = &rove.StockMovementRef{}
-	case rove.StockMovementService_List_FullMethodName:
-		v = &rove.StockMovementListRequest{}
-	case rove.CustodyService_Add_FullMethodName:
-		v = &rove.CustodyAddRequest{}
-	case rove.CustodyService_Get_FullMethodName:
-		v = &rove.CustodyGetRequest{}
-	case rove.CustodyService_Patch_FullMethodName:
-		v = &rove.CustodyPatchRequest{}
-	case rove.CustodyService_Apply_FullMethodName:
-		v = &rove.CustodyApplyRequest{}
-	case rove.CustodyService_Erase_FullMethodName:
-		v = &rove.CustodyRef{}
-	case rove.CustodyService_List_FullMethodName:
-		v = &rove.CustodyListRequest{}
-	case rove.CustodyService_Acknowledge_FullMethodName:
-		v = &rove.CustodyAcknowledgeRequest{}
-	case rove.CustodyService_Return_FullMethodName:
-		v = &rove.CustodyReturnRequest{}
-	case rove.CustodyService_Extend_FullMethodName:
-		v = &rove.CustodyExtendRequest{}
-	case rove.CustodyService_Outstanding_FullMethodName:
-		v = &rove.CustodyOutstandingRequest{}
-	case rove.CustodyService_ExportOutstanding_FullMethodName:
-		v = &rove.CustodyOutstandingRequest{}
-	case rove.CustodyLineService_Add_FullMethodName:
-		v = &rove.CustodyLineAddRequest{}
-	case rove.CustodyLineService_Get_FullMethodName:
-		v = &rove.CustodyLineGetRequest{}
-	case rove.CustodyLineService_Patch_FullMethodName:
-		v = &rove.CustodyLinePatchRequest{}
-	case rove.CustodyLineService_Apply_FullMethodName:
-		v = &rove.CustodyLineApplyRequest{}
-	case rove.CustodyLineService_Erase_FullMethodName:
-		v = &rove.CustodyLineRef{}
-	case rove.CustodyLineService_List_FullMethodName:
-		v = &rove.CustodyLineListRequest{}
-	case rove.PlacementService_Add_FullMethodName:
-		v = &rove.PlacementAddRequest{}
-	case rove.PlacementService_AddMany_FullMethodName:
-		v = &rove.PlacementAddManyRequest{}
-	case rove.PlacementService_Get_FullMethodName:
-		v = &rove.PlacementGetRequest{}
-	case rove.PlacementService_Patch_FullMethodName:
-		v = &rove.PlacementPatchRequest{}
-	case rove.PlacementService_Apply_FullMethodName:
-		v = &rove.PlacementApplyRequest{}
-	case rove.PlacementService_Erase_FullMethodName:
-		v = &rove.PlacementRef{}
-	case rove.PlacementService_List_FullMethodName:
-		v = &rove.PlacementListRequest{}
-	case rove.LinkService_Add_FullMethodName:
-		v = &rove.LinkAddRequest{}
-	case rove.LinkService_Get_FullMethodName:
-		v = &rove.LinkGetRequest{}
-	case rove.LinkService_Patch_FullMethodName:
-		v = &rove.LinkPatchRequest{}
-	case rove.LinkService_Apply_FullMethodName:
-		v = &rove.LinkApplyRequest{}
-	case rove.LinkService_Erase_FullMethodName:
-		v = &rove.LinkRef{}
-	case rove.LinkService_List_FullMethodName:
-		v = &rove.LinkListRequest{}
-	case rove.StewardshipService_Add_FullMethodName:
-		v = &rove.StewardshipAddRequest{}
-	case rove.StewardshipService_Get_FullMethodName:
-		v = &rove.StewardshipGetRequest{}
-	case rove.StewardshipService_Patch_FullMethodName:
-		v = &rove.StewardshipPatchRequest{}
-	case rove.StewardshipService_Apply_FullMethodName:
-		v = &rove.StewardshipApplyRequest{}
-	case rove.StewardshipService_Erase_FullMethodName:
-		v = &rove.StewardshipRef{}
-	case rove.StewardshipService_List_FullMethodName:
-		v = &rove.StewardshipListRequest{}
-	case rove.NotificationService_Add_FullMethodName:
-		v = &rove.NotificationAddRequest{}
-	case rove.NotificationService_Get_FullMethodName:
-		v = &rove.NotificationGetRequest{}
-	case rove.NotificationService_Patch_FullMethodName:
-		v = &rove.NotificationPatchRequest{}
-	case rove.NotificationService_Apply_FullMethodName:
-		v = &rove.NotificationApplyRequest{}
-	case rove.NotificationService_Erase_FullMethodName:
-		v = &rove.NotificationRef{}
-	case rove.NotificationService_List_FullMethodName:
-		v = &rove.NotificationListRequest{}
-	case rove.NotificationService_Inbox_FullMethodName:
-		v = &rove.NotificationInboxRequest{}
-	case rove.NotificationService_MarkRead_FullMethodName:
-		v = &rove.NotificationMarkReadRequest{}
-	case rove.NotificationService_SetMail_FullMethodName:
-		v = &rove.NotificationSetMailRequest{}
-	case rove.TenantContractService_Add_FullMethodName:
-		v = &rove.TenantContractAddRequest{}
-	case rove.TenantContractService_Get_FullMethodName:
-		v = &rove.TenantContractGetRequest{}
-	case rove.TenantContractService_Patch_FullMethodName:
-		v = &rove.TenantContractPatchRequest{}
-	case rove.TenantContractService_Apply_FullMethodName:
-		v = &rove.TenantContractApplyRequest{}
-	case rove.TenantContractService_Erase_FullMethodName:
-		v = &rove.TenantContractRef{}
-	case rove.TenantContractService_List_FullMethodName:
-		v = &rove.TenantContractListRequest{}
-	case rove.LegalHoldService_Add_FullMethodName:
-		v = &rove.LegalHoldAddRequest{}
-	case rove.LegalHoldService_Get_FullMethodName:
-		v = &rove.LegalHoldGetRequest{}
-	case rove.LegalHoldService_Patch_FullMethodName:
-		v = &rove.LegalHoldPatchRequest{}
-	case rove.LegalHoldService_Apply_FullMethodName:
-		v = &rove.LegalHoldApplyRequest{}
-	case rove.LegalHoldService_Erase_FullMethodName:
-		v = &rove.LegalHoldRef{}
-	case rove.LegalHoldService_List_FullMethodName:
-		v = &rove.LegalHoldListRequest{}
-	case rove.AccessReviewService_Add_FullMethodName:
-		v = &rove.AccessReviewAddRequest{}
-	case rove.AccessReviewService_Get_FullMethodName:
-		v = &rove.AccessReviewGetRequest{}
-	case rove.AccessReviewService_Patch_FullMethodName:
-		v = &rove.AccessReviewPatchRequest{}
-	case rove.AccessReviewService_Apply_FullMethodName:
-		v = &rove.AccessReviewApplyRequest{}
-	case rove.AccessReviewService_Erase_FullMethodName:
-		v = &rove.AccessReviewRef{}
-	case rove.AccessReviewService_List_FullMethodName:
-		v = &rove.AccessReviewListRequest{}
-	case rove.EventService_Add_FullMethodName:
-		v = &rove.EventAddRequest{}
-	case rove.EventService_AddMany_FullMethodName:
-		v = &rove.EventAddManyRequest{}
-	case rove.EventService_Get_FullMethodName:
-		v = &rove.EventGetRequest{}
-	case rove.EventService_List_FullMethodName:
-		v = &rove.EventListRequest{}
-	case rove.EventService_Recent_FullMethodName:
-		v = &rove.EventRecentRequest{}
-	case rove.EventService_Redact_FullMethodName:
-		v = &rove.EventRedactRequest{}
-	case rove.FactService_Add_FullMethodName:
-		v = &rove.FactAddRequest{}
-	case rove.FactService_AddMany_FullMethodName:
-		v = &rove.FactAddManyRequest{}
-	case rove.FactService_Get_FullMethodName:
-		v = &rove.FactGetRequest{}
-	case rove.FactService_Patch_FullMethodName:
-		v = &rove.FactPatchRequest{}
-	case rove.FactService_Apply_FullMethodName:
-		v = &rove.FactApplyRequest{}
-	case rove.FactService_List_FullMethodName:
-		v = &rove.FactListRequest{}
-	case rove.WorkOrderService_Add_FullMethodName:
-		v = &rove.WorkOrderAddRequest{}
-	case rove.WorkOrderService_Get_FullMethodName:
-		v = &rove.WorkOrderGetRequest{}
-	case rove.WorkOrderService_Patch_FullMethodName:
-		v = &rove.WorkOrderPatchRequest{}
-	case rove.WorkOrderService_Apply_FullMethodName:
-		v = &rove.WorkOrderApplyRequest{}
-	case rove.WorkOrderService_Erase_FullMethodName:
-		v = &rove.WorkOrderRef{}
-	case rove.WorkOrderService_List_FullMethodName:
-		v = &rove.WorkOrderListRequest{}
-	case rove.WorkOrderService_Update_FullMethodName:
-		v = &rove.WorkOrderUpdateRequest{}
-	case rove.WorkOrderService_Complete_FullMethodName:
-		v = &rove.WorkOrderCompleteRequest{}
-	case rove.WorkOrderService_Cancel_FullMethodName:
-		v = &rove.WorkOrderCompleteRequest{}
-	case rove.PurchaseService_Add_FullMethodName:
-		v = &rove.PurchaseAddRequest{}
-	case rove.PurchaseService_Get_FullMethodName:
-		v = &rove.PurchaseGetRequest{}
-	case rove.PurchaseService_Patch_FullMethodName:
-		v = &rove.PurchasePatchRequest{}
-	case rove.PurchaseService_Apply_FullMethodName:
-		v = &rove.PurchaseApplyRequest{}
-	case rove.PurchaseService_Erase_FullMethodName:
-		v = &rove.PurchaseRef{}
-	case rove.PurchaseService_List_FullMethodName:
-		v = &rove.PurchaseListRequest{}
-	case rove.PurchaseService_Receive_FullMethodName:
-		v = &rove.PurchaseReceiveRequest{}
-	case rove.PurchaseLineService_Add_FullMethodName:
-		v = &rove.PurchaseLineAddRequest{}
-	case rove.PurchaseLineService_Get_FullMethodName:
-		v = &rove.PurchaseLineGetRequest{}
-	case rove.PurchaseLineService_Patch_FullMethodName:
-		v = &rove.PurchaseLinePatchRequest{}
-	case rove.PurchaseLineService_Apply_FullMethodName:
-		v = &rove.PurchaseLineApplyRequest{}
-	case rove.PurchaseLineService_Erase_FullMethodName:
-		v = &rove.PurchaseLineRef{}
-	case rove.PurchaseLineService_List_FullMethodName:
-		v = &rove.PurchaseLineListRequest{}
+	case loft.TenantService_Add_FullMethodName:
+		v = &loft.TenantAddRequest{}
+	case loft.TenantService_Get_FullMethodName:
+		v = &loft.TenantGetRequest{}
+	case loft.TenantService_Patch_FullMethodName:
+		v = &loft.TenantPatchRequest{}
+	case loft.TenantService_Apply_FullMethodName:
+		v = &loft.TenantApplyRequest{}
+	case loft.TenantService_Erase_FullMethodName:
+		v = &loft.TenantRef{}
+	case loft.TenantService_List_FullMethodName:
+		v = &loft.TenantListRequest{}
+	case loft.TenantService_Close_FullMethodName:
+		v = &loft.TenantCloseRequest{}
+	case loft.TenantService_Restore_FullMethodName:
+		v = &loft.TenantRestoreRequest{}
+	case loft.TenantService_Configure_FullMethodName:
+		v = &loft.TenantConfigureRequest{}
+	case loft.TenantService_Preview_FullMethodName:
+		v = &loft.TenantPreviewRequest{}
+	case loft.AssetTypeService_Add_FullMethodName:
+		v = &loft.AssetTypeAddRequest{}
+	case loft.AssetTypeService_Get_FullMethodName:
+		v = &loft.AssetTypeGetRequest{}
+	case loft.AssetTypeService_Patch_FullMethodName:
+		v = &loft.AssetTypePatchRequest{}
+	case loft.AssetTypeService_Apply_FullMethodName:
+		v = &loft.AssetTypeApplyRequest{}
+	case loft.AssetTypeService_Erase_FullMethodName:
+		v = &loft.AssetTypeRef{}
+	case loft.AssetTypeService_List_FullMethodName:
+		v = &loft.AssetTypeListRequest{}
+	case loft.AssetTypeService_Update_FullMethodName:
+		v = &loft.AssetTypeUpdateRequest{}
+	case loft.ItemModelService_Add_FullMethodName:
+		v = &loft.ItemModelAddRequest{}
+	case loft.ItemModelService_Get_FullMethodName:
+		v = &loft.ItemModelGetRequest{}
+	case loft.ItemModelService_Patch_FullMethodName:
+		v = &loft.ItemModelPatchRequest{}
+	case loft.ItemModelService_Apply_FullMethodName:
+		v = &loft.ItemModelApplyRequest{}
+	case loft.ItemModelService_Erase_FullMethodName:
+		v = &loft.ItemModelRef{}
+	case loft.ItemModelService_List_FullMethodName:
+		v = &loft.ItemModelListRequest{}
+	case loft.ItemModelService_Update_FullMethodName:
+		v = &loft.ItemModelUpdateRequest{}
+	case loft.ItemModelService_Search_FullMethodName:
+		v = &loft.ItemModelSearchRequest{}
+	case loft.HolderService_Add_FullMethodName:
+		v = &loft.HolderAddRequest{}
+	case loft.HolderService_Get_FullMethodName:
+		v = &loft.HolderGetRequest{}
+	case loft.HolderService_Patch_FullMethodName:
+		v = &loft.HolderPatchRequest{}
+	case loft.HolderService_Apply_FullMethodName:
+		v = &loft.HolderApplyRequest{}
+	case loft.HolderService_Erase_FullMethodName:
+		v = &loft.HolderRef{}
+	case loft.HolderService_List_FullMethodName:
+		v = &loft.HolderListRequest{}
+	case loft.PartyService_Add_FullMethodName:
+		v = &loft.PartyAddRequest{}
+	case loft.PartyService_Get_FullMethodName:
+		v = &loft.PartyGetRequest{}
+	case loft.PartyService_Patch_FullMethodName:
+		v = &loft.PartyPatchRequest{}
+	case loft.PartyService_Apply_FullMethodName:
+		v = &loft.PartyApplyRequest{}
+	case loft.PartyService_Erase_FullMethodName:
+		v = &loft.PartyRef{}
+	case loft.PartyService_List_FullMethodName:
+		v = &loft.PartyListRequest{}
+	case loft.PartyService_Me_FullMethodName:
+		v = &loft.PartyMeRequest{}
+	case loft.PartyService_Update_FullMethodName:
+		v = &loft.PartyUpdateRequest{}
+	case loft.PartyService_Invite_FullMethodName:
+		v = &loft.PartyInviteRequest{}
+	case loft.PartyService_SetRole_FullMethodName:
+		v = &loft.PartySetRoleRequest{}
+	case loft.PartyService_SetPassword_FullMethodName:
+		v = &loft.PartySetPasswordRequest{}
+	case loft.PartyService_Deactivate_FullMethodName:
+		v = &loft.PartyDeactivateRequest{}
+	case loft.PartyService_Pseudonymize_FullMethodName:
+		v = &loft.PartyPseudonymizeRequest{}
+	case loft.PartyService_Search_FullMethodName:
+		v = &loft.PartySearchRequest{}
+	case loft.InvitationService_Add_FullMethodName:
+		v = &loft.InvitationAddRequest{}
+	case loft.InvitationService_Get_FullMethodName:
+		v = &loft.InvitationGetRequest{}
+	case loft.InvitationService_Patch_FullMethodName:
+		v = &loft.InvitationPatchRequest{}
+	case loft.InvitationService_Apply_FullMethodName:
+		v = &loft.InvitationApplyRequest{}
+	case loft.InvitationService_Erase_FullMethodName:
+		v = &loft.InvitationRef{}
+	case loft.InvitationService_List_FullMethodName:
+		v = &loft.InvitationListRequest{}
+	case loft.InvitationService_Revoke_FullMethodName:
+		v = &loft.InvitationRevokeRequest{}
+	case loft.InvitationService_Claim_FullMethodName:
+		v = &loft.InvitationClaimRequest{}
+	case loft.InvitationService_Accept_FullMethodName:
+		v = &loft.InvitationAcceptRequest{}
+	case loft.InvitationService_Deny_FullMethodName:
+		v = &loft.InvitationDenyRequest{}
+	case loft.AssetService_Add_FullMethodName:
+		v = &loft.AssetAddRequest{}
+	case loft.AssetService_AddMany_FullMethodName:
+		v = &loft.AssetAddManyRequest{}
+	case loft.AssetService_Get_FullMethodName:
+		v = &loft.AssetGetRequest{}
+	case loft.AssetService_Patch_FullMethodName:
+		v = &loft.AssetPatchRequest{}
+	case loft.AssetService_Apply_FullMethodName:
+		v = &loft.AssetApplyRequest{}
+	case loft.AssetService_Erase_FullMethodName:
+		v = &loft.AssetRef{}
+	case loft.AssetService_List_FullMethodName:
+		v = &loft.AssetListRequest{}
+	case loft.AssetService_Move_FullMethodName:
+		v = &loft.AssetMoveRequest{}
+	case loft.AssetService_SetAttributes_FullMethodName:
+		v = &loft.AssetSetAttributesRequest{}
+	case loft.AssetService_Assign_FullMethodName:
+		v = &loft.AssetAssignRequest{}
+	case loft.AssetService_Relate_FullMethodName:
+		v = &loft.AssetRelateRequest{}
+	case loft.AssetService_Correct_FullMethodName:
+		v = &loft.AssetCorrectRequest{}
+	case loft.AssetService_Timeline_FullMethodName:
+		v = &loft.AssetTimelineRequest{}
+	case loft.AssetService_QueryAt_FullMethodName:
+		v = &loft.AssetQueryAtRequest{}
+	case loft.AssetService_Diff_FullMethodName:
+		v = &loft.AssetDiffRequest{}
+	case loft.AssetService_Search_FullMethodName:
+		v = &loft.AssetSearchRequest{}
+	case loft.AssetService_Report_FullMethodName:
+		v = &loft.AssetReportRequest{}
+	case loft.AssetService_Export_FullMethodName:
+		v = &loft.AssetExportRequest{}
+	case loft.AssetService_Form_FullMethodName:
+		v = &loft.AssetFormRequest{}
+	case loft.AssetService_ReadSheet_FullMethodName:
+		v = &loft.AssetReadSheetRequest{}
+	case loft.AssetService_Census_FullMethodName:
+		v = &loft.AssetCensusRequest{}
+	case loft.AssetService_ExportCensus_FullMethodName:
+		v = &loft.AssetCensusRequest{}
+	case loft.TenantDomainService_Add_FullMethodName:
+		v = &loft.TenantDomainAddRequest{}
+	case loft.TenantDomainService_Get_FullMethodName:
+		v = &loft.TenantDomainGetRequest{}
+	case loft.TenantDomainService_Patch_FullMethodName:
+		v = &loft.TenantDomainPatchRequest{}
+	case loft.TenantDomainService_Apply_FullMethodName:
+		v = &loft.TenantDomainApplyRequest{}
+	case loft.TenantDomainService_Erase_FullMethodName:
+		v = &loft.TenantDomainRef{}
+	case loft.TenantDomainService_List_FullMethodName:
+		v = &loft.TenantDomainListRequest{}
+	case loft.TenantDomainService_Verify_FullMethodName:
+		v = &loft.TenantDomainVerifyRequest{}
+	case loft.TenantDomainService_Activate_FullMethodName:
+		v = &loft.TenantDomainActivateRequest{}
+	case loft.TenantDomainService_Retire_FullMethodName:
+		v = &loft.TenantDomainRetireRequest{}
+	case loft.TenantDomainService_Status_FullMethodName:
+		v = &loft.TenantDomainStatusRequest{}
+	case loft.LabelService_Add_FullMethodName:
+		v = &loft.LabelAddRequest{}
+	case loft.LabelService_Get_FullMethodName:
+		v = &loft.LabelGetRequest{}
+	case loft.LabelService_Patch_FullMethodName:
+		v = &loft.LabelPatchRequest{}
+	case loft.LabelService_Apply_FullMethodName:
+		v = &loft.LabelApplyRequest{}
+	case loft.LabelService_Erase_FullMethodName:
+		v = &loft.LabelRef{}
+	case loft.LabelService_List_FullMethodName:
+		v = &loft.LabelListRequest{}
+	case loft.LabelService_Print_FullMethodName:
+		v = &loft.LabelPrintRequest{}
+	case loft.LabelService_Bind_FullMethodName:
+		v = &loft.LabelBindRequest{}
+	case loft.LabelService_Unbind_FullMethodName:
+		v = &loft.LabelUnbindRequest{}
+	case loft.LabelService_Resolve_FullMethodName:
+		v = &loft.LabelResolveRequest{}
+	case loft.AttachmentService_Add_FullMethodName:
+		v = &loft.AttachmentAddRequest{}
+	case loft.AttachmentService_Get_FullMethodName:
+		v = &loft.AttachmentGetRequest{}
+	case loft.AttachmentService_Patch_FullMethodName:
+		v = &loft.AttachmentPatchRequest{}
+	case loft.AttachmentService_Apply_FullMethodName:
+		v = &loft.AttachmentApplyRequest{}
+	case loft.AttachmentService_Erase_FullMethodName:
+		v = &loft.AttachmentRef{}
+	case loft.AttachmentService_List_FullMethodName:
+		v = &loft.AttachmentListRequest{}
+	case loft.AttachmentService_Upload_FullMethodName:
+		v = &loft.AttachmentUploadRequest{}
+	case loft.AttachmentService_Url_FullMethodName:
+		v = &loft.AttachmentUrlRequest{}
+	case loft.BookableService_Add_FullMethodName:
+		v = &loft.BookableAddRequest{}
+	case loft.BookableService_Get_FullMethodName:
+		v = &loft.BookableGetRequest{}
+	case loft.BookableService_Patch_FullMethodName:
+		v = &loft.BookablePatchRequest{}
+	case loft.BookableService_Apply_FullMethodName:
+		v = &loft.BookableApplyRequest{}
+	case loft.BookableService_Erase_FullMethodName:
+		v = &loft.BookableRef{}
+	case loft.BookableService_List_FullMethodName:
+		v = &loft.BookableListRequest{}
+	case loft.BookableService_Update_FullMethodName:
+		v = &loft.BookableUpdateRequest{}
+	case loft.BookableService_Availability_FullMethodName:
+		v = &loft.BookableAvailabilityRequest{}
+	case loft.BookableService_Usage_FullMethodName:
+		v = &loft.BookableUsageRequest{}
+	case loft.BookableService_ExportUsage_FullMethodName:
+		v = &loft.BookableUsageRequest{}
+	case loft.ReservationService_Add_FullMethodName:
+		v = &loft.ReservationAddRequest{}
+	case loft.ReservationService_Get_FullMethodName:
+		v = &loft.ReservationGetRequest{}
+	case loft.ReservationService_Patch_FullMethodName:
+		v = &loft.ReservationPatchRequest{}
+	case loft.ReservationService_Apply_FullMethodName:
+		v = &loft.ReservationApplyRequest{}
+	case loft.ReservationService_Erase_FullMethodName:
+		v = &loft.ReservationRef{}
+	case loft.ReservationService_List_FullMethodName:
+		v = &loft.ReservationListRequest{}
+	case loft.ReservationService_Confirm_FullMethodName:
+		v = &loft.ReservationDecideRequest{}
+	case loft.ReservationService_Approve_FullMethodName:
+		v = &loft.ReservationDecideRequest{}
+	case loft.ReservationService_Reject_FullMethodName:
+		v = &loft.ReservationDecideRequest{}
+	case loft.ReservationService_Cancel_FullMethodName:
+		v = &loft.ReservationDecideRequest{}
+	case loft.ReservationService_CheckIn_FullMethodName:
+		v = &loft.ReservationDecideRequest{}
+	case loft.ReservationService_Complete_FullMethodName:
+		v = &loft.ReservationDecideRequest{}
+	case loft.ReservationService_Calendar_FullMethodName:
+		v = &loft.ReservationCalendarRequest{}
+	case loft.ReservationService_Timeline_FullMethodName:
+		v = &loft.ReservationTimelineRequest{}
+	case loft.ReservationService_Pickup_FullMethodName:
+		v = &loft.ReservationPickupRequest{}
+	case loft.ReservationItemService_Add_FullMethodName:
+		v = &loft.ReservationItemAddRequest{}
+	case loft.ReservationItemService_Get_FullMethodName:
+		v = &loft.ReservationItemGetRequest{}
+	case loft.ReservationItemService_Patch_FullMethodName:
+		v = &loft.ReservationItemPatchRequest{}
+	case loft.ReservationItemService_Apply_FullMethodName:
+		v = &loft.ReservationItemApplyRequest{}
+	case loft.ReservationItemService_Erase_FullMethodName:
+		v = &loft.ReservationItemRef{}
+	case loft.ReservationItemService_List_FullMethodName:
+		v = &loft.ReservationItemListRequest{}
+	case loft.AllocationService_Add_FullMethodName:
+		v = &loft.AllocationAddRequest{}
+	case loft.AllocationService_Get_FullMethodName:
+		v = &loft.AllocationGetRequest{}
+	case loft.AllocationService_Patch_FullMethodName:
+		v = &loft.AllocationPatchRequest{}
+	case loft.AllocationService_Apply_FullMethodName:
+		v = &loft.AllocationApplyRequest{}
+	case loft.AllocationService_Erase_FullMethodName:
+		v = &loft.AllocationRef{}
+	case loft.AllocationService_List_FullMethodName:
+		v = &loft.AllocationListRequest{}
+	case loft.InventoryCountService_Add_FullMethodName:
+		v = &loft.InventoryCountAddRequest{}
+	case loft.InventoryCountService_Get_FullMethodName:
+		v = &loft.InventoryCountGetRequest{}
+	case loft.InventoryCountService_Patch_FullMethodName:
+		v = &loft.InventoryCountPatchRequest{}
+	case loft.InventoryCountService_Apply_FullMethodName:
+		v = &loft.InventoryCountApplyRequest{}
+	case loft.InventoryCountService_Erase_FullMethodName:
+		v = &loft.InventoryCountRef{}
+	case loft.InventoryCountService_List_FullMethodName:
+		v = &loft.InventoryCountListRequest{}
+	case loft.InventoryCountService_Scan_FullMethodName:
+		v = &loft.InventoryCountScanRequest{}
+	case loft.InventoryCountService_Reconcile_FullMethodName:
+		v = &loft.InventoryCountReconcileRequest{}
+	case loft.InventoryCountService_Resolve_FullMethodName:
+		v = &loft.InventoryCountResolveRequest{}
+	case loft.InventoryCountService_Close_FullMethodName:
+		v = &loft.InventoryCountCloseRequest{}
+	case loft.InventoryCountService_Results_FullMethodName:
+		v = &loft.InventoryCountResultsRequest{}
+	case loft.InventoryCountService_ExportResults_FullMethodName:
+		v = &loft.InventoryCountResultsRequest{}
+	case loft.CountFindingService_Add_FullMethodName:
+		v = &loft.CountFindingAddRequest{}
+	case loft.CountFindingService_Get_FullMethodName:
+		v = &loft.CountFindingGetRequest{}
+	case loft.CountFindingService_Patch_FullMethodName:
+		v = &loft.CountFindingPatchRequest{}
+	case loft.CountFindingService_Apply_FullMethodName:
+		v = &loft.CountFindingApplyRequest{}
+	case loft.CountFindingService_Erase_FullMethodName:
+		v = &loft.CountFindingRef{}
+	case loft.CountFindingService_List_FullMethodName:
+		v = &loft.CountFindingListRequest{}
+	case loft.StockService_Add_FullMethodName:
+		v = &loft.StockAddRequest{}
+	case loft.StockService_Get_FullMethodName:
+		v = &loft.StockGetRequest{}
+	case loft.StockService_Patch_FullMethodName:
+		v = &loft.StockPatchRequest{}
+	case loft.StockService_Apply_FullMethodName:
+		v = &loft.StockApplyRequest{}
+	case loft.StockService_Erase_FullMethodName:
+		v = &loft.StockRef{}
+	case loft.StockService_List_FullMethodName:
+		v = &loft.StockListRequest{}
+	case loft.StockService_Receive_FullMethodName:
+		v = &loft.StockChangeRequest{}
+	case loft.StockService_Consume_FullMethodName:
+		v = &loft.StockChangeRequest{}
+	case loft.StockService_Adjust_FullMethodName:
+		v = &loft.StockChangeRequest{}
+	case loft.StockService_Transfer_FullMethodName:
+		v = &loft.StockTransferRequest{}
+	case loft.StockService_Convert_FullMethodName:
+		v = &loft.StockConvertRequest{}
+	case loft.StockService_Flow_FullMethodName:
+		v = &loft.StockFlowRequest{}
+	case loft.StockService_ExportFlow_FullMethodName:
+		v = &loft.StockFlowRequest{}
+	case loft.StockMovementService_Add_FullMethodName:
+		v = &loft.StockMovementAddRequest{}
+	case loft.StockMovementService_Get_FullMethodName:
+		v = &loft.StockMovementGetRequest{}
+	case loft.StockMovementService_Patch_FullMethodName:
+		v = &loft.StockMovementPatchRequest{}
+	case loft.StockMovementService_Apply_FullMethodName:
+		v = &loft.StockMovementApplyRequest{}
+	case loft.StockMovementService_Erase_FullMethodName:
+		v = &loft.StockMovementRef{}
+	case loft.StockMovementService_List_FullMethodName:
+		v = &loft.StockMovementListRequest{}
+	case loft.CustodyService_Add_FullMethodName:
+		v = &loft.CustodyAddRequest{}
+	case loft.CustodyService_Get_FullMethodName:
+		v = &loft.CustodyGetRequest{}
+	case loft.CustodyService_Patch_FullMethodName:
+		v = &loft.CustodyPatchRequest{}
+	case loft.CustodyService_Apply_FullMethodName:
+		v = &loft.CustodyApplyRequest{}
+	case loft.CustodyService_Erase_FullMethodName:
+		v = &loft.CustodyRef{}
+	case loft.CustodyService_List_FullMethodName:
+		v = &loft.CustodyListRequest{}
+	case loft.CustodyService_Acknowledge_FullMethodName:
+		v = &loft.CustodyAcknowledgeRequest{}
+	case loft.CustodyService_Return_FullMethodName:
+		v = &loft.CustodyReturnRequest{}
+	case loft.CustodyService_Extend_FullMethodName:
+		v = &loft.CustodyExtendRequest{}
+	case loft.CustodyService_Outstanding_FullMethodName:
+		v = &loft.CustodyOutstandingRequest{}
+	case loft.CustodyService_ExportOutstanding_FullMethodName:
+		v = &loft.CustodyOutstandingRequest{}
+	case loft.CustodyLineService_Add_FullMethodName:
+		v = &loft.CustodyLineAddRequest{}
+	case loft.CustodyLineService_Get_FullMethodName:
+		v = &loft.CustodyLineGetRequest{}
+	case loft.CustodyLineService_Patch_FullMethodName:
+		v = &loft.CustodyLinePatchRequest{}
+	case loft.CustodyLineService_Apply_FullMethodName:
+		v = &loft.CustodyLineApplyRequest{}
+	case loft.CustodyLineService_Erase_FullMethodName:
+		v = &loft.CustodyLineRef{}
+	case loft.CustodyLineService_List_FullMethodName:
+		v = &loft.CustodyLineListRequest{}
+	case loft.PlacementService_Add_FullMethodName:
+		v = &loft.PlacementAddRequest{}
+	case loft.PlacementService_AddMany_FullMethodName:
+		v = &loft.PlacementAddManyRequest{}
+	case loft.PlacementService_Get_FullMethodName:
+		v = &loft.PlacementGetRequest{}
+	case loft.PlacementService_Patch_FullMethodName:
+		v = &loft.PlacementPatchRequest{}
+	case loft.PlacementService_Apply_FullMethodName:
+		v = &loft.PlacementApplyRequest{}
+	case loft.PlacementService_Erase_FullMethodName:
+		v = &loft.PlacementRef{}
+	case loft.PlacementService_List_FullMethodName:
+		v = &loft.PlacementListRequest{}
+	case loft.LinkService_Add_FullMethodName:
+		v = &loft.LinkAddRequest{}
+	case loft.LinkService_Get_FullMethodName:
+		v = &loft.LinkGetRequest{}
+	case loft.LinkService_Patch_FullMethodName:
+		v = &loft.LinkPatchRequest{}
+	case loft.LinkService_Apply_FullMethodName:
+		v = &loft.LinkApplyRequest{}
+	case loft.LinkService_Erase_FullMethodName:
+		v = &loft.LinkRef{}
+	case loft.LinkService_List_FullMethodName:
+		v = &loft.LinkListRequest{}
+	case loft.StewardshipService_Add_FullMethodName:
+		v = &loft.StewardshipAddRequest{}
+	case loft.StewardshipService_Get_FullMethodName:
+		v = &loft.StewardshipGetRequest{}
+	case loft.StewardshipService_Patch_FullMethodName:
+		v = &loft.StewardshipPatchRequest{}
+	case loft.StewardshipService_Apply_FullMethodName:
+		v = &loft.StewardshipApplyRequest{}
+	case loft.StewardshipService_Erase_FullMethodName:
+		v = &loft.StewardshipRef{}
+	case loft.StewardshipService_List_FullMethodName:
+		v = &loft.StewardshipListRequest{}
+	case loft.NotificationService_Add_FullMethodName:
+		v = &loft.NotificationAddRequest{}
+	case loft.NotificationService_Get_FullMethodName:
+		v = &loft.NotificationGetRequest{}
+	case loft.NotificationService_Patch_FullMethodName:
+		v = &loft.NotificationPatchRequest{}
+	case loft.NotificationService_Apply_FullMethodName:
+		v = &loft.NotificationApplyRequest{}
+	case loft.NotificationService_Erase_FullMethodName:
+		v = &loft.NotificationRef{}
+	case loft.NotificationService_List_FullMethodName:
+		v = &loft.NotificationListRequest{}
+	case loft.NotificationService_Inbox_FullMethodName:
+		v = &loft.NotificationInboxRequest{}
+	case loft.NotificationService_MarkRead_FullMethodName:
+		v = &loft.NotificationMarkReadRequest{}
+	case loft.NotificationService_SetMail_FullMethodName:
+		v = &loft.NotificationSetMailRequest{}
+	case loft.TenantContractService_Add_FullMethodName:
+		v = &loft.TenantContractAddRequest{}
+	case loft.TenantContractService_Get_FullMethodName:
+		v = &loft.TenantContractGetRequest{}
+	case loft.TenantContractService_Patch_FullMethodName:
+		v = &loft.TenantContractPatchRequest{}
+	case loft.TenantContractService_Apply_FullMethodName:
+		v = &loft.TenantContractApplyRequest{}
+	case loft.TenantContractService_Erase_FullMethodName:
+		v = &loft.TenantContractRef{}
+	case loft.TenantContractService_List_FullMethodName:
+		v = &loft.TenantContractListRequest{}
+	case loft.LegalHoldService_Add_FullMethodName:
+		v = &loft.LegalHoldAddRequest{}
+	case loft.LegalHoldService_Get_FullMethodName:
+		v = &loft.LegalHoldGetRequest{}
+	case loft.LegalHoldService_Patch_FullMethodName:
+		v = &loft.LegalHoldPatchRequest{}
+	case loft.LegalHoldService_Apply_FullMethodName:
+		v = &loft.LegalHoldApplyRequest{}
+	case loft.LegalHoldService_Erase_FullMethodName:
+		v = &loft.LegalHoldRef{}
+	case loft.LegalHoldService_List_FullMethodName:
+		v = &loft.LegalHoldListRequest{}
+	case loft.AccessReviewService_Add_FullMethodName:
+		v = &loft.AccessReviewAddRequest{}
+	case loft.AccessReviewService_Get_FullMethodName:
+		v = &loft.AccessReviewGetRequest{}
+	case loft.AccessReviewService_Patch_FullMethodName:
+		v = &loft.AccessReviewPatchRequest{}
+	case loft.AccessReviewService_Apply_FullMethodName:
+		v = &loft.AccessReviewApplyRequest{}
+	case loft.AccessReviewService_Erase_FullMethodName:
+		v = &loft.AccessReviewRef{}
+	case loft.AccessReviewService_List_FullMethodName:
+		v = &loft.AccessReviewListRequest{}
+	case loft.EventService_Add_FullMethodName:
+		v = &loft.EventAddRequest{}
+	case loft.EventService_AddMany_FullMethodName:
+		v = &loft.EventAddManyRequest{}
+	case loft.EventService_Get_FullMethodName:
+		v = &loft.EventGetRequest{}
+	case loft.EventService_List_FullMethodName:
+		v = &loft.EventListRequest{}
+	case loft.EventService_Recent_FullMethodName:
+		v = &loft.EventRecentRequest{}
+	case loft.EventService_Redact_FullMethodName:
+		v = &loft.EventRedactRequest{}
+	case loft.FactService_Add_FullMethodName:
+		v = &loft.FactAddRequest{}
+	case loft.FactService_AddMany_FullMethodName:
+		v = &loft.FactAddManyRequest{}
+	case loft.FactService_Get_FullMethodName:
+		v = &loft.FactGetRequest{}
+	case loft.FactService_Patch_FullMethodName:
+		v = &loft.FactPatchRequest{}
+	case loft.FactService_Apply_FullMethodName:
+		v = &loft.FactApplyRequest{}
+	case loft.FactService_List_FullMethodName:
+		v = &loft.FactListRequest{}
+	case loft.WorkOrderService_Add_FullMethodName:
+		v = &loft.WorkOrderAddRequest{}
+	case loft.WorkOrderService_Get_FullMethodName:
+		v = &loft.WorkOrderGetRequest{}
+	case loft.WorkOrderService_Patch_FullMethodName:
+		v = &loft.WorkOrderPatchRequest{}
+	case loft.WorkOrderService_Apply_FullMethodName:
+		v = &loft.WorkOrderApplyRequest{}
+	case loft.WorkOrderService_Erase_FullMethodName:
+		v = &loft.WorkOrderRef{}
+	case loft.WorkOrderService_List_FullMethodName:
+		v = &loft.WorkOrderListRequest{}
+	case loft.WorkOrderService_Update_FullMethodName:
+		v = &loft.WorkOrderUpdateRequest{}
+	case loft.WorkOrderService_Complete_FullMethodName:
+		v = &loft.WorkOrderCompleteRequest{}
+	case loft.WorkOrderService_Cancel_FullMethodName:
+		v = &loft.WorkOrderCompleteRequest{}
+	case loft.PurchaseService_Add_FullMethodName:
+		v = &loft.PurchaseAddRequest{}
+	case loft.PurchaseService_Get_FullMethodName:
+		v = &loft.PurchaseGetRequest{}
+	case loft.PurchaseService_Patch_FullMethodName:
+		v = &loft.PurchasePatchRequest{}
+	case loft.PurchaseService_Apply_FullMethodName:
+		v = &loft.PurchaseApplyRequest{}
+	case loft.PurchaseService_Erase_FullMethodName:
+		v = &loft.PurchaseRef{}
+	case loft.PurchaseService_List_FullMethodName:
+		v = &loft.PurchaseListRequest{}
+	case loft.PurchaseService_Receive_FullMethodName:
+		v = &loft.PurchaseReceiveRequest{}
+	case loft.PurchaseLineService_Add_FullMethodName:
+		v = &loft.PurchaseLineAddRequest{}
+	case loft.PurchaseLineService_Get_FullMethodName:
+		v = &loft.PurchaseLineGetRequest{}
+	case loft.PurchaseLineService_Patch_FullMethodName:
+		v = &loft.PurchaseLinePatchRequest{}
+	case loft.PurchaseLineService_Apply_FullMethodName:
+		v = &loft.PurchaseLineApplyRequest{}
+	case loft.PurchaseLineService_Erase_FullMethodName:
+		v = &loft.PurchaseLineRef{}
+	case loft.PurchaseLineService_List_FullMethodName:
+		v = &loft.PurchaseLineListRequest{}
 	default:
 		// Including every Rpc written by hand: those live on a service of
 		// their own, which `Server` has no accessor for.
@@ -27169,7 +27169,7 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 
 // dispatch runs one operation, of method `m` asking `v`, against the stack
 // the transaction is on. `v` is what [unpack] read for it.
-func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*anypb.Any, error) {
+func dispatch(ctx context.Context, s loft.Server, m string, v proto.Message) (*anypb.Any, error) {
 	// Under the operation's own name. The recorder fills in what the
 	// caller asked for by asking gRPC, and in here gRPC answers with the
 	// envelope -- `BatchService/Do`, for every operation of every batch --
@@ -27182,558 +27182,558 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		err error
 	)
 	switch m {
-	case rove.TenantService_Add_FullMethodName:
-		res, err = s.Tenant().Add(ctx, v.(*rove.TenantAddRequest))
-	case rove.TenantService_Get_FullMethodName:
-		res, err = s.Tenant().Get(ctx, v.(*rove.TenantGetRequest))
-	case rove.TenantService_Patch_FullMethodName:
-		res, err = s.Tenant().Patch(ctx, v.(*rove.TenantPatchRequest))
-	case rove.TenantService_Apply_FullMethodName:
-		res, err = s.Tenant().Apply(ctx, v.(*rove.TenantApplyRequest))
-	case rove.TenantService_Erase_FullMethodName:
-		res, err = s.Tenant().Erase(ctx, v.(*rove.TenantRef))
-	case rove.TenantService_List_FullMethodName:
-		res, err = s.Tenant().List(ctx, v.(*rove.TenantListRequest))
-	case rove.TenantService_Close_FullMethodName:
-		res, err = s.Tenant().Close(ctx, v.(*rove.TenantCloseRequest))
-	case rove.TenantService_Restore_FullMethodName:
-		res, err = s.Tenant().Restore(ctx, v.(*rove.TenantRestoreRequest))
-	case rove.TenantService_Configure_FullMethodName:
-		res, err = s.Tenant().Configure(ctx, v.(*rove.TenantConfigureRequest))
-	case rove.TenantService_Preview_FullMethodName:
-		res, err = s.Tenant().Preview(ctx, v.(*rove.TenantPreviewRequest))
-	case rove.AssetTypeService_Add_FullMethodName:
-		res, err = s.AssetType().Add(ctx, v.(*rove.AssetTypeAddRequest))
-	case rove.AssetTypeService_Get_FullMethodName:
-		res, err = s.AssetType().Get(ctx, v.(*rove.AssetTypeGetRequest))
-	case rove.AssetTypeService_Patch_FullMethodName:
-		res, err = s.AssetType().Patch(ctx, v.(*rove.AssetTypePatchRequest))
-	case rove.AssetTypeService_Apply_FullMethodName:
-		res, err = s.AssetType().Apply(ctx, v.(*rove.AssetTypeApplyRequest))
-	case rove.AssetTypeService_Erase_FullMethodName:
-		res, err = s.AssetType().Erase(ctx, v.(*rove.AssetTypeRef))
-	case rove.AssetTypeService_List_FullMethodName:
-		res, err = s.AssetType().List(ctx, v.(*rove.AssetTypeListRequest))
-	case rove.AssetTypeService_Update_FullMethodName:
-		res, err = s.AssetType().Update(ctx, v.(*rove.AssetTypeUpdateRequest))
-	case rove.ItemModelService_Add_FullMethodName:
-		res, err = s.ItemModel().Add(ctx, v.(*rove.ItemModelAddRequest))
-	case rove.ItemModelService_Get_FullMethodName:
-		res, err = s.ItemModel().Get(ctx, v.(*rove.ItemModelGetRequest))
-	case rove.ItemModelService_Patch_FullMethodName:
-		res, err = s.ItemModel().Patch(ctx, v.(*rove.ItemModelPatchRequest))
-	case rove.ItemModelService_Apply_FullMethodName:
-		res, err = s.ItemModel().Apply(ctx, v.(*rove.ItemModelApplyRequest))
-	case rove.ItemModelService_Erase_FullMethodName:
-		res, err = s.ItemModel().Erase(ctx, v.(*rove.ItemModelRef))
-	case rove.ItemModelService_List_FullMethodName:
-		res, err = s.ItemModel().List(ctx, v.(*rove.ItemModelListRequest))
-	case rove.ItemModelService_Update_FullMethodName:
-		res, err = s.ItemModel().Update(ctx, v.(*rove.ItemModelUpdateRequest))
-	case rove.ItemModelService_Search_FullMethodName:
-		res, err = s.ItemModel().Search(ctx, v.(*rove.ItemModelSearchRequest))
-	case rove.HolderService_Add_FullMethodName:
-		res, err = s.Holder().Add(ctx, v.(*rove.HolderAddRequest))
-	case rove.HolderService_Get_FullMethodName:
-		res, err = s.Holder().Get(ctx, v.(*rove.HolderGetRequest))
-	case rove.HolderService_Patch_FullMethodName:
-		res, err = s.Holder().Patch(ctx, v.(*rove.HolderPatchRequest))
-	case rove.HolderService_Apply_FullMethodName:
-		res, err = s.Holder().Apply(ctx, v.(*rove.HolderApplyRequest))
-	case rove.HolderService_Erase_FullMethodName:
-		res, err = s.Holder().Erase(ctx, v.(*rove.HolderRef))
-	case rove.HolderService_List_FullMethodName:
-		res, err = s.Holder().List(ctx, v.(*rove.HolderListRequest))
-	case rove.PartyService_Add_FullMethodName:
-		res, err = s.Party().Add(ctx, v.(*rove.PartyAddRequest))
-	case rove.PartyService_Get_FullMethodName:
-		res, err = s.Party().Get(ctx, v.(*rove.PartyGetRequest))
-	case rove.PartyService_Patch_FullMethodName:
-		res, err = s.Party().Patch(ctx, v.(*rove.PartyPatchRequest))
-	case rove.PartyService_Apply_FullMethodName:
-		res, err = s.Party().Apply(ctx, v.(*rove.PartyApplyRequest))
-	case rove.PartyService_Erase_FullMethodName:
-		res, err = s.Party().Erase(ctx, v.(*rove.PartyRef))
-	case rove.PartyService_List_FullMethodName:
-		res, err = s.Party().List(ctx, v.(*rove.PartyListRequest))
-	case rove.PartyService_Me_FullMethodName:
-		res, err = s.Party().Me(ctx, v.(*rove.PartyMeRequest))
-	case rove.PartyService_Update_FullMethodName:
-		res, err = s.Party().Update(ctx, v.(*rove.PartyUpdateRequest))
-	case rove.PartyService_Invite_FullMethodName:
-		res, err = s.Party().Invite(ctx, v.(*rove.PartyInviteRequest))
-	case rove.PartyService_SetRole_FullMethodName:
-		res, err = s.Party().SetRole(ctx, v.(*rove.PartySetRoleRequest))
-	case rove.PartyService_SetPassword_FullMethodName:
-		res, err = s.Party().SetPassword(ctx, v.(*rove.PartySetPasswordRequest))
-	case rove.PartyService_Deactivate_FullMethodName:
-		res, err = s.Party().Deactivate(ctx, v.(*rove.PartyDeactivateRequest))
-	case rove.PartyService_Pseudonymize_FullMethodName:
-		res, err = s.Party().Pseudonymize(ctx, v.(*rove.PartyPseudonymizeRequest))
-	case rove.PartyService_Search_FullMethodName:
-		res, err = s.Party().Search(ctx, v.(*rove.PartySearchRequest))
-	case rove.InvitationService_Add_FullMethodName:
-		res, err = s.Invitation().Add(ctx, v.(*rove.InvitationAddRequest))
-	case rove.InvitationService_Get_FullMethodName:
-		res, err = s.Invitation().Get(ctx, v.(*rove.InvitationGetRequest))
-	case rove.InvitationService_Patch_FullMethodName:
-		res, err = s.Invitation().Patch(ctx, v.(*rove.InvitationPatchRequest))
-	case rove.InvitationService_Apply_FullMethodName:
-		res, err = s.Invitation().Apply(ctx, v.(*rove.InvitationApplyRequest))
-	case rove.InvitationService_Erase_FullMethodName:
-		res, err = s.Invitation().Erase(ctx, v.(*rove.InvitationRef))
-	case rove.InvitationService_List_FullMethodName:
-		res, err = s.Invitation().List(ctx, v.(*rove.InvitationListRequest))
-	case rove.InvitationService_Revoke_FullMethodName:
-		res, err = s.Invitation().Revoke(ctx, v.(*rove.InvitationRevokeRequest))
-	case rove.InvitationService_Claim_FullMethodName:
-		res, err = s.Invitation().Claim(ctx, v.(*rove.InvitationClaimRequest))
-	case rove.InvitationService_Accept_FullMethodName:
-		res, err = s.Invitation().Accept(ctx, v.(*rove.InvitationAcceptRequest))
-	case rove.InvitationService_Deny_FullMethodName:
-		res, err = s.Invitation().Deny(ctx, v.(*rove.InvitationDenyRequest))
-	case rove.AssetService_Add_FullMethodName:
-		res, err = s.Asset().Add(ctx, v.(*rove.AssetAddRequest))
-	case rove.AssetService_AddMany_FullMethodName:
-		res, err = s.Asset().AddMany(ctx, v.(*rove.AssetAddManyRequest))
-	case rove.AssetService_Get_FullMethodName:
-		res, err = s.Asset().Get(ctx, v.(*rove.AssetGetRequest))
-	case rove.AssetService_Patch_FullMethodName:
-		res, err = s.Asset().Patch(ctx, v.(*rove.AssetPatchRequest))
-	case rove.AssetService_Apply_FullMethodName:
-		res, err = s.Asset().Apply(ctx, v.(*rove.AssetApplyRequest))
-	case rove.AssetService_Erase_FullMethodName:
-		res, err = s.Asset().Erase(ctx, v.(*rove.AssetRef))
-	case rove.AssetService_List_FullMethodName:
-		res, err = s.Asset().List(ctx, v.(*rove.AssetListRequest))
-	case rove.AssetService_Move_FullMethodName:
-		res, err = s.Asset().Move(ctx, v.(*rove.AssetMoveRequest))
-	case rove.AssetService_SetAttributes_FullMethodName:
-		res, err = s.Asset().SetAttributes(ctx, v.(*rove.AssetSetAttributesRequest))
-	case rove.AssetService_Assign_FullMethodName:
-		res, err = s.Asset().Assign(ctx, v.(*rove.AssetAssignRequest))
-	case rove.AssetService_Relate_FullMethodName:
-		res, err = s.Asset().Relate(ctx, v.(*rove.AssetRelateRequest))
-	case rove.AssetService_Correct_FullMethodName:
-		res, err = s.Asset().Correct(ctx, v.(*rove.AssetCorrectRequest))
-	case rove.AssetService_Timeline_FullMethodName:
-		res, err = s.Asset().Timeline(ctx, v.(*rove.AssetTimelineRequest))
-	case rove.AssetService_QueryAt_FullMethodName:
-		res, err = s.Asset().QueryAt(ctx, v.(*rove.AssetQueryAtRequest))
-	case rove.AssetService_Diff_FullMethodName:
-		res, err = s.Asset().Diff(ctx, v.(*rove.AssetDiffRequest))
-	case rove.AssetService_Search_FullMethodName:
-		res, err = s.Asset().Search(ctx, v.(*rove.AssetSearchRequest))
-	case rove.AssetService_Report_FullMethodName:
-		res, err = s.Asset().Report(ctx, v.(*rove.AssetReportRequest))
-	case rove.AssetService_Export_FullMethodName:
-		res, err = s.Asset().Export(ctx, v.(*rove.AssetExportRequest))
-	case rove.AssetService_Form_FullMethodName:
-		res, err = s.Asset().Form(ctx, v.(*rove.AssetFormRequest))
-	case rove.AssetService_ReadSheet_FullMethodName:
-		res, err = s.Asset().ReadSheet(ctx, v.(*rove.AssetReadSheetRequest))
-	case rove.AssetService_Census_FullMethodName:
-		res, err = s.Asset().Census(ctx, v.(*rove.AssetCensusRequest))
-	case rove.AssetService_ExportCensus_FullMethodName:
-		res, err = s.Asset().ExportCensus(ctx, v.(*rove.AssetCensusRequest))
-	case rove.TenantDomainService_Add_FullMethodName:
-		res, err = s.TenantDomain().Add(ctx, v.(*rove.TenantDomainAddRequest))
-	case rove.TenantDomainService_Get_FullMethodName:
-		res, err = s.TenantDomain().Get(ctx, v.(*rove.TenantDomainGetRequest))
-	case rove.TenantDomainService_Patch_FullMethodName:
-		res, err = s.TenantDomain().Patch(ctx, v.(*rove.TenantDomainPatchRequest))
-	case rove.TenantDomainService_Apply_FullMethodName:
-		res, err = s.TenantDomain().Apply(ctx, v.(*rove.TenantDomainApplyRequest))
-	case rove.TenantDomainService_Erase_FullMethodName:
-		res, err = s.TenantDomain().Erase(ctx, v.(*rove.TenantDomainRef))
-	case rove.TenantDomainService_List_FullMethodName:
-		res, err = s.TenantDomain().List(ctx, v.(*rove.TenantDomainListRequest))
-	case rove.TenantDomainService_Verify_FullMethodName:
-		res, err = s.TenantDomain().Verify(ctx, v.(*rove.TenantDomainVerifyRequest))
-	case rove.TenantDomainService_Activate_FullMethodName:
-		res, err = s.TenantDomain().Activate(ctx, v.(*rove.TenantDomainActivateRequest))
-	case rove.TenantDomainService_Retire_FullMethodName:
-		res, err = s.TenantDomain().Retire(ctx, v.(*rove.TenantDomainRetireRequest))
-	case rove.TenantDomainService_Status_FullMethodName:
-		res, err = s.TenantDomain().Status(ctx, v.(*rove.TenantDomainStatusRequest))
-	case rove.LabelService_Add_FullMethodName:
-		res, err = s.Label().Add(ctx, v.(*rove.LabelAddRequest))
-	case rove.LabelService_Get_FullMethodName:
-		res, err = s.Label().Get(ctx, v.(*rove.LabelGetRequest))
-	case rove.LabelService_Patch_FullMethodName:
-		res, err = s.Label().Patch(ctx, v.(*rove.LabelPatchRequest))
-	case rove.LabelService_Apply_FullMethodName:
-		res, err = s.Label().Apply(ctx, v.(*rove.LabelApplyRequest))
-	case rove.LabelService_Erase_FullMethodName:
-		res, err = s.Label().Erase(ctx, v.(*rove.LabelRef))
-	case rove.LabelService_List_FullMethodName:
-		res, err = s.Label().List(ctx, v.(*rove.LabelListRequest))
-	case rove.LabelService_Print_FullMethodName:
-		res, err = s.Label().Print(ctx, v.(*rove.LabelPrintRequest))
-	case rove.LabelService_Bind_FullMethodName:
-		res, err = s.Label().Bind(ctx, v.(*rove.LabelBindRequest))
-	case rove.LabelService_Unbind_FullMethodName:
-		res, err = s.Label().Unbind(ctx, v.(*rove.LabelUnbindRequest))
-	case rove.LabelService_Resolve_FullMethodName:
-		res, err = s.Label().Resolve(ctx, v.(*rove.LabelResolveRequest))
-	case rove.AttachmentService_Add_FullMethodName:
-		res, err = s.Attachment().Add(ctx, v.(*rove.AttachmentAddRequest))
-	case rove.AttachmentService_Get_FullMethodName:
-		res, err = s.Attachment().Get(ctx, v.(*rove.AttachmentGetRequest))
-	case rove.AttachmentService_Patch_FullMethodName:
-		res, err = s.Attachment().Patch(ctx, v.(*rove.AttachmentPatchRequest))
-	case rove.AttachmentService_Apply_FullMethodName:
-		res, err = s.Attachment().Apply(ctx, v.(*rove.AttachmentApplyRequest))
-	case rove.AttachmentService_Erase_FullMethodName:
-		res, err = s.Attachment().Erase(ctx, v.(*rove.AttachmentRef))
-	case rove.AttachmentService_List_FullMethodName:
-		res, err = s.Attachment().List(ctx, v.(*rove.AttachmentListRequest))
-	case rove.AttachmentService_Upload_FullMethodName:
-		res, err = s.Attachment().Upload(ctx, v.(*rove.AttachmentUploadRequest))
-	case rove.AttachmentService_Url_FullMethodName:
-		res, err = s.Attachment().Url(ctx, v.(*rove.AttachmentUrlRequest))
-	case rove.BookableService_Add_FullMethodName:
-		res, err = s.Bookable().Add(ctx, v.(*rove.BookableAddRequest))
-	case rove.BookableService_Get_FullMethodName:
-		res, err = s.Bookable().Get(ctx, v.(*rove.BookableGetRequest))
-	case rove.BookableService_Patch_FullMethodName:
-		res, err = s.Bookable().Patch(ctx, v.(*rove.BookablePatchRequest))
-	case rove.BookableService_Apply_FullMethodName:
-		res, err = s.Bookable().Apply(ctx, v.(*rove.BookableApplyRequest))
-	case rove.BookableService_Erase_FullMethodName:
-		res, err = s.Bookable().Erase(ctx, v.(*rove.BookableRef))
-	case rove.BookableService_List_FullMethodName:
-		res, err = s.Bookable().List(ctx, v.(*rove.BookableListRequest))
-	case rove.BookableService_Update_FullMethodName:
-		res, err = s.Bookable().Update(ctx, v.(*rove.BookableUpdateRequest))
-	case rove.BookableService_Availability_FullMethodName:
-		res, err = s.Bookable().Availability(ctx, v.(*rove.BookableAvailabilityRequest))
-	case rove.BookableService_Usage_FullMethodName:
-		res, err = s.Bookable().Usage(ctx, v.(*rove.BookableUsageRequest))
-	case rove.BookableService_ExportUsage_FullMethodName:
-		res, err = s.Bookable().ExportUsage(ctx, v.(*rove.BookableUsageRequest))
-	case rove.ReservationService_Add_FullMethodName:
-		res, err = s.Reservation().Add(ctx, v.(*rove.ReservationAddRequest))
-	case rove.ReservationService_Get_FullMethodName:
-		res, err = s.Reservation().Get(ctx, v.(*rove.ReservationGetRequest))
-	case rove.ReservationService_Patch_FullMethodName:
-		res, err = s.Reservation().Patch(ctx, v.(*rove.ReservationPatchRequest))
-	case rove.ReservationService_Apply_FullMethodName:
-		res, err = s.Reservation().Apply(ctx, v.(*rove.ReservationApplyRequest))
-	case rove.ReservationService_Erase_FullMethodName:
-		res, err = s.Reservation().Erase(ctx, v.(*rove.ReservationRef))
-	case rove.ReservationService_List_FullMethodName:
-		res, err = s.Reservation().List(ctx, v.(*rove.ReservationListRequest))
-	case rove.ReservationService_Confirm_FullMethodName:
-		res, err = s.Reservation().Confirm(ctx, v.(*rove.ReservationDecideRequest))
-	case rove.ReservationService_Approve_FullMethodName:
-		res, err = s.Reservation().Approve(ctx, v.(*rove.ReservationDecideRequest))
-	case rove.ReservationService_Reject_FullMethodName:
-		res, err = s.Reservation().Reject(ctx, v.(*rove.ReservationDecideRequest))
-	case rove.ReservationService_Cancel_FullMethodName:
-		res, err = s.Reservation().Cancel(ctx, v.(*rove.ReservationDecideRequest))
-	case rove.ReservationService_CheckIn_FullMethodName:
-		res, err = s.Reservation().CheckIn(ctx, v.(*rove.ReservationDecideRequest))
-	case rove.ReservationService_Complete_FullMethodName:
-		res, err = s.Reservation().Complete(ctx, v.(*rove.ReservationDecideRequest))
-	case rove.ReservationService_Calendar_FullMethodName:
-		res, err = s.Reservation().Calendar(ctx, v.(*rove.ReservationCalendarRequest))
-	case rove.ReservationService_Timeline_FullMethodName:
-		res, err = s.Reservation().Timeline(ctx, v.(*rove.ReservationTimelineRequest))
-	case rove.ReservationService_Pickup_FullMethodName:
-		res, err = s.Reservation().Pickup(ctx, v.(*rove.ReservationPickupRequest))
-	case rove.ReservationItemService_Add_FullMethodName:
-		res, err = s.ReservationItem().Add(ctx, v.(*rove.ReservationItemAddRequest))
-	case rove.ReservationItemService_Get_FullMethodName:
-		res, err = s.ReservationItem().Get(ctx, v.(*rove.ReservationItemGetRequest))
-	case rove.ReservationItemService_Patch_FullMethodName:
-		res, err = s.ReservationItem().Patch(ctx, v.(*rove.ReservationItemPatchRequest))
-	case rove.ReservationItemService_Apply_FullMethodName:
-		res, err = s.ReservationItem().Apply(ctx, v.(*rove.ReservationItemApplyRequest))
-	case rove.ReservationItemService_Erase_FullMethodName:
-		res, err = s.ReservationItem().Erase(ctx, v.(*rove.ReservationItemRef))
-	case rove.ReservationItemService_List_FullMethodName:
-		res, err = s.ReservationItem().List(ctx, v.(*rove.ReservationItemListRequest))
-	case rove.AllocationService_Add_FullMethodName:
-		res, err = s.Allocation().Add(ctx, v.(*rove.AllocationAddRequest))
-	case rove.AllocationService_Get_FullMethodName:
-		res, err = s.Allocation().Get(ctx, v.(*rove.AllocationGetRequest))
-	case rove.AllocationService_Patch_FullMethodName:
-		res, err = s.Allocation().Patch(ctx, v.(*rove.AllocationPatchRequest))
-	case rove.AllocationService_Apply_FullMethodName:
-		res, err = s.Allocation().Apply(ctx, v.(*rove.AllocationApplyRequest))
-	case rove.AllocationService_Erase_FullMethodName:
-		res, err = s.Allocation().Erase(ctx, v.(*rove.AllocationRef))
-	case rove.AllocationService_List_FullMethodName:
-		res, err = s.Allocation().List(ctx, v.(*rove.AllocationListRequest))
-	case rove.InventoryCountService_Add_FullMethodName:
-		res, err = s.InventoryCount().Add(ctx, v.(*rove.InventoryCountAddRequest))
-	case rove.InventoryCountService_Get_FullMethodName:
-		res, err = s.InventoryCount().Get(ctx, v.(*rove.InventoryCountGetRequest))
-	case rove.InventoryCountService_Patch_FullMethodName:
-		res, err = s.InventoryCount().Patch(ctx, v.(*rove.InventoryCountPatchRequest))
-	case rove.InventoryCountService_Apply_FullMethodName:
-		res, err = s.InventoryCount().Apply(ctx, v.(*rove.InventoryCountApplyRequest))
-	case rove.InventoryCountService_Erase_FullMethodName:
-		res, err = s.InventoryCount().Erase(ctx, v.(*rove.InventoryCountRef))
-	case rove.InventoryCountService_List_FullMethodName:
-		res, err = s.InventoryCount().List(ctx, v.(*rove.InventoryCountListRequest))
-	case rove.InventoryCountService_Scan_FullMethodName:
-		res, err = s.InventoryCount().Scan(ctx, v.(*rove.InventoryCountScanRequest))
-	case rove.InventoryCountService_Reconcile_FullMethodName:
-		res, err = s.InventoryCount().Reconcile(ctx, v.(*rove.InventoryCountReconcileRequest))
-	case rove.InventoryCountService_Resolve_FullMethodName:
-		res, err = s.InventoryCount().Resolve(ctx, v.(*rove.InventoryCountResolveRequest))
-	case rove.InventoryCountService_Close_FullMethodName:
-		res, err = s.InventoryCount().Close(ctx, v.(*rove.InventoryCountCloseRequest))
-	case rove.InventoryCountService_Results_FullMethodName:
-		res, err = s.InventoryCount().Results(ctx, v.(*rove.InventoryCountResultsRequest))
-	case rove.InventoryCountService_ExportResults_FullMethodName:
-		res, err = s.InventoryCount().ExportResults(ctx, v.(*rove.InventoryCountResultsRequest))
-	case rove.CountFindingService_Add_FullMethodName:
-		res, err = s.CountFinding().Add(ctx, v.(*rove.CountFindingAddRequest))
-	case rove.CountFindingService_Get_FullMethodName:
-		res, err = s.CountFinding().Get(ctx, v.(*rove.CountFindingGetRequest))
-	case rove.CountFindingService_Patch_FullMethodName:
-		res, err = s.CountFinding().Patch(ctx, v.(*rove.CountFindingPatchRequest))
-	case rove.CountFindingService_Apply_FullMethodName:
-		res, err = s.CountFinding().Apply(ctx, v.(*rove.CountFindingApplyRequest))
-	case rove.CountFindingService_Erase_FullMethodName:
-		res, err = s.CountFinding().Erase(ctx, v.(*rove.CountFindingRef))
-	case rove.CountFindingService_List_FullMethodName:
-		res, err = s.CountFinding().List(ctx, v.(*rove.CountFindingListRequest))
-	case rove.StockService_Add_FullMethodName:
-		res, err = s.Stock().Add(ctx, v.(*rove.StockAddRequest))
-	case rove.StockService_Get_FullMethodName:
-		res, err = s.Stock().Get(ctx, v.(*rove.StockGetRequest))
-	case rove.StockService_Patch_FullMethodName:
-		res, err = s.Stock().Patch(ctx, v.(*rove.StockPatchRequest))
-	case rove.StockService_Apply_FullMethodName:
-		res, err = s.Stock().Apply(ctx, v.(*rove.StockApplyRequest))
-	case rove.StockService_Erase_FullMethodName:
-		res, err = s.Stock().Erase(ctx, v.(*rove.StockRef))
-	case rove.StockService_List_FullMethodName:
-		res, err = s.Stock().List(ctx, v.(*rove.StockListRequest))
-	case rove.StockService_Receive_FullMethodName:
-		res, err = s.Stock().Receive(ctx, v.(*rove.StockChangeRequest))
-	case rove.StockService_Consume_FullMethodName:
-		res, err = s.Stock().Consume(ctx, v.(*rove.StockChangeRequest))
-	case rove.StockService_Adjust_FullMethodName:
-		res, err = s.Stock().Adjust(ctx, v.(*rove.StockChangeRequest))
-	case rove.StockService_Transfer_FullMethodName:
-		res, err = s.Stock().Transfer(ctx, v.(*rove.StockTransferRequest))
-	case rove.StockService_Convert_FullMethodName:
-		res, err = s.Stock().Convert(ctx, v.(*rove.StockConvertRequest))
-	case rove.StockService_Flow_FullMethodName:
-		res, err = s.Stock().Flow(ctx, v.(*rove.StockFlowRequest))
-	case rove.StockService_ExportFlow_FullMethodName:
-		res, err = s.Stock().ExportFlow(ctx, v.(*rove.StockFlowRequest))
-	case rove.StockMovementService_Add_FullMethodName:
-		res, err = s.StockMovement().Add(ctx, v.(*rove.StockMovementAddRequest))
-	case rove.StockMovementService_Get_FullMethodName:
-		res, err = s.StockMovement().Get(ctx, v.(*rove.StockMovementGetRequest))
-	case rove.StockMovementService_Patch_FullMethodName:
-		res, err = s.StockMovement().Patch(ctx, v.(*rove.StockMovementPatchRequest))
-	case rove.StockMovementService_Apply_FullMethodName:
-		res, err = s.StockMovement().Apply(ctx, v.(*rove.StockMovementApplyRequest))
-	case rove.StockMovementService_Erase_FullMethodName:
-		res, err = s.StockMovement().Erase(ctx, v.(*rove.StockMovementRef))
-	case rove.StockMovementService_List_FullMethodName:
-		res, err = s.StockMovement().List(ctx, v.(*rove.StockMovementListRequest))
-	case rove.CustodyService_Add_FullMethodName:
-		res, err = s.Custody().Add(ctx, v.(*rove.CustodyAddRequest))
-	case rove.CustodyService_Get_FullMethodName:
-		res, err = s.Custody().Get(ctx, v.(*rove.CustodyGetRequest))
-	case rove.CustodyService_Patch_FullMethodName:
-		res, err = s.Custody().Patch(ctx, v.(*rove.CustodyPatchRequest))
-	case rove.CustodyService_Apply_FullMethodName:
-		res, err = s.Custody().Apply(ctx, v.(*rove.CustodyApplyRequest))
-	case rove.CustodyService_Erase_FullMethodName:
-		res, err = s.Custody().Erase(ctx, v.(*rove.CustodyRef))
-	case rove.CustodyService_List_FullMethodName:
-		res, err = s.Custody().List(ctx, v.(*rove.CustodyListRequest))
-	case rove.CustodyService_Acknowledge_FullMethodName:
-		res, err = s.Custody().Acknowledge(ctx, v.(*rove.CustodyAcknowledgeRequest))
-	case rove.CustodyService_Return_FullMethodName:
-		res, err = s.Custody().Return(ctx, v.(*rove.CustodyReturnRequest))
-	case rove.CustodyService_Extend_FullMethodName:
-		res, err = s.Custody().Extend(ctx, v.(*rove.CustodyExtendRequest))
-	case rove.CustodyService_Outstanding_FullMethodName:
-		res, err = s.Custody().Outstanding(ctx, v.(*rove.CustodyOutstandingRequest))
-	case rove.CustodyService_ExportOutstanding_FullMethodName:
-		res, err = s.Custody().ExportOutstanding(ctx, v.(*rove.CustodyOutstandingRequest))
-	case rove.CustodyLineService_Add_FullMethodName:
-		res, err = s.CustodyLine().Add(ctx, v.(*rove.CustodyLineAddRequest))
-	case rove.CustodyLineService_Get_FullMethodName:
-		res, err = s.CustodyLine().Get(ctx, v.(*rove.CustodyLineGetRequest))
-	case rove.CustodyLineService_Patch_FullMethodName:
-		res, err = s.CustodyLine().Patch(ctx, v.(*rove.CustodyLinePatchRequest))
-	case rove.CustodyLineService_Apply_FullMethodName:
-		res, err = s.CustodyLine().Apply(ctx, v.(*rove.CustodyLineApplyRequest))
-	case rove.CustodyLineService_Erase_FullMethodName:
-		res, err = s.CustodyLine().Erase(ctx, v.(*rove.CustodyLineRef))
-	case rove.CustodyLineService_List_FullMethodName:
-		res, err = s.CustodyLine().List(ctx, v.(*rove.CustodyLineListRequest))
-	case rove.PlacementService_Add_FullMethodName:
-		res, err = s.Placement().Add(ctx, v.(*rove.PlacementAddRequest))
-	case rove.PlacementService_AddMany_FullMethodName:
-		res, err = s.Placement().AddMany(ctx, v.(*rove.PlacementAddManyRequest))
-	case rove.PlacementService_Get_FullMethodName:
-		res, err = s.Placement().Get(ctx, v.(*rove.PlacementGetRequest))
-	case rove.PlacementService_Patch_FullMethodName:
-		res, err = s.Placement().Patch(ctx, v.(*rove.PlacementPatchRequest))
-	case rove.PlacementService_Apply_FullMethodName:
-		res, err = s.Placement().Apply(ctx, v.(*rove.PlacementApplyRequest))
-	case rove.PlacementService_Erase_FullMethodName:
-		res, err = s.Placement().Erase(ctx, v.(*rove.PlacementRef))
-	case rove.PlacementService_List_FullMethodName:
-		res, err = s.Placement().List(ctx, v.(*rove.PlacementListRequest))
-	case rove.LinkService_Add_FullMethodName:
-		res, err = s.Link().Add(ctx, v.(*rove.LinkAddRequest))
-	case rove.LinkService_Get_FullMethodName:
-		res, err = s.Link().Get(ctx, v.(*rove.LinkGetRequest))
-	case rove.LinkService_Patch_FullMethodName:
-		res, err = s.Link().Patch(ctx, v.(*rove.LinkPatchRequest))
-	case rove.LinkService_Apply_FullMethodName:
-		res, err = s.Link().Apply(ctx, v.(*rove.LinkApplyRequest))
-	case rove.LinkService_Erase_FullMethodName:
-		res, err = s.Link().Erase(ctx, v.(*rove.LinkRef))
-	case rove.LinkService_List_FullMethodName:
-		res, err = s.Link().List(ctx, v.(*rove.LinkListRequest))
-	case rove.StewardshipService_Add_FullMethodName:
-		res, err = s.Stewardship().Add(ctx, v.(*rove.StewardshipAddRequest))
-	case rove.StewardshipService_Get_FullMethodName:
-		res, err = s.Stewardship().Get(ctx, v.(*rove.StewardshipGetRequest))
-	case rove.StewardshipService_Patch_FullMethodName:
-		res, err = s.Stewardship().Patch(ctx, v.(*rove.StewardshipPatchRequest))
-	case rove.StewardshipService_Apply_FullMethodName:
-		res, err = s.Stewardship().Apply(ctx, v.(*rove.StewardshipApplyRequest))
-	case rove.StewardshipService_Erase_FullMethodName:
-		res, err = s.Stewardship().Erase(ctx, v.(*rove.StewardshipRef))
-	case rove.StewardshipService_List_FullMethodName:
-		res, err = s.Stewardship().List(ctx, v.(*rove.StewardshipListRequest))
-	case rove.NotificationService_Add_FullMethodName:
-		res, err = s.Notification().Add(ctx, v.(*rove.NotificationAddRequest))
-	case rove.NotificationService_Get_FullMethodName:
-		res, err = s.Notification().Get(ctx, v.(*rove.NotificationGetRequest))
-	case rove.NotificationService_Patch_FullMethodName:
-		res, err = s.Notification().Patch(ctx, v.(*rove.NotificationPatchRequest))
-	case rove.NotificationService_Apply_FullMethodName:
-		res, err = s.Notification().Apply(ctx, v.(*rove.NotificationApplyRequest))
-	case rove.NotificationService_Erase_FullMethodName:
-		res, err = s.Notification().Erase(ctx, v.(*rove.NotificationRef))
-	case rove.NotificationService_List_FullMethodName:
-		res, err = s.Notification().List(ctx, v.(*rove.NotificationListRequest))
-	case rove.NotificationService_Inbox_FullMethodName:
-		res, err = s.Notification().Inbox(ctx, v.(*rove.NotificationInboxRequest))
-	case rove.NotificationService_MarkRead_FullMethodName:
-		res, err = s.Notification().MarkRead(ctx, v.(*rove.NotificationMarkReadRequest))
-	case rove.NotificationService_SetMail_FullMethodName:
-		res, err = s.Notification().SetMail(ctx, v.(*rove.NotificationSetMailRequest))
-	case rove.TenantContractService_Add_FullMethodName:
-		res, err = s.TenantContract().Add(ctx, v.(*rove.TenantContractAddRequest))
-	case rove.TenantContractService_Get_FullMethodName:
-		res, err = s.TenantContract().Get(ctx, v.(*rove.TenantContractGetRequest))
-	case rove.TenantContractService_Patch_FullMethodName:
-		res, err = s.TenantContract().Patch(ctx, v.(*rove.TenantContractPatchRequest))
-	case rove.TenantContractService_Apply_FullMethodName:
-		res, err = s.TenantContract().Apply(ctx, v.(*rove.TenantContractApplyRequest))
-	case rove.TenantContractService_Erase_FullMethodName:
-		res, err = s.TenantContract().Erase(ctx, v.(*rove.TenantContractRef))
-	case rove.TenantContractService_List_FullMethodName:
-		res, err = s.TenantContract().List(ctx, v.(*rove.TenantContractListRequest))
-	case rove.LegalHoldService_Add_FullMethodName:
-		res, err = s.LegalHold().Add(ctx, v.(*rove.LegalHoldAddRequest))
-	case rove.LegalHoldService_Get_FullMethodName:
-		res, err = s.LegalHold().Get(ctx, v.(*rove.LegalHoldGetRequest))
-	case rove.LegalHoldService_Patch_FullMethodName:
-		res, err = s.LegalHold().Patch(ctx, v.(*rove.LegalHoldPatchRequest))
-	case rove.LegalHoldService_Apply_FullMethodName:
-		res, err = s.LegalHold().Apply(ctx, v.(*rove.LegalHoldApplyRequest))
-	case rove.LegalHoldService_Erase_FullMethodName:
-		res, err = s.LegalHold().Erase(ctx, v.(*rove.LegalHoldRef))
-	case rove.LegalHoldService_List_FullMethodName:
-		res, err = s.LegalHold().List(ctx, v.(*rove.LegalHoldListRequest))
-	case rove.AccessReviewService_Add_FullMethodName:
-		res, err = s.AccessReview().Add(ctx, v.(*rove.AccessReviewAddRequest))
-	case rove.AccessReviewService_Get_FullMethodName:
-		res, err = s.AccessReview().Get(ctx, v.(*rove.AccessReviewGetRequest))
-	case rove.AccessReviewService_Patch_FullMethodName:
-		res, err = s.AccessReview().Patch(ctx, v.(*rove.AccessReviewPatchRequest))
-	case rove.AccessReviewService_Apply_FullMethodName:
-		res, err = s.AccessReview().Apply(ctx, v.(*rove.AccessReviewApplyRequest))
-	case rove.AccessReviewService_Erase_FullMethodName:
-		res, err = s.AccessReview().Erase(ctx, v.(*rove.AccessReviewRef))
-	case rove.AccessReviewService_List_FullMethodName:
-		res, err = s.AccessReview().List(ctx, v.(*rove.AccessReviewListRequest))
-	case rove.EventService_Add_FullMethodName:
-		res, err = s.Event().Add(ctx, v.(*rove.EventAddRequest))
-	case rove.EventService_AddMany_FullMethodName:
-		res, err = s.Event().AddMany(ctx, v.(*rove.EventAddManyRequest))
-	case rove.EventService_Get_FullMethodName:
-		res, err = s.Event().Get(ctx, v.(*rove.EventGetRequest))
-	case rove.EventService_List_FullMethodName:
-		res, err = s.Event().List(ctx, v.(*rove.EventListRequest))
-	case rove.EventService_Recent_FullMethodName:
-		res, err = s.Event().Recent(ctx, v.(*rove.EventRecentRequest))
-	case rove.EventService_Redact_FullMethodName:
-		res, err = s.Event().Redact(ctx, v.(*rove.EventRedactRequest))
-	case rove.FactService_Add_FullMethodName:
-		res, err = s.Fact().Add(ctx, v.(*rove.FactAddRequest))
-	case rove.FactService_AddMany_FullMethodName:
-		res, err = s.Fact().AddMany(ctx, v.(*rove.FactAddManyRequest))
-	case rove.FactService_Get_FullMethodName:
-		res, err = s.Fact().Get(ctx, v.(*rove.FactGetRequest))
-	case rove.FactService_Patch_FullMethodName:
-		res, err = s.Fact().Patch(ctx, v.(*rove.FactPatchRequest))
-	case rove.FactService_Apply_FullMethodName:
-		res, err = s.Fact().Apply(ctx, v.(*rove.FactApplyRequest))
-	case rove.FactService_List_FullMethodName:
-		res, err = s.Fact().List(ctx, v.(*rove.FactListRequest))
-	case rove.WorkOrderService_Add_FullMethodName:
-		res, err = s.WorkOrder().Add(ctx, v.(*rove.WorkOrderAddRequest))
-	case rove.WorkOrderService_Get_FullMethodName:
-		res, err = s.WorkOrder().Get(ctx, v.(*rove.WorkOrderGetRequest))
-	case rove.WorkOrderService_Patch_FullMethodName:
-		res, err = s.WorkOrder().Patch(ctx, v.(*rove.WorkOrderPatchRequest))
-	case rove.WorkOrderService_Apply_FullMethodName:
-		res, err = s.WorkOrder().Apply(ctx, v.(*rove.WorkOrderApplyRequest))
-	case rove.WorkOrderService_Erase_FullMethodName:
-		res, err = s.WorkOrder().Erase(ctx, v.(*rove.WorkOrderRef))
-	case rove.WorkOrderService_List_FullMethodName:
-		res, err = s.WorkOrder().List(ctx, v.(*rove.WorkOrderListRequest))
-	case rove.WorkOrderService_Update_FullMethodName:
-		res, err = s.WorkOrder().Update(ctx, v.(*rove.WorkOrderUpdateRequest))
-	case rove.WorkOrderService_Complete_FullMethodName:
-		res, err = s.WorkOrder().Complete(ctx, v.(*rove.WorkOrderCompleteRequest))
-	case rove.WorkOrderService_Cancel_FullMethodName:
-		res, err = s.WorkOrder().Cancel(ctx, v.(*rove.WorkOrderCompleteRequest))
-	case rove.PurchaseService_Add_FullMethodName:
-		res, err = s.Purchase().Add(ctx, v.(*rove.PurchaseAddRequest))
-	case rove.PurchaseService_Get_FullMethodName:
-		res, err = s.Purchase().Get(ctx, v.(*rove.PurchaseGetRequest))
-	case rove.PurchaseService_Patch_FullMethodName:
-		res, err = s.Purchase().Patch(ctx, v.(*rove.PurchasePatchRequest))
-	case rove.PurchaseService_Apply_FullMethodName:
-		res, err = s.Purchase().Apply(ctx, v.(*rove.PurchaseApplyRequest))
-	case rove.PurchaseService_Erase_FullMethodName:
-		res, err = s.Purchase().Erase(ctx, v.(*rove.PurchaseRef))
-	case rove.PurchaseService_List_FullMethodName:
-		res, err = s.Purchase().List(ctx, v.(*rove.PurchaseListRequest))
-	case rove.PurchaseService_Receive_FullMethodName:
-		res, err = s.Purchase().Receive(ctx, v.(*rove.PurchaseReceiveRequest))
-	case rove.PurchaseLineService_Add_FullMethodName:
-		res, err = s.PurchaseLine().Add(ctx, v.(*rove.PurchaseLineAddRequest))
-	case rove.PurchaseLineService_Get_FullMethodName:
-		res, err = s.PurchaseLine().Get(ctx, v.(*rove.PurchaseLineGetRequest))
-	case rove.PurchaseLineService_Patch_FullMethodName:
-		res, err = s.PurchaseLine().Patch(ctx, v.(*rove.PurchaseLinePatchRequest))
-	case rove.PurchaseLineService_Apply_FullMethodName:
-		res, err = s.PurchaseLine().Apply(ctx, v.(*rove.PurchaseLineApplyRequest))
-	case rove.PurchaseLineService_Erase_FullMethodName:
-		res, err = s.PurchaseLine().Erase(ctx, v.(*rove.PurchaseLineRef))
-	case rove.PurchaseLineService_List_FullMethodName:
-		res, err = s.PurchaseLine().List(ctx, v.(*rove.PurchaseLineListRequest))
+	case loft.TenantService_Add_FullMethodName:
+		res, err = s.Tenant().Add(ctx, v.(*loft.TenantAddRequest))
+	case loft.TenantService_Get_FullMethodName:
+		res, err = s.Tenant().Get(ctx, v.(*loft.TenantGetRequest))
+	case loft.TenantService_Patch_FullMethodName:
+		res, err = s.Tenant().Patch(ctx, v.(*loft.TenantPatchRequest))
+	case loft.TenantService_Apply_FullMethodName:
+		res, err = s.Tenant().Apply(ctx, v.(*loft.TenantApplyRequest))
+	case loft.TenantService_Erase_FullMethodName:
+		res, err = s.Tenant().Erase(ctx, v.(*loft.TenantRef))
+	case loft.TenantService_List_FullMethodName:
+		res, err = s.Tenant().List(ctx, v.(*loft.TenantListRequest))
+	case loft.TenantService_Close_FullMethodName:
+		res, err = s.Tenant().Close(ctx, v.(*loft.TenantCloseRequest))
+	case loft.TenantService_Restore_FullMethodName:
+		res, err = s.Tenant().Restore(ctx, v.(*loft.TenantRestoreRequest))
+	case loft.TenantService_Configure_FullMethodName:
+		res, err = s.Tenant().Configure(ctx, v.(*loft.TenantConfigureRequest))
+	case loft.TenantService_Preview_FullMethodName:
+		res, err = s.Tenant().Preview(ctx, v.(*loft.TenantPreviewRequest))
+	case loft.AssetTypeService_Add_FullMethodName:
+		res, err = s.AssetType().Add(ctx, v.(*loft.AssetTypeAddRequest))
+	case loft.AssetTypeService_Get_FullMethodName:
+		res, err = s.AssetType().Get(ctx, v.(*loft.AssetTypeGetRequest))
+	case loft.AssetTypeService_Patch_FullMethodName:
+		res, err = s.AssetType().Patch(ctx, v.(*loft.AssetTypePatchRequest))
+	case loft.AssetTypeService_Apply_FullMethodName:
+		res, err = s.AssetType().Apply(ctx, v.(*loft.AssetTypeApplyRequest))
+	case loft.AssetTypeService_Erase_FullMethodName:
+		res, err = s.AssetType().Erase(ctx, v.(*loft.AssetTypeRef))
+	case loft.AssetTypeService_List_FullMethodName:
+		res, err = s.AssetType().List(ctx, v.(*loft.AssetTypeListRequest))
+	case loft.AssetTypeService_Update_FullMethodName:
+		res, err = s.AssetType().Update(ctx, v.(*loft.AssetTypeUpdateRequest))
+	case loft.ItemModelService_Add_FullMethodName:
+		res, err = s.ItemModel().Add(ctx, v.(*loft.ItemModelAddRequest))
+	case loft.ItemModelService_Get_FullMethodName:
+		res, err = s.ItemModel().Get(ctx, v.(*loft.ItemModelGetRequest))
+	case loft.ItemModelService_Patch_FullMethodName:
+		res, err = s.ItemModel().Patch(ctx, v.(*loft.ItemModelPatchRequest))
+	case loft.ItemModelService_Apply_FullMethodName:
+		res, err = s.ItemModel().Apply(ctx, v.(*loft.ItemModelApplyRequest))
+	case loft.ItemModelService_Erase_FullMethodName:
+		res, err = s.ItemModel().Erase(ctx, v.(*loft.ItemModelRef))
+	case loft.ItemModelService_List_FullMethodName:
+		res, err = s.ItemModel().List(ctx, v.(*loft.ItemModelListRequest))
+	case loft.ItemModelService_Update_FullMethodName:
+		res, err = s.ItemModel().Update(ctx, v.(*loft.ItemModelUpdateRequest))
+	case loft.ItemModelService_Search_FullMethodName:
+		res, err = s.ItemModel().Search(ctx, v.(*loft.ItemModelSearchRequest))
+	case loft.HolderService_Add_FullMethodName:
+		res, err = s.Holder().Add(ctx, v.(*loft.HolderAddRequest))
+	case loft.HolderService_Get_FullMethodName:
+		res, err = s.Holder().Get(ctx, v.(*loft.HolderGetRequest))
+	case loft.HolderService_Patch_FullMethodName:
+		res, err = s.Holder().Patch(ctx, v.(*loft.HolderPatchRequest))
+	case loft.HolderService_Apply_FullMethodName:
+		res, err = s.Holder().Apply(ctx, v.(*loft.HolderApplyRequest))
+	case loft.HolderService_Erase_FullMethodName:
+		res, err = s.Holder().Erase(ctx, v.(*loft.HolderRef))
+	case loft.HolderService_List_FullMethodName:
+		res, err = s.Holder().List(ctx, v.(*loft.HolderListRequest))
+	case loft.PartyService_Add_FullMethodName:
+		res, err = s.Party().Add(ctx, v.(*loft.PartyAddRequest))
+	case loft.PartyService_Get_FullMethodName:
+		res, err = s.Party().Get(ctx, v.(*loft.PartyGetRequest))
+	case loft.PartyService_Patch_FullMethodName:
+		res, err = s.Party().Patch(ctx, v.(*loft.PartyPatchRequest))
+	case loft.PartyService_Apply_FullMethodName:
+		res, err = s.Party().Apply(ctx, v.(*loft.PartyApplyRequest))
+	case loft.PartyService_Erase_FullMethodName:
+		res, err = s.Party().Erase(ctx, v.(*loft.PartyRef))
+	case loft.PartyService_List_FullMethodName:
+		res, err = s.Party().List(ctx, v.(*loft.PartyListRequest))
+	case loft.PartyService_Me_FullMethodName:
+		res, err = s.Party().Me(ctx, v.(*loft.PartyMeRequest))
+	case loft.PartyService_Update_FullMethodName:
+		res, err = s.Party().Update(ctx, v.(*loft.PartyUpdateRequest))
+	case loft.PartyService_Invite_FullMethodName:
+		res, err = s.Party().Invite(ctx, v.(*loft.PartyInviteRequest))
+	case loft.PartyService_SetRole_FullMethodName:
+		res, err = s.Party().SetRole(ctx, v.(*loft.PartySetRoleRequest))
+	case loft.PartyService_SetPassword_FullMethodName:
+		res, err = s.Party().SetPassword(ctx, v.(*loft.PartySetPasswordRequest))
+	case loft.PartyService_Deactivate_FullMethodName:
+		res, err = s.Party().Deactivate(ctx, v.(*loft.PartyDeactivateRequest))
+	case loft.PartyService_Pseudonymize_FullMethodName:
+		res, err = s.Party().Pseudonymize(ctx, v.(*loft.PartyPseudonymizeRequest))
+	case loft.PartyService_Search_FullMethodName:
+		res, err = s.Party().Search(ctx, v.(*loft.PartySearchRequest))
+	case loft.InvitationService_Add_FullMethodName:
+		res, err = s.Invitation().Add(ctx, v.(*loft.InvitationAddRequest))
+	case loft.InvitationService_Get_FullMethodName:
+		res, err = s.Invitation().Get(ctx, v.(*loft.InvitationGetRequest))
+	case loft.InvitationService_Patch_FullMethodName:
+		res, err = s.Invitation().Patch(ctx, v.(*loft.InvitationPatchRequest))
+	case loft.InvitationService_Apply_FullMethodName:
+		res, err = s.Invitation().Apply(ctx, v.(*loft.InvitationApplyRequest))
+	case loft.InvitationService_Erase_FullMethodName:
+		res, err = s.Invitation().Erase(ctx, v.(*loft.InvitationRef))
+	case loft.InvitationService_List_FullMethodName:
+		res, err = s.Invitation().List(ctx, v.(*loft.InvitationListRequest))
+	case loft.InvitationService_Revoke_FullMethodName:
+		res, err = s.Invitation().Revoke(ctx, v.(*loft.InvitationRevokeRequest))
+	case loft.InvitationService_Claim_FullMethodName:
+		res, err = s.Invitation().Claim(ctx, v.(*loft.InvitationClaimRequest))
+	case loft.InvitationService_Accept_FullMethodName:
+		res, err = s.Invitation().Accept(ctx, v.(*loft.InvitationAcceptRequest))
+	case loft.InvitationService_Deny_FullMethodName:
+		res, err = s.Invitation().Deny(ctx, v.(*loft.InvitationDenyRequest))
+	case loft.AssetService_Add_FullMethodName:
+		res, err = s.Asset().Add(ctx, v.(*loft.AssetAddRequest))
+	case loft.AssetService_AddMany_FullMethodName:
+		res, err = s.Asset().AddMany(ctx, v.(*loft.AssetAddManyRequest))
+	case loft.AssetService_Get_FullMethodName:
+		res, err = s.Asset().Get(ctx, v.(*loft.AssetGetRequest))
+	case loft.AssetService_Patch_FullMethodName:
+		res, err = s.Asset().Patch(ctx, v.(*loft.AssetPatchRequest))
+	case loft.AssetService_Apply_FullMethodName:
+		res, err = s.Asset().Apply(ctx, v.(*loft.AssetApplyRequest))
+	case loft.AssetService_Erase_FullMethodName:
+		res, err = s.Asset().Erase(ctx, v.(*loft.AssetRef))
+	case loft.AssetService_List_FullMethodName:
+		res, err = s.Asset().List(ctx, v.(*loft.AssetListRequest))
+	case loft.AssetService_Move_FullMethodName:
+		res, err = s.Asset().Move(ctx, v.(*loft.AssetMoveRequest))
+	case loft.AssetService_SetAttributes_FullMethodName:
+		res, err = s.Asset().SetAttributes(ctx, v.(*loft.AssetSetAttributesRequest))
+	case loft.AssetService_Assign_FullMethodName:
+		res, err = s.Asset().Assign(ctx, v.(*loft.AssetAssignRequest))
+	case loft.AssetService_Relate_FullMethodName:
+		res, err = s.Asset().Relate(ctx, v.(*loft.AssetRelateRequest))
+	case loft.AssetService_Correct_FullMethodName:
+		res, err = s.Asset().Correct(ctx, v.(*loft.AssetCorrectRequest))
+	case loft.AssetService_Timeline_FullMethodName:
+		res, err = s.Asset().Timeline(ctx, v.(*loft.AssetTimelineRequest))
+	case loft.AssetService_QueryAt_FullMethodName:
+		res, err = s.Asset().QueryAt(ctx, v.(*loft.AssetQueryAtRequest))
+	case loft.AssetService_Diff_FullMethodName:
+		res, err = s.Asset().Diff(ctx, v.(*loft.AssetDiffRequest))
+	case loft.AssetService_Search_FullMethodName:
+		res, err = s.Asset().Search(ctx, v.(*loft.AssetSearchRequest))
+	case loft.AssetService_Report_FullMethodName:
+		res, err = s.Asset().Report(ctx, v.(*loft.AssetReportRequest))
+	case loft.AssetService_Export_FullMethodName:
+		res, err = s.Asset().Export(ctx, v.(*loft.AssetExportRequest))
+	case loft.AssetService_Form_FullMethodName:
+		res, err = s.Asset().Form(ctx, v.(*loft.AssetFormRequest))
+	case loft.AssetService_ReadSheet_FullMethodName:
+		res, err = s.Asset().ReadSheet(ctx, v.(*loft.AssetReadSheetRequest))
+	case loft.AssetService_Census_FullMethodName:
+		res, err = s.Asset().Census(ctx, v.(*loft.AssetCensusRequest))
+	case loft.AssetService_ExportCensus_FullMethodName:
+		res, err = s.Asset().ExportCensus(ctx, v.(*loft.AssetCensusRequest))
+	case loft.TenantDomainService_Add_FullMethodName:
+		res, err = s.TenantDomain().Add(ctx, v.(*loft.TenantDomainAddRequest))
+	case loft.TenantDomainService_Get_FullMethodName:
+		res, err = s.TenantDomain().Get(ctx, v.(*loft.TenantDomainGetRequest))
+	case loft.TenantDomainService_Patch_FullMethodName:
+		res, err = s.TenantDomain().Patch(ctx, v.(*loft.TenantDomainPatchRequest))
+	case loft.TenantDomainService_Apply_FullMethodName:
+		res, err = s.TenantDomain().Apply(ctx, v.(*loft.TenantDomainApplyRequest))
+	case loft.TenantDomainService_Erase_FullMethodName:
+		res, err = s.TenantDomain().Erase(ctx, v.(*loft.TenantDomainRef))
+	case loft.TenantDomainService_List_FullMethodName:
+		res, err = s.TenantDomain().List(ctx, v.(*loft.TenantDomainListRequest))
+	case loft.TenantDomainService_Verify_FullMethodName:
+		res, err = s.TenantDomain().Verify(ctx, v.(*loft.TenantDomainVerifyRequest))
+	case loft.TenantDomainService_Activate_FullMethodName:
+		res, err = s.TenantDomain().Activate(ctx, v.(*loft.TenantDomainActivateRequest))
+	case loft.TenantDomainService_Retire_FullMethodName:
+		res, err = s.TenantDomain().Retire(ctx, v.(*loft.TenantDomainRetireRequest))
+	case loft.TenantDomainService_Status_FullMethodName:
+		res, err = s.TenantDomain().Status(ctx, v.(*loft.TenantDomainStatusRequest))
+	case loft.LabelService_Add_FullMethodName:
+		res, err = s.Label().Add(ctx, v.(*loft.LabelAddRequest))
+	case loft.LabelService_Get_FullMethodName:
+		res, err = s.Label().Get(ctx, v.(*loft.LabelGetRequest))
+	case loft.LabelService_Patch_FullMethodName:
+		res, err = s.Label().Patch(ctx, v.(*loft.LabelPatchRequest))
+	case loft.LabelService_Apply_FullMethodName:
+		res, err = s.Label().Apply(ctx, v.(*loft.LabelApplyRequest))
+	case loft.LabelService_Erase_FullMethodName:
+		res, err = s.Label().Erase(ctx, v.(*loft.LabelRef))
+	case loft.LabelService_List_FullMethodName:
+		res, err = s.Label().List(ctx, v.(*loft.LabelListRequest))
+	case loft.LabelService_Print_FullMethodName:
+		res, err = s.Label().Print(ctx, v.(*loft.LabelPrintRequest))
+	case loft.LabelService_Bind_FullMethodName:
+		res, err = s.Label().Bind(ctx, v.(*loft.LabelBindRequest))
+	case loft.LabelService_Unbind_FullMethodName:
+		res, err = s.Label().Unbind(ctx, v.(*loft.LabelUnbindRequest))
+	case loft.LabelService_Resolve_FullMethodName:
+		res, err = s.Label().Resolve(ctx, v.(*loft.LabelResolveRequest))
+	case loft.AttachmentService_Add_FullMethodName:
+		res, err = s.Attachment().Add(ctx, v.(*loft.AttachmentAddRequest))
+	case loft.AttachmentService_Get_FullMethodName:
+		res, err = s.Attachment().Get(ctx, v.(*loft.AttachmentGetRequest))
+	case loft.AttachmentService_Patch_FullMethodName:
+		res, err = s.Attachment().Patch(ctx, v.(*loft.AttachmentPatchRequest))
+	case loft.AttachmentService_Apply_FullMethodName:
+		res, err = s.Attachment().Apply(ctx, v.(*loft.AttachmentApplyRequest))
+	case loft.AttachmentService_Erase_FullMethodName:
+		res, err = s.Attachment().Erase(ctx, v.(*loft.AttachmentRef))
+	case loft.AttachmentService_List_FullMethodName:
+		res, err = s.Attachment().List(ctx, v.(*loft.AttachmentListRequest))
+	case loft.AttachmentService_Upload_FullMethodName:
+		res, err = s.Attachment().Upload(ctx, v.(*loft.AttachmentUploadRequest))
+	case loft.AttachmentService_Url_FullMethodName:
+		res, err = s.Attachment().Url(ctx, v.(*loft.AttachmentUrlRequest))
+	case loft.BookableService_Add_FullMethodName:
+		res, err = s.Bookable().Add(ctx, v.(*loft.BookableAddRequest))
+	case loft.BookableService_Get_FullMethodName:
+		res, err = s.Bookable().Get(ctx, v.(*loft.BookableGetRequest))
+	case loft.BookableService_Patch_FullMethodName:
+		res, err = s.Bookable().Patch(ctx, v.(*loft.BookablePatchRequest))
+	case loft.BookableService_Apply_FullMethodName:
+		res, err = s.Bookable().Apply(ctx, v.(*loft.BookableApplyRequest))
+	case loft.BookableService_Erase_FullMethodName:
+		res, err = s.Bookable().Erase(ctx, v.(*loft.BookableRef))
+	case loft.BookableService_List_FullMethodName:
+		res, err = s.Bookable().List(ctx, v.(*loft.BookableListRequest))
+	case loft.BookableService_Update_FullMethodName:
+		res, err = s.Bookable().Update(ctx, v.(*loft.BookableUpdateRequest))
+	case loft.BookableService_Availability_FullMethodName:
+		res, err = s.Bookable().Availability(ctx, v.(*loft.BookableAvailabilityRequest))
+	case loft.BookableService_Usage_FullMethodName:
+		res, err = s.Bookable().Usage(ctx, v.(*loft.BookableUsageRequest))
+	case loft.BookableService_ExportUsage_FullMethodName:
+		res, err = s.Bookable().ExportUsage(ctx, v.(*loft.BookableUsageRequest))
+	case loft.ReservationService_Add_FullMethodName:
+		res, err = s.Reservation().Add(ctx, v.(*loft.ReservationAddRequest))
+	case loft.ReservationService_Get_FullMethodName:
+		res, err = s.Reservation().Get(ctx, v.(*loft.ReservationGetRequest))
+	case loft.ReservationService_Patch_FullMethodName:
+		res, err = s.Reservation().Patch(ctx, v.(*loft.ReservationPatchRequest))
+	case loft.ReservationService_Apply_FullMethodName:
+		res, err = s.Reservation().Apply(ctx, v.(*loft.ReservationApplyRequest))
+	case loft.ReservationService_Erase_FullMethodName:
+		res, err = s.Reservation().Erase(ctx, v.(*loft.ReservationRef))
+	case loft.ReservationService_List_FullMethodName:
+		res, err = s.Reservation().List(ctx, v.(*loft.ReservationListRequest))
+	case loft.ReservationService_Confirm_FullMethodName:
+		res, err = s.Reservation().Confirm(ctx, v.(*loft.ReservationDecideRequest))
+	case loft.ReservationService_Approve_FullMethodName:
+		res, err = s.Reservation().Approve(ctx, v.(*loft.ReservationDecideRequest))
+	case loft.ReservationService_Reject_FullMethodName:
+		res, err = s.Reservation().Reject(ctx, v.(*loft.ReservationDecideRequest))
+	case loft.ReservationService_Cancel_FullMethodName:
+		res, err = s.Reservation().Cancel(ctx, v.(*loft.ReservationDecideRequest))
+	case loft.ReservationService_CheckIn_FullMethodName:
+		res, err = s.Reservation().CheckIn(ctx, v.(*loft.ReservationDecideRequest))
+	case loft.ReservationService_Complete_FullMethodName:
+		res, err = s.Reservation().Complete(ctx, v.(*loft.ReservationDecideRequest))
+	case loft.ReservationService_Calendar_FullMethodName:
+		res, err = s.Reservation().Calendar(ctx, v.(*loft.ReservationCalendarRequest))
+	case loft.ReservationService_Timeline_FullMethodName:
+		res, err = s.Reservation().Timeline(ctx, v.(*loft.ReservationTimelineRequest))
+	case loft.ReservationService_Pickup_FullMethodName:
+		res, err = s.Reservation().Pickup(ctx, v.(*loft.ReservationPickupRequest))
+	case loft.ReservationItemService_Add_FullMethodName:
+		res, err = s.ReservationItem().Add(ctx, v.(*loft.ReservationItemAddRequest))
+	case loft.ReservationItemService_Get_FullMethodName:
+		res, err = s.ReservationItem().Get(ctx, v.(*loft.ReservationItemGetRequest))
+	case loft.ReservationItemService_Patch_FullMethodName:
+		res, err = s.ReservationItem().Patch(ctx, v.(*loft.ReservationItemPatchRequest))
+	case loft.ReservationItemService_Apply_FullMethodName:
+		res, err = s.ReservationItem().Apply(ctx, v.(*loft.ReservationItemApplyRequest))
+	case loft.ReservationItemService_Erase_FullMethodName:
+		res, err = s.ReservationItem().Erase(ctx, v.(*loft.ReservationItemRef))
+	case loft.ReservationItemService_List_FullMethodName:
+		res, err = s.ReservationItem().List(ctx, v.(*loft.ReservationItemListRequest))
+	case loft.AllocationService_Add_FullMethodName:
+		res, err = s.Allocation().Add(ctx, v.(*loft.AllocationAddRequest))
+	case loft.AllocationService_Get_FullMethodName:
+		res, err = s.Allocation().Get(ctx, v.(*loft.AllocationGetRequest))
+	case loft.AllocationService_Patch_FullMethodName:
+		res, err = s.Allocation().Patch(ctx, v.(*loft.AllocationPatchRequest))
+	case loft.AllocationService_Apply_FullMethodName:
+		res, err = s.Allocation().Apply(ctx, v.(*loft.AllocationApplyRequest))
+	case loft.AllocationService_Erase_FullMethodName:
+		res, err = s.Allocation().Erase(ctx, v.(*loft.AllocationRef))
+	case loft.AllocationService_List_FullMethodName:
+		res, err = s.Allocation().List(ctx, v.(*loft.AllocationListRequest))
+	case loft.InventoryCountService_Add_FullMethodName:
+		res, err = s.InventoryCount().Add(ctx, v.(*loft.InventoryCountAddRequest))
+	case loft.InventoryCountService_Get_FullMethodName:
+		res, err = s.InventoryCount().Get(ctx, v.(*loft.InventoryCountGetRequest))
+	case loft.InventoryCountService_Patch_FullMethodName:
+		res, err = s.InventoryCount().Patch(ctx, v.(*loft.InventoryCountPatchRequest))
+	case loft.InventoryCountService_Apply_FullMethodName:
+		res, err = s.InventoryCount().Apply(ctx, v.(*loft.InventoryCountApplyRequest))
+	case loft.InventoryCountService_Erase_FullMethodName:
+		res, err = s.InventoryCount().Erase(ctx, v.(*loft.InventoryCountRef))
+	case loft.InventoryCountService_List_FullMethodName:
+		res, err = s.InventoryCount().List(ctx, v.(*loft.InventoryCountListRequest))
+	case loft.InventoryCountService_Scan_FullMethodName:
+		res, err = s.InventoryCount().Scan(ctx, v.(*loft.InventoryCountScanRequest))
+	case loft.InventoryCountService_Reconcile_FullMethodName:
+		res, err = s.InventoryCount().Reconcile(ctx, v.(*loft.InventoryCountReconcileRequest))
+	case loft.InventoryCountService_Resolve_FullMethodName:
+		res, err = s.InventoryCount().Resolve(ctx, v.(*loft.InventoryCountResolveRequest))
+	case loft.InventoryCountService_Close_FullMethodName:
+		res, err = s.InventoryCount().Close(ctx, v.(*loft.InventoryCountCloseRequest))
+	case loft.InventoryCountService_Results_FullMethodName:
+		res, err = s.InventoryCount().Results(ctx, v.(*loft.InventoryCountResultsRequest))
+	case loft.InventoryCountService_ExportResults_FullMethodName:
+		res, err = s.InventoryCount().ExportResults(ctx, v.(*loft.InventoryCountResultsRequest))
+	case loft.CountFindingService_Add_FullMethodName:
+		res, err = s.CountFinding().Add(ctx, v.(*loft.CountFindingAddRequest))
+	case loft.CountFindingService_Get_FullMethodName:
+		res, err = s.CountFinding().Get(ctx, v.(*loft.CountFindingGetRequest))
+	case loft.CountFindingService_Patch_FullMethodName:
+		res, err = s.CountFinding().Patch(ctx, v.(*loft.CountFindingPatchRequest))
+	case loft.CountFindingService_Apply_FullMethodName:
+		res, err = s.CountFinding().Apply(ctx, v.(*loft.CountFindingApplyRequest))
+	case loft.CountFindingService_Erase_FullMethodName:
+		res, err = s.CountFinding().Erase(ctx, v.(*loft.CountFindingRef))
+	case loft.CountFindingService_List_FullMethodName:
+		res, err = s.CountFinding().List(ctx, v.(*loft.CountFindingListRequest))
+	case loft.StockService_Add_FullMethodName:
+		res, err = s.Stock().Add(ctx, v.(*loft.StockAddRequest))
+	case loft.StockService_Get_FullMethodName:
+		res, err = s.Stock().Get(ctx, v.(*loft.StockGetRequest))
+	case loft.StockService_Patch_FullMethodName:
+		res, err = s.Stock().Patch(ctx, v.(*loft.StockPatchRequest))
+	case loft.StockService_Apply_FullMethodName:
+		res, err = s.Stock().Apply(ctx, v.(*loft.StockApplyRequest))
+	case loft.StockService_Erase_FullMethodName:
+		res, err = s.Stock().Erase(ctx, v.(*loft.StockRef))
+	case loft.StockService_List_FullMethodName:
+		res, err = s.Stock().List(ctx, v.(*loft.StockListRequest))
+	case loft.StockService_Receive_FullMethodName:
+		res, err = s.Stock().Receive(ctx, v.(*loft.StockChangeRequest))
+	case loft.StockService_Consume_FullMethodName:
+		res, err = s.Stock().Consume(ctx, v.(*loft.StockChangeRequest))
+	case loft.StockService_Adjust_FullMethodName:
+		res, err = s.Stock().Adjust(ctx, v.(*loft.StockChangeRequest))
+	case loft.StockService_Transfer_FullMethodName:
+		res, err = s.Stock().Transfer(ctx, v.(*loft.StockTransferRequest))
+	case loft.StockService_Convert_FullMethodName:
+		res, err = s.Stock().Convert(ctx, v.(*loft.StockConvertRequest))
+	case loft.StockService_Flow_FullMethodName:
+		res, err = s.Stock().Flow(ctx, v.(*loft.StockFlowRequest))
+	case loft.StockService_ExportFlow_FullMethodName:
+		res, err = s.Stock().ExportFlow(ctx, v.(*loft.StockFlowRequest))
+	case loft.StockMovementService_Add_FullMethodName:
+		res, err = s.StockMovement().Add(ctx, v.(*loft.StockMovementAddRequest))
+	case loft.StockMovementService_Get_FullMethodName:
+		res, err = s.StockMovement().Get(ctx, v.(*loft.StockMovementGetRequest))
+	case loft.StockMovementService_Patch_FullMethodName:
+		res, err = s.StockMovement().Patch(ctx, v.(*loft.StockMovementPatchRequest))
+	case loft.StockMovementService_Apply_FullMethodName:
+		res, err = s.StockMovement().Apply(ctx, v.(*loft.StockMovementApplyRequest))
+	case loft.StockMovementService_Erase_FullMethodName:
+		res, err = s.StockMovement().Erase(ctx, v.(*loft.StockMovementRef))
+	case loft.StockMovementService_List_FullMethodName:
+		res, err = s.StockMovement().List(ctx, v.(*loft.StockMovementListRequest))
+	case loft.CustodyService_Add_FullMethodName:
+		res, err = s.Custody().Add(ctx, v.(*loft.CustodyAddRequest))
+	case loft.CustodyService_Get_FullMethodName:
+		res, err = s.Custody().Get(ctx, v.(*loft.CustodyGetRequest))
+	case loft.CustodyService_Patch_FullMethodName:
+		res, err = s.Custody().Patch(ctx, v.(*loft.CustodyPatchRequest))
+	case loft.CustodyService_Apply_FullMethodName:
+		res, err = s.Custody().Apply(ctx, v.(*loft.CustodyApplyRequest))
+	case loft.CustodyService_Erase_FullMethodName:
+		res, err = s.Custody().Erase(ctx, v.(*loft.CustodyRef))
+	case loft.CustodyService_List_FullMethodName:
+		res, err = s.Custody().List(ctx, v.(*loft.CustodyListRequest))
+	case loft.CustodyService_Acknowledge_FullMethodName:
+		res, err = s.Custody().Acknowledge(ctx, v.(*loft.CustodyAcknowledgeRequest))
+	case loft.CustodyService_Return_FullMethodName:
+		res, err = s.Custody().Return(ctx, v.(*loft.CustodyReturnRequest))
+	case loft.CustodyService_Extend_FullMethodName:
+		res, err = s.Custody().Extend(ctx, v.(*loft.CustodyExtendRequest))
+	case loft.CustodyService_Outstanding_FullMethodName:
+		res, err = s.Custody().Outstanding(ctx, v.(*loft.CustodyOutstandingRequest))
+	case loft.CustodyService_ExportOutstanding_FullMethodName:
+		res, err = s.Custody().ExportOutstanding(ctx, v.(*loft.CustodyOutstandingRequest))
+	case loft.CustodyLineService_Add_FullMethodName:
+		res, err = s.CustodyLine().Add(ctx, v.(*loft.CustodyLineAddRequest))
+	case loft.CustodyLineService_Get_FullMethodName:
+		res, err = s.CustodyLine().Get(ctx, v.(*loft.CustodyLineGetRequest))
+	case loft.CustodyLineService_Patch_FullMethodName:
+		res, err = s.CustodyLine().Patch(ctx, v.(*loft.CustodyLinePatchRequest))
+	case loft.CustodyLineService_Apply_FullMethodName:
+		res, err = s.CustodyLine().Apply(ctx, v.(*loft.CustodyLineApplyRequest))
+	case loft.CustodyLineService_Erase_FullMethodName:
+		res, err = s.CustodyLine().Erase(ctx, v.(*loft.CustodyLineRef))
+	case loft.CustodyLineService_List_FullMethodName:
+		res, err = s.CustodyLine().List(ctx, v.(*loft.CustodyLineListRequest))
+	case loft.PlacementService_Add_FullMethodName:
+		res, err = s.Placement().Add(ctx, v.(*loft.PlacementAddRequest))
+	case loft.PlacementService_AddMany_FullMethodName:
+		res, err = s.Placement().AddMany(ctx, v.(*loft.PlacementAddManyRequest))
+	case loft.PlacementService_Get_FullMethodName:
+		res, err = s.Placement().Get(ctx, v.(*loft.PlacementGetRequest))
+	case loft.PlacementService_Patch_FullMethodName:
+		res, err = s.Placement().Patch(ctx, v.(*loft.PlacementPatchRequest))
+	case loft.PlacementService_Apply_FullMethodName:
+		res, err = s.Placement().Apply(ctx, v.(*loft.PlacementApplyRequest))
+	case loft.PlacementService_Erase_FullMethodName:
+		res, err = s.Placement().Erase(ctx, v.(*loft.PlacementRef))
+	case loft.PlacementService_List_FullMethodName:
+		res, err = s.Placement().List(ctx, v.(*loft.PlacementListRequest))
+	case loft.LinkService_Add_FullMethodName:
+		res, err = s.Link().Add(ctx, v.(*loft.LinkAddRequest))
+	case loft.LinkService_Get_FullMethodName:
+		res, err = s.Link().Get(ctx, v.(*loft.LinkGetRequest))
+	case loft.LinkService_Patch_FullMethodName:
+		res, err = s.Link().Patch(ctx, v.(*loft.LinkPatchRequest))
+	case loft.LinkService_Apply_FullMethodName:
+		res, err = s.Link().Apply(ctx, v.(*loft.LinkApplyRequest))
+	case loft.LinkService_Erase_FullMethodName:
+		res, err = s.Link().Erase(ctx, v.(*loft.LinkRef))
+	case loft.LinkService_List_FullMethodName:
+		res, err = s.Link().List(ctx, v.(*loft.LinkListRequest))
+	case loft.StewardshipService_Add_FullMethodName:
+		res, err = s.Stewardship().Add(ctx, v.(*loft.StewardshipAddRequest))
+	case loft.StewardshipService_Get_FullMethodName:
+		res, err = s.Stewardship().Get(ctx, v.(*loft.StewardshipGetRequest))
+	case loft.StewardshipService_Patch_FullMethodName:
+		res, err = s.Stewardship().Patch(ctx, v.(*loft.StewardshipPatchRequest))
+	case loft.StewardshipService_Apply_FullMethodName:
+		res, err = s.Stewardship().Apply(ctx, v.(*loft.StewardshipApplyRequest))
+	case loft.StewardshipService_Erase_FullMethodName:
+		res, err = s.Stewardship().Erase(ctx, v.(*loft.StewardshipRef))
+	case loft.StewardshipService_List_FullMethodName:
+		res, err = s.Stewardship().List(ctx, v.(*loft.StewardshipListRequest))
+	case loft.NotificationService_Add_FullMethodName:
+		res, err = s.Notification().Add(ctx, v.(*loft.NotificationAddRequest))
+	case loft.NotificationService_Get_FullMethodName:
+		res, err = s.Notification().Get(ctx, v.(*loft.NotificationGetRequest))
+	case loft.NotificationService_Patch_FullMethodName:
+		res, err = s.Notification().Patch(ctx, v.(*loft.NotificationPatchRequest))
+	case loft.NotificationService_Apply_FullMethodName:
+		res, err = s.Notification().Apply(ctx, v.(*loft.NotificationApplyRequest))
+	case loft.NotificationService_Erase_FullMethodName:
+		res, err = s.Notification().Erase(ctx, v.(*loft.NotificationRef))
+	case loft.NotificationService_List_FullMethodName:
+		res, err = s.Notification().List(ctx, v.(*loft.NotificationListRequest))
+	case loft.NotificationService_Inbox_FullMethodName:
+		res, err = s.Notification().Inbox(ctx, v.(*loft.NotificationInboxRequest))
+	case loft.NotificationService_MarkRead_FullMethodName:
+		res, err = s.Notification().MarkRead(ctx, v.(*loft.NotificationMarkReadRequest))
+	case loft.NotificationService_SetMail_FullMethodName:
+		res, err = s.Notification().SetMail(ctx, v.(*loft.NotificationSetMailRequest))
+	case loft.TenantContractService_Add_FullMethodName:
+		res, err = s.TenantContract().Add(ctx, v.(*loft.TenantContractAddRequest))
+	case loft.TenantContractService_Get_FullMethodName:
+		res, err = s.TenantContract().Get(ctx, v.(*loft.TenantContractGetRequest))
+	case loft.TenantContractService_Patch_FullMethodName:
+		res, err = s.TenantContract().Patch(ctx, v.(*loft.TenantContractPatchRequest))
+	case loft.TenantContractService_Apply_FullMethodName:
+		res, err = s.TenantContract().Apply(ctx, v.(*loft.TenantContractApplyRequest))
+	case loft.TenantContractService_Erase_FullMethodName:
+		res, err = s.TenantContract().Erase(ctx, v.(*loft.TenantContractRef))
+	case loft.TenantContractService_List_FullMethodName:
+		res, err = s.TenantContract().List(ctx, v.(*loft.TenantContractListRequest))
+	case loft.LegalHoldService_Add_FullMethodName:
+		res, err = s.LegalHold().Add(ctx, v.(*loft.LegalHoldAddRequest))
+	case loft.LegalHoldService_Get_FullMethodName:
+		res, err = s.LegalHold().Get(ctx, v.(*loft.LegalHoldGetRequest))
+	case loft.LegalHoldService_Patch_FullMethodName:
+		res, err = s.LegalHold().Patch(ctx, v.(*loft.LegalHoldPatchRequest))
+	case loft.LegalHoldService_Apply_FullMethodName:
+		res, err = s.LegalHold().Apply(ctx, v.(*loft.LegalHoldApplyRequest))
+	case loft.LegalHoldService_Erase_FullMethodName:
+		res, err = s.LegalHold().Erase(ctx, v.(*loft.LegalHoldRef))
+	case loft.LegalHoldService_List_FullMethodName:
+		res, err = s.LegalHold().List(ctx, v.(*loft.LegalHoldListRequest))
+	case loft.AccessReviewService_Add_FullMethodName:
+		res, err = s.AccessReview().Add(ctx, v.(*loft.AccessReviewAddRequest))
+	case loft.AccessReviewService_Get_FullMethodName:
+		res, err = s.AccessReview().Get(ctx, v.(*loft.AccessReviewGetRequest))
+	case loft.AccessReviewService_Patch_FullMethodName:
+		res, err = s.AccessReview().Patch(ctx, v.(*loft.AccessReviewPatchRequest))
+	case loft.AccessReviewService_Apply_FullMethodName:
+		res, err = s.AccessReview().Apply(ctx, v.(*loft.AccessReviewApplyRequest))
+	case loft.AccessReviewService_Erase_FullMethodName:
+		res, err = s.AccessReview().Erase(ctx, v.(*loft.AccessReviewRef))
+	case loft.AccessReviewService_List_FullMethodName:
+		res, err = s.AccessReview().List(ctx, v.(*loft.AccessReviewListRequest))
+	case loft.EventService_Add_FullMethodName:
+		res, err = s.Event().Add(ctx, v.(*loft.EventAddRequest))
+	case loft.EventService_AddMany_FullMethodName:
+		res, err = s.Event().AddMany(ctx, v.(*loft.EventAddManyRequest))
+	case loft.EventService_Get_FullMethodName:
+		res, err = s.Event().Get(ctx, v.(*loft.EventGetRequest))
+	case loft.EventService_List_FullMethodName:
+		res, err = s.Event().List(ctx, v.(*loft.EventListRequest))
+	case loft.EventService_Recent_FullMethodName:
+		res, err = s.Event().Recent(ctx, v.(*loft.EventRecentRequest))
+	case loft.EventService_Redact_FullMethodName:
+		res, err = s.Event().Redact(ctx, v.(*loft.EventRedactRequest))
+	case loft.FactService_Add_FullMethodName:
+		res, err = s.Fact().Add(ctx, v.(*loft.FactAddRequest))
+	case loft.FactService_AddMany_FullMethodName:
+		res, err = s.Fact().AddMany(ctx, v.(*loft.FactAddManyRequest))
+	case loft.FactService_Get_FullMethodName:
+		res, err = s.Fact().Get(ctx, v.(*loft.FactGetRequest))
+	case loft.FactService_Patch_FullMethodName:
+		res, err = s.Fact().Patch(ctx, v.(*loft.FactPatchRequest))
+	case loft.FactService_Apply_FullMethodName:
+		res, err = s.Fact().Apply(ctx, v.(*loft.FactApplyRequest))
+	case loft.FactService_List_FullMethodName:
+		res, err = s.Fact().List(ctx, v.(*loft.FactListRequest))
+	case loft.WorkOrderService_Add_FullMethodName:
+		res, err = s.WorkOrder().Add(ctx, v.(*loft.WorkOrderAddRequest))
+	case loft.WorkOrderService_Get_FullMethodName:
+		res, err = s.WorkOrder().Get(ctx, v.(*loft.WorkOrderGetRequest))
+	case loft.WorkOrderService_Patch_FullMethodName:
+		res, err = s.WorkOrder().Patch(ctx, v.(*loft.WorkOrderPatchRequest))
+	case loft.WorkOrderService_Apply_FullMethodName:
+		res, err = s.WorkOrder().Apply(ctx, v.(*loft.WorkOrderApplyRequest))
+	case loft.WorkOrderService_Erase_FullMethodName:
+		res, err = s.WorkOrder().Erase(ctx, v.(*loft.WorkOrderRef))
+	case loft.WorkOrderService_List_FullMethodName:
+		res, err = s.WorkOrder().List(ctx, v.(*loft.WorkOrderListRequest))
+	case loft.WorkOrderService_Update_FullMethodName:
+		res, err = s.WorkOrder().Update(ctx, v.(*loft.WorkOrderUpdateRequest))
+	case loft.WorkOrderService_Complete_FullMethodName:
+		res, err = s.WorkOrder().Complete(ctx, v.(*loft.WorkOrderCompleteRequest))
+	case loft.WorkOrderService_Cancel_FullMethodName:
+		res, err = s.WorkOrder().Cancel(ctx, v.(*loft.WorkOrderCompleteRequest))
+	case loft.PurchaseService_Add_FullMethodName:
+		res, err = s.Purchase().Add(ctx, v.(*loft.PurchaseAddRequest))
+	case loft.PurchaseService_Get_FullMethodName:
+		res, err = s.Purchase().Get(ctx, v.(*loft.PurchaseGetRequest))
+	case loft.PurchaseService_Patch_FullMethodName:
+		res, err = s.Purchase().Patch(ctx, v.(*loft.PurchasePatchRequest))
+	case loft.PurchaseService_Apply_FullMethodName:
+		res, err = s.Purchase().Apply(ctx, v.(*loft.PurchaseApplyRequest))
+	case loft.PurchaseService_Erase_FullMethodName:
+		res, err = s.Purchase().Erase(ctx, v.(*loft.PurchaseRef))
+	case loft.PurchaseService_List_FullMethodName:
+		res, err = s.Purchase().List(ctx, v.(*loft.PurchaseListRequest))
+	case loft.PurchaseService_Receive_FullMethodName:
+		res, err = s.Purchase().Receive(ctx, v.(*loft.PurchaseReceiveRequest))
+	case loft.PurchaseLineService_Add_FullMethodName:
+		res, err = s.PurchaseLine().Add(ctx, v.(*loft.PurchaseLineAddRequest))
+	case loft.PurchaseLineService_Get_FullMethodName:
+		res, err = s.PurchaseLine().Get(ctx, v.(*loft.PurchaseLineGetRequest))
+	case loft.PurchaseLineService_Patch_FullMethodName:
+		res, err = s.PurchaseLine().Patch(ctx, v.(*loft.PurchaseLinePatchRequest))
+	case loft.PurchaseLineService_Apply_FullMethodName:
+		res, err = s.PurchaseLine().Apply(ctx, v.(*loft.PurchaseLineApplyRequest))
+	case loft.PurchaseLineService_Erase_FullMethodName:
+		res, err = s.PurchaseLine().Erase(ctx, v.(*loft.PurchaseLineRef))
+	case loft.PurchaseLineService_List_FullMethodName:
+		res, err = s.PurchaseLine().List(ctx, v.(*loft.PurchaseLineListRequest))
 	default:
 		return nil, batch.ErrNoMethod(m)
 	}
@@ -27751,77 +27751,77 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 // Watch evaluates a filter in the language the binary links, which is CEL when
 // something imports github.com/lesomnus/payday/resource/resourcecel: a process,
 // never what its sandbox imports too. A binary that links none refuses a filter.
-func Resources(s rove.Server, drv dialect.Driver, guard batch.Guard, w *watch.Watch, project resource.Project) (*resource.Server, error) {
+func Resources(s loft.Server, drv dialect.Driver, guard batch.Guard, w *watch.Watch, project resource.Project) (*resource.Server, error) {
 	b, err := Batch(s, drv, guard)
 	if err != nil {
 		return nil, err
 	}
 	return resource.New(b, w, project,
-		&rove.Access{},
-		&rove.AccessReview{},
-		&rove.AliasHold{},
-		&rove.Allocation{},
-		&rove.Archived{},
-		&rove.Asset{},
-		&rove.AssetType{},
-		&rove.Attachment{},
-		&rove.Audit{},
-		&rove.Bookable{},
-		&rove.CliLogin{},
-		&rove.CountFinding{},
-		&rove.Custody{},
-		&rove.CustodyLine{},
-		&rove.Event{},
-		&rove.Fact{},
-		&rove.Handoff{},
-		&rove.Holder{},
-		&rove.InventoryCount{},
-		&rove.Invitation{},
-		&rove.ItemModel{},
-		&rove.Label{},
-		&rove.LegalHold{},
-		&rove.Link{},
-		&rove.Notification{},
-		&rove.Outbox{},
-		&rove.Owed{},
-		&rove.Party{},
-		&rove.Placement{},
-		&rove.Purchase{},
-		&rove.PurchaseLine{},
-		&rove.Reservation{},
-		&rove.ReservationItem{},
-		&rove.RowSeal{},
-		&rove.SearchStale{},
-		&rove.Session{},
-		&rove.SignInFailure{},
-		&rove.Stewardship{},
-		&rove.Stock{},
-		&rove.StockMovement{},
-		&rove.TagCounter{},
-		&rove.Tenant{},
-		&rove.TenantContract{},
-		&rove.TenantDomain{},
-		&rove.TreeLock{},
-		&rove.WorkOrder{},
+		&loft.Access{},
+		&loft.AccessReview{},
+		&loft.AliasHold{},
+		&loft.Allocation{},
+		&loft.Archived{},
+		&loft.Asset{},
+		&loft.AssetType{},
+		&loft.Attachment{},
+		&loft.Audit{},
+		&loft.Bookable{},
+		&loft.CliLogin{},
+		&loft.CountFinding{},
+		&loft.Custody{},
+		&loft.CustodyLine{},
+		&loft.Event{},
+		&loft.Fact{},
+		&loft.Handoff{},
+		&loft.Holder{},
+		&loft.InventoryCount{},
+		&loft.Invitation{},
+		&loft.ItemModel{},
+		&loft.Label{},
+		&loft.LegalHold{},
+		&loft.Link{},
+		&loft.Notification{},
+		&loft.Outbox{},
+		&loft.Owed{},
+		&loft.Party{},
+		&loft.Placement{},
+		&loft.Purchase{},
+		&loft.PurchaseLine{},
+		&loft.Reservation{},
+		&loft.ReservationItem{},
+		&loft.RowSeal{},
+		&loft.SearchStale{},
+		&loft.Session{},
+		&loft.SignInFailure{},
+		&loft.Stewardship{},
+		&loft.Stock{},
+		&loft.StockMovement{},
+		&loft.TagCounter{},
+		&loft.Tenant{},
+		&loft.TenantContract{},
+		&loft.TenantDomain{},
+		&loft.TreeLock{},
+		&loft.WorkOrder{},
 	)
 }
 
 var resourceSecrets = map[protoreflect.FullName][]protoreflect.FieldNumber{
-	"rove.CliLogin": {
+	"loft.CliLogin": {
 		8,
 	},
-	"rove.Handoff": {
+	"loft.Handoff": {
 		8,
 		12,
 	},
-	"rove.Invitation": {
+	"loft.Invitation": {
 		20,
 	},
-	"rove.Session": {
+	"loft.Session": {
 		9,
 		16,
 	},
-	"rove.SignInFailure": {
+	"loft.SignInFailure": {
 		8,
 	},
 }
@@ -27841,8 +27841,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 		read.Limiter = nil
 		read.By = nil
 		switch v := message.(type) {
-		case *rove.Access:
-			ctx, err := read.Allow(ctx, rove.AccessService_Get_FullMethodName, 1)
+		case *loft.Access:
+			ctx, err := read.Allow(ctx, loft.AccessService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -27880,8 +27880,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.AccessReview:
-			ctx, err := read.Allow(ctx, rove.AccessReviewService_Get_FullMethodName, 1)
+		case *loft.AccessReview:
+			ctx, err := read.Allow(ctx, loft.AccessReviewService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -27917,8 +27917,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Allocation:
-			ctx, err := read.Allow(ctx, rove.AllocationService_Get_FullMethodName, 1)
+		case *loft.Allocation:
+			ctx, err := read.Allow(ctx, loft.AllocationService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -27955,8 +27955,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Asset:
-			ctx, err := read.Allow(ctx, rove.AssetService_Get_FullMethodName, 1)
+		case *loft.Asset:
+			ctx, err := read.Allow(ctx, loft.AssetService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28002,8 +28002,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.AssetType:
-			ctx, err := read.Allow(ctx, rove.AssetTypeService_Get_FullMethodName, 1)
+		case *loft.AssetType:
+			ctx, err := read.Allow(ctx, loft.AssetTypeService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28038,8 +28038,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Attachment:
-			ctx, err := read.Allow(ctx, rove.AttachmentService_Get_FullMethodName, 1)
+		case *loft.Attachment:
+			ctx, err := read.Allow(ctx, loft.AttachmentService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28076,8 +28076,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Audit:
-			ctx, err := read.Allow(ctx, rove.AuditService_Get_FullMethodName, 1)
+		case *loft.Audit:
+			ctx, err := read.Allow(ctx, loft.AuditService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28115,8 +28115,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Bookable:
-			ctx, err := read.Allow(ctx, rove.BookableService_Get_FullMethodName, 1)
+		case *loft.Bookable:
+			ctx, err := read.Allow(ctx, loft.BookableService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28159,8 +28159,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.CountFinding:
-			ctx, err := read.Allow(ctx, rove.CountFindingService_Get_FullMethodName, 1)
+		case *loft.CountFinding:
+			ctx, err := read.Allow(ctx, loft.CountFindingService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28197,8 +28197,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Custody:
-			ctx, err := read.Allow(ctx, rove.CustodyService_Get_FullMethodName, 1)
+		case *loft.Custody:
+			ctx, err := read.Allow(ctx, loft.CustodyService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28238,8 +28238,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.CustodyLine:
-			ctx, err := read.Allow(ctx, rove.CustodyLineService_Get_FullMethodName, 1)
+		case *loft.CustodyLine:
+			ctx, err := read.Allow(ctx, loft.CustodyLineService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28278,8 +28278,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Event:
-			ctx, err := read.Allow(ctx, rove.EventService_Get_FullMethodName, 1)
+		case *loft.Event:
+			ctx, err := read.Allow(ctx, loft.EventService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28315,8 +28315,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Fact:
-			ctx, err := read.Allow(ctx, rove.FactService_Get_FullMethodName, 1)
+		case *loft.Fact:
+			ctx, err := read.Allow(ctx, loft.FactService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28354,8 +28354,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Holder:
-			ctx, err := read.Allow(ctx, rove.HolderService_Get_FullMethodName, 1)
+		case *loft.Holder:
+			ctx, err := read.Allow(ctx, loft.HolderService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28392,8 +28392,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.InventoryCount:
-			ctx, err := read.Allow(ctx, rove.InventoryCountService_Get_FullMethodName, 1)
+		case *loft.InventoryCount:
+			ctx, err := read.Allow(ctx, loft.InventoryCountService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28432,8 +28432,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Invitation:
-			ctx, err := read.Allow(ctx, rove.InvitationService_Get_FullMethodName, 1)
+		case *loft.Invitation:
+			ctx, err := read.Allow(ctx, loft.InvitationService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28472,8 +28472,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.ItemModel:
-			ctx, err := read.Allow(ctx, rove.ItemModelService_Get_FullMethodName, 1)
+		case *loft.ItemModel:
+			ctx, err := read.Allow(ctx, loft.ItemModelService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28509,8 +28509,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Label:
-			ctx, err := read.Allow(ctx, rove.LabelService_Get_FullMethodName, 1)
+		case *loft.Label:
+			ctx, err := read.Allow(ctx, loft.LabelService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28546,8 +28546,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.LegalHold:
-			ctx, err := read.Allow(ctx, rove.LegalHoldService_Get_FullMethodName, 1)
+		case *loft.LegalHold:
+			ctx, err := read.Allow(ctx, loft.LegalHoldService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28579,8 +28579,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Link:
-			ctx, err := read.Allow(ctx, rove.LinkService_Get_FullMethodName, 1)
+		case *loft.Link:
+			ctx, err := read.Allow(ctx, loft.LinkService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28618,8 +28618,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Notification:
-			ctx, err := read.Allow(ctx, rove.NotificationService_Get_FullMethodName, 1)
+		case *loft.Notification:
+			ctx, err := read.Allow(ctx, loft.NotificationService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28658,8 +28658,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Party:
-			ctx, err := read.Allow(ctx, rove.PartyService_Get_FullMethodName, 1)
+		case *loft.Party:
+			ctx, err := read.Allow(ctx, loft.PartyService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28697,8 +28697,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Placement:
-			ctx, err := read.Allow(ctx, rove.PlacementService_Get_FullMethodName, 1)
+		case *loft.Placement:
+			ctx, err := read.Allow(ctx, loft.PlacementService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28738,8 +28738,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Purchase:
-			ctx, err := read.Allow(ctx, rove.PurchaseService_Get_FullMethodName, 1)
+		case *loft.Purchase:
+			ctx, err := read.Allow(ctx, loft.PurchaseService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28779,8 +28779,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.PurchaseLine:
-			ctx, err := read.Allow(ctx, rove.PurchaseLineService_Get_FullMethodName, 1)
+		case *loft.PurchaseLine:
+			ctx, err := read.Allow(ctx, loft.PurchaseLineService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28817,8 +28817,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Reservation:
-			ctx, err := read.Allow(ctx, rove.ReservationService_Get_FullMethodName, 1)
+		case *loft.Reservation:
+			ctx, err := read.Allow(ctx, loft.ReservationService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28858,8 +28858,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.ReservationItem:
-			ctx, err := read.Allow(ctx, rove.ReservationItemService_Get_FullMethodName, 1)
+		case *loft.ReservationItem:
+			ctx, err := read.Allow(ctx, loft.ReservationItemService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28892,8 +28892,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Stewardship:
-			ctx, err := read.Allow(ctx, rove.StewardshipService_Get_FullMethodName, 1)
+		case *loft.Stewardship:
+			ctx, err := read.Allow(ctx, loft.StewardshipService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28930,8 +28930,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Stock:
-			ctx, err := read.Allow(ctx, rove.StockService_Get_FullMethodName, 1)
+		case *loft.Stock:
+			ctx, err := read.Allow(ctx, loft.StockService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -28968,8 +28968,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.StockMovement:
-			ctx, err := read.Allow(ctx, rove.StockMovementService_Get_FullMethodName, 1)
+		case *loft.StockMovement:
+			ctx, err := read.Allow(ctx, loft.StockMovementService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -29005,8 +29005,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.Tenant:
-			ctx, err := read.Allow(ctx, rove.TenantService_Get_FullMethodName, 1)
+		case *loft.Tenant:
+			ctx, err := read.Allow(ctx, loft.TenantService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -29052,8 +29052,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.TenantContract:
-			ctx, err := read.Allow(ctx, rove.TenantContractService_Get_FullMethodName, 1)
+		case *loft.TenantContract:
+			ctx, err := read.Allow(ctx, loft.TenantContractService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -29087,8 +29087,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.TenantDomain:
-			ctx, err := read.Allow(ctx, rove.TenantDomainService_Get_FullMethodName, 1)
+		case *loft.TenantDomain:
+			ctx, err := read.Allow(ctx, loft.TenantDomainService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -29130,8 +29130,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.WorkOrder:
-			ctx, err := read.Allow(ctx, rove.WorkOrderService_Get_FullMethodName, 1)
+		case *loft.WorkOrder:
+			ctx, err := read.Allow(ctx, loft.WorkOrderService_Get_FullMethodName, 1)
 			if err != nil {
 				switch status.Code(err) {
 				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
@@ -29210,269 +29210,269 @@ func (r resourceRecorder) Snapshots(method string) bare.SnapshotOptions {
 }
 func resourceChangeKind(method string) pdpb.ChangeKind {
 	switch method {
-	case rove.AccessReviewService_Add_FullMethodName:
+	case loft.AccessReviewService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.AccessReviewService_Patch_FullMethodName:
+	case loft.AccessReviewService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AccessReviewService_Apply_FullMethodName:
+	case loft.AccessReviewService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AccessReviewService_Erase_FullMethodName:
+	case loft.AccessReviewService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.AllocationService_Add_FullMethodName:
+	case loft.AllocationService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.AllocationService_Patch_FullMethodName:
+	case loft.AllocationService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AllocationService_Apply_FullMethodName:
+	case loft.AllocationService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AllocationService_Erase_FullMethodName:
+	case loft.AllocationService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.AssetService_Add_FullMethodName:
+	case loft.AssetService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.AssetService_AddMany_FullMethodName:
+	case loft.AssetService_AddMany_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.AssetService_Patch_FullMethodName:
+	case loft.AssetService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AssetService_Apply_FullMethodName:
+	case loft.AssetService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AssetService_Erase_FullMethodName:
+	case loft.AssetService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.AssetTypeService_Add_FullMethodName:
+	case loft.AssetTypeService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.AssetTypeService_Patch_FullMethodName:
+	case loft.AssetTypeService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AssetTypeService_Apply_FullMethodName:
+	case loft.AssetTypeService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AssetTypeService_Erase_FullMethodName:
+	case loft.AssetTypeService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.AttachmentService_Add_FullMethodName:
+	case loft.AttachmentService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.AttachmentService_Patch_FullMethodName:
+	case loft.AttachmentService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AttachmentService_Apply_FullMethodName:
+	case loft.AttachmentService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AttachmentService_Erase_FullMethodName:
+	case loft.AttachmentService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.AuditService_Add_FullMethodName:
+	case loft.AuditService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.AuditService_Patch_FullMethodName:
+	case loft.AuditService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AuditService_Apply_FullMethodName:
+	case loft.AuditService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.AuditService_Erase_FullMethodName:
+	case loft.AuditService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.BookableService_Add_FullMethodName:
+	case loft.BookableService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.BookableService_Patch_FullMethodName:
+	case loft.BookableService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.BookableService_Apply_FullMethodName:
+	case loft.BookableService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.BookableService_Erase_FullMethodName:
+	case loft.BookableService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.CountFindingService_Add_FullMethodName:
+	case loft.CountFindingService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.CountFindingService_Patch_FullMethodName:
+	case loft.CountFindingService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.CountFindingService_Apply_FullMethodName:
+	case loft.CountFindingService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.CountFindingService_Erase_FullMethodName:
+	case loft.CountFindingService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.CustodyService_Add_FullMethodName:
+	case loft.CustodyService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.CustodyService_Patch_FullMethodName:
+	case loft.CustodyService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.CustodyService_Apply_FullMethodName:
+	case loft.CustodyService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.CustodyService_Erase_FullMethodName:
+	case loft.CustodyService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.CustodyLineService_Add_FullMethodName:
+	case loft.CustodyLineService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.CustodyLineService_Patch_FullMethodName:
+	case loft.CustodyLineService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.CustodyLineService_Apply_FullMethodName:
+	case loft.CustodyLineService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.CustodyLineService_Erase_FullMethodName:
+	case loft.CustodyLineService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.EventService_Add_FullMethodName:
+	case loft.EventService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.EventService_AddMany_FullMethodName:
+	case loft.EventService_AddMany_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.FactService_Add_FullMethodName:
+	case loft.FactService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.FactService_AddMany_FullMethodName:
+	case loft.FactService_AddMany_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.FactService_Patch_FullMethodName:
+	case loft.FactService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.FactService_Apply_FullMethodName:
+	case loft.FactService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.HolderService_Add_FullMethodName:
+	case loft.HolderService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.HolderService_Patch_FullMethodName:
+	case loft.HolderService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.HolderService_Apply_FullMethodName:
+	case loft.HolderService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.HolderService_Erase_FullMethodName:
+	case loft.HolderService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.InventoryCountService_Add_FullMethodName:
+	case loft.InventoryCountService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.InventoryCountService_Patch_FullMethodName:
+	case loft.InventoryCountService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.InventoryCountService_Apply_FullMethodName:
+	case loft.InventoryCountService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.InventoryCountService_Erase_FullMethodName:
+	case loft.InventoryCountService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.InvitationService_Add_FullMethodName:
+	case loft.InvitationService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.InvitationService_Patch_FullMethodName:
+	case loft.InvitationService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.InvitationService_Apply_FullMethodName:
+	case loft.InvitationService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.InvitationService_Erase_FullMethodName:
+	case loft.InvitationService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.ItemModelService_Add_FullMethodName:
+	case loft.ItemModelService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.ItemModelService_Patch_FullMethodName:
+	case loft.ItemModelService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.ItemModelService_Apply_FullMethodName:
+	case loft.ItemModelService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.ItemModelService_Erase_FullMethodName:
+	case loft.ItemModelService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.LabelService_Add_FullMethodName:
+	case loft.LabelService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.LabelService_Patch_FullMethodName:
+	case loft.LabelService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.LabelService_Apply_FullMethodName:
+	case loft.LabelService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.LabelService_Erase_FullMethodName:
+	case loft.LabelService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.LegalHoldService_Add_FullMethodName:
+	case loft.LegalHoldService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.LegalHoldService_Patch_FullMethodName:
+	case loft.LegalHoldService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.LegalHoldService_Apply_FullMethodName:
+	case loft.LegalHoldService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.LegalHoldService_Erase_FullMethodName:
+	case loft.LegalHoldService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.LinkService_Add_FullMethodName:
+	case loft.LinkService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.LinkService_Patch_FullMethodName:
+	case loft.LinkService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.LinkService_Apply_FullMethodName:
+	case loft.LinkService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.LinkService_Erase_FullMethodName:
+	case loft.LinkService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.NotificationService_Add_FullMethodName:
+	case loft.NotificationService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.NotificationService_Patch_FullMethodName:
+	case loft.NotificationService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.NotificationService_Apply_FullMethodName:
+	case loft.NotificationService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.NotificationService_Erase_FullMethodName:
+	case loft.NotificationService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.PartyService_Add_FullMethodName:
+	case loft.PartyService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.PartyService_Patch_FullMethodName:
+	case loft.PartyService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.PartyService_Apply_FullMethodName:
+	case loft.PartyService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.PartyService_Erase_FullMethodName:
+	case loft.PartyService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.PlacementService_Add_FullMethodName:
+	case loft.PlacementService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.PlacementService_AddMany_FullMethodName:
+	case loft.PlacementService_AddMany_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.PlacementService_Patch_FullMethodName:
+	case loft.PlacementService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.PlacementService_Apply_FullMethodName:
+	case loft.PlacementService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.PlacementService_Erase_FullMethodName:
+	case loft.PlacementService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.PurchaseService_Add_FullMethodName:
+	case loft.PurchaseService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.PurchaseService_Patch_FullMethodName:
+	case loft.PurchaseService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.PurchaseService_Apply_FullMethodName:
+	case loft.PurchaseService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.PurchaseService_Erase_FullMethodName:
+	case loft.PurchaseService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.PurchaseLineService_Add_FullMethodName:
+	case loft.PurchaseLineService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.PurchaseLineService_Patch_FullMethodName:
+	case loft.PurchaseLineService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.PurchaseLineService_Apply_FullMethodName:
+	case loft.PurchaseLineService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.PurchaseLineService_Erase_FullMethodName:
+	case loft.PurchaseLineService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.ReservationService_Add_FullMethodName:
+	case loft.ReservationService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.ReservationService_Patch_FullMethodName:
+	case loft.ReservationService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.ReservationService_Apply_FullMethodName:
+	case loft.ReservationService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.ReservationService_Erase_FullMethodName:
+	case loft.ReservationService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.ReservationItemService_Add_FullMethodName:
+	case loft.ReservationItemService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.ReservationItemService_Patch_FullMethodName:
+	case loft.ReservationItemService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.ReservationItemService_Apply_FullMethodName:
+	case loft.ReservationItemService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.ReservationItemService_Erase_FullMethodName:
+	case loft.ReservationItemService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.StewardshipService_Add_FullMethodName:
+	case loft.StewardshipService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.StewardshipService_Patch_FullMethodName:
+	case loft.StewardshipService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.StewardshipService_Apply_FullMethodName:
+	case loft.StewardshipService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.StewardshipService_Erase_FullMethodName:
+	case loft.StewardshipService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.StockService_Add_FullMethodName:
+	case loft.StockService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.StockService_Patch_FullMethodName:
+	case loft.StockService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.StockService_Apply_FullMethodName:
+	case loft.StockService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.StockService_Erase_FullMethodName:
+	case loft.StockService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.StockMovementService_Add_FullMethodName:
+	case loft.StockMovementService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.StockMovementService_Patch_FullMethodName:
+	case loft.StockMovementService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.StockMovementService_Apply_FullMethodName:
+	case loft.StockMovementService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.StockMovementService_Erase_FullMethodName:
+	case loft.StockMovementService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.TenantService_Add_FullMethodName:
+	case loft.TenantService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.TenantService_Patch_FullMethodName:
+	case loft.TenantService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.TenantService_Apply_FullMethodName:
+	case loft.TenantService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.TenantService_Erase_FullMethodName:
+	case loft.TenantService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.TenantContractService_Add_FullMethodName:
+	case loft.TenantContractService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.TenantContractService_Patch_FullMethodName:
+	case loft.TenantContractService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.TenantContractService_Apply_FullMethodName:
+	case loft.TenantContractService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.TenantContractService_Erase_FullMethodName:
+	case loft.TenantContractService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.TenantDomainService_Add_FullMethodName:
+	case loft.TenantDomainService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.TenantDomainService_Patch_FullMethodName:
+	case loft.TenantDomainService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.TenantDomainService_Apply_FullMethodName:
+	case loft.TenantDomainService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.TenantDomainService_Erase_FullMethodName:
+	case loft.TenantDomainService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.WorkOrderService_Add_FullMethodName:
+	case loft.WorkOrderService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.WorkOrderService_Patch_FullMethodName:
+	case loft.WorkOrderService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.WorkOrderService_Apply_FullMethodName:
+	case loft.WorkOrderService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.WorkOrderService_Erase_FullMethodName:
+	case loft.WorkOrderService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	default:
 		return pdpb.ChangeKind_CHANGE_KIND_UNSPECIFIED
@@ -29492,7 +29492,7 @@ func (r resourceRecorder) Record(ctx context.Context, s bare.Server, c bare.Chan
 		return nil
 	}
 	switch image.ProtoReflect().Descriptor().FullName() {
-	case "rove.Access", "rove.AccessReview", "rove.Allocation", "rove.Asset", "rove.AssetType", "rove.Attachment", "rove.Audit", "rove.Bookable", "rove.CountFinding", "rove.Custody", "rove.CustodyLine", "rove.Event", "rove.Fact", "rove.Holder", "rove.InventoryCount", "rove.Invitation", "rove.ItemModel", "rove.Label", "rove.LegalHold", "rove.Link", "rove.Notification", "rove.Party", "rove.Placement", "rove.Purchase", "rove.PurchaseLine", "rove.Reservation", "rove.ReservationItem", "rove.Stewardship", "rove.Stock", "rove.StockMovement", "rove.Tenant", "rove.TenantContract", "rove.TenantDomain", "rove.WorkOrder":
+	case "loft.Access", "loft.AccessReview", "loft.Allocation", "loft.Asset", "loft.AssetType", "loft.Attachment", "loft.Audit", "loft.Bookable", "loft.CountFinding", "loft.Custody", "loft.CustodyLine", "loft.Event", "loft.Fact", "loft.Holder", "loft.InventoryCount", "loft.Invitation", "loft.ItemModel", "loft.Label", "loft.LegalHold", "loft.Link", "loft.Notification", "loft.Party", "loft.Placement", "loft.Purchase", "loft.PurchaseLine", "loft.Reservation", "loft.ReservationItem", "loft.Stewardship", "loft.Stock", "loft.StockMovement", "loft.Tenant", "loft.TenantContract", "loft.TenantDomain", "loft.WorkOrder":
 	default:
 		return nil
 	}

@@ -1,5 +1,5 @@
 /**
- * What a download is for (rove#136). A download hands people's data out to be
+ * What a download is for (loft#136). A download hands people's data out to be
  * kept somewhere else, so it says why, and the access record keeps it beside
  * who took what: the server refuses one that does not.
  */

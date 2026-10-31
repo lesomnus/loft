@@ -11,11 +11,11 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // An asset's history is its facts: from a moment on, one of what it is -- its
-// name, its status, an attribute -- held a value (design 3.3, D5). Rove writes
+// name, its status, an attribute -- held a value (design 3.3, D5). Loft writes
 // each under a key of its own, `status` or `attr.<key>`, and the value as the
 // text a request said it in. payday's past keeps the same thing by the field
 // (payday#151): the asset's field by its number, the entry of a map by its
@@ -26,7 +26,7 @@ import (
 // assetDesc is what a fact is a field of.
 var assetDesc = (&app.Asset{}).ProtoReflect().Descriptor()
 
-// factKeys is each field of an asset that is a fact of it, by the key Rove
+// factKeys is each field of an asset that is a fact of it, by the key Loft
 // writes it under, which is the field's name. Its attributes are the one map,
 // an entry each, under [attrPrefix].
 var factKeys = []string{"name", "desc", "type", "model", "tag", "serial", "status", "condition"}
@@ -72,7 +72,7 @@ func SlotOf(key string) (past.Slot, error) {
 	return past.Slot{Field: assetDesc.Fields().ByName(protoreflect.Name(key)).Number()}, nil
 }
 
-// KeyOf is the key Rove writes a fact of an asset's field under, [SlotOf]
+// KeyOf is the key Loft writes a fact of an asset's field under, [SlotOf]
 // read backwards: an attribute's is `attr.` and its key. False for a slot of
 // no fact.
 func KeyOf(s past.Slot) (string, bool) {
@@ -89,13 +89,13 @@ func KeyOf(s past.Slot) (string, bool) {
 	return string(fd.Name()), true
 }
 
-// LegacyFact is a fact Rove wrote under `key`, saying `value` or `cleared`, as
+// LegacyFact is a fact Loft wrote under `key`, saying `value` or `cleared`, as
 // payday's past writes the same fact: the field, the entry of a map -- empty
 // for any other field -- and the value's canonical JSON, `null` for one
 // cleared.
 //
 // A type and a model are edges, which the past writes by the identifier of
-// the row they name. Rove kept the identifier as text, in whatever form the
+// the row they name. Loft kept the identifier as text, in whatever form the
 // request wrote it -- a uuid is read in upper case, in braces, as a URN -- so
 // it is read as an identifier and written as its canonical string. A key that
 // is no fact of an asset is refused, and so is a value the past cannot write:
@@ -131,7 +131,7 @@ func LegacyFact(key, value string, cleared bool) (field protoreflect.FieldNumber
 	return s.Field, s.Key, j, nil
 }
 
-// valueOf is a fact Rove says under `key` -- `value`, or cleared for nil -- as
+// valueOf is a fact Loft says under `key` -- `value`, or cleared for nil -- as
 // the value of the asset's field payday's past writes it as: an attribute an
 // entry of the map, gone when it is cleared, and a type or a model the edge to
 // the row the identifier names.
@@ -162,7 +162,7 @@ func valueOf(key string, value *string) (past.Value, error) {
 	return past.To(fd, protoreflect.ValueOfString(*value)), nil
 }
 
-// textOf is a fact of an asset's field as Rove reads it, the text it was said
+// textOf is a fact of an asset's field as Loft reads it, the text it was said
 // in: a string as it is, an edge as the identifier of the row it names, and
 // nothing for one cleared.
 func textOf(s past.Slot, value string) (string, error) {

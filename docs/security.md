@@ -1,4 +1,4 @@
-# 보안 점검 (rove#40)
+# 보안 점검 (loft#40)
 
 운영을 시작하기 전에 한 번, 그리고 큰 변경(새 엔티티, 새 HTTP 경로, 배포 방식) 뒤에 다시 봅니다. 2026-10-13에 처음 점검했습니다. 항목마다 그것을 지키는 코드와 테스트를 적어 두었습니다. 테스트가 있는 항목은 `go test ./...`와 `./scripts/cluster.sh`가 매번 다시 확인합니다.
 
@@ -19,7 +19,7 @@
 - 다른 워크스페이스의 것을 넣으면 `NotFound`이고, 자기 것은 됩니다(`TestAVendorOrAModelIsTheWorkspacesOwn`, 새로).
 - 이 보장은 지금의 호출자가 모두 워크스페이스 하나의 구성원이라서 성립합니다. 여러 워크스페이스를 한꺼번에 보는 호출자가 생기면 이 셋을 다시 봐야 합니다.
 
-## Rove 항목
+## Loft 항목
 
 | 항목 | 결과 | 어디서 지키나 |
 | --- | --- | --- |
@@ -36,16 +36,16 @@
 - **보안 헤더와 CSP.**
   - 모든 응답에 `guarded`(`cmd/guard.go`)가 붙입니다: nosniff, Referrer-Policy, X-Frame-Options, `frame-ancestors 'none'`, HSTS(https일 때), CSP report-only(`app.csp`).
   - 인그레스를 거친 응답에 붙는지는 `scripts/cluster.sh`가 봅니다.
-  - CSP를 enforce로 바꾸는 것은 운영에서 들어오는 보고를 본 뒤입니다(rove#35).
+  - CSP를 enforce로 바꾸는 것은 운영에서 들어오는 보고를 본 뒤입니다(loft#35).
 - **로그인 제한.**
   - 같은 주소에서 같은 아이디로 15분에 10번, 한 주소에서 터미널 로그인은 10분에 20번까지입니다. DB에서 세므로 서버가 여러 대여도 한 번에 셉니다(`cmd/limits_test.go`).
   - 계정 잠금은 roster가 합니다.
   - 이 제한은 `app.trusted_proxies`가 맞아야 맞게 셉니다(`deploy/k8s/README.md`).
 
-- **검색 색인**(D31, rove#83).
+- **검색 색인**(D31, loft#83).
   - 색인은 DB의 사본입니다. 자산의 이름, 태그, 시리얼과 함께 보유자 이름이 들어갑니다.
   - 개인정보 삭제(가명화)로 사람 이름이 바뀌면 그 사람이 가진 자산의 문서도 다시 만듭니다. 워크스페이스를 파기하면 그 문서도 모두 지웁니다(`TestTheIndexHearsOfWhatChanged`).
-  - Rove는 TLS(`ca_file`)로 접속하고, 클러스터 권한은 bulk 쓰기 하나뿐인 role로 로그인합니다. CI의 `opensearch` 작업이 그 role로 돌아서, 권한이 더 필요한 호출은 거기서 실패합니다.
+  - Loft는 TLS(`ca_file`)로 접속하고, 클러스터 권한은 bulk 쓰기 하나뿐인 role로 로그인합니다. CI의 `opensearch` 작업이 그 role로 돌아서, 권한이 더 필요한 호출은 거기서 실패합니다.
   - 검색 결과는 ID일 뿐이고, 행은 벽을 거쳐 읽습니다. 브라우저는 OpenSearch에 닿지 않습니다.
 
 ## 이번 점검에서 고친 것
@@ -60,10 +60,10 @@
    - gRPC 1.83.2: 서버 패닉과 메모리 고갈, 2개.
    - OpenTelemetry SDK 1.45.0: 내보내기 설정이 로그에 주소를 남기는 문제, 1개.
    - excelize 2.11.0: 3개. 가져오기로 누구나 올리는 엑셀 파일을 읽는 라이브러리라서, 메모리 고갈이나 패닉이 실제로 일어날 수 있었습니다.
-   - 마지막 1개였던 GO-2026-6615(OTel 로그 SDK)는 OTel을 v1.47로 올려 고쳤습니다. 로그 API가 v1이 되면서 mkot, otx, payday도 함께 바꿨습니다(rove#77).
+   - 마지막 1개였던 GO-2026-6615(OTel 로그 SDK)는 OTel을 v1.47로 올려 고쳤습니다. 로그 API가 v1이 되면서 mkot, otx, payday도 함께 바꿨습니다(loft#77).
    - CI `vuln` 작업이 새로 생겼습니다. 이 코드가 부르는 취약점이 새로 보이면 실패합니다. 예외(`accepted`)는 지금 없습니다.
-4. **유휴 연결.** 두 HTTP 서버(`rove`, `rove-admin`)가 요청 사이에 비어 있는 연결을 2분 뒤 닫습니다. 요청 헤더 제한(10초)은 원래 있었습니다.
-5. **K8s 배포**(rove#39와 함께).
+4. **유휴 연결.** 두 HTTP 서버(`loft`, `loft-admin`)가 요청 사이에 비어 있는 연결을 2분 뒤 닫습니다. 요청 헤더 제한(10초)은 원래 있었습니다.
+5. **K8s 배포**(loft#39와 함께).
    - `restricted` Pod Security, NetworkPolicy, 서비스 계정 토큰 없음, 서비스 링크 변수 없음.
    - Secret 없는 base, 마이그레이션은 볼륨 없이.
 
@@ -85,11 +85,11 @@
 
 - namespace에 `pod-security.kubernetes.io/enforce: restricted`를 붙입니다.
 - NetworkPolicy의 `from`을 인그레스 컨트롤러로 좁히고, 그와 맞게 `app.trusted_proxies`를 씁니다.
-- `pods/portforward`와 `pods/exec` 권한은 운영자에게만 줍니다. exec는 파드 안의 DB 접속 정보를 보는 것과 같습니다(`rove init`, 운영자 셸 명령).
+- `pods/portforward`와 `pods/exec` 권한은 운영자에게만 줍니다. exec는 파드 안의 DB 접속 정보를 보는 것과 같습니다(`loft init`, 운영자 셸 명령).
 - etcd에서 Secret을 암호화하고, 저장소의 Secret은 SOPS 등으로 암호화합니다.
 - 노드는 보안 업데이트를 자동으로 받게 하고, 디스크와 백업은 암호화합니다.
 - 이미지는 digest로 고정하고, 레지스트리 접근을 제한합니다.
-- 인그레스는 TLS 1.2 이상으로 둡니다. HSTS는 Rove가 붙입니다.
+- 인그레스는 TLS 1.2 이상으로 둡니다. HSTS는 Loft가 붙입니다.
 
 ## 다시 볼 때
 

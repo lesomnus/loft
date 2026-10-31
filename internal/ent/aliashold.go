@@ -8,7 +8,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/aliashold"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )

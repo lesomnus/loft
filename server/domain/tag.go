@@ -10,10 +10,10 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/protobuf-orm/ent/dialect/sql"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/tagcounter"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/tagcounter"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // A tag nobody gave is made up (D52): the prefix of the asset's kind and the

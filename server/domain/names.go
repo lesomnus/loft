@@ -11,13 +11,13 @@ import (
 	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // namer is what an answer names people and things by, as they are called
@@ -26,7 +26,7 @@ import (
 //
 // A name that is somebody's personal data -- a person record's, a
 // membership's -- is shown with whose it is. What an answer says of it puts
-// them on the access record of its call (rove#136), since no `personal`
+// them on the access record of its call (loft#136), since no `personal`
 // declaration can see a name in a sentence; [namer.Name] is the same reading
 // as payday's past asks it (`past.Names`, payday#151), which says whose it is
 // and leaves the record to whoever says it.
@@ -47,7 +47,7 @@ type namer struct {
 	// what a sentence that names one of them says ([namer.attribute]).
 	labels map[uuid.UUID]map[string]string
 
-	// legacies is what each row from before Rove's events kept a message
+	// legacies is what each row from before Loft's events kept a message
 	// said, by the row: its sentence and what it named ([Sentences]).
 	legacies map[uuid.UUID]legacyRow
 }
@@ -421,7 +421,7 @@ func (n *namer) ofLabels(ctx context.Context, id uuid.UUID) (map[string]string, 
 	return out, nil
 }
 
-// An event from before Rove's events kept a message (payday#151) kept the
+// An event from before Loft's events kept a message (payday#151) kept the
 // sentence it was written with instead, `desc`, and named the people it was
 // about by identifier in its `payload`, its sentence by a mark for each; the
 // words are read with the event, so that one about somebody forgotten reads

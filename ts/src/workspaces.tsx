@@ -107,7 +107,7 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 				<div className="brand">
 					<img src="/icon.svg" alt="" />
 					<div>
-						<h1>Rove</h1>
+						<h1>Loft</h1>
 						<p>{props.account.name || props.account.login}</p>
 					</div>
 				</div>
@@ -154,7 +154,7 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 export function Closed(props: { account: Account; ws: Workspace; onSignOut: () => void }): ReactNode {
 	const [busy, setBusy] = useState(false)
 	const [bad, setBad] = useState('')
-	// Everybody's data, so the export says what for (rove#136): a link the
+	// Everybody's data, so the export says what for (loft#136): a link the
 	// browser follows, which is what takes a file down without the page.
 	const [exporting, setExporting] = useState(false)
 	const exportWorkspace = async (why: string): Promise<void> => {

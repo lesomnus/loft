@@ -18,11 +18,11 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// NewCmdTrail is `rove trail`: the trail's archive, checked against the account
+// NewCmdTrail is `loft trail`: the trail's archive, checked against the account
 // the database keeps of it (payday's `trail.Policy.Verify`), and the live rows
 // checked against the trail (`rows`, payday's `pd.Digests`).
 //
@@ -117,7 +117,7 @@ func NewCmdTrail(c *cmd.Config) *xli.Command {
 				Name:  "accept",
 				Brief: "make the manifest say what the archive holds, once somebody has looked",
 				Flags: flg.Flags{
-					&flg.String{Name: "of", Brief: "the digest `rove trail verify` printed of the findings looked at"},
+					&flg.String{Name: "of", Brief: "the digest `loft trail verify` printed of the findings looked at"},
 					&flg.String{Name: "by", Brief: "who accepts; the operator's user and host by default"},
 					&flg.String{Name: "why", Brief: "what was looked at and decided; it is kept"},
 					&flg.Switch{Name: "full", Brief: "the check looked at was --full"},
@@ -203,7 +203,7 @@ func verify(ctx context.Context, self *xli.Command, c *cmd.Config, full bool) er
 		how += " --restored <the checkpoint the backup holds>"
 	}
 
-	return fmt.Errorf("%d findings: look at each, and `rove trail accept %s --why ...` once the archive is right", len(v.Findings), how)
+	return fmt.Errorf("%d findings: look at each, and `loft trail accept %s --why ...` once the archive is right", len(v.Findings), how)
 }
 
 // owed is what is owed of the trail's erasures and not paid yet (payday#115,
@@ -213,7 +213,7 @@ func verify(ctx context.Context, self *xli.Command, c *cmd.Config, full bool) er
 // committed, or by the trail's next pass. So what is owed for long is one a
 // legal hold keeps part of, which waits for the hold to lift and is said by
 // workspace, or one that cannot be done: an archive that cannot be written,
-// a chunk whose bytes are not its digest (`rove trail verify`). It changes
+// a chunk whose bytes are not its digest (`loft trail verify`). It changes
 // nothing.
 func owed(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	s, err := cmd.Build(ctx, *c)
@@ -303,7 +303,7 @@ func heard(hs map[string]trail.Heard) []string {
 
 func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of, why string) error {
 	if accept && of == "" {
-		return errors.New("--of: the digest `rove trail rows` printed of what was looked at")
+		return errors.New("--of: the digest `loft trail rows` printed of what was looked at")
 	}
 	if accept && strings.TrimSpace(why) == "" {
 		return errors.New("--why says what was looked at and decided")
@@ -343,7 +343,7 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of
 	// this digest, which names them.
 	if n := len(v.Unsealed); n > 0 {
 		self.Printf("%d rows from before seals: what is personal in them is vouched for by nothing until "+
-			"`rove trail rows --accept --of %s --why ...` seals them\n", n, digest)
+			"`loft trail rows --accept --of %s --why ...` seals them\n", n, digest)
 	}
 	// Each finding a line, by what it is, then its kind and the row: what a
 	// schedule greps and an operator looks up (payday#115).
@@ -387,14 +387,14 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of
 
 	findings := len(v.Differs) + len(v.Forged) + len(v.NoDigest) + len(v.NotOnTrail) + len(v.KeyNotHeld) + len(v.Missing)
 	if !accept {
-		return fmt.Errorf("%d findings: look at each, and `rove trail rows --accept --of %s --why ...` once the rows are right", findings, digest)
+		return fmt.Errorf("%d findings: look at each, and `loft trail rows --accept --of %s --why ...` once the rows are right", findings, digest)
 	}
 	// What was looked at, and nothing found since: an acceptance of rows
 	// somebody changed after the check that was read is of rows nobody looked
 	// at (payday#115).
 	if of != digest {
 		return fmt.Errorf("--of: the check looked at was %s, and this one found %s: "+
-			"run `rove trail rows` again, and look at what it finds", of, digest)
+			"run `loft trail rows` again, and look at what it finds", of, digest)
 	}
 	// A line whose digest is not its own, and one under a key not given, are
 	// nothing an acceptance can make right: the one is somebody's writing,
@@ -426,8 +426,8 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of
 	return nil
 }
 
-// AcceptedRows is the act `rove trail rows --accept` is on the trail as.
-const AcceptedRows = "rove.trail.rows.accept"
+// AcceptedRows is the act `loft trail rows --accept` is on the trail as.
+const AcceptedRows = "loft.trail.rows.accept"
 
 // kinds is the name this app's schema gives each of its domains. Not pdid's:
 // the roster in this process registers its own kinds under the same numbers,
@@ -435,7 +435,7 @@ const AcceptedRows = "rove.trail.rows.accept"
 var kinds = func() map[pdid.Domain]string {
 	out := map[pdid.Domain]string{}
 	for full, d := range pd.Domains {
-		out[d] = strings.TrimPrefix(full, "rove.")
+		out[d] = strings.TrimPrefix(full, "loft.")
 	}
 	return out
 }()
@@ -473,7 +473,7 @@ func byKind(ids []pdid.Id) string {
 // `a.By`, or the user and host of the shell it is run from.
 func accept(ctx context.Context, self *xli.Command, c *cmd.Config, a trail.Acceptance) error {
 	if a.Of == "" {
-		return errors.New("--of: the digest `rove trail verify` printed of the findings looked at")
+		return errors.New("--of: the digest `loft trail verify` printed of the findings looked at")
 	}
 	if strings.TrimSpace(a.Why) == "" {
 		return errors.New("--why says what was looked at and decided")
@@ -496,7 +496,7 @@ func accept(ctx context.Context, self *xli.Command, c *cmd.Config, a trail.Accep
 		self.Printf("  %s\n", f.String())
 	}
 	if errors.Is(err, trail.ErrUnreviewed) || errors.Is(err, trail.ErrRestored) {
-		again := "rove trail verify"
+		again := "loft trail verify"
 		if a.Full {
 			again += " --full"
 		}

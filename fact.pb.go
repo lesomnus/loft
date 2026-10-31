@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/fact.proto
+// source: loft/payday/fact.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -62,7 +62,7 @@ type Fact struct {
 
 func (x *Fact) Reset() {
 	*x = Fact{}
-	mi := &file_rove_payday_fact_proto_msgTypes[0]
+	mi := &file_loft_payday_fact_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -74,7 +74,7 @@ func (x *Fact) String() string {
 func (*Fact) ProtoMessage() {}
 
 func (x *Fact) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_proto_msgTypes[0]
+	mi := &file_loft_payday_fact_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -362,14 +362,14 @@ func (b0 Fact_builder) Build() *Fact {
 	return m0
 }
 
-var File_rove_payday_fact_proto protoreflect.FileDescriptor
+var File_loft_payday_fact_proto protoreflect.FileDescriptor
 
-const file_rove_payday_fact_proto_rawDesc = "" +
+const file_loft_payday_fact_proto_rawDesc = "" +
 	"\n" +
-	"\x16rove/payday/fact.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xcf\a\n" +
+	"\x16loft/payday/fact.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/tenant.proto\"\xcf\a\n" +
 	"\x04Fact\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12%\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12%\n" +
 	"\n" +
 	"subject_id\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\tsubjectId\x12\x10\n" +
 	"\x03key\x18\t \x01(\tR\x03key\x12\x14\n" +
@@ -416,20 +416,20 @@ const file_rove_payday_fact_proto_rawDesc = "" +
 	"subject_id\x1a\x0e\n" +
 	"\ffield_number d(\xe8\aB\x02\n" +
 	"\x00H\n" +
-	"B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_payday_fact_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_rove_payday_fact_proto_goTypes = []any{
-	(*Fact)(nil),                  // 0: rove.Fact
-	(*Tenant)(nil),                // 1: rove.Tenant
+var file_loft_payday_fact_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_loft_payday_fact_proto_goTypes = []any{
+	(*Fact)(nil),                  // 0: loft.Fact
+	(*Tenant)(nil),                // 1: loft.Tenant
 	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
 }
-var file_rove_payday_fact_proto_depIdxs = []int32{
-	1, // 0: rove.Fact.tenant:type_name -> rove.Tenant
-	2, // 1: rove.Fact.date_updated:type_name -> google.protobuf.Timestamp
-	2, // 2: rove.Fact.date_created:type_name -> google.protobuf.Timestamp
-	2, // 3: rove.Fact.valid_from:type_name -> google.protobuf.Timestamp
-	2, // 4: rove.Fact.superseded_at:type_name -> google.protobuf.Timestamp
+var file_loft_payday_fact_proto_depIdxs = []int32{
+	1, // 0: loft.Fact.tenant:type_name -> loft.Tenant
+	2, // 1: loft.Fact.date_updated:type_name -> google.protobuf.Timestamp
+	2, // 2: loft.Fact.date_created:type_name -> google.protobuf.Timestamp
+	2, // 3: loft.Fact.valid_from:type_name -> google.protobuf.Timestamp
+	2, // 4: loft.Fact.superseded_at:type_name -> google.protobuf.Timestamp
 	5, // [5:5] is the sub-list for method output_type
 	5, // [5:5] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -437,27 +437,27 @@ var file_rove_payday_fact_proto_depIdxs = []int32{
 	0, // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_fact_proto_init() }
-func file_rove_payday_fact_proto_init() {
-	if File_rove_payday_fact_proto != nil {
+func init() { file_loft_payday_fact_proto_init() }
+func file_loft_payday_fact_proto_init() {
+	if File_loft_payday_fact_proto != nil {
 		return
 	}
-	file_rove_payday_tenant_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_fact_proto_rawDesc), len(file_rove_payday_fact_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_fact_proto_rawDesc), len(file_loft_payday_fact_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_payday_fact_proto_goTypes,
-		DependencyIndexes: file_rove_payday_fact_proto_depIdxs,
-		MessageInfos:      file_rove_payday_fact_proto_msgTypes,
+		GoTypes:           file_loft_payday_fact_proto_goTypes,
+		DependencyIndexes: file_loft_payday_fact_proto_depIdxs,
+		MessageInfos:      file_loft_payday_fact_proto_msgTypes,
 	}.Build()
-	File_rove_payday_fact_proto = out.File
-	file_rove_payday_fact_proto_goTypes = nil
-	file_rove_payday_fact_proto_depIdxs = nil
+	File_loft_payday_fact_proto = out.File
+	file_loft_payday_fact_proto_goTypes = nil
+	file_loft_payday_fact_proto_depIdxs = nil
 }

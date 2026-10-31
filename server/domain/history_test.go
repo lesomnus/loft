@@ -3,7 +3,7 @@ package domain_test
 import (
 	"github.com/lesomnus/z"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // keep gives the workspace a history window of `days` in force, as one said

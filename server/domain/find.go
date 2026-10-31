@@ -12,15 +12,15 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/server/opensearch"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
 // The searches of what an asset takes a name from -- people, teams and the
-// rest, and models -- as `AssetService.Search` is of assets (rove#91): a
+// rest, and models -- as `AssetService.Search` is of assets (loft#91): a
 // deployment that names a search engine asks it (D31), and what it finds is
 // read through the wall, best first; one that names none asks the database,
 // which reads every row of the tenant. With nothing typed it is the filters

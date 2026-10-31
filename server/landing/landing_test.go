@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/server/landing"
+	"github.com/lesomnus/loft/server/landing"
 )
 
 // TestALandingIsAPathHere: what a link says to land on is a path on this
@@ -36,7 +36,7 @@ func TestALandingIsAPathHere(t *testing.T) {
 		"/ok\r\nSet-Cookie: x=y":  "/",
 		"/\t/evil.example":        "/",
 		"/%09/evil.example":       "/%09/evil.example",
-		"https://rove.example/@x": "/",
+		"https://loft.example/@x": "/",
 	} {
 		got := landing.Path(next)
 		require.Equal(t, want, got, next)

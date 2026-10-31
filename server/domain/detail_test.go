@@ -10,9 +10,9 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // detailOf is what the newest event of `kind` on an asset's timeline holds,
@@ -26,7 +26,7 @@ func detailOf(es []*app.TimelineEntry, kind string) map[string]string {
 	return nil
 }
 
-// TestAnEventsDetailIsWhatItHeld: an event since Rove's events kept a message
+// TestAnEventsDetailIsWhatItHeld: an event since Loft's events kept a message
 // (payday#151) is detailed on a timeline by that message, field by field
 // under the names its domain's table gives them, in the words a person reads
 // -- what a row from before kept in its payload, which it is detailed by

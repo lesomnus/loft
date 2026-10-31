@@ -23,11 +23,11 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	entaccess "github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/notification"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	entaccess "github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/notification"
 )
 
 // person is somebody of the world's workspace who signs in nowhere: a person
@@ -64,7 +64,7 @@ func detailOf(t *testing.T, v *ent.Access) *pdpb.AccessDetail {
 	return d
 }
 
-// TestWhoReadWhoseDataIsRecorded is rove#136 through the chain a page calls:
+// TestWhoReadWhoseDataIsRecorded is loft#136 through the chain a page calls:
 // a list of people is a row naming each of them, filed under the workspace
 // and naming the member who asked; and a history that reads somebody's name
 // out in a sentence -- which no `personal` field of its answer carries -- says
@@ -405,7 +405,7 @@ func TestAWorkspacesExportSaysWhatItIsFor(t *testing.T) {
 	x.Contains(string(b), "GET /account/workspaces/{alias}/export")
 }
 
-// TestAMonthOfTheRecordIsReviewed is rove#136's other half: the workspace's
+// TestAMonthOfTheRecordIsReviewed is loft#136's other half: the workspace's
 // administrators and auditors read a stretch of its access record out --
 // who, whose data by name, from where, what a download was for -- narrowed
 // to a member, a person or a kind, a page at a time; and record that they

@@ -11,12 +11,12 @@ import (
 
 	"github.com/lesomnus/otx/log"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/internal/ent/searchstale"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/searchstale"
 )
 
 // batch is how many rows of the queue one pass takes, and chunk how many
@@ -52,7 +52,7 @@ type Indexer struct {
 
 // SpinName is what the processes of a deployment call it, and agree on: one
 // of them runs it (`spin.lease`).
-func (x Indexer) SpinName() string { return "rove.search.index" }
+func (x Indexer) SpinName() string { return "loft.search.index" }
 
 func (x Indexer) now() time.Time {
 	if x.Now != nil {

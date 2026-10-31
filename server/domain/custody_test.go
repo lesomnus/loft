@@ -14,11 +14,11 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/server/domain"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 func (e *env) model(name string) *app.ItemModel {
@@ -378,7 +378,7 @@ func TestLabels(t *testing.T) {
 
 	// No domain of its own: every label prints with the deployment's own
 	// address and a code no other label in it has (D28) -- labels are on with
-	// no domain at all (rove#155).
+	// no domain at all (loft#155).
 	room := e.space("회의실", nil)
 	a := e.item("노트북", "NB-7", room, day)
 	st, err := e.app().TenantDomain().Status(e.owner, &app.TenantDomainStatusRequest{})
@@ -474,20 +474,20 @@ func TestNormalLabelCode(t *testing.T) {
 		"7k3m-q9tx":                       "7K3MQ9TX",
 		" 7K3M Q9TX ":                     "7K3MQ9TX",
 		"ab1o-ilzz":                       "AB1011ZZ",
-		"https://rove.example/l/7K3MQ9TX": "7K3MQ9TX",
+		"https://loft.example/l/7K3MQ9TX": "7K3MQ9TX",
 	} {
 		got, ok := domain.NormalLabelCode(in)
 		x.True(ok, in)
 		x.Equal(want, got, in)
 	}
-	for _, in := range []string{"", "7K3MQ9T", "7K3MQ9TXX", "7K3MQ9TU", "NB-7", "https://rove.example/"} {
+	for _, in := range []string{"", "7K3MQ9T", "7K3MQ9TXX", "7K3MQ9TU", "NB-7", "https://loft.example/"} {
 		_, ok := domain.NormalLabelCode(in)
 		x.False(ok, in)
 	}
 }
 
 // TestLabelsPrintWithTheActiveDomain is the one mode labels have now
-// (rove#155): with the tenant's active domain when it has one, and with the
+// (loft#155): with the tenant's active domain when it has one, and with the
 // deployment's own address when it has none -- never refused for want of a
 // domain, as D23's were. What was printed under either of the two modes
 // before goes on opening: a label on the deployment's address, and one on a
@@ -552,14 +552,14 @@ func TestLabelsPrintWithTheActiveDomain(t *testing.T) {
 }
 
 // TestAWorkspaceDomainIsAHostNobodyElseHas: what a tenant may take as a
-// domain of its own (rove#155). A host name, kept as one -- lower case, its
+// domain of its own (loft#155). A host name, kept as one -- lower case, its
 // ASCII form, no trailing dot -- and not an address, a name under localhost,
 // this deployment's own host or one under it, or one under the suffix
 // default subdomains are made with; and one tenant's only.
 func TestAWorkspaceDomainIsAHostNobodyElseHas(t *testing.T) {
 	e := newEnvWith(t, func(c *cmd.Config) {
-		c.App.PublicUrl = "https://rove.example"
-		c.App.AppUrl = "https://app.rove.example"
+		c.App.PublicUrl = "https://loft.example"
+		c.App.AppUrl = "https://app.loft.example"
 	})
 	x := e.x
 	add := func(ctx context.Context, host string) (*app.TenantDomain, error) {
@@ -570,7 +570,7 @@ func TestAWorkspaceDomainIsAHostNobodyElseHas(t *testing.T) {
 		"", "not a host", "assets", "-a.example", "a..example",
 		"127.0.0.1", "[::1]", "::1",
 		"localhost", "a.localhost",
-		"rove.example", "acme.rove.example", "app.rove.example", "x.app.rove.example",
+		"loft.example", "acme.loft.example", "app.loft.example", "x.app.loft.example",
 		"l.test", "acme.l.test",
 	} {
 		_, err := add(e.owner, host)

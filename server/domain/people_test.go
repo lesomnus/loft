@@ -8,9 +8,9 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/identity"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/identity"
 )
 
 // signsIn is whether `login` gets in at the roster with `password`.

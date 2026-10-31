@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/count.proto
+// source: loft/count.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -46,7 +46,7 @@ type InventoryCount struct {
 
 func (x *InventoryCount) Reset() {
 	*x = InventoryCount{}
-	mi := &file_rove_count_proto_msgTypes[0]
+	mi := &file_loft_count_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -58,7 +58,7 @@ func (x *InventoryCount) String() string {
 func (*InventoryCount) ProtoMessage() {}
 
 func (x *InventoryCount) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_proto_msgTypes[0]
+	mi := &file_loft_count_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -380,7 +380,7 @@ type CountFinding struct {
 
 func (x *CountFinding) Reset() {
 	*x = CountFinding{}
-	mi := &file_rove_count_proto_msgTypes[1]
+	mi := &file_loft_count_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -392,7 +392,7 @@ func (x *CountFinding) String() string {
 func (*CountFinding) ProtoMessage() {}
 
 func (x *CountFinding) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_proto_msgTypes[1]
+	mi := &file_loft_count_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -709,17 +709,17 @@ func (b0 CountFinding_builder) Build() *CountFinding {
 	return m0
 }
 
-var File_rove_count_proto protoreflect.FileDescriptor
+var File_loft_count_proto protoreflect.FileDescriptor
 
-const file_rove_count_proto_rawDesc = "" +
+const file_loft_count_proto_rawDesc = "" +
 	"\n" +
-	"\x10rove/count.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x18rove/payday/tenant.proto\"\xca\x06\n" +
+	"\x10loft/count.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x18loft/payday/tenant.proto\"\xca\x06\n" +
 	"\x0eInventoryCount\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
-	"\x05scope\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05scope\x12\x1e\n" +
+	"\x05scope\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x05scope\x12\x1e\n" +
 	"\x06status\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12B\n" +
 	"\n" +
 	"started_at\x18\n" +
@@ -749,10 +749,10 @@ const file_rove_count_proto_rawDesc = "" +
 	"\x06tenant\"\fscope.tenant\"\xc9\a\n" +
 	"\fCountFinding\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x122\n" +
-	"\x05count\x18\b \x01(\v2\x14.rove.InventoryCountB\x06\xf2\x82\x16\x02@\x01R\x05count\x12+\n" +
-	"\x05asset\x18\t \x01(\v2\v.rove.AssetB\b\xf2\x82\x16\x048\x01@\x01R\x05asset\x12#\n" +
+	"\x05count\x18\b \x01(\v2\x14.loft.InventoryCountB\x06\xf2\x82\x16\x02@\x01R\x05count\x12+\n" +
+	"\x05asset\x18\t \x01(\v2\v.loft.AssetB\b\xf2\x82\x16\x048\x01@\x01R\x05asset\x12#\n" +
 	"\blabel_id\x18\n" +
 	" \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\alabelId\x12\x1a\n" +
 	"\x04kind\x18\v \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x126\n" +
@@ -787,31 +787,31 @@ const file_rove_count_proto_rawDesc = "" +
 	"\n" +
 	"resolution \xc8\x01(\xe8\a:\x00B\x02\n" +
 	"\x00\"$\n" +
-	"\x06tenant\"\fcount.tenant\"\fasset.tenantB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06tenant\"\fcount.tenant\"\fasset.tenantB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_count_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_rove_count_proto_goTypes = []any{
-	(*InventoryCount)(nil),        // 0: rove.InventoryCount
-	(*CountFinding)(nil),          // 1: rove.CountFinding
-	(*Tenant)(nil),                // 2: rove.Tenant
-	(*Asset)(nil),                 // 3: rove.Asset
+var file_loft_count_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_loft_count_proto_goTypes = []any{
+	(*InventoryCount)(nil),        // 0: loft.InventoryCount
+	(*CountFinding)(nil),          // 1: loft.CountFinding
+	(*Tenant)(nil),                // 2: loft.Tenant
+	(*Asset)(nil),                 // 3: loft.Asset
 	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
 }
-var file_rove_count_proto_depIdxs = []int32{
-	2,  // 0: rove.InventoryCount.tenant:type_name -> rove.Tenant
-	3,  // 1: rove.InventoryCount.scope:type_name -> rove.Asset
-	4,  // 2: rove.InventoryCount.started_at:type_name -> google.protobuf.Timestamp
-	4,  // 3: rove.InventoryCount.closed_at:type_name -> google.protobuf.Timestamp
-	4,  // 4: rove.InventoryCount.date_updated:type_name -> google.protobuf.Timestamp
-	4,  // 5: rove.InventoryCount.date_erased:type_name -> google.protobuf.Timestamp
-	4,  // 6: rove.InventoryCount.date_created:type_name -> google.protobuf.Timestamp
-	2,  // 7: rove.CountFinding.tenant:type_name -> rove.Tenant
-	0,  // 8: rove.CountFinding.count:type_name -> rove.InventoryCount
-	3,  // 9: rove.CountFinding.asset:type_name -> rove.Asset
-	4,  // 10: rove.CountFinding.date_updated:type_name -> google.protobuf.Timestamp
-	4,  // 11: rove.CountFinding.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 12: rove.CountFinding.seen_at:type_name -> google.protobuf.Timestamp
-	4,  // 13: rove.CountFinding.resolved_at:type_name -> google.protobuf.Timestamp
+var file_loft_count_proto_depIdxs = []int32{
+	2,  // 0: loft.InventoryCount.tenant:type_name -> loft.Tenant
+	3,  // 1: loft.InventoryCount.scope:type_name -> loft.Asset
+	4,  // 2: loft.InventoryCount.started_at:type_name -> google.protobuf.Timestamp
+	4,  // 3: loft.InventoryCount.closed_at:type_name -> google.protobuf.Timestamp
+	4,  // 4: loft.InventoryCount.date_updated:type_name -> google.protobuf.Timestamp
+	4,  // 5: loft.InventoryCount.date_erased:type_name -> google.protobuf.Timestamp
+	4,  // 6: loft.InventoryCount.date_created:type_name -> google.protobuf.Timestamp
+	2,  // 7: loft.CountFinding.tenant:type_name -> loft.Tenant
+	0,  // 8: loft.CountFinding.count:type_name -> loft.InventoryCount
+	3,  // 9: loft.CountFinding.asset:type_name -> loft.Asset
+	4,  // 10: loft.CountFinding.date_updated:type_name -> google.protobuf.Timestamp
+	4,  // 11: loft.CountFinding.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 12: loft.CountFinding.seen_at:type_name -> google.protobuf.Timestamp
+	4,  // 13: loft.CountFinding.resolved_at:type_name -> google.protobuf.Timestamp
 	14, // [14:14] is the sub-list for method output_type
 	14, // [14:14] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
@@ -819,28 +819,28 @@ var file_rove_count_proto_depIdxs = []int32{
 	0,  // [0:14] is the sub-list for field type_name
 }
 
-func init() { file_rove_count_proto_init() }
-func file_rove_count_proto_init() {
-	if File_rove_count_proto != nil {
+func init() { file_loft_count_proto_init() }
+func file_loft_count_proto_init() {
+	if File_loft_count_proto != nil {
 		return
 	}
-	file_rove_asset_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_asset_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_count_proto_rawDesc), len(file_rove_count_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_count_proto_rawDesc), len(file_loft_count_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_count_proto_goTypes,
-		DependencyIndexes: file_rove_count_proto_depIdxs,
-		MessageInfos:      file_rove_count_proto_msgTypes,
+		GoTypes:           file_loft_count_proto_goTypes,
+		DependencyIndexes: file_loft_count_proto_depIdxs,
+		MessageInfos:      file_loft_count_proto_msgTypes,
 	}.Build()
-	File_rove_count_proto = out.File
-	file_rove_count_proto_goTypes = nil
-	file_rove_count_proto_depIdxs = nil
+	File_loft_count_proto = out.File
+	file_loft_count_proto_goTypes = nil
+	file_loft_count_proto_depIdxs = nil
 }

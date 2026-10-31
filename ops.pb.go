@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/ops.proto
+// source: loft/ops.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -47,7 +47,7 @@ type Notification struct {
 
 func (x *Notification) Reset() {
 	*x = Notification{}
-	mi := &file_rove_ops_proto_msgTypes[0]
+	mi := &file_loft_ops_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -59,7 +59,7 @@ func (x *Notification) String() string {
 func (*Notification) ProtoMessage() {}
 
 func (x *Notification) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_proto_msgTypes[0]
+	mi := &file_loft_ops_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -354,7 +354,7 @@ func (b0 Notification_builder) Build() *Notification {
 // say (`Tenant.keep_days` and beside it, D36).
 //
 // The operator's, and the tenant's to read: no role may write one, and the
-// operator's path does (`rove contract`, `rove-admin contract`). Not a field
+// operator's path does (`loft contract`, `loft-admin contract`). Not a field
 // on Tenant, because a tenant's own people write that row, and because a
 // contract has a time dimension -- an agreement signed for the first of next
 // month -- which a row per change states and a field cannot.
@@ -377,7 +377,7 @@ type TenantContract struct {
 
 func (x *TenantContract) Reset() {
 	*x = TenantContract{}
-	mi := &file_rove_ops_proto_msgTypes[1]
+	mi := &file_loft_ops_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -389,7 +389,7 @@ func (x *TenantContract) String() string {
 func (*TenantContract) ProtoMessage() {}
 
 func (x *TenantContract) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_proto_msgTypes[1]
+	mi := &file_loft_ops_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -579,7 +579,7 @@ func (b0 TenantContract_builder) Build() *TenantContract {
 }
 
 // LegalHold is a legal hold on a tenant's history: while one is on, nothing of
-// it is destroyed -- rove's history, and the trail, which payday holds from the
+// it is destroyed -- loft's history, and the trail, which payday holds from the
 // same answer (payday#35).
 //
 // The operator's, like the contract, and the tenant's people who run it may
@@ -599,7 +599,7 @@ type LegalHold struct {
 
 func (x *LegalHold) Reset() {
 	*x = LegalHold{}
-	mi := &file_rove_ops_proto_msgTypes[2]
+	mi := &file_loft_ops_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -611,7 +611,7 @@ func (x *LegalHold) String() string {
 func (*LegalHold) ProtoMessage() {}
 
 func (x *LegalHold) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_proto_msgTypes[2]
+	mi := &file_loft_ops_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -751,7 +751,7 @@ func (b0 LegalHold_builder) Build() *LegalHold {
 }
 
 // AccessReview is that a stretch of the workspace's access record was
-// reviewed (rove#136): who looked it over, when, what it held then, and what
+// reviewed (loft#136): who looked it over, when, what it held then, and what
 // they found. PIPA's safety measures have a processor review its access
 // record every month, and check what each download was for; this is how the
 // workspace shows it did.
@@ -778,7 +778,7 @@ type AccessReview struct {
 
 func (x *AccessReview) Reset() {
 	*x = AccessReview{}
-	mi := &file_rove_ops_proto_msgTypes[3]
+	mi := &file_loft_ops_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -790,7 +790,7 @@ func (x *AccessReview) String() string {
 func (*AccessReview) ProtoMessage() {}
 
 func (x *AccessReview) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_proto_msgTypes[3]
+	mi := &file_loft_ops_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1011,17 +1011,17 @@ func (b0 AccessReview_builder) Build() *AccessReview {
 	return m0
 }
 
-var File_rove_ops_proto protoreflect.FileDescriptor
+var File_loft_ops_proto protoreflect.FileDescriptor
 
-const file_rove_ops_proto_rawDesc = "" +
+const file_loft_ops_proto_rawDesc = "" +
 	"\n" +
-	"\x0erove/ops.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\xa9\x06\n" +
+	"\x0eloft/ops.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/holder.proto\x1a\x18loft/payday/tenant.proto\"\xa9\x06\n" +
 	"\fNotification\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12,\n" +
-	"\x06holder\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\x06holder\x12\x1a\n" +
+	"\x06holder\x18\b \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x02@\x01R\x06holder\x12\x1a\n" +
 	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12'\n" +
 	"\n" +
 	"subject_id\x18\n" +
@@ -1055,7 +1055,7 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\x06tenant\"\rholder.tenant\"\xdd\x04\n" +
 	"\x0eTenantContract\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc\x12J\n" +
 	"\x0edate_effective\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\rdateEffective\x12*\n" +
@@ -1079,7 +1079,7 @@ const file_rove_ops_proto_rawDesc = "" +
 	"grace_daysR\x10access_keep_daysR\frestore_days\"\xfa\x02\n" +
 	"\tLegalHold\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc\x12C\n" +
 	"\vdate_lifted\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
@@ -1099,13 +1099,13 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\x00\"\xc9\x04\n" +
 	"\fAccessReview\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12F\n" +
 	"\vperiod_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\n" +
 	"periodFrom\x12B\n" +
 	"\tperiod_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\bperiodTo\x120\n" +
 	"\breviewer\x18\n" +
-	" \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\breviewer\x12\x1c\n" +
+	" \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x02@\x01R\breviewer\x12\x1c\n" +
 	"\x05calls\x18\v \x01(\rB\x06\xea\x82\x16\x02@\x01R\x05calls\x12$\n" +
 	"\tdownloads\x18\f \x01(\rB\x06\xea\x82\x16\x02@\x01R\tdownloads\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12 \n" +
@@ -1120,37 +1120,37 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\b\n" +
 	"\x04\n" +
 	"\x02id\x10\x01 \x14(dB\x02\n" +
-	"\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_ops_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_rove_ops_proto_goTypes = []any{
-	(*Notification)(nil),          // 0: rove.Notification
-	(*TenantContract)(nil),        // 1: rove.TenantContract
-	(*LegalHold)(nil),             // 2: rove.LegalHold
-	(*AccessReview)(nil),          // 3: rove.AccessReview
-	(*Tenant)(nil),                // 4: rove.Tenant
-	(*Holder)(nil),                // 5: rove.Holder
+var file_loft_ops_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_loft_ops_proto_goTypes = []any{
+	(*Notification)(nil),          // 0: loft.Notification
+	(*TenantContract)(nil),        // 1: loft.TenantContract
+	(*LegalHold)(nil),             // 2: loft.LegalHold
+	(*AccessReview)(nil),          // 3: loft.AccessReview
+	(*Tenant)(nil),                // 4: loft.Tenant
+	(*Holder)(nil),                // 5: loft.Holder
 	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
 }
-var file_rove_ops_proto_depIdxs = []int32{
-	4,  // 0: rove.Notification.tenant:type_name -> rove.Tenant
-	5,  // 1: rove.Notification.holder:type_name -> rove.Holder
-	6,  // 2: rove.Notification.read_at:type_name -> google.protobuf.Timestamp
-	6,  // 3: rove.Notification.date_mailed:type_name -> google.protobuf.Timestamp
-	6,  // 4: rove.Notification.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 5: rove.Notification.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 6: rove.TenantContract.tenant:type_name -> rove.Tenant
-	6,  // 7: rove.TenantContract.date_effective:type_name -> google.protobuf.Timestamp
-	6,  // 8: rove.TenantContract.date_erased:type_name -> google.protobuf.Timestamp
-	6,  // 9: rove.TenantContract.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 10: rove.LegalHold.tenant:type_name -> rove.Tenant
-	6,  // 11: rove.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
-	6,  // 12: rove.LegalHold.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 13: rove.AccessReview.tenant:type_name -> rove.Tenant
-	6,  // 14: rove.AccessReview.period_from:type_name -> google.protobuf.Timestamp
-	6,  // 15: rove.AccessReview.period_to:type_name -> google.protobuf.Timestamp
-	5,  // 16: rove.AccessReview.reviewer:type_name -> rove.Holder
-	6,  // 17: rove.AccessReview.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_ops_proto_depIdxs = []int32{
+	4,  // 0: loft.Notification.tenant:type_name -> loft.Tenant
+	5,  // 1: loft.Notification.holder:type_name -> loft.Holder
+	6,  // 2: loft.Notification.read_at:type_name -> google.protobuf.Timestamp
+	6,  // 3: loft.Notification.date_mailed:type_name -> google.protobuf.Timestamp
+	6,  // 4: loft.Notification.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 5: loft.Notification.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 6: loft.TenantContract.tenant:type_name -> loft.Tenant
+	6,  // 7: loft.TenantContract.date_effective:type_name -> google.protobuf.Timestamp
+	6,  // 8: loft.TenantContract.date_erased:type_name -> google.protobuf.Timestamp
+	6,  // 9: loft.TenantContract.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 10: loft.LegalHold.tenant:type_name -> loft.Tenant
+	6,  // 11: loft.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
+	6,  // 12: loft.LegalHold.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 13: loft.AccessReview.tenant:type_name -> loft.Tenant
+	6,  // 14: loft.AccessReview.period_from:type_name -> google.protobuf.Timestamp
+	6,  // 15: loft.AccessReview.period_to:type_name -> google.protobuf.Timestamp
+	5,  // 16: loft.AccessReview.reviewer:type_name -> loft.Holder
+	6,  // 17: loft.AccessReview.date_created:type_name -> google.protobuf.Timestamp
 	18, // [18:18] is the sub-list for method output_type
 	18, // [18:18] is the sub-list for method input_type
 	18, // [18:18] is the sub-list for extension type_name
@@ -1158,28 +1158,28 @@ var file_rove_ops_proto_depIdxs = []int32{
 	0,  // [0:18] is the sub-list for field type_name
 }
 
-func init() { file_rove_ops_proto_init() }
-func file_rove_ops_proto_init() {
-	if File_rove_ops_proto != nil {
+func init() { file_loft_ops_proto_init() }
+func file_loft_ops_proto_init() {
+	if File_loft_ops_proto != nil {
 		return
 	}
-	file_rove_payday_holder_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_payday_holder_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_ops_proto_rawDesc), len(file_rove_ops_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_ops_proto_rawDesc), len(file_loft_ops_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_ops_proto_goTypes,
-		DependencyIndexes: file_rove_ops_proto_depIdxs,
-		MessageInfos:      file_rove_ops_proto_msgTypes,
+		GoTypes:           file_loft_ops_proto_goTypes,
+		DependencyIndexes: file_loft_ops_proto_depIdxs,
+		MessageInfos:      file_loft_ops_proto_msgTypes,
 	}.Build()
-	File_rove_ops_proto = out.File
-	file_rove_ops_proto_goTypes = nil
-	file_rove_ops_proto_depIdxs = nil
+	File_loft_ops_proto = out.File
+	file_loft_ops_proto_goTypes = nil
+	file_loft_ops_proto_depIdxs = nil
 }

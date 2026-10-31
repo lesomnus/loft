@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/server/clientaddr"
+	"github.com/lesomnus/loft/server/clientaddr"
 )
 
 // TestTheProxiesWordIsTakenAsFarAsTheProxiesGo: X-Forwarded-For is read only

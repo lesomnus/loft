@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/payday/audit_svc.g.proto
+// source: loft/payday/audit_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,13 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuditService_Add_FullMethodName    = "/rove.AuditService/Add"
-	AuditService_Get_FullMethodName    = "/rove.AuditService/Get"
-	AuditService_Patch_FullMethodName  = "/rove.AuditService/Patch"
-	AuditService_Apply_FullMethodName  = "/rove.AuditService/Apply"
-	AuditService_Erase_FullMethodName  = "/rove.AuditService/Erase"
-	AuditService_List_FullMethodName   = "/rove.AuditService/List"
-	AuditService_Recent_FullMethodName = "/rove.AuditService/Recent"
+	AuditService_Add_FullMethodName    = "/loft.AuditService/Add"
+	AuditService_Get_FullMethodName    = "/loft.AuditService/Get"
+	AuditService_Patch_FullMethodName  = "/loft.AuditService/Patch"
+	AuditService_Apply_FullMethodName  = "/loft.AuditService/Apply"
+	AuditService_Erase_FullMethodName  = "/loft.AuditService/Erase"
+	AuditService_List_FullMethodName   = "/loft.AuditService/List"
+	AuditService_Recent_FullMethodName = "/loft.AuditService/Recent"
 )
 
 // AuditServiceClient is the client API for AuditService service.
@@ -328,7 +328,7 @@ func _AuditService_Recent_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuditService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.AuditService",
+	ServiceName: "loft.AuditService",
 	HandlerType: (*AuditServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -361,5 +361,5 @@ var AuditService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/payday/audit_svc.g.proto",
+	Metadata: "loft/payday/audit_svc.g.proto",
 }

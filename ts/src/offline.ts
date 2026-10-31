@@ -25,7 +25,7 @@
 
 import { useSyncExternalStore } from 'react'
 
-const DB = 'rove'
+const DB = 'loft'
 const READS = 'reads'
 const META = 'meta'
 
@@ -181,13 +181,13 @@ export async function letGo(): Promise<void> {
 }
 
 /** Where writes wait to be sent, in this browser: see {@link wait}. */
-const WAITING = 'rove.waiting'
+const WAITING = 'loft.waiting'
 
 /**
  * Where a count's scans waited before a write waited for its caller: nobody's
  * now, so dropped rather than sent as whoever signs in next.
  */
-const unscoped = 'rove.count.queue'
+const unscoped = 'loft.count.queue'
 
 type Waiting = { scope: string; kind: string; v: unknown }
 

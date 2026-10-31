@@ -7,11 +7,11 @@ import (
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/opensearchtest"
-	"github.com/lesomnus/rove/server/opensearch"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/opensearchtest"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
 // TestASearchCommandSaysWhenNoClusterIsNamed: a deployment that names none
@@ -20,7 +20,7 @@ func TestASearchCommandSaysWhenNoClusterIsNamed(t *testing.T) {
 	c := cmd.Config{}
 	for _, v := range [][]string{{"status"}, {"reindex"}, {"remove", "--yes"}, {"analyze", "웹서버"}} {
 		err := cli.NewCmdSearch(&c).Run(context.Background(), v)
-		require.ErrorContains(t, err, "ROVE_APP_SEARCH_OPENSEARCH_ADDRS", "%v", v)
+		require.ErrorContains(t, err, "LOFT_APP_SEARCH_OPENSEARCH_ADDRS", "%v", v)
 	}
 }
 

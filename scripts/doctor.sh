@@ -19,18 +19,18 @@ set -euo pipefail
 
 dir=${1:-.}
 
-# What doctor said on main at 93e0b6d (rove#184's follow-ups): three kinds
-# kept off the trail that hold a secret, so that `rove trail rows` finds no
+# What doctor said on main at 93e0b6d (loft#184's follow-ups): three kinds
+# kept off the trail that hold a secret, so that `loft trail rows` finds no
 # row of them added in the database past the servers. Each says why it is off
-# in its schema (`proto/rove/org.proto`). Whether a way in should be recorded
+# in its schema (`proto/loft/org.proto`). Whether a way in should be recorded
 # instead, as doctor suggests, is open; these are known, not decided.
 known=(
 	# A code a browser carries to a workspace's domain, good once for a minute.
-	"rove.Handoff is kept off the trail and holds a secret (secret, state), so nothing finds one of its rows added past the servers"
+	"loft.Handoff is kept off the trail and holds a secret (secret, state), so nothing finds one of its rows added past the servers"
 	# A sign-in, whose idle clock moves on every request.
-	"rove.Session is kept off the trail and holds a secret (secret, held), so nothing finds one of its rows added past the servers"
+	"loft.Session is kept off the trail and holds a secret (secret, held), so nothing finds one of its rows added past the servers"
 	# The sign-ins an address got wrong, kept for hours to slow the next.
-	"rove.SignInFailure is kept off the trail and holds a secret (subject), so nothing finds one of its rows added past the servers"
+	"loft.SignInFailure is kept off the trail and holds a secret (subject), so nothing finds one of its rows added past the servers"
 )
 
 # What it says goes to stdout and what stops it to stderr, which is left to

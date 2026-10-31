@@ -7,9 +7,9 @@ import (
 
 	"uuid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/server/domain"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 // What a kit's bookings do as the kit changes (kit_test.go) is on the history

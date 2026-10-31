@@ -3,7 +3,7 @@
 소송이나 수사 때문에 어느 워크스페이스의 기록을 보존해 달라는 요청을 받았을 때 할 일입니다.
 
 - **살아 있는 워크스페이스**에는 법적 보존(hold)을 겁니다. hold가 걸린 동안은 그 워크스페이스의 이력과 감사 기록을 아무것도 지우지 않습니다.
-- **파기된 워크스페이스**에는 hold를 걸 수 없습니다(rove#153). 파기할 때 워크스페이스의 행이 모두 지워지기 때문입니다. 남은 기록이 있으면 그 기록을 암호화된 파일로 꺼내, 시스템과 분리된 매체에 보관합니다.
+- **파기된 워크스페이스**에는 hold를 걸 수 없습니다(loft#153). 파기할 때 워크스페이스의 행이 모두 지워지기 때문입니다. 남은 기록이 있으면 그 기록을 암호화된 파일로 꺼내, 시스템과 분리된 매체에 보관합니다.
 
 꺼낸 사본은 배포가 지우는 것을 멈추지 않습니다. 배포의 기록은 예정대로 지워지고, 그 뒤에는 이 사본만 남습니다.
 
@@ -12,13 +12,13 @@
 살아 있는 워크스페이스는 hold부터 겁니다. 필요하면 아래 3의 export도 함께 합니다.
 
 ```sh
-rove hold place --tenant abc1234 --why "2026-4 사건 보존 요청 (공문 번호)"
+loft hold place --tenant abc1234 --why "2026-4 사건 보존 요청 (공문 번호)"
 ```
 
 파기된 워크스페이스는 무엇이 언제까지 남는지 봅니다.
 
 ```sh
-rove tenant retired
+loft tenant retired
 # @abc1234   01a1…   retired 2026-03-02   kept until 2027-03-02
 ```
 
@@ -27,7 +27,7 @@ rove tenant retired
 - 이런 경우에는 남은 기록이 없습니다. 그 사실을 요청한 쪽에 회신하고 대장(5)에 적습니다.
   - 목록에 없음: 바닥값이 지나 이미 지워졌거나, 계약이 `--purge-floors`라서 파기 때 모두 지웠습니다.
   - `past its floors`로 나옴: 바닥값이 지났습니다.
-- 워크스페이스의 주소를 모르면 운영자 기록이나 `rove access ls`의 워크스페이스 ID로 찾습니다. 파기된 워크스페이스의 주소는 주소 보류에 남아 있습니다.
+- 워크스페이스의 주소를 모르면 운영자 기록이나 `loft access ls`의 워크스페이스 ID로 찾습니다. 파기된 워크스페이스의 주소는 주소 보류에 남아 있습니다.
 
 ## 2. 받을 사람의 키
 
@@ -45,10 +45,10 @@ rove tenant retired
 
 ## 3. 꺼내기
 
-운영자가 서버와 같은 설정(`rove.yaml`, `ROVE_*`)으로, DB와 보관소에 닿는 곳에서 실행합니다.
+운영자가 서버와 같은 설정(`loft.yaml`, `LOFT_*`)으로, DB와 보관소에 닿는 곳에서 실행합니다.
 
 ```sh
-rove trail export --tenant @abc1234 \
+loft trail export --tenant @abc1234 \
   --why "2026-4 사건 보존 요청 (공문 번호)" \
   --to age1… \
   --out abc1234-2026-4.trail
@@ -72,7 +72,7 @@ rove trail export --tenant @abc1234 \
 보관 책임자가 자기 키로 확인합니다.
 
 ```sh
-rove trail verify-export --file abc1234-2026-4.trail --identity 보관자.key
+loft trail verify-export --file abc1234-2026-4.trail --identity 보관자.key
 ```
 
 - 배포의 공개키가 필요합니다(`audit.checkpoints.trust`). 배포 밖에서는 그 공개키만 설정에 넣고 실행합니다.
@@ -103,4 +103,4 @@ rove trail verify-export --file abc1234-2026-4.trail --identity 보관자.key
 - 사본을 파기합니다. 매체를 안전하게 지우거나 물리적으로 파기합니다.
 - 반출 대장에 파기일, 방법, 확인한 사람을 적습니다.
 - 보관자 키가 더 필요 없으면 폐기합니다.
-- 살아 있는 워크스페이스에 건 hold는 `rove hold lift <hold-id>`로 풉니다. 풀면 다음 패스부터 보존 기간이 다시 적용됩니다.
+- 살아 있는 워크스페이스에 건 hold는 `loft hold lift <hold-id>`로 풉니다. 풀면 다음 패스부터 보존 기간이 다시 적용됩니다.

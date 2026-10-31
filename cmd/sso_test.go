@@ -18,9 +18,9 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/oidctest"
-	"github.com/lesomnus/rove/server/sso"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/oidctest"
+	"github.com/lesomnus/loft/server/sso"
 )
 
 // The sign-in through roster's issuer, against an issuer that holds this
@@ -41,15 +41,15 @@ func newSsoWorld(t *testing.T, with func(*cmd.Config)) *ssoWorld {
 	app := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { h.ServeHTTP(w, r) }))
 	t.Cleanup(app.Close)
 
-	is := oidctest.New(t, "rove", "the-client-secret")
+	is := oidctest.New(t, "loft", "the-client-secret")
 	is.Redirect = app.URL + "/sso/callback"
 	is.PostLogout = app.URL + "/"
-	t.Setenv("ROVE_TEST_SSO_SECRET", "the-client-secret")
+	t.Setenv("LOFT_TEST_SSO_SECRET", "the-client-secret")
 
 	// The built UI as well, which is `GET /` on the same mux: the routes
 	// have to sit beside it, and once did not.
 	web := t.TempDir()
-	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<!doctype html><title>Rove</title>"), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<!doctype html><title>Loft</title>"), 0o644))
 
 	w := newWorldWith(t, func(c *cmd.Config) {
 		c.App.PublicUrl = app.URL
@@ -57,8 +57,8 @@ func newSsoWorld(t *testing.T, with func(*cmd.Config)) *ssoWorld {
 		c.App.Web = web
 		c.Auth.Sso = sso.Config{
 			Issuer:       is.URL,
-			ClientId:     "rove",
-			ClientSecret: "env:ROVE_TEST_SSO_SECRET",
+			ClientId:     "loft",
+			ClientSecret: "env:LOFT_TEST_SSO_SECRET",
 			Providers: []sso.Provider{
 				{Connection: "google", Label: "Google", Mark: "google"},
 				{Connection: "microsoft", Label: "Microsoft", Mark: "microsoft"},
@@ -145,7 +145,7 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	x.NoError(err)
 	x.True(strings.HasPrefix(to.String(), w.is.URL+"/oauth2/auth"), to.String())
 	q := to.Query()
-	x.Equal("rove", q.Get("client_id"))
+	x.Equal("loft", q.Get("client_id"))
 	x.Equal(w.app.URL+"/sso/callback", q.Get("redirect_uri"))
 	x.Equal("openid", q.Get("scope"), "this deployment asks for who somebody is and nothing about them")
 	x.Equal("github", q.Get("connection"))
@@ -153,7 +153,7 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	x.NotEmpty(q.Get("nonce"))
 	var state *http.Cookie
 	for _, c := range res.Cookies() {
-		if c.Name == "rove_sso" {
+		if c.Name == "loft_sso" {
 			state = c
 		}
 	}
@@ -173,7 +173,7 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	// The secret went in the header, as the client is registered, and the
 	// verifier for the challenge went with the code.
 	form, basic := w.is.Sent()
-	x.Equal("Basic "+base64.StdEncoding.EncodeToString([]byte("rove:the-client-secret")), basic)
+	x.Equal("Basic "+base64.StdEncoding.EncodeToString([]byte("loft:the-client-secret")), basic)
 	x.Empty(form.Get("client_secret"), "the secret was sent in the body as well")
 	x.NotEmpty(form.Get("code_verifier"))
 
@@ -194,7 +194,7 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	end, err := url.Parse(res.Header.Get("Location"))
 	x.NoError(err)
 	x.True(strings.HasPrefix(end.String(), w.is.URL+"/oauth2/sessions/logout"), end.String())
-	x.Equal("rove", end.Query().Get("client_id"))
+	x.Equal("loft", end.Query().Get("client_id"))
 	x.Equal(w.is.Issued()[0], end.Query().Get("id_token_hint"))
 	x.Equal(w.app.URL+"/", end.Query().Get("post_logout_redirect_uri"))
 
@@ -260,7 +260,7 @@ func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {
 		res := get(x, b, w.app.URL+"/sso/login?with=google")
 		state := ""
 		for _, c := range res.Cookies() {
-			if c.Name == "rove_sso" {
+			if c.Name == "loft_sso" {
 				state = c.Value
 			}
 		}
@@ -269,7 +269,7 @@ func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {
 
 		// The same callback again, with the cookie put back.
 		u, _ := url.Parse(w.app.URL)
-		b.Jar.SetCookies(u, []*http.Cookie{{Name: "rove_sso", Value: state, Path: "/sso"}})
+		b.Jar.SetCookies(u, []*http.Cookie{{Name: "loft_sso", Value: state, Path: "/sso"}})
 		x.Equal(http.StatusBadRequest, get(x, b, at).StatusCode)
 	})
 

@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/org_svc.g.proto
+// source: loft/org_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -44,7 +44,7 @@ type PartyAddRequest struct {
 
 func (x *PartyAddRequest) Reset() {
 	*x = PartyAddRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[0]
+	mi := &file_loft_org_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -56,7 +56,7 @@ func (x *PartyAddRequest) String() string {
 func (*PartyAddRequest) ProtoMessage() {}
 
 func (x *PartyAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[0]
+	mi := &file_loft_org_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -316,7 +316,7 @@ type PartyGetRequest struct {
 
 func (x *PartyGetRequest) Reset() {
 	*x = PartyGetRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[1]
+	mi := &file_loft_org_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -328,7 +328,7 @@ func (x *PartyGetRequest) String() string {
 func (*PartyGetRequest) ProtoMessage() {}
 
 func (x *PartyGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[1]
+	mi := &file_loft_org_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -408,7 +408,7 @@ type PartyRef struct {
 
 func (x *PartyRef) Reset() {
 	*x = PartyRef{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[2]
+	mi := &file_loft_org_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -420,7 +420,7 @@ func (x *PartyRef) String() string {
 func (*PartyRef) ProtoMessage() {}
 
 func (x *PartyRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[2]
+	mi := &file_loft_org_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -546,7 +546,7 @@ func (b0 PartyRef_builder) Build() *PartyRef {
 type case_PartyRef_Key protoreflect.FieldNumber
 
 func (x case_PartyRef_Key) String() string {
-	md := file_rove_org_svc_g_proto_msgTypes[2].Descriptor()
+	md := file_loft_org_svc_g_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -578,7 +578,7 @@ type PartyRefByHolder struct {
 
 func (x *PartyRefByHolder) Reset() {
 	*x = PartyRefByHolder{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[3]
+	mi := &file_loft_org_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -590,7 +590,7 @@ func (x *PartyRefByHolder) String() string {
 func (*PartyRefByHolder) ProtoMessage() {}
 
 func (x *PartyRefByHolder) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[3]
+	mi := &file_loft_org_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,7 +661,7 @@ type PartySelect struct {
 
 func (x *PartySelect) Reset() {
 	*x = PartySelect{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[4]
+	mi := &file_loft_org_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -673,7 +673,7 @@ func (x *PartySelect) String() string {
 func (*PartySelect) ProtoMessage() {}
 
 func (x *PartySelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[4]
+	mi := &file_loft_org_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1116,7 +1116,7 @@ type PartyPatchRequest struct {
 
 func (x *PartyPatchRequest) Reset() {
 	*x = PartyPatchRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[5]
+	mi := &file_loft_org_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1128,7 +1128,7 @@ func (x *PartyPatchRequest) String() string {
 func (*PartyPatchRequest) ProtoMessage() {}
 
 func (x *PartyPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[5]
+	mi := &file_loft_org_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +1577,7 @@ type PartyApplyRequest struct {
 
 func (x *PartyApplyRequest) Reset() {
 	*x = PartyApplyRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[6]
+	mi := &file_loft_org_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1589,7 +1589,7 @@ func (x *PartyApplyRequest) String() string {
 func (*PartyApplyRequest) ProtoMessage() {}
 
 func (x *PartyApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[6]
+	mi := &file_loft_org_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1671,7 +1671,7 @@ type PartyEraseResponse struct {
 
 func (x *PartyEraseResponse) Reset() {
 	*x = PartyEraseResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[7]
+	mi := &file_loft_org_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1683,7 +1683,7 @@ func (x *PartyEraseResponse) String() string {
 func (*PartyEraseResponse) ProtoMessage() {}
 
 func (x *PartyEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[7]
+	mi := &file_loft_org_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1752,7 +1752,7 @@ type PartyListRequest struct {
 
 func (x *PartyListRequest) Reset() {
 	*x = PartyListRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[8]
+	mi := &file_loft_org_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1764,7 +1764,7 @@ func (x *PartyListRequest) String() string {
 func (*PartyListRequest) ProtoMessage() {}
 
 func (x *PartyListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[8]
+	mi := &file_loft_org_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1864,7 +1864,7 @@ type PartyListResponse struct {
 
 func (x *PartyListResponse) Reset() {
 	*x = PartyListResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[9]
+	mi := &file_loft_org_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1876,7 +1876,7 @@ func (x *PartyListResponse) String() string {
 func (*PartyListResponse) ProtoMessage() {}
 
 func (x *PartyListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[9]
+	mi := &file_loft_org_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1949,7 +1949,7 @@ type PartyFilter struct {
 
 func (x *PartyFilter) Reset() {
 	*x = PartyFilter{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[10]
+	mi := &file_loft_org_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1961,7 +1961,7 @@ func (x *PartyFilter) String() string {
 func (*PartyFilter) ProtoMessage() {}
 
 func (x *PartyFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[10]
+	mi := &file_loft_org_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2119,7 +2119,7 @@ type PartyWatchRequest struct {
 
 func (x *PartyWatchRequest) Reset() {
 	*x = PartyWatchRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[11]
+	mi := &file_loft_org_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2131,7 +2131,7 @@ func (x *PartyWatchRequest) String() string {
 func (*PartyWatchRequest) ProtoMessage() {}
 
 func (x *PartyWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[11]
+	mi := &file_loft_org_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2203,7 +2203,7 @@ type PartyWatchResponse struct {
 
 func (x *PartyWatchResponse) Reset() {
 	*x = PartyWatchResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[12]
+	mi := &file_loft_org_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2215,7 +2215,7 @@ func (x *PartyWatchResponse) String() string {
 func (*PartyWatchResponse) ProtoMessage() {}
 
 func (x *PartyWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[12]
+	mi := &file_loft_org_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2267,7 +2267,7 @@ type PartyWatchItem struct {
 
 func (x *PartyWatchItem) Reset() {
 	*x = PartyWatchItem{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[13]
+	mi := &file_loft_org_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2279,7 +2279,7 @@ func (x *PartyWatchItem) String() string {
 func (*PartyWatchItem) ProtoMessage() {}
 
 func (x *PartyWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[13]
+	mi := &file_loft_org_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2396,7 +2396,7 @@ type PartyMeRequest struct {
 
 func (x *PartyMeRequest) Reset() {
 	*x = PartyMeRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[14]
+	mi := &file_loft_org_svc_g_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2408,7 +2408,7 @@ func (x *PartyMeRequest) String() string {
 func (*PartyMeRequest) ProtoMessage() {}
 
 func (x *PartyMeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[14]
+	mi := &file_loft_org_svc_g_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2450,7 +2450,7 @@ type PartyMeResponse struct {
 
 func (x *PartyMeResponse) Reset() {
 	*x = PartyMeResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[15]
+	mi := &file_loft_org_svc_g_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2462,7 +2462,7 @@ func (x *PartyMeResponse) String() string {
 func (*PartyMeResponse) ProtoMessage() {}
 
 func (x *PartyMeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[15]
+	mi := &file_loft_org_svc_g_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2696,7 +2696,7 @@ type PartyUpdateRequest struct {
 
 func (x *PartyUpdateRequest) Reset() {
 	*x = PartyUpdateRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[16]
+	mi := &file_loft_org_svc_g_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2708,7 +2708,7 @@ func (x *PartyUpdateRequest) String() string {
 func (*PartyUpdateRequest) ProtoMessage() {}
 
 func (x *PartyUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[16]
+	mi := &file_loft_org_svc_g_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2887,7 +2887,7 @@ type PartyInviteRequest struct {
 
 func (x *PartyInviteRequest) Reset() {
 	*x = PartyInviteRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[17]
+	mi := &file_loft_org_svc_g_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2899,7 +2899,7 @@ func (x *PartyInviteRequest) String() string {
 func (*PartyInviteRequest) ProtoMessage() {}
 
 func (x *PartyInviteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[17]
+	mi := &file_loft_org_svc_g_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2998,7 +2998,7 @@ type PartyInviteResponse struct {
 
 func (x *PartyInviteResponse) Reset() {
 	*x = PartyInviteResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[18]
+	mi := &file_loft_org_svc_g_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3010,7 +3010,7 @@ func (x *PartyInviteResponse) String() string {
 func (*PartyInviteResponse) ProtoMessage() {}
 
 func (x *PartyInviteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[18]
+	mi := &file_loft_org_svc_g_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3105,7 +3105,7 @@ type PartySetRoleRequest struct {
 
 func (x *PartySetRoleRequest) Reset() {
 	*x = PartySetRoleRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[19]
+	mi := &file_loft_org_svc_g_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3117,7 +3117,7 @@ func (x *PartySetRoleRequest) String() string {
 func (*PartySetRoleRequest) ProtoMessage() {}
 
 func (x *PartySetRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[19]
+	mi := &file_loft_org_svc_g_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3188,7 +3188,7 @@ type PartySetPasswordRequest struct {
 
 func (x *PartySetPasswordRequest) Reset() {
 	*x = PartySetPasswordRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[20]
+	mi := &file_loft_org_svc_g_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3200,7 +3200,7 @@ func (x *PartySetPasswordRequest) String() string {
 func (*PartySetPasswordRequest) ProtoMessage() {}
 
 func (x *PartySetPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[20]
+	mi := &file_loft_org_svc_g_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3282,7 +3282,7 @@ type PartySetPasswordResponse struct {
 
 func (x *PartySetPasswordResponse) Reset() {
 	*x = PartySetPasswordResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[21]
+	mi := &file_loft_org_svc_g_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3294,7 +3294,7 @@ func (x *PartySetPasswordResponse) String() string {
 func (*PartySetPasswordResponse) ProtoMessage() {}
 
 func (x *PartySetPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[21]
+	mi := &file_loft_org_svc_g_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3326,7 +3326,7 @@ type PartyDeactivateRequest struct {
 
 func (x *PartyDeactivateRequest) Reset() {
 	*x = PartyDeactivateRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[22]
+	mi := &file_loft_org_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3338,7 +3338,7 @@ func (x *PartyDeactivateRequest) String() string {
 func (*PartyDeactivateRequest) ProtoMessage() {}
 
 func (x *PartyDeactivateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[22]
+	mi := &file_loft_org_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3394,7 +3394,7 @@ type PartyPseudonymizeRequest struct {
 
 func (x *PartyPseudonymizeRequest) Reset() {
 	*x = PartyPseudonymizeRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[23]
+	mi := &file_loft_org_svc_g_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3406,7 +3406,7 @@ func (x *PartyPseudonymizeRequest) String() string {
 func (*PartyPseudonymizeRequest) ProtoMessage() {}
 
 func (x *PartyPseudonymizeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[23]
+	mi := &file_loft_org_svc_g_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3465,7 +3465,7 @@ type PartySearchRequest struct {
 
 func (x *PartySearchRequest) Reset() {
 	*x = PartySearchRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[24]
+	mi := &file_loft_org_svc_g_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3477,7 +3477,7 @@ func (x *PartySearchRequest) String() string {
 func (*PartySearchRequest) ProtoMessage() {}
 
 func (x *PartySearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[24]
+	mi := &file_loft_org_svc_g_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3563,7 +3563,7 @@ type PartySearchResponse struct {
 
 func (x *PartySearchResponse) Reset() {
 	*x = PartySearchResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[25]
+	mi := &file_loft_org_svc_g_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3575,7 +3575,7 @@ func (x *PartySearchResponse) String() string {
 func (*PartySearchResponse) ProtoMessage() {}
 
 func (x *PartySearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[25]
+	mi := &file_loft_org_svc_g_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3649,7 +3649,7 @@ type InvitationAddRequest struct {
 
 func (x *InvitationAddRequest) Reset() {
 	*x = InvitationAddRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[26]
+	mi := &file_loft_org_svc_g_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3661,7 +3661,7 @@ func (x *InvitationAddRequest) String() string {
 func (*InvitationAddRequest) ProtoMessage() {}
 
 func (x *InvitationAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[26]
+	mi := &file_loft_org_svc_g_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3997,7 +3997,7 @@ type InvitationGetRequest struct {
 
 func (x *InvitationGetRequest) Reset() {
 	*x = InvitationGetRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[27]
+	mi := &file_loft_org_svc_g_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4009,7 +4009,7 @@ func (x *InvitationGetRequest) String() string {
 func (*InvitationGetRequest) ProtoMessage() {}
 
 func (x *InvitationGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[27]
+	mi := &file_loft_org_svc_g_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4089,7 +4089,7 @@ type InvitationRef struct {
 
 func (x *InvitationRef) Reset() {
 	*x = InvitationRef{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[28]
+	mi := &file_loft_org_svc_g_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4101,7 +4101,7 @@ func (x *InvitationRef) String() string {
 func (*InvitationRef) ProtoMessage() {}
 
 func (x *InvitationRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[28]
+	mi := &file_loft_org_svc_g_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4189,7 +4189,7 @@ func (b0 InvitationRef_builder) Build() *InvitationRef {
 type case_InvitationRef_Key protoreflect.FieldNumber
 
 func (x case_InvitationRef_Key) String() string {
-	md := file_rove_org_svc_g_proto_msgTypes[28].Descriptor()
+	md := file_loft_org_svc_g_proto_msgTypes[28].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -4231,7 +4231,7 @@ type InvitationSelect struct {
 
 func (x *InvitationSelect) Reset() {
 	*x = InvitationSelect{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[29]
+	mi := &file_loft_org_svc_g_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4243,7 +4243,7 @@ func (x *InvitationSelect) String() string {
 func (*InvitationSelect) ProtoMessage() {}
 
 func (x *InvitationSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[29]
+	mi := &file_loft_org_svc_g_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4707,7 +4707,7 @@ type InvitationPatchRequest struct {
 
 func (x *InvitationPatchRequest) Reset() {
 	*x = InvitationPatchRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[30]
+	mi := &file_loft_org_svc_g_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4719,7 +4719,7 @@ func (x *InvitationPatchRequest) String() string {
 func (*InvitationPatchRequest) ProtoMessage() {}
 
 func (x *InvitationPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[30]
+	mi := &file_loft_org_svc_g_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5230,7 +5230,7 @@ type InvitationApplyRequest struct {
 
 func (x *InvitationApplyRequest) Reset() {
 	*x = InvitationApplyRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[31]
+	mi := &file_loft_org_svc_g_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5242,7 +5242,7 @@ func (x *InvitationApplyRequest) String() string {
 func (*InvitationApplyRequest) ProtoMessage() {}
 
 func (x *InvitationApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[31]
+	mi := &file_loft_org_svc_g_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5324,7 +5324,7 @@ type InvitationEraseResponse struct {
 
 func (x *InvitationEraseResponse) Reset() {
 	*x = InvitationEraseResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[32]
+	mi := &file_loft_org_svc_g_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5336,7 +5336,7 @@ func (x *InvitationEraseResponse) String() string {
 func (*InvitationEraseResponse) ProtoMessage() {}
 
 func (x *InvitationEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[32]
+	mi := &file_loft_org_svc_g_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5405,7 +5405,7 @@ type InvitationListRequest struct {
 
 func (x *InvitationListRequest) Reset() {
 	*x = InvitationListRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[33]
+	mi := &file_loft_org_svc_g_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5417,7 +5417,7 @@ func (x *InvitationListRequest) String() string {
 func (*InvitationListRequest) ProtoMessage() {}
 
 func (x *InvitationListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[33]
+	mi := &file_loft_org_svc_g_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5517,7 +5517,7 @@ type InvitationListResponse struct {
 
 func (x *InvitationListResponse) Reset() {
 	*x = InvitationListResponse{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[34]
+	mi := &file_loft_org_svc_g_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5529,7 +5529,7 @@ func (x *InvitationListResponse) String() string {
 func (*InvitationListResponse) ProtoMessage() {}
 
 func (x *InvitationListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[34]
+	mi := &file_loft_org_svc_g_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5601,7 +5601,7 @@ type InvitationFilter struct {
 
 func (x *InvitationFilter) Reset() {
 	*x = InvitationFilter{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[35]
+	mi := &file_loft_org_svc_g_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5613,7 +5613,7 @@ func (x *InvitationFilter) String() string {
 func (*InvitationFilter) ProtoMessage() {}
 
 func (x *InvitationFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[35]
+	mi := &file_loft_org_svc_g_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5757,7 +5757,7 @@ type InvitationRevokeRequest struct {
 
 func (x *InvitationRevokeRequest) Reset() {
 	*x = InvitationRevokeRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[36]
+	mi := &file_loft_org_svc_g_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5769,7 +5769,7 @@ func (x *InvitationRevokeRequest) String() string {
 func (*InvitationRevokeRequest) ProtoMessage() {}
 
 func (x *InvitationRevokeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[36]
+	mi := &file_loft_org_svc_g_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5825,7 +5825,7 @@ type InvitationClaimRequest struct {
 
 func (x *InvitationClaimRequest) Reset() {
 	*x = InvitationClaimRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[37]
+	mi := &file_loft_org_svc_g_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5837,7 +5837,7 @@ func (x *InvitationClaimRequest) String() string {
 func (*InvitationClaimRequest) ProtoMessage() {}
 
 func (x *InvitationClaimRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[37]
+	mi := &file_loft_org_svc_g_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5883,7 +5883,7 @@ type InvitationAcceptRequest struct {
 
 func (x *InvitationAcceptRequest) Reset() {
 	*x = InvitationAcceptRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[38]
+	mi := &file_loft_org_svc_g_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5895,7 +5895,7 @@ func (x *InvitationAcceptRequest) String() string {
 func (*InvitationAcceptRequest) ProtoMessage() {}
 
 func (x *InvitationAcceptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[38]
+	mi := &file_loft_org_svc_g_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5951,7 +5951,7 @@ type InvitationDenyRequest struct {
 
 func (x *InvitationDenyRequest) Reset() {
 	*x = InvitationDenyRequest{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[39]
+	mi := &file_loft_org_svc_g_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5963,7 +5963,7 @@ func (x *InvitationDenyRequest) String() string {
 func (*InvitationDenyRequest) ProtoMessage() {}
 
 func (x *InvitationDenyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[39]
+	mi := &file_loft_org_svc_g_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6023,7 +6023,7 @@ type Account struct {
 
 func (x *Account) Reset() {
 	*x = Account{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[40]
+	mi := &file_loft_org_svc_g_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6035,7 +6035,7 @@ func (x *Account) String() string {
 func (*Account) ProtoMessage() {}
 
 func (x *Account) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[40]
+	mi := &file_loft_org_svc_g_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6074,21 +6074,21 @@ func (b0 Account_builder) Build() *Account {
 	return m0
 }
 
-var File_rove_org_svc_g_proto protoreflect.FileDescriptor
+var File_loft_org_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_org_svc_g_proto_rawDesc = "" +
+const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x14rove/org_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/holder.proto\x1a\x1erove/payday/holder_svc.g.proto\x1a\x18rove/payday/tenant.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xeb\x03\n" +
+	"\x14loft/org_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/holder.proto\x1a\x1eloft/payday/holder_svc.g.proto\x1a\x18loft/payday/tenant.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xeb\x03\n" +
 	"\x0fPartyAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x129\n" +
-	"\x06labels\x18\a \x03(\v2!.rove.PartyAddRequest.LabelsEntryR\x06labels\x12\x19\n" +
+	"\x06labels\x18\a \x03(\v2!.loft.PartyAddRequest.LabelsEntryR\x06labels\x12\x19\n" +
 	"\x04kind\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1b\n" +
 	"\tparent_id\x18\t \x01(\fR\bparentId\x12'\n" +
 	"\x06holder\x18\n" +
-	" \x01(\v2\x0f.rove.HolderRefR\x06holder\x12\x1b\n" +
+	" \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x1b\n" +
 	"\x05email\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x05email\x12\x1b\n" +
 	"\x05phone\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x05phone\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x19\n" +
@@ -6097,26 +6097,26 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"^\n" +
 	"\x0fPartyGetRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12)\n" +
-	"\x06select\x18\x02 \x01(\v2\x11.rove.PartySelectR\x06select\"U\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12)\n" +
+	"\x06select\x18\x02 \x01(\v2\x11.loft.PartySelectR\x06select\"U\n" +
 	"\bPartyRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x120\n" +
 	"\x06holder\x18\n" +
-	" \x01(\v2\x16.rove.PartyRefByHolderH\x00R\x06holderB\x05\n" +
+	" \x01(\v2\x16.loft.PartyRefByHolderH\x00R\x06holderB\x05\n" +
 	"\x03key\";\n" +
 	"\x10PartyRefByHolder\x12'\n" +
 	"\x06holder\x18\n" +
-	" \x01(\v2\x0f.rove.HolderRefR\x06holder\"\x8f\x03\n" +
+	" \x01(\v2\x0f.loft.HolderRefR\x06holder\"\x8f\x03\n" +
 	"\vPartySelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x16\n" +
 	"\x06labels\x18\a \x01(\bR\x06labels\x12\x12\n" +
 	"\x04kind\x18\b \x01(\bR\x04kind\x12\x1b\n" +
 	"\tparent_id\x18\t \x01(\bR\bparentId\x12*\n" +
 	"\x06holder\x18\n" +
-	" \x01(\v2\x12.rove.HolderSelectR\x06holder\x12\x14\n" +
+	" \x01(\v2\x12.loft.HolderSelectR\x06holder\x12\x14\n" +
 	"\x05email\x18\v \x01(\bR\x05email\x12\x14\n" +
 	"\x05phone\x18\f \x01(\bR\x05phone\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
@@ -6125,15 +6125,15 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x12\n" +
 	"\x04code\x18\x10 \x01(\bR\x04code\"\xa3\x04\n" +
 	"\x11PartyPatchRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12;\n" +
-	"\x06labels\x18\x0e \x03(\v2#.rove.PartyPatchRequest.LabelsEntryR\x06labels\x12\x12\n" +
+	"\x06labels\x18\x0e \x03(\v2#.loft.PartyPatchRequest.LabelsEntryR\x06labels\x12\x12\n" +
 	"\x04kind\x18\x10 \x01(\tR\x04kind\x12\x1b\n" +
 	"\tparent_id\x18\x12 \x01(\fR\bparentId\x12$\n" +
 	"\x0eparent_id_null\x18\x13 \x01(\bR\fparentIdNull\x12'\n" +
-	"\x06holder\x18\x14 \x01(\v2\x0f.rove.HolderRefR\x06holder\x12\x1f\n" +
+	"\x06holder\x18\x14 \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x1f\n" +
 	"\vholder_null\x18\x15 \x01(\bR\n" +
 	"holderNull\x12\x14\n" +
 	"\x05email\x18\x16 \x01(\tR\x05email\x12\x14\n" +
@@ -6145,41 +6145,41 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"Y\n" +
 	"\x11PartyApplyRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
 	"\x12PartyEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x98\x01\n" +
 	"\x10PartyListRequest\x12+\n" +
-	"\afilters\x18\x01 \x03(\v2\x11.rove.PartyFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x11.loft.PartyFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11PartyListResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.PartyR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.PartyR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xfb\x01\n" +
 	"\vPartyFilter\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x1b\n" +
 	"\tparent_id\x18\x03 \x01(\fR\bparentId\x12'\n" +
-	"\x06holder\x18\x04 \x01(\v2\x0f.rove.HolderRefR\x06holder\x125\n" +
-	"\x06labels\x18\x05 \x03(\v2\x1d.rove.PartyFilter.LabelsEntryR\x06labels\x1a9\n" +
+	"\x06holder\x18\x04 \x01(\v2\x0f.loft.HolderRefR\x06holder\x125\n" +
+	"\x06labels\x18\x05 \x03(\v2\x1d.loft.PartyFilter.LabelsEntryR\x06labels\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"l\n" +
 	"\x11PartyWatchRequest\x12+\n" +
-	"\afilters\x18\x01 \x03(\v2\x11.rove.PartyFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x11.loft.PartyFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"@\n" +
 	"\x12PartyWatchResponse\x12*\n" +
-	"\x05items\x18\x01 \x03(\v2\x14.rove.PartyWatchItemR\x05items\"b\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.loft.PartyWatchItemR\x05items\"b\n" +
 	"\x0ePartyWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
-	"\x05value\x18\x02 \x01(\v2\v.rove.PartyR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\v.loft.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
 	"\x0ePartyMeRequest\"\xe5\x03\n" +
 	"\x0fPartyMeResponse\x12$\n" +
-	"\x06holder\x18\x01 \x01(\v2\f.rove.HolderR\x06holder\x12!\n" +
-	"\x05party\x18\x02 \x01(\v2\v.rove.PartyR\x05party\x12$\n" +
-	"\x06tenant\x18\x03 \x01(\v2\f.rove.TenantR\x06tenant\x12\x19\n" +
+	"\x06holder\x18\x01 \x01(\v2\f.loft.HolderR\x06holder\x12!\n" +
+	"\x05party\x18\x02 \x01(\v2\v.loft.PartyR\x05party\x12$\n" +
+	"\x06tenant\x18\x03 \x01(\v2\f.loft.TenantR\x06tenant\x12\x19\n" +
 	"\x04role\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12*\n" +
 	"\raccounts_here\x18\a \x01(\bB\x05\xaa\x01\x02\b\x02R\faccountsHere\x12&\n" +
 	"\vaccount_url\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\n" +
@@ -6191,7 +6191,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x0falias_hold_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\raliasHoldDays\x12,\n" +
 	"\x0eworkspace_name\x18\r \x01(\tB\x05\xaa\x01\x02\b\x02R\rworkspaceNameJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x19\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12\x19\n" +
 	"\x04kind\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\"\n" +
@@ -6202,68 +6202,68 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x05phone\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x05phone\x12\x19\n" +
 	"\x04code\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x04code\x12<\n" +
 	"\x06labels\x18\n" +
-	" \x03(\v2$.rove.PartyUpdateRequest.LabelsEntryR\x06labels\x1a9\n" +
+	" \x03(\v2$.loft.PartyUpdateRequest.LabelsEntryR\x06labels\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x91\x01\n" +
 	"\x12PartyInviteRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x1b\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x1b\n" +
 	"\x05alias\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05alias\x12\x19\n" +
 	"\x04role\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12!\n" +
 	"\bpassword\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\bpassword\"\x81\x01\n" +
 	"\x13PartyInviteResponse\x12!\n" +
-	"\x05party\x18\x01 \x01(\v2\v.rove.PartyR\x05party\x12$\n" +
-	"\x06holder\x18\x02 \x01(\v2\f.rove.HolderR\x06holder\x12!\n" +
+	"\x05party\x18\x01 \x01(\v2\v.loft.PartyR\x05party\x12$\n" +
+	"\x06holder\x18\x02 \x01(\v2\f.loft.HolderR\x06holder\x12!\n" +
 	"\bpassword\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\bpassword\"R\n" +
 	"\x13PartySetRoleRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x19\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x19\n" +
 	"\x04role\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\"\x7f\n" +
 	"\x17PartySetPasswordRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x1f\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x1f\n" +
 	"\acurrent\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\acurrent\x12!\n" +
 	"\bpassword\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\bpassword\"\x1a\n" +
 	"\x18PartySetPasswordResponse\":\n" +
 	"\x16PartyDeactivateRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\"<\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\"<\n" +
 	"\x18PartyPseudonymizeRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\"~\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\"~\n" +
 	"\x12PartySearchRequest\x12\x13\n" +
 	"\x01q\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x01q\x12\x19\n" +
 	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x19\n" +
 	"\x04size\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x1d\n" +
 	"\x06offset\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06offset\"U\n" +
 	"\x13PartySearchResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.PartyR\x05items\x12\x1b\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.PartyR\x05items\x12\x1b\n" +
 	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\"\x8b\x04\n" +
 	"\x14InvitationAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12)\n" +
-	"\ainviter\x18\b \x01(\v2\x0f.rove.HolderRefR\ainviter\x12\x1b\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12)\n" +
+	"\ainviter\x18\b \x01(\v2\x0f.loft.HolderRefR\ainviter\x12\x1b\n" +
 	"\x05email\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x05email\x12\x19\n" +
 	"\x04role\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12$\n" +
-	"\x05party\x18\v \x01(\v2\x0e.rove.PartyRefR\x05party\x12\x18\n" +
+	"\x05party\x18\v \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x18\n" +
 	"\aaccount\x18\f \x01(\fR\aaccount\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1b\n" +
 	"\x05state\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05state\x12=\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
 	"\fdate_settled\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\vdateSettled\x12'\n" +
-	"\x06holder\x18\x13 \x01(\v2\x0f.rove.HolderRefR\x06holder\x12\x14\n" +
+	"\x06holder\x18\x13 \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x14\n" +
 	"\x05claim\x18\x14 \x01(\fR\x05claim\"m\n" +
 	"\x14InvitationGetRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\x12.\n" +
-	"\x06select\x18\x02 \x01(\v2\x16.rove.InvitationSelectR\x06select\"(\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12.\n" +
+	"\x06select\x18\x02 \x01(\v2\x16.loft.InvitationSelectR\x06select\"(\n" +
 	"\rInvitationRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xf0\x03\n" +
 	"\x10InvitationSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12,\n" +
-	"\ainviter\x18\b \x01(\v2\x12.rove.HolderSelectR\ainviter\x12\x14\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12,\n" +
+	"\ainviter\x18\b \x01(\v2\x12.loft.HolderSelectR\ainviter\x12\x14\n" +
 	"\x05email\x18\t \x01(\bR\x05email\x12\x12\n" +
 	"\x04role\x18\n" +
 	" \x01(\bR\x04role\x12'\n" +
-	"\x05party\x18\v \x01(\v2\x11.rove.PartySelectR\x05party\x12\x18\n" +
+	"\x05party\x18\v \x01(\v2\x11.loft.PartySelectR\x05party\x12\x18\n" +
 	"\aaccount\x18\f \x01(\bR\aaccount\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
@@ -6272,12 +6272,12 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x05state\x18\x10 \x01(\bR\x05state\x12!\n" +
 	"\fdate_expires\x18\x11 \x01(\bR\vdateExpires\x12!\n" +
 	"\fdate_settled\x18\x12 \x01(\bR\vdateSettled\x12*\n" +
-	"\x06holder\x18\x13 \x01(\v2\x12.rove.HolderSelectR\x06holder\x12\x14\n" +
+	"\x06holder\x18\x13 \x01(\v2\x12.loft.HolderSelectR\x06holder\x12\x14\n" +
 	"\x05claim\x18\x14 \x01(\bR\x05claim\"\x83\x05\n" +
 	"\x16InvitationPatchRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\x12\x14\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12\x14\n" +
 	"\x05email\x18\x12 \x01(\tR\x05email\x12$\n" +
-	"\x05party\x18\x16 \x01(\v2\x0e.rove.PartyRefR\x05party\x12\x1d\n" +
+	"\x05party\x18\x16 \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x1d\n" +
 	"\n" +
 	"party_null\x18\x17 \x01(\bR\tpartyNull\x12\x18\n" +
 	"\aaccount\x18\x18 \x01(\fR\aaccount\x12!\n" +
@@ -6288,248 +6288,248 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\fdate_expires\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
 	"\fdate_settled\x18$ \x01(\v2\x1a.google.protobuf.TimestampR\vdateSettled\x12*\n" +
 	"\x11date_settled_null\x18% \x01(\bR\x0fdateSettledNull\x12'\n" +
-	"\x06holder\x18& \x01(\v2\x0f.rove.HolderRefR\x06holder\x12\x1f\n" +
+	"\x06holder\x18& \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x1f\n" +
 	"\vholder_null\x18' \x01(\bR\n" +
 	"holderNull\x12\x14\n" +
 	"\x05claim\x18( \x01(\fR\x05claim\x12\x1d\n" +
 	"\n" +
 	"claim_null\x18) \x01(\bR\tclaimNull\"c\n" +
 	"\x16InvitationApplyRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"1\n" +
 	"\x17InvitationEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa2\x01\n" +
 	"\x15InvitationListRequest\x120\n" +
-	"\afilters\x18\x01 \x03(\v2\x16.rove.InvitationFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x16.loft.InvitationFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"[\n" +
 	"\x16InvitationListResponse\x12&\n" +
-	"\x05items\x18\x01 \x03(\v2\x10.rove.InvitationR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x10.loft.InvitationR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x92\x01\n" +
 	"\x10InvitationFilter\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x18\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12'\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x18\n" +
 	"\aaccount\x18\x03 \x01(\fR\aaccount\x12\x14\n" +
 	"\x05state\x18\x04 \x01(\tR\x05state\"@\n" +
 	"\x17InvitationRevokeRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\"3\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\"3\n" +
 	"\x16InvitationClaimRequest\x12\x19\n" +
 	"\x04code\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04code\"@\n" +
 	"\x17InvitationAcceptRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\">\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\">\n" +
 	"\x15InvitationDenyRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\" \n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\" \n" +
 	"\aAccount\x12\x15\n" +
 	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id2\xc5\x06\n" +
 	"\fPartyService\x12)\n" +
-	"\x03Add\x12\x15.rove.PartyAddRequest\x1a\v.rove.Party\x12)\n" +
-	"\x03Get\x12\x15.rove.PartyGetRequest\x1a\v.rove.Party\x12-\n" +
-	"\x05Patch\x12\x17.rove.PartyPatchRequest\x1a\v.rove.Party\x12-\n" +
-	"\x05Apply\x12\x17.rove.PartyApplyRequest\x1a\v.rove.Party\x121\n" +
-	"\x05Erase\x12\x0e.rove.PartyRef\x1a\x18.rove.PartyEraseResponse\x127\n" +
-	"\x04List\x12\x16.rove.PartyListRequest\x1a\x17.rove.PartyListResponse\x12<\n" +
-	"\x05Watch\x12\x17.rove.PartyWatchRequest\x1a\x18.rove.PartyWatchResponse0\x01\x121\n" +
-	"\x02Me\x12\x14.rove.PartyMeRequest\x1a\x15.rove.PartyMeResponse\x12/\n" +
-	"\x06Update\x12\x18.rove.PartyUpdateRequest\x1a\v.rove.Party\x12=\n" +
-	"\x06Invite\x12\x18.rove.PartyInviteRequest\x1a\x19.rove.PartyInviteResponse\x121\n" +
-	"\aSetRole\x12\x19.rove.PartySetRoleRequest\x1a\v.rove.Party\x12L\n" +
-	"\vSetPassword\x12\x1d.rove.PartySetPasswordRequest\x1a\x1e.rove.PartySetPasswordResponse\x127\n" +
+	"\x03Add\x12\x15.loft.PartyAddRequest\x1a\v.loft.Party\x12)\n" +
+	"\x03Get\x12\x15.loft.PartyGetRequest\x1a\v.loft.Party\x12-\n" +
+	"\x05Patch\x12\x17.loft.PartyPatchRequest\x1a\v.loft.Party\x12-\n" +
+	"\x05Apply\x12\x17.loft.PartyApplyRequest\x1a\v.loft.Party\x121\n" +
+	"\x05Erase\x12\x0e.loft.PartyRef\x1a\x18.loft.PartyEraseResponse\x127\n" +
+	"\x04List\x12\x16.loft.PartyListRequest\x1a\x17.loft.PartyListResponse\x12<\n" +
+	"\x05Watch\x12\x17.loft.PartyWatchRequest\x1a\x18.loft.PartyWatchResponse0\x01\x121\n" +
+	"\x02Me\x12\x14.loft.PartyMeRequest\x1a\x15.loft.PartyMeResponse\x12/\n" +
+	"\x06Update\x12\x18.loft.PartyUpdateRequest\x1a\v.loft.Party\x12=\n" +
+	"\x06Invite\x12\x18.loft.PartyInviteRequest\x1a\x19.loft.PartyInviteResponse\x121\n" +
+	"\aSetRole\x12\x19.loft.PartySetRoleRequest\x1a\v.loft.Party\x12L\n" +
+	"\vSetPassword\x12\x1d.loft.PartySetPasswordRequest\x1a\x1e.loft.PartySetPasswordResponse\x127\n" +
 	"\n" +
-	"Deactivate\x12\x1c.rove.PartyDeactivateRequest\x1a\v.rove.Party\x12;\n" +
-	"\fPseudonymize\x12\x1e.rove.PartyPseudonymizeRequest\x1a\v.rove.Party\x12=\n" +
-	"\x06Search\x12\x18.rove.PartySearchRequest\x1a\x19.rove.PartySearchResponse2\x10\n" +
+	"Deactivate\x12\x1c.loft.PartyDeactivateRequest\x1a\v.loft.Party\x12;\n" +
+	"\fPseudonymize\x12\x1e.loft.PartyPseudonymizeRequest\x1a\v.loft.Party\x12=\n" +
+	"\x06Search\x12\x18.loft.PartySearchRequest\x1a\x19.loft.PartySearchResponse2\x10\n" +
 	"\x0eSessionService2\xd5\x04\n" +
 	"\x11InvitationService\x123\n" +
-	"\x03Add\x12\x1a.rove.InvitationAddRequest\x1a\x10.rove.Invitation\x123\n" +
-	"\x03Get\x12\x1a.rove.InvitationGetRequest\x1a\x10.rove.Invitation\x127\n" +
-	"\x05Patch\x12\x1c.rove.InvitationPatchRequest\x1a\x10.rove.Invitation\x127\n" +
-	"\x05Apply\x12\x1c.rove.InvitationApplyRequest\x1a\x10.rove.Invitation\x12;\n" +
-	"\x05Erase\x12\x13.rove.InvitationRef\x1a\x1d.rove.InvitationEraseResponse\x12A\n" +
-	"\x04List\x12\x1b.rove.InvitationListRequest\x1a\x1c.rove.InvitationListResponse\x129\n" +
-	"\x06Revoke\x12\x1d.rove.InvitationRevokeRequest\x1a\x10.rove.Invitation\x127\n" +
-	"\x05Claim\x12\x1c.rove.InvitationClaimRequest\x1a\x10.rove.Invitation\x129\n" +
-	"\x06Accept\x12\x1d.rove.InvitationAcceptRequest\x1a\x10.rove.Invitation\x125\n" +
-	"\x04Deny\x12\x1b.rove.InvitationDenyRequest\x1a\x10.rove.Invitation2\x11\n" +
+	"\x03Add\x12\x1a.loft.InvitationAddRequest\x1a\x10.loft.Invitation\x123\n" +
+	"\x03Get\x12\x1a.loft.InvitationGetRequest\x1a\x10.loft.Invitation\x127\n" +
+	"\x05Patch\x12\x1c.loft.InvitationPatchRequest\x1a\x10.loft.Invitation\x127\n" +
+	"\x05Apply\x12\x1c.loft.InvitationApplyRequest\x1a\x10.loft.Invitation\x12;\n" +
+	"\x05Erase\x12\x13.loft.InvitationRef\x1a\x1d.loft.InvitationEraseResponse\x12A\n" +
+	"\x04List\x12\x1b.loft.InvitationListRequest\x1a\x1c.loft.InvitationListResponse\x129\n" +
+	"\x06Revoke\x12\x1d.loft.InvitationRevokeRequest\x1a\x10.loft.Invitation\x127\n" +
+	"\x05Claim\x12\x1c.loft.InvitationClaimRequest\x1a\x10.loft.Invitation\x129\n" +
+	"\x06Accept\x12\x1d.loft.InvitationAcceptRequest\x1a\x10.loft.Invitation\x125\n" +
+	"\x04Deny\x12\x1b.loft.InvitationDenyRequest\x1a\x10.loft.Invitation2\x11\n" +
 	"\x0fCliLoginService2\x12\n" +
 	"\x10AliasHoldService2\x16\n" +
 	"\x14SignInFailureService2\x10\n" +
-	"\x0eHandoffServiceB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x0eHandoffServiceB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
-var file_rove_org_svc_g_proto_goTypes = []any{
-	(*PartyAddRequest)(nil),          // 0: rove.PartyAddRequest
-	(*PartyGetRequest)(nil),          // 1: rove.PartyGetRequest
-	(*PartyRef)(nil),                 // 2: rove.PartyRef
-	(*PartyRefByHolder)(nil),         // 3: rove.PartyRefByHolder
-	(*PartySelect)(nil),              // 4: rove.PartySelect
-	(*PartyPatchRequest)(nil),        // 5: rove.PartyPatchRequest
-	(*PartyApplyRequest)(nil),        // 6: rove.PartyApplyRequest
-	(*PartyEraseResponse)(nil),       // 7: rove.PartyEraseResponse
-	(*PartyListRequest)(nil),         // 8: rove.PartyListRequest
-	(*PartyListResponse)(nil),        // 9: rove.PartyListResponse
-	(*PartyFilter)(nil),              // 10: rove.PartyFilter
-	(*PartyWatchRequest)(nil),        // 11: rove.PartyWatchRequest
-	(*PartyWatchResponse)(nil),       // 12: rove.PartyWatchResponse
-	(*PartyWatchItem)(nil),           // 13: rove.PartyWatchItem
-	(*PartyMeRequest)(nil),           // 14: rove.PartyMeRequest
-	(*PartyMeResponse)(nil),          // 15: rove.PartyMeResponse
-	(*PartyUpdateRequest)(nil),       // 16: rove.PartyUpdateRequest
-	(*PartyInviteRequest)(nil),       // 17: rove.PartyInviteRequest
-	(*PartyInviteResponse)(nil),      // 18: rove.PartyInviteResponse
-	(*PartySetRoleRequest)(nil),      // 19: rove.PartySetRoleRequest
-	(*PartySetPasswordRequest)(nil),  // 20: rove.PartySetPasswordRequest
-	(*PartySetPasswordResponse)(nil), // 21: rove.PartySetPasswordResponse
-	(*PartyDeactivateRequest)(nil),   // 22: rove.PartyDeactivateRequest
-	(*PartyPseudonymizeRequest)(nil), // 23: rove.PartyPseudonymizeRequest
-	(*PartySearchRequest)(nil),       // 24: rove.PartySearchRequest
-	(*PartySearchResponse)(nil),      // 25: rove.PartySearchResponse
-	(*InvitationAddRequest)(nil),     // 26: rove.InvitationAddRequest
-	(*InvitationGetRequest)(nil),     // 27: rove.InvitationGetRequest
-	(*InvitationRef)(nil),            // 28: rove.InvitationRef
-	(*InvitationSelect)(nil),         // 29: rove.InvitationSelect
-	(*InvitationPatchRequest)(nil),   // 30: rove.InvitationPatchRequest
-	(*InvitationApplyRequest)(nil),   // 31: rove.InvitationApplyRequest
-	(*InvitationEraseResponse)(nil),  // 32: rove.InvitationEraseResponse
-	(*InvitationListRequest)(nil),    // 33: rove.InvitationListRequest
-	(*InvitationListResponse)(nil),   // 34: rove.InvitationListResponse
-	(*InvitationFilter)(nil),         // 35: rove.InvitationFilter
-	(*InvitationRevokeRequest)(nil),  // 36: rove.InvitationRevokeRequest
-	(*InvitationClaimRequest)(nil),   // 37: rove.InvitationClaimRequest
-	(*InvitationAcceptRequest)(nil),  // 38: rove.InvitationAcceptRequest
-	(*InvitationDenyRequest)(nil),    // 39: rove.InvitationDenyRequest
-	(*Account)(nil),                  // 40: rove.Account
-	nil,                              // 41: rove.PartyAddRequest.LabelsEntry
-	nil,                              // 42: rove.PartyPatchRequest.LabelsEntry
-	nil,                              // 43: rove.PartyFilter.LabelsEntry
-	nil,                              // 44: rove.PartyUpdateRequest.LabelsEntry
-	(*TenantRef)(nil),                // 45: rove.TenantRef
-	(*HolderRef)(nil),                // 46: rove.HolderRef
+var file_loft_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
+var file_loft_org_svc_g_proto_goTypes = []any{
+	(*PartyAddRequest)(nil),          // 0: loft.PartyAddRequest
+	(*PartyGetRequest)(nil),          // 1: loft.PartyGetRequest
+	(*PartyRef)(nil),                 // 2: loft.PartyRef
+	(*PartyRefByHolder)(nil),         // 3: loft.PartyRefByHolder
+	(*PartySelect)(nil),              // 4: loft.PartySelect
+	(*PartyPatchRequest)(nil),        // 5: loft.PartyPatchRequest
+	(*PartyApplyRequest)(nil),        // 6: loft.PartyApplyRequest
+	(*PartyEraseResponse)(nil),       // 7: loft.PartyEraseResponse
+	(*PartyListRequest)(nil),         // 8: loft.PartyListRequest
+	(*PartyListResponse)(nil),        // 9: loft.PartyListResponse
+	(*PartyFilter)(nil),              // 10: loft.PartyFilter
+	(*PartyWatchRequest)(nil),        // 11: loft.PartyWatchRequest
+	(*PartyWatchResponse)(nil),       // 12: loft.PartyWatchResponse
+	(*PartyWatchItem)(nil),           // 13: loft.PartyWatchItem
+	(*PartyMeRequest)(nil),           // 14: loft.PartyMeRequest
+	(*PartyMeResponse)(nil),          // 15: loft.PartyMeResponse
+	(*PartyUpdateRequest)(nil),       // 16: loft.PartyUpdateRequest
+	(*PartyInviteRequest)(nil),       // 17: loft.PartyInviteRequest
+	(*PartyInviteResponse)(nil),      // 18: loft.PartyInviteResponse
+	(*PartySetRoleRequest)(nil),      // 19: loft.PartySetRoleRequest
+	(*PartySetPasswordRequest)(nil),  // 20: loft.PartySetPasswordRequest
+	(*PartySetPasswordResponse)(nil), // 21: loft.PartySetPasswordResponse
+	(*PartyDeactivateRequest)(nil),   // 22: loft.PartyDeactivateRequest
+	(*PartyPseudonymizeRequest)(nil), // 23: loft.PartyPseudonymizeRequest
+	(*PartySearchRequest)(nil),       // 24: loft.PartySearchRequest
+	(*PartySearchResponse)(nil),      // 25: loft.PartySearchResponse
+	(*InvitationAddRequest)(nil),     // 26: loft.InvitationAddRequest
+	(*InvitationGetRequest)(nil),     // 27: loft.InvitationGetRequest
+	(*InvitationRef)(nil),            // 28: loft.InvitationRef
+	(*InvitationSelect)(nil),         // 29: loft.InvitationSelect
+	(*InvitationPatchRequest)(nil),   // 30: loft.InvitationPatchRequest
+	(*InvitationApplyRequest)(nil),   // 31: loft.InvitationApplyRequest
+	(*InvitationEraseResponse)(nil),  // 32: loft.InvitationEraseResponse
+	(*InvitationListRequest)(nil),    // 33: loft.InvitationListRequest
+	(*InvitationListResponse)(nil),   // 34: loft.InvitationListResponse
+	(*InvitationFilter)(nil),         // 35: loft.InvitationFilter
+	(*InvitationRevokeRequest)(nil),  // 36: loft.InvitationRevokeRequest
+	(*InvitationClaimRequest)(nil),   // 37: loft.InvitationClaimRequest
+	(*InvitationAcceptRequest)(nil),  // 38: loft.InvitationAcceptRequest
+	(*InvitationDenyRequest)(nil),    // 39: loft.InvitationDenyRequest
+	(*Account)(nil),                  // 40: loft.Account
+	nil,                              // 41: loft.PartyAddRequest.LabelsEntry
+	nil,                              // 42: loft.PartyPatchRequest.LabelsEntry
+	nil,                              // 43: loft.PartyFilter.LabelsEntry
+	nil,                              // 44: loft.PartyUpdateRequest.LabelsEntry
+	(*TenantRef)(nil),                // 45: loft.TenantRef
+	(*HolderRef)(nil),                // 46: loft.HolderRef
 	(*timestamppb.Timestamp)(nil),    // 47: google.protobuf.Timestamp
-	(*TenantSelect)(nil),             // 48: rove.TenantSelect
-	(*HolderSelect)(nil),             // 49: rove.HolderSelect
+	(*TenantSelect)(nil),             // 48: loft.TenantSelect
+	(*HolderSelect)(nil),             // 49: loft.HolderSelect
 	(*patchpb.Patch)(nil),            // 50: patch.Patch
-	(*Party)(nil),                    // 51: rove.Party
-	(*Holder)(nil),                   // 52: rove.Holder
-	(*Tenant)(nil),                   // 53: rove.Tenant
-	(*Invitation)(nil),               // 54: rove.Invitation
+	(*Party)(nil),                    // 51: loft.Party
+	(*Holder)(nil),                   // 52: loft.Holder
+	(*Tenant)(nil),                   // 53: loft.Tenant
+	(*Invitation)(nil),               // 54: loft.Invitation
 }
-var file_rove_org_svc_g_proto_depIdxs = []int32{
-	45, // 0: rove.PartyAddRequest.tenant:type_name -> rove.TenantRef
-	41, // 1: rove.PartyAddRequest.labels:type_name -> rove.PartyAddRequest.LabelsEntry
-	46, // 2: rove.PartyAddRequest.holder:type_name -> rove.HolderRef
-	47, // 3: rove.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	2,  // 4: rove.PartyGetRequest.ref:type_name -> rove.PartyRef
-	4,  // 5: rove.PartyGetRequest.select:type_name -> rove.PartySelect
-	3,  // 6: rove.PartyRef.holder:type_name -> rove.PartyRefByHolder
-	46, // 7: rove.PartyRefByHolder.holder:type_name -> rove.HolderRef
-	48, // 8: rove.PartySelect.tenant:type_name -> rove.TenantSelect
-	49, // 9: rove.PartySelect.holder:type_name -> rove.HolderSelect
-	2,  // 10: rove.PartyPatchRequest.ref:type_name -> rove.PartyRef
-	42, // 11: rove.PartyPatchRequest.labels:type_name -> rove.PartyPatchRequest.LabelsEntry
-	46, // 12: rove.PartyPatchRequest.holder:type_name -> rove.HolderRef
-	47, // 13: rove.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	2,  // 14: rove.PartyApplyRequest.ref:type_name -> rove.PartyRef
-	50, // 15: rove.PartyApplyRequest.patch:type_name -> patch.Patch
-	10, // 16: rove.PartyListRequest.filters:type_name -> rove.PartyFilter
-	51, // 17: rove.PartyListResponse.items:type_name -> rove.Party
-	2,  // 18: rove.PartyFilter.ref:type_name -> rove.PartyRef
-	46, // 19: rove.PartyFilter.holder:type_name -> rove.HolderRef
-	43, // 20: rove.PartyFilter.labels:type_name -> rove.PartyFilter.LabelsEntry
-	10, // 21: rove.PartyWatchRequest.filters:type_name -> rove.PartyFilter
-	13, // 22: rove.PartyWatchResponse.items:type_name -> rove.PartyWatchItem
-	51, // 23: rove.PartyWatchItem.value:type_name -> rove.Party
-	52, // 24: rove.PartyMeResponse.holder:type_name -> rove.Holder
-	51, // 25: rove.PartyMeResponse.party:type_name -> rove.Party
-	53, // 26: rove.PartyMeResponse.tenant:type_name -> rove.Tenant
-	2,  // 27: rove.PartyUpdateRequest.ref:type_name -> rove.PartyRef
-	44, // 28: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
-	2,  // 29: rove.PartyInviteRequest.ref:type_name -> rove.PartyRef
-	51, // 30: rove.PartyInviteResponse.party:type_name -> rove.Party
-	52, // 31: rove.PartyInviteResponse.holder:type_name -> rove.Holder
-	2,  // 32: rove.PartySetRoleRequest.ref:type_name -> rove.PartyRef
-	2,  // 33: rove.PartySetPasswordRequest.ref:type_name -> rove.PartyRef
-	2,  // 34: rove.PartyDeactivateRequest.ref:type_name -> rove.PartyRef
-	2,  // 35: rove.PartyPseudonymizeRequest.ref:type_name -> rove.PartyRef
-	51, // 36: rove.PartySearchResponse.items:type_name -> rove.Party
-	45, // 37: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
-	46, // 38: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
-	2,  // 39: rove.InvitationAddRequest.party:type_name -> rove.PartyRef
-	47, // 40: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	47, // 41: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	47, // 42: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
-	46, // 43: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
-	28, // 44: rove.InvitationGetRequest.ref:type_name -> rove.InvitationRef
-	29, // 45: rove.InvitationGetRequest.select:type_name -> rove.InvitationSelect
-	48, // 46: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
-	49, // 47: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
-	4,  // 48: rove.InvitationSelect.party:type_name -> rove.PartySelect
-	49, // 49: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
-	28, // 50: rove.InvitationPatchRequest.ref:type_name -> rove.InvitationRef
-	2,  // 51: rove.InvitationPatchRequest.party:type_name -> rove.PartyRef
-	47, // 52: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	47, // 53: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	47, // 54: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
-	46, // 55: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
-	28, // 56: rove.InvitationApplyRequest.ref:type_name -> rove.InvitationRef
-	50, // 57: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
-	35, // 58: rove.InvitationListRequest.filters:type_name -> rove.InvitationFilter
-	54, // 59: rove.InvitationListResponse.items:type_name -> rove.Invitation
-	28, // 60: rove.InvitationFilter.ref:type_name -> rove.InvitationRef
-	45, // 61: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
-	28, // 62: rove.InvitationRevokeRequest.ref:type_name -> rove.InvitationRef
-	28, // 63: rove.InvitationAcceptRequest.ref:type_name -> rove.InvitationRef
-	28, // 64: rove.InvitationDenyRequest.ref:type_name -> rove.InvitationRef
-	0,  // 65: rove.PartyService.Add:input_type -> rove.PartyAddRequest
-	1,  // 66: rove.PartyService.Get:input_type -> rove.PartyGetRequest
-	5,  // 67: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
-	6,  // 68: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
-	2,  // 69: rove.PartyService.Erase:input_type -> rove.PartyRef
-	8,  // 70: rove.PartyService.List:input_type -> rove.PartyListRequest
-	11, // 71: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
-	14, // 72: rove.PartyService.Me:input_type -> rove.PartyMeRequest
-	16, // 73: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
-	17, // 74: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
-	19, // 75: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
-	20, // 76: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
-	22, // 77: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
-	23, // 78: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
-	24, // 79: rove.PartyService.Search:input_type -> rove.PartySearchRequest
-	26, // 80: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
-	27, // 81: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
-	30, // 82: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
-	31, // 83: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
-	28, // 84: rove.InvitationService.Erase:input_type -> rove.InvitationRef
-	33, // 85: rove.InvitationService.List:input_type -> rove.InvitationListRequest
-	36, // 86: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
-	37, // 87: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
-	38, // 88: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
-	39, // 89: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
-	51, // 90: rove.PartyService.Add:output_type -> rove.Party
-	51, // 91: rove.PartyService.Get:output_type -> rove.Party
-	51, // 92: rove.PartyService.Patch:output_type -> rove.Party
-	51, // 93: rove.PartyService.Apply:output_type -> rove.Party
-	7,  // 94: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
-	9,  // 95: rove.PartyService.List:output_type -> rove.PartyListResponse
-	12, // 96: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
-	15, // 97: rove.PartyService.Me:output_type -> rove.PartyMeResponse
-	51, // 98: rove.PartyService.Update:output_type -> rove.Party
-	18, // 99: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
-	51, // 100: rove.PartyService.SetRole:output_type -> rove.Party
-	21, // 101: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
-	51, // 102: rove.PartyService.Deactivate:output_type -> rove.Party
-	51, // 103: rove.PartyService.Pseudonymize:output_type -> rove.Party
-	25, // 104: rove.PartyService.Search:output_type -> rove.PartySearchResponse
-	54, // 105: rove.InvitationService.Add:output_type -> rove.Invitation
-	54, // 106: rove.InvitationService.Get:output_type -> rove.Invitation
-	54, // 107: rove.InvitationService.Patch:output_type -> rove.Invitation
-	54, // 108: rove.InvitationService.Apply:output_type -> rove.Invitation
-	32, // 109: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
-	34, // 110: rove.InvitationService.List:output_type -> rove.InvitationListResponse
-	54, // 111: rove.InvitationService.Revoke:output_type -> rove.Invitation
-	54, // 112: rove.InvitationService.Claim:output_type -> rove.Invitation
-	54, // 113: rove.InvitationService.Accept:output_type -> rove.Invitation
-	54, // 114: rove.InvitationService.Deny:output_type -> rove.Invitation
+var file_loft_org_svc_g_proto_depIdxs = []int32{
+	45, // 0: loft.PartyAddRequest.tenant:type_name -> loft.TenantRef
+	41, // 1: loft.PartyAddRequest.labels:type_name -> loft.PartyAddRequest.LabelsEntry
+	46, // 2: loft.PartyAddRequest.holder:type_name -> loft.HolderRef
+	47, // 3: loft.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	2,  // 4: loft.PartyGetRequest.ref:type_name -> loft.PartyRef
+	4,  // 5: loft.PartyGetRequest.select:type_name -> loft.PartySelect
+	3,  // 6: loft.PartyRef.holder:type_name -> loft.PartyRefByHolder
+	46, // 7: loft.PartyRefByHolder.holder:type_name -> loft.HolderRef
+	48, // 8: loft.PartySelect.tenant:type_name -> loft.TenantSelect
+	49, // 9: loft.PartySelect.holder:type_name -> loft.HolderSelect
+	2,  // 10: loft.PartyPatchRequest.ref:type_name -> loft.PartyRef
+	42, // 11: loft.PartyPatchRequest.labels:type_name -> loft.PartyPatchRequest.LabelsEntry
+	46, // 12: loft.PartyPatchRequest.holder:type_name -> loft.HolderRef
+	47, // 13: loft.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	2,  // 14: loft.PartyApplyRequest.ref:type_name -> loft.PartyRef
+	50, // 15: loft.PartyApplyRequest.patch:type_name -> patch.Patch
+	10, // 16: loft.PartyListRequest.filters:type_name -> loft.PartyFilter
+	51, // 17: loft.PartyListResponse.items:type_name -> loft.Party
+	2,  // 18: loft.PartyFilter.ref:type_name -> loft.PartyRef
+	46, // 19: loft.PartyFilter.holder:type_name -> loft.HolderRef
+	43, // 20: loft.PartyFilter.labels:type_name -> loft.PartyFilter.LabelsEntry
+	10, // 21: loft.PartyWatchRequest.filters:type_name -> loft.PartyFilter
+	13, // 22: loft.PartyWatchResponse.items:type_name -> loft.PartyWatchItem
+	51, // 23: loft.PartyWatchItem.value:type_name -> loft.Party
+	52, // 24: loft.PartyMeResponse.holder:type_name -> loft.Holder
+	51, // 25: loft.PartyMeResponse.party:type_name -> loft.Party
+	53, // 26: loft.PartyMeResponse.tenant:type_name -> loft.Tenant
+	2,  // 27: loft.PartyUpdateRequest.ref:type_name -> loft.PartyRef
+	44, // 28: loft.PartyUpdateRequest.labels:type_name -> loft.PartyUpdateRequest.LabelsEntry
+	2,  // 29: loft.PartyInviteRequest.ref:type_name -> loft.PartyRef
+	51, // 30: loft.PartyInviteResponse.party:type_name -> loft.Party
+	52, // 31: loft.PartyInviteResponse.holder:type_name -> loft.Holder
+	2,  // 32: loft.PartySetRoleRequest.ref:type_name -> loft.PartyRef
+	2,  // 33: loft.PartySetPasswordRequest.ref:type_name -> loft.PartyRef
+	2,  // 34: loft.PartyDeactivateRequest.ref:type_name -> loft.PartyRef
+	2,  // 35: loft.PartyPseudonymizeRequest.ref:type_name -> loft.PartyRef
+	51, // 36: loft.PartySearchResponse.items:type_name -> loft.Party
+	45, // 37: loft.InvitationAddRequest.tenant:type_name -> loft.TenantRef
+	46, // 38: loft.InvitationAddRequest.inviter:type_name -> loft.HolderRef
+	2,  // 39: loft.InvitationAddRequest.party:type_name -> loft.PartyRef
+	47, // 40: loft.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	47, // 41: loft.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	47, // 42: loft.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
+	46, // 43: loft.InvitationAddRequest.holder:type_name -> loft.HolderRef
+	28, // 44: loft.InvitationGetRequest.ref:type_name -> loft.InvitationRef
+	29, // 45: loft.InvitationGetRequest.select:type_name -> loft.InvitationSelect
+	48, // 46: loft.InvitationSelect.tenant:type_name -> loft.TenantSelect
+	49, // 47: loft.InvitationSelect.inviter:type_name -> loft.HolderSelect
+	4,  // 48: loft.InvitationSelect.party:type_name -> loft.PartySelect
+	49, // 49: loft.InvitationSelect.holder:type_name -> loft.HolderSelect
+	28, // 50: loft.InvitationPatchRequest.ref:type_name -> loft.InvitationRef
+	2,  // 51: loft.InvitationPatchRequest.party:type_name -> loft.PartyRef
+	47, // 52: loft.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	47, // 53: loft.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	47, // 54: loft.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
+	46, // 55: loft.InvitationPatchRequest.holder:type_name -> loft.HolderRef
+	28, // 56: loft.InvitationApplyRequest.ref:type_name -> loft.InvitationRef
+	50, // 57: loft.InvitationApplyRequest.patch:type_name -> patch.Patch
+	35, // 58: loft.InvitationListRequest.filters:type_name -> loft.InvitationFilter
+	54, // 59: loft.InvitationListResponse.items:type_name -> loft.Invitation
+	28, // 60: loft.InvitationFilter.ref:type_name -> loft.InvitationRef
+	45, // 61: loft.InvitationFilter.tenant:type_name -> loft.TenantRef
+	28, // 62: loft.InvitationRevokeRequest.ref:type_name -> loft.InvitationRef
+	28, // 63: loft.InvitationAcceptRequest.ref:type_name -> loft.InvitationRef
+	28, // 64: loft.InvitationDenyRequest.ref:type_name -> loft.InvitationRef
+	0,  // 65: loft.PartyService.Add:input_type -> loft.PartyAddRequest
+	1,  // 66: loft.PartyService.Get:input_type -> loft.PartyGetRequest
+	5,  // 67: loft.PartyService.Patch:input_type -> loft.PartyPatchRequest
+	6,  // 68: loft.PartyService.Apply:input_type -> loft.PartyApplyRequest
+	2,  // 69: loft.PartyService.Erase:input_type -> loft.PartyRef
+	8,  // 70: loft.PartyService.List:input_type -> loft.PartyListRequest
+	11, // 71: loft.PartyService.Watch:input_type -> loft.PartyWatchRequest
+	14, // 72: loft.PartyService.Me:input_type -> loft.PartyMeRequest
+	16, // 73: loft.PartyService.Update:input_type -> loft.PartyUpdateRequest
+	17, // 74: loft.PartyService.Invite:input_type -> loft.PartyInviteRequest
+	19, // 75: loft.PartyService.SetRole:input_type -> loft.PartySetRoleRequest
+	20, // 76: loft.PartyService.SetPassword:input_type -> loft.PartySetPasswordRequest
+	22, // 77: loft.PartyService.Deactivate:input_type -> loft.PartyDeactivateRequest
+	23, // 78: loft.PartyService.Pseudonymize:input_type -> loft.PartyPseudonymizeRequest
+	24, // 79: loft.PartyService.Search:input_type -> loft.PartySearchRequest
+	26, // 80: loft.InvitationService.Add:input_type -> loft.InvitationAddRequest
+	27, // 81: loft.InvitationService.Get:input_type -> loft.InvitationGetRequest
+	30, // 82: loft.InvitationService.Patch:input_type -> loft.InvitationPatchRequest
+	31, // 83: loft.InvitationService.Apply:input_type -> loft.InvitationApplyRequest
+	28, // 84: loft.InvitationService.Erase:input_type -> loft.InvitationRef
+	33, // 85: loft.InvitationService.List:input_type -> loft.InvitationListRequest
+	36, // 86: loft.InvitationService.Revoke:input_type -> loft.InvitationRevokeRequest
+	37, // 87: loft.InvitationService.Claim:input_type -> loft.InvitationClaimRequest
+	38, // 88: loft.InvitationService.Accept:input_type -> loft.InvitationAcceptRequest
+	39, // 89: loft.InvitationService.Deny:input_type -> loft.InvitationDenyRequest
+	51, // 90: loft.PartyService.Add:output_type -> loft.Party
+	51, // 91: loft.PartyService.Get:output_type -> loft.Party
+	51, // 92: loft.PartyService.Patch:output_type -> loft.Party
+	51, // 93: loft.PartyService.Apply:output_type -> loft.Party
+	7,  // 94: loft.PartyService.Erase:output_type -> loft.PartyEraseResponse
+	9,  // 95: loft.PartyService.List:output_type -> loft.PartyListResponse
+	12, // 96: loft.PartyService.Watch:output_type -> loft.PartyWatchResponse
+	15, // 97: loft.PartyService.Me:output_type -> loft.PartyMeResponse
+	51, // 98: loft.PartyService.Update:output_type -> loft.Party
+	18, // 99: loft.PartyService.Invite:output_type -> loft.PartyInviteResponse
+	51, // 100: loft.PartyService.SetRole:output_type -> loft.Party
+	21, // 101: loft.PartyService.SetPassword:output_type -> loft.PartySetPasswordResponse
+	51, // 102: loft.PartyService.Deactivate:output_type -> loft.Party
+	51, // 103: loft.PartyService.Pseudonymize:output_type -> loft.Party
+	25, // 104: loft.PartyService.Search:output_type -> loft.PartySearchResponse
+	54, // 105: loft.InvitationService.Add:output_type -> loft.Invitation
+	54, // 106: loft.InvitationService.Get:output_type -> loft.Invitation
+	54, // 107: loft.InvitationService.Patch:output_type -> loft.Invitation
+	54, // 108: loft.InvitationService.Apply:output_type -> loft.Invitation
+	32, // 109: loft.InvitationService.Erase:output_type -> loft.InvitationEraseResponse
+	34, // 110: loft.InvitationService.List:output_type -> loft.InvitationListResponse
+	54, // 111: loft.InvitationService.Revoke:output_type -> loft.Invitation
+	54, // 112: loft.InvitationService.Claim:output_type -> loft.Invitation
+	54, // 113: loft.InvitationService.Accept:output_type -> loft.Invitation
+	54, // 114: loft.InvitationService.Deny:output_type -> loft.Invitation
 	90, // [90:115] is the sub-list for method output_type
 	65, // [65:90] is the sub-list for method input_type
 	65, // [65:65] is the sub-list for extension type_name
@@ -6537,38 +6537,38 @@ var file_rove_org_svc_g_proto_depIdxs = []int32{
 	0,  // [0:65] is the sub-list for field type_name
 }
 
-func init() { file_rove_org_svc_g_proto_init() }
-func file_rove_org_svc_g_proto_init() {
-	if File_rove_org_svc_g_proto != nil {
+func init() { file_loft_org_svc_g_proto_init() }
+func file_loft_org_svc_g_proto_init() {
+	if File_loft_org_svc_g_proto != nil {
 		return
 	}
-	file_rove_org_proto_init()
-	file_rove_payday_holder_proto_init()
-	file_rove_payday_holder_svc_g_proto_init()
-	file_rove_payday_tenant_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_org_svc_g_proto_msgTypes[2].OneofWrappers = []any{
+	file_loft_org_proto_init()
+	file_loft_payday_holder_proto_init()
+	file_loft_payday_holder_svc_g_proto_init()
+	file_loft_payday_tenant_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_org_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*partyRef_Id)(nil),
 		(*partyRef_Holder)(nil),
 	}
-	file_rove_org_svc_g_proto_msgTypes[28].OneofWrappers = []any{
+	file_loft_org_svc_g_proto_msgTypes[28].OneofWrappers = []any{
 		(*invitationRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_svc_g_proto_rawDesc), len(file_rove_org_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_org_svc_g_proto_rawDesc), len(file_loft_org_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   45,
 			NumExtensions: 0,
 			NumServices:   7,
 		},
-		GoTypes:           file_rove_org_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_org_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_org_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_org_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_org_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_org_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_org_svc_g_proto = out.File
-	file_rove_org_svc_g_proto_goTypes = nil
-	file_rove_org_svc_g_proto_depIdxs = nil
+	File_loft_org_svc_g_proto = out.File
+	file_loft_org_svc_g_proto_goTypes = nil
+	file_loft_org_svc_g_proto_depIdxs = nil
 }

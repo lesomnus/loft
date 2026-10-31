@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { card, expect, field, momentAt, owner, people, rpc, signIn, test, unique, workspace, type Reply } from './rove.js'
+import { card, expect, field, momentAt, owner, people, rpc, signIn, test, unique, workspace, type Reply } from './loft.js'
 import type { Locator, Page } from '@playwright/test'
 
 // The reports (design 9.14): one screen, a table each and its CSV. What each
@@ -64,13 +64,13 @@ test("what is out: a loan of its own, who has it, and its CSV, which says what i
 	await expect(await cell(table, who, '연체')).toHaveText('-')
 
 	// It names people, so it says what for first, and the access record keeps
-	// that (rove#136).
+	// that (loft#136).
 	await page.getByRole('button', { name: 'CSV 내려받기' }).click()
 	await field(page, '내려받는 이유').fill('e2e: 대여 점검')
 	const download = page.waitForEvent('download')
 	await page.getByRole('button', { name: '내려받기', exact: true }).click()
 	const got = await download
-	expect(got.suggestedFilename()).toMatch(/^rove-loans-\d{8}\.csv$/)
+	expect(got.suggestedFilename()).toMatch(/^loft-loans-\d{8}\.csv$/)
 	const file = info.outputPath('loans.csv')
 	await got.saveAs(file)
 	const lines = (await readFile(file)).toString('utf8').split('\n')
@@ -198,7 +198,7 @@ test("how stock moved: a stock of its own received and used, and its CSV, which 
 	const download = page.waitForEvent('download')
 	await page.getByRole('button', { name: 'CSV 내려받기' }).click()
 	const got = await download
-	expect(got.suggestedFilename()).toMatch(/^rove-stock-\d{8}-\d{8}\.csv$/)
+	expect(got.suggestedFilename()).toMatch(/^loft-stock-\d{8}-\d{8}\.csv$/)
 	const file = info.outputPath('stock.csv')
 	await got.saveAs(file)
 	const text = (await readFile(file)).toString('utf8')

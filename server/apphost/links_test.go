@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/server/apphost"
+	"github.com/lesomnus/loft/server/apphost"
 )
 
 // TestADomainIsReachedAsTheServiceIs: a workspace's domain is linked to by
@@ -15,9 +15,9 @@ import (
 func TestADomainIsReachedAsTheServiceIs(t *testing.T) {
 	x := require.New(t)
 	for public, want := range map[string]string{
-		"https://rove.example":      "https://assets.acme.example",
-		"https://rove.example:443/": "https://assets.acme.example",
-		"https://rove.example:8443": "https://assets.acme.example:8443",
+		"https://loft.example":      "https://assets.acme.example",
+		"https://loft.example:443/": "https://assets.acme.example",
+		"https://loft.example:8443": "https://assets.acme.example:8443",
 		"http://localhost:8080":     "http://assets.acme.example:8080",
 		"http://localhost":          "http://assets.acme.example",
 		"not an address":            "https://assets.acme.example",
@@ -25,11 +25,11 @@ func TestADomainIsReachedAsTheServiceIs(t *testing.T) {
 		x.Equal(want, apphost.Links{Public: public}.On("assets.acme.example"), public)
 	}
 
-	l := apphost.Links{App: "https://app.rove.example/", Public: "https://rove.example/"}
-	x.Equal("https://app.rove.example", l.Home(apphost.Page))
-	x.Equal("https://rove.example", l.Home(apphost.Label))
-	x.Equal("https://rove.example", l.Home(apphost.File))
-	x.Equal("https://rove.example", apphost.Links{Public: "https://rove.example"}.Home(apphost.Page), "a page served where the service answers")
+	l := apphost.Links{App: "https://app.loft.example/", Public: "https://loft.example/"}
+	x.Equal("https://app.loft.example", l.Home(apphost.Page))
+	x.Equal("https://loft.example", l.Home(apphost.Label))
+	x.Equal("https://loft.example", l.Home(apphost.File))
+	x.Equal("https://loft.example", apphost.Links{Public: "https://loft.example"}.Home(apphost.Page), "a page served where the service answers")
 	x.True(l.Secure())
 	x.False(apphost.Links{Public: "http://localhost:8080"}.Secure())
 }

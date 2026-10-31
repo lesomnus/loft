@@ -2,7 +2,7 @@
 // out, and then everything it has, gone (design 8.2, "테넌트 탈퇴").
 //
 // The order is the design's -- export, a grace, then the purge -- and it is the
-// operator's to keep: `rove tenant export`, and `rove tenant purge` once the
+// operator's to keep: `loft tenant export`, and `loft tenant purge` once the
 // grace an offboarding gives is over. A tenant under a legal hold is refused
 // both the purge and nothing else; its export is exactly what a hold is for.
 //
@@ -25,10 +25,10 @@ import (
 	"github.com/protobuf-orm/ent/dialect"
 	"github.com/protobuf-orm/ent/dialect/sql/schema"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/server/retention"
-	"github.com/lesomnus/rove/server/storage"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/migrate"
+	"github.com/lesomnus/loft/server/retention"
+	"github.com/lesomnus/loft/server/storage"
 )
 
 // Deployment is what an offboarding works on.
@@ -104,7 +104,7 @@ func (d Deployment) held(ctx context.Context, tenant pdid.Id) error {
 
 // Trail is the trail's tables: its rows, the manifest of its archive, the
 // access record, which is kept by the same passes as a kind of the trail's
-// (rove#136) and so leaves with a tenant the way the trail does -- the rows'
+// (loft#136) and so leaves with a tenant the way the trail does -- the rows'
 // seals (payday#115), the MACs that cover what a row's digest leaves out,
 // which `PurgeTenant` and `RetireTenant` take with the tenant's trail -- and
 // the erasures it owes (payday#115), the deployment's, of no tenant, which
@@ -117,7 +117,7 @@ var Trail = []string{"audit", "archived", "access", "rowseal", "owed"}
 // session is an account's, and an account is in no workspace (D27); a failed
 // sign-in is an address's, before anybody is anybody; a code on its way to a
 // workspace's own domain is good for a minute, and a session handed there is
-// good on that domain alone, which goes with the workspace (rove#155); and
+// good on that domain alone, which goes with the workspace (loft#155); and
 // what the search index has yet to hear of is the deployment's work, which a
 // purge adds to rather than takes from.
 var Shared = []string{"session", "clilogin", "aliashold", "signinfailure", "handoff", "searchstale"}

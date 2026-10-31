@@ -10,14 +10,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/fact"
-	"github.com/lesomnus/rove/internal/ent/placement"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/fact"
+	"github.com/lesomnus/loft/internal/ent/placement"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// Rove's events and an asset's facts are payday's past (payday#151): written
+// Loft's events and an asset's facts are payday's past (payday#151): written
 // by its `past` package alone, an operation and what it wrote of one moment,
 // and let go by the window as the past lets go.
 

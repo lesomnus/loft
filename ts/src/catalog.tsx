@@ -10,11 +10,11 @@
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
 
-import type { Asset } from '../gen/rove/asset_pb.js'
-import type { Bookable } from '../gen/rove/booking_pb.js'
-import type { AssetType, ItemModel } from '../gen/rove/catalog_pb.js'
-import type { Party } from '../gen/rove/org_pb.js'
-import type { PartyMeResponse } from '../gen/rove/org_svc_pb.js'
+import type { Asset } from '../gen/loft/asset_pb.js'
+import type { Bookable } from '../gen/loft/booking_pb.js'
+import type { AssetType, ItemModel } from '../gen/loft/catalog_pb.js'
+import type { Party } from '../gen/loft/org_pb.js'
+import type { PartyMeResponse } from '../gen/loft/org_svc_pb.js'
 import { AssetService, AssetTypeService, BookableService, ItemModelService, PartyService, idStr, localize } from './api.js'
 import { useRpc } from './rpc.js'
 import { Spinner } from './ui.js'

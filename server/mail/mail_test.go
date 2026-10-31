@@ -14,7 +14,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	rovemail "github.com/lesomnus/rove/server/mail"
+	loftmail "github.com/lesomnus/loft/server/mail"
 )
 
 // server is an SMTP server that takes whatever it is sent, as far as a client
@@ -106,31 +106,31 @@ func TestAMessageIsSentAsTheConfigurationSays(t *testing.T) {
 		p = p*10 + int(r-'0')
 	}
 
-	t.Setenv("ROVE_TEST_MAIL_PASSWORD", "the password")
-	sender, err := rovemail.New(rovemail.Config{
-		Host: host, Port: p, Username: "rove", Password: "env:ROVE_TEST_MAIL_PASSWORD",
-		From: "Rove <no-reply@rove.example>", Tls: "none",
+	t.Setenv("LOFT_TEST_MAIL_PASSWORD", "the password")
+	sender, err := loftmail.New(loftmail.Config{
+		Host: host, Port: p, Username: "loft", Password: "env:LOFT_TEST_MAIL_PASSWORD",
+		From: "Loft <no-reply@loft.example>", Tls: "none",
 	}, func(ref string) (string, error) { return "the password", nil }, nil)
 	x.NoError(err)
 
-	body := "김민수님이 Rove의 연구실 워크스페이스에 구성원으로 초대했습니다.\n\nhttps://rove.example/invitations?code=abc\n"
-	x.NoError(sender.Send(context.Background(), rovemail.Message{
-		To: "kim@acme.example", Subject: "김민수님이 Rove의 연구실에 초대했습니다", Body: body,
+	body := "김민수님이 Loft의 연구실 워크스페이스에 구성원으로 초대했습니다.\n\nhttps://loft.example/invitations?code=abc\n"
+	x.NoError(sender.Send(context.Background(), loftmail.Message{
+		To: "kim@acme.example", Subject: "김민수님이 Loft의 연구실에 초대했습니다", Body: body,
 	}))
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	x.Contains(s.from, "<no-reply@rove.example>")
+	x.Contains(s.from, "<no-reply@loft.example>")
 	x.Equal([]string{"RCPT TO:<kim@acme.example>"}, s.to)
 	plain, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(s.auth, "AUTH PLAIN "))
 	x.NoError(err)
-	x.Equal("\x00rove\x00the password", string(plain))
+	x.Equal("\x00loft\x00the password", string(plain))
 
 	m, err := mail.ReadMessage(strings.NewReader(s.data))
 	x.NoError(err)
 	subject, err := new(mime.WordDecoder).DecodeHeader(m.Header.Get("Subject"))
 	x.NoError(err)
-	x.Equal("김민수님이 Rove의 연구실에 초대했습니다", subject)
+	x.Equal("김민수님이 Loft의 연구실에 초대했습니다", subject)
 	x.Equal("text/plain; charset=UTF-8", m.Header.Get("Content-Type"))
 	raw, err := io.ReadAll(base64.NewDecoder(base64.StdEncoding, m.Body))
 	x.NoError(err)
@@ -142,15 +142,15 @@ func TestAMessageIsSentAsTheConfigurationSays(t *testing.T) {
 func TestAConfigurationThatCannotSendIsRefused(t *testing.T) {
 	x := require.New(t)
 	none := func(string) (string, error) { return "", nil }
-	_, err := rovemail.New(rovemail.Config{Host: "smtp.example", From: "not an address"}, none, nil)
+	_, err := loftmail.New(loftmail.Config{Host: "smtp.example", From: "not an address"}, none, nil)
 	x.ErrorContains(err, "app.mail.from")
-	_, err = rovemail.New(rovemail.Config{Host: "smtp.example", From: "a@b.example", Tls: "sometimes"}, none, nil)
+	_, err = loftmail.New(loftmail.Config{Host: "smtp.example", From: "a@b.example", Tls: "sometimes"}, none, nil)
 	x.ErrorContains(err, "app.mail.tls")
 
 	// And no server is no mail, which is not a mistake.
-	s, err := rovemail.New(rovemail.Config{}, none, nil)
+	s, err := loftmail.New(loftmail.Config{}, none, nil)
 	x.NoError(err)
-	x.IsType(rovemail.Log{}, s)
+	x.IsType(loftmail.Log{}, s)
 }
 
 // A server that would be talked to in the clear when TLS was asked for is not.
@@ -162,9 +162,9 @@ func TestStartTlsIsNotSkipped(t *testing.T) {
 	for _, r := range port {
 		p = p*10 + int(r-'0')
 	}
-	sender, err := rovemail.New(rovemail.Config{Host: host, Port: p, From: "a@b.example"}, nil, nil)
+	sender, err := loftmail.New(loftmail.Config{Host: host, Port: p, From: "a@b.example"}, nil, nil)
 	x.NoError(err)
-	err = sender.Send(context.Background(), rovemail.Message{To: "kim@acme.example", Subject: "s", Body: "b"})
+	err = sender.Send(context.Background(), loftmail.Message{To: "kim@acme.example", Subject: "s", Body: "b"})
 	x.ErrorContains(err, "STARTTLS")
 	s.mu.Lock()
 	defer s.mu.Unlock()

@@ -21,7 +21,7 @@ const (
 	heardYes
 )
 
-// The recheck of an active custom domain's DNS (rove#155).
+// The recheck of an active custom domain's DNS (loft#155).
 //
 // Its TXT record and where it points are asked about every [RecheckEvery],
 // and a domain lapses once [RecheckFailures] answers in a row, over at least
@@ -57,7 +57,7 @@ func (d *Deps) txt(ctx context.Context, host, token string) heard {
 	if d.LookupTXT == nil {
 		return heardNothing
 	}
-	vs, err := d.LookupTXT(ctx, "_rove-challenge."+host)
+	vs, err := d.LookupTXT(ctx, "_loft-challenge."+host)
 	if err != nil {
 		return told(err)
 	}

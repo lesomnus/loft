@@ -1,9 +1,9 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import type { Asset } from '../../gen/rove/asset_pb.js'
-import type { TimelineEntry } from '../../gen/rove/asset_svc_pb.js'
-import type { CalendarEntry } from '../../gen/rove/booking_svc_pb.js'
+import type { Asset } from '../../gen/loft/asset_pb.js'
+import type { TimelineEntry } from '../../gen/loft/asset_svc_pb.js'
+import type { CalendarEntry } from '../../gen/loft/booking_svc_pb.js'
 import {
 	AssetService,
 	AttachmentService,

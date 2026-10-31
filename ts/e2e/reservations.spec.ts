@@ -1,6 +1,6 @@
 import type { Locator } from '@playwright/test'
 
-import { card, choose, expect, field, idOf, momentAt, owner, people, refusal, refused, rpc, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
+import { card, choose, expect, field, idOf, momentAt, owner, people, refusal, refused, rpc, said, signIn, test, unique, weekdayAt, workspace } from './loft.js'
 
 test('a booking of a room that needs approval waits for a manager, who approves it', async ({ page, as }) => {
 	const title = unique('e2e 분기 회의')

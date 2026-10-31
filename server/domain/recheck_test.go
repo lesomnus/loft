@@ -10,16 +10,16 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	entsession "github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	entsession "github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // dns is what DNS says, as a test says it: records by name, and whether it
@@ -92,7 +92,7 @@ func (d *dns) set(f func(d *dns)) {
 }
 
 // edge is the host a custom domain's CNAME points at, and its addresses.
-const edge = "edge.rove.example"
+const edge = "edge.loft.example"
 
 // reading is the env asking `d` about DNS, with this deployment's target.
 func (e *env) reading(d *dns) {
@@ -115,7 +115,7 @@ func (e *env) pointed(d *dns, host string) *app.TenantDomain {
 		if d.cname == nil {
 			d.cname = map[string]string{}
 		}
-		d.txt["_rove-challenge."+host] = []string{v.GetToken()}
+		d.txt["_loft-challenge."+host] = []string{v.GetToken()}
 		d.cname[host] = edge
 	})
 	return v
@@ -134,7 +134,7 @@ func (e *env) later(d time.Duration) {
 }
 
 // TestADomainWhoseDNSLeftLapses: an active custom domain's DNS is asked about
-// again every hour (rove#155), and the domain lapses once six answers in a
+// again every hour (loft#155), and the domain lapses once six answers in a
 // row, over five hours, said its TXT record is gone or that it no longer
 // points here. An answer that says nothing -- DNS that does not answer -- is
 // not counted, nor is a pass sooner than the hour, and a yes starts the count
@@ -152,7 +152,7 @@ func TestADomainWhoseDNSLeftLapses(t *testing.T) {
 	v := e.pointed(d, "assets.acme.example")
 	e.later(10 * time.Minute)
 	x.Equal("active", e.domainRow(v).State, "verified by the sweep, and the workspace's only domain")
-	x.Equal("https://assets.acme.example", on(e, "https://rove.example"), "links to the workspace are on it")
+	x.Equal("https://assets.acme.example", on(e, "https://loft.example"), "links to the workspace are on it")
 
 	// A session handed to the domain, and one at the service's.
 	owner, err := e.s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.TenantId(e.tenant.Uuid())).Only(ctx)
@@ -165,7 +165,7 @@ func TestADomainWhoseDNSLeftLapses(t *testing.T) {
 	x.Zero(failures())
 
 	// The TXT record gone: counted once an hour, and no sooner.
-	d.set(func(d *dns) { delete(d.txt, "_rove-challenge.assets.acme.example") })
+	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.assets.acme.example") })
 	e.later(time.Hour)
 	x.Equal(uint32(1), failures())
 	e.later(10 * time.Minute)
@@ -181,7 +181,7 @@ func TestADomainWhoseDNSLeftLapses(t *testing.T) {
 
 	// A yes starts the count again.
 	token := v.GetToken()
-	d.set(func(d *dns) { d.txt["_rove-challenge.assets.acme.example"] = []string{token} })
+	d.set(func(d *dns) { d.txt["_loft-challenge.assets.acme.example"] = []string{token} })
 	e.later(time.Hour)
 	x.Zero(failures())
 	x.Nil(e.domainRow(v).FailingSince)
@@ -191,11 +191,11 @@ func TestADomainWhoseDNSLeftLapses(t *testing.T) {
 	// it until five hours have passed since the first.
 	row := e.domainRow(v)
 	x.NoError(e.s.Ent.TenantDomain.UpdateOneId(row.Id).SetFailures(5).SetFailingSince(e.now.Add(-time.Hour)).Exec(ctx))
-	d.set(func(d *dns) { delete(d.txt, "_rove-challenge.assets.acme.example") })
+	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.assets.acme.example") })
 	e.later(time.Hour)
 	x.Equal("active", e.domainRow(v).State, "six noes in two hours")
 	x.Equal(uint32(6), failures())
-	d.set(func(d *dns) { d.txt["_rove-challenge.assets.acme.example"] = []string{token} })
+	d.set(func(d *dns) { d.txt["_loft-challenge.assets.acme.example"] = []string{token} })
 	e.later(time.Hour)
 	x.Zero(failures())
 
@@ -215,7 +215,7 @@ func TestADomainWhoseDNSLeftLapses(t *testing.T) {
 	row = e.domainRow(v)
 	x.Equal("lapsed", row.State, "the sixth no, five hours after the first")
 	x.NotNil(row.DateLapsed)
-	x.Equal(on(e, "https://rove.example"), "https://rove.example", "links to the workspace are the service's again")
+	x.Equal(on(e, "https://loft.example"), "https://loft.example", "links to the workspace are the service's again")
 	x.False(e.sessionLives(handed), "the session handed to it is over")
 	x.True(e.sessionLives(parent), "and the one at the service's is not")
 
@@ -251,7 +251,7 @@ func TestALapsedDomainIsActiveAgainOnceItsTXTVerifies(t *testing.T) {
 	e.later(10 * time.Minute)
 	x.Equal("active", e.domainRow(v).State)
 	token := v.GetToken()
-	d.set(func(d *dns) { delete(d.txt, "_rove-challenge.assets.acme.example") })
+	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.assets.acme.example") })
 	for range 6 {
 		e.later(time.Hour)
 	}
@@ -266,32 +266,32 @@ func TestALapsedDomainIsActiveAgainOnceItsTXTVerifies(t *testing.T) {
 	// It points here all along; the record back is what brings it back.
 	e.later(10 * time.Minute)
 	x.Equal("lapsed", e.domainRow(v).State, "pointed here, and no TXT record")
-	d.set(func(d *dns) { d.txt["_rove-challenge.assets.acme.example"] = []string{token} })
+	d.set(func(d *dns) { d.txt["_loft-challenge.assets.acme.example"] = []string{token} })
 	e.later(10 * time.Minute)
 	row := e.domainRow(v)
 	x.Equal("active", row.State, "verified again by the sweep, with no other domain active")
 	x.Zero(row.Failures)
-	x.Equal(on(e, "https://rove.example"), "https://assets.acme.example")
+	x.Equal(on(e, "https://loft.example"), "https://assets.acme.example")
 
 	// And by a person, at once.
-	d.set(func(d *dns) { delete(d.txt, "_rove-challenge.assets.acme.example") })
+	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.assets.acme.example") })
 	for range 6 {
 		e.later(time.Hour)
 	}
 	x.Equal("lapsed", e.domainRow(v).State)
-	d.set(func(d *dns) { d.txt["_rove-challenge.assets.acme.example"] = []string{token} })
+	d.set(func(d *dns) { d.txt["_loft-challenge.assets.acme.example"] = []string{token} })
 	got, err := e.app().TenantDomain().Verify(e.owner, app.TenantDomainVerifyRequest_builder{Ref: ref}.Build())
 	x.NoError(err)
 	x.Equal("active", got.GetState())
 
 	// A week lapsed, it is looked for no more: a person asks.
-	d.set(func(d *dns) { delete(d.txt, "_rove-challenge.assets.acme.example") })
+	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.assets.acme.example") })
 	for range 6 {
 		e.later(time.Hour)
 	}
 	x.Equal("lapsed", e.domainRow(v).State)
 	e.now = e.now.Add(8 * 24 * time.Hour)
-	d.set(func(d *dns) { d.txt["_rove-challenge.assets.acme.example"] = []string{token} })
+	d.set(func(d *dns) { d.txt["_loft-challenge.assets.acme.example"] = []string{token} })
 	e.later(10 * time.Minute)
 	x.Equal("lapsed", e.domainRow(v).State, "a week on, the sweep does not ask")
 }
@@ -335,7 +335,7 @@ func TestADomainPointsHereByItsCNAMEOrItsAddresses(t *testing.T) {
 	x.ErrorContains(err, "가리키지 않습니다")
 
 	bare := e.pointed(d, "bare.acme.example")
-	d.set(func(d *dns) { delete(d.txt, "_rove-challenge.bare.acme.example") })
+	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.bare.acme.example") })
 	_, err = verify(bare)
 	x.Equal(codes.FailedPrecondition, codeOf(err))
 	x.ErrorContains(err, "TXT")

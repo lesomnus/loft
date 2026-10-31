@@ -9,8 +9,8 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/server/domain"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 // The operator's half of a workspace closing (D29): what an owner can do from

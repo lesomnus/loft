@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/lesomnus/rove/cli"
+	"github.com/lesomnus/loft/cli"
 )
 
-// TestAWorkspaceIsTakenOutFromATerminal: `rove workspace export` is what the
+// TestAWorkspaceIsTakenOutFromATerminal: `loft workspace export` is what the
 // page's download is -- everything a workspace its owner owns has, as one zip
 // -- and somebody who does not own it is refused, with nothing left behind.
 func TestAWorkspaceIsTakenOutFromATerminal(t *testing.T) {
@@ -21,7 +21,7 @@ func TestAWorkspaceIsTakenOutFromATerminal(t *testing.T) {
 	s.signIn("owner", "owner1234")
 	out := filepath.Join(dir, "acme.zip")
 	// Without saying what for, nothing is asked: it hands everybody's data
-	// out, and the access record keeps why (rove#136).
+	// out, and the access record keeps why (loft#136).
 	err := cli.NewCmdWorkspace().Run(context.Background(), []string{"export", "--out", out, "acme"})
 	x.ErrorContains(err, "--reason")
 	x.Contains(run(t, cli.NewCmdWorkspace(), "export", "--reason", "폐업 전 보관", "--out", out, "acme"), out)

@@ -16,14 +16,14 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	entaudit "github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	entaudit "github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // TestAnOperationUndoneMailsNothing: a notification is queued in the
@@ -84,8 +84,8 @@ func TestAnOperationUndoneMailsNothing(t *testing.T) {
 	again, err := anypb.New(reserve(tomorrow))
 	x.NoError(err)
 	_, err = pdpb.NewBatchServiceClient(w.conn).Do(kim, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: "/rove.ReservationService/Add", Request: add}.Build(),
-		pdpb.Op_builder{Method: "/rove.ReservationService/Add", Request: again}.Build(),
+		pdpb.Op_builder{Method: "/loft.ReservationService/Add", Request: add}.Build(),
+		pdpb.Op_builder{Method: "/loft.ReservationService/Add", Request: again}.Build(),
 	}}.Build())
 	x.Equal(codes.Aborted, status.Code(err), "the second overlaps the first, so the batch is undone: %v", err)
 	n, err := w.s.Ent.Notification.Query().Where(notification.Kind("reservation.requested")).Count(ctx)
@@ -107,7 +107,7 @@ func TestAnOperationUndoneMailsNothing(t *testing.T) {
 	x.Equal("owner@acme.example", box.sent[0].To)
 	// From the workspace by what it is called: the world's has no name of
 	// its own, and its owner no person record (D57).
-	x.Contains(box.sent[0].Body, "Rove의 owner의 워크스페이스에서 온 알림입니다.")
+	x.Contains(box.sent[0].Body, "Loft의 owner의 워크스페이스에서 온 알림입니다.")
 
 	sent, err := w.s.Ent.Notification.Query().Where(notification.Kind("reservation.requested")).Only(ctx)
 	x.NoError(err)

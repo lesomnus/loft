@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // TestAVendorOrAModelIsTheWorkspacesOwn: a work order's vendor, a purchase's,
@@ -16,7 +16,7 @@ import (
 // the gate reading each edge a write sets through the wall, which answers for
 // every caller this deployment has, since each is a membership of one
 // workspace: another workspace's vendor or model is not there to name
-// (rove#40, payday's permissions guide §3).
+// (loft#40, payday's permissions guide §3).
 func TestAVendorOrAModelIsTheWorkspacesOwn(t *testing.T) {
 	e := newEnv(t)
 	x := e.x

@@ -18,10 +18,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/server/account"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/server/account"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // hosted is the world as the HTTP listener serves it, behind the decision
@@ -41,7 +41,7 @@ func newHostedWith(t *testing.T, with func(*cmd.Config)) *hosted {
 		t.Fatal(err)
 	}
 	w := newWorldWith(t, func(c *cmd.Config) {
-		c.App.PublicUrl = "https://rove.example"
+		c.App.PublicUrl = "https://loft.example"
 		c.App.Web = web
 		if with != nil {
 			with(c)
@@ -67,7 +67,7 @@ func (w *hosted) domain(t *app.Tenant, host, purpose, state string) {
 		SetHost(host).
 		SetPurpose(purpose).
 		SetState(state).
-		SetToken("rove-test").
+		SetToken("loft-test").
 		SetSource("custom").
 		SetDateUpdated(time.Now()).
 		Exec(context.Background()))
@@ -95,11 +95,11 @@ func (w *hosted) me(ctx context.Context, host, ws string) *httptest.ResponseReco
 	if ws != "" {
 		h = append(h, cmd.WorkspaceHeader, ws)
 	}
-	return w.at(ctx, host, http.MethodPost, "/rove.PartyService/Me", "{}", h...)
+	return w.at(ctx, host, http.MethodPost, "/loft.PartyService/Me", "{}", h...)
 }
 
 // TestAWorkspacesDomainServesItAlone: a request that came to a workspace's
-// active app domain is pinned to that workspace (rove#155). A call naming no
+// active app domain is pinned to that workspace (loft#155). A call naming no
 // workspace is served there, though the account is in two; one naming the
 // other is refused rather than re-pointed, as is a page at the other's
 // `/@alias`, a file of the other's, signing in, and making a workspace; and
@@ -122,7 +122,7 @@ func TestAWorkspacesDomainServesItAlone(t *testing.T) {
 	w.domain(w.tenant, "assets.acme.example", "app", "active")
 	w.domain(w.tenant, "old.acme.example", "app", "legacy")
 	w.domain(w.tenant, "acme.l.test", "label", "active")
-	const own, service = "assets.acme.example", "rove.example"
+	const own, service = "assets.acme.example", "loft.example"
 
 	// Pinned: the workspace is the domain's, whatever else the account is in.
 	res := w.me(as, own, "")
@@ -175,7 +175,7 @@ func TestAWorkspacesDomainServesItAlone(t *testing.T) {
 	// invitations addressed to it, from whichever workspace.
 	mine := `{"filters":[{"account":"` + base64.StdEncoding.EncodeToString(w.accountOf(inAcme).Bytes()) + `"}]}`
 	invitations := func(host string) int {
-		return w.at(as, host, http.MethodPost, "/rove.InvitationService/List", mine, "Content-Type", "application/json", "Connect-Protocol-Version", "1").Code
+		return w.at(as, host, http.MethodPost, "/loft.InvitationService/List", mine, "Content-Type", "application/json", "Connect-Protocol-Version", "1").Code
 	}
 	x.Equal(http.StatusForbidden, invitations(own), "the account's invitations, on a workspace's address")
 	x.Equal(http.StatusOK, invitations(service))
@@ -223,7 +223,7 @@ func TestAWorkspacesDomainRefusesAnotherWorkspacesCredential(t *testing.T) {
 	as := w.session(w.member(beta, lee, "owner"))
 	w.domain(w.tenant, "assets.acme.example", "app", "active")
 
-	x.Equal(http.StatusOK, w.me(as, "rove.example", "").Code, "its only workspace, at the service's")
+	x.Equal(http.StatusOK, w.me(as, "loft.example", "").Code, "its only workspace, at the service's")
 	x.Equal(http.StatusForbidden, w.me(as, "assets.acme.example", "").Code, "acme's address, and no membership of acme")
 	x.Equal(http.StatusForbidden, w.me(as, "assets.acme.example", "beta").Code)
 }

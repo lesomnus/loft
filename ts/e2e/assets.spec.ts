@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './rove.js'
+import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
 
 test('an asset is registered, found, opened and moved, and its timeline says so', async ({ page }) => {
 	const name = unique('e2e 의자')
@@ -42,13 +42,13 @@ test('the register is exported as a CSV to read', async ({ page }, info) => {
 	await page.goto(`${workspace}/assets`)
 
 	// It names people, so it says what for first, and the access record
-	// keeps that (rove#136).
+	// keeps that (loft#136).
 	await page.getByRole('button', { name: 'CSV로 내보내기' }).click()
 	await field(page, '내려받는 이유').fill('e2e: 자산 실사')
 	const download = page.waitForEvent('download')
 	await page.getByRole('button', { name: '내려받기', exact: true }).click()
 	const got = await download
-	expect(got.suggestedFilename()).toMatch(/^rove-assets-\d{8}\.csv$/)
+	expect(got.suggestedFilename()).toMatch(/^loft-assets-\d{8}\.csv$/)
 
 	// UTF-8 with the mark Excel reads it as UTF-8 by, the register's header
 	// first and a row an asset after it.

@@ -16,16 +16,16 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	admincli "github.com/lesomnus/rove/cli/admin"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/ent/tenantcontract"
-	"github.com/lesomnus/rove/server/admin"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	admincli "github.com/lesomnus/loft/cli/admin"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/server/admin"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 const key = "an-operators-key-long-enough-to-be-one"
@@ -73,7 +73,7 @@ func deploy(t *testing.T) *deployment {
 	return &deployment{c: c, s: s, url: srv.URL}
 }
 
-// admin runs `rove-admin` against the deployment's entry point.
+// admin runs `loft-admin` against the deployment's entry point.
 func (d *deployment) admin(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	return run(t, admincli.Cmd(&d.c), append([]string{"--url", d.url, "--key", key}, args...)...)
@@ -239,7 +239,7 @@ func TestTheEntryPointAnswersOnlyAnOperatorsKey(t *testing.T) {
 
 	_, err = admin.Operators(map[string]string{"bob": "short"})
 	x.ErrorContains(err, "admin.keys.bob")
-	_, err = admin.Operators(map[string]string{"carol": "env:ROVE_NO_SUCH_KEY_HERE"})
+	_, err = admin.Operators(map[string]string{"carol": "env:LOFT_NO_SUCH_KEY_HERE"})
 	x.ErrorContains(err, "admin.keys.carol")
 }
 
@@ -247,7 +247,7 @@ func TestTheEntryPointAnswersOnlyAnOperatorsKey(t *testing.T) {
 // certificate for a workspace's domain that is verified and in use -- ready,
 // active, or legacy, whose labels and pages still open -- and for no other:
 // not one waiting for its TXT record, not one that lapsed when its DNS
-// stopped saying it is here (rove#155), not one retired.
+// stopped saying it is here (loft#155), not one retired.
 func TestACertificateIsAskedForADomainInUse(t *testing.T) {
 	x := require.New(t)
 	d := deploy(t)
@@ -270,7 +270,7 @@ func TestACertificateIsAskedForADomainInUse(t *testing.T) {
 			SetHost(host).
 			SetPurpose("app").
 			SetState(state).
-			SetToken("rove-test").
+			SetToken("loft-test").
 			SetSource("custom").
 			SetDateUpdated(time.Now()).
 			Exec(ctx))
@@ -299,7 +299,7 @@ func TestTheAskIsServedAloneAndHeldToItsRate(t *testing.T) {
 			SetHost(host).
 			SetPurpose("app").
 			SetState("active").
-			SetToken("rove-test").
+			SetToken("loft-test").
 			SetSource("custom").
 			SetDateUpdated(time.Now()).
 			Exec(ctx))

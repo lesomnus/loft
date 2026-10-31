@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/search.proto
+// source: loft/search.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -47,7 +47,7 @@ type SearchStale struct {
 
 func (x *SearchStale) Reset() {
 	*x = SearchStale{}
-	mi := &file_rove_search_proto_msgTypes[0]
+	mi := &file_loft_search_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -59,7 +59,7 @@ func (x *SearchStale) String() string {
 func (*SearchStale) ProtoMessage() {}
 
 func (x *SearchStale) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_search_proto_msgTypes[0]
+	mi := &file_loft_search_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -155,11 +155,11 @@ func (b0 SearchStale_builder) Build() *SearchStale {
 	return m0
 }
 
-var File_rove_search_proto protoreflect.FileDescriptor
+var File_loft_search_proto protoreflect.FileDescriptor
 
-const file_rove_search_proto_rawDesc = "" +
+const file_loft_search_proto_rawDesc = "" +
 	"\n" +
-	"\x11rove/search.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xc2\x02\n" +
+	"\x11loft/search.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xc2\x02\n" +
 	"\vSearchStale\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x12\n" +
 	"\x04kind\x18\b \x01(\tR\x04kind\x12\x18\n" +
@@ -167,15 +167,15 @@ const file_rove_search_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\x9d\x01\xca\xfc\x15\"\x1a \x12\fdate_created\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x8a\xbb\x16s\b.B\x02\n" +
 	"\x00Ri\x12g\n" +
-	"ethe search index's queue: that a document is to be made again, which the indexer takes within seconds*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"ethe search index's queue: that a document is to be made again, which the indexer takes within seconds*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_search_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_rove_search_proto_goTypes = []any{
-	(*SearchStale)(nil),           // 0: rove.SearchStale
+var file_loft_search_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_loft_search_proto_goTypes = []any{
+	(*SearchStale)(nil),           // 0: loft.SearchStale
 	(*timestamppb.Timestamp)(nil), // 1: google.protobuf.Timestamp
 }
-var file_rove_search_proto_depIdxs = []int32{
-	1, // 0: rove.SearchStale.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_search_proto_depIdxs = []int32{
+	1, // 0: loft.SearchStale.date_created:type_name -> google.protobuf.Timestamp
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -183,26 +183,26 @@ var file_rove_search_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_rove_search_proto_init() }
-func file_rove_search_proto_init() {
-	if File_rove_search_proto != nil {
+func init() { file_loft_search_proto_init() }
+func file_loft_search_proto_init() {
+	if File_loft_search_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_search_proto_rawDesc), len(file_rove_search_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_search_proto_rawDesc), len(file_loft_search_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_search_proto_goTypes,
-		DependencyIndexes: file_rove_search_proto_depIdxs,
-		MessageInfos:      file_rove_search_proto_msgTypes,
+		GoTypes:           file_loft_search_proto_goTypes,
+		DependencyIndexes: file_loft_search_proto_depIdxs,
+		MessageInfos:      file_loft_search_proto_msgTypes,
 	}.Build()
-	File_rove_search_proto = out.File
-	file_rove_search_proto_goTypes = nil
-	file_rove_search_proto_depIdxs = nil
+	File_loft_search_proto = out.File
+	file_loft_search_proto_goTypes = nil
+	file_loft_search_proto_depIdxs = nil
 }

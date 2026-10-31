@@ -112,7 +112,7 @@ export type Labelled = { id?: string; 'aria-describedby'?: string }
  * click on one of them that the page redraws before the click is over is the
  * label's own by the time the browser looks: it hands it on to its first
  * control, which in an asset picker was the 바꾸기 just drawn, and that
- * unpicked what had been picked (rove#53).
+ * unpicked what had been picked (loft#53).
  *
  * A field of more than one control -- a picker, a row of boxes -- is a
  * `group`: named by what it says, and naming nothing in it. Its controls say
@@ -170,7 +170,7 @@ function FieldControl(props: {
 	// Said where it is wrong, since nothing else would say it: a control that
 	// does not take the id the field hands it is a field whose label names
 	// nothing, and that looks exactly like one that works. The browser tests
-	// fail on it (e2e/rove.ts).
+	// fail on it (e2e/loft.ts).
 	useLayoutEffect(() => {
 		const el = document.getElementById(props.id)
 		if (el === null || !('labels' in el)) {

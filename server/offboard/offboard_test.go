@@ -29,16 +29,16 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/internal/ent/rowseal"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/rowseal"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 type env struct {
@@ -278,7 +278,7 @@ func TestAnExportHasAllOfIt(t *testing.T) {
 // TestAnExportIsTheSameReadARowAtATime: read a row at a time, an export is the
 // one read a page at a time -- every row of every table and of the trail, once
 // and in the same order -- so that what an export holds is a page and not the
-// workspace (rove#120).
+// workspace (loft#120).
 func TestAnExportIsTheSameReadARowAtATime(t *testing.T) {
 	e := newEnv(t)
 	x := e.x

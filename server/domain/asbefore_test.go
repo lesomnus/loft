@@ -8,8 +8,8 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // AddedAsBefore registers an asset as Add did before an attribute's key was

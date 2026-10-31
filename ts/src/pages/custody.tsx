@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
-import type { Asset } from '../../gen/rove/asset_pb.js'
-import type { Custody, CustodyLine } from '../../gen/rove/custody_pb.js'
+import type { Asset } from '../../gen/loft/asset_pb.js'
+import type { Custody, CustodyLine } from '../../gen/loft/custody_pb.js'
 import { AssetService, BookableService, CustodyLineService, CustodyService, StockService, dateOf, fmt, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect, SpaceSelect } from '../pickers.js'

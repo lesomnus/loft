@@ -20,11 +20,11 @@ export function Consent(props: { account: Account; onDone: () => void; onSignOut
 				<div className="brand">
 					<img src="/icon.svg" alt="" />
 					<div>
-						<h1>Rove</h1>
+						<h1>Loft</h1>
 						<p>{props.account.name || props.account.login}</p>
 					</div>
 				</div>
-				<p>Rove를 쓰려면 아래 문서에 동의해야 합니다.</p>
+				<p>Loft를 쓰려면 아래 문서에 동의해야 합니다.</p>
 				<ul className="consent">
 					{owes.map((d) => (
 						<li key={d.name}>

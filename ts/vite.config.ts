@@ -10,7 +10,7 @@ import { defineConfig, type Plugin } from 'vite'
  * server passes everything that is not the page through to the app, so the
  * page sees one origin exactly as it does when the app serves `dist/` itself.
  */
-const app = process.env['ROVE_ADDR'] ?? 'http://localhost:8080'
+const app = process.env['LOFT_ADDR'] ?? 'http://localhost:8080'
 
 /**
  * The service worker (`sw.js`), written into the build with what it keeps:
@@ -21,7 +21,7 @@ const app = process.env['ROVE_ADDR'] ?? 'http://localhost:8080'
 function serviceWorker(): Plugin {
 	const at = (p: string) => new URL(p, import.meta.url)
 	return {
-		name: 'rove-service-worker',
+		name: 'loft-service-worker',
 		apply: 'build',
 		generateBundle(_, bundle) {
 			const own = readdirSync(at('./public/')).map((f) => `/${f}`)
@@ -45,7 +45,7 @@ export default defineConfig({
 	plugins: [react(), serviceWorker()],
 	server: {
 		proxy: {
-			'^/(rove|payday)\\.[A-Za-z]+Service/': { target: app, changeOrigin: false },
+			'^/(loft|payday)\\.[A-Za-z]+Service/': { target: app, changeOrigin: false },
 			'/session': { target: app, changeOrigin: false },
 			'/account': { target: app, changeOrigin: false },
 			'/sso': { target: app, changeOrigin: false },

@@ -20,17 +20,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/retention"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	entmigrate "github.com/lesomnus/loft/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/retention"
 )
 
-// TestADeploymentMigratesBeforeItServes: `rove migrate` brings a database
+// TestADeploymentMigratesBeforeItServes: `loft migrate` brings a database
 // nothing has touched into this build's shape, which is the shape a `serve`
 // that may not alter tables (`db.migrate: false`) checks for before it starts
 // -- and asked again, it finds nothing to do.
@@ -59,7 +59,7 @@ func TestADeploymentMigratesBeforeItServes(t *testing.T) {
 	x.NoError(check())
 }
 
-// TestAMigrationOpensOnlyTheDatabases: `rove migrate` brings the tables along
+// TestAMigrationOpensOnlyTheDatabases: `loft migrate` brings the tables along
 // where no file, archive or key a server needs is to be had -- which is where
 // it runs in Kubernetes, before a pod serves, with none of its volumes mounted
 // and the digest's key alone beside it (deploy/k8s). That key too it reads
@@ -110,7 +110,7 @@ func TestAMigrationOpensOnlyTheDatabases(t *testing.T) {
 
 // TestAMigrationReadsTheDigestsKeyWhenItIsAsked: a row a migration rewrites
 // beneath the servers is put on the trail as the act it is (`pd.Record`),
-// digested with the deployment's key -- which `rove migrate` reads when a step
+// digested with the deployment's key -- which `loft migrate` reads when a step
 // first asks for it, and not before ([cmd.Server.Contents]). A key that
 // cannot be read is said then, which stops the step that asked; a deployment
 // that names no key records with no digest; and what was read once is what
@@ -234,11 +234,11 @@ func TestAnIndexAnEarlierBuildMadeIsMovedToItsName(t *testing.T) {
 
 // TestAnIndexWhoseBuildDidNotFinishIsRefused (payday#176): README tells the
 // operator of a big deployment to build `audit_by_time` and `access_by_time`
-// ahead of the migration, `CONCURRENTLY`, in Rove's database and in the
+// ahead of the migration, `CONCURRENTLY`, in Loft's database and in the
 // embedded roster's. A build that does not finish is left in the catalog,
 // invalid -- kept up by every write and read by nothing -- and a migration
 // found it by its name and said the database was in this build's shape.
-// `rove migrate` refuses it now, in either database, naming it and what to run;
+// `loft migrate` refuses it now, in either database, naming it and what to run;
 // and what it says to run makes it.
 func TestAnIndexWhoseBuildDidNotFinishIsRefused(t *testing.T) {
 	x := require.New(t)
@@ -260,7 +260,7 @@ func TestAnIndexWhoseBuildDidNotFinishIsRefused(t *testing.T) {
 		// operator knows which database to run it in.
 		says string
 	}{
-		{"rove's", c.Db.Driver, c.Db.Dsn, ""},
+		{"loft's", c.Db.Driver, c.Db.Dsn, ""},
 		{"the embedded roster's", c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn, "embedded roster: "},
 	} {
 		t.Run(at.name, func(t *testing.T) {
@@ -518,7 +518,7 @@ func TestTheContractsTermsMoveFromABuildLongBefore(t *testing.T) {
 
 	c := cmd.Config{}
 	c.Db.Driver = "sqlite3"
-	c.Db.Dsn = "file:" + filepath.Join(t.TempDir(), "rove.db") + "?_pragma=foreign_keys(1)&_pragma=busy_timeout(10000)"
+	c.Db.Dsn = "file:" + filepath.Join(t.TempDir(), "loft.db") + "?_pragma=foreign_keys(1)&_pragma=busy_timeout(10000)"
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = "sqlite3", "file:"+filepath.Join(t.TempDir(), "roster.db")
@@ -564,7 +564,7 @@ func TestTheContractsTermsMoveFromABuildLongBefore(t *testing.T) {
 
 	for _, q := range []string{
 		"SELECT count(*) FROM pragma_table_info('tenantcontract') WHERE name IN ('view_days', 'keep_days', 'grace_days', 'access_keep_days', 'restore_days')",
-		"SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'rove_contract_terms'",
+		"SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'loft_contract_terms'",
 	} {
 		n := 0
 		x.NoError(s.Db.QueryRowContext(ctx, q).Scan(&n))

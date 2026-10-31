@@ -3,7 +3,7 @@
 package itemmodel
 
 import (
-	"github.com/lesomnus/rove"
+	"github.com/lesomnus/loft"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -87,7 +87,7 @@ func ValidColumn(column string) bool {
 var (
 	// ValueScanner of all ItemModel fields.
 	ValueScanner struct {
-		Spec field.TypeValueScanner[*rove.ModelSpec]
+		Spec field.TypeValueScanner[*loft.ModelSpec]
 	}
 )
 

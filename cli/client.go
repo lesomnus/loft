@@ -33,16 +33,16 @@ import (
 	"github.com/lesomnus/payday/pdcmd"
 	"github.com/lesomnus/z"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/server/clilogin"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/server/clilogin"
 )
 
 // The terminal's half of this app: everything it can do, asked of a running
 // deployment over the address a browser reaches it at, as an account signed in
-// by approving the terminal there (`rove login`, `server/clilogin`).
+// by approving the terminal there (`loft login`, `server/clilogin`).
 //
-// It is not the operator's half. `rove init`, `rove tenant purge`, `rove
+// It is not the operator's half. `loft init`, `loft tenant purge`, `loft
 // identity ...` run on the box with the database; these run anywhere, as a
 // person, through the same policy and the same wall as the page.
 
@@ -56,17 +56,17 @@ type clientConfig struct {
 	Workspace string `json:"workspace,omitempty"`
 }
 
-// clientConfigPath is where it is kept: `ROVE_CLIENT_CONFIG`, or the user's
+// clientConfigPath is where it is kept: `LOFT_CLIENT_CONFIG`, or the user's
 // configuration directory.
 func clientConfigPath() (string, error) {
-	if v := os.Getenv("ROVE_CLIENT_CONFIG"); v != "" {
+	if v := os.Getenv("LOFT_CLIENT_CONFIG"); v != "" {
 		return v, nil
 	}
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, "rove", "client.json"), nil
+	return filepath.Join(dir, "loft", "client.json"), nil
 }
 
 func loadClient() (clientConfig, error) {
@@ -114,7 +114,7 @@ func (c clientConfig) conn(ws string) *connectConn {
 	if ws = strings.TrimPrefix(strings.TrimSpace(ws), "@"); ws != "" {
 		h.Set(cmd.WorkspaceHeader, ws)
 	}
-	h.Set("User-Agent", "rove-cli")
+	h.Set("User-Agent", "loft-cli")
 	return &connectConn{base: strings.TrimSuffix(c.Url, "/"), client: &http.Client{Timeout: 0}, header: h}
 }
 
@@ -138,7 +138,7 @@ func (c clientConfig) do(ctx context.Context, method, path string, body any, out
 	if c.Key != "" {
 		req.Header.Set("Cookie", c.Cookie+"="+c.Key)
 	}
-	req.Header.Set("User-Agent", "rove-cli")
+	req.Header.Set("User-Agent", "loft-cli")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return 0, err
@@ -165,7 +165,7 @@ func (c clientConfig) fetch(ctx context.Context, path string, w io.Writer) error
 	if c.Key != "" {
 		req.Header.Set("Cookie", c.Cookie+"="+c.Key)
 	}
-	req.Header.Set("User-Agent", "rove-cli")
+	req.Header.Set("User-Agent", "loft-cli")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
@@ -179,16 +179,16 @@ func (c clientConfig) fetch(ctx context.Context, path string, w io.Writer) error
 	return err
 }
 
-// NewCmdLogin is `rove login`: this terminal signed in by approving it in a
+// NewCmdLogin is `loft login`: this terminal signed in by approving it in a
 // browser where the person is signed in already.
 func NewCmdLogin() *xli.Command {
 	return &xli.Command{
 		Name:  "login",
 		Brief: "sign this terminal in, by approving it in a browser",
 		Flags: flg.Flags{
-			&flg.String{Name: "url", Brief: "the app's address, e.g. https://rove.example; the last one used when left out"},
+			&flg.String{Name: "url", Brief: "the app's address, e.g. https://loft.example; the last one used when left out"},
 			&flg.Switch{Name: "no-browser", Brief: "print the address to open rather than opening it"},
-			&flg.Strings{Name: "allow", Brief: "only this method or pattern (/rove.ReservationService/*, /rove.*/Get), again for more; `read` is every method that only reads"},
+			&flg.Strings{Name: "allow", Brief: "only this method or pattern (/loft.ReservationService/*, /loft.*/Get), again for more; `read` is every method that only reads"},
 		},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			was, err := loadClient()
@@ -200,7 +200,7 @@ func NewCmdLogin() *xli.Command {
 				base = was.Url
 			}
 			if base == "" {
-				return errors.New("which deployment: --url https://rove.example")
+				return errors.New("which deployment: --url https://loft.example")
 			}
 			if _, err := url.Parse(base); err != nil {
 				return fmt.Errorf("--url: %w", err)
@@ -234,17 +234,17 @@ func NewCmdLogin() *xli.Command {
 	}
 }
 
-// reads is what `rove login --allow read` asks for: the methods that only
+// reads is what `loft login --allow read` asks for: the methods that only
 // read -- every entity's Get, List and Watch, and the searches, histories and
 // answers beside them -- for a terminal handed to an assistant that may look
 // and not touch. Named by pattern, so that a read added later is one too, and
 // never a method that writes: SetPassword and MarkRead are not here.
 var reads = []string{
-	"/rove.*/Get", "/rove.*/List", "/rove.*/Watch", "/rove.*/Search", "/rove.*/Recent",
-	"/rove.AssetService/Timeline", "/rove.AssetService/QueryAt", "/rove.AssetService/Diff", "/rove.AssetService/Report",
-	"/rove.ReservationService/Calendar", "/rove.ReservationService/Timeline", "/rove.BookableService/Availability",
-	"/rove.PartyService/Me", "/rove.LabelService/Resolve", "/rove.TenantDomainService/Status",
-	"/rove.AttachmentService/Url", "/rove.NotificationService/Inbox",
+	"/loft.*/Get", "/loft.*/List", "/loft.*/Watch", "/loft.*/Search", "/loft.*/Recent",
+	"/loft.AssetService/Timeline", "/loft.AssetService/QueryAt", "/loft.AssetService/Diff", "/loft.AssetService/Report",
+	"/loft.ReservationService/Calendar", "/loft.ReservationService/Timeline", "/loft.BookableService/Availability",
+	"/loft.PartyService/Me", "/loft.LabelService/Resolve", "/loft.TenantDomainService/Status",
+	"/loft.AttachmentService/Url", "/loft.NotificationService/Inbox",
 }
 
 // expand is what `--allow` named, with `read` as [reads].
@@ -278,7 +278,7 @@ func login(ctx context.Context, self *xli.Command, base string, browser bool, al
 	var started clilogin.Started
 	if _, err := c.do(ctx, http.MethodPost, "/cli/logins", map[string]any{
 		"secret": secret,
-		"client": fmt.Sprintf("rove CLI on %s (%s/%s)", host, runtime.GOOS, runtime.GOARCH),
+		"client": fmt.Sprintf("loft CLI on %s (%s/%s)", host, runtime.GOOS, runtime.GOARCH),
 		"allow":  allow,
 	}, &started); err != nil {
 		return clientConfig{}, err
@@ -312,7 +312,7 @@ func login(ctx context.Context, self *xli.Command, base string, browser bool, al
 		case "denied":
 			return clientConfig{}, errors.New("turned away in the browser")
 		default:
-			return clientConfig{}, errors.New("nobody approved it in time; run `rove login` again")
+			return clientConfig{}, errors.New("nobody approved it in time; run `loft login` again")
 		}
 	}
 }
@@ -332,7 +332,7 @@ func openBrowser(addr string) {
 	_ = c.Start()
 }
 
-// NewCmdLogout is `rove logout`: the session ended where it lives, and
+// NewCmdLogout is `loft logout`: the session ended where it lives, and
 // forgotten here.
 func NewCmdLogout() *xli.Command {
 	return &xli.Command{
@@ -358,7 +358,7 @@ func NewCmdLogout() *xli.Command {
 	}
 }
 
-// NewCmdWhoami is `rove whoami`: the account, and the workspaces it is in.
+// NewCmdWhoami is `loft whoami`: the account, and the workspaces it is in.
 func NewCmdWhoami() *xli.Command {
 	return &xli.Command{
 		Name:  "whoami",
@@ -401,7 +401,7 @@ func NewCmdWhoami() *xli.Command {
 	}
 }
 
-// NewCmdUse is `rove use`: which workspace the terminal speaks to when a
+// NewCmdUse is `loft use`: which workspace the terminal speaks to when a
 // command names none.
 func NewCmdUse() *xli.Command {
 	return &xli.Command{
@@ -444,7 +444,7 @@ func NewCmdUse() *xli.Command {
 					found = found || w.Alias == ws
 				}
 				if !found {
-					return fmt.Errorf("@%s: not a workspace this account is in (`rove whoami`)", ws)
+					return fmt.Errorf("@%s: not a workspace this account is in (`loft whoami`)", ws)
 				}
 				c.Workspace = ws
 			}
@@ -461,7 +461,7 @@ func NewCmdUse() *xli.Command {
 	}
 }
 
-// NewCmdWorkspace is `rove workspace`: what an account has outside any one
+// NewCmdWorkspace is `loft workspace`: what an account has outside any one
 // workspace -- the ones it is in, a new one, and everything one it owns has --
 // which is HTTP beside the RPCs (`server/account`), asked before there is a
 // workspace to be a member of. And what one it owns is called, which is the
@@ -525,7 +525,7 @@ func NewCmdWorkspace() *xli.Command {
 					none, _ := flg.Find[bool](self, "clear")
 					switch {
 					case ws == "":
-						return errors.New("WORKSPACE: which one (`rove whoami` lists them)")
+						return errors.New("WORKSPACE: which one (`loft whoami` lists them)")
 					case none && name != "":
 						return errors.New("NAME or --clear, not both")
 					case !none && name == "":
@@ -565,7 +565,7 @@ func NewCmdWorkspace() *xli.Command {
 					&flg.String{Name: "out", Brief: "where to write it; <workspace>-<date>.zip by default"},
 					&flg.String{Name: "reason", Brief: "what it is for: it hands everybody's data out, so it is required and recorded"},
 				},
-				Args: arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; the one `rove use` names by default", Optional: true}},
+				Args: arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; the one `loft use` names by default", Optional: true}},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					c, err := loadClient()
 					if err != nil {
@@ -579,7 +579,7 @@ func NewCmdWorkspace() *xli.Command {
 						ws = c.Workspace
 					}
 					if ws == "" {
-						return errors.New("WORKSPACE: which one (`rove whoami` lists them)")
+						return errors.New("WORKSPACE: which one (`loft whoami` lists them)")
 					}
 					why := strings.TrimSpace(flag(self, "reason"))
 					if why == "" {
@@ -591,7 +591,7 @@ func NewCmdWorkspace() *xli.Command {
 					}
 					// Written beside where it goes and moved there once whole,
 					// so that a download cut off is no file at all.
-					tmp, err := os.CreateTemp(filepath.Dir(out), ".rove-export-*")
+					tmp, err := os.CreateTemp(filepath.Dir(out), ".loft-export-*")
 					if err != nil {
 						return err
 					}
@@ -618,7 +618,7 @@ func NewCmdWorkspace() *xli.Command {
 type workspaceKey struct{}
 
 // remote is the connector of the API's commands: this terminal's sign-in, to
-// the workspace the command line, `ROVE_WORKSPACE` or `rove use` names.
+// the workspace the command line, `LOFT_WORKSPACE` or `loft use` names.
 type remote struct{}
 
 func (remote) Connect(ctx context.Context) (pdcmd.Conn, func(), error) {
@@ -631,7 +631,7 @@ func (remote) Connect(ctx context.Context) (pdcmd.Conn, func(), error) {
 	}
 	ws, _ := ctx.Value(workspaceKey{}).(string)
 	if ws == "" {
-		ws = os.Getenv("ROVE_WORKSPACE")
+		ws = os.Getenv("LOFT_WORKSPACE")
 	}
 	if ws == "" {
 		ws = c.Workspace
@@ -639,16 +639,16 @@ func (remote) Connect(ctx context.Context) (pdcmd.Conn, func(), error) {
 	return c.conn(ws), nil, nil
 }
 
-// NewCmdApi is `rove api`: every RPC of this app, as a command.
+// NewCmdApi is `loft api`: every RPC of this app, as a command.
 //
 // The entities' own verbs -- `get`, `ls`, `watch`, `add`, `patch`, `erase` --
 // are payday's tree, built from the descriptors; every other method of an
-// entity's service is one more command beside them (`rove api asset move`),
-// and `rove api call` reaches any method by name. Whether a call is allowed is
+// entity's service is one more command beside them (`loft api asset move`),
+// and `loft api call` reaches any method by name. Whether a call is allowed is
 // the server's to say, through the same policy the page is held to.
 func NewCmdApi() *xli.Command {
-	t := pdcmd.NewIn(remote{}, "rove")
-	for _, e := range pdcmd.Entities("rove") {
+	t := pdcmd.NewIn(remote{}, "loft")
+	for _, e := range pdcmd.Entities("loft") {
 		ms := e.Service.Methods()
 		for i := range ms.Len() {
 			md := ms.Get(i)
@@ -689,9 +689,9 @@ func NewCmdApi() *xli.Command {
 
 	return &xli.Command{
 		Name:  "api",
-		Brief: "every operation of a running deployment, as this terminal's account (`rove login` first)",
+		Brief: "every operation of a running deployment, as this terminal's account (`loft login` first)",
 		Flags: flg.Flags{
-			&flg.String{Name: "workspace", Brief: "the workspace to speak to, by alias; `rove use` sets the default"},
+			&flg.String{Name: "workspace", Brief: "the workspace to speak to, by alias; `loft use` sets the default"},
 			&flg.String{Name: "reason", Brief: "what a download is for -- `asset export` hands people's data out and is refused without one; it is recorded"},
 		},
 		Commands: append(t.Commands(), newCmdCall()),
@@ -701,7 +701,7 @@ func NewCmdApi() *xli.Command {
 					ctx = context.WithValue(ctx, workspaceKey{}, ws)
 				}
 				// Said to every call, and read by the downloads: what the
-				// access record keeps beside who took what (rove#136).
+				// access record keeps beside who took what (loft#136).
 				if why := strings.TrimSpace(flag(self, "reason")); why != "" {
 					ctx = metadata.AppendToOutgoingContext(ctx, access.ReasonKey, why)
 				}
@@ -712,14 +712,14 @@ func NewCmdApi() *xli.Command {
 	}
 }
 
-// newCmdCall is `rove api call METHOD [JSON]`: any method by its full name,
+// newCmdCall is `loft api call METHOD [JSON]`: any method by its full name,
 // with the request as protojson, answered as protojson.
 func newCmdCall() *xli.Command {
 	return &xli.Command{
 		Name:  "call",
-		Brief: "call any method by name: rove api call rove.AssetService.Move '{\"ref\": ...}'",
+		Brief: "call any method by name: loft api call loft.AssetService.Move '{\"ref\": ...}'",
 		Args: arg.Args{
-			&arg.String{Name: "METHOD", Brief: "rove.AssetService.Search, or /rove.AssetService/Search"},
+			&arg.String{Name: "METHOD", Brief: "loft.AssetService.Search, or /loft.AssetService/Search"},
 			&arg.RestStrings{Name: "REQ", Brief: "the request as protojson"},
 		},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
@@ -743,7 +743,7 @@ func newCmdCall() *xli.Command {
 				return fmt.Errorf("%s: no such method", name)
 			}
 			if md.IsStreamingClient() || md.IsStreamingServer() {
-				return fmt.Errorf("%s: a stream; `rove api <entity> watch` holds one open", name)
+				return fmt.Errorf("%s: a stream; `loft api <entity> watch` holds one open", name)
 			}
 			in := messageOf(md.Input())
 			if len(req) > 0 {

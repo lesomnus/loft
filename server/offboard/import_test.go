@@ -26,17 +26,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/searchstale"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/opensearch"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/searchstale"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/opensearch"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // signed is a deployment that signs its exports, and the public half of its
@@ -215,7 +215,7 @@ func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Man
 		require.NoError(t, err)
 		der, err := x509.MarshalPKIXPublicKey(k.Public())
 		require.NoError(t, err)
-		sig, err := k.Sign(rand.Reader, append([]byte("rove export manifest\n"), mb...), crypto.Hash(0))
+		sig, err := k.Sign(rand.Reader, append([]byte("loft export manifest\n"), mb...), crypto.Hash(0))
 		require.NoError(t, err)
 		sb, err := json.Marshal(offboard.Signature{Key: base64.StdEncoding.EncodeToString(der), Sig: base64.StdEncoding.EncodeToString(sig)})
 		require.NoError(t, err)
@@ -451,7 +451,7 @@ func TestAClosedWorkspaceIsRestoredOpen(t *testing.T) {
 
 // TestAMemberIsRestoredWithTheAccountThisRosterHas: a member keeps an account
 // the deployment's roster has, and one from another deployment's -- an
-// identifier nobody here is -- is restored naming none, for `rove identity
+// identifier nobody here is -- is restored naming none, for `loft identity
 // migrate` to give one to.
 func TestAMemberIsRestoredWithTheAccountThisRosterHas(t *testing.T) {
 	a, pub := signed(t)

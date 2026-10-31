@@ -14,17 +14,17 @@ import (
 	"github.com/lesomnus/payday/trail"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	entaudit "github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/server/clilogin"
-	"github.com/lesomnus/rove/server/closing"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	entaudit "github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/server/clilogin"
+	"github.com/lesomnus/loft/server/closing"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// What Rove writes past its servers -- a terminal's sign-in, an address held
+// What Loft writes past its servers -- a terminal's sign-in, an address held
 // -- is on the trail as the act it is (payday#108), so a check of the rows
 // finds nothing after it, and finds a row changed past it.
 

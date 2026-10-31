@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/work_svc.g.proto
+// source: loft/work_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -48,7 +48,7 @@ type WorkOrderAddRequest struct {
 
 func (x *WorkOrderAddRequest) Reset() {
 	*x = WorkOrderAddRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[0]
+	mi := &file_loft_work_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -60,7 +60,7 @@ func (x *WorkOrderAddRequest) String() string {
 func (*WorkOrderAddRequest) ProtoMessage() {}
 
 func (x *WorkOrderAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[0]
+	mi := &file_loft_work_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -397,7 +397,7 @@ type WorkOrderGetRequest struct {
 
 func (x *WorkOrderGetRequest) Reset() {
 	*x = WorkOrderGetRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[1]
+	mi := &file_loft_work_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -409,7 +409,7 @@ func (x *WorkOrderGetRequest) String() string {
 func (*WorkOrderGetRequest) ProtoMessage() {}
 
 func (x *WorkOrderGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[1]
+	mi := &file_loft_work_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -489,7 +489,7 @@ type WorkOrderRef struct {
 
 func (x *WorkOrderRef) Reset() {
 	*x = WorkOrderRef{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[2]
+	mi := &file_loft_work_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -501,7 +501,7 @@ func (x *WorkOrderRef) String() string {
 func (*WorkOrderRef) ProtoMessage() {}
 
 func (x *WorkOrderRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[2]
+	mi := &file_loft_work_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -589,7 +589,7 @@ func (b0 WorkOrderRef_builder) Build() *WorkOrderRef {
 type case_WorkOrderRef_Key protoreflect.FieldNumber
 
 func (x case_WorkOrderRef_Key) String() string {
-	md := file_rove_work_svc_g_proto_msgTypes[2].Descriptor()
+	md := file_loft_work_svc_g_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -634,7 +634,7 @@ type WorkOrderSelect struct {
 
 func (x *WorkOrderSelect) Reset() {
 	*x = WorkOrderSelect{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[3]
+	mi := &file_loft_work_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -646,7 +646,7 @@ func (x *WorkOrderSelect) String() string {
 func (*WorkOrderSelect) ProtoMessage() {}
 
 func (x *WorkOrderSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[3]
+	mi := &file_loft_work_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1205,7 +1205,7 @@ type WorkOrderPatchRequest struct {
 
 func (x *WorkOrderPatchRequest) Reset() {
 	*x = WorkOrderPatchRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[4]
+	mi := &file_loft_work_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1217,7 +1217,7 @@ func (x *WorkOrderPatchRequest) String() string {
 func (*WorkOrderPatchRequest) ProtoMessage() {}
 
 func (x *WorkOrderPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[4]
+	mi := &file_loft_work_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1814,7 +1814,7 @@ type WorkOrderApplyRequest struct {
 
 func (x *WorkOrderApplyRequest) Reset() {
 	*x = WorkOrderApplyRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[5]
+	mi := &file_loft_work_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1826,7 +1826,7 @@ func (x *WorkOrderApplyRequest) String() string {
 func (*WorkOrderApplyRequest) ProtoMessage() {}
 
 func (x *WorkOrderApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[5]
+	mi := &file_loft_work_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1908,7 +1908,7 @@ type WorkOrderEraseResponse struct {
 
 func (x *WorkOrderEraseResponse) Reset() {
 	*x = WorkOrderEraseResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[6]
+	mi := &file_loft_work_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1920,7 +1920,7 @@ func (x *WorkOrderEraseResponse) String() string {
 func (*WorkOrderEraseResponse) ProtoMessage() {}
 
 func (x *WorkOrderEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[6]
+	mi := &file_loft_work_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1989,7 +1989,7 @@ type WorkOrderListRequest struct {
 
 func (x *WorkOrderListRequest) Reset() {
 	*x = WorkOrderListRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[7]
+	mi := &file_loft_work_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2001,7 +2001,7 @@ func (x *WorkOrderListRequest) String() string {
 func (*WorkOrderListRequest) ProtoMessage() {}
 
 func (x *WorkOrderListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[7]
+	mi := &file_loft_work_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2101,7 +2101,7 @@ type WorkOrderListResponse struct {
 
 func (x *WorkOrderListResponse) Reset() {
 	*x = WorkOrderListResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[8]
+	mi := &file_loft_work_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2113,7 +2113,7 @@ func (x *WorkOrderListResponse) String() string {
 func (*WorkOrderListResponse) ProtoMessage() {}
 
 func (x *WorkOrderListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[8]
+	mi := &file_loft_work_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2186,7 +2186,7 @@ type WorkOrderFilter struct {
 
 func (x *WorkOrderFilter) Reset() {
 	*x = WorkOrderFilter{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[9]
+	mi := &file_loft_work_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2198,7 +2198,7 @@ func (x *WorkOrderFilter) String() string {
 func (*WorkOrderFilter) ProtoMessage() {}
 
 func (x *WorkOrderFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[9]
+	mi := &file_loft_work_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2367,7 +2367,7 @@ type WorkOrderWatchRequest struct {
 
 func (x *WorkOrderWatchRequest) Reset() {
 	*x = WorkOrderWatchRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[10]
+	mi := &file_loft_work_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2379,7 +2379,7 @@ func (x *WorkOrderWatchRequest) String() string {
 func (*WorkOrderWatchRequest) ProtoMessage() {}
 
 func (x *WorkOrderWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[10]
+	mi := &file_loft_work_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2451,7 +2451,7 @@ type WorkOrderWatchResponse struct {
 
 func (x *WorkOrderWatchResponse) Reset() {
 	*x = WorkOrderWatchResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[11]
+	mi := &file_loft_work_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2463,7 +2463,7 @@ func (x *WorkOrderWatchResponse) String() string {
 func (*WorkOrderWatchResponse) ProtoMessage() {}
 
 func (x *WorkOrderWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[11]
+	mi := &file_loft_work_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2515,7 +2515,7 @@ type WorkOrderWatchItem struct {
 
 func (x *WorkOrderWatchItem) Reset() {
 	*x = WorkOrderWatchItem{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[12]
+	mi := &file_loft_work_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2527,7 +2527,7 @@ func (x *WorkOrderWatchItem) String() string {
 func (*WorkOrderWatchItem) ProtoMessage() {}
 
 func (x *WorkOrderWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[12]
+	mi := &file_loft_work_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2653,7 +2653,7 @@ type WorkOrderUpdateRequest struct {
 
 func (x *WorkOrderUpdateRequest) Reset() {
 	*x = WorkOrderUpdateRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[13]
+	mi := &file_loft_work_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2665,7 +2665,7 @@ func (x *WorkOrderUpdateRequest) String() string {
 func (*WorkOrderUpdateRequest) ProtoMessage() {}
 
 func (x *WorkOrderUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[13]
+	mi := &file_loft_work_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2853,7 +2853,7 @@ type WorkOrderCompleteRequest struct {
 
 func (x *WorkOrderCompleteRequest) Reset() {
 	*x = WorkOrderCompleteRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[14]
+	mi := &file_loft_work_svc_g_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2865,7 +2865,7 @@ func (x *WorkOrderCompleteRequest) String() string {
 func (*WorkOrderCompleteRequest) ProtoMessage() {}
 
 func (x *WorkOrderCompleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[14]
+	mi := &file_loft_work_svc_g_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2976,7 +2976,7 @@ type PurchaseAddRequest struct {
 
 func (x *PurchaseAddRequest) Reset() {
 	*x = PurchaseAddRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[15]
+	mi := &file_loft_work_svc_g_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2988,7 +2988,7 @@ func (x *PurchaseAddRequest) String() string {
 func (*PurchaseAddRequest) ProtoMessage() {}
 
 func (x *PurchaseAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[15]
+	mi := &file_loft_work_svc_g_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3269,7 +3269,7 @@ type PurchaseLineSpec struct {
 
 func (x *PurchaseLineSpec) Reset() {
 	*x = PurchaseLineSpec{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[16]
+	mi := &file_loft_work_svc_g_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3281,7 +3281,7 @@ func (x *PurchaseLineSpec) String() string {
 func (*PurchaseLineSpec) ProtoMessage() {}
 
 func (x *PurchaseLineSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[16]
+	mi := &file_loft_work_svc_g_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3392,7 +3392,7 @@ type PurchaseGetRequest struct {
 
 func (x *PurchaseGetRequest) Reset() {
 	*x = PurchaseGetRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[17]
+	mi := &file_loft_work_svc_g_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3404,7 +3404,7 @@ func (x *PurchaseGetRequest) String() string {
 func (*PurchaseGetRequest) ProtoMessage() {}
 
 func (x *PurchaseGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[17]
+	mi := &file_loft_work_svc_g_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3484,7 +3484,7 @@ type PurchaseRef struct {
 
 func (x *PurchaseRef) Reset() {
 	*x = PurchaseRef{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[18]
+	mi := &file_loft_work_svc_g_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3496,7 +3496,7 @@ func (x *PurchaseRef) String() string {
 func (*PurchaseRef) ProtoMessage() {}
 
 func (x *PurchaseRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[18]
+	mi := &file_loft_work_svc_g_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3584,7 +3584,7 @@ func (b0 PurchaseRef_builder) Build() *PurchaseRef {
 type case_PurchaseRef_Key protoreflect.FieldNumber
 
 func (x case_PurchaseRef_Key) String() string {
-	md := file_rove_work_svc_g_proto_msgTypes[18].Descriptor()
+	md := file_loft_work_svc_g_proto_msgTypes[18].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -3625,7 +3625,7 @@ type PurchaseSelect struct {
 
 func (x *PurchaseSelect) Reset() {
 	*x = PurchaseSelect{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[19]
+	mi := &file_loft_work_svc_g_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3637,7 +3637,7 @@ func (x *PurchaseSelect) String() string {
 func (*PurchaseSelect) ProtoMessage() {}
 
 func (x *PurchaseSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[19]
+	mi := &file_loft_work_svc_g_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4080,7 +4080,7 @@ type PurchasePatchRequest struct {
 
 func (x *PurchasePatchRequest) Reset() {
 	*x = PurchasePatchRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[20]
+	mi := &file_loft_work_svc_g_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4092,7 +4092,7 @@ func (x *PurchasePatchRequest) String() string {
 func (*PurchasePatchRequest) ProtoMessage() {}
 
 func (x *PurchasePatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[20]
+	mi := &file_loft_work_svc_g_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4541,7 +4541,7 @@ type PurchaseApplyRequest struct {
 
 func (x *PurchaseApplyRequest) Reset() {
 	*x = PurchaseApplyRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[21]
+	mi := &file_loft_work_svc_g_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4553,7 +4553,7 @@ func (x *PurchaseApplyRequest) String() string {
 func (*PurchaseApplyRequest) ProtoMessage() {}
 
 func (x *PurchaseApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[21]
+	mi := &file_loft_work_svc_g_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4635,7 +4635,7 @@ type PurchaseEraseResponse struct {
 
 func (x *PurchaseEraseResponse) Reset() {
 	*x = PurchaseEraseResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[22]
+	mi := &file_loft_work_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4647,7 +4647,7 @@ func (x *PurchaseEraseResponse) String() string {
 func (*PurchaseEraseResponse) ProtoMessage() {}
 
 func (x *PurchaseEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[22]
+	mi := &file_loft_work_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4716,7 +4716,7 @@ type PurchaseListRequest struct {
 
 func (x *PurchaseListRequest) Reset() {
 	*x = PurchaseListRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[23]
+	mi := &file_loft_work_svc_g_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4728,7 +4728,7 @@ func (x *PurchaseListRequest) String() string {
 func (*PurchaseListRequest) ProtoMessage() {}
 
 func (x *PurchaseListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[23]
+	mi := &file_loft_work_svc_g_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4828,7 +4828,7 @@ type PurchaseListResponse struct {
 
 func (x *PurchaseListResponse) Reset() {
 	*x = PurchaseListResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[24]
+	mi := &file_loft_work_svc_g_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4840,7 +4840,7 @@ func (x *PurchaseListResponse) String() string {
 func (*PurchaseListResponse) ProtoMessage() {}
 
 func (x *PurchaseListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[24]
+	mi := &file_loft_work_svc_g_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4911,7 +4911,7 @@ type PurchaseFilter struct {
 
 func (x *PurchaseFilter) Reset() {
 	*x = PurchaseFilter{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[25]
+	mi := &file_loft_work_svc_g_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4923,7 +4923,7 @@ func (x *PurchaseFilter) String() string {
 func (*PurchaseFilter) ProtoMessage() {}
 
 func (x *PurchaseFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[25]
+	mi := &file_loft_work_svc_g_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5036,7 +5036,7 @@ type PurchaseWatchRequest struct {
 
 func (x *PurchaseWatchRequest) Reset() {
 	*x = PurchaseWatchRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[26]
+	mi := &file_loft_work_svc_g_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5048,7 +5048,7 @@ func (x *PurchaseWatchRequest) String() string {
 func (*PurchaseWatchRequest) ProtoMessage() {}
 
 func (x *PurchaseWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[26]
+	mi := &file_loft_work_svc_g_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5120,7 +5120,7 @@ type PurchaseWatchResponse struct {
 
 func (x *PurchaseWatchResponse) Reset() {
 	*x = PurchaseWatchResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[27]
+	mi := &file_loft_work_svc_g_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5132,7 +5132,7 @@ func (x *PurchaseWatchResponse) String() string {
 func (*PurchaseWatchResponse) ProtoMessage() {}
 
 func (x *PurchaseWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[27]
+	mi := &file_loft_work_svc_g_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5184,7 +5184,7 @@ type PurchaseWatchItem struct {
 
 func (x *PurchaseWatchItem) Reset() {
 	*x = PurchaseWatchItem{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[28]
+	mi := &file_loft_work_svc_g_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5196,7 +5196,7 @@ func (x *PurchaseWatchItem) String() string {
 func (*PurchaseWatchItem) ProtoMessage() {}
 
 func (x *PurchaseWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[28]
+	mi := &file_loft_work_svc_g_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5317,7 +5317,7 @@ type PurchaseReceiveRequest struct {
 
 func (x *PurchaseReceiveRequest) Reset() {
 	*x = PurchaseReceiveRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[29]
+	mi := &file_loft_work_svc_g_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5329,7 +5329,7 @@ func (x *PurchaseReceiveRequest) String() string {
 func (*PurchaseReceiveRequest) ProtoMessage() {}
 
 func (x *PurchaseReceiveRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[29]
+	mi := &file_loft_work_svc_g_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5448,7 +5448,7 @@ type PurchaseReceiveResponse struct {
 
 func (x *PurchaseReceiveResponse) Reset() {
 	*x = PurchaseReceiveResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[30]
+	mi := &file_loft_work_svc_g_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5460,7 +5460,7 @@ func (x *PurchaseReceiveResponse) String() string {
 func (*PurchaseReceiveResponse) ProtoMessage() {}
 
 func (x *PurchaseReceiveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[30]
+	mi := &file_loft_work_svc_g_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5555,7 +5555,7 @@ type PurchaseLineAddRequest struct {
 
 func (x *PurchaseLineAddRequest) Reset() {
 	*x = PurchaseLineAddRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[31]
+	mi := &file_loft_work_svc_g_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5567,7 +5567,7 @@ func (x *PurchaseLineAddRequest) String() string {
 func (*PurchaseLineAddRequest) ProtoMessage() {}
 
 func (x *PurchaseLineAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[31]
+	mi := &file_loft_work_svc_g_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5793,7 +5793,7 @@ type PurchaseLineGetRequest struct {
 
 func (x *PurchaseLineGetRequest) Reset() {
 	*x = PurchaseLineGetRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[32]
+	mi := &file_loft_work_svc_g_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5805,7 +5805,7 @@ func (x *PurchaseLineGetRequest) String() string {
 func (*PurchaseLineGetRequest) ProtoMessage() {}
 
 func (x *PurchaseLineGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[32]
+	mi := &file_loft_work_svc_g_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5885,7 +5885,7 @@ type PurchaseLineRef struct {
 
 func (x *PurchaseLineRef) Reset() {
 	*x = PurchaseLineRef{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[33]
+	mi := &file_loft_work_svc_g_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5897,7 +5897,7 @@ func (x *PurchaseLineRef) String() string {
 func (*PurchaseLineRef) ProtoMessage() {}
 
 func (x *PurchaseLineRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[33]
+	mi := &file_loft_work_svc_g_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5985,7 +5985,7 @@ func (b0 PurchaseLineRef_builder) Build() *PurchaseLineRef {
 type case_PurchaseLineRef_Key protoreflect.FieldNumber
 
 func (x case_PurchaseLineRef_Key) String() string {
-	md := file_rove_work_svc_g_proto_msgTypes[33].Descriptor()
+	md := file_loft_work_svc_g_proto_msgTypes[33].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -6023,7 +6023,7 @@ type PurchaseLineSelect struct {
 
 func (x *PurchaseLineSelect) Reset() {
 	*x = PurchaseLineSelect{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[34]
+	mi := &file_loft_work_svc_g_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6035,7 +6035,7 @@ func (x *PurchaseLineSelect) String() string {
 func (*PurchaseLineSelect) ProtoMessage() {}
 
 func (x *PurchaseLineSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[34]
+	mi := &file_loft_work_svc_g_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6382,7 +6382,7 @@ type PurchaseLinePatchRequest struct {
 
 func (x *PurchaseLinePatchRequest) Reset() {
 	*x = PurchaseLinePatchRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[35]
+	mi := &file_loft_work_svc_g_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6394,7 +6394,7 @@ func (x *PurchaseLinePatchRequest) String() string {
 func (*PurchaseLinePatchRequest) ProtoMessage() {}
 
 func (x *PurchaseLinePatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[35]
+	mi := &file_loft_work_svc_g_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6724,7 +6724,7 @@ type PurchaseLineApplyRequest struct {
 
 func (x *PurchaseLineApplyRequest) Reset() {
 	*x = PurchaseLineApplyRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[36]
+	mi := &file_loft_work_svc_g_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6736,7 +6736,7 @@ func (x *PurchaseLineApplyRequest) String() string {
 func (*PurchaseLineApplyRequest) ProtoMessage() {}
 
 func (x *PurchaseLineApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[36]
+	mi := &file_loft_work_svc_g_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6818,7 +6818,7 @@ type PurchaseLineEraseResponse struct {
 
 func (x *PurchaseLineEraseResponse) Reset() {
 	*x = PurchaseLineEraseResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[37]
+	mi := &file_loft_work_svc_g_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6830,7 +6830,7 @@ func (x *PurchaseLineEraseResponse) String() string {
 func (*PurchaseLineEraseResponse) ProtoMessage() {}
 
 func (x *PurchaseLineEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[37]
+	mi := &file_loft_work_svc_g_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6899,7 +6899,7 @@ type PurchaseLineListRequest struct {
 
 func (x *PurchaseLineListRequest) Reset() {
 	*x = PurchaseLineListRequest{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[38]
+	mi := &file_loft_work_svc_g_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6911,7 +6911,7 @@ func (x *PurchaseLineListRequest) String() string {
 func (*PurchaseLineListRequest) ProtoMessage() {}
 
 func (x *PurchaseLineListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[38]
+	mi := &file_loft_work_svc_g_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7011,7 +7011,7 @@ type PurchaseLineListResponse struct {
 
 func (x *PurchaseLineListResponse) Reset() {
 	*x = PurchaseLineListResponse{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[39]
+	mi := &file_loft_work_svc_g_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7023,7 +7023,7 @@ func (x *PurchaseLineListResponse) String() string {
 func (*PurchaseLineListResponse) ProtoMessage() {}
 
 func (x *PurchaseLineListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[39]
+	mi := &file_loft_work_svc_g_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7092,7 +7092,7 @@ type PurchaseLineFilter struct {
 
 func (x *PurchaseLineFilter) Reset() {
 	*x = PurchaseLineFilter{}
-	mi := &file_rove_work_svc_g_proto_msgTypes[40]
+	mi := &file_loft_work_svc_g_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7104,7 +7104,7 @@ func (x *PurchaseLineFilter) String() string {
 func (*PurchaseLineFilter) ProtoMessage() {}
 
 func (x *PurchaseLineFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_svc_g_proto_msgTypes[40]
+	mi := &file_loft_work_svc_g_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7199,24 +7199,24 @@ func (b0 PurchaseLineFilter_builder) Build() *PurchaseLineFilter {
 	return m0
 }
 
-var File_rove_work_svc_g_proto protoreflect.FileDescriptor
+var File_loft_work_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_work_svc_g_proto_rawDesc = "" +
+const file_loft_work_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x15rove/work_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x10rove/asset.proto\x1a\x16rove/asset_svc.g.proto\x1a\x18rove/catalog_svc.g.proto\x1a\x14rove/org_svc.g.proto\x1a\x1erove/payday/tenant_svc.g.proto\x1a\x0frove/work.proto\"\xff\x04\n" +
+	"\x15loft/work_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x10loft/asset.proto\x1a\x16loft/asset_svc.g.proto\x1a\x18loft/catalog_svc.g.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x0floft/work.proto\x1a\x11patch/patch.proto\"\xff\x04\n" +
 	"\x13WorkOrderAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12$\n" +
-	"\x05asset\x18\b \x01(\v2\x0e.rove.AssetRefR\x05asset\x12\x19\n" +
+	"\x05asset\x18\b \x01(\v2\x0e.loft.AssetRefR\x05asset\x12\x19\n" +
 	"\x04kind\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1d\n" +
 	"\x06status\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x127\n" +
 	"\tbegins_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x123\n" +
 	"\aends_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12&\n" +
-	"\x06vendor\x18\x10 \x01(\v2\x0e.rove.PartyRefR\x06vendor\x12\x19\n" +
+	"\x06vendor\x18\x10 \x01(\v2\x0e.loft.PartyRefR\x06vendor\x12\x19\n" +
 	"\x04cost\x18\x11 \x01(\x03B\x05\xaa\x01\x02\b\x02R\x04cost\x12!\n" +
 	"\bcurrency\x18\x12 \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12=\n" +
 	"\fcompleted_at\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampR\vcompletedAt\x12!\n" +
@@ -7224,17 +7224,17 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"every_days\x18\x15 \x01(\x05B\x05\xaa\x01\x02\b\x02R\teveryDays\"j\n" +
 	"\x13WorkOrderGetRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.WorkOrderRefR\x03ref\x12-\n" +
-	"\x06select\x18\x02 \x01(\v2\x15.rove.WorkOrderSelectR\x06select\"'\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.WorkOrderRefR\x03ref\x12-\n" +
+	"\x06select\x18\x02 \x01(\v2\x15.loft.WorkOrderSelectR\x06select\"'\n" +
 	"\fWorkOrderRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xa2\x04\n" +
 	"\x0fWorkOrderSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12'\n" +
-	"\x05asset\x18\b \x01(\v2\x11.rove.AssetSelectR\x05asset\x12\x12\n" +
+	"\x05asset\x18\b \x01(\v2\x11.loft.AssetSelectR\x05asset\x12\x12\n" +
 	"\x04kind\x18\t \x01(\bR\x04kind\x12\x16\n" +
 	"\x06status\x18\n" +
 	" \x01(\bR\x06status\x12\x1b\n" +
@@ -7244,7 +7244,7 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12)\n" +
-	"\x06vendor\x18\x10 \x01(\v2\x11.rove.PartySelectR\x06vendor\x12\x12\n" +
+	"\x06vendor\x18\x10 \x01(\v2\x11.loft.PartySelectR\x06vendor\x12\x12\n" +
 	"\x04cost\x18\x11 \x01(\bR\x04cost\x12\x1a\n" +
 	"\bcurrency\x18\x12 \x01(\bR\bcurrency\x12!\n" +
 	"\fcompleted_at\x18\x13 \x01(\bR\vcompletedAt\x12\x1a\n" +
@@ -7252,7 +7252,7 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"every_days\x18\x15 \x01(\bR\teveryDays\"\xd3\x05\n" +
 	"\x15WorkOrderPatchRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.WorkOrderRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.WorkOrderRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12\x12\n" +
@@ -7265,7 +7265,7 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"endsAtNull\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12&\n" +
-	"\x06vendor\x18  \x01(\v2\x0e.rove.PartyRefR\x06vendor\x12\x1f\n" +
+	"\x06vendor\x18  \x01(\v2\x0e.loft.PartyRefR\x06vendor\x12\x1f\n" +
 	"\vvendor_null\x18! \x01(\bR\n" +
 	"vendorNull\x12\x12\n" +
 	"\x04cost\x18\" \x01(\x03R\x04cost\x12\x1a\n" +
@@ -7276,35 +7276,35 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"every_days\x18* \x01(\x05R\teveryDays\"a\n" +
 	"\x15WorkOrderApplyRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.WorkOrderRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.WorkOrderRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16WorkOrderEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa0\x01\n" +
 	"\x14WorkOrderListRequest\x12/\n" +
-	"\afilters\x18\x01 \x03(\v2\x15.rove.WorkOrderFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x15.loft.WorkOrderFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Y\n" +
 	"\x15WorkOrderListResponse\x12%\n" +
-	"\x05items\x18\x01 \x03(\v2\x0f.rove.WorkOrderR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x0f.loft.WorkOrderR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xb1\x01\n" +
 	"\x0fWorkOrderFilter\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.WorkOrderRefR\x03ref\x12$\n" +
-	"\x05asset\x18\x02 \x01(\v2\x0e.rove.AssetRefR\x05asset\x12\x16\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.WorkOrderRefR\x03ref\x12$\n" +
+	"\x05asset\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x05asset\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12\x12\n" +
 	"\x04kind\x18\x04 \x01(\tR\x04kind\x12&\n" +
-	"\x06vendor\x18\x05 \x01(\v2\x0e.rove.PartyRefR\x06vendor\"t\n" +
+	"\x06vendor\x18\x05 \x01(\v2\x0e.loft.PartyRefR\x06vendor\"t\n" +
 	"\x15WorkOrderWatchRequest\x12/\n" +
-	"\afilters\x18\x01 \x03(\v2\x15.rove.WorkOrderFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x15.loft.WorkOrderFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"H\n" +
 	"\x16WorkOrderWatchResponse\x12.\n" +
-	"\x05items\x18\x01 \x03(\v2\x18.rove.WorkOrderWatchItemR\x05items\"j\n" +
+	"\x05items\x18\x01 \x03(\v2\x18.loft.WorkOrderWatchItemR\x05items\"j\n" +
 	"\x12WorkOrderWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12%\n" +
-	"\x05value\x18\x02 \x01(\v2\x0f.rove.WorkOrderR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\x0f.loft.WorkOrderR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\xe2\x02\n" +
 	"\x16WorkOrderUpdateRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.WorkOrderRefR\x03ref\x12\x19\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.WorkOrderRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12\x1d\n" +
 	"\x06status\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x127\n" +
@@ -7314,16 +7314,16 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\bcurrency\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12!\n" +
 	"\bblocking\x18\t \x01(\bB\x05\xaa\x01\x02\b\x02R\bblocking\"\x9f\x01\n" +
 	"\x18WorkOrderCompleteRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.WorkOrderRefR\x03ref\x12\x1d\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.WorkOrderRefR\x03ref\x12\x1d\n" +
 	"\x06reason\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x19\n" +
 	"\x04cost\x18\x03 \x01(\x03B\x05\xaa\x01\x02\b\x02R\x04cost\x12#\n" +
 	"\tcondition\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\tcondition\"\x94\x04\n" +
 	"\x12PurchaseAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12&\n" +
-	"\x06vendor\x18\b \x01(\v2\x0e.rove.PartyRefR\x06vendor\x12#\n" +
+	"\x06vendor\x18\b \x01(\v2\x0e.loft.PartyRefR\x06vendor\x12#\n" +
 	"\treference\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\treference\x12\x1d\n" +
 	"\x06status\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x129\n" +
@@ -7334,26 +7334,26 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12!\n" +
 	"\bcurrency\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12\x1b\n" +
 	"\x05total\x18\x11 \x01(\x03B\x05\xaa\x01\x02\b\x02R\x05total\x12,\n" +
-	"\x05lines\x18d \x03(\v2\x16.rove.PurchaseLineSpecR\x05lines\"\xc4\x01\n" +
+	"\x05lines\x18d \x03(\v2\x16.loft.PurchaseLineSpecR\x05lines\"\xc4\x01\n" +
 	"\x10PurchaseLineSpec\x12(\n" +
-	"\x05model\x18\x01 \x01(\v2\x12.rove.ItemModelRefR\x05model\x12\x19\n" +
+	"\x05model\x18\x01 \x01(\v2\x12.loft.ItemModelRefR\x05model\x12\x19\n" +
 	"\x04desc\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12!\n" +
 	"\bquantity\x18\x03 \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x12\"\n" +
 	"\tunit_cost\x18\x04 \x01(\x03B\x05\xaa\x01\x02\b\x02R\bunitCost\x12$\n" +
 	"\n" +
 	"receive_as\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\treceiveAs\"g\n" +
 	"\x12PurchaseGetRequest\x12#\n" +
-	"\x03ref\x18\x01 \x01(\v2\x11.rove.PurchaseRefR\x03ref\x12,\n" +
-	"\x06select\x18\x02 \x01(\v2\x14.rove.PurchaseSelectR\x06select\"&\n" +
+	"\x03ref\x18\x01 \x01(\v2\x11.loft.PurchaseRefR\x03ref\x12,\n" +
+	"\x06select\x18\x02 \x01(\v2\x14.loft.PurchaseSelectR\x06select\"&\n" +
 	"\vPurchaseRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xb0\x03\n" +
 	"\x0ePurchaseSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12)\n" +
-	"\x06vendor\x18\b \x01(\v2\x11.rove.PartySelectR\x06vendor\x12\x1c\n" +
+	"\x06vendor\x18\b \x01(\v2\x11.loft.PartySelectR\x06vendor\x12\x1c\n" +
 	"\treference\x18\t \x01(\bR\treference\x12\x16\n" +
 	"\x06status\x18\n" +
 	" \x01(\bR\x06status\x12\x1d\n" +
@@ -7368,11 +7368,11 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\bcurrency\x18\x10 \x01(\bR\bcurrency\x12\x14\n" +
 	"\x05total\x18\x11 \x01(\bR\x05total\"\xa3\x04\n" +
 	"\x14PurchasePatchRequest\x12#\n" +
-	"\x03ref\x18\x01 \x01(\v2\x11.rove.PurchaseRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x11.loft.PurchaseRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12&\n" +
-	"\x06vendor\x18\x10 \x01(\v2\x0e.rove.PartyRefR\x06vendor\x12\x1f\n" +
+	"\x06vendor\x18\x10 \x01(\v2\x0e.loft.PartyRefR\x06vendor\x12\x1f\n" +
 	"\vvendor_null\x18\x11 \x01(\bR\n" +
 	"vendorNull\x12\x1c\n" +
 	"\treference\x18\x12 \x01(\tR\treference\x12\x16\n" +
@@ -7387,47 +7387,47 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\bcurrency\x18  \x01(\tR\bcurrency\x12\x14\n" +
 	"\x05total\x18\" \x01(\x03R\x05total\"_\n" +
 	"\x14PurchaseApplyRequest\x12#\n" +
-	"\x03ref\x18\x01 \x01(\v2\x11.rove.PurchaseRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x11.loft.PurchaseRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"/\n" +
 	"\x15PurchaseEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x9e\x01\n" +
 	"\x13PurchaseListRequest\x12.\n" +
-	"\afilters\x18\x01 \x03(\v2\x14.rove.PurchaseFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x14.loft.PurchaseFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"W\n" +
 	"\x14PurchaseListResponse\x12$\n" +
-	"\x05items\x18\x01 \x03(\v2\x0e.rove.PurchaseR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x0e.loft.PurchaseR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"u\n" +
 	"\x0ePurchaseFilter\x12#\n" +
-	"\x03ref\x18\x01 \x01(\v2\x11.rove.PurchaseRefR\x03ref\x12&\n" +
-	"\x06vendor\x18\x02 \x01(\v2\x0e.rove.PartyRefR\x06vendor\x12\x16\n" +
+	"\x03ref\x18\x01 \x01(\v2\x11.loft.PurchaseRefR\x03ref\x12&\n" +
+	"\x06vendor\x18\x02 \x01(\v2\x0e.loft.PartyRefR\x06vendor\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\"r\n" +
 	"\x14PurchaseWatchRequest\x12.\n" +
-	"\afilters\x18\x01 \x03(\v2\x14.rove.PurchaseFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x14.loft.PurchaseFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"F\n" +
 	"\x15PurchaseWatchResponse\x12-\n" +
-	"\x05items\x18\x01 \x03(\v2\x17.rove.PurchaseWatchItemR\x05items\"h\n" +
+	"\x05items\x18\x01 \x03(\v2\x17.loft.PurchaseWatchItemR\x05items\"h\n" +
 	"\x11PurchaseWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12$\n" +
-	"\x05value\x18\x02 \x01(\v2\x0e.rove.PurchaseR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\x0e.loft.PurchaseR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\xb3\x01\n" +
 	"\x16PurchaseReceiveRequest\x12#\n" +
-	"\x03ref\x18\x01 \x01(\v2\x11.rove.PurchaseRefR\x03ref\x12\"\n" +
-	"\x04into\x18\x02 \x01(\v2\x0e.rove.AssetRefR\x04into\x12$\n" +
+	"\x03ref\x18\x01 \x01(\v2\x11.loft.PurchaseRefR\x03ref\x12\"\n" +
+	"\x04into\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x04into\x12$\n" +
 	"\n" +
 	"tag_prefix\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\ttagPrefix\x12*\n" +
 	"\x02at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\"\x8b\x01\n" +
 	"\x17PurchaseReceiveResponse\x12*\n" +
-	"\bpurchase\x18\x01 \x01(\v2\x0e.rove.PurchaseR\bpurchase\x12#\n" +
-	"\x06assets\x18\x02 \x03(\v2\v.rove.AssetR\x06assets\x12\x1f\n" +
+	"\bpurchase\x18\x01 \x01(\v2\x0e.loft.PurchaseR\bpurchase\x12#\n" +
+	"\x06assets\x18\x02 \x03(\v2\v.loft.AssetR\x06assets\x12\x1f\n" +
 	"\astocked\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\astocked\"\xa5\x03\n" +
 	"\x16PurchaseLineAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12-\n" +
-	"\bpurchase\x18\b \x01(\v2\x11.rove.PurchaseRefR\bpurchase\x12(\n" +
-	"\x05model\x18\t \x01(\v2\x12.rove.ItemModelRefR\x05model\x12!\n" +
+	"\bpurchase\x18\b \x01(\v2\x11.loft.PurchaseRefR\bpurchase\x12(\n" +
+	"\x05model\x18\t \x01(\v2\x12.loft.ItemModelRefR\x05model\x12!\n" +
 	"\bquantity\x18\n" +
 	" \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x12\"\n" +
 	"\tunit_cost\x18\v \x01(\x03B\x05\xaa\x01\x02\b\x02R\bunitCost\x122\n" +
@@ -7436,17 +7436,17 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"receive_as\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\treceiveAs\"s\n" +
 	"\x16PurchaseLineGetRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.PurchaseLineRefR\x03ref\x120\n" +
-	"\x06select\x18\x02 \x01(\v2\x18.rove.PurchaseLineSelectR\x06select\"*\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.PurchaseLineRefR\x03ref\x120\n" +
+	"\x06select\x18\x02 \x01(\v2\x18.loft.PurchaseLineSelectR\x06select\"*\n" +
 	"\x0fPurchaseLineRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\x90\x03\n" +
 	"\x12PurchaseLineSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x120\n" +
-	"\bpurchase\x18\b \x01(\v2\x14.rove.PurchaseSelectR\bpurchase\x12+\n" +
-	"\x05model\x18\t \x01(\v2\x15.rove.ItemModelSelectR\x05model\x12\x1a\n" +
+	"\bpurchase\x18\b \x01(\v2\x14.loft.PurchaseSelectR\bpurchase\x12+\n" +
+	"\x05model\x18\t \x01(\v2\x15.loft.ItemModelSelectR\x05model\x12\x1a\n" +
 	"\bquantity\x18\n" +
 	" \x01(\bR\bquantity\x12\x1b\n" +
 	"\tunit_cost\x18\v \x01(\bR\bunitCost\x12+\n" +
@@ -7456,9 +7456,9 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"receive_as\x18\x10 \x01(\bR\treceiveAs\"\x92\x03\n" +
 	"\x18PurchaseLinePatchRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.PurchaseLineRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.PurchaseLineRefR\x03ref\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12(\n" +
-	"\x05model\x18\x12 \x01(\v2\x12.rove.ItemModelRefR\x05model\x12\x1d\n" +
+	"\x05model\x18\x12 \x01(\v2\x12.loft.ItemModelRefR\x05model\x12\x1d\n" +
 	"\n" +
 	"model_null\x18\x13 \x01(\bR\tmodelNull\x12\x1a\n" +
 	"\bquantity\x18\x14 \x01(\x03R\bquantity\x12\x1b\n" +
@@ -7469,238 +7469,238 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"receive_as\x18  \x01(\tR\treceiveAs\"g\n" +
 	"\x18PurchaseLineApplyRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.PurchaseLineRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.PurchaseLineRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
 	"\x19PurchaseLineEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
 	"\x17PurchaseLineListRequest\x122\n" +
-	"\afilters\x18\x01 \x03(\v2\x18.rove.PurchaseLineFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x18.loft.PurchaseLineFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
 	"\x18PurchaseLineListResponse\x12(\n" +
-	"\x05items\x18\x01 \x03(\v2\x12.rove.PurchaseLineR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x12.loft.PurchaseLineR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x96\x01\n" +
 	"\x12PurchaseLineFilter\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.PurchaseLineRefR\x03ref\x12-\n" +
-	"\bpurchase\x18\x02 \x01(\v2\x11.rove.PurchaseRefR\bpurchase\x12(\n" +
-	"\x05model\x18\x03 \x01(\v2\x12.rove.ItemModelRefR\x05model2\xd9\x04\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.PurchaseLineRefR\x03ref\x12-\n" +
+	"\bpurchase\x18\x02 \x01(\v2\x11.loft.PurchaseRefR\bpurchase\x12(\n" +
+	"\x05model\x18\x03 \x01(\v2\x12.loft.ItemModelRefR\x05model2\xd9\x04\n" +
 	"\x10WorkOrderService\x121\n" +
-	"\x03Add\x12\x19.rove.WorkOrderAddRequest\x1a\x0f.rove.WorkOrder\x121\n" +
-	"\x03Get\x12\x19.rove.WorkOrderGetRequest\x1a\x0f.rove.WorkOrder\x125\n" +
-	"\x05Patch\x12\x1b.rove.WorkOrderPatchRequest\x1a\x0f.rove.WorkOrder\x125\n" +
-	"\x05Apply\x12\x1b.rove.WorkOrderApplyRequest\x1a\x0f.rove.WorkOrder\x129\n" +
-	"\x05Erase\x12\x12.rove.WorkOrderRef\x1a\x1c.rove.WorkOrderEraseResponse\x12?\n" +
-	"\x04List\x12\x1a.rove.WorkOrderListRequest\x1a\x1b.rove.WorkOrderListResponse\x12D\n" +
-	"\x05Watch\x12\x1b.rove.WorkOrderWatchRequest\x1a\x1c.rove.WorkOrderWatchResponse0\x01\x127\n" +
-	"\x06Update\x12\x1c.rove.WorkOrderUpdateRequest\x1a\x0f.rove.WorkOrder\x12;\n" +
-	"\bComplete\x12\x1e.rove.WorkOrderCompleteRequest\x1a\x0f.rove.WorkOrder\x129\n" +
-	"\x06Cancel\x12\x1e.rove.WorkOrderCompleteRequest\x1a\x0f.rove.WorkOrder2\xe1\x03\n" +
+	"\x03Add\x12\x19.loft.WorkOrderAddRequest\x1a\x0f.loft.WorkOrder\x121\n" +
+	"\x03Get\x12\x19.loft.WorkOrderGetRequest\x1a\x0f.loft.WorkOrder\x125\n" +
+	"\x05Patch\x12\x1b.loft.WorkOrderPatchRequest\x1a\x0f.loft.WorkOrder\x125\n" +
+	"\x05Apply\x12\x1b.loft.WorkOrderApplyRequest\x1a\x0f.loft.WorkOrder\x129\n" +
+	"\x05Erase\x12\x12.loft.WorkOrderRef\x1a\x1c.loft.WorkOrderEraseResponse\x12?\n" +
+	"\x04List\x12\x1a.loft.WorkOrderListRequest\x1a\x1b.loft.WorkOrderListResponse\x12D\n" +
+	"\x05Watch\x12\x1b.loft.WorkOrderWatchRequest\x1a\x1c.loft.WorkOrderWatchResponse0\x01\x127\n" +
+	"\x06Update\x12\x1c.loft.WorkOrderUpdateRequest\x1a\x0f.loft.WorkOrder\x12;\n" +
+	"\bComplete\x12\x1e.loft.WorkOrderCompleteRequest\x1a\x0f.loft.WorkOrder\x129\n" +
+	"\x06Cancel\x12\x1e.loft.WorkOrderCompleteRequest\x1a\x0f.loft.WorkOrder2\xe1\x03\n" +
 	"\x0fPurchaseService\x12/\n" +
-	"\x03Add\x12\x18.rove.PurchaseAddRequest\x1a\x0e.rove.Purchase\x12/\n" +
-	"\x03Get\x12\x18.rove.PurchaseGetRequest\x1a\x0e.rove.Purchase\x123\n" +
-	"\x05Patch\x12\x1a.rove.PurchasePatchRequest\x1a\x0e.rove.Purchase\x123\n" +
-	"\x05Apply\x12\x1a.rove.PurchaseApplyRequest\x1a\x0e.rove.Purchase\x127\n" +
-	"\x05Erase\x12\x11.rove.PurchaseRef\x1a\x1b.rove.PurchaseEraseResponse\x12=\n" +
-	"\x04List\x12\x19.rove.PurchaseListRequest\x1a\x1a.rove.PurchaseListResponse\x12B\n" +
-	"\x05Watch\x12\x1a.rove.PurchaseWatchRequest\x1a\x1b.rove.PurchaseWatchResponse0\x01\x12F\n" +
-	"\aReceive\x12\x1c.rove.PurchaseReceiveRequest\x1a\x1d.rove.PurchaseReceiveResponse2\x89\x03\n" +
+	"\x03Add\x12\x18.loft.PurchaseAddRequest\x1a\x0e.loft.Purchase\x12/\n" +
+	"\x03Get\x12\x18.loft.PurchaseGetRequest\x1a\x0e.loft.Purchase\x123\n" +
+	"\x05Patch\x12\x1a.loft.PurchasePatchRequest\x1a\x0e.loft.Purchase\x123\n" +
+	"\x05Apply\x12\x1a.loft.PurchaseApplyRequest\x1a\x0e.loft.Purchase\x127\n" +
+	"\x05Erase\x12\x11.loft.PurchaseRef\x1a\x1b.loft.PurchaseEraseResponse\x12=\n" +
+	"\x04List\x12\x19.loft.PurchaseListRequest\x1a\x1a.loft.PurchaseListResponse\x12B\n" +
+	"\x05Watch\x12\x1a.loft.PurchaseWatchRequest\x1a\x1b.loft.PurchaseWatchResponse0\x01\x12F\n" +
+	"\aReceive\x12\x1c.loft.PurchaseReceiveRequest\x1a\x1d.loft.PurchaseReceiveResponse2\x89\x03\n" +
 	"\x13PurchaseLineService\x127\n" +
-	"\x03Add\x12\x1c.rove.PurchaseLineAddRequest\x1a\x12.rove.PurchaseLine\x127\n" +
-	"\x03Get\x12\x1c.rove.PurchaseLineGetRequest\x1a\x12.rove.PurchaseLine\x12;\n" +
-	"\x05Patch\x12\x1e.rove.PurchaseLinePatchRequest\x1a\x12.rove.PurchaseLine\x12;\n" +
-	"\x05Apply\x12\x1e.rove.PurchaseLineApplyRequest\x1a\x12.rove.PurchaseLine\x12?\n" +
-	"\x05Erase\x12\x15.rove.PurchaseLineRef\x1a\x1f.rove.PurchaseLineEraseResponse\x12E\n" +
-	"\x04List\x12\x1d.rove.PurchaseLineListRequest\x1a\x1e.rove.PurchaseLineListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x1c.loft.PurchaseLineAddRequest\x1a\x12.loft.PurchaseLine\x127\n" +
+	"\x03Get\x12\x1c.loft.PurchaseLineGetRequest\x1a\x12.loft.PurchaseLine\x12;\n" +
+	"\x05Patch\x12\x1e.loft.PurchaseLinePatchRequest\x1a\x12.loft.PurchaseLine\x12;\n" +
+	"\x05Apply\x12\x1e.loft.PurchaseLineApplyRequest\x1a\x12.loft.PurchaseLine\x12?\n" +
+	"\x05Erase\x12\x15.loft.PurchaseLineRef\x1a\x1f.loft.PurchaseLineEraseResponse\x12E\n" +
+	"\x04List\x12\x1d.loft.PurchaseLineListRequest\x1a\x1e.loft.PurchaseLineListResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_work_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
-var file_rove_work_svc_g_proto_goTypes = []any{
-	(*WorkOrderAddRequest)(nil),       // 0: rove.WorkOrderAddRequest
-	(*WorkOrderGetRequest)(nil),       // 1: rove.WorkOrderGetRequest
-	(*WorkOrderRef)(nil),              // 2: rove.WorkOrderRef
-	(*WorkOrderSelect)(nil),           // 3: rove.WorkOrderSelect
-	(*WorkOrderPatchRequest)(nil),     // 4: rove.WorkOrderPatchRequest
-	(*WorkOrderApplyRequest)(nil),     // 5: rove.WorkOrderApplyRequest
-	(*WorkOrderEraseResponse)(nil),    // 6: rove.WorkOrderEraseResponse
-	(*WorkOrderListRequest)(nil),      // 7: rove.WorkOrderListRequest
-	(*WorkOrderListResponse)(nil),     // 8: rove.WorkOrderListResponse
-	(*WorkOrderFilter)(nil),           // 9: rove.WorkOrderFilter
-	(*WorkOrderWatchRequest)(nil),     // 10: rove.WorkOrderWatchRequest
-	(*WorkOrderWatchResponse)(nil),    // 11: rove.WorkOrderWatchResponse
-	(*WorkOrderWatchItem)(nil),        // 12: rove.WorkOrderWatchItem
-	(*WorkOrderUpdateRequest)(nil),    // 13: rove.WorkOrderUpdateRequest
-	(*WorkOrderCompleteRequest)(nil),  // 14: rove.WorkOrderCompleteRequest
-	(*PurchaseAddRequest)(nil),        // 15: rove.PurchaseAddRequest
-	(*PurchaseLineSpec)(nil),          // 16: rove.PurchaseLineSpec
-	(*PurchaseGetRequest)(nil),        // 17: rove.PurchaseGetRequest
-	(*PurchaseRef)(nil),               // 18: rove.PurchaseRef
-	(*PurchaseSelect)(nil),            // 19: rove.PurchaseSelect
-	(*PurchasePatchRequest)(nil),      // 20: rove.PurchasePatchRequest
-	(*PurchaseApplyRequest)(nil),      // 21: rove.PurchaseApplyRequest
-	(*PurchaseEraseResponse)(nil),     // 22: rove.PurchaseEraseResponse
-	(*PurchaseListRequest)(nil),       // 23: rove.PurchaseListRequest
-	(*PurchaseListResponse)(nil),      // 24: rove.PurchaseListResponse
-	(*PurchaseFilter)(nil),            // 25: rove.PurchaseFilter
-	(*PurchaseWatchRequest)(nil),      // 26: rove.PurchaseWatchRequest
-	(*PurchaseWatchResponse)(nil),     // 27: rove.PurchaseWatchResponse
-	(*PurchaseWatchItem)(nil),         // 28: rove.PurchaseWatchItem
-	(*PurchaseReceiveRequest)(nil),    // 29: rove.PurchaseReceiveRequest
-	(*PurchaseReceiveResponse)(nil),   // 30: rove.PurchaseReceiveResponse
-	(*PurchaseLineAddRequest)(nil),    // 31: rove.PurchaseLineAddRequest
-	(*PurchaseLineGetRequest)(nil),    // 32: rove.PurchaseLineGetRequest
-	(*PurchaseLineRef)(nil),           // 33: rove.PurchaseLineRef
-	(*PurchaseLineSelect)(nil),        // 34: rove.PurchaseLineSelect
-	(*PurchaseLinePatchRequest)(nil),  // 35: rove.PurchaseLinePatchRequest
-	(*PurchaseLineApplyRequest)(nil),  // 36: rove.PurchaseLineApplyRequest
-	(*PurchaseLineEraseResponse)(nil), // 37: rove.PurchaseLineEraseResponse
-	(*PurchaseLineListRequest)(nil),   // 38: rove.PurchaseLineListRequest
-	(*PurchaseLineListResponse)(nil),  // 39: rove.PurchaseLineListResponse
-	(*PurchaseLineFilter)(nil),        // 40: rove.PurchaseLineFilter
-	(*TenantRef)(nil),                 // 41: rove.TenantRef
-	(*AssetRef)(nil),                  // 42: rove.AssetRef
+var file_loft_work_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
+var file_loft_work_svc_g_proto_goTypes = []any{
+	(*WorkOrderAddRequest)(nil),       // 0: loft.WorkOrderAddRequest
+	(*WorkOrderGetRequest)(nil),       // 1: loft.WorkOrderGetRequest
+	(*WorkOrderRef)(nil),              // 2: loft.WorkOrderRef
+	(*WorkOrderSelect)(nil),           // 3: loft.WorkOrderSelect
+	(*WorkOrderPatchRequest)(nil),     // 4: loft.WorkOrderPatchRequest
+	(*WorkOrderApplyRequest)(nil),     // 5: loft.WorkOrderApplyRequest
+	(*WorkOrderEraseResponse)(nil),    // 6: loft.WorkOrderEraseResponse
+	(*WorkOrderListRequest)(nil),      // 7: loft.WorkOrderListRequest
+	(*WorkOrderListResponse)(nil),     // 8: loft.WorkOrderListResponse
+	(*WorkOrderFilter)(nil),           // 9: loft.WorkOrderFilter
+	(*WorkOrderWatchRequest)(nil),     // 10: loft.WorkOrderWatchRequest
+	(*WorkOrderWatchResponse)(nil),    // 11: loft.WorkOrderWatchResponse
+	(*WorkOrderWatchItem)(nil),        // 12: loft.WorkOrderWatchItem
+	(*WorkOrderUpdateRequest)(nil),    // 13: loft.WorkOrderUpdateRequest
+	(*WorkOrderCompleteRequest)(nil),  // 14: loft.WorkOrderCompleteRequest
+	(*PurchaseAddRequest)(nil),        // 15: loft.PurchaseAddRequest
+	(*PurchaseLineSpec)(nil),          // 16: loft.PurchaseLineSpec
+	(*PurchaseGetRequest)(nil),        // 17: loft.PurchaseGetRequest
+	(*PurchaseRef)(nil),               // 18: loft.PurchaseRef
+	(*PurchaseSelect)(nil),            // 19: loft.PurchaseSelect
+	(*PurchasePatchRequest)(nil),      // 20: loft.PurchasePatchRequest
+	(*PurchaseApplyRequest)(nil),      // 21: loft.PurchaseApplyRequest
+	(*PurchaseEraseResponse)(nil),     // 22: loft.PurchaseEraseResponse
+	(*PurchaseListRequest)(nil),       // 23: loft.PurchaseListRequest
+	(*PurchaseListResponse)(nil),      // 24: loft.PurchaseListResponse
+	(*PurchaseFilter)(nil),            // 25: loft.PurchaseFilter
+	(*PurchaseWatchRequest)(nil),      // 26: loft.PurchaseWatchRequest
+	(*PurchaseWatchResponse)(nil),     // 27: loft.PurchaseWatchResponse
+	(*PurchaseWatchItem)(nil),         // 28: loft.PurchaseWatchItem
+	(*PurchaseReceiveRequest)(nil),    // 29: loft.PurchaseReceiveRequest
+	(*PurchaseReceiveResponse)(nil),   // 30: loft.PurchaseReceiveResponse
+	(*PurchaseLineAddRequest)(nil),    // 31: loft.PurchaseLineAddRequest
+	(*PurchaseLineGetRequest)(nil),    // 32: loft.PurchaseLineGetRequest
+	(*PurchaseLineRef)(nil),           // 33: loft.PurchaseLineRef
+	(*PurchaseLineSelect)(nil),        // 34: loft.PurchaseLineSelect
+	(*PurchaseLinePatchRequest)(nil),  // 35: loft.PurchaseLinePatchRequest
+	(*PurchaseLineApplyRequest)(nil),  // 36: loft.PurchaseLineApplyRequest
+	(*PurchaseLineEraseResponse)(nil), // 37: loft.PurchaseLineEraseResponse
+	(*PurchaseLineListRequest)(nil),   // 38: loft.PurchaseLineListRequest
+	(*PurchaseLineListResponse)(nil),  // 39: loft.PurchaseLineListResponse
+	(*PurchaseLineFilter)(nil),        // 40: loft.PurchaseLineFilter
+	(*TenantRef)(nil),                 // 41: loft.TenantRef
+	(*AssetRef)(nil),                  // 42: loft.AssetRef
 	(*timestamppb.Timestamp)(nil),     // 43: google.protobuf.Timestamp
-	(*PartyRef)(nil),                  // 44: rove.PartyRef
-	(*TenantSelect)(nil),              // 45: rove.TenantSelect
-	(*AssetSelect)(nil),               // 46: rove.AssetSelect
-	(*PartySelect)(nil),               // 47: rove.PartySelect
+	(*PartyRef)(nil),                  // 44: loft.PartyRef
+	(*TenantSelect)(nil),              // 45: loft.TenantSelect
+	(*AssetSelect)(nil),               // 46: loft.AssetSelect
+	(*PartySelect)(nil),               // 47: loft.PartySelect
 	(*patchpb.Patch)(nil),             // 48: patch.Patch
-	(*WorkOrder)(nil),                 // 49: rove.WorkOrder
-	(*ItemModelRef)(nil),              // 50: rove.ItemModelRef
-	(*Purchase)(nil),                  // 51: rove.Purchase
-	(*Asset)(nil),                     // 52: rove.Asset
-	(*ItemModelSelect)(nil),           // 53: rove.ItemModelSelect
-	(*PurchaseLine)(nil),              // 54: rove.PurchaseLine
+	(*WorkOrder)(nil),                 // 49: loft.WorkOrder
+	(*ItemModelRef)(nil),              // 50: loft.ItemModelRef
+	(*Purchase)(nil),                  // 51: loft.Purchase
+	(*Asset)(nil),                     // 52: loft.Asset
+	(*ItemModelSelect)(nil),           // 53: loft.ItemModelSelect
+	(*PurchaseLine)(nil),              // 54: loft.PurchaseLine
 }
-var file_rove_work_svc_g_proto_depIdxs = []int32{
-	41,  // 0: rove.WorkOrderAddRequest.tenant:type_name -> rove.TenantRef
-	42,  // 1: rove.WorkOrderAddRequest.asset:type_name -> rove.AssetRef
-	43,  // 2: rove.WorkOrderAddRequest.begins_at:type_name -> google.protobuf.Timestamp
-	43,  // 3: rove.WorkOrderAddRequest.ends_at:type_name -> google.protobuf.Timestamp
-	43,  // 4: rove.WorkOrderAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	44,  // 5: rove.WorkOrderAddRequest.vendor:type_name -> rove.PartyRef
-	43,  // 6: rove.WorkOrderAddRequest.completed_at:type_name -> google.protobuf.Timestamp
-	2,   // 7: rove.WorkOrderGetRequest.ref:type_name -> rove.WorkOrderRef
-	3,   // 8: rove.WorkOrderGetRequest.select:type_name -> rove.WorkOrderSelect
-	45,  // 9: rove.WorkOrderSelect.tenant:type_name -> rove.TenantSelect
-	46,  // 10: rove.WorkOrderSelect.asset:type_name -> rove.AssetSelect
-	47,  // 11: rove.WorkOrderSelect.vendor:type_name -> rove.PartySelect
-	2,   // 12: rove.WorkOrderPatchRequest.ref:type_name -> rove.WorkOrderRef
-	43,  // 13: rove.WorkOrderPatchRequest.begins_at:type_name -> google.protobuf.Timestamp
-	43,  // 14: rove.WorkOrderPatchRequest.ends_at:type_name -> google.protobuf.Timestamp
-	43,  // 15: rove.WorkOrderPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	44,  // 16: rove.WorkOrderPatchRequest.vendor:type_name -> rove.PartyRef
-	43,  // 17: rove.WorkOrderPatchRequest.completed_at:type_name -> google.protobuf.Timestamp
-	2,   // 18: rove.WorkOrderApplyRequest.ref:type_name -> rove.WorkOrderRef
-	48,  // 19: rove.WorkOrderApplyRequest.patch:type_name -> patch.Patch
-	9,   // 20: rove.WorkOrderListRequest.filters:type_name -> rove.WorkOrderFilter
-	49,  // 21: rove.WorkOrderListResponse.items:type_name -> rove.WorkOrder
-	2,   // 22: rove.WorkOrderFilter.ref:type_name -> rove.WorkOrderRef
-	42,  // 23: rove.WorkOrderFilter.asset:type_name -> rove.AssetRef
-	44,  // 24: rove.WorkOrderFilter.vendor:type_name -> rove.PartyRef
-	9,   // 25: rove.WorkOrderWatchRequest.filters:type_name -> rove.WorkOrderFilter
-	12,  // 26: rove.WorkOrderWatchResponse.items:type_name -> rove.WorkOrderWatchItem
-	49,  // 27: rove.WorkOrderWatchItem.value:type_name -> rove.WorkOrder
-	2,   // 28: rove.WorkOrderUpdateRequest.ref:type_name -> rove.WorkOrderRef
-	43,  // 29: rove.WorkOrderUpdateRequest.begins_at:type_name -> google.protobuf.Timestamp
-	43,  // 30: rove.WorkOrderUpdateRequest.ends_at:type_name -> google.protobuf.Timestamp
-	2,   // 31: rove.WorkOrderCompleteRequest.ref:type_name -> rove.WorkOrderRef
-	41,  // 32: rove.PurchaseAddRequest.tenant:type_name -> rove.TenantRef
-	44,  // 33: rove.PurchaseAddRequest.vendor:type_name -> rove.PartyRef
-	43,  // 34: rove.PurchaseAddRequest.ordered_at:type_name -> google.protobuf.Timestamp
-	43,  // 35: rove.PurchaseAddRequest.received_at:type_name -> google.protobuf.Timestamp
-	43,  // 36: rove.PurchaseAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	16,  // 37: rove.PurchaseAddRequest.lines:type_name -> rove.PurchaseLineSpec
-	50,  // 38: rove.PurchaseLineSpec.model:type_name -> rove.ItemModelRef
-	18,  // 39: rove.PurchaseGetRequest.ref:type_name -> rove.PurchaseRef
-	19,  // 40: rove.PurchaseGetRequest.select:type_name -> rove.PurchaseSelect
-	45,  // 41: rove.PurchaseSelect.tenant:type_name -> rove.TenantSelect
-	47,  // 42: rove.PurchaseSelect.vendor:type_name -> rove.PartySelect
-	18,  // 43: rove.PurchasePatchRequest.ref:type_name -> rove.PurchaseRef
-	44,  // 44: rove.PurchasePatchRequest.vendor:type_name -> rove.PartyRef
-	43,  // 45: rove.PurchasePatchRequest.ordered_at:type_name -> google.protobuf.Timestamp
-	43,  // 46: rove.PurchasePatchRequest.received_at:type_name -> google.protobuf.Timestamp
-	43,  // 47: rove.PurchasePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	18,  // 48: rove.PurchaseApplyRequest.ref:type_name -> rove.PurchaseRef
-	48,  // 49: rove.PurchaseApplyRequest.patch:type_name -> patch.Patch
-	25,  // 50: rove.PurchaseListRequest.filters:type_name -> rove.PurchaseFilter
-	51,  // 51: rove.PurchaseListResponse.items:type_name -> rove.Purchase
-	18,  // 52: rove.PurchaseFilter.ref:type_name -> rove.PurchaseRef
-	44,  // 53: rove.PurchaseFilter.vendor:type_name -> rove.PartyRef
-	25,  // 54: rove.PurchaseWatchRequest.filters:type_name -> rove.PurchaseFilter
-	28,  // 55: rove.PurchaseWatchResponse.items:type_name -> rove.PurchaseWatchItem
-	51,  // 56: rove.PurchaseWatchItem.value:type_name -> rove.Purchase
-	18,  // 57: rove.PurchaseReceiveRequest.ref:type_name -> rove.PurchaseRef
-	42,  // 58: rove.PurchaseReceiveRequest.into:type_name -> rove.AssetRef
-	43,  // 59: rove.PurchaseReceiveRequest.at:type_name -> google.protobuf.Timestamp
-	51,  // 60: rove.PurchaseReceiveResponse.purchase:type_name -> rove.Purchase
-	52,  // 61: rove.PurchaseReceiveResponse.assets:type_name -> rove.Asset
-	41,  // 62: rove.PurchaseLineAddRequest.tenant:type_name -> rove.TenantRef
-	18,  // 63: rove.PurchaseLineAddRequest.purchase:type_name -> rove.PurchaseRef
-	50,  // 64: rove.PurchaseLineAddRequest.model:type_name -> rove.ItemModelRef
-	43,  // 65: rove.PurchaseLineAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	33,  // 66: rove.PurchaseLineGetRequest.ref:type_name -> rove.PurchaseLineRef
-	34,  // 67: rove.PurchaseLineGetRequest.select:type_name -> rove.PurchaseLineSelect
-	45,  // 68: rove.PurchaseLineSelect.tenant:type_name -> rove.TenantSelect
-	19,  // 69: rove.PurchaseLineSelect.purchase:type_name -> rove.PurchaseSelect
-	53,  // 70: rove.PurchaseLineSelect.model:type_name -> rove.ItemModelSelect
-	33,  // 71: rove.PurchaseLinePatchRequest.ref:type_name -> rove.PurchaseLineRef
-	50,  // 72: rove.PurchaseLinePatchRequest.model:type_name -> rove.ItemModelRef
-	43,  // 73: rove.PurchaseLinePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	33,  // 74: rove.PurchaseLineApplyRequest.ref:type_name -> rove.PurchaseLineRef
-	48,  // 75: rove.PurchaseLineApplyRequest.patch:type_name -> patch.Patch
-	40,  // 76: rove.PurchaseLineListRequest.filters:type_name -> rove.PurchaseLineFilter
-	54,  // 77: rove.PurchaseLineListResponse.items:type_name -> rove.PurchaseLine
-	33,  // 78: rove.PurchaseLineFilter.ref:type_name -> rove.PurchaseLineRef
-	18,  // 79: rove.PurchaseLineFilter.purchase:type_name -> rove.PurchaseRef
-	50,  // 80: rove.PurchaseLineFilter.model:type_name -> rove.ItemModelRef
-	0,   // 81: rove.WorkOrderService.Add:input_type -> rove.WorkOrderAddRequest
-	1,   // 82: rove.WorkOrderService.Get:input_type -> rove.WorkOrderGetRequest
-	4,   // 83: rove.WorkOrderService.Patch:input_type -> rove.WorkOrderPatchRequest
-	5,   // 84: rove.WorkOrderService.Apply:input_type -> rove.WorkOrderApplyRequest
-	2,   // 85: rove.WorkOrderService.Erase:input_type -> rove.WorkOrderRef
-	7,   // 86: rove.WorkOrderService.List:input_type -> rove.WorkOrderListRequest
-	10,  // 87: rove.WorkOrderService.Watch:input_type -> rove.WorkOrderWatchRequest
-	13,  // 88: rove.WorkOrderService.Update:input_type -> rove.WorkOrderUpdateRequest
-	14,  // 89: rove.WorkOrderService.Complete:input_type -> rove.WorkOrderCompleteRequest
-	14,  // 90: rove.WorkOrderService.Cancel:input_type -> rove.WorkOrderCompleteRequest
-	15,  // 91: rove.PurchaseService.Add:input_type -> rove.PurchaseAddRequest
-	17,  // 92: rove.PurchaseService.Get:input_type -> rove.PurchaseGetRequest
-	20,  // 93: rove.PurchaseService.Patch:input_type -> rove.PurchasePatchRequest
-	21,  // 94: rove.PurchaseService.Apply:input_type -> rove.PurchaseApplyRequest
-	18,  // 95: rove.PurchaseService.Erase:input_type -> rove.PurchaseRef
-	23,  // 96: rove.PurchaseService.List:input_type -> rove.PurchaseListRequest
-	26,  // 97: rove.PurchaseService.Watch:input_type -> rove.PurchaseWatchRequest
-	29,  // 98: rove.PurchaseService.Receive:input_type -> rove.PurchaseReceiveRequest
-	31,  // 99: rove.PurchaseLineService.Add:input_type -> rove.PurchaseLineAddRequest
-	32,  // 100: rove.PurchaseLineService.Get:input_type -> rove.PurchaseLineGetRequest
-	35,  // 101: rove.PurchaseLineService.Patch:input_type -> rove.PurchaseLinePatchRequest
-	36,  // 102: rove.PurchaseLineService.Apply:input_type -> rove.PurchaseLineApplyRequest
-	33,  // 103: rove.PurchaseLineService.Erase:input_type -> rove.PurchaseLineRef
-	38,  // 104: rove.PurchaseLineService.List:input_type -> rove.PurchaseLineListRequest
-	49,  // 105: rove.WorkOrderService.Add:output_type -> rove.WorkOrder
-	49,  // 106: rove.WorkOrderService.Get:output_type -> rove.WorkOrder
-	49,  // 107: rove.WorkOrderService.Patch:output_type -> rove.WorkOrder
-	49,  // 108: rove.WorkOrderService.Apply:output_type -> rove.WorkOrder
-	6,   // 109: rove.WorkOrderService.Erase:output_type -> rove.WorkOrderEraseResponse
-	8,   // 110: rove.WorkOrderService.List:output_type -> rove.WorkOrderListResponse
-	11,  // 111: rove.WorkOrderService.Watch:output_type -> rove.WorkOrderWatchResponse
-	49,  // 112: rove.WorkOrderService.Update:output_type -> rove.WorkOrder
-	49,  // 113: rove.WorkOrderService.Complete:output_type -> rove.WorkOrder
-	49,  // 114: rove.WorkOrderService.Cancel:output_type -> rove.WorkOrder
-	51,  // 115: rove.PurchaseService.Add:output_type -> rove.Purchase
-	51,  // 116: rove.PurchaseService.Get:output_type -> rove.Purchase
-	51,  // 117: rove.PurchaseService.Patch:output_type -> rove.Purchase
-	51,  // 118: rove.PurchaseService.Apply:output_type -> rove.Purchase
-	22,  // 119: rove.PurchaseService.Erase:output_type -> rove.PurchaseEraseResponse
-	24,  // 120: rove.PurchaseService.List:output_type -> rove.PurchaseListResponse
-	27,  // 121: rove.PurchaseService.Watch:output_type -> rove.PurchaseWatchResponse
-	30,  // 122: rove.PurchaseService.Receive:output_type -> rove.PurchaseReceiveResponse
-	54,  // 123: rove.PurchaseLineService.Add:output_type -> rove.PurchaseLine
-	54,  // 124: rove.PurchaseLineService.Get:output_type -> rove.PurchaseLine
-	54,  // 125: rove.PurchaseLineService.Patch:output_type -> rove.PurchaseLine
-	54,  // 126: rove.PurchaseLineService.Apply:output_type -> rove.PurchaseLine
-	37,  // 127: rove.PurchaseLineService.Erase:output_type -> rove.PurchaseLineEraseResponse
-	39,  // 128: rove.PurchaseLineService.List:output_type -> rove.PurchaseLineListResponse
+var file_loft_work_svc_g_proto_depIdxs = []int32{
+	41,  // 0: loft.WorkOrderAddRequest.tenant:type_name -> loft.TenantRef
+	42,  // 1: loft.WorkOrderAddRequest.asset:type_name -> loft.AssetRef
+	43,  // 2: loft.WorkOrderAddRequest.begins_at:type_name -> google.protobuf.Timestamp
+	43,  // 3: loft.WorkOrderAddRequest.ends_at:type_name -> google.protobuf.Timestamp
+	43,  // 4: loft.WorkOrderAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	44,  // 5: loft.WorkOrderAddRequest.vendor:type_name -> loft.PartyRef
+	43,  // 6: loft.WorkOrderAddRequest.completed_at:type_name -> google.protobuf.Timestamp
+	2,   // 7: loft.WorkOrderGetRequest.ref:type_name -> loft.WorkOrderRef
+	3,   // 8: loft.WorkOrderGetRequest.select:type_name -> loft.WorkOrderSelect
+	45,  // 9: loft.WorkOrderSelect.tenant:type_name -> loft.TenantSelect
+	46,  // 10: loft.WorkOrderSelect.asset:type_name -> loft.AssetSelect
+	47,  // 11: loft.WorkOrderSelect.vendor:type_name -> loft.PartySelect
+	2,   // 12: loft.WorkOrderPatchRequest.ref:type_name -> loft.WorkOrderRef
+	43,  // 13: loft.WorkOrderPatchRequest.begins_at:type_name -> google.protobuf.Timestamp
+	43,  // 14: loft.WorkOrderPatchRequest.ends_at:type_name -> google.protobuf.Timestamp
+	43,  // 15: loft.WorkOrderPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	44,  // 16: loft.WorkOrderPatchRequest.vendor:type_name -> loft.PartyRef
+	43,  // 17: loft.WorkOrderPatchRequest.completed_at:type_name -> google.protobuf.Timestamp
+	2,   // 18: loft.WorkOrderApplyRequest.ref:type_name -> loft.WorkOrderRef
+	48,  // 19: loft.WorkOrderApplyRequest.patch:type_name -> patch.Patch
+	9,   // 20: loft.WorkOrderListRequest.filters:type_name -> loft.WorkOrderFilter
+	49,  // 21: loft.WorkOrderListResponse.items:type_name -> loft.WorkOrder
+	2,   // 22: loft.WorkOrderFilter.ref:type_name -> loft.WorkOrderRef
+	42,  // 23: loft.WorkOrderFilter.asset:type_name -> loft.AssetRef
+	44,  // 24: loft.WorkOrderFilter.vendor:type_name -> loft.PartyRef
+	9,   // 25: loft.WorkOrderWatchRequest.filters:type_name -> loft.WorkOrderFilter
+	12,  // 26: loft.WorkOrderWatchResponse.items:type_name -> loft.WorkOrderWatchItem
+	49,  // 27: loft.WorkOrderWatchItem.value:type_name -> loft.WorkOrder
+	2,   // 28: loft.WorkOrderUpdateRequest.ref:type_name -> loft.WorkOrderRef
+	43,  // 29: loft.WorkOrderUpdateRequest.begins_at:type_name -> google.protobuf.Timestamp
+	43,  // 30: loft.WorkOrderUpdateRequest.ends_at:type_name -> google.protobuf.Timestamp
+	2,   // 31: loft.WorkOrderCompleteRequest.ref:type_name -> loft.WorkOrderRef
+	41,  // 32: loft.PurchaseAddRequest.tenant:type_name -> loft.TenantRef
+	44,  // 33: loft.PurchaseAddRequest.vendor:type_name -> loft.PartyRef
+	43,  // 34: loft.PurchaseAddRequest.ordered_at:type_name -> google.protobuf.Timestamp
+	43,  // 35: loft.PurchaseAddRequest.received_at:type_name -> google.protobuf.Timestamp
+	43,  // 36: loft.PurchaseAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	16,  // 37: loft.PurchaseAddRequest.lines:type_name -> loft.PurchaseLineSpec
+	50,  // 38: loft.PurchaseLineSpec.model:type_name -> loft.ItemModelRef
+	18,  // 39: loft.PurchaseGetRequest.ref:type_name -> loft.PurchaseRef
+	19,  // 40: loft.PurchaseGetRequest.select:type_name -> loft.PurchaseSelect
+	45,  // 41: loft.PurchaseSelect.tenant:type_name -> loft.TenantSelect
+	47,  // 42: loft.PurchaseSelect.vendor:type_name -> loft.PartySelect
+	18,  // 43: loft.PurchasePatchRequest.ref:type_name -> loft.PurchaseRef
+	44,  // 44: loft.PurchasePatchRequest.vendor:type_name -> loft.PartyRef
+	43,  // 45: loft.PurchasePatchRequest.ordered_at:type_name -> google.protobuf.Timestamp
+	43,  // 46: loft.PurchasePatchRequest.received_at:type_name -> google.protobuf.Timestamp
+	43,  // 47: loft.PurchasePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	18,  // 48: loft.PurchaseApplyRequest.ref:type_name -> loft.PurchaseRef
+	48,  // 49: loft.PurchaseApplyRequest.patch:type_name -> patch.Patch
+	25,  // 50: loft.PurchaseListRequest.filters:type_name -> loft.PurchaseFilter
+	51,  // 51: loft.PurchaseListResponse.items:type_name -> loft.Purchase
+	18,  // 52: loft.PurchaseFilter.ref:type_name -> loft.PurchaseRef
+	44,  // 53: loft.PurchaseFilter.vendor:type_name -> loft.PartyRef
+	25,  // 54: loft.PurchaseWatchRequest.filters:type_name -> loft.PurchaseFilter
+	28,  // 55: loft.PurchaseWatchResponse.items:type_name -> loft.PurchaseWatchItem
+	51,  // 56: loft.PurchaseWatchItem.value:type_name -> loft.Purchase
+	18,  // 57: loft.PurchaseReceiveRequest.ref:type_name -> loft.PurchaseRef
+	42,  // 58: loft.PurchaseReceiveRequest.into:type_name -> loft.AssetRef
+	43,  // 59: loft.PurchaseReceiveRequest.at:type_name -> google.protobuf.Timestamp
+	51,  // 60: loft.PurchaseReceiveResponse.purchase:type_name -> loft.Purchase
+	52,  // 61: loft.PurchaseReceiveResponse.assets:type_name -> loft.Asset
+	41,  // 62: loft.PurchaseLineAddRequest.tenant:type_name -> loft.TenantRef
+	18,  // 63: loft.PurchaseLineAddRequest.purchase:type_name -> loft.PurchaseRef
+	50,  // 64: loft.PurchaseLineAddRequest.model:type_name -> loft.ItemModelRef
+	43,  // 65: loft.PurchaseLineAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	33,  // 66: loft.PurchaseLineGetRequest.ref:type_name -> loft.PurchaseLineRef
+	34,  // 67: loft.PurchaseLineGetRequest.select:type_name -> loft.PurchaseLineSelect
+	45,  // 68: loft.PurchaseLineSelect.tenant:type_name -> loft.TenantSelect
+	19,  // 69: loft.PurchaseLineSelect.purchase:type_name -> loft.PurchaseSelect
+	53,  // 70: loft.PurchaseLineSelect.model:type_name -> loft.ItemModelSelect
+	33,  // 71: loft.PurchaseLinePatchRequest.ref:type_name -> loft.PurchaseLineRef
+	50,  // 72: loft.PurchaseLinePatchRequest.model:type_name -> loft.ItemModelRef
+	43,  // 73: loft.PurchaseLinePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	33,  // 74: loft.PurchaseLineApplyRequest.ref:type_name -> loft.PurchaseLineRef
+	48,  // 75: loft.PurchaseLineApplyRequest.patch:type_name -> patch.Patch
+	40,  // 76: loft.PurchaseLineListRequest.filters:type_name -> loft.PurchaseLineFilter
+	54,  // 77: loft.PurchaseLineListResponse.items:type_name -> loft.PurchaseLine
+	33,  // 78: loft.PurchaseLineFilter.ref:type_name -> loft.PurchaseLineRef
+	18,  // 79: loft.PurchaseLineFilter.purchase:type_name -> loft.PurchaseRef
+	50,  // 80: loft.PurchaseLineFilter.model:type_name -> loft.ItemModelRef
+	0,   // 81: loft.WorkOrderService.Add:input_type -> loft.WorkOrderAddRequest
+	1,   // 82: loft.WorkOrderService.Get:input_type -> loft.WorkOrderGetRequest
+	4,   // 83: loft.WorkOrderService.Patch:input_type -> loft.WorkOrderPatchRequest
+	5,   // 84: loft.WorkOrderService.Apply:input_type -> loft.WorkOrderApplyRequest
+	2,   // 85: loft.WorkOrderService.Erase:input_type -> loft.WorkOrderRef
+	7,   // 86: loft.WorkOrderService.List:input_type -> loft.WorkOrderListRequest
+	10,  // 87: loft.WorkOrderService.Watch:input_type -> loft.WorkOrderWatchRequest
+	13,  // 88: loft.WorkOrderService.Update:input_type -> loft.WorkOrderUpdateRequest
+	14,  // 89: loft.WorkOrderService.Complete:input_type -> loft.WorkOrderCompleteRequest
+	14,  // 90: loft.WorkOrderService.Cancel:input_type -> loft.WorkOrderCompleteRequest
+	15,  // 91: loft.PurchaseService.Add:input_type -> loft.PurchaseAddRequest
+	17,  // 92: loft.PurchaseService.Get:input_type -> loft.PurchaseGetRequest
+	20,  // 93: loft.PurchaseService.Patch:input_type -> loft.PurchasePatchRequest
+	21,  // 94: loft.PurchaseService.Apply:input_type -> loft.PurchaseApplyRequest
+	18,  // 95: loft.PurchaseService.Erase:input_type -> loft.PurchaseRef
+	23,  // 96: loft.PurchaseService.List:input_type -> loft.PurchaseListRequest
+	26,  // 97: loft.PurchaseService.Watch:input_type -> loft.PurchaseWatchRequest
+	29,  // 98: loft.PurchaseService.Receive:input_type -> loft.PurchaseReceiveRequest
+	31,  // 99: loft.PurchaseLineService.Add:input_type -> loft.PurchaseLineAddRequest
+	32,  // 100: loft.PurchaseLineService.Get:input_type -> loft.PurchaseLineGetRequest
+	35,  // 101: loft.PurchaseLineService.Patch:input_type -> loft.PurchaseLinePatchRequest
+	36,  // 102: loft.PurchaseLineService.Apply:input_type -> loft.PurchaseLineApplyRequest
+	33,  // 103: loft.PurchaseLineService.Erase:input_type -> loft.PurchaseLineRef
+	38,  // 104: loft.PurchaseLineService.List:input_type -> loft.PurchaseLineListRequest
+	49,  // 105: loft.WorkOrderService.Add:output_type -> loft.WorkOrder
+	49,  // 106: loft.WorkOrderService.Get:output_type -> loft.WorkOrder
+	49,  // 107: loft.WorkOrderService.Patch:output_type -> loft.WorkOrder
+	49,  // 108: loft.WorkOrderService.Apply:output_type -> loft.WorkOrder
+	6,   // 109: loft.WorkOrderService.Erase:output_type -> loft.WorkOrderEraseResponse
+	8,   // 110: loft.WorkOrderService.List:output_type -> loft.WorkOrderListResponse
+	11,  // 111: loft.WorkOrderService.Watch:output_type -> loft.WorkOrderWatchResponse
+	49,  // 112: loft.WorkOrderService.Update:output_type -> loft.WorkOrder
+	49,  // 113: loft.WorkOrderService.Complete:output_type -> loft.WorkOrder
+	49,  // 114: loft.WorkOrderService.Cancel:output_type -> loft.WorkOrder
+	51,  // 115: loft.PurchaseService.Add:output_type -> loft.Purchase
+	51,  // 116: loft.PurchaseService.Get:output_type -> loft.Purchase
+	51,  // 117: loft.PurchaseService.Patch:output_type -> loft.Purchase
+	51,  // 118: loft.PurchaseService.Apply:output_type -> loft.Purchase
+	22,  // 119: loft.PurchaseService.Erase:output_type -> loft.PurchaseEraseResponse
+	24,  // 120: loft.PurchaseService.List:output_type -> loft.PurchaseListResponse
+	27,  // 121: loft.PurchaseService.Watch:output_type -> loft.PurchaseWatchResponse
+	30,  // 122: loft.PurchaseService.Receive:output_type -> loft.PurchaseReceiveResponse
+	54,  // 123: loft.PurchaseLineService.Add:output_type -> loft.PurchaseLine
+	54,  // 124: loft.PurchaseLineService.Get:output_type -> loft.PurchaseLine
+	54,  // 125: loft.PurchaseLineService.Patch:output_type -> loft.PurchaseLine
+	54,  // 126: loft.PurchaseLineService.Apply:output_type -> loft.PurchaseLine
+	37,  // 127: loft.PurchaseLineService.Erase:output_type -> loft.PurchaseLineEraseResponse
+	39,  // 128: loft.PurchaseLineService.List:output_type -> loft.PurchaseLineListResponse
 	105, // [105:129] is the sub-list for method output_type
 	81,  // [81:105] is the sub-list for method input_type
 	81,  // [81:81] is the sub-list for extension type_name
@@ -7708,41 +7708,41 @@ var file_rove_work_svc_g_proto_depIdxs = []int32{
 	0,   // [0:81] is the sub-list for field type_name
 }
 
-func init() { file_rove_work_svc_g_proto_init() }
-func file_rove_work_svc_g_proto_init() {
-	if File_rove_work_svc_g_proto != nil {
+func init() { file_loft_work_svc_g_proto_init() }
+func file_loft_work_svc_g_proto_init() {
+	if File_loft_work_svc_g_proto != nil {
 		return
 	}
-	file_rove_asset_proto_init()
-	file_rove_asset_svc_g_proto_init()
-	file_rove_catalog_svc_g_proto_init()
-	file_rove_org_svc_g_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_work_proto_init()
-	file_rove_work_svc_g_proto_msgTypes[2].OneofWrappers = []any{
+	file_loft_asset_proto_init()
+	file_loft_asset_svc_g_proto_init()
+	file_loft_catalog_svc_g_proto_init()
+	file_loft_org_svc_g_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_work_proto_init()
+	file_loft_work_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*workOrderRef_Id)(nil),
 	}
-	file_rove_work_svc_g_proto_msgTypes[18].OneofWrappers = []any{
+	file_loft_work_svc_g_proto_msgTypes[18].OneofWrappers = []any{
 		(*purchaseRef_Id)(nil),
 	}
-	file_rove_work_svc_g_proto_msgTypes[33].OneofWrappers = []any{
+	file_loft_work_svc_g_proto_msgTypes[33].OneofWrappers = []any{
 		(*purchaseLineRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_work_svc_g_proto_rawDesc), len(file_rove_work_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_work_svc_g_proto_rawDesc), len(file_loft_work_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   41,
 			NumExtensions: 0,
 			NumServices:   3,
 		},
-		GoTypes:           file_rove_work_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_work_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_work_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_work_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_work_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_work_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_work_svc_g_proto = out.File
-	file_rove_work_svc_g_proto_goTypes = nil
-	file_rove_work_svc_g_proto_depIdxs = nil
+	File_loft_work_svc_g_proto = out.File
+	file_loft_work_svc_g_proto_goTypes = nil
+	file_loft_work_svc_g_proto_depIdxs = nil
 }

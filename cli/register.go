@@ -12,7 +12,7 @@ import (
 	"github.com/lesomnus/xli/arg"
 	"github.com/lesomnus/xli/flg"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // columnOf is the form's column for what an AddMany calls a field, so that
@@ -36,7 +36,7 @@ var columnOf = map[string]string{
 	"attributes":  "속성",
 }
 
-// NewCmdRegister is `rove register FILE`: new assets from a CSV in rove's
+// NewCmdRegister is `loft register FILE`: new assets from a CSV in loft's
 // form, as one intake (design 9.13). The sheet is read by the deployment --
 // the form is read in one place, and the page reads it there too -- and what
 // would be registered is shown, every issue by its line, until `--yes`
@@ -45,9 +45,9 @@ var columnOf = map[string]string{
 func NewCmdRegister() *xli.Command {
 	return &xli.Command{
 		Name:  "register",
-		Brief: "register new assets from a sheet in rove's form (대량 등록), shown first until --yes",
+		Brief: "register new assets from a sheet in loft's form (대량 등록), shown first until --yes",
 		Flags: flg.Flags{
-			&flg.String{Name: "workspace", Brief: "the workspace to register in, by alias; `rove use` sets the default"},
+			&flg.String{Name: "workspace", Brief: "the workspace to register in, by alias; `loft use` sets the default"},
 			&flg.String{Name: "reason", Brief: "what the intake is, for the history: 10월 입고"},
 			&flg.Switch{Name: "yes", Brief: "register them; without this it only says what it would"},
 			&flg.Switch{Name: "form", Brief: "write the empty form to FILE instead"},

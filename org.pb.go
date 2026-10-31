@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/org.proto
+// source: loft/org.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -48,7 +48,7 @@ type Party struct {
 
 func (x *Party) Reset() {
 	*x = Party{}
-	mi := &file_rove_org_proto_msgTypes[0]
+	mi := &file_loft_org_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -60,7 +60,7 @@ func (x *Party) String() string {
 func (*Party) ProtoMessage() {}
 
 func (x *Party) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_proto_msgTypes[0]
+	mi := &file_loft_org_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -348,7 +348,7 @@ func (b0 Party_builder) Build() *Party {
 // (`server/session`) -- which is what a cookie is looked up by, and which
 // nobody who may only write the database can make for a key of their own.
 //
-// One handed to a workspace's own domain (rove#155) is the exception: a
+// One handed to a workspace's own domain (loft#155) is the exception: a
 // cookie of that host's alone, bound to that workspace (`workspace`), and
 // handed from a sign-in here (`parent`).
 type Session struct {
@@ -371,7 +371,7 @@ type Session struct {
 
 func (x *Session) Reset() {
 	*x = Session{}
-	mi := &file_rove_org_proto_msgTypes[1]
+	mi := &file_loft_org_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -383,7 +383,7 @@ func (x *Session) String() string {
 func (*Session) ProtoMessage() {}
 
 func (x *Session) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_proto_msgTypes[1]
+	mi := &file_loft_org_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -618,7 +618,7 @@ type Session_builder struct {
 	// it as `id_token_hint` (`server/sso`). Nothing reads it but that.
 	Held []byte
 	// The workspace a session handed to that workspace's own domain is bound
-	// to (rove#155): it is served as the account's membership of that
+	// to (loft#155): it is served as the account's membership of that
 	// workspace, on a host that pins it, and nowhere else. Null for a sign-in
 	// at the service's address, which names the account alone.
 	Workspace []byte
@@ -693,7 +693,7 @@ type Invitation struct {
 
 func (x *Invitation) Reset() {
 	*x = Invitation{}
-	mi := &file_rove_org_proto_msgTypes[2]
+	mi := &file_loft_org_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -705,7 +705,7 @@ func (x *Invitation) String() string {
 func (*Invitation) ProtoMessage() {}
 
 func (x *Invitation) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_proto_msgTypes[2]
+	mi := &file_loft_org_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1050,7 +1050,7 @@ func (b0 Invitation_builder) Build() *Invitation {
 }
 
 // CliLogin is a terminal asking to be signed in as whoever approves it in a
-// browser (`rove login`).
+// browser (`loft login`).
 //
 // The terminal makes up the session key it will use, keeps it, and sends only
 // its SHA-256, which is kept as a browser's key is (`Session.secret`): `secret`
@@ -1082,7 +1082,7 @@ type CliLogin struct {
 
 func (x *CliLogin) Reset() {
 	*x = CliLogin{}
-	mi := &file_rove_org_proto_msgTypes[3]
+	mi := &file_loft_org_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1094,7 +1094,7 @@ func (x *CliLogin) String() string {
 func (*CliLogin) ProtoMessage() {}
 
 func (x *CliLogin) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_proto_msgTypes[3]
+	mi := &file_loft_org_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1326,7 +1326,7 @@ type CliLogin_builder struct {
 	Account []byte
 	// What the terminal asked to be allowed, which the page shows and the
 	// session it gets is narrowed to: `Session.grant`'s bytes. Empty is all
-	// that the account may do (`rove login --allow`, D33).
+	// that the account may do (`loft login --allow`, D33).
 	Grant []byte
 	// `pending`, `approved` or `denied`. One still pending after
 	// `date_expires` is expired, which is said where it is read.
@@ -1382,7 +1382,7 @@ type AliasHold struct {
 
 func (x *AliasHold) Reset() {
 	*x = AliasHold{}
-	mi := &file_rove_org_proto_msgTypes[4]
+	mi := &file_loft_org_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1394,7 +1394,7 @@ func (x *AliasHold) String() string {
 func (*AliasHold) ProtoMessage() {}
 
 func (x *AliasHold) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_proto_msgTypes[4]
+	mi := &file_loft_org_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1614,7 +1614,7 @@ type SignInFailure struct {
 
 func (x *SignInFailure) Reset() {
 	*x = SignInFailure{}
-	mi := &file_rove_org_proto_msgTypes[5]
+	mi := &file_loft_org_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1626,7 +1626,7 @@ func (x *SignInFailure) String() string {
 func (*SignInFailure) ProtoMessage() {}
 
 func (x *SignInFailure) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_proto_msgTypes[5]
+	mi := &file_loft_org_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1711,7 +1711,7 @@ func (b0 SignInFailure_builder) Build() *SignInFailure {
 }
 
 // Handoff is a sign-in on its way from the service's address to a
-// workspace's own domain (rove#155, design 9.9): a code the service gave a
+// workspace's own domain (loft#155, design 9.9): a code the service gave a
 // browser signed in there, which the browser exchanges on the domain for a
 // session of the domain's own.
 //
@@ -1738,7 +1738,7 @@ type Handoff struct {
 
 func (x *Handoff) Reset() {
 	*x = Handoff{}
-	mi := &file_rove_org_proto_msgTypes[6]
+	mi := &file_loft_org_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1750,7 +1750,7 @@ func (x *Handoff) String() string {
 func (*Handoff) ProtoMessage() {}
 
 func (x *Handoff) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_proto_msgTypes[6]
+	mi := &file_loft_org_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1937,21 +1937,21 @@ func (b0 Handoff_builder) Build() *Handoff {
 	return m0
 }
 
-var File_rove_org_proto protoreflect.FileDescriptor
+var File_loft_org_proto protoreflect.FileDescriptor
 
-const file_rove_org_proto_rawDesc = "" +
+const file_loft_org_proto_rawDesc = "" +
 	"\n" +
-	"\x0erove/org.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\xc9\x06\n" +
+	"\x0eloft/org.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/holder.proto\x1a\x18loft/payday/tenant.proto\"\xc9\x06\n" +
 	"\x05Party\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x127\n" +
-	"\x06labels\x18\a \x03(\v2\x17.rove.Party.LabelsEntryB\x06\xaa\xc1\x16\x02\x18\x01R\x06labels\x12\x1a\n" +
+	"\x06labels\x18\a \x03(\v2\x17.loft.Party.LabelsEntryB\x06\xaa\xc1\x16\x02\x18\x01R\x06labels\x12\x1a\n" +
 	"\x04kind\x18\b \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12%\n" +
 	"\tparent_id\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\bparentId\x12,\n" +
 	"\x06holder\x18\n" +
-	" \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder\x12\x1c\n" +
+	" \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder\x12\x1c\n" +
 	"\x05email\x18\v \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x05email\x12\x1c\n" +
 	"\x05phone\x18\f \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x05phone\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
@@ -2001,16 +2001,16 @@ const file_rove_org_proto_rawDesc = "" +
 	"\aaccount\x10\b\x1a\x14\x12\x06parent\x1a\n" +
 	"\n" +
 	"\x06parent\x10\x12\x8a\xbb\x16~\b&Rx\x12v\n" +
-	"ta sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (rove#136)*\x00\"\xb2\a\n" +
+	"ta sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (loft#136)*\x00\"\xb2\a\n" +
 	"\n" +
 	"Invitation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
-	"\ainviter\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\ainviter\x12\x1c\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
+	"\ainviter\x18\b \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x02@\x01R\ainviter\x12\x1c\n" +
 	"\x05email\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x05email\x12 \n" +
 	"\x04role\x18\n" +
 	" \x01(\tB\f\xea\x82\x16\x02@\x01\xaa\xc1\x16\x02\x18\x00R\x04role\x12)\n" +
-	"\x05party\x18\v \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x05party\x12\"\n" +
+	"\x05party\x18\v \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\x05party\x12\"\n" +
 	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
@@ -2019,7 +2019,7 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x05state\x18\x10 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x05state\x12F\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12E\n" +
 	"\fdate_settled\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateSettled\x12,\n" +
-	"\x06holder\x18\x13 \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder\x12\"\n" +
+	"\x06holder\x18\x13 \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder\x12\"\n" +
 	"\x05claim\x18\x14 \x01(\fB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\b\x01R\x05claim:\xc2\x01\xca\xfc\x15r\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
@@ -2099,54 +2099,54 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x06secret\x10\b0\x01\x1a \x12\fdate_expires\x1a\x10\n" +
 	"\fdate_expires\x10\x11\x8a\xbb\x16\xcd\x01\b0B\x02\n" +
 	"\x00R\xc2\x01\x12\xbf\x01\n" +
-	"\xbc\x01a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\xbc\x01a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_rove_org_proto_goTypes = []any{
-	(*Party)(nil),                 // 0: rove.Party
-	(*Session)(nil),               // 1: rove.Session
-	(*Invitation)(nil),            // 2: rove.Invitation
-	(*CliLogin)(nil),              // 3: rove.CliLogin
-	(*AliasHold)(nil),             // 4: rove.AliasHold
-	(*SignInFailure)(nil),         // 5: rove.SignInFailure
-	(*Handoff)(nil),               // 6: rove.Handoff
-	nil,                           // 7: rove.Party.LabelsEntry
-	(*Tenant)(nil),                // 8: rove.Tenant
-	(*Holder)(nil),                // 9: rove.Holder
+var file_loft_org_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_loft_org_proto_goTypes = []any{
+	(*Party)(nil),                 // 0: loft.Party
+	(*Session)(nil),               // 1: loft.Session
+	(*Invitation)(nil),            // 2: loft.Invitation
+	(*CliLogin)(nil),              // 3: loft.CliLogin
+	(*AliasHold)(nil),             // 4: loft.AliasHold
+	(*SignInFailure)(nil),         // 5: loft.SignInFailure
+	(*Handoff)(nil),               // 6: loft.Handoff
+	nil,                           // 7: loft.Party.LabelsEntry
+	(*Tenant)(nil),                // 8: loft.Tenant
+	(*Holder)(nil),                // 9: loft.Holder
 	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
 }
-var file_rove_org_proto_depIdxs = []int32{
-	8,  // 0: rove.Party.tenant:type_name -> rove.Tenant
-	7,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
-	9,  // 2: rove.Party.holder:type_name -> rove.Holder
-	10, // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
-	10, // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
-	10, // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
-	10, // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
-	9,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
-	0,  // 13: rove.Invitation.party:type_name -> rove.Party
-	10, // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
-	10, // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
-	10, // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
-	9,  // 19: rove.Invitation.holder:type_name -> rove.Holder
-	10, // 20: rove.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
-	10, // 21: rove.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 22: rove.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 23: rove.CliLogin.date_created:type_name -> google.protobuf.Timestamp
-	10, // 24: rove.AliasHold.date_until:type_name -> google.protobuf.Timestamp
-	10, // 25: rove.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 26: rove.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 27: rove.AliasHold.date_created:type_name -> google.protobuf.Timestamp
-	10, // 28: rove.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
-	10, // 29: rove.Handoff.date_expires:type_name -> google.protobuf.Timestamp
-	10, // 30: rove.Handoff.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_org_proto_depIdxs = []int32{
+	8,  // 0: loft.Party.tenant:type_name -> loft.Tenant
+	7,  // 1: loft.Party.labels:type_name -> loft.Party.LabelsEntry
+	9,  // 2: loft.Party.holder:type_name -> loft.Holder
+	10, // 3: loft.Party.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 4: loft.Party.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 5: loft.Party.date_created:type_name -> google.protobuf.Timestamp
+	10, // 6: loft.Session.date_expires:type_name -> google.protobuf.Timestamp
+	10, // 7: loft.Session.date_idle:type_name -> google.protobuf.Timestamp
+	10, // 8: loft.Session.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 9: loft.Session.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 10: loft.Session.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 11: loft.Invitation.tenant:type_name -> loft.Tenant
+	9,  // 12: loft.Invitation.inviter:type_name -> loft.Holder
+	0,  // 13: loft.Invitation.party:type_name -> loft.Party
+	10, // 14: loft.Invitation.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 15: loft.Invitation.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 16: loft.Invitation.date_created:type_name -> google.protobuf.Timestamp
+	10, // 17: loft.Invitation.date_expires:type_name -> google.protobuf.Timestamp
+	10, // 18: loft.Invitation.date_settled:type_name -> google.protobuf.Timestamp
+	9,  // 19: loft.Invitation.holder:type_name -> loft.Holder
+	10, // 20: loft.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
+	10, // 21: loft.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 22: loft.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 23: loft.CliLogin.date_created:type_name -> google.protobuf.Timestamp
+	10, // 24: loft.AliasHold.date_until:type_name -> google.protobuf.Timestamp
+	10, // 25: loft.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 26: loft.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 27: loft.AliasHold.date_created:type_name -> google.protobuf.Timestamp
+	10, // 28: loft.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
+	10, // 29: loft.Handoff.date_expires:type_name -> google.protobuf.Timestamp
+	10, // 30: loft.Handoff.date_created:type_name -> google.protobuf.Timestamp
 	31, // [31:31] is the sub-list for method output_type
 	31, // [31:31] is the sub-list for method input_type
 	31, // [31:31] is the sub-list for extension type_name
@@ -2154,28 +2154,28 @@ var file_rove_org_proto_depIdxs = []int32{
 	0,  // [0:31] is the sub-list for field type_name
 }
 
-func init() { file_rove_org_proto_init() }
-func file_rove_org_proto_init() {
-	if File_rove_org_proto != nil {
+func init() { file_loft_org_proto_init() }
+func file_loft_org_proto_init() {
+	if File_loft_org_proto != nil {
 		return
 	}
-	file_rove_payday_holder_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_payday_holder_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_proto_rawDesc), len(file_rove_org_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_org_proto_rawDesc), len(file_loft_org_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_org_proto_goTypes,
-		DependencyIndexes: file_rove_org_proto_depIdxs,
-		MessageInfos:      file_rove_org_proto_msgTypes,
+		GoTypes:           file_loft_org_proto_goTypes,
+		DependencyIndexes: file_loft_org_proto_depIdxs,
+		MessageInfos:      file_loft_org_proto_msgTypes,
 	}.Build()
-	File_rove_org_proto = out.File
-	file_rove_org_proto_goTypes = nil
-	file_rove_org_proto_depIdxs = nil
+	File_loft_org_proto = out.File
+	file_loft_org_proto_goTypes = nil
+	file_loft_org_proto_depIdxs = nil
 }

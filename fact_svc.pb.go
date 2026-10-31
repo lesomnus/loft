@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/fact_svc.g.proto
+// source: loft/payday/fact_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -44,7 +44,7 @@ type FactAddRequest struct {
 
 func (x *FactAddRequest) Reset() {
 	*x = FactAddRequest{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -56,7 +56,7 @@ func (x *FactAddRequest) String() string {
 func (*FactAddRequest) ProtoMessage() {}
 
 func (x *FactAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -364,7 +364,7 @@ type FactAddManyRequest struct {
 
 func (x *FactAddManyRequest) Reset() {
 	*x = FactAddManyRequest{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -376,7 +376,7 @@ func (x *FactAddManyRequest) String() string {
 func (*FactAddManyRequest) ProtoMessage() {}
 
 func (x *FactAddManyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,7 +423,7 @@ type FactAddManyResponse struct {
 
 func (x *FactAddManyResponse) Reset() {
 	*x = FactAddManyResponse{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -435,7 +435,7 @@ func (x *FactAddManyResponse) String() string {
 func (*FactAddManyResponse) ProtoMessage() {}
 
 func (x *FactAddManyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -483,7 +483,7 @@ type FactGetRequest struct {
 
 func (x *FactGetRequest) Reset() {
 	*x = FactGetRequest{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -495,7 +495,7 @@ func (x *FactGetRequest) String() string {
 func (*FactGetRequest) ProtoMessage() {}
 
 func (x *FactGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -575,7 +575,7 @@ type FactRef struct {
 
 func (x *FactRef) Reset() {
 	*x = FactRef{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -587,7 +587,7 @@ func (x *FactRef) String() string {
 func (*FactRef) ProtoMessage() {}
 
 func (x *FactRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -675,7 +675,7 @@ func (b0 FactRef_builder) Build() *FactRef {
 type case_FactRef_Key protoreflect.FieldNumber
 
 func (x case_FactRef_Key) String() string {
-	md := file_rove_payday_fact_svc_g_proto_msgTypes[4].Descriptor()
+	md := file_loft_payday_fact_svc_g_proto_msgTypes[4].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -715,7 +715,7 @@ type FactSelect struct {
 
 func (x *FactSelect) Reset() {
 	*x = FactSelect{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -727,7 +727,7 @@ func (x *FactSelect) String() string {
 func (*FactSelect) ProtoMessage() {}
 
 func (x *FactSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1146,7 +1146,7 @@ type FactPatchRequest struct {
 
 func (x *FactPatchRequest) Reset() {
 	*x = FactPatchRequest{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1158,7 +1158,7 @@ func (x *FactPatchRequest) String() string {
 func (*FactPatchRequest) ProtoMessage() {}
 
 func (x *FactPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1612,7 +1612,7 @@ type FactApplyRequest struct {
 
 func (x *FactApplyRequest) Reset() {
 	*x = FactApplyRequest{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1624,7 +1624,7 @@ func (x *FactApplyRequest) String() string {
 func (*FactApplyRequest) ProtoMessage() {}
 
 func (x *FactApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1707,7 +1707,7 @@ type FactListRequest struct {
 
 func (x *FactListRequest) Reset() {
 	*x = FactListRequest{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1719,7 +1719,7 @@ func (x *FactListRequest) String() string {
 func (*FactListRequest) ProtoMessage() {}
 
 func (x *FactListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1819,7 +1819,7 @@ type FactListResponse struct {
 
 func (x *FactListResponse) Reset() {
 	*x = FactListResponse{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1831,7 +1831,7 @@ func (x *FactListResponse) String() string {
 func (*FactListResponse) ProtoMessage() {}
 
 func (x *FactListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1902,7 +1902,7 @@ type FactFilter struct {
 
 func (x *FactFilter) Reset() {
 	*x = FactFilter{}
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1914,7 +1914,7 @@ func (x *FactFilter) String() string {
 func (*FactFilter) ProtoMessage() {}
 
 func (x *FactFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_fact_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_fact_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2022,14 +2022,14 @@ func (b0 FactFilter_builder) Build() *FactFilter {
 	return m0
 }
 
-var File_rove_payday_fact_svc_g_proto protoreflect.FileDescriptor
+var File_loft_payday_fact_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_payday_fact_svc_g_proto_rawDesc = "" +
+const file_loft_payday_fact_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1crove/payday/fact_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x16rove/payday/fact.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xe2\x03\n" +
+	"\x1cloft/payday/fact_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16loft/payday/fact.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xe2\x03\n" +
 	"\x0eFactAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12$\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12$\n" +
 	"\n" +
 	"subject_id\x18\b \x01(\fB\x05\xaa\x01\x02\b\x02R\tsubjectId\x12\x17\n" +
 	"\x03key\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x03key\x12\x1b\n" +
@@ -2044,20 +2044,20 @@ const file_rove_payday_fact_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12#\n" +
 	"\rsuperseded_by\x18\x15 \x01(\fR\fsupersededBy\"@\n" +
 	"\x12FactAddManyRequest\x12*\n" +
-	"\x05items\x18\x01 \x03(\v2\x14.rove.FactAddRequestR\x05items\"7\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.loft.FactAddRequestR\x05items\"7\n" +
 	"\x13FactAddManyResponse\x12 \n" +
 	"\x05items\x18\x01 \x03(\v2\n" +
-	".rove.FactR\x05items\"[\n" +
+	".loft.FactR\x05items\"[\n" +
 	"\x0eFactGetRequest\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.rove.FactRefR\x03ref\x12(\n" +
-	"\x06select\x18\x02 \x01(\v2\x10.rove.FactSelectR\x06select\"\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.loft.FactRefR\x03ref\x12(\n" +
+	"\x06select\x18\x02 \x01(\v2\x10.loft.FactSelectR\x06select\"\"\n" +
 	"\aFactRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\x96\x03\n" +
 	"\n" +
 	"FactSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x1d\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\b \x01(\bR\tsubjectId\x12\x10\n" +
 	"\x03key\x18\t \x01(\bR\x03key\x12\x14\n" +
@@ -2073,7 +2073,7 @@ const file_rove_payday_fact_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_at\x18\x14 \x01(\bR\fsupersededAt\x12#\n" +
 	"\rsuperseded_by\x18\x15 \x01(\bR\fsupersededBy\"\xba\x04\n" +
 	"\x10FactPatchRequest\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.rove.FactRefR\x03ref\x12\x1d\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.loft.FactRefR\x03ref\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x10 \x01(\fR\tsubjectId\x12\x10\n" +
 	"\x03key\x18\x12 \x01(\tR\x03key\x12\x14\n" +
@@ -2090,85 +2090,85 @@ const file_rove_payday_fact_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_by\x18* \x01(\fR\fsupersededBy\x12,\n" +
 	"\x12superseded_by_null\x18+ \x01(\bR\x10supersededByNull\"W\n" +
 	"\x10FactApplyRequest\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.rove.FactRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.loft.FactRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"\x96\x01\n" +
 	"\x0fFactListRequest\x12*\n" +
-	"\afilters\x18\x01 \x03(\v2\x10.rove.FactFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x10.loft.FactFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"O\n" +
 	"\x10FactListResponse\x12 \n" +
 	"\x05items\x18\x01 \x03(\v2\n" +
-	".rove.FactR\x05items\x12\x19\n" +
+	".loft.FactR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"o\n" +
 	"\n" +
 	"FactFilter\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.rove.FactRefR\x03ref\x12\x1d\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.loft.FactRefR\x03ref\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x02 \x01(\fR\tsubjectId\x12!\n" +
 	"\ffield_number\x18\x03 \x01(\rR\vfieldNumber2\xb0\x02\n" +
 	"\vFactService\x12'\n" +
-	"\x03Add\x12\x14.rove.FactAddRequest\x1a\n" +
-	".rove.Fact\x12>\n" +
-	"\aAddMany\x12\x18.rove.FactAddManyRequest\x1a\x19.rove.FactAddManyResponse\x12'\n" +
-	"\x03Get\x12\x14.rove.FactGetRequest\x1a\n" +
-	".rove.Fact\x12+\n" +
-	"\x05Patch\x12\x16.rove.FactPatchRequest\x1a\n" +
-	".rove.Fact\x12+\n" +
-	"\x05Apply\x12\x16.rove.FactApplyRequest\x1a\n" +
-	".rove.Fact\x125\n" +
-	"\x04List\x12\x15.rove.FactListRequest\x1a\x16.rove.FactListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x14.loft.FactAddRequest\x1a\n" +
+	".loft.Fact\x12>\n" +
+	"\aAddMany\x12\x18.loft.FactAddManyRequest\x1a\x19.loft.FactAddManyResponse\x12'\n" +
+	"\x03Get\x12\x14.loft.FactGetRequest\x1a\n" +
+	".loft.Fact\x12+\n" +
+	"\x05Patch\x12\x16.loft.FactPatchRequest\x1a\n" +
+	".loft.Fact\x12+\n" +
+	"\x05Apply\x12\x16.loft.FactApplyRequest\x1a\n" +
+	".loft.Fact\x125\n" +
+	"\x04List\x12\x15.loft.FactListRequest\x1a\x16.loft.FactListResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_payday_fact_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
-var file_rove_payday_fact_svc_g_proto_goTypes = []any{
-	(*FactAddRequest)(nil),        // 0: rove.FactAddRequest
-	(*FactAddManyRequest)(nil),    // 1: rove.FactAddManyRequest
-	(*FactAddManyResponse)(nil),   // 2: rove.FactAddManyResponse
-	(*FactGetRequest)(nil),        // 3: rove.FactGetRequest
-	(*FactRef)(nil),               // 4: rove.FactRef
-	(*FactSelect)(nil),            // 5: rove.FactSelect
-	(*FactPatchRequest)(nil),      // 6: rove.FactPatchRequest
-	(*FactApplyRequest)(nil),      // 7: rove.FactApplyRequest
-	(*FactListRequest)(nil),       // 8: rove.FactListRequest
-	(*FactListResponse)(nil),      // 9: rove.FactListResponse
-	(*FactFilter)(nil),            // 10: rove.FactFilter
-	(*TenantRef)(nil),             // 11: rove.TenantRef
+var file_loft_payday_fact_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_loft_payday_fact_svc_g_proto_goTypes = []any{
+	(*FactAddRequest)(nil),        // 0: loft.FactAddRequest
+	(*FactAddManyRequest)(nil),    // 1: loft.FactAddManyRequest
+	(*FactAddManyResponse)(nil),   // 2: loft.FactAddManyResponse
+	(*FactGetRequest)(nil),        // 3: loft.FactGetRequest
+	(*FactRef)(nil),               // 4: loft.FactRef
+	(*FactSelect)(nil),            // 5: loft.FactSelect
+	(*FactPatchRequest)(nil),      // 6: loft.FactPatchRequest
+	(*FactApplyRequest)(nil),      // 7: loft.FactApplyRequest
+	(*FactListRequest)(nil),       // 8: loft.FactListRequest
+	(*FactListResponse)(nil),      // 9: loft.FactListResponse
+	(*FactFilter)(nil),            // 10: loft.FactFilter
+	(*TenantRef)(nil),             // 11: loft.TenantRef
 	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
-	(*Fact)(nil),                  // 13: rove.Fact
-	(*TenantSelect)(nil),          // 14: rove.TenantSelect
+	(*Fact)(nil),                  // 13: loft.Fact
+	(*TenantSelect)(nil),          // 14: loft.TenantSelect
 	(*patchpb.Patch)(nil),         // 15: patch.Patch
 }
-var file_rove_payday_fact_svc_g_proto_depIdxs = []int32{
-	11, // 0: rove.FactAddRequest.tenant:type_name -> rove.TenantRef
-	12, // 1: rove.FactAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	12, // 2: rove.FactAddRequest.valid_from:type_name -> google.protobuf.Timestamp
-	12, // 3: rove.FactAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	0,  // 4: rove.FactAddManyRequest.items:type_name -> rove.FactAddRequest
-	13, // 5: rove.FactAddManyResponse.items:type_name -> rove.Fact
-	4,  // 6: rove.FactGetRequest.ref:type_name -> rove.FactRef
-	5,  // 7: rove.FactGetRequest.select:type_name -> rove.FactSelect
-	14, // 8: rove.FactSelect.tenant:type_name -> rove.TenantSelect
-	4,  // 9: rove.FactPatchRequest.ref:type_name -> rove.FactRef
-	12, // 10: rove.FactPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	12, // 11: rove.FactPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
-	12, // 12: rove.FactPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	4,  // 13: rove.FactApplyRequest.ref:type_name -> rove.FactRef
-	15, // 14: rove.FactApplyRequest.patch:type_name -> patch.Patch
-	10, // 15: rove.FactListRequest.filters:type_name -> rove.FactFilter
-	13, // 16: rove.FactListResponse.items:type_name -> rove.Fact
-	4,  // 17: rove.FactFilter.ref:type_name -> rove.FactRef
-	0,  // 18: rove.FactService.Add:input_type -> rove.FactAddRequest
-	1,  // 19: rove.FactService.AddMany:input_type -> rove.FactAddManyRequest
-	3,  // 20: rove.FactService.Get:input_type -> rove.FactGetRequest
-	6,  // 21: rove.FactService.Patch:input_type -> rove.FactPatchRequest
-	7,  // 22: rove.FactService.Apply:input_type -> rove.FactApplyRequest
-	8,  // 23: rove.FactService.List:input_type -> rove.FactListRequest
-	13, // 24: rove.FactService.Add:output_type -> rove.Fact
-	2,  // 25: rove.FactService.AddMany:output_type -> rove.FactAddManyResponse
-	13, // 26: rove.FactService.Get:output_type -> rove.Fact
-	13, // 27: rove.FactService.Patch:output_type -> rove.Fact
-	13, // 28: rove.FactService.Apply:output_type -> rove.Fact
-	9,  // 29: rove.FactService.List:output_type -> rove.FactListResponse
+var file_loft_payday_fact_svc_g_proto_depIdxs = []int32{
+	11, // 0: loft.FactAddRequest.tenant:type_name -> loft.TenantRef
+	12, // 1: loft.FactAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	12, // 2: loft.FactAddRequest.valid_from:type_name -> google.protobuf.Timestamp
+	12, // 3: loft.FactAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	0,  // 4: loft.FactAddManyRequest.items:type_name -> loft.FactAddRequest
+	13, // 5: loft.FactAddManyResponse.items:type_name -> loft.Fact
+	4,  // 6: loft.FactGetRequest.ref:type_name -> loft.FactRef
+	5,  // 7: loft.FactGetRequest.select:type_name -> loft.FactSelect
+	14, // 8: loft.FactSelect.tenant:type_name -> loft.TenantSelect
+	4,  // 9: loft.FactPatchRequest.ref:type_name -> loft.FactRef
+	12, // 10: loft.FactPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	12, // 11: loft.FactPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
+	12, // 12: loft.FactPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	4,  // 13: loft.FactApplyRequest.ref:type_name -> loft.FactRef
+	15, // 14: loft.FactApplyRequest.patch:type_name -> patch.Patch
+	10, // 15: loft.FactListRequest.filters:type_name -> loft.FactFilter
+	13, // 16: loft.FactListResponse.items:type_name -> loft.Fact
+	4,  // 17: loft.FactFilter.ref:type_name -> loft.FactRef
+	0,  // 18: loft.FactService.Add:input_type -> loft.FactAddRequest
+	1,  // 19: loft.FactService.AddMany:input_type -> loft.FactAddManyRequest
+	3,  // 20: loft.FactService.Get:input_type -> loft.FactGetRequest
+	6,  // 21: loft.FactService.Patch:input_type -> loft.FactPatchRequest
+	7,  // 22: loft.FactService.Apply:input_type -> loft.FactApplyRequest
+	8,  // 23: loft.FactService.List:input_type -> loft.FactListRequest
+	13, // 24: loft.FactService.Add:output_type -> loft.Fact
+	2,  // 25: loft.FactService.AddMany:output_type -> loft.FactAddManyResponse
+	13, // 26: loft.FactService.Get:output_type -> loft.Fact
+	13, // 27: loft.FactService.Patch:output_type -> loft.Fact
+	13, // 28: loft.FactService.Apply:output_type -> loft.Fact
+	9,  // 29: loft.FactService.List:output_type -> loft.FactListResponse
 	24, // [24:30] is the sub-list for method output_type
 	18, // [18:24] is the sub-list for method input_type
 	18, // [18:18] is the sub-list for extension type_name
@@ -2176,31 +2176,31 @@ var file_rove_payday_fact_svc_g_proto_depIdxs = []int32{
 	0,  // [0:18] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_fact_svc_g_proto_init() }
-func file_rove_payday_fact_svc_g_proto_init() {
-	if File_rove_payday_fact_svc_g_proto != nil {
+func init() { file_loft_payday_fact_svc_g_proto_init() }
+func file_loft_payday_fact_svc_g_proto_init() {
+	if File_loft_payday_fact_svc_g_proto != nil {
 		return
 	}
-	file_rove_payday_fact_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_payday_fact_svc_g_proto_msgTypes[4].OneofWrappers = []any{
+	file_loft_payday_fact_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_payday_fact_svc_g_proto_msgTypes[4].OneofWrappers = []any{
 		(*factRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_fact_svc_g_proto_rawDesc), len(file_rove_payday_fact_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_fact_svc_g_proto_rawDesc), len(file_loft_payday_fact_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_rove_payday_fact_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_payday_fact_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_payday_fact_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_payday_fact_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_payday_fact_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_payday_fact_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_payday_fact_svc_g_proto = out.File
-	file_rove_payday_fact_svc_g_proto_goTypes = nil
-	file_rove_payday_fact_svc_g_proto_depIdxs = nil
+	File_loft_payday_fact_svc_g_proto = out.File
+	file_loft_payday_fact_svc_g_proto_goTypes = nil
+	file_loft_payday_fact_svc_g_proto_depIdxs = nil
 }

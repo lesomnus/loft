@@ -9,8 +9,8 @@ import (
 
 	"github.com/lesomnus/xli"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/internal/ent/asset"
 )
 
 // tried is [run] for a command that may refuse: what it said, and the error.
@@ -29,7 +29,7 @@ func tried(t *testing.T, k *xli.Command, args ...string) (string, error) {
 	return string(b), err
 }
 
-// TestASheetIsRegisteredFromATerminal: `rove register` writes the form, a
+// TestASheetIsRegisteredFromATerminal: `loft register` writes the form, a
 // CSV, shows what a sheet in it would register -- line by line, with the tags
 // it would give and the models it would make -- and registers it only with
 // `--yes`, as one intake. Sent again, its tags are taken, and it says where.

@@ -8,13 +8,13 @@ import (
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/invitation"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/invitation"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // An account leaving the deployment (design 9.10, M2 step 5).
@@ -40,7 +40,7 @@ type Departure struct {
 	Ownerless bool
 	// Held is how many of the trail's rows in the database a legal hold kept
 	// as they were. What it keeps in the archive is learnt when the archive's
-	// half is paid, after the commit, and stays owed (`rove trail owed`).
+	// half is paid, after the commit, and stays owed (`loft trail owed`).
 	Held int
 }
 
@@ -148,7 +148,7 @@ func (t *Tx) pseudonymize(p *app.Party) (*app.Party, int, error) {
 
 	// And the memberships it was before a login was stopped, which the
 	// record no longer points at: each keeps which record it was
-	// (`Holder.party`, rove#25). One stopped and then given again is two.
+	// (`Holder.party`, loft#25). One stopped and then given again is two.
 	was, err := t.db.Holder.Query().
 		Where(holder.TenantId(t.tenant.Uuid()), holder.Party(id.Uuid())).
 		Ids(t.ctx)
@@ -169,7 +169,7 @@ func (t *Tx) pseudonymize(p *app.Party) (*app.Party, int, error) {
 }
 
 // Pseudonymized is the act a membership's own name going is on the trail as.
-const Pseudonymized = "rove.holder.pseudonymize"
+const Pseudonymized = "loft.holder.pseudonymize"
 
 // endMembership ends a membership of somebody being forgotten, and forgets
 // what the trail kept of it and of `objects` beside it: the person record

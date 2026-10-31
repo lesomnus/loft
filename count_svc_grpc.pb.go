@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/count_svc.g.proto
+// source: loft/count_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,19 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	InventoryCountService_Add_FullMethodName           = "/rove.InventoryCountService/Add"
-	InventoryCountService_Get_FullMethodName           = "/rove.InventoryCountService/Get"
-	InventoryCountService_Patch_FullMethodName         = "/rove.InventoryCountService/Patch"
-	InventoryCountService_Apply_FullMethodName         = "/rove.InventoryCountService/Apply"
-	InventoryCountService_Erase_FullMethodName         = "/rove.InventoryCountService/Erase"
-	InventoryCountService_List_FullMethodName          = "/rove.InventoryCountService/List"
-	InventoryCountService_Watch_FullMethodName         = "/rove.InventoryCountService/Watch"
-	InventoryCountService_Scan_FullMethodName          = "/rove.InventoryCountService/Scan"
-	InventoryCountService_Reconcile_FullMethodName     = "/rove.InventoryCountService/Reconcile"
-	InventoryCountService_Resolve_FullMethodName       = "/rove.InventoryCountService/Resolve"
-	InventoryCountService_Close_FullMethodName         = "/rove.InventoryCountService/Close"
-	InventoryCountService_Results_FullMethodName       = "/rove.InventoryCountService/Results"
-	InventoryCountService_ExportResults_FullMethodName = "/rove.InventoryCountService/ExportResults"
+	InventoryCountService_Add_FullMethodName           = "/loft.InventoryCountService/Add"
+	InventoryCountService_Get_FullMethodName           = "/loft.InventoryCountService/Get"
+	InventoryCountService_Patch_FullMethodName         = "/loft.InventoryCountService/Patch"
+	InventoryCountService_Apply_FullMethodName         = "/loft.InventoryCountService/Apply"
+	InventoryCountService_Erase_FullMethodName         = "/loft.InventoryCountService/Erase"
+	InventoryCountService_List_FullMethodName          = "/loft.InventoryCountService/List"
+	InventoryCountService_Watch_FullMethodName         = "/loft.InventoryCountService/Watch"
+	InventoryCountService_Scan_FullMethodName          = "/loft.InventoryCountService/Scan"
+	InventoryCountService_Reconcile_FullMethodName     = "/loft.InventoryCountService/Reconcile"
+	InventoryCountService_Resolve_FullMethodName       = "/loft.InventoryCountService/Resolve"
+	InventoryCountService_Close_FullMethodName         = "/loft.InventoryCountService/Close"
+	InventoryCountService_Results_FullMethodName       = "/loft.InventoryCountService/Results"
+	InventoryCountService_ExportResults_FullMethodName = "/loft.InventoryCountService/ExportResults"
 )
 
 // InventoryCountServiceClient is the client API for InventoryCountService service.
@@ -77,7 +77,7 @@ type InventoryCountServiceClient interface {
 	// names nobody.
 	Results(ctx context.Context, in *InventoryCountResultsRequest, opts ...grpc.CallOption) (*InventoryCountResultsResponse, error)
 	// ExportResults writes it as a CSV, which names nobody and so is no
-	// download of anybody (rove#136).
+	// download of anybody (loft#136).
 	ExportResults(ctx context.Context, in *InventoryCountResultsRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
@@ -271,7 +271,7 @@ type InventoryCountServiceServer interface {
 	// names nobody.
 	Results(context.Context, *InventoryCountResultsRequest) (*InventoryCountResultsResponse, error)
 	// ExportResults writes it as a CSV, which names nobody and so is no
-	// download of anybody (rove#136).
+	// download of anybody (loft#136).
 	ExportResults(context.Context, *InventoryCountResultsRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedInventoryCountServiceServer()
 }
@@ -574,7 +574,7 @@ func _InventoryCountService_ExportResults_Handler(srv interface{}, ctx context.C
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var InventoryCountService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.InventoryCountService",
+	ServiceName: "loft.InventoryCountService",
 	HandlerType: (*InventoryCountServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -633,17 +633,17 @@ var InventoryCountService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/count_svc.g.proto",
+	Metadata: "loft/count_svc.g.proto",
 }
 
 const (
-	CountFindingService_Add_FullMethodName   = "/rove.CountFindingService/Add"
-	CountFindingService_Get_FullMethodName   = "/rove.CountFindingService/Get"
-	CountFindingService_Patch_FullMethodName = "/rove.CountFindingService/Patch"
-	CountFindingService_Apply_FullMethodName = "/rove.CountFindingService/Apply"
-	CountFindingService_Erase_FullMethodName = "/rove.CountFindingService/Erase"
-	CountFindingService_List_FullMethodName  = "/rove.CountFindingService/List"
-	CountFindingService_Watch_FullMethodName = "/rove.CountFindingService/Watch"
+	CountFindingService_Add_FullMethodName   = "/loft.CountFindingService/Add"
+	CountFindingService_Get_FullMethodName   = "/loft.CountFindingService/Get"
+	CountFindingService_Patch_FullMethodName = "/loft.CountFindingService/Patch"
+	CountFindingService_Apply_FullMethodName = "/loft.CountFindingService/Apply"
+	CountFindingService_Erase_FullMethodName = "/loft.CountFindingService/Erase"
+	CountFindingService_List_FullMethodName  = "/loft.CountFindingService/List"
+	CountFindingService_Watch_FullMethodName = "/loft.CountFindingService/Watch"
 )
 
 // CountFindingServiceClient is the client API for CountFindingService service.
@@ -966,7 +966,7 @@ type CountFindingService_WatchServer = grpc.ServerStreamingServer[CountFindingWa
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CountFindingService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.CountFindingService",
+	ServiceName: "loft.CountFindingService",
 	HandlerType: (*CountFindingServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1001,5 +1001,5 @@ var CountFindingService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/count_svc.g.proto",
+	Metadata: "loft/count_svc.g.proto",
 }

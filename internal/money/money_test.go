@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/internal/money"
+	"github.com/lesomnus/loft/internal/money"
 )
 
 func TestAnAmountIsToldInItsCurrency(t *testing.T) {

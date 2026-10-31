@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/holder.proto
+// source: loft/payday/holder.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -55,7 +55,7 @@ type Holder struct {
 
 func (x *Holder) Reset() {
 	*x = Holder{}
-	mi := &file_rove_payday_holder_proto_msgTypes[0]
+	mi := &file_loft_payday_holder_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -67,7 +67,7 @@ func (x *Holder) String() string {
 func (*Holder) ProtoMessage() {}
 
 func (x *Holder) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_proto_msgTypes[0]
+	mi := &file_loft_payday_holder_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,7 +341,7 @@ type Holder_builder struct {
 	// deployment's directory (design 9.10, D27). An account belongs to many
 	// workspaces with one holder in each, every one its own row with its own
 	// identifier, and what a session names is the account. Null on a holder made
-	// before accounts were, which nobody signs in as until `rove identity
+	// before accounts were, which nobody signs in as until `loft identity
 	// migrate` fills it.
 	Account []byte
 	// When roster erased the account this is a membership of, and so when it
@@ -359,7 +359,7 @@ type Holder_builder struct {
 	// (`PartyService.Deactivate`). A later 개인정보 삭제 of the record finds the
 	// membership through it and forgets the membership's names and the trail's
 	// copies of it too; through the record's link alone it found nothing
-	// (rove#25, decided in rove#35). Null on a membership the record still
+	// (loft#25, decided in loft#35). Null on a membership the record still
 	// points at, and on one stopped before this was kept. Written by the
 	// domain layer, and by nobody else.
 	Party []byte
@@ -386,18 +386,18 @@ func (b0 Holder_builder) Build() *Holder {
 	return m0
 }
 
-var File_rove_payday_holder_proto protoreflect.FileDescriptor
+var File_loft_payday_holder_proto protoreflect.FileDescriptor
 
-const file_rove_payday_holder_proto_rawDesc = "" +
+const file_loft_payday_holder_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xea\x06\n" +
+	"\x18loft/payday/holder.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/tenant.proto\"\xea\x06\n" +
 	"\x06Holder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1c\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1c\n" +
 	"\x05alias\x18\x04 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x05alias\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x128\n" +
-	"\x06labels\x18\a \x03(\v2\x18.rove.Holder.LabelsEntryB\x06\xaa\xc1\x16\x02\x18\x01R\x06labels\x12F\n" +
+	"\x06labels\x18\a \x03(\v2\x18.loft.Holder.LabelsEntryB\x06\xaa\xc1\x16\x02\x18\x01R\x06labels\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
@@ -426,22 +426,22 @@ const file_rove_payday_holder_proto_rawDesc = "" +
 	"\x02id\x1a\x05\n" +
 	"\x03ref\x1a\b\n" +
 	"\x06tenant\x1a\b\n" +
-	"\x06labels \x14(d:\x00H\x02B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06labels \x14(d:\x00H\x02B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_payday_holder_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_rove_payday_holder_proto_goTypes = []any{
-	(*Holder)(nil),                // 0: rove.Holder
-	nil,                           // 1: rove.Holder.LabelsEntry
-	(*Tenant)(nil),                // 2: rove.Tenant
+var file_loft_payday_holder_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_loft_payday_holder_proto_goTypes = []any{
+	(*Holder)(nil),                // 0: loft.Holder
+	nil,                           // 1: loft.Holder.LabelsEntry
+	(*Tenant)(nil),                // 2: loft.Tenant
 	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
-var file_rove_payday_holder_proto_depIdxs = []int32{
-	2, // 0: rove.Holder.tenant:type_name -> rove.Tenant
-	1, // 1: rove.Holder.labels:type_name -> rove.Holder.LabelsEntry
-	3, // 2: rove.Holder.date_updated:type_name -> google.protobuf.Timestamp
-	3, // 3: rove.Holder.date_erased:type_name -> google.protobuf.Timestamp
-	3, // 4: rove.Holder.date_created:type_name -> google.protobuf.Timestamp
-	3, // 5: rove.Holder.date_leaving:type_name -> google.protobuf.Timestamp
+var file_loft_payday_holder_proto_depIdxs = []int32{
+	2, // 0: loft.Holder.tenant:type_name -> loft.Tenant
+	1, // 1: loft.Holder.labels:type_name -> loft.Holder.LabelsEntry
+	3, // 2: loft.Holder.date_updated:type_name -> google.protobuf.Timestamp
+	3, // 3: loft.Holder.date_erased:type_name -> google.protobuf.Timestamp
+	3, // 4: loft.Holder.date_created:type_name -> google.protobuf.Timestamp
+	3, // 5: loft.Holder.date_leaving:type_name -> google.protobuf.Timestamp
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name
@@ -449,27 +449,27 @@ var file_rove_payday_holder_proto_depIdxs = []int32{
 	0, // [0:6] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_holder_proto_init() }
-func file_rove_payday_holder_proto_init() {
-	if File_rove_payday_holder_proto != nil {
+func init() { file_loft_payday_holder_proto_init() }
+func file_loft_payday_holder_proto_init() {
+	if File_loft_payday_holder_proto != nil {
 		return
 	}
-	file_rove_payday_tenant_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_holder_proto_rawDesc), len(file_rove_payday_holder_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_holder_proto_rawDesc), len(file_loft_payday_holder_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_payday_holder_proto_goTypes,
-		DependencyIndexes: file_rove_payday_holder_proto_depIdxs,
-		MessageInfos:      file_rove_payday_holder_proto_msgTypes,
+		GoTypes:           file_loft_payday_holder_proto_goTypes,
+		DependencyIndexes: file_loft_payday_holder_proto_depIdxs,
+		MessageInfos:      file_loft_payday_holder_proto_msgTypes,
 	}.Build()
-	File_rove_payday_holder_proto = out.File
-	file_rove_payday_holder_proto_goTypes = nil
-	file_rove_payday_holder_proto_depIdxs = nil
+	File_loft_payday_holder_proto = out.File
+	file_loft_payday_holder_proto_goTypes = nil
+	file_loft_payday_holder_proto_depIdxs = nil
 }

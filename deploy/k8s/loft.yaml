@@ -1,0 +1,286 @@
+# Loft in one pod: the server, the operator's entry point beside it, and the
+# migration that runs before either. README.md says why it is one pod and
+# what it takes to be more.
+
+# Storage. No `storageClassName`, so a cluster's default is used; an overlay
+# names one, and its size.
+#
+# ReadWriteOnce, which is what every cluster has, and why everything that
+# writes these is in the one pod below: a second pod on another node could not
+# mount them. Two or more servers want the files and the trail somewhere every
+# node reaches -- S3 (loft#45), or a ReadWriteMany class.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loft-files
+  labels:
+    app.kubernetes.io/name: loft
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 10Gi
+---
+# The trail's archive, which is evidence: what a pass moves out of the
+# database is only here.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loft-audit
+  labels:
+    app.kubernetes.io/name: loft
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Its checkpoints, on a volume of their own, so that a class that refuses
+# deletion can be given to them alone (`docs/runbook/trail-integrity.md`).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: loft-checkpoints
+  labels:
+    app.kubernetes.io/name: loft
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
+# What an ingress routes a host to: the page, the API it calls, the files and
+# the labels, all on the one HTTP listener. The operator's entry point has no
+# Service at all.
+apiVersion: v1
+kind: Service
+metadata:
+  name: loft
+  labels:
+    app.kubernetes.io/name: loft
+spec:
+  selector:
+    app.kubernetes.io/name: loft
+    app.kubernetes.io/component: server
+  ports:
+    - { name: http, port: 8080, targetPort: http }
+---
+# What reaches the pod over the network: the HTTP listener, and nothing else.
+# Not gRPC, and not the operator's entry point, which `kubectl port-forward`
+# reaches without the network (README.md).
+#
+# From anywhere, here. An overlay narrows `from` to its ingress controller, and
+# has to before `app.trusted_proxies` may name the cluster's pod network: a
+# pod that can reach the server directly can say any X-Forwarded-For it likes.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: loft
+  labels:
+    app.kubernetes.io/name: loft
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: loft
+      app.kubernetes.io/component: server
+  policyTypes: [Ingress]
+  ingress:
+    - ports:
+        - { port: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loft
+  labels:
+    app.kubernetes.io/name: loft
+    app.kubernetes.io/component: server
+spec:
+  # One, and replaced rather than rolled: the volumes are one node's, and the
+  # pod before is gone before this one migrates, so no build serves a schema
+  # it did not expect (README.md, "새 버전").
+  replicas: 1
+  strategy: { type: Recreate }
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: loft
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: loft
+        app.kubernetes.io/component: server
+    spec:
+      # Nothing here asks the Kubernetes API, so no credential for it is in
+      # the pod.
+      automountServiceAccountToken: false
+      # **No service-link variables.** Kubernetes would hand every process
+      # one set per Service in the namespace, named for the Service -- and a
+      # Service called `loft` or `loft-db` makes them `LOFT_PORT`,
+      # `LOFT_DB_PORT`: the prefix this reads its configuration from.
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        # What makes a fresh volume writable by that user.
+        fsGroup: 65532
+        seccompProfile: { type: RuntimeDefault }
+
+      # The tables brought into this build's shape, before anything serves.
+      # Only the databases: `loft migrate` opens no file and no trail, so none
+      # of the volumes are mounted here. And the key the trail's rows are
+      # digested with, alone: a row a migration rewrites beneath the servers
+      # is put on the trail with it, and the key is read only then -- a
+      # database with nothing of the kind to rewrite migrates without reading
+      # it.
+      initContainers:
+        - name: migrate
+          image: ghcr.io/lesomnus/loft
+          args: ["--config", "/etc/loft/loft.yaml", "migrate"]
+          env:
+            - name: LOFT_DB_DSN
+              valueFrom: { secretKeyRef: { name: loft, key: db-dsn } }
+            - name: LOFT_AUTH_ROSTER_DB_DSN
+              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn } }
+            # What Loft signs in to its search cluster with, when the
+            # configuration names one (`app.search.opensearch`, README.md).
+            - name: LOFT_APP_SEARCH_OPENSEARCH_PASSWORD
+              valueFrom: { secretKeyRef: { name: loft-search, key: password, optional: true } }
+            # Here too, though it sends nothing: the file is read whole, and an
+            # `${env:...}` it names that is not set is refused.
+            - name: HOST_IP
+              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+          resources:
+            requests: { cpu: 100m, memory: 128Mi }
+            limits: { memory: 512Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: config, mountPath: /etc/loft, readOnly: true }
+            - { name: digest, mountPath: /run/secrets/loft, readOnly: true }
+            - { name: search, mountPath: /run/secrets/loft-search, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+
+      containers:
+        - name: loft
+          image: ghcr.io/lesomnus/loft
+          args: ["--config", "/etc/loft/loft.yaml", "serve"]
+          env:
+            - name: LOFT_DB_DSN
+              valueFrom: { secretKeyRef: { name: loft, key: db-dsn } }
+            - name: LOFT_AUTH_ROSTER_DB_DSN
+              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn } }
+            # What Loft signs in to its search cluster with, when the
+            # configuration names one (`app.search.opensearch`, README.md).
+            - name: LOFT_APP_SEARCH_OPENSEARCH_PASSWORD
+              valueFrom: { secretKeyRef: { name: loft-search, key: password, optional: true } }
+            # What download links are signed with: one for every process.
+            - name: LOFT_APP_SIGNING_KEY
+              valueFrom: { secretKeyRef: { name: loft, key: signing-key } }
+            - name: LOFT_APP_MAIL_PASSWORD
+              valueFrom: { secretKeyRef: { name: loft, key: mail-password, optional: true } }
+            # The node's address, for a collector on every node: what `otel:`
+            # names as ${env:HOST_IP} (config.yaml).
+            - name: HOST_IP
+              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+          ports:
+            - { name: http, containerPort: 8080 }
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests: { cpu: 100m, memory: 256Mi }
+            limits: { memory: 1Gi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: config, mountPath: /etc/loft, readOnly: true }
+            - { name: files, mountPath: /var/lib/loft/files }
+            - { name: audit, mountPath: /var/lib/loft/audit }
+            - { name: checkpoints, mountPath: /var/lib/loft/checkpoints }
+            - { name: keys, mountPath: /run/secrets/loft, readOnly: true }
+            - { name: search, mountPath: /run/secrets/loft-search, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+
+        # The operator's entry point, here rather than in a Deployment of its
+        # own because it opens what the server opens -- the files, the trail,
+        # its key -- and on ReadWriteOnce only a pod on the same node can. The
+        # operators' keys are mounted in it and in nothing else.
+        - name: loft-admin
+          image: ghcr.io/lesomnus/loft
+          command: ["/usr/local/bin/loft-admin"]
+          args: ["--config", "/etc/loft/loft.yaml", "serve"]
+          env:
+            - name: LOFT_DB_DSN
+              valueFrom: { secretKeyRef: { name: loft, key: db-dsn } }
+            - name: LOFT_AUTH_ROSTER_DB_DSN
+              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn } }
+            # What Loft signs in to its search cluster with, when the
+            # configuration names one (`app.search.opensearch`, README.md).
+            - name: LOFT_APP_SEARCH_OPENSEARCH_PASSWORD
+              valueFrom: { secretKeyRef: { name: loft-search, key: password, optional: true } }
+            - name: LOFT_APP_SIGNING_KEY
+              valueFrom: { secretKeyRef: { name: loft, key: signing-key } }
+            - name: LOFT_APP_MAIL_PASSWORD
+              valueFrom: { secretKeyRef: { name: loft, key: mail-password, optional: true } }
+            - name: HOST_IP
+              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+          ports:
+            - { name: admin, containerPort: 8081 }
+          # Listening, which is all that can be asked of it without a key.
+          readinessProbe:
+            tcpSocket: { port: admin }
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: config, mountPath: /etc/loft, readOnly: true }
+            - { name: files, mountPath: /var/lib/loft/files }
+            - { name: audit, mountPath: /var/lib/loft/audit }
+            - { name: checkpoints, mountPath: /var/lib/loft/checkpoints }
+            - { name: keys, mountPath: /run/secrets/loft, readOnly: true }
+            - { name: operators, mountPath: /run/secrets/loft-admin, readOnly: true }
+            - { name: search, mountPath: /run/secrets/loft-search, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+
+      volumes:
+        - name: config
+          configMap: { name: loft }
+        - name: files
+          persistentVolumeClaim: { claimName: loft-files }
+        - name: audit
+          persistentVolumeClaim: { claimName: loft-audit }
+        - name: checkpoints
+          persistentVolumeClaim: { claimName: loft-checkpoints }
+        # The key the trail is signed with, `checkpoints.pem`, and the one its
+        # rows are digested with, `digest.key`.
+        - name: keys
+          secret: { secretName: loft-checkpoints, defaultMode: 288 } # 0440: the pod's group reads it
+        # The digest's key alone, where `config.yaml` names it, for the
+        # migration: it signs nothing, so it is not handed the trail's key.
+        - name: digest
+          secret: { secretName: loft-checkpoints, items: [{ key: digest.key, path: digest.key }], defaultMode: 288 }
+        # A file per operator, named as `admin.keys` names them.
+        - name: operators
+          secret: { secretName: loft-admin, defaultMode: 288 }
+        # The CA the search cluster's certificate chains to, `ca.pem`; none
+        # when the deployment searches its database.
+        - name: search
+          secret: { secretName: loft-search, optional: true, items: [{ key: ca.pem, path: ca.pem }], defaultMode: 288 }
+        # Somewhere writable, since the root is not.
+        - name: tmp
+          emptyDir: {}

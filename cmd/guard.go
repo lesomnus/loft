@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/lesomnus/rove/server/csp"
+	"github.com/lesomnus/loft/server/csp"
 )
 
 // guarded is what every answer over HTTP says about itself, whatever answered

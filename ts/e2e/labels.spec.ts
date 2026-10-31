@@ -1,4 +1,4 @@
-import { expect, field, people, said, signIn, test, workspace } from './rove.js'
+import { expect, field, people, said, signIn, test, workspace } from './loft.js'
 
 // D28: a label is found by the eight characters printed under its QR, as well
 // as by the address in it -- in any case, with or without the dash.

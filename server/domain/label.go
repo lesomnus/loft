@@ -21,17 +21,17 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/countfinding"
-	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/label"
-	"github.com/lesomnus/rove/internal/ent/purchase"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/internal/ent/workorder"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/countfinding"
+	"github.com/lesomnus/loft/internal/ent/custody"
+	"github.com/lesomnus/loft/internal/ent/label"
+	"github.com/lesomnus/loft/internal/ent/purchase"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/internal/ent/workorder"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // A label's code is its identifier in base32: 26 characters a phone camera
@@ -121,7 +121,7 @@ const (
 	domainRetired = "retired"
 )
 
-// What a tenant domain is for (design 9.9, rove#155): `app` is the tenant's
+// What a tenant domain is for (design 9.9, loft#155): `app` is the tenant's
 // own domain, which the whole app is on and its labels print with; `label` is
 // one its labels print with and nothing more -- a default subdomain, or a
 // custom domain added before domains carried the app.
@@ -217,7 +217,7 @@ func (s domainTenantDomain) Add(ctx context.Context, req *app.TenantDomainAddReq
 func token() string {
 	b := make([]byte, 15)
 	rand.Read(b)
-	return "rove-" + code32.EncodeToString(b)
+	return "loft-" + code32.EncodeToString(b)
 }
 
 // domainWords is what a domain is called in an event's sentence.
@@ -277,7 +277,7 @@ func (t *Tx) activeDomain() (*ent.TenantDomain, error) {
 
 // activate makes a domain the tenant's active one. The one active before is
 // legacy, and an `app` one sends its pages on to where the app is now, for
-// [Deps.DomainRedirect] (rove#155); what was printed with it still opens.
+// [Deps.DomainRedirect] (loft#155); what was printed with it still opens.
 func (t *Tx) activate(id []byte) (*app.TenantDomain, error) {
 	cur, err := t.activeDomain()
 	if err != nil {
@@ -312,7 +312,7 @@ func (t *Tx) activate(id []byte) (*app.TenantDomain, error) {
 }
 
 // Verify checks a pending or a lapsed custom domain's DNS: its TXT record,
-// and that it points here (rove#155). A pending one is ready once it does, for
+// and that it points here (loft#155). A pending one is ready once it does, for
 // a person to switch to; a lapsed one is the workspace's active domain again,
 // when the workspace has no other.
 func (s domainTenantDomain) Verify(ctx context.Context, req *app.TenantDomainVerifyRequest) (*app.TenantDomain, error) {
@@ -329,7 +329,7 @@ func (s domainTenantDomain) Verify(ctx context.Context, req *app.TenantDomainVer
 		host := v.GetHost()
 		switch txt, here := t.deps.txt(t.ctx, host, v.GetToken()), t.deps.pointsHere(t.ctx, host); {
 		case txt == heardNo:
-			return failed("_rove-challenge.%s에 TXT 레코드 %s가 없습니다. DNS 반영에 시간이 걸릴 수 있습니다", host, v.GetToken())
+			return failed("_loft-challenge.%s에 TXT 레코드 %s가 없습니다. DNS 반영에 시간이 걸릴 수 있습니다", host, v.GetToken())
 		case here == heardNo:
 			return failed("%s가 %s를 가리키지 않습니다. CNAME을 확인하세요", host, t.deps.LabelTarget)
 		case txt != heardYes || here != heardYes:
@@ -478,7 +478,7 @@ type domainLabel struct {
 func (s Domain) Label() app.LabelServiceServer { return domainLabel{s, s.Next().Label()} }
 
 // Print makes labels: with the tenant's active domain when it has one, and
-// with this deployment's own address otherwise (design 9.9, rove#155). Each
+// with this deployment's own address otherwise (design 9.9, loft#155). Each
 // keeps the domain it was printed with, and opens on it for as long as the
 // domain is not retired, whichever domain is active then.
 func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*app.LabelPrintResponse, error) {

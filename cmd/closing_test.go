@@ -23,14 +23,14 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/account"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/tenancy"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/account"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // closingWorld is the world with the page built, so the routes that only

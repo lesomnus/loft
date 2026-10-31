@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/booking_svc.g.proto
+// source: loft/booking_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,17 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BookableService_Add_FullMethodName          = "/rove.BookableService/Add"
-	BookableService_Get_FullMethodName          = "/rove.BookableService/Get"
-	BookableService_Patch_FullMethodName        = "/rove.BookableService/Patch"
-	BookableService_Apply_FullMethodName        = "/rove.BookableService/Apply"
-	BookableService_Erase_FullMethodName        = "/rove.BookableService/Erase"
-	BookableService_List_FullMethodName         = "/rove.BookableService/List"
-	BookableService_Watch_FullMethodName        = "/rove.BookableService/Watch"
-	BookableService_Update_FullMethodName       = "/rove.BookableService/Update"
-	BookableService_Availability_FullMethodName = "/rove.BookableService/Availability"
-	BookableService_Usage_FullMethodName        = "/rove.BookableService/Usage"
-	BookableService_ExportUsage_FullMethodName  = "/rove.BookableService/ExportUsage"
+	BookableService_Add_FullMethodName          = "/loft.BookableService/Add"
+	BookableService_Get_FullMethodName          = "/loft.BookableService/Get"
+	BookableService_Patch_FullMethodName        = "/loft.BookableService/Patch"
+	BookableService_Apply_FullMethodName        = "/loft.BookableService/Apply"
+	BookableService_Erase_FullMethodName        = "/loft.BookableService/Erase"
+	BookableService_List_FullMethodName         = "/loft.BookableService/List"
+	BookableService_Watch_FullMethodName        = "/loft.BookableService/Watch"
+	BookableService_Update_FullMethodName       = "/loft.BookableService/Update"
+	BookableService_Availability_FullMethodName = "/loft.BookableService/Availability"
+	BookableService_Usage_FullMethodName        = "/loft.BookableService/Usage"
+	BookableService_ExportUsage_FullMethodName  = "/loft.BookableService/ExportUsage"
 )
 
 // BookableServiceClient is the client API for BookableService service.
@@ -70,7 +70,7 @@ type BookableServiceClient interface {
 	// for. It names nobody.
 	Usage(ctx context.Context, in *BookableUsageRequest, opts ...grpc.CallOption) (*BookableUsageResponse, error)
 	// ExportUsage writes it as a CSV, which names nobody and so is no download
-	// of anybody (rove#136).
+	// of anybody (loft#136).
 	ExportUsage(ctx context.Context, in *BookableUsageRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
@@ -239,7 +239,7 @@ type BookableServiceServer interface {
 	// for. It names nobody.
 	Usage(context.Context, *BookableUsageRequest) (*BookableUsageResponse, error)
 	// ExportUsage writes it as a CSV, which names nobody and so is no download
-	// of anybody (rove#136).
+	// of anybody (loft#136).
 	ExportUsage(context.Context, *BookableUsageRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedBookableServiceServer()
 }
@@ -500,7 +500,7 @@ func _BookableService_ExportUsage_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BookableService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.BookableService",
+	ServiceName: "loft.BookableService",
 	HandlerType: (*BookableServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -551,26 +551,26 @@ var BookableService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/booking_svc.g.proto",
+	Metadata: "loft/booking_svc.g.proto",
 }
 
 const (
-	ReservationService_Add_FullMethodName      = "/rove.ReservationService/Add"
-	ReservationService_Get_FullMethodName      = "/rove.ReservationService/Get"
-	ReservationService_Patch_FullMethodName    = "/rove.ReservationService/Patch"
-	ReservationService_Apply_FullMethodName    = "/rove.ReservationService/Apply"
-	ReservationService_Erase_FullMethodName    = "/rove.ReservationService/Erase"
-	ReservationService_List_FullMethodName     = "/rove.ReservationService/List"
-	ReservationService_Watch_FullMethodName    = "/rove.ReservationService/Watch"
-	ReservationService_Confirm_FullMethodName  = "/rove.ReservationService/Confirm"
-	ReservationService_Approve_FullMethodName  = "/rove.ReservationService/Approve"
-	ReservationService_Reject_FullMethodName   = "/rove.ReservationService/Reject"
-	ReservationService_Cancel_FullMethodName   = "/rove.ReservationService/Cancel"
-	ReservationService_CheckIn_FullMethodName  = "/rove.ReservationService/CheckIn"
-	ReservationService_Complete_FullMethodName = "/rove.ReservationService/Complete"
-	ReservationService_Calendar_FullMethodName = "/rove.ReservationService/Calendar"
-	ReservationService_Timeline_FullMethodName = "/rove.ReservationService/Timeline"
-	ReservationService_Pickup_FullMethodName   = "/rove.ReservationService/Pickup"
+	ReservationService_Add_FullMethodName      = "/loft.ReservationService/Add"
+	ReservationService_Get_FullMethodName      = "/loft.ReservationService/Get"
+	ReservationService_Patch_FullMethodName    = "/loft.ReservationService/Patch"
+	ReservationService_Apply_FullMethodName    = "/loft.ReservationService/Apply"
+	ReservationService_Erase_FullMethodName    = "/loft.ReservationService/Erase"
+	ReservationService_List_FullMethodName     = "/loft.ReservationService/List"
+	ReservationService_Watch_FullMethodName    = "/loft.ReservationService/Watch"
+	ReservationService_Confirm_FullMethodName  = "/loft.ReservationService/Confirm"
+	ReservationService_Approve_FullMethodName  = "/loft.ReservationService/Approve"
+	ReservationService_Reject_FullMethodName   = "/loft.ReservationService/Reject"
+	ReservationService_Cancel_FullMethodName   = "/loft.ReservationService/Cancel"
+	ReservationService_CheckIn_FullMethodName  = "/loft.ReservationService/CheckIn"
+	ReservationService_Complete_FullMethodName = "/loft.ReservationService/Complete"
+	ReservationService_Calendar_FullMethodName = "/loft.ReservationService/Calendar"
+	ReservationService_Timeline_FullMethodName = "/loft.ReservationService/Timeline"
+	ReservationService_Pickup_FullMethodName   = "/loft.ReservationService/Pickup"
 )
 
 // ReservationServiceClient is the client API for ReservationService service.
@@ -1212,7 +1212,7 @@ func _ReservationService_Pickup_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ReservationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.ReservationService",
+	ServiceName: "loft.ReservationService",
 	HandlerType: (*ReservationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1283,16 +1283,16 @@ var ReservationService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/booking_svc.g.proto",
+	Metadata: "loft/booking_svc.g.proto",
 }
 
 const (
-	ReservationItemService_Add_FullMethodName   = "/rove.ReservationItemService/Add"
-	ReservationItemService_Get_FullMethodName   = "/rove.ReservationItemService/Get"
-	ReservationItemService_Patch_FullMethodName = "/rove.ReservationItemService/Patch"
-	ReservationItemService_Apply_FullMethodName = "/rove.ReservationItemService/Apply"
-	ReservationItemService_Erase_FullMethodName = "/rove.ReservationItemService/Erase"
-	ReservationItemService_List_FullMethodName  = "/rove.ReservationItemService/List"
+	ReservationItemService_Add_FullMethodName   = "/loft.ReservationItemService/Add"
+	ReservationItemService_Get_FullMethodName   = "/loft.ReservationItemService/Get"
+	ReservationItemService_Patch_FullMethodName = "/loft.ReservationItemService/Patch"
+	ReservationItemService_Apply_FullMethodName = "/loft.ReservationItemService/Apply"
+	ReservationItemService_Erase_FullMethodName = "/loft.ReservationItemService/Erase"
+	ReservationItemService_List_FullMethodName  = "/loft.ReservationItemService/List"
 )
 
 // ReservationItemServiceClient is the client API for ReservationItemService service.
@@ -1559,7 +1559,7 @@ func _ReservationItemService_List_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ReservationItemService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.ReservationItemService",
+	ServiceName: "loft.ReservationItemService",
 	HandlerType: (*ReservationItemServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1588,16 +1588,16 @@ var ReservationItemService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/booking_svc.g.proto",
+	Metadata: "loft/booking_svc.g.proto",
 }
 
 const (
-	AllocationService_Add_FullMethodName   = "/rove.AllocationService/Add"
-	AllocationService_Get_FullMethodName   = "/rove.AllocationService/Get"
-	AllocationService_Patch_FullMethodName = "/rove.AllocationService/Patch"
-	AllocationService_Apply_FullMethodName = "/rove.AllocationService/Apply"
-	AllocationService_Erase_FullMethodName = "/rove.AllocationService/Erase"
-	AllocationService_List_FullMethodName  = "/rove.AllocationService/List"
+	AllocationService_Add_FullMethodName   = "/loft.AllocationService/Add"
+	AllocationService_Get_FullMethodName   = "/loft.AllocationService/Get"
+	AllocationService_Patch_FullMethodName = "/loft.AllocationService/Patch"
+	AllocationService_Apply_FullMethodName = "/loft.AllocationService/Apply"
+	AllocationService_Erase_FullMethodName = "/loft.AllocationService/Erase"
+	AllocationService_List_FullMethodName  = "/loft.AllocationService/List"
 )
 
 // AllocationServiceClient is the client API for AllocationService service.
@@ -1863,7 +1863,7 @@ func _AllocationService_List_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AllocationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.AllocationService",
+	ServiceName: "loft.AllocationService",
 	HandlerType: (*AllocationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1892,5 +1892,5 @@ var AllocationService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/booking_svc.g.proto",
+	Metadata: "loft/booking_svc.g.proto",
 }

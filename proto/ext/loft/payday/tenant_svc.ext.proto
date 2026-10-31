@@ -1,0 +1,104 @@
+edition = "2023";
+
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "loft/payday/tenant.proto";
+
+option go_package = "github.com/lesomnus/loft";
+
+service TenantService {
+  // Close shuts a workspace (D29): nobody gets in but its owner, who may
+  // restore it or take its data out, until it is destroyed. `confirm` is its
+  // name, typed by whoever closes it.
+  rpc Close(TenantCloseRequest) returns (Tenant);
+  // Restore opens a closed workspace again, while its restore window lasts.
+  rpc Restore(TenantRestoreRequest) returns (Tenant);
+  // Configure is the workspace's own settings, its owner's to say (#144):
+  // what it is called (D58), where it is -- the zone its dates are told in,
+  // the currency a new amount is priced in -- how long a room waits for
+  // whoever booked it, and how long it keeps its history and its access
+  // record and may be restored once closed (D36). A field left out stays as
+  // it is; an empty one is the deployment's again, or for its history
+  // forever, or for its name none -- and it is called after its owner (D57).
+  // A window made shorter waits out the deployment's grace before it is the
+  // shorter one.
+  rpc Configure(TenantConfigureRequest) returns (Tenant);
+  // Preview is what a change of how long the workspace keeps its history and
+  // its access record would come to, and when, changing nothing: what its
+  // owner is shown before Configure saves it. A field left out is as it is.
+  rpc Preview(TenantPreviewRequest) returns (TenantPreviewResponse);
+}
+
+message TenantCloseRequest {
+  TenantRef ref = 1;
+  string confirm = 2 [features.field_presence = IMPLICIT];
+  string reason = 3 [features.field_presence = IMPLICIT];
+}
+
+message TenantRestoreRequest {
+  TenantRef ref = 1;
+}
+
+message TenantConfigureRequest {
+  TenantRef ref = 1;
+  // An IANA zone, such as Asia/Seoul.
+  string timezone = 2;
+  // ISO 4217, such as KRW.
+  string currency = 3;
+  // Minutes; 0 is the deployment's, negative holds nobody to checking in.
+  int32 no_show_minutes = 4;
+  // Days its history is kept; 0 is forever.
+  uint32 keep_days = 5;
+  // Days its access record is kept; 0 is the deployment's, and none is below
+  // the deployment's floor.
+  uint32 access_keep_days = 6;
+  // Days it may be restored once closed; 0 is the deployment's.
+  uint32 restore_days = 7;
+  // What it is called, one line of up to 80 characters: the workspace's, and
+  // nobody's (payday#180), which the trail and its history keep as they keep
+  // any thing's name -- so no person's. Empty is none of its own, and it is
+  // called after its owner (D57).
+  string name = 8;
+}
+
+message TenantPreviewRequest {
+  TenantRef ref = 1;
+  uint32 keep_days = 2;
+  uint32 access_keep_days = 3;
+}
+
+// TenantPreviewResponse is how long the workspace would keep its history and
+// its access record, from when, and what that takes.
+message TenantPreviewResponse {
+  // Whether the deployment destroys anything by these windows at all
+  // (`app.retention.apply`). Off, what is below is what it would destroy
+  // once it does.
+  bool apply = 1 [features.field_presence = IMPLICIT];
+  // The grace a window made shorter waits out, in days
+  // (`app.retention.grace`).
+  uint32 grace_days = 2 [features.field_presence = IMPLICIT];
+
+  // How long the history is kept, in days -- 0 is forever -- and from when:
+  // now, or once the grace of a shorter one is over. Until then the longer one
+  // it had holds.
+  uint32 keep_days = 3 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp keep_from = 4;
+  // What that takes of the history as it is now, by kind -- placements,
+  // facts, events, reservations, ... -- as a retention pass would: what was
+  // over before the window, `keep_days` before `keep_from`.
+  map<string, uint32> keep_takes = 5;
+
+  // How long the access record is kept, in days -- the deployment's where the
+  // workspace says none, and never below the floor -- and from when. 0 is
+  // forever.
+  uint32 access_keep_days = 6 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp access_keep_from = 7;
+  // The deployment's floor, in days: the least the access record is kept,
+  // whatever the workspace says (`audit.by.access.min`).
+  uint32 access_floor_days = 8 [features.field_presence = IMPLICIT];
+
+  // Whether a legal hold is on: while one is, nothing is destroyed, whatever
+  // the windows say.
+  bool held = 9 [features.field_presence = IMPLICIT];
+}

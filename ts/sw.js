@@ -17,7 +17,7 @@
 
 /* global VERSION, FILES */
 
-const SHELL = `rove-${VERSION}`
+const SHELL = `loft-${VERSION}`
 
 self.addEventListener('install', (e) => {
 	e.waitUntil(
@@ -32,7 +32,7 @@ self.addEventListener('activate', (e) => {
 	e.waitUntil(
 		caches
 			.keys()
-			.then((ks) => Promise.all(ks.filter((k) => k.startsWith('rove-') && k !== SHELL).map((k) => caches.delete(k))))
+			.then((ks) => Promise.all(ks.filter((k) => k.startsWith('loft-') && k !== SHELL).map((k) => caches.delete(k))))
 			.then(() => self.clients.claim()),
 	)
 })

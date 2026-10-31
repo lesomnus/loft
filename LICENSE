@@ -11,5 +11,5 @@ or otherwise.
 
 Third-party components keep their own licenses. In particular, the files that
 payday (https://github.com/lesomnus/payday) copies into or generates from this
-repository, such as everything under proto/rove/payday/, remain under the
+repository, such as everything under proto/loft/payday/, remain under the
 Apache License, Version 2.0.

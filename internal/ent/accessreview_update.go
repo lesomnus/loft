@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lesomnus/rove/internal/ent/accessreview"
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/accessreview"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"

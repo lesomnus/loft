@@ -13,14 +13,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/link"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/internal/ent/reservationitem"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/link"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/internal/ent/reservationitem"
 )
 
 // A kit is what its `member_of` links say it is made of, and a reservation of
@@ -492,7 +492,7 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 
 // allocChange is what an operation did to what a reservation holds of one
 // thing it needs: of `kind`, a `reservation.take`, `.wait`, `.resolve` or
-// `.let_go` (`rove/past.proto`) -- a member of its kit, which is one thing;
+// `.let_go` (`loft/past.proto`) -- a member of its kit, which is one thing;
 // or a pool's, by how many of it.
 type allocChange struct {
 	kind     string

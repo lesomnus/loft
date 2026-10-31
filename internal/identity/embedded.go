@@ -42,12 +42,12 @@ type embedded struct {
 	log *slog.Logger
 }
 
-// DbFile is the embedded roster's database, beside Rove's own.
+// DbFile is the embedded roster's database, beside Loft's own.
 const DbFile = "roster.db"
 
 // unframed is a context for the deployment's own door at the embedded roster.
 // Both apps read payday's one frame type, so a request's frame here would be a
-// frame there, and roster would take Rove's actor for one of its own: an
+// frame there, and roster would take Loft's actor for one of its own: an
 // administrator issuing somebody a password would be refused as asking for
 // their own. What the deployment does through that door is nobody's request,
 // so the frame stays behind; the deadline comes along.
@@ -89,7 +89,7 @@ func openEmbedded(ctx context.Context, cfg Config, stateDir string, log *slog.Lo
 	// It is served on bufconn, so nothing outside this process reaches it, and
 	// it believes its callers as a roster with no control plane does. Said so
 	// as that rather than with Plain's warning, which is about a port anybody
-	// might dial and read as a hole in Rove (rove#56).
+	// might dial and read as a hole in Loft (loft#56).
 	rs.Auth = auth.PlainInProcess()
 	g, err := rs.Grpc(ctx, rc)
 	if err != nil {
@@ -99,7 +99,7 @@ func openEmbedded(ctx context.Context, cfg Config, stateDir string, log *slog.Lo
 	log.Info("identity: roster in this process, on its own database; reachable from this process only", "db", rc.Db.Driver)
 	e := &embedded{rs: rs, cfg: rc, g: g, lis: bufconn.Listen(1 << 20), log: log}
 	// Served from here on, so that whoever opened the store can call it --
-	// `rove init` does, before anything runs. What Run adds is roster's own
+	// `loft init` does, before anything runs. What Run adds is roster's own
 	// housekeeping.
 	go func() {
 		if err := g.Serve(e.lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
@@ -122,7 +122,7 @@ func (e *embedded) Close() error {
 	return e.rs.Close()
 }
 
-// agent writes the `rove` holder, the role it holds and the binding into a
+// agent writes the `loft` holder, the role it holds and the binding into a
 // tenant, through the deployment's own door. It refuses a tenant that is not
 // there rather than making one, since a tenant is a customer.
 func (e *embedded) agent(ctx context.Context, tenant string) error {
@@ -145,7 +145,7 @@ func (e *embedded) agent(ctx context.Context, tenant string) error {
 		if status.Code(err) != codes.NotFound {
 			return err
 		}
-		h, err = own.Holder().Add(ctx, rstr.HolderAddRequest_builder{Tenant: tref, Alias: Agent, Name: "Rove"}.Build())
+		h, err = own.Holder().Add(ctx, rstr.HolderAddRequest_builder{Tenant: tref, Alias: Agent, Name: "Loft"}.Build())
 		if err != nil {
 			return fmt.Errorf("holder %s: %w", Agent, err)
 		}
@@ -158,13 +158,13 @@ func (e *embedded) agent(ctx context.Context, tenant string) error {
 			return err
 		}
 		r, err = own.Role().Add(ctx, rstr.RoleAddRequest_builder{
-			Tenant: tref, Alias: Agent, Name: "what Rove asks roster", Methods: AgentMethods,
+			Tenant: tref, Alias: Agent, Name: "what Loft asks roster", Methods: AgentMethods,
 		}.Build())
 		if err != nil {
 			return fmt.Errorf("role %s: %w", Agent, err)
 		}
 	} else if missing := slices.DeleteFunc(slices.Clone(AgentMethods), func(m string) bool { return slices.Contains(r.GetMethods(), m) }); len(missing) > 0 {
-		// A role written by an older Rove: what this one asks is added.
+		// A role written by an older Loft: what this one asks is added.
 		if _, err := own.Role().Patch(ctx, rstr.RolePatchRequest_builder{
 			Ref:              rstr.RoleRef_builder{Id: r.GetId()}.Build(),
 			Methods:          append(slices.Clone(r.GetMethods()), missing...),
@@ -195,7 +195,7 @@ func (e *embedded) agent(ctx context.Context, tenant string) error {
 
 // MakeDirectory makes the directory at the embedded roster, with its first
 // account -- called `name`, or its login when that is empty -- bound to the
-// role that administers it there and a password shown once: what `rove init`
+// role that administers it there and a password shown once: what `loft init`
 // does on a deployment that has none. An external roster refuses: its
 // operator makes the directory.
 func (s *Store) MakeDirectory(ctx context.Context, login, name string) (Person, string, error) {
@@ -339,7 +339,7 @@ func (s *Store) issue(ctx context.Context, holder pdid.Id) (string, error) {
 }
 
 // SetPassword writes a person's password to the one given, at the embedded
-// roster, as the deployment: for a person changing their own, once Rove has
+// roster, as the deployment: for a person changing their own, once Loft has
 // checked the one they have, and for the tests.
 func (s *Store) SetPassword(ctx context.Context, holder pdid.Id, password string) error {
 	if s.em == nil {
@@ -397,11 +397,11 @@ func (s *Store) Invalidate(ctx context.Context, holder pdid.Id) error {
 // ForgetPerson destroys what the embedded roster holds about a person -- their
 // addresses, their password, their sessions there and the trail's copies of
 // them -- and leaves their row an identifier naming nobody, which frees their
-// alias (roster's `forget`). It is what a login ending in Rove means when the
-// login is Rove's alone, and it is done at once: the grace roster gives an
-// erase is for undoing it, which Rove does not offer, and a grace with nothing
+// alias (roster's `forget`). It is what a login ending in Loft means when the
+// login is Loft's alone, and it is done at once: the grace roster gives an
+// erase is for undoing it, which Loft does not offer, and a grace with nothing
 // to undo is only a delay. At an external roster the person is the tenant's,
-// and Rove leaves them.
+// and Loft leaves them.
 func (s *Store) ForgetPerson(ctx context.Context, holder pdid.Id) error {
 	if s.em == nil {
 		return ErrExternal
@@ -460,7 +460,7 @@ func (e *embedded) erased(ctx context.Context) (map[pdid.Id]pdid.Id, error) {
 	return out, nil
 }
 
-// Adoptee is a person [Store.Adopt] writes into the embedded roster, as Rove
+// Adoptee is a person [Store.Adopt] writes into the embedded roster, as Loft
 // has them.
 type Adoptee struct {
 	Id    pdid.Id
@@ -496,7 +496,7 @@ func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (m
 	passwords := map[string]string{}
 	for _, p := range people {
 		if p.Alias == Agent {
-			return nil, fmt.Errorf("@%s/%s: the name Rove acts by at roster; nobody else can have it there", alias, p.Alias)
+			return nil, fmt.Errorf("@%s/%s: the name Loft acts by at roster; nobody else can have it there", alias, p.Alias)
 		}
 		if _, err := own.Holder().Get(ctx, rstr.HolderGetRequest_builder{Ref: rstr.HolderRef_builder{Id: p.Id.Bytes()}.Build()}.Build()); err == nil {
 			continue

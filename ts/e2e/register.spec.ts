@@ -1,4 +1,4 @@
-import { card, expect, field, owner, said, signIn, test, unique, workspace } from './rove.js'
+import { card, expect, field, owner, said, signIn, test, unique, workspace } from './loft.js'
 
 /** A sheet in the form, as a file the page is given. */
 function sheet(rows: string[][]): { name: string; mimeType: string; buffer: Buffer } {
@@ -19,7 +19,7 @@ test('new assets are registered from a sheet, shown first, as one intake', async
 
 	const download = page.waitForEvent('download')
 	await page.getByRole('button', { name: '양식 내려받기' }).click()
-	expect((await download).suggestedFilename()).toBe('rove-대량등록-양식.csv')
+	expect((await download).suggestedFilename()).toBe('loft-대량등록-양식.csv')
 	await expect(card(page, '양식')).toContainText('CSV UTF-8')
 
 	// A workbook is refused unopened, saying how to save it as the form is.

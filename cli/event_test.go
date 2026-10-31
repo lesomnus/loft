@@ -16,20 +16,20 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	entaccess "github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/mail"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	entaccess "github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/mail"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// TestAnOperatorTakesAnEventsReasonOut is `rove event redact`: what a
+// TestAnOperatorTakesAnEventsReasonOut is `loft event redact`: what a
 // workspace was asked by a person whose words an event's reason keeps, done by
 // the deployment's operator on its word. It says what it would do, without
 // what the reason says, until told `--yes`; then the reason is gone, the act is
@@ -104,7 +104,7 @@ func TestAnOperatorTakesAnEventsReasonOut(t *testing.T) {
 
 		// What the act read and wrote, by the operator, and nothing anybody
 		// said.
-		rs, err := s.Ent.Access.Query().Where(entaccess.Action("rove event redact")).All(ctx)
+		rs, err := s.Ent.Access.Query().Where(entaccess.Action("loft event redact")).All(ctx)
 		x.NoError(err)
 		kinds := map[string][]pdid.Id{}
 		for _, r := range rs {
@@ -228,7 +228,7 @@ func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *test
 	x.Zero(left())
 	x.Empty(memo(), "taken out of the hand-over's memo")
 	on(t, c, func(s *cmd.Server) {
-		rs, err := s.Ent.Access.Query().Where(entaccess.Action("rove event redact"), entaccess.KindEQ("write")).All(ctx)
+		rs, err := s.Ent.Access.Query().Where(entaccess.Action("loft event redact"), entaccess.KindEQ("write")).All(ctx)
 		x.NoError(err)
 		var wrote []pdid.Id
 		for _, r := range rs {
@@ -302,7 +302,7 @@ func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) 
 		// Rejected, and mailed to whoever it was for.
 		box := &posted{}
 		s.Deps.Mail = box
-		s.Deps.Links.App = "https://rove.example"
+		s.Deps.Links.App = "https://loft.example"
 		_, err = s.Walled.Reservation().Reject(owner, app.ReservationDecideRequest_builder{Ref: app.ReservationRef_builder{Id: r.GetId()}.Build(), Reason: words}.Build())
 		x.NoError(err)
 		x.NoError(domain.Mailer{Drv: s.Drv, Deps: s.Deps}.Pass(ctx))
@@ -343,7 +343,7 @@ func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) 
 	x.Empty(says())
 
 	on(t, c, func(s *cmd.Server) {
-		rs, err := s.Ent.Access.Query().Where(entaccess.Action("rove event redact"), entaccess.KindEQ("write")).All(ctx)
+		rs, err := s.Ent.Access.Query().Where(entaccess.Action("loft event redact"), entaccess.KindEQ("write")).All(ctx)
 		x.NoError(err)
 		var wrote []pdid.Id
 		for _, r := range rs {

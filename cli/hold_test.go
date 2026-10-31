@@ -12,17 +12,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 )
 
 // TestAMigrationHoldsWhatABuildBeforeLeftOut: what a build from before a
-// hand-over held its things' time handed over holds none of it (D53). `rove
+// hand-over held its things' time handed over holds none of it (D53). `loft
 // migrate` holds it from when it was handed over -- through the servers, so
 // that every row is as the trail says -- and what was booked over it says so
 // and is told; asked again, it has nothing left to hold.

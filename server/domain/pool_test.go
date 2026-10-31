@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
 )
 
 // What a pool can give is its members in use, less the ones whose own time is

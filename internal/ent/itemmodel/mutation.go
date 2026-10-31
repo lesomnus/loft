@@ -8,8 +8,8 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
@@ -23,7 +23,7 @@ type Mutation struct {
 	labels        *map[string]string
 	maker         *string
 	code          *string
-	spec          **rove.ModelSpec
+	spec          **loft.ModelSpec
 	date_updated  *time.Time
 	date_erased   *time.Time
 	date_created  *time.Time
@@ -171,14 +171,14 @@ func (m *Mutation) ResetCode() {
 }
 
 // SetSpec sets the "spec" field.
-func (m *Mutation) SetSpec(rs *rove.ModelSpec) {
-	m.spec = &rs
+func (m *Mutation) SetSpec(ls *loft.ModelSpec) {
+	m.spec = &ls
 	delete(m.clearedFields, FieldSpec)
 	delete(m.exprs, FieldSpec)
 }
 
 // Spec returns the value of the "spec" field in the mutation.
-func (m *Mutation) Spec() (r *rove.ModelSpec, exists bool) {
+func (m *Mutation) Spec() (r *loft.ModelSpec, exists bool) {
 	v := m.spec
 	if v == nil {
 		return
@@ -576,7 +576,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		m.SetCode(v)
 		return nil
 	case FieldSpec:
-		v, ok := value.(*rove.ModelSpec)
+		v, ok := value.(*loft.ModelSpec)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
 				return m.SetFieldExpr(name, e)

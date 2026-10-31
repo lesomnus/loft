@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/work.proto
+// source: loft/work.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -51,7 +51,7 @@ type WorkOrder struct {
 
 func (x *WorkOrder) Reset() {
 	*x = WorkOrder{}
-	mi := &file_rove_work_proto_msgTypes[0]
+	mi := &file_loft_work_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -63,7 +63,7 @@ func (x *WorkOrder) String() string {
 func (*WorkOrder) ProtoMessage() {}
 
 func (x *WorkOrder) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_proto_msgTypes[0]
+	mi := &file_loft_work_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -455,7 +455,7 @@ type Purchase struct {
 
 func (x *Purchase) Reset() {
 	*x = Purchase{}
-	mi := &file_rove_work_proto_msgTypes[1]
+	mi := &file_loft_work_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -467,7 +467,7 @@ func (x *Purchase) String() string {
 func (*Purchase) ProtoMessage() {}
 
 func (x *Purchase) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_proto_msgTypes[1]
+	mi := &file_loft_work_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -783,7 +783,7 @@ type PurchaseLine struct {
 
 func (x *PurchaseLine) Reset() {
 	*x = PurchaseLine{}
-	mi := &file_rove_work_proto_msgTypes[2]
+	mi := &file_loft_work_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -795,7 +795,7 @@ func (x *PurchaseLine) String() string {
 func (*PurchaseLine) ProtoMessage() {}
 
 func (x *PurchaseLine) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_work_proto_msgTypes[2]
+	mi := &file_loft_work_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1021,17 +1021,17 @@ func (b0 PurchaseLine_builder) Build() *PurchaseLine {
 	return m0
 }
 
-var File_rove_work_proto protoreflect.FileDescriptor
+var File_loft_work_proto protoreflect.FileDescriptor
 
-const file_rove_work_proto_rawDesc = "" +
+const file_loft_work_proto_rawDesc = "" +
 	"\n" +
-	"\x0frove/work.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x12rove/catalog.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xf0\a\n" +
+	"\x0floft/work.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x12loft/catalog.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xf0\a\n" +
 	"\tWorkOrder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
-	"\x05asset\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12\x1a\n" +
+	"\x05asset\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12\x1a\n" +
 	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12\x1e\n" +
 	"\x06status\x18\n" +
 	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12?\n" +
@@ -1041,7 +1041,7 @@ const file_rove_work_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12+\n" +
-	"\x06vendor\x18\x10 \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12\x12\n" +
+	"\x06vendor\x18\x10 \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12\x12\n" +
 	"\x04cost\x18\x11 \x01(\x03R\x04cost\x12\"\n" +
 	"\bcurrency\x18\x12 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\bcurrency\x12E\n" +
 	"\fcompleted_at\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vcompletedAt\x12\x1a\n" +
@@ -1067,10 +1067,10 @@ const file_rove_work_proto_rawDesc = "" +
 	"\x06tenant\"\fasset.tenant\"\x9b\x06\n" +
 	"\bPurchase\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12+\n" +
-	"\x06vendor\x18\b \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12$\n" +
+	"\x06vendor\x18\b \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12$\n" +
 	"\treference\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\treference\x12\x1e\n" +
 	"\x06status\x18\n" +
 	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12B\n" +
@@ -1099,10 +1099,10 @@ const file_rove_work_proto_rawDesc = "" +
 	"\x06status d(\xf4\x03:\x00\"\x9d\x05\n" +
 	"\fPurchaseLine\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc\x122\n" +
-	"\bpurchase\x18\b \x01(\v2\x0e.rove.PurchaseB\x06\xf2\x82\x16\x02@\x01R\bpurchase\x12-\n" +
-	"\x05model\x18\t \x01(\v2\x0f.rove.ItemModelB\x06\xf2\x82\x16\x028\x01R\x05model\x12\x1a\n" +
+	"\bpurchase\x18\b \x01(\v2\x0e.loft.PurchaseB\x06\xf2\x82\x16\x02@\x01R\bpurchase\x12-\n" +
+	"\x05model\x18\t \x01(\v2\x0f.loft.ItemModelB\x06\xf2\x82\x16\x028\x01R\x05model\x12\x1a\n" +
 	"\bquantity\x18\n" +
 	" \x01(\x03R\bquantity\x12\x1b\n" +
 	"\tunit_cost\x18\v \x01(\x03R\bunitCost\x12+\n" +
@@ -1127,41 +1127,41 @@ const file_rove_work_proto_rawDesc = "" +
 	"\bpurchase\x1a\a\n" +
 	"\x05model \xc8\x01(\xe8\aB\x02\n" +
 	"\x00\"\x19\n" +
-	"\x06tenant\"\x0fpurchase.tenantB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06tenant\"\x0fpurchase.tenantB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_work_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_rove_work_proto_goTypes = []any{
-	(*WorkOrder)(nil),             // 0: rove.WorkOrder
-	(*Purchase)(nil),              // 1: rove.Purchase
-	(*PurchaseLine)(nil),          // 2: rove.PurchaseLine
-	(*Tenant)(nil),                // 3: rove.Tenant
-	(*Asset)(nil),                 // 4: rove.Asset
+var file_loft_work_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_loft_work_proto_goTypes = []any{
+	(*WorkOrder)(nil),             // 0: loft.WorkOrder
+	(*Purchase)(nil),              // 1: loft.Purchase
+	(*PurchaseLine)(nil),          // 2: loft.PurchaseLine
+	(*Tenant)(nil),                // 3: loft.Tenant
+	(*Asset)(nil),                 // 4: loft.Asset
 	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*Party)(nil),                 // 6: rove.Party
-	(*ItemModel)(nil),             // 7: rove.ItemModel
+	(*Party)(nil),                 // 6: loft.Party
+	(*ItemModel)(nil),             // 7: loft.ItemModel
 }
-var file_rove_work_proto_depIdxs = []int32{
-	3,  // 0: rove.WorkOrder.tenant:type_name -> rove.Tenant
-	4,  // 1: rove.WorkOrder.asset:type_name -> rove.Asset
-	5,  // 2: rove.WorkOrder.begins_at:type_name -> google.protobuf.Timestamp
-	5,  // 3: rove.WorkOrder.ends_at:type_name -> google.protobuf.Timestamp
-	5,  // 4: rove.WorkOrder.date_updated:type_name -> google.protobuf.Timestamp
-	5,  // 5: rove.WorkOrder.date_erased:type_name -> google.protobuf.Timestamp
-	5,  // 6: rove.WorkOrder.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 7: rove.WorkOrder.vendor:type_name -> rove.Party
-	5,  // 8: rove.WorkOrder.completed_at:type_name -> google.protobuf.Timestamp
-	3,  // 9: rove.Purchase.tenant:type_name -> rove.Tenant
-	6,  // 10: rove.Purchase.vendor:type_name -> rove.Party
-	5,  // 11: rove.Purchase.ordered_at:type_name -> google.protobuf.Timestamp
-	5,  // 12: rove.Purchase.received_at:type_name -> google.protobuf.Timestamp
-	5,  // 13: rove.Purchase.date_updated:type_name -> google.protobuf.Timestamp
-	5,  // 14: rove.Purchase.date_erased:type_name -> google.protobuf.Timestamp
-	5,  // 15: rove.Purchase.date_created:type_name -> google.protobuf.Timestamp
-	3,  // 16: rove.PurchaseLine.tenant:type_name -> rove.Tenant
-	1,  // 17: rove.PurchaseLine.purchase:type_name -> rove.Purchase
-	7,  // 18: rove.PurchaseLine.model:type_name -> rove.ItemModel
-	5,  // 19: rove.PurchaseLine.date_updated:type_name -> google.protobuf.Timestamp
-	5,  // 20: rove.PurchaseLine.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_work_proto_depIdxs = []int32{
+	3,  // 0: loft.WorkOrder.tenant:type_name -> loft.Tenant
+	4,  // 1: loft.WorkOrder.asset:type_name -> loft.Asset
+	5,  // 2: loft.WorkOrder.begins_at:type_name -> google.protobuf.Timestamp
+	5,  // 3: loft.WorkOrder.ends_at:type_name -> google.protobuf.Timestamp
+	5,  // 4: loft.WorkOrder.date_updated:type_name -> google.protobuf.Timestamp
+	5,  // 5: loft.WorkOrder.date_erased:type_name -> google.protobuf.Timestamp
+	5,  // 6: loft.WorkOrder.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 7: loft.WorkOrder.vendor:type_name -> loft.Party
+	5,  // 8: loft.WorkOrder.completed_at:type_name -> google.protobuf.Timestamp
+	3,  // 9: loft.Purchase.tenant:type_name -> loft.Tenant
+	6,  // 10: loft.Purchase.vendor:type_name -> loft.Party
+	5,  // 11: loft.Purchase.ordered_at:type_name -> google.protobuf.Timestamp
+	5,  // 12: loft.Purchase.received_at:type_name -> google.protobuf.Timestamp
+	5,  // 13: loft.Purchase.date_updated:type_name -> google.protobuf.Timestamp
+	5,  // 14: loft.Purchase.date_erased:type_name -> google.protobuf.Timestamp
+	5,  // 15: loft.Purchase.date_created:type_name -> google.protobuf.Timestamp
+	3,  // 16: loft.PurchaseLine.tenant:type_name -> loft.Tenant
+	1,  // 17: loft.PurchaseLine.purchase:type_name -> loft.Purchase
+	7,  // 18: loft.PurchaseLine.model:type_name -> loft.ItemModel
+	5,  // 19: loft.PurchaseLine.date_updated:type_name -> google.protobuf.Timestamp
+	5,  // 20: loft.PurchaseLine.date_created:type_name -> google.protobuf.Timestamp
 	21, // [21:21] is the sub-list for method output_type
 	21, // [21:21] is the sub-list for method input_type
 	21, // [21:21] is the sub-list for extension type_name
@@ -1169,30 +1169,30 @@ var file_rove_work_proto_depIdxs = []int32{
 	0,  // [0:21] is the sub-list for field type_name
 }
 
-func init() { file_rove_work_proto_init() }
-func file_rove_work_proto_init() {
-	if File_rove_work_proto != nil {
+func init() { file_loft_work_proto_init() }
+func file_loft_work_proto_init() {
+	if File_loft_work_proto != nil {
 		return
 	}
-	file_rove_asset_proto_init()
-	file_rove_catalog_proto_init()
-	file_rove_org_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_asset_proto_init()
+	file_loft_catalog_proto_init()
+	file_loft_org_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_work_proto_rawDesc), len(file_rove_work_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_work_proto_rawDesc), len(file_loft_work_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_work_proto_goTypes,
-		DependencyIndexes: file_rove_work_proto_depIdxs,
-		MessageInfos:      file_rove_work_proto_msgTypes,
+		GoTypes:           file_loft_work_proto_goTypes,
+		DependencyIndexes: file_loft_work_proto_depIdxs,
+		MessageInfos:      file_loft_work_proto_msgTypes,
 	}.Build()
-	File_rove_work_proto = out.File
-	file_rove_work_proto_goTypes = nil
-	file_rove_work_proto_depIdxs = nil
+	File_loft_work_proto = out.File
+	file_loft_work_proto_goTypes = nil
+	file_loft_work_proto_depIdxs = nil
 }

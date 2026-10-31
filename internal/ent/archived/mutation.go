@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )

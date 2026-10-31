@@ -3,7 +3,7 @@ package domain_test
 import (
 	"testing"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // roster is the people and the models a search of them looks among: a team

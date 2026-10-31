@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import type { Asset } from '../../gen/rove/asset_pb.js'
-import type { WorkOrder } from '../../gen/rove/work_pb.js'
+import type { Asset } from '../../gen/loft/asset_pb.js'
+import type { WorkOrder } from '../../gen/loft/work_pb.js'
 import { AssetService, WorkOrderService, amountIn, amountStep, amountText, dateOf, fmt, fromInput, idBytes, idStr, localInput, money, place, ref, ts, unitOf } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect } from '../pickers.js'

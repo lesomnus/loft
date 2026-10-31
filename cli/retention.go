@@ -13,15 +13,15 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/retention"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/retention"
 )
 
-// NewCmdRetention is `rove retention`: what the keep windows take out of the
+// NewCmdRetention is `loft retention`: what the keep windows take out of the
 // history (design 8.2, 8.3).
 //
 // `plan` is the dry run design 8.3 asks for before anything: it does all of
@@ -53,7 +53,7 @@ func NewCmdRetention(c *cmd.Config) *xli.Command {
 				Flags: tenant(),
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					if !c.App.Retention.Apply {
-						return errors.New("app.retention.apply is off: nothing may be destroyed. `rove retention plan` says what would be")
+						return errors.New("app.retention.apply is off: nothing may be destroyed. `loft retention plan` says what would be")
 					}
 					return expire(ctx, self, c, false)
 				}),

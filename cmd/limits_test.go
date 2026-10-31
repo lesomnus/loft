@@ -17,11 +17,11 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/signinfailure"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/clilogin"
-	"github.com/lesomnus/rove/server/session"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/signinfailure"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/clilogin"
+	"github.com/lesomnus/loft/server/session"
 )
 
 // asked is roster, counting how often the sign-in form asks it: a sign-in the
@@ -153,7 +153,7 @@ func TestALockedAccountIsRefusedAsAWrongAnswerIs(t *testing.T) {
 	r := &asked{People: w.s.Identity}
 	h := session.SignIn(w.s.Sessions, r, w.s.Ent, nil)
 
-	// From a new address every time, so that Rove's limit on a pair never
+	// From a new address every time, so that Loft's limit on a pair never
 	// comes into it and what locks is roster.
 	for i := range 2 * session.MaxFailures {
 		if r.locked {

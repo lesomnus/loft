@@ -16,19 +16,19 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/attachment"
-	"github.com/lesomnus/rove/internal/ent/inventorycount"
-	"github.com/lesomnus/rove/internal/ent/purchase"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/internal/ent/stock"
-	"github.com/lesomnus/rove/internal/ent/workorder"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/attachment"
+	"github.com/lesomnus/loft/internal/ent/inventorycount"
+	"github.com/lesomnus/loft/internal/ent/purchase"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/internal/ent/stock"
+	"github.com/lesomnus/loft/internal/ent/workorder"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // details is what the events of one answer held, as its entries' `detail`
 // says it (`TimelineEntry.detail`): each field of an event's message its kind
-// wrote, by the name its domain's table gives it (`rove/past.proto`), in the
+// wrote, by the name its domain's table gives it (`loft/past.proto`), in the
 // words a person reads -- what a row from before kept in its `payload`, for
 // an event since, which keeps a message instead (payday#151).
 //

@@ -50,10 +50,10 @@ func embeddedStore(t *testing.T) *Store {
 	return s
 }
 
-// TestTheRosterInThisProcessIsRovesOwn is the embedded roster: its directory
+// TestTheRosterInThisProcessIsLoftsOwn is the embedded roster: its directory
 // is made here, its accounts are made and given passwords here, and what it
 // says of them is what a session is held to.
-func TestTheRosterInThisProcessIsRovesOwn(t *testing.T) {
+func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
 	s := embeddedStore(t)
@@ -83,7 +83,7 @@ func TestTheRosterInThisProcessIsRovesOwn(t *testing.T) {
 		x.ErrorIs(err, ErrRefused, "nobody by that name is the same answer as a wrong password")
 	})
 
-	t.Run("as Rove's own holder there, with what it asks and no more", func(t *testing.T) {
+	t.Run("as Loft's own holder there, with what it asks and no more", func(t *testing.T) {
 		x := require.New(t)
 
 		own := s.em.rs.Ungated
@@ -278,14 +278,14 @@ func TestTheRosterInThisProcessWritesItsRecordInEveryProcess(t *testing.T) {
 // external is a roster deployment of its own -- data plane, control plane and
 // a key ring for second factors -- served on a TCP listener, the way a roster
 // operator stands one up: `init`, a tenant with a person in it, and a
-// deployment key for Rove installed into it.
+// deployment key for Loft installed into it.
 type external struct {
 	c    rostercmd.Config
 	s    *rostercmd.Server
 	addr string
 
 	// key is a deployment key acme nominated; tenantKey is acme's own key for
-	// Rove's holder there. operator is this roster's own operator, who
+	// Loft's holder there. operator is this roster's own operator, who
 	// suspends and erases people over the wire -- which is the only way the
 	// sync stream hears of it.
 	key, tenantKey, operator string
@@ -339,7 +339,7 @@ func newExternal(t *testing.T) *external {
 	// serves -- acme, and not beta.
 	e.key = stdoutOf(t, rostercli.NewCmdControl(&c), "key", "add", "--allow", "/roster.NominationService/List", Agent)
 	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "acme", "--role", strings.Join(AgentMethods, ","), Agent}))
-	e.tenantKey = stdoutOf(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", Agent, "--name", "rove", "--allow", strings.Join(AgentMethods, ","))
+	e.tenantKey = stdoutOf(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", Agent, "--name", "loft", "--allow", strings.Join(AgentMethods, ","))
 	e.operator = stdoutOf(t, rostercli.NewCmdControl(&c), "key", "add", "--allow",
 		"/roster.HolderService/Invalidate,/roster.HolderService/Disable,/roster.HolderService/Erase,"+
 			"/roster.TenantService/Get,/roster.TenantService/Update,/roster.TenantService/Close,/roster.TenantService/Restore", "operator")
@@ -358,7 +358,7 @@ func newExternal(t *testing.T) *external {
 	return e
 }
 
-// role patches the role acme installed Rove with to `methods`, the way the
+// role patches the role acme installed Loft with to `methods`, the way the
 // README tells a roster operator to: the whole list, with `roster role patch`.
 func (e *external) role(t *testing.T, methods []string) {
 	t.Helper()
@@ -576,7 +576,7 @@ func cutBy(t *testing.T, s *Store) *cutting {
 // while roster is being asked about its account -- its page was left half
 // loaded, or it ran out of its own time -- is not roster failing to answer,
 // and the account's next call is served at once. Kept as roster's failing, it
-// refused every call the account made for HeldRetry: two tests of rove#233's
+// refused every call the account made for HeldRetry: two tests of loft#233's
 // e2e that had nothing to do with each other failed on it. So whatever the
 // call was cut short asking -- the directory, the tenants a deployment key
 // serves, or the account -- and on either roster.
@@ -698,7 +698,7 @@ func TestARosterOfItsOwnIsReachedWithTheKeyItGave(t *testing.T) {
 
 // TestAPasswordAloneIsNoSignInForSomebodyWithASecondFactor: roster answers a
 // right password for such a person with a continuation and never with ok, and
-// Rove, which takes no second factor, refuses rather than signing them in on
+// Loft, which takes no second factor, refuses rather than signing them in on
 // one -- they sign in through the issuer.
 func TestAPasswordAloneIsNoSignInForSomebodyWithASecondFactor(t *testing.T) {
 	x := require.New(t)
@@ -1009,7 +1009,7 @@ func (l *logs) String() string {
 	return l.b.String()
 }
 
-// TestAStreamRosterRefusesIsSaidAndThenHeld: a role installed before Rove held
+// TestAStreamRosterRefusesIsSaidAndThenHeld: a role installed before Loft held
 // roster's stream -- as every one before this step was -- is refused it. That
 // is said once, with what to do, and doing it is noticed without a restart.
 // What it says to do is what the README says, and this runs it.
@@ -1047,8 +1047,8 @@ func TestAStreamRosterRefusesIsSaidAndThenHeld(t *testing.T) {
 // TestTheRosterInThisProcessSaysWhereItIs: it believes its callers -- it has no
 // control plane -- and nothing outside this process reaches it, so it is served
 // with the in-process Plain. A roster left to fall back on Plain says so with
-// a warning about a port anybody might dial, which read as a hole in Rove
-// (rove#56).
+// a warning about a port anybody might dial, which read as a hole in Loft
+// (loft#56).
 func TestTheRosterInThisProcessSaysWhereItIs(t *testing.T) {
 	x := require.New(t)
 	s := embeddedStore(t)

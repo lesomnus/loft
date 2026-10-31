@@ -25,15 +25,15 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/policy"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/policy"
 )
 
 // victim is a workspace full of rows, seen from the database: its identifiers
@@ -49,7 +49,7 @@ type victim struct {
 // of is one of the victim's rows of an entity: by the domain its identifiers
 // carry, or by its table for one whose identifiers carry none (the trail's).
 func (v victim) of(entity string) ([]byte, bool) {
-	ids := v.byKind[pd.Domains["rove."+entity]]
+	ids := v.byKind[pd.Domains["loft."+entity]]
 	if len(ids) == 0 {
 		ids = v.byTable[strings.ToLower(entity)]
 	}
@@ -158,7 +158,7 @@ func refTo(ref protoreflect.Message, v victim) bool {
 	if !ok {
 		return false
 	}
-	id, has := v.of(strings.TrimPrefix(entity, "rove."))
+	id, has := v.of(strings.TrimPrefix(entity, "loft."))
 	idf := ref.Descriptor().Fields().ByName("id")
 	if !has || idf == nil {
 		return false
@@ -357,7 +357,7 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 	x.NoError(err)
 
 	// A default subdomain, which a workspace asks for under the suffix the
-	// deployment offers (rove#155).
+	// deployment offers (loft#155).
 	_, err = app.NewTenantDomainServiceClient(conn).Add(as, app.TenantDomainAddRequest_builder{Sub: z.Ptr(alias)}.Build())
 	x.NoError(err)
 	_, err = app.NewLabelServiceClient(conn).Print(as, app.LabelPrintRequest_builder{Count: 1}.Build())

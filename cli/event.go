@@ -17,18 +17,18 @@ import (
 	"github.com/lesomnus/xli/flg"
 	"google.golang.org/grpc"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	entevent "github.com/lesomnus/rove/internal/ent/event"
-	entnotification "github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	entevent "github.com/lesomnus/loft/internal/ent/event"
+	entnotification "github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// redactAction is what `rove event redact` is called in the access record:
+// redactAction is what `loft event redact` is called in the access record:
 // the command, since it is no RPC.
-const redactAction = "rove event redact"
+const redactAction = "loft event redact"
 
 // NewCmdEvent is what an operator does to a workspace's history: taking an
 // event's reason out, for a person whose request to erase what it says of
@@ -44,7 +44,7 @@ func NewCmdEvent(c *cmd.Config) *xli.Command {
 	}
 }
 
-// newCmdEventRedact is `rove event redact`: what `EventService.Redact` does,
+// newCmdEventRedact is `loft event redact`: what `EventService.Redact` does,
 // done by the deployment's operator on the instruction of the workspace the
 // event is its -- which decides, as it keeps the history -- since no role of a
 // workspace is given it yet (`server/policy`).

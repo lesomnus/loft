@@ -8,11 +8,11 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 )
 
-// Links is where every link this deployment makes begins (rove#155, design
+// Links is where every link this deployment makes begins (loft#155, design
 // 9.9), and the one place that is decided: nothing else puts a host in an
 // address.
 //

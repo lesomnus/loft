@@ -27,20 +27,20 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// exportAction is what `rove trail export` is called in the access record: the
+// exportAction is what `loft trail export` is called in the access record: the
 // command, since it is no RPC.
-const exportAction = "rove trail export"
+const exportAction = "loft trail export"
 
-// newCmdTrailExport is `rove trail export`: a workspace's trail taken out,
-// encrypted to whoever keeps it, for a demand to preserve it (rove#153).
+// newCmdTrailExport is `loft trail export`: a workspace's trail taken out,
+// encrypted to whoever keeps it, for a demand to preserve it (loft#153).
 //
 // Nothing holds what a workspace that retired left past the deployment's
 // floors -- a legal hold is on a workspace there is, and one destroyed has no
@@ -160,7 +160,7 @@ func newCmdTrailExport(c *cmd.Config) *xli.Command {
 				uncovered := slices.ContainsFunc(v.Chunks, func(c trail.ExportChunk) bool { return !c.Covered })
 				fmt.Fprintf(say, "  held to checkpoint %d (%s), heard by %s\n", cp.K, cp.Digest, or(strings.Join(witnesses, ", "), "no witness"))
 				if uncovered {
-					fmt.Fprintf(say, "  (a chunk the checkpoint does not list is in it: the manifest marks it, and `rove trail verify` says why)\n")
+					fmt.Fprintf(say, "  (a chunk the checkpoint does not list is in it: the manifest marks it, and `loft trail verify` says why)\n")
 				}
 			}
 			if r := v.Retired; r != nil {
@@ -173,7 +173,7 @@ func newCmdTrailExport(c *cmd.Config) *xli.Command {
 	}
 }
 
-// newCmdTrailVerifyExport is `rove trail verify-export`: whether a bundle is
+// newCmdTrailVerifyExport is `loft trail verify-export`: whether a bundle is
 // what the deployment wrote -- every file what its manifest says, and the
 // manifest signed by a key the deployment trusts (`trail.OpenTenantExport`).
 func newCmdTrailVerifyExport(c *cmd.Config) *xli.Command {

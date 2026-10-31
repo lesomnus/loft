@@ -3,20 +3,20 @@
 package ent
 
 import (
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/clilogin"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/fact"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/schema"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/ent/tenantcontract"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/clilogin"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/fact"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/schema"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/protobuf-orm/ent/schema/field"
@@ -36,7 +36,7 @@ func init() {
 	_ = assettypeFields
 	// assettypeDescSpec is the schema descriptor for spec field.
 	assettypeDescSpec := assettypeFields[6].Descriptor()
-	assettype.ValueScanner.Spec = assettypeDescSpec.ValueScanner.(field.TypeValueScanner[*rove.TypeSpec])
+	assettype.ValueScanner.Spec = assettypeDescSpec.ValueScanner.(field.TypeValueScanner[*loft.TypeSpec])
 	auditFields := schema.Audit{}.Fields()
 	_ = auditFields
 	// auditDescDomain is the schema descriptor for domain field.
@@ -47,7 +47,7 @@ func init() {
 	_ = bookableFields
 	// bookableDescHours is the schema descriptor for hours field.
 	bookableDescHours := bookableFields[2].Descriptor()
-	bookable.ValueScanner.Hours = bookableDescHours.ValueScanner.(field.TypeValueScanner[*rove.OpeningHours])
+	bookable.ValueScanner.Hours = bookableDescHours.ValueScanner.(field.TypeValueScanner[*loft.OpeningHours])
 	cliloginFields := schema.CliLogin{}.Fields()
 	_ = cliloginFields
 	// cliloginDescAddress is the schema descriptor for address field.
@@ -79,7 +79,7 @@ func init() {
 	_ = itemmodelFields
 	// itemmodelDescSpec is the schema descriptor for spec field.
 	itemmodelDescSpec := itemmodelFields[6].Descriptor()
-	itemmodel.ValueScanner.Spec = itemmodelDescSpec.ValueScanner.(field.TypeValueScanner[*rove.ModelSpec])
+	itemmodel.ValueScanner.Spec = itemmodelDescSpec.ValueScanner.(field.TypeValueScanner[*loft.ModelSpec])
 	tenantFields := schema.Tenant{}.Fields()
 	_ = tenantFields
 	// tenantDescTimezone is the schema descriptor for timezone field.

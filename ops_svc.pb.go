@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/ops_svc.g.proto
+// source: loft/ops_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -45,7 +45,7 @@ type NotificationAddRequest struct {
 
 func (x *NotificationAddRequest) Reset() {
 	*x = NotificationAddRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[0]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -57,7 +57,7 @@ func (x *NotificationAddRequest) String() string {
 func (*NotificationAddRequest) ProtoMessage() {}
 
 func (x *NotificationAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[0]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -352,7 +352,7 @@ type NotificationGetRequest struct {
 
 func (x *NotificationGetRequest) Reset() {
 	*x = NotificationGetRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[1]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -364,7 +364,7 @@ func (x *NotificationGetRequest) String() string {
 func (*NotificationGetRequest) ProtoMessage() {}
 
 func (x *NotificationGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[1]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -444,7 +444,7 @@ type NotificationRef struct {
 
 func (x *NotificationRef) Reset() {
 	*x = NotificationRef{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[2]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -456,7 +456,7 @@ func (x *NotificationRef) String() string {
 func (*NotificationRef) ProtoMessage() {}
 
 func (x *NotificationRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[2]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -544,7 +544,7 @@ func (b0 NotificationRef_builder) Build() *NotificationRef {
 type case_NotificationRef_Key protoreflect.FieldNumber
 
 func (x case_NotificationRef_Key) String() string {
-	md := file_rove_ops_svc_g_proto_msgTypes[2].Descriptor()
+	md := file_loft_ops_svc_g_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -585,7 +585,7 @@ type NotificationSelect struct {
 
 func (x *NotificationSelect) Reset() {
 	*x = NotificationSelect{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[3]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -597,7 +597,7 @@ func (x *NotificationSelect) String() string {
 func (*NotificationSelect) ProtoMessage() {}
 
 func (x *NotificationSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[3]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1041,7 +1041,7 @@ type NotificationPatchRequest struct {
 
 func (x *NotificationPatchRequest) Reset() {
 	*x = NotificationPatchRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[4]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1053,7 +1053,7 @@ func (x *NotificationPatchRequest) String() string {
 func (*NotificationPatchRequest) ProtoMessage() {}
 
 func (x *NotificationPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[4]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1540,7 +1540,7 @@ type NotificationApplyRequest struct {
 
 func (x *NotificationApplyRequest) Reset() {
 	*x = NotificationApplyRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[5]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1552,7 +1552,7 @@ func (x *NotificationApplyRequest) String() string {
 func (*NotificationApplyRequest) ProtoMessage() {}
 
 func (x *NotificationApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[5]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1634,7 +1634,7 @@ type NotificationEraseResponse struct {
 
 func (x *NotificationEraseResponse) Reset() {
 	*x = NotificationEraseResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[6]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1646,7 +1646,7 @@ func (x *NotificationEraseResponse) String() string {
 func (*NotificationEraseResponse) ProtoMessage() {}
 
 func (x *NotificationEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[6]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1715,7 +1715,7 @@ type NotificationListRequest struct {
 
 func (x *NotificationListRequest) Reset() {
 	*x = NotificationListRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[7]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1727,7 +1727,7 @@ func (x *NotificationListRequest) String() string {
 func (*NotificationListRequest) ProtoMessage() {}
 
 func (x *NotificationListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[7]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1827,7 +1827,7 @@ type NotificationListResponse struct {
 
 func (x *NotificationListResponse) Reset() {
 	*x = NotificationListResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[8]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1839,7 +1839,7 @@ func (x *NotificationListResponse) String() string {
 func (*NotificationListResponse) ProtoMessage() {}
 
 func (x *NotificationListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[8]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1910,7 +1910,7 @@ type NotificationFilter struct {
 
 func (x *NotificationFilter) Reset() {
 	*x = NotificationFilter{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[9]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1922,7 +1922,7 @@ func (x *NotificationFilter) String() string {
 func (*NotificationFilter) ProtoMessage() {}
 
 func (x *NotificationFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[9]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2035,7 +2035,7 @@ type NotificationInboxRequest struct {
 
 func (x *NotificationInboxRequest) Reset() {
 	*x = NotificationInboxRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[10]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2047,7 +2047,7 @@ func (x *NotificationInboxRequest) String() string {
 func (*NotificationInboxRequest) ProtoMessage() {}
 
 func (x *NotificationInboxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[10]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2106,7 +2106,7 @@ type NotificationInboxResponse struct {
 
 func (x *NotificationInboxResponse) Reset() {
 	*x = NotificationInboxResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[11]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2118,7 +2118,7 @@ func (x *NotificationInboxResponse) String() string {
 func (*NotificationInboxResponse) ProtoMessage() {}
 
 func (x *NotificationInboxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[11]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2178,7 +2178,7 @@ type NotificationMarkReadRequest struct {
 
 func (x *NotificationMarkReadRequest) Reset() {
 	*x = NotificationMarkReadRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[12]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2190,7 +2190,7 @@ func (x *NotificationMarkReadRequest) String() string {
 func (*NotificationMarkReadRequest) ProtoMessage() {}
 
 func (x *NotificationMarkReadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[12]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2236,7 +2236,7 @@ type NotificationMarkReadResponse struct {
 
 func (x *NotificationMarkReadResponse) Reset() {
 	*x = NotificationMarkReadResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[13]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2248,7 +2248,7 @@ func (x *NotificationMarkReadResponse) String() string {
 func (*NotificationMarkReadResponse) ProtoMessage() {}
 
 func (x *NotificationMarkReadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[13]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2293,7 +2293,7 @@ type NotificationSetMailRequest struct {
 
 func (x *NotificationSetMailRequest) Reset() {
 	*x = NotificationSetMailRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[14]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2305,7 +2305,7 @@ func (x *NotificationSetMailRequest) String() string {
 func (*NotificationSetMailRequest) ProtoMessage() {}
 
 func (x *NotificationSetMailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[14]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2351,7 +2351,7 @@ type NotificationSetMailResponse struct {
 
 func (x *NotificationSetMailResponse) Reset() {
 	*x = NotificationSetMailResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[15]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2363,7 +2363,7 @@ func (x *NotificationSetMailResponse) String() string {
 func (*NotificationSetMailResponse) ProtoMessage() {}
 
 func (x *NotificationSetMailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[15]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2416,7 +2416,7 @@ type TenantContractAddRequest struct {
 
 func (x *TenantContractAddRequest) Reset() {
 	*x = TenantContractAddRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[16]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2428,7 +2428,7 @@ func (x *TenantContractAddRequest) String() string {
 func (*TenantContractAddRequest) ProtoMessage() {}
 
 func (x *TenantContractAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[16]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2620,7 +2620,7 @@ type TenantContractGetRequest struct {
 
 func (x *TenantContractGetRequest) Reset() {
 	*x = TenantContractGetRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[17]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2632,7 +2632,7 @@ func (x *TenantContractGetRequest) String() string {
 func (*TenantContractGetRequest) ProtoMessage() {}
 
 func (x *TenantContractGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[17]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2712,7 +2712,7 @@ type TenantContractRef struct {
 
 func (x *TenantContractRef) Reset() {
 	*x = TenantContractRef{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[18]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2724,7 +2724,7 @@ func (x *TenantContractRef) String() string {
 func (*TenantContractRef) ProtoMessage() {}
 
 func (x *TenantContractRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[18]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2812,7 +2812,7 @@ func (b0 TenantContractRef_builder) Build() *TenantContractRef {
 type case_TenantContractRef_Key protoreflect.FieldNumber
 
 func (x case_TenantContractRef_Key) String() string {
-	md := file_rove_ops_svc_g_proto_msgTypes[18].Descriptor()
+	md := file_loft_ops_svc_g_proto_msgTypes[18].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -2847,7 +2847,7 @@ type TenantContractSelect struct {
 
 func (x *TenantContractSelect) Reset() {
 	*x = TenantContractSelect{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[19]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2859,7 +2859,7 @@ func (x *TenantContractSelect) String() string {
 func (*TenantContractSelect) ProtoMessage() {}
 
 func (x *TenantContractSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[19]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3124,7 +3124,7 @@ type TenantContractPatchRequest struct {
 
 func (x *TenantContractPatchRequest) Reset() {
 	*x = TenantContractPatchRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[20]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3136,7 +3136,7 @@ func (x *TenantContractPatchRequest) String() string {
 func (*TenantContractPatchRequest) ProtoMessage() {}
 
 func (x *TenantContractPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[20]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3310,7 +3310,7 @@ type TenantContractApplyRequest struct {
 
 func (x *TenantContractApplyRequest) Reset() {
 	*x = TenantContractApplyRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[21]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3322,7 +3322,7 @@ func (x *TenantContractApplyRequest) String() string {
 func (*TenantContractApplyRequest) ProtoMessage() {}
 
 func (x *TenantContractApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[21]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3404,7 +3404,7 @@ type TenantContractEraseResponse struct {
 
 func (x *TenantContractEraseResponse) Reset() {
 	*x = TenantContractEraseResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[22]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3416,7 +3416,7 @@ func (x *TenantContractEraseResponse) String() string {
 func (*TenantContractEraseResponse) ProtoMessage() {}
 
 func (x *TenantContractEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[22]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3485,7 +3485,7 @@ type TenantContractListRequest struct {
 
 func (x *TenantContractListRequest) Reset() {
 	*x = TenantContractListRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[23]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3497,7 +3497,7 @@ func (x *TenantContractListRequest) String() string {
 func (*TenantContractListRequest) ProtoMessage() {}
 
 func (x *TenantContractListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[23]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3597,7 +3597,7 @@ type TenantContractListResponse struct {
 
 func (x *TenantContractListResponse) Reset() {
 	*x = TenantContractListResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[24]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3609,7 +3609,7 @@ func (x *TenantContractListResponse) String() string {
 func (*TenantContractListResponse) ProtoMessage() {}
 
 func (x *TenantContractListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[24]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3676,7 +3676,7 @@ type TenantContractFilter struct {
 
 func (x *TenantContractFilter) Reset() {
 	*x = TenantContractFilter{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[25]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3688,7 +3688,7 @@ func (x *TenantContractFilter) String() string {
 func (*TenantContractFilter) ProtoMessage() {}
 
 func (x *TenantContractFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[25]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3751,7 +3751,7 @@ type LegalHoldAddRequest struct {
 
 func (x *LegalHoldAddRequest) Reset() {
 	*x = LegalHoldAddRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[26]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3763,7 +3763,7 @@ func (x *LegalHoldAddRequest) String() string {
 func (*LegalHoldAddRequest) ProtoMessage() {}
 
 func (x *LegalHoldAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[26]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3926,7 +3926,7 @@ type LegalHoldGetRequest struct {
 
 func (x *LegalHoldGetRequest) Reset() {
 	*x = LegalHoldGetRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[27]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3938,7 +3938,7 @@ func (x *LegalHoldGetRequest) String() string {
 func (*LegalHoldGetRequest) ProtoMessage() {}
 
 func (x *LegalHoldGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[27]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4018,7 +4018,7 @@ type LegalHoldRef struct {
 
 func (x *LegalHoldRef) Reset() {
 	*x = LegalHoldRef{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[28]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4030,7 +4030,7 @@ func (x *LegalHoldRef) String() string {
 func (*LegalHoldRef) ProtoMessage() {}
 
 func (x *LegalHoldRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[28]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4118,7 +4118,7 @@ func (b0 LegalHoldRef_builder) Build() *LegalHoldRef {
 type case_LegalHoldRef_Key protoreflect.FieldNumber
 
 func (x case_LegalHoldRef_Key) String() string {
-	md := file_rove_ops_svc_g_proto_msgTypes[28].Descriptor()
+	md := file_loft_ops_svc_g_proto_msgTypes[28].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -4151,7 +4151,7 @@ type LegalHoldSelect struct {
 
 func (x *LegalHoldSelect) Reset() {
 	*x = LegalHoldSelect{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[29]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4163,7 +4163,7 @@ func (x *LegalHoldSelect) String() string {
 func (*LegalHoldSelect) ProtoMessage() {}
 
 func (x *LegalHoldSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[29]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4370,7 +4370,7 @@ type LegalHoldPatchRequest struct {
 
 func (x *LegalHoldPatchRequest) Reset() {
 	*x = LegalHoldPatchRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[30]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4382,7 +4382,7 @@ func (x *LegalHoldPatchRequest) String() string {
 func (*LegalHoldPatchRequest) ProtoMessage() {}
 
 func (x *LegalHoldPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[30]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4560,7 +4560,7 @@ type LegalHoldApplyRequest struct {
 
 func (x *LegalHoldApplyRequest) Reset() {
 	*x = LegalHoldApplyRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[31]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4572,7 +4572,7 @@ func (x *LegalHoldApplyRequest) String() string {
 func (*LegalHoldApplyRequest) ProtoMessage() {}
 
 func (x *LegalHoldApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[31]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4654,7 +4654,7 @@ type LegalHoldEraseResponse struct {
 
 func (x *LegalHoldEraseResponse) Reset() {
 	*x = LegalHoldEraseResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[32]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4666,7 +4666,7 @@ func (x *LegalHoldEraseResponse) String() string {
 func (*LegalHoldEraseResponse) ProtoMessage() {}
 
 func (x *LegalHoldEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[32]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4735,7 +4735,7 @@ type LegalHoldListRequest struct {
 
 func (x *LegalHoldListRequest) Reset() {
 	*x = LegalHoldListRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[33]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4747,7 +4747,7 @@ func (x *LegalHoldListRequest) String() string {
 func (*LegalHoldListRequest) ProtoMessage() {}
 
 func (x *LegalHoldListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[33]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4847,7 +4847,7 @@ type LegalHoldListResponse struct {
 
 func (x *LegalHoldListResponse) Reset() {
 	*x = LegalHoldListResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[34]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4859,7 +4859,7 @@ func (x *LegalHoldListResponse) String() string {
 func (*LegalHoldListResponse) ProtoMessage() {}
 
 func (x *LegalHoldListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[34]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4926,7 +4926,7 @@ type LegalHoldFilter struct {
 
 func (x *LegalHoldFilter) Reset() {
 	*x = LegalHoldFilter{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[35]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4938,7 +4938,7 @@ func (x *LegalHoldFilter) String() string {
 func (*LegalHoldFilter) ProtoMessage() {}
 
 func (x *LegalHoldFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[35]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5005,7 +5005,7 @@ type AccessReviewAddRequest struct {
 
 func (x *AccessReviewAddRequest) Reset() {
 	*x = AccessReviewAddRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[36]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5017,7 +5017,7 @@ func (x *AccessReviewAddRequest) String() string {
 func (*AccessReviewAddRequest) ProtoMessage() {}
 
 func (x *AccessReviewAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[36]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5254,7 +5254,7 @@ type AccessReviewGetRequest struct {
 
 func (x *AccessReviewGetRequest) Reset() {
 	*x = AccessReviewGetRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[37]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5266,7 +5266,7 @@ func (x *AccessReviewGetRequest) String() string {
 func (*AccessReviewGetRequest) ProtoMessage() {}
 
 func (x *AccessReviewGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[37]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5346,7 +5346,7 @@ type AccessReviewRef struct {
 
 func (x *AccessReviewRef) Reset() {
 	*x = AccessReviewRef{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[38]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5358,7 +5358,7 @@ func (x *AccessReviewRef) String() string {
 func (*AccessReviewRef) ProtoMessage() {}
 
 func (x *AccessReviewRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[38]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5446,7 +5446,7 @@ func (b0 AccessReviewRef_builder) Build() *AccessReviewRef {
 type case_AccessReviewRef_Key protoreflect.FieldNumber
 
 func (x case_AccessReviewRef_Key) String() string {
-	md := file_rove_ops_svc_g_proto_msgTypes[38].Descriptor()
+	md := file_loft_ops_svc_g_proto_msgTypes[38].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -5483,7 +5483,7 @@ type AccessReviewSelect struct {
 
 func (x *AccessReviewSelect) Reset() {
 	*x = AccessReviewSelect{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[39]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5495,7 +5495,7 @@ func (x *AccessReviewSelect) String() string {
 func (*AccessReviewSelect) ProtoMessage() {}
 
 func (x *AccessReviewSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[39]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5810,7 +5810,7 @@ type AccessReviewPatchRequest struct {
 
 func (x *AccessReviewPatchRequest) Reset() {
 	*x = AccessReviewPatchRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[40]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5822,7 +5822,7 @@ func (x *AccessReviewPatchRequest) String() string {
 func (*AccessReviewPatchRequest) ProtoMessage() {}
 
 func (x *AccessReviewPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[40]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5911,7 +5911,7 @@ type AccessReviewApplyRequest struct {
 
 func (x *AccessReviewApplyRequest) Reset() {
 	*x = AccessReviewApplyRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[41]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5923,7 +5923,7 @@ func (x *AccessReviewApplyRequest) String() string {
 func (*AccessReviewApplyRequest) ProtoMessage() {}
 
 func (x *AccessReviewApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[41]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6005,7 +6005,7 @@ type AccessReviewEraseResponse struct {
 
 func (x *AccessReviewEraseResponse) Reset() {
 	*x = AccessReviewEraseResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[42]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6017,7 +6017,7 @@ func (x *AccessReviewEraseResponse) String() string {
 func (*AccessReviewEraseResponse) ProtoMessage() {}
 
 func (x *AccessReviewEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[42]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6086,7 +6086,7 @@ type AccessReviewListRequest struct {
 
 func (x *AccessReviewListRequest) Reset() {
 	*x = AccessReviewListRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[43]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6098,7 +6098,7 @@ func (x *AccessReviewListRequest) String() string {
 func (*AccessReviewListRequest) ProtoMessage() {}
 
 func (x *AccessReviewListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[43]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6198,7 +6198,7 @@ type AccessReviewListResponse struct {
 
 func (x *AccessReviewListResponse) Reset() {
 	*x = AccessReviewListResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[44]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6210,7 +6210,7 @@ func (x *AccessReviewListResponse) String() string {
 func (*AccessReviewListResponse) ProtoMessage() {}
 
 func (x *AccessReviewListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[44]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6276,7 +6276,7 @@ type AccessReviewFilter struct {
 
 func (x *AccessReviewFilter) Reset() {
 	*x = AccessReviewFilter{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[45]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6288,7 +6288,7 @@ func (x *AccessReviewFilter) String() string {
 func (*AccessReviewFilter) ProtoMessage() {}
 
 func (x *AccessReviewFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[45]
+	mi := &file_loft_ops_svc_g_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6311,17 +6311,17 @@ func (b0 AccessReviewFilter_builder) Build() *AccessReviewFilter {
 	return m0
 }
 
-var File_rove_ops_svc_g_proto protoreflect.FileDescriptor
+var File_loft_ops_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_ops_svc_g_proto_rawDesc = "" +
+const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x14rove/ops_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x0erove/ops.proto\x1a\x1erove/payday/holder_svc.g.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xf7\x03\n" +
+	"\x14loft/ops_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0eloft/ops.proto\x1a\x1eloft/payday/holder_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xf7\x03\n" +
 	"\x16NotificationAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12'\n" +
-	"\x06holder\x18\b \x01(\v2\x0f.rove.HolderRefR\x06holder\x12\x19\n" +
+	"\x06holder\x18\b \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x19\n" +
 	"\x04kind\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\n" +
@@ -6335,17 +6335,17 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"mail_tries\x18\x12 \x01(\rB\x05\xaa\x01\x02\b\x02R\tmailTries\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"s\n" +
 	"\x16NotificationGetRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.NotificationRefR\x03ref\x120\n" +
-	"\x06select\x18\x02 \x01(\v2\x18.rove.NotificationSelectR\x06select\"*\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.NotificationRefR\x03ref\x120\n" +
+	"\x06select\x18\x02 \x01(\v2\x18.loft.NotificationSelectR\x06select\"*\n" +
 	"\x0fNotificationRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xa0\x03\n" +
 	"\x12NotificationSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12*\n" +
-	"\x06holder\x18\b \x01(\v2\x12.rove.HolderSelectR\x06holder\x12\x12\n" +
+	"\x06holder\x18\b \x01(\v2\x12.loft.HolderSelectR\x06holder\x12\x12\n" +
 	"\x04kind\x18\t \x01(\bR\x04kind\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\n" +
@@ -6360,7 +6360,7 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xb8\x04\n" +
 	"\x18NotificationPatchRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.NotificationRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.NotificationRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12\x12\n" +
@@ -6381,27 +6381,27 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\"g\n" +
 	"\x18NotificationApplyRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.NotificationRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.NotificationRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
 	"\x19NotificationEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
 	"\x17NotificationListRequest\x122\n" +
-	"\afilters\x18\x01 \x03(\v2\x18.rove.NotificationFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x18.loft.NotificationFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
 	"\x18NotificationListResponse\x12(\n" +
-	"\x05items\x18\x01 \x03(\v2\x12.rove.NotificationR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x12.loft.NotificationR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"z\n" +
 	"\x12NotificationFilter\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.NotificationRefR\x03ref\x12'\n" +
-	"\x06holder\x18\x02 \x01(\v2\x0f.rove.HolderRefR\x06holder\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.NotificationRefR\x03ref\x12'\n" +
+	"\x06holder\x18\x02 \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x12\n" +
 	"\x04kind\x18\x03 \x01(\tR\x04kind\"T\n" +
 	"\x18NotificationInboxRequest\x12\x1d\n" +
 	"\x06unread\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\x06unread\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\"d\n" +
 	"\x19NotificationInboxResponse\x12(\n" +
-	"\x05items\x18\x01 \x03(\v2\x12.rove.NotificationR\x05items\x12\x1d\n" +
+	"\x05items\x18\x01 \x03(\v2\x12.loft.NotificationR\x05items\x12\x1d\n" +
 	"\x06unread\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06unread\"/\n" +
 	"\x1bNotificationMarkReadRequest\x12\x10\n" +
 	"\x03ids\x18\x01 \x03(\fR\x03ids\"=\n" +
@@ -6413,21 +6413,21 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x03off\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\x03off\"\xae\x02\n" +
 	"\x18TenantContractAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12A\n" +
 	"\x0edate_effective\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\rdateEffective\x12!\n" +
 	"\fpurge_floors\x18\x11 \x01(\bR\vpurgeFloors\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"y\n" +
 	"\x18TenantContractGetRequest\x12)\n" +
-	"\x03ref\x18\x01 \x01(\v2\x17.rove.TenantContractRefR\x03ref\x122\n" +
-	"\x06select\x18\x02 \x01(\v2\x1a.rove.TenantContractSelectR\x06select\",\n" +
+	"\x03ref\x18\x01 \x01(\v2\x17.loft.TenantContractRefR\x03ref\x122\n" +
+	"\x06select\x18\x02 \x01(\v2\x1a.loft.TenantContractSelectR\x06select\",\n" +
 	"\x11TenantContractRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\x8a\x02\n" +
 	"\x14TenantContractSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12%\n" +
 	"\x0edate_effective\x18\v \x01(\bR\rdateEffective\x12!\n" +
@@ -6436,51 +6436,51 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xd5\x01\n" +
 	"\x1aTenantContractPatchRequest\x12)\n" +
-	"\x03ref\x18\x01 \x01(\v2\x17.rove.TenantContractRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x17.loft.TenantContractRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12A\n" +
 	"\x0edate_effective\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\rdateEffective\x12!\n" +
 	"\fpurge_floors\x18\" \x01(\bR\vpurgeFloors\"k\n" +
 	"\x1aTenantContractApplyRequest\x12)\n" +
-	"\x03ref\x18\x01 \x01(\v2\x17.rove.TenantContractRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x17.loft.TenantContractRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"5\n" +
 	"\x1bTenantContractEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xaa\x01\n" +
 	"\x19TenantContractListRequest\x124\n" +
-	"\afilters\x18\x01 \x03(\v2\x1a.rove.TenantContractFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x1a.loft.TenantContractFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"c\n" +
 	"\x1aTenantContractListResponse\x12*\n" +
-	"\x05items\x18\x01 \x03(\v2\x14.rove.TenantContractR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.loft.TenantContractR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"A\n" +
 	"\x14TenantContractFilter\x12)\n" +
-	"\x03ref\x18\x01 \x01(\v2\x17.rove.TenantContractRefR\x03ref\"\x80\x02\n" +
+	"\x03ref\x18\x01 \x01(\v2\x17.loft.TenantContractRefR\x03ref\"\x80\x02\n" +
 	"\x13LegalHoldAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12;\n" +
 	"\vdate_lifted\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"dateLifted\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"j\n" +
 	"\x13LegalHoldGetRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref\x12-\n" +
-	"\x06select\x18\x02 \x01(\v2\x15.rove.LegalHoldSelectR\x06select\"'\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.LegalHoldRefR\x03ref\x12-\n" +
+	"\x06select\x18\x02 \x01(\v2\x15.loft.LegalHoldSelectR\x06select\"'\n" +
 	"\fLegalHoldRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xbb\x01\n" +
 	"\x0fLegalHoldSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x1f\n" +
 	"\vdate_lifted\x18\b \x01(\bR\n" +
 	"dateLifted\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xcc\x01\n" +
 	"\x15LegalHoldPatchRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.LegalHoldRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12;\n" +
@@ -6488,275 +6488,275 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"dateLifted\x12(\n" +
 	"\x10date_lifted_null\x18\x11 \x01(\bR\x0edateLiftedNull\"a\n" +
 	"\x15LegalHoldApplyRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.LegalHoldRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16LegalHoldEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa0\x01\n" +
 	"\x14LegalHoldListRequest\x12/\n" +
-	"\afilters\x18\x01 \x03(\v2\x15.rove.LegalHoldFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x15.loft.LegalHoldFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Y\n" +
 	"\x15LegalHoldListResponse\x12%\n" +
-	"\x05items\x18\x01 \x03(\v2\x0f.rove.LegalHoldR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x0f.loft.LegalHoldR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"7\n" +
 	"\x0fLegalHoldFilter\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref\"\xb1\x03\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.LegalHoldRefR\x03ref\"\xb1\x03\n" +
 	"\x16AccessReviewAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12;\n" +
 	"\vperiod_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"periodFrom\x127\n" +
 	"\tperiod_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bperiodTo\x12+\n" +
 	"\breviewer\x18\n" +
-	" \x01(\v2\x0f.rove.HolderRefR\breviewer\x12\x1b\n" +
+	" \x01(\v2\x0f.loft.HolderRefR\breviewer\x12\x1b\n" +
 	"\x05calls\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\x05calls\x12#\n" +
 	"\tdownloads\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\tdownloads\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1f\n" +
 	"\arefused\x18\x10 \x01(\rB\x05\xaa\x01\x02\b\x02R\arefused\"s\n" +
 	"\x16AccessReviewGetRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\x120\n" +
-	"\x06select\x18\x02 \x01(\v2\x18.rove.AccessReviewSelectR\x06select\"*\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.AccessReviewRefR\x03ref\x120\n" +
+	"\x06select\x18\x02 \x01(\v2\x18.loft.AccessReviewSelectR\x06select\"*\n" +
 	"\x0fAccessReviewRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xc5\x02\n" +
 	"\x12AccessReviewSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x1f\n" +
 	"\vperiod_from\x18\b \x01(\bR\n" +
 	"periodFrom\x12\x1b\n" +
 	"\tperiod_to\x18\t \x01(\bR\bperiodTo\x12.\n" +
 	"\breviewer\x18\n" +
-	" \x01(\v2\x12.rove.HolderSelectR\breviewer\x12\x14\n" +
+	" \x01(\v2\x12.loft.HolderSelectR\breviewer\x12\x14\n" +
 	"\x05calls\x18\v \x01(\bR\x05calls\x12\x1c\n" +
 	"\tdownloads\x18\f \x01(\bR\tdownloads\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x18\n" +
 	"\arefused\x18\x10 \x01(\bR\arefused\"W\n" +
 	"\x18AccessReviewPatchRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.AccessReviewRefR\x03ref\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\"g\n" +
 	"\x18AccessReviewApplyRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.AccessReviewRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
 	"\x19AccessReviewEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
 	"\x17AccessReviewListRequest\x122\n" +
-	"\afilters\x18\x01 \x03(\v2\x18.rove.AccessReviewFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x18.loft.AccessReviewFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
 	"\x18AccessReviewListResponse\x12(\n" +
-	"\x05items\x18\x01 \x03(\v2\x12.rove.AccessReviewR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x12.loft.AccessReviewR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x14\n" +
 	"\x12AccessReviewFilter2\xf6\x04\n" +
 	"\x13NotificationService\x127\n" +
-	"\x03Add\x12\x1c.rove.NotificationAddRequest\x1a\x12.rove.Notification\x127\n" +
-	"\x03Get\x12\x1c.rove.NotificationGetRequest\x1a\x12.rove.Notification\x12;\n" +
-	"\x05Patch\x12\x1e.rove.NotificationPatchRequest\x1a\x12.rove.Notification\x12;\n" +
-	"\x05Apply\x12\x1e.rove.NotificationApplyRequest\x1a\x12.rove.Notification\x12?\n" +
-	"\x05Erase\x12\x15.rove.NotificationRef\x1a\x1f.rove.NotificationEraseResponse\x12E\n" +
-	"\x04List\x12\x1d.rove.NotificationListRequest\x1a\x1e.rove.NotificationListResponse\x12H\n" +
-	"\x05Inbox\x12\x1e.rove.NotificationInboxRequest\x1a\x1f.rove.NotificationInboxResponse\x12Q\n" +
-	"\bMarkRead\x12!.rove.NotificationMarkReadRequest\x1a\".rove.NotificationMarkReadResponse\x12N\n" +
-	"\aSetMail\x12 .rove.NotificationSetMailRequest\x1a!.rove.NotificationSetMailResponse2\xa3\x03\n" +
+	"\x03Add\x12\x1c.loft.NotificationAddRequest\x1a\x12.loft.Notification\x127\n" +
+	"\x03Get\x12\x1c.loft.NotificationGetRequest\x1a\x12.loft.Notification\x12;\n" +
+	"\x05Patch\x12\x1e.loft.NotificationPatchRequest\x1a\x12.loft.Notification\x12;\n" +
+	"\x05Apply\x12\x1e.loft.NotificationApplyRequest\x1a\x12.loft.Notification\x12?\n" +
+	"\x05Erase\x12\x15.loft.NotificationRef\x1a\x1f.loft.NotificationEraseResponse\x12E\n" +
+	"\x04List\x12\x1d.loft.NotificationListRequest\x1a\x1e.loft.NotificationListResponse\x12H\n" +
+	"\x05Inbox\x12\x1e.loft.NotificationInboxRequest\x1a\x1f.loft.NotificationInboxResponse\x12Q\n" +
+	"\bMarkRead\x12!.loft.NotificationMarkReadRequest\x1a\".loft.NotificationMarkReadResponse\x12N\n" +
+	"\aSetMail\x12 .loft.NotificationSetMailRequest\x1a!.loft.NotificationSetMailResponse2\xa3\x03\n" +
 	"\x15TenantContractService\x12;\n" +
-	"\x03Add\x12\x1e.rove.TenantContractAddRequest\x1a\x14.rove.TenantContract\x12;\n" +
-	"\x03Get\x12\x1e.rove.TenantContractGetRequest\x1a\x14.rove.TenantContract\x12?\n" +
-	"\x05Patch\x12 .rove.TenantContractPatchRequest\x1a\x14.rove.TenantContract\x12?\n" +
-	"\x05Apply\x12 .rove.TenantContractApplyRequest\x1a\x14.rove.TenantContract\x12C\n" +
-	"\x05Erase\x12\x17.rove.TenantContractRef\x1a!.rove.TenantContractEraseResponse\x12I\n" +
-	"\x04List\x12\x1f.rove.TenantContractListRequest\x1a .rove.TenantContractListResponse2\xe2\x02\n" +
+	"\x03Add\x12\x1e.loft.TenantContractAddRequest\x1a\x14.loft.TenantContract\x12;\n" +
+	"\x03Get\x12\x1e.loft.TenantContractGetRequest\x1a\x14.loft.TenantContract\x12?\n" +
+	"\x05Patch\x12 .loft.TenantContractPatchRequest\x1a\x14.loft.TenantContract\x12?\n" +
+	"\x05Apply\x12 .loft.TenantContractApplyRequest\x1a\x14.loft.TenantContract\x12C\n" +
+	"\x05Erase\x12\x17.loft.TenantContractRef\x1a!.loft.TenantContractEraseResponse\x12I\n" +
+	"\x04List\x12\x1f.loft.TenantContractListRequest\x1a .loft.TenantContractListResponse2\xe2\x02\n" +
 	"\x10LegalHoldService\x121\n" +
-	"\x03Add\x12\x19.rove.LegalHoldAddRequest\x1a\x0f.rove.LegalHold\x121\n" +
-	"\x03Get\x12\x19.rove.LegalHoldGetRequest\x1a\x0f.rove.LegalHold\x125\n" +
-	"\x05Patch\x12\x1b.rove.LegalHoldPatchRequest\x1a\x0f.rove.LegalHold\x125\n" +
-	"\x05Apply\x12\x1b.rove.LegalHoldApplyRequest\x1a\x0f.rove.LegalHold\x129\n" +
-	"\x05Erase\x12\x12.rove.LegalHoldRef\x1a\x1c.rove.LegalHoldEraseResponse\x12?\n" +
-	"\x04List\x12\x1a.rove.LegalHoldListRequest\x1a\x1b.rove.LegalHoldListResponse2\x89\x03\n" +
+	"\x03Add\x12\x19.loft.LegalHoldAddRequest\x1a\x0f.loft.LegalHold\x121\n" +
+	"\x03Get\x12\x19.loft.LegalHoldGetRequest\x1a\x0f.loft.LegalHold\x125\n" +
+	"\x05Patch\x12\x1b.loft.LegalHoldPatchRequest\x1a\x0f.loft.LegalHold\x125\n" +
+	"\x05Apply\x12\x1b.loft.LegalHoldApplyRequest\x1a\x0f.loft.LegalHold\x129\n" +
+	"\x05Erase\x12\x12.loft.LegalHoldRef\x1a\x1c.loft.LegalHoldEraseResponse\x12?\n" +
+	"\x04List\x12\x1a.loft.LegalHoldListRequest\x1a\x1b.loft.LegalHoldListResponse2\x89\x03\n" +
 	"\x13AccessReviewService\x127\n" +
-	"\x03Add\x12\x1c.rove.AccessReviewAddRequest\x1a\x12.rove.AccessReview\x127\n" +
-	"\x03Get\x12\x1c.rove.AccessReviewGetRequest\x1a\x12.rove.AccessReview\x12;\n" +
-	"\x05Patch\x12\x1e.rove.AccessReviewPatchRequest\x1a\x12.rove.AccessReview\x12;\n" +
-	"\x05Apply\x12\x1e.rove.AccessReviewApplyRequest\x1a\x12.rove.AccessReview\x12?\n" +
-	"\x05Erase\x12\x15.rove.AccessReviewRef\x1a\x1f.rove.AccessReviewEraseResponse\x12E\n" +
-	"\x04List\x12\x1d.rove.AccessReviewListRequest\x1a\x1e.rove.AccessReviewListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x1c.loft.AccessReviewAddRequest\x1a\x12.loft.AccessReview\x127\n" +
+	"\x03Get\x12\x1c.loft.AccessReviewGetRequest\x1a\x12.loft.AccessReview\x12;\n" +
+	"\x05Patch\x12\x1e.loft.AccessReviewPatchRequest\x1a\x12.loft.AccessReview\x12;\n" +
+	"\x05Apply\x12\x1e.loft.AccessReviewApplyRequest\x1a\x12.loft.AccessReview\x12?\n" +
+	"\x05Erase\x12\x15.loft.AccessReviewRef\x1a\x1f.loft.AccessReviewEraseResponse\x12E\n" +
+	"\x04List\x12\x1d.loft.AccessReviewListRequest\x1a\x1e.loft.AccessReviewListResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_ops_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
-var file_rove_ops_svc_g_proto_goTypes = []any{
-	(*NotificationAddRequest)(nil),       // 0: rove.NotificationAddRequest
-	(*NotificationGetRequest)(nil),       // 1: rove.NotificationGetRequest
-	(*NotificationRef)(nil),              // 2: rove.NotificationRef
-	(*NotificationSelect)(nil),           // 3: rove.NotificationSelect
-	(*NotificationPatchRequest)(nil),     // 4: rove.NotificationPatchRequest
-	(*NotificationApplyRequest)(nil),     // 5: rove.NotificationApplyRequest
-	(*NotificationEraseResponse)(nil),    // 6: rove.NotificationEraseResponse
-	(*NotificationListRequest)(nil),      // 7: rove.NotificationListRequest
-	(*NotificationListResponse)(nil),     // 8: rove.NotificationListResponse
-	(*NotificationFilter)(nil),           // 9: rove.NotificationFilter
-	(*NotificationInboxRequest)(nil),     // 10: rove.NotificationInboxRequest
-	(*NotificationInboxResponse)(nil),    // 11: rove.NotificationInboxResponse
-	(*NotificationMarkReadRequest)(nil),  // 12: rove.NotificationMarkReadRequest
-	(*NotificationMarkReadResponse)(nil), // 13: rove.NotificationMarkReadResponse
-	(*NotificationSetMailRequest)(nil),   // 14: rove.NotificationSetMailRequest
-	(*NotificationSetMailResponse)(nil),  // 15: rove.NotificationSetMailResponse
-	(*TenantContractAddRequest)(nil),     // 16: rove.TenantContractAddRequest
-	(*TenantContractGetRequest)(nil),     // 17: rove.TenantContractGetRequest
-	(*TenantContractRef)(nil),            // 18: rove.TenantContractRef
-	(*TenantContractSelect)(nil),         // 19: rove.TenantContractSelect
-	(*TenantContractPatchRequest)(nil),   // 20: rove.TenantContractPatchRequest
-	(*TenantContractApplyRequest)(nil),   // 21: rove.TenantContractApplyRequest
-	(*TenantContractEraseResponse)(nil),  // 22: rove.TenantContractEraseResponse
-	(*TenantContractListRequest)(nil),    // 23: rove.TenantContractListRequest
-	(*TenantContractListResponse)(nil),   // 24: rove.TenantContractListResponse
-	(*TenantContractFilter)(nil),         // 25: rove.TenantContractFilter
-	(*LegalHoldAddRequest)(nil),          // 26: rove.LegalHoldAddRequest
-	(*LegalHoldGetRequest)(nil),          // 27: rove.LegalHoldGetRequest
-	(*LegalHoldRef)(nil),                 // 28: rove.LegalHoldRef
-	(*LegalHoldSelect)(nil),              // 29: rove.LegalHoldSelect
-	(*LegalHoldPatchRequest)(nil),        // 30: rove.LegalHoldPatchRequest
-	(*LegalHoldApplyRequest)(nil),        // 31: rove.LegalHoldApplyRequest
-	(*LegalHoldEraseResponse)(nil),       // 32: rove.LegalHoldEraseResponse
-	(*LegalHoldListRequest)(nil),         // 33: rove.LegalHoldListRequest
-	(*LegalHoldListResponse)(nil),        // 34: rove.LegalHoldListResponse
-	(*LegalHoldFilter)(nil),              // 35: rove.LegalHoldFilter
-	(*AccessReviewAddRequest)(nil),       // 36: rove.AccessReviewAddRequest
-	(*AccessReviewGetRequest)(nil),       // 37: rove.AccessReviewGetRequest
-	(*AccessReviewRef)(nil),              // 38: rove.AccessReviewRef
-	(*AccessReviewSelect)(nil),           // 39: rove.AccessReviewSelect
-	(*AccessReviewPatchRequest)(nil),     // 40: rove.AccessReviewPatchRequest
-	(*AccessReviewApplyRequest)(nil),     // 41: rove.AccessReviewApplyRequest
-	(*AccessReviewEraseResponse)(nil),    // 42: rove.AccessReviewEraseResponse
-	(*AccessReviewListRequest)(nil),      // 43: rove.AccessReviewListRequest
-	(*AccessReviewListResponse)(nil),     // 44: rove.AccessReviewListResponse
-	(*AccessReviewFilter)(nil),           // 45: rove.AccessReviewFilter
-	(*TenantRef)(nil),                    // 46: rove.TenantRef
-	(*HolderRef)(nil),                    // 47: rove.HolderRef
+var file_loft_ops_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
+var file_loft_ops_svc_g_proto_goTypes = []any{
+	(*NotificationAddRequest)(nil),       // 0: loft.NotificationAddRequest
+	(*NotificationGetRequest)(nil),       // 1: loft.NotificationGetRequest
+	(*NotificationRef)(nil),              // 2: loft.NotificationRef
+	(*NotificationSelect)(nil),           // 3: loft.NotificationSelect
+	(*NotificationPatchRequest)(nil),     // 4: loft.NotificationPatchRequest
+	(*NotificationApplyRequest)(nil),     // 5: loft.NotificationApplyRequest
+	(*NotificationEraseResponse)(nil),    // 6: loft.NotificationEraseResponse
+	(*NotificationListRequest)(nil),      // 7: loft.NotificationListRequest
+	(*NotificationListResponse)(nil),     // 8: loft.NotificationListResponse
+	(*NotificationFilter)(nil),           // 9: loft.NotificationFilter
+	(*NotificationInboxRequest)(nil),     // 10: loft.NotificationInboxRequest
+	(*NotificationInboxResponse)(nil),    // 11: loft.NotificationInboxResponse
+	(*NotificationMarkReadRequest)(nil),  // 12: loft.NotificationMarkReadRequest
+	(*NotificationMarkReadResponse)(nil), // 13: loft.NotificationMarkReadResponse
+	(*NotificationSetMailRequest)(nil),   // 14: loft.NotificationSetMailRequest
+	(*NotificationSetMailResponse)(nil),  // 15: loft.NotificationSetMailResponse
+	(*TenantContractAddRequest)(nil),     // 16: loft.TenantContractAddRequest
+	(*TenantContractGetRequest)(nil),     // 17: loft.TenantContractGetRequest
+	(*TenantContractRef)(nil),            // 18: loft.TenantContractRef
+	(*TenantContractSelect)(nil),         // 19: loft.TenantContractSelect
+	(*TenantContractPatchRequest)(nil),   // 20: loft.TenantContractPatchRequest
+	(*TenantContractApplyRequest)(nil),   // 21: loft.TenantContractApplyRequest
+	(*TenantContractEraseResponse)(nil),  // 22: loft.TenantContractEraseResponse
+	(*TenantContractListRequest)(nil),    // 23: loft.TenantContractListRequest
+	(*TenantContractListResponse)(nil),   // 24: loft.TenantContractListResponse
+	(*TenantContractFilter)(nil),         // 25: loft.TenantContractFilter
+	(*LegalHoldAddRequest)(nil),          // 26: loft.LegalHoldAddRequest
+	(*LegalHoldGetRequest)(nil),          // 27: loft.LegalHoldGetRequest
+	(*LegalHoldRef)(nil),                 // 28: loft.LegalHoldRef
+	(*LegalHoldSelect)(nil),              // 29: loft.LegalHoldSelect
+	(*LegalHoldPatchRequest)(nil),        // 30: loft.LegalHoldPatchRequest
+	(*LegalHoldApplyRequest)(nil),        // 31: loft.LegalHoldApplyRequest
+	(*LegalHoldEraseResponse)(nil),       // 32: loft.LegalHoldEraseResponse
+	(*LegalHoldListRequest)(nil),         // 33: loft.LegalHoldListRequest
+	(*LegalHoldListResponse)(nil),        // 34: loft.LegalHoldListResponse
+	(*LegalHoldFilter)(nil),              // 35: loft.LegalHoldFilter
+	(*AccessReviewAddRequest)(nil),       // 36: loft.AccessReviewAddRequest
+	(*AccessReviewGetRequest)(nil),       // 37: loft.AccessReviewGetRequest
+	(*AccessReviewRef)(nil),              // 38: loft.AccessReviewRef
+	(*AccessReviewSelect)(nil),           // 39: loft.AccessReviewSelect
+	(*AccessReviewPatchRequest)(nil),     // 40: loft.AccessReviewPatchRequest
+	(*AccessReviewApplyRequest)(nil),     // 41: loft.AccessReviewApplyRequest
+	(*AccessReviewEraseResponse)(nil),    // 42: loft.AccessReviewEraseResponse
+	(*AccessReviewListRequest)(nil),      // 43: loft.AccessReviewListRequest
+	(*AccessReviewListResponse)(nil),     // 44: loft.AccessReviewListResponse
+	(*AccessReviewFilter)(nil),           // 45: loft.AccessReviewFilter
+	(*TenantRef)(nil),                    // 46: loft.TenantRef
+	(*HolderRef)(nil),                    // 47: loft.HolderRef
 	(*timestamppb.Timestamp)(nil),        // 48: google.protobuf.Timestamp
-	(*TenantSelect)(nil),                 // 49: rove.TenantSelect
-	(*HolderSelect)(nil),                 // 50: rove.HolderSelect
+	(*TenantSelect)(nil),                 // 49: loft.TenantSelect
+	(*HolderSelect)(nil),                 // 50: loft.HolderSelect
 	(*patchpb.Patch)(nil),                // 51: patch.Patch
-	(*Notification)(nil),                 // 52: rove.Notification
-	(*TenantContract)(nil),               // 53: rove.TenantContract
-	(*LegalHold)(nil),                    // 54: rove.LegalHold
-	(*AccessReview)(nil),                 // 55: rove.AccessReview
+	(*Notification)(nil),                 // 52: loft.Notification
+	(*TenantContract)(nil),               // 53: loft.TenantContract
+	(*LegalHold)(nil),                    // 54: loft.LegalHold
+	(*AccessReview)(nil),                 // 55: loft.AccessReview
 }
-var file_rove_ops_svc_g_proto_depIdxs = []int32{
-	46, // 0: rove.NotificationAddRequest.tenant:type_name -> rove.TenantRef
-	47, // 1: rove.NotificationAddRequest.holder:type_name -> rove.HolderRef
-	48, // 2: rove.NotificationAddRequest.read_at:type_name -> google.protobuf.Timestamp
-	48, // 3: rove.NotificationAddRequest.date_mailed:type_name -> google.protobuf.Timestamp
-	48, // 4: rove.NotificationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	2,  // 5: rove.NotificationGetRequest.ref:type_name -> rove.NotificationRef
-	3,  // 6: rove.NotificationGetRequest.select:type_name -> rove.NotificationSelect
-	49, // 7: rove.NotificationSelect.tenant:type_name -> rove.TenantSelect
-	50, // 8: rove.NotificationSelect.holder:type_name -> rove.HolderSelect
-	2,  // 9: rove.NotificationPatchRequest.ref:type_name -> rove.NotificationRef
-	48, // 10: rove.NotificationPatchRequest.read_at:type_name -> google.protobuf.Timestamp
-	48, // 11: rove.NotificationPatchRequest.date_mailed:type_name -> google.protobuf.Timestamp
-	48, // 12: rove.NotificationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	2,  // 13: rove.NotificationApplyRequest.ref:type_name -> rove.NotificationRef
-	51, // 14: rove.NotificationApplyRequest.patch:type_name -> patch.Patch
-	9,  // 15: rove.NotificationListRequest.filters:type_name -> rove.NotificationFilter
-	52, // 16: rove.NotificationListResponse.items:type_name -> rove.Notification
-	2,  // 17: rove.NotificationFilter.ref:type_name -> rove.NotificationRef
-	47, // 18: rove.NotificationFilter.holder:type_name -> rove.HolderRef
-	52, // 19: rove.NotificationInboxResponse.items:type_name -> rove.Notification
-	46, // 20: rove.TenantContractAddRequest.tenant:type_name -> rove.TenantRef
-	48, // 21: rove.TenantContractAddRequest.date_effective:type_name -> google.protobuf.Timestamp
-	48, // 22: rove.TenantContractAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	18, // 23: rove.TenantContractGetRequest.ref:type_name -> rove.TenantContractRef
-	19, // 24: rove.TenantContractGetRequest.select:type_name -> rove.TenantContractSelect
-	49, // 25: rove.TenantContractSelect.tenant:type_name -> rove.TenantSelect
-	18, // 26: rove.TenantContractPatchRequest.ref:type_name -> rove.TenantContractRef
-	48, // 27: rove.TenantContractPatchRequest.date_effective:type_name -> google.protobuf.Timestamp
-	18, // 28: rove.TenantContractApplyRequest.ref:type_name -> rove.TenantContractRef
-	51, // 29: rove.TenantContractApplyRequest.patch:type_name -> patch.Patch
-	25, // 30: rove.TenantContractListRequest.filters:type_name -> rove.TenantContractFilter
-	53, // 31: rove.TenantContractListResponse.items:type_name -> rove.TenantContract
-	18, // 32: rove.TenantContractFilter.ref:type_name -> rove.TenantContractRef
-	46, // 33: rove.LegalHoldAddRequest.tenant:type_name -> rove.TenantRef
-	48, // 34: rove.LegalHoldAddRequest.date_lifted:type_name -> google.protobuf.Timestamp
-	48, // 35: rove.LegalHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	28, // 36: rove.LegalHoldGetRequest.ref:type_name -> rove.LegalHoldRef
-	29, // 37: rove.LegalHoldGetRequest.select:type_name -> rove.LegalHoldSelect
-	49, // 38: rove.LegalHoldSelect.tenant:type_name -> rove.TenantSelect
-	28, // 39: rove.LegalHoldPatchRequest.ref:type_name -> rove.LegalHoldRef
-	48, // 40: rove.LegalHoldPatchRequest.date_lifted:type_name -> google.protobuf.Timestamp
-	28, // 41: rove.LegalHoldApplyRequest.ref:type_name -> rove.LegalHoldRef
-	51, // 42: rove.LegalHoldApplyRequest.patch:type_name -> patch.Patch
-	35, // 43: rove.LegalHoldListRequest.filters:type_name -> rove.LegalHoldFilter
-	54, // 44: rove.LegalHoldListResponse.items:type_name -> rove.LegalHold
-	28, // 45: rove.LegalHoldFilter.ref:type_name -> rove.LegalHoldRef
-	46, // 46: rove.AccessReviewAddRequest.tenant:type_name -> rove.TenantRef
-	48, // 47: rove.AccessReviewAddRequest.period_from:type_name -> google.protobuf.Timestamp
-	48, // 48: rove.AccessReviewAddRequest.period_to:type_name -> google.protobuf.Timestamp
-	47, // 49: rove.AccessReviewAddRequest.reviewer:type_name -> rove.HolderRef
-	48, // 50: rove.AccessReviewAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	38, // 51: rove.AccessReviewGetRequest.ref:type_name -> rove.AccessReviewRef
-	39, // 52: rove.AccessReviewGetRequest.select:type_name -> rove.AccessReviewSelect
-	49, // 53: rove.AccessReviewSelect.tenant:type_name -> rove.TenantSelect
-	50, // 54: rove.AccessReviewSelect.reviewer:type_name -> rove.HolderSelect
-	38, // 55: rove.AccessReviewPatchRequest.ref:type_name -> rove.AccessReviewRef
-	38, // 56: rove.AccessReviewApplyRequest.ref:type_name -> rove.AccessReviewRef
-	51, // 57: rove.AccessReviewApplyRequest.patch:type_name -> patch.Patch
-	45, // 58: rove.AccessReviewListRequest.filters:type_name -> rove.AccessReviewFilter
-	55, // 59: rove.AccessReviewListResponse.items:type_name -> rove.AccessReview
-	0,  // 60: rove.NotificationService.Add:input_type -> rove.NotificationAddRequest
-	1,  // 61: rove.NotificationService.Get:input_type -> rove.NotificationGetRequest
-	4,  // 62: rove.NotificationService.Patch:input_type -> rove.NotificationPatchRequest
-	5,  // 63: rove.NotificationService.Apply:input_type -> rove.NotificationApplyRequest
-	2,  // 64: rove.NotificationService.Erase:input_type -> rove.NotificationRef
-	7,  // 65: rove.NotificationService.List:input_type -> rove.NotificationListRequest
-	10, // 66: rove.NotificationService.Inbox:input_type -> rove.NotificationInboxRequest
-	12, // 67: rove.NotificationService.MarkRead:input_type -> rove.NotificationMarkReadRequest
-	14, // 68: rove.NotificationService.SetMail:input_type -> rove.NotificationSetMailRequest
-	16, // 69: rove.TenantContractService.Add:input_type -> rove.TenantContractAddRequest
-	17, // 70: rove.TenantContractService.Get:input_type -> rove.TenantContractGetRequest
-	20, // 71: rove.TenantContractService.Patch:input_type -> rove.TenantContractPatchRequest
-	21, // 72: rove.TenantContractService.Apply:input_type -> rove.TenantContractApplyRequest
-	18, // 73: rove.TenantContractService.Erase:input_type -> rove.TenantContractRef
-	23, // 74: rove.TenantContractService.List:input_type -> rove.TenantContractListRequest
-	26, // 75: rove.LegalHoldService.Add:input_type -> rove.LegalHoldAddRequest
-	27, // 76: rove.LegalHoldService.Get:input_type -> rove.LegalHoldGetRequest
-	30, // 77: rove.LegalHoldService.Patch:input_type -> rove.LegalHoldPatchRequest
-	31, // 78: rove.LegalHoldService.Apply:input_type -> rove.LegalHoldApplyRequest
-	28, // 79: rove.LegalHoldService.Erase:input_type -> rove.LegalHoldRef
-	33, // 80: rove.LegalHoldService.List:input_type -> rove.LegalHoldListRequest
-	36, // 81: rove.AccessReviewService.Add:input_type -> rove.AccessReviewAddRequest
-	37, // 82: rove.AccessReviewService.Get:input_type -> rove.AccessReviewGetRequest
-	40, // 83: rove.AccessReviewService.Patch:input_type -> rove.AccessReviewPatchRequest
-	41, // 84: rove.AccessReviewService.Apply:input_type -> rove.AccessReviewApplyRequest
-	38, // 85: rove.AccessReviewService.Erase:input_type -> rove.AccessReviewRef
-	43, // 86: rove.AccessReviewService.List:input_type -> rove.AccessReviewListRequest
-	52, // 87: rove.NotificationService.Add:output_type -> rove.Notification
-	52, // 88: rove.NotificationService.Get:output_type -> rove.Notification
-	52, // 89: rove.NotificationService.Patch:output_type -> rove.Notification
-	52, // 90: rove.NotificationService.Apply:output_type -> rove.Notification
-	6,  // 91: rove.NotificationService.Erase:output_type -> rove.NotificationEraseResponse
-	8,  // 92: rove.NotificationService.List:output_type -> rove.NotificationListResponse
-	11, // 93: rove.NotificationService.Inbox:output_type -> rove.NotificationInboxResponse
-	13, // 94: rove.NotificationService.MarkRead:output_type -> rove.NotificationMarkReadResponse
-	15, // 95: rove.NotificationService.SetMail:output_type -> rove.NotificationSetMailResponse
-	53, // 96: rove.TenantContractService.Add:output_type -> rove.TenantContract
-	53, // 97: rove.TenantContractService.Get:output_type -> rove.TenantContract
-	53, // 98: rove.TenantContractService.Patch:output_type -> rove.TenantContract
-	53, // 99: rove.TenantContractService.Apply:output_type -> rove.TenantContract
-	22, // 100: rove.TenantContractService.Erase:output_type -> rove.TenantContractEraseResponse
-	24, // 101: rove.TenantContractService.List:output_type -> rove.TenantContractListResponse
-	54, // 102: rove.LegalHoldService.Add:output_type -> rove.LegalHold
-	54, // 103: rove.LegalHoldService.Get:output_type -> rove.LegalHold
-	54, // 104: rove.LegalHoldService.Patch:output_type -> rove.LegalHold
-	54, // 105: rove.LegalHoldService.Apply:output_type -> rove.LegalHold
-	32, // 106: rove.LegalHoldService.Erase:output_type -> rove.LegalHoldEraseResponse
-	34, // 107: rove.LegalHoldService.List:output_type -> rove.LegalHoldListResponse
-	55, // 108: rove.AccessReviewService.Add:output_type -> rove.AccessReview
-	55, // 109: rove.AccessReviewService.Get:output_type -> rove.AccessReview
-	55, // 110: rove.AccessReviewService.Patch:output_type -> rove.AccessReview
-	55, // 111: rove.AccessReviewService.Apply:output_type -> rove.AccessReview
-	42, // 112: rove.AccessReviewService.Erase:output_type -> rove.AccessReviewEraseResponse
-	44, // 113: rove.AccessReviewService.List:output_type -> rove.AccessReviewListResponse
+var file_loft_ops_svc_g_proto_depIdxs = []int32{
+	46, // 0: loft.NotificationAddRequest.tenant:type_name -> loft.TenantRef
+	47, // 1: loft.NotificationAddRequest.holder:type_name -> loft.HolderRef
+	48, // 2: loft.NotificationAddRequest.read_at:type_name -> google.protobuf.Timestamp
+	48, // 3: loft.NotificationAddRequest.date_mailed:type_name -> google.protobuf.Timestamp
+	48, // 4: loft.NotificationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	2,  // 5: loft.NotificationGetRequest.ref:type_name -> loft.NotificationRef
+	3,  // 6: loft.NotificationGetRequest.select:type_name -> loft.NotificationSelect
+	49, // 7: loft.NotificationSelect.tenant:type_name -> loft.TenantSelect
+	50, // 8: loft.NotificationSelect.holder:type_name -> loft.HolderSelect
+	2,  // 9: loft.NotificationPatchRequest.ref:type_name -> loft.NotificationRef
+	48, // 10: loft.NotificationPatchRequest.read_at:type_name -> google.protobuf.Timestamp
+	48, // 11: loft.NotificationPatchRequest.date_mailed:type_name -> google.protobuf.Timestamp
+	48, // 12: loft.NotificationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	2,  // 13: loft.NotificationApplyRequest.ref:type_name -> loft.NotificationRef
+	51, // 14: loft.NotificationApplyRequest.patch:type_name -> patch.Patch
+	9,  // 15: loft.NotificationListRequest.filters:type_name -> loft.NotificationFilter
+	52, // 16: loft.NotificationListResponse.items:type_name -> loft.Notification
+	2,  // 17: loft.NotificationFilter.ref:type_name -> loft.NotificationRef
+	47, // 18: loft.NotificationFilter.holder:type_name -> loft.HolderRef
+	52, // 19: loft.NotificationInboxResponse.items:type_name -> loft.Notification
+	46, // 20: loft.TenantContractAddRequest.tenant:type_name -> loft.TenantRef
+	48, // 21: loft.TenantContractAddRequest.date_effective:type_name -> google.protobuf.Timestamp
+	48, // 22: loft.TenantContractAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	18, // 23: loft.TenantContractGetRequest.ref:type_name -> loft.TenantContractRef
+	19, // 24: loft.TenantContractGetRequest.select:type_name -> loft.TenantContractSelect
+	49, // 25: loft.TenantContractSelect.tenant:type_name -> loft.TenantSelect
+	18, // 26: loft.TenantContractPatchRequest.ref:type_name -> loft.TenantContractRef
+	48, // 27: loft.TenantContractPatchRequest.date_effective:type_name -> google.protobuf.Timestamp
+	18, // 28: loft.TenantContractApplyRequest.ref:type_name -> loft.TenantContractRef
+	51, // 29: loft.TenantContractApplyRequest.patch:type_name -> patch.Patch
+	25, // 30: loft.TenantContractListRequest.filters:type_name -> loft.TenantContractFilter
+	53, // 31: loft.TenantContractListResponse.items:type_name -> loft.TenantContract
+	18, // 32: loft.TenantContractFilter.ref:type_name -> loft.TenantContractRef
+	46, // 33: loft.LegalHoldAddRequest.tenant:type_name -> loft.TenantRef
+	48, // 34: loft.LegalHoldAddRequest.date_lifted:type_name -> google.protobuf.Timestamp
+	48, // 35: loft.LegalHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	28, // 36: loft.LegalHoldGetRequest.ref:type_name -> loft.LegalHoldRef
+	29, // 37: loft.LegalHoldGetRequest.select:type_name -> loft.LegalHoldSelect
+	49, // 38: loft.LegalHoldSelect.tenant:type_name -> loft.TenantSelect
+	28, // 39: loft.LegalHoldPatchRequest.ref:type_name -> loft.LegalHoldRef
+	48, // 40: loft.LegalHoldPatchRequest.date_lifted:type_name -> google.protobuf.Timestamp
+	28, // 41: loft.LegalHoldApplyRequest.ref:type_name -> loft.LegalHoldRef
+	51, // 42: loft.LegalHoldApplyRequest.patch:type_name -> patch.Patch
+	35, // 43: loft.LegalHoldListRequest.filters:type_name -> loft.LegalHoldFilter
+	54, // 44: loft.LegalHoldListResponse.items:type_name -> loft.LegalHold
+	28, // 45: loft.LegalHoldFilter.ref:type_name -> loft.LegalHoldRef
+	46, // 46: loft.AccessReviewAddRequest.tenant:type_name -> loft.TenantRef
+	48, // 47: loft.AccessReviewAddRequest.period_from:type_name -> google.protobuf.Timestamp
+	48, // 48: loft.AccessReviewAddRequest.period_to:type_name -> google.protobuf.Timestamp
+	47, // 49: loft.AccessReviewAddRequest.reviewer:type_name -> loft.HolderRef
+	48, // 50: loft.AccessReviewAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	38, // 51: loft.AccessReviewGetRequest.ref:type_name -> loft.AccessReviewRef
+	39, // 52: loft.AccessReviewGetRequest.select:type_name -> loft.AccessReviewSelect
+	49, // 53: loft.AccessReviewSelect.tenant:type_name -> loft.TenantSelect
+	50, // 54: loft.AccessReviewSelect.reviewer:type_name -> loft.HolderSelect
+	38, // 55: loft.AccessReviewPatchRequest.ref:type_name -> loft.AccessReviewRef
+	38, // 56: loft.AccessReviewApplyRequest.ref:type_name -> loft.AccessReviewRef
+	51, // 57: loft.AccessReviewApplyRequest.patch:type_name -> patch.Patch
+	45, // 58: loft.AccessReviewListRequest.filters:type_name -> loft.AccessReviewFilter
+	55, // 59: loft.AccessReviewListResponse.items:type_name -> loft.AccessReview
+	0,  // 60: loft.NotificationService.Add:input_type -> loft.NotificationAddRequest
+	1,  // 61: loft.NotificationService.Get:input_type -> loft.NotificationGetRequest
+	4,  // 62: loft.NotificationService.Patch:input_type -> loft.NotificationPatchRequest
+	5,  // 63: loft.NotificationService.Apply:input_type -> loft.NotificationApplyRequest
+	2,  // 64: loft.NotificationService.Erase:input_type -> loft.NotificationRef
+	7,  // 65: loft.NotificationService.List:input_type -> loft.NotificationListRequest
+	10, // 66: loft.NotificationService.Inbox:input_type -> loft.NotificationInboxRequest
+	12, // 67: loft.NotificationService.MarkRead:input_type -> loft.NotificationMarkReadRequest
+	14, // 68: loft.NotificationService.SetMail:input_type -> loft.NotificationSetMailRequest
+	16, // 69: loft.TenantContractService.Add:input_type -> loft.TenantContractAddRequest
+	17, // 70: loft.TenantContractService.Get:input_type -> loft.TenantContractGetRequest
+	20, // 71: loft.TenantContractService.Patch:input_type -> loft.TenantContractPatchRequest
+	21, // 72: loft.TenantContractService.Apply:input_type -> loft.TenantContractApplyRequest
+	18, // 73: loft.TenantContractService.Erase:input_type -> loft.TenantContractRef
+	23, // 74: loft.TenantContractService.List:input_type -> loft.TenantContractListRequest
+	26, // 75: loft.LegalHoldService.Add:input_type -> loft.LegalHoldAddRequest
+	27, // 76: loft.LegalHoldService.Get:input_type -> loft.LegalHoldGetRequest
+	30, // 77: loft.LegalHoldService.Patch:input_type -> loft.LegalHoldPatchRequest
+	31, // 78: loft.LegalHoldService.Apply:input_type -> loft.LegalHoldApplyRequest
+	28, // 79: loft.LegalHoldService.Erase:input_type -> loft.LegalHoldRef
+	33, // 80: loft.LegalHoldService.List:input_type -> loft.LegalHoldListRequest
+	36, // 81: loft.AccessReviewService.Add:input_type -> loft.AccessReviewAddRequest
+	37, // 82: loft.AccessReviewService.Get:input_type -> loft.AccessReviewGetRequest
+	40, // 83: loft.AccessReviewService.Patch:input_type -> loft.AccessReviewPatchRequest
+	41, // 84: loft.AccessReviewService.Apply:input_type -> loft.AccessReviewApplyRequest
+	38, // 85: loft.AccessReviewService.Erase:input_type -> loft.AccessReviewRef
+	43, // 86: loft.AccessReviewService.List:input_type -> loft.AccessReviewListRequest
+	52, // 87: loft.NotificationService.Add:output_type -> loft.Notification
+	52, // 88: loft.NotificationService.Get:output_type -> loft.Notification
+	52, // 89: loft.NotificationService.Patch:output_type -> loft.Notification
+	52, // 90: loft.NotificationService.Apply:output_type -> loft.Notification
+	6,  // 91: loft.NotificationService.Erase:output_type -> loft.NotificationEraseResponse
+	8,  // 92: loft.NotificationService.List:output_type -> loft.NotificationListResponse
+	11, // 93: loft.NotificationService.Inbox:output_type -> loft.NotificationInboxResponse
+	13, // 94: loft.NotificationService.MarkRead:output_type -> loft.NotificationMarkReadResponse
+	15, // 95: loft.NotificationService.SetMail:output_type -> loft.NotificationSetMailResponse
+	53, // 96: loft.TenantContractService.Add:output_type -> loft.TenantContract
+	53, // 97: loft.TenantContractService.Get:output_type -> loft.TenantContract
+	53, // 98: loft.TenantContractService.Patch:output_type -> loft.TenantContract
+	53, // 99: loft.TenantContractService.Apply:output_type -> loft.TenantContract
+	22, // 100: loft.TenantContractService.Erase:output_type -> loft.TenantContractEraseResponse
+	24, // 101: loft.TenantContractService.List:output_type -> loft.TenantContractListResponse
+	54, // 102: loft.LegalHoldService.Add:output_type -> loft.LegalHold
+	54, // 103: loft.LegalHoldService.Get:output_type -> loft.LegalHold
+	54, // 104: loft.LegalHoldService.Patch:output_type -> loft.LegalHold
+	54, // 105: loft.LegalHoldService.Apply:output_type -> loft.LegalHold
+	32, // 106: loft.LegalHoldService.Erase:output_type -> loft.LegalHoldEraseResponse
+	34, // 107: loft.LegalHoldService.List:output_type -> loft.LegalHoldListResponse
+	55, // 108: loft.AccessReviewService.Add:output_type -> loft.AccessReview
+	55, // 109: loft.AccessReviewService.Get:output_type -> loft.AccessReview
+	55, // 110: loft.AccessReviewService.Patch:output_type -> loft.AccessReview
+	55, // 111: loft.AccessReviewService.Apply:output_type -> loft.AccessReview
+	42, // 112: loft.AccessReviewService.Erase:output_type -> loft.AccessReviewEraseResponse
+	44, // 113: loft.AccessReviewService.List:output_type -> loft.AccessReviewListResponse
 	87, // [87:114] is the sub-list for method output_type
 	60, // [60:87] is the sub-list for method input_type
 	60, // [60:60] is the sub-list for extension type_name
@@ -6764,41 +6764,41 @@ var file_rove_ops_svc_g_proto_depIdxs = []int32{
 	0,  // [0:60] is the sub-list for field type_name
 }
 
-func init() { file_rove_ops_svc_g_proto_init() }
-func file_rove_ops_svc_g_proto_init() {
-	if File_rove_ops_svc_g_proto != nil {
+func init() { file_loft_ops_svc_g_proto_init() }
+func file_loft_ops_svc_g_proto_init() {
+	if File_loft_ops_svc_g_proto != nil {
 		return
 	}
-	file_rove_ops_proto_init()
-	file_rove_payday_holder_svc_g_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_ops_svc_g_proto_msgTypes[2].OneofWrappers = []any{
+	file_loft_ops_proto_init()
+	file_loft_payday_holder_svc_g_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_ops_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*notificationRef_Id)(nil),
 	}
-	file_rove_ops_svc_g_proto_msgTypes[18].OneofWrappers = []any{
+	file_loft_ops_svc_g_proto_msgTypes[18].OneofWrappers = []any{
 		(*tenantContractRef_Id)(nil),
 	}
-	file_rove_ops_svc_g_proto_msgTypes[28].OneofWrappers = []any{
+	file_loft_ops_svc_g_proto_msgTypes[28].OneofWrappers = []any{
 		(*legalHoldRef_Id)(nil),
 	}
-	file_rove_ops_svc_g_proto_msgTypes[38].OneofWrappers = []any{
+	file_loft_ops_svc_g_proto_msgTypes[38].OneofWrappers = []any{
 		(*accessReviewRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_ops_svc_g_proto_rawDesc), len(file_rove_ops_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_ops_svc_g_proto_rawDesc), len(file_loft_ops_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   46,
 			NumExtensions: 0,
 			NumServices:   4,
 		},
-		GoTypes:           file_rove_ops_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_ops_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_ops_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_ops_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_ops_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_ops_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_ops_svc_g_proto = out.File
-	file_rove_ops_svc_g_proto_goTypes = nil
-	file_rove_ops_svc_g_proto_depIdxs = nil
+	File_loft_ops_svc_g_proto = out.File
+	file_loft_ops_svc_g_proto_goTypes = nil
+	file_loft_ops_svc_g_proto_depIdxs = nil
 }

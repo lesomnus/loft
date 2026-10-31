@@ -3,7 +3,7 @@
 # the plugin of its own release beside it: nothing else about the server
 # changes.
 #
-#   docker build -t rove-opensearch deploy/opensearch
+#   docker build -t loft-opensearch deploy/opensearch
 #
 # What it does not need it does not carry: every other plugin of the official
 # image is taken out, since each one takes heap and threads that a node of a

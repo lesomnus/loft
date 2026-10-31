@@ -14,17 +14,17 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/legalhold"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/ent/tenantcontract"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/retention"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/legalhold"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/retention"
 )
 
-// NewCmdContract is `rove contract`: what the operator's agreement with a
+// NewCmdContract is `loft contract`: what the operator's agreement with a
 // workspace says of what the deployment owes beyond the workspace's own
 // settings -- whether its trail goes whole when it is destroyed -- and what
 // those settings and its holds come to now (design 8). How long a workspace
@@ -147,8 +147,8 @@ func newCmdContractShow(c *cmd.Config) *xli.Command {
 	}
 }
 
-// NewCmdHold is `rove hold`: a legal hold on a tenant's history, which keeps
-// all of it -- rove's history and the trail -- until it is lifted.
+// NewCmdHold is `loft hold`: a legal hold on a tenant's history, which keeps
+// all of it -- loft's history and the trail -- until it is lifted.
 func NewCmdHold(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "hold",
@@ -202,7 +202,7 @@ func NewCmdHold(c *cmd.Config) *xli.Command {
 				Brief: "end a hold; the windows apply again from the next pass",
 
 				Args: arg.Args{
-					&arg.String{Name: "ID", Brief: "the hold, as `rove contract show` lists it"},
+					&arg.String{Name: "ID", Brief: "the hold, as `loft contract show` lists it"},
 				},
 
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {

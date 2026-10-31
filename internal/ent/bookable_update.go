@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -45,7 +45,7 @@ func (_u *BookableUpdate) SetNillableTimezone(v *string) *BookableUpdate {
 }
 
 // SetHours sets the "hours" field.
-func (_u *BookableUpdate) SetHours(v *rove.OpeningHours) *BookableUpdate {
+func (_u *BookableUpdate) SetHours(v *loft.OpeningHours) *BookableUpdate {
 	_u.mutation.SetHours(v)
 	return _u
 }
@@ -498,7 +498,7 @@ func (_u *BookableUpdateOne) SetNillableTimezone(v *string) *BookableUpdateOne {
 }
 
 // SetHours sets the "hours" field.
-func (_u *BookableUpdateOne) SetHours(v *rove.OpeningHours) *BookableUpdateOne {
+func (_u *BookableUpdateOne) SetHours(v *loft.OpeningHours) *BookableUpdateOne {
 	_u.mutation.SetHours(v)
 	return _u
 }

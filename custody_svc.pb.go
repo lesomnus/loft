@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/custody_svc.g.proto
+// source: loft/custody_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -48,7 +48,7 @@ type CustodyAddRequest struct {
 
 func (x *CustodyAddRequest) Reset() {
 	*x = CustodyAddRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[0]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -60,7 +60,7 @@ func (x *CustodyAddRequest) String() string {
 func (*CustodyAddRequest) ProtoMessage() {}
 
 func (x *CustodyAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[0]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -458,7 +458,7 @@ type CustodyLineSpec struct {
 
 func (x *CustodyLineSpec) Reset() {
 	*x = CustodyLineSpec{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[1]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -470,7 +470,7 @@ func (x *CustodyLineSpec) String() string {
 func (*CustodyLineSpec) ProtoMessage() {}
 
 func (x *CustodyLineSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[1]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -577,7 +577,7 @@ type CustodyGetRequest struct {
 
 func (x *CustodyGetRequest) Reset() {
 	*x = CustodyGetRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[2]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -589,7 +589,7 @@ func (x *CustodyGetRequest) String() string {
 func (*CustodyGetRequest) ProtoMessage() {}
 
 func (x *CustodyGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[2]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -669,7 +669,7 @@ type CustodyRef struct {
 
 func (x *CustodyRef) Reset() {
 	*x = CustodyRef{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[3]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -681,7 +681,7 @@ func (x *CustodyRef) String() string {
 func (*CustodyRef) ProtoMessage() {}
 
 func (x *CustodyRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[3]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -769,7 +769,7 @@ func (b0 CustodyRef_builder) Build() *CustodyRef {
 type case_CustodyRef_Key protoreflect.FieldNumber
 
 func (x case_CustodyRef_Key) String() string {
-	md := file_rove_custody_svc_g_proto_msgTypes[3].Descriptor()
+	md := file_loft_custody_svc_g_proto_msgTypes[3].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -812,7 +812,7 @@ type CustodySelect struct {
 
 func (x *CustodySelect) Reset() {
 	*x = CustodySelect{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[4]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -824,7 +824,7 @@ func (x *CustodySelect) String() string {
 func (*CustodySelect) ProtoMessage() {}
 
 func (x *CustodySelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[4]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1329,7 +1329,7 @@ type CustodyPatchRequest struct {
 
 func (x *CustodyPatchRequest) Reset() {
 	*x = CustodyPatchRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[5]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1341,7 +1341,7 @@ func (x *CustodyPatchRequest) String() string {
 func (*CustodyPatchRequest) ProtoMessage() {}
 
 func (x *CustodyPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[5]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1913,7 +1913,7 @@ type CustodyApplyRequest struct {
 
 func (x *CustodyApplyRequest) Reset() {
 	*x = CustodyApplyRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[6]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1925,7 +1925,7 @@ func (x *CustodyApplyRequest) String() string {
 func (*CustodyApplyRequest) ProtoMessage() {}
 
 func (x *CustodyApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[6]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2007,7 +2007,7 @@ type CustodyEraseResponse struct {
 
 func (x *CustodyEraseResponse) Reset() {
 	*x = CustodyEraseResponse{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[7]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2019,7 +2019,7 @@ func (x *CustodyEraseResponse) String() string {
 func (*CustodyEraseResponse) ProtoMessage() {}
 
 func (x *CustodyEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[7]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2088,7 +2088,7 @@ type CustodyListRequest struct {
 
 func (x *CustodyListRequest) Reset() {
 	*x = CustodyListRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[8]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2100,7 +2100,7 @@ func (x *CustodyListRequest) String() string {
 func (*CustodyListRequest) ProtoMessage() {}
 
 func (x *CustodyListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[8]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2200,7 +2200,7 @@ type CustodyListResponse struct {
 
 func (x *CustodyListResponse) Reset() {
 	*x = CustodyListResponse{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[9]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2212,7 +2212,7 @@ func (x *CustodyListResponse) String() string {
 func (*CustodyListResponse) ProtoMessage() {}
 
 func (x *CustodyListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[9]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2285,7 +2285,7 @@ type CustodyFilter struct {
 
 func (x *CustodyFilter) Reset() {
 	*x = CustodyFilter{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[10]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2297,7 +2297,7 @@ func (x *CustodyFilter) String() string {
 func (*CustodyFilter) ProtoMessage() {}
 
 func (x *CustodyFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[10]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2474,7 +2474,7 @@ type CustodyWatchRequest struct {
 
 func (x *CustodyWatchRequest) Reset() {
 	*x = CustodyWatchRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[11]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2486,7 +2486,7 @@ func (x *CustodyWatchRequest) String() string {
 func (*CustodyWatchRequest) ProtoMessage() {}
 
 func (x *CustodyWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[11]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2558,7 +2558,7 @@ type CustodyWatchResponse struct {
 
 func (x *CustodyWatchResponse) Reset() {
 	*x = CustodyWatchResponse{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[12]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2570,7 +2570,7 @@ func (x *CustodyWatchResponse) String() string {
 func (*CustodyWatchResponse) ProtoMessage() {}
 
 func (x *CustodyWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[12]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2622,7 +2622,7 @@ type CustodyWatchItem struct {
 
 func (x *CustodyWatchItem) Reset() {
 	*x = CustodyWatchItem{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[13]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2634,7 +2634,7 @@ func (x *CustodyWatchItem) String() string {
 func (*CustodyWatchItem) ProtoMessage() {}
 
 func (x *CustodyWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[13]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2752,7 +2752,7 @@ type CustodyAcknowledgeRequest struct {
 
 func (x *CustodyAcknowledgeRequest) Reset() {
 	*x = CustodyAcknowledgeRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[14]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2764,7 +2764,7 @@ func (x *CustodyAcknowledgeRequest) String() string {
 func (*CustodyAcknowledgeRequest) ProtoMessage() {}
 
 func (x *CustodyAcknowledgeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[14]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2824,7 +2824,7 @@ type CustodyReturnRequest struct {
 
 func (x *CustodyReturnRequest) Reset() {
 	*x = CustodyReturnRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[15]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2836,7 +2836,7 @@ func (x *CustodyReturnRequest) String() string {
 func (*CustodyReturnRequest) ProtoMessage() {}
 
 func (x *CustodyReturnRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[15]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2975,7 +2975,7 @@ type CustodyReturnLine struct {
 
 func (x *CustodyReturnLine) Reset() {
 	*x = CustodyReturnLine{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[16]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2987,7 +2987,7 @@ func (x *CustodyReturnLine) String() string {
 func (*CustodyReturnLine) ProtoMessage() {}
 
 func (x *CustodyReturnLine) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[16]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3069,7 +3069,7 @@ type CustodyLineRef struct {
 
 func (x *CustodyLineRef) Reset() {
 	*x = CustodyLineRef{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[17]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3081,7 +3081,7 @@ func (x *CustodyLineRef) String() string {
 func (*CustodyLineRef) ProtoMessage() {}
 
 func (x *CustodyLineRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[17]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3169,7 +3169,7 @@ func (b0 CustodyLineRef_builder) Build() *CustodyLineRef {
 type case_CustodyLineRef_Key protoreflect.FieldNumber
 
 func (x case_CustodyLineRef_Key) String() string {
-	md := file_rove_custody_svc_g_proto_msgTypes[17].Descriptor()
+	md := file_loft_custody_svc_g_proto_msgTypes[17].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -3196,7 +3196,7 @@ type CustodyExtendRequest struct {
 
 func (x *CustodyExtendRequest) Reset() {
 	*x = CustodyExtendRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[18]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3208,7 +3208,7 @@ func (x *CustodyExtendRequest) String() string {
 func (*CustodyExtendRequest) ProtoMessage() {}
 
 func (x *CustodyExtendRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[18]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3291,7 +3291,7 @@ type CustodyOutstandingRequest struct {
 
 func (x *CustodyOutstandingRequest) Reset() {
 	*x = CustodyOutstandingRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[19]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3303,7 +3303,7 @@ func (x *CustodyOutstandingRequest) String() string {
 func (*CustodyOutstandingRequest) ProtoMessage() {}
 
 func (x *CustodyOutstandingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[19]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3398,7 +3398,7 @@ type CustodyOutstandingResponse struct {
 
 func (x *CustodyOutstandingResponse) Reset() {
 	*x = CustodyOutstandingResponse{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[20]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3410,7 +3410,7 @@ func (x *CustodyOutstandingResponse) String() string {
 func (*CustodyOutstandingResponse) ProtoMessage() {}
 
 func (x *CustodyOutstandingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[20]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3585,7 +3585,7 @@ type CustodyOutstandingRow struct {
 
 func (x *CustodyOutstandingRow) Reset() {
 	*x = CustodyOutstandingRow{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[21]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3597,7 +3597,7 @@ func (x *CustodyOutstandingRow) String() string {
 func (*CustodyOutstandingRow) ProtoMessage() {}
 
 func (x *CustodyOutstandingRow) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[21]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3909,7 +3909,7 @@ type CustodyLineAddRequest struct {
 
 func (x *CustodyLineAddRequest) Reset() {
 	*x = CustodyLineAddRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[22]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3921,7 +3921,7 @@ func (x *CustodyLineAddRequest) String() string {
 func (*CustodyLineAddRequest) ProtoMessage() {}
 
 func (x *CustodyLineAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[22]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4206,7 +4206,7 @@ type CustodyLineGetRequest struct {
 
 func (x *CustodyLineGetRequest) Reset() {
 	*x = CustodyLineGetRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[23]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4218,7 +4218,7 @@ func (x *CustodyLineGetRequest) String() string {
 func (*CustodyLineGetRequest) ProtoMessage() {}
 
 func (x *CustodyLineGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[23]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4312,7 +4312,7 @@ type CustodyLineSelect struct {
 
 func (x *CustodyLineSelect) Reset() {
 	*x = CustodyLineSelect{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[24]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4324,7 +4324,7 @@ func (x *CustodyLineSelect) String() string {
 func (*CustodyLineSelect) ProtoMessage() {}
 
 func (x *CustodyLineSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[24]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4724,7 +4724,7 @@ type CustodyLinePatchRequest struct {
 
 func (x *CustodyLinePatchRequest) Reset() {
 	*x = CustodyLinePatchRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[25]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4736,7 +4736,7 @@ func (x *CustodyLinePatchRequest) String() string {
 func (*CustodyLinePatchRequest) ProtoMessage() {}
 
 func (x *CustodyLinePatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[25]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5061,7 +5061,7 @@ type CustodyLineApplyRequest struct {
 
 func (x *CustodyLineApplyRequest) Reset() {
 	*x = CustodyLineApplyRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[26]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5073,7 +5073,7 @@ func (x *CustodyLineApplyRequest) String() string {
 func (*CustodyLineApplyRequest) ProtoMessage() {}
 
 func (x *CustodyLineApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[26]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5155,7 +5155,7 @@ type CustodyLineEraseResponse struct {
 
 func (x *CustodyLineEraseResponse) Reset() {
 	*x = CustodyLineEraseResponse{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[27]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5167,7 +5167,7 @@ func (x *CustodyLineEraseResponse) String() string {
 func (*CustodyLineEraseResponse) ProtoMessage() {}
 
 func (x *CustodyLineEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[27]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5236,7 +5236,7 @@ type CustodyLineListRequest struct {
 
 func (x *CustodyLineListRequest) Reset() {
 	*x = CustodyLineListRequest{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[28]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5248,7 +5248,7 @@ func (x *CustodyLineListRequest) String() string {
 func (*CustodyLineListRequest) ProtoMessage() {}
 
 func (x *CustodyLineListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[28]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5348,7 +5348,7 @@ type CustodyLineListResponse struct {
 
 func (x *CustodyLineListResponse) Reset() {
 	*x = CustodyLineListResponse{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[29]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5360,7 +5360,7 @@ func (x *CustodyLineListResponse) String() string {
 func (*CustodyLineListResponse) ProtoMessage() {}
 
 func (x *CustodyLineListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[29]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5430,7 +5430,7 @@ type CustodyLineFilter struct {
 
 func (x *CustodyLineFilter) Reset() {
 	*x = CustodyLineFilter{}
-	mi := &file_rove_custody_svc_g_proto_msgTypes[30]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5442,7 +5442,7 @@ func (x *CustodyLineFilter) String() string {
 func (*CustodyLineFilter) ProtoMessage() {}
 
 func (x *CustodyLineFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_svc_g_proto_msgTypes[30]
+	mi := &file_loft_custody_svc_g_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5561,16 +5561,16 @@ func (b0 CustodyLineFilter_builder) Build() *CustodyLineFilter {
 	return m0
 }
 
-var File_rove_custody_svc_g_proto protoreflect.FileDescriptor
+var File_loft_custody_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_custody_svc_g_proto_rawDesc = "" +
+const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/custody_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x16rove/asset_svc.g.proto\x1a\x12rove/custody.proto\x1a\x14rove/org_svc.g.proto\x1a\x1erove/payday/tenant_svc.g.proto\x1a\x16rove/stock_svc.g.proto\"\xa5\x05\n" +
+	"\x18loft/custody_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16loft/asset_svc.g.proto\x1a\x12loft/custody.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x16loft/stock_svc.g.proto\x1a\x11patch/patch.proto\"\xa5\x05\n" +
 	"\x11CustodyAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12$\n" +
-	"\x05party\x18\b \x01(\v2\x0e.rove.PartyRefR\x05party\x12\x19\n" +
+	"\x05party\x18\b \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x19\n" +
 	"\x04kind\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1d\n" +
 	"\x06status\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x127\n" +
@@ -5583,25 +5583,25 @@ const file_rove_custody_svc_g_proto_rawDesc = "" +
 	"\x0ereservation_id\x18\x12 \x01(\fR\rreservationId\x12\x1b\n" +
 	"\tissued_by\x18\x13 \x01(\fR\bissuedBy\x12.\n" +
 	"\x0foverdue_noticed\x18\x14 \x01(\bB\x05\xaa\x01\x02\b\x02R\x0eoverdueNoticed\x12+\n" +
-	"\x05lines\x18d \x03(\v2\x15.rove.CustodyLineSpecR\x05lines\x12\x0e\n" +
+	"\x05lines\x18d \x03(\v2\x15.loft.CustodyLineSpecR\x05lines\x12\x0e\n" +
 	"\x02op\x18e \x01(\fR\x02op\"\xa5\x01\n" +
 	"\x0fCustodyLineSpec\x12$\n" +
-	"\x05asset\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x05asset\x12$\n" +
-	"\x05stock\x18\x02 \x01(\v2\x0e.rove.StockRefR\x05stock\x12!\n" +
+	"\x05asset\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x05asset\x12$\n" +
+	"\x05stock\x18\x02 \x01(\v2\x0e.loft.StockRefR\x05stock\x12!\n" +
 	"\bquantity\x18\x03 \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x12#\n" +
 	"\tcondition\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\tcondition\"d\n" +
 	"\x11CustodyGetRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.rove.CustodyRefR\x03ref\x12+\n" +
-	"\x06select\x18\x02 \x01(\v2\x13.rove.CustodySelectR\x06select\"%\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x12+\n" +
+	"\x06select\x18\x02 \x01(\v2\x13.loft.CustodySelectR\x06select\"%\n" +
 	"\n" +
 	"CustodyRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\x88\x04\n" +
 	"\rCustodySelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12'\n" +
-	"\x05party\x18\b \x01(\v2\x11.rove.PartySelectR\x05party\x12\x12\n" +
+	"\x05party\x18\b \x01(\v2\x11.loft.PartySelectR\x05party\x12\x12\n" +
 	"\x04kind\x18\t \x01(\bR\x04kind\x12\x16\n" +
 	"\x06status\x18\n" +
 	" \x01(\bR\x06status\x12\x1b\n" +
@@ -5618,7 +5618,7 @@ const file_rove_custody_svc_g_proto_rawDesc = "" +
 	"\tissued_by\x18\x13 \x01(\bR\bissuedBy\x12'\n" +
 	"\x0foverdue_noticed\x18\x14 \x01(\bR\x0eoverdueNoticed\"\x93\x06\n" +
 	"\x13CustodyPatchRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.rove.CustodyRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12\x12\n" +
 	"\x04kind\x18\x12 \x01(\tR\x04kind\x12\x16\n" +
 	"\x06status\x18\x14 \x01(\tR\x06status\x127\n" +
@@ -5638,50 +5638,50 @@ const file_rove_custody_svc_g_proto_rawDesc = "" +
 	"\x0eissued_by_null\x18' \x01(\bR\fissuedByNull\x12'\n" +
 	"\x0foverdue_noticed\x18( \x01(\bR\x0eoverdueNoticed\"]\n" +
 	"\x13CustodyApplyRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.rove.CustodyRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\".\n" +
 	"\x14CustodyEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x9c\x01\n" +
 	"\x12CustodyListRequest\x12-\n" +
-	"\afilters\x18\x01 \x03(\v2\x13.rove.CustodyFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x13.loft.CustodyFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"U\n" +
 	"\x13CustodyListResponse\x12#\n" +
-	"\x05items\x18\x01 \x03(\v2\r.rove.CustodyR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\r.loft.CustodyR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xac\x01\n" +
 	"\rCustodyFilter\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.rove.CustodyRefR\x03ref\x12$\n" +
-	"\x05party\x18\x02 \x01(\v2\x0e.rove.PartyRefR\x05party\x12\x16\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x12$\n" +
+	"\x05party\x18\x02 \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12\x12\n" +
 	"\x04kind\x18\x04 \x01(\tR\x04kind\x12%\n" +
 	"\x0ereservation_id\x18\x05 \x01(\fR\rreservationId\"p\n" +
 	"\x13CustodyWatchRequest\x12-\n" +
-	"\afilters\x18\x01 \x03(\v2\x13.rove.CustodyFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x13.loft.CustodyFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"D\n" +
 	"\x14CustodyWatchResponse\x12,\n" +
-	"\x05items\x18\x01 \x03(\v2\x16.rove.CustodyWatchItemR\x05items\"f\n" +
+	"\x05items\x18\x01 \x03(\v2\x16.loft.CustodyWatchItemR\x05items\"f\n" +
 	"\x10CustodyWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12#\n" +
-	"\x05value\x18\x02 \x01(\v2\r.rove.CustodyR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\r.loft.CustodyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"?\n" +
 	"\x19CustodyAcknowledgeRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.rove.CustodyRefR\x03ref\"\xcc\x01\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\"\xcc\x01\n" +
 	"\x14CustodyReturnRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.rove.CustodyRefR\x03ref\x12-\n" +
-	"\x05lines\x18\x02 \x03(\v2\x17.rove.CustodyReturnLineR\x05lines\x12*\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x12-\n" +
+	"\x05lines\x18\x02 \x03(\v2\x17.loft.CustodyReturnLineR\x05lines\x12*\n" +
 	"\x02at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1e\n" +
-	"\x02to\x18\x04 \x01(\v2\x0e.rove.AssetRefR\x02to\x12\x15\n" +
+	"\x02to\x18\x04 \x01(\v2\x0e.loft.AssetRefR\x02to\x12\x15\n" +
 	"\x02op\x18\x05 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\x85\x01\n" +
 	"\x11CustodyReturnLine\x12(\n" +
-	"\x04line\x18\x01 \x01(\v2\x14.rove.CustodyLineRefR\x04line\x12!\n" +
+	"\x04line\x18\x01 \x01(\v2\x14.loft.CustodyLineRefR\x04line\x12!\n" +
 	"\bquantity\x18\x02 \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x12#\n" +
 	"\tcondition\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\tcondition\")\n" +
 	"\x0eCustodyLineRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"m\n" +
 	"\x14CustodyExtendRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.rove.CustodyRefR\x03ref\x121\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x121\n" +
 	"\x06due_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05dueAt\"\x91\x01\n" +
 	"\x19CustodyOutstandingRequest\x12\x1f\n" +
 	"\aoverdue\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\aoverdue\x12\x19\n" +
@@ -5689,7 +5689,7 @@ const file_rove_custody_svc_g_proto_rawDesc = "" +
 	"\x04size\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x1d\n" +
 	"\x06offset\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06offset\"\xb9\x02\n" +
 	"\x1aCustodyOutstandingResponse\x12/\n" +
-	"\x04rows\x18\x01 \x03(\v2\x1b.rove.CustodyOutstandingRowR\x04rows\x12\x1b\n" +
+	"\x04rows\x18\x01 \x03(\v2\x1b.loft.CustodyOutstandingRowR\x04rows\x12\x1b\n" +
 	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\x12#\n" +
 	"\tcustodies\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\tcustodies\x12\x1f\n" +
 	"\aoverdue\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\aoverdue\x12\x1d\n" +
@@ -5722,11 +5722,11 @@ const file_rove_custody_svc_g_proto_rawDesc = "" +
 	"\facknowledged\x18\x11 \x01(\bB\x05\xaa\x01\x02\b\x02R\facknowledged\"\xa4\x04\n" +
 	"\x15CustodyLineAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12*\n" +
-	"\acustody\x18\b \x01(\v2\x10.rove.CustodyRefR\acustody\x12$\n" +
-	"\x05asset\x18\t \x01(\v2\x0e.rove.AssetRefR\x05asset\x12$\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12*\n" +
+	"\acustody\x18\b \x01(\v2\x10.loft.CustodyRefR\acustody\x12$\n" +
+	"\x05asset\x18\t \x01(\v2\x0e.loft.AssetRefR\x05asset\x12$\n" +
 	"\x05stock\x18\n" +
-	" \x01(\v2\x0e.rove.StockRefR\x05stock\x12!\n" +
+	" \x01(\v2\x0e.loft.StockRefR\x05stock\x12!\n" +
 	"\bquantity\x18\v \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x122\n" +
 	"\x11returned_quantity\x18\f \x01(\x03B\x05\xaa\x01\x02\b\x02R\x10returnedQuantity\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x121\n" +
@@ -5736,15 +5736,15 @@ const file_rove_custody_svc_g_proto_rawDesc = "" +
 	"\rcondition_out\x18\x12 \x01(\tB\x05\xaa\x01\x02\b\x02R\fconditionOut\x12(\n" +
 	"\fcondition_in\x18\x13 \x01(\tB\x05\xaa\x01\x02\b\x02R\vconditionIn\"p\n" +
 	"\x15CustodyLineGetRequest\x12&\n" +
-	"\x03ref\x18\x01 \x01(\v2\x14.rove.CustodyLineRefR\x03ref\x12/\n" +
-	"\x06select\x18\x02 \x01(\v2\x17.rove.CustodyLineSelectR\x06select\"\xe1\x03\n" +
+	"\x03ref\x18\x01 \x01(\v2\x14.loft.CustodyLineRefR\x03ref\x12/\n" +
+	"\x06select\x18\x02 \x01(\v2\x17.loft.CustodyLineSelectR\x06select\"\xe1\x03\n" +
 	"\x11CustodyLineSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12-\n" +
-	"\acustody\x18\b \x01(\v2\x13.rove.CustodySelectR\acustody\x12'\n" +
-	"\x05asset\x18\t \x01(\v2\x11.rove.AssetSelectR\x05asset\x12'\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12-\n" +
+	"\acustody\x18\b \x01(\v2\x13.loft.CustodySelectR\acustody\x12'\n" +
+	"\x05asset\x18\t \x01(\v2\x11.loft.AssetSelectR\x05asset\x12'\n" +
 	"\x05stock\x18\n" +
-	" \x01(\v2\x11.rove.StockSelectR\x05stock\x12\x1a\n" +
+	" \x01(\v2\x11.loft.StockSelectR\x05stock\x12\x1a\n" +
 	"\bquantity\x18\v \x01(\bR\bquantity\x12+\n" +
 	"\x11returned_quantity\x18\f \x01(\bR\x10returnedQuantity\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
@@ -5755,7 +5755,7 @@ const file_rove_custody_svc_g_proto_rawDesc = "" +
 	"\rcondition_out\x18\x12 \x01(\bR\fconditionOut\x12!\n" +
 	"\fcondition_in\x18\x13 \x01(\bR\vconditionIn\"\xd9\x03\n" +
 	"\x17CustodyLinePatchRequest\x12&\n" +
-	"\x03ref\x18\x01 \x01(\v2\x14.rove.CustodyLineRefR\x03ref\x12\x1a\n" +
+	"\x03ref\x18\x01 \x01(\v2\x14.loft.CustodyLineRefR\x03ref\x12\x1a\n" +
 	"\bquantity\x18\x16 \x01(\x03R\bquantity\x12+\n" +
 	"\x11returned_quantity\x18\x18 \x01(\x03R\x10returnedQuantity\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
@@ -5767,194 +5767,194 @@ const file_rove_custody_svc_g_proto_rawDesc = "" +
 	"\rcondition_out\x18$ \x01(\tR\fconditionOut\x12!\n" +
 	"\fcondition_in\x18& \x01(\tR\vconditionIn\"e\n" +
 	"\x17CustodyLineApplyRequest\x12&\n" +
-	"\x03ref\x18\x01 \x01(\v2\x14.rove.CustodyLineRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x14.loft.CustodyLineRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"2\n" +
 	"\x18CustodyLineEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa4\x01\n" +
 	"\x16CustodyLineListRequest\x121\n" +
-	"\afilters\x18\x01 \x03(\v2\x17.rove.CustodyLineFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x17.loft.CustodyLineFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"]\n" +
 	"\x17CustodyLineListResponse\x12'\n" +
-	"\x05items\x18\x01 \x03(\v2\x11.rove.CustodyLineR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x11.loft.CustodyLineR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xb3\x01\n" +
 	"\x11CustodyLineFilter\x12&\n" +
-	"\x03ref\x18\x01 \x01(\v2\x14.rove.CustodyLineRefR\x03ref\x12*\n" +
-	"\acustody\x18\x02 \x01(\v2\x10.rove.CustodyRefR\acustody\x12$\n" +
-	"\x05asset\x18\x03 \x01(\v2\x0e.rove.AssetRefR\x05asset\x12$\n" +
-	"\x05stock\x18\x04 \x01(\v2\x0e.rove.StockRefR\x05stock2\xd6\x05\n" +
+	"\x03ref\x18\x01 \x01(\v2\x14.loft.CustodyLineRefR\x03ref\x12*\n" +
+	"\acustody\x18\x02 \x01(\v2\x10.loft.CustodyRefR\acustody\x12$\n" +
+	"\x05asset\x18\x03 \x01(\v2\x0e.loft.AssetRefR\x05asset\x12$\n" +
+	"\x05stock\x18\x04 \x01(\v2\x0e.loft.StockRefR\x05stock2\xd6\x05\n" +
 	"\x0eCustodyService\x12-\n" +
-	"\x03Add\x12\x17.rove.CustodyAddRequest\x1a\r.rove.Custody\x12-\n" +
-	"\x03Get\x12\x17.rove.CustodyGetRequest\x1a\r.rove.Custody\x121\n" +
-	"\x05Patch\x12\x19.rove.CustodyPatchRequest\x1a\r.rove.Custody\x121\n" +
-	"\x05Apply\x12\x19.rove.CustodyApplyRequest\x1a\r.rove.Custody\x125\n" +
-	"\x05Erase\x12\x10.rove.CustodyRef\x1a\x1a.rove.CustodyEraseResponse\x12;\n" +
-	"\x04List\x12\x18.rove.CustodyListRequest\x1a\x19.rove.CustodyListResponse\x12@\n" +
-	"\x05Watch\x12\x19.rove.CustodyWatchRequest\x1a\x1a.rove.CustodyWatchResponse0\x01\x12=\n" +
-	"\vAcknowledge\x12\x1f.rove.CustodyAcknowledgeRequest\x1a\r.rove.Custody\x123\n" +
-	"\x06Return\x12\x1a.rove.CustodyReturnRequest\x1a\r.rove.Custody\x123\n" +
-	"\x06Extend\x12\x1a.rove.CustodyExtendRequest\x1a\r.rove.Custody\x12P\n" +
-	"\vOutstanding\x12\x1f.rove.CustodyOutstandingRequest\x1a .rove.CustodyOutstandingResponse\x12O\n" +
-	"\x11ExportOutstanding\x12\x1f.rove.CustodyOutstandingRequest\x1a\x19.rove.AssetExportResponse2\xfc\x02\n" +
+	"\x03Add\x12\x17.loft.CustodyAddRequest\x1a\r.loft.Custody\x12-\n" +
+	"\x03Get\x12\x17.loft.CustodyGetRequest\x1a\r.loft.Custody\x121\n" +
+	"\x05Patch\x12\x19.loft.CustodyPatchRequest\x1a\r.loft.Custody\x121\n" +
+	"\x05Apply\x12\x19.loft.CustodyApplyRequest\x1a\r.loft.Custody\x125\n" +
+	"\x05Erase\x12\x10.loft.CustodyRef\x1a\x1a.loft.CustodyEraseResponse\x12;\n" +
+	"\x04List\x12\x18.loft.CustodyListRequest\x1a\x19.loft.CustodyListResponse\x12@\n" +
+	"\x05Watch\x12\x19.loft.CustodyWatchRequest\x1a\x1a.loft.CustodyWatchResponse0\x01\x12=\n" +
+	"\vAcknowledge\x12\x1f.loft.CustodyAcknowledgeRequest\x1a\r.loft.Custody\x123\n" +
+	"\x06Return\x12\x1a.loft.CustodyReturnRequest\x1a\r.loft.Custody\x123\n" +
+	"\x06Extend\x12\x1a.loft.CustodyExtendRequest\x1a\r.loft.Custody\x12P\n" +
+	"\vOutstanding\x12\x1f.loft.CustodyOutstandingRequest\x1a .loft.CustodyOutstandingResponse\x12O\n" +
+	"\x11ExportOutstanding\x12\x1f.loft.CustodyOutstandingRequest\x1a\x19.loft.AssetExportResponse2\xfc\x02\n" +
 	"\x12CustodyLineService\x125\n" +
-	"\x03Add\x12\x1b.rove.CustodyLineAddRequest\x1a\x11.rove.CustodyLine\x125\n" +
-	"\x03Get\x12\x1b.rove.CustodyLineGetRequest\x1a\x11.rove.CustodyLine\x129\n" +
-	"\x05Patch\x12\x1d.rove.CustodyLinePatchRequest\x1a\x11.rove.CustodyLine\x129\n" +
-	"\x05Apply\x12\x1d.rove.CustodyLineApplyRequest\x1a\x11.rove.CustodyLine\x12=\n" +
-	"\x05Erase\x12\x14.rove.CustodyLineRef\x1a\x1e.rove.CustodyLineEraseResponse\x12C\n" +
-	"\x04List\x12\x1c.rove.CustodyLineListRequest\x1a\x1d.rove.CustodyLineListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x1b.loft.CustodyLineAddRequest\x1a\x11.loft.CustodyLine\x125\n" +
+	"\x03Get\x12\x1b.loft.CustodyLineGetRequest\x1a\x11.loft.CustodyLine\x129\n" +
+	"\x05Patch\x12\x1d.loft.CustodyLinePatchRequest\x1a\x11.loft.CustodyLine\x129\n" +
+	"\x05Apply\x12\x1d.loft.CustodyLineApplyRequest\x1a\x11.loft.CustodyLine\x12=\n" +
+	"\x05Erase\x12\x14.loft.CustodyLineRef\x1a\x1e.loft.CustodyLineEraseResponse\x12C\n" +
+	"\x04List\x12\x1c.loft.CustodyLineListRequest\x1a\x1d.loft.CustodyLineListResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_custody_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
-var file_rove_custody_svc_g_proto_goTypes = []any{
-	(*CustodyAddRequest)(nil),          // 0: rove.CustodyAddRequest
-	(*CustodyLineSpec)(nil),            // 1: rove.CustodyLineSpec
-	(*CustodyGetRequest)(nil),          // 2: rove.CustodyGetRequest
-	(*CustodyRef)(nil),                 // 3: rove.CustodyRef
-	(*CustodySelect)(nil),              // 4: rove.CustodySelect
-	(*CustodyPatchRequest)(nil),        // 5: rove.CustodyPatchRequest
-	(*CustodyApplyRequest)(nil),        // 6: rove.CustodyApplyRequest
-	(*CustodyEraseResponse)(nil),       // 7: rove.CustodyEraseResponse
-	(*CustodyListRequest)(nil),         // 8: rove.CustodyListRequest
-	(*CustodyListResponse)(nil),        // 9: rove.CustodyListResponse
-	(*CustodyFilter)(nil),              // 10: rove.CustodyFilter
-	(*CustodyWatchRequest)(nil),        // 11: rove.CustodyWatchRequest
-	(*CustodyWatchResponse)(nil),       // 12: rove.CustodyWatchResponse
-	(*CustodyWatchItem)(nil),           // 13: rove.CustodyWatchItem
-	(*CustodyAcknowledgeRequest)(nil),  // 14: rove.CustodyAcknowledgeRequest
-	(*CustodyReturnRequest)(nil),       // 15: rove.CustodyReturnRequest
-	(*CustodyReturnLine)(nil),          // 16: rove.CustodyReturnLine
-	(*CustodyLineRef)(nil),             // 17: rove.CustodyLineRef
-	(*CustodyExtendRequest)(nil),       // 18: rove.CustodyExtendRequest
-	(*CustodyOutstandingRequest)(nil),  // 19: rove.CustodyOutstandingRequest
-	(*CustodyOutstandingResponse)(nil), // 20: rove.CustodyOutstandingResponse
-	(*CustodyOutstandingRow)(nil),      // 21: rove.CustodyOutstandingRow
-	(*CustodyLineAddRequest)(nil),      // 22: rove.CustodyLineAddRequest
-	(*CustodyLineGetRequest)(nil),      // 23: rove.CustodyLineGetRequest
-	(*CustodyLineSelect)(nil),          // 24: rove.CustodyLineSelect
-	(*CustodyLinePatchRequest)(nil),    // 25: rove.CustodyLinePatchRequest
-	(*CustodyLineApplyRequest)(nil),    // 26: rove.CustodyLineApplyRequest
-	(*CustodyLineEraseResponse)(nil),   // 27: rove.CustodyLineEraseResponse
-	(*CustodyLineListRequest)(nil),     // 28: rove.CustodyLineListRequest
-	(*CustodyLineListResponse)(nil),    // 29: rove.CustodyLineListResponse
-	(*CustodyLineFilter)(nil),          // 30: rove.CustodyLineFilter
-	(*TenantRef)(nil),                  // 31: rove.TenantRef
-	(*PartyRef)(nil),                   // 32: rove.PartyRef
+var file_loft_custody_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_loft_custody_svc_g_proto_goTypes = []any{
+	(*CustodyAddRequest)(nil),          // 0: loft.CustodyAddRequest
+	(*CustodyLineSpec)(nil),            // 1: loft.CustodyLineSpec
+	(*CustodyGetRequest)(nil),          // 2: loft.CustodyGetRequest
+	(*CustodyRef)(nil),                 // 3: loft.CustodyRef
+	(*CustodySelect)(nil),              // 4: loft.CustodySelect
+	(*CustodyPatchRequest)(nil),        // 5: loft.CustodyPatchRequest
+	(*CustodyApplyRequest)(nil),        // 6: loft.CustodyApplyRequest
+	(*CustodyEraseResponse)(nil),       // 7: loft.CustodyEraseResponse
+	(*CustodyListRequest)(nil),         // 8: loft.CustodyListRequest
+	(*CustodyListResponse)(nil),        // 9: loft.CustodyListResponse
+	(*CustodyFilter)(nil),              // 10: loft.CustodyFilter
+	(*CustodyWatchRequest)(nil),        // 11: loft.CustodyWatchRequest
+	(*CustodyWatchResponse)(nil),       // 12: loft.CustodyWatchResponse
+	(*CustodyWatchItem)(nil),           // 13: loft.CustodyWatchItem
+	(*CustodyAcknowledgeRequest)(nil),  // 14: loft.CustodyAcknowledgeRequest
+	(*CustodyReturnRequest)(nil),       // 15: loft.CustodyReturnRequest
+	(*CustodyReturnLine)(nil),          // 16: loft.CustodyReturnLine
+	(*CustodyLineRef)(nil),             // 17: loft.CustodyLineRef
+	(*CustodyExtendRequest)(nil),       // 18: loft.CustodyExtendRequest
+	(*CustodyOutstandingRequest)(nil),  // 19: loft.CustodyOutstandingRequest
+	(*CustodyOutstandingResponse)(nil), // 20: loft.CustodyOutstandingResponse
+	(*CustodyOutstandingRow)(nil),      // 21: loft.CustodyOutstandingRow
+	(*CustodyLineAddRequest)(nil),      // 22: loft.CustodyLineAddRequest
+	(*CustodyLineGetRequest)(nil),      // 23: loft.CustodyLineGetRequest
+	(*CustodyLineSelect)(nil),          // 24: loft.CustodyLineSelect
+	(*CustodyLinePatchRequest)(nil),    // 25: loft.CustodyLinePatchRequest
+	(*CustodyLineApplyRequest)(nil),    // 26: loft.CustodyLineApplyRequest
+	(*CustodyLineEraseResponse)(nil),   // 27: loft.CustodyLineEraseResponse
+	(*CustodyLineListRequest)(nil),     // 28: loft.CustodyLineListRequest
+	(*CustodyLineListResponse)(nil),    // 29: loft.CustodyLineListResponse
+	(*CustodyLineFilter)(nil),          // 30: loft.CustodyLineFilter
+	(*TenantRef)(nil),                  // 31: loft.TenantRef
+	(*PartyRef)(nil),                   // 32: loft.PartyRef
 	(*timestamppb.Timestamp)(nil),      // 33: google.protobuf.Timestamp
-	(*AssetRef)(nil),                   // 34: rove.AssetRef
-	(*StockRef)(nil),                   // 35: rove.StockRef
-	(*TenantSelect)(nil),               // 36: rove.TenantSelect
-	(*PartySelect)(nil),                // 37: rove.PartySelect
+	(*AssetRef)(nil),                   // 34: loft.AssetRef
+	(*StockRef)(nil),                   // 35: loft.StockRef
+	(*TenantSelect)(nil),               // 36: loft.TenantSelect
+	(*PartySelect)(nil),                // 37: loft.PartySelect
 	(*patchpb.Patch)(nil),              // 38: patch.Patch
-	(*Custody)(nil),                    // 39: rove.Custody
-	(*AssetSelect)(nil),                // 40: rove.AssetSelect
-	(*StockSelect)(nil),                // 41: rove.StockSelect
-	(*CustodyLine)(nil),                // 42: rove.CustodyLine
-	(*AssetExportResponse)(nil),        // 43: rove.AssetExportResponse
+	(*Custody)(nil),                    // 39: loft.Custody
+	(*AssetSelect)(nil),                // 40: loft.AssetSelect
+	(*StockSelect)(nil),                // 41: loft.StockSelect
+	(*CustodyLine)(nil),                // 42: loft.CustodyLine
+	(*AssetExportResponse)(nil),        // 43: loft.AssetExportResponse
 }
-var file_rove_custody_svc_g_proto_depIdxs = []int32{
-	31, // 0: rove.CustodyAddRequest.tenant:type_name -> rove.TenantRef
-	32, // 1: rove.CustodyAddRequest.party:type_name -> rove.PartyRef
-	33, // 2: rove.CustodyAddRequest.issued_at:type_name -> google.protobuf.Timestamp
-	33, // 3: rove.CustodyAddRequest.due_at:type_name -> google.protobuf.Timestamp
-	33, // 4: rove.CustodyAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	33, // 5: rove.CustodyAddRequest.acknowledged_at:type_name -> google.protobuf.Timestamp
-	33, // 6: rove.CustodyAddRequest.returned_at:type_name -> google.protobuf.Timestamp
-	1,  // 7: rove.CustodyAddRequest.lines:type_name -> rove.CustodyLineSpec
-	34, // 8: rove.CustodyLineSpec.asset:type_name -> rove.AssetRef
-	35, // 9: rove.CustodyLineSpec.stock:type_name -> rove.StockRef
-	3,  // 10: rove.CustodyGetRequest.ref:type_name -> rove.CustodyRef
-	4,  // 11: rove.CustodyGetRequest.select:type_name -> rove.CustodySelect
-	36, // 12: rove.CustodySelect.tenant:type_name -> rove.TenantSelect
-	37, // 13: rove.CustodySelect.party:type_name -> rove.PartySelect
-	3,  // 14: rove.CustodyPatchRequest.ref:type_name -> rove.CustodyRef
-	33, // 15: rove.CustodyPatchRequest.issued_at:type_name -> google.protobuf.Timestamp
-	33, // 16: rove.CustodyPatchRequest.due_at:type_name -> google.protobuf.Timestamp
-	33, // 17: rove.CustodyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	33, // 18: rove.CustodyPatchRequest.acknowledged_at:type_name -> google.protobuf.Timestamp
-	33, // 19: rove.CustodyPatchRequest.returned_at:type_name -> google.protobuf.Timestamp
-	3,  // 20: rove.CustodyApplyRequest.ref:type_name -> rove.CustodyRef
-	38, // 21: rove.CustodyApplyRequest.patch:type_name -> patch.Patch
-	10, // 22: rove.CustodyListRequest.filters:type_name -> rove.CustodyFilter
-	39, // 23: rove.CustodyListResponse.items:type_name -> rove.Custody
-	3,  // 24: rove.CustodyFilter.ref:type_name -> rove.CustodyRef
-	32, // 25: rove.CustodyFilter.party:type_name -> rove.PartyRef
-	10, // 26: rove.CustodyWatchRequest.filters:type_name -> rove.CustodyFilter
-	13, // 27: rove.CustodyWatchResponse.items:type_name -> rove.CustodyWatchItem
-	39, // 28: rove.CustodyWatchItem.value:type_name -> rove.Custody
-	3,  // 29: rove.CustodyAcknowledgeRequest.ref:type_name -> rove.CustodyRef
-	3,  // 30: rove.CustodyReturnRequest.ref:type_name -> rove.CustodyRef
-	16, // 31: rove.CustodyReturnRequest.lines:type_name -> rove.CustodyReturnLine
-	33, // 32: rove.CustodyReturnRequest.at:type_name -> google.protobuf.Timestamp
-	34, // 33: rove.CustodyReturnRequest.to:type_name -> rove.AssetRef
-	17, // 34: rove.CustodyReturnLine.line:type_name -> rove.CustodyLineRef
-	3,  // 35: rove.CustodyExtendRequest.ref:type_name -> rove.CustodyRef
-	33, // 36: rove.CustodyExtendRequest.due_at:type_name -> google.protobuf.Timestamp
-	21, // 37: rove.CustodyOutstandingResponse.rows:type_name -> rove.CustodyOutstandingRow
-	33, // 38: rove.CustodyOutstandingResponse.at:type_name -> google.protobuf.Timestamp
-	33, // 39: rove.CustodyOutstandingRow.issued_at:type_name -> google.protobuf.Timestamp
-	33, // 40: rove.CustodyOutstandingRow.due_at:type_name -> google.protobuf.Timestamp
-	31, // 41: rove.CustodyLineAddRequest.tenant:type_name -> rove.TenantRef
-	3,  // 42: rove.CustodyLineAddRequest.custody:type_name -> rove.CustodyRef
-	34, // 43: rove.CustodyLineAddRequest.asset:type_name -> rove.AssetRef
-	35, // 44: rove.CustodyLineAddRequest.stock:type_name -> rove.StockRef
-	33, // 45: rove.CustodyLineAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	33, // 46: rove.CustodyLineAddRequest.out_at:type_name -> google.protobuf.Timestamp
-	33, // 47: rove.CustodyLineAddRequest.returned_at:type_name -> google.protobuf.Timestamp
-	17, // 48: rove.CustodyLineGetRequest.ref:type_name -> rove.CustodyLineRef
-	24, // 49: rove.CustodyLineGetRequest.select:type_name -> rove.CustodyLineSelect
-	36, // 50: rove.CustodyLineSelect.tenant:type_name -> rove.TenantSelect
-	4,  // 51: rove.CustodyLineSelect.custody:type_name -> rove.CustodySelect
-	40, // 52: rove.CustodyLineSelect.asset:type_name -> rove.AssetSelect
-	41, // 53: rove.CustodyLineSelect.stock:type_name -> rove.StockSelect
-	17, // 54: rove.CustodyLinePatchRequest.ref:type_name -> rove.CustodyLineRef
-	33, // 55: rove.CustodyLinePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	33, // 56: rove.CustodyLinePatchRequest.out_at:type_name -> google.protobuf.Timestamp
-	33, // 57: rove.CustodyLinePatchRequest.returned_at:type_name -> google.protobuf.Timestamp
-	17, // 58: rove.CustodyLineApplyRequest.ref:type_name -> rove.CustodyLineRef
-	38, // 59: rove.CustodyLineApplyRequest.patch:type_name -> patch.Patch
-	30, // 60: rove.CustodyLineListRequest.filters:type_name -> rove.CustodyLineFilter
-	42, // 61: rove.CustodyLineListResponse.items:type_name -> rove.CustodyLine
-	17, // 62: rove.CustodyLineFilter.ref:type_name -> rove.CustodyLineRef
-	3,  // 63: rove.CustodyLineFilter.custody:type_name -> rove.CustodyRef
-	34, // 64: rove.CustodyLineFilter.asset:type_name -> rove.AssetRef
-	35, // 65: rove.CustodyLineFilter.stock:type_name -> rove.StockRef
-	0,  // 66: rove.CustodyService.Add:input_type -> rove.CustodyAddRequest
-	2,  // 67: rove.CustodyService.Get:input_type -> rove.CustodyGetRequest
-	5,  // 68: rove.CustodyService.Patch:input_type -> rove.CustodyPatchRequest
-	6,  // 69: rove.CustodyService.Apply:input_type -> rove.CustodyApplyRequest
-	3,  // 70: rove.CustodyService.Erase:input_type -> rove.CustodyRef
-	8,  // 71: rove.CustodyService.List:input_type -> rove.CustodyListRequest
-	11, // 72: rove.CustodyService.Watch:input_type -> rove.CustodyWatchRequest
-	14, // 73: rove.CustodyService.Acknowledge:input_type -> rove.CustodyAcknowledgeRequest
-	15, // 74: rove.CustodyService.Return:input_type -> rove.CustodyReturnRequest
-	18, // 75: rove.CustodyService.Extend:input_type -> rove.CustodyExtendRequest
-	19, // 76: rove.CustodyService.Outstanding:input_type -> rove.CustodyOutstandingRequest
-	19, // 77: rove.CustodyService.ExportOutstanding:input_type -> rove.CustodyOutstandingRequest
-	22, // 78: rove.CustodyLineService.Add:input_type -> rove.CustodyLineAddRequest
-	23, // 79: rove.CustodyLineService.Get:input_type -> rove.CustodyLineGetRequest
-	25, // 80: rove.CustodyLineService.Patch:input_type -> rove.CustodyLinePatchRequest
-	26, // 81: rove.CustodyLineService.Apply:input_type -> rove.CustodyLineApplyRequest
-	17, // 82: rove.CustodyLineService.Erase:input_type -> rove.CustodyLineRef
-	28, // 83: rove.CustodyLineService.List:input_type -> rove.CustodyLineListRequest
-	39, // 84: rove.CustodyService.Add:output_type -> rove.Custody
-	39, // 85: rove.CustodyService.Get:output_type -> rove.Custody
-	39, // 86: rove.CustodyService.Patch:output_type -> rove.Custody
-	39, // 87: rove.CustodyService.Apply:output_type -> rove.Custody
-	7,  // 88: rove.CustodyService.Erase:output_type -> rove.CustodyEraseResponse
-	9,  // 89: rove.CustodyService.List:output_type -> rove.CustodyListResponse
-	12, // 90: rove.CustodyService.Watch:output_type -> rove.CustodyWatchResponse
-	39, // 91: rove.CustodyService.Acknowledge:output_type -> rove.Custody
-	39, // 92: rove.CustodyService.Return:output_type -> rove.Custody
-	39, // 93: rove.CustodyService.Extend:output_type -> rove.Custody
-	20, // 94: rove.CustodyService.Outstanding:output_type -> rove.CustodyOutstandingResponse
-	43, // 95: rove.CustodyService.ExportOutstanding:output_type -> rove.AssetExportResponse
-	42, // 96: rove.CustodyLineService.Add:output_type -> rove.CustodyLine
-	42, // 97: rove.CustodyLineService.Get:output_type -> rove.CustodyLine
-	42, // 98: rove.CustodyLineService.Patch:output_type -> rove.CustodyLine
-	42, // 99: rove.CustodyLineService.Apply:output_type -> rove.CustodyLine
-	27, // 100: rove.CustodyLineService.Erase:output_type -> rove.CustodyLineEraseResponse
-	29, // 101: rove.CustodyLineService.List:output_type -> rove.CustodyLineListResponse
+var file_loft_custody_svc_g_proto_depIdxs = []int32{
+	31, // 0: loft.CustodyAddRequest.tenant:type_name -> loft.TenantRef
+	32, // 1: loft.CustodyAddRequest.party:type_name -> loft.PartyRef
+	33, // 2: loft.CustodyAddRequest.issued_at:type_name -> google.protobuf.Timestamp
+	33, // 3: loft.CustodyAddRequest.due_at:type_name -> google.protobuf.Timestamp
+	33, // 4: loft.CustodyAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	33, // 5: loft.CustodyAddRequest.acknowledged_at:type_name -> google.protobuf.Timestamp
+	33, // 6: loft.CustodyAddRequest.returned_at:type_name -> google.protobuf.Timestamp
+	1,  // 7: loft.CustodyAddRequest.lines:type_name -> loft.CustodyLineSpec
+	34, // 8: loft.CustodyLineSpec.asset:type_name -> loft.AssetRef
+	35, // 9: loft.CustodyLineSpec.stock:type_name -> loft.StockRef
+	3,  // 10: loft.CustodyGetRequest.ref:type_name -> loft.CustodyRef
+	4,  // 11: loft.CustodyGetRequest.select:type_name -> loft.CustodySelect
+	36, // 12: loft.CustodySelect.tenant:type_name -> loft.TenantSelect
+	37, // 13: loft.CustodySelect.party:type_name -> loft.PartySelect
+	3,  // 14: loft.CustodyPatchRequest.ref:type_name -> loft.CustodyRef
+	33, // 15: loft.CustodyPatchRequest.issued_at:type_name -> google.protobuf.Timestamp
+	33, // 16: loft.CustodyPatchRequest.due_at:type_name -> google.protobuf.Timestamp
+	33, // 17: loft.CustodyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	33, // 18: loft.CustodyPatchRequest.acknowledged_at:type_name -> google.protobuf.Timestamp
+	33, // 19: loft.CustodyPatchRequest.returned_at:type_name -> google.protobuf.Timestamp
+	3,  // 20: loft.CustodyApplyRequest.ref:type_name -> loft.CustodyRef
+	38, // 21: loft.CustodyApplyRequest.patch:type_name -> patch.Patch
+	10, // 22: loft.CustodyListRequest.filters:type_name -> loft.CustodyFilter
+	39, // 23: loft.CustodyListResponse.items:type_name -> loft.Custody
+	3,  // 24: loft.CustodyFilter.ref:type_name -> loft.CustodyRef
+	32, // 25: loft.CustodyFilter.party:type_name -> loft.PartyRef
+	10, // 26: loft.CustodyWatchRequest.filters:type_name -> loft.CustodyFilter
+	13, // 27: loft.CustodyWatchResponse.items:type_name -> loft.CustodyWatchItem
+	39, // 28: loft.CustodyWatchItem.value:type_name -> loft.Custody
+	3,  // 29: loft.CustodyAcknowledgeRequest.ref:type_name -> loft.CustodyRef
+	3,  // 30: loft.CustodyReturnRequest.ref:type_name -> loft.CustodyRef
+	16, // 31: loft.CustodyReturnRequest.lines:type_name -> loft.CustodyReturnLine
+	33, // 32: loft.CustodyReturnRequest.at:type_name -> google.protobuf.Timestamp
+	34, // 33: loft.CustodyReturnRequest.to:type_name -> loft.AssetRef
+	17, // 34: loft.CustodyReturnLine.line:type_name -> loft.CustodyLineRef
+	3,  // 35: loft.CustodyExtendRequest.ref:type_name -> loft.CustodyRef
+	33, // 36: loft.CustodyExtendRequest.due_at:type_name -> google.protobuf.Timestamp
+	21, // 37: loft.CustodyOutstandingResponse.rows:type_name -> loft.CustodyOutstandingRow
+	33, // 38: loft.CustodyOutstandingResponse.at:type_name -> google.protobuf.Timestamp
+	33, // 39: loft.CustodyOutstandingRow.issued_at:type_name -> google.protobuf.Timestamp
+	33, // 40: loft.CustodyOutstandingRow.due_at:type_name -> google.protobuf.Timestamp
+	31, // 41: loft.CustodyLineAddRequest.tenant:type_name -> loft.TenantRef
+	3,  // 42: loft.CustodyLineAddRequest.custody:type_name -> loft.CustodyRef
+	34, // 43: loft.CustodyLineAddRequest.asset:type_name -> loft.AssetRef
+	35, // 44: loft.CustodyLineAddRequest.stock:type_name -> loft.StockRef
+	33, // 45: loft.CustodyLineAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	33, // 46: loft.CustodyLineAddRequest.out_at:type_name -> google.protobuf.Timestamp
+	33, // 47: loft.CustodyLineAddRequest.returned_at:type_name -> google.protobuf.Timestamp
+	17, // 48: loft.CustodyLineGetRequest.ref:type_name -> loft.CustodyLineRef
+	24, // 49: loft.CustodyLineGetRequest.select:type_name -> loft.CustodyLineSelect
+	36, // 50: loft.CustodyLineSelect.tenant:type_name -> loft.TenantSelect
+	4,  // 51: loft.CustodyLineSelect.custody:type_name -> loft.CustodySelect
+	40, // 52: loft.CustodyLineSelect.asset:type_name -> loft.AssetSelect
+	41, // 53: loft.CustodyLineSelect.stock:type_name -> loft.StockSelect
+	17, // 54: loft.CustodyLinePatchRequest.ref:type_name -> loft.CustodyLineRef
+	33, // 55: loft.CustodyLinePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	33, // 56: loft.CustodyLinePatchRequest.out_at:type_name -> google.protobuf.Timestamp
+	33, // 57: loft.CustodyLinePatchRequest.returned_at:type_name -> google.protobuf.Timestamp
+	17, // 58: loft.CustodyLineApplyRequest.ref:type_name -> loft.CustodyLineRef
+	38, // 59: loft.CustodyLineApplyRequest.patch:type_name -> patch.Patch
+	30, // 60: loft.CustodyLineListRequest.filters:type_name -> loft.CustodyLineFilter
+	42, // 61: loft.CustodyLineListResponse.items:type_name -> loft.CustodyLine
+	17, // 62: loft.CustodyLineFilter.ref:type_name -> loft.CustodyLineRef
+	3,  // 63: loft.CustodyLineFilter.custody:type_name -> loft.CustodyRef
+	34, // 64: loft.CustodyLineFilter.asset:type_name -> loft.AssetRef
+	35, // 65: loft.CustodyLineFilter.stock:type_name -> loft.StockRef
+	0,  // 66: loft.CustodyService.Add:input_type -> loft.CustodyAddRequest
+	2,  // 67: loft.CustodyService.Get:input_type -> loft.CustodyGetRequest
+	5,  // 68: loft.CustodyService.Patch:input_type -> loft.CustodyPatchRequest
+	6,  // 69: loft.CustodyService.Apply:input_type -> loft.CustodyApplyRequest
+	3,  // 70: loft.CustodyService.Erase:input_type -> loft.CustodyRef
+	8,  // 71: loft.CustodyService.List:input_type -> loft.CustodyListRequest
+	11, // 72: loft.CustodyService.Watch:input_type -> loft.CustodyWatchRequest
+	14, // 73: loft.CustodyService.Acknowledge:input_type -> loft.CustodyAcknowledgeRequest
+	15, // 74: loft.CustodyService.Return:input_type -> loft.CustodyReturnRequest
+	18, // 75: loft.CustodyService.Extend:input_type -> loft.CustodyExtendRequest
+	19, // 76: loft.CustodyService.Outstanding:input_type -> loft.CustodyOutstandingRequest
+	19, // 77: loft.CustodyService.ExportOutstanding:input_type -> loft.CustodyOutstandingRequest
+	22, // 78: loft.CustodyLineService.Add:input_type -> loft.CustodyLineAddRequest
+	23, // 79: loft.CustodyLineService.Get:input_type -> loft.CustodyLineGetRequest
+	25, // 80: loft.CustodyLineService.Patch:input_type -> loft.CustodyLinePatchRequest
+	26, // 81: loft.CustodyLineService.Apply:input_type -> loft.CustodyLineApplyRequest
+	17, // 82: loft.CustodyLineService.Erase:input_type -> loft.CustodyLineRef
+	28, // 83: loft.CustodyLineService.List:input_type -> loft.CustodyLineListRequest
+	39, // 84: loft.CustodyService.Add:output_type -> loft.Custody
+	39, // 85: loft.CustodyService.Get:output_type -> loft.Custody
+	39, // 86: loft.CustodyService.Patch:output_type -> loft.Custody
+	39, // 87: loft.CustodyService.Apply:output_type -> loft.Custody
+	7,  // 88: loft.CustodyService.Erase:output_type -> loft.CustodyEraseResponse
+	9,  // 89: loft.CustodyService.List:output_type -> loft.CustodyListResponse
+	12, // 90: loft.CustodyService.Watch:output_type -> loft.CustodyWatchResponse
+	39, // 91: loft.CustodyService.Acknowledge:output_type -> loft.Custody
+	39, // 92: loft.CustodyService.Return:output_type -> loft.Custody
+	39, // 93: loft.CustodyService.Extend:output_type -> loft.Custody
+	20, // 94: loft.CustodyService.Outstanding:output_type -> loft.CustodyOutstandingResponse
+	43, // 95: loft.CustodyService.ExportOutstanding:output_type -> loft.AssetExportResponse
+	42, // 96: loft.CustodyLineService.Add:output_type -> loft.CustodyLine
+	42, // 97: loft.CustodyLineService.Get:output_type -> loft.CustodyLine
+	42, // 98: loft.CustodyLineService.Patch:output_type -> loft.CustodyLine
+	42, // 99: loft.CustodyLineService.Apply:output_type -> loft.CustodyLine
+	27, // 100: loft.CustodyLineService.Erase:output_type -> loft.CustodyLineEraseResponse
+	29, // 101: loft.CustodyLineService.List:output_type -> loft.CustodyLineListResponse
 	84, // [84:102] is the sub-list for method output_type
 	66, // [66:84] is the sub-list for method input_type
 	66, // [66:66] is the sub-list for extension type_name
@@ -5962,37 +5962,37 @@ var file_rove_custody_svc_g_proto_depIdxs = []int32{
 	0,  // [0:66] is the sub-list for field type_name
 }
 
-func init() { file_rove_custody_svc_g_proto_init() }
-func file_rove_custody_svc_g_proto_init() {
-	if File_rove_custody_svc_g_proto != nil {
+func init() { file_loft_custody_svc_g_proto_init() }
+func file_loft_custody_svc_g_proto_init() {
+	if File_loft_custody_svc_g_proto != nil {
 		return
 	}
-	file_rove_asset_svc_g_proto_init()
-	file_rove_custody_proto_init()
-	file_rove_org_svc_g_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_stock_svc_g_proto_init()
-	file_rove_custody_svc_g_proto_msgTypes[3].OneofWrappers = []any{
+	file_loft_asset_svc_g_proto_init()
+	file_loft_custody_proto_init()
+	file_loft_org_svc_g_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_stock_svc_g_proto_init()
+	file_loft_custody_svc_g_proto_msgTypes[3].OneofWrappers = []any{
 		(*custodyRef_Id)(nil),
 	}
-	file_rove_custody_svc_g_proto_msgTypes[17].OneofWrappers = []any{
+	file_loft_custody_svc_g_proto_msgTypes[17].OneofWrappers = []any{
 		(*custodyLineRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_custody_svc_g_proto_rawDesc), len(file_rove_custody_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_custody_svc_g_proto_rawDesc), len(file_loft_custody_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
-		GoTypes:           file_rove_custody_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_custody_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_custody_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_custody_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_custody_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_custody_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_custody_svc_g_proto = out.File
-	file_rove_custody_svc_g_proto_goTypes = nil
-	file_rove_custody_svc_g_proto_depIdxs = nil
+	File_loft_custody_svc_g_proto = out.File
+	file_loft_custody_svc_g_proto_goTypes = nil
+	file_loft_custody_svc_g_proto_depIdxs = nil
 }

@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/org_svc.g.proto
+// source: loft/org_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,21 +19,21 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PartyService_Add_FullMethodName          = "/rove.PartyService/Add"
-	PartyService_Get_FullMethodName          = "/rove.PartyService/Get"
-	PartyService_Patch_FullMethodName        = "/rove.PartyService/Patch"
-	PartyService_Apply_FullMethodName        = "/rove.PartyService/Apply"
-	PartyService_Erase_FullMethodName        = "/rove.PartyService/Erase"
-	PartyService_List_FullMethodName         = "/rove.PartyService/List"
-	PartyService_Watch_FullMethodName        = "/rove.PartyService/Watch"
-	PartyService_Me_FullMethodName           = "/rove.PartyService/Me"
-	PartyService_Update_FullMethodName       = "/rove.PartyService/Update"
-	PartyService_Invite_FullMethodName       = "/rove.PartyService/Invite"
-	PartyService_SetRole_FullMethodName      = "/rove.PartyService/SetRole"
-	PartyService_SetPassword_FullMethodName  = "/rove.PartyService/SetPassword"
-	PartyService_Deactivate_FullMethodName   = "/rove.PartyService/Deactivate"
-	PartyService_Pseudonymize_FullMethodName = "/rove.PartyService/Pseudonymize"
-	PartyService_Search_FullMethodName       = "/rove.PartyService/Search"
+	PartyService_Add_FullMethodName          = "/loft.PartyService/Add"
+	PartyService_Get_FullMethodName          = "/loft.PartyService/Get"
+	PartyService_Patch_FullMethodName        = "/loft.PartyService/Patch"
+	PartyService_Apply_FullMethodName        = "/loft.PartyService/Apply"
+	PartyService_Erase_FullMethodName        = "/loft.PartyService/Erase"
+	PartyService_List_FullMethodName         = "/loft.PartyService/List"
+	PartyService_Watch_FullMethodName        = "/loft.PartyService/Watch"
+	PartyService_Me_FullMethodName           = "/loft.PartyService/Me"
+	PartyService_Update_FullMethodName       = "/loft.PartyService/Update"
+	PartyService_Invite_FullMethodName       = "/loft.PartyService/Invite"
+	PartyService_SetRole_FullMethodName      = "/loft.PartyService/SetRole"
+	PartyService_SetPassword_FullMethodName  = "/loft.PartyService/SetPassword"
+	PartyService_Deactivate_FullMethodName   = "/loft.PartyService/Deactivate"
+	PartyService_Pseudonymize_FullMethodName = "/loft.PartyService/Pseudonymize"
+	PartyService_Search_FullMethodName       = "/loft.PartyService/Search"
 )
 
 // PartyServiceClient is the client API for PartyService service.
@@ -81,7 +81,7 @@ type PartyServiceClient interface {
 	Pseudonymize(ctx context.Context, in *PartyPseudonymizeRequest, opts ...grpc.CallOption) (*Party, error)
 	// Search finds people, teams, organizations and vendors by what a person
 	// types: a name or part of it, a code, the team one is in. A deployment
-	// that names a search engine asks it (D31, rove#91).
+	// that names a search engine asks it (D31, loft#91).
 	Search(ctx context.Context, in *PartySearchRequest, opts ...grpc.CallOption) (*PartySearchResponse, error)
 }
 
@@ -297,7 +297,7 @@ type PartyServiceServer interface {
 	Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error)
 	// Search finds people, teams, organizations and vendors by what a person
 	// types: a name or part of it, a code, the team one is in. A deployment
-	// that names a search engine asks it (D31, rove#91).
+	// that names a search engine asks it (D31, loft#91).
 	Search(context.Context, *PartySearchRequest) (*PartySearchResponse, error)
 	mustEmbedUnimplementedPartyServiceServer()
 }
@@ -642,7 +642,7 @@ func _PartyService_Search_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PartyService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.PartyService",
+	ServiceName: "loft.PartyService",
 	HandlerType: (*PartyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -709,7 +709,7 @@ var PartyService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/org_svc.g.proto",
+	Metadata: "loft/org_svc.g.proto",
 }
 
 // SessionServiceClient is the client API for SessionService service.
@@ -765,24 +765,24 @@ func RegisterSessionServiceServer(s grpc.ServiceRegistrar, srv SessionServiceSer
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SessionService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.SessionService",
+	ServiceName: "loft.SessionService",
 	HandlerType: (*SessionServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams:     []grpc.StreamDesc{},
-	Metadata:    "rove/org_svc.g.proto",
+	Metadata:    "loft/org_svc.g.proto",
 }
 
 const (
-	InvitationService_Add_FullMethodName    = "/rove.InvitationService/Add"
-	InvitationService_Get_FullMethodName    = "/rove.InvitationService/Get"
-	InvitationService_Patch_FullMethodName  = "/rove.InvitationService/Patch"
-	InvitationService_Apply_FullMethodName  = "/rove.InvitationService/Apply"
-	InvitationService_Erase_FullMethodName  = "/rove.InvitationService/Erase"
-	InvitationService_List_FullMethodName   = "/rove.InvitationService/List"
-	InvitationService_Revoke_FullMethodName = "/rove.InvitationService/Revoke"
-	InvitationService_Claim_FullMethodName  = "/rove.InvitationService/Claim"
-	InvitationService_Accept_FullMethodName = "/rove.InvitationService/Accept"
-	InvitationService_Deny_FullMethodName   = "/rove.InvitationService/Deny"
+	InvitationService_Add_FullMethodName    = "/loft.InvitationService/Add"
+	InvitationService_Get_FullMethodName    = "/loft.InvitationService/Get"
+	InvitationService_Patch_FullMethodName  = "/loft.InvitationService/Patch"
+	InvitationService_Apply_FullMethodName  = "/loft.InvitationService/Apply"
+	InvitationService_Erase_FullMethodName  = "/loft.InvitationService/Erase"
+	InvitationService_List_FullMethodName   = "/loft.InvitationService/List"
+	InvitationService_Revoke_FullMethodName = "/loft.InvitationService/Revoke"
+	InvitationService_Claim_FullMethodName  = "/loft.InvitationService/Claim"
+	InvitationService_Accept_FullMethodName = "/loft.InvitationService/Accept"
+	InvitationService_Deny_FullMethodName   = "/loft.InvitationService/Deny"
 )
 
 // InvitationServiceClient is the client API for InvitationService service.
@@ -1192,7 +1192,7 @@ func _InvitationService_Deny_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var InvitationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.InvitationService",
+	ServiceName: "loft.InvitationService",
 	HandlerType: (*InvitationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1237,7 +1237,7 @@ var InvitationService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/org_svc.g.proto",
+	Metadata: "loft/org_svc.g.proto",
 }
 
 // CliLoginServiceClient is the client API for CliLoginService service.
@@ -1293,11 +1293,11 @@ func RegisterCliLoginServiceServer(s grpc.ServiceRegistrar, srv CliLoginServiceS
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CliLoginService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.CliLoginService",
+	ServiceName: "loft.CliLoginService",
 	HandlerType: (*CliLoginServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams:     []grpc.StreamDesc{},
-	Metadata:    "rove/org_svc.g.proto",
+	Metadata:    "loft/org_svc.g.proto",
 }
 
 // AliasHoldServiceClient is the client API for AliasHoldService service.
@@ -1353,11 +1353,11 @@ func RegisterAliasHoldServiceServer(s grpc.ServiceRegistrar, srv AliasHoldServic
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AliasHoldService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.AliasHoldService",
+	ServiceName: "loft.AliasHoldService",
 	HandlerType: (*AliasHoldServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams:     []grpc.StreamDesc{},
-	Metadata:    "rove/org_svc.g.proto",
+	Metadata:    "loft/org_svc.g.proto",
 }
 
 // SignInFailureServiceClient is the client API for SignInFailureService service.
@@ -1413,11 +1413,11 @@ func RegisterSignInFailureServiceServer(s grpc.ServiceRegistrar, srv SignInFailu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SignInFailureService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.SignInFailureService",
+	ServiceName: "loft.SignInFailureService",
 	HandlerType: (*SignInFailureServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams:     []grpc.StreamDesc{},
-	Metadata:    "rove/org_svc.g.proto",
+	Metadata:    "loft/org_svc.g.proto",
 }
 
 // HandoffServiceClient is the client API for HandoffService service.
@@ -1473,9 +1473,9 @@ func RegisterHandoffServiceServer(s grpc.ServiceRegistrar, srv HandoffServiceSer
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HandoffService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.HandoffService",
+	ServiceName: "loft.HandoffService",
 	HandlerType: (*HandoffServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams:     []grpc.StreamDesc{},
-	Metadata:    "rove/org_svc.g.proto",
+	Metadata:    "loft/org_svc.g.proto",
 }

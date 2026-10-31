@@ -12,13 +12,13 @@ import (
 	"github.com/protobuf-orm/ent/dialect"
 	entsql "github.com/protobuf-orm/ent/dialect/sql"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// An asset's facts were Rove's own table, a row for each key it wrote --
+// An asset's facts were Loft's own table, a row for each key it wrote --
 // `status`, `attr.cpu` -- holding the value as the text it was said in, and
 // are payday's past's since (payday#151): a row for each field of the asset,
 // by its number, holding the value's canonical JSON. The rows are the same
@@ -27,18 +27,18 @@ import (
 // that makes the new table: what [stashFacts] sets aside, [moveFacts] moves
 // back, rewritten.
 
-// factsAside is where [stashFacts] sets an asset's facts aside, as Rove kept
+// factsAside is where [stashFacts] sets an asset's facts aside, as Loft kept
 // them, while the schema's migration makes payday's Fact in their place; and
 // factsMoved what [moveFacts] makes each of them, as payday's past keeps it.
 const (
-	factsAside = "rove_fact_aside"
-	factsMoved = "rove_fact_moved"
+	factsAside = "loft_fact_aside"
+	factsMoved = "loft_fact_moved"
 )
 
 // MovedFacts is the act a fact moved into payday's past is on the trail as.
-const MovedFacts = "rove.migrate.facts"
+const MovedFacts = "loft.migrate.facts"
 
-// stashFacts sets Rove's facts aside and takes their table out, before the
+// stashFacts sets Loft's facts aside and takes their table out, before the
 // schema is migrated, for [moveFacts] to move back once payday's Fact is made
 // in its place.
 //
@@ -53,7 +53,7 @@ const MovedFacts = "rove.migrate.facts"
 // one.
 //
 // It is one transaction, which sets aside and takes out together or not at
-// all; and it is done once, while the table is Rove's.
+// all; and it is done once, while the table is Loft's.
 func stashFacts(ctx context.Context, s *cmd.Server) error {
 	has, err := hasColumn(ctx, s, "fact", "asset_id")
 	if err != nil || !has {
@@ -100,7 +100,7 @@ const movePage = 1000
 // A fact the past cannot write -- a key that is no field of an asset, an
 // identifier that does not read as one, text that is not UTF-8 -- is refused
 // with the others, each kind of them by how many, and nothing is moved: such
-// a fact was never what Rove wrote, and it is a person's to say what it was.
+// a fact was never what Loft wrote, and it is a person's to say what it was.
 //
 // Each fact moved is a row rewritten beneath the servers, so it is put on the
 // trail as the act it is ([MovedFacts], `pd.Record`), in the same

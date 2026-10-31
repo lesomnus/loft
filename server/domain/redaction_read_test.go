@@ -7,9 +7,9 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // TestAReasonTakenOutReadsBeforeAnythingWritesOne: a build that declares

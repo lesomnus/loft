@@ -9,7 +9,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )

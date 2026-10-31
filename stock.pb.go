@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/stock.proto
+// source: loft/stock.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -45,7 +45,7 @@ type Stock struct {
 
 func (x *Stock) Reset() {
 	*x = Stock{}
-	mi := &file_rove_stock_proto_msgTypes[0]
+	mi := &file_loft_stock_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -57,7 +57,7 @@ func (x *Stock) String() string {
 func (*Stock) ProtoMessage() {}
 
 func (x *Stock) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_stock_proto_msgTypes[0]
+	mi := &file_loft_stock_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -326,7 +326,7 @@ type StockMovement struct {
 
 func (x *StockMovement) Reset() {
 	*x = StockMovement{}
-	mi := &file_rove_stock_proto_msgTypes[1]
+	mi := &file_loft_stock_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -338,7 +338,7 @@ func (x *StockMovement) String() string {
 func (*StockMovement) ProtoMessage() {}
 
 func (x *StockMovement) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_stock_proto_msgTypes[1]
+	mi := &file_loft_stock_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -570,18 +570,18 @@ func (b0 StockMovement_builder) Build() *StockMovement {
 	return m0
 }
 
-var File_rove_stock_proto protoreflect.FileDescriptor
+var File_loft_stock_proto protoreflect.FileDescriptor
 
-const file_rove_stock_proto_rawDesc = "" +
+const file_loft_stock_proto_rawDesc = "" +
 	"\n" +
-	"\x10rove/stock.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x12rove/catalog.proto\x1a\x18rove/payday/tenant.proto\"\x91\x06\n" +
+	"\x10loft/stock.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x12loft/catalog.proto\x1a\x18loft/payday/tenant.proto\"\x91\x06\n" +
 	"\x05Stock\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12/\n" +
-	"\x06labels\x18\a \x03(\v2\x17.rove.Stock.LabelsEntryR\x06labels\x12-\n" +
-	"\x05model\x18\b \x01(\v2\x0f.rove.ItemModelB\x06\xf2\x82\x16\x02@\x01R\x05model\x12)\n" +
-	"\x05space\x18\t \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05space\x12\x1a\n" +
+	"\x06labels\x18\a \x03(\v2\x17.loft.Stock.LabelsEntryR\x06labels\x12-\n" +
+	"\x05model\x18\b \x01(\v2\x0f.loft.ItemModelB\x06\xf2\x82\x16\x02@\x01R\x05model\x12)\n" +
+	"\x05space\x18\t \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x05space\x12\x1a\n" +
 	"\bquantity\x18\n" +
 	" \x01(\x03R\bquantity\x12\x1c\n" +
 	"\tthreshold\x18\v \x01(\x03R\tthreshold\x12\x12\n" +
@@ -611,8 +611,8 @@ const file_rove_stock_proto_rawDesc = "" +
 	"\x06tenant\"\fmodel.tenant\"\fspace.tenant\"\xc5\x05\n" +
 	"\rStockMovement\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
-	"\x05stock\x18\b \x01(\v2\v.rove.StockB\x06\xf2\x82\x16\x02@\x01R\x05stock\x12\x14\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
+	"\x05stock\x18\b \x01(\v2\v.loft.StockB\x06\xf2\x82\x16\x02@\x01R\x05stock\x12\x14\n" +
 	"\x05delta\x18\t \x01(\x03R\x05delta\x12\x16\n" +
 	"\x06reason\x18\n" +
 	" \x01(\tR\x06reason\x12\x1f\n" +
@@ -640,31 +640,31 @@ const file_rove_stock_proto_rawDesc = "" +
 	"\x05stock\x1a\b\n" +
 	"\x06reason d(\xf4\x03B\x02\n" +
 	"\x00\"\x16\n" +
-	"\x06tenant\"\fstock.tenantB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06tenant\"\fstock.tenantB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_stock_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_rove_stock_proto_goTypes = []any{
-	(*Stock)(nil),                 // 0: rove.Stock
-	(*StockMovement)(nil),         // 1: rove.StockMovement
-	nil,                           // 2: rove.Stock.LabelsEntry
-	(*Tenant)(nil),                // 3: rove.Tenant
-	(*ItemModel)(nil),             // 4: rove.ItemModel
-	(*Asset)(nil),                 // 5: rove.Asset
+var file_loft_stock_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_loft_stock_proto_goTypes = []any{
+	(*Stock)(nil),                 // 0: loft.Stock
+	(*StockMovement)(nil),         // 1: loft.StockMovement
+	nil,                           // 2: loft.Stock.LabelsEntry
+	(*Tenant)(nil),                // 3: loft.Tenant
+	(*ItemModel)(nil),             // 4: loft.ItemModel
+	(*Asset)(nil),                 // 5: loft.Asset
 	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
 }
-var file_rove_stock_proto_depIdxs = []int32{
-	3,  // 0: rove.Stock.tenant:type_name -> rove.Tenant
-	2,  // 1: rove.Stock.labels:type_name -> rove.Stock.LabelsEntry
-	4,  // 2: rove.Stock.model:type_name -> rove.ItemModel
-	5,  // 3: rove.Stock.space:type_name -> rove.Asset
-	6,  // 4: rove.Stock.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 5: rove.Stock.date_erased:type_name -> google.protobuf.Timestamp
-	6,  // 6: rove.Stock.date_created:type_name -> google.protobuf.Timestamp
-	3,  // 7: rove.StockMovement.tenant:type_name -> rove.Tenant
-	0,  // 8: rove.StockMovement.stock:type_name -> rove.Stock
-	6,  // 9: rove.StockMovement.occurred_at:type_name -> google.protobuf.Timestamp
-	6,  // 10: rove.StockMovement.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 11: rove.StockMovement.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_stock_proto_depIdxs = []int32{
+	3,  // 0: loft.Stock.tenant:type_name -> loft.Tenant
+	2,  // 1: loft.Stock.labels:type_name -> loft.Stock.LabelsEntry
+	4,  // 2: loft.Stock.model:type_name -> loft.ItemModel
+	5,  // 3: loft.Stock.space:type_name -> loft.Asset
+	6,  // 4: loft.Stock.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 5: loft.Stock.date_erased:type_name -> google.protobuf.Timestamp
+	6,  // 6: loft.Stock.date_created:type_name -> google.protobuf.Timestamp
+	3,  // 7: loft.StockMovement.tenant:type_name -> loft.Tenant
+	0,  // 8: loft.StockMovement.stock:type_name -> loft.Stock
+	6,  // 9: loft.StockMovement.occurred_at:type_name -> google.protobuf.Timestamp
+	6,  // 10: loft.StockMovement.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 11: loft.StockMovement.date_created:type_name -> google.protobuf.Timestamp
 	12, // [12:12] is the sub-list for method output_type
 	12, // [12:12] is the sub-list for method input_type
 	12, // [12:12] is the sub-list for extension type_name
@@ -672,29 +672,29 @@ var file_rove_stock_proto_depIdxs = []int32{
 	0,  // [0:12] is the sub-list for field type_name
 }
 
-func init() { file_rove_stock_proto_init() }
-func file_rove_stock_proto_init() {
-	if File_rove_stock_proto != nil {
+func init() { file_loft_stock_proto_init() }
+func file_loft_stock_proto_init() {
+	if File_loft_stock_proto != nil {
 		return
 	}
-	file_rove_asset_proto_init()
-	file_rove_catalog_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_asset_proto_init()
+	file_loft_catalog_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_stock_proto_rawDesc), len(file_rove_stock_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_stock_proto_rawDesc), len(file_loft_stock_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_stock_proto_goTypes,
-		DependencyIndexes: file_rove_stock_proto_depIdxs,
-		MessageInfos:      file_rove_stock_proto_msgTypes,
+		GoTypes:           file_loft_stock_proto_goTypes,
+		DependencyIndexes: file_loft_stock_proto_depIdxs,
+		MessageInfos:      file_loft_stock_proto_msgTypes,
 	}.Build()
-	File_rove_stock_proto = out.File
-	file_rove_stock_proto_goTypes = nil
-	file_rove_stock_proto_depIdxs = nil
+	File_loft_stock_proto = out.File
+	file_loft_stock_proto_goTypes = nil
+	file_loft_stock_proto_depIdxs = nil
 }

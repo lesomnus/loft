@@ -17,13 +17,13 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // The kinds of party and the roles a holder acts with.
@@ -264,7 +264,7 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 		return nil
 	})
 	if err != nil && made != pdid.Nil {
-		// Rove kept nothing of them, so roster keeps nothing of the account
+		// Loft kept nothing of them, so roster keeps nothing of the account
 		// made for it either.
 		if e := people.ForgetPerson(ctx, made); e != nil {
 			err = fmt.Errorf("%w (and the person made at roster for it is still there: %v)", err, e)
@@ -337,7 +337,7 @@ func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) 
 // A password is the account's, and the account may be in workspaces this
 // admin has nothing to do with (D27). So somebody else's is changed only when
 // this workspace is the only one their account is in; otherwise it is theirs to
-// change, or the operator's (`rove holder password`).
+// change, or the operator's (`loft holder password`).
 func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordRequest) (*app.PartySetPasswordResponse, error) {
 	people, err := s.deps.here()
 	if err != nil {
@@ -452,7 +452,7 @@ func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateReq
 		}
 		// The record's link to the membership goes below, and with it the
 		// one way a later 개인정보 삭제 had to the membership's names: the
-		// membership keeps which record it was (`Holder.party`, rove#25).
+		// membership keeps which record it was (`Holder.party`, loft#25).
 		// Through ent, as [Tx.endMembership] writes a membership: a stamp,
 		// which no request may set.
 		if err := t.db.Holder.UpdateOneId(h.Uuid()).SetParty(uuidOf(p.GetId())).Exec(t.ctx); err != nil {

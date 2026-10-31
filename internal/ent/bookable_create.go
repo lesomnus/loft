@@ -9,10 +9,10 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -33,7 +33,7 @@ func (_c *BookableCreate) SetTimezone(v string) *BookableCreate {
 }
 
 // SetHours sets the "hours" field.
-func (_c *BookableCreate) SetHours(v *rove.OpeningHours) *BookableCreate {
+func (_c *BookableCreate) SetHours(v *loft.OpeningHours) *BookableCreate {
 	_c.mutation.SetHours(v)
 	return _c
 }

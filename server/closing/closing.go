@@ -9,7 +9,7 @@
 //     over, and held by nothing, is destroyed -- every row and file of it,
 //     and its trail as its contract says: retired, keeping what the
 //     deployment's floors are on until they pass, or purged -- and its
-//     address is held. `rove tenant retire` and `purge` are the same
+//     address is held. `loft tenant retire` and `purge` are the same
 //     destruction by an operator's hand ([Closing.Destroy]);
 //   - [Closing.Rename]: an operator moving a workspace to another address,
 //     which holds the old one and sends whoever arrives at it on.
@@ -32,16 +32,16 @@ import (
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/tenancy"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Closing is a workspace's end, and its address's.
@@ -93,7 +93,7 @@ func (c Closing) Sweep(ctx context.Context) error {
 			}
 			if errors.Is(err, offboard.ErrNoArchive) {
 				log.From(ctx).WarnContext(ctx, "closing: a closed workspace waits: its contract retires it, keeping what the deployment's floors are on, "+
-					"and audit.archive names no archive to keep it in -- name one, or purge it (`rove tenant purge`)", "workspace", t.Alias)
+					"and audit.archive names no archive to keep it in -- name one, or purge it (`loft tenant purge`)", "workspace", t.Alias)
 				continue
 			}
 			errs = append(errs, fmt.Errorf("@%s: %w", t.Alias, err))
@@ -145,7 +145,7 @@ func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) 
 
 	// The accounts of the roster in this process that were here and nowhere
 	// else go with it, and before it: a destroy that stops after them is run
-	// again and finishes. An account at a roster of its own is never Rove's
+	// again and finishes. An account at a roster of its own is never Loft's
 	// to take.
 	var accounts []pdid.Id
 	if c.People != nil && c.People.Embedded() {
@@ -313,8 +313,8 @@ func (c Closing) release(ctx context.Context, id uuid.UUID) error {
 // Held is the act a held address is on the trail as, and Reused the hold
 // erased early, for an operator who took the address anyway.
 const (
-	Held   = "rove.alias.hold"
-	Reused = "rove.alias.reuse"
+	Held   = "loft.alias.hold"
+	Reused = "loft.alias.reuse"
 )
 
 // OnlyHere is the accounts of a workspace's members that are members of no

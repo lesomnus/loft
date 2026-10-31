@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/catalog.proto
+// source: loft/catalog.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -45,7 +45,7 @@ type AssetType struct {
 
 func (x *AssetType) Reset() {
 	*x = AssetType{}
-	mi := &file_rove_catalog_proto_msgTypes[0]
+	mi := &file_loft_catalog_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -57,7 +57,7 @@ func (x *AssetType) String() string {
 func (*AssetType) ProtoMessage() {}
 
 func (x *AssetType) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_catalog_proto_msgTypes[0]
+	mi := &file_loft_catalog_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -310,7 +310,7 @@ type TypeSpec struct {
 
 func (x *TypeSpec) Reset() {
 	*x = TypeSpec{}
-	mi := &file_rove_catalog_proto_msgTypes[1]
+	mi := &file_loft_catalog_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -322,7 +322,7 @@ func (x *TypeSpec) String() string {
 func (*TypeSpec) ProtoMessage() {}
 
 func (x *TypeSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_catalog_proto_msgTypes[1]
+	mi := &file_loft_catalog_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -389,7 +389,7 @@ type AttributeDef struct {
 
 func (x *AttributeDef) Reset() {
 	*x = AttributeDef{}
-	mi := &file_rove_catalog_proto_msgTypes[2]
+	mi := &file_loft_catalog_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -401,7 +401,7 @@ func (x *AttributeDef) String() string {
 func (*AttributeDef) ProtoMessage() {}
 
 func (x *AttributeDef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_catalog_proto_msgTypes[2]
+	mi := &file_loft_catalog_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -525,7 +525,7 @@ type ItemModel struct {
 
 func (x *ItemModel) Reset() {
 	*x = ItemModel{}
-	mi := &file_rove_catalog_proto_msgTypes[3]
+	mi := &file_loft_catalog_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -537,7 +537,7 @@ func (x *ItemModel) String() string {
 func (*ItemModel) ProtoMessage() {}
 
 func (x *ItemModel) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_catalog_proto_msgTypes[3]
+	mi := &file_loft_catalog_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -797,7 +797,7 @@ type ModelSpec struct {
 
 func (x *ModelSpec) Reset() {
 	*x = ModelSpec{}
-	mi := &file_rove_catalog_proto_msgTypes[4]
+	mi := &file_loft_catalog_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -809,7 +809,7 @@ func (x *ModelSpec) String() string {
 func (*ModelSpec) ProtoMessage() {}
 
 func (x *ModelSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_catalog_proto_msgTypes[4]
+	mi := &file_loft_catalog_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -886,7 +886,7 @@ type SlotDef struct {
 
 func (x *SlotDef) Reset() {
 	*x = SlotDef{}
-	mi := &file_rove_catalog_proto_msgTypes[5]
+	mi := &file_loft_catalog_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -898,7 +898,7 @@ func (x *SlotDef) String() string {
 func (*SlotDef) ProtoMessage() {}
 
 func (x *SlotDef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_catalog_proto_msgTypes[5]
+	mi := &file_loft_catalog_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -947,21 +947,21 @@ func (b0 SlotDef_builder) Build() *SlotDef {
 	return m0
 }
 
-var File_rove_catalog_proto protoreflect.FileDescriptor
+var File_loft_catalog_proto protoreflect.FileDescriptor
 
-const file_rove_catalog_proto_rawDesc = "" +
+const file_loft_catalog_proto_rawDesc = "" +
 	"\n" +
-	"\x12rove/catalog.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xd1\x05\n" +
+	"\x12loft/catalog.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/tenant.proto\"\xd1\x05\n" +
 	"\tAssetType\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc\x123\n" +
-	"\x06labels\x18\a \x03(\v2\x1b.rove.AssetType.LabelsEntryR\x06labels\x12%\n" +
+	"\x06labels\x18\a \x03(\v2\x1b.loft.AssetType.LabelsEntryR\x06labels\x12%\n" +
 	"\tparent_id\x18\b \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\bparentId\x12\x12\n" +
 	"\x04kind\x18\t \x01(\tR\x04kind\x12*\n" +
 	"\x04spec\x18\n" +
-	" \x01(\v2\x0e.rove.TypeSpecB\x06\xea\x82\x16\x028\x01R\x04spec\x12%\n" +
+	" \x01(\v2\x0e.loft.TypeSpecB\x06\xea\x82\x16\x028\x01R\x04spec\x12%\n" +
 	"\x0eschema_version\x18\v \x01(\rR\rschemaVersion\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
@@ -985,7 +985,7 @@ const file_rove_catalog_proto_rawDesc = "" +
 	"\tparent_id d(\xf4\x03:\x00\"b\n" +
 	"\bTypeSpec\x122\n" +
 	"\n" +
-	"attributes\x18\x01 \x03(\v2\x12.rove.AttributeDefR\n" +
+	"attributes\x18\x01 \x03(\v2\x12.loft.AttributeDefR\n" +
 	"attributes\x12\"\n" +
 	"\fcapabilities\x18\x02 \x03(\tR\fcapabilities\"\x94\x01\n" +
 	"\fAttributeDef\x12\x10\n" +
@@ -997,15 +997,15 @@ const file_rove_catalog_proto_rawDesc = "" +
 	"\x04unit\x18\x06 \x01(\tR\x04unit\"\xba\x05\n" +
 	"\tItemModel\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc\x123\n" +
-	"\x06labels\x18\a \x03(\v2\x1b.rove.ItemModel.LabelsEntryR\x06labels\x12\x14\n" +
+	"\x06labels\x18\a \x03(\v2\x1b.loft.ItemModel.LabelsEntryR\x06labels\x12\x14\n" +
 	"\x05maker\x18\b \x01(\tR\x05maker\x12\x12\n" +
 	"\x04code\x18\t \x01(\tR\x04code\x12+\n" +
 	"\x04type\x18\n" +
-	" \x01(\v2\x0f.rove.AssetTypeB\x06\xf2\x82\x16\x028\x01R\x04type\x12+\n" +
-	"\x04spec\x18\v \x01(\v2\x0f.rove.ModelSpecB\x06\xea\x82\x16\x028\x01R\x04spec\x12F\n" +
+	" \x01(\v2\x0f.loft.AssetTypeB\x06\xf2\x82\x16\x028\x01R\x04type\x12+\n" +
+	"\x04spec\x18\v \x01(\v2\x0f.loft.ModelSpecB\x06\xea\x82\x16\x028\x01R\x04spec\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
@@ -1026,43 +1026,43 @@ const file_rove_catalog_proto_rawDesc = "" +
 	"\x03ref\x1a\x06\n" +
 	"\x04type d(\xf4\x03:\x00\"r\n" +
 	"\tModelSpec\x12#\n" +
-	"\x05slots\x18\x01 \x03(\v2\r.rove.SlotDefR\x05slots\x12\x1d\n" +
+	"\x05slots\x18\x01 \x03(\v2\r.loft.SlotDefR\x05slots\x12\x1d\n" +
 	"\n" +
 	"rack_units\x18\x02 \x01(\rR\trackUnits\x12!\n" +
 	"\fheight_units\x18\x03 \x01(\rR\vheightUnits\"1\n" +
 	"\aSlotDef\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04kind\x18\x02 \x01(\tR\x04kindB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x04kind\x18\x02 \x01(\tR\x04kindB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_rove_catalog_proto_goTypes = []any{
-	(*AssetType)(nil),             // 0: rove.AssetType
-	(*TypeSpec)(nil),              // 1: rove.TypeSpec
-	(*AttributeDef)(nil),          // 2: rove.AttributeDef
-	(*ItemModel)(nil),             // 3: rove.ItemModel
-	(*ModelSpec)(nil),             // 4: rove.ModelSpec
-	(*SlotDef)(nil),               // 5: rove.SlotDef
-	nil,                           // 6: rove.AssetType.LabelsEntry
-	nil,                           // 7: rove.ItemModel.LabelsEntry
-	(*Tenant)(nil),                // 8: rove.Tenant
+var file_loft_catalog_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_loft_catalog_proto_goTypes = []any{
+	(*AssetType)(nil),             // 0: loft.AssetType
+	(*TypeSpec)(nil),              // 1: loft.TypeSpec
+	(*AttributeDef)(nil),          // 2: loft.AttributeDef
+	(*ItemModel)(nil),             // 3: loft.ItemModel
+	(*ModelSpec)(nil),             // 4: loft.ModelSpec
+	(*SlotDef)(nil),               // 5: loft.SlotDef
+	nil,                           // 6: loft.AssetType.LabelsEntry
+	nil,                           // 7: loft.ItemModel.LabelsEntry
+	(*Tenant)(nil),                // 8: loft.Tenant
 	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
 }
-var file_rove_catalog_proto_depIdxs = []int32{
-	8,  // 0: rove.AssetType.tenant:type_name -> rove.Tenant
-	6,  // 1: rove.AssetType.labels:type_name -> rove.AssetType.LabelsEntry
-	1,  // 2: rove.AssetType.spec:type_name -> rove.TypeSpec
-	9,  // 3: rove.AssetType.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 4: rove.AssetType.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 5: rove.AssetType.date_created:type_name -> google.protobuf.Timestamp
-	2,  // 6: rove.TypeSpec.attributes:type_name -> rove.AttributeDef
-	8,  // 7: rove.ItemModel.tenant:type_name -> rove.Tenant
-	7,  // 8: rove.ItemModel.labels:type_name -> rove.ItemModel.LabelsEntry
-	0,  // 9: rove.ItemModel.type:type_name -> rove.AssetType
-	4,  // 10: rove.ItemModel.spec:type_name -> rove.ModelSpec
-	9,  // 11: rove.ItemModel.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 12: rove.ItemModel.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 13: rove.ItemModel.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 14: rove.ModelSpec.slots:type_name -> rove.SlotDef
+var file_loft_catalog_proto_depIdxs = []int32{
+	8,  // 0: loft.AssetType.tenant:type_name -> loft.Tenant
+	6,  // 1: loft.AssetType.labels:type_name -> loft.AssetType.LabelsEntry
+	1,  // 2: loft.AssetType.spec:type_name -> loft.TypeSpec
+	9,  // 3: loft.AssetType.date_updated:type_name -> google.protobuf.Timestamp
+	9,  // 4: loft.AssetType.date_erased:type_name -> google.protobuf.Timestamp
+	9,  // 5: loft.AssetType.date_created:type_name -> google.protobuf.Timestamp
+	2,  // 6: loft.TypeSpec.attributes:type_name -> loft.AttributeDef
+	8,  // 7: loft.ItemModel.tenant:type_name -> loft.Tenant
+	7,  // 8: loft.ItemModel.labels:type_name -> loft.ItemModel.LabelsEntry
+	0,  // 9: loft.ItemModel.type:type_name -> loft.AssetType
+	4,  // 10: loft.ItemModel.spec:type_name -> loft.ModelSpec
+	9,  // 11: loft.ItemModel.date_updated:type_name -> google.protobuf.Timestamp
+	9,  // 12: loft.ItemModel.date_erased:type_name -> google.protobuf.Timestamp
+	9,  // 13: loft.ItemModel.date_created:type_name -> google.protobuf.Timestamp
+	5,  // 14: loft.ModelSpec.slots:type_name -> loft.SlotDef
 	15, // [15:15] is the sub-list for method output_type
 	15, // [15:15] is the sub-list for method input_type
 	15, // [15:15] is the sub-list for extension type_name
@@ -1070,27 +1070,27 @@ var file_rove_catalog_proto_depIdxs = []int32{
 	0,  // [0:15] is the sub-list for field type_name
 }
 
-func init() { file_rove_catalog_proto_init() }
-func file_rove_catalog_proto_init() {
-	if File_rove_catalog_proto != nil {
+func init() { file_loft_catalog_proto_init() }
+func file_loft_catalog_proto_init() {
+	if File_loft_catalog_proto != nil {
 		return
 	}
-	file_rove_payday_tenant_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_catalog_proto_rawDesc), len(file_rove_catalog_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_catalog_proto_rawDesc), len(file_loft_catalog_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_catalog_proto_goTypes,
-		DependencyIndexes: file_rove_catalog_proto_depIdxs,
-		MessageInfos:      file_rove_catalog_proto_msgTypes,
+		GoTypes:           file_loft_catalog_proto_goTypes,
+		DependencyIndexes: file_loft_catalog_proto_depIdxs,
+		MessageInfos:      file_loft_catalog_proto_msgTypes,
 	}.Build()
-	File_rove_catalog_proto = out.File
-	file_rove_catalog_proto_goTypes = nil
-	file_rove_catalog_proto_depIdxs = nil
+	File_loft_catalog_proto = out.File
+	file_loft_catalog_proto_goTypes = nil
+	file_loft_catalog_proto_depIdxs = nil
 }

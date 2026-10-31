@@ -1,5 +1,5 @@
 /**
- * A terminal asking to be signed in as this account: `rove login` printed
+ * A terminal asking to be signed in as this account: `loft login` printed
  * this page's address with a code, and the person approves it here, signed in
  * (`server/clilogin`).
  *
@@ -19,7 +19,7 @@ type Asking = {
 	origin: string
 	created: string
 	expires: string
-	/** The methods it asked to be narrowed to (`rove login --allow`); absent is all of the account's. */
+	/** The methods it asked to be narrowed to (`loft login --allow`); absent is all of the account's. */
 	allow?: string[]
 }
 
@@ -83,7 +83,7 @@ export function Terminal(props: { account: Account; onSignOut: () => void }): Re
 			<div className="card terminal">
 				<h2>터미널 로그인</h2>
 				{state.at === 'loading' && <p className="mute">불러오는 중…</p>}
-				{state.at === 'gone' && <p>이 요청은 없거나 시간이 지났습니다. 터미널에서 <code>rove login</code>을 다시 실행하세요.</p>}
+				{state.at === 'gone' && <p>이 요청은 없거나 시간이 지났습니다. 터미널에서 <code>loft login</code>을 다시 실행하세요.</p>}
 				{state.at === 'failed' && <p className="bad">{state.why}</p>}
 				{state.at === 'approved' && <p>승인했습니다. 터미널로 돌아가세요.</p>}
 				{state.at === 'denied' && <p>거절했습니다. 터미널은 로그인되지 않습니다.</p>}
@@ -122,7 +122,7 @@ export function Terminal(props: { account: Account; onSignOut: () => void }): Re
 							</dd>
 						</dl>
 						<p className="bad">
-							방금 내 컴퓨터의 터미널에서 <code>rove login</code>을 실행했고, 터미널에 같은 코드가 보일 때만 승인하세요. 누군가 이 주소를 보내며 승인해 달라고 했다면 거절하세요.
+							방금 내 컴퓨터의 터미널에서 <code>loft login</code>을 실행했고, 터미널에 같은 코드가 보일 때만 승인하세요. 누군가 이 주소를 보내며 승인해 달라고 했다면 거절하세요.
 						</p>
 						<div className="actions">
 							<button disabled={busy} onClick={() => void answer('deny')}>
@@ -135,7 +135,7 @@ export function Terminal(props: { account: Account; onSignOut: () => void }): Re
 					</>
 				)}
 				<p className="mute small">
-					<a href="/">Rove로 돌아가기</a> · <a onClick={props.onSignOut}>로그아웃</a>
+					<a href="/">Loft로 돌아가기</a> · <a onClick={props.onSignOut}>로그아웃</a>
 				</p>
 			</div>
 		</div>

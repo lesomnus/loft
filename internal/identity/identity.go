@@ -1,7 +1,7 @@
 // Package identity is who somebody is, which roster answers (design 9.10,
 // D26).
 //
-// The tenants and the people in them are roster's rows; Rove's are anchored on
+// The tenants and the people in them are roster's rows; Loft's are anchored on
 // the same identifiers and made the first time somebody roster vouched for
 // arrives. A password is checked where it is held, and never here. roster is
 // either a deployment of its own that this one reaches over the wire, which is
@@ -9,15 +9,15 @@
 // served on a listener nothing outside the process can dial, for a deployment
 // of one server.
 //
-// Whichever it is, Rove talks to it the same way: as the holder `rove` in each
+// Whichever it is, Loft talks to it the same way: as the holder `loft` in each
 // tenant it serves, holding the role that lets it check a password, read a
 // person and their tenant. On an external roster the key the operator hands
 // over says how (roster's `docs/apps.md`): a deployment key is answered as the
 // holder each tenant nominated for it, a tenant key as the holder it hangs on.
-// On the embedded one Rove writes that holder and its role itself.
+// On the embedded one Loft writes that holder and its role itself.
 //
 // shale was here first (its `internal/identity`), and this is the same shape,
-// cut to what Rove asks.
+// cut to what Loft asks.
 package identity
 
 import (
@@ -60,25 +60,25 @@ type Config struct {
 	// CaFile pins the CA an external roster's certificate chains to; empty is
 	// the system pool.
 	CaFile string `yaml:"ca_file"`
-	// Key is the key Rove acts with on an external roster: `env:NAME`,
+	// Key is the key Loft acts with on an external roster: `env:NAME`,
 	// `file:PATH`, or the key itself. Its prefix says what it is, the way
 	// roster reads it (roster's `docs/apps.md`):
 	//
 	//   - `rk_`, a deployment key a roster operator minted on roster's control
 	//     plane (`roster control key add --allow /roster.NominationService/List
-	//     rove`: the one method it holds as itself is the list of the tenants
+	//     loft`: the one method it holds as itself is the list of the tenants
 	//     that nominated it). The tenants it serves are the ones
-	//     that **nominated** it -- `roster app install --tenant <alias> rove` --
+	//     that **nominated** it -- `roster app install --tenant <alias> loft` --
 	//     and every call names its tenant beside the key with `roster-at`.
 	//   - `rt_`, a tenant key: one tenant, the key's own.
 	Key string `yaml:"key"`
 	// Db is the embedded roster's database. Empty is `roster.db` in the
-	// directory Rove's own SQLite file is in.
+	// directory Loft's own SQLite file is in.
 	Db config.DbConfig `yaml:"db"`
 
 	// Directory is the roster tenant whose people are this deployment's
 	// accounts (design 9.10, D27): one for the whole of a SaaS deployment, a
-	// customer's own for a Dedicated one. Workspaces are Rove's tenants and
+	// customer's own for a Dedicated one. Workspaces are Loft's tenants and
 	// are not roster's at all. Empty is [DefaultDirectory] on the roster in
 	// this process, and the key's own tenant for an `rt_`; an `rk_` serves
 	// every tenant that nominated it, so which one holds the accounts is said
@@ -95,14 +95,14 @@ type Config struct {
 	// agreed to (`app.consent`) once the account was erased -- its consent
 	// ledger's `consent.keep` -- and then destroys it. Unset keeps it for good,
 	// roster's default, until the period is decided with legal review
-	// (rove#35). It is the embedded roster's: a roster of its own says it in
+	// (loft#35). It is the embedded roster's: a roster of its own says it in
 	// its own configuration.
 	ConsentKeep time.Duration `yaml:"consent_keep"`
 }
 
 // DefaultDirectory is the directory of the roster in this process when the
 // configuration names none.
-const DefaultDirectory = "rove"
+const DefaultDirectory = "loft"
 
 // Directory is the roster tenant this deployment's accounts are in.
 type Directory struct {
@@ -114,8 +114,8 @@ type Directory struct {
 // Embedded says whether roster runs in this process.
 func (c Config) Embedded() bool { return c.Addr == "" }
 
-// Agent is the alias of the holder Rove acts as in every tenant.
-const Agent = "rove"
+// Agent is the alias of the holder Loft acts as in every tenant.
+const Agent = "loft"
 
 // RosterAdministrator is the holder roster makes every tenant with, so that
 // somebody can administer it, with no way to sign in until it is given one.
@@ -127,21 +127,21 @@ const RosterAdministrator = rostercore.Administers
 // being good about somebody (`Store.Follow`), the ledger of what an account
 // agreed to of this deployment's documents (`Store.Owed`, `Store.Agree`,
 // `Store.Agreements`), and, for a tenant key, whose key it is. It is the
-// `--role` an external roster installs Rove with:
+// `--role` an external roster installs Loft with:
 //
 //	roster app install --tenant acme --role /roster.VouchService/Verify,\
 //	  /roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,\
 //	  /roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,\
-//	  /roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List rove
+//	  /roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List loft
 //
-// Not `ConsentService/Withdraw`: every document Rove asks for is required,
+// Not `ConsentService/Withdraw`: every document Loft asks for is required,
 // and leaving one is leaving the deployment, which is the account's erase.
 //
 // An installation older than the list has its role widened to it. Installing
 // again does not: it leaves a role the tenant has as the tenant has it
 // (roster's `docs/apps.md`), so the role is patched, with the whole list --
 //
-//	roster role patch @acme/rove-app '{"methods": [...], "date_updated_force": true}'
+//	roster role patch @acme/loft-app '{"methods": [...], "date_updated_force": true}'
 //
 // Until it is, an account sees only the invitations it holds a link for, a
 // session learns what roster says of its account only when it next asks, and
@@ -149,7 +149,7 @@ const RosterAdministrator = rostercore.Administers
 // every account is refused, since whether it agreed cannot be told.
 //
 // People are made, given passwords and suspended at roster, by whoever
-// administers the tenant there; on the embedded roster Rove does those through
+// administers the tenant there; on the embedded roster Loft does those through
 // the deployment's own door, which is not a role.
 var AgentMethods = []string{
 	"/roster.VouchService/Verify",
@@ -181,7 +181,7 @@ const ServedTtl = time.Minute
 // serves, after it was asked for any reason.
 const servedRetry = 5 * time.Second
 
-// Person is who roster said somebody is: the identifiers Rove's rows are
+// Person is who roster said somebody is: the identifiers Loft's rows are
 // anchored on, and the names to make them with.
 type Person struct {
 	Id     pdid.Id
@@ -213,8 +213,8 @@ var (
 	// served while it lasts: what roster would have said is not known.
 	ErrUnreachable = errors.New("roster cannot be asked just now")
 	// ErrNoDirectory is a directory that is not there yet: on the roster in
-	// this process, before `rove init` or `rove identity migrate` made it.
-	ErrNoDirectory = errors.New("there is no directory of accounts yet: `rove init` makes it")
+	// this process, before `loft init` or `loft identity migrate` made it.
+	ErrNoDirectory = errors.New("there is no directory of accounts yet: `loft init` makes it")
 )
 
 // Locked is a refusal that says when the account opens again.
@@ -397,7 +397,7 @@ func (s *Store) Close() error {
 	return err
 }
 
-// as is a context that calls roster as Rove's holder in a tenant: the `rove`
+// as is a context that calls roster as Loft's holder in a tenant: the `loft`
 // holder the embedded roster has, the holder a tenant nominated for an `rk_`,
 // or the holder a tenant key hangs on.
 func (s *Store) as(ctx context.Context, tenant string) (context.Context, error) {
@@ -557,7 +557,7 @@ func (s *Store) ownTenant(ctx context.Context) (string, error) {
 	return s.own, nil
 }
 
-// ensureAgent writes the `rove` holder, its role and the binding into a tenant
+// ensureAgent writes the `loft` holder, its role and the binding into a tenant
 // of the embedded roster, once.
 func (s *Store) ensureAgent(ctx context.Context, tenant string) error {
 	s.mu.Lock()
@@ -718,7 +718,7 @@ func personOf(v *rstr.Holder) (Person, error) {
 	}, nil
 }
 
-// tenant is a tenant at roster, by alias, asked as Rove's holder there.
+// tenant is a tenant at roster, by alias, asked as Loft's holder there.
 func (s *Store) tenant(ctx context.Context, alias string) (id pdid.Id, name string, err error) {
 	as, err := s.as(ctx, alias)
 	if err != nil {
@@ -799,7 +799,7 @@ func (s *Store) Directory(ctx context.Context) (Directory, error) {
 	return s.dir, nil
 }
 
-// inDirectory is a context that calls roster as Rove's holder in the
+// inDirectory is a context that calls roster as Loft's holder in the
 // directory, and the directory.
 func (s *Store) inDirectory(ctx context.Context) (context.Context, Directory, error) {
 	d, err := s.Directory(ctx)
@@ -978,7 +978,7 @@ func (s *Store) Follow(ctx context.Context, on func(ctx context.Context, v Stand
 		switch status.Code(err) {
 		case codes.PermissionDenied:
 			s.log.ErrorContext(ctx, "roster: the sync stream is refused to this deployment; "+
-				"Rove's role at roster wants /roster.SyncService/Watch, which `roster role patch` adds "+
+				"Loft's role at roster wants /roster.SyncService/Watch, which `roster role patch` adds "+
 				"and installing again does not (README). "+
 				"Until then a session ends at its next call rather than when roster ends it, "+
 				"and an erased account is not heard leaving", slog.Any("err", err))

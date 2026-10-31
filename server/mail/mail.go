@@ -37,7 +37,7 @@ type Config struct {
 	// `file:PATH`, or the password itself. Empty signs in as nobody.
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
-	// From is who a message is from: `Rove <no-reply@example.com>`.
+	// From is who a message is from: `Loft <no-reply@example.com>`.
 	From string `yaml:"from"`
 	// Tls is how the connection is protected: `starttls` (the default),
 	// `implicit` for a server that speaks TLS from the first byte, or `none`,

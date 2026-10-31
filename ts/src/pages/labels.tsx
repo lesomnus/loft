@@ -2,7 +2,7 @@ import QRCode from 'qrcode'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import type { Label } from '../../gen/rove/asset_pb.js'
+import type { Label } from '../../gen/loft/asset_pb.js'
 import { LabelService, TenantDomainService, errorText, idBytes, idStr, labelCodeText } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { call, useRpc } from '../rpc.js'

@@ -12,13 +12,13 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	entaccess "github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/holder"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	entaccess "github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/holder"
 )
 
-// assistant is an MCP client speaking to `rove mcp` the way Claude Code
+// assistant is an MCP client speaking to `loft mcp` the way Claude Code
 // does: the command run with its stdin and stdout given to the client.
 type assistant struct {
 	s       *served
@@ -81,7 +81,7 @@ func said(res *mcp.CallToolResult) string {
 	return b.String()
 }
 
-// made is the id `rove api ... -o json` answered with, which the tools take
+// made is the id `loft api ... -o json` answered with, which the tools take
 // as it is.
 func made(t *testing.T, out string) string {
 	t.Helper()
@@ -515,10 +515,10 @@ func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 		Allow []string `json:"allow"`
 	}
 	a.call("whoami", nil, &narrowed)
-	x.Contains(narrowed.Allow, "/rove.*/Search")
+	x.Contains(narrowed.Allow, "/loft.*/Search")
 
 	run(t, cli.NewCmdLogout())
-	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "rove login")
+	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "loft login")
 }
 
 type planned struct {
@@ -741,7 +741,7 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	// A terminal narrowed to reading is told so before anything is put to
 	// the person.
 	s.signIn("owner", "owner1234", "read")
-	x.Contains(a.refused("plan_asset", map[string]any{"action": "move", "asset": "NB-1", "to": "R-4"}), "may not call /rove.AssetService/Move")
+	x.Contains(a.refused("plan_asset", map[string]any{"action": "move", "asset": "NB-1", "to": "R-4"}), "may not call /loft.AssetService/Move")
 }
 
 // TestAnAssistantTakesWhatGoesOutOfUseOutOfItsKits: a plan that puts an

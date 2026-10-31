@@ -16,8 +16,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/server/opensearch"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
 func plain(s string) (string, error) { return s, nil }
@@ -38,7 +38,7 @@ func cluster(t *testing.T, check func(r *http.Request) int) (*httptest.Server, *
 		switch {
 		case strings.Contains(r.URL.Path, "/_alias/"):
 			w.WriteHeader(http.StatusNotFound)
-			_, _ = io.WriteString(w, `{"error":"alias [rove-assets] missing","status":404}`)
+			_, _ = io.WriteString(w, `{"error":"alias [loft-assets] missing","status":404}`)
 		case strings.HasSuffix(r.URL.Path, "/_settings/index.creation_date"):
 			_, _ = io.WriteString(w, `{}`)
 		default:
@@ -66,16 +66,16 @@ func TestAConfigurationItCannotUseIsRefused(t *testing.T) {
 		{opensearch.Config{Addrs: []string{"search-0:9200"}}, "not a node's address"},
 		{opensearch.Config{Addrs: []string{"ftp://search-0"}}, "not a node's address"},
 		{opensearch.Config{Addrs: []string{"https://admin:secret@search-0:9200"}}, "username and password"},
-		{opensearch.Config{Addrs: []string{"https://search-0:9200"}, Index: "Rove"}, "not the start of an index name"},
-		{opensearch.Config{Addrs: []string{"https://search-0:9200"}, Index: "-rove"}, "not the start of an index name"},
+		{opensearch.Config{Addrs: []string{"https://search-0:9200"}, Index: "Loft"}, "not the start of an index name"},
+		{opensearch.Config{Addrs: []string{"https://search-0:9200"}, Index: "-loft"}, "not the start of an index name"},
 		{opensearch.Config{Addrs: []string{"https://search-0:9200"}, CaFile: filepath.Join(t.TempDir(), "none.pem")}, "ca_file"},
 	} {
 		_, err := opensearch.New(v.c, plain)
 		require.ErrorContains(t, err, v.says, "%+v", v.c)
 	}
 
-	t.Setenv("ROVE_TEST_NO_SUCH_PASSWORD", "")
-	_, err := opensearch.New(opensearch.Config{Addrs: []string{"https://search-0:9200"}, Password: "env:ROVE_TEST_NO_SUCH_PASSWORD"}, func(s string) (string, error) {
+	t.Setenv("LOFT_TEST_NO_SUCH_PASSWORD", "")
+	_, err := opensearch.New(opensearch.Config{Addrs: []string{"https://search-0:9200"}, Password: "env:LOFT_TEST_NO_SUCH_PASSWORD"}, func(s string) (string, error) {
 		return "", os.ErrNotExist
 	})
 	require.ErrorContains(t, err, "app.search.opensearch.password")
@@ -97,7 +97,7 @@ func TestARequestGoesOnToANodeThatAnswers(t *testing.T) {
 
 	s, err := c.Status(t.Context(), opensearch.Assets)
 	x.NoError(err)
-	x.Equal("rove-assets", s.Alias)
+	x.Equal("loft-assets", s.Alias)
 	x.Empty(s.Index, "an alias that is not there is a deployment with no index yet")
 	x.Equal(2, *n)
 
@@ -111,7 +111,7 @@ func TestARequestGoesOnToANodeThatAnswers(t *testing.T) {
 func TestItSignsInAndTrustsTheCaItIsGiven(t *testing.T) {
 	x := require.New(t)
 	s, _ := cluster(t, func(r *http.Request) int {
-		if u, p, ok := r.BasicAuth(); !ok || u != "rove" || p != "secret" {
+		if u, p, ok := r.BasicAuth(); !ok || u != "loft" || p != "secret" {
 			return http.StatusUnauthorized
 		}
 		return 0
@@ -120,13 +120,13 @@ func TestItSignsInAndTrustsTheCaItIsGiven(t *testing.T) {
 	ca := filepath.Join(t.TempDir(), "ca.pem")
 	x.NoError(os.WriteFile(ca, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: s.Certificate().Raw}), 0o600))
 
-	t.Setenv("ROVE_TEST_SEARCH_PASSWORD", "secret")
+	t.Setenv("LOFT_TEST_SEARCH_PASSWORD", "secret")
 	resolve := func(ref string) (string, error) {
 		v, ok := strings.CutPrefix(ref, "env:")
 		x.True(ok)
 		return os.Getenv(v), nil
 	}
-	good := opensearch.Config{Addrs: []string{s.URL}, Username: "rove", Password: "env:ROVE_TEST_SEARCH_PASSWORD", CaFile: ca}
+	good := opensearch.Config{Addrs: []string{s.URL}, Username: "loft", Password: "env:LOFT_TEST_SEARCH_PASSWORD", CaFile: ca}
 	c, err := opensearch.New(good, resolve)
 	x.NoError(err)
 	_, err = c.Status(t.Context(), opensearch.Assets)
@@ -170,9 +170,9 @@ func TestAnOlderDocumentIsStaleAndNotAFailure(t *testing.T) {
 	x.NoError(err)
 
 	ops := []opensearch.Op{
-		{Index: "rove-assets", Id: "a", Version: 7, Doc: &opensearch.Doc{Tenant: "t", Name: "웹서버"}},
-		{Index: "rove-assets", Id: "b", Version: 3, Doc: &opensearch.Doc{Tenant: "t"}},
-		{Index: "rove-assets", Id: "c", Version: 9},
+		{Index: "loft-assets", Id: "a", Version: 7, Doc: &opensearch.Doc{Tenant: "t", Name: "웹서버"}},
+		{Index: "loft-assets", Id: "b", Version: 3, Doc: &opensearch.Doc{Tenant: "t"}},
+		{Index: "loft-assets", Id: "c", Version: 9},
 	}
 	answer = `{"errors":true,"items":[
 		{"index":{"_id":"a","status":201}},
@@ -184,7 +184,7 @@ func TestAnOlderDocumentIsStaleAndNotAFailure(t *testing.T) {
 	x.Len(sent, 5, "a delete has no document line")
 	var meta map[string]map[string]any
 	x.NoError(json.Unmarshal([]byte(sent[0]), &meta))
-	x.Equal(map[string]any{"_index": "rove-assets", "_id": "a", "version": float64(7), "version_type": "external_gte"}, meta["index"])
+	x.Equal(map[string]any{"_index": "loft-assets", "_id": "a", "version": float64(7), "version_type": "external_gte"}, meta["index"])
 	x.Contains(sent[1], `"name":"웹서버"`)
 	x.Contains(sent[4], `"delete"`)
 

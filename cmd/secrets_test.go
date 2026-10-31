@@ -17,9 +17,9 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	entclilogin "github.com/lesomnus/rove/internal/ent/clilogin"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	entclilogin "github.com/lesomnus/loft/internal/ent/clilogin"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // TestARowPutPastTheServersSignsNobodyIn: a session's key, a handoff's code

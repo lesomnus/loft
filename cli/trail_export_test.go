@@ -16,16 +16,16 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	entaccess "github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	entaccess "github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt (rove#153): a demand to
-// preserve a workspace's records is answered by `rove trail export`, live or
+// TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt (loft#153): a demand to
+// preserve a workspace's records is answered by `loft trail export`, live or
 // destroyed -- by the address its hold names once it is gone -- and by nothing
 // else once its floors have passed. The file is encrypted to whoever keeps it,
 // `verify-export` holds it to the deployment's key, and each export is a
@@ -91,7 +91,7 @@ func TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt(t *testing.T) {
 
 	// A download in the access record, with its reason, naming the people
 	// its rows carry.
-	rows, err := s.Ent.Access.Query().Where(entaccess.Action("rove trail export"), entaccess.TenantId(acme.Id)).All(ctx)
+	rows, err := s.Ent.Access.Query().Where(entaccess.Action("loft trail export"), entaccess.TenantId(acme.Id)).All(ctx)
 	x.NoError(err)
 	x.Len(rows, 1)
 	x.Equal("download", rows[0].Kind)
@@ -115,7 +115,7 @@ func TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt(t *testing.T) {
 	out = run(t, cli.NewCmdTrail(&c), "verify-export", "--file", gone, "--identity", key)
 	x.Contains(out, "kept until")
 
-	rows, err = s.Ent.Access.Query().Where(entaccess.Action("rove trail export"), entaccess.TenantId(acme.Id)).All(ctx)
+	rows, err = s.Ent.Access.Query().Where(entaccess.Action("loft trail export"), entaccess.TenantId(acme.Id)).All(ctx)
 	x.NoError(err)
 	x.Len(rows, 2)
 	x.True(slices.ContainsFunc(rows[1].Subjects, func(v []byte) bool { return pdid.Id(v) == pdid.Id(kim.Id) }),

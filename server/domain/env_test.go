@@ -26,16 +26,16 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // env is a deployment with one tenant in it, and its owner signed in.
@@ -294,7 +294,7 @@ func aboutRow(ev *ent.Event, d pdid.Domain, id uuid.UUID, points []uuid.UUID) bo
 	return named
 }
 
-// newTenant puts up a workspace and its owner the way `rove init` does -- the
+// newTenant puts up a workspace and its owner the way `loft init` does -- the
 // owner an account in the directory at roster, the workspace here and the
 // owner's membership of it -- and answers with the owner signed in.
 func (e *env) newTenant(alias string) (pdid.Id, context.Context) {

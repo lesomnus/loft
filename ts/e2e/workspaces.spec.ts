@@ -1,4 +1,4 @@
-import { card, escape, expect, field, people, signIn, test, unique, workspace } from './rove.js'
+import { card, escape, expect, field, people, signIn, test, unique, workspace } from './loft.js'
 
 test('a second workspace is made, and the switcher moves between the two', async ({ page }) => {
 	const name = unique('e2e 실험실')

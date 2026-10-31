@@ -12,190 +12,190 @@
 
 import { pdid } from '@lesomnus/payday'
 
-/** The domain identifiers of rove.Access carry. */
+/** The domain identifiers of loft.Access carry. */
 export const AccessDomain = 6
 
-/** The domain identifiers of rove.AccessReview carry. */
+/** The domain identifiers of loft.AccessReview carry. */
 export const AccessReviewDomain = 47
 
-/** The domain identifiers of rove.AliasHold carry. */
+/** The domain identifiers of loft.AliasHold carry. */
 export const AliasHoldDomain = 43
 
-/** The domain identifiers of rove.Allocation carry. */
+/** The domain identifiers of loft.Allocation carry. */
 export const AllocationDomain = 28
 
-/** The domain identifiers of rove.Archived carry. */
+/** The domain identifiers of loft.Archived carry. */
 export const ArchivedDomain = 5
 
-/** The domain identifiers of rove.Asset carry. */
+/** The domain identifiers of loft.Asset carry. */
 export const AssetDomain = 7
 
-/** The domain identifiers of rove.AssetType carry. */
+/** The domain identifiers of loft.AssetType carry. */
 export const AssetTypeDomain = 8
 
-/** The domain identifiers of rove.Attachment carry. */
+/** The domain identifiers of loft.Attachment carry. */
 export const AttachmentDomain = 19
 
-/** The domain identifiers of rove.Audit carry. */
+/** The domain identifiers of loft.Audit carry. */
 export const AuditDomain = 3
 
-/** The domain identifiers of rove.Bookable carry. */
+/** The domain identifiers of loft.Bookable carry. */
 export const BookableDomain = 25
 
-/** The domain identifiers of rove.CliLogin carry. */
+/** The domain identifiers of loft.CliLogin carry. */
 export const CliLoginDomain = 42
 
-/** The domain identifiers of rove.CountFinding carry. */
+/** The domain identifiers of loft.CountFinding carry. */
 export const CountFindingDomain = 32
 
-/** The domain identifiers of rove.Custody carry. */
+/** The domain identifiers of loft.Custody carry. */
 export const CustodyDomain = 21
 
-/** The domain identifiers of rove.CustodyLine carry. */
+/** The domain identifiers of loft.CustodyLine carry. */
 export const CustodyLineDomain = 22
 
-/** The domain identifiers of rove.Event carry. */
+/** The domain identifiers of loft.Event carry. */
 export const EventDomain = 17
 
-/** The domain identifiers of rove.Fact carry. */
+/** The domain identifiers of loft.Fact carry. */
 export const FactDomain = 16
 
-/** The domain identifiers of rove.Handoff carry. */
+/** The domain identifiers of loft.Handoff carry. */
 export const HandoffDomain = 48
 
-/** The domain identifiers of rove.Holder carry. */
+/** The domain identifiers of loft.Holder carry. */
 export const HolderDomain = 2
 
-/** The domain identifiers of rove.InventoryCount carry. */
+/** The domain identifiers of loft.InventoryCount carry. */
 export const InventoryCountDomain = 31
 
-/** The domain identifiers of rove.Invitation carry. */
+/** The domain identifiers of loft.Invitation carry. */
 export const InvitationDomain = 41
 
-/** The domain identifiers of rove.ItemModel carry. */
+/** The domain identifiers of loft.ItemModel carry. */
 export const ItemModelDomain = 9
 
-/** The domain identifiers of rove.Label carry. */
+/** The domain identifiers of loft.Label carry. */
 export const LabelDomain = 18
 
-/** The domain identifiers of rove.LegalHold carry. */
+/** The domain identifiers of loft.LegalHold carry. */
 export const LegalHoldDomain = 40
 
-/** The domain identifiers of rove.Link carry. */
+/** The domain identifiers of loft.Link carry. */
 export const LinkDomain = 14
 
-/** The domain identifiers of rove.Notification carry. */
+/** The domain identifiers of loft.Notification carry. */
 export const NotificationDomain = 36
 
-/** The domain identifiers of rove.Outbox carry. */
+/** The domain identifiers of loft.Outbox carry. */
 export const OutboxDomain = 4
 
-/** The domain identifiers of rove.Owed carry. */
+/** The domain identifiers of loft.Owed carry. */
 export const OwedDomain = 254
 
-/** The domain identifiers of rove.Party carry. */
+/** The domain identifiers of loft.Party carry. */
 export const PartyDomain = 10
 
-/** The domain identifiers of rove.Placement carry. */
+/** The domain identifiers of loft.Placement carry. */
 export const PlacementDomain = 13
 
-/** The domain identifiers of rove.Purchase carry. */
+/** The domain identifiers of loft.Purchase carry. */
 export const PurchaseDomain = 34
 
-/** The domain identifiers of rove.PurchaseLine carry. */
+/** The domain identifiers of loft.PurchaseLine carry. */
 export const PurchaseLineDomain = 35
 
-/** The domain identifiers of rove.Reservation carry. */
+/** The domain identifiers of loft.Reservation carry. */
 export const ReservationDomain = 26
 
-/** The domain identifiers of rove.ReservationItem carry. */
+/** The domain identifiers of loft.ReservationItem carry. */
 export const ReservationItemDomain = 27
 
-/** The domain identifiers of rove.RowSeal carry. */
+/** The domain identifiers of loft.RowSeal carry. */
 export const RowSealDomain = 255
 
-/** The domain identifiers of rove.SearchStale carry. */
+/** The domain identifiers of loft.SearchStale carry. */
 export const SearchStaleDomain = 46
 
-/** The domain identifiers of rove.Session carry. */
+/** The domain identifiers of loft.Session carry. */
 export const SessionDomain = 38
 
-/** The domain identifiers of rove.SignInFailure carry. */
+/** The domain identifiers of loft.SignInFailure carry. */
 export const SignInFailureDomain = 45
 
-/** The domain identifiers of rove.Stewardship carry. */
+/** The domain identifiers of loft.Stewardship carry. */
 export const StewardshipDomain = 15
 
-/** The domain identifiers of rove.Stock carry. */
+/** The domain identifiers of loft.Stock carry. */
 export const StockDomain = 29
 
-/** The domain identifiers of rove.StockMovement carry. */
+/** The domain identifiers of loft.StockMovement carry. */
 export const StockMovementDomain = 30
 
-/** The domain identifiers of rove.TagCounter carry. */
+/** The domain identifiers of loft.TagCounter carry. */
 export const TagCounterDomain = 49
 
-/** The domain identifiers of rove.Tenant carry. */
+/** The domain identifiers of loft.Tenant carry. */
 export const TenantDomain = 1
 
-/** The domain identifiers of rove.TenantContract carry. */
+/** The domain identifiers of loft.TenantContract carry. */
 export const TenantContractDomain = 39
 
-/** The domain identifiers of rove.TenantDomain carry. */
+/** The domain identifiers of loft.TenantDomain carry. */
 export const TenantDomainDomain = 24
 
-/** The domain identifiers of rove.TreeLock carry. */
+/** The domain identifiers of loft.TreeLock carry. */
 export const TreeLockDomain = 12
 
-/** The domain identifiers of rove.WorkOrder carry. */
+/** The domain identifiers of loft.WorkOrder carry. */
 export const WorkOrderDomain = 33
 
 // Registered as this module is loaded, which is why importing it is the
 // whole of what an app does with it.
-pdid.register("rove.Access", AccessDomain, "access")
-pdid.register("rove.AccessReview", AccessReviewDomain, "access-review")
-pdid.register("rove.AliasHold", AliasHoldDomain, "alias-hold")
-pdid.register("rove.Allocation", AllocationDomain, "allocation")
-pdid.register("rove.Archived", ArchivedDomain, "archived")
-pdid.register("rove.Asset", AssetDomain, "asset")
-pdid.register("rove.AssetType", AssetTypeDomain, "asset-type")
-pdid.register("rove.Attachment", AttachmentDomain, "attachment")
-pdid.register("rove.Audit", AuditDomain, "audit")
-pdid.register("rove.Bookable", BookableDomain, "bookable")
-pdid.register("rove.CliLogin", CliLoginDomain, "cli-login")
-pdid.register("rove.CountFinding", CountFindingDomain, "count-finding")
-pdid.register("rove.Custody", CustodyDomain, "custody")
-pdid.register("rove.CustodyLine", CustodyLineDomain, "custody-line")
-pdid.register("rove.Event", EventDomain, "event")
-pdid.register("rove.Fact", FactDomain, "fact")
-pdid.register("rove.Handoff", HandoffDomain, "handoff")
-pdid.register("rove.Holder", HolderDomain, "holder")
-pdid.register("rove.InventoryCount", InventoryCountDomain, "inventory-count")
-pdid.register("rove.Invitation", InvitationDomain, "invitation")
-pdid.register("rove.ItemModel", ItemModelDomain, "item-model")
-pdid.register("rove.Label", LabelDomain, "label")
-pdid.register("rove.LegalHold", LegalHoldDomain, "legal-hold")
-pdid.register("rove.Link", LinkDomain, "link")
-pdid.register("rove.Notification", NotificationDomain, "notification")
-pdid.register("rove.Outbox", OutboxDomain, "outbox")
-pdid.register("rove.Owed", OwedDomain, "owed")
-pdid.register("rove.Party", PartyDomain, "party")
-pdid.register("rove.Placement", PlacementDomain, "placement")
-pdid.register("rove.Purchase", PurchaseDomain, "purchase")
-pdid.register("rove.PurchaseLine", PurchaseLineDomain, "purchase-line")
-pdid.register("rove.Reservation", ReservationDomain, "reservation")
-pdid.register("rove.ReservationItem", ReservationItemDomain, "reservation-item")
-pdid.register("rove.RowSeal", RowSealDomain, "row-seal")
-pdid.register("rove.SearchStale", SearchStaleDomain, "search-stale")
-pdid.register("rove.Session", SessionDomain, "session")
-pdid.register("rove.SignInFailure", SignInFailureDomain, "sign-in-failure")
-pdid.register("rove.Stewardship", StewardshipDomain, "stewardship")
-pdid.register("rove.Stock", StockDomain, "stock")
-pdid.register("rove.StockMovement", StockMovementDomain, "stock-movement")
-pdid.register("rove.TagCounter", TagCounterDomain, "tag-counter")
-pdid.register("rove.Tenant", TenantDomain, "tenant")
-pdid.register("rove.TenantContract", TenantContractDomain, "tenant-contract")
-pdid.register("rove.TenantDomain", TenantDomainDomain, "tenant-domain")
-pdid.register("rove.TreeLock", TreeLockDomain, "tree-lock")
-pdid.register("rove.WorkOrder", WorkOrderDomain, "work-order")
+pdid.register("loft.Access", AccessDomain, "access")
+pdid.register("loft.AccessReview", AccessReviewDomain, "access-review")
+pdid.register("loft.AliasHold", AliasHoldDomain, "alias-hold")
+pdid.register("loft.Allocation", AllocationDomain, "allocation")
+pdid.register("loft.Archived", ArchivedDomain, "archived")
+pdid.register("loft.Asset", AssetDomain, "asset")
+pdid.register("loft.AssetType", AssetTypeDomain, "asset-type")
+pdid.register("loft.Attachment", AttachmentDomain, "attachment")
+pdid.register("loft.Audit", AuditDomain, "audit")
+pdid.register("loft.Bookable", BookableDomain, "bookable")
+pdid.register("loft.CliLogin", CliLoginDomain, "cli-login")
+pdid.register("loft.CountFinding", CountFindingDomain, "count-finding")
+pdid.register("loft.Custody", CustodyDomain, "custody")
+pdid.register("loft.CustodyLine", CustodyLineDomain, "custody-line")
+pdid.register("loft.Event", EventDomain, "event")
+pdid.register("loft.Fact", FactDomain, "fact")
+pdid.register("loft.Handoff", HandoffDomain, "handoff")
+pdid.register("loft.Holder", HolderDomain, "holder")
+pdid.register("loft.InventoryCount", InventoryCountDomain, "inventory-count")
+pdid.register("loft.Invitation", InvitationDomain, "invitation")
+pdid.register("loft.ItemModel", ItemModelDomain, "item-model")
+pdid.register("loft.Label", LabelDomain, "label")
+pdid.register("loft.LegalHold", LegalHoldDomain, "legal-hold")
+pdid.register("loft.Link", LinkDomain, "link")
+pdid.register("loft.Notification", NotificationDomain, "notification")
+pdid.register("loft.Outbox", OutboxDomain, "outbox")
+pdid.register("loft.Owed", OwedDomain, "owed")
+pdid.register("loft.Party", PartyDomain, "party")
+pdid.register("loft.Placement", PlacementDomain, "placement")
+pdid.register("loft.Purchase", PurchaseDomain, "purchase")
+pdid.register("loft.PurchaseLine", PurchaseLineDomain, "purchase-line")
+pdid.register("loft.Reservation", ReservationDomain, "reservation")
+pdid.register("loft.ReservationItem", ReservationItemDomain, "reservation-item")
+pdid.register("loft.RowSeal", RowSealDomain, "row-seal")
+pdid.register("loft.SearchStale", SearchStaleDomain, "search-stale")
+pdid.register("loft.Session", SessionDomain, "session")
+pdid.register("loft.SignInFailure", SignInFailureDomain, "sign-in-failure")
+pdid.register("loft.Stewardship", StewardshipDomain, "stewardship")
+pdid.register("loft.Stock", StockDomain, "stock")
+pdid.register("loft.StockMovement", StockMovementDomain, "stock-movement")
+pdid.register("loft.TagCounter", TagCounterDomain, "tag-counter")
+pdid.register("loft.Tenant", TenantDomain, "tenant")
+pdid.register("loft.TenantContract", TenantContractDomain, "tenant-contract")
+pdid.register("loft.TenantDomain", TenantDomainDomain, "tenant-domain")
+pdid.register("loft.TreeLock", TreeLockDomain, "tree-lock")
+pdid.register("loft.WorkOrder", WorkOrderDomain, "work-order")
 

@@ -12,8 +12,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // A reservation's history (D45) is every event it is the subject of and every
@@ -268,7 +268,7 @@ func TestEachTimeASeriesTakesPlaceHasAHistoryOfItsOwn(t *testing.T) {
 }
 
 // TestARowFromBeforeIsSaidAsItWasWritten: a reservation's event from before
-// Rove's events kept a message is said in the words it was written with, the
+// Loft's events kept a message is said in the words it was written with, the
 // people it marks as they are called now (design 8.2).
 func TestARowFromBeforeIsSaidAsItWasWritten(t *testing.T) {
 	e := newEnv(t)

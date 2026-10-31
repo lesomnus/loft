@@ -1,87 +1,87 @@
-# Rove on one host: PostgreSQL, the migration that runs before anything
-# serves, two `rove serve`, the operator's entry point, and Caddy in front
+# Loft on one host: PostgreSQL, the migration that runs before anything
+# serves, two `loft serve`, the operator's entry point, and Caddy in front
 # with a certificate from Let's Encrypt. What to fill in, and in which order
 # to start it, is README.md.
 #
 #   cp .env.example .env    # then fill it in
 #   docker compose up -d --build
 
-name: rove
+name: loft
 
-x-rove: &rove
-  image: rove:${ROVE_VERSION:-local}
+x-loft: &loft
+  image: loft:${LOFT_VERSION:-local}
   # Built once, by `migrate`, and used as it is by the rest.
   pull_policy: never
   environment: &env
-    ROVE_DB_DSN: postgres://rove:${POSTGRES_PASSWORD:?}@postgres:5432/rove?sslmode=disable
-    ROVE_AUTH_ROSTER_DB_DSN: postgres://rove:${POSTGRES_PASSWORD:?}@postgres:5432/roster?sslmode=disable
-    ROVE_APP_PUBLIC_URL: https://${ROVE_DOMAIN:?}
-    ROVE_APP_SIGNING_KEY: ${ROVE_SIGNING_KEY:?}
-    ROVE_APP_MAIL_HOST: ${ROVE_MAIL_HOST:-}
-    ROVE_APP_MAIL_PORT: ${ROVE_MAIL_PORT:-587}
-    ROVE_APP_MAIL_USERNAME: ${ROVE_MAIL_USERNAME:-}
-    ROVE_APP_MAIL_PASSWORD: ${ROVE_MAIL_PASSWORD:-}
-    ROVE_APP_MAIL_FROM: ${ROVE_MAIL_FROM:-}
+    LOFT_DB_DSN: postgres://loft:${POSTGRES_PASSWORD:?}@postgres:5432/loft?sslmode=disable
+    LOFT_AUTH_ROSTER_DB_DSN: postgres://loft:${POSTGRES_PASSWORD:?}@postgres:5432/roster?sslmode=disable
+    LOFT_APP_PUBLIC_URL: https://${LOFT_DOMAIN:?}
+    LOFT_APP_SIGNING_KEY: ${LOFT_SIGNING_KEY:?}
+    LOFT_APP_MAIL_HOST: ${LOFT_MAIL_HOST:-}
+    LOFT_APP_MAIL_PORT: ${LOFT_MAIL_PORT:-587}
+    LOFT_APP_MAIL_USERNAME: ${LOFT_MAIL_USERNAME:-}
+    LOFT_APP_MAIL_PASSWORD: ${LOFT_MAIL_PASSWORD:-}
+    LOFT_APP_MAIL_FROM: ${LOFT_MAIL_FROM:-}
   volumes:
-    - ./rove.yaml:/etc/rove/rove.yaml:ro
-    - files:/var/lib/rove/files
-    - audit:/var/lib/rove/audit
-    - checkpoints:/var/lib/rove/checkpoints
+    - ./loft.yaml:/etc/loft/loft.yaml:ro
+    - files:/var/lib/loft/files
+    - audit:/var/lib/loft/audit
+    - checkpoints:/var/lib/loft/checkpoints
     # What the trail's store witness heard (payday#115): a volume of its own,
     # since a witness is worth what it is apart from. Best a disk of its own
     # too, mounted with credentials the database's and the archive's are not.
-    - witness:/var/lib/rove/witness
+    - witness:/var/lib/loft/witness
   secrets:
     - checkpoints.pem
     - digest.key
-  networks: [rove]
+  networks: [loft]
   restart: unless-stopped
 
 services:
   postgres:
     image: postgres:18
     environment:
-      POSTGRES_USER: rove
+      POSTGRES_USER: loft
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
-      POSTGRES_DB: rove
+      POSTGRES_DB: loft
     volumes:
       - postgres:/var/lib/postgresql
       - ./initdb:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "rove", "-d", "rove"]
+      test: ["CMD", "pg_isready", "-U", "loft", "-d", "loft"]
       interval: 5s
       timeout: 5s
       retries: 20
-    networks: [rove]
+    networks: [loft]
     restart: unless-stopped
 
   # The tables brought into this build's shape, once, and then nothing: what
   # serves only checks them (`db.migrate: false`).
   migrate:
-    <<: *rove
+    <<: *loft
     build:
       context: ../..
       args:
-        VERSION: ${ROVE_VERSION:-}
+        VERSION: ${LOFT_VERSION:-}
     pull_policy: build
-    command: ["--config", "/etc/rove/rove.yaml", "migrate"]
+    command: ["--config", "/etc/loft/loft.yaml", "migrate"]
     depends_on:
       postgres: { condition: service_healthy }
     restart: "no"
 
-  rove:
-    <<: *rove
-    command: ["--config", "/etc/rove/rove.yaml", "serve"]
+  loft:
+    <<: *loft
+    command: ["--config", "/etc/loft/loft.yaml", "serve"]
     deploy:
       replicas: 2
     depends_on:
       migrate: { condition: service_completed_successfully }
 
   # The operator's entry point, on the host's loopback only.
-  rove-admin:
-    <<: *rove
-    entrypoint: ["/usr/local/bin/rove-admin"]
-    command: ["--config", "/etc/rove/rove.yaml", "serve"]
+  loft-admin:
+    <<: *loft
+    entrypoint: ["/usr/local/bin/loft-admin"]
+    command: ["--config", "/etc/loft/loft.yaml", "serve"]
     ports:
       - 127.0.0.1:8081:8081
     secrets:
@@ -94,7 +94,7 @@ services:
   caddy:
     image: caddy:2
     environment:
-      ROVE_DOMAIN: ${ROVE_DOMAIN:?}
+      LOFT_DOMAIN: ${LOFT_DOMAIN:?}
     ports:
       - 80:80
       - 443:443
@@ -104,14 +104,14 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      rove:
+      loft:
         # The one address `app.trusted_proxies` believes.
         ipv4_address: 10.88.0.10
-    depends_on: [rove]
+    depends_on: [loft]
     restart: unless-stopped
 
 networks:
-  rove:
+  loft:
     ipam:
       config:
         - subnet: 10.88.0.0/24

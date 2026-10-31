@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // zoned puts the workspace in the zone `name`, and answers it.
@@ -152,7 +152,7 @@ func TestTheCensusCountsWhatThereIsByTypeAndBySpace(t *testing.T) {
 		x := require.New(t)
 		f, err := e.app().Asset().ExportCensus(e.owner, app.AssetCensusRequest_builder{By: "location"}.Build())
 		x.NoError(err)
-		x.Regexp(`^rove-census-item-\d{8}\.csv$`, f.GetName())
+		x.Regexp(`^loft-census-item-\d{8}\.csv$`, f.GetName())
 		head, rows := written(t, f)
 		x.Equal([]string{"위치", "태그", "합계", "하위 포함", "주문", "사용중", "수리중", "분실", "불용", "폐기"}, head)
 		x.Equal([]string{"본관 / 3층 / 301호", room.GetTag(), "3", "3", "0", "2", "1", "0", "0", "0"}, rows["본관 / 3층 / 301호"])
@@ -550,7 +550,7 @@ func TestWhatIsOutSaysWhoHasItAndHowLate(t *testing.T) {
 		x := require.New(t)
 		f, err := e.app().Custody().ExportOutstanding(e.owner, app.CustodyOutstandingRequest_builder{Size: 1}.Build())
 		x.NoError(err)
-		x.Equal("rove-loans-20261023.csv", f.GetName())
+		x.Equal("loft-loans-20261023.csv", f.GetName())
 		head, rows := written(t, f)
 		x.Equal([]string{"받은 사람", "구분", "태그", "이름", "수량", "단위", "건넨 날", "반납 기한", "연체(일)", "인수 확인"}, head)
 		x.Equal([]string{kim.GetName(), "대여", "NB-1", "노트북 1", "1", "", "2026-10-19 09:00", "2026-10-20 23:00", "3", "대기"}, rows[kim.GetName()])
@@ -664,7 +664,7 @@ func TestUsageIsTheTimeBookedAgainstTheTimeUsed(t *testing.T) {
 		x := require.New(t)
 		f, err := e.app().Bookable().ExportUsage(e.owner, october)
 		x.NoError(err)
-		x.Equal("rove-bookings-20261001-20261031.csv", f.GetName())
+		x.Equal("loft-bookings-20261001-20261031.csv", f.GetName())
 		head, rows := written(t, f)
 		x.Equal([]string{"태그", "이름", "종류", "수량", "예약", "이용", "노쇼", "예약 시간", "이용 시간", "이용률(%)", "예약 없이 나감", "예약 없이 나간 시간"}, head)
 		x.Equal([]string{"CM-1", "카메라", "물품", "1", "2", "2", "0", "9.0", "12.3", "137", "0", "0.0"}, rows["CM-1"], "picked up, and handed over with no reservation never")
@@ -754,7 +754,7 @@ func TestTheCountsSayWhatTheyFoundAndWhatWasLost(t *testing.T) {
 		x := require.New(t)
 		f, err := e.app().InventoryCount().ExportResults(e.owner, october)
 		x.NoError(err)
-		x.Equal("rove-counts-20261001-20261031.csv", f.GetName())
+		x.Equal("loft-counts-20261001-20261031.csv", f.GetName())
 		head, rows := written(t, f)
 		x.Equal([]string{"실사", "범위", "상태", "시작", "종료", "확인", "위치 다름", "미발견", "미등록", "위치 반영", "분실 처리", "무시", "미처리"}, head)
 		x.Equal([]string{"10월 실사", "창고", "종료", "2026-10-01 00:05", "2026-10-01 00:05", "1", "1", "1", "1", "1", "1", "0", "1"}, rows["10월 실사"])
@@ -845,7 +845,7 @@ func TestTheStockSaysWhatCameInAndWentOut(t *testing.T) {
 		x := require.New(t)
 		f, err := e.app().Stock().ExportFlow(e.owner, day)
 		x.NoError(err)
-		x.Equal("rove-stock-20261001-20261001.csv", f.GetName())
+		x.Equal("loft-stock-20261001-20261001.csv", f.GetName())
 		head, _ := written(t, f)
 		x.Equal([]string{"재고", "위치", "단위", "기초", "입고", "반납", "이동 입고", "조정(+)", "들어옴", "사용", "지급", "이동 출고", "자산 전환", "조정(-)", "나감", "기말"}, head)
 		x.Contains(string(f.GetData()), "건전지,창고,개,20,5,1,0,0,6,5,4,2,0,1,12,14\n")

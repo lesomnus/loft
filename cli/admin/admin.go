@@ -1,10 +1,10 @@
-// Package admincli is `rove-admin`, the operator's tool (design 6장, decision
+// Package admincli is `loft-admin`, the operator's tool (design 6장, decision
 // 17). `serve` stands the operator's entry point up beside a deployment, on a
 // listener of its own (`server/admin`); every other command asks it, from
 // wherever the operator is, with their key -- the entry point's address in
-// `--url` or `ROVE_ADMIN_URL`, the key in `--key` or `ROVE_ADMIN_KEY`.
+// `--url` or `LOFT_ADMIN_URL`, the key in `--key` or `LOFT_ADMIN_KEY`.
 //
-// It is a binary of its own so that `rove`, the one the public reaches, links
+// It is a binary of its own so that `loft`, the one the public reaches, links
 // none of it.
 package admincli
 
@@ -30,25 +30,25 @@ import (
 	"github.com/lesomnus/xli/cfg"
 	"github.com/lesomnus/xli/flg"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/admin"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/admin"
 )
 
-// Cmd is the root of `rove-admin`.
+// Cmd is the root of `loft-admin`.
 func Cmd(c *cmd.Config) *xli.Command {
 	l := cfg.New(cmd.Name, c)
 	version := pdcmd.NewCmdVersion()
 	ws, contract, hold := newCmdWorkspace(), newCmdContract(), newCmdHold()
 
 	return &xli.Command{
-		Name:  "rove-admin",
+		Name:  "loft-admin",
 		Brief: "the operator's entry point, and what an operator asks of it",
 
 		Flags: flg.Flags{
 			cfg.ConfigFlag(),
-			&flg.String{Name: "url", Brief: "the entry point, as `rove-admin serve` listens on it; ROVE_ADMIN_URL, or http://127.0.0.1:8081"},
-			&flg.String{Name: "key", Brief: "your key, as env:NAME, file:PATH or itself; ROVE_ADMIN_KEY"},
+			&flg.String{Name: "url", Brief: "the entry point, as `loft-admin serve` listens on it; LOFT_ADMIN_URL, or http://127.0.0.1:8081"},
+			&flg.String{Name: "key", Brief: "your key, as env:NAME, file:PATH or itself; LOFT_ADMIN_KEY"},
 		},
 
 		Commands: []*xli.Command{
@@ -78,7 +78,7 @@ func newCmdServe(c *cmd.Config) *xli.Command {
 			if len(ops) == 0 {
 				return errors.New("admin.keys: an entry point nobody holds a key to is one nobody can use")
 			}
-			// Before the server, as `rove serve` does: what it builds logs,
+			// Before the server, as `loft serve` does: what it builds logs,
 			// traces and measures into the providers it finds on ctx, and
 			// without these into ones that discard -- an entry point whose
 			// every request went unlogged.
@@ -155,17 +155,17 @@ type client struct {
 func clientOf(self *xli.Command) (client, error) {
 	base, _ := flg.Find[string](self, "url")
 	if base = strings.TrimSpace(base); base == "" {
-		base = os.Getenv("ROVE_ADMIN_URL")
+		base = os.Getenv("LOFT_ADMIN_URL")
 	}
 	if base == "" {
 		base = "http://127.0.0.1:8081"
 	}
 	ref, _ := flg.Find[string](self, "key")
 	if ref = strings.TrimSpace(ref); ref == "" {
-		ref = os.Getenv("ROVE_ADMIN_KEY")
+		ref = os.Getenv("LOFT_ADMIN_KEY")
 	}
 	if ref == "" {
-		return client{}, errors.New("--key or ROVE_ADMIN_KEY: the entry point answers an operator's key")
+		return client{}, errors.New("--key or LOFT_ADMIN_KEY: the entry point answers an operator's key")
 	}
 	key, err := identity.ResolveRef(ref)
 	if err != nil {
@@ -191,7 +191,7 @@ func (c client) do(ctx context.Context, method, path string, body, out any) erro
 		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("Authorization", "Bearer "+c.key)
-	req.Header.Set("User-Agent", "rove-admin")
+	req.Header.Set("User-Agent", "loft-admin")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
@@ -498,7 +498,7 @@ func newCmdHold() *xli.Command {
 
 // instant reads a moment as RFC 3339, or a date as the start of that day in
 // UTC: the day an operator's command says it back as, whatever zone the
-// operator's machine is in, as the shell's `rove contract set` reads one.
+// operator's machine is in, as the shell's `loft contract set` reads one.
 func instant(v string) (time.Time, error) {
 	v = strings.TrimSpace(v)
 	if t, err := time.Parse(time.DateOnly, v); err == nil {

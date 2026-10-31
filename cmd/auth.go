@@ -20,13 +20,13 @@ import (
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/consent"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/consent"
 )
 
 // Resolver turns a claim into the frame a request is served in.
@@ -53,7 +53,7 @@ import (
 // (`server/account`), and its first page.
 //
 // A call that came to a workspace's own domain is pinned to that workspace
-// ([apphost.From], rove#155), and served as a membership of it or not at all:
+// ([apphost.From], loft#155), and served as a membership of it or not at all:
 // a [WorkspaceHeader] that names another is refused rather than re-pointed,
 // a credential of another workspace's holder is refused, and so is a call an
 // account makes as itself across its workspaces ([AccountMethods]).
@@ -171,9 +171,9 @@ var AccountMethods = map[string]bool{
 }
 
 // ConsentOwed is what a call is refused with while its account has not agreed
-// to what this deployment asks. A page that is told it reads `rove consent`
+// to what this deployment asks. A page that is told it reads `loft consent`
 // in it and loads again, which is the agreement; a terminal is told to run it.
-const ConsentOwed = "이용약관과 개인정보 처리방침에 동의해야 이용할 수 있습니다 (rove consent)"
+const ConsentOwed = "이용약관과 개인정보 처리방침에 동의해야 이용할 수 있습니다 (loft consent)"
 
 // settled refuses a session whose account has not agreed to what this
 // deployment asks, and one whose agreement roster could not be asked about:
@@ -228,7 +228,7 @@ func LimitKey() func(ctx context.Context, method string) string {
 // WorkspaceHeader is the metadata a call names its workspace in: an alias,
 // with or without its `@`, or a tenant identifier. A page served at
 // `/@<alias>/...` sends the alias on every call (design 9.11).
-const WorkspaceHeader = "rove-workspace"
+const WorkspaceHeader = "loft-workspace"
 
 // membership is the holder an account is in the workspace a call names, or in
 // its only one.
@@ -247,7 +247,7 @@ func membership(ctx context.Context, db *ent.Client, account string) (*app.Holde
 			ws = strings.TrimPrefix(strings.TrimSpace(vs[0]), "@")
 		}
 	}
-	// On a workspace's own domain the workspace is the domain's (rove#155):
+	// On a workspace's own domain the workspace is the domain's (loft#155):
 	// one named otherwise is refused, and none named is that one.
 	named := ws
 	if pin, ok := apphost.From(ctx); ok {

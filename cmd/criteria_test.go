@@ -32,13 +32,13 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/server/clilogin"
-	"github.com/lesomnus/rove/server/policy"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/migrate"
+	"github.com/lesomnus/loft/server/clilogin"
+	"github.com/lesomnus/loft/server/policy"
 )
 
 // refusedByTable says whether a call was refused by `server/policy` itself: a
@@ -104,7 +104,7 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 
 	ask := func(ctx context.Context, c call) error {
 		// A download says what it is for, or is refused before the table is
-		// asked (rove#136): said here, so that what answers is the table.
+		// asked (loft#136): said here, so that what answers is the table.
 		if slices.Contains(cmd.Downloads, c.full) {
 			ctx = metadata.AppendToOutgoingContext(ctx, access.ReasonKey, "criteria")
 		}
@@ -217,12 +217,12 @@ func TestAMemberSlipsNothingPastTheTableInABatch(t *testing.T) {
 
 	// What a member may do, alone in a batch, is done.
 	_, err := batch.Do(member, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		op("/rove.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: true}.Build()),
+		op("/loft.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: true}.Build()),
 	}}.Build())
 	x.NoError(err, "a member's own operation, batched")
 	x.True(mailOff())
 	_, err = batch.Do(member, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		op("/rove.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: false}.Build()),
+		op("/loft.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: false}.Build()),
 	}}.Build())
 	x.NoError(err)
 	x.False(mailOff())
@@ -230,12 +230,12 @@ func TestAMemberSlipsNothingPastTheTableInABatch(t *testing.T) {
 	// The same beside an administrator's -- a type, a role of their own --
 	// is nothing done.
 	for _, slipped := range []*pdpb.Op{
-		op("/rove.AssetTypeService/Add", app.AssetTypeAddRequest_builder{Name: "슬쩍", Kind: "item"}.Build()),
-		op("/rove.PartyService/SetRole", app.PartySetRoleRequest_builder{Role: "owner"}.Build()),
-		op("/rove.HolderService/Patch", app.HolderPatchRequest_builder{Ref: kimRef, Role: z.Ptr("owner")}.Build()),
+		op("/loft.AssetTypeService/Add", app.AssetTypeAddRequest_builder{Name: "슬쩍", Kind: "item"}.Build()),
+		op("/loft.PartyService/SetRole", app.PartySetRoleRequest_builder{Role: "owner"}.Build()),
+		op("/loft.HolderService/Patch", app.HolderPatchRequest_builder{Ref: kimRef, Role: z.Ptr("owner")}.Build()),
 	} {
 		_, err := batch.Do(member, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-			op("/rove.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: true}.Build()),
+			op("/loft.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: true}.Build()),
 			slipped,
 		}}.Build())
 		// Refused by the table -- or, for a general write, closed before any
@@ -353,7 +353,7 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 		b, _ := io.ReadAll(res.Body)
 		return res.StatusCode, string(b)
 	}
-	n, body := post("/cli/logins", `{"secret":"`+secret+`","client":"rove-cli","login":"park","password":"correct horse"}`)
+	n, body := post("/cli/logins", `{"secret":"`+secret+`","client":"loft-cli","login":"park","password":"correct horse"}`)
 	x.Equal(http.StatusCreated, n, body)
 	var started clilogin.Started
 	x.NoError(json.Unmarshal([]byte(body), &started))
@@ -366,7 +366,7 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 	_, err = app.NewPartyServiceClient(w.conn).Me(as, &app.PartyMeRequest{})
 	x.Equal(codes.Unauthenticated, status.Code(err), "a terminal nobody approved")
 	for _, f := range cli.NewCmdLogin().Flags {
-		x.NotContains(strings.ToLower(f.Info().Name), "pass", "`rove login` takes a password")
+		x.NotContains(strings.ToLower(f.Info().Name), "pass", "`loft login` takes a password")
 	}
 
 	// What carries a password, of every call this app serves: setting one's
@@ -376,7 +376,7 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 	// there is already.
 	carries := map[string]bool{}
 	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
-		if fd.Package() != "rove" {
+		if fd.Package() != "loft" {
 			return true
 		}
 		for i := range fd.Services().Len() {
@@ -392,7 +392,7 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 		}
 		return true
 	})
-	x.Equal(map[string]bool{"rove.PartyService.SetPassword": true, "rove.PartyService.Invite": true}, carries)
+	x.Equal(map[string]bool{"loft.PartyService.SetPassword": true, "loft.PartyService.Invite": true}, carries)
 	_, err = app.NewPartyServiceClient(w.conn).SetPassword(ctx, app.PartySetPasswordRequest_builder{Password: "correct horse"}.Build())
 	x.Equal(codes.Unauthenticated, status.Code(err), "a password set by nobody")
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/server/account"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/server/account"
 )
 
 // TestACallSaysWhoseStoreItIsFor: `GET /account` names the session asking as
@@ -32,7 +32,7 @@ func TestACallSaysWhoseStoreItIsFor(t *testing.T) {
 	lee, err := w.s.Identity.AddPerson(ctx, "lee", "Lee", pdid.Nil)
 	x.NoError(err)
 	inKim, inLee := w.here(kim, "member"), w.here(lee, "member")
-	const service, own = "rove.example", "assets.acme.example"
+	const service, own = "loft.example", "assets.acme.example"
 	w.domain(w.tenant, own, "app", "active")
 
 	named := func(as context.Context, host string) string {
@@ -48,7 +48,7 @@ func TestACallSaysWhoseStoreItIsFor(t *testing.T) {
 		if store != "" {
 			h = append(h, authsession.IdentityHeader, store)
 		}
-		return w.at(as, host, http.MethodPost, "/rove.PartyService/Me", "{}", h...).Code
+		return w.at(as, host, http.MethodPost, "/loft.PartyService/Me", "{}", h...).Code
 	}
 
 	asKim, asLee := w.session(inKim), w.session(inLee)

@@ -24,17 +24,17 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	entmigrate "github.com/lesomnus/loft/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// oldFacts is Rove's Fact as the builds before payday's past made it
+// oldFacts is Loft's Fact as the builds before payday's past made it
 // (25387c6), as each database was left with it: its own table, a row for each
 // key, its value as text, and the asset an edge -- and, on PostgreSQL, the
 // index of the values known now and the trigger of the asset's tenant pg.sql
@@ -59,11 +59,11 @@ var oldFacts = map[string][]string{
 		"CREATE INDEX fact_asset ON fact USING btree (asset_id, key, valid_from)",
 		"CREATE UNIQUE INDEX fact_once ON fact USING btree (asset_id, key, valid_from) WHERE (superseded_at IS NULL)",
 		"CREATE INDEX fact_page ON fact USING btree (tenant_id, date_created, id)",
-		"CREATE TRIGGER fact_asset_id_same_tenant BEFORE INSERT OR UPDATE OF asset_id, tenant_id ON fact FOR EACH ROW EXECUTE FUNCTION rove_same_tenant('asset_id', 'asset')",
+		"CREATE TRIGGER fact_asset_id_same_tenant BEFORE INSERT OR UPDATE OF asset_id, tenant_id ON fact FOR EACH ROW EXECUTE FUNCTION loft_same_tenant('asset_id', 'asset')",
 	},
 }
 
-// oldFact is a row of Rove's own Fact.
+// oldFact is a row of Loft's own Fact.
 type oldFact struct {
 	id, asset, event uuid.UUID
 	key, value       string
@@ -73,14 +73,14 @@ type oldFact struct {
 	supersededBy     *uuid.UUID
 }
 
-// TestAnAssetsFactsMoveIntoThePast: the facts Rove wrote in its own table, as
+// TestAnAssetsFactsMoveIntoThePast: the facts Loft wrote in its own table, as
 // the build before left them, are payday's past's once migrated (payday#151):
 // each row the same row -- its identifier, its asset, its moments and the
 // events it names as they were -- written as the asset's field by its number
 // and its value's canonical JSON, whatever form the request said it in; and
 // each put on the trail as the migration's. What an asset was at a moment
 // reads as it did, and the rows are what the trail says of them. Asked again,
-// the migration has nothing to do; and what Rove's history reads, and what its
+// the migration has nothing to do; and what Loft's history reads, and what its
 // expiry takes, are the moved rows as they are any other.
 func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	x := require.New(t)
@@ -244,7 +244,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	for _, col := range []string{"asset_id", "cleared"} {
 		x.False(hasColumnOf(t, s, "fact", col), col)
 	}
-	for _, tb := range []string{"rove_fact_aside", "rove_fact_moved"} {
+	for _, tb := range []string{"loft_fact_aside", "loft_fact_moved"} {
 		x.False(hasTableOf(t, s, tb), tb)
 	}
 
@@ -305,7 +305,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	x.Contains(got, " 0 missing;", "what went is on the trail as gone")
 }
 
-// TestAFactThePastCannotWriteStopsTheMigration: a fact Rove never wrote -- a
+// TestAFactThePastCannotWriteStopsTheMigration: a fact Loft never wrote -- a
 // key no field of an asset is under -- is said, with how many, and nothing is
 // moved; what was set aside is there for a person to say what it was, and
 // once they have, the migration goes on from where it stopped.
@@ -352,17 +352,17 @@ func TestAFactThePastCannotWriteStopsTheMigration(t *testing.T) {
 	x.ErrorContains(err, "3 payday's past cannot write")
 	x.ErrorContains(err, `"location": 2`)
 	x.ErrorContains(err, `"Name": 1`)
-	x.True(hasTableOf(t, s, "rove_fact_aside"), "what was set aside")
+	x.True(hasTableOf(t, s, "loft_fact_aside"), "what was set aside")
 	x.Zero(must(s.Ent.Fact.Query().Count(ctx)), "a fact moved")
 
 	// Said what they were, they move.
-	_, err = s.Db.ExecContext(ctx, "UPDATE rove_fact_aside SET key = 'name' WHERE key = 'Name'")
+	_, err = s.Db.ExecContext(ctx, "UPDATE loft_fact_aside SET key = 'name' WHERE key = 'Name'")
 	x.NoError(err)
-	_, err = s.Db.ExecContext(ctx, "DELETE FROM rove_fact_aside WHERE key = 'location'")
+	_, err = s.Db.ExecContext(ctx, "DELETE FROM loft_fact_aside WHERE key = 'location'")
 	x.NoError(err)
 	x.NoError(cli.Migrate(ctx, s))
 	x.Equal(2, must(s.Ent.Fact.Query().Count(ctx)))
-	x.False(hasTableOf(t, s, "rove_fact_aside"))
+	x.False(hasTableOf(t, s, "loft_fact_aside"))
 }
 
 // factsAt is what the build before read an asset's facts as at `at`, as known

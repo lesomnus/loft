@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/event_svc.g.proto
+// source: loft/payday/event_svc.g.proto
 
-package rove
+package loft
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -45,7 +45,7 @@ type EventAddRequest struct {
 
 func (x *EventAddRequest) Reset() {
 	*x = EventAddRequest{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -57,7 +57,7 @@ func (x *EventAddRequest) String() string {
 func (*EventAddRequest) ProtoMessage() {}
 
 func (x *EventAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -397,7 +397,7 @@ type EventAddManyRequest struct {
 
 func (x *EventAddManyRequest) Reset() {
 	*x = EventAddManyRequest{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -409,7 +409,7 @@ func (x *EventAddManyRequest) String() string {
 func (*EventAddManyRequest) ProtoMessage() {}
 
 func (x *EventAddManyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -456,7 +456,7 @@ type EventAddManyResponse struct {
 
 func (x *EventAddManyResponse) Reset() {
 	*x = EventAddManyResponse{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -468,7 +468,7 @@ func (x *EventAddManyResponse) String() string {
 func (*EventAddManyResponse) ProtoMessage() {}
 
 func (x *EventAddManyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -516,7 +516,7 @@ type EventGetRequest struct {
 
 func (x *EventGetRequest) Reset() {
 	*x = EventGetRequest{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -528,7 +528,7 @@ func (x *EventGetRequest) String() string {
 func (*EventGetRequest) ProtoMessage() {}
 
 func (x *EventGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -608,7 +608,7 @@ type EventRef struct {
 
 func (x *EventRef) Reset() {
 	*x = EventRef{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -620,7 +620,7 @@ func (x *EventRef) String() string {
 func (*EventRef) ProtoMessage() {}
 
 func (x *EventRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,7 +708,7 @@ func (b0 EventRef_builder) Build() *EventRef {
 type case_EventRef_Key protoreflect.FieldNumber
 
 func (x case_EventRef_Key) String() string {
-	md := file_rove_payday_event_svc_g_proto_msgTypes[4].Descriptor()
+	md := file_loft_payday_event_svc_g_proto_msgTypes[4].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -749,7 +749,7 @@ type EventSelect struct {
 
 func (x *EventSelect) Reset() {
 	*x = EventSelect{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -761,7 +761,7 @@ func (x *EventSelect) String() string {
 func (*EventSelect) ProtoMessage() {}
 
 func (x *EventSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1197,7 +1197,7 @@ type EventListRequest struct {
 
 func (x *EventListRequest) Reset() {
 	*x = EventListRequest{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1209,7 +1209,7 @@ func (x *EventListRequest) String() string {
 func (*EventListRequest) ProtoMessage() {}
 
 func (x *EventListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1309,7 +1309,7 @@ type EventListResponse struct {
 
 func (x *EventListResponse) Reset() {
 	*x = EventListResponse{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1321,7 +1321,7 @@ func (x *EventListResponse) String() string {
 func (*EventListResponse) ProtoMessage() {}
 
 func (x *EventListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1394,7 +1394,7 @@ type EventFilter struct {
 
 func (x *EventFilter) Reset() {
 	*x = EventFilter{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1406,7 @@ func (x *EventFilter) String() string {
 func (*EventFilter) ProtoMessage() {}
 
 func (x *EventFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1593,7 +1593,7 @@ type EventRecentRequest struct {
 
 func (x *EventRecentRequest) Reset() {
 	*x = EventRecentRequest{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1605,7 +1605,7 @@ func (x *EventRecentRequest) String() string {
 func (*EventRecentRequest) ProtoMessage() {}
 
 func (x *EventRecentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1694,7 +1694,7 @@ type EventRecentResponse struct {
 
 func (x *EventRecentResponse) Reset() {
 	*x = EventRecentResponse{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1706,7 +1706,7 @@ func (x *EventRecentResponse) String() string {
 func (*EventRecentResponse) ProtoMessage() {}
 
 func (x *EventRecentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1768,7 +1768,7 @@ type EventRedactRequest struct {
 
 func (x *EventRedactRequest) Reset() {
 	*x = EventRedactRequest{}
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[11]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1780,7 +1780,7 @@ func (x *EventRedactRequest) String() string {
 func (*EventRedactRequest) ProtoMessage() {}
 
 func (x *EventRedactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_event_svc_g_proto_msgTypes[11]
+	mi := &file_loft_payday_event_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1843,14 +1843,14 @@ func (b0 EventRedactRequest_builder) Build() *EventRedactRequest {
 	return m0
 }
 
-var File_rove_payday_event_svc_g_proto protoreflect.FileDescriptor
+var File_loft_payday_event_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_payday_event_svc_g_proto_rawDesc = "" +
+const file_loft_payday_event_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1drove/payday/event_svc.g.proto\x12\x04rove\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17rove/payday/event.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xd8\x03\n" +
+	"\x1dloft/payday/event_svc.g.proto\x12\x04loft\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17loft/payday/event.proto\x1a\x1eloft/payday/tenant_svc.g.proto\"\xd8\x03\n" +
 	"\x0fEventAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04kind\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x19\n" +
 	"\bactor_id\x18\t \x01(\fR\aactorId\x12;\n" +
 	"\voccurred_at\x18\n" +
@@ -1866,18 +1866,18 @@ const file_rove_payday_event_svc_g_proto_rawDesc = "" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12\x1f\n" +
 	"\apayload\x18\x11 \x01(\tB\x05\xaa\x01\x02\b\x02R\apayload\"B\n" +
 	"\x13EventAddManyRequest\x12+\n" +
-	"\x05items\x18\x01 \x03(\v2\x15.rove.EventAddRequestR\x05items\"9\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.loft.EventAddRequestR\x05items\"9\n" +
 	"\x14EventAddManyResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.EventR\x05items\"^\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.EventR\x05items\"^\n" +
 	"\x0fEventGetRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.EventRefR\x03ref\x12)\n" +
-	"\x06select\x18\x02 \x01(\v2\x11.rove.EventSelectR\x06select\"#\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.EventRefR\x03ref\x12)\n" +
+	"\x06select\x18\x02 \x01(\v2\x11.loft.EventSelectR\x06select\"#\n" +
 	"\bEventRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\x92\x03\n" +
 	"\vEventSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04kind\x18\b \x01(\bR\x04kind\x12\x19\n" +
 	"\bactor_id\x18\t \x01(\bR\aactorId\x12\x1f\n" +
 	"\voccurred_at\x18\n" +
@@ -1894,15 +1894,15 @@ const file_rove_payday_event_svc_g_proto_rawDesc = "" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x18\n" +
 	"\apayload\x18\x11 \x01(\bR\apayload\"\x98\x01\n" +
 	"\x10EventListRequest\x12+\n" +
-	"\afilters\x18\x01 \x03(\v2\x11.rove.EventFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x11.loft.EventFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11EventListResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.EventR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.EventR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x98\x01\n" +
 	"\vEventFilter\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.EventRefR\x03ref\x12\x1d\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.EventRefR\x03ref\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x02 \x01(\fR\tsubjectId\x12\x12\n" +
 	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x19\n" +
@@ -1914,66 +1914,66 @@ const file_rove_payday_event_svc_g_proto_rawDesc = "" +
 	"\bchildren\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\bchildren\x12\x1b\n" +
 	"\x05after\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05afterJ\x04\b\x03\x10\x04R\x06before\"S\n" +
 	"\x13EventRecentResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.EventR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.EventR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"U\n" +
 	"\x12EventRedactRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.EventRefR\x03ref\x12\x1d\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.EventRefR\x03ref\x12\x1d\n" +
 	"\x06reason\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason2\xcf\x02\n" +
 	"\fEventService\x12)\n" +
-	"\x03Add\x12\x15.rove.EventAddRequest\x1a\v.rove.Event\x12@\n" +
-	"\aAddMany\x12\x19.rove.EventAddManyRequest\x1a\x1a.rove.EventAddManyResponse\x12)\n" +
-	"\x03Get\x12\x15.rove.EventGetRequest\x1a\v.rove.Event\x127\n" +
-	"\x04List\x12\x16.rove.EventListRequest\x1a\x17.rove.EventListResponse\x12=\n" +
-	"\x06Recent\x12\x18.rove.EventRecentRequest\x1a\x19.rove.EventRecentResponse\x12/\n" +
-	"\x06Redact\x12\x18.rove.EventRedactRequest\x1a\v.rove.EventB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x15.loft.EventAddRequest\x1a\v.loft.Event\x12@\n" +
+	"\aAddMany\x12\x19.loft.EventAddManyRequest\x1a\x1a.loft.EventAddManyResponse\x12)\n" +
+	"\x03Get\x12\x15.loft.EventGetRequest\x1a\v.loft.Event\x127\n" +
+	"\x04List\x12\x16.loft.EventListRequest\x1a\x17.loft.EventListResponse\x12=\n" +
+	"\x06Recent\x12\x18.loft.EventRecentRequest\x1a\x19.loft.EventRecentResponse\x12/\n" +
+	"\x06Redact\x12\x18.loft.EventRedactRequest\x1a\v.loft.EventB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_payday_event_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
-var file_rove_payday_event_svc_g_proto_goTypes = []any{
-	(*EventAddRequest)(nil),       // 0: rove.EventAddRequest
-	(*EventAddManyRequest)(nil),   // 1: rove.EventAddManyRequest
-	(*EventAddManyResponse)(nil),  // 2: rove.EventAddManyResponse
-	(*EventGetRequest)(nil),       // 3: rove.EventGetRequest
-	(*EventRef)(nil),              // 4: rove.EventRef
-	(*EventSelect)(nil),           // 5: rove.EventSelect
-	(*EventListRequest)(nil),      // 6: rove.EventListRequest
-	(*EventListResponse)(nil),     // 7: rove.EventListResponse
-	(*EventFilter)(nil),           // 8: rove.EventFilter
-	(*EventRecentRequest)(nil),    // 9: rove.EventRecentRequest
-	(*EventRecentResponse)(nil),   // 10: rove.EventRecentResponse
-	(*EventRedactRequest)(nil),    // 11: rove.EventRedactRequest
-	(*TenantRef)(nil),             // 12: rove.TenantRef
+var file_loft_payday_event_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_loft_payday_event_svc_g_proto_goTypes = []any{
+	(*EventAddRequest)(nil),       // 0: loft.EventAddRequest
+	(*EventAddManyRequest)(nil),   // 1: loft.EventAddManyRequest
+	(*EventAddManyResponse)(nil),  // 2: loft.EventAddManyResponse
+	(*EventGetRequest)(nil),       // 3: loft.EventGetRequest
+	(*EventRef)(nil),              // 4: loft.EventRef
+	(*EventSelect)(nil),           // 5: loft.EventSelect
+	(*EventListRequest)(nil),      // 6: loft.EventListRequest
+	(*EventListResponse)(nil),     // 7: loft.EventListResponse
+	(*EventFilter)(nil),           // 8: loft.EventFilter
+	(*EventRecentRequest)(nil),    // 9: loft.EventRecentRequest
+	(*EventRecentResponse)(nil),   // 10: loft.EventRecentResponse
+	(*EventRedactRequest)(nil),    // 11: loft.EventRedactRequest
+	(*TenantRef)(nil),             // 12: loft.TenantRef
 	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
 	(*anypb.Any)(nil),             // 14: google.protobuf.Any
-	(*Event)(nil),                 // 15: rove.Event
-	(*TenantSelect)(nil),          // 16: rove.TenantSelect
+	(*Event)(nil),                 // 15: loft.Event
+	(*TenantSelect)(nil),          // 16: loft.TenantSelect
 }
-var file_rove_payday_event_svc_g_proto_depIdxs = []int32{
-	12, // 0: rove.EventAddRequest.tenant:type_name -> rove.TenantRef
-	13, // 1: rove.EventAddRequest.occurred_at:type_name -> google.protobuf.Timestamp
-	13, // 2: rove.EventAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	14, // 3: rove.EventAddRequest.value:type_name -> google.protobuf.Any
-	0,  // 4: rove.EventAddManyRequest.items:type_name -> rove.EventAddRequest
-	15, // 5: rove.EventAddManyResponse.items:type_name -> rove.Event
-	4,  // 6: rove.EventGetRequest.ref:type_name -> rove.EventRef
-	5,  // 7: rove.EventGetRequest.select:type_name -> rove.EventSelect
-	16, // 8: rove.EventSelect.tenant:type_name -> rove.TenantSelect
-	8,  // 9: rove.EventListRequest.filters:type_name -> rove.EventFilter
-	15, // 10: rove.EventListResponse.items:type_name -> rove.Event
-	4,  // 11: rove.EventFilter.ref:type_name -> rove.EventRef
-	15, // 12: rove.EventRecentResponse.items:type_name -> rove.Event
-	4,  // 13: rove.EventRedactRequest.ref:type_name -> rove.EventRef
-	0,  // 14: rove.EventService.Add:input_type -> rove.EventAddRequest
-	1,  // 15: rove.EventService.AddMany:input_type -> rove.EventAddManyRequest
-	3,  // 16: rove.EventService.Get:input_type -> rove.EventGetRequest
-	6,  // 17: rove.EventService.List:input_type -> rove.EventListRequest
-	9,  // 18: rove.EventService.Recent:input_type -> rove.EventRecentRequest
-	11, // 19: rove.EventService.Redact:input_type -> rove.EventRedactRequest
-	15, // 20: rove.EventService.Add:output_type -> rove.Event
-	2,  // 21: rove.EventService.AddMany:output_type -> rove.EventAddManyResponse
-	15, // 22: rove.EventService.Get:output_type -> rove.Event
-	7,  // 23: rove.EventService.List:output_type -> rove.EventListResponse
-	10, // 24: rove.EventService.Recent:output_type -> rove.EventRecentResponse
-	15, // 25: rove.EventService.Redact:output_type -> rove.Event
+var file_loft_payday_event_svc_g_proto_depIdxs = []int32{
+	12, // 0: loft.EventAddRequest.tenant:type_name -> loft.TenantRef
+	13, // 1: loft.EventAddRequest.occurred_at:type_name -> google.protobuf.Timestamp
+	13, // 2: loft.EventAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	14, // 3: loft.EventAddRequest.value:type_name -> google.protobuf.Any
+	0,  // 4: loft.EventAddManyRequest.items:type_name -> loft.EventAddRequest
+	15, // 5: loft.EventAddManyResponse.items:type_name -> loft.Event
+	4,  // 6: loft.EventGetRequest.ref:type_name -> loft.EventRef
+	5,  // 7: loft.EventGetRequest.select:type_name -> loft.EventSelect
+	16, // 8: loft.EventSelect.tenant:type_name -> loft.TenantSelect
+	8,  // 9: loft.EventListRequest.filters:type_name -> loft.EventFilter
+	15, // 10: loft.EventListResponse.items:type_name -> loft.Event
+	4,  // 11: loft.EventFilter.ref:type_name -> loft.EventRef
+	15, // 12: loft.EventRecentResponse.items:type_name -> loft.Event
+	4,  // 13: loft.EventRedactRequest.ref:type_name -> loft.EventRef
+	0,  // 14: loft.EventService.Add:input_type -> loft.EventAddRequest
+	1,  // 15: loft.EventService.AddMany:input_type -> loft.EventAddManyRequest
+	3,  // 16: loft.EventService.Get:input_type -> loft.EventGetRequest
+	6,  // 17: loft.EventService.List:input_type -> loft.EventListRequest
+	9,  // 18: loft.EventService.Recent:input_type -> loft.EventRecentRequest
+	11, // 19: loft.EventService.Redact:input_type -> loft.EventRedactRequest
+	15, // 20: loft.EventService.Add:output_type -> loft.Event
+	2,  // 21: loft.EventService.AddMany:output_type -> loft.EventAddManyResponse
+	15, // 22: loft.EventService.Get:output_type -> loft.Event
+	7,  // 23: loft.EventService.List:output_type -> loft.EventListResponse
+	10, // 24: loft.EventService.Recent:output_type -> loft.EventRecentResponse
+	15, // 25: loft.EventService.Redact:output_type -> loft.Event
 	20, // [20:26] is the sub-list for method output_type
 	14, // [14:20] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
@@ -1981,31 +1981,31 @@ var file_rove_payday_event_svc_g_proto_depIdxs = []int32{
 	0,  // [0:14] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_event_svc_g_proto_init() }
-func file_rove_payday_event_svc_g_proto_init() {
-	if File_rove_payday_event_svc_g_proto != nil {
+func init() { file_loft_payday_event_svc_g_proto_init() }
+func file_loft_payday_event_svc_g_proto_init() {
+	if File_loft_payday_event_svc_g_proto != nil {
 		return
 	}
-	file_rove_payday_event_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_payday_event_svc_g_proto_msgTypes[4].OneofWrappers = []any{
+	file_loft_payday_event_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_payday_event_svc_g_proto_msgTypes[4].OneofWrappers = []any{
 		(*eventRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_event_svc_g_proto_rawDesc), len(file_rove_payday_event_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_event_svc_g_proto_rawDesc), len(file_loft_payday_event_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_rove_payday_event_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_payday_event_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_payday_event_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_payday_event_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_payday_event_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_payday_event_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_payday_event_svc_g_proto = out.File
-	file_rove_payday_event_svc_g_proto_goTypes = nil
-	file_rove_payday_event_svc_g_proto_depIdxs = nil
+	File_loft_payday_event_svc_g_proto = out.File
+	file_loft_payday_event_svc_g_proto_goTypes = nil
+	file_loft_payday_event_svc_g_proto_depIdxs = nil
 }

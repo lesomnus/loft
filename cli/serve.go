@@ -15,8 +15,8 @@ import (
 	"github.com/lesomnus/payday/spin"
 	"github.com/lesomnus/payday/valid"
 
-	"github.com/lesomnus/rove/cmd"
-	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/loft/cmd"
+	entmigrate "github.com/lesomnus/loft/internal/ent/migrate"
 )
 
 // NewCmdServe is `<app> serve`.
@@ -63,18 +63,18 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 			// operator's to decide (README, "계정과 워크스페이스 (roster)").
 			if why := c.EmbeddedInProduction(); len(why) > 0 {
 				log.From(ctx).WarnContext(ctx, "identity: roster runs in this process, and this deployment looks like production: "+
-					"it answers this process alone, keeps people and passwords beside Rove's own data, and no other app can use the accounts. "+
+					"it answers this process alone, keeps people and passwords beside Loft's own data, and no other app can use the accounts. "+
 					"A deployment beyond one server runs roster apart (auth.roster.addr); see README.md#계정과-워크스페이스-roster",
 					slog.String("because", strings.Join(why, ", ")))
 			}
 
-			// A switch that is gone (rove#155): every workspace may have a
+			// A switch that is gone (loft#155): every workspace may have a
 			// domain of its own, and prints with it when one is active, so
 			// there is nothing for it to say. Said, so that a deployment that
 			// set it reads why its labels no longer wait for a domain.
 			if c.App.Labels.TenantDomains {
 				log.From(ctx).WarnContext(ctx, "labels: app.labels.tenant_domains is gone and is ignored: a workspace prints its labels with its active domain "+
-					"when it has one, and with app.public_url when it has none -- no workspace waits for a domain to have labels (rove#155)")
+					"when it has one, and with app.public_url when it has none -- no workspace waits for a domain to have labels (loft#155)")
 			}
 
 			s, err := cmd.Build(ctx, *c)
@@ -109,13 +109,13 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 				// and the reads that wanted it, which is a thing to fix and
 				// not a reason to stop serving -- refused here, the next
 				// restart would be an outage until somebody had built it
-				// again. `rove migrate` is what refuses it (payday#176).
+				// again. `loft migrate` is what refuses it (payday#176).
 				log.From(ctx).WarnContext(ctx, "db: serving over an index PostgreSQL left invalid", slog.Any("err", err))
 			}
 			if left, err := fromBeforeRoster(ctx, s); err != nil {
 				return err
 			} else if left {
-				log.From(ctx).WarnContext(ctx, "identity: this deployment's people are from before roster held them, and none of them can sign in until `rove identity migrate`")
+				log.From(ctx).WarnContext(ctx, "identity: this deployment's people are from before roster held them, and none of them can sign in until `loft identity migrate`")
 			}
 
 			l, err := net.Listen("tcp", c.Server.ListenAddr())

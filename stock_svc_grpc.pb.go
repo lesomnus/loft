@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/stock_svc.g.proto
+// source: loft/stock_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,20 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StockService_Add_FullMethodName        = "/rove.StockService/Add"
-	StockService_Get_FullMethodName        = "/rove.StockService/Get"
-	StockService_Patch_FullMethodName      = "/rove.StockService/Patch"
-	StockService_Apply_FullMethodName      = "/rove.StockService/Apply"
-	StockService_Erase_FullMethodName      = "/rove.StockService/Erase"
-	StockService_List_FullMethodName       = "/rove.StockService/List"
-	StockService_Watch_FullMethodName      = "/rove.StockService/Watch"
-	StockService_Receive_FullMethodName    = "/rove.StockService/Receive"
-	StockService_Consume_FullMethodName    = "/rove.StockService/Consume"
-	StockService_Adjust_FullMethodName     = "/rove.StockService/Adjust"
-	StockService_Transfer_FullMethodName   = "/rove.StockService/Transfer"
-	StockService_Convert_FullMethodName    = "/rove.StockService/Convert"
-	StockService_Flow_FullMethodName       = "/rove.StockService/Flow"
-	StockService_ExportFlow_FullMethodName = "/rove.StockService/ExportFlow"
+	StockService_Add_FullMethodName        = "/loft.StockService/Add"
+	StockService_Get_FullMethodName        = "/loft.StockService/Get"
+	StockService_Patch_FullMethodName      = "/loft.StockService/Patch"
+	StockService_Apply_FullMethodName      = "/loft.StockService/Apply"
+	StockService_Erase_FullMethodName      = "/loft.StockService/Erase"
+	StockService_List_FullMethodName       = "/loft.StockService/List"
+	StockService_Watch_FullMethodName      = "/loft.StockService/Watch"
+	StockService_Receive_FullMethodName    = "/loft.StockService/Receive"
+	StockService_Consume_FullMethodName    = "/loft.StockService/Consume"
+	StockService_Adjust_FullMethodName     = "/loft.StockService/Adjust"
+	StockService_Transfer_FullMethodName   = "/loft.StockService/Transfer"
+	StockService_Convert_FullMethodName    = "/loft.StockService/Convert"
+	StockService_Flow_FullMethodName       = "/loft.StockService/Flow"
+	StockService_ExportFlow_FullMethodName = "/loft.StockService/ExportFlow"
 )
 
 // StockServiceClient is the client API for StockService service.
@@ -76,7 +76,7 @@ type StockServiceClient interface {
 	// and how many it had when the period ended. It names nobody.
 	Flow(ctx context.Context, in *StockFlowRequest, opts ...grpc.CallOption) (*StockFlowResponse, error)
 	// ExportFlow writes it as a CSV, which names nobody and so is no download
-	// of anybody (rove#136).
+	// of anybody (loft#136).
 	ExportFlow(ctx context.Context, in *StockFlowRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
@@ -278,7 +278,7 @@ type StockServiceServer interface {
 	// and how many it had when the period ended. It names nobody.
 	Flow(context.Context, *StockFlowRequest) (*StockFlowResponse, error)
 	// ExportFlow writes it as a CSV, which names nobody and so is no download
-	// of anybody (rove#136).
+	// of anybody (loft#136).
 	ExportFlow(context.Context, *StockFlowRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedStockServiceServer()
 }
@@ -602,7 +602,7 @@ func _StockService_ExportFlow_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var StockService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.StockService",
+	ServiceName: "loft.StockService",
 	HandlerType: (*StockServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -665,16 +665,16 @@ var StockService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/stock_svc.g.proto",
+	Metadata: "loft/stock_svc.g.proto",
 }
 
 const (
-	StockMovementService_Add_FullMethodName   = "/rove.StockMovementService/Add"
-	StockMovementService_Get_FullMethodName   = "/rove.StockMovementService/Get"
-	StockMovementService_Patch_FullMethodName = "/rove.StockMovementService/Patch"
-	StockMovementService_Apply_FullMethodName = "/rove.StockMovementService/Apply"
-	StockMovementService_Erase_FullMethodName = "/rove.StockMovementService/Erase"
-	StockMovementService_List_FullMethodName  = "/rove.StockMovementService/List"
+	StockMovementService_Add_FullMethodName   = "/loft.StockMovementService/Add"
+	StockMovementService_Get_FullMethodName   = "/loft.StockMovementService/Get"
+	StockMovementService_Patch_FullMethodName = "/loft.StockMovementService/Patch"
+	StockMovementService_Apply_FullMethodName = "/loft.StockMovementService/Apply"
+	StockMovementService_Erase_FullMethodName = "/loft.StockMovementService/Erase"
+	StockMovementService_List_FullMethodName  = "/loft.StockMovementService/List"
 )
 
 // StockMovementServiceClient is the client API for StockMovementService service.
@@ -940,7 +940,7 @@ func _StockMovementService_List_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var StockMovementService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.StockMovementService",
+	ServiceName: "loft.StockMovementService",
 	HandlerType: (*StockMovementServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -969,5 +969,5 @@ var StockMovementService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/stock_svc.g.proto",
+	Metadata: "loft/stock_svc.g.proto",
 }

@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // TestAnOperationThatWaitedIsRecordedAfterTheOneItWaitedFor: an operation's
-// moment is taken once it holds the tree lock (rove#21, decided in rove#35).
+// moment is taken once it holds the tree lock (loft#21, decided in loft#35).
 //
 // Two moves of one laptop. A began first and read the clock; B took the lock
 // and committed before A reached it. A is applied over B, so it is recorded

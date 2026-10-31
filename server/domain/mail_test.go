@@ -10,11 +10,11 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/mail"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/mail"
 )
 
 // mailbox is a server that keeps what it is sent, and refuses the first
@@ -61,7 +61,7 @@ func (e *env) mailing() *mailbox {
 	e.t.Helper()
 	box := &mailbox{}
 	e.s.Deps.Mail = box
-	e.s.Deps.Links.App = "https://rove.example"
+	e.s.Deps.Links.App = "https://loft.example"
 	h, err := e.s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.TenantId(e.tenant.Uuid())).Only(context.Background())
 	e.x.NoError(err)
 	e.x.NoError(e.s.Identity.AddAddress(context.Background(), pdid.Id(*h.Account), "owner@acme.example", true))
@@ -98,7 +98,7 @@ func TestAnApprovalIsAskedAndAnsweredByMail(t *testing.T) {
 		got := box.to(addr)
 		x.Len(got, 1, "%s: once", addr)
 		x.Contains(got[0].Subject, "승인 요청")
-		x.Contains(got[0].Body, "https://rove.example/@acme/reservations")
+		x.Contains(got[0].Body, "https://loft.example/@acme/reservations")
 	}
 	x.Empty(box.to(kimP.GetEmail()), "not to whoever asked")
 

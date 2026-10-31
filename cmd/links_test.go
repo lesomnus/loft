@@ -11,14 +11,14 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/server/account"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/server/account"
 )
 
 // TestALabelOpensWhereItsWorkspaceIs: a printed label sends whoever scans it
 // to the page that resolves it, where the workspace of the host it was printed
-// with is (rove#155): on the workspace's own domain, that domain; on one of
+// with is (loft#155): on the workspace's own domain, that domain; on one of
 // its domains that pins nothing -- an address it moved off, a label domain --
 // its app domain while it has one, and the service's address otherwise; at
 // the service's, the service's. Which workspace the code is of never decides
@@ -70,7 +70,7 @@ func TestAWorkspacesDataIsTakenOutOnItsDomain(t *testing.T) {
 
 // TestALegacyDomainSendsItsPagesOn: an app domain another took the place of
 // sends a page asked for on it to where the workspace's app is now, the same
-// page, until its redirect is over (rove#155); a call is no page, and is not
+// page, until its redirect is over (loft#155); a call is no page, and is not
 // sent anywhere. One that lapsed when its DNS stopped saying it is here sends
 // nothing on, and opens the labels printed with it -- at the service's, while
 // the workspace has no app domain.
@@ -115,7 +115,7 @@ func TestALegacyDomainSendsItsPagesOn(t *testing.T) {
 
 // TestAWorkspacesPageAtTheServiceGoesToItsDomain: a page of a workspace whose
 // app is on a domain of its own, opened at the service's address, is sent to
-// the same page there (rove#155), where the handoff signs the browser in; the
+// the same page there (loft#155), where the handoff signs the browser in; the
 // account says where each workspace's app is, for the page to go there
 // itself. What is the service's stays there: a call, the account, a label.
 // A domain not in use -- lapsed, legacy -- sends nothing anywhere.

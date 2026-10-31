@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/rowseal.proto
+// source: loft/payday/rowseal.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -66,7 +66,7 @@ type RowSeal struct {
 
 func (x *RowSeal) Reset() {
 	*x = RowSeal{}
-	mi := &file_rove_payday_rowseal_proto_msgTypes[0]
+	mi := &file_loft_payday_rowseal_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -78,7 +78,7 @@ func (x *RowSeal) String() string {
 func (*RowSeal) ProtoMessage() {}
 
 func (x *RowSeal) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_rowseal_proto_msgTypes[0]
+	mi := &file_loft_payday_rowseal_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -173,23 +173,23 @@ func (b0 RowSeal_builder) Build() *RowSeal {
 	return m0
 }
 
-var File_rove_payday_rowseal_proto protoreflect.FileDescriptor
+var File_loft_payday_rowseal_proto protoreflect.FileDescriptor
 
-const file_rove_payday_rowseal_proto_rawDesc = "" +
+const file_loft_payday_rowseal_proto_rawDesc = "" +
 	"\n" +
-	"\x19rove/payday/rowseal.proto\x12\x04rove\x1a\torm.proto\x1a\fpayday.proto\"\x95\x01\n" +
+	"\x19loft/payday/rowseal.proto\x12\x04loft\x1a\torm.proto\x1a\fpayday.proto\"\x95\x01\n" +
 	"\aRowSeal\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12#\n" +
 	"\ttenant_id\x18\x02 \x01(\fB\x06\xea\x82\x16\x02\x10@R\btenantId\x12\x10\n" +
 	"\x03sum\x18\b \x01(\fR\x03sum\x12\x16\n" +
 	"\x06fields\x18\t \x03(\rR\x06fields:\x1e\xca\xfc\x15\x00\x8a\xbb\x16\x16\b\xff\x01B\x02\n" +
-	"\x00H\a\"\v\x12\ttenant_idB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x00H\a\"\v\x12\ttenant_idB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_payday_rowseal_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_rove_payday_rowseal_proto_goTypes = []any{
-	(*RowSeal)(nil), // 0: rove.RowSeal
+var file_loft_payday_rowseal_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_loft_payday_rowseal_proto_goTypes = []any{
+	(*RowSeal)(nil), // 0: loft.RowSeal
 }
-var file_rove_payday_rowseal_proto_depIdxs = []int32{
+var file_loft_payday_rowseal_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -197,26 +197,26 @@ var file_rove_payday_rowseal_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_rowseal_proto_init() }
-func file_rove_payday_rowseal_proto_init() {
-	if File_rove_payday_rowseal_proto != nil {
+func init() { file_loft_payday_rowseal_proto_init() }
+func file_loft_payday_rowseal_proto_init() {
+	if File_loft_payday_rowseal_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_rowseal_proto_rawDesc), len(file_rove_payday_rowseal_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_rowseal_proto_rawDesc), len(file_loft_payday_rowseal_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_payday_rowseal_proto_goTypes,
-		DependencyIndexes: file_rove_payday_rowseal_proto_depIdxs,
-		MessageInfos:      file_rove_payday_rowseal_proto_msgTypes,
+		GoTypes:           file_loft_payday_rowseal_proto_goTypes,
+		DependencyIndexes: file_loft_payday_rowseal_proto_depIdxs,
+		MessageInfos:      file_loft_payday_rowseal_proto_msgTypes,
 	}.Build()
-	File_rove_payday_rowseal_proto = out.File
-	file_rove_payday_rowseal_proto_goTypes = nil
-	file_rove_payday_rowseal_proto_depIdxs = nil
+	File_loft_payday_rowseal_proto = out.File
+	file_loft_payday_rowseal_proto_goTypes = nil
+	file_loft_payday_rowseal_proto_depIdxs = nil
 }

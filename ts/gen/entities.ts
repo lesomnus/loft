@@ -13,52 +13,52 @@
 
 import type { EntityDesc } from '@lesomnus/payday/store'
 
-import { AccessSchema } from './rove/payday/access_pb.js'
-import { AccessReviewSchema, LegalHoldSchema, NotificationSchema, TenantContractSchema } from './rove/ops_pb.js'
-import { AliasHoldSchema, CliLoginSchema, HandoffSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './rove/org_pb.js'
-import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './rove/booking_pb.js'
-import { ArchivedSchema } from './rove/payday/archived_pb.js'
-import { AssetSchema, AttachmentSchema, LabelSchema, TagCounterSchema, TenantDomainSchema, TreeLockSchema } from './rove/asset_pb.js'
-import { AssetTypeSchema, ItemModelSchema } from './rove/catalog_pb.js'
-import { AuditSchema } from './rove/payday/audit_pb.js'
-import { CountFindingSchema, InventoryCountSchema } from './rove/count_pb.js'
-import { CustodySchema, CustodyLineSchema } from './rove/custody_pb.js'
-import { EventSchema } from './rove/payday/event_pb.js'
-import { FactSchema } from './rove/payday/fact_pb.js'
-import { HolderSchema } from './rove/payday/holder_pb.js'
-import { LinkSchema, PlacementSchema, StewardshipSchema } from './rove/history_pb.js'
-import { OutboxSchema } from './rove/payday/outbox_pb.js'
-import { OwedSchema } from './rove/payday/owed_pb.js'
-import { PurchaseSchema, PurchaseLineSchema, WorkOrderSchema } from './rove/work_pb.js'
-import { RowSealSchema } from './rove/payday/rowseal_pb.js'
-import { SearchStaleSchema } from './rove/search_pb.js'
-import { StockSchema, StockMovementSchema } from './rove/stock_pb.js'
-import { TenantSchema } from './rove/payday/tenant_pb.js'
-import { AccessService } from './rove/payday/access_svc_pb.js'
-import { AccessReviewService, LegalHoldService, NotificationService, TenantContractService } from './rove/ops_svc_pb.js'
-import { AliasHoldService, CliLoginService, HandoffService, InvitationService, PartyService, SessionService, SignInFailureService } from './rove/org_svc_pb.js'
-import { AllocationService, BookableService, ReservationService, ReservationItemService } from './rove/booking_svc_pb.js'
-import { ArchivedService } from './rove/payday/archived_svc_pb.js'
-import { AssetService, AttachmentService, LabelService, TagCounterService, TenantDomainService, TreeLockService } from './rove/asset_svc_pb.js'
-import { AssetTypeService, ItemModelService } from './rove/catalog_svc_pb.js'
-import { AuditService } from './rove/payday/audit_svc_pb.js'
-import { CountFindingService, InventoryCountService } from './rove/count_svc_pb.js'
-import { CustodyService, CustodyLineService } from './rove/custody_svc_pb.js'
-import { EventService } from './rove/payday/event_svc_pb.js'
-import { FactService } from './rove/payday/fact_svc_pb.js'
-import { HolderService } from './rove/payday/holder_svc_pb.js'
-import { LinkService, PlacementService, StewardshipService } from './rove/history_svc_pb.js'
-import { OutboxService } from './rove/payday/outbox_svc_pb.js'
-import { OwedService } from './rove/payday/owed_svc_pb.js'
-import { PurchaseService, PurchaseLineService, WorkOrderService } from './rove/work_svc_pb.js'
-import { RowSealService } from './rove/payday/rowseal_svc_pb.js'
-import { SearchStaleService } from './rove/search_svc_pb.js'
-import { StockService, StockMovementService } from './rove/stock_svc_pb.js'
-import { TenantService } from './rove/payday/tenant_svc_pb.js'
+import { AccessSchema } from './loft/payday/access_pb.js'
+import { AccessReviewSchema, LegalHoldSchema, NotificationSchema, TenantContractSchema } from './loft/ops_pb.js'
+import { AliasHoldSchema, CliLoginSchema, HandoffSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './loft/org_pb.js'
+import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './loft/booking_pb.js'
+import { ArchivedSchema } from './loft/payday/archived_pb.js'
+import { AssetSchema, AttachmentSchema, LabelSchema, TagCounterSchema, TenantDomainSchema, TreeLockSchema } from './loft/asset_pb.js'
+import { AssetTypeSchema, ItemModelSchema } from './loft/catalog_pb.js'
+import { AuditSchema } from './loft/payday/audit_pb.js'
+import { CountFindingSchema, InventoryCountSchema } from './loft/count_pb.js'
+import { CustodySchema, CustodyLineSchema } from './loft/custody_pb.js'
+import { EventSchema } from './loft/payday/event_pb.js'
+import { FactSchema } from './loft/payday/fact_pb.js'
+import { HolderSchema } from './loft/payday/holder_pb.js'
+import { LinkSchema, PlacementSchema, StewardshipSchema } from './loft/history_pb.js'
+import { OutboxSchema } from './loft/payday/outbox_pb.js'
+import { OwedSchema } from './loft/payday/owed_pb.js'
+import { PurchaseSchema, PurchaseLineSchema, WorkOrderSchema } from './loft/work_pb.js'
+import { RowSealSchema } from './loft/payday/rowseal_pb.js'
+import { SearchStaleSchema } from './loft/search_pb.js'
+import { StockSchema, StockMovementSchema } from './loft/stock_pb.js'
+import { TenantSchema } from './loft/payday/tenant_pb.js'
+import { AccessService } from './loft/payday/access_svc_pb.js'
+import { AccessReviewService, LegalHoldService, NotificationService, TenantContractService } from './loft/ops_svc_pb.js'
+import { AliasHoldService, CliLoginService, HandoffService, InvitationService, PartyService, SessionService, SignInFailureService } from './loft/org_svc_pb.js'
+import { AllocationService, BookableService, ReservationService, ReservationItemService } from './loft/booking_svc_pb.js'
+import { ArchivedService } from './loft/payday/archived_svc_pb.js'
+import { AssetService, AttachmentService, LabelService, TagCounterService, TenantDomainService, TreeLockService } from './loft/asset_svc_pb.js'
+import { AssetTypeService, ItemModelService } from './loft/catalog_svc_pb.js'
+import { AuditService } from './loft/payday/audit_svc_pb.js'
+import { CountFindingService, InventoryCountService } from './loft/count_svc_pb.js'
+import { CustodyService, CustodyLineService } from './loft/custody_svc_pb.js'
+import { EventService } from './loft/payday/event_svc_pb.js'
+import { FactService } from './loft/payday/fact_svc_pb.js'
+import { HolderService } from './loft/payday/holder_svc_pb.js'
+import { LinkService, PlacementService, StewardshipService } from './loft/history_svc_pb.js'
+import { OutboxService } from './loft/payday/outbox_svc_pb.js'
+import { OwedService } from './loft/payday/owed_svc_pb.js'
+import { PurchaseService, PurchaseLineService, WorkOrderService } from './loft/work_svc_pb.js'
+import { RowSealService } from './loft/payday/rowseal_svc_pb.js'
+import { SearchStaleService } from './loft/search_svc_pb.js'
+import { StockService, StockMovementService } from './loft/stock_svc_pb.js'
+import { TenantService } from './loft/payday/tenant_svc_pb.js'
 
-/** rove.Access, as the store holds it. */
+/** loft.Access, as the store holds it. */
 export const Access = {
-	typeName: "rove.Access",
+	typeName: "loft.Access",
 	schema: AccessSchema,
 	domain: 6,
 	key: "id",
@@ -66,20 +66,20 @@ export const Access = {
 	service: AccessService,
 } as const satisfies EntityDesc
 
-/** rove.AccessReview, as the store holds it. */
+/** loft.AccessReview, as the store holds it. */
 export const AccessReview = {
-	typeName: "rove.AccessReview",
+	typeName: "loft.AccessReview",
 	schema: AccessReviewSchema,
 	domain: 47,
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "reviewer", to: "rove.Holder" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "reviewer", to: "loft.Holder" }],
 	key: "id",
 	ids: ["id"],
 	service: AccessReviewService,
 } as const satisfies EntityDesc
 
-/** rove.AliasHold, as the store holds it. */
+/** loft.AliasHold, as the store holds it. */
 export const AliasHold = {
-	typeName: "rove.AliasHold",
+	typeName: "loft.AliasHold",
 	schema: AliasHoldSchema,
 	domain: 43,
 	version: "dateUpdated",
@@ -88,21 +88,21 @@ export const AliasHold = {
 	service: AliasHoldService,
 } as const satisfies EntityDesc
 
-/** rove.Allocation, as the store holds it. */
+/** loft.Allocation, as the store holds it. */
 export const Allocation = {
-	typeName: "rove.Allocation",
+	typeName: "loft.Allocation",
 	schema: AllocationSchema,
 	domain: 28,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "resource", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "resource", to: "loft.Asset" }],
 	key: "id",
 	ids: ["id", "refId"],
 	service: AllocationService,
 } as const satisfies EntityDesc
 
-/** rove.Archived, as the store holds it. */
+/** loft.Archived, as the store holds it. */
 export const Archived = {
-	typeName: "rove.Archived",
+	typeName: "loft.Archived",
 	schema: ArchivedSchema,
 	domain: 5,
 	version: "dateUpdated",
@@ -111,45 +111,45 @@ export const Archived = {
 	service: ArchivedService,
 } as const satisfies EntityDesc
 
-/** rove.Asset, as the store holds it. */
+/** loft.Asset, as the store holds it. */
 export const Asset = {
-	typeName: "rove.Asset",
+	typeName: "loft.Asset",
 	schema: AssetSchema,
 	domain: 7,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "type", to: "rove.AssetType" }, { field: "model", to: "rove.ItemModel" }, { field: "custodian", to: "rove.Party" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "type", to: "loft.AssetType" }, { field: "model", to: "loft.ItemModel" }, { field: "custodian", to: "loft.Party" }],
 	key: "id",
 	ids: ["id", "parentId"],
 	service: AssetService,
 } as const satisfies EntityDesc
 
-/** rove.AssetType, as the store holds it. */
+/** loft.AssetType, as the store holds it. */
 export const AssetType = {
-	typeName: "rove.AssetType",
+	typeName: "loft.AssetType",
 	schema: AssetTypeSchema,
 	domain: 8,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id", "parentId"],
 	service: AssetTypeService,
 } as const satisfies EntityDesc
 
-/** rove.Attachment, as the store holds it. */
+/** loft.Attachment, as the store holds it. */
 export const Attachment = {
-	typeName: "rove.Attachment",
+	typeName: "loft.Attachment",
 	schema: AttachmentSchema,
 	domain: 19,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id", "subjectId"],
 	service: AttachmentService,
 } as const satisfies EntityDesc
 
-/** rove.Audit, as the store holds it. */
+/** loft.Audit, as the store holds it. */
 export const Audit = {
-	typeName: "rove.Audit",
+	typeName: "loft.Audit",
 	schema: AuditSchema,
 	domain: 3,
 	key: "id",
@@ -157,21 +157,21 @@ export const Audit = {
 	service: AuditService,
 } as const satisfies EntityDesc
 
-/** rove.Bookable, as the store holds it. */
+/** loft.Bookable, as the store holds it. */
 export const Bookable = {
-	typeName: "rove.Bookable",
+	typeName: "loft.Bookable",
 	schema: BookableSchema,
 	domain: 25,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "asset", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "asset", to: "loft.Asset" }],
 	key: "id",
 	ids: ["id"],
 	service: BookableService,
 } as const satisfies EntityDesc
 
-/** rove.CliLogin, as the store holds it. */
+/** loft.CliLogin, as the store holds it. */
 export const CliLogin = {
-	typeName: "rove.CliLogin",
+	typeName: "loft.CliLogin",
 	schema: CliLoginSchema,
 	domain: 42,
 	version: "dateUpdated",
@@ -181,69 +181,69 @@ export const CliLogin = {
 	service: CliLoginService,
 } as const satisfies EntityDesc
 
-/** rove.CountFinding, as the store holds it. */
+/** loft.CountFinding, as the store holds it. */
 export const CountFinding = {
-	typeName: "rove.CountFinding",
+	typeName: "loft.CountFinding",
 	schema: CountFindingSchema,
 	domain: 32,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "count", to: "rove.InventoryCount" }, { field: "asset", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "count", to: "loft.InventoryCount" }, { field: "asset", to: "loft.Asset" }],
 	key: "id",
 	ids: ["id", "labelId", "observedParentId", "expectedParentId", "recordedBy"],
 	service: CountFindingService,
 } as const satisfies EntityDesc
 
-/** rove.Custody, as the store holds it. */
+/** loft.Custody, as the store holds it. */
 export const Custody = {
-	typeName: "rove.Custody",
+	typeName: "loft.Custody",
 	schema: CustodySchema,
 	domain: 21,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "party", to: "rove.Party" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "party", to: "loft.Party" }],
 	key: "id",
 	ids: ["id", "reservationId", "issuedBy"],
 	service: CustodyService,
 } as const satisfies EntityDesc
 
-/** rove.CustodyLine, as the store holds it. */
+/** loft.CustodyLine, as the store holds it. */
 export const CustodyLine = {
-	typeName: "rove.CustodyLine",
+	typeName: "loft.CustodyLine",
 	schema: CustodyLineSchema,
 	domain: 22,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "custody", to: "rove.Custody" }, { field: "asset", to: "rove.Asset" }, { field: "stock", to: "rove.Stock" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "custody", to: "loft.Custody" }, { field: "asset", to: "loft.Asset" }, { field: "stock", to: "loft.Stock" }],
 	key: "id",
 	ids: ["id"],
 	service: CustodyLineService,
 } as const satisfies EntityDesc
 
-/** rove.Event, as the store holds it. */
+/** loft.Event, as the store holds it. */
 export const Event = {
-	typeName: "rove.Event",
+	typeName: "loft.Event",
 	schema: EventSchema,
 	domain: 17,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id", "actorId", "subjectId", "causeId"],
 	service: EventService,
 } as const satisfies EntityDesc
 
-/** rove.Fact, as the store holds it. */
+/** loft.Fact, as the store holds it. */
 export const Fact = {
-	typeName: "rove.Fact",
+	typeName: "loft.Fact",
 	schema: FactSchema,
 	domain: 16,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id", "subjectId", "eventId", "supersededBy"],
 	service: FactService,
 } as const satisfies EntityDesc
 
-/** rove.Handoff, as the store holds it. */
+/** loft.Handoff, as the store holds it. */
 export const Handoff = {
-	typeName: "rove.Handoff",
+	typeName: "loft.Handoff",
 	schema: HandoffSchema,
 	domain: 48,
 	key: "id",
@@ -252,106 +252,106 @@ export const Handoff = {
 	service: HandoffService,
 } as const satisfies EntityDesc
 
-/** rove.Holder, as the store holds it. */
+/** loft.Holder, as the store holds it. */
 export const Holder = {
-	typeName: "rove.Holder",
+	typeName: "loft.Holder",
 	schema: HolderSchema,
 	domain: 2,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	alias: "alias",
 	key: "id",
 	ids: ["id", "account", "party"],
 	service: HolderService,
 } as const satisfies EntityDesc
 
-/** rove.InventoryCount, as the store holds it. */
+/** loft.InventoryCount, as the store holds it. */
 export const InventoryCount = {
-	typeName: "rove.InventoryCount",
+	typeName: "loft.InventoryCount",
 	schema: InventoryCountSchema,
 	domain: 31,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "scope", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "scope", to: "loft.Asset" }],
 	key: "id",
 	ids: ["id", "startedBy"],
 	service: InventoryCountService,
 } as const satisfies EntityDesc
 
-/** rove.Invitation, as the store holds it. */
+/** loft.Invitation, as the store holds it. */
 export const Invitation = {
-	typeName: "rove.Invitation",
+	typeName: "loft.Invitation",
 	schema: InvitationSchema,
 	domain: 41,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "inviter", to: "rove.Holder" }, { field: "party", to: "rove.Party" }, { field: "holder", to: "rove.Holder" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "inviter", to: "loft.Holder" }, { field: "party", to: "loft.Party" }, { field: "holder", to: "loft.Holder" }],
 	key: "id",
 	ids: ["id", "account"],
 	secrets: ["claim"],
 	service: InvitationService,
 } as const satisfies EntityDesc
 
-/** rove.ItemModel, as the store holds it. */
+/** loft.ItemModel, as the store holds it. */
 export const ItemModel = {
-	typeName: "rove.ItemModel",
+	typeName: "loft.ItemModel",
 	schema: ItemModelSchema,
 	domain: 9,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "type", to: "rove.AssetType" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "type", to: "loft.AssetType" }],
 	key: "id",
 	ids: ["id"],
 	service: ItemModelService,
 } as const satisfies EntityDesc
 
-/** rove.Label, as the store holds it. */
+/** loft.Label, as the store holds it. */
 export const Label = {
-	typeName: "rove.Label",
+	typeName: "loft.Label",
 	schema: LabelSchema,
 	domain: 18,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "domain", to: "rove.TenantDomain" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "domain", to: "loft.TenantDomain" }],
 	key: "id",
 	ids: ["id", "subjectId"],
 	service: LabelService,
 } as const satisfies EntityDesc
 
-/** rove.LegalHold, as the store holds it. */
+/** loft.LegalHold, as the store holds it. */
 export const LegalHold = {
-	typeName: "rove.LegalHold",
+	typeName: "loft.LegalHold",
 	schema: LegalHoldSchema,
 	domain: 40,
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id"],
 	service: LegalHoldService,
 } as const satisfies EntityDesc
 
-/** rove.Link, as the store holds it. */
+/** loft.Link, as the store holds it. */
 export const Link = {
-	typeName: "rove.Link",
+	typeName: "loft.Link",
 	schema: LinkSchema,
 	domain: 14,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "source", to: "rove.Asset" }, { field: "target", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "source", to: "loft.Asset" }, { field: "target", to: "loft.Asset" }],
 	key: "id",
 	ids: ["id", "eventId", "supersededBy"],
 	service: LinkService,
 } as const satisfies EntityDesc
 
-/** rove.Notification, as the store holds it. */
+/** loft.Notification, as the store holds it. */
 export const Notification = {
-	typeName: "rove.Notification",
+	typeName: "loft.Notification",
 	schema: NotificationSchema,
 	domain: 36,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "holder", to: "rove.Holder" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "holder", to: "loft.Holder" }],
 	key: "id",
 	ids: ["id", "subjectId"],
 	service: NotificationService,
 } as const satisfies EntityDesc
 
-/** rove.Outbox, as the store holds it. */
+/** loft.Outbox, as the store holds it. */
 export const Outbox = {
-	typeName: "rove.Outbox",
+	typeName: "loft.Outbox",
 	schema: OutboxSchema,
 	domain: 4,
 	key: "id",
@@ -359,9 +359,9 @@ export const Outbox = {
 	service: OutboxService,
 } as const satisfies EntityDesc
 
-/** rove.Owed, as the store holds it. */
+/** loft.Owed, as the store holds it. */
 export const Owed = {
-	typeName: "rove.Owed",
+	typeName: "loft.Owed",
 	schema: OwedSchema,
 	domain: 254,
 	key: "id",
@@ -369,81 +369,81 @@ export const Owed = {
 	service: OwedService,
 } as const satisfies EntityDesc
 
-/** rove.Party, as the store holds it. */
+/** loft.Party, as the store holds it. */
 export const Party = {
-	typeName: "rove.Party",
+	typeName: "loft.Party",
 	schema: PartySchema,
 	domain: 10,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "holder", to: "rove.Holder" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "holder", to: "loft.Holder" }],
 	key: "id",
 	ids: ["id", "parentId"],
 	service: PartyService,
 } as const satisfies EntityDesc
 
-/** rove.Placement, as the store holds it. */
+/** loft.Placement, as the store holds it. */
 export const Placement = {
-	typeName: "rove.Placement",
+	typeName: "loft.Placement",
 	schema: PlacementSchema,
 	domain: 13,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "child", to: "rove.Asset" }, { field: "parent", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "child", to: "loft.Asset" }, { field: "parent", to: "loft.Asset" }],
 	key: "id",
 	ids: ["id", "eventId", "supersededBy"],
 	service: PlacementService,
 } as const satisfies EntityDesc
 
-/** rove.Purchase, as the store holds it. */
+/** loft.Purchase, as the store holds it. */
 export const Purchase = {
-	typeName: "rove.Purchase",
+	typeName: "loft.Purchase",
 	schema: PurchaseSchema,
 	domain: 34,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "vendor", to: "rove.Party" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "vendor", to: "loft.Party" }],
 	key: "id",
 	ids: ["id"],
 	service: PurchaseService,
 } as const satisfies EntityDesc
 
-/** rove.PurchaseLine, as the store holds it. */
+/** loft.PurchaseLine, as the store holds it. */
 export const PurchaseLine = {
-	typeName: "rove.PurchaseLine",
+	typeName: "loft.PurchaseLine",
 	schema: PurchaseLineSchema,
 	domain: 35,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "purchase", to: "rove.Purchase" }, { field: "model", to: "rove.ItemModel" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "purchase", to: "loft.Purchase" }, { field: "model", to: "loft.ItemModel" }],
 	key: "id",
 	ids: ["id"],
 	service: PurchaseLineService,
 } as const satisfies EntityDesc
 
-/** rove.Reservation, as the store holds it. */
+/** loft.Reservation, as the store holds it. */
 export const Reservation = {
-	typeName: "rove.Reservation",
+	typeName: "loft.Reservation",
 	schema: ReservationSchema,
 	domain: 26,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "party", to: "rove.Party" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "party", to: "loft.Party" }],
 	key: "id",
 	ids: ["id", "requestedBy", "seriesId", "decidedBy"],
 	service: ReservationService,
 } as const satisfies EntityDesc
 
-/** rove.ReservationItem, as the store holds it. */
+/** loft.ReservationItem, as the store holds it. */
 export const ReservationItem = {
-	typeName: "rove.ReservationItem",
+	typeName: "loft.ReservationItem",
 	schema: ReservationItemSchema,
 	domain: 27,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "reservation", to: "rove.Reservation" }, { field: "resource", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "reservation", to: "loft.Reservation" }, { field: "resource", to: "loft.Asset" }],
 	key: "id",
 	ids: ["id"],
 	service: ReservationItemService,
 } as const satisfies EntityDesc
 
-/** rove.RowSeal, as the store holds it. */
+/** loft.RowSeal, as the store holds it. */
 export const RowSeal = {
-	typeName: "rove.RowSeal",
+	typeName: "loft.RowSeal",
 	schema: RowSealSchema,
 	domain: 255,
 	key: "id",
@@ -451,9 +451,9 @@ export const RowSeal = {
 	service: RowSealService,
 } as const satisfies EntityDesc
 
-/** rove.SearchStale, as the store holds it. */
+/** loft.SearchStale, as the store holds it. */
 export const SearchStale = {
-	typeName: "rove.SearchStale",
+	typeName: "loft.SearchStale",
 	schema: SearchStaleSchema,
 	domain: 46,
 	key: "id",
@@ -461,9 +461,9 @@ export const SearchStale = {
 	service: SearchStaleService,
 } as const satisfies EntityDesc
 
-/** rove.Session, as the store holds it. */
+/** loft.Session, as the store holds it. */
 export const Session = {
-	typeName: "rove.Session",
+	typeName: "loft.Session",
 	schema: SessionSchema,
 	domain: 38,
 	version: "dateUpdated",
@@ -473,9 +473,9 @@ export const Session = {
 	service: SessionService,
 } as const satisfies EntityDesc
 
-/** rove.SignInFailure, as the store holds it. */
+/** loft.SignInFailure, as the store holds it. */
 export const SignInFailure = {
-	typeName: "rove.SignInFailure",
+	typeName: "loft.SignInFailure",
 	schema: SignInFailureSchema,
 	domain: 45,
 	key: "id",
@@ -484,57 +484,57 @@ export const SignInFailure = {
 	service: SignInFailureService,
 } as const satisfies EntityDesc
 
-/** rove.Stewardship, as the store holds it. */
+/** loft.Stewardship, as the store holds it. */
 export const Stewardship = {
-	typeName: "rove.Stewardship",
+	typeName: "loft.Stewardship",
 	schema: StewardshipSchema,
 	domain: 15,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "asset", to: "rove.Asset" }, { field: "party", to: "rove.Party" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "asset", to: "loft.Asset" }, { field: "party", to: "loft.Party" }],
 	key: "id",
 	ids: ["id", "eventId", "supersededBy"],
 	service: StewardshipService,
 } as const satisfies EntityDesc
 
-/** rove.Stock, as the store holds it. */
+/** loft.Stock, as the store holds it. */
 export const Stock = {
-	typeName: "rove.Stock",
+	typeName: "loft.Stock",
 	schema: StockSchema,
 	domain: 29,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "model", to: "rove.ItemModel" }, { field: "space", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "model", to: "loft.ItemModel" }, { field: "space", to: "loft.Asset" }],
 	key: "id",
 	ids: ["id"],
 	service: StockService,
 } as const satisfies EntityDesc
 
-/** rove.StockMovement, as the store holds it. */
+/** loft.StockMovement, as the store holds it. */
 export const StockMovement = {
-	typeName: "rove.StockMovement",
+	typeName: "loft.StockMovement",
 	schema: StockMovementSchema,
 	domain: 30,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "stock", to: "rove.Stock" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "stock", to: "loft.Stock" }],
 	key: "id",
 	ids: ["id", "refId", "eventId"],
 	service: StockMovementService,
 } as const satisfies EntityDesc
 
-/** rove.TagCounter, as the store holds it. */
+/** loft.TagCounter, as the store holds it. */
 export const TagCounter = {
-	typeName: "rove.TagCounter",
+	typeName: "loft.TagCounter",
 	schema: TagCounterSchema,
 	domain: 49,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id"],
 	service: TagCounterService,
 } as const satisfies EntityDesc
 
-/** rove.Tenant, as the store holds it. */
+/** loft.Tenant, as the store holds it. */
 export const Tenant = {
-	typeName: "rove.Tenant",
+	typeName: "loft.Tenant",
 	schema: TenantSchema,
 	domain: 1,
 	version: "dateUpdated",
@@ -544,48 +544,48 @@ export const Tenant = {
 	service: TenantService,
 } as const satisfies EntityDesc
 
-/** rove.TenantContract, as the store holds it. */
+/** loft.TenantContract, as the store holds it. */
 export const TenantContract = {
-	typeName: "rove.TenantContract",
+	typeName: "loft.TenantContract",
 	schema: TenantContractSchema,
 	domain: 39,
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id"],
 	service: TenantContractService,
 } as const satisfies EntityDesc
 
-/** rove.TenantDomain, as the store holds it. */
+/** loft.TenantDomain, as the store holds it. */
 export const TenantDomain = {
-	typeName: "rove.TenantDomain",
+	typeName: "loft.TenantDomain",
 	schema: TenantDomainSchema,
 	domain: 24,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id"],
 	service: TenantDomainService,
 } as const satisfies EntityDesc
 
-/** rove.TreeLock, as the store holds it. */
+/** loft.TreeLock, as the store holds it. */
 export const TreeLock = {
-	typeName: "rove.TreeLock",
+	typeName: "loft.TreeLock",
 	schema: TreeLockSchema,
 	domain: 12,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id"],
 	service: TreeLockService,
 } as const satisfies EntityDesc
 
-/** rove.WorkOrder, as the store holds it. */
+/** loft.WorkOrder, as the store holds it. */
 export const WorkOrder = {
-	typeName: "rove.WorkOrder",
+	typeName: "loft.WorkOrder",
 	schema: WorkOrderSchema,
 	domain: 33,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "asset", to: "rove.Asset" }, { field: "vendor", to: "rove.Party" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "asset", to: "loft.Asset" }, { field: "vendor", to: "loft.Party" }],
 	key: "id",
 	ids: ["id"],
 	service: WorkOrderService,

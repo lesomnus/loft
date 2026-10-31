@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/placement"
-	"github.com/lesomnus/rove/server/retention"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/placement"
+	"github.com/lesomnus/loft/server/retention"
 )
 
 // TestAWorkspaceSaysHowLongItKeepsItsHistory (D36): how long its history and

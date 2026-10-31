@@ -1,5 +1,5 @@
 // Package clilogin signs a terminal in as whoever approves it in a browser:
-// `rove login`.
+// `loft login`.
 //
 // A terminal cannot do what the sign-in page does -- SaaS signs people in
 // through an issuer and the IdP's own pages (D28), which want a browser -- and
@@ -15,7 +15,7 @@
 //     it was approved and uses the key it kept.
 //
 // A terminal may ask for less than its account may do: the methods it lists
-// (`rove login --allow`, D33), which the page shows and the session is
+// (`loft login --allow`, D33), which the page shows and the session is
 // narrowed to -- an assistant handed that terminal can do that much and no
 // more, whatever it does with the key.
 //
@@ -30,7 +30,7 @@
 // read out to the person ("approve this for me"), signs that terminal in as
 // them -- which is the shape of every flow like this one, and why the page
 // says where the asking came from and asks them to approve only a terminal of
-// their own that they just ran `rove login` on.
+// their own that they just ran `loft login` on.
 package clilogin
 
 import (
@@ -54,14 +54,14 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	entclilogin "github.com/lesomnus/rove/internal/ent/clilogin"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	entsession "github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/server/account"
-	"github.com/lesomnus/rove/server/clientaddr"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/session"
+	"github.com/lesomnus/loft/internal/ent"
+	entclilogin "github.com/lesomnus/loft/internal/ent/clilogin"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	entsession "github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/server/account"
+	"github.com/lesomnus/loft/server/clientaddr"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/session"
 )
 
 // The states a login is in. One still pending past its expiry is expired,
@@ -121,14 +121,14 @@ type Logins struct {
 
 // The acts a terminal's sign-in is on the trail as.
 const (
-	Asked    = "rove.cli-login.ask"
-	Approved = "rove.cli-login.approve"
-	Denied   = "rove.cli-login.deny"
+	Asked    = "loft.cli-login.ask"
+	Approved = "loft.cli-login.approve"
+	Denied   = "loft.cli-login.deny"
 
 	// Told is the row gone once the terminal had its answer, and Swept one
 	// gone because nobody will ask about it again.
-	Told  = "rove.cli-login.told"
-	Swept = "rove.cli-login.sweep"
+	Told  = "loft.cli-login.told"
+	Swept = "loft.cli-login.sweep"
 )
 
 // recorded is a write of a sign-in and the act on the trail that says so, in
@@ -230,7 +230,7 @@ func allowed(vs []string) ([]byte, error) {
 	for _, v := range vs {
 		v = strings.TrimSpace(v)
 		if len(v) > MaxAllowLen || !method.MatchString(v) {
-			return nil, errors.New("allow: " + v + " is not a method, nor a pattern of them: /rove.AssetService/Search, /rove.ReservationService/*, /rove.*/Get")
+			return nil, errors.New("allow: " + v + " is not a method, nor a pattern of them: /loft.AssetService/Search, /loft.ReservationService/*, /loft.*/Get")
 		}
 		out = append(out, v)
 	}
@@ -474,7 +474,7 @@ func (l *Logins) waiting(w http.ResponseWriter, r *http.Request, code string) (*
 	}
 	v, err := l.Db.CliLogin.Query().Where(entclilogin.Code(code), entclilogin.State(pending)).First(r.Context())
 	if ent.IsNotFound(err) || (err == nil && !l.now().Before(v.DateExpires)) {
-		http.Error(w, "no such sign-in, or it is too late: run `rove login` again", http.StatusNotFound)
+		http.Error(w, "no such sign-in, or it is too late: run `loft login` again", http.StatusNotFound)
 		return nil, false
 	}
 	if err != nil {

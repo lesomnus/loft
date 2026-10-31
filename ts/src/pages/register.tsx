@@ -1,14 +1,14 @@
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import type { AssetAddManyResponse, AssetAddRequest, AssetReadSheetResponse } from '../../gen/rove/asset_svc_pb.js'
+import type { AssetAddManyResponse, AssetAddRequest, AssetReadSheetResponse } from '../../gen/loft/asset_svc_pb.js'
 import { AssetService, download, errorText, op, raw } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { useAct } from '../rpc.js'
 import { Card, Empty, Field, PageHead, useToast } from '../ui.js'
 import { kindWord } from '../words.js'
 
-/** The form's column for what an AddMany calls a field, as `rove register` says it. */
+/** The form's column for what an AddMany calls a field, as `loft register` says it. */
 const columnOf: Record<string, string> = {
 	name: '이름',
 	kind: '종류',
@@ -52,7 +52,7 @@ const formColumns: [string, string][] = [
 type Read = { file: string; sheet: AssetReadSheetResponse; dry?: AssetAddManyResponse }
 
 /**
- * Bulk registration (design 9.13): a CSV in rove's form, read by the
+ * Bulk registration (design 9.13): a CSV in loft's form, read by the
  * deployment, shown as what it would register -- every issue by its line --
  * and registered as one intake when nothing stops it. A workbook the
  * deployment refuses unopened, so the page says how to save one as a CSV.
@@ -111,7 +111,7 @@ export function Register(): ReactNode {
 		<>
 			<PageHead
 				title="대량 등록"
-				sub="rove 양식의 시트로 새 자산을 한 번에 등록합니다. 이미 있는 자산은 고치지 않습니다."
+				sub="loft 양식의 시트로 새 자산을 한 번에 등록합니다. 이미 있는 자산은 고치지 않습니다."
 				actions={<button onClick={() => void form()}>양식 내려받기</button>}
 			/>
 			<Card>

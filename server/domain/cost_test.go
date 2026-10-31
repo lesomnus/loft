@@ -9,8 +9,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
 )
 
 // perConn counts the statements pgx is asked, by the connection that sends
@@ -131,7 +131,7 @@ func TestAnAssetMadeInBulkIsAFewStatements(t *testing.T) {
 }
 
 // TestAnAssetAddedByItselfIsAFewStatements holds what one asset registered by
-// itself costs -- an Add, as the page's form, `rove api` and an assistant make
+// itself costs -- an Add, as the page's form, `loft api` and an assistant make
 // one -- bare, and with a place, a type and a model: 13 statements and 27 when
 // this was written. [TestAnAssetMadeInBulkIsAFewStatements] held it, on a
 // conversion that made each asset by an Add, until a conversion made them as

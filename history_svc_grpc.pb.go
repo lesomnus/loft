@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/history_svc.g.proto
+// source: loft/history_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,13 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PlacementService_Add_FullMethodName     = "/rove.PlacementService/Add"
-	PlacementService_AddMany_FullMethodName = "/rove.PlacementService/AddMany"
-	PlacementService_Get_FullMethodName     = "/rove.PlacementService/Get"
-	PlacementService_Patch_FullMethodName   = "/rove.PlacementService/Patch"
-	PlacementService_Apply_FullMethodName   = "/rove.PlacementService/Apply"
-	PlacementService_Erase_FullMethodName   = "/rove.PlacementService/Erase"
-	PlacementService_List_FullMethodName    = "/rove.PlacementService/List"
+	PlacementService_Add_FullMethodName     = "/loft.PlacementService/Add"
+	PlacementService_AddMany_FullMethodName = "/loft.PlacementService/AddMany"
+	PlacementService_Get_FullMethodName     = "/loft.PlacementService/Get"
+	PlacementService_Patch_FullMethodName   = "/loft.PlacementService/Patch"
+	PlacementService_Apply_FullMethodName   = "/loft.PlacementService/Apply"
+	PlacementService_Erase_FullMethodName   = "/loft.PlacementService/Erase"
+	PlacementService_List_FullMethodName    = "/loft.PlacementService/List"
 )
 
 // PlacementServiceClient is the client API for PlacementService service.
@@ -326,7 +326,7 @@ func _PlacementService_List_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PlacementService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.PlacementService",
+	ServiceName: "loft.PlacementService",
 	HandlerType: (*PlacementServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -359,16 +359,16 @@ var PlacementService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/history_svc.g.proto",
+	Metadata: "loft/history_svc.g.proto",
 }
 
 const (
-	LinkService_Add_FullMethodName   = "/rove.LinkService/Add"
-	LinkService_Get_FullMethodName   = "/rove.LinkService/Get"
-	LinkService_Patch_FullMethodName = "/rove.LinkService/Patch"
-	LinkService_Apply_FullMethodName = "/rove.LinkService/Apply"
-	LinkService_Erase_FullMethodName = "/rove.LinkService/Erase"
-	LinkService_List_FullMethodName  = "/rove.LinkService/List"
+	LinkService_Add_FullMethodName   = "/loft.LinkService/Add"
+	LinkService_Get_FullMethodName   = "/loft.LinkService/Get"
+	LinkService_Patch_FullMethodName = "/loft.LinkService/Patch"
+	LinkService_Apply_FullMethodName = "/loft.LinkService/Apply"
+	LinkService_Erase_FullMethodName = "/loft.LinkService/Erase"
+	LinkService_List_FullMethodName  = "/loft.LinkService/List"
 )
 
 // LinkServiceClient is the client API for LinkService service.
@@ -634,7 +634,7 @@ func _LinkService_List_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LinkService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.LinkService",
+	ServiceName: "loft.LinkService",
 	HandlerType: (*LinkServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -663,16 +663,16 @@ var LinkService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/history_svc.g.proto",
+	Metadata: "loft/history_svc.g.proto",
 }
 
 const (
-	StewardshipService_Add_FullMethodName   = "/rove.StewardshipService/Add"
-	StewardshipService_Get_FullMethodName   = "/rove.StewardshipService/Get"
-	StewardshipService_Patch_FullMethodName = "/rove.StewardshipService/Patch"
-	StewardshipService_Apply_FullMethodName = "/rove.StewardshipService/Apply"
-	StewardshipService_Erase_FullMethodName = "/rove.StewardshipService/Erase"
-	StewardshipService_List_FullMethodName  = "/rove.StewardshipService/List"
+	StewardshipService_Add_FullMethodName   = "/loft.StewardshipService/Add"
+	StewardshipService_Get_FullMethodName   = "/loft.StewardshipService/Get"
+	StewardshipService_Patch_FullMethodName = "/loft.StewardshipService/Patch"
+	StewardshipService_Apply_FullMethodName = "/loft.StewardshipService/Apply"
+	StewardshipService_Erase_FullMethodName = "/loft.StewardshipService/Erase"
+	StewardshipService_List_FullMethodName  = "/loft.StewardshipService/List"
 )
 
 // StewardshipServiceClient is the client API for StewardshipService service.
@@ -938,7 +938,7 @@ func _StewardshipService_List_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var StewardshipService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.StewardshipService",
+	ServiceName: "loft.StewardshipService",
 	HandlerType: (*StewardshipServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -967,5 +967,5 @@ var StewardshipService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/history_svc.g.proto",
+	Metadata: "loft/history_svc.g.proto",
 }

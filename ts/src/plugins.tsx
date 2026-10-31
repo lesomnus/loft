@@ -13,9 +13,9 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import type { Asset } from '../gen/rove/asset_pb.js'
-import type { AssetState } from '../gen/rove/asset_svc_pb.js'
-import type { AssetType, ItemModel } from '../gen/rove/catalog_pb.js'
+import type { Asset } from '../gen/loft/asset_pb.js'
+import type { AssetState } from '../gen/loft/asset_svc_pb.js'
+import type { AssetType, ItemModel } from '../gen/loft/catalog_pb.js'
 import { AssetService, fromInput, idStr, ref, ts } from './api.js'
 import { AssetPicker } from './pickers.js'
 import { useAct, useRpc } from './rpc.js'

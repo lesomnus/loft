@@ -22,13 +22,13 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/anypb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/account"
-	"github.com/lesomnus/rove/server/session"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/account"
+	"github.com/lesomnus/loft/server/session"
 )
 
 type world struct {
@@ -113,7 +113,7 @@ func newWorldWith(t *testing.T, with func(*cmd.Config)) *world {
 	x.NoError(cli.Migrate(ctx, s))
 
 	// The directory and its first account at roster, then the workspace
-	// here, as `rove init` does.
+	// here, as `loft init` does.
 	owner, _, err := s.Identity.MakeDirectory(ctx, "owner", "")
 	x.NoError(err)
 	tn, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "acme"}.Build())
@@ -172,18 +172,18 @@ func TestTheRoleTable(t *testing.T) {
 	any, err := anypb.New(app.PlacementAddRequest_builder{}.Build())
 	x.NoError(err)
 	_, err = pdpb.NewBatchServiceClient(w.conn).Do(w.owner, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: "/rove.PlacementService/Add", Request: any}.Build(),
+		pdpb.Op_builder{Method: "/loft.PlacementService/Add", Request: any}.Build(),
 	}}.Build())
 	x.Equal(codes.PermissionDenied, code(err))
 
 	move, err := anypb.New(app.AssetMoveRequest_builder{Ref: app.AssetRef_builder{Id: laptop.GetId()}.Build(), To: app.AssetRef_builder{Id: room.GetId()}.Build()}.Build())
 	x.NoError(err)
 	_, err = pdpb.NewBatchServiceClient(w.conn).Do(member, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: "/rove.AssetService/Move", Request: move}.Build(),
+		pdpb.Op_builder{Method: "/loft.AssetService/Move", Request: move}.Build(),
 	}}.Build())
 	x.Equal(codes.PermissionDenied, code(err))
 	_, err = pdpb.NewBatchServiceClient(w.conn).Do(w.owner, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: "/rove.AssetService/Move", Request: move}.Build(),
+		pdpb.Op_builder{Method: "/loft.AssetService/Move", Request: move}.Build(),
 	}}.Build())
 	x.NoError(err, "the owner may, and the domain layer runs inside the batch's transaction")
 	got, err := assets.Get(w.owner, app.AssetGetRequest_builder{Ref: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build())
@@ -197,7 +197,7 @@ func TestTheRoleTable(t *testing.T) {
 // can post a form at `/session` -- `text/plain` whose body is JSON, or the
 // form encoding -- and nothing stops a browser from following it. Answered,
 // it is somebody signed in as an account of that page's choosing, where
-// whatever they do next is kept (login CSRF, rove#40). Only JSON is answered,
+// whatever they do next is kept (login CSRF, loft#40). Only JSON is answered,
 // which no other site can send here without this one agreeing to it first.
 func TestASignInAFormOfAnotherSiteCouldPostIsRefused(t *testing.T) {
 	w := newWorld(t)

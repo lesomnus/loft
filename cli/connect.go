@@ -253,7 +253,7 @@ func errorOf(httpStatus int, body []byte) error {
 	case http.StatusForbidden:
 		return status.Error(codes.PermissionDenied, msg)
 	case http.StatusNotFound:
-		return status.Error(codes.Unimplemented, fmt.Sprintf("%s (is this a Rove deployment?)", msg))
+		return status.Error(codes.Unimplemented, fmt.Sprintf("%s (is this a Loft deployment?)", msg))
 	case http.StatusTooManyRequests:
 		return status.Error(codes.ResourceExhausted, msg)
 	case http.StatusServiceUnavailable, http.StatusBadGateway, http.StatusGatewayTimeout:
@@ -288,4 +288,4 @@ func codeOf(v string) codes.Code {
 	return codes.Unknown
 }
 
-var errNoLogin = errors.New("not signed in: run `rove login --url <the app's address>`")
+var errNoLogin = errors.New("not signed in: run `loft login --url <the app's address>`")

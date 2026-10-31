@@ -10,15 +10,15 @@ import (
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/party"
 )
 
 // What a workspace is called (D57).
 //
 // A workspace is called by its own name, which whoever made it chose -- the
-// account that made it, or an operator (`rove init`) -- and which is nobody's:
+// account that made it, or an operator (`loft init`) -- and which is nobody's:
 // the name of a thing, which payday's Tenant declares about no one
 // (payday#180) and the trail keeps as a value, as it keeps any thing's
 // (design 8.2). The workspace an account is given when it arrives
@@ -49,7 +49,7 @@ type Name struct {
 	// Saw is the owner it is called after -- their person record, or their
 	// membership where they are no person record's -- and none for one
 	// called by its own name or its address. Whoever shows it puts it on the
-	// access record of the call that does (rove#136).
+	// access record of the call that does (loft#136).
 	Saw []access.Subject
 }
 

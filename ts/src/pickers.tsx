@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import type { Asset } from '../gen/rove/asset_pb.js'
+import type { Asset } from '../gen/loft/asset_pb.js'
 import { AssetService, idBytes, idStr } from './api.js'
 import { modelName, useCatalog } from './catalog.js'
 import { read, useEpoch, useLive, useRpc } from './rpc.js'

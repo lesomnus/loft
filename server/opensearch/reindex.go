@@ -6,7 +6,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/loft/internal/ent"
 )
 
 // page is how many rows a reindex reads from the database, and writes to the

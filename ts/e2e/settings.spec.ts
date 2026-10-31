@@ -1,4 +1,4 @@
-import { card, expect, field, people, said, signIn, test, unique } from './rove.js'
+import { card, expect, field, people, said, signIn, test, unique } from './loft.js'
 
 // Where a workspace is (#144): its owner says the zone its dates are told in,
 // the currency a new amount is priced in, and how long a room waits for

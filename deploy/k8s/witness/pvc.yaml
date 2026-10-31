@@ -3,9 +3,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: rove-witness
+  name: loft-witness
   labels:
-    app.kubernetes.io/name: rove
+    app.kubernetes.io/name: loft
 spec:
   accessModes: [ReadWriteOnce]
   resources:

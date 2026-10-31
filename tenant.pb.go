@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/tenant.proto
+// source: loft/payday/tenant.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -64,7 +64,7 @@ type Tenant struct {
 
 func (x *Tenant) Reset() {
 	*x = Tenant{}
-	mi := &file_rove_payday_tenant_proto_msgTypes[0]
+	mi := &file_loft_payday_tenant_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -76,7 +76,7 @@ func (x *Tenant) String() string {
 func (*Tenant) ProtoMessage() {}
 
 func (x *Tenant) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_proto_msgTypes[0]
+	mi := &file_loft_payday_tenant_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -462,7 +462,7 @@ type Tenant_builder struct {
 	// `app.retention.apply`, lets it destroy anything.
 	KeepDays uint32
 	// AccessKeepDays is how long its access record -- who read, wrote or took
-	// out whose data in it -- is kept, in days (rove#136). 0 is the
+	// out whose data in it -- is kept, in days (loft#136). 0 is the
 	// deployment's `audit.by.access`, and none is below the deployment's floor,
 	// `audit.by.access.min`: the floor is what the law the deployment is under
 	// asks.
@@ -510,17 +510,17 @@ func (b0 Tenant_builder) Build() *Tenant {
 	return m0
 }
 
-var File_rove_payday_tenant_proto protoreflect.FileDescriptor
+var File_loft_payday_tenant_proto protoreflect.FileDescriptor
 
-const file_rove_payday_tenant_proto_rawDesc = "" +
+const file_loft_payday_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xf9\t\n" +
+	"\x18loft/payday/tenant.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xf9\t\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\"\n" +
 	"\x05alias\x18\x04 \x01(\tB\f\xea\x82\x16\x020\x01\xaa\xc1\x16\x02\x18\x00R\x05alias\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04desc\x128\n" +
-	"\x06labels\x18\a \x03(\v2\x18.rove.Tenant.LabelsEntryB\x06\xaa\xc1\x16\x02\x18\x00R\x06labels\x12F\n" +
+	"\x06labels\x18\a \x03(\v2\x18.loft.Tenant.LabelsEntryB\x06\xaa\xc1\x16\x02\x18\x00R\x06labels\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12C\n" +
 	"\vdate_closed\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
@@ -551,22 +551,22 @@ const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\x04\n" +
 	"\x02id\x1a\x05\n" +
 	"\x03ref \x14(dB\x02\n" +
-	"\x00H\x01\x1a\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x00H\x01\x1a\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_payday_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_rove_payday_tenant_proto_goTypes = []any{
-	(*Tenant)(nil),                // 0: rove.Tenant
-	nil,                           // 1: rove.Tenant.LabelsEntry
+var file_loft_payday_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_loft_payday_tenant_proto_goTypes = []any{
+	(*Tenant)(nil),                // 0: loft.Tenant
+	nil,                           // 1: loft.Tenant.LabelsEntry
 	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
 }
-var file_rove_payday_tenant_proto_depIdxs = []int32{
-	1, // 0: rove.Tenant.labels:type_name -> rove.Tenant.LabelsEntry
-	2, // 1: rove.Tenant.date_updated:type_name -> google.protobuf.Timestamp
-	2, // 2: rove.Tenant.date_created:type_name -> google.protobuf.Timestamp
-	2, // 3: rove.Tenant.date_closed:type_name -> google.protobuf.Timestamp
-	2, // 4: rove.Tenant.date_destroy:type_name -> google.protobuf.Timestamp
-	2, // 5: rove.Tenant.date_keep_shortened:type_name -> google.protobuf.Timestamp
-	2, // 6: rove.Tenant.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
+var file_loft_payday_tenant_proto_depIdxs = []int32{
+	1, // 0: loft.Tenant.labels:type_name -> loft.Tenant.LabelsEntry
+	2, // 1: loft.Tenant.date_updated:type_name -> google.protobuf.Timestamp
+	2, // 2: loft.Tenant.date_created:type_name -> google.protobuf.Timestamp
+	2, // 3: loft.Tenant.date_closed:type_name -> google.protobuf.Timestamp
+	2, // 4: loft.Tenant.date_destroy:type_name -> google.protobuf.Timestamp
+	2, // 5: loft.Tenant.date_keep_shortened:type_name -> google.protobuf.Timestamp
+	2, // 6: loft.Tenant.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
 	7, // [7:7] is the sub-list for method output_type
 	7, // [7:7] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name
@@ -574,26 +574,26 @@ var file_rove_payday_tenant_proto_depIdxs = []int32{
 	0, // [0:7] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_tenant_proto_init() }
-func file_rove_payday_tenant_proto_init() {
-	if File_rove_payday_tenant_proto != nil {
+func init() { file_loft_payday_tenant_proto_init() }
+func file_loft_payday_tenant_proto_init() {
+	if File_loft_payday_tenant_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_tenant_proto_rawDesc), len(file_rove_payday_tenant_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_tenant_proto_rawDesc), len(file_loft_payday_tenant_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_payday_tenant_proto_goTypes,
-		DependencyIndexes: file_rove_payday_tenant_proto_depIdxs,
-		MessageInfos:      file_rove_payday_tenant_proto_msgTypes,
+		GoTypes:           file_loft_payday_tenant_proto_goTypes,
+		DependencyIndexes: file_loft_payday_tenant_proto_depIdxs,
+		MessageInfos:      file_loft_payday_tenant_proto_msgTypes,
 	}.Build()
-	File_rove_payday_tenant_proto = out.File
-	file_rove_payday_tenant_proto_goTypes = nil
-	file_rove_payday_tenant_proto_depIdxs = nil
+	File_loft_payday_tenant_proto = out.File
+	file_loft_payday_tenant_proto_goTypes = nil
+	file_loft_payday_tenant_proto_depIdxs = nil
 }

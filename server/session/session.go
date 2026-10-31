@@ -6,7 +6,7 @@
 // The trail still sees who did what, because every call a session makes is
 // recorded with its holder.
 //
-// The session is Rove's, so that it can be ended at once (report 3); the
+// The session is Loft's, so that it can be ended at once (report 3); the
 // account is roster's, so every call a session makes is held to what roster
 // says of it now: suspended, erased or signed out everywhere since it began is
 // a session that is over.
@@ -16,7 +16,7 @@
 // that workspace into the holder the call is served as.
 //
 // But for one, a session handed to a workspace's own domain ([Handoff],
-// rove#155): it is bound to that workspace -- its tenant is that one's, which
+// loft#155): it is bound to that workspace -- its tenant is that one's, which
 // payday holds every call to -- and it is handed from a sign-in at the
 // service's address, which it lives no longer than.
 package session
@@ -46,15 +46,15 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/handoff"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/ent/signinfailure"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/clientaddr"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/handoff"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/ent/signinfailure"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/clientaddr"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // Store is an [authsession.Store] over the Session table. The key is never
@@ -91,7 +91,7 @@ var _ authsession.Store = Store{}
 // and the label is what keeps what one is used for from saying anything of the
 // other. Rotating it signs everybody out.
 func KeyFrom(signing []byte) []byte {
-	k, err := hkdf.Key(sha256.New, signing, nil, "rove: what a session's key is kept as", sha256.Size)
+	k, err := hkdf.Key(sha256.New, signing, nil, "loft: what a session's key is kept as", sha256.Size)
 	if err != nil {
 		panic(err)
 	}
@@ -118,7 +118,7 @@ var whole = []byte("whole")
 
 // Grant is what a session's row keeps of what it is narrowed to: [whole] for
 // none, which is what a password and a terminal that asked for nothing get,
-// or payday's Grant listing the methods it may call (`rove login --allow`,
+// or payday's Grant listing the methods it may call (`loft login --allow`,
 // D33). Every tenant and every set: a terminal is narrowed by what it may do,
 // and where is its account's.
 func Grant(actions []string) ([]byte, error) {
@@ -435,7 +435,7 @@ type People interface {
 type Arrive func(ctx context.Context, p identity.Person) error
 
 // SignIn is `POST /session` and `DELETE /session`: a password roster checked,
-// what the account is given on arriving, then Rove's session cookie for it.
+// what the account is given on arriving, then Loft's session cookie for it.
 //
 // A refusal is one answer whatever was wrong -- nobody by that name, the wrong
 // password, an address that keeps getting it wrong, an account roster has
@@ -461,7 +461,7 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 		// one agreeing to it first (CORS). A form can post anything else --
 		// `text/plain` whose body happens to be JSON -- and a sign-in it
 		// could post is somebody's browser signed in as an account of the
-		// form's choosing, which then keeps whatever they put in (rove#40).
+		// form's choosing, which then keeps whatever they put in (loft#40).
 		if ct, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); ct != "application/json" {
 			http.Error(w, "asked as JSON", http.StatusUnsupportedMediaType)
 			return
@@ -603,8 +603,8 @@ func accountAt(ctx context.Context, db *ent.Client, address string) (pdid.Id, er
 // to within the requests in flight, which is what it was in one process too.
 //
 // Roster's own lockout is the account's -- ten wrong in a row, whatever they
-// came from -- and this is the address's, which only Rove sees: roster is
-// asked by Rove, and every request reaches it from here.
+// came from -- and this is the address's, which only Loft sees: roster is
+// asked by Loft, and every request reaches it from here.
 type Failures struct {
 	Db *ent.Client
 

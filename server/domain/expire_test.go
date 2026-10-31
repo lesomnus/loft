@@ -6,10 +6,10 @@ import (
 
 	"google.golang.org/protobuf/encoding/protojson"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/fact"
-	"github.com/lesomnus/rove/server/domain"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/fact"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 // rows is how many of each kind the tenant has.

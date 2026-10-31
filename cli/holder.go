@@ -12,15 +12,15 @@ import (
 	"github.com/lesomnus/xli/flg"
 	"github.com/lesomnus/z"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/domain"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/domain"
 )
 
-// NewCmdHolder is `rove holder`: an account and its memberships, from a shell,
+// NewCmdHolder is `loft holder`: an account and its memberships, from a shell,
 // on the roster in this process (design 9.10, D27).
 //
 // What the people screen does, for the operator who has no screen to do it
@@ -115,7 +115,7 @@ func addHolder(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	switch {
 	case err == nil:
 		if flag(self, "password") != "" {
-			return fmt.Errorf("--password: %s is an account already, with a password of its own; `rove holder password` changes it", login)
+			return fmt.Errorf("--password: %s is an account already, with a password of its own; `loft holder password` changes it", login)
 		}
 	case errors.Is(err, identity.ErrNoPerson):
 		p, err = s.Identity.AddPerson(ctx, login, name, pdid.Nil)

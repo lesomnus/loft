@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/asset.proto
+// source: loft/asset.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -23,7 +23,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Asset is everything rove tracks the identity of: an item, a space, a kit or
+// Asset is everything loft tracks the identity of: an item, a space, a kit or
 // a group (design 3.1). The place tree is the placement tree of space assets.
 //
 // What it holds is the **current** state. History is in the time rows
@@ -59,7 +59,7 @@ type Asset struct {
 
 func (x *Asset) Reset() {
 	*x = Asset{}
-	mi := &file_rove_asset_proto_msgTypes[0]
+	mi := &file_loft_asset_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -71,7 +71,7 @@ func (x *Asset) String() string {
 func (*Asset) ProtoMessage() {}
 
 func (x *Asset) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[0]
+	mi := &file_loft_asset_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -522,7 +522,7 @@ type TreeLock struct {
 
 func (x *TreeLock) Reset() {
 	*x = TreeLock{}
-	mi := &file_rove_asset_proto_msgTypes[1]
+	mi := &file_loft_asset_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -534,7 +534,7 @@ func (x *TreeLock) String() string {
 func (*TreeLock) ProtoMessage() {}
 
 func (x *TreeLock) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[1]
+	mi := &file_loft_asset_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -678,7 +678,7 @@ type TagCounter struct {
 
 func (x *TagCounter) Reset() {
 	*x = TagCounter{}
-	mi := &file_rove_asset_proto_msgTypes[2]
+	mi := &file_loft_asset_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -690,7 +690,7 @@ func (x *TagCounter) String() string {
 func (*TagCounter) ProtoMessage() {}
 
 func (x *TagCounter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[2]
+	mi := &file_loft_asset_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -857,7 +857,7 @@ type TenantDomain struct {
 
 func (x *TenantDomain) Reset() {
 	*x = TenantDomain{}
-	mi := &file_rove_asset_proto_msgTypes[3]
+	mi := &file_loft_asset_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -869,7 +869,7 @@ func (x *TenantDomain) String() string {
 func (*TenantDomain) ProtoMessage() {}
 
 func (x *TenantDomain) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[3]
+	mi := &file_loft_asset_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1177,7 +1177,7 @@ type TenantDomain_builder struct {
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	VerifiedAt  *timestamppb.Timestamp
-	// An active custom domain's DNS is asked about again every hour (rove#155):
+	// An active custom domain's DNS is asked about again every hour (loft#155):
 	// whether its TXT record still holds `token`, and whether it still points
 	// here. `checked_at` is when it was last asked, and `failures` how many
 	// answers in a row since `failing_since` said no -- one that said nothing,
@@ -1238,7 +1238,7 @@ type Label struct {
 
 func (x *Label) Reset() {
 	*x = Label{}
-	mi := &file_rove_asset_proto_msgTypes[4]
+	mi := &file_loft_asset_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1250,7 +1250,7 @@ func (x *Label) String() string {
 func (*Label) ProtoMessage() {}
 
 func (x *Label) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[4]
+	mi := &file_loft_asset_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1539,7 +1539,7 @@ type Attachment struct {
 
 func (x *Attachment) Reset() {
 	*x = Attachment{}
-	mi := &file_rove_asset_proto_msgTypes[5]
+	mi := &file_loft_asset_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1551,7 +1551,7 @@ func (x *Attachment) String() string {
 func (*Attachment) ProtoMessage() {}
 
 func (x *Attachment) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[5]
+	mi := &file_loft_asset_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1771,22 +1771,22 @@ func (b0 Attachment_builder) Build() *Attachment {
 	return m0
 }
 
-var File_rove_asset_proto protoreflect.FileDescriptor
+var File_loft_asset_proto protoreflect.FileDescriptor
 
-const file_rove_asset_proto_rawDesc = "" +
+const file_loft_asset_proto_rawDesc = "" +
 	"\n" +
-	"\x10rove/asset.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x12rove/catalog.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xd7\n" +
+	"\x10loft/asset.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x12loft/catalog.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xd7\n" +
 	"\n" +
 	"\x05Asset\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc\x12/\n" +
-	"\x06labels\x18\a \x03(\v2\x17.rove.Asset.LabelsEntryR\x06labels\x12\x12\n" +
+	"\x06labels\x18\a \x03(\v2\x17.loft.Asset.LabelsEntryR\x06labels\x12\x12\n" +
 	"\x04kind\x18\b \x01(\tR\x04kind\x12+\n" +
-	"\x04type\x18\t \x01(\v2\x0f.rove.AssetTypeB\x06\xf2\x82\x16\x028\x01R\x04type\x12-\n" +
+	"\x04type\x18\t \x01(\v2\x0f.loft.AssetTypeB\x06\xf2\x82\x16\x028\x01R\x04type\x12-\n" +
 	"\x05model\x18\n" +
-	" \x01(\v2\x0f.rove.ItemModelB\x06\xf2\x82\x16\x028\x01R\x05model\x12\x10\n" +
+	" \x01(\v2\x0f.loft.ItemModelB\x06\xf2\x82\x16\x028\x01R\x05model\x12\x10\n" +
 	"\x03tag\x18\v \x01(\tR\x03tag\x12\x16\n" +
 	"\x06serial\x18\f \x01(\tR\x06serial\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
@@ -1798,9 +1798,9 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\tparent_id\x18\x12 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\bparentId\x12%\n" +
 	"\x0eplacement_mode\x18\x13 \x01(\tR\rplacementMode\x12\x12\n" +
 	"\x04slot\x18\x14 \x01(\tR\x04slot\x121\n" +
-	"\tcustodian\x18\x15 \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\tcustodian\x12;\n" +
+	"\tcustodian\x18\x15 \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\tcustodian\x12;\n" +
 	"\n" +
-	"attributes\x18\x16 \x03(\v2\x1b.rove.Asset.AttributesEntryR\n" +
+	"attributes\x18\x16 \x03(\v2\x1b.loft.Asset.AttributesEntryR\n" +
 	"attributes\x12C\n" +
 	"\vacquired_at\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
 	"acquiredAt\x12C\n" +
@@ -1840,7 +1840,7 @@ const file_rove_asset_proto_rawDesc = "" +
 	"attributes 2(\xf4\x030\b:\x00\"\x8b\x03\n" +
 	"\bTreeLock\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x18\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x18\n" +
 	"\aversion\x18\b \x01(\x04R\aversion\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\x87\x01\xca\xfc\x15\x18\x1a\x16\x12\x06tenant\x1a\n" +
@@ -1851,7 +1851,7 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\n" +
 	"TagCounter\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x16\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x16\n" +
 	"\x06prefix\x18\b \x01(\tR\x06prefix\x12\x12\n" +
 	"\x04last\x18\t \x01(\x04R\x04last\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
@@ -1864,7 +1864,7 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\xa5\x01the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to\"\xb3\a\n" +
 	"\fTenantDomain\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04host\x18\b \x01(\tB\x06\xea\x82\x16\x020\x01R\x04host\x12\x18\n" +
 	"\apurpose\x18\t \x01(\tR\apurpose\x12\x14\n" +
 	"\x05state\x18\n" +
@@ -1899,8 +1899,8 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\apurpose 2(d:\x00\"\xf7\x05\n" +
 	"\x05Label\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x122\n" +
-	"\x06domain\x18\b \x01(\v2\x12.rove.TenantDomainB\x06\xf2\x82\x16\x028\x01R\x06domain\x12'\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x122\n" +
+	"\x06domain\x18\b \x01(\v2\x12.loft.TenantDomainB\x06\xf2\x82\x16\x028\x01R\x06domain\x12'\n" +
 	"\n" +
 	"subject_id\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tsubjectId\x12\x14\n" +
 	"\x05state\x18\n" +
@@ -1934,7 +1934,7 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\n" +
 	"Attachment\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12%\n" +
 	"\n" +
 	"subject_id\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\tsubjectId\x12\x1d\n" +
@@ -1963,62 +1963,62 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\x02id\x1a\x05\n" +
 	"\x03ref\x1a\f\n" +
 	"\n" +
-	"subject_id 2(\xc8\x01:\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"subject_id 2(\xc8\x01:\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_rove_asset_proto_goTypes = []any{
-	(*Asset)(nil),                 // 0: rove.Asset
-	(*TreeLock)(nil),              // 1: rove.TreeLock
-	(*TagCounter)(nil),            // 2: rove.TagCounter
-	(*TenantDomain)(nil),          // 3: rove.TenantDomain
-	(*Label)(nil),                 // 4: rove.Label
-	(*Attachment)(nil),            // 5: rove.Attachment
-	nil,                           // 6: rove.Asset.LabelsEntry
-	nil,                           // 7: rove.Asset.AttributesEntry
-	(*Tenant)(nil),                // 8: rove.Tenant
-	(*AssetType)(nil),             // 9: rove.AssetType
-	(*ItemModel)(nil),             // 10: rove.ItemModel
+var file_loft_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_loft_asset_proto_goTypes = []any{
+	(*Asset)(nil),                 // 0: loft.Asset
+	(*TreeLock)(nil),              // 1: loft.TreeLock
+	(*TagCounter)(nil),            // 2: loft.TagCounter
+	(*TenantDomain)(nil),          // 3: loft.TenantDomain
+	(*Label)(nil),                 // 4: loft.Label
+	(*Attachment)(nil),            // 5: loft.Attachment
+	nil,                           // 6: loft.Asset.LabelsEntry
+	nil,                           // 7: loft.Asset.AttributesEntry
+	(*Tenant)(nil),                // 8: loft.Tenant
+	(*AssetType)(nil),             // 9: loft.AssetType
+	(*ItemModel)(nil),             // 10: loft.ItemModel
 	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
-	(*Party)(nil),                 // 12: rove.Party
+	(*Party)(nil),                 // 12: loft.Party
 }
-var file_rove_asset_proto_depIdxs = []int32{
-	8,  // 0: rove.Asset.tenant:type_name -> rove.Tenant
-	6,  // 1: rove.Asset.labels:type_name -> rove.Asset.LabelsEntry
-	9,  // 2: rove.Asset.type:type_name -> rove.AssetType
-	10, // 3: rove.Asset.model:type_name -> rove.ItemModel
-	11, // 4: rove.Asset.date_updated:type_name -> google.protobuf.Timestamp
-	11, // 5: rove.Asset.date_erased:type_name -> google.protobuf.Timestamp
-	11, // 6: rove.Asset.date_created:type_name -> google.protobuf.Timestamp
-	12, // 7: rove.Asset.custodian:type_name -> rove.Party
-	7,  // 8: rove.Asset.attributes:type_name -> rove.Asset.AttributesEntry
-	11, // 9: rove.Asset.acquired_at:type_name -> google.protobuf.Timestamp
-	11, // 10: rove.Asset.disposed_at:type_name -> google.protobuf.Timestamp
-	8,  // 11: rove.TreeLock.tenant:type_name -> rove.Tenant
-	11, // 12: rove.TreeLock.date_updated:type_name -> google.protobuf.Timestamp
-	11, // 13: rove.TreeLock.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 14: rove.TagCounter.tenant:type_name -> rove.Tenant
-	11, // 15: rove.TagCounter.date_updated:type_name -> google.protobuf.Timestamp
-	11, // 16: rove.TagCounter.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 17: rove.TenantDomain.tenant:type_name -> rove.Tenant
-	11, // 18: rove.TenantDomain.date_updated:type_name -> google.protobuf.Timestamp
-	11, // 19: rove.TenantDomain.date_erased:type_name -> google.protobuf.Timestamp
-	11, // 20: rove.TenantDomain.date_created:type_name -> google.protobuf.Timestamp
-	11, // 21: rove.TenantDomain.verified_at:type_name -> google.protobuf.Timestamp
-	11, // 22: rove.TenantDomain.checked_at:type_name -> google.protobuf.Timestamp
-	11, // 23: rove.TenantDomain.failing_since:type_name -> google.protobuf.Timestamp
-	11, // 24: rove.TenantDomain.date_lapsed:type_name -> google.protobuf.Timestamp
-	11, // 25: rove.TenantDomain.redirect_until:type_name -> google.protobuf.Timestamp
-	8,  // 26: rove.Label.tenant:type_name -> rove.Tenant
-	3,  // 27: rove.Label.domain:type_name -> rove.TenantDomain
-	11, // 28: rove.Label.bound_at:type_name -> google.protobuf.Timestamp
-	11, // 29: rove.Label.printed_at:type_name -> google.protobuf.Timestamp
-	11, // 30: rove.Label.date_updated:type_name -> google.protobuf.Timestamp
-	11, // 31: rove.Label.date_erased:type_name -> google.protobuf.Timestamp
-	11, // 32: rove.Label.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 33: rove.Attachment.tenant:type_name -> rove.Tenant
-	11, // 34: rove.Attachment.date_updated:type_name -> google.protobuf.Timestamp
-	11, // 35: rove.Attachment.date_erased:type_name -> google.protobuf.Timestamp
-	11, // 36: rove.Attachment.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_asset_proto_depIdxs = []int32{
+	8,  // 0: loft.Asset.tenant:type_name -> loft.Tenant
+	6,  // 1: loft.Asset.labels:type_name -> loft.Asset.LabelsEntry
+	9,  // 2: loft.Asset.type:type_name -> loft.AssetType
+	10, // 3: loft.Asset.model:type_name -> loft.ItemModel
+	11, // 4: loft.Asset.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 5: loft.Asset.date_erased:type_name -> google.protobuf.Timestamp
+	11, // 6: loft.Asset.date_created:type_name -> google.protobuf.Timestamp
+	12, // 7: loft.Asset.custodian:type_name -> loft.Party
+	7,  // 8: loft.Asset.attributes:type_name -> loft.Asset.AttributesEntry
+	11, // 9: loft.Asset.acquired_at:type_name -> google.protobuf.Timestamp
+	11, // 10: loft.Asset.disposed_at:type_name -> google.protobuf.Timestamp
+	8,  // 11: loft.TreeLock.tenant:type_name -> loft.Tenant
+	11, // 12: loft.TreeLock.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 13: loft.TreeLock.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 14: loft.TagCounter.tenant:type_name -> loft.Tenant
+	11, // 15: loft.TagCounter.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 16: loft.TagCounter.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 17: loft.TenantDomain.tenant:type_name -> loft.Tenant
+	11, // 18: loft.TenantDomain.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 19: loft.TenantDomain.date_erased:type_name -> google.protobuf.Timestamp
+	11, // 20: loft.TenantDomain.date_created:type_name -> google.protobuf.Timestamp
+	11, // 21: loft.TenantDomain.verified_at:type_name -> google.protobuf.Timestamp
+	11, // 22: loft.TenantDomain.checked_at:type_name -> google.protobuf.Timestamp
+	11, // 23: loft.TenantDomain.failing_since:type_name -> google.protobuf.Timestamp
+	11, // 24: loft.TenantDomain.date_lapsed:type_name -> google.protobuf.Timestamp
+	11, // 25: loft.TenantDomain.redirect_until:type_name -> google.protobuf.Timestamp
+	8,  // 26: loft.Label.tenant:type_name -> loft.Tenant
+	3,  // 27: loft.Label.domain:type_name -> loft.TenantDomain
+	11, // 28: loft.Label.bound_at:type_name -> google.protobuf.Timestamp
+	11, // 29: loft.Label.printed_at:type_name -> google.protobuf.Timestamp
+	11, // 30: loft.Label.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 31: loft.Label.date_erased:type_name -> google.protobuf.Timestamp
+	11, // 32: loft.Label.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 33: loft.Attachment.tenant:type_name -> loft.Tenant
+	11, // 34: loft.Attachment.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 35: loft.Attachment.date_erased:type_name -> google.protobuf.Timestamp
+	11, // 36: loft.Attachment.date_created:type_name -> google.protobuf.Timestamp
 	37, // [37:37] is the sub-list for method output_type
 	37, // [37:37] is the sub-list for method input_type
 	37, // [37:37] is the sub-list for extension type_name
@@ -2026,29 +2026,29 @@ var file_rove_asset_proto_depIdxs = []int32{
 	0,  // [0:37] is the sub-list for field type_name
 }
 
-func init() { file_rove_asset_proto_init() }
-func file_rove_asset_proto_init() {
-	if File_rove_asset_proto != nil {
+func init() { file_loft_asset_proto_init() }
+func file_loft_asset_proto_init() {
+	if File_loft_asset_proto != nil {
 		return
 	}
-	file_rove_catalog_proto_init()
-	file_rove_org_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_catalog_proto_init()
+	file_loft_org_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_asset_proto_rawDesc), len(file_rove_asset_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_asset_proto_rawDesc), len(file_loft_asset_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_asset_proto_goTypes,
-		DependencyIndexes: file_rove_asset_proto_depIdxs,
-		MessageInfos:      file_rove_asset_proto_msgTypes,
+		GoTypes:           file_loft_asset_proto_goTypes,
+		DependencyIndexes: file_loft_asset_proto_depIdxs,
+		MessageInfos:      file_loft_asset_proto_msgTypes,
 	}.Build()
-	File_rove_asset_proto = out.File
-	file_rove_asset_proto_goTypes = nil
-	file_rove_asset_proto_depIdxs = nil
+	File_loft_asset_proto = out.File
+	file_loft_asset_proto_goTypes = nil
+	file_loft_asset_proto_depIdxs = nil
 }

@@ -16,7 +16,7 @@ import (
 	"golang.org/x/text/transform"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // The form bulk registration reads (design 9.13): its columns, in the order
@@ -56,14 +56,14 @@ var refusedColumns = map[string]string{
 // attributePrefixes begin a header that is an attribute: `속성.색상`.
 var attributePrefixes = []string{"속성.", "attr.", "attributes."}
 
-// The Korean words for rove's own values, as a sheet writes them.
+// The Korean words for loft's own values, as a sheet writes them.
 var (
 	kindWords      = map[string]string{"물품": "item", "자산": "item", "공간": "space", "키트": "kit", "그룹": "group"}
 	statusWords    = map[string]string{"주문": "ordered", "사용중": "active", "사용 중": "active", "운용": "active", "수리중": "in_repair", "수리 중": "in_repair", "분실": "lost", "불용": "retired", "폐기": "disposed"}
 	conditionWords = map[string]string{"양호": "good", "보통": "fair", "손상": "damaged", "고장": "broken"}
 )
 
-// word is rove's value for what a sheet says: its Korean word, or the value
+// word is loft's value for what a sheet says: its Korean word, or the value
 // itself.
 func word(v string, words map[string]string) string {
 	v = strings.TrimSpace(v)
@@ -81,7 +81,7 @@ func registerForm() (*app.AssetExportResponse, error) {
 	}
 	header = append(header, "속성.키")
 
-	return writeCSV("rove-대량등록-양식", [][]string{header})
+	return writeCSV("loft-대량등록-양식", [][]string{header})
 }
 
 // What a workbook begins with: a zip (.xlsx), or the OLE container an older
@@ -106,7 +106,7 @@ func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetReque
 	// A workbook is not opened to be read: what one person uploads is read in
 	// the process every workspace is served by, reading a workbook takes a
 	// library as large as Excel -- formulas, encryption, the container an old
-	// one is in -- and a crafted workbook stops it. Rove has none (design
+	// one is in -- and a crafted workbook stops it. Loft has none (design
 	// 9.13).
 	for _, mark := range workbookMarks {
 		if bytes.HasPrefix(req.GetData(), mark) {

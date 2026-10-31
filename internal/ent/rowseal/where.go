@@ -5,7 +5,7 @@ package rowseal
 import (
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
 

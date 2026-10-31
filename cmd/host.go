@@ -10,21 +10,21 @@ import (
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/tenancy"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
-// Hosts is what the host a request came to decides (rove#155), in front of
+// Hosts is what the host a request came to decides (loft#155), in front of
 // everything this deployment serves over HTTP -- the RPCs a page calls, which
 // it hands the decision to on the request's context ([apphost.From]), and the
 // HTTP beside them.
 //
 //   - **A workspace's active `app` domain** pins the request to that workspace.
 //     The app is served there, and every call is served as a membership of
-//     that workspace and no other: a `rove-workspace` that names another is
+//     that workspace and no other: a `loft-workspace` that names another is
 //     refused, never re-pointed (`cmd.Resolver`), and so is a page at
 //     `/@<alias>` of another. Signing in and out is not done there but by
 //     the handoff (`/handoff/...`, `server/session`): the service signs a

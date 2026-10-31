@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/server/csp"
+	"github.com/lesomnus/loft/server/csp"
 )
 
 // TestEveryAnswerSaysHowItMayBeUsed: whatever answered, an answer is not
@@ -30,7 +30,7 @@ func TestEveryAnswerSaysHowItMayBeUsed(t *testing.T) {
 		return rec.Header()
 	}
 
-	for _, path := range []string{"/", "/@acme/assets", "/rove.AssetService/Search", "/account"} {
+	for _, path := range []string{"/", "/@acme/assets", "/loft.AssetService/Search", "/account"} {
 		v := ask(false, csp.ReportOnly, path)
 		x.Equal("nosniff", v.Get("X-Content-Type-Options"), path)
 		x.Equal("same-origin", v.Get("Referrer-Policy"), path)
