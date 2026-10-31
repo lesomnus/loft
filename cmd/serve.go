@@ -1189,6 +1189,10 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		// Whether the page offers what an account pays with, and a
 		// workspace's billing (design 7.9).
 		Billing: c.App.Billing.Levyan.On(),
+		// Where the account's pages outside every workspace draw their
+		// dates: the deployment's zone, as a workspace that says none of its
+		// own is told in (design 7.9).
+		Zone: s.Deps.Locale.Zone().String(),
 	}.Mount(mux)
 
 	// Attachments, by the signed links the API answers with.

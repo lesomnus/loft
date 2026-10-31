@@ -72,6 +72,12 @@ type Account struct {
 	// page offers the account's payments (`/billing`) and a workspace's
 	// (design 7.9). Absent for one that bills nobody.
 	Billing bool `json:"billing,omitempty"`
+	// Timezone is the deployment's zone (`app.locale.timezone`, Asia/Seoul
+	// unset), as an IANA name: where a page about no workspace -- the
+	// account's payments, its invitations -- draws its dates, as a
+	// workspace's pages draw theirs on its own wall (`PartyService.Me`) and
+	// never on the browser's (design 7.9).
+	Timezone string `json:"timezone,omitempty"`
 	// Identity is what the session asking lets its caller see, named as
 	// `authsession.IdentityOf` names it: what the page keeps what it was
 	// answered and what it has not sent yet for, and says on every call it
@@ -194,6 +200,11 @@ type Routes struct {
 	// levyan`): what the page draws the account's payments and a workspace's
 	// for (design 7.9).
 	Billing bool
+
+	// Zone is the deployment's zone, by its IANA name (`domain.Locale.Zone`):
+	// what the account is told its pages outside every workspace draw their
+	// dates in. Empty tells it none, and the page keeps the browser's.
+	Zone string
 }
 
 // Mount serves `GET /account`, `POST /account/workspaces`, a workspace's
@@ -534,7 +545,7 @@ func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Per
 	if err != nil {
 		return Account{}, nil, err
 	}
-	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}, Billing: a.Billing}
+	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}, Billing: a.Billing, Timezone: a.Zone}
 	if pin, ok := apphost.From(r.Context()); ok {
 		out.Pinned, out.Service = pin.Alias, a.Service
 	}

@@ -30,6 +30,7 @@ import {
 	handOff,
 	labelWorkspace,
 	lastWorkspace,
+	localize,
 	openWorkspace,
 	rememberWorkspace,
 	signedIn,
@@ -261,6 +262,12 @@ function Boot(): ReactNode {
 			}
 			drawn.current = a.identity ?? ''
 			callAs(drawn.current)
+			// Where the dates are, before anything is drawn: the deployment's
+			// zone, as the server tells it, for every page about no workspace
+			// -- the account's payments (design 7.9), its invitations -- and
+			// never the browser's. A workspace's pages are told the
+			// workspace's own as it is read (`CatalogProvider`).
+			localize({ timezone: a.timezone })
 			if (fresh) {
 				// Kept for this account and the workspaces it is in now, and
 				// for nobody and nowhere else.
