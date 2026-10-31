@@ -256,19 +256,28 @@ func TestAWorkspaceIsMeasuredBeforeItIsDestroyed(t *testing.T) {
 	x.NoError(err)
 	w.closed()
 
-	// What the workspace was when levyan was told.
-	there := make(chan bool, 1)
+	// What the workspace was when levyan was told: read in levyan's handler,
+	// and said here.
+	type state struct {
+		alive, held bool
+		err         error
+	}
+	seen := make(chan state, 1)
 	fake.Answer(func(ctx context.Context, req *levyanv1.RecordRequest) (*levyanv1.RecordResponse, error) {
-		alive, err := w.s.Ent.Tenant.Query().Where(enttenant.Id(id.Uuid())).Exist(ctx)
-		x.NoError(err)
-		held, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Exist(ctx)
-		x.NoError(err)
-		there <- alive && !held
+		var v state
+		v.alive, v.err = w.s.Ent.Tenant.Query().Where(enttenant.Id(id.Uuid())).Exist(ctx)
+		if v.err == nil {
+			v.held, v.err = w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Exist(ctx)
+		}
+		seen <- v
 		return kept(req), nil
 	})
 
 	x.NoError(w.s.Closing.Sweep(ctx))
-	x.True(<-there, "measured with nothing of it taken yet")
+	v := <-seen
+	x.NoError(v.err)
+	x.True(v.alive, "measured while it was there")
+	x.False(v.held, "and before its address was held")
 	x.Equal(map[string]int64{
 		"loft.assets.active": 1, "loft.attachments.bytes": 0, "loft.members": 1, "loft.history.retention_days": 0,
 	}, held(x, fake, w.tenant))
