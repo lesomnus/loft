@@ -129,4 +129,7 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 		x.NoError(err)
 		x.Equal(1, n, "what levyan says of it, copied: the restriction")
 	})
+	// And every row is what the trail says it is: the copy's, written by
+	// the follower and recorded; the notices, which are kept off it.
+	run(t, cli.NewCmdTrail(&c), "rows")
 }
