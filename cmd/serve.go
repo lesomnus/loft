@@ -719,7 +719,7 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
 		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
 		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
-		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), LimitKey(), pd.Cost)).
+		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), gate.ByTenant(), pd.Cost)).
 		With(s.accessed().Interceptor()).
 		With(gate.Interceptor(s.Policy)).
 		With(s.Watch.Interceptor())

@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/payday/holder.proto.
  */
 export const file_loft_payday_holder: GenFile = /*@__PURE__*/
-  fileDesc("Chhsb2Z0L3BheWRheS9ob2xkZXIucHJvdG8SBGxvZnQi5QUKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIVCgVhbGlhcxgEIAEoCUIGqsEWAhgBEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESMAoGbGFiZWxzGAcgAygLMhgubG9mdC5Ib2xkZXIuTGFiZWxzRW50cnlCBqrBFgIYARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASIQoEcm9sZRgIIAEoCUIT6oIWCYIBBm1lbWJlcqrBFgIYABIZCgdhY2NvdW50GAkgASgMQgjqghYEEEA4ARI4CgxkYXRlX2xlYXZpbmcYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEAoIbWFpbF9vZmYYCyABKAgSHQoFcGFydHkYDCABKAxCDuqCFgQQQDgBqsEWAhABGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6nAHK/BVTEgIQARofEgRzbHVnGgkKBWFsaWFzEAQaCgoGdGVuYW50EAIwARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAGKuxZBCAIyOQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZ0ZW5hbnQaCAoGbGFiZWxzIBQoZDoASAJCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
+  fileDesc("Chhsb2Z0L3BheWRheS9ob2xkZXIucHJvdG8SBGxvZnQijAYKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIVCgVhbGlhcxgEIAEoCUIGqsEWAhgBEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESMAoGbGFiZWxzGAcgAygLMhgubG9mdC5Ib2xkZXIuTGFiZWxzRW50cnlCBqrBFgIYARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASIQoEcm9sZRgIIAEoCUIT6oIWCYIBBm1lbWJlcqrBFgIYABIZCgdhY2NvdW50GAkgASgMQgjqghYEEEA4ARI4CgxkYXRlX2xlYXZpbmcYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEAoIbWFpbF9vZmYYCyABKAgSHQoFcGFydHkYDCABKAxCDuqCFgQQQDgBqsEWAhABGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6wwHK/BV6EgIQARofEgRzbHVnGgkKBWFsaWFzEAQaCgoGdGVuYW50EAIwARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaJRIKYnlfYWNjb3VudBoLCgdhY2NvdW50EAkaCgoGdGVuYW50EAKKuxZBCAIyOQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZ0ZW5hbnQaCAoGbGFiZWxzIBQoZDoASAJCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
 
 /**
  * Holder is who a request is from.
@@ -124,6 +124,12 @@ export type Holder = Message<"loft.Holder"> & {
    * identifier, and what a session names is the account. Null on a holder made
    * before accounts were, which nobody signs in as until `loft identity
    * migrate` fills it.
+   *
+   * It is what a call is resolved by (`(payday.app).accounts`, payday#184),
+   * so which account a membership is of is the deployment's to say: the
+   * generated gate refuses it to a request, and what makes a membership --
+   * an invitation accepted, a workspace made, a login given -- writes it
+   * through the servers the deployment holds.
    *
    * @generated from field: bytes account = 9;
    */

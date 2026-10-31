@@ -5,28 +5,25 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"strings"
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/z"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	"github.com/lesomnus/payday/account"
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
-	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/holder"
-	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/consent"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // Resolver turns a claim into the frame a request is served in.
@@ -42,21 +39,28 @@ import (
 // behind the wall would be asking a question whose answer it needs in order to
 // ask it.
 //
-// A session names an **account** and not a holder (D27). The holder a call is
-// served as is the account's membership of the workspace the call names in
-// [WorkspaceHeader] -- by alias or by identifier -- or its only membership when
-// the call names none. Every other credential names a holder, as before.
+// A session names an **account** and not a holder (D27), and which of its
+// memberships a call is is payday's to work out (`pd.AccountResolver`,
+// payday#184): the one of the workspace the call names in [WorkspaceHeader] --
+// by alias or by identifier -- or its only one when the call names none; and
+// for a method the schema marks as the account's own (`pd.AccountMethods`, the
+// invitations addressed to it), the account itself, in no workspace. Every
+// other credential names a holder, as before, and so does the membership a
+// session's call was resolved to: both are read here ([holders]).
 //
-// A session's account that has not agreed to what this deployment asks
-// (`consents`, design 9.11) -- which roster's ledger says (D37) -- is refused
-// every call, with [ConsentOwed]: what it agrees to is HTTP beside the RPCs
-// (`server/account`), and its first page.
+// What is the app's around that stays here. A session's account that has not
+// agreed to what this deployment asks (`consents`, design 9.11) -- which
+// roster's ledger says (D37) -- is refused every call first, with
+// [ConsentOwed]: what it agrees to is HTTP beside the RPCs (`server/account`),
+// and its first page. And a closed workspace is refused last, to all but its
+// owner's [WhileClosed].
 //
 // A call that came to a workspace's own domain is pinned to that workspace
 // ([apphost.From], loft#155), and served as a membership of it or not at all:
-// a [WorkspaceHeader] that names another is refused rather than re-pointed,
-// a credential of another workspace's holder is refused, and so is a call an
-// account makes as itself across its workspaces ([AccountMethods]).
+// a session is bound to it before it is resolved, so a [WorkspaceHeader] that
+// names another is refused rather than re-pointed, and so is a call an
+// account makes as itself across its workspaces; and a credential of another
+// workspace's holder is refused.
 //
 // A session handed to a workspace's own domain (`server/session`'s handoff)
 // is bound to that workspace, and is nobody but on a host that pins it: at
@@ -64,35 +68,75 @@ import (
 // credential at all. Its tenant is that workspace's, which payday holds the
 // frame to besides ([auth.Identity.TenantId]).
 func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Resolver {
+	accounts := pd.AccountResolver(db, WorkspaceHeader, signedIn, holders(s))
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
 		pin, pinned := apphost.From(ctx)
-		var ref *app.HolderRef
-		var err error
-		if id.Method == authsession.Method {
+		if signedIn(id) {
 			if id.TenantId != "" && (!pinned || id.TenantId != pin.Workspace.String()) {
 				return nil, fmt.Errorf("%w: this sign-in was handed to a workspace's own domain, and is good there alone", auth.ErrNoCredential)
 			}
 			if err := settled(ctx, consents, id.Id); err != nil {
 				return nil, err
 			}
-			if m, ok := grpc.Method(ctx); ok && AccountMethods[m] {
-				if pinned {
-					return nil, status.Errorf(codes.PermissionDenied, "this is @%s's address: what an account does across its workspaces is done at the service's", pin.Alias)
+			if pinned {
+				if err := pinnedTo(ctx, pin); err != nil {
+					return nil, err
 				}
-				return asAccount(id.Id)
+				// Bound to the domain's workspace, as a sign-in handed to
+				// it is: served as the account's membership of it, and as
+				// nothing an account does outside every workspace.
+				id.TenantId = pin.Workspace.String()
 			}
-			ref, err = membership(ctx, db, id.Id)
-		} else {
-			ref, err = refOf(id)
 		}
+
+		f, err := accounts.Resolve(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if f.AsAccount() {
+			// The account itself, for a method of its own: in no workspace,
+			// so in no closed one either.
+			return f, nil
+		}
+
+		// A closed workspace is nobody's to use, and its owner's to restore or
+		// to read (D29). Here, at the call that came in, and not in the
+		// policy: what the domain layer calls on the way to a restore goes
+		// through the gate too, as the same owner.
+		v, _ := f.Row.(*app.Holder)
+		if v.GetTenant().HasDateClosed() {
+			m, _ := grpc.Method(ctx)
+			if v.GetRole() != "owner" || !WhileClosed[m] {
+				return nil, status.Error(codes.FailedPrecondition, "닫힌 워크스페이스입니다")
+			}
+		}
+		// Whatever the credential named, a pinned call is of its workspace.
+		if pinned && f.Tenant != pin.Workspace {
+			return nil, status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace", pin.Alias)
+		}
+
+		return f, nil
+	})
+}
+
+// signedIn says whether a credential is a session, which names an account:
+// what [pd.AccountResolver] serves as one of its memberships, or as itself.
+func signedIn(id auth.Identity) bool { return id.Method == authsession.Method }
+
+// holders resolves a credential that names a holder: every credential but a
+// session, and the membership a session's call was resolved to, which
+// [pd.AccountResolver] asks about by its identifier. The holder is read with
+// its tenant, since almost every rule about a request is about the tenant it
+// is from.
+func holders(s app.Server) auth.Resolver {
+	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
+		ref, err := refOf(id)
 		if err != nil {
 			return nil, err
 		}
 
 		v, err := s.Holder().Get(ctx, app.HolderGetRequest_builder{
 			Ref: ref,
-			// The tenant travels with the actor, since almost every rule about
-			// a request is about the tenant it is from.
 			Select: app.HolderSelect_builder{
 				All:    z.Ptr(true),
 				Tenant: app.TenantSelect_builder{All: z.Ptr(true)}.Build(),
@@ -114,17 +158,6 @@ func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Res
 			return nil, err
 		}
 
-		// A closed workspace is nobody's to use, and its owner's to restore or
-		// to read (D29). Here, at the call that came in, and not in the
-		// policy: what the domain layer calls on the way to a restore goes
-		// through the gate too, as the same owner.
-		if v.GetTenant().HasDateClosed() {
-			m, _ := grpc.Method(ctx)
-			if v.GetRole() != "owner" || !WhileClosed[m] {
-				return nil, status.Error(codes.FailedPrecondition, "닫힌 워크스페이스입니다")
-			}
-		}
-
 		actor, err := pdid.From(v.GetId())
 		if err != nil {
 			return nil, err
@@ -132,10 +165,6 @@ func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Res
 		tenant, err := pdid.From(v.GetTenant().GetId())
 		if err != nil {
 			return nil, err
-		}
-		// Whatever the credential named, a pinned call is of its workspace.
-		if pinned && tenant != pin.Workspace {
-			return nil, status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace", pin.Alias)
 		}
 
 		// The grant is not set here. The interceptor takes it from the
@@ -145,29 +174,27 @@ func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Res
 	})
 }
 
+// pinnedTo refuses a call to a workspace's own domain that names another
+// workspace (loft#155): one named otherwise is refused, rather than served as
+// the account's membership somewhere else, and none named is the domain's.
+func pinnedTo(ctx context.Context, pin apphost.Pinned) error {
+	in, err := account.SelectorOf(ctx, WorkspaceHeader)
+	if err != nil {
+		return err
+	}
+	if in.IsZero() || in.Id == pin.Workspace || (in.Alias != "" && in.Alias == pin.Alias) {
+		return nil
+	}
+
+	return status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace: %s is at the service's", pin.Alias, in)
+}
+
 // WhileClosed is what a closed workspace's owner may still call: the
 // workspace itself, to see it, and its restore. Taking its data out is HTTP
 // (`server/account`).
 var WhileClosed = map[string]bool{
 	app.TenantService_Get_FullMethodName:     true,
 	app.TenantService_Restore_FullMethodName: true,
-}
-
-// AccountMethods are the calls a session makes as its account and not as a
-// membership: what an account asks before it is anybody's member, about
-// invitations addressed to it in workspaces it is not in (design 9.11).
-//
-// They are the one exception to every call being served as a membership of
-// one workspace, and the wall cannot serve them: the rows are other
-// workspaces'. So the frame sees no tenant at all, the policy gives such a
-// caller these methods and nothing else (`policy.Account`), and the domain
-// layer holds each to the account's own invitations
-// (`server/domain/invitation.go`).
-var AccountMethods = map[string]bool{
-	app.InvitationService_List_FullMethodName:   true,
-	app.InvitationService_Claim_FullMethodName:  true,
-	app.InvitationService_Accept_FullMethodName: true,
-	app.InvitationService_Deny_FullMethodName:   true,
 }
 
 // ConsentOwed is what a call is refused with while its account has not agreed
@@ -202,82 +229,11 @@ func settled(ctx context.Context, consents *consent.Consents, account string) er
 	return nil
 }
 
-// asAccount is the frame of a call served as the account: the account as the
-// actor, no tenant, and the account where a membership's row would be.
-func asAccount(account string) (*frame.Frame, error) {
-	a, err := pdid.Parse(account)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %s", auth.ErrNoCredential, err)
-	}
-	return frame.New(a, pdid.Nil, frame.Grant{}).WithRow(app.Account_builder{Id: a.Bytes()}.Build()), nil
-}
-
-// LimitKey is what a call is counted against: its workspace, or -- for a call
-// served as an account, which is in none -- that account, so that one account
-// asking often is not every account's limit.
-func LimitKey() func(ctx context.Context, method string) string {
-	byTenant := gate.ByTenant()
-	return func(ctx context.Context, method string) string {
-		if f, ok := frame.From(ctx); ok && f.Tenant.IsZero() && !f.Actor.IsZero() {
-			return "account:" + f.Actor.String()
-		}
-		return byTenant(ctx, method)
-	}
-}
-
 // WorkspaceHeader is the metadata a call names its workspace in: an alias,
-// with or without its `@`, or a tenant identifier. A page served at
-// `/@<alias>/...` sends the alias on every call (design 9.11).
+// with or without its `@`, or a tenant identifier, as payday reads it
+// (`account.ParseSelector`). A page served at `/@<alias>/...` sends the alias
+// on every call (design 9.11).
 const WorkspaceHeader = "loft-workspace"
-
-// membership is the holder an account is in the workspace a call names, or in
-// its only one.
-//
-// Not being in the workspace named is one answer whether or not there is such
-// a workspace, so a name says nothing about who else is here.
-func membership(ctx context.Context, db *ent.Client, account string) (*app.HolderRef, error) {
-	a, err := pdid.Parse(account)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %s", auth.ErrNoCredential, err)
-	}
-	q := db.Holder.Query().Where(holder.Account(a.Uuid()), holder.DateErasedIsNil())
-	ws := ""
-	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		if vs := md.Get(WorkspaceHeader); len(vs) > 0 {
-			ws = strings.TrimPrefix(strings.TrimSpace(vs[0]), "@")
-		}
-	}
-	// On a workspace's own domain the workspace is the domain's (loft#155):
-	// one named otherwise is refused, and none named is that one.
-	named := ws
-	if pin, ok := apphost.From(ctx); ok {
-		if ws != "" && !pin.Names(ws) {
-			return nil, status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace: @%s is at the service's", pin.Alias, ws)
-		}
-		ws, named = pin.Workspace.String(), pin.Alias
-	}
-	if ws != "" {
-		if t, err := pdid.Parse(ws); err == nil {
-			q = q.Where(holder.TenantId(t.Uuid()))
-		} else {
-			q = q.Where(holder.HasTenantWith(tenant.Alias(ws)))
-		}
-	}
-	hs, err := q.Limit(2).Ids(ctx)
-	if err != nil {
-		return nil, err
-	}
-	switch {
-	case len(hs) == 1:
-		return app.HolderRef_builder{Id: pdid.Id(hs[0]).Bytes()}.Build(), nil
-	case ws != "":
-		return nil, status.Errorf(codes.PermissionDenied, "this account is not in @%s", named)
-	case len(hs) == 0:
-		return nil, status.Error(codes.FailedPrecondition, "this account is in no workspace")
-	default:
-		return nil, status.Errorf(codes.InvalidArgument, "this account is in more than one workspace: name one, in %s", WorkspaceHeader)
-	}
-}
 
 // refOf is the claim as a reference: an identifier when the credential named
 // one, and otherwise the pair that names a holder inside a tenant.

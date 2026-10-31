@@ -8,6 +8,7 @@ import "loft/payday/holder_svc.g.proto";
 import "loft/payday/tenant.proto";
 import "loft/payday/tenant_svc.g.proto";
 import "patch/patch.proto";
+import "payday.proto";
 
 option go_package = "github.com/lesomnus/loft";
 
@@ -74,14 +75,34 @@ service InvitationService {
   rpc List(InvitationListRequest) returns (InvitationListResponse);
   // Revoke takes back an invitation nobody has answered.
   rpc Revoke(InvitationRevokeRequest) returns (Invitation);
+  // Inbox is the invitations addressed to the caller's account, from every
+  // workspace that sent one: the ones the account holds, and the ones sent to
+  // an address roster holds as checked for it. A workspace's own are `List`.
+  rpc Inbox(InvitationInboxRequest) returns (InvitationInboxResponse) {
+    option (payday.method) = {
+      account: {}
+    };
+  }
   // Claim makes the invitation a mail carried a code for the caller's: the
   // proof is reading that mailbox, for an account roster holds no checked
   // address of.
-  rpc Claim(InvitationClaimRequest) returns (Invitation);
+  rpc Claim(InvitationClaimRequest) returns (Invitation) {
+    option (payday.method) = {
+      account: {}
+    };
+  }
   // Accept makes the caller a member of the workspace, as what it says.
-  rpc Accept(InvitationAcceptRequest) returns (Invitation);
+  rpc Accept(InvitationAcceptRequest) returns (Invitation) {
+    option (payday.method) = {
+      account: {}
+    };
+  }
   // Deny says no.
-  rpc Deny(InvitationDenyRequest) returns (Invitation);
+  rpc Deny(InvitationDenyRequest) returns (Invitation) {
+    option (payday.method) = {
+      account: {}
+    };
+  }
 }
 
 service CliLoginService {}
@@ -545,6 +566,18 @@ message InvitationRevokeRequest {
   InvitationRef ref = 1;
 }
 
+message InvitationInboxRequest {
+  // `pending`, `accepted`, `denied`, `revoked` or `expired`; unset is
+  // `pending`, the ones waiting for an answer.
+  string state = 1;
+  // At most this many, the newest first; zero is 200, which is also the most.
+  uint32 size = 2 [features.field_presence = IMPLICIT];
+}
+
+message InvitationInboxResponse {
+  repeated Invitation items = 1;
+}
+
 message InvitationClaimRequest {
   // The code the mail's link carried.
   string code = 1 [features.field_presence = IMPLICIT];
@@ -556,12 +589,4 @@ message InvitationAcceptRequest {
 
 message InvitationDenyRequest {
   InvitationRef ref = 1;
-}
-
-// Account is who a call served as an account is from: an account of the
-// deployment's directory at roster (D27). Nothing keeps it; `cmd.Resolver`
-// puts it in the frame of a call an account makes before it is anybody's
-// member (`cmd.AccountMethods`), where a membership's holder would be.
-message Account {
-  bytes id = 1 [features.field_presence = IMPLICIT];
 }

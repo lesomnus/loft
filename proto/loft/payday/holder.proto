@@ -104,6 +104,19 @@ message Holder {
             number: 1
           }
         ]
+      },
+      {
+        name: "by_account"
+        refs: [
+          {
+            name: "account"
+            number: 9
+          },
+          {
+            name: "tenant"
+            number: 2
+          }
+        ]
       }
     ]
   };
@@ -183,6 +196,12 @@ message Holder {
   // identifier, and what a session names is the account. Null on a holder made
   // before accounts were, which nobody signs in as until `loft identity
   // migrate` fills it.
+  //
+  // It is what a call is resolved by (`(payday.app).accounts`, payday#184),
+  // so which account a membership is of is the deployment's to say: the
+  // generated gate refuses it to a request, and what makes a membership --
+  // an invitation accepted, a workspace made, a login given -- writes it
+  // through the servers the deployment holds.
   bytes account = 9 [(orm.field) = {
     type: TYPE_UUID
     nullable: true

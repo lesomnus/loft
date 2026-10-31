@@ -11,6 +11,21 @@ import "loft/payday/tenant.proto";
 option features.field_presence = IMPLICIT;
 option go_package = "github.com/lesomnus/loft";
 
+// A holder is a membership of an account (design 9.10, D27): one of the
+// deployment's directory at roster, which signs in once and is a member of
+// every workspace it has a holder in, by the holder's `account`. payday
+// serves a call as one of them (payday#184): a session names the account,
+// and the call is its membership of the workspace it names in
+// `loft-workspace`, or its only one (`cmd.Resolver`). A method marked
+// `(payday.method) = {account: {}}` is the account's own instead -- the
+// invitations addressed to it, from workspaces it is no member of yet -- and
+// is served as the account, in no workspace.
+option (payday.app) = {
+  accounts: {
+    field: {name: "account", number: 9}
+  }
+};
+
 // Party is a person, a team, an organization or a vendor: whoever an asset is
 // owned by, managed by or held by. Personal data lives here and nowhere else;
 // history rows name a party by its identifier (design 3.1, D13).
@@ -180,10 +195,11 @@ message Session {
 // It is the workspace's row: who invited whom, as what, and what became of it
 // are this workspace's history, and leave with it. Two sides read it -- the
 // people who run the workspace, and the account it is addressed to, who is
-// not a member yet and can read nothing here. So `InvitationService.List`,
-// `Claim`, `Accept` and `Deny` are served as the account rather than as a
-// membership (`cmd.AccountMethods`), and which rows each side reads is said by
-// the domain layer, not by the wall (`server/domain/invitation.go`).
+// not a member yet and can read nothing here. So `InvitationService.Inbox`,
+// `Claim`, `Accept` and `Deny` are the account's own methods, served as the
+// account rather than as a membership (payday#184), and which rows each side
+// reads is said by the domain layer, not by the wall
+// (`server/domain/invitation.go`).
 //
 // # Whose it is
 //

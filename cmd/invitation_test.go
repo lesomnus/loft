@@ -3,7 +3,6 @@ package cmd_test
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -33,9 +32,9 @@ import (
 
 // Inviting an address into a workspace, and the account it belongs to
 // answering (design 9.11). The account is nobody's member when it reads and
-// answers -- the calls are served as the account (`cmd.AccountMethods`) -- so
-// what is pinned here is the rule the wall would have kept, written down
-// instead: whose an invitation is.
+// answers -- the calls are the account's own, served as the account
+// (payday#184) -- so what is pinned here is the rule the wall would have kept,
+// written down instead: whose an invitation is.
 
 // mailbox is every message the deployment sent.
 type mailbox struct {
@@ -118,10 +117,9 @@ func (w *invites) invite(as context.Context, email, role string) (*app.Invitatio
 	}.Build())
 }
 
-func (w *invites) inbox(as context.Context, p identity.Person) []*app.Invitation {
-	v, err := w.svc.List(as, app.InvitationListRequest_builder{
-		Filters: []*app.InvitationFilter{app.InvitationFilter_builder{Account: p.Id.Bytes()}.Build()},
-	}.Build())
+// inbox is what is waiting for the account `as` is signed in as.
+func (w *invites) inbox(as context.Context) []*app.Invitation {
+	v, err := w.svc.Inbox(as, app.InvitationInboxRequest_builder{}.Build())
 	w.x.NoError(err)
 	return v.GetItems()
 }
@@ -159,7 +157,7 @@ func TestAnInvitationIsAnsweredByTheAccountItIsAddressedTo(t *testing.T) {
 	// An account with that address checked, in no workspace at all.
 	kim := w.account("kim", []string{"kim@acme.example"}, nil)
 	as := w.as(kim)
-	got := w.inbox(as, kim)
+	got := w.inbox(as)
 	x.Len(got, 1)
 	x.Equal("acme", got[0].GetTenant().GetAlias())
 	x.Equal("owner", got[0].GetInviter().GetName())
@@ -173,7 +171,7 @@ func TestAnInvitationIsAnsweredByTheAccountItIsAddressedTo(t *testing.T) {
 	x.NoError(err)
 	x.Equal("manager", me.GetRole())
 	x.Equal("kim@acme.example", me.GetParty().GetEmail())
-	x.Empty(w.inbox(as, kim), "an answered invitation is still waiting")
+	x.Empty(w.inbox(as), "an answered invitation is still waiting")
 
 	// And the people who invited see what became of it.
 	out, err := w.sent(w.owner)
@@ -200,18 +198,26 @@ func TestAnAddressNobodyCheckedIsNobodysInvitation(t *testing.T) {
 
 	mallory := w.account("mallory", nil, []string{"kim@acme.example"})
 	as := w.as(mallory)
-	x.Empty(w.inbox(as, mallory), "an address nobody checked found an invitation")
+	x.Empty(w.inbox(as), "an address nobody checked found an invitation")
 	_, err = w.svc.Accept(as, app.InvitationAcceptRequest_builder{Ref: ref(v)}.Build())
 	x.Equal(codes.NotFound, status.Code(err), "%v", err)
 	_, err = w.svc.Deny(as, app.InvitationDenyRequest_builder{Ref: ref(v)}.Build())
 	x.Equal(codes.NotFound, status.Code(err), "%v", err)
 
-	// Nor is anybody's inbox readable by naming them.
+	// Nor is anybody's inbox readable by naming them. The inbox names nobody
+	// -- it is the caller's own account's -- and a workspace's list, which is
+	// a membership's, reads no account's: mallory is nobody's member, and the
+	// owner, who is, is told the list answers one question.
 	lee := w.account("lee", nil, nil)
-	_, err = w.svc.List(as, app.InvitationListRequest_builder{
+	byAccount := app.InvitationListRequest_builder{
 		Filters: []*app.InvitationFilter{app.InvitationFilter_builder{Account: lee.Id.Bytes()}.Build()},
-	}.Build())
+	}.Build()
+	_, err = w.svc.List(as, byAccount)
+	x.Equal(codes.FailedPrecondition, status.Code(err), "%v", err)
+	_, err = w.svc.List(metadata.AppendToOutgoingContext(as, cmd.WorkspaceHeader, "acme"), byAccount)
 	x.Equal(codes.PermissionDenied, status.Code(err), "%v", err)
+	_, err = w.svc.List(w.owner, byAccount)
+	x.Equal(codes.InvalidArgument, status.Code(err), "%v", err)
 }
 
 // TestTheLinkAMailCarriedMakesItYours: an account roster holds no checked
@@ -227,12 +233,12 @@ func TestTheLinkAMailCarriedMakesItYours(t *testing.T) {
 
 	lee := w.account("lee", nil, nil)
 	as := w.as(lee)
-	x.Empty(w.inbox(as, lee))
+	x.Empty(w.inbox(as))
 
 	v, err := w.svc.Claim(as, app.InvitationClaimRequest_builder{Code: code}.Build())
 	x.NoError(err)
 	x.Equal("acme", v.GetTenant().GetAlias())
-	x.Len(w.inbox(as, lee), 1)
+	x.Len(w.inbox(as), 1)
 
 	// A code is spent once, and is nobody else's afterwards.
 	_, err = w.svc.Claim(as, app.InvitationClaimRequest_builder{Code: code}.Build())
@@ -290,10 +296,14 @@ func TestWhoMayInviteAndAsWhat(t *testing.T) {
 		x.NoError(err)
 		x.NotEmpty(v)
 
-		// And an account that is no member of it reads none of them.
+		// And an account that is no member of it reads none of them: a
+		// workspace's list is its membership's, and it has none -- of this
+		// workspace, named as a page names it, or of any.
 		stranger := w.account("stranger", nil, nil)
-		_, err = w.sent(w.as(stranger))
+		_, err = w.sent(metadata.AppendToOutgoingContext(w.as(stranger), cmd.WorkspaceHeader, "acme"))
 		x.Equal(codes.PermissionDenied, status.Code(err), "%v", err)
+		_, err = w.sent(w.as(stranger))
+		x.Equal(codes.FailedPrecondition, status.Code(err), "%v", err)
 	})
 
 	t.Run("a list asks one question", func(t *testing.T) {
@@ -334,7 +344,7 @@ func TestAnAnswerIsGivenOnceAndInTime(t *testing.T) {
 		r, err := w.svc.Revoke(w.owner, app.InvitationRevokeRequest_builder{Ref: ref(v)}.Build())
 		x.NoError(err)
 		x.Equal("revoked", r.GetState())
-		x.Empty(w.inbox(as, kim))
+		x.Empty(w.inbox(as))
 		_, err = w.svc.Accept(as, app.InvitationAcceptRequest_builder{Ref: ref(v)}.Build())
 		x.Equal(codes.FailedPrecondition, status.Code(err), "%v", err)
 		_, err = w.svc.Revoke(w.owner, app.InvitationRevokeRequest_builder{Ref: ref(v)}.Build())
@@ -350,7 +360,7 @@ func TestAnAnswerIsGivenOnceAndInTime(t *testing.T) {
 		w.s.Deps.Now = func() time.Time { return later }
 		t.Cleanup(func() { w.s.Deps.Now = nil })
 
-		x.Empty(w.inbox(as, kim), "an invitation that ran out is still waiting")
+		x.Empty(w.inbox(as), "an invitation that ran out is still waiting")
 		_, err = w.svc.Accept(as, app.InvitationAcceptRequest_builder{Ref: ref(v)}.Build())
 		x.Equal(codes.FailedPrecondition, status.Code(err), "%v", err)
 		_, err = w.svc.Claim(as, app.InvitationClaimRequest_builder{Code: code}.Build())
@@ -471,7 +481,7 @@ func TestAnAccountAsksFromAPageAboutNoWorkspace(t *testing.T) {
 		return res.StatusCode, string(b)
 	}
 
-	code, body := call("InvitationService/List", `{"filters":[{"account":"`+base64.StdEncoding.EncodeToString(kim.Id.Bytes())+`"}]}`)
+	code, body := call("InvitationService/Inbox", `{}`)
 	x.Equal(http.StatusOK, code, body)
 	var got struct {
 		Items []map[string]any `json:"items"`

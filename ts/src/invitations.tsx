@@ -4,8 +4,9 @@
  *
  * The inbox is a page about no workspace -- `/invitations`, with no `@alias` --
  * because what is in it is from workspaces the account is not in yet, and its
- * calls are served as the account rather than as a membership. The link an
- * invitation's mail carries opens it with `?code=`, which makes that
+ * calls are the account's own (`InvitationService.Inbox`, `Claim`, `Accept`,
+ * `Deny`; payday#184): served as the account rather than as a membership. The
+ * link an invitation's mail carries opens it with `?code=`, which makes that
  * invitation the account's before the list is read: what reaches an account
  * roster holds no checked address of.
  *
@@ -15,7 +16,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 
 import type { Invitation } from '../gen/loft/org_pb.js'
-import { InvitationService, errorText, fmt, idBytes, idStr, openWorkspace, workspace, type Account } from './api.js'
+import { InvitationService, errorText, fmt, idStr, openWorkspace, workspace, type Account } from './api.js'
 import { useCatalog } from './catalog.js'
 import { call, useAct, useRpc } from './rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Load, Select } from './ui.js'
@@ -48,9 +49,9 @@ function rolesUpTo(mine: string): { value: string; label: string }[] {
 		.map(([value, label]) => ({ value, label }))
 }
 
-/** The invitations waiting for an account, from every workspace. */
-async function waiting(account: Account): Promise<Invitation[]> {
-	const v = await call(InvitationService.method.list, { filters: [{ account: idBytes(account.id) }] })
+/** The invitations waiting for the account signed in, from every workspace. */
+async function waiting(): Promise<Invitation[]> {
+	const v = await call(InvitationService.method.inbox, {})
 	return v.items
 }
 
@@ -61,7 +62,7 @@ export function useWaiting(account: Account): number {
 		// On a workspace's own domain the invitations are the service's to ask.
 		if (account.pinned !== undefined) return
 		let gone = false
-		waiting(account)
+		waiting()
 			.then((v) => !gone && setN(v.length))
 			.catch(() => {})
 		return () => {
@@ -79,7 +80,7 @@ export function Inbox(props: { account: Account; onSignOut: () => void }): React
 
 	const load = useCallback(async () => {
 		try {
-			setItems(await waiting(props.account))
+			setItems(await waiting())
 		} catch (err) {
 			setBad(errorText(err))
 		}

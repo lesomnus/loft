@@ -6,6 +6,7 @@ import "google/protobuf/timestamp.proto";
 import "loft/org.proto";
 import "loft/payday/holder.proto";
 import "loft/payday/tenant.proto";
+import "payday.proto";
 
 option go_package = "github.com/lesomnus/loft";
 
@@ -139,25 +140,51 @@ message PartyPseudonymizeRequest {
 // What an invitation is answered with, beside the generated Add and List,
 // which the domain layer completes (`server/domain/invitation.go`).
 //
-// `Claim`, `Accept`, `Deny` and `List` are served as the caller's **account**
-// and not as a membership: the account an invitation is addressed to is no
-// member of the workspace yet (`cmd.AccountMethods`). `Add` and `Revoke` are
-// the workspace's, by somebody who runs it.
+// `Add`, `List` and `Revoke` are the workspace's, by somebody who runs it,
+// served as their membership of it. `Inbox`, `Claim`, `Accept` and `Deny` are
+// the account's own (payday#184): the account an invitation is addressed to
+// is no member of the workspace yet, so they are served as the account, in no
+// workspace, and a call made that way reaches these and nothing else. What
+// each reads is said by the domain layer, not by the wall.
 service InvitationService {
   // Revoke takes back an invitation nobody has answered.
   rpc Revoke(InvitationRevokeRequest) returns (Invitation);
+  // Inbox is the invitations addressed to the caller's account, from every
+  // workspace that sent one: the ones the account holds, and the ones sent to
+  // an address roster holds as checked for it. A workspace's own are `List`.
+  rpc Inbox(InvitationInboxRequest) returns (InvitationInboxResponse) {
+    option (payday.method) = {account: {}};
+  }
   // Claim makes the invitation a mail carried a code for the caller's: the
   // proof is reading that mailbox, for an account roster holds no checked
   // address of.
-  rpc Claim(InvitationClaimRequest) returns (Invitation);
+  rpc Claim(InvitationClaimRequest) returns (Invitation) {
+    option (payday.method) = {account: {}};
+  }
   // Accept makes the caller a member of the workspace, as what it says.
-  rpc Accept(InvitationAcceptRequest) returns (Invitation);
+  rpc Accept(InvitationAcceptRequest) returns (Invitation) {
+    option (payday.method) = {account: {}};
+  }
   // Deny says no.
-  rpc Deny(InvitationDenyRequest) returns (Invitation);
+  rpc Deny(InvitationDenyRequest) returns (Invitation) {
+    option (payday.method) = {account: {}};
+  }
 }
 
 message InvitationRevokeRequest {
   InvitationRef ref = 1;
+}
+
+message InvitationInboxRequest {
+  // `pending`, `accepted`, `denied`, `revoked` or `expired`; unset is
+  // `pending`, the ones waiting for an answer.
+  string state = 1;
+  // At most this many, the newest first; zero is 200, which is also the most.
+  uint32 size = 2 [features.field_presence = IMPLICIT];
+}
+
+message InvitationInboxResponse {
+  repeated Invitation items = 1;
 }
 
 message InvitationClaimRequest {
@@ -172,12 +199,3 @@ message InvitationAcceptRequest {
 message InvitationDenyRequest {
   InvitationRef ref = 1;
 }
-
-// Account is who a call served as an account is from: an account of the
-// deployment's directory at roster (D27). Nothing keeps it; `cmd.Resolver`
-// puts it in the frame of a call an account makes before it is anybody's
-// member (`cmd.AccountMethods`), where a membership's holder would be.
-message Account {
-  bytes id = 1 [features.field_presence = IMPLICIT];
-}
-
