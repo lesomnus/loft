@@ -80,10 +80,10 @@ message Notification {
   };
 }
 
-// Domain 20 was UsageSnapshot's, a tenant's usage written once a day: what
-// is billed is measured outside loft, from the source -- the database, and
-// what the file store holds (design 7, D35). Never give it to anything else:
-// the trail still names rows by it.
+// Domain 20 was UsageSnapshot's, a tenant's usage written once a day. Loft
+// writes no rows for a bill: what is billed is measured from the rows
+// themselves and handed to levyan, which keeps the readings (design 7, D35,
+// D59). Never give it to anything else: the trail still names rows by it.
 
 
 // TenantContract is what the operator's agreement with a workspace says of

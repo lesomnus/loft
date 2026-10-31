@@ -259,7 +259,9 @@ went). Destroying retires it unless the contract in force then says
 `purge_floors` (payday#115): what the deployment's floors (`audit.min`,
 `audit.by.<kind>.min`) are on stays in the trail until each has passed, and
 the rest goes now; a purge takes that too. `loft tenant retire|purge` are the
-same destruction by an operator's hand (`closing.Destroy`). With floors and no
+same destruction by an operator's hand (`closing.Destroy`), and a deployment
+that bills measures the workspace before either takes anything (Billing,
+below). With floors and no
 archive a retirement is refused before anything is taken
 (`offboard.ErrNoArchive`), and the sweep leaves the workspace closed. A
 retired workspace imported back under its identifiers is first taken back
@@ -338,6 +340,41 @@ its cached answers is. So a loop has a name of its own (`spinEvery("loft.…",
 Hand over a `spin.Spinner`, never a thing with a `Run` method -- anything else
 in the list is skipped without a word. A lease is at most one at a time but for
 a moment around a failover, not exactly once: a loop is still safe run twice.
+
+## Billing
+
+What a workspace holds is measured by Loft, from its own tables, and handed to
+levyan, the billing service (levyan#14, payday#186, design 7, D59); Loft
+writes no rows for a bill. The meters are declared in `proto/loft/meter.proto`
+-- `loft.assets.active`, `loft.attachments.bytes`, `loft.members` -- which
+`pd gen` holds to the entities and turns into `pd.Meters`, and one a
+declaration cannot say is Go beside them: `retention.Meter`,
+`loft.history.retention_days`, the keep window in force as
+`TenantService.Preview` reads it, 0 for forever. A key is chosen once, since it
+is what levyan prices: a meter that comes to count something else is a new
+key. `Asset.status` is a string, which `pd gen` holds no value of to anything,
+so renaming `disposed` or `lost` is a meter that counts it again without a
+word.
+
+`cmd.Build` makes `s.Meters`, payday's `meter.Reader`, only when
+`app.billing.levyan` names levyan, and appends it to `s.Spin`
+(`payday.meter.read`, under the lease: at start and every midnight UTC); unset,
+nothing is measured and nothing dials. `pd doctor` reads the wiring off the
+syntax, so the literal stays where it is bound and spun. Its sink is
+`server/levyan`, over levyan's own API module
+(`levyan.v1.MeteringService/Record`, the product key as
+`authorization: Bearer lvk_…`, a deadline on each call, TLS unless
+`insecure`): a call that failed is an error, and the reader hands the same
+readings over again; a reading levyan refused is logged and not resent. The
+key is said nowhere. Tests bill to `internal/levyantest`.
+
+Whatever destroys a workspace measures it first. `closing.Destroy`, which the
+sweep and `loft tenant retire|purge` both go through, reads its meters
+(`Closing.Meters`) after the holds are asked and before anything is taken; a
+reading that cannot be made or handed over is `closing.ErrUnmeasured` and
+nothing destroyed -- the sweep tries again next time, the command fails saying
+why. A dry run measures nothing. Flows (bytes sent and the like), a
+workspace's lifecycle events and the entitlements' copy are not built yet.
 
 ## What may be called
 
