@@ -169,6 +169,14 @@ export interface Account {
 	 */
 	billing?: boolean
 	/**
+	 * The deployment's zone, as an IANA name (`app.locale`, the zone a
+	 * workspace that says none of its own is told in): where a page about no
+	 * workspace -- the account's payments, its invitations -- draws its
+	 * dates, and never the browser's (design 7.9). A workspace's pages draw
+	 * theirs in the workspace's own (`localize`, `CatalogProvider`).
+	 */
+	timezone?: string
+	/**
 	 * What the session asking lets its caller see, as a name: what the page
 	 * keeps its answers and its unsent writes for, and says on every call
 	 * (`callAs`). Another sign-in of the same person is the same name.
