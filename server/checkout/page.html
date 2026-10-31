@@ -19,7 +19,11 @@
 {{- else}}
 <p id="said" role="status">여기서 결제할 것이 없습니다. 결제할 것이 있으면 받은 결제 링크로 여세요.</p>
 {{- end}}
+{{- if .Ours}}
+<p><a href="/billing">결제 화면으로</a></p>
+{{- else}}
 <p><a href="/">처음으로</a></p>
+{{- end}}
 </main>
 </body>
 </html>
