@@ -137,6 +137,16 @@ jobs:
   # contract terms, found going from staging's build). It costs a second old
   # build, from its own modules, a minute or two of this job. Moved forward
   # when no deployment runs it any more.
+  #
+  # Except across the rename from rove to loft, which broke compatibility
+  # once, on purpose (the owner's decision of 2026-10-31): a build from before
+  # it is told through ROVE_* and keeps what it made under the old names --
+  # its tables, its spin leases, the roster directory and holder it acts as,
+  # its search indexes -- none of which this one reads. Staging was made again
+  # from nothing rather than migrated. Such a build has no ./cmd/loft, so it is
+  # not built, and the step that would migrate what it made says why and does
+  # nothing. Every build after the rename has ./cmd/loft, and is migrated as
+  # before.
   upgrade:
     runs-on: ubuntu-26.04
     steps:
@@ -169,10 +179,18 @@ jobs:
           OLDEST: 533795a1d94d46e851c8b060c1697ba7db6e5d20
         run: |
           go build -o "${RUNNER_TEMP}/loft-now" ./cmd/loft
-          git worktree add --detach "${RUNNER_TEMP}/before" "${BEFORE}"
-          (cd "${RUNNER_TEMP}/before" && go build -o "${RUNNER_TEMP}/loft-before" ./cmd/loft)
-          git worktree add --detach "${RUNNER_TEMP}/oldest" "${OLDEST}"
-          (cd "${RUNNER_TEMP}/oldest" && go build -o "${RUNNER_TEMP}/loft-oldest" ./cmd/loft)
+          # old NAME COMMIT: the build at COMMIT, as loft-NAME -- or, for one
+          # from before the rename, nothing built and a notice of why.
+          old() {
+            git worktree add --detach "${RUNNER_TEMP}/$1" "$2"
+            if [ -d "${RUNNER_TEMP}/$1/cmd/loft" ]; then
+              (cd "${RUNNER_TEMP}/$1" && go build -o "${RUNNER_TEMP}/loft-$1" ./cmd/loft)
+            else
+              echo "::notice title=upgrade::$1 is $2, from before the rename from rove to loft (2026-10-31), which broke compatibility once on purpose: not built, and nothing it makes is migrated"
+            fi
+          }
+          old before "${BEFORE}"
+          old oldest "${OLDEST}"
       - name: PostgreSQL is up
         run: |
           for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U loft && exit 0; sleep 1; done
@@ -181,13 +199,22 @@ jobs:
         env:
           UPGRADE_POSTGRES: postgres://loft:loft@localhost:5432
         run: |
+          if [ ! -x "${RUNNER_TEMP}/loft-before" ]; then
+            echo "The build before is from before the rename from rove to loft. The rename (the owner's decision, 2026-10-31) broke compatibility once, so what it makes is not migrated: staging is made again from nothing." | tee -a "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
           docker exec postgres psql -U loft -qc 'create database upgrade_loft' -c 'create database upgrade_roster'
           scripts/upgrade.sh "${RUNNER_TEMP}/loft-before" "${RUNNER_TEMP}/loft-now"
       - name: what the oldest build a deployment runs made, migrated by this one
         env:
           UPGRADE_POSTGRES: postgres://loft:loft@localhost:5432
         run: |
-          docker exec postgres psql -U loft -qc 'drop database upgrade_loft' -c 'drop database upgrade_roster' \
+          if [ ! -x "${RUNNER_TEMP}/loft-oldest" ]; then
+            echo "The oldest build a deployment runs (OLDEST) is from before the rename from rove to loft. The rename (the owner's decision, 2026-10-31) broke compatibility once, so what it makes is not migrated: staging is made again from nothing, and OLDEST moves to a build after the rename once it is." | tee -a "${GITHUB_STEP_SUMMARY}"
+            exit 0
+          fi
+          # The step before made these, unless it had no build to run.
+          docker exec postgres psql -U loft -qc 'drop database if exists upgrade_loft' -c 'drop database if exists upgrade_roster' \
             -c 'create database upgrade_loft' -c 'create database upgrade_roster'
           scripts/upgrade.sh "${RUNNER_TEMP}/loft-oldest" "${RUNNER_TEMP}/loft-now"
 

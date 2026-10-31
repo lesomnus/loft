@@ -46,6 +46,18 @@ openssl genpkey -algorithm ed25519 -out "$dir/checkpoints.pem"
 export LOFT_AUDIT_DIGEST_KEY="$dir/digest.key"
 export LOFT_AUDIT_CHECKPOINTS_KEY="$dir/checkpoints.pem"
 
+# Both are told through LOFT_*. A build from before the rename from rove
+# (2026-10-31) reads ROVE_* instead, so it would run on its own defaults --
+# a database beside wherever this was started -- and nothing it makes is this
+# build's to migrate: the rename broke compatibility once, on purpose, and CI
+# does not run one (.github/workflows/ci.yaml, `upgrade`).
+for b in "$before" "$now"; do
+	if ! "$b" config env 2>/dev/null | grep -qx LOFT_DB_DSN; then
+		echo "upgrade: $b is not told through LOFT_*: a build from before the rename from rove, whose data this build does not migrate" >&2
+		exit 2
+	fi
+done
+
 # run LOG BIN ARGS...: BIN with ARGS, its output in LOG, and the end of it
 # said when it fails.
 run() {
