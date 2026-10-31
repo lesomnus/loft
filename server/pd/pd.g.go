@@ -75,6 +75,7 @@ import (
 	gate "github.com/lesomnus/payday/gate"
 	grpcx "github.com/lesomnus/payday/grpcx"
 	header "github.com/lesomnus/payday/header"
+	meter "github.com/lesomnus/payday/meter"
 	past "github.com/lesomnus/payday/past"
 	pderr "github.com/lesomnus/payday/pderr"
 	pdid "github.com/lesomnus/payday/pdid"
@@ -28834,6 +28835,93 @@ func PastTenants(db *ent.Client) func(ctx context.Context, after pdid.Id, limit 
 
 			out = append(out, pdid.Id(v.TenantId))
 			last = v.TenantId
+		}
+
+		return out, nil
+	}
+}
+
+// Meters are the meters this app's schema declares (payday#186), each
+// measured on `db`: what `meter.Reader.Meters` is, with the app's own meters
+// beside them. Built on a client of a replica, they are measured there.
+//
+// Each is the rows of one entity that one tenant holds -- erased rows are
+// not held -- narrowed by what its declaration says, counted or summed in
+// one statement.
+func Meters(db *ent.Client) []meter.Meter {
+	return []meter.Meter{
+		{
+			Key:  "loft.assets.active",
+			Unit: "{asset}",
+			Measure: func(ctx context.Context, tenant pdid.Id) (int64, error) {
+				vs := []uuid.UUID{tenant.Uuid()}
+				q := db.Asset.Query().Where(
+					entAsset.TenantIdIn(vs...),
+					entAsset.DateErasedIsNil(),
+					entAsset.StatusNotIn("disposed", "lost"),
+				)
+				n, err := q.Count(ctx)
+				return int64(n), err
+			},
+		},
+		{
+			Key:  "loft.attachments.bytes",
+			Unit: "By",
+			Measure: func(ctx context.Context, tenant pdid.Id) (int64, error) {
+				vs := []uuid.UUID{tenant.Uuid()}
+				q := db.Attachment.Query().Where(
+					entAttachment.TenantIdIn(vs...),
+					entAttachment.DateErasedIsNil(),
+				)
+				n, err := q.Aggregate(meterSum(entAttachment.FieldSizeBytes)).Int(ctx)
+				return int64(n), err
+			},
+		},
+		{
+			Key:  "loft.members",
+			Unit: "{member}",
+			Measure: func(ctx context.Context, tenant pdid.Id) (int64, error) {
+				vs := []uuid.UUID{tenant.Uuid()}
+				q := db.Holder.Query().Where(
+					entHolder.TenantIdIn(vs...),
+					entHolder.DateErasedIsNil(),
+				)
+				n, err := q.Count(ctx)
+				return int64(n), err
+			},
+		},
+	}
+}
+
+// meterSum is the sum of a column over the rows a query reads, as a whole
+// number: zero for no rows, which SUM says is NULL, and BIGINT on both
+// databases -- PostgreSQL's SUM of a bigint is a numeric, and a sum past
+// what a bigint holds is refused by the cast rather than rounded.
+func meterSum(column string) ent.AggregateFunc {
+	return func(s *sql.Selector) string {
+		return "CAST(COALESCE(" + sql.Sum(s.C(column)) + ", 0) AS BIGINT)"
+	}
+}
+
+// MeterTenants is every tenant there is, a page of at most `limit` after
+// `after` in the order of their identifiers: what `meter.Reader.Tenants` is.
+//
+// Every one, closed or not: a tenant holds what it holds until it is
+// destroyed, and is billed for it.
+func MeterTenants(db *ent.Client) func(ctx context.Context, after pdid.Id, limit int) ([]pdid.Id, error) {
+	return func(ctx context.Context, after pdid.Id, limit int) ([]pdid.Id, error) {
+		vs, err := db.Tenant.Query().
+			Where(entTenant.IdGT(after.Uuid())).
+			Order(entTenant.ById()).
+			Limit(limit).
+			Ids(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		out := make([]pdid.Id, len(vs))
+		for i, v := range vs {
+			out[i] = pdid.Id(v)
 		}
 
 		return out, nil

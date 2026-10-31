@@ -1,0 +1,61 @@
+edition = "2023";
+
+package loft;
+
+import "payday.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/loft";
+
+// What a workspace holds that Loft is billed by (levyan#14, payday#186):
+// measured by Loft from its own tables, every workspace once a day and each
+// before it is destroyed, and handed to levyan, which prices the readings
+// (`meter.Reader`, `server/levyan`, design 7). Nothing outside Loft reads its
+// tables for a bill, and Loft writes no rows for one.
+//
+// A meter is the rows of one entity a workspace holds -- an erased row is not
+// held -- counted, or one integer field of them summed. One a declaration
+// cannot say is written in Go beside these: how long the workspace keeps its
+// history (`retention.Meter`, `loft.history.retention_days`).
+//
+// A key is chosen once: it is what levyan's price book prices, and a meter
+// that comes to count something else is a new key, the old one no longer
+// read. Which meters there are, and what each counts, is Claude's (D59):
+// prices are not decided, and nor is what of this they will be by.
+option (payday.app) = {
+  meters: [
+    // The assets a workspace has, of every kind -- a thing, a space, a kit, a
+    // group -- but the ones gone from it: disposed of, or lost. A status is
+    // a string, whose values `pd gen` cannot hold to anything, so a status
+    // renamed is a meter that counts it again without a word: the values
+    // here are the ones `Asset.status` lists.
+    {
+      key: "loft.assets.active"
+      unit: "{asset}"
+      count: {
+        of: "Asset"
+        where: [{
+          field: {name: "status", number: 16}
+          not_in: ["disposed", "lost"]
+        }]
+      }
+    },
+    // The bytes of the files attached to anything in it, as they were
+    // uploaded.
+    {
+      key: "loft.attachments.bytes"
+      unit: "By"
+      sum: {
+        of: "Attachment"
+        field: {name: "size_bytes", number: 10}
+      }
+    },
+    // Its memberships: whoever is a member, in any role. One ended is
+    // erased, and not held.
+    {
+      key: "loft.members"
+      unit: "{member}"
+      count: {of: "Holder"}
+    }
+  ]
+};
