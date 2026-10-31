@@ -569,13 +569,15 @@ jobs:
           cache-dependency-path: ts/package-lock.json
       - run: npm ci
       - run: npx vite build
-      # Once, for every server the tests stand up; and the issuer one of them
-      # signs people in through (ts/e2e/issuer.sh).
+      # Once, for every server the tests stand up; the issuer one of them
+      # signs people in through (ts/e2e/issuer.sh); and the levyan one of them
+      # bills to (ts/e2e/levyan.sh).
       - name: build loft
         working-directory: .
         run: |
           go build -o "$RUNNER_TEMP/loft" ./cmd/loft
           go build -o "$RUNNER_TEMP/oidctest" ./internal/oidctest/cmd/oidctest
+          go build -o "$RUNNER_TEMP/levyantest" ./internal/levyantest/cmd/levyantest
       # The pull the first step started: done by now, or joined here, or --
       # had it failed -- tried again, and its error said.
       - name: Playwright's image is here
@@ -600,12 +602,13 @@ jobs:
         env:
           E2E_LOFT: ${{ runner.temp }}/loft
           E2E_ISSUER: ${{ runner.temp }}/oidctest
+          E2E_LEVYAN: ${{ runner.temp }}/levyantest
           E2E_POSTGRES: ${{ matrix.db == 'postgres' && 'postgres://loft:loft@127.0.0.1:5432/loft?sslmode=disable' || '' }}
         run: |
           docker run --rm --init --ipc=host --network=host \
             --user "$(id -u):$(id -g)" -e HOME=/tmp \
             -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -v "${RUNNER_TEMP}:${RUNNER_TEMP}" -w "${PWD}" \
-            -e CI -e E2E_LOFT -e E2E_ISSUER -e E2E_POSTGRES -e E2E_OPENSEARCH -e E2E_OPENSEARCH_CA \
+            -e CI -e E2E_LOFT -e E2E_ISSUER -e E2E_LEVYAN -e E2E_POSTGRES -e E2E_OPENSEARCH -e E2E_OPENSEARCH_CA \
             "${PLAYWRIGHT_IMAGE}" npx playwright test
       # What a failure leaves: the report, with each failed test's trace and
       # screenshot, and each server's database and log (test-results/loft-*).

@@ -17,10 +17,14 @@ export type Told = { environment: string } | { token: string } | { open: string;
  */
 const script = `(function () {
 	var told = (window.paddled = [])
+	function tell(v) {
+		told.push(v)
+		console.log('paddle ' + JSON.stringify(v))
+	}
 	var options = {}
 	function open(o) {
 		var settings = Object.assign({}, (options.checkout && options.checkout.settings) || {}, o.settings || {})
-		told.push({ open: o.transactionId, successUrl: settings.successUrl || '' })
+		tell({ open: o.transactionId, successUrl: settings.successUrl || '' })
 		var said = options.eventCallback || function () {}
 		setTimeout(function () {
 			said({ name: 'checkout.loaded' })
@@ -29,10 +33,10 @@ const script = `(function () {
 		}, 50)
 	}
 	window.Paddle = {
-		Environment: { set: function (e) { told.push({ environment: e }) } },
+		Environment: { set: function (e) { tell({ environment: e }) } },
 		Initialize: function (o) {
 			options = o || {}
-			told.push({ token: options.token })
+			tell({ token: options.token })
 			var m = /[?&]_ptxn=([^&#]+)/.exec(location.search)
 			if (m) open({ transactionId: decodeURIComponent(m[1]) })
 		},
@@ -44,10 +48,16 @@ const script = `(function () {
 /**
  * Has `page` load the fake Paddle.js where it asks for Paddle's, and refuses
  * it anything else of Paddle's hosts, so that no test reaches Paddle. It
- * answers what the page has told Paddle.js so far, and what else it asked
- * Paddle for -- which is nothing.
+ * answers what the page has told Paddle.js so far -- on every page it opened
+ * since, as the fake says it in the console -- and what else it asked Paddle
+ * for, which is nothing.
  */
-export async function paddle(page: Page): Promise<{ told: () => Promise<Told[]>; asked: string[] }> {
+export async function paddle(page: Page): Promise<{ told: Told[]; asked: string[] }> {
+	const told: Told[] = []
+	page.on('console', (m) => {
+		const v = m.text()
+		if (v.startsWith('paddle ')) told.push(JSON.parse(v.slice('paddle '.length)) as Told)
+	})
 	const asked: string[] = []
 	// The last route added is asked first: the script, then the rest.
 	await page.route(/^https:\/\/([a-z0-9-]+\.)*paddle\.com\//, (route) => {
@@ -57,5 +67,5 @@ export async function paddle(page: Page): Promise<{ told: () => Promise<Told[]>;
 	await page.route('https://cdn.paddle.com/paddle/v2/paddle.js', (route) =>
 		route.fulfill({ status: 200, contentType: 'text/javascript', body: script }),
 	)
-	return { told: () => page.evaluate(() => (window as unknown as { paddled: Told[] }).paddled), asked }
+	return { told, asked }
 }
