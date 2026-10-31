@@ -153,11 +153,11 @@ type Server struct {
 	// Follower keeps this deployment's copy of what levyan grants each
 	// workspace, from levyan's `payday.GrantService`, under the lease
 	// (payday#185, design 7.5): what a restricted workspace is held to
-	// (`domain.Grows`). Notices is what levyan is to be told of who pays for
-	// a workspace, written beside the change that tells it, and Teller the
-	// loop that tells it (design 7.6). All three are nil for a deployment
-	// that bills nobody, which keeps no copy, restricts nothing and tells
-	// nothing.
+	// (`domain.Grows`). Notices is what levyan is to be told of a workspace
+	// -- who pays for it, what became of it -- written beside the change that
+	// tells it, and Teller the loop that tells it (design 7.6, 7.8). All
+	// three are nil for a deployment that bills nobody, which keeps no copy,
+	// restricts nothing and tells nothing.
 	Follower *entitle.Follower
 	Notices  *levyan.Notices
 	Teller   *levyan.Teller
@@ -396,6 +396,10 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	deps.Audit = content
 	if notices != nil {
 		notices.Now = deps.Clock
+		// And what became of a workspace -- closed, restored -- written by
+		// the domain layer in the transaction that does it, whoever does it
+		// (design 7.8).
+		deps.Closings = notices
 	}
 
 	// Who people are is roster's: one of its own, or one in this process on a
@@ -641,6 +645,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		Db: client, Offboard: s.Offboard(c), People: people,
 		Base: base, Drv: drv, Deps: deps,
 		Aliases: s.Aliases(c), Hold: c.App.Workspaces.Hold(),
+		// A workspace destroyed, told to levyan before anything of it is
+		// taken (design 7.8); nil for a deployment that bills nobody.
+		Notices: s.Notices,
 	}
 
 	// What each workspace holds, measured and handed to levyan, which bills
@@ -683,10 +690,11 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		s.Spin = append(s.Spin, s.Follower)
 		deps.Entitlements = pd.Entitlements
 
-		// And who pays for each workspace, told from the notices the
-		// changes wrote, a workspace's in the order they happened, under
-		// the lease (design 7.6). The first pass tells levyan of the
-		// workspaces it was never told of.
+		// And who pays for each workspace, and what became of it, told
+		// from the notices the changes wrote, a workspace's in the order
+		// they happened, under the lease (design 7.6, 7.8). The first pass
+		// writes what levyan was never told: the workspaces it was never
+		// told arrived, and what became of them before.
 		s.Teller = &levyan.Teller{Db: client, Levyan: s.Levyan, Now: deps.Clock}
 		s.Spin = append(s.Spin, spinEvery(levyan.NoticesName, levyan.NoticesEvery, s.Teller.Pass))
 	}

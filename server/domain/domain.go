@@ -164,6 +164,22 @@ type Deps struct {
 	// nothing of -- one that bills nobody, `app.billing.levyan` unset --
 	// whose copy is not read at all.
 	Entitlements func(dialect.Driver) entitle.Reader
+
+	// Closings is told of every workspace closed and restored, in the
+	// transaction that closes or restores it: levyan, which bills a closed
+	// workspace for none of the time it is closed (`levyan.Notices`, design
+	// 7.8). Nil tells nobody, as a deployment that bills nobody does.
+	Closings Closings
+}
+
+// Closings is what hears that a workspace was closed or restored at `at`,
+// written on `db`, a client of the transaction that does it -- so that one
+// that commits is told, and one rolled back is not. Whoever closed it -- its
+// owner, an operator, the deployment when nobody was left in it -- it is
+// told the same.
+type Closings interface {
+	Close(ctx context.Context, db *ent.Client, workspace pdid.Id, at time.Time) error
+	Restore(ctx context.Context, db *ent.Client, workspace pdid.Id, at time.Time) error
 }
 
 // People is roster, as the people operations reach it: the accounts of this

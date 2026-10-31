@@ -27,9 +27,11 @@ import (
 	"github.com/lesomnus/loft/server/session"
 )
 
-// notices is every notice for levyan, in the order the teller tells them.
+// notices is every notice for levyan, in the order the teller tells them:
+// not the first pass's mark, which is no notice ([levyan.Past]).
 func (w *world) notices() []*ent.LevyanNotice {
 	vs, err := w.s.Ent.LevyanNotice.Query().
+		Where(levyannotice.KindNEQ(levyan.Past)).
 		Order(ent.Asc(levyannotice.FieldAt), ent.Asc(levyannotice.FieldId)).
 		All(context.Background())
 	w.x.NoError(err)
@@ -172,7 +174,9 @@ func TestTheWorkspacesMadeBeforeAreToldOnce(t *testing.T) {
 // longer in a workspace -- 로그인 중지, 개인정보 삭제, an account leaving the
 // deployment -- is written, with the write that ends its membership, as an
 // account levyan is to be told left. roster erasing an account only marks it
-// leaving, which is not that: it is told when the account does leave.
+// leaving, which is not that: it is told when the account does leave. And a
+// workspace an account leaving left nobody in is closed, which levyan is
+// told too (design 7.8).
 func TestEveryMembershipThatEndsIsToldToLevyan(t *testing.T) {
 	w, fake := billed(t)
 	x := w.x
@@ -216,7 +220,8 @@ func TestEveryMembershipThatEndsIsToldToLevyan(t *testing.T) {
 		said(levyan.Left, acme, w.accountOf(lee)),
 		said(levyan.Left, acme, parkAccount),
 		said(levyan.Left, tenantId(x, beta), parkAccount),
-	}, got, "nothing of an account roster only marked")
+		said(levyan.Closed, tenantId(x, beta), pdid.Nil),
+	}, got, "nothing of an account roster only marked; and beta, nobody left in it, closed")
 
 	// And then it leaves.
 	_, err = w.s.Lifecycle.Depart(ctx, choiAccount)
@@ -225,13 +230,21 @@ func TestEveryMembershipThatEndsIsToldToLevyan(t *testing.T) {
 	_, err = w.s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: nobody.GetId()}.Build())
 	x.NoError(err)
 	vs := w.notices()
-	x.Len(vs, 5)
-	x.Equal(said(levyan.Left, acme, choiAccount), said(vs[4].Kind, pdid.Id(vs[4].Workspace), pdid.Id(vs[4].Account)))
+	x.Len(vs, 6)
+	x.Equal(said(levyan.Left, acme, choiAccount), said(vs[5].Kind, pdid.Id(vs[5].Workspace), pdid.Id(vs[5].Account)))
 
+	// beta was made past every way an account makes one, and so never told
+	// arrived, and nobody owns it now to say it did: levyan bills nobody for
+	// it, and is told nothing of it.
 	told, err := w.s.Teller.Tell(ctx)
 	x.NoError(err)
-	x.Equal(5, told.Told)
+	x.Equal(levyan.Told{Told: 5, Refused: 1}, told)
 	x.Len(fake.Heard(), 5)
+	for _, v := range w.notices() {
+		if v.Kind == levyan.Closed {
+			x.Contains(v.Refused, "no account owns it")
+		}
+	}
 }
 
 // TestNoticesWaitForALevyanThatIsDown (design 7.6): a levyan that cannot be

@@ -169,7 +169,9 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 // A deployment that bills (`app.billing.levyan`) measures the workspace first
 // and hands levyan what it held as its final reading, as the sweep does; a
 // levyan that cannot be told is a line saying so, and the workspace taken all
-// the same (Claude, in place of the rule that it was not).
+// the same (Claude, in place of the rule that it was not). And it writes that
+// levyan is to be told the workspace was destroyed, before anything is taken
+// (design 7.8), which the deployment's notices tell.
 func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.Command {
 	return &xli.Command{
 		Name:  name,
@@ -240,6 +242,13 @@ func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.
 				self.Printf("  meters: its final reading could not be handed to levyan, and it went all the same; levyan bills it by its last daily reading: %v\n", x.Unmeasured)
 			default:
 				self.Printf("  meters: its final reading was measured and handed to levyan first\n")
+			}
+			switch {
+			case s.Notices == nil:
+			case !yes:
+				self.Printf("  levyan: it is told the workspace was destroyed, at a moment after its final reading, before anything of it is taken\n")
+			default:
+				self.Printf("  levyan: it is to be told the workspace was destroyed, by the notices a running `loft serve` tells\n")
 			}
 			if !yes {
 				switch {

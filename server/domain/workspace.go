@@ -243,6 +243,15 @@ func (d *Deps) NameOwner(ctx context.Context, server app.Server, drv dialect.Dri
 	})
 }
 
+// closings is what is told of a workspace closed and restored, if anything
+// is ([Deps.Closings]).
+func (d *Deps) closings() Closings {
+	if d == nil {
+		return nil
+	}
+	return d.Closings
+}
+
 // restoreWithin is how long this workspace may be restored once closed: its
 // own, or the deployment's (#144, D36).
 func (t *Tx) restoreWithin() time.Duration {
@@ -320,7 +329,7 @@ func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 	if err := t.begin(nil, "workspace.close", pdid.Nil, t.now, why, app.WorkspaceClosed_builder{By: by, Destroy: ts(destroy)}.Build()); err != nil {
 		return nil, err
 	}
-	return t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{
+	v, err := t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{
 		Ref:              t.tenantRef(),
 		DateClosed:       ts(t.now),
 		ClosedBy:         z.Ptr(by),
@@ -328,6 +337,17 @@ func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 		DateDestroy:      ts(destroy),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
+	if err != nil {
+		return nil, err
+	}
+	// And levyan, which bills it for none of the time it is closed: told once
+	// this commits, of the moment it says it was closed (design 7.8).
+	if c := t.deps.closings(); c != nil {
+		if err := c.Close(t.ctx, t.db, t.tenant, t.now); err != nil {
+			return nil, err
+		}
+	}
+	return v, nil
 }
 
 func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
@@ -344,7 +364,7 @@ func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
 	if err := t.begin(nil, "workspace.restore", pdid.Nil, t.now, "", app.WorkspaceRestored_builder{By: by}.Build()); err != nil {
 		return nil, err
 	}
-	return t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{
+	v, err := t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{
 		Ref:              t.tenantRef(),
 		DateClosedNull:   z.Ptr(true),
 		ClosedBy:         z.Ptr(""),
@@ -352,4 +372,15 @@ func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
 		DateDestroyNull:  z.Ptr(true),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
+	if err != nil {
+		return nil, err
+	}
+	// And levyan, which bills it again from now: the notice keeps the moment,
+	// which the workspace no longer says (design 7.8).
+	if c := t.deps.closings(); c != nil {
+		if err := c.Restore(t.ctx, t.db, t.tenant, t.now); err != nil {
+			return nil, err
+		}
+	}
+	return v, nil
 }

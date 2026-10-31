@@ -7,7 +7,14 @@
 //     streamed to whoever watches and listed to whoever asks, as levyan's own
 //     does (levyan's design 13);
 //   - its WorkspaceService's Arrive and Leave, every call kept in the order it
-//     came, taken unless a test says levyan is down.
+//     came, taken unless a test says levyan is down;
+//   - and its Close, Restore, Destroy and GetLifecycle: what became of each
+//     workspace, read in the order of its moments and answered and refused as
+//     levyan's own are (levyan's `docs/apps.md`, 5) -- a workspace it heard
+//     nothing of is NotFound, a moment before it arrived or ahead of now is
+//     InvalidArgument, and another thing said of a moment, or a close or a
+//     restore of a workspace destroyed, is FailedPrecondition. A reading
+//     measured once a workspace was destroyed is refused.
 //
 // It holds a call to what levyan holds one to: the product key it was given,
 // as `authorization: Bearer lvk_…`, or Unauthenticated.
@@ -65,16 +72,21 @@ type Levyan struct {
 	told    []Told
 	down    error
 	failing map[string]error
+
+	// What it knows of each workspace's life (lifecycle.go).
+	lives lives
 }
 
 // Told is one call of WorkspaceService that came with the key: `arrive` or
 // `leave`, of a workspace and an account, and when an arrival says it was
-// made. A call levyan was down for is not kept.
+// made; or `close`, `restore` or `destroy`, of a workspace, and the moment it
+// says. A call levyan was down for, or refused, is not kept.
 type Told struct {
 	Kind      string
 	Workspace string
 	Account   string
 	Created   time.Time
+	At        time.Time
 }
 
 // Start serves one for the length of the test.
@@ -173,6 +185,11 @@ func (v *Levyan) Record(ctx context.Context, req *levyanv1.RecordRequest) (*levy
 	for k, r := range v.refused {
 		refused[k] = r
 	}
+	// What levyan keeps of a reading, unless a test answers for it.
+	var destroyed map[int]bool
+	if answer == nil {
+		destroyed = v.lives.read(req.GetReadings())
+	}
 	v.mu.Unlock()
 
 	if answer != nil {
@@ -180,7 +197,15 @@ func (v *Levyan) Record(ctx context.Context, req *levyanv1.RecordRequest) (*levy
 	}
 
 	out := []*levyanv1.Recorded{}
-	for _, r := range req.GetReadings() {
+	for i, r := range req.GetReadings() {
+		if destroyed[i] {
+			out = append(out, levyanv1.Recorded_builder{
+				Outcome: levyanv1.Outcome_OUTCOME_REFUSED,
+				Refusal: levyanv1.Refusal_REFUSAL_DESTROYED,
+				Why:     "levyantest: measured once the workspace was destroyed",
+			}.Build())
+			continue
+		}
 		if why, ok := refused[r.GetMeter()]; ok {
 			out = append(out, levyanv1.Recorded_builder{
 				Outcome: levyanv1.Outcome_OUTCOME_REFUSED,
@@ -437,6 +462,7 @@ func (v *Levyan) Arrive(ctx context.Context, req *levyanv1.ArriveRequest) (*levy
 	if err := v.hear(ctx, t); err != nil {
 		return nil, err
 	}
+	v.arrived(t)
 	return &levyanv1.ArriveResponse{}, nil
 }
 

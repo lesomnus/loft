@@ -23,27 +23,30 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// LevyanNotice is something levyan is to be told of a workspace's payers, and
-// whether it was (levyan#14, design 7.6): that a workspace was made and by
-// whom, who pays for it from then -- `levyan.v1.WorkspaceService/Arrive` --
-// and that an account is no longer in one, which pays for it no longer if it
-// did (`Leave`).
+// LevyanNotice is something levyan is to be told of a workspace, and whether
+// it was (levyan#14, design 7.6, 7.8): that a workspace was made and by whom,
+// who pays for it from then -- `levyan.v1.WorkspaceService/Arrive` -- and that
+// an account is no longer in one, which pays for it no longer if it did
+// (`Leave`); and what became of a workspace, which is when it is billed and
+// when not: closed (`Close`), restored (`Restore`), destroyed (`Destroy`).
 //
 // It is written in the transaction of the change it tells, so that a change
 // that commits is one levyan is told of and one rolled back is not, and told
 // by a loop of its own (`loft.levyan.notices`, `server/levyan`): a workspace's
 // notices in the order they happened, each once levyan has answered the one
 // before it. A levyan that cannot be reached holds nothing up: the notices
-// wait, and are told when it can be. Both calls are levyan's to take twice --
-// said again, they change nothing -- so a notice told twice around a failover
-// is told once.
+// wait, and are told when it can be. Every call is levyan's to take twice --
+// said again, it changes nothing -- so a notice told twice around a failover
+// is told once. A destruction is not one transaction: its notice is written
+// once its final reading is handed over and before anything of it is taken,
+// and it outlives the rows of the workspace it is about.
 //
 // Nothing writes one on a deployment that bills nobody (`app.billing.levyan`
 // unset). A notice levyan answered stays, marked told: the record of what
 // levyan was told and when, and what the loop's first pass asks of a workspace
-// to know whether levyan was ever told it arrived. No RPCs: nobody's to read,
-// and a notice a caller could write is somebody made to pay by whoever could
-// call it.
+// to know whether levyan was ever told it arrived, and of what became of it. No
+// RPCs: nobody's to read, and a notice a caller could write is somebody made to
+// pay by whoever could call it.
 type LevyanNotice struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -230,24 +233,39 @@ type LevyanNotice_builder struct {
 
 	Id []byte
 	// What it tells: `arrive`, the workspace made by `account`, who pays for it
-	// from `at`; or `leave`, `account` no longer a member of it from `at`.
+	// from `at`; `leave`, `account` no longer a member of it from `at`; `close`,
+	// `restore` and `destroy`, the workspace closed, opened again and destroyed
+	// at `at`. And `past`, which is no call of levyan's: written told, once, the
+	// mark that the closes and restores the workspaces' events kept from before
+	// were written to be told (the loop's first pass).
 	Kind string
 	// The workspace, by its identifier. A column and not an edge, as the
 	// trail's are: a notice outlives the rows of the workspace it is about.
 	Workspace []byte
 	// The account at roster: the one that made the workspace, or that left it.
-	// An identifier, and nothing of the person's.
+	// An identifier, and nothing of the person's. None -- the nil identifier --
+	// for what became of the workspace itself, which levyan is told of no
+	// account: whoever closed it, its owner, an operator or the deployment, is
+	// the workspace's own history.
 	Account []byte
-	// When it happened: when the workspace was made, or the membership ended.
+	// When it happened: when the workspace was made, or the membership ended;
+	// when it was closed -- what the workspace says it was (`date_closed`) --
+	// restored, which nothing else keeps once it is, or destroyed, a moment
+	// after its final reading, at which its address is held. levyan reads a
+	// workspace's life in the order of these moments and not of their telling,
+	// so one told late takes its place; told again, it is told of the same one.
 	At *timestamppb.Timestamp
 	// When levyan answered it -- took it, or refused it -- and unset while it
 	// waits to be told.
 	DateTold    *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	// How it came to be written: `change`, by the change it tells, in its
-	// transaction; or `backfill`, by the loop's first pass, for a workspace
-	// made before this deployment told levyan of any -- whose maker nothing
-	// recorded, so it says its first owner (`tenancy.FirstOwners`).
+	// transaction; `backfill`, by the loop's first pass, for a workspace made
+	// before this deployment told levyan of any -- whose maker nothing
+	// recorded, so it says its first owner (`tenancy.FirstOwners`) -- and for
+	// what became of the workspaces before this deployment told levyan of it;
+	// or `notfound`, an arrival told first because levyan answered a notice of
+	// the workspace that it had heard nothing of it.
 	Origin string
 	// What levyan said when it refused it, which it would say again, and empty
 	// for one it took: a refused notice is told, and is not told again.
@@ -274,7 +292,7 @@ var File_loft_billing_proto protoreflect.FileDescriptor
 
 const file_loft_billing_proto_rawDesc = "" +
 	"\n" +
-	"\x12loft/billing.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xa0\x05\n" +
+	"\x12loft/billing.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xbb\x05\n" +
 	"\fLevyanNotice\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1a\n" +
 	"\x04kind\x18\b \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12$\n" +
@@ -285,13 +303,13 @@ const file_loft_billing_proto_rawDesc = "" +
 	"\tdate_told\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bdateTold\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x1e\n" +
 	"\x06origin\x18\x10 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06origin\x12 \n" +
-	"\arefused\x18\x11 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\arefused:\x8c\x02\xca\xfc\x15H\x1a \x12\awaiting\x1a\r\n" +
+	"\arefused\x18\x11 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\arefused:\xa7\x02\xca\xfc\x15H\x1a \x12\awaiting\x1a\r\n" +
 	"\tdate_told\x10\f\x1a\x06\n" +
 	"\x02at\x10\v\x1a$\x12\tworkspace\x1a\r\n" +
 	"\tworkspace\x10\t\x1a\b\n" +
-	"\x04kind\x10\b\x8a\xbb\x16\xbb\x01\b3B\x02\n" +
-	"\x00R\xb0\x01\x12\xad\x01\n" +
-	"\xaa\x01levyan's queue: what it is to be told of who pays for a workspace, written beside the change that tells it, which the trail has; levyan's own trail keeps what it was told*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x04kind\x10\b\x8a\xbb\x16\xd6\x01\b3B\x02\n" +
+	"\x00R\xcb\x01\x12\xc8\x01\n" +
+	"\xc5\x01levyan's queue: what it is to be told of a workspace -- who pays for it, what became of it -- written beside the change that tells it, which the trail has; levyan's own trail keeps what it was told*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_loft_billing_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_loft_billing_proto_goTypes = []any{

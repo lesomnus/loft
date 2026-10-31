@@ -268,7 +268,10 @@ retired workspace imported back under its identifiers is first taken back
 from the trail (`Policy.Return`, in `loft tenant import`), or the trail would
 take what it writes. Addresses are made up (`tenancy.Aliases`) and nobody but
 an operator moves one (`loft tenant alias`); the domain layer refuses an alias
-in `TenantService.Patch`.
+in `TenantService.Patch`. A deployment that bills tells levyan each step --
+closed, restored, destroyed (Billing, below) -- so a new way to close or
+destroy a workspace goes through `Tx.closeWorkspace`, `restoreWorkspace` or
+`closing.Destroy`, or levyan bills it as if it were open.
 
 ## Where a workspace is
 
@@ -380,8 +383,9 @@ it by its last daily reading (its `usage.Hold`) -- and
 `Destroyed.Unmeasured`, which the command says in a line. A dry run measures
 nothing. A closed workspace is measured through its restore window like any
 other; that levyan stops billing it at its closing is the lifecycle events'
-to say, which levyan has no RPC for yet (closed, restored, destroyed).
-Flows (bytes sent and the like) are not built yet.
+to say: levyan bills none of the time it is closed, and nothing after it is
+destroyed, as it is told (below). Flows (bytes sent and the like) are not
+built yet.
 
 What levyan grants each workspace is copied into this database (payday#185,
 design 7.5, D60): `entitlements: {domain: 50}` in `proto/loft/meter.proto`,
@@ -435,6 +439,24 @@ refused where it is written (`checkout.Token.Validate`; the block's
 `Validate`, which the loader asks first, hands it the environment). The
 browser tests replace Paddle.js (`ts/e2e/paddle.ts`), and nothing reaches
 Paddle.
+
+What became of a workspace is told the same way (design 7.8, D62): `close`
+and `restore`, written by `Tx.closeWorkspace` and `restoreWorkspace` in their
+transaction (`domain.Deps.Closings`) whoever closes it -- its owner, an
+operator, the deployment when nobody is left -- of the moment it happened;
+and `destroy`, written by `closing.Destroy` once its final reading is handed
+over, whatever became of that, and before anything is taken: at a moment
+after the reading, which its `AliasHold` is held from, once of a workspace. A
+dry run writes nothing. A notice of these levyan answers it never heard of the
+workspace for (NotFound) is told after the workspace's `Arrive`
+(`Teller.unheard`): one waiting, the one levyan was told before again, or by
+its first owner (origin `notfound`); one gone that levyan never heard arrive,
+or one no account owns, is marked told with why. levyan refusing one is a
+fault of Loft's, logged and not told again. The first pass also writes, once,
+the `workspace.close` and `workspace.restore` events still kept (the mark
+`past`), and as every pass starts, every workspace closed now and every one
+destroyed that levyan was told arrived -- not one here again, which is
+levyan's open question.
 
 ## What may be called
 
