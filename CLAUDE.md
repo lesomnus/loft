@@ -455,7 +455,7 @@ roster restoring the account. The free-workspace rule is not built yet;
 How a workspace is paid for is levyan's, and Loft asks and shows, storing
 nothing of it (design 7.9, D63): `loft.PaymentService` (`proto/loft/payment.proto`,
 `server/payment`), the one service that is no entity's, registered beside
-the stack. A payer's fifteen methods are the account's own (`(payday.method)
+the stack. A payer's seventeen methods are the account's own (`(payday.method)
 = {account: {}}`, policy `Account`), each declaring it reads nothing
 (`pd.AccountReads` with an empty `pd.Reads`, naming its constant -- the doctor
 reads the call) and relayed to levyan's `PayerService` as the account
@@ -480,8 +480,12 @@ and nothing here grants: `GetUsage`'s allowances and pools and each line's
 `allowance` and `pooled`, `GetPayer`'s credit, and the payer's
 `GetBillingAccount` credit and balance and `GetInvoice` credits. A quantity
 is levyan's decimal, exact to six digits: read exactly, and shown to one
-digit after the point. A statement's lines are the workspace's settings', as
-levyan answers a payer no statement.
+digit after the point. An invoice's every line shows its statement, read as
+the payer (`ListPayerStatements`, `GetPayerStatement`: levyan's
+`PayerService.ListStatements` and `GetStatement`, levyan#47, D66) and never
+with the product's key, which would show a payer what levyan gives it not;
+the workspace's own (`ListStatements`) are its administrators', under
+settings › 결제.
 
 Paddle's default payment link is `/billing/checkout` (`server/checkout`,
 design 7.7, D61): with `app.billing.checkout` -- Paddle's environment and the
