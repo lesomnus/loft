@@ -800,6 +800,10 @@
       "13": {
         "json": "from",
         "kind": "string"
+      },
+      "15": {
+        "json": "workspace",
+        "kind": "string"
       }
     },
     "loft.RetentionExpired": {

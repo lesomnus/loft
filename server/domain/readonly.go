@@ -269,8 +269,9 @@ var ReadOnlyAllows = map[string]Allowed{
 }
 
 // readOnlyRefusal is what a read-only workspace says of a write it refuses:
-// that it is read-only, what it still does, and how it ends.
-const readOnlyRefusal = "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다. 보기, 내보내기, 결제, 닫기, 떠나기만 할 수 있고, 결제를 정리하면 다시 바꿀 수 있습니다"
+// that it is read-only, what it still does, and how it ends. Not that it does
+// nothing else: what is an account's, or a person's own, it does (D68).
+const readOnlyRefusal = "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다. 보기, 내보내기, 결제, 닫기, 떠나기는 할 수 있고, 결제를 정리하면 다시 바꿀 수 있습니다"
 
 // passing is a write this layer adds nothing to -- a generated one a role is
 // given, served as it is -- but what levyan's grants hold the workspace back
