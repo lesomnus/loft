@@ -15,12 +15,17 @@
  *   pays, which only ever says the kind, the brand and the last four digits;
  *   the checkout that starts one, opened on the page Paddle's checkout opens
  *   on (`/billing/checkout`) and asked about again as the payer comes back
- *   here; the offers to pay for a workspace, the workspaces it pays for, its
- *   invoices and credit notes.
+ *   here; what each one's next invoices are paid with before anything is
+ *   asked of how it pays -- the credit levyan's operator granted it and the
+ *   workspaces it pays for, and its balance; the offers to pay for a
+ *   workspace, the workspaces it pays for, its invoices -- with what credit
+ *   paid of each -- and credit notes.
  * - **A workspace's**, in its settings for the people who run it: who pays for
- *   it, what it has used this period and what that would come to, its
- *   statements, its owner asking a member to pay, and its owner taking it on
- *   themself in one go (`TakeOver`).
+ *   it, the credit levyan's operator granted it, what it has used this period
+ *   and what that would come to -- with the allowances and the pools the
+ *   operator gave it, and what each line was given and took (`Lines`) -- its
+ *   statements, as lines too, its owner asking a member to pay, and its owner
+ *   taking it on themself in one go (`TakeOver`).
  * - **The banner** a workspace shows while nobody pays for it, once it is
  *   restricted and once it is read-only, and -- to the people who run it --
  *   while the billing account it is paid for with cannot be collected from:
@@ -28,7 +33,9 @@
  *
  * Its dates are on the wall the server tells it -- the deployment's on the
  * account's page, which is about no workspace (`main.tsx`), and the
- * workspace's in a workspace -- and never on the browser's.
+ * workspace's in a workspace -- and never on the browser's. What levyan's
+ * operator gives (levyan#43, design 7.11) is only shown here: nothing on
+ * either page grants any of it.
  *
  * @module
  */
@@ -45,13 +52,16 @@ import {
 	BillingCreditNoteReason,
 	BillingDeclineKind,
 	BillingInvoiceState,
+	BillingLineKind,
 	BillingLinkBegan,
 	BillingLinkEnded,
 	BillingSubscriptionChange,
 	BillingSubscriptionStatus,
 	type BillingAccount,
+	type BillingAllowance,
 	type BillingBusiness,
 	type BillingCollection,
+	type BillingCredit,
 	type BillingCreditNote,
 	type BillingDunning,
 	type BillingInvoice,
@@ -60,6 +70,9 @@ import {
 	type BillingOffer,
 	type BillingPayer,
 	type BillingPeriod,
+	type BillingPool,
+	type BillingStatement,
+	type BillingUsage,
 	type PaymentGetBillingAccountResponse,
 	type PaymentGetInvoiceResponse,
 	type PaymentUpdateBillingAccountRequestSchema,
@@ -200,6 +213,18 @@ const meterWord: Record<string, string> = {
 	'loft.history.retention_days': '이력 보존 기간',
 }
 
+/**
+ * What each meter reads in (`proto/loft/meter.proto`, and `retention.Meter`),
+ * for what levyan says of one beside the lines, which say theirs: an
+ * allowance, a pool.
+ */
+const meterUnit: Record<string, string> = {
+	'loft.assets.active': '{asset}',
+	'loft.attachments.bytes': 'By',
+	'loft.members': '{member}',
+	'loft.history.retention_days': 'd',
+}
+
 /** The countries a billing account is offered in first, as people call them. */
 const countries: [string, string][] = [
 	['KR', '대한민국'],
@@ -286,32 +311,109 @@ function accountNames(accounts: BillingAccount[]): (b: BillingAccount) => string
 	}
 }
 
-/** What a line used, in its unit. */
-function usageText(l: BillingLine): string {
-	const n = Number(l.usage)
-	switch (l.unit) {
+/**
+ * A decimal levyan writes -- "338.709677", exact to six digits after the
+ * point and cut there -- as millionths of it, exactly; one it did not write,
+ * as a levyan from before it said any leaves it, is nothing.
+ */
+function micros(v: string): bigint {
+	const m = /^(-?)(\d+)(?:\.(\d{1,6}))?$/.exec(v.trim())
+	if (m === null) return 0n
+	const n = BigInt((m[2] ?? '0') + (m[3] ?? '').padEnd(6, '0'))
+	return m[1] === '-' ? -n : n
+}
+
+/**
+ * Millionths as a person reads them, with `unit` after: to the first digit
+ * after the point, rounded half up, with their thousands -- "1,212.9개" --
+ * and an amount that is not nothing but would round to it, as less than the
+ * least this shows, "0.1개 미만", rather than as nothing.
+ */
+function tenths(n: bigint, unit: string): string {
+	const neg = n < 0n
+	const a = neg ? -n : n
+	const t = (a + 50_000n) / 100_000n
+	if (t === 0n) return a === 0n || neg ? `0${unit}` : `0.1${unit} 미만`
+	return `${neg ? '-' : ''}${(Number(t) / 10).toLocaleString('ko-KR', { maximumFractionDigits: 1 })}${unit}`
+}
+
+/** A quantity of a meter's unit, in millionths, as a line says it (`tenths`): 개, 명, 일, or bytes. */
+function quantity(n: bigint, unit: string): string {
+	switch (unit) {
 		case '{asset}':
-			return `${n.toLocaleString('ko-KR')}개`
+			return tenths(n, '개')
 		case '{member}':
-			return `${n.toLocaleString('ko-KR')}명`
+			return tenths(n, '명')
 		case 'd':
-			return n === 0 ? '영원히' : `${n.toLocaleString('ko-KR')}일`
+			return tenths(n, '일')
 		case 'By':
-			return bytes(n)
+			return bytes(Number(n) / 1e6)
 		default:
-			return `${l.usage} ${l.unit}`
+			return tenths(n, ` ${unit}`)
 	}
 }
 
+/**
+ * A pool's quantity, in millionths: of its meter's unit for a period, which
+ * is a month, as `quantity` says the unit -- every meter of Loft's is a
+ * stock, so an asset-month is an asset held for a month, "8,800 자산·월".
+ */
+function poolQuantity(n: bigint, unit: string): string {
+	switch (unit) {
+		case '{asset}':
+			return tenths(n, ' 자산·월')
+		case '{member}':
+			return tenths(n, ' 구성원·월')
+		case 'By':
+			return `${bytes(Number(n) / 1e6)}·월`
+		default:
+			return tenths(n, ` ${unit}·월`)
+	}
+}
+
+/** What a line used, in its unit (`quantity`): a history kept for none of its days is kept forever. */
+function usageText(l: BillingLine): string {
+	const n = micros(l.usage)
+	return l.unit === 'd' && n === 0n ? '영원히' : quantity(n, l.unit)
+}
+
+/** Bytes as a person reads them, by the largest of the units it is at least one of, to the first digit after the point. */
 function bytes(n: number): string {
 	const units = ['B', 'KB', 'MB', 'GB', 'TB']
-	let v = n
+	let v = Math.abs(n)
 	let i = 0
 	while (v >= 1024 && i < units.length - 1) {
 		v /= 1024
 		i++
 	}
-	return `${i === 0 ? v : v.toFixed(1)} ${units[i]}`
+	const s = v.toLocaleString('ko-KR', { maximumFractionDigits: 1 })
+	if (s === '0' && n !== 0) return '0.1 B 미만'
+	return `${n < 0 ? '-' : ''}${s} ${units[i]}`
+}
+
+/**
+ * The last day of a stretch that ends at `end` -- the first moment it is
+ * over -- as the page says a day: what is in force until 2027-05-01 00:00 is
+ * "2027. 4. 30.까지".
+ */
+function lastDay(end: Timestamp | undefined): string {
+	const d = dateOf(end)
+	return d === undefined ? '' : fmt(new Date(d.getTime() - 1), 'date')
+}
+
+/** How long before a credit expires the page says it soon will (levyan's `docs/apps.md`, 7, has the app say). */
+const expiresSoon = 30 * 24 * 3600_000
+
+/** Whether `c` expires within `expiresSoon`. */
+function soonGone(c: BillingCredit, now: Date): boolean {
+	const d = dateOf(c.expires)
+	return d !== undefined && d.getTime() - now.getTime() <= expiresSoon
+}
+
+/** What is left of a credit, of what was granted, and until when: "70,000원 남음 (100,000원 중, 2027. 10. 31.까지)". */
+function creditText(c: BillingCredit): string {
+	const until = lastDay(c.expires)
+	return `${money(c.left, c.currency)} 남음 (${money(c.granted, c.currency)} 중${until === '' ? '' : `, ${until}까지`})`
 }
 
 /** A line's amount, which is a decimal of the currency's minor unit: whole units of it, rounded down as the total is. */
@@ -540,7 +642,7 @@ export function Billing(props: { account: Account; onSignOut: () => void }): Rea
 							) : (
 								<ul className="billing-accounts">
 									{v.accounts.map((b) => (
-										<AccountRow key={b.id} b={b} called={called(b)} detail={details[b.id]} busy={busy} write={write} onStart={(b) => void start(b)} />
+										<AccountRow key={b.id} b={b} called={called(b)} detail={details[b.id]} named={named} busy={busy} write={write} onStart={(b) => void start(b)} />
 									))}
 								</ul>
 							)}
@@ -807,9 +909,20 @@ function recipientText(b: BillingAccount): string {
 /**
  * One billing account, by what it is called (`accountNames`): what it is
  * billed through and in, who its bills go to, whether it can be collected,
- * and how it pays.
+ * and how it pays; and what its next invoices may be paid with before
+ * anything is asked of how it pays (levyan's `docs/apps.md`, 7) -- the
+ * credit levyan's operator granted it and the workspaces it pays for, each
+ * until it expires, and its balance, which never does.
  */
-function AccountRow(props: { b: BillingAccount; called: string; detail: Detail | undefined; busy: boolean; write: Write; onStart: (b: BillingAccount) => void }): ReactNode {
+function AccountRow(props: {
+	b: BillingAccount
+	called: string
+	detail: Detail | undefined
+	named: (id: string) => string
+	busy: boolean
+	write: Write
+	onStart: (b: BillingAccount) => void
+}): ReactNode {
 	const { b } = props
 	const got = props.detail?.got
 	const bad = props.detail?.bad ?? ''
@@ -836,6 +949,28 @@ function AccountRow(props: { b: BillingAccount; called: string; detail: Detail |
 			items.push(['결제수단', methodText(s.method)])
 		}
 	}
+	const now = new Date()
+	const credits = got?.credits ?? []
+	const balance = got?.balance ?? 0n
+	if (credits.length > 0) {
+		items.push([
+			'크레딧',
+			<ul key="credits" className="credits">
+				{credits.map((c) => (
+					<li key={c.id}>
+						{creditText(c)} · {c.workspace !== '' ? `${props.named(c.workspace)}의 크레딧` : '이 결제 계정의 크레딧'}
+						{soonGone(c, now) && (
+							<>
+								{' '}
+								<Badge v="pending">곧 만료</Badge>
+							</>
+						)}
+					</li>
+				))}
+			</ul>,
+		])
+	}
+	if (balance !== 0n) items.push(['잔액', `${money(balance, b.currency)} · 만료 없음`])
 	return (
 		<li aria-label={props.called} id={cardOf(b)}>
 			<div>
@@ -844,6 +979,18 @@ function AccountRow(props: { b: BillingAccount; called: string; detail: Detail |
 				{b.name.trim() !== '' && <span className="mute small"> {fmt(b.created, 'date')}에 만듦</span>}
 				<Kv items={items} />
 				{got !== undefined && collectionDo[state] !== undefined && <p className="small">{collectionDo[state]}</p>}
+				{(credits.length > 0 || balance !== 0n) && (
+					<p className="small">
+						다음 청구서는 결제수단에 청구하기 전에 크레딧에서 먼저 냅니다. 만료가 빠른 것부터 쓰고, 워크스페이스의 크레딧은 그 워크스페이스의 줄에만 씁니다. 잔액은 그 뒤에 씁니다.
+					</p>
+				)}
+				{credits
+					.filter((c) => soonGone(c, now))
+					.map((c) => (
+						<p key={`soon-${c.id}`} className="note warn">
+							크레딧 {money(c.left, c.currency)}이 {lastDay(c.expires)}까지라 곧 만료됩니다. 그 뒤에 확정되는 청구서에는 쓰이지 않습니다.
+						</p>
+					))}
 				{(got?.dunning ?? []).map((d) => (
 					<p key={d.invoice} className="note warn" role="status">
 						{dunningSaid(d, got?.collection)}
@@ -1146,7 +1293,10 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 										<td>
 											<Badge v={invoiceWord[v.state]?.[1] ?? 'mute'}>{invoiceWord[v.state]?.[0] ?? '-'}</Badge>
 										</td>
-										<td className="num">{money(v.total, v.currency)}</td>
+										<td className="num">
+											{money(v.total, v.currency)}
+											{v.credited !== 0n && <div className="mute small">크레딧 −{money(v.credited, v.currency)}</div>}
+										</td>
 										<td className="num">{money(v.remaining, v.currency)}</td>
 										<td>{fmt(v.finalized, 'date')}</td>
 										<td>
@@ -1197,7 +1347,27 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 	)
 }
 
-/** An invoice, with its lines and its credit notes. */
+/**
+ * What paid an invoice before its channel was asked for anything (levyan's
+ * `docs/apps.md`, 7): each credit that paid some of it -- a workspace's
+ * named for the workspace -- and the balance apart; or, of a levyan that
+ * says no more than how much, that much. Nothing for an invoice credit paid
+ * none of.
+ */
+function creditedItems(inv: BillingInvoice, named: (id: string) => string): [ReactNode, ReactNode][] {
+	if (inv.credited === 0n) return []
+	const paid: [ReactNode, ReactNode][] =
+		inv.credits.length === 0
+			? [['크레딧', `−${money(inv.credited, inv.currency)}`]]
+			: inv.credits.map((c) =>
+					c.credit === ''
+						? ['잔액', `−${money(c.amount, inv.currency)}`]
+						: ['크레딧', `−${money(c.amount, inv.currency)} · ${c.workspace !== '' ? `${named(c.workspace)}의 크레딧` : '결제 계정의 크레딧'}`],
+				)
+	return [...paid, ['청구한 금액', money(inv.due, inv.currency)]]
+}
+
+/** An invoice, with what paid it of credit, its lines and its credit notes. */
 function InvoiceModal(props: { invoice: BillingInvoice; named: (id: string) => string; onClose: () => void }): ReactNode {
 	const [v, setV] = useState<PaymentGetInvoiceResponse>()
 	const [bad, setBad] = useState('')
@@ -1220,6 +1390,8 @@ function InvoiceModal(props: { invoice: BillingInvoice; named: (id: string) => s
 					['소계', money(inv.subtotal, inv.currency)],
 					...(inv.tax > 0n ? ([['세금', money(inv.tax, inv.currency)]] as [ReactNode, ReactNode][]) : []),
 					['합계', money(inv.total, inv.currency)],
+					// What the credit paid is the full answer's (`GetInvoice`).
+					...(v === undefined ? [] : creditedItems(inv, props.named)),
 					['낸 금액', money(inv.paid, inv.currency)],
 					['남은 금액', money(inv.remaining, inv.currency)],
 					...(inv.channelNumber !== '' ? ([['Paddle의 번호', inv.channelNumber]] as [ReactNode, ReactNode][]) : []),
@@ -1287,7 +1459,12 @@ function useMembers(): Map<string, Member> {
 	}, [holders.data, c])
 }
 
-/** Who pays for the workspace, what it used this period and its statements; and, for its owner, asking a member to pay. */
+/**
+ * Who pays for the workspace, the credit levyan's operator granted it, what
+ * it used this period -- with what the operator gave it beyond what its
+ * prices include -- and its statements; and, for its owner, asking a member
+ * to pay.
+ */
 export function PaymentTab(props: { account: Account }): ReactNode {
 	const c = useCatalog()
 	const payer = useRpc(PaymentService.method.getPayer, {})
@@ -1303,6 +1480,7 @@ export function PaymentTab(props: { account: Account }): ReactNode {
 	// calls are made: never on the workspace's own domain (loft#155).
 	const mine = members.get(props.account.id)
 	const takes = c.can('owner') && props.account.pinned === undefined && mine !== undefined && !mine.leaving
+	const credits = payer.data?.payer?.credits ?? []
 	return (
 		<>
 			<Card title="결제 담당" actions={takes && payer.data !== undefined && <TakeOver payer={payer.data.payer} me={props.account.id} holder={mine?.holder} />}>
@@ -1311,81 +1489,265 @@ export function PaymentTab(props: { account: Account }): ReactNode {
 			{c.can('owner') && (
 				<Load q={payer}>{(v) => <OfferCard payer={v.payer} members={members} me={props.account.id} takes={takes} />}</Load>
 			)}
+			<WorkspaceCredit credits={credits} />
 			<Card title="이번 기간 사용량과 예상 금액">
-				<Load q={usage}>
-					{(v) =>
-						v.usage === undefined ? (
-							<Empty />
-						) : (
-							<>
-								<p className="mute small">
-									{periodText(v.usage.period)} · {fmt(v.usage.asOf)} 기준. 기간이 끝나면 결제 서비스가 확정합니다.
-								</p>
-								{v.usage.lines.length === 0 ? (
-									<Empty>아직 잰 것이 없습니다.</Empty>
-								) : (
-									<table className="table">
-										<thead>
-											<tr>
-												<th>항목</th>
-												<th className="num">사용량</th>
-												<th className="num">금액</th>
-											</tr>
-										</thead>
-										<tbody>
-											{v.usage.lines.map((l, i) => (
-												<tr key={`${l.meter}-${i}`}>
-													<td>
-														{meterWord[l.meter] ?? l.meter}
-														{l.corrects !== undefined && <span className="mute small"> (정정: {periodText(l.corrects)})</span>}
-													</td>
-													<td className="num">{usageText(l)}</td>
-													<td className="num">{v.usage?.currency === '' ? '-' : lineAmount(l.amount, v.usage?.currency ?? '')}</td>
-												</tr>
-											))}
-										</tbody>
-									</table>
-								)}
-								{v.usage.currency === '' ? (
-									<p className="note warn">아직 가격이 정해지지 않아 금액이 없습니다.</p>
-								) : (
-									<p>
-										예상 합계 <strong>{money(v.usage.total, v.usage.currency)}</strong>
-									</p>
-								)}
-							</>
-						)
-					}
-				</Load>
+				<Load q={usage}>{(v) => (v.usage === undefined ? <Empty /> : <UsageSaid usage={v.usage} credits={credits} />)}</Load>
 			</Card>
 			<Card title="지난 명세서">
-				<Load q={statements}>
-					{(v) =>
-						v.statements.length === 0 ? (
-							<Empty>닫힌 기간이 아직 없습니다.</Empty>
-						) : (
-							<table className="table">
-								<thead>
-									<tr>
-										<th>기간</th>
-										<th className="num">합계</th>
-										<th>닫은 날</th>
-									</tr>
-								</thead>
-								<tbody>
-									{v.statements.map((s) => (
-										<tr key={s.id}>
-											<td>{periodText(s.period)}</td>
-											<td className="num">{money(s.total, s.currency)}</td>
-											<td>{fmt(s.closed, 'date')}</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						)
-					}
-				</Load>
+				<Load q={statements}>{(v) => <Statements statements={v.statements} />}</Load>
 			</Card>
+		</>
+	)
+}
+
+/**
+ * The credit levyan's operator granted the workspace itself that is left
+ * (`GetPayer`'s; levyan's `docs/apps.md`, 7): what its lines are paid with
+ * first, whichever billing account's invoice they are on, the soonest to
+ * expire first -- and whether one expires soon. What a billing account was
+ * granted is its payer's, on their own page. Nothing for a workspace with
+ * none, and nothing here grants any.
+ */
+function WorkspaceCredit(props: { credits: BillingCredit[] }): ReactNode {
+	if (props.credits.length === 0) return null
+	const now = new Date()
+	return (
+		<Card title="크레딧">
+			<ul className="credits">
+				{props.credits.map((c) => (
+					<li key={c.id}>
+						{creditText(c)}
+						{soonGone(c, now) && (
+							<>
+								{' '}
+								<Badge v="pending">곧 만료</Badge>
+							</>
+						)}
+					</li>
+				))}
+			</ul>
+			<p className="small">
+				결제 서비스가 이 워크스페이스에 준 크레딧입니다. 청구서를 확정할 때, 어느 결제 계정의 청구서든 이 워크스페이스의 줄에서 먼저 빼고 만료가 빠른 것부터 씁니다.
+			</p>
+		</Card>
+	)
+}
+
+/**
+ * What the workspace used this period and what that would come to: what
+ * levyan's operator gave it beyond what its prices include, in force this
+ * period (`Given`), and on each line what that gave and took (`Lines`); and
+ * the estimate, which is after both and before any credit -- an invoice
+ * spends that as it is finalized, and the page says so where the workspace
+ * has some (levyan's `docs/apps.md`, 7).
+ */
+function UsageSaid(props: { usage: BillingUsage; credits: BillingCredit[] }): ReactNode {
+	const u = props.usage
+	// Of the estimate's currency alone: two are never added together.
+	const left = props.credits.filter((c) => c.currency === u.currency).reduce((n, c) => n + c.left, 0n)
+	return (
+		<>
+			<p className="mute small">
+				{periodText(u.period)} · {fmt(u.asOf)} 기준. 기간이 끝나면 결제 서비스가 확정합니다.
+			</p>
+			<Given usage={u} />
+			{u.lines.length === 0 ? <Empty>아직 잰 것이 없습니다.</Empty> : <Lines lines={u.lines} currency={u.currency} />}
+			{u.currency === '' ? (
+				<p className="note warn">아직 가격이 정해지지 않아 금액이 없습니다.</p>
+			) : (
+				<>
+					<p>
+						예상 합계 <strong>{money(u.total, u.currency)}</strong>
+					</p>
+					{left > 0n && (
+						<p className="small">
+							크레딧에서 먼저 냅니다. 청구서를 확정할 때 이 워크스페이스에 남은 크레딧 {money(left, u.currency)}에서 먼저 빼고, 예상 합계는 그 전의 금액입니다.
+						</p>
+					)}
+				</>
+			)}
+		</>
+	)
+}
+
+/** An allowance as the usage says it: "프로모션 무료량: 활성 자산 +500개 (2027. 4. 30.까지)", and from when, where that is past the period's start. */
+function allowanceText(a: BillingAllowance, unit: string, start: Date | undefined): string {
+	const from = dateOf(a.from)
+	const when = [from !== undefined && start !== undefined && from > start ? `${fmt(from, 'date')}부터` : '', a.until !== undefined ? `${lastDay(a.until)}까지` : '']
+		.filter((v) => v !== '')
+		.join(' ')
+	return `프로모션 무료량: ${meterWord[a.meter] ?? a.meter} +${quantity(a.quantity * 1_000_000n, unit)}${when === '' ? '' : ` (${when})`}`
+}
+
+/**
+ * What levyan's operator gave the workspace beyond what its prices include,
+ * in force at some moment of this period (levyan's `docs/apps.md`, 7): each
+ * allowance, more of a meter each period; and each pool, what the periods
+ * closed left of it, and what this period would take of it and leave
+ * (`PoolSaid`). Nothing, for a workspace given neither.
+ */
+function Given(props: { usage: BillingUsage }): ReactNode {
+	const u = props.usage
+	if (u.allowances.length === 0 && u.pools.length === 0) return null
+	const start = dateOf(u.period?.start)
+	const unitOf = (meter: string): string => u.lines.find((l) => l.meter === meter)?.unit ?? meterUnit[meter] ?? ''
+	// What this period takes of each pool: of its own lines -- what a
+	// correction's say is what the period it corrects takes now, which the
+	// pool's `left` was told of when that period closed.
+	const takes = new Map<string, bigint>()
+	for (const l of u.lines) {
+		if (l.kind === BillingLineKind.CORRECTION) continue
+		for (const t of l.pools) takes.set(t.pool, (takes.get(t.pool) ?? 0n) + micros(t.taken))
+	}
+	return (
+		<ul className="benefits">
+			{u.allowances.map((a) => (
+				<li key={a.id}>{allowanceText(a, unitOf(a.meter), start)}</li>
+			))}
+			{u.pools.map((p) => (
+				<PoolSaid key={p.id} p={p} unit={unitOf(p.meter)} takes={takes.get(p.id) ?? 0n} start={start} />
+			))}
+		</ul>
+	)
+}
+
+/**
+ * A pool as the usage says it: what the periods closed left of what was
+ * granted, until when, and what is left once this period takes what its
+ * lines take -- or that this period would take what is left.
+ */
+function PoolSaid(props: { p: BillingPool; unit: string; takes: bigint; start: Date | undefined }): ReactNode {
+	const { p, unit, takes } = props
+	const left = micros(p.left)
+	const after = left - takes
+	const from = dateOf(p.from)
+	const when = [from !== undefined && props.start !== undefined && from > props.start ? `${fmt(from, 'date')}부터` : '', p.expires !== undefined ? `${lastDay(p.expires)}까지` : '']
+		.filter((v) => v !== '')
+		.join(' ')
+	return (
+		<li>
+			사용량 크레딧: {poolQuantity(left, unit)} 남음 ({poolQuantity(p.granted * 1_000_000n, unit)} 중{when === '' ? '' : `, ${when}`}).
+			{takes > 0n &&
+				(after > 0n ? (
+					` 이번 기간에 ${poolQuantity(takes, unit)}을 쓰면 ${poolQuantity(after, unit)}이 남습니다.`
+				) : (
+					<strong> 이번 기간에 남은 것을 다 쓸 것 같습니다.</strong>
+				))}
+		</li>
+	)
+}
+
+/**
+ * The lines of a period (`LineRow`), and how their numbers are rounded:
+ * every quantity to the first digit after the point (`tenths`), and every
+ * line's amount down to the currency's minor unit, as the total is once of
+ * all of them together.
+ */
+function Lines(props: { lines: BillingLine[]; currency: string }): ReactNode {
+	return (
+		<>
+			<div className="table-wrap">
+				<table className="table lines">
+					<thead>
+						<tr>
+							<th>항목</th>
+							<th className="num">사용량</th>
+							<th className="num">무료</th>
+							<th className="num">사용량 크레딧</th>
+							<th className="num">유료</th>
+							<th className="num">금액</th>
+						</tr>
+					</thead>
+					<tbody>
+						{props.lines.map((l, i) => (
+							<LineRow key={`${l.meter}-${i}`} l={l} currency={props.currency} />
+						))}
+					</tbody>
+				</table>
+			</div>
+			<p className="mute small">
+				무료는 가격의 무료량에 프로모션 무료량을 더한 것입니다. 무료를 넘은 양은 사용량 크레딧에서 먼저 빼고, 남은 유료에 단가를 곱합니다. 수량은 소수점 아래 첫째 자리까지
+				반올림했고(0보다 크지만 0.1에 못 미치면 0.1 미만), 줄의 금액은 통화의 가장 작은 단위 아래를 버렸습니다. 합계는 결제 서비스가 정확히 더한 뒤 한 번 버린 것이라 줄의 금액을 더한 것과 조금
+				다를 수 있습니다.
+			</p>
+		</>
+	)
+}
+
+/**
+ * One line: what its meter was used; what was included for nothing -- what
+ * its prices include, and what an allowance gave on top (`allowance`, "100개
+ * + 프로모션 338.7개"); what of what was billable past that a pool took
+ * (`pooled`), in the pool's unit; what is left to price; and what it comes
+ * to. A line priced by bands, or by nothing, says its use and its amount,
+ * and nothing it is not priced by.
+ */
+function LineRow(props: { l: BillingLine; currency: string }): ReactNode {
+	const { l } = props
+	const included = micros(l.included)
+	const allowance = micros(l.allowance)
+	const billable = micros(l.billable)
+	const pooled = micros(l.pooled)
+	const byUnit = included !== 0n || billable !== 0n || allowance !== 0n || pooled !== 0n
+	const priced = included - allowance
+	const free = !byUnit
+		? '-'
+		: allowance === 0n
+			? quantity(included, l.unit)
+			: [priced !== 0n ? quantity(priced, l.unit) : '', `프로모션 ${quantity(allowance, l.unit)}`].filter((v) => v !== '').join(' + ')
+	return (
+		<tr>
+			<td>
+				{meterWord[l.meter] ?? l.meter}
+				{l.corrects !== undefined && <span className="mute small"> (정정: {periodText(l.corrects)})</span>}
+			</td>
+			<td className="num">{usageText(l)}</td>
+			<td className="num">{free}</td>
+			<td className="num">{pooled === 0n ? '-' : poolQuantity(pooled, l.unit)}</td>
+			<td className="num">{byUnit ? quantity(billable - pooled, l.unit) : '-'}</td>
+			<td className="num">{props.currency === '' ? '-' : lineAmount(l.amount, props.currency)}</td>
+		</tr>
+	)
+}
+
+/** The statements of the periods closed, each opened to its lines (`Lines`): what the allowances gave and the pools took then. */
+function Statements(props: { statements: BillingStatement[] }): ReactNode {
+	const [open, setOpen] = useState<BillingStatement>()
+	if (props.statements.length === 0) return <Empty>닫힌 기간이 아직 없습니다.</Empty>
+	return (
+		<>
+			<table className="table">
+				<thead>
+					<tr>
+						<th>기간</th>
+						<th className="num">합계</th>
+						<th>닫은 날</th>
+						<th />
+					</tr>
+				</thead>
+				<tbody>
+					{props.statements.map((s) => (
+						<tr key={s.id}>
+							<td>{periodText(s.period)}</td>
+							<td className="num">{money(s.total, s.currency)}</td>
+							<td>{fmt(s.closed, 'date')}</td>
+							<td>
+								<button className="link" onClick={() => setOpen(s)}>
+									보기
+								</button>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+			{open !== undefined && (
+				<Modal title={`명세서 · ${periodText(open.period)}`} onClose={() => setOpen(undefined)} wide>
+					{open.lines.length === 0 ? <Empty>잰 것이 없었습니다.</Empty> : <Lines lines={open.lines} currency={open.currency} />}
+					<p>
+						합계 <strong>{money(open.total, open.currency)}</strong> · {fmt(open.closed, 'date')}에 닫음
+					</p>
+				</Modal>
+			)}
 		</>
 	)
 }

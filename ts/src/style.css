@@ -1670,6 +1670,36 @@ ul.consent > li > a {
 .inbox.billing li .kv {
 	margin-top: 6px;
 }
+/*
+ * What levyan's operator gave (design 7.11): a credit, an allowance or a
+ * pool a line each -- inside a billing account's row too, whose own list
+ * items are boxes.
+ */
+ul.credits,
+ul.benefits {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+ul.benefits {
+	margin: 8px 0 12px;
+}
+.inbox ul.credits {
+	display: block;
+}
+ul.credits > li,
+ul.benefits > li,
+.inbox ul.credits > li {
+	display: block;
+	padding: 0;
+	border: none;
+	border-radius: 0;
+	margin: 0 0 4px;
+}
+/* A period's lines, six columns of them: scrolled sideways on a phone rather than broken a letter a line. */
+.table.lines td {
+	white-space: nowrap;
+}
 .card form.inline {
 	display: flex;
 	flex-wrap: wrap;
