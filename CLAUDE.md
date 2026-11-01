@@ -192,9 +192,11 @@ An external roster's sync stream (roster's `standing` package, roster#210:
 process) is handed to `server/lifecycle`, so that roster's word lands
 when it is said: signed out everywhere ends the sessions that began before it,
 suspended or erased ends them all, and erased marks each of the account's
-memberships `Holder.date_leaving`. roster's `restore` and `forget` write past
-its servers and are **not on the stream** -- whatever acts on a mark asks
-roster first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, an
+memberships `Holder.date_leaving`. roster's `restore` and `forget` are on the
+stream too since roster#215 -- a restore is an event about the account that is
+no erasure, and clears the mark -- but the stream does not replay what was
+said while Loft was not listening, so whatever acts on a mark asks roster
+first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, an
 account roster still has nobody by leaves every workspace it is in
 (`domain.Deps.Depart`: pseudonymized as 개인정보 삭제 is, and a last owner's
 workspace handed on), and one roster has again stops leaving. `loft identity
