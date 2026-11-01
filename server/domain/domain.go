@@ -351,6 +351,16 @@ type shared struct {
 	// [Tx.readonly]).
 	restricted *bool
 	readonly   *bool
+
+	// closed is whether the workspace is closed, once something asked
+	// ([Tx.closed]).
+	closed *bool
+
+	// sweep is that this transaction is a sweep's ([Tx.sweeping]): the
+	// deployment's own work that holds back what a read-only workspace is
+	// not told then, and tells it once it writes again (D67) -- and no other
+	// does (D68).
+	sweep bool
 }
 
 type sharedKey struct{}
