@@ -63,6 +63,8 @@ export const people = {
 	benefits: { login: 'soyun-jang', name: '장소윤' },
 	credits: { login: 'seoyeon-lim', name: '임서연' },
 	statements: { login: 'junseo-lim', name: '임준서' },
+	phonePayer: { login: 'seoyun-choi', name: '최서윤' },
+	phoneOwner: { login: 'juwon-jung', name: '정주원' },
 } as const
 
 /** A name nothing else in the run has. */
