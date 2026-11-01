@@ -1543,8 +1543,9 @@ ul.consent > li > a {
 	border-radius: 16px;
 	width: min(520px, 100%);
 	/* Never wider than the screen for what it holds: a table wider than a
-	   phone -- the invoices on /billing -- slides sideways in its own wrap,
-	   as in a dialog (`.modal`), rather than push the page wider. */
+	   phone slides sideways in its own wrap, as in a dialog (`.modal`),
+	   rather than push the page wider -- and the invoices on /billing are
+	   cards there (`.phone-cards`). */
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
@@ -1727,14 +1728,61 @@ ul.benefits > li,
 	white-space: nowrap;
 }
 /*
- * And so, on a phone, the payer's invoices and credit notes, which are wider
- * than one however their cells are broken; on a wider screen they break their
- * cells and fit.
+ * On a phone the payer's invoices and credit notes are cards, and on a wider
+ * screen the tables they were (loft#269): wider than a phone however their
+ * cells broke, a table slid sideways in its wrap, and the button that opens
+ * an invoice was at its end. An invoice's card is that button, all of it.
  */
+.phone-cards,
+.inbox ul.phone-cards {
+	display: none;
+}
 @media (max-width: 520px) {
-	.inbox.billing .table-wrap td {
-		white-space: nowrap;
+	.phone-hides {
+		display: none;
 	}
+	.phone-cards,
+	.inbox ul.phone-cards {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+}
+.inbox ul.phone-cards > li {
+	display: block;
+	padding: 0;
+	border: none;
+	border-radius: 0;
+}
+.phone-card,
+.inbox ul.phone-cards > li.phone-card {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 6px;
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid var(--line);
+	border-radius: var(--radius);
+	text-align: left;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+.phone-card-head {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 6px;
+}
+.phone-card-amounts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px 14px;
+	font-size: 13px;
 }
 /* An invoice's lines in its dialog, each its statement's (levyan#47): under the workspace and the period it is of. */
 .line-statement {
