@@ -3,6 +3,7 @@ package payment
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	levyanv1 "github.com/lesomnus/levyan/api/levyan/v1"
 	"github.com/stretchr/testify/require"
@@ -132,6 +133,13 @@ func TestTheMessagesAreLevyans(t *testing.T) {
 	require.Empty(t, out)
 	require.Greater(t, len(seen), 30, "every message under them")
 
+	// What levyan#43 added -- an allowance, a pool and what a line took of
+	// it, credit and what paid an invoice -- is held here, and not reserved
+	// as a line's parts are.
+	for _, m := range []protoreflect.FullName{"loft.BillingAllowance", "loft.BillingPool", "loft.BillingLinePool", "loft.BillingCredit", "loft.BillingInvoiceCredit"} {
+		require.True(t, seen[m], "%s is levyan's, field for field", m)
+	}
+
 	// And it sees what is not levyan's: another message, one field off.
 	require.NotEmpty(t, same((&app.BillingAccount{}).ProtoReflect().Descriptor(), (&levyanv1.Recipient{}).ProtoReflect().Descriptor(), map[protoreflect.FullName]bool{}))
 	require.NotEmpty(t, same((&app.BillingLine{}).ProtoReflect().Descriptor(), (&levyanv1.LinePart{}).ProtoReflect().Descriptor(), map[protoreflect.FullName]bool{}))
@@ -175,4 +183,67 @@ func TestWhatIsMovedIsWhatWasSaid(t *testing.T) {
 	x.Equal("3", usage.GetUsage().GetLines()[0].GetUsage())
 	x.Empty(usage.GetUsage().GetLines()[0].ProtoReflect().GetUnknown(), "what this build does not declare is left out")
 	x.EqualValues(300, usage.GetUsage().GetTotal())
+}
+
+// TestWhatLevyansOperatorGaveIsMovedAsSaid (levyan#43): what levyan says a
+// workspace and a billing account were given -- the allowances and the pools
+// a period is rated with, what each line was given and took, credit and what
+// paid an invoice -- reads as levyan said it once moved, a decimal as the
+// text it was and a moment as the moment.
+func TestWhatLevyansOperatorGaveIsMovedAsSaid(t *testing.T) {
+	x := require.New(t)
+	until := timestamppb.New(time.Date(2027, 4, 30, 15, 0, 0, 0, time.UTC))
+	expires := timestamppb.New(time.Date(2027, 10, 31, 15, 0, 0, 0, time.UTC))
+
+	u := levyanv1.GetUsageResponse_builder{Usage: levyanv1.Usage_builder{
+		Lines: []*levyanv1.Line{levyanv1.Line_builder{
+			Meter: "loft.assets.active", Unit: "{asset}", Usage: "1212.903225", Included: "438.709677", Allowance: "338.709677",
+			Billable: "774.193548", Pooled: "700", Pools: []*levyanv1.LinePool{levyanv1.LinePool_builder{Pool: "pl-1", Taken: "700"}.Build()},
+			Amount: "7419.3548",
+		}.Build()},
+		Allowances: []*levyanv1.Allowance{levyanv1.Allowance_builder{Id: "al-1", Meter: "loft.assets.active", Quantity: 500, From: timestamppb.Now(), Until: until}.Build()},
+		Pools:      []*levyanv1.Pool{levyanv1.Pool_builder{Id: "pl-1", Meter: "loft.assets.active", Granted: 10000, Left: "9300", From: timestamppb.Now(), Expires: expires}.Build()},
+		Total:      7419,
+	}.Build()}.Build()
+	usage := &app.PaymentGetUsageResponse{}
+	x.NoError(move(u, usage))
+	l := usage.GetUsage().GetLines()[0]
+	x.Equal([]string{"438.709677", "338.709677", "774.193548", "700"}, []string{l.GetIncluded(), l.GetAllowance(), l.GetBillable(), l.GetPooled()})
+	x.Equal([]string{"pl-1", "700"}, []string{l.GetPools()[0].GetPool(), l.GetPools()[0].GetTaken()})
+	a := usage.GetUsage().GetAllowances()[0]
+	x.Equal([]any{"al-1", "loft.assets.active", int64(500)}, []any{a.GetId(), a.GetMeter(), a.GetQuantity()})
+	x.True(until.AsTime().Equal(a.GetUntil().AsTime()))
+	p := usage.GetUsage().GetPools()[0]
+	x.Equal([]any{"pl-1", int64(10000), "9300"}, []any{p.GetId(), p.GetGranted(), p.GetLeft()})
+	x.True(expires.AsTime().Equal(p.GetExpires().AsTime()))
+
+	credit := levyanv1.Credit_builder{Id: "cr-1", Workspace: "ws-1", Granted: 100000, Left: 70000, Currency: "KRW", Expires: expires, Created: timestamppb.Now()}.Build()
+	payer := &app.PaymentGetPayerResponse{}
+	x.NoError(move(levyanv1.GetPayerResponse_builder{Payer: levyanv1.Payer_builder{Workspace: "ws-1", Credits: []*levyanv1.Credit{credit}}.Build()}.Build(), payer))
+	c := payer.GetPayer().GetCredits()[0]
+	x.Equal([]any{"cr-1", "ws-1", int64(100000), int64(70000), "KRW"}, []any{c.GetId(), c.GetWorkspace(), c.GetGranted(), c.GetLeft(), c.GetCurrency()})
+
+	got := &app.PaymentGetBillingAccountResponse{}
+	x.NoError(move(levyanv1.GetBillingAccountResponse_builder{
+		BillingAccount: levyanv1.BillingAccount_builder{Id: "ba"}.Build(),
+		Credits:        []*levyanv1.Credit{credit, levyanv1.Credit_builder{Id: "cr-2", BillingAccount: "ba", Granted: 30000, Left: 30000, Currency: "KRW"}.Build()},
+		Balance:        5000,
+	}.Build(), got))
+	x.Len(got.GetCredits(), 2)
+	x.Equal("ba", got.GetCredits()[1].GetBillingAccount())
+	x.EqualValues(5000, got.GetBalance())
+
+	inv := &app.PaymentGetInvoiceResponse{}
+	x.NoError(move(levyanv1.GetInvoiceResponse_builder{Invoice: levyanv1.Invoice_builder{
+		Id: "inv", Total: 80000, Credited: 75000, Due: 5000,
+		Credits: []*levyanv1.InvoiceCredit{
+			levyanv1.InvoiceCredit_builder{Credit: "cr-1", Amount: 70000, Workspace: "ws-1", Expires: expires}.Build(),
+			levyanv1.InvoiceCredit_builder{Amount: 5000}.Build(),
+		},
+	}.Build()}.Build(), inv))
+	paid := inv.GetInvoice().GetCredits()
+	x.Len(paid, 2)
+	x.Equal([]any{"cr-1", int64(70000), "ws-1"}, []any{paid[0].GetCredit(), paid[0].GetAmount(), paid[0].GetWorkspace()})
+	x.Equal([]any{"", int64(5000)}, []any{paid[1].GetCredit(), paid[1].GetAmount()}, "the balance's names no credit")
+	x.EqualValues(5000, inv.GetInvoice().GetDue())
 }

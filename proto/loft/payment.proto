@@ -192,6 +192,17 @@ message PaymentGetBillingAccountResponse {
   // Its invoices whose charge failed and that are still owed, with what is
   // done of each: the one that restricts soonest first.
   repeated BillingDunning dunning = 4;
+
+  // The credit levyan's operator granted that its next invoices may be paid
+  // with, neither spent nor expired: its own, and that of the workspaces it
+  // pays for now or will from the end of the period, the soonest to expire
+  // first.
+  repeated BillingCredit credits = 5;
+
+  // What it is owed beside them -- of an invoice that came to less than
+  // nothing, a credit note, a payment of more than was due -- in its
+  // currency's minor unit: never expires, and is spent after them.
+  int64 balance = 6;
 }
 
 message PaymentStartCheckoutRequest {
@@ -598,6 +609,47 @@ message BillingInvoice {
 
   // Its lines: in `GetInvoice`'s answer.
   repeated BillingInvoiceLine lines = 21;
+
+  // What paid `credited`, in `GetInvoice`'s answer: each credit that paid
+  // some of it, the soonest to expire first, and the balance last.
+  repeated BillingInvoiceCredit credits = 22;
+}
+
+// BillingInvoiceCredit is what of an invoice's total one credit paid, before
+// anything was asked of its channel.
+message BillingInvoiceCredit {
+  // The credit (`BillingCredit.id`); empty for the billing account's
+  // balance.
+  string credit = 1;
+
+  int64 amount = 2;
+
+  // The workspace whose lines alone it paid, for a workspace's; and when it
+  // expires.
+  string workspace = 3;
+  google.protobuf.Timestamp expires = 4;
+}
+
+// BillingCredit is money levyan's operator granted -- of a promotion, of a
+// contract -- taken off what is billed before the channel is asked for
+// anything: to a billing account, or to one workspace, whose lines alone it
+// pays. It always expires, and the credit that expires soonest is spent
+// first. Nothing here grants one.
+message BillingCredit {
+  string id = 1;
+
+  // The workspace it is granted to, empty for a billing account's; and the
+  // billing account, empty for a workspace's.
+  string workspace = 2;
+  string billing_account = 3;
+
+  // What was granted, and what is left, in the currency's minor unit.
+  int64 granted = 4;
+  int64 left = 5;
+  string currency = 6;
+
+  google.protobuf.Timestamp expires = 7;
+  google.protobuf.Timestamp created = 8;
 }
 
 enum BillingInvoiceState {
@@ -688,6 +740,12 @@ message BillingPayer {
   // `payerless_since` by default, never sooner than `restricted_from`, and
   // unset when that is.
   google.protobuf.Timestamp readonly_from = 9;
+
+  // The credit levyan's operator granted the workspace itself, neither
+  // spent nor expired: what its lines are paid with first, on whichever
+  // billing account's invoice they are, the soonest to expire first. What a
+  // billing account was granted is its payer's to see.
+  repeated BillingCredit credits = 10;
 }
 
 // BillingDunning is what is done of an invoice its channel failed to collect,
@@ -748,8 +806,60 @@ message BillingUsage {
 
   repeated BillingLine lines = 6;
 
-  // In the currency's minor unit.
+  // In the currency's minor unit: what is left once the allowances and the
+  // pools are taken out, and before any credit is spent, which an invoice
+  // does as it is finalized.
   int64 total = 7;
+
+  // The allowances in force at any moment of the period, by when each
+  // begins: what each line's `allowance` is of.
+  repeated BillingAllowance allowances = 8;
+
+  // The pools the period takes from, in force at any moment of it, the
+  // soonest to expire first, each with what the periods closed left of it:
+  // what each line's `pools` takes of.
+  repeated BillingPool pools = 9;
+}
+
+// BillingAllowance is more of a meter levyan's operator gave a workspace for
+// nothing each period, on top of what its prices include -- "자산 무료량
+// +500" -- given its share of a period it is in force for part of. The
+// workspace's whoever pays for it. Nothing here grants one.
+message BillingAllowance {
+  string id = 1;
+
+  // The meter, by its key.
+  string meter = 2;
+
+  // How much more each period includes, in the meter's unit.
+  int64 quantity = 3;
+
+  // In force from `from`, and until `until` when it says one -- the first
+  // moment it is not -- and until an operator ends it when it does not.
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp until = 5;
+}
+
+// BillingPool is a bundle of a meter levyan's operator gave a workspace --
+// "자산·월 10,000" of a stock -- in the meter's unit for a period: what its
+// periods are billable for past what is included is taken out of it first,
+// the soonest to expire first, and only the rest is priced. Nothing here
+// grants one.
+message BillingPool {
+  string id = 1;
+
+  // The meter, by its key.
+  string meter = 2;
+
+  // How much it held, and what is left of it after every period closed
+  // took of it: what the period now open takes of. A decimal as text.
+  int64 granted = 3;
+  string left = 4;
+
+  // In force from `from`; no period that begins from `expires` on takes
+  // from it.
+  google.protobuf.Timestamp from = 5;
+  google.protobuf.Timestamp expires = 6;
 }
 
 // BillingStatement is what one workspace came to over one closed period.
@@ -774,6 +884,9 @@ message BillingLine {
   // For a correction: the period it corrects.
   BillingPeriod corrects = 4;
 
+  // What was used; what was included for nothing -- what the prices
+  // include and what the allowances give (`allowance`) together -- and what
+  // is billable past it, each weighed by its share of the period.
   string usage = 5;
   string included = 6;
   string billable = 7;
@@ -785,6 +898,24 @@ message BillingLine {
   // 9, the stretches priced by each version of the price, and 11, the ones
   // with no price, are levyan's to say and not this one's.
   reserved 9, 11;
+
+  // What of `included` the allowances gave on top of what the prices
+  // include: "0" when none was in force.
+  string allowance = 12;
+
+  // What of `billable` the pools took, and of which, the soonest to expire
+  // first: what is priced is `billable` less it. "0", and none, when nothing
+  // was taken; for a correction, what the period it corrects takes now.
+  string pooled = 13;
+  repeated BillingLinePool pools = 14;
+}
+
+// BillingLinePool is what one pool was taken of for a line, in the meter's
+// unit for a period.
+message BillingLinePool {
+  // The pool, by its identifier as `BillingUsage.pools` says it.
+  string pool = 1;
+  string taken = 2;
 }
 
 enum BillingLineKind {
