@@ -28,11 +28,12 @@
 // equal to roster's `holder.forget_after`), and somebody who asked to be
 // forgotten now is forgotten now by the operator (`loft identity depart`).
 //
-// What roster's restore and forget do is not on the stream: both write past
-// roster's servers, and the stream carries what they publish. So a later
-// event about the account that is not an erasure clears the mark, and the
-// sweep asks roster again before an account leaves -- which is also how a
-// restore is heard. A mark is acted on only after asking roster again, which
+// roster's restore and forget are on the stream since roster#215: a restore
+// comes as an event about the account that is not an erasure, which clears
+// the mark, and a forget as an erasure. What the stream does not carry is what
+// was said while this process was not listening, so the sweep asks roster
+// again before an account leaves -- which is also how a restore made in the
+// meantime is heard. A mark is acted on only after asking roster again, which
 // is roster's rule for every app that marks (`standing.Accounts.Settle`,
 // roster's `docs/relying-app.md`).
 package lifecycle
@@ -134,8 +135,9 @@ func (l Lifecycle) Apply(ctx context.Context, v identity.Standing) error {
 }
 
 // Sweep is one look at the accounts whose memberships are still leaving once
-// the grace is over. roster is asked about each again, since what it did in
-// the meantime is not on the stream (`standing.Accounts.Settle`): one it still
+// the grace is over. roster is asked about each again, since what it said
+// while this process was not listening is not on the stream
+// (`standing.Accounts.Settle`): one it still
 // has nobody by leaves every workspace it is in ([Lifecycle.Depart]); one it
 // has again was restored, and stops leaving; and about one roster could not
 // answer, nothing is decided -- it is asked next time.
