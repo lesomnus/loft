@@ -458,10 +458,19 @@ transaction, and an operator's command writes its notices whatever their
 kind. A closed workspace is swept by nothing -- `Sweeper.Pass` reads the open
 ones, and each sweep asks again in its own transaction (`Tx.closed`) -- and
 `Tx.notify` writes no notice into one, whoever asks, and logs that it did
-not. A release or an expiry while read-only says why in its notice. Its event
-does from the next release: `ReservationReleased.workspace` (`readonly` |
-`closed`) is declared and written by nothing yet, a field shipping one release
-before anything writes it (loft#273).
+not. A release or an expiry while read-only says why in its notice.
+
+What nobody could take up is an expiry and no no-show (design 7.15, D70,
+D71). While read-only, the sweeps write it as `reservation.expire` with
+`ReservationReleased.workspace` `readonly` (`from: confirmed` for a booking
+let go), and utilization does not count `expired`. What came due while a
+workspace was closed is let go of by its restore (`restoreWorkspace`,
+`Tx.closedPast`, `Tx.expireClosed`), in the restore's transaction, as its
+children with `workspace: closed`, telling nobody, and the restore says how
+many (`WorkspaceRestored.expired`). Equipment nobody picked up where nobody is
+held to it (`no_show_minutes < 0`) expires at its end. A field one of these
+needs ships a release before anything writes it, and CI's `OLDEST` follows
+staging, so that the oldest build reads it.
 
 Who pays for a workspace is levyan's, and what it cannot know Loft tells it
 (design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and

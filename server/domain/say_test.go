@@ -202,8 +202,8 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"workspace.close", app.WorkspaceClosed_builder{By: "operator"}.Build(), "워크스페이스 닫기 (운영자)"},
 		{"workspace.close", app.WorkspaceClosed_builder{By: "deployment"}.Build(), "워크스페이스 닫기 (남은 구성원 없음)"},
 		{"workspace.restore", app.WorkspaceRestored_builder{By: "owner"}.Build(), "워크스페이스 복구"},
-		// Declared a release before anything writes it (D70): how many of
-		// its reservations whose time passed while it was closed it let go of.
+		// Declared by D70 a release before D71 wrote it: how many of its
+		// reservations whose time passed while it was closed it let go of.
 		{"workspace.restore", app.WorkspaceRestored_builder{By: "operator", Expired: 3}.Build(), "워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 3건 만료"},
 		{"workspace.import", app.WorkspaceImported_builder{ExportedAt: timestamppb.New(time.Date(2026, 10, 20, 23, 0, 0, 0, time.UTC)), Rows: 120}.Build(), "워크스페이스 복구 (운영자): 2026-10-20 내보내기에서"},
 

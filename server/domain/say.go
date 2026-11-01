@@ -344,7 +344,7 @@ func sentences() *past.Sentences {
 		return "워크스페이스 닫기"
 	})
 	// And how many of its reservations whose time passed while it was
-	// closed it let go of, once that is written (D70, design 7.15).
+	// closed it let go of (D70, written since D71; design 7.15).
 	past.SayKind(s, "workspace.restore", "ko", func(r *past.Reading, ev past.EventRow, m *app.WorkspaceRestored) string {
 		if n := m.GetExpired(); n > 0 {
 			return fmt.Sprintf("워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 %d건 만료", n)

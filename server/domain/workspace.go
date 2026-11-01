@@ -400,7 +400,9 @@ func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := t.begin(nil, "workspace.restore", pdid.Nil, t.now, "", app.WorkspaceRestored_builder{By: by}.Build()); err != nil {
+	// How many it lets go of is said of the restore itself, as well as by
+	// each of its children (D70, written since D71).
+	if err := t.begin(nil, "workspace.restore", pdid.Nil, t.now, "", app.WorkspaceRestored_builder{By: by, Expired: uint32(len(passed))}.Build()); err != nil {
 		return nil, err
 	}
 	v, err := t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{
