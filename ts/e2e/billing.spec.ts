@@ -791,3 +791,130 @@ test("each line of a payer's invoice says what its period came to, meter by mete
 	await page.setViewportSize({ width: 390, height: 844 })
 	await expect.poll(async () => (await dialog.boundingBox())?.width ?? Infinity).toBeLessThanOrEqual(390)
 })
+
+/**
+ * Holds `page` to the screen it is shown on: nothing on it is past the
+ * screen's edge for a person to scroll the page sideways to -- a table wider
+ * than the screen slides in a box of its own -- and no dialog open over it is
+ * wider than the screen. What sticks out is named when something does.
+ */
+async function onTheScreen(page: Page): Promise<void> {
+	const { screen, wide, past } = await page.evaluate(() => {
+		const screen = document.documentElement.clientWidth
+		const out = (e: Element) => e.getBoundingClientRect().right > screen
+		// What a box that scrolls holds is past nothing while the box is on the screen.
+		const held = (e: Element): boolean => {
+			for (let a = e.parentElement; a !== null; a = a.parentElement) if (getComputedStyle(a).overflowX !== 'visible') return !out(a)
+			return false
+		}
+		const past = [...document.body.querySelectorAll('*')]
+			.filter((e) => out(e) && !held(e) && ![...e.children].some((c) => out(c) && !held(c)))
+			.map((e) => `<${e.tagName.toLowerCase()}> ${(e.textContent ?? '').trim().slice(0, 30)}`)
+		return { screen, wide: document.documentElement.scrollWidth, past }
+	})
+	expect(wide, `the page scrolls sideways, past ${past.join(', ')}`).toBeLessThanOrEqual(screen)
+	for (const dialog of await page.getByRole('dialog').all()) {
+		const box = await dialog.boundingBox()
+		expect((box?.x ?? 0) + (box?.width ?? Infinity), `a dialog is wider than the screen, past ${past.join(', ')}`).toBeLessThanOrEqual(screen)
+	}
+}
+
+test.describe('on a phone', () => {
+	// As wide as a phone held upright.
+	test.use({ viewport: { width: 390, height: 844 } })
+
+	test("a payer's page never scrolls sideways: their billing accounts and what can be done with each, the credit they hold, the workspaces they pay for, and their invoices with each line's statement", async ({ page, request }) => {
+		await signIn(page, people.phonePayer.login)
+		await page.goto('/billing')
+		await expect(card(page, '결제 계정')).toContainText('아직 결제 계정이 없습니다')
+		await onTheScreen(page)
+
+		// One that pays with nothing yet: three things to do with it, and the
+		// card of those that cannot be collected from above the rest.
+		await makeAccount(page, '회사 법인카드')
+		const row = card(page, '결제 계정').getByRole('listitem', { name: '회사 법인카드', exact: true })
+		for (const name of ['결제수단 등록', '이름 바꾸기', '청구 정보 바꾸기']) await expect(row.getByRole('button', { name })).toBeVisible()
+		await expect(card(page, '결제할 수 없는 결제 계정').getByRole('button', { name: '결제수단 등록' })).toBeVisible()
+		await onTheScreen(page)
+
+		// A workspace paid for with it -- levyan is told who made it by the
+		// loop that tells it what changed, every ten seconds -- and what
+		// levyan's operator gave, of the workspace's and the billing account's
+		// own; its period before closed, and was invoiced and paid with that
+		// credit; and a charge that failed.
+		const name = unique('e2e 휴대폰')
+		const ws = await made(page, name)
+		const paid = card(page, '내는 워크스페이스').getByRole('listitem').filter({ hasText: name })
+		await expect(async () => {
+			await page.reload()
+			await expect(paid.getByRole('button', { name: '결제 계정 바꾸기' })).toBeVisible({ timeout: 1000 })
+		}).toPass({ timeout: 30_000 })
+		const [ba] = await billingAccounts(page)
+		const from = monthStart(-1)
+		await levyan(request, 'credit', { workspace: ws.id, amount: '70000', expires: new Date(Date.now() + 10 * 24 * 3600_000).toISOString() })
+		await levyan(request, 'credit', { billing_account: ba?.id ?? '', amount: '30000', expires: monthStart(12) })
+		await levyan(request, 'balance', { billing_account: ba?.id ?? '', amount: '5000' })
+		await levyan(request, 'reading', { workspace: ws.id, meter: 'loft.assets.active', value: '1200' })
+		await levyan(request, 'reading', { workspace: ws.id, meter: 'loft.members', value: '1' })
+		await levyan(request, 'allowance', { workspace: ws.id, meter: 'loft.assets.active', quantity: '500', from })
+		await levyan(request, 'pool', { workspace: ws.id, meter: 'loft.assets.active', quantity: '10000', from })
+		await levyan(request, 'close', { workspace: ws.id })
+		await levyan(request, 'invoice', { billing_account: ba?.id ?? '', workspace: ws.id, label: name })
+		await levyan(request, 'dunning', { billing_account: ba?.id ?? '', kind: 'temporary', restricted: new Date(Date.now() + 7 * 24 * 3600_000).toISOString() })
+		await page.reload()
+		await expect(row.getByRole('listitem').filter({ hasText: `${name}의 크레딧` })).toContainText('곧 만료')
+		await expect(row.getByRole('status')).toContainText('결제가 실패했습니다.')
+		await expect(paid.getByRole('button', { name: '그만 내기' })).toBeVisible()
+		const invoice = card(page, '청구서').getByRole('row').filter({ hasText: '1,000원' })
+		await expect(invoice).toContainText('결제됨')
+		await onTheScreen(page)
+
+		// The invoice, open: each line's statement slides sideways in the
+		// dialog, which stays on the screen.
+		await invoice.getByRole('button', { name: '보기' }).click()
+		const dialog = page.getByRole('dialog')
+		await expect(dialog.getByRole('region').getByRole('row').filter({ hasText: '활성 자산' })).toBeVisible()
+		await onTheScreen(page)
+	})
+
+	test("a workspace's billing settings never scroll sideways, nor its owner's own page with the offer they made there", async ({ page, request }) => {
+		await signIn(page, people.phoneOwner.login)
+		const name = unique('e2e 휴대폰 설정')
+		const ws = await made(page, name)
+		// Nobody pays for it; it was used and given more, and credited, and its
+		// period before closed.
+		await levyan(request, 'payerless', { workspace: ws.id, from: new Date(Date.now() + 30 * 24 * 3600_000).toISOString() })
+		const from = monthStart(-1)
+		await levyan(request, 'reading', { workspace: ws.id, meter: 'loft.assets.active', value: '1200' })
+		await levyan(request, 'reading', { workspace: ws.id, meter: 'loft.members', value: '1' })
+		await levyan(request, 'allowance', { workspace: ws.id, meter: 'loft.assets.active', quantity: '500', from })
+		await levyan(request, 'pool', { workspace: ws.id, meter: 'loft.assets.active', quantity: '10000', from })
+		await levyan(request, 'credit', { workspace: ws.id, amount: '70000', expires: monthStart(12) })
+		await levyan(request, 'close', { workspace: ws.id })
+
+		await page.goto(`/@${ws.alias}/settings?tab=billing`)
+		await expect(page.getByRole('alert')).toContainText('이 워크스페이스에는 결제 담당이 없습니다.')
+		await expect(card(page, '결제 담당')).toContainText('결제 담당이 없습니다.')
+		await expect(card(page, '이번 기간 사용량과 예상 금액').getByRole('row').filter({ hasText: '활성 자산' })).toBeVisible()
+		await expect(card(page, '크레딧').getByRole('listitem')).toContainText('70,000원 남음')
+		await onTheScreen(page)
+
+		await card(page, '지난 명세서').getByRole('button', { name: '보기' }).click()
+		const statement = page.getByRole('dialog')
+		await expect(statement.getByRole('row').filter({ hasText: '활성 자산' })).toBeVisible()
+		await onTheScreen(page)
+		await statement.getByRole('button', { name: '닫기' }).click()
+
+		// Its owner asks themself to pay for it, and answers on their own page.
+		const offer = card(page, '결제 담당 제안')
+		await choose(field(offer, '제안할 구성원'), '(나)')
+		await offer.getByRole('button', { name: '제안', exact: true }).click()
+		await said(page, `${people.phoneOwner.name}님에게 결제 담당을 제안했습니다.`)
+		await onTheScreen(page)
+		await page.goto('/billing')
+		const offered = card(page, '받은 제안').getByRole('listitem').filter({ hasText: name })
+		await expect(offered.getByRole('button', { name: '받아들이기' })).toBeVisible()
+		await expect(offered.getByRole('button', { name: '거절' })).toBeVisible()
+		await onTheScreen(page)
+	})
+})

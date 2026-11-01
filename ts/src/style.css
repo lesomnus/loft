@@ -1542,6 +1542,10 @@ ul.consent > li > a {
 	padding: 28px;
 	border-radius: 16px;
 	width: min(520px, 100%);
+	/* Never wider than the screen for what it holds: a table wider than a
+	   phone -- the invoices on /billing -- slides sideways in its own wrap,
+	   as in a dialog (`.modal`), rather than push the page wider. */
+	min-width: 0;
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
@@ -1555,14 +1559,26 @@ ul.consent > li > a {
 	flex-direction: column;
 	gap: 10px;
 }
+/*
+ * A row -- an invitation, or on /billing a billing account, an offer, a
+ * workspace paid for -- is what it is beside what can be done with it, and
+ * the buttons go under the words where the two do not fit side by side, and
+ * onto a line of their own where they do not fit on one: a row is never
+ * wider than the screen, nor a long name in it.
+ */
 .inbox li {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-between;
 	align-items: center;
 	gap: 12px;
 	padding: 12px;
 	border: 1px solid var(--line);
 	border-radius: 10px;
+}
+.inbox li > div:first-child {
+	flex: 1 1 240px;
+	overflow-wrap: anywhere;
 }
 .inbox li p {
 	margin: 4px 0 0;
@@ -1574,6 +1590,10 @@ ul.consent > li > a {
 	gap: 8px;
 	align-items: center;
 	flex: none;
+}
+.inbox .answer {
+	flex: 0 1 auto;
+	flex-wrap: wrap;
 }
 .inbox .leave {
 	display: flex;
@@ -1598,6 +1618,9 @@ ul.consent > li > a {
 	.inbox li {
 		flex-direction: column;
 		align-items: stretch;
+	}
+	.inbox li > div:first-child {
+		flex: none;
 	}
 	ol.timeline.compact li {
 		grid-template-columns: 1fr;
@@ -1702,6 +1725,16 @@ ul.benefits > li,
 /* A period's lines, six columns of them: scrolled sideways on a phone rather than broken a letter a line. */
 .table.lines td {
 	white-space: nowrap;
+}
+/*
+ * And so, on a phone, the payer's invoices and credit notes, which are wider
+ * than one however their cells are broken; on a wider screen they break their
+ * cells and fit.
+ */
+@media (max-width: 520px) {
+	.inbox.billing .table-wrap td {
+		white-space: nowrap;
+	}
 }
 /* An invoice's lines in its dialog, each its statement's (levyan#47): under the workspace and the period it is of. */
 .line-statement {
