@@ -59,6 +59,7 @@ export const people = {
 	collects: { login: 'gunwoo-jung', name: '정건우' },
 	billedTo: { login: 'naeun-kang', name: '강나은' },
 	takesOver: { login: 'seoyun-cho', name: '조서윤' },
+	readOnly: { login: 'juwon-yoon', name: '윤주원' },
 } as const
 
 /** A name nothing else in the run has. */
