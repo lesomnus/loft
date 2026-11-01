@@ -404,12 +404,32 @@ and cases the domain layer sees grow inside a method that does more
 (`domain.GrowsAssetBack`, `GrowsKeptLonger`, `GrowsReceivedAssets`) -- read with
 `entitle.Has` on the write's driver (`domain.Deps.Entitlements`, nil when
 nothing bills) and refused `FailedPrecondition` with an
-`errdetails.ErrorInfo` of reason `RESTRICTED`. That rule is Claude's and
-provisional until the owner answers levyan#1's question 3 (how much a
-restriction restricts); widening it is that table. A method gRPC does not
-name -- an operator's command, a sweep -- is not refused: `loft holder add`
-included, which is the operator's door and not a workspace's. A new RPC that
-adds to a meter goes in the table, or it is a way around the restriction.
+`errdetails.ErrorInfo` of reason `RESTRICTED`. That is the owner's first
+stage of two (levyan#1's question 3, answered 2026-11-01: after the grace,
+the day's work goes on and nothing grows); what growing is, that table, is
+Claude's. A method gRPC does not name -- an operator's command, a sweep -- is
+not refused: `loft holder add` included, which is the operator's door and not
+a workspace's. A new RPC that adds to a meter goes in the table, or it is a
+way around the restriction.
+
+The second stage is `loft.readonly` (design 7.10, D64): sixty days after an
+invoice billing the workspace first failed to be charged, levyan makes it
+read-only until the invoice is paid. Its table is the other way round: what
+a read-only workspace **still does**, `domain.ReadOnlyAllows` -- reading,
+taking its data out, paying, closing, its members leaving, and what is a
+person's own -- each with why, and every other write is refused. As its
+operation begins (`Tx.begin`, `Tx.held`: read-only first, then `Grows`), and,
+for a write that begins none, as the domain layer's transaction a caller's
+method opened would commit (`Deps.run`); the generated Erases a role is given
+are served in one (`domain.passing`). Refused `FailedPrecondition` with an
+`ErrorInfo` of reason `READONLY`, and `PartyService.Me`'s `readonly` is what
+the banner reads. **A new write RPC is refused by a read-only workspace until
+that table says why it is not, and a new read goes in it as `domain.Reads`**:
+`server/domain/readonly_test.go` walks `server/policy`'s table and fails a
+method that is neither in it nor served by this layer in a transaction of its
+own, read off the layer's source. The doors that are no RPC -- a download,
+the workspace's export, signing in -- read or are an account's, and are not
+refused.
 
 Who pays for a workspace is levyan's, and what it cannot know Loft tells it
 (design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and
@@ -444,7 +464,7 @@ and `server/payment`'s test holds every field to levyan's: bump
 is opened on the checkout page, never in the app's document (whose policy
 would have to let Paddle in everywhere). The page's account side is
 `/billing` (`ts/src/billing.tsx`), a workspace's is settings › 결제, and the
-banner reads `PartyService.Me`'s `restricted` -- the copy -- for every member,
+banner reads `PartyService.Me`'s `restricted` and `readonly` -- the copy -- for every member,
 `GetPayer` (payerless, `dunning`) for whoever runs it, and for a member who
 pays the account's own calls (`ListLinks`, `GetBillingAccount`). The browser
 tests bill to `internal/levyantest` served by its command
