@@ -2,6 +2,7 @@ package domain_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 	"uuid"
@@ -263,8 +264,6 @@ func TestARestoreExpiresWhatPassedWhileItWasClosed(t *testing.T) {
 
 	e.restoreIt()
 	restored := e.eventOf("workspace.restore")
-	x.Zero(value[*app.WorkspaceRestored](e, restored).GetExpired(), "how many: written a release after it is declared")
-	x.Equal("워크스페이스 복구", e.say(restored))
 	expiries := []expired{
 		{held, "held", "closed", "홀드 만료: 면담 (워크스페이스가 닫혀 있던 때)"},
 		{asked, "requested", "closed", "승인 대기 만료: 전체 회의 (워크스페이스가 닫혀 있던 때)"},
@@ -284,6 +283,8 @@ func TestARestoreExpiresWhatPassedWhileItWasClosed(t *testing.T) {
 		x.Equal(restored.ActorId, v.ActorId, "%s: done by whoever restored it", c.said)
 	}
 	x.Len(e.eventsOf("reservation.expire"), len(expiries), "and nothing else")
+	x.EqualValues(len(expiries), value[*app.WorkspaceRestored](e, restored).GetExpired(), "how many, said of the restore too (D71)")
+	x.Equal(fmt.Sprintf("워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 %d건 만료", len(expiries)), e.say(restored))
 
 	// Nothing else.
 	x.Equal("held", e.reservation(before).GetStatus(), "ran out while it was open: the sweeps' to let go of")
