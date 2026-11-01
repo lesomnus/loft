@@ -160,9 +160,10 @@ type Deps struct {
 	// Entitlements is this deployment's copy of what levyan grants its
 	// workspaces (payday#185, `pd.Entitlements`), on the driver of the
 	// transaction that reads it: what a write that grows a restricted
-	// workspace is held to ([Grows]). Nil is a deployment levyan restricts
-	// nothing of -- one that bills nobody, `app.billing.levyan` unset --
-	// whose copy is not read at all.
+	// workspace is held to ([Grows]), and every write of a read-only one
+	// ([ReadOnlyAllows]). Nil is a deployment levyan restricts nothing of --
+	// one that bills nobody, `app.billing.levyan` unset -- whose copy is not
+	// read at all.
 	Entitlements func(dialect.Driver) entitle.Reader
 
 	// Closings is told of every workspace closed and restored, in the
@@ -345,9 +346,11 @@ type shared struct {
 	// what it may give to a reservation waiting for it ([Tx.heal]).
 	schedules map[uuid.UUID]bool
 
-	// restricted is whether levyan restricts the workspace, once something
-	// asked ([Tx.restricted]).
+	// restricted is whether levyan restricts the workspace, and readonly
+	// whether it makes it read-only, once something asked ([Tx.restricted],
+	// [Tx.readonly]).
 	restricted *bool
+	readonly   *bool
 }
 
 type sharedKey struct{}
@@ -462,6 +465,15 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 		if errors.Is(err, errDone) {
 			return errDone
 		}
+		return err
+	}
+	// A read-only workspace commits a caller's write only for what it still
+	// does (D64): an operation that began has been refused already, as it
+	// began ([Tx.begin]), and this is the write that began none -- a
+	// generated Erase this layer serves, a notification marked read -- or one
+	// written later that forgot to. Answered by the copy this transaction
+	// read, if it read it.
+	if err := t.writing(); err != nil {
 		return err
 	}
 	if err := tx.Commit(); err != nil {
@@ -626,11 +638,12 @@ func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, reason
 	if err != nil {
 		return err
 	}
-	// What grows a workspace levyan restricts is refused (D60), and all of
-	// the transaction with it: once the operation is known to be a new one --
-	// a copy of one that happened before the workspace was restricted answers
-	// with what it did -- and before it writes anything of its own.
-	if err := t.growing(); err != nil {
+	// What a workspace levyan makes read-only does not do (D64), and what
+	// grows one it restricts (D60), is refused, and all of the transaction
+	// with it: once the operation is known to be a new one -- a copy of one
+	// that happened before answers with what it did -- and before it writes
+	// anything of its own.
+	if err := t.held(); err != nil {
 		return err
 	}
 	t.ctx, t.op = ctx, o

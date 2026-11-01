@@ -32,10 +32,13 @@ import (
 // What a restricted workspace may not do is grow what it is billed for
 // ([Grows]); it still reads, takes its data out, hands things out and takes
 // them back, books, moves, disposes of and deletes what it has, changes what
-// it is set to that bills nothing, closes, and pays. That is Claude's, and it
-// stands until the owner says what restricting is (levyan#1's open question
-// 3). An operator's commands write as the deployment, through no RPC, and are
-// not held to it.
+// it is set to that bills nothing, closes, and pays. That it is held from
+// growing and goes on with the day's work is the owner's now -- the first of
+// two stages (levyan#1's open question 3, answered 2026-11-01); what growing
+// is, this table, is Claude's. The second stage is a workspace made
+// read-only ([ReadOnly], readonly.go), another grant of its own. An
+// operator's commands write as the deployment, through no RPC, and are not
+// held to it.
 
 // Restricted is the key levyan grants a workspace it restricts: on, while it
 // is.
@@ -62,8 +65,8 @@ const (
 
 // Grows is what a restricted workspace may not do, by what it is told instead:
 // every way it adds to what it is billed for (`proto/loft/meter.proto`). It
-// is the one place that is said, and the owner's to widen -- to every write,
-// a workspace that only reads.
+// is the one place that is said. A workspace that only reads is not this
+// table widened but the second stage, [ReadOnlyAllows].
 //
 // A key is the method a caller asks for it by, for one whose every call grows
 // a meter: refused as the operation begins ([Tx.begin]), whichever way the
