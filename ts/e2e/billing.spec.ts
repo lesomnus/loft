@@ -209,6 +209,9 @@ test('a workspace nobody pays for says so above every page, and that it is restr
 	await page.reload()
 	await expect(page.getByRole('alert')).toContainText('제한되었습니다.')
 	await expect(card(page, '결제 담당')).toContainText('제한되었습니다.')
+	// And from when it is read-only for it, sixty days after its payer left.
+	await expect(page.getByRole('alert')).toContainText('부터는 읽기 전용이 되어')
+	await expect(card(page, '결제 담당')).toContainText('부터는 읽기 전용이 됩니다.')
 })
 
 test('a write a restricted workspace refused is said above every page, to whoever made it', async ({ page, request }) => {
@@ -258,12 +261,12 @@ test('a workspace made read-only says so above every page, and refuses a write a
 	await expect.poll(async () => (await add(unique('e2e 의자'))).status()).toBe(400)
 
 	// Every member's page says so as it is drawn, by the copy its writes are
-	// held to: that it is read, taken out, paid for and closed, and changed
-	// in nothing else -- and where to go about it.
+	// held to: that it is read, taken out, paid for, closed and left, and
+	// changed in nothing else -- and where to go about it.
 	await page.goto(`/@${ws.alias}/assets`)
 	const banner = page.getByRole('alert')
 	await expect(banner).toContainText('이 워크스페이스는 읽기 전용입니다.')
-	await expect(banner).toContainText('보기, 내보내기, 결제와 닫기만 할 수 있고, 그 밖에는 아무것도 바꿀 수 없습니다.')
+	await expect(banner).toContainText('보기, 내보내기, 결제, 닫기, 떠나기만 할 수 있고, 그 밖에는 아무것도 바꿀 수 없습니다.')
 	await expect(banner.getByRole('link')).toBeVisible()
 	// What it has is read as it was.
 	await expect(page.getByText(laptop)).toBeVisible()
@@ -274,7 +277,7 @@ test('a workspace made read-only says so above every page, and refuses a write a
 	await refused(page, '이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다')
 })
 
-test('an invoice billing a workspace whose charge failed is said above its pages, and that it is restricted once its day passed', async ({ page, request }) => {
+test('an invoice billing a workspace whose charge failed is said above its pages, that it is restricted once its day passed, and read-only once that one did', async ({ page, request }) => {
 	await signIn(page, people.counts.login)
 	const ws = await made(page, unique('e2e 결제 실패'))
 
@@ -289,6 +292,23 @@ test('an invoice billing a workspace whose charge failed is said above its pages
 	await levyan(request, 'dunning', { workspace: ws.id, kind: 'temporary', restricted: new Date(Date.now() - 3600_000).toISOString() })
 	await page.reload()
 	await expect(page.getByRole('alert')).toContainText('결제가 밀려 제한되었습니다.')
+	// And from when it is read-only, the second stage: sixty days after its
+	// charge failed, as levyan says it (`readonly_from`).
+	await expect(page.getByRole('alert')).toContainText('부터는 읽기 전용이 되어 보기, 내보내기, 결제, 닫기, 떠나기만 할 수 있습니다.')
+	await expect(card(page, '결제 담당')).toContainText('부터는 읽기 전용이 됩니다.')
+
+	// Once that day passed it is said read-only, and since when and why,
+	// before levyan's grant reaches the copy.
+	await levyan(request, 'dunning', {
+		workspace: ws.id,
+		kind: 'temporary',
+		restricted: new Date(Date.now() - 2 * 3600_000).toISOString(),
+		readonly: new Date(Date.now() - 3600_000).toISOString(),
+	})
+	await page.reload()
+	await expect(page.getByRole('alert')).toContainText('부터 읽기 전용입니다.')
+	await expect(page.getByRole('alert')).toContainText('결제가 실패한 청구서가 아직 결제되지 않아')
+	await expect(card(page, '결제 담당')).toContainText('부터 읽기 전용입니다.')
 })
 
 test('billing accounts with no name are told apart wherever they are offered, and one given a name is offered by it', async ({ page, as }) => {
