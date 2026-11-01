@@ -350,6 +350,12 @@ message PartyMeResponse {
   // until its billing is settled (design 7.9). Never on a deployment that
   // bills nobody.
   bool restricted = 14 [features.field_presence = IMPLICIT];
+  // Whether levyan makes the workspace read-only now, as the copy says
+  // (`loft.readonly`, design 7.10): the second stage, which every member's
+  // page says above it -- that it is read, taken out, paid for and closed,
+  // and changed in nothing else until it is paid. Never on a deployment
+  // that bills nobody.
+  bool readonly = 15 [features.field_presence = IMPLICIT];
 }
 
 message PartyUpdateRequest {
