@@ -193,7 +193,7 @@ test('a kit booking waits for a member the kit is given that is booked elsewhere
 	const relate = page.getByRole('dialog')
 	const target = field(relate, '대상')
 	await target.getByRole('searchbox').fill('KT-001')
-	await target.getByRole('button', { name: /KT-001/ }).click()
+	await target.getByRole('button', { name: /^KT-001 / }).click()
 	await relate.getByRole('button', { name: '저장', exact: true }).click()
 	await said(page, '연결했습니다.')
 
