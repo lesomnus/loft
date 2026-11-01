@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"slices"
 	"time"
 	"uuid"
 
@@ -151,8 +152,16 @@ func (t *Tx) closeReservation(r *ent.Reservation, to, kind string, said proto.Me
 	if err := t.begin(nil, kind, id, t.now, "", said); err != nil {
 		return false, err
 	}
+	return true, t.release(id, to)
+}
+
+// release moves reservation `id`, which this holds ([Tx.lockReservations]),
+// to `to`, a state that takes no time, and lets go of what it held -- to
+// whatever waits for it then ([Tx.settleAllocations]). Its event is the
+// caller's to have recorded, and what this writes points at it.
+func (t *Tx) release(id pdid.Id, to string) error {
 	if err := t.lockAllocations(id); err != nil {
-		return false, err
+		return err
 	}
 	if _, err := t.next.Reservation().Patch(t.ctx, app.ReservationPatchRequest_builder{
 		Ref:              app.ReservationRef_builder{Id: id.Bytes()}.Build(),
@@ -160,9 +169,9 @@ func (t *Tx) closeReservation(r *ent.Reservation, to, kind string, said proto.Me
 		ExpiresAtNull:    z.Ptr(true),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build()); err != nil {
-		return false, err
+		return err
 	}
-	return true, t.settleAllocations(id, to)
+	return t.settleAllocations(id, to)
 }
 
 // What a workspace was as the deployment let a reservation go, when that is
@@ -170,14 +179,31 @@ func (t *Tx) closeReservation(r *ent.Reservation, to, kind string, said proto.Me
 // nobody could confirm a hold, decide a request, or check in to or pick up
 // what was booked, so it was nobody's doing -- and a confirmed one is no
 // no-show, but expired (`from: confirmed`). Declared, and said, a release
-// before anything writes it, so that the build before says its rows
-// (design 7.14).
+// before anything wrote it, so that the build before says its rows (design
+// 7.14); written by the sweeps while the workspace is read-only ([Tx.while]),
+// and by its restore of what passed its time while it was closed
+// ([Tx.closedPast], design 7.15, D70).
 const (
 	whileReadOnly = "readonly"
 	whileClosed   = "closed"
 )
 
-// sweepHolds lets go of holds nobody confirmed in time.
+// while is what the workspace is as a sweep lets go of what nobody took up,
+// when that is why nobody did: read-only, which takes no confirm, decision,
+// check-in or pickup (D64) -- and nothing while it writes. What it is, is
+// asked of the copy of what levyan grants once for the transaction
+// ([Tx.readonly]). A closed one is swept by nothing ([Tx.sweeping]).
+func (t *Tx) while() (string, error) {
+	quiet, err := t.readonly()
+	if err != nil || !quiet {
+		return "", err
+	}
+	return whileReadOnly, nil
+}
+
+// sweepHolds lets go of holds nobody confirmed in time -- and, while the
+// workspace is read-only and takes no confirm (D64), says that nobody could
+// (D70).
 func sweepHolds(t *Tx) error {
 	rs, err := t.db.Reservation.Query().Where(
 		reservation.TenantId(t.tenant.Uuid()),
@@ -185,6 +211,10 @@ func sweepHolds(t *Tx) error {
 		reservation.ExpiresAtLT(t.now),
 		reservation.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
+	if err != nil || len(rs) == 0 {
+		return err
+	}
+	while, err := t.while()
 	if err != nil {
 		return err
 	}
@@ -193,6 +223,7 @@ func sweepHolds(t *Tx) error {
 			Reservation: pdid.Id(r.Id).Bytes(),
 			Name:        r.Name,
 			From:        resHeld,
+			Workspace:   while,
 		}.Build()); err != nil {
 			return err
 		}
@@ -205,7 +236,8 @@ func sweepHolds(t *Tx) error {
 //
 // A read-only workspace takes no decision (D64): what expires then expires
 // all the same -- its time began -- and says it was so, that nobody could
-// decide it, rather than that nobody did (D68).
+// decide it, rather than that nobody did (D68): in its notice, and in its
+// event (D70).
 func sweepRequests(t *Tx) error {
 	rs, err := t.db.Reservation.Query().Where(
 		reservation.TenantId(t.tenant.Uuid()),
@@ -216,15 +248,17 @@ func sweepRequests(t *Tx) error {
 	if err != nil || len(rs) == 0 {
 		return err
 	}
-	quiet, err := t.readonly()
+	while, err := t.while()
 	if err != nil {
 		return err
 	}
+	quiet := while == whileReadOnly
 	for _, r := range rs {
 		closed, err := t.closeReservation(r, resExpired, "reservation.expire", app.ReservationReleased_builder{
 			Reservation: pdid.Id(r.Id).Bytes(),
 			Name:        r.Name,
 			From:        resRequested,
+			Workspace:   while,
 		}.Build())
 		if err != nil {
 			return err
@@ -266,11 +300,11 @@ func (t *Tx) spacesOnly(rid uuid.UUID) (bool, error) {
 //
 // A read-only workspace takes no check-in and no pickup (D64): what is freed
 // then is freed all the same -- the clock moves -- and says that nobody could
-// take it up, rather than that nobody did (D68). That it is no no-show, in
-// the history and in what counts them (`BookableService.Usage`), is the
-// release after this one's: what says so is declared in this one
-// (`ReservationReleased.workspace`, `from: confirmed`), and written once the
-// build before can say it (design 7.14).
+// take it up, rather than that nobody did (D68). It is no no-show: it
+// expired, as a hold nobody could confirm does (`reservation.expire`, `from:
+// confirmed`, `workspace: readonly`, D70), and what counts no-shows
+// (`BookableService.Usage`) counts no expiry. Whose it is, is told so by a
+// notice of an expiry, in the words it was told in before.
 func sweepNoShows(t *Tx) error {
 	grace := t.settings().noShow
 	if grace <= 0 {
@@ -286,7 +320,7 @@ func sweepNoShows(t *Tx) error {
 	if err != nil || len(rs) == 0 {
 		return err
 	}
-	quiet, err := t.readonly()
+	while, err := t.while()
 	if err != nil {
 		return err
 	}
@@ -300,6 +334,28 @@ func sweepNoShows(t *Tx) error {
 			// due back.
 			continue
 		}
+		if while != "" {
+			closed, err := t.closeReservation(r, resExpired, "reservation.expire", app.ReservationReleased_builder{
+				Reservation: pdid.Id(r.Id).Bytes(),
+				Name:        r.Name,
+				From:        resConfirmed,
+				Workspace:   while,
+			}.Build())
+			if err != nil {
+				return err
+			}
+			if !closed {
+				continue
+			}
+			body := "워크스페이스가 읽기 전용이라 수령할 수 없는 동안 기간이 지나 예약이 해제되었습니다"
+			if spaces {
+				body = fmt.Sprintf("워크스페이스가 읽기 전용이라 체크인할 수 없는 동안 시작 후 %d분이 지나 예약이 해제되었습니다", int(grace.Minutes()))
+			}
+			if err := t.notifyParty(r.PartyId, "reservation.expired", "예약 해제: "+r.Name, body, pdid.Id(r.Id), "/reservations"); err != nil {
+				return err
+			}
+			continue
+		}
 		closed, err := t.closeReservation(r, resNoShow, "reservation.no_show", app.ReservationReleased_builder{
 			Reservation: pdid.Id(r.Id).Bytes(),
 			Name:        r.Name,
@@ -311,12 +367,7 @@ func sweepNoShows(t *Tx) error {
 			continue
 		}
 		body := fmt.Sprintf("시작 후 %d분 안에 체크인하지 않아 예약이 해제되었습니다", int(grace.Minutes()))
-		switch {
-		case quiet && spaces:
-			body = fmt.Sprintf("워크스페이스가 읽기 전용이라 체크인할 수 없는 동안 시작 후 %d분이 지나 예약이 해제되었습니다", int(grace.Minutes()))
-		case quiet:
-			body = "워크스페이스가 읽기 전용이라 수령할 수 없는 동안 기간이 지나 예약이 해제되었습니다"
-		case !spaces:
+		if !spaces {
 			body = "기간 안에 수령하지 않아 예약이 해제되었습니다"
 		}
 		if err := t.notifyParty(r.PartyId, "reservation.no_show", "예약 해제: "+r.Name, body, pdid.Id(r.Id), "/reservations"); err != nil {
@@ -328,9 +379,19 @@ func sweepNoShows(t *Tx) error {
 
 // sweepFinished completes room reservations whose time is over. Equipment is
 // completed by its return instead.
+//
+// Where nobody is held to checking in (`no_show_minutes` below zero, or the
+// deployment's zero), what was booked and not taken up is let go of by
+// nothing else: a room is completed, used as it was booked, and equipment
+// nobody picked up by the end of its time -- it is picked up to be used --
+// expired (`reservation.expire`, `from: confirmed`, D70): no no-show, which
+// such a workspace counts none of, nor used. It is over, and told to nobody,
+// as a room completed is not. While the workspace is read-only, which takes
+// no pickup, it says so (`workspace: readonly`).
 func sweepFinished(t *Tx) error {
+	unchecked := t.settings().noShow <= 0
 	states := []string{resInUse}
-	if t.settings().noShow <= 0 {
+	if unchecked {
 		// Nobody is held to checking in, so a confirmed room was used.
 		states = append(states, resConfirmed)
 	}
@@ -349,6 +410,22 @@ func sweepFinished(t *Tx) error {
 			return err
 		}
 		if !spaces {
+			if r.Status != resConfirmed {
+				// Picked up: completed by its return.
+				continue
+			}
+			while, err := t.while()
+			if err != nil {
+				return err
+			}
+			if _, err := t.closeReservation(r, resExpired, "reservation.expire", app.ReservationReleased_builder{
+				Reservation: pdid.Id(r.Id).Bytes(),
+				Name:        r.Name,
+				From:        resConfirmed,
+				Workspace:   while,
+			}.Build()); err != nil {
+				return err
+			}
 			continue
 		}
 		if _, err := t.closeReservation(r, resCompleted, "reservation.complete", app.ReservationDecided_builder{
@@ -358,6 +435,130 @@ func sweepFinished(t *Tx) error {
 		}.Build()); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// closedPast is what passed its time while the workspace was closed, from
+// `since` until now (D70, design 7.15): what the sweeps would have let go of
+// meanwhile as nobody took it up, had they swept it ([Sweeper.Pass]) -- a
+// hold past its expiry (sweepHolds), a request past its beginning
+// (sweepRequests), a room nobody checked in to past its grace and equipment
+// nobody picked up past the end of its time, or its grace when that is later
+// (sweepNoShows, sweepFinished). Nobody could take any of it up: a closed
+// workspace takes no call but its owner's look and restore (D29). Its
+// restore lets go of it ([Tx.expireClosed]).
+//
+// What was due before the workspace closed was due while it was open, and
+// is the sweeps' still; what is due from now on is the people's again. A
+// room where nobody is held to checking in is due nothing -- its end
+// completes it, used (sweepFinished) -- and neither is what was checked in
+// to or picked up: its end or its return is what ends it.
+//
+// Every one, as one transaction: what it left would be let go of by the next
+// pass as nobody's coming. Each is held ([Tx.lockReservations]) and read
+// again as it is then, in identifier order, before the restore's moment is
+// taken.
+func (t *Tx) closedPast(since time.Time) ([]*ent.Reservation, error) {
+	grace := t.settings().noShow
+	ids, err := t.db.Reservation.Query().Where(
+		reservation.TenantId(t.tenant.Uuid()),
+		reservation.DateErasedIsNil(),
+		reservation.Or(
+			reservation.And(reservation.Status(resHeld), reservation.ExpiresAtGTE(since), reservation.ExpiresAtLT(t.now)),
+			reservation.And(reservation.Status(resRequested), reservation.BeginsAtGTE(since), reservation.BeginsAtLT(t.now)),
+			reservation.And(
+				reservation.Status(resConfirmed),
+				reservation.CheckedInAtIsNil(),
+				reservation.BeginsAtLT(t.now),
+				// Due at its grace, or at its end: one of them since.
+				reservation.Or(reservation.EndsAtGTE(since), reservation.BeginsAtGTE(since.Add(-grace))),
+			),
+		),
+	).Ids(t.ctx)
+	if err != nil || len(ids) == 0 {
+		return nil, err
+	}
+	slices.SortFunc(ids, func(a, b uuid.UUID) int { return a.Compare(b) })
+	held := make([]pdid.Id, 0, len(ids))
+	for _, v := range ids {
+		held = append(held, pdid.Id(v))
+	}
+	if err := t.lockReservations(held...); err != nil {
+		return nil, err
+	}
+	out := make([]*ent.Reservation, 0, len(ids))
+	for page := range slices.Chunk(ids, 500) {
+		rs, err := t.db.Reservation.Query().Where(
+			reservation.TenantId(t.tenant.Uuid()),
+			reservation.IdIn(page...),
+		).Order(reservation.ById()).All(t.ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, r := range rs {
+			var due time.Time
+			switch {
+			case r.DateErased != nil:
+				continue
+			case r.Status == resHeld && r.ExpiresAt != nil:
+				due = *r.ExpiresAt
+			case r.Status == resRequested:
+				due = r.BeginsAt
+			case r.Status == resConfirmed && r.CheckedInAt == nil:
+				spaces, err := t.spacesOnly(r.Id)
+				if err != nil {
+					return nil, err
+				}
+				switch {
+				case spaces && grace <= 0:
+					continue
+				case spaces:
+					due = r.BeginsAt.Add(grace)
+				default:
+					due = later(r.EndsAt, r.BeginsAt.Add(max(grace, 0)))
+				}
+			default:
+				continue
+			}
+			if due.Before(since) || !due.Before(t.now) {
+				continue
+			}
+			out = append(out, r)
+		}
+	}
+	return out, nil
+}
+
+// expireClosed lets go of what passed its time while the workspace was
+// closed ([Tx.closedPast]), as part of the restore that opens it (D70): each
+// an expiry of the reservation's own, from what it was -- a hold, a request,
+// or a confirmed one, which is no no-show -- saying it was while the
+// workspace was closed (`workspace: closed`), and a child of the restore's
+// event, whose cause it is (design D34). Whoever restored it did what it
+// did. It is told to nobody: every one of them is over, and nothing about it
+// is to be done; a booking that waited for what one of them held, and has it
+// now, is told it has, as it would be by the next pass ([Tx.heal]).
+//
+// How many it let go of is the restore's to say (`WorkspaceRestored.expired`),
+// declared a release before anything writes it (design 7.15): till then it
+// is in the log, and the restore's children are each one of them.
+func (t *Tx) expireClosed(rs []*ent.Reservation) error {
+	for _, r := range rs {
+		id := pdid.Id(r.Id)
+		said := app.ReservationReleased_builder{
+			Reservation: id.Bytes(),
+			Name:        r.Name,
+			From:        r.Status,
+			Workspace:   whileClosed,
+		}.Build()
+		if err := t.child("reservation.expire", id, t.now, "", said, func() error { return t.release(id, resExpired) }); err != nil {
+			return err
+		}
+	}
+	if len(rs) > 0 {
+		log.From(t.ctx).InfoContext(t.ctx, "domain: what passed its time while the workspace was closed expired as it was restored",
+			"workspace", t.tenant.String(), "expired", len(rs))
 	}
 	return nil
 }

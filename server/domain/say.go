@@ -201,7 +201,8 @@ func sentences() *past.Sentences {
 	// By what it was, and -- when nobody could act on it in time, its
 	// workspace read-only or closed -- by why, which was nobody's doing: a
 	// confirmed one nobody could check in to or pick up is said so, and no
-	// no-show (D68).
+	// no-show (D68, D70). A confirmed one with no why is equipment nobody
+	// picked up where nobody is held to it (D70).
 	past.SayKind(s, "reservation.expire", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationReleased) string {
 		what := "홀드 만료: "
 		switch m.GetFrom() {
@@ -342,7 +343,12 @@ func sentences() *past.Sentences {
 		}
 		return "워크스페이스 닫기"
 	})
+	// And how many of its reservations whose time passed while it was
+	// closed it let go of, once that is written (D70, design 7.15).
 	past.SayKind(s, "workspace.restore", "ko", func(r *past.Reading, ev past.EventRow, m *app.WorkspaceRestored) string {
+		if n := m.GetExpired(); n > 0 {
+			return fmt.Sprintf("워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 %d건 만료", n)
+		}
 		return "워크스페이스 복구"
 	})
 	past.SayKind(s, "workspace.import", "ko", func(r *past.Reading, ev past.EventRow, m *app.WorkspaceImported) string {

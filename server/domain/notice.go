@@ -67,7 +67,7 @@ var ReadOnlyTells = map[string]Telling{
 	// in time, or as nobody came; or given what it waited for. It asks for
 	// nothing -- a booking made again is a write, refused -- and is so still
 	// once the workspace writes again, when it would be told late.
-	"reservation.expired":  TellsStill, // its time began before anybody approved it (sweepRequests)
+	"reservation.expired":  TellsStill, // its time began before anybody approved it (sweepRequests), or nobody could check in or pick up while it was read-only (sweepNoShows, D70)
 	"reservation.no_show":  TellsStill, // nobody checked in, or picked up, in time (sweepNoShows)
 	"reservation.resolved": TellsStill, // what it waited for is its now (sweepKits, and what a booking let go of)
 

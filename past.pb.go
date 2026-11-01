@@ -2829,7 +2829,13 @@ func (b0 ReservationDecided_builder) Build() *ReservationDecided {
 // doing. A confirmed one nobody could check in to or pick up then is no
 // no-show; it expired, as a hold nobody could confirm and a request nobody
 // could decide did (`from: confirmed`). Declared a release before anything
-// writes either (design 7.14, D68).
+// wrote either (design 7.14, D68): the sweeps write what they let go of
+// while the workspace is read-only, and its restore what passed its time
+// while it was closed, each the restore's child (design 7.15, D70). And
+// equipment nobody picked up by the end of its time, where the workspace
+// holds nobody to taking up what they booked -- it takes no check-ins -- is
+// no no-show either: it expired, and says nothing of its workspace unless
+// that let nobody act on it then.
 //
 //	reservation.expire   reservation, name, from, workspace
 //	reservation.no_show  reservation, name
@@ -5460,12 +5466,19 @@ func (b0 WorkspaceClosed_builder) Build() *WorkspaceClosed {
 }
 
 // WorkspaceRestored is a closed workspace opened again
-// (`workspace.restore`) by its owner or an operator.
+// (`workspace.restore`) by its owner or an operator -- and how many of its
+// reservations whose time passed while it was closed it let go of as it
+// opened (`expired`, D70): a hold nobody could confirm, a request nobody
+// could decide, a booking nobody could check in to or pick up. Each is an
+// expiry of its own, the restore's child, which says the workspace was
+// closed. Declared a release before anything writes it (design 7.15): until
+// then a restore says none, and its children are what it let go of.
 type WorkspaceRestored struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_By string                 `protobuf:"bytes,1,opt,name=by"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_By      string                 `protobuf:"bytes,1,opt,name=by"`
+	xxx_hidden_Expired uint32                 `protobuf:"varint,22,opt,name=expired"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *WorkspaceRestored) Reset() {
@@ -5500,14 +5513,26 @@ func (x *WorkspaceRestored) GetBy() string {
 	return ""
 }
 
+func (x *WorkspaceRestored) GetExpired() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Expired
+	}
+	return 0
+}
+
 func (x *WorkspaceRestored) SetBy(v string) {
 	x.xxx_hidden_By = v
+}
+
+func (x *WorkspaceRestored) SetExpired(v uint32) {
+	x.xxx_hidden_Expired = v
 }
 
 type WorkspaceRestored_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	By string
+	By      string
+	Expired uint32
 }
 
 func (b0 WorkspaceRestored_builder) Build() *WorkspaceRestored {
@@ -5515,6 +5540,7 @@ func (b0 WorkspaceRestored_builder) Build() *WorkspaceRestored {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_By = b.By
+	x.xxx_hidden_Expired = b.Expired
 	return m0
 }
 
@@ -7020,9 +7046,10 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x0fWorkspaceClosed\x12\x0e\n" +
 	"\x02by\x18\x01 \x01(\tR\x02by\x124\n" +
 	"\adestroy\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\adestroy:\x15\x92\xbb\x16\x11\n" +
-	"\x0fworkspace.close\"<\n" +
+	"\x0fworkspace.close\"V\n" +
 	"\x11WorkspaceRestored\x12\x0e\n" +
-	"\x02by\x18\x01 \x01(\tR\x02by:\x17\x92\xbb\x16\x13\n" +
+	"\x02by\x18\x01 \x01(\tR\x02by\x12\x18\n" +
+	"\aexpired\x18\x16 \x01(\rR\aexpired:\x17\x92\xbb\x16\x13\n" +
 	"\x11workspace.restore\"\xbe\x03\n" +
 	"\x13WorkspaceConfigured\x12!\n" +
 	"\btimezone\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x01R\btimezone\x12!\n" +

@@ -171,16 +171,17 @@ func TestAReadOnlyWorkspaceIsAskedNothingItCannotDo(t *testing.T) {
 
 	// The clock moved: the loan was found late, once, and holds what it lent
 	// until it is back, which the booking after its due says; the request
-	// expired, and the room was let go of.
+	// expired, and the room was let go of -- an expiry too, which nobody
+	// could check in to (D70).
 	x.Len(loansOf(e.eventsOf("custody.overdue")), 1, "found late")
 	x.Equal(2200, e.hold(loan, camera).EndsAt.Year(), "held until it is back")
 	x.Equal([]string{"CM-1 loan late"}, e.out(r))
 	x.Equal("expired", e.reservation(asked).GetStatus())
-	x.Equal("no_show", e.reservation(met).GetStatus())
+	x.Equal("expired", e.reservation(met).GetStatus())
 
 	// What became of a booking is told, as ever.
-	x.Len(e.notices(kimCtx, "reservation.expired"), 1)
-	x.Len(e.notices(kimCtx, "reservation.no_show"), 1)
+	x.Len(e.notices(kimCtx, "reservation.expired"), 2)
+	x.Empty(e.notices(kimCtx, "reservation.no_show"))
 
 	// And nothing that asks anybody to act, in the app or by mail.
 	nothingAsked := func(why string) {
