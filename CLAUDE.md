@@ -413,23 +413,27 @@ a workspace's. A new RPC that adds to a meter goes in the table, or it is a
 way around the restriction.
 
 The second stage is `loft.readonly` (design 7.10, D64): sixty days after an
-invoice billing the workspace first failed to be charged, levyan makes it
-read-only until the invoice is paid. Its table is the other way round: what
-a read-only workspace **still does**, `domain.ReadOnlyAllows` -- reading,
-taking its data out, paying, closing, its members leaving, and what is a
-person's own -- each with why, and every other write is refused. As its
-operation begins (`Tx.begin`, `Tx.held`: read-only first, then `Grows`), and,
-for a write that begins none, as the domain layer's transaction a caller's
-method opened would commit (`Deps.run`); the generated Erases a role is given
-are served in one (`domain.passing`). Refused `FailedPrecondition` with an
-`ErrorInfo` of reason `READONLY`, and `PartyService.Me`'s `readonly` is what
-the banner reads. **A new write RPC is refused by a read-only workspace until
-that table says why it is not, and a new read goes in it as `domain.Reads`**:
+invoice billing the workspace first failed to be charged, or after it last
+had a payer, levyan makes it read-only until it is paid for. Its table is
+the other way round: what a read-only workspace **still does**,
+`domain.ReadOnlyAllows` -- what levyan's `docs/apps.md` (3, "제한의 두 단계")
+says an app takes of one: reading, taking its data out, paying, closing, its
+members leaving; and a password, which is the account's -- each with why,
+and every other write is refused. Keep it matching that chapter. Refused as
+its operation begins (`Tx.begin`, `Tx.held`: read-only first, then
+`Grows`), and, for a write that begins none, as the domain layer's
+transaction a caller's method opened would commit (`Deps.run`); the
+generated Erases a role is given are served in one (`domain.passing`).
+`FailedPrecondition` with an `ErrorInfo` of reason `READONLY`, and
+`PartyService.Me`'s `readonly` is what the banner reads, with levyan's
+`readonly_from` (`BillingPayer`, `BillingDunning`) for when, to whoever reads
+who pays. **A new write RPC is refused by a read-only workspace until that
+table says why it is not, and a new read goes in it as `domain.Reads`**:
 `server/domain/readonly_test.go` walks `server/policy`'s table and fails a
-method that is neither in it nor served by this layer in a transaction of its
-own, read off the layer's source. The doors that are no RPC -- a download,
-the workspace's export, signing in -- read or are an account's, and are not
-refused.
+method that is neither in it nor served by this layer in a transaction of
+its own, read off the layer's source. The doors that are no RPC -- a
+download, the workspace's export, signing in -- read or are an account's,
+and are not refused.
 
 Who pays for a workspace is levyan's, and what it cannot know Loft tells it
 (design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and
