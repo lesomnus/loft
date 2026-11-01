@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"slices"
 	"time"
 	"uuid"
 
@@ -478,6 +479,7 @@ func (t *Tx) closedPast(since time.Time) ([]*ent.Reservation, error) {
 	if err != nil || len(ids) == 0 {
 		return nil, err
 	}
+	slices.SortFunc(ids, func(a, b uuid.UUID) int { return a.Compare(b) })
 	held := make([]pdid.Id, 0, len(ids))
 	for _, v := range ids {
 		held = append(held, pdid.Id(v))
@@ -485,43 +487,45 @@ func (t *Tx) closedPast(since time.Time) ([]*ent.Reservation, error) {
 	if err := t.lockReservations(held...); err != nil {
 		return nil, err
 	}
-	rs, err := t.db.Reservation.Query().Where(
-		reservation.TenantId(t.tenant.Uuid()),
-		reservation.IdIn(ids...),
-	).Order(reservation.ById()).All(t.ctx)
-	if err != nil {
-		return nil, err
-	}
-	out := make([]*ent.Reservation, 0, len(rs))
-	for _, r := range rs {
-		var due time.Time
-		switch {
-		case r.DateErased != nil:
-			continue
-		case r.Status == resHeld && r.ExpiresAt != nil:
-			due = *r.ExpiresAt
-		case r.Status == resRequested:
-			due = r.BeginsAt
-		case r.Status == resConfirmed && r.CheckedInAt == nil:
-			spaces, err := t.spacesOnly(r.Id)
-			if err != nil {
-				return nil, err
-			}
+	out := make([]*ent.Reservation, 0, len(ids))
+	for page := range slices.Chunk(ids, 500) {
+		rs, err := t.db.Reservation.Query().Where(
+			reservation.TenantId(t.tenant.Uuid()),
+			reservation.IdIn(page...),
+		).Order(reservation.ById()).All(t.ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, r := range rs {
+			var due time.Time
 			switch {
-			case spaces && grace <= 0:
+			case r.DateErased != nil:
 				continue
-			case spaces:
-				due = r.BeginsAt.Add(grace)
+			case r.Status == resHeld && r.ExpiresAt != nil:
+				due = *r.ExpiresAt
+			case r.Status == resRequested:
+				due = r.BeginsAt
+			case r.Status == resConfirmed && r.CheckedInAt == nil:
+				spaces, err := t.spacesOnly(r.Id)
+				if err != nil {
+					return nil, err
+				}
+				switch {
+				case spaces && grace <= 0:
+					continue
+				case spaces:
+					due = r.BeginsAt.Add(grace)
+				default:
+					due = later(r.EndsAt, r.BeginsAt.Add(max(grace, 0)))
+				}
 			default:
-				due = later(r.EndsAt, r.BeginsAt.Add(max(grace, 0)))
+				continue
 			}
-		default:
-			continue
+			if due.Before(since) || !due.Before(t.now) {
+				continue
+			}
+			out = append(out, r)
 		}
-		if due.Before(since) || !due.Before(t.now) {
-			continue
-		}
-		out = append(out, r)
 	}
 	return out, nil
 }
