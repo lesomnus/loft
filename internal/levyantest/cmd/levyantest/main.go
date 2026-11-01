@@ -11,6 +11,7 @@
 //	GET  /healthz                                   up
 //	POST /e2e/payerless?workspace=ID&from=RFC3339   nobody pays for it since now, restricted from `from`
 //	POST /e2e/restrict?workspace=ID                 `loft.restricted` granted it, on, for a week
+//	POST /e2e/readonly?workspace=ID                 `loft.readonly` granted it, on, for a week
 //	POST /e2e/turn?workspace=ID                     its period over: who was to pay from then pays now
 //	POST /e2e/dunning?workspace=ID&kind=K&restricted=RFC3339[&billing_account=BA]
 //	                                                an invoice billing it whose charge failed, of
@@ -80,6 +81,15 @@ func main() {
 			return
 		}
 		v.Restrict(ws)
+		w.WriteHeader(http.StatusNoContent)
+	})
+	m.HandleFunc("POST /e2e/readonly", func(w http.ResponseWriter, r *http.Request) {
+		ws, err := pdid.Parse(r.URL.Query().Get("workspace"))
+		if err != nil {
+			http.Error(w, "workspace: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		v.ReadOnly(ws)
 		w.WriteHeader(http.StatusNoContent)
 	})
 	m.HandleFunc("POST /e2e/turn", func(w http.ResponseWriter, r *http.Request) {

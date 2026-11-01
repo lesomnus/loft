@@ -3,9 +3,10 @@
 // tells it:
 //
 //   - its MeteringService, every reading kept by default;
-//   - its `payday.GrantService`, the grants a test gives, ends and changes,
-//     streamed to whoever watches and listed to whoever asks, as levyan's own
-//     does (levyan's design 13);
+//   - its `payday.GrantService`, the grants a test gives, ends and changes --
+//     `loft.restricted` and `loft.readonly` among them -- streamed to whoever
+//     watches and listed to whoever asks, as levyan's own does (levyan's
+//     design 13);
 //   - its WorkspaceService's Arrive and Leave, every call kept in the order it
 //     came, taken unless a test says levyan is down -- and who pays for each
 //     workspace, as levyan works it out of them, what is offered (`Offer`)
@@ -266,6 +267,13 @@ func (v *Levyan) Grant(tenant pdid.Id, key string, until time.Time) []byte {
 // a workspace nobody has paid for since its grace ran out.
 func (v *Levyan) Restrict(tenant pdid.Id) []byte {
 	return v.Grant(tenant, "loft.restricted", time.Now().Add(7*24*time.Hour))
+}
+
+// ReadOnly gives `tenant` `loft.readonly`, on, for a week: what levyan gives a
+// workspace billed by an invoice still unpaid sixty days after its charge
+// first failed (levyan#11), and ends once it is paid.
+func (v *Levyan) ReadOnly(tenant pdid.Id) []byte {
+	return v.Grant(tenant, "loft.readonly", time.Now().Add(7*24*time.Hour))
 }
 
 // End ends grant `id` now, at its next version, as levyan takes one away.
