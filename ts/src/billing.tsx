@@ -22,8 +22,9 @@
  *   statements, its owner asking a member to pay, and its owner taking it on
  *   themself in one go (`TakeOver`).
  * - **The banner** a workspace shows while nobody pays for it, once it is
- *   restricted, and -- to the people who run it -- while the billing account
- *   it is paid for with cannot be collected from: what to do, and where.
+ *   restricted and once it is read-only, and -- to the people who run it --
+ *   while the billing account it is paid for with cannot be collected from:
+ *   what to do, and where.
  *
  * Its dates are on the wall the server tells it -- the deployment's on the
  * account's page, which is about no workspace (`main.tsx`), and the
@@ -65,7 +66,7 @@ import {
 } from '../gen/loft/payment_pb.js'
 import { HolderService, PaymentService, dateOf, errorText, fmt, idStr, money, openWorkspace, wall, workspace, type Account } from './api.js'
 import { useCatalog } from './catalog.js'
-import { call, useAct, useEpoch, useRestricted, useRpc } from './rpc.js'
+import { call, useAct, useEpoch, useReadOnly, useRestricted, useRpc } from './rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Kv, Load, Modal, Select, Spinner, useToast } from './ui.js'
 import { roleWord } from './words.js'
 
@@ -1626,23 +1627,25 @@ function usePaysHere(ws: string, on: boolean): Here {
 
 /**
  * What a workspace says above every page while nobody pays for it, while an
- * invoice that bills it failed to be charged, and once it is restricted --
- * what to do, and where (levyan's `docs/apps.md`, 4 and 6). Every member is
- * told it is restricted, by the copy of levyan's grants its writes are held
- * to (`PartyService.Me`) or by a write refused for it. Why, and what comes
- * before, the people who run it are told from who pays for it (`GetPayer`),
- * which they alone read; a member who is not one of them, and pays for it or
- * was asked to, by the account's own calls (`usePaysHere`) -- the payer, of
- * their billing account's failed charges before it restricts, as levyan's
- * table has the payer told. Either is sent to the account's own page to
- * settle it. And while nothing failed and nothing is restricted, the people
- * who run it are told the billing account it is paid for with cannot be
- * collected from yet (`GetPayer`'s collection, `CollectionBanner`), which
+ * invoice that bills it failed to be charged, once it is restricted, and once
+ * it is read-only -- what to do, and where (levyan's `docs/apps.md`, 4 and 6).
+ * Every member is told it is restricted or read-only, by the copy of levyan's
+ * grants its writes are held to (`PartyService.Me`) or by a write refused for
+ * it; read-only, the second stage, is said over the first. Why, and what
+ * comes before, the people who run it are told from who pays for it
+ * (`GetPayer`), which they alone read; a member who is not one of them, and
+ * pays for it or was asked to, by the account's own calls (`usePaysHere`) --
+ * the payer, of their billing account's failed charges before it restricts,
+ * as levyan's table has the payer told. Either is sent to the account's own
+ * page to settle it. And while nothing failed and nothing is restricted, the
+ * people who run it are told the billing account it is paid for with cannot
+ * be collected from yet (`GetPayer`'s collection, `CollectionBanner`), which
  * restricts nothing.
  */
 export function BillingBanner(props: { account: Account }): ReactNode {
 	const c = useCatalog()
 	const refused = useRestricted()
+	const refusedReadOnly = useReadOnly()
 	const billed = props.account.billing === true
 	const admin = c.can('admin')
 	const payer = useRpc(PaymentService.method.getPayer, billed && admin ? {} : null, { poll: 10 * 60_000 })
@@ -1661,10 +1664,14 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 	const dunning = admin ? p?.dunning[0] : mine.dunning[0]
 	const dunningFrom = dateOf(dunning?.restrictedFrom)
 	const passed = (v: Date | undefined): v is Date => v !== undefined && v <= now
-	const restricted = c.me.restricted || refused || passed(payerlessFrom) || passed(dunningFrom)
+	// The second stage, read-only (design 7.10), which holds it to more than
+	// the first: by its own grant, and so by nothing a date says here.
+	const readOnly = c.me.readonly || refusedReadOnly
+	const restricted = readOnly || c.me.restricted || refused || passed(payerlessFrom) || passed(dunningFrom)
 
 	const payerIsMe = admin ? p?.current !== undefined && p.current.account === props.account.id : mine.pays !== undefined
 	const offeredToMe = admin ? p?.offer !== undefined && p.offer.account === props.account.id : mine.offered !== undefined
+	const payerless = payerlessFrom !== undefined
 	if (!restricted && payerlessFrom === undefined && dunning === undefined) {
 		// Nothing failed, and nothing is restricted: whether the billing
 		// account it is paid for with can be collected, to the people who
@@ -1676,7 +1683,21 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 	const grows = '자산 등록, 초대, 첨부 올리기처럼 청구되는 것을 늘리는 일'
 
 	let said: ReactNode
-	if (restricted) {
+	if (readOnly) {
+		// Why: the invoice whose charge failed first, where the banner knows
+		// it, and an invoice gone unpaid otherwise; and what ends it, to whoever
+		// may.
+		const why = dunning !== undefined ? `${fmt(dunning.failed, 'date')}에 결제가 실패한 청구서가 아직 결제되지 않아` : '청구서의 결제가 오래 밀려'
+		const ends = payerIsMe && !payerless ? '결제 화면에서 밀린 청구서를 결제하면' : admin ? '결제 담당이 밀린 청구서를 결제하면' : '결제가 정리되면'
+		said = (
+			<>
+				<strong>이 워크스페이스는 읽기 전용입니다.</strong>
+				<span>
+					{why} 보기, 내보내기, 결제와 닫기만 할 수 있고, 그 밖에는 아무것도 바꿀 수 없습니다. {ends} 곧 다시 바꿀 수 있습니다.
+				</span>
+			</>
+		)
+	} else if (restricted) {
 		const why = passed(payerlessFrom) ? '결제 담당이 없어 ' : passed(dunningFrom) ? '결제가 밀려 ' : ''
 		const since = passed(payerlessFrom) ? payerlessFrom : passed(dunningFrom) ? dunningFrom : undefined
 		said = (
@@ -1710,7 +1731,6 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 
 	// Where to go: the payer's own page for what is theirs to settle, the
 	// workspace's settings for its owner and administrators.
-	const payerless = payerlessFrom !== undefined
 	const page = billingPage(props.account)
 	let go: ReactNode
 	if (offeredToMe) {
