@@ -72,14 +72,15 @@ func makeReadOnly(w *world, fake *levyantest.Levyan) []byte {
 // levyan makes a workspace read-only, every write of every kind is refused --
 // the register and its catalog, files, labels, bookings, hand-overs, stock,
 // counts, work, purchases, people and their roles, invitations sent and
-// answered, the record of an access review, notifications, its settings and
-// its domains, as an RPC and as an operation of a batch, and a write that
-// begins no operation as one that does -- with the reason a page tells it by.
-// What it still does, as levyan's `docs/apps.md` says an app takes of one, it
-// does: reads and reports, takes its data out and its files, is paid for, and
-// lets its members leave and a person be forgotten; and a password, which is
-// the account's, is changed. Once levyan ends the grant it writes again; and
-// read-only or not, it closes.
+// answered, the record of an access review, its settings and its domains, as
+// an RPC and as an operation of a batch, and a write that begins no
+// operation as one that does -- with the reason a page tells it by. What it
+// still does, as levyan's `docs/apps.md` says an app takes of one, it does:
+// reads and reports, takes its data out and its files, is paid for, and lets
+// its members leave and a person be forgotten; and a password, which is the
+// account's, is changed, and what a person is told, which is theirs (D67), is
+// marked read and kept off their mail. Once levyan ends the grant it writes
+// again; and read-only or not, it closes.
 func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	fake := levyantest.Start(t)
 	w := newInvites(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
@@ -318,13 +319,18 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	// A password, which is the account's at roster and how it signs in.
 	_, err = parties.SetPassword(asJung, app.PartySetPasswordRequest_builder{Current: "password1234", Password: "another1234"}.Build())
 	x.NoError(err, "a password changed")
-	// But a notification marked read, or mail turned off, is a write of the
-	// workspace's that begins no operation -- refused as its transaction
-	// would commit -- and so is an invitation into it turned down.
-	_, err = notifications.MarkRead(w.owner, &app.NotificationMarkReadRequest{})
-	w.refusedReadOnly(err, app.NotificationService_MarkRead_FullMethodName)
-	_, err = notifications.SetMail(w.owner, app.NotificationSetMailRequest_builder{Off: true}.Build())
-	w.refusedReadOnly(err, app.NotificationService_SetMail_FullMethodName)
+	// And what a person is told here, which is theirs (D67): marked read,
+	// and kept off their mail -- a write that begins no operation, which a
+	// read-only workspace still commits for these two.
+	_, err = notifications.MarkRead(asJung, &app.NotificationMarkReadRequest{})
+	x.NoError(err, "notices marked read")
+	off, err := notifications.SetMail(asJung, app.NotificationSetMailRequest_builder{Off: true}.Build())
+	x.NoError(err, "mail turned off")
+	x.True(off.GetOff())
+	me, err = parties.Me(asJung, &app.PartyMeRequest{})
+	x.NoError(err)
+	x.True(me.GetHolder().GetMailOff(), "what the person's page reads")
+	// But an invitation into it turned down is the workspace's own.
 	_, err = w.svc.Deny(w.as(lee), app.InvitationDenyRequest_builder{Ref: ref(sent)}.Build())
 	w.refusedReadOnly(err, app.InvitationService_Deny_FullMethodName)
 
