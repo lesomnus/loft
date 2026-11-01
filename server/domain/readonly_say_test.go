@@ -5,11 +5,13 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 // What a read-only workspace is told is so (D68, design 7.14): what the
@@ -179,4 +181,20 @@ func TestAnOperatorsNoticesAreToldInAReadOnlyWorkspace(t *testing.T) {
 	x.Equal([]string{"CM-1 loan"}, e.out(booked))
 	x.Len(e.notices(kim, "reservation.out"), 1, "to whose the booking is")
 	x.NotNil(about(e.notices(boss, "reservation.out"), camera), "and to who runs the reservations")
+}
+
+// TestAReadOnlyRefusalSaysWhatItStillDoes (D68): what a read-only workspace
+// says of a write it refuses is that it is read-only, and what it still does
+// -- and not that that is all: a password, which is the account's, and what
+// a person is told, which is theirs, it takes besides (D64, D67).
+func TestAReadOnlyRefusalSaysWhatItStillDoes(t *testing.T) {
+	e := newPaying(t)
+	x := e.x
+	e.readOnly()
+	_, err := e.app().Asset().Add(rpc(e.owner, app.AssetService_Add_FullMethodName), app.AssetAddRequest_builder{Name: "프로젝터"}.Build())
+	x.Equal(domain.ErrorReadOnly, reasonOf(err))
+	said := status.Convert(err).Message()
+	x.Contains(said, "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다")
+	x.Contains(said, "보기, 내보내기, 결제, 닫기, 떠나기는 할 수 있고")
+	x.NotContains(said, "만 할 수 있")
 }
