@@ -4,6 +4,7 @@ import (
 	"context"
 	"uuid"
 
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql"
@@ -57,9 +58,10 @@ const (
 // Every kind a sweep sends is here, and the domain's tests hold them to it:
 // a kind is decided as it is added. A kind no sweep sends is not: an
 // operation's, which a read-only workspace refuses before it tells anything.
-// One an operator's hand writes there -- the deployment's own, which is not
-// refused -- is held back as a [TellsOnceWritable] one is, and nothing tells
-// it later.
+// The table is the sweeps' alone (D68): what an operator's hand writes there
+// -- the deployment's own, which is not refused -- tells what the operator
+// did, and is told as it is done, whatever its kind, since nothing would
+// tell it later.
 var ReadOnlyTells = map[string]Telling{
 	// What became of a booking by itself: let go of, as nobody approved it
 	// in time, or as nobody came; or given what it waited for. It asks for
@@ -102,11 +104,28 @@ var ToldWhy = map[string]string{
 // sent: the row is written in the operation's transaction, so an operation
 // that is undone mails nothing, and `Mailer` sends after.
 //
-// Nothing, while the workspace is read-only, of a kind it is not told then
-// ([ReadOnlyTells], D67): no row, so no mail, and what dedupes a reminder
-// ([Tx.noticed]) has not seen it.
+// Nothing, while the workspace is read-only, that a sweep sends of a kind it
+// is not told then ([ReadOnlyTells], D67): no row, so no mail, and what
+// dedupes a reminder ([Tx.noticed]) has not seen it -- the sweeps tell it
+// once the workspace writes again. Nothing else tells one later, so nothing
+// else holds one back (D68): what an operator's command tells is of what the
+// operator did, told as it is done, read-only or not.
+//
+// And nothing at all in a workspace that is closed (D68), whoever writes it:
+// nobody there may read it, and a mail would ask them into what they cannot
+// open. The sweeps do not sweep one; what else would tell it -- an
+// operator's command -- is said in the log, since nothing tells it later.
 func (t *Tx) notify(h uuid.UUID, kind, title, body string, subject pdid.Id, link string) error {
-	if ReadOnlyTells[kind] != TellsStill {
+	closed, err := t.closed()
+	if err != nil {
+		return err
+	}
+	if closed {
+		log.From(t.ctx).InfoContext(t.ctx, "domain: a notice was not written, as its workspace is closed",
+			"workspace", t.tenant.String(), "kind", kind, "subject", subject.String())
+		return nil
+	}
+	if t.shared != nil && t.shared.sweep && ReadOnlyTells[kind] != TellsStill {
 		quiet, err := t.readonly()
 		if err != nil || quiet {
 			return err
@@ -124,7 +143,7 @@ func (t *Tx) notify(h uuid.UUID, kind, title, body string, subject pdid.Id, link
 	if !subject.IsZero() {
 		req.SetSubjectId(subject.Bytes())
 	}
-	_, err := t.next.Notification().Add(t.ctx, req)
+	_, err = t.next.Notification().Add(t.ctx, req)
 	return err
 }
 

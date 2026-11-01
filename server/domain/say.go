@@ -37,6 +37,14 @@ import (
 // Sentences is what Loft says of its events.
 var Sentences = sentences()
 
+// whileSay is what a reservation the deployment let go says of why nobody
+// took it up, by what its workspace was then ([whileReadOnly],
+// [whileClosed]): nothing, when it was neither.
+var whileSay = map[string]string{
+	whileReadOnly: " (워크스페이스가 읽기 전용이던 때)",
+	whileClosed:   " (워크스페이스가 닫혀 있던 때)",
+}
+
 func sentences() *past.Sentences {
 	s := past.NewSentences("ko")
 	s.TimeLayout("ko", "2006-01-02 15:04")
@@ -190,11 +198,19 @@ func sentences() *past.Sentences {
 		}
 		return "예약 " + reservationSay[resCompleted] + ": " + m.GetName()
 	})
+	// By what it was, and -- when nobody could act on it in time, its
+	// workspace read-only or closed -- by why, which was nobody's doing: a
+	// confirmed one nobody could check in to or pick up is said so, and no
+	// no-show (D68).
 	past.SayKind(s, "reservation.expire", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationReleased) string {
-		if m.GetFrom() == resRequested {
-			return "승인 대기 만료: " + m.GetName()
+		what := "홀드 만료: "
+		switch m.GetFrom() {
+		case resRequested:
+			what = "승인 대기 만료: "
+		case resConfirmed:
+			what = "예약 만료: "
 		}
-		return "홀드 만료: " + m.GetName()
+		return what + m.GetName() + whileSay[m.GetWorkspace()]
 	})
 	past.SayKind(s, "reservation.no_show", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationReleased) string {
 		return "노쇼: " + m.GetName()

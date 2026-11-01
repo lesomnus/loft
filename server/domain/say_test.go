@@ -139,6 +139,15 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"reservation.complete", app.ReservationDecided_builder{Name: "주간 회의", Ended: true}.Build(), "예약 종료: 주간 회의"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "held"}.Build(), "홀드 만료: 주간 회의"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "requested"}.Build(), "승인 대기 만료: 주간 회의"},
+		// Declared a release before anything writes them (D68): what nobody
+		// could act on in time, its workspace read-only or closed -- a
+		// confirmed one nobody could check in to or pick up among them,
+		// which is no no-show.
+		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "held", Workspace: "readonly"}.Build(), "홀드 만료: 주간 회의 (워크스페이스가 읽기 전용이던 때)"},
+		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "requested", Workspace: "readonly"}.Build(), "승인 대기 만료: 주간 회의 (워크스페이스가 읽기 전용이던 때)"},
+		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "confirmed", Workspace: "readonly"}.Build(), "예약 만료: 주간 회의 (워크스페이스가 읽기 전용이던 때)"},
+		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "confirmed", Workspace: "closed"}.Build(), "예약 만료: 주간 회의 (워크스페이스가 닫혀 있던 때)"},
+		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "requested", Workspace: "closed"}.Build(), "승인 대기 만료: 주간 회의 (워크스페이스가 닫혀 있던 때)"},
 		{"reservation.no_show", app.ReservationReleased_builder{Name: "주간 회의"}.Build(), "노쇼: 주간 회의"},
 		// Kinds since events kept a message, written with none before them:
 		// a member of a kit, which is one thing, and a pool, by how many.

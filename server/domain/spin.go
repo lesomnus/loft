@@ -30,6 +30,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/reservation"
 	"github.com/lesomnus/loft/internal/ent/reservationitem"
 	entsession "github.com/lesomnus/loft/internal/ent/session"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/internal/ent/workorder"
 )
@@ -82,9 +83,18 @@ var sweeps = []sweep{
 // Pass runs every sweep in every tenant once. One that fails is logged and the
 // rest go on: a tenant whose data trips a sweep is not a reason to stop the
 // others, nor the server.
+//
+// A closed workspace is not swept (D68): nobody there may read what a sweep
+// would tell them, or act on it, and nothing of it moves while it is closed.
+// Once it is restored the next pass does what the time passed meanwhile did,
+// of what is so then, as a read-only workspace's is told once it writes
+// again (D67) -- a hold that ran out lets go, a request that began expires,
+// a loan past its due is found late, once, and told -- each once (design
+// 7.14). One closed since the pass read which are open is not swept either
+// ([Tx.sweeping]).
 func (w Sweeper) Pass(ctx context.Context) error {
 	db := ent.NewClient(ent.Driver(w.Drv))
-	tenants, err := db.Tenant.Query().Ids(ctx)
+	tenants, err := db.Tenant.Query().Where(enttenant.DateClosedIsNil()).Ids(ctx)
 	if err != nil {
 		log.From(ctx).WarnContext(ctx, "sweep: tenants", slog.Any("err", err))
 		return nil
@@ -96,7 +106,7 @@ func (w Sweeper) Pass(ctx context.Context) error {
 			if ctx.Err() != nil {
 				return nil
 			}
-			if err := w.Deps.System(fctx, w.Server, w.Drv, tenant, s.f); err != nil {
+			if err := w.Deps.System(fctx, w.Server, w.Drv, tenant, func(t *Tx) error { return t.sweeping(s.f) }); err != nil {
 				log.From(ctx).WarnContext(ctx, "sweep",
 					slog.String("sweep", s.name),
 					slog.String("tenant", tenant.String()),
@@ -105,6 +115,20 @@ func (w Sweeper) Pass(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+// sweeping runs sweep `f` in this transaction, as the sweeps' own: one whose
+// notices a read-only workspace is not told then are held back, which the
+// sweeps tell once it writes again ([Tx.notify], [ReadOnlyTells]). And none
+// at all of a workspace closed since the pass read which are open: what is
+// closed is not swept (D68).
+func (t *Tx) sweeping(f func(t *Tx) error) error {
+	closed, err := t.closed()
+	if err != nil || closed {
+		return err
+	}
+	t.shared.sweep = true
+	return f(t)
 }
 
 // closeReservation moves a reservation to a state that takes no time -- if it
@@ -141,6 +165,18 @@ func (t *Tx) closeReservation(r *ent.Reservation, to, kind string, said proto.Me
 	return true, t.settleAllocations(id, to)
 }
 
+// What a workspace was as the deployment let a reservation go, when that is
+// why nobody took it up in time (`ReservationReleased.workspace`, D68):
+// nobody could confirm a hold, decide a request, or check in to or pick up
+// what was booked, so it was nobody's doing -- and a confirmed one is no
+// no-show, but expired (`from: confirmed`). Declared, and said, a release
+// before anything writes it, so that the build before says its rows
+// (design 7.14).
+const (
+	whileReadOnly = "readonly"
+	whileClosed   = "closed"
+)
+
 // sweepHolds lets go of holds nobody confirmed in time.
 func sweepHolds(t *Tx) error {
 	rs, err := t.db.Reservation.Query().Where(
@@ -166,6 +202,10 @@ func sweepHolds(t *Tx) error {
 
 // sweepRequests ends requests nobody decided before they began: a manager can
 // no longer say yes to time that has started.
+//
+// A read-only workspace takes no decision (D64): what expires then expires
+// all the same -- its time began -- and says it was so, that nobody could
+// decide it, rather than that nobody did (D68).
 func sweepRequests(t *Tx) error {
 	rs, err := t.db.Reservation.Query().Where(
 		reservation.TenantId(t.tenant.Uuid()),
@@ -173,6 +213,10 @@ func sweepRequests(t *Tx) error {
 		reservation.BeginsAtLT(t.now),
 		reservation.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
+	if err != nil || len(rs) == 0 {
+		return err
+	}
+	quiet, err := t.readonly()
 	if err != nil {
 		return err
 	}
@@ -188,8 +232,11 @@ func sweepRequests(t *Tx) error {
 		if !closed {
 			continue
 		}
-		if err := t.notifyParty(r.PartyId, "reservation.expired", "예약 만료: "+r.Name,
-			"시작 전까지 승인되지 않아 예약이 만료되었습니다", pdid.Id(r.Id), "/reservations"); err != nil {
+		body := "시작 전까지 승인되지 않아 예약이 만료되었습니다"
+		if quiet {
+			body = "워크스페이스가 읽기 전용이라 시작 전까지 승인할 수 없어 예약이 만료되었습니다"
+		}
+		if err := t.notifyParty(r.PartyId, "reservation.expired", "예약 만료: "+r.Name, body, pdid.Id(r.Id), "/reservations"); err != nil {
 			return err
 		}
 	}
@@ -216,6 +263,14 @@ func (t *Tx) spacesOnly(rid uuid.UUID) (bool, error) {
 
 // sweepNoShows frees a room nobody checked into, once the grace is over, and
 // equipment nobody picked up by the time it was due back (design 4).
+//
+// A read-only workspace takes no check-in and no pickup (D64): what is freed
+// then is freed all the same -- the clock moves -- and says that nobody could
+// take it up, rather than that nobody did (D68). That it is no no-show, in
+// the history and in what counts them (`BookableService.Usage`), is the
+// release after this one's: what says so is declared in this one
+// (`ReservationReleased.workspace`, `from: confirmed`), and written once the
+// build before can say it (design 7.14).
 func sweepNoShows(t *Tx) error {
 	grace := t.settings().noShow
 	if grace <= 0 {
@@ -228,6 +283,10 @@ func sweepNoShows(t *Tx) error {
 		reservation.CheckedInAtIsNil(),
 		reservation.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
+	if err != nil || len(rs) == 0 {
+		return err
+	}
+	quiet, err := t.readonly()
 	if err != nil {
 		return err
 	}
@@ -252,7 +311,12 @@ func sweepNoShows(t *Tx) error {
 			continue
 		}
 		body := fmt.Sprintf("시작 후 %d분 안에 체크인하지 않아 예약이 해제되었습니다", int(grace.Minutes()))
-		if !spaces {
+		switch {
+		case quiet && spaces:
+			body = fmt.Sprintf("워크스페이스가 읽기 전용이라 체크인할 수 없는 동안 시작 후 %d분이 지나 예약이 해제되었습니다", int(grace.Minutes()))
+		case quiet:
+			body = "워크스페이스가 읽기 전용이라 수령할 수 없는 동안 기간이 지나 예약이 해제되었습니다"
+		case !spaces:
 			body = "기간 안에 수령하지 않아 예약이 해제되었습니다"
 		}
 		if err := t.notifyParty(r.PartyId, "reservation.no_show", "예약 해제: "+r.Name, body, pdid.Id(r.Id), "/reservations"); err != nil {
@@ -642,7 +706,10 @@ func (t *Tx) partyName(id uuid.UUID) string {
 	return p.Name
 }
 
-// sweepWork tells the managers about scheduled work a day ahead.
+// sweepWork tells the managers about scheduled work a day ahead -- and about
+// work whose time came while nobody was told, as what it is then: scheduled
+// still, its time past (D68). A read-only workspace is told it once it
+// writes again, and a closed one once it is restored (D67, D68).
 func sweepWork(t *Tx) error {
 	ws, err := t.db.WorkOrder.Query().Where(
 		workorder.TenantId(t.tenant.Uuid()),
@@ -661,11 +728,14 @@ func sweepWork(t *Tx) error {
 		if ok {
 			continue
 		}
-		when := "오늘"
-		if w.BeginsAt != nil {
-			when = t.when(*w.BeginsAt)
+		body := "오늘 예정입니다"
+		switch {
+		case w.BeginsAt != nil && w.BeginsAt.Before(t.now):
+			body = t.when(*w.BeginsAt) + " 예정이었고 아직 시작하지 않았습니다"
+		case w.BeginsAt != nil:
+			body = t.when(*w.BeginsAt) + " 예정입니다"
 		}
-		if err := t.notifyManagers("work.due", "예정된 작업: "+w.Name, when+" 예정입니다", pdid.Id(w.Id), "/work"); err != nil {
+		if err := t.notifyManagers("work.due", "예정된 작업: "+w.Name, body, pdid.Id(w.Id), "/work"); err != nil {
 			return err
 		}
 	}
@@ -800,7 +870,18 @@ func (t *Tx) lapse(d *ent.TenantDomain, failures uint32, since time.Time) error 
 	if _, err := t.db.Session.Delete().Where(entsession.Workspace(t.tenant.Uuid())).Exec(t.ctx); err != nil {
 		return err
 	}
+	// What a person may do of it is said only while they may: a read-only
+	// workspace takes no `Verify` (D64), and the sweep asks again all the
+	// same (D68).
+	again := "레코드를 되돌리면 일주일 동안 저절로 다시 확인하고, 설정에서 바로 확인할 수도 있습니다."
+	quiet, err := t.readonly()
+	if err != nil {
+		return err
+	}
+	if quiet {
+		again = "레코드를 되돌리면 일주일 동안 저절로 다시 확인합니다."
+	}
 	return t.notifyAdmins("domain.lapsed", words+" 사용 중지: "+d.Host,
-		"DNS가 "+t.when(since)+"부터 이 서비스를 가리키지 않거나 _loft-challenge TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔고, 이 주소로 인쇄한 라벨은 DNS가 이곳을 가리키는 동안 계속 열립니다. 레코드를 되돌리면 일주일 동안 저절로 다시 확인하고, 설정에서 바로 확인할 수도 있습니다.",
+		"DNS가 "+t.when(since)+"부터 이 서비스를 가리키지 않거나 _loft-challenge TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔고, 이 주소로 인쇄한 라벨은 DNS가 이곳을 가리키는 동안 계속 열립니다. "+again,
 		pdid.Id(d.Id), "/settings")
 }
