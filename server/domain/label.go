@@ -371,8 +371,17 @@ func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.
 		return t.activate(id)
 	}
 	if tell {
-		if err := t.notifyManagers("domain.ready", domainWords(purpose)+" 확인 완료: "+host,
-			"설정에서 활성화하면 새로 인쇄하는 라벨부터 이 주소를 씁니다", idOf(id), "/settings"); err != nil {
+		// Switching to it is a person's, which a read-only workspace takes
+		// once it writes again (D64, D68): said so while it does not.
+		body := "설정에서 활성화하면 새로 인쇄하는 라벨부터 이 주소를 씁니다"
+		quiet, err := t.readonly()
+		if err != nil {
+			return nil, err
+		}
+		if quiet {
+			body = "워크스페이스를 다시 바꿀 수 있게 되면 설정에서 활성화할 수 있고, 그러면 새로 인쇄하는 라벨부터 이 주소를 씁니다"
+		}
+		if err := t.notifyManagers("domain.ready", domainWords(purpose)+" 확인 완료: "+host, body, idOf(id), "/settings"); err != nil {
 			return nil, err
 		}
 	}

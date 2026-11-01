@@ -152,8 +152,9 @@ option (payday.app) = {
 //   10  asset_name     string                     -- what that was called then; of the reservation's own reservation.add, the first thing it takes
 //   11  override       bool                       -- taken over what was booked already, by a manager
 //   12  ended          bool                       -- completed by the deployment, its time over, and by nobody who asked
-//   13  from           string                     -- what it was when it expired: held | requested
+//   13  from           string                     -- what it was when it expired: held | requested; or confirmed, and nobody could take it up
 //   14  units          uint32                     -- how many of a pool it takes, waits for or lets go of
+//   15  workspace      string                     -- what its workspace was as its time came, when that is why nobody took it up: readonly | closed
 //
 // domain.* holds, by number:
 //
@@ -625,7 +626,14 @@ message ReservationDecided {
 // had passed: a hold nobody confirmed in time or a request nobody decided
 // before it began, which says which it was (`from`); and one nobody came to.
 //
-//   reservation.expire   reservation, name, from
+// And one whose workspace let nobody act on it as its time came -- read-only
+// (D64), or closed (D29) -- which says so (`workspace`): it was nobody's
+// doing. A confirmed one nobody could check in to or pick up then is no
+// no-show; it expired, as a hold nobody could confirm and a request nobody
+// could decide did (`from: confirmed`). Declared a release before anything
+// writes either (design 7.14, D68).
+//
+//   reservation.expire   reservation, name, from, workspace
 //   reservation.no_show  reservation, name
 message ReservationReleased {
   option (payday.event) = {
@@ -638,6 +646,7 @@ message ReservationReleased {
   bytes reservation = 1;
   string name = 2;
   string from = 13;
+  string workspace = 15;
 }
 
 // ReservationAllocationChanged is what a reservation holds of one thing it

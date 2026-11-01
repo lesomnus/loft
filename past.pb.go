@@ -2824,13 +2824,21 @@ func (b0 ReservationDecided_builder) Build() *ReservationDecided {
 // had passed: a hold nobody confirmed in time or a request nobody decided
 // before it began, which says which it was (`from`); and one nobody came to.
 //
-//	reservation.expire   reservation, name, from
+// And one whose workspace let nobody act on it as its time came -- read-only
+// (D64), or closed (D29) -- which says so (`workspace`): it was nobody's
+// doing. A confirmed one nobody could check in to or pick up then is no
+// no-show; it expired, as a hold nobody could confirm and a request nobody
+// could decide did (`from: confirmed`). Declared a release before anything
+// writes either (design 7.14, D68).
+//
+//	reservation.expire   reservation, name, from, workspace
 //	reservation.no_show  reservation, name
 type ReservationReleased struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Reservation []byte                 `protobuf:"bytes,1,opt,name=reservation"`
 	xxx_hidden_Name        string                 `protobuf:"bytes,2,opt,name=name"`
 	xxx_hidden_From        string                 `protobuf:"bytes,13,opt,name=from"`
+	xxx_hidden_Workspace   string                 `protobuf:"bytes,15,opt,name=workspace"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -2881,6 +2889,13 @@ func (x *ReservationReleased) GetFrom() string {
 	return ""
 }
 
+func (x *ReservationReleased) GetWorkspace() string {
+	if x != nil {
+		return x.xxx_hidden_Workspace
+	}
+	return ""
+}
+
 func (x *ReservationReleased) SetReservation(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -2896,12 +2911,17 @@ func (x *ReservationReleased) SetFrom(v string) {
 	x.xxx_hidden_From = v
 }
 
+func (x *ReservationReleased) SetWorkspace(v string) {
+	x.xxx_hidden_Workspace = v
+}
+
 type ReservationReleased_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Reservation []byte
 	Name        string
 	From        string
+	Workspace   string
 }
 
 func (b0 ReservationReleased_builder) Build() *ReservationReleased {
@@ -2911,6 +2931,7 @@ func (b0 ReservationReleased_builder) Build() *ReservationReleased {
 	x.xxx_hidden_Reservation = b.Reservation
 	x.xxx_hidden_Name = b.Name
 	x.xxx_hidden_From = b.From
+	x.xxx_hidden_Workspace = b.Workspace
 	return m0
 }
 
@@ -6830,11 +6851,12 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x12reservation.reject\n" +
 	"\x12reservation.cancel\n" +
 	"\x13reservation.checkin\n" +
-	"\x14reservation.complete\"\x8e\x01\n" +
+	"\x14reservation.complete\"\xac\x01\n" +
 	"\x13ReservationReleased\x12 \n" +
 	"\vreservation\x18\x01 \x01(\fR\vreservation\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
-	"\x04from\x18\r \x01(\tR\x04from:-\x92\xbb\x16)\n" +
+	"\x04from\x18\r \x01(\tR\x04from\x12\x1c\n" +
+	"\tworkspace\x18\x0f \x01(\tR\tworkspace:-\x92\xbb\x16)\n" +
 	"\x12reservation.expire\n" +
 	"\x13reservation.no_show\"\xc7\x02\n" +
 	"\x1cReservationAllocationChanged\x12 \n" +

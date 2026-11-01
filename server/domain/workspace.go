@@ -16,6 +16,7 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/holder"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/server/tenancy"
 )
 
@@ -311,6 +312,31 @@ func (t *Tx) mine(ref *app.TenantRef) error {
 	return nil
 }
 
+// closed is whether the workspace is closed now (D29): read in this
+// transaction, once for all of it -- and as this transaction closed or
+// restored it, once it has. Never for a call that is in no workspace.
+func (t *Tx) closed() (bool, error) {
+	if t.tenant.IsZero() {
+		return false, nil
+	}
+	if t.shared != nil && t.shared.closed != nil {
+		return *t.shared.closed, nil
+	}
+	on, err := t.db.Tenant.Query().Where(enttenant.Id(t.tenant.Uuid()), enttenant.DateClosedNotNil()).Exist(t.ctx)
+	if err != nil {
+		return false, err
+	}
+	t.isClosed(on)
+	return on, nil
+}
+
+// isClosed is what [Tx.closed] answers from now on in this transaction.
+func (t *Tx) isClosed(on bool) {
+	if t.shared != nil {
+		t.shared.closed = &on
+	}
+}
+
 func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 	cur, err := t.next.Tenant().Get(t.ctx, app.TenantGetRequest_builder{Ref: t.tenantRef()}.Build())
 	if err != nil {
@@ -340,6 +366,7 @@ func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 	if err != nil {
 		return nil, err
 	}
+	t.isClosed(true)
 	// And levyan, which bills it for none of the time it is closed: told once
 	// this commits, of the moment it says it was closed (design 7.8).
 	if c := t.deps.closings(); c != nil {
@@ -375,6 +402,7 @@ func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
 	if err != nil {
 		return nil, err
 	}
+	t.isClosed(false)
 	// And levyan, which bills it again from now: the notice keeps the moment,
 	// which the workspace no longer says (design 7.8).
 	if c := t.deps.closings(); c != nil {
