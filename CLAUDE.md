@@ -451,6 +451,16 @@ told is told then, with what its being late did to bookings
 table, or `server/domain/readonly_notice_test.go`, which reads the sweeps'
 source, fails.
 
+Holding back is the sweeps' alone (design 7.14, D68): `Tx.sweeping` marks the
+transaction, and an operator's command writes its notices whatever their
+kind. A closed workspace is swept by nothing -- `Sweeper.Pass` reads the open
+ones, and each sweep asks again in its own transaction (`Tx.closed`) -- and
+`Tx.notify` writes no notice into one, whoever asks, and logs that it did
+not. A release or an expiry while read-only says why in its notice. Its event
+does from the next release: `ReservationReleased.workspace` (`readonly` |
+`closed`) is declared and written by nothing yet, a field shipping one release
+before anything writes it (loft#273).
+
 Who pays for a workspace is levyan's, and what it cannot know Loft tells it
 (design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and
 `Leave` (an account no longer in it), written as a `LevyanNotice` (domain
