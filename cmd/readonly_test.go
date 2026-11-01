@@ -71,14 +71,15 @@ func makeReadOnly(w *world, fake *levyantest.Levyan) []byte {
 // TestAReadOnlyWorkspaceIsReadPaidForAndClosed (design 7.10, D64): while
 // levyan makes a workspace read-only, every write of every kind is refused --
 // the register and its catalog, files, labels, bookings, hand-overs, stock,
-// counts, work, purchases, people and their roles, invitations, its settings
-// and its domains, as an RPC and as an operation of a batch, and a write that
+// counts, work, purchases, people and their roles, invitations sent and
+// answered, the record of an access review, notifications, its settings and
+// its domains, as an RPC and as an operation of a batch, and a write that
 // begins no operation as one that does -- with the reason a page tells it by.
-// What it still does it does: reads and reports, takes its data out and its
-// files, reviews who saw whose data, is paid for, lets its members leave and
-// a person be forgotten, and leaves what is a person's own to them -- a
-// password, their notifications, an invitation they turn down. Once levyan
-// ends the grant it writes again; and read-only or not, it closes.
+// What it still does, as levyan's `docs/apps.md` says an app takes of one, it
+// does: reads and reports, takes its data out and its files, is paid for, and
+// lets its members leave and a person be forgotten; and a password, which is
+// the account's, is changed. Once levyan ends the grant it writes again; and
+// read-only or not, it closes.
 func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	fake := levyantest.Start(t)
 	w := newInvites(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
@@ -296,12 +297,13 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	_, err = zip.NewReader(bytes.NewReader(res.Body.Bytes()), int64(res.Body.Len()))
 	x.NoError(err, "a zip")
 
-	// Who saw whose data, read and reviewed.
+	// Who saw whose data, read -- and not a review of it recorded, which is
+	// a write.
 	from, to := time.Now().Add(-time.Hour), time.Now().Add(time.Minute)
 	_, err = app.NewAccessServiceClient(w.conn).Review(w.owner, app.AccessReviewRequest_builder{From: timestamppb.New(from), To: timestamppb.New(to)}.Build())
 	x.NoError(err)
 	_, err = app.NewAccessReviewServiceClient(w.conn).Add(w.owner, app.AccessReviewAddRequest_builder{PeriodFrom: timestamppb.New(from), PeriodTo: timestamppb.New(to), Desc: "이상 없음"}.Build())
-	x.NoError(err, "a review recorded")
+	w.refusedReadOnly(err, app.AccessReviewService_Add_FullMethodName)
 
 	// Paid for: who pays for it, asked by the people who run it, and the
 	// payer's own billing accounts, asked as the account.
@@ -313,18 +315,18 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	_, err = w.payments().GetBillingAccount(owner, app.PaymentGetBillingAccountRequest_builder{Id: made.GetBillingAccount().GetId()}.Build())
 	x.NoError(err)
 
-	// A person's own: their password, their notifications, and their
-	// answer to an invitation addressed to them -- one into this workspace
-	// among them, turned down.
+	// A password, which is the account's at roster and how it signs in.
 	_, err = parties.SetPassword(asJung, app.PartySetPasswordRequest_builder{Current: "password1234", Password: "another1234"}.Build())
 	x.NoError(err, "a password changed")
+	// But a notification marked read, or mail turned off, is a write of the
+	// workspace's that begins no operation -- refused as its transaction
+	// would commit -- and so is an invitation into it turned down.
 	_, err = notifications.MarkRead(w.owner, &app.NotificationMarkReadRequest{})
-	x.NoError(err)
+	w.refusedReadOnly(err, app.NotificationService_MarkRead_FullMethodName)
 	_, err = notifications.SetMail(w.owner, app.NotificationSetMailRequest_builder{Off: true}.Build())
-	x.NoError(err)
-	turned, err := w.svc.Deny(w.as(lee), app.InvitationDenyRequest_builder{Ref: ref(sent)}.Build())
-	x.NoError(err)
-	x.Equal("denied", turned.GetState())
+	w.refusedReadOnly(err, app.NotificationService_SetMail_FullMethodName)
+	_, err = w.svc.Deny(w.as(lee), app.InvitationDenyRequest_builder{Ref: ref(sent)}.Build())
+	w.refusedReadOnly(err, app.InvitationService_Deny_FullMethodName)
 
 	// Members leaving it, and a person forgotten.
 	_, err = parties.Deactivate(w.owner, app.PartyDeactivateRequest_builder{Ref: pref(leaving)}.Build())

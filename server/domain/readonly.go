@@ -17,13 +17,14 @@ import (
 //
 // The second stage of restricting a workspace, the owner's (levyan#1,
 // 2026-11-01): sixty days after an invoice billing it first failed to be
-// charged, levyan grants it [ReadOnly], on, and ends the grant once the
-// invoice is paid. The first stage, [Restricted], holds it to what it is
-// billed by ([Grows]); this one holds it to reading. It reads, takes its data
-// out, pays, and closes; its members may leave it, and what is a person's own
-// rather than the workspace's -- how they sign in, their notifications, their
-// answer to an invitation addressed to them -- stays theirs. Every other
-// write is refused.
+// charged, or after it last had a payer, levyan grants it [ReadOnly], on, and
+// ends the grant with the first stage's once the invoice is paid or somebody
+// pays for it (levyan's `docs/apps.md`, 3, "제한의 두 단계"). The first stage,
+// [Restricted], holds it to what it is billed by ([Grows]); this one holds it
+// to what levyan's chapter says an app takes of it: reading, taking its data
+// out, paying, closing, and its members leaving it. What is an account's
+// rather than the workspace's -- signing in -- stays the account's. Every
+// other write is refused.
 //
 // So the table is of what it still does, [ReadOnlyAllows], and not of what it
 // may not: a write somebody adds later is refused until it is put there. A
@@ -51,48 +52,44 @@ const ReadOnly = "loft.readonly"
 // any other refusal -- [ErrorRestricted]'s among them.
 const ErrorReadOnly = "READONLY"
 
-// Allowed is why a read-only workspace still does something.
+// Allowed is why a read-only workspace still does something: what levyan's
+// `docs/apps.md` (3, "제한의 두 단계") says an app takes of one, and what is an
+// account's and not the workspace's.
 type Allowed string
 
 const (
-	// Reads writes nothing of the workspace: what it has and what became
-	// of it, read, searched, reported on, and taken out -- its files and its
-	// CSVs, what a sheet would register -- and the reads that leave a record
-	// of themselves where the deployment keeps one (who saw whose data,
-	// payday's access record).
+	// Reads is every read (읽기): what the workspace has and what became of
+	// it, read, searched and reported on, what a change of its settings
+	// would take, and the reads that leave a record of themselves where the
+	// deployment keeps one (who saw whose data, payday's access record).
 	Reads Allowed = "reads"
 
-	// Reviews is the record that somebody who runs the workspace reviewed
-	// who saw whose data, a month at a time (design 9.7): the review is a
-	// read of the record, and what it writes is that it was read.
-	Reviews Allowed = "reviews"
+	// Exports is its data taken out and its files downloaded (내보내기와
+	// 내려받기): the register's CSV and the reports', a file it keeps, the
+	// blank form a sheet is filled in on. All of it at once is the
+	// workspace's export, a door that is no RPC.
+	Exports Allowed = "exports"
 
-	// Pays is how the workspace is paid for (design 7.9): every call of
+	// Pays is how the workspace is paid for (결제, design 7.9): every call of
 	// `loft.PaymentService`, the payer's own and the workspace's, which Loft
 	// relays to levyan and keeps nothing of. Paying is how it ends.
 	Pays Allowed = "pays"
 
-	// Closes is the workspace closed by its owner, which destroys nothing
-	// until its restore window is over (D29).
+	// Closes is the workspace closed by its owner (닫기), which destroys
+	// nothing until its restore window is over (D29).
 	Closes Allowed = "closes"
 
-	// Leaves is a member leaving it: a membership ended, and a person
-	// forgotten in it (개인정보 삭제), which is besides an erasure somebody
-	// is owed.
+	// Leaves is a member leaving it (떠나기): a membership ended, and a
+	// person forgotten in it (개인정보 삭제) -- which ends their membership,
+	// and is besides an erasure somebody is owed, which waits for no bill as
+	// a workspace's destruction waits for none (D59).
 	Leaves Allowed = "leaves"
 
-	// Erases is what a person asked to have erased of them taken out (design
-	// 8.2): the law's, and no bill's to hold up, as a workspace's destruction
-	// waits for none (D59).
-	Erases Allowed = "erases"
-
-	// Own is a person's own and not the workspace's: how they sign in -- a
-	// password, which is the account's at roster (D27), their own or one an
-	// administrator sets for a member in no other workspace -- whether they
-	// have read what they were told and are told it by mail, and their
-	// answer to an invitation addressed to them. An invitation accepted is
-	// not: it makes a member of the workspace it is to.
-	Own Allowed = "own"
+	// Account is an account's and not the workspace's (D27): how it signs
+	// in, a password, which is the account's at roster -- its own, or one an
+	// administrator sets for a member in no other workspace, who could not
+	// get in to read, take out or pay otherwise.
+	Account Allowed = "account"
 )
 
 // ReadOnlyAllows is what a read-only workspace still does, by the method a
@@ -103,102 +100,90 @@ const (
 // That it reads, takes its data out, pays and closes is the owner's
 // (levyan#1, 2026-11-01), and so is that its members may leave it and that
 // what is an account's stays the account's; which methods those are is said
-// here.
+// here, and held to what levyan's `docs/apps.md` says an app takes.
 var ReadOnlyAllows = map[string]Allowed{
 	// What it has, and what became of it: the register and its catalog, its
 	// people, bookings, hand-overs, stock, counts, work and purchases, as they
 	// are and as they were, searched and watched.
-	app.AssetService_Get_FullMethodName:             Reads,
-	app.AssetService_List_FullMethodName:            Reads,
-	app.AssetService_Watch_FullMethodName:           Reads,
-	app.AssetService_Search_FullMethodName:          Reads,
-	app.AssetService_Timeline_FullMethodName:        Reads,
-	app.AssetService_QueryAt_FullMethodName:         Reads,
-	app.AssetService_Diff_FullMethodName:            Reads,
-	app.AssetService_Report_FullMethodName:          Reads,
-	app.AssetTypeService_Get_FullMethodName:         Reads,
-	app.AssetTypeService_List_FullMethodName:        Reads,
-	app.AssetTypeService_Watch_FullMethodName:       Reads,
-	app.ItemModelService_Get_FullMethodName:         Reads,
-	app.ItemModelService_List_FullMethodName:        Reads,
-	app.ItemModelService_Watch_FullMethodName:       Reads,
-	app.ItemModelService_Search_FullMethodName:      Reads,
-	app.AttachmentService_Get_FullMethodName:        Reads,
-	app.AttachmentService_List_FullMethodName:       Reads,
-	app.AttachmentService_Watch_FullMethodName:      Reads,
-	app.LabelService_Get_FullMethodName:             Reads,
-	app.LabelService_List_FullMethodName:            Reads,
-	app.LabelService_Watch_FullMethodName:           Reads,
-	app.LabelService_Resolve_FullMethodName:         Reads,
-	app.PartyService_Get_FullMethodName:             Reads,
-	app.PartyService_List_FullMethodName:            Reads,
-	app.PartyService_Watch_FullMethodName:           Reads,
-	app.PartyService_Search_FullMethodName:          Reads,
-	app.PartyService_Me_FullMethodName:              Reads,
-	app.BookableService_Get_FullMethodName:          Reads,
-	app.BookableService_List_FullMethodName:         Reads,
-	app.BookableService_Watch_FullMethodName:        Reads,
-	app.BookableService_Availability_FullMethodName: Reads,
-	app.ReservationService_Get_FullMethodName:       Reads,
-	app.ReservationService_List_FullMethodName:      Reads,
-	app.ReservationService_Watch_FullMethodName:     Reads,
-	app.ReservationService_Calendar_FullMethodName:  Reads,
-	app.ReservationService_Timeline_FullMethodName:  Reads,
-	app.ReservationService_Pickup_FullMethodName:    Reads,
-	app.ReservationItemService_Get_FullMethodName:   Reads,
-	app.ReservationItemService_List_FullMethodName:  Reads,
-	app.AllocationService_Get_FullMethodName:        Reads,
-	app.AllocationService_List_FullMethodName:       Reads,
-	app.CustodyService_Get_FullMethodName:           Reads,
-	app.CustodyService_List_FullMethodName:          Reads,
-	app.CustodyService_Watch_FullMethodName:         Reads,
-	app.CustodyLineService_Get_FullMethodName:       Reads,
-	app.CustodyLineService_List_FullMethodName:      Reads,
-	app.StockService_Get_FullMethodName:             Reads,
-	app.StockService_List_FullMethodName:            Reads,
-	app.StockService_Watch_FullMethodName:           Reads,
-	app.StockMovementService_Get_FullMethodName:     Reads,
-	app.StockMovementService_List_FullMethodName:    Reads,
-	app.InventoryCountService_Get_FullMethodName:    Reads,
-	app.InventoryCountService_List_FullMethodName:   Reads,
-	app.InventoryCountService_Watch_FullMethodName:  Reads,
-	app.CountFindingService_Get_FullMethodName:      Reads,
-	app.CountFindingService_List_FullMethodName:     Reads,
-	app.CountFindingService_Watch_FullMethodName:    Reads,
-	app.WorkOrderService_Get_FullMethodName:         Reads,
-	app.WorkOrderService_List_FullMethodName:        Reads,
-	app.WorkOrderService_Watch_FullMethodName:       Reads,
-	app.PurchaseService_Get_FullMethodName:          Reads,
-	app.PurchaseService_List_FullMethodName:         Reads,
-	app.PurchaseService_Watch_FullMethodName:        Reads,
-	app.PurchaseLineService_Get_FullMethodName:      Reads,
-	app.PurchaseLineService_List_FullMethodName:     Reads,
-	app.EventService_Get_FullMethodName:             Reads,
-	app.EventService_List_FullMethodName:            Reads,
-	app.EventService_Recent_FullMethodName:          Reads,
-
-	// The reports, and what it takes out: the register's CSV, a file it
-	// keeps, a report's CSV, the blank form of a sheet and what one would
-	// register.
-	app.AssetService_Census_FullMethodName:                 Reads,
-	app.AssetService_ExportCensus_FullMethodName:           Reads,
-	app.CustodyService_Outstanding_FullMethodName:          Reads,
-	app.CustodyService_ExportOutstanding_FullMethodName:    Reads,
-	app.BookableService_Usage_FullMethodName:               Reads,
-	app.BookableService_ExportUsage_FullMethodName:         Reads,
-	app.InventoryCountService_Results_FullMethodName:       Reads,
-	app.InventoryCountService_ExportResults_FullMethodName: Reads,
-	app.StockService_Flow_FullMethodName:                   Reads,
-	app.StockService_ExportFlow_FullMethodName:             Reads,
-	app.AssetService_Export_FullMethodName:                 Reads,
-	app.AttachmentService_Url_FullMethodName:               Reads,
-	app.AssetService_Form_FullMethodName:                   Reads,
-	app.AssetService_ReadSheet_FullMethodName:              Reads,
+	app.AssetService_Get_FullMethodName:              Reads,
+	app.AssetService_List_FullMethodName:             Reads,
+	app.AssetService_Watch_FullMethodName:            Reads,
+	app.AssetService_Search_FullMethodName:           Reads,
+	app.AssetService_Timeline_FullMethodName:         Reads,
+	app.AssetService_QueryAt_FullMethodName:          Reads,
+	app.AssetService_Diff_FullMethodName:             Reads,
+	app.AssetService_Report_FullMethodName:           Reads,
+	app.AssetTypeService_Get_FullMethodName:          Reads,
+	app.AssetTypeService_List_FullMethodName:         Reads,
+	app.AssetTypeService_Watch_FullMethodName:        Reads,
+	app.ItemModelService_Get_FullMethodName:          Reads,
+	app.ItemModelService_List_FullMethodName:         Reads,
+	app.ItemModelService_Watch_FullMethodName:        Reads,
+	app.ItemModelService_Search_FullMethodName:       Reads,
+	app.AttachmentService_Get_FullMethodName:         Reads,
+	app.AttachmentService_List_FullMethodName:        Reads,
+	app.AttachmentService_Watch_FullMethodName:       Reads,
+	app.LabelService_Get_FullMethodName:              Reads,
+	app.LabelService_List_FullMethodName:             Reads,
+	app.LabelService_Watch_FullMethodName:            Reads,
+	app.LabelService_Resolve_FullMethodName:          Reads,
+	app.PartyService_Get_FullMethodName:              Reads,
+	app.PartyService_List_FullMethodName:             Reads,
+	app.PartyService_Watch_FullMethodName:            Reads,
+	app.PartyService_Search_FullMethodName:           Reads,
+	app.PartyService_Me_FullMethodName:               Reads,
+	app.BookableService_Get_FullMethodName:           Reads,
+	app.BookableService_List_FullMethodName:          Reads,
+	app.BookableService_Watch_FullMethodName:         Reads,
+	app.BookableService_Availability_FullMethodName:  Reads,
+	app.ReservationService_Get_FullMethodName:        Reads,
+	app.ReservationService_List_FullMethodName:       Reads,
+	app.ReservationService_Watch_FullMethodName:      Reads,
+	app.ReservationService_Calendar_FullMethodName:   Reads,
+	app.ReservationService_Timeline_FullMethodName:   Reads,
+	app.ReservationService_Pickup_FullMethodName:     Reads,
+	app.ReservationItemService_Get_FullMethodName:    Reads,
+	app.ReservationItemService_List_FullMethodName:   Reads,
+	app.AllocationService_Get_FullMethodName:         Reads,
+	app.AllocationService_List_FullMethodName:        Reads,
+	app.CustodyService_Get_FullMethodName:            Reads,
+	app.CustodyService_List_FullMethodName:           Reads,
+	app.CustodyService_Watch_FullMethodName:          Reads,
+	app.CustodyLineService_Get_FullMethodName:        Reads,
+	app.CustodyLineService_List_FullMethodName:       Reads,
+	app.StockService_Get_FullMethodName:              Reads,
+	app.StockService_List_FullMethodName:             Reads,
+	app.StockService_Watch_FullMethodName:            Reads,
+	app.StockMovementService_Get_FullMethodName:      Reads,
+	app.StockMovementService_List_FullMethodName:     Reads,
+	app.InventoryCountService_Get_FullMethodName:     Reads,
+	app.InventoryCountService_List_FullMethodName:    Reads,
+	app.InventoryCountService_Watch_FullMethodName:   Reads,
+	app.CountFindingService_Get_FullMethodName:       Reads,
+	app.CountFindingService_List_FullMethodName:      Reads,
+	app.CountFindingService_Watch_FullMethodName:     Reads,
+	app.WorkOrderService_Get_FullMethodName:          Reads,
+	app.WorkOrderService_List_FullMethodName:         Reads,
+	app.WorkOrderService_Watch_FullMethodName:        Reads,
+	app.PurchaseService_Get_FullMethodName:           Reads,
+	app.PurchaseService_List_FullMethodName:          Reads,
+	app.PurchaseService_Watch_FullMethodName:         Reads,
+	app.PurchaseLineService_Get_FullMethodName:       Reads,
+	app.PurchaseLineService_List_FullMethodName:      Reads,
+	app.EventService_Get_FullMethodName:              Reads,
+	app.EventService_List_FullMethodName:             Reads,
+	app.EventService_Recent_FullMethodName:           Reads,
+	app.AssetService_Census_FullMethodName:           Reads,
+	app.CustodyService_Outstanding_FullMethodName:    Reads,
+	app.BookableService_Usage_FullMethodName:         Reads,
+	app.InventoryCountService_Results_FullMethodName: Reads,
+	app.StockService_Flow_FullMethodName:             Reads,
+	app.AssetService_ReadSheet_FullMethodName:        Reads,
 
 	// The workspace itself: its settings and what a change of them would
 	// take, its domains, its contract and its legal holds, its memberships,
 	// its invitations, what it tells people, its trail, and who saw whose
-	// data -- reviewed, too.
+	// data.
 	app.TenantService_Get_FullMethodName:          Reads,
 	app.TenantService_List_FullMethodName:         Reads,
 	app.TenantService_Preview_FullMethodName:      Reads,
@@ -222,7 +207,16 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.AccessService_Review_FullMethodName:       Reads,
 	app.AccessReviewService_Get_FullMethodName:    Reads,
 	app.AccessReviewService_List_FullMethodName:   Reads,
-	app.AccessReviewService_Add_FullMethodName:    Reviews,
+
+	// Its data taken out, and its files.
+	app.AssetService_Export_FullMethodName:                 Exports,
+	app.AssetService_ExportCensus_FullMethodName:           Exports,
+	app.CustodyService_ExportOutstanding_FullMethodName:    Exports,
+	app.BookableService_ExportUsage_FullMethodName:         Exports,
+	app.InventoryCountService_ExportResults_FullMethodName: Exports,
+	app.StockService_ExportFlow_FullMethodName:             Exports,
+	app.AttachmentService_Url_FullMethodName:               Exports,
+	app.AssetService_Form_FullMethodName:                   Exports,
 
 	// Paying for it, which is how this ends.
 	app.PaymentService_ListBillingAccounts_FullMethodName:  Pays,
@@ -254,22 +248,13 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.PartyService_Deactivate_FullMethodName:   Leaves,
 	app.PartyService_Pseudonymize_FullMethodName: Leaves,
 
-	// A person's words taken out of the history, on their request: given to
-	// no role yet (`server/policy`), and not to be held up by a bill once it
-	// is.
-	app.EventService_Redact_FullMethodName: Erases,
-
-	// A person's own.
-	app.PartyService_SetPassword_FullMethodName:     Own,
-	app.NotificationService_MarkRead_FullMethodName: Own,
-	app.NotificationService_SetMail_FullMethodName:  Own,
-	app.InvitationService_Claim_FullMethodName:      Own,
-	app.InvitationService_Deny_FullMethodName:       Own,
+	// Signing in, which is the account's.
+	app.PartyService_SetPassword_FullMethodName: Account,
 }
 
 // readOnlyRefusal is what a read-only workspace says of a write it refuses:
 // that it is read-only, what it still does, and how it ends.
-const readOnlyRefusal = "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다. 보기, 내보내기, 결제와 닫기는 할 수 있고, 결제가 끝나면 다시 바꿀 수 있습니다"
+const readOnlyRefusal = "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다. 보기, 내보내기, 결제, 닫기, 떠나기만 할 수 있고, 결제를 정리하면 다시 바꿀 수 있습니다"
 
 // passing is a write this layer adds nothing to -- a generated one a role is
 // given, served as it is -- but what levyan's grants hold the workspace back
