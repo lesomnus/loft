@@ -34,13 +34,40 @@
 //	                                                business B by its registration R, its tax
 //	                                                invoices to E: opened as levyan's operator
 //	                                                opens one
+//	POST /e2e/reading?workspace=ID&meter=M&value=N  a reading of its meter M, as though the
+//	                                                deployment had handed it over now: a workspace
+//	                                                a test made is measured at midnight
+//	POST /e2e/allowance?workspace=ID&meter=M&quantity=N[&from=RFC3339][&until=RFC3339]
+//	                                                N more of M each period, from `from` (now,
+//	                                                unsaid) until `until` (until it is ended,
+//	                                                unsaid): given as levyan's operator gives one
+//	POST /e2e/pool?workspace=ID&meter=M&quantity=N[&from=RFC3339][&expires=RFC3339]
+//	                                                a pool of N of M, in its unit for a period,
+//	                                                from `from` (now) until `expires` (a year
+//	                                                after)
+//	POST /e2e/credit?workspace=ID&amount=N[&expires=RFC3339]
+//	POST /e2e/credit?billing_account=BA&amount=N[&expires=RFC3339]
+//	                                                N of credit, in the minor unit, granted the
+//	                                                workspace or the billing account BA, expiring
+//	                                                at `expires` (a year from now)
+//	POST /e2e/balance?billing_account=BA&amount=N   BA owed N beside its credit, which never expires
+//	POST /e2e/close?workspace=ID                    the period before the one now open closed for
+//	                                                it: its statement, and what it took of the
+//	                                                pools taken off them
+//	POST /e2e/invoice?billing_account=BA&workspace=ID&total=N[&label=L]
+//	                                                an invoice of the period before billing BA the
+//	                                                workspace's N, called L, finalized: paid first
+//	                                                with the credit it may be paid with
 package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"net/url"
+	"strconv"
 	"time"
 
 	levyanv1 "github.com/lesomnus/levyan/api/levyan/v1"
@@ -203,6 +230,178 @@ func main() {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
+	m.HandleFunc("POST /e2e/reading", said(func(q url.Values) error {
+		ws, err := workspace(q)
+		if err != nil {
+			return err
+		}
+		meter := q.Get("meter")
+		unit, ok := units[meter]
+		if !ok {
+			return fmt.Errorf("meter: one of Loft's, not %q", meter)
+		}
+		n, err := number(q, "value")
+		if err != nil {
+			return err
+		}
+		v.Handed(levyanv1.Reading_builder{Workspace: ws, Meter: meter, Unit: unit, Value: n}.Build())
+		return nil
+	}))
+	m.HandleFunc("POST /e2e/allowance", said(func(q url.Values) error {
+		ws, err := workspace(q)
+		if err != nil {
+			return err
+		}
+		n, err := number(q, "quantity")
+		if err != nil {
+			return err
+		}
+		a := levyanv1.Allowance_builder{Meter: q.Get("meter"), Quantity: n}.Build()
+		if err := moment(q, "from", a.SetFrom); err != nil {
+			return err
+		}
+		if err := moment(q, "until", a.SetUntil); err != nil {
+			return err
+		}
+		v.Allow(ws, a)
+		return nil
+	}))
+	m.HandleFunc("POST /e2e/pool", said(func(q url.Values) error {
+		ws, err := workspace(q)
+		if err != nil {
+			return err
+		}
+		n, err := number(q, "quantity")
+		if err != nil {
+			return err
+		}
+		p := levyanv1.Pool_builder{Meter: q.Get("meter"), Granted: n}.Build()
+		if err := moment(q, "from", p.SetFrom); err != nil {
+			return err
+		}
+		if err := moment(q, "expires", p.SetExpires); err != nil {
+			return err
+		}
+		v.Pool(ws, p)
+		return nil
+	}))
+	m.HandleFunc("POST /e2e/credit", said(func(q url.Values) error {
+		n, err := number(q, "amount")
+		if err != nil {
+			return err
+		}
+		c := levyanv1.Credit_builder{Granted: n}.Build()
+		switch {
+		case q.Get("workspace") != "":
+			ws, err := workspace(q)
+			if err != nil {
+				return err
+			}
+			c.SetWorkspace(ws)
+		case q.Get("billing_account") != "":
+			if _, err := pdid.Parse(q.Get("billing_account")); err != nil {
+				return fmt.Errorf("billing_account: %w", err)
+			}
+			c.SetBillingAccount(q.Get("billing_account"))
+		default:
+			return fmt.Errorf("workspace or billing_account: whose the credit is")
+		}
+		if err := moment(q, "expires", c.SetExpires); err != nil {
+			return err
+		}
+		v.Credit(c)
+		return nil
+	}))
+	m.HandleFunc("POST /e2e/balance", said(func(q url.Values) error {
+		ba := q.Get("billing_account")
+		if _, err := pdid.Parse(ba); err != nil {
+			return fmt.Errorf("billing_account: %w", err)
+		}
+		n, err := number(q, "amount")
+		if err != nil {
+			return err
+		}
+		v.Balance(ba, n)
+		return nil
+	}))
+	m.HandleFunc("POST /e2e/close", said(func(q url.Values) error {
+		ws, err := workspace(q)
+		if err != nil {
+			return err
+		}
+		v.ClosePeriod(ws)
+		return nil
+	}))
+	m.HandleFunc("POST /e2e/invoice", said(func(q url.Values) error {
+		ba := q.Get("billing_account")
+		if _, err := pdid.Parse(ba); err != nil {
+			return fmt.Errorf("billing_account: %w", err)
+		}
+		ws, err := workspace(q)
+		if err != nil {
+			return err
+		}
+		n, err := number(q, "total")
+		if err != nil {
+			return err
+		}
+		v.Finalize(ba, levyanv1.InvoiceLine_builder{Statement: "st-" + pdid.New(29).String(), Workspace: ws, Label: q.Get("label"), Total: n}.Build())
+		return nil
+	}))
+
 	log.Printf("levyantest: levyan at %s, told what to say at %s", l.Addr(), *control)
 	log.Fatal((&http.Server{Addr: *control, Handler: m, ReadHeaderTimeout: 10 * time.Second}).ListenAndServe())
+}
+
+// units is what each of Loft's meters reads in (proto/loft/meter.proto, and
+// `retention.Meter`).
+var units = map[string]string{
+	"loft.assets.active":          "{asset}",
+	"loft.attachments.bytes":      "By",
+	"loft.members":                "{member}",
+	"loft.history.retention_days": "d",
+}
+
+// said is a handler of what a test has the fake say, from what it asks: a
+// question that does not hold together is 400, with why.
+func said(f func(url.Values) error) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := f(r.URL.Query()); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+// workspace is the workspace a question names, as levyan names one.
+func workspace(q url.Values) (string, error) {
+	ws, err := pdid.Parse(q.Get("workspace"))
+	if err != nil {
+		return "", fmt.Errorf("workspace: %w", err)
+	}
+	return ws.String(), nil
+}
+
+// number is the whole number a question says under `name`.
+func number(q url.Values, name string) (int64, error) {
+	n, err := strconv.ParseInt(q.Get(name), 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", name, err)
+	}
+	return n, nil
+}
+
+// moment sets the moment a question says under `name`, if it says one.
+func moment(q url.Values, name string, set func(*timestamppb.Timestamp)) error {
+	v := q.Get(name)
+	if v == "" {
+		return nil
+	}
+	t, err := time.Parse(time.RFC3339, v)
+	if err != nil {
+		return fmt.Errorf("%s: %w", name, err)
+	}
+	set(timestamppb.New(t))
+	return nil
 }

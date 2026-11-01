@@ -14,7 +14,13 @@
 //   - its PayerService, the payers' own: billing accounts, checkouts that a
 //     test's Paddle completes, offers, links and invoices (payers.go);
 //   - its BillingService's usage, worked out of the readings it kept, and the
-//     statements a test gives (payers.go);
+//     statements a test gives (payers.go) or closes ([Levyan.ClosePeriod]);
+//   - what levyan's operator gives beyond what the prices include
+//     (levyan#43): allowances and pools, which the usage and the statements
+//     it closes are rated with, and credit -- a billing account's or a
+//     workspace's lots, and a billing account's balance -- which GetPayer and
+//     GetBillingAccount answer and an invoice it finalizes is paid with first
+//     (benefits.go);
 //   - and its Close, Restore, Destroy and GetLifecycle: what became of each
 //     workspace, read in the order of its moments and answered and refused as
 //     levyan's own are (levyan's `docs/apps.md`, 5) -- a workspace it heard
@@ -91,6 +97,9 @@ type Levyan struct {
 
 	// Who pays, and what each payer has: payers.go.
 	payers
+
+	// What levyan's operator gave beyond what the prices include: benefits.go.
+	benefits
 }
 
 // Told is one call of WorkspaceService that came with the key: `arrive` or
@@ -127,6 +136,7 @@ func Serve(l net.Listener) (*Levyan, *grpc.Server) {
 		watchers: map[chan *pdpb.EntitlementGrant]chan struct{}{},
 		failing:  map[string]error{},
 		payers:   newPayers(),
+		benefits: newBenefits(),
 	}
 	g := grpc.NewServer()
 	levyanv1.RegisterMeteringServiceServer(g, v)

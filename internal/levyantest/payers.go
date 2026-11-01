@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -330,9 +329,10 @@ func (v *Levyan) goneFrom(t Told) *levyanv1.Payer {
 	return v.payerOf(t.Workspace)
 }
 
-// payerOf is who pays for a workspace, as levyan says it.
+// payerOf is who pays for a workspace, as levyan says it, and the credit
+// granted the workspace itself that is left.
 func (v *Levyan) payerOf(workspace string) *levyanv1.Payer {
-	out := levyanv1.Payer_builder{Workspace: workspace}.Build()
+	out := levyanv1.Payer_builder{Workspace: workspace, Credits: v.creditOf(workspace, time.Now())}.Build()
 	for _, d := range v.dunning {
 		if slices.Contains(d.workspaces, workspace) {
 			out.SetDunning(append(out.GetDunning(), proto.CloneOf(d.v)))
@@ -510,7 +510,12 @@ func (v *Levyan) GetBillingAccount(ctx context.Context, req *levyanv1.GetBilling
 	if err != nil {
 		return nil, err
 	}
-	out := levyanv1.GetBillingAccountResponse_builder{BillingAccount: proto.CloneOf(b), Collection: v.collection(b.GetId())}.Build()
+	out := levyanv1.GetBillingAccountResponse_builder{
+		BillingAccount: proto.CloneOf(b),
+		Collection:     v.collection(b.GetId()),
+		Credits:        v.creditFor(b.GetId(), time.Now()),
+		Balance:        v.balances[b.GetId()],
+	}.Build()
 	if s, ok := v.subs[b.GetId()]; ok {
 		out.SetSubscription(proto.CloneOf(s))
 	}
@@ -788,8 +793,11 @@ func (v *Levyan) ListInvoices(ctx context.Context, req *levyanv1.ListInvoicesReq
 			continue
 		}
 		for _, inv := range v.invoices[b.GetId()] {
+			// Its lines, and which credit paid what of it, are
+			// GetInvoice's.
 			c := proto.CloneOf(inv)
 			c.SetLines(nil)
+			c.SetCredits(nil)
 			vs = append(vs, c)
 		}
 	}
@@ -903,7 +911,10 @@ var Prices = map[string]int64{
 }
 
 // GetUsage is what a workspace's latest readings come to, as a whole month at
-// [Prices], on the merchant of record in won.
+// [Prices], on the merchant of record in won -- with what its allowances give
+// and its pools take, as the fake rates a period ([Levyan.rated]) -- and the
+// allowances in force in the month and the pools it takes from, each with
+// what the periods closed left of it.
 func (v *Levyan) GetUsage(ctx context.Context, req *levyanv1.GetUsageRequest) (*levyanv1.GetUsageResponse, error) {
 	if err := keyed(ctx); err != nil {
 		return nil, err
@@ -913,47 +924,24 @@ func (v *Levyan) GetUsage(ctx context.Context, req *levyanv1.GetUsageRequest) (*
 	if v.down != nil {
 		return nil, v.down
 	}
-	latest := map[string]*levyanv1.Reading{}
-	for _, c := range v.calls {
-		for _, r := range c {
-			if r.GetWorkspace() != req.GetWorkspace() {
-				continue
-			}
-			if was, ok := latest[r.GetMeter()]; !ok || !r.GetMeasuredAt().AsTime().Before(was.GetMeasuredAt().AsTime()) {
-				latest[r.GetMeter()] = r
-			}
-		}
-	}
 	now := time.Now()
 	start, end := period(now)
+	lines, total, _ := v.rated(req.GetWorkspace(), start, end)
 	u := levyanv1.Usage_builder{
 		Workspace: req.GetWorkspace(),
 		Period:    levyanv1.Period_builder{Start: timestamppb.New(start), End: timestamppb.New(end), Zone: "Asia/Seoul"}.Build(),
 		AsOf:      timestamppb.New(now),
 		Channel:   levyanv1.Channel_CHANNEL_MOR,
 		Currency:  "KRW",
+		Lines:     lines,
+		Total:     total,
 	}.Build()
-	meters := make([]string, 0, len(latest))
-	for k := range latest {
-		meters = append(meters, k)
+	for _, a := range v.allowancesIn(req.GetWorkspace(), start, end) {
+		u.SetAllowances(append(u.GetAllowances(), proto.CloneOf(a)))
 	}
-	sort.Strings(meters)
-	var total int64
-	for _, m := range meters {
-		r := latest[m]
-		amount := r.GetValue() * Prices[m]
-		total += amount
-		u.SetLines(append(u.GetLines(), levyanv1.Line_builder{
-			Meter:    m,
-			Unit:     r.GetUnit(),
-			Kind:     levyanv1.LineKind_LINE_KIND_USAGE,
-			Usage:    strconv.FormatInt(r.GetValue(), 10),
-			Included: "0",
-			Billable: strconv.FormatInt(r.GetValue(), 10),
-			Amount:   strconv.FormatInt(amount, 10),
-		}.Build()))
+	for _, p := range v.poolsIn(req.GetWorkspace(), start, end) {
+		u.SetPools(append(u.GetPools(), proto.CloneOf(p)))
 	}
-	u.SetTotal(total)
 	return levyanv1.GetUsageResponse_builder{Usage: u}.Build(), nil
 }
 
