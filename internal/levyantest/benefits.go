@@ -267,6 +267,31 @@ func (v *Levyan) Finalize(ba string, lines ...*levyanv1.InvoiceLine) *levyanv1.I
 	return proto.CloneOf(inv)
 }
 
+// Note has the invoice billing account `ba` was billed last have a credit
+// note take `total` back of it, for `reason`, as levyan's operator writes
+// one: what the payer's page lists beside its invoices. Nil when the billing
+// account was billed nothing.
+func (v *Levyan) Note(ba string, reason levyanv1.CreditNoteReason, total int64) *levyanv1.CreditNote {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	invs := v.invoices[ba]
+	if len(invs) == 0 {
+		return nil
+	}
+	inv := invs[len(invs)-1]
+	n := levyanv1.CreditNote_builder{
+		Id:       newId(),
+		Invoice:  inv.GetId(),
+		Reason:   reason,
+		Amount:   total,
+		Total:    total,
+		Refunded: total,
+		Created:  timestamppb.New(time.Now()),
+	}.Build()
+	v.notes[inv.GetId()] = append(v.notes[inv.GetId()], n)
+	return proto.CloneOf(n)
+}
+
 // creditOf is the lots of `workspace`'s neither spent nor expired, the
 // soonest to expire first: what GetPayer answers of it.
 func (v *Levyan) creditOf(workspace string, now time.Time) []*levyanv1.Credit {

@@ -1266,7 +1266,13 @@ function Links(props: {
 	)
 }
 
-/** The invoices of the account's billing accounts, and what credit notes took back of them. */
+/**
+ * The invoices of the account's billing accounts, and what credit notes took
+ * back of them: a table each on a wide screen, and on a phone a card each
+ * (loft#269, design 7.9) -- an invoice's the button that opens it, which is
+ * how a payer most often opens one, and which the end of a table slid
+ * sideways hid. A credit note opens nothing, on either.
+ */
 function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[]; accounts: BillingAccount[]; named: (id: string) => string }): ReactNode {
 	const [open, setOpen] = useState<BillingInvoice>()
 	const of = (id: string) => props.invoices.find((v) => v.id === id)
@@ -1276,76 +1282,139 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 				{props.invoices.length === 0 ? (
 					<Empty>아직 청구서가 없습니다.</Empty>
 				) : (
-					<div className="table-wrap">
-						<table className="table">
-							<thead>
-								<tr>
-									<th>기간</th>
-									<th>상태</th>
-									<th className="num">합계</th>
-									<th className="num">남은 금액</th>
-									<th>확정</th>
-									<th />
-								</tr>
-							</thead>
-							<tbody>
-								{props.invoices.map((v) => (
-									<tr key={v.id}>
-										<td>{spanText(v.start, v.end)}</td>
-										<td>
+					<>
+						<ul className="phone-cards">
+							{props.invoices.map((v) => (
+								<li key={v.id}>
+									<button type="button" className="phone-card" onClick={() => setOpen(v)}>
+										<span className="phone-card-head">
+											<strong>{spanText(v.start, v.end)}</strong>
 											<Badge v={invoiceWord[v.state]?.[1] ?? 'mute'}>{invoiceWord[v.state]?.[0] ?? '-'}</Badge>
-										</td>
-										<td className="num">
-											{money(v.total, v.currency)}
-											{v.credited !== 0n && <div className="mute small">크레딧 −{money(v.credited, v.currency)}</div>}
-										</td>
-										<td className="num">{money(v.remaining, v.currency)}</td>
-										<td>{fmt(v.finalized, 'date')}</td>
-										<td>
-											<button className="link" onClick={() => setOpen(v)}>
-												보기
-											</button>
-										</td>
+										</span>
+										<InvoiceAmounts invoice={v} />
+									</button>
+								</li>
+							))}
+						</ul>
+						<div className="table-wrap phone-hides">
+							<table className="table">
+								<thead>
+									<tr>
+										<th>기간</th>
+										<th>상태</th>
+										<th className="num">합계</th>
+										<th className="num">남은 금액</th>
+										<th>확정</th>
+										<th />
 									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
+								</thead>
+								<tbody>
+									{props.invoices.map((v) => (
+										<tr key={v.id}>
+											<td>{spanText(v.start, v.end)}</td>
+											<td>
+												<Badge v={invoiceWord[v.state]?.[1] ?? 'mute'}>{invoiceWord[v.state]?.[0] ?? '-'}</Badge>
+											</td>
+											<td className="num">
+												{money(v.total, v.currency)}
+												{v.credited !== 0n && <div className="mute small">크레딧 −{money(v.credited, v.currency)}</div>}
+											</td>
+											<td className="num">{money(v.remaining, v.currency)}</td>
+											<td>{fmt(v.finalized, 'date')}</td>
+											<td>
+												<button className="link" onClick={() => setOpen(v)}>
+													보기
+												</button>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</div>
+					</>
 				)}
 			</Card>
 			<Card title="정정 청구">
 				{props.notes.length === 0 ? (
 					<Empty>정정 청구가 없습니다.</Empty>
 				) : (
-					<div className="table-wrap">
-						<table className="table">
-							<thead>
-								<tr>
-									<th>청구서</th>
-									<th>사유</th>
-									<th className="num">금액</th>
-									<th>만든 날</th>
-								</tr>
-							</thead>
-							<tbody>
-								{props.notes.map((n) => {
-									const inv = of(n.invoice)
-									return (
-										<tr key={n.id}>
-											<td>{inv === undefined ? '-' : spanText(inv.start, inv.end)}</td>
-											<td>{reasonWord[n.reason] ?? '-'}</td>
-											<td className="num">{money(n.total, inv?.currency)}</td>
-											<td>{fmt(n.created, 'date')}</td>
-										</tr>
-									)
-								})}
-							</tbody>
-						</table>
-					</div>
+					<>
+						<ul className="phone-cards">
+							{props.notes.map((n) => {
+								const inv = of(n.invoice)
+								return (
+									<li key={n.id} className="phone-card">
+										<span className="phone-card-head">
+											<strong>{inv === undefined ? '-' : spanText(inv.start, inv.end)}</strong>
+											<span>{reasonWord[n.reason] ?? '-'}</span>
+										</span>
+										<span className="phone-card-amounts">
+											<span>
+												<span className="mute">금액</span> {money(n.total, inv?.currency)}
+											</span>
+											<span>
+												<span className="mute">만든 날</span> {fmt(n.created, 'date')}
+											</span>
+										</span>
+									</li>
+								)
+							})}
+						</ul>
+						<div className="table-wrap phone-hides">
+							<table className="table">
+								<thead>
+									<tr>
+										<th>청구서</th>
+										<th>사유</th>
+										<th className="num">금액</th>
+										<th>만든 날</th>
+									</tr>
+								</thead>
+								<tbody>
+									{props.notes.map((n) => {
+										const inv = of(n.invoice)
+										return (
+											<tr key={n.id}>
+												<td>{inv === undefined ? '-' : spanText(inv.start, inv.end)}</td>
+												<td>{reasonWord[n.reason] ?? '-'}</td>
+												<td className="num">{money(n.total, inv?.currency)}</td>
+												<td>{fmt(n.created, 'date')}</td>
+											</tr>
+										)
+									})}
+								</tbody>
+							</table>
+						</div>
+					</>
 				)}
 			</Card>
 			{open !== undefined && <InvoiceModal invoice={open} named={props.named} onClose={() => setOpen(undefined)} />}
 		</>
+	)
+}
+
+/**
+ * What an invoice's card on a phone says it came to: its total, and what
+ * credit paid of it; what was billed to its billing account; and what is
+ * left of it, while anything is.
+ */
+function InvoiceAmounts(props: { invoice: BillingInvoice }): ReactNode {
+	const v = props.invoice
+	return (
+		<span className="phone-card-amounts">
+			<span>
+				<span className="mute">합계</span> {money(v.total, v.currency)}
+				{v.credited !== 0n && <span className="mute small"> · 크레딧 −{money(v.credited, v.currency)}</span>}
+			</span>
+			<span>
+				<span className="mute">청구한 금액</span> {money(v.due, v.currency)}
+			</span>
+			{v.remaining !== 0n && (
+				<span>
+					<span className="mute">남은 금액</span> {money(v.remaining, v.currency)}
+				</span>
+			)}
+		</span>
 	)
 }
 

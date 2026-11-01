@@ -728,6 +728,9 @@ test("a payer's page says what each billing account may be paid with before its 
 	// the rest, and nothing was left due.
 	await levyan(request, 'invoice', { billing_account: ba?.id ?? '', workspace: ws.id, label: name, total: '80000' })
 	await page.reload()
+	// A table, on a screen as wide as a desk's; the cards are a phone's.
+	await expect(card(page, '청구서').getByRole('table')).toBeVisible()
+	await expect(card(page, '청구서').getByRole('list')).toHaveCount(0)
 	const invoice = card(page, '청구서').getByRole('row').filter({ hasText: '80,000원' })
 	await expect(invoice).toContainText('결제됨')
 	await expect(invoice).toContainText('크레딧 −80,000원')
@@ -793,6 +796,17 @@ test("each line of a payer's invoice says what its period came to, meter by mete
 	await page.setViewportSize({ width: 390, height: 844 })
 	await expect.poll(async () => (await dialog.boundingBox())?.width ?? Infinity).toBeLessThanOrEqual(390)
 })
+
+/**
+ * Holds `what` to being on the screen as it is drawn, nothing slid to reach
+ * it: the page scrolled down to it, as a person scrolls one, and then all of
+ * it in view -- cut off by no box that slides sideways (`.table-wrap`), which
+ * a click of Playwright's would slide for it, and a person's thumb first.
+ */
+async function inReach(what: Locator): Promise<void> {
+	await what.evaluate((e) => window.scrollTo({ top: window.scrollY + e.getBoundingClientRect().top - 80, behavior: 'instant' }))
+	await expect(what).toBeInViewport({ ratio: 1 })
+}
 
 /**
  * Holds `page` to the screen it is shown on: nothing on it is past the
@@ -862,18 +876,34 @@ test.describe('on a phone', () => {
 		await levyan(request, 'pool', { workspace: ws.id, meter: 'loft.assets.active', quantity: '10000', from })
 		await levyan(request, 'close', { workspace: ws.id })
 		await levyan(request, 'invoice', { billing_account: ba?.id ?? '', workspace: ws.id, label: name })
+		await levyan(request, 'note', { billing_account: ba?.id ?? '', reason: 'refund', total: '300' })
 		await levyan(request, 'dunning', { billing_account: ba?.id ?? '', kind: 'temporary', restricted: new Date(Date.now() + 7 * 24 * 3600_000).toISOString() })
 		await page.reload()
 		await expect(row.getByRole('listitem').filter({ hasText: `${name}의 크레딧` })).toContainText('곧 만료')
 		await expect(row.getByRole('status')).toContainText('결제가 실패했습니다.')
 		await expect(paid.getByRole('button', { name: '그만 내기' })).toBeVisible()
-		const invoice = card(page, '청구서').getByRole('row').filter({ hasText: '1,000원' })
+
+		// The invoices and the credit notes are a card each, and no table
+		// (loft#269): an invoice's the button that opens it, saying its
+		// period, its state, its total and what was billed of it.
+		const invoices = card(page, '청구서')
+		await expect(invoices.getByRole('table')).toHaveCount(0)
+		const invoice = invoices.getByRole('button').filter({ hasText: '1,000원' })
 		await expect(invoice).toContainText('결제됨')
+		await expect(invoice).toContainText('합계 1,000원')
+		await expect(invoice).toContainText('청구한 금액 0원')
+		const notes = card(page, '정정 청구')
+		await expect(notes.getByRole('table')).toHaveCount(0)
+		const note = notes.getByRole('listitem').filter({ hasText: '환불' })
+		await expect(note).toContainText('금액 300원')
+		await inReach(note)
 		await onTheScreen(page)
 
-		// The invoice, open: each line's statement slides sideways in the
-		// dialog, which stays on the screen.
-		await invoice.getByRole('button', { name: '보기' }).click()
+		// The invoice, open from its card as it is drawn, nothing slid to
+		// reach it: each line's statement slides sideways in the dialog,
+		// which stays on the screen.
+		await inReach(invoice)
+		await invoice.click()
 		const dialog = page.getByRole('dialog')
 		await expect(dialog.getByRole('region').getByRole('row').filter({ hasText: '활성 자산' })).toBeVisible()
 		await onTheScreen(page)

@@ -365,6 +365,30 @@ func main() {
 		v.Finalize(ba, line)
 		return nil
 	}))
+	// A credit note taking `total` back of the invoice the billing account
+	// was billed last, for `reason`: correction, refund or cancellation.
+	m.HandleFunc("POST /e2e/note", said(func(q url.Values) error {
+		ba := q.Get("billing_account")
+		if _, err := pdid.Parse(ba); err != nil {
+			return fmt.Errorf("billing_account: %w", err)
+		}
+		reason, ok := map[string]levyanv1.CreditNoteReason{
+			"correction":   levyanv1.CreditNoteReason_CREDIT_NOTE_REASON_CORRECTION,
+			"refund":       levyanv1.CreditNoteReason_CREDIT_NOTE_REASON_REFUND,
+			"cancellation": levyanv1.CreditNoteReason_CREDIT_NOTE_REASON_CANCELLATION,
+		}[q.Get("reason")]
+		if !ok {
+			return fmt.Errorf("reason: one of correction, refund, cancellation")
+		}
+		n, err := number(q, "total")
+		if err != nil {
+			return err
+		}
+		if v.Note(ba, reason, n) == nil {
+			return fmt.Errorf("billing_account: billed nothing yet")
+		}
+		return nil
+	}))
 
 	log.Printf("levyantest: levyan at %s, told what to say at %s", l.Addr(), *control)
 	log.Fatal((&http.Server{Addr: *control, Handler: m, ReadHeaderTimeout: 10 * time.Second}).ListenAndServe())
