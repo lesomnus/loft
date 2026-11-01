@@ -2446,6 +2446,7 @@ type PartyMeResponse struct {
 	xxx_hidden_AliasHoldDays uint32                 `protobuf:"varint,12,opt,name=alias_hold_days,json=aliasHoldDays"`
 	xxx_hidden_WorkspaceName string                 `protobuf:"bytes,13,opt,name=workspace_name,json=workspaceName"`
 	xxx_hidden_Restricted    bool                   `protobuf:"varint,14,opt,name=restricted"`
+	xxx_hidden_Readonly      bool                   `protobuf:"varint,15,opt,name=readonly"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -2559,6 +2560,13 @@ func (x *PartyMeResponse) GetRestricted() bool {
 	return false
 }
 
+func (x *PartyMeResponse) GetReadonly() bool {
+	if x != nil {
+		return x.xxx_hidden_Readonly
+	}
+	return false
+}
+
 func (x *PartyMeResponse) SetHolder(v *Holder) {
 	x.xxx_hidden_Holder = v
 }
@@ -2605,6 +2613,10 @@ func (x *PartyMeResponse) SetWorkspaceName(v string) {
 
 func (x *PartyMeResponse) SetRestricted(v bool) {
 	x.xxx_hidden_Restricted = v
+}
+
+func (x *PartyMeResponse) SetReadonly(v bool) {
+	x.xxx_hidden_Readonly = v
 }
 
 func (x *PartyMeResponse) HasHolder() bool {
@@ -2677,6 +2689,12 @@ type PartyMeResponse_builder struct {
 	// until its billing is settled (design 7.9). Never on a deployment that
 	// bills nobody.
 	Restricted bool
+	// Whether levyan makes the workspace read-only now, as the copy says
+	// (`loft.readonly`, design 7.10): the second stage, which every member's
+	// page says above it -- that it is read, taken out, paid for and closed,
+	// and changed in nothing else until it is paid. Never on a deployment
+	// that bills nobody.
+	Readonly bool
 }
 
 func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
@@ -2695,6 +2713,7 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_AliasHoldDays = b.AliasHoldDays
 	x.xxx_hidden_WorkspaceName = b.WorkspaceName
 	x.xxx_hidden_Restricted = b.Restricted
+	x.xxx_hidden_Readonly = b.Readonly
 	return m0
 }
 
@@ -6285,7 +6304,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.loft.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\x8c\x04\n" +
+	"\x0ePartyMeRequest\"\xaf\x04\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.loft.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.loft.PartyR\x05party\x12$\n" +
@@ -6302,7 +6321,8 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x0eworkspace_name\x18\r \x01(\tB\x05\xaa\x01\x02\b\x02R\rworkspaceName\x12%\n" +
 	"\n" +
 	"restricted\x18\x0e \x01(\bB\x05\xaa\x01\x02\b\x02R\n" +
-	"restrictedJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
+	"restricted\x12!\n" +
+	"\breadonly\x18\x0f \x01(\bB\x05\xaa\x01\x02\b\x02R\breadonlyJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +

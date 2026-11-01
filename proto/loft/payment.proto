@@ -682,11 +682,18 @@ message BillingPayer {
   // The invoices still owed that bill it whose charge failed, with what is
   // done of each: the one that restricts soonest first.
   repeated BillingDunning dunning = 8;
+
+  // From when it is read-only for having had nobody paying for it, the
+  // second stage of its restriction (`loft.readonly`): sixty days after
+  // `payerless_since` by default, never sooner than `restricted_from`, and
+  // unset when that is.
+  google.protobuf.Timestamp readonly_from = 9;
 }
 
 // BillingDunning is what is done of an invoice its channel failed to collect,
 // by levyan's table of each kind of decline: when it is charged again, when
-// its grace ends, and from when every workspace it bills is restricted.
+// its grace ends, from when every workspace it bills is restricted, and from
+// when they are read-only.
 // levyan tells nobody: this deployment shows it, to the payer and to the
 // people who run the workspaces it bills.
 message BillingDunning {
@@ -705,6 +712,11 @@ message BillingDunning {
 
   google.protobuf.Timestamp grace_ends = 6;
   google.protobuf.Timestamp restricted_from = 7;
+
+  // From when every workspace it bills is read-only, the second stage of
+  // their restriction (`loft.readonly`): sixty days after its first failure
+  // by default, and never sooner than `restricted_from`; until it is paid.
+  google.protobuf.Timestamp readonly_from = 8;
 }
 
 // BillingDeclineKind is which kind of decline a payer's method refused a

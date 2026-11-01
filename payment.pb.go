@@ -5680,6 +5680,7 @@ type BillingPayer struct {
 	xxx_hidden_RestrictedFrom *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=restricted_from,json=restrictedFrom"`
 	xxx_hidden_Collection     *BillingCollection     `protobuf:"bytes,7,opt,name=collection"`
 	xxx_hidden_Dunning        *[]*BillingDunning     `protobuf:"bytes,8,rep,name=dunning"`
+	xxx_hidden_ReadonlyFrom   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=readonly_from,json=readonlyFrom"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -5767,6 +5768,13 @@ func (x *BillingPayer) GetDunning() []*BillingDunning {
 	return nil
 }
 
+func (x *BillingPayer) GetReadonlyFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_ReadonlyFrom
+	}
+	return nil
+}
+
 func (x *BillingPayer) SetWorkspace(v string) {
 	x.xxx_hidden_Workspace = v
 }
@@ -5797,6 +5805,10 @@ func (x *BillingPayer) SetCollection(v *BillingCollection) {
 
 func (x *BillingPayer) SetDunning(v []*BillingDunning) {
 	x.xxx_hidden_Dunning = &v
+}
+
+func (x *BillingPayer) SetReadonlyFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_ReadonlyFrom = v
 }
 
 func (x *BillingPayer) HasCurrent() bool {
@@ -5841,6 +5853,13 @@ func (x *BillingPayer) HasCollection() bool {
 	return x.xxx_hidden_Collection != nil
 }
 
+func (x *BillingPayer) HasReadonlyFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_ReadonlyFrom != nil
+}
+
 func (x *BillingPayer) ClearCurrent() {
 	x.xxx_hidden_Current = nil
 }
@@ -5865,6 +5884,10 @@ func (x *BillingPayer) ClearCollection() {
 	x.xxx_hidden_Collection = nil
 }
 
+func (x *BillingPayer) ClearReadonlyFrom() {
+	x.xxx_hidden_ReadonlyFrom = nil
+}
+
 type BillingPayer_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -5885,6 +5908,11 @@ type BillingPayer_builder struct {
 	// The invoices still owed that bill it whose charge failed, with what is
 	// done of each: the one that restricts soonest first.
 	Dunning []*BillingDunning
+	// From when it is read-only for having had nobody paying for it, the
+	// second stage of its restriction (`loft.readonly`): sixty days after
+	// `payerless_since` by default, never sooner than `restricted_from`, and
+	// unset when that is.
+	ReadonlyFrom *timestamppb.Timestamp
 }
 
 func (b0 BillingPayer_builder) Build() *BillingPayer {
@@ -5899,12 +5927,14 @@ func (b0 BillingPayer_builder) Build() *BillingPayer {
 	x.xxx_hidden_RestrictedFrom = b.RestrictedFrom
 	x.xxx_hidden_Collection = b.Collection
 	x.xxx_hidden_Dunning = &b.Dunning
+	x.xxx_hidden_ReadonlyFrom = b.ReadonlyFrom
 	return m0
 }
 
 // BillingDunning is what is done of an invoice its channel failed to collect,
 // by levyan's table of each kind of decline: when it is charged again, when
-// its grace ends, and from when every workspace it bills is restricted.
+// its grace ends, from when every workspace it bills is restricted, and from
+// when they are read-only.
 // levyan tells nobody: this deployment shows it, to the payer and to the
 // people who run the workspaces it bills.
 type BillingDunning struct {
@@ -5916,6 +5946,7 @@ type BillingDunning struct {
 	xxx_hidden_NextRetry      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=next_retry,json=nextRetry"`
 	xxx_hidden_GraceEnds      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=grace_ends,json=graceEnds"`
 	xxx_hidden_RestrictedFrom *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=restricted_from,json=restrictedFrom"`
+	xxx_hidden_ReadonlyFrom   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=readonly_from,json=readonlyFrom"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -5994,6 +6025,13 @@ func (x *BillingDunning) GetRestrictedFrom() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *BillingDunning) GetReadonlyFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_ReadonlyFrom
+	}
+	return nil
+}
+
 func (x *BillingDunning) SetInvoice(v string) {
 	x.xxx_hidden_Invoice = v
 }
@@ -6020,6 +6058,10 @@ func (x *BillingDunning) SetGraceEnds(v *timestamppb.Timestamp) {
 
 func (x *BillingDunning) SetRestrictedFrom(v *timestamppb.Timestamp) {
 	x.xxx_hidden_RestrictedFrom = v
+}
+
+func (x *BillingDunning) SetReadonlyFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_ReadonlyFrom = v
 }
 
 func (x *BillingDunning) HasFailed() bool {
@@ -6050,6 +6092,13 @@ func (x *BillingDunning) HasRestrictedFrom() bool {
 	return x.xxx_hidden_RestrictedFrom != nil
 }
 
+func (x *BillingDunning) HasReadonlyFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_ReadonlyFrom != nil
+}
+
 func (x *BillingDunning) ClearFailed() {
 	x.xxx_hidden_Failed = nil
 }
@@ -6066,6 +6115,10 @@ func (x *BillingDunning) ClearRestrictedFrom() {
 	x.xxx_hidden_RestrictedFrom = nil
 }
 
+func (x *BillingDunning) ClearReadonlyFrom() {
+	x.xxx_hidden_ReadonlyFrom = nil
+}
+
 type BillingDunning_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -6080,6 +6133,10 @@ type BillingDunning_builder struct {
 	NextRetry      *timestamppb.Timestamp
 	GraceEnds      *timestamppb.Timestamp
 	RestrictedFrom *timestamppb.Timestamp
+	// From when every workspace it bills is read-only, the second stage of
+	// their restriction (`loft.readonly`): sixty days after its first failure
+	// by default, and never sooner than `restricted_from`; until it is paid.
+	ReadonlyFrom *timestamppb.Timestamp
 }
 
 func (b0 BillingDunning_builder) Build() *BillingDunning {
@@ -6093,6 +6150,7 @@ func (b0 BillingDunning_builder) Build() *BillingDunning {
 	x.xxx_hidden_NextRetry = b.NextRetry
 	x.xxx_hidden_GraceEnds = b.GraceEnds
 	x.xxx_hidden_RestrictedFrom = b.RestrictedFrom
+	x.xxx_hidden_ReadonlyFrom = b.ReadonlyFrom
 	return m0
 }
 
@@ -6856,7 +6914,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\rBillingPeriod\x120\n" +
 	"\x05start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
 	"\x03end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12\x12\n" +
-	"\x04zone\x18\x03 \x01(\tR\x04zone\"\x9d\x03\n" +
+	"\x04zone\x18\x03 \x01(\tR\x04zone\"\xde\x03\n" +
 	"\fBillingPayer\x12\x1c\n" +
 	"\tworkspace\x18\x01 \x01(\tR\tworkspace\x12+\n" +
 	"\acurrent\x18\x02 \x01(\v2\x11.loft.BillingLinkR\acurrent\x12%\n" +
@@ -6867,7 +6925,8 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\n" +
 	"collection\x18\a \x01(\v2\x17.loft.BillingCollectionR\n" +
 	"collection\x12.\n" +
-	"\adunning\x18\b \x03(\v2\x14.loft.BillingDunningR\adunning\"\xf0\x02\n" +
+	"\adunning\x18\b \x03(\v2\x14.loft.BillingDunningR\adunning\x12?\n" +
+	"\rreadonly_from\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\freadonlyFrom\"\xb1\x03\n" +
 	"\x0eBillingDunning\x12\x18\n" +
 	"\ainvoice\x18\x01 \x01(\tR\ainvoice\x12'\n" +
 	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\x12,\n" +
@@ -6877,7 +6936,8 @@ const file_loft_payment_proto_rawDesc = "" +
 	"next_retry\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tnextRetry\x129\n" +
 	"\n" +
 	"grace_ends\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tgraceEnds\x12C\n" +
-	"\x0frestricted_from\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0erestrictedFrom\"\x95\x02\n" +
+	"\x0frestricted_from\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0erestrictedFrom\x12?\n" +
+	"\rreadonly_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\freadonlyFrom\"\x95\x02\n" +
 	"\fBillingUsage\x12\x1c\n" +
 	"\tworkspace\x18\x01 \x01(\tR\tworkspace\x12+\n" +
 	"\x06period\x18\x02 \x01(\v2\x13.loft.BillingPeriodR\x06period\x12/\n" +
@@ -7161,64 +7221,66 @@ var file_loft_payment_proto_depIdxs = []int32{
 	68,  // 72: loft.BillingPayer.restricted_from:type_name -> google.protobuf.Timestamp
 	52,  // 73: loft.BillingPayer.collection:type_name -> loft.BillingCollection
 	64,  // 74: loft.BillingPayer.dunning:type_name -> loft.BillingDunning
-	9,   // 75: loft.BillingDunning.kind:type_name -> loft.BillingDeclineKind
-	68,  // 76: loft.BillingDunning.failed:type_name -> google.protobuf.Timestamp
-	68,  // 77: loft.BillingDunning.next_retry:type_name -> google.protobuf.Timestamp
-	68,  // 78: loft.BillingDunning.grace_ends:type_name -> google.protobuf.Timestamp
-	68,  // 79: loft.BillingDunning.restricted_from:type_name -> google.protobuf.Timestamp
-	62,  // 80: loft.BillingUsage.period:type_name -> loft.BillingPeriod
-	68,  // 81: loft.BillingUsage.as_of:type_name -> google.protobuf.Timestamp
-	0,   // 82: loft.BillingUsage.channel:type_name -> loft.BillingChannel
-	67,  // 83: loft.BillingUsage.lines:type_name -> loft.BillingLine
-	62,  // 84: loft.BillingStatement.period:type_name -> loft.BillingPeriod
-	0,   // 85: loft.BillingStatement.channel:type_name -> loft.BillingChannel
-	67,  // 86: loft.BillingStatement.lines:type_name -> loft.BillingLine
-	68,  // 87: loft.BillingStatement.closed:type_name -> google.protobuf.Timestamp
-	10,  // 88: loft.BillingLine.kind:type_name -> loft.BillingLineKind
-	62,  // 89: loft.BillingLine.corrects:type_name -> loft.BillingPeriod
-	11,  // 90: loft.PaymentService.ListBillingAccounts:input_type -> loft.PaymentListBillingAccountsRequest
-	13,  // 91: loft.PaymentService.CreateBillingAccount:input_type -> loft.PaymentCreateBillingAccountRequest
-	15,  // 92: loft.PaymentService.UpdateBillingAccount:input_type -> loft.PaymentUpdateBillingAccountRequest
-	17,  // 93: loft.PaymentService.GetBillingAccount:input_type -> loft.PaymentGetBillingAccountRequest
-	19,  // 94: loft.PaymentService.StartCheckout:input_type -> loft.PaymentStartCheckoutRequest
-	21,  // 95: loft.PaymentService.CompleteCheckout:input_type -> loft.PaymentCompleteCheckoutRequest
-	23,  // 96: loft.PaymentService.ListOffers:input_type -> loft.PaymentListOffersRequest
-	25,  // 97: loft.PaymentService.Accept:input_type -> loft.PaymentAcceptRequest
-	27,  // 98: loft.PaymentService.Decline:input_type -> loft.PaymentDeclineRequest
-	29,  // 99: loft.PaymentService.ListLinks:input_type -> loft.PaymentListLinksRequest
-	31,  // 100: loft.PaymentService.Use:input_type -> loft.PaymentUseRequest
-	33,  // 101: loft.PaymentService.Stop:input_type -> loft.PaymentStopRequest
-	35,  // 102: loft.PaymentService.ListInvoices:input_type -> loft.PaymentListInvoicesRequest
-	37,  // 103: loft.PaymentService.GetInvoice:input_type -> loft.PaymentGetInvoiceRequest
-	39,  // 104: loft.PaymentService.ListCreditNotes:input_type -> loft.PaymentListCreditNotesRequest
-	41,  // 105: loft.PaymentService.GetPayer:input_type -> loft.PaymentGetPayerRequest
-	43,  // 106: loft.PaymentService.GetUsage:input_type -> loft.PaymentGetUsageRequest
-	45,  // 107: loft.PaymentService.ListStatements:input_type -> loft.PaymentListStatementsRequest
-	47,  // 108: loft.PaymentService.Offer:input_type -> loft.PaymentOfferRequest
-	12,  // 109: loft.PaymentService.ListBillingAccounts:output_type -> loft.PaymentListBillingAccountsResponse
-	14,  // 110: loft.PaymentService.CreateBillingAccount:output_type -> loft.PaymentCreateBillingAccountResponse
-	16,  // 111: loft.PaymentService.UpdateBillingAccount:output_type -> loft.PaymentUpdateBillingAccountResponse
-	18,  // 112: loft.PaymentService.GetBillingAccount:output_type -> loft.PaymentGetBillingAccountResponse
-	20,  // 113: loft.PaymentService.StartCheckout:output_type -> loft.PaymentStartCheckoutResponse
-	22,  // 114: loft.PaymentService.CompleteCheckout:output_type -> loft.PaymentCompleteCheckoutResponse
-	24,  // 115: loft.PaymentService.ListOffers:output_type -> loft.PaymentListOffersResponse
-	26,  // 116: loft.PaymentService.Accept:output_type -> loft.PaymentAcceptResponse
-	28,  // 117: loft.PaymentService.Decline:output_type -> loft.PaymentDeclineResponse
-	30,  // 118: loft.PaymentService.ListLinks:output_type -> loft.PaymentListLinksResponse
-	32,  // 119: loft.PaymentService.Use:output_type -> loft.PaymentUseResponse
-	34,  // 120: loft.PaymentService.Stop:output_type -> loft.PaymentStopResponse
-	36,  // 121: loft.PaymentService.ListInvoices:output_type -> loft.PaymentListInvoicesResponse
-	38,  // 122: loft.PaymentService.GetInvoice:output_type -> loft.PaymentGetInvoiceResponse
-	40,  // 123: loft.PaymentService.ListCreditNotes:output_type -> loft.PaymentListCreditNotesResponse
-	42,  // 124: loft.PaymentService.GetPayer:output_type -> loft.PaymentGetPayerResponse
-	44,  // 125: loft.PaymentService.GetUsage:output_type -> loft.PaymentGetUsageResponse
-	46,  // 126: loft.PaymentService.ListStatements:output_type -> loft.PaymentListStatementsResponse
-	48,  // 127: loft.PaymentService.Offer:output_type -> loft.PaymentOfferResponse
-	109, // [109:128] is the sub-list for method output_type
-	90,  // [90:109] is the sub-list for method input_type
-	90,  // [90:90] is the sub-list for extension type_name
-	90,  // [90:90] is the sub-list for extension extendee
-	0,   // [0:90] is the sub-list for field type_name
+	68,  // 75: loft.BillingPayer.readonly_from:type_name -> google.protobuf.Timestamp
+	9,   // 76: loft.BillingDunning.kind:type_name -> loft.BillingDeclineKind
+	68,  // 77: loft.BillingDunning.failed:type_name -> google.protobuf.Timestamp
+	68,  // 78: loft.BillingDunning.next_retry:type_name -> google.protobuf.Timestamp
+	68,  // 79: loft.BillingDunning.grace_ends:type_name -> google.protobuf.Timestamp
+	68,  // 80: loft.BillingDunning.restricted_from:type_name -> google.protobuf.Timestamp
+	68,  // 81: loft.BillingDunning.readonly_from:type_name -> google.protobuf.Timestamp
+	62,  // 82: loft.BillingUsage.period:type_name -> loft.BillingPeriod
+	68,  // 83: loft.BillingUsage.as_of:type_name -> google.protobuf.Timestamp
+	0,   // 84: loft.BillingUsage.channel:type_name -> loft.BillingChannel
+	67,  // 85: loft.BillingUsage.lines:type_name -> loft.BillingLine
+	62,  // 86: loft.BillingStatement.period:type_name -> loft.BillingPeriod
+	0,   // 87: loft.BillingStatement.channel:type_name -> loft.BillingChannel
+	67,  // 88: loft.BillingStatement.lines:type_name -> loft.BillingLine
+	68,  // 89: loft.BillingStatement.closed:type_name -> google.protobuf.Timestamp
+	10,  // 90: loft.BillingLine.kind:type_name -> loft.BillingLineKind
+	62,  // 91: loft.BillingLine.corrects:type_name -> loft.BillingPeriod
+	11,  // 92: loft.PaymentService.ListBillingAccounts:input_type -> loft.PaymentListBillingAccountsRequest
+	13,  // 93: loft.PaymentService.CreateBillingAccount:input_type -> loft.PaymentCreateBillingAccountRequest
+	15,  // 94: loft.PaymentService.UpdateBillingAccount:input_type -> loft.PaymentUpdateBillingAccountRequest
+	17,  // 95: loft.PaymentService.GetBillingAccount:input_type -> loft.PaymentGetBillingAccountRequest
+	19,  // 96: loft.PaymentService.StartCheckout:input_type -> loft.PaymentStartCheckoutRequest
+	21,  // 97: loft.PaymentService.CompleteCheckout:input_type -> loft.PaymentCompleteCheckoutRequest
+	23,  // 98: loft.PaymentService.ListOffers:input_type -> loft.PaymentListOffersRequest
+	25,  // 99: loft.PaymentService.Accept:input_type -> loft.PaymentAcceptRequest
+	27,  // 100: loft.PaymentService.Decline:input_type -> loft.PaymentDeclineRequest
+	29,  // 101: loft.PaymentService.ListLinks:input_type -> loft.PaymentListLinksRequest
+	31,  // 102: loft.PaymentService.Use:input_type -> loft.PaymentUseRequest
+	33,  // 103: loft.PaymentService.Stop:input_type -> loft.PaymentStopRequest
+	35,  // 104: loft.PaymentService.ListInvoices:input_type -> loft.PaymentListInvoicesRequest
+	37,  // 105: loft.PaymentService.GetInvoice:input_type -> loft.PaymentGetInvoiceRequest
+	39,  // 106: loft.PaymentService.ListCreditNotes:input_type -> loft.PaymentListCreditNotesRequest
+	41,  // 107: loft.PaymentService.GetPayer:input_type -> loft.PaymentGetPayerRequest
+	43,  // 108: loft.PaymentService.GetUsage:input_type -> loft.PaymentGetUsageRequest
+	45,  // 109: loft.PaymentService.ListStatements:input_type -> loft.PaymentListStatementsRequest
+	47,  // 110: loft.PaymentService.Offer:input_type -> loft.PaymentOfferRequest
+	12,  // 111: loft.PaymentService.ListBillingAccounts:output_type -> loft.PaymentListBillingAccountsResponse
+	14,  // 112: loft.PaymentService.CreateBillingAccount:output_type -> loft.PaymentCreateBillingAccountResponse
+	16,  // 113: loft.PaymentService.UpdateBillingAccount:output_type -> loft.PaymentUpdateBillingAccountResponse
+	18,  // 114: loft.PaymentService.GetBillingAccount:output_type -> loft.PaymentGetBillingAccountResponse
+	20,  // 115: loft.PaymentService.StartCheckout:output_type -> loft.PaymentStartCheckoutResponse
+	22,  // 116: loft.PaymentService.CompleteCheckout:output_type -> loft.PaymentCompleteCheckoutResponse
+	24,  // 117: loft.PaymentService.ListOffers:output_type -> loft.PaymentListOffersResponse
+	26,  // 118: loft.PaymentService.Accept:output_type -> loft.PaymentAcceptResponse
+	28,  // 119: loft.PaymentService.Decline:output_type -> loft.PaymentDeclineResponse
+	30,  // 120: loft.PaymentService.ListLinks:output_type -> loft.PaymentListLinksResponse
+	32,  // 121: loft.PaymentService.Use:output_type -> loft.PaymentUseResponse
+	34,  // 122: loft.PaymentService.Stop:output_type -> loft.PaymentStopResponse
+	36,  // 123: loft.PaymentService.ListInvoices:output_type -> loft.PaymentListInvoicesResponse
+	38,  // 124: loft.PaymentService.GetInvoice:output_type -> loft.PaymentGetInvoiceResponse
+	40,  // 125: loft.PaymentService.ListCreditNotes:output_type -> loft.PaymentListCreditNotesResponse
+	42,  // 126: loft.PaymentService.GetPayer:output_type -> loft.PaymentGetPayerResponse
+	44,  // 127: loft.PaymentService.GetUsage:output_type -> loft.PaymentGetUsageResponse
+	46,  // 128: loft.PaymentService.ListStatements:output_type -> loft.PaymentListStatementsResponse
+	48,  // 129: loft.PaymentService.Offer:output_type -> loft.PaymentOfferResponse
+	111, // [111:130] is the sub-list for method output_type
+	92,  // [92:111] is the sub-list for method input_type
+	92,  // [92:92] is the sub-list for extension type_name
+	92,  // [92:92] is the sub-list for extension extendee
+	0,   // [0:92] is the sub-list for field type_name
 }
 
 func init() { file_loft_payment_proto_init() }

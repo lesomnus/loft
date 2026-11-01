@@ -122,13 +122,18 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 		out.SetAccountUrl(s.deps.People.AccountPage())
 	}
 	// What every member's page says above it while levyan restricts the
-	// workspace (design 7.9): the copy its writes are held to, read as they
-	// read it.
+	// workspace or makes it read-only (design 7.9, 7.10): the copy its
+	// writes are held to, read as they read it.
 	restricted, err := t.restricted()
 	if err != nil {
 		return nil, err
 	}
 	out.SetRestricted(restricted)
+	readonly, err := t.readonly()
+	if err != nil {
+		return nil, err
+	}
+	out.SetReadonly(readonly)
 	if p, err := t.db.Party.Query().Where(party.TenantId(t.tenant.Uuid()), party.HolderId(t.actor.Uuid()), party.DateErasedIsNil()).First(ctx); err == nil {
 		if v, err := t.next.Party().Get(ctx, app.PartyGetRequest_builder{Ref: app.PartyRef_builder{Id: pdid.Id(p.Id).Bytes()}.Build()}.Build()); err == nil {
 			out.SetParty(v)
@@ -201,8 +206,8 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 	var made pdid.Id
 	err = s.tx(ctx, func(t *Tx) error {
 		// Before an account is made at roster for it, which a transaction
-		// undone would leave there (D60).
-		if err := t.growing(); err != nil {
+		// undone would leave there (D60, D64).
+		if err := t.held(); err != nil {
 			return err
 		}
 		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
@@ -564,6 +569,12 @@ func (s Domain) AssetType() app.AssetTypeServiceServer {
 	return domainAssetType{s, s.Next().AssetType()}
 }
 
+// Erase is the generated one, which begins no operation, held to what a
+// read-only workspace does (D64).
+func (s domainAssetType) Erase(ctx context.Context, ref *app.AssetTypeRef) (*app.AssetTypeEraseResponse, error) {
+	return passing(s.Domain, ctx, func(t *Tx) (*app.AssetTypeEraseResponse, error) { return t.next.AssetType().Erase(t.ctx, ref) })
+}
+
 func (s domainAssetType) Add(ctx context.Context, req *app.AssetTypeAddRequest) (*app.AssetType, error) {
 	var out *app.AssetType
 	err := s.tx(ctx, func(t *Tx) error {
@@ -695,6 +706,12 @@ type domainItemModel struct {
 
 func (s Domain) ItemModel() app.ItemModelServiceServer {
 	return domainItemModel{s, s.Next().ItemModel()}
+}
+
+// Erase is the generated one, which begins no operation, held to what a
+// read-only workspace does (D64).
+func (s domainItemModel) Erase(ctx context.Context, ref *app.ItemModelRef) (*app.ItemModelEraseResponse, error) {
+	return passing(s.Domain, ctx, func(t *Tx) (*app.ItemModelEraseResponse, error) { return t.next.ItemModel().Erase(t.ctx, ref) })
 }
 
 // Add keeps a maker's model, in the caller's tenant.

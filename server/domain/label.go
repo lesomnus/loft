@@ -741,6 +741,13 @@ func (s Domain) Attachment() app.AttachmentServiceServer {
 	return domainAttachment{s, s.Next().Attachment()}
 }
 
+// Erase is the generated one, which begins no operation, held to what a
+// read-only workspace does (D64). The file stays until retention or the
+// workspace's destruction takes it (design 7.4).
+func (s domainAttachment) Erase(ctx context.Context, ref *app.AttachmentRef) (*app.AttachmentEraseResponse, error) {
+	return passing(s.Domain, ctx, func(t *Tx) (*app.AttachmentEraseResponse, error) { return t.next.Attachment().Erase(t.ctx, ref) })
+}
+
 // MaxUpload is the largest file an upload takes.
 const MaxUpload = 20 << 20
 
@@ -753,8 +760,8 @@ func (s domainAttachment) Upload(ctx context.Context, req *app.AttachmentUploadR
 			return failed("이 서버는 파일을 보관하지 않습니다")
 		}
 		// Before the file is kept, which the store would keep whatever the
-		// transaction came to (D60).
-		if err := t.growing(); err != nil {
+		// transaction came to (D60, D64).
+		if err := t.held(); err != nil {
 			return err
 		}
 		data := req.GetData()

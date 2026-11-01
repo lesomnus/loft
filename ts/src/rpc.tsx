@@ -33,7 +33,7 @@ import {
 import { Code, ConnectError, createClient } from '@connectrpc/connect'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 
-import { errorText, isConsentOwed, isRestricted, isUnauthenticated, transport } from './api.js'
+import { errorText, isConsentOwed, isReadOnly, isRestricted, isUnauthenticated, transport } from './api.js'
 import { recall, remember, setOffline, unreachable, useOffline } from './offline.js'
 import { useToast } from './ui.js'
 
@@ -62,16 +62,13 @@ export async function call<I extends DescMessage, O extends DescMessage>(
 		return await clientOf(method.parent)[method.localName](input, { signal, timeoutMs })
 	} catch (err) {
 		if (isRestricted(err)) restricted.see()
+		if (isReadOnly(err)) readOnly.see()
 		throw err
 	}
 }
 
-/**
- * Whether a call this page made was refused for its workspace being
- * restricted (`isRestricted`): what the workspace's banner says to everybody,
- * whoever may read who pays for it, until the page is loaded again.
- */
-const restricted = (() => {
+/** Something a call of this page's was refused for, once seen and until the page is loaded again. */
+function seenOnce(): { see: () => void; subscribe: (f: () => void) => () => void; seen: () => boolean } {
 	let seen = false
 	const heard = new Set<() => void>()
 	return {
@@ -88,11 +85,25 @@ const restricted = (() => {
 		},
 		seen: () => seen,
 	}
-})()
+}
+
+/**
+ * Whether a call this page made was refused for its workspace being
+ * restricted (`isRestricted`), or read-only (`isReadOnly`): what the
+ * workspace's banner says to everybody, whoever may read who pays for it,
+ * until the page is loaded again.
+ */
+const restricted = seenOnce()
+const readOnly = seenOnce()
 
 /** Whether a call of this page's was refused as its workspace is restricted. */
 export function useRestricted(): boolean {
 	return useSyncExternalStore(restricted.subscribe, restricted.seen)
+}
+
+/** Whether a call of this page's was refused as its workspace is read-only. */
+export function useReadOnly(): boolean {
+	return useSyncExternalStore(readOnly.subscribe, readOnly.seen)
 }
 
 /**

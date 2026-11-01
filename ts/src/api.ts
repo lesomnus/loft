@@ -649,8 +649,21 @@ export function errorText(err: unknown): string {
  * how the server tells it apart from every other refusal.
  */
 export function isRestricted(err: unknown): boolean {
+	return refusedAs(err, 'RESTRICTED')
+}
+
+/**
+ * Whether a call was refused for its workspace being read-only (design 7.10):
+ * `FailedPrecondition` with an `ErrorInfo` of reason `READONLY`.
+ */
+export function isReadOnly(err: unknown): boolean {
+	return refusedAs(err, 'READONLY')
+}
+
+/** Whether a call was refused `FailedPrecondition`, with an `ErrorInfo` of `reason`. */
+function refusedAs(err: unknown, reason: string): boolean {
 	if (!(err instanceof ConnectError) || err.code !== Code.FailedPrecondition) return false
-	return err.details.some((d) => 'type' in d && d.type === 'google.rpc.ErrorInfo' && reasonOf(d.value) === 'RESTRICTED')
+	return err.details.some((d) => 'type' in d && d.type === 'google.rpc.ErrorInfo' && reasonOf(d.value) === reason)
 }
 
 /** The reason an `ErrorInfo` says -- its first field -- read as protobuf wrote it. */
