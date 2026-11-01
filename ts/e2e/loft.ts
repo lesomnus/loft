@@ -62,6 +62,7 @@ export const people = {
 	readOnly: { login: 'juwon-yoon', name: '윤주원' },
 	benefits: { login: 'soyun-jang', name: '장소윤' },
 	credits: { login: 'seoyeon-lim', name: '임서연' },
+	statements: { login: 'junseo-lim', name: '임준서' },
 } as const
 
 /** A name nothing else in the run has. */

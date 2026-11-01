@@ -728,3 +728,52 @@ test("a payer's page says what each billing account may be paid with before its 
 	await expect(theirs).toHaveCount(0)
 	await expect(row).toContainText('잔액5,000원 · 만료 없음')
 })
+
+test("each line of a payer's invoice says what its period came to, meter by meter, as levyan answers the payer", async ({ page, request }) => {
+	await signIn(page, people.statements.login)
+	await page.goto('/billing')
+	await makeAccount(page, '명세서 계정')
+	const name = unique('e2e 명세서')
+	const ws = await made(page, name)
+	const [ba] = await billingAccounts(page)
+	expect(ba).toBeDefined()
+
+	// levyan is told who made the workspace -- who pays for it from then,
+	// with the billing account they made -- by the loop that tells it what
+	// changed, every ten seconds.
+	const links = card(page, '내는 워크스페이스')
+	await expect(async () => {
+		await page.reload()
+		await expect(links).toContainText(name, { timeout: 1000 })
+	}).toPass({ timeout: 30_000 })
+
+	// What levyan was handed of it, and what its operator gave it from the
+	// period before: 500 more assets each period, and a pool of 10,000
+	// asset-months. The period before closed -- paid for with the billing
+	// account, whose payer's its statement is (levyan#47) -- and was
+	// invoiced: 1,000원, of the member.
+	const from = monthStart(-1)
+	await levyan(request, 'reading', { workspace: ws.id, meter: 'loft.assets.active', value: '1200' })
+	await levyan(request, 'reading', { workspace: ws.id, meter: 'loft.members', value: '1' })
+	await levyan(request, 'allowance', { workspace: ws.id, meter: 'loft.assets.active', quantity: '500', from })
+	await levyan(request, 'pool', { workspace: ws.id, meter: 'loft.assets.active', quantity: '10000', from })
+	await levyan(request, 'close', { workspace: ws.id })
+	await levyan(request, 'invoice', { billing_account: ba?.id ?? '', workspace: ws.id, label: name })
+
+	await page.reload()
+	await card(page, '청구서').getByRole('row').filter({ hasText: '1,000원' }).getByRole('button', { name: '보기' }).click()
+	const dialog = page.getByRole('dialog')
+	// Under the workspace and its period, on the deployment's wall; each
+	// line what was used, what was free -- the price's and the promotion's
+	// -- what the pool took, what is left to price, and what it comes to.
+	const [first, last] = await lastDays(page, new Date(Date.parse(from) + 1).toISOString(), monthStart(0))
+	const statement = dialog.getByRole('region', { name: `${name} · ${first} – ${last} 명세서` })
+	await expect(statement.getByRole('row').filter({ hasText: '활성 자산' }).getByRole('cell')).toHaveText(['활성 자산', '1,200개', '프로모션 500개', '700 자산·월', '0개', '0원'])
+	await expect(statement.getByRole('row').filter({ hasText: '구성원' }).getByRole('cell')).toHaveText(['구성원', '1명', '0명', '-', '1명', '1,000원'])
+	await expect(dialog).toContainText('수량은 소수점 아래 첫째 자리까지 반올림했고')
+
+	// On a phone the dialog stays on the screen, and the lines scroll
+	// sideways in it.
+	await page.setViewportSize({ width: 390, height: 844 })
+	await expect.poll(async () => (await dialog.boundingBox())?.width ?? Infinity).toBeLessThanOrEqual(390)
+})
