@@ -1168,6 +1168,8 @@ type PaymentGetBillingAccountResponse struct {
 	xxx_hidden_Collection     *BillingCollection     `protobuf:"bytes,2,opt,name=collection"`
 	xxx_hidden_Subscription   *BillingSubscription   `protobuf:"bytes,3,opt,name=subscription"`
 	xxx_hidden_Dunning        *[]*BillingDunning     `protobuf:"bytes,4,rep,name=dunning"`
+	xxx_hidden_Credits        *[]*BillingCredit      `protobuf:"bytes,5,rep,name=credits"`
+	xxx_hidden_Balance        int64                  `protobuf:"varint,6,opt,name=balance"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -1227,6 +1229,22 @@ func (x *PaymentGetBillingAccountResponse) GetDunning() []*BillingDunning {
 	return nil
 }
 
+func (x *PaymentGetBillingAccountResponse) GetCredits() []*BillingCredit {
+	if x != nil {
+		if x.xxx_hidden_Credits != nil {
+			return *x.xxx_hidden_Credits
+		}
+	}
+	return nil
+}
+
+func (x *PaymentGetBillingAccountResponse) GetBalance() int64 {
+	if x != nil {
+		return x.xxx_hidden_Balance
+	}
+	return 0
+}
+
 func (x *PaymentGetBillingAccountResponse) SetBillingAccount(v *BillingAccount) {
 	x.xxx_hidden_BillingAccount = v
 }
@@ -1241,6 +1259,14 @@ func (x *PaymentGetBillingAccountResponse) SetSubscription(v *BillingSubscriptio
 
 func (x *PaymentGetBillingAccountResponse) SetDunning(v []*BillingDunning) {
 	x.xxx_hidden_Dunning = &v
+}
+
+func (x *PaymentGetBillingAccountResponse) SetCredits(v []*BillingCredit) {
+	x.xxx_hidden_Credits = &v
+}
+
+func (x *PaymentGetBillingAccountResponse) SetBalance(v int64) {
+	x.xxx_hidden_Balance = v
 }
 
 func (x *PaymentGetBillingAccountResponse) HasBillingAccount() bool {
@@ -1287,6 +1313,15 @@ type PaymentGetBillingAccountResponse_builder struct {
 	// Its invoices whose charge failed and that are still owed, with what is
 	// done of each: the one that restricts soonest first.
 	Dunning []*BillingDunning
+	// The credit levyan's operator granted that its next invoices may be paid
+	// with, neither spent nor expired: its own, and that of the workspaces it
+	// pays for now or will from the end of the period, the soonest to expire
+	// first.
+	Credits []*BillingCredit
+	// What it is owed beside them -- of an invoice that came to less than
+	// nothing, a credit note, a payment of more than was due -- in its
+	// currency's minor unit: never expires, and is spent after them.
+	Balance int64
 }
 
 func (b0 PaymentGetBillingAccountResponse_builder) Build() *PaymentGetBillingAccountResponse {
@@ -1297,6 +1332,8 @@ func (b0 PaymentGetBillingAccountResponse_builder) Build() *PaymentGetBillingAcc
 	x.xxx_hidden_Collection = b.Collection
 	x.xxx_hidden_Subscription = b.Subscription
 	x.xxx_hidden_Dunning = &b.Dunning
+	x.xxx_hidden_Credits = &b.Credits
+	x.xxx_hidden_Balance = b.Balance
 	return m0
 }
 
@@ -4829,28 +4866,29 @@ func (b0 BillingLink_builder) Build() *BillingLink {
 // BillingInvoice is what a billing account is asked to pay for a period.
 // Every amount is a whole number of the currency's minor unit.
 type BillingInvoice struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id             string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_BillingAccount string                 `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_State          BillingInvoiceState    `protobuf:"varint,3,opt,name=state,enum=loft.BillingInvoiceState"`
-	xxx_hidden_Start          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start"`
-	xxx_hidden_End            *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end"`
-	xxx_hidden_Channel        BillingChannel         `protobuf:"varint,6,opt,name=channel,enum=loft.BillingChannel"`
-	xxx_hidden_Currency       string                 `protobuf:"bytes,7,opt,name=currency"`
-	xxx_hidden_Subtotal       int64                  `protobuf:"varint,8,opt,name=subtotal"`
-	xxx_hidden_Tax            int64                  `protobuf:"varint,9,opt,name=tax"`
-	xxx_hidden_Total          int64                  `protobuf:"varint,10,opt,name=total"`
-	xxx_hidden_Credited       int64                  `protobuf:"varint,11,opt,name=credited"`
-	xxx_hidden_Due            int64                  `protobuf:"varint,12,opt,name=due"`
-	xxx_hidden_Paid           int64                  `protobuf:"varint,13,opt,name=paid"`
-	xxx_hidden_Reduced        int64                  `protobuf:"varint,14,opt,name=reduced"`
-	xxx_hidden_Remaining      int64                  `protobuf:"varint,15,opt,name=remaining"`
-	xxx_hidden_Number         int64                  `protobuf:"varint,16,opt,name=number"`
-	xxx_hidden_Finalized      *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=finalized"`
-	xxx_hidden_DueDate        *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=due_date,json=dueDate"`
-	xxx_hidden_Settled        *timestamppb.Timestamp `protobuf:"bytes,19,opt,name=settled"`
-	xxx_hidden_ChannelNumber  string                 `protobuf:"bytes,20,opt,name=channel_number,json=channelNumber"`
-	xxx_hidden_Lines          *[]*BillingInvoiceLine `protobuf:"bytes,21,rep,name=lines"`
+	state                     protoimpl.MessageState   `protogen:"opaque.v1"`
+	xxx_hidden_Id             string                   `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_BillingAccount string                   `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
+	xxx_hidden_State          BillingInvoiceState      `protobuf:"varint,3,opt,name=state,enum=loft.BillingInvoiceState"`
+	xxx_hidden_Start          *timestamppb.Timestamp   `protobuf:"bytes,4,opt,name=start"`
+	xxx_hidden_End            *timestamppb.Timestamp   `protobuf:"bytes,5,opt,name=end"`
+	xxx_hidden_Channel        BillingChannel           `protobuf:"varint,6,opt,name=channel,enum=loft.BillingChannel"`
+	xxx_hidden_Currency       string                   `protobuf:"bytes,7,opt,name=currency"`
+	xxx_hidden_Subtotal       int64                    `protobuf:"varint,8,opt,name=subtotal"`
+	xxx_hidden_Tax            int64                    `protobuf:"varint,9,opt,name=tax"`
+	xxx_hidden_Total          int64                    `protobuf:"varint,10,opt,name=total"`
+	xxx_hidden_Credited       int64                    `protobuf:"varint,11,opt,name=credited"`
+	xxx_hidden_Due            int64                    `protobuf:"varint,12,opt,name=due"`
+	xxx_hidden_Paid           int64                    `protobuf:"varint,13,opt,name=paid"`
+	xxx_hidden_Reduced        int64                    `protobuf:"varint,14,opt,name=reduced"`
+	xxx_hidden_Remaining      int64                    `protobuf:"varint,15,opt,name=remaining"`
+	xxx_hidden_Number         int64                    `protobuf:"varint,16,opt,name=number"`
+	xxx_hidden_Finalized      *timestamppb.Timestamp   `protobuf:"bytes,17,opt,name=finalized"`
+	xxx_hidden_DueDate        *timestamppb.Timestamp   `protobuf:"bytes,18,opt,name=due_date,json=dueDate"`
+	xxx_hidden_Settled        *timestamppb.Timestamp   `protobuf:"bytes,19,opt,name=settled"`
+	xxx_hidden_ChannelNumber  string                   `protobuf:"bytes,20,opt,name=channel_number,json=channelNumber"`
+	xxx_hidden_Lines          *[]*BillingInvoiceLine   `protobuf:"bytes,21,rep,name=lines"`
+	xxx_hidden_Credits        *[]*BillingInvoiceCredit `protobuf:"bytes,22,rep,name=credits"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -5029,6 +5067,15 @@ func (x *BillingInvoice) GetLines() []*BillingInvoiceLine {
 	return nil
 }
 
+func (x *BillingInvoice) GetCredits() []*BillingInvoiceCredit {
+	if x != nil {
+		if x.xxx_hidden_Credits != nil {
+			return *x.xxx_hidden_Credits
+		}
+	}
+	return nil
+}
+
 func (x *BillingInvoice) SetId(v string) {
 	x.xxx_hidden_Id = v
 }
@@ -5113,6 +5160,10 @@ func (x *BillingInvoice) SetLines(v []*BillingInvoiceLine) {
 	x.xxx_hidden_Lines = &v
 }
 
+func (x *BillingInvoice) SetCredits(v []*BillingInvoiceCredit) {
+	x.xxx_hidden_Credits = &v
+}
+
 func (x *BillingInvoice) HasStart() bool {
 	if x == nil {
 		return false
@@ -5194,6 +5245,9 @@ type BillingInvoice_builder struct {
 	ChannelNumber string
 	// Its lines: in `GetInvoice`'s answer.
 	Lines []*BillingInvoiceLine
+	// What paid `credited`, in `GetInvoice`'s answer: each credit that paid
+	// some of it, the soonest to expire first, and the balance last.
+	Credits []*BillingInvoiceCredit
 }
 
 func (b0 BillingInvoice_builder) Build() *BillingInvoice {
@@ -5221,6 +5275,308 @@ func (b0 BillingInvoice_builder) Build() *BillingInvoice {
 	x.xxx_hidden_Settled = b.Settled
 	x.xxx_hidden_ChannelNumber = b.ChannelNumber
 	x.xxx_hidden_Lines = &b.Lines
+	x.xxx_hidden_Credits = &b.Credits
+	return m0
+}
+
+// BillingInvoiceCredit is what of an invoice's total one credit paid, before
+// anything was asked of its channel.
+type BillingInvoiceCredit struct {
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Credit    string                 `protobuf:"bytes,1,opt,name=credit"`
+	xxx_hidden_Amount    int64                  `protobuf:"varint,2,opt,name=amount"`
+	xxx_hidden_Workspace string                 `protobuf:"bytes,3,opt,name=workspace"`
+	xxx_hidden_Expires   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expires"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *BillingInvoiceCredit) Reset() {
+	*x = BillingInvoiceCredit{}
+	mi := &file_loft_payment_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BillingInvoiceCredit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BillingInvoiceCredit) ProtoMessage() {}
+
+func (x *BillingInvoiceCredit) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payment_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *BillingInvoiceCredit) GetCredit() string {
+	if x != nil {
+		return x.xxx_hidden_Credit
+	}
+	return ""
+}
+
+func (x *BillingInvoiceCredit) GetAmount() int64 {
+	if x != nil {
+		return x.xxx_hidden_Amount
+	}
+	return 0
+}
+
+func (x *BillingInvoiceCredit) GetWorkspace() string {
+	if x != nil {
+		return x.xxx_hidden_Workspace
+	}
+	return ""
+}
+
+func (x *BillingInvoiceCredit) GetExpires() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Expires
+	}
+	return nil
+}
+
+func (x *BillingInvoiceCredit) SetCredit(v string) {
+	x.xxx_hidden_Credit = v
+}
+
+func (x *BillingInvoiceCredit) SetAmount(v int64) {
+	x.xxx_hidden_Amount = v
+}
+
+func (x *BillingInvoiceCredit) SetWorkspace(v string) {
+	x.xxx_hidden_Workspace = v
+}
+
+func (x *BillingInvoiceCredit) SetExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Expires = v
+}
+
+func (x *BillingInvoiceCredit) HasExpires() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Expires != nil
+}
+
+func (x *BillingInvoiceCredit) ClearExpires() {
+	x.xxx_hidden_Expires = nil
+}
+
+type BillingInvoiceCredit_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The credit (`BillingCredit.id`); empty for the billing account's
+	// balance.
+	Credit string
+	Amount int64
+	// The workspace whose lines alone it paid, for a workspace's; and when it
+	// expires.
+	Workspace string
+	Expires   *timestamppb.Timestamp
+}
+
+func (b0 BillingInvoiceCredit_builder) Build() *BillingInvoiceCredit {
+	m0 := &BillingInvoiceCredit{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Credit = b.Credit
+	x.xxx_hidden_Amount = b.Amount
+	x.xxx_hidden_Workspace = b.Workspace
+	x.xxx_hidden_Expires = b.Expires
+	return m0
+}
+
+// BillingCredit is money levyan's operator granted -- of a promotion, of a
+// contract -- taken off what is billed before the channel is asked for
+// anything: to a billing account, or to one workspace, whose lines alone it
+// pays. It always expires, and the credit that expires soonest is spent
+// first. Nothing here grants one.
+type BillingCredit struct {
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id             string                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Workspace      string                 `protobuf:"bytes,2,opt,name=workspace"`
+	xxx_hidden_BillingAccount string                 `protobuf:"bytes,3,opt,name=billing_account,json=billingAccount"`
+	xxx_hidden_Granted        int64                  `protobuf:"varint,4,opt,name=granted"`
+	xxx_hidden_Left           int64                  `protobuf:"varint,5,opt,name=left"`
+	xxx_hidden_Currency       string                 `protobuf:"bytes,6,opt,name=currency"`
+	xxx_hidden_Expires        *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=expires"`
+	xxx_hidden_Created        *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *BillingCredit) Reset() {
+	*x = BillingCredit{}
+	mi := &file_loft_payment_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BillingCredit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BillingCredit) ProtoMessage() {}
+
+func (x *BillingCredit) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payment_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *BillingCredit) GetId() string {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return ""
+}
+
+func (x *BillingCredit) GetWorkspace() string {
+	if x != nil {
+		return x.xxx_hidden_Workspace
+	}
+	return ""
+}
+
+func (x *BillingCredit) GetBillingAccount() string {
+	if x != nil {
+		return x.xxx_hidden_BillingAccount
+	}
+	return ""
+}
+
+func (x *BillingCredit) GetGranted() int64 {
+	if x != nil {
+		return x.xxx_hidden_Granted
+	}
+	return 0
+}
+
+func (x *BillingCredit) GetLeft() int64 {
+	if x != nil {
+		return x.xxx_hidden_Left
+	}
+	return 0
+}
+
+func (x *BillingCredit) GetCurrency() string {
+	if x != nil {
+		return x.xxx_hidden_Currency
+	}
+	return ""
+}
+
+func (x *BillingCredit) GetExpires() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Expires
+	}
+	return nil
+}
+
+func (x *BillingCredit) GetCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Created
+	}
+	return nil
+}
+
+func (x *BillingCredit) SetId(v string) {
+	x.xxx_hidden_Id = v
+}
+
+func (x *BillingCredit) SetWorkspace(v string) {
+	x.xxx_hidden_Workspace = v
+}
+
+func (x *BillingCredit) SetBillingAccount(v string) {
+	x.xxx_hidden_BillingAccount = v
+}
+
+func (x *BillingCredit) SetGranted(v int64) {
+	x.xxx_hidden_Granted = v
+}
+
+func (x *BillingCredit) SetLeft(v int64) {
+	x.xxx_hidden_Left = v
+}
+
+func (x *BillingCredit) SetCurrency(v string) {
+	x.xxx_hidden_Currency = v
+}
+
+func (x *BillingCredit) SetExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Expires = v
+}
+
+func (x *BillingCredit) SetCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Created = v
+}
+
+func (x *BillingCredit) HasExpires() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Expires != nil
+}
+
+func (x *BillingCredit) HasCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Created != nil
+}
+
+func (x *BillingCredit) ClearExpires() {
+	x.xxx_hidden_Expires = nil
+}
+
+func (x *BillingCredit) ClearCreated() {
+	x.xxx_hidden_Created = nil
+}
+
+type BillingCredit_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id string
+	// The workspace it is granted to, empty for a billing account's; and the
+	// billing account, empty for a workspace's.
+	Workspace      string
+	BillingAccount string
+	// What was granted, and what is left, in the currency's minor unit.
+	Granted  int64
+	Left     int64
+	Currency string
+	Expires  *timestamppb.Timestamp
+	Created  *timestamppb.Timestamp
+}
+
+func (b0 BillingCredit_builder) Build() *BillingCredit {
+	m0 := &BillingCredit{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Workspace = b.Workspace
+	x.xxx_hidden_BillingAccount = b.BillingAccount
+	x.xxx_hidden_Granted = b.Granted
+	x.xxx_hidden_Left = b.Left
+	x.xxx_hidden_Currency = b.Currency
+	x.xxx_hidden_Expires = b.Expires
+	x.xxx_hidden_Created = b.Created
 	return m0
 }
 
@@ -5238,7 +5594,7 @@ type BillingInvoiceLine struct {
 
 func (x *BillingInvoiceLine) Reset() {
 	*x = BillingInvoiceLine{}
-	mi := &file_loft_payment_proto_msgTypes[49]
+	mi := &file_loft_payment_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5250,7 +5606,7 @@ func (x *BillingInvoiceLine) String() string {
 func (*BillingInvoiceLine) ProtoMessage() {}
 
 func (x *BillingInvoiceLine) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[49]
+	mi := &file_loft_payment_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5371,7 +5727,7 @@ type BillingCreditNote struct {
 
 func (x *BillingCreditNote) Reset() {
 	*x = BillingCreditNote{}
-	mi := &file_loft_payment_proto_msgTypes[50]
+	mi := &file_loft_payment_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5383,7 +5739,7 @@ func (x *BillingCreditNote) String() string {
 func (*BillingCreditNote) ProtoMessage() {}
 
 func (x *BillingCreditNote) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[50]
+	mi := &file_loft_payment_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5572,7 +5928,7 @@ type BillingPeriod struct {
 
 func (x *BillingPeriod) Reset() {
 	*x = BillingPeriod{}
-	mi := &file_loft_payment_proto_msgTypes[51]
+	mi := &file_loft_payment_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5584,7 +5940,7 @@ func (x *BillingPeriod) String() string {
 func (*BillingPeriod) ProtoMessage() {}
 
 func (x *BillingPeriod) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[51]
+	mi := &file_loft_payment_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5681,13 +6037,14 @@ type BillingPayer struct {
 	xxx_hidden_Collection     *BillingCollection     `protobuf:"bytes,7,opt,name=collection"`
 	xxx_hidden_Dunning        *[]*BillingDunning     `protobuf:"bytes,8,rep,name=dunning"`
 	xxx_hidden_ReadonlyFrom   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=readonly_from,json=readonlyFrom"`
+	xxx_hidden_Credits        *[]*BillingCredit      `protobuf:"bytes,10,rep,name=credits"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *BillingPayer) Reset() {
 	*x = BillingPayer{}
-	mi := &file_loft_payment_proto_msgTypes[52]
+	mi := &file_loft_payment_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5699,7 +6056,7 @@ func (x *BillingPayer) String() string {
 func (*BillingPayer) ProtoMessage() {}
 
 func (x *BillingPayer) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[52]
+	mi := &file_loft_payment_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5775,6 +6132,15 @@ func (x *BillingPayer) GetReadonlyFrom() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *BillingPayer) GetCredits() []*BillingCredit {
+	if x != nil {
+		if x.xxx_hidden_Credits != nil {
+			return *x.xxx_hidden_Credits
+		}
+	}
+	return nil
+}
+
 func (x *BillingPayer) SetWorkspace(v string) {
 	x.xxx_hidden_Workspace = v
 }
@@ -5809,6 +6175,10 @@ func (x *BillingPayer) SetDunning(v []*BillingDunning) {
 
 func (x *BillingPayer) SetReadonlyFrom(v *timestamppb.Timestamp) {
 	x.xxx_hidden_ReadonlyFrom = v
+}
+
+func (x *BillingPayer) SetCredits(v []*BillingCredit) {
+	x.xxx_hidden_Credits = &v
 }
 
 func (x *BillingPayer) HasCurrent() bool {
@@ -5913,6 +6283,11 @@ type BillingPayer_builder struct {
 	// `payerless_since` by default, never sooner than `restricted_from`, and
 	// unset when that is.
 	ReadonlyFrom *timestamppb.Timestamp
+	// The credit levyan's operator granted the workspace itself, neither
+	// spent nor expired: what its lines are paid with first, on whichever
+	// billing account's invoice they are, the soonest to expire first. What a
+	// billing account was granted is its payer's to see.
+	Credits []*BillingCredit
 }
 
 func (b0 BillingPayer_builder) Build() *BillingPayer {
@@ -5928,6 +6303,7 @@ func (b0 BillingPayer_builder) Build() *BillingPayer {
 	x.xxx_hidden_Collection = b.Collection
 	x.xxx_hidden_Dunning = &b.Dunning
 	x.xxx_hidden_ReadonlyFrom = b.ReadonlyFrom
+	x.xxx_hidden_Credits = &b.Credits
 	return m0
 }
 
@@ -5953,7 +6329,7 @@ type BillingDunning struct {
 
 func (x *BillingDunning) Reset() {
 	*x = BillingDunning{}
-	mi := &file_loft_payment_proto_msgTypes[53]
+	mi := &file_loft_payment_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5965,7 +6341,7 @@ func (x *BillingDunning) String() string {
 func (*BillingDunning) ProtoMessage() {}
 
 func (x *BillingDunning) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[53]
+	mi := &file_loft_payment_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6157,21 +6533,23 @@ func (b0 BillingDunning_builder) Build() *BillingDunning {
 // BillingUsage is what a workspace has used in a period not closed yet, and
 // what that comes to were the period to close now.
 type BillingUsage struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Workspace string                 `protobuf:"bytes,1,opt,name=workspace"`
-	xxx_hidden_Period    *BillingPeriod         `protobuf:"bytes,2,opt,name=period"`
-	xxx_hidden_AsOf      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=as_of,json=asOf"`
-	xxx_hidden_Channel   BillingChannel         `protobuf:"varint,4,opt,name=channel,enum=loft.BillingChannel"`
-	xxx_hidden_Currency  string                 `protobuf:"bytes,5,opt,name=currency"`
-	xxx_hidden_Lines     *[]*BillingLine        `protobuf:"bytes,6,rep,name=lines"`
-	xxx_hidden_Total     int64                  `protobuf:"varint,7,opt,name=total"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Workspace  string                 `protobuf:"bytes,1,opt,name=workspace"`
+	xxx_hidden_Period     *BillingPeriod         `protobuf:"bytes,2,opt,name=period"`
+	xxx_hidden_AsOf       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=as_of,json=asOf"`
+	xxx_hidden_Channel    BillingChannel         `protobuf:"varint,4,opt,name=channel,enum=loft.BillingChannel"`
+	xxx_hidden_Currency   string                 `protobuf:"bytes,5,opt,name=currency"`
+	xxx_hidden_Lines      *[]*BillingLine        `protobuf:"bytes,6,rep,name=lines"`
+	xxx_hidden_Total      int64                  `protobuf:"varint,7,opt,name=total"`
+	xxx_hidden_Allowances *[]*BillingAllowance   `protobuf:"bytes,8,rep,name=allowances"`
+	xxx_hidden_Pools      *[]*BillingPool        `protobuf:"bytes,9,rep,name=pools"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *BillingUsage) Reset() {
 	*x = BillingUsage{}
-	mi := &file_loft_payment_proto_msgTypes[54]
+	mi := &file_loft_payment_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6183,7 +6561,7 @@ func (x *BillingUsage) String() string {
 func (*BillingUsage) ProtoMessage() {}
 
 func (x *BillingUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[54]
+	mi := &file_loft_payment_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6245,6 +6623,24 @@ func (x *BillingUsage) GetTotal() int64 {
 	return 0
 }
 
+func (x *BillingUsage) GetAllowances() []*BillingAllowance {
+	if x != nil {
+		if x.xxx_hidden_Allowances != nil {
+			return *x.xxx_hidden_Allowances
+		}
+	}
+	return nil
+}
+
+func (x *BillingUsage) GetPools() []*BillingPool {
+	if x != nil {
+		if x.xxx_hidden_Pools != nil {
+			return *x.xxx_hidden_Pools
+		}
+	}
+	return nil
+}
+
 func (x *BillingUsage) SetWorkspace(v string) {
 	x.xxx_hidden_Workspace = v
 }
@@ -6271,6 +6667,14 @@ func (x *BillingUsage) SetLines(v []*BillingLine) {
 
 func (x *BillingUsage) SetTotal(v int64) {
 	x.xxx_hidden_Total = v
+}
+
+func (x *BillingUsage) SetAllowances(v []*BillingAllowance) {
+	x.xxx_hidden_Allowances = &v
+}
+
+func (x *BillingUsage) SetPools(v []*BillingPool) {
+	x.xxx_hidden_Pools = &v
 }
 
 func (x *BillingUsage) HasPeriod() bool {
@@ -6305,8 +6709,17 @@ type BillingUsage_builder struct {
 	Channel  BillingChannel
 	Currency string
 	Lines    []*BillingLine
-	// In the currency's minor unit.
+	// In the currency's minor unit: what is left once the allowances and the
+	// pools are taken out, and before any credit is spent, which an invoice
+	// does as it is finalized.
 	Total int64
+	// The allowances in force at any moment of the period, by when each
+	// begins: what each line's `allowance` is of.
+	Allowances []*BillingAllowance
+	// The pools the period takes from, in force at any moment of it, the
+	// soonest to expire first, each with what the periods closed left of it:
+	// what each line's `pools` takes of.
+	Pools []*BillingPool
 }
 
 func (b0 BillingUsage_builder) Build() *BillingUsage {
@@ -6320,6 +6733,310 @@ func (b0 BillingUsage_builder) Build() *BillingUsage {
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_Lines = &b.Lines
 	x.xxx_hidden_Total = b.Total
+	x.xxx_hidden_Allowances = &b.Allowances
+	x.xxx_hidden_Pools = &b.Pools
+	return m0
+}
+
+// BillingAllowance is more of a meter levyan's operator gave a workspace for
+// nothing each period, on top of what its prices include -- "자산 무료량
+// +500" -- given its share of a period it is in force for part of. The
+// workspace's whoever pays for it. Nothing here grants one.
+type BillingAllowance struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id       string                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Meter    string                 `protobuf:"bytes,2,opt,name=meter"`
+	xxx_hidden_Quantity int64                  `protobuf:"varint,3,opt,name=quantity"`
+	xxx_hidden_From     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from"`
+	xxx_hidden_Until    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=until"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *BillingAllowance) Reset() {
+	*x = BillingAllowance{}
+	mi := &file_loft_payment_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BillingAllowance) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BillingAllowance) ProtoMessage() {}
+
+func (x *BillingAllowance) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payment_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *BillingAllowance) GetId() string {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return ""
+}
+
+func (x *BillingAllowance) GetMeter() string {
+	if x != nil {
+		return x.xxx_hidden_Meter
+	}
+	return ""
+}
+
+func (x *BillingAllowance) GetQuantity() int64 {
+	if x != nil {
+		return x.xxx_hidden_Quantity
+	}
+	return 0
+}
+
+func (x *BillingAllowance) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_From
+	}
+	return nil
+}
+
+func (x *BillingAllowance) GetUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Until
+	}
+	return nil
+}
+
+func (x *BillingAllowance) SetId(v string) {
+	x.xxx_hidden_Id = v
+}
+
+func (x *BillingAllowance) SetMeter(v string) {
+	x.xxx_hidden_Meter = v
+}
+
+func (x *BillingAllowance) SetQuantity(v int64) {
+	x.xxx_hidden_Quantity = v
+}
+
+func (x *BillingAllowance) SetFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_From = v
+}
+
+func (x *BillingAllowance) SetUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Until = v
+}
+
+func (x *BillingAllowance) HasFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_From != nil
+}
+
+func (x *BillingAllowance) HasUntil() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Until != nil
+}
+
+func (x *BillingAllowance) ClearFrom() {
+	x.xxx_hidden_From = nil
+}
+
+func (x *BillingAllowance) ClearUntil() {
+	x.xxx_hidden_Until = nil
+}
+
+type BillingAllowance_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id string
+	// The meter, by its key.
+	Meter string
+	// How much more each period includes, in the meter's unit.
+	Quantity int64
+	// In force from `from`, and until `until` when it says one -- the first
+	// moment it is not -- and until an operator ends it when it does not.
+	From  *timestamppb.Timestamp
+	Until *timestamppb.Timestamp
+}
+
+func (b0 BillingAllowance_builder) Build() *BillingAllowance {
+	m0 := &BillingAllowance{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Meter = b.Meter
+	x.xxx_hidden_Quantity = b.Quantity
+	x.xxx_hidden_From = b.From
+	x.xxx_hidden_Until = b.Until
+	return m0
+}
+
+// BillingPool is a bundle of a meter levyan's operator gave a workspace --
+// "자산·월 10,000" of a stock -- in the meter's unit for a period: what its
+// periods are billable for past what is included is taken out of it first,
+// the soonest to expire first, and only the rest is priced. Nothing here
+// grants one.
+type BillingPool struct {
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id      string                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Meter   string                 `protobuf:"bytes,2,opt,name=meter"`
+	xxx_hidden_Granted int64                  `protobuf:"varint,3,opt,name=granted"`
+	xxx_hidden_Left    string                 `protobuf:"bytes,4,opt,name=left"`
+	xxx_hidden_From    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=from"`
+	xxx_hidden_Expires *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expires"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *BillingPool) Reset() {
+	*x = BillingPool{}
+	mi := &file_loft_payment_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BillingPool) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BillingPool) ProtoMessage() {}
+
+func (x *BillingPool) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payment_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *BillingPool) GetId() string {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return ""
+}
+
+func (x *BillingPool) GetMeter() string {
+	if x != nil {
+		return x.xxx_hidden_Meter
+	}
+	return ""
+}
+
+func (x *BillingPool) GetGranted() int64 {
+	if x != nil {
+		return x.xxx_hidden_Granted
+	}
+	return 0
+}
+
+func (x *BillingPool) GetLeft() string {
+	if x != nil {
+		return x.xxx_hidden_Left
+	}
+	return ""
+}
+
+func (x *BillingPool) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_From
+	}
+	return nil
+}
+
+func (x *BillingPool) GetExpires() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Expires
+	}
+	return nil
+}
+
+func (x *BillingPool) SetId(v string) {
+	x.xxx_hidden_Id = v
+}
+
+func (x *BillingPool) SetMeter(v string) {
+	x.xxx_hidden_Meter = v
+}
+
+func (x *BillingPool) SetGranted(v int64) {
+	x.xxx_hidden_Granted = v
+}
+
+func (x *BillingPool) SetLeft(v string) {
+	x.xxx_hidden_Left = v
+}
+
+func (x *BillingPool) SetFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_From = v
+}
+
+func (x *BillingPool) SetExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Expires = v
+}
+
+func (x *BillingPool) HasFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_From != nil
+}
+
+func (x *BillingPool) HasExpires() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Expires != nil
+}
+
+func (x *BillingPool) ClearFrom() {
+	x.xxx_hidden_From = nil
+}
+
+func (x *BillingPool) ClearExpires() {
+	x.xxx_hidden_Expires = nil
+}
+
+type BillingPool_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id string
+	// The meter, by its key.
+	Meter string
+	// How much it held, and what is left of it after every period closed
+	// took of it: what the period now open takes of. A decimal as text.
+	Granted int64
+	Left    string
+	// In force from `from`; no period that begins from `expires` on takes
+	// from it.
+	From    *timestamppb.Timestamp
+	Expires *timestamppb.Timestamp
+}
+
+func (b0 BillingPool_builder) Build() *BillingPool {
+	m0 := &BillingPool{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Meter = b.Meter
+	x.xxx_hidden_Granted = b.Granted
+	x.xxx_hidden_Left = b.Left
+	x.xxx_hidden_From = b.From
+	x.xxx_hidden_Expires = b.Expires
 	return m0
 }
 
@@ -6340,7 +7057,7 @@ type BillingStatement struct {
 
 func (x *BillingStatement) Reset() {
 	*x = BillingStatement{}
-	mi := &file_loft_payment_proto_msgTypes[55]
+	mi := &file_loft_payment_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6352,7 +7069,7 @@ func (x *BillingStatement) String() string {
 func (*BillingStatement) ProtoMessage() {}
 
 func (x *BillingStatement) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[55]
+	mi := &file_loft_payment_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6506,23 +7223,26 @@ func (b0 BillingStatement_builder) Build() *BillingStatement {
 // BillingLine is what one meter came to over a period, or how much what an
 // earlier period was billed moves. Its numbers are decimals as text.
 type BillingLine struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Meter    string                 `protobuf:"bytes,1,opt,name=meter"`
-	xxx_hidden_Unit     string                 `protobuf:"bytes,2,opt,name=unit"`
-	xxx_hidden_Kind     BillingLineKind        `protobuf:"varint,3,opt,name=kind,enum=loft.BillingLineKind"`
-	xxx_hidden_Corrects *BillingPeriod         `protobuf:"bytes,4,opt,name=corrects"`
-	xxx_hidden_Usage    string                 `protobuf:"bytes,5,opt,name=usage"`
-	xxx_hidden_Included string                 `protobuf:"bytes,6,opt,name=included"`
-	xxx_hidden_Billable string                 `protobuf:"bytes,7,opt,name=billable"`
-	xxx_hidden_Amount   string                 `protobuf:"bytes,8,opt,name=amount"`
-	xxx_hidden_Billed   string                 `protobuf:"bytes,10,opt,name=billed"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Meter     string                 `protobuf:"bytes,1,opt,name=meter"`
+	xxx_hidden_Unit      string                 `protobuf:"bytes,2,opt,name=unit"`
+	xxx_hidden_Kind      BillingLineKind        `protobuf:"varint,3,opt,name=kind,enum=loft.BillingLineKind"`
+	xxx_hidden_Corrects  *BillingPeriod         `protobuf:"bytes,4,opt,name=corrects"`
+	xxx_hidden_Usage     string                 `protobuf:"bytes,5,opt,name=usage"`
+	xxx_hidden_Included  string                 `protobuf:"bytes,6,opt,name=included"`
+	xxx_hidden_Billable  string                 `protobuf:"bytes,7,opt,name=billable"`
+	xxx_hidden_Amount    string                 `protobuf:"bytes,8,opt,name=amount"`
+	xxx_hidden_Billed    string                 `protobuf:"bytes,10,opt,name=billed"`
+	xxx_hidden_Allowance string                 `protobuf:"bytes,12,opt,name=allowance"`
+	xxx_hidden_Pooled    string                 `protobuf:"bytes,13,opt,name=pooled"`
+	xxx_hidden_Pools     *[]*BillingLinePool    `protobuf:"bytes,14,rep,name=pools"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *BillingLine) Reset() {
 	*x = BillingLine{}
-	mi := &file_loft_payment_proto_msgTypes[56]
+	mi := &file_loft_payment_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6534,7 +7254,7 @@ func (x *BillingLine) String() string {
 func (*BillingLine) ProtoMessage() {}
 
 func (x *BillingLine) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[56]
+	mi := &file_loft_payment_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6608,6 +7328,29 @@ func (x *BillingLine) GetBilled() string {
 	return ""
 }
 
+func (x *BillingLine) GetAllowance() string {
+	if x != nil {
+		return x.xxx_hidden_Allowance
+	}
+	return ""
+}
+
+func (x *BillingLine) GetPooled() string {
+	if x != nil {
+		return x.xxx_hidden_Pooled
+	}
+	return ""
+}
+
+func (x *BillingLine) GetPools() []*BillingLinePool {
+	if x != nil {
+		if x.xxx_hidden_Pools != nil {
+			return *x.xxx_hidden_Pools
+		}
+	}
+	return nil
+}
+
 func (x *BillingLine) SetMeter(v string) {
 	x.xxx_hidden_Meter = v
 }
@@ -6644,6 +7387,18 @@ func (x *BillingLine) SetBilled(v string) {
 	x.xxx_hidden_Billed = v
 }
 
+func (x *BillingLine) SetAllowance(v string) {
+	x.xxx_hidden_Allowance = v
+}
+
+func (x *BillingLine) SetPooled(v string) {
+	x.xxx_hidden_Pooled = v
+}
+
+func (x *BillingLine) SetPools(v []*BillingLinePool) {
+	x.xxx_hidden_Pools = &v
+}
+
 func (x *BillingLine) HasCorrects() bool {
 	if x == nil {
 		return false
@@ -6663,12 +7418,23 @@ type BillingLine_builder struct {
 	Kind  BillingLineKind
 	// For a correction: the period it corrects.
 	Corrects *BillingPeriod
+	// What was used; what was included for nothing -- what the prices
+	// include and what the allowances give (`allowance`) together -- and what
+	// is billable past it, each weighed by its share of the period.
 	Usage    string
 	Included string
 	Billable string
 	Amount   string
 	// For a correction: what was billed for the meter over that period before.
 	Billed string
+	// What of `included` the allowances gave on top of what the prices
+	// include: "0" when none was in force.
+	Allowance string
+	// What of `billable` the pools took, and of which, the soonest to expire
+	// first: what is priced is `billable` less it. "0", and none, when nothing
+	// was taken; for a correction, what the period it corrects takes now.
+	Pooled string
+	Pools  []*BillingLinePool
 }
 
 func (b0 BillingLine_builder) Build() *BillingLine {
@@ -6684,6 +7450,83 @@ func (b0 BillingLine_builder) Build() *BillingLine {
 	x.xxx_hidden_Billable = b.Billable
 	x.xxx_hidden_Amount = b.Amount
 	x.xxx_hidden_Billed = b.Billed
+	x.xxx_hidden_Allowance = b.Allowance
+	x.xxx_hidden_Pooled = b.Pooled
+	x.xxx_hidden_Pools = &b.Pools
+	return m0
+}
+
+// BillingLinePool is what one pool was taken of for a line, in the meter's
+// unit for a period.
+type BillingLinePool struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Pool  string                 `protobuf:"bytes,1,opt,name=pool"`
+	xxx_hidden_Taken string                 `protobuf:"bytes,2,opt,name=taken"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *BillingLinePool) Reset() {
+	*x = BillingLinePool{}
+	mi := &file_loft_payment_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BillingLinePool) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BillingLinePool) ProtoMessage() {}
+
+func (x *BillingLinePool) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payment_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *BillingLinePool) GetPool() string {
+	if x != nil {
+		return x.xxx_hidden_Pool
+	}
+	return ""
+}
+
+func (x *BillingLinePool) GetTaken() string {
+	if x != nil {
+		return x.xxx_hidden_Taken
+	}
+	return ""
+}
+
+func (x *BillingLinePool) SetPool(v string) {
+	x.xxx_hidden_Pool = v
+}
+
+func (x *BillingLinePool) SetTaken(v string) {
+	x.xxx_hidden_Taken = v
+}
+
+type BillingLinePool_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The pool, by its identifier as `BillingUsage.pools` says it.
+	Pool  string
+	Taken string
+}
+
+func (b0 BillingLinePool_builder) Build() *BillingLinePool {
+	m0 := &BillingLinePool{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Pool = b.Pool
+	x.xxx_hidden_Taken = b.Taken
 	return m0
 }
 
@@ -6711,14 +7554,16 @@ const file_loft_payment_proto_rawDesc = "" +
 	"#PaymentUpdateBillingAccountResponse\x12=\n" +
 	"\x0fbilling_account\x18\x01 \x01(\v2\x14.loft.BillingAccountR\x0ebillingAccount\"1\n" +
 	"\x1fPaymentGetBillingAccountRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x89\x02\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\xd2\x02\n" +
 	" PaymentGetBillingAccountResponse\x12=\n" +
 	"\x0fbilling_account\x18\x01 \x01(\v2\x14.loft.BillingAccountR\x0ebillingAccount\x127\n" +
 	"\n" +
 	"collection\x18\x02 \x01(\v2\x17.loft.BillingCollectionR\n" +
 	"collection\x12=\n" +
 	"\fsubscription\x18\x03 \x01(\v2\x19.loft.BillingSubscriptionR\fsubscription\x12.\n" +
-	"\adunning\x18\x04 \x03(\v2\x14.loft.BillingDunningR\adunning\"g\n" +
+	"\adunning\x18\x04 \x03(\v2\x14.loft.BillingDunningR\adunning\x12-\n" +
+	"\acredits\x18\x05 \x03(\v2\x13.loft.BillingCreditR\acredits\x12\x18\n" +
+	"\abalance\x18\x06 \x01(\x03R\abalance\"g\n" +
 	"\x1bPaymentStartCheckoutRequest\x12'\n" +
 	"\x0fbilling_account\x18\x01 \x01(\tR\x0ebillingAccount\x12\x1f\n" +
 	"\vsuccess_url\x18\x02 \x01(\tR\n" +
@@ -6868,7 +7713,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\x05start\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
 	"\x03end\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12,\n" +
 	"\x05began\x18\a \x01(\x0e2\x16.loft.BillingLinkBeganR\x05began\x12,\n" +
-	"\x05ended\x18\b \x01(\x0e2\x16.loft.BillingLinkEndedR\x05ended\"\xfa\x05\n" +
+	"\x05ended\x18\b \x01(\x0e2\x16.loft.BillingLinkEndedR\x05ended\"\xb0\x06\n" +
 	"\x0eBillingInvoice\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\x12/\n" +
@@ -6891,7 +7736,22 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\bdue_date\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\adueDate\x124\n" +
 	"\asettled\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampR\asettled\x12%\n" +
 	"\x0echannel_number\x18\x14 \x01(\tR\rchannelNumber\x12.\n" +
-	"\x05lines\x18\x15 \x03(\v2\x18.loft.BillingInvoiceLineR\x05lines\"\xa9\x01\n" +
+	"\x05lines\x18\x15 \x03(\v2\x18.loft.BillingInvoiceLineR\x05lines\x124\n" +
+	"\acredits\x18\x16 \x03(\v2\x1a.loft.BillingInvoiceCreditR\acredits\"\x9a\x01\n" +
+	"\x14BillingInvoiceCredit\x12\x16\n" +
+	"\x06credit\x18\x01 \x01(\tR\x06credit\x12\x16\n" +
+	"\x06amount\x18\x02 \x01(\x03R\x06amount\x12\x1c\n" +
+	"\tworkspace\x18\x03 \x01(\tR\tworkspace\x124\n" +
+	"\aexpires\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aexpires\"\x9c\x02\n" +
+	"\rBillingCredit\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
+	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12'\n" +
+	"\x0fbilling_account\x18\x03 \x01(\tR\x0ebillingAccount\x12\x18\n" +
+	"\agranted\x18\x04 \x01(\x03R\agranted\x12\x12\n" +
+	"\x04left\x18\x05 \x01(\x03R\x04left\x12\x1a\n" +
+	"\bcurrency\x18\x06 \x01(\tR\bcurrency\x124\n" +
+	"\aexpires\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\aexpires\x124\n" +
+	"\acreated\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\acreated\"\xa9\x01\n" +
 	"\x12BillingInvoiceLine\x12\x1c\n" +
 	"\tstatement\x18\x01 \x01(\tR\tstatement\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12\x14\n" +
@@ -6914,7 +7774,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\rBillingPeriod\x120\n" +
 	"\x05start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
 	"\x03end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12\x12\n" +
-	"\x04zone\x18\x03 \x01(\tR\x04zone\"\xde\x03\n" +
+	"\x04zone\x18\x03 \x01(\tR\x04zone\"\x8d\x04\n" +
 	"\fBillingPayer\x12\x1c\n" +
 	"\tworkspace\x18\x01 \x01(\tR\tworkspace\x12+\n" +
 	"\acurrent\x18\x02 \x01(\v2\x11.loft.BillingLinkR\acurrent\x12%\n" +
@@ -6926,7 +7786,9 @@ const file_loft_payment_proto_rawDesc = "" +
 	"collection\x18\a \x01(\v2\x17.loft.BillingCollectionR\n" +
 	"collection\x12.\n" +
 	"\adunning\x18\b \x03(\v2\x14.loft.BillingDunningR\adunning\x12?\n" +
-	"\rreadonly_from\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\freadonlyFrom\"\xb1\x03\n" +
+	"\rreadonly_from\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\freadonlyFrom\x12-\n" +
+	"\acredits\x18\n" +
+	" \x03(\v2\x13.loft.BillingCreditR\acredits\"\xb1\x03\n" +
 	"\x0eBillingDunning\x12\x18\n" +
 	"\ainvoice\x18\x01 \x01(\tR\ainvoice\x12'\n" +
 	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\x12,\n" +
@@ -6937,7 +7799,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\n" +
 	"grace_ends\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tgraceEnds\x12C\n" +
 	"\x0frestricted_from\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0erestrictedFrom\x12?\n" +
-	"\rreadonly_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\freadonlyFrom\"\x95\x02\n" +
+	"\rreadonly_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\freadonlyFrom\"\xf6\x02\n" +
 	"\fBillingUsage\x12\x1c\n" +
 	"\tworkspace\x18\x01 \x01(\tR\tworkspace\x12+\n" +
 	"\x06period\x18\x02 \x01(\v2\x13.loft.BillingPeriodR\x06period\x12/\n" +
@@ -6945,7 +7807,24 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\achannel\x18\x04 \x01(\x0e2\x14.loft.BillingChannelR\achannel\x12\x1a\n" +
 	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12'\n" +
 	"\x05lines\x18\x06 \x03(\v2\x11.loft.BillingLineR\x05lines\x12\x14\n" +
-	"\x05total\x18\a \x01(\x03R\x05total\"\xac\x02\n" +
+	"\x05total\x18\a \x01(\x03R\x05total\x126\n" +
+	"\n" +
+	"allowances\x18\b \x03(\v2\x16.loft.BillingAllowanceR\n" +
+	"allowances\x12'\n" +
+	"\x05pools\x18\t \x03(\v2\x11.loft.BillingPoolR\x05pools\"\xb6\x01\n" +
+	"\x10BillingAllowance\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05meter\x18\x02 \x01(\tR\x05meter\x12\x1a\n" +
+	"\bquantity\x18\x03 \x01(\x03R\bquantity\x12.\n" +
+	"\x04from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x120\n" +
+	"\x05until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x05until\"\xc7\x01\n" +
+	"\vBillingPool\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05meter\x18\x02 \x01(\tR\x05meter\x12\x18\n" +
+	"\agranted\x18\x03 \x01(\x03R\agranted\x12\x12\n" +
+	"\x04left\x18\x04 \x01(\tR\x04left\x12.\n" +
+	"\x04from\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x124\n" +
+	"\aexpires\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\aexpires\"\xac\x02\n" +
 	"\x10BillingStatement\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12+\n" +
@@ -6954,7 +7833,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12'\n" +
 	"\x05lines\x18\x06 \x03(\v2\x11.loft.BillingLineR\x05lines\x12\x14\n" +
 	"\x05total\x18\a \x01(\x03R\x05total\x122\n" +
-	"\x06closed\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x06closed\"\x9d\x02\n" +
+	"\x06closed\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x06closed\"\x80\x03\n" +
 	"\vBillingLine\x12\x14\n" +
 	"\x05meter\x18\x01 \x01(\tR\x05meter\x12\x12\n" +
 	"\x04unit\x18\x02 \x01(\tR\x04unit\x12)\n" +
@@ -6965,8 +7844,14 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\bbillable\x18\a \x01(\tR\bbillable\x12\x16\n" +
 	"\x06amount\x18\b \x01(\tR\x06amount\x12\x16\n" +
 	"\x06billed\x18\n" +
-	" \x01(\tR\x06billedJ\x04\b\t\x10\n" +
-	"J\x04\b\v\x10\f*\x82\x01\n" +
+	" \x01(\tR\x06billed\x12\x1c\n" +
+	"\tallowance\x18\f \x01(\tR\tallowance\x12\x16\n" +
+	"\x06pooled\x18\r \x01(\tR\x06pooled\x12+\n" +
+	"\x05pools\x18\x0e \x03(\v2\x15.loft.BillingLinePoolR\x05poolsJ\x04\b\t\x10\n" +
+	"J\x04\b\v\x10\f\";\n" +
+	"\x0fBillingLinePool\x12\x12\n" +
+	"\x04pool\x18\x01 \x01(\tR\x04pool\x12\x14\n" +
+	"\x05taken\x18\x02 \x01(\tR\x05taken*\x82\x01\n" +
 	"\x0eBillingChannel\x12\x1f\n" +
 	"\x1bBILLING_CHANNEL_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13BILLING_CHANNEL_MOR\x10\x01\x12\x19\n" +
@@ -7073,7 +7958,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\x05Offer\x12\x19.loft.PaymentOfferRequest\x1a\x1a.loft.PaymentOfferResponseB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_loft_payment_proto_enumTypes = make([]protoimpl.EnumInfo, 11)
-var file_loft_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
+var file_loft_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 62)
 var file_loft_payment_proto_goTypes = []any{
 	(BillingChannel)(0),                         // 0: loft.BillingChannel
 	(BillingCollectionState)(0),                 // 1: loft.BillingCollectionState
@@ -7135,15 +8020,20 @@ var file_loft_payment_proto_goTypes = []any{
 	(*BillingOffer)(nil),                        // 57: loft.BillingOffer
 	(*BillingLink)(nil),                         // 58: loft.BillingLink
 	(*BillingInvoice)(nil),                      // 59: loft.BillingInvoice
-	(*BillingInvoiceLine)(nil),                  // 60: loft.BillingInvoiceLine
-	(*BillingCreditNote)(nil),                   // 61: loft.BillingCreditNote
-	(*BillingPeriod)(nil),                       // 62: loft.BillingPeriod
-	(*BillingPayer)(nil),                        // 63: loft.BillingPayer
-	(*BillingDunning)(nil),                      // 64: loft.BillingDunning
-	(*BillingUsage)(nil),                        // 65: loft.BillingUsage
-	(*BillingStatement)(nil),                    // 66: loft.BillingStatement
-	(*BillingLine)(nil),                         // 67: loft.BillingLine
-	(*timestamppb.Timestamp)(nil),               // 68: google.protobuf.Timestamp
+	(*BillingInvoiceCredit)(nil),                // 60: loft.BillingInvoiceCredit
+	(*BillingCredit)(nil),                       // 61: loft.BillingCredit
+	(*BillingInvoiceLine)(nil),                  // 62: loft.BillingInvoiceLine
+	(*BillingCreditNote)(nil),                   // 63: loft.BillingCreditNote
+	(*BillingPeriod)(nil),                       // 64: loft.BillingPeriod
+	(*BillingPayer)(nil),                        // 65: loft.BillingPayer
+	(*BillingDunning)(nil),                      // 66: loft.BillingDunning
+	(*BillingUsage)(nil),                        // 67: loft.BillingUsage
+	(*BillingAllowance)(nil),                    // 68: loft.BillingAllowance
+	(*BillingPool)(nil),                         // 69: loft.BillingPool
+	(*BillingStatement)(nil),                    // 70: loft.BillingStatement
+	(*BillingLine)(nil),                         // 71: loft.BillingLine
+	(*BillingLinePool)(nil),                     // 72: loft.BillingLinePool
+	(*timestamppb.Timestamp)(nil),               // 73: google.protobuf.Timestamp
 }
 var file_loft_payment_proto_depIdxs = []int32{
 	49,  // 0: loft.PaymentListBillingAccountsResponse.billing_accounts:type_name -> loft.BillingAccount
@@ -7156,131 +8046,144 @@ var file_loft_payment_proto_depIdxs = []int32{
 	49,  // 7: loft.PaymentGetBillingAccountResponse.billing_account:type_name -> loft.BillingAccount
 	52,  // 8: loft.PaymentGetBillingAccountResponse.collection:type_name -> loft.BillingCollection
 	53,  // 9: loft.PaymentGetBillingAccountResponse.subscription:type_name -> loft.BillingSubscription
-	64,  // 10: loft.PaymentGetBillingAccountResponse.dunning:type_name -> loft.BillingDunning
-	55,  // 11: loft.PaymentStartCheckoutResponse.checkout:type_name -> loft.BillingCheckout
-	55,  // 12: loft.PaymentCompleteCheckoutResponse.checkout:type_name -> loft.BillingCheckout
-	53,  // 13: loft.PaymentCompleteCheckoutResponse.subscription:type_name -> loft.BillingSubscription
-	52,  // 14: loft.PaymentCompleteCheckoutResponse.collection:type_name -> loft.BillingCollection
-	57,  // 15: loft.PaymentListOffersResponse.offers:type_name -> loft.BillingOffer
-	58,  // 16: loft.PaymentAcceptResponse.link:type_name -> loft.BillingLink
-	58,  // 17: loft.PaymentListLinksResponse.links:type_name -> loft.BillingLink
-	58,  // 18: loft.PaymentUseResponse.link:type_name -> loft.BillingLink
-	58,  // 19: loft.PaymentStopResponse.link:type_name -> loft.BillingLink
-	59,  // 20: loft.PaymentListInvoicesResponse.invoices:type_name -> loft.BillingInvoice
-	59,  // 21: loft.PaymentGetInvoiceResponse.invoice:type_name -> loft.BillingInvoice
-	61,  // 22: loft.PaymentGetInvoiceResponse.credit_notes:type_name -> loft.BillingCreditNote
-	64,  // 23: loft.PaymentGetInvoiceResponse.dunning:type_name -> loft.BillingDunning
-	61,  // 24: loft.PaymentListCreditNotesResponse.credit_notes:type_name -> loft.BillingCreditNote
-	63,  // 25: loft.PaymentGetPayerResponse.payer:type_name -> loft.BillingPayer
-	65,  // 26: loft.PaymentGetUsageResponse.usage:type_name -> loft.BillingUsage
-	66,  // 27: loft.PaymentListStatementsResponse.statements:type_name -> loft.BillingStatement
-	57,  // 28: loft.PaymentOfferResponse.offer:type_name -> loft.BillingOffer
-	0,   // 29: loft.BillingAccount.channel:type_name -> loft.BillingChannel
-	50,  // 30: loft.BillingAccount.recipient:type_name -> loft.BillingRecipient
-	51,  // 31: loft.BillingAccount.business:type_name -> loft.BillingBusiness
-	68,  // 32: loft.BillingAccount.created:type_name -> google.protobuf.Timestamp
-	1,   // 33: loft.BillingCollection.state:type_name -> loft.BillingCollectionState
-	68,  // 34: loft.BillingCollection.since:type_name -> google.protobuf.Timestamp
-	68,  // 35: loft.BillingCollection.ends:type_name -> google.protobuf.Timestamp
-	2,   // 36: loft.BillingSubscription.status:type_name -> loft.BillingSubscriptionStatus
-	68,  // 37: loft.BillingSubscription.period_start:type_name -> google.protobuf.Timestamp
-	68,  // 38: loft.BillingSubscription.period_end:type_name -> google.protobuf.Timestamp
-	68,  // 39: loft.BillingSubscription.next_billed:type_name -> google.protobuf.Timestamp
-	3,   // 40: loft.BillingSubscription.change:type_name -> loft.BillingSubscriptionChange
-	68,  // 41: loft.BillingSubscription.change_at:type_name -> google.protobuf.Timestamp
-	68,  // 42: loft.BillingSubscription.canceled:type_name -> google.protobuf.Timestamp
-	54,  // 43: loft.BillingSubscription.method:type_name -> loft.BillingPaymentMethod
-	68,  // 44: loft.BillingSubscription.updated:type_name -> google.protobuf.Timestamp
-	68,  // 45: loft.BillingSubscription.checked:type_name -> google.protobuf.Timestamp
-	4,   // 46: loft.BillingCheckout.state:type_name -> loft.BillingCheckoutState
-	68,  // 47: loft.BillingCheckout.started:type_name -> google.protobuf.Timestamp
-	68,  // 48: loft.BillingCheckout.done:type_name -> google.protobuf.Timestamp
-	56,  // 49: loft.BillingCheckout.window:type_name -> loft.BillingCheckoutWindow
-	68,  // 50: loft.BillingOffer.offered:type_name -> google.protobuf.Timestamp
-	68,  // 51: loft.BillingLink.start:type_name -> google.protobuf.Timestamp
-	68,  // 52: loft.BillingLink.end:type_name -> google.protobuf.Timestamp
-	5,   // 53: loft.BillingLink.began:type_name -> loft.BillingLinkBegan
-	6,   // 54: loft.BillingLink.ended:type_name -> loft.BillingLinkEnded
-	7,   // 55: loft.BillingInvoice.state:type_name -> loft.BillingInvoiceState
-	68,  // 56: loft.BillingInvoice.start:type_name -> google.protobuf.Timestamp
-	68,  // 57: loft.BillingInvoice.end:type_name -> google.protobuf.Timestamp
-	0,   // 58: loft.BillingInvoice.channel:type_name -> loft.BillingChannel
-	68,  // 59: loft.BillingInvoice.finalized:type_name -> google.protobuf.Timestamp
-	68,  // 60: loft.BillingInvoice.due_date:type_name -> google.protobuf.Timestamp
-	68,  // 61: loft.BillingInvoice.settled:type_name -> google.protobuf.Timestamp
-	60,  // 62: loft.BillingInvoice.lines:type_name -> loft.BillingInvoiceLine
-	62,  // 63: loft.BillingInvoiceLine.period:type_name -> loft.BillingPeriod
-	8,   // 64: loft.BillingCreditNote.reason:type_name -> loft.BillingCreditNoteReason
-	68,  // 65: loft.BillingCreditNote.created:type_name -> google.protobuf.Timestamp
-	68,  // 66: loft.BillingPeriod.start:type_name -> google.protobuf.Timestamp
-	68,  // 67: loft.BillingPeriod.end:type_name -> google.protobuf.Timestamp
-	58,  // 68: loft.BillingPayer.current:type_name -> loft.BillingLink
-	58,  // 69: loft.BillingPayer.next:type_name -> loft.BillingLink
-	57,  // 70: loft.BillingPayer.offer:type_name -> loft.BillingOffer
-	68,  // 71: loft.BillingPayer.payerless_since:type_name -> google.protobuf.Timestamp
-	68,  // 72: loft.BillingPayer.restricted_from:type_name -> google.protobuf.Timestamp
-	52,  // 73: loft.BillingPayer.collection:type_name -> loft.BillingCollection
-	64,  // 74: loft.BillingPayer.dunning:type_name -> loft.BillingDunning
-	68,  // 75: loft.BillingPayer.readonly_from:type_name -> google.protobuf.Timestamp
-	9,   // 76: loft.BillingDunning.kind:type_name -> loft.BillingDeclineKind
-	68,  // 77: loft.BillingDunning.failed:type_name -> google.protobuf.Timestamp
-	68,  // 78: loft.BillingDunning.next_retry:type_name -> google.protobuf.Timestamp
-	68,  // 79: loft.BillingDunning.grace_ends:type_name -> google.protobuf.Timestamp
-	68,  // 80: loft.BillingDunning.restricted_from:type_name -> google.protobuf.Timestamp
-	68,  // 81: loft.BillingDunning.readonly_from:type_name -> google.protobuf.Timestamp
-	62,  // 82: loft.BillingUsage.period:type_name -> loft.BillingPeriod
-	68,  // 83: loft.BillingUsage.as_of:type_name -> google.protobuf.Timestamp
-	0,   // 84: loft.BillingUsage.channel:type_name -> loft.BillingChannel
-	67,  // 85: loft.BillingUsage.lines:type_name -> loft.BillingLine
-	62,  // 86: loft.BillingStatement.period:type_name -> loft.BillingPeriod
-	0,   // 87: loft.BillingStatement.channel:type_name -> loft.BillingChannel
-	67,  // 88: loft.BillingStatement.lines:type_name -> loft.BillingLine
-	68,  // 89: loft.BillingStatement.closed:type_name -> google.protobuf.Timestamp
-	10,  // 90: loft.BillingLine.kind:type_name -> loft.BillingLineKind
-	62,  // 91: loft.BillingLine.corrects:type_name -> loft.BillingPeriod
-	11,  // 92: loft.PaymentService.ListBillingAccounts:input_type -> loft.PaymentListBillingAccountsRequest
-	13,  // 93: loft.PaymentService.CreateBillingAccount:input_type -> loft.PaymentCreateBillingAccountRequest
-	15,  // 94: loft.PaymentService.UpdateBillingAccount:input_type -> loft.PaymentUpdateBillingAccountRequest
-	17,  // 95: loft.PaymentService.GetBillingAccount:input_type -> loft.PaymentGetBillingAccountRequest
-	19,  // 96: loft.PaymentService.StartCheckout:input_type -> loft.PaymentStartCheckoutRequest
-	21,  // 97: loft.PaymentService.CompleteCheckout:input_type -> loft.PaymentCompleteCheckoutRequest
-	23,  // 98: loft.PaymentService.ListOffers:input_type -> loft.PaymentListOffersRequest
-	25,  // 99: loft.PaymentService.Accept:input_type -> loft.PaymentAcceptRequest
-	27,  // 100: loft.PaymentService.Decline:input_type -> loft.PaymentDeclineRequest
-	29,  // 101: loft.PaymentService.ListLinks:input_type -> loft.PaymentListLinksRequest
-	31,  // 102: loft.PaymentService.Use:input_type -> loft.PaymentUseRequest
-	33,  // 103: loft.PaymentService.Stop:input_type -> loft.PaymentStopRequest
-	35,  // 104: loft.PaymentService.ListInvoices:input_type -> loft.PaymentListInvoicesRequest
-	37,  // 105: loft.PaymentService.GetInvoice:input_type -> loft.PaymentGetInvoiceRequest
-	39,  // 106: loft.PaymentService.ListCreditNotes:input_type -> loft.PaymentListCreditNotesRequest
-	41,  // 107: loft.PaymentService.GetPayer:input_type -> loft.PaymentGetPayerRequest
-	43,  // 108: loft.PaymentService.GetUsage:input_type -> loft.PaymentGetUsageRequest
-	45,  // 109: loft.PaymentService.ListStatements:input_type -> loft.PaymentListStatementsRequest
-	47,  // 110: loft.PaymentService.Offer:input_type -> loft.PaymentOfferRequest
-	12,  // 111: loft.PaymentService.ListBillingAccounts:output_type -> loft.PaymentListBillingAccountsResponse
-	14,  // 112: loft.PaymentService.CreateBillingAccount:output_type -> loft.PaymentCreateBillingAccountResponse
-	16,  // 113: loft.PaymentService.UpdateBillingAccount:output_type -> loft.PaymentUpdateBillingAccountResponse
-	18,  // 114: loft.PaymentService.GetBillingAccount:output_type -> loft.PaymentGetBillingAccountResponse
-	20,  // 115: loft.PaymentService.StartCheckout:output_type -> loft.PaymentStartCheckoutResponse
-	22,  // 116: loft.PaymentService.CompleteCheckout:output_type -> loft.PaymentCompleteCheckoutResponse
-	24,  // 117: loft.PaymentService.ListOffers:output_type -> loft.PaymentListOffersResponse
-	26,  // 118: loft.PaymentService.Accept:output_type -> loft.PaymentAcceptResponse
-	28,  // 119: loft.PaymentService.Decline:output_type -> loft.PaymentDeclineResponse
-	30,  // 120: loft.PaymentService.ListLinks:output_type -> loft.PaymentListLinksResponse
-	32,  // 121: loft.PaymentService.Use:output_type -> loft.PaymentUseResponse
-	34,  // 122: loft.PaymentService.Stop:output_type -> loft.PaymentStopResponse
-	36,  // 123: loft.PaymentService.ListInvoices:output_type -> loft.PaymentListInvoicesResponse
-	38,  // 124: loft.PaymentService.GetInvoice:output_type -> loft.PaymentGetInvoiceResponse
-	40,  // 125: loft.PaymentService.ListCreditNotes:output_type -> loft.PaymentListCreditNotesResponse
-	42,  // 126: loft.PaymentService.GetPayer:output_type -> loft.PaymentGetPayerResponse
-	44,  // 127: loft.PaymentService.GetUsage:output_type -> loft.PaymentGetUsageResponse
-	46,  // 128: loft.PaymentService.ListStatements:output_type -> loft.PaymentListStatementsResponse
-	48,  // 129: loft.PaymentService.Offer:output_type -> loft.PaymentOfferResponse
-	111, // [111:130] is the sub-list for method output_type
-	92,  // [92:111] is the sub-list for method input_type
-	92,  // [92:92] is the sub-list for extension type_name
-	92,  // [92:92] is the sub-list for extension extendee
-	0,   // [0:92] is the sub-list for field type_name
+	66,  // 10: loft.PaymentGetBillingAccountResponse.dunning:type_name -> loft.BillingDunning
+	61,  // 11: loft.PaymentGetBillingAccountResponse.credits:type_name -> loft.BillingCredit
+	55,  // 12: loft.PaymentStartCheckoutResponse.checkout:type_name -> loft.BillingCheckout
+	55,  // 13: loft.PaymentCompleteCheckoutResponse.checkout:type_name -> loft.BillingCheckout
+	53,  // 14: loft.PaymentCompleteCheckoutResponse.subscription:type_name -> loft.BillingSubscription
+	52,  // 15: loft.PaymentCompleteCheckoutResponse.collection:type_name -> loft.BillingCollection
+	57,  // 16: loft.PaymentListOffersResponse.offers:type_name -> loft.BillingOffer
+	58,  // 17: loft.PaymentAcceptResponse.link:type_name -> loft.BillingLink
+	58,  // 18: loft.PaymentListLinksResponse.links:type_name -> loft.BillingLink
+	58,  // 19: loft.PaymentUseResponse.link:type_name -> loft.BillingLink
+	58,  // 20: loft.PaymentStopResponse.link:type_name -> loft.BillingLink
+	59,  // 21: loft.PaymentListInvoicesResponse.invoices:type_name -> loft.BillingInvoice
+	59,  // 22: loft.PaymentGetInvoiceResponse.invoice:type_name -> loft.BillingInvoice
+	63,  // 23: loft.PaymentGetInvoiceResponse.credit_notes:type_name -> loft.BillingCreditNote
+	66,  // 24: loft.PaymentGetInvoiceResponse.dunning:type_name -> loft.BillingDunning
+	63,  // 25: loft.PaymentListCreditNotesResponse.credit_notes:type_name -> loft.BillingCreditNote
+	65,  // 26: loft.PaymentGetPayerResponse.payer:type_name -> loft.BillingPayer
+	67,  // 27: loft.PaymentGetUsageResponse.usage:type_name -> loft.BillingUsage
+	70,  // 28: loft.PaymentListStatementsResponse.statements:type_name -> loft.BillingStatement
+	57,  // 29: loft.PaymentOfferResponse.offer:type_name -> loft.BillingOffer
+	0,   // 30: loft.BillingAccount.channel:type_name -> loft.BillingChannel
+	50,  // 31: loft.BillingAccount.recipient:type_name -> loft.BillingRecipient
+	51,  // 32: loft.BillingAccount.business:type_name -> loft.BillingBusiness
+	73,  // 33: loft.BillingAccount.created:type_name -> google.protobuf.Timestamp
+	1,   // 34: loft.BillingCollection.state:type_name -> loft.BillingCollectionState
+	73,  // 35: loft.BillingCollection.since:type_name -> google.protobuf.Timestamp
+	73,  // 36: loft.BillingCollection.ends:type_name -> google.protobuf.Timestamp
+	2,   // 37: loft.BillingSubscription.status:type_name -> loft.BillingSubscriptionStatus
+	73,  // 38: loft.BillingSubscription.period_start:type_name -> google.protobuf.Timestamp
+	73,  // 39: loft.BillingSubscription.period_end:type_name -> google.protobuf.Timestamp
+	73,  // 40: loft.BillingSubscription.next_billed:type_name -> google.protobuf.Timestamp
+	3,   // 41: loft.BillingSubscription.change:type_name -> loft.BillingSubscriptionChange
+	73,  // 42: loft.BillingSubscription.change_at:type_name -> google.protobuf.Timestamp
+	73,  // 43: loft.BillingSubscription.canceled:type_name -> google.protobuf.Timestamp
+	54,  // 44: loft.BillingSubscription.method:type_name -> loft.BillingPaymentMethod
+	73,  // 45: loft.BillingSubscription.updated:type_name -> google.protobuf.Timestamp
+	73,  // 46: loft.BillingSubscription.checked:type_name -> google.protobuf.Timestamp
+	4,   // 47: loft.BillingCheckout.state:type_name -> loft.BillingCheckoutState
+	73,  // 48: loft.BillingCheckout.started:type_name -> google.protobuf.Timestamp
+	73,  // 49: loft.BillingCheckout.done:type_name -> google.protobuf.Timestamp
+	56,  // 50: loft.BillingCheckout.window:type_name -> loft.BillingCheckoutWindow
+	73,  // 51: loft.BillingOffer.offered:type_name -> google.protobuf.Timestamp
+	73,  // 52: loft.BillingLink.start:type_name -> google.protobuf.Timestamp
+	73,  // 53: loft.BillingLink.end:type_name -> google.protobuf.Timestamp
+	5,   // 54: loft.BillingLink.began:type_name -> loft.BillingLinkBegan
+	6,   // 55: loft.BillingLink.ended:type_name -> loft.BillingLinkEnded
+	7,   // 56: loft.BillingInvoice.state:type_name -> loft.BillingInvoiceState
+	73,  // 57: loft.BillingInvoice.start:type_name -> google.protobuf.Timestamp
+	73,  // 58: loft.BillingInvoice.end:type_name -> google.protobuf.Timestamp
+	0,   // 59: loft.BillingInvoice.channel:type_name -> loft.BillingChannel
+	73,  // 60: loft.BillingInvoice.finalized:type_name -> google.protobuf.Timestamp
+	73,  // 61: loft.BillingInvoice.due_date:type_name -> google.protobuf.Timestamp
+	73,  // 62: loft.BillingInvoice.settled:type_name -> google.protobuf.Timestamp
+	62,  // 63: loft.BillingInvoice.lines:type_name -> loft.BillingInvoiceLine
+	60,  // 64: loft.BillingInvoice.credits:type_name -> loft.BillingInvoiceCredit
+	73,  // 65: loft.BillingInvoiceCredit.expires:type_name -> google.protobuf.Timestamp
+	73,  // 66: loft.BillingCredit.expires:type_name -> google.protobuf.Timestamp
+	73,  // 67: loft.BillingCredit.created:type_name -> google.protobuf.Timestamp
+	64,  // 68: loft.BillingInvoiceLine.period:type_name -> loft.BillingPeriod
+	8,   // 69: loft.BillingCreditNote.reason:type_name -> loft.BillingCreditNoteReason
+	73,  // 70: loft.BillingCreditNote.created:type_name -> google.protobuf.Timestamp
+	73,  // 71: loft.BillingPeriod.start:type_name -> google.protobuf.Timestamp
+	73,  // 72: loft.BillingPeriod.end:type_name -> google.protobuf.Timestamp
+	58,  // 73: loft.BillingPayer.current:type_name -> loft.BillingLink
+	58,  // 74: loft.BillingPayer.next:type_name -> loft.BillingLink
+	57,  // 75: loft.BillingPayer.offer:type_name -> loft.BillingOffer
+	73,  // 76: loft.BillingPayer.payerless_since:type_name -> google.protobuf.Timestamp
+	73,  // 77: loft.BillingPayer.restricted_from:type_name -> google.protobuf.Timestamp
+	52,  // 78: loft.BillingPayer.collection:type_name -> loft.BillingCollection
+	66,  // 79: loft.BillingPayer.dunning:type_name -> loft.BillingDunning
+	73,  // 80: loft.BillingPayer.readonly_from:type_name -> google.protobuf.Timestamp
+	61,  // 81: loft.BillingPayer.credits:type_name -> loft.BillingCredit
+	9,   // 82: loft.BillingDunning.kind:type_name -> loft.BillingDeclineKind
+	73,  // 83: loft.BillingDunning.failed:type_name -> google.protobuf.Timestamp
+	73,  // 84: loft.BillingDunning.next_retry:type_name -> google.protobuf.Timestamp
+	73,  // 85: loft.BillingDunning.grace_ends:type_name -> google.protobuf.Timestamp
+	73,  // 86: loft.BillingDunning.restricted_from:type_name -> google.protobuf.Timestamp
+	73,  // 87: loft.BillingDunning.readonly_from:type_name -> google.protobuf.Timestamp
+	64,  // 88: loft.BillingUsage.period:type_name -> loft.BillingPeriod
+	73,  // 89: loft.BillingUsage.as_of:type_name -> google.protobuf.Timestamp
+	0,   // 90: loft.BillingUsage.channel:type_name -> loft.BillingChannel
+	71,  // 91: loft.BillingUsage.lines:type_name -> loft.BillingLine
+	68,  // 92: loft.BillingUsage.allowances:type_name -> loft.BillingAllowance
+	69,  // 93: loft.BillingUsage.pools:type_name -> loft.BillingPool
+	73,  // 94: loft.BillingAllowance.from:type_name -> google.protobuf.Timestamp
+	73,  // 95: loft.BillingAllowance.until:type_name -> google.protobuf.Timestamp
+	73,  // 96: loft.BillingPool.from:type_name -> google.protobuf.Timestamp
+	73,  // 97: loft.BillingPool.expires:type_name -> google.protobuf.Timestamp
+	64,  // 98: loft.BillingStatement.period:type_name -> loft.BillingPeriod
+	0,   // 99: loft.BillingStatement.channel:type_name -> loft.BillingChannel
+	71,  // 100: loft.BillingStatement.lines:type_name -> loft.BillingLine
+	73,  // 101: loft.BillingStatement.closed:type_name -> google.protobuf.Timestamp
+	10,  // 102: loft.BillingLine.kind:type_name -> loft.BillingLineKind
+	64,  // 103: loft.BillingLine.corrects:type_name -> loft.BillingPeriod
+	72,  // 104: loft.BillingLine.pools:type_name -> loft.BillingLinePool
+	11,  // 105: loft.PaymentService.ListBillingAccounts:input_type -> loft.PaymentListBillingAccountsRequest
+	13,  // 106: loft.PaymentService.CreateBillingAccount:input_type -> loft.PaymentCreateBillingAccountRequest
+	15,  // 107: loft.PaymentService.UpdateBillingAccount:input_type -> loft.PaymentUpdateBillingAccountRequest
+	17,  // 108: loft.PaymentService.GetBillingAccount:input_type -> loft.PaymentGetBillingAccountRequest
+	19,  // 109: loft.PaymentService.StartCheckout:input_type -> loft.PaymentStartCheckoutRequest
+	21,  // 110: loft.PaymentService.CompleteCheckout:input_type -> loft.PaymentCompleteCheckoutRequest
+	23,  // 111: loft.PaymentService.ListOffers:input_type -> loft.PaymentListOffersRequest
+	25,  // 112: loft.PaymentService.Accept:input_type -> loft.PaymentAcceptRequest
+	27,  // 113: loft.PaymentService.Decline:input_type -> loft.PaymentDeclineRequest
+	29,  // 114: loft.PaymentService.ListLinks:input_type -> loft.PaymentListLinksRequest
+	31,  // 115: loft.PaymentService.Use:input_type -> loft.PaymentUseRequest
+	33,  // 116: loft.PaymentService.Stop:input_type -> loft.PaymentStopRequest
+	35,  // 117: loft.PaymentService.ListInvoices:input_type -> loft.PaymentListInvoicesRequest
+	37,  // 118: loft.PaymentService.GetInvoice:input_type -> loft.PaymentGetInvoiceRequest
+	39,  // 119: loft.PaymentService.ListCreditNotes:input_type -> loft.PaymentListCreditNotesRequest
+	41,  // 120: loft.PaymentService.GetPayer:input_type -> loft.PaymentGetPayerRequest
+	43,  // 121: loft.PaymentService.GetUsage:input_type -> loft.PaymentGetUsageRequest
+	45,  // 122: loft.PaymentService.ListStatements:input_type -> loft.PaymentListStatementsRequest
+	47,  // 123: loft.PaymentService.Offer:input_type -> loft.PaymentOfferRequest
+	12,  // 124: loft.PaymentService.ListBillingAccounts:output_type -> loft.PaymentListBillingAccountsResponse
+	14,  // 125: loft.PaymentService.CreateBillingAccount:output_type -> loft.PaymentCreateBillingAccountResponse
+	16,  // 126: loft.PaymentService.UpdateBillingAccount:output_type -> loft.PaymentUpdateBillingAccountResponse
+	18,  // 127: loft.PaymentService.GetBillingAccount:output_type -> loft.PaymentGetBillingAccountResponse
+	20,  // 128: loft.PaymentService.StartCheckout:output_type -> loft.PaymentStartCheckoutResponse
+	22,  // 129: loft.PaymentService.CompleteCheckout:output_type -> loft.PaymentCompleteCheckoutResponse
+	24,  // 130: loft.PaymentService.ListOffers:output_type -> loft.PaymentListOffersResponse
+	26,  // 131: loft.PaymentService.Accept:output_type -> loft.PaymentAcceptResponse
+	28,  // 132: loft.PaymentService.Decline:output_type -> loft.PaymentDeclineResponse
+	30,  // 133: loft.PaymentService.ListLinks:output_type -> loft.PaymentListLinksResponse
+	32,  // 134: loft.PaymentService.Use:output_type -> loft.PaymentUseResponse
+	34,  // 135: loft.PaymentService.Stop:output_type -> loft.PaymentStopResponse
+	36,  // 136: loft.PaymentService.ListInvoices:output_type -> loft.PaymentListInvoicesResponse
+	38,  // 137: loft.PaymentService.GetInvoice:output_type -> loft.PaymentGetInvoiceResponse
+	40,  // 138: loft.PaymentService.ListCreditNotes:output_type -> loft.PaymentListCreditNotesResponse
+	42,  // 139: loft.PaymentService.GetPayer:output_type -> loft.PaymentGetPayerResponse
+	44,  // 140: loft.PaymentService.GetUsage:output_type -> loft.PaymentGetUsageResponse
+	46,  // 141: loft.PaymentService.ListStatements:output_type -> loft.PaymentListStatementsResponse
+	48,  // 142: loft.PaymentService.Offer:output_type -> loft.PaymentOfferResponse
+	124, // [124:143] is the sub-list for method output_type
+	105, // [105:124] is the sub-list for method input_type
+	105, // [105:105] is the sub-list for extension type_name
+	105, // [105:105] is the sub-list for extension extendee
+	0,   // [0:105] is the sub-list for field type_name
 }
 
 func init() { file_loft_payment_proto_init() }
@@ -7294,7 +8197,7 @@ func file_loft_payment_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payment_proto_rawDesc), len(file_loft_payment_proto_rawDesc)),
 			NumEnums:      11,
-			NumMessages:   57,
+			NumMessages:   62,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
