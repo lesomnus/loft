@@ -9,7 +9,7 @@
 # defaults never reach a deployment.
 
 # The page: `ts/gen` is generated and checked in, so this is the page alone.
-FROM node:22-bookworm-slim AS web
+FROM node:26-bookworm-slim AS web
 WORKDIR /src/ts
 COPY ts/package.json ts/package-lock.json ./
 RUN npm ci
