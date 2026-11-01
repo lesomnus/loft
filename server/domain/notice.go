@@ -28,6 +28,63 @@ var Mailed = map[string]bool{
 	"reservation.out":        true, // a thing a reservation takes is out with somebody over its time, to who runs it and whose it is
 }
 
+// Telling is when a workspace levyan makes read-only ([ReadOnly], D64) is
+// told a kind of notification the deployment's own work sends it (D67).
+type Telling int
+
+const (
+	// TellsStill is told while it is read-only, as at any other time: what
+	// the deployment did or found by itself, which asks nobody to do anything
+	// by any time.
+	TellsStill Telling = iota + 1
+
+	// TellsOnceWritable is held back while it is read-only, in the app and
+	// by mail: it asks somebody to do, by a time, what a read-only workspace
+	// does not -- return a loan, settle a booking, do the work. Nothing of it
+	// is written, and the sweep that sends it tells it once the workspace
+	// writes again, of what is so then: what it is not told while it cannot
+	// do it, it is told once it can, and once.
+	TellsOnceWritable
+)
+
+// ReadOnlyTells is when a read-only workspace is told each kind of
+// notification a sweep sends (D67): the deployment's own work in it, which a
+// read-only workspace does not stop -- its clock moves, a hold runs out, a
+// loan goes late -- and which says so as ever, and asks nothing of it. A
+// caller's write that would tell anybody anything is refused before it does
+// (D64); what a read-only workspace still does tells nobody.
+//
+// Every kind a sweep sends is here, and the domain's tests hold them to it:
+// a kind is decided as it is added. A kind no sweep sends is not: an
+// operation's, which a read-only workspace refuses before it tells anything.
+// One an operator's hand writes there -- the deployment's own, which is not
+// refused -- is held back as a [TellsOnceWritable] one is, and nothing tells
+// it later.
+var ReadOnlyTells = map[string]Telling{
+	// What became of a booking by itself: let go of, as nobody approved it
+	// in time, or as nobody came; or given what it waited for. It asks for
+	// nothing -- a booking made again is a write, refused -- and is so still
+	// once the workspace writes again, when it would be told late.
+	"reservation.expired":  TellsStill, // its time began before anybody approved it (sweepRequests)
+	"reservation.no_show":  TellsStill, // nobody checked in, or picked up, in time (sweepNoShows)
+	"reservation.resolved": TellsStill, // what it waited for is its now (sweepKits, and what a booking let go of)
+
+	// What the deployment found of the workspace's own domains: how people
+	// reach it, which is how they read it, take its data out and pay for it.
+	// What a lapsed one asks is done at its DNS, not here, and the sweep
+	// asks again while the workspace is read-only; switching to a ready one
+	// is a choice with no time to it, there to be made once it writes.
+	"domain.lapsed": TellsStill, // links and sign-in went back to the service's address (sweepDomains)
+	"domain.ready":  TellsStill, // one verified, beside the one in use (sweepDomains)
+
+	// What asks somebody to act on it soon.
+	"custody.due":          TellsOnceWritable, // return it by its due, within a day: asked again every pass while it is so, and told once (sweepLoans)
+	"custody.overdue":      TellsOnceWritable, // return it, late: told once of each due, found late or not ([Tx.lateUntold])
+	"reservation.out":      TellsOnceWritable, // what a late loan holds is out over a booking's time: told with the loan ([Tx.retellLate])
+	"reservation.conflict": TellsOnceWritable, // a pool's booking a late loan made wait: told with the loan ([Tx.retellLate])
+	"work.due":             TellsOnceWritable, // the work coming due: asked again every pass while it is scheduled, and told once (sweepWork)
+}
+
 // ToldWhy is the kinds of notification whose words are a person's -- the
 // reason of the event they tell of -- by the kind of that event: whoever
 // asked for a reservation is told it was decided, and why. Each is written
@@ -44,7 +101,17 @@ var ToldWhy = map[string]string{
 // of a kind that goes by mail and this deployment sends any. Queued and not
 // sent: the row is written in the operation's transaction, so an operation
 // that is undone mails nothing, and `Mailer` sends after.
+//
+// Nothing, while the workspace is read-only, of a kind it is not told then
+// ([ReadOnlyTells], D67): no row, so no mail, and what dedupes a reminder
+// ([Tx.noticed]) has not seen it.
 func (t *Tx) notify(h uuid.UUID, kind, title, body string, subject pdid.Id, link string) error {
+	if ReadOnlyTells[kind] != TellsStill {
+		quiet, err := t.readonly()
+		if err != nil || quiet {
+			return err
+		}
+	}
 	req := app.NotificationAddRequest_builder{
 		Tenant: t.tenantRef(),
 		Holder: app.HolderRef_builder{Id: pdid.Id(h).Bytes()}.Build(),
@@ -159,7 +226,8 @@ func (s domainNotification) Inbox(ctx context.Context, req *app.NotificationInbo
 
 // SetMail is whether the caller is mailed what they are told of here. It is a
 // setting of their membership, and the person's own: there is no request that
-// names somebody else.
+// names somebody else -- and so a read-only workspace still takes it ([Own],
+// D67), as it takes their notices marked read.
 func (s domainNotification) SetMail(ctx context.Context, req *app.NotificationSetMailRequest) (*app.NotificationSetMailResponse, error) {
 	err := s.tx(ctx, func(t *Tx) error {
 		_, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
@@ -175,7 +243,8 @@ func (s domainNotification) SetMail(ctx context.Context, req *app.NotificationSe
 	return app.NotificationSetMailResponse_builder{Off: req.GetOff()}.Build(), nil
 }
 
-// MarkRead marks the caller's messages read: the ones named, or all of them.
+// MarkRead marks the caller's messages read: the ones named, or all of them,
+// and none of anybody else's. A read-only workspace still does ([Own], D67).
 func (s domainNotification) MarkRead(ctx context.Context, req *app.NotificationMarkReadRequest) (*app.NotificationMarkReadResponse, error) {
 	var n uint32
 	err := s.tx(ctx, func(t *Tx) error {

@@ -470,9 +470,8 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 	// A read-only workspace commits a caller's write only for what it still
 	// does (D64): an operation that began has been refused already, as it
 	// began ([Tx.begin]), and this is the write that began none -- a
-	// generated Erase this layer serves, a notification marked read -- or one
-	// written later that forgot to. Answered by the copy this transaction
-	// read, if it read it.
+	// generated Erase this layer serves -- or one written later that forgot
+	// to. Answered by the copy this transaction read, if it read it.
 	if err := t.writing(); err != nil {
 		return err
 	}

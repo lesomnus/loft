@@ -418,7 +418,8 @@ had a payer, levyan makes it read-only until it is paid for. Its table is
 the other way round: what a read-only workspace **still does**,
 `domain.ReadOnlyAllows` -- what levyan's `docs/apps.md` (3, "제한의 두 단계")
 says an app takes of one: reading, taking its data out, paying, closing, its
-members leaving; and a password, which is the account's -- each with why,
+members leaving; and a password, which is the account's, and a person's own
+notices, read and kept off their mail (`domain.Own`, D67) -- each with why,
 and every other write is refused. Keep it matching that chapter. Refused as
 its operation begins (`Tx.begin`, `Tx.held`: read-only first, then
 `Grows`), and, for a write that begins none, as the domain layer's
@@ -434,6 +435,21 @@ method that is neither in it nor served by this layer in a transaction of
 its own, read off the layer's source. The doors that are no RPC -- a
 download, the workspace's export, signing in -- read or are an account's,
 and are not refused.
+
+What the deployment's own work tells a read-only workspace is a table too
+(design 7.13, D67): `domain.ReadOnlyTells`, every kind of notice a sweep
+sends, told while it is read-only (`TellsStill`: what became of a booking,
+what was found of a domain) or held back -- written nowhere, in the app or
+by mail -- and told once it writes again (`TellsOnceWritable`: what asks
+somebody to act by a time, a return, a booking to settle, the work). The
+sweeps' changes go on as ever: holds run out, loans go late. `Tx.notify`
+holds a notice back, and each sweep tells what is so once the workspace
+writes again, once: a reminder is asked again every pass (`noticed` never
+saw what was held back), and a loan found late that no notice since its due
+told is told then, with what its being late did to bookings
+(`Tx.lateUntold`, `Tx.retellLate`). A kind a sweep is given goes in the
+table, or `server/domain/readonly_notice_test.go`, which reads the sweeps'
+source, fails.
 
 Who pays for a workspace is levyan's, and what it cannot know Loft tells it
 (design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and

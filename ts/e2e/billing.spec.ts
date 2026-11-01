@@ -275,6 +275,20 @@ test('a workspace made read-only says so above every page, and refuses a write a
 	await field(dialog, '이름').fill(unique('e2e 모니터'))
 	await dialog.getByRole('button', { name: '등록', exact: true }).click()
 	await refused(page, '이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다')
+
+	// What a person is told stays theirs (design 7.13): marked read, and kept
+	// off their mail.
+	await page.goto(`/@${ws.alias}/notifications`)
+	await page.getByRole('button', { name: '모두 읽음' }).click()
+	await said(page, '모두 읽음으로 표시했습니다.')
+	await page.goto(`/@${ws.alias}/me`)
+	const mail = page.getByRole('checkbox', { name: '알림을 메일로도 받기' })
+	await expect(mail).toBeChecked()
+	// The box says what the server answered, and turns once it has: clicked,
+	// and not unchecked, which asks it to have turned at once.
+	await mail.click()
+	await said(page, '메일 알림을 껐습니다. 앱에서는 계속 받습니다.')
+	await expect(mail).not.toBeChecked()
 })
 
 test('an invoice billing a workspace whose charge failed is said above its pages, that it is restricted once its day passed, and read-only once that one did', async ({ page, request }) => {
