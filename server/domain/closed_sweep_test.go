@@ -16,8 +16,9 @@ import (
 // What the deployment's own work does to a closed workspace (D68, design
 // 7.14): nothing. Nobody there may read what a sweep would tell them, nor act
 // on it, so nothing of it moves while it is closed and nobody is told or
-// mailed anything; once it is restored, the next pass does what the time
-// passed meanwhile did, of what is so then, and tells it once.
+// mailed anything; once it is restored, what passed its time meanwhile the
+// restore lets go of (D70, design 7.15), and the next pass does the rest of
+// what the time passed meanwhile did, of what is so then, and tells it once.
 
 // closeIt is the workspace closed by its owner, typing its name.
 func (e *env) closeIt() {
@@ -52,13 +53,14 @@ func (e *env) toldAndDone() (notices, events int) {
 // closed for days, the sweeps leave it as it was -- a hold past its time,
 // a request whose time began, a room nobody came to, a loan past its due,
 // work whose time came -- writing no event, no notice and no mail. Once its
-// owner restores it, the next pass does what the time did, of what is so
-// then: the hold and the request expire and the room is let go of, the loan
-// is found late, once, and holds what it lent until it is back, which the
-// booking after it says; and it tells, once and by mail where it goes by
-// mail, the loan late to who has it and who manages it, the booking it is
-// out over, a loan due within the day, and the work -- whose time is past,
-// and which says so.
+// owner restores it, the restore lets go of the hold, the request and the
+// room, which nobody could take up, as expiries it tells nobody of (D70);
+// and the next pass does the rest of what the time did, of what is so then:
+// the loan is found late, once, and holds what it lent until it is back,
+// which the booking after it says; and it tells, once and by mail where it
+// goes by mail, the loan late to who has it and who manages it, the booking
+// it is out over, a loan due within the day, and the work -- whose time is
+// past, and which says so.
 func TestAClosedWorkspaceIsSweptOnceItIsRestored(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
@@ -137,21 +139,22 @@ func TestAClosedWorkspaceIsSweptOnceItIsRestored(t *testing.T) {
 	e.mail()
 	still("swept again")
 
-	// Restored, the next pass does what the time did.
+	// Restored, what nobody could take up is let go of, and the next pass
+	// does the rest of what the time did.
 	e.restoreIt()
-	e.sweep()
-	e.mail()
 	x.Equal("expired", e.reservation(held).GetStatus(), "the hold ran out")
 	x.Equal("expired", e.reservation(asked).GetStatus(), "the request began")
-	x.Equal("no_show", e.reservation(met).GetStatus(), "the room nobody came to")
+	x.Equal("expired", e.reservation(met).GetStatus(), "the room nobody could come to")
+	e.sweep()
+	e.mail()
 	x.Len(loansOf(e.eventsOf("custody.overdue")), 1, "the loan found late")
 	x.Equal(2200, e.hold(loan, camera).EndsAt.Year(), "and held until it is back")
 	x.Equal([]string{"CM-1 loan late"}, e.out(booked))
 
 	told := func(why string) {
 		t.Helper()
-		x.Len(e.notices(kimCtx, "reservation.expired"), 1, "%s: the request expired, to whose it is", why)
-		x.Len(e.notices(kimCtx, "reservation.no_show"), 1, "%s: the room let go of, to whose it is", why)
+		x.Empty(e.notices(kimCtx, "reservation.expired"), "%s: what passed while it was closed, to nobody", why)
+		x.Empty(e.notices(kimCtx, "reservation.no_show"), "%s: nor as a no-show", why)
 		late := e.notices(leeCtx, "custody.overdue")
 		x.Len(late, 1, "%s: the loan late, to who has it", why)
 		if len(late) == 1 {

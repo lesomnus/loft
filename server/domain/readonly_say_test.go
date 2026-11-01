@@ -24,8 +24,9 @@ import (
 // room nobody could check in to is let go of once its grace is over, a
 // camera nobody could pick up once its time is, and a request nobody could
 // approve expires as it begins -- the clock moves -- and whose each is, is
-// told that nobody could, and not that nobody did. Once it writes again, a
-// room nobody checked in to is told so, as ever.
+// told that nobody could, and not that nobody did: each an expiry, and no
+// no-show (D70). Once it writes again, a room nobody checked in to is told
+// so, as ever.
 func TestAReadOnlyWorkspaceSaysNobodyCouldTakeUpWhatItLetGo(t *testing.T) {
 	e := newPaying(t)
 	x := e.x
@@ -49,37 +50,38 @@ func TestAReadOnlyWorkspaceSaysNobodyCouldTakeUpWhatItLetGo(t *testing.T) {
 	e.now = e.now.Add(150 * time.Minute)
 	e.sweep()
 	x.Equal("expired", e.reservation(asked).GetStatus(), "the request began")
-	x.NotEqual("confirmed", e.reservation(met).GetStatus(), "the room let go of")
-	x.NotEqual("confirmed", e.reservation(taken).GetStatus(), "and the camera")
+	x.Equal("expired", e.reservation(met).GetStatus(), "the room let go of, and no no-show")
+	x.Equal("expired", e.reservation(taken).GetStatus(), "and the camera")
 
-	freed := e.notices(kim, "reservation.no_show")
-	x.Len(freed, 2)
+	// Each told as an expiry (D70), in the words it was told in before.
+	x.Empty(e.notices(kim, "reservation.no_show"))
+	expired := e.notices(kim, "reservation.expired")
+	x.Len(expired, 3)
 	said := map[string]string{}
-	for _, n := range freed {
+	for _, n := range expired {
 		switch {
 		case sameId(n.GetSubjectId(), met.GetId()):
 			said["room"] = n.GetDesc()
 		case sameId(n.GetSubjectId(), taken.GetId()):
 			said["camera"] = n.GetDesc()
+		case sameId(n.GetSubjectId(), asked.GetId()):
+			said["request"] = n.GetDesc()
 		}
 	}
 	x.Contains(said["room"], "읽기 전용이라 체크인할 수 없는 동안")
 	x.NotContains(said["room"], "체크인하지 않아")
 	x.Contains(said["camera"], "읽기 전용이라 수령할 수 없는 동안")
 	x.NotContains(said["camera"], "수령하지 않아")
-	expired := e.notices(kim, "reservation.expired")
-	x.Len(expired, 1)
-	x.Contains(expired[0].GetDesc(), "읽기 전용이라 시작 전까지 승인할 수 없어")
-	x.NotContains(expired[0].GetDesc(), "승인되지 않아")
+	x.Contains(said["request"], "읽기 전용이라 시작 전까지 승인할 수 없어")
+	x.NotContains(said["request"], "승인되지 않아")
 
-	// What says so in the history is declared in this release, and written
-	// in the one after, once the build before says it (design 7.14): this
-	// one writes the history as it did.
+	// And the history says so as well, since the build before this one
+	// says it (D68, D70).
 	for _, ev := range e.eventsOf("reservation.expire") {
 		m := value[*app.ReservationReleased](e.env, ev)
-		x.Empty(m.GetWorkspace(), "written a release after it is declared")
-		x.NotEqual("confirmed", m.GetFrom(), "written a release after it is declared")
+		x.Equal("readonly", m.GetWorkspace())
 	}
+	x.Empty(e.eventsOf("reservation.no_show"))
 
 	// Written again, nobody coming is nobody coming.
 	e.paid()

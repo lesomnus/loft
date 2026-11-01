@@ -139,15 +139,18 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"reservation.complete", app.ReservationDecided_builder{Name: "주간 회의", Ended: true}.Build(), "예약 종료: 주간 회의"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "held"}.Build(), "홀드 만료: 주간 회의"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "requested"}.Build(), "승인 대기 만료: 주간 회의"},
-		// Declared a release before anything writes them (D68): what nobody
-		// could act on in time, its workspace read-only or closed -- a
-		// confirmed one nobody could check in to or pick up among them,
-		// which is no no-show.
+		// Declared a release before anything wrote them (D68), and written
+		// since (D70): what nobody could act on in time, its workspace
+		// read-only or closed -- a confirmed one nobody could check in to or
+		// pick up among them, which is no no-show.
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "held", Workspace: "readonly"}.Build(), "홀드 만료: 주간 회의 (워크스페이스가 읽기 전용이던 때)"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "requested", Workspace: "readonly"}.Build(), "승인 대기 만료: 주간 회의 (워크스페이스가 읽기 전용이던 때)"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "confirmed", Workspace: "readonly"}.Build(), "예약 만료: 주간 회의 (워크스페이스가 읽기 전용이던 때)"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "confirmed", Workspace: "closed"}.Build(), "예약 만료: 주간 회의 (워크스페이스가 닫혀 있던 때)"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "requested", Workspace: "closed"}.Build(), "승인 대기 만료: 주간 회의 (워크스페이스가 닫혀 있던 때)"},
+		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "held", Workspace: "closed"}.Build(), "홀드 만료: 주간 회의 (워크스페이스가 닫혀 있던 때)"},
+		// Equipment nobody picked up where nobody is held to it (D70).
+		{"reservation.expire", app.ReservationReleased_builder{Name: "제품 촬영", From: "confirmed"}.Build(), "예약 만료: 제품 촬영"},
 		{"reservation.no_show", app.ReservationReleased_builder{Name: "주간 회의"}.Build(), "노쇼: 주간 회의"},
 		// Kinds since events kept a message, written with none before them:
 		// a member of a kit, which is one thing, and a pool, by how many.
@@ -199,6 +202,9 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"workspace.close", app.WorkspaceClosed_builder{By: "operator"}.Build(), "워크스페이스 닫기 (운영자)"},
 		{"workspace.close", app.WorkspaceClosed_builder{By: "deployment"}.Build(), "워크스페이스 닫기 (남은 구성원 없음)"},
 		{"workspace.restore", app.WorkspaceRestored_builder{By: "owner"}.Build(), "워크스페이스 복구"},
+		// Declared a release before anything writes it (D70): how many of
+		// its reservations whose time passed while it was closed it let go of.
+		{"workspace.restore", app.WorkspaceRestored_builder{By: "operator", Expired: 3}.Build(), "워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 3건 만료"},
 		{"workspace.import", app.WorkspaceImported_builder{ExportedAt: timestamppb.New(time.Date(2026, 10, 20, 23, 0, 0, 0, time.UTC)), Rows: 120}.Build(), "워크스페이스 복구 (운영자): 2026-10-20 내보내기에서"},
 
 		{"invitation.add", app.InvitationAdded_builder{Role: "manager"}.Build(), "초대 (매니저)"},

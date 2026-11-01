@@ -377,6 +377,12 @@ func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 	return v, nil
 }
 
+// restoreWorkspace opens the closed workspace again, `by` whoever does --
+// and lets go of what passed its time while it was closed, in the same
+// transaction (D70, design 7.15): nobody could take it up, and the sweeps,
+// which swept none of it meanwhile (D68), would let it go as nobody's coming
+// ([Tx.closedPast], [Tx.expireClosed]). Whatever else time did meanwhile --
+// a loan gone late, a reminder due -- the next pass does, of what is so then.
 func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
 	cur, err := t.next.Tenant().Get(t.ctx, app.TenantGetRequest_builder{Ref: t.tenantRef()}.Build())
 	if err != nil {
@@ -387,6 +393,12 @@ func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
 	}
 	if cur.HasDateDestroy() && !t.now.Before(cur.GetDateDestroy().AsTime()) {
 		return nil, failed("복구 기간이 지났습니다")
+	}
+	// Held before the moment is taken, as an operation holds what it
+	// changes ([Tx.lockReservations]).
+	passed, err := t.closedPast(moment(cur.GetDateClosed().AsTime()))
+	if err != nil {
+		return nil, err
 	}
 	if err := t.begin(nil, "workspace.restore", pdid.Nil, t.now, "", app.WorkspaceRestored_builder{By: by}.Build()); err != nil {
 		return nil, err
@@ -409,6 +421,11 @@ func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
 		if err := c.Restore(t.ctx, t.db, t.tenant, t.now); err != nil {
 			return nil, err
 		}
+	}
+	// Open, so that what is told of it -- a booking that waited for what one
+	// of them held -- is written.
+	if err := t.expireClosed(passed); err != nil {
+		return nil, err
 	}
 	return v, nil
 }

@@ -152,7 +152,7 @@ option (payday.app) = {
 //   10  asset_name     string                     -- what that was called then; of the reservation's own reservation.add, the first thing it takes
 //   11  override       bool                       -- taken over what was booked already, by a manager
 //   12  ended          bool                       -- completed by the deployment, its time over, and by nobody who asked
-//   13  from           string                     -- what it was when it expired: held | requested; or confirmed, and nobody could take it up
+//   13  from           string                     -- what it was when it expired: held | requested | confirmed; a confirmed one nobody took up, as nobody could (workspace) or its workspace holds nobody to it
 //   14  units          uint32                     -- how many of a pool it takes, waits for or lets go of
 //   15  workspace      string                     -- what its workspace was as its time came, when that is why nobody took it up: readonly | closed
 //
@@ -251,6 +251,7 @@ option (payday.app) = {
 //   19  reopened       bool                       -- it was put back open
 //   20  left           map<string, uint32>        -- what of each kind was left as this deployment had it
 //   21  name           string                     -- what it is called from then on; empty for no name of its own, and then after its owner
+//   22  expired        uint32                     -- how many of its reservations whose time passed while it was closed expired as it was restored
 //
 // access.* holds, by number:
 //
@@ -631,7 +632,13 @@ message ReservationDecided {
 // doing. A confirmed one nobody could check in to or pick up then is no
 // no-show; it expired, as a hold nobody could confirm and a request nobody
 // could decide did (`from: confirmed`). Declared a release before anything
-// writes either (design 7.14, D68).
+// wrote either (design 7.14, D68): the sweeps write what they let go of
+// while the workspace is read-only, and its restore what passed its time
+// while it was closed, each the restore's child (design 7.15, D70). And
+// equipment nobody picked up by the end of its time, where the workspace
+// holds nobody to taking up what they booked -- it takes no check-ins -- is
+// no no-show either: it expired, and says nothing of its workspace unless
+// that let nobody act on it then.
 //
 //   reservation.expire   reservation, name, from, workspace
 //   reservation.no_show  reservation, name
@@ -993,11 +1000,18 @@ message WorkspaceClosed {
 }
 
 // WorkspaceRestored is a closed workspace opened again
-// (`workspace.restore`) by its owner or an operator.
+// (`workspace.restore`) by its owner or an operator -- and how many of its
+// reservations whose time passed while it was closed it let go of as it
+// opened (`expired`, D70): a hold nobody could confirm, a request nobody
+// could decide, a booking nobody could check in to or pick up. Each is an
+// expiry of its own, the restore's child, which says the workspace was
+// closed. Declared a release before anything writes it (design 7.15): until
+// then a restore says none, and its children are what it let go of.
 message WorkspaceRestored {
   option (payday.event) = {kinds: "workspace.restore"};
 
   string by = 1;
+  uint32 expired = 22;
 }
 
 // WorkspaceConfigured is what the workspace's owner said of its own settings

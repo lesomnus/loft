@@ -1176,6 +1176,10 @@
       "1": {
         "json": "by",
         "kind": "string"
+      },
+      "22": {
+        "json": "expired",
+        "kind": "uint32"
       }
     }
   }
