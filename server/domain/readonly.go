@@ -234,6 +234,8 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.PaymentService_ListInvoices_FullMethodName:         Pays,
 	app.PaymentService_GetInvoice_FullMethodName:           Pays,
 	app.PaymentService_ListCreditNotes_FullMethodName:      Pays,
+	app.PaymentService_ListPayerStatements_FullMethodName:  Pays,
+	app.PaymentService_GetPayerStatement_FullMethodName:    Pays,
 	app.PaymentService_GetPayer_FullMethodName:             Pays,
 	app.PaymentService_GetUsage_FullMethodName:             Pays,
 	app.PaymentService_ListStatements_FullMethodName:       Pays,

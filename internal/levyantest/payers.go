@@ -51,6 +51,7 @@ type payers struct {
 	invoices   map[string][]*levyanv1.Invoice    // by billing account
 	notes      map[string][]*levyanv1.CreditNote // by invoice
 	statements map[string][]*levyanv1.Statement  // by workspace
+	paidBy     map[string]string                 // the billing account that paid for each statement's period, by statement
 	collected  map[string]*levyanv1.Collection   // by billing account, as Collect says it
 	dunning    []*dunned
 	relayed    []Relayed
@@ -66,6 +67,7 @@ func newPayers() payers {
 		invoices:   map[string][]*levyanv1.Invoice{},
 		notes:      map[string][]*levyanv1.CreditNote{},
 		statements: map[string][]*levyanv1.Statement{},
+		paidBy:     map[string]string{},
 		collected:  map[string]*levyanv1.Collection{},
 		opens:      1,
 	}
@@ -229,11 +231,37 @@ func (v *Levyan) Bill(inv *levyanv1.Invoice, notes ...*levyanv1.CreditNote) {
 	}
 }
 
-// State has `st` be one of its workspace's statements.
+// State has `st` be one of its workspace's statements, of a period paid for
+// with the billing account its workspace is paid for with now ([Levyan.paid]).
 func (v *Levyan) State(st *levyanv1.Statement) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 	v.statements[st.GetWorkspace()] = append(v.statements[st.GetWorkspace()], proto.CloneOf(st))
+	v.paid(st)
+}
+
+// paid has statement `st` be of a period its workspace was paid for with the
+// billing account it is paid for with now, if any: levyan says the billing
+// account of the link in force through the period (levyan#47), and the fake,
+// which keeps who pays now and next and not who paid when, takes the one now
+// for it -- so a test closes a period before it turns it ([Levyan.Turn]).
+func (v *Levyan) paid(st *levyanv1.Statement) {
+	if p, ok := v.workspaces[st.GetWorkspace()]; ok && p.current != nil && p.current.GetBillingAccount() != "" {
+		v.paidBy[st.GetId()] = p.current.GetBillingAccount()
+	}
+}
+
+// Statement is the statement of `workspace` of the period that begins at
+// `start`, or nil: what a test has an invoice's line be.
+func (v *Levyan) Statement(workspace string, start time.Time) *levyanv1.Statement {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	for _, st := range v.statements[workspace] {
+		if st.GetPeriod().GetStart().AsTime().Equal(start) {
+			return proto.CloneOf(st)
+		}
+	}
+	return nil
 }
 
 // BillingAccounts is what `account` pays with.
@@ -959,6 +987,90 @@ func (v *Levyan) ListStatements(ctx context.Context, req *levyanv1.ListStatement
 		return vs[i].GetPeriod().GetStart().AsTime().After(vs[j].GetPeriod().GetStart().AsTime())
 	})
 	return levyanv1.ListStatementsResponse_builder{Statements: vs}.Build(), nil
+}
+
+// GetStatement is one of the product's statements, by its identifier.
+func (v *Levyan) GetStatement(ctx context.Context, req *levyanv1.GetStatementRequest) (*levyanv1.GetStatementResponse, error) {
+	if err := keyed(ctx); err != nil {
+		return nil, err
+	}
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	for _, sts := range v.statements {
+		for _, st := range sts {
+			if st.GetId() == req.GetId() {
+				return levyanv1.GetStatementResponse_builder{Statement: proto.CloneOf(st)}.Build(), nil
+			}
+		}
+	}
+	return nil, status.Errorf(codes.NotFound, "levyantest: no statement is %q", req.GetId())
+}
+
+// payerServer is the fake's PayerService: the fake, but for the two methods
+// BillingService has methods of the same names as, which a payer is
+// answered by here (levyan#47).
+type payerServer struct{ *Levyan }
+
+// ListStatements is the statements of the periods the account's billing
+// accounts paid for, as the fake keeps who did ([Levyan.paid]) -- of one of
+// them, or of all of them -- the latest period first. Another's billing
+// account is NotFound.
+func (s payerServer) ListStatements(ctx context.Context, req *levyanv1.PayerServiceListStatementsRequest) (*levyanv1.PayerServiceListStatementsResponse, error) {
+	a, err := s.relayedFor(ctx)
+	if err != nil {
+		return nil, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	of := map[string]bool{}
+	if f := req.GetBillingAccount(); f != "" {
+		if _, err := s.own(a, f); err != nil {
+			return nil, err
+		}
+		of[f] = true
+	} else {
+		for _, b := range s.billing[a] {
+			of[b.GetId()] = true
+		}
+	}
+	vs := []*levyanv1.Statement{}
+	for _, sts := range s.statements {
+		for _, st := range sts {
+			if of[s.paidBy[st.GetId()]] {
+				vs = append(vs, proto.CloneOf(st))
+			}
+		}
+	}
+	sort.SliceStable(vs, func(i, j int) bool {
+		a, b := vs[i].GetPeriod().GetStart().AsTime(), vs[j].GetPeriod().GetStart().AsTime()
+		if !a.Equal(b) {
+			return a.After(b)
+		}
+		return vs[i].GetId() > vs[j].GetId()
+	})
+	return levyanv1.PayerServiceListStatementsResponse_builder{Statements: vs}.Build(), nil
+}
+
+// GetStatement is one of them, or NotFound.
+func (s payerServer) GetStatement(ctx context.Context, req *levyanv1.PayerServiceGetStatementRequest) (*levyanv1.PayerServiceGetStatementResponse, error) {
+	a, err := s.relayedFor(ctx)
+	if err != nil {
+		return nil, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, sts := range s.statements {
+		for _, st := range sts {
+			if st.GetId() != req.GetId() {
+				continue
+			}
+			if _, err := s.own(a, s.paidBy[st.GetId()]); err != nil {
+				break
+			}
+			return levyanv1.PayerServiceGetStatementResponse_builder{Statement: proto.CloneOf(st)}.Build(), nil
+		}
+	}
+	return nil, status.Errorf(codes.NotFound, "levyantest: no statement %q of the account's", req.GetId())
 }
 
 // word is n lower-case letters and digits, made up.

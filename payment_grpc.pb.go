@@ -34,6 +34,8 @@ const (
 	PaymentService_ListInvoices_FullMethodName         = "/loft.PaymentService/ListInvoices"
 	PaymentService_GetInvoice_FullMethodName           = "/loft.PaymentService/GetInvoice"
 	PaymentService_ListCreditNotes_FullMethodName      = "/loft.PaymentService/ListCreditNotes"
+	PaymentService_ListPayerStatements_FullMethodName  = "/loft.PaymentService/ListPayerStatements"
+	PaymentService_GetPayerStatement_FullMethodName    = "/loft.PaymentService/GetPayerStatement"
 	PaymentService_GetPayer_FullMethodName             = "/loft.PaymentService/GetPayer"
 	PaymentService_GetUsage_FullMethodName             = "/loft.PaymentService/GetUsage"
 	PaymentService_ListStatements_FullMethodName       = "/loft.PaymentService/ListStatements"
@@ -54,7 +56,7 @@ const (
 //     -- a roster account -- does with what it pays with: its billing
 //     accounts, the checkout that starts the subscription one is collected
 //     through, the offers to pay for a workspace and the workspaces it pays
-//     for, and its invoices. Served as the account itself, in no workspace,
+//     for, its invoices, and the statements their lines are. Served as the account itself, in no workspace,
 //     and relayed to levyan's `PayerService` as that account
 //     (`levyan-account`): levyan asks roster about the account, and answers
 //     with the account's own and the product's.
@@ -113,6 +115,15 @@ type PaymentServiceClient interface {
 	GetInvoice(ctx context.Context, in *PaymentGetInvoiceRequest, opts ...grpc.CallOption) (*PaymentGetInvoiceResponse, error)
 	// ListCreditNotes is the credit notes of them.
 	ListCreditNotes(ctx context.Context, in *PaymentListCreditNotesRequest, opts ...grpc.CallOption) (*PaymentListCreditNotesResponse, error)
+	// ListPayerStatements is the statements of the workspaces the account's
+	// billing accounts paid for -- each of a period one of them paid for its
+	// workspace -- the latest period first: levyan's
+	// `PayerService.ListStatements` (levyan#47). A period somebody else paid
+	// for is theirs, and not the account's.
+	ListPayerStatements(ctx context.Context, in *PaymentListPayerStatementsRequest, opts ...grpc.CallOption) (*PaymentListPayerStatementsResponse, error)
+	// GetPayerStatement is one of them, by its identifier: what a line of the
+	// account's invoice names, with its lines.
+	GetPayerStatement(ctx context.Context, in *PaymentGetPayerStatementRequest, opts ...grpc.CallOption) (*PaymentGetPayerStatementResponse, error)
 	// GetPayer is who pays for the caller's workspace now and next, what is
 	// offered, and since when it has had nobody paying for it.
 	GetPayer(ctx context.Context, in *PaymentGetPayerRequest, opts ...grpc.CallOption) (*PaymentGetPayerResponse, error)
@@ -285,6 +296,26 @@ func (c *paymentServiceClient) ListCreditNotes(ctx context.Context, in *PaymentL
 	return out, nil
 }
 
+func (c *paymentServiceClient) ListPayerStatements(ctx context.Context, in *PaymentListPayerStatementsRequest, opts ...grpc.CallOption) (*PaymentListPayerStatementsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PaymentListPayerStatementsResponse)
+	err := c.cc.Invoke(ctx, PaymentService_ListPayerStatements_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *paymentServiceClient) GetPayerStatement(ctx context.Context, in *PaymentGetPayerStatementRequest, opts ...grpc.CallOption) (*PaymentGetPayerStatementResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PaymentGetPayerStatementResponse)
+	err := c.cc.Invoke(ctx, PaymentService_GetPayerStatement_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *paymentServiceClient) GetPayer(ctx context.Context, in *PaymentGetPayerRequest, opts ...grpc.CallOption) (*PaymentGetPayerResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PaymentGetPayerResponse)
@@ -339,7 +370,7 @@ func (c *paymentServiceClient) Offer(ctx context.Context, in *PaymentOfferReques
 //     -- a roster account -- does with what it pays with: its billing
 //     accounts, the checkout that starts the subscription one is collected
 //     through, the offers to pay for a workspace and the workspaces it pays
-//     for, and its invoices. Served as the account itself, in no workspace,
+//     for, its invoices, and the statements their lines are. Served as the account itself, in no workspace,
 //     and relayed to levyan's `PayerService` as that account
 //     (`levyan-account`): levyan asks roster about the account, and answers
 //     with the account's own and the product's.
@@ -398,6 +429,15 @@ type PaymentServiceServer interface {
 	GetInvoice(context.Context, *PaymentGetInvoiceRequest) (*PaymentGetInvoiceResponse, error)
 	// ListCreditNotes is the credit notes of them.
 	ListCreditNotes(context.Context, *PaymentListCreditNotesRequest) (*PaymentListCreditNotesResponse, error)
+	// ListPayerStatements is the statements of the workspaces the account's
+	// billing accounts paid for -- each of a period one of them paid for its
+	// workspace -- the latest period first: levyan's
+	// `PayerService.ListStatements` (levyan#47). A period somebody else paid
+	// for is theirs, and not the account's.
+	ListPayerStatements(context.Context, *PaymentListPayerStatementsRequest) (*PaymentListPayerStatementsResponse, error)
+	// GetPayerStatement is one of them, by its identifier: what a line of the
+	// account's invoice names, with its lines.
+	GetPayerStatement(context.Context, *PaymentGetPayerStatementRequest) (*PaymentGetPayerStatementResponse, error)
 	// GetPayer is who pays for the caller's workspace now and next, what is
 	// offered, and since when it has had nobody paying for it.
 	GetPayer(context.Context, *PaymentGetPayerRequest) (*PaymentGetPayerResponse, error)
@@ -464,6 +504,12 @@ func (UnimplementedPaymentServiceServer) GetInvoice(context.Context, *PaymentGet
 }
 func (UnimplementedPaymentServiceServer) ListCreditNotes(context.Context, *PaymentListCreditNotesRequest) (*PaymentListCreditNotesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListCreditNotes not implemented")
+}
+func (UnimplementedPaymentServiceServer) ListPayerStatements(context.Context, *PaymentListPayerStatementsRequest) (*PaymentListPayerStatementsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListPayerStatements not implemented")
+}
+func (UnimplementedPaymentServiceServer) GetPayerStatement(context.Context, *PaymentGetPayerStatementRequest) (*PaymentGetPayerStatementResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetPayerStatement not implemented")
 }
 func (UnimplementedPaymentServiceServer) GetPayer(context.Context, *PaymentGetPayerRequest) (*PaymentGetPayerResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPayer not implemented")
@@ -768,6 +814,42 @@ func _PaymentService_ListCreditNotes_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PaymentService_ListPayerStatements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PaymentListPayerStatementsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServiceServer).ListPayerStatements(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PaymentService_ListPayerStatements_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServiceServer).ListPayerStatements(ctx, req.(*PaymentListPayerStatementsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PaymentService_GetPayerStatement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PaymentGetPayerStatementRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServiceServer).GetPayerStatement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PaymentService_GetPayerStatement_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServiceServer).GetPayerStatement(ctx, req.(*PaymentGetPayerStatementRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PaymentService_GetPayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PaymentGetPayerRequest)
 	if err := dec(in); err != nil {
@@ -906,6 +988,14 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCreditNotes",
 			Handler:    _PaymentService_ListCreditNotes_Handler,
+		},
+		{
+			MethodName: "ListPayerStatements",
+			Handler:    _PaymentService_ListPayerStatements_Handler,
+		},
+		{
+			MethodName: "GetPayerStatement",
+			Handler:    _PaymentService_GetPayerStatement_Handler,
 		},
 		{
 			MethodName: "GetPayer",

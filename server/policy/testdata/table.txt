@@ -124,12 +124,14 @@
 /loft.PaymentService/GetBillingAccount	account
 /loft.PaymentService/GetInvoice	account
 /loft.PaymentService/GetPayer	admin
+/loft.PaymentService/GetPayerStatement	account
 /loft.PaymentService/GetUsage	admin
 /loft.PaymentService/ListBillingAccounts	account
 /loft.PaymentService/ListCreditNotes	account
 /loft.PaymentService/ListInvoices	account
 /loft.PaymentService/ListLinks	account
 /loft.PaymentService/ListOffers	account
+/loft.PaymentService/ListPayerStatements	account
 /loft.PaymentService/ListStatements	admin
 /loft.PaymentService/Offer	owner
 /loft.PaymentService/StartCheckout	account

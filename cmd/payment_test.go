@@ -458,6 +458,105 @@ func TestWhatLevyansOperatorGaveIsRelayed(t *testing.T) {
 	x.Empty(p.GetPayer().GetCredits())
 }
 
+// TestAPayersStatementsAreRelayedAsTheAccount (levyan#47, design 7.12): the
+// statements of the periods a payer's billing accounts paid for are levyan's
+// PayerService's, relayed as the account -- each line with what levyan's
+// operator gave and what a pool took, as the workspace's own settings read
+// the same statement -- and each line of the payer's invoice is read by the
+// statement it names. Another account reads none of them, though it runs
+// the workspace and reads its statements there; and naming the payer's
+// billing account is no way to them.
+func TestAPayersStatementsAreRelayedAsTheAccount(t *testing.T) {
+	w, fake := paid(t)
+	x := w.x
+	ctx := context.Background()
+	pay := w.payments()
+	ws := tenantId(x, w.tenant).String()
+
+	// The owner pays for it, with a billing account made before levyan is
+	// told who made the workspace.
+	made, err := pay.CreateBillingAccount(w.owner, app.PaymentCreateBillingAccountRequest_builder{Country: "KR"}.Build())
+	x.NoError(err)
+	ba := made.GetBillingAccount().GetId()
+	account := fake.Relays()[0].Account
+	x.NoError(w.s.Teller.Pass(ctx))
+
+	// Three assets and the owner, measured; two more assets each period, and
+	// a pool of ten asset-months, from the period before; and the period
+	// before closed.
+	assets := app.NewAssetServiceClient(w.conn)
+	for _, name := range []string{"노트북", "모니터", "의자"} {
+		_, err := assets.Add(w.owner, app.AssetAddRequest_builder{Name: name}.Build())
+		x.NoError(err)
+	}
+	x.NoError(w.s.Meters.Read(ctx, tenantId(x, w.tenant)))
+	before, _ := levyantest.PeriodBefore(time.Now())
+	fake.Allow(ws, levyanv1.Allowance_builder{Meter: "loft.assets.active", Quantity: 2, From: timestamppb.New(before)}.Build())
+	ten := fake.Pool(ws, levyanv1.Pool_builder{Meter: "loft.assets.active", Granted: 10, From: timestamppb.New(before), Expires: timestamppb.New(time.Now().AddDate(1, 0, 0))}.Build())
+	closed := fake.ClosePeriod(ws)
+
+	// The payer's, as the account: every one of its billing accounts', and
+	// that one's.
+	n := len(fake.Relays())
+	for _, of := range []string{"", ba} {
+		list, err := pay.ListPayerStatements(w.owner, app.PaymentListPayerStatementsRequest_builder{BillingAccount: of}.Build())
+		x.NoError(err)
+		x.Len(list.GetStatements(), 1)
+		x.Equal(closed.GetId(), list.GetStatements()[0].GetId())
+	}
+	got, err := pay.GetPayerStatement(w.owner, app.PaymentGetPayerStatementRequest_builder{Id: closed.GetId()}.Build())
+	x.NoError(err)
+	st := got.GetStatement()
+	x.Equal(ws, st.GetWorkspace())
+	x.Equal(closed.GetTotal(), st.GetTotal())
+	x.Equal([]levyantest.Relayed{
+		{Method: "/levyan.v1.PayerService/ListStatements", Account: account},
+		{Method: "/levyan.v1.PayerService/ListStatements", Account: account},
+		{Method: "/levyan.v1.PayerService/GetStatement", Account: account},
+	}, fake.Relays()[n:], "relayed as the account, and never read with the product's key")
+	var l *app.BillingLine
+	for _, v := range st.GetLines() {
+		if v.GetMeter() == "loft.assets.active" {
+			l = v
+		}
+	}
+	x.NotNil(l)
+	x.Equal([]string{"3", "2", "2", "1", "1", "0"}, []string{l.GetUsage(), l.GetIncluded(), l.GetAllowance(), l.GetBillable(), l.GetPooled(), l.GetAmount()})
+	x.Equal([]string{ten.GetId(), "1"}, []string{l.GetPools()[0].GetPool(), l.GetPools()[0].GetTaken()})
+
+	// As the workspace's settings read it.
+	sts, err := pay.ListStatements(w.owner, app.PaymentListStatementsRequest_builder{}.Build())
+	x.NoError(err)
+	x.Len(sts.GetStatements(), 1)
+	x.True(proto.Equal(sts.GetStatements()[0], st))
+
+	// Each line of the payer's invoice is the statement it names.
+	inv := fake.Finalize(ba, levyanv1.InvoiceLine_builder{Statement: closed.GetId(), Workspace: ws, Label: "Acme", Total: closed.GetTotal()}.Build())
+	v, err := pay.GetInvoice(w.owner, app.PaymentGetInvoiceRequest_builder{Id: inv.GetId()}.Build())
+	x.NoError(err)
+	x.Len(v.GetInvoice().GetLines(), 1)
+	line, err := pay.GetPayerStatement(w.owner, app.PaymentGetPayerStatementRequest_builder{Id: v.GetInvoice().GetLines()[0].GetStatement()}.Build())
+	x.NoError(err)
+	x.True(proto.Equal(st, line.GetStatement()))
+
+	// Another account reads none of them -- an administrator of the
+	// workspace among them, who reads its statements in its settings -- and
+	// the payer's billing account is none of its.
+	admin := w.holder("kim", "admin")
+	for _, as := range []context.Context{w.session(admin), w.session(w.holder("lee", "member"))} {
+		list, err := pay.ListPayerStatements(as, app.PaymentListPayerStatementsRequest_builder{}.Build())
+		x.NoError(err)
+		x.Empty(list.GetStatements())
+		_, err = pay.GetPayerStatement(as, app.PaymentGetPayerStatementRequest_builder{Id: closed.GetId()}.Build())
+		x.Equal(codes.NotFound, status.Code(err))
+		_, err = pay.ListPayerStatements(as, app.PaymentListPayerStatementsRequest_builder{BillingAccount: ba}.Build())
+		x.Equal(codes.NotFound, status.Code(err))
+	}
+	sts, err = pay.ListStatements(w.signIn(admin), app.PaymentListStatementsRequest_builder{}.Build())
+	x.NoError(err)
+	x.Len(sts.GetStatements(), 1, "the workspace's, which its administrator reads in its settings")
+}
+
 // TestWhatLevyanRefusesIsSaid: a refusal of levyan's keeps its code, in this
 // deployment's words with levyan's after them -- what a page shows of a levyan
 // with no roster to ask about an account, as staging's is -- and a levyan that

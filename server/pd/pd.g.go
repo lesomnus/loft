@@ -29401,6 +29401,8 @@ var AccountMethods = []string{
 	loft.PaymentService_ListInvoices_FullMethodName,
 	loft.PaymentService_GetInvoice_FullMethodName,
 	loft.PaymentService_ListCreditNotes_FullMethodName,
+	loft.PaymentService_ListPayerStatements_FullMethodName,
+	loft.PaymentService_GetPayerStatement_FullMethodName,
 }
 
 var accountMethods = func() map[string]bool {

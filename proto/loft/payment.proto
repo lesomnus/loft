@@ -18,7 +18,7 @@ option go_package = "github.com/lesomnus/loft";
 //     -- a roster account -- does with what it pays with: its billing
 //     accounts, the checkout that starts the subscription one is collected
 //     through, the offers to pay for a workspace and the workspaces it pays
-//     for, and its invoices. Served as the account itself, in no workspace,
+//     for, its invoices, and the statements their lines are. Served as the account itself, in no workspace,
 //     and relayed to levyan's `PayerService` as that account
 //     (`levyan-account`): levyan asks roster about the account, and answers
 //     with the account's own and the product's.
@@ -119,6 +119,21 @@ service PaymentService {
 
   // ListCreditNotes is the credit notes of them.
   rpc ListCreditNotes(PaymentListCreditNotesRequest) returns (PaymentListCreditNotesResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // ListPayerStatements is the statements of the workspaces the account's
+  // billing accounts paid for -- each of a period one of them paid for its
+  // workspace -- the latest period first: levyan's
+  // `PayerService.ListStatements` (levyan#47). A period somebody else paid
+  // for is theirs, and not the account's.
+  rpc ListPayerStatements(PaymentListPayerStatementsRequest) returns (PaymentListPayerStatementsResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // GetPayerStatement is one of them, by its identifier: what a line of the
+  // account's invoice names, with its lines.
+  rpc GetPayerStatement(PaymentGetPayerStatementRequest) returns (PaymentGetPayerStatementResponse) {
     option (payday.method) = {account: {}};
   }
 
@@ -319,6 +334,33 @@ message PaymentListCreditNotesRequest {
 
 message PaymentListCreditNotesResponse {
   repeated BillingCreditNote credit_notes = 1;
+}
+
+message PaymentListPayerStatementsRequest {
+  // Of one of the account's billing accounts; empty is of every one. One
+  // that is not the account's is NotFound.
+  string billing_account = 1;
+
+  // How many: 20 when unset, and at most 100.
+  int32 page_size = 2;
+
+  string page_token = 3;
+}
+
+message PaymentListPayerStatementsResponse {
+  // The latest period first, each with its lines.
+  repeated BillingStatement statements = 1;
+
+  string next_page_token = 2;
+}
+
+message PaymentGetPayerStatementRequest {
+  // The statement, by its identifier: `BillingInvoiceLine.statement`.
+  string id = 1;
+}
+
+message PaymentGetPayerStatementResponse {
+  BillingStatement statement = 1;
 }
 
 // The workspace's: of the caller's workspace, which no request names.
@@ -665,6 +707,7 @@ enum BillingInvoiceState {
 
 // BillingInvoiceLine is one statement on an invoice.
 message BillingInvoiceLine {
+  // The statement, which its payer reads with `GetPayerStatement`.
   string statement = 1;
 
   // The workspace, and what this deployment called it when the line was

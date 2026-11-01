@@ -243,16 +243,18 @@ func init() {
 	allow(Account, "InvitationService", "Inbox", "Claim", "Accept", "Deny")
 
 	// How a workspace is paid for (design 7.9): a payer's own billing
-	// accounts, checkouts, offers, the workspaces it pays for and its
-	// invoices are the account's alone, relayed to levyan as it; who pays for
-	// a workspace, what it has used and its statements are for the people who
-	// run it to read; and asking a member to pay for it is its owner's.
+	// accounts, checkouts, offers, the workspaces it pays for, its invoices
+	// and the statements of the periods it paid for (levyan#47) are the
+	// account's alone, relayed to levyan as it; who pays for a workspace,
+	// what it has used and its statements are for the people who run it to
+	// read; and asking a member to pay for it is its owner's.
 	allow(Account, "PaymentService",
 		"ListBillingAccounts", "CreateBillingAccount", "UpdateBillingAccount", "GetBillingAccount",
 		"StartCheckout", "CompleteCheckout",
 		"ListOffers", "Accept", "Decline",
 		"ListLinks", "Use", "Stop",
 		"ListInvoices", "GetInvoice", "ListCreditNotes",
+		"ListPayerStatements", "GetPayerStatement",
 	)
 	allow(Admin, "PaymentService", "GetPayer", "GetUsage", "ListStatements")
 	allow(Owner, "PaymentService", "Offer")
