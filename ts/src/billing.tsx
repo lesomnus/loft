@@ -19,7 +19,8 @@
  *   asked of how it pays -- the credit levyan's operator granted it and the
  *   workspaces it pays for, and its balance; the offers to pay for a
  *   workspace, the workspaces it pays for, its invoices -- with what credit
- *   paid of each -- and credit notes.
+ *   paid of each, and each line's statement as levyan answers the payer
+ *   (`LineStatements`, levyan#47) -- and credit notes.
  * - **A workspace's**, in its settings for the people who run it: who pays for
  *   it, the credit levyan's operator granted it, what it has used this period
  *   and what that would come to -- with the allowances and the pools the
@@ -65,6 +66,7 @@ import {
 	type BillingCreditNote,
 	type BillingDunning,
 	type BillingInvoice,
+	type BillingInvoiceLine,
 	type BillingLine,
 	type BillingLink,
 	type BillingOffer,
@@ -1367,7 +1369,7 @@ function creditedItems(inv: BillingInvoice, named: (id: string) => string): [Rea
 	return [...paid, ['청구한 금액', money(inv.due, inv.currency)]]
 }
 
-/** An invoice, with what paid it of credit, its lines and its credit notes. */
+/** An invoice, with what paid it of credit, its lines -- each its statement's (`LineStatements`) -- and its credit notes. */
 function InvoiceModal(props: { invoice: BillingInvoice; named: (id: string) => string; onClose: () => void }): ReactNode {
 	const [v, setV] = useState<PaymentGetInvoiceResponse>()
 	const [bad, setBad] = useState('')
@@ -1417,6 +1419,7 @@ function InvoiceModal(props: { invoice: BillingInvoice; named: (id: string) => s
 					</tbody>
 				</table>
 			)}
+			{v !== undefined && <LineStatements lines={inv.lines} named={props.named} />}
 			{v !== undefined && v.creditNotes.length > 0 && (
 				<ul>
 					{v.creditNotes.map((n) => (
@@ -1427,6 +1430,58 @@ function InvoiceModal(props: { invoice: BillingInvoice; named: (id: string) => s
 				</ul>
 			)}
 		</Modal>
+	)
+}
+
+/**
+ * What each line of an invoice came to, meter by meter: the statement it
+ * names, as levyan answers its payer (`GetPayerStatement`, levyan#47) --
+ * never as this deployment would read it with its own key -- in the table a
+ * workspace's settings show a period closed in (`Lines`), under the
+ * workspace and the period it is of, and how its numbers are rounded said
+ * once after them all.
+ */
+function LineStatements(props: { lines: BillingInvoiceLine[]; named: (id: string) => string }): ReactNode {
+	const [got, setGot] = useState<Record<string, BillingStatement | string>>({})
+	useEffect(() => {
+		let gone = false
+		for (const l of props.lines) {
+			call(PaymentService.method.getPayerStatement, { id: l.statement }).then(
+				(r) => {
+					if (!gone) setGot((g) => ({ ...g, [l.statement]: r.statement ?? '결제 서비스가 명세서를 답하지 않았습니다.' }))
+				},
+				(err) => {
+					if (!gone) setGot((g) => ({ ...g, [l.statement]: errorText(err) }))
+				},
+			)
+		}
+		return () => {
+			gone = true
+		}
+	}, [props.lines])
+	if (props.lines.length === 0) return null
+	return (
+		<>
+			{props.lines.map((l) => {
+				const title = `${l.label || props.named(l.workspace)} · ${periodText(l.period)}`
+				const s = got[l.statement]
+				return (
+					<section key={l.statement} className="line-statement" aria-label={`${title} 명세서`}>
+						<h3>{title}</h3>
+						{s === undefined ? (
+							<Spinner />
+						) : typeof s === 'string' ? (
+							<p className="bad">명세서를 불러오지 못했습니다. {s}</p>
+						) : s.lines.length === 0 ? (
+							<Empty>잰 것이 없었습니다.</Empty>
+						) : (
+							<Lines lines={s.lines} currency={s.currency} note={false} />
+						)}
+					</section>
+				)
+			})}
+			<LinesNote />
+		</>
 	)
 }
 
@@ -1638,12 +1693,11 @@ function PoolSaid(props: { p: BillingPool; unit: string; takes: bigint; start: D
 }
 
 /**
- * The lines of a period (`LineRow`), and how their numbers are rounded:
- * every quantity to the first digit after the point (`tenths`), and every
- * line's amount down to the currency's minor unit, as the total is once of
- * all of them together.
+ * The lines of a period (`LineRow`), and how their numbers are rounded
+ * (`LinesNote`) unless `note` is false -- where several periods' lines are
+ * shown together, which say it once after them.
  */
-function Lines(props: { lines: BillingLine[]; currency: string }): ReactNode {
+function Lines(props: { lines: BillingLine[]; currency: string; note?: boolean }): ReactNode {
 	return (
 		<>
 			<div className="table-wrap">
@@ -1665,12 +1719,23 @@ function Lines(props: { lines: BillingLine[]; currency: string }): ReactNode {
 					</tbody>
 				</table>
 			</div>
-			<p className="mute small">
-				무료는 가격의 무료량에 프로모션 무료량을 더한 것입니다. 무료를 넘은 양은 사용량 크레딧에서 먼저 빼고, 남은 유료에 단가를 곱합니다. 수량은 소수점 아래 첫째 자리까지
-				반올림했고(0보다 크지만 0.1에 못 미치면 0.1 미만), 줄의 금액은 통화의 가장 작은 단위 아래를 버렸습니다. 합계는 결제 서비스가 정확히 더한 뒤 한 번 버린 것이라 줄의 금액을 더한 것과 조금
-				다를 수 있습니다.
-			</p>
+			{props.note !== false && <LinesNote />}
 		</>
+	)
+}
+
+/**
+ * How the numbers of a period's lines are rounded: every quantity to the
+ * first digit after the point (`tenths`), and every line's amount down to
+ * the currency's minor unit, as the total is once of all of them together.
+ */
+function LinesNote(): ReactNode {
+	return (
+		<p className="mute small">
+			무료는 가격의 무료량에 프로모션 무료량을 더한 것입니다. 무료를 넘은 양은 사용량 크레딧에서 먼저 빼고, 남은 유료에 단가를 곱합니다. 수량은 소수점 아래 첫째 자리까지
+			반올림했고(0보다 크지만 0.1에 못 미치면 0.1 미만), 줄의 금액은 통화의 가장 작은 단위 아래를 버렸습니다. 합계는 결제 서비스가 정확히 더한 뒤 한 번 버린 것이라 줄의 금액을 더한 것과 조금
+			다를 수 있습니다.
+		</p>
 	)
 }
 

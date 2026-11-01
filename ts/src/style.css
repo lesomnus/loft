@@ -774,6 +774,9 @@ ul.rows > li > .note {
 	background: var(--panel);
 	border-radius: 14px;
 	width: min(560px, 100%);
+	/* Never wider than the screen for what it holds: a table wider than a
+	   phone -- a period's lines -- scrolls sideways in its own wrap. */
+	min-width: 0;
 	max-height: calc(100vh - 32px);
 	display: flex;
 	flex-direction: column;
@@ -1699,6 +1702,14 @@ ul.benefits > li,
 /* A period's lines, six columns of them: scrolled sideways on a phone rather than broken a letter a line. */
 .table.lines td {
 	white-space: nowrap;
+}
+/* An invoice's lines in its dialog, each its statement's (levyan#47): under the workspace and the period it is of. */
+.line-statement {
+	margin-top: 14px;
+}
+.line-statement h3 {
+	font-size: 13.5px;
+	margin-bottom: 4px;
 }
 .card form.inline {
 	display: flex;
