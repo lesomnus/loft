@@ -13,7 +13,7 @@ test('a loan is handed over, acknowledged by the member it went to, and returned
 	await field(give, '반납 기한').fill(weekdayAt(7, 18))
 	const add = field(give, '자산 추가')
 	await add.getByRole('searchbox').fill('NB-052')
-	await add.getByRole('button', { name: /NB-052/ }).click()
+	await add.getByRole('button', { name: /^NB-052 / }).click()
 	await field(give, '메모').fill(memo)
 	await give.getByRole('button', { name: '건네기', exact: true }).click()
 	await said(page, '건넸습니다. 받은 사람에게 인수 확인 알림이 갑니다.')
