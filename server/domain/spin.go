@@ -14,15 +14,19 @@ import (
 	"github.com/lesomnus/payday/spin"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
+	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/allocation"
 	"github.com/lesomnus/loft/internal/ent/asset"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/lesomnus/loft/internal/ent/reservation"
 	"github.com/lesomnus/loft/internal/ent/reservationitem"
 	entsession "github.com/lesomnus/loft/internal/ent/session"
@@ -309,6 +313,12 @@ func (t *Tx) noticed(kind string, subject uuid.UUID) (bool, error) {
 // until it is back (D53): what was booked of it after its due says so, and is
 // told ([Tx.rehold]). Found late is an operation of its own, each loan's
 // ([Tx.overdue], D55), which what holding it so does is part of.
+//
+// A read-only workspace is told none of it (D67, [ReadOnlyTells]): each asks
+// for a return it does not take. Its loans are found late all the same, once
+// of each due -- `overdue_noticed` is that one was -- and once it writes
+// again, what nobody was told is told, of what is so then ([Tx.lateUntold]);
+// a reminder of a due is asked again every pass, and is told while it is so.
 func sweepLoans(t *Tx) error {
 	late, err := t.db.Custody.Query().Where(
 		custody.TenantId(t.tenant.Uuid()),
@@ -355,20 +365,7 @@ func sweepLoans(t *Tx) error {
 		if err := t.rehold(c); err != nil {
 			return err
 		}
-		body := fmt.Sprintf("%s에 반납하기로 한 물품이 아직 반납되지 않았습니다", t.when(*c.DueAt))
-		waited, err := t.waitedFor(c)
-		if err != nil {
-			return err
-		}
-		if waited {
-			body += ". 이 물품을 잡은 예약이 기다리고 있습니다"
-		}
-		name := t.partyName(c.PartyId)
-		if err := t.notifyParty(c.PartyId, "custody.overdue", "반납 기한이 지났습니다", body, pdid.Id(c.Id), "/custody"); err != nil {
-			return err
-		}
-		if err := t.notifyManagers("custody.overdue", "연체: "+name,
-			fmt.Sprintf("%s 반납 예정이던 대여가 연체되었습니다", t.when(*c.DueAt)), pdid.Id(c.Id), "/custody"); err != nil {
+		if err := t.tellLate(c); err != nil {
 			return err
 		}
 		if _, err := t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{
@@ -378,6 +375,11 @@ func sweepLoans(t *Tx) error {
 		}.Build()); err != nil {
 			return err
 		}
+	}
+	// And what is late that nobody was told is: found so while the workspace
+	// was read-only (D67).
+	if err := t.lateUntold(len(late) > 0); err != nil {
+		return err
 	}
 
 	soon, err := t.db.Custody.Query().Where(
@@ -437,6 +439,199 @@ func (t *Tx) overdue(c *ent.Custody) error {
 	}
 	_, err = t.op.Batch(t.ctx, kids)
 	return err
+}
+
+// tellLate tells whoever has loan `c` that it is late, and whoever manages
+// it -- and whoever has it that a booking waits for what it lent, when one
+// does.
+func (t *Tx) tellLate(c *ent.Custody) error {
+	body := fmt.Sprintf("%s에 반납하기로 한 물품이 아직 반납되지 않았습니다", t.when(*c.DueAt))
+	waited, err := t.waitedFor(c)
+	if err != nil {
+		return err
+	}
+	if waited {
+		body += ". 이 물품을 잡은 예약이 기다리고 있습니다"
+	}
+	name := t.partyName(c.PartyId)
+	if err := t.notifyParty(c.PartyId, "custody.overdue", "반납 기한이 지났습니다", body, pdid.Id(c.Id), "/custody"); err != nil {
+		return err
+	}
+	return t.notifyManagers("custody.overdue", "연체: "+name,
+		fmt.Sprintf("%s 반납 예정이던 대여가 연체되었습니다", t.when(*c.DueAt)), pdid.Id(c.Id), "/custody")
+}
+
+// lateUntold tells of the loans found late that nobody was told are: found
+// so while the workspace was read-only, which is told of none (D67), and
+// told once it writes again -- the first pass it does, of what is so then,
+// so that a loan given back meanwhile, or given a later due, is told of
+// nothing. Whether a loan was told is whether a notice of its being late was
+// written after its due: one told of a due before, and given a later one
+// since, was told nothing of this one. Each is told as it would have been as
+// it was found late ([Tx.tellLate]), and with what its being late did to the
+// bookings of what it lent that is so still, which finding it so told then
+// ([Tx.retellLate]). `locked` is that this transaction holds the tree's lock
+// already.
+//
+// A workspace with nobody to manage it -- its last owner left, with nobody
+// to hand it on to -- is told nothing, and asked nothing again each pass: a
+// loan is told by a notice to its managers, which is not written while there
+// are none.
+func (t *Tx) lateUntold(locked bool) error {
+	quiet, err := t.readonly()
+	if err != nil || quiet {
+		return err
+	}
+	untold := func() ([]*ent.Custody, error) {
+		return t.db.Custody.Query().Where(
+			custody.TenantId(t.tenant.Uuid()),
+			custody.Status("open"),
+			custody.DueAtLT(t.now),
+			custody.OverdueNoticed(true),
+			custody.DateErasedIsNil(),
+			untoldOf("custody.overdue"),
+		).Order(custody.ByDueAt(), custody.ById()).Limit(200).All(t.ctx)
+	}
+	cs, err := untold()
+	if err != nil || len(cs) == 0 {
+		return err
+	}
+	managed, err := t.db.Holder.Query().Where(
+		holder.TenantId(t.tenant.Uuid()),
+		holder.RoleIn("owner", "admin", "manager"),
+		holder.DateErasedIsNil(),
+	).Exist(t.ctx)
+	if err != nil || !managed {
+		return err
+	}
+	if !locked {
+		// The tree's lock, which a return takes too, and then the loans as
+		// they are now that nothing changes them: given back meanwhile, or
+		// told by another pass that went first.
+		if err := t.lockTree(); err != nil {
+			return err
+		}
+		if cs, err = untold(); err != nil {
+			return err
+		}
+	}
+	for _, c := range cs {
+		if err := t.retellLate(c); err != nil {
+			return err
+		}
+		if err := t.tellLate(c); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// untoldOf is a loan of which no notice of `kind` was written after its due:
+// nobody was told of the due it missed.
+func untoldOf(kind string) predicate.Custody {
+	return func(s *sql.Selector) {
+		b := sql.Dialect(s.Dialect())
+		told := b.Table(notification.Table).As("told")
+		s.Where(sql.NotExists(
+			b.Select(told.C(notification.FieldId)).From(told).Where(sql.And(
+				sql.ColumnsEQ(told.C(notification.FieldTenantId), s.C(custody.FieldTenantId)),
+				sql.EQ(told.C(notification.FieldKind), kind),
+				sql.ColumnsEQ(told.C(notification.FieldSubjectId), s.C(custody.FieldId)),
+				sql.ColumnsGT(told.C(notification.FieldDateCreated), s.C(custody.FieldDueAt)),
+			)),
+		))
+	}
+}
+
+// retellLate tells, of a loan found late while its workspace was read-only
+// and told only now (D67), what its being late did to the bookings of what
+// it lent that is so still -- as finding it so told it then ([Tx.taken]):
+// whoever runs the reservations, and whoever each is for, that what it holds
+// is out over the time of the bookings that take it from now on
+// ([Tx.tellOut]); and, of the pools around what it lent, the bookings that
+// wait for some of one and that nobody was told wait ([Tx.tellShort]).
+func (t *Tx) retellLate(c *ent.Custody) error {
+	hs, err := t.holdsOf(c.Id)
+	if err != nil || len(hs) == 0 {
+		return err
+	}
+	ss := make([]outSpan, 0, len(hs))
+	things := make([]uuid.UUID, 0, len(hs))
+	for _, h := range hs {
+		things = append(things, h.ResourceId)
+		if h.EndsAt.After(t.now) {
+			ss = append(ss, outSpan{thing: h.ResourceId, from: t.now, to: h.EndsAt})
+		}
+	}
+	if len(ss) > 0 {
+		by, err := t.takers(ss)
+		if err != nil {
+			return err
+		}
+		if err := t.tellOut(c, by); err != nil {
+			return err
+		}
+	}
+	ws, err := t.waitingUntold(things)
+	if err != nil {
+		return err
+	}
+	return t.tellShort(ws)
+}
+
+// waitingUntold answers the bookings that wait for some of a pool around
+// these things ([Tx.circle]) and that nobody was told wait: no notice of a
+// pool's being short was written about the booking since it began to (D67)
+// -- of the pool, one told since may have been of another booking of it. The
+// one that has waited longest first.
+func (t *Tx) waitingUntold(things []uuid.UUID) ([]poolWait, error) {
+	around, err := t.circle(things)
+	if err != nil || len(around) == 0 {
+		return nil, err
+	}
+	of := make(map[uuid.UUID]*resource, len(around))
+	ids := make([]uuid.UUID, 0, len(around))
+	for _, p := range around {
+		of[p.asset.Id] = p
+		ids = append(ids, p.asset.Id)
+	}
+	as, err := t.db.Allocation.Query().Where(
+		allocation.TenantId(t.tenant.Uuid()),
+		allocation.ResourceIdIn(ids...),
+		allocation.Kind(allocWaiting),
+		allocation.EndsAtGT(t.now),
+		allocation.RefIdNotNil(),
+	).Order(allocation.ByDateCreated(), allocation.ById()).All(t.ctx)
+	if err != nil || len(as) == 0 {
+		return nil, err
+	}
+	out := []poolWait{}
+	for _, a := range as {
+		r, err := t.db.Reservation.Query().Where(reservation.Id(*a.RefId), reservation.TenantId(t.tenant.Uuid())).Only(t.ctx)
+		if ent.IsNotFound(err) {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		if !waits(r.Status) || !r.EndsAt.After(t.now) || r.DateErased != nil {
+			continue
+		}
+		told, err := t.db.Notification.Query().Where(
+			notification.TenantId(t.tenant.Uuid()),
+			notification.Kind("reservation.conflict"),
+			notification.SubjectId(r.Id),
+			notification.DateCreatedGTE(a.DateUpdated),
+		).Exist(t.ctx)
+		if err != nil {
+			return nil, err
+		}
+		if told {
+			continue
+		}
+		out = append(out, poolWait{r: r, pool: of[a.ResourceId], units: a.Units, from: later(a.BeginsAt, t.now)})
+	}
+	return out, nil
 }
 
 func (t *Tx) partyName(id uuid.UUID) string {

@@ -23,8 +23,8 @@ import (
 // [Restricted], holds it to what it is billed by ([Grows]); this one holds it
 // to what levyan's chapter says an app takes of it: reading, taking its data
 // out, paying, closing, and its members leaving it. What is an account's
-// rather than the workspace's -- signing in -- stays the account's. Every
-// other write is refused.
+// rather than the workspace's -- signing in -- stays the account's, and what a
+// person is told stays theirs to quiet. Every other write is refused.
 //
 // So the table is of what it still does, [ReadOnlyAllows], and not of what it
 // may not: a write somebody adds later is refused until it is put there. A
@@ -53,8 +53,8 @@ const ReadOnly = "loft.readonly"
 const ErrorReadOnly = "READONLY"
 
 // Allowed is why a read-only workspace still does something: what levyan's
-// `docs/apps.md` (3, "제한의 두 단계") says an app takes of one, and what is an
-// account's and not the workspace's.
+// `docs/apps.md` (3, "제한의 두 단계") says an app takes of one, what is an
+// account's and not the workspace's, and what is a person's own.
 type Allowed string
 
 const (
@@ -90,6 +90,13 @@ const (
 	// administrator sets for a member in no other workspace, who could not
 	// get in to read, take out or pay otherwise.
 	Account Allowed = "account"
+
+	// Own is a person's own of what the deployment tells them here (D67): a
+	// notice marked read, and whether one comes by mail as well -- their own
+	// rows and a setting of their membership, which grow nothing: how a
+	// person quiets what a read-only workspace is still told
+	// ([ReadOnlyTells]), as at any other time.
+	Own Allowed = "own"
 )
 
 // ReadOnlyAllows is what a read-only workspace still does, by the method a
@@ -98,9 +105,11 @@ const (
 // page, the terminal, the assistant's `apply`.
 //
 // That it reads, takes its data out, pays and closes is the owner's
-// (levyan#1, 2026-11-01), and so is that its members may leave it and that
-// what is an account's stays the account's; which methods those are is said
-// here, and held to what levyan's `docs/apps.md` says an app takes.
+// (levyan#1, 2026-11-01). That its members may leave it and that what is an
+// account's stays the account's is Claude's, as is that what a person is told
+// stays theirs to quiet (D67). Which methods those are is said here, and held
+// to what levyan's `docs/apps.md` says an app takes -- but for a password,
+// which is the account's, and what a person is told, which is theirs.
 var ReadOnlyAllows = map[string]Allowed{
 	// What it has, and what became of it: the register and its catalog, its
 	// people, bookings, hand-overs, stock, counts, work and purchases, as they
@@ -252,6 +261,11 @@ var ReadOnlyAllows = map[string]Allowed{
 
 	// Signing in, which is the account's.
 	app.PartyService_SetPassword_FullMethodName: Account,
+
+	// What a person is told here, which is their own: read, and by mail or
+	// not.
+	app.NotificationService_MarkRead_FullMethodName: Own,
+	app.NotificationService_SetMail_FullMethodName:  Own,
 }
 
 // readOnlyRefusal is what a read-only workspace says of a write it refuses:
