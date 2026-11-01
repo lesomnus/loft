@@ -32,9 +32,13 @@ const NoRoster = "levyan asks roster whether an account is in good standing befo
 // made up, of the shape Paddle documents.
 const ClientToken = "test_000000000000000000000000000"
 
-// Grace is how long after its last payer left a workspace is restricted, as
-// levyan's `payers.grace` is by default.
-const Grace = 30 * 24 * time.Hour
+// Grace is how long after its last payer left a workspace is restricted, and
+// ReadOnlyAfter how long after it is read-only, as levyan's policy table's row
+// of a workspace with no payer (`dunning.kinds.payerless`) says by default.
+const (
+	Grace         = 30 * 24 * time.Hour
+	ReadOnlyAfter = 60 * 24 * time.Hour
+)
 
 // payers is what the fake keeps of who pays (levyan's design 14) and of how
 // (12, 15): as much of levyan as a product's pages ask of it, kept under the
@@ -117,11 +121,13 @@ type offer struct {
 }
 
 // paying is who pays for one workspace: now, from the end of the period, and
-// since when nobody has.
+// since when nobody has -- and from when it is restricted and read-only for
+// that.
 type paying struct {
 	current, next  *levyanv1.Link
 	payerlessSince time.Time
 	restrictedFrom time.Time
+	readonlyFrom   time.Time
 }
 
 // dunned is what is done of an invoice whose charge failed, and the
@@ -174,9 +180,15 @@ func (v *Levyan) Opens(n int) {
 	v.opens = n
 }
 
-// Payerless has `workspace` paid for by nobody since now, and restricted from
-// `from`: what levyan says once its payer left (`payers.grace` after).
+// Payerless has `workspace` paid for by nobody since now, restricted from
+// `from`, and read-only [ReadOnlyAfter] after now: what levyan says once its
+// payer left (its policy table's row of a workspace with no payer).
 func (v *Levyan) Payerless(workspace string, from time.Time) {
+	v.PayerlessUntil(workspace, from, time.Now().Add(ReadOnlyAfter))
+}
+
+// PayerlessUntil is [Levyan.Payerless] read-only from `readonly`.
+func (v *Levyan) PayerlessUntil(workspace string, from, readonly time.Time) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 	p := v.paying(workspace)
@@ -187,6 +199,7 @@ func (v *Levyan) Payerless(workspace string, from time.Time) {
 	p.current, p.next = nil, nil
 	p.payerlessSince = time.Now().UTC().Truncate(time.Microsecond)
 	p.restrictedFrom = from.UTC().Truncate(time.Microsecond)
+	p.readonlyFrom = readonly.UTC().Truncate(time.Microsecond)
 }
 
 // Turn is the period over for `workspace`, as levyan turns it at its end:
@@ -293,8 +306,8 @@ func (v *Levyan) madeBy(t Told) *levyanv1.Payer {
 }
 
 // goneFrom is an account gone from a workspace: if it paid for it, nobody
-// does from now, and the workspace is restricted [Grace] after; what was
-// offered to it is withdrawn.
+// does from now, and the workspace is restricted [Grace] after and read-only
+// [ReadOnlyAfter] after; what was offered to it is withdrawn.
 func (v *Levyan) goneFrom(t Told) *levyanv1.Payer {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -306,7 +319,7 @@ func (v *Levyan) goneFrom(t Told) *levyanv1.Payer {
 		p.current = nil
 		if p.next == nil {
 			now := time.Now().UTC().Truncate(time.Microsecond)
-			p.payerlessSince, p.restrictedFrom = now, now.Add(Grace)
+			p.payerlessSince, p.restrictedFrom, p.readonlyFrom = now, now.Add(Grace), now.Add(ReadOnlyAfter)
 		}
 	}
 	for _, o := range v.offers {
@@ -348,6 +361,7 @@ func (v *Levyan) payerOf(workspace string) *levyanv1.Payer {
 	if !p.payerlessSince.IsZero() {
 		out.SetPayerlessSince(timestamppb.New(p.payerlessSince))
 		out.SetRestrictedFrom(timestamppb.New(p.restrictedFrom))
+		out.SetReadonlyFrom(timestamppb.New(p.readonlyFrom))
 	}
 	return out
 }
@@ -656,7 +670,7 @@ func (v *Levyan) Accept(ctx context.Context, req *levyanv1.AcceptRequest) (*levy
 	o.answered = true
 	p := v.paying(o.v.GetWorkspace())
 	p.next = l
-	p.payerlessSince, p.restrictedFrom = time.Time{}, time.Time{}
+	p.payerlessSince, p.restrictedFrom, p.readonlyFrom = time.Time{}, time.Time{}, time.Time{}
 	return levyanv1.AcceptResponse_builder{Link: proto.CloneOf(l)}.Build(), nil
 }
 

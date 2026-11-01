@@ -123,20 +123,24 @@ func TestAPayersCallsAreRelayedAsTheAccount(t *testing.T) {
 	x.Len(notes.GetCreditNotes(), 1)
 
 	// An invoice whose charge failed is said with what is done of it: of the
-	// billing account it bills, and of itself.
-	soon := time.Now().Add(7 * 24 * time.Hour)
+	// billing account it bills, and of itself -- from when what it bills is
+	// restricted, and from when it is read-only (D64).
+	soon, later := time.Now().Add(7*24*time.Hour), time.Now().Add(60*24*time.Hour)
 	fake.Dun(levyanv1.Dunning_builder{
 		Invoice: "inv-1", BillingAccount: ba.GetId(), Kind: levyanv1.DeclineKind_DECLINE_KIND_REPLACE,
 		Failed: timestamppb.Now(), GraceEnds: timestamppb.New(soon), RestrictedFrom: timestamppb.New(soon),
+		ReadonlyFrom: timestamppb.New(later),
 	}.Build(), tenantId(x, w.tenant).String())
 	got, err = pay.GetBillingAccount(me, app.PaymentGetBillingAccountRequest_builder{Id: ba.GetId()}.Build())
 	x.NoError(err)
 	x.Len(got.GetDunning(), 1)
 	x.Equal(app.BillingDeclineKind_BILLING_DECLINE_KIND_REPLACE, got.GetDunning()[0].GetKind())
 	x.False(got.GetDunning()[0].HasNextRetry(), "a method to replace is tried again as it is never")
+	x.WithinDuration(later, got.GetDunning()[0].GetReadonlyFrom().AsTime(), time.Second)
 	inv, err = pay.GetInvoice(me, app.PaymentGetInvoiceRequest_builder{Id: "inv-1"}.Build())
 	x.NoError(err)
 	x.WithinDuration(soon, inv.GetDunning().GetRestrictedFrom().AsTime(), time.Second)
+	x.WithinDuration(later, inv.GetDunning().GetReadonlyFrom().AsTime(), time.Second)
 }
 
 // TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer: who pays for a
@@ -212,11 +216,12 @@ func TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer(t *testing.T) {
 	x.Len(links.GetLinks(), 1)
 
 	// What is done of an invoice billing it whose charge failed: when it is
-	// charged again, and from when the workspace is restricted.
-	retry, from := time.Now().Add(24*time.Hour), time.Now().Add(7*24*time.Hour)
+	// charged again, and from when the workspace is restricted and read-only.
+	retry, from, readonly := time.Now().Add(24*time.Hour), time.Now().Add(7*24*time.Hour), time.Now().Add(60*24*time.Hour)
 	fake.Dun(levyanv1.Dunning_builder{
 		Invoice: "inv-1", Kind: levyanv1.DeclineKind_DECLINE_KIND_TEMPORARY, Failed: timestamppb.Now(),
 		NextRetry: timestamppb.New(retry), GraceEnds: timestamppb.New(from), RestrictedFrom: timestamppb.New(from),
+		ReadonlyFrom: timestamppb.New(readonly),
 	}.Build(), ws.String())
 	p, err = pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
 	x.NoError(err)
@@ -225,13 +230,16 @@ func TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer(t *testing.T) {
 	x.Equal(app.BillingDeclineKind_BILLING_DECLINE_KIND_TEMPORARY, d.GetKind())
 	x.WithinDuration(retry, d.GetNextRetry().AsTime(), time.Second)
 	x.WithinDuration(from, d.GetRestrictedFrom().AsTime(), time.Second)
+	x.WithinDuration(readonly, d.GetReadonlyFrom().AsTime(), time.Second)
 
-	// A workspace whose payer left is said to be, and when it is restricted.
+	// A workspace whose payer left is said to be, and when it is restricted
+	// and read-only for it.
 	fake.Payerless(ws.String(), time.Now().Add(levyantest.Grace))
 	p, err = pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
 	x.NoError(err)
 	x.True(p.GetPayer().HasPayerlessSince())
 	x.WithinDuration(time.Now().Add(levyantest.Grace), p.GetPayer().GetRestrictedFrom().AsTime(), time.Minute)
+	x.WithinDuration(time.Now().Add(levyantest.ReadOnlyAfter), p.GetPayer().GetReadonlyFrom().AsTime(), time.Minute)
 }
 
 // TestEveryMemberIsToldTheWorkspaceIsRestricted (design 7.9): what levyan

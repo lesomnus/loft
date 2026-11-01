@@ -9,16 +9,21 @@
 // says on the control address, as a Go test calls the fake's methods:
 //
 //	GET  /healthz                                   up
-//	POST /e2e/payerless?workspace=ID&from=RFC3339   nobody pays for it since now, restricted from `from`
+//	POST /e2e/payerless?workspace=ID&from=RFC3339[&readonly=RFC3339]
+//	                                                nobody pays for it since now, restricted from
+//	                                                `from`, and read-only from `readonly`: sixty
+//	                                                days from now, unsaid
 //	POST /e2e/restrict?workspace=ID                 `loft.restricted` granted it, on, for a week
 //	POST /e2e/readonly?workspace=ID                 `loft.readonly` granted it, on, for a week
 //	POST /e2e/turn?workspace=ID                     its period over: who was to pay from then pays now
-//	POST /e2e/dunning?workspace=ID&kind=K&restricted=RFC3339[&billing_account=BA]
+//	POST /e2e/dunning?workspace=ID&kind=K&restricted=RFC3339[&readonly=RFC3339][&billing_account=BA]
 //	                                                an invoice billing it whose charge failed, of
 //	                                                the kind K declined (temporary, replace,
-//	                                                fraud), restricting it from `restricted`: of
-//	                                                the billing account BA, or the one that pays
-//	                                                for it; without a workspace, of BA alone
+//	                                                fraud), restricting it from `restricted` and
+//	                                                making it read-only from `readonly` (sixty
+//	                                                days after it failed, unsaid): of the billing
+//	                                                account BA, or the one that pays for it;
+//	                                                without a workspace, of BA alone
 //	POST /e2e/collection?billing_account=BA&state=S the billing account BA collected as S says from
 //	                                                now (past_due, paused, canceled, needs_action,
 //	                                                no_subscription; or as its subscription says,
@@ -71,7 +76,14 @@ func main() {
 			http.Error(w, "from: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		v.Payerless(ws.String(), from)
+		readonly := time.Now().Add(levyantest.ReadOnlyAfter)
+		if at := r.URL.Query().Get("readonly"); at != "" {
+			if readonly, err = time.Parse(time.RFC3339, at); err != nil {
+				http.Error(w, "readonly: "+err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+		v.PayerlessUntil(ws.String(), from, readonly)
 		w.WriteHeader(http.StatusNoContent)
 	})
 	m.HandleFunc("POST /e2e/restrict", func(w http.ResponseWriter, r *http.Request) {
@@ -131,13 +143,22 @@ func main() {
 			return
 		}
 		now := time.Now()
+		failed := now.Add(-time.Hour)
+		readonly := failed.Add(levyantest.ReadOnlyAfter)
+		if at := q.Get("readonly"); at != "" {
+			if readonly, err = time.Parse(time.RFC3339, at); err != nil {
+				http.Error(w, "readonly: "+err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
 		d := levyanv1.Dunning_builder{
 			Invoice:        "inv-" + pdid.New(23).String(),
 			BillingAccount: ba,
 			Kind:           kind,
-			Failed:         timestamppb.New(now.Add(-time.Hour)),
+			Failed:         timestamppb.New(failed),
 			GraceEnds:      timestamppb.New(from),
 			RestrictedFrom: timestamppb.New(from),
+			ReadonlyFrom:   timestamppb.New(readonly),
 		}.Build()
 		if kind == levyanv1.DeclineKind_DECLINE_KIND_TEMPORARY {
 			d.SetNextRetry(timestamppb.New(now.Add(24 * time.Hour)))
