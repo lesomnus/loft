@@ -474,6 +474,15 @@ pays the account's own calls (`ListLinks`, `GetBillingAccount`). The browser
 tests bill to `internal/levyantest` served by its command
 (`ts/e2e/levyan.sh`), told what to say on its control address.
 
+What levyan's operator gives a workspace or a billing account -- an
+allowance, a pool, credit (levyan#43, design 7.11, D65) -- both halves show
+and nothing here grants: `GetUsage`'s allowances and pools and each line's
+`allowance` and `pooled`, `GetPayer`'s credit, and the payer's
+`GetBillingAccount` credit and balance and `GetInvoice` credits. A quantity
+is levyan's decimal, exact to six digits: read exactly, and shown to one
+digit after the point. A statement's lines are the workspace's settings', as
+levyan answers a payer no statement.
+
 Paddle's default payment link is `/billing/checkout` (`server/checkout`,
 design 7.7, D61): with `app.billing.checkout` -- Paddle's environment and the
 client-side token, both public by Paddle's design -- it loads Paddle.js, which
