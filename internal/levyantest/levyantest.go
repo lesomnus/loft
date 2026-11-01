@@ -12,7 +12,8 @@
 //     workspace, as levyan works it out of them, what is offered (`Offer`)
 //     and `GetPayer` (payers.go);
 //   - its PayerService, the payers' own: billing accounts, checkouts that a
-//     test's Paddle completes, offers, links and invoices (payers.go);
+//     test's Paddle completes, offers, links, invoices, and the statements
+//     of the periods each billing account paid for (payers.go, levyan#47);
 //   - its BillingService's usage, worked out of the readings it kept, and the
 //     statements a test gives (payers.go) or closes ([Levyan.ClosePeriod]);
 //   - what levyan's operator gives beyond what the prices include
@@ -141,7 +142,7 @@ func Serve(l net.Listener) (*Levyan, *grpc.Server) {
 	g := grpc.NewServer()
 	levyanv1.RegisterMeteringServiceServer(g, v)
 	levyanv1.RegisterWorkspaceServiceServer(g, v)
-	levyanv1.RegisterPayerServiceServer(g, v)
+	levyanv1.RegisterPayerServiceServer(g, payerServer{v})
 	levyanv1.RegisterBillingServiceServer(g, v)
 	pdpb.RegisterGrantServiceServer(g, v)
 	go g.Serve(l)

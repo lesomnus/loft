@@ -47,6 +47,10 @@ var pairs = []struct{ ours, levyans proto.Message }{
 	{&app.PaymentGetInvoiceResponse{}, &levyanv1.GetInvoiceResponse{}},
 	{&app.PaymentListCreditNotesRequest{}, &levyanv1.ListCreditNotesRequest{}},
 	{&app.PaymentListCreditNotesResponse{}, &levyanv1.ListCreditNotesResponse{}},
+	{&app.PaymentListPayerStatementsRequest{}, &levyanv1.PayerServiceListStatementsRequest{}},
+	{&app.PaymentListPayerStatementsResponse{}, &levyanv1.PayerServiceListStatementsResponse{}},
+	{&app.PaymentGetPayerStatementRequest{}, &levyanv1.PayerServiceGetStatementRequest{}},
+	{&app.PaymentGetPayerStatementResponse{}, &levyanv1.PayerServiceGetStatementResponse{}},
 	{&app.PaymentGetPayerResponse{}, &levyanv1.GetPayerResponse{}},
 	{&app.PaymentGetUsageResponse{}, &levyanv1.GetUsageResponse{}},
 	{&app.PaymentListStatementsResponse{}, &levyanv1.ListStatementsResponse{}},
@@ -246,4 +250,45 @@ func TestWhatLevyansOperatorGaveIsMovedAsSaid(t *testing.T) {
 	x.Equal([]any{"cr-1", int64(70000), "ws-1"}, []any{paid[0].GetCredit(), paid[0].GetAmount(), paid[0].GetWorkspace()})
 	x.Equal([]any{"", int64(5000)}, []any{paid[1].GetCredit(), paid[1].GetAmount()}, "the balance's names no credit")
 	x.EqualValues(5000, inv.GetInvoice().GetDue())
+}
+
+// TestAPayersStatementIsMovedAsSaid (levyan#47): a statement levyan answers
+// a payer -- its billing account's, of a period it paid for -- reads as it
+// was said once moved, each line with what was given and taken, and the
+// request names the billing account and the page as levyan's does.
+func TestAPayersStatementIsMovedAsSaid(t *testing.T) {
+	x := require.New(t)
+	start := timestamppb.New(time.Date(2026, 9, 30, 15, 0, 0, 0, time.UTC))
+	end := timestamppb.New(time.Date(2026, 10, 31, 15, 0, 0, 0, time.UTC))
+
+	req := &levyanv1.PayerServiceListStatementsRequest{}
+	x.NoError(move(app.PaymentListPayerStatementsRequest_builder{BillingAccount: "ba", PageSize: 5, PageToken: "next"}.Build(), req))
+	x.Equal([]any{"ba", int32(5), "next"}, []any{req.GetBillingAccount(), req.GetPageSize(), req.GetPageToken()})
+
+	st := levyanv1.Statement_builder{
+		Id: "st-1", Workspace: "ws-1", Channel: levyanv1.Channel_CHANNEL_MOR, Currency: "KRW", Total: 1000, Closed: end,
+		Period: levyanv1.Period_builder{Start: start, End: end, Zone: "Asia/Seoul"}.Build(),
+		Lines: []*levyanv1.Line{levyanv1.Line_builder{
+			Meter: "loft.assets.active", Unit: "{asset}", Kind: levyanv1.LineKind_LINE_KIND_USAGE,
+			Usage: "1200", Included: "500", Allowance: "500", Billable: "700", Pooled: "700",
+			Pools:  []*levyanv1.LinePool{levyanv1.LinePool_builder{Pool: "pl-1", Taken: "700"}.Build()},
+			Amount: "0",
+			Parts:  []*levyanv1.LinePart{levyanv1.LinePart_builder{Price: "p", Amount: "0"}.Build()},
+		}.Build()},
+	}.Build()
+	got := &app.PaymentGetPayerStatementResponse{}
+	x.NoError(move(levyanv1.PayerServiceGetStatementResponse_builder{Statement: st}.Build(), got))
+	s := got.GetStatement()
+	x.Equal([]any{"st-1", "ws-1", app.BillingChannel_BILLING_CHANNEL_MOR, "KRW", int64(1000)}, []any{s.GetId(), s.GetWorkspace(), s.GetChannel(), s.GetCurrency(), s.GetTotal()})
+	x.Equal("Asia/Seoul", s.GetPeriod().GetZone())
+	x.True(start.AsTime().Equal(s.GetPeriod().GetStart().AsTime()))
+	l := s.GetLines()[0]
+	x.Equal([]string{"1200", "500", "500", "700", "700", "0"}, []string{l.GetUsage(), l.GetIncluded(), l.GetAllowance(), l.GetBillable(), l.GetPooled(), l.GetAmount()})
+	x.Equal([]string{"pl-1", "700"}, []string{l.GetPools()[0].GetPool(), l.GetPools()[0].GetTaken()})
+	x.Empty(l.ProtoReflect().GetUnknown(), "a line's parts are levyan's to say, and left out")
+
+	list := &app.PaymentListPayerStatementsResponse{}
+	x.NoError(move(levyanv1.PayerServiceListStatementsResponse_builder{Statements: []*levyanv1.Statement{st}, NextPageToken: "more"}.Build(), list))
+	x.Len(list.GetStatements(), 1)
+	x.Equal("more", list.GetNextPageToken())
 }

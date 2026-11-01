@@ -146,8 +146,9 @@ func (v *Levyan) Handed(r *levyanv1.Reading) {
 
 // ClosePeriod closes the period before the one now open for `workspace`, as
 // levyan closes one: its statement is what the workspace comes to over that
-// period ([Levyan.rated]) -- kept, and answered -- and what it took of each
-// pool is taken off what is left of it.
+// period ([Levyan.rated]) -- kept, and answered, and its payer's to read
+// ([Levyan.paid]) -- and what it took of each pool is taken off what is left
+// of it.
 func (v *Levyan) ClosePeriod(workspace string) *levyanv1.Statement {
 	now := time.Now()
 	start, end := PeriodBefore(now)
@@ -166,6 +167,7 @@ func (v *Levyan) ClosePeriod(workspace string) *levyanv1.Statement {
 		Closed:    timestamppb.New(now),
 	}.Build()
 	v.statements[workspace] = append(v.statements[workspace], st)
+	v.paid(st)
 	for _, p := range v.pools[workspace] {
 		if n, ok := took[p.GetId()]; ok {
 			p.SetLeft(decimal(new(big.Rat).Sub(rat(p.GetLeft()), n)))

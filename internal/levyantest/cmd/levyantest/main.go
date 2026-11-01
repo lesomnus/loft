@@ -52,12 +52,16 @@
 //	                                                at `expires` (a year from now)
 //	POST /e2e/balance?billing_account=BA&amount=N   BA owed N beside its credit, which never expires
 //	POST /e2e/close?workspace=ID                    the period before the one now open closed for
-//	                                                it: its statement, and what it took of the
-//	                                                pools taken off them
-//	POST /e2e/invoice?billing_account=BA&workspace=ID&total=N[&label=L]
+//	                                                it: its statement -- its payer's to read, by
+//	                                                the billing account it is paid for with now --
+//	                                                and what it took of the pools taken off them
+//	POST /e2e/invoice?billing_account=BA&workspace=ID[&total=N][&label=L]
 //	                                                an invoice of the period before billing BA the
 //	                                                workspace's N, called L, finalized: paid first
-//	                                                with the credit it may be paid with
+//	                                                with the credit it may be paid with. Its line
+//	                                                is the workspace's statement of that period
+//	                                                when it has one, and comes to what that does
+//	                                                unless N says otherwise
 package main
 
 import (
@@ -341,11 +345,24 @@ func main() {
 		if err != nil {
 			return err
 		}
-		n, err := number(q, "total")
-		if err != nil {
-			return err
+		// The line is the workspace's statement of the period before, when
+		// it has one (`close`), and comes to what that does unless the
+		// question says otherwise.
+		line := levyanv1.InvoiceLine_builder{Statement: "st-" + pdid.New(29).String(), Workspace: ws, Label: q.Get("label")}.Build()
+		start, _ := levyantest.PeriodBefore(time.Now())
+		st := v.Statement(ws, start)
+		if st != nil {
+			line.SetStatement(st.GetId())
+			line.SetTotal(st.GetTotal())
 		}
-		v.Finalize(ba, levyanv1.InvoiceLine_builder{Statement: "st-" + pdid.New(29).String(), Workspace: ws, Label: q.Get("label"), Total: n}.Build())
+		if st == nil || q.Has("total") {
+			n, err := number(q, "total")
+			if err != nil {
+				return err
+			}
+			line.SetTotal(n)
+		}
+		v.Finalize(ba, line)
 		return nil
 	}))
 

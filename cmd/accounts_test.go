@@ -95,6 +95,8 @@ func TestAnAccountReachesItsOwnMethodsAndNoOthers(t *testing.T) {
 		app.PaymentService_ListInvoices_FullMethodName,
 		app.PaymentService_GetInvoice_FullMethodName,
 		app.PaymentService_ListCreditNotes_FullMethodName,
+		app.PaymentService_ListPayerStatements_FullMethodName,
+		app.PaymentService_GetPayerStatement_FullMethodName,
 	}, pd.AccountMethods, "the invitations addressed to it, a payer's own, and nothing else")
 
 	// No membership is given them, whatever its role -- and the table gives

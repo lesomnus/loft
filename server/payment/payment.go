@@ -7,7 +7,8 @@
 //
 //   - **The account's own**, a payer's: its billing accounts, the checkout
 //     that starts the subscription one is collected through, the offers to
-//     pay for a workspace and the workspaces it pays for, its invoices. Served
+//     pay for a workspace and the workspaces it pays for, its invoices and
+//     the statements their lines are (levyan#47). Served
 //     as the account itself (`(payday.method) = {account: {}}`, the policy's
 //     `Account`), and relayed to levyan's `PayerService` as that account
 //     (`levyan-account`, [levyan.Client.As]): levyan asks roster about it,
@@ -357,6 +358,34 @@ func (s Service) ListCreditNotes(ctx context.Context, req *app.PaymentListCredit
 	}
 	out := &app.PaymentListCreditNotesResponse{}
 	if err := relay(ctx, s, req, &levyanv1.ListCreditNotesRequest{}, out, levyanv1.PayerServiceClient.ListCreditNotes); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ListPayerStatements is the statements levyan answers the account, of the
+// periods its billing accounts paid for (levyan#47): never read with the
+// product key and handed on, which would be this deployment giving a payer
+// what levyan did not.
+func (s Service) ListPayerStatements(ctx context.Context, req *app.PaymentListPayerStatementsRequest) (*app.PaymentListPayerStatementsResponse, error) {
+	ctx, err := pd.AccountReads(ctx, app.PaymentService_ListPayerStatements_FullMethodName, pd.Reads{})
+	if err != nil {
+		return nil, err
+	}
+	out := &app.PaymentListPayerStatementsResponse{}
+	if err := relay(ctx, s, req, &levyanv1.PayerServiceListStatementsRequest{}, out, levyanv1.PayerServiceClient.ListStatements); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s Service) GetPayerStatement(ctx context.Context, req *app.PaymentGetPayerStatementRequest) (*app.PaymentGetPayerStatementResponse, error) {
+	ctx, err := pd.AccountReads(ctx, app.PaymentService_GetPayerStatement_FullMethodName, pd.Reads{})
+	if err != nil {
+		return nil, err
+	}
+	out := &app.PaymentGetPayerStatementResponse{}
+	if err := relay(ctx, s, req, &levyanv1.PayerServiceGetStatementRequest{}, out, levyanv1.PayerServiceClient.GetStatement); err != nil {
 		return nil, err
 	}
 	return out, nil
