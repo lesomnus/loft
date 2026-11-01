@@ -610,3 +610,121 @@ test('an owner takes on paying for their workspace in one go, from the end of th
 	await expect(paid).toContainText('회사용 · KRW')
 	await expect(paid).toContainText('제안을 받아들여서')
 })
+
+/**
+ * The first moment of the month `n` months from this one, in Korea -- where
+ * the test's levyan has its periods (internal/levyantest) -- as RFC 3339.
+ */
+function monthStart(n: number): string {
+	const seoul = new Date(Date.now() + 9 * 3600_000)
+	return new Date(Date.UTC(seoul.getUTCFullYear(), seoul.getUTCMonth() + n, 1) - 9 * 3600_000).toISOString()
+}
+
+/** The last day of each stretch that ends at one of `ends` -- the first moment after it -- as the page says a day, in Korea. */
+async function lastDays(page: Page, ...ends: string[]): Promise<string[]> {
+	return page.evaluate((ends) => ends.map((t) => new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone: 'Asia/Seoul' }).format(new Date(Date.parse(t) - 1))), ends)
+}
+
+test("what levyan's operator gave a workspace is said to whoever runs it, and each line says what it gave and took", async ({ page, request }) => {
+	await signIn(page, people.benefits.login)
+	const ws = await made(page, unique('e2e 혜택'))
+
+	// What levyan was handed of it -- the deployment measures a workspace it
+	// made at midnight -- and what its operator gave it from the period
+	// before: 500 more assets each period, a pool of 10,000 asset-months,
+	// and 70,000원 of credit.
+	const from = monthStart(-1)
+	const until = monthStart(6)
+	const expires = monthStart(12)
+	await levyan(request, 'reading', { workspace: ws.id, meter: 'loft.assets.active', value: '1200' })
+	await levyan(request, 'reading', { workspace: ws.id, meter: 'loft.members', value: '1' })
+	await levyan(request, 'allowance', { workspace: ws.id, meter: 'loft.assets.active', quantity: '500', from, until })
+	await levyan(request, 'pool', { workspace: ws.id, meter: 'loft.assets.active', quantity: '10000', from, expires })
+	await levyan(request, 'credit', { workspace: ws.id, amount: '70000', expires })
+	// The period before closed, and took of the pool what it was billable
+	// for past the 500 included: 700.
+	await levyan(request, 'close', { workspace: ws.id })
+
+	await page.goto(`/@${ws.alias}/settings?tab=billing`)
+	const [untilDay, expiresDay] = await lastDays(page, until, expires)
+	const usage = card(page, '이번 기간 사용량과 예상 금액')
+	await expect(usage.getByRole('listitem').filter({ hasText: '프로모션 무료량' })).toHaveText(`프로모션 무료량: 활성 자산 +500개 (${untilDay}까지)`)
+	await expect(usage.getByRole('listitem').filter({ hasText: '사용량 크레딧' })).toHaveText(
+		`사용량 크레딧: 9,300 자산·월 남음 (10,000 자산·월 중, ${expiresDay}까지). 이번 기간에 700 자산·월을 쓰면 8,600 자산·월이 남습니다.`,
+	)
+	// Each line: what was used, what was included -- the allowance's -- what
+	// the pool took, what is left to price, and what it comes to.
+	const line = ['활성 자산', '1,200개', '프로모션 500개', '700 자산·월', '0개', '0원']
+	await expect(usage.getByRole('row').filter({ hasText: '활성 자산' }).getByRole('cell')).toHaveText(line)
+	await expect(usage.getByRole('row').filter({ hasText: '구성원' }).getByRole('cell')).toHaveText(['구성원', '1명', '0명', '-', '1명', '1,000원'])
+	await expect(usage).toContainText('예상 합계 1,000원')
+	await expect(usage).toContainText('수량은 소수점 아래 첫째 자리까지 반올림했고')
+	// The credit is spent as an invoice is finalized, and not in the estimate.
+	await expect(usage).toContainText('크레딧에서 먼저 냅니다. 청구서를 확정할 때 이 워크스페이스에 남은 크레딧 70,000원에서 먼저 빼고, 예상 합계는 그 전의 금액입니다.')
+	await expect(card(page, '크레딧').getByRole('listitem')).toHaveText(`70,000원 남음 (70,000원 중, ${expiresDay}까지)`)
+
+	// The period before, as it closed: what the allowance gave and the pool
+	// took then.
+	await card(page, '지난 명세서').getByRole('button', { name: '보기' }).click()
+	const statement = page.getByRole('dialog')
+	await expect(statement.getByRole('row').filter({ hasText: '활성 자산' }).getByRole('cell')).toHaveText(line)
+	await expect(statement).toContainText('합계 1,000원')
+})
+
+test("a payer's page says what each billing account may be paid with before its method, and what of an invoice the credit paid", async ({ page, request }) => {
+	await signIn(page, people.credits.login)
+	await page.goto('/billing')
+	await makeAccount(page, '프로모션 계정')
+	const name = unique('e2e 크레딧')
+	const ws = await made(page, name)
+	const [ba] = await billingAccounts(page)
+	expect(ba).toBeDefined()
+
+	// The workspace's credit, which expires within the month; the billing
+	// account's own, later; and what it is owed beside them.
+	const soon = new Date(Date.now() + 10 * 24 * 3600_000).toISOString()
+	const later = monthStart(12)
+	await levyan(request, 'credit', { workspace: ws.id, amount: '70000', expires: soon })
+	await levyan(request, 'credit', { billing_account: ba?.id ?? '', amount: '30000', expires: later })
+	await levyan(request, 'balance', { billing_account: ba?.id ?? '', amount: '5000' })
+
+	// levyan is told who made the workspace -- who pays for it from then,
+	// with the billing account they made -- by the loop that tells it what
+	// changed, every ten seconds: the workspace's credit is then the billing
+	// account's to be paid with.
+	const row = card(page, '결제 계정').getByRole('listitem', { name: '프로모션 계정', exact: true })
+	const theirs = row.getByRole('listitem').filter({ hasText: `${name}의 크레딧` })
+	await expect(async () => {
+		await page.reload()
+		await expect(theirs).toBeVisible({ timeout: 1000 })
+	}).toPass({ timeout: 30_000 })
+	const [soonDay, laterDay] = await lastDays(page, soon, later)
+	await expect(theirs).toContainText(`70,000원 남음 (70,000원 중, ${soonDay}까지)`)
+	await expect(theirs).toContainText('곧 만료')
+	const own = row.getByRole('listitem').filter({ hasText: '이 결제 계정의 크레딧' })
+	await expect(own).toContainText(`30,000원 남음 (30,000원 중, ${laterDay}까지)`)
+	await expect(own).not.toContainText('곧 만료')
+	await expect(row).toContainText('잔액5,000원 · 만료 없음')
+	await expect(row).toContainText(`크레딧 70,000원이 ${soonDay}까지라 곧 만료됩니다.`)
+
+	// An invoice of the period before, billing the workspace 80,000원: the
+	// credit that expires sooner paid what it could, the billing account's
+	// the rest, and nothing was left due.
+	await levyan(request, 'invoice', { billing_account: ba?.id ?? '', workspace: ws.id, label: name, total: '80000' })
+	await page.reload()
+	const invoice = card(page, '청구서').getByRole('row').filter({ hasText: '80,000원' })
+	await expect(invoice).toContainText('결제됨')
+	await expect(invoice).toContainText('크레딧 −80,000원')
+	await invoice.getByRole('button', { name: '보기' }).click()
+	const dialog = page.getByRole('dialog')
+	await expect(dialog).toContainText(`크레딧−70,000원 · ${name}의 크레딧`)
+	await expect(dialog).toContainText('크레딧−10,000원 · 결제 계정의 크레딧')
+	await expect(dialog).toContainText('청구한 금액0원')
+	await dialog.getByRole('button', { name: '닫기' }).click()
+
+	// What is left of it: the workspace's spent, 20,000원 of the billing
+	// account's, and the balance, which is spent after them.
+	await expect(own).toContainText(`20,000원 남음 (30,000원 중, ${laterDay}까지)`)
+	await expect(theirs).toHaveCount(0)
+	await expect(row).toContainText('잔액5,000원 · 만료 없음')
+})

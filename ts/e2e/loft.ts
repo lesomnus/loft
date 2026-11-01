@@ -60,6 +60,8 @@ export const people = {
 	billedTo: { login: 'naeun-kang', name: '강나은' },
 	takesOver: { login: 'seoyun-cho', name: '조서윤' },
 	readOnly: { login: 'juwon-yoon', name: '윤주원' },
+	benefits: { login: 'soyun-jang', name: '장소윤' },
+	credits: { login: 'seoyeon-lim', name: '임서연' },
 } as const
 
 /** A name nothing else in the run has. */
