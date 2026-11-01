@@ -10,7 +10,7 @@ test('a member reports a fault on an asset, and it is on the work list', async (
 	// The demo's MN-003 is this member's monitor.
 	const asset = field(report, '자산')
 	await asset.getByRole('searchbox').fill('MN-003')
-	await asset.getByRole('button', { name: /MN-003/ }).click()
+	await asset.getByRole('button', { name: /^MN-003 / }).click()
 	// And picked, it stays picked: a click the picker redraws under was once
 	// handed on to 바꾸기, which unpicked it (loft#53).
 	await expect(asset.getByRole('button', { name: '바꾸기', exact: true })).toBeVisible()
