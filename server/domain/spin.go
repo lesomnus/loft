@@ -295,6 +295,51 @@ func (t *Tx) spacesOnly(rid uuid.UUID) (bool, error) {
 	return n == 0, err
 }
 
+// spacesOnlyOf answers [Tx.spacesOnly] of every reservation of rs at once,
+// as it would of each: two queries for a page of them rather than two for
+// every one.
+func (t *Tx) spacesOnlyOf(rs []*ent.Reservation) (map[uuid.UUID]bool, error) {
+	out := make(map[uuid.UUID]bool, len(rs))
+	if len(rs) == 0 {
+		return out, nil
+	}
+	rids := make([]uuid.UUID, len(rs))
+	for i, r := range rs {
+		rids[i] = r.Id
+	}
+	items, err := t.db.ReservationItem.Query().Where(reservationitem.TenantId(t.tenant.Uuid()), reservationitem.ReservationIdIn(rids...)).All(t.ctx)
+	if err != nil {
+		return nil, err
+	}
+	held := map[uuid.UUID][]uuid.UUID{}
+	ids := []uuid.UUID{}
+	for _, it := range items {
+		held[it.ReservationId] = append(held[it.ReservationId], it.ResourceId)
+		ids = append(ids, it.ResourceId)
+	}
+	other := map[uuid.UUID]bool{}
+	if len(ids) > 0 {
+		vs, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.IdIn(ids...), asset.KindNEQ("space")).Ids(t.ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range vs {
+			other[v] = true
+		}
+	}
+	for _, r := range rs {
+		only := len(held[r.Id]) > 0
+		for _, v := range held[r.Id] {
+			if other[v] {
+				only = false
+				break
+			}
+		}
+		out[r.Id] = only
+	}
+	return out, nil
+}
+
 // sweepNoShows frees a room nobody checked into, once the grace is over, and
 // equipment nobody picked up by the time it was due back (design 4).
 //
@@ -388,6 +433,11 @@ func sweepNoShows(t *Tx) error {
 // such a workspace counts none of, nor used. It is over, and told to nobody,
 // as a room completed is not. While the workspace is read-only, which takes
 // no pickup, it says so (`workspace: readonly`).
+//
+// It reads every one, a page after another in the order of their
+// identifiers (loft#279): what it passes over -- equipment still out past its
+// end, which its return completes -- would otherwise fill the one page it
+// read every pass, and a room that ended behind it would never be completed.
 func sweepFinished(t *Tx) error {
 	unchecked := t.settings().noShow <= 0
 	states := []string{resInUse}
@@ -395,21 +445,43 @@ func sweepFinished(t *Tx) error {
 		// Nobody is held to checking in, so a confirmed room was used.
 		states = append(states, resConfirmed)
 	}
-	rs, err := t.db.Reservation.Query().Where(
-		reservation.TenantId(t.tenant.Uuid()),
-		reservation.StatusIn(states...),
-		reservation.EndsAtLT(t.now),
-		reservation.DateErasedIsNil(),
-	).Limit(200).All(t.ctx)
+	var after *uuid.UUID
+	for {
+		q := t.db.Reservation.Query().Where(
+			reservation.TenantId(t.tenant.Uuid()),
+			reservation.StatusIn(states...),
+			reservation.EndsAtLT(t.now),
+			reservation.DateErasedIsNil(),
+		)
+		if after != nil {
+			q = q.Where(reservation.IdGT(*after))
+		}
+		rs, err := q.Order(ent.Asc(reservation.FieldId)).Limit(finishedPage).All(t.ctx)
+		if err != nil {
+			return err
+		}
+		if err := t.finish(rs); err != nil {
+			return err
+		}
+		if len(rs) < finishedPage {
+			return nil
+		}
+		after = &rs[len(rs)-1].Id
+	}
+}
+
+// finishedPage is how many ended reservations [sweepFinished] reads at a
+// time.
+var finishedPage = 200
+
+// finish is [sweepFinished]'s work of one page of ended reservations.
+func (t *Tx) finish(rs []*ent.Reservation) error {
+	rooms, err := t.spacesOnlyOf(rs)
 	if err != nil {
 		return err
 	}
 	for _, r := range rs {
-		spaces, err := t.spacesOnly(r.Id)
-		if err != nil {
-			return err
-		}
-		if !spaces {
+		if !rooms[r.Id] {
 			if r.Status != resConfirmed {
 				// Picked up: completed by its return.
 				continue
