@@ -435,7 +435,11 @@ func (s *Store) ForgetPerson(ctx context.Context, holder pdid.Id) error {
 	if err != nil {
 		return err
 	}
-	_, err = forget.Forget(ctx, s.em.rs.Ent, holder, p, cs)
+	// And the stream, which a forgetting puts the person on itself, in its
+	// transaction (roster#214): the build's own queue, which is nil here,
+	// since nothing watches roster's rows from this process (`watch.broker:
+	// none`, above) and a row queued would be one nothing drains.
+	_, err = forget.Forget(ctx, s.em.rs.Ent, holder, p, cs, s.em.rs.Queue)
 	s.Recheck(holder)
 
 	return err
