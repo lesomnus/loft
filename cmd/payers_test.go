@@ -54,7 +54,9 @@ func heard(fake *levyantest.Levyan) []string {
 	return out
 }
 
-func said(kind string, ws, account pdid.Id) string { return kind + " " + ws.String() + " " + account.String() }
+func said(kind string, ws, account pdid.Id) string {
+	return kind + " " + ws.String() + " " + account.String()
+}
 
 // madeAt is when a workspace was made, as its row says.
 func (w *world) madeAt(id pdid.Id) time.Time {
