@@ -37,9 +37,9 @@ require (
 	github.com/lesomnus/levyan/api v0.0.0-20261101164321-aed2b41ddedb
 	github.com/lesomnus/mkot/otlp v0.0.0-20261017184153-a69c4c1f08ca
 	github.com/lesomnus/otx v0.0.0-20261017184159-4cba7a26b155
-	github.com/lesomnus/payday v0.0.0-20261101190743-a562edd0464d
+	github.com/lesomnus/payday v0.0.0-20261101212044-36f2dcfbf3a8
 	github.com/lesomnus/protobuf-patch v0.0.0-20260907061053-07bbf2b842da
-	github.com/lesomnus/roster v0.1.2-0.20261101201259-1c6200830f62
+	github.com/lesomnus/roster v0.1.2-0.20261102000313-6d7bc62d03c8
 	github.com/lesomnus/xli v0.0.0-20261009121920-4ce270c7448c
 	github.com/lesomnus/xli/cfg v0.1.3
 	github.com/lesomnus/z v0.0.0-20260907061127-c3858eb05878
