@@ -155,7 +155,7 @@ func (c *Client) point(ctx context.Context, ix *Index, name string) error {
 //
 // It reads them off their settings rather than `_cat/indices`, which asks
 // the cluster's state: this way the role a deployment signs in with needs
-// nothing of the cluster's beyond writing in bulk (README).
+// nothing of the cluster's beyond writing in bulk (docs/dev/search.md).
 func (c *Client) indexes(ctx context.Context, ix *Index) ([]string, error) {
 	v := map[string]json.RawMessage{}
 	if err := c.call(ctx, "GET", "/"+c.Alias(ix)+"-*/_settings/index.creation_date", nil, &v); err != nil {

@@ -220,7 +220,7 @@ jobs:
 
   # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
   # deployment runs, with its security plugin on -- TLS on the demo
-  # certificates -- and Loft signed in with the role README says it needs,
+  # certificates -- and Loft signed in with the role docs/dev/search.md says it needs,
   # which is how a permission it lacks shows up here rather than at an
   # operator's. The tests are the ones that ask for a cluster
   # (internal/opensearchtest); without one they skip.
@@ -278,7 +278,7 @@ jobs:
   # The deployment bundle (Dockerfile, deploy/compose) as an operator brings
   # it up: the image built, PostgreSQL, the migration, two `loft serve` behind
   # Caddy and the operator's entry point, search on OpenSearch and
-  # workspaces' own domains as README turns them on -- and a workspace made,
+  # workspaces' own domains as deploy/compose/README.md turns them on -- and a workspace made,
   # signed in to and asked through the proxy, searched, listed at the entry
   # point, and served on a domain of its own. Nothing is pushed anywhere.
   bundle:
@@ -312,7 +312,7 @@ jobs:
           openssl rand -base64 32 > secrets/digest.key
           openssl rand -hex 32 > secrets/admin_key
           chmod 444 secrets/*
-          # Search on, as README's "검색을 켜려면" turns it on, and
+          # Search on, as deploy/compose/README.md's "검색을 켜려면" turns it on, and
           # workspaces' own domains as "워크스페이스 도메인" does -- on Caddy's
           # own CA, since nothing here is reached for Let's Encrypt to ask.
           ./search-init.sh
@@ -487,7 +487,7 @@ jobs:
   # searching with OpenSearch (D31), beside the run that does not.
   #
   # The tests run in Playwright's own image, which has the browser and every
-  # package of the system it needs, as README runs them on a desk that has
+  # package of the system it needs, as docs/dev/testing.md runs them on a desk that has
   # neither. The job used to install those packages itself, with apt
   # (`playwright install --with-deps`): 20 MB of fonts from the runner's
   # Ubuntu mirror, which took 18 seconds on most runs and more than ten

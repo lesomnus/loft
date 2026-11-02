@@ -158,7 +158,7 @@ func ledgerFailed(err error) error {
 		return fmt.Errorf("%w: roster has no such account", ErrNoPerson)
 	case codes.PermissionDenied:
 		return fmt.Errorf("%w: Loft's role at roster does not hold its consent ledger, "+
-			"which `roster role patch` adds (README): %v", ErrUnreachable, err)
+			"which `roster role patch` adds (docs/dev/identity.md): %v", ErrUnreachable, err)
 	}
 
 	return unreachable(err)

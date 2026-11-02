@@ -232,7 +232,7 @@ func TestAnIndexAnEarlierBuildMadeIsMovedToItsName(t *testing.T) {
 	x.True(has(page.To))
 }
 
-// TestAnIndexWhoseBuildDidNotFinishIsRefused (payday#176): README tells the
+// TestAnIndexWhoseBuildDidNotFinishIsRefused (payday#176): docs/runbook/upgrade.md tells the
 // operator of a big deployment to build `audit_by_time` and `access_by_time`
 // ahead of the migration, `CONCURRENTLY`, in Loft's database and in the
 // embedded roster's. A build that does not finish is left in the catalog,

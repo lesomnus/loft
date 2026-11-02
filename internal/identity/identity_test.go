@@ -357,12 +357,12 @@ func newExternal(t *testing.T) *external {
 }
 
 // role patches the role acme installed Loft with to `methods`, the way the
-// README tells a roster operator to: the whole list, with `roster role patch`.
+// docs/dev/identity.md tells a roster operator to: the whole list, with `roster role patch`.
 func (e *external) role(t *testing.T, methods []string) {
 	t.Helper()
 	x := require.New(t)
 	// A command at roster's box names who runs it where there is a control
-	// plane (roster#221), as the README's `roster --as` does: `init` made
+	// plane (roster#221), as docs/dev/identity.md's `roster --as` does: `init` made
 	// `admin` its first operator.
 	c := e.c
 	c.Client.As = "admin"

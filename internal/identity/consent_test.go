@@ -89,7 +89,7 @@ func TestWhatAnAccountAgreedToIsRostersOnEitherRoster(t *testing.T) {
 // for Loft installed before Loft kept agreements there refuses the ledger.
 // That is a roster that cannot be asked, in words that say what to do and
 // with nothing of roster's refusal for a caller of Loft to read -- and the
-// role patched as the README says is used at the next asking, with no
+// role patched as docs/dev/identity.md says is used at the next asking, with no
 // restart.
 func TestARoleFromBeforeTheLedgerIsSaidSoAndThenUsed(t *testing.T) {
 	x := require.New(t)

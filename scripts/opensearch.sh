@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # opensearch.sh -- an OpenSearch for CI to search on (D31): the image a
 # deployment runs (deploy/opensearch), with its security plugin on over the
-# demo certificates, and Loft signed in with the role README gives an operator
+# demo certificates, and Loft signed in with the role docs/dev/search.md gives an operator
 # -- bulk writes, and its own indexes -- so that a call needing more fails here
 # and not at an operator's.
 #
@@ -53,7 +53,7 @@ ready)
 			-X PUT "https://localhost:9200/_plugins/_security/api/$1" -d "$2" >&2
 		echo >&2
 	}
-	# README's role, on the names the tests make their indexes with.
+	# docs/dev/search.md's role, on the names the tests make their indexes with.
 	api roles/loft "{\"cluster_permissions\":[\"indices:data/write/bulk\"],\"index_permissions\":[{\"index_patterns\":[\"$pattern\"],\"allowed_actions\":[\"indices_all\"]}]}"
 	password="Rv9-$(openssl rand -hex 16)"
 	api internalusers/loft "{\"password\":\"$password\"}"

@@ -230,7 +230,7 @@ type Server struct {
 // servers, so that each write is on the trail as any is (what is out, held
 // once, D53). It reads the trail's key then, and not before. Nothing is told
 // of what it writes as it is written: no process serves while a deployment
-// migrates (README, "새 버전"). Nor does what it tells go by mail: a migration
+// migrates (deploy/k8s/README.md, "새 버전 올리기"). Nor does what it tells go by mail: a migration
 // sends nothing, and what it says is in the app.
 func (s *Server) Own() (app.Server, error) {
 	if s.own == nil {

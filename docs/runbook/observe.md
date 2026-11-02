@@ -32,7 +32,7 @@ Loft가 내보내는 것과, 그중 무엇을 대시보드에 두고 무엇에 �
 | `roster: … Unavailable`, `session: a sign-in nobody could check`, 요청이 `Unavailable`로 끝남(`rpc.grpc.status`, 화면에는 503 `cannot say just now`) | 계정을 물을 roster에 닿지 않아, 로그인한 요청을 받지 못함 | 외부 roster면 그쪽을 봅니다. 내장 roster인 #100 이전 빌드면 프로세스를 다시 띄웁니다([백업과 복구](restore.md)의 "알려진 것") |
 | `search: the index is not kept current; what changed waits` | 검색 클러스터에 닿지 않음. 검색은 "지금은 검색할 수 없습니다"로 답함. 1분에 한 번씩 남습니다 | 검색 클러스터와 Loft의 사용자·role을 봅니다. 돌아오면 쌓인 것을 따라잡습니다 |
 | `mail: a notification was given up on after every try`, `invitation: the mail did not go` | 메일이 나가지 않음 | SMTP 서버와 `app.mail`을 봅니다 |
-| `csp: a page did what the policy does not allow` | 화면이 콘텐츠 보안 정책을 어김. `report-only`라 막지는 않았음 | 무엇을 어겼는지 봅니다. 조용해야 `enforce`로 바꿀 수 있습니다(README의 "콘텐츠 보안 정책") |
+| `csp: a page did what the policy does not allow` | 화면이 콘텐츠 보안 정책을 어김. `report-only`라 막지는 않았음 | 무엇을 어겼는지 봅니다. 조용해야 `enforce`로 바꿀 수 있습니다([보안](../dev/security.md#콘텐츠-보안-정책-csp)의 "콘텐츠 보안 정책") |
 | `admin: a request without an operator's key` | 운영자 진입점에 키 없는 요청 | 누가 port-forward를 열었는지 봅니다 |
 | `lifecycle: a workspace's last owner left, …`, `lifecycle: only auditors are left …` | 돌볼 사람이 없는 워크스페이스 | 그 워크스페이스에 소유자를 정합니다 |
 

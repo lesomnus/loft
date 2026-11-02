@@ -8,7 +8,7 @@
 # What it does not need it does not carry: every other plugin of the official
 # image is taken out, since each one takes heap and threads that a node of a
 # few gigabytes does not have to spare. The security plugin stays -- it is what
-# makes a node ask who is calling and speak TLS (README).
+# makes a node ask who is calling and speak TLS (docs/dev/search.md).
 ARG OPENSEARCH_VERSION=3.9.0
 
 FROM opensearchproject/opensearch:${OPENSEARCH_VERSION}
