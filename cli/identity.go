@@ -249,6 +249,7 @@ func describeAll(ctx context.Context, self *xli.Command, s *cmd.Server, tenants 
 			if todo == 0 {
 				self.Printf("# roster is not in this process: its operator makes these accounts in @%s, with the identifiers they have here,\n", d.Alias)
 				self.Printf("# and gives each a way in there; then run this again to link them\n")
+				self.Printf("# (at roster's own box, where it has a control plane, each begins `roster --as <operator>`: roster#221)\n")
 			}
 			self.Printf("roster holder add @%s/%s %s\n", d.Alias, h.Alias, quoted(map[string]string{"id": pdid.Id(h.Id).String(), "name": h.Name}))
 			todo++

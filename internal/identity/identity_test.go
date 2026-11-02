@@ -361,8 +361,13 @@ func newExternal(t *testing.T) *external {
 func (e *external) role(t *testing.T, methods []string) {
 	t.Helper()
 	x := require.New(t)
+	// A command at roster's box names who runs it where there is a control
+	// plane (roster#221), as the README's `roster --as` does: `init` made
+	// `admin` its first operator.
+	c := e.c
+	c.Client.As = "admin"
 	var entity *xli.Command
-	for _, k := range rostercli.NewCmdEntities(&e.c) {
+	for _, k := range rostercli.NewCmdEntities(&c) {
 		if k.Name == "role" {
 			entity = k
 		}

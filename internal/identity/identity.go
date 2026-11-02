@@ -144,7 +144,10 @@ const RosterAdministrator = rostercore.Administers
 // again does not: it leaves a role the tenant has as the tenant has it
 // (roster's `docs/apps.md`), so the role is patched, with the whole list --
 //
-//	roster role patch @acme/loft-app '{"methods": [...], "date_updated_force": true}'
+//	roster --as <operator> role patch @acme/loft-app '{"methods": [...], "date_updated_force": true}'
+//
+// -- at roster's own box, naming the operator who does it where there is a
+// control plane (roster#221) --
 //
 // Until it is, an account sees only the invitations it holds a link for, a
 // session learns what roster says of its account only when it next asks, and
