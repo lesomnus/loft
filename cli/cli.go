@@ -194,7 +194,7 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // And then an index this build declares that PostgreSQL left invalid is
 // refused, before anything else is changed (payday#176). Found by its name,
 // it would be taken for made: an operator who built `audit_by_time` ahead of
-// the migration, `CONCURRENTLY` as README says to, and had the build
+// the migration, `CONCURRENTLY` as docs/runbook/upgrade.md says to, and had the build
 // cancelled, was told the database was in this build's shape while the index
 // served no read. The refusal names it and says what to run to make it again.
 func Migrate(ctx context.Context, s *cmd.Server) error {

@@ -1418,7 +1418,7 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
   - 앱 도메인이 없거나 활성이 아니면(확인만 됐거나, 이전 주소가 됐거나, 은퇴했으면) 서비스 주소로 만든다. 페이지는 `app.app_url`, 라벨과 파일은 `app.public_url`이다. 활성 라벨 도메인은 라벨에만 쓴다.
   - 어느 한 워크스페이스의 것이 아닌 링크는 언제나 서비스 주소다. 초대 메일의 링크도 그렇다. 계정은 아직 그 워크스페이스의 구성원이 아니고, 초대함에서 자기 자신으로 답하기 때문이다. 로그인과 터미널도 그렇다.
   - 내보내기 링크는 화면의 상대 주소라 화면이 있는 호스트(그 도메인이든 서비스 주소든)에서 열린다.
-- **켜는 법과 고객의 DNS**: 운영자는 프런트를 켜고(`deploy/compose`의 `compose.domains.yaml`, `deploy/k8s`의 `domains/`) `app.labels.target`에 프런트를 가리키는 이름을 넣는다. 고객은 그 이름을 가리키는 CNAME(apex라면 ALIAS·CNAME 펼치기)과 TXT 레코드를 만들고, 쓰는 동안 둔다. 단계는 README의 "워크스페이스의 도메인"과 두 `deploy/` README에 있다.
+- **켜는 법과 고객의 DNS**: 운영자는 프런트를 켜고(`deploy/compose`의 `compose.domains.yaml`, `deploy/k8s`의 `domains/`) `app.labels.target`에 프런트를 가리키는 이름을 넣는다. 고객은 그 이름을 가리키는 CNAME(apex라면 ALIAS·CNAME 펼치기)과 TXT 레코드를 만들고, 쓰는 동안 둔다. 단계는 `docs/guide/admin.md`의 "도메인과 라벨", `docs/dev/domains.md`와 두 `deploy/` README에 있다.
 - **확인하는 것**: e2e(`ts/e2e/domains.spec.ts`)가 브라우저로 한 바퀴를 돈다. 서비스 주소에서 로그인하고, SQL로 확인한 도메인을 전환 목록에서 골라 넘겨받고, 서비스 주소에서 연 그 워크스페이스의 화면이 그 도메인으로 가고, 그 워크스페이스만 보이고, 라벨이 그 도메인으로 인쇄되어 열리고, 도메인에서 로그아웃하면 둘 다 끝난다. CI의 `cluster`와 `bundle`은 프런트가 확인된 도메인에만 인증서를 주는 것을 본다.
 
 ### 9.10 신원: roster

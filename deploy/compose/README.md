@@ -25,7 +25,7 @@ cp .env.example .env && chmod 600 .env
 | --- | --- | --- |
 | `LOFT_DOMAIN` | 사람들이 여는 주소. 라벨 QR이 이 주소를 담으므로 **라벨을 인쇄하기 전에 정하고 바꾸지 않습니다**(loft#35) | |
 | `POSTGRES_PASSWORD` | DB 비밀번호. 영숫자만(DB 주소에 그대로 들어갑니다) | `openssl rand -hex 24` |
-| `LOFT_SIGNING_KEY` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키(README의 "세션의 키"). 모든 서버가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
+| `LOFT_SIGNING_KEY` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키([세션의 키](../../docs/dev/security.md#세션의-키)). 모든 서버가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
 | `LOFT_MAIL_*` | 초대 메일을 보낼 SMTP. 비우면 메일 대신 로그에 남습니다 | |
 | `LOFT_VERSION` | 이미지 이름과 `loft version`이 말할 릴리스 이름 | `git describe --tags --always` |
 
@@ -48,7 +48,7 @@ chmod 444 secrets/*   # 컨테이너 안의 사용자가 읽게. 디렉터리가
 
 - **감사 기록 보존 기간**(`audit.by`): 정하기 전에는 아무것도 보관소로 옮기거나 지우지 않습니다. 규제에 맞는 값을 고릅니다(plan M5 제안: 구성원 자격은 `pipa`).
 - **약관·개인정보 처리방침**(`app.consent`): 문서를 게시한 뒤 버전과 주소를 넣습니다. 동의 기록은 roster의 것이라(D37), 삭제된 계정의 동의 기록 보존 기간은 `auth.roster.consent_keep`이며, 비우면 계속 둡니다.
-- `app.csp`: `report-only`로 시작합니다(README의 "콘텐츠 보안 정책").
+- `app.csp`: `report-only`로 시작합니다([콘텐츠 보안 정책](../../docs/dev/security.md#콘텐츠-보안-정책-csp)).
 - SSO(roster의 발급자, `auth.sso`)와 외부 roster(`auth.roster.addr`)는 이 구성에 없습니다. 지금은 Loft 안의 roster에 비밀번호로 로그인합니다.
 
 ## 처음 띄우기
@@ -126,7 +126,7 @@ curl -H "authorization: Bearer $(cat secrets/admin_key)" http://127.0.0.1:8081/a
 
 ## 새 버전으로 올리기
 
-세션을 키의 HMAC으로 보관하는 버전으로 처음 올리면 모두 한 번 다시 로그인합니다(README의 "세션의 키"). 그 밖에 할 일은 없습니다.
+세션을 키의 HMAC으로 보관하는 버전으로 처음 올리면 모두 한 번 다시 로그인합니다([판을 올릴 때](../../docs/runbook/upgrade.md#세션을-키의-hmac으로-보관하는-판)). 그 밖에 할 일은 없습니다.
 
 먼저 새로 필요한 것을 봅니다: `git fetch`한 뒤 `git diff HEAD..<올릴 커밋> -- deploy/compose`. `secrets/`에 만들 파일이 늘었으면 위 `secrets/`의 명령으로(`chmod 444`까지) **먼저 만듭니다**. 예를 들어 610c1c7부터는 `secrets/digest.key`가 있어야 뜹니다. 없으면 `docker compose up`이 `bind source path does not exist`로 멈춥니다.
 

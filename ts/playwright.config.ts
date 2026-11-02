@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test'
 // this checkout and starts with `init --demo` -- on SQLite, or with
 // E2E_POSTGRES on databases of its own there, made fresh every run; and with
 // E2E_OPENSEARCH searching on that cluster, on indexes of its own.
-// `npx playwright test`, on a desk as in CI; README `## 테스트` has the rest.
+// `npx playwright test`, on a desk as in CI; docs/dev/testing.md has the rest.
 //
 // Four of them, since one asks for agreement to terms (`app.consent`) and the
 // others must not -- every sign-in there begins with it -- one signs people

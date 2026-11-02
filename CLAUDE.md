@@ -4,8 +4,9 @@ A [payday](https://github.com/lesomnus/payday) app. Most of it is **generated
 from `proto/`**, so the usual shape of a change is: edit the schema, regenerate,
 then write the part no schema can state.
 
-`README.md` is how to run it, `design.md` why it is shaped this way, and
-`report.md` the decisions the prototype made.
+`README.md` is what it is and how to try it, `docs/guide/` how each person
+uses it, `docs/dev/` how each part works and runs, `design.md` why it is
+shaped this way, and `report.md` the decisions the prototype made.
 
 ## Regenerate after touching the schema
 
@@ -150,7 +151,7 @@ process then needs a database of its own named too:
 `LOFT_AUTH_ROSTER_DB_DRIVER` and `LOFT_AUTH_ROSTER_DB_DSN`.
 
 The browser tests are `ts/e2e` (`cd ts && npm run build && npx playwright
-test`; README). Playwright starts a loft of its own -- `e2e/serve.sh`: this
+test`; `docs/dev/testing.md`). Playwright starts a loft of its own -- `e2e/serve.sh`: this
 checkout, `init --demo`, a database in `ts/test-results/`, or with
 `E2E_POSTGRES` two made fresh on that PostgreSQL -- so they never touch
 `data/`; and for the server that signs in through `auth.sso`, an issuer of
@@ -204,7 +205,7 @@ depart` does it now for one account, and `Lifecycle.Reconcile` finds what the
 stream missed -- it replays nothing -- every `app.accounts.reconcile` by
 itself, and now with `loft identity reconcile`. The role Loft is installed with carries every method in
 `identity.AgentMethods`; installing again leaves an existing role as it is, so
-an older install is widened with `roster role patch` (README).
+an older install is widened with `roster role patch` (`docs/dev/identity.md`).
 
 Through roster's issuer instead (`auth.sso`, `server/sso`), Loft is a relying
 party in the `itself` shape of roster's `docs/relying-party.md`: `GET
@@ -698,12 +699,13 @@ never asked who may see what, and holds no person's email or phone.
 A test that needs a cluster takes `internal/opensearchtest.Config(t)`
 (`PDTEST_OPENSEARCH`, and `PDTEST_OPENSEARCH_CA` for TLS) and skips without
 one, and makes every index with `opensearchtest.Made`. CI's `opensearch` job runs every such package on `deploy/opensearch`
-with the security plugin on, signed in with the role README gives an
+with the security plugin on, signed in with the role `docs/dev/search.md` gives an
 operator -- a call that needs more than that role fails there.
 
 ## Reference
 
-- `README.md` — running it, in Korean
+- `README.md` — what it is and how to try it; `docs/guide/` for each person who
+  uses it, `docs/dev/` by topic, `docs/runbook/` for operators -- in Korean
 - `design.md`, `plan.md` — the design and the plan; `report.md` — what the
   prototype decided and why
 - <https://github.com/lesomnus/payday/tree/main/docs> — the guides and the

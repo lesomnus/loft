@@ -60,11 +60,11 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 			// The roster in this process, where the deployment looks like
 			// production: said, and not refused -- one server on PostgreSQL
 			// behind its own name is what it is for, and that is the
-			// operator's to decide (README, "계정과 워크스페이스 (roster)").
+			// operator's to decide (docs/dev/identity.md, "내장 roster").
 			if why := c.EmbeddedInProduction(); len(why) > 0 {
 				log.From(ctx).WarnContext(ctx, "identity: roster runs in this process, and this deployment looks like production: "+
 					"it answers this process alone, keeps people and passwords beside Loft's own data, and no other app can use the accounts. "+
-					"A deployment beyond one server runs roster apart (auth.roster.addr); see README.md#계정과-워크스페이스-roster",
+					"A deployment beyond one server runs roster apart (auth.roster.addr); see docs/dev/identity.md#내장-roster",
 					slog.String("because", strings.Join(why, ", ")))
 			}
 

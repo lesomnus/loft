@@ -43,7 +43,7 @@ resources:
    | --- | --- | --- | --- |
    | `loft` | `db-dsn` | Loft의 DB 주소. 예: `postgres://loft:…@db:5432/loft?sslmode=require` | |
    | | `roster-db-dsn` | 내장 roster의 DB 주소. Loft와 다른 데이터베이스입니다. 외부 roster면 두지 않습니다(아래 13) | |
-   | | `signing-key` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키(루트 README의 "세션의 키"). 모든 프로세스가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
+   | | `signing-key` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키([세션의 키](../../docs/dev/security.md#세션의-키)). 모든 프로세스가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `loft-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
    | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `loft trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다. init 컨테이너 `migrate`는 이 Secret에서 이 키 하나만 받고, 마이그레이션이 감사 기록에 남길 행이 있을 때만 읽습니다 | `openssl rand -base64 32` |
@@ -96,7 +96,7 @@ resources:
    - LISTEN과 세션 잠금은 트랜잭션 모드 풀러를 거치면 안 됩니다. 풀러를 쓴다면 `watch.dsn`과 `spin.dsn`에 DB로 바로 가는 주소를 줍니다.
 9. **검색(선택).** OpenSearch와 한국어 분석기 nori가 검색에 답하게 합니다(D31).
    - 클러스터는 이 구성에 들어 있지 않습니다. 공식 Helm 차트나 OpenSearch Kubernetes Operator로 따로 띄웁니다. 이미지는 nori를 넣은 `deploy/opensearch`를 씁니다.
-   - 클러스터에 Loft의 role과 사용자를 만듭니다. role은 bulk 쓰기와 자기 인덱스뿐입니다(루트 README의 "검색 엔진").
+   - 클러스터에 Loft의 role과 사용자를 만듭니다. role은 bulk 쓰기와 자기 인덱스뿐입니다([검색 엔진](../../docs/dev/search.md#운영-구성에서-켜기)).
    - Secret `loft-search`에 그 사용자의 `password`와 클러스터의 `ca.pem`을 넣습니다. 파드의 세 컨테이너(migrate, loft, loft-admin)가 모두 받습니다. 운영자가 파기한 워크스페이스도 색인에서 빠져야 하기 때문입니다.
    - `config.yaml`의 `app.search.opensearch` 주석을 풀어 주소를 넣습니다.
    - 색인은 서버가 처음 뜰 때 DB로 만들고, 그다음부터 바뀐 것을 따라갑니다. 색인은 사본이라 클러스터의 데이터를 백업하지 않아도 됩니다.
@@ -139,12 +139,12 @@ resources:
       - CNAME `<도메인>` → `app.labels.target`. CNAME을 둘 수 없는 apex라면 DNS 업체의 ALIAS·CNAME 펼치기로 같은 주소를 가리킵니다.
       - TXT `_loft-challenge.<도메인>` = 토큰.
 12. **과금(선택).** 워크스페이스마다 가진 것(자산 수, 첨부 저장량, 구성원 수, 이력 보존 기간)을 재서 청구 서비스 levyan에 넘깁니다(design 7장, D59). 시작할 때와 자정(UTC)마다 재고, 워크스페이스를 파기하기 직전에 한 번 더 잽니다.
-    - levyan은 이 구성에 들어 있지 않습니다. levyan의 `deploy/k8s`로 따로 띄우고, levyan의 운영자가 제품과 가격표의 미터를 만들고 키를 발급합니다(루트 README의 "과금 (levyan)").
+    - levyan은 이 구성에 들어 있지 않습니다. levyan의 `deploy/k8s`로 따로 띄우고, levyan의 운영자가 제품과 가격표의 미터를 만들고 키를 발급합니다([과금과 결제](../../docs/dev/billing.md#levyan에서-할-일)).
     - 키를 Secret `loft-levyan-key`의 `key`에 넣습니다. 서버와 운영자 진입점 컨테이너가 `/run/secrets/loft-levyan/`에서 받습니다. 둘 다 같은 서버를 짓기 때문입니다. 마이그레이션은 재지 않으므로 받지 않습니다.
     - `config.yaml`의 `app.billing` 주석을 풀어 levyan의 주소를 넣습니다. levyan의 참조 배포는 클러스터 안에서 평문 gRPC(50051)이므로 `insecure: true`를 씁니다. 그 밖이면 TLS이고, 사설 CA는 `tls.ca_file`로 줍니다.
     - levyan의 NetworkPolicy가 Loft의 파드(`app.kubernetes.io/name: loft`, namespace의 이름)만 받도록 좁힙니다(levyan의 `deploy/k8s/README.md` 4). Loft의 NetworkPolicy는 들어오는 것만 막으므로 나가는 길은 열려 있습니다.
     - 키가 없거나 `lvk_`로 시작하지 않으면 서버가 뜨지 않습니다. levyan이 답하지 않으면 서버는 그대로 돌고, 그 값을 다시 보냅니다. 그동안 복구 기간이 지난 워크스페이스는 마지막 측정 없이 파기되고, 경고 로그에 남습니다(design 7.3).
-13. **외부 roster(선택).** 계정을 Loft 프로세스 안의 roster가 아니라 따로 도는 roster에 둡니다. 서버를 여러 대 띄우거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 이렇게 합니다(루트 README의 "roster를 따로 운영할 때").
+13. **외부 roster(선택).** 계정을 Loft 프로세스 안의 roster가 아니라 따로 도는 roster에 둡니다. 서버를 여러 대 띄우거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 이렇게 합니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)).
     - **base가 하는 것.** Secret `loft-roster-key`의 `key`를 세 컨테이너(`migrate`, `loft`, `loft-admin`)의 `/run/secrets/loft-roster/`에 붙입니다. 셋 모두 설정의 roster를 열고, 열 때 키를 읽기 때문입니다. 이 Secret도, Secret `loft`의 `roster-db-dsn`도 `optional`입니다. 그래서 외부 roster의 배포는 `roster-db-dsn` 대신 이 Secret을 두면 되고, 오버레이에서 패치할 것이 없습니다.
     - **설정.** `auth.roster`에서 `db:`와 `consent_keep`을 지우고(내장 roster의 것입니다) 주소, 디렉터리, 키를 적습니다. roster의 참조 배포는 클러스터 안에서 평문 gRPC(Service `roster-data`, 8080)이므로 `insecure: true`를 씁니다. 그 참조 배포에는 NetworkPolicy가 없으니, roster의 오버레이가 Loft의 파드(와 roster를 묻는 다른 앱의 파드)만 그 포트에 닿게 합니다. 그 밖이면 TLS이고, 사설 CA는 `ca_file`로 줍니다.
 
@@ -160,7 +160,7 @@ resources:
     - **내장 roster에서 옮길 때**는 이 순서로 합니다. 계정과 비밀번호가 내장 roster의 DB에 있으므로, 그 DB가 그대로 외부 roster의 것이 됩니다.
       1. **같은 데이터베이스.** `roster-db-dsn`이 가리키던 DB를 그대로 씁니다. 옮기거나 복사하지 않습니다. 계정과 비밀번호, 디렉터리(따로 적지 않았다면 `loft`), 내장 roster가 그 안에 만든 홀더 `loft`와 역할 `loft`가 모두 그대로 있습니다.
       2. **roster의 Deployment.** roster의 참조 배포(roster의 `deploy/`)를 오버레이로 띄우고, 데이터 플레인의 `db:`를 그 DB로 바꿉니다. 컨트롤 플레인의 DB(`control.db`)는 따로 둡니다(참조 배포는 자기 볼륨에). 컨트롤 플레인이 없는 roster는 키를 읽지 않고 부르는 쪽이 말하는 이름을 믿으므로, 빼지 않습니다. roster의 커밋은 지금 Loft가 링크한 것(Loft의 `go.mod`)이거나 그 뒤의 것으로 고릅니다. 내장 roster가 DB를 그 판의 모양으로 마이그레이션해 두었기 때문입니다.
-      3. **키.** 홀더 `@loft/loft`에 디렉터리의 키(`rt_…`)를 만들어 Secret `loft-roster-key`의 `key`에 넣습니다. 허용하는 메서드는 Loft가 roster에 묻는 것 전부입니다(루트 README의 `roster app install`의 `--role`과 같은 목록). 키는 한 번만 출력되므로 바로 Secret에 넣습니다.
+      3. **키.** 홀더 `@loft/loft`에 디렉터리의 키(`rt_…`)를 만들어 Secret `loft-roster-key`의 `key`에 넣습니다. 허용하는 메서드는 Loft가 roster에 묻는 것 전부입니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)의 `roster app install`의 `--role`과 같은 목록). 키는 한 번만 출력되므로 바로 Secret에 넣습니다.
 
          ```sh
          kubectl -n <roster의 namespace> exec deploy/roster -c roster -- roster --config /config/config.yaml \
@@ -171,7 +171,7 @@ resources:
       4. **설정.** `auth.roster`를 위의 모양으로 바꿔 sync합니다. 새 파드부터 Loft가 그 roster에 묻습니다. `roster-db-dsn`은 Loft가 더 읽지 않으므로 지워도 되고, 되돌릴 때를 위해 두어도 됩니다.
 
       앞의 것이 없는 채로 설정을 바꾸면 새 파드가 뜨지 않거나(키가 없으면 `auth.roster.key`를 읽지 못합니다), 로그인과 세션이 거부됩니다(roster에 닿지 않으면 503). 되돌릴 때는 roster의 Deployment를 내리고 설정을 내장 roster의 것으로 되돌립니다. 같은 DB이므로 그 사이 roster에서 바꾼 계정과 비밀번호도 그대로입니다.
-    - **역할의 이름.** 내장 roster에서 옮긴 배포의 역할은 내장 roster가 만든 **`loft`**(`@loft/loft`)입니다. `roster app install`로 들인 배포의 역할은 `loft-app`입니다. 내장 roster일 때는 새 판의 Loft가 더 묻는 메서드를 스스로 이 역할에 더했지만, 외부 roster에서는 roster 운영자가 `roster role patch`로 넓힙니다(루트 README의 "roster를 따로 운영할 때"). 디렉터리의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 그때 키도 새로 만듭니다.
+    - **역할의 이름.** 내장 roster에서 옮긴 배포의 역할은 내장 roster가 만든 **`loft`**(`@loft/loft`)입니다. `roster app install`로 들인 배포의 역할은 `loft-app`입니다. 내장 roster일 때는 새 판의 Loft가 더 묻는 메서드를 스스로 이 역할에 더했지만, 외부 roster에서는 roster 운영자가 `roster role patch`로 넓힙니다([역할 넓히기](../../docs/dev/identity.md#역할-넓히기-roster-role-patch)). 디렉터리의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 그때 키도 새로 만듭니다.
 
 ## 처음 띄우기
 
@@ -192,7 +192,7 @@ curl https://<호스트>/healthz   # ok
 
 ## 새 버전 올리기
 
-세션을 키의 HMAC으로 보관하는 버전으로 처음 올리면 모두 한 번 다시 로그인합니다(루트 README의 "세션의 키"). 그 밖에 할 일은 없습니다.
+세션을 키의 HMAC으로 보관하는 버전으로 처음 올리면 모두 한 번 다시 로그인합니다([판을 올릴 때](../../docs/runbook/upgrade.md#세션을-키의-hmac으로-보관하는-판)). 그 밖에 할 일은 없습니다.
 
 1. **빌드.** main에 머지되면 CI의 `image` 작업이 모든 검사가 통과한 뒤 `ghcr.io/lesomnus/loft:edge`로 올립니다. digest는 그 실행의 요약(Summary)에 남습니다. 오버레이에는 `edge`가 아니라 이 digest를 적습니다.
 2. **새로 필요한 것.** 지금 올라가 있는 커밋과 새 커밋 사이에 이 디렉터리가 어떻게 바뀌었는지 봅니다: `git diff <지금 커밋>..<새 커밋> -- deploy/k8s`. 위 표에 Secret의 키가 늘었거나 `config.yaml`이 새 파일을 가리키면, **그 Secret을 먼저 넣고** 설정과 digest는 그다음에 sync합니다. 예를 들어 610c1c7부터는 `loft-checkpoints`에 `digest.key`가 있어야 뜹니다.
@@ -233,7 +233,7 @@ loft-admin workspace ls
 
 ## 워크스페이스 내보내기와 복구
 
-이미지에는 셸도 `tar`도 없어서 `kubectl cp`를 쓸 수 없습니다. 파일은 `kubectl exec`의 표준 입출력으로 옮깁니다. `--out -`는 내보내기를 stdout으로 쓰고, 명령이 하는 말은 stderr로 보냅니다. `--file -`는 stdin에서 읽습니다. 순서는 README의 '조직 탈퇴'와 '워크스페이스 복구'와 같습니다.
+이미지에는 셸도 `tar`도 없어서 `kubectl cp`를 쓸 수 없습니다. 파일은 `kubectl exec`의 표준 입출력으로 옮깁니다. `--out -`는 내보내기를 stdout으로 쓰고, 명령이 하는 말은 stderr로 보냅니다. `--file -`는 stdin에서 읽습니다. 순서는 운영자 안내서의 [워크스페이스가 떠날 때](../../docs/guide/operator.md#워크스페이스가-떠날-때)와 [워크스페이스 복구](../../docs/guide/operator.md#워크스페이스-복구)와 같습니다.
 
 ```sh
 kubectl -n loft exec deploy/loft -c loft -- loft --config /etc/loft/loft.yaml tenant export --tenant acme --out - > acme.zip
