@@ -57,6 +57,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/invitation"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/session"
@@ -230,6 +231,49 @@ func (l Lifecycle) Depart(ctx context.Context, account pdid.Id) ([]Departed, err
 
 	if l.People != nil {
 		l.People.Recheck(account)
+	}
+	return out, nil
+}
+
+// Departing is what Depart would do were it asked now, and does nothing: each
+// workspace the account would leave, who a last owner's workspace would go to
+// or that nobody is there to take it, and which would close with nobody left
+// in it -- by the rules Depart then follows. What an operator is told before
+// it is done (`loft-admin identity depart` without `--yes`).
+func (l Lifecycle) Departing(ctx context.Context, account pdid.Id) ([]Departed, error) {
+	hs, err := l.Db.Holder.Query().
+		Where(holder.Account(account.Uuid()), holder.DateErasedIsNil()).
+		Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]Departed, 0, len(hs))
+	for _, h := range hs {
+		next, ownerless, err := domain.Successor(ctx, l.Db, h)
+		if err != nil {
+			return nil, err
+		}
+		d := Departed{Workspace: pdid.Id(h.TenantId), Member: pdid.Id(h.Id), Departure: domain.Departure{Ownerless: ownerless}}
+		if next != nil {
+			d.Owner = pdid.Id(next.Id)
+		}
+		others, err := l.Db.Holder.Query().
+			Where(holder.TenantId(h.TenantId), holder.IdNEQ(h.Id), holder.DateErasedIsNil()).
+			Exist(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if !others {
+			// closeIfNobody's, unless it is closed already.
+			closed, err := l.Db.Tenant.Query().Where(enttenant.Id(h.TenantId), enttenant.DateClosedNotNil()).Exist(ctx)
+			if err != nil {
+				return nil, err
+			}
+			d.Closed = !closed
+		}
+		out = append(out, d)
 	}
 	return out, nil
 }

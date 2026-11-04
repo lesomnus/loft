@@ -273,57 +273,72 @@ func (t *Tx) forgetInvitations(member, person pdid.Id, account *uuid.UUID) ([]pd
 	return ids, nil
 }
 
-// succeed hands a workspace on when its last owner leaves: to the most senior
-// member who remains -- the widest role, then whoever joined first -- among
-// those who can sign in and are not leaving themselves, and never to an
-// auditor, whose role is to change nothing. It answers who, or that there was
-// nobody: a workspace with no owner is still everybody else's, and only an
-// operator can give it one.
+// succeed hands a workspace on when its last owner leaves, to whoever
+// [Successor] says, and answers who, or that there was nobody: a workspace
+// with no owner is still everybody else's, and only an operator can give it
+// one.
 func (t *Tx) succeed(h *ent.Holder) (pdid.Id, bool, error) {
+	next, ownerless, err := Successor(t.ctx, t.db, h)
+	if err != nil || next == nil {
+		return pdid.Nil, ownerless, err
+	}
+
+	id := pdid.Id(next.Id)
+	if err := t.begin(nil, "party.role", pdid.Nil, t.now, "", app.PartyRoleSet_builder{
+		Holder: id.Bytes(),
+		Role:   "owner",
+		By:     "succession",
+	}.Build()); err != nil {
+		return pdid.Nil, false, err
+	}
+	if _, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
+		Ref:              app.HolderRef_builder{Id: id.Bytes()}.Build(),
+		Role:             z.Ptr("owner"),
+		DateUpdatedForce: z.Ptr(true),
+	}.Build()); err != nil {
+		return pdid.Nil, false, err
+	}
+	return id, false, nil
+}
+
+// Successor is who a workspace goes to when `h` leaves it, as its last
+// owner: the most senior member who remains -- the widest role, then whoever
+// joined first -- among those who can sign in and are not leaving
+// themselves, and never an auditor, whose role is to change nothing. Nobody
+// when `h` is no owner or another owner remains; ownerless when there is
+// nobody to take it.
+//
+// It writes nothing, so what an account leaving would do is said before it
+// is done (`lifecycle.Lifecycle.Departing`), by the rule that then does it.
+func Successor(ctx context.Context, db *ent.Client, h *ent.Holder) (*ent.Holder, bool, error) {
 	if h.Role != "owner" {
-		return pdid.Nil, false, nil
+		return nil, false, nil
 	}
 	live := func(q *ent.HolderQuery) *ent.HolderQuery {
 		return q.Where(
-			holder.TenantId(t.tenant.Uuid()),
+			holder.TenantId(h.TenantId),
 			holder.IdNEQ(h.Id),
 			holder.DateErasedIsNil(),
 			holder.DateLeavingIsNil(),
 			holder.AccountNotNil(),
 		)
 	}
-	others, err := live(t.db.Holder.Query()).Where(holder.Role("owner")).Exist(t.ctx)
+	others, err := live(db.Holder.Query()).Where(holder.Role("owner")).Exist(ctx)
 	if err != nil || others {
-		return pdid.Nil, false, err
+		return nil, false, err
 	}
 
 	for _, role := range []string{"admin", "manager", "member"} {
-		next, err := live(t.db.Holder.Query()).Where(holder.Role(role)).
+		next, err := live(db.Holder.Query()).Where(holder.Role(role)).
 			Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).
-			First(t.ctx)
+			First(ctx)
 		if ent.IsNotFound(err) {
 			continue
 		}
 		if err != nil {
-			return pdid.Nil, false, err
+			return nil, false, err
 		}
-
-		id := pdid.Id(next.Id)
-		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "", app.PartyRoleSet_builder{
-			Holder: id.Bytes(),
-			Role:   "owner",
-			By:     "succession",
-		}.Build()); err != nil {
-			return pdid.Nil, false, err
-		}
-		if _, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
-			Ref:              app.HolderRef_builder{Id: id.Bytes()}.Build(),
-			Role:             z.Ptr("owner"),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build()); err != nil {
-			return pdid.Nil, false, err
-		}
-		return id, false, nil
+		return next, false, nil
 	}
-	return pdid.Nil, true, nil
+	return nil, true, nil
 }

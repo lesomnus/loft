@@ -89,6 +89,14 @@ var Table = map[string]Kind{
 	// What the keep windows take out of the history (design 8.2, 8.3).
 	app.OperatorRetentionService_Plan_FullMethodName: Read,
 	app.OperatorRetentionService_Run_FullMethodName:  Write,
+
+	// Who people are, which is roster's (design 9.10), and an account and
+	// its memberships on the roster in this process.
+	app.OperatorIdentityService_Migrate_FullMethodName:   Write,
+	app.OperatorIdentityService_Depart_FullMethodName:    Write,
+	app.OperatorIdentityService_Reconcile_FullMethodName: Write,
+	app.OperatorHolderService_Add_FullMethodName:         Write,
+	app.OperatorHolderService_Password_FullMethodName:    Write,
 }
 
 // Downloads is the methods of [Table] that are downloads.

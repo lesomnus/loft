@@ -3,10 +3,14 @@ package admincli_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"database/sql"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -88,6 +92,74 @@ func deployWith(t *testing.T, with func(*cmd.Config)) *deployment {
 	srv := httptest.NewServer(h)
 	t.Cleanup(srv.Close)
 	return &deployment{c: c, s: s, url: srv.URL}
+}
+
+// tablesOf is every table of the database `driver` and `dsn` name, opened
+// afresh, and a digest of what each holds: what a call that says it changes
+// nothing is held to, table by table.
+func tablesOf(t *testing.T, driver, dsn string) map[string]string {
+	t.Helper()
+	x := require.New(t)
+	db, err := sql.Open(driver, dsn)
+	x.NoError(err)
+	defer db.Close()
+
+	q := "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
+	if driver == "pgx" {
+		q = "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema() AND table_type = 'BASE TABLE'"
+	}
+	names := []string{}
+	rs, err := db.QueryContext(t.Context(), q)
+	x.NoError(err)
+	for rs.Next() {
+		v := ""
+		x.NoError(rs.Scan(&v))
+		names = append(names, v)
+	}
+	x.NoError(rs.Err())
+	x.NoError(rs.Close())
+	x.NotEmpty(names)
+
+	out := map[string]string{}
+	for _, name := range names {
+		rs, err := db.QueryContext(t.Context(), `SELECT * FROM "`+name+`"`)
+		x.NoError(err, name)
+		cols, err := rs.Columns()
+		x.NoError(err)
+		lines := []string{}
+		for rs.Next() {
+			vs := make([]any, len(cols))
+			ps := make([]any, len(cols))
+			for i := range vs {
+				ps[i] = &vs[i]
+			}
+			x.NoError(rs.Scan(ps...), name)
+			lines = append(lines, fmt.Sprintf("%#v", vs))
+		}
+		x.NoError(rs.Err())
+		x.NoError(rs.Close())
+		slices.Sort(lines)
+		sum := sha256.Sum256([]byte(strings.Join(lines, "\n")))
+		out[name] = fmt.Sprintf("%d row(s), %x", len(lines), sum[:8])
+	}
+	return out
+}
+
+// unchanged holds what tablesOf said of a database after a call to what it
+// said before, table by table, but for the tables `except` names.
+func unchanged(t *testing.T, was, now map[string]string, except ...string) {
+	t.Helper()
+	for name := range was {
+		_, ok := now[name]
+		require.True(t, ok, "%s went", name)
+	}
+	for name, v := range now {
+		if slices.Contains(except, name) {
+			continue
+		}
+		require.Contains(t, was, name, "%s was made", name)
+		require.Equal(t, was[name], v, "%s changed", name)
+	}
 }
 
 // admin runs `loft-admin` against the deployment's entry point.

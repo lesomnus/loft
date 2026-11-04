@@ -1238,3 +1238,382 @@ var OperatorRetentionService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Metadata: "loft/operator.proto",
 }
+
+const (
+	OperatorIdentityService_Migrate_FullMethodName   = "/loft.OperatorIdentityService/Migrate"
+	OperatorIdentityService_Depart_FullMethodName    = "/loft.OperatorIdentityService/Depart"
+	OperatorIdentityService_Reconcile_FullMethodName = "/loft.OperatorIdentityService/Reconcile"
+)
+
+// OperatorIdentityServiceClient is the client API for OperatorIdentityService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorIdentityService is who people are, which is roster's (design
+// 9.10): a deployment from before roster brought into it, an account leaving
+// every workspace it is in, and every account asked about again.
+type OperatorIdentityServiceClient interface {
+	// Migrate brings the workspaces and people of a deployment from before
+	// roster into it, with their identifiers (D27): on the roster in this
+	// process, an account for every membership that names none, each with a
+	// password said once; for a roster of its own, what its operator makes
+	// there, and the ones made already linked. Run again it makes nothing. A
+	// message for each membership, and last what it came to.
+	Migrate(ctx context.Context, in *OperatorIdentityMigrateRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityMigrateResponse], error)
+	// Depart is an account leaving every workspace it is in, now, rather than
+	// when roster's grace is over -- for somebody who asked to be forgotten at
+	// once: its person records pseudonymized, its memberships ended, a last
+	// owner's workspace handed on. It cannot be undone.
+	Depart(ctx context.Context, in *OperatorIdentityDepartRequest, opts ...grpc.CallOption) (*OperatorIdentityDepartResponse, error)
+	// Reconcile asks roster about every account with a membership here, marks
+	// those it has nobody by as leaving -- from now, so that they wait the
+	// whole grace -- and unmarks those it has again: what a served deployment
+	// does every `app.accounts.reconcile`, asked for now.
+	Reconcile(ctx context.Context, in *OperatorIdentityReconcileRequest, opts ...grpc.CallOption) (*OperatorIdentityReconcileResponse, error)
+}
+
+type operatorIdentityServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorIdentityServiceClient(cc grpc.ClientConnInterface) OperatorIdentityServiceClient {
+	return &operatorIdentityServiceClient{cc}
+}
+
+func (c *operatorIdentityServiceClient) Migrate(ctx context.Context, in *OperatorIdentityMigrateRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityMigrateResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorIdentityService_ServiceDesc.Streams[0], OperatorIdentityService_Migrate_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorIdentityMigrateRequest, OperatorIdentityMigrateResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorIdentityService_MigrateClient = grpc.ServerStreamingClient[OperatorIdentityMigrateResponse]
+
+func (c *operatorIdentityServiceClient) Depart(ctx context.Context, in *OperatorIdentityDepartRequest, opts ...grpc.CallOption) (*OperatorIdentityDepartResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorIdentityDepartResponse)
+	err := c.cc.Invoke(ctx, OperatorIdentityService_Depart_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operatorIdentityServiceClient) Reconcile(ctx context.Context, in *OperatorIdentityReconcileRequest, opts ...grpc.CallOption) (*OperatorIdentityReconcileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorIdentityReconcileResponse)
+	err := c.cc.Invoke(ctx, OperatorIdentityService_Reconcile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperatorIdentityServiceServer is the server API for OperatorIdentityService service.
+// All implementations must embed UnimplementedOperatorIdentityServiceServer
+// for forward compatibility.
+//
+// OperatorIdentityService is who people are, which is roster's (design
+// 9.10): a deployment from before roster brought into it, an account leaving
+// every workspace it is in, and every account asked about again.
+type OperatorIdentityServiceServer interface {
+	// Migrate brings the workspaces and people of a deployment from before
+	// roster into it, with their identifiers (D27): on the roster in this
+	// process, an account for every membership that names none, each with a
+	// password said once; for a roster of its own, what its operator makes
+	// there, and the ones made already linked. Run again it makes nothing. A
+	// message for each membership, and last what it came to.
+	Migrate(*OperatorIdentityMigrateRequest, grpc.ServerStreamingServer[OperatorIdentityMigrateResponse]) error
+	// Depart is an account leaving every workspace it is in, now, rather than
+	// when roster's grace is over -- for somebody who asked to be forgotten at
+	// once: its person records pseudonymized, its memberships ended, a last
+	// owner's workspace handed on. It cannot be undone.
+	Depart(context.Context, *OperatorIdentityDepartRequest) (*OperatorIdentityDepartResponse, error)
+	// Reconcile asks roster about every account with a membership here, marks
+	// those it has nobody by as leaving -- from now, so that they wait the
+	// whole grace -- and unmarks those it has again: what a served deployment
+	// does every `app.accounts.reconcile`, asked for now.
+	Reconcile(context.Context, *OperatorIdentityReconcileRequest) (*OperatorIdentityReconcileResponse, error)
+	mustEmbedUnimplementedOperatorIdentityServiceServer()
+}
+
+// UnimplementedOperatorIdentityServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorIdentityServiceServer struct{}
+
+func (UnimplementedOperatorIdentityServiceServer) Migrate(*OperatorIdentityMigrateRequest, grpc.ServerStreamingServer[OperatorIdentityMigrateResponse]) error {
+	return status.Error(codes.Unimplemented, "method Migrate not implemented")
+}
+func (UnimplementedOperatorIdentityServiceServer) Depart(context.Context, *OperatorIdentityDepartRequest) (*OperatorIdentityDepartResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Depart not implemented")
+}
+func (UnimplementedOperatorIdentityServiceServer) Reconcile(context.Context, *OperatorIdentityReconcileRequest) (*OperatorIdentityReconcileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Reconcile not implemented")
+}
+func (UnimplementedOperatorIdentityServiceServer) mustEmbedUnimplementedOperatorIdentityServiceServer() {
+}
+func (UnimplementedOperatorIdentityServiceServer) testEmbeddedByValue() {}
+
+// UnsafeOperatorIdentityServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorIdentityServiceServer will
+// result in compilation errors.
+type UnsafeOperatorIdentityServiceServer interface {
+	mustEmbedUnimplementedOperatorIdentityServiceServer()
+}
+
+func RegisterOperatorIdentityServiceServer(s grpc.ServiceRegistrar, srv OperatorIdentityServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorIdentityServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorIdentityService_ServiceDesc, srv)
+}
+
+func _OperatorIdentityService_Migrate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorIdentityMigrateRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorIdentityServiceServer).Migrate(m, &grpc.GenericServerStream[OperatorIdentityMigrateRequest, OperatorIdentityMigrateResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorIdentityService_MigrateServer = grpc.ServerStreamingServer[OperatorIdentityMigrateResponse]
+
+func _OperatorIdentityService_Depart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorIdentityDepartRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorIdentityServiceServer).Depart(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorIdentityService_Depart_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorIdentityServiceServer).Depart(ctx, req.(*OperatorIdentityDepartRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperatorIdentityService_Reconcile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorIdentityReconcileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorIdentityServiceServer).Reconcile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorIdentityService_Reconcile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorIdentityServiceServer).Reconcile(ctx, req.(*OperatorIdentityReconcileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperatorIdentityService_ServiceDesc is the grpc.ServiceDesc for OperatorIdentityService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorIdentityService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorIdentityService",
+	HandlerType: (*OperatorIdentityServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Depart",
+			Handler:    _OperatorIdentityService_Depart_Handler,
+		},
+		{
+			MethodName: "Reconcile",
+			Handler:    _OperatorIdentityService_Reconcile_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Migrate",
+			Handler:       _OperatorIdentityService_Migrate_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "loft/operator.proto",
+}
+
+const (
+	OperatorHolderService_Add_FullMethodName      = "/loft.OperatorHolderService/Add"
+	OperatorHolderService_Password_FullMethodName = "/loft.OperatorHolderService/Password"
+)
+
+// OperatorHolderServiceClient is the client API for OperatorHolderService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorHolderService is an account and its memberships, on the roster in
+// this process (design 9.10, D27): what the people screen does, for the
+// operator who has no screen to do it from -- the owner who lost their
+// password above all. A deployment whose roster is one of its own refuses
+// both: its accounts are made and given passwords there.
+type OperatorHolderServiceClient interface {
+	// Add puts an account in a workspace, making the account -- with a
+	// password said once -- when it is new.
+	Add(ctx context.Context, in *OperatorHolderAddRequest, opts ...grpc.CallOption) (*OperatorHolderAddResponse, error)
+	// Password gives an account a new password, said once, and ends
+	// everywhere it is signed in.
+	Password(ctx context.Context, in *OperatorHolderPasswordRequest, opts ...grpc.CallOption) (*OperatorHolderPasswordResponse, error)
+}
+
+type operatorHolderServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorHolderServiceClient(cc grpc.ClientConnInterface) OperatorHolderServiceClient {
+	return &operatorHolderServiceClient{cc}
+}
+
+func (c *operatorHolderServiceClient) Add(ctx context.Context, in *OperatorHolderAddRequest, opts ...grpc.CallOption) (*OperatorHolderAddResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorHolderAddResponse)
+	err := c.cc.Invoke(ctx, OperatorHolderService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operatorHolderServiceClient) Password(ctx context.Context, in *OperatorHolderPasswordRequest, opts ...grpc.CallOption) (*OperatorHolderPasswordResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorHolderPasswordResponse)
+	err := c.cc.Invoke(ctx, OperatorHolderService_Password_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperatorHolderServiceServer is the server API for OperatorHolderService service.
+// All implementations must embed UnimplementedOperatorHolderServiceServer
+// for forward compatibility.
+//
+// OperatorHolderService is an account and its memberships, on the roster in
+// this process (design 9.10, D27): what the people screen does, for the
+// operator who has no screen to do it from -- the owner who lost their
+// password above all. A deployment whose roster is one of its own refuses
+// both: its accounts are made and given passwords there.
+type OperatorHolderServiceServer interface {
+	// Add puts an account in a workspace, making the account -- with a
+	// password said once -- when it is new.
+	Add(context.Context, *OperatorHolderAddRequest) (*OperatorHolderAddResponse, error)
+	// Password gives an account a new password, said once, and ends
+	// everywhere it is signed in.
+	Password(context.Context, *OperatorHolderPasswordRequest) (*OperatorHolderPasswordResponse, error)
+	mustEmbedUnimplementedOperatorHolderServiceServer()
+}
+
+// UnimplementedOperatorHolderServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorHolderServiceServer struct{}
+
+func (UnimplementedOperatorHolderServiceServer) Add(context.Context, *OperatorHolderAddRequest) (*OperatorHolderAddResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedOperatorHolderServiceServer) Password(context.Context, *OperatorHolderPasswordRequest) (*OperatorHolderPasswordResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Password not implemented")
+}
+func (UnimplementedOperatorHolderServiceServer) mustEmbedUnimplementedOperatorHolderServiceServer() {}
+func (UnimplementedOperatorHolderServiceServer) testEmbeddedByValue()                               {}
+
+// UnsafeOperatorHolderServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorHolderServiceServer will
+// result in compilation errors.
+type UnsafeOperatorHolderServiceServer interface {
+	mustEmbedUnimplementedOperatorHolderServiceServer()
+}
+
+func RegisterOperatorHolderServiceServer(s grpc.ServiceRegistrar, srv OperatorHolderServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorHolderServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorHolderService_ServiceDesc, srv)
+}
+
+func _OperatorHolderService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorHolderAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorHolderServiceServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorHolderService_Add_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorHolderServiceServer).Add(ctx, req.(*OperatorHolderAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperatorHolderService_Password_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorHolderPasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorHolderServiceServer).Password(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorHolderService_Password_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorHolderServiceServer).Password(ctx, req.(*OperatorHolderPasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperatorHolderService_ServiceDesc is the grpc.ServiceDesc for OperatorHolderService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorHolderService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorHolderService",
+	HandlerType: (*OperatorHolderServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Add",
+			Handler:    _OperatorHolderService_Add_Handler,
+		},
+		{
+			MethodName: "Password",
+			Handler:    _OperatorHolderService_Password_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "loft/operator.proto",
+}

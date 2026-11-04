@@ -47,6 +47,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 	version := pdcmd.NewCmdVersion()
 	ws, contract, hold, trail := newCmdTenant(), newCmdContract(), newCmdHold(), newCmdTrail()
 	search, retention := newCmdSearch(), newCmdRetention()
+	identity, holder := newCmdIdentity(), newCmdHolder()
 
 	return &xli.Command{
 		Name:  "loft-admin",
@@ -68,11 +69,13 @@ func Cmd(c *cmd.Config) *xli.Command {
 			trail,
 			search,
 			retention,
+			identity,
+			holder,
 		},
 
 		// What asks the entry point reads none of a deployment's
 		// configuration: an operator runs it from their own machine.
-		Handler: xli.Chain(cfg.Load(l, version, ws, contract, hold, trail, search, retention), xli.RequireSubcommand()),
+		Handler: xli.Chain(cfg.Load(l, version, ws, contract, hold, trail, search, retention, identity, holder), xli.RequireSubcommand()),
 	}
 }
 

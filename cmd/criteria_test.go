@@ -31,6 +31,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/known/anypb"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cli"
@@ -327,8 +328,9 @@ func TestNoPasswordIsKeptHere(t *testing.T) {
 // `POST /session`, which TestAPasswordIsNoWayInWhereTheIssuerIsTheOnlyOne
 // refuses, nothing here signs anybody in on a password -- not a header on a
 // call, not a terminal, which is a session only once somebody signed in at the
-// page approves it -- and the one request that carries a password sets one,
-// for a session that is there already.
+// page approves it -- and the requests that carry a password set one: for a
+// session that is there already, or at the operator's entry point, which
+// this server does not serve, for an operator's key.
 func TestNoOtherDoorTakesAPassword(t *testing.T) {
 	w := newSsoWorld(t, func(c *cmd.Config) { c.Auth.SsoOnly = true })
 	x := w.x
@@ -382,7 +384,11 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 	// own or, for an administrator, somebody's, and the login an
 	// administrator issues on the roster in this process -- each setting a
 	// password, none signing anybody in, and each a call made with a session
-	// there is already.
+	// there is already. And the operator's, at the entry point alone
+	// (`server/admin`, design 9.15): an account made, or given a password,
+	// on the roster in this process, and a deployment from before roster
+	// brought into it -- each setting a password, for an operator's key, and
+	// none of them served here.
 	carries := map[string]bool{}
 	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
 		if fd.Package() != "loft" {
@@ -401,7 +407,21 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 		}
 		return true
 	})
-	x.Equal(map[string]bool{"loft.PartyService.SetPassword": true, "loft.PartyService.Invite": true}, carries)
+	x.Equal(map[string]bool{
+		"loft.PartyService.SetPassword":        true,
+		"loft.PartyService.Invite":             true,
+		"loft.OperatorHolderService.Add":       true,
+		"loft.OperatorHolderService.Password":  true,
+		"loft.OperatorIdentityService.Migrate": true,
+	}, carries)
+	for m := range carries {
+		if !strings.HasPrefix(m, "loft.Operator") {
+			continue
+		}
+		i := strings.LastIndex(m, ".")
+		err := w.conn.Invoke(ctx, "/"+m[:i]+"/"+m[i+1:], &emptypb.Empty{}, &emptypb.Empty{})
+		x.Equal(codes.Unimplemented, status.Code(err), "%s is served here: %v", m, err)
+	}
 	_, err = app.NewPartyServiceClient(w.conn).SetPassword(ctx, app.PartySetPasswordRequest_builder{Password: "correct horse"}.Build())
 	x.Equal(codes.Unauthenticated, status.Code(err), "a password set by nobody")
 }
