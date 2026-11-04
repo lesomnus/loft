@@ -1,0 +1,125 @@
+edition = "2023";
+
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "loft/ops.proto";
+import "loft/payday/holder.proto";
+import "loft/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/loft";
+
+// The operator's own services (D74, design 9.15): what an operator of the
+// deployment does that is no entity's RPC. They are served by the operator's
+// entry point alone (`loft-admin serve`, `server/admin`) and registered on no
+// other server: the public one has none of them, and reads no operator's key.
+// Where an entity's RPC is what an operator does -- `TenantService.Close`, a
+// contract's `Add` -- the entry point serves that RPC instead, the same
+// request, as the operator.
+//
+// Each is `Operator<X>Service`, X the name in the schema of what it is about:
+// what a terminal mounts its methods under (`OperatorTenantService.Move` is
+// `tenant move`).
+
+// OperatorTenantService is what an operator does to a workspace from outside
+// it, besides what `TenantService` serves them.
+service OperatorTenantService {
+  // Show is one workspace as an operator reads it: its row, who is in it,
+  // its contracts and its legal holds, and what its own settings, its
+  // contracts and its holds come to now.
+  rpc Show(OperatorTenantShowRequest) returns (OperatorTenantShowResponse);
+
+  // Move gives a workspace another address (D29): one a workspace may have
+  // and nobody has, and the old one is held -- sending whoever arrives at it
+  // on -- for as long as a destroyed workspace's is. Nobody in a workspace
+  // moves its address (`TenantService.Patch` refuses one).
+  rpc Move(OperatorTenantMoveRequest) returns (OperatorTenantMoveResponse);
+
+  // NameOwner makes a member of a workspace one of its owners (decision 17):
+  // for one whose owners are gone, or who asked. Whoever owned it still does.
+  rpc NameOwner(OperatorTenantNameOwnerRequest) returns (Holder);
+}
+
+// OperatorTenantRef is a workspace as an operator names it: by its
+// identifier, or by its address. It is `TenantRef` on the wire, field for
+// field; a file written by hand cannot import the contracts `pd gen` writes.
+message OperatorTenantRef {
+  oneof key {
+    bytes id = 1;
+    string alias = 4;
+  }
+}
+
+message OperatorTenantShowRequest {
+  OperatorTenantRef ref = 1;
+}
+
+message OperatorTenantShowResponse {
+  Tenant tenant = 1;
+
+  // Its memberships, not erased, by alias.
+  repeated Holder members = 2;
+
+  // Its contracts, the latest in force first.
+  repeated TenantContract contracts = 3;
+
+  // Its legal holds, the newest first, lifted ones among them.
+  repeated LegalHold holds = 4;
+
+  // What its own settings, contracts and holds come to now.
+  OperatorTenantWindow window = 5;
+}
+
+// OperatorTenantWindow is how long a workspace keeps what it keeps, as it
+// stands now: its own settings (D36), the deployment's where it says none,
+// and the floors and holds over both.
+message OperatorTenantWindow {
+  // Days its history is kept; 0 is forever.
+  uint32 keep_days = 1;
+  // A window made shorter waits out the grace: until when the longer one
+  // holds, and the days it then becomes. Unset when nothing waits.
+  google.protobuf.Timestamp keep_until = 2;
+  uint32 keep_then_days = 3;
+
+  // Days the trail keeps its access record -- the floor raising a shorter
+  // one -- and the same for a shorter one waiting; 0 is forever.
+  uint32 access_days = 4;
+  google.protobuf.Timestamp access_until = 5;
+  uint32 access_then_days = 6;
+
+  // Days it may be restored once closed: its own, or the deployment's.
+  uint32 restore_days = 7;
+
+  // Whether destroying it takes its whole trail, what the deployment's
+  // floors are on too, as its contract says; otherwise it retires.
+  bool purge = 8;
+
+  // Whether the deployment destroys anything by these windows at all
+  // (`app.retention.apply`).
+  bool apply = 9;
+}
+
+message OperatorTenantMoveRequest {
+  OperatorTenantRef ref = 1;
+  // The new address.
+  string to = 2;
+  // Take an address that is held anyway, which says so in the log.
+  bool reuse = 3;
+  // Say what it would do, and do nothing.
+  bool dry_run = 4;
+}
+
+message OperatorTenantMoveResponse {
+  // The workspace, at its new address -- at its old one for a dry run.
+  Tenant tenant = 1;
+  // The address it was at, and until when that is held from anybody else.
+  string from = 2;
+  google.protobuf.Timestamp held_until = 3;
+}
+
+message OperatorTenantNameOwnerRequest {
+  OperatorTenantRef ref = 1;
+  // The membership, by its alias in the workspace (`@` or not).
+  string member = 2;
+}

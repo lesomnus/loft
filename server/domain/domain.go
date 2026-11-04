@@ -46,6 +46,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/treelock"
 	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/opensearch"
@@ -519,15 +520,18 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 }
 
 // System runs `f` as the deployment's own work in a tenant: an expired hold,
-// an overdue loan. `server` is the ungated stack.
+// an overdue loan, an operator's act. `server` is the ungated stack.
 //
-// The context is framed as nobody's work in the tenant, unless it is framed in
-// that tenant already -- an invitation's answer is, as the membership it
-// makes: the past reads who did an operation, and where, off the frame
-// (payday#151), and an operator's command or a sweep comes with none.
+// The context is framed as the deployment's work in the tenant, unless it is
+// framed in that tenant already -- an invitation's answer is, as the
+// membership it makes: the past reads who did an operation, and where, off the
+// frame (payday#151). A sweep's is nobody's; an operator's, done at their word
+// at the operator's entry point, is theirs (`operator.Frame`, D74), so that its
+// event, its trail and its access record name them. Either way it is decided
+// as the deployment's: the actor `f` is handed is nobody.
 func (d *Deps) System(ctx context.Context, server app.Server, drv dialect.Driver, tenant pdid.Id, f func(t *Tx) error) error {
 	if fr, err := gate.Actor(ctx); err != nil || fr.Tenant != tenant {
-		ctx = frame.Into(ctx, frame.New(pdid.Nil, tenant, frame.Grant{}).WithScope(frame.Only(tenant)))
+		ctx = operator.Frame(ctx, tenant)
 	}
 	return d.run(ctx, server, drv, pdid.Nil, tenant, f)
 }

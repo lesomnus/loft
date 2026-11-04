@@ -329,7 +329,7 @@ echo "== the operator's entry point, over port-forward and over nothing else"
 admin() {
 	kube "kubectl -n ${NS} port-forward deploy/loft 8081:8081 >/dev/null 2>&1 & pf=\$!
 		for i in \$(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:8081/ && break; sleep 1; done
-		curl -s -w ' %{http_code}' $* http://127.0.0.1:8081/admin/workspaces; kill \${pf}"
+		curl -s -w ' %{http_code}' -H 'content-type: application/json' -H 'connect-protocol-version: 1' -d '{}' $* http://127.0.0.1:8081/loft.TenantService/List; kill \${pf}"
 }
 said '"alias":"acme"' "the entry point did not list the workspace to a key" admin "-H 'authorization: Bearer ${key}'"
 said " 401" "the entry point answered without a key" admin

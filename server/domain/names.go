@@ -17,6 +17,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/itemmodel"
 	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -282,10 +283,15 @@ func (n *namer) model(id uuid.UUID) string { return n.show(n.look(n.t.ctx, &n.mo
 
 // actor is whoever did something, as the history names them: by the person
 // record of the membership, or the membership's own name when it is no
-// person record's. The deployment's own work is nobody's.
+// person record's. The deployment's own work is nobody's, and at an
+// operator's word the operator's (D74): who of the deployment's people that
+// was is the deployment's to say, and not the workspace's to read.
 func (n *namer) actor(id *uuid.UUID) string {
 	if id == nil {
 		return "시스템"
+	}
+	if operator.Is(pdid.Id(*id)) {
+		return "운영자"
 	}
 	return n.show(n.look(n.t.ctx, &n.holders, *id, n.ofHolder))
 }

@@ -388,7 +388,7 @@ StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
   2. 도메인 레이어를 Gate **위**에 두어, 도메인 작업의 내부 쓰기도 Gate를 지나게 한다(9.3절).
   3. PostgreSQL에서는 바뀌는 참조(`Asset.parent` 같은 현재 상태 값)에 같은 테넌트인지 확인하는 트리거를 마지막 방어선으로 둔다(9.4절). 복합 FK는 payday의 서버 시작 전 검사가 "스키마 불일치"로 거부하므로 쓸 수 없다(확인함).
 - **RLS는 쓰지 않는다.** payday의 테넌트 경계는 애플리케이션 쿼리 조건이고, 경계 없는 운영자 스택과 여러 테넌트를 보는 운영자 정책이 RLS의 세션 변수 방식과 맞지 않는다. 대신 위의 세 겹과 교차 테넌트 테스트(10장)로 보완한다.
-- **배포를 둘로 나눈다**: 공개 진입점(테넌트 경계 있음, 자기 테넌트만)과 운영자 진입점(내부망, 여러 테넌트를 보는 정책)을 다른 바이너리로 둔다. 공개 바이너리 안에는 "전체 보기" 코드 경로가 없다. 구현(2026-10-12, 결정 17): `loft-admin serve`가 `admin.addr`(기본 루프백)에서 운영자 API(`/admin/...`, 운영자마다 키, 요청마다 운영자 이름으로 로그)와 on-demand TLS 확인을 낸다. `loft-admin`의 나머지 명령은 그 API를 부르는 운영자의 CLI다(워크스페이스 찾기·닫기·복구·주소 바꾸기·소유자 지정, 계약, hold). 공개 바이너리 `loft`는 `server/admin`을 링크하지 않는다. 바뀐 내용은 셸의 운영자 명령처럼 배포 자신의 일로 쓴다. 셸 명령은 아직 `loft`에 남아 있고, 운영자 웹 화면은 나중이다.
+- **배포를 둘로 나눈다**: 공개 진입점(테넌트 경계 있음, 자기 테넌트만)과 운영자 진입점(내부망, 여러 테넌트를 보는 정책)을 다른 바이너리로 둔다. 공개 바이너리 안에는 "전체 보기" 코드 경로가 없다. 구현(2026-10-12, 결정 17): `loft-admin serve`가 `admin.addr`(기본 루프백)에서 운영자의 문과 on-demand TLS 확인을 낸다. 운영자마다 키가 있다. `loft-admin`의 나머지 명령은 그 문을 부르는 운영자의 CLI다. 공개 바이너리 `loft`는 `server/admin`을 링크하지 않는다. 2026-11-04부터(D74, 9.15절) 그 문은 공개 서버와 같은 RPC를 운영자로 내고, 어느 엔터티의 것도 아닌 일은 운영자만의 서비스로 낸다. 서버 상자의 명령은 `serve`·`init`·`migrate`만 남는다. 바뀐 내용은 배포 자신의 일로 쓰고, 작업 기록과 접속기록은 운영자를 행위자로 적는다. 운영자 웹 화면은 나중이다.
 - **인증은 roster가 한다(9.10절, D26·D27).** 계정과 그 로그인 수단은 roster의 행이고, Loft는 roster가 확인해 준 계정에 자기 세션을 준다. SaaS는 roster의 OIDC issuer를 통한 SSO만 쓴다(D28). 로그인은 앱 호스트 한 곳에서 계정으로 하고, 워크스페이스는 경로(`/@<alias>`)로 고른다(9.11절). CE의 비밀번호 로그인은 roster에 묻는다(`VouchService.Verify`). SCIM 프로비저닝과 기업 IdP 연결은 roster의 기능을 쓴다.
 - **권한**: payday에는 역할이 없으므로 Loft가 `gate.Policy`에서 구현한다. Holder에 `role`(`owner`, `admin`, `asset_manager`, `member`, `auditor`)을 덧붙이고, 메서드별 최소 역할 표로 판단한다. 같은 Policy를 batch guard에도 넘긴다(넘기지 않으면 batch 안의 작업이 권한 검사를 건너뛴다). 일반 직원 역할(`member`)은 자산 보기, 셀프 실사, 요청, 인수 확인을 할 수 있다. 사업장 단위 권한은 Phase 3에서 payday 필드 3(Site)으로 도입한다. 역할은 roster로 옮기지 않고 Loft의 것으로 둔다. roster가 주는 권한을 읽는 방식으로 바꿀지는 정할 것이다(9.10절).
 - **역할과 가격 정책을 결합하지 않는다.** 요금제는 한도를 정하고, 권한은 무엇을 할 수 있는지를 정한다.
@@ -1703,6 +1703,97 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 
 **모든 길.** 화면(리포트), 터미널(`loft api asset census`, `custody outstanding`, `bookable usage`, `inventory-count results`, `stock flow`와 각각의 `export-…`. 대여 현황 CSV는 `--reason`), 비서(`report` 도구)다. 비서는 읽기만 한다. CSV는 화면과 터미널의 것이고, 대여 현황 CSV가 말하는 이유를 비서는 물을 사람이 없다.
 
+### 9.15 운영자 진입점: 같은 서비스를 운영자로 (D74)
+
+운영자는 연결로 부른다(loft#285). 공개 서버로 가는 연결은 사람(구성원이나 계정)이고, 운영자 진입점으로 가는 연결은 운영자다. 명령은 같고 연결만 다르다. 그래서 운영자 진입점은 자기만의 HTTP JSON API(`/admin/...`)가 아니라 공개 서버와 같은 RPC를 낸다.
+
+**무엇을 내나.** `loft-admin serve`가 `admin.addr`에서 gRPC 서버를 Connect로 낸다. payday `web`의 트랜스코더이고, 터미널이 공개 서버에 말하는 프로토콜과 같다. `/internal/tls-ask`는 같은 리스너와 `admin.ask.addr`에 그대로 있다.
+
+- **공개 서버와 같은 서비스.** 엔터티의 RPC가 운영자가 하는 일이면 그 RPC를 같은 요청 그대로 낸다. 워크스페이스를 찾고, 보고, 닫고, 복구하고, 내보내는 것(`TenantService.Get`·`List`·`Close`·`Restore`·`Export`), 계약(`TenantContractService.Add`·`Get`·`List`), 법적 보존(`LegalHoldService.Add`·`Get`·`List`, 해제는 `date_lifted`만 쓰는 `Patch`), 구성원 자격 읽기(`HolderService.Get`·`List`), 작업 기록의 사유 지우기(`EventService.Redact`), 접속기록 점검의 기록(`AccessReviewService.List`)이다. 벽이 없으므로 `List`는 배포 전체의 것이다.
+- **운영자만의 서비스.** 어느 엔터티의 RPC도 아닌 것은 `proto/loft/operator.proto`의 `Operator<X>Service`다. `X`는 그것이 다루는 스키마의 이름이다(`Tenant`, `Trail`, `Search`, `Retention`, `Identity`, `Holder`, `Event`, `Access`). 4단계는 이 규칙대로 메서드를 `<x>/<동사>`에 붙인다(`OperatorTenantService.Retire` → `tenant retire`).
+- **공개 서버는 내지 않는다.** 운영자만의 서비스를 등록하지 않고(`cmd.Server.Grpc`), 운영자의 키를 읽지 않는다. 공개 API에 관리자 플래그는 없다. 같은 이름의 엔터티 RPC도 공개 서버에서는 구성원이나 계정으로만 불린다. 소유자의 `Close`는 이름을 입력한 소유자의 것이다. `loft`는 `server/admin`과 `cli/admin`을 링크하지 않는다(`cmd/loft`의 시험).
+
+**누가.** 운영자는 키로 찾는다. `Authorization: Bearer`, `admin.keys`, 32자 이상으로 지금과 같다. 키가 없거나 맞지 않으면 아무것도 읽기 전에 `Unauthenticated`다. 운영자에게는 이름(`admin.keys`의 이름)과 그 이름에서 정해지는 식별자가 있다(`operator.Id`: 도메인 11, 나머지는 이름의 SHA-256). 식별자는 어느 표의 행도 아니다. 키를 바꿔도 이름이 같으면 같은 사람이다. 도메인 11은 어느 엔터티도 쓴 적이 없고, 엔터티가 그 번호를 가지면 시험이 실패한다(`server/operator`).
+
+**틀(frame).** 운영자의 호출은 배포의 일이다. 벽도 Gate도 없는 서버(`Base`)와 도메인 레이어의 배포 함수(`Deps.CloseWorkspace`, `NameOwner`, `RedactEvent`, `Expire` 같은 것)로 쓴다. 운영자는 payday의 frame이 아니라 진입점이 문맥에 싣는다(`operator.Into`). 무엇을 할 수 있는지 정하는 계층이 frame을 호출자로 읽기 때문이다(payday#206).
+
+- 배포의 일은 워크스페이스에 쓸 때 "그 워크스페이스에서 아무도 아닌 이"로 틀을 짓는다(`Deps.System`). 문맥에 운영자가 있으면 그 자리에 운영자를 넣는다(`frame.New(운영자, 워크스페이스)`). 여러 워크스페이스에 걸친 일(계정이 떠나는 것, 보존 패스)도 워크스페이스마다 그렇다.
+- 도메인 레이어를 지나지 않는 쓰기(계약, 보존, 주소, 파기, 가져오기, 작업 기록의 승인)는 진입점이 같은 틀을 짓는다(`operator.Frame`). 워크스페이스가 없는 쓰기는 워크스페이스 없이 짓는다.
+- 그래서 과거(이벤트), 작업 기록, 접속기록의 쓰기가 운영자를 행위자로 적는다. 도메인 레이어가 판단에 쓰는 행위자(`Tx.actor`)는 그대로 없다. 배포의 일로 판단한다.
+- 이력과 접속기록 점검은 운영자를 "운영자"로 부른다(`namer.actor`). 이름은 배포 안의 사람이라 워크스페이스에 보이지 않는다. 어느 운영자인지는 배포의 접속기록이 말한다.
+
+**정책.** 진입점의 표 하나(`server/admin`의 `Table`)가 운영자에게 내는 메서드를 모두 적는다. 메서드마다 읽기, 바꾸기, 내려받기 가운데 무엇인지도 적는다. 표에 없는 것은 아무것도 읽기 전에 `PermissionDenied`다. 운영자 사이에는 역할이 없고, 키를 가진 사람은 표 전부를 부른다. 표와 등록된 서비스가 서로 같은지는 시험이 본다. 공개 서버의 `server/policy`는 운영자를 모른다.
+
+**접속기록.** 사람의 정보를 실은 호출은 공개 서버에서처럼 행이 된다(`personal` 선언, `access.Saw`).
+
+- 틀이 없는 읽기의 행은 payday#206의 `access.Config.Operator`로 운영자를 행위자로 적는다(워크스페이스 없음). 쓰기의 행은 위의 틀로 적는다(그 워크스페이스).
+- 읽기의 행은 답이 나가기 전에 쓰고, 쓸 수 없으면 거절한다(`AtOnce`). 진입점은 행을 모아 쓰는 루프를 돌리지 않고, 운영자의 문에서는 기록되지 않은 읽기가 없어야 한다.
+- 주소는 `admin:<peer>`다. 운영자 진입점으로 어디서 왔는지다.
+- 내려받기(`TenantService.Export`, `OperatorTrailService.Export`)는 공개 서버에서처럼 `payday-reason-bin`으로 까닭을 말해야 한다. 첫 메시지가 나가기 전에 행이 쓰인다.
+- 워크스페이스의 접속기록 점검은 운영자의 행을 "운영자"로 부른다. 배포의 접속기록(`OperatorAccessService.List`)은 식별자로 말하고, 운영자의 행은 진입점이 아는 이름을 곁들인다.
+
+**작업 기록.** 운영자의 쓰기는 서버를 지나므로 작업 기록에 남고, 행위자가 운영자다. 서버를 지나지 않는 쓰기(작업 기록의 행 승인, `pd.Record`)도 운영자의 틀로 쓴다. 보관소의 승인(`OperatorTrailService.Accept`)이 체크포인트에 남기는 `by`는 키가 말하는 운영자의 이름이다. 셸의 `--by`는 없앤다. 내보내기와 사유 지우기의 `--by`도 같다.
+
+**메서드.**
+
+| 명령(지금) | 진입점의 RPC | 모양 |
+| --- | --- | --- |
+| `workspace ls` | `TenantService.List` | 단항 |
+| `workspace show`, `contract show` | `OperatorTenantService.Show` | 단항 |
+| `workspace close`, `tenant close` | `TenantService.Close` | 단항 |
+| `workspace restore`, `tenant restore` | `TenantService.Restore` | 단항 |
+| `workspace alias`, `tenant alias` | `OperatorTenantService.Move` | 단항, `dry_run` |
+| `workspace owner` | `OperatorTenantService.NameOwner` | 단항 |
+| `contract set` | `TenantContractService.Add` | 단항 |
+| `hold place`, `hold lift` | `LegalHoldService.Add`, `Patch` | 단항 |
+| `tenant export` | `TenantService.Export` | 서버 스트림, 내려받기 |
+| `tenant verify` | `OperatorTrailService.Keys`와 CLI의 검증 | 단항 |
+| `tenant import` | `OperatorTenantService.Import` | 클라이언트 스트림, `dry_run` |
+| `tenant retired` | `OperatorTenantService.Retired` | 단항 |
+| `tenant retire`, `purge` | `OperatorTenantService.Retire`, `Purge` | 서버 스트림, `dry_run` |
+| `holder add`, `password` | `OperatorHolderService.Add`, `Password` | 단항 |
+| `identity migrate` | `OperatorIdentityService.Migrate` | 서버 스트림 |
+| `identity depart`, `reconcile` | `OperatorIdentityService.Depart`, `Reconcile` | 단항, `dry_run` |
+| `trail verify`, `accept` | `OperatorTrailService.Verify`, `Accept` | 서버 스트림, 단항 |
+| `trail rows`, `rows --accept` | `OperatorTrailService.Rows`, `AcceptRows` | 서버 스트림, 단항 |
+| `trail owed` | `OperatorTrailService.Owed` | 단항 |
+| `trail export` | `OperatorTrailService.Export` | 서버 스트림, 내려받기 |
+| `trail verify-export` | `OperatorTrailService.Keys`와 CLI의 검증 | 단항 |
+| `event redact` | `OperatorEventService.Redaction`, `EventService.Redact` | 단항 |
+| `access ls` | `OperatorAccessService.List` | 단항 |
+| `access reviews` | `AccessReviewService.List` | 단항 |
+| `search status`, `remove`, `analyze` | `OperatorSearchService.Status`, `Remove`, `Analyze` | 단항, `Remove`는 `dry_run` |
+| `search reindex` | `OperatorSearchService.Reindex` | 서버 스트림 |
+| `retention plan`, `run` | `OperatorRetentionService.Plan`, `Run` | 서버 스트림 |
+
+검증 둘(`tenant verify`, `trail verify-export`)은 파일과 그것을 여는 열쇠가 CLI에 있어야 하는 일이다. 작업 기록 묶음은 운영자의 개인 열쇠(age의 identity, YubiKey의 플러그인)로 열고, 내보내기는 워크스페이스 전체다. 그래서 진입점은 배포가 서명하고 믿는 공개 열쇠(`Keys`)만 답하고, 검증은 CLI가 한다.
+
+**긴 작업은 서버 스트림이다.** 파기(`Retire`, `Purge`), 색인 다시 만들기, 보존 패스, 작업 기록의 점검(`Verify`, `Rows`), 내보내기(`TenantService.Export`, `OperatorTrailService.Export`), roster 이전(`Migrate`)이다. 일이 진행을 말하면 그 메시지를 보내고, 말하지 않는 동안에도 15초마다 보낸다. 마지막 메시지가 결과다. 시작하고 나서 지켜보는 작업(job)으로 두지 않는다.
+
+- 상태는 DB에 있다. 진입점의 메모리에 둔 작업은 프로세스와 함께 사라지고, DB에 두면 엔터티와 루프가 하나씩 는다.
+- 모두 멈춘 뒤 다시 돌려도 된다. 파기는 다시 돌리면 남은 것을 마저 하고(`closing.Destroy`), 색인은 새 것이 다 찰 때까지 별칭이 옛 것을 가리키며 다음 다시 만들기가 남은 것을 지운다. 보존 패스와 점검과 내보내기는 처음부터 다시 한다. 상자의 명령을 Ctrl-C로 멈추던 것과 같다.
+- 호출이 끊기면 그 호출의 문맥이 끝나 일이 다음 단계에서 멈춘다. 운영자는 다시 돌린다.
+- 스트림이 흐르는 동안 연결이 쉬지 않는다(`kubectl port-forward`).
+- 올리는 것은 클라이언트 스트림이다. 가져오기(`OperatorTenantService.Import`)는 첫 메시지가 옵션이고 나머지가 파일의 바이트다. 진입점은 그것을 임시 파일에 모은 뒤 읽는다. 내려받는 것은 서버 스트림의 바이트다(512KiB씩). 파일은 CLI의 것이다.
+- 단항 호출은 서버가 `server.call_timeout`(기본 30초)으로 자른다. 오래 걸릴 수 있는 것은 모두 스트림이다.
+
+**미리보기와 `--yes`.** 지우거나 옮기는 운영자만의 메서드는 `dry_run`을 받는다. 그 일을 해 보거나(트랜잭션을 되돌리는 것), 계산만 해서 무엇을 할지 답한다. CLI는 `--yes`가 없으면 `dry_run`으로 부른다. 엔터티의 RPC(닫기, 복구, 계약, 보존)는 CLI가 먼저 읽어 무엇을 할지 말한다. 닫기의 `confirm`은 운영자에게는 워크스페이스의 주소다. 운영자는 워크스페이스를 주소로 찾고, 이름은 저장된 대로 본다(9.11절). 사유와 까닭(`reason`, `why`)은 지금처럼 요구한다.
+
+**상자에 남는 것.** `serve`, `init`, `migrate`와 `config env`, `version`이다. 서버의 생애에 관한 것이라 물을 서버가 없을 때 돈다. `init`은 진입점이 설 DB에 첫 워크스페이스를 만들고, `migrate`는 서버가 뜨기 전에 DB를 이 빌드의 모양으로 맞춘다(Kubernetes의 init 컨테이너). 나머지 상자의 명령(`tenant`, `holder`, `identity`, `trail`, `event`, `access`, `search`, `contract`, `hold`, `retention`)은 진입점의 RPC가 되고 `loft-admin`의 명령이 그것을 부른다. `loft`의 상자 명령은 이 단계의 마지막 PR이 지운다. 4단계가 `loft-admin`의 클라이언트 명령을 `loft`에 합치므로 남길 까닭이 없고, 남기면 운영자를 적지 않는 두 번째 길이 남는다.
+
+**진입점에 두지 않는 것.**
+
+- 구성원과 계정의 메서드(`Configure`, `Preview`, `Mine`, `Create`, 워크스페이스 안의 일). 운영자는 워크스페이스 밖에서 그것에 대해 일하고, 구성원으로 일하지 않는다. 워크스페이스의 보관 기간은 소유자의 것이다(D36).
+- 엔터티의 일반 쓰기(`Tenant`의 `Add`·`Patch`·`Apply`·`Erase`). 워크스페이스를 만드는 것은 `init`과 가져오기이고, 주소를 바꾸는 것은 `Move`다.
+- batch와 watch. 운영자의 일은 호출 하나씩이다.
+- 운영자 웹 화면. 나중이다.
+
+**순서.** 셋으로 나눈다. (a) 진입점이 운영자의 틀과 정책을 갖고 Connect로 지금 `loft-admin`이 하는 것을 낸다. 찾기, 보기, 닫기, 복구, 주소, 소유자, 계약, 보존이다. HTTP JSON API는 없앤다. (b) 상자의 명령을 가족마다 RPC로 옮긴다. 워크스페이스의 끝(내보내기, 검증, 가져오기, 파기), 작업 기록, 검색, 보존, 신원과 계정, 사유 지우기와 접속기록이다. (c) `loft`에서 상자의 명령을 지우고 문서를 고친다.
+
+**4단계가 할 것.** `loft`의 루트에 pdcmd 트리를 붙이고, 연결 설정(사람, 운영자)과 `loft auth login|logout|whoami`를 둔다. 운영자 연결의 트리는 진입점이 내는 엔터티 서비스와, `Operator<X>Service`를 `<x>/<동사>`에 붙인 것이다. 파일을 올리고 내리는 것(가져오기, 내보내기), CLI의 검증, `--yes`의 미리보기는 손으로 쓴 명령으로 남는다. `loft-admin`은 `serve`만 남는다.
+
+**누가 정했는지.** 운영자가 진입점을 쓰는 연결로 부르고 연결이 행위자를 정하는 것, 명령에 스키마 이름만 쓰는 것은 대표가 정했다(2026-11-04, loft#285). 진입점이 공개 서버와 같은 서비스를 운영자로 내는 것, 공개 API에 관리자 플래그를 두지 않는 것, 상자에 `serve`·`init`·`migrate`만 남기는 것은 Claude가 정했다(loft#285). 나머지는 구현에서 정한 것이다. 운영자의 식별자와 그 도메인, 운영자를 frame이 아닌 문맥에 싣고 배포의 일이 워크스페이스에 짓는 틀에 넣는 것, 이벤트도 운영자를 행위자로 적는 것, 표 하나와 역할이 없는 것, `AtOnce`와 주소, 스트림을 고른 것, `dry_run`과 CLI의 미리보기, 닫기의 `confirm`, `Operator<X>Service`의 이름, 검증을 CLI에 두는 것, 상자의 명령을 이 단계에서 지우는 것이다.
+
 ## 10. 구현 단계 및 검증 기준
 
 **Phase 0 스파이크 — 완료(2026-10-10)**: (1) 마이그레이션은 디렉터리를 나누고 복합 FK 대신 트리거를 쓴다(9.4절). (2) `seal`과 도메인 트랜잭션은 batch 안에서도 동작하며, 도메인 레이어는 Gate 위에 둔다(9.3절). (3) Gate의 엣지 확인과 `agrees`는 다른 테넌트로의 참조를 거부한다(6장). (4) 관리형 DB의 확장 지원을 조사했다. 지금은 self-host이고, 표는 관리형으로 옮길 때 참고한다(9.5절). (5) 테넌트 잠금 행 없이는 동시 순환이 실제로 생긴다(3.2절). 방법과 근거는 [plan.md](plan.md) 1장에 있다.
@@ -1815,3 +1906,4 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 | D71 | 복원이 닫힌 동안 정리한 예약의 수를 복원의 이벤트에 쓴다(`WorkspaceRestored.expired`, D70이 선언한 필드, 7.15절). 문장은 "워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 N건 만료"이고, 정리한 것이 없으면 "워크스페이스 복구"다. 5100992(D70)가 staging에서 돌고 CI의 가장 오래된 빌드가 된 뒤의 판이다(loft#278). 누가 정했는지: 수를 복원의 이벤트에 담는 것과 그것을 한 판 뒤에 쓰는 것은 구현에서 정한 것(D70)이고, 이 판에서 쓰는 것은 Claude다 | 하나하나는 복원의 자식이 말하지만, 복원 하나를 읽는 사람은 그것이 무엇을 정리했는지 바로 알아야 한다. 새 필드를 그 전 판이 읽을 수 있게 한 판을 기다렸다 |
 | D72 | `TenantDomain`을 `Domain`으로 바꾼다(loft#285의 2단계). 엔터티와 그 서비스(`DomainService`, RPC 경로가 `/loft.DomainService/*`로 바뀐다), 권한 표, 도메인 레이어(`server/domain/label.go`, 도메인의 sweep), 화면의 생성된 클라이언트와 호출, e2e, 문서를 바꾸고, 도메인 번호 24와 `Label.domain`은 그대로다. 터미널에서는 `loft api domain …`이다. **저장된 것**: 표를 `tenantdomain`에서 `domain`으로 옮긴다. `loft migrate`가 인덱스의 이름을 옮기기 전에, 다른 무엇보다 먼저 옮긴다(`cli/tables.go`, `offboard.Renamed`). PostgreSQL에서는 표와 그 인덱스(`domain_page`, `domain_host`), 기본 키(`domain_pkey`), 외래 키(`domain_tenant_tenant`, 라벨의 `label_domain_domain`)의 이름을 한 트랜잭션에서 카탈로그만 바꾼다. 아무것도 다시 짓거나 복사하지 않는다. SQLite에서는 표의 이름을 바꾸고(라벨의 외래 키가 새 이름을 가리키게 된다) 옛 인덱스를 지워 마이그레이션이 새 이름으로 다시 만들게 하며, 외래 키의 이름이 바뀐 `domain`과 `label`은 마이그레이션이 한 번 다시 만든다(행은 그대로). 새 이름의 빈 표가 먼저 생겨 있으면 지우고 옮기며, 두 이름 모두에 행이 있으면 아무것도 바꾸지 않고 멈춘다. 그 전 빌드는 `tenantdomain`을 찾으므로 이 판은 되돌리지 않는다(`docs/runbook/upgrade.md`). **그 전의 행**: 과거의 메시지는 이름을 바꾸지 않는다(`TenantDomainAdded`, `TenantDomainVerified`, `TenantDomainActivated`, `TenantDomainRetired`, `TenantDomainLapsed`, past.lock 그대로). 행을 읽는 열쇠가 그 이름이기 때문이다. 종류(`domain.*`)와 알림의 종류(`domain.ready`, `domain.lapsed`)는 이미 도메인을 말한다. 작업 기록은 쓴 그대로다. `action`(`/loft.TenantDomainService/…`)과 패치가 말하는 메시지(`loft.TenantDomain`)는 그때의 것이고, 다이제스트와 서명은 도메인 번호와 행의 바이트에 묶여 이름과 상관없이 검증된다. 접속기록은 사람의 정보를 실은 호출만 남기는데 도메인에는 사람의 정보가 없어 그 서비스의 행이 없고, 검색 색인에도 도메인은 없다. 내보내기는 `rows/domain.jsonl`로 쓰고, 그 전 빌드의 내보내기(`rows/tenantdomain.jsonl`, 매니페스트의 `tenantdomain`)는 복구가 `domain`의 행으로 읽는다. 서명은 그대로 검증된다. **낱말이 남은 곳**: 작업 기록의 보관소는 조각마다 그 종류의 낱말을 라벨로 붙이고 다시 쓰지 않는다. 그 전 빌드가 `tenant-domain`으로 붙인 조각은 지금의 payday가 어느 종류로도 읽지 못해, 그 종류의 보존 기간(`audit.by.tenant-domain`, 어느 배포도 두지 않았다)이 아니라 나머지의 기간으로 다뤄지고, 행 점검(`loft trail rows`)과 앞으로 옮겨 쓰기가 그 종류의 조각으로 읽지 않는다. 그래서 payday에 엔터티가 전에 무엇이었는지 말하는 선언을 만들었다(`(payday.entity).formerly`, `pdid.Formerly`, `rename.Tables`, 보관소가 옛 낱말을 지금의 종류로 읽는 것; payday의 `entity/formerly`). 그 payday는 BSR과 roster를 거쳐야 올릴 수 있어, Loft가 그 payday로 올릴 때 스키마에 `formerly: [{message: "TenantDomain"}]`를 쓰고 `cli/tables.go`를 `rename.Tables(pd.TableRenames)`로 바꾼다. 그때까지 옛 낱말의 조각이 있는 보관소(staging뿐이다)는 위처럼 다뤄진다. **한 판 먼저의 규칙**: 과거의 메시지, 필드, JSON 이름, 종류를 하나도 바꾸거나 더하지 않아 이 판에는 지킬 것이 없다. 표의 이름은 그 규칙으로 지킬 수 없다(그 전 빌드가 새 표를 읽게 할 수 없다). 그래서 되돌리지 않는 판으로 적었다. `loft login --allow`로 `/loft.TenantDomainService/Status`를 받은 터미널은 그 메서드가 없어지므로 다시 로그인한다. 누가 정했는지: 이름을 `Domain`으로 바꾸는 것은 대표(2026-11-04, loft#285). 표를 옮기는 것과 그 순서와 범위, 두 이름의 표를 다루는 법, 과거의 메시지와 기록의 옛 이름을 그대로 두는 것, 옛 내보내기를 읽는 것, payday에 선언을 더하고 다음 payday를 올릴 때 쓰는 것은 구현에서 정한 것이다(9.9절) | 도메인은 워크스페이스만 가지므로 `Tenant`를 앞에 붙일 까닭이 없다. 표의 이름을 엔터티와 따로 두면(protobuf-orm에는 그 선언도 없다) 그 어긋남을 모든 마이그레이션과 SQL과 내보내기가 영영 갖고, 출시 전이라 한 번 옮기는 비용이 가장 작다. 기록은 일어난 일의 기록이라 그때 쓴 이름이 맞고, 다이제스트가 이름에 묶이지 않으므로 고칠 까닭이 없다. 과거의 메시지 이름은 행을 읽는 열쇠라 바꾸면 그 전 행이 읽히지 않는다. 보관소의 라벨은 서명된 기록이라 다시 붙일 수 없으므로, 옛 낱말을 지금의 종류로 읽는 것은 읽는 쪽인 payday가 해야 한다 |
 | D73 | 계정이 워크스페이스 밖에서 묻던 HTTP를 계정의 메서드로 옮긴다(loft#285의 2단계). **옮긴 것**: 계정이 속한 워크스페이스(`GET /account`의 `workspaces`·`owns`·`may` → `TenantService.Mine`), 새 워크스페이스(`POST /account/workspaces` → `TenantService.Create`), 라벨이 계정의 어느 워크스페이스에 있는지(`GET /account/labels/{code}` → `LabelService.Locate`). 셋 다 계정의 메서드다(`(payday.method) = {account: {}}`, 권한 표의 `Account`, `pd.AccountReads`로 벽을 거쳐 읽는 것이 없다고 선언). `tenancy.Workspaces`로 그 계정의 구성원 자격만 읽고, `TenantMembership`(아이디, 주소, 이름, 역할, 닫힌 때와 파기할 때, 주소를 보류하는 날 수, 앱이 있는 곳)으로 답한다. 이름은 `List`와 `Add`가 생성된 구성원 자격의 메서드라 `Mine`과 `Create`다(`PaymentService.ListPayerStatements`처럼). **내보내기**(`GET /account/workspaces/{alias}/export` → `TenantService.Export`)는 계정의 메서드가 아니라 소유자가 그 워크스페이스에서 구성원 자격으로 부르는 메서드다(권한 표의 `owner`). 한 워크스페이스의 일이고, 닫힌 워크스페이스(`cmd.WhileClosed`)와 그 워크스페이스의 자기 도메인(계정의 메서드를 받지 않는다)에서도 되어야 하며, 접속기록이 그 전처럼 소유자의 구성원 자격으로 남기 때문이다. 서버 스트림이다. 첫 메시지는 파일의 이름과 종류이고, 그 메시지가 나가기 전에 접속기록의 내려받기 행이 쓰인다(`cmd.Downloads`, `payday-reason-bin`). 그래서 내보내기가 자기 행을 담는다. 전부 만든 뒤(loft#120) 512KiB씩 보낸다. **동의하지 않은 계정**은 모든 RPC가 거절되지만 가진 것은 거절되지 않는다(`cmd.WhileOwing`: `Mine`과 `Export`). 만들기는 전처럼 거절된다. 읽기 전용의 표에서 `Mine`·`Create`·`Locate`는 계정의 것(`Account`), `Export`는 `Exports`다. **남긴 것**: `GET /account`는 세션이 누구이고 어디서 묻는지(아이디, 이름, 동의할 것, `--allow`, identity, 결제, 시간대, 계정 관리)를 답하고, 워크스페이스의 자기 도메인에서는 그 워크스페이스(`here`)를 답한다. 동의하지 않은 계정은 RPC가 거절되고 자기 도메인의 세션은 계정으로 부르지 못하므로, 화면의 첫 물음은 RPC일 수 없다. 약관 동의(`GET`/`POST /account/consents`)도 HTTP로 둔다. 거절에서 나가는 길이라 거절 뒤에 둘 수 없고, 어느 엔터티의 것도 아닌 세션의 상태이며, 원장은 roster의 것이다. **화면**: `signedIn`이 `GET /account` 뒤에 `Mine`을 묻고(자기 도메인에서는 `here`), 만들기·라벨·닫힌 워크스페이스의 내보내기가 RPC다. 내보내기는 부분을 모아 한 파일로 저장한다. **터미널**: `loft workspace ls|new|rename|export`, `loft whoami`, `loft use`, `loft login`, `loft scan`, 비서의 `whoami`가 RPC를 부른다. `--allow read`에 `Mine`과 `Locate`를 넣었다. CLI의 새 모양(`loft tenant list|add|export`, loft#285의 4단계)은 이 메서드들을 부른다. **접속기록**: `Mine`과 `Locate`의 읽기 행은 payday#184대로 계정을 행위자로 적고, 접속기록 점검은 그 행위자를 그 워크스페이스의 구성원 자격으로 부른다(`namer.ofMember`). 누가 정했는지: 계정의 HTTP를 `TenantService`의 계정 메서드로 옮기는 것은 Claude(loft#285), CLI의 모양은 대표(2026-11-04, loft#285)다. 메서드의 이름, 내보내기를 소유자의 구성원 자격의 메서드로 둔 것, 라벨을 `LabelService`의 계정 메서드로 옮긴 것, `GET /account`와 동의를 남긴 것, 동의 전에 되는 둘, 스트림의 모양과 접속기록을 쓰는 때, 점검이 계정을 부르는 법, 화면과 터미널이 부르는 법은 구현에서 정한 것이다(9.11절) | 모든 것이 RPC면 화면, 터미널, 비서가 같은 권한 표와 접속기록과 Grant를 지난다. HTTP의 문은 저마다 세션을 읽고 거절하고 기록해서 고칠 곳이 문마다 있었다. payday#184가 계정으로 부르는 메서드를 주었으니 워크스페이스에 들어가기 전의 물음도 RPC로 묻는다. 내보내기는 계정의 것이 아니라 한 워크스페이스의 소유자의 것이다. 계정의 메서드로 두면 자기 도메인에서 막히고 접속기록의 행위자가 바뀐다. 동의와 세션의 첫 물음은 거절의 바깥에 있어야 한다 |
+| D74 | 운영자 진입점이 공개 서버와 같은 서비스를 운영자로 내고, 서버 상자의 명령을 그 RPC로 옮긴다(loft#285의 3단계, 9.15절). **문**: `loft-admin serve`가 `admin.addr`에서 HTTP JSON API(`/admin/...`) 대신 gRPC를 Connect로 낸다. `/internal/tls-ask`는 그대로다. 엔터티의 RPC가 운영자가 하는 일이면 같은 요청 그대로 낸다(`TenantService.Get`·`List`·`Close`·`Restore`·`Export`, `TenantContractService.Add`·`Get`·`List`, `LegalHoldService.Add`·`Get`·`List`·`Patch`(`date_lifted`만), `HolderService.Get`·`List`, `EventService.Redact`, `AccessReviewService.List`). 어느 엔터티의 것도 아닌 일은 `proto/loft/operator.proto`의 `Operator<X>Service`다(`Tenant`, `Trail`, `Search`, `Retention`, `Identity`, `Holder`, `Event`, `Access`). 공개 서버는 그것을 등록하지 않고 운영자의 키를 읽지 않는다. 공개 API에 관리자 플래그는 없다. **누가**: 키(`admin.keys`, `Authorization: Bearer`)로 찾은 운영자다. 이름에서 정해지는 식별자(`operator.Id`, 도메인 11, 이름의 SHA-256)가 있고, 어느 표의 행도 아니다. 운영자는 payday의 frame이 아니라 문맥에 실리고(`operator.Into`), 배포의 일이 워크스페이스에 짓는 틀(`Deps.System`)과 도메인 레이어를 지나지 않는 쓰기의 틀(`operator.Frame`)에 행위자로 들어간다. 그래서 이벤트, 작업 기록, 접속기록의 쓰기가 운영자를 적고, 판단은 배포의 일로 한다(`Tx.actor`는 없음). 이력과 점검은 "운영자"로 부른다. **정책**: 진입점의 표 하나(`server/admin`의 `Table`)에 없는 메서드는 아무것도 읽기 전에 거절한다. 운영자 사이에 역할은 없다. **접속기록**: 틀 없는 읽기는 payday#206의 `access.Config.Operator`로 운영자를 적고, 답이 나가기 전에 쓰며(`AtOnce`), 주소는 `admin:<peer>`다. 내려받기는 `payday-reason-bin`을 요구한다. **작업 기록**: 보관소 승인의 `by`는 키가 말하는 운영자이고 `--by`는 없앤다. **긴 작업**: 파기, 색인 다시 만들기, 보존 패스, 작업 기록 점검, 내보내기, roster 이전은 서버 스트림이다. 진행과 15초마다의 메시지 뒤에 결과가 온다. 가져오기는 클라이언트 스트림이다. 끊기면 다음 단계에서 멈추고 다시 돌린다. **미리보기**: 지우거나 옮기는 운영자만의 메서드는 `dry_run`을 받고, CLI는 `--yes`가 없으면 그것으로 부른다. 엔터티의 RPC는 CLI가 먼저 읽어 말한다. 닫기의 `confirm`은 운영자에게는 주소다. **상자**: `serve`, `init`, `migrate`, `config env`, `version`만 남고, 나머지 상자의 명령은 `loft-admin`의 명령이 되며 `loft`에서 지운다. 내보내기와 작업 기록 묶음의 검증은 진입점이 답하는 공개 열쇠(`OperatorTrailService.Keys`)로 CLI가 한다. **순서**: (a) 진입점과 지금 `loft-admin`이 하는 것, (b) 상자의 명령을 가족마다, (c) 상자의 명령을 지우고 문서를 고친다. 누가 정했는지: 운영자가 진입점을 쓰는 연결로 부르고 연결이 행위자를 정하는 것, 명령에 스키마 이름만 쓰는 것은 대표(2026-11-04, loft#285)다. 진입점이 같은 서비스를 운영자로 내는 것, 공개 API에 관리자 플래그를 두지 않는 것, 상자에 `serve`·`init`·`migrate`만 남기는 것은 Claude(loft#285)다. 운영자의 식별자와 도메인, 문맥과 틀, 이벤트도 운영자를 적는 것, 표 하나와 역할 없음, `AtOnce`와 주소, 스트림, `dry_run`, 닫기의 `confirm`, 서비스의 이름, 검증을 CLI에 두는 것, 상자의 명령을 이 단계에서 지우는 것은 구현에서 정한 것이다(9.15절) | 연결이 행위자를 정하면 운영자가 같은 명령으로 같은 RPC를 부르고, 공개 서버에는 모든 워크스페이스를 보는 길이 없다. 서버 상자의 명령은 DB에 바로 붙어 접속기록에 운영자를 적지 못했고(`loft-admin`의 읽기도 그랬다), 운영자가 셸을 열어야 했다. 운영자를 payday의 frame으로 들이면 판단하는 계층이 배포의 일을 호출자의 일로 다룬다(payday#206). 배포의 일이 이미 짓던 틀에 운영자를 넣으면 기록하는 곳이 모두 같은 길로 운영자를 적는다. 운영자는 설정의 이름이라 행이 없고, 이름에서 정해지는 식별자는 키를 바꿔도 같다. 상태가 DB에 있고 모두 다시 돌려도 되므로, 작업을 두는 것보다 스트림이 단순하고 연결을 쉬지 않게 한다 |

@@ -136,6 +136,20 @@ point, `loft-admin serve` (`server/admin`, `cli/admin`): its own binary, on
 `admin.addr`, behind operator keys. `loft` must never import either package --
 `go list -deps ./cmd/loft` is how to check.
 
+It serves gRPC as Connect (D74, design 9.15): an entity's RPC where it is what
+an operator does (`TenantService.Close`, a contract's `Add`), the same request
+served as the operator, and `Operator<X>Service` (`proto/loft/operator.proto`)
+for what is no entity's -- which the public server never registers. What it
+serves is one table, `admin.Table`; a method not in it is refused. The
+operator is a name in `admin.keys` and the identifier it makes
+(`server/operator`, domain 11, no row), carried in the context and not in a
+frame: `access.Config.Operator` names them on a read's row, and
+`domain.Deps.System` -- or `operator.Frame`, for a write past the domain layer
+-- frames the deployment's work in the workspace as theirs, so the past, the
+trail and the access record name them while the domain decides as the
+deployment. A hand-written proto cannot import the generated `*_svc.g.proto`,
+so the operator's requests name a workspace with `OperatorTenantRef`.
+
 ## The wall is a predicate, so it only applies to reads
 
 `Add` has no row to narrow, so it is gated in the generated `Gate` layer
