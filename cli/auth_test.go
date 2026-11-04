@@ -145,6 +145,11 @@ func TestACommandIsToldItsConnection(t *testing.T) {
 	x.ErrorContains(fails(t, root(), "--url", ep, "auth", "whoami"), "give --key too")
 	x.ErrorContains(fails(t, root(), "auth", "whoami"), "no connection")
 
+	x.NoError(os.WriteFile(conf, []byte(`not a file this reads`), 0o600))
+	x.Contains(run(t, root(), "--url", ep, "--key", "file:"+file, "auth", "whoami"), "alice, an operator", "a connection for the command alone reads no file")
+	x.ErrorContains(fails(t, root(), "auth", "whoami"), conf, "and one that is the file's says it does not read")
+	x.NoError(os.Remove(conf))
+
 	t.Setenv("LOFT_ADMIN_URL", ep)
 	t.Setenv("LOFT_ADMIN_KEY", "file:"+file)
 	x.Contains(run(t, root(), "auth", "whoami"), "alice, an operator", "the environment's")

@@ -18,6 +18,7 @@ import (
 
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/server/operator"
+	"github.com/lesomnus/loft/server/policy"
 )
 
 // Where the terminal's commands go, and who they go as (design 9.16, D75): a
@@ -295,10 +296,16 @@ func (cs *connections) choose(flags Choice, env func(string) string) (chosen, er
 }
 
 // chooseFor is the connection the command running on `ctx` uses, with the
-// file it was chosen from.
+// file it was chosen from. A connection for the command alone is no file's:
+// a script that names the entry point and where its key is reads none, and a
+// file that does not read is no reason to refuse it.
 func chooseFor(ctx context.Context) (*connections, chosen, error) {
 	cs, err := loadConnections()
 	if err != nil {
+		none := &connections{Connections: map[string]*Connection{}}
+		if c, aerr := none.choose(choiceOf(ctx), os.Getenv); aerr == nil && c.Name == "" {
+			return none, c, nil
+		}
 		return nil, chosen{}, err
 	}
 	c, err := cs.choose(choiceOf(ctx), os.Getenv)
@@ -361,13 +368,23 @@ func (c *Connection) person(ws string) *connectConn {
 	return &connectConn{base: strings.TrimSuffix(c.Url, "/"), client: &http.Client{Timeout: 0}, header: h, kind: Person}
 }
 
+// operatorOnly is whether `method` is the operator's alone: what the entry
+// point serves ([operator.Table]) and no role of a workspace is given
+// ([policy.Given]) -- the operator's own services, and an entity's methods
+// only an operator calls, as a workspace's contracts and legal holds are
+// written. A command that calls nothing else says it is the operator's.
+func operatorOnly(method string) bool {
+	_, served := operator.Table[method]
+	return served && !policy.Given(method)
+}
+
 // refusal is what a refusal of `method` says on a connection of `kind` when
 // the call went to the other kind (design 9.16): which one it wants, in place
-// of what the server that was asked could say of a method it does not serve.
-// The operator's own methods are served at the entry point alone, and the
-// entry point serves its table and nothing else ([operator.Own],
-// [operator.Table]): an entity's method the table names is either kind's,
-// and its refusal is the server's own.
+// of what the server that was asked could say of a method it does not serve,
+// or serves nobody. What is the operator's alone is served at the entry point
+// alone ([operatorOnly]), and the entry point serves its table and nothing
+// else ([operator.Table]): an entity's method that both serve is either
+// kind's, and its refusal is the server's own.
 func refusal(kind Kind, method string, err error) error {
 	st, ok := status.FromError(err)
 	if err == nil || !ok {
@@ -381,7 +398,7 @@ func refusal(kind Kind, method string, err error) error {
 	var says string
 	_, served := operator.Table[method]
 	switch {
-	case kind == Person && operator.Own(method):
+	case kind == Person && operatorOnly(method):
 		says = fmt.Sprintf("%s is the operator's, and this is a person's connection: use an operator's (--key, or `loft auth login --operator`)", method)
 	case kind == Operator && !served:
 		says = fmt.Sprintf("%s is a person's, and this is an operator's connection: use a person's (--connection, or `loft auth switch`)", method)

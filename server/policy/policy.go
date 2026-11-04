@@ -108,6 +108,16 @@ func closed(service string, methods ...string) {
 
 var reads = []string{"Get", "List", "Watch"}
 
+// Given is whether somebody may call `method` here -- a role of a workspace,
+// or an account as itself: a method the table names and has not closed. What
+// no role is given, the operator's entry point may still serve
+// (`server/operator`'s table), and the terminal says a command of it is the
+// operator's (design 9.16).
+func Given(method string) bool {
+	r, ok := Table[method]
+	return ok && r.min > Nobody
+}
+
 func init() {
 	// The register and its history are everybody's to read.
 	//
@@ -153,7 +163,7 @@ func init() {
 	// Taking an event's reason out, for a person whose request to erase what
 	// it says of them points at it (payday#151's Redact): who may is the
 	// owner's to decide, and until then nobody here may. The deployment's
-	// operator does it, on the workspace's word, with `loft-admin event redact`.
+	// operator does it, on the workspace's word, with `loft event redact`.
 	closed("EventService", "Redact")
 	oversee("HolderService", reads...)
 

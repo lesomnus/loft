@@ -181,6 +181,7 @@ func TestOnlyACallOfTheOtherKindIsToldWhichConnection(t *testing.T) {
 	}{
 		{Person, owed, codes.Unimplemented, "is the operator's, and this is a person's connection"},
 		{Person, owed, codes.PermissionDenied, "is the operator's, and this is a person's connection"},
+		{Person, app.TenantContractService_Add_FullMethodName, codes.PermissionDenied, "is the operator's, and this is a person's connection"},
 		{Operator, list, codes.Unimplemented, "is a person's, and this is an operator's connection"},
 		{Operator, list, codes.PermissionDenied, "is a person's, and this is an operator's connection"},
 		{Person, owed, codes.Unavailable, "as it was"},
@@ -200,4 +201,27 @@ func TestOnlyACallOfTheOtherKindIsToldWhichConnection(t *testing.T) {
 	}
 	x.NoError(refusal(Person, owed, nil))
 	x.Equal(io.EOF, refusal(Operator, list, io.EOF), "a stream's end is no refusal")
+}
+
+// TestWhatIsTheOperatorsAloneIsWhatNoRoleIsGiven: the operator's own
+// services, and an entity's methods the entry point serves and no role of a
+// workspace is given; an entity's method both serve is either kind's, and one
+// the entry point does not serve is nobody's to say of.
+func TestWhatIsTheOperatorsAloneIsWhatNoRoleIsGiven(t *testing.T) {
+	x := require.New(t)
+	for m, alone := range map[string]bool{
+		app.OperatorTrailService_Verify_FullMethodName: true,
+		app.OperatorAuthService_Whoami_FullMethodName:  true,
+		app.TenantContractService_Add_FullMethodName:   true,
+		app.LegalHoldService_Patch_FullMethodName:      true,
+		app.EventService_Redact_FullMethodName:         true,
+		app.TenantService_Close_FullMethodName:         false,
+		app.TenantService_List_FullMethodName:          false,
+		app.TenantContractService_List_FullMethodName:  false,
+		app.AccessReviewService_List_FullMethodName:    false,
+		app.AssetService_List_FullMethodName:           false,
+		app.EventService_Add_FullMethodName:            false,
+	} {
+		x.Equal(alone, operatorOnly(m), m)
+	}
 }
