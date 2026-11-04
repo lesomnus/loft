@@ -60,6 +60,8 @@
 
 ## 명령
 
+운영자 진입점에 운영자의 연결로 묻습니다([운영자 진입점](../guide/operator.md#운영자-진입점-loft-admin)).
+
 ```sh
 loft search reindex          # 지금 다시 만들기: 색인마다 DB로 새 인덱스를 다 채운 뒤, 별칭을 옮기고 옛 인덱스를 지움
 loft search status           # 색인마다 별칭이 가리키는 인덱스, 문서 수와 DB의 행 수

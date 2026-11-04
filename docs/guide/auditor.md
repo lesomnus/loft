@@ -61,7 +61,7 @@ loft audit recent '{"size": 20}'                           # 최근 감사 기�
 loft access review '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'                         # 한 번에 92일까지
 loft access review '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00", "kind": "download"}'       # read, write, download
 loft access-review add '{"period_from": "2026-10-01T00:00:00+09:00", "period_to": "2026-11-01T00:00:00+09:00", "desc": "이상 없음"}'
-loft access-review ls -o wide
+loft access-review ls
 ```
 
 ### 리포트
