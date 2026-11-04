@@ -5,33 +5,33 @@ package ent
 import (
 	"context"
 
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/predicate"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
 )
 
-// TenantDomainDelete is the builder for deleting a TenantDomain entity.
-type TenantDomainDelete struct {
+// DomainDelete is the builder for deleting a Domain entity.
+type DomainDelete struct {
 	config
 	hooks    []Hook
-	mutation *TenantDomainMutation
+	mutation *DomainMutation
 }
 
-// Where appends a list predicates to the TenantDomainDelete builder.
-func (_d *TenantDomainDelete) Where(ps ...predicate.TenantDomain) *TenantDomainDelete {
+// Where appends a list predicates to the DomainDelete builder.
+func (_d *DomainDelete) Where(ps ...predicate.Domain) *DomainDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *TenantDomainDelete) Exec(ctx context.Context) (int, error) {
+func (_d *DomainDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *TenantDomainDelete) ExecX(ctx context.Context) int {
+func (_d *DomainDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *TenantDomainDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *TenantDomainDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(tenantdomain.Table, sqlgraph.NewFieldSpec(tenantdomain.FieldId, field.TypeUuid))
+func (_d *DomainDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(domain.Table, sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid))
 	if ps := _d.mutation.Predicates(); len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *TenantDomainDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// TenantDomainDeleteOne is the builder for deleting a single TenantDomain entity.
-type TenantDomainDeleteOne struct {
-	_d *TenantDomainDelete
+// DomainDeleteOne is the builder for deleting a single Domain entity.
+type DomainDeleteOne struct {
+	_d *DomainDelete
 }
 
-// Where appends a list predicates to the TenantDomainDelete builder.
-func (_d *TenantDomainDeleteOne) Where(ps ...predicate.TenantDomain) *TenantDomainDeleteOne {
+// Where appends a list predicates to the DomainDelete builder.
+func (_d *DomainDeleteOne) Where(ps ...predicate.Domain) *DomainDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *TenantDomainDeleteOne) Exec(ctx context.Context) error {
+func (_d *DomainDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{tenantdomain.Label}
+		return &NotFoundError{domain.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *TenantDomainDeleteOne) ExecX(ctx context.Context) {
+func (_d *DomainDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

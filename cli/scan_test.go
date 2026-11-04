@@ -67,7 +67,7 @@ func TestInitGivesNoLabelDomainWhereWorkspacesHaveNone(t *testing.T) {
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
-	n, err := s.Ent.TenantDomain.Query().Count(t.Context())
+	n, err := s.Ent.Domain.Query().Count(t.Context())
 	x.NoError(err)
 	x.Zero(n, "a label domain nothing prints with")
 }

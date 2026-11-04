@@ -54,6 +54,9 @@ export const CustodyDomain = 21
 /** The domain identifiers of loft.CustodyLine carry. */
 export const CustodyLineDomain = 22
 
+/** The domain identifiers of loft.Domain carry. */
+export const DomainDomain = 24
+
 /** The domain identifiers of loft.Entitlement carry. */
 export const EntitlementDomain = 50
 
@@ -147,9 +150,6 @@ export const TenantDomain = 1
 /** The domain identifiers of loft.TenantContract carry. */
 export const TenantContractDomain = 39
 
-/** The domain identifiers of loft.TenantDomain carry. */
-export const TenantDomainDomain = 24
-
 /** The domain identifiers of loft.TreeLock carry. */
 export const TreeLockDomain = 12
 
@@ -172,6 +172,7 @@ pdid.register("loft.CliLogin", CliLoginDomain, "cli-login")
 pdid.register("loft.CountFinding", CountFindingDomain, "count-finding")
 pdid.register("loft.Custody", CustodyDomain, "custody")
 pdid.register("loft.CustodyLine", CustodyLineDomain, "custody-line")
+pdid.register("loft.Domain", DomainDomain, "domain")
 pdid.register("loft.Entitlement", EntitlementDomain, "entitlement")
 pdid.register("loft.Event", EventDomain, "event")
 pdid.register("loft.Fact", FactDomain, "fact")
@@ -203,7 +204,6 @@ pdid.register("loft.StockMovement", StockMovementDomain, "stock-movement")
 pdid.register("loft.TagCounter", TagCounterDomain, "tag-counter")
 pdid.register("loft.Tenant", TenantDomain, "tenant")
 pdid.register("loft.TenantContract", TenantContractDomain, "tenant-contract")
-pdid.register("loft.TenantDomain", TenantDomainDomain, "tenant-domain")
 pdid.register("loft.TreeLock", TreeLockDomain, "tree-lock")
 pdid.register("loft.WorkOrder", WorkOrderDomain, "work-order")
 

@@ -381,7 +381,7 @@ func TestLabels(t *testing.T) {
 	// no domain at all (loft#155).
 	room := e.space("회의실", nil)
 	a := e.item("노트북", "NB-7", room, day)
-	st, err := e.app().TenantDomain().Status(e.owner, &app.TenantDomainStatusRequest{})
+	st, err := e.app().Domain().Status(e.owner, &app.DomainStatusRequest{})
 	x.NoError(err)
 	x.False(st.HasActive(), "a domain nobody added")
 	x.Equal("http://localhost:8080", st.GetBase())
@@ -504,10 +504,10 @@ func TestLabelsPrintWithTheActiveDomain(t *testing.T) {
 
 	// A default subdomain, which is a label domain, verified already and the
 	// first the tenant has, so active.
-	d, err := e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Sub: ptr("acme")}.Build())
+	d, err := e.app().Domain().Add(e.owner, app.DomainAddRequest_builder{Sub: ptr("acme")}.Build())
 	x.NoError(err)
 	x.Equal("label", d.GetPurpose())
-	st, err := e.app().TenantDomain().Status(e.owner, &app.TenantDomainStatusRequest{})
+	st, err := e.app().Domain().Status(e.owner, &app.DomainStatusRequest{})
 	x.NoError(err)
 	x.Equal("acme.l.test", st.GetActive().GetHost())
 
@@ -518,20 +518,20 @@ func TestLabelsPrintWithTheActiveDomain(t *testing.T) {
 
 	// A custom domain is an app domain; once it is verified and taken in use,
 	// the default subdomain is legacy -- and every label printed so far opens.
-	own, err := e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Host: "Assets.Acme.Example."}.Build())
+	own, err := e.app().Domain().Add(e.owner, app.DomainAddRequest_builder{Host: "Assets.Acme.Example."}.Build())
 	x.NoError(err)
 	x.Equal("app", own.GetPurpose())
 	x.Equal("assets.acme.example", own.GetHost(), "as it is kept")
 	x.Equal("pending", own.GetState())
 	pid, err := pdid.From(own.GetId())
 	x.NoError(err)
-	x.NoError(e.s.Ent.TenantDomain.UpdateOneId(pid.Uuid()).SetState("ready").Exec(context.Background()))
-	_, err = e.app().TenantDomain().Activate(e.owner, app.TenantDomainActivateRequest_builder{Ref: ref[app.TenantDomainRef](own.GetId())}.Build())
+	x.NoError(e.s.Ent.Domain.UpdateOneId(pid.Uuid()).SetState("ready").Exec(context.Background()))
+	_, err = e.app().Domain().Activate(e.owner, app.DomainActivateRequest_builder{Ref: ref[app.DomainRef](own.GetId())}.Build())
 	x.NoError(err)
 	after, err := e.app().Label().Print(e.owner, app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)
 	x.Equal("http://assets.acme.example:8080/l/"+after.GetLabels()[0].GetCode(), after.GetUrls()[0])
-	old, err := e.app().TenantDomain().Get(e.owner, app.TenantDomainGetRequest_builder{Ref: ref[app.TenantDomainRef](d.GetId())}.Build())
+	old, err := e.app().Domain().Get(e.owner, app.DomainGetRequest_builder{Ref: ref[app.DomainRef](d.GetId())}.Build())
 	x.NoError(err)
 	x.Equal("legacy", old.GetState())
 
@@ -562,8 +562,8 @@ func TestAWorkspaceDomainIsAHostNobodyElseHas(t *testing.T) {
 		c.App.AppUrl = "https://app.loft.example"
 	})
 	x := e.x
-	add := func(ctx context.Context, host string) (*app.TenantDomain, error) {
-		return e.app().TenantDomain().Add(ctx, app.TenantDomainAddRequest_builder{Host: host}.Build())
+	add := func(ctx context.Context, host string) (*app.Domain, error) {
+		return e.app().Domain().Add(ctx, app.DomainAddRequest_builder{Host: host}.Build())
 	}
 
 	for _, host := range []string{

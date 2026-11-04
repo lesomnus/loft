@@ -182,8 +182,13 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // migration engine, and `cmd` is what an app's sandbox imports. A sandbox does
 // not migrate: there is no database there that outlives the page.
 //
+// A table an earlier build made under another name -- an entity the schema
+// renamed -- is moved onto its name first, with its rows and what is named
+// after it (D72, [moveTables]): a migration finds a table by its name, and
+// one it does not find it makes, empty, beside the one with the rows.
+//
 // The indexes an earlier build stored under the names of their columns are
-// moved to the names the schema declares first (payday#132): a migration finds
+// moved to the names the schema declares next (payday#132): a migration finds
 // an index by its name, and one it does not find it makes again, from every
 // row, beside the old one -- which it leaves, since it drops no index. On
 // PostgreSQL that is a rename, which builds nothing; SQLite renames no index,
@@ -222,6 +227,11 @@ func migrate(ctx context.Context, s *cmd.Server) (Migrated, error) {
 			return err
 		}
 		if err := dropGone(ctx, s); err != nil {
+			return err
+		}
+		// Before the indexes, which an earlier build named after the table
+		// as it was.
+		if err := moveTables(ctx, s); err != nil {
 			return err
 		}
 		if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {

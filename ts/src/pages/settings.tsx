@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import type { Bookable } from '../../gen/loft/booking_pb.js'
 import type { AssetType, AttributeDef, ItemModel } from '../../gen/loft/catalog_pb.js'
-import type { TenantDomain } from '../../gen/loft/asset_pb.js'
+import type { Domain } from '../../gen/loft/asset_pb.js'
 import type { Party } from '../../gen/loft/org_pb.js'
 import type { Tenant } from '../../gen/loft/payday/tenant_pb.js'
 import type { TenantPreviewResponse } from '../../gen/loft/payday/tenant_svc_pb.js'
@@ -14,9 +14,9 @@ import {
 	AssetTypeService,
 	AuditService,
 	BookableService,
+	DomainService,
 	EventService,
 	ItemModelService,
-	TenantDomainService,
 	TenantService,
 	at,
 	dateOf,
@@ -408,8 +408,8 @@ function BookableForm(props: { b: Bookable; pool: boolean; onClose: () => void }
 function Labels(): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
-	const status = useRpc(TenantDomainService.method.status, {})
-	const list = useRpc(TenantDomainService.method.list, { size: 50 })
+	const status = useRpc(DomainService.method.status, {})
+	const list = useRpc(DomainService.method.list, { size: 50 })
 	const [adding, setAdding] = useState(false)
 	return (
 		<Load q={status}>
@@ -445,7 +445,7 @@ function Labels(): ReactNode {
 	)
 }
 
-function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act: ReturnType<typeof useAct> }): ReactNode {
+function DomainRow(props: { d: Domain; target: string; admin: boolean; act: ReturnType<typeof useAct> }): ReactNode {
 	const d = props.d
 	return (
 		<li>
@@ -481,14 +481,14 @@ function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act
 			{props.admin && (
 				<span className="inline">
 					{(d.state === 'pending' || d.state === 'lapsed') && (
-						<button className="small" onClick={() => void props.act(TenantDomainService.method.verify, { ref: ref(d.id) }, { ok: '확인되었습니다.' })}>
+						<button className="small" onClick={() => void props.act(DomainService.method.verify, { ref: ref(d.id) }, { ok: '확인되었습니다.' })}>
 							지금 확인
 						</button>
 					)}
 					{['ready', 'legacy'].includes(d.state) && (
 						<button
 							className="small primary"
-							onClick={() => void props.act(TenantDomainService.method.activate, { ref: ref(d.id) }, { ok: d.purpose === 'app' ? '이제 이 도메인을 씁니다.' : '이제 이 주소로 인쇄합니다.' })}
+							onClick={() => void props.act(DomainService.method.activate, { ref: ref(d.id) }, { ok: d.purpose === 'app' ? '이제 이 도메인을 씁니다.' : '이제 이 주소로 인쇄합니다.' })}
 						>
 							사용
 						</button>
@@ -499,7 +499,7 @@ function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act
 							label="중지"
 							danger
 							question={`${d.host}를 중지합니다. 이 주소로 인쇄된 라벨은 더 이상 열리지 않습니다.`}
-							onYes={() => props.act(TenantDomainService.method.retire, { ref: ref(d.id), force: true }, { ok: '중지했습니다.' })}
+							onYes={() => props.act(DomainService.method.retire, { ref: ref(d.id), force: true }, { ok: '중지했습니다.' })}
 						/>
 					)}
 				</span>
@@ -516,7 +516,7 @@ function NewDomain(props: { suffix: string; onClose: () => void }): ReactNode {
 		<FormModal
 			title="도메인 추가"
 			onClose={props.onClose}
-			onSubmit={async () => (await act(TenantDomainService.method.add, how === 'sub' ? { sub: v } : { host: v }, { ok: '추가했습니다.' })) !== undefined}
+			onSubmit={async () => (await act(DomainService.method.add, how === 'sub' ? { sub: v } : { host: v }, { ok: '추가했습니다.' })) !== undefined}
 		>
 			<Field label="종류">
 				<Select

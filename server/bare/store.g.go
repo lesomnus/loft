@@ -22,6 +22,7 @@ import (
 	countfinding "github.com/lesomnus/loft/internal/ent/countfinding"
 	custody "github.com/lesomnus/loft/internal/ent/custody"
 	custodyline "github.com/lesomnus/loft/internal/ent/custodyline"
+	domain "github.com/lesomnus/loft/internal/ent/domain"
 	entitlement "github.com/lesomnus/loft/internal/ent/entitlement"
 	event "github.com/lesomnus/loft/internal/ent/event"
 	fact "github.com/lesomnus/loft/internal/ent/fact"
@@ -54,7 +55,6 @@ import (
 	tagcounter "github.com/lesomnus/loft/internal/ent/tagcounter"
 	tenant "github.com/lesomnus/loft/internal/ent/tenant"
 	tenantcontract "github.com/lesomnus/loft/internal/ent/tenantcontract"
-	tenantdomain "github.com/lesomnus/loft/internal/ent/tenantdomain"
 	treelock "github.com/lesomnus/loft/internal/ent/treelock"
 	workorder "github.com/lesomnus/loft/internal/ent/workorder"
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -421,7 +421,7 @@ type Scope interface {
 	AssetScope(ctx context.Context) (predicate.Asset, error)
 	TreeLockScope(ctx context.Context) (predicate.TreeLock, error)
 	TagCounterScope(ctx context.Context) (predicate.TagCounter, error)
-	TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error)
+	DomainScope(ctx context.Context) (predicate.Domain, error)
 	LabelScope(ctx context.Context) (predicate.Label, error)
 	AttachmentScope(ctx context.Context) (predicate.Attachment, error)
 	LevyanNoticeScope(ctx context.Context) (predicate.LevyanNotice, error)
@@ -511,7 +511,7 @@ func (Unscoped) TreeLockScope(_ context.Context) (predicate.TreeLock, error) {
 func (Unscoped) TagCounterScope(_ context.Context) (predicate.TagCounter, error) {
 	return nil, nil
 }
-func (Unscoped) TenantDomainScope(_ context.Context) (predicate.TenantDomain, error) {
+func (Unscoped) DomainScope(_ context.Context) (predicate.Domain, error) {
 	return nil, nil
 }
 func (Unscoped) LabelScope(_ context.Context) (predicate.Label, error) {
@@ -913,10 +913,10 @@ func (ss Scopes) TagCounterScope(ctx context.Context) (predicate.TagCounter, err
 	return tagcounter.And(ps...), nil
 }
 
-func (ss Scopes) TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error) {
-	ps := make([]predicate.TenantDomain, 0, len(ss))
+func (ss Scopes) DomainScope(ctx context.Context) (predicate.Domain, error) {
+	ps := make([]predicate.Domain, 0, len(ss))
 	for _, s := range ss {
-		p, err := s.TenantDomainScope(ctx)
+		p, err := s.DomainScope(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -930,7 +930,7 @@ func (ss Scopes) TenantDomainScope(ctx context.Context) (predicate.TenantDomain,
 		return nil, nil
 	}
 
-	return tenantdomain.And(ps...), nil
+	return domain.And(ps...), nil
 }
 
 func (ss Scopes) LabelScope(ctx context.Context) (predicate.Label, error) {
@@ -1728,7 +1728,7 @@ func ItemError(i int, err error) error {
 // is rendered for that dialect, not just what this server writes.
 //
 // That set is also what a soft erasure needs, so this is the whole
-// check. AliasHold, Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract, TenantDomain and WorkOrder free the names they held when a row
+// check. AliasHold, Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Domain, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract and WorkOrder free the names they held when a row
 // is erased, which is a unique index covering only the rows that are
 // still there -- a partial index, and the dialects above are the ones
 // that have one. MySQL does not, and ent writes the annotation out for
@@ -1792,10 +1792,8 @@ func (s Server) TreeLock() loft.TreeLockServiceServer { return TreeLockServiceSe
 func (s Server) TagCounter() loft.TagCounterServiceServer {
 	return TagCounterServiceServer{Store: s.Store}
 }
-func (s Server) TenantDomain() loft.TenantDomainServiceServer {
-	return TenantDomainServiceServer{Store: s.Store}
-}
-func (s Server) Label() loft.LabelServiceServer { return LabelServiceServer{Store: s.Store} }
+func (s Server) Domain() loft.DomainServiceServer { return DomainServiceServer{Store: s.Store} }
+func (s Server) Label() loft.LabelServiceServer   { return LabelServiceServer{Store: s.Store} }
 func (s Server) Attachment() loft.AttachmentServiceServer {
 	return AttachmentServiceServer{Store: s.Store}
 }

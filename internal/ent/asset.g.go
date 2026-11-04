@@ -99,8 +99,8 @@ func (e *TagCounter) Proto() *loft.TagCounter {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }
-func (e *TenantDomain) Proto() *loft.TenantDomain {
-	x := &loft.TenantDomain{}
+func (e *Domain) Proto() *loft.Domain {
+	x := &loft.Domain{}
 	x.SetId(e.Id[:])
 	if v := e.Edges.Tenant; v != nil {
 		x.SetTenant(v.Proto())
@@ -150,7 +150,7 @@ func (e *Label) Proto() *loft.Label {
 	if v := e.Edges.Domain; v != nil {
 		x.SetDomain(v.Proto())
 	} else if v := e.DomainId; v != *new(uuid.UUID) {
-		r := &loft.TenantDomain{}
+		r := &loft.Domain{}
 		r.SetId(v[:])
 		x.SetDomain(r)
 	}

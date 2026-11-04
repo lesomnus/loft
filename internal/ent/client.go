@@ -25,6 +25,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/countfinding"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/entitlement"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
@@ -56,7 +57,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/tagcounter"
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/internal/ent/treelock"
 	"github.com/lesomnus/loft/internal/ent/workorder"
 	"github.com/protobuf-orm/ent"
@@ -96,6 +96,8 @@ type Client struct {
 	Custody *CustodyClient
 	// CustodyLine is the client for interacting with the CustodyLine builders.
 	CustodyLine *CustodyLineClient
+	// Domain is the client for interacting with the Domain builders.
+	Domain *DomainClient
 	// Entitlement is the client for interacting with the Entitlement builders.
 	Entitlement *EntitlementClient
 	// Event is the client for interacting with the Event builders.
@@ -158,8 +160,6 @@ type Client struct {
 	Tenant *TenantClient
 	// TenantContract is the client for interacting with the TenantContract builders.
 	TenantContract *TenantContractClient
-	// TenantDomain is the client for interacting with the TenantDomain builders.
-	TenantDomain *TenantDomainClient
 	// TreeLock is the client for interacting with the TreeLock builders.
 	TreeLock *TreeLockClient
 	// WorkOrder is the client for interacting with the WorkOrder builders.
@@ -188,6 +188,7 @@ func (c *Client) init() {
 	c.CountFinding = NewCountFindingClient(c.config)
 	c.Custody = NewCustodyClient(c.config)
 	c.CustodyLine = NewCustodyLineClient(c.config)
+	c.Domain = NewDomainClient(c.config)
 	c.Entitlement = NewEntitlementClient(c.config)
 	c.Event = NewEventClient(c.config)
 	c.Fact = NewFactClient(c.config)
@@ -219,7 +220,6 @@ func (c *Client) init() {
 	c.TagCounter = NewTagCounterClient(c.config)
 	c.Tenant = NewTenantClient(c.config)
 	c.TenantContract = NewTenantContractClient(c.config)
-	c.TenantDomain = NewTenantDomainClient(c.config)
 	c.TreeLock = NewTreeLockClient(c.config)
 	c.WorkOrder = NewWorkOrderClient(c.config)
 }
@@ -328,6 +328,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		CountFinding:    NewCountFindingClient(cfg),
 		Custody:         NewCustodyClient(cfg),
 		CustodyLine:     NewCustodyLineClient(cfg),
+		Domain:          NewDomainClient(cfg),
 		Entitlement:     NewEntitlementClient(cfg),
 		Event:           NewEventClient(cfg),
 		Fact:            NewFactClient(cfg),
@@ -359,7 +360,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		TagCounter:      NewTagCounterClient(cfg),
 		Tenant:          NewTenantClient(cfg),
 		TenantContract:  NewTenantContractClient(cfg),
-		TenantDomain:    NewTenantDomainClient(cfg),
 		TreeLock:        NewTreeLockClient(cfg),
 		WorkOrder:       NewWorkOrderClient(cfg),
 	}, nil
@@ -395,6 +395,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		CountFinding:    NewCountFindingClient(cfg),
 		Custody:         NewCustodyClient(cfg),
 		CustodyLine:     NewCustodyLineClient(cfg),
+		Domain:          NewDomainClient(cfg),
 		Entitlement:     NewEntitlementClient(cfg),
 		Event:           NewEventClient(cfg),
 		Fact:            NewFactClient(cfg),
@@ -426,7 +427,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		TagCounter:      NewTagCounterClient(cfg),
 		Tenant:          NewTenantClient(cfg),
 		TenantContract:  NewTenantContractClient(cfg),
-		TenantDomain:    NewTenantDomainClient(cfg),
 		TreeLock:        NewTreeLockClient(cfg),
 		WorkOrder:       NewWorkOrderClient(cfg),
 	}, nil
@@ -506,13 +506,13 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Access, c.AccessReview, c.AliasHold, c.Allocation, c.Archived, c.Asset,
 		c.AssetType, c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding,
-		c.Custody, c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Handoff, c.Holder,
-		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
+		c.Custody, c.CustodyLine, c.Domain, c.Entitlement, c.Event, c.Fact, c.Handoff,
+		c.Holder, c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
 		c.LevyanNotice, c.Link, c.Notification, c.Outbox, c.Owed, c.Party, c.Placement,
 		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal,
 		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
-		c.StockMovement, c.TagCounter, c.Tenant, c.TenantContract, c.TenantDomain,
-		c.TreeLock, c.WorkOrder,
+		c.StockMovement, c.TagCounter, c.Tenant, c.TenantContract, c.TreeLock,
+		c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -524,13 +524,13 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Access, c.AccessReview, c.AliasHold, c.Allocation, c.Archived, c.Asset,
 		c.AssetType, c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding,
-		c.Custody, c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Handoff, c.Holder,
-		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
+		c.Custody, c.CustodyLine, c.Domain, c.Entitlement, c.Event, c.Fact, c.Handoff,
+		c.Holder, c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
 		c.LevyanNotice, c.Link, c.Notification, c.Outbox, c.Owed, c.Party, c.Placement,
 		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal,
 		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
-		c.StockMovement, c.TagCounter, c.Tenant, c.TenantContract, c.TenantDomain,
-		c.TreeLock, c.WorkOrder,
+		c.StockMovement, c.TagCounter, c.Tenant, c.TenantContract, c.TreeLock,
+		c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -567,6 +567,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Custody.mutate(ctx, m)
 	case *CustodyLineMutation:
 		return c.CustodyLine.mutate(ctx, m)
+	case *DomainMutation:
+		return c.Domain.mutate(ctx, m)
 	case *EntitlementMutation:
 		return c.Entitlement.mutate(ctx, m)
 	case *EventMutation:
@@ -629,8 +631,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Tenant.mutate(ctx, m)
 	case *TenantContractMutation:
 		return c.TenantContract.mutate(ctx, m)
-	case *TenantDomainMutation:
-		return c.TenantDomain.mutate(ctx, m)
 	case *TreeLockMutation:
 		return c.TreeLock.mutate(ctx, m)
 	case *WorkOrderMutation:
@@ -2838,6 +2838,155 @@ func (c *CustodyLineClient) mutate(ctx context.Context, m *CustodyLineMutation) 
 	}
 }
 
+// DomainClient is a client for the Domain schema.
+type DomainClient struct {
+	config
+}
+
+// NewDomainClient returns a client for the Domain from the given config.
+func NewDomainClient(c config) *DomainClient {
+	return &DomainClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `domain.Hooks(f(g(h())))`.
+func (c *DomainClient) Use(hooks ...Hook) {
+	c.hooks.Domain = append(c.hooks.Domain, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `domain.Intercept(f(g(h())))`.
+func (c *DomainClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Domain = append(c.inters.Domain, interceptors...)
+}
+
+// Create returns a builder for creating a Domain entity.
+func (c *DomainClient) Create() *DomainCreate {
+	mutation := newDomainMutation(c.config, OpCreate)
+	return &DomainCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Domain entities.
+func (c *DomainClient) CreateBulk(builders ...*DomainCreate) *DomainCreateBulk {
+	return &DomainCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DomainClient) MapCreateBulk(slice any, setFunc func(*DomainCreate, int)) *DomainCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DomainCreateBulk{err: fmt.Errorf("calling to DomainClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DomainCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DomainCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Domain.
+func (c *DomainClient) Update() *DomainUpdate {
+	mutation := newDomainMutation(c.config, OpUpdate)
+	return &DomainUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DomainClient) UpdateOne(_m *Domain) *DomainUpdateOne {
+	mutation := newDomainMutation(c.config, OpUpdateOne, withDomain(_m))
+	return &DomainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *DomainClient) UpdateOneId(id uuid.UUID) *DomainUpdateOne {
+	mutation := newDomainMutation(c.config, OpUpdateOne, withDomainId(id))
+	return &DomainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Domain.
+func (c *DomainClient) Delete() *DomainDelete {
+	mutation := newDomainMutation(c.config, OpDelete)
+	return &DomainDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DomainClient) DeleteOne(_m *Domain) *DomainDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *DomainClient) DeleteOneId(id uuid.UUID) *DomainDeleteOne {
+	builder := c.Delete().Where(domain.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &DomainDeleteOne{builder}
+}
+
+// Query returns a query builder for Domain.
+func (c *DomainClient) Query() *DomainQuery {
+	return &DomainQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDomain},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Domain entity by its id.
+func (c *DomainClient) Get(ctx context.Context, id uuid.UUID) (*Domain, error) {
+	return c.Query().Where(domain.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DomainClient) GetX(ctx context.Context, id uuid.UUID) *Domain {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTenant queries the tenant edge of a Domain.
+func (c *DomainClient) QueryTenant(_m *Domain) *TenantQuery {
+	query := (&TenantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.Id
+		step := sqlgraph.NewStep(
+			sqlgraph.From(domain.Table, domain.FieldId, id),
+			sqlgraph.To(tenant.Table, tenant.FieldId),
+			sqlgraph.Edge(sqlgraph.M2O, false, domain.TenantTable, domain.TenantColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DomainClient) Hooks() []Hook {
+	return c.hooks.Domain
+}
+
+// Interceptors returns the client interceptors.
+func (c *DomainClient) Interceptors() []Interceptor {
+	return c.inters.Domain
+}
+
+func (c *DomainClient) mutate(ctx context.Context, m *DomainMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DomainCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DomainUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DomainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DomainDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Domain mutation op: %q", m.Op())
+	}
+}
+
 // EntitlementClient is a client for the Entitlement schema.
 type EntitlementClient struct {
 	config
@@ -4219,13 +4368,13 @@ func (c *LabelClient) QueryTenant(_m *Label) *TenantQuery {
 }
 
 // QueryDomain queries the domain edge of a Label.
-func (c *LabelClient) QueryDomain(_m *Label) *TenantDomainQuery {
-	query := (&TenantDomainClient{config: c.config}).Query()
+func (c *LabelClient) QueryDomain(_m *Label) *DomainQuery {
+	query := (&DomainClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.Id
 		step := sqlgraph.NewStep(
 			sqlgraph.From(label.Table, label.FieldId, id),
-			sqlgraph.To(tenantdomain.Table, tenantdomain.FieldId),
+			sqlgraph.To(domain.Table, domain.FieldId),
 			sqlgraph.Edge(sqlgraph.M2O, false, label.DomainTable, label.DomainColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
@@ -7681,155 +7830,6 @@ func (c *TenantContractClient) mutate(ctx context.Context, m *TenantContractMuta
 	}
 }
 
-// TenantDomainClient is a client for the TenantDomain schema.
-type TenantDomainClient struct {
-	config
-}
-
-// NewTenantDomainClient returns a client for the TenantDomain from the given config.
-func NewTenantDomainClient(c config) *TenantDomainClient {
-	return &TenantDomainClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `tenantdomain.Hooks(f(g(h())))`.
-func (c *TenantDomainClient) Use(hooks ...Hook) {
-	c.hooks.TenantDomain = append(c.hooks.TenantDomain, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `tenantdomain.Intercept(f(g(h())))`.
-func (c *TenantDomainClient) Intercept(interceptors ...Interceptor) {
-	c.inters.TenantDomain = append(c.inters.TenantDomain, interceptors...)
-}
-
-// Create returns a builder for creating a TenantDomain entity.
-func (c *TenantDomainClient) Create() *TenantDomainCreate {
-	mutation := newTenantDomainMutation(c.config, OpCreate)
-	return &TenantDomainCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of TenantDomain entities.
-func (c *TenantDomainClient) CreateBulk(builders ...*TenantDomainCreate) *TenantDomainCreateBulk {
-	return &TenantDomainCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *TenantDomainClient) MapCreateBulk(slice any, setFunc func(*TenantDomainCreate, int)) *TenantDomainCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &TenantDomainCreateBulk{err: fmt.Errorf("calling to TenantDomainClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*TenantDomainCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &TenantDomainCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for TenantDomain.
-func (c *TenantDomainClient) Update() *TenantDomainUpdate {
-	mutation := newTenantDomainMutation(c.config, OpUpdate)
-	return &TenantDomainUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *TenantDomainClient) UpdateOne(_m *TenantDomain) *TenantDomainUpdateOne {
-	mutation := newTenantDomainMutation(c.config, OpUpdateOne, withTenantDomain(_m))
-	return &TenantDomainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneId returns an update builder for the given id.
-func (c *TenantDomainClient) UpdateOneId(id uuid.UUID) *TenantDomainUpdateOne {
-	mutation := newTenantDomainMutation(c.config, OpUpdateOne, withTenantDomainId(id))
-	return &TenantDomainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for TenantDomain.
-func (c *TenantDomainClient) Delete() *TenantDomainDelete {
-	mutation := newTenantDomainMutation(c.config, OpDelete)
-	return &TenantDomainDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *TenantDomainClient) DeleteOne(_m *TenantDomain) *TenantDomainDeleteOne {
-	return c.DeleteOneId(_m.Id)
-}
-
-// DeleteOneId returns a builder for deleting the given entity by its id.
-func (c *TenantDomainClient) DeleteOneId(id uuid.UUID) *TenantDomainDeleteOne {
-	builder := c.Delete().Where(tenantdomain.Id(id))
-	builder.mutation.id = &id
-	builder.mutation.SetOp(OpDeleteOne)
-	return &TenantDomainDeleteOne{builder}
-}
-
-// Query returns a query builder for TenantDomain.
-func (c *TenantDomainClient) Query() *TenantDomainQuery {
-	return &TenantDomainQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeTenantDomain},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a TenantDomain entity by its id.
-func (c *TenantDomainClient) Get(ctx context.Context, id uuid.UUID) (*TenantDomain, error) {
-	return c.Query().Where(tenantdomain.Id(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *TenantDomainClient) GetX(ctx context.Context, id uuid.UUID) *TenantDomain {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryTenant queries the tenant edge of a TenantDomain.
-func (c *TenantDomainClient) QueryTenant(_m *TenantDomain) *TenantQuery {
-	query := (&TenantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(tenantdomain.Table, tenantdomain.FieldId, id),
-			sqlgraph.To(tenant.Table, tenant.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, tenantdomain.TenantTable, tenantdomain.TenantColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *TenantDomainClient) Hooks() []Hook {
-	return c.hooks.TenantDomain
-}
-
-// Interceptors returns the client interceptors.
-func (c *TenantDomainClient) Interceptors() []Interceptor {
-	return c.inters.TenantDomain
-}
-
-func (c *TenantDomainClient) mutate(ctx context.Context, m *TenantDomainMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&TenantDomainCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&TenantDomainUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&TenantDomainUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&TenantDomainDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown TenantDomain mutation op: %q", m.Op())
-	}
-}
-
 // TreeLockClient is a client for the TreeLock schema.
 type TreeLockClient struct {
 	config
@@ -8165,21 +8165,21 @@ type (
 	hooks struct {
 		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
 		Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine,
-		Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation,
+		Domain, Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation,
 		ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed,
 		Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
 		RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock,
-		StockMovement, TagCounter, Tenant, TenantContract, TenantDomain, TreeLock,
+		StockMovement, TagCounter, Tenant, TenantContract, TreeLock,
 		WorkOrder []ent.Hook
 	}
 	inters struct {
 		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
 		Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine,
-		Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation,
+		Domain, Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation,
 		ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed,
 		Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
 		RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock,
-		StockMovement, TagCounter, Tenant, TenantContract, TenantDomain, TreeLock,
+		StockMovement, TagCounter, Tenant, TenantContract, TreeLock,
 		WorkOrder []ent.Interceptor
 	}
 )

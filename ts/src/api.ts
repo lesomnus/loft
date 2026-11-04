@@ -22,7 +22,7 @@ import { events } from '../gen/events.js'
 import { unreachable } from './offline.js'
 
 import { AllocationService, BookableService, ReservationService } from '../gen/loft/booking_svc_pb.js'
-import { AssetService, AttachmentService, LabelService, TenantDomainService } from '../gen/loft/asset_svc_pb.js'
+import { AssetService, AttachmentService, DomainService, LabelService } from '../gen/loft/asset_svc_pb.js'
 import { AssetTypeService, ItemModelService } from '../gen/loft/catalog_svc_pb.js'
 import { AccessService } from '../gen/loft/payday/access_svc_pb.js'
 import { AuditService } from '../gen/loft/payday/audit_svc_pb.js'
@@ -49,6 +49,7 @@ export {
 	CountFindingService,
 	CustodyLineService,
 	CustodyService,
+	DomainService,
 	EventService,
 	HolderService,
 	InventoryCountService,
@@ -63,7 +64,6 @@ export {
 	ReservationService,
 	StockMovementService,
 	StockService,
-	TenantDomainService,
 	TenantService,
 	WorkOrderService,
 }

@@ -62,6 +62,14 @@
 /loft.CustodyService/Outstanding	manager +auditor
 /loft.CustodyService/Return	manager
 /loft.CustodyService/Watch	read
+/loft.DomainService/Activate	admin
+/loft.DomainService/Add	admin
+/loft.DomainService/Get	read
+/loft.DomainService/List	read
+/loft.DomainService/Retire	admin
+/loft.DomainService/Status	read
+/loft.DomainService/Verify	admin
+/loft.DomainService/Watch	read
 /loft.EventService/Get	read
 /loft.EventService/List	read
 /loft.EventService/Recent	read
@@ -175,14 +183,6 @@
 /loft.StockService/Watch	read
 /loft.TenantContractService/Get	read
 /loft.TenantContractService/List	read
-/loft.TenantDomainService/Activate	admin
-/loft.TenantDomainService/Add	admin
-/loft.TenantDomainService/Get	read
-/loft.TenantDomainService/List	read
-/loft.TenantDomainService/Retire	admin
-/loft.TenantDomainService/Status	read
-/loft.TenantDomainService/Verify	admin
-/loft.TenantDomainService/Watch	read
 /loft.TenantService/Close	owner
 /loft.TenantService/Configure	owner
 /loft.TenantService/Get	read

@@ -11,12 +11,12 @@ import (
 	asset "github.com/lesomnus/loft/internal/ent/asset"
 	assettype "github.com/lesomnus/loft/internal/ent/assettype"
 	attachment "github.com/lesomnus/loft/internal/ent/attachment"
+	domain "github.com/lesomnus/loft/internal/ent/domain"
 	itemmodel "github.com/lesomnus/loft/internal/ent/itemmodel"
 	label "github.com/lesomnus/loft/internal/ent/label"
 	party "github.com/lesomnus/loft/internal/ent/party"
 	predicate "github.com/lesomnus/loft/internal/ent/predicate"
 	tagcounter "github.com/lesomnus/loft/internal/ent/tagcounter"
-	tenantdomain "github.com/lesomnus/loft/internal/ent/tenantdomain"
 	treelock "github.com/lesomnus/loft/internal/ent/treelock"
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
 	ent1 "github.com/protobuf-orm/ent"
@@ -1032,42 +1032,42 @@ func (s TagCounterServiceServer) narrow(ctx context.Context, p predicate.TagCoun
 	return TagCounterNarrow(ctx, s.Scope, p)
 }
 
-type TenantDomainServiceServer struct {
+type DomainServiceServer struct {
 	Store
 
-	loft.UnimplementedTenantDomainServiceServer
+	loft.UnimplementedDomainServiceServer
 }
 
-// NewTenantDomainServiceServer answers with a server that runs its queries with `db`.
+// NewDomainServiceServer answers with a server that runs its queries with `db`.
 //
 // It takes the options of [Server] so that what is built here can be told
 // where to report its writes and what it may see. Built without them, it
 // reports nowhere and sees everything.
-func NewTenantDomainServiceServer(db *ent.Client, opts ...Option) loft.TenantDomainServiceServer {
+func NewDomainServiceServer(db *ent.Client, opts ...Option) loft.DomainServiceServer {
 	s := Server{Store: Store{Db: db}}
 	for _, opt := range opts {
 		opt(&s)
 	}
-	return TenantDomainServiceServer{Store: s.Store}
+	return DomainServiceServer{Store: s.Store}
 }
 
-// TenantDomainNarrow answers with `p` and everything else that narrows a
-// read of a TenantDomain: the rows that have not been erased, and whatever
+// DomainNarrow answers with `p` and everything else that narrows a
+// read of a Domain: the rows that have not been erased, and whatever
 // `scope` says of those.
 //
 // Every read this package makes goes through it, and a read written by
 // hand should too -- a List is the one read nothing generates, and so the
 // one that would otherwise answer with rows nobody should be given.
-func TenantDomainNarrow(ctx context.Context, scope Scope, p predicate.TenantDomain) (predicate.TenantDomain, error) {
-	ps := make([]predicate.TenantDomain, 0, 3)
+func DomainNarrow(ctx context.Context, scope Scope, p predicate.Domain) (predicate.Domain, error) {
+	ps := make([]predicate.Domain, 0, 3)
 
 	// A row that was erased is not a row a read answers with.
-	ps = append(ps, tenantdomain.DateErasedIsNil())
+	ps = append(ps, domain.DateErasedIsNil())
 	if p != nil {
 		ps = append(ps, p)
 	}
 	if scope != nil {
-		q, err := scope.TenantDomainScope(ctx)
+		q, err := scope.DomainScope(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -1082,17 +1082,17 @@ func TenantDomainNarrow(ctx context.Context, scope Scope, p predicate.TenantDoma
 	case 1:
 		return ps[0], nil
 	default:
-		return tenantdomain.And(ps...), nil
+		return domain.And(ps...), nil
 	}
 }
 
-// narrow is [TenantDomainNarrow] with this server's own scope.
-func (s TenantDomainServiceServer) narrow(ctx context.Context, p predicate.TenantDomain) (predicate.TenantDomain, error) {
-	return TenantDomainNarrow(ctx, s.Scope, p)
+// narrow is [DomainNarrow] with this server's own scope.
+func (s DomainServiceServer) narrow(ctx context.Context, p predicate.Domain) (predicate.Domain, error) {
+	return DomainNarrow(ctx, s.Scope, p)
 }
 
-func (s TenantDomainServiceServer) snapshot(ctx context.Context, p predicate.TenantDomain, lock bool) (*ent.TenantDomain, error) {
-	q := s.Db.TenantDomain.Query().Where(p)
+func (s DomainServiceServer) snapshot(ctx context.Context, p predicate.Domain, lock bool) (*ent.Domain, error) {
+	q := s.Db.Domain.Query().Where(p)
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -1100,11 +1100,11 @@ func (s TenantDomainServiceServer) snapshot(ctx context.Context, p predicate.Ten
 	})
 	return q.Only(ctx)
 }
-func (s TenantDomainServiceServer) image(v *loft.TenantDomain) *loft.TenantDomain {
+func (s DomainServiceServer) image(v *loft.Domain) *loft.Domain {
 	if v == nil {
 		return nil
 	}
-	out := proto.Clone(v).(*loft.TenantDomain)
+	out := proto.Clone(v).(*loft.Domain)
 	m := out.ProtoReflect()
 	{
 		f := m.Descriptor().Fields().ByNumber(2)
@@ -1126,9 +1126,9 @@ func (s TenantDomainServiceServer) image(v *loft.TenantDomain) *loft.TenantDomai
 // create is the row an Add of `req` writes, as a builder not yet saved,
 // and what the answer says about its edges. Add and AddMany both write
 // with it, so that an item of an AddMany is the row an Add of it would be.
-func (st TenantDomainServiceServer) create(ctx context.Context, req *loft.TenantDomainAddRequest) (*ent.TenantDomainCreate, []func(v *loft.TenantDomain), error) {
-	ds := make([]func(v *loft.TenantDomain), 0, 1)
-	q := st.Db.TenantDomain.Create()
+func (st DomainServiceServer) create(ctx context.Context, req *loft.DomainAddRequest) (*ent.DomainCreate, []func(v *loft.Domain), error) {
+	ds := make([]func(v *loft.Domain), 0, 1)
+	q := st.Db.Domain.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
@@ -1137,7 +1137,7 @@ func (st TenantDomainServiceServer) create(ctx context.Context, req *loft.Tenant
 			k = v
 		}
 	}
-	if v, err := mint(ctx, st.Mint, "loft.TenantDomain", k, req.HasId()); err != nil {
+	if v, err := mint(ctx, st.Mint, "loft.Domain", k, req.HasId()); err != nil {
 		return nil, nil, err
 	} else {
 		q.SetId(v)
@@ -1146,7 +1146,7 @@ func (st TenantDomainServiceServer) create(ctx context.Context, req *loft.Tenant
 		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
-		ds = append(ds, func(v *loft.TenantDomain) {
+		ds = append(ds, func(v *loft.Domain) {
 			v.SetTenant(loft.Tenant_builder{Id: k[:]}.Build())
 		})
 	}
@@ -1184,7 +1184,7 @@ func (st TenantDomainServiceServer) create(ctx context.Context, req *loft.Tenant
 	return q, ds, nil
 }
 
-func (s TenantDomainServiceServer) Add(ctx context.Context, req *loft.TenantDomainAddRequest) (*loft.TenantDomain, error) {
+func (s DomainServiceServer) Add(ctx context.Context, req *loft.DomainAddRequest) (*loft.Domain, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
 		return nil, err
@@ -1199,8 +1199,8 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *loft.TenantDoma
 		return nil, err
 	}
 
-	var stored *ent.TenantDomain
-	if snapshotOptions(s.Rec, loft.TenantDomainService_Add_FullMethodName).Value {
+	var stored *ent.Domain
+	if snapshotOptions(s.Rec, loft.DomainService_Add_FullMethodName).Value {
 		q.Stored(&stored)
 	}
 
@@ -1209,10 +1209,10 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *loft.TenantDoma
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
 			if sqlgraph.IsUniqueConstraintError(err) {
-				return nil, status.Error(codes.AlreadyExists, "TenantDomain already exists")
+				return nil, status.Error(codes.AlreadyExists, "Domain already exists")
 			}
 			if sqlgraph.IsForeignKeyConstraintError(err) {
-				return nil, status.Error(codes.NotFound, "TenantDomain: referenced entity not found")
+				return nil, status.Error(codes.NotFound, "Domain: referenced entity not found")
 			}
 		}
 		return nil, err
@@ -1222,12 +1222,12 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *loft.TenantDoma
 	for _, d := range ds {
 		d(v)
 	}
-	var value *loft.TenantDomain
+	var value *loft.Domain
 	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:    loft.TenantDomainService_Add_FullMethodName,
+		By:    loft.DomainService_Add_FullMethodName,
 		Key:   u.Id,
 		Value: value,
 	}); err != nil {
@@ -1240,28 +1240,28 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *loft.TenantDoma
 	return v, nil
 }
 
-// TenantDomainAddRule is what a layer in front says about one row an Add of TenantDomain
+// DomainAddRule is what a layer in front says about one row an Add of Domain
 // would write: the request to write it with -- the one it was handed, or a
 // copy it changed -- or a refusal. Nil is the request it was handed.
-type TenantDomainAddRule func(ctx context.Context, req *loft.TenantDomainAddRequest) (*loft.TenantDomainAddRequest, error)
+type DomainAddRule func(ctx context.Context, req *loft.DomainAddRequest) (*loft.DomainAddRequest, error)
 
-// TenantDomainWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// DomainWithAddRule answers with `next` behind `rule` for the RPCs that add.
 // An Add is asked about, and every item of an AddMany in order, and the
 // call is refused for the first one that is -- an AddMany naming the item.
 // What reaches `next` is one call either way: an AddMany stays one AddMany.
 //
 // A layer that overrides Add itself, for something an Add does that a rule
 // cannot say, still has its AddMany asked through this.
-func TenantDomainWithAddRule(next loft.TenantDomainServiceServer, rule TenantDomainAddRule) loft.TenantDomainServiceServer {
-	return tenantDomainAddRuled{next, rule}
+func DomainWithAddRule(next loft.DomainServiceServer, rule DomainAddRule) loft.DomainServiceServer {
+	return domainAddRuled{next, rule}
 }
 
-type tenantDomainAddRuled struct {
-	loft.TenantDomainServiceServer
-	rule TenantDomainAddRule
+type domainAddRuled struct {
+	loft.DomainServiceServer
+	rule DomainAddRule
 }
 
-func (s tenantDomainAddRuled) Add(ctx context.Context, req *loft.TenantDomainAddRequest) (*loft.TenantDomain, error) {
+func (s domainAddRuled) Add(ctx context.Context, req *loft.DomainAddRequest) (*loft.Domain, error) {
 	r, err := s.rule(ctx, req)
 	if err != nil {
 		return nil, err
@@ -1269,11 +1269,11 @@ func (s tenantDomainAddRuled) Add(ctx context.Context, req *loft.TenantDomainAdd
 	if r == nil {
 		r = req
 	}
-	return s.TenantDomainServiceServer.Add(ctx, r)
+	return s.DomainServiceServer.Add(ctx, r)
 }
 
-func (s TenantDomainServiceServer) Get(ctx context.Context, req *loft.TenantDomainGetRequest) (*loft.TenantDomain, error) {
-	p, err := TenantDomainPick(req.GetRef())
+func (s DomainServiceServer) Get(ctx context.Context, req *loft.DomainGetRequest) (*loft.Domain, error) {
+	p, err := DomainPick(req.GetRef())
 	if err != nil {
 		return nil, err
 	}
@@ -1282,81 +1282,81 @@ func (s TenantDomainServiceServer) Get(ctx context.Context, req *loft.TenantDoma
 		return nil, err
 	}
 
-	q := s.Db.TenantDomain.Query().Where(p)
-	TenantDomainSelectInit(q, req.GetSelect())
+	q := s.Db.Domain.Query().Where(p)
+	DomainSelectInit(q, req.GetSelect())
 
 	v, err := q.Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return nil, status.Error(codes.NotFound, "TenantDomain not found")
+			return nil, status.Error(codes.NotFound, "Domain not found")
 		}
 		return nil, err
 	}
 	return v.Proto(), nil
 }
 
-func selectTenantDomainKey(q *ent.TenantDomainQuery) {
-	q.Select(tenantdomain.FieldId)
+func selectDomainKey(q *ent.DomainQuery) {
+	q.Select(domain.FieldId)
 }
 
-func TenantDomainSelectedFields(m *loft.TenantDomainSelect) []string {
+func DomainSelectedFields(m *loft.DomainSelect) []string {
 	if m.GetAll() {
-		return tenantdomain.Columns
+		return domain.Columns
 	}
 
-	vs := make([]string, 0, len(tenantdomain.Columns))
+	vs := make([]string, 0, len(domain.Columns))
 	{
-		vs = append(vs, tenantdomain.FieldId)
+		vs = append(vs, domain.FieldId)
 	}
 	if m.GetHost() {
-		vs = append(vs, tenantdomain.FieldHost)
+		vs = append(vs, domain.FieldHost)
 	}
 	if m.GetPurpose() {
-		vs = append(vs, tenantdomain.FieldPurpose)
+		vs = append(vs, domain.FieldPurpose)
 	}
 	if m.GetState() {
-		vs = append(vs, tenantdomain.FieldState)
+		vs = append(vs, domain.FieldState)
 	}
 	if m.GetToken() {
-		vs = append(vs, tenantdomain.FieldToken)
+		vs = append(vs, domain.FieldToken)
 	}
 	if m.GetSource() {
-		vs = append(vs, tenantdomain.FieldSource)
+		vs = append(vs, domain.FieldSource)
 	}
 	if m.GetDateUpdated() {
-		vs = append(vs, tenantdomain.FieldDateUpdated)
+		vs = append(vs, domain.FieldDateUpdated)
 	}
 	if m.GetDateErased() {
-		vs = append(vs, tenantdomain.FieldDateErased)
+		vs = append(vs, domain.FieldDateErased)
 	}
 	if m.GetDateCreated() {
-		vs = append(vs, tenantdomain.FieldDateCreated)
+		vs = append(vs, domain.FieldDateCreated)
 	}
 	if m.GetVerifiedAt() {
-		vs = append(vs, tenantdomain.FieldVerifiedAt)
+		vs = append(vs, domain.FieldVerifiedAt)
 	}
 	if m.GetCheckedAt() {
-		vs = append(vs, tenantdomain.FieldCheckedAt)
+		vs = append(vs, domain.FieldCheckedAt)
 	}
 	if m.GetFailures() {
-		vs = append(vs, tenantdomain.FieldFailures)
+		vs = append(vs, domain.FieldFailures)
 	}
 	if m.GetFailingSince() {
-		vs = append(vs, tenantdomain.FieldFailingSince)
+		vs = append(vs, domain.FieldFailingSince)
 	}
 	if m.GetDateLapsed() {
-		vs = append(vs, tenantdomain.FieldDateLapsed)
+		vs = append(vs, domain.FieldDateLapsed)
 	}
 	if m.GetRedirectUntil() {
-		vs = append(vs, tenantdomain.FieldRedirectUntil)
+		vs = append(vs, domain.FieldRedirectUntil)
 	}
 
 	return vs
 }
 
-func TenantDomainSelect(q *ent.TenantDomainQuery, m *loft.TenantDomainSelect) {
+func DomainSelect(q *ent.DomainQuery, m *loft.DomainSelect) {
 	if !m.GetAll() {
-		fields := TenantDomainSelectedFields(m)
+		fields := DomainSelectedFields(m)
 		q.Select(fields...)
 	}
 	if m.HasTenant() {
@@ -1366,14 +1366,14 @@ func TenantDomainSelect(q *ent.TenantDomainQuery, m *loft.TenantDomainSelect) {
 	}
 }
 
-func TenantDomainSelectInit(q *ent.TenantDomainQuery, m *loft.TenantDomainSelect) {
+func DomainSelectInit(q *ent.DomainQuery, m *loft.DomainSelect) {
 	if m != nil {
-		TenantDomainSelect(q, m)
+		DomainSelect(q, m)
 	}
 }
 
-func (s TenantDomainServiceServer) Patch(ctx context.Context, req *loft.TenantDomainPatchRequest) (*loft.TenantDomain, error) {
-	doc, err := ormpatch.FromPatchRequest(tenantDomainOrmEntity, req.ProtoReflect(), nil)
+func (s DomainServiceServer) Patch(ctx context.Context, req *loft.DomainPatchRequest) (*loft.Domain, error) {
+	doc, err := ormpatch.FromPatchRequest(domainOrmEntity, req.ProtoReflect(), nil)
 	if err != nil {
 		if _, ok := status.FromError(err); ok {
 			return nil, err
@@ -1387,10 +1387,10 @@ func (s TenantDomainServiceServer) Patch(ctx context.Context, req *loft.TenantDo
 		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
 	}
 
-	return s.apply(ctx, req.GetRef(), doc, loft.TenantDomainService_Patch_FullMethodName)
+	return s.apply(ctx, req.GetRef(), doc, loft.DomainService_Patch_FullMethodName)
 }
 
-func TenantDomainGetKey(ctx context.Context, db *ent.Client, ref *loft.TenantDomainRef) (uuid.UUID, error) {
+func DomainGetKey(ctx context.Context, db *ent.Client, ref *loft.DomainRef) (uuid.UUID, error) {
 	var z uuid.UUID
 	if ref.HasId() {
 		if v, err := entuuid.FromBytes(ref.GetId()); err != nil {
@@ -1400,15 +1400,15 @@ func TenantDomainGetKey(ctx context.Context, db *ent.Client, ref *loft.TenantDom
 		}
 	}
 
-	p, err := TenantDomainPick(ref)
+	p, err := DomainPick(ref)
 	if err != nil {
 		return z, err
 	}
 
-	v, err := db.TenantDomain.Query().Where(p).OnlyId(ctx)
+	v, err := db.Domain.Query().Where(p).OnlyId(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
-			return z, status.Error(codes.NotFound, "TenantDomain not found")
+			return z, status.Error(codes.NotFound, "Domain not found")
 		}
 		return z, err
 	}
@@ -1416,22 +1416,22 @@ func TenantDomainGetKey(ctx context.Context, db *ent.Client, ref *loft.TenantDom
 	return v, nil
 }
 
-var tenantDomainOrmEntity = ormpatch.MustEntityOf(loft.File_loft_asset_proto, "TenantDomain")
+var domainOrmEntity = ormpatch.MustEntityOf(loft.File_loft_asset_proto, "Domain")
 
-var tenantDomainPatchColumns = entpatch.Columns{
-	1: tenantdomain.FieldId, 2: tenantdomain.TenantColumn, 8: tenantdomain.FieldHost, 9: tenantdomain.FieldPurpose, 10: tenantdomain.FieldState, 11: tenantdomain.FieldToken, 12: tenantdomain.FieldSource, 13: tenantdomain.FieldDateUpdated, 14: tenantdomain.FieldDateErased, 15: tenantdomain.FieldDateCreated, 16: tenantdomain.FieldVerifiedAt, 18: tenantdomain.FieldCheckedAt, 19: tenantdomain.FieldFailures, 20: tenantdomain.FieldFailingSince, 17: tenantdomain.FieldDateLapsed, 21: tenantdomain.FieldRedirectUntil}
+var domainPatchColumns = entpatch.Columns{
+	1: domain.FieldId, 2: domain.TenantColumn, 8: domain.FieldHost, 9: domain.FieldPurpose, 10: domain.FieldState, 11: domain.FieldToken, 12: domain.FieldSource, 13: domain.FieldDateUpdated, 14: domain.FieldDateErased, 15: domain.FieldDateCreated, 16: domain.FieldVerifiedAt, 18: domain.FieldCheckedAt, 19: domain.FieldFailures, 20: domain.FieldFailingSince, 17: domain.FieldDateLapsed, 21: domain.FieldRedirectUntil}
 
-func (s TenantDomainServiceServer) Apply(ctx context.Context, req *loft.TenantDomainApplyRequest) (*loft.TenantDomain, error) {
+func (s DomainServiceServer) Apply(ctx context.Context, req *loft.DomainApplyRequest) (*loft.Domain, error) {
 	if !req.HasPatch() {
 		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
 	}
-	return s.apply(ctx, req.GetRef(), req.GetPatch(), loft.TenantDomainService_Apply_FullMethodName)
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), loft.DomainService_Apply_FullMethodName)
 }
 
-func (s TenantDomainServiceServer) apply(ctx context.Context, ref *loft.TenantDomainRef, doc *patchpb.Patch, by string) (*loft.TenantDomain, error) {
-	plan := &ormpatch.Plan{Entity: tenantDomainOrmEntity}
+func (s DomainServiceServer) apply(ctx context.Context, ref *loft.DomainRef, doc *patchpb.Patch, by string) (*loft.Domain, error) {
+	plan := &ormpatch.Plan{Entity: domainOrmEntity}
 	if doc != nil {
-		v, err := ormpatch.Compile(tenantDomainOrmEntity, doc)
+		v, err := ormpatch.Compile(domainOrmEntity, doc)
 		if err != nil {
 			if errors.Is(err, ormpatch.ErrUnsupported) {
 				return nil, status.Errorf(codes.Unimplemented, "%s", err)
@@ -1441,7 +1441,7 @@ func (s TenantDomainServiceServer) apply(ctx context.Context, ref *loft.TenantDo
 		plan = v
 	}
 
-	pred, mod, err := entpatch.Build(plan, tenantDomainPatchColumns, s.Db.Dialect())
+	pred, mod, err := entpatch.Build(plan, domainPatchColumns, s.Db.Dialect())
 	if err != nil {
 		if errors.Is(err, entpatch.ErrValue) {
 			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
@@ -1458,18 +1458,18 @@ func (s TenantDomainServiceServer) apply(ctx context.Context, ref *loft.TenantDo
 	st := s
 	st.Db = tx.Db
 
-	k, err := TenantDomainGetKey(ctx, st.Db, ref)
+	k, err := DomainGetKey(ctx, st.Db, ref)
 	if err != nil {
 		return nil, err
 	}
-	at := &loft.TenantDomainRef{}
+	at := &loft.DomainRef{}
 	at.SetId(k[:])
-	p, err := s.narrow(ctx, tenantdomain.IdEQ(k))
+	p, err := s.narrow(ctx, domain.IdEQ(k))
 	if err != nil {
 		return nil, err
 	}
 
-	var previous *loft.TenantDomain
+	var previous *loft.Domain
 	images := snapshotOptions(s.Rec, by)
 	if images.Previous && mod != nil {
 		u, err := st.snapshot(ctx, p, true)
@@ -1482,26 +1482,26 @@ func (s TenantDomainServiceServer) apply(ctx context.Context, ref *loft.TenantDo
 		previous = s.image(u.Proto())
 	}
 	if mod == nil {
-		q := st.Db.TenantDomain.Query().Where(p)
+		q := st.Db.Domain.Query().Where(p)
 		if pred != nil {
-			q.Where(predicate.TenantDomain(pred))
+			q.Where(predicate.Domain(pred))
 		}
 		if ok, err := q.Exist(ctx); err != nil {
 			return nil, err
 		} else if !ok {
 			return nil, func() error {
-				if ok, err := st.Db.TenantDomain.Query().Where(p).Exist(ctx); err != nil {
+				if ok, err := st.Db.Domain.Query().Where(p).Exist(ctx); err != nil {
 					return err
 				} else if !ok {
-					return status.Error(codes.NotFound, "TenantDomain not found")
+					return status.Error(codes.NotFound, "Domain not found")
 				}
 				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
 			}()
 		}
 	} else {
-		q := st.Db.TenantDomain.Update().Where(p)
+		q := st.Db.Domain.Update().Where(p)
 		if pred != nil {
-			q.Where(predicate.TenantDomain(pred))
+			q.Where(predicate.Domain(pred))
 		}
 		q.Modify(mod)
 		if !plan.WritesTo(13) {
@@ -1511,19 +1511,19 @@ func (s TenantDomainServiceServer) apply(ctx context.Context, ref *loft.TenantDo
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
-					return nil, status.Error(codes.AlreadyExists, "TenantDomain already exists")
+					return nil, status.Error(codes.AlreadyExists, "Domain already exists")
 				}
 				if sqlgraph.IsForeignKeyConstraintError(err) {
-					return nil, status.Error(codes.NotFound, "TenantDomain: referenced entity not found")
+					return nil, status.Error(codes.NotFound, "Domain: referenced entity not found")
 				}
 			}
 			return nil, err
 		} else if n == 0 {
 			return nil, func() error {
-				if ok, err := st.Db.TenantDomain.Query().Where(p).Exist(ctx); err != nil {
+				if ok, err := st.Db.Domain.Query().Where(p).Exist(ctx); err != nil {
 					return err
 				} else if !ok {
-					return status.Error(codes.NotFound, "TenantDomain not found")
+					return status.Error(codes.NotFound, "Domain not found")
 				}
 				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
 			}()
@@ -1535,7 +1535,7 @@ func (s TenantDomainServiceServer) apply(ctx context.Context, ref *loft.TenantDo
 		return nil, err
 	}
 	if mod != nil {
-		var value *loft.TenantDomain
+		var value *loft.Domain
 		if images.Value {
 			value = s.image(out)
 		}
@@ -1555,8 +1555,8 @@ func (s TenantDomainServiceServer) apply(ctx context.Context, ref *loft.TenantDo
 	return out, nil
 }
 
-func (s TenantDomainServiceServer) Erase(ctx context.Context, req *loft.TenantDomainRef) (*loft.TenantDomainEraseResponse, error) {
-	p, err := TenantDomainPick(req)
+func (s DomainServiceServer) Erase(ctx context.Context, req *loft.DomainRef) (*loft.DomainEraseResponse, error) {
+	p, err := DomainPick(req)
 	if err != nil {
 		return nil, err
 	}
@@ -1575,19 +1575,19 @@ func (s TenantDomainServiceServer) Erase(ctx context.Context, req *loft.TenantDo
 	st.Db = tx.Db
 
 	var k any
-	var previous *loft.TenantDomain
+	var previous *loft.Domain
 	if s.Rec != nil {
-		images := snapshotOptions(s.Rec, loft.TenantDomainService_Erase_FullMethodName)
-		var v *ent.TenantDomain
+		images := snapshotOptions(s.Rec, loft.DomainService_Erase_FullMethodName)
+		var v *ent.Domain
 		var err error
 		if images.Previous {
 			v, err = st.snapshot(ctx, p, true)
 		} else {
-			v, err = st.Db.TenantDomain.Query().Where(p).Select(tenantdomain.FieldId).Only(ctx)
+			v, err = st.Db.Domain.Query().Where(p).Select(domain.FieldId).Only(ctx)
 		}
 		if err != nil {
 			if ent.IsNotFound(err) {
-				return &loft.TenantDomainEraseResponse{}, nil
+				return &loft.DomainEraseResponse{}, nil
 			}
 			return nil, err
 		}
@@ -1596,11 +1596,11 @@ func (s TenantDomainServiceServer) Erase(ctx context.Context, req *loft.TenantDo
 		if images.Previous {
 			previous = s.image(v.Proto())
 		}
-		p = tenantdomain.And(p, tenantdomain.IdEQ(v.Id))
+		p = domain.And(p, domain.IdEQ(v.Id))
 	}
 
 	tx.Writing()
-	u := st.Db.TenantDomain.Update().Where(p)
+	u := st.Db.Domain.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
 	n, err := u.Save(ctx)
@@ -1609,7 +1609,7 @@ func (s TenantDomainServiceServer) Erase(ctx context.Context, req *loft.TenantDo
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:       loft.TenantDomainService_Erase_FullMethodName,
+			By:       loft.DomainService_Erase_FullMethodName,
 			Key:      k,
 			Previous: previous,
 		}); err != nil {
@@ -1619,42 +1619,42 @@ func (s TenantDomainServiceServer) Erase(ctx context.Context, req *loft.TenantDo
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
-	res := &loft.TenantDomainEraseResponse{}
+	res := &loft.DomainEraseResponse{}
 	res.SetErased(n > 0)
 
 	return res, nil
 }
 
-// TenantDomainPick answers with the predicate this reference selects on,
+// DomainPick answers with the predicate this reference selects on,
 // among the rows that are still here.
 //
 // Erasure is part of the reference and not only part of a read's scope,
-// because a reference to a TenantDomain is composed into the reference of
+// because a reference to a Domain is composed into the reference of
 // whatever names one: an index over an edge asks this for a predicate and
-// puts it inside `HasTenantDomainWith`, where no narrowing of a TenantDomain
+// puts it inside `HasDomainWith`, where no narrowing of a Domain
 // is ever applied. A child of an erased row would otherwise be readable by
 // naming its parent.
-func TenantDomainPick(req *loft.TenantDomainRef) (predicate.TenantDomain, error) {
-	p, err := pickTenantDomain(req)
+func DomainPick(req *loft.DomainRef) (predicate.Domain, error) {
+	p, err := pickDomain(req)
 	if err != nil {
 		return nil, err
 	}
 
-	return tenantdomain.And(tenantdomain.DateErasedIsNil(), p), nil
+	return domain.And(domain.DateErasedIsNil(), p), nil
 }
 
-func pickTenantDomain(req *loft.TenantDomainRef) (predicate.TenantDomain, error) {
+func pickDomain(req *loft.DomainRef) (predicate.Domain, error) {
 	switch req.WhichKey() {
-	case loft.TenantDomainRef_Id_case:
+	case loft.DomainRef_Id_case:
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
-			return tenantdomain.IdEQ(v), nil
+			return domain.IdEQ(v), nil
 		}
-	case loft.TenantDomainRef_Host_case:
-		return tenantdomain.HostEQ(req.GetHost()), nil
-	case loft.TenantDomainRef_Key_not_set_case:
-		return nil, status.Errorf(codes.InvalidArgument, "key not set: TenantDomain")
+	case loft.DomainRef_Host_case:
+		return domain.HostEQ(req.GetHost()), nil
+	case loft.DomainRef_Key_not_set_case:
+		return nil, status.Errorf(codes.InvalidArgument, "key not set: Domain")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
 	}
@@ -1793,12 +1793,12 @@ func (st LabelServiceServer) create(ctx context.Context, req *loft.LabelAddReque
 		})
 	}
 	if req.HasDomain() {
-		if k, err := TenantDomainGetKey(ctx, st.Db, req.GetDomain()); err != nil {
+		if k, err := DomainGetKey(ctx, st.Db, req.GetDomain()); err != nil {
 			return nil, nil, err
 		} else {
 			q.SetDomainId(k)
 			ds = append(ds, func(v *loft.Label) {
-				v.SetDomain(loft.TenantDomain_builder{Id: k[:]}.Build())
+				v.SetDomain(loft.Domain_builder{Id: k[:]}.Build())
 			})
 		}
 	}
@@ -1995,9 +1995,9 @@ func LabelSelect(q *ent.LabelQuery, m *loft.LabelSelect) {
 		})
 	}
 	if m.HasDomain() {
-		q.WithDomain(func(q *ent.TenantDomainQuery) {
-			q.Where(tenantdomain.DateErasedIsNil())
-			TenantDomainSelect(q, m.GetDomain())
+		q.WithDomain(func(q *ent.DomainQuery) {
+			q.Where(domain.DateErasedIsNil())
+			DomainSelect(q, m.GetDomain())
 		})
 	}
 }
@@ -2012,7 +2012,7 @@ func (s LabelServiceServer) Patch(ctx context.Context, req *loft.LabelPatchReque
 	doc, err := ormpatch.FromPatchRequest(labelOrmEntity, req.ProtoReflect(), func(ed graph.Edge, ref protoreflect.Message) (protoreflect.Value, error) {
 		switch ed.Number() {
 		case 8:
-			k, err := TenantDomainGetKey(ctx, s.Db, ref.Interface().(*loft.TenantDomainRef))
+			k, err := DomainGetKey(ctx, s.Db, ref.Interface().(*loft.DomainRef))
 			if err != nil {
 				return protoreflect.Value{}, err
 			}

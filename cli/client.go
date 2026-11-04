@@ -243,7 +243,7 @@ var reads = []string{
 	"/loft.*/Get", "/loft.*/List", "/loft.*/Watch", "/loft.*/Search", "/loft.*/Recent",
 	"/loft.AssetService/Timeline", "/loft.AssetService/QueryAt", "/loft.AssetService/Diff", "/loft.AssetService/Report",
 	"/loft.ReservationService/Calendar", "/loft.ReservationService/Timeline", "/loft.BookableService/Availability",
-	"/loft.PartyService/Me", "/loft.LabelService/Resolve", "/loft.TenantDomainService/Status",
+	"/loft.PartyService/Me", "/loft.LabelService/Resolve", "/loft.DomainService/Status",
 	"/loft.AttachmentService/Url", "/loft.NotificationService/Inbox",
 }
 

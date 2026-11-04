@@ -124,14 +124,14 @@ loft api bookable update <예약 자원 ID> '{"max_minutes": 4320, "enabled": tr
 - 배포가 워크스페이스 도메인의 인증서를 받게 켜 두어야 합니다. 그것은 운영자의 일입니다([운영자](operator.md#워크스페이스-도메인)).
 
 ```sh
-loft api tenant-domain status                               # 지금 라벨이 인쇄되는 주소
-loft api tenant-domain add '{"host": "assets.example.com"}'  # 자체 도메인
-loft api tenant-domain add '{"sub": "woori"}'                # 기본 주소 (배포가 두었을 때)
-loft api tenant-domain ls -o wide
-loft api tenant-domain get <도메인 ID>                         # token이 TXT 레코드의 값
-loft api tenant-domain verify <도메인 ID>                      # 지금 확인
-loft api tenant-domain activate <도메인 ID>
-loft api tenant-domain retire <도메인 ID>
+loft api domain status                               # 지금 라벨이 인쇄되는 주소
+loft api domain add '{"host": "assets.example.com"}'  # 자체 도메인
+loft api domain add '{"sub": "woori"}'                # 기본 주소 (배포가 두었을 때)
+loft api domain ls -o wide
+loft api domain get <도메인 ID>                         # token이 TXT 레코드의 값
+loft api domain verify <도메인 ID>                      # 지금 확인
+loft api domain activate <도메인 ID>
+loft api domain retire <도메인 ID>
 ```
 
 ### 지역과 예약 (소유자)

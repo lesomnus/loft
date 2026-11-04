@@ -115,7 +115,7 @@ func TestAReadOnlyWorkspacesDomainIsToldWhatCanBeDone(t *testing.T) {
 	e.later(10 * time.Minute)
 	x.Equal("active", e.domainRow(v).State)
 	// And one added beside it, whose records are not there yet.
-	other, err := e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Host: "app.acme.example"}.Build())
+	other, err := e.app().Domain().Add(e.owner, app.DomainAddRequest_builder{Host: "app.acme.example"}.Build())
 	x.NoError(err)
 	owner, err := e.s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.TenantId(e.tenant.Uuid())).Only(ctx)
 	x.NoError(err)

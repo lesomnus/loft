@@ -23,6 +23,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/countfinding"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/entitlement"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
@@ -54,7 +55,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/tagcounter"
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/internal/ent/treelock"
 	"github.com/lesomnus/loft/internal/ent/workorder"
 	"github.com/protobuf-orm/ent"
@@ -134,6 +134,7 @@ func checkColumn(t, c string) error {
 			countfinding.Table:    countfinding.ValidColumn,
 			custody.Table:         custody.ValidColumn,
 			custodyline.Table:     custodyline.ValidColumn,
+			domain.Table:          domain.ValidColumn,
 			entitlement.Table:     entitlement.ValidColumn,
 			event.Table:           event.ValidColumn,
 			fact.Table:            fact.ValidColumn,
@@ -165,7 +166,6 @@ func checkColumn(t, c string) error {
 			tagcounter.Table:      tagcounter.ValidColumn,
 			tenant.Table:          tenant.ValidColumn,
 			tenantcontract.Table:  tenantcontract.ValidColumn,
-			tenantdomain.Table:    tenantdomain.ValidColumn,
 			treelock.Table:        treelock.ValidColumn,
 			workorder.Table:       workorder.ValidColumn,
 		})

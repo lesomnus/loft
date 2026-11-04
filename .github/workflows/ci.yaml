@@ -374,9 +374,9 @@ jobs:
           # Added as its settings page adds it, and verified as its DNS would
           # be: the runner serves no DNS of its own.
           curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
-            -d '{"host":"assets.acme.test"}' https://localhost/loft.TenantDomainService/Add > /dev/null
+            -d '{"host":"assets.acme.test"}' https://localhost/loft.DomainService/Add > /dev/null
           docker compose exec -T postgres psql -U loft -d loft -qc \
-            "UPDATE tenantdomain SET state = 'active', verified_at = now() WHERE host = 'assets.acme.test'"
+            "UPDATE domain SET state = 'active', verified_at = now() WHERE host = 'assets.acme.test'"
           # Served, on a certificate Caddy took once the entry point said
           # yes; and none for a host nobody verified.
           for i in $(seq 1 30); do

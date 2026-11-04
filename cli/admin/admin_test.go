@@ -264,8 +264,8 @@ func TestACertificateIsAskedForADomainInUse(t *testing.T) {
 		"retired": http.StatusNotFound,
 	} {
 		host := state + ".acme.example"
-		x.NoError(d.s.Ent.TenantDomain.Create().
-			SetId(pdid.New(pd.TenantDomainDomain).Uuid()).
+		x.NoError(d.s.Ent.Domain.Create().
+			SetId(pdid.New(pd.DomainDomain).Uuid()).
 			SetTenantId(acme.Id).
 			SetHost(host).
 			SetPurpose("app").
@@ -293,8 +293,8 @@ func TestTheAskIsServedAloneAndHeldToItsRate(t *testing.T) {
 	acme, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)
 	for _, host := range []string{"a.acme.example", "b.acme.example"} {
-		x.NoError(d.s.Ent.TenantDomain.Create().
-			SetId(pdid.New(pd.TenantDomainDomain).Uuid()).
+		x.NoError(d.s.Ent.Domain.Create().
+			SetId(pdid.New(pd.DomainDomain).Uuid()).
 			SetTenantId(acme.Id).
 			SetHost(host).
 			SetPurpose("app").

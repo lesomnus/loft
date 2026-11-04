@@ -8,14 +8,14 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
 
-// TenantDomain is the model entity for the TenantDomain schema.
-type TenantDomain struct {
+// Domain is the model entity for the Domain schema.
+type Domain struct {
 	config `json:"-"`
 	// Id of the ent.
 	Id uuid.UUID `json:"id,omitempty"`
@@ -50,13 +50,13 @@ type TenantDomain struct {
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the TenantDomainQuery when eager-loading is set.
-	Edges        TenantDomainEdges `json:"edges"`
+	// The values are being populated by the DomainQuery when eager-loading is set.
+	Edges        DomainEdges `json:"edges"`
 	selectValues sql.SelectValues
 }
 
-// TenantDomainEdges holds the relations/edges for other nodes in the graph.
-type TenantDomainEdges struct {
+// DomainEdges holds the relations/edges for other nodes in the graph.
+type DomainEdges struct {
 	// Tenant holds the value of the tenant edge.
 	Tenant *Tenant `json:"tenant,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -66,7 +66,7 @@ type TenantDomainEdges struct {
 
 // TenantOrErr returns the Tenant value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e TenantDomainEdges) TenantOrErr() (*Tenant, error) {
+func (e DomainEdges) TenantOrErr() (*Tenant, error) {
 	if e.Tenant != nil {
 		return e.Tenant, nil
 	} else if e.loadedTypes[0] {
@@ -76,17 +76,17 @@ func (e TenantDomainEdges) TenantOrErr() (*Tenant, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*TenantDomain) scanValues(columns []string) ([]any, error) {
+func (*Domain) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case tenantdomain.FieldFailures:
+		case domain.FieldFailures:
 			values[i] = new(sql.NullInt64)
-		case tenantdomain.FieldHost, tenantdomain.FieldPurpose, tenantdomain.FieldState, tenantdomain.FieldToken, tenantdomain.FieldSource:
+		case domain.FieldHost, domain.FieldPurpose, domain.FieldState, domain.FieldToken, domain.FieldSource:
 			values[i] = new(sql.NullString)
-		case tenantdomain.FieldDateUpdated, tenantdomain.FieldDateErased, tenantdomain.FieldDateCreated, tenantdomain.FieldVerifiedAt, tenantdomain.FieldCheckedAt, tenantdomain.FieldFailingSince, tenantdomain.FieldDateLapsed, tenantdomain.FieldRedirectUntil:
+		case domain.FieldDateUpdated, domain.FieldDateErased, domain.FieldDateCreated, domain.FieldVerifiedAt, domain.FieldCheckedAt, domain.FieldFailingSince, domain.FieldDateLapsed, domain.FieldRedirectUntil:
 			values[i] = new(sql.NullTime)
-		case tenantdomain.FieldId, tenantdomain.FieldTenantId:
+		case domain.FieldId, domain.FieldTenantId:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -96,110 +96,110 @@ func (*TenantDomain) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the TenantDomain fields.
-func (_m *TenantDomain) assignValues(columns []string, values []any) error {
+// to the Domain fields.
+func (_m *Domain) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case tenantdomain.FieldId:
+		case domain.FieldId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.Id = *value
 			}
-		case tenantdomain.FieldHost:
+		case domain.FieldHost:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field host", values[i])
 			} else if value.Valid {
 				_m.Host = value.String
 			}
-		case tenantdomain.FieldPurpose:
+		case domain.FieldPurpose:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field purpose", values[i])
 			} else if value.Valid {
 				_m.Purpose = value.String
 			}
-		case tenantdomain.FieldState:
+		case domain.FieldState:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field state", values[i])
 			} else if value.Valid {
 				_m.State = value.String
 			}
-		case tenantdomain.FieldToken:
+		case domain.FieldToken:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field token", values[i])
 			} else if value.Valid {
 				_m.Token = value.String
 			}
-		case tenantdomain.FieldSource:
+		case domain.FieldSource:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source", values[i])
 			} else if value.Valid {
 				_m.Source = value.String
 			}
-		case tenantdomain.FieldDateUpdated:
+		case domain.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date_updated", values[i])
 			} else if value.Valid {
 				_m.DateUpdated = value.Time
 			}
-		case tenantdomain.FieldDateErased:
+		case domain.FieldDateErased:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date_erased", values[i])
 			} else if value.Valid {
 				_m.DateErased = new(time.Time)
 				*_m.DateErased = value.Time
 			}
-		case tenantdomain.FieldDateCreated:
+		case domain.FieldDateCreated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date_created", values[i])
 			} else if value.Valid {
 				_m.DateCreated = value.Time
 			}
-		case tenantdomain.FieldVerifiedAt:
+		case domain.FieldVerifiedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field verified_at", values[i])
 			} else if value.Valid {
 				_m.VerifiedAt = new(time.Time)
 				*_m.VerifiedAt = value.Time
 			}
-		case tenantdomain.FieldCheckedAt:
+		case domain.FieldCheckedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field checked_at", values[i])
 			} else if value.Valid {
 				_m.CheckedAt = new(time.Time)
 				*_m.CheckedAt = value.Time
 			}
-		case tenantdomain.FieldFailures:
+		case domain.FieldFailures:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field failures", values[i])
 			} else if value.Valid {
 				_m.Failures = uint32(value.Int64)
 			}
-		case tenantdomain.FieldFailingSince:
+		case domain.FieldFailingSince:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field failing_since", values[i])
 			} else if value.Valid {
 				_m.FailingSince = new(time.Time)
 				*_m.FailingSince = value.Time
 			}
-		case tenantdomain.FieldDateLapsed:
+		case domain.FieldDateLapsed:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date_lapsed", values[i])
 			} else if value.Valid {
 				_m.DateLapsed = new(time.Time)
 				*_m.DateLapsed = value.Time
 			}
-		case tenantdomain.FieldRedirectUntil:
+		case domain.FieldRedirectUntil:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field redirect_until", values[i])
 			} else if value.Valid {
 				_m.RedirectUntil = new(time.Time)
 				*_m.RedirectUntil = value.Time
 			}
-		case tenantdomain.FieldTenantId:
+		case domain.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
 			} else if value != nil {
@@ -212,39 +212,39 @@ func (_m *TenantDomain) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the TenantDomain.
+// Value returns the ent.Value that was dynamically selected and assigned to the Domain.
 // This includes values selected through modifiers, order, etc.
-func (_m *TenantDomain) Value(name string) (ent.Value, error) {
+func (_m *Domain) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryTenant queries the "tenant" edge of the TenantDomain entity.
-func (_m *TenantDomain) QueryTenant() *TenantQuery {
-	return NewTenantDomainClient(_m.config).QueryTenant(_m)
+// QueryTenant queries the "tenant" edge of the Domain entity.
+func (_m *Domain) QueryTenant() *TenantQuery {
+	return NewDomainClient(_m.config).QueryTenant(_m)
 }
 
-// Update returns a builder for updating this TenantDomain.
-// Note that you need to call TenantDomain.Unwrap() before calling this method if this TenantDomain
+// Update returns a builder for updating this Domain.
+// Note that you need to call Domain.Unwrap() before calling this method if this Domain
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *TenantDomain) Update() *TenantDomainUpdateOne {
-	return NewTenantDomainClient(_m.config).UpdateOne(_m)
+func (_m *Domain) Update() *DomainUpdateOne {
+	return NewDomainClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the TenantDomain entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Domain entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *TenantDomain) Unwrap() *TenantDomain {
+func (_m *Domain) Unwrap() *Domain {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: TenantDomain is not a transactional entity")
+		panic("ent: Domain is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *TenantDomain) String() string {
+func (_m *Domain) String() string {
 	var builder strings.Builder
-	builder.WriteString("TenantDomain(")
+	builder.WriteString("Domain(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.Id))
 	builder.WriteString("host=")
 	builder.WriteString(_m.Host)
@@ -306,5 +306,5 @@ func (_m *TenantDomain) String() string {
 	return builder.String()
 }
 
-// TenantDomainList is a parsable slice of TenantDomain.
-type TenantDomainList []*TenantDomain
+// DomainList is a parsable slice of Domain.
+type DomainList []*Domain

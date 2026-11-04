@@ -193,15 +193,17 @@ func cmpTenant(a, b *app.Tenant) []string {
 }
 
 // resigned is an export as a deployment would have written it with `edit`
-// done -- its files edited, the files `edit` answers put in, every digest
-// said again and the manifest signed again by `k`, an Ed25519 key -- which is
-// how an export of an earlier build is made by this one.
+// done -- its files edited, the files `edit` answers put in and the ones it
+// took out left out, every digest said again and the manifest signed again by
+// `k`, an Ed25519 key -- which is how an export of an earlier build is made by
+// this one.
 func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Manifest, fs map[string][]byte) []string) []byte {
 	t.Helper()
 	return rezip(t, b, func(fs map[string][]byte, order []string) []string {
 		var m offboard.Manifest
 		require.NoError(t, json.Unmarshal(fs["manifest.json"], &m))
 		order = append(order, edit(&m, fs)...)
+		order = slices.DeleteFunc(order, func(name string) bool { _, ok := fs[name]; return !ok })
 
 		m.Digests = map[string]string{}
 		for _, name := range order {
@@ -276,6 +278,63 @@ func TestARestoreLeavesBehindWhatThisBuildDropped(t *testing.T) {
 	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
 	x.NoError(err)
 	x.Equal(map[string]uint32{"usagesnapshot": 2}, imported(t, ev).GetLeft())
+}
+
+// TestARestoreReadsATableUnderTheNameItHadThen (D72): an export from before
+// a table was renamed (offboard.Renamed) names its rows by the old name, and
+// a restore puts them back in the table they are in now -- the domains of an
+// export from before `TenantDomain` was `Domain` are the workspace's domains
+// again, and a label printed with one points at it still. Counted under the
+// table's name now, and left behind as nothing.
+func TestARestoreReadsATableUnderTheNameItHadThen(t *testing.T) {
+	key, _, err := trail.GenerateKey()
+	require.NoError(t, err)
+	k, err := trail.ParseKey(key)
+	require.NoError(t, err)
+	e := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Key = string(key) })
+	x := e.x
+	ctx := context.Background()
+	acme := e.tenant("acme")
+
+	now := time.Now().UTC().Truncate(time.Microsecond)
+	dom := pdid.New(pd.DomainDomain).Uuid()
+	x.NoError(e.s.Ent.Domain.Create().SetId(dom).SetTenantId(acme.id.Uuid()).
+		SetHost("assets.acme.example").SetPurpose("label").SetState("active").SetToken("loft-test").SetSource("custom").
+		SetDateUpdated(now).SetDateCreated(now).Exec(ctx))
+	label := pdid.New(pd.LabelDomain).Uuid()
+	x.NoError(e.s.Ent.Label.Create().SetId(label).SetTenantId(acme.id.Uuid()).SetState("new").SetBatch("b1").SetDomainId(dom).
+		SetDateUpdated(now).SetDateCreated(now).Exec(ctx))
+
+	before := e.rows(acme.id)
+	x.Len(before["domain"], 1)
+	b := e.export(acme.id)
+	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
+	x.NoError(err)
+
+	x.Equal("domain", offboard.Renamed["tenantdomain"])
+	earlier := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
+		fs["rows/tenantdomain.jsonl"] = fs["rows/domain.jsonl"]
+		delete(fs, "rows/domain.jsonl")
+		m.Rows["tenantdomain"] = m.Rows["domain"]
+		delete(m.Rows, "domain")
+		return []string{"rows/tenantdomain.jsonl"}
+	})
+
+	got, err := e.restore(earlier, offboard.ImportOptions{})
+	x.NoError(err)
+	x.Equal(1, got.Rows["domain"])
+	x.NotContains(got.Rows, "tenantdomain")
+	x.Empty(got.Left)
+	after := e.rows(acme.id)
+	for k := range before {
+		if k == "event" {
+			continue
+		}
+		x.Equal(before[k], after[k], "%s is not what was exported", k)
+	}
+	l, err := e.s.Ent.Label.Get(ctx, label)
+	x.NoError(err)
+	x.Equal(dom, l.DomainId)
 }
 
 // TestARestoreTakesOnlyWhatTheDeploymentWrote: an export with no signature,

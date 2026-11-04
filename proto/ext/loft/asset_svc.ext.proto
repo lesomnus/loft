@@ -456,39 +456,39 @@ message LabelResolveResponse {
   Asset asset = 2;
 }
 
-service TenantDomainService {
+service DomainService {
   // Verify checks the TXT record of a pending custom domain.
-  rpc Verify(TenantDomainVerifyRequest) returns (TenantDomain);
+  rpc Verify(DomainVerifyRequest) returns (Domain);
   // Activate makes a verified domain the one new labels are printed with; the
   // active one before it becomes legacy and keeps resolving.
-  rpc Activate(TenantDomainActivateRequest) returns (TenantDomain);
-  rpc Retire(TenantDomainRetireRequest) returns (TenantDomain);
+  rpc Activate(DomainActivateRequest) returns (Domain);
+  rpc Retire(DomainRetireRequest) returns (Domain);
   // Status answers whether labels are on for this tenant, and with what.
-  rpc Status(TenantDomainStatusRequest) returns (TenantDomainStatusResponse);
+  rpc Status(DomainStatusRequest) returns (DomainStatusResponse);
 }
 
-message TenantDomainAddRequest {
+message DomainAddRequest {
   // The label for a default subdomain; the host is made from it.
   string sub = 100;
 }
 
-message TenantDomainVerifyRequest {
-  TenantDomainRef ref = 1;
+message DomainVerifyRequest {
+  DomainRef ref = 1;
 }
 
-message TenantDomainActivateRequest {
-  TenantDomainRef ref = 1;
+message DomainActivateRequest {
+  DomainRef ref = 1;
 }
 
-message TenantDomainRetireRequest {
-  TenantDomainRef ref = 1;
+message DomainRetireRequest {
+  DomainRef ref = 1;
   // Retire even though labels were printed with it.
   bool force = 2 [features.field_presence = IMPLICIT];
 }
 
-message TenantDomainStatusRequest {}
+message DomainStatusRequest {}
 
-message TenantDomainStatusResponse {
+message DomainStatusResponse {
   // Labels are always on now (loft#155): a tenant prints with its active
   // domain when it has one, and with the deployment's own address otherwise.
   // `labels` said whether they were, and `tenant_domains` whether a tenant
@@ -498,7 +498,7 @@ message TenantDomainStatusResponse {
 
   // The domain new labels print with, and that the app is on (an `app`
   // domain); none prints with `base`.
-  TenantDomain active = 2;
+  Domain active = 2;
   // The host a custom domain's CNAME has to point at.
   string target = 3 [features.field_presence = IMPLICIT];
   // The suffix a default subdomain gets; empty offers none.

@@ -691,7 +691,7 @@ func HasDomain() predicate.Label {
 }
 
 // HasDomainWith applies the HasEdge predicate on the "domain" edge with a given conditions (other predicates).
-func HasDomainWith(preds ...predicate.TenantDomain) predicate.Label {
+func HasDomainWith(preds ...predicate.Domain) predicate.Label {
 	return predicate.Label(func(s *sql.Selector) {
 		step := newDomainStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {

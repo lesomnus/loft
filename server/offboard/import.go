@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"maps"
 	"reflect"
 	"slices"
 	"strings"
@@ -203,7 +204,12 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	// and a restore that left them out would say it was all of it -- but for
 	// a table this build dropped, whose rows it leaves behind and says so.
 	for name, n := range m.Rows {
-		if n == 0 || slices.ContainsFunc(plans, func(p *plan) bool { return p.table == name }) {
+		// Rows of a table renamed since are rows of the table it is now.
+		is := name
+		if v, ok := Renamed[name]; ok {
+			is = v
+		}
+		if n == 0 || slices.ContainsFunc(plans, func(p *plan) bool { return p.table == is }) {
 			continue
 		}
 		if _, ok := Dropped[name]; !ok {
@@ -464,7 +470,19 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 const Imported = "loft.workspace.import"
 
 func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, out *Restored, restored *[]pdid.Id) (int, error) {
-	f, err := z.Open("rows/" + p.table + ".jsonl")
+	name := p.table
+	f, err := z.Open("rows/" + name + ".jsonl")
+	if errors.Is(err, fs.ErrNotExist) {
+		// Made before the table was renamed, its rows are under the name it
+		// had then ([Renamed]): what a row of it says is what it said, by the
+		// same fields.
+		for _, was := range formerly(p.table) {
+			if f, err = z.Open("rows/" + was + ".jsonl"); !errors.Is(err, fs.ErrNotExist) {
+				name = was
+				break
+			}
+		}
+	}
 	if errors.Is(err, fs.ErrNotExist) {
 		// A table the deployment that wrote it did not have yet, which had
 		// no rows there.
@@ -498,10 +516,10 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 		n++
 		v := p.msg.New()
 		if err := protojson.Unmarshal(line, v.Interface()); err != nil {
-			return n, fmt.Errorf("%w: rows/%s.jsonl, line %d: %v", ErrFormat, p.table, n, err)
+			return n, fmt.Errorf("%w: rows/%s.jsonl, line %d: %v", ErrFormat, name, n, err)
 		}
 		if k, err := keyOf(v.Get(p.tenant).Message().Get(p.key).Bytes()); err != nil || k != tenant {
-			return n, fmt.Errorf("%w: rows/%s.jsonl, line %d: a row of another tenant", ErrFormat, p.table, n)
+			return n, fmt.Errorf("%w: rows/%s.jsonl, line %d: a row of another tenant", ErrFormat, name, n)
 		}
 		if adjust, ok := adjusts[p.table]; ok {
 			if err := adjust(ctx, d, v, out); err != nil {
@@ -519,9 +537,21 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 		}
 	}
 	if err := s.Err(); err != nil {
-		return n, fmt.Errorf("rows/%s.jsonl: %w", p.table, err)
+		return n, fmt.Errorf("rows/%s.jsonl: %w", name, err)
 	}
 	return n, flush()
+}
+
+// formerly is the names an earlier build had `table` under ([Renamed]), in
+// order.
+func formerly(table string) []string {
+	out := []string{}
+	for _, was := range slices.Sorted(maps.Keys(Renamed)) {
+		if Renamed[was] == table {
+			out = append(out, was)
+		}
+	}
+	return out
 }
 
 // adjusts is what a restore makes of a row of a table, beside writing it as

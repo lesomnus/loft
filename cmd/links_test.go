@@ -12,7 +12,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/server/account"
 )
 
@@ -46,7 +46,7 @@ func TestALabelOpensWhereItsWorkspaceIs(t *testing.T) {
 	opens(serviceHost, "https://"+serviceHost+"/scan/7K3MQ9TX")
 
 	// Its app domain no longer active: the service's.
-	_, err = w.s.Ent.TenantDomain.Update().SetState("legacy").Save(ctx)
+	_, err = w.s.Ent.Domain.Update().SetState("legacy").Save(ctx)
 	x.NoError(err)
 	opens("old.acme.example", "https://"+serviceHost+"/scan/7K3MQ9TX")
 }
@@ -85,7 +85,7 @@ func TestALegacyDomainSendsItsPagesOn(t *testing.T) {
 	w.domain(w.tenant, "old.acme.example", "app", "legacy")
 	w.domain(beta, "beta.example", "app", "lapsed")
 	until := func(host string, at time.Time) {
-		x.NoError(w.s.Ent.TenantDomain.Update().Where(tenantdomain.Host(host)).SetRedirectUntil(at).Exec(ctx))
+		x.NoError(w.s.Ent.Domain.Update().Where(entdomain.Host(host)).SetRedirectUntil(at).Exec(ctx))
 	}
 	until("old.acme.example", time.Now().Add(time.Hour))
 
@@ -156,7 +156,7 @@ func TestAWorkspacesPageAtTheServiceGoesToItsDomain(t *testing.T) {
 
 	// A domain not in use sends nothing on.
 	x.Equal(http.StatusOK, page(serviceHost, "/@beta/assets").Code, "lapsed")
-	x.NoError(w.s.Ent.TenantDomain.Update().Where(tenantdomain.Host(ownHost)).SetState("legacy").Exec(ctx))
+	x.NoError(w.s.Ent.Domain.Update().Where(entdomain.Host(ownHost)).SetState("legacy").Exec(ctx))
 	x.Equal(http.StatusOK, page(serviceHost, "/@acme/assets").Code, "legacy")
 	var logs bytes.Buffer
 	x.Equal(http.StatusOK, w.send(&logs, http.MethodGet, serviceHost, "/@nobody/assets", cookieIn(as)).Code, "and a workspace that is not there is the page's to say")

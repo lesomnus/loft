@@ -18,7 +18,7 @@ import { AccessReviewSchema, LegalHoldSchema, NotificationSchema, TenantContract
 import { AliasHoldSchema, CliLoginSchema, HandoffSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './loft/org_pb.js'
 import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './loft/booking_pb.js'
 import { ArchivedSchema } from './loft/payday/archived_pb.js'
-import { AssetSchema, AttachmentSchema, LabelSchema, TagCounterSchema, TenantDomainSchema, TreeLockSchema } from './loft/asset_pb.js'
+import { AssetSchema, AttachmentSchema, DomainSchema, LabelSchema, TagCounterSchema, TreeLockSchema } from './loft/asset_pb.js'
 import { AssetTypeSchema, ItemModelSchema } from './loft/catalog_pb.js'
 import { AuditSchema } from './loft/payday/audit_pb.js'
 import { CountFindingSchema, InventoryCountSchema } from './loft/count_pb.js'
@@ -41,7 +41,7 @@ import { AccessReviewService, LegalHoldService, NotificationService, TenantContr
 import { AliasHoldService, CliLoginService, HandoffService, InvitationService, PartyService, SessionService, SignInFailureService } from './loft/org_svc_pb.js'
 import { AllocationService, BookableService, ReservationService, ReservationItemService } from './loft/booking_svc_pb.js'
 import { ArchivedService } from './loft/payday/archived_svc_pb.js'
-import { AssetService, AttachmentService, LabelService, TagCounterService, TenantDomainService, TreeLockService } from './loft/asset_svc_pb.js'
+import { AssetService, AttachmentService, DomainService, LabelService, TagCounterService, TreeLockService } from './loft/asset_svc_pb.js'
 import { AssetTypeService, ItemModelService } from './loft/catalog_svc_pb.js'
 import { AuditService } from './loft/payday/audit_svc_pb.js'
 import { CountFindingService, InventoryCountService } from './loft/count_svc_pb.js'
@@ -221,6 +221,18 @@ export const CustodyLine = {
 	service: CustodyLineService,
 } as const satisfies EntityDesc
 
+/** loft.Domain, as the store holds it. */
+export const Domain = {
+	typeName: "loft.Domain",
+	schema: DomainSchema,
+	domain: 24,
+	version: "dateUpdated",
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
+	key: "id",
+	ids: ["id"],
+	service: DomainService,
+} as const satisfies EntityDesc
+
 /** loft.Entitlement, as the store holds it. */
 export const Entitlement = {
 	typeName: "loft.Entitlement",
@@ -324,7 +336,7 @@ export const Label = {
 	schema: LabelSchema,
 	domain: 18,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "domain", to: "loft.TenantDomain" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "domain", to: "loft.Domain" }],
 	key: "id",
 	ids: ["id", "subjectId"],
 	service: LabelService,
@@ -581,18 +593,6 @@ export const TenantContract = {
 	service: TenantContractService,
 } as const satisfies EntityDesc
 
-/** loft.TenantDomain, as the store holds it. */
-export const TenantDomain = {
-	typeName: "loft.TenantDomain",
-	schema: TenantDomainSchema,
-	domain: 24,
-	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "loft.Tenant" }],
-	key: "id",
-	ids: ["id"],
-	service: TenantDomainService,
-} as const satisfies EntityDesc
-
 /** loft.TreeLock, as the store holds it. */
 export const TreeLock = {
 	typeName: "loft.TreeLock",
@@ -618,5 +618,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TenantDomain, TreeLock, WorkOrder] as const
+export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Domain, Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TreeLock, WorkOrder] as const
 
