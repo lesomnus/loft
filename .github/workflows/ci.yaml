@@ -334,8 +334,10 @@ jobs:
             curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
               -d '{}' https://localhost/loft.PartyService/Me > /dev/null
           done
+          # The entry point's RPCs, as Connect, with an operator's key (D74).
           curl -sf -H "authorization: Bearer $(cat secrets/admin_key)" \
-            http://127.0.0.1:8081/admin/workspaces | grep -q '"alias":"acme"'
+            -H 'content-type: application/json' -H 'connect-protocol-version: 1' -d '{}' \
+            http://127.0.0.1:8081/loft.TenantService/List | grep -q '"alias":"acme"'
           docker run --rm loft:ci version
       - name: the trail's newest checkpoint, as its witness heard it
         run: |

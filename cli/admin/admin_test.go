@@ -1,6 +1,7 @@
 package admincli_test
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"net/http"
@@ -25,6 +26,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
 	"github.com/lesomnus/loft/server/admin"
+	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -68,7 +70,9 @@ func deploy(t *testing.T) *deployment {
 	t.Cleanup(func() { s.Close() })
 	ops, err := admin.Operators(map[string]string{"alice": key})
 	x.NoError(err)
-	srv := httptest.NewServer(admin.Routes{S: s, C: c, Operators: ops}.Handler())
+	h, err := admin.Routes{S: s, C: c, Operators: ops}.Handler(t.Context())
+	x.NoError(err)
+	srv := httptest.NewServer(h)
 	t.Cleanup(srv.Close)
 	return &deployment{c: c, s: s, url: srv.URL}
 }
@@ -82,7 +86,8 @@ func (d *deployment) admin(t *testing.T, args ...string) (string, error) {
 // TestAnOperatorWorksFromOutsideTheBox: what an operator does to a workspace
 // -- finds it, closes and restores it, names an owner, moves its address,
 // writes its contract and a hold -- asked of the entry point with their key,
-// from wherever they are.
+// from wherever they are: each says what it would do until it is told
+// `--yes`.
 func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	x := require.New(t)
 	d := deploy(t)
@@ -94,52 +99,62 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 		return out
 	}
 
-	out := must("workspace", "ls")
+	out := must("tenant", "ls")
 	x.Contains(out, "@acme\t")
-	x.Contains(out, "owners owner")
-	x.Contains(out, "2 people")
-	x.Contains(must("workspace", "ls", "--q", "ACM"), "@acme", "found by a piece of its address")
-	x.NotContains(must("workspace", "ls", "--q", "nothing-like-it"), "@acme")
+	x.Contains(out, "\topen")
+	x.Contains(must("workspace", "ls", "--q", "ACM"), "@acme", "found by a piece of its address, as a workspace")
+	x.NotContains(must("ws", "ls", "--q", "nothing-like-it"), "@acme")
 
-	out = must("workspace", "show", "@acme")
+	out = must("tenant", "show", "@acme")
+	x.Contains(out, "2 people")
+	x.Contains(out, "owners owner")
 	x.Contains(out, "member\t@kim\tmember")
 
-	_, err := d.admin(t, "workspace", "close", "--reason", "asked", "acme")
-	x.ErrorContains(err, "--yes", "a change nobody said yes to")
-	out = must("workspace", "close", "--reason", "asked", "--yes", "acme")
+	out = must("tenant", "close", "--reason", "asked", "acme")
+	x.Contains(out, "would close @acme")
+	x.Contains(out, "`--yes` does it")
+	x.NotContains(must("tenant", "ls", "--closed"), "@acme", "nothing was done")
+	out = must("tenant", "close", "--reason", "asked", "--yes", "acme")
 	x.Contains(out, "closed")
 	x.Contains(out, "by operator")
-	x.Contains(must("workspace", "ls", "--closed"), "@acme")
-	_, err = d.admin(t, "workspace", "close", "--yes", "acme")
-	x.ErrorContains(err, "409", "closed already")
-	x.NotContains(must("workspace", "restore", "--yes", "acme"), "closed")
-	x.NotContains(must("workspace", "ls", "--closed"), "@acme", "open again")
+	x.Contains(must("tenant", "ls", "--closed"), "@acme")
+	x.Contains(must("tenant", "close", "--yes", "acme"), "closed already")
+	x.Contains(must("tenant", "restore", "acme"), "would restore @acme")
+	x.NotContains(must("tenant", "restore", "--yes", "acme"), "closed")
+	x.NotContains(must("tenant", "ls", "--closed"), "@acme", "open again")
 
-	out = must("workspace", "owner", "--member", "@kim", "--yes", "acme")
+	x.Contains(must("tenant", "owner", "--member", "@kim", "acme"), "would make @kim")
+	out = must("tenant", "owner", "--member", "@kim", "--yes", "acme")
 	x.Contains(out, "owners kim,owner")
-	_, err = d.admin(t, "workspace", "owner", "--member", "nobody", "--yes", "acme")
-	x.ErrorContains(err, "404")
+	_, err := d.admin(t, "tenant", "owner", "--member", "nobody", "--yes", "acme")
+	x.ErrorContains(err, "no member")
 
-	out = must("workspace", "alias", "--to", "acme-two", "--yes", "acme")
+	x.Contains(must("tenant", "alias", "--to", "acme-two", "acme"), "would move @acme to @acme-two")
+	x.Contains(must("tenant", "ls"), "@acme\t", "nothing was done")
+	out = must("tenant", "alias", "--to", "acme-two", "--yes", "acme")
 	x.Contains(out, "@acme-two\t")
 	tn, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme-two")).Only(ctx)
 	x.NoError(err)
-	_, err = d.admin(t, "workspace", "alias", "--to", "acme", "--yes", "acme-two")
+	_, err = d.admin(t, "tenant", "alias", "--to", "acme", "--yes", "acme-two")
 	x.ErrorContains(err, "held", "the old address is held, and not taken back by accident")
 
+	x.Contains(must("contract", "set", "--name", "pilot", "acme-two"), "would write a contract")
 	out = must("contract", "set", "--name", "pilot", "--yes", "acme-two")
 	x.Contains(out, "contract\t")
 	x.Contains(out, "pilot\tthen retire")
 
+	x.Contains(must("hold", "place", "--why", "a case", "acme-two"), "would keep everything")
 	out = must("hold", "place", "--why", "a case", "--yes", "acme-two")
 	x.Contains(out, "a case\theld")
 	i := strings.Index(out, "hold\t")
 	x.Positive(i)
 	id := strings.Fields(out[i:])[1]
+	x.Contains(must("hold", "lift", id), "would lift hold")
 	x.Contains(must("hold", "lift", "--yes", id), "a case\tlifted")
 
 	// What the history says of the owner named, and who did it, is the
-	// deployment's: an operator's change is written as its own work.
+	// deployment's work at the operator's word: their identifier, and no
+	// name of theirs or of the member's.
 	owners, err := d.s.Ent.Holder.Query().Where(holder.TenantId(tn.Id), holder.Role("owner")).Count(ctx)
 	x.NoError(err)
 	x.Equal(2, owners)
@@ -147,9 +162,8 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	x.NoError(err)
 	ev, err := d.s.Ent.Event.Query().Where(event.TenantId(tn.Id), event.Kind("party.role")).Only(ctx)
 	x.NoError(err)
-	x.Nil(ev.ActorId, "the deployment's own work, and nobody's in the workspace")
-	// Who by identifier, and never by name: the sentence names them when it
-	// is read (payday#151).
+	x.NotNil(ev.ActorId)
+	x.Equal(operator.Id("alice").Uuid(), *ev.ActorId, "alice did it")
 	x.NotNil(ev.Value)
 	said := &app.PartyRoleSet{}
 	x.NoError(ev.Value.UnmarshalTo(said))
@@ -157,6 +171,7 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	x.Equal("owner", said.GetRole())
 	x.Equal(pdid.Id(kim.Id).Bytes(), said.GetHolder())
 	x.NotContains(protojson.Format(ev.Value), kim.Name)
+	x.NotContains(protojson.Format(ev.Value), "alice")
 }
 
 // TestAnOperatorWritesEveryTermOfAContract: `contract set` at the entry point
@@ -184,7 +199,8 @@ func TestAnOperatorWritesEveryTermOfAContract(t *testing.T) {
 		"--effective", "2026-01-01", "--yes", "acme")
 	x.NoError(err, out)
 	x.Contains(out, "enterprise\tthen purge\tagreement 2026-7")
-	x.Contains(out, "keeps\thistory 730d, access record the deployment's, restore 90d", "the workspace's own settings")
+	x.Contains(out, "settings\thistory 730d, access record the deployment's, restore 90d", "the workspace's own settings")
+	x.Contains(out, "keeps\thistory 730d, access record forever, restore 90d once closed, then purge", "what they come to")
 
 	v, err := d.s.Ent.TenantContract.Query().Where(tenantcontract.TenantIdEQ(tn.Id)).Only(ctx)
 	x.NoError(err)
@@ -194,9 +210,17 @@ func TestAnOperatorWritesEveryTermOfAContract(t *testing.T) {
 	x.Equal("2026-01-01", v.DateEffective.UTC().Format(time.DateOnly), "the day it was given as")
 	x.Contains(out, "contract\t2026-01-01\tenterprise", "said as the day it was given as, whatever the operator's zone")
 	time.Local = time.FixedZone("UTC-12", -12*60*60)
-	shown, err := d.admin(t, "workspace", "show", "acme")
+	shown, err := d.admin(t, "tenant", "show", "acme")
 	x.NoError(err, shown)
 	x.Contains(shown, "contract\t2026-01-01\tenterprise", "read as another day, by an operator in another zone")
+
+	// What its settings, contracts and holds come to.
+	shown, err = d.admin(t, "contract", "show", "acme")
+	x.NoError(err, shown)
+	x.Contains(shown, "2026-01-01  enterprise   then purge  agreement 2026-7")
+	x.Contains(shown, "history: kept 730d")
+	x.Contains(shown, "restore: 90d once closed")
+	x.Contains(shown, "destroyed: purged")
 
 	// One that says nothing more retires.
 	out, err = d.admin(t, "contract", "set", "--name", "standard", "--yes", "acme")
@@ -207,23 +231,39 @@ func TestAnOperatorWritesEveryTermOfAContract(t *testing.T) {
 	x.Error(err, "a workspace's own window, written by an operator")
 }
 
-// TestTheEntryPointAnswersOnlyAnOperatorsKey: a request without a key, or
-// with one nobody holds, is refused -- and the public binary's server has no
-// such door at all.
+// TestTheEntryPointAnswersOnlyAnOperatorsKey: a call without a key, or with
+// one nobody holds, is refused -- and the public binary's server has no such
+// door at all.
 func TestTheEntryPointAnswersOnlyAnOperatorsKey(t *testing.T) {
 	x := require.New(t)
 	d := deploy(t)
 
-	_, err := run(t, admincli.Cmd(&d.c), "--url", d.url, "--key", "somebody-elses-key-of-a-good-length-too", "workspace", "ls")
-	x.ErrorContains(err, "401")
-	res, err := http.Get(d.url + "/admin/workspaces")
-	x.NoError(err)
-	res.Body.Close()
-	x.Equal(http.StatusUnauthorized, res.StatusCode)
+	_, err := run(t, admincli.Cmd(&d.c), "--url", d.url, "--key", "somebody-elses-key-of-a-good-length-too", "tenant", "ls")
+	x.ErrorContains(err, "who is asking")
+
+	connect := func(url, auth string) int {
+		req, err := http.NewRequest(http.MethodPost, url+app.TenantService_List_FullMethodName, bytes.NewReader([]byte(`{}`)))
+		x.NoError(err)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Connect-Protocol-Version", "1")
+		if auth != "" {
+			req.Header.Set("Authorization", "Bearer "+auth)
+		}
+		res, err := http.DefaultClient.Do(req)
+		x.NoError(err)
+		b, _ := io.ReadAll(res.Body)
+		res.Body.Close()
+		if res.StatusCode == http.StatusOK {
+			x.Contains(string(b), `"alias":"acme"`)
+		}
+		return res.StatusCode
+	}
+	x.Equal(http.StatusUnauthorized, connect(d.url, ""))
+	x.Equal(http.StatusOK, connect(d.url, key), "what curl asks with a key, as the deployment's checks do")
 
 	// What a reverse proxy asks asks for no key, and says no to a host that
 	// is nobody's.
-	res, err = http.Get(d.url + "/internal/tls-ask?domain=nobody.example")
+	res, err := http.Get(d.url + "/internal/tls-ask?domain=nobody.example")
 	x.NoError(err)
 	res.Body.Close()
 	x.Equal(http.StatusNotFound, res.StatusCode)
@@ -233,9 +273,6 @@ func TestTheEntryPointAnswersOnlyAnOperatorsKey(t *testing.T) {
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/internal/tls-ask?domain=nobody.example", nil))
 	x.Equal(http.StatusNotFound, rec.Code)
-	rec = httptest.NewRecorder()
-	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/admin/workspaces", nil))
-	x.Equal(http.StatusNotFound, rec.Code, "the public server serves no operator's door")
 
 	_, err = admin.Operators(map[string]string{"bob": "short"})
 	x.ErrorContains(err, "admin.keys.bob")
@@ -324,13 +361,15 @@ func TestTheAskIsServedAloneAndHeldToItsRate(t *testing.T) {
 	x.Equal(http.StatusOK, ask("B.acme.example."), "as a proxy may spell it")
 	x.Equal(http.StatusTooManyRequests, ask("b.acme.example"))
 
-	for _, path := range []string{"/admin/workspaces", "/"} {
-		req, err := http.NewRequest(http.MethodGet, srv.URL+path, nil)
+	for _, path := range []string{app.TenantService_List_FullMethodName, "/"} {
+		req, err := http.NewRequest(http.MethodPost, srv.URL+path, bytes.NewReader([]byte(`{}`)))
 		x.NoError(err)
 		req.Header.Set("Authorization", "Bearer "+key)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Connect-Protocol-Version", "1")
 		res, err := http.DefaultClient.Do(req)
 		x.NoError(err)
 		res.Body.Close()
-		x.Equal(http.StatusNotFound, res.StatusCode, "%s: no operator's door on the ask's listener", path)
+		x.Contains([]int{http.StatusNotFound, http.StatusMethodNotAllowed}, res.StatusCode, "%s: no operator's door on the ask's listener", path)
 	}
 }

@@ -122,7 +122,7 @@ loft search remove --yes     # 이 배포가 만든 인덱스와 별칭을 모�
 
 ## 운영자 진입점 (loft-admin)
 
-운영자 진입점은 공개 바이너리(`loft`)에는 들어 있지 않은 별도 바이너리(`loft-admin`)이고, 운영자 네트워크(기본은 루프백, VPN 주소까지)에서만 닿는 포트로 듣습니다. 요청마다 운영자의 키가 필요하고, 서버 로그에 누가 무엇을 했는지 이름으로 남습니다.
+운영자 진입점은 공개 바이너리(`loft`)에는 들어 있지 않은 별도 바이너리(`loft-admin`)이고, 운영자 네트워크(기본은 루프백, VPN 주소까지)에서만 닿는 포트로 듣습니다. 공개 서버와 같은 RPC를 운영자로 냅니다(Connect, design 9.15). 호출마다 운영자의 키가 필요하고, 서버 로그에 누가 무엇을 했는지 이름으로 남습니다. 바꾼 것은 배포의 일로 쓰고, 작업 기록과 접속기록에는 그 운영자가 행위자로 남습니다. 워크스페이스의 이력과 접속기록 점검에는 "운영자"로 보입니다.
 
 ```sh
 # 서버 옆에서: 같은 설정(loft.yaml, LOFT_*)에 운영자와 키만 더함 (admin.addr 기본 127.0.0.1:8081)
@@ -132,21 +132,24 @@ LOFT_ADMIN_KEYS='{"alice": "env:ALICE_KEY"}' loft-admin serve
 # 운영자의 컴퓨터에서: 진입점 주소와 자기 키 (--url, --key로 줘도 됨)
 export LOFT_ADMIN_URL=http://127.0.0.1:8081 LOFT_ADMIN_KEY=env:ALICE_KEY
 loft-admin workspace ls --q 우리                          # 주소·이름의 일부로 찾기 (--closed: 닫힌 것만)
-loft-admin workspace show loft                            # 구성원, 워크스페이스가 정한 보관 기간, 계약, hold
+loft-admin workspace show loft                            # 구성원, 보관 기간, 계약, hold
+loft-admin workspace close --reason "요청" loft            # 무엇을 할지만
 loft-admin workspace close --reason "요청" --yes loft      # 닫기 (소유자는 복구 기간 안에 복구할 수 있음)
 loft-admin workspace restore --yes loft
 loft-admin workspace owner --member gunwoo-lee --yes loft  # 구성원을 소유자로 지정
 loft-admin workspace alias --to woori --yes loft           # 주소 바꾸기 (이전 주소는 보류되고 새 주소로 넘김)
 loft-admin contract set --name abroad --purge-floors --yes loft   # 셸의 `loft contract set`과 같은 항목
+loft-admin contract show loft                             # 계약과 hold, 그것이 지금 정하는 보관 기간
 loft-admin hold place --why "사건 번호" --yes loft
 loft-admin hold lift --yes <ID>                            # ID는 workspace show의 hold 줄
 ```
 
-- 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다.
-- 플래그는 인자보다 앞에 씁니다. 워크스페이스는 주소로 씁니다(`acme` 나 `@acme`).
+- 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다. 키를 바꿔도 이름이 같으면 기록에는 같은 운영자입니다.
+- 무언가를 바꾸는 명령은 `--yes` 없이는 무엇을 할지만 말합니다. 플래그는 인자보다 앞에 씁니다. 워크스페이스는 주소로 씁니다(`acme` 나 `@acme`). `workspace` 는 `tenant`, `ws` 로도 씁니다.
+- RPC를 그대로 부를 수도 있습니다: `curl -H "authorization: Bearer $KEY" -H 'content-type: application/json' -H 'connect-protocol-version: 1' -d '{}' http://127.0.0.1:8081/loft.TenantService/List`. 진입점이 내는 메서드는 `server/admin` 의 표(`Table`)에 있습니다.
 - 리버스 프록시의 on-demand TLS 확인(`/internal/tls-ask`)도 이 진입점으로 옮겼습니다(키 없이 답함). 공개 서버에는 더 이상 없습니다.
 - Kubernetes에서는 Service가 없고 NetworkPolicy가 닫으므로 `kubectl port-forward` 로만 들어옵니다. compose에서는 호스트의 루프백에만 열리므로 SSH 터널로 들어옵니다. 각 README의 "운영자 진입점"에 있습니다.
-- 셸의 운영자 명령(`loft tenant`, `loft contract`, `loft hold` 등)은 그대로 있습니다. 운영자 웹 화면은 나중입니다.
+- 셸의 운영자 명령(`loft tenant`, `loft contract`, `loft hold` 등)은 진입점의 RPC로 옮기는 중입니다(loft#285). 옮기면 `loft` 에는 `serve`, `init`, `migrate` 만 남습니다. 운영자 웹 화면은 나중입니다.
 
 ## 워크스페이스의 문의
 

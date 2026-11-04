@@ -121,7 +121,10 @@ docker compose up -d
 
 ```sh
 ssh -L 8081:127.0.0.1:8081 <서버>
-curl -H "authorization: Bearer $(cat secrets/admin_key)" http://127.0.0.1:8081/admin/workspaces
+LOFT_ADMIN_URL=http://127.0.0.1:8081 LOFT_ADMIN_KEY=file:secrets/admin_key loft-admin workspace ls
+# 또는 RPC를 그대로 (Connect, 운영자의 키)
+curl -H "authorization: Bearer $(cat secrets/admin_key)" -H 'content-type: application/json' \
+  -H 'connect-protocol-version: 1' -d '{}' http://127.0.0.1:8081/loft.TenantService/List
 ```
 
 ## 새 버전으로 올리기

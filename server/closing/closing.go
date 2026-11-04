@@ -270,31 +270,11 @@ func (c Closing) leave(ctx context.Context, id pdid.Id, how How, dry bool) (offb
 // whoever arrives at it on to the new -- for as long as a destroyed
 // workspace's is. `reuse` takes an address that is held anyway, and says so.
 func (c Closing) Rename(ctx context.Context, from, to string, reuse bool) error {
-	t, err := c.Db.Tenant.Query().Where(enttenant.Alias(from)).Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return fmt.Errorf("no workspace is @%s", from)
-		}
-		return err
-	}
-	if err := c.Aliases.Valid(to); err != nil {
-		return err
-	}
-	taken, err := c.Db.Tenant.Query().Where(enttenant.Alias(to)).Exist(ctx)
-	if err != nil {
-		return err
-	}
-	if taken {
-		return fmt.Errorf("@%s is another workspace's", to)
-	}
-	h, err := c.Aliases.Held(ctx, to)
+	t, h, err := c.Renaming(ctx, from, to, reuse)
 	if err != nil {
 		return err
 	}
 	if h != nil {
-		if !reuse {
-			return fmt.Errorf("@%s is held until %s (%s); --reuse takes it anyway", to, h.DateUntil.Format(time.DateOnly), h.Reason)
-		}
 		if err := c.release(ctx, h.Id); err != nil {
 			return err
 		}
@@ -310,6 +290,38 @@ func (c Closing) Rename(ctx context.Context, from, to string, reuse bool) error 
 		return err
 	}
 	return c.hold(ctx, c.now(), from, "renamed", to, id)
+}
+
+// Renaming is what [Closing.Rename] would do, refused as it would be and
+// changing nothing: the workspace at `from`, and the hold on `to` it would take
+// back early, for `reuse`, when there is one. What it refuses is what was
+// asked, said in words.
+func (c Closing) Renaming(ctx context.Context, from, to string, reuse bool) (*ent.Tenant, *ent.AliasHold, error) {
+	t, err := c.Db.Tenant.Query().Where(enttenant.Alias(from)).Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil, fmt.Errorf("no workspace is @%s", from)
+		}
+		return nil, nil, err
+	}
+	if err := c.Aliases.Valid(to); err != nil {
+		return nil, nil, err
+	}
+	taken, err := c.Db.Tenant.Query().Where(enttenant.Alias(to)).Exist(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	if taken {
+		return nil, nil, fmt.Errorf("@%s is another workspace's", to)
+	}
+	h, err := c.Aliases.Held(ctx, to)
+	if err != nil {
+		return nil, nil, err
+	}
+	if h != nil && !reuse {
+		return nil, nil, fmt.Errorf("@%s is held until %s (%s); --reuse takes it anyway", to, h.DateUntil.Format(time.DateOnly), h.Reason)
+	}
+	return t, h, nil
 }
 
 // hold keeps `alias` from anybody else from `now` -- and, for a destroyed
