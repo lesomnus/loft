@@ -2,6 +2,7 @@ package admin_test
 
 import (
 	"context"
+	"errors"
 	"io"
 	"os"
 	"slices"
@@ -114,7 +115,9 @@ func call(ctx context.Context, conn *grpc.ClientConn, method string) error {
 	if err != nil {
 		return err
 	}
-	if err := ss.SendMsg(in); err != nil {
+	// A stream the server ended at once -- refused before it read a thing --
+	// says io.EOF to the send, and why to the next receive (grpc.ClientStream).
+	if err := ss.SendMsg(in); err != nil && !errors.Is(err, io.EOF) {
 		return err
 	}
 	if err := ss.CloseSend(); err != nil {
