@@ -52,6 +52,7 @@ func (a Routes) Grpc(ctx context.Context, opts ...grpc.ServerOption) (*grpc.Serv
 	app.RegisterOperatorEventServiceServer(g, operatorEvents{a: a})
 	app.RegisterOperatorAccessServiceServer(g, operatorAccess{a: a})
 	app.RegisterAccessReviewServiceServer(g, reviews{a: a})
+	app.RegisterOperatorAuthServiceServer(g, operatorAuth{a: a})
 	return g, nil
 }
 

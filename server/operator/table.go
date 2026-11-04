@@ -110,6 +110,9 @@ var Table = map[string]Kind{
 	// of it the workspaces' administrators recorded.
 	app.OperatorAccessService_List_FullMethodName: Read,
 	app.AccessReviewService_List_FullMethodName:   Read,
+
+	// Who the key a call carries is, for the terminal (design 9.16).
+	app.OperatorAuthService_Whoami_FullMethodName: Read,
 }
 
 // Downloads is the methods of [Table] that are downloads.
