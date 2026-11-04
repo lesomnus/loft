@@ -4411,6 +4411,1208 @@ func (b0 OperatorTrailExported_builder) Build() *OperatorTrailExported {
 	return m0
 }
 
+type OperatorSearchStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OperatorSearchStatusRequest) Reset() {
+	*x = OperatorSearchStatusRequest{}
+	mi := &file_loft_operator_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchStatusRequest) ProtoMessage() {}
+
+func (x *OperatorSearchStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type OperatorSearchStatusRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 OperatorSearchStatusRequest_builder) Build() *OperatorSearchStatusRequest {
+	m0 := &OperatorSearchStatusRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+type OperatorSearchStatusResponse struct {
+	state              protoimpl.MessageState  `protogen:"opaque.v1"`
+	xxx_hidden_Indexes *[]*OperatorSearchIndex `protobuf:"bytes,1,rep,name=indexes"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *OperatorSearchStatusResponse) Reset() {
+	*x = OperatorSearchStatusResponse{}
+	mi := &file_loft_operator_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchStatusResponse) ProtoMessage() {}
+
+func (x *OperatorSearchStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorSearchStatusResponse) GetIndexes() []*OperatorSearchIndex {
+	if x != nil {
+		if x.xxx_hidden_Indexes != nil {
+			return *x.xxx_hidden_Indexes
+		}
+	}
+	return nil
+}
+
+func (x *OperatorSearchStatusResponse) SetIndexes(v []*OperatorSearchIndex) {
+	x.xxx_hidden_Indexes = &v
+}
+
+type OperatorSearchStatusResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Indexes []*OperatorSearchIndex
+}
+
+func (b0 OperatorSearchStatusResponse_builder) Build() *OperatorSearchStatusResponse {
+	m0 := &OperatorSearchStatusResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Indexes = &b.Indexes
+	return m0
+}
+
+type OperatorSearchIndex struct {
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name    string                 `protobuf:"bytes,1,opt,name=name"`
+	xxx_hidden_Alias   string                 `protobuf:"bytes,2,opt,name=alias"`
+	xxx_hidden_Index   string                 `protobuf:"bytes,3,opt,name=index"`
+	xxx_hidden_Docs    uint64                 `protobuf:"varint,4,opt,name=docs"`
+	xxx_hidden_Held    uint64                 `protobuf:"varint,5,opt,name=held"`
+	xxx_hidden_Version int32                  `protobuf:"varint,6,opt,name=version"`
+	xxx_hidden_Built   int32                  `protobuf:"varint,7,opt,name=built"`
+	xxx_hidden_Others  []string               `protobuf:"bytes,8,rep,name=others"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *OperatorSearchIndex) Reset() {
+	*x = OperatorSearchIndex{}
+	mi := &file_loft_operator_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchIndex) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchIndex) ProtoMessage() {}
+
+func (x *OperatorSearchIndex) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorSearchIndex) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *OperatorSearchIndex) GetAlias() string {
+	if x != nil {
+		return x.xxx_hidden_Alias
+	}
+	return ""
+}
+
+func (x *OperatorSearchIndex) GetIndex() string {
+	if x != nil {
+		return x.xxx_hidden_Index
+	}
+	return ""
+}
+
+func (x *OperatorSearchIndex) GetDocs() uint64 {
+	if x != nil {
+		return x.xxx_hidden_Docs
+	}
+	return 0
+}
+
+func (x *OperatorSearchIndex) GetHeld() uint64 {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return 0
+}
+
+func (x *OperatorSearchIndex) GetVersion() int32 {
+	if x != nil {
+		return x.xxx_hidden_Version
+	}
+	return 0
+}
+
+func (x *OperatorSearchIndex) GetBuilt() int32 {
+	if x != nil {
+		return x.xxx_hidden_Built
+	}
+	return 0
+}
+
+func (x *OperatorSearchIndex) GetOthers() []string {
+	if x != nil {
+		return x.xxx_hidden_Others
+	}
+	return nil
+}
+
+func (x *OperatorSearchIndex) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+func (x *OperatorSearchIndex) SetAlias(v string) {
+	x.xxx_hidden_Alias = v
+}
+
+func (x *OperatorSearchIndex) SetIndex(v string) {
+	x.xxx_hidden_Index = v
+}
+
+func (x *OperatorSearchIndex) SetDocs(v uint64) {
+	x.xxx_hidden_Docs = v
+}
+
+func (x *OperatorSearchIndex) SetHeld(v uint64) {
+	x.xxx_hidden_Held = v
+}
+
+func (x *OperatorSearchIndex) SetVersion(v int32) {
+	x.xxx_hidden_Version = v
+}
+
+func (x *OperatorSearchIndex) SetBuilt(v int32) {
+	x.xxx_hidden_Built = v
+}
+
+func (x *OperatorSearchIndex) SetOthers(v []string) {
+	x.xxx_hidden_Others = v
+}
+
+type OperatorSearchIndex_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// What it is of: assets, parties, models.
+	Name  string
+	Alias string
+	// What the alias points at; empty is nothing yet.
+	Index string
+	Docs  uint64
+	// The rows the database has of what it holds, not erased.
+	Held uint64
+	// The shape the index was made in, and the one this build makes.
+	Version int32
+	Built   int32
+	// What a reindex that stopped left behind, which the next deletes.
+	Others []string
+}
+
+func (b0 OperatorSearchIndex_builder) Build() *OperatorSearchIndex {
+	m0 := &OperatorSearchIndex{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_Alias = b.Alias
+	x.xxx_hidden_Index = b.Index
+	x.xxx_hidden_Docs = b.Docs
+	x.xxx_hidden_Held = b.Held
+	x.xxx_hidden_Version = b.Version
+	x.xxx_hidden_Built = b.Built
+	x.xxx_hidden_Others = b.Others
+	return m0
+}
+
+type OperatorSearchReindexRequest struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OperatorSearchReindexRequest) Reset() {
+	*x = OperatorSearchReindexRequest{}
+	mi := &file_loft_operator_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchReindexRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchReindexRequest) ProtoMessage() {}
+
+func (x *OperatorSearchReindexRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type OperatorSearchReindexRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 OperatorSearchReindexRequest_builder) Build() *OperatorSearchReindexRequest {
+	m0 := &OperatorSearchReindexRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+type OperatorSearchReindexResponse struct {
+	state               protoimpl.MessageState   `protogen:"opaque.v1"`
+	xxx_hidden_Progress string                   `protobuf:"bytes,1,opt,name=progress"`
+	xxx_hidden_Made     *OperatorSearchReindexed `protobuf:"bytes,2,opt,name=made"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorSearchReindexResponse) Reset() {
+	*x = OperatorSearchReindexResponse{}
+	mi := &file_loft_operator_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchReindexResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchReindexResponse) ProtoMessage() {}
+
+func (x *OperatorSearchReindexResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorSearchReindexResponse) GetProgress() string {
+	if x != nil {
+		return x.xxx_hidden_Progress
+	}
+	return ""
+}
+
+func (x *OperatorSearchReindexResponse) GetMade() *OperatorSearchReindexed {
+	if x != nil {
+		return x.xxx_hidden_Made
+	}
+	return nil
+}
+
+func (x *OperatorSearchReindexResponse) SetProgress(v string) {
+	x.xxx_hidden_Progress = v
+}
+
+func (x *OperatorSearchReindexResponse) SetMade(v *OperatorSearchReindexed) {
+	x.xxx_hidden_Made = v
+}
+
+func (x *OperatorSearchReindexResponse) HasMade() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Made != nil
+}
+
+func (x *OperatorSearchReindexResponse) ClearMade() {
+	x.xxx_hidden_Made = nil
+}
+
+type OperatorSearchReindexResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Progress string
+	// One for each index, as it is made.
+	Made *OperatorSearchReindexed
+}
+
+func (b0 OperatorSearchReindexResponse_builder) Build() *OperatorSearchReindexResponse {
+	m0 := &OperatorSearchReindexResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Progress = b.Progress
+	x.xxx_hidden_Made = b.Made
+	return m0
+}
+
+type OperatorSearchReindexed struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name     string                 `protobuf:"bytes,1,opt,name=name"`
+	xxx_hidden_Index    string                 `protobuf:"bytes,2,opt,name=index"`
+	xxx_hidden_Alias    string                 `protobuf:"bytes,3,opt,name=alias"`
+	xxx_hidden_Docs     uint64                 `protobuf:"varint,4,opt,name=docs"`
+	xxx_hidden_Replaced []string               `protobuf:"bytes,5,rep,name=replaced"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorSearchReindexed) Reset() {
+	*x = OperatorSearchReindexed{}
+	mi := &file_loft_operator_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchReindexed) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchReindexed) ProtoMessage() {}
+
+func (x *OperatorSearchReindexed) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorSearchReindexed) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *OperatorSearchReindexed) GetIndex() string {
+	if x != nil {
+		return x.xxx_hidden_Index
+	}
+	return ""
+}
+
+func (x *OperatorSearchReindexed) GetAlias() string {
+	if x != nil {
+		return x.xxx_hidden_Alias
+	}
+	return ""
+}
+
+func (x *OperatorSearchReindexed) GetDocs() uint64 {
+	if x != nil {
+		return x.xxx_hidden_Docs
+	}
+	return 0
+}
+
+func (x *OperatorSearchReindexed) GetReplaced() []string {
+	if x != nil {
+		return x.xxx_hidden_Replaced
+	}
+	return nil
+}
+
+func (x *OperatorSearchReindexed) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+func (x *OperatorSearchReindexed) SetIndex(v string) {
+	x.xxx_hidden_Index = v
+}
+
+func (x *OperatorSearchReindexed) SetAlias(v string) {
+	x.xxx_hidden_Alias = v
+}
+
+func (x *OperatorSearchReindexed) SetDocs(v uint64) {
+	x.xxx_hidden_Docs = v
+}
+
+func (x *OperatorSearchReindexed) SetReplaced(v []string) {
+	x.xxx_hidden_Replaced = v
+}
+
+type OperatorSearchReindexed_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Name     string
+	Index    string
+	Alias    string
+	Docs     uint64
+	Replaced []string
+}
+
+func (b0 OperatorSearchReindexed_builder) Build() *OperatorSearchReindexed {
+	m0 := &OperatorSearchReindexed{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_Index = b.Index
+	x.xxx_hidden_Alias = b.Alias
+	x.xxx_hidden_Docs = b.Docs
+	x.xxx_hidden_Replaced = b.Replaced
+	return m0
+}
+
+type OperatorSearchRemoveRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DryRun bool                   `protobuf:"varint,1,opt,name=dry_run,json=dryRun"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *OperatorSearchRemoveRequest) Reset() {
+	*x = OperatorSearchRemoveRequest{}
+	mi := &file_loft_operator_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchRemoveRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchRemoveRequest) ProtoMessage() {}
+
+func (x *OperatorSearchRemoveRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorSearchRemoveRequest) GetDryRun() bool {
+	if x != nil {
+		return x.xxx_hidden_DryRun
+	}
+	return false
+}
+
+func (x *OperatorSearchRemoveRequest) SetDryRun(v bool) {
+	x.xxx_hidden_DryRun = v
+}
+
+type OperatorSearchRemoveRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Say what it would delete, and delete nothing.
+	DryRun bool
+}
+
+func (b0 OperatorSearchRemoveRequest_builder) Build() *OperatorSearchRemoveRequest {
+	m0 := &OperatorSearchRemoveRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_DryRun = b.DryRun
+	return m0
+}
+
+type OperatorSearchRemoveResponse struct {
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Indexes []string               `protobuf:"bytes,1,rep,name=indexes"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *OperatorSearchRemoveResponse) Reset() {
+	*x = OperatorSearchRemoveResponse{}
+	mi := &file_loft_operator_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchRemoveResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchRemoveResponse) ProtoMessage() {}
+
+func (x *OperatorSearchRemoveResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorSearchRemoveResponse) GetIndexes() []string {
+	if x != nil {
+		return x.xxx_hidden_Indexes
+	}
+	return nil
+}
+
+func (x *OperatorSearchRemoveResponse) SetIndexes(v []string) {
+	x.xxx_hidden_Indexes = v
+}
+
+type OperatorSearchRemoveResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The indexes deleted, or that would be.
+	Indexes []string
+}
+
+func (b0 OperatorSearchRemoveResponse_builder) Build() *OperatorSearchRemoveResponse {
+	m0 := &OperatorSearchRemoveResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Indexes = b.Indexes
+	return m0
+}
+
+type OperatorSearchAnalyzeRequest struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Text string                 `protobuf:"bytes,1,opt,name=text"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *OperatorSearchAnalyzeRequest) Reset() {
+	*x = OperatorSearchAnalyzeRequest{}
+	mi := &file_loft_operator_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchAnalyzeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchAnalyzeRequest) ProtoMessage() {}
+
+func (x *OperatorSearchAnalyzeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorSearchAnalyzeRequest) GetText() string {
+	if x != nil {
+		return x.xxx_hidden_Text
+	}
+	return ""
+}
+
+func (x *OperatorSearchAnalyzeRequest) SetText(v string) {
+	x.xxx_hidden_Text = v
+}
+
+type OperatorSearchAnalyzeRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Text string
+}
+
+func (b0 OperatorSearchAnalyzeRequest_builder) Build() *OperatorSearchAnalyzeRequest {
+	m0 := &OperatorSearchAnalyzeRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Text = b.Text
+	return m0
+}
+
+type OperatorSearchAnalyzeResponse struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Kept  []string               `protobuf:"bytes,1,rep,name=kept"`
+	xxx_hidden_Asked []string               `protobuf:"bytes,2,rep,name=asked"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *OperatorSearchAnalyzeResponse) Reset() {
+	*x = OperatorSearchAnalyzeResponse{}
+	mi := &file_loft_operator_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSearchAnalyzeResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSearchAnalyzeResponse) ProtoMessage() {}
+
+func (x *OperatorSearchAnalyzeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorSearchAnalyzeResponse) GetKept() []string {
+	if x != nil {
+		return x.xxx_hidden_Kept
+	}
+	return nil
+}
+
+func (x *OperatorSearchAnalyzeResponse) GetAsked() []string {
+	if x != nil {
+		return x.xxx_hidden_Asked
+	}
+	return nil
+}
+
+func (x *OperatorSearchAnalyzeResponse) SetKept(v []string) {
+	x.xxx_hidden_Kept = v
+}
+
+func (x *OperatorSearchAnalyzeResponse) SetAsked(v []string) {
+	x.xxx_hidden_Asked = v
+}
+
+type OperatorSearchAnalyzeResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The words, as a name is kept and as a search asks.
+	Kept  []string
+	Asked []string
+}
+
+func (b0 OperatorSearchAnalyzeResponse_builder) Build() *OperatorSearchAnalyzeResponse {
+	m0 := &OperatorSearchAnalyzeResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Kept = b.Kept
+	x.xxx_hidden_Asked = b.Asked
+	return m0
+}
+
+type OperatorRetentionRequest struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref *OperatorTenantRef     `protobuf:"bytes,1,opt,name=ref"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *OperatorRetentionRequest) Reset() {
+	*x = OperatorRetentionRequest{}
+	mi := &file_loft_operator_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorRetentionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorRetentionRequest) ProtoMessage() {}
+
+func (x *OperatorRetentionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorRetentionRequest) GetRef() *OperatorTenantRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *OperatorRetentionRequest) SetRef(v *OperatorTenantRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *OperatorRetentionRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *OperatorRetentionRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+type OperatorRetentionRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// One workspace; every workspace when unset.
+	Ref *OperatorTenantRef
+}
+
+func (b0 OperatorRetentionRequest_builder) Build() *OperatorRetentionRequest {
+	m0 := &OperatorRetentionRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	return m0
+}
+
+type OperatorRetentionResponse struct {
+	state               protoimpl.MessageState  `protogen:"opaque.v1"`
+	xxx_hidden_Progress string                  `protobuf:"bytes,1,opt,name=progress"`
+	xxx_hidden_Taken    *OperatorRetentionTaken `protobuf:"bytes,2,opt,name=taken"`
+	xxx_hidden_Apply    bool                    `protobuf:"varint,3,opt,name=apply"`
+	xxx_hidden_Last     bool                    `protobuf:"varint,4,opt,name=last"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorRetentionResponse) Reset() {
+	*x = OperatorRetentionResponse{}
+	mi := &file_loft_operator_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorRetentionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorRetentionResponse) ProtoMessage() {}
+
+func (x *OperatorRetentionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorRetentionResponse) GetProgress() string {
+	if x != nil {
+		return x.xxx_hidden_Progress
+	}
+	return ""
+}
+
+func (x *OperatorRetentionResponse) GetTaken() *OperatorRetentionTaken {
+	if x != nil {
+		return x.xxx_hidden_Taken
+	}
+	return nil
+}
+
+func (x *OperatorRetentionResponse) GetApply() bool {
+	if x != nil {
+		return x.xxx_hidden_Apply
+	}
+	return false
+}
+
+func (x *OperatorRetentionResponse) GetLast() bool {
+	if x != nil {
+		return x.xxx_hidden_Last
+	}
+	return false
+}
+
+func (x *OperatorRetentionResponse) SetProgress(v string) {
+	x.xxx_hidden_Progress = v
+}
+
+func (x *OperatorRetentionResponse) SetTaken(v *OperatorRetentionTaken) {
+	x.xxx_hidden_Taken = v
+}
+
+func (x *OperatorRetentionResponse) SetApply(v bool) {
+	x.xxx_hidden_Apply = v
+}
+
+func (x *OperatorRetentionResponse) SetLast(v bool) {
+	x.xxx_hidden_Last = v
+}
+
+func (x *OperatorRetentionResponse) HasTaken() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Taken != nil
+}
+
+func (x *OperatorRetentionResponse) ClearTaken() {
+	x.xxx_hidden_Taken = nil
+}
+
+type OperatorRetentionResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Progress string
+	Taken    *OperatorRetentionTaken
+	// Last: whether the deployment destroys by its windows at all
+	// (`app.retention.apply`).
+	Apply bool
+	Last  bool
+}
+
+func (b0 OperatorRetentionResponse_builder) Build() *OperatorRetentionResponse {
+	m0 := &OperatorRetentionResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Progress = b.Progress
+	x.xxx_hidden_Taken = b.Taken
+	x.xxx_hidden_Apply = b.Apply
+	x.xxx_hidden_Last = b.Last
+	return m0
+}
+
+type OperatorRetentionTaken struct {
+	state             protoimpl.MessageState     `protogen:"opaque.v1"`
+	xxx_hidden_Tenant []byte                     `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_Alias  string                     `protobuf:"bytes,2,opt,name=alias"`
+	xxx_hidden_DryRun bool                       `protobuf:"varint,3,opt,name=dry_run,json=dryRun"`
+	xxx_hidden_Before *timestamppb.Timestamp     `protobuf:"bytes,4,opt,name=before"`
+	xxx_hidden_Held   []string                   `protobuf:"bytes,5,rep,name=held"`
+	xxx_hidden_Taken  map[string]uint32          `protobuf:"bytes,6,rep,name=taken" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_Lost   []string                   `protobuf:"bytes,7,rep,name=lost"`
+	xxx_hidden_Trail  *[]*OperatorRetentionTrail `protobuf:"bytes,8,rep,name=trail"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *OperatorRetentionTaken) Reset() {
+	*x = OperatorRetentionTaken{}
+	mi := &file_loft_operator_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorRetentionTaken) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorRetentionTaken) ProtoMessage() {}
+
+func (x *OperatorRetentionTaken) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorRetentionTaken) GetTenant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *OperatorRetentionTaken) GetAlias() string {
+	if x != nil {
+		return x.xxx_hidden_Alias
+	}
+	return ""
+}
+
+func (x *OperatorRetentionTaken) GetDryRun() bool {
+	if x != nil {
+		return x.xxx_hidden_DryRun
+	}
+	return false
+}
+
+func (x *OperatorRetentionTaken) GetBefore() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Before
+	}
+	return nil
+}
+
+func (x *OperatorRetentionTaken) GetHeld() []string {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return nil
+}
+
+func (x *OperatorRetentionTaken) GetTaken() map[string]uint32 {
+	if x != nil {
+		return x.xxx_hidden_Taken
+	}
+	return nil
+}
+
+func (x *OperatorRetentionTaken) GetLost() []string {
+	if x != nil {
+		return x.xxx_hidden_Lost
+	}
+	return nil
+}
+
+func (x *OperatorRetentionTaken) GetTrail() []*OperatorRetentionTrail {
+	if x != nil {
+		if x.xxx_hidden_Trail != nil {
+			return *x.xxx_hidden_Trail
+		}
+	}
+	return nil
+}
+
+func (x *OperatorRetentionTaken) SetTenant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *OperatorRetentionTaken) SetAlias(v string) {
+	x.xxx_hidden_Alias = v
+}
+
+func (x *OperatorRetentionTaken) SetDryRun(v bool) {
+	x.xxx_hidden_DryRun = v
+}
+
+func (x *OperatorRetentionTaken) SetBefore(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Before = v
+}
+
+func (x *OperatorRetentionTaken) SetHeld(v []string) {
+	x.xxx_hidden_Held = v
+}
+
+func (x *OperatorRetentionTaken) SetTaken(v map[string]uint32) {
+	x.xxx_hidden_Taken = v
+}
+
+func (x *OperatorRetentionTaken) SetLost(v []string) {
+	x.xxx_hidden_Lost = v
+}
+
+func (x *OperatorRetentionTaken) SetTrail(v []*OperatorRetentionTrail) {
+	x.xxx_hidden_Trail = &v
+}
+
+func (x *OperatorRetentionTaken) HasBefore() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Before != nil
+}
+
+func (x *OperatorRetentionTaken) ClearBefore() {
+	x.xxx_hidden_Before = nil
+}
+
+type OperatorRetentionTaken_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Tenant []byte
+	Alias  string
+	DryRun bool
+	// Where its window begins; unset is a window that keeps everything.
+	Before *timestamppb.Timestamp
+	// What its legal holds are for: while there is one, nothing goes.
+	Held []string
+	// What was over before the window, by kind, and the stored files that
+	// could not be removed.
+	Taken map[string]uint32
+	Lost  []string
+	// What the trail's pass would take of its trail, by kind (a plan alone).
+	Trail []*OperatorRetentionTrail
+}
+
+func (b0 OperatorRetentionTaken_builder) Build() *OperatorRetentionTaken {
+	m0 := &OperatorRetentionTaken{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Alias = b.Alias
+	x.xxx_hidden_DryRun = b.DryRun
+	x.xxx_hidden_Before = b.Before
+	x.xxx_hidden_Held = b.Held
+	x.xxx_hidden_Taken = b.Taken
+	x.xxx_hidden_Lost = b.Lost
+	x.xxx_hidden_Trail = &b.Trail
+	return m0
+}
+
+type OperatorRetentionTrail struct {
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Kind      string                 `protobuf:"bytes,1,opt,name=kind"`
+	xxx_hidden_Archived  uint32                 `protobuf:"varint,2,opt,name=archived"`
+	xxx_hidden_Discarded uint32                 `protobuf:"varint,3,opt,name=discarded"`
+	xxx_hidden_Destroyed uint32                 `protobuf:"varint,4,opt,name=destroyed"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *OperatorRetentionTrail) Reset() {
+	*x = OperatorRetentionTrail{}
+	mi := &file_loft_operator_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorRetentionTrail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorRetentionTrail) ProtoMessage() {}
+
+func (x *OperatorRetentionTrail) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorRetentionTrail) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *OperatorRetentionTrail) GetArchived() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Archived
+	}
+	return 0
+}
+
+func (x *OperatorRetentionTrail) GetDiscarded() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Discarded
+	}
+	return 0
+}
+
+func (x *OperatorRetentionTrail) GetDestroyed() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Destroyed
+	}
+	return 0
+}
+
+func (x *OperatorRetentionTrail) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *OperatorRetentionTrail) SetArchived(v uint32) {
+	x.xxx_hidden_Archived = v
+}
+
+func (x *OperatorRetentionTrail) SetDiscarded(v uint32) {
+	x.xxx_hidden_Discarded = v
+}
+
+func (x *OperatorRetentionTrail) SetDestroyed(v uint32) {
+	x.xxx_hidden_Destroyed = v
+}
+
+type OperatorRetentionTrail_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Kind      string
+	Archived  uint32
+	Discarded uint32
+	Destroyed uint32
+}
+
+func (b0 OperatorRetentionTrail_builder) Build() *OperatorRetentionTrail {
+	m0 := &OperatorRetentionTrail{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Archived = b.Archived
+	x.xxx_hidden_Discarded = b.Discarded
+	x.xxx_hidden_Destroyed = b.Destroyed
+	return m0
+}
+
 var File_loft_operator_proto protoreflect.FileDescriptor
 
 const file_loft_operator_proto_rawDesc = "" +
@@ -4636,7 +5838,63 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\aretired\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\aretired\x129\n" +
 	"\n" +
 	"kept_until\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tkeptUntil\x12\x16\n" +
-	"\x06people\x18\x0e \x01(\rR\x06people2\xbe\x04\n" +
+	"\x06people\x18\x0e \x01(\rR\x06people\"\x1d\n" +
+	"\x1bOperatorSearchStatusRequest\"S\n" +
+	"\x1cOperatorSearchStatusResponse\x123\n" +
+	"\aindexes\x18\x01 \x03(\v2\x19.loft.OperatorSearchIndexR\aindexes\"\xc5\x01\n" +
+	"\x13OperatorSearchIndex\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x14\n" +
+	"\x05index\x18\x03 \x01(\tR\x05index\x12\x12\n" +
+	"\x04docs\x18\x04 \x01(\x04R\x04docs\x12\x12\n" +
+	"\x04held\x18\x05 \x01(\x04R\x04held\x12\x18\n" +
+	"\aversion\x18\x06 \x01(\x05R\aversion\x12\x14\n" +
+	"\x05built\x18\a \x01(\x05R\x05built\x12\x16\n" +
+	"\x06others\x18\b \x03(\tR\x06others\"\x1e\n" +
+	"\x1cOperatorSearchReindexRequest\"n\n" +
+	"\x1dOperatorSearchReindexResponse\x12\x1a\n" +
+	"\bprogress\x18\x01 \x01(\tR\bprogress\x121\n" +
+	"\x04made\x18\x02 \x01(\v2\x1d.loft.OperatorSearchReindexedR\x04made\"\x89\x01\n" +
+	"\x17OperatorSearchReindexed\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05index\x18\x02 \x01(\tR\x05index\x12\x14\n" +
+	"\x05alias\x18\x03 \x01(\tR\x05alias\x12\x12\n" +
+	"\x04docs\x18\x04 \x01(\x04R\x04docs\x12\x1a\n" +
+	"\breplaced\x18\x05 \x03(\tR\breplaced\"6\n" +
+	"\x1bOperatorSearchRemoveRequest\x12\x17\n" +
+	"\adry_run\x18\x01 \x01(\bR\x06dryRun\"8\n" +
+	"\x1cOperatorSearchRemoveResponse\x12\x18\n" +
+	"\aindexes\x18\x01 \x03(\tR\aindexes\"2\n" +
+	"\x1cOperatorSearchAnalyzeRequest\x12\x12\n" +
+	"\x04text\x18\x01 \x01(\tR\x04text\"I\n" +
+	"\x1dOperatorSearchAnalyzeResponse\x12\x12\n" +
+	"\x04kept\x18\x01 \x03(\tR\x04kept\x12\x14\n" +
+	"\x05asked\x18\x02 \x03(\tR\x05asked\"L\n" +
+	"\x18OperatorRetentionRequest\x120\n" +
+	"\x03ref\x18\x01 \x01(\v2\x17.loft.OperatorTenantRefB\x05\xaa\x01\x02\b\x01R\x03ref\"\x95\x01\n" +
+	"\x19OperatorRetentionResponse\x12\x1a\n" +
+	"\bprogress\x18\x01 \x01(\tR\bprogress\x122\n" +
+	"\x05taken\x18\x02 \x01(\v2\x1c.loft.OperatorRetentionTakenR\x05taken\x12\x14\n" +
+	"\x05apply\x18\x03 \x01(\bR\x05apply\x12\x12\n" +
+	"\x04last\x18\x04 \x01(\bR\x04last\"\xe8\x02\n" +
+	"\x16OperatorRetentionTaken\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
+	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x17\n" +
+	"\adry_run\x18\x03 \x01(\bR\x06dryRun\x122\n" +
+	"\x06before\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x06before\x12\x12\n" +
+	"\x04held\x18\x05 \x03(\tR\x04held\x12=\n" +
+	"\x05taken\x18\x06 \x03(\v2'.loft.OperatorRetentionTaken.TakenEntryR\x05taken\x12\x12\n" +
+	"\x04lost\x18\a \x03(\tR\x04lost\x122\n" +
+	"\x05trail\x18\b \x03(\v2\x1c.loft.OperatorRetentionTrailR\x05trail\x1a8\n" +
+	"\n" +
+	"TakenEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x84\x01\n" +
+	"\x16OperatorRetentionTrail\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x1a\n" +
+	"\barchived\x18\x02 \x01(\rR\barchived\x12\x1c\n" +
+	"\tdiscarded\x18\x03 \x01(\rR\tdiscarded\x12\x1c\n" +
+	"\tdestroyed\x18\x04 \x01(\rR\tdestroyed2\xbe\x04\n" +
 	"\x15OperatorTenantService\x12I\n" +
 	"\x04Show\x12\x1f.loft.OperatorTenantShowRequest\x1a .loft.OperatorTenantShowResponse\x12I\n" +
 	"\x04Move\x12\x1f.loft.OperatorTenantMoveRequest\x1a .loft.OperatorTenantMoveResponse\x12?\n" +
@@ -4653,9 +5911,17 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\n" +
 	"AcceptRows\x12$.loft.OperatorTrailAcceptRowsRequest\x1a%.loft.OperatorTrailAcceptRowsResponse0\x01\x12G\n" +
 	"\x04Owed\x12\x1e.loft.OperatorTrailOwedRequest\x1a\x1f.loft.OperatorTrailOwedResponse\x12O\n" +
-	"\x06Export\x12 .loft.OperatorTrailExportRequest\x1a!.loft.OperatorTrailExportResponse0\x01B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06Export\x12 .loft.OperatorTrailExportRequest\x1a!.loft.OperatorTrailExportResponse0\x012\xe3\x02\n" +
+	"\x15OperatorSearchService\x12O\n" +
+	"\x06Status\x12!.loft.OperatorSearchStatusRequest\x1a\".loft.OperatorSearchStatusResponse\x12T\n" +
+	"\aReindex\x12\".loft.OperatorSearchReindexRequest\x1a#.loft.OperatorSearchReindexResponse0\x01\x12O\n" +
+	"\x06Remove\x12!.loft.OperatorSearchRemoveRequest\x1a\".loft.OperatorSearchRemoveResponse\x12R\n" +
+	"\aAnalyze\x12\".loft.OperatorSearchAnalyzeRequest\x1a#.loft.OperatorSearchAnalyzeResponse2\xaf\x01\n" +
+	"\x18OperatorRetentionService\x12I\n" +
+	"\x04Plan\x12\x1e.loft.OperatorRetentionRequest\x1a\x1f.loft.OperatorRetentionResponse0\x01\x12H\n" +
+	"\x03Run\x12\x1e.loft.OperatorRetentionRequest\x1a\x1f.loft.OperatorRetentionResponse0\x01B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_loft_operator_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
+var file_loft_operator_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_loft_operator_proto_goTypes = []any{
 	(*OperatorTenantRef)(nil),               // 0: loft.OperatorTenantRef
 	(*OperatorTenantShowRequest)(nil),       // 1: loft.OperatorTenantShowRequest
@@ -4696,42 +5962,57 @@ var file_loft_operator_proto_goTypes = []any{
 	(*OperatorTrailExportRequest)(nil),      // 36: loft.OperatorTrailExportRequest
 	(*OperatorTrailExportResponse)(nil),     // 37: loft.OperatorTrailExportResponse
 	(*OperatorTrailExported)(nil),           // 38: loft.OperatorTrailExported
-	nil,                                     // 39: loft.OperatorTenantDestroyed.RowsEntry
-	nil,                                     // 40: loft.OperatorTenantDestroyed.KeptEntry
-	nil,                                     // 41: loft.OperatorTenantImportResponse.RowsEntry
-	nil,                                     // 42: loft.OperatorTenantImportResponse.LeftEntry
-	nil,                                     // 43: loft.OperatorTenantImportResponse.LeftWhyEntry
-	(*Tenant)(nil),                          // 44: loft.Tenant
-	(*Holder)(nil),                          // 45: loft.Holder
-	(*TenantContract)(nil),                  // 46: loft.TenantContract
-	(*LegalHold)(nil),                       // 47: loft.LegalHold
-	(*timestamppb.Timestamp)(nil),           // 48: google.protobuf.Timestamp
+	(*OperatorSearchStatusRequest)(nil),     // 39: loft.OperatorSearchStatusRequest
+	(*OperatorSearchStatusResponse)(nil),    // 40: loft.OperatorSearchStatusResponse
+	(*OperatorSearchIndex)(nil),             // 41: loft.OperatorSearchIndex
+	(*OperatorSearchReindexRequest)(nil),    // 42: loft.OperatorSearchReindexRequest
+	(*OperatorSearchReindexResponse)(nil),   // 43: loft.OperatorSearchReindexResponse
+	(*OperatorSearchReindexed)(nil),         // 44: loft.OperatorSearchReindexed
+	(*OperatorSearchRemoveRequest)(nil),     // 45: loft.OperatorSearchRemoveRequest
+	(*OperatorSearchRemoveResponse)(nil),    // 46: loft.OperatorSearchRemoveResponse
+	(*OperatorSearchAnalyzeRequest)(nil),    // 47: loft.OperatorSearchAnalyzeRequest
+	(*OperatorSearchAnalyzeResponse)(nil),   // 48: loft.OperatorSearchAnalyzeResponse
+	(*OperatorRetentionRequest)(nil),        // 49: loft.OperatorRetentionRequest
+	(*OperatorRetentionResponse)(nil),       // 50: loft.OperatorRetentionResponse
+	(*OperatorRetentionTaken)(nil),          // 51: loft.OperatorRetentionTaken
+	(*OperatorRetentionTrail)(nil),          // 52: loft.OperatorRetentionTrail
+	nil,                                     // 53: loft.OperatorTenantDestroyed.RowsEntry
+	nil,                                     // 54: loft.OperatorTenantDestroyed.KeptEntry
+	nil,                                     // 55: loft.OperatorTenantImportResponse.RowsEntry
+	nil,                                     // 56: loft.OperatorTenantImportResponse.LeftEntry
+	nil,                                     // 57: loft.OperatorTenantImportResponse.LeftWhyEntry
+	nil,                                     // 58: loft.OperatorRetentionTaken.TakenEntry
+	(*Tenant)(nil),                          // 59: loft.Tenant
+	(*Holder)(nil),                          // 60: loft.Holder
+	(*TenantContract)(nil),                  // 61: loft.TenantContract
+	(*LegalHold)(nil),                       // 62: loft.LegalHold
+	(*timestamppb.Timestamp)(nil),           // 63: google.protobuf.Timestamp
 }
 var file_loft_operator_proto_depIdxs = []int32{
 	0,  // 0: loft.OperatorTenantShowRequest.ref:type_name -> loft.OperatorTenantRef
-	44, // 1: loft.OperatorTenantShowResponse.tenant:type_name -> loft.Tenant
-	45, // 2: loft.OperatorTenantShowResponse.members:type_name -> loft.Holder
-	46, // 3: loft.OperatorTenantShowResponse.contracts:type_name -> loft.TenantContract
-	47, // 4: loft.OperatorTenantShowResponse.holds:type_name -> loft.LegalHold
+	59, // 1: loft.OperatorTenantShowResponse.tenant:type_name -> loft.Tenant
+	60, // 2: loft.OperatorTenantShowResponse.members:type_name -> loft.Holder
+	61, // 3: loft.OperatorTenantShowResponse.contracts:type_name -> loft.TenantContract
+	62, // 4: loft.OperatorTenantShowResponse.holds:type_name -> loft.LegalHold
 	3,  // 5: loft.OperatorTenantShowResponse.window:type_name -> loft.OperatorTenantWindow
-	48, // 6: loft.OperatorTenantWindow.keep_until:type_name -> google.protobuf.Timestamp
-	48, // 7: loft.OperatorTenantWindow.access_until:type_name -> google.protobuf.Timestamp
+	63, // 6: loft.OperatorTenantWindow.keep_until:type_name -> google.protobuf.Timestamp
+	63, // 7: loft.OperatorTenantWindow.access_until:type_name -> google.protobuf.Timestamp
 	0,  // 8: loft.OperatorTenantMoveRequest.ref:type_name -> loft.OperatorTenantRef
-	44, // 9: loft.OperatorTenantMoveResponse.tenant:type_name -> loft.Tenant
-	48, // 10: loft.OperatorTenantMoveResponse.held_until:type_name -> google.protobuf.Timestamp
+	59, // 9: loft.OperatorTenantMoveResponse.tenant:type_name -> loft.Tenant
+	63, // 10: loft.OperatorTenantMoveResponse.held_until:type_name -> google.protobuf.Timestamp
 	0,  // 11: loft.OperatorTenantNameOwnerRequest.ref:type_name -> loft.OperatorTenantRef
 	9,  // 12: loft.OperatorTenantRetiredResponse.items:type_name -> loft.OperatorTenantRetirement
-	48, // 13: loft.OperatorTenantRetirement.retired:type_name -> google.protobuf.Timestamp
-	48, // 14: loft.OperatorTenantRetirement.until:type_name -> google.protobuf.Timestamp
+	63, // 13: loft.OperatorTenantRetirement.retired:type_name -> google.protobuf.Timestamp
+	63, // 14: loft.OperatorTenantRetirement.until:type_name -> google.protobuf.Timestamp
 	0,  // 15: loft.OperatorTenantDestroyRequest.ref:type_name -> loft.OperatorTenantRef
 	12, // 16: loft.OperatorTenantDestroyResponse.destroyed:type_name -> loft.OperatorTenantDestroyed
-	39, // 17: loft.OperatorTenantDestroyed.rows:type_name -> loft.OperatorTenantDestroyed.RowsEntry
-	40, // 18: loft.OperatorTenantDestroyed.kept:type_name -> loft.OperatorTenantDestroyed.KeptEntry
-	48, // 19: loft.OperatorTenantDestroyed.kept_until:type_name -> google.protobuf.Timestamp
+	53, // 17: loft.OperatorTenantDestroyed.rows:type_name -> loft.OperatorTenantDestroyed.RowsEntry
+	54, // 18: loft.OperatorTenantDestroyed.kept:type_name -> loft.OperatorTenantDestroyed.KeptEntry
+	63, // 19: loft.OperatorTenantDestroyed.kept_until:type_name -> google.protobuf.Timestamp
 	14, // 20: loft.OperatorTenantImportRequest.options:type_name -> loft.OperatorTenantImportOptions
-	41, // 21: loft.OperatorTenantImportResponse.rows:type_name -> loft.OperatorTenantImportResponse.RowsEntry
-	42, // 22: loft.OperatorTenantImportResponse.left:type_name -> loft.OperatorTenantImportResponse.LeftEntry
-	43, // 23: loft.OperatorTenantImportResponse.left_why:type_name -> loft.OperatorTenantImportResponse.LeftWhyEntry
+	55, // 21: loft.OperatorTenantImportResponse.rows:type_name -> loft.OperatorTenantImportResponse.RowsEntry
+	56, // 22: loft.OperatorTenantImportResponse.left:type_name -> loft.OperatorTenantImportResponse.LeftEntry
+	57, // 23: loft.OperatorTenantImportResponse.left_why:type_name -> loft.OperatorTenantImportResponse.LeftWhyEntry
 	20, // 24: loft.OperatorTrailVerifyResponse.verified:type_name -> loft.OperatorTrailVerified
 	21, // 25: loft.OperatorTrailVerified.findings:type_name -> loft.OperatorTrailFinding
 	24, // 26: loft.OperatorTrailAcceptResponse.accepted:type_name -> loft.OperatorTrailAccepted
@@ -4740,44 +6021,63 @@ var file_loft_operator_proto_depIdxs = []int32{
 	28, // 29: loft.OperatorTrailRowsChecked.findings:type_name -> loft.OperatorTrailRowFinding
 	29, // 30: loft.OperatorTrailRowsChecked.skipped:type_name -> loft.OperatorTrailSkipped
 	32, // 31: loft.OperatorTrailAcceptRowsResponse.accepted:type_name -> loft.OperatorTrailRowsAccepted
-	48, // 32: loft.OperatorTrailOwedResponse.oldest:type_name -> google.protobuf.Timestamp
+	63, // 32: loft.OperatorTrailOwedResponse.oldest:type_name -> google.protobuf.Timestamp
 	35, // 33: loft.OperatorTrailOwedResponse.held:type_name -> loft.OperatorTrailHeld
 	38, // 34: loft.OperatorTrailExportResponse.exported:type_name -> loft.OperatorTrailExported
-	48, // 35: loft.OperatorTrailExported.retired:type_name -> google.protobuf.Timestamp
-	48, // 36: loft.OperatorTrailExported.kept_until:type_name -> google.protobuf.Timestamp
-	1,  // 37: loft.OperatorTenantService.Show:input_type -> loft.OperatorTenantShowRequest
-	4,  // 38: loft.OperatorTenantService.Move:input_type -> loft.OperatorTenantMoveRequest
-	6,  // 39: loft.OperatorTenantService.NameOwner:input_type -> loft.OperatorTenantNameOwnerRequest
-	7,  // 40: loft.OperatorTenantService.Retired:input_type -> loft.OperatorTenantRetiredRequest
-	10, // 41: loft.OperatorTenantService.Retire:input_type -> loft.OperatorTenantDestroyRequest
-	10, // 42: loft.OperatorTenantService.Purge:input_type -> loft.OperatorTenantDestroyRequest
-	13, // 43: loft.OperatorTenantService.Import:input_type -> loft.OperatorTenantImportRequest
-	16, // 44: loft.OperatorTrailService.Keys:input_type -> loft.OperatorTrailKeysRequest
-	18, // 45: loft.OperatorTrailService.Verify:input_type -> loft.OperatorTrailVerifyRequest
-	22, // 46: loft.OperatorTrailService.Accept:input_type -> loft.OperatorTrailAcceptRequest
-	25, // 47: loft.OperatorTrailService.Rows:input_type -> loft.OperatorTrailRowsRequest
-	30, // 48: loft.OperatorTrailService.AcceptRows:input_type -> loft.OperatorTrailAcceptRowsRequest
-	33, // 49: loft.OperatorTrailService.Owed:input_type -> loft.OperatorTrailOwedRequest
-	36, // 50: loft.OperatorTrailService.Export:input_type -> loft.OperatorTrailExportRequest
-	2,  // 51: loft.OperatorTenantService.Show:output_type -> loft.OperatorTenantShowResponse
-	5,  // 52: loft.OperatorTenantService.Move:output_type -> loft.OperatorTenantMoveResponse
-	45, // 53: loft.OperatorTenantService.NameOwner:output_type -> loft.Holder
-	8,  // 54: loft.OperatorTenantService.Retired:output_type -> loft.OperatorTenantRetiredResponse
-	11, // 55: loft.OperatorTenantService.Retire:output_type -> loft.OperatorTenantDestroyResponse
-	11, // 56: loft.OperatorTenantService.Purge:output_type -> loft.OperatorTenantDestroyResponse
-	15, // 57: loft.OperatorTenantService.Import:output_type -> loft.OperatorTenantImportResponse
-	17, // 58: loft.OperatorTrailService.Keys:output_type -> loft.OperatorTrailKeysResponse
-	19, // 59: loft.OperatorTrailService.Verify:output_type -> loft.OperatorTrailVerifyResponse
-	23, // 60: loft.OperatorTrailService.Accept:output_type -> loft.OperatorTrailAcceptResponse
-	26, // 61: loft.OperatorTrailService.Rows:output_type -> loft.OperatorTrailRowsResponse
-	31, // 62: loft.OperatorTrailService.AcceptRows:output_type -> loft.OperatorTrailAcceptRowsResponse
-	34, // 63: loft.OperatorTrailService.Owed:output_type -> loft.OperatorTrailOwedResponse
-	37, // 64: loft.OperatorTrailService.Export:output_type -> loft.OperatorTrailExportResponse
-	51, // [51:65] is the sub-list for method output_type
-	37, // [37:51] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	63, // 35: loft.OperatorTrailExported.retired:type_name -> google.protobuf.Timestamp
+	63, // 36: loft.OperatorTrailExported.kept_until:type_name -> google.protobuf.Timestamp
+	41, // 37: loft.OperatorSearchStatusResponse.indexes:type_name -> loft.OperatorSearchIndex
+	44, // 38: loft.OperatorSearchReindexResponse.made:type_name -> loft.OperatorSearchReindexed
+	0,  // 39: loft.OperatorRetentionRequest.ref:type_name -> loft.OperatorTenantRef
+	51, // 40: loft.OperatorRetentionResponse.taken:type_name -> loft.OperatorRetentionTaken
+	63, // 41: loft.OperatorRetentionTaken.before:type_name -> google.protobuf.Timestamp
+	58, // 42: loft.OperatorRetentionTaken.taken:type_name -> loft.OperatorRetentionTaken.TakenEntry
+	52, // 43: loft.OperatorRetentionTaken.trail:type_name -> loft.OperatorRetentionTrail
+	1,  // 44: loft.OperatorTenantService.Show:input_type -> loft.OperatorTenantShowRequest
+	4,  // 45: loft.OperatorTenantService.Move:input_type -> loft.OperatorTenantMoveRequest
+	6,  // 46: loft.OperatorTenantService.NameOwner:input_type -> loft.OperatorTenantNameOwnerRequest
+	7,  // 47: loft.OperatorTenantService.Retired:input_type -> loft.OperatorTenantRetiredRequest
+	10, // 48: loft.OperatorTenantService.Retire:input_type -> loft.OperatorTenantDestroyRequest
+	10, // 49: loft.OperatorTenantService.Purge:input_type -> loft.OperatorTenantDestroyRequest
+	13, // 50: loft.OperatorTenantService.Import:input_type -> loft.OperatorTenantImportRequest
+	16, // 51: loft.OperatorTrailService.Keys:input_type -> loft.OperatorTrailKeysRequest
+	18, // 52: loft.OperatorTrailService.Verify:input_type -> loft.OperatorTrailVerifyRequest
+	22, // 53: loft.OperatorTrailService.Accept:input_type -> loft.OperatorTrailAcceptRequest
+	25, // 54: loft.OperatorTrailService.Rows:input_type -> loft.OperatorTrailRowsRequest
+	30, // 55: loft.OperatorTrailService.AcceptRows:input_type -> loft.OperatorTrailAcceptRowsRequest
+	33, // 56: loft.OperatorTrailService.Owed:input_type -> loft.OperatorTrailOwedRequest
+	36, // 57: loft.OperatorTrailService.Export:input_type -> loft.OperatorTrailExportRequest
+	39, // 58: loft.OperatorSearchService.Status:input_type -> loft.OperatorSearchStatusRequest
+	42, // 59: loft.OperatorSearchService.Reindex:input_type -> loft.OperatorSearchReindexRequest
+	45, // 60: loft.OperatorSearchService.Remove:input_type -> loft.OperatorSearchRemoveRequest
+	47, // 61: loft.OperatorSearchService.Analyze:input_type -> loft.OperatorSearchAnalyzeRequest
+	49, // 62: loft.OperatorRetentionService.Plan:input_type -> loft.OperatorRetentionRequest
+	49, // 63: loft.OperatorRetentionService.Run:input_type -> loft.OperatorRetentionRequest
+	2,  // 64: loft.OperatorTenantService.Show:output_type -> loft.OperatorTenantShowResponse
+	5,  // 65: loft.OperatorTenantService.Move:output_type -> loft.OperatorTenantMoveResponse
+	60, // 66: loft.OperatorTenantService.NameOwner:output_type -> loft.Holder
+	8,  // 67: loft.OperatorTenantService.Retired:output_type -> loft.OperatorTenantRetiredResponse
+	11, // 68: loft.OperatorTenantService.Retire:output_type -> loft.OperatorTenantDestroyResponse
+	11, // 69: loft.OperatorTenantService.Purge:output_type -> loft.OperatorTenantDestroyResponse
+	15, // 70: loft.OperatorTenantService.Import:output_type -> loft.OperatorTenantImportResponse
+	17, // 71: loft.OperatorTrailService.Keys:output_type -> loft.OperatorTrailKeysResponse
+	19, // 72: loft.OperatorTrailService.Verify:output_type -> loft.OperatorTrailVerifyResponse
+	23, // 73: loft.OperatorTrailService.Accept:output_type -> loft.OperatorTrailAcceptResponse
+	26, // 74: loft.OperatorTrailService.Rows:output_type -> loft.OperatorTrailRowsResponse
+	31, // 75: loft.OperatorTrailService.AcceptRows:output_type -> loft.OperatorTrailAcceptRowsResponse
+	34, // 76: loft.OperatorTrailService.Owed:output_type -> loft.OperatorTrailOwedResponse
+	37, // 77: loft.OperatorTrailService.Export:output_type -> loft.OperatorTrailExportResponse
+	40, // 78: loft.OperatorSearchService.Status:output_type -> loft.OperatorSearchStatusResponse
+	43, // 79: loft.OperatorSearchService.Reindex:output_type -> loft.OperatorSearchReindexResponse
+	46, // 80: loft.OperatorSearchService.Remove:output_type -> loft.OperatorSearchRemoveResponse
+	48, // 81: loft.OperatorSearchService.Analyze:output_type -> loft.OperatorSearchAnalyzeResponse
+	50, // 82: loft.OperatorRetentionService.Plan:output_type -> loft.OperatorRetentionResponse
+	50, // 83: loft.OperatorRetentionService.Run:output_type -> loft.OperatorRetentionResponse
+	64, // [64:84] is the sub-list for method output_type
+	44, // [44:64] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_loft_operator_proto_init() }
@@ -4802,9 +6102,9 @@ func file_loft_operator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_operator_proto_rawDesc), len(file_loft_operator_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   44,
+			NumMessages:   59,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   4,
 		},
 		GoTypes:           file_loft_operator_proto_goTypes,
 		DependencyIndexes: file_loft_operator_proto_depIdxs,

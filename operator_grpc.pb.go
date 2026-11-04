@@ -819,3 +819,422 @@ var OperatorTrailService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Metadata: "loft/operator.proto",
 }
+
+const (
+	OperatorSearchService_Status_FullMethodName  = "/loft.OperatorSearchService/Status"
+	OperatorSearchService_Reindex_FullMethodName = "/loft.OperatorSearchService/Reindex"
+	OperatorSearchService_Remove_FullMethodName  = "/loft.OperatorSearchService/Remove"
+	OperatorSearchService_Analyze_FullMethodName = "/loft.OperatorSearchService/Analyze"
+)
+
+// OperatorSearchServiceClient is the client API for OperatorSearchService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorSearchService is the search index, for a deployment that names an
+// OpenSearch cluster (D31): what each index is, making it again, taking it
+// out, and how it splits a text. A deployment that names none searches its
+// database, has no index, and answers each FailedPrecondition.
+type OperatorSearchServiceClient interface {
+	// Status is what each index is -- of assets, parties and models -- against
+	// what the database holds.
+	Status(ctx context.Context, in *OperatorSearchStatusRequest, opts ...grpc.CallOption) (*OperatorSearchStatusResponse, error)
+	// Reindex makes each index again from the database, and points its alias
+	// at it once it is whole: what it is at while it writes, and last what it
+	// made. A reindex that stops leaves the alias where it was, and the next
+	// deletes what it left.
+	Reindex(ctx context.Context, in *OperatorSearchReindexRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorSearchReindexResponse], error)
+	// Remove deletes every index this deployment made, and the aliases with
+	// them: for a deployment that stops searching with OpenSearch, and one that
+	// wants nothing of its people left in a copy it does not keep.
+	Remove(ctx context.Context, in *OperatorSearchRemoveRequest, opts ...grpc.CallOption) (*OperatorSearchRemoveResponse, error)
+	// Analyze is the words the index makes of a text: as a name is kept, and
+	// as a search asks.
+	Analyze(ctx context.Context, in *OperatorSearchAnalyzeRequest, opts ...grpc.CallOption) (*OperatorSearchAnalyzeResponse, error)
+}
+
+type operatorSearchServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorSearchServiceClient(cc grpc.ClientConnInterface) OperatorSearchServiceClient {
+	return &operatorSearchServiceClient{cc}
+}
+
+func (c *operatorSearchServiceClient) Status(ctx context.Context, in *OperatorSearchStatusRequest, opts ...grpc.CallOption) (*OperatorSearchStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorSearchStatusResponse)
+	err := c.cc.Invoke(ctx, OperatorSearchService_Status_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operatorSearchServiceClient) Reindex(ctx context.Context, in *OperatorSearchReindexRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorSearchReindexResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorSearchService_ServiceDesc.Streams[0], OperatorSearchService_Reindex_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorSearchReindexRequest, OperatorSearchReindexResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorSearchService_ReindexClient = grpc.ServerStreamingClient[OperatorSearchReindexResponse]
+
+func (c *operatorSearchServiceClient) Remove(ctx context.Context, in *OperatorSearchRemoveRequest, opts ...grpc.CallOption) (*OperatorSearchRemoveResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorSearchRemoveResponse)
+	err := c.cc.Invoke(ctx, OperatorSearchService_Remove_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operatorSearchServiceClient) Analyze(ctx context.Context, in *OperatorSearchAnalyzeRequest, opts ...grpc.CallOption) (*OperatorSearchAnalyzeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorSearchAnalyzeResponse)
+	err := c.cc.Invoke(ctx, OperatorSearchService_Analyze_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperatorSearchServiceServer is the server API for OperatorSearchService service.
+// All implementations must embed UnimplementedOperatorSearchServiceServer
+// for forward compatibility.
+//
+// OperatorSearchService is the search index, for a deployment that names an
+// OpenSearch cluster (D31): what each index is, making it again, taking it
+// out, and how it splits a text. A deployment that names none searches its
+// database, has no index, and answers each FailedPrecondition.
+type OperatorSearchServiceServer interface {
+	// Status is what each index is -- of assets, parties and models -- against
+	// what the database holds.
+	Status(context.Context, *OperatorSearchStatusRequest) (*OperatorSearchStatusResponse, error)
+	// Reindex makes each index again from the database, and points its alias
+	// at it once it is whole: what it is at while it writes, and last what it
+	// made. A reindex that stops leaves the alias where it was, and the next
+	// deletes what it left.
+	Reindex(*OperatorSearchReindexRequest, grpc.ServerStreamingServer[OperatorSearchReindexResponse]) error
+	// Remove deletes every index this deployment made, and the aliases with
+	// them: for a deployment that stops searching with OpenSearch, and one that
+	// wants nothing of its people left in a copy it does not keep.
+	Remove(context.Context, *OperatorSearchRemoveRequest) (*OperatorSearchRemoveResponse, error)
+	// Analyze is the words the index makes of a text: as a name is kept, and
+	// as a search asks.
+	Analyze(context.Context, *OperatorSearchAnalyzeRequest) (*OperatorSearchAnalyzeResponse, error)
+	mustEmbedUnimplementedOperatorSearchServiceServer()
+}
+
+// UnimplementedOperatorSearchServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorSearchServiceServer struct{}
+
+func (UnimplementedOperatorSearchServiceServer) Status(context.Context, *OperatorSearchStatusRequest) (*OperatorSearchStatusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
+}
+func (UnimplementedOperatorSearchServiceServer) Reindex(*OperatorSearchReindexRequest, grpc.ServerStreamingServer[OperatorSearchReindexResponse]) error {
+	return status.Error(codes.Unimplemented, "method Reindex not implemented")
+}
+func (UnimplementedOperatorSearchServiceServer) Remove(context.Context, *OperatorSearchRemoveRequest) (*OperatorSearchRemoveResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Remove not implemented")
+}
+func (UnimplementedOperatorSearchServiceServer) Analyze(context.Context, *OperatorSearchAnalyzeRequest) (*OperatorSearchAnalyzeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Analyze not implemented")
+}
+func (UnimplementedOperatorSearchServiceServer) mustEmbedUnimplementedOperatorSearchServiceServer() {}
+func (UnimplementedOperatorSearchServiceServer) testEmbeddedByValue()                               {}
+
+// UnsafeOperatorSearchServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorSearchServiceServer will
+// result in compilation errors.
+type UnsafeOperatorSearchServiceServer interface {
+	mustEmbedUnimplementedOperatorSearchServiceServer()
+}
+
+func RegisterOperatorSearchServiceServer(s grpc.ServiceRegistrar, srv OperatorSearchServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorSearchServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorSearchService_ServiceDesc, srv)
+}
+
+func _OperatorSearchService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorSearchStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorSearchServiceServer).Status(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorSearchService_Status_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorSearchServiceServer).Status(ctx, req.(*OperatorSearchStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperatorSearchService_Reindex_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorSearchReindexRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorSearchServiceServer).Reindex(m, &grpc.GenericServerStream[OperatorSearchReindexRequest, OperatorSearchReindexResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorSearchService_ReindexServer = grpc.ServerStreamingServer[OperatorSearchReindexResponse]
+
+func _OperatorSearchService_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorSearchRemoveRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorSearchServiceServer).Remove(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorSearchService_Remove_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorSearchServiceServer).Remove(ctx, req.(*OperatorSearchRemoveRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperatorSearchService_Analyze_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorSearchAnalyzeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorSearchServiceServer).Analyze(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorSearchService_Analyze_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorSearchServiceServer).Analyze(ctx, req.(*OperatorSearchAnalyzeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperatorSearchService_ServiceDesc is the grpc.ServiceDesc for OperatorSearchService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorSearchService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorSearchService",
+	HandlerType: (*OperatorSearchServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Status",
+			Handler:    _OperatorSearchService_Status_Handler,
+		},
+		{
+			MethodName: "Remove",
+			Handler:    _OperatorSearchService_Remove_Handler,
+		},
+		{
+			MethodName: "Analyze",
+			Handler:    _OperatorSearchService_Analyze_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Reindex",
+			Handler:       _OperatorSearchService_Reindex_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "loft/operator.proto",
+}
+
+const (
+	OperatorRetentionService_Plan_FullMethodName = "/loft.OperatorRetentionService/Plan"
+	OperatorRetentionService_Run_FullMethodName  = "/loft.OperatorRetentionService/Run"
+)
+
+// OperatorRetentionServiceClient is the client API for OperatorRetentionService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorRetentionService is what the keep windows take out of the history
+// (design 8.2, 8.3), of every workspace or of one.
+type OperatorRetentionServiceClient interface {
+	// Plan is what a pass would take now, changing nothing: all of the work in
+	// a transaction it then undoes, so that what it says is what a run would
+	// take, to the row -- and what the trail's pass would take of the trail.
+	// A message for each workspace.
+	Plan(ctx context.Context, in *OperatorRetentionRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorRetentionResponse], error)
+	// Run takes it, when `app.retention.apply` says the deployment may, and
+	// then the trail's pass on the same windows: what `serve` does every
+	// `app.retention.every`.
+	Run(ctx context.Context, in *OperatorRetentionRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorRetentionResponse], error)
+}
+
+type operatorRetentionServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorRetentionServiceClient(cc grpc.ClientConnInterface) OperatorRetentionServiceClient {
+	return &operatorRetentionServiceClient{cc}
+}
+
+func (c *operatorRetentionServiceClient) Plan(ctx context.Context, in *OperatorRetentionRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorRetentionResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorRetentionService_ServiceDesc.Streams[0], OperatorRetentionService_Plan_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorRetentionRequest, OperatorRetentionResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorRetentionService_PlanClient = grpc.ServerStreamingClient[OperatorRetentionResponse]
+
+func (c *operatorRetentionServiceClient) Run(ctx context.Context, in *OperatorRetentionRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorRetentionResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorRetentionService_ServiceDesc.Streams[1], OperatorRetentionService_Run_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorRetentionRequest, OperatorRetentionResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorRetentionService_RunClient = grpc.ServerStreamingClient[OperatorRetentionResponse]
+
+// OperatorRetentionServiceServer is the server API for OperatorRetentionService service.
+// All implementations must embed UnimplementedOperatorRetentionServiceServer
+// for forward compatibility.
+//
+// OperatorRetentionService is what the keep windows take out of the history
+// (design 8.2, 8.3), of every workspace or of one.
+type OperatorRetentionServiceServer interface {
+	// Plan is what a pass would take now, changing nothing: all of the work in
+	// a transaction it then undoes, so that what it says is what a run would
+	// take, to the row -- and what the trail's pass would take of the trail.
+	// A message for each workspace.
+	Plan(*OperatorRetentionRequest, grpc.ServerStreamingServer[OperatorRetentionResponse]) error
+	// Run takes it, when `app.retention.apply` says the deployment may, and
+	// then the trail's pass on the same windows: what `serve` does every
+	// `app.retention.every`.
+	Run(*OperatorRetentionRequest, grpc.ServerStreamingServer[OperatorRetentionResponse]) error
+	mustEmbedUnimplementedOperatorRetentionServiceServer()
+}
+
+// UnimplementedOperatorRetentionServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorRetentionServiceServer struct{}
+
+func (UnimplementedOperatorRetentionServiceServer) Plan(*OperatorRetentionRequest, grpc.ServerStreamingServer[OperatorRetentionResponse]) error {
+	return status.Error(codes.Unimplemented, "method Plan not implemented")
+}
+func (UnimplementedOperatorRetentionServiceServer) Run(*OperatorRetentionRequest, grpc.ServerStreamingServer[OperatorRetentionResponse]) error {
+	return status.Error(codes.Unimplemented, "method Run not implemented")
+}
+func (UnimplementedOperatorRetentionServiceServer) mustEmbedUnimplementedOperatorRetentionServiceServer() {
+}
+func (UnimplementedOperatorRetentionServiceServer) testEmbeddedByValue() {}
+
+// UnsafeOperatorRetentionServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorRetentionServiceServer will
+// result in compilation errors.
+type UnsafeOperatorRetentionServiceServer interface {
+	mustEmbedUnimplementedOperatorRetentionServiceServer()
+}
+
+func RegisterOperatorRetentionServiceServer(s grpc.ServiceRegistrar, srv OperatorRetentionServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorRetentionServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorRetentionService_ServiceDesc, srv)
+}
+
+func _OperatorRetentionService_Plan_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorRetentionRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorRetentionServiceServer).Plan(m, &grpc.GenericServerStream[OperatorRetentionRequest, OperatorRetentionResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorRetentionService_PlanServer = grpc.ServerStreamingServer[OperatorRetentionResponse]
+
+func _OperatorRetentionService_Run_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorRetentionRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorRetentionServiceServer).Run(m, &grpc.GenericServerStream[OperatorRetentionRequest, OperatorRetentionResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorRetentionService_RunServer = grpc.ServerStreamingServer[OperatorRetentionResponse]
+
+// OperatorRetentionService_ServiceDesc is the grpc.ServiceDesc for OperatorRetentionService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorRetentionService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorRetentionService",
+	HandlerType: (*OperatorRetentionServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Plan",
+			Handler:       _OperatorRetentionService_Plan_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Run",
+			Handler:       _OperatorRetentionService_Run_Handler,
+			ServerStreams: true,
+		},
+	},
+	Metadata: "loft/operator.proto",
+}

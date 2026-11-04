@@ -79,6 +79,16 @@ var Table = map[string]Kind{
 	app.OperatorTrailService_Owed_FullMethodName:       Read,
 	// A workspace's trail, out, for a demand to preserve it (loft#153).
 	app.OperatorTrailService_Export_FullMethodName: Download,
+
+	// The search index, for a deployment that names a cluster (D31).
+	app.OperatorSearchService_Status_FullMethodName:  Read,
+	app.OperatorSearchService_Reindex_FullMethodName: Write,
+	app.OperatorSearchService_Remove_FullMethodName:  Write,
+	app.OperatorSearchService_Analyze_FullMethodName: Read,
+
+	// What the keep windows take out of the history (design 8.2, 8.3).
+	app.OperatorRetentionService_Plan_FullMethodName: Read,
+	app.OperatorRetentionService_Run_FullMethodName:  Write,
 }
 
 // Downloads is the methods of [Table] that are downloads.
