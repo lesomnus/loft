@@ -39,9 +39,11 @@ import (
 // It fails open as the first stage does: no grant of the key in force is not
 // read-only, and a deployment that bills nobody reads no copy. A method gRPC
 // does not name -- an operator's command, a sweep, a door that is no RPC -- is
-// not refused: the doors that are no RPC read (a file's download, a
-// workspace's export) or are an account's (signing in, its sessions, making
-// a workspace of its own), and an operator writes as the deployment.
+// not refused: the doors that are no RPC read (a file's download) or are an
+// account's (signing in, its sessions, what it agrees to), and an operator
+// writes as the deployment. An account's own methods -- the workspaces it is
+// in, one it makes, which of them a label is in -- are in no workspace, and
+// are here as the account's (D73).
 
 // ReadOnly is the key levyan grants a workspace it makes read-only: on, while
 // it is.
@@ -66,8 +68,8 @@ const (
 
 	// Exports is its data taken out and its files downloaded (내보내기와
 	// 내려받기): the register's CSV and the reports', a file it keeps, the
-	// blank form a sheet is filled in on. All of it at once is the
-	// workspace's export, a door that is no RPC.
+	// blank form a sheet is filled in on, and all of it at once, the
+	// workspace's export (`TenantService.Export`, D73).
 	Exports Allowed = "exports"
 
 	// Pays is how the workspace is paid for (결제, design 7.9): every call of
@@ -209,6 +211,8 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.HolderService_Watch_FullMethodName:        Reads,
 	app.InvitationService_List_FullMethodName:     Reads,
 	app.InvitationService_Inbox_FullMethodName:    Reads,
+	app.TenantService_Mine_FullMethodName:         Account,
+	app.LabelService_Locate_FullMethodName:        Account,
 	app.NotificationService_Inbox_FullMethodName:  Reads,
 	app.AuditService_Get_FullMethodName:           Reads,
 	app.AuditService_List_FullMethodName:          Reads,
@@ -226,6 +230,7 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.StockService_ExportFlow_FullMethodName:             Exports,
 	app.AttachmentService_Url_FullMethodName:               Exports,
 	app.AssetService_Form_FullMethodName:                   Exports,
+	app.TenantService_Export_FullMethodName:                Exports,
 
 	// Paying for it, which is how this ends.
 	app.PaymentService_ListBillingAccounts_FullMethodName:  Pays,
@@ -261,6 +266,10 @@ var ReadOnlyAllows = map[string]Allowed{
 
 	// Signing in, which is the account's.
 	app.PartyService_SetPassword_FullMethodName: Account,
+
+	// A workspace of the account's own, which is no write of this one's
+	// (D73).
+	app.TenantService_Create_FullMethodName: Account,
 
 	// What a person is told here, which is their own: read, and by mail or
 	// not.

@@ -10,7 +10,7 @@
 
 import { useState, type ReactNode } from 'react'
 
-import { TenantService, daysWord, errorText, fmt, idBytes, leavePage, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
+import { TenantService, daysWord, errorText, exportWorkspace, fmt, idBytes, leavePage, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
 import { useWaiting } from './invitations.js'
 import { ReasonModal } from './reason.js'
 import { call } from './rpc.js'
@@ -164,11 +164,17 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 export function Closed(props: { account: Account; ws: Workspace; onSignOut: () => void }): ReactNode {
 	const [busy, setBusy] = useState(false)
 	const [bad, setBad] = useState('')
-	// Everybody's data, so the export says what for (loft#136): a link the
-	// browser follows, which is what takes a file down without the page.
+	// Everybody's data, so the export says what for (loft#136): asked of the
+	// workspace as its owner, and saved once all of it has come (D73).
 	const [exporting, setExporting] = useState(false)
-	const exportWorkspace = async (why: string): Promise<void> => {
-		location.assign(`/account/workspaces/${encodeURIComponent(props.ws.alias)}/export?reason=${encodeURIComponent(why)}`)
+	const takeOut = async (why: string): Promise<boolean> => {
+		try {
+			await exportWorkspace(props.ws, why)
+			return true
+		} catch (err) {
+			setBad(errorText(err))
+			return false
+		}
 	}
 	const owner = props.ws.role === 'owner'
 	const restore = async (): Promise<void> => {
@@ -205,7 +211,7 @@ export function Closed(props: { account: Account; ws: Workspace; onSignOut: () =
 				<p className="mute small">
 					<a href="/">다른 워크스페이스로</a> · <a onClick={props.onSignOut}>로그아웃</a>
 				</p>
-				{exporting && <ReasonModal title="워크스페이스 데이터 내려받기" onClose={() => setExporting(false)} onReason={exportWorkspace} />}
+				{exporting && <ReasonModal title="워크스페이스 데이터 내려받기" onClose={() => setExporting(false)} onReason={takeOut} />}
 			</div>
 		</div>
 	)

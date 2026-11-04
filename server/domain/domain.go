@@ -20,10 +20,12 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
 	"time"
 	"uuid"
 
 	"github.com/lesomnus/otx/log"
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/entitle"
 	"github.com/lesomnus/payday/frame"
@@ -50,6 +52,7 @@ import (
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/retention"
 	"github.com/lesomnus/loft/server/storage"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Deps is what every copy of the layer shares, however often a transaction
@@ -171,6 +174,19 @@ type Deps struct {
 	// workspace for none of the time it is closed (`levyan.Notices`, design
 	// 7.8). Nil tells nobody, as a deployment that bills nobody does.
 	Closings Closings
+
+	// Workspaces is how an account comes to be in a workspace of its own, and
+	// what it is in (`tenancy.Workspaces`): what `TenantService.Mine`,
+	// `Create` and `LabelService.Locate` read and write as the account (D73).
+	// Nil serves none of them.
+	Workspaces *tenancy.Workspaces
+
+	// Export writes everything a workspace has, as one zip
+	// (`offboard.Deployment.Export`), and Carried is whose personal data one
+	// carries: what `TenantService.Export` hands its owner, and says on the
+	// access record it handed out (loft#136). Nil exports nothing.
+	Export  func(ctx context.Context, workspace pdid.Id, w io.Writer) error
+	Carried func(ctx context.Context, workspace pdid.Id) ([]access.Subject, error)
 }
 
 // Closings is what hears that a workspace was closed or restored at `at`,

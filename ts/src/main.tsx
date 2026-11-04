@@ -4,9 +4,10 @@
  * The session is an HttpOnly cookie the server set -- at the end of a sign-in
  * through roster's issuer (`/sso/callback`), or at `POST /session` for a
  * password -- so the page never holds a credential; it only asks who it is, at
- * `GET /account`, and which workspaces that is in. Which ways in to draw is
- * the server's to say (`GET /sso`). The page is about the workspace its
- * address names (`/@<alias>/...`), and one that names none opens the last one.
+ * `GET /account`, and which workspaces that is in, as the account
+ * (`TenantService.Mine`, D73). Which ways in to draw is the server's to say
+ * (`GET /sso`). The page is about the workspace its address names
+ * (`/@<alias>/...`), and one that names none opens the last one.
  *
  * On a workspace's own domain nobody signs in (loft#155): the page sends the
  * browser to the service's address (`/handoff/start`), which signs it in --

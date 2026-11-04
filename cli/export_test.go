@@ -36,7 +36,7 @@ func TestAWorkspaceIsTakenOutFromATerminal(t *testing.T) {
 
 	s.signIn("kim", "kim-password")
 	err = cli.NewCmdWorkspace().Run(context.Background(), []string{"export", "--reason", "x", "--out", filepath.Join(dir, "kim.zip"), "acme"})
-	x.ErrorContains(err, "owner")
+	x.ErrorContains(err, "PermissionDenied", "its owner's alone")
 	entries, err := os.ReadDir(dir)
 	x.NoError(err)
 	x.Len(entries, 1, "a refused export leaves no file, not even half of one")

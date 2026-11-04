@@ -171,6 +171,9 @@ func init() {
 
 	allow(Read, "LabelService", "Resolve")
 	allow(Manager, "LabelService", "Print", "Bind", "Unbind")
+	// Which of the account's workspaces a label is in (D28, D73): the
+	// account's own, asked across every workspace it is in.
+	allow(Account, "LabelService", "Locate")
 
 	allow(Read, "DomainService", "Status")
 	allow(Admin, "DomainService", "Add", "Verify", "Activate", "Retire")
@@ -186,6 +189,12 @@ func init() {
 	allow(Admin, "PartyService", "Add", "Update", "Invite", "SetRole", "Deactivate", "Pseudonymize")
 
 	allow(Owner, "TenantService", "Patch", "Close", "Restore", "Configure", "Preview")
+	// What a workspace has, all of it, out: its owner's (D29, D34), as their
+	// membership of it, and a download (`cmd.Downloads`).
+	allow(Owner, "TenantService", "Export")
+	// What an account is in, and one it makes: its own (D73), answered as
+	// itself and never as a membership.
+	allow(Account, "TenantService", "Mine", "Create")
 
 	allow(Read, "BookableService", "Availability")
 	allow(Admin, "BookableService", "Add", "Update")

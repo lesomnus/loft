@@ -2,11 +2,13 @@ edition = "2023";
 package loft;
 
 import "google/protobuf/timestamp.proto";
+import "loft/account.proto";
 import "loft/asset.proto";
 import "loft/catalog_svc.g.proto";
 import "loft/org_svc.g.proto";
 import "loft/payday/tenant_svc.g.proto";
 import "patch/patch.proto";
+import "payday.proto";
 
 option go_package = "github.com/lesomnus/loft";
 
@@ -166,6 +168,16 @@ service LabelService {
   rpc Unbind(LabelUnbindRequest) returns (Label);
   // Resolve reads what a scanned code names.
   rpc Resolve(LabelResolveRequest) returns (LabelResolveResponse);
+  // Locate is which of the caller's account's workspaces a scanned code is a
+  // label in (D28, D73): for one scanned in another, or at an address that
+  // names none. A label of a workspace the account is not in is NotFound, as
+  // no label at all is: which codes are somebody's is nobody else's to learn.
+  // The account's own (payday#184).
+  rpc Locate(LabelLocateRequest) returns (TenantMembership) {
+    option (payday.method) = {
+      account: {}
+    };
+  }
 }
 
 service AttachmentService {
@@ -1244,6 +1256,11 @@ message LabelResolveRequest {
 message LabelResolveResponse {
   Label label = 1;
   Asset asset = 2;
+}
+
+message LabelLocateRequest {
+  // What the scanner read: the URL, or the code alone.
+  string code = 1 [features.field_presence = IMPLICIT];
 }
 
 message AttachmentAddRequest {

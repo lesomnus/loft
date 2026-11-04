@@ -17,7 +17,9 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
 
+	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/oidctest"
 	"github.com/lesomnus/loft/server/sso"
@@ -104,6 +106,20 @@ func (w *ssoWorld) through(b *http.Client, query string) *http.Response {
 	return get(w.x, b, res.Header.Get("Location"))
 }
 
+// mine is what the account this browser is signed in as is in, asked as the
+// account with the browser's session (`TenantService.Mine`, D73).
+func (w *ssoWorld) mine(b *http.Client) *app.TenantMineResponse {
+	u, err := url.Parse(w.app.URL)
+	w.x.NoError(err)
+	cookies := []string{}
+	for _, c := range b.Jar.Cookies(u) {
+		cookies = append(cookies, c.Name+"="+c.Value)
+	}
+	v, err := app.NewTenantServiceClient(w.conn).Mine(metadata.AppendToOutgoingContext(context.Background(), "cookie", strings.Join(cookies, "; ")), &app.TenantMineRequest{})
+	w.x.NoError(err)
+	return v
+}
+
 // account is what `GET /account` answers this browser.
 func (w *ssoWorld) account(b *http.Client) (int, map[string]any) {
 	res, err := b.Get(w.app.URL + "/account")
@@ -182,8 +198,9 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	code, a := w.account(b)
 	x.Equal(http.StatusOK, code)
 	x.Equal("park", a["login"])
-	x.Len(a["workspaces"], 1)
-	x.Equal("박의 워크스페이스", a["workspaces"].([]any)[0].(map[string]any)["name"])
+	mine := w.mine(b)
+	x.Len(mine.GetWorkspaces(), 1)
+	x.Equal("박의 워크스페이스", mine.GetWorkspaces()[0].GetName())
 
 	// Signing out ends the session here, then sends the browser to the
 	// issuer with the token it signed in with, which brings it back to `/`.
@@ -209,8 +226,7 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	res = w.through(b, "with=google")
 	x.Equal(http.StatusSeeOther, res.StatusCode)
 	x.Equal("/", res.Header.Get("Location"))
-	_, a = w.account(b)
-	x.Len(a["workspaces"], 1)
+	x.Len(w.mine(b).GetWorkspaces(), 1)
 }
 
 func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {

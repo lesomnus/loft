@@ -239,9 +239,10 @@ func refuses(p apphost.Pinned, r *http.Request, aliases tenancy.Aliases) string 
 	case path == "/session",
 		strings.HasPrefix(path, "/sso") && (path != "/sso" || r.Method != http.MethodGet),
 		strings.HasPrefix(path, "/cli/"),
-		path == "/handoff",
-		path == "/account/workspaces" && r.Method == http.MethodPost:
-		return "this is @" + p.Alias + "'s address: sign in, and make a workspace, at the service's"
+		path == "/handoff":
+		// What the account does as itself -- the workspaces it is in, a new
+		// one -- is RPCs, which a call here is never served as (D73).
+		return "this is @" + p.Alias + "'s address: sign in at the service's"
 	}
 	if rest, ok := strings.CutPrefix(path, "/files/"); ok {
 		// A file's key begins with the workspace it is of

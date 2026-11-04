@@ -78,6 +78,10 @@ func TestAnAccountReachesItsOwnMethodsAndNoOthers(t *testing.T) {
 		app.InvitationService_Claim_FullMethodName,
 		app.InvitationService_Accept_FullMethodName,
 		app.InvitationService_Deny_FullMethodName,
+		// What it is in, a new one, and which of them a label is in (D73).
+		app.TenantService_Mine_FullMethodName,
+		app.TenantService_Create_FullMethodName,
+		app.LabelService_Locate_FullMethodName,
 		// And what a payer does with what it pays with, relayed to levyan as
 		// the account (design 7.9).
 		app.PaymentService_ListBillingAccounts_FullMethodName,

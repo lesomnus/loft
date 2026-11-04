@@ -1,8 +1,13 @@
 package cmd_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -87,6 +92,50 @@ func (w *hosted) at(ctx context.Context, host, method, path, body string, header
 	return rec
 }
 
+// streamed is a server stream as a page calls it, over Connect (`path`, the
+// request `body` as JSON): the messages it sent, and the code it ended with,
+// as Connect writes one -- empty for none.
+func (w *hosted) streamed(ctx context.Context, host, path, body string, header ...string) ([]json.RawMessage, string) {
+	var b bytes.Buffer
+	b.WriteByte(0)
+	n := make([]byte, 4)
+	binary.BigEndian.PutUint32(n, uint32(len(body)))
+	b.Write(n)
+	b.WriteString(body)
+	h := append([]string{"Content-Type", "application/connect+json", "Connect-Protocol-Version", "1"}, header...)
+	res := w.at(ctx, host, http.MethodPost, path, b.String(), h...)
+	if res.Code != http.StatusOK {
+		return nil, fmt.Sprintf("http %d", res.Code)
+	}
+
+	out := []json.RawMessage{}
+	r := bytes.NewReader(res.Body.Bytes())
+	for {
+		head := make([]byte, 5)
+		if _, err := io.ReadFull(r, head); err != nil {
+			return out, "unterminated"
+		}
+		v := make([]byte, binary.BigEndian.Uint32(head[1:]))
+		if _, err := io.ReadFull(r, v); err != nil {
+			return out, "unterminated"
+		}
+		if head[0]&0x02 == 0 {
+			out = append(out, v)
+			continue
+		}
+		var end struct {
+			Error *struct {
+				Code string `json:"code"`
+			} `json:"error"`
+		}
+		w.x.NoError(json.Unmarshal(v, &end))
+		if end.Error != nil {
+			return out, end.Error.Code
+		}
+		return out, ""
+	}
+}
+
 // me is `PartyService.Me` as a page calls it, naming the workspace in `ws`
 // or none.
 func (w *hosted) me(ctx context.Context, host, ws string) *httptest.ResponseRecorder {
@@ -157,21 +206,32 @@ func TestAWorkspacesDomainServesItAlone(t *testing.T) {
 	x.NotContains(w.at(as, own, http.MethodGet, "/files/"+idOf(t, w.tenant)+"/2026/10/x", "").Body.String(), "no such file at this address", "its own goes to the link's check")
 	signIn := w.at(context.Background(), own, http.MethodPost, "/session", `{"login":"kim","password":"x"}`, "Content-Type", "application/json")
 	x.Equal(http.StatusNotFound, signIn.Code, "signing in is the service's")
-	x.Equal(http.StatusNotFound, w.at(as, own, http.MethodPost, "/account/workspaces", `{"name":"x"}`, "Content-Type", "application/json").Code)
+	rpc := []string{"Content-Type", "application/json", "Connect-Protocol-Version", "1"}
+	x.Equal(http.StatusForbidden, w.at(as, own, http.MethodPost, "/loft.TenantService/Create", `{"name":"x"}`, rpc...).Code, "a workspace made, which is the account's own")
 	acct := w.at(as, own, http.MethodGet, "/account", "")
 	x.Equal(http.StatusOK, acct.Code, acct.Body.String())
 	var a account.Account
 	x.NoError(json.Unmarshal(acct.Body.Bytes(), &a))
-	x.Len(a.Workspaces, 1, "the account's other workspaces are nothing this address tells")
-	x.Equal("acme", a.Workspaces[0].Alias)
+	x.NotNil(a.Here, "the one workspace this address serves")
+	x.Equal("acme", a.Here.Alias)
 	x.Equal("acme", a.Pinned, "and it says whose address this is, for the page to offer nothing of the account's beside it")
 	x.Equal("https://"+service, a.Service, "but the way to the service's, where the others are")
+	x.Equal(http.StatusForbidden, w.at(as, own, http.MethodPost, "/loft.TenantService/Mine", `{}`, rpc...).Code, "the account's other workspaces are nothing this address tells")
 	acct = w.at(as, service, http.MethodGet, "/account", "")
 	a = account.Account{}
 	x.NoError(json.Unmarshal(acct.Body.Bytes(), &a))
-	x.Len(a.Workspaces, 2)
+	x.Nil(a.Here)
 	x.Empty(a.Pinned)
 	x.Empty(a.Service)
+	mine := w.at(as, service, http.MethodPost, "/loft.TenantService/Mine", `{}`, rpc...)
+	x.Equal(http.StatusOK, mine.Code, mine.Body.String())
+	var got struct {
+		Workspaces []struct {
+			Alias string `json:"alias"`
+		} `json:"workspaces"`
+	}
+	x.NoError(json.Unmarshal(mine.Body.Bytes(), &got))
+	x.Len(got.Workspaces, 2, "every workspace of the account's, at the service's")
 
 	// What an account does across its workspaces is the service's: the
 	// invitations addressed to it, from whichever workspace -- the account's
@@ -184,17 +244,25 @@ func TestAWorkspacesDomainServesItAlone(t *testing.T) {
 	x.Equal(http.StatusForbidden, invitations(own, cmd.WorkspaceHeader, "acme"), "named as the domain's own, still the account's")
 	x.Equal(http.StatusOK, invitations(service))
 
-	// And the HTTP that names a workspace names this one alone: another's
-	// export and another's label are nothing here.
-	export := "/account/workspaces/beta/export?reason=" + strings.ReplaceAll("a test", " ", "+")
-	x.Equal(http.StatusForbidden, w.at(as, own, http.MethodGet, export, "").Code, "beta's export, on acme's address")
-	x.Equal(http.StatusOK, w.at(as, service, http.MethodGet, export, "").Code, "beta's owner takes it out at the service's")
+	// And a workspace's export is of the workspace a call is in: another's
+	// is nothing here, and this one's is its owner's here as anywhere. Which
+	// of the account's workspaces a label is in is the account's own, and the
+	// service's.
+	why := base64.StdEncoding.EncodeToString([]byte("a test"))
+	exportOf := func(ctx context.Context, host, ws string) string {
+		_, code := w.streamed(ctx, host, "/loft.TenantService/Export", `{"ref":{"alias":"`+ws+`"}}`, cmd.WorkspaceHeader, ws, "payday-reason-bin", why)
+		return code
+	}
+	x.Equal("permission_denied", exportOf(as, own, "beta"), "beta's export, on acme's address")
+	x.Equal("", exportOf(as, service, "beta"), "beta's owner takes it out at the service's")
+	x.Equal("permission_denied", exportOf(as, own, "acme"), "acme's, to somebody who is not its owner")
+	x.Equal("", exportOf(w.owner, own, "acme"), "acme's owner takes it out on its own address too")
 	inBeta := metadata.AppendToOutgoingContext(as, cmd.WorkspaceHeader, "beta")
 	label, err := app.NewLabelServiceClient(w.conn).Print(inBeta, app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)
 	code := label.GetLabels()[0].GetCode()
-	x.Equal(http.StatusNotFound, w.at(as, own, http.MethodGet, "/account/labels/"+code, "").Code, "beta's label, on acme's address")
-	x.Equal(http.StatusOK, w.at(as, service, http.MethodGet, "/account/labels/"+code, "").Code)
+	x.Equal(http.StatusForbidden, w.at(as, own, http.MethodPost, "/loft.LabelService/Locate", `{"code":"`+code+`"}`, rpc...).Code, "beta's label, on acme's address")
+	x.Equal(http.StatusOK, w.at(as, service, http.MethodPost, "/loft.LabelService/Locate", `{"code":"`+code+`"}`, rpc...).Code)
 
 	// A domain that pins nothing: labels, and nothing more.
 	for _, host := range []string{"old.acme.example", "acme.l.test"} {

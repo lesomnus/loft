@@ -7,6 +7,7 @@
 package loft
 
 import (
+	_ "github.com/lesomnus/payday/pdpb"
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -3527,11 +3528,381 @@ func (b0 TenantPreviewResponse_builder) Build() *TenantPreviewResponse {
 	return m0
 }
 
+type TenantMineRequest struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TenantMineRequest) Reset() {
+	*x = TenantMineRequest{}
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantMineRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantMineRequest) ProtoMessage() {}
+
+func (x *TenantMineRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type TenantMineRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 TenantMineRequest_builder) Build() *TenantMineRequest {
+	m0 := &TenantMineRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+type TenantMineResponse struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Workspaces  *[]*TenantMembership   `protobuf:"bytes,1,rep,name=workspaces"`
+	xxx_hidden_Owns        uint32                 `protobuf:"varint,2,opt,name=owns"`
+	xxx_hidden_May         uint32                 `protobuf:"varint,3,opt,name=may"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *TenantMineResponse) Reset() {
+	*x = TenantMineResponse{}
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantMineResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantMineResponse) ProtoMessage() {}
+
+func (x *TenantMineResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TenantMineResponse) GetWorkspaces() []*TenantMembership {
+	if x != nil {
+		if x.xxx_hidden_Workspaces != nil {
+			return *x.xxx_hidden_Workspaces
+		}
+	}
+	return nil
+}
+
+func (x *TenantMineResponse) GetOwns() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Owns
+	}
+	return 0
+}
+
+func (x *TenantMineResponse) GetMay() uint32 {
+	if x != nil {
+		return x.xxx_hidden_May
+	}
+	return 0
+}
+
+func (x *TenantMineResponse) SetWorkspaces(v []*TenantMembership) {
+	x.xxx_hidden_Workspaces = &v
+}
+
+func (x *TenantMineResponse) SetOwns(v uint32) {
+	x.xxx_hidden_Owns = v
+}
+
+func (x *TenantMineResponse) SetMay(v uint32) {
+	x.xxx_hidden_May = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+}
+
+func (x *TenantMineResponse) HasMay() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *TenantMineResponse) ClearMay() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_May = 0
+}
+
+type TenantMineResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// In the order the account came to be in them.
+	Workspaces []*TenantMembership
+	// How many of them it owns, and how many it may own: another past that is
+	// paid for. `may` is unset for no limit.
+	Owns uint32
+	May  *uint32
+}
+
+func (b0 TenantMineResponse_builder) Build() *TenantMineResponse {
+	m0 := &TenantMineResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Workspaces = &b.Workspaces
+	x.xxx_hidden_Owns = b.Owns
+	if b.May != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_May = *b.May
+	}
+	return m0
+}
+
+type TenantCreateRequest struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name string                 `protobuf:"bytes,1,opt,name=name"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *TenantCreateRequest) Reset() {
+	*x = TenantCreateRequest{}
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantCreateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantCreateRequest) ProtoMessage() {}
+
+func (x *TenantCreateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TenantCreateRequest) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *TenantCreateRequest) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+type TenantCreateRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// What it is called: one line, up to 80 characters -- the workspace's, and
+	// nobody's, so no person's name (D58).
+	Name string
+}
+
+func (b0 TenantCreateRequest_builder) Build() *TenantCreateRequest {
+	m0 := &TenantCreateRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Name = b.Name
+	return m0
+}
+
+type TenantExportRequest struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref *TenantRef             `protobuf:"bytes,1,opt,name=ref"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *TenantExportRequest) Reset() {
+	*x = TenantExportRequest{}
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantExportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantExportRequest) ProtoMessage() {}
+
+func (x *TenantExportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TenantExportRequest) GetRef() *TenantRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *TenantExportRequest) SetRef(v *TenantRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *TenantExportRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *TenantExportRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+type TenantExportRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref *TenantRef
+}
+
+func (b0 TenantExportRequest_builder) Build() *TenantExportRequest {
+	m0 := &TenantExportRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	return m0
+}
+
+// TenantExportResponse is a part of an export: the first says what the file
+// is called and what it is, and holds none of it -- it leaves once the access
+// record says whose data the export carries -- and each after it holds the
+// next of its bytes.
+type TenantExportResponse struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Data        []byte                 `protobuf:"bytes,1,opt,name=data"`
+	xxx_hidden_Name        string                 `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_ContentType string                 `protobuf:"bytes,3,opt,name=content_type,json=contentType"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *TenantExportResponse) Reset() {
+	*x = TenantExportResponse{}
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantExportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantExportResponse) ProtoMessage() {}
+
+func (x *TenantExportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TenantExportResponse) GetData() []byte {
+	if x != nil {
+		return x.xxx_hidden_Data
+	}
+	return nil
+}
+
+func (x *TenantExportResponse) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *TenantExportResponse) GetContentType() string {
+	if x != nil {
+		return x.xxx_hidden_ContentType
+	}
+	return ""
+}
+
+func (x *TenantExportResponse) SetData(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Data = v
+}
+
+func (x *TenantExportResponse) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+func (x *TenantExportResponse) SetContentType(v string) {
+	x.xxx_hidden_ContentType = v
+}
+
+type TenantExportResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Data        []byte
+	Name        string
+	ContentType string
+}
+
+func (b0 TenantExportResponse_builder) Build() *TenantExportResponse {
+	m0 := &TenantExportResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Data = b.Data
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_ContentType = b.ContentType
+	return m0
+}
+
 var File_loft_payday_tenant_svc_g_proto protoreflect.FileDescriptor
 
 const file_loft_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1eloft/payday/tenant_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18loft/payday/tenant.proto\x1a\x11patch/patch.proto\"\xc5\a\n" +
+	"\x1eloft/payday/tenant_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x12loft/account.proto\x1a\x18loft/payday/tenant.proto\x1a\x11patch/patch.proto\x1a\fpayday.proto\"\xc5\a\n" +
 	"\x10TenantAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x1b\n" +
 	"\x05alias\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05alias\x12\x19\n" +
@@ -3668,7 +4039,22 @@ const file_loft_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x04held\x18\t \x01(\bB\x05\xaa\x01\x02\b\x02R\x04held\x1a<\n" +
 	"\x0eKeepTakesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x012\x9e\x04\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x13\n" +
+	"\x11TenantMineRequest\"y\n" +
+	"\x12TenantMineResponse\x126\n" +
+	"\n" +
+	"workspaces\x18\x01 \x03(\v2\x16.loft.TenantMembershipR\n" +
+	"workspaces\x12\x19\n" +
+	"\x04owns\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04owns\x12\x10\n" +
+	"\x03may\x18\x03 \x01(\rR\x03may\"0\n" +
+	"\x13TenantCreateRequest\x12\x19\n" +
+	"\x04name\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\"8\n" +
+	"\x13TenantExportRequest\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\"v\n" +
+	"\x14TenantExportResponse\x12\x19\n" +
+	"\x04data\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\x12\x19\n" +
+	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12(\n" +
+	"\fcontent_type\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\vcontentType2\xe9\x05\n" +
 	"\rTenantService\x12+\n" +
 	"\x03Add\x12\x16.loft.TenantAddRequest\x1a\f.loft.Tenant\x12+\n" +
 	"\x03Get\x12\x16.loft.TenantGetRequest\x1a\f.loft.Tenant\x12/\n" +
@@ -3679,9 +4065,14 @@ const file_loft_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x05Close\x12\x18.loft.TenantCloseRequest\x1a\f.loft.Tenant\x123\n" +
 	"\aRestore\x12\x1a.loft.TenantRestoreRequest\x1a\f.loft.Tenant\x127\n" +
 	"\tConfigure\x12\x1c.loft.TenantConfigureRequest\x1a\f.loft.Tenant\x12B\n" +
-	"\aPreview\x12\x1a.loft.TenantPreviewRequest\x1a\x1b.loft.TenantPreviewResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
+	"\aPreview\x12\x1a.loft.TenantPreviewRequest\x1a\x1b.loft.TenantPreviewResponse\x12A\n" +
+	"\x04Mine\x12\x17.loft.TenantMineRequest\x1a\x18.loft.TenantMineResponse\"\x06\xea\xcd\x16\x02\n" +
+	"\x00\x12C\n" +
+	"\x06Create\x12\x19.loft.TenantCreateRequest\x1a\x16.loft.TenantMembership\"\x06\xea\xcd\x16\x02\n" +
+	"\x00\x12A\n" +
+	"\x06Export\x12\x19.loft.TenantExportRequest\x1a\x1a.loft.TenantExportResponse0\x01B\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_loft_payday_tenant_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_loft_payday_tenant_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_loft_payday_tenant_svc_g_proto_goTypes = []any{
 	(*TenantAddRequest)(nil),       // 0: loft.TenantAddRequest
 	(*TenantGetRequest)(nil),       // 1: loft.TenantGetRequest
@@ -3698,66 +4089,80 @@ var file_loft_payday_tenant_svc_g_proto_goTypes = []any{
 	(*TenantConfigureRequest)(nil), // 12: loft.TenantConfigureRequest
 	(*TenantPreviewRequest)(nil),   // 13: loft.TenantPreviewRequest
 	(*TenantPreviewResponse)(nil),  // 14: loft.TenantPreviewResponse
-	nil,                            // 15: loft.TenantAddRequest.LabelsEntry
-	nil,                            // 16: loft.TenantPatchRequest.LabelsEntry
-	nil,                            // 17: loft.TenantPreviewResponse.KeepTakesEntry
-	(*timestamppb.Timestamp)(nil),  // 18: google.protobuf.Timestamp
-	(*patchpb.Patch)(nil),          // 19: patch.Patch
-	(*Tenant)(nil),                 // 20: loft.Tenant
+	(*TenantMineRequest)(nil),      // 15: loft.TenantMineRequest
+	(*TenantMineResponse)(nil),     // 16: loft.TenantMineResponse
+	(*TenantCreateRequest)(nil),    // 17: loft.TenantCreateRequest
+	(*TenantExportRequest)(nil),    // 18: loft.TenantExportRequest
+	(*TenantExportResponse)(nil),   // 19: loft.TenantExportResponse
+	nil,                            // 20: loft.TenantAddRequest.LabelsEntry
+	nil,                            // 21: loft.TenantPatchRequest.LabelsEntry
+	nil,                            // 22: loft.TenantPreviewResponse.KeepTakesEntry
+	(*timestamppb.Timestamp)(nil),  // 23: google.protobuf.Timestamp
+	(*patchpb.Patch)(nil),          // 24: patch.Patch
+	(*Tenant)(nil),                 // 25: loft.Tenant
+	(*TenantMembership)(nil),       // 26: loft.TenantMembership
 }
 var file_loft_payday_tenant_svc_g_proto_depIdxs = []int32{
-	15, // 0: loft.TenantAddRequest.labels:type_name -> loft.TenantAddRequest.LabelsEntry
-	18, // 1: loft.TenantAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	18, // 2: loft.TenantAddRequest.date_closed:type_name -> google.protobuf.Timestamp
-	18, // 3: loft.TenantAddRequest.date_destroy:type_name -> google.protobuf.Timestamp
-	18, // 4: loft.TenantAddRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
-	18, // 5: loft.TenantAddRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
+	20, // 0: loft.TenantAddRequest.labels:type_name -> loft.TenantAddRequest.LabelsEntry
+	23, // 1: loft.TenantAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	23, // 2: loft.TenantAddRequest.date_closed:type_name -> google.protobuf.Timestamp
+	23, // 3: loft.TenantAddRequest.date_destroy:type_name -> google.protobuf.Timestamp
+	23, // 4: loft.TenantAddRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
+	23, // 5: loft.TenantAddRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
 	2,  // 6: loft.TenantGetRequest.ref:type_name -> loft.TenantRef
 	3,  // 7: loft.TenantGetRequest.select:type_name -> loft.TenantSelect
 	2,  // 8: loft.TenantPatchRequest.ref:type_name -> loft.TenantRef
-	16, // 9: loft.TenantPatchRequest.labels:type_name -> loft.TenantPatchRequest.LabelsEntry
-	18, // 10: loft.TenantPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	18, // 11: loft.TenantPatchRequest.date_closed:type_name -> google.protobuf.Timestamp
-	18, // 12: loft.TenantPatchRequest.date_destroy:type_name -> google.protobuf.Timestamp
-	18, // 13: loft.TenantPatchRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
-	18, // 14: loft.TenantPatchRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
+	21, // 9: loft.TenantPatchRequest.labels:type_name -> loft.TenantPatchRequest.LabelsEntry
+	23, // 10: loft.TenantPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	23, // 11: loft.TenantPatchRequest.date_closed:type_name -> google.protobuf.Timestamp
+	23, // 12: loft.TenantPatchRequest.date_destroy:type_name -> google.protobuf.Timestamp
+	23, // 13: loft.TenantPatchRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
+	23, // 14: loft.TenantPatchRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
 	2,  // 15: loft.TenantApplyRequest.ref:type_name -> loft.TenantRef
-	19, // 16: loft.TenantApplyRequest.patch:type_name -> patch.Patch
+	24, // 16: loft.TenantApplyRequest.patch:type_name -> patch.Patch
 	9,  // 17: loft.TenantListRequest.filters:type_name -> loft.TenantFilter
-	20, // 18: loft.TenantListResponse.items:type_name -> loft.Tenant
+	25, // 18: loft.TenantListResponse.items:type_name -> loft.Tenant
 	2,  // 19: loft.TenantFilter.ref:type_name -> loft.TenantRef
 	2,  // 20: loft.TenantCloseRequest.ref:type_name -> loft.TenantRef
 	2,  // 21: loft.TenantRestoreRequest.ref:type_name -> loft.TenantRef
 	2,  // 22: loft.TenantConfigureRequest.ref:type_name -> loft.TenantRef
 	2,  // 23: loft.TenantPreviewRequest.ref:type_name -> loft.TenantRef
-	18, // 24: loft.TenantPreviewResponse.keep_from:type_name -> google.protobuf.Timestamp
-	17, // 25: loft.TenantPreviewResponse.keep_takes:type_name -> loft.TenantPreviewResponse.KeepTakesEntry
-	18, // 26: loft.TenantPreviewResponse.access_keep_from:type_name -> google.protobuf.Timestamp
-	0,  // 27: loft.TenantService.Add:input_type -> loft.TenantAddRequest
-	1,  // 28: loft.TenantService.Get:input_type -> loft.TenantGetRequest
-	4,  // 29: loft.TenantService.Patch:input_type -> loft.TenantPatchRequest
-	5,  // 30: loft.TenantService.Apply:input_type -> loft.TenantApplyRequest
-	2,  // 31: loft.TenantService.Erase:input_type -> loft.TenantRef
-	7,  // 32: loft.TenantService.List:input_type -> loft.TenantListRequest
-	10, // 33: loft.TenantService.Close:input_type -> loft.TenantCloseRequest
-	11, // 34: loft.TenantService.Restore:input_type -> loft.TenantRestoreRequest
-	12, // 35: loft.TenantService.Configure:input_type -> loft.TenantConfigureRequest
-	13, // 36: loft.TenantService.Preview:input_type -> loft.TenantPreviewRequest
-	20, // 37: loft.TenantService.Add:output_type -> loft.Tenant
-	20, // 38: loft.TenantService.Get:output_type -> loft.Tenant
-	20, // 39: loft.TenantService.Patch:output_type -> loft.Tenant
-	20, // 40: loft.TenantService.Apply:output_type -> loft.Tenant
-	6,  // 41: loft.TenantService.Erase:output_type -> loft.TenantEraseResponse
-	8,  // 42: loft.TenantService.List:output_type -> loft.TenantListResponse
-	20, // 43: loft.TenantService.Close:output_type -> loft.Tenant
-	20, // 44: loft.TenantService.Restore:output_type -> loft.Tenant
-	20, // 45: loft.TenantService.Configure:output_type -> loft.Tenant
-	14, // 46: loft.TenantService.Preview:output_type -> loft.TenantPreviewResponse
-	37, // [37:47] is the sub-list for method output_type
-	27, // [27:37] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	23, // 24: loft.TenantPreviewResponse.keep_from:type_name -> google.protobuf.Timestamp
+	22, // 25: loft.TenantPreviewResponse.keep_takes:type_name -> loft.TenantPreviewResponse.KeepTakesEntry
+	23, // 26: loft.TenantPreviewResponse.access_keep_from:type_name -> google.protobuf.Timestamp
+	26, // 27: loft.TenantMineResponse.workspaces:type_name -> loft.TenantMembership
+	2,  // 28: loft.TenantExportRequest.ref:type_name -> loft.TenantRef
+	0,  // 29: loft.TenantService.Add:input_type -> loft.TenantAddRequest
+	1,  // 30: loft.TenantService.Get:input_type -> loft.TenantGetRequest
+	4,  // 31: loft.TenantService.Patch:input_type -> loft.TenantPatchRequest
+	5,  // 32: loft.TenantService.Apply:input_type -> loft.TenantApplyRequest
+	2,  // 33: loft.TenantService.Erase:input_type -> loft.TenantRef
+	7,  // 34: loft.TenantService.List:input_type -> loft.TenantListRequest
+	10, // 35: loft.TenantService.Close:input_type -> loft.TenantCloseRequest
+	11, // 36: loft.TenantService.Restore:input_type -> loft.TenantRestoreRequest
+	12, // 37: loft.TenantService.Configure:input_type -> loft.TenantConfigureRequest
+	13, // 38: loft.TenantService.Preview:input_type -> loft.TenantPreviewRequest
+	15, // 39: loft.TenantService.Mine:input_type -> loft.TenantMineRequest
+	17, // 40: loft.TenantService.Create:input_type -> loft.TenantCreateRequest
+	18, // 41: loft.TenantService.Export:input_type -> loft.TenantExportRequest
+	25, // 42: loft.TenantService.Add:output_type -> loft.Tenant
+	25, // 43: loft.TenantService.Get:output_type -> loft.Tenant
+	25, // 44: loft.TenantService.Patch:output_type -> loft.Tenant
+	25, // 45: loft.TenantService.Apply:output_type -> loft.Tenant
+	6,  // 46: loft.TenantService.Erase:output_type -> loft.TenantEraseResponse
+	8,  // 47: loft.TenantService.List:output_type -> loft.TenantListResponse
+	25, // 48: loft.TenantService.Close:output_type -> loft.Tenant
+	25, // 49: loft.TenantService.Restore:output_type -> loft.Tenant
+	25, // 50: loft.TenantService.Configure:output_type -> loft.Tenant
+	14, // 51: loft.TenantService.Preview:output_type -> loft.TenantPreviewResponse
+	16, // 52: loft.TenantService.Mine:output_type -> loft.TenantMineResponse
+	26, // 53: loft.TenantService.Create:output_type -> loft.TenantMembership
+	19, // 54: loft.TenantService.Export:output_type -> loft.TenantExportResponse
+	42, // [42:55] is the sub-list for method output_type
+	29, // [29:42] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_loft_payday_tenant_svc_g_proto_init() }
@@ -3765,6 +4170,7 @@ func file_loft_payday_tenant_svc_g_proto_init() {
 	if File_loft_payday_tenant_svc_g_proto != nil {
 		return
 	}
+	file_loft_account_proto_init()
 	file_loft_payday_tenant_proto_init()
 	file_loft_payday_tenant_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*tenantRef_Id)(nil),
@@ -3776,7 +4182,7 @@ func file_loft_payday_tenant_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_tenant_svc_g_proto_rawDesc), len(file_loft_payday_tenant_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

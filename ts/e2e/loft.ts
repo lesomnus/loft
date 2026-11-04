@@ -263,6 +263,28 @@ export async function refusal(page: Page, method: string, req: object): Promise<
 	return ((await res.json()) as { message?: string }).message ?? ''
 }
 
+/** A workspace as the account is told it (`TenantMembership`), its identifier as a page's address writes it. */
+export type Membership = { id: string; alias: string; name: string; role: string }
+
+/**
+ * A workspace of the account's own, made by whoever `page` is signed in as,
+ * as the account (`TenantService.Create`, D73).
+ */
+export async function makeWorkspace(page: Page, name: string): Promise<Membership> {
+	const res = await page.request.post('/loft.TenantService/Create', { headers: { 'connect-protocol-version': '1' }, data: { name } })
+	expect(res.status(), `TenantService.Create: ${await res.text()}`).toBe(200)
+	const v = (await res.json()) as Membership
+	return { ...v, id: idOf(v.id) }
+}
+
+/** The workspaces whoever `page` is signed in as is in, asked as the account (`TenantService.Mine`, D73). */
+export async function workspacesOf(page: Page): Promise<Membership[]> {
+	const res = await page.request.post('/loft.TenantService/Mine', { headers: { 'connect-protocol-version': '1' }, data: {} })
+	expect(res.status(), `TenantService.Mine: ${await res.text()}`).toBe(200)
+	const v = (await res.json()) as { workspaces?: Membership[] }
+	return (v.workspaces ?? []).map((w) => ({ ...w, id: idOf(w.id) }))
+}
+
 /** An identifier a call answered, in base64, as a page's address writes it. */
 export function idOf(b64: string): string {
 	const h = Buffer.from(b64, 'base64').toString('hex')

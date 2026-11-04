@@ -6,8 +6,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/http"
-	"net/url"
 	"testing"
 	"time"
 
@@ -24,9 +22,11 @@ import (
 	"github.com/lesomnus/payday/pdpb"
 
 	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 )
 
@@ -376,33 +376,41 @@ func TestAWorkspacesExportSaysWhatItIsFor(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	park := w.person("박지민", "park@acme.example")
-	path := "/account/workspaces/" + w.tenant.GetAlias() + "/export"
+	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
 
-	x.Equal(http.StatusBadRequest, w.page(w.owner, http.MethodGet, path).Code)
+	_, _, err := exported(w.owner, w.conn, ref, "")
+	x.Equal(codes.InvalidArgument, status.Code(err), "no reason")
 	n, err := w.s.Ent.Access.Query().Count(context.Background())
 	x.NoError(err)
 	x.Zero(n, "a refused export was recorded")
 
-	res := w.page(w.owner, http.MethodGet, path+"?reason="+url.QueryEscape("폐업 전 보관"))
-	x.Equal(http.StatusOK, res.Code)
+	got, _, err := exported(w.owner, w.conn, ref, "폐업 전 보관")
+	x.NoError(err)
 
 	rs, err := w.s.Ent.Access.Query().Where(entaccess.KindEQ("download")).All(context.Background())
 	x.NoError(err)
-	x.Len(rs, 1)
-	x.Equal("GET /account/workspaces/{alias}/export", rs[0].Action)
+	x.Len(rs, 1, "one row, for the whole of it")
+	x.Equal(app.TenantService_Export_FullMethodName, rs[0].Action)
 	x.Equal("폐업 전 보관", detailOf(t, rs[0]).GetReason())
 	x.Contains(rs[0].Subjects, park.GetId())
 	x.GreaterOrEqual(rs[0].SubjectCount, uint32(2), "the person record and the owner's membership")
+	owner, err := pdid.From(w.ownerHolder().GetId())
+	x.NoError(err)
+	x.Equal(owner.Uuid(), rs[0].ActorId, "by the owner's membership")
 
 	// And the workspace takes its access record out with it -- this export's
 	// own row among it, written before anything was read for the file.
-	zr, err := zip.NewReader(bytes.NewReader(res.Body.Bytes()), int64(res.Body.Len()))
+	zr, err := zip.NewReader(bytes.NewReader(got), int64(len(got)))
 	x.NoError(err)
 	f, err := zr.Open("trail/access.jsonl")
 	x.NoError(err, "the export has no access record")
 	b, err := io.ReadAll(f)
 	x.NoError(err)
-	x.Contains(string(b), "GET /account/workspaces/{alias}/export")
+	x.Contains(string(b), app.TenantService_Export_FullMethodName)
+
+	// Its owner's alone.
+	_, _, err = exported(w.signIn(w.holder("kim", "admin")), w.conn, ref, "폐업 전 보관")
+	x.True(refusedByTable(err, app.TenantService_Export_FullMethodName), "%v", err)
 }
 
 // TestAMonthOfTheRecordIsReviewed is loft#136's other half: the workspace's
@@ -501,4 +509,52 @@ func TestAMonthOfTheRecordIsReviewed(t *testing.T) {
 		PeriodFrom: timestamppb.New(time.Now().Add(time.Hour)), PeriodTo: timestamppb.New(time.Now().Add(2 * time.Hour)),
 	}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err), "a stretch not come yet")
+}
+
+// TestAnAccountsOwnCallIsReviewedByItsMembership (D73): what an account asks as
+// itself is on the record of each workspace it showed something of -- the
+// owner a workspace with no name of its own is called after -- naming the
+// account, which asked in no workspace (payday#184); and the workspace's
+// review names it by its membership there, as it names any other call.
+func TestAnAccountsOwnCallIsReviewedByItsMembership(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	ctx := context.Background()
+
+	// A workspace with no name of its own, called after its owner, and a
+	// member of it who asks what they are in.
+	park, err := w.s.Identity.AddPerson(ctx, "park", "박지민", pdid.Nil)
+	x.NoError(err)
+	x.NoError(w.s.Workspaces(w.c).Arrive(ctx, park))
+	kim, err := w.s.Identity.AddPerson(ctx, "kim", "김", pdid.Nil)
+	x.NoError(err)
+	ms, err := w.s.Workspaces(w.c).Of(ctx, park.Id)
+	x.NoError(err)
+	x.Len(ms, 1)
+	theirs, err := w.s.Base.Tenant().Get(ctx, app.TenantGetRequest_builder{Ref: app.TenantRef_builder{Id: ms[0].Workspace.Bytes()}.Build()}.Build())
+	x.NoError(err)
+	kh := w.member(theirs, kim, "member")
+	mine, err := app.NewTenantServiceClient(w.conn).Mine(w.session(kh), &app.TenantMineRequest{})
+	x.NoError(err)
+	x.Equal("박지민의 워크스페이스", mine.GetWorkspaces()[0].GetName())
+	x.NoError(w.s.Access.Flush(ctx))
+
+	// Read by the workspace's owner, who reviews its record.
+	ph, err := w.s.Ent.Holder.Query().Where(holder.Account(park.Id.Uuid())).Only(ctx)
+	x.NoError(err)
+	owner := metadata.AppendToOutgoingContext(w.session(ph.Proto()), cmd.WorkspaceHeader, theirs.GetAlias())
+	got, err := app.NewAccessServiceClient(w.conn).Review(owner, app.AccessReviewRequest_builder{
+		From: timestamppb.New(time.Now().Add(-time.Hour)), To: timestamppb.New(time.Now().Add(time.Hour)),
+	}.Build())
+	x.NoError(err)
+	found := false
+	for _, e := range got.GetItems() {
+		if e.GetAction() != app.TenantService_Mine_FullMethodName {
+			continue
+		}
+		found = true
+		x.Equal(kim.Id.Bytes(), e.GetActor(), "the account, which asked as itself")
+		x.Equal("@kim", e.GetActorName(), "named by its membership of the workspace")
+	}
+	x.True(found, "the account's answer is not on the workspace's record")
 }

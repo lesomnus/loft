@@ -3,7 +3,6 @@ package cmd_test
 import (
 	"bytes"
 	"context"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/lesomnus/payday/pdid"
@@ -22,7 +22,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/levyannotice"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/internal/levyantest"
-	"github.com/lesomnus/loft/server/account"
 	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/session"
 )
@@ -69,7 +68,7 @@ func (w *world) madeAt(id pdid.Id) time.Time {
 // workspace is made writes, in the transaction that makes it, that levyan is
 // to be told it arrived -- made by whom, and when, which is who pays for it --
 // and the teller tells it: the one an account is given when it signs in, one
-// it makes over HTTP, and one it makes otherwise.
+// it makes as itself, and one it makes otherwise.
 func TestAWorkspaceIsToldToLevyanByWhoMadeIt(t *testing.T) {
 	w, fake := billed(t)
 	x := w.x
@@ -90,15 +89,10 @@ func TestAWorkspaceIsToldToLevyanByWhoMadeIt(t *testing.T) {
 	x.Equal(http.StatusNoContent, rec.Code)
 	cookie := rec.Result().Cookies()[0]
 
-	// And makes another, at `POST /account/workspaces`.
-	acc := http.NewServeMux()
-	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity, Workspaces: ws, Export: func(context.Context, pdid.Id, io.Writer) error { return nil }}.Mount(acc)
-	r = httptest.NewRequest(http.MethodPost, "/account/workspaces", bytes.NewBufferString(`{"name":"연구실"}`))
-	r.Header.Set("Cookie", cookie.Name+"="+cookie.Value)
-	r.Header.Set("Content-Type", "application/json")
-	rec = httptest.NewRecorder()
-	acc.ServeHTTP(rec, r)
-	x.Equal(http.StatusCreated, rec.Code, rec.Body.String())
+	// And makes another, as itself (`TenantService.Create`, D73).
+	md := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value)
+	_, err = app.NewTenantServiceClient(w.conn).Create(md, app.TenantCreateRequest_builder{Name: "연구실"}.Build())
+	x.NoError(err)
 
 	// And one more, as anything else that makes one does.
 	lee, err := w.s.Identity.AddPerson(ctx, "lee", "이", pdid.Nil)

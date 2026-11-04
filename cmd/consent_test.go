@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -63,10 +64,16 @@ func TestNothingIsServedBeforeTheAccountAgrees(t *testing.T) {
 		{Name: "terms", Title: "이용약관", Version: terms.Version, Url: terms.Url},
 		{Name: "privacy", Title: "개인정보 처리방침", Version: privacy.Version, Url: privacy.Url},
 	}, acc.Owes)
-	x.Equal(http.StatusForbidden, w.post(w.owner, "/account/workspaces", `{"name":"하나 더"}`).Code)
-	res = w.page(w.owner, http.MethodGet, "/account/workspaces/acme/export?reason=keeping")
-	x.Equal(http.StatusOK, res.Code, "what it has is its own, agreed or not")
-	x.Equal("application/zip", res.Header().Get("Content-Type"))
+	tenants := app.NewTenantServiceClient(w.conn)
+	_, err = tenants.Create(w.owner, app.TenantCreateRequest_builder{Name: "하나 더"}.Build())
+	x.Equal(codes.FailedPrecondition, status.Code(err), "a new workspace, before it agrees")
+	mine, err := tenants.Mine(w.owner, &app.TenantMineRequest{})
+	x.NoError(err, "what it has is its own, agreed or not")
+	x.Len(mine.GetWorkspaces(), 1)
+	b, name, err := exported(w.owner, w.conn, app.TenantRef_builder{Alias: z.Ptr("acme")}.Build(), "keeping")
+	x.NoError(err, "and it takes it out")
+	x.NotEmpty(b)
+	x.Contains(name, ".zip")
 
 	// One of the two, or another version than the one in force, is not an
 	// agreement; nothing is recorded of either.

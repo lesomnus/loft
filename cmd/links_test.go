@@ -3,7 +3,7 @@ package cmd_test
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,8 +12,8 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
 	entdomain "github.com/lesomnus/loft/internal/ent/domain"
-	"github.com/lesomnus/loft/server/account"
 )
 
 // TestALabelOpensWhereItsWorkspaceIs: a printed label sends whoever scans it
@@ -51,21 +51,23 @@ func TestALabelOpensWhereItsWorkspaceIs(t *testing.T) {
 	opens("old.acme.example", "https://"+serviceHost+"/scan/7K3MQ9TX")
 }
 
-// TestAWorkspacesDataIsTakenOutOnItsDomain: the link to a workspace's export
-// is the page's, on whichever host the page is -- its own domain, with the
-// session handed there, or the service's address.
+// TestAWorkspacesDataIsTakenOutOnItsDomain: a workspace's export is its
+// owner's call in it (`TenantService.Export`, D73), on whichever host the page
+// is -- its own domain, with the session handed there, or the service's
+// address.
 func TestAWorkspacesDataIsTakenOutOnItsDomain(t *testing.T) {
 	w := newHosted(t)
 	x := w.x
 
 	w.domain(w.tenant, ownHost, "app", "active")
-	export := "/account/workspaces/acme/export?reason=keeping"
+	why := base64.StdEncoding.EncodeToString([]byte("keeping"))
 	handed := w.handOff(w.owner, ownHost)
-	res := w.send(nil, http.MethodGet, ownHost, export, handed)
-	x.Equal(http.StatusOK, res.Code, res.Body.String())
-	x.Equal("application/zip", res.Header().Get("Content-Type"))
-	res = w.send(nil, http.MethodGet, serviceHost, export, cookieIn(w.owner))
-	x.Equal(http.StatusOK, res.Code, res.Body.String())
+	parts, code := w.streamed(withCookie(handed), ownHost, "/loft.TenantService/Export", `{"ref":{"alias":"acme"}}`, "payday-reason-bin", why)
+	x.Empty(code)
+	x.Greater(len(parts), 1, "what the file is called, and then the file")
+	x.Contains(string(parts[0]), `"contentType":"application/zip"`)
+	_, code = w.streamed(w.owner, serviceHost, "/loft.TenantService/Export", `{"ref":{"alias":"acme"}}`, cmd.WorkspaceHeader, "acme", "payday-reason-bin", why)
+	x.Empty(code)
 }
 
 // TestALegacyDomainSendsItsPagesOn: an app domain another took the place of
@@ -143,13 +145,12 @@ func TestAWorkspacesPageAtTheServiceGoesToItsDomain(t *testing.T) {
 
 	// What is the service's stays there.
 	x.Equal(http.StatusOK, w.me(as, serviceHost, "acme").Code, "a call")
-	res = page(serviceHost, "/account")
-	x.Equal(http.StatusOK, res.Code)
-	var a account.Account
-	x.NoError(json.Unmarshal(res.Body.Bytes(), &a))
+	x.Equal(http.StatusOK, page(serviceHost, "/account").Code)
+	mine, err := app.NewTenantServiceClient(w.conn).Mine(as, &app.TenantMineRequest{})
+	x.NoError(err)
 	homes := map[string]string{}
-	for _, v := range a.Workspaces {
-		homes[v.Alias] = v.Home
+	for _, v := range mine.GetWorkspaces() {
+		homes[v.GetAlias()] = v.GetHome()
 	}
 	x.Equal(map[string]string{"acme": "https://" + ownHost, "beta": ""}, homes, "where each workspace's app is")
 	x.Equal("https://"+serviceHost+"/scan/7K3MQ9TX", page(serviceHost, "/l/7K3MQ9TX").Header().Get("Location"), "a label scanned at the service's")

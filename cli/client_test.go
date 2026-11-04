@@ -274,10 +274,12 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 	status, body := s.http(http.MethodGet, "/account", narrowed, nil)
 	x.Equal(http.StatusOK, status, body)
 	x.Contains(body, `"allow":[`)
-	status, _ = s.http(http.MethodGet, "/account/workspaces/acme/export", narrowed, nil)
-	x.Equal(http.StatusForbidden, status, "no data out")
-	status, _ = s.http(http.MethodPost, "/account/workspaces", narrowed, map[string]string{"name": "몰래"})
-	x.Equal(http.StatusForbidden, status, "no workspace made")
+	out = run(t, cli.NewCmdWorkspace(), "ls")
+	x.Contains(out, "@acme", "what it is in, which it reads")
+	err = cli.NewCmdWorkspace().Run(context.Background(), []string{"export", "--reason", "몰래", "--out", filepath.Join(t.TempDir(), "x.zip"), "acme"})
+	x.ErrorContains(err, "this credential is not for that", "no data out")
+	err = cli.NewCmdWorkspace().Run(context.Background(), []string{"new", "몰래"})
+	x.ErrorContains(err, "this credential is not for that", "no workspace made")
 
 	// Nor another terminal approved, which would be one that may do all of it.
 	other := s.login(func(code string) {

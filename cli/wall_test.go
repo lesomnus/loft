@@ -46,6 +46,21 @@ type victim struct {
 	strings []string
 }
 
+// besides is the victim's rows but `id`: what an answer may name of it.
+func (v victim) besides(id uuid.UUID) victim {
+	out := v
+	out.bytes = map[string]bool{}
+	for k, ok := range v.bytes {
+		if k != string(id[:]) {
+			out.bytes[k] = ok
+		}
+	}
+	out.strings = slices.DeleteFunc(slices.Clone(v.strings), func(s string) bool {
+		return s == pdid.Id(id).String() || s == id.String()
+	})
+	return out
+}
+
 // of is one of the victim's rows of an entity: by the domain its identifiers
 // carry, or by its table for one whose identifiers carry none (the trail's).
 func (v victim) of(entity string) ([]byte, bool) {
@@ -564,7 +579,14 @@ func (w *sweep) call(full string, md protoreflect.MethodDescriptor, req protoref
 			t.Logf("%-55s %v %s", full, status.Code(err), status.Convert(err).Message())
 		}
 		if got != nil {
-			if where := leaks(got, beta, ""); where != "" {
+			v := beta
+			if pd.AccountMethod(full) {
+				// The account's own (payday#184, D73): it is a member of the
+				// other workspace, so which workspaces it is in names that
+				// one -- and nothing else of it.
+				v = beta.besides(beta.tenant)
+			}
+			if where := leaks(got, v, ""); where != "" {
 				t.Errorf("%s answered with another workspace's row at %s", full, where)
 			}
 		}
