@@ -1,6 +1,8 @@
-# Grafana over what the collector keeps -- ClickHouse's OpenTelemetry tables
-# and Loki -- and a collector in the cluster for what Kubernetes and the
-# platform say (loft#38). README.md says what an overlay brings.
+# Grafana over what the collectors keep -- ClickHouse's OpenTelemetry tables
+# -- and a collector in the cluster for what Kubernetes and the platform say
+# (loft#38). The ClickHouse (./clickhouse) and the collector on every node
+# (./node) are what a deployment without its own adds. README.md says what
+# an overlay brings.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 

@@ -1,0 +1,23 @@
+# A collector on every node (optional), writing ClickHouse (../clickhouse):
+# what the pods on a node send to HOST_IP:4317, and the node's own metrics.
+# Its hostPort and its read of the node's files need a namespace whose Pod
+# Security is `privileged`, so it is an overlay of its own, beside the one
+# for ../ (README.md).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# No namespace: the overlay's, which is not Grafana's.
+resources:
+  - ./collector.yaml
+
+# A changed file is a new pod on every node.
+configMapGenerator:
+  - name: otel-node-collector
+    files:
+      - config.yaml
+  # Where ClickHouse is: ../clickhouse in the namespace the observe overlay
+  # puts it in. An overlay that names another merges its own
+  # (`behavior: merge`).
+  - name: otel-node-collector-env
+    literals:
+      - CLICKHOUSE_ENDPOINT=tcp://clickhouse.observe.svc:9000

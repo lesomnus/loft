@@ -1,0 +1,127 @@
+# A collector on every node: what the pods on it send to the node's own
+# address (HOST_IP:4317, deploy/k8s's config.yaml), and the node's own disk,
+# memory and CPU, written to ClickHouse's OpenTelemetry tables
+# (../clickhouse). The cluster collector (../collector.yaml) sends here too.
+#
+# A hostPort, and the node's file system read for host_metrics, are what
+# Pod Security calls privileged: this goes in a namespace of its own
+# (README.md). The container itself is unprivileged -- not root, no
+# capabilities, the node's files read-only.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: otel-node-collector
+  labels:
+    app.kubernetes.io/name: otel-node-collector
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-node-collector
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 1 }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-node-collector
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      # Every node a pod may send from, the control plane's too.
+      tolerations:
+        - { operator: Exists, effect: NoSchedule }
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile: { type: RuntimeDefault }
+      # Until ClickHouse answers. The exporter makes its tables as the
+      # collector starts, and a collector that cannot reach it exits: it
+      # would be restarted, later each time, and the first try of a new pod
+      # can come before the NetworkPolicy knows the pod's address. Waiting
+      # here, it starts the moment ClickHouse can be reached.
+      initContainers:
+        - name: wait
+          image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+          command:
+            - sh
+            - -c
+            - |
+              # The first address CLICKHOUSE_ENDPOINT names: tcp://host:port[,...][?...]
+              a=${CLICKHOUSE_ENDPOINT#*://}; a=${a%%[,/?]*}
+              until nc -z -w 2 "${a%:*}" "${a##*:}"; do
+                [ -n "${said:-}" ] || { echo "waiting for ClickHouse at $a"; said=1; }
+                sleep 1
+              done
+          envFrom:
+            - configMapRef: { name: otel-node-collector-env }
+          resources:
+            requests: { cpu: 1m, memory: 4Mi }
+            limits: { memory: 16Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+      containers:
+        - name: otelcol
+          image: docker.io/otel/opentelemetry-collector-contrib:0.164.0@sha256:340c9ca6a36617084c6661bdc4f0fe92b7cda5a805d61673ec8db375fddc522b
+          args: ["--config", "/etc/otelcol/config.yaml"]
+          # CLICKHOUSE_ENDPOINT (kustomization.yaml)
+          envFrom:
+            - configMapRef: { name: otel-node-collector-env }
+          env:
+            - name: POD_IP
+              valueFrom: { fieldRef: { fieldPath: status.podIP } }
+            - name: NODE_NAME
+              valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom: { secretKeyRef: { name: otel-node-collector, key: clickhouse-password } }
+          ports:
+            # What pods reach at HOST_IP: the node's ports, handed to this pod.
+            - { name: otlp-grpc, containerPort: 4317, hostPort: 4317, protocol: TCP }
+            - { name: otlp-http, containerPort: 4318, hostPort: 4318, protocol: TCP }
+            - { name: health, containerPort: 13133, protocol: TCP }
+          readinessProbe:
+            httpGet: { path: /, port: health }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /, port: health }
+            periodSeconds: 30
+            failureThreshold: 4
+          resources:
+            requests: { cpu: 20m, memory: 64Mi }
+            limits: { memory: 256Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: config, mountPath: /etc/otelcol, readOnly: true }
+            - { name: hostfs, mountPath: /hostfs, readOnly: true, mountPropagation: HostToContainer }
+      volumes:
+        - name: config
+          configMap: { name: otel-node-collector }
+        - name: hostfs
+          hostPath: { path: /, type: Directory }
+---
+# Who may send: pods of this cluster, which reach it at their node's address.
+# Not anything else that reaches the node: the hostPort is the node's, on
+# every network the node is on. An overlay narrows `from` to the namespaces
+# that send.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: otel-node-collector
+  labels:
+    app.kubernetes.io/name: otel-node-collector
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: otel-node-collector
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector: {}
+      ports:
+        - { port: otlp-grpc }
+        - { port: otlp-http }

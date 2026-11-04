@@ -2,7 +2,7 @@
 # metrics (WAL archiving, backups, and Loft's own queries, cnpg-monitoring.yaml),
 # cert-manager's certificates, and the cluster's objects (restarts, jobs,
 # pods). It sends them on over OTLP -- to the collector on its node, at
-# HOST_IP, by default -- and so to the same ClickHouse as Loft's own.
+# HOST_IP, by default (./node) -- and so to the same ClickHouse as Loft's own.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
