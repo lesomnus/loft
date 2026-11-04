@@ -1,4 +1,4 @@
-package admincli
+package cli
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"maps"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/xli"
@@ -17,15 +16,6 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/server/pd"
 )
-
-// moment is a moment as the operator's commands say one: in UTC, to the
-// second, whatever zone the operator's machine is in.
-func moment(t *timestamppb.Timestamp) string {
-	if t == nil {
-		return "-"
-	}
-	return t.AsTime().UTC().Format(time.RFC3339)
-}
 
 // tallied is how many of each kind a map says, as an operator reads it --
 // "custody.issue ×2, reservation.add ×1" -- and how many in all.
@@ -39,8 +29,31 @@ func tallied(n map[string]uint32) (string, uint32) {
 	return strings.Join(said, ", "), all
 }
 
-// newCmdEvent is `loft-admin event`: a workspace's history as the operator
-// acts on it, on the workspace's word.
+// eventWritten is `loft event redact`, a workspace's history as the operator
+// acts on it on the workspace's word, `loft access list`, the access record
+// of the whole deployment, and `loft access-review list`, the reviews of it
+// -- the last either kind's, as `AccessReviewService.List` is: an operator
+// reads every workspace's, and a workspace's administrators and auditors its
+// own. The generated `access list` calls what no role and no entry point
+// serves, and the operator's own is its place.
+func eventWritten() []written {
+	out := []written{}
+	for _, c := range newCmdEvent().Commands {
+		if c.Name == "redact" {
+			out = append(out, written{path: "event/redact", replace: true, cmd: c, calls: []string{app.EventService_Redact_FullMethodName}})
+		}
+	}
+	for _, c := range newCmdAccess().Commands {
+		switch c.Name {
+		case "ls":
+			out = append(out, written{path: "access/list", replace: true, cmd: c, calls: []string{app.OperatorAccessService_List_FullMethodName}})
+		case "reviews":
+			out = append(out, written{path: "access-review/list", replace: true, cmd: c, calls: []string{app.AccessReviewService_List_FullMethodName}})
+		}
+	}
+	return out
+}
+
 func newCmdEvent() *xli.Command {
 	return &xli.Command{
 		Name:  "event",
@@ -71,7 +84,7 @@ func newCmdEvent() *xli.Command {
 					if id.Domain() != pd.EventDomain {
 						return fmt.Errorf("--event: %s is no event's identifier", id)
 					}
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -86,13 +99,13 @@ func newCmdEvent() *xli.Command {
 					}
 					about := ""
 					if len(v.GetSubject()) > 0 {
-						about = ", about " + idOf(v.GetSubject())
+						about = ", about " + idSaid(v.GetSubject())
 					}
-					self.Printf("event %s of @%s: %s, happened %s, recorded %s%s\n", id, v.GetTenant(), v.GetKind(), moment(v.GetOccurred()), moment(v.GetRecorded()), about)
+					self.Printf("event %s of @%s: %s, happened %s, recorded %s%s\n", id, v.GetTenant(), v.GetKind(), momentOf(v.GetOccurred()), momentOf(v.GetRecorded()), about)
 					if !v.GetSaid() {
 						self.Printf("it has no reason: there is nothing to take out\n")
 						for _, a := range v.GetActs() {
-							self.Printf("event %s took it out, %s%s\n", idOf(a.GetEvent()), moment(a.GetRecorded()), byWhom(a))
+							self.Printf("event %s took it out, %s%s\n", idSaid(a.GetEvent()), momentOf(a.GetRecorded()), byWhom(a))
 						}
 						return next(ctx)
 					}
@@ -125,7 +138,7 @@ func newCmdEvent() *xli.Command {
 					}
 					line := fmt.Sprintf("took the reason out of event %s of @%s", id, v.GetTenant())
 					if after, err := events.Redaction(ctx, ask); err == nil && len(after.GetActs()) > 0 {
-						line += "; the act is event " + idOf(after.GetActs()[0].GetEvent())
+						line += "; the act is event " + idSaid(after.GetActs()[0].GetEvent())
 					}
 					self.Printf("%s\n", line)
 					if nCopies > 0 {
@@ -151,16 +164,16 @@ func byWhom(a *app.OperatorEventRedactionAct) string {
 	case a.GetOperator() != "":
 		return " by " + a.GetOperator() + ", an operator"
 	case len(a.GetActor()) > 0:
-		return " by " + idOf(a.GetActor())
+		return " by " + idSaid(a.GetActor())
 	}
 	return ", the deployment's own work"
 }
 
-// newCmdAccess is `loft-admin access`: the access record of the whole
-// deployment (loft#136) -- who read, wrote or took out whose personal data,
-// from where, in a workspace, by a member, of one person, of one kind -- and
-// the reviews the workspaces' administrators recorded. A person asking what
-// was done with their data is answered with `ls --subject`. It says
+// newCmdAccess is the access record of the whole deployment (loft#136) --
+// who read, wrote or took out whose personal data, from where, in a
+// workspace, by a member, of one person, of one kind -- and the reviews the
+// workspaces' administrators recorded. A person asking what was done with
+// their data is answered with `loft access list --subject`. It says
 // identifiers and no names, but an operator's, and changes nothing.
 func newCmdAccess() *xli.Command {
 	return &xli.Command{
@@ -211,7 +224,7 @@ func newCmdAccess() *xli.Command {
 					if v, _ := flg.Find[uint32](self, "limit"); v > 0 {
 						req.SetSize(v)
 					}
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -220,7 +233,7 @@ func newCmdAccess() *xli.Command {
 						return err
 					}
 					for _, r := range v.GetItems() {
-						actor := idOf(r.GetActor())
+						actor := idSaid(r.GetActor())
 						if r.GetOperator() != "" {
 							actor += " (" + r.GetOperator() + ", an operator)"
 						}
@@ -233,7 +246,7 @@ func newCmdAccess() *xli.Command {
 							address = "-"
 						}
 						self.Printf("%s  %s  %-8s %-18s %s  actor=%s  from=%s  subjects=%d%s\n",
-							moment(r.GetAt()), r.GetTenant(), r.GetKind(), r.GetResult(), r.GetAction(), actor, address, r.GetSubjects(), reason)
+							momentOf(r.GetAt()), r.GetTenant(), r.GetKind(), r.GetResult(), r.GetAction(), actor, address, r.GetSubjects(), reason)
 					}
 					if len(v.GetItems()) == 0 {
 						self.Printf("nothing in that stretch\n")
@@ -248,7 +261,7 @@ func newCmdAccess() *xli.Command {
 					&flg.String{Name: "tenant", Brief: "only this workspace's, by address"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					conn, err := connOf(self)
+					conn, _, err := remote{}.Connect(ctx)
 					if err != nil {
 						return err
 					}
@@ -287,7 +300,7 @@ func newCmdAccess() *xli.Command {
 						if v, ok := aliases[string(id)]; ok {
 							return v
 						}
-						v := idOf(id)
+						v := idSaid(id)
 						if t, err := app.NewTenantServiceClient(conn).Get(ctx, app.TenantGetRequest_builder{Ref: app.TenantRef_builder{Id: id}.Build()}.Build()); err == nil {
 							v = t.GetAlias()
 						}
@@ -300,9 +313,9 @@ func newCmdAccess() *xli.Command {
 							desc = fmt.Sprintf("  %q", r.GetDesc())
 						}
 						self.Printf("%s  %s  %s – %s  calls=%d downloads=%d refused=%d  by=%s%s\n",
-							moment(r.GetDateCreated()), aliasOf(r.GetTenant().GetId()),
-							moment(r.GetPeriodFrom()), moment(r.GetPeriodTo()),
-							r.GetCalls(), r.GetDownloads(), r.GetRefused(), idOf(r.GetReviewer().GetId()), desc)
+							momentOf(r.GetDateCreated()), aliasOf(r.GetTenant().GetId()),
+							momentOf(r.GetPeriodFrom()), momentOf(r.GetPeriodTo()),
+							r.GetCalls(), r.GetDownloads(), r.GetRefused(), idSaid(r.GetReviewer().GetId()), desc)
 					}
 					if len(vs) == 0 {
 						self.Printf("no review recorded\n")

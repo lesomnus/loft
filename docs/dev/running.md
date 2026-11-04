@@ -77,8 +77,8 @@ export DEV_OPERATOR_KEY=$(openssl rand -hex 32)
 LOFT_ADMIN_KEYS="me=env:DEV_OPERATOR_KEY" go run ./cmd/loft-admin serve &   # 127.0.0.1:8081
 
 export LOFT_ADMIN_URL=http://127.0.0.1:8081 LOFT_ADMIN_KEY=env:DEV_OPERATOR_KEY
-go run ./cmd/loft-admin tenant ls
-go run ./cmd/loft-admin trail rows
+go run ./cmd/loft tenant ls
+go run ./cmd/loft trail rows
 ```
 
 플래그는 인자보다 앞에 씁니다(`tenant close --reason "…" loft`).
@@ -89,4 +89,4 @@ go run ./cmd/loft-admin trail rows
 
 ## 예전 체크아웃
 
-roster 이전에 만든 `data/` 는 로그인이 Loft의 DB에만 있어서 업그레이드한 뒤에는 그대로 로그인할 수 없습니다. 위의 진입점을 띄우고 `loft-admin identity migrate` 로 한 번 옮깁니다([roster 이전의 배포](identity.md#roster-이전의-배포)).
+roster 이전에 만든 `data/` 는 로그인이 Loft의 DB에만 있어서 업그레이드한 뒤에는 그대로 로그인할 수 없습니다. 위의 진입점을 띄우고 `loft identity migrate` 로 한 번 옮깁니다([roster 이전의 배포](identity.md#roster-이전의-배포)).

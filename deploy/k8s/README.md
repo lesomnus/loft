@@ -46,7 +46,7 @@ resources:
    | | `signing-key` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키([세션의 키](../../docs/dev/security.md#세션의-키)). 모든 프로세스가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `loft-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
-   | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `loft-admin trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다. init 컨테이너 `migrate`는 이 Secret에서 이 키 하나만 받고, 마이그레이션이 감사 기록에 남길 행이 있을 때만 읽습니다 | `openssl rand -base64 32` |
+   | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `loft trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다. init 컨테이너 `migrate`는 이 Secret에서 이 키 하나만 받고, 마이그레이션이 감사 기록에 남길 행이 있을 때만 읽습니다 | `openssl rand -base64 32` |
    | `loft-admin` | 운영자 이름마다 파일 하나(`operator`) | 운영자 키, 32자 이상. 운영자를 더하면 `admin.keys`에도 이름을 더합니다 | `openssl rand -hex 32` |
    | `loft-search` | `password`, `ca.pem` | 검색 클러스터의 Loft 사용자 비밀번호와 그 클러스터의 CA. 검색을 켤 때만 둡니다(아래 9) | |
    | `loft-levyan-key` | `key` | levyan이 이 배포에 발급한 제품 키(`lvk_…`, `levyan-admin key issue`). 과금을 켤 때만 둡니다(아래 12) | |
@@ -226,10 +226,10 @@ curl https://<호스트>/healthz   # ok
 ```sh
 kubectl -n loft port-forward deploy/loft 8081:8081 &
 export LOFT_ADMIN_URL=http://127.0.0.1:8081 LOFT_ADMIN_KEY=file:./operator
-loft-admin tenant ls
+loft tenant ls
 ```
 
-운영자의 일은 모두 이것으로 합니다([운영자 안내서](../../docs/guide/operator.md#운영자-진입점-loft-admin)). 파드 안에서 하는 것은 `migrate`(init 컨테이너)와 첫 워크스페이스를 만드는 `loft init` 뿐입니다. 운영자의 컴퓨터에 `loft-admin` 이 없으면 파드의 것을 씁니다: `kubectl -n loft exec deploy/loft -c loft-admin -- /usr/local/bin/loft-admin --url http://127.0.0.1:8081 --key file:/run/secrets/loft-admin/<이름> tenant ls`.
+운영자의 일은 모두 이것으로 합니다([운영자 안내서](../../docs/guide/operator.md#운영자-진입점-loft-admin)). 파드 안에서 하는 것은 `migrate`(init 컨테이너)와 첫 워크스페이스를 만드는 `loft init` 뿐입니다. 운영자의 컴퓨터에 `loft` 가 없으면 파드의 것을 씁니다: `kubectl -n loft exec deploy/loft -c loft-admin -- /usr/local/bin/loft --url http://127.0.0.1:8081 --key file:/run/secrets/loft-admin/<이름> tenant ls`.
 
 들어올 수 있는 사람은 그 namespace의 `pods/portforward` 권한(RBAC)을 가진 사람입니다. VPN 대신 클러스터 권한이 첫 번째 문이고, 운영자 키가 두 번째 문입니다. `pods/exec`도 운영자에게만 줍니다. 파드 안에서는 DB 접속 정보가 보이고, `loft init`·`migrate` 는 그것으로 DB에 바로 붙습니다(`docs/dev/security.md`).
 
@@ -238,10 +238,10 @@ loft-admin tenant ls
 파일은 운영자 진입점과 운영자의 컴퓨터 사이에서, 호출 안의 바이트로 오갑니다(D74). 그래서 이미지에 셸도 `tar`도 없어도 `kubectl cp`가 필요 없습니다. 위의 port-forward로 들어와서, 운영자 안내서의 [워크스페이스가 떠날 때](../../docs/guide/operator.md#워크스페이스가-떠날-때)와 [워크스페이스 복구](../../docs/guide/operator.md#워크스페이스-복구)의 순서대로 합니다.
 
 ```sh
-loft-admin tenant export --reason "폐업 전 보관" --out acme.zip acme
-loft-admin tenant verify --file acme.zip
-loft-admin tenant purge --yes acme
-loft-admin tenant import --file acme.zip --yes
+loft --reason "폐업 전 보관" tenant export --out acme.zip acme
+loft tenant verify --file acme.zip
+loft tenant purge --yes acme
+loft tenant import --file acme.zip --yes
 ```
 
 - 진입점은 내보내기를 다 만든 뒤에 보내고, 올라오는 파일은 다 받은 뒤에 읽습니다. zip은 순서대로 읽을 수 없기 때문입니다. 그동안 파드의 `/tmp`(emptyDir)에 임시 파일로 두고, 끝나면 지웁니다. 내보내기 크기만큼 자리가 필요합니다. 자산 10만 개 워크스페이스의 내보내기가 125 MB였습니다.

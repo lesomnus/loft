@@ -69,7 +69,7 @@ func on(t *testing.T, c cmd.Config, f func(s *cmd.Server)) {
 }
 
 // rowsChecked is every live row of the deployment `c` names checked against
-// the digest the trail keeps of it: what `loft-admin trail rows` asks of the
+// the digest the trail keeps of it: what `loft trail rows` asks of the
 // entry point, asked of the deployment here.
 func rowsChecked(t *testing.T, c cmd.Config) audit.Rows {
 	t.Helper()

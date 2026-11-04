@@ -70,7 +70,7 @@ levyan-admin meter add --unit d --kind stock --aggregation last --unbounded-zero
 - `loft.restricted` 가 켜진 워크스페이스는 청구되는 것을 늘리지 못합니다. 자산 등록(대량 등록, 재고 전환, 자산으로 받는 구매 입고 포함), 분실·폐기한 자산을 다시 쓰는 상태로 바꾸기, 첨부 올리기, 로그인 발급·초대 보내기·받아들이기, 이력을 지금보다 오래 보관하기입니다.
 - 거절은 `FailedPrecondition` 이고 화면에 "이 워크스페이스는 제한되어 …"라고 나옵니다.
 - 보기, 내보내기, 지급·반납, 예약, 이동, 처분·삭제, 닫기, 결제는 그대로입니다.
-- Grant가 없으면 제한하지 않으므로 levyan이 멈춰도 막히는 워크스페이스는 없습니다. 운영자의 명령(`loft-admin holder add` 같은 것)은 막지 않습니다.
+- Grant가 없으면 제한하지 않으므로 levyan이 멈춰도 막히는 워크스페이스는 없습니다. 운영자의 명령(`loft holder add` 같은 것)은 막지 않습니다.
 - 제한의 1단계이고, 유예 뒤에 일상 업무는 그대로 두고 늘리는 것만 막는다는 것은 대표가 정했습니다(levyan#1, 2026-11-01).
 
 ## 읽기 전용
@@ -104,7 +104,7 @@ levyan-admin meter add --unit d --kind stock --aggregation last --unbounded-zero
 
 ## 파기 전의 마지막 측정
 
-청구하는 배포는 지우기 전에 잽니다(design 7.3). 닫힌 워크스페이스를 파기하는 sweep도, 운영자의 `loft-admin tenant retire`·`purge --yes` 도 그 워크스페이스의 미터를 재서 levyan에 마지막 측정으로 넘긴 뒤에 지웁니다.
+청구하는 배포는 지우기 전에 잽니다(design 7.3). 닫힌 워크스페이스를 파기하는 sweep도, 운영자의 `loft tenant retire`·`purge --yes` 도 그 워크스페이스의 미터를 재서 levyan에 마지막 측정으로 넘긴 뒤에 지웁니다.
 
 - **넘기지 못해도 지웁니다.** 파기는 기한이 있는 법적 의무라 청구 서비스를 기다리지 않습니다. 그때는 경고 로그(`closing: a workspace is destroyed without its final reading`)에 워크스페이스와 까닭이 남고, 명령은 그렇다고 한 줄(`meters: its final reading could not be handed to levyan, ...`) 말하고 성공합니다. levyan은 마지막 일일 측정을 이어서 매깁니다.
 - 기다리는 시간은 호출의 끝(`timeout`, 기본 10초)까지입니다. `--yes` 없는 미리 보기는 재지 않습니다.

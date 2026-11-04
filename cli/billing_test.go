@@ -1,4 +1,4 @@
-package admincli_test
+package cli_test
 
 import (
 	"bytes"
@@ -36,13 +36,13 @@ func TestAPurgeHandsLevyanTheWorkspacesFinalReading(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 
-	out, err := deploy(t).admin(t, "tenant", "purge", "acme")
+	out, err := deploy(t).loft(t, "tenant", "purge", "acme")
 	x.NoError(err, out)
 	x.NotContains(out, "meters", "a deployment that bills nobody")
 
 	fake := levyantest.Start(t)
 	d := deployWith(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
-	_, err = run(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "owner")
+	_, err = ran(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "owner")
 	x.NoError(err)
 	alive := func(alias string) bool {
 		v, err := d.s.Ent.Tenant.Query().Where(tenant.Alias(alias)).Exist(ctx)
@@ -50,7 +50,7 @@ func TestAPurgeHandsLevyanTheWorkspacesFinalReading(t *testing.T) {
 		return v
 	}
 
-	out, err = d.admin(t, "tenant", "purge", "acme")
+	out, err = d.loft(t, "tenant", "purge", "acme")
 	x.NoError(err, out)
 	x.Contains(out, "meters: its final reading is measured and handed to levyan first; if levyan cannot take it, it goes all the same")
 	x.Empty(fake.Calls(), "a dry run measures nothing")
@@ -59,7 +59,7 @@ func TestAPurgeHandsLevyanTheWorkspacesFinalReading(t *testing.T) {
 	fake.Answer(func(context.Context, *levyanv1.RecordRequest) (*levyanv1.RecordResponse, error) {
 		return nil, status.Error(codes.Unavailable, "levyan is down")
 	})
-	out, err = d.admin(t, "tenant", "purge", "--yes", "acme")
+	out, err = d.loft(t, "tenant", "purge", "--yes", "acme")
 	x.NoError(err, out)
 	x.Contains(out, "acme: took")
 	x.Contains(out, "meters: its final reading could not be handed to levyan, and it went all the same; levyan bills it by its last daily reading")
@@ -70,7 +70,7 @@ func TestAPurgeHandsLevyanTheWorkspacesFinalReading(t *testing.T) {
 	// levyan up: the final reading is levyan's before the rows go.
 	fake.Answer(nil)
 	before := len(fake.Calls())
-	out, err = d.admin(t, "tenant", "purge", "--yes", "beta")
+	out, err = d.loft(t, "tenant", "purge", "--yes", "beta")
 	x.NoError(err, out)
 	x.Contains(out, "beta: took")
 	x.Contains(out, "meters: its final reading was measured and handed to levyan first")
@@ -123,7 +123,7 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 	fake := levyantest.Start(t)
 	c := billed(t, fake)
 
-	_, err := run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234", "--demo")
+	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234", "--demo")
 	x.NoError(err)
 	d := entry(t, c)
 	workspace := func(alias string) (pdid.Id, time.Time) {
@@ -147,7 +147,7 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 	x.Equal(levyan.ByChange, vs[0].Origin)
 	// The owner is in another workspace too, so its account outlives the
 	// purge below.
-	_, err = run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
+	_, err = ran(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
 	x.NoError(err)
 	x.Len(d.notices(t), 2)
 
@@ -155,23 +155,23 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 	fake.Restrict(acme)
 	_, err = d.s.Follower.Sync(ctx, acme)
 	x.NoError(err)
-	out, err := d.admin(t, "holder", "add", "--tenant", "acme", "--login", "kim", "--password", "kim-password")
+	out, err := d.loft(t, "holder", "add", "--tenant", "acme", "--login", "kim", "--password", "kim-password")
 	x.NoError(err, out)
 
 	// Out, gone, and back: told as made when it was, by its first owner.
 	zip := filepath.Join(t.TempDir(), "acme.zip")
-	out, err = d.admin(t, "tenant", "export", "--reason", "leaving", "--out", zip, "acme")
+	out, err = d.loft(t, "--reason", "leaving", "tenant", "export", "--out", zip, "acme")
 	x.NoError(err, out)
-	out, err = d.admin(t, "tenant", "purge", "--yes", "acme")
+	out, err = d.loft(t, "tenant", "purge", "--yes", "acme")
 	x.NoError(err, out)
 	vs = d.notices(t)
 	x.Len(vs, 3, "and that it was destroyed (TestLevyanIsToldWhatAnOperatorEnds)")
 	x.Equal(levyan.Destroyed, vs[2].Kind)
-	dry, err := d.admin(t, "tenant", "import", "--file", zip)
+	dry, err := d.loft(t, "tenant", "import", "--file", zip)
 	x.NoError(err, dry)
 	x.NotContains(dry, "levyan grants")
 	x.Len(d.notices(t), 3, "a dry run tells nothing")
-	done, err := d.admin(t, "tenant", "import", "--file", zip, "--yes")
+	done, err := d.loft(t, "tenant", "import", "--file", zip, "--yes")
 	x.NoError(err, done)
 	x.Contains(done, "what levyan grants it is copied")
 	vs = d.notices(t)
@@ -192,7 +192,7 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 
 	// And every row is what the trail says it is: the copy's, written by
 	// the follower and recorded; the notices, which are kept off it.
-	out, err = d.admin(t, "trail", "rows")
+	out, err = d.loft(t, "trail", "rows")
 	x.NoError(err, out)
 }
 
@@ -207,7 +207,7 @@ func TestLevyanIsToldWhatAnOperatorEnds(t *testing.T) {
 	ctx := context.Background()
 	fake := levyantest.Start(t)
 	c := billed(t, fake)
-	_, err := run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
 	d := entry(t, c)
 	kinds := func() []string {
@@ -218,20 +218,20 @@ func TestLevyanIsToldWhatAnOperatorEnds(t *testing.T) {
 		return out
 	}
 
-	out, err := d.admin(t, "tenant", "close", "--reason", "미납", "acme")
+	out, err := d.loft(t, "tenant", "close", "--reason", "미납", "acme")
 	x.NoError(err, out)
 	x.Equal([]string{levyan.Arrived}, kinds(), "without --yes, nothing is done")
-	out, err = d.admin(t, "tenant", "close", "--reason", "미납", "--yes", "acme")
+	out, err = d.loft(t, "tenant", "close", "--reason", "미납", "--yes", "acme")
 	x.NoError(err, out)
-	out, err = d.admin(t, "tenant", "restore", "--yes", "acme")
+	out, err = d.loft(t, "tenant", "restore", "--yes", "acme")
 	x.NoError(err, out)
 	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored}, kinds())
 
-	dry, err := d.admin(t, "tenant", "purge", "acme")
+	dry, err := d.loft(t, "tenant", "purge", "acme")
 	x.NoError(err, dry)
 	x.Contains(dry, "levyan: it is told the workspace was destroyed")
 	x.Len(kinds(), 3, "a dry run tells nothing")
-	done, err := d.admin(t, "tenant", "purge", "--yes", "acme")
+	done, err := d.loft(t, "tenant", "purge", "--yes", "acme")
 	x.NoError(err, done)
 	x.Contains(done, "levyan: it is to be told the workspace was destroyed")
 	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored, levyan.Destroyed}, kinds())
@@ -246,6 +246,6 @@ func TestLevyanIsToldWhatAnOperatorEnds(t *testing.T) {
 	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored, levyan.Destroyed}, got)
 
 	// And every row is what the trail says it is: the notices are kept off it.
-	out, err = d.admin(t, "trail", "rows")
+	out, err = d.loft(t, "trail", "rows")
 	x.NoError(err, out)
 }

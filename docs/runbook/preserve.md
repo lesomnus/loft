@@ -12,13 +12,13 @@
 살아 있는 워크스페이스는 hold부터 겁니다. 필요하면 아래 3의 export도 함께 합니다.
 
 ```sh
-loft-admin hold place --why "2026-4 사건 보존 요청 (공문 번호)" --yes abc1234
+loft legal-hold add --why "2026-4 사건 보존 요청 (공문 번호)" --yes abc1234
 ```
 
 파기된 워크스페이스는 무엇이 언제까지 남는지 봅니다.
 
 ```sh
-loft-admin tenant retired
+loft tenant retired
 # @abc1234   01a1…   retired 2026-03-02   kept until 2027-03-02
 ```
 
@@ -27,7 +27,7 @@ loft-admin tenant retired
 - 이런 경우에는 남은 기록이 없습니다. 그 사실을 요청한 쪽에 회신하고 대장(5)에 적습니다.
   - 목록에 없음: 바닥값이 지나 이미 지워졌거나, 계약이 `--purge-floors`라서 파기 때 모두 지웠습니다.
   - `past its floors`로 나옴: 바닥값이 지났습니다.
-- 워크스페이스의 주소를 모르면 운영자 기록이나 `loft-admin access ls`의 워크스페이스 ID로 찾습니다. 파기된 워크스페이스의 주소는 주소 보류에 남아 있습니다.
+- 워크스페이스의 주소를 모르면 운영자 기록이나 `loft access list`의 워크스페이스 ID로 찾습니다. 파기된 워크스페이스의 주소는 주소 보류에 남아 있습니다.
 
 ## 2. 받을 사람의 키
 
@@ -48,14 +48,13 @@ loft-admin tenant retired
 운영자가 자기 컴퓨터에서 운영자 진입점에 자기 키로 묻습니다(`LOFT_ADMIN_URL`, `LOFT_ADMIN_KEY`, [운영자 진입점](../guide/operator.md#운영자-진입점-loft-admin)). 진입점이 DB와 보관소에서 읽어 받을 사람의 키로 암호화한 바이트를 보내고, 파일은 운영자의 컴퓨터에 쓰입니다.
 
 ```sh
-loft-admin trail export \
-  --reason "2026-4 사건 보존 요청 (공문 번호)" \
+loft --reason "2026-4 사건 보존 요청 (공문 번호)" trail export \
   --to age1… \
   --out abc1234-2026-4.trail \
   @abc1234
 ```
 
-- 워크스페이스는 주소(파기된 것은 보류된 주소)나 워크스페이스 ID입니다. 플래그는 그 앞에 씁니다.
+- 워크스페이스는 주소(파기된 것은 보류된 주소)나 워크스페이스 ID입니다. 플래그는 그 앞에 쓰고, `--reason` 은 명령 이름보다 앞에 씁니다.
 - `--reason`은 반드시 씁니다. 사건 번호와 요청 문서를 적습니다. 묶음의 `why`와 접속기록의 까닭으로 남습니다.
 - `--to`는 받을 사람의 공개키(`age1…`)나 그것을 담은 파일입니다. 진입점은 그 키로 암호화할 뿐이고, 받을 사람의 플러그인(YubiKey 등)이 필요한 키라면 그 플러그인이 진입점 옆에 있어야 합니다.
 - 파일은 처음부터 받을 사람의 키로 암호화되어 오갑니다. 평문은 진입점의 디스크에도 운영자의 디스크에도 남지 않습니다. 쓰다가 실패한 파일은 지워집니다.
@@ -74,8 +73,8 @@ loft-admin trail export \
 보관 책임자가 자기 키로 확인합니다.
 
 ```sh
-loft-admin trail keys > deployment.pem          # 운영자가 한 번: 배포가 서명하고 믿는 공개키
-loft-admin trail verify-export --trust deployment.pem --file abc1234-2026-4.trail --identity 보관자.key
+loft trail keys > deployment.pem          # 운영자가 한 번: 배포가 서명하고 믿는 공개키
+loft trail verify-export --trust deployment.pem --file abc1234-2026-4.trail --identity 보관자.key
 ```
 
 - 배포의 공개키가 필요합니다. 운영자가 `trail keys` 로 꺼내 보관 책임자에게 건넵니다. `--trust` 를 주면 진입점에 묻지 않으므로, 보관 책임자는 운영자의 키도 배포에 닿는 길도 없이 확인합니다. `--trust` 없이 실행하면 진입점에 묻습니다.
@@ -106,4 +105,4 @@ loft-admin trail verify-export --trust deployment.pem --file abc1234-2026-4.trai
 - 사본을 파기합니다. 매체를 안전하게 지우거나 물리적으로 파기합니다.
 - 반출 대장에 파기일, 방법, 확인한 사람을 적습니다.
 - 보관자 키가 더 필요 없으면 폐기합니다.
-- 살아 있는 워크스페이스에 건 hold는 `loft-admin hold lift --yes <hold-id>`로 풉니다. 풀면 다음 패스부터 보존 기간이 다시 적용됩니다.
+- 살아 있는 워크스페이스에 건 hold는 `loft legal-hold patch --lift --yes <hold-id>`로 풉니다. 풀면 다음 패스부터 보존 기간이 다시 적용됩니다.

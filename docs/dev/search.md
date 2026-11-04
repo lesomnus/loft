@@ -61,10 +61,10 @@
 ## 명령
 
 ```sh
-loft-admin search reindex          # 지금 다시 만들기: 색인마다 DB로 새 인덱스를 다 채운 뒤, 별칭을 옮기고 옛 인덱스를 지움
-loft-admin search status           # 색인마다 별칭이 가리키는 인덱스, 문서 수와 DB의 행 수
-loft-admin search analyze 웹서버    # 그 글을 어떤 낱말로 나누는지: 색인할 때와 찾을 때
-loft-admin search remove --yes     # 이 배포가 만든 인덱스와 별칭을 모두 지움
+loft search reindex          # 지금 다시 만들기: 색인마다 DB로 새 인덱스를 다 채운 뒤, 별칭을 옮기고 옛 인덱스를 지움
+loft search status           # 색인마다 별칭이 가리키는 인덱스, 문서 수와 DB의 행 수
+loft search analyze 웹서버    # 그 글을 어떤 낱말로 나누는지: 색인할 때와 찾을 때
+loft search remove --yes     # 이 배포가 만든 인덱스와 별칭을 모두 지움
 ```
 
 - reindex 동안에도 별칭은 다 채워진 인덱스만 가리킵니다. 옛 인덱스에서 새 인덱스로 한 번에 넘어갑니다.
@@ -82,7 +82,7 @@ docker run -d --name loft-os -p 127.0.0.1:9200:9200 -e discovery.type=single-nod
   -e DISABLE_SECURITY_PLUGIN=true -e DISABLE_INSTALL_DEMO_CONFIG=true \
   -e OPENSEARCH_JAVA_OPTS='-Xms512m -Xmx512m' loft-opensearch
 export LOFT_APP_SEARCH_OPENSEARCH_ADDRS=http://127.0.0.1:9200
-go run ./cmd/loft-admin search reindex   # 진입점을 띄운 뒤: 로컬에서 실행하기의 "운영자의 일"
+go run ./cmd/loft search reindex   # 진입점을 띄운 뒤: 로컬에서 실행하기의 "운영자의 일"
 ```
 
 클러스터가 필요한 테스트는 [테스트](testing.md)에 있습니다.

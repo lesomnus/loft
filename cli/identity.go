@@ -1,4 +1,4 @@
-package admincli
+package cli
 
 import (
 	"context"
@@ -15,8 +15,29 @@ import (
 	"github.com/lesomnus/loft/server/domain"
 )
 
-// newCmdIdentity is `loft-admin identity`: who people are, which is roster's
-// (design 9.10).
+// identityWritten is `loft identity`, who people are, which is roster's
+// (design 9.10), and `loft holder add|password`, an account and its
+// memberships on the roster in this process (D27): the operator's. The
+// generated `holder add` calls nothing any role or the entry point serves,
+// and the operator's own is its place.
+func identityWritten() []written {
+	out := group(newCmdIdentity(), map[string][]string{
+		"migrate":   {app.OperatorIdentityService_Migrate_FullMethodName},
+		"depart":    {app.OperatorIdentityService_Depart_FullMethodName},
+		"reconcile": {app.OperatorIdentityService_Reconcile_FullMethodName},
+	})
+	holder := newCmdHolder()
+	for _, c := range holder.Commands {
+		switch c.Name {
+		case "add":
+			out = append(out, written{path: "holder/add", replace: true, cmd: c, calls: []string{app.OperatorHolderService_Add_FullMethodName}})
+		case "password":
+			out = append(out, written{path: "holder/password", cmd: c, calls: []string{app.OperatorHolderService_Password_FullMethodName}})
+		}
+	}
+	return out
+}
+
 func newCmdIdentity() *xli.Command {
 	return &xli.Command{
 		Name:  "identity",
@@ -29,7 +50,7 @@ func newCmdIdentity() *xli.Command {
 					&flg.String{Name: "password", Brief: "give everybody this one, for a deployment to try things on; empty makes one up for each"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -109,7 +130,7 @@ func newCmdIdentity() *xli.Command {
 					default:
 						return errors.New("which account: --member @workspace/alias, or --account")
 					}
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -117,7 +138,7 @@ func newCmdIdentity() *xli.Command {
 					if err != nil {
 						return err
 					}
-					who := idOf(v.GetAccount())
+					who := idSaid(v.GetAccount())
 					if len(v.GetMembers()) == 0 {
 						self.Printf("%s is a member of no workspace here\n", who)
 					}
@@ -169,7 +190,7 @@ func newCmdIdentity() *xli.Command {
 				Brief: "ask roster about every account with a membership here, and mark those it has nobody by as leaving",
 				Flags: flg.Flags{&flg.Switch{Name: "yes", Brief: "do it; without this it only says what it would do"}},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -179,10 +200,10 @@ func newCmdIdentity() *xli.Command {
 					}
 					self.Printf("%d account(s) with a membership here; roster has %d of them\n", v.GetAccounts(), v.GetFound())
 					for _, a := range v.GetGone() {
-						self.Printf("gone at roster, not yet leaving here: %s (%s)\n", idOf(a.GetAccount()), strings.Join(a.GetMembers(), ", "))
+						self.Printf("gone at roster, not yet leaving here: %s (%s)\n", idSaid(a.GetAccount()), strings.Join(a.GetMembers(), ", "))
 					}
 					for _, a := range v.GetBack() {
-						self.Printf("leaving here, and roster has it again: %s (%s)\n", idOf(a.GetAccount()), strings.Join(a.GetMembers(), ", "))
+						self.Printf("leaving here, and roster has it again: %s (%s)\n", idSaid(a.GetAccount()), strings.Join(a.GetMembers(), ", "))
 					}
 					if len(v.GetGone()) == 0 && len(v.GetBack()) == 0 {
 						self.Printf("nothing to do\n")
@@ -201,8 +222,8 @@ func newCmdIdentity() *xli.Command {
 	}
 }
 
-// newCmdHolder is `loft-admin holder`: an account and its memberships, on the
-// roster in this process (design 9.10, D27).
+// newCmdHolder is an account and its memberships, on the roster in this
+// process (design 9.10, D27): `holder add` and `holder password`.
 func newCmdHolder() *xli.Command {
 	return &xli.Command{
 		Name:  "holder",
@@ -227,7 +248,7 @@ func newCmdHolder() *xli.Command {
 					if str(self, "login") == "" {
 						return errors.New("--login: what they sign in with")
 					}
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -242,7 +263,7 @@ func newCmdHolder() *xli.Command {
 					if err != nil {
 						return err
 					}
-					self.Printf("holder   @%s/%s (account %s), %s\n", v.GetWorkspace(), v.GetMember(), idOf(v.GetAccount()), v.GetRole())
+					self.Printf("holder   @%s/%s (account %s), %s\n", v.GetWorkspace(), v.GetMember(), idSaid(v.GetAccount()), v.GetRole())
 					if v.GetPassword() != "" {
 						self.Printf("password %s\n", v.GetPassword())
 					}
@@ -260,7 +281,7 @@ func newCmdHolder() *xli.Command {
 					if str(self, "login") == "" {
 						return errors.New("--login: whose password")
 					}
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -270,7 +291,7 @@ func newCmdHolder() *xli.Command {
 					if err != nil {
 						return err
 					}
-					self.Printf("account  %s (%s)\n", v.GetLogin(), idOf(v.GetAccount()))
+					self.Printf("account  %s (%s)\n", v.GetLogin(), idSaid(v.GetAccount()))
 					if v.GetPassword() != "" {
 						self.Printf("password %s\n", v.GetPassword())
 					}

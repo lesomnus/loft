@@ -46,13 +46,6 @@ type connectConn struct {
 
 var _ grpc.ClientConnInterface = (*connectConn)(nil)
 
-// Connect is a connection to whatever answers Connect at `base` -- a
-// deployment's address, or the operator's entry point (`loft-admin`, D74) --
-// sending `header` with every call: what says who is calling.
-func Connect(base string, header http.Header) grpc.ClientConnInterface {
-	return &connectConn{base: strings.TrimSuffix(base, "/"), client: &http.Client{Timeout: 0}, header: header.Clone()}
-}
-
 func (c *connectConn) request(ctx context.Context, method, contentType string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.base+method, body)
 	if err != nil {

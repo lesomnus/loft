@@ -26,7 +26,7 @@ func or(v, otherwise string) string {
 }
 
 // fromBeforeRoster says whether this deployment still has the table it kept
-// passwords in before roster held them: one `loft-admin identity migrate` has
+// passwords in before roster held them: one `loft identity migrate` has
 // not brought in, whose people cannot sign in.
 func fromBeforeRoster(ctx context.Context, s *cmd.Server) (bool, error) {
 	q := "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'credential'"

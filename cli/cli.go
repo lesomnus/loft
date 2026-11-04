@@ -91,7 +91,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 	// build's shape before anything serves. Each stands the stack up, does
 	// one thing and exits, and is observed as the deployment is
 	// (`observed`). Everything else an operator does is asked of the entry
-	// point (`loft-admin`), as the operator.
+	// point (`loft-admin serve`), on an operator's connection.
 	first, migrate, serve := NewCmdInit(c), NewCmdMigrate(c), NewCmdServe(c)
 
 	root := &xli.Command{
@@ -428,7 +428,7 @@ func stashTerms(ctx context.Context, s *cmd.Server) error {
 // refused by name, and nothing is moved or dropped.
 //
 // A contract that said any of them is a row a migration rewrote, and the trail
-// finds it so (`loft-admin trail rows`) until an operator accepts it once.
+// finds it so (`loft trail rows`) until an operator accepts it once.
 func moveTerms(ctx context.Context, s *cmd.Server) error {
 	columns, err := hasColumn(ctx, s, "tenantcontract", "keep_days")
 	if err != nil {

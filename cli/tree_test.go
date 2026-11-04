@@ -149,3 +149,41 @@ func TestTheHelpIsTheSameOnEveryConnection(t *testing.T) {
 
 	x.Contains(help("fact"), "list", "a hidden group's own help lists its verbs")
 }
+
+// TestTheOperatorsCommandsSaySo (design 9.16): the help is the same on every
+// connection, and what is the operator's alone says so in it -- a command
+// whose calls only the entry point serves and no role of a workspace is
+// given, and a group of nothing else. What both kinds call says nothing, nor
+// what checks a file against keys `--trust` names.
+func TestTheOperatorsCommandsSaySo(t *testing.T) {
+	x := require.New(t)
+	marked := map[string]bool{}
+	var walk func(path string, level xli.Commands)
+	walk = func(path string, level xli.Commands) {
+		for _, c := range level {
+			p := strings.TrimPrefix(path+"/"+c.Name, "/")
+			if strings.HasSuffix(c.Brief, " (operator)") {
+				marked[p] = true
+			}
+			walk(p, c.Commands)
+		}
+	}
+	walk("", root().Commands)
+	x.Equal(map[string]bool{
+		"tenant/show": true, "tenant/move": true, "tenant/name-owner": true,
+		"tenant/import": true, "tenant/retired": true, "tenant/retire": true, "tenant/purge": true,
+		"tenant-contract/add": true, "legal-hold/add": true, "legal-hold/patch": true,
+		"trail/verify": true, "trail/accept": true, "trail/rows": true, "trail/accept-rows": true,
+		"trail/owed": true, "trail/keys": true, "trail/export": true,
+		"search": true, "search/status": true, "search/reindex": true, "search/remove": true, "search/analyze": true,
+		"retention": true, "retention/plan": true, "retention/run": true,
+		"identity": true, "identity/migrate": true, "identity/depart": true, "identity/reconcile": true,
+		"holder/add": true, "holder/password": true,
+		"event/redact": true, "access/list": true,
+	}, marked)
+
+	help := run(t, root(), "--help")
+	x.Contains(help, "search               the search index")
+	x.Regexp(`(?m)^\s+search\s.*\(operator\)$`, help)
+	x.Regexp(`(?m)^\s+trail\s`, help, "the trail's group holds a check anyone with the keys makes")
+}
