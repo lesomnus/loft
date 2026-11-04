@@ -1,0 +1,95 @@
+# The node collector's configuration (collector.yaml): OTLP from the pods on
+# this node, and the node itself, into ClickHouse (../clickhouse).
+extensions:
+  health_check:
+    endpoint: ${env:POD_IP}:13133
+receivers:
+  otlp:
+    protocols:
+      grpc: { endpoint: "${env:POD_IP}:4317" }
+      http: { endpoint: "${env:POD_IP}:4318" }
+  # The node, not the container: the host's /proc and its mounts, at
+  # /hostfs. What the platform dashboard's 노드 row draws.
+  host_metrics:
+    root_path: /hostfs
+    collection_interval: 30s
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.time: { enabled: false }
+          system.cpu.utilization: { enabled: true }
+      memory:
+        metrics:
+          system.memory.utilization: { enabled: true }
+      filesystem:
+        metrics:
+          system.filesystem.utilization: { enabled: true }
+        # The node's own disks: not what the kubelet and the container
+        # runtime mount for each pod, which are the same disks again.
+        exclude_mount_points:
+          match_type: regexp
+          mount_points:
+            - ^/(dev|proc|sys|run|snap)(/|$)
+            - ^/var/lib/(kubelet|docker|containerd)/
+            - ^/var/lib/rancher/k3s/agent/
+            - ^/run/k3s/
+        exclude_fs_types:
+          match_type: strict
+          fs_types: [autofs, binfmt_misc, bpf, cgroup2, configfs, debugfs, devpts, devtmpfs, fusectl, hugetlbfs, mqueue, nsfs, overlay, proc, pstore, rpc_pipefs, securityfs, squashfs, sysfs, tmpfs, tracefs]
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 200
+    spike_limit_mib: 50
+  # Which node, as the dashboards tell them apart.
+  resource/node:
+    attributes:
+      - { key: host.name, value: "${env:NODE_NAME}", action: upsert }
+      - { key: k8s.node.name, value: "${env:NODE_NAME}", action: upsert }
+  batch:
+    send_batch_size: 5000
+    timeout: 5s
+exporters:
+  clickhouse:
+    endpoint: ${env:CLICKHOUSE_ENDPOINT}
+    database: otel
+    username: otel
+    password: ${env:CLICKHOUSE_PASSWORD}
+    # The tables are the exporter's own (create_schema): otel_logs,
+    # otel_traces, otel_metrics_gauge, _sum, _histogram, ... Attributes
+    # of logs and traces are JSON, as the dashboards read them
+    # (LogAttributes.rpc.service); metrics keep their Map.
+    create_schema: true
+    json: true
+    # How long a row is kept, set when a table is made: 30 days, the
+    # longest any rule in docs/runbook/observe.md looks back. A table
+    # made before keeps its own; README.md says how to change it.
+    ttl: 720h
+    timeout: 10s
+    sending_queue:
+      num_consumers: 2
+      queue_size: 1000
+    retry_on_failure:
+      enabled: true
+      max_elapsed_time: 300s
+service:
+  extensions: [health_check]
+  telemetry:
+    logs: { level: warn }
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [clickhouse]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [clickhouse]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [clickhouse]
+    metrics/node:
+      receivers: [host_metrics]
+      processors: [memory_limiter, resource/node, batch]
+      exporters: [clickhouse]

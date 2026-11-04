@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 """The Grafana dashboards for Loft (loft#38): what Loft sends over OTLP and
 what the platform says of itself, read from ClickHouse's OpenTelemetry tables
-(the collector's `clickhouse` exporter) and Loki.
+(the collector's `clickhouse` exporter).
 
-    python3 gen.py OUTDIR
+    python3 gen.py OUTDIR [--suffix _dist]
 
 Two dashboards, `loft-service.json` and `loft-platform.json`. Each table is
-named `${db}.otel_<signal>${suffix}`: a cluster of ClickHouse nodes reads
-through its Distributed tables (`_dist`), one node through the tables
-themselves (no suffix).
+named `${db}.otel_<signal><suffix>`: one node -- the ClickHouse in
+../clickhouse -- answers through the tables themselves (no suffix, what is
+written here), and a cluster of nodes through its Distributed tables
+(`--suffix _dist`, for a deployment that writes its own).
 """
 
+import argparse
 import json
 import os
-import sys
+import re
 
 CH = {"type": "grafana-clickhouse-datasource", "uid": "clickhouse"}
-LOKI = {"type": "loki", "uid": "loki"}
-
-LOGS = "${db}.otel_logs${suffix}"
-GAUGE = "${db}.otel_metrics_gauge${suffix}"
-SUM = "${db}.otel_metrics_sum${suffix}"
+LOGS = "${db}.otel_logs"
+GAUGE = "${db}.otel_metrics_gauge"
+SUM = "${db}.otel_metrics_sum"
 
 # The request log: the second of the two lines every call leaves, for calls
 # to Loft's own services (the roster in this process answers on the same
@@ -108,10 +108,6 @@ class Board:
                 {"name": "db", "label": "ClickHouse 데이터베이스", "type": "custom", "query": "otel",
                  "current": {"text": "otel", "value": "otel"}, "options": [{"text": "otel", "value": "otel", "selected": True}],
                  "hide": 2},
-                {"name": "suffix", "label": "테이블 접미사", "type": "custom", "query": "_dist,none",
-                 "current": {"text": "_dist", "value": "_dist"},
-                 "options": [{"text": "_dist", "value": "_dist", "selected": True}, {"text": "none", "value": "", "selected": False}],
-                 "description": "ClickHouse 노드 여럿이면 분산 테이블(_dist), 하나면 접미사 없음"},
             ]},
             "panels": self.panels,
         }
@@ -212,11 +208,6 @@ def service():
     b.add(timeseries("검색 대기열",
                      series(GAUGE, "cnpg_loft_search_stale", "ResourceAttributes['k8s.namespace.name']"),
                      "short", "색인기를 기다리는 SearchStale 행(추정치). 가져오기 직후 잠깐 늘고 1초쯤 안에 줄어야 합니다", legend="list", decimals=0), 12, 7)
-    b.add({
-        "type": "logs", "title": "로그 (WARN·ERROR, 요청 로그는 뺌, Loki)", "datasource": LOKI,
-        "targets": [{"refId": "A", "datasource": LOKI, "expr": '{service_name="loft"} != "gRPC in" != "gRPC out" | severity_text=~"WARN|ERROR"'}],
-        "options": {"showTime": True, "wrapLogMessage": True, "sortOrder": "Descending", "enableLogDetails": True},
-    }, 24, 10)
     return b.json()
 
 
@@ -277,7 +268,8 @@ def platform():
                 "볼륨 백업(loft-volumes-backup) 같은 Job의 실패한 파드 수"), 12, 8)
 
     b.row("노드")
-    node = "getMacro('nickname')"
+    # The node collector says which node it is (../node/collector.yaml).
+    node = "ResourceAttributes['host.name']"
     b.add(timeseries("디스크 사용률", series(GAUGE, "system.filesystem.utilization", f"concat({node}, ' ', Attributes['mountpoint'])", value="max(Value)"),
                      "percentunit", "노드 수집기(hostmetrics)의 파일 시스템 사용률. local-path 볼륨은 노드 디스크에 있습니다", legend="list"), 8, 8)
     b.add(timeseries("메모리 사용률", series(GAUGE, "system.memory.utilization", node, value="avgIf(Value, Attributes['state'] = 'used')"),
@@ -288,10 +280,22 @@ def platform():
     return b.json()
 
 
+def suffixed(board, suffix):
+    """Every table a query names, as `${db}.otel_<signal><suffix>`."""
+    for panel in board["panels"]:
+        for t in panel.get("targets", []):
+            t["rawSql"] = re.sub(r"(\$\{db\}\.otel_[a-z_]+)", lambda m: m.group(1) + suffix, t["rawSql"])
+    return board
+
+
 def main():
-    out = sys.argv[1]
+    args = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    args.add_argument("out", metavar="OUTDIR")
+    args.add_argument("--suffix", default="", help="what each table's name ends in: _dist for a cluster's Distributed tables")
+    args = args.parse_args()
+    out = args.out
     os.makedirs(out, exist_ok=True)
-    for name, board in (("loft-service.json", service()), ("loft-platform.json", platform())):
+    for name, board in (("loft-service.json", suffixed(service(), args.suffix)), ("loft-platform.json", suffixed(platform(), args.suffix))):
         with open(os.path.join(out, name), "w") as f:
             json.dump(board, f, ensure_ascii=False, indent=2)
             f.write("\n")

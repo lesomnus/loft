@@ -1,0 +1,63 @@
+<!--
+  Who signs in, as users.d/loft.xml over the image's users.xml. Two accounts
+  over the network, each told its password by the pod's environment (the
+  Secrets in clickhouse.yaml):
+
+    otel     the node collectors: makes the tables in `otel` and writes them
+    grafana  reads `otel`, and nothing else (readonly=2: SELECT, and the SET a
+             query of the plugin's sends)
+
+  `default` stays, for an operator inside the pod (`clickhouse client` run
+  through `kubectl exec`), and only from there.
+-->
+<clickhouse>
+    <profiles>
+        <otel>
+            <max_memory_usage>536870912</max_memory_usage>
+            <query_profiler_real_time_period_ns>0</query_profiler_real_time_period_ns>
+            <query_profiler_cpu_time_period_ns>0</query_profiler_cpu_time_period_ns>
+        </otel>
+        <grafana>
+            <readonly>2</readonly>
+            <max_threads>4</max_threads>
+            <max_memory_usage>536870912</max_memory_usage>
+            <max_execution_time>60</max_execution_time>
+            <query_profiler_real_time_period_ns>0</query_profiler_real_time_period_ns>
+            <query_profiler_cpu_time_period_ns>0</query_profiler_cpu_time_period_ns>
+        </grafana>
+    </profiles>
+
+    <users>
+        <default>
+            <networks replace="replace">
+                <ip>::1</ip>
+                <ip>127.0.0.1</ip>
+            </networks>
+        </default>
+
+        <otel>
+            <password from_env="CLICKHOUSE_OTEL_PASSWORD"/>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>otel</profile>
+            <quota>default</quota>
+            <grants>
+                <!-- What the exporter's create_schema runs, and its inserts. -->
+                <query>GRANT CREATE DATABASE, CREATE TABLE, CREATE VIEW, INSERT, SELECT ON otel.*</query>
+            </grants>
+        </otel>
+
+        <grafana>
+            <password from_env="CLICKHOUSE_GRAFANA_PASSWORD"/>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>grafana</profile>
+            <quota>default</quota>
+            <grants>
+                <query>GRANT SELECT ON otel.*</query>
+            </grants>
+        </grafana>
+    </users>
+</clickhouse>

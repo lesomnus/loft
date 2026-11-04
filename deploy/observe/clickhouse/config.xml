@@ -1,0 +1,79 @@
+<!--
+  The server, as config.d/loft.xml over the image's config.xml: one node with
+  no cluster and no keeper, a memory budget that fits beside the rest of a
+  small node, its own logs on stdout, and its own tables kept short.
+
+  It replaces the image's config.d, and so says what that said: listen on
+  every address.
+-->
+<clickhouse>
+    <listen_host>0.0.0.0</listen_host>
+    <listen_try>1</listen_try>
+
+    <!-- What the collectors write and Grafana reads (9000), and /ping (8123). -->
+    <mysql_port remove="remove"/>
+    <postgresql_port remove="remove"/>
+    <interserver_http_port remove="remove"/>
+
+    <!-- To stdout, for `kubectl logs`: no files beside the data. -->
+    <logger>
+        <level>warning</level>
+        <console>1</console>
+        <log remove="remove"/>
+        <errorlog remove="remove"/>
+    </logger>
+
+    <!--
+      Memory. The server reads its share from the container's limit; it
+      refuses a query rather than go past this much of it. The caches are
+      what grows on its own, so each has a size of its own here: the image's
+      are for a machine with tens of gigabytes.
+    -->
+    <max_server_memory_usage_to_ram_ratio>0.75</max_server_memory_usage_to_ram_ratio>
+    <cache_size_to_ram_max_ratio>0.2</cache_size_to_ram_max_ratio>
+    <mark_cache_size>134217728</mark_cache_size>
+    <index_mark_cache_size>33554432</index_mark_cache_size>
+    <uncompressed_cache_size>16777216</uncompressed_cache_size>
+    <index_uncompressed_cache_size>16777216</index_uncompressed_cache_size>
+    <compiled_expression_cache_size>33554432</compiled_expression_cache_size>
+    <query_condition_cache_size>33554432</query_condition_cache_size>
+    <query_cache>
+        <max_size_in_bytes>33554432</max_size_in_bytes>
+    </query_cache>
+    <max_concurrent_queries>64</max_concurrent_queries>
+
+    <!--
+      The server's own tables. Kept: the queries (who asked what, and how
+      long it took), the asynchronous inserts the collectors make, and the
+      crashes, each for a few days. The rest are a profiler's and a
+      cluster's, and on a small node they are most of what is written.
+    -->
+    <query_log>
+        <ttl>event_date + INTERVAL 7 DAY DELETE</ttl>
+    </query_log>
+    <asynchronous_insert_log>
+        <ttl>event_date + INTERVAL 3 DAY DELETE</ttl>
+    </asynchronous_insert_log>
+    <part_log>
+        <ttl>event_date + INTERVAL 7 DAY DELETE</ttl>
+    </part_log>
+    <trace_log remove="remove"/>
+    <text_log remove="remove"/>
+    <metric_log remove="remove"/>
+    <asynchronous_metric_log remove="remove"/>
+    <error_log remove="remove"/>
+    <query_metric_log remove="remove"/>
+    <query_thread_log remove="remove"/>
+    <query_views_log remove="remove"/>
+    <processors_profile_log remove="remove"/>
+    <background_schedule_pool_log remove="remove"/>
+    <instrumentation_trace_log remove="remove"/>
+    <opentelemetry_span_log remove="remove"/>
+    <iceberg_metadata_log remove="remove"/>
+    <delta_lake_metadata_log remove="remove"/>
+    <backup_log remove="remove"/>
+    <s3queue_log remove="remove"/>
+    <blob_storage_log remove="remove"/>
+    <aggregated_zookeeper_log remove="remove"/>
+    <zookeeper_connection_log remove="remove"/>
+</clickhouse>
