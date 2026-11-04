@@ -173,6 +173,12 @@ loft-admin identity depart --member @loft/minsu           # 워크스페이스�
 loft-admin identity depart --member @loft/minsu --yes     # 지금 모든 워크스페이스에서 떠남
 loft-admin identity reconcile --yes                       # roster에 모든 계정을 다시 물음
 loft-admin identity migrate                               # roster 이전의 배포를 한 번 옮김 (먼저 loft migrate)
+
+# 작업 기록의 사유와 접속기록 (아래 "작업 기록의 사유를 지울 때"와 "접속기록")
+loft-admin event redact --tenant loft --event <작업 기록의 ID> --why "삭제 요청 2026-17"         # 무엇을 지울지만 (아무것도 바꾸지 않음)
+loft-admin event redact --tenant loft --event <작업 기록의 ID> --why "삭제 요청 2026-17" --yes   # 지움. 한 사람은 키의 운영자
+loft-admin access ls --tenant loft --kind download --from 2026-10-01                        # 배포 전체의 접속기록. ID로 말하고 운영자는 이름을 곁들임
+loft-admin access reviews --tenant loft                                                     # 워크스페이스의 관리자가 남긴 점검
 ```
 
 - 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다. 키를 바꿔도 이름이 같으면 기록에는 같은 운영자입니다.

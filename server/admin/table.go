@@ -97,6 +97,18 @@ var Table = map[string]Kind{
 	app.OperatorIdentityService_Reconcile_FullMethodName: Write,
 	app.OperatorHolderService_Add_FullMethodName:         Write,
 	app.OperatorHolderService_Password_FullMethodName:    Write,
+
+	// An event's reason taken out, on the word of the workspace it is of,
+	// for a person whose request to erase what it says of them points at it
+	// (payday#151) -- which no role of a workspace is given yet -- and what
+	// it would take, said first.
+	app.EventService_Redact_FullMethodName:            Write,
+	app.OperatorEventService_Redaction_FullMethodName: Read,
+
+	// The access record of the whole deployment (loft#136), and the reviews
+	// of it the workspaces' administrators recorded.
+	app.OperatorAccessService_List_FullMethodName: Read,
+	app.AccessReviewService_List_FullMethodName:   Read,
 }
 
 // Downloads is the methods of [Table] that are downloads.

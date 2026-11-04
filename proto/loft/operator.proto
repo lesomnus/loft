@@ -832,3 +832,100 @@ message OperatorHolderPasswordResponse {
   // The one made up, said once.
   string password = 3;
 }
+
+// OperatorEventService is a workspace's history, as the operator acts on it
+// on the workspace's word. Taking an event's reason out is the entity's own
+// `EventService.Redact`, which the entry point serves as the operator; this
+// says what it would take, before it is asked to.
+service OperatorEventService {
+  // Redaction is what taking an event's reason out would take: the event,
+  // whether it has a reason, and where else its operation says the same --
+  // its other events, the notices that say it as their words, the rows that
+  // keep it as their own -- by kind and by count, having read none of what
+  // they say (design D49, D51, D56). It changes nothing.
+  rpc Redaction(OperatorEventRedactionRequest) returns (OperatorEventRedactionResponse);
+}
+
+message OperatorEventRedactionRequest {
+  bytes event = 1;
+  // The workspace it is of, when the caller says which; refused when it is
+  // another's.
+  OperatorTenantRef tenant = 2 [features.field_presence = EXPLICIT];
+}
+
+message OperatorEventRedactionResponse {
+  bytes event = 1;
+  string tenant = 2;
+  string kind = 3;
+  google.protobuf.Timestamp occurred = 4;
+  google.protobuf.Timestamp recorded = 5;
+  bytes subject = 6;
+  // Whether it has a reason to take out at all.
+  bool said = 7;
+  // The other events of its operation that say the same, the notices that
+  // say it as their words (and how many of those went by mail, which is not
+  // taken back), and the rows that keep it as their own: each by kind.
+  map<string, uint32> copies = 8;
+  map<string, uint32> told = 9;
+  uint32 mailed = 10;
+  map<string, uint32> kept = 11;
+  // What took its reason out before, the newest first: the act's own event,
+  // or the part of an act that took it out of a copy.
+  repeated OperatorEventRedactionAct acts = 12;
+}
+
+message OperatorEventRedactionAct {
+  bytes event = 1;
+  google.protobuf.Timestamp recorded = 2;
+  // Who did it; nobody, for the deployment's own work.
+  bytes actor = 3;
+  // The operator's name, for an act an operator did.
+  string operator = 4;
+}
+
+// OperatorAccessService is the access record of the whole deployment, for an
+// operator (loft#136): who read, wrote or took out whose personal data, from
+// where -- in a workspace, by a member, of one person, of one kind. A person
+// asking what was done with their data is answered with `subject`. It says
+// identifiers and no names, but an operator's, which the entry point knows,
+// and changes nothing. A workspace's own administrators review theirs with
+// `AccessService.Review`.
+service OperatorAccessService {
+  // List is the calls that carried somebody's personal data, newest first.
+  rpc List(OperatorAccessListRequest) returns (OperatorAccessListResponse);
+}
+
+message OperatorAccessListRequest {
+  // Only this workspace's record.
+  OperatorTenantRef tenant = 1 [features.field_presence = EXPLICIT];
+  // From and before when; thirty days ago and now when unset.
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+  // Only the calls of this actor: a membership, an account, an operator.
+  bytes actor = 4;
+  // Only the calls that carried this person's data, by their person
+  // record's or their membership's identifier.
+  bytes subject = 5;
+  // read, write or download.
+  string kind = 6;
+  // At most this many; 100 when unset, and no more than 1000.
+  uint32 size = 7;
+}
+
+message OperatorAccessListResponse {
+  repeated OperatorAccessRow items = 1;
+}
+
+message OperatorAccessRow {
+  google.protobuf.Timestamp at = 1;
+  string tenant = 2;
+  string kind = 3;
+  string result = 4;
+  string action = 5;
+  bytes actor = 6;
+  // The operator's name, for a row an operator made.
+  string operator = 7;
+  string address = 8;
+  uint32 subjects = 9;
+  string reason = 10;
+}

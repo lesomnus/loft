@@ -524,7 +524,8 @@ export const EventService: GenService<{
    * event of its own, `event.redact`, whose reason is the request's
    * reference. It answers the event as it is now. No role is given it yet
    * (`server/policy`): who may is the workspace's to say, and the
-   * deployment's operator does it with `loft event redact`.
+   * deployment's operator does it at the entry point (`loft-admin event
+   * redact`, design 9.15).
    *
    * @generated from rpc loft.EventService.Redact
    */

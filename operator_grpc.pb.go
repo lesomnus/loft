@@ -1617,3 +1617,245 @@ var OperatorHolderService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "loft/operator.proto",
 }
+
+const (
+	OperatorEventService_Redaction_FullMethodName = "/loft.OperatorEventService/Redaction"
+)
+
+// OperatorEventServiceClient is the client API for OperatorEventService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorEventService is a workspace's history, as the operator acts on it
+// on the workspace's word. Taking an event's reason out is the entity's own
+// `EventService.Redact`, which the entry point serves as the operator; this
+// says what it would take, before it is asked to.
+type OperatorEventServiceClient interface {
+	// Redaction is what taking an event's reason out would take: the event,
+	// whether it has a reason, and where else its operation says the same --
+	// its other events, the notices that say it as their words, the rows that
+	// keep it as their own -- by kind and by count, having read none of what
+	// they say (design D49, D51, D56). It changes nothing.
+	Redaction(ctx context.Context, in *OperatorEventRedactionRequest, opts ...grpc.CallOption) (*OperatorEventRedactionResponse, error)
+}
+
+type operatorEventServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorEventServiceClient(cc grpc.ClientConnInterface) OperatorEventServiceClient {
+	return &operatorEventServiceClient{cc}
+}
+
+func (c *operatorEventServiceClient) Redaction(ctx context.Context, in *OperatorEventRedactionRequest, opts ...grpc.CallOption) (*OperatorEventRedactionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorEventRedactionResponse)
+	err := c.cc.Invoke(ctx, OperatorEventService_Redaction_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperatorEventServiceServer is the server API for OperatorEventService service.
+// All implementations must embed UnimplementedOperatorEventServiceServer
+// for forward compatibility.
+//
+// OperatorEventService is a workspace's history, as the operator acts on it
+// on the workspace's word. Taking an event's reason out is the entity's own
+// `EventService.Redact`, which the entry point serves as the operator; this
+// says what it would take, before it is asked to.
+type OperatorEventServiceServer interface {
+	// Redaction is what taking an event's reason out would take: the event,
+	// whether it has a reason, and where else its operation says the same --
+	// its other events, the notices that say it as their words, the rows that
+	// keep it as their own -- by kind and by count, having read none of what
+	// they say (design D49, D51, D56). It changes nothing.
+	Redaction(context.Context, *OperatorEventRedactionRequest) (*OperatorEventRedactionResponse, error)
+	mustEmbedUnimplementedOperatorEventServiceServer()
+}
+
+// UnimplementedOperatorEventServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorEventServiceServer struct{}
+
+func (UnimplementedOperatorEventServiceServer) Redaction(context.Context, *OperatorEventRedactionRequest) (*OperatorEventRedactionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Redaction not implemented")
+}
+func (UnimplementedOperatorEventServiceServer) mustEmbedUnimplementedOperatorEventServiceServer() {}
+func (UnimplementedOperatorEventServiceServer) testEmbeddedByValue()                              {}
+
+// UnsafeOperatorEventServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorEventServiceServer will
+// result in compilation errors.
+type UnsafeOperatorEventServiceServer interface {
+	mustEmbedUnimplementedOperatorEventServiceServer()
+}
+
+func RegisterOperatorEventServiceServer(s grpc.ServiceRegistrar, srv OperatorEventServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorEventServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorEventService_ServiceDesc, srv)
+}
+
+func _OperatorEventService_Redaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorEventRedactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorEventServiceServer).Redaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorEventService_Redaction_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorEventServiceServer).Redaction(ctx, req.(*OperatorEventRedactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperatorEventService_ServiceDesc is the grpc.ServiceDesc for OperatorEventService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorEventService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorEventService",
+	HandlerType: (*OperatorEventServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Redaction",
+			Handler:    _OperatorEventService_Redaction_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "loft/operator.proto",
+}
+
+const (
+	OperatorAccessService_List_FullMethodName = "/loft.OperatorAccessService/List"
+)
+
+// OperatorAccessServiceClient is the client API for OperatorAccessService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorAccessService is the access record of the whole deployment, for an
+// operator (loft#136): who read, wrote or took out whose personal data, from
+// where -- in a workspace, by a member, of one person, of one kind. A person
+// asking what was done with their data is answered with `subject`. It says
+// identifiers and no names, but an operator's, which the entry point knows,
+// and changes nothing. A workspace's own administrators review theirs with
+// `AccessService.Review`.
+type OperatorAccessServiceClient interface {
+	// List is the calls that carried somebody's personal data, newest first.
+	List(ctx context.Context, in *OperatorAccessListRequest, opts ...grpc.CallOption) (*OperatorAccessListResponse, error)
+}
+
+type operatorAccessServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorAccessServiceClient(cc grpc.ClientConnInterface) OperatorAccessServiceClient {
+	return &operatorAccessServiceClient{cc}
+}
+
+func (c *operatorAccessServiceClient) List(ctx context.Context, in *OperatorAccessListRequest, opts ...grpc.CallOption) (*OperatorAccessListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorAccessListResponse)
+	err := c.cc.Invoke(ctx, OperatorAccessService_List_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperatorAccessServiceServer is the server API for OperatorAccessService service.
+// All implementations must embed UnimplementedOperatorAccessServiceServer
+// for forward compatibility.
+//
+// OperatorAccessService is the access record of the whole deployment, for an
+// operator (loft#136): who read, wrote or took out whose personal data, from
+// where -- in a workspace, by a member, of one person, of one kind. A person
+// asking what was done with their data is answered with `subject`. It says
+// identifiers and no names, but an operator's, which the entry point knows,
+// and changes nothing. A workspace's own administrators review theirs with
+// `AccessService.Review`.
+type OperatorAccessServiceServer interface {
+	// List is the calls that carried somebody's personal data, newest first.
+	List(context.Context, *OperatorAccessListRequest) (*OperatorAccessListResponse, error)
+	mustEmbedUnimplementedOperatorAccessServiceServer()
+}
+
+// UnimplementedOperatorAccessServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorAccessServiceServer struct{}
+
+func (UnimplementedOperatorAccessServiceServer) List(context.Context, *OperatorAccessListRequest) (*OperatorAccessListResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedOperatorAccessServiceServer) mustEmbedUnimplementedOperatorAccessServiceServer() {}
+func (UnimplementedOperatorAccessServiceServer) testEmbeddedByValue()                               {}
+
+// UnsafeOperatorAccessServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorAccessServiceServer will
+// result in compilation errors.
+type UnsafeOperatorAccessServiceServer interface {
+	mustEmbedUnimplementedOperatorAccessServiceServer()
+}
+
+func RegisterOperatorAccessServiceServer(s grpc.ServiceRegistrar, srv OperatorAccessServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorAccessServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorAccessService_ServiceDesc, srv)
+}
+
+func _OperatorAccessService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorAccessListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorAccessServiceServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorAccessService_List_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorAccessServiceServer).List(ctx, req.(*OperatorAccessListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperatorAccessService_ServiceDesc is the grpc.ServiceDesc for OperatorAccessService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorAccessService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorAccessService",
+	HandlerType: (*OperatorAccessServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "List",
+			Handler:    _OperatorAccessService_List_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "loft/operator.proto",
+}
