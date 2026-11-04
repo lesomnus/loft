@@ -1,8 +1,6 @@
 package admin
 
 import (
-	"context"
-	"crypto/x509"
 	"errors"
 	"fmt"
 	"io"
@@ -81,33 +79,4 @@ func send(r io.Reader, part func([]byte) error) error {
 			return err
 		}
 	}
-}
-
-// operatorTrail is `OperatorTrailService`: the trail, as the deployment's
-// operator keeps it.
-type operatorTrail struct {
-	app.UnimplementedOperatorTrailServiceServer
-	a Routes
-}
-
-// Keys is the public keys the deployment signs with and trusts -- what
-// `offboard.TrustedBy` holds an export to, and the trail's bundle -- for the
-// operator to hold a file to where the file is.
-func (s operatorTrail) Keys(ctx context.Context, _ *app.OperatorTrailKeysRequest) (*app.OperatorTrailKeysResponse, error) {
-	out := &app.OperatorTrailKeysResponse{}
-	if p := s.a.S.Trail; p.Signer != nil {
-		b, err := x509.MarshalPKIXPublicKey(p.Signer.Public())
-		if err != nil {
-			return nil, fmt.Errorf("the deployment's key: %w", err)
-		}
-		out.SetSigner(b)
-	}
-	for _, k := range s.a.S.Trail.Trust {
-		b, err := x509.MarshalPKIXPublicKey(k)
-		if err != nil {
-			return nil, fmt.Errorf("a key the deployment trusts: %w", err)
-		}
-		out.SetTrusted(append(out.GetTrusted(), b))
-	}
-	return out, nil
 }

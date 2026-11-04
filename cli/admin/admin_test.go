@@ -32,18 +32,23 @@ import (
 
 const key = "an-operators-key-long-enough-to-be-one"
 
-// run runs a command and answers what it printed.
+// run runs a command and answers what it printed, read as it prints: a pipe
+// holds only so much before the writer waits for a reader.
 func run(t *testing.T, k *xli.Command, args ...string) (string, error) {
 	t.Helper()
 	r, w, err := os.Pipe()
 	require.NoError(t, err)
+	read := make(chan []byte)
+	go func() {
+		b, _ := io.ReadAll(r)
+		read <- b
+	}()
 	was := os.Stdout
 	os.Stdout = w
 	err = k.Run(t.Context(), args)
 	os.Stdout = was
 	require.NoError(t, w.Close())
-	b, _ := io.ReadAll(r)
-	return string(b), err
+	return string(<-read), err
 }
 
 type deployment struct {
@@ -52,7 +57,12 @@ type deployment struct {
 	url string
 }
 
-func deploy(t *testing.T) *deployment {
+func deploy(t *testing.T) *deployment { return deployWith(t, nil) }
+
+// deployWith is a deployment, its configuration as `with` says, with acme --
+// its owner and kim, a member -- and its entry point, which alice holds a key
+// to.
+func deployWith(t *testing.T, with func(*cmd.Config)) *deployment {
 	t.Helper()
 	x := require.New(t)
 	c := cmd.Config{}
@@ -60,6 +70,9 @@ func deploy(t *testing.T) *deployment {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	if with != nil {
+		with(&c)
+	}
 	_, err := run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
 	_, err = run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--role", "member", "--password", "kim-password")

@@ -403,20 +403,62 @@ var OperatorTenantService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	OperatorTrailService_Keys_FullMethodName = "/loft.OperatorTrailService/Keys"
+	OperatorTrailService_Keys_FullMethodName       = "/loft.OperatorTrailService/Keys"
+	OperatorTrailService_Verify_FullMethodName     = "/loft.OperatorTrailService/Verify"
+	OperatorTrailService_Accept_FullMethodName     = "/loft.OperatorTrailService/Accept"
+	OperatorTrailService_Rows_FullMethodName       = "/loft.OperatorTrailService/Rows"
+	OperatorTrailService_AcceptRows_FullMethodName = "/loft.OperatorTrailService/AcceptRows"
+	OperatorTrailService_Owed_FullMethodName       = "/loft.OperatorTrailService/Owed"
+	OperatorTrailService_Export_FullMethodName     = "/loft.OperatorTrailService/Export"
 )
 
 // OperatorTrailServiceClient is the client API for OperatorTrailService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// OperatorTrailService is the trail, as the deployment's operator keeps it.
+// OperatorTrailService is the trail, as the deployment's operator keeps it:
+// its archive checked against the account the database keeps of it, the live
+// rows checked against the trail, what an operator who looked accepts, what
+// its erasures owe, and a workspace's trail taken out.
 type OperatorTrailServiceClient interface {
 	// Keys is the public keys the deployment signs with and trusts: what an
 	// export of a workspace and a bundle of its trail are held to where they
 	// are read -- with the operator, beside the file and the identity that
 	// opens it, which never come here.
 	Keys(ctx context.Context, in *OperatorTrailKeysRequest, opts ...grpc.CallOption) (*OperatorTrailKeysResponse, error)
+	// Verify compares the archive with its manifest and its checkpoints,
+	// changing nothing (`trail.Policy.Verify`); `full` also reads every chunk
+	// whole and checks its bytes. What it is at while it reads, and last what
+	// it found, as one digest an acceptance of it names.
+	Verify(ctx context.Context, in *OperatorTrailVerifyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailVerifyResponse], error)
+	// Accept makes the manifest say what the archive holds, once somebody has
+	// looked (payday#115): of what a verification found and of nothing else --
+	// `of`, the digest it said -- verified again, `full` when it was, and
+	// refused when that finds anything else. Who accepts is the operator whose
+	// key the call carries, kept with why in the checkpoint it ends in.
+	Accept(ctx context.Context, in *OperatorTrailAcceptRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailAcceptResponse], error)
+	// Rows checks the live rows against the digests the trail keeps of them,
+	// changing nothing (`pd.Digests`, payday#102, #108): a row changed or
+	// added past the servers, a line forged, a row the trail says is there and
+	// is not.
+	Rows(ctx context.Context, in *OperatorTrailRowsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailRowsResponse], error)
+	// AcceptRows puts what a check of the rows found on the trail as the act it
+	// is -- the operator's, who looked and decided the rows are right -- of
+	// what that check found (`of`) and of nothing else, and seals the rows from
+	// before seals with it. A line forged and a key not given are not
+	// accepted.
+	AcceptRows(ctx context.Context, in *OperatorTrailAcceptRowsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailAcceptRowsResponse], error)
+	// Owed is what the trail's erasures still owe and since when, and what a
+	// legal hold keeps of it, by workspace (payday#115).
+	Owed(ctx context.Context, in *OperatorTrailOwedRequest, opts ...grpc.CallOption) (*OperatorTrailOwedResponse, error)
+	// Export takes a workspace's trail out, encrypted to whoever keeps it, for
+	// a demand to preserve it (loft#153): every row of the trail that names the
+	// workspace, in the database and in the archive, and a manifest the
+	// deployment signs. A download, which says what it is for and names
+	// everybody whose data it carries before its first byte. The first message
+	// says what it is, the ones after hold its bytes, and the last what it
+	// held.
+	Export(ctx context.Context, in *OperatorTrailExportRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailExportResponse], error)
 }
 
 type operatorTrailServiceClient struct {
@@ -437,17 +479,158 @@ func (c *operatorTrailServiceClient) Keys(ctx context.Context, in *OperatorTrail
 	return out, nil
 }
 
+func (c *operatorTrailServiceClient) Verify(ctx context.Context, in *OperatorTrailVerifyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailVerifyResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorTrailService_ServiceDesc.Streams[0], OperatorTrailService_Verify_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorTrailVerifyRequest, OperatorTrailVerifyResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_VerifyClient = grpc.ServerStreamingClient[OperatorTrailVerifyResponse]
+
+func (c *operatorTrailServiceClient) Accept(ctx context.Context, in *OperatorTrailAcceptRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailAcceptResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorTrailService_ServiceDesc.Streams[1], OperatorTrailService_Accept_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorTrailAcceptRequest, OperatorTrailAcceptResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_AcceptClient = grpc.ServerStreamingClient[OperatorTrailAcceptResponse]
+
+func (c *operatorTrailServiceClient) Rows(ctx context.Context, in *OperatorTrailRowsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailRowsResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorTrailService_ServiceDesc.Streams[2], OperatorTrailService_Rows_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorTrailRowsRequest, OperatorTrailRowsResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_RowsClient = grpc.ServerStreamingClient[OperatorTrailRowsResponse]
+
+func (c *operatorTrailServiceClient) AcceptRows(ctx context.Context, in *OperatorTrailAcceptRowsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailAcceptRowsResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorTrailService_ServiceDesc.Streams[3], OperatorTrailService_AcceptRows_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorTrailAcceptRowsRequest, OperatorTrailAcceptRowsResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_AcceptRowsClient = grpc.ServerStreamingClient[OperatorTrailAcceptRowsResponse]
+
+func (c *operatorTrailServiceClient) Owed(ctx context.Context, in *OperatorTrailOwedRequest, opts ...grpc.CallOption) (*OperatorTrailOwedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorTrailOwedResponse)
+	err := c.cc.Invoke(ctx, OperatorTrailService_Owed_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operatorTrailServiceClient) Export(ctx context.Context, in *OperatorTrailExportRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTrailExportResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorTrailService_ServiceDesc.Streams[4], OperatorTrailService_Export_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorTrailExportRequest, OperatorTrailExportResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_ExportClient = grpc.ServerStreamingClient[OperatorTrailExportResponse]
+
 // OperatorTrailServiceServer is the server API for OperatorTrailService service.
 // All implementations must embed UnimplementedOperatorTrailServiceServer
 // for forward compatibility.
 //
-// OperatorTrailService is the trail, as the deployment's operator keeps it.
+// OperatorTrailService is the trail, as the deployment's operator keeps it:
+// its archive checked against the account the database keeps of it, the live
+// rows checked against the trail, what an operator who looked accepts, what
+// its erasures owe, and a workspace's trail taken out.
 type OperatorTrailServiceServer interface {
 	// Keys is the public keys the deployment signs with and trusts: what an
 	// export of a workspace and a bundle of its trail are held to where they
 	// are read -- with the operator, beside the file and the identity that
 	// opens it, which never come here.
 	Keys(context.Context, *OperatorTrailKeysRequest) (*OperatorTrailKeysResponse, error)
+	// Verify compares the archive with its manifest and its checkpoints,
+	// changing nothing (`trail.Policy.Verify`); `full` also reads every chunk
+	// whole and checks its bytes. What it is at while it reads, and last what
+	// it found, as one digest an acceptance of it names.
+	Verify(*OperatorTrailVerifyRequest, grpc.ServerStreamingServer[OperatorTrailVerifyResponse]) error
+	// Accept makes the manifest say what the archive holds, once somebody has
+	// looked (payday#115): of what a verification found and of nothing else --
+	// `of`, the digest it said -- verified again, `full` when it was, and
+	// refused when that finds anything else. Who accepts is the operator whose
+	// key the call carries, kept with why in the checkpoint it ends in.
+	Accept(*OperatorTrailAcceptRequest, grpc.ServerStreamingServer[OperatorTrailAcceptResponse]) error
+	// Rows checks the live rows against the digests the trail keeps of them,
+	// changing nothing (`pd.Digests`, payday#102, #108): a row changed or
+	// added past the servers, a line forged, a row the trail says is there and
+	// is not.
+	Rows(*OperatorTrailRowsRequest, grpc.ServerStreamingServer[OperatorTrailRowsResponse]) error
+	// AcceptRows puts what a check of the rows found on the trail as the act it
+	// is -- the operator's, who looked and decided the rows are right -- of
+	// what that check found (`of`) and of nothing else, and seals the rows from
+	// before seals with it. A line forged and a key not given are not
+	// accepted.
+	AcceptRows(*OperatorTrailAcceptRowsRequest, grpc.ServerStreamingServer[OperatorTrailAcceptRowsResponse]) error
+	// Owed is what the trail's erasures still owe and since when, and what a
+	// legal hold keeps of it, by workspace (payday#115).
+	Owed(context.Context, *OperatorTrailOwedRequest) (*OperatorTrailOwedResponse, error)
+	// Export takes a workspace's trail out, encrypted to whoever keeps it, for
+	// a demand to preserve it (loft#153): every row of the trail that names the
+	// workspace, in the database and in the archive, and a manifest the
+	// deployment signs. A download, which says what it is for and names
+	// everybody whose data it carries before its first byte. The first message
+	// says what it is, the ones after hold its bytes, and the last what it
+	// held.
+	Export(*OperatorTrailExportRequest, grpc.ServerStreamingServer[OperatorTrailExportResponse]) error
 	mustEmbedUnimplementedOperatorTrailServiceServer()
 }
 
@@ -460,6 +643,24 @@ type UnimplementedOperatorTrailServiceServer struct{}
 
 func (UnimplementedOperatorTrailServiceServer) Keys(context.Context, *OperatorTrailKeysRequest) (*OperatorTrailKeysResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Keys not implemented")
+}
+func (UnimplementedOperatorTrailServiceServer) Verify(*OperatorTrailVerifyRequest, grpc.ServerStreamingServer[OperatorTrailVerifyResponse]) error {
+	return status.Error(codes.Unimplemented, "method Verify not implemented")
+}
+func (UnimplementedOperatorTrailServiceServer) Accept(*OperatorTrailAcceptRequest, grpc.ServerStreamingServer[OperatorTrailAcceptResponse]) error {
+	return status.Error(codes.Unimplemented, "method Accept not implemented")
+}
+func (UnimplementedOperatorTrailServiceServer) Rows(*OperatorTrailRowsRequest, grpc.ServerStreamingServer[OperatorTrailRowsResponse]) error {
+	return status.Error(codes.Unimplemented, "method Rows not implemented")
+}
+func (UnimplementedOperatorTrailServiceServer) AcceptRows(*OperatorTrailAcceptRowsRequest, grpc.ServerStreamingServer[OperatorTrailAcceptRowsResponse]) error {
+	return status.Error(codes.Unimplemented, "method AcceptRows not implemented")
+}
+func (UnimplementedOperatorTrailServiceServer) Owed(context.Context, *OperatorTrailOwedRequest) (*OperatorTrailOwedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Owed not implemented")
+}
+func (UnimplementedOperatorTrailServiceServer) Export(*OperatorTrailExportRequest, grpc.ServerStreamingServer[OperatorTrailExportResponse]) error {
+	return status.Error(codes.Unimplemented, "method Export not implemented")
 }
 func (UnimplementedOperatorTrailServiceServer) mustEmbedUnimplementedOperatorTrailServiceServer() {}
 func (UnimplementedOperatorTrailServiceServer) testEmbeddedByValue()                              {}
@@ -500,6 +701,79 @@ func _OperatorTrailService_Keys_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OperatorTrailService_Verify_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorTrailVerifyRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorTrailServiceServer).Verify(m, &grpc.GenericServerStream[OperatorTrailVerifyRequest, OperatorTrailVerifyResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_VerifyServer = grpc.ServerStreamingServer[OperatorTrailVerifyResponse]
+
+func _OperatorTrailService_Accept_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorTrailAcceptRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorTrailServiceServer).Accept(m, &grpc.GenericServerStream[OperatorTrailAcceptRequest, OperatorTrailAcceptResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_AcceptServer = grpc.ServerStreamingServer[OperatorTrailAcceptResponse]
+
+func _OperatorTrailService_Rows_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorTrailRowsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorTrailServiceServer).Rows(m, &grpc.GenericServerStream[OperatorTrailRowsRequest, OperatorTrailRowsResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_RowsServer = grpc.ServerStreamingServer[OperatorTrailRowsResponse]
+
+func _OperatorTrailService_AcceptRows_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorTrailAcceptRowsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorTrailServiceServer).AcceptRows(m, &grpc.GenericServerStream[OperatorTrailAcceptRowsRequest, OperatorTrailAcceptRowsResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_AcceptRowsServer = grpc.ServerStreamingServer[OperatorTrailAcceptRowsResponse]
+
+func _OperatorTrailService_Owed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorTrailOwedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorTrailServiceServer).Owed(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorTrailService_Owed_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorTrailServiceServer).Owed(ctx, req.(*OperatorTrailOwedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperatorTrailService_Export_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorTrailExportRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorTrailServiceServer).Export(m, &grpc.GenericServerStream[OperatorTrailExportRequest, OperatorTrailExportResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTrailService_ExportServer = grpc.ServerStreamingServer[OperatorTrailExportResponse]
+
 // OperatorTrailService_ServiceDesc is the grpc.ServiceDesc for OperatorTrailService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -511,7 +785,37 @@ var OperatorTrailService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Keys",
 			Handler:    _OperatorTrailService_Keys_Handler,
 		},
+		{
+			MethodName: "Owed",
+			Handler:    _OperatorTrailService_Owed_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Verify",
+			Handler:       _OperatorTrailService_Verify_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Accept",
+			Handler:       _OperatorTrailService_Accept_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Rows",
+			Handler:       _OperatorTrailService_Rows_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "AcceptRows",
+			Handler:       _OperatorTrailService_AcceptRows_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Export",
+			Handler:       _OperatorTrailService_Export_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "loft/operator.proto",
 }

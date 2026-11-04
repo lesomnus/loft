@@ -70,6 +70,15 @@ var Table = map[string]Kind{
 
 	// What an export and the trail's bundle are held to, where they are.
 	app.OperatorTrailService_Keys_FullMethodName: Read,
+	// The trail's archive and the live rows checked against it, what an
+	// operator who looked accepts, and what its erasures owe.
+	app.OperatorTrailService_Verify_FullMethodName:     Read,
+	app.OperatorTrailService_Accept_FullMethodName:     Write,
+	app.OperatorTrailService_Rows_FullMethodName:       Read,
+	app.OperatorTrailService_AcceptRows_FullMethodName: Write,
+	app.OperatorTrailService_Owed_FullMethodName:       Read,
+	// A workspace's trail, out, for a demand to preserve it (loft#153).
+	app.OperatorTrailService_Export_FullMethodName: Download,
 }
 
 // Downloads is the methods of [Table] that are downloads.

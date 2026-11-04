@@ -275,13 +275,55 @@ message OperatorTenantImportResponse {
   string grants = 18;
 }
 
-// OperatorTrailService is the trail, as the deployment's operator keeps it.
+// OperatorTrailService is the trail, as the deployment's operator keeps it:
+// its archive checked against the account the database keeps of it, the live
+// rows checked against the trail, what an operator who looked accepts, what
+// its erasures owe, and a workspace's trail taken out.
 service OperatorTrailService {
   // Keys is the public keys the deployment signs with and trusts: what an
   // export of a workspace and a bundle of its trail are held to where they
   // are read -- with the operator, beside the file and the identity that
   // opens it, which never come here.
   rpc Keys(OperatorTrailKeysRequest) returns (OperatorTrailKeysResponse);
+
+  // Verify compares the archive with its manifest and its checkpoints,
+  // changing nothing (`trail.Policy.Verify`); `full` also reads every chunk
+  // whole and checks its bytes. What it is at while it reads, and last what
+  // it found, as one digest an acceptance of it names.
+  rpc Verify(OperatorTrailVerifyRequest) returns (stream OperatorTrailVerifyResponse);
+
+  // Accept makes the manifest say what the archive holds, once somebody has
+  // looked (payday#115): of what a verification found and of nothing else --
+  // `of`, the digest it said -- verified again, `full` when it was, and
+  // refused when that finds anything else. Who accepts is the operator whose
+  // key the call carries, kept with why in the checkpoint it ends in.
+  rpc Accept(OperatorTrailAcceptRequest) returns (stream OperatorTrailAcceptResponse);
+
+  // Rows checks the live rows against the digests the trail keeps of them,
+  // changing nothing (`pd.Digests`, payday#102, #108): a row changed or
+  // added past the servers, a line forged, a row the trail says is there and
+  // is not.
+  rpc Rows(OperatorTrailRowsRequest) returns (stream OperatorTrailRowsResponse);
+
+  // AcceptRows puts what a check of the rows found on the trail as the act it
+  // is -- the operator's, who looked and decided the rows are right -- of
+  // what that check found (`of`) and of nothing else, and seals the rows from
+  // before seals with it. A line forged and a key not given are not
+  // accepted.
+  rpc AcceptRows(OperatorTrailAcceptRowsRequest) returns (stream OperatorTrailAcceptRowsResponse);
+
+  // Owed is what the trail's erasures still owe and since when, and what a
+  // legal hold keeps of it, by workspace (payday#115).
+  rpc Owed(OperatorTrailOwedRequest) returns (OperatorTrailOwedResponse);
+
+  // Export takes a workspace's trail out, encrypted to whoever keeps it, for
+  // a demand to preserve it (loft#153): every row of the trail that names the
+  // workspace, in the database and in the archive, and a manifest the
+  // deployment signs. A download, which says what it is for and names
+  // everybody whose data it carries before its first byte. The first message
+  // says what it is, the ones after hold its bytes, and the last what it
+  // held.
+  rpc Export(OperatorTrailExportRequest) returns (stream OperatorTrailExportResponse);
 }
 
 message OperatorTrailKeysRequest {}
@@ -292,4 +334,183 @@ message OperatorTrailKeysResponse {
   bytes signer = 1;
   // And the ones it trusts besides (`audit.checkpoints.trust`).
   repeated bytes trusted = 2;
+}
+
+message OperatorTrailVerifyRequest {
+  // Read every chunk whole, and check its bytes.
+  bool full = 1;
+}
+
+// OperatorTrailVerifyResponse is a message of a verification: what it is at
+// while it reads, and last what it found.
+message OperatorTrailVerifyResponse {
+  string progress = 1;
+  OperatorTrailVerified verified = 2;
+}
+
+message OperatorTrailVerified {
+  bool full = 1;
+  // The manifest's rows, the archive's blobs, how many were read whole, and
+  // the latest checkpoint compared.
+  uint32 rows = 2;
+  uint32 blobs = 3;
+  uint32 hashed = 4;
+  uint32 checkpoint = 5;
+  // What an acceptance of these findings names.
+  string digest = 6;
+  // The acceptances before, newest first, and what each witness that
+  // answers heard last, each as `verify` says it.
+  repeated string accepted = 7;
+  repeated string heard = 8;
+  // What did not add up; none, when the archive is what the database says.
+  repeated OperatorTrailFinding findings = 9;
+}
+
+message OperatorTrailFinding {
+  string kind = 1;
+  string said = 2;
+}
+
+message OperatorTrailAcceptRequest {
+  // The digest the verification looked at said.
+  string of = 1;
+  // What was looked at and decided; it is kept.
+  string why = 2;
+  // The verification looked at was a full one.
+  bool full = 3;
+  // For a database restored from a backup, the checkpoint the backup holds:
+  // 0 for one from before the first.
+  int32 restored = 4 [features.field_presence = EXPLICIT];
+}
+
+message OperatorTrailAcceptResponse {
+  string progress = 1;
+  OperatorTrailAccepted accepted = 2;
+}
+
+message OperatorTrailAccepted {
+  // Who accepted: the operator, by name.
+  string by = 1;
+  repeated OperatorTrailFinding findings = 2;
+}
+
+message OperatorTrailRowsRequest {}
+
+message OperatorTrailRowsResponse {
+  string progress = 1;
+  OperatorTrailRowsChecked checked = 2;
+}
+
+message OperatorTrailRowsChecked {
+  uint32 read = 1;
+  uint32 matches = 2;
+  // What a check finds: a row that differs from the digest of its newest
+  // line, a line whose digest is not its own, a line with no digest, a row
+  // nothing on the trail is about, a line under a key not given, and a row
+  // the trail says is there and is not -- each a row, by its kind.
+  repeated OperatorTrailRowFinding findings = 3;
+  uint32 before_digests = 4;
+  uint32 retired = 5;
+  uint32 forgotten = 6;
+  uint32 archived = 7;
+  // The rows whose newest write sealed nothing, which an acceptance seals.
+  uint32 unsealed = 8;
+  // What an acceptance of these findings names.
+  string digest = 9;
+  // The keys the lines under a key not given were made under.
+  repeated string unheld = 10;
+  // What was not read, and why: the kinds kept off the trail.
+  repeated OperatorTrailSkipped skipped = 11;
+}
+
+message OperatorTrailRowFinding {
+  // differs, forged, no-digest, not-on-trail, key-not-held or missing.
+  string what = 1;
+  // The row's kind, by the name the schema gives it, and the row.
+  string kind = 2;
+  bytes id = 3;
+}
+
+message OperatorTrailSkipped {
+  string kind = 1;
+  string why = 2;
+}
+
+message OperatorTrailAcceptRowsRequest {
+  // The digest the check looked at said.
+  string of = 1;
+  // What was looked at and decided; it is logged, as the trail keeps no
+  // reason.
+  string why = 2;
+}
+
+message OperatorTrailAcceptRowsResponse {
+  string progress = 1;
+  OperatorTrailRowsAccepted accepted = 2;
+}
+
+message OperatorTrailRowsAccepted {
+  // The rows accepted as they are, the ones gone accepted as gone, and the
+  // rows from before seals sealed.
+  uint32 there = 1;
+  uint32 gone = 2;
+  uint32 sealed = 3;
+}
+
+message OperatorTrailOwedRequest {}
+
+message OperatorTrailOwedResponse {
+  // How many erasures are owed, and since when.
+  uint32 objects = 1;
+  google.protobuf.Timestamp oldest = 2;
+  // What a legal hold keeps of them, by workspace.
+  repeated OperatorTrailHeld held = 3;
+}
+
+message OperatorTrailHeld {
+  bytes tenant = 1;
+  // Its address, while it has one.
+  string alias = 2;
+  uint32 objects = 3;
+}
+
+message OperatorTrailExportRequest {
+  // The workspace: its identifier, or its address -- a destroyed one's, as
+  // the hold on it names it.
+  string tenant = 1;
+  // Whoever keeps it: age recipients, each as age reads one.
+  repeated string to = 2;
+}
+
+// OperatorTrailExportResponse is a part of a trail's export: the first says
+// what the file is called and holds none of it, the ones after hold its
+// bytes, and the last what it holds.
+message OperatorTrailExportResponse {
+  string name = 1;
+  bytes data = 2;
+  OperatorTrailExported exported = 3;
+}
+
+message OperatorTrailExported {
+  bytes tenant = 1;
+  string alias = 2;
+  // Its rows of the database and of the archive, the archive's chunks, and
+  // the files.
+  uint32 database = 3;
+  uint32 archive = 4;
+  uint32 chunks = 5;
+  uint32 files = 6;
+  // The manifest, signed by the deployment.
+  string digest = 7;
+  // The checkpoint it is held to, and who heard it; whether a chunk the
+  // checkpoint does not list is in it.
+  uint32 checkpoint = 8;
+  string checkpoint_digest = 9;
+  repeated string witnesses = 10;
+  bool uncovered = 11;
+  // A workspace that retired: when, and until when what it kept is kept.
+  google.protobuf.Timestamp retired = 12;
+  google.protobuf.Timestamp kept_until = 13;
+  // How many people the access record says it carries.
+  uint32 people = 14;
 }
