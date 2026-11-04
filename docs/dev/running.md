@@ -68,10 +68,25 @@ cd ts && npm run dev             # :5173, API 호출은 Vite가 :8080으로 넘�
 
 라벨의 코드와 워크스페이스의 도메인은 [라벨과 워크스페이스 도메인](domains.md)에 있습니다.
 
+## 운영자의 일
+
+워크스페이스를 닫거나 내보내는 것, 작업 기록의 점검, 계정, 검색 색인 같은 운영자의 일은 운영자 진입점에 묻습니다([운영자 안내서](../guide/operator.md#운영자-진입점-loft-admin)). 서버 옆에 진입점을 띄우고, 같은 키로 묻습니다.
+
+```sh
+export DEV_OPERATOR_KEY=$(openssl rand -hex 32)
+LOFT_ADMIN_KEYS="me=env:DEV_OPERATOR_KEY" go run ./cmd/loft-admin serve &   # 127.0.0.1:8081
+
+export LOFT_ADMIN_URL=http://127.0.0.1:8081 LOFT_ADMIN_KEY=env:DEV_OPERATOR_KEY
+go run ./cmd/loft-admin tenant ls
+go run ./cmd/loft-admin trail rows
+```
+
+플래그는 인자보다 앞에 씁니다(`tenant close --reason "…" loft`).
+
 ## 터미널로 써 보기
 
 띄운 서버에 터미널로 로그인하는 법은 [터미널과 비서](../guide/terminal.md)에 있습니다. `loft api` 는 서버의 설정을 읽지 않고, 자기 로그인 정보(`LOFT_CLIENT_CONFIG`)만 읽습니다.
 
 ## 예전 체크아웃
 
-roster 이전에 만든 `data/` 는 로그인이 Loft의 DB에만 있어서 업그레이드한 뒤에는 그대로 로그인할 수 없습니다. `loft identity migrate` 로 한 번 옮깁니다([roster 이전의 배포](identity.md#roster-이전의-배포)).
+roster 이전에 만든 `data/` 는 로그인이 Loft의 DB에만 있어서 업그레이드한 뒤에는 그대로 로그인할 수 없습니다. 위의 진입점을 띄우고 `loft-admin identity migrate` 로 한 번 옮깁니다([roster 이전의 배포](identity.md#roster-이전의-배포)).

@@ -21,7 +21,7 @@ import (
 //
 // Nobody chooses one. A workspace is given seven characters at random, and
 // keeps them: the owner cannot change them (the policy opens no write of it,
-// `server/domain`), and an operator can (`loft tenant alias`), which holds the
+// `server/domain`), and an operator can (`loft-admin tenant alias`), which holds the
 // old one for a year and sends whoever arrives at it on to the new one.
 
 // The characters an address is made up of: lower case letters and digits, less

@@ -70,7 +70,7 @@ audit:
     # `witness`, which a verification asks.
     witnesses: ["log:", "store:/var/lib/loft/witness"]
 
-  # A keyed digest of the row each write left, so that `loft trail rows`
+  # A keyed digest of the row each write left, so that `loft-admin trail rows`
   # finds a row changed in the database past the servers (payday#102).
   digest:
     key: /run/secrets/digest.key

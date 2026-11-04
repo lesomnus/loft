@@ -74,7 +74,7 @@ GROUP BY 1, 2, 3;
 - 요청 수, 오류율, p95 지연. 메서드별로 봅니다(`rpc.service`, `rpc.method`).
 - 백그라운드 작업: 위 표의 경고 수.
 - 백업: 마지막 베이스 백업 시각, WAL 보관 실패 수, 볼륨 복사 Job.
-- 검색: `loft search status`가 말하는 색인의 문서 수와 DB의 행 수. 대시보드에는 경고 수를 둡니다.
+- 검색: `loft-admin search status`가 말하는 색인의 문서 수와 DB의 행 수. 대시보드에는 경고 수를 둡니다.
 
 ## 예: Loki
 

@@ -74,7 +74,7 @@ import (
 // event the words are taken out of is a child of it, about that one's subject
 // (D34), copying the reference as every part does. Who may ask for it over
 // the API is the policy's to say, and no role is given it yet; the
-// deployment's operator does it with `loft event redact`, on the word of the
+// deployment's operator does it with `loft-admin event redact`, on the word of the
 // workspace that keeps the event ([Deps.RedactEvent]).
 
 // Redacted is what taking a reason out did: the event it was asked of, as it
@@ -278,7 +278,7 @@ func (t *Tx) unsay(id pdid.Id) error {
 // the causes the events name, all the way up and down, and by whether two
 // reasons are one, which the database asks of them where they are kept: no
 // one's words are read to find them, so an operator may be told before
-// anything is done (`loft event redact`). Of the tenant `tenant`, and none for
+// anything is done (`loft-admin event redact`). Of the tenant `tenant`, and none for
 // an event with no reason, or none there.
 func Copies(ctx context.Context, db *ent.Client, tenant, id pdid.Id) ([]pdid.Id, error) {
 	root, err := operationOf(ctx, db, tenant, id)
@@ -347,7 +347,7 @@ func operationOf(ctx context.Context, db *ent.Client, tenant, id pdid.Id) (pdid.
 // so that is how they are found, and by whether the notice's words are the
 // event's reason, which the database asks of them where both are kept: no
 // one's words are read to find them, and an operator may be told how many
-// before anything is done (`loft event redact`).
+// before anything is done (`loft-admin event redact`).
 func Told(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid.Id) ([]pdid.Id, error) {
 	// What each of them is about, by the kind of notice told of it: all
 	// that is read of them.
@@ -414,7 +414,7 @@ var KeptWhy = map[string]protoreflect.FullName{
 // row is to it ([keeping]), and whether the row's words are the event's reason
 // the database asks of them where both are kept: no one's words are read to
 // find them, and an operator may be told how many before anything is done
-// (`loft event redact`).
+// (`loft-admin event redact`).
 func Kept(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid.Id) ([]pdid.Id, error) {
 	var out []pdid.Id
 	for page := range slices.Chunk(append([]pdid.Id{id}, copies...), 500) {

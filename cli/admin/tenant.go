@@ -6,6 +6,7 @@ import (
 	"crypto"
 	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"io"
@@ -65,6 +66,55 @@ func trusted(ctx context.Context, conn grpc.ClientConnInterface) ([]crypto.Publi
 	}
 	if len(out) == 0 {
 		return nil, errNoKeys
+	}
+	return out, nil
+}
+
+// trustFlag is a file of the deployment's public keys, for a file to be held
+// to outside it -- by whoever keeps an export or a trail's bundle and holds
+// no operator's key -- in place of asking the entry point. A flag of its own
+// for each command, as a flag keeps what it was given.
+func trustFlag() *flg.String {
+	return &flg.String{Name: "trust", Brief: "the deployment's public keys, as `trail keys` printed them, to check against without asking the entry point"}
+}
+
+// heldTo is the keys a file is checked against: the ones `--trust` names, or
+// the ones the entry point says.
+func heldTo(ctx context.Context, self *xli.Command) ([]crypto.PublicKey, error) {
+	if path := str(self, "trust"); path != "" {
+		return keysIn(path)
+	}
+	conn, err := connOf(self)
+	if err != nil {
+		return nil, err
+	}
+	return trusted(ctx, conn)
+}
+
+// keysIn is every public key a PEM file holds -- what `trail keys` printed.
+func keysIn(path string) ([]crypto.PublicKey, error) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("--trust: %w", err)
+	}
+	out := []crypto.PublicKey{}
+	for {
+		var block *pem.Block
+		block, b = pem.Decode(b)
+		if block == nil {
+			break
+		}
+		if block.Type != "PUBLIC KEY" {
+			continue
+		}
+		k, err := x509.ParsePKIXPublicKey(block.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("--trust: %w", err)
+		}
+		out = append(out, k)
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("--trust: %s holds no public key", path)
 	}
 	return out, nil
 }
@@ -233,17 +283,14 @@ func tenantEnd() xli.Commands {
 			Brief: "whether an export is what this deployment, or one it trusts, wrote",
 			Flags: flg.Flags{
 				&flg.String{Name: "file", Brief: "the export, or - to read it from stdin"},
+				trustFlag(),
 			},
 			Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 				path := str(self, "file")
 				if path == "" {
 					return errors.New("--file: the export to verify")
 				}
-				conn, err := connOf(self)
-				if err != nil {
-					return err
-				}
-				keys, err := trusted(ctx, conn)
+				keys, err := heldTo(ctx, self)
 				if err != nil {
 					return err
 				}

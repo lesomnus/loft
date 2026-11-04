@@ -1,7 +1,10 @@
 package admincli_test
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
+	"encoding/base64"
 	"io"
 	"net/http/httptest"
 	"os"
@@ -25,13 +28,16 @@ import (
 	entaudit "github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/internal/loftest"
 	"github.com/lesomnus/loft/server/admin"
 	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/operator"
 )
 
-// archived is a deployment that keeps a trail's archive and signs it, and
-// keeps a floor -- what a retirement is for -- with two workspaces.
+// archived is a deployment that keeps a trail's archive and signs it, digests
+// its rows, and keeps a floor -- what a retirement is for -- with two
+// workspaces: acme, its owner and kim, and beta, the owner's too.
 func archived(t *testing.T) *deployment {
 	t.Helper()
 	x := require.New(t)
@@ -43,9 +49,8 @@ func archived(t *testing.T) *deployment {
 	c.Audit.Archive = t.TempDir()
 	c.Audit.Checkpoints.Key = pdtest.Key(t)
 	c.Audit.By = map[string]config.AuditKeepConfig{"holder": {Min: config.AuditMinConfig{Destroy: 365 * 24 * time.Hour}}}
+	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
 	_, err := run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
-	x.NoError(err)
-	_, err = run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--role", "member", "--password", "kim-password")
 	x.NoError(err)
 	_, err = run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
 	x.NoError(err)
@@ -53,6 +58,7 @@ func archived(t *testing.T) *deployment {
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
+	loftest.Member(t, s, "acme", "kim", "member", "kim-password")
 	ops, err := admin.Operators(map[string]string{"alice": key})
 	x.NoError(err)
 	h, err := admin.Routes{S: s, C: c, Operators: ops}.Handler(t.Context())
@@ -121,24 +127,48 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	out = must("tenant", "verify", "--file", zip)
 	x.Contains(out, "acme, exported")
 	x.Contains(out, "signed by a trusted key")
-	altered := filepath.Join(dir, "altered.zip")
+	x.Contains(out, "manifest sha256:")
+	// And where nobody holds an operator's key: against the deployment's
+	// public keys, as `trail keys` printed them.
+	trust := filepath.Join(dir, "deployment.pem")
+	x.NoError(os.WriteFile(trust, []byte(must("trail", "keys")), 0o644))
+	out, err = run(t, admincli.Cmd(&d.c), "tenant", "verify", "--trust", trust, "--file", zip)
+	x.NoError(err, out)
+	x.Contains(out, "signed by a trusted key")
+	cut := filepath.Join(dir, "cut.zip")
 	b, err := os.ReadFile(zip)
 	x.NoError(err)
-	x.NoError(os.WriteFile(altered, b[:len(b)-10], 0o600))
+	x.NoError(os.WriteFile(cut, b[:len(b)-10], 0o600))
+	_, err = d.admin(t, "tenant", "verify", "--file", cut)
+	x.Error(err, "a file cut short")
+	// The same archive with one byte of one row changed (design D34).
+	altered := filepath.Join(dir, "altered.zip")
+	x.NoError(os.WriteFile(altered, changed(t, b, func(name string) bool {
+		return name == "rows/tenant.jsonl" || strings.HasPrefix(name, "rows/holder")
+	}), 0o600))
 	_, err = d.admin(t, "tenant", "verify", "--file", altered)
-	x.Error(err, "a file somebody changed")
+	x.ErrorIs(err, offboard.ErrAltered)
 
+	signsIn := func(login, password string) error {
+		_, err := d.s.Identity.Verify(ctx, login, password)
+		return err
+	}
 	before := written(t, d)
+	x.Contains(must("contract", "show", "acme"), "destroyed: retired", "a workspace with no contract retires")
 	out = must("tenant", "retire", "acme")
 	x.Contains(out, "acme: would take")
-	x.Contains(out, "for the deployment's floors: holder")
+	x.Contains(out, "for the deployment's floors: holder", "a retirement keeps what a floor is on")
 	x.Contains(out, "`--yes` takes it")
+	x.NotContains(out, "its contract")
 	out = must("tenant", "purge", "acme")
-	x.Contains(out, "its contract retires it")
+	x.Contains(out, "its contract retires it", "a purge against its contract says so")
+	x.NotContains(out, "kept until")
+	x.Contains(out, "roster in this process: would forget 1 account(s)")
 	here, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
 	x.True(here, "nothing was taken")
 	x.Equal(before, written(t, d), "and nothing was written")
+	x.NoError(signsIn("kim", "kim-password"), "a purge that was only asked about")
 
 	out = must("tenant", "purge", "--yes", "acme")
 	x.Contains(out, "acme: took")
@@ -146,6 +176,8 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	here, err = d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
 	x.False(here)
+	x.ErrorIs(signsIn("kim", "kim-password"), identity.ErrRefused, "an account in no other workspace goes with it")
+	x.NoError(signsIn("owner", "owner1234"), "one another workspace has stays")
 	// What outlives it -- its address, held -- is on the trail as the
 	// operator's.
 	hold, err := d.s.Ent.AliasHold.Query().Where(aliashold.Held("acme")).Only(ctx)
@@ -157,6 +189,7 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	before = written(t, d)
 	out = must("tenant", "import", "--file", zip)
 	x.Contains(out, "@acme: would put back")
+	x.Contains(out, "1 member(s) whose accounts this roster does not have, restored with none: kim")
 	x.Contains(out, "`--yes` does it")
 	here, err = d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
@@ -172,6 +205,20 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	out, err = run(t, k, "--url", d.url, "--key", key, "tenant", "import", "--file", "-", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "@acme: put back")
+	x.Contains(out, "from the export whose manifest is sha256:")
+	_, err = d.admin(t, "tenant", "import", "--file", zip, "--yes")
+	x.ErrorContains(err, offboard.ErrNotNew.Error(), "put back twice")
+	// Every row put back is on the trail as the restore that put it there
+	// (payday#108), so a check of the rows finds nothing.
+	must("trail", "rows")
+	x.NoError(signsIn("owner", "owner1234"), "the owner's account is the one it had")
+	x.Error(signsIn("kim", "kim-password"), "an account the purge forgot")
+	m := must("identity", "migrate")
+	_, after, ok := strings.Cut(m, "@acme/kim  login kim  password ")
+	x.True(ok, "%s", m)
+	password, _, _ := strings.Cut(after, "\n")
+	x.NoError(signsIn("kim", strings.TrimSpace(password)), "given an account by `identity migrate`")
+	must("trail", "rows")
 	back, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)
 	ev, err := d.s.Ent.Event.Query().Where(event.TenantId(back.Id), event.Kind("workspace.import")).Only(ctx)
@@ -182,12 +229,110 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	x.NoError(err)
 	x.Positive(n, "and so is what the trail says it put back")
 
-	// A retirement, and what is left of it.
+	// A retirement, and what is left of it -- and one a contract says purges
+	// says so before it is asked to retire.
 	x.Contains(must("tenant", "retired"), "no workspace has retired")
-	x.Contains(must("tenant", "retire", "--yes", "beta"), "beta: took")
+	out = must("contract", "set", "--name", "abroad", "--desc", "under another law", "--purge-floors", "--yes", "acme")
+	x.Contains(out, "then purge\tunder another law")
+	x.Contains(must("tenant", "retire", "acme"), "its contract purges it", "a retirement against its contract says so")
+	out = must("tenant", "retire", "--yes", "beta")
+	x.Contains(out, "beta: took")
+	x.Contains(out, "kept until ")
 	out = must("tenant", "retired")
 	x.Contains(out, "@beta\t")
 	x.Contains(out, "kept until")
+}
+
+// changed is the zip `b` with one byte of each file `which` names changed --
+// the first `owner` in it made `0wner` -- and everything else as it was.
+func changed(t *testing.T, b []byte, which func(name string) bool) []byte {
+	t.Helper()
+	x := require.New(t)
+	z, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+	x.NoError(err)
+	var out bytes.Buffer
+	w := zip.NewWriter(&out)
+	for _, f := range z.File {
+		r, err := f.Open()
+		x.NoError(err)
+		v, err := io.ReadAll(r)
+		x.NoError(r.Close())
+		x.NoError(err)
+		if which(f.Name) {
+			v = bytes.Replace(v, []byte("owner"), []byte("0wner"), 1)
+		}
+		g, err := w.Create(f.Name)
+		x.NoError(err)
+		_, err = g.Write(v)
+		x.NoError(err)
+	}
+	x.NoError(w.Close())
+	return out.Bytes()
+}
+
+// TestAWorkspaceLeavesAndComesBackThroughStdio: an export written to stdout
+// is the whole of stdout -- what the command says goes to stderr -- and is
+// verified and restored from stdin, through temporary files that outlive
+// neither the command nor the call. It is how an export leaves a container
+// with nothing in it to copy a file with, and comes back into one: `kubectl
+// exec` (loft#126).
+func TestAWorkspaceLeavesAndComesBackThroughStdio(t *testing.T) {
+	x := require.New(t)
+	tmp := t.TempDir()
+	t.Setenv("TMPDIR", tmp)
+	d := archived(t)
+
+	// stdio runs `loft-admin` with `in` as its stdin, and answers with what
+	// it wrote to stdout and to stderr.
+	stdio := func(in []byte, args ...string) (string, string) {
+		t.Helper()
+		var out, said bytes.Buffer
+		k := admincli.Cmd(&d.c)
+		k.ReadCloser, k.Writer, k.ErrWriter = io.NopCloser(bytes.NewReader(in)), &out, &said
+		x.NoError(k.Run(t.Context(), append([]string{"--url", d.url, "--key", key}, args...)), "%s: %s", strings.Join(args, " "), said.String())
+		return out.String(), said.String()
+	}
+
+	archive, said := stdio(nil, "tenant", "export", "--reason", "leaving", "--out", "-", "acme")
+	_, err := zip.NewReader(strings.NewReader(archive), int64(len(archive)))
+	x.NoError(err, "stdout is the archive, and nothing else")
+	x.Contains(said, "stdout: ", "and what the command says is on stderr")
+
+	verified, _ := stdio([]byte(archive), "tenant", "verify", "--file", "-")
+	x.Contains(verified, "stdin: acme, exported")
+
+	stdio(nil, "tenant", "purge", "--yes", "acme")
+	restored, _ := stdio([]byte(archive), "tenant", "import", "--file", "-", "--yes")
+	x.Contains(restored, "@acme: put back")
+
+	left, err := filepath.Glob(filepath.Join(tmp, "loft-*"))
+	x.NoError(err)
+	x.Empty(left, "a copy written on the way does not outlive what wrote it")
+}
+
+// TestAContractShowsWhatTheWorkspaceKeeps (D36): how long a workspace keeps
+// its history is its own setting, which `contract show` says beside its
+// contracts -- a window made shorter, until when the longer one holds -- and
+// which no contract writes.
+func TestAContractShowsWhatTheWorkspaceKeeps(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+	d := deploy(t)
+
+	out, err := d.admin(t, "contract", "show", "acme")
+	x.NoError(err, out)
+	x.Contains(out, "history: kept forever", "a workspace that says nothing")
+	x.Contains(out, "no contract: a destroyed workspace retires")
+
+	tn, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	since := time.Now().Add(-24 * time.Hour)
+	_, err = d.s.Ent.Tenant.UpdateOneId(tn.Id).SetKeepDays(180).SetKeepDaysBefore(0).SetDateKeepShortened(since).Save(ctx)
+	x.NoError(err)
+	out, err = d.admin(t, "contract", "show", "acme")
+	x.NoError(err, out)
+	x.Contains(out, "history: kept forever", "made shorter yesterday, and the grace not over")
+	x.Contains(out, "until "+since.Add(30*24*time.Hour).UTC().Format(time.DateOnly)+", then 180d")
 }
 
 // TestAWorkspaceUnderAHoldIsNotDestroyed: a hold refuses the destruction

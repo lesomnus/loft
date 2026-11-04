@@ -93,8 +93,8 @@ spec:
 - [ ] `/healthz`가 `ok`이고, 로그인이 됩니다.
 - [ ] 사고 직전에 쓴 것이 보입니다. 마지막으로 보이는 쓰기의 시각과 사고 시각의 차이가 실제 RPO입니다.
 - [ ] 첨부 하나를 내려받아 봅니다. 해시까지 맞춰 보면 더 좋습니다.
-- [ ] `loft trail verify --full`이 깨끗하거나, 복원으로 설명되는 것만 찾습니다: `behind`, `unaccounted`, `missing`, `emptied`, 그리고 체크포인트 사본이 오래되었다면 건너뛴 번호의 `unkept`. 그때는 [DB를 백업에서 복원했을 때](trail-integrity.md#db를-백업에서-복원했을-때)를 따라 `accept --why`합니다. 다른 종류가 나오면 그 런북의 4로 갑니다.
-- [ ] 검색: `loft search status`로 색인의 문서 수와 DB의 행 수를 봅니다. 이전 시각으로 되돌렸다면 `loft search reindex`를 실행합니다. 색인에는 그 시각 뒤의 문서가 남아 있기 때문입니다.
+- [ ] `loft-admin trail verify --full`이 깨끗하거나, 복원으로 설명되는 것만 찾습니다: `behind`, `unaccounted`, `missing`, `emptied`, 그리고 체크포인트 사본이 오래되었다면 건너뛴 번호의 `unkept`. 그때는 [DB를 백업에서 복원했을 때](trail-integrity.md#db를-백업에서-복원했을-때)를 따라 `accept --why`합니다. 다른 종류가 나오면 그 런북의 4로 갑니다.
+- [ ] 검색: `loft-admin search status`로 색인의 문서 수와 DB의 행 수를 봅니다. 이전 시각으로 되돌렸다면 `loft-admin search reindex`를 실행합니다. 색인에는 그 시각 뒤의 문서가 남아 있기 때문입니다.
 - [ ] 백업이 다시 돕니다: 새 클러스터의 WAL 보관(`pg_stat_archiver`)과 볼륨 복사 Job.
 
 ## RPO와 RTO

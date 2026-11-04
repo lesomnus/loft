@@ -113,3 +113,21 @@ func TestInitGivesAnArchiveAKeyOfItsOwn(t *testing.T) {
 		x.Equal(doc, now, "init wrote over a key that was there")
 	})
 }
+
+// TestAWorkspaceInitMakesForAnAccountThereAlreadyIsItsAsItIs: a second
+// workspace for an account the roster in this process has already takes the
+// account as it is -- it is given no new password, and one that would change
+// its own is refused.
+func TestAWorkspaceInitMakesForAnAccountThereAlreadyIsItsAsItIs(t *testing.T) {
+	x := require.New(t)
+	c := embeddedConfig(t)
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	out := run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
+	x.NotContains(out, "password", "an account there already is given a password")
+	x.Error(cli.NewCmdInit(&c).Run(t.Context(), []string{"--tenant", "gamma", "--login", "owner", "--password", "something-else"}),
+		"an account's password changed by making a workspace")
+	on(t, c, func(s *cmd.Server) {
+		_, err := s.Identity.Verify(t.Context(), "owner", "owner1234")
+		x.NoError(err, "its own password")
+	})
+}

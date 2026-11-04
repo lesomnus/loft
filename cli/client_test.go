@@ -22,6 +22,7 @@ import (
 	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent/clilogin"
+	"github.com/lesomnus/loft/internal/loftest"
 )
 
 // served is a deployment a terminal reaches the way a browser does: over the
@@ -50,11 +51,11 @@ func serveWith(t *testing.T, with func(*cmd.Config)) *served {
 		with(&c)
 	}
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
-	run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--role", "member", "--password", "kim-password")
 
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
+	loftest.Member(t, s, "acme", "kim", "member", "kim-password")
 	g, err := s.Grpc(ctx, c)
 	x.NoError(err)
 	h, err := web.New(config.HttpConfig{AllowWeb: true}, g)

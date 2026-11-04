@@ -47,7 +47,7 @@ type domainTenant struct {
 func (s Domain) Tenant() app.TenantServiceServer { return domainTenant{s, s.Next().Tenant()} }
 
 // Patch is a workspace's own settings, less what is not its owner's to write:
-// its address, which nobody chose and only an operator moves (`loft tenant
+// its address, which nobody chose and only an operator moves (`loft-admin tenant
 // alias`), and whether it is closed, which Close and Restore say. Its name
 // (D58), its zone, currency and check-in rule are its own (#144), and are held
 // to what can be told in; and how long it keeps its history (D36), which a

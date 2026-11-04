@@ -3,7 +3,10 @@ package admincli_test
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/ed25519"
+	"crypto/x509"
 	"encoding/base64"
+	"encoding/pem"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -26,13 +29,14 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/cli"
+	admincli "github.com/lesomnus/loft/cli/admin"
 	"github.com/lesomnus/loft/cmd"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
 	entaudit "github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/rowseal"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/loftest"
 	"github.com/lesomnus/loft/server/admin"
 	"github.com/lesomnus/loft/server/bare"
 	"github.com/lesomnus/loft/server/operator"
@@ -65,12 +69,11 @@ func (d *deployment) pass(t *testing.T) {
 	d.s.Trail.Pass(t.Context(), pd.TrailStore(d.s.Ent))
 }
 
-// holderAdd makes another account and its membership of acme, as the shell
-// did; what a pass then has to archive.
+// holderAdd makes another account and its membership of acme, the
+// deployment's writes; what a pass then has to archive.
 func (d *deployment) holderAdd(t *testing.T, login string) {
 	t.Helper()
-	_, err := run(t, cli.NewCmdHolder(&d.c), "add", "--tenant", "acme", "--login", login, "--role", "member", "--password", login+"-password")
-	require.NoError(t, err)
+	loftest.Member(t, d.s, "acme", login, "member", login+"-password")
 }
 
 // TestWhatTheTrailOwesIsSaid (payday#115): `trail owed` says what is owed of
@@ -384,6 +387,9 @@ func TestAVerificationSaysWhatEachWitnessHeard(t *testing.T) {
 func TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
+	// In a zone whose date is not UTC's now, as Seoul's is from midnight to
+	// nine: the dates the commands say are UTC's, whatever the machine's.
+	inZone(t, awayFromUTC(time.Now()))
 	year := config.AuditMinConfig{Destroy: 365 * 24 * time.Hour}
 	d := deployWith(t, func(c *cmd.Config) {
 		withArchive(t, t.TempDir())(c)
@@ -422,6 +428,25 @@ func TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt(t *testing.T) {
 	x.Contains(out, `"case 2026-4"`)
 	x.Contains(out, "by alice", "taken out by the operator whose key it was")
 
+	// And by whoever keeps it, who holds no operator's key: against the
+	// deployment's public keys, as `trail keys` printed them.
+	keys, err := d.admin(t, "trail", "keys")
+	x.NoError(err, keys)
+	x.Contains(keys, "-----BEGIN PUBLIC KEY-----")
+	trust := filepath.Join(dir, "deployment.pem")
+	x.NoError(os.WriteFile(trust, []byte(keys), 0o644))
+	out, err = run(t, admincli.Cmd(&d.c), "trail", "verify-export", "--trust", trust, "--file", live, "--identity", id)
+	x.NoError(err, out)
+	x.Contains(out, "a key the deployment trusts signed it")
+	other := filepath.Join(dir, "other.pem")
+	stranger, _, err := ed25519.GenerateKey(nil)
+	x.NoError(err)
+	b, err = x509.MarshalPKIXPublicKey(stranger)
+	x.NoError(err)
+	x.NoError(os.WriteFile(other, pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: b}), 0o644))
+	_, err = run(t, admincli.Cmd(&d.c), "trail", "verify-export", "--trust", other, "--file", live, "--identity", id)
+	x.Error(err, "held to a key the deployment never signed with")
+
 	rows, err := d.s.Ent.Access.Query().Where(entaccess.Action(app.OperatorTrailService_Export_FullMethodName), entaccess.TenantId(acme.Id)).All(ctx)
 	x.NoError(err)
 	x.Len(rows, 1)
@@ -432,9 +457,16 @@ func TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt(t *testing.T) {
 	x.Equal("case 2026-4", dl.GetReason())
 	x.True(slices.ContainsFunc(rows[0].Subjects, func(v []byte) bool { return pdid.Id(v) == pdid.Id(kim.Id) }), "kim's data is in it, and the record does not say so")
 
-	// Retired, it is taken out by the address its hold names.
+	// Retired, it is taken out by the address its hold names, until its
+	// floors pass.
+	began := time.Now()
 	_, err = d.admin(t, "tenant", "retire", "--yes", "acme")
 	x.NoError(err)
+	ended := time.Now()
+	out, err = d.admin(t, "tenant", "retired")
+	x.NoError(err, out)
+	x.Contains(out, "@acme")
+	x.True(saysDay(out, "kept until ", began.Add(365*24*time.Hour), ended.Add(365*24*time.Hour)), "not UTC's day, a year from now: %s", out)
 	gone := filepath.Join(dir, "acme-retired.trail")
 	out, err = d.admin(t, "trail", "export", "--reason", "case 2026-4, after it left", "--to", pub, "--out", gone, "@acme")
 	x.NoError(err, out)

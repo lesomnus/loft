@@ -72,10 +72,10 @@ curl https://$LOFT_DOMAIN/healthz     # ok
 ./search-init.sh                                               # 한 번. secrets/에 인증서와 비밀번호를 만듭니다
 echo 'COMPOSE_FILE=compose.yaml:compose.search.yaml' >> .env
 docker compose up -d --build
-docker compose run --rm loft --config /etc/loft/loft.yaml search status
+docker compose exec loft-admin /usr/local/bin/loft-admin --url http://127.0.0.1:8081 --key file:/run/secrets/admin_key search status
 ```
 
-- **색인은 서버가 만듭니다.** 처음 뜰 때 색인이 없으면 DB의 자산으로 만들고, 그다음부터 바뀐 것을 1초쯤 안에 반영합니다. `loft search reindex`를 따로 할 필요는 없습니다.
+- **색인은 서버가 만듭니다.** 처음 뜰 때 색인이 없으면 DB의 자산으로 만들고, 그다음부터 바뀐 것을 1초쯤 안에 반영합니다. `loft-admin search reindex`를 따로 할 필요는 없습니다.
 - **`search-init.sh`가 `secrets/`에 만드는 것:**
   - 이 배포만의 CA와, 그 CA가 서명한 `opensearch`의 인증서
   - Loft가 로그인할 비밀번호
@@ -121,11 +121,15 @@ docker compose up -d
 
 ```sh
 ssh -L 8081:127.0.0.1:8081 <서버>
-LOFT_ADMIN_URL=http://127.0.0.1:8081 LOFT_ADMIN_KEY=file:secrets/admin_key loft-admin workspace ls
+LOFT_ADMIN_URL=http://127.0.0.1:8081 LOFT_ADMIN_KEY=file:secrets/admin_key loft-admin tenant ls
+# 서버에서, 운영자의 컴퓨터에 loft-admin 이 없으면 컨테이너의 것으로
+docker compose exec loft-admin /usr/local/bin/loft-admin --url http://127.0.0.1:8081 --key file:/run/secrets/admin_key tenant ls
 # 또는 RPC를 그대로 (Connect, 운영자의 키)
 curl -H "authorization: Bearer $(cat secrets/admin_key)" -H 'content-type: application/json' \
   -H 'connect-protocol-version: 1' -d '{}' http://127.0.0.1:8081/loft.TenantService/List
 ```
+
+운영자의 일(워크스페이스의 내보내기·파기·복구, 작업 기록의 점검, 계정, 검색 색인, 보존)은 모두 이것으로 합니다([운영자 안내서](../../docs/guide/operator.md#운영자-진입점-loft-admin)). 파일은 호출 안의 바이트로 오가므로 컨테이너에서 꺼낼 것이 없습니다. 서버 상자의 `loft` 에 남은 것은 `init`, `migrate`, `serve` 입니다.
 
 ## 새 버전으로 올리기
 

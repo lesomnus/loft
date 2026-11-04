@@ -2,7 +2,7 @@
 // out, and then everything it has, gone (design 8.2, "테넌트 탈퇴").
 //
 // The order is the design's -- export, a grace, then the purge -- and it is the
-// operator's to keep: `loft tenant export`, and `loft tenant purge` once the
+// operator's to keep: `loft-admin tenant export`, and `loft-admin tenant purge` once the
 // grace an offboarding gives is over. A tenant under a legal hold is refused
 // both the purge and nothing else; its export is exactly what a hold is for.
 //

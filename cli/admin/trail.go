@@ -3,6 +3,8 @@ package admincli
 import (
 	"bufio"
 	"context"
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"io"
@@ -206,6 +208,30 @@ func newCmdTrail() *xli.Command {
 							name = "@" + h.GetAlias() + " (" + name + ")"
 						}
 						self.Printf("  %d kept by a legal hold of %s, until it lifts\n", h.GetObjects(), name)
+					}
+					return next(ctx)
+				}),
+			},
+			{
+				Name:  "keys",
+				Brief: "the public keys the deployment signs with and trusts, as PEM: what an export and a trail's bundle are held to, for whoever checks one outside it (--trust)",
+				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+					conn, err := connOf(self)
+					if err != nil {
+						return err
+					}
+					keys, err := trusted(ctx, conn)
+					if err != nil {
+						return err
+					}
+					for _, k := range keys {
+						b, err := x509.MarshalPKIXPublicKey(k)
+						if err != nil {
+							return err
+						}
+						if err := pem.Encode(self.Writer, &pem.Block{Type: "PUBLIC KEY", Bytes: b}); err != nil {
+							return err
+						}
 					}
 					return next(ctx)
 				}),
@@ -445,6 +471,7 @@ func newCmdTrailVerifyExport() *xli.Command {
 		Flags: flg.Flags{
 			&flg.String{Name: "file", Brief: "the bundle, or - for stdin"},
 			&flg.String{Name: "identity", Brief: "the identity it was encrypted to: a file of age-keygen's, or a plugin's (AGE-PLUGIN-…)"},
+			trustFlag(),
 		},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			path := str(self, "file")
@@ -455,11 +482,7 @@ func newCmdTrailVerifyExport() *xli.Command {
 			if err != nil {
 				return fmt.Errorf("--identity: %w", err)
 			}
-			conn, err := connOf(self)
-			if err != nil {
-				return err
-			}
-			keys, err := trusted(ctx, conn)
+			keys, err := heldTo(ctx, self)
 			if err != nil {
 				return err
 			}

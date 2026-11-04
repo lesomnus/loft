@@ -29,6 +29,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/internal/loftest"
 	"github.com/lesomnus/loft/server/admin"
 	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/pd"
@@ -79,12 +80,11 @@ func deployWith(t *testing.T, with func(*cmd.Config)) *deployment {
 	}
 	_, err := run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
-	_, err = run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--role", "member", "--password", "kim-password")
-	x.NoError(err)
 
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
+	loftest.Member(t, s, "acme", "kim", "member", "kim-password")
 	ops, err := admin.Operators(map[string]string{"alice": key})
 	x.NoError(err)
 	h, err := admin.Routes{S: s, C: c, Operators: ops}.Handler(t.Context())
@@ -92,6 +92,32 @@ func deployWith(t *testing.T, with func(*cmd.Config)) *deployment {
 	srv := httptest.NewServer(h)
 	t.Cleanup(srv.Close)
 	return &deployment{c: c, s: s, url: srv.URL}
+}
+
+// inZone has the process's local zone be `l` for the rest of the test: what a
+// command says of a day is UTC's, whatever zone the operator's machine is in.
+func inZone(t *testing.T, l *time.Location) {
+	t.Helper()
+	was := time.Local
+	time.Local = l
+	t.Cleanup(func() { time.Local = was })
+}
+
+// saysDay answers whether `out` says `prefix` and then the day, in UTC, of a
+// moment between `from` and `to`: either one's, for when UTC's midnight came
+// between the two.
+func saysDay(out, prefix string, from, to time.Time) bool {
+	return strings.Contains(out, prefix+from.UTC().Format(time.DateOnly)) || strings.Contains(out, prefix+to.UTC().Format(time.DateOnly))
+}
+
+// awayFromUTC is a zone whose date is not UTC's at `now`, nor for hours after:
+// fourteen hours ahead of it from ten in the morning UTC, and twelve behind
+// before then.
+func awayFromUTC(now time.Time) *time.Location {
+	if now.UTC().Hour() >= 10 {
+		return time.FixedZone("UTC+14", 14*60*60)
+	}
+	return time.FixedZone("UTC-12", -12*60*60)
 }
 
 // tablesOf is every table of the database `driver` and `dsn` name, opened
@@ -175,8 +201,14 @@ func (d *deployment) admin(t *testing.T, args ...string) (string, error) {
 // `--yes`.
 func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	x := require.New(t)
+	// In a zone whose date is not UTC's now, as Seoul's is from midnight to
+	// nine: the days the commands say are UTC's, whatever the machine's.
+	inZone(t, awayFromUTC(time.Now()))
 	d := deploy(t)
 	ctx := context.Background()
+	month := func(from time.Time) (time.Time, time.Time) {
+		return from.Add(30 * 24 * time.Hour), time.Now().Add(30 * 24 * time.Hour)
+	}
 	must := func(args ...string) string {
 		t.Helper()
 		out, err := d.admin(t, args...)
@@ -195,15 +227,24 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	x.Contains(out, "owners owner")
 	x.Contains(out, "member\t@kim\tmember")
 
+	began := time.Now()
 	out = must("tenant", "close", "--reason", "asked", "acme")
 	x.Contains(out, "would close @acme")
 	x.Contains(out, "`--yes` does it")
+	from, to := month(began)
+	x.True(saysDay(out, "destroyed after ", from, to), "not UTC's day, a month from now: %s", out)
 	x.NotContains(must("tenant", "ls", "--closed"), "@acme", "nothing was done")
+	began = time.Now()
 	out = must("tenant", "close", "--reason", "asked", "--yes", "acme")
 	x.Contains(out, "closed")
 	x.Contains(out, "by operator")
+	from, to = month(began)
+	x.True(saysDay(out, "destroyed ", from, to), "not UTC's day, a month from now: %s", out)
 	x.Contains(must("tenant", "ls", "--closed"), "@acme")
-	x.Contains(must("tenant", "close", "--yes", "acme"), "closed already")
+	out = must("tenant", "close", "--yes", "acme")
+	x.Contains(out, "closed already")
+	x.True(saysDay(out, "since ", began, time.Now()), "not UTC's day: %s", out)
+	x.True(saysDay(out, "destroyed after ", from, to), "not UTC's day, a month from closing: %s", out)
 	x.Contains(must("tenant", "restore", "acme"), "would restore @acme")
 	x.NotContains(must("tenant", "restore", "--yes", "acme"), "closed")
 	x.NotContains(must("tenant", "ls", "--closed"), "@acme", "open again")
@@ -214,7 +255,10 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	_, err := d.admin(t, "tenant", "owner", "--member", "nobody", "--yes", "acme")
 	x.ErrorContains(err, "no member")
 
-	x.Contains(must("tenant", "alias", "--to", "acme-two", "acme"), "would move @acme to @acme-two")
+	out = must("tenant", "alias", "--to", "acme-two", "acme")
+	x.Contains(out, "would move @acme to @acme-two")
+	held := d.c.App.Workspaces.Hold()
+	x.True(saysDay(out, "holding @acme until ", time.Now().Add(held-time.Minute), time.Now().Add(held)), "not UTC's day: %s", out)
 	x.Contains(must("tenant", "ls"), "@acme\t", "nothing was done")
 	out = must("tenant", "alias", "--to", "acme-two", "--yes", "acme")
 	x.Contains(out, "@acme-two\t")

@@ -26,7 +26,7 @@
 //
 // So this waits as long as roster does (`app.accounts.forget_after`, kept
 // equal to roster's `holder.forget_after`), and somebody who asked to be
-// forgotten now is forgotten now by the operator (`loft identity depart`).
+// forgotten now is forgotten now by the operator (`loft-admin identity depart`).
 //
 // roster's restore and forget are on the stream since roster#215: a restore
 // comes as an event about the account that is not an erasure, which clears
@@ -181,7 +181,7 @@ type Departed struct {
 
 // Depart is an account leaving every workspace it is in, now: what the grace
 // ends in, and what an operator does for somebody who asked to be forgotten
-// at once (`loft identity depart`). Its sessions end with it. A workspace
+// at once (`loft-admin identity depart`). Its sessions end with it. A workspace
 // already done is not done again, so a departure that stopped part way is
 // finished by asking again.
 func (l Lifecycle) Depart(ctx context.Context, account pdid.Id) ([]Departed, error) {

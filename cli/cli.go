@@ -85,10 +85,13 @@ func Cmd(c *cmd.Config) *xli.Command {
 	// a deployment's configuration: it keeps its own (`LOFT_CLIENT_CONFIG`).
 	login, logout, whoami, use, ws, api, scan, register, agree, assist := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi(), NewCmdScan(), NewCmdRegister(), NewCmdConsent(), NewCmdMcp()
 
-	// The operator's half: each stands the stack up, does one thing and exits,
-	// and is observed as the deployment is (`observed`).
-	first, migrate, contract, hold, retention, tenant, holder, identity, trail, search := NewCmdInit(c), NewCmdMigrate(c), NewCmdContract(c), NewCmdHold(c), NewCmdRetention(c), NewCmdTenant(c), NewCmdHolder(c), NewCmdIdentity(c), NewCmdTrail(c), NewCmdSearch(c)
-	access, event := NewCmdAccess(c), NewCmdEvent(c)
+	// The deployment's own life, which runs where there is no server to ask
+	// (design 9.15): its first workspace, and its database brought to this
+	// build's shape before anything serves. Each stands the stack up, does
+	// one thing and exits, and is observed as the deployment is
+	// (`observed`). Everything else an operator does is asked of the entry
+	// point (`loft-admin`), as the operator.
+	first, migrate := NewCmdInit(c), NewCmdMigrate(c)
 
 	return &xli.Command{
 		Name:  cmd.Name,
@@ -102,16 +105,6 @@ func Cmd(c *cmd.Config) *xli.Command {
 			first,
 			migrate,
 			NewCmdServe(c),
-			contract,
-			hold,
-			retention,
-			tenant,
-			holder,
-			identity,
-			trail,
-			event,
-			access,
-			search,
 			login,
 			logout,
 			whoami,
@@ -126,7 +119,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 
 		Handler: xli.Chain(
 			cfg.Load(l, version, login, logout, whoami, use, ws, api, scan, register, agree, assist),
-			observed(c, first, migrate, contract, hold, retention, tenant, holder, identity, trail, event, access, search),
+			observed(c, first, migrate),
 			xli.RequireSubcommand(),
 		),
 	}
@@ -402,7 +395,7 @@ func stashTerms(ctx context.Context, s *cmd.Server) error {
 // refused by name, and nothing is moved or dropped.
 //
 // A contract that said any of them is a row a migration rewrote, and the trail
-// finds it so (`loft trail rows`) until an operator accepts it once.
+// finds it so (`loft-admin trail rows`) until an operator accepts it once.
 func moveTerms(ctx context.Context, s *cmd.Server) error {
 	columns, err := hasColumn(ctx, s, "tenantcontract", "keep_days")
 	if err != nil {
