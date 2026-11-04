@@ -2,7 +2,9 @@ package cli_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"slices"
 	"sort"
 	"strings"
@@ -549,7 +551,11 @@ func (w *sweep) call(full string, md protoreflect.MethodDescriptor, req protoref
 			var stream grpc.ClientStream
 			stream, err = conn.NewStream(sctx, &grpc.StreamDesc{ServerStreams: true}, full)
 			if err == nil {
-				err = stream.SendMsg(req.Interface())
+				// One the server ended at once says io.EOF here, and why
+				// to the receive below (grpc.ClientStream).
+				if err = stream.SendMsg(req.Interface()); errors.Is(err, io.EOF) {
+					err = nil
+				}
 			}
 			if err == nil {
 				err = stream.CloseSend()

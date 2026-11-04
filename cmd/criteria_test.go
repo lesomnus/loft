@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -128,7 +129,11 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 		defer cancel()
 		s, err := w.conn.NewStream(sctx, &grpc.StreamDesc{ServerStreams: true}, c.full)
 		if err == nil {
-			err = s.SendMsg(in.New().Interface())
+			// One the server ended at once says io.EOF here, and why to the
+			// receive below (grpc.ClientStream).
+			if err = s.SendMsg(in.New().Interface()); errors.Is(err, io.EOF) {
+				err = nil
+			}
 		}
 		if err == nil {
 			err = s.CloseSend()
