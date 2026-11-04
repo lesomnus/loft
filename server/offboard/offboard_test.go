@@ -25,6 +25,7 @@ import (
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql"
+	entschema "github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -165,6 +166,8 @@ func TestEveryTableIsDecidedAbout(t *testing.T) {
 		x.True(out != held, "%s is exported, withheld, or both", tb.Name)
 		_, gone := offboard.Dropped[tb.Name]
 		x.False(gone, "%s is a table of this build's, and one it dropped", tb.Name)
+		_, was := offboard.Renamed[tb.Name]
+		x.False(was, "%s is a table of this build's, and what one was called before", tb.Name)
 
 		if tb.Name == "tenant" || slices.Contains(offboard.Trail, tb.Name) || slices.Contains(offboard.Shared, tb.Name) {
 			x.NotContains(order, tb.Name)
@@ -177,6 +180,24 @@ func TestEveryTableIsDecidedAbout(t *testing.T) {
 				x.Less(i, j, "%s goes after %s, which it points at", tb.Name, fk.RefTable.Name)
 			}
 		}
+	}
+}
+
+// TestARenamedTableIsOneThisBuildHas: a table an earlier build had under
+// another name (offboard.Renamed) is one this build has under the new one,
+// written out by an export like any -- and its old name nothing else's, not
+// even a table this build dropped.
+func TestARenamedTableIsOneThisBuildHas(t *testing.T) {
+	x := require.New(t)
+	for from, to := range offboard.Renamed {
+		x.True(slices.ContainsFunc(migrate.Tables, func(tb *entschema.Table) bool { return tb.Name == to }), "%s, which %s is called now, is no table of this build's", to, from)
+		_, out := offboard.Exported[to]
+		_, held := offboard.Withheld[to]
+		x.True(out || held, "%s is neither exported nor withheld", to)
+		_, gone := offboard.Dropped[from]
+		x.False(gone, "%s was renamed and dropped", from)
+		_, chain := offboard.Renamed[to]
+		x.False(chain, "%s was renamed to %s, which is renamed again: say %s's newest name", from, to, from)
 	}
 }
 

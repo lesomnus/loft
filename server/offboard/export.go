@@ -35,6 +35,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/countfinding"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/holder"
@@ -56,7 +57,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/stockmovement"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/internal/ent/workorder"
 	"github.com/lesomnus/loft/server/pd"
 )
@@ -205,6 +205,9 @@ var Exported = map[string]reader{
 	"custodyline": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.CustodyLine).Proto)(db.CustodyLine.Query().Where(custodyline.TenantId(t), after(last)).Order(ent.Asc(custodyline.FieldDateCreated, custodyline.FieldId)).Limit(n).All(ctx))
 	},
+	"domain": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
+		return each((*ent.Domain).Proto)(db.Domain.Query().Where(entdomain.TenantId(t), after(last)).Order(ent.Asc(entdomain.FieldDateCreated, entdomain.FieldId)).Limit(n).All(ctx))
+	},
 	"event": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.Event).Proto)(db.Event.Query().Where(event.TenantId(t), after(last)).Order(ent.Asc(event.FieldDateCreated, event.FieldId)).Limit(n).All(ctx))
 	},
@@ -268,9 +271,6 @@ var Exported = map[string]reader{
 	"tenantcontract": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.TenantContract).Proto)(db.TenantContract.Query().Where(tenantcontract.TenantId(t), after(last)).Order(ent.Asc(tenantcontract.FieldDateCreated, tenantcontract.FieldId)).Limit(n).All(ctx))
 	},
-	"tenantdomain": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
-		return each((*ent.TenantDomain).Proto)(db.TenantDomain.Query().Where(tenantdomain.TenantId(t), after(last)).Order(ent.Asc(tenantdomain.FieldDateCreated, tenantdomain.FieldId)).Limit(n).All(ctx))
-	},
 	"workorder": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.WorkOrder).Proto)(db.WorkOrder.Query().Where(workorder.TenantId(t), after(last)).Order(ent.Asc(workorder.FieldDateCreated, workorder.FieldId)).Limit(n).All(ctx))
 	},
@@ -297,6 +297,19 @@ var Withheld = map[string]string{
 	"tagcounter":    "the deployment's bookkeeping: the last number made up for each prefix of tag, which a restored workspace counts again from its tags",
 	"legalhold":     "the operator's",
 	"tenant":        "the manifest's",
+}
+
+// Renamed is every table an earlier build had under another name, by that
+// name, and the one this build has it under: an entity the schema renamed,
+// whose rows a migration moves onto the new name before anything looks for
+// them (`loft migrate`, D72). An export made before names its rows by the old
+// name, `rows/<old>.jsonl`, and a restore reads them as the new one's. A name
+// here is never in this build's schema, nor in [Dropped], which a test
+// refuses; and it is only ever added to, since a deployment and an export may
+// be from any build before.
+var Renamed = map[string]string{
+	// `TenantDomain`, which is `Domain` (D72): only a workspace has domains.
+	"tenantdomain": "domain",
 }
 
 // Dropped is every table an earlier build had and this one does not, and why

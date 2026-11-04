@@ -116,7 +116,7 @@ func init() {
 	// history is told by the layer that writes it, as what each row was, with
 	// the names it is about.
 	for _, s := range []string{
-		"Asset", "AssetType", "ItemModel", "Attachment", "Label", "TenantDomain",
+		"Asset", "AssetType", "ItemModel", "Attachment", "Label", "Domain",
 		"Party",
 		"Bookable", "Reservation",
 		"Custody",
@@ -172,8 +172,8 @@ func init() {
 	allow(Read, "LabelService", "Resolve")
 	allow(Manager, "LabelService", "Print", "Bind", "Unbind")
 
-	allow(Read, "TenantDomainService", "Status")
-	allow(Admin, "TenantDomainService", "Add", "Verify", "Activate", "Retire")
+	allow(Read, "DomainService", "Status")
+	allow(Admin, "DomainService", "Add", "Verify", "Activate", "Retire")
 
 	allow(Read, "AttachmentService", "Url")
 	allow(Member, "AttachmentService", "Upload")

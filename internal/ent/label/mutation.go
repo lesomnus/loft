@@ -404,13 +404,13 @@ func (m *Mutation) ResetTenant() {
 	m.clearedtenant = false
 }
 
-// ClearDomain clears the "domain" edge to the TenantDomain entity.
+// ClearDomain clears the "domain" edge to the Domain entity.
 func (m *Mutation) ClearDomain() {
 	m.cleareddomain = true
 	m.clearedFields[FieldDomainId] = struct{}{}
 }
 
-// DomainCleared reports if the "domain" edge to the TenantDomain entity was cleared.
+// DomainCleared reports if the "domain" edge to the Domain entity was cleared.
 func (m *Mutation) DomainCleared() bool {
 	return m.DomainIdCleared() || m.cleareddomain
 }

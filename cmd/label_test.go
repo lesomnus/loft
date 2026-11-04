@@ -16,7 +16,7 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/server/account"
 )
 
@@ -108,7 +108,7 @@ func TestAWorkspaceStartsWithNoDomain(t *testing.T) {
 	x.NoError(json.Unmarshal(res.Body.Bytes(), &made))
 	id, err := pdid.Parse(made.Id)
 	x.NoError(err)
-	n, err := w.s.Ent.TenantDomain.Query().Where(tenantdomain.TenantId(id.Uuid())).Count(ctx)
+	n, err := w.s.Ent.Domain.Query().Where(entdomain.TenantId(id.Uuid())).Count(ctx)
 	x.NoError(err)
 	x.Zero(n, "a domain nobody asked for")
 }

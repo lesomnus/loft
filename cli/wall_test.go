@@ -136,7 +136,7 @@ var referent = map[string]string{
 	"parent": "Asset", "child": "Asset", "resource": "Asset", "scope": "Asset", "space": "Asset",
 	"source": "Asset", "target": "Asset", "subject": "Asset", "item": "Asset", "root": "Asset",
 	"vendor": "Party", "custodian": "Party", "person": "Party", "inviter": "Holder", "actor": "Holder",
-	"type": "AssetType", "model": "ItemModel", "count": "InventoryCount", "domain": "TenantDomain",
+	"type": "AssetType", "model": "ItemModel", "count": "InventoryCount", "domain": "Domain",
 	"row": "Placement", "line": "CustodyLine",
 }
 
@@ -358,7 +358,7 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 
 	// A default subdomain, which a workspace asks for under the suffix the
 	// deployment offers (loft#155).
-	_, err = app.NewTenantDomainServiceClient(conn).Add(as, app.TenantDomainAddRequest_builder{Sub: z.Ptr(alias)}.Build())
+	_, err = app.NewDomainServiceClient(conn).Add(as, app.DomainAddRequest_builder{Sub: z.Ptr(alias)}.Build())
 	x.NoError(err)
 	_, err = app.NewLabelServiceClient(conn).Print(as, app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)

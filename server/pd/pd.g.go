@@ -31,6 +31,7 @@ import (
 	entCountFinding "github.com/lesomnus/loft/internal/ent/countfinding"
 	entCustody "github.com/lesomnus/loft/internal/ent/custody"
 	entCustodyLine "github.com/lesomnus/loft/internal/ent/custodyline"
+	entDomain "github.com/lesomnus/loft/internal/ent/domain"
 	entEntitlement "github.com/lesomnus/loft/internal/ent/entitlement"
 	entEvent "github.com/lesomnus/loft/internal/ent/event"
 	entFact "github.com/lesomnus/loft/internal/ent/fact"
@@ -63,7 +64,6 @@ import (
 	entTagCounter "github.com/lesomnus/loft/internal/ent/tagcounter"
 	entTenant "github.com/lesomnus/loft/internal/ent/tenant"
 	entTenantContract "github.com/lesomnus/loft/internal/ent/tenantcontract"
-	entTenantDomain "github.com/lesomnus/loft/internal/ent/tenantdomain"
 	entTreeLock "github.com/lesomnus/loft/internal/ent/treelock"
 	entWorkOrder "github.com/lesomnus/loft/internal/ent/workorder"
 	bare "github.com/lesomnus/loft/server/bare"
@@ -154,6 +154,7 @@ const (
 	CountFindingDomain    pdid.Domain = 32  // "count-finding"
 	CustodyDomain         pdid.Domain = 21  // "custody"
 	CustodyLineDomain     pdid.Domain = 22  // "custody-line"
+	DomainDomain          pdid.Domain = 24  // "domain"
 	EntitlementDomain     pdid.Domain = 50  // "entitlement"
 	EventDomain           pdid.Domain = 17  // "event"
 	FactDomain            pdid.Domain = 16  // "fact"
@@ -185,7 +186,6 @@ const (
 	TagCounterDomain      pdid.Domain = 49  // "tag-counter"
 	TenantDomain          pdid.Domain = 1   // "tenant"
 	TenantContractDomain  pdid.Domain = 39  // "tenant-contract"
-	TenantDomainDomain    pdid.Domain = 24  // "tenant-domain"
 	TreeLockDomain        pdid.Domain = 12  // "tree-lock"
 	WorkOrderDomain       pdid.Domain = 33  // "work-order"
 )
@@ -205,6 +205,7 @@ func init() {
 	pdid.Register("loft.CountFinding", CountFindingDomain, "count-finding")
 	pdid.Register("loft.Custody", CustodyDomain, "custody")
 	pdid.Register("loft.CustodyLine", CustodyLineDomain, "custody-line")
+	pdid.Register("loft.Domain", DomainDomain, "domain")
 	pdid.Register("loft.Entitlement", EntitlementDomain, "entitlement")
 	pdid.Register("loft.Event", EventDomain, "event")
 	pdid.Register("loft.Fact", FactDomain, "fact")
@@ -236,7 +237,6 @@ func init() {
 	pdid.Register("loft.TagCounter", TagCounterDomain, "tag-counter")
 	pdid.Register("loft.Tenant", TenantDomain, "tenant")
 	pdid.Register("loft.TenantContract", TenantContractDomain, "tenant-contract")
-	pdid.Register("loft.TenantDomain", TenantDomainDomain, "tenant-domain")
 	pdid.Register("loft.TreeLock", TreeLockDomain, "tree-lock")
 	pdid.Register("loft.WorkOrder", WorkOrderDomain, "work-order")
 
@@ -260,6 +260,7 @@ var Domains = map[string]pdid.Domain{
 	"loft.CountFinding":    CountFindingDomain,
 	"loft.Custody":         CustodyDomain,
 	"loft.CustodyLine":     CustodyLineDomain,
+	"loft.Domain":          DomainDomain,
 	"loft.Entitlement":     EntitlementDomain,
 	"loft.Event":           EventDomain,
 	"loft.Fact":            FactDomain,
@@ -291,7 +292,6 @@ var Domains = map[string]pdid.Domain{
 	"loft.TagCounter":      TagCounterDomain,
 	"loft.Tenant":          TenantDomain,
 	"loft.TenantContract":  TenantContractDomain,
-	"loft.TenantDomain":    TenantDomainDomain,
 	"loft.TreeLock":        TreeLockDomain,
 	"loft.WorkOrder":       WorkOrderDomain,
 }
@@ -431,6 +431,7 @@ var IndexRenames = []rename.Index{
 	{Table: "custodyline", From: "custodyline_tenant_id_date_created_id", To: "custodyline_page"},
 	{Table: "custodyline", From: "custodyline_custody_id", To: "custodyline_custody"},
 	{Table: "custodyline", From: "custodyline_asset_id", To: "custodyline_asset"},
+	{Table: "domain", From: "domain_tenant_id_date_created_id", To: "domain_page"},
 	{Table: "entitlement", From: "entitlement_grant_id", To: "entitlement_grant"},
 	{Table: "entitlement", From: "entitlement_tenant_id_key", To: "entitlement_key"},
 	{Table: "event", From: "event_tenant_id_date_created_id", To: "event_page"},
@@ -490,7 +491,6 @@ var IndexRenames = []rename.Index{
 	{Table: "tagcounter", From: "tagcounter_tenant_id_prefix", To: "tagcounter_prefix"},
 	{Table: "tenant", From: "tenant_date_created_id", To: "tenant_page"},
 	{Table: "tenantcontract", From: "tenantcontract_tenant_id_date_effective_id", To: "tenantcontract_effective"},
-	{Table: "tenantdomain", From: "tenantdomain_tenant_id_date_created_id", To: "tenantdomain_page"},
 	{Table: "treelock", From: "treelock_tenant_id", To: "treelock_tenant"},
 	{Table: "workorder", From: "workorder_tenant_id_date_created_id", To: "workorder_page"},
 	{Table: "workorder", From: "workorder_asset_id", To: "workorder_asset"},
@@ -784,6 +784,24 @@ func (wall) CustodyLineScope(ctx context.Context) (predicate.CustodyLine, error)
 	}
 
 	return entCustodyLine.TenantIdIn(vs...), nil
+}
+
+// DomainScope: a row belongs to the tenant its "tenant" reaches.
+func (wall) DomainScope(ctx context.Context) (predicate.Domain, error) {
+	if a, r, ok := accountReads(ctx); ok {
+		if r.Domain == nil {
+			return nothing[predicate.Domain](), nil
+		}
+
+		return r.Domain(ctx, a)
+	}
+
+	vs, all, err := frame.Narrow(ctx)
+	if all || err != nil {
+		return nil, err
+	}
+
+	return entDomain.TenantIdIn(vs...), nil
 }
 
 // EntitlementScope: a row belongs to the tenant its "tenant" reaches.
@@ -1307,24 +1325,6 @@ func (wall) TenantContractScope(ctx context.Context) (predicate.TenantContract, 
 	}
 
 	return entTenantContract.TenantIdIn(vs...), nil
-}
-
-// TenantDomainScope: a row belongs to the tenant its "tenant" reaches.
-func (wall) TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error) {
-	if a, r, ok := accountReads(ctx); ok {
-		if r.TenantDomain == nil {
-			return nothing[predicate.TenantDomain](), nil
-		}
-
-		return r.TenantDomain(ctx, a)
-	}
-
-	vs, all, err := frame.Narrow(ctx)
-	if all || err != nil {
-		return nil, err
-	}
-
-	return entTenantDomain.TenantIdIn(vs...), nil
 }
 
 // TreeLockScope: a row belongs to the tenant its "tenant" reaches.
@@ -5751,6 +5751,394 @@ func filterCustodyLine(f *loft.CustodyLineFilter) (predicate.CustodyLine, error)
 	}
 
 	return entCustodyLine.And(ps...), nil
+}
+
+type sinkDomain struct {
+	loft.DomainServiceServer
+	store  bare.Store
+	w      *watch.Watch
+	namer  slug.Namer
+	joined bool
+}
+
+func (s Sink) Domain() loft.DomainServiceServer {
+	return sinkDomain{s.Server.Domain(), s.Server.Store, s.w, s.namer, s.joined}
+}
+
+// Erase forgets what the transaction was told about the row, before it is
+// erased: whether a frame may see it, and where a walk from it arrives.
+// Neither is true of a row that is gone, nor of another put under its
+// key. See [seen.Forget].
+func (s sinkDomain) Erase(ctx context.Context, req *loft.DomainRef) (*loft.DomainEraseResponse, error) {
+	seen.Forget(s.store.Db.Driver(), "Domain", req)
+
+	return s.DomainServiceServer.Erase(ctx, req)
+}
+
+// Apply forgets what the transaction was told about the row, before it is
+// written: a document may move it to a set the caller cannot see. See
+// [seen.Forget].
+func (s sinkDomain) Apply(ctx context.Context, req *loft.DomainApplyRequest) (*loft.Domain, error) {
+	seen.Forget(s.store.Db.Driver(), "Domain", req.GetRef())
+
+	return s.DomainServiceServer.Apply(ctx, req)
+}
+
+// Patch forgets what the transaction was told about the row, before it is
+// written; see [sinkDomain.Apply].
+func (s sinkDomain) Patch(ctx context.Context, req *loft.DomainPatchRequest) (*loft.Domain, error) {
+	seen.Forget(s.store.Db.Driver(), "Domain", req.GetRef())
+
+	return s.DomainServiceServer.Patch(ctx, req)
+}
+
+// orderDomain is how Domains come back.
+//
+// The last column is the key, and it is not decoration: a cursor cannot
+// tell apart two rows equal in every column of the order, so the page after
+// the first of them either repeats the second or skips it. Rows written by
+// one request are stamped a moment apart at best.
+var orderDomain = []sqlpage.Order{
+	{Column: entDomain.FieldDateCreated, Desc: false},
+	{Column: entDomain.FieldId, Desc: false},
+}
+
+func afterDomain(v string, by []sqlpage.Order, tag string) (func(*sql.Selector), error) {
+	var (
+		at0 time.Time
+		at1 uuid.UUID
+	)
+	if err := pdAfter(v, tag, &at0, &at1); err != nil {
+		return nil, err
+	}
+
+	return sqlpage.After(by, []any{at0, at1})
+}
+
+func nextDomain(last *ent.Domain, tag string) (string, error) {
+	return pdNext(tag, last.DateCreated, last.Id)
+}
+
+// orderByDomain is an order as ent orders a query by it.
+func orderByDomain(by []sqlpage.Order) []entDomain.OrderOption {
+	out := make([]entDomain.OrderOption, len(by))
+	for i, o := range by {
+		if o.Desc {
+			out[i] = sql.OrderByField(o.Column, sql.OrderDesc()).ToFunc()
+			continue
+		}
+
+		out[i] = sql.OrderByField(o.Column).ToFunc()
+	}
+
+	return out
+}
+
+const (
+	// DomainPageSize is what a request that did not say gets, and
+	// DomainPageLimit is the most it gets however loudly it asks.
+	DomainPageSize  = 50
+	DomainPageLimit = 100
+
+	// DomainFilterLimit is how many filters one request may carry. Each is a
+	// predicate in the same query, so it is what says how much of the
+	// database a request may ask to read -- and it is refused rather than
+	// clamped, because dropping half the filters would answer a question
+	// nobody asked.
+	DomainFilterLimit = 32
+)
+
+// List answers with the Domains that match any of the given filters, or with
+// every one there is if the request named none, a page at a time.
+func (s sinkDomain) List(ctx context.Context, req *loft.DomainListRequest) (*loft.DomainListResponse, error) {
+	q := s.store.Db.Domain.Query()
+
+	// Through the same narrowing every generated read goes through, and not
+	// by asking the scope alone: what narrows a read is the wall today and
+	// the wall and something else tomorrow, and a list that reached past it
+	// would be the one read that missed the something else.
+	if p, err := bare.DomainNarrow(ctx, s.store.Scope, nil); err != nil {
+		return nil, err
+	} else if p != nil {
+		q.Where(p)
+	}
+
+	if fs := req.GetFilters(); len(fs) > 0 {
+		if len(fs) > DomainFilterLimit {
+			return nil, status.Errorf(codes.InvalidArgument,
+				"filters: %d of them, and %d is the most one list carries", len(fs), DomainFilterLimit)
+		}
+
+		ps := make([]predicate.Domain, 0, len(fs))
+		for i, f := range fs {
+			p, err := filterDomain(f)
+			if err != nil {
+				return nil, status.Errorf(codes.InvalidArgument, "filters[%d]: %s", i, err)
+			}
+
+			ps = append(ps, p)
+		}
+
+		q.Where(entDomain.Or(ps...))
+	}
+
+	// Which order, and which way: one the schema declared, and never one a
+	// request makes up, since an order is a walk of an index.
+	by, after, next, tag := orderDomain, afterDomain, nextDomain, ""
+	if req.GetReverse() {
+		// The same index, walked from the other end.
+		by, tag = pdReverse(by), tag+"/reverse"
+	}
+
+	if v := req.GetAfter(); v != "" {
+		p, err := after(v, by, tag)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "after: %s", err)
+		}
+
+		q.Where(p)
+	}
+
+	// One row more than the page, which is how "is there another" is answered
+	// without a second query and without a count. The extra is dropped before
+	// the answer is built; it was only ever asked for to see whether it was
+	// there -- so a full last page answers with no cursor rather than sending
+	// the caller back for an empty one.
+	size := sqlpage.Size(int(req.GetSize()), DomainPageSize, DomainPageLimit)
+	us, err := q.Order(orderByDomain(by)...).Limit(size + 1).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	more := len(us) > size
+	if more {
+		us = us[:size]
+	}
+
+	items := make([]*loft.Domain, len(us))
+	for i, u := range us {
+		items[i] = u.Proto()
+	}
+
+	res := loft.DomainListResponse_builder{Items: items}.Build()
+	if more {
+		v, err := next(us[len(us)-1], tag)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "next: %s", err)
+		}
+
+		res.SetNext(v)
+	}
+
+	return res, nil
+}
+
+// filterDomain turns one filter into the predicate that selects what it
+// names. Naming nothing is refused, since the request asked for "these" and
+// did not say which.
+func filterDomain(f *loft.DomainFilter) (predicate.Domain, error) {
+	ps := make([]predicate.Domain, 0, 1)
+	if f.HasRef() {
+		p, err := bare.DomainPick(f.GetRef())
+		if err != nil {
+			return nil, err
+		}
+
+		ps = append(ps, p)
+	}
+	if f.HasState() {
+		ps = append(ps, entDomain.StateEQ(f.GetState()))
+	}
+	if f.HasPurpose() {
+		ps = append(ps, entDomain.PurposeEQ(f.GetPurpose()))
+	}
+	if len(ps) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "a filter that names nothing")
+	}
+
+	return entDomain.And(ps...), nil
+}
+
+// DomainService is the prefix of every Rpc of that service, which is how a
+// change is known to be about a Domain. A service is named for the entity it
+// is about, so the name carries it.
+var DomainService = watch.ServiceOf(loft.DomainService_Get_FullMethodName)
+
+// Watch answers with the Domains this caller may see, as they are now and as
+// they change.
+//
+// What is sent is **state and never a delta**, which is what makes a stream
+// that missed something still correct: the next item about a row carries the
+// whole of it, so a client converges rather than replays. It is also what
+// makes the first message safe to duplicate against the ones after it.
+func (s sinkDomain) Watch(req *loft.DomainWatchRequest, out grpc.ServerStreamingServer[loft.DomainWatchResponse]) error {
+	ctx := out.Context()
+
+	// A watch with no filters is the whole table, forever. It is the one
+	// shape that has no cap at all, so it is the one shape refused.
+	fs := req.GetFilters()
+	switch {
+	case len(fs) == 0:
+		return status.Error(codes.InvalidArgument,
+			"filters: a watch says which rows it is about; one that says nothing is the whole table, for as long as it is open")
+	case len(fs) > DomainFilterLimit:
+		return status.Errorf(codes.InvalidArgument,
+			"filters: %d of them, and %d is the most one watch carries", len(fs), DomainFilterLimit)
+	}
+
+	// Resolved before anything is subscribed to, so a name that names
+	// nothing is an answer rather than a stream that quietly watches none.
+	watching, err := s.watchDomainKeys(ctx, fs)
+	if err != nil {
+		return err
+	}
+
+	var snapshot func(watch.Seen) error
+	if !req.GetSkipSnapshot() {
+		snapshot = func(sent watch.Seen) error { return s.watchNow(ctx, req, out, sent) }
+	}
+
+	if s.w == nil {
+		return status.Error(codes.Unimplemented,
+			"this deployment publishes no changes; see WithWatch")
+	}
+
+	return watch.Stream(ctx, s.w, DomainService, snapshot,
+		func(ks map[pdid.Id]string, sent watch.Seen) error {
+			items := make([]*loft.DomainWatchItem, 0, len(ks))
+			for k, action := range ks {
+				u, err := s.watchRead(ctx, watching, k)
+				if err != nil {
+					return err
+				}
+				if u == nil && !sent[k] {
+					// Not theirs, or not what they asked for, and they
+					// have never been told about it. A row that never
+					// matched is not news.
+					continue
+				}
+
+				sent[k] = u != nil
+				items = append(items, loft.DomainWatchItem_builder{
+					Id:     k.Bytes(),
+					Value:  u,
+					Action: action,
+				}.Build())
+			}
+			if len(items) == 0 {
+				return nil
+			}
+
+			return out.Send(loft.DomainWatchResponse_builder{Items: items}.Build())
+		})
+}
+
+// watchNow sends what matches right now, through the same List a caller
+// would have called -- so what a stream begins with and what a list answers
+// cannot disagree, and a client does not have to do both and race them.
+func (s sinkDomain) watchNow(
+	ctx context.Context, req *loft.DomainWatchRequest, out grpc.ServerStreamingServer[loft.DomainWatchResponse],
+	sent watch.Seen,
+) error {
+	after := ""
+	for {
+		res, err := s.List(ctx, loft.DomainListRequest_builder{
+			Filters: req.GetFilters(),
+			After:   after,
+		}.Build())
+		if err != nil {
+			return err
+		}
+
+		items := make([]*loft.DomainWatchItem, 0, len(res.GetItems()))
+		for _, u := range res.GetItems() {
+			k, err := pdid.From(u.GetId())
+			if err != nil {
+				return err
+			}
+
+			sent[k] = true
+			// No action: this is not something anybody asked for, it is
+			// what is already there.
+			items = append(items, loft.DomainWatchItem_builder{Id: u.GetId(), Value: u}.Build())
+		}
+		if len(items) > 0 {
+			if err := out.Send(loft.DomainWatchResponse_builder{Items: items}.Build()); err != nil {
+				return err
+			}
+		}
+
+		if after = res.GetNext(); after == "" {
+			return nil
+		}
+	}
+}
+
+// watchRead answers with the row as it is now, or nil when it is no longer
+// one this caller may see -- erased, walled off, or no longer matching what
+// they asked for. The three are deliberately indistinguishable to a caller:
+// a stream that told them apart would be saying which rows stopped being
+// theirs, which is the thing the wall is for.
+//
+// The Get is what keeps the wall out of this file. It goes through the same
+// server every other read does, with the context of the caller who asked, so
+// a row they may not see comes back NotFound and is never sent.
+func (s sinkDomain) watchRead(
+	ctx context.Context, watching []pdid.Id, k pdid.Id,
+) (*loft.Domain, error) {
+	// Not one of the rows this stream is about. Asked before the read, so a
+	// busy table costs a stream nothing for the rows it does not watch.
+	if !slices.Contains(watching, k) {
+		return nil, nil
+	}
+
+	v, err := s.Get(ctx, loft.DomainGetRequest_builder{
+		Ref: loft.DomainRef_builder{Id: k.Bytes()}.Build(),
+	}.Build())
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil, nil
+		}
+
+		return nil, err
+	}
+
+	return v, nil
+}
+
+// watchDomainKeys is the rows a stream is about, resolved once when it opens.
+//
+// A filter names a row and a row is named several ways -- by identifier, or
+// by whatever unique index the schema declared. Resolving them here rather
+// than comparing them per event does three things: the comparison afterwards
+// is an identifier against an identifier, a name that names nothing is
+// refused when the stream opens rather than silently watching nothing, and a
+// row renamed while the stream is open goes on being the row that was asked
+// for -- which is what somebody watching a thing meant.
+func (s sinkDomain) watchDomainKeys(
+	ctx context.Context, fs []*loft.DomainFilter,
+) ([]pdid.Id, error) {
+	ks := make([]pdid.Id, 0, len(fs))
+	for i, f := range fs {
+		if !f.HasRef() {
+			return nil, status.Errorf(codes.InvalidArgument,
+				"filters[%d]: a watch says which rows it is about by naming them", i)
+		}
+
+		v, err := s.Get(ctx, loft.DomainGetRequest_builder{Ref: f.GetRef()}.Build())
+		if err != nil {
+			return nil, err
+		}
+
+		k, err := pdid.From(v.GetId())
+		if err != nil {
+			return nil, err
+		}
+
+		ks = append(ks, k)
+	}
+
+	return ks, nil
 }
 
 type sinkEvent struct {
@@ -13432,394 +13820,6 @@ func filterTenantContract(f *loft.TenantContractFilter) (predicate.TenantContrac
 	return entTenantContract.And(ps...), nil
 }
 
-type sinkTenantDomain struct {
-	loft.TenantDomainServiceServer
-	store  bare.Store
-	w      *watch.Watch
-	namer  slug.Namer
-	joined bool
-}
-
-func (s Sink) TenantDomain() loft.TenantDomainServiceServer {
-	return sinkTenantDomain{s.Server.TenantDomain(), s.Server.Store, s.w, s.namer, s.joined}
-}
-
-// Erase forgets what the transaction was told about the row, before it is
-// erased: whether a frame may see it, and where a walk from it arrives.
-// Neither is true of a row that is gone, nor of another put under its
-// key. See [seen.Forget].
-func (s sinkTenantDomain) Erase(ctx context.Context, req *loft.TenantDomainRef) (*loft.TenantDomainEraseResponse, error) {
-	seen.Forget(s.store.Db.Driver(), "TenantDomain", req)
-
-	return s.TenantDomainServiceServer.Erase(ctx, req)
-}
-
-// Apply forgets what the transaction was told about the row, before it is
-// written: a document may move it to a set the caller cannot see. See
-// [seen.Forget].
-func (s sinkTenantDomain) Apply(ctx context.Context, req *loft.TenantDomainApplyRequest) (*loft.TenantDomain, error) {
-	seen.Forget(s.store.Db.Driver(), "TenantDomain", req.GetRef())
-
-	return s.TenantDomainServiceServer.Apply(ctx, req)
-}
-
-// Patch forgets what the transaction was told about the row, before it is
-// written; see [sinkTenantDomain.Apply].
-func (s sinkTenantDomain) Patch(ctx context.Context, req *loft.TenantDomainPatchRequest) (*loft.TenantDomain, error) {
-	seen.Forget(s.store.Db.Driver(), "TenantDomain", req.GetRef())
-
-	return s.TenantDomainServiceServer.Patch(ctx, req)
-}
-
-// orderTenantDomain is how TenantDomains come back.
-//
-// The last column is the key, and it is not decoration: a cursor cannot
-// tell apart two rows equal in every column of the order, so the page after
-// the first of them either repeats the second or skips it. Rows written by
-// one request are stamped a moment apart at best.
-var orderTenantDomain = []sqlpage.Order{
-	{Column: entTenantDomain.FieldDateCreated, Desc: false},
-	{Column: entTenantDomain.FieldId, Desc: false},
-}
-
-func afterTenantDomain(v string, by []sqlpage.Order, tag string) (func(*sql.Selector), error) {
-	var (
-		at0 time.Time
-		at1 uuid.UUID
-	)
-	if err := pdAfter(v, tag, &at0, &at1); err != nil {
-		return nil, err
-	}
-
-	return sqlpage.After(by, []any{at0, at1})
-}
-
-func nextTenantDomain(last *ent.TenantDomain, tag string) (string, error) {
-	return pdNext(tag, last.DateCreated, last.Id)
-}
-
-// orderByTenantDomain is an order as ent orders a query by it.
-func orderByTenantDomain(by []sqlpage.Order) []entTenantDomain.OrderOption {
-	out := make([]entTenantDomain.OrderOption, len(by))
-	for i, o := range by {
-		if o.Desc {
-			out[i] = sql.OrderByField(o.Column, sql.OrderDesc()).ToFunc()
-			continue
-		}
-
-		out[i] = sql.OrderByField(o.Column).ToFunc()
-	}
-
-	return out
-}
-
-const (
-	// TenantDomainPageSize is what a request that did not say gets, and
-	// TenantDomainPageLimit is the most it gets however loudly it asks.
-	TenantDomainPageSize  = 50
-	TenantDomainPageLimit = 100
-
-	// TenantDomainFilterLimit is how many filters one request may carry. Each is a
-	// predicate in the same query, so it is what says how much of the
-	// database a request may ask to read -- and it is refused rather than
-	// clamped, because dropping half the filters would answer a question
-	// nobody asked.
-	TenantDomainFilterLimit = 32
-)
-
-// List answers with the TenantDomains that match any of the given filters, or with
-// every one there is if the request named none, a page at a time.
-func (s sinkTenantDomain) List(ctx context.Context, req *loft.TenantDomainListRequest) (*loft.TenantDomainListResponse, error) {
-	q := s.store.Db.TenantDomain.Query()
-
-	// Through the same narrowing every generated read goes through, and not
-	// by asking the scope alone: what narrows a read is the wall today and
-	// the wall and something else tomorrow, and a list that reached past it
-	// would be the one read that missed the something else.
-	if p, err := bare.TenantDomainNarrow(ctx, s.store.Scope, nil); err != nil {
-		return nil, err
-	} else if p != nil {
-		q.Where(p)
-	}
-
-	if fs := req.GetFilters(); len(fs) > 0 {
-		if len(fs) > TenantDomainFilterLimit {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"filters: %d of them, and %d is the most one list carries", len(fs), TenantDomainFilterLimit)
-		}
-
-		ps := make([]predicate.TenantDomain, 0, len(fs))
-		for i, f := range fs {
-			p, err := filterTenantDomain(f)
-			if err != nil {
-				return nil, status.Errorf(codes.InvalidArgument, "filters[%d]: %s", i, err)
-			}
-
-			ps = append(ps, p)
-		}
-
-		q.Where(entTenantDomain.Or(ps...))
-	}
-
-	// Which order, and which way: one the schema declared, and never one a
-	// request makes up, since an order is a walk of an index.
-	by, after, next, tag := orderTenantDomain, afterTenantDomain, nextTenantDomain, ""
-	if req.GetReverse() {
-		// The same index, walked from the other end.
-		by, tag = pdReverse(by), tag+"/reverse"
-	}
-
-	if v := req.GetAfter(); v != "" {
-		p, err := after(v, by, tag)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "after: %s", err)
-		}
-
-		q.Where(p)
-	}
-
-	// One row more than the page, which is how "is there another" is answered
-	// without a second query and without a count. The extra is dropped before
-	// the answer is built; it was only ever asked for to see whether it was
-	// there -- so a full last page answers with no cursor rather than sending
-	// the caller back for an empty one.
-	size := sqlpage.Size(int(req.GetSize()), TenantDomainPageSize, TenantDomainPageLimit)
-	us, err := q.Order(orderByTenantDomain(by)...).Limit(size + 1).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	more := len(us) > size
-	if more {
-		us = us[:size]
-	}
-
-	items := make([]*loft.TenantDomain, len(us))
-	for i, u := range us {
-		items[i] = u.Proto()
-	}
-
-	res := loft.TenantDomainListResponse_builder{Items: items}.Build()
-	if more {
-		v, err := next(us[len(us)-1], tag)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "next: %s", err)
-		}
-
-		res.SetNext(v)
-	}
-
-	return res, nil
-}
-
-// filterTenantDomain turns one filter into the predicate that selects what it
-// names. Naming nothing is refused, since the request asked for "these" and
-// did not say which.
-func filterTenantDomain(f *loft.TenantDomainFilter) (predicate.TenantDomain, error) {
-	ps := make([]predicate.TenantDomain, 0, 1)
-	if f.HasRef() {
-		p, err := bare.TenantDomainPick(f.GetRef())
-		if err != nil {
-			return nil, err
-		}
-
-		ps = append(ps, p)
-	}
-	if f.HasState() {
-		ps = append(ps, entTenantDomain.StateEQ(f.GetState()))
-	}
-	if f.HasPurpose() {
-		ps = append(ps, entTenantDomain.PurposeEQ(f.GetPurpose()))
-	}
-	if len(ps) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "a filter that names nothing")
-	}
-
-	return entTenantDomain.And(ps...), nil
-}
-
-// TenantDomainService is the prefix of every Rpc of that service, which is how a
-// change is known to be about a TenantDomain. A service is named for the entity it
-// is about, so the name carries it.
-var TenantDomainService = watch.ServiceOf(loft.TenantDomainService_Get_FullMethodName)
-
-// Watch answers with the TenantDomains this caller may see, as they are now and as
-// they change.
-//
-// What is sent is **state and never a delta**, which is what makes a stream
-// that missed something still correct: the next item about a row carries the
-// whole of it, so a client converges rather than replays. It is also what
-// makes the first message safe to duplicate against the ones after it.
-func (s sinkTenantDomain) Watch(req *loft.TenantDomainWatchRequest, out grpc.ServerStreamingServer[loft.TenantDomainWatchResponse]) error {
-	ctx := out.Context()
-
-	// A watch with no filters is the whole table, forever. It is the one
-	// shape that has no cap at all, so it is the one shape refused.
-	fs := req.GetFilters()
-	switch {
-	case len(fs) == 0:
-		return status.Error(codes.InvalidArgument,
-			"filters: a watch says which rows it is about; one that says nothing is the whole table, for as long as it is open")
-	case len(fs) > TenantDomainFilterLimit:
-		return status.Errorf(codes.InvalidArgument,
-			"filters: %d of them, and %d is the most one watch carries", len(fs), TenantDomainFilterLimit)
-	}
-
-	// Resolved before anything is subscribed to, so a name that names
-	// nothing is an answer rather than a stream that quietly watches none.
-	watching, err := s.watchTenantDomainKeys(ctx, fs)
-	if err != nil {
-		return err
-	}
-
-	var snapshot func(watch.Seen) error
-	if !req.GetSkipSnapshot() {
-		snapshot = func(sent watch.Seen) error { return s.watchNow(ctx, req, out, sent) }
-	}
-
-	if s.w == nil {
-		return status.Error(codes.Unimplemented,
-			"this deployment publishes no changes; see WithWatch")
-	}
-
-	return watch.Stream(ctx, s.w, TenantDomainService, snapshot,
-		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*loft.TenantDomainWatchItem, 0, len(ks))
-			for k, action := range ks {
-				u, err := s.watchRead(ctx, watching, k)
-				if err != nil {
-					return err
-				}
-				if u == nil && !sent[k] {
-					// Not theirs, or not what they asked for, and they
-					// have never been told about it. A row that never
-					// matched is not news.
-					continue
-				}
-
-				sent[k] = u != nil
-				items = append(items, loft.TenantDomainWatchItem_builder{
-					Id:     k.Bytes(),
-					Value:  u,
-					Action: action,
-				}.Build())
-			}
-			if len(items) == 0 {
-				return nil
-			}
-
-			return out.Send(loft.TenantDomainWatchResponse_builder{Items: items}.Build())
-		})
-}
-
-// watchNow sends what matches right now, through the same List a caller
-// would have called -- so what a stream begins with and what a list answers
-// cannot disagree, and a client does not have to do both and race them.
-func (s sinkTenantDomain) watchNow(
-	ctx context.Context, req *loft.TenantDomainWatchRequest, out grpc.ServerStreamingServer[loft.TenantDomainWatchResponse],
-	sent watch.Seen,
-) error {
-	after := ""
-	for {
-		res, err := s.List(ctx, loft.TenantDomainListRequest_builder{
-			Filters: req.GetFilters(),
-			After:   after,
-		}.Build())
-		if err != nil {
-			return err
-		}
-
-		items := make([]*loft.TenantDomainWatchItem, 0, len(res.GetItems()))
-		for _, u := range res.GetItems() {
-			k, err := pdid.From(u.GetId())
-			if err != nil {
-				return err
-			}
-
-			sent[k] = true
-			// No action: this is not something anybody asked for, it is
-			// what is already there.
-			items = append(items, loft.TenantDomainWatchItem_builder{Id: u.GetId(), Value: u}.Build())
-		}
-		if len(items) > 0 {
-			if err := out.Send(loft.TenantDomainWatchResponse_builder{Items: items}.Build()); err != nil {
-				return err
-			}
-		}
-
-		if after = res.GetNext(); after == "" {
-			return nil
-		}
-	}
-}
-
-// watchRead answers with the row as it is now, or nil when it is no longer
-// one this caller may see -- erased, walled off, or no longer matching what
-// they asked for. The three are deliberately indistinguishable to a caller:
-// a stream that told them apart would be saying which rows stopped being
-// theirs, which is the thing the wall is for.
-//
-// The Get is what keeps the wall out of this file. It goes through the same
-// server every other read does, with the context of the caller who asked, so
-// a row they may not see comes back NotFound and is never sent.
-func (s sinkTenantDomain) watchRead(
-	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*loft.TenantDomain, error) {
-	// Not one of the rows this stream is about. Asked before the read, so a
-	// busy table costs a stream nothing for the rows it does not watch.
-	if !slices.Contains(watching, k) {
-		return nil, nil
-	}
-
-	v, err := s.Get(ctx, loft.TenantDomainGetRequest_builder{
-		Ref: loft.TenantDomainRef_builder{Id: k.Bytes()}.Build(),
-	}.Build())
-	if err != nil {
-		if status.Code(err) == codes.NotFound {
-			return nil, nil
-		}
-
-		return nil, err
-	}
-
-	return v, nil
-}
-
-// watchTenantDomainKeys is the rows a stream is about, resolved once when it opens.
-//
-// A filter names a row and a row is named several ways -- by identifier, or
-// by whatever unique index the schema declared. Resolving them here rather
-// than comparing them per event does three things: the comparison afterwards
-// is an identifier against an identifier, a name that names nothing is
-// refused when the stream opens rather than silently watching nothing, and a
-// row renamed while the stream is open goes on being the row that was asked
-// for -- which is what somebody watching a thing meant.
-func (s sinkTenantDomain) watchTenantDomainKeys(
-	ctx context.Context, fs []*loft.TenantDomainFilter,
-) ([]pdid.Id, error) {
-	ks := make([]pdid.Id, 0, len(fs))
-	for i, f := range fs {
-		if !f.HasRef() {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"filters[%d]: a watch says which rows it is about by naming them", i)
-		}
-
-		v, err := s.Get(ctx, loft.TenantDomainGetRequest_builder{Ref: f.GetRef()}.Build())
-		if err != nil {
-			return nil, err
-		}
-
-		k, err := pdid.From(v.GetId())
-		if err != nil {
-			return nil, err
-		}
-
-		ks = append(ks, k)
-	}
-
-	return ks, nil
-}
-
 type sinkWorkOrder struct {
 	loft.WorkOrderServiceServer
 	store  bare.Store
@@ -15308,6 +15308,54 @@ func (s gateCustodyLine) admit(ctx context.Context, req *loft.CustodyLineAddRequ
 	return req, nil
 }
 
+type gateDomain struct {
+	Gate
+	loft.DomainServiceServer
+}
+
+func (s Gate) Domain() loft.DomainServiceServer {
+	v := gateDomain{s, s.Next().Domain()}
+	v.DomainServiceServer = bare.DomainWithAddRule(v.DomainServiceServer, v.admit)
+	return accountsDomain{v}
+}
+
+// admit refuses a Domain put into a Tenant this caller cannot see.
+//
+// The wall is a predicate and an Add has no query, so without this the
+// identifier in `tenant` becomes a foreign key with nothing consulted.
+// The row is then invisible to whoever planted it and visible to whoever
+// holds that Tenant, which is the shape of the bug rather than a
+// mitigation of it.
+//
+// NotFound rather than a refusal, for the reason on `gateHolder.admit`:
+// that a row exists is itself something a caller who may not see it
+// should not be told.
+//
+// It is what an Add is asked, and an AddMany of every item it carries;
+// see [Gate.Domain].
+func (s gateDomain) admit(ctx context.Context, req *loft.DomainAddRequest) (*loft.DomainAddRequest, error) {
+	if req.HasVerifiedAt() {
+		return nil, pderr.Invalidf("verified_at", "is established by this deployment and not asserted by a request")
+	}
+
+	if ref := req.GetTenant(); ref != nil {
+		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
+			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
+				Ref: ref,
+			}.Build())
+			return err
+		}); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Tenant")
+			}
+
+			return nil, err
+		}
+	}
+
+	return req, nil
+}
+
 type gateEvent struct {
 	Gate
 	loft.EventServiceServer
@@ -15829,14 +15877,14 @@ func (s gateLabel) admit(ctx context.Context, req *loft.LabelAddRequest) (*loft.
 	}
 
 	if ref := req.GetDomain(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "TenantDomain", ref, func() error {
-			_, err := s.Gate.Next().TenantDomain().Get(ctx, loft.TenantDomainGetRequest_builder{
+		if err := seen.Visible(ctx, s.Gate.drv, "Domain", ref, func() error {
+			_, err := s.Gate.Next().Domain().Get(ctx, loft.DomainGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
 		}); err != nil {
 			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("TenantDomain")
+				return nil, gate.ErrNotFound("Domain")
 			}
 
 			return nil, err
@@ -15854,14 +15902,14 @@ func (s gateLabel) admit(ctx context.Context, req *loft.LabelAddRequest) (*loft.
 // exactly as it would have been at `Add`.
 func (s gateLabel) Patch(ctx context.Context, req *loft.LabelPatchRequest) (*loft.Label, error) {
 	if ref := req.GetDomain(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "TenantDomain", ref, func() error {
-			_, err := s.Gate.Next().TenantDomain().Get(ctx, loft.TenantDomainGetRequest_builder{
+		if err := seen.Visible(ctx, s.Gate.drv, "Domain", ref, func() error {
+			_, err := s.Gate.Next().Domain().Get(ctx, loft.DomainGetRequest_builder{
 				Ref: ref,
 			}.Build())
 			return err
 		}); err != nil {
 			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("TenantDomain")
+				return nil, gate.ErrNotFound("Domain")
 			}
 
 			return nil, err
@@ -15897,15 +15945,15 @@ func (s gateLabel) Apply(ctx context.Context, req *loft.LabelApplyRequest) (*lof
 	}
 	if w, ok := plan.WriteTo(8); ok {
 		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := loft.TenantDomainRef_builder{Id: k.Key.Bytes()}.Build()
-			if err := seen.Visible(ctx, s.Gate.drv, "TenantDomain", ref, func() error {
-				_, err := s.Gate.Next().TenantDomain().Get(ctx, loft.TenantDomainGetRequest_builder{
+			ref := loft.DomainRef_builder{Id: k.Key.Bytes()}.Build()
+			if err := seen.Visible(ctx, s.Gate.drv, "Domain", ref, func() error {
+				_, err := s.Gate.Next().Domain().Get(ctx, loft.DomainGetRequest_builder{
 					Ref: ref,
 				}.Build())
 				return err
 			}); err != nil {
 				if status.Code(err) == codes.NotFound {
-					return nil, gate.ErrNotFound("TenantDomain")
+					return nil, gate.ErrNotFound("Domain")
 				}
 
 				return nil, err
@@ -16981,54 +17029,6 @@ func (s gateTenantContract) admit(ctx context.Context, req *loft.TenantContractA
 	return req, nil
 }
 
-type gateTenantDomain struct {
-	Gate
-	loft.TenantDomainServiceServer
-}
-
-func (s Gate) TenantDomain() loft.TenantDomainServiceServer {
-	v := gateTenantDomain{s, s.Next().TenantDomain()}
-	v.TenantDomainServiceServer = bare.TenantDomainWithAddRule(v.TenantDomainServiceServer, v.admit)
-	return accountsTenantDomain{v}
-}
-
-// admit refuses a TenantDomain put into a Tenant this caller cannot see.
-//
-// The wall is a predicate and an Add has no query, so without this the
-// identifier in `tenant` becomes a foreign key with nothing consulted.
-// The row is then invisible to whoever planted it and visible to whoever
-// holds that Tenant, which is the shape of the bug rather than a
-// mitigation of it.
-//
-// NotFound rather than a refusal, for the reason on `gateHolder.admit`:
-// that a row exists is itself something a caller who may not see it
-// should not be told.
-//
-// It is what an Add is asked, and an AddMany of every item it carries;
-// see [Gate.TenantDomain].
-func (s gateTenantDomain) admit(ctx context.Context, req *loft.TenantDomainAddRequest) (*loft.TenantDomainAddRequest, error) {
-	if req.HasVerifiedAt() {
-		return nil, pderr.Invalidf("verified_at", "is established by this deployment and not asserted by a request")
-	}
-
-	if ref := req.GetTenant(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Tenant")
-			}
-
-			return nil, err
-		}
-	}
-
-	return req, nil
-}
-
 type gateWorkOrder struct {
 	Gate
 	loft.WorkOrderServiceServer
@@ -17876,97 +17876,97 @@ func (s accountsAsset) ExportCensus(ctx context.Context, req *loft.AssetCensusRe
 	return s.AssetServiceServer.ExportCensus(ctx, req)
 }
 
-// accountsTenantDomain is TenantDomainService as the gate serves it to a call an account
+// accountsDomain is DomainService as the gate serves it to a call an account
 // makes as itself: refused every method but the ones the schema marks the
 // account's own. See [gate.AsAccount].
-type accountsTenantDomain struct{ loft.TenantDomainServiceServer }
+type accountsDomain struct{ loft.DomainServiceServer }
 
-func (s accountsTenantDomain) Add(ctx context.Context, req *loft.TenantDomainAddRequest) (*loft.TenantDomain, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Add_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Add(ctx context.Context, req *loft.DomainAddRequest) (*loft.Domain, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Add_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Add(ctx, req)
+	return s.DomainServiceServer.Add(ctx, req)
 }
 
-func (s accountsTenantDomain) Get(ctx context.Context, req *loft.TenantDomainGetRequest) (*loft.TenantDomain, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Get_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Get(ctx context.Context, req *loft.DomainGetRequest) (*loft.Domain, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Get_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Get(ctx, req)
+	return s.DomainServiceServer.Get(ctx, req)
 }
 
-func (s accountsTenantDomain) Patch(ctx context.Context, req *loft.TenantDomainPatchRequest) (*loft.TenantDomain, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Patch_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Patch(ctx context.Context, req *loft.DomainPatchRequest) (*loft.Domain, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Patch_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Patch(ctx, req)
+	return s.DomainServiceServer.Patch(ctx, req)
 }
 
-func (s accountsTenantDomain) Apply(ctx context.Context, req *loft.TenantDomainApplyRequest) (*loft.TenantDomain, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Apply_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Apply(ctx context.Context, req *loft.DomainApplyRequest) (*loft.Domain, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Apply_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Apply(ctx, req)
+	return s.DomainServiceServer.Apply(ctx, req)
 }
 
-func (s accountsTenantDomain) Erase(ctx context.Context, req *loft.TenantDomainRef) (*loft.TenantDomainEraseResponse, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Erase_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Erase(ctx context.Context, req *loft.DomainRef) (*loft.DomainEraseResponse, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Erase_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Erase(ctx, req)
+	return s.DomainServiceServer.Erase(ctx, req)
 }
 
-func (s accountsTenantDomain) List(ctx context.Context, req *loft.TenantDomainListRequest) (*loft.TenantDomainListResponse, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_List_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) List(ctx context.Context, req *loft.DomainListRequest) (*loft.DomainListResponse, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_List_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.List(ctx, req)
+	return s.DomainServiceServer.List(ctx, req)
 }
 
-func (s accountsTenantDomain) Watch(req *loft.TenantDomainWatchRequest, out grpc.ServerStreamingServer[loft.TenantDomainWatchResponse]) error {
-	if err := gate.AsAccount(out.Context(), loft.TenantDomainService_Watch_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Watch(req *loft.DomainWatchRequest, out grpc.ServerStreamingServer[loft.DomainWatchResponse]) error {
+	if err := gate.AsAccount(out.Context(), loft.DomainService_Watch_FullMethodName, AccountMethod); err != nil {
 		return err
 	}
 
-	return s.TenantDomainServiceServer.Watch(req, out)
+	return s.DomainServiceServer.Watch(req, out)
 }
 
-func (s accountsTenantDomain) Verify(ctx context.Context, req *loft.TenantDomainVerifyRequest) (*loft.TenantDomain, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Verify_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Verify(ctx context.Context, req *loft.DomainVerifyRequest) (*loft.Domain, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Verify_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Verify(ctx, req)
+	return s.DomainServiceServer.Verify(ctx, req)
 }
 
-func (s accountsTenantDomain) Activate(ctx context.Context, req *loft.TenantDomainActivateRequest) (*loft.TenantDomain, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Activate_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Activate(ctx context.Context, req *loft.DomainActivateRequest) (*loft.Domain, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Activate_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Activate(ctx, req)
+	return s.DomainServiceServer.Activate(ctx, req)
 }
 
-func (s accountsTenantDomain) Retire(ctx context.Context, req *loft.TenantDomainRetireRequest) (*loft.TenantDomain, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Retire_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Retire(ctx context.Context, req *loft.DomainRetireRequest) (*loft.Domain, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Retire_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Retire(ctx, req)
+	return s.DomainServiceServer.Retire(ctx, req)
 }
 
-func (s accountsTenantDomain) Status(ctx context.Context, req *loft.TenantDomainStatusRequest) (*loft.TenantDomainStatusResponse, error) {
-	if err := gate.AsAccount(ctx, loft.TenantDomainService_Status_FullMethodName, AccountMethod); err != nil {
+func (s accountsDomain) Status(ctx context.Context, req *loft.DomainStatusRequest) (*loft.DomainStatusResponse, error) {
+	if err := gate.AsAccount(ctx, loft.DomainService_Status_FullMethodName, AccountMethod); err != nil {
 		return nil, err
 	}
 
-	return s.TenantDomainServiceServer.Status(ctx, req)
+	return s.DomainServiceServer.Status(ctx, req)
 }
 
 // accountsLabel is LabelService as the gate serves it to a call an account
@@ -20182,6 +20182,8 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedCustody.md, describedCustody.secret, describedCustody.personal
 	case CustodyLineDomain:
 		return describedCustodyLine.md, describedCustodyLine.secret, describedCustodyLine.personal
+	case DomainDomain:
+		return describedDomain.md, describedDomain.secret, describedDomain.personal
 	case EntitlementDomain:
 		return describedEntitlement.md, describedEntitlement.secret, describedEntitlement.personal
 	case EventDomain:
@@ -20244,8 +20246,6 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedTenant.md, describedTenant.secret, describedTenant.personal
 	case TenantContractDomain:
 		return describedTenantContract.md, describedTenantContract.secret, describedTenantContract.personal
-	case TenantDomainDomain:
-		return describedTenantDomain.md, describedTenantDomain.secret, describedTenantDomain.personal
 	case TreeLockDomain:
 		return describedTreeLock.md, describedTreeLock.secret, describedTreeLock.personal
 	case WorkOrderDomain:
@@ -20315,6 +20315,9 @@ var (
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
 	describedCustodyLine = describe((*loft.CustodyLine)(nil),
+		[]protoreflect.FieldNumber{},
+		[]protoreflect.FieldNumber{})
+	describedDomain = describe((*loft.Domain)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
 	describedEntitlement = describe((*loft.Entitlement)(nil),
@@ -20410,9 +20413,6 @@ var (
 	describedTenantContract = describe((*loft.TenantContract)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedTenantDomain = describe((*loft.TenantDomain)(nil),
-		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
 	describedTreeLock = describe((*loft.TreeLock)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -20450,6 +20450,7 @@ func added(by string) bool {
 		loft.CountFindingService_Add_FullMethodName,
 		loft.CustodyService_Add_FullMethodName,
 		loft.CustodyLineService_Add_FullMethodName,
+		loft.DomainService_Add_FullMethodName,
 		loft.EventService_Add_FullMethodName,
 		loft.EventService_AddMany_FullMethodName,
 		loft.FactService_Add_FullMethodName,
@@ -20474,7 +20475,6 @@ func added(by string) bool {
 		loft.StockMovementService_Add_FullMethodName,
 		loft.TenantService_Add_FullMethodName,
 		loft.TenantContractService_Add_FullMethodName,
-		loft.TenantDomainService_Add_FullMethodName,
 		loft.WorkOrderService_Add_FullMethodName:
 		return true
 	}
@@ -20773,6 +20773,33 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 
 	case CustodyLineDomain:
 		row, ok := image.(*loft.CustodyLine)
+		if !ok {
+			return uuid.Nil(), []byte{}, nil
+		}
+
+		b := []byte{}
+		if keep {
+			kept := row
+			v, err := proto.Marshal(kept)
+			if err != nil {
+				return uuid.Nil(), nil, err
+			}
+			b = v
+		}
+
+		if !row.HasTenant() {
+			return uuid.Nil(), b, nil
+		}
+
+		k, err := entuuid.FromBytes(row.GetTenant().GetId())
+		if err != nil {
+			return uuid.Nil(), nil, err
+		}
+
+		return k, b, nil
+
+	case DomainDomain:
+		row, ok := image.(*loft.Domain)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -21433,33 +21460,6 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 
 		return k, b, nil
 
-	case TenantDomainDomain:
-		row, ok := image.(*loft.TenantDomain)
-		if !ok {
-			return uuid.Nil(), []byte{}, nil
-		}
-
-		b := []byte{}
-		if keep {
-			kept := row
-			v, err := proto.Marshal(kept)
-			if err != nil {
-				return uuid.Nil(), nil, err
-			}
-			b = v
-		}
-
-		if !row.HasTenant() {
-			return uuid.Nil(), b, nil
-		}
-
-		k, err := entuuid.FromBytes(row.GetTenant().GetId())
-		if err != nil {
-			return uuid.Nil(), nil, err
-		}
-
-		return k, b, nil
-
 	case WorkOrderDomain:
 		row, ok := image.(*loft.WorkOrder)
 		if !ok {
@@ -21534,6 +21534,8 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 		vs, err = rowsCustody(ctx, s.Db, entCustody.IdEQ(uuid.UUID(key)))
 	case CustodyLineDomain:
 		vs, err = rowsCustodyLine(ctx, s.Db, entCustodyLine.IdEQ(uuid.UUID(key)))
+	case DomainDomain:
+		vs, err = rowsDomain(ctx, s.Db, entDomain.IdEQ(uuid.UUID(key)))
 	case EntitlementDomain:
 		vs, err = rowsEntitlement(ctx, s.Db, entEntitlement.IdEQ(uuid.UUID(key)))
 	case EventDomain:
@@ -21590,8 +21592,6 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 		vs, err = rowsTenant(ctx, s.Db, entTenant.IdEQ(uuid.UUID(key)))
 	case TenantContractDomain:
 		vs, err = rowsTenantContract(ctx, s.Db, entTenantContract.IdEQ(uuid.UUID(key)))
-	case TenantDomainDomain:
-		vs, err = rowsTenantDomain(ctx, s.Db, entTenantDomain.IdEQ(uuid.UUID(key)))
 	case TreeLockDomain:
 		vs, err = rowsTreeLock(ctx, s.Db, entTreeLock.IdEQ(uuid.UUID(key)))
 	case WorkOrderDomain:
@@ -21999,6 +21999,9 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 	if err := audit.CheckKind(ctx, d, checkedCustodyLine(db), archived, &out); err != nil {
 		return out, fmt.Errorf("custody-line: %w", err)
 	}
+	if err := audit.CheckKind(ctx, d, checkedDomain(db), archived, &out); err != nil {
+		return out, fmt.Errorf("domain: %w", err)
+	}
 	if err := audit.CheckKind(ctx, d, checkedEntitlement(db), archived, &out); err != nil {
 		return out, fmt.Errorf("entitlement: %w", err)
 	}
@@ -22064,9 +22067,6 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 	}
 	if err := audit.CheckKind(ctx, d, checkedTenantContract(db), archived, &out); err != nil {
 		return out, fmt.Errorf("tenant-contract: %w", err)
-	}
-	if err := audit.CheckKind(ctx, d, checkedTenantDomain(db), archived, &out); err != nil {
-		return out, fmt.Errorf("tenant-domain: %w", err)
 	}
 	if err := audit.CheckKind(ctx, d, checkedWorkOrder(db), archived, &out); err != nil {
 		return out, fmt.Errorf("work-order: %w", err)
@@ -22586,6 +22586,52 @@ func checkedCustodyLine(db *ent.Client) audit.Kind {
 			var out map[pdid.Id]*audit.Recorded
 			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
 				rows, err := rowsCustodyLine(ctx, db, entCustodyLine.IdIn(uuids(ids)...))
+				if err != nil {
+					return err
+				}
+
+				out, err = goneOf(ctx, db, ids, rows)
+				return err
+			})
+
+			return out, err
+		},
+	}
+}
+
+// checkedDomain is what a check of the rows reads of the domain kind.
+func checkedDomain(db *ent.Client) audit.Kind {
+	read := func(ctx context.Context, ps ...predicate.Domain) (audit.Page, error) {
+		var out audit.Page
+		err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
+			rows, err := rowsDomain(ctx, db, ps...)
+			if err != nil {
+				return err
+			}
+
+			recorded, err := newestDigests(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded}
+			return err
+		})
+
+		return out, err
+	}
+
+	return audit.Kind{
+		Domain: DomainDomain,
+		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
+			return read(ctx, entDomain.IdGT(uuid.UUID(after)))
+		},
+		Of: func(ctx context.Context, ids []pdid.Id) (audit.Page, error) {
+			return read(ctx, entDomain.IdIn(uuids(ids)...))
+		},
+		Trail: func(ctx context.Context, yield func([]pdid.Id) error) error {
+			return trailObjects(ctx, db, DomainDomain, yield)
+		},
+		Gone: func(ctx context.Context, ids []pdid.Id) (map[pdid.Id]*audit.Recorded, error) {
+			var out map[pdid.Id]*audit.Recorded
+			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
+				rows, err := rowsDomain(ctx, db, entDomain.IdIn(uuids(ids)...))
 				if err != nil {
 					return err
 				}
@@ -23665,52 +23711,6 @@ func checkedTenantContract(db *ent.Client) audit.Kind {
 	}
 }
 
-// checkedTenantDomain is what a check of the rows reads of the tenant-domain kind.
-func checkedTenantDomain(db *ent.Client) audit.Kind {
-	read := func(ctx context.Context, ps ...predicate.TenantDomain) (audit.Page, error) {
-		var out audit.Page
-		err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-			rows, err := rowsTenantDomain(ctx, db, ps...)
-			if err != nil {
-				return err
-			}
-
-			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
-			return err
-		})
-
-		return out, err
-	}
-
-	return audit.Kind{
-		Domain: TenantDomainDomain,
-		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
-			return read(ctx, entTenantDomain.IdGT(uuid.UUID(after)))
-		},
-		Of: func(ctx context.Context, ids []pdid.Id) (audit.Page, error) {
-			return read(ctx, entTenantDomain.IdIn(uuids(ids)...))
-		},
-		Trail: func(ctx context.Context, yield func([]pdid.Id) error) error {
-			return trailObjects(ctx, db, TenantDomainDomain, yield)
-		},
-		Gone: func(ctx context.Context, ids []pdid.Id) (map[pdid.Id]*audit.Recorded, error) {
-			var out map[pdid.Id]*audit.Recorded
-			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-				rows, err := rowsTenantDomain(ctx, db, entTenantDomain.IdIn(uuids(ids)...))
-				if err != nil {
-					return err
-				}
-
-				out, err = goneOf(ctx, db, ids, rows)
-				return err
-			})
-
-			return out, err
-		},
-	}
-}
-
 // checkedWorkOrder is what a check of the rows reads of the work-order kind.
 func checkedWorkOrder(db *ent.Client) audit.Kind {
 	read := func(ctx context.Context, ps ...predicate.WorkOrder) (audit.Page, error) {
@@ -23969,6 +23969,26 @@ func rowsCustodyLine(ctx context.Context, db *ent.Client, ps ...predicate.Custod
 	bare.CustodyLineSelectInit(q, nil)
 
 	vs, err := q.Order(entCustodyLine.ById()).Limit(audit.RowsPage).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]audit.Live, len(vs))
+	for i, v := range vs {
+		out[i] = audit.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
+	}
+
+	return out, nil
+}
+
+// rowsDomain is the rows `ps` says of the domain kind -- every row there is,
+// live or erased softly -- at most a page of them in identifier order, each as
+// a Get reads it.
+func rowsDomain(ctx context.Context, db *ent.Client, ps ...predicate.Domain) ([]audit.Live, error) {
+	q := db.Domain.Query().Where(ps...)
+	bare.DomainSelectInit(q, nil)
+
+	vs, err := q.Order(entDomain.ById()).Limit(audit.RowsPage).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -24534,26 +24554,6 @@ func rowsTenantContract(ctx context.Context, db *ent.Client, ps ...predicate.Ten
 	return out, nil
 }
 
-// rowsTenantDomain is the rows `ps` says of the tenant-domain kind -- every row there is,
-// live or erased softly -- at most a page of them in identifier order, each as
-// a Get reads it.
-func rowsTenantDomain(ctx context.Context, db *ent.Client, ps ...predicate.TenantDomain) ([]audit.Live, error) {
-	q := db.TenantDomain.Query().Where(ps...)
-	bare.TenantDomainSelectInit(q, nil)
-
-	vs, err := q.Order(entTenantDomain.ById()).Limit(audit.RowsPage).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]audit.Live, len(vs))
-	for i, v := range vs {
-		out[i] = audit.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
-	}
-
-	return out, nil
-}
-
 // rowsTreeLock is the rows `ps` says of the tree-lock kind -- every row there is,
 // live or erased softly -- at most a page of them in identifier order, each as
 // a Get reads it.
@@ -24838,6 +24838,8 @@ func record(ctx context.Context, db *ent.Client, content audit.Contents, action 
 				rows, err = rowsCustody(ctx, db, entCustody.IdIn(uuids(page)...))
 			case CustodyLineDomain:
 				rows, err = rowsCustodyLine(ctx, db, entCustodyLine.IdIn(uuids(page)...))
+			case DomainDomain:
+				rows, err = rowsDomain(ctx, db, entDomain.IdIn(uuids(page)...))
 			case EntitlementDomain:
 				rows, err = rowsEntitlement(ctx, db, entEntitlement.IdIn(uuids(page)...))
 			case EventDomain:
@@ -24882,8 +24884,6 @@ func record(ctx context.Context, db *ent.Client, content audit.Contents, action 
 				rows, err = rowsTenant(ctx, db, entTenant.IdIn(uuids(page)...))
 			case TenantContractDomain:
 				rows, err = rowsTenantContract(ctx, db, entTenantContract.IdIn(uuids(page)...))
-			case TenantDomainDomain:
-				rows, err = rowsTenantDomain(ctx, db, entTenantDomain.IdIn(uuids(page)...))
 			case WorkOrderDomain:
 				rows, err = rowsWorkOrder(ctx, db, entWorkOrder.IdIn(uuids(page)...))
 			default:
@@ -25022,6 +25022,8 @@ func (s trailStore) Carry(ctx context.Context, digest *audit.Digest, d pdid.Doma
 			rows, err = rowsCustody(ctx, s.db, entCustody.IdIn(uuids(ids)...))
 		case CustodyLineDomain:
 			rows, err = rowsCustodyLine(ctx, s.db, entCustodyLine.IdIn(uuids(ids)...))
+		case DomainDomain:
+			rows, err = rowsDomain(ctx, s.db, entDomain.IdIn(uuids(ids)...))
 		case EntitlementDomain:
 			rows, err = rowsEntitlement(ctx, s.db, entEntitlement.IdIn(uuids(ids)...))
 		case EventDomain:
@@ -25066,8 +25068,6 @@ func (s trailStore) Carry(ctx context.Context, digest *audit.Digest, d pdid.Doma
 			rows, err = rowsTenant(ctx, s.db, entTenant.IdIn(uuids(ids)...))
 		case TenantContractDomain:
 			rows, err = rowsTenantContract(ctx, s.db, entTenantContract.IdIn(uuids(ids)...))
-		case TenantDomainDomain:
-			rows, err = rowsTenantDomain(ctx, s.db, entTenantDomain.IdIn(uuids(ids)...))
 		case WorkOrderDomain:
 			rows, err = rowsWorkOrder(ctx, s.db, entWorkOrder.IdIn(uuids(ids)...))
 		default:
@@ -25825,68 +25825,68 @@ func (s interceptAsset) ExportCensus(ctx context.Context, req *loft.AssetCensusR
 		loft.AssetService_ExportCensus_FullMethodName, req, s.AssetServiceServer.ExportCensus)
 }
 
-func (s Intercept) TenantDomain() loft.TenantDomainServiceServer {
-	return interceptTenantDomain{s, s.Next().TenantDomain()}
+func (s Intercept) Domain() loft.DomainServiceServer {
+	return interceptDomain{s, s.Next().Domain()}
 }
 
-type interceptTenantDomain struct {
+type interceptDomain struct {
 	Intercept
-	loft.TenantDomainServiceServer
+	loft.DomainServiceServer
 }
 
-func (s interceptTenantDomain) Add(ctx context.Context, req *loft.TenantDomainAddRequest) (*loft.TenantDomain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Add_FullMethodName, req, s.TenantDomainServiceServer.Add)
+func (s interceptDomain) Add(ctx context.Context, req *loft.DomainAddRequest) (*loft.Domain, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Add_FullMethodName, req, s.DomainServiceServer.Add)
 }
 
-func (s interceptTenantDomain) Get(ctx context.Context, req *loft.TenantDomainGetRequest) (*loft.TenantDomain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Get_FullMethodName, req, s.TenantDomainServiceServer.Get)
+func (s interceptDomain) Get(ctx context.Context, req *loft.DomainGetRequest) (*loft.Domain, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Get_FullMethodName, req, s.DomainServiceServer.Get)
 }
 
-func (s interceptTenantDomain) Patch(ctx context.Context, req *loft.TenantDomainPatchRequest) (*loft.TenantDomain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Patch_FullMethodName, req, s.TenantDomainServiceServer.Patch)
+func (s interceptDomain) Patch(ctx context.Context, req *loft.DomainPatchRequest) (*loft.Domain, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Patch_FullMethodName, req, s.DomainServiceServer.Patch)
 }
 
-func (s interceptTenantDomain) Apply(ctx context.Context, req *loft.TenantDomainApplyRequest) (*loft.TenantDomain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Apply_FullMethodName, req, s.TenantDomainServiceServer.Apply)
+func (s interceptDomain) Apply(ctx context.Context, req *loft.DomainApplyRequest) (*loft.Domain, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Apply_FullMethodName, req, s.DomainServiceServer.Apply)
 }
 
-func (s interceptTenantDomain) Erase(ctx context.Context, req *loft.TenantDomainRef) (*loft.TenantDomainEraseResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Erase_FullMethodName, req, s.TenantDomainServiceServer.Erase)
+func (s interceptDomain) Erase(ctx context.Context, req *loft.DomainRef) (*loft.DomainEraseResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Erase_FullMethodName, req, s.DomainServiceServer.Erase)
 }
 
-func (s interceptTenantDomain) List(ctx context.Context, req *loft.TenantDomainListRequest) (*loft.TenantDomainListResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_List_FullMethodName, req, s.TenantDomainServiceServer.List)
+func (s interceptDomain) List(ctx context.Context, req *loft.DomainListRequest) (*loft.DomainListResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_List_FullMethodName, req, s.DomainServiceServer.List)
 }
 
-func (s interceptTenantDomain) Watch(req *loft.TenantDomainWatchRequest, out grpc.ServerStreamingServer[loft.TenantDomainWatchResponse]) error {
-	return grpcx.RunStream(s.stream, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Watch_FullMethodName, req, out, s.TenantDomainServiceServer.Watch)
+func (s interceptDomain) Watch(req *loft.DomainWatchRequest, out grpc.ServerStreamingServer[loft.DomainWatchResponse]) error {
+	return grpcx.RunStream(s.stream, s.DomainServiceServer,
+		loft.DomainService_Watch_FullMethodName, req, out, s.DomainServiceServer.Watch)
 }
 
-func (s interceptTenantDomain) Verify(ctx context.Context, req *loft.TenantDomainVerifyRequest) (*loft.TenantDomain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Verify_FullMethodName, req, s.TenantDomainServiceServer.Verify)
+func (s interceptDomain) Verify(ctx context.Context, req *loft.DomainVerifyRequest) (*loft.Domain, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Verify_FullMethodName, req, s.DomainServiceServer.Verify)
 }
 
-func (s interceptTenantDomain) Activate(ctx context.Context, req *loft.TenantDomainActivateRequest) (*loft.TenantDomain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Activate_FullMethodName, req, s.TenantDomainServiceServer.Activate)
+func (s interceptDomain) Activate(ctx context.Context, req *loft.DomainActivateRequest) (*loft.Domain, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Activate_FullMethodName, req, s.DomainServiceServer.Activate)
 }
 
-func (s interceptTenantDomain) Retire(ctx context.Context, req *loft.TenantDomainRetireRequest) (*loft.TenantDomain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Retire_FullMethodName, req, s.TenantDomainServiceServer.Retire)
+func (s interceptDomain) Retire(ctx context.Context, req *loft.DomainRetireRequest) (*loft.Domain, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Retire_FullMethodName, req, s.DomainServiceServer.Retire)
 }
 
-func (s interceptTenantDomain) Status(ctx context.Context, req *loft.TenantDomainStatusRequest) (*loft.TenantDomainStatusResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.TenantDomainServiceServer,
-		loft.TenantDomainService_Status_FullMethodName, req, s.TenantDomainServiceServer.Status)
+func (s interceptDomain) Status(ctx context.Context, req *loft.DomainStatusRequest) (*loft.DomainStatusResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
+		loft.DomainService_Status_FullMethodName, req, s.DomainServiceServer.Status)
 }
 
 func (s Intercept) Label() loft.LabelServiceServer {
@@ -28573,6 +28573,8 @@ func (s pastStore) TenantOf(ctx context.Context, ids []pdid.Id) (map[pdid.Id]pdi
 				rows, err = rowsCustody(ctx, s.db, entCustody.IdIn(uuids(page)...))
 			case CustodyLineDomain:
 				rows, err = rowsCustodyLine(ctx, s.db, entCustodyLine.IdIn(uuids(page)...))
+			case DomainDomain:
+				rows, err = rowsDomain(ctx, s.db, entDomain.IdIn(uuids(page)...))
 			case EntitlementDomain:
 				rows, err = rowsEntitlement(ctx, s.db, entEntitlement.IdIn(uuids(page)...))
 			case EventDomain:
@@ -28632,8 +28634,6 @@ func (s pastStore) TenantOf(ctx context.Context, ids []pdid.Id) (map[pdid.Id]pdi
 				rows, err = rowsTenant(ctx, s.db, entTenant.IdIn(uuids(page)...))
 			case TenantContractDomain:
 				rows, err = rowsTenantContract(ctx, s.db, entTenantContract.IdIn(uuids(page)...))
-			case TenantDomainDomain:
-				rows, err = rowsTenantDomain(ctx, s.db, entTenantDomain.IdIn(uuids(page)...))
 			case WorkOrderDomain:
 				rows, err = rowsWorkOrder(ctx, s.db, entWorkOrder.IdIn(uuids(page)...))
 			default:
@@ -29522,6 +29522,7 @@ type Reads struct {
 	CountFinding    func(ctx context.Context, account pdid.Id) (predicate.CountFinding, error)
 	Custody         func(ctx context.Context, account pdid.Id) (predicate.Custody, error)
 	CustodyLine     func(ctx context.Context, account pdid.Id) (predicate.CustodyLine, error)
+	Domain          func(ctx context.Context, account pdid.Id) (predicate.Domain, error)
 	Entitlement     func(ctx context.Context, account pdid.Id) (predicate.Entitlement, error)
 	Event           func(ctx context.Context, account pdid.Id) (predicate.Event, error)
 	Fact            func(ctx context.Context, account pdid.Id) (predicate.Fact, error)
@@ -29553,7 +29554,6 @@ type Reads struct {
 	TagCounter      func(ctx context.Context, account pdid.Id) (predicate.TagCounter, error)
 	Tenant          func(ctx context.Context, account pdid.Id) (predicate.Tenant, error)
 	TenantContract  func(ctx context.Context, account pdid.Id) (predicate.TenantContract, error)
-	TenantDomain    func(ctx context.Context, account pdid.Id) (predicate.TenantDomain, error)
 	TreeLock        func(ctx context.Context, account pdid.Id) (predicate.TreeLock, error)
 	WorkOrder       func(ctx context.Context, account pdid.Id) (predicate.WorkOrder, error)
 }
@@ -30576,26 +30576,26 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &loft.AssetCensusRequest{}
 	case loft.AssetService_ExportCensus_FullMethodName:
 		v = &loft.AssetCensusRequest{}
-	case loft.TenantDomainService_Add_FullMethodName:
-		v = &loft.TenantDomainAddRequest{}
-	case loft.TenantDomainService_Get_FullMethodName:
-		v = &loft.TenantDomainGetRequest{}
-	case loft.TenantDomainService_Patch_FullMethodName:
-		v = &loft.TenantDomainPatchRequest{}
-	case loft.TenantDomainService_Apply_FullMethodName:
-		v = &loft.TenantDomainApplyRequest{}
-	case loft.TenantDomainService_Erase_FullMethodName:
-		v = &loft.TenantDomainRef{}
-	case loft.TenantDomainService_List_FullMethodName:
-		v = &loft.TenantDomainListRequest{}
-	case loft.TenantDomainService_Verify_FullMethodName:
-		v = &loft.TenantDomainVerifyRequest{}
-	case loft.TenantDomainService_Activate_FullMethodName:
-		v = &loft.TenantDomainActivateRequest{}
-	case loft.TenantDomainService_Retire_FullMethodName:
-		v = &loft.TenantDomainRetireRequest{}
-	case loft.TenantDomainService_Status_FullMethodName:
-		v = &loft.TenantDomainStatusRequest{}
+	case loft.DomainService_Add_FullMethodName:
+		v = &loft.DomainAddRequest{}
+	case loft.DomainService_Get_FullMethodName:
+		v = &loft.DomainGetRequest{}
+	case loft.DomainService_Patch_FullMethodName:
+		v = &loft.DomainPatchRequest{}
+	case loft.DomainService_Apply_FullMethodName:
+		v = &loft.DomainApplyRequest{}
+	case loft.DomainService_Erase_FullMethodName:
+		v = &loft.DomainRef{}
+	case loft.DomainService_List_FullMethodName:
+		v = &loft.DomainListRequest{}
+	case loft.DomainService_Verify_FullMethodName:
+		v = &loft.DomainVerifyRequest{}
+	case loft.DomainService_Activate_FullMethodName:
+		v = &loft.DomainActivateRequest{}
+	case loft.DomainService_Retire_FullMethodName:
+		v = &loft.DomainRetireRequest{}
+	case loft.DomainService_Status_FullMethodName:
+		v = &loft.DomainStatusRequest{}
 	case loft.LabelService_Add_FullMethodName:
 		v = &loft.LabelAddRequest{}
 	case loft.LabelService_Get_FullMethodName:
@@ -31158,26 +31158,26 @@ func dispatch(ctx context.Context, s loft.Server, m string, v proto.Message) (*a
 		res, err = s.Asset().Census(ctx, v.(*loft.AssetCensusRequest))
 	case loft.AssetService_ExportCensus_FullMethodName:
 		res, err = s.Asset().ExportCensus(ctx, v.(*loft.AssetCensusRequest))
-	case loft.TenantDomainService_Add_FullMethodName:
-		res, err = s.TenantDomain().Add(ctx, v.(*loft.TenantDomainAddRequest))
-	case loft.TenantDomainService_Get_FullMethodName:
-		res, err = s.TenantDomain().Get(ctx, v.(*loft.TenantDomainGetRequest))
-	case loft.TenantDomainService_Patch_FullMethodName:
-		res, err = s.TenantDomain().Patch(ctx, v.(*loft.TenantDomainPatchRequest))
-	case loft.TenantDomainService_Apply_FullMethodName:
-		res, err = s.TenantDomain().Apply(ctx, v.(*loft.TenantDomainApplyRequest))
-	case loft.TenantDomainService_Erase_FullMethodName:
-		res, err = s.TenantDomain().Erase(ctx, v.(*loft.TenantDomainRef))
-	case loft.TenantDomainService_List_FullMethodName:
-		res, err = s.TenantDomain().List(ctx, v.(*loft.TenantDomainListRequest))
-	case loft.TenantDomainService_Verify_FullMethodName:
-		res, err = s.TenantDomain().Verify(ctx, v.(*loft.TenantDomainVerifyRequest))
-	case loft.TenantDomainService_Activate_FullMethodName:
-		res, err = s.TenantDomain().Activate(ctx, v.(*loft.TenantDomainActivateRequest))
-	case loft.TenantDomainService_Retire_FullMethodName:
-		res, err = s.TenantDomain().Retire(ctx, v.(*loft.TenantDomainRetireRequest))
-	case loft.TenantDomainService_Status_FullMethodName:
-		res, err = s.TenantDomain().Status(ctx, v.(*loft.TenantDomainStatusRequest))
+	case loft.DomainService_Add_FullMethodName:
+		res, err = s.Domain().Add(ctx, v.(*loft.DomainAddRequest))
+	case loft.DomainService_Get_FullMethodName:
+		res, err = s.Domain().Get(ctx, v.(*loft.DomainGetRequest))
+	case loft.DomainService_Patch_FullMethodName:
+		res, err = s.Domain().Patch(ctx, v.(*loft.DomainPatchRequest))
+	case loft.DomainService_Apply_FullMethodName:
+		res, err = s.Domain().Apply(ctx, v.(*loft.DomainApplyRequest))
+	case loft.DomainService_Erase_FullMethodName:
+		res, err = s.Domain().Erase(ctx, v.(*loft.DomainRef))
+	case loft.DomainService_List_FullMethodName:
+		res, err = s.Domain().List(ctx, v.(*loft.DomainListRequest))
+	case loft.DomainService_Verify_FullMethodName:
+		res, err = s.Domain().Verify(ctx, v.(*loft.DomainVerifyRequest))
+	case loft.DomainService_Activate_FullMethodName:
+		res, err = s.Domain().Activate(ctx, v.(*loft.DomainActivateRequest))
+	case loft.DomainService_Retire_FullMethodName:
+		res, err = s.Domain().Retire(ctx, v.(*loft.DomainRetireRequest))
+	case loft.DomainService_Status_FullMethodName:
+		res, err = s.Domain().Status(ctx, v.(*loft.DomainStatusRequest))
 	case loft.LabelService_Add_FullMethodName:
 		res, err = s.Label().Add(ctx, v.(*loft.LabelAddRequest))
 	case loft.LabelService_Get_FullMethodName:
@@ -31593,6 +31593,7 @@ func Resources(s loft.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 		&loft.CountFinding{},
 		&loft.Custody{},
 		&loft.CustodyLine{},
+		&loft.Domain{},
 		&loft.Entitlement{},
 		&loft.Event{},
 		&loft.Fact{},
@@ -31624,7 +31625,6 @@ func Resources(s loft.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 		&loft.TagCounter{},
 		&loft.Tenant{},
 		&loft.TenantContract{},
-		&loft.TenantDomain{},
 		&loft.TreeLock{},
 		&loft.WorkOrder{},
 	)
@@ -32094,6 +32094,49 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			query := db.CustodyLine.Query()
+			if pred != nil {
+				query.Where(pred)
+			}
+			ok, err := query.Modify(func(q *sql.Selector) { q.From(row) }).Exist(ctx)
+			if err != nil || !ok {
+				return nil, err
+			}
+			return publicResource(v), nil
+		case *loft.Domain:
+			ctx, err := read.Allow(ctx, loft.DomainService_Get_FullMethodName, 1)
+			if err != nil {
+				switch status.Code(err) {
+				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
+					return nil, nil
+				}
+				return nil, err
+			}
+			pred, err := bare.DomainNarrow(ctx, scope, nil)
+			if err != nil {
+				return nil, err
+			}
+			row, err := resourcesql.Row(db.Dialect(), entDomain.Table, []resourcesql.Column{
+				{Number: 1, Name: entDomain.FieldId, Type: 64, Nullable: false, Key: 0},
+				{Number: 2, Name: entDomain.TenantColumn, Type: 64, Nullable: false, Key: 1},
+				{Number: 8, Name: entDomain.FieldHost, Type: 9, Nullable: false, Key: 0},
+				{Number: 9, Name: entDomain.FieldPurpose, Type: 9, Nullable: false, Key: 0},
+				{Number: 10, Name: entDomain.FieldState, Type: 9, Nullable: false, Key: 0},
+				{Number: 11, Name: entDomain.FieldToken, Type: 9, Nullable: false, Key: 0},
+				{Number: 12, Name: entDomain.FieldSource, Type: 9, Nullable: false, Key: 0},
+				{Number: 13, Name: entDomain.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
+				{Number: 14, Name: entDomain.FieldDateErased, Type: 65, Nullable: true, Key: 0},
+				{Number: 15, Name: entDomain.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
+				{Number: 16, Name: entDomain.FieldVerifiedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 18, Name: entDomain.FieldCheckedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 19, Name: entDomain.FieldFailures, Type: 13, Nullable: false, Key: 0},
+				{Number: 20, Name: entDomain.FieldFailingSince, Type: 65, Nullable: true, Key: 0},
+				{Number: 17, Name: entDomain.FieldDateLapsed, Type: 65, Nullable: true, Key: 0},
+				{Number: 21, Name: entDomain.FieldRedirectUntil, Type: 65, Nullable: true, Key: 0},
+			}, v)
+			if err != nil {
+				return nil, err
+			}
+			query := db.Domain.Query()
 			if pred != nil {
 				query.Where(pred)
 			}
@@ -32911,49 +32954,6 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *loft.TenantDomain:
-			ctx, err := read.Allow(ctx, loft.TenantDomainService_Get_FullMethodName, 1)
-			if err != nil {
-				switch status.Code(err) {
-				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
-					return nil, nil
-				}
-				return nil, err
-			}
-			pred, err := bare.TenantDomainNarrow(ctx, scope, nil)
-			if err != nil {
-				return nil, err
-			}
-			row, err := resourcesql.Row(db.Dialect(), entTenantDomain.Table, []resourcesql.Column{
-				{Number: 1, Name: entTenantDomain.FieldId, Type: 64, Nullable: false, Key: 0},
-				{Number: 2, Name: entTenantDomain.TenantColumn, Type: 64, Nullable: false, Key: 1},
-				{Number: 8, Name: entTenantDomain.FieldHost, Type: 9, Nullable: false, Key: 0},
-				{Number: 9, Name: entTenantDomain.FieldPurpose, Type: 9, Nullable: false, Key: 0},
-				{Number: 10, Name: entTenantDomain.FieldState, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entTenantDomain.FieldToken, Type: 9, Nullable: false, Key: 0},
-				{Number: 12, Name: entTenantDomain.FieldSource, Type: 9, Nullable: false, Key: 0},
-				{Number: 13, Name: entTenantDomain.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
-				{Number: 14, Name: entTenantDomain.FieldDateErased, Type: 65, Nullable: true, Key: 0},
-				{Number: 15, Name: entTenantDomain.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 16, Name: entTenantDomain.FieldVerifiedAt, Type: 65, Nullable: true, Key: 0},
-				{Number: 18, Name: entTenantDomain.FieldCheckedAt, Type: 65, Nullable: true, Key: 0},
-				{Number: 19, Name: entTenantDomain.FieldFailures, Type: 13, Nullable: false, Key: 0},
-				{Number: 20, Name: entTenantDomain.FieldFailingSince, Type: 65, Nullable: true, Key: 0},
-				{Number: 17, Name: entTenantDomain.FieldDateLapsed, Type: 65, Nullable: true, Key: 0},
-				{Number: 21, Name: entTenantDomain.FieldRedirectUntil, Type: 65, Nullable: true, Key: 0},
-			}, v)
-			if err != nil {
-				return nil, err
-			}
-			query := db.TenantDomain.Query()
-			if pred != nil {
-				query.Where(pred)
-			}
-			ok, err := query.Modify(func(q *sql.Selector) { q.From(row) }).Exist(ctx)
-			if err != nil || !ok {
-				return nil, err
-			}
-			return publicResource(v), nil
 		case *loft.WorkOrder:
 			ctx, err := read.Allow(ctx, loft.WorkOrderService_Get_FullMethodName, 1)
 			if err != nil {
@@ -33115,6 +33115,14 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 	case loft.CustodyLineService_Apply_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
 	case loft.CustodyLineService_Erase_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_DELETED
+	case loft.DomainService_Add_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_CREATED
+	case loft.DomainService_Patch_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
+	case loft.DomainService_Apply_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
+	case loft.DomainService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case loft.EventService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
@@ -33282,14 +33290,6 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
 	case loft.TenantContractService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case loft.TenantDomainService_Add_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case loft.TenantDomainService_Patch_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case loft.TenantDomainService_Apply_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case loft.TenantDomainService_Erase_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case loft.WorkOrderService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case loft.WorkOrderService_Patch_FullMethodName:
@@ -33316,7 +33316,7 @@ func (r resourceRecorder) Record(ctx context.Context, s bare.Server, c bare.Chan
 		return nil
 	}
 	switch image.ProtoReflect().Descriptor().FullName() {
-	case "loft.Access", "loft.AccessReview", "loft.Allocation", "loft.Asset", "loft.AssetType", "loft.Attachment", "loft.Audit", "loft.Bookable", "loft.CountFinding", "loft.Custody", "loft.CustodyLine", "loft.Event", "loft.Fact", "loft.Holder", "loft.InventoryCount", "loft.Invitation", "loft.ItemModel", "loft.Label", "loft.LegalHold", "loft.Link", "loft.Notification", "loft.Party", "loft.Placement", "loft.Purchase", "loft.PurchaseLine", "loft.Reservation", "loft.ReservationItem", "loft.Stewardship", "loft.Stock", "loft.StockMovement", "loft.Tenant", "loft.TenantContract", "loft.TenantDomain", "loft.WorkOrder":
+	case "loft.Access", "loft.AccessReview", "loft.Allocation", "loft.Asset", "loft.AssetType", "loft.Attachment", "loft.Audit", "loft.Bookable", "loft.CountFinding", "loft.Custody", "loft.CustodyLine", "loft.Domain", "loft.Event", "loft.Fact", "loft.Holder", "loft.InventoryCount", "loft.Invitation", "loft.ItemModel", "loft.Label", "loft.LegalHold", "loft.Link", "loft.Notification", "loft.Party", "loft.Placement", "loft.Purchase", "loft.PurchaseLine", "loft.Reservation", "loft.ReservationItem", "loft.Stewardship", "loft.Stock", "loft.StockMovement", "loft.Tenant", "loft.TenantContract", "loft.WorkOrder":
 	default:
 		return nil
 	}

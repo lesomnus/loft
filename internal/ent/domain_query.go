@@ -8,22 +8,22 @@ import (
 	"math"
 	"uuid"
 
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
 )
 
-// TenantDomainQuery is the builder for querying TenantDomain entities.
-type TenantDomainQuery struct {
+// DomainQuery is the builder for querying Domain entities.
+type DomainQuery struct {
 	config
 	ctx        *QueryContext
-	order      []tenantdomain.OrderOption
+	order      []domain.OrderOption
 	inters     []Interceptor
-	predicates []predicate.TenantDomain
+	predicates []predicate.Domain
 	withTenant *TenantQuery
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
@@ -31,39 +31,39 @@ type TenantDomainQuery struct {
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the TenantDomainQuery builder.
-func (_q *TenantDomainQuery) Where(ps ...predicate.TenantDomain) *TenantDomainQuery {
+// Where adds a new predicate for the DomainQuery builder.
+func (_q *DomainQuery) Where(ps ...predicate.Domain) *DomainQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *TenantDomainQuery) Limit(limit int) *TenantDomainQuery {
+func (_q *DomainQuery) Limit(limit int) *DomainQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *TenantDomainQuery) Offset(offset int) *TenantDomainQuery {
+func (_q *DomainQuery) Offset(offset int) *DomainQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *TenantDomainQuery) Unique(unique bool) *TenantDomainQuery {
+func (_q *DomainQuery) Unique(unique bool) *DomainQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *TenantDomainQuery) Order(o ...tenantdomain.OrderOption) *TenantDomainQuery {
+func (_q *DomainQuery) Order(o ...domain.OrderOption) *DomainQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
 // QueryTenant chains the current query on the "tenant" edge.
-func (_q *TenantDomainQuery) QueryTenant() *TenantQuery {
+func (_q *DomainQuery) QueryTenant() *TenantQuery {
 	query := (&TenantClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -74,9 +74,9 @@ func (_q *TenantDomainQuery) QueryTenant() *TenantQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(tenantdomain.Table, tenantdomain.FieldId, selector),
+			sqlgraph.From(domain.Table, domain.FieldId, selector),
 			sqlgraph.To(tenant.Table, tenant.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, tenantdomain.TenantTable, tenantdomain.TenantColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, domain.TenantTable, domain.TenantColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -84,21 +84,21 @@ func (_q *TenantDomainQuery) QueryTenant() *TenantQuery {
 	return query
 }
 
-// First returns the first TenantDomain entity from the query.
-// Returns a *NotFoundError when no TenantDomain was found.
-func (_q *TenantDomainQuery) First(ctx context.Context) (*TenantDomain, error) {
+// First returns the first Domain entity from the query.
+// Returns a *NotFoundError when no Domain was found.
+func (_q *DomainQuery) First(ctx context.Context) (*Domain, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{tenantdomain.Label}
+		return nil, &NotFoundError{domain.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *TenantDomainQuery) FirstX(ctx context.Context) *TenantDomain {
+func (_q *DomainQuery) FirstX(ctx context.Context) *Domain {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -106,22 +106,22 @@ func (_q *TenantDomainQuery) FirstX(ctx context.Context) *TenantDomain {
 	return node
 }
 
-// FirstId returns the first TenantDomain Id from the query.
-// Returns a *NotFoundError when no TenantDomain Id was found.
-func (_q *TenantDomainQuery) FirstId(ctx context.Context) (id uuid.UUID, err error) {
+// FirstId returns the first Domain Id from the query.
+// Returns a *NotFoundError when no Domain Id was found.
+func (_q *DomainQuery) FirstId(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).Ids(setContextOp(ctx, _q.ctx, ent.OpQueryFirstId)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{tenantdomain.Label}
+		err = &NotFoundError{domain.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIdX is like FirstId, but panics if an error occurs.
-func (_q *TenantDomainQuery) FirstIdX(ctx context.Context) uuid.UUID {
+func (_q *DomainQuery) FirstIdX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstId(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -129,10 +129,10 @@ func (_q *TenantDomainQuery) FirstIdX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// Only returns a single TenantDomain entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one TenantDomain entity is found.
-// Returns a *NotFoundError when no TenantDomain entities are found.
-func (_q *TenantDomainQuery) Only(ctx context.Context) (*TenantDomain, error) {
+// Only returns a single Domain entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Domain entity is found.
+// Returns a *NotFoundError when no Domain entities are found.
+func (_q *DomainQuery) Only(ctx context.Context) (*Domain, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -141,14 +141,14 @@ func (_q *TenantDomainQuery) Only(ctx context.Context) (*TenantDomain, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{tenantdomain.Label}
+		return nil, &NotFoundError{domain.Label}
 	default:
-		return nil, &NotSingularError{tenantdomain.Label}
+		return nil, &NotSingularError{domain.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *TenantDomainQuery) OnlyX(ctx context.Context) *TenantDomain {
+func (_q *DomainQuery) OnlyX(ctx context.Context) *Domain {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -156,10 +156,10 @@ func (_q *TenantDomainQuery) OnlyX(ctx context.Context) *TenantDomain {
 	return node
 }
 
-// OnlyId is like Only, but returns the only TenantDomain Id in the query.
-// Returns a *NotSingularError when more than one TenantDomain Id is found.
+// OnlyId is like Only, but returns the only Domain Id in the query.
+// Returns a *NotSingularError when more than one Domain Id is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *TenantDomainQuery) OnlyId(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *DomainQuery) OnlyId(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).Ids(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyId)); err != nil {
 		return
@@ -168,15 +168,15 @@ func (_q *TenantDomainQuery) OnlyId(ctx context.Context) (id uuid.UUID, err erro
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{tenantdomain.Label}
+		err = &NotFoundError{domain.Label}
 	default:
-		err = &NotSingularError{tenantdomain.Label}
+		err = &NotSingularError{domain.Label}
 	}
 	return
 }
 
 // OnlyIdX is like OnlyId, but panics if an error occurs.
-func (_q *TenantDomainQuery) OnlyIdX(ctx context.Context) uuid.UUID {
+func (_q *DomainQuery) OnlyIdX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyId(ctx)
 	if err != nil {
 		panic(err)
@@ -184,18 +184,18 @@ func (_q *TenantDomainQuery) OnlyIdX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// All executes the query and returns a list of TenantDomain entities.
-func (_q *TenantDomainQuery) All(ctx context.Context) ([]*TenantDomain, error) {
+// All executes the query and returns a list of Domain entities.
+func (_q *DomainQuery) All(ctx context.Context) ([]*Domain, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*TenantDomain, *TenantDomainQuery]()
-	return withInterceptors[[]*TenantDomain](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*Domain, *DomainQuery]()
+	return withInterceptors[[]*Domain](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *TenantDomainQuery) AllX(ctx context.Context) []*TenantDomain {
+func (_q *DomainQuery) AllX(ctx context.Context) []*Domain {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -203,20 +203,20 @@ func (_q *TenantDomainQuery) AllX(ctx context.Context) []*TenantDomain {
 	return nodes
 }
 
-// Ids executes the query and returns a list of TenantDomain Ids.
-func (_q *TenantDomainQuery) Ids(ctx context.Context) (ids []uuid.UUID, err error) {
+// Ids executes the query and returns a list of Domain Ids.
+func (_q *DomainQuery) Ids(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIds)
-	if err = _q.Select(tenantdomain.FieldId).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(domain.FieldId).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IdsX is like Ids, but panics if an error occurs.
-func (_q *TenantDomainQuery) IdsX(ctx context.Context) []uuid.UUID {
+func (_q *DomainQuery) IdsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.Ids(ctx)
 	if err != nil {
 		panic(err)
@@ -225,16 +225,16 @@ func (_q *TenantDomainQuery) IdsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (_q *TenantDomainQuery) Count(ctx context.Context) (int, error) {
+func (_q *DomainQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*TenantDomainQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*DomainQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *TenantDomainQuery) CountX(ctx context.Context) int {
+func (_q *DomainQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -243,7 +243,7 @@ func (_q *TenantDomainQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *TenantDomainQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *DomainQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstId(ctx); {
 	case IsNotFound(err):
@@ -256,7 +256,7 @@ func (_q *TenantDomainQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *TenantDomainQuery) ExistX(ctx context.Context) bool {
+func (_q *DomainQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -264,18 +264,18 @@ func (_q *TenantDomainQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the TenantDomainQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the DomainQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *TenantDomainQuery) Clone() *TenantDomainQuery {
+func (_q *DomainQuery) Clone() *DomainQuery {
 	if _q == nil {
 		return nil
 	}
-	return &TenantDomainQuery{
+	return &DomainQuery{
 		config:     _q.config,
 		ctx:        _q.ctx.Clone(),
-		order:      append([]tenantdomain.OrderOption{}, _q.order...),
+		order:      append([]domain.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.TenantDomain{}, _q.predicates...),
+		predicates: append([]predicate.Domain{}, _q.predicates...),
 		withTenant: _q.withTenant.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
@@ -286,7 +286,7 @@ func (_q *TenantDomainQuery) Clone() *TenantDomainQuery {
 
 // WithTenant tells the query-builder to eager-load the nodes that are connected to
 // the "tenant" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *TenantDomainQuery) WithTenant(opts ...func(*TenantQuery)) *TenantDomainQuery {
+func (_q *DomainQuery) WithTenant(opts ...func(*TenantQuery)) *DomainQuery {
 	query := (&TenantClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
@@ -305,15 +305,15 @@ func (_q *TenantDomainQuery) WithTenant(opts ...func(*TenantQuery)) *TenantDomai
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.TenantDomain.Query().
-//		GroupBy(tenantdomain.FieldHost).
+//	client.Domain.Query().
+//		GroupBy(domain.FieldHost).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *TenantDomainQuery) GroupBy(field string, fields ...string) *TenantDomainGroupBy {
+func (_q *DomainQuery) GroupBy(field string, fields ...string) *DomainGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &TenantDomainGroupBy{build: _q}
+	grbuild := &DomainGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = tenantdomain.Label
+	grbuild.label = domain.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -327,23 +327,23 @@ func (_q *TenantDomainQuery) GroupBy(field string, fields ...string) *TenantDoma
 //		Host string `json:"host,omitempty"`
 //	}
 //
-//	client.TenantDomain.Query().
-//		Select(tenantdomain.FieldHost).
+//	client.Domain.Query().
+//		Select(domain.FieldHost).
 //		Scan(ctx, &v)
-func (_q *TenantDomainQuery) Select(fields ...string) *TenantDomainSelect {
+func (_q *DomainQuery) Select(fields ...string) *DomainSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &TenantDomainSelect{TenantDomainQuery: _q}
-	sbuild.label = tenantdomain.Label
+	sbuild := &DomainSelect{DomainQuery: _q}
+	sbuild.label = domain.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a TenantDomainSelect configured with the given aggregations.
-func (_q *TenantDomainQuery) Aggregate(fns ...AggregateFunc) *TenantDomainSelect {
+// Aggregate returns a DomainSelect configured with the given aggregations.
+func (_q *DomainQuery) Aggregate(fns ...AggregateFunc) *DomainSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *TenantDomainQuery) prepareQuery(ctx context.Context) error {
+func (_q *DomainQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -355,7 +355,7 @@ func (_q *TenantDomainQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !tenantdomain.ValidColumn(f) {
+		if !domain.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -369,19 +369,19 @@ func (_q *TenantDomainQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *TenantDomainQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*TenantDomain, error) {
+func (_q *DomainQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Domain, error) {
 	var (
-		nodes       = []*TenantDomain{}
+		nodes       = []*Domain{}
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
 			_q.withTenant != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*TenantDomain).scanValues(nil, columns)
+		return (*Domain).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &TenantDomain{config: _q.config}
+		node := &Domain{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -400,16 +400,16 @@ func (_q *TenantDomainQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	}
 	if query := _q.withTenant; query != nil {
 		if err := _q.loadTenant(ctx, query, nodes, nil,
-			func(n *TenantDomain, e *Tenant) { n.Edges.Tenant = e }); err != nil {
+			func(n *Domain, e *Tenant) { n.Edges.Tenant = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *TenantDomainQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*TenantDomain, init func(*TenantDomain), assign func(*TenantDomain, *Tenant)) error {
+func (_q *DomainQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*Domain, init func(*Domain), assign func(*Domain, *Tenant)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*TenantDomain)
+	nodeids := make(map[uuid.UUID][]*Domain)
 	for i := range nodes {
 		fk := nodes[i].TenantId
 		if _, ok := nodeids[fk]; !ok {
@@ -437,7 +437,7 @@ func (_q *TenantDomainQuery) loadTenant(ctx context.Context, query *TenantQuery,
 	return nil
 }
 
-func (_q *TenantDomainQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *DomainQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	if len(_q.modifiers) > 0 {
 		_spec.Modifiers = _q.modifiers
@@ -449,8 +449,8 @@ func (_q *TenantDomainQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *TenantDomainQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(tenantdomain.Table, tenantdomain.Columns, sqlgraph.NewFieldSpec(tenantdomain.FieldId, field.TypeUuid))
+func (_q *DomainQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(domain.Table, domain.Columns, sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -459,14 +459,14 @@ func (_q *TenantDomainQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, tenantdomain.FieldId)
+		_spec.Node.Columns = append(_spec.Node.Columns, domain.FieldId)
 		for i := range fields {
-			if fields[i] != tenantdomain.FieldId {
+			if fields[i] != domain.FieldId {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
 		if _q.withTenant != nil {
-			_spec.Node.AddColumnOnce(tenantdomain.FieldTenantId)
+			_spec.Node.AddColumnOnce(domain.FieldTenantId)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
@@ -492,12 +492,12 @@ func (_q *TenantDomainQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *TenantDomainQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *DomainQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(tenantdomain.Table)
+	t1 := builder.Table(domain.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = tenantdomain.Columns
+		columns = domain.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -528,33 +528,33 @@ func (_q *TenantDomainQuery) sqlQuery(ctx context.Context) *sql.Selector {
 }
 
 // Modify adds a query modifier for attaching custom logic to queries.
-func (_q *TenantDomainQuery) Modify(modifiers ...func(s *sql.Selector)) *TenantDomainSelect {
+func (_q *DomainQuery) Modify(modifiers ...func(s *sql.Selector)) *DomainSelect {
 	_q.modifiers = append(_q.modifiers, modifiers...)
 	return _q.Select()
 }
 
-// TenantDomainGroupBy is the group-by builder for TenantDomain entities.
-type TenantDomainGroupBy struct {
+// DomainGroupBy is the group-by builder for Domain entities.
+type DomainGroupBy struct {
 	selector
-	build *TenantDomainQuery
+	build *DomainQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *TenantDomainGroupBy) Aggregate(fns ...AggregateFunc) *TenantDomainGroupBy {
+func (_g *DomainGroupBy) Aggregate(fns ...AggregateFunc) *DomainGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *TenantDomainGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *DomainGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TenantDomainQuery, *TenantDomainGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*DomainQuery, *DomainGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *TenantDomainGroupBy) sqlScan(ctx context.Context, root *TenantDomainQuery, v any) error {
+func (_g *DomainGroupBy) sqlScan(ctx context.Context, root *DomainQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -581,28 +581,28 @@ func (_g *TenantDomainGroupBy) sqlScan(ctx context.Context, root *TenantDomainQu
 	return sql.ScanSlice(rows, v)
 }
 
-// TenantDomainSelect is the builder for selecting fields of TenantDomain entities.
-type TenantDomainSelect struct {
-	*TenantDomainQuery
+// DomainSelect is the builder for selecting fields of Domain entities.
+type DomainSelect struct {
+	*DomainQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *TenantDomainSelect) Aggregate(fns ...AggregateFunc) *TenantDomainSelect {
+func (_s *DomainSelect) Aggregate(fns ...AggregateFunc) *DomainSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *TenantDomainSelect) Scan(ctx context.Context, v any) error {
+func (_s *DomainSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*TenantDomainQuery, *TenantDomainSelect](ctx, _s.TenantDomainQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*DomainQuery, *DomainSelect](ctx, _s.DomainQuery, _s, _s.inters, v)
 }
 
-func (_s *TenantDomainSelect) sqlScan(ctx context.Context, root *TenantDomainQuery, v any) error {
+func (_s *DomainSelect) sqlScan(ctx context.Context, root *DomainQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {
@@ -624,7 +624,7 @@ func (_s *TenantDomainSelect) sqlScan(ctx context.Context, root *TenantDomainQue
 }
 
 // Modify adds a query modifier for attaching custom logic to queries.
-func (_s *TenantDomainSelect) Modify(modifiers ...func(s *sql.Selector)) *TenantDomainSelect {
+func (_s *DomainSelect) Modify(modifiers ...func(s *sql.Selector)) *DomainSelect {
 	_s.modifiers = append(_s.modifiers, modifiers...)
 	return _s
 }

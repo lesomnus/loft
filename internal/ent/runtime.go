@@ -9,6 +9,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/bookable"
 	"github.com/lesomnus/loft/internal/ent/clilogin"
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/holder"
@@ -16,7 +17,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/schema"
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/protobuf-orm/ent/schema/field"
@@ -54,6 +54,12 @@ func init() {
 	cliloginDescAddress := cliloginFields[5].Descriptor()
 	// clilogin.DefaultAddress holds the default value on creation for the address field.
 	clilogin.DefaultAddress = cliloginDescAddress.Default.(string)
+	domainFields := schema.Domain{}.Fields()
+	_ = domainFields
+	// domainDescFailures is the schema descriptor for failures field.
+	domainDescFailures := domainFields[11].Descriptor()
+	// domain.DefaultFailures holds the default value on creation for the failures field.
+	domain.DefaultFailures = domainDescFailures.Default.(uint32)
 	eventFields := schema.Event{}.Fields()
 	_ = eventFields
 	// eventDescValue is the schema descriptor for value field.
@@ -120,10 +126,4 @@ func init() {
 	tenantcontractDescPurgeFloors := tenantcontractFields[4].Descriptor()
 	// tenantcontract.DefaultPurgeFloors holds the default value on creation for the purge_floors field.
 	tenantcontract.DefaultPurgeFloors = tenantcontractDescPurgeFloors.Default.(bool)
-	tenantdomainFields := schema.TenantDomain{}.Fields()
-	_ = tenantdomainFields
-	// tenantdomainDescFailures is the schema descriptor for failures field.
-	tenantdomainDescFailures := tenantdomainFields[11].Descriptor()
-	// tenantdomain.DefaultFailures holds the default value on creation for the failures field.
-	tenantdomain.DefaultFailures = tenantdomainDescFailures.Default.(uint32)
 }

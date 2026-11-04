@@ -60,8 +60,8 @@ func newHostedWith(t *testing.T, with func(*cmd.Config)) *hosted {
 func (w *hosted) domain(t *app.Tenant, host, purpose, state string) {
 	id, err := pdid.From(t.GetId())
 	w.x.NoError(err)
-	w.x.NoError(w.s.Ent.TenantDomain.Create().
-		SetId(pdid.New(pd.TenantDomainDomain).Uuid()).
+	w.x.NoError(w.s.Ent.Domain.Create().
+		SetId(pdid.New(pd.DomainDomain).Uuid()).
 		SetTenantId(id.Uuid()).
 		SetHost(host).
 		SetPurpose(purpose).

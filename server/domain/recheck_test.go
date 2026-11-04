@@ -12,11 +12,11 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	entsession "github.com/lesomnus/loft/internal/ent/session"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/pd"
@@ -105,8 +105,8 @@ func (e *env) reading(d *dns) {
 }
 
 // pointed is a custom domain added, with its records as they are asked for.
-func (e *env) pointed(d *dns, host string) *app.TenantDomain {
-	v, err := e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Host: host}.Build())
+func (e *env) pointed(d *dns, host string) *app.Domain {
+	v, err := e.app().Domain().Add(e.owner, app.DomainAddRequest_builder{Host: host}.Build())
 	e.x.NoError(err)
 	d.set(func(d *dns) {
 		if d.txt == nil {
@@ -121,10 +121,10 @@ func (e *env) pointed(d *dns, host string) *app.TenantDomain {
 	return v
 }
 
-func (e *env) domainRow(v *app.TenantDomain) *ent.TenantDomain {
+func (e *env) domainRow(v *app.Domain) *ent.Domain {
 	id, err := pdid.From(v.GetId())
 	e.x.NoError(err)
-	return e.s.Ent.TenantDomain.Query().Where(tenantdomain.Id(id.Uuid())).OnlyX(context.Background())
+	return e.s.Ent.Domain.Query().Where(entdomain.Id(id.Uuid())).OnlyX(context.Background())
 }
 
 // later is the env's clock moved on, and a sweep at it.
@@ -190,7 +190,7 @@ func TestADomainWhoseDNSLeftLapses(t *testing.T) {
 	// quicker -- as a count left by checks sooner than this build's -- keep
 	// it until five hours have passed since the first.
 	row := e.domainRow(v)
-	x.NoError(e.s.Ent.TenantDomain.UpdateOneId(row.Id).SetFailures(5).SetFailingSince(e.now.Add(-time.Hour)).Exec(ctx))
+	x.NoError(e.s.Ent.Domain.UpdateOneId(row.Id).SetFailures(5).SetFailingSince(e.now.Add(-time.Hour)).Exec(ctx))
 	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.assets.acme.example") })
 	e.later(time.Hour)
 	x.Equal("active", e.domainRow(v).State, "six noes in two hours")
@@ -256,11 +256,11 @@ func TestALapsedDomainIsActiveAgainOnceItsTXTVerifies(t *testing.T) {
 		e.later(time.Hour)
 	}
 	x.Equal("lapsed", e.domainRow(v).State)
-	ref := app.TenantDomainRef_builder{Id: v.GetId()}.Build()
+	ref := app.DomainRef_builder{Id: v.GetId()}.Build()
 
-	_, err := e.app().TenantDomain().Activate(e.owner, app.TenantDomainActivateRequest_builder{Ref: ref}.Build())
+	_, err := e.app().Domain().Activate(e.owner, app.DomainActivateRequest_builder{Ref: ref}.Build())
 	x.Equal(codes.FailedPrecondition, codeOf(err), "not made active without its DNS asked again")
-	_, err = e.app().TenantDomain().Verify(e.owner, app.TenantDomainVerifyRequest_builder{Ref: ref}.Build())
+	_, err = e.app().Domain().Verify(e.owner, app.DomainVerifyRequest_builder{Ref: ref}.Build())
 	x.Equal(codes.FailedPrecondition, codeOf(err), "its TXT record is still gone")
 
 	// It points here all along; the record back is what brings it back.
@@ -280,7 +280,7 @@ func TestALapsedDomainIsActiveAgainOnceItsTXTVerifies(t *testing.T) {
 	}
 	x.Equal("lapsed", e.domainRow(v).State)
 	d.set(func(d *dns) { d.txt["_loft-challenge.assets.acme.example"] = []string{token} })
-	got, err := e.app().TenantDomain().Verify(e.owner, app.TenantDomainVerifyRequest_builder{Ref: ref}.Build())
+	got, err := e.app().Domain().Verify(e.owner, app.DomainVerifyRequest_builder{Ref: ref}.Build())
 	x.NoError(err)
 	x.Equal("active", got.GetState())
 
@@ -307,8 +307,8 @@ func TestADomainPointsHereByItsCNAMEOrItsAddresses(t *testing.T) {
 	d := &dns{}
 	e.reading(d)
 
-	verify := func(v *app.TenantDomain) (*app.TenantDomain, error) {
-		return e.app().TenantDomain().Verify(e.owner, app.TenantDomainVerifyRequest_builder{Ref: app.TenantDomainRef_builder{Id: v.GetId()}.Build()}.Build())
+	verify := func(v *app.Domain) (*app.Domain, error) {
+		return e.app().Domain().Verify(e.owner, app.DomainVerifyRequest_builder{Ref: app.DomainRef_builder{Id: v.GetId()}.Build()}.Build())
 	}
 
 	byName := e.pointed(d, "assets.acme.example")
@@ -363,14 +363,14 @@ func TestAnAppDomainAnotherTookThePlaceOfSendsItsPagesOn(t *testing.T) {
 	e.later(10 * time.Minute)
 	x.Equal("ready", e.domainRow(next).State, "left for a person to switch to")
 
-	_, err := e.app().TenantDomain().Activate(e.owner, app.TenantDomainActivateRequest_builder{Ref: app.TenantDomainRef_builder{Id: next.GetId()}.Build()}.Build())
+	_, err := e.app().Domain().Activate(e.owner, app.DomainActivateRequest_builder{Ref: app.DomainRef_builder{Id: next.GetId()}.Build()}.Build())
 	x.NoError(err)
 	row := e.domainRow(old)
 	x.Equal("legacy", row.State)
 	x.NotNil(row.RedirectUntil)
 	x.WithinDuration(e.now.Add(90*24*time.Hour), *row.RedirectUntil, time.Second)
 
-	_, err = e.app().TenantDomain().Activate(e.owner, app.TenantDomainActivateRequest_builder{Ref: app.TenantDomainRef_builder{Id: old.GetId()}.Build()}.Build())
+	_, err = e.app().Domain().Activate(e.owner, app.DomainActivateRequest_builder{Ref: app.DomainRef_builder{Id: old.GetId()}.Build()}.Build())
 	x.NoError(err)
 	x.Nil(e.domainRow(old).RedirectUntil, "in use again, it sends nothing on")
 	x.NotNil(e.domainRow(next).RedirectUntil)

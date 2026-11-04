@@ -24,6 +24,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/asset"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/internal/ent/party"
@@ -32,7 +33,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/reservationitem"
 	entsession "github.com/lesomnus/loft/internal/ent/session"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/internal/ent/workorder"
 )
 
@@ -1030,14 +1030,14 @@ func sweepDomains(t *Tx) error {
 		return nil
 	}
 	week := t.now.Add(-7 * 24 * time.Hour)
-	ds, err := t.db.TenantDomain.Query().Where(
-		tenantdomain.TenantId(t.tenant.Uuid()),
-		tenantdomain.Or(
-			tenantdomain.And(tenantdomain.State(domainPending), tenantdomain.DateCreatedGT(week)),
-			tenantdomain.And(tenantdomain.State(domainLapsed), tenantdomain.DateLapsedGT(week)),
+	ds, err := t.db.Domain.Query().Where(
+		entdomain.TenantId(t.tenant.Uuid()),
+		entdomain.Or(
+			entdomain.And(entdomain.State(domainPending), entdomain.DateCreatedGT(week)),
+			entdomain.And(entdomain.State(domainLapsed), entdomain.DateLapsedGT(week)),
 		),
-		tenantdomain.DateUpdatedLT(t.now.Add(-5*time.Minute)),
-		tenantdomain.DateErasedIsNil(),
+		entdomain.DateUpdatedLT(t.now.Add(-5*time.Minute)),
+		entdomain.DateErasedIsNil(),
 	).Limit(20).All(t.ctx)
 	if err != nil {
 		return err
@@ -1045,8 +1045,8 @@ func sweepDomains(t *Tx) error {
 	for _, d := range ds {
 		if t.deps.isHere(t.ctx, d.Host, d.Token) != heardYes {
 			// Looked at, so the next look is five minutes from now.
-			if _, err := t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
-				Ref:              app.TenantDomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
+			if _, err := t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
+				Ref:              app.DomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
 				DateUpdatedForce: z.Ptr(true),
 			}.Build()); err != nil {
 				return err
@@ -1064,19 +1064,19 @@ func sweepDomains(t *Tx) error {
 // [RecheckEvery]: a yes starts the count of noes again, a no is counted, and
 // an answer that says nothing is not.
 func (t *Tx) recheckDomains() error {
-	ds, err := t.db.TenantDomain.Query().Where(
-		tenantdomain.TenantId(t.tenant.Uuid()),
-		tenantdomain.State(domainActive),
-		tenantdomain.Source("custom"),
-		tenantdomain.Or(tenantdomain.CheckedAtIsNil(), tenantdomain.CheckedAtLTE(t.now.Add(-RecheckEvery))),
-		tenantdomain.DateErasedIsNil(),
+	ds, err := t.db.Domain.Query().Where(
+		entdomain.TenantId(t.tenant.Uuid()),
+		entdomain.State(domainActive),
+		entdomain.Source("custom"),
+		entdomain.Or(entdomain.CheckedAtIsNil(), entdomain.CheckedAtLTE(t.now.Add(-RecheckEvery))),
+		entdomain.DateErasedIsNil(),
 	).Limit(20).All(t.ctx)
 	if err != nil {
 		return err
 	}
 	for _, d := range ds {
-		patch := app.TenantDomainPatchRequest_builder{
-			Ref:              app.TenantDomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
+		patch := app.DomainPatchRequest_builder{
+			Ref:              app.DomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
 			CheckedAt:        ts(t.now),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build()
@@ -1099,7 +1099,7 @@ func (t *Tx) recheckDomains() error {
 			patch.SetFailures(n)
 			patch.SetFailingSince(ts(since))
 		}
-		if _, err := t.next.TenantDomain().Patch(t.ctx, patch); err != nil {
+		if _, err := t.next.Domain().Patch(t.ctx, patch); err != nil {
 			return err
 		}
 	}
@@ -1113,7 +1113,7 @@ func (t *Tx) recheckDomains() error {
 // printed with it still open while it points here. Whoever may act on it is
 // told, by mail as well. It is active again only once its TXT record verifies
 // again: the sweep asks for a week, and a person may at any time (`Verify`).
-func (t *Tx) lapse(d *ent.TenantDomain, failures uint32, since time.Time) error {
+func (t *Tx) lapse(d *ent.Domain, failures uint32, since time.Time) error {
 	words := domainWords(d.Purpose)
 	// Why is the deployment's to say, and is what the event holds: no
 	// person's words, which a reason is (payday#151).
@@ -1126,8 +1126,8 @@ func (t *Tx) lapse(d *ent.TenantDomain, failures uint32, since time.Time) error 
 	}.Build()); err != nil {
 		return err
 	}
-	if _, err := t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
-		Ref:              app.TenantDomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
+	if _, err := t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
+		Ref:              app.DomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
 		State:            z.Ptr(domainLapsed),
 		DateLapsed:       ts(t.now),
 		CheckedAt:        ts(t.now),

@@ -187,11 +187,11 @@ func (TagCounter) Annotations() []schema.Annotation {
 	}
 }
 
-type TenantDomain struct {
+type Domain struct {
 	ent.Schema
 }
 
-func (TenantDomain) Fields() []ent.Field {
+func (Domain) Fields() []ent.Field {
 	return []ent.Field{
 		field.Uuid("id").
 			Unique().
@@ -231,7 +231,7 @@ func (TenantDomain) Fields() []ent.Field {
 	}
 }
 
-func (TenantDomain) Edges() []ent.Edge {
+func (Domain) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("tenant", Tenant.Type).
 			Unique().
@@ -241,19 +241,19 @@ func (TenantDomain) Edges() []ent.Edge {
 	}
 }
 
-func (TenantDomain) Indexes() []ent.Index {
+func (Domain) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
-			StorageKey("tenantdomain_page"),
+			StorageKey("domain_page"),
 		index.Fields("host").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 	}
 }
 
-func (TenantDomain) Annotations() []schema.Annotation {
+func (Domain) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "tenantdomain"},
+		entsql.Annotation{Table: "domain"},
 	}
 }
 
@@ -301,7 +301,7 @@ func (Label) Edges() []ent.Edge {
 			Field("tenant_id").
 			Required().
 			Immutable(),
-		edge.To("domain", TenantDomain.Type).
+		edge.To("domain", Domain.Type).
 			Unique().
 			Field("domain_id"),
 	}

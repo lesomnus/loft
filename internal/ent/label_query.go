@@ -8,10 +8,10 @@ import (
 	"math"
 	"uuid"
 
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
@@ -26,7 +26,7 @@ type LabelQuery struct {
 	inters     []Interceptor
 	predicates []predicate.Label
 	withTenant *TenantQuery
-	withDomain *TenantDomainQuery
+	withDomain *DomainQuery
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -87,8 +87,8 @@ func (_q *LabelQuery) QueryTenant() *TenantQuery {
 }
 
 // QueryDomain chains the current query on the "domain" edge.
-func (_q *LabelQuery) QueryDomain() *TenantDomainQuery {
-	query := (&TenantDomainClient{config: _q.config}).Query()
+func (_q *LabelQuery) QueryDomain() *DomainQuery {
+	query := (&DomainClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -99,7 +99,7 @@ func (_q *LabelQuery) QueryDomain() *TenantDomainQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(label.Table, label.FieldId, selector),
-			sqlgraph.To(tenantdomain.Table, tenantdomain.FieldId),
+			sqlgraph.To(domain.Table, domain.FieldId),
 			sqlgraph.Edge(sqlgraph.M2O, false, label.DomainTable, label.DomainColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
@@ -322,8 +322,8 @@ func (_q *LabelQuery) WithTenant(opts ...func(*TenantQuery)) *LabelQuery {
 
 // WithDomain tells the query-builder to eager-load the nodes that are connected to
 // the "domain" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *LabelQuery) WithDomain(opts ...func(*TenantDomainQuery)) *LabelQuery {
-	query := (&TenantDomainClient{config: _q.config}).Query()
+func (_q *LabelQuery) WithDomain(opts ...func(*DomainQuery)) *LabelQuery {
+	query := (&DomainClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -443,7 +443,7 @@ func (_q *LabelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Label,
 	}
 	if query := _q.withDomain; query != nil {
 		if err := _q.loadDomain(ctx, query, nodes, nil,
-			func(n *Label, e *TenantDomain) { n.Edges.Domain = e }); err != nil {
+			func(n *Label, e *Domain) { n.Edges.Domain = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -479,7 +479,7 @@ func (_q *LabelQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes 
 	}
 	return nil
 }
-func (_q *LabelQuery) loadDomain(ctx context.Context, query *TenantDomainQuery, nodes []*Label, init func(*Label), assign func(*Label, *TenantDomain)) error {
+func (_q *LabelQuery) loadDomain(ctx context.Context, query *DomainQuery, nodes []*Label, init func(*Label), assign func(*Label, *Domain)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Label)
 	for i := range nodes {
@@ -492,7 +492,7 @@ func (_q *LabelQuery) loadDomain(ctx context.Context, query *TenantDomainQuery, 
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(tenantdomain.IdIn(ids...))
+	query.Where(domain.IdIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err

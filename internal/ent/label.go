@@ -8,9 +8,9 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
@@ -53,7 +53,7 @@ type LabelEdges struct {
 	// Tenant holds the value of the tenant edge.
 	Tenant *Tenant `json:"tenant,omitempty"`
 	// Domain holds the value of the domain edge.
-	Domain *TenantDomain `json:"domain,omitempty"`
+	Domain *Domain `json:"domain,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
@@ -72,11 +72,11 @@ func (e LabelEdges) TenantOrErr() (*Tenant, error) {
 
 // DomainOrErr returns the Domain value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e LabelEdges) DomainOrErr() (*TenantDomain, error) {
+func (e LabelEdges) DomainOrErr() (*Domain, error) {
 	if e.Domain != nil {
 		return e.Domain, nil
 	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: tenantdomain.Label}
+		return nil, &NotFoundError{label: domain.Label}
 	}
 	return nil, &NotLoadedError{edge: "domain"}
 }
@@ -205,7 +205,7 @@ func (_m *Label) QueryTenant() *TenantQuery {
 }
 
 // QueryDomain queries the "domain" edge of the Label entity.
-func (_m *Label) QueryDomain() *TenantDomainQuery {
+func (_m *Label) QueryDomain() *DomainQuery {
 	return NewLabelClient(_m.config).QueryDomain(_m)
 }
 

@@ -11,8 +11,8 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/loft/internal/ent"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/tenancy"
 )
@@ -93,11 +93,11 @@ const (
 
 // where answers what `host` is: the workspace it pins a request to when it is
 // an active app domain, and the domain it is when it is any workspace's.
-func (h Hosts) where(ctx context.Context, host string) (place, apphost.Pinned, *ent.TenantDomain, error) {
-	d, err := h.Db.TenantDomain.Query().Where(
-		tenantdomain.Host(host),
-		tenantdomain.StateIn("ready", "active", "legacy", "lapsed"),
-		tenantdomain.DateErasedIsNil(),
+func (h Hosts) where(ctx context.Context, host string) (place, apphost.Pinned, *ent.Domain, error) {
+	d, err := h.Db.Domain.Query().Where(
+		entdomain.Host(host),
+		entdomain.StateIn("ready", "active", "legacy", "lapsed"),
+		entdomain.DateErasedIsNil(),
 	).WithTenant().Only(ctx)
 	switch {
 	case ent.IsNotFound(err):
@@ -117,7 +117,7 @@ func (h Hosts) where(ctx context.Context, host string) (place, apphost.Pinned, *
 
 // movedOn is where a page asked for on `d` is now, when `d` is an app domain
 // another took the place of and still sends its pages on; empty otherwise.
-func (h Hosts) movedOn(r *http.Request, d *ent.TenantDomain) (string, error) {
+func (h Hosts) movedOn(r *http.Request, d *ent.Domain) (string, error) {
 	if d == nil || d.Purpose != "app" || d.State != "legacy" || d.RedirectUntil == nil {
 		return "", nil
 	}
@@ -192,10 +192,10 @@ func (s *Server) scanning(r *http.Request, links apphost.Links) (string, error) 
 	if _, ok := apphost.From(r.Context()); ok {
 		return "", nil
 	}
-	d, err := s.Ent.TenantDomain.Query().Where(
-		tenantdomain.Host(apphost.Host(r)),
-		tenantdomain.StateIn("ready", "active", "legacy", "lapsed"),
-		tenantdomain.DateErasedIsNil(),
+	d, err := s.Ent.Domain.Query().Where(
+		entdomain.Host(apphost.Host(r)),
+		entdomain.StateIn("ready", "active", "legacy", "lapsed"),
+		entdomain.DateErasedIsNil(),
 	).Only(r.Context())
 	switch {
 	case ent.IsNotFound(err):

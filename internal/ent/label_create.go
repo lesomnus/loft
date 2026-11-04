@@ -9,9 +9,9 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -158,8 +158,8 @@ func (_c *LabelCreate) SetTenant(v *Tenant) *LabelCreate {
 	return _c.SetTenantId(v.Id)
 }
 
-// SetDomain sets the "domain" edge to the TenantDomain entity.
-func (_c *LabelCreate) SetDomain(v *TenantDomain) *LabelCreate {
+// SetDomain sets the "domain" edge to the Domain entity.
+func (_c *LabelCreate) SetDomain(v *Domain) *LabelCreate {
 	return _c.SetDomainId(v.Id)
 }
 
@@ -327,7 +327,7 @@ func (_c *LabelCreate) createSpec() (*Label, *sqlgraph.CreateSpec) {
 			Columns: []string{label.DomainColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(tenantdomain.FieldId, field.TypeUuid),
+				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
 			},
 		}
 		for _, k := range nodes {
