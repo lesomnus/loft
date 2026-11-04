@@ -39,6 +39,9 @@ type connectConn struct {
 	client *http.Client
 	// header is sent with every call: the session cookie, the workspace.
 	header http.Header
+	// kind is whose connection this is, for what a call that went to the
+	// wrong kind is told ([refusal]); empty tells it nothing more.
+	kind Kind
 }
 
 var _ grpc.ClientConnInterface = (*connectConn)(nil)
@@ -86,6 +89,10 @@ func (c *connectConn) request(ctx context.Context, method, contentType string, b
 }
 
 func (c *connectConn) Invoke(ctx context.Context, method string, args, reply any, _ ...grpc.CallOption) error {
+	return refusal(c.kind, method, c.invoke(ctx, method, args, reply))
+}
+
+func (c *connectConn) invoke(ctx context.Context, method string, args, reply any) error {
 	in, ok := args.(proto.Message)
 	if !ok {
 		return status.Errorf(codes.Internal, "connect: %T is not a message", args)
@@ -126,10 +133,23 @@ func (c *connectConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, meth
 		// Both ways at once is HTTP/2's, and this speaks HTTP/1.1 as well.
 		return nil, status.Error(codes.Unimplemented, "connect: a stream both ways is not something sent here")
 	case desc.ClientStreams:
-		return newClientStream(ctx, c, method), nil
+		return told{newClientStream(ctx, c, method), c.kind, method}, nil
 	}
-	return &serverStream{ctx: ctx, c: c, method: method}, nil
+	return told{&serverStream{ctx: ctx, c: c, method: method}, c.kind, method}, nil
 }
+
+// told is a stream whose refusal says which connection it wanted, as a unary
+// call's does ([refusal]): a stream is refused at whichever of these first
+// hears the answer.
+type told struct {
+	grpc.ClientStream
+	kind   Kind
+	method string
+}
+
+func (s told) SendMsg(m any) error { return refusal(s.kind, s.method, s.ClientStream.SendMsg(m)) }
+func (s told) RecvMsg(m any) error { return refusal(s.kind, s.method, s.ClientStream.RecvMsg(m)) }
+func (s told) CloseSend() error    { return refusal(s.kind, s.method, s.ClientStream.CloseSend()) }
 
 // clientStream is one client stream: every message sent is the next envelope
 // of the request's body, which goes out as it is written, and the answer is

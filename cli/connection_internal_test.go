@@ -1,12 +1,17 @@
 package cli
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
+	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 )
 
@@ -155,4 +160,44 @@ func TestAConnectionSaysWhoItIs(t *testing.T) {
 	x.Empty(c.header.Get("Cookie"))
 	_, err = o.dial("acme")
 	x.ErrorContains(err, "an operator names the workspace in each command")
+}
+
+// TestOnlyACallOfTheOtherKindIsToldWhichConnection: what a refusal says is
+// changed only where the call went to the other kind -- the operator's own
+// methods on a person's connection, a method the entry point's table does not
+// name on an operator's -- and only of what a server says of a method it does
+// not serve. The code is the server's, and so are the details.
+func TestOnlyACallOfTheOtherKindIsToldWhichConnection(t *testing.T) {
+	x := require.New(t)
+	owed := app.OperatorTrailService_Owed_FullMethodName
+	closing := app.TenantService_Close_FullMethodName
+	list := app.AssetService_List_FullMethodName
+
+	for _, v := range []struct {
+		kind   Kind
+		method string
+		code   codes.Code
+		says   string
+	}{
+		{Person, owed, codes.Unimplemented, "is the operator's, and this is a person's connection"},
+		{Person, owed, codes.PermissionDenied, "is the operator's, and this is a person's connection"},
+		{Operator, list, codes.Unimplemented, "is a person's, and this is an operator's connection"},
+		{Operator, list, codes.PermissionDenied, "is a person's, and this is an operator's connection"},
+		{Person, owed, codes.Unavailable, "as it was"},
+		{Operator, list, codes.NotFound, "as it was"},
+		{Person, closing, codes.PermissionDenied, "as it was"},
+		{Operator, closing, codes.PermissionDenied, "as it was"},
+		{Person, list, codes.PermissionDenied, "as it was"},
+		{Operator, owed, codes.Unimplemented, "as it was"},
+		{"", owed, codes.Unimplemented, "as it was"},
+	} {
+		st, err := status.New(v.code, "as it was").WithDetails(&errdetails.ErrorInfo{Reason: "kept"})
+		x.NoError(err)
+		got := status.Convert(refusal(v.kind, v.method, st.Err()))
+		x.Equal(v.code, got.Code(), "%s %s", v.kind, v.method)
+		x.Contains(got.Message(), v.says, "%s %s %s", v.kind, v.method, v.code)
+		x.Len(got.Details(), 1, "the details are the server's")
+	}
+	x.NoError(refusal(Person, owed, nil))
+	x.Equal(io.EOF, refusal(Operator, list, io.EOF), "a stream's end is no refusal")
 }

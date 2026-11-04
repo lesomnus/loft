@@ -2,6 +2,9 @@ package operator
 
 import (
 	"slices"
+	"strings"
+
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	app "github.com/lesomnus/loft"
 )
@@ -125,4 +128,19 @@ func Downloads() []string {
 	}
 	slices.Sort(out)
 	return out
+}
+
+// Own is whether `method` -- "/loft.OperatorTrailService/Verify", as gRPC
+// names it -- is of the operator's own services, which the entry point alone
+// serves: every service `proto/loft/operator.proto` declares. The rest of the
+// table is an entity's, which the public server serves too, to the people of
+// a workspace.
+func Own(method string) bool {
+	service, _, ok := strings.Cut(strings.TrimPrefix(method, "/"), "/")
+	if !ok {
+		return false
+	}
+	f := app.File_loft_operator_proto
+	name, ok := strings.CutPrefix(service, string(f.Package())+".")
+	return ok && f.Services().ByName(protoreflect.Name(name)) != nil
 }

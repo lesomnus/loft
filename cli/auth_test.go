@@ -172,3 +172,38 @@ func TestACommandIsToldItsConnection(t *testing.T) {
 	x.ErrorContains(fails(t, root(), "auth", "whoami"), `LOFT_CONNECTION: no connection "nowhere"`)
 	x.Contains(run(t, root(), "--connection", person, "auth", "whoami"), "owner")
 }
+
+// TestACallOfTheOtherKindSaysWhichConnectionItWants (design 9.16): the
+// operator's own methods asked on a person's connection, and a person's asked
+// on an operator's, are refused with the code the server answered and the
+// connection they want -- a call and a stream alike. An entity's method the
+// entry point serves is either kind's, and its refusal is the server's own.
+func TestACallOfTheOtherKindSaysWhichConnectionItWants(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	ep := s.entryPoint()
+	file := keyFile(t)
+
+	s.signIn("kim", "kim-password")
+	err := fails(t, cli.NewCmdApi(), "call", "loft.OperatorTrailService.Owed")
+	x.Equal(codes.Unimplemented, status.Code(err))
+	x.ErrorContains(err, "/loft.OperatorTrailService/Owed is the operator's, and this is a person's connection: use an operator's (--key")
+	err = fails(t, cli.NewCmdApi(), "call", "loft.TenantService.Close", `{}`)
+	x.Equal(codes.PermissionDenied, status.Code(err), "kim is no owner of acme: %v", err)
+	x.NotContains(err.Error(), "connection", "either kind's, refused as kim")
+
+	t.Setenv("LOFT_ADMIN_URL", ep)
+	t.Setenv("LOFT_ADMIN_KEY", "file:"+file)
+	err = fails(t, cli.NewCmdApi(), "asset", "ls")
+	x.Equal(codes.Unimplemented, status.Code(err), "a service the entry point does not have")
+	x.ErrorContains(err, "/loft.AssetService/List is a person's, and this is an operator's connection: use a person's (--connection")
+	err = fails(t, cli.NewCmdApi(), "asset", "watch")
+	x.Equal(codes.Unimplemented, status.Code(err), "a stream")
+	x.ErrorContains(err, "/loft.AssetService/Watch is a person's, and this is an operator's connection")
+	err = fails(t, cli.NewCmdApi(), "call", "loft.TenantService.Configure", `{}`)
+	x.Equal(codes.PermissionDenied, status.Code(err), "a method of a service it has, which its table does not name")
+	x.ErrorContains(err, "/loft.TenantService/Configure is a person's, and this is an operator's connection")
+
+	x.Contains(run(t, cli.NewCmdApi(), "call", "loft.OperatorTrailService.Owed"), "{", "the operator's own")
+	x.Contains(run(t, cli.NewCmdApi(), "tenant", "ls", "-o", "json"), `"acme"`, "an entity's the entry point serves, as the operator")
+}

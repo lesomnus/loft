@@ -13,8 +13,11 @@ import (
 	"strings"
 
 	"github.com/lesomnus/xli/cfg"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/server/operator"
 )
 
 // Where the terminal's commands go, and who they go as (design 9.16, D75): a
@@ -339,7 +342,7 @@ func (c *Connection) dial(ws string) (*connectConn, error) {
 	default:
 		return nil, fmt.Errorf("a connection of kind %q", c.Kind)
 	}
-	return &connectConn{base: strings.TrimSuffix(c.Url, "/"), client: &http.Client{Timeout: 0}, header: h}, nil
+	return &connectConn{base: strings.TrimSuffix(c.Url, "/"), client: &http.Client{Timeout: 0}, header: h, kind: Operator}, nil
 }
 
 // signedIn is whether a person's connection holds a session.
@@ -355,7 +358,39 @@ func (c *Connection) person(ws string) *connectConn {
 	if ws = strings.TrimPrefix(strings.TrimSpace(ws), "@"); ws != "" {
 		h.Set(cmd.WorkspaceHeader, ws)
 	}
-	return &connectConn{base: strings.TrimSuffix(c.Url, "/"), client: &http.Client{Timeout: 0}, header: h}
+	return &connectConn{base: strings.TrimSuffix(c.Url, "/"), client: &http.Client{Timeout: 0}, header: h, kind: Person}
+}
+
+// refusal is what a refusal of `method` says on a connection of `kind` when
+// the call went to the other kind (design 9.16): which one it wants, in place
+// of what the server that was asked could say of a method it does not serve.
+// The operator's own methods are served at the entry point alone, and the
+// entry point serves its table and nothing else ([operator.Own],
+// [operator.Table]): an entity's method the table names is either kind's,
+// and its refusal is the server's own.
+func refusal(kind Kind, method string, err error) error {
+	st, ok := status.FromError(err)
+	if err == nil || !ok {
+		return err
+	}
+	switch st.Code() {
+	case codes.Unimplemented, codes.PermissionDenied:
+	default:
+		return err
+	}
+	var says string
+	_, served := operator.Table[method]
+	switch {
+	case kind == Person && operator.Own(method):
+		says = fmt.Sprintf("%s is the operator's, and this is a person's connection: use an operator's (--key, or `loft auth login --operator`)", method)
+	case kind == Operator && !served:
+		says = fmt.Sprintf("%s is a person's, and this is an operator's connection: use a person's (--connection, or `loft auth switch`)", method)
+	default:
+		return err
+	}
+	p := st.Proto()
+	p.Message = says
+	return status.FromProto(p).Err()
 }
 
 // signedInFor is [personFor], refused when the connection holds no session.
