@@ -313,7 +313,11 @@ func TestTheLoopMakesTheIndexWhenThereIsNone(t *testing.T) {
 		x.Eventually(func() bool {
 			for _, ix := range opensearch.Indexes {
 				v, err := s.Search.Status(context.Background(), ix)
-				x.NoError(err)
+				if err != nil {
+					// Not yet: an index the loop has just made answers 503
+					// until its shards have started.
+					return false
+				}
 				// Whole, and what it replaced deleted: the alias moves
 				// before the old index goes.
 				if v.Index == "" || v.Version != ix.Version || v.Docs != int64(want[ix]) || len(v.Others) > 0 {
