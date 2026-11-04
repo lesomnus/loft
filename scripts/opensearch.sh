@@ -27,8 +27,13 @@ start)
 	chmod 600 "$dir/admin"
 	(
 		docker build -q -t loft-opensearch "$root/deploy/opensearch"
+		# No disk watermarks: a node past the high one (90% of the disk
+		# used, which a runner's disk can be before a job writes a byte)
+		# refuses to make an index, and every test that makes one fails as
+		# one. A deployment keeps them; this node holds what one job writes.
 		docker run -d --name opensearch -p 127.0.0.1:9200:9200 \
 			-e discovery.type=single-node -e OPENSEARCH_INITIAL_ADMIN_PASSWORD="$(cat "$dir/admin")" \
+			-e cluster.routing.allocation.disk.threshold_enabled=false \
 			-e OPENSEARCH_JAVA_OPTS="-Xms512m -Xmx512m" loft-opensearch
 	) > "$dir/start.log" 2>&1 &
 	echo "$!" > "$dir/start.pid"
