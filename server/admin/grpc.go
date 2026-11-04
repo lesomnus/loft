@@ -93,19 +93,19 @@ func (a Routes) authStream() grpc.StreamServerInterceptor {
 			log.From(ctx).WarnContext(ctx, "admin: a call without an operator's key", slog.String("addr", access.Peer(ctx)), slog.String("method", info.FullMethod))
 			return errWho
 		}
-		err := handler(srv, &carried{ServerStream: ss, ctx: operator.Into(ctx, o)})
+		err := handler(srv, &streamWith{ServerStream: ss, ctx: operator.Into(ctx, o)})
 		called(ctx, o.Name, info.FullMethod, err)
 		return err
 	}
 }
 
-// carried is a stream whose context carries what an interceptor put in it.
-type carried struct {
+// streamWith is a stream whose context carries what an interceptor put in it.
+type streamWith struct {
 	grpc.ServerStream
 	ctx context.Context
 }
 
-func (s *carried) Context() context.Context { return s.ctx }
+func (s *streamWith) Context() context.Context { return s.ctx }
 
 // accessed is what the access record is told of the entry point (loft#136,
 // payday#206): whose data a message carries, read off the schema as the

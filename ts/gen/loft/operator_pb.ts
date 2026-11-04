@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/operator.proto.
  */
 export const file_loft_operator: GenFile = /*@__PURE__*/
-  fileDesc("ChNsb2Z0L29wZXJhdG9yLnByb3RvEgRsb2Z0IjkKEU9wZXJhdG9yVGVuYW50UmVmEgwKAmlkGAEgASgMSAASDwoFYWxpYXMYBCABKAlIAEIFCgNrZXkiQQoZT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmIs4BChpPcGVyYXRvclRlbmFudFNob3dSZXNwb25zZRIcCgZ0ZW5hbnQYASABKAsyDC5sb2Z0LlRlbmFudBIdCgdtZW1iZXJzGAIgAygLMgwubG9mdC5Ib2xkZXISJwoJY29udHJhY3RzGAMgAygLMhQubG9mdC5UZW5hbnRDb250cmFjdBIeCgVob2xkcxgEIAMoCzIPLmxvZnQuTGVnYWxIb2xkEioKBndpbmRvdxgFIAEoCzIaLmxvZnQuT3BlcmF0b3JUZW5hbnRXaW5kb3cihgIKFE9wZXJhdG9yVGVuYW50V2luZG93EhEKCWtlZXBfZGF5cxgBIAEoDRIuCgprZWVwX3VudGlsGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCg5rZWVwX3RoZW5fZGF5cxgDIAEoDRITCgthY2Nlc3NfZGF5cxgEIAEoDRIwCgxhY2Nlc3NfdW50aWwYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGFjY2Vzc190aGVuX2RheXMYBiABKA0SFAoMcmVzdG9yZV9kYXlzGAcgASgNEg0KBXB1cmdlGAggASgIEg0KBWFwcGx5GAkgASgIIm0KGU9wZXJhdG9yVGVuYW50TW92ZVJlcXVlc3QSJAoDcmVmGAEgASgLMhcubG9mdC5PcGVyYXRvclRlbmFudFJlZhIKCgJ0bxgCIAEoCRINCgVyZXVzZRgDIAEoCBIPCgdkcnlfcnVuGAQgASgIIngKGk9wZXJhdG9yVGVuYW50TW92ZVJlc3BvbnNlEhwKBnRlbmFudBgBIAEoCzIMLmxvZnQuVGVuYW50EgwKBGZyb20YAiABKAkSLgoKaGVsZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVgoeT3BlcmF0b3JUZW5hbnROYW1lT3duZXJSZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLmxvZnQuT3BlcmF0b3JUZW5hbnRSZWYSDgoGbWVtYmVyGAIgASgJIh4KHE9wZXJhdG9yVGVuYW50UmV0aXJlZFJlcXVlc3QiTgodT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVzcG9uc2USLQoFaXRlbXMYASADKAsyHi5sb2Z0Lk9wZXJhdG9yVGVuYW50UmV0aXJlbWVudCKRAQoYT3BlcmF0b3JUZW5hbnRSZXRpcmVtZW50Eg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIrCgdyZXRpcmVkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgV1bnRpbBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVQocT3BlcmF0b3JUZW5hbnREZXN0cm95UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmEg8KB2RyeV9ydW4YAiABKAgiYwodT3BlcmF0b3JUZW5hbnREZXN0cm95UmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSMAoJZGVzdHJveWVkGAIgASgLMh0ubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3llZCKjBAoXT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQSDgoGdGVuYW50GAEgASgMEg0KBWFsaWFzGAIgASgJEg8KB2RyeV9ydW4YAyABKAgSNQoEcm93cxgEIAMoCzInLmxvZnQuT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQuUm93c0VudHJ5Eg0KBWZpbGVzGAUgASgNEgwKBGxvc3QYBiADKAkSFQoNdHJhaWxfcmVtb3ZlZBgHIAEoDRIVCg10cmFpbF9ibGFua2VkGAggASgNEhQKDHRyYWlsX2NodW5rcxgJIAEoDRIPCgdyZXRpcmVkGAogASgIEjUKBGtlcHQYCyADKAsyJy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveWVkLktlcHRFbnRyeRIuCgprZXB0X3VudGlsGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghlbWJlZGRlZBgNIAEoCBIRCglmb3Jnb3R0ZW4YDiABKA0SDQoFYmlsbHMYDyABKAgSEgoKdW5tZWFzdXJlZBgQIAEoCRINCgV0ZWxscxgRIAEoCBIXCg9jb250cmFjdF9wdXJnZXMYEiABKAgaKwoJUm93c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEaKwoJS2VwdEVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEiawobT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXF1ZXN0EjQKB29wdGlvbnMYASABKAsyIS5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9uc0gAEg4KBGRhdGEYAiABKAxIAEIGCgRwYXJ0IkwKG09wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9ucxINCgVhbGlhcxgBIAEoCRINCgVyZXVzZRgCIAEoCBIPCgdkcnlfcnVuGAMgASgIItgEChxPcGVyYXRvclRlbmFudEltcG9ydFJlc3BvbnNlEg4KBnRlbmFudBgBIAEoDBIPCgdkcnlfcnVuGAIgASgIEg0KBWFsaWFzGAMgASgJEg0KBWFza2VkGAQgASgJEhAKCHJlbGVhc2VkGAUgAygJEhAKCHJlb3BlbmVkGAYgASgIEg8KB3JldGlyZWQYByABKAgSEAoIcmV0dXJuZWQYCCABKA0SOgoEcm93cxgJIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5Sb3dzRW50cnkSOgoEbGVmdBgKIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5MZWZ0RW50cnkSQQoIbGVmdF93aHkYCyADKAsyLy5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0UmVzcG9uc2UuTGVmdFdoeUVudHJ5Eg0KBWZpbGVzGAwgASgNEg8KB21pc3NpbmcYDSADKAkSEAoIdW5saW5rZWQYDiADKAkSEAoIbWFuaWZlc3QYDyABKAkSCwoDa2V5GBAgASgJEgwKBGhlbGQYESABKA0SDgoGZ3JhbnRzGBIgASgJGisKCVJvd3NFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGisKCUxlZnRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGi4KDExlZnRXaHlFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIhoKGE9wZXJhdG9yVHJhaWxLZXlzUmVxdWVzdCI8ChlPcGVyYXRvclRyYWlsS2V5c1Jlc3BvbnNlEg4KBnNpZ25lchgBIAEoDBIPCgd0cnVzdGVkGAIgAygMMr4EChVPcGVyYXRvclRlbmFudFNlcnZpY2USSQoEU2hvdxIfLmxvZnQuT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBogLmxvZnQuT3BlcmF0b3JUZW5hbnRTaG93UmVzcG9uc2USSQoETW92ZRIfLmxvZnQuT3BlcmF0b3JUZW5hbnRNb3ZlUmVxdWVzdBogLmxvZnQuT3BlcmF0b3JUZW5hbnRNb3ZlUmVzcG9uc2USPwoJTmFtZU93bmVyEiQubG9mdC5PcGVyYXRvclRlbmFudE5hbWVPd25lclJlcXVlc3QaDC5sb2Z0LkhvbGRlchJSCgdSZXRpcmVkEiIubG9mdC5PcGVyYXRvclRlbmFudFJldGlyZWRSZXF1ZXN0GiMubG9mdC5PcGVyYXRvclRlbmFudFJldGlyZWRSZXNwb25zZRJTCgZSZXRpcmUSIi5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlcXVlc3QaIy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlc3BvbnNlMAESUgoFUHVyZ2USIi5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlcXVlc3QaIy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlc3BvbnNlMAESUQoGSW1wb3J0EiEubG9mdC5PcGVyYXRvclRlbmFudEltcG9ydFJlcXVlc3QaIi5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0UmVzcG9uc2UoATJfChRPcGVyYXRvclRyYWlsU2VydmljZRJHCgRLZXlzEh4ubG9mdC5PcGVyYXRvclRyYWlsS2V5c1JlcXVlc3QaHy5sb2Z0Lk9wZXJhdG9yVHJhaWxLZXlzUmVzcG9uc2VCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_loft_ops, file_loft_payday_holder, file_loft_payday_tenant]);
+  fileDesc("ChNsb2Z0L29wZXJhdG9yLnByb3RvEgRsb2Z0IjkKEU9wZXJhdG9yVGVuYW50UmVmEgwKAmlkGAEgASgMSAASDwoFYWxpYXMYBCABKAlIAEIFCgNrZXkiQQoZT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmIs4BChpPcGVyYXRvclRlbmFudFNob3dSZXNwb25zZRIcCgZ0ZW5hbnQYASABKAsyDC5sb2Z0LlRlbmFudBIdCgdtZW1iZXJzGAIgAygLMgwubG9mdC5Ib2xkZXISJwoJY29udHJhY3RzGAMgAygLMhQubG9mdC5UZW5hbnRDb250cmFjdBIeCgVob2xkcxgEIAMoCzIPLmxvZnQuTGVnYWxIb2xkEioKBndpbmRvdxgFIAEoCzIaLmxvZnQuT3BlcmF0b3JUZW5hbnRXaW5kb3cihgIKFE9wZXJhdG9yVGVuYW50V2luZG93EhEKCWtlZXBfZGF5cxgBIAEoDRIuCgprZWVwX3VudGlsGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCg5rZWVwX3RoZW5fZGF5cxgDIAEoDRITCgthY2Nlc3NfZGF5cxgEIAEoDRIwCgxhY2Nlc3NfdW50aWwYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGFjY2Vzc190aGVuX2RheXMYBiABKA0SFAoMcmVzdG9yZV9kYXlzGAcgASgNEg0KBXB1cmdlGAggASgIEg0KBWFwcGx5GAkgASgIIm0KGU9wZXJhdG9yVGVuYW50TW92ZVJlcXVlc3QSJAoDcmVmGAEgASgLMhcubG9mdC5PcGVyYXRvclRlbmFudFJlZhIKCgJ0bxgCIAEoCRINCgVyZXVzZRgDIAEoCBIPCgdkcnlfcnVuGAQgASgIIngKGk9wZXJhdG9yVGVuYW50TW92ZVJlc3BvbnNlEhwKBnRlbmFudBgBIAEoCzIMLmxvZnQuVGVuYW50EgwKBGZyb20YAiABKAkSLgoKaGVsZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVgoeT3BlcmF0b3JUZW5hbnROYW1lT3duZXJSZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLmxvZnQuT3BlcmF0b3JUZW5hbnRSZWYSDgoGbWVtYmVyGAIgASgJIh4KHE9wZXJhdG9yVGVuYW50UmV0aXJlZFJlcXVlc3QiTgodT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVzcG9uc2USLQoFaXRlbXMYASADKAsyHi5sb2Z0Lk9wZXJhdG9yVGVuYW50UmV0aXJlbWVudCKRAQoYT3BlcmF0b3JUZW5hbnRSZXRpcmVtZW50Eg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIrCgdyZXRpcmVkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgV1bnRpbBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVQocT3BlcmF0b3JUZW5hbnREZXN0cm95UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmEg8KB2RyeV9ydW4YAiABKAgiYwodT3BlcmF0b3JUZW5hbnREZXN0cm95UmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSMAoJZGVzdHJveWVkGAIgASgLMh0ubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3llZCKjBAoXT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQSDgoGdGVuYW50GAEgASgMEg0KBWFsaWFzGAIgASgJEg8KB2RyeV9ydW4YAyABKAgSNQoEcm93cxgEIAMoCzInLmxvZnQuT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQuUm93c0VudHJ5Eg0KBWZpbGVzGAUgASgNEgwKBGxvc3QYBiADKAkSFQoNdHJhaWxfcmVtb3ZlZBgHIAEoDRIVCg10cmFpbF9ibGFua2VkGAggASgNEhQKDHRyYWlsX2NodW5rcxgJIAEoDRIPCgdyZXRpcmVkGAogASgIEjUKBGtlcHQYCyADKAsyJy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveWVkLktlcHRFbnRyeRIuCgprZXB0X3VudGlsGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghlbWJlZGRlZBgNIAEoCBIRCglmb3Jnb3R0ZW4YDiABKA0SDQoFYmlsbHMYDyABKAgSEgoKdW5tZWFzdXJlZBgQIAEoCRINCgV0ZWxscxgRIAEoCBIXCg9jb250cmFjdF9wdXJnZXMYEiABKAgaKwoJUm93c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEaKwoJS2VwdEVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEiawobT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXF1ZXN0EjQKB29wdGlvbnMYASABKAsyIS5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9uc0gAEg4KBGRhdGEYAiABKAxIAEIGCgRwYXJ0IkwKG09wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9ucxINCgVhbGlhcxgBIAEoCRINCgVyZXVzZRgCIAEoCBIPCgdkcnlfcnVuGAMgASgIItgEChxPcGVyYXRvclRlbmFudEltcG9ydFJlc3BvbnNlEg4KBnRlbmFudBgBIAEoDBIPCgdkcnlfcnVuGAIgASgIEg0KBWFsaWFzGAMgASgJEg0KBWFza2VkGAQgASgJEhAKCHJlbGVhc2VkGAUgAygJEhAKCHJlb3BlbmVkGAYgASgIEg8KB3JldGlyZWQYByABKAgSEAoIcmV0dXJuZWQYCCABKA0SOgoEcm93cxgJIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5Sb3dzRW50cnkSOgoEbGVmdBgKIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5MZWZ0RW50cnkSQQoIbGVmdF93aHkYCyADKAsyLy5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0UmVzcG9uc2UuTGVmdFdoeUVudHJ5Eg0KBWZpbGVzGAwgASgNEg8KB21pc3NpbmcYDSADKAkSEAoIdW5saW5rZWQYDiADKAkSEAoIbWFuaWZlc3QYDyABKAkSCwoDa2V5GBAgASgJEgwKBGhlbGQYESABKA0SDgoGZ3JhbnRzGBIgASgJGisKCVJvd3NFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGisKCUxlZnRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGi4KDExlZnRXaHlFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIhoKGE9wZXJhdG9yVHJhaWxLZXlzUmVxdWVzdCI8ChlPcGVyYXRvclRyYWlsS2V5c1Jlc3BvbnNlEg4KBnNpZ25lchgBIAEoDBIPCgd0cnVzdGVkGAIgAygMIioKGk9wZXJhdG9yVHJhaWxWZXJpZnlSZXF1ZXN0EgwKBGZ1bGwYASABKAgiXgobT3BlcmF0b3JUcmFpbFZlcmlmeVJlc3BvbnNlEhAKCHByb2dyZXNzGAEgASgJEi0KCHZlcmlmaWVkGAIgASgLMhsubG9mdC5PcGVyYXRvclRyYWlsVmVyaWZpZWQixQEKFU9wZXJhdG9yVHJhaWxWZXJpZmllZBIMCgRmdWxsGAEgASgIEgwKBHJvd3MYAiABKA0SDQoFYmxvYnMYAyABKA0SDgoGaGFzaGVkGAQgASgNEhIKCmNoZWNrcG9pbnQYBSABKA0SDgoGZGlnZXN0GAYgASgJEhAKCGFjY2VwdGVkGAcgAygJEg0KBWhlYXJkGAggAygJEiwKCGZpbmRpbmdzGAkgAygLMhoubG9mdC5PcGVyYXRvclRyYWlsRmluZGluZyIyChRPcGVyYXRvclRyYWlsRmluZGluZxIMCgRraW5kGAEgASgJEgwKBHNhaWQYAiABKAkiXAoaT3BlcmF0b3JUcmFpbEFjY2VwdFJlcXVlc3QSCgoCb2YYASABKAkSCwoDd2h5GAIgASgJEgwKBGZ1bGwYAyABKAgSFwoIcmVzdG9yZWQYBCABKAVCBaoBAggBIl4KG09wZXJhdG9yVHJhaWxBY2NlcHRSZXNwb25zZRIQCghwcm9ncmVzcxgBIAEoCRItCghhY2NlcHRlZBgCIAEoCzIbLmxvZnQuT3BlcmF0b3JUcmFpbEFjY2VwdGVkIlEKFU9wZXJhdG9yVHJhaWxBY2NlcHRlZBIKCgJieRgBIAEoCRIsCghmaW5kaW5ncxgCIAMoCzIaLmxvZnQuT3BlcmF0b3JUcmFpbEZpbmRpbmciGgoYT3BlcmF0b3JUcmFpbFJvd3NSZXF1ZXN0Il4KGU9wZXJhdG9yVHJhaWxSb3dzUmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSLwoHY2hlY2tlZBgCIAEoCzIeLmxvZnQuT3BlcmF0b3JUcmFpbFJvd3NDaGVja2VkIpcCChhPcGVyYXRvclRyYWlsUm93c0NoZWNrZWQSDAoEcmVhZBgBIAEoDRIPCgdtYXRjaGVzGAIgASgNEi8KCGZpbmRpbmdzGAMgAygLMh0ubG9mdC5PcGVyYXRvclRyYWlsUm93RmluZGluZxIWCg5iZWZvcmVfZGlnZXN0cxgEIAEoDRIPCgdyZXRpcmVkGAUgASgNEhEKCWZvcmdvdHRlbhgGIAEoDRIQCghhcmNoaXZlZBgHIAEoDRIQCgh1bnNlYWxlZBgIIAEoDRIOCgZkaWdlc3QYCSABKAkSDgoGdW5oZWxkGAogAygJEisKB3NraXBwZWQYCyADKAsyGi5sb2Z0Lk9wZXJhdG9yVHJhaWxTa2lwcGVkIkEKF09wZXJhdG9yVHJhaWxSb3dGaW5kaW5nEgwKBHdoYXQYASABKAkSDAoEa2luZBgCIAEoCRIKCgJpZBgDIAEoDCIxChRPcGVyYXRvclRyYWlsU2tpcHBlZBIMCgRraW5kGAEgASgJEgsKA3doeRgCIAEoCSI5Ch5PcGVyYXRvclRyYWlsQWNjZXB0Um93c1JlcXVlc3QSCgoCb2YYASABKAkSCwoDd2h5GAIgASgJImYKH09wZXJhdG9yVHJhaWxBY2NlcHRSb3dzUmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSMQoIYWNjZXB0ZWQYAiABKAsyHy5sb2Z0Lk9wZXJhdG9yVHJhaWxSb3dzQWNjZXB0ZWQiSAoZT3BlcmF0b3JUcmFpbFJvd3NBY2NlcHRlZBINCgV0aGVyZRgBIAEoDRIMCgRnb25lGAIgASgNEg4KBnNlYWxlZBgDIAEoDSIaChhPcGVyYXRvclRyYWlsT3dlZFJlcXVlc3QifwoZT3BlcmF0b3JUcmFpbE93ZWRSZXNwb25zZRIPCgdvYmplY3RzGAEgASgNEioKBm9sZGVzdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJQoEaGVsZBgDIAMoCzIXLmxvZnQuT3BlcmF0b3JUcmFpbEhlbGQiQwoRT3BlcmF0b3JUcmFpbEhlbGQSDgoGdGVuYW50GAEgASgMEg0KBWFsaWFzGAIgASgJEg8KB29iamVjdHMYAyABKA0iOAoaT3BlcmF0b3JUcmFpbEV4cG9ydFJlcXVlc3QSDgoGdGVuYW50GAEgASgJEgoKAnRvGAIgAygJImgKG09wZXJhdG9yVHJhaWxFeHBvcnRSZXNwb25zZRIMCgRuYW1lGAEgASgJEgwKBGRhdGEYAiABKAwSLQoIZXhwb3J0ZWQYAyABKAsyGy5sb2Z0Lk9wZXJhdG9yVHJhaWxFeHBvcnRlZCLKAgoVT3BlcmF0b3JUcmFpbEV4cG9ydGVkEg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIQCghkYXRhYmFzZRgDIAEoDRIPCgdhcmNoaXZlGAQgASgNEg4KBmNodW5rcxgFIAEoDRINCgVmaWxlcxgGIAEoDRIOCgZkaWdlc3QYByABKAkSEgoKY2hlY2twb2ludBgIIAEoDRIZChFjaGVja3BvaW50X2RpZ2VzdBgJIAEoCRIRCgl3aXRuZXNzZXMYCiADKAkSEQoJdW5jb3ZlcmVkGAsgASgIEisKB3JldGlyZWQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmtlcHRfdW50aWwYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg4KBnBlb3BsZRgOIAEoDTK+BAoVT3BlcmF0b3JUZW5hbnRTZXJ2aWNlEkkKBFNob3cSHy5sb2Z0Lk9wZXJhdG9yVGVuYW50U2hvd1JlcXVlc3QaIC5sb2Z0Lk9wZXJhdG9yVGVuYW50U2hvd1Jlc3BvbnNlEkkKBE1vdmUSHy5sb2Z0Lk9wZXJhdG9yVGVuYW50TW92ZVJlcXVlc3QaIC5sb2Z0Lk9wZXJhdG9yVGVuYW50TW92ZVJlc3BvbnNlEj8KCU5hbWVPd25lchIkLmxvZnQuT3BlcmF0b3JUZW5hbnROYW1lT3duZXJSZXF1ZXN0GgwubG9mdC5Ib2xkZXISUgoHUmV0aXJlZBIiLmxvZnQuT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVxdWVzdBojLmxvZnQuT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVzcG9uc2USUwoGUmV0aXJlEiIubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3lSZXF1ZXN0GiMubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3lSZXNwb25zZTABElIKBVB1cmdlEiIubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3lSZXF1ZXN0GiMubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3lSZXNwb25zZTABElEKBkltcG9ydBIhLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXF1ZXN0GiIubG9mdC5PcGVyYXRvclRlbmFudEltcG9ydFJlc3BvbnNlKAEywwQKFE9wZXJhdG9yVHJhaWxTZXJ2aWNlEkcKBEtleXMSHi5sb2Z0Lk9wZXJhdG9yVHJhaWxLZXlzUmVxdWVzdBofLmxvZnQuT3BlcmF0b3JUcmFpbEtleXNSZXNwb25zZRJPCgZWZXJpZnkSIC5sb2Z0Lk9wZXJhdG9yVHJhaWxWZXJpZnlSZXF1ZXN0GiEubG9mdC5PcGVyYXRvclRyYWlsVmVyaWZ5UmVzcG9uc2UwARJPCgZBY2NlcHQSIC5sb2Z0Lk9wZXJhdG9yVHJhaWxBY2NlcHRSZXF1ZXN0GiEubG9mdC5PcGVyYXRvclRyYWlsQWNjZXB0UmVzcG9uc2UwARJJCgRSb3dzEh4ubG9mdC5PcGVyYXRvclRyYWlsUm93c1JlcXVlc3QaHy5sb2Z0Lk9wZXJhdG9yVHJhaWxSb3dzUmVzcG9uc2UwARJbCgpBY2NlcHRSb3dzEiQubG9mdC5PcGVyYXRvclRyYWlsQWNjZXB0Um93c1JlcXVlc3QaJS5sb2Z0Lk9wZXJhdG9yVHJhaWxBY2NlcHRSb3dzUmVzcG9uc2UwARJHCgRPd2VkEh4ubG9mdC5PcGVyYXRvclRyYWlsT3dlZFJlcXVlc3QaHy5sb2Z0Lk9wZXJhdG9yVHJhaWxPd2VkUmVzcG9uc2USTwoGRXhwb3J0EiAubG9mdC5PcGVyYXRvclRyYWlsRXhwb3J0UmVxdWVzdBohLmxvZnQuT3BlcmF0b3JUcmFpbEV4cG9ydFJlc3BvbnNlMAFCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_loft_ops, file_loft_payday_holder, file_loft_payday_tenant]);
 
 /**
  * OperatorTenantRef is a workspace as an operator names it: by its
@@ -757,6 +757,698 @@ export const OperatorTrailKeysResponseSchema: GenMessage<OperatorTrailKeysRespon
   messageDesc(file_loft_operator, 17);
 
 /**
+ * @generated from message loft.OperatorTrailVerifyRequest
+ */
+export type OperatorTrailVerifyRequest = Message<"loft.OperatorTrailVerifyRequest"> & {
+  /**
+   * Read every chunk whole, and check its bytes.
+   *
+   * @generated from field: bool full = 1;
+   */
+  full: boolean;
+};
+
+/**
+ * Describes the message loft.OperatorTrailVerifyRequest.
+ * Use `create(OperatorTrailVerifyRequestSchema)` to create a new message.
+ */
+export const OperatorTrailVerifyRequestSchema: GenMessage<OperatorTrailVerifyRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 18);
+
+/**
+ * OperatorTrailVerifyResponse is a message of a verification: what it is at
+ * while it reads, and last what it found.
+ *
+ * @generated from message loft.OperatorTrailVerifyResponse
+ */
+export type OperatorTrailVerifyResponse = Message<"loft.OperatorTrailVerifyResponse"> & {
+  /**
+   * @generated from field: string progress = 1;
+   */
+  progress: string;
+
+  /**
+   * @generated from field: loft.OperatorTrailVerified verified = 2;
+   */
+  verified?: OperatorTrailVerified | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorTrailVerifyResponse.
+ * Use `create(OperatorTrailVerifyResponseSchema)` to create a new message.
+ */
+export const OperatorTrailVerifyResponseSchema: GenMessage<OperatorTrailVerifyResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 19);
+
+/**
+ * @generated from message loft.OperatorTrailVerified
+ */
+export type OperatorTrailVerified = Message<"loft.OperatorTrailVerified"> & {
+  /**
+   * @generated from field: bool full = 1;
+   */
+  full: boolean;
+
+  /**
+   * The manifest's rows, the archive's blobs, how many were read whole, and
+   * the latest checkpoint compared.
+   *
+   * @generated from field: uint32 rows = 2;
+   */
+  rows: number;
+
+  /**
+   * @generated from field: uint32 blobs = 3;
+   */
+  blobs: number;
+
+  /**
+   * @generated from field: uint32 hashed = 4;
+   */
+  hashed: number;
+
+  /**
+   * @generated from field: uint32 checkpoint = 5;
+   */
+  checkpoint: number;
+
+  /**
+   * What an acceptance of these findings names.
+   *
+   * @generated from field: string digest = 6;
+   */
+  digest: string;
+
+  /**
+   * The acceptances before, newest first, and what each witness that
+   * answers heard last, each as `verify` says it.
+   *
+   * @generated from field: repeated string accepted = 7;
+   */
+  accepted: string[];
+
+  /**
+   * @generated from field: repeated string heard = 8;
+   */
+  heard: string[];
+
+  /**
+   * What did not add up; none, when the archive is what the database says.
+   *
+   * @generated from field: repeated loft.OperatorTrailFinding findings = 9;
+   */
+  findings: OperatorTrailFinding[];
+};
+
+/**
+ * Describes the message loft.OperatorTrailVerified.
+ * Use `create(OperatorTrailVerifiedSchema)` to create a new message.
+ */
+export const OperatorTrailVerifiedSchema: GenMessage<OperatorTrailVerified> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 20);
+
+/**
+ * @generated from message loft.OperatorTrailFinding
+ */
+export type OperatorTrailFinding = Message<"loft.OperatorTrailFinding"> & {
+  /**
+   * @generated from field: string kind = 1;
+   */
+  kind: string;
+
+  /**
+   * @generated from field: string said = 2;
+   */
+  said: string;
+};
+
+/**
+ * Describes the message loft.OperatorTrailFinding.
+ * Use `create(OperatorTrailFindingSchema)` to create a new message.
+ */
+export const OperatorTrailFindingSchema: GenMessage<OperatorTrailFinding> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 21);
+
+/**
+ * @generated from message loft.OperatorTrailAcceptRequest
+ */
+export type OperatorTrailAcceptRequest = Message<"loft.OperatorTrailAcceptRequest"> & {
+  /**
+   * The digest the verification looked at said.
+   *
+   * @generated from field: string of = 1;
+   */
+  of: string;
+
+  /**
+   * What was looked at and decided; it is kept.
+   *
+   * @generated from field: string why = 2;
+   */
+  why: string;
+
+  /**
+   * The verification looked at was a full one.
+   *
+   * @generated from field: bool full = 3;
+   */
+  full: boolean;
+
+  /**
+   * For a database restored from a backup, the checkpoint the backup holds:
+   * 0 for one from before the first.
+   *
+   * @generated from field: int32 restored = 4 [features.field_presence = EXPLICIT];
+   */
+  restored: number;
+};
+
+/**
+ * Describes the message loft.OperatorTrailAcceptRequest.
+ * Use `create(OperatorTrailAcceptRequestSchema)` to create a new message.
+ */
+export const OperatorTrailAcceptRequestSchema: GenMessage<OperatorTrailAcceptRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 22);
+
+/**
+ * @generated from message loft.OperatorTrailAcceptResponse
+ */
+export type OperatorTrailAcceptResponse = Message<"loft.OperatorTrailAcceptResponse"> & {
+  /**
+   * @generated from field: string progress = 1;
+   */
+  progress: string;
+
+  /**
+   * @generated from field: loft.OperatorTrailAccepted accepted = 2;
+   */
+  accepted?: OperatorTrailAccepted | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorTrailAcceptResponse.
+ * Use `create(OperatorTrailAcceptResponseSchema)` to create a new message.
+ */
+export const OperatorTrailAcceptResponseSchema: GenMessage<OperatorTrailAcceptResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 23);
+
+/**
+ * @generated from message loft.OperatorTrailAccepted
+ */
+export type OperatorTrailAccepted = Message<"loft.OperatorTrailAccepted"> & {
+  /**
+   * Who accepted: the operator, by name.
+   *
+   * @generated from field: string by = 1;
+   */
+  by: string;
+
+  /**
+   * @generated from field: repeated loft.OperatorTrailFinding findings = 2;
+   */
+  findings: OperatorTrailFinding[];
+};
+
+/**
+ * Describes the message loft.OperatorTrailAccepted.
+ * Use `create(OperatorTrailAcceptedSchema)` to create a new message.
+ */
+export const OperatorTrailAcceptedSchema: GenMessage<OperatorTrailAccepted> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 24);
+
+/**
+ * @generated from message loft.OperatorTrailRowsRequest
+ */
+export type OperatorTrailRowsRequest = Message<"loft.OperatorTrailRowsRequest"> & {
+};
+
+/**
+ * Describes the message loft.OperatorTrailRowsRequest.
+ * Use `create(OperatorTrailRowsRequestSchema)` to create a new message.
+ */
+export const OperatorTrailRowsRequestSchema: GenMessage<OperatorTrailRowsRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 25);
+
+/**
+ * @generated from message loft.OperatorTrailRowsResponse
+ */
+export type OperatorTrailRowsResponse = Message<"loft.OperatorTrailRowsResponse"> & {
+  /**
+   * @generated from field: string progress = 1;
+   */
+  progress: string;
+
+  /**
+   * @generated from field: loft.OperatorTrailRowsChecked checked = 2;
+   */
+  checked?: OperatorTrailRowsChecked | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorTrailRowsResponse.
+ * Use `create(OperatorTrailRowsResponseSchema)` to create a new message.
+ */
+export const OperatorTrailRowsResponseSchema: GenMessage<OperatorTrailRowsResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 26);
+
+/**
+ * @generated from message loft.OperatorTrailRowsChecked
+ */
+export type OperatorTrailRowsChecked = Message<"loft.OperatorTrailRowsChecked"> & {
+  /**
+   * @generated from field: uint32 read = 1;
+   */
+  read: number;
+
+  /**
+   * @generated from field: uint32 matches = 2;
+   */
+  matches: number;
+
+  /**
+   * What a check finds: a row that differs from the digest of its newest
+   * line, a line whose digest is not its own, a line with no digest, a row
+   * nothing on the trail is about, a line under a key not given, and a row
+   * the trail says is there and is not -- each a row, by its kind.
+   *
+   * @generated from field: repeated loft.OperatorTrailRowFinding findings = 3;
+   */
+  findings: OperatorTrailRowFinding[];
+
+  /**
+   * @generated from field: uint32 before_digests = 4;
+   */
+  beforeDigests: number;
+
+  /**
+   * @generated from field: uint32 retired = 5;
+   */
+  retired: number;
+
+  /**
+   * @generated from field: uint32 forgotten = 6;
+   */
+  forgotten: number;
+
+  /**
+   * @generated from field: uint32 archived = 7;
+   */
+  archived: number;
+
+  /**
+   * The rows whose newest write sealed nothing, which an acceptance seals.
+   *
+   * @generated from field: uint32 unsealed = 8;
+   */
+  unsealed: number;
+
+  /**
+   * What an acceptance of these findings names.
+   *
+   * @generated from field: string digest = 9;
+   */
+  digest: string;
+
+  /**
+   * The keys the lines under a key not given were made under.
+   *
+   * @generated from field: repeated string unheld = 10;
+   */
+  unheld: string[];
+
+  /**
+   * What was not read, and why: the kinds kept off the trail.
+   *
+   * @generated from field: repeated loft.OperatorTrailSkipped skipped = 11;
+   */
+  skipped: OperatorTrailSkipped[];
+};
+
+/**
+ * Describes the message loft.OperatorTrailRowsChecked.
+ * Use `create(OperatorTrailRowsCheckedSchema)` to create a new message.
+ */
+export const OperatorTrailRowsCheckedSchema: GenMessage<OperatorTrailRowsChecked> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 27);
+
+/**
+ * @generated from message loft.OperatorTrailRowFinding
+ */
+export type OperatorTrailRowFinding = Message<"loft.OperatorTrailRowFinding"> & {
+  /**
+   * differs, forged, no-digest, not-on-trail, key-not-held or missing.
+   *
+   * @generated from field: string what = 1;
+   */
+  what: string;
+
+  /**
+   * The row's kind, by the name the schema gives it, and the row.
+   *
+   * @generated from field: string kind = 2;
+   */
+  kind: string;
+
+  /**
+   * @generated from field: bytes id = 3;
+   */
+  id: Uint8Array;
+};
+
+/**
+ * Describes the message loft.OperatorTrailRowFinding.
+ * Use `create(OperatorTrailRowFindingSchema)` to create a new message.
+ */
+export const OperatorTrailRowFindingSchema: GenMessage<OperatorTrailRowFinding> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 28);
+
+/**
+ * @generated from message loft.OperatorTrailSkipped
+ */
+export type OperatorTrailSkipped = Message<"loft.OperatorTrailSkipped"> & {
+  /**
+   * @generated from field: string kind = 1;
+   */
+  kind: string;
+
+  /**
+   * @generated from field: string why = 2;
+   */
+  why: string;
+};
+
+/**
+ * Describes the message loft.OperatorTrailSkipped.
+ * Use `create(OperatorTrailSkippedSchema)` to create a new message.
+ */
+export const OperatorTrailSkippedSchema: GenMessage<OperatorTrailSkipped> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 29);
+
+/**
+ * @generated from message loft.OperatorTrailAcceptRowsRequest
+ */
+export type OperatorTrailAcceptRowsRequest = Message<"loft.OperatorTrailAcceptRowsRequest"> & {
+  /**
+   * The digest the check looked at said.
+   *
+   * @generated from field: string of = 1;
+   */
+  of: string;
+
+  /**
+   * What was looked at and decided; it is logged, as the trail keeps no
+   * reason.
+   *
+   * @generated from field: string why = 2;
+   */
+  why: string;
+};
+
+/**
+ * Describes the message loft.OperatorTrailAcceptRowsRequest.
+ * Use `create(OperatorTrailAcceptRowsRequestSchema)` to create a new message.
+ */
+export const OperatorTrailAcceptRowsRequestSchema: GenMessage<OperatorTrailAcceptRowsRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 30);
+
+/**
+ * @generated from message loft.OperatorTrailAcceptRowsResponse
+ */
+export type OperatorTrailAcceptRowsResponse = Message<"loft.OperatorTrailAcceptRowsResponse"> & {
+  /**
+   * @generated from field: string progress = 1;
+   */
+  progress: string;
+
+  /**
+   * @generated from field: loft.OperatorTrailRowsAccepted accepted = 2;
+   */
+  accepted?: OperatorTrailRowsAccepted | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorTrailAcceptRowsResponse.
+ * Use `create(OperatorTrailAcceptRowsResponseSchema)` to create a new message.
+ */
+export const OperatorTrailAcceptRowsResponseSchema: GenMessage<OperatorTrailAcceptRowsResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 31);
+
+/**
+ * @generated from message loft.OperatorTrailRowsAccepted
+ */
+export type OperatorTrailRowsAccepted = Message<"loft.OperatorTrailRowsAccepted"> & {
+  /**
+   * The rows accepted as they are, the ones gone accepted as gone, and the
+   * rows from before seals sealed.
+   *
+   * @generated from field: uint32 there = 1;
+   */
+  there: number;
+
+  /**
+   * @generated from field: uint32 gone = 2;
+   */
+  gone: number;
+
+  /**
+   * @generated from field: uint32 sealed = 3;
+   */
+  sealed: number;
+};
+
+/**
+ * Describes the message loft.OperatorTrailRowsAccepted.
+ * Use `create(OperatorTrailRowsAcceptedSchema)` to create a new message.
+ */
+export const OperatorTrailRowsAcceptedSchema: GenMessage<OperatorTrailRowsAccepted> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 32);
+
+/**
+ * @generated from message loft.OperatorTrailOwedRequest
+ */
+export type OperatorTrailOwedRequest = Message<"loft.OperatorTrailOwedRequest"> & {
+};
+
+/**
+ * Describes the message loft.OperatorTrailOwedRequest.
+ * Use `create(OperatorTrailOwedRequestSchema)` to create a new message.
+ */
+export const OperatorTrailOwedRequestSchema: GenMessage<OperatorTrailOwedRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 33);
+
+/**
+ * @generated from message loft.OperatorTrailOwedResponse
+ */
+export type OperatorTrailOwedResponse = Message<"loft.OperatorTrailOwedResponse"> & {
+  /**
+   * How many erasures are owed, and since when.
+   *
+   * @generated from field: uint32 objects = 1;
+   */
+  objects: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp oldest = 2;
+   */
+  oldest?: Timestamp | undefined;
+
+  /**
+   * What a legal hold keeps of them, by workspace.
+   *
+   * @generated from field: repeated loft.OperatorTrailHeld held = 3;
+   */
+  held: OperatorTrailHeld[];
+};
+
+/**
+ * Describes the message loft.OperatorTrailOwedResponse.
+ * Use `create(OperatorTrailOwedResponseSchema)` to create a new message.
+ */
+export const OperatorTrailOwedResponseSchema: GenMessage<OperatorTrailOwedResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 34);
+
+/**
+ * @generated from message loft.OperatorTrailHeld
+ */
+export type OperatorTrailHeld = Message<"loft.OperatorTrailHeld"> & {
+  /**
+   * @generated from field: bytes tenant = 1;
+   */
+  tenant: Uint8Array;
+
+  /**
+   * Its address, while it has one.
+   *
+   * @generated from field: string alias = 2;
+   */
+  alias: string;
+
+  /**
+   * @generated from field: uint32 objects = 3;
+   */
+  objects: number;
+};
+
+/**
+ * Describes the message loft.OperatorTrailHeld.
+ * Use `create(OperatorTrailHeldSchema)` to create a new message.
+ */
+export const OperatorTrailHeldSchema: GenMessage<OperatorTrailHeld> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 35);
+
+/**
+ * @generated from message loft.OperatorTrailExportRequest
+ */
+export type OperatorTrailExportRequest = Message<"loft.OperatorTrailExportRequest"> & {
+  /**
+   * The workspace: its identifier, or its address -- a destroyed one's, as
+   * the hold on it names it.
+   *
+   * @generated from field: string tenant = 1;
+   */
+  tenant: string;
+
+  /**
+   * Whoever keeps it: age recipients, each as age reads one.
+   *
+   * @generated from field: repeated string to = 2;
+   */
+  to: string[];
+};
+
+/**
+ * Describes the message loft.OperatorTrailExportRequest.
+ * Use `create(OperatorTrailExportRequestSchema)` to create a new message.
+ */
+export const OperatorTrailExportRequestSchema: GenMessage<OperatorTrailExportRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 36);
+
+/**
+ * OperatorTrailExportResponse is a part of a trail's export: the first says
+ * what the file is called and holds none of it, the ones after hold its
+ * bytes, and the last what it holds.
+ *
+ * @generated from message loft.OperatorTrailExportResponse
+ */
+export type OperatorTrailExportResponse = Message<"loft.OperatorTrailExportResponse"> & {
+  /**
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * @generated from field: bytes data = 2;
+   */
+  data: Uint8Array;
+
+  /**
+   * @generated from field: loft.OperatorTrailExported exported = 3;
+   */
+  exported?: OperatorTrailExported | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorTrailExportResponse.
+ * Use `create(OperatorTrailExportResponseSchema)` to create a new message.
+ */
+export const OperatorTrailExportResponseSchema: GenMessage<OperatorTrailExportResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 37);
+
+/**
+ * @generated from message loft.OperatorTrailExported
+ */
+export type OperatorTrailExported = Message<"loft.OperatorTrailExported"> & {
+  /**
+   * @generated from field: bytes tenant = 1;
+   */
+  tenant: Uint8Array;
+
+  /**
+   * @generated from field: string alias = 2;
+   */
+  alias: string;
+
+  /**
+   * Its rows of the database and of the archive, the archive's chunks, and
+   * the files.
+   *
+   * @generated from field: uint32 database = 3;
+   */
+  database: number;
+
+  /**
+   * @generated from field: uint32 archive = 4;
+   */
+  archive: number;
+
+  /**
+   * @generated from field: uint32 chunks = 5;
+   */
+  chunks: number;
+
+  /**
+   * @generated from field: uint32 files = 6;
+   */
+  files: number;
+
+  /**
+   * The manifest, signed by the deployment.
+   *
+   * @generated from field: string digest = 7;
+   */
+  digest: string;
+
+  /**
+   * The checkpoint it is held to, and who heard it; whether a chunk the
+   * checkpoint does not list is in it.
+   *
+   * @generated from field: uint32 checkpoint = 8;
+   */
+  checkpoint: number;
+
+  /**
+   * @generated from field: string checkpoint_digest = 9;
+   */
+  checkpointDigest: string;
+
+  /**
+   * @generated from field: repeated string witnesses = 10;
+   */
+  witnesses: string[];
+
+  /**
+   * @generated from field: bool uncovered = 11;
+   */
+  uncovered: boolean;
+
+  /**
+   * A workspace that retired: when, and until when what it kept is kept.
+   *
+   * @generated from field: google.protobuf.Timestamp retired = 12;
+   */
+  retired?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp kept_until = 13;
+   */
+  keptUntil?: Timestamp | undefined;
+
+  /**
+   * How many people the access record says it carries.
+   *
+   * @generated from field: uint32 people = 14;
+   */
+  people: number;
+};
+
+/**
+ * Describes the message loft.OperatorTrailExported.
+ * Use `create(OperatorTrailExportedSchema)` to create a new message.
+ */
+export const OperatorTrailExportedSchema: GenMessage<OperatorTrailExported> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 38);
+
+/**
  * OperatorTenantService is what an operator does to a workspace from outside
  * it, besides what `TenantService` serves them.
  *
@@ -853,7 +1545,10 @@ export const OperatorTenantService: GenService<{
   serviceDesc(file_loft_operator, 0);
 
 /**
- * OperatorTrailService is the trail, as the deployment's operator keeps it.
+ * OperatorTrailService is the trail, as the deployment's operator keeps it:
+ * its archive checked against the account the database keeps of it, the live
+ * rows checked against the trail, what an operator who looked accepts, what
+ * its erasures owe, and a workspace's trail taken out.
  *
  * @generated from service loft.OperatorTrailService
  */
@@ -870,6 +1565,87 @@ export const OperatorTrailService: GenService<{
     methodKind: "unary";
     input: typeof OperatorTrailKeysRequestSchema;
     output: typeof OperatorTrailKeysResponseSchema;
+  },
+  /**
+   * Verify compares the archive with its manifest and its checkpoints,
+   * changing nothing (`trail.Policy.Verify`); `full` also reads every chunk
+   * whole and checks its bytes. What it is at while it reads, and last what
+   * it found, as one digest an acceptance of it names.
+   *
+   * @generated from rpc loft.OperatorTrailService.Verify
+   */
+  verify: {
+    methodKind: "server_streaming";
+    input: typeof OperatorTrailVerifyRequestSchema;
+    output: typeof OperatorTrailVerifyResponseSchema;
+  },
+  /**
+   * Accept makes the manifest say what the archive holds, once somebody has
+   * looked (payday#115): of what a verification found and of nothing else --
+   * `of`, the digest it said -- verified again, `full` when it was, and
+   * refused when that finds anything else. Who accepts is the operator whose
+   * key the call carries, kept with why in the checkpoint it ends in.
+   *
+   * @generated from rpc loft.OperatorTrailService.Accept
+   */
+  accept: {
+    methodKind: "server_streaming";
+    input: typeof OperatorTrailAcceptRequestSchema;
+    output: typeof OperatorTrailAcceptResponseSchema;
+  },
+  /**
+   * Rows checks the live rows against the digests the trail keeps of them,
+   * changing nothing (`pd.Digests`, payday#102, #108): a row changed or
+   * added past the servers, a line forged, a row the trail says is there and
+   * is not.
+   *
+   * @generated from rpc loft.OperatorTrailService.Rows
+   */
+  rows: {
+    methodKind: "server_streaming";
+    input: typeof OperatorTrailRowsRequestSchema;
+    output: typeof OperatorTrailRowsResponseSchema;
+  },
+  /**
+   * AcceptRows puts what a check of the rows found on the trail as the act it
+   * is -- the operator's, who looked and decided the rows are right -- of
+   * what that check found (`of`) and of nothing else, and seals the rows from
+   * before seals with it. A line forged and a key not given are not
+   * accepted.
+   *
+   * @generated from rpc loft.OperatorTrailService.AcceptRows
+   */
+  acceptRows: {
+    methodKind: "server_streaming";
+    input: typeof OperatorTrailAcceptRowsRequestSchema;
+    output: typeof OperatorTrailAcceptRowsResponseSchema;
+  },
+  /**
+   * Owed is what the trail's erasures still owe and since when, and what a
+   * legal hold keeps of it, by workspace (payday#115).
+   *
+   * @generated from rpc loft.OperatorTrailService.Owed
+   */
+  owed: {
+    methodKind: "unary";
+    input: typeof OperatorTrailOwedRequestSchema;
+    output: typeof OperatorTrailOwedResponseSchema;
+  },
+  /**
+   * Export takes a workspace's trail out, encrypted to whoever keeps it, for
+   * a demand to preserve it (loft#153): every row of the trail that names the
+   * workspace, in the database and in the archive, and a manifest the
+   * deployment signs. A download, which says what it is for and names
+   * everybody whose data it carries before its first byte. The first message
+   * says what it is, the ones after hold its bytes, and the last what it
+   * held.
+   *
+   * @generated from rpc loft.OperatorTrailService.Export
+   */
+  export: {
+    methodKind: "server_streaming";
+    input: typeof OperatorTrailExportRequestSchema;
+    output: typeof OperatorTrailExportResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_loft_operator, 1);

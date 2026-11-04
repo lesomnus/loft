@@ -150,6 +150,14 @@ loft-admin tenant purge loft                              # 무엇을 가져갈�
 loft-admin tenant purge --yes loft                        # 파기 (retire는 바닥이 걸린 기록을 남김)
 loft-admin tenant import --file loft.zip --yes            # 내보내기에서 되살리기 (--file - 은 stdin)
 loft-admin tenant retired                                 # 은퇴한 워크스페이스와 남은 기록의 기한
+
+# 작업 기록 (아래 "작업 기록 점검"과 runbook/trail-integrity.md)
+loft-admin trail verify --full                            # 보관소를 매니페스트와 체크포인트에 맞춰 봄. 찾은 것이 있으면 실패
+loft-admin trail rows                                     # 살아 있는 행을 작업 기록의 지문에 맞춰 봄
+loft-admin trail accept --of <digest> --why "..."         # 본 것을 받아들임. 누가는 키의 운영자로 남음
+loft-admin trail owed                                     # 작업 기록의 지우기가 아직 갚지 않은 것
+loft-admin trail export --reason "사건 2026-4" --to keeper.pub --out acme.trail acme   # 내려받기: 받는 사람에게 암호화
+loft-admin trail verify-export --file acme.trail --identity keeper.key                 # 묶음과 열쇠는 여기에 있고, 진입점은 공개 열쇠만 답함
 ```
 
 - 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다. 키를 바꿔도 이름이 같으면 기록에는 같은 운영자입니다.

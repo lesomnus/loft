@@ -2326,6 +2326,2091 @@ func (b0 OperatorTrailKeysResponse_builder) Build() *OperatorTrailKeysResponse {
 	return m0
 }
 
+type OperatorTrailVerifyRequest struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Full bool                   `protobuf:"varint,1,opt,name=full"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *OperatorTrailVerifyRequest) Reset() {
+	*x = OperatorTrailVerifyRequest{}
+	mi := &file_loft_operator_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailVerifyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailVerifyRequest) ProtoMessage() {}
+
+func (x *OperatorTrailVerifyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailVerifyRequest) GetFull() bool {
+	if x != nil {
+		return x.xxx_hidden_Full
+	}
+	return false
+}
+
+func (x *OperatorTrailVerifyRequest) SetFull(v bool) {
+	x.xxx_hidden_Full = v
+}
+
+type OperatorTrailVerifyRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Read every chunk whole, and check its bytes.
+	Full bool
+}
+
+func (b0 OperatorTrailVerifyRequest_builder) Build() *OperatorTrailVerifyRequest {
+	m0 := &OperatorTrailVerifyRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Full = b.Full
+	return m0
+}
+
+// OperatorTrailVerifyResponse is a message of a verification: what it is at
+// while it reads, and last what it found.
+type OperatorTrailVerifyResponse struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Progress string                 `protobuf:"bytes,1,opt,name=progress"`
+	xxx_hidden_Verified *OperatorTrailVerified `protobuf:"bytes,2,opt,name=verified"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorTrailVerifyResponse) Reset() {
+	*x = OperatorTrailVerifyResponse{}
+	mi := &file_loft_operator_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailVerifyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailVerifyResponse) ProtoMessage() {}
+
+func (x *OperatorTrailVerifyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailVerifyResponse) GetProgress() string {
+	if x != nil {
+		return x.xxx_hidden_Progress
+	}
+	return ""
+}
+
+func (x *OperatorTrailVerifyResponse) GetVerified() *OperatorTrailVerified {
+	if x != nil {
+		return x.xxx_hidden_Verified
+	}
+	return nil
+}
+
+func (x *OperatorTrailVerifyResponse) SetProgress(v string) {
+	x.xxx_hidden_Progress = v
+}
+
+func (x *OperatorTrailVerifyResponse) SetVerified(v *OperatorTrailVerified) {
+	x.xxx_hidden_Verified = v
+}
+
+func (x *OperatorTrailVerifyResponse) HasVerified() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Verified != nil
+}
+
+func (x *OperatorTrailVerifyResponse) ClearVerified() {
+	x.xxx_hidden_Verified = nil
+}
+
+type OperatorTrailVerifyResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Progress string
+	Verified *OperatorTrailVerified
+}
+
+func (b0 OperatorTrailVerifyResponse_builder) Build() *OperatorTrailVerifyResponse {
+	m0 := &OperatorTrailVerifyResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Progress = b.Progress
+	x.xxx_hidden_Verified = b.Verified
+	return m0
+}
+
+type OperatorTrailVerified struct {
+	state                 protoimpl.MessageState   `protogen:"opaque.v1"`
+	xxx_hidden_Full       bool                     `protobuf:"varint,1,opt,name=full"`
+	xxx_hidden_Rows       uint32                   `protobuf:"varint,2,opt,name=rows"`
+	xxx_hidden_Blobs      uint32                   `protobuf:"varint,3,opt,name=blobs"`
+	xxx_hidden_Hashed     uint32                   `protobuf:"varint,4,opt,name=hashed"`
+	xxx_hidden_Checkpoint uint32                   `protobuf:"varint,5,opt,name=checkpoint"`
+	xxx_hidden_Digest     string                   `protobuf:"bytes,6,opt,name=digest"`
+	xxx_hidden_Accepted   []string                 `protobuf:"bytes,7,rep,name=accepted"`
+	xxx_hidden_Heard      []string                 `protobuf:"bytes,8,rep,name=heard"`
+	xxx_hidden_Findings   *[]*OperatorTrailFinding `protobuf:"bytes,9,rep,name=findings"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *OperatorTrailVerified) Reset() {
+	*x = OperatorTrailVerified{}
+	mi := &file_loft_operator_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailVerified) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailVerified) ProtoMessage() {}
+
+func (x *OperatorTrailVerified) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailVerified) GetFull() bool {
+	if x != nil {
+		return x.xxx_hidden_Full
+	}
+	return false
+}
+
+func (x *OperatorTrailVerified) GetRows() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Rows
+	}
+	return 0
+}
+
+func (x *OperatorTrailVerified) GetBlobs() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Blobs
+	}
+	return 0
+}
+
+func (x *OperatorTrailVerified) GetHashed() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Hashed
+	}
+	return 0
+}
+
+func (x *OperatorTrailVerified) GetCheckpoint() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Checkpoint
+	}
+	return 0
+}
+
+func (x *OperatorTrailVerified) GetDigest() string {
+	if x != nil {
+		return x.xxx_hidden_Digest
+	}
+	return ""
+}
+
+func (x *OperatorTrailVerified) GetAccepted() []string {
+	if x != nil {
+		return x.xxx_hidden_Accepted
+	}
+	return nil
+}
+
+func (x *OperatorTrailVerified) GetHeard() []string {
+	if x != nil {
+		return x.xxx_hidden_Heard
+	}
+	return nil
+}
+
+func (x *OperatorTrailVerified) GetFindings() []*OperatorTrailFinding {
+	if x != nil {
+		if x.xxx_hidden_Findings != nil {
+			return *x.xxx_hidden_Findings
+		}
+	}
+	return nil
+}
+
+func (x *OperatorTrailVerified) SetFull(v bool) {
+	x.xxx_hidden_Full = v
+}
+
+func (x *OperatorTrailVerified) SetRows(v uint32) {
+	x.xxx_hidden_Rows = v
+}
+
+func (x *OperatorTrailVerified) SetBlobs(v uint32) {
+	x.xxx_hidden_Blobs = v
+}
+
+func (x *OperatorTrailVerified) SetHashed(v uint32) {
+	x.xxx_hidden_Hashed = v
+}
+
+func (x *OperatorTrailVerified) SetCheckpoint(v uint32) {
+	x.xxx_hidden_Checkpoint = v
+}
+
+func (x *OperatorTrailVerified) SetDigest(v string) {
+	x.xxx_hidden_Digest = v
+}
+
+func (x *OperatorTrailVerified) SetAccepted(v []string) {
+	x.xxx_hidden_Accepted = v
+}
+
+func (x *OperatorTrailVerified) SetHeard(v []string) {
+	x.xxx_hidden_Heard = v
+}
+
+func (x *OperatorTrailVerified) SetFindings(v []*OperatorTrailFinding) {
+	x.xxx_hidden_Findings = &v
+}
+
+type OperatorTrailVerified_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Full bool
+	// The manifest's rows, the archive's blobs, how many were read whole, and
+	// the latest checkpoint compared.
+	Rows       uint32
+	Blobs      uint32
+	Hashed     uint32
+	Checkpoint uint32
+	// What an acceptance of these findings names.
+	Digest string
+	// The acceptances before, newest first, and what each witness that
+	// answers heard last, each as `verify` says it.
+	Accepted []string
+	Heard    []string
+	// What did not add up; none, when the archive is what the database says.
+	Findings []*OperatorTrailFinding
+}
+
+func (b0 OperatorTrailVerified_builder) Build() *OperatorTrailVerified {
+	m0 := &OperatorTrailVerified{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Full = b.Full
+	x.xxx_hidden_Rows = b.Rows
+	x.xxx_hidden_Blobs = b.Blobs
+	x.xxx_hidden_Hashed = b.Hashed
+	x.xxx_hidden_Checkpoint = b.Checkpoint
+	x.xxx_hidden_Digest = b.Digest
+	x.xxx_hidden_Accepted = b.Accepted
+	x.xxx_hidden_Heard = b.Heard
+	x.xxx_hidden_Findings = &b.Findings
+	return m0
+}
+
+type OperatorTrailFinding struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Kind string                 `protobuf:"bytes,1,opt,name=kind"`
+	xxx_hidden_Said string                 `protobuf:"bytes,2,opt,name=said"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *OperatorTrailFinding) Reset() {
+	*x = OperatorTrailFinding{}
+	mi := &file_loft_operator_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailFinding) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailFinding) ProtoMessage() {}
+
+func (x *OperatorTrailFinding) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailFinding) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *OperatorTrailFinding) GetSaid() string {
+	if x != nil {
+		return x.xxx_hidden_Said
+	}
+	return ""
+}
+
+func (x *OperatorTrailFinding) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *OperatorTrailFinding) SetSaid(v string) {
+	x.xxx_hidden_Said = v
+}
+
+type OperatorTrailFinding_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Kind string
+	Said string
+}
+
+func (b0 OperatorTrailFinding_builder) Build() *OperatorTrailFinding {
+	m0 := &OperatorTrailFinding{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Said = b.Said
+	return m0
+}
+
+type OperatorTrailAcceptRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Of          string                 `protobuf:"bytes,1,opt,name=of"`
+	xxx_hidden_Why         string                 `protobuf:"bytes,2,opt,name=why"`
+	xxx_hidden_Full        bool                   `protobuf:"varint,3,opt,name=full"`
+	xxx_hidden_Restored    int32                  `protobuf:"varint,4,opt,name=restored"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *OperatorTrailAcceptRequest) Reset() {
+	*x = OperatorTrailAcceptRequest{}
+	mi := &file_loft_operator_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailAcceptRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailAcceptRequest) ProtoMessage() {}
+
+func (x *OperatorTrailAcceptRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailAcceptRequest) GetOf() string {
+	if x != nil {
+		return x.xxx_hidden_Of
+	}
+	return ""
+}
+
+func (x *OperatorTrailAcceptRequest) GetWhy() string {
+	if x != nil {
+		return x.xxx_hidden_Why
+	}
+	return ""
+}
+
+func (x *OperatorTrailAcceptRequest) GetFull() bool {
+	if x != nil {
+		return x.xxx_hidden_Full
+	}
+	return false
+}
+
+func (x *OperatorTrailAcceptRequest) GetRestored() int32 {
+	if x != nil {
+		return x.xxx_hidden_Restored
+	}
+	return 0
+}
+
+func (x *OperatorTrailAcceptRequest) SetOf(v string) {
+	x.xxx_hidden_Of = v
+}
+
+func (x *OperatorTrailAcceptRequest) SetWhy(v string) {
+	x.xxx_hidden_Why = v
+}
+
+func (x *OperatorTrailAcceptRequest) SetFull(v bool) {
+	x.xxx_hidden_Full = v
+}
+
+func (x *OperatorTrailAcceptRequest) SetRestored(v int32) {
+	x.xxx_hidden_Restored = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+}
+
+func (x *OperatorTrailAcceptRequest) HasRestored() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *OperatorTrailAcceptRequest) ClearRestored() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Restored = 0
+}
+
+type OperatorTrailAcceptRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The digest the verification looked at said.
+	Of string
+	// What was looked at and decided; it is kept.
+	Why string
+	// The verification looked at was a full one.
+	Full bool
+	// For a database restored from a backup, the checkpoint the backup holds:
+	// 0 for one from before the first.
+	Restored *int32
+}
+
+func (b0 OperatorTrailAcceptRequest_builder) Build() *OperatorTrailAcceptRequest {
+	m0 := &OperatorTrailAcceptRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Of = b.Of
+	x.xxx_hidden_Why = b.Why
+	x.xxx_hidden_Full = b.Full
+	if b.Restored != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		x.xxx_hidden_Restored = *b.Restored
+	}
+	return m0
+}
+
+type OperatorTrailAcceptResponse struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Progress string                 `protobuf:"bytes,1,opt,name=progress"`
+	xxx_hidden_Accepted *OperatorTrailAccepted `protobuf:"bytes,2,opt,name=accepted"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorTrailAcceptResponse) Reset() {
+	*x = OperatorTrailAcceptResponse{}
+	mi := &file_loft_operator_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailAcceptResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailAcceptResponse) ProtoMessage() {}
+
+func (x *OperatorTrailAcceptResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailAcceptResponse) GetProgress() string {
+	if x != nil {
+		return x.xxx_hidden_Progress
+	}
+	return ""
+}
+
+func (x *OperatorTrailAcceptResponse) GetAccepted() *OperatorTrailAccepted {
+	if x != nil {
+		return x.xxx_hidden_Accepted
+	}
+	return nil
+}
+
+func (x *OperatorTrailAcceptResponse) SetProgress(v string) {
+	x.xxx_hidden_Progress = v
+}
+
+func (x *OperatorTrailAcceptResponse) SetAccepted(v *OperatorTrailAccepted) {
+	x.xxx_hidden_Accepted = v
+}
+
+func (x *OperatorTrailAcceptResponse) HasAccepted() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Accepted != nil
+}
+
+func (x *OperatorTrailAcceptResponse) ClearAccepted() {
+	x.xxx_hidden_Accepted = nil
+}
+
+type OperatorTrailAcceptResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Progress string
+	Accepted *OperatorTrailAccepted
+}
+
+func (b0 OperatorTrailAcceptResponse_builder) Build() *OperatorTrailAcceptResponse {
+	m0 := &OperatorTrailAcceptResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Progress = b.Progress
+	x.xxx_hidden_Accepted = b.Accepted
+	return m0
+}
+
+type OperatorTrailAccepted struct {
+	state               protoimpl.MessageState   `protogen:"opaque.v1"`
+	xxx_hidden_By       string                   `protobuf:"bytes,1,opt,name=by"`
+	xxx_hidden_Findings *[]*OperatorTrailFinding `protobuf:"bytes,2,rep,name=findings"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorTrailAccepted) Reset() {
+	*x = OperatorTrailAccepted{}
+	mi := &file_loft_operator_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailAccepted) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailAccepted) ProtoMessage() {}
+
+func (x *OperatorTrailAccepted) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailAccepted) GetBy() string {
+	if x != nil {
+		return x.xxx_hidden_By
+	}
+	return ""
+}
+
+func (x *OperatorTrailAccepted) GetFindings() []*OperatorTrailFinding {
+	if x != nil {
+		if x.xxx_hidden_Findings != nil {
+			return *x.xxx_hidden_Findings
+		}
+	}
+	return nil
+}
+
+func (x *OperatorTrailAccepted) SetBy(v string) {
+	x.xxx_hidden_By = v
+}
+
+func (x *OperatorTrailAccepted) SetFindings(v []*OperatorTrailFinding) {
+	x.xxx_hidden_Findings = &v
+}
+
+type OperatorTrailAccepted_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Who accepted: the operator, by name.
+	By       string
+	Findings []*OperatorTrailFinding
+}
+
+func (b0 OperatorTrailAccepted_builder) Build() *OperatorTrailAccepted {
+	m0 := &OperatorTrailAccepted{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_By = b.By
+	x.xxx_hidden_Findings = &b.Findings
+	return m0
+}
+
+type OperatorTrailRowsRequest struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OperatorTrailRowsRequest) Reset() {
+	*x = OperatorTrailRowsRequest{}
+	mi := &file_loft_operator_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailRowsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailRowsRequest) ProtoMessage() {}
+
+func (x *OperatorTrailRowsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type OperatorTrailRowsRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 OperatorTrailRowsRequest_builder) Build() *OperatorTrailRowsRequest {
+	m0 := &OperatorTrailRowsRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+type OperatorTrailRowsResponse struct {
+	state               protoimpl.MessageState    `protogen:"opaque.v1"`
+	xxx_hidden_Progress string                    `protobuf:"bytes,1,opt,name=progress"`
+	xxx_hidden_Checked  *OperatorTrailRowsChecked `protobuf:"bytes,2,opt,name=checked"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorTrailRowsResponse) Reset() {
+	*x = OperatorTrailRowsResponse{}
+	mi := &file_loft_operator_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailRowsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailRowsResponse) ProtoMessage() {}
+
+func (x *OperatorTrailRowsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailRowsResponse) GetProgress() string {
+	if x != nil {
+		return x.xxx_hidden_Progress
+	}
+	return ""
+}
+
+func (x *OperatorTrailRowsResponse) GetChecked() *OperatorTrailRowsChecked {
+	if x != nil {
+		return x.xxx_hidden_Checked
+	}
+	return nil
+}
+
+func (x *OperatorTrailRowsResponse) SetProgress(v string) {
+	x.xxx_hidden_Progress = v
+}
+
+func (x *OperatorTrailRowsResponse) SetChecked(v *OperatorTrailRowsChecked) {
+	x.xxx_hidden_Checked = v
+}
+
+func (x *OperatorTrailRowsResponse) HasChecked() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Checked != nil
+}
+
+func (x *OperatorTrailRowsResponse) ClearChecked() {
+	x.xxx_hidden_Checked = nil
+}
+
+type OperatorTrailRowsResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Progress string
+	Checked  *OperatorTrailRowsChecked
+}
+
+func (b0 OperatorTrailRowsResponse_builder) Build() *OperatorTrailRowsResponse {
+	m0 := &OperatorTrailRowsResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Progress = b.Progress
+	x.xxx_hidden_Checked = b.Checked
+	return m0
+}
+
+type OperatorTrailRowsChecked struct {
+	state                    protoimpl.MessageState      `protogen:"opaque.v1"`
+	xxx_hidden_Read          uint32                      `protobuf:"varint,1,opt,name=read"`
+	xxx_hidden_Matches       uint32                      `protobuf:"varint,2,opt,name=matches"`
+	xxx_hidden_Findings      *[]*OperatorTrailRowFinding `protobuf:"bytes,3,rep,name=findings"`
+	xxx_hidden_BeforeDigests uint32                      `protobuf:"varint,4,opt,name=before_digests,json=beforeDigests"`
+	xxx_hidden_Retired       uint32                      `protobuf:"varint,5,opt,name=retired"`
+	xxx_hidden_Forgotten     uint32                      `protobuf:"varint,6,opt,name=forgotten"`
+	xxx_hidden_Archived      uint32                      `protobuf:"varint,7,opt,name=archived"`
+	xxx_hidden_Unsealed      uint32                      `protobuf:"varint,8,opt,name=unsealed"`
+	xxx_hidden_Digest        string                      `protobuf:"bytes,9,opt,name=digest"`
+	xxx_hidden_Unheld        []string                    `protobuf:"bytes,10,rep,name=unheld"`
+	xxx_hidden_Skipped       *[]*OperatorTrailSkipped    `protobuf:"bytes,11,rep,name=skipped"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *OperatorTrailRowsChecked) Reset() {
+	*x = OperatorTrailRowsChecked{}
+	mi := &file_loft_operator_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailRowsChecked) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailRowsChecked) ProtoMessage() {}
+
+func (x *OperatorTrailRowsChecked) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailRowsChecked) GetRead() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Read
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsChecked) GetMatches() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Matches
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsChecked) GetFindings() []*OperatorTrailRowFinding {
+	if x != nil {
+		if x.xxx_hidden_Findings != nil {
+			return *x.xxx_hidden_Findings
+		}
+	}
+	return nil
+}
+
+func (x *OperatorTrailRowsChecked) GetBeforeDigests() uint32 {
+	if x != nil {
+		return x.xxx_hidden_BeforeDigests
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsChecked) GetRetired() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Retired
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsChecked) GetForgotten() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Forgotten
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsChecked) GetArchived() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Archived
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsChecked) GetUnsealed() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Unsealed
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsChecked) GetDigest() string {
+	if x != nil {
+		return x.xxx_hidden_Digest
+	}
+	return ""
+}
+
+func (x *OperatorTrailRowsChecked) GetUnheld() []string {
+	if x != nil {
+		return x.xxx_hidden_Unheld
+	}
+	return nil
+}
+
+func (x *OperatorTrailRowsChecked) GetSkipped() []*OperatorTrailSkipped {
+	if x != nil {
+		if x.xxx_hidden_Skipped != nil {
+			return *x.xxx_hidden_Skipped
+		}
+	}
+	return nil
+}
+
+func (x *OperatorTrailRowsChecked) SetRead(v uint32) {
+	x.xxx_hidden_Read = v
+}
+
+func (x *OperatorTrailRowsChecked) SetMatches(v uint32) {
+	x.xxx_hidden_Matches = v
+}
+
+func (x *OperatorTrailRowsChecked) SetFindings(v []*OperatorTrailRowFinding) {
+	x.xxx_hidden_Findings = &v
+}
+
+func (x *OperatorTrailRowsChecked) SetBeforeDigests(v uint32) {
+	x.xxx_hidden_BeforeDigests = v
+}
+
+func (x *OperatorTrailRowsChecked) SetRetired(v uint32) {
+	x.xxx_hidden_Retired = v
+}
+
+func (x *OperatorTrailRowsChecked) SetForgotten(v uint32) {
+	x.xxx_hidden_Forgotten = v
+}
+
+func (x *OperatorTrailRowsChecked) SetArchived(v uint32) {
+	x.xxx_hidden_Archived = v
+}
+
+func (x *OperatorTrailRowsChecked) SetUnsealed(v uint32) {
+	x.xxx_hidden_Unsealed = v
+}
+
+func (x *OperatorTrailRowsChecked) SetDigest(v string) {
+	x.xxx_hidden_Digest = v
+}
+
+func (x *OperatorTrailRowsChecked) SetUnheld(v []string) {
+	x.xxx_hidden_Unheld = v
+}
+
+func (x *OperatorTrailRowsChecked) SetSkipped(v []*OperatorTrailSkipped) {
+	x.xxx_hidden_Skipped = &v
+}
+
+type OperatorTrailRowsChecked_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Read    uint32
+	Matches uint32
+	// What a check finds: a row that differs from the digest of its newest
+	// line, a line whose digest is not its own, a line with no digest, a row
+	// nothing on the trail is about, a line under a key not given, and a row
+	// the trail says is there and is not -- each a row, by its kind.
+	Findings      []*OperatorTrailRowFinding
+	BeforeDigests uint32
+	Retired       uint32
+	Forgotten     uint32
+	Archived      uint32
+	// The rows whose newest write sealed nothing, which an acceptance seals.
+	Unsealed uint32
+	// What an acceptance of these findings names.
+	Digest string
+	// The keys the lines under a key not given were made under.
+	Unheld []string
+	// What was not read, and why: the kinds kept off the trail.
+	Skipped []*OperatorTrailSkipped
+}
+
+func (b0 OperatorTrailRowsChecked_builder) Build() *OperatorTrailRowsChecked {
+	m0 := &OperatorTrailRowsChecked{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Read = b.Read
+	x.xxx_hidden_Matches = b.Matches
+	x.xxx_hidden_Findings = &b.Findings
+	x.xxx_hidden_BeforeDigests = b.BeforeDigests
+	x.xxx_hidden_Retired = b.Retired
+	x.xxx_hidden_Forgotten = b.Forgotten
+	x.xxx_hidden_Archived = b.Archived
+	x.xxx_hidden_Unsealed = b.Unsealed
+	x.xxx_hidden_Digest = b.Digest
+	x.xxx_hidden_Unheld = b.Unheld
+	x.xxx_hidden_Skipped = &b.Skipped
+	return m0
+}
+
+type OperatorTrailRowFinding struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_What string                 `protobuf:"bytes,1,opt,name=what"`
+	xxx_hidden_Kind string                 `protobuf:"bytes,2,opt,name=kind"`
+	xxx_hidden_Id   []byte                 `protobuf:"bytes,3,opt,name=id"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *OperatorTrailRowFinding) Reset() {
+	*x = OperatorTrailRowFinding{}
+	mi := &file_loft_operator_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailRowFinding) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailRowFinding) ProtoMessage() {}
+
+func (x *OperatorTrailRowFinding) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailRowFinding) GetWhat() string {
+	if x != nil {
+		return x.xxx_hidden_What
+	}
+	return ""
+}
+
+func (x *OperatorTrailRowFinding) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *OperatorTrailRowFinding) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *OperatorTrailRowFinding) SetWhat(v string) {
+	x.xxx_hidden_What = v
+}
+
+func (x *OperatorTrailRowFinding) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *OperatorTrailRowFinding) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+type OperatorTrailRowFinding_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// differs, forged, no-digest, not-on-trail, key-not-held or missing.
+	What string
+	// The row's kind, by the name the schema gives it, and the row.
+	Kind string
+	Id   []byte
+}
+
+func (b0 OperatorTrailRowFinding_builder) Build() *OperatorTrailRowFinding {
+	m0 := &OperatorTrailRowFinding{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_What = b.What
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Id = b.Id
+	return m0
+}
+
+type OperatorTrailSkipped struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Kind string                 `protobuf:"bytes,1,opt,name=kind"`
+	xxx_hidden_Why  string                 `protobuf:"bytes,2,opt,name=why"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *OperatorTrailSkipped) Reset() {
+	*x = OperatorTrailSkipped{}
+	mi := &file_loft_operator_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailSkipped) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailSkipped) ProtoMessage() {}
+
+func (x *OperatorTrailSkipped) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailSkipped) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *OperatorTrailSkipped) GetWhy() string {
+	if x != nil {
+		return x.xxx_hidden_Why
+	}
+	return ""
+}
+
+func (x *OperatorTrailSkipped) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *OperatorTrailSkipped) SetWhy(v string) {
+	x.xxx_hidden_Why = v
+}
+
+type OperatorTrailSkipped_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Kind string
+	Why  string
+}
+
+func (b0 OperatorTrailSkipped_builder) Build() *OperatorTrailSkipped {
+	m0 := &OperatorTrailSkipped{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Why = b.Why
+	return m0
+}
+
+type OperatorTrailAcceptRowsRequest struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Of  string                 `protobuf:"bytes,1,opt,name=of"`
+	xxx_hidden_Why string                 `protobuf:"bytes,2,opt,name=why"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *OperatorTrailAcceptRowsRequest) Reset() {
+	*x = OperatorTrailAcceptRowsRequest{}
+	mi := &file_loft_operator_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailAcceptRowsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailAcceptRowsRequest) ProtoMessage() {}
+
+func (x *OperatorTrailAcceptRowsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailAcceptRowsRequest) GetOf() string {
+	if x != nil {
+		return x.xxx_hidden_Of
+	}
+	return ""
+}
+
+func (x *OperatorTrailAcceptRowsRequest) GetWhy() string {
+	if x != nil {
+		return x.xxx_hidden_Why
+	}
+	return ""
+}
+
+func (x *OperatorTrailAcceptRowsRequest) SetOf(v string) {
+	x.xxx_hidden_Of = v
+}
+
+func (x *OperatorTrailAcceptRowsRequest) SetWhy(v string) {
+	x.xxx_hidden_Why = v
+}
+
+type OperatorTrailAcceptRowsRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The digest the check looked at said.
+	Of string
+	// What was looked at and decided; it is logged, as the trail keeps no
+	// reason.
+	Why string
+}
+
+func (b0 OperatorTrailAcceptRowsRequest_builder) Build() *OperatorTrailAcceptRowsRequest {
+	m0 := &OperatorTrailAcceptRowsRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Of = b.Of
+	x.xxx_hidden_Why = b.Why
+	return m0
+}
+
+type OperatorTrailAcceptRowsResponse struct {
+	state               protoimpl.MessageState     `protogen:"opaque.v1"`
+	xxx_hidden_Progress string                     `protobuf:"bytes,1,opt,name=progress"`
+	xxx_hidden_Accepted *OperatorTrailRowsAccepted `protobuf:"bytes,2,opt,name=accepted"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorTrailAcceptRowsResponse) Reset() {
+	*x = OperatorTrailAcceptRowsResponse{}
+	mi := &file_loft_operator_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailAcceptRowsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailAcceptRowsResponse) ProtoMessage() {}
+
+func (x *OperatorTrailAcceptRowsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailAcceptRowsResponse) GetProgress() string {
+	if x != nil {
+		return x.xxx_hidden_Progress
+	}
+	return ""
+}
+
+func (x *OperatorTrailAcceptRowsResponse) GetAccepted() *OperatorTrailRowsAccepted {
+	if x != nil {
+		return x.xxx_hidden_Accepted
+	}
+	return nil
+}
+
+func (x *OperatorTrailAcceptRowsResponse) SetProgress(v string) {
+	x.xxx_hidden_Progress = v
+}
+
+func (x *OperatorTrailAcceptRowsResponse) SetAccepted(v *OperatorTrailRowsAccepted) {
+	x.xxx_hidden_Accepted = v
+}
+
+func (x *OperatorTrailAcceptRowsResponse) HasAccepted() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Accepted != nil
+}
+
+func (x *OperatorTrailAcceptRowsResponse) ClearAccepted() {
+	x.xxx_hidden_Accepted = nil
+}
+
+type OperatorTrailAcceptRowsResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Progress string
+	Accepted *OperatorTrailRowsAccepted
+}
+
+func (b0 OperatorTrailAcceptRowsResponse_builder) Build() *OperatorTrailAcceptRowsResponse {
+	m0 := &OperatorTrailAcceptRowsResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Progress = b.Progress
+	x.xxx_hidden_Accepted = b.Accepted
+	return m0
+}
+
+type OperatorTrailRowsAccepted struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_There  uint32                 `protobuf:"varint,1,opt,name=there"`
+	xxx_hidden_Gone   uint32                 `protobuf:"varint,2,opt,name=gone"`
+	xxx_hidden_Sealed uint32                 `protobuf:"varint,3,opt,name=sealed"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *OperatorTrailRowsAccepted) Reset() {
+	*x = OperatorTrailRowsAccepted{}
+	mi := &file_loft_operator_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailRowsAccepted) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailRowsAccepted) ProtoMessage() {}
+
+func (x *OperatorTrailRowsAccepted) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailRowsAccepted) GetThere() uint32 {
+	if x != nil {
+		return x.xxx_hidden_There
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsAccepted) GetGone() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Gone
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsAccepted) GetSealed() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Sealed
+	}
+	return 0
+}
+
+func (x *OperatorTrailRowsAccepted) SetThere(v uint32) {
+	x.xxx_hidden_There = v
+}
+
+func (x *OperatorTrailRowsAccepted) SetGone(v uint32) {
+	x.xxx_hidden_Gone = v
+}
+
+func (x *OperatorTrailRowsAccepted) SetSealed(v uint32) {
+	x.xxx_hidden_Sealed = v
+}
+
+type OperatorTrailRowsAccepted_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The rows accepted as they are, the ones gone accepted as gone, and the
+	// rows from before seals sealed.
+	There  uint32
+	Gone   uint32
+	Sealed uint32
+}
+
+func (b0 OperatorTrailRowsAccepted_builder) Build() *OperatorTrailRowsAccepted {
+	m0 := &OperatorTrailRowsAccepted{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_There = b.There
+	x.xxx_hidden_Gone = b.Gone
+	x.xxx_hidden_Sealed = b.Sealed
+	return m0
+}
+
+type OperatorTrailOwedRequest struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OperatorTrailOwedRequest) Reset() {
+	*x = OperatorTrailOwedRequest{}
+	mi := &file_loft_operator_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailOwedRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailOwedRequest) ProtoMessage() {}
+
+func (x *OperatorTrailOwedRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type OperatorTrailOwedRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 OperatorTrailOwedRequest_builder) Build() *OperatorTrailOwedRequest {
+	m0 := &OperatorTrailOwedRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
+type OperatorTrailOwedResponse struct {
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Objects uint32                 `protobuf:"varint,1,opt,name=objects"`
+	xxx_hidden_Oldest  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=oldest"`
+	xxx_hidden_Held    *[]*OperatorTrailHeld  `protobuf:"bytes,3,rep,name=held"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *OperatorTrailOwedResponse) Reset() {
+	*x = OperatorTrailOwedResponse{}
+	mi := &file_loft_operator_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailOwedResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailOwedResponse) ProtoMessage() {}
+
+func (x *OperatorTrailOwedResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailOwedResponse) GetObjects() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Objects
+	}
+	return 0
+}
+
+func (x *OperatorTrailOwedResponse) GetOldest() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Oldest
+	}
+	return nil
+}
+
+func (x *OperatorTrailOwedResponse) GetHeld() []*OperatorTrailHeld {
+	if x != nil {
+		if x.xxx_hidden_Held != nil {
+			return *x.xxx_hidden_Held
+		}
+	}
+	return nil
+}
+
+func (x *OperatorTrailOwedResponse) SetObjects(v uint32) {
+	x.xxx_hidden_Objects = v
+}
+
+func (x *OperatorTrailOwedResponse) SetOldest(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Oldest = v
+}
+
+func (x *OperatorTrailOwedResponse) SetHeld(v []*OperatorTrailHeld) {
+	x.xxx_hidden_Held = &v
+}
+
+func (x *OperatorTrailOwedResponse) HasOldest() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Oldest != nil
+}
+
+func (x *OperatorTrailOwedResponse) ClearOldest() {
+	x.xxx_hidden_Oldest = nil
+}
+
+type OperatorTrailOwedResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// How many erasures are owed, and since when.
+	Objects uint32
+	Oldest  *timestamppb.Timestamp
+	// What a legal hold keeps of them, by workspace.
+	Held []*OperatorTrailHeld
+}
+
+func (b0 OperatorTrailOwedResponse_builder) Build() *OperatorTrailOwedResponse {
+	m0 := &OperatorTrailOwedResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Objects = b.Objects
+	x.xxx_hidden_Oldest = b.Oldest
+	x.xxx_hidden_Held = &b.Held
+	return m0
+}
+
+type OperatorTrailHeld struct {
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Tenant  []byte                 `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_Alias   string                 `protobuf:"bytes,2,opt,name=alias"`
+	xxx_hidden_Objects uint32                 `protobuf:"varint,3,opt,name=objects"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *OperatorTrailHeld) Reset() {
+	*x = OperatorTrailHeld{}
+	mi := &file_loft_operator_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailHeld) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailHeld) ProtoMessage() {}
+
+func (x *OperatorTrailHeld) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailHeld) GetTenant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *OperatorTrailHeld) GetAlias() string {
+	if x != nil {
+		return x.xxx_hidden_Alias
+	}
+	return ""
+}
+
+func (x *OperatorTrailHeld) GetObjects() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Objects
+	}
+	return 0
+}
+
+func (x *OperatorTrailHeld) SetTenant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *OperatorTrailHeld) SetAlias(v string) {
+	x.xxx_hidden_Alias = v
+}
+
+func (x *OperatorTrailHeld) SetObjects(v uint32) {
+	x.xxx_hidden_Objects = v
+}
+
+type OperatorTrailHeld_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Tenant []byte
+	// Its address, while it has one.
+	Alias   string
+	Objects uint32
+}
+
+func (b0 OperatorTrailHeld_builder) Build() *OperatorTrailHeld {
+	m0 := &OperatorTrailHeld{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Alias = b.Alias
+	x.xxx_hidden_Objects = b.Objects
+	return m0
+}
+
+type OperatorTrailExportRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Tenant string                 `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_To     []string               `protobuf:"bytes,2,rep,name=to"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *OperatorTrailExportRequest) Reset() {
+	*x = OperatorTrailExportRequest{}
+	mi := &file_loft_operator_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailExportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailExportRequest) ProtoMessage() {}
+
+func (x *OperatorTrailExportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailExportRequest) GetTenant() string {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return ""
+}
+
+func (x *OperatorTrailExportRequest) GetTo() []string {
+	if x != nil {
+		return x.xxx_hidden_To
+	}
+	return nil
+}
+
+func (x *OperatorTrailExportRequest) SetTenant(v string) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *OperatorTrailExportRequest) SetTo(v []string) {
+	x.xxx_hidden_To = v
+}
+
+type OperatorTrailExportRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The workspace: its identifier, or its address -- a destroyed one's, as
+	// the hold on it names it.
+	Tenant string
+	// Whoever keeps it: age recipients, each as age reads one.
+	To []string
+}
+
+func (b0 OperatorTrailExportRequest_builder) Build() *OperatorTrailExportRequest {
+	m0 := &OperatorTrailExportRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_To = b.To
+	return m0
+}
+
+// OperatorTrailExportResponse is a part of a trail's export: the first says
+// what the file is called and holds none of it, the ones after hold its
+// bytes, and the last what it holds.
+type OperatorTrailExportResponse struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Name     string                 `protobuf:"bytes,1,opt,name=name"`
+	xxx_hidden_Data     []byte                 `protobuf:"bytes,2,opt,name=data"`
+	xxx_hidden_Exported *OperatorTrailExported `protobuf:"bytes,3,opt,name=exported"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorTrailExportResponse) Reset() {
+	*x = OperatorTrailExportResponse{}
+	mi := &file_loft_operator_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailExportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailExportResponse) ProtoMessage() {}
+
+func (x *OperatorTrailExportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailExportResponse) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *OperatorTrailExportResponse) GetData() []byte {
+	if x != nil {
+		return x.xxx_hidden_Data
+	}
+	return nil
+}
+
+func (x *OperatorTrailExportResponse) GetExported() *OperatorTrailExported {
+	if x != nil {
+		return x.xxx_hidden_Exported
+	}
+	return nil
+}
+
+func (x *OperatorTrailExportResponse) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+func (x *OperatorTrailExportResponse) SetData(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Data = v
+}
+
+func (x *OperatorTrailExportResponse) SetExported(v *OperatorTrailExported) {
+	x.xxx_hidden_Exported = v
+}
+
+func (x *OperatorTrailExportResponse) HasExported() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Exported != nil
+}
+
+func (x *OperatorTrailExportResponse) ClearExported() {
+	x.xxx_hidden_Exported = nil
+}
+
+type OperatorTrailExportResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Name     string
+	Data     []byte
+	Exported *OperatorTrailExported
+}
+
+func (b0 OperatorTrailExportResponse_builder) Build() *OperatorTrailExportResponse {
+	m0 := &OperatorTrailExportResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_Data = b.Data
+	x.xxx_hidden_Exported = b.Exported
+	return m0
+}
+
+type OperatorTrailExported struct {
+	state                       protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Tenant           []byte                 `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_Alias            string                 `protobuf:"bytes,2,opt,name=alias"`
+	xxx_hidden_Database         uint32                 `protobuf:"varint,3,opt,name=database"`
+	xxx_hidden_Archive          uint32                 `protobuf:"varint,4,opt,name=archive"`
+	xxx_hidden_Chunks           uint32                 `protobuf:"varint,5,opt,name=chunks"`
+	xxx_hidden_Files            uint32                 `protobuf:"varint,6,opt,name=files"`
+	xxx_hidden_Digest           string                 `protobuf:"bytes,7,opt,name=digest"`
+	xxx_hidden_Checkpoint       uint32                 `protobuf:"varint,8,opt,name=checkpoint"`
+	xxx_hidden_CheckpointDigest string                 `protobuf:"bytes,9,opt,name=checkpoint_digest,json=checkpointDigest"`
+	xxx_hidden_Witnesses        []string               `protobuf:"bytes,10,rep,name=witnesses"`
+	xxx_hidden_Uncovered        bool                   `protobuf:"varint,11,opt,name=uncovered"`
+	xxx_hidden_Retired          *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=retired"`
+	xxx_hidden_KeptUntil        *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=kept_until,json=keptUntil"`
+	xxx_hidden_People           uint32                 `protobuf:"varint,14,opt,name=people"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
+}
+
+func (x *OperatorTrailExported) Reset() {
+	*x = OperatorTrailExported{}
+	mi := &file_loft_operator_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorTrailExported) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorTrailExported) ProtoMessage() {}
+
+func (x *OperatorTrailExported) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorTrailExported) GetTenant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *OperatorTrailExported) GetAlias() string {
+	if x != nil {
+		return x.xxx_hidden_Alias
+	}
+	return ""
+}
+
+func (x *OperatorTrailExported) GetDatabase() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Database
+	}
+	return 0
+}
+
+func (x *OperatorTrailExported) GetArchive() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Archive
+	}
+	return 0
+}
+
+func (x *OperatorTrailExported) GetChunks() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Chunks
+	}
+	return 0
+}
+
+func (x *OperatorTrailExported) GetFiles() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Files
+	}
+	return 0
+}
+
+func (x *OperatorTrailExported) GetDigest() string {
+	if x != nil {
+		return x.xxx_hidden_Digest
+	}
+	return ""
+}
+
+func (x *OperatorTrailExported) GetCheckpoint() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Checkpoint
+	}
+	return 0
+}
+
+func (x *OperatorTrailExported) GetCheckpointDigest() string {
+	if x != nil {
+		return x.xxx_hidden_CheckpointDigest
+	}
+	return ""
+}
+
+func (x *OperatorTrailExported) GetWitnesses() []string {
+	if x != nil {
+		return x.xxx_hidden_Witnesses
+	}
+	return nil
+}
+
+func (x *OperatorTrailExported) GetUncovered() bool {
+	if x != nil {
+		return x.xxx_hidden_Uncovered
+	}
+	return false
+}
+
+func (x *OperatorTrailExported) GetRetired() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Retired
+	}
+	return nil
+}
+
+func (x *OperatorTrailExported) GetKeptUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_KeptUntil
+	}
+	return nil
+}
+
+func (x *OperatorTrailExported) GetPeople() uint32 {
+	if x != nil {
+		return x.xxx_hidden_People
+	}
+	return 0
+}
+
+func (x *OperatorTrailExported) SetTenant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *OperatorTrailExported) SetAlias(v string) {
+	x.xxx_hidden_Alias = v
+}
+
+func (x *OperatorTrailExported) SetDatabase(v uint32) {
+	x.xxx_hidden_Database = v
+}
+
+func (x *OperatorTrailExported) SetArchive(v uint32) {
+	x.xxx_hidden_Archive = v
+}
+
+func (x *OperatorTrailExported) SetChunks(v uint32) {
+	x.xxx_hidden_Chunks = v
+}
+
+func (x *OperatorTrailExported) SetFiles(v uint32) {
+	x.xxx_hidden_Files = v
+}
+
+func (x *OperatorTrailExported) SetDigest(v string) {
+	x.xxx_hidden_Digest = v
+}
+
+func (x *OperatorTrailExported) SetCheckpoint(v uint32) {
+	x.xxx_hidden_Checkpoint = v
+}
+
+func (x *OperatorTrailExported) SetCheckpointDigest(v string) {
+	x.xxx_hidden_CheckpointDigest = v
+}
+
+func (x *OperatorTrailExported) SetWitnesses(v []string) {
+	x.xxx_hidden_Witnesses = v
+}
+
+func (x *OperatorTrailExported) SetUncovered(v bool) {
+	x.xxx_hidden_Uncovered = v
+}
+
+func (x *OperatorTrailExported) SetRetired(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Retired = v
+}
+
+func (x *OperatorTrailExported) SetKeptUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_KeptUntil = v
+}
+
+func (x *OperatorTrailExported) SetPeople(v uint32) {
+	x.xxx_hidden_People = v
+}
+
+func (x *OperatorTrailExported) HasRetired() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Retired != nil
+}
+
+func (x *OperatorTrailExported) HasKeptUntil() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_KeptUntil != nil
+}
+
+func (x *OperatorTrailExported) ClearRetired() {
+	x.xxx_hidden_Retired = nil
+}
+
+func (x *OperatorTrailExported) ClearKeptUntil() {
+	x.xxx_hidden_KeptUntil = nil
+}
+
+type OperatorTrailExported_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Tenant []byte
+	Alias  string
+	// Its rows of the database and of the archive, the archive's chunks, and
+	// the files.
+	Database uint32
+	Archive  uint32
+	Chunks   uint32
+	Files    uint32
+	// The manifest, signed by the deployment.
+	Digest string
+	// The checkpoint it is held to, and who heard it; whether a chunk the
+	// checkpoint does not list is in it.
+	Checkpoint       uint32
+	CheckpointDigest string
+	Witnesses        []string
+	Uncovered        bool
+	// A workspace that retired: when, and until when what it kept is kept.
+	Retired   *timestamppb.Timestamp
+	KeptUntil *timestamppb.Timestamp
+	// How many people the access record says it carries.
+	People uint32
+}
+
+func (b0 OperatorTrailExported_builder) Build() *OperatorTrailExported {
+	m0 := &OperatorTrailExported{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Alias = b.Alias
+	x.xxx_hidden_Database = b.Database
+	x.xxx_hidden_Archive = b.Archive
+	x.xxx_hidden_Chunks = b.Chunks
+	x.xxx_hidden_Files = b.Files
+	x.xxx_hidden_Digest = b.Digest
+	x.xxx_hidden_Checkpoint = b.Checkpoint
+	x.xxx_hidden_CheckpointDigest = b.CheckpointDigest
+	x.xxx_hidden_Witnesses = b.Witnesses
+	x.xxx_hidden_Uncovered = b.Uncovered
+	x.xxx_hidden_Retired = b.Retired
+	x.xxx_hidden_KeptUntil = b.KeptUntil
+	x.xxx_hidden_People = b.People
+	return m0
+}
+
 var File_loft_operator_proto protoreflect.FileDescriptor
 
 const file_loft_operator_proto_rawDesc = "" +
@@ -2451,7 +4536,107 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x18OperatorTrailKeysRequest\"M\n" +
 	"\x19OperatorTrailKeysResponse\x12\x16\n" +
 	"\x06signer\x18\x01 \x01(\fR\x06signer\x12\x18\n" +
-	"\atrusted\x18\x02 \x03(\fR\atrusted2\xbe\x04\n" +
+	"\atrusted\x18\x02 \x03(\fR\atrusted\"0\n" +
+	"\x1aOperatorTrailVerifyRequest\x12\x12\n" +
+	"\x04full\x18\x01 \x01(\bR\x04full\"r\n" +
+	"\x1bOperatorTrailVerifyResponse\x12\x1a\n" +
+	"\bprogress\x18\x01 \x01(\tR\bprogress\x127\n" +
+	"\bverified\x18\x02 \x01(\v2\x1b.loft.OperatorTrailVerifiedR\bverified\"\x8f\x02\n" +
+	"\x15OperatorTrailVerified\x12\x12\n" +
+	"\x04full\x18\x01 \x01(\bR\x04full\x12\x12\n" +
+	"\x04rows\x18\x02 \x01(\rR\x04rows\x12\x14\n" +
+	"\x05blobs\x18\x03 \x01(\rR\x05blobs\x12\x16\n" +
+	"\x06hashed\x18\x04 \x01(\rR\x06hashed\x12\x1e\n" +
+	"\n" +
+	"checkpoint\x18\x05 \x01(\rR\n" +
+	"checkpoint\x12\x16\n" +
+	"\x06digest\x18\x06 \x01(\tR\x06digest\x12\x1a\n" +
+	"\baccepted\x18\a \x03(\tR\baccepted\x12\x14\n" +
+	"\x05heard\x18\b \x03(\tR\x05heard\x126\n" +
+	"\bfindings\x18\t \x03(\v2\x1a.loft.OperatorTrailFindingR\bfindings\">\n" +
+	"\x14OperatorTrailFinding\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x12\n" +
+	"\x04said\x18\x02 \x01(\tR\x04said\"u\n" +
+	"\x1aOperatorTrailAcceptRequest\x12\x0e\n" +
+	"\x02of\x18\x01 \x01(\tR\x02of\x12\x10\n" +
+	"\x03why\x18\x02 \x01(\tR\x03why\x12\x12\n" +
+	"\x04full\x18\x03 \x01(\bR\x04full\x12!\n" +
+	"\brestored\x18\x04 \x01(\x05B\x05\xaa\x01\x02\b\x01R\brestored\"r\n" +
+	"\x1bOperatorTrailAcceptResponse\x12\x1a\n" +
+	"\bprogress\x18\x01 \x01(\tR\bprogress\x127\n" +
+	"\baccepted\x18\x02 \x01(\v2\x1b.loft.OperatorTrailAcceptedR\baccepted\"_\n" +
+	"\x15OperatorTrailAccepted\x12\x0e\n" +
+	"\x02by\x18\x01 \x01(\tR\x02by\x126\n" +
+	"\bfindings\x18\x02 \x03(\v2\x1a.loft.OperatorTrailFindingR\bfindings\"\x1a\n" +
+	"\x18OperatorTrailRowsRequest\"q\n" +
+	"\x19OperatorTrailRowsResponse\x12\x1a\n" +
+	"\bprogress\x18\x01 \x01(\tR\bprogress\x128\n" +
+	"\achecked\x18\x02 \x01(\v2\x1e.loft.OperatorTrailRowsCheckedR\achecked\"\x80\x03\n" +
+	"\x18OperatorTrailRowsChecked\x12\x12\n" +
+	"\x04read\x18\x01 \x01(\rR\x04read\x12\x18\n" +
+	"\amatches\x18\x02 \x01(\rR\amatches\x129\n" +
+	"\bfindings\x18\x03 \x03(\v2\x1d.loft.OperatorTrailRowFindingR\bfindings\x12%\n" +
+	"\x0ebefore_digests\x18\x04 \x01(\rR\rbeforeDigests\x12\x18\n" +
+	"\aretired\x18\x05 \x01(\rR\aretired\x12\x1c\n" +
+	"\tforgotten\x18\x06 \x01(\rR\tforgotten\x12\x1a\n" +
+	"\barchived\x18\a \x01(\rR\barchived\x12\x1a\n" +
+	"\bunsealed\x18\b \x01(\rR\bunsealed\x12\x16\n" +
+	"\x06digest\x18\t \x01(\tR\x06digest\x12\x16\n" +
+	"\x06unheld\x18\n" +
+	" \x03(\tR\x06unheld\x124\n" +
+	"\askipped\x18\v \x03(\v2\x1a.loft.OperatorTrailSkippedR\askipped\"Q\n" +
+	"\x17OperatorTrailRowFinding\x12\x12\n" +
+	"\x04what\x18\x01 \x01(\tR\x04what\x12\x12\n" +
+	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x0e\n" +
+	"\x02id\x18\x03 \x01(\fR\x02id\"<\n" +
+	"\x14OperatorTrailSkipped\x12\x12\n" +
+	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x10\n" +
+	"\x03why\x18\x02 \x01(\tR\x03why\"B\n" +
+	"\x1eOperatorTrailAcceptRowsRequest\x12\x0e\n" +
+	"\x02of\x18\x01 \x01(\tR\x02of\x12\x10\n" +
+	"\x03why\x18\x02 \x01(\tR\x03why\"z\n" +
+	"\x1fOperatorTrailAcceptRowsResponse\x12\x1a\n" +
+	"\bprogress\x18\x01 \x01(\tR\bprogress\x12;\n" +
+	"\baccepted\x18\x02 \x01(\v2\x1f.loft.OperatorTrailRowsAcceptedR\baccepted\"]\n" +
+	"\x19OperatorTrailRowsAccepted\x12\x14\n" +
+	"\x05there\x18\x01 \x01(\rR\x05there\x12\x12\n" +
+	"\x04gone\x18\x02 \x01(\rR\x04gone\x12\x16\n" +
+	"\x06sealed\x18\x03 \x01(\rR\x06sealed\"\x1a\n" +
+	"\x18OperatorTrailOwedRequest\"\x96\x01\n" +
+	"\x19OperatorTrailOwedResponse\x12\x18\n" +
+	"\aobjects\x18\x01 \x01(\rR\aobjects\x122\n" +
+	"\x06oldest\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x06oldest\x12+\n" +
+	"\x04held\x18\x03 \x03(\v2\x17.loft.OperatorTrailHeldR\x04held\"[\n" +
+	"\x11OperatorTrailHeld\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
+	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x18\n" +
+	"\aobjects\x18\x03 \x01(\rR\aobjects\"D\n" +
+	"\x1aOperatorTrailExportRequest\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\tR\x06tenant\x12\x0e\n" +
+	"\x02to\x18\x02 \x03(\tR\x02to\"~\n" +
+	"\x1bOperatorTrailExportResponse\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x04data\x18\x02 \x01(\fR\x04data\x127\n" +
+	"\bexported\x18\x03 \x01(\v2\x1b.loft.OperatorTrailExportedR\bexported\"\xd3\x03\n" +
+	"\x15OperatorTrailExported\x12\x16\n" +
+	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
+	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x1a\n" +
+	"\bdatabase\x18\x03 \x01(\rR\bdatabase\x12\x18\n" +
+	"\aarchive\x18\x04 \x01(\rR\aarchive\x12\x16\n" +
+	"\x06chunks\x18\x05 \x01(\rR\x06chunks\x12\x14\n" +
+	"\x05files\x18\x06 \x01(\rR\x05files\x12\x16\n" +
+	"\x06digest\x18\a \x01(\tR\x06digest\x12\x1e\n" +
+	"\n" +
+	"checkpoint\x18\b \x01(\rR\n" +
+	"checkpoint\x12+\n" +
+	"\x11checkpoint_digest\x18\t \x01(\tR\x10checkpointDigest\x12\x1c\n" +
+	"\twitnesses\x18\n" +
+	" \x03(\tR\twitnesses\x12\x1c\n" +
+	"\tuncovered\x18\v \x01(\bR\tuncovered\x124\n" +
+	"\aretired\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\aretired\x129\n" +
+	"\n" +
+	"kept_until\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tkeptUntil\x12\x16\n" +
+	"\x06people\x18\x0e \x01(\rR\x06people2\xbe\x04\n" +
 	"\x15OperatorTenantService\x12I\n" +
 	"\x04Show\x12\x1f.loft.OperatorTenantShowRequest\x1a .loft.OperatorTenantShowResponse\x12I\n" +
 	"\x04Move\x12\x1f.loft.OperatorTenantMoveRequest\x1a .loft.OperatorTenantMoveResponse\x12?\n" +
@@ -2459,87 +4644,140 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\aRetired\x12\".loft.OperatorTenantRetiredRequest\x1a#.loft.OperatorTenantRetiredResponse\x12S\n" +
 	"\x06Retire\x12\".loft.OperatorTenantDestroyRequest\x1a#.loft.OperatorTenantDestroyResponse0\x01\x12R\n" +
 	"\x05Purge\x12\".loft.OperatorTenantDestroyRequest\x1a#.loft.OperatorTenantDestroyResponse0\x01\x12Q\n" +
-	"\x06Import\x12!.loft.OperatorTenantImportRequest\x1a\".loft.OperatorTenantImportResponse(\x012_\n" +
+	"\x06Import\x12!.loft.OperatorTenantImportRequest\x1a\".loft.OperatorTenantImportResponse(\x012\xc3\x04\n" +
 	"\x14OperatorTrailService\x12G\n" +
-	"\x04Keys\x12\x1e.loft.OperatorTrailKeysRequest\x1a\x1f.loft.OperatorTrailKeysResponseB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x04Keys\x12\x1e.loft.OperatorTrailKeysRequest\x1a\x1f.loft.OperatorTrailKeysResponse\x12O\n" +
+	"\x06Verify\x12 .loft.OperatorTrailVerifyRequest\x1a!.loft.OperatorTrailVerifyResponse0\x01\x12O\n" +
+	"\x06Accept\x12 .loft.OperatorTrailAcceptRequest\x1a!.loft.OperatorTrailAcceptResponse0\x01\x12I\n" +
+	"\x04Rows\x12\x1e.loft.OperatorTrailRowsRequest\x1a\x1f.loft.OperatorTrailRowsResponse0\x01\x12[\n" +
+	"\n" +
+	"AcceptRows\x12$.loft.OperatorTrailAcceptRowsRequest\x1a%.loft.OperatorTrailAcceptRowsResponse0\x01\x12G\n" +
+	"\x04Owed\x12\x1e.loft.OperatorTrailOwedRequest\x1a\x1f.loft.OperatorTrailOwedResponse\x12O\n" +
+	"\x06Export\x12 .loft.OperatorTrailExportRequest\x1a!.loft.OperatorTrailExportResponse0\x01B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_loft_operator_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_loft_operator_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
 var file_loft_operator_proto_goTypes = []any{
-	(*OperatorTenantRef)(nil),              // 0: loft.OperatorTenantRef
-	(*OperatorTenantShowRequest)(nil),      // 1: loft.OperatorTenantShowRequest
-	(*OperatorTenantShowResponse)(nil),     // 2: loft.OperatorTenantShowResponse
-	(*OperatorTenantWindow)(nil),           // 3: loft.OperatorTenantWindow
-	(*OperatorTenantMoveRequest)(nil),      // 4: loft.OperatorTenantMoveRequest
-	(*OperatorTenantMoveResponse)(nil),     // 5: loft.OperatorTenantMoveResponse
-	(*OperatorTenantNameOwnerRequest)(nil), // 6: loft.OperatorTenantNameOwnerRequest
-	(*OperatorTenantRetiredRequest)(nil),   // 7: loft.OperatorTenantRetiredRequest
-	(*OperatorTenantRetiredResponse)(nil),  // 8: loft.OperatorTenantRetiredResponse
-	(*OperatorTenantRetirement)(nil),       // 9: loft.OperatorTenantRetirement
-	(*OperatorTenantDestroyRequest)(nil),   // 10: loft.OperatorTenantDestroyRequest
-	(*OperatorTenantDestroyResponse)(nil),  // 11: loft.OperatorTenantDestroyResponse
-	(*OperatorTenantDestroyed)(nil),        // 12: loft.OperatorTenantDestroyed
-	(*OperatorTenantImportRequest)(nil),    // 13: loft.OperatorTenantImportRequest
-	(*OperatorTenantImportOptions)(nil),    // 14: loft.OperatorTenantImportOptions
-	(*OperatorTenantImportResponse)(nil),   // 15: loft.OperatorTenantImportResponse
-	(*OperatorTrailKeysRequest)(nil),       // 16: loft.OperatorTrailKeysRequest
-	(*OperatorTrailKeysResponse)(nil),      // 17: loft.OperatorTrailKeysResponse
-	nil,                                    // 18: loft.OperatorTenantDestroyed.RowsEntry
-	nil,                                    // 19: loft.OperatorTenantDestroyed.KeptEntry
-	nil,                                    // 20: loft.OperatorTenantImportResponse.RowsEntry
-	nil,                                    // 21: loft.OperatorTenantImportResponse.LeftEntry
-	nil,                                    // 22: loft.OperatorTenantImportResponse.LeftWhyEntry
-	(*Tenant)(nil),                         // 23: loft.Tenant
-	(*Holder)(nil),                         // 24: loft.Holder
-	(*TenantContract)(nil),                 // 25: loft.TenantContract
-	(*LegalHold)(nil),                      // 26: loft.LegalHold
-	(*timestamppb.Timestamp)(nil),          // 27: google.protobuf.Timestamp
+	(*OperatorTenantRef)(nil),               // 0: loft.OperatorTenantRef
+	(*OperatorTenantShowRequest)(nil),       // 1: loft.OperatorTenantShowRequest
+	(*OperatorTenantShowResponse)(nil),      // 2: loft.OperatorTenantShowResponse
+	(*OperatorTenantWindow)(nil),            // 3: loft.OperatorTenantWindow
+	(*OperatorTenantMoveRequest)(nil),       // 4: loft.OperatorTenantMoveRequest
+	(*OperatorTenantMoveResponse)(nil),      // 5: loft.OperatorTenantMoveResponse
+	(*OperatorTenantNameOwnerRequest)(nil),  // 6: loft.OperatorTenantNameOwnerRequest
+	(*OperatorTenantRetiredRequest)(nil),    // 7: loft.OperatorTenantRetiredRequest
+	(*OperatorTenantRetiredResponse)(nil),   // 8: loft.OperatorTenantRetiredResponse
+	(*OperatorTenantRetirement)(nil),        // 9: loft.OperatorTenantRetirement
+	(*OperatorTenantDestroyRequest)(nil),    // 10: loft.OperatorTenantDestroyRequest
+	(*OperatorTenantDestroyResponse)(nil),   // 11: loft.OperatorTenantDestroyResponse
+	(*OperatorTenantDestroyed)(nil),         // 12: loft.OperatorTenantDestroyed
+	(*OperatorTenantImportRequest)(nil),     // 13: loft.OperatorTenantImportRequest
+	(*OperatorTenantImportOptions)(nil),     // 14: loft.OperatorTenantImportOptions
+	(*OperatorTenantImportResponse)(nil),    // 15: loft.OperatorTenantImportResponse
+	(*OperatorTrailKeysRequest)(nil),        // 16: loft.OperatorTrailKeysRequest
+	(*OperatorTrailKeysResponse)(nil),       // 17: loft.OperatorTrailKeysResponse
+	(*OperatorTrailVerifyRequest)(nil),      // 18: loft.OperatorTrailVerifyRequest
+	(*OperatorTrailVerifyResponse)(nil),     // 19: loft.OperatorTrailVerifyResponse
+	(*OperatorTrailVerified)(nil),           // 20: loft.OperatorTrailVerified
+	(*OperatorTrailFinding)(nil),            // 21: loft.OperatorTrailFinding
+	(*OperatorTrailAcceptRequest)(nil),      // 22: loft.OperatorTrailAcceptRequest
+	(*OperatorTrailAcceptResponse)(nil),     // 23: loft.OperatorTrailAcceptResponse
+	(*OperatorTrailAccepted)(nil),           // 24: loft.OperatorTrailAccepted
+	(*OperatorTrailRowsRequest)(nil),        // 25: loft.OperatorTrailRowsRequest
+	(*OperatorTrailRowsResponse)(nil),       // 26: loft.OperatorTrailRowsResponse
+	(*OperatorTrailRowsChecked)(nil),        // 27: loft.OperatorTrailRowsChecked
+	(*OperatorTrailRowFinding)(nil),         // 28: loft.OperatorTrailRowFinding
+	(*OperatorTrailSkipped)(nil),            // 29: loft.OperatorTrailSkipped
+	(*OperatorTrailAcceptRowsRequest)(nil),  // 30: loft.OperatorTrailAcceptRowsRequest
+	(*OperatorTrailAcceptRowsResponse)(nil), // 31: loft.OperatorTrailAcceptRowsResponse
+	(*OperatorTrailRowsAccepted)(nil),       // 32: loft.OperatorTrailRowsAccepted
+	(*OperatorTrailOwedRequest)(nil),        // 33: loft.OperatorTrailOwedRequest
+	(*OperatorTrailOwedResponse)(nil),       // 34: loft.OperatorTrailOwedResponse
+	(*OperatorTrailHeld)(nil),               // 35: loft.OperatorTrailHeld
+	(*OperatorTrailExportRequest)(nil),      // 36: loft.OperatorTrailExportRequest
+	(*OperatorTrailExportResponse)(nil),     // 37: loft.OperatorTrailExportResponse
+	(*OperatorTrailExported)(nil),           // 38: loft.OperatorTrailExported
+	nil,                                     // 39: loft.OperatorTenantDestroyed.RowsEntry
+	nil,                                     // 40: loft.OperatorTenantDestroyed.KeptEntry
+	nil,                                     // 41: loft.OperatorTenantImportResponse.RowsEntry
+	nil,                                     // 42: loft.OperatorTenantImportResponse.LeftEntry
+	nil,                                     // 43: loft.OperatorTenantImportResponse.LeftWhyEntry
+	(*Tenant)(nil),                          // 44: loft.Tenant
+	(*Holder)(nil),                          // 45: loft.Holder
+	(*TenantContract)(nil),                  // 46: loft.TenantContract
+	(*LegalHold)(nil),                       // 47: loft.LegalHold
+	(*timestamppb.Timestamp)(nil),           // 48: google.protobuf.Timestamp
 }
 var file_loft_operator_proto_depIdxs = []int32{
 	0,  // 0: loft.OperatorTenantShowRequest.ref:type_name -> loft.OperatorTenantRef
-	23, // 1: loft.OperatorTenantShowResponse.tenant:type_name -> loft.Tenant
-	24, // 2: loft.OperatorTenantShowResponse.members:type_name -> loft.Holder
-	25, // 3: loft.OperatorTenantShowResponse.contracts:type_name -> loft.TenantContract
-	26, // 4: loft.OperatorTenantShowResponse.holds:type_name -> loft.LegalHold
+	44, // 1: loft.OperatorTenantShowResponse.tenant:type_name -> loft.Tenant
+	45, // 2: loft.OperatorTenantShowResponse.members:type_name -> loft.Holder
+	46, // 3: loft.OperatorTenantShowResponse.contracts:type_name -> loft.TenantContract
+	47, // 4: loft.OperatorTenantShowResponse.holds:type_name -> loft.LegalHold
 	3,  // 5: loft.OperatorTenantShowResponse.window:type_name -> loft.OperatorTenantWindow
-	27, // 6: loft.OperatorTenantWindow.keep_until:type_name -> google.protobuf.Timestamp
-	27, // 7: loft.OperatorTenantWindow.access_until:type_name -> google.protobuf.Timestamp
+	48, // 6: loft.OperatorTenantWindow.keep_until:type_name -> google.protobuf.Timestamp
+	48, // 7: loft.OperatorTenantWindow.access_until:type_name -> google.protobuf.Timestamp
 	0,  // 8: loft.OperatorTenantMoveRequest.ref:type_name -> loft.OperatorTenantRef
-	23, // 9: loft.OperatorTenantMoveResponse.tenant:type_name -> loft.Tenant
-	27, // 10: loft.OperatorTenantMoveResponse.held_until:type_name -> google.protobuf.Timestamp
+	44, // 9: loft.OperatorTenantMoveResponse.tenant:type_name -> loft.Tenant
+	48, // 10: loft.OperatorTenantMoveResponse.held_until:type_name -> google.protobuf.Timestamp
 	0,  // 11: loft.OperatorTenantNameOwnerRequest.ref:type_name -> loft.OperatorTenantRef
 	9,  // 12: loft.OperatorTenantRetiredResponse.items:type_name -> loft.OperatorTenantRetirement
-	27, // 13: loft.OperatorTenantRetirement.retired:type_name -> google.protobuf.Timestamp
-	27, // 14: loft.OperatorTenantRetirement.until:type_name -> google.protobuf.Timestamp
+	48, // 13: loft.OperatorTenantRetirement.retired:type_name -> google.protobuf.Timestamp
+	48, // 14: loft.OperatorTenantRetirement.until:type_name -> google.protobuf.Timestamp
 	0,  // 15: loft.OperatorTenantDestroyRequest.ref:type_name -> loft.OperatorTenantRef
 	12, // 16: loft.OperatorTenantDestroyResponse.destroyed:type_name -> loft.OperatorTenantDestroyed
-	18, // 17: loft.OperatorTenantDestroyed.rows:type_name -> loft.OperatorTenantDestroyed.RowsEntry
-	19, // 18: loft.OperatorTenantDestroyed.kept:type_name -> loft.OperatorTenantDestroyed.KeptEntry
-	27, // 19: loft.OperatorTenantDestroyed.kept_until:type_name -> google.protobuf.Timestamp
+	39, // 17: loft.OperatorTenantDestroyed.rows:type_name -> loft.OperatorTenantDestroyed.RowsEntry
+	40, // 18: loft.OperatorTenantDestroyed.kept:type_name -> loft.OperatorTenantDestroyed.KeptEntry
+	48, // 19: loft.OperatorTenantDestroyed.kept_until:type_name -> google.protobuf.Timestamp
 	14, // 20: loft.OperatorTenantImportRequest.options:type_name -> loft.OperatorTenantImportOptions
-	20, // 21: loft.OperatorTenantImportResponse.rows:type_name -> loft.OperatorTenantImportResponse.RowsEntry
-	21, // 22: loft.OperatorTenantImportResponse.left:type_name -> loft.OperatorTenantImportResponse.LeftEntry
-	22, // 23: loft.OperatorTenantImportResponse.left_why:type_name -> loft.OperatorTenantImportResponse.LeftWhyEntry
-	1,  // 24: loft.OperatorTenantService.Show:input_type -> loft.OperatorTenantShowRequest
-	4,  // 25: loft.OperatorTenantService.Move:input_type -> loft.OperatorTenantMoveRequest
-	6,  // 26: loft.OperatorTenantService.NameOwner:input_type -> loft.OperatorTenantNameOwnerRequest
-	7,  // 27: loft.OperatorTenantService.Retired:input_type -> loft.OperatorTenantRetiredRequest
-	10, // 28: loft.OperatorTenantService.Retire:input_type -> loft.OperatorTenantDestroyRequest
-	10, // 29: loft.OperatorTenantService.Purge:input_type -> loft.OperatorTenantDestroyRequest
-	13, // 30: loft.OperatorTenantService.Import:input_type -> loft.OperatorTenantImportRequest
-	16, // 31: loft.OperatorTrailService.Keys:input_type -> loft.OperatorTrailKeysRequest
-	2,  // 32: loft.OperatorTenantService.Show:output_type -> loft.OperatorTenantShowResponse
-	5,  // 33: loft.OperatorTenantService.Move:output_type -> loft.OperatorTenantMoveResponse
-	24, // 34: loft.OperatorTenantService.NameOwner:output_type -> loft.Holder
-	8,  // 35: loft.OperatorTenantService.Retired:output_type -> loft.OperatorTenantRetiredResponse
-	11, // 36: loft.OperatorTenantService.Retire:output_type -> loft.OperatorTenantDestroyResponse
-	11, // 37: loft.OperatorTenantService.Purge:output_type -> loft.OperatorTenantDestroyResponse
-	15, // 38: loft.OperatorTenantService.Import:output_type -> loft.OperatorTenantImportResponse
-	17, // 39: loft.OperatorTrailService.Keys:output_type -> loft.OperatorTrailKeysResponse
-	32, // [32:40] is the sub-list for method output_type
-	24, // [24:32] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	41, // 21: loft.OperatorTenantImportResponse.rows:type_name -> loft.OperatorTenantImportResponse.RowsEntry
+	42, // 22: loft.OperatorTenantImportResponse.left:type_name -> loft.OperatorTenantImportResponse.LeftEntry
+	43, // 23: loft.OperatorTenantImportResponse.left_why:type_name -> loft.OperatorTenantImportResponse.LeftWhyEntry
+	20, // 24: loft.OperatorTrailVerifyResponse.verified:type_name -> loft.OperatorTrailVerified
+	21, // 25: loft.OperatorTrailVerified.findings:type_name -> loft.OperatorTrailFinding
+	24, // 26: loft.OperatorTrailAcceptResponse.accepted:type_name -> loft.OperatorTrailAccepted
+	21, // 27: loft.OperatorTrailAccepted.findings:type_name -> loft.OperatorTrailFinding
+	27, // 28: loft.OperatorTrailRowsResponse.checked:type_name -> loft.OperatorTrailRowsChecked
+	28, // 29: loft.OperatorTrailRowsChecked.findings:type_name -> loft.OperatorTrailRowFinding
+	29, // 30: loft.OperatorTrailRowsChecked.skipped:type_name -> loft.OperatorTrailSkipped
+	32, // 31: loft.OperatorTrailAcceptRowsResponse.accepted:type_name -> loft.OperatorTrailRowsAccepted
+	48, // 32: loft.OperatorTrailOwedResponse.oldest:type_name -> google.protobuf.Timestamp
+	35, // 33: loft.OperatorTrailOwedResponse.held:type_name -> loft.OperatorTrailHeld
+	38, // 34: loft.OperatorTrailExportResponse.exported:type_name -> loft.OperatorTrailExported
+	48, // 35: loft.OperatorTrailExported.retired:type_name -> google.protobuf.Timestamp
+	48, // 36: loft.OperatorTrailExported.kept_until:type_name -> google.protobuf.Timestamp
+	1,  // 37: loft.OperatorTenantService.Show:input_type -> loft.OperatorTenantShowRequest
+	4,  // 38: loft.OperatorTenantService.Move:input_type -> loft.OperatorTenantMoveRequest
+	6,  // 39: loft.OperatorTenantService.NameOwner:input_type -> loft.OperatorTenantNameOwnerRequest
+	7,  // 40: loft.OperatorTenantService.Retired:input_type -> loft.OperatorTenantRetiredRequest
+	10, // 41: loft.OperatorTenantService.Retire:input_type -> loft.OperatorTenantDestroyRequest
+	10, // 42: loft.OperatorTenantService.Purge:input_type -> loft.OperatorTenantDestroyRequest
+	13, // 43: loft.OperatorTenantService.Import:input_type -> loft.OperatorTenantImportRequest
+	16, // 44: loft.OperatorTrailService.Keys:input_type -> loft.OperatorTrailKeysRequest
+	18, // 45: loft.OperatorTrailService.Verify:input_type -> loft.OperatorTrailVerifyRequest
+	22, // 46: loft.OperatorTrailService.Accept:input_type -> loft.OperatorTrailAcceptRequest
+	25, // 47: loft.OperatorTrailService.Rows:input_type -> loft.OperatorTrailRowsRequest
+	30, // 48: loft.OperatorTrailService.AcceptRows:input_type -> loft.OperatorTrailAcceptRowsRequest
+	33, // 49: loft.OperatorTrailService.Owed:input_type -> loft.OperatorTrailOwedRequest
+	36, // 50: loft.OperatorTrailService.Export:input_type -> loft.OperatorTrailExportRequest
+	2,  // 51: loft.OperatorTenantService.Show:output_type -> loft.OperatorTenantShowResponse
+	5,  // 52: loft.OperatorTenantService.Move:output_type -> loft.OperatorTenantMoveResponse
+	45, // 53: loft.OperatorTenantService.NameOwner:output_type -> loft.Holder
+	8,  // 54: loft.OperatorTenantService.Retired:output_type -> loft.OperatorTenantRetiredResponse
+	11, // 55: loft.OperatorTenantService.Retire:output_type -> loft.OperatorTenantDestroyResponse
+	11, // 56: loft.OperatorTenantService.Purge:output_type -> loft.OperatorTenantDestroyResponse
+	15, // 57: loft.OperatorTenantService.Import:output_type -> loft.OperatorTenantImportResponse
+	17, // 58: loft.OperatorTrailService.Keys:output_type -> loft.OperatorTrailKeysResponse
+	19, // 59: loft.OperatorTrailService.Verify:output_type -> loft.OperatorTrailVerifyResponse
+	23, // 60: loft.OperatorTrailService.Accept:output_type -> loft.OperatorTrailAcceptResponse
+	26, // 61: loft.OperatorTrailService.Rows:output_type -> loft.OperatorTrailRowsResponse
+	31, // 62: loft.OperatorTrailService.AcceptRows:output_type -> loft.OperatorTrailAcceptRowsResponse
+	34, // 63: loft.OperatorTrailService.Owed:output_type -> loft.OperatorTrailOwedResponse
+	37, // 64: loft.OperatorTrailService.Export:output_type -> loft.OperatorTrailExportResponse
+	51, // [51:65] is the sub-list for method output_type
+	37, // [37:51] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_loft_operator_proto_init() }
@@ -2564,7 +4802,7 @@ func file_loft_operator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_operator_proto_rawDesc), len(file_loft_operator_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   23,
+			NumMessages:   44,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
