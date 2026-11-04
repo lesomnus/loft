@@ -129,7 +129,7 @@ export const NotificationSchema: GenMessage<Notification> = /*@__PURE__*/
  * say (`Tenant.keep_days` and beside it, D36).
  *
  * The operator's, and the tenant's to read: no role may write one, and the
- * operator's entry point does (`loft-admin contract`, D74). Not a field
+ * operator's entry point does (`loft tenant-contract add`, D74). Not a field
  * on Tenant, because a tenant's own people write that row, and because a
  * contract has a time dimension -- an agreement signed for the first of next
  * month -- which a row per change states and a field cannot.

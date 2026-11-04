@@ -262,7 +262,7 @@ func TestAnOperatorsHandIsNotRestricted(t *testing.T) {
 	_, err = w.s.Ungated.Asset().Add(as, app.AssetAddRequest_builder{Name: "키보드"}.Build())
 	x.NoError(err)
 	h := w.holder("han", "member")
-	x.NotNil(h, "a membership an operator adds (`loft-admin holder add`)")
+	x.NotNil(h, "a membership an operator adds (`loft holder add`)")
 }
 
 // TestADeploymentThatBillsNobodyReadsNoCopy: with `app.billing.levyan` unset

@@ -1,7 +1,8 @@
-// Command loft-admin is the operator's entry point and its tool (design 6장,
-// decision 17): `loft-admin serve` beside a deployment, on a listener only the
-// operators' network reaches, and every other command asking it from wherever
-// the operator is. `loft`, the binary the public reaches, links none of it.
+// Command loft-admin is the operator's entry point (design 6장, decision 17,
+// D74): `loft-admin serve` beside a deployment, on a listener only the
+// operators' network reaches. What an operator asks of it is `loft`'s, on an
+// operator's connection, from wherever the operator is (design 9.16, D75).
+// `loft`, the binary the public reaches, links none of the entry point.
 package main
 
 import (

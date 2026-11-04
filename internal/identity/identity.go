@@ -219,7 +219,7 @@ var (
 	// `standing`'s, which [Store.Held] answers.
 	ErrUnreachable = standing.ErrUnreachable
 	// ErrNoDirectory is a directory that is not there yet: on the roster in
-	// this process, before `loft init` or `loft-admin identity migrate` made it.
+	// this process, before `loft init` or `loft identity migrate` made it.
 	ErrNoDirectory = errors.New("there is no directory of accounts yet: `loft init` makes it")
 )
 

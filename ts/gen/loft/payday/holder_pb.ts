@@ -122,7 +122,7 @@ export type Holder = Message<"loft.Holder"> & {
    * deployment's directory (design 9.10, D27). An account belongs to many
    * workspaces with one holder in each, every one its own row with its own
    * identifier, and what a session names is the account. Null on a holder made
-   * before accounts were, which nobody signs in as until `loft-admin identity
+   * before accounts were, which nobody signs in as until `loft identity
    * migrate` fills it.
    *
    * It is what a call is resolved by (`(payday.app).accounts`, payday#184),

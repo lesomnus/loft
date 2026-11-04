@@ -11,7 +11,7 @@
 // (`app.search.opensearch.addrs`) searches its database (`internal/search`).
 //
 // What the index holds is a copy. The database is what is true, every
-// document can be made again from it (`loft-admin search reindex`), and the index
+// document can be made again from it (`loft search reindex`), and the index
 // is never asked whether a caller may see a row: a search answers
 // identifiers, and the rows are read through the wall like any other.
 package opensearch

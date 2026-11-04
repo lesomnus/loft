@@ -9,7 +9,7 @@
 //     over, and held by nothing, is destroyed -- every row and file of it,
 //     and its trail as its contract says: retired, keeping what the
 //     deployment's floors are on until they pass, or purged -- and its
-//     address is held. `loft-admin tenant retire` and `purge` are the same
+//     address is held. `loft tenant retire` and `purge` are the same
 //     destruction by an operator's hand ([Closing.Destroy]);
 //   - [Closing.Rename]: an operator moving a workspace to another address,
 //     which holds the old one and sends whoever arrives at it on.
@@ -119,7 +119,7 @@ func (c Closing) Sweep(ctx context.Context) error {
 			}
 			if errors.Is(err, offboard.ErrNoArchive) {
 				log.From(ctx).WarnContext(ctx, "closing: a closed workspace waits: its contract retires it, keeping what the deployment's floors are on, "+
-					"and audit.archive names no archive to keep it in -- name one, or purge it (`loft-admin tenant purge`)", "workspace", t.Alias)
+					"and audit.archive names no archive to keep it in -- name one, or purge it (`loft tenant purge`, on an operator's connection)", "workspace", t.Alias)
 				continue
 			}
 			errs = append(errs, fmt.Errorf("@%s: %w", t.Alias, err))

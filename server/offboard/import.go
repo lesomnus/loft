@@ -43,7 +43,7 @@ type ImportOptions struct {
 	Alias string
 
 	// Reuse takes the address though another workspace's hold is on it, as
-	// `loft-admin tenant alias --reuse` does. A hold put on it when this workspace
+	// `loft tenant move --reuse` does. A hold put on it when this workspace
 	// left is taken back without being asked: it was held for this one.
 	Reuse bool
 
@@ -93,7 +93,7 @@ type Restored struct {
 	// Unlinked is the members, by alias, whose accounts this deployment's
 	// roster does not have: an export from another deployment, or from this
 	// one after its roster forgot them. They are restored naming no account,
-	// which is what `loft-admin identity migrate` gives one to.
+	// which is what `loft identity migrate` gives one to.
 	Unlinked []string
 
 	// Manifest and Key are the export's [Fingerprints], which the restore's
@@ -565,7 +565,7 @@ func formerly(table string) []string {
 var adjusts = map[string]func(ctx context.Context, d Deployment, v protoreflect.Message, out *Restored) error{
 	// A member whose account is not this roster's names none: an account by
 	// an identifier this directory does not have is nobody here, and the
-	// member is somebody to give one to (`loft-admin identity migrate`).
+	// member is somebody to give one to (`loft identity migrate`).
 	"holder": func(ctx context.Context, d Deployment, v protoreflect.Message, out *Restored) error {
 		h := v.Interface().(*app.Holder)
 		if len(h.GetAccount()) == 0 || d.Known == nil {

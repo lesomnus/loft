@@ -179,7 +179,7 @@ func (s domainTenant) Create(ctx context.Context, req *app.TenantCreateRequest) 
 const exportPart = 512 << 10
 
 // Export is everything the workspace has, as one zip, for its owner to take
-// out (D29, D34): what `loft-admin tenant export` writes, written whole before its
+// out (D29, D34): what `loft tenant export` writes, written whole before its
 // first part goes, so that the moment it is read in is held while the
 // database is read and not while somebody takes their time over the download,
 // and one that fails is an answer that says so rather than a zip that stops
