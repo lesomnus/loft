@@ -2,7 +2,7 @@
 # metrics (WAL archiving, backups, and Loft's own queries, cnpg-monitoring.yaml),
 # cert-manager's certificates, and the cluster's objects (restarts, jobs,
 # pods). It sends them on over OTLP -- to the collector on its node, at
-# HOST_IP, by default -- and so to the same ClickHouse as Loft's own.
+# HOST_IP, by default (./node) -- and so to the same ClickHouse as Loft's own.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -123,7 +123,7 @@ spec:
         seccompProfile: { type: RuntimeDefault }
       containers:
         - name: otelcol
-          image: docker.io/otel/opentelemetry-collector-contrib:0.162.0@sha256:39923a8e431bd1f57be82411999d389fcfe40857492e4365456d97a4c1f74be6
+          image: docker.io/otel/opentelemetry-collector-contrib:0.164.0@sha256:340c9ca6a36617084c6661bdc4f0fe92b7cda5a805d61673ec8db375fddc522b
           args: ["--config", "/etc/otelcol/config.yaml"]
           env:
             - name: HOST_IP

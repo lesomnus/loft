@@ -1,0 +1,19 @@
+# ClickHouse for the dashboards to read, in the cluster (optional): what a
+# deployment without one of its own adds beside ../ -- in the same overlay,
+# the same namespace -- with the node collectors (../node) to write it.
+# README.md says what an overlay brings.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# No namespace: the overlay's, Grafana's.
+resources:
+  - ./clickhouse.yaml
+
+# A changed file is a new pod.
+configMapGenerator:
+  - name: clickhouse-config
+    files:
+      - config.xml
+  - name: clickhouse-users
+    files:
+      - users.xml

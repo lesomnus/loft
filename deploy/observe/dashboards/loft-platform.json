@@ -33,29 +33,6 @@
           }
         ],
         "hide": 2
-      },
-      {
-        "name": "suffix",
-        "label": "테이블 접미사",
-        "type": "custom",
-        "query": "_dist,none",
-        "current": {
-          "text": "_dist",
-          "value": "_dist"
-        },
-        "options": [
-          {
-            "text": "_dist",
-            "value": "_dist",
-            "selected": true
-          },
-          {
-            "text": "none",
-            "value": "",
-            "selected": false
-          }
-        ],
-        "description": "ClickHouse 노드 여럿이면 분산 테이블(_dist), 하나면 접미사 없음"
       }
     ]
   },
@@ -91,7 +68,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT toUnixTimestamp(now()) - argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'barman_cloud_cloudnative_pg_io_last_available_backup_timestamp'"
+          "rawSql": "SELECT toUnixTimestamp(now()) - argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'barman_cloud_cloudnative_pg_io_last_available_backup_timestamp'"
         }
       ],
       "fieldConfig": {
@@ -156,7 +133,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_archiver_seconds_since_last_archival'"
+          "rawSql": "SELECT argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_archiver_seconds_since_last_archival'"
         }
       ],
       "fieldConfig": {
@@ -213,7 +190,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_sum${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_archiver_failed_count'"
+          "rawSql": "SELECT argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_sum WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_archiver_failed_count'"
         }
       ],
       "fieldConfig": {
@@ -278,7 +255,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT argMax(Value, TimeUnix) * 1000 AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'barman_cloud_cloudnative_pg_io_first_recoverability_point'"
+          "rawSql": "SELECT argMax(Value, TimeUnix) * 1000 AS value FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'barman_cloud_cloudnative_pg_io_first_recoverability_point'"
         }
       ],
       "fieldConfig": {
@@ -335,7 +312,7 @@
           "editorType": "sql",
           "format": 0,
           "queryType": "timeseries",
-          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, Attributes['cluster'] AS series, max(Value) AS value FROM ${db}.otel_metrics_sum${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_archiver_archived_count' GROUP BY time, series ORDER BY time"
+          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, Attributes['cluster'] AS series, max(Value) AS value FROM ${db}.otel_metrics_sum WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_archiver_archived_count' GROUP BY time, series ORDER BY time"
         }
       ],
       "fieldConfig": {
@@ -392,7 +369,7 @@
           "editorType": "sql",
           "format": 0,
           "queryType": "timeseries",
-          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, Attributes['datname'] AS series, argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_database_size_bytes' AND Attributes['datname'] NOT IN ('template0', 'template1', 'postgres') GROUP BY time, series ORDER BY time"
+          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, Attributes['datname'] AS series, argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_database_size_bytes' AND Attributes['datname'] NOT IN ('template0', 'template1', 'postgres') GROUP BY time, series ORDER BY time"
         }
       ],
       "fieldConfig": {
@@ -462,7 +439,7 @@
           "editorType": "sql",
           "format": 0,
           "queryType": "timeseries",
-          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, concat(Attributes['datname'], ' ', if(Attributes['application_name'] = '', '-', Attributes['application_name']), ' ', Attributes['state']) AS series, sum(Value) AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_backends_total' GROUP BY time, series ORDER BY time"
+          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, concat(Attributes['datname'], ' ', if(Attributes['application_name'] = '', '-', Attributes['application_name']), ' ', Attributes['state']) AS series, sum(Value) AS value FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_backends_total' GROUP BY time, series ORDER BY time"
         }
       ],
       "fieldConfig": {
@@ -519,7 +496,7 @@
           "editorType": "sql",
           "format": 0,
           "queryType": "timeseries",
-          "rawSql": "SELECT time, db, greatest(value - lagInFrame(value) OVER (PARTITION BY db ORDER BY time), 0) / $__interval_s AS commits FROM (SELECT $__timeInterval(TimeUnix) AS time, Attributes['datname'] AS db, max(Value) AS value FROM ${db}.otel_metrics_sum${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_database_xact_commit' AND Attributes['datname'] IN ('loft', 'roster') GROUP BY time, db) ORDER BY time"
+          "rawSql": "SELECT time, db, greatest(value - lagInFrame(value) OVER (PARTITION BY db ORDER BY time), 0) / $__interval_s AS commits FROM (SELECT $__timeInterval(TimeUnix) AS time, Attributes['datname'] AS db, max(Value) AS value FROM ${db}.otel_metrics_sum WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_database_xact_commit' AND Attributes['datname'] IN ('loft', 'roster') GROUP BY time, db) ORDER BY time"
         }
       ],
       "fieldConfig": {
@@ -589,7 +566,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT Attributes['namespace'] AS namespace, Attributes['name'] AS certificate, Attributes['issuer_name'] AS issuer, (argMax(Value, TimeUnix) - toUnixTimestamp(now())) / 86400 AS days_left FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'certmanager_certificate_expiration_timestamp_seconds' GROUP BY namespace, certificate, issuer ORDER BY days_left"
+          "rawSql": "SELECT Attributes['namespace'] AS namespace, Attributes['name'] AS certificate, Attributes['issuer_name'] AS issuer, (argMax(Value, TimeUnix) - toUnixTimestamp(now())) / 86400 AS days_left FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'certmanager_certificate_expiration_timestamp_seconds' GROUP BY namespace, certificate, issuer ORDER BY days_left"
         }
       ],
       "fieldConfig": {
@@ -647,7 +624,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT ns, pod, container, max(v) - min(v) AS restarts_in_range, max(v) AS restarts FROM (SELECT ResourceAttributes['k8s.namespace.name'] AS ns, ResourceAttributes['k8s.pod.name'] AS pod, ResourceAttributes['k8s.container.name'] AS container, Value AS v FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'k8s.container.restarts') GROUP BY ns, pod, container HAVING restarts > 0 ORDER BY restarts_in_range DESC, restarts DESC"
+          "rawSql": "SELECT ns, pod, container, max(v) - min(v) AS restarts_in_range, max(v) AS restarts FROM (SELECT ResourceAttributes['k8s.namespace.name'] AS ns, ResourceAttributes['k8s.pod.name'] AS pod, ResourceAttributes['k8s.container.name'] AS container, Value AS v FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'k8s.container.restarts') GROUP BY ns, pod, container HAVING restarts > 0 ORDER BY restarts_in_range DESC, restarts DESC"
         }
       ],
       "fieldConfig": {
@@ -688,7 +665,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT ns, pod, multiIf(phase = 1, 'Pending', phase = 4, 'Failed', phase = 5, 'Unknown', toString(phase)) AS phase FROM (SELECT ResourceAttributes['k8s.namespace.name'] AS ns, ResourceAttributes['k8s.pod.name'] AS pod, argMax(Value, TimeUnix) AS phase FROM ${db}.otel_metrics_gauge${suffix} WHERE TimeUnix > now() - INTERVAL 5 MINUTE AND MetricName = 'k8s.pod.phase' GROUP BY ns, pod) WHERE phase NOT IN (2, 3) ORDER BY ns, pod"
+          "rawSql": "SELECT ns, pod, multiIf(phase = 1, 'Pending', phase = 4, 'Failed', phase = 5, 'Unknown', toString(phase)) AS phase FROM (SELECT ResourceAttributes['k8s.namespace.name'] AS ns, ResourceAttributes['k8s.pod.name'] AS pod, argMax(Value, TimeUnix) AS phase FROM ${db}.otel_metrics_gauge WHERE TimeUnix > now() - INTERVAL 5 MINUTE AND MetricName = 'k8s.pod.phase' GROUP BY ns, pod) WHERE phase NOT IN (2, 3) ORDER BY ns, pod"
         }
       ],
       "fieldConfig": {
@@ -729,7 +706,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT ResourceAttributes['k8s.namespace.name'] AS ns, ResourceAttributes['k8s.job.name'] AS job, argMax(Value, TimeUnix) AS failed_pods FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'k8s.job.failed' GROUP BY ns, job HAVING failed_pods > 0 ORDER BY ns, job"
+          "rawSql": "SELECT ResourceAttributes['k8s.namespace.name'] AS ns, ResourceAttributes['k8s.job.name'] AS job, argMax(Value, TimeUnix) AS failed_pods FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'k8s.job.failed' GROUP BY ns, job HAVING failed_pods > 0 ORDER BY ns, job"
         }
       ],
       "fieldConfig": {
@@ -768,7 +745,7 @@
     {
       "type": "timeseries",
       "title": "디스크 사용률",
-      "description": "노드 수집기(hostmetrics)의 파일 시스템 사용률. local-path 볼륨은 노드 디스크에 있습니다",
+      "description": "노드 수집기(host_metrics)의 파일 시스템 사용률. local-path 볼륨은 노드 디스크에 있습니다",
       "datasource": {
         "type": "grafana-clickhouse-datasource",
         "uid": "clickhouse"
@@ -783,7 +760,7 @@
           "editorType": "sql",
           "format": 0,
           "queryType": "timeseries",
-          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, concat(getMacro('nickname'), ' ', Attributes['mountpoint']) AS series, max(Value) AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'system.filesystem.utilization' GROUP BY time, series ORDER BY time"
+          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, concat(ResourceAttributes['host.name'], ' ', Attributes['mountpoint']) AS series, max(Value) AS value FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'system.filesystem.utilization' GROUP BY time, series ORDER BY time"
         }
       ],
       "fieldConfig": {
@@ -840,7 +817,7 @@
           "editorType": "sql",
           "format": 0,
           "queryType": "timeseries",
-          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, getMacro('nickname') AS series, avgIf(Value, Attributes['state'] = 'used') AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'system.memory.utilization' GROUP BY time, series ORDER BY time"
+          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, ResourceAttributes['host.name'] AS series, avgIf(Value, Attributes['state'] = 'used') AS value FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'system.memory.utilization' GROUP BY time, series ORDER BY time"
         }
       ],
       "fieldConfig": {
@@ -897,7 +874,7 @@
           "editorType": "sql",
           "format": 0,
           "queryType": "timeseries",
-          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, getMacro('nickname') AS series, 1 - avgIf(Value, Attributes['state'] = 'idle') AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'system.cpu.utilization' GROUP BY time, series ORDER BY time"
+          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, ResourceAttributes['host.name'] AS series, 1 - avgIf(Value, Attributes['state'] = 'idle') AS value FROM ${db}.otel_metrics_gauge WHERE $__timeFilter(TimeUnix) AND MetricName = 'system.cpu.utilization' GROUP BY time, series ORDER BY time"
         }
       ],
       "fieldConfig": {

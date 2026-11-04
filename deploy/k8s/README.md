@@ -104,7 +104,7 @@ resources:
 10. **수집기(선택).** `config.yaml`의 `otel:`이 로그·추적·지표를 OTLP로 수집기에 보냅니다. 없으면 요청 로그는 표준 출력에만 나옵니다.
     - 노드마다 수집기가 있으면 파드가 받는 `HOST_IP`(그 노드의 주소)로 보냅니다. Service 뒤의 수집기라면 그 주소를 씁니다. 예는 `config.yaml`의 주석에 있습니다.
     - 서버와 운영자 진입점이 같은 설정으로 함께 보냅니다. 둘 다 `service.name`이 `loft`입니다.
-    - 대시보드는 [`deploy/observe`](../observe/README.md)에 있습니다. 이미 있는 ClickHouse와 Loki 위의 Grafana입니다. 경보는 아직 없고, 무엇에 걸지는 `docs/runbook/observe.md`에 있습니다(loft#38).
+    - 대시보드는 [`deploy/observe`](../observe/README.md)에 있습니다. ClickHouse 위의 Grafana입니다. 노드마다 수집기와 ClickHouse가 없으면 같은 곳의 `node/`와 `clickhouse/`를 함께 띄웁니다. 경보는 아직 없고, 무엇에 걸지는 `docs/runbook/observe.md`에 있습니다(loft#38).
 
 11. **워크스페이스 도메인(선택).** 워크스페이스가 자기 도메인(`assets.acme.co.kr`)에서 앱을 쓰게 합니다(loft#155). 서비스 주소의 인그레스와 인증서는 그대로 둡니다. 그 밖의 호스트를 받는 프런트를 따로 하나 둡니다.
 
