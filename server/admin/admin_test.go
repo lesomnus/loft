@@ -161,6 +161,10 @@ func TestEveryMethodAnswersAnOperatorsKeyAndNothingElse(t *testing.T) {
 		app.TenantService_Erase_FullMethodName,
 		app.TenantService_Mine_FullMethodName,
 		app.HolderService_Patch_FullMethodName,
+		app.EventService_Recent_FullMethodName,
+		app.EventService_List_FullMethodName,
+		app.AccessReviewService_Add_FullMethodName,
+		app.AccessReviewService_Patch_FullMethodName,
 	} {
 		x.Equal(codes.PermissionDenied, status.Code(call(as(key), e.conn, m)), "%s is no operator's", m)
 		x.Equal(codes.Unauthenticated, status.Code(call(context.Background(), e.conn, m)), "%s with no key", m)

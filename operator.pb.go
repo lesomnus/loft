@@ -7284,6 +7284,902 @@ func (b0 OperatorHolderPasswordResponse_builder) Build() *OperatorHolderPassword
 	return m0
 }
 
+type OperatorEventRedactionRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Event  []byte                 `protobuf:"bytes,1,opt,name=event"`
+	xxx_hidden_Tenant *OperatorTenantRef     `protobuf:"bytes,2,opt,name=tenant"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *OperatorEventRedactionRequest) Reset() {
+	*x = OperatorEventRedactionRequest{}
+	mi := &file_loft_operator_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorEventRedactionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorEventRedactionRequest) ProtoMessage() {}
+
+func (x *OperatorEventRedactionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorEventRedactionRequest) GetEvent() []byte {
+	if x != nil {
+		return x.xxx_hidden_Event
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionRequest) GetTenant() *OperatorTenantRef {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionRequest) SetEvent(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Event = v
+}
+
+func (x *OperatorEventRedactionRequest) SetTenant(v *OperatorTenantRef) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *OperatorEventRedactionRequest) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Tenant != nil
+}
+
+func (x *OperatorEventRedactionRequest) ClearTenant() {
+	x.xxx_hidden_Tenant = nil
+}
+
+type OperatorEventRedactionRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Event []byte
+	// The workspace it is of, when the caller says which; refused when it is
+	// another's.
+	Tenant *OperatorTenantRef
+}
+
+func (b0 OperatorEventRedactionRequest_builder) Build() *OperatorEventRedactionRequest {
+	m0 := &OperatorEventRedactionRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Event = b.Event
+	x.xxx_hidden_Tenant = b.Tenant
+	return m0
+}
+
+type OperatorEventRedactionResponse struct {
+	state               protoimpl.MessageState        `protogen:"opaque.v1"`
+	xxx_hidden_Event    []byte                        `protobuf:"bytes,1,opt,name=event"`
+	xxx_hidden_Tenant   string                        `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Kind     string                        `protobuf:"bytes,3,opt,name=kind"`
+	xxx_hidden_Occurred *timestamppb.Timestamp        `protobuf:"bytes,4,opt,name=occurred"`
+	xxx_hidden_Recorded *timestamppb.Timestamp        `protobuf:"bytes,5,opt,name=recorded"`
+	xxx_hidden_Subject  []byte                        `protobuf:"bytes,6,opt,name=subject"`
+	xxx_hidden_Said     bool                          `protobuf:"varint,7,opt,name=said"`
+	xxx_hidden_Copies   map[string]uint32             `protobuf:"bytes,8,rep,name=copies" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_Told     map[string]uint32             `protobuf:"bytes,9,rep,name=told" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_Mailed   uint32                        `protobuf:"varint,10,opt,name=mailed"`
+	xxx_hidden_Kept     map[string]uint32             `protobuf:"bytes,11,rep,name=kept" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_Acts     *[]*OperatorEventRedactionAct `protobuf:"bytes,12,rep,name=acts"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorEventRedactionResponse) Reset() {
+	*x = OperatorEventRedactionResponse{}
+	mi := &file_loft_operator_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorEventRedactionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorEventRedactionResponse) ProtoMessage() {}
+
+func (x *OperatorEventRedactionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorEventRedactionResponse) GetEvent() []byte {
+	if x != nil {
+		return x.xxx_hidden_Event
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionResponse) GetTenant() string {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return ""
+}
+
+func (x *OperatorEventRedactionResponse) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *OperatorEventRedactionResponse) GetOccurred() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Occurred
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionResponse) GetRecorded() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Recorded
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionResponse) GetSubject() []byte {
+	if x != nil {
+		return x.xxx_hidden_Subject
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionResponse) GetSaid() bool {
+	if x != nil {
+		return x.xxx_hidden_Said
+	}
+	return false
+}
+
+func (x *OperatorEventRedactionResponse) GetCopies() map[string]uint32 {
+	if x != nil {
+		return x.xxx_hidden_Copies
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionResponse) GetTold() map[string]uint32 {
+	if x != nil {
+		return x.xxx_hidden_Told
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionResponse) GetMailed() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Mailed
+	}
+	return 0
+}
+
+func (x *OperatorEventRedactionResponse) GetKept() map[string]uint32 {
+	if x != nil {
+		return x.xxx_hidden_Kept
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionResponse) GetActs() []*OperatorEventRedactionAct {
+	if x != nil {
+		if x.xxx_hidden_Acts != nil {
+			return *x.xxx_hidden_Acts
+		}
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionResponse) SetEvent(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Event = v
+}
+
+func (x *OperatorEventRedactionResponse) SetTenant(v string) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *OperatorEventRedactionResponse) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *OperatorEventRedactionResponse) SetOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Occurred = v
+}
+
+func (x *OperatorEventRedactionResponse) SetRecorded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Recorded = v
+}
+
+func (x *OperatorEventRedactionResponse) SetSubject(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Subject = v
+}
+
+func (x *OperatorEventRedactionResponse) SetSaid(v bool) {
+	x.xxx_hidden_Said = v
+}
+
+func (x *OperatorEventRedactionResponse) SetCopies(v map[string]uint32) {
+	x.xxx_hidden_Copies = v
+}
+
+func (x *OperatorEventRedactionResponse) SetTold(v map[string]uint32) {
+	x.xxx_hidden_Told = v
+}
+
+func (x *OperatorEventRedactionResponse) SetMailed(v uint32) {
+	x.xxx_hidden_Mailed = v
+}
+
+func (x *OperatorEventRedactionResponse) SetKept(v map[string]uint32) {
+	x.xxx_hidden_Kept = v
+}
+
+func (x *OperatorEventRedactionResponse) SetActs(v []*OperatorEventRedactionAct) {
+	x.xxx_hidden_Acts = &v
+}
+
+func (x *OperatorEventRedactionResponse) HasOccurred() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Occurred != nil
+}
+
+func (x *OperatorEventRedactionResponse) HasRecorded() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Recorded != nil
+}
+
+func (x *OperatorEventRedactionResponse) ClearOccurred() {
+	x.xxx_hidden_Occurred = nil
+}
+
+func (x *OperatorEventRedactionResponse) ClearRecorded() {
+	x.xxx_hidden_Recorded = nil
+}
+
+type OperatorEventRedactionResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Event    []byte
+	Tenant   string
+	Kind     string
+	Occurred *timestamppb.Timestamp
+	Recorded *timestamppb.Timestamp
+	Subject  []byte
+	// Whether it has a reason to take out at all.
+	Said bool
+	// The other events of its operation that say the same, the notices that
+	// say it as their words (and how many of those went by mail, which is not
+	// taken back), and the rows that keep it as their own: each by kind.
+	Copies map[string]uint32
+	Told   map[string]uint32
+	Mailed uint32
+	Kept   map[string]uint32
+	// What took its reason out before, the newest first: the act's own event,
+	// or the part of an act that took it out of a copy.
+	Acts []*OperatorEventRedactionAct
+}
+
+func (b0 OperatorEventRedactionResponse_builder) Build() *OperatorEventRedactionResponse {
+	m0 := &OperatorEventRedactionResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Event = b.Event
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Occurred = b.Occurred
+	x.xxx_hidden_Recorded = b.Recorded
+	x.xxx_hidden_Subject = b.Subject
+	x.xxx_hidden_Said = b.Said
+	x.xxx_hidden_Copies = b.Copies
+	x.xxx_hidden_Told = b.Told
+	x.xxx_hidden_Mailed = b.Mailed
+	x.xxx_hidden_Kept = b.Kept
+	x.xxx_hidden_Acts = &b.Acts
+	return m0
+}
+
+type OperatorEventRedactionAct struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Event    []byte                 `protobuf:"bytes,1,opt,name=event"`
+	xxx_hidden_Recorded *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=recorded"`
+	xxx_hidden_Actor    []byte                 `protobuf:"bytes,3,opt,name=actor"`
+	xxx_hidden_Operator string                 `protobuf:"bytes,4,opt,name=operator"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorEventRedactionAct) Reset() {
+	*x = OperatorEventRedactionAct{}
+	mi := &file_loft_operator_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorEventRedactionAct) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorEventRedactionAct) ProtoMessage() {}
+
+func (x *OperatorEventRedactionAct) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorEventRedactionAct) GetEvent() []byte {
+	if x != nil {
+		return x.xxx_hidden_Event
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionAct) GetRecorded() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_Recorded
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionAct) GetActor() []byte {
+	if x != nil {
+		return x.xxx_hidden_Actor
+	}
+	return nil
+}
+
+func (x *OperatorEventRedactionAct) GetOperator() string {
+	if x != nil {
+		return x.xxx_hidden_Operator
+	}
+	return ""
+}
+
+func (x *OperatorEventRedactionAct) SetEvent(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Event = v
+}
+
+func (x *OperatorEventRedactionAct) SetRecorded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_Recorded = v
+}
+
+func (x *OperatorEventRedactionAct) SetActor(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Actor = v
+}
+
+func (x *OperatorEventRedactionAct) SetOperator(v string) {
+	x.xxx_hidden_Operator = v
+}
+
+func (x *OperatorEventRedactionAct) HasRecorded() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Recorded != nil
+}
+
+func (x *OperatorEventRedactionAct) ClearRecorded() {
+	x.xxx_hidden_Recorded = nil
+}
+
+type OperatorEventRedactionAct_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Event    []byte
+	Recorded *timestamppb.Timestamp
+	// Who did it; nobody, for the deployment's own work.
+	Actor []byte
+	// The operator's name, for an act an operator did.
+	Operator string
+}
+
+func (b0 OperatorEventRedactionAct_builder) Build() *OperatorEventRedactionAct {
+	m0 := &OperatorEventRedactionAct{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Event = b.Event
+	x.xxx_hidden_Recorded = b.Recorded
+	x.xxx_hidden_Actor = b.Actor
+	x.xxx_hidden_Operator = b.Operator
+	return m0
+}
+
+type OperatorAccessListRequest struct {
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Tenant  *OperatorTenantRef     `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_From    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from"`
+	xxx_hidden_To      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to"`
+	xxx_hidden_Actor   []byte                 `protobuf:"bytes,4,opt,name=actor"`
+	xxx_hidden_Subject []byte                 `protobuf:"bytes,5,opt,name=subject"`
+	xxx_hidden_Kind    string                 `protobuf:"bytes,6,opt,name=kind"`
+	xxx_hidden_Size    uint32                 `protobuf:"varint,7,opt,name=size"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *OperatorAccessListRequest) Reset() {
+	*x = OperatorAccessListRequest{}
+	mi := &file_loft_operator_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorAccessListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorAccessListRequest) ProtoMessage() {}
+
+func (x *OperatorAccessListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorAccessListRequest) GetTenant() *OperatorTenantRef {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *OperatorAccessListRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_From
+	}
+	return nil
+}
+
+func (x *OperatorAccessListRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_To
+	}
+	return nil
+}
+
+func (x *OperatorAccessListRequest) GetActor() []byte {
+	if x != nil {
+		return x.xxx_hidden_Actor
+	}
+	return nil
+}
+
+func (x *OperatorAccessListRequest) GetSubject() []byte {
+	if x != nil {
+		return x.xxx_hidden_Subject
+	}
+	return nil
+}
+
+func (x *OperatorAccessListRequest) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *OperatorAccessListRequest) GetSize() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Size
+	}
+	return 0
+}
+
+func (x *OperatorAccessListRequest) SetTenant(v *OperatorTenantRef) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *OperatorAccessListRequest) SetFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_From = v
+}
+
+func (x *OperatorAccessListRequest) SetTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_To = v
+}
+
+func (x *OperatorAccessListRequest) SetActor(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Actor = v
+}
+
+func (x *OperatorAccessListRequest) SetSubject(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Subject = v
+}
+
+func (x *OperatorAccessListRequest) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *OperatorAccessListRequest) SetSize(v uint32) {
+	x.xxx_hidden_Size = v
+}
+
+func (x *OperatorAccessListRequest) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Tenant != nil
+}
+
+func (x *OperatorAccessListRequest) HasFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_From != nil
+}
+
+func (x *OperatorAccessListRequest) HasTo() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_To != nil
+}
+
+func (x *OperatorAccessListRequest) ClearTenant() {
+	x.xxx_hidden_Tenant = nil
+}
+
+func (x *OperatorAccessListRequest) ClearFrom() {
+	x.xxx_hidden_From = nil
+}
+
+func (x *OperatorAccessListRequest) ClearTo() {
+	x.xxx_hidden_To = nil
+}
+
+type OperatorAccessListRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Only this workspace's record.
+	Tenant *OperatorTenantRef
+	// From and before when; thirty days ago and now when unset.
+	From *timestamppb.Timestamp
+	To   *timestamppb.Timestamp
+	// Only the calls of this actor: a membership, an account, an operator.
+	Actor []byte
+	// Only the calls that carried this person's data, by their person
+	// record's or their membership's identifier.
+	Subject []byte
+	// read, write or download.
+	Kind string
+	// At most this many; 100 when unset, and no more than 1000.
+	Size uint32
+}
+
+func (b0 OperatorAccessListRequest_builder) Build() *OperatorAccessListRequest {
+	m0 := &OperatorAccessListRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_From = b.From
+	x.xxx_hidden_To = b.To
+	x.xxx_hidden_Actor = b.Actor
+	x.xxx_hidden_Subject = b.Subject
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Size = b.Size
+	return m0
+}
+
+type OperatorAccessListResponse struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*OperatorAccessRow  `protobuf:"bytes,1,rep,name=items"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *OperatorAccessListResponse) Reset() {
+	*x = OperatorAccessListResponse{}
+	mi := &file_loft_operator_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorAccessListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorAccessListResponse) ProtoMessage() {}
+
+func (x *OperatorAccessListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorAccessListResponse) GetItems() []*OperatorAccessRow {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *OperatorAccessListResponse) SetItems(v []*OperatorAccessRow) {
+	x.xxx_hidden_Items = &v
+}
+
+type OperatorAccessListResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*OperatorAccessRow
+}
+
+func (b0 OperatorAccessListResponse_builder) Build() *OperatorAccessListResponse {
+	m0 := &OperatorAccessListResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
+type OperatorAccessRow struct {
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_At       *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=at"`
+	xxx_hidden_Tenant   string                 `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Kind     string                 `protobuf:"bytes,3,opt,name=kind"`
+	xxx_hidden_Result   string                 `protobuf:"bytes,4,opt,name=result"`
+	xxx_hidden_Action   string                 `protobuf:"bytes,5,opt,name=action"`
+	xxx_hidden_Actor    []byte                 `protobuf:"bytes,6,opt,name=actor"`
+	xxx_hidden_Operator string                 `protobuf:"bytes,7,opt,name=operator"`
+	xxx_hidden_Address  string                 `protobuf:"bytes,8,opt,name=address"`
+	xxx_hidden_Subjects uint32                 `protobuf:"varint,9,opt,name=subjects"`
+	xxx_hidden_Reason   string                 `protobuf:"bytes,10,opt,name=reason"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OperatorAccessRow) Reset() {
+	*x = OperatorAccessRow{}
+	mi := &file_loft_operator_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorAccessRow) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorAccessRow) ProtoMessage() {}
+
+func (x *OperatorAccessRow) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_operator_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OperatorAccessRow) GetAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_At
+	}
+	return nil
+}
+
+func (x *OperatorAccessRow) GetTenant() string {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return ""
+}
+
+func (x *OperatorAccessRow) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *OperatorAccessRow) GetResult() string {
+	if x != nil {
+		return x.xxx_hidden_Result
+	}
+	return ""
+}
+
+func (x *OperatorAccessRow) GetAction() string {
+	if x != nil {
+		return x.xxx_hidden_Action
+	}
+	return ""
+}
+
+func (x *OperatorAccessRow) GetActor() []byte {
+	if x != nil {
+		return x.xxx_hidden_Actor
+	}
+	return nil
+}
+
+func (x *OperatorAccessRow) GetOperator() string {
+	if x != nil {
+		return x.xxx_hidden_Operator
+	}
+	return ""
+}
+
+func (x *OperatorAccessRow) GetAddress() string {
+	if x != nil {
+		return x.xxx_hidden_Address
+	}
+	return ""
+}
+
+func (x *OperatorAccessRow) GetSubjects() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Subjects
+	}
+	return 0
+}
+
+func (x *OperatorAccessRow) GetReason() string {
+	if x != nil {
+		return x.xxx_hidden_Reason
+	}
+	return ""
+}
+
+func (x *OperatorAccessRow) SetAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_At = v
+}
+
+func (x *OperatorAccessRow) SetTenant(v string) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *OperatorAccessRow) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *OperatorAccessRow) SetResult(v string) {
+	x.xxx_hidden_Result = v
+}
+
+func (x *OperatorAccessRow) SetAction(v string) {
+	x.xxx_hidden_Action = v
+}
+
+func (x *OperatorAccessRow) SetActor(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Actor = v
+}
+
+func (x *OperatorAccessRow) SetOperator(v string) {
+	x.xxx_hidden_Operator = v
+}
+
+func (x *OperatorAccessRow) SetAddress(v string) {
+	x.xxx_hidden_Address = v
+}
+
+func (x *OperatorAccessRow) SetSubjects(v uint32) {
+	x.xxx_hidden_Subjects = v
+}
+
+func (x *OperatorAccessRow) SetReason(v string) {
+	x.xxx_hidden_Reason = v
+}
+
+func (x *OperatorAccessRow) HasAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_At != nil
+}
+
+func (x *OperatorAccessRow) ClearAt() {
+	x.xxx_hidden_At = nil
+}
+
+type OperatorAccessRow_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	At     *timestamppb.Timestamp
+	Tenant string
+	Kind   string
+	Result string
+	Action string
+	Actor  []byte
+	// The operator's name, for a row an operator made.
+	Operator string
+	Address  string
+	Subjects uint32
+	Reason   string
+}
+
+func (b0 OperatorAccessRow_builder) Build() *OperatorAccessRow {
+	m0 := &OperatorAccessRow{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_At = b.At
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Result = b.Result
+	x.xxx_hidden_Action = b.Action
+	x.xxx_hidden_Actor = b.Actor
+	x.xxx_hidden_Operator = b.Operator
+	x.xxx_hidden_Address = b.Address
+	x.xxx_hidden_Subjects = b.Subjects
+	x.xxx_hidden_Reason = b.Reason
+	return m0
+}
+
 var File_loft_operator_proto protoreflect.FileDescriptor
 
 const file_loft_operator_proto_rawDesc = "" +
@@ -7641,7 +8537,60 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x1eOperatorHolderPasswordResponse\x12\x14\n" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x18\n" +
 	"\aaccount\x18\x02 \x01(\fR\aaccount\x12\x1a\n" +
-	"\bpassword\x18\x03 \x01(\tR\bpassword2\xbe\x04\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\"m\n" +
+	"\x1dOperatorEventRedactionRequest\x12\x14\n" +
+	"\x05event\x18\x01 \x01(\fR\x05event\x126\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x17.loft.OperatorTenantRefB\x05\xaa\x01\x02\b\x01R\x06tenant\"\xcc\x05\n" +
+	"\x1eOperatorEventRedactionResponse\x12\x14\n" +
+	"\x05event\x18\x01 \x01(\fR\x05event\x12\x16\n" +
+	"\x06tenant\x18\x02 \x01(\tR\x06tenant\x12\x12\n" +
+	"\x04kind\x18\x03 \x01(\tR\x04kind\x126\n" +
+	"\boccurred\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\boccurred\x126\n" +
+	"\brecorded\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\brecorded\x12\x18\n" +
+	"\asubject\x18\x06 \x01(\fR\asubject\x12\x12\n" +
+	"\x04said\x18\a \x01(\bR\x04said\x12H\n" +
+	"\x06copies\x18\b \x03(\v20.loft.OperatorEventRedactionResponse.CopiesEntryR\x06copies\x12B\n" +
+	"\x04told\x18\t \x03(\v2..loft.OperatorEventRedactionResponse.ToldEntryR\x04told\x12\x16\n" +
+	"\x06mailed\x18\n" +
+	" \x01(\rR\x06mailed\x12B\n" +
+	"\x04kept\x18\v \x03(\v2..loft.OperatorEventRedactionResponse.KeptEntryR\x04kept\x123\n" +
+	"\x04acts\x18\f \x03(\v2\x1f.loft.OperatorEventRedactionActR\x04acts\x1a9\n" +
+	"\vCopiesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\x1a7\n" +
+	"\tToldEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\x1a7\n" +
+	"\tKeptEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x9b\x01\n" +
+	"\x19OperatorEventRedactionAct\x12\x14\n" +
+	"\x05event\x18\x01 \x01(\fR\x05event\x126\n" +
+	"\brecorded\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\brecorded\x12\x14\n" +
+	"\x05actor\x18\x03 \x01(\fR\x05actor\x12\x1a\n" +
+	"\boperator\x18\x04 \x01(\tR\boperator\"\x87\x02\n" +
+	"\x19OperatorAccessListRequest\x126\n" +
+	"\x06tenant\x18\x01 \x01(\v2\x17.loft.OperatorTenantRefB\x05\xaa\x01\x02\b\x01R\x06tenant\x12.\n" +
+	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x14\n" +
+	"\x05actor\x18\x04 \x01(\fR\x05actor\x12\x18\n" +
+	"\asubject\x18\x05 \x01(\fR\asubject\x12\x12\n" +
+	"\x04kind\x18\x06 \x01(\tR\x04kind\x12\x12\n" +
+	"\x04size\x18\a \x01(\rR\x04size\"K\n" +
+	"\x1aOperatorAccessListResponse\x12-\n" +
+	"\x05items\x18\x01 \x03(\v2\x17.loft.OperatorAccessRowR\x05items\"\x9b\x02\n" +
+	"\x11OperatorAccessRow\x12*\n" +
+	"\x02at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x16\n" +
+	"\x06tenant\x18\x02 \x01(\tR\x06tenant\x12\x12\n" +
+	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x16\n" +
+	"\x06result\x18\x04 \x01(\tR\x06result\x12\x16\n" +
+	"\x06action\x18\x05 \x01(\tR\x06action\x12\x14\n" +
+	"\x05actor\x18\x06 \x01(\fR\x05actor\x12\x1a\n" +
+	"\boperator\x18\a \x01(\tR\boperator\x12\x18\n" +
+	"\aaddress\x18\b \x01(\tR\aaddress\x12\x1a\n" +
+	"\bsubjects\x18\t \x01(\rR\bsubjects\x12\x16\n" +
+	"\x06reason\x18\n" +
+	" \x01(\tR\x06reason2\xbe\x04\n" +
 	"\x15OperatorTenantService\x12I\n" +
 	"\x04Show\x12\x1f.loft.OperatorTenantShowRequest\x1a .loft.OperatorTenantShowResponse\x12I\n" +
 	"\x04Move\x12\x1f.loft.OperatorTenantMoveRequest\x1a .loft.OperatorTenantMoveResponse\x12?\n" +
@@ -7673,9 +8622,13 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\tReconcile\x12&.loft.OperatorIdentityReconcileRequest\x1a'.loft.OperatorIdentityReconcileResponse2\xb6\x01\n" +
 	"\x15OperatorHolderService\x12F\n" +
 	"\x03Add\x12\x1e.loft.OperatorHolderAddRequest\x1a\x1f.loft.OperatorHolderAddResponse\x12U\n" +
-	"\bPassword\x12#.loft.OperatorHolderPasswordRequest\x1a$.loft.OperatorHolderPasswordResponseB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\bPassword\x12#.loft.OperatorHolderPasswordRequest\x1a$.loft.OperatorHolderPasswordResponse2n\n" +
+	"\x14OperatorEventService\x12V\n" +
+	"\tRedaction\x12#.loft.OperatorEventRedactionRequest\x1a$.loft.OperatorEventRedactionResponse2b\n" +
+	"\x15OperatorAccessService\x12I\n" +
+	"\x04List\x12\x1f.loft.OperatorAccessListRequest\x1a .loft.OperatorAccessListResponseB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_loft_operator_proto_msgTypes = make([]protoimpl.MessageInfo, 74)
+var file_loft_operator_proto_msgTypes = make([]protoimpl.MessageInfo, 83)
 var file_loft_operator_proto_goTypes = []any{
 	(*OperatorTenantRef)(nil),                 // 0: loft.OperatorTenantRef
 	(*OperatorTenantShowRequest)(nil),         // 1: loft.OperatorTenantShowRequest
@@ -7745,43 +8698,52 @@ var file_loft_operator_proto_goTypes = []any{
 	(*OperatorHolderAddResponse)(nil),         // 65: loft.OperatorHolderAddResponse
 	(*OperatorHolderPasswordRequest)(nil),     // 66: loft.OperatorHolderPasswordRequest
 	(*OperatorHolderPasswordResponse)(nil),    // 67: loft.OperatorHolderPasswordResponse
-	nil,                                       // 68: loft.OperatorTenantDestroyed.RowsEntry
-	nil,                                       // 69: loft.OperatorTenantDestroyed.KeptEntry
-	nil,                                       // 70: loft.OperatorTenantImportResponse.RowsEntry
-	nil,                                       // 71: loft.OperatorTenantImportResponse.LeftEntry
-	nil,                                       // 72: loft.OperatorTenantImportResponse.LeftWhyEntry
-	nil,                                       // 73: loft.OperatorRetentionTaken.TakenEntry
-	(*Tenant)(nil),                            // 74: loft.Tenant
-	(*Holder)(nil),                            // 75: loft.Holder
-	(*TenantContract)(nil),                    // 76: loft.TenantContract
-	(*LegalHold)(nil),                         // 77: loft.LegalHold
-	(*timestamppb.Timestamp)(nil),             // 78: google.protobuf.Timestamp
+	(*OperatorEventRedactionRequest)(nil),     // 68: loft.OperatorEventRedactionRequest
+	(*OperatorEventRedactionResponse)(nil),    // 69: loft.OperatorEventRedactionResponse
+	(*OperatorEventRedactionAct)(nil),         // 70: loft.OperatorEventRedactionAct
+	(*OperatorAccessListRequest)(nil),         // 71: loft.OperatorAccessListRequest
+	(*OperatorAccessListResponse)(nil),        // 72: loft.OperatorAccessListResponse
+	(*OperatorAccessRow)(nil),                 // 73: loft.OperatorAccessRow
+	nil,                                       // 74: loft.OperatorTenantDestroyed.RowsEntry
+	nil,                                       // 75: loft.OperatorTenantDestroyed.KeptEntry
+	nil,                                       // 76: loft.OperatorTenantImportResponse.RowsEntry
+	nil,                                       // 77: loft.OperatorTenantImportResponse.LeftEntry
+	nil,                                       // 78: loft.OperatorTenantImportResponse.LeftWhyEntry
+	nil,                                       // 79: loft.OperatorRetentionTaken.TakenEntry
+	nil,                                       // 80: loft.OperatorEventRedactionResponse.CopiesEntry
+	nil,                                       // 81: loft.OperatorEventRedactionResponse.ToldEntry
+	nil,                                       // 82: loft.OperatorEventRedactionResponse.KeptEntry
+	(*Tenant)(nil),                            // 83: loft.Tenant
+	(*Holder)(nil),                            // 84: loft.Holder
+	(*TenantContract)(nil),                    // 85: loft.TenantContract
+	(*LegalHold)(nil),                         // 86: loft.LegalHold
+	(*timestamppb.Timestamp)(nil),             // 87: google.protobuf.Timestamp
 }
 var file_loft_operator_proto_depIdxs = []int32{
 	0,  // 0: loft.OperatorTenantShowRequest.ref:type_name -> loft.OperatorTenantRef
-	74, // 1: loft.OperatorTenantShowResponse.tenant:type_name -> loft.Tenant
-	75, // 2: loft.OperatorTenantShowResponse.members:type_name -> loft.Holder
-	76, // 3: loft.OperatorTenantShowResponse.contracts:type_name -> loft.TenantContract
-	77, // 4: loft.OperatorTenantShowResponse.holds:type_name -> loft.LegalHold
+	83, // 1: loft.OperatorTenantShowResponse.tenant:type_name -> loft.Tenant
+	84, // 2: loft.OperatorTenantShowResponse.members:type_name -> loft.Holder
+	85, // 3: loft.OperatorTenantShowResponse.contracts:type_name -> loft.TenantContract
+	86, // 4: loft.OperatorTenantShowResponse.holds:type_name -> loft.LegalHold
 	3,  // 5: loft.OperatorTenantShowResponse.window:type_name -> loft.OperatorTenantWindow
-	78, // 6: loft.OperatorTenantWindow.keep_until:type_name -> google.protobuf.Timestamp
-	78, // 7: loft.OperatorTenantWindow.access_until:type_name -> google.protobuf.Timestamp
+	87, // 6: loft.OperatorTenantWindow.keep_until:type_name -> google.protobuf.Timestamp
+	87, // 7: loft.OperatorTenantWindow.access_until:type_name -> google.protobuf.Timestamp
 	0,  // 8: loft.OperatorTenantMoveRequest.ref:type_name -> loft.OperatorTenantRef
-	74, // 9: loft.OperatorTenantMoveResponse.tenant:type_name -> loft.Tenant
-	78, // 10: loft.OperatorTenantMoveResponse.held_until:type_name -> google.protobuf.Timestamp
+	83, // 9: loft.OperatorTenantMoveResponse.tenant:type_name -> loft.Tenant
+	87, // 10: loft.OperatorTenantMoveResponse.held_until:type_name -> google.protobuf.Timestamp
 	0,  // 11: loft.OperatorTenantNameOwnerRequest.ref:type_name -> loft.OperatorTenantRef
 	9,  // 12: loft.OperatorTenantRetiredResponse.items:type_name -> loft.OperatorTenantRetirement
-	78, // 13: loft.OperatorTenantRetirement.retired:type_name -> google.protobuf.Timestamp
-	78, // 14: loft.OperatorTenantRetirement.until:type_name -> google.protobuf.Timestamp
+	87, // 13: loft.OperatorTenantRetirement.retired:type_name -> google.protobuf.Timestamp
+	87, // 14: loft.OperatorTenantRetirement.until:type_name -> google.protobuf.Timestamp
 	0,  // 15: loft.OperatorTenantDestroyRequest.ref:type_name -> loft.OperatorTenantRef
 	12, // 16: loft.OperatorTenantDestroyResponse.destroyed:type_name -> loft.OperatorTenantDestroyed
-	68, // 17: loft.OperatorTenantDestroyed.rows:type_name -> loft.OperatorTenantDestroyed.RowsEntry
-	69, // 18: loft.OperatorTenantDestroyed.kept:type_name -> loft.OperatorTenantDestroyed.KeptEntry
-	78, // 19: loft.OperatorTenantDestroyed.kept_until:type_name -> google.protobuf.Timestamp
+	74, // 17: loft.OperatorTenantDestroyed.rows:type_name -> loft.OperatorTenantDestroyed.RowsEntry
+	75, // 18: loft.OperatorTenantDestroyed.kept:type_name -> loft.OperatorTenantDestroyed.KeptEntry
+	87, // 19: loft.OperatorTenantDestroyed.kept_until:type_name -> google.protobuf.Timestamp
 	14, // 20: loft.OperatorTenantImportRequest.options:type_name -> loft.OperatorTenantImportOptions
-	70, // 21: loft.OperatorTenantImportResponse.rows:type_name -> loft.OperatorTenantImportResponse.RowsEntry
-	71, // 22: loft.OperatorTenantImportResponse.left:type_name -> loft.OperatorTenantImportResponse.LeftEntry
-	72, // 23: loft.OperatorTenantImportResponse.left_why:type_name -> loft.OperatorTenantImportResponse.LeftWhyEntry
+	76, // 21: loft.OperatorTenantImportResponse.rows:type_name -> loft.OperatorTenantImportResponse.RowsEntry
+	77, // 22: loft.OperatorTenantImportResponse.left:type_name -> loft.OperatorTenantImportResponse.LeftEntry
+	78, // 23: loft.OperatorTenantImportResponse.left_why:type_name -> loft.OperatorTenantImportResponse.LeftWhyEntry
 	20, // 24: loft.OperatorTrailVerifyResponse.verified:type_name -> loft.OperatorTrailVerified
 	21, // 25: loft.OperatorTrailVerified.findings:type_name -> loft.OperatorTrailFinding
 	24, // 26: loft.OperatorTrailAcceptResponse.accepted:type_name -> loft.OperatorTrailAccepted
@@ -7790,17 +8752,17 @@ var file_loft_operator_proto_depIdxs = []int32{
 	28, // 29: loft.OperatorTrailRowsChecked.findings:type_name -> loft.OperatorTrailRowFinding
 	29, // 30: loft.OperatorTrailRowsChecked.skipped:type_name -> loft.OperatorTrailSkipped
 	32, // 31: loft.OperatorTrailAcceptRowsResponse.accepted:type_name -> loft.OperatorTrailRowsAccepted
-	78, // 32: loft.OperatorTrailOwedResponse.oldest:type_name -> google.protobuf.Timestamp
+	87, // 32: loft.OperatorTrailOwedResponse.oldest:type_name -> google.protobuf.Timestamp
 	35, // 33: loft.OperatorTrailOwedResponse.held:type_name -> loft.OperatorTrailHeld
 	38, // 34: loft.OperatorTrailExportResponse.exported:type_name -> loft.OperatorTrailExported
-	78, // 35: loft.OperatorTrailExported.retired:type_name -> google.protobuf.Timestamp
-	78, // 36: loft.OperatorTrailExported.kept_until:type_name -> google.protobuf.Timestamp
+	87, // 35: loft.OperatorTrailExported.retired:type_name -> google.protobuf.Timestamp
+	87, // 36: loft.OperatorTrailExported.kept_until:type_name -> google.protobuf.Timestamp
 	41, // 37: loft.OperatorSearchStatusResponse.indexes:type_name -> loft.OperatorSearchIndex
 	44, // 38: loft.OperatorSearchReindexResponse.made:type_name -> loft.OperatorSearchReindexed
 	0,  // 39: loft.OperatorRetentionRequest.ref:type_name -> loft.OperatorTenantRef
 	51, // 40: loft.OperatorRetentionResponse.taken:type_name -> loft.OperatorRetentionTaken
-	78, // 41: loft.OperatorRetentionTaken.before:type_name -> google.protobuf.Timestamp
-	73, // 42: loft.OperatorRetentionTaken.taken:type_name -> loft.OperatorRetentionTaken.TakenEntry
+	87, // 41: loft.OperatorRetentionTaken.before:type_name -> google.protobuf.Timestamp
+	79, // 42: loft.OperatorRetentionTaken.taken:type_name -> loft.OperatorRetentionTaken.TakenEntry
 	52, // 43: loft.OperatorRetentionTaken.trail:type_name -> loft.OperatorRetentionTrail
 	55, // 44: loft.OperatorIdentityMigrateResponse.adopted:type_name -> loft.OperatorIdentityAdopted
 	56, // 45: loft.OperatorIdentityMigrateResponse.done:type_name -> loft.OperatorIdentityMigrated
@@ -7809,61 +8771,78 @@ var file_loft_operator_proto_depIdxs = []int32{
 	63, // 48: loft.OperatorIdentityReconcileResponse.gone:type_name -> loft.OperatorIdentityAccount
 	63, // 49: loft.OperatorIdentityReconcileResponse.back:type_name -> loft.OperatorIdentityAccount
 	0,  // 50: loft.OperatorHolderAddRequest.tenant:type_name -> loft.OperatorTenantRef
-	1,  // 51: loft.OperatorTenantService.Show:input_type -> loft.OperatorTenantShowRequest
-	4,  // 52: loft.OperatorTenantService.Move:input_type -> loft.OperatorTenantMoveRequest
-	6,  // 53: loft.OperatorTenantService.NameOwner:input_type -> loft.OperatorTenantNameOwnerRequest
-	7,  // 54: loft.OperatorTenantService.Retired:input_type -> loft.OperatorTenantRetiredRequest
-	10, // 55: loft.OperatorTenantService.Retire:input_type -> loft.OperatorTenantDestroyRequest
-	10, // 56: loft.OperatorTenantService.Purge:input_type -> loft.OperatorTenantDestroyRequest
-	13, // 57: loft.OperatorTenantService.Import:input_type -> loft.OperatorTenantImportRequest
-	16, // 58: loft.OperatorTrailService.Keys:input_type -> loft.OperatorTrailKeysRequest
-	18, // 59: loft.OperatorTrailService.Verify:input_type -> loft.OperatorTrailVerifyRequest
-	22, // 60: loft.OperatorTrailService.Accept:input_type -> loft.OperatorTrailAcceptRequest
-	25, // 61: loft.OperatorTrailService.Rows:input_type -> loft.OperatorTrailRowsRequest
-	30, // 62: loft.OperatorTrailService.AcceptRows:input_type -> loft.OperatorTrailAcceptRowsRequest
-	33, // 63: loft.OperatorTrailService.Owed:input_type -> loft.OperatorTrailOwedRequest
-	36, // 64: loft.OperatorTrailService.Export:input_type -> loft.OperatorTrailExportRequest
-	39, // 65: loft.OperatorSearchService.Status:input_type -> loft.OperatorSearchStatusRequest
-	42, // 66: loft.OperatorSearchService.Reindex:input_type -> loft.OperatorSearchReindexRequest
-	45, // 67: loft.OperatorSearchService.Remove:input_type -> loft.OperatorSearchRemoveRequest
-	47, // 68: loft.OperatorSearchService.Analyze:input_type -> loft.OperatorSearchAnalyzeRequest
-	49, // 69: loft.OperatorRetentionService.Plan:input_type -> loft.OperatorRetentionRequest
-	49, // 70: loft.OperatorRetentionService.Run:input_type -> loft.OperatorRetentionRequest
-	53, // 71: loft.OperatorIdentityService.Migrate:input_type -> loft.OperatorIdentityMigrateRequest
-	57, // 72: loft.OperatorIdentityService.Depart:input_type -> loft.OperatorIdentityDepartRequest
-	61, // 73: loft.OperatorIdentityService.Reconcile:input_type -> loft.OperatorIdentityReconcileRequest
-	64, // 74: loft.OperatorHolderService.Add:input_type -> loft.OperatorHolderAddRequest
-	66, // 75: loft.OperatorHolderService.Password:input_type -> loft.OperatorHolderPasswordRequest
-	2,  // 76: loft.OperatorTenantService.Show:output_type -> loft.OperatorTenantShowResponse
-	5,  // 77: loft.OperatorTenantService.Move:output_type -> loft.OperatorTenantMoveResponse
-	75, // 78: loft.OperatorTenantService.NameOwner:output_type -> loft.Holder
-	8,  // 79: loft.OperatorTenantService.Retired:output_type -> loft.OperatorTenantRetiredResponse
-	11, // 80: loft.OperatorTenantService.Retire:output_type -> loft.OperatorTenantDestroyResponse
-	11, // 81: loft.OperatorTenantService.Purge:output_type -> loft.OperatorTenantDestroyResponse
-	15, // 82: loft.OperatorTenantService.Import:output_type -> loft.OperatorTenantImportResponse
-	17, // 83: loft.OperatorTrailService.Keys:output_type -> loft.OperatorTrailKeysResponse
-	19, // 84: loft.OperatorTrailService.Verify:output_type -> loft.OperatorTrailVerifyResponse
-	23, // 85: loft.OperatorTrailService.Accept:output_type -> loft.OperatorTrailAcceptResponse
-	26, // 86: loft.OperatorTrailService.Rows:output_type -> loft.OperatorTrailRowsResponse
-	31, // 87: loft.OperatorTrailService.AcceptRows:output_type -> loft.OperatorTrailAcceptRowsResponse
-	34, // 88: loft.OperatorTrailService.Owed:output_type -> loft.OperatorTrailOwedResponse
-	37, // 89: loft.OperatorTrailService.Export:output_type -> loft.OperatorTrailExportResponse
-	40, // 90: loft.OperatorSearchService.Status:output_type -> loft.OperatorSearchStatusResponse
-	43, // 91: loft.OperatorSearchService.Reindex:output_type -> loft.OperatorSearchReindexResponse
-	46, // 92: loft.OperatorSearchService.Remove:output_type -> loft.OperatorSearchRemoveResponse
-	48, // 93: loft.OperatorSearchService.Analyze:output_type -> loft.OperatorSearchAnalyzeResponse
-	50, // 94: loft.OperatorRetentionService.Plan:output_type -> loft.OperatorRetentionResponse
-	50, // 95: loft.OperatorRetentionService.Run:output_type -> loft.OperatorRetentionResponse
-	54, // 96: loft.OperatorIdentityService.Migrate:output_type -> loft.OperatorIdentityMigrateResponse
-	58, // 97: loft.OperatorIdentityService.Depart:output_type -> loft.OperatorIdentityDepartResponse
-	62, // 98: loft.OperatorIdentityService.Reconcile:output_type -> loft.OperatorIdentityReconcileResponse
-	65, // 99: loft.OperatorHolderService.Add:output_type -> loft.OperatorHolderAddResponse
-	67, // 100: loft.OperatorHolderService.Password:output_type -> loft.OperatorHolderPasswordResponse
-	76, // [76:101] is the sub-list for method output_type
-	51, // [51:76] is the sub-list for method input_type
-	51, // [51:51] is the sub-list for extension type_name
-	51, // [51:51] is the sub-list for extension extendee
-	0,  // [0:51] is the sub-list for field type_name
+	0,  // 51: loft.OperatorEventRedactionRequest.tenant:type_name -> loft.OperatorTenantRef
+	87, // 52: loft.OperatorEventRedactionResponse.occurred:type_name -> google.protobuf.Timestamp
+	87, // 53: loft.OperatorEventRedactionResponse.recorded:type_name -> google.protobuf.Timestamp
+	80, // 54: loft.OperatorEventRedactionResponse.copies:type_name -> loft.OperatorEventRedactionResponse.CopiesEntry
+	81, // 55: loft.OperatorEventRedactionResponse.told:type_name -> loft.OperatorEventRedactionResponse.ToldEntry
+	82, // 56: loft.OperatorEventRedactionResponse.kept:type_name -> loft.OperatorEventRedactionResponse.KeptEntry
+	70, // 57: loft.OperatorEventRedactionResponse.acts:type_name -> loft.OperatorEventRedactionAct
+	87, // 58: loft.OperatorEventRedactionAct.recorded:type_name -> google.protobuf.Timestamp
+	0,  // 59: loft.OperatorAccessListRequest.tenant:type_name -> loft.OperatorTenantRef
+	87, // 60: loft.OperatorAccessListRequest.from:type_name -> google.protobuf.Timestamp
+	87, // 61: loft.OperatorAccessListRequest.to:type_name -> google.protobuf.Timestamp
+	73, // 62: loft.OperatorAccessListResponse.items:type_name -> loft.OperatorAccessRow
+	87, // 63: loft.OperatorAccessRow.at:type_name -> google.protobuf.Timestamp
+	1,  // 64: loft.OperatorTenantService.Show:input_type -> loft.OperatorTenantShowRequest
+	4,  // 65: loft.OperatorTenantService.Move:input_type -> loft.OperatorTenantMoveRequest
+	6,  // 66: loft.OperatorTenantService.NameOwner:input_type -> loft.OperatorTenantNameOwnerRequest
+	7,  // 67: loft.OperatorTenantService.Retired:input_type -> loft.OperatorTenantRetiredRequest
+	10, // 68: loft.OperatorTenantService.Retire:input_type -> loft.OperatorTenantDestroyRequest
+	10, // 69: loft.OperatorTenantService.Purge:input_type -> loft.OperatorTenantDestroyRequest
+	13, // 70: loft.OperatorTenantService.Import:input_type -> loft.OperatorTenantImportRequest
+	16, // 71: loft.OperatorTrailService.Keys:input_type -> loft.OperatorTrailKeysRequest
+	18, // 72: loft.OperatorTrailService.Verify:input_type -> loft.OperatorTrailVerifyRequest
+	22, // 73: loft.OperatorTrailService.Accept:input_type -> loft.OperatorTrailAcceptRequest
+	25, // 74: loft.OperatorTrailService.Rows:input_type -> loft.OperatorTrailRowsRequest
+	30, // 75: loft.OperatorTrailService.AcceptRows:input_type -> loft.OperatorTrailAcceptRowsRequest
+	33, // 76: loft.OperatorTrailService.Owed:input_type -> loft.OperatorTrailOwedRequest
+	36, // 77: loft.OperatorTrailService.Export:input_type -> loft.OperatorTrailExportRequest
+	39, // 78: loft.OperatorSearchService.Status:input_type -> loft.OperatorSearchStatusRequest
+	42, // 79: loft.OperatorSearchService.Reindex:input_type -> loft.OperatorSearchReindexRequest
+	45, // 80: loft.OperatorSearchService.Remove:input_type -> loft.OperatorSearchRemoveRequest
+	47, // 81: loft.OperatorSearchService.Analyze:input_type -> loft.OperatorSearchAnalyzeRequest
+	49, // 82: loft.OperatorRetentionService.Plan:input_type -> loft.OperatorRetentionRequest
+	49, // 83: loft.OperatorRetentionService.Run:input_type -> loft.OperatorRetentionRequest
+	53, // 84: loft.OperatorIdentityService.Migrate:input_type -> loft.OperatorIdentityMigrateRequest
+	57, // 85: loft.OperatorIdentityService.Depart:input_type -> loft.OperatorIdentityDepartRequest
+	61, // 86: loft.OperatorIdentityService.Reconcile:input_type -> loft.OperatorIdentityReconcileRequest
+	64, // 87: loft.OperatorHolderService.Add:input_type -> loft.OperatorHolderAddRequest
+	66, // 88: loft.OperatorHolderService.Password:input_type -> loft.OperatorHolderPasswordRequest
+	68, // 89: loft.OperatorEventService.Redaction:input_type -> loft.OperatorEventRedactionRequest
+	71, // 90: loft.OperatorAccessService.List:input_type -> loft.OperatorAccessListRequest
+	2,  // 91: loft.OperatorTenantService.Show:output_type -> loft.OperatorTenantShowResponse
+	5,  // 92: loft.OperatorTenantService.Move:output_type -> loft.OperatorTenantMoveResponse
+	84, // 93: loft.OperatorTenantService.NameOwner:output_type -> loft.Holder
+	8,  // 94: loft.OperatorTenantService.Retired:output_type -> loft.OperatorTenantRetiredResponse
+	11, // 95: loft.OperatorTenantService.Retire:output_type -> loft.OperatorTenantDestroyResponse
+	11, // 96: loft.OperatorTenantService.Purge:output_type -> loft.OperatorTenantDestroyResponse
+	15, // 97: loft.OperatorTenantService.Import:output_type -> loft.OperatorTenantImportResponse
+	17, // 98: loft.OperatorTrailService.Keys:output_type -> loft.OperatorTrailKeysResponse
+	19, // 99: loft.OperatorTrailService.Verify:output_type -> loft.OperatorTrailVerifyResponse
+	23, // 100: loft.OperatorTrailService.Accept:output_type -> loft.OperatorTrailAcceptResponse
+	26, // 101: loft.OperatorTrailService.Rows:output_type -> loft.OperatorTrailRowsResponse
+	31, // 102: loft.OperatorTrailService.AcceptRows:output_type -> loft.OperatorTrailAcceptRowsResponse
+	34, // 103: loft.OperatorTrailService.Owed:output_type -> loft.OperatorTrailOwedResponse
+	37, // 104: loft.OperatorTrailService.Export:output_type -> loft.OperatorTrailExportResponse
+	40, // 105: loft.OperatorSearchService.Status:output_type -> loft.OperatorSearchStatusResponse
+	43, // 106: loft.OperatorSearchService.Reindex:output_type -> loft.OperatorSearchReindexResponse
+	46, // 107: loft.OperatorSearchService.Remove:output_type -> loft.OperatorSearchRemoveResponse
+	48, // 108: loft.OperatorSearchService.Analyze:output_type -> loft.OperatorSearchAnalyzeResponse
+	50, // 109: loft.OperatorRetentionService.Plan:output_type -> loft.OperatorRetentionResponse
+	50, // 110: loft.OperatorRetentionService.Run:output_type -> loft.OperatorRetentionResponse
+	54, // 111: loft.OperatorIdentityService.Migrate:output_type -> loft.OperatorIdentityMigrateResponse
+	58, // 112: loft.OperatorIdentityService.Depart:output_type -> loft.OperatorIdentityDepartResponse
+	62, // 113: loft.OperatorIdentityService.Reconcile:output_type -> loft.OperatorIdentityReconcileResponse
+	65, // 114: loft.OperatorHolderService.Add:output_type -> loft.OperatorHolderAddResponse
+	67, // 115: loft.OperatorHolderService.Password:output_type -> loft.OperatorHolderPasswordResponse
+	69, // 116: loft.OperatorEventService.Redaction:output_type -> loft.OperatorEventRedactionResponse
+	72, // 117: loft.OperatorAccessService.List:output_type -> loft.OperatorAccessListResponse
+	91, // [91:118] is the sub-list for method output_type
+	64, // [64:91] is the sub-list for method input_type
+	64, // [64:64] is the sub-list for extension type_name
+	64, // [64:64] is the sub-list for extension extendee
+	0,  // [0:64] is the sub-list for field type_name
 }
 
 func init() { file_loft_operator_proto_init() }
@@ -7892,9 +8871,9 @@ func file_loft_operator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_operator_proto_rawDesc), len(file_loft_operator_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   74,
+			NumMessages:   83,
 			NumExtensions: 0,
-			NumServices:   6,
+			NumServices:   8,
 		},
 		GoTypes:           file_loft_operator_proto_goTypes,
 		DependencyIndexes: file_loft_operator_proto_depIdxs,
