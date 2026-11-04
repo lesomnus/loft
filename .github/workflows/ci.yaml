@@ -150,7 +150,8 @@ jobs:
   #
   # Each build is its two binaries, `loft` and `loft-admin`, in a directory of
   # its own: what an operator does is asked of the entry point (D74), which
-  # the script serves for the build it asks.
+  # the script serves with the build's `loft-admin` and asks with its `loft`
+  # -- or, for a build from before `loft` asked it (D75), its `loft-admin`.
   upgrade:
     runs-on: ubuntu-26.04
     steps:
@@ -350,9 +351,10 @@ jobs:
           # volume gives the image's user only because the image made the
           # directory. A witness that cannot hear stops nothing, so this is
           # where it would be seen. Asked of the entry point, as an operator
-          # asks it (D74), from inside its own container.
+          # asks it (D74, D75): by `loft`, from inside the entry point's own
+          # container.
           for i in $(seq 1 30); do
-            if out="$(docker compose exec -T loft-admin /usr/local/bin/loft-admin \
+            if out="$(docker compose exec -T loft-admin /usr/local/bin/loft \
               --url http://127.0.0.1:8081 --key file:/run/secrets/admin_key trail verify 2>&1)"; then
               case "${out}" in *"heard by store:/var/lib/loft/witness: checkpoint "*) exit 0 ;; esac
             fi

@@ -34,7 +34,7 @@
 # here, every other LOFT_* is unset, and there is no loft.yaml where it runs.
 # E2E_LOFT names a loft already built -- CI's, or one built on a host for a
 # container that has no Go -- and E2E_LOFT_ADMIN the loft-admin beside it,
-# which only E2E_OPENSEARCH asks for.
+# whose entry point only E2E_OPENSEARCH asks for, and asks with loft.
 set -eu
 
 port=${1:-}
@@ -148,11 +148,12 @@ cd "$dir"
 "$bin" init --tenant acme --login owner --password owner-pass-1234 --demo >"$log" 2>&1
 if [ -n "${E2E_OPENSEARCH:-}" ]; then
 	# What a run before left there is another database's: taken out, and made
-	# again from this one, by the operator's entry point.
+	# again from this one, by the operator's entry point -- asked by loft, on a
+	# connection for the command alone.
 	at=127.0.0.1:$((port + 2))
 	key=$dir/admin.key
 	od -An -tx1 -N32 /dev/urandom | tr -d ' \n' >"$key"
-	ask() { "$admin" --url "http://$at" --key "file:$key" "$@"; }
+	ask() { "$bin" --url "http://$at" --key "file:$key" "$@"; }
 	LOFT_ADMIN_ADDR=$at LOFT_ADMIN_KEYS="e2e=file:$key" "$admin" serve >>"$log" 2>&1 &
 	served=$!
 	i=0

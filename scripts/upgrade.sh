@@ -20,9 +20,12 @@
 #
 # What an operator does is asked of the entry point (D74): NOW's
 # `loft-admin serve`, on a port of its own and with an operator's key only
-# this holds, asked by its `loft-admin`. A BEFORE from before that still has
+# this holds, asked by its `loft` on an operator's connection (design 9.16).
+# A BEFORE is one of three shapes: from before the entry point, it still has
 # its operator's commands on the box (`loft contract set`), and is asked
-# there; one after it is asked as NOW is.
+# there; from before `loft` asked the entry point, its `loft-admin` asks it
+# (`contract set`); and one after that is asked as NOW is (`tenant-contract
+# add`).
 #
 # A migration says what it rewrote, as the move of an asset's facts into
 # payday's past does (payday#151), and what it put on the trail of it: the
@@ -90,12 +93,18 @@ run() {
 	fi
 }
 
-# ask BUILD ARGS...: ARGS asked of the entry point `serve` stood up, by
-# BUILD's loft-admin, as the operator whose key this holds.
+# ask BUILD ARGS...: ARGS asked of the entry point `serve` stood up, as the
+# operator whose key this holds: by BUILD's loft on a connection for the
+# command alone, or by its loft-admin for a build whose loft-admin still
+# asked the entry point itself.
 ask() {
 	b=$1
 	shift
-	"$b/loft-admin" --url "http://$addr" --key "file:$dir/admin.key" "$@"
+	if "$b/loft-admin" tenant --help >/dev/null 2>&1; then
+		"$b/loft-admin" --url "http://$addr" --key "file:$dir/admin.key" "$@"
+	else
+		"$b/loft" --url "http://$addr" --key "file:$dir/admin.key" "$@"
+	fi
 }
 
 # serve LOG BUILD: BUILD's entry point on the database the environment
@@ -142,9 +151,13 @@ check() {
 		else
 			run "$log" "$before/loft" contract set --tenant acme --name before
 		fi
-	else
+	elif "$before/loft-admin" contract set --help >/dev/null 2>&1; then
 		serve "$log" "$before"
 		run "$log" ask "$before" contract set --name before --yes acme
+		unserve
+	else
+		serve "$log" "$before"
+		run "$log" ask "$before" tenant-contract add --name before --yes acme
 		unserve
 	fi
 	run "$log" "$now/loft" migrate
@@ -177,14 +190,15 @@ check() {
 	esac
 	serve "$log" "$now"
 	# What NOW says of it, and not what BEFORE said when it wrote it.
-	if ! shown=$(ask "$now" contract show acme 2>&1); then
-		echo "upgrade: $1: contract show: failed" >&2
+	if ! shown=$(ask "$now" tenant show acme 2>&1); then
+		echo "upgrade: $1: tenant show: failed" >&2
 		echo "$shown" | tail -n 20 >&2
 		exit 1
 	fi
 	echo "$shown" >>"$log"
+	kept=$(printf 'keeps\thistory %s,' "$keep")
 	case $shown in
-	*"history: kept $keep"*) ;;
+	*"$kept"*) ;;
 	*)
 		echo "upgrade: $1: the workspace does not keep its history for $keep, as its contract said" >&2
 		echo "$shown" | tail -n 20 >&2
@@ -195,7 +209,7 @@ check() {
 	# build before, and rewritten by the migration on the trail or not at all.
 	run "$log" ask "$now" trail rows
 	run "$log" ask "$now" retention plan --tenant acme
-	run "$log" ask "$now" tenant export --reason "an upgrade, checked" --out "$dir/$1.zip" acme
+	run "$log" ask "$now" --reason "an upgrade, checked" tenant export --out "$dir/$1.zip" acme
 	run "$log" ask "$now" tenant verify --file "$dir/$1.zip"
 	unserve
 	echo "upgrade: $1: what the build before made is in this build's shape, and what the trail says of it${moved:+ (${moved% *} facts moved into payday's past)}${held:+ (${held} things out held their time)}"

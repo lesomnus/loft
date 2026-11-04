@@ -20,7 +20,7 @@ set -euo pipefail
 dir=${1:-.}
 
 # What doctor said on main at 93e0b6d (loft#184's follow-ups): three kinds
-# kept off the trail that hold a secret, so that `loft-admin trail rows` finds no
+# kept off the trail that hold a secret, so that `loft trail rows` finds no
 # row of them added in the database past the servers. Each says why it is off
 # in its schema (`proto/loft/org.proto`). Whether a way in should be recorded
 # instead, as doctor suggests, is open; these are known, not decided.
