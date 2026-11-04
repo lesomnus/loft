@@ -35,17 +35,45 @@ spec:
         runAsUser: 10001
         runAsGroup: 10001
         seccompProfile: { type: RuntimeDefault }
+      # Until ClickHouse answers. The exporter makes its tables as the
+      # collector starts, and a collector that cannot reach it exits: it
+      # would be restarted, later each time, and the first try of a new pod
+      # can come before the NetworkPolicy knows the pod's address. Waiting
+      # here, it starts the moment ClickHouse can be reached.
+      initContainers:
+        - name: wait
+          image: docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+          command:
+            - sh
+            - -c
+            - |
+              # The first address CLICKHOUSE_ENDPOINT names: tcp://host:port[,...][?...]
+              a=${CLICKHOUSE_ENDPOINT#*://}; a=${a%%[,/?]*}
+              until nc -z -w 2 "${a%:*}" "${a##*:}"; do
+                [ -n "${said:-}" ] || { echo "waiting for ClickHouse at $a"; said=1; }
+                sleep 1
+              done
+          envFrom:
+            - configMapRef: { name: otel-node-collector-env }
+          resources:
+            requests: { cpu: 1m, memory: 4Mi }
+            limits: { memory: 16Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
       containers:
         - name: otelcol
           image: docker.io/otel/opentelemetry-collector-contrib:0.164.0@sha256:340c9ca6a36617084c6661bdc4f0fe92b7cda5a805d61673ec8db375fddc522b
           args: ["--config", "/etc/otelcol/config.yaml"]
+          # CLICKHOUSE_ENDPOINT (kustomization.yaml)
+          envFrom:
+            - configMapRef: { name: otel-node-collector-env }
           env:
             - name: POD_IP
               valueFrom: { fieldRef: { fieldPath: status.podIP } }
             - name: NODE_NAME
               valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
-            # ClickHouse, in the namespace the observe overlay puts it in.
-            - { name: CLICKHOUSE_ENDPOINT, value: "tcp://clickhouse.observe.svc:9000" }
             - name: CLICKHOUSE_PASSWORD
               valueFrom: { secretKeyRef: { name: otel-node-collector, key: clickhouse-password } }
           ports:

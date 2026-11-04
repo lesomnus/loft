@@ -59,12 +59,12 @@ Loft·levyan (otel:) ─ OTLP ─┐
 
 ## 노드마다 수집기 (`node/`, 선택)
 
-- **이미지:** `otelcol-contrib` 0.164.0, digest 고정. 클러스터 수집기와 같은 것입니다.
+- **이미지:** `otelcol-contrib` 0.164.0, digest 고정. 클러스터 수집기와 같은 것입니다. 기다리는 init 컨테이너는 `busybox` 1.37.0입니다.
 - **어디서:** DaemonSet이라 노드마다 하나입니다. 컨트롤 플레인을 포함해 파드가 도는 모든 노드에 둡니다.
 - **받는 것:** OTLP gRPC 4317, HTTP 4318. 노드의 포트(hostPort)라서, 파드는 `HOST_IP:4317`(deploy/k8s의 `config.yaml`)로 보내면 자기 노드의 수집기에 닿습니다.
 - **노드의 것:** `host_metrics`가 30초마다 노드의 CPU·메모리·디스크 사용률을 읽습니다. 노드의 `/`를 읽기 전용으로 `/hostfs`에 붙여 읽습니다. 지표에 `host.name`(노드 이름)을 붙이고, 대시보드는 이것으로 노드를 나눕니다.
 - **처리:** `memory_limiter`(200 MiB. 컨테이너 한도는 256 MiB), `batch`(5,000개 또는 5초)를 거쳐 ClickHouse에 씁니다. ClickHouse가 잠깐 닿지 않으면 5분까지 다시 시도합니다.
-- **시작할 때** ClickHouse에 닿아야 합니다(테이블을 확인함). 닿지 않으면 다시 시작하면서 기다리고, 그동안 그 노드의 파드는 보내지 못합니다.
+- **시작할 때** ClickHouse에 닿아야 합니다(테이블을 확인함). 그래서 닿을 때까지 init 컨테이너(busybox)가 기다리고, 닿는 대로 수집기가 뜹니다. 그동안 그 노드의 파드는 보내지 못합니다. 떠 있는 동안 ClickHouse가 내려가면 위의 재시도로 버팁니다.
 - **namespace:** hostPort와 노드 파일 읽기(hostPath)는 Pod Security `privileged`에서만 됩니다. 그래서 수집기만 두는 namespace를 따로 만듭니다(예: `observe-node`). 컨테이너 자체는 root가 아니고, 권한(capability)이 없고, 노드의 파일은 읽기만 합니다. root가 아니라서 노드의 아무 사용자나 읽을 수 있는 것만 읽습니다(kubelet과 k3s의 비밀은 root만 읽음).
 - **NetworkPolicy:** 클러스터 안의 파드가 보낸 것만 받습니다. hostPort는 노드가 붙은 모든 네트워크에 열리지만, 클러스터 밖에서 온 것은 받지 않습니다. 오버레이가 보내는 namespace로 좁힙니다.
 - **앱 쪽 NetworkPolicy:** 앱이 나가는 것(Egress)을 막는다면, 노드 주소의 4317이 아니라 수집기 파드(namespace `observe-node`, `app.kubernetes.io/name: otel-node-collector`)의 4317로 나가는 길을 엽니다. `HOST_IP:4317`로 보내도 정책은 노드가 넘겨준 뒤의 주소, 즉 수집기 파드를 봅니다(k3s의 kube-router에서 확인). deploy/k8s의 정책은 들어오는 것만 막으므로 할 것이 없습니다.
@@ -127,7 +127,7 @@ metadata:
 ```
 
 1. **namespace.** Grafana와 ClickHouse의 것(`observe`)은 `restricted` Pod Security를 통과합니다. 노드 수집기의 것(`observe-node`)은 `privileged`입니다.
-   - 다른 이름을 쓰면 두 곳을 고칩니다: 노드 수집기의 `CLICKHOUSE_ENDPOINT`(`tcp://clickhouse.<namespace>.svc:9000`)와 ClickHouse NetworkPolicy의 `namespaceSelector`.
+   - 다른 이름을 쓰면 두 곳을 고칩니다. 노드 수집기의 `CLICKHOUSE_ENDPOINT`(ConfigMap `otel-node-collector-env`, `tcp://clickhouse.<namespace>.svc:9000`. `configMapGenerator`에서 `behavior: merge`로)와 ClickHouse NetworkPolicy의 `namespaceSelector`입니다.
 2. **Secret.** `apply -k` 전에 넣습니다. 비밀번호는 줄바꿈 없이 씁니다.
 
    | namespace | Secret | 키 | 내용 |

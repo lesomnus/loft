@@ -15,3 +15,9 @@ configMapGenerator:
   - name: otel-node-collector
     files:
       - config.yaml
+  # Where ClickHouse is: ../clickhouse in the namespace the observe overlay
+  # puts it in. An overlay that names another merges its own
+  # (`behavior: merge`).
+  - name: otel-node-collector-env
+    literals:
+      - CLICKHOUSE_ENDPOINT=tcp://clickhouse.observe.svc:9000
