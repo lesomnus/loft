@@ -338,8 +338,8 @@ func newCmdTenant() *xli.Command {
 	return &xli.Command{
 		Name:    "tenant",
 		Aliases: []string{"workspace", "ws"},
-		Brief:   "find workspaces, close and restore them, move one's address, name an owner",
-		Commands: xli.Commands{
+		Brief:   "find workspaces, close and restore them, move one's address, name an owner, and their end",
+		Commands: append(xli.Commands{
 			{
 				Name:    "list",
 				Aliases: []string{"ls"},
@@ -502,7 +502,7 @@ func newCmdTenant() *xli.Command {
 					printShow(self, v)
 					return nil
 				}),
-		},
+		}, tenantEnd()...),
 		Handler: xli.RequireSubcommand(),
 	}
 }

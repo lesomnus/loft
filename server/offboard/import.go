@@ -31,6 +31,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/attachment"
 	"github.com/lesomnus/loft/internal/ent/migrate"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/tenancy"
 )
@@ -328,7 +329,7 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, fmt.Errorf("the restore's event: %w", err)
 	}
 	event := pdid.New(pd.EventDomain)
-	if err := db.Event.Create().
+	q := db.Event.Create().
 		SetId(event.Uuid()).
 		SetTenantId(tid).
 		SetKind("workspace.import").
@@ -338,8 +339,13 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		SetPayload("").
 		SetOccurredAt(now).
 		SetDateCreated(now).
-		SetDateUpdated(now).
-		Exec(ctx); err != nil {
+		SetDateUpdated(now)
+	// Nobody's in the workspace -- but done at an operator's word, theirs
+	// (D74), as the trail's record of it is.
+	if a := operator.Actor(ctx); !a.IsZero() {
+		q.SetActorId(a.Uuid())
+	}
+	if err := q.Exec(ctx); err != nil {
 		return out, fmt.Errorf("the restore's event: %w", err)
 	}
 	if _, err := pd.Record(ctx, db, d.Audit, Imported, append(restored, event)); err != nil {

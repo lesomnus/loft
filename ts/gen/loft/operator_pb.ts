@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/operator.proto.
  */
 export const file_loft_operator: GenFile = /*@__PURE__*/
-  fileDesc("ChNsb2Z0L29wZXJhdG9yLnByb3RvEgRsb2Z0IjkKEU9wZXJhdG9yVGVuYW50UmVmEgwKAmlkGAEgASgMSAASDwoFYWxpYXMYBCABKAlIAEIFCgNrZXkiQQoZT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmIs4BChpPcGVyYXRvclRlbmFudFNob3dSZXNwb25zZRIcCgZ0ZW5hbnQYASABKAsyDC5sb2Z0LlRlbmFudBIdCgdtZW1iZXJzGAIgAygLMgwubG9mdC5Ib2xkZXISJwoJY29udHJhY3RzGAMgAygLMhQubG9mdC5UZW5hbnRDb250cmFjdBIeCgVob2xkcxgEIAMoCzIPLmxvZnQuTGVnYWxIb2xkEioKBndpbmRvdxgFIAEoCzIaLmxvZnQuT3BlcmF0b3JUZW5hbnRXaW5kb3cihgIKFE9wZXJhdG9yVGVuYW50V2luZG93EhEKCWtlZXBfZGF5cxgBIAEoDRIuCgprZWVwX3VudGlsGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCg5rZWVwX3RoZW5fZGF5cxgDIAEoDRITCgthY2Nlc3NfZGF5cxgEIAEoDRIwCgxhY2Nlc3NfdW50aWwYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGFjY2Vzc190aGVuX2RheXMYBiABKA0SFAoMcmVzdG9yZV9kYXlzGAcgASgNEg0KBXB1cmdlGAggASgIEg0KBWFwcGx5GAkgASgIIm0KGU9wZXJhdG9yVGVuYW50TW92ZVJlcXVlc3QSJAoDcmVmGAEgASgLMhcubG9mdC5PcGVyYXRvclRlbmFudFJlZhIKCgJ0bxgCIAEoCRINCgVyZXVzZRgDIAEoCBIPCgdkcnlfcnVuGAQgASgIIngKGk9wZXJhdG9yVGVuYW50TW92ZVJlc3BvbnNlEhwKBnRlbmFudBgBIAEoCzIMLmxvZnQuVGVuYW50EgwKBGZyb20YAiABKAkSLgoKaGVsZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVgoeT3BlcmF0b3JUZW5hbnROYW1lT3duZXJSZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLmxvZnQuT3BlcmF0b3JUZW5hbnRSZWYSDgoGbWVtYmVyGAIgASgJMu4BChVPcGVyYXRvclRlbmFudFNlcnZpY2USSQoEU2hvdxIfLmxvZnQuT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBogLmxvZnQuT3BlcmF0b3JUZW5hbnRTaG93UmVzcG9uc2USSQoETW92ZRIfLmxvZnQuT3BlcmF0b3JUZW5hbnRNb3ZlUmVxdWVzdBogLmxvZnQuT3BlcmF0b3JUZW5hbnRNb3ZlUmVzcG9uc2USPwoJTmFtZU93bmVyEiQubG9mdC5PcGVyYXRvclRlbmFudE5hbWVPd25lclJlcXVlc3QaDC5sb2Z0LkhvbGRlckIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_loft_ops, file_loft_payday_holder, file_loft_payday_tenant]);
+  fileDesc("ChNsb2Z0L29wZXJhdG9yLnByb3RvEgRsb2Z0IjkKEU9wZXJhdG9yVGVuYW50UmVmEgwKAmlkGAEgASgMSAASDwoFYWxpYXMYBCABKAlIAEIFCgNrZXkiQQoZT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmIs4BChpPcGVyYXRvclRlbmFudFNob3dSZXNwb25zZRIcCgZ0ZW5hbnQYASABKAsyDC5sb2Z0LlRlbmFudBIdCgdtZW1iZXJzGAIgAygLMgwubG9mdC5Ib2xkZXISJwoJY29udHJhY3RzGAMgAygLMhQubG9mdC5UZW5hbnRDb250cmFjdBIeCgVob2xkcxgEIAMoCzIPLmxvZnQuTGVnYWxIb2xkEioKBndpbmRvdxgFIAEoCzIaLmxvZnQuT3BlcmF0b3JUZW5hbnRXaW5kb3cihgIKFE9wZXJhdG9yVGVuYW50V2luZG93EhEKCWtlZXBfZGF5cxgBIAEoDRIuCgprZWVwX3VudGlsGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCg5rZWVwX3RoZW5fZGF5cxgDIAEoDRITCgthY2Nlc3NfZGF5cxgEIAEoDRIwCgxhY2Nlc3NfdW50aWwYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGFjY2Vzc190aGVuX2RheXMYBiABKA0SFAoMcmVzdG9yZV9kYXlzGAcgASgNEg0KBXB1cmdlGAggASgIEg0KBWFwcGx5GAkgASgIIm0KGU9wZXJhdG9yVGVuYW50TW92ZVJlcXVlc3QSJAoDcmVmGAEgASgLMhcubG9mdC5PcGVyYXRvclRlbmFudFJlZhIKCgJ0bxgCIAEoCRINCgVyZXVzZRgDIAEoCBIPCgdkcnlfcnVuGAQgASgIIngKGk9wZXJhdG9yVGVuYW50TW92ZVJlc3BvbnNlEhwKBnRlbmFudBgBIAEoCzIMLmxvZnQuVGVuYW50EgwKBGZyb20YAiABKAkSLgoKaGVsZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVgoeT3BlcmF0b3JUZW5hbnROYW1lT3duZXJSZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLmxvZnQuT3BlcmF0b3JUZW5hbnRSZWYSDgoGbWVtYmVyGAIgASgJIh4KHE9wZXJhdG9yVGVuYW50UmV0aXJlZFJlcXVlc3QiTgodT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVzcG9uc2USLQoFaXRlbXMYASADKAsyHi5sb2Z0Lk9wZXJhdG9yVGVuYW50UmV0aXJlbWVudCKRAQoYT3BlcmF0b3JUZW5hbnRSZXRpcmVtZW50Eg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIrCgdyZXRpcmVkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgV1bnRpbBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVQocT3BlcmF0b3JUZW5hbnREZXN0cm95UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmEg8KB2RyeV9ydW4YAiABKAgiYwodT3BlcmF0b3JUZW5hbnREZXN0cm95UmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSMAoJZGVzdHJveWVkGAIgASgLMh0ubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3llZCKjBAoXT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQSDgoGdGVuYW50GAEgASgMEg0KBWFsaWFzGAIgASgJEg8KB2RyeV9ydW4YAyABKAgSNQoEcm93cxgEIAMoCzInLmxvZnQuT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQuUm93c0VudHJ5Eg0KBWZpbGVzGAUgASgNEgwKBGxvc3QYBiADKAkSFQoNdHJhaWxfcmVtb3ZlZBgHIAEoDRIVCg10cmFpbF9ibGFua2VkGAggASgNEhQKDHRyYWlsX2NodW5rcxgJIAEoDRIPCgdyZXRpcmVkGAogASgIEjUKBGtlcHQYCyADKAsyJy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveWVkLktlcHRFbnRyeRIuCgprZXB0X3VudGlsGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghlbWJlZGRlZBgNIAEoCBIRCglmb3Jnb3R0ZW4YDiABKA0SDQoFYmlsbHMYDyABKAgSEgoKdW5tZWFzdXJlZBgQIAEoCRINCgV0ZWxscxgRIAEoCBIXCg9jb250cmFjdF9wdXJnZXMYEiABKAgaKwoJUm93c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEaKwoJS2VwdEVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEiawobT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXF1ZXN0EjQKB29wdGlvbnMYASABKAsyIS5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9uc0gAEg4KBGRhdGEYAiABKAxIAEIGCgRwYXJ0IkwKG09wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9ucxINCgVhbGlhcxgBIAEoCRINCgVyZXVzZRgCIAEoCBIPCgdkcnlfcnVuGAMgASgIItgEChxPcGVyYXRvclRlbmFudEltcG9ydFJlc3BvbnNlEg4KBnRlbmFudBgBIAEoDBIPCgdkcnlfcnVuGAIgASgIEg0KBWFsaWFzGAMgASgJEg0KBWFza2VkGAQgASgJEhAKCHJlbGVhc2VkGAUgAygJEhAKCHJlb3BlbmVkGAYgASgIEg8KB3JldGlyZWQYByABKAgSEAoIcmV0dXJuZWQYCCABKA0SOgoEcm93cxgJIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5Sb3dzRW50cnkSOgoEbGVmdBgKIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5MZWZ0RW50cnkSQQoIbGVmdF93aHkYCyADKAsyLy5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0UmVzcG9uc2UuTGVmdFdoeUVudHJ5Eg0KBWZpbGVzGAwgASgNEg8KB21pc3NpbmcYDSADKAkSEAoIdW5saW5rZWQYDiADKAkSEAoIbWFuaWZlc3QYDyABKAkSCwoDa2V5GBAgASgJEgwKBGhlbGQYESABKA0SDgoGZ3JhbnRzGBIgASgJGisKCVJvd3NFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGisKCUxlZnRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGi4KDExlZnRXaHlFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIhoKGE9wZXJhdG9yVHJhaWxLZXlzUmVxdWVzdCI8ChlPcGVyYXRvclRyYWlsS2V5c1Jlc3BvbnNlEg4KBnNpZ25lchgBIAEoDBIPCgd0cnVzdGVkGAIgAygMMr4EChVPcGVyYXRvclRlbmFudFNlcnZpY2USSQoEU2hvdxIfLmxvZnQuT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBogLmxvZnQuT3BlcmF0b3JUZW5hbnRTaG93UmVzcG9uc2USSQoETW92ZRIfLmxvZnQuT3BlcmF0b3JUZW5hbnRNb3ZlUmVxdWVzdBogLmxvZnQuT3BlcmF0b3JUZW5hbnRNb3ZlUmVzcG9uc2USPwoJTmFtZU93bmVyEiQubG9mdC5PcGVyYXRvclRlbmFudE5hbWVPd25lclJlcXVlc3QaDC5sb2Z0LkhvbGRlchJSCgdSZXRpcmVkEiIubG9mdC5PcGVyYXRvclRlbmFudFJldGlyZWRSZXF1ZXN0GiMubG9mdC5PcGVyYXRvclRlbmFudFJldGlyZWRSZXNwb25zZRJTCgZSZXRpcmUSIi5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlcXVlc3QaIy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlc3BvbnNlMAESUgoFUHVyZ2USIi5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlcXVlc3QaIy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlc3BvbnNlMAESUQoGSW1wb3J0EiEubG9mdC5PcGVyYXRvclRlbmFudEltcG9ydFJlcXVlc3QaIi5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0UmVzcG9uc2UoATJfChRPcGVyYXRvclRyYWlsU2VydmljZRJHCgRLZXlzEh4ubG9mdC5PcGVyYXRvclRyYWlsS2V5c1JlcXVlc3QaHy5sb2Z0Lk9wZXJhdG9yVHJhaWxLZXlzUmVzcG9uc2VCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_loft_ops, file_loft_payday_holder, file_loft_payday_tenant]);
 
 /**
  * OperatorTenantRef is a workspace as an operator names it: by its
@@ -287,6 +287,476 @@ export const OperatorTenantNameOwnerRequestSchema: GenMessage<OperatorTenantName
   messageDesc(file_loft_operator, 6);
 
 /**
+ * @generated from message loft.OperatorTenantRetiredRequest
+ */
+export type OperatorTenantRetiredRequest = Message<"loft.OperatorTenantRetiredRequest"> & {
+};
+
+/**
+ * Describes the message loft.OperatorTenantRetiredRequest.
+ * Use `create(OperatorTenantRetiredRequestSchema)` to create a new message.
+ */
+export const OperatorTenantRetiredRequestSchema: GenMessage<OperatorTenantRetiredRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 7);
+
+/**
+ * @generated from message loft.OperatorTenantRetiredResponse
+ */
+export type OperatorTenantRetiredResponse = Message<"loft.OperatorTenantRetiredResponse"> & {
+  /**
+   * The longest retired first.
+   *
+   * @generated from field: repeated loft.OperatorTenantRetirement items = 1;
+   */
+  items: OperatorTenantRetirement[];
+};
+
+/**
+ * Describes the message loft.OperatorTenantRetiredResponse.
+ * Use `create(OperatorTenantRetiredResponseSchema)` to create a new message.
+ */
+export const OperatorTenantRetiredResponseSchema: GenMessage<OperatorTenantRetiredResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 8);
+
+/**
+ * @generated from message loft.OperatorTenantRetirement
+ */
+export type OperatorTenantRetirement = Message<"loft.OperatorTenantRetirement"> & {
+  /**
+   * @generated from field: bytes tenant = 1;
+   */
+  tenant: Uint8Array;
+
+  /**
+   * Its address, as the hold on it names it; empty once none is left.
+   *
+   * @generated from field: string alias = 2;
+   */
+  alias: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp retired = 3;
+   */
+  retired?: Timestamp | undefined;
+
+  /**
+   * When the last of the deployment's floors passes for what it kept.
+   *
+   * @generated from field: google.protobuf.Timestamp until = 4;
+   */
+  until?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorTenantRetirement.
+ * Use `create(OperatorTenantRetirementSchema)` to create a new message.
+ */
+export const OperatorTenantRetirementSchema: GenMessage<OperatorTenantRetirement> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 9);
+
+/**
+ * @generated from message loft.OperatorTenantDestroyRequest
+ */
+export type OperatorTenantDestroyRequest = Message<"loft.OperatorTenantDestroyRequest"> & {
+  /**
+   * @generated from field: loft.OperatorTenantRef ref = 1;
+   */
+  ref?: OperatorTenantRef | undefined;
+
+  /**
+   * Say what it would take, and take nothing.
+   *
+   * @generated from field: bool dry_run = 2;
+   */
+  dryRun: boolean;
+};
+
+/**
+ * Describes the message loft.OperatorTenantDestroyRequest.
+ * Use `create(OperatorTenantDestroyRequestSchema)` to create a new message.
+ */
+export const OperatorTenantDestroyRequestSchema: GenMessage<OperatorTenantDestroyRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 10);
+
+/**
+ * OperatorTenantDestroyResponse is a message of a destruction: what it is at
+ * while it works, and last, what it took.
+ *
+ * @generated from message loft.OperatorTenantDestroyResponse
+ */
+export type OperatorTenantDestroyResponse = Message<"loft.OperatorTenantDestroyResponse"> & {
+  /**
+   * @generated from field: string progress = 1;
+   */
+  progress: string;
+
+  /**
+   * @generated from field: loft.OperatorTenantDestroyed destroyed = 2;
+   */
+  destroyed?: OperatorTenantDestroyed | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorTenantDestroyResponse.
+ * Use `create(OperatorTenantDestroyResponseSchema)` to create a new message.
+ */
+export const OperatorTenantDestroyResponseSchema: GenMessage<OperatorTenantDestroyResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 11);
+
+/**
+ * @generated from message loft.OperatorTenantDestroyed
+ */
+export type OperatorTenantDestroyed = Message<"loft.OperatorTenantDestroyed"> & {
+  /**
+   * @generated from field: bytes tenant = 1;
+   */
+  tenant: Uint8Array;
+
+  /**
+   * @generated from field: string alias = 2;
+   */
+  alias: string;
+
+  /**
+   * @generated from field: bool dry_run = 3;
+   */
+  dryRun: boolean;
+
+  /**
+   * The rows taken, by table, and the files; the files that could not be
+   * removed, which are no row's any more.
+   *
+   * @generated from field: map<string, uint32> rows = 4;
+   */
+  rows: { [key: string]: number };
+
+  /**
+   * @generated from field: uint32 files = 5;
+   */
+  files: number;
+
+  /**
+   * @generated from field: repeated string lost = 6;
+   */
+  lost: string[];
+
+  /**
+   * What the trail's purge took: its rows in the database, alone and shared,
+   * and its archived chunks.
+   *
+   * @generated from field: uint32 trail_removed = 7;
+   */
+  trailRemoved: number;
+
+  /**
+   * @generated from field: uint32 trail_blanked = 8;
+   */
+  trailBlanked: number;
+
+  /**
+   * @generated from field: uint32 trail_chunks = 9;
+   */
+  trailChunks: number;
+
+  /**
+   * A retirement, which keeps what the deployment's floors are on, by kind,
+   * until when the last of them passes.
+   *
+   * @generated from field: bool retired = 10;
+   */
+  retired: boolean;
+
+  /**
+   * @generated from field: map<string, uint32> kept = 11;
+   */
+  kept: { [key: string]: number };
+
+  /**
+   * @generated from field: google.protobuf.Timestamp kept_until = 12;
+   */
+  keptUntil?: Timestamp | undefined;
+
+  /**
+   * On the roster in this process (`embedded`), the accounts that were in
+   * this workspace and no other, which went with it.
+   *
+   * @generated from field: bool embedded = 13;
+   */
+  embedded: boolean;
+
+  /**
+   * @generated from field: uint32 forgotten = 14;
+   */
+  forgotten: number;
+
+  /**
+   * For a deployment that bills (`bills`): why its final reading could not
+   * be handed to levyan, which bills it by its last daily one -- empty when
+   * it was; and that levyan is to be told it was destroyed (`tells`).
+   *
+   * @generated from field: bool bills = 15;
+   */
+  bills: boolean;
+
+  /**
+   * @generated from field: string unmeasured = 16;
+   */
+  unmeasured: string;
+
+  /**
+   * @generated from field: bool tells = 17;
+   */
+  tells: boolean;
+
+  /**
+   * Whether its contract purges it -- what the other of Retire and Purge
+   * does.
+   *
+   * @generated from field: bool contract_purges = 18;
+   */
+  contractPurges: boolean;
+};
+
+/**
+ * Describes the message loft.OperatorTenantDestroyed.
+ * Use `create(OperatorTenantDestroyedSchema)` to create a new message.
+ */
+export const OperatorTenantDestroyedSchema: GenMessage<OperatorTenantDestroyed> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 12);
+
+/**
+ * @generated from message loft.OperatorTenantImportRequest
+ */
+export type OperatorTenantImportRequest = Message<"loft.OperatorTenantImportRequest"> & {
+  /**
+   * @generated from oneof loft.OperatorTenantImportRequest.part
+   */
+  part: {
+    /**
+     * The first message.
+     *
+     * @generated from field: loft.OperatorTenantImportOptions options = 1;
+     */
+    value: OperatorTenantImportOptions;
+    case: "options";
+  } | {
+    /**
+     * Every other: the next of the export's bytes.
+     *
+     * @generated from field: bytes data = 2;
+     */
+    value: Uint8Array;
+    case: "data";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message loft.OperatorTenantImportRequest.
+ * Use `create(OperatorTenantImportRequestSchema)` to create a new message.
+ */
+export const OperatorTenantImportRequestSchema: GenMessage<OperatorTenantImportRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 13);
+
+/**
+ * @generated from message loft.OperatorTenantImportOptions
+ */
+export type OperatorTenantImportOptions = Message<"loft.OperatorTenantImportOptions"> & {
+  /**
+   * The address to restore it at, instead of the export's.
+   *
+   * @generated from field: string alias = 1;
+   */
+  alias: string;
+
+  /**
+   * Take the address though another workspace's hold is on it.
+   *
+   * @generated from field: bool reuse = 2;
+   */
+  reuse: boolean;
+
+  /**
+   * Say what it would put back, and put nothing back.
+   *
+   * @generated from field: bool dry_run = 3;
+   */
+  dryRun: boolean;
+};
+
+/**
+ * Describes the message loft.OperatorTenantImportOptions.
+ * Use `create(OperatorTenantImportOptionsSchema)` to create a new message.
+ */
+export const OperatorTenantImportOptionsSchema: GenMessage<OperatorTenantImportOptions> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 14);
+
+/**
+ * @generated from message loft.OperatorTenantImportResponse
+ */
+export type OperatorTenantImportResponse = Message<"loft.OperatorTenantImportResponse"> & {
+  /**
+   * @generated from field: bytes tenant = 1;
+   */
+  tenant: Uint8Array;
+
+  /**
+   * @generated from field: bool dry_run = 2;
+   */
+  dryRun: boolean;
+
+  /**
+   * The address it is at, and the export's when that is another: another
+   * workspace has it here, or it is not one this deployment gives.
+   *
+   * @generated from field: string alias = 3;
+   */
+  alias: string;
+
+  /**
+   * @generated from field: string asked = 4;
+   */
+  asked: string;
+
+  /**
+   * The holds on the address taken back, by why they were put.
+   *
+   * @generated from field: repeated string released = 5;
+   */
+  released: string[];
+
+  /**
+   * It was closed when it was exported, and is open.
+   *
+   * @generated from field: bool reopened = 6;
+   */
+  reopened: boolean;
+
+  /**
+   * It retired from here, and how many records of that the trail lifted
+   * taking it back first.
+   *
+   * @generated from field: bool retired = 7;
+   */
+  retired: boolean;
+
+  /**
+   * @generated from field: uint32 returned = 8;
+   */
+  returned: number;
+
+  /**
+   * The rows put back, by table; the export's left behind, by a table this
+   * build has not, with why; the files put back, and the ones its rows name
+   * that the export did not have.
+   *
+   * @generated from field: map<string, uint32> rows = 9;
+   */
+  rows: { [key: string]: number };
+
+  /**
+   * @generated from field: map<string, uint32> left = 10;
+   */
+  left: { [key: string]: number };
+
+  /**
+   * @generated from field: map<string, string> left_why = 11;
+   */
+  leftWhy: { [key: string]: string };
+
+  /**
+   * @generated from field: uint32 files = 12;
+   */
+  files: number;
+
+  /**
+   * @generated from field: repeated string missing = 13;
+   */
+  missing: string[];
+
+  /**
+   * The members whose accounts this roster does not have, restored with
+   * none, by alias.
+   *
+   * @generated from field: repeated string unlinked = 14;
+   */
+  unlinked: string[];
+
+  /**
+   * The export's manifest and the key that signed it: keep the export, for
+   * the trail it holds is not put back.
+   *
+   * @generated from field: string manifest = 15;
+   */
+  manifest: string;
+
+  /**
+   * @generated from field: string key = 16;
+   */
+  key: string;
+
+  /**
+   * Once put back: the things out held from when they were handed over
+   * (D53), and what levyan grants it -- `copied`, or why it is copied at the
+   * next comparison; empty for a deployment that bills nobody.
+   *
+   * @generated from field: uint32 held = 17;
+   */
+  held: number;
+
+  /**
+   * @generated from field: string grants = 18;
+   */
+  grants: string;
+};
+
+/**
+ * Describes the message loft.OperatorTenantImportResponse.
+ * Use `create(OperatorTenantImportResponseSchema)` to create a new message.
+ */
+export const OperatorTenantImportResponseSchema: GenMessage<OperatorTenantImportResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 15);
+
+/**
+ * @generated from message loft.OperatorTrailKeysRequest
+ */
+export type OperatorTrailKeysRequest = Message<"loft.OperatorTrailKeysRequest"> & {
+};
+
+/**
+ * Describes the message loft.OperatorTrailKeysRequest.
+ * Use `create(OperatorTrailKeysRequestSchema)` to create a new message.
+ */
+export const OperatorTrailKeysRequestSchema: GenMessage<OperatorTrailKeysRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 16);
+
+/**
+ * @generated from message loft.OperatorTrailKeysResponse
+ */
+export type OperatorTrailKeysResponse = Message<"loft.OperatorTrailKeysResponse"> & {
+  /**
+   * The key the deployment signs with now (`audit.checkpoints.key`), PKIX
+   * in DER; empty when it signs with none.
+   *
+   * @generated from field: bytes signer = 1;
+   */
+  signer: Uint8Array;
+
+  /**
+   * And the ones it trusts besides (`audit.checkpoints.trust`).
+   *
+   * @generated from field: repeated bytes trusted = 2;
+   */
+  trusted: Uint8Array[];
+};
+
+/**
+ * Describes the message loft.OperatorTrailKeysResponse.
+ * Use `create(OperatorTrailKeysResponseSchema)` to create a new message.
+ */
+export const OperatorTrailKeysResponseSchema: GenMessage<OperatorTrailKeysResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 17);
+
+/**
  * OperatorTenantService is what an operator does to a workspace from outside
  * it, besides what `TenantService` serves them.
  *
@@ -329,6 +799,78 @@ export const OperatorTenantService: GenService<{
     input: typeof OperatorTenantNameOwnerRequestSchema;
     output: typeof HolderSchema;
   },
+  /**
+   * Retired is the workspaces that retired from this deployment, and what is
+   * left of each: when it retired, and until when the deployment's floors
+   * keep what it kept (`trail.Policy.Retired`). What an operator asked to
+   * preserve a workspace's records reads first.
+   *
+   * @generated from rpc loft.OperatorTenantService.Retired
+   */
+  retired: {
+    methodKind: "unary";
+    input: typeof OperatorTenantRetiredRequestSchema;
+    output: typeof OperatorTenantRetiredResponseSchema;
+  },
+  /**
+   * Retire takes a workspace out of the deployment, keeping what the
+   * deployment's floors are on of its trail until they pass; Purge takes all
+   * of it, what the floors are on too (payday#115). Each is the closing
+   * sweep's destruction by an operator's hand (`closing.Destroy`): its rows,
+   * its files, the accounts of the roster in this process that were there
+   * alone, its final reading for levyan, and its address held. What it is at
+   * while it works, and last what it took -- or, for a dry run, would.
+   *
+   * @generated from rpc loft.OperatorTenantService.Retire
+   */
+  retire: {
+    methodKind: "server_streaming";
+    input: typeof OperatorTenantDestroyRequestSchema;
+    output: typeof OperatorTenantDestroyResponseSchema;
+  },
+  /**
+   * @generated from rpc loft.OperatorTenantService.Purge
+   */
+  purge: {
+    methodKind: "server_streaming";
+    input: typeof OperatorTenantDestroyRequestSchema;
+    output: typeof OperatorTenantDestroyResponseSchema;
+  },
+  /**
+   * Import restores a workspace from its signed export, into a deployment
+   * that does not have it -- the one it was purged from, or another (D34).
+   * The first message says how, and every other holds the next of the
+   * export's bytes; the file is the caller's.
+   *
+   * @generated from rpc loft.OperatorTenantService.Import
+   */
+  import: {
+    methodKind: "client_streaming";
+    input: typeof OperatorTenantImportRequestSchema;
+    output: typeof OperatorTenantImportResponseSchema;
+  },
 }> = /*@__PURE__*/
   serviceDesc(file_loft_operator, 0);
+
+/**
+ * OperatorTrailService is the trail, as the deployment's operator keeps it.
+ *
+ * @generated from service loft.OperatorTrailService
+ */
+export const OperatorTrailService: GenService<{
+  /**
+   * Keys is the public keys the deployment signs with and trusts: what an
+   * export of a workspace and a bundle of its trail are held to where they
+   * are read -- with the operator, beside the file and the identity that
+   * opens it, which never come here.
+   *
+   * @generated from rpc loft.OperatorTrailService.Keys
+   */
+  keys: {
+    methodKind: "unary";
+    input: typeof OperatorTrailKeysRequestSchema;
+    output: typeof OperatorTrailKeysResponseSchema;
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_loft_operator, 1);
 
