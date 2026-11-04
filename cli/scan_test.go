@@ -3,7 +3,6 @@ package cli_test
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -24,10 +23,10 @@ func TestAScanFindsALabelInAnotherOfTheAccountsWorkspaces(t *testing.T) {
 
 	s.signIn("owner", "owner1234")
 	var made struct{ Alias string }
-	out := run(t, cli.NewCmdWorkspace(), "new", "두 번째")
-	_, err := fmt.Sscanf(out, "@%s", &made.Alias)
-	x.NoError(err, out)
-	out = run(t, cli.NewCmdApi(), "--workspace", made.Alias, "call", "loft.LabelService.Print", `{"count": 1}`)
+	out := run(t, root(), "tenant", "create", "-o", "json", `{"name": "두 번째"}`)
+	x.NoError(json.Unmarshal([]byte(out), &made), out)
+	x.NotEmpty(made.Alias, out)
+	out = run(t, root(), "--workspace", made.Alias, "call", "loft.LabelService.Print", `{"count": 1}`)
 	var printed struct {
 		Labels []struct{ Id, Code string }
 		Urls   []string
@@ -45,7 +44,7 @@ func TestAScanFindsALabelInAnotherOfTheAccountsWorkspaces(t *testing.T) {
 	x.Contains(out, printed.Labels[0].Id)
 
 	s.signIn("kim", "kim-password")
-	err = cli.NewCmdScan().Run(context.Background(), []string{code})
+	err := cli.NewCmdScan().Run(context.Background(), []string{code})
 	x.ErrorContains(err, "NotFound", "a label in a workspace kim is not in")
 }
 

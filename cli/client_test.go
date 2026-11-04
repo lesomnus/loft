@@ -162,8 +162,8 @@ func (s *served) signIn(login, password string, allow ...string) {
 	}, args...))
 }
 
-// terminal is the cookie the connection in use holds, as `loft api` sends
-// it.
+// terminal is the cookie the connection in use holds, as the terminal's
+// commands send it.
 func (s *served) terminal() string {
 	s.t.Helper()
 	b, err := os.ReadFile(os.Getenv("LOFT_CLIENT_CONFIG"))
@@ -192,19 +192,19 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 	x.Contains(out, "owner")
 	x.Contains(out, "@acme\towner")
 
-	out = run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "노트북", "tag": "NB-1"}`)
+	out = run(t, root(), "asset", "add", "-o", "json", `{"name": "노트북", "tag": "NB-1"}`)
 	x.Contains(out, "노트북")
-	out = run(t, cli.NewCmdApi(), "asset", "search", "-o", "json", `{"q": "노트"}`)
+	out = run(t, root(), "asset", "search", "-o", "json", `{"q": "노트"}`)
 	x.Contains(out, "NB-1", "a domain operation, beside the verbs")
-	out = run(t, cli.NewCmdApi(), "call", "loft.AssetService.Search", `{"q": "NB"}`)
+	out = run(t, root(), "call", "loft.AssetService.Search", `{"q": "NB"}`)
 	x.Contains(out, "노트북", "any method by name")
-	out = run(t, cli.NewCmdApi(), "--workspace", "acme", "party", "me", "-o", "json")
+	out = run(t, root(), "--workspace", "acme", "party", "me", "-o", "json")
 	x.Contains(out, "owner", "naming the workspace")
 
-	out = run(t, cli.NewCmdWorkspace(), "new", "연구실")
+	out = run(t, root(), "tenant", "create", `{"name": "연구실"}`)
 	x.Contains(out, "연구실", "what an account has outside any one workspace")
-	out = run(t, cli.NewCmdWorkspace(), "ls")
-	x.Contains(out, "연구실")
+	out = run(t, root(), "workspace", "mine")
+	x.Contains(out, "연구실", "a tenant is what a person calls a workspace")
 	x.Error(cli.NewCmdUse().Run(context.Background(), []string{"nowhere"}), "a workspace it is not in")
 	run(t, cli.NewCmdUse(), "acme")
 	out = run(t, cli.NewCmdAuth(), "whoami")
@@ -216,26 +216,32 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 }
 
 // TestATerminalNamesAWorkspaceItsAccountOwns (D58): what a workspace is called,
-// said from the terminal as its settings say it -- and none of its own, and it
-// is called after its owner (D57). Its owner's alone.
+// said from the terminal as its settings say it (`tenant configure`, its
+// owner's one door) -- and none of its own, and it is called after its owner
+// (D57). Its owner's alone.
 func TestATerminalNamesAWorkspaceItsAccountOwns(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	ctx := context.Background()
 	s.signIn("owner", "owner1234")
+	called := func() string {
+		var mine struct {
+			Workspaces []struct{ Alias, Name string }
+		}
+		out := run(t, root(), "tenant", "mine", "-o", "json")
+		x.NoError(json.Unmarshal([]byte(out), &mine), out)
+		x.Len(mine.Workspaces, 1)
+		x.Equal("acme", mine.Workspaces[0].Alias)
+		return mine.Workspaces[0].Name
+	}
 
-	out := run(t, cli.NewCmdWorkspace(), "rename", "@acme", "연구실 장비")
-	x.Equal("@acme\t연구실 장비\n", out)
-	out = run(t, cli.NewCmdWorkspace(), "ls")
-	x.Contains(out, "@acme\towner\t연구실 장비")
-	out = run(t, cli.NewCmdWorkspace(), "rename", "--clear", "acme")
-	x.Equal("@acme\t관리자의 워크스페이스\n", out, "called after its owner, whom `loft init` calls so")
-
-	x.ErrorContains(cli.NewCmdWorkspace().Run(ctx, []string{"rename", "acme"}), "--clear")
-	x.ErrorContains(cli.NewCmdWorkspace().Run(ctx, []string{"rename", "--clear", "acme", "연구실"}), "not both")
+	x.Contains(run(t, root(), "tenant", "configure", "@acme", `{"name": "연구실 장비"}`), "연구실 장비")
+	x.Equal("연구실 장비", called())
+	run(t, root(), "ws", "conf", "@acme", `{"name": ""}`)
+	x.Equal("관리자의 워크스페이스", called(), "called after its owner, whom `loft init` calls so")
 
 	s.signIn("kim", "kim-password")
-	x.ErrorContains(cli.NewCmdWorkspace().Run(ctx, []string{"rename", "acme", "김의 장비"}), "PermissionDenied")
+	x.ErrorContains(root().Run(ctx, []string{"tenant", "configure", "@acme", `{"name": "김의 장비"}`}), "PermissionDenied")
 }
 
 // TestATerminalIsHeldToWhatItsAccountMay: the policy the page is held to,
@@ -245,9 +251,9 @@ func TestATerminalIsHeldToWhatItsAccountMay(t *testing.T) {
 	x := s.x
 	s.signIn("kim", "kim-password")
 
-	out := run(t, cli.NewCmdApi(), "asset", "ls", "-o", "json")
+	out := run(t, root(), "asset", "ls", "-o", "json")
 	x.NotContains(out, "error")
-	err := cli.NewCmdApi().Run(context.Background(), []string{"asset", "add", `{"name": "x"}`})
+	err := root().Run(context.Background(), []string{"asset", "add", `{"name": "x"}`})
 	x.ErrorContains(err, "PermissionDenied")
 }
 
@@ -270,9 +276,9 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 
 	out := run(t, cli.NewCmdAuth(), "whoami")
 	x.Contains(out, "allowed only: /loft.*/Get, /loft.*/List")
-	out = run(t, cli.NewCmdApi(), "asset", "ls", "-o", "json")
+	out = run(t, root(), "asset", "ls", "-o", "json")
 	x.NotContains(out, "error", "a read")
-	err := cli.NewCmdApi().Run(context.Background(), []string{"asset", "add", `{"name": "x"}`})
+	err := root().Run(context.Background(), []string{"asset", "add", `{"name": "x"}`})
 	x.ErrorContains(err, "PermissionDenied")
 	x.ErrorContains(err, "this credential is not for that", "though the owner may")
 
@@ -280,11 +286,11 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 	status, body := s.http(http.MethodGet, "/account", narrowed, nil)
 	x.Equal(http.StatusOK, status, body)
 	x.Contains(body, `"allow":[`)
-	out = run(t, cli.NewCmdWorkspace(), "ls")
-	x.Contains(out, "@acme", "what it is in, which it reads")
-	err = cli.NewCmdWorkspace().Run(context.Background(), []string{"export", "--reason", "몰래", "--out", filepath.Join(t.TempDir(), "x.zip"), "acme"})
+	out = run(t, root(), "tenant", "mine")
+	x.Contains(out, "acme", "what it is in, which it reads")
+	err = root().Run(context.Background(), []string{"--reason", "몰래", "tenant", "export", "--out", filepath.Join(t.TempDir(), "x.zip"), "acme"})
 	x.ErrorContains(err, "this credential is not for that", "no data out")
-	err = cli.NewCmdWorkspace().Run(context.Background(), []string{"new", "몰래"})
+	err = root().Run(context.Background(), []string{"tenant", "create", `{"name": "몰래"}`})
 	x.ErrorContains(err, "this credential is not for that", "no workspace made")
 
 	// Nor another terminal approved, which would be one that may do all of it.
@@ -298,8 +304,8 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 
 	// A pattern of one service is that service.
 	s.signIn("owner", "owner1234", "/loft.AssetService/*")
-	run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "노트북", "tag": "NB-1"}`)
-	err = cli.NewCmdApi().Run(context.Background(), []string{"party", "add", `{"name": "김민수"}`})
+	run(t, root(), "asset", "add", "-o", "json", `{"name": "노트북", "tag": "NB-1"}`)
+	err = root().Run(context.Background(), []string{"party", "add", `{"name": "김민수"}`})
 	x.ErrorContains(err, "this credential is not for that")
 
 	status, body = s.http(http.MethodPost, "/cli/logins", "", map[string]any{"secret": strings.Repeat("D", 43), "allow": []string{"loft.AssetService"}})
@@ -318,13 +324,13 @@ func TestAWatchComesThroughTheBrowsersAddress(t *testing.T) {
 		x.NoError(json.Unmarshal([]byte(out), &v), out)
 		return v.Id
 	}
-	room := id(run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "회의실", "kind": "space"}`))
-	printer := id(run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "프린터"}`))
+	room := id(run(t, root(), "asset", "add", "-o", "json", `{"name": "회의실", "kind": "space"}`))
+	printer := id(run(t, root(), "asset", "add", "-o", "json", `{"name": "프린터"}`))
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	buf := &syncBuffer{}
-	k := cli.NewCmdApi()
+	k := root()
 	k.Writer = buf
 	done := make(chan error, 1)
 	go func() { done <- k.Run(ctx, []string{"asset", "watch", "-o", "json", printer}) }()
@@ -339,7 +345,7 @@ func TestAWatchComesThroughTheBrowsersAddress(t *testing.T) {
 			t.Fatalf("nothing came down the stream: %q", buf.String())
 		case <-time.After(300 * time.Millisecond):
 		}
-		run(t, cli.NewCmdApi(), "asset", "move", printer, `{"to": {"id": "`+to+`"}}`)
+		run(t, root(), "asset", "move", printer, `{"to": {"id": "`+to+`"}}`)
 	}
 	cancel()
 	<-done

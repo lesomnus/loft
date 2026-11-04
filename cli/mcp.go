@@ -32,7 +32,7 @@ import (
 // assistant -- Claude Code, Claude Desktop -- to read a workspace with, as the
 // account this terminal signed in as (D32, loft#91).
 //
-// It is a terminal command like `loft api`, and holds nothing of its own. A
+// It is a terminal command like the schema's, and holds nothing of its own. A
 // tool is RPCs to the address a browser reaches the deployment at, with this
 // terminal's session: what an assistant can read is what its person can,
 // through the same policy and the same wall as the page, and the deployment

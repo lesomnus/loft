@@ -15,7 +15,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/lesomnus/loft/cli"
-	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/server/admin"
 	"github.com/lesomnus/loft/server/operator"
 )
@@ -53,12 +52,6 @@ func fails(t *testing.T, k *xli.Command, args ...string) error {
 	return err
 }
 
-// root is `loft`, as a shell runs it: the root's flags, then the command.
-func root() *xli.Command {
-	c := cmd.Config{}
-	return cli.Cmd(&c)
-}
-
 // TestAnOperatorKeepsWhereTheirKeyIs (D75): `loft auth login --operator` asks
 // the entry point who the key is before it keeps anything, and keeps where the
 // key is and never the key -- refused written out, and refused when the entry
@@ -88,7 +81,7 @@ func TestAnOperatorKeepsWhereTheirKeyIs(t *testing.T) {
 	x.NoError(err)
 	x.NotContains(string(b), operatorKey, "where the key is, and never the key")
 	x.Equal(fmt.Sprintf("alice, an operator (%s), at %s\n", operator.Id("alice"), ep), run(t, cli.NewCmdAuth(), "whoami"))
-	x.Contains(run(t, cli.NewCmdApi(), "call", "loft.OperatorTrailService.Owed"), "{", "the operator's own methods, as the operator")
+	x.Contains(run(t, root(), "call", "loft.OperatorTrailService.Owed"), "{", "the operator's own methods, as the operator")
 
 	// A person's beside it, the one in use once it is signed in.
 	s.signIn("owner", "owner1234")
@@ -108,13 +101,13 @@ func TestAnOperatorKeepsWhereTheirKeyIs(t *testing.T) {
 		args []string
 	}{
 		{cli.NewCmdUse(), []string{"acme"}},
-		{cli.NewCmdWorkspace(), []string{"ls"}},
+		{root(), []string{"tenant", "mine"}},
 		{cli.NewCmdConsent(), nil},
 	} {
 		x.ErrorContains(fails(t, v.k, v.args...), "this is an operator's connection", v.k.Name)
 	}
 	x.Contains(s.assistant().refused("whoami", nil), "this is an operator's connection")
-	x.ErrorContains(fails(t, cli.NewCmdApi(), "--workspace", "acme", "asset", "ls"), "an operator names the workspace in each command")
+	x.ErrorContains(fails(t, root(), "--workspace", "acme", "asset", "ls"), "an operator names the workspace in each command")
 
 	// The key is read where it is, each call: one moved is none.
 	x.NoError(os.Rename(file, file+".moved"))
@@ -185,25 +178,25 @@ func TestACallOfTheOtherKindSaysWhichConnectionItWants(t *testing.T) {
 	file := keyFile(t)
 
 	s.signIn("kim", "kim-password")
-	err := fails(t, cli.NewCmdApi(), "call", "loft.OperatorTrailService.Owed")
+	err := fails(t, root(), "call", "loft.OperatorTrailService.Owed")
 	x.Equal(codes.Unimplemented, status.Code(err))
 	x.ErrorContains(err, "/loft.OperatorTrailService/Owed is the operator's, and this is a person's connection: use an operator's (--key")
-	err = fails(t, cli.NewCmdApi(), "call", "loft.TenantService.Close", `{}`)
+	err = fails(t, root(), "call", "loft.TenantService.Close", `{}`)
 	x.Equal(codes.PermissionDenied, status.Code(err), "kim is no owner of acme: %v", err)
 	x.NotContains(err.Error(), "connection", "either kind's, refused as kim")
 
 	t.Setenv("LOFT_ADMIN_URL", ep)
 	t.Setenv("LOFT_ADMIN_KEY", "file:"+file)
-	err = fails(t, cli.NewCmdApi(), "asset", "ls")
+	err = fails(t, root(), "asset", "ls")
 	x.Equal(codes.Unimplemented, status.Code(err), "a service the entry point does not have")
 	x.ErrorContains(err, "/loft.AssetService/List is a person's, and this is an operator's connection: use a person's (--connection")
-	err = fails(t, cli.NewCmdApi(), "asset", "watch")
+	err = fails(t, root(), "asset", "watch")
 	x.Equal(codes.Unimplemented, status.Code(err), "a stream")
 	x.ErrorContains(err, "/loft.AssetService/Watch is a person's, and this is an operator's connection")
-	err = fails(t, cli.NewCmdApi(), "call", "loft.TenantService.Configure", `{}`)
+	err = fails(t, root(), "call", "loft.TenantService.Configure", `{}`)
 	x.Equal(codes.PermissionDenied, status.Code(err), "a method of a service it has, which its table does not name")
 	x.ErrorContains(err, "/loft.TenantService/Configure is a person's, and this is an operator's connection")
 
-	x.Contains(run(t, cli.NewCmdApi(), "call", "loft.OperatorTrailService.Owed"), "{", "the operator's own")
-	x.Contains(run(t, cli.NewCmdApi(), "tenant", "ls", "-o", "json"), `"acme"`, "an entity's the entry point serves, as the operator")
+	x.Contains(run(t, root(), "call", "loft.OperatorTrailService.Owed"), "{", "the operator's own")
+	x.Contains(run(t, root(), "tenant", "ls", "-o", "json"), `"acme"`, "an entity's the entry point serves, as the operator")
 }

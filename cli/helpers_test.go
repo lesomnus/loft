@@ -13,6 +13,7 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/stretchr/testify/require"
 
+	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/server/pd"
 )
@@ -39,6 +40,12 @@ func run(t *testing.T, k *xli.Command, args ...string) string {
 	b := <-read
 	x.NoError(err, "%s: %s", strings.Join(args, " "), b)
 	return string(b)
+}
+
+// root is `loft`, as a shell runs it: the root's flags, then the command.
+func root() *xli.Command {
+	c := cmd.Config{}
+	return cli.Cmd(&c)
 }
 
 // embeddedConfig is a deployment of a test's own, with the roster in this

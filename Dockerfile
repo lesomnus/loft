@@ -50,7 +50,7 @@ ENV LOFT_APP_WEB=/srv/loft/web \
 	LOFT_APP_FILES=/var/lib/loft/files
 WORKDIR /var/lib/loft
 USER nonroot:nonroot
-# 8080 is a browser's (and `loft api`'s), 50051 gRPC's, 8081 the operator's
+# 8080 is a browser's (and a person's `loft`), 50051 gRPC's, 8081 the operator's
 # entry point (`loft-admin serve`), which is never published to the public.
 EXPOSE 8080 50051 8081
 ENTRYPOINT ["/usr/local/bin/loft"]
