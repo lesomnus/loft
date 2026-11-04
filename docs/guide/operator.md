@@ -142,6 +142,14 @@ loft-admin contract set --name abroad --purge-floors --yes loft   # 셸의 `loft
 loft-admin contract show loft                             # 계약과 hold, 그것이 지금 정하는 보관 기간
 loft-admin hold place --why "사건 번호" --yes loft
 loft-admin hold lift --yes <ID>                            # ID는 workspace show의 hold 줄
+
+# 워크스페이스가 떠날 때 (내보내기 → 유예 → 파기, 아래 "워크스페이스가 떠날 때")
+loft-admin tenant export --reason "폐업 전 보관" --out loft.zip loft   # 내려받기: 접속기록에 까닭과 함께 남음
+loft-admin tenant verify --file loft.zip                  # 배포가 서명한 것인지, 진입점이 답하는 공개 열쇠로 여기서 확인
+loft-admin tenant purge loft                              # 무엇을 가져갈지만
+loft-admin tenant purge --yes loft                        # 파기 (retire는 바닥이 걸린 기록을 남김)
+loft-admin tenant import --file loft.zip --yes            # 내보내기에서 되살리기 (--file - 은 stdin)
+loft-admin tenant retired                                 # 은퇴한 워크스페이스와 남은 기록의 기한
 ```
 
 - 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다. 키를 바꿔도 이름이 같으면 기록에는 같은 운영자입니다.

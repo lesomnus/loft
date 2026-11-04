@@ -43,6 +43,7 @@ func (a Routes) Grpc(ctx context.Context, opts ...grpc.ServerOption) (*grpc.Serv
 	app.RegisterLegalHoldServiceServer(g, holds{a: a})
 	app.RegisterHolderServiceServer(g, holders{a: a})
 	app.RegisterOperatorTenantServiceServer(g, operatorTenants{a: a})
+	app.RegisterOperatorTrailServiceServer(g, operatorTrail{a: a})
 	return g, nil
 }
 

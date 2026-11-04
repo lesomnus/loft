@@ -276,7 +276,7 @@ func (s operatorTenants) Move(ctx context.Context, req *app.OperatorTenantMoveRe
 	from := t.Alias
 	until := time.Now().Add(s.a.C.App.Workspaces.Hold())
 	if !req.GetDryRun() {
-		if err := s.a.S.Closing.Rename(operator.Frame(ctx, pdid.Id(t.Id)), from, to, req.GetReuse()); err != nil {
+		if err := s.a.S.Closing.Rename(operator.Frame(ctx, pdid.Nil), from, to, req.GetReuse()); err != nil {
 			return nil, refused(err)
 		}
 	}

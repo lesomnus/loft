@@ -22,6 +22,10 @@ const (
 	OperatorTenantService_Show_FullMethodName      = "/loft.OperatorTenantService/Show"
 	OperatorTenantService_Move_FullMethodName      = "/loft.OperatorTenantService/Move"
 	OperatorTenantService_NameOwner_FullMethodName = "/loft.OperatorTenantService/NameOwner"
+	OperatorTenantService_Retired_FullMethodName   = "/loft.OperatorTenantService/Retired"
+	OperatorTenantService_Retire_FullMethodName    = "/loft.OperatorTenantService/Retire"
+	OperatorTenantService_Purge_FullMethodName     = "/loft.OperatorTenantService/Purge"
+	OperatorTenantService_Import_FullMethodName    = "/loft.OperatorTenantService/Import"
 )
 
 // OperatorTenantServiceClient is the client API for OperatorTenantService service.
@@ -43,6 +47,25 @@ type OperatorTenantServiceClient interface {
 	// NameOwner makes a member of a workspace one of its owners (decision 17):
 	// for one whose owners are gone, or who asked. Whoever owned it still does.
 	NameOwner(ctx context.Context, in *OperatorTenantNameOwnerRequest, opts ...grpc.CallOption) (*Holder, error)
+	// Retired is the workspaces that retired from this deployment, and what is
+	// left of each: when it retired, and until when the deployment's floors
+	// keep what it kept (`trail.Policy.Retired`). What an operator asked to
+	// preserve a workspace's records reads first.
+	Retired(ctx context.Context, in *OperatorTenantRetiredRequest, opts ...grpc.CallOption) (*OperatorTenantRetiredResponse, error)
+	// Retire takes a workspace out of the deployment, keeping what the
+	// deployment's floors are on of its trail until they pass; Purge takes all
+	// of it, what the floors are on too (payday#115). Each is the closing
+	// sweep's destruction by an operator's hand (`closing.Destroy`): its rows,
+	// its files, the accounts of the roster in this process that were there
+	// alone, its final reading for levyan, and its address held. What it is at
+	// while it works, and last what it took -- or, for a dry run, would.
+	Retire(ctx context.Context, in *OperatorTenantDestroyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTenantDestroyResponse], error)
+	Purge(ctx context.Context, in *OperatorTenantDestroyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTenantDestroyResponse], error)
+	// Import restores a workspace from its signed export, into a deployment
+	// that does not have it -- the one it was purged from, or another (D34).
+	// The first message says how, and every other holds the next of the
+	// export's bytes; the file is the caller's.
+	Import(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[OperatorTenantImportRequest, OperatorTenantImportResponse], error)
 }
 
 type operatorTenantServiceClient struct {
@@ -83,6 +106,67 @@ func (c *operatorTenantServiceClient) NameOwner(ctx context.Context, in *Operato
 	return out, nil
 }
 
+func (c *operatorTenantServiceClient) Retired(ctx context.Context, in *OperatorTenantRetiredRequest, opts ...grpc.CallOption) (*OperatorTenantRetiredResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorTenantRetiredResponse)
+	err := c.cc.Invoke(ctx, OperatorTenantService_Retired_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *operatorTenantServiceClient) Retire(ctx context.Context, in *OperatorTenantDestroyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTenantDestroyResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorTenantService_ServiceDesc.Streams[0], OperatorTenantService_Retire_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorTenantDestroyRequest, OperatorTenantDestroyResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTenantService_RetireClient = grpc.ServerStreamingClient[OperatorTenantDestroyResponse]
+
+func (c *operatorTenantServiceClient) Purge(ctx context.Context, in *OperatorTenantDestroyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTenantDestroyResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorTenantService_ServiceDesc.Streams[1], OperatorTenantService_Purge_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorTenantDestroyRequest, OperatorTenantDestroyResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTenantService_PurgeClient = grpc.ServerStreamingClient[OperatorTenantDestroyResponse]
+
+func (c *operatorTenantServiceClient) Import(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[OperatorTenantImportRequest, OperatorTenantImportResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorTenantService_ServiceDesc.Streams[2], OperatorTenantService_Import_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[OperatorTenantImportRequest, OperatorTenantImportResponse]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTenantService_ImportClient = grpc.ClientStreamingClient[OperatorTenantImportRequest, OperatorTenantImportResponse]
+
 // OperatorTenantServiceServer is the server API for OperatorTenantService service.
 // All implementations must embed UnimplementedOperatorTenantServiceServer
 // for forward compatibility.
@@ -102,6 +186,25 @@ type OperatorTenantServiceServer interface {
 	// NameOwner makes a member of a workspace one of its owners (decision 17):
 	// for one whose owners are gone, or who asked. Whoever owned it still does.
 	NameOwner(context.Context, *OperatorTenantNameOwnerRequest) (*Holder, error)
+	// Retired is the workspaces that retired from this deployment, and what is
+	// left of each: when it retired, and until when the deployment's floors
+	// keep what it kept (`trail.Policy.Retired`). What an operator asked to
+	// preserve a workspace's records reads first.
+	Retired(context.Context, *OperatorTenantRetiredRequest) (*OperatorTenantRetiredResponse, error)
+	// Retire takes a workspace out of the deployment, keeping what the
+	// deployment's floors are on of its trail until they pass; Purge takes all
+	// of it, what the floors are on too (payday#115). Each is the closing
+	// sweep's destruction by an operator's hand (`closing.Destroy`): its rows,
+	// its files, the accounts of the roster in this process that were there
+	// alone, its final reading for levyan, and its address held. What it is at
+	// while it works, and last what it took -- or, for a dry run, would.
+	Retire(*OperatorTenantDestroyRequest, grpc.ServerStreamingServer[OperatorTenantDestroyResponse]) error
+	Purge(*OperatorTenantDestroyRequest, grpc.ServerStreamingServer[OperatorTenantDestroyResponse]) error
+	// Import restores a workspace from its signed export, into a deployment
+	// that does not have it -- the one it was purged from, or another (D34).
+	// The first message says how, and every other holds the next of the
+	// export's bytes; the file is the caller's.
+	Import(grpc.ClientStreamingServer[OperatorTenantImportRequest, OperatorTenantImportResponse]) error
 	mustEmbedUnimplementedOperatorTenantServiceServer()
 }
 
@@ -120,6 +223,18 @@ func (UnimplementedOperatorTenantServiceServer) Move(context.Context, *OperatorT
 }
 func (UnimplementedOperatorTenantServiceServer) NameOwner(context.Context, *OperatorTenantNameOwnerRequest) (*Holder, error) {
 	return nil, status.Error(codes.Unimplemented, "method NameOwner not implemented")
+}
+func (UnimplementedOperatorTenantServiceServer) Retired(context.Context, *OperatorTenantRetiredRequest) (*OperatorTenantRetiredResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Retired not implemented")
+}
+func (UnimplementedOperatorTenantServiceServer) Retire(*OperatorTenantDestroyRequest, grpc.ServerStreamingServer[OperatorTenantDestroyResponse]) error {
+	return status.Error(codes.Unimplemented, "method Retire not implemented")
+}
+func (UnimplementedOperatorTenantServiceServer) Purge(*OperatorTenantDestroyRequest, grpc.ServerStreamingServer[OperatorTenantDestroyResponse]) error {
+	return status.Error(codes.Unimplemented, "method Purge not implemented")
+}
+func (UnimplementedOperatorTenantServiceServer) Import(grpc.ClientStreamingServer[OperatorTenantImportRequest, OperatorTenantImportResponse]) error {
+	return status.Error(codes.Unimplemented, "method Import not implemented")
 }
 func (UnimplementedOperatorTenantServiceServer) mustEmbedUnimplementedOperatorTenantServiceServer() {}
 func (UnimplementedOperatorTenantServiceServer) testEmbeddedByValue()                               {}
@@ -196,6 +311,53 @@ func _OperatorTenantService_NameOwner_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OperatorTenantService_Retired_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorTenantRetiredRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorTenantServiceServer).Retired(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorTenantService_Retired_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorTenantServiceServer).Retired(ctx, req.(*OperatorTenantRetiredRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OperatorTenantService_Retire_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorTenantDestroyRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorTenantServiceServer).Retire(m, &grpc.GenericServerStream[OperatorTenantDestroyRequest, OperatorTenantDestroyResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTenantService_RetireServer = grpc.ServerStreamingServer[OperatorTenantDestroyResponse]
+
+func _OperatorTenantService_Purge_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorTenantDestroyRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(OperatorTenantServiceServer).Purge(m, &grpc.GenericServerStream[OperatorTenantDestroyRequest, OperatorTenantDestroyResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTenantService_PurgeServer = grpc.ServerStreamingServer[OperatorTenantDestroyResponse]
+
+func _OperatorTenantService_Import_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(OperatorTenantServiceServer).Import(&grpc.GenericServerStream[OperatorTenantImportRequest, OperatorTenantImportResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type OperatorTenantService_ImportServer = grpc.ClientStreamingServer[OperatorTenantImportRequest, OperatorTenantImportResponse]
+
 // OperatorTenantService_ServiceDesc is the grpc.ServiceDesc for OperatorTenantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -214,6 +376,140 @@ var OperatorTenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NameOwner",
 			Handler:    _OperatorTenantService_NameOwner_Handler,
+		},
+		{
+			MethodName: "Retired",
+			Handler:    _OperatorTenantService_Retired_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Retire",
+			Handler:       _OperatorTenantService_Retire_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Purge",
+			Handler:       _OperatorTenantService_Purge_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "Import",
+			Handler:       _OperatorTenantService_Import_Handler,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "loft/operator.proto",
+}
+
+const (
+	OperatorTrailService_Keys_FullMethodName = "/loft.OperatorTrailService/Keys"
+)
+
+// OperatorTrailServiceClient is the client API for OperatorTrailService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorTrailService is the trail, as the deployment's operator keeps it.
+type OperatorTrailServiceClient interface {
+	// Keys is the public keys the deployment signs with and trusts: what an
+	// export of a workspace and a bundle of its trail are held to where they
+	// are read -- with the operator, beside the file and the identity that
+	// opens it, which never come here.
+	Keys(ctx context.Context, in *OperatorTrailKeysRequest, opts ...grpc.CallOption) (*OperatorTrailKeysResponse, error)
+}
+
+type operatorTrailServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorTrailServiceClient(cc grpc.ClientConnInterface) OperatorTrailServiceClient {
+	return &operatorTrailServiceClient{cc}
+}
+
+func (c *operatorTrailServiceClient) Keys(ctx context.Context, in *OperatorTrailKeysRequest, opts ...grpc.CallOption) (*OperatorTrailKeysResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorTrailKeysResponse)
+	err := c.cc.Invoke(ctx, OperatorTrailService_Keys_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperatorTrailServiceServer is the server API for OperatorTrailService service.
+// All implementations must embed UnimplementedOperatorTrailServiceServer
+// for forward compatibility.
+//
+// OperatorTrailService is the trail, as the deployment's operator keeps it.
+type OperatorTrailServiceServer interface {
+	// Keys is the public keys the deployment signs with and trusts: what an
+	// export of a workspace and a bundle of its trail are held to where they
+	// are read -- with the operator, beside the file and the identity that
+	// opens it, which never come here.
+	Keys(context.Context, *OperatorTrailKeysRequest) (*OperatorTrailKeysResponse, error)
+	mustEmbedUnimplementedOperatorTrailServiceServer()
+}
+
+// UnimplementedOperatorTrailServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorTrailServiceServer struct{}
+
+func (UnimplementedOperatorTrailServiceServer) Keys(context.Context, *OperatorTrailKeysRequest) (*OperatorTrailKeysResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Keys not implemented")
+}
+func (UnimplementedOperatorTrailServiceServer) mustEmbedUnimplementedOperatorTrailServiceServer() {}
+func (UnimplementedOperatorTrailServiceServer) testEmbeddedByValue()                              {}
+
+// UnsafeOperatorTrailServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorTrailServiceServer will
+// result in compilation errors.
+type UnsafeOperatorTrailServiceServer interface {
+	mustEmbedUnimplementedOperatorTrailServiceServer()
+}
+
+func RegisterOperatorTrailServiceServer(s grpc.ServiceRegistrar, srv OperatorTrailServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorTrailServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorTrailService_ServiceDesc, srv)
+}
+
+func _OperatorTrailService_Keys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorTrailKeysRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorTrailServiceServer).Keys(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorTrailService_Keys_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorTrailServiceServer).Keys(ctx, req.(*OperatorTrailKeysRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperatorTrailService_ServiceDesc is the grpc.ServiceDesc for OperatorTrailService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorTrailService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorTrailService",
+	HandlerType: (*OperatorTrailServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Keys",
+			Handler:    _OperatorTrailService_Keys_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -20,6 +20,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // connectConn is a connection to a deployment through the address a browser
@@ -120,10 +121,120 @@ func (c *connectConn) Invoke(ctx context.Context, method string, args, reply any
 }
 
 func (c *connectConn) NewStream(ctx context.Context, desc *grpc.StreamDesc, method string, _ ...grpc.CallOption) (grpc.ClientStream, error) {
-	if desc.ClientStreams {
-		return nil, status.Error(codes.Unimplemented, "connect: nothing here sends a stream")
+	switch {
+	case desc.ClientStreams && desc.ServerStreams:
+		// Both ways at once is HTTP/2's, and this speaks HTTP/1.1 as well.
+		return nil, status.Error(codes.Unimplemented, "connect: a stream both ways is not something sent here")
+	case desc.ClientStreams:
+		return newClientStream(ctx, c, method), nil
 	}
 	return &serverStream{ctx: ctx, c: c, method: method}, nil
+}
+
+// clientStream is one client stream: every message sent is the next envelope
+// of the request's body, which goes out as it is written, and the answer is
+// read once the body is closed -- a file uploaded a part at a time, never all
+// of it in memory.
+type clientStream struct {
+	ctx    context.Context
+	c      *connectConn
+	method string
+
+	body *io.PipeWriter
+	// answered is the response, once the server has begun one.
+	answered chan answered
+	answer   *serverStream
+}
+
+type answered struct {
+	res *http.Response
+	err error
+}
+
+func newClientStream(ctx context.Context, c *connectConn, method string) *clientStream {
+	r, w := io.Pipe()
+	s := &clientStream{ctx: ctx, c: c, method: method, body: w, answered: make(chan answered, 1)}
+	go func() {
+		req, err := c.request(ctx, method, "application/connect+proto", r)
+		if err != nil {
+			r.CloseWithError(err)
+			s.answered <- answered{err: status.Errorf(codes.Internal, "connect: %v", err)}
+			return
+		}
+		res, err := c.client.Do(req)
+		if err != nil {
+			r.CloseWithError(err)
+			s.answered <- answered{err: status.Errorf(codes.Unavailable, "%v", err)}
+			return
+		}
+		if res.StatusCode != http.StatusOK {
+			// Answered before the body was read, as a refusal is: what is
+			// still being sent goes nowhere.
+			data, _ := io.ReadAll(io.LimitReader(res.Body, 1<<20))
+			res.Body.Close()
+			err := errorOf(res.StatusCode, data)
+			r.CloseWithError(err)
+			s.answered <- answered{err: err}
+			return
+		}
+		s.answered <- answered{res: res}
+	}()
+	return s
+}
+
+func (s *clientStream) Header() (metadata.MD, error) { return metadata.MD{}, nil }
+func (s *clientStream) Trailer() metadata.MD         { return metadata.MD{} }
+func (s *clientStream) Context() context.Context     { return s.ctx }
+
+func (s *clientStream) SendMsg(m any) error {
+	v, ok := m.(proto.Message)
+	if !ok {
+		return status.Errorf(codes.Internal, "connect: %T is not a message", m)
+	}
+	b, err := proto.Marshal(v)
+	if err != nil {
+		return status.Errorf(codes.Internal, "connect: %v", err)
+	}
+	env := make([]byte, 5+len(b))
+	binary.BigEndian.PutUint32(env[1:5], uint32(len(b)))
+	copy(env[5:], b)
+	if _, err := s.body.Write(env); err != nil {
+		// The server answered already, and that answer is what to say.
+		if a := s.wait(); a.err != nil {
+			return a.err
+		}
+		return status.Errorf(codes.Unavailable, "connect: %v", err)
+	}
+	return nil
+}
+
+func (s *clientStream) CloseSend() error { return s.body.Close() }
+
+func (s *clientStream) RecvMsg(m any) error {
+	if s.answer == nil {
+		s.body.Close()
+		a := s.wait()
+		if a.err != nil {
+			return a.err
+		}
+		s.answer = &serverStream{ctx: s.ctx, c: s.c, method: s.method, res: a.res, body: bufio.NewReader(a.res.Body)}
+	}
+	if err := s.answer.RecvMsg(m); err != nil {
+		return err
+	}
+	// The one answer, and then how it ended: a stream that sent one and
+	// then failed failed.
+	if err := s.answer.RecvMsg(&emptypb.Empty{}); err != nil && !errors.Is(err, io.EOF) {
+		return err
+	}
+	return nil
+}
+
+// wait is the answer, once there is one; asked again, the same.
+func (s *clientStream) wait() answered {
+	a := <-s.answered
+	s.answered <- a
+	return a
 }
 
 // serverStream is one server stream: the request goes out when it is closed

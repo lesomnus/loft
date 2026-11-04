@@ -32,6 +32,7 @@ import (
 	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
 	entaudit "github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/holder"
@@ -294,7 +295,8 @@ func TestWhatAnOperatorDoesIsRecordedAsTheirs(t *testing.T) {
 		row, err := e.s.Ent.Audit.Query().Where(entaudit.ObjectId(uuid.UUID(id))).Only(bg)
 		x.NoError(err)
 		x.Equal(alice.Uuid(), row.ActorId)
-		x.Equal(acme, row.TenantId)
+		x.Equal(uuid.UUID{}, row.ActorTenantId, "the operator, held by no workspace")
+		x.Equal(acme, row.TenantId, "filed under the workspace it is of")
 	}
 
 	// Closed, by the operator who typed its address.
@@ -355,10 +357,18 @@ func TestAnOperatorMovesAnAddressAndNamesNoOtherThing(t *testing.T) {
 	ops := app.NewOperatorTenantServiceClient(e.conn)
 	ref := app.OperatorTenantRef_builder{Alias: z.Ptr("acme")}.Build()
 
+	trail, err := e.s.Ent.Audit.Query().Count(bg)
+	x.NoError(err)
 	v, err := ops.Move(ctx, app.OperatorTenantMoveRequest_builder{Ref: ref, To: "acme-two", DryRun: true}.Build())
 	x.NoError(err)
 	x.Equal("acme", v.GetFrom())
 	x.Equal("acme", v.GetTenant().GetAlias(), "a dry run moves nothing")
+	after, err := e.s.Ent.Audit.Query().Count(bg)
+	x.NoError(err)
+	x.Equal(trail, after, "and writes nothing")
+	kept, err := e.s.Ent.AliasHold.Query().Count(bg)
+	x.NoError(err)
+	x.Zero(kept, "and holds nothing")
 	_, err = ops.Move(ctx, app.OperatorTenantMoveRequest_builder{Ref: ref, To: "www", DryRun: true}.Build())
 	x.Equal(codes.FailedPrecondition, status.Code(err), "refused as the move would be: %v", err)
 
@@ -371,6 +381,14 @@ func TestAnOperatorMovesAnAddressAndNamesNoOtherThing(t *testing.T) {
 	rows, err := e.s.Ent.Audit.Query().Where(entaudit.ObjectId(moved.Id), entaudit.ActorId(operator.Id("alice").Uuid())).Count(bg)
 	x.NoError(err)
 	x.Positive(rows, "the move is on the trail as the operator's")
+	// And the old address, held: a row behind no wall, the deployment's, which
+	// outlives the workspace it sends people on to.
+	address, err := e.s.Ent.AliasHold.Query().Where(aliashold.Held("acme")).Only(bg)
+	x.NoError(err)
+	held, err := e.s.Ent.Audit.Query().Where(entaudit.ObjectId(address.Id)).Only(bg)
+	x.NoError(err)
+	x.Equal(operator.Id("alice").Uuid(), held.ActorId)
+	x.Equal(uuid.UUID{}, held.TenantId, "filed under no workspace, so that none takes it with it")
 	_, err = ops.Move(ctx, app.OperatorTenantMoveRequest_builder{
 		Ref: app.OperatorTenantRef_builder{Alias: z.Ptr("acme-two")}.Build(), To: "acme",
 	}.Build())
