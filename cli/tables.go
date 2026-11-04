@@ -35,7 +35,8 @@ var errBoth = errors.New("the table is there under both its names, with rows in 
 // What moves with the table is what ent named after it: its indexes
 // (`<table>_<name>`), its primary key on PostgreSQL (`<table>_pkey`), its
 // foreign keys (`<table>_<other>_<edge>`), and those of other tables that
-// point at it (`<other>_<table>_<edge>`). On PostgreSQL each is a change to
+// point at it (`<other>_<table>_<edge>`) -- and what PostgreSQL 18 named after
+// it, each column's NOT NULL (`<table>_<column>_not_null`). On PostgreSQL each is a change to
 // the catalog, all in one transaction, and nothing is built or copied. SQLite
 // renames the table in place and points what pointed at it at the new name,
 // and renames no index and no constraint: the old indexes are dropped, for
@@ -168,12 +169,14 @@ func moveTable(ctx context.Context, db *sql.DB, d, from, to string) error {
 			}
 		}
 	}
-	// Its foreign keys, and a check.
+	// Its foreign keys, a check, and its columns' NOT NULL, which PostgreSQL
+	// 18 keeps as a constraint of its own, named after the table it was made
+	// in (`<table>_<column>_not_null`).
 	own, err := column(ctx, tx, `
 		SELECT c.conname FROM pg_constraint c
 		JOIN pg_class t ON t.oid = c.conrelid
 		JOIN pg_namespace n ON n.oid = t.relnamespace
-		WHERE n.nspname = current_schema() AND t.relname = $1 AND c.contype IN ('f', 'c')`, to)
+		WHERE n.nspname = current_schema() AND t.relname = $1 AND c.contype IN ('f', 'c', 'n')`, to)
 	if err != nil {
 		return err
 	}

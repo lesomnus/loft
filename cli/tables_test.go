@@ -2,6 +2,8 @@ package cli_test
 
 import (
 	"context"
+	"database/sql"
+	"strings"
 	"testing"
 	"time"
 
@@ -37,6 +39,14 @@ func asTenantDomain(ctx context.Context, t *testing.T, s *cmd.Server) {
 			`ALTER INDEX domain_pkey RENAME TO tenantdomain_pkey`,
 			`ALTER TABLE tenantdomain RENAME CONSTRAINT domain_tenant_tenant TO tenantdomain_tenant_tenant`,
 			`ALTER TABLE label RENAME CONSTRAINT label_domain_domain TO label_tenantdomain_domain`)
+		// And what PostgreSQL 18 named after the table it made them in: each
+		// column's NOT NULL, `tenantdomain_<column>_not_null` in that build's.
+		// PostgreSQL 17 keeps no such constraint.
+		for _, n := range names(t, s.Db, `SELECT conname FROM pg_constraint WHERE conrelid = 'tenantdomain'::regclass AND contype = 'n'`) {
+			rest, ok := strings.CutPrefix(n, "domain_")
+			x.True(ok, "a NOT NULL of the table named %s", n)
+			execOn(t, s.Db, `ALTER TABLE tenantdomain RENAME CONSTRAINT `+n+` TO tenantdomain_`+rest)
+		}
 		return
 	}
 
@@ -60,6 +70,25 @@ func asTenantDomain(ctx context.Context, t *testing.T, s *cmd.Server) {
 	var ok string
 	x.NoError(conn.QueryRowContext(ctx, `PRAGMA integrity_check`).Scan(&ok))
 	x.Equal("ok", ok)
+}
+
+// names is the first column of each row `q` answers.
+func names(t *testing.T, db *sql.DB, q string) []string {
+	t.Helper()
+
+	rows, err := db.QueryContext(t.Context(), q)
+	require.NoError(t, err, q)
+	defer rows.Close()
+
+	out := []string{}
+	for rows.Next() {
+		var v string
+		require.NoError(t, rows.Scan(&v))
+		out = append(out, v)
+	}
+	require.NoError(t, rows.Err())
+
+	return out
 }
 
 // TestADomainsTableAnEarlierBuildMadeIsMovedToItsName (D72): a workspace's
@@ -134,6 +163,14 @@ func TestADomainsTableAnEarlierBuildMadeIsMovedToItsName(t *testing.T) {
 			x.NoError(s.Db.QueryRowContext(ctx, `SELECT count(*) FROM pg_constraint WHERE conname = $1 AND conrelid = $2::regclass`, c.name, c.table).Scan(&n))
 			x.Equal(1, n, "constraint %s of %s", c.name, c.table)
 		}
+		// And nothing in its schema is still called after the table it was:
+		// a database migrated is named as one this build made.
+		x.Empty(names(t, s.Db, `
+			SELECT c.conname FROM pg_constraint c JOIN pg_namespace n ON n.oid = c.connamespace
+			WHERE n.nspname = current_schema() AND c.conname LIKE '%tenantdomain%'
+			UNION ALL
+			SELECT indexname FROM pg_indexes WHERE schemaname = current_schema() AND indexname LIKE '%tenantdomain%'`),
+			"named after the table it was")
 	}
 
 	d, err := s.Ent.Domain.Get(ctx, dom)
