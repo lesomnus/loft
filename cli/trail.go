@@ -1,4 +1,4 @@
-package admincli
+package cli
 
 import (
 	"bufio"
@@ -17,23 +17,33 @@ import (
 
 	"filippo.io/age"
 	"filippo.io/age/plugin"
-	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/arg"
 	"github.com/lesomnus/xli/flg"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 
 	app "github.com/lesomnus/loft"
 )
 
-// newCmdTrail is `loft-admin trail`: the trail's archive checked against the
+// trailWritten is `loft trail`: the trail's archive checked against the
 // account the database keeps of it, the live rows checked against the trail,
 // what an operator who looked accepts, what its erasures owe, and a
-// workspace's trail taken out (design 9.15). `verify` and `rows` change
-// nothing and fail when they found something, so that a schedule can run
-// them.
+// workspace's trail taken out (design 9.15) -- the operator's, but for a
+// bundle held to the keys `--trust` names. `verify` and `rows` change nothing
+// and fail when they found something, so that a schedule can run them.
+func trailWritten() []written {
+	return group(newCmdTrail(), map[string][]string{
+		"verify":      {app.OperatorTrailService_Verify_FullMethodName},
+		"accept":      {app.OperatorTrailService_Accept_FullMethodName},
+		"rows":        {app.OperatorTrailService_Rows_FullMethodName},
+		"accept-rows": {app.OperatorTrailService_AcceptRows_FullMethodName},
+		"owed":        {app.OperatorTrailService_Owed_FullMethodName},
+		"keys":        {app.OperatorTrailService_Keys_FullMethodName},
+		"export":      {app.OperatorTrailService_Export_FullMethodName},
+	})
+}
+
 func newCmdTrail() *xli.Command {
 	return &xli.Command{
 		Name:  "trail",
@@ -45,7 +55,7 @@ func newCmdTrail() *xli.Command {
 				Flags: flg.Flags{&flg.Switch{Name: "full", Brief: "also read every chunk whole and check its bytes"}},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					full, _ := flg.Find[bool](self, "full")
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -96,7 +106,7 @@ func newCmdTrail() *xli.Command {
 					if behind {
 						how += " --restored <the checkpoint the backup holds>"
 					}
-					return fmt.Errorf("%d findings: look at each, and `trail accept %s --why ...` once the archive is right", len(v.GetFindings()), how)
+					return fmt.Errorf("%d findings: look at each, and `loft trail accept %s --why ...` once the archive is right", len(v.GetFindings()), how)
 				}),
 			},
 			{
@@ -121,7 +131,7 @@ func newCmdTrail() *xli.Command {
 					if k, ok := flg.Find[int](self, "restored"); ok {
 						req.SetRestored(int32(k))
 					}
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -149,19 +159,10 @@ func newCmdTrail() *xli.Command {
 			{
 				Name:  "rows",
 				Brief: "check the live rows against the digests the trail keeps of them, changing nothing",
-				Flags: flg.Flags{
-					&flg.Switch{Name: "accept", Brief: "put what the check found on the trail as accepted, once somebody has looked"},
-					&flg.String{Name: "of", Brief: "with --accept, the digest a check printed of what was looked at"},
-					&flg.String{Name: "why", Brief: "what was looked at and decided, with --accept; it is logged"},
-				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					accept, _ := flg.Find[bool](self, "accept")
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
-					}
-					if accept {
-						return acceptRows(ctx, self, conn, str(self, "of"), str(self, "why"))
 					}
 					stream, err := app.NewOperatorTrailServiceClient(conn).Rows(ctx, &app.OperatorTrailRowsRequest{})
 					if err != nil {
@@ -180,7 +181,25 @@ func newCmdTrail() *xli.Command {
 						return errors.New("the entry point said nothing of what it found")
 					}
 					if n := printRows(self, v); n > 0 {
-						return fmt.Errorf("%d findings: look at each, and `trail rows --accept --of %s --why ...` once the rows are right", n, v.GetDigest())
+						return fmt.Errorf("%d findings: look at each, and `loft trail accept-rows --of %s --why ...` once the rows are right", n, v.GetDigest())
+					}
+					return next(ctx)
+				}),
+			},
+			{
+				Name:  "accept-rows",
+				Brief: "put what a check of the rows found on the trail as accepted, once somebody has looked",
+				Flags: flg.Flags{
+					&flg.String{Name: "of", Brief: "the digest `trail rows` printed of what was looked at"},
+					&flg.String{Name: "why", Brief: "what was looked at and decided; it is logged"},
+				},
+				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+					conn, err := operatorFor(ctx, self)
+					if err != nil {
+						return err
+					}
+					if err := acceptRows(ctx, self, conn, str(self, "of"), str(self, "why")); err != nil {
+						return err
 					}
 					return next(ctx)
 				}),
@@ -189,7 +208,7 @@ func newCmdTrail() *xli.Command {
 				Name:  "owed",
 				Brief: "what is owed of the trail's erasures and not paid yet: how many, since when, and what a legal hold keeps",
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -203,7 +222,7 @@ func newCmdTrail() *xli.Command {
 					}
 					self.Printf("%d erasure(s) owed, the oldest since %s\n", o.GetObjects(), o.GetOldest().AsTime().UTC().Format(time.RFC3339))
 					for _, h := range o.GetHeld() {
-						name := idOf(h.GetTenant())
+						name := idSaid(h.GetTenant())
 						if h.GetAlias() != "" {
 							name = "@" + h.GetAlias() + " (" + name + ")"
 						}
@@ -216,7 +235,7 @@ func newCmdTrail() *xli.Command {
 				Name:  "keys",
 				Brief: "the public keys the deployment signs with and trusts, as PEM: what an export and a trail's bundle are held to, for whoever checks one outside it (--trust)",
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -275,7 +294,7 @@ func printRows(self *xli.Command, v *app.OperatorTrailRowsChecked) int {
 	self.Printf("digest %s\n", v.GetDigest())
 	if u := v.GetUnsealed(); u > 0 {
 		self.Printf("%d rows from before seals: what is personal in them is vouched for by nothing until "+
-			"`trail rows --accept --of %s --why ...` seals them\n", u, v.GetDigest())
+			"`loft trail accept-rows --of %s --why ...` seals them\n", u, v.GetDigest())
 	}
 	for _, what := range []string{"differs", "forged", "no-digest", "not-on-trail", "key-not-held", "missing"} {
 		fs := by[what]
@@ -299,7 +318,7 @@ func printRows(self *xli.Command, v *app.OperatorTrailRowsChecked) int {
 		}
 		self.Printf("  %s by kind: %s\n", what, strings.Join(parts, ", "))
 		for _, f := range fs {
-			self.Printf("  %s %s %s\n", what, f.GetKind(), idOf(f.GetId()))
+			self.Printf("  %s %s %s\n", what, f.GetKind(), idSaid(f.GetId()))
 		}
 	}
 	for _, k := range v.GetUnheld() {
@@ -311,7 +330,7 @@ func printRows(self *xli.Command, v *app.OperatorTrailRowsChecked) int {
 	return len(v.GetFindings())
 }
 
-// acceptRows is `trail rows --accept`.
+// acceptRows is `loft trail accept-rows`.
 func acceptRows(ctx context.Context, self *xli.Command, conn grpc.ClientConnInterface, of, why string) error {
 	if of == "" {
 		return errors.New("--of: the digest `trail rows` printed of what was looked at")
@@ -336,24 +355,25 @@ func acceptRows(ctx context.Context, self *xli.Command, conn grpc.ClientConnInte
 	return nil
 }
 
-// newCmdTrailExport is `loft-admin trail export`: a workspace's trail taken
-// out, encrypted to whoever keeps it, for a demand to preserve it (loft#153).
-// A download: what it is for is required, and the access record names
-// everybody whose data it carries before its first byte.
+// newCmdTrailExport is `loft trail export`: a workspace's trail taken out,
+// encrypted to whoever keeps it, for a demand to preserve it (loft#153). A
+// download: what it is for is required (`--reason`, before the command, the
+// request it answers: a case, a demand to preserve -- kept in the bundle),
+// and the access record names everybody whose data it carries before its
+// first byte.
 func newCmdTrailExport() *xli.Command {
 	return &xli.Command{
 		Name:  "export",
-		Brief: "take a workspace's trail out, encrypted to whoever keeps it, for a demand to preserve it",
+		Brief: "take a workspace's trail out, encrypted to whoever keeps it, for a demand to preserve it (--reason first)",
 		Flags: flg.Flags{
-			&flg.String{Name: "reason", Brief: "the request it answers: a case, a demand to preserve; it is recorded, and kept in the bundle"},
 			&flg.String{Name: "to", Brief: "whoever keeps it: an age recipient (age1…, age1yubikey1…), or a file of them, read here"},
 			&flg.String{Name: "out", Brief: "the file to write, which must not be there, or - for stdout"},
 		},
 		Args: arg.Args{&arg.String{Name: "WORKSPACE", Brief: "its identifier, or its address -- a destroyed one's, as the hold on it names it"}},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			why := str(self, "reason")
+			why := reasonOf(ctx)
 			if why == "" {
-				return errors.New("--reason: what it answers -- it hands people's data out, and is recorded")
+				return errors.New("--reason, before the command: the request it answers -- it hands people's data out, and is recorded")
 			}
 			out := str(self, "out")
 			if out == "" {
@@ -368,11 +388,10 @@ func newCmdTrailExport() *xli.Command {
 				return fmt.Errorf("--to: %w", err)
 			}
 			ws, _ := arg.Get[string](self, "WORKSPACE")
-			conn, err := connOf(self)
+			conn, err := operatorFor(ctx, self)
 			if err != nil {
 				return err
 			}
-			ctx = metadata.AppendToOutgoingContext(ctx, access.ReasonKey, why)
 			stream, err := app.NewOperatorTrailServiceClient(conn).Export(ctx, app.OperatorTrailExportRequest_builder{
 				Tenant: ws,
 				To:     strings.Split(doc, "\n"),
@@ -429,7 +448,7 @@ func newCmdTrailExport() *xli.Command {
 				return err
 			}
 
-			whose := idOf(x.GetTenant())
+			whose := idSaid(x.GetTenant())
 			if x.GetAlias() != "" {
 				whose = "@" + x.GetAlias() + " (" + whose + ")"
 			}
@@ -451,7 +470,7 @@ func newCmdTrailExport() *xli.Command {
 				}
 			}
 			if x.HasRetired() {
-				fmt.Fprintf(say, "  retired %s; what it kept is kept until %s\n", at(x.GetRetired()), at(x.GetKeptUntil()))
+				fmt.Fprintf(say, "  retired %s; what it kept is kept until %s\n", dayOf(x.GetRetired()), dayOf(x.GetKeptUntil()))
 			}
 			fmt.Fprintf(say, "  %d people in the access record, as a download, for %q\n", x.GetPeople(), why)
 			return next(ctx)
@@ -459,11 +478,11 @@ func newCmdTrailExport() *xli.Command {
 	}
 }
 
-// newCmdTrailVerifyExport is `loft-admin trail verify-export`: whether a
-// bundle is what the deployment wrote -- every file what its manifest says,
-// and the manifest signed by a key the deployment trusts, as the entry point
-// says them (`trail.OpenTenantExport`). The bundle and the identity it opens
-// with stay here.
+// newCmdTrailVerifyExport is `loft trail verify-export`: whether a bundle is
+// what the deployment wrote -- every file what its manifest says, and the
+// manifest signed by a key the deployment trusts, as `--trust` or the entry
+// point says them (`trail.OpenTenantExport`). The bundle and the identity it
+// opens with stay here.
 func newCmdTrailVerifyExport() *xli.Command {
 	return &xli.Command{
 		Name:  "verify-export",

@@ -1,4 +1,4 @@
-package admincli_test
+package cli_test
 
 import (
 	"archive/zip"
@@ -21,7 +21,6 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cli"
-	admincli "github.com/lesomnus/loft/cli/admin"
 	"github.com/lesomnus/loft/cmd"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/aliashold"
@@ -50,22 +49,22 @@ func archived(t *testing.T) *deployment {
 	c.Audit.Checkpoints.Key = pdtest.Key(t)
 	c.Audit.By = map[string]config.AuditKeepConfig{"holder": {Min: config.AuditMinConfig{Destroy: 365 * 24 * time.Hour}}}
 	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
-	_, err := run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
-	_, err = run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
+	_, err = ran(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
 	x.NoError(err)
 
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
 	loftest.Member(t, s, "acme", "kim", "member", "kim-password")
-	ops, err := admin.Operators(map[string]string{"alice": key})
+	ops, err := admin.Operators(map[string]string{"alice": operatorKey})
 	x.NoError(err)
 	h, err := admin.Routes{S: s, C: c, Operators: ops}.Handler(t.Context())
 	x.NoError(err)
 	srv := httptest.NewServer(h)
 	t.Cleanup(srv.Close)
-	return &deployment{c: c, s: s, url: srv.URL}
+	return &deployment{c: c, s: s, url: srv.URL, key: keyRef(t)}
 }
 
 // written is how many rows of what a change writes the deployment holds:
@@ -105,14 +104,14 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	zip := filepath.Join(dir, "acme.zip")
 	must := func(args ...string) string {
 		t.Helper()
-		out, err := d.admin(t, args...)
+		out, err := d.loft(t, args...)
 		x.NoError(err, "%s: %s", strings.Join(args, " "), out)
 		return out
 	}
 
-	_, err := d.admin(t, "tenant", "export", "--out", zip, "acme")
+	_, err := d.loft(t, "tenant", "export", "--out", zip, "acme")
 	x.ErrorContains(err, "--reason", "a download says what it is for")
-	out := must("tenant", "export", "--reason", "폐업 전 보관", "--out", zip, "acme")
+	out := must("--reason", "폐업 전 보관", "tenant", "export", "--out", zip, "acme")
 	x.Contains(out, zip+": ")
 	x.Contains(out, "rows of")
 	row, err := d.s.Ent.Access.Query().Where(entaccess.Action(app.TenantService_Export_FullMethodName)).Only(ctx)
@@ -132,21 +131,21 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	// public keys, as `trail keys` printed them.
 	trust := filepath.Join(dir, "deployment.pem")
 	x.NoError(os.WriteFile(trust, []byte(must("trail", "keys")), 0o644))
-	out, err = run(t, admincli.Cmd(&d.c), "tenant", "verify", "--trust", trust, "--file", zip)
+	out, err = ran(t, root(), "tenant", "verify", "--trust", trust, "--file", zip)
 	x.NoError(err, out)
 	x.Contains(out, "signed by a trusted key")
 	cut := filepath.Join(dir, "cut.zip")
 	b, err := os.ReadFile(zip)
 	x.NoError(err)
 	x.NoError(os.WriteFile(cut, b[:len(b)-10], 0o600))
-	_, err = d.admin(t, "tenant", "verify", "--file", cut)
+	_, err = d.loft(t, "tenant", "verify", "--file", cut)
 	x.Error(err, "a file cut short")
 	// The same archive with one byte of one row changed (design D34).
 	altered := filepath.Join(dir, "altered.zip")
 	x.NoError(os.WriteFile(altered, changed(t, b, func(name string) bool {
 		return name == "rows/tenant.jsonl" || strings.HasPrefix(name, "rows/holder")
 	}), 0o600))
-	_, err = d.admin(t, "tenant", "verify", "--file", altered)
+	_, err = d.loft(t, "tenant", "verify", "--file", altered)
 	x.ErrorIs(err, offboard.ErrAltered)
 
 	signsIn := func(login, password string) error {
@@ -154,7 +153,7 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 		return err
 	}
 	before := written(t, d)
-	x.Contains(must("contract", "show", "acme"), "destroyed: retired", "a workspace with no contract retires")
+	x.Contains(must("tenant", "show", "acme"), "contract\tnone: destroyed, it retires", "a workspace with no contract retires")
 	out = must("tenant", "retire", "acme")
 	x.Contains(out, "acme: would take")
 	x.Contains(out, "for the deployment's floors: holder", "a retirement keeps what a floor is on")
@@ -200,13 +199,13 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	f, err := os.Open(zip)
 	x.NoError(err)
 	defer f.Close()
-	k := admincli.Cmd(&d.c)
+	k := root()
 	k.ReadCloser = io.NopCloser(f)
-	out, err = run(t, k, "--url", d.url, "--key", key, "tenant", "import", "--file", "-", "--yes")
+	out, err = ran(t, k, "--url", d.url, "--key", d.key, "tenant", "import", "--file", "-", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "@acme: put back")
 	x.Contains(out, "from the export whose manifest is sha256:")
-	_, err = d.admin(t, "tenant", "import", "--file", zip, "--yes")
+	_, err = d.loft(t, "tenant", "import", "--file", zip, "--yes")
 	x.ErrorContains(err, offboard.ErrNotNew.Error(), "put back twice")
 	// Every row put back is on the trail as the restore that put it there
 	// (payday#108), so a check of the rows finds nothing.
@@ -232,7 +231,7 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	// A retirement, and what is left of it -- and one a contract says purges
 	// says so before it is asked to retire.
 	x.Contains(must("tenant", "retired"), "no workspace has retired")
-	out = must("contract", "set", "--name", "abroad", "--desc", "under another law", "--purge-floors", "--yes", "acme")
+	out = must("tenant-contract", "add", "--name", "abroad", "--desc", "under another law", "--purge-floors", "--yes", "acme")
 	x.Contains(out, "then purge\tunder another law")
 	x.Contains(must("tenant", "retire", "acme"), "its contract purges it", "a retirement against its contract says so")
 	out = must("tenant", "retire", "--yes", "beta")
@@ -282,18 +281,18 @@ func TestAWorkspaceLeavesAndComesBackThroughStdio(t *testing.T) {
 	t.Setenv("TMPDIR", tmp)
 	d := archived(t)
 
-	// stdio runs `loft-admin` with `in` as its stdin, and answers with what
+	// stdio runs `loft` with `in` as its stdin, and answers with what
 	// it wrote to stdout and to stderr.
 	stdio := func(in []byte, args ...string) (string, string) {
 		t.Helper()
 		var out, said bytes.Buffer
-		k := admincli.Cmd(&d.c)
+		k := root()
 		k.ReadCloser, k.Writer, k.ErrWriter = io.NopCloser(bytes.NewReader(in)), &out, &said
-		x.NoError(k.Run(t.Context(), append([]string{"--url", d.url, "--key", key}, args...)), "%s: %s", strings.Join(args, " "), said.String())
+		x.NoError(k.Run(t.Context(), append([]string{"--url", d.url, "--key", d.key}, args...)), "%s: %s", strings.Join(args, " "), said.String())
 		return out.String(), said.String()
 	}
 
-	archive, said := stdio(nil, "tenant", "export", "--reason", "leaving", "--out", "-", "acme")
+	archive, said := stdio(nil, "--reason", "leaving", "tenant", "export", "--out", "-", "acme")
 	_, err := zip.NewReader(strings.NewReader(archive), int64(len(archive)))
 	x.NoError(err, "stdout is the archive, and nothing else")
 	x.Contains(said, "stdout: ", "and what the command says is on stderr")
@@ -311,7 +310,7 @@ func TestAWorkspaceLeavesAndComesBackThroughStdio(t *testing.T) {
 }
 
 // TestAContractShowsWhatTheWorkspaceKeeps (D36): how long a workspace keeps
-// its history is its own setting, which `contract show` says beside its
+// its history is its own setting, which `tenant show` says beside its
 // contracts -- a window made shorter, until when the longer one holds -- and
 // which no contract writes.
 func TestAContractShowsWhatTheWorkspaceKeeps(t *testing.T) {
@@ -319,20 +318,20 @@ func TestAContractShowsWhatTheWorkspaceKeeps(t *testing.T) {
 	ctx := context.Background()
 	d := deploy(t)
 
-	out, err := d.admin(t, "contract", "show", "acme")
+	out, err := d.loft(t, "tenant", "show", "acme")
 	x.NoError(err, out)
-	x.Contains(out, "history: kept forever", "a workspace that says nothing")
-	x.Contains(out, "no contract: a destroyed workspace retires")
+	x.Contains(out, "keeps\thistory forever,", "a workspace that says nothing")
+	x.Contains(out, "contract\tnone: destroyed, it retires")
 
 	tn, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)
 	since := time.Now().Add(-24 * time.Hour)
 	_, err = d.s.Ent.Tenant.UpdateOneId(tn.Id).SetKeepDays(180).SetKeepDaysBefore(0).SetDateKeepShortened(since).Save(ctx)
 	x.NoError(err)
-	out, err = d.admin(t, "contract", "show", "acme")
+	out, err = d.loft(t, "tenant", "show", "acme")
 	x.NoError(err, out)
-	x.Contains(out, "history: kept forever", "made shorter yesterday, and the grace not over")
-	x.Contains(out, "until "+since.Add(30*24*time.Hour).UTC().Format(time.DateOnly)+", then 180d")
+	x.Contains(out, "keeps\thistory forever,", "made shorter yesterday, and the grace not over")
+	x.Contains(out, "history\tuntil "+since.Add(30*24*time.Hour).UTC().Format(time.DateOnly)+", then 180d")
 }
 
 // TestAWorkspaceUnderAHoldIsNotDestroyed: a hold refuses the destruction
@@ -340,9 +339,9 @@ func TestAContractShowsWhatTheWorkspaceKeeps(t *testing.T) {
 func TestAWorkspaceUnderAHoldIsNotDestroyed(t *testing.T) {
 	x := require.New(t)
 	d := archived(t)
-	_, err := d.admin(t, "hold", "place", "--why", "a case", "--yes", "acme")
+	_, err := d.loft(t, "legal-hold", "add", "--why", "a case", "--yes", "acme")
 	x.NoError(err)
-	_, err = d.admin(t, "tenant", "purge", "--yes", "acme")
+	_, err = d.loft(t, "tenant", "purge", "--yes", "acme")
 	x.ErrorContains(err, "legal hold")
 	here, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(context.Background())
 	x.NoError(err)
@@ -356,12 +355,12 @@ func TestAnUnsignedExportIsSaidToBe(t *testing.T) {
 	x := require.New(t)
 	d := deploy(t)
 	zip := filepath.Join(t.TempDir(), "acme.zip")
-	out, err := d.admin(t, "tenant", "export", "--reason", "a request", "--out", zip, "acme")
+	out, err := d.loft(t, "--reason", "a request", "tenant", "export", "--out", zip, "acme")
 	x.NoError(err, out)
 	x.Contains(out, "unsigned")
 	st, err := os.Stat(zip)
 	x.NoError(err)
 	x.Positive(st.Size())
-	_, err = d.admin(t, "tenant", "verify", "--file", zip)
+	_, err = d.loft(t, "tenant", "verify", "--file", zip)
 	x.ErrorContains(err, "nothing to hold a file to")
 }

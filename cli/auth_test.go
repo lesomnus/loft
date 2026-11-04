@@ -203,5 +203,5 @@ func TestACallOfTheOtherKindSaysWhichConnectionItWants(t *testing.T) {
 	x.ErrorContains(err, "/loft.TenantService/Configure is a person's, and this is an operator's connection")
 
 	x.Contains(run(t, root(), "call", "loft.OperatorTrailService.Owed"), "{", "the operator's own")
-	x.Contains(run(t, root(), "tenant", "ls", "-o", "json"), `"acme"`, "an entity's the entry point serves, as the operator")
+	x.Contains(run(t, root(), "tenant", "ls"), "@acme\t", "an entity's the entry point serves, as the operator")
 }

@@ -1,4 +1,4 @@
-package admincli_test
+package cli_test
 
 import (
 	"bytes"
@@ -49,7 +49,7 @@ func owning(t *testing.T, d *deployment) context.Context {
 	return frame.Into(ctx, frame.New(pdid.Id(h.Id), pdid.Id(tn.Id), frame.Whole()).WithScope(frame.Only(pdid.Id(tn.Id))))
 }
 
-// TestAnOperatorTakesAnEventsReasonOut is `loft-admin event redact`: what a
+// TestAnOperatorTakesAnEventsReasonOut is `loft event redact`: what a
 // workspace was asked by a person whose words an event's reason keeps, done
 // by the operator on its word. It says what it would do, without what the
 // reason says, and changes nothing until told `--yes`; then the reason is
@@ -81,7 +81,7 @@ func TestAnOperatorTakesAnEventsReasonOut(t *testing.T) {
 		x.NoError(err)
 		return e.Reason
 	}
-	_, err = run(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "lee")
+	_, err = ran(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "lee")
 	x.NoError(err)
 
 	for want, args := range map[string][]string{
@@ -92,13 +92,13 @@ func TestAnOperatorTakesAnEventsReasonOut(t *testing.T) {
 		"@beta has no event":    {"--tenant", "beta", "--event", id.String(), "--why", "삭제 요청 2026-20", "--yes"},
 		"nowhere":               {"--tenant", "nowhere", "--event", id.String(), "--why", "삭제 요청 2026-20", "--yes"},
 	} {
-		_, err := d.admin(t, append([]string{"event", "redact"}, args...)...)
+		_, err := d.loft(t, append([]string{"event", "redact"}, args...)...)
 		x.ErrorContains(err, want, "%v", args)
 	}
 	x.Equal(words, reason(), "refused, and nothing was done")
 
 	was := tablesOf(t, d.c.Db.Driver, d.c.Db.Dsn)
-	out, err := d.admin(t, "event", "redact", "--tenant", "acme", "--event", id.String(), "--why", "삭제 요청 2026-20")
+	out, err := d.loft(t, "event", "redact", "--tenant", "acme", "--event", id.String(), "--why", "삭제 요청 2026-20")
 	x.NoError(err, out)
 	x.Contains(out, "event "+id.String()+" of @acme: asset.move")
 	x.Contains(out, "would take its reason out")
@@ -106,7 +106,7 @@ func TestAnOperatorTakesAnEventsReasonOut(t *testing.T) {
 	x.Equal(words, reason(), "nothing was done")
 	unchanged(t, was, tablesOf(t, d.c.Db.Driver, d.c.Db.Dsn), entaccess.Table)
 
-	out, err = d.admin(t, "event", "redact", "--tenant", "acme", "--event", id.String(), "--why", " 삭제 요청 2026-20 ", "--yes")
+	out, err = d.loft(t, "event", "redact", "--tenant", "acme", "--event", id.String(), "--why", " 삭제 요청 2026-20 ", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "took the reason out of event "+id.String())
 	x.Empty(reason())
@@ -146,14 +146,14 @@ func TestAnOperatorTakesAnEventsReasonOut(t *testing.T) {
 	}
 
 	// Once is all there is to take out, and what took it out is said.
-	out, err = d.admin(t, "event", "redact", "--tenant", "acme", "--event", id.String(), "--why", "삭제 요청 2026-20", "--yes")
+	out, err = d.loft(t, "event", "redact", "--tenant", "acme", "--event", id.String(), "--why", "삭제 요청 2026-20", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "it has no reason")
 	x.Contains(out, "event "+pdid.Id(act.Id).String()+" took it out")
 	x.Contains(out, "by alice, an operator")
 
 	// And every row is as the trail says: the event's, made again of it.
-	out, err = d.admin(t, "trail", "rows")
+	out, err = d.loft(t, "trail", "rows")
 	x.NoError(err, out)
 }
 
@@ -209,7 +209,7 @@ func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *test
 		return cu.Desc
 	}
 
-	out, err := d.admin(t, "event", "redact", "--tenant", "acme", "--event", said[0].String(), "--why", "삭제 요청 2026-26")
+	out, err := d.loft(t, "event", "redact", "--tenant", "acme", "--event", said[0].String(), "--why", "삭제 요청 2026-26")
 	x.NoError(err, out)
 	x.Contains(out, "says the same in 2 other events")
 	x.Contains(out, "custody.issue ×2")
@@ -220,7 +220,7 @@ func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *test
 	x.Equal(3, left(), "nothing was done")
 	x.Equal(words, memo())
 
-	out, err = d.admin(t, "event", "redact", "--tenant", "acme", "--event", said[0].String(), "--why", "삭제 요청 2026-26", "--yes")
+	out, err = d.loft(t, "event", "redact", "--tenant", "acme", "--event", said[0].String(), "--why", "삭제 요청 2026-26", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "took the reason out of event "+said[0].String())
 	x.Contains(out, "and out of the 2 other events of its operation")
@@ -239,11 +239,11 @@ func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *test
 
 	// Asked of another of them, there is nothing left, and the part of the
 	// act that took it out is said.
-	out, err = d.admin(t, "event", "redact", "--tenant", "acme", "--event", said[2].String(), "--why", "삭제 요청 2026-26", "--yes")
+	out, err = d.loft(t, "event", "redact", "--tenant", "acme", "--event", said[2].String(), "--why", "삭제 요청 2026-26", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "it has no reason")
 	x.Contains(out, "took it out")
-	out, err = d.admin(t, "trail", "rows")
+	out, err = d.loft(t, "trail", "rows")
 	x.NoError(err, out)
 }
 
@@ -312,7 +312,7 @@ func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) 
 		return n.Desc
 	}
 
-	out, err := d.admin(t, "event", "redact", "--tenant", "acme", "--event", rejected.String(), "--why", "삭제 요청 2026-32")
+	out, err := d.loft(t, "event", "redact", "--tenant", "acme", "--event", rejected.String(), "--why", "삭제 요청 2026-32")
 	x.NoError(err, out)
 	x.Contains(out, "1 notice(s) say the same as their words")
 	x.Contains(out, "reservation.decided ×1")
@@ -321,7 +321,7 @@ func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) 
 	x.NotContains(out, "박지민")
 	x.Equal(words, says(), "nothing was done")
 
-	out, err = d.admin(t, "event", "redact", "--tenant", "acme", "--event", rejected.String(), "--why", "삭제 요청 2026-32", "--yes")
+	out, err = d.loft(t, "event", "redact", "--tenant", "acme", "--event", rejected.String(), "--why", "삭제 요청 2026-32", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "took the reason out of event "+rejected.String())
 	x.Contains(out, "and out of the 1 notice(s) that said the same as their words")
@@ -341,7 +341,7 @@ func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) 
 	for _, r := range all {
 		x.NotContains(string(r.Value), "박지민", r.Action)
 	}
-	out, err = d.admin(t, "trail", "rows")
+	out, err = d.loft(t, "trail", "rows")
 	x.NoError(err, out)
 }
 
@@ -353,24 +353,24 @@ func TestAnOperatorReadsTheAccessRecordAndItsReviews(t *testing.T) {
 	x := require.New(t)
 	d := deploy(t)
 
-	_, err := d.admin(t, "tenant", "show", "acme")
+	_, err := d.loft(t, "tenant", "show", "acme")
 	x.NoError(err)
-	out, err := d.admin(t, "access", "ls", "--tenant", "acme")
+	out, err := d.loft(t, "access", "list", "--tenant", "acme")
 	x.NoError(err, out)
 	x.Contains(out, "/loft.OperatorTenantService/Show")
 	x.Contains(out, "actor="+operator.Id("alice").String()+" (alice, an operator)")
 	x.Contains(out, "from=admin:")
-	out, err = d.admin(t, "access", "ls", "--kind", "download")
+	out, err = d.loft(t, "access", "list", "--kind", "download")
 	x.NoError(err, out)
 	x.Contains(out, "nothing in that stretch")
-	out, err = d.admin(t, "access", "ls", "--from", time.Now().Add(time.Hour).UTC().Format(time.RFC3339))
+	out, err = d.loft(t, "access", "list", "--from", time.Now().Add(time.Hour).UTC().Format(time.RFC3339))
 	x.Error(err, "a stretch that ends before it begins: %s", out)
-	_, err = d.admin(t, "access", "ls", "--kind", "glance")
+	_, err = d.loft(t, "access", "list", "--kind", "glance")
 	x.ErrorContains(err, "kind")
-	_, err = d.admin(t, "access", "ls", "--actor", "x")
+	_, err = d.loft(t, "access", "list", "--actor", "x")
 	x.ErrorContains(err, "--actor")
 
-	out, err = d.admin(t, "access", "reviews")
+	out, err = d.loft(t, "access-review", "list")
 	x.NoError(err, out)
 	x.Contains(out, "no review recorded")
 	now := time.Now()
@@ -380,13 +380,13 @@ func TestAnOperatorReadsTheAccessRecordAndItsReviews(t *testing.T) {
 		Desc:       "이상 없음",
 	}.Build())
 	x.NoError(err)
-	out, err = d.admin(t, "access", "reviews", "--tenant", "acme")
+	out, err = d.loft(t, "access-review", "list", "--tenant", "acme")
 	x.NoError(err, out)
 	x.Contains(out, "  acme  ")
 	x.Contains(out, `"이상 없음"`)
-	_, err = run(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "lee")
+	_, err = ran(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "lee")
 	x.NoError(err)
-	out, err = d.admin(t, "access", "reviews", "--tenant", "beta")
+	out, err = d.loft(t, "access-review", "list", "--tenant", "beta")
 	x.NoError(err, out)
 	x.Contains(out, "no review recorded")
 }

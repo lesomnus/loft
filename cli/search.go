@@ -1,4 +1,4 @@
-package admincli
+package cli
 
 import (
 	"context"
@@ -17,8 +17,21 @@ import (
 	app "github.com/lesomnus/loft"
 )
 
-// newCmdSearch is `loft-admin search`: the index a search is answered from,
-// when the deployment names an OpenSearch cluster (D31).
+// searchWritten is `loft search`, the index a search is answered from when
+// the deployment names an OpenSearch cluster (D31), and `loft retention`,
+// what the keep windows take out of the history: the operator's.
+func searchWritten() []written {
+	return append(group(newCmdSearch(), map[string][]string{
+		"status":  {app.OperatorSearchService_Status_FullMethodName},
+		"reindex": {app.OperatorSearchService_Reindex_FullMethodName},
+		"remove":  {app.OperatorSearchService_Remove_FullMethodName},
+		"analyze": {app.OperatorSearchService_Analyze_FullMethodName},
+	}), group(newCmdRetention(), map[string][]string{
+		"plan": {app.OperatorRetentionService_Plan_FullMethodName},
+		"run":  {app.OperatorRetentionService_Run_FullMethodName},
+	})...)
+}
+
 func newCmdSearch() *xli.Command {
 	return &xli.Command{
 		Name:  "search",
@@ -28,7 +41,7 @@ func newCmdSearch() *xli.Command {
 				Name:  "status",
 				Brief: "what each index is -- of assets, parties and models -- against what the database holds",
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -38,12 +51,12 @@ func newCmdSearch() *xli.Command {
 					}
 					for _, ix := range v.GetIndexes() {
 						if ix.GetIndex() == "" {
-							self.Printf("%s points at no index: `search reindex` makes one (%d %s)\n", ix.GetAlias(), ix.GetHeld(), ix.GetName())
+							self.Printf("%s points at no index: `loft search reindex` makes one (%d %s)\n", ix.GetAlias(), ix.GetHeld(), ix.GetName())
 						} else {
 							self.Printf("%s → %s\n", ix.GetAlias(), ix.GetIndex())
 							self.Printf("  %d documents, %d %s in the database\n", ix.GetDocs(), ix.GetHeld(), ix.GetName())
 							if ix.GetVersion() != ix.GetBuilt() {
-								self.Printf("  made in shape %d, and this build makes %d: `search reindex` makes it again\n", ix.GetVersion(), ix.GetBuilt())
+								self.Printf("  made in shape %d, and this build makes %d: `loft search reindex` makes it again\n", ix.GetVersion(), ix.GetBuilt())
 							}
 						}
 						if len(ix.GetOthers()) > 0 {
@@ -57,7 +70,7 @@ func newCmdSearch() *xli.Command {
 				Name:  "reindex",
 				Brief: "make each index again from the database, and search it once it is whole",
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -84,7 +97,7 @@ func newCmdSearch() *xli.Command {
 				Brief: "delete every index this deployment made, and the aliases with them",
 				Flags: flg.Flags{&flg.Switch{Name: "yes", Brief: "do it; without this it only says what it would do"}},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -109,7 +122,7 @@ func newCmdSearch() *xli.Command {
 				Args:  arg.Args{&arg.String{Name: "TEXT", Brief: "such as 웹서버"}},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					text, _ := arg.Get[string](self, "TEXT")
-					conn, err := connOf(self)
+					conn, err := operatorFor(ctx, self)
 					if err != nil {
 						return err
 					}
@@ -127,10 +140,10 @@ func newCmdSearch() *xli.Command {
 	}
 }
 
-// newCmdRetention is `loft-admin retention`: what the keep windows take out of
-// the history (design 8.2, 8.3). `plan` is the dry run design 8.3 asks for
-// before anything; `run` takes it, and only when `app.retention.apply` says
-// the deployment may.
+// newCmdRetention is `loft retention`: what the keep windows take out of the
+// history (design 8.2, 8.3). `plan` is the dry run design 8.3 asks for before
+// anything; `run` takes it, and only when `app.retention.apply` says the
+// deployment may.
 func newCmdRetention() *xli.Command {
 	pass := func(name, brief string, dry bool) *xli.Command {
 		return &xli.Command{
@@ -138,7 +151,7 @@ func newCmdRetention() *xli.Command {
 			Brief: brief,
 			Flags: flg.Flags{&flg.String{Name: "tenant", Brief: "one workspace, by address; every workspace by default"}},
 			Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-				conn, err := connOf(self)
+				conn, err := operatorFor(ctx, self)
 				if err != nil {
 					return err
 				}
@@ -171,7 +184,7 @@ func newCmdRetention() *xli.Command {
 					return errors.New("the entry point ended without saying it was done")
 				}
 				if dry && !apply {
-					self.Printf("(app.retention.apply is off: `serve` takes none of this, and `run` refuses to)\n")
+					self.Printf("(app.retention.apply is off: `loft serve` takes none of this, and `loft retention run` refuses to)\n")
 				}
 				return next(ctx)
 			}),

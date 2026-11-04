@@ -2,20 +2,14 @@ package cli
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
+	"slices"
 	"strings"
-	"time"
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdcmd"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/arg"
-	"github.com/lesomnus/xli/flg"
-	"github.com/lesomnus/z"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -52,13 +46,20 @@ var internal = []string{"session", "cli-login", "tree-lock", "alias-hold"}
 // and refuses a word that would answer two (pdcmd's Mount).
 func mount(root *xli.Command) error {
 	t := pdcmd.NewIn(remote{}, "loft")
+	// What each command calls, by its path: what says whether it is the
+	// operator's alone ([operatorOnly]).
+	calls := map[string][]string{}
 	for _, e := range pdcmd.Entities("loft") {
 		ms := e.Service.Methods()
 		for i := range ms.Len() {
 			md := ms.Get(i)
+			method := "/" + string(e.Service.FullName()) + "/" + string(md.Name())
 			switch md.Name() {
 			case "Get", "List", "Watch", "Add", "Patch", "Erase":
 				// The verbs the tree builds itself.
+				if path := e.Name + "/" + strings.ToLower(string(md.Name())); t.Command(path) != nil {
+					calls[path] = []string{method}
+				}
 				continue
 			case "Apply":
 				// payday's general write, which no role is given: a command
@@ -79,9 +80,11 @@ func mount(root *xli.Command) error {
 					return err
 				}
 			}
-			if err := t.Add(e.Name+"/"+kebab(string(md.Name())), c); err != nil {
+			path := e.Name + "/" + kebab(string(md.Name()))
+			if err := t.Add(path, c); err != nil {
 				return err
 			}
+			calls[path] = []string{method}
 		}
 	}
 
@@ -99,21 +102,28 @@ func mount(root *xli.Command) error {
 		if err != nil {
 			return err
 		}
-		if err := t.Add("payment/"+kebab(string(md.Name())), c); err != nil {
+		path := "payment/" + kebab(string(md.Name()))
+		if err := t.Add(path, c); err != nil {
 			return err
 		}
+		calls[path] = []string{"/" + string(pay.FullName()) + "/" + string(md.Name())}
 	}
 
-	// What a generated command cannot be: a file written or read, and a
-	// sheet shown before it is registered.
-	if err := t.Add("tenant/export", newCmdTenantExport()); err != nil {
-		return err
-	}
-	if err := t.Replace("asset/add-many", newCmdAssetAddMany()); err != nil {
-		return err
-	}
-	if err := t.Replace("asset/form", newCmdAssetForm()); err != nil {
-		return err
+	// What a generated command cannot be, written here at its path: a file
+	// written or read, a sheet shown before it is registered, what says what
+	// it would do until `--yes`, a stream -- and the operator's own services,
+	// which are no entity's.
+	for _, w := range handwritten() {
+		var err error
+		if w.replace {
+			err = t.Replace(w.path, w.cmd)
+		} else {
+			err = t.Add(w.path, w.cmd)
+		}
+		if err != nil {
+			return err
+		}
+		calls[w.path] = w.calls
 	}
 
 	for _, name := range internal {
@@ -138,7 +148,69 @@ func mount(root *xli.Command) error {
 		return err
 	}
 
+	mark(t.Commands(), "", calls)
 	return t.Mount(root)
+}
+
+// written is a command written here at its schema path: in place of the one
+// the tree built there, or where the tree has none.
+type written struct {
+	path    string
+	replace bool
+	cmd     *xli.Command
+	// calls is what it does: the methods that say whether it is the
+	// operator's alone. None is a command that asks nobody what it is for,
+	// as a file held to keys `--trust` names.
+	calls []string
+}
+
+// handwritten is every command written here, by its path.
+func handwritten() []written {
+	out := []written{
+		{path: "asset/add-many", replace: true, cmd: newCmdAssetAddMany(), calls: []string{app.AssetService_AddMany_FullMethodName}},
+		{path: "asset/form", replace: true, cmd: newCmdAssetForm(), calls: []string{app.AssetService_Form_FullMethodName}},
+	}
+	out = append(out, tenantWritten()...)
+	out = append(out, trailWritten()...)
+	out = append(out, searchWritten()...)
+	out = append(out, identityWritten()...)
+	out = append(out, eventWritten()...)
+	return out
+}
+
+// group is the written commands of a group the tree has no place for: the
+// group, and each of its commands with what it calls.
+func group(g *xli.Command, calls map[string][]string) []written {
+	out := []written{{path: g.Name, cmd: &xli.Command{Brief: g.Brief, Handler: xli.RequireSubcommand()}}}
+	for _, c := range g.Commands {
+		out = append(out, written{path: g.Name + "/" + c.Name, cmd: c, calls: calls[c.Name]})
+	}
+	return out
+}
+
+// operatorMark is what the help says of a command that is the operator's
+// alone (design 9.16): the help is the same on every connection.
+const operatorMark = " (operator)"
+
+// mark says in the help which commands are the operator's alone: a command
+// whose every call is ([operatorOnly]), and a group whose every command is.
+// It answers whether all of `level` was.
+func mark(level xli.Commands, at string, calls map[string][]string) bool {
+	all := len(level) > 0
+	for _, c := range level {
+		path := strings.TrimPrefix(at+"/"+c.Name, "/")
+		alone := false
+		if len(c.Commands) > 0 {
+			alone = mark(c.Commands, path, calls)
+		} else if ms := calls[path]; len(ms) > 0 {
+			alone = !slices.ContainsFunc(ms, func(m string) bool { return !operatorOnly(m) })
+		}
+		if alone && !strings.HasSuffix(c.Brief, operatorMark) {
+			c.Brief += operatorMark
+		}
+		all = all && alone
+	}
+	return all
 }
 
 // newCmdCall is `loft call METHOD [JSON]`: any method by its full name, with
@@ -207,115 +279,4 @@ func reasonOf(ctx context.Context) string {
 		return ""
 	}
 	return strings.TrimSpace(vs[len(vs)-1])
-}
-
-// newCmdTenantExport is `loft tenant export`: everything a workspace has, as
-// one zip (`TenantService.Export`) -- its owner's on a person's connection,
-// as their membership of it, and the operator's on theirs, for one that is
-// leaving (design 8.2). A download, so it says what it is for.
-func newCmdTenantExport() *xli.Command {
-	return &xli.Command{
-		Brief: "everything a workspace has, as one zip: what it takes out before it leaves (--reason first)",
-		Flags: flg.Flags{
-			&flg.String{Name: "out", Brief: "where to write it; <workspace>-<date>.zip by default"},
-		},
-		Args: arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; a person's default is the one `loft use` names", Optional: true}},
-		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			named, _ := arg.Get[string](self, "WORKSPACE")
-			conn, ws, err := workspaceConn(ctx, named)
-			if err != nil {
-				return err
-			}
-			if reasonOf(ctx) == "" {
-				return errors.New("--reason, before the command: what the export is for; it hands everybody's data out, and is recorded with why")
-			}
-			out := flag(self, "out")
-			if out == "" {
-				out = fmt.Sprintf("%s-%s.zip", ws, time.Now().Format("20060102"))
-			}
-			// Written beside where it goes and moved there once whole, so
-			// that a download cut off is no file at all.
-			tmp, err := os.CreateTemp(filepath.Dir(out), ".loft-export-*")
-			if err != nil {
-				return err
-			}
-			defer os.Remove(tmp.Name())
-			stream, err := app.NewTenantServiceClient(conn).Export(ctx, app.TenantExportRequest_builder{
-				Ref: app.TenantRef_builder{Alias: z.Ptr(ws)}.Build(),
-			}.Build())
-			if err != nil {
-				tmp.Close()
-				return err
-			}
-			for {
-				part, err := stream.Recv()
-				if errors.Is(err, io.EOF) {
-					break
-				}
-				if err != nil {
-					tmp.Close()
-					return err
-				}
-				if _, err := tmp.Write(part.GetData()); err != nil {
-					tmp.Close()
-					return err
-				}
-			}
-			if err := tmp.Close(); err != nil {
-				return err
-			}
-			if err := os.Rename(tmp.Name(), out); err != nil {
-				return err
-			}
-			self.Printf("%s\n", out)
-			return next(ctx)
-		}),
-	}
-}
-
-// workspaceConn is a connection for a command about the workspace `named`
-// names, by alias, and the alias: a person's speaks to it as their membership
-// of it -- the one in use when none is named -- and an operator's names it in
-// the request alone.
-func workspaceConn(ctx context.Context, named string) (*connectConn, string, error) {
-	_, c, err := chooseFor(ctx)
-	if err != nil {
-		return nil, "", err
-	}
-	ws := strings.TrimPrefix(strings.TrimSpace(named), "@")
-	switch c.Kind {
-	case Person:
-		if !c.signedIn() {
-			return nil, "", errNoLogin
-		}
-		if ws == "" {
-			ws, _ = ctx.Value(workspaceKey{}).(string)
-		}
-		if ws == "" {
-			ws = os.Getenv("LOFT_WORKSPACE")
-		}
-		if ws == "" {
-			ws = c.Workspace
-		}
-		ws = strings.TrimPrefix(ws, "@")
-		if ws == "" {
-			return nil, "", errors.New("WORKSPACE: which one (`loft tenant mine` lists them)")
-		}
-		return c.person(ws), ws, nil
-	case Operator:
-		// What names a person's workspace names none here.
-		said, _ := ctx.Value(workspaceKey{}).(string)
-		if said == "" {
-			said = os.Getenv("LOFT_WORKSPACE")
-		}
-		conn, err := c.dial(said)
-		if err != nil {
-			return nil, "", err
-		}
-		if ws == "" {
-			return nil, "", errors.New("WORKSPACE: which one (`loft tenant list`)")
-		}
-		return conn, ws, nil
-	}
-	return nil, "", fmt.Errorf("a connection of kind %q", c.Kind)
 }

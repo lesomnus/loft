@@ -1,4 +1,4 @@
-package admincli_test
+package cli_test
 
 import (
 	"context"
@@ -26,7 +26,7 @@ import (
 func TestASearchCommandSaysWhenNoClusterIsNamed(t *testing.T) {
 	d := deploy(t)
 	for _, v := range [][]string{{"status"}, {"reindex"}, {"remove", "--yes"}, {"analyze", "웹서버"}} {
-		_, err := d.admin(t, append([]string{"search"}, v...)...)
+		_, err := d.loft(t, append([]string{"search"}, v...)...)
 		require.ErrorContains(t, err, "LOFT_APP_SEARCH_OPENSEARCH_ADDRS", "%v", v)
 	}
 }
@@ -49,11 +49,11 @@ func TestAReindexMakesTheIndexAndPointsTheAliasAtIt(t *testing.T) {
 	assets, err := d.s.Ent.Asset.Query().Where(asset.DateErasedIsNil()).Count(ctx)
 	x.NoError(err)
 
-	out, err := d.admin(t, "search", "status")
+	out, err := d.loft(t, "search", "status")
 	x.NoError(err)
 	x.Contains(out, "points at no index")
 
-	out, err = d.admin(t, "search", "reindex")
+	out, err = d.loft(t, "search", "reindex")
 	x.NoError(err, out)
 	x.Contains(out, "points at it")
 	for _, ix := range opensearch.Indexes {
@@ -63,31 +63,31 @@ func TestAReindexMakesTheIndexAndPointsTheAliasAtIt(t *testing.T) {
 	x.NoError(err)
 	x.NotEmpty(first.Index)
 	x.EqualValues(assets, first.Docs)
-	out, err = d.admin(t, "search", "status")
+	out, err = d.loft(t, "search", "status")
 	x.NoError(err)
 	x.Contains(out, first.Index)
 
-	out, err = d.admin(t, "search", "analyze", "GPU서버")
+	out, err = d.loft(t, "search", "analyze", "GPU서버")
 	x.NoError(err)
 	x.Contains(out, "gpu · 서버")
 
-	out, err = d.admin(t, "search", "reindex")
+	out, err = d.loft(t, "search", "reindex")
 	x.NoError(err)
 	x.Contains(out, "deleted "+first.Index)
 	second, err := o.Status(ctx, opensearch.Assets)
 	x.NoError(err)
 	x.NotEqual(first.Index, second.Index)
 
-	out, err = d.admin(t, "search", "remove")
+	out, err = d.loft(t, "search", "remove")
 	x.NoError(err)
 	x.Contains(out, "would delete "+second.Index)
 	still, err := o.Status(ctx, opensearch.Assets)
 	x.NoError(err)
 	x.Equal(second.Index, still.Index, "a removal asked about deleted something")
-	out, err = d.admin(t, "search", "remove", "--yes")
+	out, err = d.loft(t, "search", "remove", "--yes")
 	x.NoError(err)
 	x.Contains(out, "deleted "+second.Index)
-	out, err = d.admin(t, "search", "status")
+	out, err = d.loft(t, "search", "status")
 	x.NoError(err)
 	x.Contains(out, "points at no index")
 }
@@ -155,19 +155,19 @@ func TestTheWindowsTakeWhatTheyNoLongerReachAtTheOperatorsWord(t *testing.T) {
 
 	// Off: planned, and refused to run.
 	d := deploy(t)
-	out, err := d.admin(t, "retention", "plan")
+	out, err := d.loft(t, "retention", "plan")
 	x.NoError(err, out)
 	x.Contains(out, "acme: kept forever")
 	x.Contains(out, "app.retention.apply is off")
 	history(d)
 	before := placements(d)
-	out, err = d.admin(t, "retention", "plan", "--tenant", "acme")
+	out, err = d.loft(t, "retention", "plan", "--tenant", "acme")
 	x.NoError(err, out)
 	x.Contains(out, "acme: what was over before ")
 	x.Contains(out, "history would take ")
 	x.NotContains(out, "would take 0:", "a plan of a year's history took nothing")
 	x.Equal(before, placements(d), "a plan took something")
-	_, err = d.admin(t, "retention", "run", "--tenant", "acme")
+	_, err = d.loft(t, "retention", "run", "--tenant", "acme")
 	x.ErrorContains(err, "app.retention.apply is off")
 	x.Equal(before, placements(d))
 
@@ -175,7 +175,7 @@ func TestTheWindowsTakeWhatTheyNoLongerReachAtTheOperatorsWord(t *testing.T) {
 	d = deployWith(t, func(c *cmd.Config) { c.App.Retention.Apply = true })
 	laptop := history(d)
 	before = placements(d)
-	out, err = d.admin(t, "retention", "run", "--tenant", "@acme")
+	out, err = d.loft(t, "retention", "run", "--tenant", "@acme")
 	x.NoError(err, out)
 	x.Contains(out, "acme: what was over before ")
 	x.Contains(out, "history took ")

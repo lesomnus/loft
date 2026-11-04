@@ -1,4 +1,4 @@
-package admincli_test
+package cli_test
 
 import (
 	"bytes"
@@ -51,22 +51,13 @@ func entry(t *testing.T, c cmd.Config) *deployment {
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
 	x.NoError(cli.Migrate(t.Context(), s))
-	ops, err := admin.Operators(map[string]string{"alice": key})
+	ops, err := admin.Operators(map[string]string{"alice": operatorKey})
 	x.NoError(err)
 	h, err := admin.Routes{S: s, C: c, Operators: ops}.Handler(t.Context())
 	x.NoError(err)
 	srv := httptest.NewServer(h)
 	t.Cleanup(srv.Close)
-	return &deployment{c: c, s: s, url: srv.URL}
-}
-
-func embeddedConfig(t *testing.T) cmd.Config {
-	c := cmd.Config{}
-	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
-	c.Watch.Broker = "memory"
-	c.App.Files = t.TempDir()
-	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
-	return c
+	return &deployment{c: c, s: s, url: srv.URL, key: keyRef(t)}
 }
 
 // before is a deployment whose logins name no account: made before roster
@@ -142,7 +133,7 @@ func TestADeploymentFromBeforeRosterIsBroughtIntoIt(t *testing.T) {
 	was := deploymentFromBefore(t, c)
 	d := entry(t, c)
 
-	out, err := d.admin(t, "identity", "migrate")
+	out, err := d.loft(t, "identity", "migrate")
 	x.NoError(err, out)
 	got := passwordsOf(out)
 	x.Len(got, 3, out)
@@ -166,7 +157,7 @@ func TestADeploymentFromBeforeRosterIsBroughtIntoIt(t *testing.T) {
 	x.NoError(err)
 	x.Positive(n, "the links are the operator's writes")
 
-	again, err := d.admin(t, "identity", "migrate")
+	again, err := d.loft(t, "identity", "migrate")
 	x.NoError(err)
 	x.Contains(again, "nobody to bring in")
 	x.NotContains(again, "password ")
@@ -183,9 +174,9 @@ func TestADeploymentToTryThingsOnIsBroughtInWithOnePassword(t *testing.T) {
 	deploymentFromBefore(t, c)
 	d := entry(t, c)
 
-	_, err := d.admin(t, "identity", "migrate", "--password", "short")
+	_, err := d.loft(t, "identity", "migrate", "--password", "short")
 	x.ErrorContains(err, "admin")
-	out, err := d.admin(t, "identity", "migrate", "--password", "demo1234")
+	out, err := d.loft(t, "identity", "migrate", "--password", "demo1234")
 	x.NoError(err, out)
 	x.Contains(out, "3 account(s), every one with the password given")
 	for _, login := range []string{"admin", "kim", "kim-beta"} {
@@ -216,7 +207,7 @@ func external(t *testing.T) (addr, key string, s *rostercmd.Server) {
 	x.NoError(err)
 	x.NoError(s.Close())
 
-	out, err := run(t, rostercli.NewCmdControl(&c), "key", "add", "--allow", "/roster.NominationService/List", identity.Agent)
+	out, err := ran(t, rostercli.NewCmdControl(&c), "key", "add", "--allow", "/roster.NominationService/List", identity.Agent)
 	x.NoError(err, out)
 	key = strings.TrimSpace(out)
 	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "accounts", "--role", strings.Join(identity.AgentMethods, ","), identity.Agent}))
@@ -249,7 +240,7 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 	c.Auth.Roster.Directory = "accounts"
 	d := entry(t, c)
 
-	out, err := d.admin(t, "identity", "migrate")
+	out, err := d.loft(t, "identity", "migrate")
 	x.NoError(err, out)
 	x.Contains(out, `roster holder add @accounts/kim '{"id":"`+was.kim.String()+`","name":"kim"}'`)
 	x.Contains(out, `roster holder add @accounts/kim '{"id":"`+was.kimElsewhere.String()+`","name":"kim"}'`)
@@ -262,7 +253,7 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 		Alias:  "kim",
 	}.Build())
 	x.NoError(err)
-	out, err = d.admin(t, "identity", "migrate")
+	out, err = d.loft(t, "identity", "migrate")
 	x.NoError(err, out)
 	x.Contains(out, "@acme/kim  linked")
 	x.NotContains(out, `"id":"`+was.kim.String())
@@ -276,7 +267,7 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 		{"holder", "password", "--login", "kim"},
 		{"holder", "password", "--login", "kim", "--password", "kim-password"},
 	} {
-		_, err := d.admin(t, args...)
+		_, err := d.loft(t, args...)
 		x.Equal(codes.FailedPrecondition, status.Code(err), "%v: %v", args, err)
 		x.ErrorContains(err, "auth.roster names a roster of its own: accounts are made and given passwords there", "%v", args)
 	}
@@ -296,15 +287,15 @@ func aDeployment(t *testing.T, opts ...func(*cmd.Config)) *deployment {
 	for _, opt := range opts {
 		opt(&c)
 	}
-	_, err := run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
 	d := entry(t, c)
 	for _, login := range []string{"kim", "lee"} {
-		out, err := d.admin(t, "holder", "add", "--tenant", "acme", "--login", login, "--password", login+"-password")
+		out, err := d.loft(t, "holder", "add", "--tenant", "acme", "--login", login, "--password", login+"-password")
 		x.NoError(err, out)
 		x.Contains(out, "holder   @acme/"+login)
 	}
-	_, err = run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "kim")
+	_, err = ran(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "kim")
 	x.NoError(err)
 	return d
 }
@@ -333,17 +324,17 @@ func TestAnOperatorPutsAnAccountInAndGivesItAPassword(t *testing.T) {
 	ctx := context.Background()
 	d := aDeployment(t)
 
-	out, err := d.admin(t, "holder", "add", "--tenant", "acme", "--login", "park", "--name", "박", "--role", "manager")
+	out, err := d.loft(t, "holder", "add", "--tenant", "acme", "--login", "park", "--name", "박", "--role", "manager")
 	x.NoError(err, out)
 	m := regexp.MustCompile(`(?m)^password (\S+)$`).FindStringSubmatch(out)
 	x.NotNil(m, "a new account's password is said once: %s", out)
 	_, err = d.s.Identity.Verify(ctx, "park", m[1])
 	x.NoError(err)
-	_, err = d.admin(t, "holder", "add", "--tenant", "acme", "--login", "park")
+	_, err = d.loft(t, "holder", "add", "--tenant", "acme", "--login", "park")
 	x.ErrorContains(err, "in @acme already")
-	_, err = d.admin(t, "holder", "add", "--tenant", "acme", "--login", "kim", "--password", "another")
+	_, err = d.loft(t, "holder", "add", "--tenant", "acme", "--login", "kim", "--password", "another")
 	x.ErrorContains(err, "an account already")
-	_, err = d.admin(t, "holder", "add", "--tenant", "acme", "--login", "x", "--role", "king")
+	_, err = d.loft(t, "holder", "add", "--tenant", "acme", "--login", "x", "--role", "king")
 	x.ErrorContains(err, "role")
 	park := accountOf(t, d.s, "park")
 	n, err := d.s.Ent.Access.Query().Where(entaccess.Kind("write"), entaccess.ActorId(operator.Id("alice").Uuid())).Count(ctx)
@@ -352,7 +343,7 @@ func TestAnOperatorPutsAnAccountInAndGivesItAPassword(t *testing.T) {
 
 	_, _, err = d.s.Sessions.Mint(ctx, authsession.Session{Id: park.String(), Grant: frame.Whole()})
 	x.NoError(err)
-	out, err = d.admin(t, "holder", "password", "--login", "park", "--password", "park-new-password")
+	out, err = d.loft(t, "holder", "password", "--login", "park", "--password", "park-new-password")
 	x.NoError(err, out)
 	x.Contains(out, "account  park")
 	_, err = d.s.Identity.Verify(ctx, "park", "park-new-password")
@@ -360,7 +351,7 @@ func TestAnOperatorPutsAnAccountInAndGivesItAPassword(t *testing.T) {
 	sessions, err := d.s.Ent.Session.Query().Where(entsession.Account(park.Uuid())).Count(ctx)
 	x.NoError(err)
 	x.Zero(sessions, "where they were signed in")
-	_, err = d.admin(t, "holder", "password", "--login", "nobody")
+	_, err = d.loft(t, "holder", "password", "--login", "nobody")
 	x.ErrorContains(err, "no account nobody")
 }
 
@@ -382,11 +373,11 @@ func TestAnOperatorDepartsAnAccountAtOnce(t *testing.T) {
 		{"identity", "depart", "--member", "@acme/nobody"},
 		{"identity", "depart", "--member", "@acme/kim", "--account", kim.String()},
 	} {
-		_, err := d.admin(t, args...)
+		_, err := d.loft(t, args...)
 		x.Error(err, "%v", args)
 	}
 
-	out, err := d.admin(t, "identity", "depart", "--member", "@acme/kim")
+	out, err := d.loft(t, "identity", "depart", "--member", "@acme/kim")
 	x.NoError(err, out)
 	x.Contains(out, "@acme: @kim, member")
 	x.Contains(out, "@beta: @kim, owner")
@@ -394,7 +385,7 @@ func TestAnOperatorDepartsAnAccountAtOnce(t *testing.T) {
 	_, err = d.s.Identity.Verify(ctx, "kim", "kim-password")
 	x.NoError(err, "only asked about")
 
-	out, err = d.admin(t, "identity", "depart", "--member", "@acme/kim", "--yes")
+	out, err = d.loft(t, "identity", "depart", "--member", "@acme/kim", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "left @acme\n")
 	x.Contains(out, "left @beta; its last owner, and nobody was there to hand it to")
@@ -425,9 +416,9 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 	d := aDeployment(t, func(c *cmd.Config) { c.App.Billing.Levyan = levyantest.Start(t).Config() })
 	// kim is a member of acme, owns beta -- which lee manages -- and owns
 	// gamma alone.
-	out, err := d.admin(t, "holder", "add", "--tenant", "beta", "--login", "lee", "--role", "manager")
+	out, err := d.loft(t, "holder", "add", "--tenant", "beta", "--login", "lee", "--role", "manager")
 	x.NoError(err, out)
-	_, err = run(t, cli.NewCmdInit(&d.c), "--tenant", "gamma", "--login", "kim")
+	_, err = ran(t, cli.NewCmdInit(&d.c), "--tenant", "gamma", "--login", "kim")
 	x.NoError(err)
 	kim, lee := accountOf(t, d.s, "kim"), accountOf(t, d.s, "lee")
 	_, _, err = d.s.Sessions.Mint(ctx, authsession.Session{Id: kim.String(), Grant: frame.Whole()})
@@ -445,7 +436,7 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 	wasDeployment, wasRoster, wasNotices := deployment(), roster(), notices()
 	x.Positive(wasNotices, "a deployment that bills, which tells levyan who arrived")
 
-	out, err = d.admin(t, "identity", "depart", "--member", "@acme/kim")
+	out, err = d.loft(t, "identity", "depart", "--member", "@acme/kim")
 	x.NoError(err, out)
 	x.Contains(out, "@acme: @kim, member\n")
 	x.Contains(out, "@beta: @kim, owner; its last owner, so it would be @lee's\n")
@@ -480,7 +471,7 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 		x.Equal(h.Role == "manager", saw[pdid.Id(h.Id)], "the operator saw who beta would go to, and nobody else")
 	}
 
-	out, err = d.admin(t, "identity", "depart", "--member", "@acme/kim", "--yes")
+	out, err = d.loft(t, "identity", "depart", "--member", "@acme/kim", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "left @acme\n")
 	x.Contains(out, "left @beta; its last owner, so it is @lee's now\n")
@@ -509,15 +500,15 @@ func TestADepartureIsForgottenUnderTheDeploymentsDigestKey(t *testing.T) {
 	d := aDeployment(t, func(c *cmd.Config) {
 		c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
 	})
-	out, err := d.admin(t, "trail", "rows")
+	out, err := d.loft(t, "trail", "rows")
 	x.NoError(err, out)
 	x.Contains(out, "; 0 forgotten;")
-	_, err = d.admin(t, "identity", "depart", "--member", "@acme/kim", "--yes")
+	_, err = d.loft(t, "identity", "depart", "--member", "@acme/kim", "--yes")
 	x.NoError(err)
 	for _, h := range membershipsOf(t, d.s, accountOf(t, d.s, "owner")) {
 		x.Nil(h.DateErased, "somebody else left")
 	}
-	out, err = d.admin(t, "trail", "rows")
+	out, err = d.loft(t, "trail", "rows")
 	x.NoError(err, "a departure left rows a check finds")
 	x.Regexp(`; [1-9][0-9]* forgotten;`, out)
 }
@@ -543,7 +534,7 @@ func TestReconcilingFindsWhatTheStreamMissed(t *testing.T) {
 	}
 
 	was := tablesOf(t, d.c.Db.Driver, d.c.Db.Dsn)
-	out, err := d.admin(t, "identity", "reconcile")
+	out, err := d.loft(t, "identity", "reconcile")
 	x.NoError(err, out)
 	unchanged(t, was, tablesOf(t, d.c.Db.Driver, d.c.Db.Dsn), entaccess.Table)
 	x.Contains(out, "3 account(s) with a membership here; roster has 2 of them")
@@ -554,7 +545,7 @@ func TestReconcilingFindsWhatTheStreamMissed(t *testing.T) {
 	x.Equal(1, leaving(lee))
 
 	since := time.Now()
-	out, err = d.admin(t, "identity", "reconcile", "--yes")
+	out, err = d.loft(t, "identity", "reconcile", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "marked 1 as leaving, and 1 as not")
 	x.Equal(2, leaving(kim), "in both its workspaces")
@@ -562,13 +553,13 @@ func TestReconcilingFindsWhatTheStreamMissed(t *testing.T) {
 	for _, h := range membershipsOf(t, d.s, kim) {
 		x.False(h.DateLeaving.Before(since.Add(-time.Second)), "from now, to wait the whole grace")
 	}
-	out, err = d.admin(t, "identity", "reconcile")
+	out, err = d.loft(t, "identity", "reconcile")
 	x.NoError(err)
 	x.Contains(out, "nothing to do")
 
 	x.NoError(d.s.Identity.ForgetPerson(ctx, lee))
 	x.NoError(d.s.Identity.ForgetPerson(ctx, owner))
-	_, err = d.admin(t, "identity", "reconcile", "--yes")
+	_, err = d.loft(t, "identity", "reconcile", "--yes")
 	x.ErrorContains(err, "auth.roster.directory")
 	x.Zero(leaving(lee))
 	x.Zero(leaving(owner))
