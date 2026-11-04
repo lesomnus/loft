@@ -127,7 +127,7 @@ func (a Routes) accessed() access.Config {
 		Subjects:  pd.Subjects,
 		Refs:      pd.SubjectRefs,
 		Address:   func(ctx context.Context) string { return "admin:" + access.Peer(ctx) },
-		Downloads: Downloads(),
+		Downloads: operator.Downloads(),
 		Writer:    a.S.Access,
 		Operator: func(ctx context.Context) (pdid.Id, pdid.Id) {
 			return operator.Actor(ctx), pdid.Nil

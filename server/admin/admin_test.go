@@ -140,7 +140,7 @@ func TestEveryMethodAnswersAnOperatorsKeyAndNothingElse(t *testing.T) {
 	x := e.x
 
 	methods := slices.Sorted(func(yield func(string) bool) {
-		for m := range admin.Table {
+		for m := range operator.Table {
 			if !yield(m) {
 				return
 			}
@@ -189,11 +189,11 @@ func TestTheTableIsWhatIsServed(t *testing.T) {
 			method := "/" + name + "/" + m.Name
 			served[method] = true
 			if strings.HasPrefix(name, "loft.Operator") {
-				x.Contains(admin.Table, method, "%s is the operator's and not in the table", method)
+				x.Contains(operator.Table, method, "%s is the operator's and not in the table", method)
 			}
 		}
 	}
-	for m := range admin.Table {
+	for m := range operator.Table {
 		x.True(served[m], "%s is in the table and not served", m)
 	}
 }
@@ -210,7 +210,7 @@ func TestThePublicServerServesNoneOfTheOperators(t *testing.T) {
 		x.False(strings.HasPrefix(name, "loft.Operator"), "%s is served by the public server", name)
 	}
 	public := pdtest.Serve(t, g)
-	for m, k := range admin.Table {
+	for m, k := range operator.Table {
 		if !strings.HasPrefix(m, "/loft.Operator") {
 			continue
 		}

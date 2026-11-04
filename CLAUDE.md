@@ -140,7 +140,7 @@ It serves gRPC as Connect (D74, design 9.15): an entity's RPC where it is what
 an operator does (`TenantService.Close`, a contract's `Add`), the same request
 served as the operator, and `Operator<X>Service` (`proto/loft/operator.proto`)
 for what is no entity's -- which the public server never registers. What it
-serves is one table, `admin.Table`; a method not in it is refused. The
+serves is one table, `operator.Table` (`server/operator`, where the terminal reads it too); a method not in it is refused. The
 operator is a name in `admin.keys` and the identifier it makes
 (`server/operator`, domain 11, no row), carried in the context and not in a
 frame: `access.Config.Operator` names them on a read's row,
