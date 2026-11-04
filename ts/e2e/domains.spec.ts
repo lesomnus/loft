@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import type { Request } from '@playwright/test'
 import pg from 'pg'
 
-import { escape, expect, owner, people, signIn, test, unique, workspace } from './loft.js'
+import { escape, expect, makeWorkspace, owner, people, signIn, test, unique, workspace } from './loft.js'
 
 // A workspace on a domain of its own (loft#155): signed in to at the service's
 // address and handed there, serving that workspace and nothing else, its
@@ -50,9 +50,7 @@ test('a workspace on its own domain is signed in to at the service, serves itsel
 	await signIn(page, people.domains.login)
 
 	// A workspace of the person's own beside the demo's, and a domain of it.
-	const made = await page.request.post('/account/workspaces', { data: { name: unique('e2e 도메인') } })
-	expect(made.status()).toBe(201)
-	const ws = (await made.json()) as { alias: string; name: string }
+	const ws = await makeWorkspace(page, unique('e2e 도메인'))
 	const host = `${ws.alias}.e2e.test`
 	const added = await page.request.post('/loft.DomainService/Add', {
 		headers: { 'connect-protocol-version': '1', 'loft-workspace': ws.alias },

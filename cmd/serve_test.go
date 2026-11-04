@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -500,43 +499,47 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	x.Equal(1, n, "a second sign-in gave it a second workspace")
 
 	acc := http.NewServeMux()
-	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity, Workspaces: ws, Export: func(context.Context, pdid.Id, io.Writer) error { return nil }}.Mount(acc)
-	ask := func(method, path, body string) *httptest.ResponseRecorder {
-		r := httptest.NewRequest(method, path, bytes.NewBufferString(body))
-		r.Header.Set("Cookie", cookie.Name+"="+cookie.Value)
-		if body != "" {
-			r.Header.Set("Content-Type", "application/json")
-		}
-		rec := httptest.NewRecorder()
-		acc.ServeHTTP(rec, r)
-		return rec
-	}
+	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity, Workspaces: ws}.Mount(acc)
 	var got account.Account
-	res := ask(http.MethodGet, "/account", "")
-	x.Equal(http.StatusOK, res.Code)
-	x.NoError(json.Unmarshal(res.Body.Bytes(), &got))
+	r := httptest.NewRequest(http.MethodGet, "/account", nil)
+	r.Header.Set("Cookie", cookie.Name+"="+cookie.Value)
+	rec := httptest.NewRecorder()
+	acc.ServeHTTP(rec, r)
+	x.Equal(http.StatusOK, rec.Code)
+	x.NoError(json.Unmarshal(rec.Body.Bytes(), &got))
 	x.Equal("park", got.Login)
-	x.Len(got.Workspaces, 1)
-	x.Equal(me.GetTenant().GetAlias(), got.Workspaces[0].Alias)
-	x.Equal("박의 워크스페이스", got.Workspaces[0].Name)
-	x.Equal(1, got.Owns)
-	x.Equal(cmd.DefaultOwned, *got.May)
+	x.Nil(got.Here, "at the service's address, what it is in is TenantService.Mine's")
+
+	// What it is in, and more of its own, asked as the account (D73).
+	tenants := app.NewTenantServiceClient(w.conn)
+	mine, err := tenants.Mine(md, &app.TenantMineRequest{})
+	x.NoError(err)
+	x.Len(mine.GetWorkspaces(), 1)
+	x.Equal(me.GetTenant().GetAlias(), mine.GetWorkspaces()[0].GetAlias())
+	x.Equal("박의 워크스페이스", mine.GetWorkspaces()[0].GetName())
+	x.Equal("owner", mine.GetWorkspaces()[0].GetRole())
+	x.EqualValues(1, mine.GetOwns())
+	x.EqualValues(cmd.DefaultOwned, mine.GetMay())
 
 	for i := 1; i < cmd.DefaultOwned; i++ {
-		res := ask(http.MethodPost, "/account/workspaces", `{"name":"팀 `+string(rune('A'+i))+`"}`)
-		x.Equal(http.StatusCreated, res.Code, res.Body.String())
+		made, err := tenants.Create(md, app.TenantCreateRequest_builder{Name: "팀 " + string(rune('A'+i))}.Build())
+		x.NoError(err)
+		x.Equal("owner", made.GetRole())
+		x.Equal("팀 "+string(rune('A'+i)), made.GetName())
 	}
-	res = ask(http.MethodPost, "/account/workspaces", `{"name":"하나 더"}`)
-	x.Equal(http.StatusPaymentRequired, res.Code, "one more than an account owns for nothing")
-	x.Equal(http.StatusBadRequest, ask(http.MethodPost, "/account/workspaces", `{"name":""}`).Code)
-	x.Equal(http.StatusBadRequest, ask(http.MethodPost, "/account/workspaces", `{"name":"팀\nBcc: x@example.com"}`).Code, "more than the one line a mail's subject is")
+	_, err = tenants.Create(md, app.TenantCreateRequest_builder{Name: "하나 더"}.Build())
+	x.Equal(codes.FailedPrecondition, status.Code(err), "one more than an account owns for nothing")
+	_, err = tenants.Create(md, app.TenantCreateRequest_builder{Name: ""}.Build())
+	x.Equal(codes.InvalidArgument, status.Code(err))
+	_, err = tenants.Create(md, app.TenantCreateRequest_builder{Name: "팀\nBcc: x@example.com"}.Build())
+	x.Equal(codes.InvalidArgument, status.Code(err), "more than the one line a mail's subject is")
 
-	res = ask(http.MethodGet, "/account", "")
-	x.NoError(json.Unmarshal(res.Body.Bytes(), &got))
-	x.Len(got.Workspaces, cmd.DefaultOwned)
+	mine, err = tenants.Mine(md, &app.TenantMineRequest{})
+	x.NoError(err)
+	x.Len(mine.GetWorkspaces(), cmd.DefaultOwned)
 	_, err = app.NewPartyServiceClient(w.conn).Me(md, &app.PartyMeRequest{})
 	x.Equal(codes.InvalidArgument, status.Code(err), "more than one workspace, and a call that names none")
-	_, err = app.NewPartyServiceClient(w.conn).Me(metadata.AppendToOutgoingContext(md, cmd.WorkspaceHeader, got.Workspaces[1].Alias), &app.PartyMeRequest{})
+	_, err = app.NewPartyServiceClient(w.conn).Me(metadata.AppendToOutgoingContext(md, cmd.WorkspaceHeader, mine.GetWorkspaces()[1].GetAlias()), &app.PartyMeRequest{})
 	x.NoError(err)
 
 	t.Run("nobody is asked about without a session", func(t *testing.T) {

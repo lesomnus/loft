@@ -3,7 +3,9 @@ edition = "2023";
 package loft;
 
 import "google/protobuf/timestamp.proto";
+import "loft/account.proto";
 import "loft/payday/tenant.proto";
+import "payday.proto";
 
 option go_package = "github.com/lesomnus/loft";
 
@@ -28,6 +30,61 @@ service TenantService {
   // its access record would come to, and when, changing nothing: what its
   // owner is shown before Configure saves it. A field left out is as it is.
   rpc Preview(TenantPreviewRequest) returns (TenantPreviewResponse);
+
+  // Mine is the workspaces the caller's account is in, each as it is told
+  // it, and how many it owns and may (D73). The account's own (payday#184):
+  // served as the account, in no workspace -- so never on a workspace's own
+  // domain, whose page is told the one workspace there by `GET /account` --
+  // and while it owes an agreement, since what it has is its own whether or
+  // not it agrees to what comes next.
+  rpc Mine(TenantMineRequest) returns (TenantMineResponse) {
+    option (payday.method) = {account: {}};
+  }
+  // Create makes a workspace the caller's account owns, called `name`, with
+  // an address nobody chose (design 9.11, D73): what a sign-in gives an
+  // account in none, asked for. The account's own, at the service's address
+  // and once it has agreed to what the deployment asks.
+  rpc Create(TenantCreateRequest) returns (TenantMembership) {
+    option (payday.method) = {account: {}};
+  }
+  // Export is everything the workspace has, as one zip (D29, D34): its
+  // owner's to take out, open or closed, read-only or not, and whether or not
+  // they agreed to what comes next. A download of everybody in it -- what it
+  // is for is said in `payday-reason-bin`, and on the access record before
+  // anything is read for it (loft#136) -- made whole before its bytes are
+  // sent.
+  rpc Export(TenantExportRequest) returns (stream TenantExportResponse);
+}
+
+message TenantMineRequest {}
+
+message TenantMineResponse {
+  // In the order the account came to be in them.
+  repeated TenantMembership workspaces = 1;
+  // How many of them it owns, and how many it may own: another past that is
+  // paid for. `may` is unset for no limit.
+  uint32 owns = 2 [features.field_presence = IMPLICIT];
+  uint32 may = 3;
+}
+
+message TenantCreateRequest {
+  // What it is called: one line, up to 80 characters -- the workspace's, and
+  // nobody's, so no person's name (D58).
+  string name = 1 [features.field_presence = IMPLICIT];
+}
+
+message TenantExportRequest {
+  TenantRef ref = 1;
+}
+
+// TenantExportResponse is a part of an export: the first says what the file
+// is called and what it is, and holds none of it -- it leaves once the access
+// record says whose data the export carries -- and each after it holds the
+// next of its bytes.
+message TenantExportResponse {
+  bytes data = 1 [features.field_presence = IMPLICIT];
+  string name = 2 [features.field_presence = IMPLICIT];
+  string content_type = 3 [features.field_presence = IMPLICIT];
 }
 
 message TenantCloseRequest {

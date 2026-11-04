@@ -227,20 +227,30 @@ answers `POST /session` with 403. Tests sign in through `internal/oidctest`, an
 issuer that holds a relying party to what it has to send.
 
 An account in no workspace is given one of its own when it signs in
-(`tenancy.Workspaces.Arrive`), and makes more at `POST /account/workspaces`;
-`GET /account` is what it is in. Those are HTTP beside `/session` and not RPCs
-(`server/account`), because every RPC is served as a membership of a
-workspace and these are asked before there is one.
+(`tenancy.Workspaces.Arrive`), makes more with `TenantService.Create`, and
+`TenantService.Mine` is what it is in -- the account's own RPCs (D73), as
+`LabelService.Locate`, which of them a label is in, is. What stays HTTP
+beside `/session` (`server/account`) is what a session is told of itself,
+`GET /account`, and what it agrees to (`/account/consents`): an account that
+owes an agreement is refused every RPC but what it has (`cmd.WhileOwing`), so
+the way out cannot be behind the refusal, and a session on a workspace's own
+domain is never the account, so `GET /account` tells the page there the one
+workspace it serves (`here`). A workspace's export is its owner's, as their
+membership of it (`TenantService.Export`), and so works while it is closed
+and on its own domain.
 
-**Invitations are the one call served as an account** (D30). The account an
-invitation is addressed to is nobody's member in that workspace yet, so
-`InvitationService.Inbox`, `Claim`, `Accept` and `Deny` are marked
+**Some calls are served as an account** (D30, D73): the invitations
+addressed to it -- nobody's member in that workspace yet --
+`InvitationService.Inbox`, `Claim`, `Accept` and `Deny`, and what it is in,
+`TenantService.Mine`, `Create` and `LabelService.Locate`. Each is marked
 `(payday.method) = {account: {}}` (payday#184): `pd.AccountResolver` serves
 them as the account itself (`frame.OfAccount`, no tenant), payday refuses such
 a frame every other method, the policy gives them to the account alone
 (`policy.Account`, never a membership, and never inside a membership's batch),
 and each declares it reads nothing through the walled servers
-(`pd.AccountReads`). `InvitationService.List` is the workspace's side, for its
+(`pd.AccountReads`). The access record names the account as who made such a
+call, and its review names it by its membership of the workspace
+(`namer.ofMember`). `InvitationService.List` is the workspace's side, for its
 administrators. `server/domain/invitation.go` says which rows each side
 reads -- the account's own, by an address roster holds as checked
 (`identity.Store.Addresses`) or a code its mail carried, and a workspace's own
@@ -263,7 +273,7 @@ A workspace is closed by its owner (`TenantService.Close`, typing its name) or
 an operator (`loft tenant close`), or by the deployment when an account
 leaving left nobody in it, and closing destroys nothing: `cmd.Resolver` refuses
 every call into a closed workspace but its owner's `Get` and `Restore`, and the
-owner can take its data out (`GET /account/workspaces/{alias}/export`). Once
+owner can take its data out (`TenantService.Export`). Once
 its restore window is over -- its own `restore_days` (D36), or
 `app.workspaces.restore_within` -- and nothing holds it, `server/closing`
 destroys it and holds its address (`AliasHold`, whose reason says how it
@@ -319,8 +329,9 @@ entity tree (`pdcmd`), every other method of an entity's service beside it
 the terminal makes up its session key and sends only its hash, so the session
 is a browser's session in every respect. These commands read no server
 configuration; their own is `LOFT_CLIENT_CONFIG`. A new feature is an RPC, so it
-is a command too -- and anything HTTP-only beside the RPCs (`/account`) gets a
-command of its own (`loft workspace`).
+is a command too -- and what is HTTP beside the RPCs (`/account`) is only
+what a session is told of itself (`loft whoami`, `loft consent`); the
+account's workspaces are RPCs (`loft workspace`, D73).
 
 A terminal may sign in narrowed (`loft login --allow PATTERN`, D33): the page
 that approves it shows the methods, and the session is narrowed to them --
@@ -445,8 +456,9 @@ table says why it is not, and a new read goes in it as `domain.Reads`**:
 `server/domain/readonly_test.go` walks `server/policy`'s table and fails a
 method that is neither in it nor served by this layer in a transaction of
 its own, read off the layer's source. The doors that are no RPC -- a
-download, the workspace's export, signing in -- read or are an account's,
-and are not refused.
+file's download, signing in -- read or are an account's, and are not
+refused; nor are the account's own methods (`Account`), nor the workspace's
+export (`Exports`).
 
 What the deployment's own work tells a read-only workspace is a table too
 (design 7.13, D67): `domain.ReadOnlyTells`, every kind of notice a sweep
@@ -486,7 +498,7 @@ Who pays for a workspace is levyan's, and what it cannot know Loft tells it
 (design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and
 `Leave` (an account no longer in it), written as a `LevyanNotice` (domain
 51, global, `trail: off`) in the transaction of the change -- by
-`tenancy.Workspaces`' making (sign-in, `POST /account/workspaces`), `loft
+`tenancy.Workspaces`' making (sign-in, `TenantService.Create`), `loft
 init`, `loft tenant import`, and by `levyan.Notices.Recorder` on every
 `HolderService.Erase` through the servers -- and told by `levyan.Teller`
 (`loft.levyan.notices`, under the lease), a workspace's in the order they
@@ -665,8 +677,9 @@ document is called is not (design 8.2, D56): a field of free text a person
 writes says which, and `pd doctor` asks of each on a kind that holds people. What no declaration sees -- a name
 `namer.say` reads into a sentence, a column of a CSV, a name put in a mail --
 says `access.Saw` in the call that shows it. A download, which hands people's
-data out to be kept elsewhere, is in `cmd.Downloads` (the workspace's export is
-HTTP, `server/account`, and records itself): it says what it is for in
+data out to be kept elsewhere, is in `cmd.Downloads` (the workspace's export among
+them, `TenantService.Export`, which says whose data it carries before its
+first message leaves): it says what it is for in
 `payday-reason-bin` -- base64, as every `-bin` key is -- or is refused. A file
 that names nobody is no download, and is a method of its own
 (`AssetService.Form`).

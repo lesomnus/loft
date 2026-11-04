@@ -2,8 +2,6 @@ package cli
 
 import (
 	"context"
-	"net/http"
-	"net/url"
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/arg"
@@ -46,12 +44,10 @@ func NewCmdScan() *xli.Command {
 				if lerr != nil {
 					return lerr
 				}
-				var in struct {
-					Alias string `json:"alias"`
-				}
-				if n, _ := c.do(ctx, http.MethodGet, "/account/labels/"+url.PathEscape(code), nil, &in); n == http.StatusOK && in.Alias != "" {
-					self.Printf("# in @%s\n", in.Alias)
-					err = c.conn(in.Alias).Invoke(ctx, app.LabelService_Resolve_FullMethodName, req, out)
+				in, lerr := app.NewLabelServiceClient(c.conn("")).Locate(ctx, app.LabelLocateRequest_builder{Code: code}.Build())
+				if lerr == nil && in.GetAlias() != "" {
+					self.Printf("# in @%s\n", in.GetAlias())
+					err = c.conn(in.GetAlias()).Invoke(ctx, app.LabelService_Resolve_FullMethodName, req, out)
 				}
 			}
 			if err != nil {

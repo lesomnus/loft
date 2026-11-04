@@ -1,24 +1,30 @@
-// Package account is what a signed-in account has outside any one workspace:
-// the workspaces it is in, making another, which of them a label it scanned
-// is in, and what it agreed to (design 9.11, D28).
+// Package account is what a signed-in session is told of itself beside
+// `/session`: the account it is, what it owes and agreed to, and where it is
+// asking from (design 9.11, D28) -- the page's first question, asked before
+// any RPC can be.
 //
-// It is HTTP beside `/session` rather than an RPC, and that is the reason it
-// is a package of its own. Every RPC is served as a membership of one
-// workspace (`cmd.Resolver`), and these are the questions asked before there
-// is one -- which workspace to open, and a new one to open.
+// It is HTTP rather than an RPC for two reasons that hold of nothing else an
+// account asks. An account that owes an agreement is refused every RPC
+// (`cmd.Resolver`) but what it has (`cmd.WhileOwing`), so what it owes, and
+// agreeing to it, are the way out and cannot be behind the refusal. And a
+// session on a workspace's own domain is served as its membership there and
+// never as the account (payday#184), so what the page there is told of the
+// one workspace it serves is said here too.
+//
+// The rest of what an account has outside any one workspace is the account's
+// own RPCs (D73): the workspaces it is in and a new one
+// (`TenantService.Mine`, `Create`), which of them a label is in
+// (`LabelService.Locate`); and one workspace's data out is its owner's
+// (`TenantService.Export`).
 package account
 
 import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"io"
 	"log/slog"
 	"mime"
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/lesomnus/otx/log"
@@ -43,14 +49,9 @@ type People interface {
 
 // Account is what `GET /account` answers.
 type Account struct {
-	Id         string      `json:"id"`
-	Login      string      `json:"login"`
-	Name       string      `json:"name"`
-	Workspaces []Workspace `json:"workspaces"`
-	// Owns is how many of them it owns, and May how many it may: another
-	// past that is paid for. May is absent for no limit.
-	Owns int  `json:"owns"`
-	May  *int `json:"may,omitempty"`
+	Id    string `json:"id"`
+	Login string `json:"login"`
+	Name  string `json:"name"`
 	// Manage is where the account itself is managed at roster, and deleted
 	// where its directory offers that; absent for no such page.
 	Manage string `json:"manage,omitempty"`
@@ -63,8 +64,12 @@ type Account struct {
 	// Pinned is the workspace a workspace's own domain serves alone, by its
 	// alias, when that is where the account was asked about (loft#155): the
 	// page there offers nothing of the account's beside it -- making a
-	// workspace, the invitations -- which is the service's.
-	Pinned string `json:"pinned,omitempty"`
+	// workspace, the invitations -- which is the service's. Here is that
+	// workspace as the account is told it, which nothing of the account's
+	// own answers there (`TenantService.Mine` is the service's); absent
+	// anywhere else, and for an account that is no member of it.
+	Pinned string     `json:"pinned,omitempty"`
+	Here   *Workspace `json:"here,omitempty"`
 	// Service is the service's address, said where Pinned is: where the
 	// account's other workspaces are opened from (`/?workspaces` there).
 	Service string `json:"service,omitempty"`
@@ -88,7 +93,8 @@ type Account struct {
 	Identity string `json:"identity"`
 }
 
-// Workspace is one an account is in.
+// Workspace is one an account is in, as `TenantService.Mine` answers each
+// (`TenantMembership`).
 type Workspace struct {
 	Id    string `json:"id"`
 	Alias string `json:"alias"`
@@ -108,21 +114,9 @@ type Workspace struct {
 	Home string `json:"home,omitempty"`
 }
 
-// Exporter writes everything a workspace has, as `loft tenant export` does.
-type Exporter func(ctx context.Context, workspace pdid.Id, w io.Writer) error
-
-// LabelFinder is the workspace a scanned code is in, whichever workspace it
-// was scanned from, or false for none (`domain.LabelWorkspace`).
-type LabelFinder func(ctx context.Context, code string) (workspace pdid.Id, ok bool, err error)
-
-// exportAction is what a workspace's export is called in the access record:
-// the route, since it is no RPC; and accountAction and labelAction what the
-// account and a label's workspace are.
-const (
-	exportAction  = "GET /account/workspaces/{alias}/export"
-	accountAction = "GET /account"
-	labelAction   = "GET /account/labels/{code}"
-)
+// accountAction is what the account is called in the access record: the
+// route, since it is no RPC.
+const accountAction = "GET /account"
 
 // saw puts on the access record whose personal data an answer showed in what
 // it called the workspaces `ms` -- the owner one with no name of its own is
@@ -146,39 +140,15 @@ func (a Routes) saw(r *http.Request, action string, ms ...tenancy.Membership) {
 	}
 }
 
-// exported writes the row of the access record a workspace's export is: by
-// the owner's membership, of everybody its data holds, from where the request
-// came and why.
-func (a Routes) exported(r *http.Request, m tenancy.Membership, why string) error {
-	if a.Access == nil || a.Carried == nil {
-		return errors.New("the access record is not wired")
-	}
-
-	ctx := r.Context()
-	people, err := a.Carried(ctx, m.Workspace)
-	if err != nil {
-		return err
-	}
-
-	as := frame.Into(ctx, frame.New(m.Holder, m.Workspace, frame.Whole()))
-	d := pdpb.AccessDetail_builder{Address: clientaddr.Of(r), Reason: why}.Build()
-	return a.Access.Write(ctx, access.Records(as, exportAction, access.Download, "ok", people, d, time.Now())...)
-}
-
 // Routes is what is served for an account beside `/session`.
 type Routes struct {
 	Sessions   *authsession.Sessions
 	People     People
 	Workspaces tenancy.Workspaces
-	Export     Exporter
-	// Access is where a workspace's export is recorded before its first byte
-	// goes (loft#136), and Carried is whose data one carries. An export
-	// that cannot be recorded is refused, as one with no reason is.
-	Access  *access.Writer
-	Carried func(ctx context.Context, workspace pdid.Id) ([]access.Subject, error)
-	// Label answers a scan made in a workspace a label is not in; nil
-	// answers none.
-	Label LabelFinder
+	// Access is where what an answer showed of somebody is recorded
+	// (loft#136): the owner a workspace with no name of its own is called
+	// after (D57).
+	Access *access.Writer
 	// Manage is roster's account page (`auth.roster.account_url`).
 	Manage string
 	// AliasHold is how long a destroyed workspace's address is kept from
@@ -207,76 +177,10 @@ type Routes struct {
 	Zone string
 }
 
-// Mount serves `GET /account`, `POST /account/workspaces`, a workspace's
-// data for its owner at `GET /account/workspaces/{alias}/export`, which of the
-// account's workspaces a label is in at `GET /account/labels/{code}`, and what
-// it agreed to and agreeing at `GET` and `POST /account/consents`.
-//
-// An account that owes an agreement is refused a new workspace as every RPC
-// refuses it (`cmd.Resolver`). Its data it takes out all the same: what it
-// has is its own whether or not it agrees to what comes next.
+// Mount serves `GET /account`, and what the account agreed to and agreeing at
+// `GET` and `POST /account/consents`.
 func (a Routes) Mount(mux *http.ServeMux) {
 	sessions, people, ws := a.Sessions, a.People, a.Workspaces
-	mux.HandleFunc("GET /account/workspaces/{alias}/export", func(w http.ResponseWriter, r *http.Request) {
-		p, ok := SignedIn(w, r, sessions, people)
-		if !ok {
-			return
-		}
-		ms, err := ws.Of(r.Context(), p.Id)
-		if err != nil {
-			fail(w, r, err)
-			return
-		}
-		ms = pinned(r, ms)
-		alias := r.PathValue("alias")
-		for _, m := range ms {
-			if m.Alias != alias {
-				continue
-			}
-			if m.Role != "owner" {
-				break
-			}
-			// Everybody's data, out of the deployment: a download, so it says
-			// what it is for, and its row of the access record is written
-			// before anything is read for it (loft#136).
-			why := strings.TrimSpace(r.URL.Query().Get("reason"))
-			if why == "" {
-				http.Error(w, "say what the export is for, in ?reason=: it hands everybody's data out, and is recorded", http.StatusBadRequest)
-				return
-			}
-			if err := a.exported(r, m, why); err != nil {
-				log.From(r.Context()).ErrorContext(r.Context(), "account: an export was refused, since its record could not be written", "workspace", m.Workspace, "err", err)
-				http.Error(w, access.ErrUnrecorded.Error(), http.StatusServiceUnavailable)
-				return
-			}
-			// Everything it has, open or closed: what an owner takes out
-			// before a workspace goes (D29).
-			//
-			// Written whole before the first byte goes: the moment it is
-			// read in is held while the database is read and not while a
-			// browser takes its time over the download, and one that fails
-			// is an answer that says so rather than a zip that stops part
-			// way (loft#120).
-			f, err := os.CreateTemp("", "loft-export-*.zip")
-			if err != nil {
-				fail(w, r, err)
-				return
-			}
-			defer os.Remove(f.Name())
-			defer f.Close()
-			if err := a.Export(r.Context(), m.Workspace, f); err != nil {
-				fail(w, r, fmt.Errorf("export of @%s: %w", alias, err))
-				return
-			}
-			name := fmt.Sprintf("%s-%s.zip", alias, time.Now().Format("20060102"))
-			w.Header().Set("Content-Type", "application/zip")
-			w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, name))
-			w.Header().Set("Cache-Control", "no-store")
-			http.ServeContent(w, r, name, time.Time{}, f)
-			return
-		}
-		http.Error(w, "only the workspace's owner takes its data out", http.StatusForbidden)
-	})
 	mux.HandleFunc("GET /account", func(w http.ResponseWriter, r *http.Request) {
 		p, s, ok := reading(w, r, sessions, people)
 		if !ok {
@@ -298,90 +202,6 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		v.Identity = authsession.IdentityOf(s)
 		a.saw(r, accountAction, ms...)
 		answer(w, http.StatusOK, v)
-	})
-	mux.HandleFunc("POST /account/workspaces", func(w http.ResponseWriter, r *http.Request) {
-		// A body that is JSON, which a form on another site cannot send.
-		if ct, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); ct != "application/json" {
-			http.Error(w, "a workspace is asked for as JSON", http.StatusUnsupportedMediaType)
-			return
-		}
-		p, ok := Own(w, r, sessions, people)
-		if !ok {
-			return
-		}
-		var in struct {
-			Name string `json:"name"`
-		}
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&in); err != nil {
-			http.Error(w, "a workspace is asked for as {\"name\": ...}", http.StatusBadRequest)
-			return
-		}
-		name := strings.TrimSpace(in.Name)
-		if name == "" || !tenancy.Fits(name) {
-			http.Error(w, fmt.Sprintf("이름은 한 줄로, 1~%d자로 씁니다", tenancy.MaxName), http.StatusBadRequest)
-			return
-		}
-		if ok, err := a.Consent.Settled(r.Context(), p.Id); err != nil {
-			fail(w, r, err)
-			return
-		} else if !ok {
-			http.Error(w, "이용약관과 개인정보 처리방침에 먼저 동의하세요", http.StatusForbidden)
-			return
-		}
-		m, err := ws.Create(r.Context(), p, name)
-		if errors.Is(err, tenancy.ErrOwnsEnough) {
-			http.Error(w, "워크스페이스를 더 만들려면 결제가 필요합니다", http.StatusPaymentRequired)
-			return
-		}
-		if err != nil {
-			fail(w, r, err)
-			return
-		}
-		v, err := a.workspaceOf(r.Context(), m)
-		if err != nil {
-			fail(w, r, err)
-			return
-		}
-		answer(w, http.StatusCreated, v)
-	})
-	mux.HandleFunc("GET /account/labels/{code}", func(w http.ResponseWriter, r *http.Request) {
-		p, _, ok := Reading(w, r, sessions, people)
-		if !ok {
-			return
-		}
-		// A label in a workspace the account is not in reads as no label at
-		// all: which codes are somebody's is not for anybody else to learn.
-		// The memberships are asked first either way, so that the two take
-		// the same asking.
-		ms, err := ws.Of(r.Context(), p.Id)
-		if err != nil {
-			fail(w, r, err)
-			return
-		}
-		ms = pinned(r, ms)
-		var (
-			in pdid.Id
-			at bool
-		)
-		if a.Label != nil {
-			if in, at, err = a.Label(r.Context(), r.PathValue("code")); err != nil {
-				fail(w, r, err)
-				return
-			}
-		}
-		for _, m := range ms {
-			if at && m.Workspace == in {
-				v, err := a.workspaceOf(r.Context(), m)
-				if err != nil {
-					fail(w, r, err)
-					return
-				}
-				a.saw(r, labelAction, m)
-				answer(w, http.StatusOK, v)
-				return
-			}
-		}
-		http.Error(w, "no workspace of yours has this label", http.StatusNotFound)
 	})
 	mux.HandleFunc("GET /account/consents", func(w http.ResponseWriter, r *http.Request) {
 		p, _, ok := Reading(w, r, sessions, people)
@@ -454,11 +274,10 @@ func (a Routes) Mount(mux *http.ServeMux) {
 //
 // A session narrowed to some methods (`loft login --allow`, D33) is refused.
 // What is served beside the RPCs is no method a grant names, and what a route
-// here does -- approve another terminal, take a workspace's data out, make
-// one, agree to terms -- is not what a terminal that may do less than its
-// account asked for: one that could approve a terminal for all of it would
-// have been narrowed to nothing. The few that only read what an account is
-// ask [Reading] instead.
+// there does -- approve another terminal, agree to terms -- is not what a
+// terminal that may do less than its account asked for: one that could
+// approve a terminal for all of it would have been narrowed to nothing. The
+// few that only read what an account is ask [Reading] instead.
 func SignedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, bool) {
 	p, _, ok := signedIn(w, r, sessions, people)
 	return p, ok
@@ -477,10 +296,9 @@ func signedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sess
 }
 
 // Own is [SignedIn] for what an account does as itself -- agree to what the
-// deployment asks, make a workspace -- which is done signed in at the
-// service's address, and never with a session handed to a workspace's own
-// domain (loft#155): that one is the workspace's, and what the account says
-// of itself is not.
+// deployment asks -- which is done signed in at the service's address, and
+// never with a session handed to a workspace's own domain (loft#155): that
+// one is the workspace's, and what the account says of itself is not.
 func Own(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, bool) {
 	p, v, ok := signedIn(w, r, sessions, people)
 	if !ok {
@@ -494,8 +312,8 @@ func Own(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions,
 }
 
 // Reading is [SignedIn] for a route that only reads what the account is --
-// itself, what it agreed to, which of its workspaces a label is in -- which
-// any session may ask, however narrowed; and the grant it is narrowed by.
+// itself, and what it agreed to -- which any session may ask, however
+// narrowed; and the grant it is narrowed by.
 func Reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, frame.Grant, bool) {
 	p, v, ok := reading(w, r, sessions, people)
 	return p, v.Grant, ok
@@ -538,50 +356,35 @@ func reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessi
 	return p, v, true
 }
 
-// accountOf is what `GET /account` answers of `p`, and the memberships it
-// says.
+// accountOf is what `GET /account` answers of `p`, and the membership it
+// says: on a workspace's own domain, the account's in that workspace, which
+// is all of the account's the page there is told (loft#155); at the
+// service's address none, which `TenantService.Mine` answers.
 func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Person) (Account, []tenancy.Membership, error) {
+	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Billing: a.Billing, Timezone: a.Zone}
+	pin, ok := apphost.From(r.Context())
+	if !ok {
+		return out, nil, nil
+	}
+	out.Pinned, out.Service = pin.Alias, a.Service
+
 	ms, err := ws.Of(r.Context(), p.Id)
 	if err != nil {
 		return Account{}, nil, err
 	}
-	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}, Billing: a.Billing, Timezone: a.Zone}
-	if pin, ok := apphost.From(r.Context()); ok {
-		out.Pinned, out.Service = pin.Alias, a.Service
-	}
-	ms = pinned(r, ms)
 	for _, m := range ms {
+		if m.Workspace != pin.Workspace {
+			continue
+		}
 		v, err := a.workspaceOf(r.Context(), m)
 		if err != nil {
 			return Account{}, nil, err
 		}
-		out.Workspaces = append(out.Workspaces, v)
-		if m.Role == "owner" {
-			out.Owns++
-		}
-	}
-	if ws.Owned >= 0 {
-		out.May = &ws.Owned
+		out.Here = &v
+		return out, []tenancy.Membership{m}, nil
 	}
 
-	return out, ms, nil
-}
-
-// pinned is the memberships a request may see: on a workspace's own domain
-// the one in that workspace, and nothing of the account's others (loft#155);
-// all of them at the service's address.
-func pinned(r *http.Request, ms []tenancy.Membership) []tenancy.Membership {
-	pin, ok := apphost.From(r.Context())
-	if !ok {
-		return ms
-	}
-	out := []tenancy.Membership{}
-	for _, m := range ms {
-		if m.Workspace == pin.Workspace {
-			out = append(out, m)
-		}
-	}
-	return out
+	return out, nil, nil
 }
 
 func (a Routes) workspaceOf(ctx context.Context, m tenancy.Membership) (Workspace, error) {

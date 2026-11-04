@@ -51,9 +51,9 @@ import (
 // What is the app's around that stays here. A session's account that has not
 // agreed to what this deployment asks (`consents`, design 9.11) -- which
 // roster's ledger says (D37) -- is refused every call first, with
-// [ConsentOwed]: what it agrees to is HTTP beside the RPCs (`server/account`),
-// and its first page. And a closed workspace is refused last, to all but its
-// owner's [WhileClosed].
+// [ConsentOwed], but for what it has ([WhileOwing]): what it agrees to is HTTP
+// beside the RPCs (`server/account`), and its first page. And a closed
+// workspace is refused last, to all but its owner's [WhileClosed].
 //
 // A call that came to a workspace's own domain is pinned to that workspace
 // ([apphost.From], loft#155), and served as a membership of it or not at all:
@@ -75,8 +75,10 @@ func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Res
 			if id.TenantId != "" && (!pinned || id.TenantId != pin.Workspace.String()) {
 				return nil, fmt.Errorf("%w: this sign-in was handed to a workspace's own domain, and is good there alone", auth.ErrNoCredential)
 			}
-			if err := settled(ctx, consents, id.Id); err != nil {
-				return nil, err
+			if m, _ := grpc.Method(ctx); !WhileOwing[m] {
+				if err := settled(ctx, consents, id.Id); err != nil {
+					return nil, err
+				}
 			}
 			if pinned {
 				if err := pinnedTo(ctx, pin); err != nil {
@@ -190,11 +192,22 @@ func pinnedTo(ctx context.Context, pin apphost.Pinned) error {
 }
 
 // WhileClosed is what a closed workspace's owner may still call: the
-// workspace itself, to see it, and its restore. Taking its data out is HTTP
-// (`server/account`).
+// workspace itself, to see it, its restore, and its data taken out (D29).
 var WhileClosed = map[string]bool{
 	app.TenantService_Get_FullMethodName:     true,
 	app.TenantService_Restore_FullMethodName: true,
+	app.TenantService_Export_FullMethodName:  true,
+}
+
+// WhileOwing is what an account still calls while it owes an agreement to what
+// this deployment asks (design 9.11): what it has, which is its own whether or
+// not it agrees to what comes next -- the workspaces it is in, and one it owns
+// taken out (D73). Everything else waits for the agreement, which is HTTP
+// beside the RPCs (`server/account`) for that reason: it is the way out of
+// being refused.
+var WhileOwing = map[string]bool{
+	app.TenantService_Mine_FullMethodName:   true,
+	app.TenantService_Export_FullMethodName: true,
 }
 
 // ConsentOwed is what a call is refused with while its account has not agreed

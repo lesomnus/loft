@@ -9,10 +9,10 @@
  * @module
  */
 
-import { create, type DescMessage, type MessageInitShape } from '@bufbuild/protobuf'
+import { create, isFieldSet, type DescMessage, type MessageInitShape } from '@bufbuild/protobuf'
 import { timestampDate, timestampFromDate, type Timestamp, TimestampSchema } from '@bufbuild/protobuf/wkt'
 import { BinaryReader, WireType } from '@bufbuild/protobuf/wire'
-import { Code, ConnectError, createClient, type Interceptor } from '@connectrpc/connect'
+import { Code, ConnectError, createClient, encodeBinaryHeader, type Interceptor } from '@connectrpc/connect'
 import { createConnectTransport } from '@connectrpc/connect-web'
 import { from, newId, parse } from '@lesomnus/payday/pdid'
 import { IDENTITY_HEADER } from '@lesomnus/payday/query'
@@ -34,7 +34,8 @@ import { HolderService } from '../gen/loft/payday/holder_svc_pb.js'
 import { AccessReviewService, NotificationService } from '../gen/loft/ops_svc_pb.js'
 import { PurchaseLineService, PurchaseService, WorkOrderService } from '../gen/loft/work_svc_pb.js'
 import { StockMovementService, StockService } from '../gen/loft/stock_svc_pb.js'
-import { TenantService } from '../gen/loft/payday/tenant_svc_pb.js'
+import { TenantMineResponseSchema, TenantService } from '../gen/loft/payday/tenant_svc_pb.js'
+import type { TenantMembership } from '../gen/loft/account_pb.js'
 import { PaymentService } from '../gen/loft/payment_pb.js'
 
 export {
@@ -124,7 +125,11 @@ export const transport = createConnectTransport({
 	jsonOptions: { registry: events },
 })
 
-/** A workspace an account is in, as `GET /account` answers it. */
+/**
+ * A workspace an account is in, as the account is told it: by
+ * `TenantService.Mine` (`TenantMembership`, D73), or `GET /account`'s `here`
+ * on a workspace's own domain.
+ */
 export interface Workspace {
 	id: string
 	alias: string
@@ -143,14 +148,21 @@ export interface Workspace {
 	home?: string
 }
 
-/** The account signed in, and the workspaces it is in. */
+/**
+ * The account signed in, as `GET /account` answers it, and the workspaces it
+ * is in, as `TenantService.Mine` does ({@link signedIn}).
+ */
 export interface Account {
 	id: string
 	login: string
 	name: string
+	/** What it is in; on a workspace's own domain, that one alone (`here`). */
 	workspaces: Workspace[]
+	/** How many of them it owns, and may own: another past that is paid for. */
 	owns: number
 	may?: number
+	/** The workspace a workspace's own domain serves, as the account is told it there. */
+	here?: Workspace
 	/** roster's page where the account itself is managed, and deleted where its directory offers that. */
 	manage?: string
 	/** What it has to agree to before it uses anything here (design 9.11). */
@@ -222,12 +234,48 @@ export function leavePage(manage: string): string {
 	return manage.split('#')[0] + '#leave'
 }
 
-/** The account this browser is signed in as, or `out` for none. */
+/**
+ * The account this browser is signed in as, or `out` for none: what `GET
+ * /account` says of the session, and the workspaces it is in, which the
+ * account asks as itself (`TenantService.Mine`, D73) -- but on a workspace's
+ * own domain, where nothing of the account's own is served and the one
+ * workspace there is all it is told (`here`).
+ */
 export async function signedIn(): Promise<Account | 'out'> {
 	const res = await fetch('/account')
 	if (res.status === 401) return 'out'
 	if (!res.ok) throw new Error(`계정을 읽을 수 없습니다 (${res.status})`)
-	return (await res.json()) as Account
+	const a = (await res.json()) as Account
+	if (a.pinned !== undefined) {
+		const here = a.here === undefined ? [] : [a.here]
+		return { ...a, workspaces: here, owns: here.filter((w) => w.role === 'owner').length, may: undefined }
+	}
+	try {
+		const mine = await raw.tenant.mine({})
+		return {
+			...a,
+			workspaces: mine.workspaces.map(workspaceOf),
+			owns: mine.owns,
+			may: isFieldSet(mine, TenantMineResponseSchema.field.may) ? mine.may : undefined,
+		}
+	} catch (err) {
+		if (isUnauthenticated(err)) return 'out'
+		throw err
+	}
+}
+
+/** A workspace as the account is told it, in the shape the page keeps it. */
+export function workspaceOf(m: TenantMembership): Workspace {
+	return {
+		id: idStr(m.id),
+		alias: m.alias,
+		name: m.name,
+		role: m.role,
+		closed: m.closed === undefined ? undefined : timestampDate(m.closed).toISOString(),
+		destroy: m.destroy === undefined ? undefined : timestampDate(m.destroy).toISOString(),
+		alias_hold_days: m.aliasHoldDays === 0 ? undefined : m.aliasHoldDays,
+		home: m.home === '' ? undefined : m.home,
+	}
 }
 
 /** One way in the sign-in page offers: a connection of the directory at roster. */
@@ -333,28 +381,48 @@ export function handingOff(): string {
 	return next.startsWith('/handoff?') ? next : ''
 }
 
-/** A new workspace the account owns, with an alias nobody chose. */
+/** A new workspace the account owns, with an alias nobody chose: made as the account (D73). */
 export async function makeWorkspace(name: string): Promise<Workspace> {
-	const res = await fetch('/account/workspaces', {
-		method: 'POST',
-		headers: { 'content-type': 'application/json' },
-		body: JSON.stringify({ name }),
-	})
-	if (res.status === 402) throw new Error('워크스페이스를 더 만들려면 결제가 필요합니다.')
-	if (!res.ok) throw new Error((await res.text()).trim() || `만들 수 없습니다 (${res.status})`)
-	return (await res.json()) as Workspace
+	try {
+		return workspaceOf(await raw.tenant.create({ name }))
+	} catch (err) {
+		throw new Error(errorText(err))
+	}
 }
 
 /**
  * Which of the account's workspaces a scanned code is a label in, for a scan
  * made in another; undefined for none of them. A label in a workspace the
- * account is not in reads as none.
+ * account is not in reads as none. Asked as the account (D73).
  */
 export async function labelWorkspace(code: string): Promise<Workspace | undefined> {
-	const res = await fetch('/account/labels/' + encodeURIComponent(code))
-	if (res.status === 404) return undefined
-	if (!res.ok) throw new Error(`라벨을 찾을 수 없습니다 (${res.status})`)
-	return (await res.json()) as Workspace
+	try {
+		return workspaceOf(await raw.label.locate({ code }))
+	} catch (err) {
+		if (ConnectError.from(err).code === Code.NotFound) return undefined
+		throw new Error(`라벨을 찾을 수 없습니다 (${errorText(err)})`)
+	}
+}
+
+/**
+ * Everything a workspace has, as one zip, downloaded by its owner (D29, D34):
+ * a download of everybody in it, so it says what for (`why`, loft#136), and is
+ * asked in that workspace. Its parts are put together as they come, and saved
+ * once the last has.
+ */
+export async function exportWorkspace(ws: Workspace, why: string): Promise<void> {
+	const parts: Uint8Array[] = []
+	let name = `${ws.alias}.zip`
+	let type = 'application/zip'
+	// What it is for, as every download says it (`payday-reason-bin`, the
+	// header `reason.tsx` names), and in the workspace it is of.
+	const headers = { 'payday-reason-bin': encodeBinaryHeader(why), 'Loft-Workspace': ws.alias }
+	for await (const v of raw.tenant.export({ ref: ref(idBytes(ws.id)) }, { headers })) {
+		if (v.name !== '') name = v.name
+		if (v.contentType !== '') type = v.contentType
+		if (v.data.length > 0) parts.push(v.data)
+	}
+	download(parts, name, type)
 }
 
 /** A label's code as it is printed under its QR: in two fours, to be read out. */
@@ -403,6 +471,8 @@ export const raw = {
 	asset: createClient(AssetService, transport),
 	attachment: createClient(AttachmentService, transport),
 	label: createClient(LabelService, transport),
+	// What the account is in, makes, and takes out of one it owns (D73).
+	tenant: createClient(TenantService, transport),
 	// What the reports' files are asked of (pages/reports.tsx).
 	custody: createClient(CustodyService, transport),
 	bookable: createClient(BookableService, transport),
@@ -706,9 +776,9 @@ function newEventId(): Uint8Array {
 
 export type Init<T extends DescMessage> = MessageInitShape<T>
 
-/** Bytes as base64, for what goes into an `<img>` or a download. */
-export function download(data: Uint8Array, name: string, type: string): void {
-	const blob = new Blob([data as BlobPart], { type })
+/** Bytes as base64, for what goes into an `<img>` or a download: one array, or the parts of one. */
+export function download(data: Uint8Array | Uint8Array[], name: string, type: string): void {
+	const blob = new Blob(Array.isArray(data) ? (data as BlobPart[]) : [data as BlobPart], { type })
 	const url = URL.createObjectURL(blob)
 	const a = document.createElement('a')
 	a.href = url

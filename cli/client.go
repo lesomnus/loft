@@ -156,29 +156,6 @@ func (c clientConfig) do(ctx context.Context, method, path string, body any, out
 	return res.StatusCode, nil
 }
 
-// fetch is one plain download beside the RPCs, written to `w` as it comes.
-func (c clientConfig) fetch(ctx context.Context, path string, w io.Writer) error {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, strings.TrimSuffix(c.Url, "/")+path, nil)
-	if err != nil {
-		return err
-	}
-	if c.Key != "" {
-		req.Header.Set("Cookie", c.Cookie+"="+c.Key)
-	}
-	req.Header.Set("User-Agent", "loft-cli")
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-	if res.StatusCode >= 300 {
-		b, _ := io.ReadAll(io.LimitReader(res.Body, 4<<10))
-		return fmt.Errorf("GET %s: %s", path, strings.TrimSpace(string(b)))
-	}
-	_, err = io.Copy(w, res.Body)
-	return err
-}
-
 // NewCmdLogin is `loft login`: this terminal signed in by approving it in a
 // browser where the person is signed in already.
 func NewCmdLogin() *xli.Command {
@@ -219,14 +196,16 @@ func NewCmdLogin() *xli.Command {
 				return err
 			}
 			var me struct {
-				Login      string `json:"login"`
-				Workspaces []struct {
-					Alias string `json:"alias"`
-				} `json:"workspaces"`
+				Login string `json:"login"`
 			}
-			if _, err := v.do(ctx, http.MethodGet, "/account", nil, &me); err == nil {
-				self.Printf("signed in as %s, in %d workspace(s)\n", me.Login, len(me.Workspaces))
-			} else {
+			_, err = v.do(ctx, http.MethodGet, "/account", nil, &me)
+			mine, merr := app.NewTenantServiceClient(v.conn("")).Mine(ctx, &app.TenantMineRequest{})
+			switch {
+			case err == nil && merr == nil:
+				self.Printf("signed in as %s, in %d workspace(s)\n", me.Login, len(mine.GetWorkspaces()))
+			case err == nil:
+				self.Printf("signed in as %s\n", me.Login)
+			default:
 				self.Printf("signed in\n")
 			}
 			return next(ctx)
@@ -245,6 +224,9 @@ var reads = []string{
 	"/loft.ReservationService/Calendar", "/loft.ReservationService/Timeline", "/loft.BookableService/Availability",
 	"/loft.PartyService/Me", "/loft.LabelService/Resolve", "/loft.DomainService/Status",
 	"/loft.AttachmentService/Url", "/loft.NotificationService/Inbox",
+	// What the account is in, and which of them a label is in: its own reads
+	// (D73), which were HTTP every session might ask.
+	"/loft.TenantService/Mine", "/loft.LabelService/Locate",
 }
 
 // expand is what `--allow` named, with `read` as [reads].
@@ -372,14 +354,9 @@ func NewCmdWhoami() *xli.Command {
 				return errNoLogin
 			}
 			var me struct {
-				Id         string `json:"id"`
-				Login      string `json:"login"`
-				Name       string `json:"name"`
-				Workspaces []struct {
-					Alias string `json:"alias"`
-					Name  string `json:"name"`
-					Role  string `json:"role"`
-				} `json:"workspaces"`
+				Id    string   `json:"id"`
+				Login string   `json:"login"`
+				Name  string   `json:"name"`
 				Allow []string `json:"allow"`
 			}
 			if _, err := c.do(ctx, http.MethodGet, "/account", nil, &me); err != nil {
@@ -389,12 +366,17 @@ func NewCmdWhoami() *xli.Command {
 			if len(me.Allow) > 0 {
 				self.Printf("  allowed only: %s\n", strings.Join(me.Allow, ", "))
 			}
-			for _, w := range me.Workspaces {
+			// What it is in, asked as the account (D73).
+			mine, err := app.NewTenantServiceClient(c.conn("")).Mine(ctx, &app.TenantMineRequest{})
+			if err != nil {
+				return err
+			}
+			for _, w := range mine.GetWorkspaces() {
 				mark := " "
-				if w.Alias == c.Workspace {
+				if w.GetAlias() == c.Workspace {
 					mark = "*"
 				}
-				self.Printf("%s @%s\t%s\t%s\n", mark, w.Alias, w.Role, w.Name)
+				self.Printf("%s @%s\t%s\t%s\n", mark, w.GetAlias(), w.GetRole(), w.GetName())
 			}
 			return next(ctx)
 		}),
@@ -431,17 +413,13 @@ func NewCmdUse() *xli.Command {
 				return next(ctx)
 			default:
 				ws := strings.TrimPrefix(named, "@")
-				var me struct {
-					Workspaces []struct {
-						Alias string `json:"alias"`
-					} `json:"workspaces"`
-				}
-				if _, err := c.do(ctx, http.MethodGet, "/account", nil, &me); err != nil {
+				mine, err := app.NewTenantServiceClient(c.conn("")).Mine(ctx, &app.TenantMineRequest{})
+				if err != nil {
 					return err
 				}
 				found := false
-				for _, w := range me.Workspaces {
-					found = found || w.Alias == ws
+				for _, w := range mine.GetWorkspaces() {
+					found = found || w.GetAlias() == ws
 				}
 				if !found {
 					return fmt.Errorf("@%s: not a workspace this account is in (`loft whoami`)", ws)
@@ -462,10 +440,10 @@ func NewCmdUse() *xli.Command {
 }
 
 // NewCmdWorkspace is `loft workspace`: what an account has outside any one
-// workspace -- the ones it is in, a new one, and everything one it owns has --
-// which is HTTP beside the RPCs (`server/account`), asked before there is a
-// workspace to be a member of. And what one it owns is called, which is the
-// workspace's own RPC (D58), here beside making one.
+// workspace -- the ones it is in and a new one, asked as the account
+// (`TenantService.Mine`, `Create`, D73) -- and of one it owns, what it is
+// called (D58) and everything it has (`TenantService.Export`), asked as its
+// owner there. The CLI's next shape names these `loft tenant ...` (loft#285).
 func NewCmdWorkspace() *xli.Command {
 	return &xli.Command{
 		Name:  "workspace",
@@ -491,14 +469,11 @@ func NewCmdWorkspace() *xli.Command {
 						return errNoLogin
 					}
 					name, _ := arg.Get[string](self, "NAME")
-					var made struct {
-						Alias string `json:"alias"`
-						Name  string `json:"name"`
-					}
-					if _, err := c.do(ctx, http.MethodPost, "/account/workspaces", map[string]string{"name": name}, &made); err != nil {
+					made, err := app.NewTenantServiceClient(c.conn("")).Create(ctx, app.TenantCreateRequest_builder{Name: name}.Build())
+					if err != nil {
 						return err
 					}
-					self.Printf("@%s\t%s\n", made.Alias, made.Name)
+					self.Printf("@%s\t%s\n", made.GetAlias(), made.GetName())
 					return next(ctx)
 				}),
 			},
@@ -541,18 +516,13 @@ func NewCmdWorkspace() *xli.Command {
 					}
 					// And what it is called now, as the account is told it:
 					// after its owner, for none of its own.
-					var me struct {
-						Workspaces []struct {
-							Alias string `json:"alias"`
-							Name  string `json:"name"`
-						} `json:"workspaces"`
-					}
-					if _, err := c.do(ctx, http.MethodGet, "/account", nil, &me); err != nil {
+					mine, err := app.NewTenantServiceClient(c.conn("")).Mine(ctx, &app.TenantMineRequest{})
+					if err != nil {
 						return err
 					}
-					for _, w := range me.Workspaces {
-						if w.Alias == ws {
-							self.Printf("@%s\t%s\n", w.Alias, w.Name)
+					for _, w := range mine.GetWorkspaces() {
+						if w.GetAlias() == ws {
+							self.Printf("@%s\t%s\n", w.GetAlias(), w.GetName())
 						}
 					}
 					return next(ctx)
@@ -596,9 +566,29 @@ func NewCmdWorkspace() *xli.Command {
 						return err
 					}
 					defer os.Remove(tmp.Name())
-					if err := c.fetch(ctx, "/account/workspaces/"+url.PathEscape(ws)+"/export?reason="+url.QueryEscape(why), tmp); err != nil {
+					// Its owner's, as their membership of it: a download, so it
+					// says what it is for (D73).
+					in := metadata.AppendToOutgoingContext(ctx, access.ReasonKey, why)
+					stream, err := app.NewTenantServiceClient(c.conn(ws)).Export(in, app.TenantExportRequest_builder{
+						Ref: app.TenantRef_builder{Alias: z.Ptr(ws)}.Build(),
+					}.Build())
+					if err != nil {
 						tmp.Close()
 						return err
+					}
+					for {
+						part, err := stream.Recv()
+						if errors.Is(err, io.EOF) {
+							break
+						}
+						if err != nil {
+							tmp.Close()
+							return err
+						}
+						if _, err := tmp.Write(part.GetData()); err != nil {
+							tmp.Close()
+							return err
+						}
 					}
 					if err := tmp.Close(); err != nil {
 						return err

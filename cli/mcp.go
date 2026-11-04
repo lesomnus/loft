@@ -18,6 +18,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -652,24 +653,32 @@ func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoam
 		return nil, out, err
 	}
 	var account struct {
-		Login      string         `json:"login"`
-		Name       string         `json:"name"`
-		Workspaces []mcpWorkspace `json:"workspaces"`
-		Allow      []string       `json:"allow"`
+		Login string   `json:"login"`
+		Name  string   `json:"name"`
+		Allow []string `json:"allow"`
 	}
 	if _, err := c.client.do(ctx, http.MethodGet, "/account", nil, &account); err != nil {
 		return nil, out, err
 	}
-	out.Deployment, out.Login, out.Name, out.Workspaces, out.Allow = c.client.Url, account.Login, account.Name, account.Workspaces, account.Allow
-	if out.Workspaces == nil {
-		out.Workspaces = []mcpWorkspace{}
+	out.Deployment, out.Login, out.Name, out.Allow = c.client.Url, account.Login, account.Name, account.Allow
+	out.Workspaces = []mcpWorkspace{}
+	// What it is in, asked as the account (D73) -- which a sign-in narrowed
+	// to less than reading may not ask, and is then told none of.
+	mine, err := app.NewTenantServiceClient(c.client.conn("")).Mine(ctx, &app.TenantMineRequest{})
+	switch {
+	case err == nil:
+		for _, w := range mine.GetWorkspaces() {
+			out.Workspaces = append(out.Workspaces, mcpWorkspace{Alias: w.GetAlias(), Name: w.GetName(), Role: w.GetRole()})
+		}
+	case status.Code(err) != codes.PermissionDenied:
+		return nil, out, err
 	}
 
 	me, err := c.whom()
 	if err != nil {
 		return nil, out, err
 	}
-	for _, w := range account.Workspaces {
+	for _, w := range out.Workspaces {
 		if w.Alias == me.GetTenant().GetAlias() {
 			out.Workspace = &w
 		}

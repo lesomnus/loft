@@ -692,7 +692,7 @@ func (s domainLabel) Resolve(ctx context.Context, req *app.LabelResolveRequest) 
 // was scanned from: a label's by its code, or by its identifier for one
 // printed before codes, or an asset's by its own -- or false for none. It reads
 // past the wall, and is only for telling an account which of its own
-// workspaces to look in (`GET /account/labels/{code}`).
+// workspaces to look in (`LabelService.Locate`, D73).
 func LabelWorkspace(ctx context.Context, db *ent.Client, v string) (pdid.Id, bool, error) {
 	var (
 		tenant uuid.UUID

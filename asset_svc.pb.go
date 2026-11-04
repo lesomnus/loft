@@ -7,6 +7,7 @@
 package loft
 
 import (
+	_ "github.com/lesomnus/payday/pdpb"
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -13182,6 +13183,64 @@ func (b0 LabelResolveResponse_builder) Build() *LabelResolveResponse {
 	return m0
 }
 
+type LabelLocateRequest struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Code string                 `protobuf:"bytes,1,opt,name=code"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *LabelLocateRequest) Reset() {
+	*x = LabelLocateRequest{}
+	mi := &file_loft_asset_svc_g_proto_msgTypes[82]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LabelLocateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LabelLocateRequest) ProtoMessage() {}
+
+func (x *LabelLocateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_asset_svc_g_proto_msgTypes[82]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *LabelLocateRequest) GetCode() string {
+	if x != nil {
+		return x.xxx_hidden_Code
+	}
+	return ""
+}
+
+func (x *LabelLocateRequest) SetCode(v string) {
+	x.xxx_hidden_Code = v
+}
+
+type LabelLocateRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// What the scanner read: the URL, or the code alone.
+	Code string
+}
+
+func (b0 LabelLocateRequest_builder) Build() *LabelLocateRequest {
+	m0 := &LabelLocateRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Code = b.Code
+	return m0
+}
+
 type AttachmentAddRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -13201,7 +13260,7 @@ type AttachmentAddRequest struct {
 
 func (x *AttachmentAddRequest) Reset() {
 	*x = AttachmentAddRequest{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[82]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13213,7 +13272,7 @@ func (x *AttachmentAddRequest) String() string {
 func (*AttachmentAddRequest) ProtoMessage() {}
 
 func (x *AttachmentAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[82]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13426,7 +13485,7 @@ type AttachmentGetRequest struct {
 
 func (x *AttachmentGetRequest) Reset() {
 	*x = AttachmentGetRequest{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[83]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13438,7 +13497,7 @@ func (x *AttachmentGetRequest) String() string {
 func (*AttachmentGetRequest) ProtoMessage() {}
 
 func (x *AttachmentGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[83]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13518,7 +13577,7 @@ type AttachmentRef struct {
 
 func (x *AttachmentRef) Reset() {
 	*x = AttachmentRef{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[84]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13530,7 +13589,7 @@ func (x *AttachmentRef) String() string {
 func (*AttachmentRef) ProtoMessage() {}
 
 func (x *AttachmentRef) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[84]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13618,7 +13677,7 @@ func (b0 AttachmentRef_builder) Build() *AttachmentRef {
 type case_AttachmentRef_Key protoreflect.FieldNumber
 
 func (x case_AttachmentRef_Key) String() string {
-	md := file_loft_asset_svc_g_proto_msgTypes[84].Descriptor()
+	md := file_loft_asset_svc_g_proto_msgTypes[85].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -13656,7 +13715,7 @@ type AttachmentSelect struct {
 
 func (x *AttachmentSelect) Reset() {
 	*x = AttachmentSelect{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[85]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13668,7 +13727,7 @@ func (x *AttachmentSelect) String() string {
 func (*AttachmentSelect) ProtoMessage() {}
 
 func (x *AttachmentSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[85]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14024,7 +14083,7 @@ type AttachmentPatchRequest struct {
 
 func (x *AttachmentPatchRequest) Reset() {
 	*x = AttachmentPatchRequest{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[86]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14036,7 +14095,7 @@ func (x *AttachmentPatchRequest) String() string {
 func (*AttachmentPatchRequest) ProtoMessage() {}
 
 func (x *AttachmentPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[86]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14347,7 +14406,7 @@ type AttachmentApplyRequest struct {
 
 func (x *AttachmentApplyRequest) Reset() {
 	*x = AttachmentApplyRequest{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[87]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14359,7 +14418,7 @@ func (x *AttachmentApplyRequest) String() string {
 func (*AttachmentApplyRequest) ProtoMessage() {}
 
 func (x *AttachmentApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[87]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14441,7 +14500,7 @@ type AttachmentEraseResponse struct {
 
 func (x *AttachmentEraseResponse) Reset() {
 	*x = AttachmentEraseResponse{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[88]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14453,7 +14512,7 @@ func (x *AttachmentEraseResponse) String() string {
 func (*AttachmentEraseResponse) ProtoMessage() {}
 
 func (x *AttachmentEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[88]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14522,7 +14581,7 @@ type AttachmentListRequest struct {
 
 func (x *AttachmentListRequest) Reset() {
 	*x = AttachmentListRequest{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[89]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14534,7 +14593,7 @@ func (x *AttachmentListRequest) String() string {
 func (*AttachmentListRequest) ProtoMessage() {}
 
 func (x *AttachmentListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[89]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14634,7 +14693,7 @@ type AttachmentListResponse struct {
 
 func (x *AttachmentListResponse) Reset() {
 	*x = AttachmentListResponse{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[90]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14646,7 +14705,7 @@ func (x *AttachmentListResponse) String() string {
 func (*AttachmentListResponse) ProtoMessage() {}
 
 func (x *AttachmentListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[90]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14716,7 +14775,7 @@ type AttachmentFilter struct {
 
 func (x *AttachmentFilter) Reset() {
 	*x = AttachmentFilter{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[91]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14728,7 +14787,7 @@ func (x *AttachmentFilter) String() string {
 func (*AttachmentFilter) ProtoMessage() {}
 
 func (x *AttachmentFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[91]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14817,7 +14876,7 @@ type AttachmentWatchRequest struct {
 
 func (x *AttachmentWatchRequest) Reset() {
 	*x = AttachmentWatchRequest{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[92]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14829,7 +14888,7 @@ func (x *AttachmentWatchRequest) String() string {
 func (*AttachmentWatchRequest) ProtoMessage() {}
 
 func (x *AttachmentWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[92]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14901,7 +14960,7 @@ type AttachmentWatchResponse struct {
 
 func (x *AttachmentWatchResponse) Reset() {
 	*x = AttachmentWatchResponse{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[93]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14913,7 +14972,7 @@ func (x *AttachmentWatchResponse) String() string {
 func (*AttachmentWatchResponse) ProtoMessage() {}
 
 func (x *AttachmentWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[93]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14965,7 +15024,7 @@ type AttachmentWatchItem struct {
 
 func (x *AttachmentWatchItem) Reset() {
 	*x = AttachmentWatchItem{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[94]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14977,7 +15036,7 @@ func (x *AttachmentWatchItem) String() string {
 func (*AttachmentWatchItem) ProtoMessage() {}
 
 func (x *AttachmentWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[94]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15098,7 +15157,7 @@ type AttachmentUploadRequest struct {
 
 func (x *AttachmentUploadRequest) Reset() {
 	*x = AttachmentUploadRequest{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[95]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15110,7 +15169,7 @@ func (x *AttachmentUploadRequest) String() string {
 func (*AttachmentUploadRequest) ProtoMessage() {}
 
 func (x *AttachmentUploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[95]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15200,7 +15259,7 @@ type AttachmentUrlRequest struct {
 
 func (x *AttachmentUrlRequest) Reset() {
 	*x = AttachmentUrlRequest{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[96]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15212,7 +15271,7 @@ func (x *AttachmentUrlRequest) String() string {
 func (*AttachmentUrlRequest) ProtoMessage() {}
 
 func (x *AttachmentUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[96]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15269,7 +15328,7 @@ type AttachmentUrlResponse struct {
 
 func (x *AttachmentUrlResponse) Reset() {
 	*x = AttachmentUrlResponse{}
-	mi := &file_loft_asset_svc_g_proto_msgTypes[97]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15281,7 +15340,7 @@ func (x *AttachmentUrlResponse) String() string {
 func (*AttachmentUrlResponse) ProtoMessage() {}
 
 func (x *AttachmentUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_asset_svc_g_proto_msgTypes[97]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15345,7 +15404,7 @@ var File_loft_asset_svc_g_proto protoreflect.FileDescriptor
 
 const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x16loft/asset_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x10loft/asset.proto\x1a\x18loft/catalog_svc.g.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xc2\t\n" +
+	"\x16loft/asset_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x12loft/account.proto\x1a\x10loft/asset.proto\x1a\x18loft/catalog_svc.g.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\x1a\fpayday.proto\"\xc2\t\n" +
 	"\x0fAssetAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
@@ -15930,7 +15989,9 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x04code\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04code\"\\\n" +
 	"\x14LabelResolveResponse\x12!\n" +
 	"\x05label\x18\x01 \x01(\v2\v.loft.LabelR\x05label\x12!\n" +
-	"\x05asset\x18\x02 \x01(\v2\v.loft.AssetR\x05asset\"\xdd\x02\n" +
+	"\x05asset\x18\x02 \x01(\v2\v.loft.AssetR\x05asset\"/\n" +
+	"\x12LabelLocateRequest\x12\x19\n" +
+	"\x04code\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04code\"\xdd\x02\n" +
 	"\x14AttachmentAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
@@ -16058,7 +16119,7 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x06Verify\x12\x19.loft.DomainVerifyRequest\x1a\f.loft.Domain\x125\n" +
 	"\bActivate\x12\x1b.loft.DomainActivateRequest\x1a\f.loft.Domain\x121\n" +
 	"\x06Retire\x12\x19.loft.DomainRetireRequest\x1a\f.loft.Domain\x12?\n" +
-	"\x06Status\x12\x19.loft.DomainStatusRequest\x1a\x1a.loft.DomainStatusResponse2\xc8\x04\n" +
+	"\x06Status\x12\x19.loft.DomainStatusRequest\x1a\x1a.loft.DomainStatusResponse2\x8c\x05\n" +
 	"\fLabelService\x12)\n" +
 	"\x03Add\x12\x15.loft.LabelAddRequest\x1a\v.loft.Label\x12)\n" +
 	"\x03Get\x12\x15.loft.LabelGetRequest\x1a\v.loft.Label\x12-\n" +
@@ -16070,7 +16131,9 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x05Print\x12\x17.loft.LabelPrintRequest\x1a\x18.loft.LabelPrintResponse\x12+\n" +
 	"\x04Bind\x12\x16.loft.LabelBindRequest\x1a\v.loft.Label\x12/\n" +
 	"\x06Unbind\x12\x18.loft.LabelUnbindRequest\x1a\v.loft.Label\x12@\n" +
-	"\aResolve\x12\x19.loft.LabelResolveRequest\x1a\x1a.loft.LabelResolveResponse2\xb2\x04\n" +
+	"\aResolve\x12\x19.loft.LabelResolveRequest\x1a\x1a.loft.LabelResolveResponse\x12B\n" +
+	"\x06Locate\x12\x18.loft.LabelLocateRequest\x1a\x16.loft.TenantMembership\"\x06\xea\xcd\x16\x02\n" +
+	"\x002\xb2\x04\n" +
 	"\x11AttachmentService\x123\n" +
 	"\x03Add\x12\x1a.loft.AttachmentAddRequest\x1a\x10.loft.Attachment\x123\n" +
 	"\x03Get\x12\x1a.loft.AttachmentGetRequest\x1a\x10.loft.Attachment\x127\n" +
@@ -16082,7 +16145,7 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x06Upload\x12\x1d.loft.AttachmentUploadRequest\x1a\x10.loft.Attachment\x12>\n" +
 	"\x03Url\x12\x1a.loft.AttachmentUrlRequest\x1a\x1b.loft.AttachmentUrlResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_loft_asset_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 111)
+var file_loft_asset_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 112)
 var file_loft_asset_svc_g_proto_goTypes = []any{
 	(*AssetAddRequest)(nil),           // 0: loft.AssetAddRequest
 	(*AssetRef)(nil),                  // 1: loft.AssetRef
@@ -16166,217 +16229,219 @@ var file_loft_asset_svc_g_proto_goTypes = []any{
 	(*LabelUnbindRequest)(nil),        // 79: loft.LabelUnbindRequest
 	(*LabelResolveRequest)(nil),       // 80: loft.LabelResolveRequest
 	(*LabelResolveResponse)(nil),      // 81: loft.LabelResolveResponse
-	(*AttachmentAddRequest)(nil),      // 82: loft.AttachmentAddRequest
-	(*AttachmentGetRequest)(nil),      // 83: loft.AttachmentGetRequest
-	(*AttachmentRef)(nil),             // 84: loft.AttachmentRef
-	(*AttachmentSelect)(nil),          // 85: loft.AttachmentSelect
-	(*AttachmentPatchRequest)(nil),    // 86: loft.AttachmentPatchRequest
-	(*AttachmentApplyRequest)(nil),    // 87: loft.AttachmentApplyRequest
-	(*AttachmentEraseResponse)(nil),   // 88: loft.AttachmentEraseResponse
-	(*AttachmentListRequest)(nil),     // 89: loft.AttachmentListRequest
-	(*AttachmentListResponse)(nil),    // 90: loft.AttachmentListResponse
-	(*AttachmentFilter)(nil),          // 91: loft.AttachmentFilter
-	(*AttachmentWatchRequest)(nil),    // 92: loft.AttachmentWatchRequest
-	(*AttachmentWatchResponse)(nil),   // 93: loft.AttachmentWatchResponse
-	(*AttachmentWatchItem)(nil),       // 94: loft.AttachmentWatchItem
-	(*AttachmentUploadRequest)(nil),   // 95: loft.AttachmentUploadRequest
-	(*AttachmentUrlRequest)(nil),      // 96: loft.AttachmentUrlRequest
-	(*AttachmentUrlResponse)(nil),     // 97: loft.AttachmentUrlResponse
-	nil,                               // 98: loft.AssetAddRequest.LabelsEntry
-	nil,                               // 99: loft.AssetAddRequest.AttributesEntry
-	nil,                               // 100: loft.AssetPatchRequest.LabelsEntry
-	nil,                               // 101: loft.AssetPatchRequest.AttributesEntry
-	nil,                               // 102: loft.AssetFilter.LabelsEntry
-	nil,                               // 103: loft.AssetFilter.AttributesEntry
-	nil,                               // 104: loft.AssetSetAttributesRequest.SetEntry
-	nil,                               // 105: loft.TimelineEntry.DetailEntry
-	nil,                               // 106: loft.AssetState.FactsEntry
-	nil,                               // 107: loft.AssetState.StewardsEntry
-	nil,                               // 108: loft.AssetState.StewardNamesEntry
-	nil,                               // 109: loft.ReportRow.DetailEntry
-	nil,                               // 110: loft.AssetCensusRow.StatusesEntry
-	(*TenantRef)(nil),                 // 111: loft.TenantRef
-	(*AssetTypeRef)(nil),              // 112: loft.AssetTypeRef
-	(*ItemModelRef)(nil),              // 113: loft.ItemModelRef
-	(*timestamppb.Timestamp)(nil),     // 114: google.protobuf.Timestamp
-	(*PartyRef)(nil),                  // 115: loft.PartyRef
-	(*Asset)(nil),                     // 116: loft.Asset
-	(*TenantSelect)(nil),              // 117: loft.TenantSelect
-	(*AssetTypeSelect)(nil),           // 118: loft.AssetTypeSelect
-	(*ItemModelSelect)(nil),           // 119: loft.ItemModelSelect
-	(*PartySelect)(nil),               // 120: loft.PartySelect
-	(*patchpb.Patch)(nil),             // 121: patch.Patch
-	(*Domain)(nil),                    // 122: loft.Domain
-	(*Label)(nil),                     // 123: loft.Label
-	(*Attachment)(nil),                // 124: loft.Attachment
+	(*LabelLocateRequest)(nil),        // 82: loft.LabelLocateRequest
+	(*AttachmentAddRequest)(nil),      // 83: loft.AttachmentAddRequest
+	(*AttachmentGetRequest)(nil),      // 84: loft.AttachmentGetRequest
+	(*AttachmentRef)(nil),             // 85: loft.AttachmentRef
+	(*AttachmentSelect)(nil),          // 86: loft.AttachmentSelect
+	(*AttachmentPatchRequest)(nil),    // 87: loft.AttachmentPatchRequest
+	(*AttachmentApplyRequest)(nil),    // 88: loft.AttachmentApplyRequest
+	(*AttachmentEraseResponse)(nil),   // 89: loft.AttachmentEraseResponse
+	(*AttachmentListRequest)(nil),     // 90: loft.AttachmentListRequest
+	(*AttachmentListResponse)(nil),    // 91: loft.AttachmentListResponse
+	(*AttachmentFilter)(nil),          // 92: loft.AttachmentFilter
+	(*AttachmentWatchRequest)(nil),    // 93: loft.AttachmentWatchRequest
+	(*AttachmentWatchResponse)(nil),   // 94: loft.AttachmentWatchResponse
+	(*AttachmentWatchItem)(nil),       // 95: loft.AttachmentWatchItem
+	(*AttachmentUploadRequest)(nil),   // 96: loft.AttachmentUploadRequest
+	(*AttachmentUrlRequest)(nil),      // 97: loft.AttachmentUrlRequest
+	(*AttachmentUrlResponse)(nil),     // 98: loft.AttachmentUrlResponse
+	nil,                               // 99: loft.AssetAddRequest.LabelsEntry
+	nil,                               // 100: loft.AssetAddRequest.AttributesEntry
+	nil,                               // 101: loft.AssetPatchRequest.LabelsEntry
+	nil,                               // 102: loft.AssetPatchRequest.AttributesEntry
+	nil,                               // 103: loft.AssetFilter.LabelsEntry
+	nil,                               // 104: loft.AssetFilter.AttributesEntry
+	nil,                               // 105: loft.AssetSetAttributesRequest.SetEntry
+	nil,                               // 106: loft.TimelineEntry.DetailEntry
+	nil,                               // 107: loft.AssetState.FactsEntry
+	nil,                               // 108: loft.AssetState.StewardsEntry
+	nil,                               // 109: loft.AssetState.StewardNamesEntry
+	nil,                               // 110: loft.ReportRow.DetailEntry
+	nil,                               // 111: loft.AssetCensusRow.StatusesEntry
+	(*TenantRef)(nil),                 // 112: loft.TenantRef
+	(*AssetTypeRef)(nil),              // 113: loft.AssetTypeRef
+	(*ItemModelRef)(nil),              // 114: loft.ItemModelRef
+	(*timestamppb.Timestamp)(nil),     // 115: google.protobuf.Timestamp
+	(*PartyRef)(nil),                  // 116: loft.PartyRef
+	(*Asset)(nil),                     // 117: loft.Asset
+	(*TenantSelect)(nil),              // 118: loft.TenantSelect
+	(*AssetTypeSelect)(nil),           // 119: loft.AssetTypeSelect
+	(*ItemModelSelect)(nil),           // 120: loft.ItemModelSelect
+	(*PartySelect)(nil),               // 121: loft.PartySelect
+	(*patchpb.Patch)(nil),             // 122: patch.Patch
+	(*Domain)(nil),                    // 123: loft.Domain
+	(*Label)(nil),                     // 124: loft.Label
+	(*Attachment)(nil),                // 125: loft.Attachment
+	(*TenantMembership)(nil),          // 126: loft.TenantMembership
 }
 var file_loft_asset_svc_g_proto_depIdxs = []int32{
-	111, // 0: loft.AssetAddRequest.tenant:type_name -> loft.TenantRef
-	98,  // 1: loft.AssetAddRequest.labels:type_name -> loft.AssetAddRequest.LabelsEntry
-	112, // 2: loft.AssetAddRequest.type:type_name -> loft.AssetTypeRef
-	113, // 3: loft.AssetAddRequest.model:type_name -> loft.ItemModelRef
-	114, // 4: loft.AssetAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	115, // 5: loft.AssetAddRequest.custodian:type_name -> loft.PartyRef
-	99,  // 6: loft.AssetAddRequest.attributes:type_name -> loft.AssetAddRequest.AttributesEntry
-	114, // 7: loft.AssetAddRequest.acquired_at:type_name -> google.protobuf.Timestamp
-	114, // 8: loft.AssetAddRequest.disposed_at:type_name -> google.protobuf.Timestamp
-	114, // 9: loft.AssetAddRequest.since:type_name -> google.protobuf.Timestamp
+	112, // 0: loft.AssetAddRequest.tenant:type_name -> loft.TenantRef
+	99,  // 1: loft.AssetAddRequest.labels:type_name -> loft.AssetAddRequest.LabelsEntry
+	113, // 2: loft.AssetAddRequest.type:type_name -> loft.AssetTypeRef
+	114, // 3: loft.AssetAddRequest.model:type_name -> loft.ItemModelRef
+	115, // 4: loft.AssetAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	116, // 5: loft.AssetAddRequest.custodian:type_name -> loft.PartyRef
+	100, // 6: loft.AssetAddRequest.attributes:type_name -> loft.AssetAddRequest.AttributesEntry
+	115, // 7: loft.AssetAddRequest.acquired_at:type_name -> google.protobuf.Timestamp
+	115, // 8: loft.AssetAddRequest.disposed_at:type_name -> google.protobuf.Timestamp
+	115, // 9: loft.AssetAddRequest.since:type_name -> google.protobuf.Timestamp
 	1,   // 10: loft.AssetAddRequest.to:type_name -> loft.AssetRef
 	2,   // 11: loft.AssetRef.tag:type_name -> loft.AssetRefByTag
-	111, // 12: loft.AssetRefByTag.tenant:type_name -> loft.TenantRef
+	112, // 12: loft.AssetRefByTag.tenant:type_name -> loft.TenantRef
 	0,   // 13: loft.AssetAddManyRequest.items:type_name -> loft.AssetAddRequest
-	116, // 14: loft.AssetAddManyResponse.items:type_name -> loft.Asset
+	117, // 14: loft.AssetAddManyResponse.items:type_name -> loft.Asset
 	5,   // 15: loft.AssetAddManyResponse.issues:type_name -> loft.AssetAddManyIssue
 	1,   // 16: loft.AssetGetRequest.ref:type_name -> loft.AssetRef
 	7,   // 17: loft.AssetGetRequest.select:type_name -> loft.AssetSelect
-	117, // 18: loft.AssetSelect.tenant:type_name -> loft.TenantSelect
-	118, // 19: loft.AssetSelect.type:type_name -> loft.AssetTypeSelect
-	119, // 20: loft.AssetSelect.model:type_name -> loft.ItemModelSelect
-	120, // 21: loft.AssetSelect.custodian:type_name -> loft.PartySelect
+	118, // 18: loft.AssetSelect.tenant:type_name -> loft.TenantSelect
+	119, // 19: loft.AssetSelect.type:type_name -> loft.AssetTypeSelect
+	120, // 20: loft.AssetSelect.model:type_name -> loft.ItemModelSelect
+	121, // 21: loft.AssetSelect.custodian:type_name -> loft.PartySelect
 	1,   // 22: loft.AssetPatchRequest.ref:type_name -> loft.AssetRef
-	100, // 23: loft.AssetPatchRequest.labels:type_name -> loft.AssetPatchRequest.LabelsEntry
-	112, // 24: loft.AssetPatchRequest.type:type_name -> loft.AssetTypeRef
-	113, // 25: loft.AssetPatchRequest.model:type_name -> loft.ItemModelRef
-	114, // 26: loft.AssetPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	115, // 27: loft.AssetPatchRequest.custodian:type_name -> loft.PartyRef
-	101, // 28: loft.AssetPatchRequest.attributes:type_name -> loft.AssetPatchRequest.AttributesEntry
-	114, // 29: loft.AssetPatchRequest.acquired_at:type_name -> google.protobuf.Timestamp
-	114, // 30: loft.AssetPatchRequest.disposed_at:type_name -> google.protobuf.Timestamp
+	101, // 23: loft.AssetPatchRequest.labels:type_name -> loft.AssetPatchRequest.LabelsEntry
+	113, // 24: loft.AssetPatchRequest.type:type_name -> loft.AssetTypeRef
+	114, // 25: loft.AssetPatchRequest.model:type_name -> loft.ItemModelRef
+	115, // 26: loft.AssetPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	116, // 27: loft.AssetPatchRequest.custodian:type_name -> loft.PartyRef
+	102, // 28: loft.AssetPatchRequest.attributes:type_name -> loft.AssetPatchRequest.AttributesEntry
+	115, // 29: loft.AssetPatchRequest.acquired_at:type_name -> google.protobuf.Timestamp
+	115, // 30: loft.AssetPatchRequest.disposed_at:type_name -> google.protobuf.Timestamp
 	1,   // 31: loft.AssetApplyRequest.ref:type_name -> loft.AssetRef
-	121, // 32: loft.AssetApplyRequest.patch:type_name -> patch.Patch
+	122, // 32: loft.AssetApplyRequest.patch:type_name -> patch.Patch
 	13,  // 33: loft.AssetListRequest.filters:type_name -> loft.AssetFilter
-	116, // 34: loft.AssetListResponse.items:type_name -> loft.Asset
+	117, // 34: loft.AssetListResponse.items:type_name -> loft.Asset
 	1,   // 35: loft.AssetFilter.ref:type_name -> loft.AssetRef
-	112, // 36: loft.AssetFilter.type:type_name -> loft.AssetTypeRef
-	113, // 37: loft.AssetFilter.model:type_name -> loft.ItemModelRef
-	115, // 38: loft.AssetFilter.custodian:type_name -> loft.PartyRef
-	102, // 39: loft.AssetFilter.labels:type_name -> loft.AssetFilter.LabelsEntry
-	103, // 40: loft.AssetFilter.attributes:type_name -> loft.AssetFilter.AttributesEntry
+	113, // 36: loft.AssetFilter.type:type_name -> loft.AssetTypeRef
+	114, // 37: loft.AssetFilter.model:type_name -> loft.ItemModelRef
+	116, // 38: loft.AssetFilter.custodian:type_name -> loft.PartyRef
+	103, // 39: loft.AssetFilter.labels:type_name -> loft.AssetFilter.LabelsEntry
+	104, // 40: loft.AssetFilter.attributes:type_name -> loft.AssetFilter.AttributesEntry
 	13,  // 41: loft.AssetWatchRequest.filters:type_name -> loft.AssetFilter
 	16,  // 42: loft.AssetWatchResponse.items:type_name -> loft.AssetWatchItem
-	116, // 43: loft.AssetWatchItem.value:type_name -> loft.Asset
+	117, // 43: loft.AssetWatchItem.value:type_name -> loft.Asset
 	1,   // 44: loft.AssetMoveRequest.ref:type_name -> loft.AssetRef
 	1,   // 45: loft.AssetMoveRequest.to:type_name -> loft.AssetRef
-	114, // 46: loft.AssetMoveRequest.at:type_name -> google.protobuf.Timestamp
+	115, // 46: loft.AssetMoveRequest.at:type_name -> google.protobuf.Timestamp
 	1,   // 47: loft.AssetSetAttributesRequest.ref:type_name -> loft.AssetRef
-	104, // 48: loft.AssetSetAttributesRequest.set:type_name -> loft.AssetSetAttributesRequest.SetEntry
-	114, // 49: loft.AssetSetAttributesRequest.at:type_name -> google.protobuf.Timestamp
+	105, // 48: loft.AssetSetAttributesRequest.set:type_name -> loft.AssetSetAttributesRequest.SetEntry
+	115, // 49: loft.AssetSetAttributesRequest.at:type_name -> google.protobuf.Timestamp
 	1,   // 50: loft.AssetSetAttributesRequest.leave:type_name -> loft.AssetRef
 	1,   // 51: loft.AssetAssignRequest.ref:type_name -> loft.AssetRef
-	115, // 52: loft.AssetAssignRequest.party:type_name -> loft.PartyRef
-	114, // 53: loft.AssetAssignRequest.at:type_name -> google.protobuf.Timestamp
+	116, // 52: loft.AssetAssignRequest.party:type_name -> loft.PartyRef
+	115, // 53: loft.AssetAssignRequest.at:type_name -> google.protobuf.Timestamp
 	1,   // 54: loft.AssetRelateRequest.ref:type_name -> loft.AssetRef
 	1,   // 55: loft.AssetRelateRequest.target:type_name -> loft.AssetRef
-	114, // 56: loft.AssetRelateRequest.at:type_name -> google.protobuf.Timestamp
+	115, // 56: loft.AssetRelateRequest.at:type_name -> google.protobuf.Timestamp
 	1,   // 57: loft.AssetCorrectRequest.ref:type_name -> loft.AssetRef
-	114, // 58: loft.AssetCorrectRequest.valid_from:type_name -> google.protobuf.Timestamp
+	115, // 58: loft.AssetCorrectRequest.valid_from:type_name -> google.protobuf.Timestamp
 	1,   // 59: loft.AssetTimelineRequest.ref:type_name -> loft.AssetRef
-	114, // 60: loft.AssetTimelineRequest.known:type_name -> google.protobuf.Timestamp
+	115, // 60: loft.AssetTimelineRequest.known:type_name -> google.protobuf.Timestamp
 	24,  // 61: loft.AssetTimelineResponse.entries:type_name -> loft.TimelineEntry
-	114, // 62: loft.TimelineEntry.valid_from:type_name -> google.protobuf.Timestamp
-	114, // 63: loft.TimelineEntry.valid_to:type_name -> google.protobuf.Timestamp
-	114, // 64: loft.TimelineEntry.recorded_at:type_name -> google.protobuf.Timestamp
-	114, // 65: loft.TimelineEntry.superseded_at:type_name -> google.protobuf.Timestamp
-	105, // 66: loft.TimelineEntry.detail:type_name -> loft.TimelineEntry.DetailEntry
+	115, // 62: loft.TimelineEntry.valid_from:type_name -> google.protobuf.Timestamp
+	115, // 63: loft.TimelineEntry.valid_to:type_name -> google.protobuf.Timestamp
+	115, // 64: loft.TimelineEntry.recorded_at:type_name -> google.protobuf.Timestamp
+	115, // 65: loft.TimelineEntry.superseded_at:type_name -> google.protobuf.Timestamp
+	106, // 66: loft.TimelineEntry.detail:type_name -> loft.TimelineEntry.DetailEntry
 	1,   // 67: loft.AssetQueryAtRequest.root:type_name -> loft.AssetRef
-	114, // 68: loft.AssetQueryAtRequest.at:type_name -> google.protobuf.Timestamp
-	114, // 69: loft.AssetQueryAtRequest.known:type_name -> google.protobuf.Timestamp
+	115, // 68: loft.AssetQueryAtRequest.at:type_name -> google.protobuf.Timestamp
+	115, // 69: loft.AssetQueryAtRequest.known:type_name -> google.protobuf.Timestamp
 	27,  // 70: loft.AssetQueryAtResponse.items:type_name -> loft.AssetState
-	106, // 71: loft.AssetState.facts:type_name -> loft.AssetState.FactsEntry
-	107, // 72: loft.AssetState.stewards:type_name -> loft.AssetState.StewardsEntry
-	108, // 73: loft.AssetState.steward_names:type_name -> loft.AssetState.StewardNamesEntry
+	107, // 71: loft.AssetState.facts:type_name -> loft.AssetState.FactsEntry
+	108, // 72: loft.AssetState.stewards:type_name -> loft.AssetState.StewardsEntry
+	109, // 73: loft.AssetState.steward_names:type_name -> loft.AssetState.StewardNamesEntry
 	1,   // 74: loft.AssetDiffRequest.root:type_name -> loft.AssetRef
-	114, // 75: loft.AssetDiffRequest.from:type_name -> google.protobuf.Timestamp
-	114, // 76: loft.AssetDiffRequest.to:type_name -> google.protobuf.Timestamp
+	115, // 75: loft.AssetDiffRequest.from:type_name -> google.protobuf.Timestamp
+	115, // 76: loft.AssetDiffRequest.to:type_name -> google.protobuf.Timestamp
 	30,  // 77: loft.AssetDiffResponse.changes:type_name -> loft.AssetChange
-	112, // 78: loft.AssetSearchRequest.type:type_name -> loft.AssetTypeRef
+	113, // 78: loft.AssetSearchRequest.type:type_name -> loft.AssetTypeRef
 	1,   // 79: loft.AssetSearchRequest.within:type_name -> loft.AssetRef
-	115, // 80: loft.AssetSearchRequest.custodian:type_name -> loft.PartyRef
-	116, // 81: loft.AssetSearchResponse.items:type_name -> loft.Asset
-	114, // 82: loft.AssetReportRequest.from:type_name -> google.protobuf.Timestamp
-	114, // 83: loft.AssetReportRequest.to:type_name -> google.protobuf.Timestamp
+	116, // 80: loft.AssetSearchRequest.custodian:type_name -> loft.PartyRef
+	117, // 81: loft.AssetSearchResponse.items:type_name -> loft.Asset
+	115, // 82: loft.AssetReportRequest.from:type_name -> google.protobuf.Timestamp
+	115, // 83: loft.AssetReportRequest.to:type_name -> google.protobuf.Timestamp
 	35,  // 84: loft.AssetReportResponse.rows:type_name -> loft.ReportRow
-	109, // 85: loft.ReportRow.detail:type_name -> loft.ReportRow.DetailEntry
+	110, // 85: loft.ReportRow.detail:type_name -> loft.ReportRow.DetailEntry
 	0,   // 86: loft.AssetReadSheetResponse.items:type_name -> loft.AssetAddRequest
 	41,  // 87: loft.AssetReadSheetResponse.issues:type_name -> loft.AssetReadSheetIssue
 	44,  // 88: loft.AssetCensusResponse.rows:type_name -> loft.AssetCensusRow
 	44,  // 89: loft.AssetCensusResponse.total:type_name -> loft.AssetCensusRow
-	114, // 90: loft.AssetCensusResponse.at:type_name -> google.protobuf.Timestamp
-	110, // 91: loft.AssetCensusRow.statuses:type_name -> loft.AssetCensusRow.StatusesEntry
-	111, // 92: loft.DomainAddRequest.tenant:type_name -> loft.TenantRef
-	114, // 93: loft.DomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	114, // 94: loft.DomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
-	114, // 95: loft.DomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
-	114, // 96: loft.DomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
-	114, // 97: loft.DomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	114, // 98: loft.DomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	115, // 90: loft.AssetCensusResponse.at:type_name -> google.protobuf.Timestamp
+	111, // 91: loft.AssetCensusRow.statuses:type_name -> loft.AssetCensusRow.StatusesEntry
+	112, // 92: loft.DomainAddRequest.tenant:type_name -> loft.TenantRef
+	115, // 93: loft.DomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	115, // 94: loft.DomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
+	115, // 95: loft.DomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
+	115, // 96: loft.DomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
+	115, // 97: loft.DomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	115, // 98: loft.DomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
 	47,  // 99: loft.DomainGetRequest.ref:type_name -> loft.DomainRef
 	48,  // 100: loft.DomainGetRequest.select:type_name -> loft.DomainSelect
-	117, // 101: loft.DomainSelect.tenant:type_name -> loft.TenantSelect
+	118, // 101: loft.DomainSelect.tenant:type_name -> loft.TenantSelect
 	47,  // 102: loft.DomainPatchRequest.ref:type_name -> loft.DomainRef
-	114, // 103: loft.DomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	114, // 104: loft.DomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
-	114, // 105: loft.DomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
-	114, // 106: loft.DomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
-	114, // 107: loft.DomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	114, // 108: loft.DomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	115, // 103: loft.DomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	115, // 104: loft.DomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
+	115, // 105: loft.DomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
+	115, // 106: loft.DomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
+	115, // 107: loft.DomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	115, // 108: loft.DomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
 	47,  // 109: loft.DomainApplyRequest.ref:type_name -> loft.DomainRef
-	121, // 110: loft.DomainApplyRequest.patch:type_name -> patch.Patch
+	122, // 110: loft.DomainApplyRequest.patch:type_name -> patch.Patch
 	54,  // 111: loft.DomainListRequest.filters:type_name -> loft.DomainFilter
-	122, // 112: loft.DomainListResponse.items:type_name -> loft.Domain
+	123, // 112: loft.DomainListResponse.items:type_name -> loft.Domain
 	47,  // 113: loft.DomainFilter.ref:type_name -> loft.DomainRef
 	54,  // 114: loft.DomainWatchRequest.filters:type_name -> loft.DomainFilter
 	57,  // 115: loft.DomainWatchResponse.items:type_name -> loft.DomainWatchItem
-	122, // 116: loft.DomainWatchItem.value:type_name -> loft.Domain
+	123, // 116: loft.DomainWatchItem.value:type_name -> loft.Domain
 	47,  // 117: loft.DomainVerifyRequest.ref:type_name -> loft.DomainRef
 	47,  // 118: loft.DomainActivateRequest.ref:type_name -> loft.DomainRef
 	47,  // 119: loft.DomainRetireRequest.ref:type_name -> loft.DomainRef
-	122, // 120: loft.DomainStatusResponse.active:type_name -> loft.Domain
-	111, // 121: loft.LabelAddRequest.tenant:type_name -> loft.TenantRef
+	123, // 120: loft.DomainStatusResponse.active:type_name -> loft.Domain
+	112, // 121: loft.LabelAddRequest.tenant:type_name -> loft.TenantRef
 	47,  // 122: loft.LabelAddRequest.domain:type_name -> loft.DomainRef
-	114, // 123: loft.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
-	114, // 124: loft.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
-	114, // 125: loft.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	115, // 123: loft.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
+	115, // 124: loft.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
+	115, // 125: loft.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	65,  // 126: loft.LabelGetRequest.ref:type_name -> loft.LabelRef
 	66,  // 127: loft.LabelGetRequest.select:type_name -> loft.LabelSelect
-	117, // 128: loft.LabelSelect.tenant:type_name -> loft.TenantSelect
+	118, // 128: loft.LabelSelect.tenant:type_name -> loft.TenantSelect
 	48,  // 129: loft.LabelSelect.domain:type_name -> loft.DomainSelect
 	65,  // 130: loft.LabelPatchRequest.ref:type_name -> loft.LabelRef
 	47,  // 131: loft.LabelPatchRequest.domain:type_name -> loft.DomainRef
-	114, // 132: loft.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
-	114, // 133: loft.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
-	114, // 134: loft.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	115, // 132: loft.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
+	115, // 133: loft.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
+	115, // 134: loft.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	65,  // 135: loft.LabelApplyRequest.ref:type_name -> loft.LabelRef
-	121, // 136: loft.LabelApplyRequest.patch:type_name -> patch.Patch
+	122, // 136: loft.LabelApplyRequest.patch:type_name -> patch.Patch
 	72,  // 137: loft.LabelListRequest.filters:type_name -> loft.LabelFilter
-	123, // 138: loft.LabelListResponse.items:type_name -> loft.Label
+	124, // 138: loft.LabelListResponse.items:type_name -> loft.Label
 	65,  // 139: loft.LabelFilter.ref:type_name -> loft.LabelRef
 	72,  // 140: loft.LabelWatchRequest.filters:type_name -> loft.LabelFilter
 	75,  // 141: loft.LabelWatchResponse.items:type_name -> loft.LabelWatchItem
-	123, // 142: loft.LabelWatchItem.value:type_name -> loft.Label
-	123, // 143: loft.LabelPrintResponse.labels:type_name -> loft.Label
+	124, // 142: loft.LabelWatchItem.value:type_name -> loft.Label
+	124, // 143: loft.LabelPrintResponse.labels:type_name -> loft.Label
 	65,  // 144: loft.LabelBindRequest.ref:type_name -> loft.LabelRef
 	1,   // 145: loft.LabelBindRequest.asset:type_name -> loft.AssetRef
 	65,  // 146: loft.LabelUnbindRequest.ref:type_name -> loft.LabelRef
-	123, // 147: loft.LabelResolveResponse.label:type_name -> loft.Label
-	116, // 148: loft.LabelResolveResponse.asset:type_name -> loft.Asset
-	111, // 149: loft.AttachmentAddRequest.tenant:type_name -> loft.TenantRef
-	114, // 150: loft.AttachmentAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	84,  // 151: loft.AttachmentGetRequest.ref:type_name -> loft.AttachmentRef
-	85,  // 152: loft.AttachmentGetRequest.select:type_name -> loft.AttachmentSelect
-	117, // 153: loft.AttachmentSelect.tenant:type_name -> loft.TenantSelect
-	84,  // 154: loft.AttachmentPatchRequest.ref:type_name -> loft.AttachmentRef
-	114, // 155: loft.AttachmentPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	84,  // 156: loft.AttachmentApplyRequest.ref:type_name -> loft.AttachmentRef
-	121, // 157: loft.AttachmentApplyRequest.patch:type_name -> patch.Patch
-	91,  // 158: loft.AttachmentListRequest.filters:type_name -> loft.AttachmentFilter
-	124, // 159: loft.AttachmentListResponse.items:type_name -> loft.Attachment
-	84,  // 160: loft.AttachmentFilter.ref:type_name -> loft.AttachmentRef
-	91,  // 161: loft.AttachmentWatchRequest.filters:type_name -> loft.AttachmentFilter
-	94,  // 162: loft.AttachmentWatchResponse.items:type_name -> loft.AttachmentWatchItem
-	124, // 163: loft.AttachmentWatchItem.value:type_name -> loft.Attachment
-	84,  // 164: loft.AttachmentUrlRequest.ref:type_name -> loft.AttachmentRef
-	114, // 165: loft.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
+	124, // 147: loft.LabelResolveResponse.label:type_name -> loft.Label
+	117, // 148: loft.LabelResolveResponse.asset:type_name -> loft.Asset
+	112, // 149: loft.AttachmentAddRequest.tenant:type_name -> loft.TenantRef
+	115, // 150: loft.AttachmentAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	85,  // 151: loft.AttachmentGetRequest.ref:type_name -> loft.AttachmentRef
+	86,  // 152: loft.AttachmentGetRequest.select:type_name -> loft.AttachmentSelect
+	118, // 153: loft.AttachmentSelect.tenant:type_name -> loft.TenantSelect
+	85,  // 154: loft.AttachmentPatchRequest.ref:type_name -> loft.AttachmentRef
+	115, // 155: loft.AttachmentPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	85,  // 156: loft.AttachmentApplyRequest.ref:type_name -> loft.AttachmentRef
+	122, // 157: loft.AttachmentApplyRequest.patch:type_name -> patch.Patch
+	92,  // 158: loft.AttachmentListRequest.filters:type_name -> loft.AttachmentFilter
+	125, // 159: loft.AttachmentListResponse.items:type_name -> loft.Attachment
+	85,  // 160: loft.AttachmentFilter.ref:type_name -> loft.AttachmentRef
+	92,  // 161: loft.AttachmentWatchRequest.filters:type_name -> loft.AttachmentFilter
+	95,  // 162: loft.AttachmentWatchResponse.items:type_name -> loft.AttachmentWatchItem
+	125, // 163: loft.AttachmentWatchItem.value:type_name -> loft.Attachment
+	85,  // 164: loft.AttachmentUrlRequest.ref:type_name -> loft.AttachmentRef
+	115, // 165: loft.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
 	0,   // 166: loft.AssetService.Add:input_type -> loft.AssetAddRequest
 	3,   // 167: loft.AssetService.AddMany:input_type -> loft.AssetAddManyRequest
 	6,   // 168: loft.AssetService.Get:input_type -> loft.AssetGetRequest
@@ -16422,71 +16487,73 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	78,  // 208: loft.LabelService.Bind:input_type -> loft.LabelBindRequest
 	79,  // 209: loft.LabelService.Unbind:input_type -> loft.LabelUnbindRequest
 	80,  // 210: loft.LabelService.Resolve:input_type -> loft.LabelResolveRequest
-	82,  // 211: loft.AttachmentService.Add:input_type -> loft.AttachmentAddRequest
-	83,  // 212: loft.AttachmentService.Get:input_type -> loft.AttachmentGetRequest
-	86,  // 213: loft.AttachmentService.Patch:input_type -> loft.AttachmentPatchRequest
-	87,  // 214: loft.AttachmentService.Apply:input_type -> loft.AttachmentApplyRequest
-	84,  // 215: loft.AttachmentService.Erase:input_type -> loft.AttachmentRef
-	89,  // 216: loft.AttachmentService.List:input_type -> loft.AttachmentListRequest
-	92,  // 217: loft.AttachmentService.Watch:input_type -> loft.AttachmentWatchRequest
-	95,  // 218: loft.AttachmentService.Upload:input_type -> loft.AttachmentUploadRequest
-	96,  // 219: loft.AttachmentService.Url:input_type -> loft.AttachmentUrlRequest
-	116, // 220: loft.AssetService.Add:output_type -> loft.Asset
-	4,   // 221: loft.AssetService.AddMany:output_type -> loft.AssetAddManyResponse
-	116, // 222: loft.AssetService.Get:output_type -> loft.Asset
-	116, // 223: loft.AssetService.Patch:output_type -> loft.Asset
-	116, // 224: loft.AssetService.Apply:output_type -> loft.Asset
-	10,  // 225: loft.AssetService.Erase:output_type -> loft.AssetEraseResponse
-	12,  // 226: loft.AssetService.List:output_type -> loft.AssetListResponse
-	15,  // 227: loft.AssetService.Watch:output_type -> loft.AssetWatchResponse
-	116, // 228: loft.AssetService.Move:output_type -> loft.Asset
-	116, // 229: loft.AssetService.SetAttributes:output_type -> loft.Asset
-	116, // 230: loft.AssetService.Assign:output_type -> loft.Asset
-	116, // 231: loft.AssetService.Relate:output_type -> loft.Asset
-	116, // 232: loft.AssetService.Correct:output_type -> loft.Asset
-	23,  // 233: loft.AssetService.Timeline:output_type -> loft.AssetTimelineResponse
-	26,  // 234: loft.AssetService.QueryAt:output_type -> loft.AssetQueryAtResponse
-	29,  // 235: loft.AssetService.Diff:output_type -> loft.AssetDiffResponse
-	32,  // 236: loft.AssetService.Search:output_type -> loft.AssetSearchResponse
-	34,  // 237: loft.AssetService.Report:output_type -> loft.AssetReportResponse
-	37,  // 238: loft.AssetService.Export:output_type -> loft.AssetExportResponse
-	37,  // 239: loft.AssetService.Form:output_type -> loft.AssetExportResponse
-	40,  // 240: loft.AssetService.ReadSheet:output_type -> loft.AssetReadSheetResponse
-	43,  // 241: loft.AssetService.Census:output_type -> loft.AssetCensusResponse
-	37,  // 242: loft.AssetService.ExportCensus:output_type -> loft.AssetExportResponse
-	122, // 243: loft.DomainService.Add:output_type -> loft.Domain
-	122, // 244: loft.DomainService.Get:output_type -> loft.Domain
-	122, // 245: loft.DomainService.Patch:output_type -> loft.Domain
-	122, // 246: loft.DomainService.Apply:output_type -> loft.Domain
-	51,  // 247: loft.DomainService.Erase:output_type -> loft.DomainEraseResponse
-	53,  // 248: loft.DomainService.List:output_type -> loft.DomainListResponse
-	56,  // 249: loft.DomainService.Watch:output_type -> loft.DomainWatchResponse
-	122, // 250: loft.DomainService.Verify:output_type -> loft.Domain
-	122, // 251: loft.DomainService.Activate:output_type -> loft.Domain
-	122, // 252: loft.DomainService.Retire:output_type -> loft.Domain
-	62,  // 253: loft.DomainService.Status:output_type -> loft.DomainStatusResponse
-	123, // 254: loft.LabelService.Add:output_type -> loft.Label
-	123, // 255: loft.LabelService.Get:output_type -> loft.Label
-	123, // 256: loft.LabelService.Patch:output_type -> loft.Label
-	123, // 257: loft.LabelService.Apply:output_type -> loft.Label
-	69,  // 258: loft.LabelService.Erase:output_type -> loft.LabelEraseResponse
-	71,  // 259: loft.LabelService.List:output_type -> loft.LabelListResponse
-	74,  // 260: loft.LabelService.Watch:output_type -> loft.LabelWatchResponse
-	77,  // 261: loft.LabelService.Print:output_type -> loft.LabelPrintResponse
-	123, // 262: loft.LabelService.Bind:output_type -> loft.Label
-	123, // 263: loft.LabelService.Unbind:output_type -> loft.Label
-	81,  // 264: loft.LabelService.Resolve:output_type -> loft.LabelResolveResponse
-	124, // 265: loft.AttachmentService.Add:output_type -> loft.Attachment
-	124, // 266: loft.AttachmentService.Get:output_type -> loft.Attachment
-	124, // 267: loft.AttachmentService.Patch:output_type -> loft.Attachment
-	124, // 268: loft.AttachmentService.Apply:output_type -> loft.Attachment
-	88,  // 269: loft.AttachmentService.Erase:output_type -> loft.AttachmentEraseResponse
-	90,  // 270: loft.AttachmentService.List:output_type -> loft.AttachmentListResponse
-	93,  // 271: loft.AttachmentService.Watch:output_type -> loft.AttachmentWatchResponse
-	124, // 272: loft.AttachmentService.Upload:output_type -> loft.Attachment
-	97,  // 273: loft.AttachmentService.Url:output_type -> loft.AttachmentUrlResponse
-	220, // [220:274] is the sub-list for method output_type
-	166, // [166:220] is the sub-list for method input_type
+	82,  // 211: loft.LabelService.Locate:input_type -> loft.LabelLocateRequest
+	83,  // 212: loft.AttachmentService.Add:input_type -> loft.AttachmentAddRequest
+	84,  // 213: loft.AttachmentService.Get:input_type -> loft.AttachmentGetRequest
+	87,  // 214: loft.AttachmentService.Patch:input_type -> loft.AttachmentPatchRequest
+	88,  // 215: loft.AttachmentService.Apply:input_type -> loft.AttachmentApplyRequest
+	85,  // 216: loft.AttachmentService.Erase:input_type -> loft.AttachmentRef
+	90,  // 217: loft.AttachmentService.List:input_type -> loft.AttachmentListRequest
+	93,  // 218: loft.AttachmentService.Watch:input_type -> loft.AttachmentWatchRequest
+	96,  // 219: loft.AttachmentService.Upload:input_type -> loft.AttachmentUploadRequest
+	97,  // 220: loft.AttachmentService.Url:input_type -> loft.AttachmentUrlRequest
+	117, // 221: loft.AssetService.Add:output_type -> loft.Asset
+	4,   // 222: loft.AssetService.AddMany:output_type -> loft.AssetAddManyResponse
+	117, // 223: loft.AssetService.Get:output_type -> loft.Asset
+	117, // 224: loft.AssetService.Patch:output_type -> loft.Asset
+	117, // 225: loft.AssetService.Apply:output_type -> loft.Asset
+	10,  // 226: loft.AssetService.Erase:output_type -> loft.AssetEraseResponse
+	12,  // 227: loft.AssetService.List:output_type -> loft.AssetListResponse
+	15,  // 228: loft.AssetService.Watch:output_type -> loft.AssetWatchResponse
+	117, // 229: loft.AssetService.Move:output_type -> loft.Asset
+	117, // 230: loft.AssetService.SetAttributes:output_type -> loft.Asset
+	117, // 231: loft.AssetService.Assign:output_type -> loft.Asset
+	117, // 232: loft.AssetService.Relate:output_type -> loft.Asset
+	117, // 233: loft.AssetService.Correct:output_type -> loft.Asset
+	23,  // 234: loft.AssetService.Timeline:output_type -> loft.AssetTimelineResponse
+	26,  // 235: loft.AssetService.QueryAt:output_type -> loft.AssetQueryAtResponse
+	29,  // 236: loft.AssetService.Diff:output_type -> loft.AssetDiffResponse
+	32,  // 237: loft.AssetService.Search:output_type -> loft.AssetSearchResponse
+	34,  // 238: loft.AssetService.Report:output_type -> loft.AssetReportResponse
+	37,  // 239: loft.AssetService.Export:output_type -> loft.AssetExportResponse
+	37,  // 240: loft.AssetService.Form:output_type -> loft.AssetExportResponse
+	40,  // 241: loft.AssetService.ReadSheet:output_type -> loft.AssetReadSheetResponse
+	43,  // 242: loft.AssetService.Census:output_type -> loft.AssetCensusResponse
+	37,  // 243: loft.AssetService.ExportCensus:output_type -> loft.AssetExportResponse
+	123, // 244: loft.DomainService.Add:output_type -> loft.Domain
+	123, // 245: loft.DomainService.Get:output_type -> loft.Domain
+	123, // 246: loft.DomainService.Patch:output_type -> loft.Domain
+	123, // 247: loft.DomainService.Apply:output_type -> loft.Domain
+	51,  // 248: loft.DomainService.Erase:output_type -> loft.DomainEraseResponse
+	53,  // 249: loft.DomainService.List:output_type -> loft.DomainListResponse
+	56,  // 250: loft.DomainService.Watch:output_type -> loft.DomainWatchResponse
+	123, // 251: loft.DomainService.Verify:output_type -> loft.Domain
+	123, // 252: loft.DomainService.Activate:output_type -> loft.Domain
+	123, // 253: loft.DomainService.Retire:output_type -> loft.Domain
+	62,  // 254: loft.DomainService.Status:output_type -> loft.DomainStatusResponse
+	124, // 255: loft.LabelService.Add:output_type -> loft.Label
+	124, // 256: loft.LabelService.Get:output_type -> loft.Label
+	124, // 257: loft.LabelService.Patch:output_type -> loft.Label
+	124, // 258: loft.LabelService.Apply:output_type -> loft.Label
+	69,  // 259: loft.LabelService.Erase:output_type -> loft.LabelEraseResponse
+	71,  // 260: loft.LabelService.List:output_type -> loft.LabelListResponse
+	74,  // 261: loft.LabelService.Watch:output_type -> loft.LabelWatchResponse
+	77,  // 262: loft.LabelService.Print:output_type -> loft.LabelPrintResponse
+	124, // 263: loft.LabelService.Bind:output_type -> loft.Label
+	124, // 264: loft.LabelService.Unbind:output_type -> loft.Label
+	81,  // 265: loft.LabelService.Resolve:output_type -> loft.LabelResolveResponse
+	126, // 266: loft.LabelService.Locate:output_type -> loft.TenantMembership
+	125, // 267: loft.AttachmentService.Add:output_type -> loft.Attachment
+	125, // 268: loft.AttachmentService.Get:output_type -> loft.Attachment
+	125, // 269: loft.AttachmentService.Patch:output_type -> loft.Attachment
+	125, // 270: loft.AttachmentService.Apply:output_type -> loft.Attachment
+	89,  // 271: loft.AttachmentService.Erase:output_type -> loft.AttachmentEraseResponse
+	91,  // 272: loft.AttachmentService.List:output_type -> loft.AttachmentListResponse
+	94,  // 273: loft.AttachmentService.Watch:output_type -> loft.AttachmentWatchResponse
+	125, // 274: loft.AttachmentService.Upload:output_type -> loft.Attachment
+	98,  // 275: loft.AttachmentService.Url:output_type -> loft.AttachmentUrlResponse
+	221, // [221:276] is the sub-list for method output_type
+	166, // [166:221] is the sub-list for method input_type
 	166, // [166:166] is the sub-list for extension type_name
 	166, // [166:166] is the sub-list for extension extendee
 	0,   // [0:166] is the sub-list for field type_name
@@ -16497,6 +16564,7 @@ func file_loft_asset_svc_g_proto_init() {
 	if File_loft_asset_svc_g_proto != nil {
 		return
 	}
+	file_loft_account_proto_init()
 	file_loft_asset_proto_init()
 	file_loft_catalog_svc_g_proto_init()
 	file_loft_org_svc_g_proto_init()
@@ -16513,7 +16581,7 @@ func file_loft_asset_svc_g_proto_init() {
 		(*labelRef_Id)(nil),
 		(*labelRef_Code)(nil),
 	}
-	file_loft_asset_svc_g_proto_msgTypes[84].OneofWrappers = []any{
+	file_loft_asset_svc_g_proto_msgTypes[85].OneofWrappers = []any{
 		(*attachmentRef_Id)(nil),
 	}
 	type x struct{}
@@ -16522,7 +16590,7 @@ func file_loft_asset_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_asset_svc_g_proto_rawDesc), len(file_loft_asset_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   111,
+			NumMessages:   112,
 			NumExtensions: 0,
 			NumServices:   6,
 		},

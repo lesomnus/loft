@@ -214,8 +214,9 @@ func TestASignInIsHandedToAWorkspacesDomain(t *testing.T) {
 	x.Equal(http.StatusOK, acct.Code, acct.Body.String())
 	var a account.Account
 	x.NoError(json.Unmarshal(acct.Body.Bytes(), &a))
-	x.Len(a.Workspaces, 1)
-	x.Equal("acme", a.Workspaces[0].Alias)
+	x.Equal("acme", a.Pinned)
+	x.NotNil(a.Here, "the one workspace this domain serves, which nothing of the account's answers here")
+	x.Equal("acme", a.Here.Alias)
 	agree := w.at(handed, ownHost, http.MethodPost, "/account/consents", `{"agree":{}}`, "Content-Type", "application/json")
 	x.Equal(http.StatusForbidden, agree.Code, "what the account says of itself, it says at the service's")
 

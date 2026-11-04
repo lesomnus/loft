@@ -5,12 +5,13 @@
  *
  * An answer is somebody's, in some workspace, so it is kept **for one account
  * in one workspace** -- under the account's identifier and the workspace's, as
- * `GET /account` names them -- and never served to another: what this browser
- * kept for others is dropped the moment it is known whose turn it is
- * ({@link keepOnly}), and every tab's is dropped when the account signs out
- * ({@link forget}). The page says on every call whose it is (`callAs`), so a
- * page left behind by somebody else's sign-in is refused rather than answered
- * as them, and never keeps their answers as the first person's.
+ * `GET /account` and `TenantService.Mine` name them -- and never served to
+ * another: what this browser kept for others is dropped the moment it is known
+ * whose turn it is ({@link keepOnly}), and every tab's is dropped when the
+ * account signs out ({@link forget}). The page says on every call whose it is
+ * (`callAs`), so a page left behind by somebody else's sign-in is refused
+ * rather than answered as them, and never keeps their answers as the first
+ * person's.
  *
  * Offline the app is for reading. A read that cannot reach the server answers
  * what it answered last and the page says that is what it is (`<Offline>`); a

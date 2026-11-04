@@ -1,6 +1,6 @@
 import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
-import { card, choose, expect, field, owner, people, refused, said, signIn, test, unique, workspace } from './loft.js'
+import { card, choose, expect, field, makeWorkspace, owner, people, refused, said, signIn, test, unique, workspace, workspacesOf } from './loft.js'
 import { paddle } from './paddle.js'
 
 // Run against the server that bills (playwright.config.ts): to a levyan of
@@ -17,9 +17,7 @@ async function levyan(request: APIRequestContext, what: string, q: Record<string
 
 /** A workspace of its own, made by whoever `page` is signed in as. */
 async function made(page: Page, name: string): Promise<{ id: string; alias: string }> {
-	const res = await page.request.post('/account/workspaces', { data: { name } })
-	expect(res.ok(), await res.text()).toBeTruthy()
-	return (await res.json()) as { id: string; alias: string }
+	return await makeWorkspace(page, name)
 }
 
 /** A billing account as levyan lists it, in JSON: no `name` where it has none. */
@@ -148,9 +146,7 @@ test('the owner sees who pays and what was used, and a member they ask accepts a
 
 test('a member who pays for a workspace is told above its pages that a charge failed, and is sent to their own page', async ({ page, as, request }) => {
 	await signIn(page, owner.login, owner.password)
-	const mine = await page.request.get('/account')
-	expect(mine.ok(), await mine.text()).toBeTruthy()
-	const acme = ((await mine.json()) as { workspaces: { id: string; alias: string }[] }).workspaces.find((w) => `/@${w.alias}` === workspace)
+	const acme = (await workspacesOf(page)).find((w) => `/@${w.alias}` === workspace)
 	expect(acme).toBeDefined()
 
 	// Asked by the owner, and accepted with a billing account of their own.

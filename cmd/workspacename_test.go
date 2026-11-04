@@ -3,11 +3,10 @@ package cmd_test
 import (
 	"bytes"
 	"context"
-	"encoding/json"
-	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
+	"uuid"
 
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
@@ -21,7 +20,6 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/account"
 )
 
 // TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner is D57: the workspace an
@@ -87,18 +85,17 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 	x.NoError(err)
 	kh := w.member(me.GetTenant(), kim, "member")
 	asKim := as(kim)
-	res := w.page(asKim, http.MethodGet, "/account")
-	x.Equal(http.StatusOK, res.Code)
-	var acc account.Account
-	x.NoError(json.Unmarshal(res.Body.Bytes(), &acc))
-	x.Len(acc.Workspaces, 1)
-	x.Equal("박서준의 워크스페이스", acc.Workspaces[0].Name)
-	rs := w.accessed(t, "GET /account")
+	acc, err := tenants.Mine(asKim, &app.TenantMineRequest{})
+	x.NoError(err)
+	x.Len(acc.GetWorkspaces(), 1)
+	x.Equal("박서준의 워크스페이스", acc.GetWorkspaces()[0].GetName())
+	rs := w.accessed(t, app.TenantService_Mine_FullMethodName)
 	x.Len(rs, 1, "the account's answer showed the owner's name")
 	x.Equal(ws.Uuid(), rs[0].TenantId)
 	kid, err := pdid.From(kh.GetId())
 	x.NoError(err)
-	x.Equal(kid.Uuid(), rs[0].ActorId, "by the account's membership of the workspace")
+	x.Equal(kim.Id.Uuid(), rs[0].ActorId, "by the account, which asked as itself (payday#184)")
+	x.Equal(uuid.UUID{}, rs[0].ActorTenantId, "in no workspace")
 	x.Equal("read", rs[0].Kind)
 	x.Contains(rs[0].Subjects, me.GetParty().GetId(), "of the owner's person record")
 
@@ -142,16 +139,15 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 	// One the account makes has the name it chose, and saying it shows
 	// nobody: its account's answer is on the record of the one called after
 	// its owner alone.
-	lab, err := w.s.Workspaces(w.c).Create(ctx, park, "연구실")
+	lab, err := tenants.Create(asPark, app.TenantCreateRequest_builder{Name: "연구실"}.Build())
 	x.NoError(err)
-	x.Empty(lab.Saw)
-	res = w.page(asPark, http.MethodGet, "/account")
-	x.Equal(http.StatusOK, res.Code)
-	x.NoError(json.Unmarshal(res.Body.Bytes(), &acc))
-	x.Len(acc.Workspaces, 2)
-	x.Equal("박서준의 워크스페이스", acc.Workspaces[0].Name)
-	x.Equal("연구실", acc.Workspaces[1].Name)
-	rs = w.accessed(t, "GET /account")
+	x.Equal("연구실", lab.GetName())
+	acc, err = tenants.Mine(asPark, &app.TenantMineRequest{})
+	x.NoError(err)
+	x.Len(acc.GetWorkspaces(), 2)
+	x.Equal("박서준의 워크스페이스", acc.GetWorkspaces()[0].GetName())
+	x.Equal("연구실", acc.GetWorkspaces()[1].GetName())
+	rs = w.accessed(t, app.TenantService_Mine_FullMethodName)
 	x.Len(rs, 2, "a row for each answer that showed somebody")
 	x.Equal(ws.Uuid(), rs[1].TenantId, "and of the workspace that did")
 
@@ -187,12 +183,10 @@ func TestAWorkspaceIsRenamedByItsOwnerAlone(t *testing.T) {
 	called := func(as context.Context) (string, string) {
 		me, err := parties.Me(as, &app.PartyMeRequest{})
 		x.NoError(err)
-		res := w.page(as, http.MethodGet, "/account")
-		x.Equal(http.StatusOK, res.Code)
-		var acc account.Account
-		x.NoError(json.Unmarshal(res.Body.Bytes(), &acc))
-		x.Len(acc.Workspaces, 1)
-		return me.GetWorkspaceName(), acc.Workspaces[0].Name
+		acc, err := tenants.Mine(as, &app.TenantMineRequest{})
+		x.NoError(err)
+		x.Len(acc.GetWorkspaces(), 1)
+		return me.GetWorkspaceName(), acc.GetWorkspaces()[0].GetName()
 	}
 
 	park, err := w.s.Identity.AddPerson(ctx, "park", "박지민", pdid.Nil)
@@ -220,12 +214,12 @@ func TestAWorkspaceIsRenamedByItsOwnerAlone(t *testing.T) {
 		x.Equal("연구실 장비", inside)
 		x.Equal("연구실 장비", outside)
 	}
-	x.Empty(w.accessed(t, "GET /account"), "its own name shows nobody")
+	x.Empty(w.accessed(t, app.TenantService_Mine_FullMethodName), "its own name shows nobody")
 
 	_, err = tenants.Configure(asPark, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("")}.Build())
 	x.NoError(err)
 	inside, outside := called(asKim)
 	x.Equal("박지민의 워크스페이스", inside)
 	x.Equal("박지민의 워크스페이스", outside)
-	x.Len(w.accessed(t, "GET /account"), 1, "called after its owner again, which shows them")
+	x.Len(w.accessed(t, app.TenantService_Mine_FullMethodName), 1, "called after its owner again, which shows them")
 }

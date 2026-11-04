@@ -17262,6 +17262,30 @@ func (s accountsTenant) Preview(ctx context.Context, req *loft.TenantPreviewRequ
 	return s.TenantServiceServer.Preview(ctx, req)
 }
 
+func (s accountsTenant) Mine(ctx context.Context, req *loft.TenantMineRequest) (*loft.TenantMineResponse, error) {
+	if err := gate.AsAccount(ctx, loft.TenantService_Mine_FullMethodName, AccountMethod); err != nil {
+		return nil, err
+	}
+
+	return s.TenantServiceServer.Mine(ctx, req)
+}
+
+func (s accountsTenant) Create(ctx context.Context, req *loft.TenantCreateRequest) (*loft.TenantMembership, error) {
+	if err := gate.AsAccount(ctx, loft.TenantService_Create_FullMethodName, AccountMethod); err != nil {
+		return nil, err
+	}
+
+	return s.TenantServiceServer.Create(ctx, req)
+}
+
+func (s accountsTenant) Export(req *loft.TenantExportRequest, out grpc.ServerStreamingServer[loft.TenantExportResponse]) error {
+	if err := gate.AsAccount(out.Context(), loft.TenantService_Export_FullMethodName, AccountMethod); err != nil {
+		return err
+	}
+
+	return s.TenantServiceServer.Export(req, out)
+}
+
 // accountsAssetType is AssetTypeService as the gate serves it to a call an account
 // makes as itself: refused every method but the ones the schema marks the
 // account's own. See [gate.AsAccount].
@@ -18060,6 +18084,14 @@ func (s accountsLabel) Resolve(ctx context.Context, req *loft.LabelResolveReques
 	}
 
 	return s.LabelServiceServer.Resolve(ctx, req)
+}
+
+func (s accountsLabel) Locate(ctx context.Context, req *loft.LabelLocateRequest) (*loft.TenantMembership, error) {
+	if err := gate.AsAccount(ctx, loft.LabelService_Locate_FullMethodName, AccountMethod); err != nil {
+		return nil, err
+	}
+
+	return s.LabelServiceServer.Locate(ctx, req)
 }
 
 // accountsAttachment is AttachmentService as the gate serves it to a call an account
@@ -25406,6 +25438,21 @@ func (s interceptTenant) Preview(ctx context.Context, req *loft.TenantPreviewReq
 		loft.TenantService_Preview_FullMethodName, req, s.TenantServiceServer.Preview)
 }
 
+func (s interceptTenant) Mine(ctx context.Context, req *loft.TenantMineRequest) (*loft.TenantMineResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
+		loft.TenantService_Mine_FullMethodName, req, s.TenantServiceServer.Mine)
+}
+
+func (s interceptTenant) Create(ctx context.Context, req *loft.TenantCreateRequest) (*loft.TenantMembership, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
+		loft.TenantService_Create_FullMethodName, req, s.TenantServiceServer.Create)
+}
+
+func (s interceptTenant) Export(req *loft.TenantExportRequest, out grpc.ServerStreamingServer[loft.TenantExportResponse]) error {
+	return grpcx.RunStream(s.stream, s.TenantServiceServer,
+		loft.TenantService_Export_FullMethodName, req, out, s.TenantServiceServer.Export)
+}
+
 func (s Intercept) AssetType() loft.AssetTypeServiceServer {
 	return interceptAssetType{s, s.Next().AssetType()}
 }
@@ -25951,6 +25998,11 @@ func (s interceptLabel) Unbind(ctx context.Context, req *loft.LabelUnbindRequest
 func (s interceptLabel) Resolve(ctx context.Context, req *loft.LabelResolveRequest) (*loft.LabelResolveResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
 		loft.LabelService_Resolve_FullMethodName, req, s.LabelServiceServer.Resolve)
+}
+
+func (s interceptLabel) Locate(ctx context.Context, req *loft.LabelLocateRequest) (*loft.TenantMembership, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
+		loft.LabelService_Locate_FullMethodName, req, s.LabelServiceServer.Locate)
 }
 
 func (s Intercept) Attachment() loft.AttachmentServiceServer {
@@ -29387,10 +29439,13 @@ func (s entitlementStore) Forget(ctx context.Context, ids []pdid.Id) error {
 // tenant (payday#184), by the names gRPC knows them by: the ones the schema
 // marks `(payday.method) = {account: {}}`.
 var AccountMethods = []string{
+	loft.TenantService_Mine_FullMethodName,
+	loft.TenantService_Create_FullMethodName,
 	loft.InvitationService_Inbox_FullMethodName,
 	loft.InvitationService_Claim_FullMethodName,
 	loft.InvitationService_Accept_FullMethodName,
 	loft.InvitationService_Deny_FullMethodName,
+	loft.LabelService_Locate_FullMethodName,
 	loft.PaymentService_ListBillingAccounts_FullMethodName,
 	loft.PaymentService_CreateBillingAccount_FullMethodName,
 	loft.PaymentService_UpdateBillingAccount_FullMethodName,
@@ -30440,6 +30495,10 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &loft.TenantConfigureRequest{}
 	case loft.TenantService_Preview_FullMethodName:
 		v = &loft.TenantPreviewRequest{}
+	case loft.TenantService_Mine_FullMethodName:
+		v = &loft.TenantMineRequest{}
+	case loft.TenantService_Create_FullMethodName:
+		v = &loft.TenantCreateRequest{}
 	case loft.AssetTypeService_Add_FullMethodName:
 		v = &loft.AssetTypeAddRequest{}
 	case loft.AssetTypeService_Get_FullMethodName:
@@ -30616,6 +30675,8 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &loft.LabelUnbindRequest{}
 	case loft.LabelService_Resolve_FullMethodName:
 		v = &loft.LabelResolveRequest{}
+	case loft.LabelService_Locate_FullMethodName:
+		v = &loft.LabelLocateRequest{}
 	case loft.AttachmentService_Add_FullMethodName:
 		v = &loft.AttachmentAddRequest{}
 	case loft.AttachmentService_Get_FullMethodName:
@@ -31022,6 +31083,10 @@ func dispatch(ctx context.Context, s loft.Server, m string, v proto.Message) (*a
 		res, err = s.Tenant().Configure(ctx, v.(*loft.TenantConfigureRequest))
 	case loft.TenantService_Preview_FullMethodName:
 		res, err = s.Tenant().Preview(ctx, v.(*loft.TenantPreviewRequest))
+	case loft.TenantService_Mine_FullMethodName:
+		res, err = s.Tenant().Mine(ctx, v.(*loft.TenantMineRequest))
+	case loft.TenantService_Create_FullMethodName:
+		res, err = s.Tenant().Create(ctx, v.(*loft.TenantCreateRequest))
 	case loft.AssetTypeService_Add_FullMethodName:
 		res, err = s.AssetType().Add(ctx, v.(*loft.AssetTypeAddRequest))
 	case loft.AssetTypeService_Get_FullMethodName:
@@ -31198,6 +31263,8 @@ func dispatch(ctx context.Context, s loft.Server, m string, v proto.Message) (*a
 		res, err = s.Label().Unbind(ctx, v.(*loft.LabelUnbindRequest))
 	case loft.LabelService_Resolve_FullMethodName:
 		res, err = s.Label().Resolve(ctx, v.(*loft.LabelResolveRequest))
+	case loft.LabelService_Locate_FullMethodName:
+		res, err = s.Label().Locate(ctx, v.(*loft.LabelLocateRequest))
 	case loft.AttachmentService_Add_FullMethodName:
 		res, err = s.Attachment().Add(ctx, v.(*loft.AttachmentAddRequest))
 	case loft.AttachmentService_Get_FullMethodName:

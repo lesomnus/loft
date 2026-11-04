@@ -2,10 +2,8 @@ package cmd_test
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 
@@ -17,7 +15,6 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 	entdomain "github.com/lesomnus/loft/internal/ent/domain"
-	"github.com/lesomnus/loft/server/account"
 )
 
 // TestALabelIsOpenedInTheWorkspaceItIsIn: a label's code is one in the whole
@@ -51,30 +48,28 @@ func TestALabelIsOpenedInTheWorkspaceItIsIn(t *testing.T) {
 	x.Equal(http.StatusFound, res.Code)
 	x.Equal("http://localhost:8080/scan/"+code, res.Header().Get("Location"))
 
-	ask := func(ctx context.Context, code string) (int, account.Workspace) {
-		res := w.page(ctx, http.MethodGet, "/account/labels/"+url.PathEscape(code))
-		var v account.Workspace
-		if res.Code == http.StatusOK {
-			x.NoError(json.Unmarshal(res.Body.Bytes(), &v))
-		}
-		return res.Code, v
+	// Which of the account's workspaces it is in, asked as the account
+	// (`LabelService.Locate`, D73).
+	ask := func(ctx context.Context, code string) (codes.Code, *app.TenantMembership) {
+		v, err := labels.Locate(ctx, app.LabelLocateRequest_builder{Code: code}.Build())
+		return status.Code(err), v
 	}
 	for _, v := range []string{code, strings.ToLower(code[:4] + "-" + code[4:]), printed.GetUrls()[0]} {
 		n, got := ask(md, v)
-		x.Equal(http.StatusOK, n, v)
-		x.Equal("beta", got.Alias, "the workspace of the account's own it is in")
-		x.Equal("owner", got.Role)
+		x.Equal(codes.OK, n, v)
+		x.Equal("beta", got.GetAlias(), "the workspace of the account's own it is in")
+		x.Equal("owner", got.GetRole())
 	}
 
 	lee := w.holder("lee", "member")
 	n, _ := ask(w.session(lee), code)
-	x.Equal(http.StatusNotFound, n, "a label in a workspace the account is not in reads as none")
+	x.Equal(codes.NotFound, n, "a label in a workspace the account is not in reads as none")
 	n, _ = ask(md, "ZZZZZZZZ")
-	x.Equal(http.StatusNotFound, n, "as does a code nobody printed")
+	x.Equal(codes.NotFound, n, "as does a code nobody printed")
 	n, _ = ask(md, "not a code")
-	x.Equal(http.StatusNotFound, n)
+	x.Equal(codes.NotFound, n)
 	n, _ = ask(context.Background(), code)
-	x.Equal(http.StatusUnauthorized, n, "nobody is told without a session")
+	x.Equal(codes.Unauthenticated, n, "nobody is told without a session")
 }
 
 // post is a page's JSON call, as a browser signed in as `ctx`'s session makes
@@ -102,11 +97,9 @@ func TestAWorkspaceStartsWithNoDomain(t *testing.T) {
 	ctx := context.Background()
 
 	lee := w.holder("lee", "member")
-	res := w.post(w.session(lee), "/account/workspaces", `{"name":"이의 팀"}`)
-	x.Equal(http.StatusCreated, res.Code, res.Body.String())
-	var made account.Workspace
-	x.NoError(json.Unmarshal(res.Body.Bytes(), &made))
-	id, err := pdid.Parse(made.Id)
+	made, err := app.NewTenantServiceClient(w.conn).Create(w.session(lee), app.TenantCreateRequest_builder{Name: "이의 팀"}.Build())
+	x.NoError(err)
+	id, err := pdid.From(made.GetId())
 	x.NoError(err)
 	n, err := w.s.Ent.Domain.Query().Where(entdomain.TenantId(id.Uuid())).Count(ctx)
 	x.NoError(err)

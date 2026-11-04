@@ -283,7 +283,7 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	x.True(me.GetReadonly())
 
 	// Its data taken out: a CSV of the register, a file it keeps, and all of
-	// it -- the last two by the doors that are no RPC, which only read.
+	// it -- the file by the door that is no RPC, which only reads.
 	_, err = assets.Export(metadata.AppendToOutgoingContext(w.owner, access.ReasonKey, "결제 정리"), &app.AssetExportRequest{})
 	x.NoError(err, "the register's CSV")
 	link, err := attachments.Url(w.owner, app.AttachmentUrlRequest_builder{Ref: fref}.Build())
@@ -293,9 +293,9 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	res := w.page(context.Background(), http.MethodGet, u.RequestURI())
 	x.Equal(http.StatusOK, res.Code, "a file it keeps, downloaded: %s", res.Body.String())
 	x.Equal("%PDF-1.7 warranty", res.Body.String())
-	res = w.page(w.owner, http.MethodGet, "/account/workspaces/"+w.tenant.GetAlias()+"/export?reason="+url.QueryEscape("결제 정리"))
-	x.Equal(http.StatusOK, res.Code, "all of it: %s", res.Body.String())
-	_, err = zip.NewReader(bytes.NewReader(res.Body.Bytes()), int64(res.Body.Len()))
+	all, _, err := exported(w.owner, w.conn, app.TenantRef_builder{Id: w.tenant.GetId()}.Build(), "결제 정리")
+	x.NoError(err, "all of it")
+	_, err = zip.NewReader(bytes.NewReader(all), int64(len(all)))
 	x.NoError(err, "a zip")
 
 	// Who saw whose data, read -- and not a review of it recorded, which is

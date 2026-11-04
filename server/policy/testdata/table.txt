@@ -104,6 +104,7 @@
 /loft.LabelService/Bind	manager
 /loft.LabelService/Get	read
 /loft.LabelService/List	read
+/loft.LabelService/Locate	account
 /loft.LabelService/Print	manager
 /loft.LabelService/Resolve	read
 /loft.LabelService/Unbind	manager
@@ -185,8 +186,11 @@
 /loft.TenantContractService/List	read
 /loft.TenantService/Close	owner
 /loft.TenantService/Configure	owner
+/loft.TenantService/Create	account
+/loft.TenantService/Export	owner
 /loft.TenantService/Get	read
 /loft.TenantService/List	read
+/loft.TenantService/Mine	account
 /loft.TenantService/Patch	owner
 /loft.TenantService/Preview	owner
 /loft.TenantService/Restore	owner

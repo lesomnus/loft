@@ -4,12 +4,10 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"strconv"
 	"testing"
 	"time"
 
@@ -28,7 +26,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/server/account"
 	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/tenancy"
 )
@@ -121,22 +118,21 @@ func TestAWorkspaceIsClosedByItsOwnerAndRestored(t *testing.T) {
 
 	// What the page is told: which workspaces are closed, until when, and
 	// how long their address is then held -- the deployment's, a year unset.
-	res := w.page(w.owner, http.MethodGet, "/account")
-	x.Equal(http.StatusOK, res.Code)
-	var acc account.Account
-	x.NoError(json.Unmarshal(res.Body.Bytes(), &acc))
-	x.NotNil(acc.Workspaces[0].Closed)
-	x.NotNil(acc.Workspaces[0].Destroy)
-	x.EqualValues(365, acc.Workspaces[0].AliasHoldDays)
+	mine, err := tenants.Mine(w.owner, &app.TenantMineRequest{})
+	x.NoError(err)
+	x.True(mine.GetWorkspaces()[0].HasClosed())
+	x.True(mine.GetWorkspaces()[0].HasDestroy())
+	x.EqualValues(365, mine.GetWorkspaces()[0].GetAliasHoldDays())
 
 	// And what its owner takes out before it goes.
-	res = w.page(w.owner, http.MethodGet, "/account/workspaces/"+w.tenant.GetAlias()+"/export?reason=closing")
-	x.Equal(http.StatusOK, res.Code)
-	zr, err := zip.NewReader(bytes.NewReader(res.Body.Bytes()), int64(res.Body.Len()))
+	b, name, err := exported(w.owner, w.conn, ref, "closing")
+	x.NoError(err)
+	zr, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
 	x.NoError(err, "a zip")
 	x.NotEmpty(zr.File)
-	x.Equal(strconv.Itoa(res.Body.Len()), res.Header().Get("Content-Length"), "written whole before it was sent")
-	x.Equal(http.StatusForbidden, w.page(kim, http.MethodGet, "/account/workspaces/"+w.tenant.GetAlias()+"/export").Code)
+	x.Contains(name, w.tenant.GetAlias()+"-")
+	_, _, err = exported(kim, w.conn, ref, "closing")
+	x.Equal(codes.FailedPrecondition, status.Code(err), "nobody else uses a closed workspace")
 
 	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
 	x.NoError(err)
