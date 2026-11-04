@@ -165,6 +165,14 @@ loft-admin search reindex                                 # 지금 다시 만들
 loft-admin search remove --yes                            # 이 배포가 만든 인덱스와 별칭을 모두 지움
 loft-admin retention plan --tenant loft                   # 보관 기간이 지금 가져갈 것 (아무것도 바꾸지 않음)
 loft-admin retention run                                  # app.retention.apply가 켜져 있을 때만 가져감
+
+# 계정 (내장 roster) 과 roster
+loft-admin holder add --tenant loft --login minsu --name 김민수 --role member   # 계정이 없으면 만들고 비밀번호를 한 번 출력
+loft-admin holder password --login admin                  # 새 비밀번호를 한 번 출력, 로그인된 곳은 모두 끝남
+loft-admin identity depart --member @loft/minsu           # 워크스페이스마다 할 일: 누구에게 넘어가는지, 닫히는지 (아무것도 바꾸지 않음)
+loft-admin identity depart --member @loft/minsu --yes     # 지금 모든 워크스페이스에서 떠남
+loft-admin identity reconcile --yes                       # roster에 모든 계정을 다시 물음
+loft-admin identity migrate                               # roster 이전의 배포를 한 번 옮김 (먼저 loft migrate)
 ```
 
 - 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다. 키를 바꿔도 이름이 같으면 기록에는 같은 운영자입니다.

@@ -649,3 +649,186 @@ message OperatorRetentionTrail {
   uint32 discarded = 3;
   uint32 destroyed = 4;
 }
+
+// OperatorIdentityService is who people are, which is roster's (design
+// 9.10): a deployment from before roster brought into it, an account leaving
+// every workspace it is in, and every account asked about again.
+service OperatorIdentityService {
+  // Migrate brings the workspaces and people of a deployment from before
+  // roster into it, with their identifiers (D27): on the roster in this
+  // process, an account for every membership that names none, each with a
+  // password said once; for a roster of its own, what its operator makes
+  // there, and the ones made already linked. Run again it makes nothing. A
+  // message for each membership, and last what it came to.
+  rpc Migrate(OperatorIdentityMigrateRequest) returns (stream OperatorIdentityMigrateResponse);
+
+  // Depart is an account leaving every workspace it is in, now, rather than
+  // when roster's grace is over -- for somebody who asked to be forgotten at
+  // once: its person records pseudonymized, its memberships ended, a last
+  // owner's workspace handed on. It cannot be undone.
+  rpc Depart(OperatorIdentityDepartRequest) returns (OperatorIdentityDepartResponse);
+
+  // Reconcile asks roster about every account with a membership here, marks
+  // those it has nobody by as leaving -- from now, so that they wait the
+  // whole grace -- and unmarks those it has again: what a served deployment
+  // does every `app.accounts.reconcile`, asked for now.
+  rpc Reconcile(OperatorIdentityReconcileRequest) returns (OperatorIdentityReconcileResponse);
+}
+
+message OperatorIdentityMigrateRequest {
+  // Give everybody this one, for a deployment to try things on; empty makes
+  // one up for each.
+  string password = 1;
+}
+
+message OperatorIdentityMigrateResponse {
+  OperatorIdentityAdopted adopted = 1;
+  OperatorIdentityMigrated done = 2;
+}
+
+// OperatorIdentityAdopted is one membership brought into roster, or to be.
+message OperatorIdentityAdopted {
+  string workspace = 1;
+  string member = 2;
+  // The account's login, and its password, said once, when it was made.
+  string login = 3;
+  string password = 4;
+  // An account roster had for it already, now linked.
+  bool linked = 5;
+  // For a roster of its own: what its operator runs there to make it.
+  string make = 6;
+}
+
+message OperatorIdentityMigrated {
+  // The roster is this process's.
+  bool embedded = 1;
+  uint32 made = 2;
+  uint32 linked = 3;
+  // For a roster of its own: the directory the accounts are made in, and
+  // how many are left to make.
+  string directory = 4;
+  uint32 todo = 5;
+  // Everybody was given the password asked for.
+  bool given = 6;
+  // The table the passwords from before roster were kept in, dropped.
+  bool dropped = 7;
+}
+
+message OperatorIdentityDepartRequest {
+  oneof who {
+    // The account, by one of its memberships: @workspace/alias.
+    string member = 1;
+    // The account, by its identifier at roster.
+    bytes account = 2;
+  }
+  // Say what it would do, and do nothing.
+  bool dry_run = 3;
+}
+
+message OperatorIdentityDepartResponse {
+  bytes account = 1;
+  bool dry_run = 2;
+  // Its memberships, by workspace: the ones it would leave, or left.
+  repeated OperatorIdentityMembership members = 3;
+  repeated OperatorIdentityLeft left = 4;
+  // On the roster in this process, the account itself went too; one of its
+  // own is its operator's to erase.
+  bool embedded = 5;
+  bool forgot = 6;
+}
+
+message OperatorIdentityMembership {
+  string workspace = 1;
+  string member = 2;
+  string role = 3;
+  // What leaving would do there, said before it is done: who a last
+  // owner's workspace would go to, or that nobody is there to hand it to;
+  // and that nobody would be left in it, so that it would close.
+  string owner = 4;
+  bool ownerless = 5;
+  bool closes = 6;
+}
+
+message OperatorIdentityLeft {
+  string workspace = 1;
+  // Its last owner: who it is now, or that nobody was there to hand it to.
+  string owner = 2;
+  bool ownerless = 3;
+  // Rows of its trail a legal hold kept.
+  uint32 held = 4;
+  // Nobody was left in it, so it is closed: its data kept through the
+  // restore window, and destroyed after (D29).
+  bool closed = 5;
+}
+
+message OperatorIdentityReconcileRequest {
+  // Say what it would do, and do nothing.
+  bool dry_run = 1;
+}
+
+message OperatorIdentityReconcileResponse {
+  bool dry_run = 1;
+  // Every account with a membership here, and how many of them roster has.
+  uint32 accounts = 2;
+  uint32 found = 3;
+  // Gone at roster and not leaving here yet; leaving here, and roster has
+  // it again. Each with its memberships, as @workspace/alias.
+  repeated OperatorIdentityAccount gone = 4;
+  repeated OperatorIdentityAccount back = 5;
+}
+
+message OperatorIdentityAccount {
+  bytes account = 1;
+  repeated string members = 2;
+}
+
+// OperatorHolderService is an account and its memberships, on the roster in
+// this process (design 9.10, D27): what the people screen does, for the
+// operator who has no screen to do it from -- the owner who lost their
+// password above all. A deployment whose roster is one of its own refuses
+// both: its accounts are made and given passwords there.
+service OperatorHolderService {
+  // Add puts an account in a workspace, making the account -- with a
+  // password said once -- when it is new.
+  rpc Add(OperatorHolderAddRequest) returns (OperatorHolderAddResponse);
+
+  // Password gives an account a new password, said once, and ends
+  // everywhere it is signed in.
+  rpc Password(OperatorHolderPasswordRequest) returns (OperatorHolderPasswordResponse);
+}
+
+message OperatorHolderAddRequest {
+  OperatorTenantRef tenant = 1;
+  string login = 2;
+  // Their name; the login by default.
+  string name = 3;
+  // Their e-mail, kept on the person record.
+  string email = 4;
+  // What they may do there; member by default.
+  string role = 5;
+  // A new account's password; empty makes one up.
+  string password = 6;
+}
+
+message OperatorHolderAddResponse {
+  // The membership, by its alias in the workspace.
+  string workspace = 1;
+  string member = 2;
+  bytes account = 3;
+  string role = 4;
+  // A password made up for a new account, said once.
+  string password = 5;
+}
+
+message OperatorHolderPasswordRequest {
+  string login = 1;
+  // The new password; empty makes one up.
+  string password = 2;
+}
+
+message OperatorHolderPasswordResponse {
+  string login = 1;
+  bytes account = 2;
+  // The one made up, said once.
+  string password = 3;
+}
