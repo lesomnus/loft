@@ -320,10 +320,12 @@ said "200" "a signed-in session was not answered as anybody" me
 # the claim the `witness/` component brings. A witness that cannot hear stops
 # nothing, the act logs it and carries on, so a verification is what says it
 # is linked, its claim is writable by the pod's user, and the chain is held to
-# what it heard.
+# what it heard. Asked of the entry point as an operator asks it (D74), from
+# its own container and with the key the rig gave it.
 echo "== the trail's newest checkpoint, as its witness heard it"
 said "heard by store:/var/lib/loft/witness: checkpoint " "the trail's witness heard no checkpoint" \
-	kube "kubectl -n ${NS} exec deploy/loft -c loft -- loft --config /etc/loft/loft.yaml trail verify 2>&1"
+	kube "kubectl -n ${NS} exec deploy/loft -c loft-admin -- /usr/local/bin/loft-admin \
+		--url http://127.0.0.1:8081 --key file:/run/secrets/loft-admin/operator trail verify 2>&1"
 
 echo "== the operator's entry point, over port-forward and over nothing else"
 admin() {

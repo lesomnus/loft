@@ -230,7 +230,7 @@ func TestAReasonIsTakenOutOfAnEventOfTheWorkspaceThatHasOne(t *testing.T) {
 }
 
 // TestAnOperatorTakesAReasonOutAsTheDeploymentsOwnWork: the operator's door
-// (`loft event redact`) is the same act, done as the deployment's own work in
+// (`loft-admin event redact`) is the same act, done as the deployment's own work in
 // the workspace: nobody's, filed under it -- and so is what it does to the
 // rest of an operation that says the same, a hand-over's memo copied into
 // each thing it handed over.

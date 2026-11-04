@@ -263,10 +263,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	}
 
 	// And the rows are what the trail says of them.
-	got, err := printed(t, cli.NewCmdTrail(&c), "rows")
-	x.NoError(err, got)
-	x.Contains(got, " 0 differ, 0 forged,")
-	x.Contains(got, " 0 not on the trail,")
+	asTheTrailSays(t, rowsChecked(t, c))
 
 	x.NotContains(run(t, cli.NewCmdMigrate(&c)), "moved into payday's past", "a second time")
 
@@ -300,9 +297,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 		x.NoError(err)
 		x.Equal(oracle[m], v.GetItems()[0].GetFacts(), "inside the window, at %s", m)
 	}
-	got, err = printed(t, cli.NewCmdTrail(&c), "rows")
-	x.NoError(err, got)
-	x.Contains(got, " 0 missing;", "what went is on the trail as gone")
+	x.Empty(rowsChecked(t, c).Missing, "what went is on the trail as gone")
 }
 
 // TestAFactThePastCannotWriteStopsTheMigration: a fact Loft never wrote -- a

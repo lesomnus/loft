@@ -5,13 +5,13 @@
 - roster의 테넌트는 계정이 들어 있는 **디렉터리**입니다. 배포마다 하나입니다(`auth.roster.directory`).
 - Loft의 테넌트는 **워크스페이스**입니다. 계정이 워크스페이스에 속한 것이 구성원 자격(`Holder`)이고, 자기 ID와 roster 계정(`account`), 역할을 갖습니다.
 
-화면에서 하는 일은 [관리자·소유자 안내서](../guide/admin.md), 서버 상자에서 하는 일은 [운영자 안내서](../guide/operator.md#계정-roster)에 있습니다.
+화면에서 하는 일은 [관리자·소유자 안내서](../guide/admin.md), 운영자가 운영자 진입점에서 하는 일은 [운영자 안내서](../guide/operator.md#계정-roster)에 있습니다.
 
 ## 내장 roster
 
 기본은 roster를 Loft 프로세스 안에서 함께 띄우는 **내장** 모드라 따로 설치할 것이 없습니다. roster의 DB는 Loft의 SQLite 파일 옆 `data/roster.db` 이고(PostgreSQL이면 `auth.roster.db`), 계정은 그 안의 디렉터리 `loft` 에 있습니다. Loft는 그 roster를 `bufconn` 으로 부릅니다.
 
-- `loft init`, `loft holder`, 사람 화면의 로그인 발급과 비밀번호 재설정은 이 roster에 계정을 만들고 비밀번호를 정합니다.
+- `loft init`, `loft-admin holder`, 사람 화면의 로그인 발급과 비밀번호 재설정은 이 roster에 계정을 만들고 비밀번호를 정합니다.
 - 사람 화면의 로그인 발급은 내장 roster에 계정을 만들고 그 워크스페이스의 구성원으로 넣습니다. 비밀번호 재설정은 그 계정이 이 워크스페이스에만 있을 때 할 수 있습니다(다른 워크스페이스의 사람을 이 워크스페이스의 관리자가 막을 수는 없으니까요).
 
 **운영처럼 보이는 배포에서 내장 roster를 쓰면 `loft serve` 가 시작할 때 경고합니다.** 거부하지는 않습니다. 운영처럼 보인다는 것은 DB가 PostgreSQL(`db.driver: pgx`)이거나, `app.public_url` 이 이 기계(`localhost`, `*.localhost`, 루프백 주소)가 아닌 경우입니다. 경고에는 둘 중 무엇 때문인지가 함께 나옵니다.
@@ -27,7 +27,7 @@
 
 - SaaS의 Loft는 roster 운영자가 만든 배포 키(`rk_…`)를 쓰고, 계정은 모두 그 디렉터리 하나에 있습니다.
 - 한 조직이 직접 운영하는 Loft는 그 조직의 키(`rt_…`)를 쓰고, 디렉터리는 그 키의 테넌트입니다.
-- 이때 `loft init`, `loft holder`, 사람 화면의 로그인 발급·비밀번호 변경은 거부되고 roster에서 합니다.
+- 이때 `loft init`, `loft-admin holder`, 사람 화면의 로그인 발급·비밀번호 변경은 거부되고 roster에서 합니다.
 - 내장 roster에서 옮기는 순서와 Kubernetes에서 키를 붙이는 곳은 [`deploy/k8s`](../../deploy/k8s/README.md)의 13에 있습니다.
 - roster의 박스에서 `tenant`, `role` 같은 명령을 할 때는 그 명령을 하는 운영자를 `--as <운영자>` 로 밝힙니다(control plane이 있는 roster, roster#221). roster의 접속기록이 그 사람을 남기고, 밝히지 않으면 거부됩니다. `app install` 과 `control key add` 에는 필요 없습니다.
 
@@ -143,7 +143,7 @@ roster 쪽에 필요한 것:
 - 되살린 계정은 다음 확인(1시간마다, `app.accounts.every`) 때 원래대로 돌아옵니다.
 - roster의 `restore` 와 `forget` 은 스트림에 실리지 않습니다. 그래서 표시에 따라 무엇을 하기 전에는 언제나 roster에 다시 묻습니다(`Lifecycle.Sweep`).
 - roster의 동기화 스트림은 끊긴 사이의 일을 다시 보내지 않습니다. Loft가 듣고 있지 않을 때 삭제된 계정은 서버가 하루에 한 번(`app.accounts.reconcile`, 기본 24h, 0이나 음수면 끔) roster에 모든 계정을 다시 물어 찾아내고, 지금부터 떠나는 중으로 표시하고, 무엇을 표시했는지 서버 로그에 남깁니다(`Lifecycle.Reconcile`). roster가 계정을 하나도 모른다고 답하면 디렉터리나 키가 잘못된 것으로 보고 아무것도 표시하지 않습니다.
-- 바로 잊어 달라는 요청과 지금 다시 맞추는 일은 운영자가 `loft identity depart`, `loft identity reconcile` 로 합니다([운영자 안내서](../guide/operator.md#계정을-지워-달라는-요청)).
+- 바로 잊어 달라는 요청과 지금 다시 맞추는 일은 운영자가 `loft-admin identity depart`, `loft-admin identity reconcile` 로 합니다([운영자 안내서](../guide/operator.md#계정을-지워-달라는-요청)).
 - 워크스페이스의 구성원 자격만 끝내는 것(로그인 중지, 개인정보 삭제)은 계정을 건드리지 않습니다.
 
 ## roster 이전의 배포
@@ -151,8 +151,8 @@ roster 쪽에 필요한 것:
 roster 이전에 만든 `data/` 는 로그인이 Loft의 DB에만 있어서, 업그레이드한 뒤에는 그대로 로그인할 수 없습니다. 한 번 옮깁니다.
 
 ```sh
-loft identity migrate                       # 사람마다 로그인과 새 비밀번호를 한 번 출력
-loft identity migrate --password demo1234   # 체험용 배포라면: 모두 같은 비밀번호로
+loft-admin identity migrate                       # 사람마다 로그인과 새 비밀번호를 한 번 출력
+loft-admin identity migrate --password demo1234   # 체험용 배포라면: 모두 같은 비밀번호로
 ```
 
 - 로그인마다 같은 ID로 내장 roster에 계정이 생기므로 이력에 남은 행위자는 그대로입니다.

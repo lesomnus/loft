@@ -153,7 +153,7 @@ func init() {
 	// Taking an event's reason out, for a person whose request to erase what
 	// it says of them points at it (payday#151's Redact): who may is the
 	// owner's to decide, and until then nobody here may. The deployment's
-	// operator does it, on the workspace's word, with `loft event redact`.
+	// operator does it, on the workspace's word, with `loft-admin event redact`.
 	closed("EventService", "Redact")
 	oversee("HolderService", reads...)
 
@@ -268,8 +268,8 @@ func init() {
 	allow(Admin, "PaymentService", "GetPayer", "GetUsage", "ListStatements")
 	allow(Owner, "PaymentService", "Offer")
 
-	// A tenant's contract and the legal holds on it are the operator's: `loft
-	// contract` and `loft hold` write them, from a shell, and no role here
+	// A tenant's contract and the legal holds on it are the operator's: the
+	// entry point writes them (`loft-admin contract`, `hold`), and no role here
 	// may. The contract is everybody's to read, since it says what becomes of
 	// the workspace's trail when it is destroyed; a hold is for the people who
 	// run the tenant. How long the workspace keeps its history is its own,

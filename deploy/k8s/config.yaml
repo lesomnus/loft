@@ -150,7 +150,7 @@ audit:
     #   witnesses: ["log:", "store:/var/lib/loft/witness"]
     witnesses: ["log:"]
 
-  # A keyed digest of the row each write left, so that `loft trail rows`
+  # A keyed digest of the row each write left, so that `loft-admin trail rows`
   # finds a row changed in the database past the servers (payday#102). The
   # key is beside the checkpoints' in their Secret, and out of the database.
   digest:

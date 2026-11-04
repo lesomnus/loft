@@ -42,8 +42,9 @@ import (
 // deployment over the address a browser reaches it at, as an account signed in
 // by approving the terminal there (`loft login`, `server/clilogin`).
 //
-// It is not the operator's half. `loft init`, `loft tenant purge`, `loft
-// identity ...` run on the box with the database; these run anywhere, as a
+// It is not the operator's, which is asked of the entry point as the operator
+// (`loft-admin`, D74), nor the box's, which runs with the database where there
+// is no server to ask (`loft init`, `loft migrate`); these run anywhere, as a
 // person, through the same policy and the same wall as the page.
 
 // clientConfig is what a terminal keeps of its sign-in: where the deployment

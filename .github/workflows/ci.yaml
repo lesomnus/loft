@@ -147,6 +147,10 @@ jobs:
   # not built, and the step that would migrate what it made says why and does
   # nothing. Every build after the rename has ./cmd/loft, and is migrated as
   # before.
+  #
+  # Each build is its two binaries, `loft` and `loft-admin`, in a directory of
+  # its own: what an operator does is asked of the entry point (D74), which
+  # the script serves for the build it asks.
   upgrade:
     runs-on: ubuntu-26.04
     steps:
@@ -178,13 +182,13 @@ jobs:
           # Staging's (loft#99), c91c626.
           OLDEST: c91c626bfca64485ea185d8eaba99da8cc433294
         run: |
-          go build -o "${RUNNER_TEMP}/loft-now" ./cmd/loft
-          # old NAME COMMIT: the build at COMMIT, as loft-NAME -- or, for one
+          go build -o "${RUNNER_TEMP}/bin-now/" ./cmd/loft ./cmd/loft-admin
+          # old NAME COMMIT: the build at COMMIT, in bin-NAME -- or, for one
           # from before the rename, nothing built and a notice of why.
           old() {
             git worktree add --detach "${RUNNER_TEMP}/$1" "$2"
             if [ -d "${RUNNER_TEMP}/$1/cmd/loft" ]; then
-              (cd "${RUNNER_TEMP}/$1" && go build -o "${RUNNER_TEMP}/loft-$1" ./cmd/loft)
+              (cd "${RUNNER_TEMP}/$1" && go build -o "${RUNNER_TEMP}/bin-$1/" ./cmd/loft ./cmd/loft-admin)
             else
               echo "::notice title=upgrade::$1 is $2, from before the rename from rove to loft (2026-10-31), which broke compatibility once on purpose: not built, and nothing it makes is migrated"
             fi
@@ -199,24 +203,24 @@ jobs:
         env:
           UPGRADE_POSTGRES: postgres://loft:loft@localhost:5432
         run: |
-          if [ ! -x "${RUNNER_TEMP}/loft-before" ]; then
+          if [ ! -x "${RUNNER_TEMP}/bin-before/loft" ]; then
             echo "The build before is from before the rename from rove to loft. The rename (the owner's decision, 2026-10-31) broke compatibility once, so what it makes is not migrated: staging is made again from nothing." | tee -a "${GITHUB_STEP_SUMMARY}"
             exit 0
           fi
           docker exec postgres psql -U loft -qc 'create database upgrade_loft' -c 'create database upgrade_roster'
-          scripts/upgrade.sh "${RUNNER_TEMP}/loft-before" "${RUNNER_TEMP}/loft-now"
+          scripts/upgrade.sh "${RUNNER_TEMP}/bin-before" "${RUNNER_TEMP}/bin-now"
       - name: what the oldest build a deployment runs made, migrated by this one
         env:
           UPGRADE_POSTGRES: postgres://loft:loft@localhost:5432
         run: |
-          if [ ! -x "${RUNNER_TEMP}/loft-oldest" ]; then
+          if [ ! -x "${RUNNER_TEMP}/bin-oldest/loft" ]; then
             echo "The oldest build a deployment runs (OLDEST) is from before the rename from rove to loft. The rename (the owner's decision, 2026-10-31) broke compatibility once, so what it makes is not migrated: staging is made again from nothing, and OLDEST moves to a build after the rename once it is." | tee -a "${GITHUB_STEP_SUMMARY}"
             exit 0
           fi
           # The step before made these, unless it had no build to run.
           docker exec postgres psql -U loft -qc 'drop database if exists upgrade_loft' -c 'drop database if exists upgrade_roster' \
             -c 'create database upgrade_loft' -c 'create database upgrade_roster'
-          scripts/upgrade.sh "${RUNNER_TEMP}/loft-oldest" "${RUNNER_TEMP}/loft-now"
+          scripts/upgrade.sh "${RUNNER_TEMP}/bin-oldest" "${RUNNER_TEMP}/bin-now"
 
   # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
   # deployment runs, with its security plugin on -- TLS on the demo
@@ -345,9 +349,11 @@ jobs:
           # hear (payday#115): `store:` on a volume of its own, which a named
           # volume gives the image's user only because the image made the
           # directory. A witness that cannot hear stops nothing, so this is
-          # where it would be seen.
+          # where it would be seen. Asked of the entry point, as an operator
+          # asks it (D74), from inside its own container.
           for i in $(seq 1 30); do
-            if out="$(docker compose run --rm loft --config /etc/loft/loft.yaml trail verify 2>&1)"; then
+            if out="$(docker compose exec -T loft-admin /usr/local/bin/loft-admin \
+              --url http://127.0.0.1:8081 --key file:/run/secrets/admin_key trail verify 2>&1)"; then
               case "${out}" in *"heard by store:/var/lib/loft/witness: checkpoint "*) exit 0 ;; esac
             fi
             sleep 2
@@ -571,13 +577,16 @@ jobs:
           cache-dependency-path: ts/package-lock.json
       - run: npm ci
       - run: npx vite build
-      # Once, for every server the tests stand up; the issuer one of them
-      # signs people in through (ts/e2e/issuer.sh); and the levyan one of them
+      # Once, for every server the tests stand up, and the operator's entry
+      # point a server searching on OpenSearch makes its indexes through
+      # before it serves (ts/e2e/serve.sh); the issuer one of them signs
+      # people in through (ts/e2e/issuer.sh); and the levyan one of them
       # bills to (ts/e2e/levyan.sh).
       - name: build loft
         working-directory: .
         run: |
           go build -o "$RUNNER_TEMP/loft" ./cmd/loft
+          go build -o "$RUNNER_TEMP/loft-admin" ./cmd/loft-admin
           go build -o "$RUNNER_TEMP/oidctest" ./internal/oidctest/cmd/oidctest
           go build -o "$RUNNER_TEMP/levyantest" ./internal/levyantest/cmd/levyantest
       # The pull the first step started: done by now, or joined here, or --
@@ -603,6 +612,7 @@ jobs:
       - name: browser tests
         env:
           E2E_LOFT: ${{ runner.temp }}/loft
+          E2E_LOFT_ADMIN: ${{ runner.temp }}/loft-admin
           E2E_ISSUER: ${{ runner.temp }}/oidctest
           E2E_LEVYAN: ${{ runner.temp }}/levyantest
           E2E_POSTGRES: ${{ matrix.db == 'postgres' && 'postgres://loft:loft@127.0.0.1:5432/loft?sslmode=disable' || '' }}
@@ -610,7 +620,7 @@ jobs:
           docker run --rm --init --ipc=host --network=host \
             --user "$(id -u):$(id -g)" -e HOME=/tmp \
             -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -v "${RUNNER_TEMP}:${RUNNER_TEMP}" -w "${PWD}" \
-            -e CI -e E2E_LOFT -e E2E_ISSUER -e E2E_LEVYAN -e E2E_POSTGRES -e E2E_OPENSEARCH -e E2E_OPENSEARCH_CA \
+            -e CI -e E2E_LOFT -e E2E_LOFT_ADMIN -e E2E_ISSUER -e E2E_LEVYAN -e E2E_POSTGRES -e E2E_OPENSEARCH -e E2E_OPENSEARCH_CA \
             "${PLAYWRIGHT_IMAGE}" npx playwright test
       # What a failure leaves: the report, with each failed test's trace and
       # screenshot, and each server's database and log (test-results/loft-*).

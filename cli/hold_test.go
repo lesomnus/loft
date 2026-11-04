@@ -90,7 +90,7 @@ func TestAMigrationHoldsWhatABuildBeforeLeftOut(t *testing.T) {
 	x.Contains(out, "what is out holds its time: 1 things")
 	again := run(t, cli.NewCmdMigrate(&c))
 	x.NotContains(again, "holds its time", "nothing left to hold")
-	x.NoError(cli.NewCmdTrail(&c).Run(ctx, []string{"rows"}), "every row as the trail says it is")
+	asTheTrailSays(t, rowsChecked(t, c))
 
 	on(t, c, func(s *cmd.Server) {
 		hs, err := s.Ent.Allocation.Query().Where(allocation.Kind("custody"), allocation.ResourceId(pdid.Id(camera).Uuid())).All(ctx)

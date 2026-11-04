@@ -130,7 +130,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			}
 			if pw != "" {
 				if made == "" {
-					return fmt.Errorf("--password: %s is an account already, with a password of its own; `loft holder password` changes it", login)
+					return fmt.Errorf("--password: %s is an account already, with a password of its own; `loft-admin holder password` changes it", login)
 				}
 				if err := s.Identity.SetPassword(ctx, p.Id, pw); err != nil {
 					return fmt.Errorf("roster: %w", err)

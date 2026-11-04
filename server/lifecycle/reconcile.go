@@ -50,7 +50,7 @@ func (e *NobodyError) Error() string {
 //
 // It is for what roster's stream missed: the stream replays nothing (roster's
 // `standing`), so an account erased while this deployment was not listening
-// was never marked and would never leave. `loft identity reconcile` is an
+// was never marked and would never leave. `loft-admin identity reconcile` is an
 // operator asking for it, and the deployment does it itself every
 // `app.accounts.reconcile` ([Lifecycle.Reconciling]).
 //

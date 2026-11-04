@@ -21,8 +21,8 @@ import (
 // that logs, traces or measures reads the providers off it -- so this has to
 // happen before [Build], and a reader has to be able to see that it does.
 // Both servers call it: `loft serve` and the operator's entry point,
-// `loft-admin serve`. So does every operator command that stands the stack up
-// (`loft tenant`, `loft trail`, ...), once, from the root (`cli.observed`).
+// `loft-admin serve`. So does every command of the box that stands the stack
+// up (`loft init`, `loft migrate`), once, from the root (`cli.observed`).
 //
 // # What it costs to leave out
 //

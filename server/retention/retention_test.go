@@ -89,7 +89,7 @@ func (e *env) shortened(keepBefore, accessBefore uint32, at time.Time) {
 	require.NoError(e.t, err)
 }
 
-// contract writes one, the way `loft contract set` does.
+// contract writes one, the way `loft-admin contract set` does.
 func (e *env) contract(name string, purges bool, effective time.Time) *app.TenantContract {
 	e.t.Helper()
 

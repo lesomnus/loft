@@ -364,7 +364,7 @@ func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) 
 // A password is the account's, and the account may be in workspaces this
 // admin has nothing to do with (D27). So somebody else's is changed only when
 // this workspace is the only one their account is in; otherwise it is theirs to
-// change, or the operator's (`loft holder password`).
+// change, or the operator's (`loft-admin holder password`).
 func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordRequest) (*app.PartySetPasswordResponse, error) {
 	people, err := s.deps.here()
 	if err != nil {

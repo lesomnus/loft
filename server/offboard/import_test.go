@@ -510,7 +510,7 @@ func TestAClosedWorkspaceIsRestoredOpen(t *testing.T) {
 
 // TestAMemberIsRestoredWithTheAccountThisRosterHas: a member keeps an account
 // the deployment's roster has, and one from another deployment's -- an
-// identifier nobody here is -- is restored naming none, for `loft identity
+// identifier nobody here is -- is restored naming none, for `loft-admin identity
 // migrate` to give one to.
 func TestAMemberIsRestoredWithTheAccountThisRosterHas(t *testing.T) {
 	a, pub := signed(t)

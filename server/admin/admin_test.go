@@ -37,6 +37,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/loftest"
 	"github.com/lesomnus/loft/server/admin"
 	"github.com/lesomnus/loft/server/operator"
 )
@@ -76,11 +77,11 @@ func open(t *testing.T) *entry {
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 	x.NoError(run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234"))
-	x.NoError(run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--role", "member", "--password", "kim-password"))
 
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
+	loftest.Member(t, s, "acme", "kim", "member", "kim-password")
 	ops, err := admin.Operators(map[string]string{"alice": key})
 	x.NoError(err)
 	g, err := admin.Routes{S: s, C: c, Operators: ops}.Grpc(t.Context())

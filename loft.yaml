@@ -202,7 +202,7 @@ app:
   # removed. `grace` is how long a window a workspace makes shorter waits
   # before it is the shorter one, 30 days unset.
   #
-  # `loft retention plan` says what a pass would take, changing nothing.
+  # `loft-admin retention plan` says what a pass would take, changing nothing.
   #
   # retention:
   #   apply: false
@@ -269,7 +269,7 @@ app:
 # and what a machine did is an operating record with the opposite requirement.
 #
 # With an archive, the database keeps an account of what it holds, and
-# `loft trail verify` checks the two. `checkpoints:` is where every pass leaves
+# `loft-admin trail verify` checks the two. `checkpoints:` is where every pass leaves
 # what the archive held: on a disk that refuses deletion, and signed with a key
 # mounted as a secret -- or given as the PEM document itself, through
 # LOFT_AUDIT_CHECKPOINTS_KEY. An archive is refused without `key:` (payday#115):

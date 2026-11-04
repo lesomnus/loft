@@ -253,7 +253,7 @@ func idUuid(b []byte) uuid.UUID {
 
 // TestTheDeploymentReconcilesByItself: every `app.accounts.reconcile` -- a
 // day, unless told otherwise -- the deployment asks roster about every
-// account with a membership here, as `loft identity reconcile --yes` does: one
+// account with a membership here, as `loft-admin identity reconcile --yes` does: one
 // roster erased while the stream was not heard begins to leave, from now; one
 // leaving here that roster has again stops; and what it marked is in the log.
 // A roster that has nobody at all marks nobody.

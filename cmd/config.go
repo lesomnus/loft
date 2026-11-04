@@ -432,7 +432,7 @@ type AccountsConfig struct {
 	Every time.Duration `yaml:"every"`
 	// Reconcile is how often every account with a membership here is asked
 	// about at roster, and the ones it has nobody by begin to leave: what
-	// `loft identity reconcile --yes` does, done by the deployment, for an
+	// `loft-admin identity reconcile --yes` does, done by the deployment, for an
 	// erasure the stream did not carry (design 9.10). Unset is a day; zero or
 	// negative turns it off.
 	Reconcile *time.Duration `yaml:"reconcile"`
