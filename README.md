@@ -20,7 +20,7 @@
 - **워크스페이스**: 계정 하나가 여러 워크스페이스에. 워크스페이스마다 시간대·통화·노쇼 규칙과 기록 보관 기간, 자기 도메인, 내보내기·닫기·복구
 - **기록**: 무엇을 왜 했는지(작업 기록), 누가 무엇을 바꿨는지(감사 기록), 누가 누구의 개인정보를 보았는지(접속기록)와 그 점검
 - **결제**: 청구 서비스 [levyan](https://github.com/lesomnus/levyan)이 매기고, 결제 화면과 제한·읽기 전용을 Loft가 보입니다
-- **어디서나**: 휴대폰 브라우저(PWA)와 라벨 스캔, 오프라인에서 마지막으로 본 화면, 다른 사람이 바꾼 것이 바로 보이는 화면, 모든 기능을 부르는 터미널(`loft api`)과 비서(`loft mcp`)
+- **어디서나**: 휴대폰 브라우저(PWA)와 라벨 스캔, 오프라인에서 마지막으로 본 화면, 다른 사람이 바꾼 것이 바로 보이는 화면, 모든 기능을 부르는 터미널(`loft`)과 비서(`loft mcp`)
 
 무엇을 누가 할 수 있는지는 [`server/policy/policy.go`](server/policy/policy.go)의 표 하나가 정하고, 표에 없는 것은 거부됩니다.
 
@@ -32,7 +32,7 @@
 - **감사자**: 이력과 감사 기록을 읽고 접속기록을 점검합니다 → [감사자 안내서](docs/guide/auditor.md)
 - **결제 담당**: 결제 계정과 결제수단, 청구서와 크레딧을 맡습니다 → [결제 담당 안내서](docs/guide/payer.md)
 - **배포 운영자**: 서버를 띄우고 올리고, 워크스페이스의 요청을 운영자 진입점(`loft-admin`)에서 처리합니다 → [배포 운영자 안내서](docs/guide/operator.md)
-- **모두**: 터미널(`loft auth login`, `loft api`)과 비서(`loft mcp`) → [터미널과 비서](docs/guide/terminal.md)
+- **모두**: 터미널(`loft auth login`, `loft <엔터티> <작업>`)과 비서(`loft mcp`) → [터미널과 비서](docs/guide/terminal.md)
 
 안내서의 예는 모두 아래의 체험용 워크스페이스를 씁니다. 무엇이 들어 있는지는 [안내서](docs/guide/README.md)에 있습니다.
 
@@ -57,8 +57,8 @@ go run ./cmd/loft serve
 
 ```sh
 go install ./cmd/loft
-loft auth login --url http://localhost:8080          # 나온 주소를 로그인한 브라우저에서 열고 승인
-loft api asset search -o wide '{"q": "노트북"}'
+loft auth login --url http://localhost:8080     # 나온 주소를 로그인한 브라우저에서 열고 승인
+loft asset search -o wide '{"q": "노트북"}'
 ```
 
 설정, UI 개발, 휴대폰에서 써 보기는 [로컬에서 실행하기](docs/dev/running.md)에 있습니다.

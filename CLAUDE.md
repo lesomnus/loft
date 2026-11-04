@@ -348,18 +348,31 @@ of two currencies are never added together.
 
 ## The terminal
 
-Everything is an RPC, and `loft api` is every one of them as a command,
-asked of a running deployment over the address a browser reaches it at
-(`cli/connect.go` speaks Connect to the same transcoder the page does): payday's
-entity tree (`pdcmd`), every other method of an entity's service beside it
-(`loft api asset move`), and `loft api call` by name. A terminal signs in with
-`loft auth login`, which a person signed in at the app approves (`server/clilogin`):
-the terminal makes up its session key and sends only its hash, so the session
-is a browser's session in every respect. These commands read no server
-configuration; their own is `LOFT_CLIENT_CONFIG`. A new feature is an RPC, so it
-is a command too -- and what is HTTP beside the RPCs (`/account`) is only
-what a session is told of itself (`loft auth whoami`, `loft consent`); the
-account's workspaces are RPCs (`loft workspace`, D73).
+Everything is an RPC, and every one of them is a command, `loft <schema
+name> <verb>` (design 9.16, D75): payday's entity tree (`pdcmd`) at the root
+beside the utilities, every other method of an entity's service beside its
+verbs (`loft asset move`), and `loft call` by name. The verb is the RPC's
+name; the only other words are `list`'s `ls`, `tenant`'s `workspace` and `ws`
+and `tenant configure`'s `conf` and `config`, and the rows other commands
+write are hidden and run by name (`cli/tree.go`, whose test holds the words).
+
+Who a command is, is its **connection's**, kept by name in the client's file
+(`LOFT_CLIENT_CONFIG`, `cli/connection.go`). A person's is asked of a running
+deployment over the address a browser reaches it at (`cli/connect.go` speaks
+Connect to the same transcoder the page does), signed in with `loft auth
+login`, which a person signed in at the app approves (`server/clilogin`): the
+terminal makes up its session key and sends only its hash, so the session is a
+browser's session in every respect. An operator's is the entry point's address
+and where their key is (`env:`/`file:`, never the key), asked who it is
+(`OperatorAuthService.Whoami`) before it is kept. A command uses the
+connection `--connection` (or `--key` with `--url`, for the command alone)
+names, else `LOFT_CONNECTION` (or `LOFT_ADMIN_KEY`), else the one `loft auth
+switch` chose; a call of the other kind is told which connection it wants
+(`operator.Own`, `operator.Table`). These commands read no server
+configuration. A new feature is an RPC, so it is a command too -- and what is
+HTTP beside the RPCs (`/account`) is only what a session is told of itself
+(`loft auth whoami`, `loft consent`); the account's workspaces are RPCs
+(`loft tenant mine|create`, D73).
 
 A terminal may sign in narrowed (`loft auth login --allow PATTERN`, D33): the page
 that approves it shows the methods, and the session is narrowed to them --

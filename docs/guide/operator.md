@@ -13,7 +13,7 @@
 - **플래그는 인자보다 앞에 씁니다.** `loft-admin tenant export --reason "…" acme` 이고, `tenant export acme --reason "…"` 는 명령 해석기(xli)가 `flag must come before arguments` 로 거부합니다. 4단계에서 이 명령들을 `loft` 로 옮겨도 같습니다.
 - 명령은 스키마의 이름을 씁니다. `tenant` 는 `workspace`, `ws` 로도 씁니다. 워크스페이스는 주소로 씁니다(`acme` 나 `@acme`).
 - **운영자 명령이 말하는 날짜는 UTC입니다.** `loft` 와 `loft-admin` 이 말하는 날짜와 시각은 셸의 시간대와 상관없이 UTC입니다. `--effective 2027-01-01` 처럼 주는 날짜도 UTC의 그날입니다. 워크스페이스의 사람이 앱에서 읽는 날짜는 그 워크스페이스의 시간대를 따릅니다(loft#144).
-- 운영자 명령은 터미널의 로그인(`LOFT_CLIENT_CONFIG`)을 읽지 않고, 터미널 명령(`loft api` 등)은 서버의 설정을 읽지 않습니다([터미널과 비서](terminal.md)). `loft-admin` 의 명령도 서버의 설정을 읽지 않고, 진입점의 주소와 자기 키(`LOFT_ADMIN_URL`, `LOFT_ADMIN_KEY`)만 읽습니다.
+- 운영자 명령은 터미널의 로그인(`LOFT_CLIENT_CONFIG`)을 읽지 않고, 터미널 명령(`loft asset` 등)은 서버의 설정을 읽지 않습니다([터미널과 비서](terminal.md)). `loft-admin` 의 명령도 서버의 설정을 읽지 않고, 진입점의 주소와 자기 키(`LOFT_ADMIN_URL`, `LOFT_ADMIN_KEY`)만 읽습니다.
 - 이 문서의 예는 체험용 워크스페이스(`/@loft`, [체험용 워크스페이스](README.md#따라-하기-체험용-워크스페이스))를 씁니다. 컨테이너 안이면 `loft --config /etc/loft/loft.yaml init …` 처럼 설정 파일을 줍니다(`deploy/compose`, `deploy/k8s` 의 예).
 
 ## 처음 띄우기

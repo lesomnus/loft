@@ -29,9 +29,9 @@
 - **재고 부족**: 부족 기준 아래로 내려간 재고 품목입니다.
 
 ```sh
-loft api reservation ls -o wide '{"filters": [{"status": "requested"}]}'   # 승인 대기
-loft api custody outstanding '{"overdue": true}'                           # 연체된 것
-loft api stock ls -o wide
+loft reservation ls -o wide '{"filters": [{"status": "requested"}]}'       # 승인 대기
+loft custody outstanding '{"overdue": true}'                               # 연체된 것
+loft stock ls -o wide
 ```
 
 ### 자산 등록
@@ -41,11 +41,11 @@ loft api stock ls -o wide
 3. 여러 개를 한 번에 들일 때는 **대량 등록**을 씁니다(아래).
 
 ```sh
-loft api asset search -o wide '{"q": "창고"}'          # 창고의 ID
-loft api asset add '{"name": "회의실 C 모니터", "tag": "MN-101", "type_name": "모니터", "model_name": "U2723QE", "maker": "Dell", "to": {"id": "<창고 ID>"}, "reason": "11월 입고"}'
-loft api item-model search -o wide '{"q": "U2723QE"}'   # 모델
-loft api item-model add '{"name": "U2724D", "maker": "Dell", "type": {"id": "<모니터 유형의 ID>"}}'
-loft api asset-type ls -o wide                         # 유형의 ID
+loft asset search -o wide '{"q": "창고"}'              # 창고의 ID
+loft asset add '{"name": "회의실 C 모니터", "tag": "MN-101", "type_name": "모니터", "model_name": "U2723QE", "maker": "Dell", "to": {"id": "<창고 ID>"}, "reason": "11월 입고"}'
+loft item-model search -o wide '{"q": "U2723QE"}'       # 모델
+loft item-model add '{"name": "U2724D", "maker": "Dell", "type": {"id": "<모니터 유형의 ID>"}}'
+loft asset-type ls -o wide                             # 유형의 ID
 ```
 
 `type_name` 과 `model_name` 은 이름으로 찾습니다. 없는 모델은 새로 만들고, 없는 유형은 관리자만 만듭니다.
@@ -67,9 +67,9 @@ loft api asset-type ls -o wide                         # 유형의 ID
 - 등록은 작업 하나입니다. 이력에 "대량 등록: N개"(누가, 무슨 사유로)가 남고, 자산마다 그 아래 "등록"이 남습니다. 한 번에 5,000행까지 받습니다.
 
 ```sh
-loft register --form 양식.csv                         # 빈 양식
-loft register 입고.csv                                 # 무엇이 등록될지와 문제를 줄마다 (아무것도 바꾸지 않음)
-loft register --yes --reason "11월 입고" 입고.csv       # 실제로 등록
+loft asset form 양식.csv                                  # 빈 양식
+loft asset add-many 입고.csv                              # 무엇이 등록될지와 문제를 줄마다 (아무것도 바꾸지 않음)
+loft asset add-many --yes --reason "11월 입고" 입고.csv    # 실제로 등록
 ```
 
 ### 라벨
@@ -81,10 +81,10 @@ loft register --yes --reason "11월 입고" 입고.csv       # 실제로 등록
 - 상하거나 잃어버린 라벨은 자산 화면의 라벨에서 해제하고 폐기합니다. 폐기한 라벨을 찍으면 "폐기된 라벨"로 보입니다.
 
 ```sh
-loft api label print '{"count": 10}'                         # 빈 라벨 10장: 코드와 주소
-loft api label resolve '{"code": "7K3M-Q9TX"}'               # 라벨의 ID와 붙은 자산
-loft api label bind <라벨 ID> '{"asset": {"id": "<자산 ID>"}}'
-loft api label unbind <라벨 ID> '{"void": true}'             # 떼고 폐기
+loft label print '{"count": 10}'                             # 빈 라벨 10장: 코드와 주소
+loft label resolve '{"code": "7K3M-Q9TX"}'                   # 라벨의 ID와 붙은 자산
+loft label bind <라벨 ID> '{"asset": {"id": "<자산 ID>"}}'
+loft label unbind <라벨 ID> '{"void": true}'                 # 떼고 폐기
 ```
 
 ### 옮기고 고치기
@@ -100,14 +100,14 @@ loft api label unbind <라벨 ID> '{"void": true}'             # 떼고 폐기
 - **삭제**: 잘못 등록한 것을 지웁니다. 그것을 예약한 예약에는 쓸 수 없는 것으로 보이고 예약한 사람에게 알림이 갑니다.
 
 ```sh
-loft api asset move <자산 ID> '{"to": {"id": "<회의실 A의 ID>"}, "reason": "회의실 설치"}'
-loft api asset move <자산 ID> '{"to": {"id": "<공간 ID>"}, "at": "2026-10-20T09:00:00+09:00", "reason": "지난주에 옮긴 것"}'
-loft api asset set-attributes <자산 ID> '{"set": {"condition": "damaged"}, "reason": "화면 긁힘"}'
-loft api asset set-attributes <자산 ID> '{"set": {"status": "disposed"}, "leave": [{"id": "<키트 ID>"}], "reason": "수명 다함"}'   # 폐기하고 키트에서도 빼기
-loft api asset assign <자산 ID> '{"role": "owner", "party": {"id": "<개발팀 ID>"}, "reason": "개발팀 예산"}'   # owner: 소유, manager: 관리 담당
-loft api asset timeline <자산 ID>                                 # 줄마다 row_id
-loft api asset correct <자산 ID> '{"row_id": "<이력 줄의 row_id>", "retract": true, "reason": "잘못 기록함"}'
-loft api asset erase <자산 ID>                                    # 잘못 등록한 것
+loft asset move <자산 ID> '{"to": {"id": "<회의실 A의 ID>"}, "reason": "회의실 설치"}'
+loft asset move <자산 ID> '{"to": {"id": "<공간 ID>"}, "at": "2026-10-20T09:00:00+09:00", "reason": "지난주에 옮긴 것"}'
+loft asset set-attributes <자산 ID> '{"set": {"condition": "damaged"}, "reason": "화면 긁힘"}'
+loft asset set-attributes <자산 ID> '{"set": {"status": "disposed"}, "leave": [{"id": "<키트 ID>"}], "reason": "수명 다함"}'       # 폐기하고 키트에서도 빼기
+loft asset assign <자산 ID> '{"role": "owner", "party": {"id": "<개발팀 ID>"}, "reason": "개발팀 예산"}'       # owner: 소유, manager: 관리 담당
+loft asset timeline <자산 ID>                                     # 줄마다 row_id
+loft asset correct <자산 ID> '{"row_id": "<이력 줄의 row_id>", "retract": true, "reason": "잘못 기록함"}'
+loft asset erase <자산 ID>                                        # 잘못 등록한 것
 ```
 
 ### 건네고 돌려받기
@@ -119,14 +119,14 @@ loft api asset erase <자산 ID>                                    # 잘못 등
 5. 대여 기한을 늘리려면 **기한 연장**입니다. 기한이 지나면 가진 사람과 관리하는 사람에게 연체 알림이 가고, 연체된 때는 자산의 이력, 수령한 예약의 이력, 작업 기록에도 남습니다.
 
 ```sh
-loft api party search -o wide '{"q": "이하은"}'
-loft api asset search -o wide '{"q": "PH-005"}'
-loft api custody add '{"party": {"id": "<이하은 ID>"}, "kind": "loan", "due_at": "2026-11-20T18:00:00+09:00", "desc": "고객사 출장", "lines": [{"asset": {"id": "<PH-005의 ID>"}}]}'
-loft api custody ls -o wide '{"filters": [{"party": {"id": "<이하은 ID>"}, "status": "open"}]}'
-loft api custody extend <지급·대여 ID> '{"due_at": "2026-11-27T18:00:00+09:00"}'
-loft api custody return <지급·대여 ID>                              # 모두 돌려받기
-loft api custody-line ls -o wide '{"filters": [{"custody": {"id": "<지급·대여 ID>"}}]}'
-loft api custody return <지급·대여 ID> '{"lines": [{"line": {"id": "<줄 ID>"}}]}'   # 일부만
+loft party search -o wide '{"q": "이하은"}'
+loft asset search -o wide '{"q": "PH-005"}'
+loft custody add '{"party": {"id": "<이하은 ID>"}, "kind": "loan", "due_at": "2026-11-20T18:00:00+09:00", "desc": "고객사 출장", "lines": [{"asset": {"id": "<PH-005의 ID>"}}]}'
+loft custody ls -o wide '{"filters": [{"party": {"id": "<이하은 ID>"}, "status": "open"}]}'
+loft custody extend <지급·대여 ID> '{"due_at": "2026-11-27T18:00:00+09:00"}'
+loft custody return <지급·대여 ID>                                  # 모두 돌려받기
+loft custody-line ls -o wide '{"filters": [{"custody": {"id": "<지급·대여 ID>"}}]}'
+loft custody return <지급·대여 ID> '{"lines": [{"line": {"id": "<줄 ID>"}}]}'       # 일부만
 ```
 
 `kind` 는 `issue`(지급)나 `loan`(대여)입니다.
@@ -141,12 +141,12 @@ loft api custody return <지급·대여 ID> '{"lines": [{"line": {"id": "<줄 ID
 3. 다른 사람의 예약을 대신 확정·취소·체크인할 수도 있고, 모든 예약의 이력을 읽습니다(**전체 목록**).
 
 ```sh
-loft api reservation ls -o wide '{"filters": [{"status": "requested"}]}'
-loft api reservation approve <예약 ID> '{"reason": "분기 행사 일정 확인"}'
-loft api reservation reject <예약 ID> '{"reason": "그날은 전사 행사가 있습니다"}'
-loft api reservation pickup <예약 ID>                     # 풀 예약이면 건넬 수 있는 구성원
-loft api custody add '{"party": {"id": "<예약한 사람의 ID>"}, "kind": "loan", "due_at": "<예약이 끝나는 시각>", "reservation_id": "<예약 ID>", "lines": [{"asset": {"id": "<CM-001의 ID>"}}, {"asset": {"id": "<LN-001의 ID>"}}, {"asset": {"id": "<TR-001의 ID>"}}]}'   # 수령 처리
-loft api reservation timeline <예약 ID>
+loft reservation ls -o wide '{"filters": [{"status": "requested"}]}'
+loft reservation approve <예약 ID> '{"reason": "분기 행사 일정 확인"}'
+loft reservation reject <예약 ID> '{"reason": "그날은 전사 행사가 있습니다"}'
+loft reservation pickup <예약 ID>                         # 풀 예약이면 건넬 수 있는 구성원
+loft custody add '{"party": {"id": "<예약한 사람의 ID>"}, "kind": "loan", "due_at": "<예약이 끝나는 시각>", "reservation_id": "<예약 ID>", "lines": [{"asset": {"id": "<CM-001의 ID>"}}, {"asset": {"id": "<LN-001의 ID>"}}, {"asset": {"id": "<TR-001의 ID>"}}]}'       # 수령 처리
+loft reservation timeline <예약 ID>
 ```
 
 ### 키트와 풀
@@ -156,8 +156,8 @@ loft api reservation timeline <예약 ID>
 - 구성품과 소속은 자산 화면의 **키트·그룹 연결**로 넣습니다. 키트나 풀을 예약할 수 있게 하는 것은 관리자의 일입니다(설정 › 예약 자원).
 
 ```sh
-loft api asset relate <자산 ID> '{"target": {"id": "<키트 ID>"}, "kind": "member_of", "required": true, "reason": "촬영 키트 구성"}'   # 필수 구성품
-loft api asset relate <자산 ID> '{"target": {"id": "<키트 ID>"}, "kind": "member_of", "required": false}'                      # 선택 구성품
+loft asset relate <자산 ID> '{"target": {"id": "<키트 ID>"}, "kind": "member_of", "required": true, "reason": "촬영 키트 구성"}'       # 필수 구성품
+loft asset relate <자산 ID> '{"target": {"id": "<키트 ID>"}, "kind": "member_of", "required": false}'                          # 선택 구성품
 ```
 
 ### 실사
@@ -169,14 +169,14 @@ loft api asset relate <자산 ID> '{"target": {"id": "<키트 ID>"}, "kind": "me
 5. **마감**합니다. 결과는 리포트의 "실사 결과"에 남습니다.
 
 ```sh
-loft api asset search -o wide '{"q": "서버실"}'
-loft api inventory-count add '{"name": "11월 서버실 실사", "scope": {"id": "<서버실 ID>"}}'
-loft api inventory-count add '{"name": "개발팀 셀프 실사", "scope": {"id": "<개발팀 사무실 ID>"}, "self_service": true}'
-loft api inventory-count scan <실사 ID> '{"code": "RK-001"}'
-loft api inventory-count reconcile <실사 ID>
-loft api count-finding ls -o wide '{"filters": [{"count": {"id": "<실사 ID>"}, "kind": "missing"}]}'
-loft api inventory-count resolve <결과 ID> '{"resolution": "lost", "reason": "찾지 못함"}'   # moved, lost, ignored
-loft api inventory-count close <실사 ID>
+loft asset search -o wide '{"q": "서버실"}'
+loft inventory-count add '{"name": "11월 서버실 실사", "scope": {"id": "<서버실 ID>"}}'
+loft inventory-count add '{"name": "개발팀 셀프 실사", "scope": {"id": "<개발팀 사무실 ID>"}, "self_service": true}'
+loft inventory-count scan <실사 ID> '{"code": "RK-001"}'
+loft inventory-count reconcile <실사 ID>
+loft count-finding ls -o wide '{"filters": [{"count": {"id": "<실사 ID>"}, "kind": "missing"}]}'
+loft inventory-count resolve <결과 ID> '{"resolution": "lost", "reason": "찾지 못함"}'       # moved, lost, ignored
+loft inventory-count close <실사 ID>
 ```
 
 ### 재고
@@ -188,13 +188,13 @@ loft api inventory-count close <실사 ID>
 - 부족 기준 아래로 내려가면 대시보드의 재고 부족에 나오고 알림이 갑니다.
 
 ```sh
-loft api stock ls -o wide
-loft api stock add '{"model": {"id": "<M650 모델 ID>"}, "space": {"id": "<개발팀 사무실 ID>"}, "quantity": 2, "threshold": 1, "unit": "개"}'
-loft api stock receive <재고 ID> '{"quantity": 24, "reason": "11월 입고"}'
-loft api stock adjust <재고 ID> '{"quantity": -2, "reason": "실사에서 2개 모자람"}'
-loft api stock transfer <재고 ID> '{"to": {"id": "<개발팀 사무실 ID>"}, "quantity": 2, "reason": "개발팀 보충"}'
-loft api stock convert <재고 ID> '{"quantity": 1, "tag_prefix": "MS"}'     # MS-001부터 태그를 붙여 자산으로
-loft api stock-movement ls -o wide '{"filters": [{"stock": {"id": "<재고 ID>"}}]}'
+loft stock ls -o wide
+loft stock add '{"model": {"id": "<M650 모델 ID>"}, "space": {"id": "<개발팀 사무실 ID>"}, "quantity": 2, "threshold": 1, "unit": "개"}'
+loft stock receive <재고 ID> '{"quantity": 24, "reason": "11월 입고"}'
+loft stock adjust <재고 ID> '{"quantity": -2, "reason": "실사에서 2개 모자람"}'
+loft stock transfer <재고 ID> '{"to": {"id": "<개발팀 사무실 ID>"}, "quantity": 2, "reason": "개발팀 보충"}'
+loft stock convert <재고 ID> '{"quantity": 1, "tag_prefix": "MS"}'         # MS-001부터 태그를 붙여 자산으로
+loft stock-movement ls -o wide '{"filters": [{"stock": {"id": "<재고 ID>"}}]}'
 ```
 
 ### 구매
@@ -203,9 +203,9 @@ loft api stock-movement ls -o wide '{"filters": [{"stock": {"id": "<재고 ID>"}
 2. 물건이 오면 **입고 처리**로 받을 공간을 정합니다. 자산 줄은 수량만큼 자산이 생기고, 재고 줄은 그 공간의 재고에 더해집니다.
 
 ```sh
-loft api purchase ls -o wide
-loft api purchase add '{"name": "마우스 보충", "reference": "PO-2026-0520", "lines": [{"model": {"id": "<M650 모델 ID>"}, "quantity": 10, "unit_cost": 59000, "receive_as": "stock"}]}'
-loft api purchase receive <구매 ID> '{"into": {"id": "<창고 ID>"}}'     # 체험용의 "모니터 추가 구매"를 받아 보기
+loft purchase ls -o wide
+loft purchase add '{"name": "마우스 보충", "reference": "PO-2026-0520", "lines": [{"model": {"id": "<M650 모델 ID>"}, "quantity": 10, "unit_cost": 59000, "receive_as": "stock"}]}'
+loft purchase receive <구매 ID> '{"into": {"id": "<창고 ID>"}}'         # 체험용의 "모니터 추가 구매"를 받아 보기
 ```
 
 ### 작업과 수리
@@ -215,11 +215,11 @@ loft api purchase receive <구매 ID> '{"into": {"id": "<창고 ID>"}}'     # �
 - 고치면 **완료**(컨디션도 함께 적음), 하지 않기로 하면 **취소**입니다.
 
 ```sh
-loft api work-order ls -o wide
-loft api work-order add '{"name": "무선 AP 펌웨어 업데이트", "asset": {"id": "<AP-001의 ID>"}, "kind": "maintenance", "begins_at": "2026-11-12T19:00:00+09:00", "ends_at": "2026-11-12T20:00:00+09:00", "blocking": true, "cost": 50000}'
-loft api work-order update <작업 ID> '{"status": "in_progress"}'
-loft api work-order complete <작업 ID> '{"reason": "배터리 교체", "condition": "good"}'
-loft api work-order cancel <작업 ID> '{"reason": "다음 달로 미룸"}'
+loft work-order ls -o wide
+loft work-order add '{"name": "무선 AP 펌웨어 업데이트", "asset": {"id": "<AP-001의 ID>"}, "kind": "maintenance", "begins_at": "2026-11-12T19:00:00+09:00", "ends_at": "2026-11-12T20:00:00+09:00", "blocking": true, "cost": 50000}'
+loft work-order update <작업 ID> '{"status": "in_progress"}'
+loft work-order complete <작업 ID> '{"reason": "배터리 교체", "condition": "good"}'
+loft work-order cancel <작업 ID> '{"reason": "다음 달로 미룸"}'
 ```
 
 `kind` 는 `repair`(수리), `inspection`(점검), `maintenance`(정비), `rma` 입니다. 반복은 `"every_days": 90` 입니다.
@@ -239,14 +239,14 @@ loft api work-order cancel <작업 ID> '{"reason": "다음 달로 미룸"}'
 대여 현황의 CSV는 사람의 이름이 담기므로 내려받는 이유를 묻고, 그 이유는 접속기록에 남습니다. 자산 대장의 CSV(**자산 › CSV로 내보내기**)도 그렇습니다. 사용자는 이름으로, 같은 이름이 있으면 팀이나 사번을 붙여서 쓰고, 연락처는 쓰지 않습니다. 다른 리포트와 대량 등록 양식은 아무의 정보도 담지 않아 묻지 않습니다.
 
 ```sh
-loft api asset census '{"by": "type"}'                 # 자산 현황 (by: type, location)
-loft api custody outstanding                           # 대여 현황
-loft api bookable usage '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'   # 예약 이용률 (기본 지난 30일)
-loft api inventory-count results                       # 실사 결과 (기본 지난 1년)
-loft api stock flow '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'      # 재고 소모 (기본 지난 30일)
-loft api --reason "11월 대여 점검" custody export-outstanding -o 'template={{.data}}' | base64 -d > 대여.csv
-loft api --reason "11월 자산 실사" asset export -o 'template={{.data}}' | base64 -d > 자산.csv
-loft api asset export-census -o 'template={{.data}}' | base64 -d > 자산현황.csv
+loft asset census '{"by": "type"}'                     # 자산 현황 (by: type, location)
+loft custody outstanding                               # 대여 현황
+loft bookable usage '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'       # 예약 이용률 (기본 지난 30일)
+loft inventory-count results                           # 실사 결과 (기본 지난 1년)
+loft stock flow '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'          # 재고 소모 (기본 지난 30일)
+loft --reason "11월 대여 점검" custody export-outstanding -o 'template={{.data}}' | base64 -d > 대여.csv
+loft --reason "11월 자산 실사" asset export -o 'template={{.data}}' | base64 -d > 자산.csv
+loft asset export-census -o 'template={{.data}}' | base64 -d > 자산현황.csv
 ```
 
 비서(`loft mcp`)에게 맡기면 미리보기와 적용 두 단계로 같은 일을 합니다([터미널과 비서](terminal.md#비서에게-맡기기-mcp)).
