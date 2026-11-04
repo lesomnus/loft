@@ -76,6 +76,15 @@ Field numbers are read by name across every entity:
 - **8–12 and 16+** are yours. An entity that does not want 4–7 **leaves those
   numbers empty** rather than spending them on something else.
 
+Renaming one (D72, `TenantDomain` → `Domain`) keeps its domain number, and
+its events keep the messages they were written as -- `past.lock` holds them.
+What is stored under its name is moved, not left: its table by `loft migrate`
+before anything looks for it (`offboard.Renamed`, `cli/tables.go`), and an
+export from before is read under the old name. payday's
+`(payday.entity).formerly` says the same in the schema once loft links the
+payday that has it, and `pd.TableRenames` and `rename.Tables` replace those
+two then.
+
 ## Writing a layer
 
 A layer embeds `Overlay` — and must also write `WithDriver`, which nothing

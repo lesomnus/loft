@@ -84,7 +84,7 @@ pdid 도메인 번호는 한 번 정하면 바꾸거나 재사용하지 않는�
 | `Custody` | 21 | 1 | soft | ✓ | Add(완성: 지급), Get, List, Watch |
 | `CustodyLine` | 22 | 1 | hard | | Get, List |
 | `SpaceProfile` | 23 | 1 | hard | | Get + `Update` |
-| `TenantDomain` | 24 | 1 | soft | | Add, Get, List + `Verify`, `Activate`, `Retire` |
+| `Domain` (전 `TenantDomain`, D72) | 24 | 1 | soft | | Add, Get, List + `Verify`, `Activate`, `Retire` |
 
 - "외부에 여는 생성 RPC"에 없는 생성 메서드는 `seal`이 닫는다. "(완성)"은 도메인 레이어가 생성 동사를 완성한 것이고, 그 밖의 상태 변경은 새 도메인 RPC다(design 6장·9.8절).
 - 테넌트 행을 가리키는 엣지는 불변으로 두고 `agrees`에 선언한다. 바뀌는 참조(`Asset.parent`, `custodian`, `type`, `model`, `Party.parent`, `Party.account`)에는 pg-extra에 테넌트 일치 트리거를 둔다.
@@ -156,7 +156,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 ### M3 — 웹 UI·QR·가져오기 (약 3~4주)
 
 - React PWA: 자산 목록·상세·타임라인·시점 슬라이더·Diff, 공간 트리, 검색(`Search` RPC, 지금은 OpenSearch: D31).
-- TenantDomain(design 9.9절):
+- Domain(전 TenantDomain, design 9.9절):
   - 자체 도메인과 Loft 기본 하위 도메인 중 선택.
   - 확인용 TXT 토큰 발급과, spin 루프의 DNS 확인.
   - 활성화하면 이전 도메인은 `LEGACY`가 되어 계속 해석된다.
