@@ -135,7 +135,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
   3. **SSO**(D28): 앱 호스트의 로그인 화면(Google·Microsoft·GitHub), roster issuer의 relying party(`/sso/login`, `/sso/callback`, `/sso/logout`), SaaS에서 비밀번호 로그인 끄기(`auth.sso_only`). roster에 GitHub 연결과 Microsoft의 모든 계정(`common`) 로그인이 필요하다 — roster#101·#102(머지), 버튼이 고른 연결로 바로 가기는 roster#103, Loft는 loft#12(서버)·#13(화면).
   4. **초대**(D30): 초대 권한이 있는 역할(소유자·관리자)이 이메일과 자기 역할까지의 역할로 초대하고, 받은 사람이 로그인해 초대함에서 수락·거절한다. 초대장은 roster가 확인한 주소의 계정 것이고, 확인되지 않은 계정은 메일의 1회용 링크로 받는다. 받는 쪽 호출은 계정으로 처리한다. 초대는 roster가 아니라 Loft에 둔다. 메일은 SMTP 설정 — loft#14(서버)·#15(화면).
   5. **생명주기**: `SyncService/Watch`를 따라가 roster의 중지·모든 곳에서 로그아웃은 세션 종료로, 계정의 탈퇴는 그 계정이 속한 모든 워크스페이스에서의 가명화(Party·trail)로 이어 간다. 탈퇴는 roster의 유예만큼 '떠나는 중'으로 기다렸다가 roster에 다시 묻고 한다. 마지막 소유자가 떠나면 남은 사람에게 넘긴다 — loft#16(스트림·세션·떠나는 중), loft#17(유예 뒤 탈퇴, `loft identity depart`·`reconcile`), roster#104(스트림이 처음 듣는 사람의 삭제도 보낸다, 머지). roster가 디렉터리를 닫으면 그 계정들의 세션이 끝나고(roster#105), 계정 삭제는 roster의 계정 페이지에서 한다(roster#106, `auth.roster.account_url`로 링크). `reconcile`은 서버가 하루에 한 번 스스로도 한다(2026-10-12 결정, `app.accounts.reconcile`) — loft#25.
-- **API와 터미널**(2026-10-12 결정): 모든 기능을 API로 열고 터미널에서도 쓴다. `loft login`(브라우저에서 승인하는 터미널 로그인)과 `loft api`(모든 RPC를 명령으로, 브라우저와 같은 주소로).
+- **API와 터미널**(2026-10-12 결정): 모든 기능을 API로 열고 터미널에서도 쓴다. `loft auth login`(브라우저에서 승인하는 터미널 로그인)과 `loft <스키마 이름> <동사>`(모든 RPC를 명령으로, 브라우저와 같은 주소로. 이름은 D75에서 지금의 것이 됐다).
 - 워크스페이스 닫기(닫기·복구·파기 sweep, D29)와 alias(무작위 7자, 사용자는 못 바꾸고 운영자가 바꿈, 예약어, 보류) — 완료(2026-10-12).
 - 약관·개인정보 처리방침 동의(2026-10-12 결정 9) — 계정마다 문서·버전·시각을 기록하고, 동의 전에는 모든 호출을 거부하며, 개인 워크스페이스는 동의 뒤에 만든다(`app.consent`, `loft consent`). 기록은 roster의 동의 원장에 두고 Loft는 묻기만 한다(D37, 2026-10-22). 보존 기간은 roster의 `consent.keep`이다.
 - 라벨의 전역 코드(D28) — 완료(2026-10-12): Crockford base32 8자를 서비스 주소(`/l/<코드>`)로 인쇄하고, 다른 워크스페이스의 라벨은 계정 조회(`GET /account/labels/{code}`, `loft scan`)로 그 워크스페이스에서 연다. 테넌트 도메인(D23)은 `app.labels.tenant_domains`를 켤 때만 쓴다.
@@ -269,9 +269,9 @@ MVP 이후에 파일럿 피드백으로 순서를 다시 정한다.
 정한 것: 인프라는 self-host(design D21), QR 라벨 도메인은 테넌트마다 설정(D23), 첨부는 로컬 파일시스템으로 시작(D25). 신원(design 9.10절)에서 네 가지를 2026-10-11에 정했다.
 
 - **역할의 출처**: Loft의 `Holder.role`과 정책 표로 둔다. roster의 역할을 `HolderService/Reaches`로 읽는 것은 SCIM 그룹으로 권한을 주는 고객이 생길 때 다시 본다.
-- **테넌트를 만드는 사람과 탈퇴 순서**: 외부 roster에서는 roster 운영자가 만든다(`roster tenant add`, `roster app install --tenant <alias> loft`). 셀프 가입은 두지 않는다. 그 테넌트의 첫 사람이 처음 로그인할 때 Loft에 테넌트가 생기고 그 사람이 소유자가 된다. 탈퇴는 Loft 내보내기 → Loft 전체 삭제 → roster의 테넌트 정리 순서이고, 마지막은 roster 운영자의 일이다. 내장 roster에서는 `loft-admin tenant purge`가 그 테넌트의 사람을 roster에서도 먼저 파기한다(roster에 테넌트를 통째로 지우는 기능이 아직 없어 테넌트 행은 남는다).
+- **테넌트를 만드는 사람과 탈퇴 순서**: 외부 roster에서는 roster 운영자가 만든다(`roster tenant add`, `roster app install --tenant <alias> loft`). 셀프 가입은 두지 않는다. 그 테넌트의 첫 사람이 처음 로그인할 때 Loft에 테넌트가 생기고 그 사람이 소유자가 된다. 탈퇴는 Loft 내보내기 → Loft 전체 삭제 → roster의 테넌트 정리 순서이고, 마지막은 roster 운영자의 일이다. 내장 roster에서는 `loft tenant purge`가 그 테넌트의 사람을 roster에서도 먼저 파기한다(roster에 테넌트를 통째로 지우는 기능이 아직 없어 테넌트 행은 남는다).
 - **사람 삭제의 방향**: 사람을 지우는 것은 roster의 일이다. Loft의 '개인정보 삭제'는 Loft 쪽(Party, Holder, trail)만 지운다. 내장 roster는 Loft만 쓰므로 거기서는 roster의 사람도 파기한다.
-- **옮길 기존 데이터**: 있으면 `loft-admin identity migrate`로 같은 ID로 옮기고, 비밀번호는 새로 발급해 한 번 보여 준다.
+- **옮길 기존 데이터**: 있으면 `loft identity migrate`로 같은 ID로 옮기고, 비밀번호는 새로 발급해 한 번 보여 준다.
 
 같은 날 제품군을 나누면서(design 1.3절) SaaS에 대해 더 정했다. 위의 둘째 항목(roster 운영자가 테넌트를 만들고 셀프 가입은 없다)은 SaaS에서 이것으로 바뀐다.
 
