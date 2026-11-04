@@ -152,12 +152,16 @@ So the past, the trail and the access record name them while the domain
 decides as the deployment. A hand-written proto cannot import the generated `*_svc.g.proto`,
 so the operator's requests name a workspace with `OperatorTenantRef`.
 
-Everything an operator does is asked of it, by `loft-admin`'s commands. The box
-keeps `init`, `migrate`, `serve`, `config env` and `version` -- the
-deployment's own life, run where there is no server to ask -- and nothing
-else: a new thing an operator does is an RPC at the entry point, a row of the
-table and a command of `loft-admin`, never a command of `loft` that opens the
-database, which would be a second door that names no operator. A long one is
+Everything an operator does is asked of it, by `loft` on an operator's
+connection (design 9.16, D75): the commands a person runs, at their schema
+paths, and the operator's own beside them, which say `(operator)` in the
+help (`cli/operator.go`, `cli/tenant.go`, `cli/trail.go`, ...). `loft-admin`
+serves the entry point and asks it nothing. The box keeps `init`, `migrate`,
+`serve`, `config env` and `version` -- the deployment's own life, run where
+there is no server to ask -- and nothing else: a new thing an operator does
+is an RPC at the entry point, a row of the table and a command of `loft` that
+asks it, never a command of `loft` that opens the database, which would be a
+second door that names no operator. A long one is
 a server stream that says it is still at it and stops with its call
 (`admin.working`); a file goes up or down as bytes in the call, and what a
 file is checked against -- a key the operator holds -- stays with the CLI.
@@ -237,10 +241,10 @@ said while Loft was not listening, so whatever acts on a mark asks roster
 first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, an
 account roster still has nobody by leaves every workspace it is in
 (`domain.Deps.Depart`: pseudonymized as 개인정보 삭제 is, and a last owner's
-workspace handed on), and one roster has again stops leaving. `loft-admin identity
+workspace handed on), and one roster has again stops leaving. `loft identity
 depart` does it now for one account, and `Lifecycle.Reconcile` finds what the
 stream missed -- it replays nothing -- every `app.accounts.reconcile` by
-itself, and now with `loft-admin identity reconcile`. The role Loft is installed with carries every method in
+itself, and now with `loft identity reconcile`. The role Loft is installed with carries every method in
 `identity.AgentMethods`; installing again leaves an existing role as it is, so
 an older install is widened with `roster role patch` (`docs/dev/identity.md`).
 
@@ -286,11 +290,11 @@ for its administrators. An answer is written through `Deps.Base` as the
 deployment's work in that workspace. Mail is `app.mail`, SMTP, and logged when
 it names no server.
 
-Roles stay Loft's. On the embedded roster the people screen and `loft-admin holder
+Roles stay Loft's. On the embedded roster the people screen and `loft holder
 add|password` make accounts and set passwords there; on an external one they
 are refused, and are done at roster. Ending a membership (deactivate,
 pseudonymize) never touches the account. A deployment whose holders name no
-account runs `loft-admin identity migrate` once. `auth.Plain` is not wired; tests
+account runs `loft identity migrate` once. `auth.Plain` is not wired; tests
 mint a session with `Server.Sessions.Mint` and send its cookie (plus
 `loft-workspace` when the account has more than one membership), and set
 `c.Auth.Roster.Db` to a `pdtest.DB` of its own -- the default is a file.
@@ -298,7 +302,7 @@ mint a session with `Server.Sessions.Mint` and send its cookie (plus
 ## A workspace's end
 
 A workspace is closed by its owner (`TenantService.Close`, typing its name) or
-an operator (`loft-admin tenant close`), or by the deployment when an account
+an operator (`loft tenant close`), or by the deployment when an account
 leaving left nobody in it, and closing destroys nothing: `cmd.Resolver` refuses
 every call into a closed workspace but its owner's `Get` and `Restore`, and the
 owner can take its data out (`TenantService.Export`). Once
@@ -308,16 +312,16 @@ destroys it and holds its address (`AliasHold`, whose reason says how it
 went). Destroying retires it unless the contract in force then says
 `purge_floors` (payday#115): what the deployment's floors (`audit.min`,
 `audit.by.<kind>.min`) are on stays in the trail until each has passed, and
-the rest goes now; a purge takes that too. `loft-admin tenant retire|purge` are the
+the rest goes now; a purge takes that too. `loft tenant retire|purge` are the
 same destruction by an operator's hand (`closing.Destroy`), and a deployment
 that bills measures the workspace before either takes anything, as well as
 that can be done (Billing, below). With floors and no
 archive a retirement is refused before anything is taken
 (`offboard.ErrNoArchive`), and the sweep leaves the workspace closed. A
 retired workspace imported back under its identifiers is first taken back
-from the trail (`Policy.Return`, in `loft-admin tenant import`), or the trail would
+from the trail (`Policy.Return`, in `loft tenant import`), or the trail would
 take what it writes. Addresses are made up (`tenancy.Aliases`) and nobody but
-an operator moves one (`loft-admin tenant alias`); the domain layer refuses an alias
+an operator moves one (`loft tenant move`); the domain layer refuses an alias
 in `TenantService.Patch`. A deployment that bills tells levyan each step --
 closed, restored, destroyed (Billing, below) -- so a new way to close or
 destroy a workspace goes through `Tx.closeWorkspace`, `restoreWorkspace` or
@@ -440,7 +444,7 @@ key is said nowhere. Tests bill to `internal/levyantest`.
 Whatever destroys a workspace measures it first, as well as that can be done
 and no more (Claude's rule, in place of the first one, that a workspace not
 measured was not destroyed): a destruction is the law's and waits for no
-billing service. `closing.Destroy`, which the sweep and `loft-admin tenant
+billing service. `closing.Destroy`, which the sweep and `loft tenant
 retire|purge` both go through, reads its meters (`Closing.Meters`) after the
 holds are asked and before anything is taken, as the workspace's final
 reading. One that cannot be made or handed over is a warning naming the
@@ -472,7 +476,7 @@ nothing bills) and refused `FailedPrecondition` with an
 stage of two (levyan#1's question 3, answered 2026-11-01: after the grace,
 the day's work goes on and nothing grows); what growing is, that table, is
 Claude's. A method gRPC does not name -- an operator's command, a sweep -- is
-not refused: `loft-admin holder add` included, which is the operator's door and not
+not refused: `loft holder add` included, which is the operator's door and not
 a workspace's. A new RPC that adds to a meter goes in the table, or it is a
 way around the restriction.
 
@@ -540,7 +544,7 @@ Who pays for a workspace is levyan's, and what it cannot know Loft tells it
 `Leave` (an account no longer in it), written as a `LevyanNotice` (domain
 51, global, `trail: off`) in the transaction of the change -- by
 `tenancy.Workspaces`' making (sign-in, `TenantService.Create`), `loft
-init`, `loft-admin tenant import`, and by `levyan.Notices.Recorder` on every
+init`, `loft tenant import`, and by `levyan.Notices.Recorder` on every
 `HolderService.Erase` through the servers -- and told by `levyan.Teller`
 (`loft.levyan.notices`, under the lease), a workspace's in the order they
 happened, a levyan that is down holding nothing up. A notice told is kept,
@@ -696,7 +700,7 @@ every domain test that writes one fails at its end. No role is given `EventServi
 `server/policy`: the owner decides who); the operator does it with `loft
 event redact`, on the workspace's word.
 
-**A write through ent is not on the trail**, and `loft-admin trail rows` then finds
+**A write through ent is not on the trail**, and `loft trail rows` then finds
 the row -- a write past the servers is what it is there to find (payday#108).
 Write through the servers. Where a write cannot be one -- a claim on a
 condition, a restore -- put it on the trail as the act it is, in the same
@@ -730,7 +734,7 @@ The workspace's administrators and auditors review it a month at a time
 row's address and reason unmarshalled, the people it names by their names now,
 which is itself on the record -- and an `AccessReview`, written by the domain's
 `Add` and never changed, says who looked over which stretch and what it held.
-An operator reads the deployment's with `loft-admin access ls|reviews`, ids only.
+An operator reads the deployment's with `loft access list` and `loft access-review list`, ids only.
 
 ## Search
 
@@ -743,7 +747,7 @@ engine is `server/opensearch`: the client (its HTTP API, no library), and an
 (loft#91), each with its own shape (`assets.json`, `parties.json`,
 `models.json`, and its `Version`: bump it with any change), its own alias
 `<index>-<name>` and `Reindex`, which fills a new index and moves the alias
-onto it in one step; and `loft-admin search status|reindex|remove|analyze`, which
+onto it in one step; and `loft search status|reindex|remove|analyze`, which
 go over all of them. The indexes are kept current by `opensearch.Recorder`,
 which writes a `SearchStale` row in the transaction of any write to an asset,
 a party or a model or to what their documents take a name from (type, model,

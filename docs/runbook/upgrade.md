@@ -13,7 +13,7 @@
 - 새 이름의 표가 이미 있으면(이 판의 서버가 `db.migrate: true` 로 먼저 떴다면) 비어 있을 때 지우고 옮깁니다. 두 이름 모두에 행이 있으면 아무것도 바꾸지 않고 `the table is there under both its names` 로 멈춥니다. 어느 쪽 행이 맞는지 살펴 한쪽으로 옮기고 다른 쪽을 지운 뒤 다시 실행합니다.
 - RPC는 `/loft.DomainService/*` 이고 터미널에서는 `loft domain …` 입니다. `loft auth login --allow` 로 `/loft.TenantDomainService/Status` 를 받아 둔 터미널은 다시 로그인합니다.
 - 감사 기록은 쓴 그대로입니다. 이 판 전의 도메인 쓰기는 `action` 이 `/loft.TenantDomainService/…` 이고, 그대로 검증됩니다. 이력의 종류(`domain.*`)와 알림은 바뀌지 않습니다.
-- 이 판 전의 내보내기(`rows/tenantdomain.jsonl`)는 `loft-admin tenant import` 가 그대로 읽습니다.
+- 이 판 전의 내보내기(`rows/tenantdomain.jsonl`)는 `loft tenant import` 가 그대로 읽습니다.
 - 설정에 `audit.by.tenant-domain` 을 두었다면 `audit.by.domain` 으로 바꿉니다. 그대로 두면 서버가 그 종류를 모른다며 뜨지 않습니다.
 
 ## 작업 기록과 자산의 사실을 payday의 과거로 옮기는 판
@@ -23,14 +23,14 @@
 - 올리기 전에 DB를 백업합니다(`pg_dump`, [백업과 복구](restore.md)). 이 판을 넘는 `rollout undo` 는 하지 않습니다. 되돌리려면 백업에서 되살립니다.
 - 옮긴 행을 감사 기록에 남기므로 마이그레이션에 다이제스트 키가 필요합니다(`audit.digest.key`). Kubernetes의 `migrate` 컨테이너는 `digest.key` 만 마운트합니다. 옮길 사실이 없는 DB는 키를 읽지 않습니다.
 - 과거가 쓸 수 없는 사실(자산의 필드가 아닌 키, ID로 읽히지 않는 유형·모델, UTF-8이 아닌 글)이 있으면 종류별 건수와 함께 멈추고 아무것도 옮기지 않습니다. 옆에 둔 표(`loft_fact_aside`)를 고친 뒤 다시 실행하면 이어서 옮깁니다.
-- 올린 뒤 `loft-admin trail rows` 는 그 전에 쓴 작업 기록을 `N rows from before seals` 로 셉니다. 작업 기록의 사유(`reason`)가 이제 개인정보로 선언되어 봉인되기 때문입니다. 살펴본 뒤 `rows --accept --of <다이제스트> --why "사유가 개인정보가 되기 전의 작업 기록 (payday#151)"` 을 한 번 실행합니다.
+- 올린 뒤 `loft trail rows` 는 그 전에 쓴 작업 기록을 `N rows from before seals` 로 셉니다. 작업 기록의 사유(`reason`)가 이제 개인정보로 선언되어 봉인되기 때문입니다. 살펴본 뒤 `accept-rows --of <다이제스트> --why "사유가 개인정보가 되기 전의 작업 기록 (payday#151)"` 을 한 번 실행합니다.
 - 새 작업 기록은 문장을 갖지 않고 종류의 메시지를 갖습니다. 문장은 읽을 때 만들고, 그 전 기록은 쓴 문장 그대로 읽힙니다. 유형과 모델의 사실은 소문자 정규 ID로 읽힙니다.
 
 ## 사람의 말인 메모를 개인정보로 선언하는 판
 
 이 판(D56)부터 지급·대여의 메모, 예약·작업·구매·실사의 메모, 실사 발견의 메모, 접속기록 점검 결과, 워크스페이스를 닫은 사유는 감사 기록에 값으로 남지 않습니다.
 
-- 올린 뒤 `loft-admin trail rows` 는 그 전에 쓴 그 종류의 행을 `N rows from before seals` 로 셉니다. 살펴본 뒤 `rows --accept --of <다이제스트> --why "메모가 개인정보가 되기 전의 행 (D56)"` 을 한 번 실행합니다.
+- 올린 뒤 `loft trail rows` 는 그 전에 쓴 그 종류의 행을 `N rows from before seals` 로 셉니다. 살펴본 뒤 `accept-rows --of <다이제스트> --why "메모가 개인정보가 되기 전의 행 (D56)"` 을 한 번 실행합니다.
 - 그 전에 쓴 행의 감사 기록에는 그 글이 그대로 남습니다. 마이그레이션으로 비우지 않습니다(design 8.2절 사람의 말인 자유 텍스트).
 
 ## 가입 때 생기는 워크스페이스에 이름을 쓰지 않는 판
@@ -38,7 +38,7 @@
 이 판(D57)부터 그 워크스페이스는 이름이 비어 있고, 화면과 메일, 터미널은 소유자의 지금 이름으로 "○○의 워크스페이스"라고 부릅니다. 소유자의 이름을 보여 준 것이므로 그렇게 부른 호출은 접속기록에 남습니다(`GET /account` 도).
 
 - 그 전에 만든 워크스페이스는 지은 이름("○○의 워크스페이스")을 그대로 갖고, 감사 기록에 남은 그 이름도 그대로입니다. 마이그레이션은 비우지 않습니다(design 9.11절).
-- 운영자 진입점(`loft-admin tenant ls|show`)은 저장된 이름을 보이므로, 새로 생긴 그런 워크스페이스의 이름은 빈칸입니다. 주소와 소유자의 아이디로 찾습니다.
+- 운영자 진입점(`loft tenant ls|show`)은 저장된 이름을 보이므로, 새로 생긴 그런 워크스페이스의 이름은 빈칸입니다. 주소와 소유자의 아이디로 찾습니다.
 
 ## 지급·대여가 그 시간을 잡는 판
 
@@ -46,7 +46,7 @@
 
 - 서버를 거쳐 쓰므로 감사 기록에 그대로 남고, 다이제스트 키(`audit.digest.key`)를 읽습니다. 나가 있는 것이 없는 DB는 읽지 않습니다.
 - 그 시간과 겹치는 예약은 그대로 남고 나가 있는 자산으로 보입니다. 예약한 사람과 관리하는 사람에게는 앱으로 알립니다. 마이그레이션은 메일을 보내지 않습니다. 풀은 하나가 줄어 맞지 않으면 가장 나중 예약이 기다립니다.
-- 다시 실행하면 할 일이 없습니다. 그 전 빌드의 내보내기를 `loft-admin tenant import` 로 되살릴 때도 같은 일을 합니다.
+- 다시 실행하면 할 일이 없습니다. 그 전 빌드의 내보내기를 `loft tenant import` 로 되살릴 때도 같은 일을 합니다.
 
 ## 감사 기록과 접속기록을 시간으로 읽는 인덱스가 생기는 판
 
@@ -84,16 +84,16 @@
 
 ## 행을 봉인하는 판
 
-이 판(payday#115)으로 올린 뒤 봉인하기 전에 쓴 행(사람·구성원·초대·알림)은 `loft-admin trail rows` 가 `N rows from before seals` 로 셉니다. 찾을 것은 아니지만 그 개인정보 필드는 아무것도 보증하지 않으므로, 살펴본 뒤 `rows --accept --of <다이제스트> --why` 를 한 번 실행해 봉인합니다. 다른 찾은 것이 없어도 받아들입니다([런북](trail-integrity.md#행의-봉인과-올린-뒤-한-번의-받아들임)). 봉인이 무엇인지는 [기록과 보존](../dev/retention.md#행의-봉인)에 있습니다.
+이 판(payday#115)으로 올린 뒤 봉인하기 전에 쓴 행(사람·구성원·초대·알림)은 `loft trail rows` 가 `N rows from before seals` 로 셉니다. 찾을 것은 아니지만 그 개인정보 필드는 아무것도 보증하지 않으므로, 살펴본 뒤 `accept-rows --of <다이제스트> --why` 를 한 번 실행해 봉인합니다. 다른 찾은 것이 없어도 받아들입니다([런북](trail-integrity.md#행의-봉인과-올린-뒤-한-번의-받아들임)). 봉인이 무엇인지는 [기록과 보존](../dev/retention.md#행의-봉인)에 있습니다.
 
 ## 감사 기록의 서명 키를 처음 둘 때
 
 **키를 이미 쓰던 배포는 행에 서명하는 판으로 올린 뒤 `accept` 를 한 번 실행합니다.** 서명이 없는 행은 서명하기 전에 쓴 것인지, 누가 서명을 지운 것인지 구별할 수 없습니다. 그래서 키가 있으면 그런 행을 모두 찾아냅니다(`unsigned`). 살펴본 뒤 한 번 받아들이면 그다음부터는 깨끗합니다.
 
 ```sh
-loft-admin trail verify                                                 # 그전에 쓴 행마다 `unsigned`, 그리고 다이제스트
-loft-admin trail accept --of sha256:… --why "행에 서명하기 전에 쓴 것"   # 한 번
-loft-admin trail verify                                                 # 깨끗함
+loft trail verify                                                 # 그전에 쓴 행마다 `unsigned`, 그리고 다이제스트
+loft trail accept --of sha256:… --why "행에 서명하기 전에 쓴 것"   # 한 번
+loft trail verify                                                 # 깨끗함
 ```
 
 **키 없이 보관소를 쓰던 배포**도 키를 둔 뒤 `accept` 를 한 번 실행합니다.
@@ -105,6 +105,6 @@ loft-admin trail verify                                                 # 깨끗
 
 ## 그 밖의 한 번
 
-- **roster 이전의 배포**는 `loft-admin identity migrate` 를 한 번 합니다([계정과 로그인](../dev/identity.md#roster-이전의-배포)).
+- **roster 이전의 배포**는 `loft identity migrate` 를 한 번 합니다([계정과 로그인](../dev/identity.md#roster-이전의-배포)).
 - **동의 기록을 roster로 옮긴 판**(D37)은 예전 동의 기록을 지우고 계정마다 한 번 더 동의를 받습니다. `app.consent.keep` 이나 `audit.by.consent` 를 적어 둔 설정은 서버가 시작하지 않으므로 지웁니다([약관 동의](../dev/identity.md#약관-동의)).
 - **새 비밀이 필요한 판**(예: 610c1c7부터의 `digest.key`)은 그 비밀을 먼저 넣고 올립니다. 순서는 `deploy/compose/README.md` 와 `deploy/k8s/README.md` 의 "새 버전" 절에 있습니다.
