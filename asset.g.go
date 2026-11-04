@@ -71,62 +71,62 @@ func AssetGetByTag(tag string, tenant *TenantRef) *AssetGetRequest {
 	return AssetGetRequest_builder{Ref: AssetByTag(tag, tenant)}.Build()
 }
 
-func (x *TenantDomainRef) Pick() *TenantDomainGetRequest {
-	return TenantDomainGetRequest_builder{Ref: x}.Build()
+func (x *DomainRef) Pick() *DomainGetRequest {
+	return DomainGetRequest_builder{Ref: x}.Build()
 }
 
-func (x *TenantDomain) Ref() *TenantDomainRef {
+func (x *Domain) Ref() *DomainRef {
 	if v := x.GetId(); len(v) > 0 {
-		return TenantDomainById(v)
+		return DomainById(v)
 	}
 	if v := x.GetHost(); len(v) > 0 {
-		return TenantDomainByHost(v)
+		return DomainByHost(v)
 	}
 
 	return nil
 }
 
-func (x *TenantDomain) Pick() *TenantDomainGetRequest {
+func (x *Domain) Pick() *DomainGetRequest {
 	return x.Ref().Pick()
 }
 
-func (x *TenantDomainRef) Picks(v *TenantDomain) bool {
+func (x *DomainRef) Picks(v *Domain) bool {
 	switch x.WhichKey() {
-	case TenantDomainRef_Id_case:
+	case DomainRef_Id_case:
 		return bytes.Equal(x.GetId(), v.GetId())
-	case TenantDomainRef_Host_case:
+	case DomainRef_Host_case:
 		return x.GetHost() == v.GetHost()
 	default:
 		return false
 	}
 }
 
-func (x *TenantDomainGetRequest) WithSelect(f func(s *TenantDomainSelect)) *TenantDomainGetRequest {
+func (x *DomainGetRequest) WithSelect(f func(s *DomainSelect)) *DomainGetRequest {
 	if !x.HasSelect() {
-		x.SetSelect(&TenantDomainSelect{})
+		x.SetSelect(&DomainSelect{})
 	}
 	f(x.GetSelect())
 	return x
 }
 
-func TenantDomainById(v []byte) *TenantDomainRef {
-	x := &TenantDomainRef{}
+func DomainById(v []byte) *DomainRef {
+	x := &DomainRef{}
 	x.SetId(v)
 	return x
 }
 
-func TenantDomainByHost(v string) *TenantDomainRef {
-	x := &TenantDomainRef{}
+func DomainByHost(v string) *DomainRef {
+	x := &DomainRef{}
 	x.SetHost(v)
 	return x
 }
 
-func TenantDomainGetById(v []byte) *TenantDomainGetRequest {
-	return TenantDomainGetRequest_builder{Ref: TenantDomainById(v)}.Build()
+func DomainGetById(v []byte) *DomainGetRequest {
+	return DomainGetRequest_builder{Ref: DomainById(v)}.Build()
 }
 
-func TenantDomainGetByHost(v string) *TenantDomainGetRequest {
-	return TenantDomainGetRequest_builder{Ref: TenantDomainByHost(v)}.Build()
+func DomainGetByHost(v string) *DomainGetRequest {
+	return DomainGetRequest_builder{Ref: DomainByHost(v)}.Build()
 }
 
 func (x *LabelRef) Pick() *LabelGetRequest {

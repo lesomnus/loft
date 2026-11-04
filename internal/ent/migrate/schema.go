@@ -705,6 +705,54 @@ var (
 			},
 		},
 	}
+	// DomainColumns holds the columns for the "domain" table.
+	DomainColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "host", Type: field.TypeString},
+		{Name: "purpose", Type: field.TypeString},
+		{Name: "state", Type: field.TypeString},
+		{Name: "token", Type: field.TypeString},
+		{Name: "source", Type: field.TypeString},
+		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
+		{Name: "checked_at", Type: field.TypeTime, Nullable: true},
+		{Name: "failures", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "failing_since", Type: field.TypeTime, Nullable: true},
+		{Name: "date_lapsed", Type: field.TypeTime, Nullable: true},
+		{Name: "redirect_until", Type: field.TypeTime, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUuid},
+	}
+	// DomainTable holds the schema information for the "domain" table.
+	DomainTable = &schema.Table{
+		Name:       "domain",
+		Columns:    DomainColumns,
+		PrimaryKey: []*schema.Column{DomainColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "domain_tenant_tenant",
+				Columns:    []*schema.Column{DomainColumns[15]},
+				RefColumns: []*schema.Column{TenantColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "domain_page",
+				Unique:  false,
+				Columns: []*schema.Column{DomainColumns[15], DomainColumns[8], DomainColumns[0]},
+			},
+			{
+				Name:    "domain_host",
+				Unique:  true,
+				Columns: []*schema.Column{DomainColumns[1]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "date_erased IS NULL",
+				},
+			},
+		},
+	}
 	// EntitlementColumns holds the columns for the "entitlement" table.
 	EntitlementColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1117,9 +1165,9 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "label_tenantdomain_domain",
+				Symbol:     "label_domain_domain",
 				Columns:    []*schema.Column{LabelColumns[11]},
-				RefColumns: []*schema.Column{TenantdomainColumns[0]},
+				RefColumns: []*schema.Column{DomainColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -2058,54 +2106,6 @@ var (
 			},
 		},
 	}
-	// TenantdomainColumns holds the columns for the "tenantdomain" table.
-	TenantdomainColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "host", Type: field.TypeString},
-		{Name: "purpose", Type: field.TypeString},
-		{Name: "state", Type: field.TypeString},
-		{Name: "token", Type: field.TypeString},
-		{Name: "source", Type: field.TypeString},
-		{Name: "date_updated", Type: field.TypeTime},
-		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
-		{Name: "date_created", Type: field.TypeTime, Nullable: true},
-		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
-		{Name: "checked_at", Type: field.TypeTime, Nullable: true},
-		{Name: "failures", Type: field.TypeUint32, Nullable: true, Default: 0},
-		{Name: "failing_since", Type: field.TypeTime, Nullable: true},
-		{Name: "date_lapsed", Type: field.TypeTime, Nullable: true},
-		{Name: "redirect_until", Type: field.TypeTime, Nullable: true},
-		{Name: "tenant_id", Type: field.TypeUuid},
-	}
-	// TenantdomainTable holds the schema information for the "tenantdomain" table.
-	TenantdomainTable = &schema.Table{
-		Name:       "tenantdomain",
-		Columns:    TenantdomainColumns,
-		PrimaryKey: []*schema.Column{TenantdomainColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "tenantdomain_tenant_tenant",
-				Columns:    []*schema.Column{TenantdomainColumns[15]},
-				RefColumns: []*schema.Column{TenantColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "tenantdomain_page",
-				Unique:  false,
-				Columns: []*schema.Column{TenantdomainColumns[15], TenantdomainColumns[8], TenantdomainColumns[0]},
-			},
-			{
-				Name:    "tenantdomain_host",
-				Unique:  true,
-				Columns: []*schema.Column{TenantdomainColumns[1]},
-				Annotation: &entsql.IndexAnnotation{
-					Where: "date_erased IS NULL",
-				},
-			},
-		},
-	}
 	// TreelockColumns holds the columns for the "treelock" table.
 	TreelockColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -2210,6 +2210,7 @@ var (
 		CountfindingTable,
 		CustodyTable,
 		CustodylineTable,
+		DomainTable,
 		EntitlementTable,
 		EventTable,
 		FactTable,
@@ -2241,7 +2242,6 @@ var (
 		TagcounterTable,
 		TenantTable,
 		TenantcontractTable,
-		TenantdomainTable,
 		TreelockTable,
 		WorkorderTable,
 	}
@@ -2311,6 +2311,10 @@ func init() {
 	CustodylineTable.Annotation = &entsql.Annotation{
 		Table: "custodyline",
 	}
+	DomainTable.ForeignKeys[0].RefTable = TenantTable
+	DomainTable.Annotation = &entsql.Annotation{
+		Table: "domain",
+	}
 	EntitlementTable.ForeignKeys[0].RefTable = TenantTable
 	EntitlementTable.Annotation = &entsql.Annotation{
 		Table: "entitlement",
@@ -2348,7 +2352,7 @@ func init() {
 		Table: "itemmodel",
 	}
 	LabelTable.ForeignKeys[0].RefTable = TenantTable
-	LabelTable.ForeignKeys[1].RefTable = TenantdomainTable
+	LabelTable.ForeignKeys[1].RefTable = DomainTable
 	LabelTable.Annotation = &entsql.Annotation{
 		Table: "label",
 	}
@@ -2448,10 +2452,6 @@ func init() {
 	TenantcontractTable.ForeignKeys[0].RefTable = TenantTable
 	TenantcontractTable.Annotation = &entsql.Annotation{
 		Table: "tenantcontract",
-	}
-	TenantdomainTable.ForeignKeys[0].RefTable = TenantTable
-	TenantdomainTable.Annotation = &entsql.Annotation{
-		Table: "tenantdomain",
 	}
 	TreelockTable.ForeignKeys[0].RefTable = TenantTable
 	TreelockTable.Annotation = &entsql.Annotation{

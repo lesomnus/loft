@@ -99,20 +99,20 @@ service TreeLockService {}
 
 service TagCounterService {}
 
-service TenantDomainService {
-  // Add creates a new TenantDomain
-  rpc Add(TenantDomainAddRequest) returns (TenantDomain);
-  // Get retrieves a TenantDomain
-  rpc Get(TenantDomainGetRequest) returns (TenantDomain);
-  // Patch updates an existing TenantDomain
-  rpc Patch(TenantDomainPatchRequest) returns (TenantDomain);
-  // Apply applies a patch document to an existing TenantDomain
-  rpc Apply(TenantDomainApplyRequest) returns (TenantDomain);
-  // Erase deletes a TenantDomain
-  rpc Erase(TenantDomainRef) returns (TenantDomainEraseResponse);
-  // List reads TenantDomains a page at a time.
-  rpc List(TenantDomainListRequest) returns (TenantDomainListResponse);
-  // Watch the TenantDomains this caller may see, as they are now and as they change.
+service DomainService {
+  // Add creates a new Domain
+  rpc Add(DomainAddRequest) returns (Domain);
+  // Get retrieves a Domain
+  rpc Get(DomainGetRequest) returns (Domain);
+  // Patch updates an existing Domain
+  rpc Patch(DomainPatchRequest) returns (Domain);
+  // Apply applies a patch document to an existing Domain
+  rpc Apply(DomainApplyRequest) returns (Domain);
+  // Erase deletes a Domain
+  rpc Erase(DomainRef) returns (DomainEraseResponse);
+  // List reads Domains a page at a time.
+  rpc List(DomainListRequest) returns (DomainListResponse);
+  // Watch the Domains this caller may see, as they are now and as they change.
   //
   // What arrives is **state and never a delta**, so a client converges rather
   // than replays: it keeps what it was last told about a row and replaces it.
@@ -123,15 +123,15 @@ service TenantDomainService {
   // not have to List first and race the subscription. A row may arrive twice --
   // once in that first message and once as a change that happened while it was
   // being read -- and that is harmless for the same reason.
-  rpc Watch(TenantDomainWatchRequest) returns (stream TenantDomainWatchResponse);
+  rpc Watch(DomainWatchRequest) returns (stream DomainWatchResponse);
   // Verify checks the TXT record of a pending custom domain.
-  rpc Verify(TenantDomainVerifyRequest) returns (TenantDomain);
+  rpc Verify(DomainVerifyRequest) returns (Domain);
   // Activate makes a verified domain the one new labels are printed with; the
   // active one before it becomes legacy and keeps resolving.
-  rpc Activate(TenantDomainActivateRequest) returns (TenantDomain);
-  rpc Retire(TenantDomainRetireRequest) returns (TenantDomain);
+  rpc Activate(DomainActivateRequest) returns (Domain);
+  rpc Retire(DomainRetireRequest) returns (Domain);
   // Status answers whether labels are on for this tenant, and with what.
-  rpc Status(TenantDomainStatusRequest) returns (TenantDomainStatusResponse);
+  rpc Status(DomainStatusRequest) returns (DomainStatusResponse);
 }
 
 service LabelService {
@@ -774,7 +774,7 @@ message AssetCensusRow {
   uint32 within = 7 [features.field_presence = IMPLICIT];
 }
 
-message TenantDomainAddRequest {
+message DomainAddRequest {
   bytes id = 1;
   TenantRef tenant = 2;
   string host = 8 [features.field_presence = IMPLICIT];
@@ -793,19 +793,19 @@ message TenantDomainAddRequest {
   string sub = 100;
 }
 
-message TenantDomainGetRequest {
-  TenantDomainRef ref = 1;
-  TenantDomainSelect select = 2;
+message DomainGetRequest {
+  DomainRef ref = 1;
+  DomainSelect select = 2;
 }
 
-message TenantDomainRef {
+message DomainRef {
   oneof key {
     bytes id = 1;
     string host = 8;
   }
 }
 
-message TenantDomainSelect {
+message DomainSelect {
   bool all = 1;
   TenantSelect tenant = 2;
   bool host = 8;
@@ -824,8 +824,8 @@ message TenantDomainSelect {
   bool redirect_until = 21;
 }
 
-message TenantDomainPatchRequest {
-  TenantDomainRef ref = 1;
+message DomainPatchRequest {
+  DomainRef ref = 1;
   string host = 16;
   string purpose = 18;
   string state = 20;
@@ -878,12 +878,12 @@ message TenantDomainPatchRequest {
   bool redirect_until_null = 43;
 }
 
-message TenantDomainApplyRequest {
-  TenantDomainRef ref = 1;
+message DomainApplyRequest {
+  DomainRef ref = 1;
   patch.Patch patch = 2;
 }
 
-message TenantDomainEraseResponse {
+message DomainEraseResponse {
   // Erased is whether this call is the one that erased the row.
   //
   // False for a row that was already gone, was never there, or is out
@@ -892,10 +892,10 @@ message TenantDomainEraseResponse {
   bool erased = 1;
 }
 
-message TenantDomainListRequest {
+message DomainListRequest {
   // Bounded because the work is: each filter is a predicate in the same query,
   // so this is what says how much of the database one request may read.
-  repeated TenantDomainFilter filters = 1;
+  repeated DomainFilter filters = 1;
 
   // How many to answer with. Nothing said is what the schema declared, and more
   // than the cap is the cap -- a caller asking for more than there is meant no
@@ -915,8 +915,8 @@ message TenantDomainListRequest {
   bool reverse = 4 [features.field_presence = IMPLICIT];
 }
 
-message TenantDomainListResponse {
-  repeated TenantDomain items = 1;
+message DomainListResponse {
+  repeated Domain items = 1;
 
   // What to ask for next, and empty when this was the last of them.
   //
@@ -928,13 +928,13 @@ message TenantDomainListResponse {
   string next = 2 [features.field_presence = IMPLICIT];
 }
 
-message TenantDomainFilter {
-  TenantDomainRef ref = 1;
+message DomainFilter {
+  DomainRef ref = 1;
   string state = 2;
   string purpose = 3;
 }
 
-message TenantDomainWatchRequest {
+message DomainWatchRequest {
   // Which rows to watch, in the same words List takes them: what is watched is
   // what that list would answer with, now and afterwards.
   //
@@ -942,7 +942,7 @@ message TenantDomainWatchRequest {
   // runs its filters once; a watch runs them again for every write that touches
   // the entity, for as long as the stream is open. A watch with no filters is
   // the whole table, forever, which is the one shape that has no cap at all.
-  repeated TenantDomainFilter filters = 1;
+  repeated DomainFilter filters = 1;
 
   // Skip what is there now and send only what changes from here.
   //
@@ -952,12 +952,12 @@ message TenantDomainWatchRequest {
   bool skip_snapshot = 2 [features.field_presence = IMPLICIT];
 }
 
-message TenantDomainWatchResponse {
+message DomainWatchResponse {
   // What changed, or -- in the first message -- everything that matches.
-  repeated TenantDomainWatchItem items = 1;
+  repeated DomainWatchItem items = 1;
 }
 
-message TenantDomainWatchItem {
+message DomainWatchItem {
   // Which row. Always said, since one that is gone still has to be named.
   bytes id = 1;
 
@@ -971,7 +971,7 @@ message TenantDomainWatchItem {
   //
   // It is only ever said about a row this stream has already carried. One that
   // never matched is not news.
-  TenantDomain value = 2;
+  Domain value = 2;
 
   // The RPC that changed it, by the name gRPC knows it by. It is what the
   // caller of *that* RPC asked for and not the write it became, so an RPC
@@ -982,23 +982,23 @@ message TenantDomainWatchItem {
   string action = 3 [features.field_presence = IMPLICIT];
 }
 
-message TenantDomainVerifyRequest {
-  TenantDomainRef ref = 1;
+message DomainVerifyRequest {
+  DomainRef ref = 1;
 }
 
-message TenantDomainActivateRequest {
-  TenantDomainRef ref = 1;
+message DomainActivateRequest {
+  DomainRef ref = 1;
 }
 
-message TenantDomainRetireRequest {
-  TenantDomainRef ref = 1;
+message DomainRetireRequest {
+  DomainRef ref = 1;
   // Retire even though labels were printed with it.
   bool force = 2 [features.field_presence = IMPLICIT];
 }
 
-message TenantDomainStatusRequest {}
+message DomainStatusRequest {}
 
-message TenantDomainStatusResponse {
+message DomainStatusResponse {
   // Labels are always on now (loft#155): a tenant prints with its active
   // domain when it has one, and with the deployment's own address otherwise.
   // `labels` said whether they were, and `tenant_domains` whether a tenant
@@ -1008,7 +1008,7 @@ message TenantDomainStatusResponse {
 
   // The domain new labels print with, and that the app is on (an `app`
   // domain); none prints with `base`.
-  TenantDomain active = 2;
+  Domain active = 2;
   // The host a custom domain's CNAME has to point at.
   string target = 3 [features.field_presence = IMPLICIT];
   // The suffix a default subdomain gets; empty offers none.
@@ -1020,7 +1020,7 @@ message TenantDomainStatusResponse {
 message LabelAddRequest {
   bytes id = 1;
   TenantRef tenant = 2;
-  TenantDomainRef domain = 8;
+  DomainRef domain = 8;
   bytes subject_id = 9;
   string state = 10 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp bound_at = 11;
@@ -1045,7 +1045,7 @@ message LabelRef {
 message LabelSelect {
   bool all = 1;
   TenantSelect tenant = 2;
-  TenantDomainSelect domain = 8;
+  DomainSelect domain = 8;
   bool subject_id = 9;
   bool state = 10;
   bool bound_at = 11;
@@ -1059,7 +1059,7 @@ message LabelSelect {
 
 message LabelPatchRequest {
   LabelRef ref = 1;
-  TenantDomainRef domain = 16;
+  DomainRef domain = 16;
   // Clear domain instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins

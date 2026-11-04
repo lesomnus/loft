@@ -19,11 +19,11 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/loft/internal/ent"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/handoff"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/lesomnus/loft/internal/ent/session"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/landing"
 	"github.com/lesomnus/loft/server/pd"
@@ -420,16 +420,16 @@ func (h Handoff) leave(w http.ResponseWriter, r *http.Request) {
 }
 
 // domain is the active `app` domain at `to`, or nil for none.
-func (h Handoff) domain(ctx context.Context, to string) (*ent.TenantDomain, error) {
+func (h Handoff) domain(ctx context.Context, to string) (*ent.Domain, error) {
 	host := strings.TrimSuffix(strings.ToLower(strings.TrimSpace(to)), ".")
 	if host == "" {
 		return nil, nil
 	}
-	d, err := h.Db.TenantDomain.Query().Where(
-		tenantdomain.Host(host),
-		tenantdomain.Purpose("app"),
-		tenantdomain.State("active"),
-		tenantdomain.DateErasedIsNil(),
+	d, err := h.Db.Domain.Query().Where(
+		entdomain.Host(host),
+		entdomain.Purpose("app"),
+		entdomain.State("active"),
+		entdomain.DateErasedIsNil(),
 	).WithTenant().Only(ctx)
 	if ent.IsNotFound(err) {
 		return nil, nil

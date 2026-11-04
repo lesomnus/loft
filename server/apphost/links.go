@@ -9,7 +9,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 )
 
 // Links is where every link this deployment makes begins (loft#155, design
@@ -50,10 +50,10 @@ const (
 // host, with no slash after -- read through `db`, which may be the
 // transaction the link is made in.
 func (l Links) Of(ctx context.Context, db *ent.Client, ws pdid.Id, kind Kind) (string, error) {
-	d, err := db.TenantDomain.Query().Where(
-		tenantdomain.TenantId(ws.Uuid()),
-		tenantdomain.State("active"),
-		tenantdomain.DateErasedIsNil(),
+	d, err := db.Domain.Query().Where(
+		entdomain.TenantId(ws.Uuid()),
+		entdomain.State("active"),
+		entdomain.DateErasedIsNil(),
 	).First(ctx)
 	switch {
 	case ent.IsNotFound(err):

@@ -40,6 +40,8 @@ type Tx struct {
 	Custody *CustodyClient
 	// CustodyLine is the client for interacting with the CustodyLine builders.
 	CustodyLine *CustodyLineClient
+	// Domain is the client for interacting with the Domain builders.
+	Domain *DomainClient
 	// Entitlement is the client for interacting with the Entitlement builders.
 	Entitlement *EntitlementClient
 	// Event is the client for interacting with the Event builders.
@@ -102,8 +104,6 @@ type Tx struct {
 	Tenant *TenantClient
 	// TenantContract is the client for interacting with the TenantContract builders.
 	TenantContract *TenantContractClient
-	// TenantDomain is the client for interacting with the TenantDomain builders.
-	TenantDomain *TenantDomainClient
 	// TreeLock is the client for interacting with the TreeLock builders.
 	TreeLock *TreeLockClient
 	// WorkOrder is the client for interacting with the WorkOrder builders.
@@ -253,6 +253,7 @@ func (tx *Tx) init() {
 	tx.CountFinding = NewCountFindingClient(tx.config)
 	tx.Custody = NewCustodyClient(tx.config)
 	tx.CustodyLine = NewCustodyLineClient(tx.config)
+	tx.Domain = NewDomainClient(tx.config)
 	tx.Entitlement = NewEntitlementClient(tx.config)
 	tx.Event = NewEventClient(tx.config)
 	tx.Fact = NewFactClient(tx.config)
@@ -284,7 +285,6 @@ func (tx *Tx) init() {
 	tx.TagCounter = NewTagCounterClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)
 	tx.TenantContract = NewTenantContractClient(tx.config)
-	tx.TenantDomain = NewTenantDomainClient(tx.config)
 	tx.TreeLock = NewTreeLockClient(tx.config)
 	tx.WorkOrder = NewWorkOrderClient(tx.config)
 }

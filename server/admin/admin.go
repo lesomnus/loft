@@ -44,11 +44,11 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/legalhold"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/domain"
 )
@@ -186,10 +186,10 @@ func (a Routes) Handler() http.Handler {
 func (a Routes) tlsAsk(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	host := strings.TrimSuffix(strings.ToLower(r.URL.Query().Get("domain")), ".")
-	ok, err := a.S.Ent.TenantDomain.Query().Where(
-		tenantdomain.Host(host),
-		tenantdomain.StateIn("ready", "active", "legacy"),
-		tenantdomain.DateErasedIsNil(),
+	ok, err := a.S.Ent.Domain.Query().Where(
+		entdomain.Host(host),
+		entdomain.StateIn("ready", "active", "legacy"),
+		entdomain.DateErasedIsNil(),
 	).Exist(ctx)
 	if err != nil || !ok {
 		http.Error(w, "not a workspace's domain here", http.StatusNotFound)

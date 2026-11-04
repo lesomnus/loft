@@ -10,8 +10,8 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/holder"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -91,8 +91,8 @@ func TestALinkToAWorkspaceIsOnItsAppDomain(t *testing.T) {
 		return "https://" + link
 	}
 	domain := func(host, purpose, state string) pdid.Id {
-		id := pdid.New(pd.TenantDomainDomain)
-		x.NoError(e.s.Ent.TenantDomain.Create().
+		id := pdid.New(pd.DomainDomain)
+		x.NoError(e.s.Ent.Domain.Create().
 			SetId(id.Uuid()).
 			SetTenantId(e.tenant.Uuid()).
 			SetHost(host).
@@ -105,7 +105,7 @@ func TestALinkToAWorkspaceIsOnItsAppDomain(t *testing.T) {
 		return id
 	}
 	moved := func(id pdid.Id, state string) {
-		x.NoError(e.s.Ent.TenantDomain.Update().Where(tenantdomain.Id(id.Uuid())).SetState(state).Exec(ctx))
+		x.NoError(e.s.Ent.Domain.Update().Where(entdomain.Id(id.Uuid())).SetState(state).Exec(ctx))
 	}
 	all := func(want map[string]string) {
 		t.Helper()

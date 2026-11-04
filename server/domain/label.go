@@ -26,9 +26,9 @@ import (
 	"github.com/lesomnus/loft/internal/ent/asset"
 	"github.com/lesomnus/loft/internal/ent/countfinding"
 	"github.com/lesomnus/loft/internal/ent/custody"
+	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/purchase"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/lesomnus/loft/internal/ent/workorder"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/pd"
@@ -111,7 +111,7 @@ func (t *Tx) freeLabelCode() (string, error) {
 	return "", errors.New("labels: no code came free")
 }
 
-// The states a tenant domain is in (design 9.9).
+// The states a workspace's domain is in (design 9.9).
 const (
 	domainPending = "pending"
 	domainReady   = "ready"
@@ -121,10 +121,10 @@ const (
 	domainRetired = "retired"
 )
 
-// What a tenant domain is for (design 9.9, loft#155): `app` is the tenant's
-// own domain, which the whole app is on and its labels print with; `label` is
-// one its labels print with and nothing more -- a default subdomain, or a
-// custom domain added before domains carried the app.
+// What a workspace's domain is for (design 9.9, loft#155): `app` is the
+// tenant's own domain, which the whole app is on and its labels print with;
+// `label` is one its labels print with and nothing more -- a default
+// subdomain, or a custom domain added before domains carried the app.
 const (
 	purposeApp   = "app"
 	purposeLabel = "label"
@@ -132,13 +132,13 @@ const (
 
 var hostOk = regexp.MustCompile(`^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z][a-z0-9-]{0,61}[a-z0-9]$`)
 
-type domainTenantDomain struct {
+type domainDomain struct {
 	Domain
-	app.TenantDomainServiceServer
+	app.DomainServiceServer
 }
 
-func (s Domain) TenantDomain() app.TenantDomainServiceServer {
-	return domainTenantDomain{s, s.Next().TenantDomain()}
+func (s Domain) Domain() app.DomainServiceServer {
+	return domainDomain{s, s.Next().Domain()}
 }
 
 // Add registers a domain of the tenant's: its own (`host`), which the app is
@@ -146,11 +146,11 @@ func (s Domain) TenantDomain() app.TenantDomainServiceServer {
 // a default subdomain of this deployment (`sub`), which its labels print with
 // and which is verified already. What it is for is decided here, not asked:
 // a custom domain is an `app` one, and a default subdomain a `label` one.
-func (s domainTenantDomain) Add(ctx context.Context, req *app.TenantDomainAddRequest) (*app.TenantDomain, error) {
-	var out *app.TenantDomain
+func (s domainDomain) Add(ctx context.Context, req *app.DomainAddRequest) (*app.Domain, error) {
+	var out *app.Domain
 	err := s.tx(ctx, func(t *Tx) error {
-		row := app.TenantDomainAddRequest_builder{
-			Id:      pdid.New(pd.TenantDomainDomain).Bytes(),
+		row := app.DomainAddRequest_builder{
+			Id:      pdid.New(pd.DomainDomain).Bytes(),
 			Tenant:  t.tenantRef(),
 			Purpose: purposeLabel,
 			Token:   token(),
@@ -185,13 +185,13 @@ func (s domainTenantDomain) Add(ctx context.Context, req *app.TenantDomainAddReq
 		}.Build()); err != nil {
 			return err
 		}
-		v, err := t.next.TenantDomain().Add(t.ctx, row)
+		v, err := t.next.Domain().Add(t.ctx, row)
 		if err != nil {
 			return err
 		}
 		if row.GetSource() == "default" {
-			if v, err = t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
-				Ref:              app.TenantDomainRef_builder{Id: v.GetId()}.Build(),
+			if v, err = t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
+				Ref:              app.DomainRef_builder{Id: v.GetId()}.Build(),
 				VerifiedAt:       ts(t.now),
 				DateUpdatedForce: z.Ptr(true),
 			}.Build()); err != nil {
@@ -262,12 +262,12 @@ func (d *Deps) domainHost(v string) (string, error) {
 // activeDomain is the tenant's one active domain, of either purpose: what its
 // labels print with, and -- an `app` one -- where its app is. None prints with
 // this deployment's own address.
-func (t *Tx) activeDomain() (*ent.TenantDomain, error) {
-	v, err := t.db.TenantDomain.Query().Where(
-		tenantdomain.TenantId(t.tenant.Uuid()),
-		tenantdomain.PurposeIn(purposeApp, purposeLabel),
-		tenantdomain.State(domainActive),
-		tenantdomain.DateErasedIsNil(),
+func (t *Tx) activeDomain() (*ent.Domain, error) {
+	v, err := t.db.Domain.Query().Where(
+		entdomain.TenantId(t.tenant.Uuid()),
+		entdomain.PurposeIn(purposeApp, purposeLabel),
+		entdomain.State(domainActive),
+		entdomain.DateErasedIsNil(),
 	).First(t.ctx)
 	if ent.IsNotFound(err) {
 		return nil, nil
@@ -278,30 +278,30 @@ func (t *Tx) activeDomain() (*ent.TenantDomain, error) {
 // activate makes a domain the tenant's active one. The one active before is
 // legacy, and an `app` one sends its pages on to where the app is now, for
 // [Deps.DomainRedirect] (loft#155); what was printed with it still opens.
-func (t *Tx) activate(id []byte) (*app.TenantDomain, error) {
+func (t *Tx) activate(id []byte) (*app.Domain, error) {
 	cur, err := t.activeDomain()
 	if err != nil {
 		return nil, err
 	}
 	if cur != nil && pdid.Id(cur.Id) == idOf(id) {
-		return t.next.TenantDomain().Get(t.ctx, app.TenantDomainGetRequest_builder{Ref: app.TenantDomainRef_builder{Id: id}.Build()}.Build())
+		return t.next.Domain().Get(t.ctx, app.DomainGetRequest_builder{Ref: app.DomainRef_builder{Id: id}.Build()}.Build())
 	}
 	if cur != nil {
-		legacy := app.TenantDomainPatchRequest_builder{
-			Ref:              app.TenantDomainRef_builder{Id: pdid.Id(cur.Id).Bytes()}.Build(),
+		legacy := app.DomainPatchRequest_builder{
+			Ref:              app.DomainRef_builder{Id: pdid.Id(cur.Id).Bytes()}.Build(),
 			State:            z.Ptr(domainLegacy),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build()
 		if cur.Purpose == purposeApp {
 			legacy.SetRedirectUntil(ts(t.now.Add(t.deps.domainRedirect())))
 		}
-		if _, err := t.next.TenantDomain().Patch(t.ctx, legacy); err != nil {
+		if _, err := t.next.Domain().Patch(t.ctx, legacy); err != nil {
 			return nil, err
 		}
 	}
 	// In use from now, and asked about again from now.
-	return t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
-		Ref:               app.TenantDomainRef_builder{Id: id}.Build(),
+	return t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
+		Ref:               app.DomainRef_builder{Id: id}.Build(),
 		State:             z.Ptr(domainActive),
 		RedirectUntilNull: z.Ptr(true),
 		Failures:          z.Ptr(uint32(0)),
@@ -315,10 +315,10 @@ func (t *Tx) activate(id []byte) (*app.TenantDomain, error) {
 // and that it points here (loft#155). A pending one is ready once it does, for
 // a person to switch to; a lapsed one is the workspace's active domain again,
 // when the workspace has no other.
-func (s domainTenantDomain) Verify(ctx context.Context, req *app.TenantDomainVerifyRequest) (*app.TenantDomain, error) {
-	var out *app.TenantDomain
+func (s domainDomain) Verify(ctx context.Context, req *app.DomainVerifyRequest) (*app.Domain, error) {
+	var out *app.Domain
 	err := s.tx(ctx, func(t *Tx) error {
-		v, err := t.next.TenantDomain().Get(t.ctx, app.TenantDomainGetRequest_builder{Ref: req.GetRef()}.Build())
+		v, err := t.next.Domain().Get(t.ctx, app.DomainGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err
 		}
@@ -345,7 +345,7 @@ func (s domainTenantDomain) Verify(ctx context.Context, req *app.TenantDomainVer
 // found, or one that lapsed -- the workspace's active domain when it has
 // none. One left ready for a person to switch to tells whoever may, when
 // `tell`.
-func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.TenantDomain, error) {
+func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.Domain, error) {
 	if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, "", app.TenantDomainVerified_builder{
 		Domain:  id,
 		Host:    host,
@@ -354,8 +354,8 @@ func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.
 	}.Build()); err != nil {
 		return nil, err
 	}
-	v, err := t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
-		Ref:              app.TenantDomainRef_builder{Id: id}.Build(),
+	v, err := t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
+		Ref:              app.DomainRef_builder{Id: id}.Build(),
 		State:            z.Ptr(domainReady),
 		VerifiedAt:       ts(t.now),
 		DateUpdatedForce: z.Ptr(true),
@@ -391,10 +391,10 @@ func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.
 // Activate makes a verified domain the tenant's active one: what new labels
 // print with, and for an `app` domain where the app is. The one active before
 // is legacy, and what was printed with it still opens.
-func (s domainTenantDomain) Activate(ctx context.Context, req *app.TenantDomainActivateRequest) (*app.TenantDomain, error) {
-	var out *app.TenantDomain
+func (s domainDomain) Activate(ctx context.Context, req *app.DomainActivateRequest) (*app.Domain, error) {
+	var out *app.Domain
 	err := s.tx(ctx, func(t *Tx) error {
-		v, err := t.next.TenantDomain().Get(t.ctx, app.TenantDomainGetRequest_builder{Ref: req.GetRef()}.Build())
+		v, err := t.next.Domain().Get(t.ctx, app.DomainGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err
 		}
@@ -420,10 +420,10 @@ func (s domainTenantDomain) Activate(ctx context.Context, req *app.TenantDomainA
 
 // Retire stops a domain resolving. Labels printed with it stop opening, so
 // that has to be meant.
-func (s domainTenantDomain) Retire(ctx context.Context, req *app.TenantDomainRetireRequest) (*app.TenantDomain, error) {
-	var out *app.TenantDomain
+func (s domainDomain) Retire(ctx context.Context, req *app.DomainRetireRequest) (*app.Domain, error) {
+	var out *app.Domain
 	err := s.tx(ctx, func(t *Tx) error {
-		v, err := t.next.TenantDomain().Get(t.ctx, app.TenantDomainGetRequest_builder{Ref: req.GetRef()}.Build())
+		v, err := t.next.Domain().Get(t.ctx, app.DomainGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err
 		}
@@ -443,7 +443,7 @@ func (s domainTenantDomain) Retire(ctx context.Context, req *app.TenantDomainRet
 		}.Build()); err != nil {
 			return err
 		}
-		out, err = t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
+		out, err = t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
 			Ref:              req.GetRef(),
 			State:            z.Ptr(domainRetired),
 			DateUpdatedForce: z.Ptr(true),
@@ -455,12 +455,12 @@ func (s domainTenantDomain) Retire(ctx context.Context, req *app.TenantDomainRet
 
 // Status answers where this tenant's labels print and what a domain of its
 // own takes: its active domain, or none and this deployment's address.
-func (s domainTenantDomain) Status(ctx context.Context, _ *app.TenantDomainStatusRequest) (*app.TenantDomainStatusResponse, error) {
+func (s domainDomain) Status(ctx context.Context, _ *app.DomainStatusRequest) (*app.DomainStatusResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
 		return nil, err
 	}
-	out := app.TenantDomainStatusResponse_builder{
+	out := app.DomainStatusResponse_builder{
 		Target:        t.deps.LabelTarget,
 		DefaultSuffix: t.deps.LabelSuffix,
 		Base:          t.deps.Links.Home(apphost.Label),
@@ -470,7 +470,7 @@ func (s domainTenantDomain) Status(ctx context.Context, _ *app.TenantDomainStatu
 		return nil, err
 	}
 	if cur != nil {
-		v, err := t.next.TenantDomain().Get(ctx, app.TenantDomainGetRequest_builder{Ref: app.TenantDomainRef_builder{Id: pdid.Id(cur.Id).Bytes()}.Build()}.Build())
+		v, err := t.next.Domain().Get(ctx, app.DomainGetRequest_builder{Ref: app.DomainRef_builder{Id: pdid.Id(cur.Id).Bytes()}.Build()}.Build())
 		if err != nil {
 			return nil, err
 		}
@@ -535,7 +535,7 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 				Code:      z.Ptr(code),
 			}.Build()
 			if dom != nil {
-				req.SetDomain(app.TenantDomainRef_builder{Id: pdid.Id(dom.Id).Bytes()}.Build())
+				req.SetDomain(app.DomainRef_builder{Id: pdid.Id(dom.Id).Bytes()}.Build())
 			}
 			if subject != nil {
 				req.SetSubjectId(subject)

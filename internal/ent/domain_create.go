@@ -9,65 +9,65 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
 )
 
-// TenantDomainCreate is the builder for creating a TenantDomain entity.
-type TenantDomainCreate struct {
+// DomainCreate is the builder for creating a Domain entity.
+type DomainCreate struct {
 	config
-	mutation *TenantDomainMutation
+	mutation *DomainMutation
 	hooks    []Hook
-	stored   **TenantDomain
+	stored   **Domain
 }
 
 // SetHost sets the "host" field.
-func (_c *TenantDomainCreate) SetHost(v string) *TenantDomainCreate {
+func (_c *DomainCreate) SetHost(v string) *DomainCreate {
 	_c.mutation.SetHost(v)
 	return _c
 }
 
 // SetPurpose sets the "purpose" field.
-func (_c *TenantDomainCreate) SetPurpose(v string) *TenantDomainCreate {
+func (_c *DomainCreate) SetPurpose(v string) *DomainCreate {
 	_c.mutation.SetPurpose(v)
 	return _c
 }
 
 // SetState sets the "state" field.
-func (_c *TenantDomainCreate) SetState(v string) *TenantDomainCreate {
+func (_c *DomainCreate) SetState(v string) *DomainCreate {
 	_c.mutation.SetState(v)
 	return _c
 }
 
 // SetToken sets the "token" field.
-func (_c *TenantDomainCreate) SetToken(v string) *TenantDomainCreate {
+func (_c *DomainCreate) SetToken(v string) *DomainCreate {
 	_c.mutation.SetToken(v)
 	return _c
 }
 
 // SetSource sets the "source" field.
-func (_c *TenantDomainCreate) SetSource(v string) *TenantDomainCreate {
+func (_c *DomainCreate) SetSource(v string) *DomainCreate {
 	_c.mutation.SetSource(v)
 	return _c
 }
 
 // SetDateUpdated sets the "date_updated" field.
-func (_c *TenantDomainCreate) SetDateUpdated(v time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetDateUpdated(v time.Time) *DomainCreate {
 	_c.mutation.SetDateUpdated(v)
 	return _c
 }
 
 // SetDateErased sets the "date_erased" field.
-func (_c *TenantDomainCreate) SetDateErased(v time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetDateErased(v time.Time) *DomainCreate {
 	_c.mutation.SetDateErased(v)
 	return _c
 }
 
 // SetNillableDateErased sets the "date_erased" field if the given value is not nil.
-func (_c *TenantDomainCreate) SetNillableDateErased(v *time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetNillableDateErased(v *time.Time) *DomainCreate {
 	if v != nil {
 		_c.SetDateErased(*v)
 	}
@@ -75,13 +75,13 @@ func (_c *TenantDomainCreate) SetNillableDateErased(v *time.Time) *TenantDomainC
 }
 
 // SetDateCreated sets the "date_created" field.
-func (_c *TenantDomainCreate) SetDateCreated(v time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetDateCreated(v time.Time) *DomainCreate {
 	_c.mutation.SetDateCreated(v)
 	return _c
 }
 
 // SetNillableDateCreated sets the "date_created" field if the given value is not nil.
-func (_c *TenantDomainCreate) SetNillableDateCreated(v *time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetNillableDateCreated(v *time.Time) *DomainCreate {
 	if v != nil {
 		_c.SetDateCreated(*v)
 	}
@@ -89,13 +89,13 @@ func (_c *TenantDomainCreate) SetNillableDateCreated(v *time.Time) *TenantDomain
 }
 
 // SetVerifiedAt sets the "verified_at" field.
-func (_c *TenantDomainCreate) SetVerifiedAt(v time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetVerifiedAt(v time.Time) *DomainCreate {
 	_c.mutation.SetVerifiedAt(v)
 	return _c
 }
 
 // SetNillableVerifiedAt sets the "verified_at" field if the given value is not nil.
-func (_c *TenantDomainCreate) SetNillableVerifiedAt(v *time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetNillableVerifiedAt(v *time.Time) *DomainCreate {
 	if v != nil {
 		_c.SetVerifiedAt(*v)
 	}
@@ -103,13 +103,13 @@ func (_c *TenantDomainCreate) SetNillableVerifiedAt(v *time.Time) *TenantDomainC
 }
 
 // SetCheckedAt sets the "checked_at" field.
-func (_c *TenantDomainCreate) SetCheckedAt(v time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetCheckedAt(v time.Time) *DomainCreate {
 	_c.mutation.SetCheckedAt(v)
 	return _c
 }
 
 // SetNillableCheckedAt sets the "checked_at" field if the given value is not nil.
-func (_c *TenantDomainCreate) SetNillableCheckedAt(v *time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetNillableCheckedAt(v *time.Time) *DomainCreate {
 	if v != nil {
 		_c.SetCheckedAt(*v)
 	}
@@ -117,13 +117,13 @@ func (_c *TenantDomainCreate) SetNillableCheckedAt(v *time.Time) *TenantDomainCr
 }
 
 // SetFailures sets the "failures" field.
-func (_c *TenantDomainCreate) SetFailures(v uint32) *TenantDomainCreate {
+func (_c *DomainCreate) SetFailures(v uint32) *DomainCreate {
 	_c.mutation.SetFailures(v)
 	return _c
 }
 
 // SetNillableFailures sets the "failures" field if the given value is not nil.
-func (_c *TenantDomainCreate) SetNillableFailures(v *uint32) *TenantDomainCreate {
+func (_c *DomainCreate) SetNillableFailures(v *uint32) *DomainCreate {
 	if v != nil {
 		_c.SetFailures(*v)
 	}
@@ -131,13 +131,13 @@ func (_c *TenantDomainCreate) SetNillableFailures(v *uint32) *TenantDomainCreate
 }
 
 // SetFailingSince sets the "failing_since" field.
-func (_c *TenantDomainCreate) SetFailingSince(v time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetFailingSince(v time.Time) *DomainCreate {
 	_c.mutation.SetFailingSince(v)
 	return _c
 }
 
 // SetNillableFailingSince sets the "failing_since" field if the given value is not nil.
-func (_c *TenantDomainCreate) SetNillableFailingSince(v *time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetNillableFailingSince(v *time.Time) *DomainCreate {
 	if v != nil {
 		_c.SetFailingSince(*v)
 	}
@@ -145,13 +145,13 @@ func (_c *TenantDomainCreate) SetNillableFailingSince(v *time.Time) *TenantDomai
 }
 
 // SetDateLapsed sets the "date_lapsed" field.
-func (_c *TenantDomainCreate) SetDateLapsed(v time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetDateLapsed(v time.Time) *DomainCreate {
 	_c.mutation.SetDateLapsed(v)
 	return _c
 }
 
 // SetNillableDateLapsed sets the "date_lapsed" field if the given value is not nil.
-func (_c *TenantDomainCreate) SetNillableDateLapsed(v *time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetNillableDateLapsed(v *time.Time) *DomainCreate {
 	if v != nil {
 		_c.SetDateLapsed(*v)
 	}
@@ -159,13 +159,13 @@ func (_c *TenantDomainCreate) SetNillableDateLapsed(v *time.Time) *TenantDomainC
 }
 
 // SetRedirectUntil sets the "redirect_until" field.
-func (_c *TenantDomainCreate) SetRedirectUntil(v time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetRedirectUntil(v time.Time) *DomainCreate {
 	_c.mutation.SetRedirectUntil(v)
 	return _c
 }
 
 // SetNillableRedirectUntil sets the "redirect_until" field if the given value is not nil.
-func (_c *TenantDomainCreate) SetNillableRedirectUntil(v *time.Time) *TenantDomainCreate {
+func (_c *DomainCreate) SetNillableRedirectUntil(v *time.Time) *DomainCreate {
 	if v != nil {
 		_c.SetRedirectUntil(*v)
 	}
@@ -173,35 +173,35 @@ func (_c *TenantDomainCreate) SetNillableRedirectUntil(v *time.Time) *TenantDoma
 }
 
 // SetTenantId sets the "tenant_id" field.
-func (_c *TenantDomainCreate) SetTenantId(v uuid.UUID) *TenantDomainCreate {
+func (_c *DomainCreate) SetTenantId(v uuid.UUID) *DomainCreate {
 	_c.mutation.SetTenantId(v)
 	return _c
 }
 
 // SetId sets the "id" field.
-func (_c *TenantDomainCreate) SetId(v uuid.UUID) *TenantDomainCreate {
+func (_c *DomainCreate) SetId(v uuid.UUID) *DomainCreate {
 	_c.mutation.SetId(v)
 	return _c
 }
 
 // SetTenant sets the "tenant" edge to the Tenant entity.
-func (_c *TenantDomainCreate) SetTenant(v *Tenant) *TenantDomainCreate {
+func (_c *DomainCreate) SetTenant(v *Tenant) *DomainCreate {
 	return _c.SetTenantId(v.Id)
 }
 
-// Mutation returns the TenantDomainMutation object of the builder.
-func (_c *TenantDomainCreate) Mutation() *TenantDomainMutation {
+// Mutation returns the DomainMutation object of the builder.
+func (_c *DomainCreate) Mutation() *DomainMutation {
 	return _c.mutation
 }
 
-// Save creates the TenantDomain in the database.
-func (_c *TenantDomainCreate) Save(ctx context.Context) (*TenantDomain, error) {
+// Save creates the Domain in the database.
+func (_c *DomainCreate) Save(ctx context.Context) (*Domain, error) {
 	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (_c *TenantDomainCreate) SaveX(ctx context.Context) *TenantDomain {
+func (_c *DomainCreate) SaveX(ctx context.Context) *Domain {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -210,61 +210,61 @@ func (_c *TenantDomainCreate) SaveX(ctx context.Context) *TenantDomain {
 }
 
 // Exec executes the query.
-func (_c *TenantDomainCreate) Exec(ctx context.Context) error {
+func (_c *DomainCreate) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *TenantDomainCreate) ExecX(ctx context.Context) {
+func (_c *DomainCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *TenantDomainCreate) defaults() {
+func (_c *DomainCreate) defaults() {
 	if _, ok := _c.mutation.Failures(); !ok {
-		if _, ok := _c.mutation.FieldExpr(tenantdomain.FieldFailures); !ok {
-			v := tenantdomain.DefaultFailures
+		if _, ok := _c.mutation.FieldExpr(domain.FieldFailures); !ok {
+			v := domain.DefaultFailures
 			_c.mutation.SetFailures(v)
 		}
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_c *TenantDomainCreate) check() error {
+func (_c *DomainCreate) check() error {
 	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
-		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "TenantDomain.%s" was assigned an expression, which only an update writes`, fs[0])}
+		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Domain.%s" was assigned an expression, which only an update writes`, fs[0])}
 	}
 	if _, ok := _c.mutation.Host(); !ok {
-		return &ValidationError{Name: "host", err: errors.New(`ent: missing required field "TenantDomain.host"`)}
+		return &ValidationError{Name: "host", err: errors.New(`ent: missing required field "Domain.host"`)}
 	}
 	if _, ok := _c.mutation.Purpose(); !ok {
-		return &ValidationError{Name: "purpose", err: errors.New(`ent: missing required field "TenantDomain.purpose"`)}
+		return &ValidationError{Name: "purpose", err: errors.New(`ent: missing required field "Domain.purpose"`)}
 	}
 	if _, ok := _c.mutation.State(); !ok {
-		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "TenantDomain.state"`)}
+		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "Domain.state"`)}
 	}
 	if _, ok := _c.mutation.Token(); !ok {
-		return &ValidationError{Name: "token", err: errors.New(`ent: missing required field "TenantDomain.token"`)}
+		return &ValidationError{Name: "token", err: errors.New(`ent: missing required field "Domain.token"`)}
 	}
 	if _, ok := _c.mutation.Source(); !ok {
-		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "TenantDomain.source"`)}
+		return &ValidationError{Name: "source", err: errors.New(`ent: missing required field "Domain.source"`)}
 	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
-		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "TenantDomain.date_updated"`)}
+		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Domain.date_updated"`)}
 	}
 	if _, ok := _c.mutation.TenantId(); !ok {
-		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "TenantDomain.tenant_id"`)}
+		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Domain.tenant_id"`)}
 	}
 	if len(_c.mutation.TenantIds()) == 0 {
-		return &ValidationError{Name: "tenant", err: errors.New(`ent: missing required edge "TenantDomain.tenant"`)}
+		return &ValidationError{Name: "tenant", err: errors.New(`ent: missing required edge "Domain.tenant"`)}
 	}
 	return nil
 }
 
-func (_c *TenantDomainCreate) sqlSave(ctx context.Context) (*TenantDomain, error) {
+func (_c *DomainCreate) sqlSave(ctx context.Context) (*Domain, error) {
 	if err := _c.check(); err != nil {
 		return nil, err
 	}
@@ -291,14 +291,14 @@ func (_c *TenantDomainCreate) sqlSave(ctx context.Context) (*TenantDomain, error
 	return _node, nil
 }
 
-func (_c *TenantDomainCreate) createSpec() (*TenantDomain, *sqlgraph.CreateSpec) {
+func (_c *DomainCreate) createSpec() (*Domain, *sqlgraph.CreateSpec) {
 	var (
-		_node = &TenantDomain{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(tenantdomain.Table, sqlgraph.NewFieldSpec(tenantdomain.FieldId, field.TypeUuid))
+		_node = &Domain{config: _c.config}
+		_spec = sqlgraph.NewCreateSpec(domain.Table, sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid))
 	)
 	if _c.stored != nil {
-		_stored := &TenantDomain{config: _c.config}
-		_spec.Returning = tenantdomain.Columns
+		_stored := &Domain{config: _c.config}
+		_spec.Returning = domain.Columns
 		_spec.ScanValues = _stored.scanValues
 		_spec.Assign = func(columns []string, values []any) error {
 			if err := _stored.assignValues(columns, values); err != nil {
@@ -313,67 +313,67 @@ func (_c *TenantDomainCreate) createSpec() (*TenantDomain, *sqlgraph.CreateSpec)
 		_spec.Id.Value = &id
 	}
 	if value, ok := _c.mutation.Host(); ok {
-		_spec.SetField(tenantdomain.FieldHost, field.TypeString, value)
+		_spec.SetField(domain.FieldHost, field.TypeString, value)
 		_node.Host = value
 	}
 	if value, ok := _c.mutation.Purpose(); ok {
-		_spec.SetField(tenantdomain.FieldPurpose, field.TypeString, value)
+		_spec.SetField(domain.FieldPurpose, field.TypeString, value)
 		_node.Purpose = value
 	}
 	if value, ok := _c.mutation.State(); ok {
-		_spec.SetField(tenantdomain.FieldState, field.TypeString, value)
+		_spec.SetField(domain.FieldState, field.TypeString, value)
 		_node.State = value
 	}
 	if value, ok := _c.mutation.Token(); ok {
-		_spec.SetField(tenantdomain.FieldToken, field.TypeString, value)
+		_spec.SetField(domain.FieldToken, field.TypeString, value)
 		_node.Token = value
 	}
 	if value, ok := _c.mutation.Source(); ok {
-		_spec.SetField(tenantdomain.FieldSource, field.TypeString, value)
+		_spec.SetField(domain.FieldSource, field.TypeString, value)
 		_node.Source = value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
-		_spec.SetField(tenantdomain.FieldDateUpdated, field.TypeTime, value)
+		_spec.SetField(domain.FieldDateUpdated, field.TypeTime, value)
 		_node.DateUpdated = value
 	}
 	if value, ok := _c.mutation.DateErased(); ok {
-		_spec.SetField(tenantdomain.FieldDateErased, field.TypeTime, value)
+		_spec.SetField(domain.FieldDateErased, field.TypeTime, value)
 		_node.DateErased = &value
 	}
 	if value, ok := _c.mutation.DateCreated(); ok {
-		_spec.SetField(tenantdomain.FieldDateCreated, field.TypeTime, value)
+		_spec.SetField(domain.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
 	}
 	if value, ok := _c.mutation.VerifiedAt(); ok {
-		_spec.SetField(tenantdomain.FieldVerifiedAt, field.TypeTime, value)
+		_spec.SetField(domain.FieldVerifiedAt, field.TypeTime, value)
 		_node.VerifiedAt = &value
 	}
 	if value, ok := _c.mutation.CheckedAt(); ok {
-		_spec.SetField(tenantdomain.FieldCheckedAt, field.TypeTime, value)
+		_spec.SetField(domain.FieldCheckedAt, field.TypeTime, value)
 		_node.CheckedAt = &value
 	}
 	if value, ok := _c.mutation.Failures(); ok {
-		_spec.SetField(tenantdomain.FieldFailures, field.TypeUint32, value)
+		_spec.SetField(domain.FieldFailures, field.TypeUint32, value)
 		_node.Failures = value
 	}
 	if value, ok := _c.mutation.FailingSince(); ok {
-		_spec.SetField(tenantdomain.FieldFailingSince, field.TypeTime, value)
+		_spec.SetField(domain.FieldFailingSince, field.TypeTime, value)
 		_node.FailingSince = &value
 	}
 	if value, ok := _c.mutation.DateLapsed(); ok {
-		_spec.SetField(tenantdomain.FieldDateLapsed, field.TypeTime, value)
+		_spec.SetField(domain.FieldDateLapsed, field.TypeTime, value)
 		_node.DateLapsed = &value
 	}
 	if value, ok := _c.mutation.RedirectUntil(); ok {
-		_spec.SetField(tenantdomain.FieldRedirectUntil, field.TypeTime, value)
+		_spec.SetField(domain.FieldRedirectUntil, field.TypeTime, value)
 		_node.RedirectUntil = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
-			Table:   tenantdomain.TenantTable,
-			Columns: []string{tenantdomain.TenantColumn},
+			Table:   domain.TenantTable,
+			Columns: []string{domain.TenantColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IdSpec: sqlgraph.NewFieldSpec(tenant.FieldId, field.TypeUuid),
@@ -388,10 +388,10 @@ func (_c *TenantDomainCreate) createSpec() (*TenantDomain, *sqlgraph.CreateSpec)
 	return _node, _spec
 }
 
-// Stored has Save read the TenantDomain back, into `v`, as the database stored
+// Stored has Save read the Domain back, into `v`, as the database stored
 // it: at the precision of its columns, with the defaults the database filled
 // in and what a trigger before the write made of it. Save itself answers with
-// the TenantDomain as this builder had it.
+// the Domain as this builder had it.
 //
 // The INSERT reads it, with RETURNING, where the dialect has it, so that the
 // row and the reading of it are one statement. MySQL has none, and an INSERT
@@ -409,32 +409,32 @@ func (_c *TenantDomainCreate) createSpec() (*TenantDomain, *sqlgraph.CreateSpec)
 //
 // `v` is written only by a Save that wrote the row: one that failed, or that a
 // hook answered without writing, leaves it as it was.
-func (_c *TenantDomainCreate) Stored(v **TenantDomain) *TenantDomainCreate {
+func (_c *DomainCreate) Stored(v **Domain) *DomainCreate {
 	_c.stored = v
 	return _c
 }
 
-// TenantDomainCreateBulk is the builder for creating many TenantDomain entities in bulk.
-type TenantDomainCreateBulk struct {
+// DomainCreateBulk is the builder for creating many Domain entities in bulk.
+type DomainCreateBulk struct {
 	config
 	err      error
-	builders []*TenantDomainCreate
+	builders []*DomainCreate
 }
 
-// Save creates the TenantDomain entities in the database.
-func (_c *TenantDomainCreateBulk) Save(ctx context.Context) ([]*TenantDomain, error) {
+// Save creates the Domain entities in the database.
+func (_c *DomainCreateBulk) Save(ctx context.Context) ([]*Domain, error) {
 	if _c.err != nil {
 		return nil, _c.err
 	}
 	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
-	nodes := make([]*TenantDomain, len(_c.builders))
+	nodes := make([]*Domain, len(_c.builders))
 	mutators := make([]Mutator, len(_c.builders))
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*TenantDomainMutation)
+				mutation, ok := m.(*DomainMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -477,7 +477,7 @@ func (_c *TenantDomainCreateBulk) Save(ctx context.Context) ([]*TenantDomain, er
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_c *TenantDomainCreateBulk) SaveX(ctx context.Context) []*TenantDomain {
+func (_c *DomainCreateBulk) SaveX(ctx context.Context) []*Domain {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -486,13 +486,13 @@ func (_c *TenantDomainCreateBulk) SaveX(ctx context.Context) []*TenantDomain {
 }
 
 // Exec executes the query.
-func (_c *TenantDomainCreateBulk) Exec(ctx context.Context) error {
+func (_c *DomainCreateBulk) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *TenantDomainCreateBulk) ExecX(ctx context.Context) {
+func (_c *DomainCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}

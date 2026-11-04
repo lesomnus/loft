@@ -1199,36 +1199,36 @@ var TagCounterService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	TenantDomainService_Add_FullMethodName      = "/loft.TenantDomainService/Add"
-	TenantDomainService_Get_FullMethodName      = "/loft.TenantDomainService/Get"
-	TenantDomainService_Patch_FullMethodName    = "/loft.TenantDomainService/Patch"
-	TenantDomainService_Apply_FullMethodName    = "/loft.TenantDomainService/Apply"
-	TenantDomainService_Erase_FullMethodName    = "/loft.TenantDomainService/Erase"
-	TenantDomainService_List_FullMethodName     = "/loft.TenantDomainService/List"
-	TenantDomainService_Watch_FullMethodName    = "/loft.TenantDomainService/Watch"
-	TenantDomainService_Verify_FullMethodName   = "/loft.TenantDomainService/Verify"
-	TenantDomainService_Activate_FullMethodName = "/loft.TenantDomainService/Activate"
-	TenantDomainService_Retire_FullMethodName   = "/loft.TenantDomainService/Retire"
-	TenantDomainService_Status_FullMethodName   = "/loft.TenantDomainService/Status"
+	DomainService_Add_FullMethodName      = "/loft.DomainService/Add"
+	DomainService_Get_FullMethodName      = "/loft.DomainService/Get"
+	DomainService_Patch_FullMethodName    = "/loft.DomainService/Patch"
+	DomainService_Apply_FullMethodName    = "/loft.DomainService/Apply"
+	DomainService_Erase_FullMethodName    = "/loft.DomainService/Erase"
+	DomainService_List_FullMethodName     = "/loft.DomainService/List"
+	DomainService_Watch_FullMethodName    = "/loft.DomainService/Watch"
+	DomainService_Verify_FullMethodName   = "/loft.DomainService/Verify"
+	DomainService_Activate_FullMethodName = "/loft.DomainService/Activate"
+	DomainService_Retire_FullMethodName   = "/loft.DomainService/Retire"
+	DomainService_Status_FullMethodName   = "/loft.DomainService/Status"
 )
 
-// TenantDomainServiceClient is the client API for TenantDomainService service.
+// DomainServiceClient is the client API for DomainService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TenantDomainServiceClient interface {
-	// Add creates a new TenantDomain
-	Add(ctx context.Context, in *TenantDomainAddRequest, opts ...grpc.CallOption) (*TenantDomain, error)
-	// Get retrieves a TenantDomain
-	Get(ctx context.Context, in *TenantDomainGetRequest, opts ...grpc.CallOption) (*TenantDomain, error)
-	// Patch updates an existing TenantDomain
-	Patch(ctx context.Context, in *TenantDomainPatchRequest, opts ...grpc.CallOption) (*TenantDomain, error)
-	// Apply applies a patch document to an existing TenantDomain
-	Apply(ctx context.Context, in *TenantDomainApplyRequest, opts ...grpc.CallOption) (*TenantDomain, error)
-	// Erase deletes a TenantDomain
-	Erase(ctx context.Context, in *TenantDomainRef, opts ...grpc.CallOption) (*TenantDomainEraseResponse, error)
-	// List reads TenantDomains a page at a time.
-	List(ctx context.Context, in *TenantDomainListRequest, opts ...grpc.CallOption) (*TenantDomainListResponse, error)
-	// Watch the TenantDomains this caller may see, as they are now and as they change.
+type DomainServiceClient interface {
+	// Add creates a new Domain
+	Add(ctx context.Context, in *DomainAddRequest, opts ...grpc.CallOption) (*Domain, error)
+	// Get retrieves a Domain
+	Get(ctx context.Context, in *DomainGetRequest, opts ...grpc.CallOption) (*Domain, error)
+	// Patch updates an existing Domain
+	Patch(ctx context.Context, in *DomainPatchRequest, opts ...grpc.CallOption) (*Domain, error)
+	// Apply applies a patch document to an existing Domain
+	Apply(ctx context.Context, in *DomainApplyRequest, opts ...grpc.CallOption) (*Domain, error)
+	// Erase deletes a Domain
+	Erase(ctx context.Context, in *DomainRef, opts ...grpc.CallOption) (*DomainEraseResponse, error)
+	// List reads Domains a page at a time.
+	List(ctx context.Context, in *DomainListRequest, opts ...grpc.CallOption) (*DomainListResponse, error)
+	// Watch the Domains this caller may see, as they are now and as they change.
 	//
 	// What arrives is **state and never a delta**, so a client converges rather
 	// than replays: it keeps what it was last told about a row and replaces it.
@@ -1239,92 +1239,92 @@ type TenantDomainServiceClient interface {
 	// not have to List first and race the subscription. A row may arrive twice --
 	// once in that first message and once as a change that happened while it was
 	// being read -- and that is harmless for the same reason.
-	Watch(ctx context.Context, in *TenantDomainWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TenantDomainWatchResponse], error)
+	Watch(ctx context.Context, in *DomainWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DomainWatchResponse], error)
 	// Verify checks the TXT record of a pending custom domain.
-	Verify(ctx context.Context, in *TenantDomainVerifyRequest, opts ...grpc.CallOption) (*TenantDomain, error)
+	Verify(ctx context.Context, in *DomainVerifyRequest, opts ...grpc.CallOption) (*Domain, error)
 	// Activate makes a verified domain the one new labels are printed with; the
 	// active one before it becomes legacy and keeps resolving.
-	Activate(ctx context.Context, in *TenantDomainActivateRequest, opts ...grpc.CallOption) (*TenantDomain, error)
-	Retire(ctx context.Context, in *TenantDomainRetireRequest, opts ...grpc.CallOption) (*TenantDomain, error)
+	Activate(ctx context.Context, in *DomainActivateRequest, opts ...grpc.CallOption) (*Domain, error)
+	Retire(ctx context.Context, in *DomainRetireRequest, opts ...grpc.CallOption) (*Domain, error)
 	// Status answers whether labels are on for this tenant, and with what.
-	Status(ctx context.Context, in *TenantDomainStatusRequest, opts ...grpc.CallOption) (*TenantDomainStatusResponse, error)
+	Status(ctx context.Context, in *DomainStatusRequest, opts ...grpc.CallOption) (*DomainStatusResponse, error)
 }
 
-type tenantDomainServiceClient struct {
+type domainServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTenantDomainServiceClient(cc grpc.ClientConnInterface) TenantDomainServiceClient {
-	return &tenantDomainServiceClient{cc}
+func NewDomainServiceClient(cc grpc.ClientConnInterface) DomainServiceClient {
+	return &domainServiceClient{cc}
 }
 
-func (c *tenantDomainServiceClient) Add(ctx context.Context, in *TenantDomainAddRequest, opts ...grpc.CallOption) (*TenantDomain, error) {
+func (c *domainServiceClient) Add(ctx context.Context, in *DomainAddRequest, opts ...grpc.CallOption) (*Domain, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomain)
-	err := c.cc.Invoke(ctx, TenantDomainService_Add_FullMethodName, in, out, cOpts...)
+	out := new(Domain)
+	err := c.cc.Invoke(ctx, DomainService_Add_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) Get(ctx context.Context, in *TenantDomainGetRequest, opts ...grpc.CallOption) (*TenantDomain, error) {
+func (c *domainServiceClient) Get(ctx context.Context, in *DomainGetRequest, opts ...grpc.CallOption) (*Domain, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomain)
-	err := c.cc.Invoke(ctx, TenantDomainService_Get_FullMethodName, in, out, cOpts...)
+	out := new(Domain)
+	err := c.cc.Invoke(ctx, DomainService_Get_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) Patch(ctx context.Context, in *TenantDomainPatchRequest, opts ...grpc.CallOption) (*TenantDomain, error) {
+func (c *domainServiceClient) Patch(ctx context.Context, in *DomainPatchRequest, opts ...grpc.CallOption) (*Domain, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomain)
-	err := c.cc.Invoke(ctx, TenantDomainService_Patch_FullMethodName, in, out, cOpts...)
+	out := new(Domain)
+	err := c.cc.Invoke(ctx, DomainService_Patch_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) Apply(ctx context.Context, in *TenantDomainApplyRequest, opts ...grpc.CallOption) (*TenantDomain, error) {
+func (c *domainServiceClient) Apply(ctx context.Context, in *DomainApplyRequest, opts ...grpc.CallOption) (*Domain, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomain)
-	err := c.cc.Invoke(ctx, TenantDomainService_Apply_FullMethodName, in, out, cOpts...)
+	out := new(Domain)
+	err := c.cc.Invoke(ctx, DomainService_Apply_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) Erase(ctx context.Context, in *TenantDomainRef, opts ...grpc.CallOption) (*TenantDomainEraseResponse, error) {
+func (c *domainServiceClient) Erase(ctx context.Context, in *DomainRef, opts ...grpc.CallOption) (*DomainEraseResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomainEraseResponse)
-	err := c.cc.Invoke(ctx, TenantDomainService_Erase_FullMethodName, in, out, cOpts...)
+	out := new(DomainEraseResponse)
+	err := c.cc.Invoke(ctx, DomainService_Erase_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) List(ctx context.Context, in *TenantDomainListRequest, opts ...grpc.CallOption) (*TenantDomainListResponse, error) {
+func (c *domainServiceClient) List(ctx context.Context, in *DomainListRequest, opts ...grpc.CallOption) (*DomainListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomainListResponse)
-	err := c.cc.Invoke(ctx, TenantDomainService_List_FullMethodName, in, out, cOpts...)
+	out := new(DomainListResponse)
+	err := c.cc.Invoke(ctx, DomainService_List_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) Watch(ctx context.Context, in *TenantDomainWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TenantDomainWatchResponse], error) {
+func (c *domainServiceClient) Watch(ctx context.Context, in *DomainWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DomainWatchResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &TenantDomainService_ServiceDesc.Streams[0], TenantDomainService_Watch_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &DomainService_ServiceDesc.Streams[0], DomainService_Watch_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[TenantDomainWatchRequest, TenantDomainWatchResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[DomainWatchRequest, DomainWatchResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -1335,65 +1335,65 @@ func (c *tenantDomainServiceClient) Watch(ctx context.Context, in *TenantDomainW
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type TenantDomainService_WatchClient = grpc.ServerStreamingClient[TenantDomainWatchResponse]
+type DomainService_WatchClient = grpc.ServerStreamingClient[DomainWatchResponse]
 
-func (c *tenantDomainServiceClient) Verify(ctx context.Context, in *TenantDomainVerifyRequest, opts ...grpc.CallOption) (*TenantDomain, error) {
+func (c *domainServiceClient) Verify(ctx context.Context, in *DomainVerifyRequest, opts ...grpc.CallOption) (*Domain, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomain)
-	err := c.cc.Invoke(ctx, TenantDomainService_Verify_FullMethodName, in, out, cOpts...)
+	out := new(Domain)
+	err := c.cc.Invoke(ctx, DomainService_Verify_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) Activate(ctx context.Context, in *TenantDomainActivateRequest, opts ...grpc.CallOption) (*TenantDomain, error) {
+func (c *domainServiceClient) Activate(ctx context.Context, in *DomainActivateRequest, opts ...grpc.CallOption) (*Domain, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomain)
-	err := c.cc.Invoke(ctx, TenantDomainService_Activate_FullMethodName, in, out, cOpts...)
+	out := new(Domain)
+	err := c.cc.Invoke(ctx, DomainService_Activate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) Retire(ctx context.Context, in *TenantDomainRetireRequest, opts ...grpc.CallOption) (*TenantDomain, error) {
+func (c *domainServiceClient) Retire(ctx context.Context, in *DomainRetireRequest, opts ...grpc.CallOption) (*Domain, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomain)
-	err := c.cc.Invoke(ctx, TenantDomainService_Retire_FullMethodName, in, out, cOpts...)
+	out := new(Domain)
+	err := c.cc.Invoke(ctx, DomainService_Retire_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *tenantDomainServiceClient) Status(ctx context.Context, in *TenantDomainStatusRequest, opts ...grpc.CallOption) (*TenantDomainStatusResponse, error) {
+func (c *domainServiceClient) Status(ctx context.Context, in *DomainStatusRequest, opts ...grpc.CallOption) (*DomainStatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantDomainStatusResponse)
-	err := c.cc.Invoke(ctx, TenantDomainService_Status_FullMethodName, in, out, cOpts...)
+	out := new(DomainStatusResponse)
+	err := c.cc.Invoke(ctx, DomainService_Status_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TenantDomainServiceServer is the server API for TenantDomainService service.
-// All implementations must embed UnimplementedTenantDomainServiceServer
+// DomainServiceServer is the server API for DomainService service.
+// All implementations must embed UnimplementedDomainServiceServer
 // for forward compatibility.
-type TenantDomainServiceServer interface {
-	// Add creates a new TenantDomain
-	Add(context.Context, *TenantDomainAddRequest) (*TenantDomain, error)
-	// Get retrieves a TenantDomain
-	Get(context.Context, *TenantDomainGetRequest) (*TenantDomain, error)
-	// Patch updates an existing TenantDomain
-	Patch(context.Context, *TenantDomainPatchRequest) (*TenantDomain, error)
-	// Apply applies a patch document to an existing TenantDomain
-	Apply(context.Context, *TenantDomainApplyRequest) (*TenantDomain, error)
-	// Erase deletes a TenantDomain
-	Erase(context.Context, *TenantDomainRef) (*TenantDomainEraseResponse, error)
-	// List reads TenantDomains a page at a time.
-	List(context.Context, *TenantDomainListRequest) (*TenantDomainListResponse, error)
-	// Watch the TenantDomains this caller may see, as they are now and as they change.
+type DomainServiceServer interface {
+	// Add creates a new Domain
+	Add(context.Context, *DomainAddRequest) (*Domain, error)
+	// Get retrieves a Domain
+	Get(context.Context, *DomainGetRequest) (*Domain, error)
+	// Patch updates an existing Domain
+	Patch(context.Context, *DomainPatchRequest) (*Domain, error)
+	// Apply applies a patch document to an existing Domain
+	Apply(context.Context, *DomainApplyRequest) (*Domain, error)
+	// Erase deletes a Domain
+	Erase(context.Context, *DomainRef) (*DomainEraseResponse, error)
+	// List reads Domains a page at a time.
+	List(context.Context, *DomainListRequest) (*DomainListResponse, error)
+	// Watch the Domains this caller may see, as they are now and as they change.
 	//
 	// What arrives is **state and never a delta**, so a client converges rather
 	// than replays: it keeps what it was last told about a row and replaces it.
@@ -1404,322 +1404,322 @@ type TenantDomainServiceServer interface {
 	// not have to List first and race the subscription. A row may arrive twice --
 	// once in that first message and once as a change that happened while it was
 	// being read -- and that is harmless for the same reason.
-	Watch(*TenantDomainWatchRequest, grpc.ServerStreamingServer[TenantDomainWatchResponse]) error
+	Watch(*DomainWatchRequest, grpc.ServerStreamingServer[DomainWatchResponse]) error
 	// Verify checks the TXT record of a pending custom domain.
-	Verify(context.Context, *TenantDomainVerifyRequest) (*TenantDomain, error)
+	Verify(context.Context, *DomainVerifyRequest) (*Domain, error)
 	// Activate makes a verified domain the one new labels are printed with; the
 	// active one before it becomes legacy and keeps resolving.
-	Activate(context.Context, *TenantDomainActivateRequest) (*TenantDomain, error)
-	Retire(context.Context, *TenantDomainRetireRequest) (*TenantDomain, error)
+	Activate(context.Context, *DomainActivateRequest) (*Domain, error)
+	Retire(context.Context, *DomainRetireRequest) (*Domain, error)
 	// Status answers whether labels are on for this tenant, and with what.
-	Status(context.Context, *TenantDomainStatusRequest) (*TenantDomainStatusResponse, error)
-	mustEmbedUnimplementedTenantDomainServiceServer()
+	Status(context.Context, *DomainStatusRequest) (*DomainStatusResponse, error)
+	mustEmbedUnimplementedDomainServiceServer()
 }
 
-// UnimplementedTenantDomainServiceServer must be embedded to have
+// UnimplementedDomainServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedTenantDomainServiceServer struct{}
+type UnimplementedDomainServiceServer struct{}
 
-func (UnimplementedTenantDomainServiceServer) Add(context.Context, *TenantDomainAddRequest) (*TenantDomain, error) {
+func (UnimplementedDomainServiceServer) Add(context.Context, *DomainAddRequest) (*Domain, error) {
 	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Get(context.Context, *TenantDomainGetRequest) (*TenantDomain, error) {
+func (UnimplementedDomainServiceServer) Get(context.Context, *DomainGetRequest) (*Domain, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Patch(context.Context, *TenantDomainPatchRequest) (*TenantDomain, error) {
+func (UnimplementedDomainServiceServer) Patch(context.Context, *DomainPatchRequest) (*Domain, error) {
 	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Apply(context.Context, *TenantDomainApplyRequest) (*TenantDomain, error) {
+func (UnimplementedDomainServiceServer) Apply(context.Context, *DomainApplyRequest) (*Domain, error) {
 	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Erase(context.Context, *TenantDomainRef) (*TenantDomainEraseResponse, error) {
+func (UnimplementedDomainServiceServer) Erase(context.Context, *DomainRef) (*DomainEraseResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) List(context.Context, *TenantDomainListRequest) (*TenantDomainListResponse, error) {
+func (UnimplementedDomainServiceServer) List(context.Context, *DomainListRequest) (*DomainListResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method List not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Watch(*TenantDomainWatchRequest, grpc.ServerStreamingServer[TenantDomainWatchResponse]) error {
+func (UnimplementedDomainServiceServer) Watch(*DomainWatchRequest, grpc.ServerStreamingServer[DomainWatchResponse]) error {
 	return status.Error(codes.Unimplemented, "method Watch not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Verify(context.Context, *TenantDomainVerifyRequest) (*TenantDomain, error) {
+func (UnimplementedDomainServiceServer) Verify(context.Context, *DomainVerifyRequest) (*Domain, error) {
 	return nil, status.Error(codes.Unimplemented, "method Verify not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Activate(context.Context, *TenantDomainActivateRequest) (*TenantDomain, error) {
+func (UnimplementedDomainServiceServer) Activate(context.Context, *DomainActivateRequest) (*Domain, error) {
 	return nil, status.Error(codes.Unimplemented, "method Activate not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Retire(context.Context, *TenantDomainRetireRequest) (*TenantDomain, error) {
+func (UnimplementedDomainServiceServer) Retire(context.Context, *DomainRetireRequest) (*Domain, error) {
 	return nil, status.Error(codes.Unimplemented, "method Retire not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) Status(context.Context, *TenantDomainStatusRequest) (*TenantDomainStatusResponse, error) {
+func (UnimplementedDomainServiceServer) Status(context.Context, *DomainStatusRequest) (*DomainStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
 }
-func (UnimplementedTenantDomainServiceServer) mustEmbedUnimplementedTenantDomainServiceServer() {}
-func (UnimplementedTenantDomainServiceServer) testEmbeddedByValue()                             {}
+func (UnimplementedDomainServiceServer) mustEmbedUnimplementedDomainServiceServer() {}
+func (UnimplementedDomainServiceServer) testEmbeddedByValue()                       {}
 
-// UnsafeTenantDomainServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TenantDomainServiceServer will
+// UnsafeDomainServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DomainServiceServer will
 // result in compilation errors.
-type UnsafeTenantDomainServiceServer interface {
-	mustEmbedUnimplementedTenantDomainServiceServer()
+type UnsafeDomainServiceServer interface {
+	mustEmbedUnimplementedDomainServiceServer()
 }
 
-func RegisterTenantDomainServiceServer(s grpc.ServiceRegistrar, srv TenantDomainServiceServer) {
-	// If the following call panics, it indicates UnimplementedTenantDomainServiceServer was
+func RegisterDomainServiceServer(s grpc.ServiceRegistrar, srv DomainServiceServer) {
+	// If the following call panics, it indicates UnimplementedDomainServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&TenantDomainService_ServiceDesc, srv)
+	s.RegisterService(&DomainService_ServiceDesc, srv)
 }
 
-func _TenantDomainService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainAddRequest)
+func _DomainService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainAddRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Add(ctx, in)
+		return srv.(DomainServiceServer).Add(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Add_FullMethodName,
+		FullMethod: DomainService_Add_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Add(ctx, req.(*TenantDomainAddRequest))
+		return srv.(DomainServiceServer).Add(ctx, req.(*DomainAddRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainGetRequest)
+func _DomainService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainGetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Get(ctx, in)
+		return srv.(DomainServiceServer).Get(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Get_FullMethodName,
+		FullMethod: DomainService_Get_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Get(ctx, req.(*TenantDomainGetRequest))
+		return srv.(DomainServiceServer).Get(ctx, req.(*DomainGetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainPatchRequest)
+func _DomainService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainPatchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Patch(ctx, in)
+		return srv.(DomainServiceServer).Patch(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Patch_FullMethodName,
+		FullMethod: DomainService_Patch_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Patch(ctx, req.(*TenantDomainPatchRequest))
+		return srv.(DomainServiceServer).Patch(ctx, req.(*DomainPatchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainApplyRequest)
+func _DomainService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainApplyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Apply(ctx, in)
+		return srv.(DomainServiceServer).Apply(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Apply_FullMethodName,
+		FullMethod: DomainService_Apply_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Apply(ctx, req.(*TenantDomainApplyRequest))
+		return srv.(DomainServiceServer).Apply(ctx, req.(*DomainApplyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainRef)
+func _DomainService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainRef)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Erase(ctx, in)
+		return srv.(DomainServiceServer).Erase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Erase_FullMethodName,
+		FullMethod: DomainService_Erase_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Erase(ctx, req.(*TenantDomainRef))
+		return srv.(DomainServiceServer).Erase(ctx, req.(*DomainRef))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainListRequest)
+func _DomainService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).List(ctx, in)
+		return srv.(DomainServiceServer).List(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_List_FullMethodName,
+		FullMethod: DomainService_List_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).List(ctx, req.(*TenantDomainListRequest))
+		return srv.(DomainServiceServer).List(ctx, req.(*DomainListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(TenantDomainWatchRequest)
+func _DomainService_Watch_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(DomainWatchRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(TenantDomainServiceServer).Watch(m, &grpc.GenericServerStream[TenantDomainWatchRequest, TenantDomainWatchResponse]{ServerStream: stream})
+	return srv.(DomainServiceServer).Watch(m, &grpc.GenericServerStream[DomainWatchRequest, DomainWatchResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type TenantDomainService_WatchServer = grpc.ServerStreamingServer[TenantDomainWatchResponse]
+type DomainService_WatchServer = grpc.ServerStreamingServer[DomainWatchResponse]
 
-func _TenantDomainService_Verify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainVerifyRequest)
+func _DomainService_Verify_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainVerifyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Verify(ctx, in)
+		return srv.(DomainServiceServer).Verify(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Verify_FullMethodName,
+		FullMethod: DomainService_Verify_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Verify(ctx, req.(*TenantDomainVerifyRequest))
+		return srv.(DomainServiceServer).Verify(ctx, req.(*DomainVerifyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_Activate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainActivateRequest)
+func _DomainService_Activate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainActivateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Activate(ctx, in)
+		return srv.(DomainServiceServer).Activate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Activate_FullMethodName,
+		FullMethod: DomainService_Activate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Activate(ctx, req.(*TenantDomainActivateRequest))
+		return srv.(DomainServiceServer).Activate(ctx, req.(*DomainActivateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_Retire_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainRetireRequest)
+func _DomainService_Retire_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainRetireRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Retire(ctx, in)
+		return srv.(DomainServiceServer).Retire(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Retire_FullMethodName,
+		FullMethod: DomainService_Retire_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Retire(ctx, req.(*TenantDomainRetireRequest))
+		return srv.(DomainServiceServer).Retire(ctx, req.(*DomainRetireRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantDomainService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantDomainStatusRequest)
+func _DomainService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DomainStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TenantDomainServiceServer).Status(ctx, in)
+		return srv.(DomainServiceServer).Status(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: TenantDomainService_Status_FullMethodName,
+		FullMethod: DomainService_Status_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantDomainServiceServer).Status(ctx, req.(*TenantDomainStatusRequest))
+		return srv.(DomainServiceServer).Status(ctx, req.(*DomainStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// TenantDomainService_ServiceDesc is the grpc.ServiceDesc for TenantDomainService service.
+// DomainService_ServiceDesc is the grpc.ServiceDesc for DomainService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var TenantDomainService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "loft.TenantDomainService",
-	HandlerType: (*TenantDomainServiceServer)(nil),
+var DomainService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.DomainService",
+	HandlerType: (*DomainServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Add",
-			Handler:    _TenantDomainService_Add_Handler,
+			Handler:    _DomainService_Add_Handler,
 		},
 		{
 			MethodName: "Get",
-			Handler:    _TenantDomainService_Get_Handler,
+			Handler:    _DomainService_Get_Handler,
 		},
 		{
 			MethodName: "Patch",
-			Handler:    _TenantDomainService_Patch_Handler,
+			Handler:    _DomainService_Patch_Handler,
 		},
 		{
 			MethodName: "Apply",
-			Handler:    _TenantDomainService_Apply_Handler,
+			Handler:    _DomainService_Apply_Handler,
 		},
 		{
 			MethodName: "Erase",
-			Handler:    _TenantDomainService_Erase_Handler,
+			Handler:    _DomainService_Erase_Handler,
 		},
 		{
 			MethodName: "List",
-			Handler:    _TenantDomainService_List_Handler,
+			Handler:    _DomainService_List_Handler,
 		},
 		{
 			MethodName: "Verify",
-			Handler:    _TenantDomainService_Verify_Handler,
+			Handler:    _DomainService_Verify_Handler,
 		},
 		{
 			MethodName: "Activate",
-			Handler:    _TenantDomainService_Activate_Handler,
+			Handler:    _DomainService_Activate_Handler,
 		},
 		{
 			MethodName: "Retire",
-			Handler:    _TenantDomainService_Retire_Handler,
+			Handler:    _DomainService_Retire_Handler,
 		},
 		{
 			MethodName: "Status",
-			Handler:    _TenantDomainService_Status_Handler,
+			Handler:    _DomainService_Status_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Watch",
-			Handler:       _TenantDomainService_Watch_Handler,
+			Handler:       _DomainService_Watch_Handler,
 			ServerStreams: true,
 		},
 	},

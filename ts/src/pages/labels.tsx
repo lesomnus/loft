@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import type { Label } from '../../gen/loft/asset_pb.js'
-import { LabelService, TenantDomainService, errorText, idBytes, idStr, labelCodeText } from '../api.js'
+import { DomainService, LabelService, errorText, idBytes, idStr, labelCodeText } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { call, useRpc } from '../rpc.js'
 import { useAssets } from '../pickers.js'
@@ -41,7 +41,7 @@ export function LabelSheet(): ReactNode {
 	const c = useCatalog()
 	const ids = (sp.get('assets') ?? '').split(',').filter((v) => v !== '')
 	const blank = Number(sp.get('count') ?? '0')
-	const status = useRpc(TenantDomainService.method.status, {})
+	const status = useRpc(DomainService.method.status, {})
 	const [got, setGot] = useState<{ labels: Label[]; urls: string[]; qr: string[] }>()
 	const [err, setErr] = useState('')
 	const [size, setSize] = useState(sp.get('size') ?? 'm')

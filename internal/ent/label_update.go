@@ -9,9 +9,9 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/predicate"
-	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -193,8 +193,8 @@ func (_u *LabelUpdate) ClearDomainId() *LabelUpdate {
 	return _u
 }
 
-// SetDomain sets the "domain" edge to the TenantDomain entity.
-func (_u *LabelUpdate) SetDomain(v *TenantDomain) *LabelUpdate {
+// SetDomain sets the "domain" edge to the Domain entity.
+func (_u *LabelUpdate) SetDomain(v *Domain) *LabelUpdate {
 	return _u.SetDomainId(v.Id)
 }
 
@@ -203,7 +203,7 @@ func (_u *LabelUpdate) Mutation() *LabelMutation {
 	return _u.mutation
 }
 
-// ClearDomain clears the "domain" edge to the TenantDomain entity.
+// ClearDomain clears the "domain" edge to the Domain entity.
 func (_u *LabelUpdate) ClearDomain() *LabelUpdate {
 	_u.mutation.ClearDomain()
 	return _u
@@ -336,7 +336,7 @@ func (_u *LabelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{label.DomainColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(tenantdomain.FieldId, field.TypeUuid),
+				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -349,7 +349,7 @@ func (_u *LabelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Columns: []string{label.DomainColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(tenantdomain.FieldId, field.TypeUuid),
+				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
 			},
 		}
 		for _, k := range nodes {
@@ -541,8 +541,8 @@ func (_u *LabelUpdateOne) ClearDomainId() *LabelUpdateOne {
 	return _u
 }
 
-// SetDomain sets the "domain" edge to the TenantDomain entity.
-func (_u *LabelUpdateOne) SetDomain(v *TenantDomain) *LabelUpdateOne {
+// SetDomain sets the "domain" edge to the Domain entity.
+func (_u *LabelUpdateOne) SetDomain(v *Domain) *LabelUpdateOne {
 	return _u.SetDomainId(v.Id)
 }
 
@@ -551,7 +551,7 @@ func (_u *LabelUpdateOne) Mutation() *LabelMutation {
 	return _u.mutation
 }
 
-// ClearDomain clears the "domain" edge to the TenantDomain entity.
+// ClearDomain clears the "domain" edge to the Domain entity.
 func (_u *LabelUpdateOne) ClearDomain() *LabelUpdateOne {
 	_u.mutation.ClearDomain()
 	return _u
@@ -714,7 +714,7 @@ func (_u *LabelUpdateOne) sqlSave(ctx context.Context) (_node *Label, err error)
 			Columns: []string{label.DomainColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(tenantdomain.FieldId, field.TypeUuid),
+				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -727,7 +727,7 @@ func (_u *LabelUpdateOne) sqlSave(ctx context.Context) (_node *Label, err error)
 			Columns: []string{label.DomainColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(tenantdomain.FieldId, field.TypeUuid),
+				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
 			},
 		}
 		for _, k := range nodes {

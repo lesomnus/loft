@@ -70,6 +70,9 @@ type Custody func(*sql.Selector)
 // CustodyLine is the predicate function for custodyline builders.
 type CustodyLine func(*sql.Selector)
 
+// Domain is the predicate function for domain builders.
+type Domain func(*sql.Selector)
+
 // Entitlement is the predicate function for entitlement builders.
 type Entitlement func(*sql.Selector)
 
@@ -184,9 +187,6 @@ type Tenant func(*sql.Selector)
 
 // TenantContract is the predicate function for tenantcontract builders.
 type TenantContract func(*sql.Selector)
-
-// TenantDomain is the predicate function for tenantdomain builders.
-type TenantDomain func(*sql.Selector)
 
 // TreeLock is the predicate function for treelock builders.
 type TreeLock func(*sql.Selector)

@@ -49,9 +49,9 @@ const (
 	TenantColumn = "tenant_id"
 	// DomainTable is the table that holds the domain relation/edge.
 	DomainTable = "label"
-	// DomainInverseTable is the table name for the TenantDomain entity.
-	// It exists in this package in order to avoid circular dependency with the "tenantdomain" package.
-	DomainInverseTable = "tenantdomain"
+	// DomainInverseTable is the table name for the Domain entity.
+	// It exists in this package in order to avoid circular dependency with the "domain" package.
+	DomainInverseTable = "domain"
 	// DomainColumn is the table column denoting the domain relation/edge.
 	DomainColumn = "domain_id"
 )

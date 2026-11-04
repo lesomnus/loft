@@ -23,7 +23,7 @@ const printed = /[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}/
 /** A domain made a workspace's active one, as its TXT record and CNAME would. */
 async function verified(host: string): Promise<void> {
 	// A time the database wrote, in the form it writes them.
-	const sql = "UPDATE tenantdomain SET state = 'active', verified_at = date_updated WHERE host = $1"
+	const sql = "UPDATE domain SET state = 'active', verified_at = date_updated WHERE host = $1"
 	const at = process.env.E2E_POSTGRES
 	if (at !== undefined && at !== '') {
 		const u = new URL(at)
@@ -54,7 +54,7 @@ test('a workspace on its own domain is signed in to at the service, serves itsel
 	expect(made.status()).toBe(201)
 	const ws = (await made.json()) as { alias: string; name: string }
 	const host = `${ws.alias}.e2e.test`
-	const added = await page.request.post('/loft.TenantDomainService/Add', {
+	const added = await page.request.post('/loft.DomainService/Add', {
 		headers: { 'connect-protocol-version': '1', 'loft-workspace': ws.alias },
 		data: { host },
 	})

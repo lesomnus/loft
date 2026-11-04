@@ -101,7 +101,7 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	purchases := app.NewPurchaseServiceClient(w.conn)
 	parties := app.NewPartyServiceClient(w.conn)
 	tenants := app.NewTenantServiceClient(w.conn)
-	domains := app.NewTenantDomainServiceClient(w.conn)
+	domains := app.NewDomainServiceClient(w.conn)
 	notifications := app.NewNotificationServiceClient(w.conn)
 	tref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
 	aref := func(a *app.Asset) *app.AssetRef { return app.AssetRef_builder{Id: a.GetId()}.Build() }
@@ -236,8 +236,8 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	w.refusedReadOnly(err, app.InvitationService_Accept_FullMethodName)
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, Timezone: z.Ptr("Asia/Tokyo")}.Build())
 	w.refusedReadOnly(err, app.TenantService_Configure_FullMethodName)
-	_, err = domains.Add(w.owner, app.TenantDomainAddRequest_builder{Host: "assets.acme.example"}.Build())
-	w.refusedReadOnly(err, app.TenantDomainService_Add_FullMethodName)
+	_, err = domains.Add(w.owner, app.DomainAddRequest_builder{Host: "assets.acme.example"}.Build())
+	w.refusedReadOnly(err, app.DomainService_Add_FullMethodName)
 
 	// And as an operation of a batch, which the domain layer serves in the
 	// batch's transaction: refused as its own method.

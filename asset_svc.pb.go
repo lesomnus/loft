@@ -7447,7 +7447,7 @@ func (b0 AssetCensusRow_builder) Build() *AssetCensusRow {
 	return m0
 }
 
-type TenantDomainAddRequest struct {
+type DomainAddRequest struct {
 	state                    protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_Tenant        *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
@@ -7470,20 +7470,20 @@ type TenantDomainAddRequest struct {
 	sizeCache                protoimpl.SizeCache
 }
 
-func (x *TenantDomainAddRequest) Reset() {
-	*x = TenantDomainAddRequest{}
+func (x *DomainAddRequest) Reset() {
+	*x = DomainAddRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainAddRequest) String() string {
+func (x *DomainAddRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainAddRequest) ProtoMessage() {}
+func (*DomainAddRequest) ProtoMessage() {}
 
-func (x *TenantDomainAddRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainAddRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -7495,105 +7495,105 @@ func (x *TenantDomainAddRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainAddRequest) GetId() []byte {
+func (x *DomainAddRequest) GetId() []byte {
 	if x != nil {
 		return x.xxx_hidden_Id
 	}
 	return nil
 }
 
-func (x *TenantDomainAddRequest) GetTenant() *TenantRef {
+func (x *DomainAddRequest) GetTenant() *TenantRef {
 	if x != nil {
 		return x.xxx_hidden_Tenant
 	}
 	return nil
 }
 
-func (x *TenantDomainAddRequest) GetHost() string {
+func (x *DomainAddRequest) GetHost() string {
 	if x != nil {
 		return x.xxx_hidden_Host
 	}
 	return ""
 }
 
-func (x *TenantDomainAddRequest) GetPurpose() string {
+func (x *DomainAddRequest) GetPurpose() string {
 	if x != nil {
 		return x.xxx_hidden_Purpose
 	}
 	return ""
 }
 
-func (x *TenantDomainAddRequest) GetState() string {
+func (x *DomainAddRequest) GetState() string {
 	if x != nil {
 		return x.xxx_hidden_State
 	}
 	return ""
 }
 
-func (x *TenantDomainAddRequest) GetToken() string {
+func (x *DomainAddRequest) GetToken() string {
 	if x != nil {
 		return x.xxx_hidden_Token
 	}
 	return ""
 }
 
-func (x *TenantDomainAddRequest) GetSource() string {
+func (x *DomainAddRequest) GetSource() string {
 	if x != nil {
 		return x.xxx_hidden_Source
 	}
 	return ""
 }
 
-func (x *TenantDomainAddRequest) GetDateCreated() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateCreated
 	}
 	return nil
 }
 
-func (x *TenantDomainAddRequest) GetVerifiedAt() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetVerifiedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_VerifiedAt
 	}
 	return nil
 }
 
-func (x *TenantDomainAddRequest) GetCheckedAt() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetCheckedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_CheckedAt
 	}
 	return nil
 }
 
-func (x *TenantDomainAddRequest) GetFailures() uint32 {
+func (x *DomainAddRequest) GetFailures() uint32 {
 	if x != nil {
 		return x.xxx_hidden_Failures
 	}
 	return 0
 }
 
-func (x *TenantDomainAddRequest) GetFailingSince() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetFailingSince() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_FailingSince
 	}
 	return nil
 }
 
-func (x *TenantDomainAddRequest) GetDateLapsed() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetDateLapsed() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateLapsed
 	}
 	return nil
 }
 
-func (x *TenantDomainAddRequest) GetRedirectUntil() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetRedirectUntil() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_RedirectUntil
 	}
 	return nil
 }
 
-func (x *TenantDomainAddRequest) GetSub() string {
+func (x *DomainAddRequest) GetSub() string {
 	if x != nil {
 		if x.xxx_hidden_Sub != nil {
 			return *x.xxx_hidden_Sub
@@ -7603,7 +7603,7 @@ func (x *TenantDomainAddRequest) GetSub() string {
 	return ""
 }
 
-func (x *TenantDomainAddRequest) SetId(v []byte) {
+func (x *DomainAddRequest) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
@@ -7611,178 +7611,178 @@ func (x *TenantDomainAddRequest) SetId(v []byte) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 15)
 }
 
-func (x *TenantDomainAddRequest) SetTenant(v *TenantRef) {
+func (x *DomainAddRequest) SetTenant(v *TenantRef) {
 	x.xxx_hidden_Tenant = v
 }
 
-func (x *TenantDomainAddRequest) SetHost(v string) {
+func (x *DomainAddRequest) SetHost(v string) {
 	x.xxx_hidden_Host = v
 }
 
-func (x *TenantDomainAddRequest) SetPurpose(v string) {
+func (x *DomainAddRequest) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = v
 }
 
-func (x *TenantDomainAddRequest) SetState(v string) {
+func (x *DomainAddRequest) SetState(v string) {
 	x.xxx_hidden_State = v
 }
 
-func (x *TenantDomainAddRequest) SetToken(v string) {
+func (x *DomainAddRequest) SetToken(v string) {
 	x.xxx_hidden_Token = v
 }
 
-func (x *TenantDomainAddRequest) SetSource(v string) {
+func (x *DomainAddRequest) SetSource(v string) {
 	x.xxx_hidden_Source = v
 }
 
-func (x *TenantDomainAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
+func (x *DomainAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *TenantDomainAddRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
+func (x *DomainAddRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
 	x.xxx_hidden_VerifiedAt = v
 }
 
-func (x *TenantDomainAddRequest) SetCheckedAt(v *timestamppb.Timestamp) {
+func (x *DomainAddRequest) SetCheckedAt(v *timestamppb.Timestamp) {
 	x.xxx_hidden_CheckedAt = v
 }
 
-func (x *TenantDomainAddRequest) SetFailures(v uint32) {
+func (x *DomainAddRequest) SetFailures(v uint32) {
 	x.xxx_hidden_Failures = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 15)
 }
 
-func (x *TenantDomainAddRequest) SetFailingSince(v *timestamppb.Timestamp) {
+func (x *DomainAddRequest) SetFailingSince(v *timestamppb.Timestamp) {
 	x.xxx_hidden_FailingSince = v
 }
 
-func (x *TenantDomainAddRequest) SetDateLapsed(v *timestamppb.Timestamp) {
+func (x *DomainAddRequest) SetDateLapsed(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateLapsed = v
 }
 
-func (x *TenantDomainAddRequest) SetRedirectUntil(v *timestamppb.Timestamp) {
+func (x *DomainAddRequest) SetRedirectUntil(v *timestamppb.Timestamp) {
 	x.xxx_hidden_RedirectUntil = v
 }
 
-func (x *TenantDomainAddRequest) SetSub(v string) {
+func (x *DomainAddRequest) SetSub(v string) {
 	x.xxx_hidden_Sub = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 15)
 }
 
-func (x *TenantDomainAddRequest) HasId() bool {
+func (x *DomainAddRequest) HasId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *TenantDomainAddRequest) HasTenant() bool {
+func (x *DomainAddRequest) HasTenant() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *TenantDomainAddRequest) HasDateCreated() bool {
+func (x *DomainAddRequest) HasDateCreated() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *TenantDomainAddRequest) HasVerifiedAt() bool {
+func (x *DomainAddRequest) HasVerifiedAt() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_VerifiedAt != nil
 }
 
-func (x *TenantDomainAddRequest) HasCheckedAt() bool {
+func (x *DomainAddRequest) HasCheckedAt() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_CheckedAt != nil
 }
 
-func (x *TenantDomainAddRequest) HasFailures() bool {
+func (x *DomainAddRequest) HasFailures() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *TenantDomainAddRequest) HasFailingSince() bool {
+func (x *DomainAddRequest) HasFailingSince() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_FailingSince != nil
 }
 
-func (x *TenantDomainAddRequest) HasDateLapsed() bool {
+func (x *DomainAddRequest) HasDateLapsed() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_DateLapsed != nil
 }
 
-func (x *TenantDomainAddRequest) HasRedirectUntil() bool {
+func (x *DomainAddRequest) HasRedirectUntil() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_RedirectUntil != nil
 }
 
-func (x *TenantDomainAddRequest) HasSub() bool {
+func (x *DomainAddRequest) HasSub() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
 }
 
-func (x *TenantDomainAddRequest) ClearId() {
+func (x *DomainAddRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
 }
 
-func (x *TenantDomainAddRequest) ClearTenant() {
+func (x *DomainAddRequest) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
 
-func (x *TenantDomainAddRequest) ClearDateCreated() {
+func (x *DomainAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *TenantDomainAddRequest) ClearVerifiedAt() {
+func (x *DomainAddRequest) ClearVerifiedAt() {
 	x.xxx_hidden_VerifiedAt = nil
 }
 
-func (x *TenantDomainAddRequest) ClearCheckedAt() {
+func (x *DomainAddRequest) ClearCheckedAt() {
 	x.xxx_hidden_CheckedAt = nil
 }
 
-func (x *TenantDomainAddRequest) ClearFailures() {
+func (x *DomainAddRequest) ClearFailures() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_Failures = 0
 }
 
-func (x *TenantDomainAddRequest) ClearFailingSince() {
+func (x *DomainAddRequest) ClearFailingSince() {
 	x.xxx_hidden_FailingSince = nil
 }
 
-func (x *TenantDomainAddRequest) ClearDateLapsed() {
+func (x *DomainAddRequest) ClearDateLapsed() {
 	x.xxx_hidden_DateLapsed = nil
 }
 
-func (x *TenantDomainAddRequest) ClearRedirectUntil() {
+func (x *DomainAddRequest) ClearRedirectUntil() {
 	x.xxx_hidden_RedirectUntil = nil
 }
 
-func (x *TenantDomainAddRequest) ClearSub() {
+func (x *DomainAddRequest) ClearSub() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
 	x.xxx_hidden_Sub = nil
 }
 
-type TenantDomainAddRequest_builder struct {
+type DomainAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Id            []byte
@@ -7803,8 +7803,8 @@ type TenantDomainAddRequest_builder struct {
 	Sub *string
 }
 
-func (b0 TenantDomainAddRequest_builder) Build() *TenantDomainAddRequest {
-	m0 := &TenantDomainAddRequest{}
+func (b0 DomainAddRequest_builder) Build() *DomainAddRequest {
+	m0 := &DomainAddRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
@@ -7834,28 +7834,28 @@ func (b0 TenantDomainAddRequest_builder) Build() *TenantDomainAddRequest {
 	return m0
 }
 
-type TenantDomainGetRequest struct {
+type DomainGetRequest struct {
 	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref    *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Select *TenantDomainSelect    `protobuf:"bytes,2,opt,name=select"`
+	xxx_hidden_Ref    *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Select *DomainSelect          `protobuf:"bytes,2,opt,name=select"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
 
-func (x *TenantDomainGetRequest) Reset() {
-	*x = TenantDomainGetRequest{}
+func (x *DomainGetRequest) Reset() {
+	*x = DomainGetRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainGetRequest) String() string {
+func (x *DomainGetRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainGetRequest) ProtoMessage() {}
+func (*DomainGetRequest) ProtoMessage() {}
 
-func (x *TenantDomainGetRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainGetRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -7867,59 +7867,59 @@ func (x *TenantDomainGetRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainGetRequest) GetRef() *TenantDomainRef {
+func (x *DomainGetRequest) GetRef() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Ref
 	}
 	return nil
 }
 
-func (x *TenantDomainGetRequest) GetSelect() *TenantDomainSelect {
+func (x *DomainGetRequest) GetSelect() *DomainSelect {
 	if x != nil {
 		return x.xxx_hidden_Select
 	}
 	return nil
 }
 
-func (x *TenantDomainGetRequest) SetRef(v *TenantDomainRef) {
+func (x *DomainGetRequest) SetRef(v *DomainRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *TenantDomainGetRequest) SetSelect(v *TenantDomainSelect) {
+func (x *DomainGetRequest) SetSelect(v *DomainSelect) {
 	x.xxx_hidden_Select = v
 }
 
-func (x *TenantDomainGetRequest) HasRef() bool {
+func (x *DomainGetRequest) HasRef() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *TenantDomainGetRequest) HasSelect() bool {
+func (x *DomainGetRequest) HasSelect() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Select != nil
 }
 
-func (x *TenantDomainGetRequest) ClearRef() {
+func (x *DomainGetRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *TenantDomainGetRequest) ClearSelect() {
+func (x *DomainGetRequest) ClearSelect() {
 	x.xxx_hidden_Select = nil
 }
 
-type TenantDomainGetRequest_builder struct {
+type DomainGetRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref    *TenantDomainRef
-	Select *TenantDomainSelect
+	Ref    *DomainRef
+	Select *DomainSelect
 }
 
-func (b0 TenantDomainGetRequest_builder) Build() *TenantDomainGetRequest {
-	m0 := &TenantDomainGetRequest{}
+func (b0 DomainGetRequest_builder) Build() *DomainGetRequest {
+	m0 := &DomainGetRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
@@ -7927,27 +7927,27 @@ func (b0 TenantDomainGetRequest_builder) Build() *TenantDomainGetRequest {
 	return m0
 }
 
-type TenantDomainRef struct {
+type DomainRef struct {
 	state          protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Key isTenantDomainRef_Key  `protobuf_oneof:"key"`
+	xxx_hidden_Key isDomainRef_Key        `protobuf_oneof:"key"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *TenantDomainRef) Reset() {
-	*x = TenantDomainRef{}
+func (x *DomainRef) Reset() {
+	*x = DomainRef{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainRef) String() string {
+func (x *DomainRef) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainRef) ProtoMessage() {}
+func (*DomainRef) ProtoMessage() {}
 
-func (x *TenantDomainRef) ProtoReflect() protoreflect.Message {
+func (x *DomainRef) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -7959,93 +7959,93 @@ func (x *TenantDomainRef) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainRef) GetId() []byte {
+func (x *DomainRef) GetId() []byte {
 	if x != nil {
-		if x, ok := x.xxx_hidden_Key.(*tenantDomainRef_Id); ok {
+		if x, ok := x.xxx_hidden_Key.(*domainRef_Id); ok {
 			return x.Id
 		}
 	}
 	return nil
 }
 
-func (x *TenantDomainRef) GetHost() string {
+func (x *DomainRef) GetHost() string {
 	if x != nil {
-		if x, ok := x.xxx_hidden_Key.(*tenantDomainRef_Host); ok {
+		if x, ok := x.xxx_hidden_Key.(*domainRef_Host); ok {
 			return x.Host
 		}
 	}
 	return ""
 }
 
-func (x *TenantDomainRef) SetId(v []byte) {
+func (x *DomainRef) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
-	x.xxx_hidden_Key = &tenantDomainRef_Id{v}
+	x.xxx_hidden_Key = &domainRef_Id{v}
 }
 
-func (x *TenantDomainRef) SetHost(v string) {
-	x.xxx_hidden_Key = &tenantDomainRef_Host{v}
+func (x *DomainRef) SetHost(v string) {
+	x.xxx_hidden_Key = &domainRef_Host{v}
 }
 
-func (x *TenantDomainRef) HasKey() bool {
+func (x *DomainRef) HasKey() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Key != nil
 }
 
-func (x *TenantDomainRef) HasId() bool {
+func (x *DomainRef) HasId() bool {
 	if x == nil {
 		return false
 	}
-	_, ok := x.xxx_hidden_Key.(*tenantDomainRef_Id)
+	_, ok := x.xxx_hidden_Key.(*domainRef_Id)
 	return ok
 }
 
-func (x *TenantDomainRef) HasHost() bool {
+func (x *DomainRef) HasHost() bool {
 	if x == nil {
 		return false
 	}
-	_, ok := x.xxx_hidden_Key.(*tenantDomainRef_Host)
+	_, ok := x.xxx_hidden_Key.(*domainRef_Host)
 	return ok
 }
 
-func (x *TenantDomainRef) ClearKey() {
+func (x *DomainRef) ClearKey() {
 	x.xxx_hidden_Key = nil
 }
 
-func (x *TenantDomainRef) ClearId() {
-	if _, ok := x.xxx_hidden_Key.(*tenantDomainRef_Id); ok {
+func (x *DomainRef) ClearId() {
+	if _, ok := x.xxx_hidden_Key.(*domainRef_Id); ok {
 		x.xxx_hidden_Key = nil
 	}
 }
 
-func (x *TenantDomainRef) ClearHost() {
-	if _, ok := x.xxx_hidden_Key.(*tenantDomainRef_Host); ok {
+func (x *DomainRef) ClearHost() {
+	if _, ok := x.xxx_hidden_Key.(*domainRef_Host); ok {
 		x.xxx_hidden_Key = nil
 	}
 }
 
-const TenantDomainRef_Key_not_set_case case_TenantDomainRef_Key = 0
-const TenantDomainRef_Id_case case_TenantDomainRef_Key = 1
-const TenantDomainRef_Host_case case_TenantDomainRef_Key = 8
+const DomainRef_Key_not_set_case case_DomainRef_Key = 0
+const DomainRef_Id_case case_DomainRef_Key = 1
+const DomainRef_Host_case case_DomainRef_Key = 8
 
-func (x *TenantDomainRef) WhichKey() case_TenantDomainRef_Key {
+func (x *DomainRef) WhichKey() case_DomainRef_Key {
 	if x == nil {
-		return TenantDomainRef_Key_not_set_case
+		return DomainRef_Key_not_set_case
 	}
 	switch x.xxx_hidden_Key.(type) {
-	case *tenantDomainRef_Id:
-		return TenantDomainRef_Id_case
-	case *tenantDomainRef_Host:
-		return TenantDomainRef_Host_case
+	case *domainRef_Id:
+		return DomainRef_Id_case
+	case *domainRef_Host:
+		return DomainRef_Host_case
 	default:
-		return TenantDomainRef_Key_not_set_case
+		return DomainRef_Key_not_set_case
 	}
 }
 
-type TenantDomainRef_builder struct {
+type DomainRef_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Fields of oneof xxx_hidden_Key:
@@ -8054,22 +8054,22 @@ type TenantDomainRef_builder struct {
 	// -- end of xxx_hidden_Key
 }
 
-func (b0 TenantDomainRef_builder) Build() *TenantDomainRef {
-	m0 := &TenantDomainRef{}
+func (b0 DomainRef_builder) Build() *DomainRef {
+	m0 := &DomainRef{}
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		x.xxx_hidden_Key = &tenantDomainRef_Id{b.Id}
+		x.xxx_hidden_Key = &domainRef_Id{b.Id}
 	}
 	if b.Host != nil {
-		x.xxx_hidden_Key = &tenantDomainRef_Host{*b.Host}
+		x.xxx_hidden_Key = &domainRef_Host{*b.Host}
 	}
 	return m0
 }
 
-type case_TenantDomainRef_Key protoreflect.FieldNumber
+type case_DomainRef_Key protoreflect.FieldNumber
 
-func (x case_TenantDomainRef_Key) String() string {
+func (x case_DomainRef_Key) String() string {
 	md := file_loft_asset_svc_g_proto_msgTypes[47].Descriptor()
 	if x == 0 {
 		return "not set"
@@ -8077,23 +8077,23 @@ func (x case_TenantDomainRef_Key) String() string {
 	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
 }
 
-type isTenantDomainRef_Key interface {
-	isTenantDomainRef_Key()
+type isDomainRef_Key interface {
+	isDomainRef_Key()
 }
 
-type tenantDomainRef_Id struct {
+type domainRef_Id struct {
 	Id []byte `protobuf:"bytes,1,opt,name=id,oneof"`
 }
 
-type tenantDomainRef_Host struct {
+type domainRef_Host struct {
 	Host string `protobuf:"bytes,8,opt,name=host,oneof"`
 }
 
-func (*tenantDomainRef_Id) isTenantDomainRef_Key() {}
+func (*domainRef_Id) isDomainRef_Key() {}
 
-func (*tenantDomainRef_Host) isTenantDomainRef_Key() {}
+func (*domainRef_Host) isDomainRef_Key() {}
 
-type TenantDomainSelect struct {
+type DomainSelect struct {
 	state                    protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_All           bool                   `protobuf:"varint,1,opt,name=all"`
 	xxx_hidden_Tenant        *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
@@ -8117,20 +8117,20 @@ type TenantDomainSelect struct {
 	sizeCache                protoimpl.SizeCache
 }
 
-func (x *TenantDomainSelect) Reset() {
-	*x = TenantDomainSelect{}
+func (x *DomainSelect) Reset() {
+	*x = DomainSelect{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainSelect) String() string {
+func (x *DomainSelect) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainSelect) ProtoMessage() {}
+func (*DomainSelect) ProtoMessage() {}
 
-func (x *TenantDomainSelect) ProtoReflect() protoreflect.Message {
+func (x *DomainSelect) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -8142,389 +8142,389 @@ func (x *TenantDomainSelect) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainSelect) GetAll() bool {
+func (x *DomainSelect) GetAll() bool {
 	if x != nil {
 		return x.xxx_hidden_All
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetTenant() *TenantSelect {
+func (x *DomainSelect) GetTenant() *TenantSelect {
 	if x != nil {
 		return x.xxx_hidden_Tenant
 	}
 	return nil
 }
 
-func (x *TenantDomainSelect) GetHost() bool {
+func (x *DomainSelect) GetHost() bool {
 	if x != nil {
 		return x.xxx_hidden_Host
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetPurpose() bool {
+func (x *DomainSelect) GetPurpose() bool {
 	if x != nil {
 		return x.xxx_hidden_Purpose
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetState() bool {
+func (x *DomainSelect) GetState() bool {
 	if x != nil {
 		return x.xxx_hidden_State
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetToken() bool {
+func (x *DomainSelect) GetToken() bool {
 	if x != nil {
 		return x.xxx_hidden_Token
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetSource() bool {
+func (x *DomainSelect) GetSource() bool {
 	if x != nil {
 		return x.xxx_hidden_Source
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetDateUpdated() bool {
+func (x *DomainSelect) GetDateUpdated() bool {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetDateErased() bool {
+func (x *DomainSelect) GetDateErased() bool {
 	if x != nil {
 		return x.xxx_hidden_DateErased
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetDateCreated() bool {
+func (x *DomainSelect) GetDateCreated() bool {
 	if x != nil {
 		return x.xxx_hidden_DateCreated
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetVerifiedAt() bool {
+func (x *DomainSelect) GetVerifiedAt() bool {
 	if x != nil {
 		return x.xxx_hidden_VerifiedAt
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetCheckedAt() bool {
+func (x *DomainSelect) GetCheckedAt() bool {
 	if x != nil {
 		return x.xxx_hidden_CheckedAt
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetFailures() bool {
+func (x *DomainSelect) GetFailures() bool {
 	if x != nil {
 		return x.xxx_hidden_Failures
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetFailingSince() bool {
+func (x *DomainSelect) GetFailingSince() bool {
 	if x != nil {
 		return x.xxx_hidden_FailingSince
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetDateLapsed() bool {
+func (x *DomainSelect) GetDateLapsed() bool {
 	if x != nil {
 		return x.xxx_hidden_DateLapsed
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) GetRedirectUntil() bool {
+func (x *DomainSelect) GetRedirectUntil() bool {
 	if x != nil {
 		return x.xxx_hidden_RedirectUntil
 	}
 	return false
 }
 
-func (x *TenantDomainSelect) SetAll(v bool) {
+func (x *DomainSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 16)
 }
 
-func (x *TenantDomainSelect) SetTenant(v *TenantSelect) {
+func (x *DomainSelect) SetTenant(v *TenantSelect) {
 	x.xxx_hidden_Tenant = v
 }
 
-func (x *TenantDomainSelect) SetHost(v bool) {
+func (x *DomainSelect) SetHost(v bool) {
 	x.xxx_hidden_Host = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 16)
 }
 
-func (x *TenantDomainSelect) SetPurpose(v bool) {
+func (x *DomainSelect) SetPurpose(v bool) {
 	x.xxx_hidden_Purpose = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 16)
 }
 
-func (x *TenantDomainSelect) SetState(v bool) {
+func (x *DomainSelect) SetState(v bool) {
 	x.xxx_hidden_State = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 16)
 }
 
-func (x *TenantDomainSelect) SetToken(v bool) {
+func (x *DomainSelect) SetToken(v bool) {
 	x.xxx_hidden_Token = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 16)
 }
 
-func (x *TenantDomainSelect) SetSource(v bool) {
+func (x *DomainSelect) SetSource(v bool) {
 	x.xxx_hidden_Source = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 16)
 }
 
-func (x *TenantDomainSelect) SetDateUpdated(v bool) {
+func (x *DomainSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 16)
 }
 
-func (x *TenantDomainSelect) SetDateErased(v bool) {
+func (x *DomainSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 16)
 }
 
-func (x *TenantDomainSelect) SetDateCreated(v bool) {
+func (x *DomainSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 16)
 }
 
-func (x *TenantDomainSelect) SetVerifiedAt(v bool) {
+func (x *DomainSelect) SetVerifiedAt(v bool) {
 	x.xxx_hidden_VerifiedAt = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 16)
 }
 
-func (x *TenantDomainSelect) SetCheckedAt(v bool) {
+func (x *DomainSelect) SetCheckedAt(v bool) {
 	x.xxx_hidden_CheckedAt = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 16)
 }
 
-func (x *TenantDomainSelect) SetFailures(v bool) {
+func (x *DomainSelect) SetFailures(v bool) {
 	x.xxx_hidden_Failures = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 16)
 }
 
-func (x *TenantDomainSelect) SetFailingSince(v bool) {
+func (x *DomainSelect) SetFailingSince(v bool) {
 	x.xxx_hidden_FailingSince = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 16)
 }
 
-func (x *TenantDomainSelect) SetDateLapsed(v bool) {
+func (x *DomainSelect) SetDateLapsed(v bool) {
 	x.xxx_hidden_DateLapsed = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 16)
 }
 
-func (x *TenantDomainSelect) SetRedirectUntil(v bool) {
+func (x *DomainSelect) SetRedirectUntil(v bool) {
 	x.xxx_hidden_RedirectUntil = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 16)
 }
 
-func (x *TenantDomainSelect) HasAll() bool {
+func (x *DomainSelect) HasAll() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *TenantDomainSelect) HasTenant() bool {
+func (x *DomainSelect) HasTenant() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *TenantDomainSelect) HasHost() bool {
+func (x *DomainSelect) HasHost() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *TenantDomainSelect) HasPurpose() bool {
+func (x *DomainSelect) HasPurpose() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *TenantDomainSelect) HasState() bool {
+func (x *DomainSelect) HasState() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *TenantDomainSelect) HasToken() bool {
+func (x *DomainSelect) HasToken() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *TenantDomainSelect) HasSource() bool {
+func (x *DomainSelect) HasSource() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *TenantDomainSelect) HasDateUpdated() bool {
+func (x *DomainSelect) HasDateUpdated() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *TenantDomainSelect) HasDateErased() bool {
+func (x *DomainSelect) HasDateErased() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *TenantDomainSelect) HasDateCreated() bool {
+func (x *DomainSelect) HasDateCreated() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *TenantDomainSelect) HasVerifiedAt() bool {
+func (x *DomainSelect) HasVerifiedAt() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *TenantDomainSelect) HasCheckedAt() bool {
+func (x *DomainSelect) HasCheckedAt() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
-func (x *TenantDomainSelect) HasFailures() bool {
+func (x *DomainSelect) HasFailures() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
-func (x *TenantDomainSelect) HasFailingSince() bool {
+func (x *DomainSelect) HasFailingSince() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
 }
 
-func (x *TenantDomainSelect) HasDateLapsed() bool {
+func (x *DomainSelect) HasDateLapsed() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
 }
 
-func (x *TenantDomainSelect) HasRedirectUntil() bool {
+func (x *DomainSelect) HasRedirectUntil() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 15)
 }
 
-func (x *TenantDomainSelect) ClearAll() {
+func (x *DomainSelect) ClearAll() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_All = false
 }
 
-func (x *TenantDomainSelect) ClearTenant() {
+func (x *DomainSelect) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
 
-func (x *TenantDomainSelect) ClearHost() {
+func (x *DomainSelect) ClearHost() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Host = false
 }
 
-func (x *TenantDomainSelect) ClearPurpose() {
+func (x *DomainSelect) ClearPurpose() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Purpose = false
 }
 
-func (x *TenantDomainSelect) ClearState() {
+func (x *DomainSelect) ClearState() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
 	x.xxx_hidden_State = false
 }
 
-func (x *TenantDomainSelect) ClearToken() {
+func (x *DomainSelect) ClearToken() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_Token = false
 }
 
-func (x *TenantDomainSelect) ClearSource() {
+func (x *DomainSelect) ClearSource() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_Source = false
 }
 
-func (x *TenantDomainSelect) ClearDateUpdated() {
+func (x *DomainSelect) ClearDateUpdated() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_DateUpdated = false
 }
 
-func (x *TenantDomainSelect) ClearDateErased() {
+func (x *DomainSelect) ClearDateErased() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
 	x.xxx_hidden_DateErased = false
 }
 
-func (x *TenantDomainSelect) ClearDateCreated() {
+func (x *DomainSelect) ClearDateCreated() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_DateCreated = false
 }
 
-func (x *TenantDomainSelect) ClearVerifiedAt() {
+func (x *DomainSelect) ClearVerifiedAt() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_VerifiedAt = false
 }
 
-func (x *TenantDomainSelect) ClearCheckedAt() {
+func (x *DomainSelect) ClearCheckedAt() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_CheckedAt = false
 }
 
-func (x *TenantDomainSelect) ClearFailures() {
+func (x *DomainSelect) ClearFailures() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
 	x.xxx_hidden_Failures = false
 }
 
-func (x *TenantDomainSelect) ClearFailingSince() {
+func (x *DomainSelect) ClearFailingSince() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
 	x.xxx_hidden_FailingSince = false
 }
 
-func (x *TenantDomainSelect) ClearDateLapsed() {
+func (x *DomainSelect) ClearDateLapsed() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
 	x.xxx_hidden_DateLapsed = false
 }
 
-func (x *TenantDomainSelect) ClearRedirectUntil() {
+func (x *DomainSelect) ClearRedirectUntil() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 15)
 	x.xxx_hidden_RedirectUntil = false
 }
 
-type TenantDomainSelect_builder struct {
+type DomainSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	All           *bool
@@ -8545,8 +8545,8 @@ type TenantDomainSelect_builder struct {
 	RedirectUntil *bool
 }
 
-func (b0 TenantDomainSelect_builder) Build() *TenantDomainSelect {
-	m0 := &TenantDomainSelect{}
+func (b0 DomainSelect_builder) Build() *DomainSelect {
+	m0 := &DomainSelect{}
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
@@ -8613,9 +8613,9 @@ func (b0 TenantDomainSelect_builder) Build() *TenantDomainSelect {
 	return m0
 }
 
-type TenantDomainPatchRequest struct {
+type DomainPatchRequest struct {
 	state                        protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref               *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Ref               *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
 	xxx_hidden_Host              *string                `protobuf:"bytes,16,opt,name=host"`
 	xxx_hidden_Purpose           *string                `protobuf:"bytes,18,opt,name=purpose"`
 	xxx_hidden_State             *string                `protobuf:"bytes,20,opt,name=state"`
@@ -8640,20 +8640,20 @@ type TenantDomainPatchRequest struct {
 	sizeCache                    protoimpl.SizeCache
 }
 
-func (x *TenantDomainPatchRequest) Reset() {
-	*x = TenantDomainPatchRequest{}
+func (x *DomainPatchRequest) Reset() {
+	*x = DomainPatchRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainPatchRequest) String() string {
+func (x *DomainPatchRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainPatchRequest) ProtoMessage() {}
+func (*DomainPatchRequest) ProtoMessage() {}
 
-func (x *TenantDomainPatchRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainPatchRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -8665,14 +8665,14 @@ func (x *TenantDomainPatchRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainPatchRequest) GetRef() *TenantDomainRef {
+func (x *DomainPatchRequest) GetRef() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Ref
 	}
 	return nil
 }
 
-func (x *TenantDomainPatchRequest) GetHost() string {
+func (x *DomainPatchRequest) GetHost() string {
 	if x != nil {
 		if x.xxx_hidden_Host != nil {
 			return *x.xxx_hidden_Host
@@ -8682,7 +8682,7 @@ func (x *TenantDomainPatchRequest) GetHost() string {
 	return ""
 }
 
-func (x *TenantDomainPatchRequest) GetPurpose() string {
+func (x *DomainPatchRequest) GetPurpose() string {
 	if x != nil {
 		if x.xxx_hidden_Purpose != nil {
 			return *x.xxx_hidden_Purpose
@@ -8692,7 +8692,7 @@ func (x *TenantDomainPatchRequest) GetPurpose() string {
 	return ""
 }
 
-func (x *TenantDomainPatchRequest) GetState() string {
+func (x *DomainPatchRequest) GetState() string {
 	if x != nil {
 		if x.xxx_hidden_State != nil {
 			return *x.xxx_hidden_State
@@ -8702,7 +8702,7 @@ func (x *TenantDomainPatchRequest) GetState() string {
 	return ""
 }
 
-func (x *TenantDomainPatchRequest) GetToken() string {
+func (x *DomainPatchRequest) GetToken() string {
 	if x != nil {
 		if x.xxx_hidden_Token != nil {
 			return *x.xxx_hidden_Token
@@ -8712,7 +8712,7 @@ func (x *TenantDomainPatchRequest) GetToken() string {
 	return ""
 }
 
-func (x *TenantDomainPatchRequest) GetSource() string {
+func (x *DomainPatchRequest) GetSource() string {
 	if x != nil {
 		if x.xxx_hidden_Source != nil {
 			return *x.xxx_hidden_Source
@@ -8722,410 +8722,410 @@ func (x *TenantDomainPatchRequest) GetSource() string {
 	return ""
 }
 
-func (x *TenantDomainPatchRequest) GetDateUpdated() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetDateUpdated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
 	}
 	return nil
 }
 
-func (x *TenantDomainPatchRequest) GetDateUpdatedForce() bool {
+func (x *DomainPatchRequest) GetDateUpdatedForce() bool {
 	if x != nil {
 		return x.xxx_hidden_DateUpdatedForce
 	}
 	return false
 }
 
-func (x *TenantDomainPatchRequest) GetVerifiedAt() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetVerifiedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_VerifiedAt
 	}
 	return nil
 }
 
-func (x *TenantDomainPatchRequest) GetVerifiedAtNull() bool {
+func (x *DomainPatchRequest) GetVerifiedAtNull() bool {
 	if x != nil {
 		return x.xxx_hidden_VerifiedAtNull
 	}
 	return false
 }
 
-func (x *TenantDomainPatchRequest) GetCheckedAt() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetCheckedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_CheckedAt
 	}
 	return nil
 }
 
-func (x *TenantDomainPatchRequest) GetCheckedAtNull() bool {
+func (x *DomainPatchRequest) GetCheckedAtNull() bool {
 	if x != nil {
 		return x.xxx_hidden_CheckedAtNull
 	}
 	return false
 }
 
-func (x *TenantDomainPatchRequest) GetFailures() uint32 {
+func (x *DomainPatchRequest) GetFailures() uint32 {
 	if x != nil {
 		return x.xxx_hidden_Failures
 	}
 	return 0
 }
 
-func (x *TenantDomainPatchRequest) GetFailingSince() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetFailingSince() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_FailingSince
 	}
 	return nil
 }
 
-func (x *TenantDomainPatchRequest) GetFailingSinceNull() bool {
+func (x *DomainPatchRequest) GetFailingSinceNull() bool {
 	if x != nil {
 		return x.xxx_hidden_FailingSinceNull
 	}
 	return false
 }
 
-func (x *TenantDomainPatchRequest) GetDateLapsed() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetDateLapsed() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateLapsed
 	}
 	return nil
 }
 
-func (x *TenantDomainPatchRequest) GetDateLapsedNull() bool {
+func (x *DomainPatchRequest) GetDateLapsedNull() bool {
 	if x != nil {
 		return x.xxx_hidden_DateLapsedNull
 	}
 	return false
 }
 
-func (x *TenantDomainPatchRequest) GetRedirectUntil() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetRedirectUntil() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_RedirectUntil
 	}
 	return nil
 }
 
-func (x *TenantDomainPatchRequest) GetRedirectUntilNull() bool {
+func (x *DomainPatchRequest) GetRedirectUntilNull() bool {
 	if x != nil {
 		return x.xxx_hidden_RedirectUntilNull
 	}
 	return false
 }
 
-func (x *TenantDomainPatchRequest) SetRef(v *TenantDomainRef) {
+func (x *DomainPatchRequest) SetRef(v *DomainRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *TenantDomainPatchRequest) SetHost(v string) {
+func (x *DomainPatchRequest) SetHost(v string) {
 	x.xxx_hidden_Host = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetPurpose(v string) {
+func (x *DomainPatchRequest) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetState(v string) {
+func (x *DomainPatchRequest) SetState(v string) {
 	x.xxx_hidden_State = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetToken(v string) {
+func (x *DomainPatchRequest) SetToken(v string) {
 	x.xxx_hidden_Token = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetSource(v string) {
+func (x *DomainPatchRequest) SetSource(v string) {
 	x.xxx_hidden_Source = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
+func (x *DomainPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateUpdated = v
 }
 
-func (x *TenantDomainPatchRequest) SetDateUpdatedForce(v bool) {
+func (x *DomainPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
+func (x *DomainPatchRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
 	x.xxx_hidden_VerifiedAt = v
 }
 
-func (x *TenantDomainPatchRequest) SetVerifiedAtNull(v bool) {
+func (x *DomainPatchRequest) SetVerifiedAtNull(v bool) {
 	x.xxx_hidden_VerifiedAtNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetCheckedAt(v *timestamppb.Timestamp) {
+func (x *DomainPatchRequest) SetCheckedAt(v *timestamppb.Timestamp) {
 	x.xxx_hidden_CheckedAt = v
 }
 
-func (x *TenantDomainPatchRequest) SetCheckedAtNull(v bool) {
+func (x *DomainPatchRequest) SetCheckedAtNull(v bool) {
 	x.xxx_hidden_CheckedAtNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetFailures(v uint32) {
+func (x *DomainPatchRequest) SetFailures(v uint32) {
 	x.xxx_hidden_Failures = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetFailingSince(v *timestamppb.Timestamp) {
+func (x *DomainPatchRequest) SetFailingSince(v *timestamppb.Timestamp) {
 	x.xxx_hidden_FailingSince = v
 }
 
-func (x *TenantDomainPatchRequest) SetFailingSinceNull(v bool) {
+func (x *DomainPatchRequest) SetFailingSinceNull(v bool) {
 	x.xxx_hidden_FailingSinceNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetDateLapsed(v *timestamppb.Timestamp) {
+func (x *DomainPatchRequest) SetDateLapsed(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateLapsed = v
 }
 
-func (x *TenantDomainPatchRequest) SetDateLapsedNull(v bool) {
+func (x *DomainPatchRequest) SetDateLapsedNull(v bool) {
 	x.xxx_hidden_DateLapsedNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 19)
 }
 
-func (x *TenantDomainPatchRequest) SetRedirectUntil(v *timestamppb.Timestamp) {
+func (x *DomainPatchRequest) SetRedirectUntil(v *timestamppb.Timestamp) {
 	x.xxx_hidden_RedirectUntil = v
 }
 
-func (x *TenantDomainPatchRequest) SetRedirectUntilNull(v bool) {
+func (x *DomainPatchRequest) SetRedirectUntilNull(v bool) {
 	x.xxx_hidden_RedirectUntilNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 18, 19)
 }
 
-func (x *TenantDomainPatchRequest) HasRef() bool {
+func (x *DomainPatchRequest) HasRef() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *TenantDomainPatchRequest) HasHost() bool {
+func (x *DomainPatchRequest) HasHost() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *TenantDomainPatchRequest) HasPurpose() bool {
+func (x *DomainPatchRequest) HasPurpose() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *TenantDomainPatchRequest) HasState() bool {
+func (x *DomainPatchRequest) HasState() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *TenantDomainPatchRequest) HasToken() bool {
+func (x *DomainPatchRequest) HasToken() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *TenantDomainPatchRequest) HasSource() bool {
+func (x *DomainPatchRequest) HasSource() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *TenantDomainPatchRequest) HasDateUpdated() bool {
+func (x *DomainPatchRequest) HasDateUpdated() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_DateUpdated != nil
 }
 
-func (x *TenantDomainPatchRequest) HasDateUpdatedForce() bool {
+func (x *DomainPatchRequest) HasDateUpdatedForce() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *TenantDomainPatchRequest) HasVerifiedAt() bool {
+func (x *DomainPatchRequest) HasVerifiedAt() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_VerifiedAt != nil
 }
 
-func (x *TenantDomainPatchRequest) HasVerifiedAtNull() bool {
+func (x *DomainPatchRequest) HasVerifiedAtNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *TenantDomainPatchRequest) HasCheckedAt() bool {
+func (x *DomainPatchRequest) HasCheckedAt() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_CheckedAt != nil
 }
 
-func (x *TenantDomainPatchRequest) HasCheckedAtNull() bool {
+func (x *DomainPatchRequest) HasCheckedAtNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
-func (x *TenantDomainPatchRequest) HasFailures() bool {
+func (x *DomainPatchRequest) HasFailures() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
-func (x *TenantDomainPatchRequest) HasFailingSince() bool {
+func (x *DomainPatchRequest) HasFailingSince() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_FailingSince != nil
 }
 
-func (x *TenantDomainPatchRequest) HasFailingSinceNull() bool {
+func (x *DomainPatchRequest) HasFailingSinceNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
 }
 
-func (x *TenantDomainPatchRequest) HasDateLapsed() bool {
+func (x *DomainPatchRequest) HasDateLapsed() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_DateLapsed != nil
 }
 
-func (x *TenantDomainPatchRequest) HasDateLapsedNull() bool {
+func (x *DomainPatchRequest) HasDateLapsedNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 16)
 }
 
-func (x *TenantDomainPatchRequest) HasRedirectUntil() bool {
+func (x *DomainPatchRequest) HasRedirectUntil() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_RedirectUntil != nil
 }
 
-func (x *TenantDomainPatchRequest) HasRedirectUntilNull() bool {
+func (x *DomainPatchRequest) HasRedirectUntilNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 18)
 }
 
-func (x *TenantDomainPatchRequest) ClearRef() {
+func (x *DomainPatchRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearHost() {
+func (x *DomainPatchRequest) ClearHost() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Host = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearPurpose() {
+func (x *DomainPatchRequest) ClearPurpose() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Purpose = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearState() {
+func (x *DomainPatchRequest) ClearState() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_State = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearToken() {
+func (x *DomainPatchRequest) ClearToken() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
 	x.xxx_hidden_Token = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearSource() {
+func (x *DomainPatchRequest) ClearSource() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_Source = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearDateUpdated() {
+func (x *DomainPatchRequest) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearDateUpdatedForce() {
+func (x *DomainPatchRequest) ClearDateUpdatedForce() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
-func (x *TenantDomainPatchRequest) ClearVerifiedAt() {
+func (x *DomainPatchRequest) ClearVerifiedAt() {
 	x.xxx_hidden_VerifiedAt = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearVerifiedAtNull() {
+func (x *DomainPatchRequest) ClearVerifiedAtNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_VerifiedAtNull = false
 }
 
-func (x *TenantDomainPatchRequest) ClearCheckedAt() {
+func (x *DomainPatchRequest) ClearCheckedAt() {
 	x.xxx_hidden_CheckedAt = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearCheckedAtNull() {
+func (x *DomainPatchRequest) ClearCheckedAtNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_CheckedAtNull = false
 }
 
-func (x *TenantDomainPatchRequest) ClearFailures() {
+func (x *DomainPatchRequest) ClearFailures() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
 	x.xxx_hidden_Failures = 0
 }
 
-func (x *TenantDomainPatchRequest) ClearFailingSince() {
+func (x *DomainPatchRequest) ClearFailingSince() {
 	x.xxx_hidden_FailingSince = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearFailingSinceNull() {
+func (x *DomainPatchRequest) ClearFailingSinceNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
 	x.xxx_hidden_FailingSinceNull = false
 }
 
-func (x *TenantDomainPatchRequest) ClearDateLapsed() {
+func (x *DomainPatchRequest) ClearDateLapsed() {
 	x.xxx_hidden_DateLapsed = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearDateLapsedNull() {
+func (x *DomainPatchRequest) ClearDateLapsedNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 16)
 	x.xxx_hidden_DateLapsedNull = false
 }
 
-func (x *TenantDomainPatchRequest) ClearRedirectUntil() {
+func (x *DomainPatchRequest) ClearRedirectUntil() {
 	x.xxx_hidden_RedirectUntil = nil
 }
 
-func (x *TenantDomainPatchRequest) ClearRedirectUntilNull() {
+func (x *DomainPatchRequest) ClearRedirectUntilNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 18)
 	x.xxx_hidden_RedirectUntilNull = false
 }
 
-type TenantDomainPatchRequest_builder struct {
+type DomainPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref     *TenantDomainRef
+	Ref     *DomainRef
 	Host    *string
 	Purpose *string
 	State   *string
@@ -9178,8 +9178,8 @@ type TenantDomainPatchRequest_builder struct {
 	RedirectUntilNull *bool
 }
 
-func (b0 TenantDomainPatchRequest_builder) Build() *TenantDomainPatchRequest {
-	m0 := &TenantDomainPatchRequest{}
+func (b0 DomainPatchRequest_builder) Build() *DomainPatchRequest {
+	m0 := &DomainPatchRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
@@ -9240,28 +9240,28 @@ func (b0 TenantDomainPatchRequest_builder) Build() *TenantDomainPatchRequest {
 	return m0
 }
 
-type TenantDomainApplyRequest struct {
+type DomainApplyRequest struct {
 	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref   *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Ref   *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
 	xxx_hidden_Patch *patchpb.Patch         `protobuf:"bytes,2,opt,name=patch"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
-func (x *TenantDomainApplyRequest) Reset() {
-	*x = TenantDomainApplyRequest{}
+func (x *DomainApplyRequest) Reset() {
+	*x = DomainApplyRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainApplyRequest) String() string {
+func (x *DomainApplyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainApplyRequest) ProtoMessage() {}
+func (*DomainApplyRequest) ProtoMessage() {}
 
-func (x *TenantDomainApplyRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainApplyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9273,59 +9273,59 @@ func (x *TenantDomainApplyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainApplyRequest) GetRef() *TenantDomainRef {
+func (x *DomainApplyRequest) GetRef() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Ref
 	}
 	return nil
 }
 
-func (x *TenantDomainApplyRequest) GetPatch() *patchpb.Patch {
+func (x *DomainApplyRequest) GetPatch() *patchpb.Patch {
 	if x != nil {
 		return x.xxx_hidden_Patch
 	}
 	return nil
 }
 
-func (x *TenantDomainApplyRequest) SetRef(v *TenantDomainRef) {
+func (x *DomainApplyRequest) SetRef(v *DomainRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *TenantDomainApplyRequest) SetPatch(v *patchpb.Patch) {
+func (x *DomainApplyRequest) SetPatch(v *patchpb.Patch) {
 	x.xxx_hidden_Patch = v
 }
 
-func (x *TenantDomainApplyRequest) HasRef() bool {
+func (x *DomainApplyRequest) HasRef() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *TenantDomainApplyRequest) HasPatch() bool {
+func (x *DomainApplyRequest) HasPatch() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Patch != nil
 }
 
-func (x *TenantDomainApplyRequest) ClearRef() {
+func (x *DomainApplyRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *TenantDomainApplyRequest) ClearPatch() {
+func (x *DomainApplyRequest) ClearPatch() {
 	x.xxx_hidden_Patch = nil
 }
 
-type TenantDomainApplyRequest_builder struct {
+type DomainApplyRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref   *TenantDomainRef
+	Ref   *DomainRef
 	Patch *patchpb.Patch
 }
 
-func (b0 TenantDomainApplyRequest_builder) Build() *TenantDomainApplyRequest {
-	m0 := &TenantDomainApplyRequest{}
+func (b0 DomainApplyRequest_builder) Build() *DomainApplyRequest {
+	m0 := &DomainApplyRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
@@ -9333,7 +9333,7 @@ func (b0 TenantDomainApplyRequest_builder) Build() *TenantDomainApplyRequest {
 	return m0
 }
 
-type TenantDomainEraseResponse struct {
+type DomainEraseResponse struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Erased      bool                   `protobuf:"varint,1,opt,name=erased"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
@@ -9342,20 +9342,20 @@ type TenantDomainEraseResponse struct {
 	sizeCache              protoimpl.SizeCache
 }
 
-func (x *TenantDomainEraseResponse) Reset() {
-	*x = TenantDomainEraseResponse{}
+func (x *DomainEraseResponse) Reset() {
+	*x = DomainEraseResponse{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainEraseResponse) String() string {
+func (x *DomainEraseResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainEraseResponse) ProtoMessage() {}
+func (*DomainEraseResponse) ProtoMessage() {}
 
-func (x *TenantDomainEraseResponse) ProtoReflect() protoreflect.Message {
+func (x *DomainEraseResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9367,31 +9367,31 @@ func (x *TenantDomainEraseResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainEraseResponse) GetErased() bool {
+func (x *DomainEraseResponse) GetErased() bool {
 	if x != nil {
 		return x.xxx_hidden_Erased
 	}
 	return false
 }
 
-func (x *TenantDomainEraseResponse) SetErased(v bool) {
+func (x *DomainEraseResponse) SetErased(v bool) {
 	x.xxx_hidden_Erased = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
 }
 
-func (x *TenantDomainEraseResponse) HasErased() bool {
+func (x *DomainEraseResponse) HasErased() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *TenantDomainEraseResponse) ClearErased() {
+func (x *DomainEraseResponse) ClearErased() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Erased = false
 }
 
-type TenantDomainEraseResponse_builder struct {
+type DomainEraseResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Erased is whether this call is the one that erased the row.
@@ -9402,8 +9402,8 @@ type TenantDomainEraseResponse_builder struct {
 	Erased *bool
 }
 
-func (b0 TenantDomainEraseResponse_builder) Build() *TenantDomainEraseResponse {
-	m0 := &TenantDomainEraseResponse{}
+func (b0 DomainEraseResponse_builder) Build() *DomainEraseResponse {
+	m0 := &DomainEraseResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Erased != nil {
@@ -9413,9 +9413,9 @@ func (b0 TenantDomainEraseResponse_builder) Build() *TenantDomainEraseResponse {
 	return m0
 }
 
-type TenantDomainListRequest struct {
+type DomainListRequest struct {
 	state              protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Filters *[]*TenantDomainFilter `protobuf:"bytes,1,rep,name=filters"`
+	xxx_hidden_Filters *[]*DomainFilter       `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
 	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
@@ -9423,20 +9423,20 @@ type TenantDomainListRequest struct {
 	sizeCache          protoimpl.SizeCache
 }
 
-func (x *TenantDomainListRequest) Reset() {
-	*x = TenantDomainListRequest{}
+func (x *DomainListRequest) Reset() {
+	*x = DomainListRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainListRequest) String() string {
+func (x *DomainListRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainListRequest) ProtoMessage() {}
+func (*DomainListRequest) ProtoMessage() {}
 
-func (x *TenantDomainListRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainListRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9448,7 +9448,7 @@ func (x *TenantDomainListRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainListRequest) GetFilters() []*TenantDomainFilter {
+func (x *DomainListRequest) GetFilters() []*DomainFilter {
 	if x != nil {
 		if x.xxx_hidden_Filters != nil {
 			return *x.xxx_hidden_Filters
@@ -9457,49 +9457,49 @@ func (x *TenantDomainListRequest) GetFilters() []*TenantDomainFilter {
 	return nil
 }
 
-func (x *TenantDomainListRequest) GetSize() int32 {
+func (x *DomainListRequest) GetSize() int32 {
 	if x != nil {
 		return x.xxx_hidden_Size
 	}
 	return 0
 }
 
-func (x *TenantDomainListRequest) GetAfter() string {
+func (x *DomainListRequest) GetAfter() string {
 	if x != nil {
 		return x.xxx_hidden_After
 	}
 	return ""
 }
 
-func (x *TenantDomainListRequest) GetReverse() bool {
+func (x *DomainListRequest) GetReverse() bool {
 	if x != nil {
 		return x.xxx_hidden_Reverse
 	}
 	return false
 }
 
-func (x *TenantDomainListRequest) SetFilters(v []*TenantDomainFilter) {
+func (x *DomainListRequest) SetFilters(v []*DomainFilter) {
 	x.xxx_hidden_Filters = &v
 }
 
-func (x *TenantDomainListRequest) SetSize(v int32) {
+func (x *DomainListRequest) SetSize(v int32) {
 	x.xxx_hidden_Size = v
 }
 
-func (x *TenantDomainListRequest) SetAfter(v string) {
+func (x *DomainListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
 }
 
-func (x *TenantDomainListRequest) SetReverse(v bool) {
+func (x *DomainListRequest) SetReverse(v bool) {
 	x.xxx_hidden_Reverse = v
 }
 
-type TenantDomainListRequest_builder struct {
+type DomainListRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Bounded because the work is: each filter is a predicate in the same query,
 	// so this is what says how much of the database one request may read.
-	Filters []*TenantDomainFilter
+	Filters []*DomainFilter
 	// How many to answer with. Nothing said is what the schema declared, and more
 	// than the cap is the cap -- a caller asking for more than there is meant no
 	// harm, so it is not an error and it is not the whole table either.
@@ -9516,8 +9516,8 @@ type TenantDomainListRequest_builder struct {
 	Reverse bool
 }
 
-func (b0 TenantDomainListRequest_builder) Build() *TenantDomainListRequest {
-	m0 := &TenantDomainListRequest{}
+func (b0 DomainListRequest_builder) Build() *DomainListRequest {
+	m0 := &DomainListRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Filters = &b.Filters
@@ -9527,28 +9527,28 @@ func (b0 TenantDomainListRequest_builder) Build() *TenantDomainListRequest {
 	return m0
 }
 
-type TenantDomainListResponse struct {
+type DomainListResponse struct {
 	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Items *[]*TenantDomain       `protobuf:"bytes,1,rep,name=items"`
+	xxx_hidden_Items *[]*Domain             `protobuf:"bytes,1,rep,name=items"`
 	xxx_hidden_Next  string                 `protobuf:"bytes,2,opt,name=next"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
-func (x *TenantDomainListResponse) Reset() {
-	*x = TenantDomainListResponse{}
+func (x *DomainListResponse) Reset() {
+	*x = DomainListResponse{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainListResponse) String() string {
+func (x *DomainListResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainListResponse) ProtoMessage() {}
+func (*DomainListResponse) ProtoMessage() {}
 
-func (x *TenantDomainListResponse) ProtoReflect() protoreflect.Message {
+func (x *DomainListResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9560,7 +9560,7 @@ func (x *TenantDomainListResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainListResponse) GetItems() []*TenantDomain {
+func (x *DomainListResponse) GetItems() []*Domain {
 	if x != nil {
 		if x.xxx_hidden_Items != nil {
 			return *x.xxx_hidden_Items
@@ -9569,25 +9569,25 @@ func (x *TenantDomainListResponse) GetItems() []*TenantDomain {
 	return nil
 }
 
-func (x *TenantDomainListResponse) GetNext() string {
+func (x *DomainListResponse) GetNext() string {
 	if x != nil {
 		return x.xxx_hidden_Next
 	}
 	return ""
 }
 
-func (x *TenantDomainListResponse) SetItems(v []*TenantDomain) {
+func (x *DomainListResponse) SetItems(v []*Domain) {
 	x.xxx_hidden_Items = &v
 }
 
-func (x *TenantDomainListResponse) SetNext(v string) {
+func (x *DomainListResponse) SetNext(v string) {
 	x.xxx_hidden_Next = v
 }
 
-type TenantDomainListResponse_builder struct {
+type DomainListResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Items []*TenantDomain
+	Items []*Domain
 	// What to ask for next, and empty when this was the last of them.
 	//
 	// Empty means there is no more *for now*: a list is read as it is, and one
@@ -9598,8 +9598,8 @@ type TenantDomainListResponse_builder struct {
 	Next string
 }
 
-func (b0 TenantDomainListResponse_builder) Build() *TenantDomainListResponse {
-	m0 := &TenantDomainListResponse{}
+func (b0 DomainListResponse_builder) Build() *DomainListResponse {
+	m0 := &DomainListResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Items = &b.Items
@@ -9607,9 +9607,9 @@ func (b0 TenantDomainListResponse_builder) Build() *TenantDomainListResponse {
 	return m0
 }
 
-type TenantDomainFilter struct {
+type DomainFilter struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref         *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Ref         *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
 	xxx_hidden_State       *string                `protobuf:"bytes,2,opt,name=state"`
 	xxx_hidden_Purpose     *string                `protobuf:"bytes,3,opt,name=purpose"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
@@ -9618,20 +9618,20 @@ type TenantDomainFilter struct {
 	sizeCache              protoimpl.SizeCache
 }
 
-func (x *TenantDomainFilter) Reset() {
-	*x = TenantDomainFilter{}
+func (x *DomainFilter) Reset() {
+	*x = DomainFilter{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainFilter) String() string {
+func (x *DomainFilter) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainFilter) ProtoMessage() {}
+func (*DomainFilter) ProtoMessage() {}
 
-func (x *TenantDomainFilter) ProtoReflect() protoreflect.Message {
+func (x *DomainFilter) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9643,14 +9643,14 @@ func (x *TenantDomainFilter) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainFilter) GetRef() *TenantDomainRef {
+func (x *DomainFilter) GetRef() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Ref
 	}
 	return nil
 }
 
-func (x *TenantDomainFilter) GetState() string {
+func (x *DomainFilter) GetState() string {
 	if x != nil {
 		if x.xxx_hidden_State != nil {
 			return *x.xxx_hidden_State
@@ -9660,7 +9660,7 @@ func (x *TenantDomainFilter) GetState() string {
 	return ""
 }
 
-func (x *TenantDomainFilter) GetPurpose() string {
+func (x *DomainFilter) GetPurpose() string {
 	if x != nil {
 		if x.xxx_hidden_Purpose != nil {
 			return *x.xxx_hidden_Purpose
@@ -9670,65 +9670,65 @@ func (x *TenantDomainFilter) GetPurpose() string {
 	return ""
 }
 
-func (x *TenantDomainFilter) SetRef(v *TenantDomainRef) {
+func (x *DomainFilter) SetRef(v *DomainRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *TenantDomainFilter) SetState(v string) {
+func (x *DomainFilter) SetState(v string) {
 	x.xxx_hidden_State = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
 }
 
-func (x *TenantDomainFilter) SetPurpose(v string) {
+func (x *DomainFilter) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
 }
 
-func (x *TenantDomainFilter) HasRef() bool {
+func (x *DomainFilter) HasRef() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *TenantDomainFilter) HasState() bool {
+func (x *DomainFilter) HasState() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *TenantDomainFilter) HasPurpose() bool {
+func (x *DomainFilter) HasPurpose() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *TenantDomainFilter) ClearRef() {
+func (x *DomainFilter) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *TenantDomainFilter) ClearState() {
+func (x *DomainFilter) ClearState() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_State = nil
 }
 
-func (x *TenantDomainFilter) ClearPurpose() {
+func (x *DomainFilter) ClearPurpose() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Purpose = nil
 }
 
-type TenantDomainFilter_builder struct {
+type DomainFilter_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref     *TenantDomainRef
+	Ref     *DomainRef
 	State   *string
 	Purpose *string
 }
 
-func (b0 TenantDomainFilter_builder) Build() *TenantDomainFilter {
-	m0 := &TenantDomainFilter{}
+func (b0 DomainFilter_builder) Build() *DomainFilter {
+	m0 := &DomainFilter{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
@@ -9743,28 +9743,28 @@ func (b0 TenantDomainFilter_builder) Build() *TenantDomainFilter {
 	return m0
 }
 
-type TenantDomainWatchRequest struct {
+type DomainWatchRequest struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Filters      *[]*TenantDomainFilter `protobuf:"bytes,1,rep,name=filters"`
+	xxx_hidden_Filters      *[]*DomainFilter       `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_SkipSnapshot bool                   `protobuf:"varint,2,opt,name=skip_snapshot,json=skipSnapshot"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
 
-func (x *TenantDomainWatchRequest) Reset() {
-	*x = TenantDomainWatchRequest{}
+func (x *DomainWatchRequest) Reset() {
+	*x = DomainWatchRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainWatchRequest) String() string {
+func (x *DomainWatchRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainWatchRequest) ProtoMessage() {}
+func (*DomainWatchRequest) ProtoMessage() {}
 
-func (x *TenantDomainWatchRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainWatchRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9776,7 +9776,7 @@ func (x *TenantDomainWatchRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainWatchRequest) GetFilters() []*TenantDomainFilter {
+func (x *DomainWatchRequest) GetFilters() []*DomainFilter {
 	if x != nil {
 		if x.xxx_hidden_Filters != nil {
 			return *x.xxx_hidden_Filters
@@ -9785,22 +9785,22 @@ func (x *TenantDomainWatchRequest) GetFilters() []*TenantDomainFilter {
 	return nil
 }
 
-func (x *TenantDomainWatchRequest) GetSkipSnapshot() bool {
+func (x *DomainWatchRequest) GetSkipSnapshot() bool {
 	if x != nil {
 		return x.xxx_hidden_SkipSnapshot
 	}
 	return false
 }
 
-func (x *TenantDomainWatchRequest) SetFilters(v []*TenantDomainFilter) {
+func (x *DomainWatchRequest) SetFilters(v []*DomainFilter) {
 	x.xxx_hidden_Filters = &v
 }
 
-func (x *TenantDomainWatchRequest) SetSkipSnapshot(v bool) {
+func (x *DomainWatchRequest) SetSkipSnapshot(v bool) {
 	x.xxx_hidden_SkipSnapshot = v
 }
 
-type TenantDomainWatchRequest_builder struct {
+type DomainWatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Which rows to watch, in the same words List takes them: what is watched is
@@ -9810,7 +9810,7 @@ type TenantDomainWatchRequest_builder struct {
 	// runs its filters once; a watch runs them again for every write that touches
 	// the entity, for as long as the stream is open. A watch with no filters is
 	// the whole table, forever, which is the one shape that has no cap at all.
-	Filters []*TenantDomainFilter
+	Filters []*DomainFilter
 	// Skip what is there now and send only what changes from here.
 	//
 	// Off by default, and the default is the safe one: a client that does not
@@ -9819,8 +9819,8 @@ type TenantDomainWatchRequest_builder struct {
 	SkipSnapshot bool
 }
 
-func (b0 TenantDomainWatchRequest_builder) Build() *TenantDomainWatchRequest {
-	m0 := &TenantDomainWatchRequest{}
+func (b0 DomainWatchRequest_builder) Build() *DomainWatchRequest {
+	m0 := &DomainWatchRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Filters = &b.Filters
@@ -9828,27 +9828,27 @@ func (b0 TenantDomainWatchRequest_builder) Build() *TenantDomainWatchRequest {
 	return m0
 }
 
-type TenantDomainWatchResponse struct {
-	state            protoimpl.MessageState    `protogen:"opaque.v1"`
-	xxx_hidden_Items *[]*TenantDomainWatchItem `protobuf:"bytes,1,rep,name=items"`
+type DomainWatchResponse struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*DomainWatchItem    `protobuf:"bytes,1,rep,name=items"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
-func (x *TenantDomainWatchResponse) Reset() {
-	*x = TenantDomainWatchResponse{}
+func (x *DomainWatchResponse) Reset() {
+	*x = DomainWatchResponse{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainWatchResponse) String() string {
+func (x *DomainWatchResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainWatchResponse) ProtoMessage() {}
+func (*DomainWatchResponse) ProtoMessage() {}
 
-func (x *TenantDomainWatchResponse) ProtoReflect() protoreflect.Message {
+func (x *DomainWatchResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9860,7 +9860,7 @@ func (x *TenantDomainWatchResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainWatchResponse) GetItems() []*TenantDomainWatchItem {
+func (x *DomainWatchResponse) GetItems() []*DomainWatchItem {
 	if x != nil {
 		if x.xxx_hidden_Items != nil {
 			return *x.xxx_hidden_Items
@@ -9869,29 +9869,29 @@ func (x *TenantDomainWatchResponse) GetItems() []*TenantDomainWatchItem {
 	return nil
 }
 
-func (x *TenantDomainWatchResponse) SetItems(v []*TenantDomainWatchItem) {
+func (x *DomainWatchResponse) SetItems(v []*DomainWatchItem) {
 	x.xxx_hidden_Items = &v
 }
 
-type TenantDomainWatchResponse_builder struct {
+type DomainWatchResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// What changed, or -- in the first message -- everything that matches.
-	Items []*TenantDomainWatchItem
+	Items []*DomainWatchItem
 }
 
-func (b0 TenantDomainWatchResponse_builder) Build() *TenantDomainWatchResponse {
-	m0 := &TenantDomainWatchResponse{}
+func (b0 DomainWatchResponse_builder) Build() *DomainWatchResponse {
+	m0 := &DomainWatchResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Items = &b.Items
 	return m0
 }
 
-type TenantDomainWatchItem struct {
+type DomainWatchItem struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Value       *TenantDomain          `protobuf:"bytes,2,opt,name=value"`
+	xxx_hidden_Value       *Domain                `protobuf:"bytes,2,opt,name=value"`
 	xxx_hidden_Action      string                 `protobuf:"bytes,3,opt,name=action"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
@@ -9899,20 +9899,20 @@ type TenantDomainWatchItem struct {
 	sizeCache              protoimpl.SizeCache
 }
 
-func (x *TenantDomainWatchItem) Reset() {
-	*x = TenantDomainWatchItem{}
+func (x *DomainWatchItem) Reset() {
+	*x = DomainWatchItem{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainWatchItem) String() string {
+func (x *DomainWatchItem) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainWatchItem) ProtoMessage() {}
+func (*DomainWatchItem) ProtoMessage() {}
 
-func (x *TenantDomainWatchItem) ProtoReflect() protoreflect.Message {
+func (x *DomainWatchItem) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -9924,28 +9924,28 @@ func (x *TenantDomainWatchItem) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainWatchItem) GetId() []byte {
+func (x *DomainWatchItem) GetId() []byte {
 	if x != nil {
 		return x.xxx_hidden_Id
 	}
 	return nil
 }
 
-func (x *TenantDomainWatchItem) GetValue() *TenantDomain {
+func (x *DomainWatchItem) GetValue() *Domain {
 	if x != nil {
 		return x.xxx_hidden_Value
 	}
 	return nil
 }
 
-func (x *TenantDomainWatchItem) GetAction() string {
+func (x *DomainWatchItem) GetAction() string {
 	if x != nil {
 		return x.xxx_hidden_Action
 	}
 	return ""
 }
 
-func (x *TenantDomainWatchItem) SetId(v []byte) {
+func (x *DomainWatchItem) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
@@ -9953,38 +9953,38 @@ func (x *TenantDomainWatchItem) SetId(v []byte) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
 }
 
-func (x *TenantDomainWatchItem) SetValue(v *TenantDomain) {
+func (x *DomainWatchItem) SetValue(v *Domain) {
 	x.xxx_hidden_Value = v
 }
 
-func (x *TenantDomainWatchItem) SetAction(v string) {
+func (x *DomainWatchItem) SetAction(v string) {
 	x.xxx_hidden_Action = v
 }
 
-func (x *TenantDomainWatchItem) HasId() bool {
+func (x *DomainWatchItem) HasId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *TenantDomainWatchItem) HasValue() bool {
+func (x *DomainWatchItem) HasValue() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Value != nil
 }
 
-func (x *TenantDomainWatchItem) ClearId() {
+func (x *DomainWatchItem) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
 }
 
-func (x *TenantDomainWatchItem) ClearValue() {
+func (x *DomainWatchItem) ClearValue() {
 	x.xxx_hidden_Value = nil
 }
 
-type TenantDomainWatchItem_builder struct {
+type DomainWatchItem_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Which row. Always said, since one that is gone still has to be named.
@@ -9999,7 +9999,7 @@ type TenantDomainWatchItem_builder struct {
 	//
 	// It is only ever said about a row this stream has already carried. One that
 	// never matched is not news.
-	Value *TenantDomain
+	Value *Domain
 	// The RPC that changed it, by the name gRPC knows it by. It is what the
 	// caller of *that* RPC asked for and not the write it became, so an RPC
 	// written by hand is here under its own name.
@@ -10009,8 +10009,8 @@ type TenantDomainWatchItem_builder struct {
 	Action string
 }
 
-func (b0 TenantDomainWatchItem_builder) Build() *TenantDomainWatchItem {
-	m0 := &TenantDomainWatchItem{}
+func (b0 DomainWatchItem_builder) Build() *DomainWatchItem {
+	m0 := &DomainWatchItem{}
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
@@ -10022,27 +10022,27 @@ func (b0 TenantDomainWatchItem_builder) Build() *TenantDomainWatchItem {
 	return m0
 }
 
-type TenantDomainVerifyRequest struct {
+type DomainVerifyRequest struct {
 	state          protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Ref *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *TenantDomainVerifyRequest) Reset() {
-	*x = TenantDomainVerifyRequest{}
+func (x *DomainVerifyRequest) Reset() {
+	*x = DomainVerifyRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainVerifyRequest) String() string {
+func (x *DomainVerifyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainVerifyRequest) ProtoMessage() {}
+func (*DomainVerifyRequest) ProtoMessage() {}
 
-func (x *TenantDomainVerifyRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainVerifyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -10054,63 +10054,63 @@ func (x *TenantDomainVerifyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainVerifyRequest) GetRef() *TenantDomainRef {
+func (x *DomainVerifyRequest) GetRef() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Ref
 	}
 	return nil
 }
 
-func (x *TenantDomainVerifyRequest) SetRef(v *TenantDomainRef) {
+func (x *DomainVerifyRequest) SetRef(v *DomainRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *TenantDomainVerifyRequest) HasRef() bool {
+func (x *DomainVerifyRequest) HasRef() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *TenantDomainVerifyRequest) ClearRef() {
+func (x *DomainVerifyRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-type TenantDomainVerifyRequest_builder struct {
+type DomainVerifyRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref *TenantDomainRef
+	Ref *DomainRef
 }
 
-func (b0 TenantDomainVerifyRequest_builder) Build() *TenantDomainVerifyRequest {
-	m0 := &TenantDomainVerifyRequest{}
+func (b0 DomainVerifyRequest_builder) Build() *DomainVerifyRequest {
+	m0 := &DomainVerifyRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	return m0
 }
 
-type TenantDomainActivateRequest struct {
+type DomainActivateRequest struct {
 	state          protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Ref *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *TenantDomainActivateRequest) Reset() {
-	*x = TenantDomainActivateRequest{}
+func (x *DomainActivateRequest) Reset() {
+	*x = DomainActivateRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainActivateRequest) String() string {
+func (x *DomainActivateRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainActivateRequest) ProtoMessage() {}
+func (*DomainActivateRequest) ProtoMessage() {}
 
-func (x *TenantDomainActivateRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainActivateRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -10122,64 +10122,64 @@ func (x *TenantDomainActivateRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainActivateRequest) GetRef() *TenantDomainRef {
+func (x *DomainActivateRequest) GetRef() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Ref
 	}
 	return nil
 }
 
-func (x *TenantDomainActivateRequest) SetRef(v *TenantDomainRef) {
+func (x *DomainActivateRequest) SetRef(v *DomainRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *TenantDomainActivateRequest) HasRef() bool {
+func (x *DomainActivateRequest) HasRef() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *TenantDomainActivateRequest) ClearRef() {
+func (x *DomainActivateRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-type TenantDomainActivateRequest_builder struct {
+type DomainActivateRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref *TenantDomainRef
+	Ref *DomainRef
 }
 
-func (b0 TenantDomainActivateRequest_builder) Build() *TenantDomainActivateRequest {
-	m0 := &TenantDomainActivateRequest{}
+func (b0 DomainActivateRequest_builder) Build() *DomainActivateRequest {
+	m0 := &DomainActivateRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	return m0
 }
 
-type TenantDomainRetireRequest struct {
+type DomainRetireRequest struct {
 	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref   *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Ref   *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
 	xxx_hidden_Force bool                   `protobuf:"varint,2,opt,name=force"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
-func (x *TenantDomainRetireRequest) Reset() {
-	*x = TenantDomainRetireRequest{}
+func (x *DomainRetireRequest) Reset() {
+	*x = DomainRetireRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainRetireRequest) String() string {
+func (x *DomainRetireRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainRetireRequest) ProtoMessage() {}
+func (*DomainRetireRequest) ProtoMessage() {}
 
-func (x *TenantDomainRetireRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainRetireRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -10191,49 +10191,49 @@ func (x *TenantDomainRetireRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainRetireRequest) GetRef() *TenantDomainRef {
+func (x *DomainRetireRequest) GetRef() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Ref
 	}
 	return nil
 }
 
-func (x *TenantDomainRetireRequest) GetForce() bool {
+func (x *DomainRetireRequest) GetForce() bool {
 	if x != nil {
 		return x.xxx_hidden_Force
 	}
 	return false
 }
 
-func (x *TenantDomainRetireRequest) SetRef(v *TenantDomainRef) {
+func (x *DomainRetireRequest) SetRef(v *DomainRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *TenantDomainRetireRequest) SetForce(v bool) {
+func (x *DomainRetireRequest) SetForce(v bool) {
 	x.xxx_hidden_Force = v
 }
 
-func (x *TenantDomainRetireRequest) HasRef() bool {
+func (x *DomainRetireRequest) HasRef() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *TenantDomainRetireRequest) ClearRef() {
+func (x *DomainRetireRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-type TenantDomainRetireRequest_builder struct {
+type DomainRetireRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref *TenantDomainRef
+	Ref *DomainRef
 	// Retire even though labels were printed with it.
 	Force bool
 }
 
-func (b0 TenantDomainRetireRequest_builder) Build() *TenantDomainRetireRequest {
-	m0 := &TenantDomainRetireRequest{}
+func (b0 DomainRetireRequest_builder) Build() *DomainRetireRequest {
+	m0 := &DomainRetireRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
@@ -10241,26 +10241,26 @@ func (b0 TenantDomainRetireRequest_builder) Build() *TenantDomainRetireRequest {
 	return m0
 }
 
-type TenantDomainStatusRequest struct {
+type DomainStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"opaque.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *TenantDomainStatusRequest) Reset() {
-	*x = TenantDomainStatusRequest{}
+func (x *DomainStatusRequest) Reset() {
+	*x = DomainStatusRequest{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainStatusRequest) String() string {
+func (x *DomainStatusRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainStatusRequest) ProtoMessage() {}
+func (*DomainStatusRequest) ProtoMessage() {}
 
-func (x *TenantDomainStatusRequest) ProtoReflect() protoreflect.Message {
+func (x *DomainStatusRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -10272,21 +10272,21 @@ func (x *TenantDomainStatusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-type TenantDomainStatusRequest_builder struct {
+type DomainStatusRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 }
 
-func (b0 TenantDomainStatusRequest_builder) Build() *TenantDomainStatusRequest {
-	m0 := &TenantDomainStatusRequest{}
+func (b0 DomainStatusRequest_builder) Build() *DomainStatusRequest {
+	m0 := &DomainStatusRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	return m0
 }
 
-type TenantDomainStatusResponse struct {
+type DomainStatusResponse struct {
 	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Active        *TenantDomain          `protobuf:"bytes,2,opt,name=active"`
+	xxx_hidden_Active        *Domain                `protobuf:"bytes,2,opt,name=active"`
 	xxx_hidden_Target        string                 `protobuf:"bytes,3,opt,name=target"`
 	xxx_hidden_DefaultSuffix string                 `protobuf:"bytes,4,opt,name=default_suffix,json=defaultSuffix"`
 	xxx_hidden_Base          string                 `protobuf:"bytes,6,opt,name=base"`
@@ -10294,20 +10294,20 @@ type TenantDomainStatusResponse struct {
 	sizeCache                protoimpl.SizeCache
 }
 
-func (x *TenantDomainStatusResponse) Reset() {
-	*x = TenantDomainStatusResponse{}
+func (x *DomainStatusResponse) Reset() {
+	*x = DomainStatusResponse{}
 	mi := &file_loft_asset_svc_g_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainStatusResponse) String() string {
+func (x *DomainStatusResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainStatusResponse) ProtoMessage() {}
+func (*DomainStatusResponse) ProtoMessage() {}
 
-func (x *TenantDomainStatusResponse) ProtoReflect() protoreflect.Message {
+func (x *DomainStatusResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_asset_svc_g_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -10319,67 +10319,67 @@ func (x *TenantDomainStatusResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainStatusResponse) GetActive() *TenantDomain {
+func (x *DomainStatusResponse) GetActive() *Domain {
 	if x != nil {
 		return x.xxx_hidden_Active
 	}
 	return nil
 }
 
-func (x *TenantDomainStatusResponse) GetTarget() string {
+func (x *DomainStatusResponse) GetTarget() string {
 	if x != nil {
 		return x.xxx_hidden_Target
 	}
 	return ""
 }
 
-func (x *TenantDomainStatusResponse) GetDefaultSuffix() string {
+func (x *DomainStatusResponse) GetDefaultSuffix() string {
 	if x != nil {
 		return x.xxx_hidden_DefaultSuffix
 	}
 	return ""
 }
 
-func (x *TenantDomainStatusResponse) GetBase() string {
+func (x *DomainStatusResponse) GetBase() string {
 	if x != nil {
 		return x.xxx_hidden_Base
 	}
 	return ""
 }
 
-func (x *TenantDomainStatusResponse) SetActive(v *TenantDomain) {
+func (x *DomainStatusResponse) SetActive(v *Domain) {
 	x.xxx_hidden_Active = v
 }
 
-func (x *TenantDomainStatusResponse) SetTarget(v string) {
+func (x *DomainStatusResponse) SetTarget(v string) {
 	x.xxx_hidden_Target = v
 }
 
-func (x *TenantDomainStatusResponse) SetDefaultSuffix(v string) {
+func (x *DomainStatusResponse) SetDefaultSuffix(v string) {
 	x.xxx_hidden_DefaultSuffix = v
 }
 
-func (x *TenantDomainStatusResponse) SetBase(v string) {
+func (x *DomainStatusResponse) SetBase(v string) {
 	x.xxx_hidden_Base = v
 }
 
-func (x *TenantDomainStatusResponse) HasActive() bool {
+func (x *DomainStatusResponse) HasActive() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Active != nil
 }
 
-func (x *TenantDomainStatusResponse) ClearActive() {
+func (x *DomainStatusResponse) ClearActive() {
 	x.xxx_hidden_Active = nil
 }
 
-type TenantDomainStatusResponse_builder struct {
+type DomainStatusResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// The domain new labels print with, and that the app is on (an `app`
 	// domain); none prints with `base`.
-	Active *TenantDomain
+	Active *Domain
 	// The host a custom domain's CNAME has to point at.
 	Target string
 	// The suffix a default subdomain gets; empty offers none.
@@ -10388,8 +10388,8 @@ type TenantDomainStatusResponse_builder struct {
 	Base string
 }
 
-func (b0 TenantDomainStatusResponse_builder) Build() *TenantDomainStatusResponse {
-	m0 := &TenantDomainStatusResponse{}
+func (b0 DomainStatusResponse_builder) Build() *DomainStatusResponse {
+	m0 := &DomainStatusResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Active = b.Active
@@ -10403,7 +10403,7 @@ type LabelAddRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Domain      *TenantDomainRef       `protobuf:"bytes,8,opt,name=domain"`
+	xxx_hidden_Domain      *DomainRef             `protobuf:"bytes,8,opt,name=domain"`
 	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,9,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_State       string                 `protobuf:"bytes,10,opt,name=state"`
 	xxx_hidden_BoundAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=bound_at,json=boundAt"`
@@ -10456,7 +10456,7 @@ func (x *LabelAddRequest) GetTenant() *TenantRef {
 	return nil
 }
 
-func (x *LabelAddRequest) GetDomain() *TenantDomainRef {
+func (x *LabelAddRequest) GetDomain() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Domain
 	}
@@ -10527,7 +10527,7 @@ func (x *LabelAddRequest) SetTenant(v *TenantRef) {
 	x.xxx_hidden_Tenant = v
 }
 
-func (x *LabelAddRequest) SetDomain(v *TenantDomainRef) {
+func (x *LabelAddRequest) SetDomain(v *DomainRef) {
 	x.xxx_hidden_Domain = v
 }
 
@@ -10660,7 +10660,7 @@ type LabelAddRequest_builder struct {
 
 	Id          []byte
 	Tenant      *TenantRef
-	Domain      *TenantDomainRef
+	Domain      *DomainRef
 	SubjectId   []byte
 	State       string
 	BoundAt     *timestamppb.Timestamp
@@ -10959,7 +10959,7 @@ type LabelSelect struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
 	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Domain      *TenantDomainSelect    `protobuf:"bytes,8,opt,name=domain"`
+	xxx_hidden_Domain      *DomainSelect          `protobuf:"bytes,8,opt,name=domain"`
 	xxx_hidden_SubjectId   bool                   `protobuf:"varint,9,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_State       bool                   `protobuf:"varint,10,opt,name=state"`
 	xxx_hidden_BoundAt     bool                   `protobuf:"varint,11,opt,name=bound_at,json=boundAt"`
@@ -11014,7 +11014,7 @@ func (x *LabelSelect) GetTenant() *TenantSelect {
 	return nil
 }
 
-func (x *LabelSelect) GetDomain() *TenantDomainSelect {
+func (x *LabelSelect) GetDomain() *DomainSelect {
 	if x != nil {
 		return x.xxx_hidden_Domain
 	}
@@ -11093,7 +11093,7 @@ func (x *LabelSelect) SetTenant(v *TenantSelect) {
 	x.xxx_hidden_Tenant = v
 }
 
-func (x *LabelSelect) SetDomain(v *TenantDomainSelect) {
+func (x *LabelSelect) SetDomain(v *DomainSelect) {
 	x.xxx_hidden_Domain = v
 }
 
@@ -11289,7 +11289,7 @@ type LabelSelect_builder struct {
 
 	All         *bool
 	Tenant      *TenantSelect
-	Domain      *TenantDomainSelect
+	Domain      *DomainSelect
 	SubjectId   *bool
 	State       *bool
 	BoundAt     *bool
@@ -11353,7 +11353,7 @@ func (b0 LabelSelect_builder) Build() *LabelSelect {
 type LabelPatchRequest struct {
 	state                       protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Ref              *LabelRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Domain           *TenantDomainRef       `protobuf:"bytes,16,opt,name=domain"`
+	xxx_hidden_Domain           *DomainRef             `protobuf:"bytes,16,opt,name=domain"`
 	xxx_hidden_DomainNull       bool                   `protobuf:"varint,17,opt,name=domain_null,json=domainNull"`
 	xxx_hidden_SubjectId        []byte                 `protobuf:"bytes,18,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_SubjectIdNull    bool                   `protobuf:"varint,19,opt,name=subject_id_null,json=subjectIdNull"`
@@ -11405,7 +11405,7 @@ func (x *LabelPatchRequest) GetRef() *LabelRef {
 	return nil
 }
 
-func (x *LabelPatchRequest) GetDomain() *TenantDomainRef {
+func (x *LabelPatchRequest) GetDomain() *DomainRef {
 	if x != nil {
 		return x.xxx_hidden_Domain
 	}
@@ -11516,7 +11516,7 @@ func (x *LabelPatchRequest) SetRef(v *LabelRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *LabelPatchRequest) SetDomain(v *TenantDomainRef) {
+func (x *LabelPatchRequest) SetDomain(v *DomainRef) {
 	x.xxx_hidden_Domain = v
 }
 
@@ -11764,7 +11764,7 @@ type LabelPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Ref    *LabelRef
-	Domain *TenantDomainRef
+	Domain *DomainRef
 	// Clear domain instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
@@ -15715,8 +15715,8 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x06within\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x06within\x1a;\n" +
 	"\rStatusesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x8c\x05\n" +
-	"\x16TenantDomainAddRequest\x12\x0e\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x86\x05\n" +
+	"\x10DomainAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04host\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x04host\x12\x1f\n" +
@@ -15735,15 +15735,15 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\vdate_lapsed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"dateLapsed\x12A\n" +
 	"\x0eredirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampR\rredirectUntil\x12\x10\n" +
-	"\x03sub\x18d \x01(\tR\x03sub\"s\n" +
-	"\x16TenantDomainGetRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x120\n" +
-	"\x06select\x18\x02 \x01(\v2\x18.loft.TenantDomainSelectR\x06select\"@\n" +
-	"\x0fTenantDomainRef\x12\x10\n" +
+	"\x03sub\x18d \x01(\tR\x03sub\"a\n" +
+	"\x10DomainGetRequest\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12*\n" +
+	"\x06select\x18\x02 \x01(\v2\x12.loft.DomainSelectR\x06select\":\n" +
+	"\tDomainRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x14\n" +
 	"\x04host\x18\b \x01(\tH\x00R\x04hostB\x05\n" +
-	"\x03key\"\xf4\x03\n" +
-	"\x12TenantDomainSelect\x12\x10\n" +
+	"\x03key\"\xee\x03\n" +
+	"\fDomainSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04host\x18\b \x01(\bR\x04host\x12\x18\n" +
@@ -15764,9 +15764,9 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\rfailing_since\x18\x14 \x01(\bR\ffailingSince\x12\x1f\n" +
 	"\vdate_lapsed\x18\x11 \x01(\bR\n" +
 	"dateLapsed\x12%\n" +
-	"\x0eredirect_until\x18\x15 \x01(\bR\rredirectUntil\"\xd1\x06\n" +
-	"\x18TenantDomainPatchRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x12\x12\n" +
+	"\x0eredirect_until\x18\x15 \x01(\bR\rredirectUntil\"\xc5\x06\n" +
+	"\x12DomainPatchRequest\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12\x12\n" +
 	"\x04host\x18\x10 \x01(\tR\x04host\x12\x18\n" +
 	"\apurpose\x18\x12 \x01(\tR\apurpose\x12\x14\n" +
 	"\x05state\x18\x14 \x01(\tR\x05state\x12\x14\n" +
@@ -15787,50 +15787,50 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"dateLapsed\x12(\n" +
 	"\x10date_lapsed_null\x18# \x01(\bR\x0edateLapsedNull\x12A\n" +
 	"\x0eredirect_until\x18* \x01(\v2\x1a.google.protobuf.TimestampR\rredirectUntil\x12.\n" +
-	"\x13redirect_until_null\x18+ \x01(\bR\x11redirectUntilNull\"g\n" +
-	"\x18TenantDomainApplyRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x12\"\n" +
-	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
-	"\x19TenantDomainEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
-	"\x17TenantDomainListRequest\x122\n" +
-	"\afilters\x18\x01 \x03(\v2\x18.loft.TenantDomainFilterR\afilters\x12\x19\n" +
+	"\x13redirect_until_null\x18+ \x01(\bR\x11redirectUntilNull\"[\n" +
+	"\x12DomainApplyRequest\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12\"\n" +
+	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"-\n" +
+	"\x13DomainEraseResponse\x12\x16\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x9a\x01\n" +
+	"\x11DomainListRequest\x12,\n" +
+	"\afilters\x18\x01 \x03(\v2\x12.loft.DomainFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
-	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
-	"\x18TenantDomainListResponse\x12(\n" +
-	"\x05items\x18\x01 \x03(\v2\x12.loft.TenantDomainR\x05items\x12\x19\n" +
-	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"m\n" +
-	"\x12TenantDomainFilter\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x12\x14\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"S\n" +
+	"\x12DomainListResponse\x12\"\n" +
+	"\x05items\x18\x01 \x03(\v2\f.loft.DomainR\x05items\x12\x19\n" +
+	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"a\n" +
+	"\fDomainFilter\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12\x18\n" +
-	"\apurpose\x18\x03 \x01(\tR\apurpose\"z\n" +
-	"\x18TenantDomainWatchRequest\x122\n" +
-	"\afilters\x18\x01 \x03(\v2\x18.loft.TenantDomainFilterR\afilters\x12*\n" +
-	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"N\n" +
-	"\x19TenantDomainWatchResponse\x121\n" +
-	"\x05items\x18\x01 \x03(\v2\x1b.loft.TenantDomainWatchItemR\x05items\"p\n" +
-	"\x15TenantDomainWatchItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\fR\x02id\x12(\n" +
-	"\x05value\x18\x02 \x01(\v2\x12.loft.TenantDomainR\x05value\x12\x1d\n" +
-	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"D\n" +
-	"\x19TenantDomainVerifyRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\"F\n" +
-	"\x1bTenantDomainActivateRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\"a\n" +
-	"\x19TenantDomainRetireRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x12\x1b\n" +
-	"\x05force\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\x05force\"\x1b\n" +
-	"\x19TenantDomainStatusRequest\"\xd4\x01\n" +
-	"\x1aTenantDomainStatusResponse\x12*\n" +
-	"\x06active\x18\x02 \x01(\v2\x12.loft.TenantDomainR\x06active\x12\x1d\n" +
+	"\apurpose\x18\x03 \x01(\tR\apurpose\"n\n" +
+	"\x12DomainWatchRequest\x12,\n" +
+	"\afilters\x18\x01 \x03(\v2\x12.loft.DomainFilterR\afilters\x12*\n" +
+	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"B\n" +
+	"\x13DomainWatchResponse\x12+\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.loft.DomainWatchItemR\x05items\"d\n" +
+	"\x0fDomainWatchItem\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\fR\x02id\x12\"\n" +
+	"\x05value\x18\x02 \x01(\v2\f.loft.DomainR\x05value\x12\x1d\n" +
+	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"8\n" +
+	"\x13DomainVerifyRequest\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\":\n" +
+	"\x15DomainActivateRequest\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\"U\n" +
+	"\x13DomainRetireRequest\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12\x1b\n" +
+	"\x05force\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\x05force\"\x15\n" +
+	"\x13DomainStatusRequest\"\xc8\x01\n" +
+	"\x14DomainStatusResponse\x12$\n" +
+	"\x06active\x18\x02 \x01(\v2\f.loft.DomainR\x06active\x12\x1d\n" +
 	"\x06target\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06target\x12,\n" +
 	"\x0edefault_suffix\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\rdefaultSuffix\x12\x19\n" +
-	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04baseJ\x04\b\x01\x10\x02J\x04\b\x05\x10\x06R\x06labelsR\x0etenant_domains\"\x97\x03\n" +
+	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04baseJ\x04\b\x01\x10\x02J\x04\b\x05\x10\x06R\x06labelsR\x0etenant_domains\"\x91\x03\n" +
 	"\x0fLabelAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12-\n" +
-	"\x06domain\x18\b \x01(\v2\x15.loft.TenantDomainRefR\x06domain\x12\x1d\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12'\n" +
+	"\x06domain\x18\b \x01(\v2\x0f.loft.DomainRefR\x06domain\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\t \x01(\fR\tsubjectId\x12\x1b\n" +
 	"\x05state\x18\n" +
@@ -15847,11 +15847,11 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\bLabelRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x14\n" +
 	"\x04code\x18\x11 \x01(\tH\x00R\x04codeB\x05\n" +
-	"\x03key\"\xfd\x02\n" +
+	"\x03key\"\xf7\x02\n" +
 	"\vLabelSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x120\n" +
-	"\x06domain\x18\b \x01(\v2\x18.loft.TenantDomainSelectR\x06domain\x12\x1d\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12*\n" +
+	"\x06domain\x18\b \x01(\v2\x12.loft.DomainSelectR\x06domain\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\t \x01(\bR\tsubjectId\x12\x14\n" +
 	"\x05state\x18\n" +
@@ -15864,10 +15864,10 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x14\n" +
 	"\x05batch\x18\x10 \x01(\bR\x05batch\x12\x12\n" +
-	"\x04code\x18\x11 \x01(\bR\x04code\"\xd4\x04\n" +
+	"\x04code\x18\x11 \x01(\bR\x04code\"\xce\x04\n" +
 	"\x11LabelPatchRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12-\n" +
-	"\x06domain\x18\x10 \x01(\v2\x15.loft.TenantDomainRefR\x06domain\x12\x1f\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12'\n" +
+	"\x06domain\x18\x10 \x01(\v2\x0f.loft.DomainRefR\x06domain\x12\x1f\n" +
 	"\vdomain_null\x18\x11 \x01(\bR\n" +
 	"domainNull\x12\x1d\n" +
 	"\n" +
@@ -16046,19 +16046,19 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x06Census\x12\x18.loft.AssetCensusRequest\x1a\x19.loft.AssetCensusResponse\x12C\n" +
 	"\fExportCensus\x12\x18.loft.AssetCensusRequest\x1a\x19.loft.AssetExportResponse2\x11\n" +
 	"\x0fTreeLockService2\x13\n" +
-	"\x11TagCounterService2\xe3\x05\n" +
-	"\x13TenantDomainService\x127\n" +
-	"\x03Add\x12\x1c.loft.TenantDomainAddRequest\x1a\x12.loft.TenantDomain\x127\n" +
-	"\x03Get\x12\x1c.loft.TenantDomainGetRequest\x1a\x12.loft.TenantDomain\x12;\n" +
-	"\x05Patch\x12\x1e.loft.TenantDomainPatchRequest\x1a\x12.loft.TenantDomain\x12;\n" +
-	"\x05Apply\x12\x1e.loft.TenantDomainApplyRequest\x1a\x12.loft.TenantDomain\x12?\n" +
-	"\x05Erase\x12\x15.loft.TenantDomainRef\x1a\x1f.loft.TenantDomainEraseResponse\x12E\n" +
-	"\x04List\x12\x1d.loft.TenantDomainListRequest\x1a\x1e.loft.TenantDomainListResponse\x12J\n" +
-	"\x05Watch\x12\x1e.loft.TenantDomainWatchRequest\x1a\x1f.loft.TenantDomainWatchResponse0\x01\x12=\n" +
-	"\x06Verify\x12\x1f.loft.TenantDomainVerifyRequest\x1a\x12.loft.TenantDomain\x12A\n" +
-	"\bActivate\x12!.loft.TenantDomainActivateRequest\x1a\x12.loft.TenantDomain\x12=\n" +
-	"\x06Retire\x12\x1f.loft.TenantDomainRetireRequest\x1a\x12.loft.TenantDomain\x12K\n" +
-	"\x06Status\x12\x1f.loft.TenantDomainStatusRequest\x1a .loft.TenantDomainStatusResponse2\xc8\x04\n" +
+	"\x11TagCounterService2\xd9\x04\n" +
+	"\rDomainService\x12+\n" +
+	"\x03Add\x12\x16.loft.DomainAddRequest\x1a\f.loft.Domain\x12+\n" +
+	"\x03Get\x12\x16.loft.DomainGetRequest\x1a\f.loft.Domain\x12/\n" +
+	"\x05Patch\x12\x18.loft.DomainPatchRequest\x1a\f.loft.Domain\x12/\n" +
+	"\x05Apply\x12\x18.loft.DomainApplyRequest\x1a\f.loft.Domain\x123\n" +
+	"\x05Erase\x12\x0f.loft.DomainRef\x1a\x19.loft.DomainEraseResponse\x129\n" +
+	"\x04List\x12\x17.loft.DomainListRequest\x1a\x18.loft.DomainListResponse\x12>\n" +
+	"\x05Watch\x12\x18.loft.DomainWatchRequest\x1a\x19.loft.DomainWatchResponse0\x01\x121\n" +
+	"\x06Verify\x12\x19.loft.DomainVerifyRequest\x1a\f.loft.Domain\x125\n" +
+	"\bActivate\x12\x1b.loft.DomainActivateRequest\x1a\f.loft.Domain\x121\n" +
+	"\x06Retire\x12\x19.loft.DomainRetireRequest\x1a\f.loft.Domain\x12?\n" +
+	"\x06Status\x12\x19.loft.DomainStatusRequest\x1a\x1a.loft.DomainStatusResponse2\xc8\x04\n" +
 	"\fLabelService\x12)\n" +
 	"\x03Add\x12\x15.loft.LabelAddRequest\x1a\v.loft.Label\x12)\n" +
 	"\x03Get\x12\x15.loft.LabelGetRequest\x1a\v.loft.Label\x12-\n" +
@@ -16084,131 +16084,131 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 
 var file_loft_asset_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 111)
 var file_loft_asset_svc_g_proto_goTypes = []any{
-	(*AssetAddRequest)(nil),             // 0: loft.AssetAddRequest
-	(*AssetRef)(nil),                    // 1: loft.AssetRef
-	(*AssetRefByTag)(nil),               // 2: loft.AssetRefByTag
-	(*AssetAddManyRequest)(nil),         // 3: loft.AssetAddManyRequest
-	(*AssetAddManyResponse)(nil),        // 4: loft.AssetAddManyResponse
-	(*AssetAddManyIssue)(nil),           // 5: loft.AssetAddManyIssue
-	(*AssetGetRequest)(nil),             // 6: loft.AssetGetRequest
-	(*AssetSelect)(nil),                 // 7: loft.AssetSelect
-	(*AssetPatchRequest)(nil),           // 8: loft.AssetPatchRequest
-	(*AssetApplyRequest)(nil),           // 9: loft.AssetApplyRequest
-	(*AssetEraseResponse)(nil),          // 10: loft.AssetEraseResponse
-	(*AssetListRequest)(nil),            // 11: loft.AssetListRequest
-	(*AssetListResponse)(nil),           // 12: loft.AssetListResponse
-	(*AssetFilter)(nil),                 // 13: loft.AssetFilter
-	(*AssetWatchRequest)(nil),           // 14: loft.AssetWatchRequest
-	(*AssetWatchResponse)(nil),          // 15: loft.AssetWatchResponse
-	(*AssetWatchItem)(nil),              // 16: loft.AssetWatchItem
-	(*AssetMoveRequest)(nil),            // 17: loft.AssetMoveRequest
-	(*AssetSetAttributesRequest)(nil),   // 18: loft.AssetSetAttributesRequest
-	(*AssetAssignRequest)(nil),          // 19: loft.AssetAssignRequest
-	(*AssetRelateRequest)(nil),          // 20: loft.AssetRelateRequest
-	(*AssetCorrectRequest)(nil),         // 21: loft.AssetCorrectRequest
-	(*AssetTimelineRequest)(nil),        // 22: loft.AssetTimelineRequest
-	(*AssetTimelineResponse)(nil),       // 23: loft.AssetTimelineResponse
-	(*TimelineEntry)(nil),               // 24: loft.TimelineEntry
-	(*AssetQueryAtRequest)(nil),         // 25: loft.AssetQueryAtRequest
-	(*AssetQueryAtResponse)(nil),        // 26: loft.AssetQueryAtResponse
-	(*AssetState)(nil),                  // 27: loft.AssetState
-	(*AssetDiffRequest)(nil),            // 28: loft.AssetDiffRequest
-	(*AssetDiffResponse)(nil),           // 29: loft.AssetDiffResponse
-	(*AssetChange)(nil),                 // 30: loft.AssetChange
-	(*AssetSearchRequest)(nil),          // 31: loft.AssetSearchRequest
-	(*AssetSearchResponse)(nil),         // 32: loft.AssetSearchResponse
-	(*AssetReportRequest)(nil),          // 33: loft.AssetReportRequest
-	(*AssetReportResponse)(nil),         // 34: loft.AssetReportResponse
-	(*ReportRow)(nil),                   // 35: loft.ReportRow
-	(*AssetExportRequest)(nil),          // 36: loft.AssetExportRequest
-	(*AssetExportResponse)(nil),         // 37: loft.AssetExportResponse
-	(*AssetFormRequest)(nil),            // 38: loft.AssetFormRequest
-	(*AssetReadSheetRequest)(nil),       // 39: loft.AssetReadSheetRequest
-	(*AssetReadSheetResponse)(nil),      // 40: loft.AssetReadSheetResponse
-	(*AssetReadSheetIssue)(nil),         // 41: loft.AssetReadSheetIssue
-	(*AssetCensusRequest)(nil),          // 42: loft.AssetCensusRequest
-	(*AssetCensusResponse)(nil),         // 43: loft.AssetCensusResponse
-	(*AssetCensusRow)(nil),              // 44: loft.AssetCensusRow
-	(*TenantDomainAddRequest)(nil),      // 45: loft.TenantDomainAddRequest
-	(*TenantDomainGetRequest)(nil),      // 46: loft.TenantDomainGetRequest
-	(*TenantDomainRef)(nil),             // 47: loft.TenantDomainRef
-	(*TenantDomainSelect)(nil),          // 48: loft.TenantDomainSelect
-	(*TenantDomainPatchRequest)(nil),    // 49: loft.TenantDomainPatchRequest
-	(*TenantDomainApplyRequest)(nil),    // 50: loft.TenantDomainApplyRequest
-	(*TenantDomainEraseResponse)(nil),   // 51: loft.TenantDomainEraseResponse
-	(*TenantDomainListRequest)(nil),     // 52: loft.TenantDomainListRequest
-	(*TenantDomainListResponse)(nil),    // 53: loft.TenantDomainListResponse
-	(*TenantDomainFilter)(nil),          // 54: loft.TenantDomainFilter
-	(*TenantDomainWatchRequest)(nil),    // 55: loft.TenantDomainWatchRequest
-	(*TenantDomainWatchResponse)(nil),   // 56: loft.TenantDomainWatchResponse
-	(*TenantDomainWatchItem)(nil),       // 57: loft.TenantDomainWatchItem
-	(*TenantDomainVerifyRequest)(nil),   // 58: loft.TenantDomainVerifyRequest
-	(*TenantDomainActivateRequest)(nil), // 59: loft.TenantDomainActivateRequest
-	(*TenantDomainRetireRequest)(nil),   // 60: loft.TenantDomainRetireRequest
-	(*TenantDomainStatusRequest)(nil),   // 61: loft.TenantDomainStatusRequest
-	(*TenantDomainStatusResponse)(nil),  // 62: loft.TenantDomainStatusResponse
-	(*LabelAddRequest)(nil),             // 63: loft.LabelAddRequest
-	(*LabelGetRequest)(nil),             // 64: loft.LabelGetRequest
-	(*LabelRef)(nil),                    // 65: loft.LabelRef
-	(*LabelSelect)(nil),                 // 66: loft.LabelSelect
-	(*LabelPatchRequest)(nil),           // 67: loft.LabelPatchRequest
-	(*LabelApplyRequest)(nil),           // 68: loft.LabelApplyRequest
-	(*LabelEraseResponse)(nil),          // 69: loft.LabelEraseResponse
-	(*LabelListRequest)(nil),            // 70: loft.LabelListRequest
-	(*LabelListResponse)(nil),           // 71: loft.LabelListResponse
-	(*LabelFilter)(nil),                 // 72: loft.LabelFilter
-	(*LabelWatchRequest)(nil),           // 73: loft.LabelWatchRequest
-	(*LabelWatchResponse)(nil),          // 74: loft.LabelWatchResponse
-	(*LabelWatchItem)(nil),              // 75: loft.LabelWatchItem
-	(*LabelPrintRequest)(nil),           // 76: loft.LabelPrintRequest
-	(*LabelPrintResponse)(nil),          // 77: loft.LabelPrintResponse
-	(*LabelBindRequest)(nil),            // 78: loft.LabelBindRequest
-	(*LabelUnbindRequest)(nil),          // 79: loft.LabelUnbindRequest
-	(*LabelResolveRequest)(nil),         // 80: loft.LabelResolveRequest
-	(*LabelResolveResponse)(nil),        // 81: loft.LabelResolveResponse
-	(*AttachmentAddRequest)(nil),        // 82: loft.AttachmentAddRequest
-	(*AttachmentGetRequest)(nil),        // 83: loft.AttachmentGetRequest
-	(*AttachmentRef)(nil),               // 84: loft.AttachmentRef
-	(*AttachmentSelect)(nil),            // 85: loft.AttachmentSelect
-	(*AttachmentPatchRequest)(nil),      // 86: loft.AttachmentPatchRequest
-	(*AttachmentApplyRequest)(nil),      // 87: loft.AttachmentApplyRequest
-	(*AttachmentEraseResponse)(nil),     // 88: loft.AttachmentEraseResponse
-	(*AttachmentListRequest)(nil),       // 89: loft.AttachmentListRequest
-	(*AttachmentListResponse)(nil),      // 90: loft.AttachmentListResponse
-	(*AttachmentFilter)(nil),            // 91: loft.AttachmentFilter
-	(*AttachmentWatchRequest)(nil),      // 92: loft.AttachmentWatchRequest
-	(*AttachmentWatchResponse)(nil),     // 93: loft.AttachmentWatchResponse
-	(*AttachmentWatchItem)(nil),         // 94: loft.AttachmentWatchItem
-	(*AttachmentUploadRequest)(nil),     // 95: loft.AttachmentUploadRequest
-	(*AttachmentUrlRequest)(nil),        // 96: loft.AttachmentUrlRequest
-	(*AttachmentUrlResponse)(nil),       // 97: loft.AttachmentUrlResponse
-	nil,                                 // 98: loft.AssetAddRequest.LabelsEntry
-	nil,                                 // 99: loft.AssetAddRequest.AttributesEntry
-	nil,                                 // 100: loft.AssetPatchRequest.LabelsEntry
-	nil,                                 // 101: loft.AssetPatchRequest.AttributesEntry
-	nil,                                 // 102: loft.AssetFilter.LabelsEntry
-	nil,                                 // 103: loft.AssetFilter.AttributesEntry
-	nil,                                 // 104: loft.AssetSetAttributesRequest.SetEntry
-	nil,                                 // 105: loft.TimelineEntry.DetailEntry
-	nil,                                 // 106: loft.AssetState.FactsEntry
-	nil,                                 // 107: loft.AssetState.StewardsEntry
-	nil,                                 // 108: loft.AssetState.StewardNamesEntry
-	nil,                                 // 109: loft.ReportRow.DetailEntry
-	nil,                                 // 110: loft.AssetCensusRow.StatusesEntry
-	(*TenantRef)(nil),                   // 111: loft.TenantRef
-	(*AssetTypeRef)(nil),                // 112: loft.AssetTypeRef
-	(*ItemModelRef)(nil),                // 113: loft.ItemModelRef
-	(*timestamppb.Timestamp)(nil),       // 114: google.protobuf.Timestamp
-	(*PartyRef)(nil),                    // 115: loft.PartyRef
-	(*Asset)(nil),                       // 116: loft.Asset
-	(*TenantSelect)(nil),                // 117: loft.TenantSelect
-	(*AssetTypeSelect)(nil),             // 118: loft.AssetTypeSelect
-	(*ItemModelSelect)(nil),             // 119: loft.ItemModelSelect
-	(*PartySelect)(nil),                 // 120: loft.PartySelect
-	(*patchpb.Patch)(nil),               // 121: patch.Patch
-	(*TenantDomain)(nil),                // 122: loft.TenantDomain
-	(*Label)(nil),                       // 123: loft.Label
-	(*Attachment)(nil),                  // 124: loft.Attachment
+	(*AssetAddRequest)(nil),           // 0: loft.AssetAddRequest
+	(*AssetRef)(nil),                  // 1: loft.AssetRef
+	(*AssetRefByTag)(nil),             // 2: loft.AssetRefByTag
+	(*AssetAddManyRequest)(nil),       // 3: loft.AssetAddManyRequest
+	(*AssetAddManyResponse)(nil),      // 4: loft.AssetAddManyResponse
+	(*AssetAddManyIssue)(nil),         // 5: loft.AssetAddManyIssue
+	(*AssetGetRequest)(nil),           // 6: loft.AssetGetRequest
+	(*AssetSelect)(nil),               // 7: loft.AssetSelect
+	(*AssetPatchRequest)(nil),         // 8: loft.AssetPatchRequest
+	(*AssetApplyRequest)(nil),         // 9: loft.AssetApplyRequest
+	(*AssetEraseResponse)(nil),        // 10: loft.AssetEraseResponse
+	(*AssetListRequest)(nil),          // 11: loft.AssetListRequest
+	(*AssetListResponse)(nil),         // 12: loft.AssetListResponse
+	(*AssetFilter)(nil),               // 13: loft.AssetFilter
+	(*AssetWatchRequest)(nil),         // 14: loft.AssetWatchRequest
+	(*AssetWatchResponse)(nil),        // 15: loft.AssetWatchResponse
+	(*AssetWatchItem)(nil),            // 16: loft.AssetWatchItem
+	(*AssetMoveRequest)(nil),          // 17: loft.AssetMoveRequest
+	(*AssetSetAttributesRequest)(nil), // 18: loft.AssetSetAttributesRequest
+	(*AssetAssignRequest)(nil),        // 19: loft.AssetAssignRequest
+	(*AssetRelateRequest)(nil),        // 20: loft.AssetRelateRequest
+	(*AssetCorrectRequest)(nil),       // 21: loft.AssetCorrectRequest
+	(*AssetTimelineRequest)(nil),      // 22: loft.AssetTimelineRequest
+	(*AssetTimelineResponse)(nil),     // 23: loft.AssetTimelineResponse
+	(*TimelineEntry)(nil),             // 24: loft.TimelineEntry
+	(*AssetQueryAtRequest)(nil),       // 25: loft.AssetQueryAtRequest
+	(*AssetQueryAtResponse)(nil),      // 26: loft.AssetQueryAtResponse
+	(*AssetState)(nil),                // 27: loft.AssetState
+	(*AssetDiffRequest)(nil),          // 28: loft.AssetDiffRequest
+	(*AssetDiffResponse)(nil),         // 29: loft.AssetDiffResponse
+	(*AssetChange)(nil),               // 30: loft.AssetChange
+	(*AssetSearchRequest)(nil),        // 31: loft.AssetSearchRequest
+	(*AssetSearchResponse)(nil),       // 32: loft.AssetSearchResponse
+	(*AssetReportRequest)(nil),        // 33: loft.AssetReportRequest
+	(*AssetReportResponse)(nil),       // 34: loft.AssetReportResponse
+	(*ReportRow)(nil),                 // 35: loft.ReportRow
+	(*AssetExportRequest)(nil),        // 36: loft.AssetExportRequest
+	(*AssetExportResponse)(nil),       // 37: loft.AssetExportResponse
+	(*AssetFormRequest)(nil),          // 38: loft.AssetFormRequest
+	(*AssetReadSheetRequest)(nil),     // 39: loft.AssetReadSheetRequest
+	(*AssetReadSheetResponse)(nil),    // 40: loft.AssetReadSheetResponse
+	(*AssetReadSheetIssue)(nil),       // 41: loft.AssetReadSheetIssue
+	(*AssetCensusRequest)(nil),        // 42: loft.AssetCensusRequest
+	(*AssetCensusResponse)(nil),       // 43: loft.AssetCensusResponse
+	(*AssetCensusRow)(nil),            // 44: loft.AssetCensusRow
+	(*DomainAddRequest)(nil),          // 45: loft.DomainAddRequest
+	(*DomainGetRequest)(nil),          // 46: loft.DomainGetRequest
+	(*DomainRef)(nil),                 // 47: loft.DomainRef
+	(*DomainSelect)(nil),              // 48: loft.DomainSelect
+	(*DomainPatchRequest)(nil),        // 49: loft.DomainPatchRequest
+	(*DomainApplyRequest)(nil),        // 50: loft.DomainApplyRequest
+	(*DomainEraseResponse)(nil),       // 51: loft.DomainEraseResponse
+	(*DomainListRequest)(nil),         // 52: loft.DomainListRequest
+	(*DomainListResponse)(nil),        // 53: loft.DomainListResponse
+	(*DomainFilter)(nil),              // 54: loft.DomainFilter
+	(*DomainWatchRequest)(nil),        // 55: loft.DomainWatchRequest
+	(*DomainWatchResponse)(nil),       // 56: loft.DomainWatchResponse
+	(*DomainWatchItem)(nil),           // 57: loft.DomainWatchItem
+	(*DomainVerifyRequest)(nil),       // 58: loft.DomainVerifyRequest
+	(*DomainActivateRequest)(nil),     // 59: loft.DomainActivateRequest
+	(*DomainRetireRequest)(nil),       // 60: loft.DomainRetireRequest
+	(*DomainStatusRequest)(nil),       // 61: loft.DomainStatusRequest
+	(*DomainStatusResponse)(nil),      // 62: loft.DomainStatusResponse
+	(*LabelAddRequest)(nil),           // 63: loft.LabelAddRequest
+	(*LabelGetRequest)(nil),           // 64: loft.LabelGetRequest
+	(*LabelRef)(nil),                  // 65: loft.LabelRef
+	(*LabelSelect)(nil),               // 66: loft.LabelSelect
+	(*LabelPatchRequest)(nil),         // 67: loft.LabelPatchRequest
+	(*LabelApplyRequest)(nil),         // 68: loft.LabelApplyRequest
+	(*LabelEraseResponse)(nil),        // 69: loft.LabelEraseResponse
+	(*LabelListRequest)(nil),          // 70: loft.LabelListRequest
+	(*LabelListResponse)(nil),         // 71: loft.LabelListResponse
+	(*LabelFilter)(nil),               // 72: loft.LabelFilter
+	(*LabelWatchRequest)(nil),         // 73: loft.LabelWatchRequest
+	(*LabelWatchResponse)(nil),        // 74: loft.LabelWatchResponse
+	(*LabelWatchItem)(nil),            // 75: loft.LabelWatchItem
+	(*LabelPrintRequest)(nil),         // 76: loft.LabelPrintRequest
+	(*LabelPrintResponse)(nil),        // 77: loft.LabelPrintResponse
+	(*LabelBindRequest)(nil),          // 78: loft.LabelBindRequest
+	(*LabelUnbindRequest)(nil),        // 79: loft.LabelUnbindRequest
+	(*LabelResolveRequest)(nil),       // 80: loft.LabelResolveRequest
+	(*LabelResolveResponse)(nil),      // 81: loft.LabelResolveResponse
+	(*AttachmentAddRequest)(nil),      // 82: loft.AttachmentAddRequest
+	(*AttachmentGetRequest)(nil),      // 83: loft.AttachmentGetRequest
+	(*AttachmentRef)(nil),             // 84: loft.AttachmentRef
+	(*AttachmentSelect)(nil),          // 85: loft.AttachmentSelect
+	(*AttachmentPatchRequest)(nil),    // 86: loft.AttachmentPatchRequest
+	(*AttachmentApplyRequest)(nil),    // 87: loft.AttachmentApplyRequest
+	(*AttachmentEraseResponse)(nil),   // 88: loft.AttachmentEraseResponse
+	(*AttachmentListRequest)(nil),     // 89: loft.AttachmentListRequest
+	(*AttachmentListResponse)(nil),    // 90: loft.AttachmentListResponse
+	(*AttachmentFilter)(nil),          // 91: loft.AttachmentFilter
+	(*AttachmentWatchRequest)(nil),    // 92: loft.AttachmentWatchRequest
+	(*AttachmentWatchResponse)(nil),   // 93: loft.AttachmentWatchResponse
+	(*AttachmentWatchItem)(nil),       // 94: loft.AttachmentWatchItem
+	(*AttachmentUploadRequest)(nil),   // 95: loft.AttachmentUploadRequest
+	(*AttachmentUrlRequest)(nil),      // 96: loft.AttachmentUrlRequest
+	(*AttachmentUrlResponse)(nil),     // 97: loft.AttachmentUrlResponse
+	nil,                               // 98: loft.AssetAddRequest.LabelsEntry
+	nil,                               // 99: loft.AssetAddRequest.AttributesEntry
+	nil,                               // 100: loft.AssetPatchRequest.LabelsEntry
+	nil,                               // 101: loft.AssetPatchRequest.AttributesEntry
+	nil,                               // 102: loft.AssetFilter.LabelsEntry
+	nil,                               // 103: loft.AssetFilter.AttributesEntry
+	nil,                               // 104: loft.AssetSetAttributesRequest.SetEntry
+	nil,                               // 105: loft.TimelineEntry.DetailEntry
+	nil,                               // 106: loft.AssetState.FactsEntry
+	nil,                               // 107: loft.AssetState.StewardsEntry
+	nil,                               // 108: loft.AssetState.StewardNamesEntry
+	nil,                               // 109: loft.ReportRow.DetailEntry
+	nil,                               // 110: loft.AssetCensusRow.StatusesEntry
+	(*TenantRef)(nil),                 // 111: loft.TenantRef
+	(*AssetTypeRef)(nil),              // 112: loft.AssetTypeRef
+	(*ItemModelRef)(nil),              // 113: loft.ItemModelRef
+	(*timestamppb.Timestamp)(nil),     // 114: google.protobuf.Timestamp
+	(*PartyRef)(nil),                  // 115: loft.PartyRef
+	(*Asset)(nil),                     // 116: loft.Asset
+	(*TenantSelect)(nil),              // 117: loft.TenantSelect
+	(*AssetTypeSelect)(nil),           // 118: loft.AssetTypeSelect
+	(*ItemModelSelect)(nil),           // 119: loft.ItemModelSelect
+	(*PartySelect)(nil),               // 120: loft.PartySelect
+	(*patchpb.Patch)(nil),             // 121: patch.Patch
+	(*Domain)(nil),                    // 122: loft.Domain
+	(*Label)(nil),                     // 123: loft.Label
+	(*Attachment)(nil),                // 124: loft.Attachment
 }
 var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	111, // 0: loft.AssetAddRequest.tenant:type_name -> loft.TenantRef
@@ -16303,46 +16303,46 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	44,  // 89: loft.AssetCensusResponse.total:type_name -> loft.AssetCensusRow
 	114, // 90: loft.AssetCensusResponse.at:type_name -> google.protobuf.Timestamp
 	110, // 91: loft.AssetCensusRow.statuses:type_name -> loft.AssetCensusRow.StatusesEntry
-	111, // 92: loft.TenantDomainAddRequest.tenant:type_name -> loft.TenantRef
-	114, // 93: loft.TenantDomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	114, // 94: loft.TenantDomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
-	114, // 95: loft.TenantDomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
-	114, // 96: loft.TenantDomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
-	114, // 97: loft.TenantDomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	114, // 98: loft.TenantDomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
-	47,  // 99: loft.TenantDomainGetRequest.ref:type_name -> loft.TenantDomainRef
-	48,  // 100: loft.TenantDomainGetRequest.select:type_name -> loft.TenantDomainSelect
-	117, // 101: loft.TenantDomainSelect.tenant:type_name -> loft.TenantSelect
-	47,  // 102: loft.TenantDomainPatchRequest.ref:type_name -> loft.TenantDomainRef
-	114, // 103: loft.TenantDomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	114, // 104: loft.TenantDomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
-	114, // 105: loft.TenantDomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
-	114, // 106: loft.TenantDomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
-	114, // 107: loft.TenantDomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	114, // 108: loft.TenantDomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
-	47,  // 109: loft.TenantDomainApplyRequest.ref:type_name -> loft.TenantDomainRef
-	121, // 110: loft.TenantDomainApplyRequest.patch:type_name -> patch.Patch
-	54,  // 111: loft.TenantDomainListRequest.filters:type_name -> loft.TenantDomainFilter
-	122, // 112: loft.TenantDomainListResponse.items:type_name -> loft.TenantDomain
-	47,  // 113: loft.TenantDomainFilter.ref:type_name -> loft.TenantDomainRef
-	54,  // 114: loft.TenantDomainWatchRequest.filters:type_name -> loft.TenantDomainFilter
-	57,  // 115: loft.TenantDomainWatchResponse.items:type_name -> loft.TenantDomainWatchItem
-	122, // 116: loft.TenantDomainWatchItem.value:type_name -> loft.TenantDomain
-	47,  // 117: loft.TenantDomainVerifyRequest.ref:type_name -> loft.TenantDomainRef
-	47,  // 118: loft.TenantDomainActivateRequest.ref:type_name -> loft.TenantDomainRef
-	47,  // 119: loft.TenantDomainRetireRequest.ref:type_name -> loft.TenantDomainRef
-	122, // 120: loft.TenantDomainStatusResponse.active:type_name -> loft.TenantDomain
+	111, // 92: loft.DomainAddRequest.tenant:type_name -> loft.TenantRef
+	114, // 93: loft.DomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	114, // 94: loft.DomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
+	114, // 95: loft.DomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
+	114, // 96: loft.DomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
+	114, // 97: loft.DomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	114, // 98: loft.DomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	47,  // 99: loft.DomainGetRequest.ref:type_name -> loft.DomainRef
+	48,  // 100: loft.DomainGetRequest.select:type_name -> loft.DomainSelect
+	117, // 101: loft.DomainSelect.tenant:type_name -> loft.TenantSelect
+	47,  // 102: loft.DomainPatchRequest.ref:type_name -> loft.DomainRef
+	114, // 103: loft.DomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	114, // 104: loft.DomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
+	114, // 105: loft.DomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
+	114, // 106: loft.DomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
+	114, // 107: loft.DomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	114, // 108: loft.DomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	47,  // 109: loft.DomainApplyRequest.ref:type_name -> loft.DomainRef
+	121, // 110: loft.DomainApplyRequest.patch:type_name -> patch.Patch
+	54,  // 111: loft.DomainListRequest.filters:type_name -> loft.DomainFilter
+	122, // 112: loft.DomainListResponse.items:type_name -> loft.Domain
+	47,  // 113: loft.DomainFilter.ref:type_name -> loft.DomainRef
+	54,  // 114: loft.DomainWatchRequest.filters:type_name -> loft.DomainFilter
+	57,  // 115: loft.DomainWatchResponse.items:type_name -> loft.DomainWatchItem
+	122, // 116: loft.DomainWatchItem.value:type_name -> loft.Domain
+	47,  // 117: loft.DomainVerifyRequest.ref:type_name -> loft.DomainRef
+	47,  // 118: loft.DomainActivateRequest.ref:type_name -> loft.DomainRef
+	47,  // 119: loft.DomainRetireRequest.ref:type_name -> loft.DomainRef
+	122, // 120: loft.DomainStatusResponse.active:type_name -> loft.Domain
 	111, // 121: loft.LabelAddRequest.tenant:type_name -> loft.TenantRef
-	47,  // 122: loft.LabelAddRequest.domain:type_name -> loft.TenantDomainRef
+	47,  // 122: loft.LabelAddRequest.domain:type_name -> loft.DomainRef
 	114, // 123: loft.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
 	114, // 124: loft.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
 	114, // 125: loft.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	65,  // 126: loft.LabelGetRequest.ref:type_name -> loft.LabelRef
 	66,  // 127: loft.LabelGetRequest.select:type_name -> loft.LabelSelect
 	117, // 128: loft.LabelSelect.tenant:type_name -> loft.TenantSelect
-	48,  // 129: loft.LabelSelect.domain:type_name -> loft.TenantDomainSelect
+	48,  // 129: loft.LabelSelect.domain:type_name -> loft.DomainSelect
 	65,  // 130: loft.LabelPatchRequest.ref:type_name -> loft.LabelRef
-	47,  // 131: loft.LabelPatchRequest.domain:type_name -> loft.TenantDomainRef
+	47,  // 131: loft.LabelPatchRequest.domain:type_name -> loft.DomainRef
 	114, // 132: loft.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
 	114, // 133: loft.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
 	114, // 134: loft.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
@@ -16400,17 +16400,17 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	39,  // 186: loft.AssetService.ReadSheet:input_type -> loft.AssetReadSheetRequest
 	42,  // 187: loft.AssetService.Census:input_type -> loft.AssetCensusRequest
 	42,  // 188: loft.AssetService.ExportCensus:input_type -> loft.AssetCensusRequest
-	45,  // 189: loft.TenantDomainService.Add:input_type -> loft.TenantDomainAddRequest
-	46,  // 190: loft.TenantDomainService.Get:input_type -> loft.TenantDomainGetRequest
-	49,  // 191: loft.TenantDomainService.Patch:input_type -> loft.TenantDomainPatchRequest
-	50,  // 192: loft.TenantDomainService.Apply:input_type -> loft.TenantDomainApplyRequest
-	47,  // 193: loft.TenantDomainService.Erase:input_type -> loft.TenantDomainRef
-	52,  // 194: loft.TenantDomainService.List:input_type -> loft.TenantDomainListRequest
-	55,  // 195: loft.TenantDomainService.Watch:input_type -> loft.TenantDomainWatchRequest
-	58,  // 196: loft.TenantDomainService.Verify:input_type -> loft.TenantDomainVerifyRequest
-	59,  // 197: loft.TenantDomainService.Activate:input_type -> loft.TenantDomainActivateRequest
-	60,  // 198: loft.TenantDomainService.Retire:input_type -> loft.TenantDomainRetireRequest
-	61,  // 199: loft.TenantDomainService.Status:input_type -> loft.TenantDomainStatusRequest
+	45,  // 189: loft.DomainService.Add:input_type -> loft.DomainAddRequest
+	46,  // 190: loft.DomainService.Get:input_type -> loft.DomainGetRequest
+	49,  // 191: loft.DomainService.Patch:input_type -> loft.DomainPatchRequest
+	50,  // 192: loft.DomainService.Apply:input_type -> loft.DomainApplyRequest
+	47,  // 193: loft.DomainService.Erase:input_type -> loft.DomainRef
+	52,  // 194: loft.DomainService.List:input_type -> loft.DomainListRequest
+	55,  // 195: loft.DomainService.Watch:input_type -> loft.DomainWatchRequest
+	58,  // 196: loft.DomainService.Verify:input_type -> loft.DomainVerifyRequest
+	59,  // 197: loft.DomainService.Activate:input_type -> loft.DomainActivateRequest
+	60,  // 198: loft.DomainService.Retire:input_type -> loft.DomainRetireRequest
+	61,  // 199: loft.DomainService.Status:input_type -> loft.DomainStatusRequest
 	63,  // 200: loft.LabelService.Add:input_type -> loft.LabelAddRequest
 	64,  // 201: loft.LabelService.Get:input_type -> loft.LabelGetRequest
 	67,  // 202: loft.LabelService.Patch:input_type -> loft.LabelPatchRequest
@@ -16454,17 +16454,17 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	40,  // 240: loft.AssetService.ReadSheet:output_type -> loft.AssetReadSheetResponse
 	43,  // 241: loft.AssetService.Census:output_type -> loft.AssetCensusResponse
 	37,  // 242: loft.AssetService.ExportCensus:output_type -> loft.AssetExportResponse
-	122, // 243: loft.TenantDomainService.Add:output_type -> loft.TenantDomain
-	122, // 244: loft.TenantDomainService.Get:output_type -> loft.TenantDomain
-	122, // 245: loft.TenantDomainService.Patch:output_type -> loft.TenantDomain
-	122, // 246: loft.TenantDomainService.Apply:output_type -> loft.TenantDomain
-	51,  // 247: loft.TenantDomainService.Erase:output_type -> loft.TenantDomainEraseResponse
-	53,  // 248: loft.TenantDomainService.List:output_type -> loft.TenantDomainListResponse
-	56,  // 249: loft.TenantDomainService.Watch:output_type -> loft.TenantDomainWatchResponse
-	122, // 250: loft.TenantDomainService.Verify:output_type -> loft.TenantDomain
-	122, // 251: loft.TenantDomainService.Activate:output_type -> loft.TenantDomain
-	122, // 252: loft.TenantDomainService.Retire:output_type -> loft.TenantDomain
-	62,  // 253: loft.TenantDomainService.Status:output_type -> loft.TenantDomainStatusResponse
+	122, // 243: loft.DomainService.Add:output_type -> loft.Domain
+	122, // 244: loft.DomainService.Get:output_type -> loft.Domain
+	122, // 245: loft.DomainService.Patch:output_type -> loft.Domain
+	122, // 246: loft.DomainService.Apply:output_type -> loft.Domain
+	51,  // 247: loft.DomainService.Erase:output_type -> loft.DomainEraseResponse
+	53,  // 248: loft.DomainService.List:output_type -> loft.DomainListResponse
+	56,  // 249: loft.DomainService.Watch:output_type -> loft.DomainWatchResponse
+	122, // 250: loft.DomainService.Verify:output_type -> loft.Domain
+	122, // 251: loft.DomainService.Activate:output_type -> loft.Domain
+	122, // 252: loft.DomainService.Retire:output_type -> loft.Domain
+	62,  // 253: loft.DomainService.Status:output_type -> loft.DomainStatusResponse
 	123, // 254: loft.LabelService.Add:output_type -> loft.Label
 	123, // 255: loft.LabelService.Get:output_type -> loft.Label
 	123, // 256: loft.LabelService.Patch:output_type -> loft.Label
@@ -16506,8 +16506,8 @@ func file_loft_asset_svc_g_proto_init() {
 		(*assetRef_Tag)(nil),
 	}
 	file_loft_asset_svc_g_proto_msgTypes[47].OneofWrappers = []any{
-		(*tenantDomainRef_Id)(nil),
-		(*tenantDomainRef_Host)(nil),
+		(*domainRef_Id)(nil),
+		(*domainRef_Host)(nil),
 	}
 	file_loft_asset_svc_g_proto_msgTypes[65].OneofWrappers = []any{
 		(*labelRef_Id)(nil),
