@@ -158,6 +158,13 @@ loft-admin trail accept --of <digest> --why "..."         # 본 것을 받아들
 loft-admin trail owed                                     # 작업 기록의 지우기가 아직 갚지 않은 것
 loft-admin trail export --reason "사건 2026-4" --to keeper.pub --out acme.trail acme   # 내려받기: 받는 사람에게 암호화
 loft-admin trail verify-export --file acme.trail --identity keeper.key                 # 묶음과 열쇠는 여기에 있고, 진입점은 공개 열쇠만 답함
+
+# 검색 색인과 보존
+loft-admin search status                                  # 색인마다 별칭이 가리키는 인덱스, 문서 수와 DB의 행 수
+loft-admin search reindex                                 # 지금 다시 만들기. 진행을 stderr에 씀
+loft-admin search remove --yes                            # 이 배포가 만든 인덱스와 별칭을 모두 지움
+loft-admin retention plan --tenant loft                   # 보관 기간이 지금 가져갈 것 (아무것도 바꾸지 않음)
+loft-admin retention run                                  # app.retention.apply가 켜져 있을 때만 가져감
 ```
 
 - 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다. 키를 바꿔도 이름이 같으면 기록에는 같은 운영자입니다.

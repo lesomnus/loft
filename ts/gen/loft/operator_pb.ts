@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/operator.proto.
  */
 export const file_loft_operator: GenFile = /*@__PURE__*/
-  fileDesc("ChNsb2Z0L29wZXJhdG9yLnByb3RvEgRsb2Z0IjkKEU9wZXJhdG9yVGVuYW50UmVmEgwKAmlkGAEgASgMSAASDwoFYWxpYXMYBCABKAlIAEIFCgNrZXkiQQoZT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmIs4BChpPcGVyYXRvclRlbmFudFNob3dSZXNwb25zZRIcCgZ0ZW5hbnQYASABKAsyDC5sb2Z0LlRlbmFudBIdCgdtZW1iZXJzGAIgAygLMgwubG9mdC5Ib2xkZXISJwoJY29udHJhY3RzGAMgAygLMhQubG9mdC5UZW5hbnRDb250cmFjdBIeCgVob2xkcxgEIAMoCzIPLmxvZnQuTGVnYWxIb2xkEioKBndpbmRvdxgFIAEoCzIaLmxvZnQuT3BlcmF0b3JUZW5hbnRXaW5kb3cihgIKFE9wZXJhdG9yVGVuYW50V2luZG93EhEKCWtlZXBfZGF5cxgBIAEoDRIuCgprZWVwX3VudGlsGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCg5rZWVwX3RoZW5fZGF5cxgDIAEoDRITCgthY2Nlc3NfZGF5cxgEIAEoDRIwCgxhY2Nlc3NfdW50aWwYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGFjY2Vzc190aGVuX2RheXMYBiABKA0SFAoMcmVzdG9yZV9kYXlzGAcgASgNEg0KBXB1cmdlGAggASgIEg0KBWFwcGx5GAkgASgIIm0KGU9wZXJhdG9yVGVuYW50TW92ZVJlcXVlc3QSJAoDcmVmGAEgASgLMhcubG9mdC5PcGVyYXRvclRlbmFudFJlZhIKCgJ0bxgCIAEoCRINCgVyZXVzZRgDIAEoCBIPCgdkcnlfcnVuGAQgASgIIngKGk9wZXJhdG9yVGVuYW50TW92ZVJlc3BvbnNlEhwKBnRlbmFudBgBIAEoCzIMLmxvZnQuVGVuYW50EgwKBGZyb20YAiABKAkSLgoKaGVsZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVgoeT3BlcmF0b3JUZW5hbnROYW1lT3duZXJSZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLmxvZnQuT3BlcmF0b3JUZW5hbnRSZWYSDgoGbWVtYmVyGAIgASgJIh4KHE9wZXJhdG9yVGVuYW50UmV0aXJlZFJlcXVlc3QiTgodT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVzcG9uc2USLQoFaXRlbXMYASADKAsyHi5sb2Z0Lk9wZXJhdG9yVGVuYW50UmV0aXJlbWVudCKRAQoYT3BlcmF0b3JUZW5hbnRSZXRpcmVtZW50Eg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIrCgdyZXRpcmVkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgV1bnRpbBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVQocT3BlcmF0b3JUZW5hbnREZXN0cm95UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmEg8KB2RyeV9ydW4YAiABKAgiYwodT3BlcmF0b3JUZW5hbnREZXN0cm95UmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSMAoJZGVzdHJveWVkGAIgASgLMh0ubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3llZCKjBAoXT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQSDgoGdGVuYW50GAEgASgMEg0KBWFsaWFzGAIgASgJEg8KB2RyeV9ydW4YAyABKAgSNQoEcm93cxgEIAMoCzInLmxvZnQuT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQuUm93c0VudHJ5Eg0KBWZpbGVzGAUgASgNEgwKBGxvc3QYBiADKAkSFQoNdHJhaWxfcmVtb3ZlZBgHIAEoDRIVCg10cmFpbF9ibGFua2VkGAggASgNEhQKDHRyYWlsX2NodW5rcxgJIAEoDRIPCgdyZXRpcmVkGAogASgIEjUKBGtlcHQYCyADKAsyJy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveWVkLktlcHRFbnRyeRIuCgprZXB0X3VudGlsGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghlbWJlZGRlZBgNIAEoCBIRCglmb3Jnb3R0ZW4YDiABKA0SDQoFYmlsbHMYDyABKAgSEgoKdW5tZWFzdXJlZBgQIAEoCRINCgV0ZWxscxgRIAEoCBIXCg9jb250cmFjdF9wdXJnZXMYEiABKAgaKwoJUm93c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEaKwoJS2VwdEVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEiawobT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXF1ZXN0EjQKB29wdGlvbnMYASABKAsyIS5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9uc0gAEg4KBGRhdGEYAiABKAxIAEIGCgRwYXJ0IkwKG09wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9ucxINCgVhbGlhcxgBIAEoCRINCgVyZXVzZRgCIAEoCBIPCgdkcnlfcnVuGAMgASgIItgEChxPcGVyYXRvclRlbmFudEltcG9ydFJlc3BvbnNlEg4KBnRlbmFudBgBIAEoDBIPCgdkcnlfcnVuGAIgASgIEg0KBWFsaWFzGAMgASgJEg0KBWFza2VkGAQgASgJEhAKCHJlbGVhc2VkGAUgAygJEhAKCHJlb3BlbmVkGAYgASgIEg8KB3JldGlyZWQYByABKAgSEAoIcmV0dXJuZWQYCCABKA0SOgoEcm93cxgJIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5Sb3dzRW50cnkSOgoEbGVmdBgKIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5MZWZ0RW50cnkSQQoIbGVmdF93aHkYCyADKAsyLy5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0UmVzcG9uc2UuTGVmdFdoeUVudHJ5Eg0KBWZpbGVzGAwgASgNEg8KB21pc3NpbmcYDSADKAkSEAoIdW5saW5rZWQYDiADKAkSEAoIbWFuaWZlc3QYDyABKAkSCwoDa2V5GBAgASgJEgwKBGhlbGQYESABKA0SDgoGZ3JhbnRzGBIgASgJGisKCVJvd3NFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGisKCUxlZnRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGi4KDExlZnRXaHlFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIhoKGE9wZXJhdG9yVHJhaWxLZXlzUmVxdWVzdCI8ChlPcGVyYXRvclRyYWlsS2V5c1Jlc3BvbnNlEg4KBnNpZ25lchgBIAEoDBIPCgd0cnVzdGVkGAIgAygMIioKGk9wZXJhdG9yVHJhaWxWZXJpZnlSZXF1ZXN0EgwKBGZ1bGwYASABKAgiXgobT3BlcmF0b3JUcmFpbFZlcmlmeVJlc3BvbnNlEhAKCHByb2dyZXNzGAEgASgJEi0KCHZlcmlmaWVkGAIgASgLMhsubG9mdC5PcGVyYXRvclRyYWlsVmVyaWZpZWQixQEKFU9wZXJhdG9yVHJhaWxWZXJpZmllZBIMCgRmdWxsGAEgASgIEgwKBHJvd3MYAiABKA0SDQoFYmxvYnMYAyABKA0SDgoGaGFzaGVkGAQgASgNEhIKCmNoZWNrcG9pbnQYBSABKA0SDgoGZGlnZXN0GAYgASgJEhAKCGFjY2VwdGVkGAcgAygJEg0KBWhlYXJkGAggAygJEiwKCGZpbmRpbmdzGAkgAygLMhoubG9mdC5PcGVyYXRvclRyYWlsRmluZGluZyIyChRPcGVyYXRvclRyYWlsRmluZGluZxIMCgRraW5kGAEgASgJEgwKBHNhaWQYAiABKAkiXAoaT3BlcmF0b3JUcmFpbEFjY2VwdFJlcXVlc3QSCgoCb2YYASABKAkSCwoDd2h5GAIgASgJEgwKBGZ1bGwYAyABKAgSFwoIcmVzdG9yZWQYBCABKAVCBaoBAggBIl4KG09wZXJhdG9yVHJhaWxBY2NlcHRSZXNwb25zZRIQCghwcm9ncmVzcxgBIAEoCRItCghhY2NlcHRlZBgCIAEoCzIbLmxvZnQuT3BlcmF0b3JUcmFpbEFjY2VwdGVkIlEKFU9wZXJhdG9yVHJhaWxBY2NlcHRlZBIKCgJieRgBIAEoCRIsCghmaW5kaW5ncxgCIAMoCzIaLmxvZnQuT3BlcmF0b3JUcmFpbEZpbmRpbmciGgoYT3BlcmF0b3JUcmFpbFJvd3NSZXF1ZXN0Il4KGU9wZXJhdG9yVHJhaWxSb3dzUmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSLwoHY2hlY2tlZBgCIAEoCzIeLmxvZnQuT3BlcmF0b3JUcmFpbFJvd3NDaGVja2VkIpcCChhPcGVyYXRvclRyYWlsUm93c0NoZWNrZWQSDAoEcmVhZBgBIAEoDRIPCgdtYXRjaGVzGAIgASgNEi8KCGZpbmRpbmdzGAMgAygLMh0ubG9mdC5PcGVyYXRvclRyYWlsUm93RmluZGluZxIWCg5iZWZvcmVfZGlnZXN0cxgEIAEoDRIPCgdyZXRpcmVkGAUgASgNEhEKCWZvcmdvdHRlbhgGIAEoDRIQCghhcmNoaXZlZBgHIAEoDRIQCgh1bnNlYWxlZBgIIAEoDRIOCgZkaWdlc3QYCSABKAkSDgoGdW5oZWxkGAogAygJEisKB3NraXBwZWQYCyADKAsyGi5sb2Z0Lk9wZXJhdG9yVHJhaWxTa2lwcGVkIkEKF09wZXJhdG9yVHJhaWxSb3dGaW5kaW5nEgwKBHdoYXQYASABKAkSDAoEa2luZBgCIAEoCRIKCgJpZBgDIAEoDCIxChRPcGVyYXRvclRyYWlsU2tpcHBlZBIMCgRraW5kGAEgASgJEgsKA3doeRgCIAEoCSI5Ch5PcGVyYXRvclRyYWlsQWNjZXB0Um93c1JlcXVlc3QSCgoCb2YYASABKAkSCwoDd2h5GAIgASgJImYKH09wZXJhdG9yVHJhaWxBY2NlcHRSb3dzUmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSMQoIYWNjZXB0ZWQYAiABKAsyHy5sb2Z0Lk9wZXJhdG9yVHJhaWxSb3dzQWNjZXB0ZWQiSAoZT3BlcmF0b3JUcmFpbFJvd3NBY2NlcHRlZBINCgV0aGVyZRgBIAEoDRIMCgRnb25lGAIgASgNEg4KBnNlYWxlZBgDIAEoDSIaChhPcGVyYXRvclRyYWlsT3dlZFJlcXVlc3QifwoZT3BlcmF0b3JUcmFpbE93ZWRSZXNwb25zZRIPCgdvYmplY3RzGAEgASgNEioKBm9sZGVzdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJQoEaGVsZBgDIAMoCzIXLmxvZnQuT3BlcmF0b3JUcmFpbEhlbGQiQwoRT3BlcmF0b3JUcmFpbEhlbGQSDgoGdGVuYW50GAEgASgMEg0KBWFsaWFzGAIgASgJEg8KB29iamVjdHMYAyABKA0iOAoaT3BlcmF0b3JUcmFpbEV4cG9ydFJlcXVlc3QSDgoGdGVuYW50GAEgASgJEgoKAnRvGAIgAygJImgKG09wZXJhdG9yVHJhaWxFeHBvcnRSZXNwb25zZRIMCgRuYW1lGAEgASgJEgwKBGRhdGEYAiABKAwSLQoIZXhwb3J0ZWQYAyABKAsyGy5sb2Z0Lk9wZXJhdG9yVHJhaWxFeHBvcnRlZCLKAgoVT3BlcmF0b3JUcmFpbEV4cG9ydGVkEg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIQCghkYXRhYmFzZRgDIAEoDRIPCgdhcmNoaXZlGAQgASgNEg4KBmNodW5rcxgFIAEoDRINCgVmaWxlcxgGIAEoDRIOCgZkaWdlc3QYByABKAkSEgoKY2hlY2twb2ludBgIIAEoDRIZChFjaGVja3BvaW50X2RpZ2VzdBgJIAEoCRIRCgl3aXRuZXNzZXMYCiADKAkSEQoJdW5jb3ZlcmVkGAsgASgIEisKB3JldGlyZWQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmtlcHRfdW50aWwYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg4KBnBlb3BsZRgOIAEoDTK+BAoVT3BlcmF0b3JUZW5hbnRTZXJ2aWNlEkkKBFNob3cSHy5sb2Z0Lk9wZXJhdG9yVGVuYW50U2hvd1JlcXVlc3QaIC5sb2Z0Lk9wZXJhdG9yVGVuYW50U2hvd1Jlc3BvbnNlEkkKBE1vdmUSHy5sb2Z0Lk9wZXJhdG9yVGVuYW50TW92ZVJlcXVlc3QaIC5sb2Z0Lk9wZXJhdG9yVGVuYW50TW92ZVJlc3BvbnNlEj8KCU5hbWVPd25lchIkLmxvZnQuT3BlcmF0b3JUZW5hbnROYW1lT3duZXJSZXF1ZXN0GgwubG9mdC5Ib2xkZXISUgoHUmV0aXJlZBIiLmxvZnQuT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVxdWVzdBojLmxvZnQuT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVzcG9uc2USUwoGUmV0aXJlEiIubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3lSZXF1ZXN0GiMubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3lSZXNwb25zZTABElIKBVB1cmdlEiIubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3lSZXF1ZXN0GiMubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3lSZXNwb25zZTABElEKBkltcG9ydBIhLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXF1ZXN0GiIubG9mdC5PcGVyYXRvclRlbmFudEltcG9ydFJlc3BvbnNlKAEywwQKFE9wZXJhdG9yVHJhaWxTZXJ2aWNlEkcKBEtleXMSHi5sb2Z0Lk9wZXJhdG9yVHJhaWxLZXlzUmVxdWVzdBofLmxvZnQuT3BlcmF0b3JUcmFpbEtleXNSZXNwb25zZRJPCgZWZXJpZnkSIC5sb2Z0Lk9wZXJhdG9yVHJhaWxWZXJpZnlSZXF1ZXN0GiEubG9mdC5PcGVyYXRvclRyYWlsVmVyaWZ5UmVzcG9uc2UwARJPCgZBY2NlcHQSIC5sb2Z0Lk9wZXJhdG9yVHJhaWxBY2NlcHRSZXF1ZXN0GiEubG9mdC5PcGVyYXRvclRyYWlsQWNjZXB0UmVzcG9uc2UwARJJCgRSb3dzEh4ubG9mdC5PcGVyYXRvclRyYWlsUm93c1JlcXVlc3QaHy5sb2Z0Lk9wZXJhdG9yVHJhaWxSb3dzUmVzcG9uc2UwARJbCgpBY2NlcHRSb3dzEiQubG9mdC5PcGVyYXRvclRyYWlsQWNjZXB0Um93c1JlcXVlc3QaJS5sb2Z0Lk9wZXJhdG9yVHJhaWxBY2NlcHRSb3dzUmVzcG9uc2UwARJHCgRPd2VkEh4ubG9mdC5PcGVyYXRvclRyYWlsT3dlZFJlcXVlc3QaHy5sb2Z0Lk9wZXJhdG9yVHJhaWxPd2VkUmVzcG9uc2USTwoGRXhwb3J0EiAubG9mdC5PcGVyYXRvclRyYWlsRXhwb3J0UmVxdWVzdBohLmxvZnQuT3BlcmF0b3JUcmFpbEV4cG9ydFJlc3BvbnNlMAFCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_loft_ops, file_loft_payday_holder, file_loft_payday_tenant]);
+  fileDesc("ChNsb2Z0L29wZXJhdG9yLnByb3RvEgRsb2Z0IjkKEU9wZXJhdG9yVGVuYW50UmVmEgwKAmlkGAEgASgMSAASDwoFYWxpYXMYBCABKAlIAEIFCgNrZXkiQQoZT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmIs4BChpPcGVyYXRvclRlbmFudFNob3dSZXNwb25zZRIcCgZ0ZW5hbnQYASABKAsyDC5sb2Z0LlRlbmFudBIdCgdtZW1iZXJzGAIgAygLMgwubG9mdC5Ib2xkZXISJwoJY29udHJhY3RzGAMgAygLMhQubG9mdC5UZW5hbnRDb250cmFjdBIeCgVob2xkcxgEIAMoCzIPLmxvZnQuTGVnYWxIb2xkEioKBndpbmRvdxgFIAEoCzIaLmxvZnQuT3BlcmF0b3JUZW5hbnRXaW5kb3cihgIKFE9wZXJhdG9yVGVuYW50V2luZG93EhEKCWtlZXBfZGF5cxgBIAEoDRIuCgprZWVwX3VudGlsGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCg5rZWVwX3RoZW5fZGF5cxgDIAEoDRITCgthY2Nlc3NfZGF5cxgEIAEoDRIwCgxhY2Nlc3NfdW50aWwYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGFjY2Vzc190aGVuX2RheXMYBiABKA0SFAoMcmVzdG9yZV9kYXlzGAcgASgNEg0KBXB1cmdlGAggASgIEg0KBWFwcGx5GAkgASgIIm0KGU9wZXJhdG9yVGVuYW50TW92ZVJlcXVlc3QSJAoDcmVmGAEgASgLMhcubG9mdC5PcGVyYXRvclRlbmFudFJlZhIKCgJ0bxgCIAEoCRINCgVyZXVzZRgDIAEoCBIPCgdkcnlfcnVuGAQgASgIIngKGk9wZXJhdG9yVGVuYW50TW92ZVJlc3BvbnNlEhwKBnRlbmFudBgBIAEoCzIMLmxvZnQuVGVuYW50EgwKBGZyb20YAiABKAkSLgoKaGVsZF91bnRpbBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVgoeT3BlcmF0b3JUZW5hbnROYW1lT3duZXJSZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLmxvZnQuT3BlcmF0b3JUZW5hbnRSZWYSDgoGbWVtYmVyGAIgASgJIh4KHE9wZXJhdG9yVGVuYW50UmV0aXJlZFJlcXVlc3QiTgodT3BlcmF0b3JUZW5hbnRSZXRpcmVkUmVzcG9uc2USLQoFaXRlbXMYASADKAsyHi5sb2Z0Lk9wZXJhdG9yVGVuYW50UmV0aXJlbWVudCKRAQoYT3BlcmF0b3JUZW5hbnRSZXRpcmVtZW50Eg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIrCgdyZXRpcmVkGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIpCgV1bnRpbBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVQocT3BlcmF0b3JUZW5hbnREZXN0cm95UmVxdWVzdBIkCgNyZWYYASABKAsyFy5sb2Z0Lk9wZXJhdG9yVGVuYW50UmVmEg8KB2RyeV9ydW4YAiABKAgiYwodT3BlcmF0b3JUZW5hbnREZXN0cm95UmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSMAoJZGVzdHJveWVkGAIgASgLMh0ubG9mdC5PcGVyYXRvclRlbmFudERlc3Ryb3llZCKjBAoXT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQSDgoGdGVuYW50GAEgASgMEg0KBWFsaWFzGAIgASgJEg8KB2RyeV9ydW4YAyABKAgSNQoEcm93cxgEIAMoCzInLmxvZnQuT3BlcmF0b3JUZW5hbnREZXN0cm95ZWQuUm93c0VudHJ5Eg0KBWZpbGVzGAUgASgNEgwKBGxvc3QYBiADKAkSFQoNdHJhaWxfcmVtb3ZlZBgHIAEoDRIVCg10cmFpbF9ibGFua2VkGAggASgNEhQKDHRyYWlsX2NodW5rcxgJIAEoDRIPCgdyZXRpcmVkGAogASgIEjUKBGtlcHQYCyADKAsyJy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveWVkLktlcHRFbnRyeRIuCgprZXB0X3VudGlsGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghlbWJlZGRlZBgNIAEoCBIRCglmb3Jnb3R0ZW4YDiABKA0SDQoFYmlsbHMYDyABKAgSEgoKdW5tZWFzdXJlZBgQIAEoCRINCgV0ZWxscxgRIAEoCBIXCg9jb250cmFjdF9wdXJnZXMYEiABKAgaKwoJUm93c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEaKwoJS2VwdEVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEiawobT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXF1ZXN0EjQKB29wdGlvbnMYASABKAsyIS5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9uc0gAEg4KBGRhdGEYAiABKAxIAEIGCgRwYXJ0IkwKG09wZXJhdG9yVGVuYW50SW1wb3J0T3B0aW9ucxINCgVhbGlhcxgBIAEoCRINCgVyZXVzZRgCIAEoCBIPCgdkcnlfcnVuGAMgASgIItgEChxPcGVyYXRvclRlbmFudEltcG9ydFJlc3BvbnNlEg4KBnRlbmFudBgBIAEoDBIPCgdkcnlfcnVuGAIgASgIEg0KBWFsaWFzGAMgASgJEg0KBWFza2VkGAQgASgJEhAKCHJlbGVhc2VkGAUgAygJEhAKCHJlb3BlbmVkGAYgASgIEg8KB3JldGlyZWQYByABKAgSEAoIcmV0dXJuZWQYCCABKA0SOgoEcm93cxgJIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5Sb3dzRW50cnkSOgoEbGVmdBgKIAMoCzIsLmxvZnQuT3BlcmF0b3JUZW5hbnRJbXBvcnRSZXNwb25zZS5MZWZ0RW50cnkSQQoIbGVmdF93aHkYCyADKAsyLy5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0UmVzcG9uc2UuTGVmdFdoeUVudHJ5Eg0KBWZpbGVzGAwgASgNEg8KB21pc3NpbmcYDSADKAkSEAoIdW5saW5rZWQYDiADKAkSEAoIbWFuaWZlc3QYDyABKAkSCwoDa2V5GBAgASgJEgwKBGhlbGQYESABKA0SDgoGZ3JhbnRzGBIgASgJGisKCVJvd3NFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGisKCUxlZnRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBGi4KDExlZnRXaHlFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIhoKGE9wZXJhdG9yVHJhaWxLZXlzUmVxdWVzdCI8ChlPcGVyYXRvclRyYWlsS2V5c1Jlc3BvbnNlEg4KBnNpZ25lchgBIAEoDBIPCgd0cnVzdGVkGAIgAygMIioKGk9wZXJhdG9yVHJhaWxWZXJpZnlSZXF1ZXN0EgwKBGZ1bGwYASABKAgiXgobT3BlcmF0b3JUcmFpbFZlcmlmeVJlc3BvbnNlEhAKCHByb2dyZXNzGAEgASgJEi0KCHZlcmlmaWVkGAIgASgLMhsubG9mdC5PcGVyYXRvclRyYWlsVmVyaWZpZWQixQEKFU9wZXJhdG9yVHJhaWxWZXJpZmllZBIMCgRmdWxsGAEgASgIEgwKBHJvd3MYAiABKA0SDQoFYmxvYnMYAyABKA0SDgoGaGFzaGVkGAQgASgNEhIKCmNoZWNrcG9pbnQYBSABKA0SDgoGZGlnZXN0GAYgASgJEhAKCGFjY2VwdGVkGAcgAygJEg0KBWhlYXJkGAggAygJEiwKCGZpbmRpbmdzGAkgAygLMhoubG9mdC5PcGVyYXRvclRyYWlsRmluZGluZyIyChRPcGVyYXRvclRyYWlsRmluZGluZxIMCgRraW5kGAEgASgJEgwKBHNhaWQYAiABKAkiXAoaT3BlcmF0b3JUcmFpbEFjY2VwdFJlcXVlc3QSCgoCb2YYASABKAkSCwoDd2h5GAIgASgJEgwKBGZ1bGwYAyABKAgSFwoIcmVzdG9yZWQYBCABKAVCBaoBAggBIl4KG09wZXJhdG9yVHJhaWxBY2NlcHRSZXNwb25zZRIQCghwcm9ncmVzcxgBIAEoCRItCghhY2NlcHRlZBgCIAEoCzIbLmxvZnQuT3BlcmF0b3JUcmFpbEFjY2VwdGVkIlEKFU9wZXJhdG9yVHJhaWxBY2NlcHRlZBIKCgJieRgBIAEoCRIsCghmaW5kaW5ncxgCIAMoCzIaLmxvZnQuT3BlcmF0b3JUcmFpbEZpbmRpbmciGgoYT3BlcmF0b3JUcmFpbFJvd3NSZXF1ZXN0Il4KGU9wZXJhdG9yVHJhaWxSb3dzUmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSLwoHY2hlY2tlZBgCIAEoCzIeLmxvZnQuT3BlcmF0b3JUcmFpbFJvd3NDaGVja2VkIpcCChhPcGVyYXRvclRyYWlsUm93c0NoZWNrZWQSDAoEcmVhZBgBIAEoDRIPCgdtYXRjaGVzGAIgASgNEi8KCGZpbmRpbmdzGAMgAygLMh0ubG9mdC5PcGVyYXRvclRyYWlsUm93RmluZGluZxIWCg5iZWZvcmVfZGlnZXN0cxgEIAEoDRIPCgdyZXRpcmVkGAUgASgNEhEKCWZvcmdvdHRlbhgGIAEoDRIQCghhcmNoaXZlZBgHIAEoDRIQCgh1bnNlYWxlZBgIIAEoDRIOCgZkaWdlc3QYCSABKAkSDgoGdW5oZWxkGAogAygJEisKB3NraXBwZWQYCyADKAsyGi5sb2Z0Lk9wZXJhdG9yVHJhaWxTa2lwcGVkIkEKF09wZXJhdG9yVHJhaWxSb3dGaW5kaW5nEgwKBHdoYXQYASABKAkSDAoEa2luZBgCIAEoCRIKCgJpZBgDIAEoDCIxChRPcGVyYXRvclRyYWlsU2tpcHBlZBIMCgRraW5kGAEgASgJEgsKA3doeRgCIAEoCSI5Ch5PcGVyYXRvclRyYWlsQWNjZXB0Um93c1JlcXVlc3QSCgoCb2YYASABKAkSCwoDd2h5GAIgASgJImYKH09wZXJhdG9yVHJhaWxBY2NlcHRSb3dzUmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSMQoIYWNjZXB0ZWQYAiABKAsyHy5sb2Z0Lk9wZXJhdG9yVHJhaWxSb3dzQWNjZXB0ZWQiSAoZT3BlcmF0b3JUcmFpbFJvd3NBY2NlcHRlZBINCgV0aGVyZRgBIAEoDRIMCgRnb25lGAIgASgNEg4KBnNlYWxlZBgDIAEoDSIaChhPcGVyYXRvclRyYWlsT3dlZFJlcXVlc3QifwoZT3BlcmF0b3JUcmFpbE93ZWRSZXNwb25zZRIPCgdvYmplY3RzGAEgASgNEioKBm9sZGVzdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJQoEaGVsZBgDIAMoCzIXLmxvZnQuT3BlcmF0b3JUcmFpbEhlbGQiQwoRT3BlcmF0b3JUcmFpbEhlbGQSDgoGdGVuYW50GAEgASgMEg0KBWFsaWFzGAIgASgJEg8KB29iamVjdHMYAyABKA0iOAoaT3BlcmF0b3JUcmFpbEV4cG9ydFJlcXVlc3QSDgoGdGVuYW50GAEgASgJEgoKAnRvGAIgAygJImgKG09wZXJhdG9yVHJhaWxFeHBvcnRSZXNwb25zZRIMCgRuYW1lGAEgASgJEgwKBGRhdGEYAiABKAwSLQoIZXhwb3J0ZWQYAyABKAsyGy5sb2Z0Lk9wZXJhdG9yVHJhaWxFeHBvcnRlZCLKAgoVT3BlcmF0b3JUcmFpbEV4cG9ydGVkEg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIQCghkYXRhYmFzZRgDIAEoDRIPCgdhcmNoaXZlGAQgASgNEg4KBmNodW5rcxgFIAEoDRINCgVmaWxlcxgGIAEoDRIOCgZkaWdlc3QYByABKAkSEgoKY2hlY2twb2ludBgIIAEoDRIZChFjaGVja3BvaW50X2RpZ2VzdBgJIAEoCRIRCgl3aXRuZXNzZXMYCiADKAkSEQoJdW5jb3ZlcmVkGAsgASgIEisKB3JldGlyZWQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmtlcHRfdW50aWwYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg4KBnBlb3BsZRgOIAEoDSIdChtPcGVyYXRvclNlYXJjaFN0YXR1c1JlcXVlc3QiSgocT3BlcmF0b3JTZWFyY2hTdGF0dXNSZXNwb25zZRIqCgdpbmRleGVzGAEgAygLMhkubG9mdC5PcGVyYXRvclNlYXJjaEluZGV4Io0BChNPcGVyYXRvclNlYXJjaEluZGV4EgwKBG5hbWUYASABKAkSDQoFYWxpYXMYAiABKAkSDQoFaW5kZXgYAyABKAkSDAoEZG9jcxgEIAEoBBIMCgRoZWxkGAUgASgEEg8KB3ZlcnNpb24YBiABKAUSDQoFYnVpbHQYByABKAUSDgoGb3RoZXJzGAggAygJIh4KHE9wZXJhdG9yU2VhcmNoUmVpbmRleFJlcXVlc3QiXgodT3BlcmF0b3JTZWFyY2hSZWluZGV4UmVzcG9uc2USEAoIcHJvZ3Jlc3MYASABKAkSKwoEbWFkZRgCIAEoCzIdLmxvZnQuT3BlcmF0b3JTZWFyY2hSZWluZGV4ZWQiZQoXT3BlcmF0b3JTZWFyY2hSZWluZGV4ZWQSDAoEbmFtZRgBIAEoCRINCgVpbmRleBgCIAEoCRINCgVhbGlhcxgDIAEoCRIMCgRkb2NzGAQgASgEEhAKCHJlcGxhY2VkGAUgAygJIi4KG09wZXJhdG9yU2VhcmNoUmVtb3ZlUmVxdWVzdBIPCgdkcnlfcnVuGAEgASgIIi8KHE9wZXJhdG9yU2VhcmNoUmVtb3ZlUmVzcG9uc2USDwoHaW5kZXhlcxgBIAMoCSIsChxPcGVyYXRvclNlYXJjaEFuYWx5emVSZXF1ZXN0EgwKBHRleHQYASABKAkiPAodT3BlcmF0b3JTZWFyY2hBbmFseXplUmVzcG9uc2USDAoEa2VwdBgBIAMoCRINCgVhc2tlZBgCIAMoCSJHChhPcGVyYXRvclJldGVudGlvblJlcXVlc3QSKwoDcmVmGAEgASgLMhcubG9mdC5PcGVyYXRvclRlbmFudFJlZkIFqgECCAEidwoZT3BlcmF0b3JSZXRlbnRpb25SZXNwb25zZRIQCghwcm9ncmVzcxgBIAEoCRIrCgV0YWtlbhgCIAEoCzIcLmxvZnQuT3BlcmF0b3JSZXRlbnRpb25UYWtlbhINCgVhcHBseRgDIAEoCBIMCgRsYXN0GAQgASgIIqMCChZPcGVyYXRvclJldGVudGlvblRha2VuEg4KBnRlbmFudBgBIAEoDBINCgVhbGlhcxgCIAEoCRIPCgdkcnlfcnVuGAMgASgIEioKBmJlZm9yZRgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDAoEaGVsZBgFIAMoCRI2CgV0YWtlbhgGIAMoCzInLmxvZnQuT3BlcmF0b3JSZXRlbnRpb25UYWtlbi5UYWtlbkVudHJ5EgwKBGxvc3QYByADKAkSKwoFdHJhaWwYCCADKAsyHC5sb2Z0Lk9wZXJhdG9yUmV0ZW50aW9uVHJhaWwaLAoKVGFrZW5FbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBIl4KFk9wZXJhdG9yUmV0ZW50aW9uVHJhaWwSDAoEa2luZBgBIAEoCRIQCghhcmNoaXZlZBgCIAEoDRIRCglkaXNjYXJkZWQYAyABKA0SEQoJZGVzdHJveWVkGAQgASgNMr4EChVPcGVyYXRvclRlbmFudFNlcnZpY2USSQoEU2hvdxIfLmxvZnQuT3BlcmF0b3JUZW5hbnRTaG93UmVxdWVzdBogLmxvZnQuT3BlcmF0b3JUZW5hbnRTaG93UmVzcG9uc2USSQoETW92ZRIfLmxvZnQuT3BlcmF0b3JUZW5hbnRNb3ZlUmVxdWVzdBogLmxvZnQuT3BlcmF0b3JUZW5hbnRNb3ZlUmVzcG9uc2USPwoJTmFtZU93bmVyEiQubG9mdC5PcGVyYXRvclRlbmFudE5hbWVPd25lclJlcXVlc3QaDC5sb2Z0LkhvbGRlchJSCgdSZXRpcmVkEiIubG9mdC5PcGVyYXRvclRlbmFudFJldGlyZWRSZXF1ZXN0GiMubG9mdC5PcGVyYXRvclRlbmFudFJldGlyZWRSZXNwb25zZRJTCgZSZXRpcmUSIi5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlcXVlc3QaIy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlc3BvbnNlMAESUgoFUHVyZ2USIi5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlcXVlc3QaIy5sb2Z0Lk9wZXJhdG9yVGVuYW50RGVzdHJveVJlc3BvbnNlMAESUQoGSW1wb3J0EiEubG9mdC5PcGVyYXRvclRlbmFudEltcG9ydFJlcXVlc3QaIi5sb2Z0Lk9wZXJhdG9yVGVuYW50SW1wb3J0UmVzcG9uc2UoATLDBAoUT3BlcmF0b3JUcmFpbFNlcnZpY2USRwoES2V5cxIeLmxvZnQuT3BlcmF0b3JUcmFpbEtleXNSZXF1ZXN0Gh8ubG9mdC5PcGVyYXRvclRyYWlsS2V5c1Jlc3BvbnNlEk8KBlZlcmlmeRIgLmxvZnQuT3BlcmF0b3JUcmFpbFZlcmlmeVJlcXVlc3QaIS5sb2Z0Lk9wZXJhdG9yVHJhaWxWZXJpZnlSZXNwb25zZTABEk8KBkFjY2VwdBIgLmxvZnQuT3BlcmF0b3JUcmFpbEFjY2VwdFJlcXVlc3QaIS5sb2Z0Lk9wZXJhdG9yVHJhaWxBY2NlcHRSZXNwb25zZTABEkkKBFJvd3MSHi5sb2Z0Lk9wZXJhdG9yVHJhaWxSb3dzUmVxdWVzdBofLmxvZnQuT3BlcmF0b3JUcmFpbFJvd3NSZXNwb25zZTABElsKCkFjY2VwdFJvd3MSJC5sb2Z0Lk9wZXJhdG9yVHJhaWxBY2NlcHRSb3dzUmVxdWVzdBolLmxvZnQuT3BlcmF0b3JUcmFpbEFjY2VwdFJvd3NSZXNwb25zZTABEkcKBE93ZWQSHi5sb2Z0Lk9wZXJhdG9yVHJhaWxPd2VkUmVxdWVzdBofLmxvZnQuT3BlcmF0b3JUcmFpbE93ZWRSZXNwb25zZRJPCgZFeHBvcnQSIC5sb2Z0Lk9wZXJhdG9yVHJhaWxFeHBvcnRSZXF1ZXN0GiEubG9mdC5PcGVyYXRvclRyYWlsRXhwb3J0UmVzcG9uc2UwATLjAgoVT3BlcmF0b3JTZWFyY2hTZXJ2aWNlEk8KBlN0YXR1cxIhLmxvZnQuT3BlcmF0b3JTZWFyY2hTdGF0dXNSZXF1ZXN0GiIubG9mdC5PcGVyYXRvclNlYXJjaFN0YXR1c1Jlc3BvbnNlElQKB1JlaW5kZXgSIi5sb2Z0Lk9wZXJhdG9yU2VhcmNoUmVpbmRleFJlcXVlc3QaIy5sb2Z0Lk9wZXJhdG9yU2VhcmNoUmVpbmRleFJlc3BvbnNlMAESTwoGUmVtb3ZlEiEubG9mdC5PcGVyYXRvclNlYXJjaFJlbW92ZVJlcXVlc3QaIi5sb2Z0Lk9wZXJhdG9yU2VhcmNoUmVtb3ZlUmVzcG9uc2USUgoHQW5hbHl6ZRIiLmxvZnQuT3BlcmF0b3JTZWFyY2hBbmFseXplUmVxdWVzdBojLmxvZnQuT3BlcmF0b3JTZWFyY2hBbmFseXplUmVzcG9uc2UyrwEKGE9wZXJhdG9yUmV0ZW50aW9uU2VydmljZRJJCgRQbGFuEh4ubG9mdC5PcGVyYXRvclJldGVudGlvblJlcXVlc3QaHy5sb2Z0Lk9wZXJhdG9yUmV0ZW50aW9uUmVzcG9uc2UwARJICgNSdW4SHi5sb2Z0Lk9wZXJhdG9yUmV0ZW50aW9uUmVxdWVzdBofLmxvZnQuT3BlcmF0b3JSZXRlbnRpb25SZXNwb25zZTABQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_loft_ops, file_loft_payday_holder, file_loft_payday_tenant]);
 
 /**
  * OperatorTenantRef is a workspace as an operator names it: by its
@@ -1449,6 +1449,398 @@ export const OperatorTrailExportedSchema: GenMessage<OperatorTrailExported> = /*
   messageDesc(file_loft_operator, 38);
 
 /**
+ * @generated from message loft.OperatorSearchStatusRequest
+ */
+export type OperatorSearchStatusRequest = Message<"loft.OperatorSearchStatusRequest"> & {
+};
+
+/**
+ * Describes the message loft.OperatorSearchStatusRequest.
+ * Use `create(OperatorSearchStatusRequestSchema)` to create a new message.
+ */
+export const OperatorSearchStatusRequestSchema: GenMessage<OperatorSearchStatusRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 39);
+
+/**
+ * @generated from message loft.OperatorSearchStatusResponse
+ */
+export type OperatorSearchStatusResponse = Message<"loft.OperatorSearchStatusResponse"> & {
+  /**
+   * @generated from field: repeated loft.OperatorSearchIndex indexes = 1;
+   */
+  indexes: OperatorSearchIndex[];
+};
+
+/**
+ * Describes the message loft.OperatorSearchStatusResponse.
+ * Use `create(OperatorSearchStatusResponseSchema)` to create a new message.
+ */
+export const OperatorSearchStatusResponseSchema: GenMessage<OperatorSearchStatusResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 40);
+
+/**
+ * @generated from message loft.OperatorSearchIndex
+ */
+export type OperatorSearchIndex = Message<"loft.OperatorSearchIndex"> & {
+  /**
+   * What it is of: assets, parties, models.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string alias = 2;
+   */
+  alias: string;
+
+  /**
+   * What the alias points at; empty is nothing yet.
+   *
+   * @generated from field: string index = 3;
+   */
+  index: string;
+
+  /**
+   * @generated from field: uint64 docs = 4;
+   */
+  docs: bigint;
+
+  /**
+   * The rows the database has of what it holds, not erased.
+   *
+   * @generated from field: uint64 held = 5;
+   */
+  held: bigint;
+
+  /**
+   * The shape the index was made in, and the one this build makes.
+   *
+   * @generated from field: int32 version = 6;
+   */
+  version: number;
+
+  /**
+   * @generated from field: int32 built = 7;
+   */
+  built: number;
+
+  /**
+   * What a reindex that stopped left behind, which the next deletes.
+   *
+   * @generated from field: repeated string others = 8;
+   */
+  others: string[];
+};
+
+/**
+ * Describes the message loft.OperatorSearchIndex.
+ * Use `create(OperatorSearchIndexSchema)` to create a new message.
+ */
+export const OperatorSearchIndexSchema: GenMessage<OperatorSearchIndex> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 41);
+
+/**
+ * @generated from message loft.OperatorSearchReindexRequest
+ */
+export type OperatorSearchReindexRequest = Message<"loft.OperatorSearchReindexRequest"> & {
+};
+
+/**
+ * Describes the message loft.OperatorSearchReindexRequest.
+ * Use `create(OperatorSearchReindexRequestSchema)` to create a new message.
+ */
+export const OperatorSearchReindexRequestSchema: GenMessage<OperatorSearchReindexRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 42);
+
+/**
+ * @generated from message loft.OperatorSearchReindexResponse
+ */
+export type OperatorSearchReindexResponse = Message<"loft.OperatorSearchReindexResponse"> & {
+  /**
+   * @generated from field: string progress = 1;
+   */
+  progress: string;
+
+  /**
+   * One for each index, as it is made.
+   *
+   * @generated from field: loft.OperatorSearchReindexed made = 2;
+   */
+  made?: OperatorSearchReindexed | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorSearchReindexResponse.
+ * Use `create(OperatorSearchReindexResponseSchema)` to create a new message.
+ */
+export const OperatorSearchReindexResponseSchema: GenMessage<OperatorSearchReindexResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 43);
+
+/**
+ * @generated from message loft.OperatorSearchReindexed
+ */
+export type OperatorSearchReindexed = Message<"loft.OperatorSearchReindexed"> & {
+  /**
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string index = 2;
+   */
+  index: string;
+
+  /**
+   * @generated from field: string alias = 3;
+   */
+  alias: string;
+
+  /**
+   * @generated from field: uint64 docs = 4;
+   */
+  docs: bigint;
+
+  /**
+   * @generated from field: repeated string replaced = 5;
+   */
+  replaced: string[];
+};
+
+/**
+ * Describes the message loft.OperatorSearchReindexed.
+ * Use `create(OperatorSearchReindexedSchema)` to create a new message.
+ */
+export const OperatorSearchReindexedSchema: GenMessage<OperatorSearchReindexed> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 44);
+
+/**
+ * @generated from message loft.OperatorSearchRemoveRequest
+ */
+export type OperatorSearchRemoveRequest = Message<"loft.OperatorSearchRemoveRequest"> & {
+  /**
+   * Say what it would delete, and delete nothing.
+   *
+   * @generated from field: bool dry_run = 1;
+   */
+  dryRun: boolean;
+};
+
+/**
+ * Describes the message loft.OperatorSearchRemoveRequest.
+ * Use `create(OperatorSearchRemoveRequestSchema)` to create a new message.
+ */
+export const OperatorSearchRemoveRequestSchema: GenMessage<OperatorSearchRemoveRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 45);
+
+/**
+ * @generated from message loft.OperatorSearchRemoveResponse
+ */
+export type OperatorSearchRemoveResponse = Message<"loft.OperatorSearchRemoveResponse"> & {
+  /**
+   * The indexes deleted, or that would be.
+   *
+   * @generated from field: repeated string indexes = 1;
+   */
+  indexes: string[];
+};
+
+/**
+ * Describes the message loft.OperatorSearchRemoveResponse.
+ * Use `create(OperatorSearchRemoveResponseSchema)` to create a new message.
+ */
+export const OperatorSearchRemoveResponseSchema: GenMessage<OperatorSearchRemoveResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 46);
+
+/**
+ * @generated from message loft.OperatorSearchAnalyzeRequest
+ */
+export type OperatorSearchAnalyzeRequest = Message<"loft.OperatorSearchAnalyzeRequest"> & {
+  /**
+   * @generated from field: string text = 1;
+   */
+  text: string;
+};
+
+/**
+ * Describes the message loft.OperatorSearchAnalyzeRequest.
+ * Use `create(OperatorSearchAnalyzeRequestSchema)` to create a new message.
+ */
+export const OperatorSearchAnalyzeRequestSchema: GenMessage<OperatorSearchAnalyzeRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 47);
+
+/**
+ * @generated from message loft.OperatorSearchAnalyzeResponse
+ */
+export type OperatorSearchAnalyzeResponse = Message<"loft.OperatorSearchAnalyzeResponse"> & {
+  /**
+   * The words, as a name is kept and as a search asks.
+   *
+   * @generated from field: repeated string kept = 1;
+   */
+  kept: string[];
+
+  /**
+   * @generated from field: repeated string asked = 2;
+   */
+  asked: string[];
+};
+
+/**
+ * Describes the message loft.OperatorSearchAnalyzeResponse.
+ * Use `create(OperatorSearchAnalyzeResponseSchema)` to create a new message.
+ */
+export const OperatorSearchAnalyzeResponseSchema: GenMessage<OperatorSearchAnalyzeResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 48);
+
+/**
+ * @generated from message loft.OperatorRetentionRequest
+ */
+export type OperatorRetentionRequest = Message<"loft.OperatorRetentionRequest"> & {
+  /**
+   * One workspace; every workspace when unset.
+   *
+   * @generated from field: loft.OperatorTenantRef ref = 1 [features.field_presence = EXPLICIT];
+   */
+  ref?: OperatorTenantRef | undefined;
+};
+
+/**
+ * Describes the message loft.OperatorRetentionRequest.
+ * Use `create(OperatorRetentionRequestSchema)` to create a new message.
+ */
+export const OperatorRetentionRequestSchema: GenMessage<OperatorRetentionRequest> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 49);
+
+/**
+ * @generated from message loft.OperatorRetentionResponse
+ */
+export type OperatorRetentionResponse = Message<"loft.OperatorRetentionResponse"> & {
+  /**
+   * @generated from field: string progress = 1;
+   */
+  progress: string;
+
+  /**
+   * @generated from field: loft.OperatorRetentionTaken taken = 2;
+   */
+  taken?: OperatorRetentionTaken | undefined;
+
+  /**
+   * Last: whether the deployment destroys by its windows at all
+   * (`app.retention.apply`).
+   *
+   * @generated from field: bool apply = 3;
+   */
+  apply: boolean;
+
+  /**
+   * @generated from field: bool last = 4;
+   */
+  last: boolean;
+};
+
+/**
+ * Describes the message loft.OperatorRetentionResponse.
+ * Use `create(OperatorRetentionResponseSchema)` to create a new message.
+ */
+export const OperatorRetentionResponseSchema: GenMessage<OperatorRetentionResponse> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 50);
+
+/**
+ * @generated from message loft.OperatorRetentionTaken
+ */
+export type OperatorRetentionTaken = Message<"loft.OperatorRetentionTaken"> & {
+  /**
+   * @generated from field: bytes tenant = 1;
+   */
+  tenant: Uint8Array;
+
+  /**
+   * @generated from field: string alias = 2;
+   */
+  alias: string;
+
+  /**
+   * @generated from field: bool dry_run = 3;
+   */
+  dryRun: boolean;
+
+  /**
+   * Where its window begins; unset is a window that keeps everything.
+   *
+   * @generated from field: google.protobuf.Timestamp before = 4;
+   */
+  before?: Timestamp | undefined;
+
+  /**
+   * What its legal holds are for: while there is one, nothing goes.
+   *
+   * @generated from field: repeated string held = 5;
+   */
+  held: string[];
+
+  /**
+   * What was over before the window, by kind, and the stored files that
+   * could not be removed.
+   *
+   * @generated from field: map<string, uint32> taken = 6;
+   */
+  taken: { [key: string]: number };
+
+  /**
+   * @generated from field: repeated string lost = 7;
+   */
+  lost: string[];
+
+  /**
+   * What the trail's pass would take of its trail, by kind (a plan alone).
+   *
+   * @generated from field: repeated loft.OperatorRetentionTrail trail = 8;
+   */
+  trail: OperatorRetentionTrail[];
+};
+
+/**
+ * Describes the message loft.OperatorRetentionTaken.
+ * Use `create(OperatorRetentionTakenSchema)` to create a new message.
+ */
+export const OperatorRetentionTakenSchema: GenMessage<OperatorRetentionTaken> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 51);
+
+/**
+ * @generated from message loft.OperatorRetentionTrail
+ */
+export type OperatorRetentionTrail = Message<"loft.OperatorRetentionTrail"> & {
+  /**
+   * @generated from field: string kind = 1;
+   */
+  kind: string;
+
+  /**
+   * @generated from field: uint32 archived = 2;
+   */
+  archived: number;
+
+  /**
+   * @generated from field: uint32 discarded = 3;
+   */
+  discarded: number;
+
+  /**
+   * @generated from field: uint32 destroyed = 4;
+   */
+  destroyed: number;
+};
+
+/**
+ * Describes the message loft.OperatorRetentionTrail.
+ * Use `create(OperatorRetentionTrailSchema)` to create a new message.
+ */
+export const OperatorRetentionTrailSchema: GenMessage<OperatorRetentionTrail> = /*@__PURE__*/
+  messageDesc(file_loft_operator, 52);
+
+/**
  * OperatorTenantService is what an operator does to a workspace from outside
  * it, besides what `TenantService` serves them.
  *
@@ -1649,4 +2041,98 @@ export const OperatorTrailService: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_loft_operator, 1);
+
+/**
+ * OperatorSearchService is the search index, for a deployment that names an
+ * OpenSearch cluster (D31): what each index is, making it again, taking it
+ * out, and how it splits a text. A deployment that names none searches its
+ * database, has no index, and answers each FailedPrecondition.
+ *
+ * @generated from service loft.OperatorSearchService
+ */
+export const OperatorSearchService: GenService<{
+  /**
+   * Status is what each index is -- of assets, parties and models -- against
+   * what the database holds.
+   *
+   * @generated from rpc loft.OperatorSearchService.Status
+   */
+  status: {
+    methodKind: "unary";
+    input: typeof OperatorSearchStatusRequestSchema;
+    output: typeof OperatorSearchStatusResponseSchema;
+  },
+  /**
+   * Reindex makes each index again from the database, and points its alias
+   * at it once it is whole: what it is at while it writes, and last what it
+   * made. A reindex that stops leaves the alias where it was, and the next
+   * deletes what it left.
+   *
+   * @generated from rpc loft.OperatorSearchService.Reindex
+   */
+  reindex: {
+    methodKind: "server_streaming";
+    input: typeof OperatorSearchReindexRequestSchema;
+    output: typeof OperatorSearchReindexResponseSchema;
+  },
+  /**
+   * Remove deletes every index this deployment made, and the aliases with
+   * them: for a deployment that stops searching with OpenSearch, and one that
+   * wants nothing of its people left in a copy it does not keep.
+   *
+   * @generated from rpc loft.OperatorSearchService.Remove
+   */
+  remove: {
+    methodKind: "unary";
+    input: typeof OperatorSearchRemoveRequestSchema;
+    output: typeof OperatorSearchRemoveResponseSchema;
+  },
+  /**
+   * Analyze is the words the index makes of a text: as a name is kept, and
+   * as a search asks.
+   *
+   * @generated from rpc loft.OperatorSearchService.Analyze
+   */
+  analyze: {
+    methodKind: "unary";
+    input: typeof OperatorSearchAnalyzeRequestSchema;
+    output: typeof OperatorSearchAnalyzeResponseSchema;
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_loft_operator, 2);
+
+/**
+ * OperatorRetentionService is what the keep windows take out of the history
+ * (design 8.2, 8.3), of every workspace or of one.
+ *
+ * @generated from service loft.OperatorRetentionService
+ */
+export const OperatorRetentionService: GenService<{
+  /**
+   * Plan is what a pass would take now, changing nothing: all of the work in
+   * a transaction it then undoes, so that what it says is what a run would
+   * take, to the row -- and what the trail's pass would take of the trail.
+   * A message for each workspace.
+   *
+   * @generated from rpc loft.OperatorRetentionService.Plan
+   */
+  plan: {
+    methodKind: "server_streaming";
+    input: typeof OperatorRetentionRequestSchema;
+    output: typeof OperatorRetentionResponseSchema;
+  },
+  /**
+   * Run takes it, when `app.retention.apply` says the deployment may, and
+   * then the trail's pass on the same windows: what `serve` does every
+   * `app.retention.every`.
+   *
+   * @generated from rpc loft.OperatorRetentionService.Run
+   */
+  run: {
+    methodKind: "server_streaming";
+    input: typeof OperatorRetentionRequestSchema;
+    output: typeof OperatorRetentionResponseSchema;
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_loft_operator, 3);
 

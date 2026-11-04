@@ -514,3 +514,138 @@ message OperatorTrailExported {
   // How many people the access record says it carries.
   uint32 people = 14;
 }
+
+// OperatorSearchService is the search index, for a deployment that names an
+// OpenSearch cluster (D31): what each index is, making it again, taking it
+// out, and how it splits a text. A deployment that names none searches its
+// database, has no index, and answers each FailedPrecondition.
+service OperatorSearchService {
+  // Status is what each index is -- of assets, parties and models -- against
+  // what the database holds.
+  rpc Status(OperatorSearchStatusRequest) returns (OperatorSearchStatusResponse);
+
+  // Reindex makes each index again from the database, and points its alias
+  // at it once it is whole: what it is at while it writes, and last what it
+  // made. A reindex that stops leaves the alias where it was, and the next
+  // deletes what it left.
+  rpc Reindex(OperatorSearchReindexRequest) returns (stream OperatorSearchReindexResponse);
+
+  // Remove deletes every index this deployment made, and the aliases with
+  // them: for a deployment that stops searching with OpenSearch, and one that
+  // wants nothing of its people left in a copy it does not keep.
+  rpc Remove(OperatorSearchRemoveRequest) returns (OperatorSearchRemoveResponse);
+
+  // Analyze is the words the index makes of a text: as a name is kept, and
+  // as a search asks.
+  rpc Analyze(OperatorSearchAnalyzeRequest) returns (OperatorSearchAnalyzeResponse);
+}
+
+message OperatorSearchStatusRequest {}
+
+message OperatorSearchStatusResponse {
+  repeated OperatorSearchIndex indexes = 1;
+}
+
+message OperatorSearchIndex {
+  // What it is of: assets, parties, models.
+  string name = 1;
+  string alias = 2;
+  // What the alias points at; empty is nothing yet.
+  string index = 3;
+  uint64 docs = 4;
+  // The rows the database has of what it holds, not erased.
+  uint64 held = 5;
+  // The shape the index was made in, and the one this build makes.
+  int32 version = 6;
+  int32 built = 7;
+  // What a reindex that stopped left behind, which the next deletes.
+  repeated string others = 8;
+}
+
+message OperatorSearchReindexRequest {}
+
+message OperatorSearchReindexResponse {
+  string progress = 1;
+  // One for each index, as it is made.
+  OperatorSearchReindexed made = 2;
+}
+
+message OperatorSearchReindexed {
+  string name = 1;
+  string index = 2;
+  string alias = 3;
+  uint64 docs = 4;
+  repeated string replaced = 5;
+}
+
+message OperatorSearchRemoveRequest {
+  // Say what it would delete, and delete nothing.
+  bool dry_run = 1;
+}
+
+message OperatorSearchRemoveResponse {
+  // The indexes deleted, or that would be.
+  repeated string indexes = 1;
+}
+
+message OperatorSearchAnalyzeRequest {
+  string text = 1;
+}
+
+message OperatorSearchAnalyzeResponse {
+  // The words, as a name is kept and as a search asks.
+  repeated string kept = 1;
+  repeated string asked = 2;
+}
+
+// OperatorRetentionService is what the keep windows take out of the history
+// (design 8.2, 8.3), of every workspace or of one.
+service OperatorRetentionService {
+  // Plan is what a pass would take now, changing nothing: all of the work in
+  // a transaction it then undoes, so that what it says is what a run would
+  // take, to the row -- and what the trail's pass would take of the trail.
+  // A message for each workspace.
+  rpc Plan(OperatorRetentionRequest) returns (stream OperatorRetentionResponse);
+
+  // Run takes it, when `app.retention.apply` says the deployment may, and
+  // then the trail's pass on the same windows: what `serve` does every
+  // `app.retention.every`.
+  rpc Run(OperatorRetentionRequest) returns (stream OperatorRetentionResponse);
+}
+
+message OperatorRetentionRequest {
+  // One workspace; every workspace when unset.
+  OperatorTenantRef ref = 1 [features.field_presence = EXPLICIT];
+}
+
+message OperatorRetentionResponse {
+  string progress = 1;
+  OperatorRetentionTaken taken = 2;
+  // Last: whether the deployment destroys by its windows at all
+  // (`app.retention.apply`).
+  bool apply = 3;
+  bool last = 4;
+}
+
+message OperatorRetentionTaken {
+  bytes tenant = 1;
+  string alias = 2;
+  bool dry_run = 3;
+  // Where its window begins; unset is a window that keeps everything.
+  google.protobuf.Timestamp before = 4;
+  // What its legal holds are for: while there is one, nothing goes.
+  repeated string held = 5;
+  // What was over before the window, by kind, and the stored files that
+  // could not be removed.
+  map<string, uint32> taken = 6;
+  repeated string lost = 7;
+  // What the trail's pass would take of its trail, by kind (a plan alone).
+  repeated OperatorRetentionTrail trail = 8;
+}
+
+message OperatorRetentionTrail {
+  string kind = 1;
+  uint32 archived = 2;
+  uint32 discarded = 3;
+  uint32 destroyed = 4;
+}

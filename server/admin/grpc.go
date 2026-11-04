@@ -44,6 +44,8 @@ func (a Routes) Grpc(ctx context.Context, opts ...grpc.ServerOption) (*grpc.Serv
 	app.RegisterHolderServiceServer(g, holders{a: a})
 	app.RegisterOperatorTenantServiceServer(g, operatorTenants{a: a})
 	app.RegisterOperatorTrailServiceServer(g, operatorTrail{a: a})
+	app.RegisterOperatorSearchServiceServer(g, operatorSearch{a: a})
+	app.RegisterOperatorRetentionServiceServer(g, operatorRetention{a: a})
 	return g, nil
 }
 
