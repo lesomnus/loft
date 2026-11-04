@@ -23,13 +23,13 @@
 - 예약 창의 **이력**은 누가 예약·승인·취소·수령·반납했는지와 그 사유입니다. 감사자는 모든 예약의 이력을 읽습니다.
 
 ```sh
-loft api asset search -o wide '{"q": "NB-002"}'
-loft api asset timeline <자산 ID>                                     # 이력
-loft api asset timeline <자산 ID> '{"superseded": true}'              # 정정되어 대체된 줄까지
-loft api asset timeline <자산 ID> '{"known": "2026-10-01T00:00:00+09:00"}'   # 그때 시스템이 알던 대로
-loft api asset query-at '{"root": {"id": "<4층 ID>"}, "at": "2026-06-01T00:00:00+09:00", "depth": 1}'
-loft api asset diff '{"root": {"id": "<4층 ID>"}, "from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'
-loft api reservation timeline <예약 ID>
+loft asset search -o wide '{"q": "NB-002"}'
+loft asset timeline <자산 ID>                                         # 이력
+loft asset timeline <자산 ID> '{"superseded": true}'                  # 정정되어 대체된 줄까지
+loft asset timeline <자산 ID> '{"known": "2026-10-01T00:00:00+09:00"}'       # 그때 시스템이 알던 대로
+loft asset query-at '{"root": {"id": "<4층 ID>"}, "at": "2026-06-01T00:00:00+09:00", "depth": 1}'
+loft asset diff '{"root": {"id": "<4층 ID>"}, "from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'
+loft reservation timeline <예약 ID>
 ```
 
 ### 작업 기록과 감사 기록
@@ -39,9 +39,9 @@ loft api reservation timeline <예약 ID>
 - 감사 기록은 사람의 이름·연락처·사번, 초대 주소, 알림의 글, 사람의 말인 메모(지급·예약·작업·구매·실사의 메모, 점검 결과, 닫은 사유)를 값으로 남기지 않습니다. 바꿨다는 것만 남습니다.
 
 ```sh
-loft api event recent '{"size": 20}'                       # 최근 작업 기록
-loft api event recent '{"kind": "custody.issue"}'          # 한 종류만
-loft api audit recent '{"size": 20}'                       # 최근 감사 기록 (next로 이어서)
+loft event recent '{"size": 20}'                           # 최근 작업 기록
+loft event recent '{"kind": "custody.issue"}'              # 한 종류만
+loft audit recent '{"size": 20}'                           # 최근 감사 기록 (next로 이어서)
 ```
 
 ### 접속기록 점검
@@ -58,10 +58,10 @@ loft api audit recent '{"size": 20}'                       # 최근 감사 기�
 - 얼마나 보관하는지는 워크스페이스가 정하고(소유자의 설정 › 워크스페이스 › 기록 보관), 법이 정한 최소 기간보다 짧게는 정할 수 없습니다. 정하지 않으면 배포의 기간입니다.
 
 ```sh
-loft api access review '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'                     # 한 번에 92일까지
-loft api access review '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00", "kind": "download"}'   # read, write, download
-loft api access-review add '{"period_from": "2026-10-01T00:00:00+09:00", "period_to": "2026-11-01T00:00:00+09:00", "desc": "이상 없음"}'
-loft api access-review ls -o wide
+loft access review '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'                         # 한 번에 92일까지
+loft access review '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00", "kind": "download"}'       # read, write, download
+loft access-review add '{"period_from": "2026-10-01T00:00:00+09:00", "period_to": "2026-11-01T00:00:00+09:00", "desc": "이상 없음"}'
+loft access-review ls -o wide
 ```
 
 ### 리포트
@@ -69,9 +69,9 @@ loft api access-review ls -o wide
 **리포트**의 다섯 표를 읽고 CSV로 내려받습니다. 무엇이 있는지는 [매니저 안내서의 리포트](manager.md#리포트)에 있습니다. 대여 현황의 CSV는 사람의 이름이 담기므로 내려받는 이유를 묻고, 그 이유는 접속기록에 남습니다.
 
 ```sh
-loft api asset census '{"by": "location"}'
-loft api custody outstanding '{"overdue": true}'
-loft api --reason "10월 대여 점검" custody export-outstanding -o 'template={{.data}}' | base64 -d > 대여.csv
+loft asset census '{"by": "location"}'
+loft custody outstanding '{"overdue": true}'
+loft --reason "10월 대여 점검" custody export-outstanding -o 'template={{.data}}' | base64 -d > 대여.csv
 ```
 
 ### 계약과 법적 보존
@@ -79,8 +79,8 @@ loft api --reason "10월 대여 점검" custody export-outstanding -o 'template=
 워크스페이스가 파기될 때 감사 기록을 어떻게 할지는 배포 운영자와의 계약이 정하고, 법적 보존(hold)이 걸려 있는 동안은 아무것도 지우지 않습니다. 둘 다 운영자가 걸고, 워크스페이스에서는 읽기만 합니다.
 
 ```sh
-loft api tenant-contract ls -o wide
-loft api legal-hold ls -o wide
+loft tenant-contract ls -o wide
+loft legal-hold ls -o wide
 ```
 
 ## 운영자에게 요청할 것

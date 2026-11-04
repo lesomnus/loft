@@ -364,7 +364,7 @@ export const InvitationSchema: GenMessage<Invitation> = /*@__PURE__*/
 
 /**
  * CliLogin is a terminal asking to be signed in as whoever approves it in a
- * browser (`loft login`).
+ * browser (`loft auth login`).
  *
  * The terminal makes up the session key it will use, keeps it, and sends only
  * its SHA-256, which is kept as a browser's key is (`Session.secret`): `secret`
@@ -432,7 +432,7 @@ export type CliLogin = Message<"loft.CliLogin"> & {
   /**
    * What the terminal asked to be allowed, which the page shows and the
    * session it gets is narrowed to: `Session.grant`'s bytes. Empty is all
-   * that the account may do (`loft login --allow`, D33).
+   * that the account may do (`loft auth login --allow`, D33).
    *
    * @generated from field: bytes grant = 19;
    */

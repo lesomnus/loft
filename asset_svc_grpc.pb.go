@@ -117,7 +117,7 @@ type AssetServiceClient interface {
 	Form(ctx context.Context, in *AssetFormRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
-	// `loft register` read a sheet with it, so that the form is read in one
+	// `loft asset add-many` read a sheet with it, so that the form is read in one
 	// place and the two read it alike. A workbook is refused unopened: what
 	// one person uploads is read in the process every workspace is served by,
 	// and a workbook takes a library as large as Excel to read (design 9.13).
@@ -452,7 +452,7 @@ type AssetServiceServer interface {
 	Form(context.Context, *AssetFormRequest) (*AssetExportResponse, error)
 	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
-	// `loft register` read a sheet with it, so that the form is read in one
+	// `loft asset add-many` read a sheet with it, so that the form is read in one
 	// place and the two read it alike. A workbook is refused unopened: what
 	// one person uploads is read in the process every workspace is served by,
 	// and a workbook takes a library as large as Excel to read (design 9.13).

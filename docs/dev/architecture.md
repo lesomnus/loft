@@ -54,4 +54,4 @@ go tool pd gen --check .  # 생성물이 스키마와 같은지 (CI가 하는 �
 
 ## 터미널과 비서
 
-`loft api` 는 실행 중인 배포의 모든 RPC를 명령으로 부릅니다. 브라우저가 쓰는 같은 주소의 Connect로 말하고(`cli/connect.go`), 서버의 설정을 읽지 않습니다. `loft mcp` 는 그 터미널을 MCP 서버로 감싼 것입니다(`cli/mcp.go`, D32). 쓰는 법은 [터미널과 비서](../guide/terminal.md)에 있습니다.
+`loft <엔터티> <작업>` 은 실행 중인 배포의 모든 RPC를 명령으로 부릅니다(`cli/tree.go`, D75). 누구로 부를지는 연결이 정합니다. 사람의 연결은 브라우저가 쓰는 같은 주소의 Connect로 말하고(`cli/connect.go`), 운영자의 연결은 운영자 진입점에 키를 들고 말합니다(`cli/connection.go`). 터미널의 명령은 서버의 설정을 읽지 않습니다. `loft mcp` 는 그 터미널을 MCP 서버로 감싼 것입니다(`cli/mcp.go`, D32). 쓰는 법은 [터미널과 비서](../guide/terminal.md)에 있습니다.

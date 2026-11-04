@@ -23,9 +23,9 @@
 3. **최근 알림**: 인수 확인 요청, 승인 결과, 반납 기한 같은 것입니다. 위의 종 모양에서 전부 봅니다.
 
 ```sh
-loft whoami                                   # 누구로, 어느 워크스페이스에
-loft api notification inbox '{"unread": true}'  # 읽지 않은 알림
-loft api notification mark-read               # 모두 읽음으로
+loft auth whoami                              # 누구로, 어느 워크스페이스에
+loft notification inbox '{"unread": true}'    # 읽지 않은 알림
+loft notification mark-read                   # 모두 읽음으로
 ```
 
 ### 받은 것 확인하기 (인수 확인)
@@ -36,9 +36,9 @@ loft api notification mark-read               # 모두 읽음으로
 2. 또는 받은 물건의 라벨을 휴대폰으로 찍습니다. 자산 화면이 열리고 **인수 확인**이 보입니다. 아무도 옆에 없어도 받은 사람이 스스로 확인할 수 있습니다(셀프서비스: 스캔 → 인수 확인).
 
 ```sh
-loft api party me                             # party 줄이 내 사람 기록의 ID
-loft api custody ls -o wide '{"filters": [{"party": {"id": "<내 사람 기록 ID>"}, "status": "open"}]}'
-loft api custody acknowledge <지급·대여 ID>
+loft party me                                 # party 줄이 내 사람 기록의 ID
+loft custody ls -o wide '{"filters": [{"party": {"id": "<내 사람 기록 ID>"}, "status": "open"}]}'
+loft custody acknowledge <지급·대여 ID>
 ```
 
 반납은 물건을 매니저에게 돌려주면 매니저가 처리합니다. 대여라면 반납 기한이 있고, 기한이 지나면 나와 관리하는 사람에게 연체 알림이 갑니다. 기한을 늘리는 것도 매니저의 일입니다.
@@ -55,18 +55,18 @@ loft api custody acknowledge <지급·대여 ID>
 예약 제목을 누르면 예약 창이 열리고, 누가 언제 예약·승인·취소했는지와 그 사유(**이력**)가 보입니다. 예약이 보이는 곳(캘린더, 내 예약, 대시보드, 자산 화면의 다가오는 예약) 어디서든 같은 창이 열립니다. 이력은 자기 예약의 것만 봅니다.
 
 ```sh
-loft api asset search -o wide '{"q": "회의실 B"}'                         # 회의실 B의 ID
-loft api bookable availability '{"resources": [{"id": "<회의실 B의 ID>"}], "from": "2026-11-10T00:00:00+09:00", "to": "2026-11-11T00:00:00+09:00"}'   # 그날 잡힌 시간
-loft api reservation add '{"name": "개발팀 짝 프로그래밍", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-10T14:00:00+09:00", "ends_at": "2026-11-10T15:00:00+09:00"}'
-loft api reservation add '{"name": "스터디", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-12T10:00:00+09:00", "ends_at": "2026-11-12T11:00:00+09:00", "hold": true}'   # 임시 홀드
-loft api reservation confirm <예약 ID>                # 홀드를 확정
-loft api reservation calendar '{"mine": true}'      # 내 예약 (지난 7일부터 앞으로 30일)
-loft api reservation check-in <예약 ID>               # 시작 30분 전부터
-loft api reservation complete <예약 ID>               # 일찍 끝내기
-loft api reservation cancel <예약 ID> '{"reason": "일정 변경"}'
-loft api reservation add '{"name": "개발팀 스탠드업", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-16T09:00:00+09:00", "ends_at": "2026-11-16T09:30:00+09:00", "repeat": "FREQ=WEEKLY;COUNT=4"}'   # 매주 4번
-loft api reservation cancel <예약 ID> '{"series": true}'   # 이 회차와 그 뒤의 반복을 모두 취소
-loft api reservation timeline <예약 ID>               # 예약 창의 이력
+loft asset search -o wide '{"q": "회의실 B"}'                             # 회의실 B의 ID
+loft bookable availability '{"resources": [{"id": "<회의실 B의 ID>"}], "from": "2026-11-10T00:00:00+09:00", "to": "2026-11-11T00:00:00+09:00"}'       # 그날 잡힌 시간
+loft reservation add '{"name": "개발팀 짝 프로그래밍", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-10T14:00:00+09:00", "ends_at": "2026-11-10T15:00:00+09:00"}'
+loft reservation add '{"name": "스터디", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-12T10:00:00+09:00", "ends_at": "2026-11-12T11:00:00+09:00", "hold": true}'       # 임시 홀드
+loft reservation confirm <예약 ID>                    # 홀드를 확정
+loft reservation calendar '{"mine": true}'          # 내 예약 (지난 7일부터 앞으로 30일)
+loft reservation check-in <예약 ID>                   # 시작 30분 전부터
+loft reservation complete <예약 ID>                   # 일찍 끝내기
+loft reservation cancel <예약 ID> '{"reason": "일정 변경"}'
+loft reservation add '{"name": "개발팀 스탠드업", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-16T09:00:00+09:00", "ends_at": "2026-11-16T09:30:00+09:00", "repeat": "FREQ=WEEKLY;COUNT=4"}'       # 매주 4번
+loft reservation cancel <예약 ID> '{"series": true}'       # 이 회차와 그 뒤의 반복을 모두 취소
+loft reservation timeline <예약 ID>                   # 예약 창의 이력
 ```
 
 시각은 예이므로 앞으로의 시각으로 바꿉니다. 시간대를 붙이지 않은 시각은 받지 않습니다.
@@ -92,12 +92,12 @@ loft api reservation timeline <예약 ID>               # 예약 창의 이력
 - **사람**은 조직도입니다. 누가 어느 팀인지와 그 사람이 가진 자산이 보입니다.
 
 ```sh
-loft api asset search -o wide '{"q": "노트북"}'
-loft api asset timeline <자산 ID>                      # 그 자산의 이력
-loft api asset search -o wide '{"q": "3층"}'
-loft api asset query-at '{"root": {"id": "<3층 ID>"}, "at": "2026-06-01T00:00:00+09:00", "depth": 1}'   # 그때 3층에 있던 것
-loft api asset diff '{"root": {"id": "<3층 ID>"}, "from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'  # 그 사이에 바뀐 것
-loft api party search -o wide '{"q": "김민준"}'
+loft asset search -o wide '{"q": "노트북"}'
+loft asset timeline <자산 ID>                          # 그 자산의 이력
+loft asset search -o wide '{"q": "3층"}'
+loft asset query-at '{"root": {"id": "<3층 ID>"}, "at": "2026-06-01T00:00:00+09:00", "depth": 1}'       # 그때 3층에 있던 것
+loft asset diff '{"root": {"id": "<3층 ID>"}, "from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'      # 그 사이에 바뀐 것
+loft party search -o wide '{"q": "김민준"}'
 ```
 
 ### 고장 신고
@@ -105,8 +105,8 @@ loft api party search -o wide '{"q": "김민준"}'
 모니터가 깜빡이면 **작업 › + 고장 신고**에서 자산(MN-002)을 고르고 증상을 적습니다. 자산 화면의 **고장 신고**도 같습니다. 담당 매니저에게 전달되고, 언제 누가 고칠지와 비용은 매니저가 정합니다.
 
 ```sh
-loft api asset search -o wide '{"q": "MN-002"}'
-loft api work-order add '{"name": "화면이 깜빡임", "desc": "HDMI로 연결하면 몇 초마다 꺼졌다 켜집니다", "asset": {"id": "<MN-002의 ID>"}}'
+loft asset search -o wide '{"q": "MN-002"}'
+loft work-order add '{"name": "화면이 깜빡임", "desc": "HDMI로 연결하면 몇 초마다 꺼졌다 켜집니다", "asset": {"id": "<MN-002의 ID>"}}'
 ```
 
 구성원은 수리 접수만 할 수 있고, 일정이나 비용을 붙이면 `일정과 비용은 매니저가 정합니다` 로 거부됩니다.
@@ -116,8 +116,8 @@ loft api work-order add '{"name": "화면이 깜빡임", "desc": "HDMI로 연결
 **재고**에서 그 품목(예: AA 건전지)의 **사용**을 누르고 수량을 적습니다. 남은 수량이 부족 기준 아래로 내려가면 매니저의 대시보드에 "재고 부족"으로 보입니다.
 
 ```sh
-loft api stock ls -o wide
-loft api stock consume <재고 ID> '{"quantity": 4, "reason": "무선 마우스 교체"}'
+loft stock ls -o wide
+loft stock consume <재고 ID> '{"quantity": 4, "reason": "무선 마우스 교체"}'
 ```
 
 ### 셀프 실사
@@ -129,8 +129,8 @@ loft api stock consume <재고 ID> '{"quantity": 4, "reason": "무선 마우스 
 3. 연결이 끊겨 있으면 스캔을 모아 두었다가 연결되면 보냅니다(**지금 보내기**).
 
 ```sh
-loft api inventory-count ls -o wide '{"filters": [{"status": "open"}]}'
-loft api inventory-count scan <실사 ID> '{"code": "NB-002"}'
+loft inventory-count ls -o wide '{"filters": [{"status": "open"}]}'
+loft inventory-count scan <실사 ID> '{"code": "NB-002"}'
 ```
 
 ### 휴대폰과 라벨 스캐너
@@ -151,10 +151,10 @@ loft scan 7K3M-Q9TX    # 라벨 코드 (라벨의 주소도 됨)
 다른 워크스페이스에서 초대가 오면 메일의 링크를 엽니다. 로그인(계정이 없으면 가입)한 뒤 **받은 초대**(`/invitations`, 워크스페이스 전환기에도 있음)에서 **수락**하거나 **거절**합니다. roster가 그 주소를 확인된 것으로 갖고 있는 계정은 링크 없이도 초대함에서 봅니다. 기다리는 초대는 30일 뒤 만료됩니다.
 
 ```sh
-loft api invitation claim '{"code": "<메일 링크의 code>"}'   # 링크로 받은 초대를 초대함에 넣기
-loft api invitation inbox -o wide
-loft api invitation accept <초대 ID>
-loft api invitation deny <초대 ID>
+loft invitation claim '{"code": "<메일 링크의 code>"}'       # 링크로 받은 초대를 초대함에 넣기
+loft invitation inbox -o wide
+loft invitation accept <초대 ID>
+loft invitation deny <초대 ID>
 ```
 
 수락하면 계정이 워크스페이스 둘에 속하므로, 터미널에서는 `loft use loft` 로 기본을 정하거나 `--workspace` 를 줍니다.
@@ -170,8 +170,8 @@ loft api invitation deny <초대 ID>
 - **로그인 방법 관리**와 **계정 탈퇴**: 배포가 roster의 계정 페이지를 알려 주었을 때 보입니다. 계정 삭제는 roster에서 하고, 그러면 속한 모든 워크스페이스에서 떠나는 중이 됩니다. 워크스페이스의 구성원 자격만 끝내는 것(로그인 중지, 개인정보 삭제)은 관리자가 합니다.
 
 ```sh
-loft api notification set-mail '{"off": true}'   # 메일 알림 끄기
-loft api notification set-mail '{}'              # 다시 켜기
+loft notification set-mail '{"off": true}'       # 메일 알림 끄기
+loft notification set-mail '{}'                  # 다시 켜기
 loft consent                                     # 동의해야 할 문서가 있으면 그 목록과 주소
 loft consent --agree
 ```

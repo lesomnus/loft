@@ -2,7 +2,7 @@ import { createHash, randomBytes } from 'node:crypto'
 
 import { expect, owner, submitSignIn, test } from './loft.js'
 
-// `loft login`, with the test as the terminal (cli/client.go): it makes up a
+// `loft auth login`, with the test as the terminal (cli/client.go): it makes up a
 // key, sends only its hash, and the person signed in at the page approves it.
 
 test('a terminal sign-in is approved at the page, and the terminal then holds a session', async ({ page, request }) => {
@@ -13,7 +13,7 @@ test('a terminal sign-in is approved at the page, and the terminal then holds a 
 	expect(asked.status()).toBe(201)
 	const started = (await asked.json()) as { id: string; code: string; approve: string; cookie: string }
 
-	// The address it is told to open, as `loft login` prints it.
+	// The address it is told to open, as `loft auth login` prints it.
 	await page.goto(started.approve)
 	await submitSignIn(page, owner.login, owner.password)
 	await expect(page.getByRole('heading', { name: '터미널 로그인' })).toBeVisible()
@@ -31,7 +31,7 @@ test('a terminal sign-in is approved at the page, and the terminal then holds a 
 	expect(await account.json()).toMatchObject({ login: owner.login })
 })
 
-// `loft login --allow` (D33): what the terminal asks to be narrowed to is on
+// `loft auth login --allow` (D33): what the terminal asks to be narrowed to is on
 // the page that approves it, and the session it gets does that much.
 test('a terminal that asks for less is shown so, and its session does no more', async ({ page, request }) => {
 	const key = randomBytes(32).toString('base64url')

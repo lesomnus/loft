@@ -3,124 +3,42 @@ package cli
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/arg"
 	"github.com/lesomnus/xli/flg"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/dynamicpb"
 
-	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdcmd"
-	"github.com/lesomnus/z"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/server/clilogin"
 )
 
 // The terminal's half of this app: everything it can do, asked of a running
-// deployment over the address a browser reaches it at, as an account signed in
-// by approving the terminal there (`loft login`, `server/clilogin`).
+// deployment as the connection in use says (design 9.16) -- a person's, over
+// the address a browser reaches it at, as an account signed in by approving
+// the terminal there (`loft auth login`, `server/clilogin`), through the same
+// policy and the same wall as the page; or an operator's, of the entry point
+// with their key (D74).
 //
-// It is not the operator's, which is asked of the entry point as the operator
-// (`loft-admin`, D74), nor the box's, which runs with the database where there
-// is no server to ask (`loft init`, `loft migrate`); these run anywhere, as a
-// person, through the same policy and the same wall as the page.
+// It is not the box's, which runs with the database where there is no server
+// to ask (`loft init`, `loft migrate`); these run anywhere.
 
-// clientConfig is what a terminal keeps of its sign-in: where the deployment
-// is, the key of the session it signs in with, the cookie that carries it, and
-// the workspace it speaks to unless told otherwise.
-type clientConfig struct {
-	Url       string `json:"url"`
-	Cookie    string `json:"cookie"`
-	Key       string `json:"key"`
-	Workspace string `json:"workspace,omitempty"`
-}
-
-// clientConfigPath is where it is kept: `LOFT_CLIENT_CONFIG`, or the user's
-// configuration directory.
-func clientConfigPath() (string, error) {
-	if v := os.Getenv("LOFT_CLIENT_CONFIG"); v != "" {
-		return v, nil
-	}
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(dir, "loft", "client.json"), nil
-}
-
-func loadClient() (clientConfig, error) {
-	p, err := clientConfigPath()
-	if err != nil {
-		return clientConfig{}, err
-	}
-	b, err := os.ReadFile(p)
-	if errors.Is(err, os.ErrNotExist) {
-		return clientConfig{}, nil
-	}
-	if err != nil {
-		return clientConfig{}, err
-	}
-	v := clientConfig{}
-	if err := json.Unmarshal(b, &v); err != nil {
-		return clientConfig{}, fmt.Errorf("%s: %w", p, err)
-	}
-	return v, nil
-}
-
-// saveClient writes it readable by its owner alone: it holds a session key.
-func saveClient(v clientConfig) error {
-	p, err := clientConfigPath()
-	if err != nil {
-		return err
-	}
-	if err := os.MkdirAll(filepath.Dir(p), 0o700); err != nil {
-		return err
-	}
-	b, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(p, append(b, '\n'), 0o600)
-}
-
-func (c clientConfig) signedIn() bool { return c.Url != "" && c.Key != "" }
-
-// conn is the connection a command uses, to workspace `ws` (empty is none
-// named, which an account in one workspace needs no more than).
-func (c clientConfig) conn(ws string) *connectConn {
-	h := http.Header{}
-	h.Set("Cookie", c.Cookie+"="+c.Key)
-	if ws = strings.TrimPrefix(strings.TrimSpace(ws), "@"); ws != "" {
-		h.Set(cmd.WorkspaceHeader, ws)
-	}
-	h.Set("User-Agent", "loft-cli")
-	return &connectConn{base: strings.TrimSuffix(c.Url, "/"), client: &http.Client{Timeout: 0}, header: h}
-}
-
-// do is one plain HTTP call beside the RPCs: `/account`, `/cli/...`.
-func (c clientConfig) do(ctx context.Context, method, path string, body any, out any) (int, error) {
+// do is one plain HTTP call beside the RPCs, as a person: `/account`,
+// `/cli/...`, `/session`.
+func (c *Connection) do(ctx context.Context, method, path string, body any, out any) (int, error) {
 	var rd io.Reader
 	if body != nil {
 		b, err := json.Marshal(body)
@@ -136,7 +54,7 @@ func (c clientConfig) do(ctx context.Context, method, path string, body any, out
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	if c.Key != "" {
+	if c.Kind == Person && c.Key != "" {
 		req.Header.Set("Cookie", c.Cookie+"="+c.Key)
 	}
 	req.Header.Set("User-Agent", "loft-cli")
@@ -157,64 +75,7 @@ func (c clientConfig) do(ctx context.Context, method, path string, body any, out
 	return res.StatusCode, nil
 }
 
-// NewCmdLogin is `loft login`: this terminal signed in by approving it in a
-// browser where the person is signed in already.
-func NewCmdLogin() *xli.Command {
-	return &xli.Command{
-		Name:  "login",
-		Brief: "sign this terminal in, by approving it in a browser",
-		Flags: flg.Flags{
-			&flg.String{Name: "url", Brief: "the app's address, e.g. https://loft.example; the last one used when left out"},
-			&flg.Switch{Name: "no-browser", Brief: "print the address to open rather than opening it"},
-			&flg.Strings{Name: "allow", Brief: "only this method or pattern (/loft.ReservationService/*, /loft.*/Get), again for more; `read` is every method that only reads"},
-		},
-		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			was, err := loadClient()
-			if err != nil {
-				return err
-			}
-			base := strings.TrimSpace(flag(self, "url"))
-			if base == "" {
-				base = was.Url
-			}
-			if base == "" {
-				return errors.New("which deployment: --url https://loft.example")
-			}
-			if _, err := url.Parse(base); err != nil {
-				return fmt.Errorf("--url: %w", err)
-			}
-			quiet, _ := flg.Find[bool](self, "no-browser")
-			allow, _ := flg.Find[[]string](self, "allow")
-			v, err := login(ctx, self, strings.TrimSuffix(base, "/"), !quiet, expand(allow))
-			if err != nil {
-				return err
-			}
-			v.Workspace = was.Workspace
-			if was.Url != v.Url {
-				v.Workspace = ""
-			}
-			if err := saveClient(v); err != nil {
-				return err
-			}
-			var me struct {
-				Login string `json:"login"`
-			}
-			_, err = v.do(ctx, http.MethodGet, "/account", nil, &me)
-			mine, merr := app.NewTenantServiceClient(v.conn("")).Mine(ctx, &app.TenantMineRequest{})
-			switch {
-			case err == nil && merr == nil:
-				self.Printf("signed in as %s, in %d workspace(s)\n", me.Login, len(mine.GetWorkspaces()))
-			case err == nil:
-				self.Printf("signed in as %s\n", me.Login)
-			default:
-				self.Printf("signed in\n")
-			}
-			return next(ctx)
-		}),
-	}
-}
-
-// reads is what `loft login --allow read` asks for: the methods that only
+// reads is what `loft auth login --allow read` asks for: the methods that only
 // read -- every entity's Get, List and Watch, and the searches, histories and
 // answers beside them -- for a terminal handed to an assistant that may look
 // and not touch. Named by pattern, so that a read added later is one too, and
@@ -247,59 +108,6 @@ func expand(vs []string) []string {
 	return out
 }
 
-func login(ctx context.Context, self *xli.Command, base string, browser bool, allow []string) (clientConfig, error) {
-	raw := make([]byte, 32)
-	if _, err := rand.Read(raw); err != nil {
-		return clientConfig{}, err
-	}
-	key := base64.RawURLEncoding.EncodeToString(raw)
-	sum := sha256.Sum256([]byte(key))
-	secret := base64.RawURLEncoding.EncodeToString(sum[:])
-
-	host, _ := os.Hostname()
-	c := clientConfig{Url: base}
-	var started clilogin.Started
-	if _, err := c.do(ctx, http.MethodPost, "/cli/logins", map[string]any{
-		"secret": secret,
-		"client": fmt.Sprintf("loft CLI on %s (%s/%s)", host, runtime.GOOS, runtime.GOARCH),
-		"allow":  allow,
-	}, &started); err != nil {
-		return clientConfig{}, err
-	}
-	if len(allow) > 0 {
-		self.Printf("Asking to be allowed only:\n  %s\n\n", strings.Join(allow, "\n  "))
-	}
-	self.Printf("Open this address signed in, and approve it if it shows %s:\n\n  %s\n\n", started.Code, started.Approve)
-	if browser {
-		openBrowser(started.Approve)
-	}
-
-	every := time.Duration(max(started.Interval, 1)) * time.Second
-	for {
-		select {
-		case <-ctx.Done():
-			return clientConfig{}, ctx.Err()
-		case <-time.After(every):
-		}
-		var got struct {
-			State string `json:"state"`
-		}
-		if _, err := c.do(ctx, http.MethodPost, "/cli/logins/"+started.Id+"/poll", map[string]string{"secret": secret}, &got); err != nil {
-			return clientConfig{}, err
-		}
-		switch got.State {
-		case "pending":
-			continue
-		case "approved":
-			return clientConfig{Url: base, Cookie: started.Cookie, Key: key}, nil
-		case "denied":
-			return clientConfig{}, errors.New("turned away in the browser")
-		default:
-			return clientConfig{}, errors.New("nobody approved it in time; run `loft login` again")
-		}
-	}
-}
-
 // openBrowser opens an address, if this machine has a way to. Not opening is
 // not an error: the address was printed.
 func openBrowser(addr string) {
@@ -315,75 +123,6 @@ func openBrowser(addr string) {
 	_ = c.Start()
 }
 
-// NewCmdLogout is `loft logout`: the session ended where it lives, and
-// forgotten here.
-func NewCmdLogout() *xli.Command {
-	return &xli.Command{
-		Name:  "logout",
-		Brief: "sign this terminal out",
-		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			c, err := loadClient()
-			if err != nil {
-				return err
-			}
-			if c.signedIn() {
-				if _, err := c.do(ctx, http.MethodDelete, "/session", nil, nil); err != nil {
-					self.Printf("the deployment did not answer (%v); forgotten here anyway\n", err)
-				}
-			}
-			c.Key, c.Cookie = "", ""
-			if err := saveClient(c); err != nil {
-				return err
-			}
-			self.Printf("signed out\n")
-			return next(ctx)
-		}),
-	}
-}
-
-// NewCmdWhoami is `loft whoami`: the account, and the workspaces it is in.
-func NewCmdWhoami() *xli.Command {
-	return &xli.Command{
-		Name:  "whoami",
-		Brief: "the account this terminal is signed in as, and its workspaces",
-		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			c, err := loadClient()
-			if err != nil {
-				return err
-			}
-			if !c.signedIn() {
-				return errNoLogin
-			}
-			var me struct {
-				Id    string   `json:"id"`
-				Login string   `json:"login"`
-				Name  string   `json:"name"`
-				Allow []string `json:"allow"`
-			}
-			if _, err := c.do(ctx, http.MethodGet, "/account", nil, &me); err != nil {
-				return err
-			}
-			self.Printf("%s (%s) at %s\n", me.Login, me.Name, c.Url)
-			if len(me.Allow) > 0 {
-				self.Printf("  allowed only: %s\n", strings.Join(me.Allow, ", "))
-			}
-			// What it is in, asked as the account (D73).
-			mine, err := app.NewTenantServiceClient(c.conn("")).Mine(ctx, &app.TenantMineRequest{})
-			if err != nil {
-				return err
-			}
-			for _, w := range mine.GetWorkspaces() {
-				mark := " "
-				if w.GetAlias() == c.Workspace {
-					mark = "*"
-				}
-				self.Printf("%s @%s\t%s\t%s\n", mark, w.GetAlias(), w.GetRole(), w.GetName())
-			}
-			return next(ctx)
-		}),
-	}
-}
-
 // NewCmdUse is `loft use`: which workspace the terminal speaks to when a
 // command names none.
 func NewCmdUse() *xli.Command {
@@ -393,12 +132,12 @@ func NewCmdUse() *xli.Command {
 		Flags: flg.Flags{&flg.Switch{Name: "none", Brief: "name none: an account in one workspace needs none"}},
 		Args:  arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; none prints the one in use", Optional: true}},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			c, err := loadClient()
+			cs, c, err := signedInFor(ctx, "`loft use`")
 			if err != nil {
 				return err
 			}
-			if !c.signedIn() {
-				return errNoLogin
+			if c.Name == "" {
+				return errors.New("`loft use` keeps the workspace in a connection the file keeps; this one is the command line's")
 			}
 			none, _ := flg.Find[bool](self, "none")
 			named, _ := arg.Get[string](self, "WORKSPACE")
@@ -414,7 +153,7 @@ func NewCmdUse() *xli.Command {
 				return next(ctx)
 			default:
 				ws := strings.TrimPrefix(named, "@")
-				mine, err := app.NewTenantServiceClient(c.conn("")).Mine(ctx, &app.TenantMineRequest{})
+				mine, err := app.NewTenantServiceClient(c.person("")).Mine(ctx, &app.TenantMineRequest{})
 				if err != nil {
 					return err
 				}
@@ -423,11 +162,11 @@ func NewCmdUse() *xli.Command {
 					found = found || w.GetAlias() == ws
 				}
 				if !found {
-					return fmt.Errorf("@%s: not a workspace this account is in (`loft whoami`)", ws)
+					return fmt.Errorf("@%s: not a workspace this account is in (`loft auth whoami`)", ws)
 				}
 				c.Workspace = ws
 			}
-			if err := saveClient(c); err != nil {
+			if err := cs.save(); err != nil {
 				return err
 			}
 			if c.Workspace == "" {
@@ -440,343 +179,34 @@ func NewCmdUse() *xli.Command {
 	}
 }
 
-// NewCmdWorkspace is `loft workspace`: what an account has outside any one
-// workspace -- the ones it is in and a new one, asked as the account
-// (`TenantService.Mine`, `Create`, D73) -- and of one it owns, what it is
-// called (D58) and everything it has (`TenantService.Export`), asked as its
-// owner there. The CLI's next shape names these `loft tenant ...` (loft#285).
-func NewCmdWorkspace() *xli.Command {
-	return &xli.Command{
-		Name:  "workspace",
-		Brief: "the workspaces this account is in, a new one, what one is called, and one's data",
-		Commands: xli.Commands{
-			{
-				Name:  "ls",
-				Brief: "the workspaces this account is in",
-				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					return NewCmdWhoami().Handler.Handle(ctx, self, next)
-				}),
-			},
-			{
-				Name:  "new",
-				Brief: "make a workspace, owned by this account",
-				Args:  arg.Args{&arg.String{Name: "NAME", Brief: "what it is called"}},
-				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					c, err := loadClient()
-					if err != nil {
-						return err
-					}
-					if !c.signedIn() {
-						return errNoLogin
-					}
-					name, _ := arg.Get[string](self, "NAME")
-					made, err := app.NewTenantServiceClient(c.conn("")).Create(ctx, app.TenantCreateRequest_builder{Name: name}.Build())
-					if err != nil {
-						return err
-					}
-					self.Printf("@%s\t%s\n", made.GetAlias(), made.GetName())
-					return next(ctx)
-				}),
-			},
-			{
-				Name:  "rename",
-				Brief: "what a workspace this account owns is called, or none of its own and it is called after its owner",
-				Flags: flg.Flags{&flg.Switch{Name: "clear", Brief: "no name of its own: it is called after its owner"}},
-				Args: arg.Args{
-					&arg.String{Name: "WORKSPACE", Brief: "by alias"},
-					&arg.String{Name: "NAME", Brief: "what it is called; its history keeps it as it is, so no person's name", Optional: true},
-				},
-				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					c, err := loadClient()
-					if err != nil {
-						return err
-					}
-					if !c.signedIn() {
-						return errNoLogin
-					}
-					ws, _ := arg.Get[string](self, "WORKSPACE")
-					ws = strings.TrimPrefix(strings.TrimSpace(ws), "@")
-					name, _ := arg.Get[string](self, "NAME")
-					name = strings.TrimSpace(name)
-					none, _ := flg.Find[bool](self, "clear")
-					switch {
-					case ws == "":
-						return errors.New("WORKSPACE: which one (`loft whoami` lists them)")
-					case none && name != "":
-						return errors.New("NAME or --clear, not both")
-					case !none && name == "":
-						return errors.New("NAME: what it is called; --clear for none of its own")
-					}
-					// Said as the page says it: its owner's Configure, with its
-					// event (D58).
-					if _, err := app.NewTenantServiceClient(c.conn(ws)).Configure(ctx, app.TenantConfigureRequest_builder{
-						Ref:  app.TenantRef_builder{Alias: z.Ptr(ws)}.Build(),
-						Name: z.Ptr(name),
-					}.Build()); err != nil {
-						return err
-					}
-					// And what it is called now, as the account is told it:
-					// after its owner, for none of its own.
-					mine, err := app.NewTenantServiceClient(c.conn("")).Mine(ctx, &app.TenantMineRequest{})
-					if err != nil {
-						return err
-					}
-					for _, w := range mine.GetWorkspaces() {
-						if w.GetAlias() == ws {
-							self.Printf("@%s\t%s\n", w.GetAlias(), w.GetName())
-						}
-					}
-					return next(ctx)
-				}),
-			},
-			{
-				Name:  "export",
-				Brief: "everything a workspace this account owns has, as one zip: what it takes out before it leaves",
-				Flags: flg.Flags{
-					&flg.String{Name: "out", Brief: "where to write it; <workspace>-<date>.zip by default"},
-					&flg.String{Name: "reason", Brief: "what it is for: it hands everybody's data out, so it is required and recorded"},
-				},
-				Args: arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; the one `loft use` names by default", Optional: true}},
-				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					c, err := loadClient()
-					if err != nil {
-						return err
-					}
-					if !c.signedIn() {
-						return errNoLogin
-					}
-					ws, _ := arg.Get[string](self, "WORKSPACE")
-					if ws = strings.TrimPrefix(strings.TrimSpace(ws), "@"); ws == "" {
-						ws = c.Workspace
-					}
-					if ws == "" {
-						return errors.New("WORKSPACE: which one (`loft whoami` lists them)")
-					}
-					why := strings.TrimSpace(flag(self, "reason"))
-					if why == "" {
-						return errors.New("--reason: what the export is for; it hands everybody's data out, and is recorded with why")
-					}
-					out := flag(self, "out")
-					if out == "" {
-						out = fmt.Sprintf("%s-%s.zip", ws, time.Now().Format("20060102"))
-					}
-					// Written beside where it goes and moved there once whole,
-					// so that a download cut off is no file at all.
-					tmp, err := os.CreateTemp(filepath.Dir(out), ".loft-export-*")
-					if err != nil {
-						return err
-					}
-					defer os.Remove(tmp.Name())
-					// Its owner's, as their membership of it: a download, so it
-					// says what it is for (D73).
-					in := metadata.AppendToOutgoingContext(ctx, access.ReasonKey, why)
-					stream, err := app.NewTenantServiceClient(c.conn(ws)).Export(in, app.TenantExportRequest_builder{
-						Ref: app.TenantRef_builder{Alias: z.Ptr(ws)}.Build(),
-					}.Build())
-					if err != nil {
-						tmp.Close()
-						return err
-					}
-					for {
-						part, err := stream.Recv()
-						if errors.Is(err, io.EOF) {
-							break
-						}
-						if err != nil {
-							tmp.Close()
-							return err
-						}
-						if _, err := tmp.Write(part.GetData()); err != nil {
-							tmp.Close()
-							return err
-						}
-					}
-					if err := tmp.Close(); err != nil {
-						return err
-					}
-					if err := os.Rename(tmp.Name(), out); err != nil {
-						return err
-					}
-					self.Printf("%s\n", out)
-					return next(ctx)
-				}),
-			},
-		},
-		Handler: xli.RequireSubcommand(),
-	}
-}
-
 type workspaceKey struct{}
 
-// remote is the connector of the API's commands: this terminal's sign-in, to
-// the workspace the command line, `LOFT_WORKSPACE` or `loft use` names.
+// remote is the connector of the API's commands: the connection the
+// command line, the environment or the client's file names (design 9.16),
+// to the workspace the command line, `LOFT_WORKSPACE` or `loft use` names
+// when it is a person's.
 type remote struct{}
 
 func (remote) Connect(ctx context.Context) (pdcmd.Conn, func(), error) {
-	c, err := loadClient()
+	_, c, err := chooseFor(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
-	if !c.signedIn() {
+	if c.Kind == Person && !c.signedIn() {
 		return nil, nil, errNoLogin
 	}
 	ws, _ := ctx.Value(workspaceKey{}).(string)
 	if ws == "" {
 		ws = os.Getenv("LOFT_WORKSPACE")
 	}
-	if ws == "" {
+	if ws == "" && c.Kind == Person {
 		ws = c.Workspace
 	}
-	return c.conn(ws), nil, nil
-}
-
-// NewCmdApi is `loft api`: every RPC of this app, as a command.
-//
-// The entities' own verbs -- `get`, `ls`, `watch`, `add`, `patch`, `erase` --
-// are payday's tree, built from the descriptors; every other method of an
-// entity's service is one more command beside them (`loft api asset move`),
-// and `loft api call` reaches any method by name. Whether a call is allowed is
-// the server's to say, through the same policy the page is held to.
-func NewCmdApi() *xli.Command {
-	t := pdcmd.NewIn(remote{}, "loft")
-	for _, e := range pdcmd.Entities("loft") {
-		ms := e.Service.Methods()
-		for i := range ms.Len() {
-			md := ms.Get(i)
-			switch md.Name() {
-			case "Get", "List", "Watch", "Add", "Patch", "Erase":
-				continue
-			}
-			if md.IsStreamingClient() || md.IsStreamingServer() {
-				continue
-			}
-			c, err := t.Unary(string(md.FullName()))
-			if err != nil {
-				panic(err)
-			}
-			path := e.Name + "/" + kebab(string(md.Name()))
-			if t.Command(e.Name) == nil {
-				// An entity whose service has no verb of its own, only
-				// methods: a group for them.
-				if err := t.Add(e.Name, &xli.Command{Brief: fmt.Sprintf("%s's operations", e.Message.Name()), Handler: xli.RequireSubcommand()}); err != nil {
-					panic(err)
-				}
-			}
-			if err := t.Add(path, c); err != nil {
-				panic(err)
-			}
-		}
+	conn, err := c.dial(ws)
+	if err != nil {
+		return nil, nil, err
 	}
-
-	// And the one service that is no entity's: how a workspace is paid for,
-	// relayed to levyan (design 7.9) -- `loft api payment get-payer`, the
-	// workspace's, and `loft api payment list-billing-accounts`, the
-	// account's own.
-	pay := app.File_loft_payment_proto.Services().ByName("PaymentService")
-	if err := t.Add("payment", &xli.Command{Brief: "how a workspace is paid for, as levyan says it", Handler: xli.RequireSubcommand()}); err != nil {
-		panic(err)
-	}
-	for i := range pay.Methods().Len() {
-		md := pay.Methods().Get(i)
-		c, err := t.Unary(string(md.FullName()))
-		if err != nil {
-			panic(err)
-		}
-		if err := t.Add("payment/"+kebab(string(md.Name())), c); err != nil {
-			panic(err)
-		}
-	}
-
-	// What the server keeps for itself and serves to nobody: a person's
-	// session, a terminal waiting, the tree's lock, an address held.
-	for _, internal := range []string{"session", "cli-login", "tree-lock", "alias-hold"} {
-		if t.Command(internal) != nil {
-			if err := t.Drop(internal); err != nil {
-				panic(err)
-			}
-		}
-	}
-
-	return &xli.Command{
-		Name:  "api",
-		Brief: "every operation of a running deployment, as this terminal's account (`loft login` first)",
-		Flags: flg.Flags{
-			&flg.String{Name: "workspace", Brief: "the workspace to speak to, by alias; `loft use` sets the default"},
-			&flg.String{Name: "reason", Brief: "what a download is for -- `asset export` hands people's data out and is refused without one; it is recorded"},
-		},
-		Commands: append(t.Commands(), newCmdCall()),
-		Handler: xli.Chain(
-			xli.OnRunPass(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-				if ws := flag(self, "workspace"); ws != "" {
-					ctx = context.WithValue(ctx, workspaceKey{}, ws)
-				}
-				// Said to every call, and read by the downloads: what the
-				// access record keeps beside who took what (loft#136).
-				if why := strings.TrimSpace(flag(self, "reason")); why != "" {
-					ctx = metadata.AppendToOutgoingContext(ctx, access.ReasonKey, why)
-				}
-				return next(ctx)
-			}),
-			xli.RequireSubcommand(),
-		),
-	}
-}
-
-// newCmdCall is `loft api call METHOD [JSON]`: any method by its full name,
-// with the request as protojson, answered as protojson.
-func newCmdCall() *xli.Command {
-	return &xli.Command{
-		Name:  "call",
-		Brief: "call any method by name: loft api call loft.AssetService.Move '{\"ref\": ...}'",
-		Args: arg.Args{
-			&arg.String{Name: "METHOD", Brief: "loft.AssetService.Search, or /loft.AssetService/Search"},
-			&arg.RestStrings{Name: "REQ", Brief: "the request as protojson"},
-		},
-		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			method, _ := arg.Get[string](self, "METHOD")
-			req, _ := arg.Get[[]string](self, "REQ")
-			name := strings.Trim(strings.ReplaceAll(method, "/", "."), ".")
-			i := strings.LastIndexByte(name, '.')
-			if i < 0 {
-				return fmt.Errorf("%s: expected <package>.<Service>.<Method>", method)
-			}
-			d, err := protoregistry.GlobalFiles.FindDescriptorByName(protoreflect.FullName(name[:i]))
-			if err != nil {
-				return fmt.Errorf("%s: %w", name[:i], err)
-			}
-			sd, ok := d.(protoreflect.ServiceDescriptor)
-			if !ok {
-				return fmt.Errorf("%s: not a service", name[:i])
-			}
-			md := sd.Methods().ByName(protoreflect.Name(name[i+1:]))
-			if md == nil {
-				return fmt.Errorf("%s: no such method", name)
-			}
-			if md.IsStreamingClient() || md.IsStreamingServer() {
-				return fmt.Errorf("%s: a stream; `loft api <entity> watch` holds one open", name)
-			}
-			in := messageOf(md.Input())
-			if len(req) > 0 {
-				if err := protojson.Unmarshal([]byte(strings.Join(req, " ")), in); err != nil {
-					return fmt.Errorf("the request: %w", err)
-				}
-			}
-			out := messageOf(md.Output())
-			conn, _, err := remote{}.Connect(ctx)
-			if err != nil {
-				return err
-			}
-			if err := conn.Invoke(ctx, "/"+string(sd.FullName())+"/"+string(md.Name()), in, out); err != nil {
-				return err
-			}
-			b, err := protojson.MarshalOptions{Multiline: true}.Marshal(out)
-			if err != nil {
-				return err
-			}
-			self.Printf("%s\n", b)
-			return next(ctx)
-		}),
-	}
+	return conn, nil, nil
 }
 
 // messageOf is a fresh message of a type: the generated one when it is linked

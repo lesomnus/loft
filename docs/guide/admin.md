@@ -24,8 +24,8 @@
 - **주소는 바꿀 수 없습니다.** 바꿔야 하면 배포 운영자에게 요청합니다. 운영자가 바꾸면 이전 주소는 1년 동안 보류되고 새 주소로 넘겨 줍니다.
 
 ```sh
-loft workspace new 연구실       # 만든 워크스페이스의 주소와 이름
-loft workspace ls
+loft tenant create '{"name": "연구실"}'       # 만든 워크스페이스의 주소와 이름
+loft tenant mine
 ```
 
 ### 이름
@@ -36,8 +36,8 @@ loft workspace ls
 - 바꾸면 작업 기록(`workspace.configure`)이 남습니다. 관리자와 운영자는 바꾸지 않습니다.
 
 ```sh
-loft workspace rename <주소> "연구지원팀 장비"
-loft workspace rename --clear <주소>            # 이름을 지우고 소유자의 이름으로 부름
+loft tenant configure @<주소> '{"name": "연구지원팀 장비"}'
+loft tenant configure @<주소> '{"name": ""}'                # 이름을 지우고 소유자의 이름으로 부름
 ```
 
 ### 사람 들이기
@@ -55,15 +55,15 @@ loft workspace rename --clear <주소>            # 이름을 지우고 소유�
 조직도는 **+ 팀**과 **+ 거래처**로 만듭니다. 사람은 팀에 속하고, 거래처는 작업과 구매의 업체로 고릅니다.
 
 ```sh
-loft api invitation add '{"email": "newhire@example.com", "role": "member"}'
-loft api invitation ls -o wide '{"filters": [{"tenant": {"alias": "loft"}}]}'
-loft api invitation revoke <초대 ID>
+loft invitation add '{"email": "newhire@example.com", "role": "member"}'
+loft invitation ls -o wide '{"filters": [{"tenant": {"alias": "loft"}}]}'
+loft invitation revoke <초대 ID>
 
-loft api party search -o wide '{"q": "개발팀", "kind": "team"}'
-loft api party add '{"name": "한지민", "kind": "person", "email": "jimin-han@example.com", "parent_id": "<개발팀 ID>", "code": "E1051"}'
-loft api party invite <사람 기록 ID> '{"alias": "jimin-han", "role": "member"}'   # 로그인 발급: 비밀번호를 한 번 출력
-loft api party add '{"name": "연구팀", "kind": "team", "parent_id": "<본사 ID>"}'
-loft api party add '{"name": "한빛렌탈", "kind": "vendor"}'
+loft party search -o wide '{"q": "개발팀", "kind": "team"}'
+loft party add '{"name": "한지민", "kind": "person", "email": "jimin-han@example.com", "parent_id": "<개발팀 ID>", "code": "E1051"}'
+loft party invite <사람 기록 ID> '{"alias": "jimin-han", "role": "member"}'       # 로그인 발급: 비밀번호를 한 번 출력
+loft party add '{"name": "연구팀", "kind": "team", "parent_id": "<본사 ID>"}'
+loft party add '{"name": "한빛렌탈", "kind": "vendor"}'
 ```
 
 ### 역할 바꾸기
@@ -71,7 +71,7 @@ loft api party add '{"name": "한빛렌탈", "kind": "vendor"}'
 사람 상세의 **역할 변경**입니다. 역할은 워크스페이스마다라서, 같은 계정이 다른 워크스페이스에서는 다른 역할일 수 있습니다.
 
 ```sh
-loft api party set-role <사람 기록 ID> '{"role": "manager"}'   # owner, admin, manager, member, auditor
+loft party set-role <사람 기록 ID> '{"role": "manager"}'       # owner, admin, manager, member, auditor
 ```
 
 ### 떠나는 사람
@@ -82,8 +82,8 @@ loft api party set-role <사람 기록 ID> '{"role": "manager"}'   # owner, admi
 - 작업 기록의 사유에 그 사람의 이야기가 적혀 있어 지워 달라는 요청이 오면, 워크스페이스의 지시로 배포 운영자가 지웁니다([사유 삭제](operator.md#작업-기록의-사유를-지울-때)). 워크스페이스 안에서 이 일을 할 수 있는 역할은 아직 없습니다.
 
 ```sh
-loft api party deactivate <사람 기록 ID>      # 로그인 중지
-loft api party pseudonymize <사람 기록 ID>    # 개인정보 삭제 (되돌릴 수 없음)
+loft party deactivate <사람 기록 ID>          # 로그인 중지
+loft party pseudonymize <사람 기록 ID>        # 개인정보 삭제 (되돌릴 수 없음)
 ```
 
 ### 유형, 모델, 예약 자원
@@ -95,12 +95,12 @@ loft api party pseudonymize <사람 기록 ID>    # 개인정보 삭제 (되돌�
 - **예약 자원**: 무엇을 예약할 수 있게 할지와 그 정책입니다. 자산 화면의 **예약 가능하게**도 같습니다. 승인 필요 여부, 운영 시간, 앞뒤 정리 시간, 최소·최대 이용 시간, 얼마나 앞까지 받을지, 수량(풀), 함께 쓸 수 없는 묶음을 정합니다. 체험용 워크스페이스에서는 대회의실만 승인이 필요합니다.
 
 ```sh
-loft api asset-type ls -o wide
-loft api asset-type add '{"name": "의자", "kind": "item"}'
-loft api asset search -o wide '{"q": "PJ-002"}'
-loft api bookable add '{"asset": {"id": "<PJ-002의 ID>"}, "approval": true, "max_minutes": 10080}'   # 일주일까지, 승인 받고
-loft api bookable ls -o wide '{"filters": [{"asset": {"id": "<PJ-002의 ID>"}}]}'
-loft api bookable update <예약 자원 ID> '{"max_minutes": 4320, "enabled": true}'
+loft asset-type ls -o wide
+loft asset-type add '{"name": "의자", "kind": "item"}'
+loft asset search -o wide '{"q": "PJ-002"}'
+loft bookable add '{"asset": {"id": "<PJ-002의 ID>"}, "approval": true, "max_minutes": 10080}'       # 일주일까지, 승인 받고
+loft bookable ls -o wide '{"filters": [{"asset": {"id": "<PJ-002의 ID>"}}]}'
+loft bookable update <예약 자원 ID> '{"max_minutes": 4320, "enabled": true}'
 ```
 
 ### 도메인과 라벨
@@ -124,14 +124,14 @@ loft api bookable update <예약 자원 ID> '{"max_minutes": 4320, "enabled": tr
 - 배포가 워크스페이스 도메인의 인증서를 받게 켜 두어야 합니다. 그것은 운영자의 일입니다([운영자](operator.md#워크스페이스-도메인)).
 
 ```sh
-loft api domain status                               # 지금 라벨이 인쇄되는 주소
-loft api domain add '{"host": "assets.example.com"}'  # 자체 도메인
-loft api domain add '{"sub": "woori"}'                # 기본 주소 (배포가 두었을 때)
-loft api domain ls -o wide
-loft api domain get <도메인 ID>                         # token이 TXT 레코드의 값
-loft api domain verify <도메인 ID>                      # 지금 확인
-loft api domain activate <도메인 ID>
-loft api domain retire <도메인 ID>
+loft domain status                                   # 지금 라벨이 인쇄되는 주소
+loft domain add '{"host": "assets.example.com"}'      # 자체 도메인
+loft domain add '{"sub": "woori"}'                    # 기본 주소 (배포가 두었을 때)
+loft domain ls -o wide
+loft domain get <도메인 ID>                             # token이 TXT 레코드의 값
+loft domain verify <도메인 ID>                          # 지금 확인
+loft domain activate <도메인 ID>
+loft domain retire <도메인 ID>
 ```
 
 ### 지역과 예약 (소유자)
@@ -145,10 +145,10 @@ loft api domain retire <도메인 ID>
 바꾸면 작업 기록(`workspace.configure`)이 남습니다.
 
 ```sh
-loft api tenant configure @loft '{"timezone": "America/New_York", "currency": "USD"}'
-loft api tenant configure @loft '{"no_show_minutes": 10}'
-loft api tenant configure @loft '{"no_show_minutes": -1}'   # 체크인을 받지 않음
-loft api party me                                           # 지금 따르는 시간대와 통화
+loft tenant configure @loft '{"timezone": "America/New_York", "currency": "USD"}'
+loft tenant configure @loft '{"no_show_minutes": 10}'
+loft tenant configure @loft '{"no_show_minutes": -1}'       # 체크인을 받지 않음
+loft party me                                               # 지금 따르는 시간대와 통화
 ```
 
 ### 기록 보관 (소유자)
@@ -163,10 +163,10 @@ loft api party me                                           # 지금 따르는 �
 - 워크스페이스가 파기될 때 감사 기록을 어떻게 할지는 운영자와의 계약이 정합니다. 계약과 법적 보존(hold)은 읽기만 합니다.
 
 ```sh
-loft api tenant preview @loft '{"keep_days": 1095, "access_keep_days": 365}'     # 저장하기 전에: 언제부터 무엇이 지워지나
-loft api tenant configure @loft '{"keep_days": 1095, "access_keep_days": 365, "restore_days": 60}'
-loft api tenant-contract ls -o wide
-loft api legal-hold ls -o wide
+loft tenant preview @loft '{"keep_days": 1095, "access_keep_days": 365}'         # 저장하기 전에: 언제부터 무엇이 지워지나
+loft tenant configure @loft '{"keep_days": 1095, "access_keep_days": 365, "restore_days": 60}'
+loft tenant-contract ls -o wide
+loft legal-hold ls -o wide
 ```
 
 ### 기록 읽기
@@ -187,9 +187,9 @@ loft api legal-hold ls -o wide
 - 보존 기간이 지난 기록은 닫혀 있어도 지웁니다.
 
 ```sh
-loft workspace export --reason "닫기 전에 보관" --out 연구실.zip <주소>
-loft api tenant close @<주소> '{"confirm": "<워크스페이스 이름>", "reason": "실험 끝"}'
-loft api tenant restore @<주소>
+loft --reason "닫기 전에 보관" tenant export --out 연구실.zip <주소>
+loft tenant close @<주소> '{"confirm": "<워크스페이스 이름>", "reason": "실험 끝"}'
+loft tenant restore @<주소>
 ```
 
 ### 결제 (관리자 이상)
@@ -211,11 +211,11 @@ loft api tenant restore @<주소>
 - 읽기 전용인 동안에도 배포의 일은 돌아 예약이 만료되고 대여가 연체됩니다. 다만 할 수 없는 일을 하라는 알림(반납 예정, 연체, 예약된 자산이 나가 있음, 풀 수량 부족, 다가오는 작업)은 보내지 않고, 다시 쓸 수 있게 되면 그때도 참인 것을 한 번 알립니다.
 
 ```sh
-loft api payment get-payer                     # 누가 내는가
-loft api payment get-usage                     # 이번 기간 사용량과 예상 금액
-loft api payment list-statements               # 지난 명세서
-h=$(loft api holder get -o 'template={{.id}}' @loft/haeun-lee)
-loft api payment offer "{\"holder\": \"$h\"}"  # 소유자: 이하은에게 결제 담당 제안
+loft payment get-payer                         # 누가 내는가
+loft payment get-usage                         # 이번 기간 사용량과 예상 금액
+loft payment list-statements                   # 지난 명세서
+h=$(loft holder get -o 'template={{.id}}' @loft/haeun-lee)
+loft payment offer "{\"holder\": \"$h\"}"      # 소유자: 이하은에게 결제 담당 제안
 ```
 
 `offer` 의 `holder` 는 구성원 자격의 ID를 base64로 받습니다(위처럼 `template` 으로 꺼냅니다). 결제 계정과 청구서는 [결제 담당 안내서](payer.md)에 있습니다.

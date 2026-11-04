@@ -1859,3 +1859,119 @@ var OperatorAccessService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "loft/operator.proto",
 }
+
+const (
+	OperatorAuthService_Whoami_FullMethodName = "/loft.OperatorAuthService/Whoami"
+)
+
+// OperatorAuthServiceClient is the client API for OperatorAuthService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorAuthService is who the key a call carries is (design 9.16): what
+// `loft auth whoami` asks on an operator's connection, and what `loft auth
+// login --operator` asks before it keeps one.
+type OperatorAuthServiceClient interface {
+	// Whoami is the operator `admin.keys` names for the key the call carries:
+	// their name, and the identifier the rows name them by. It reads nothing
+	// else, and a call with no key, or one nobody holds, is refused before it.
+	Whoami(ctx context.Context, in *OperatorAuthWhoamiRequest, opts ...grpc.CallOption) (*OperatorAuthWhoamiResponse, error)
+}
+
+type operatorAuthServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorAuthServiceClient(cc grpc.ClientConnInterface) OperatorAuthServiceClient {
+	return &operatorAuthServiceClient{cc}
+}
+
+func (c *operatorAuthServiceClient) Whoami(ctx context.Context, in *OperatorAuthWhoamiRequest, opts ...grpc.CallOption) (*OperatorAuthWhoamiResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorAuthWhoamiResponse)
+	err := c.cc.Invoke(ctx, OperatorAuthService_Whoami_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperatorAuthServiceServer is the server API for OperatorAuthService service.
+// All implementations must embed UnimplementedOperatorAuthServiceServer
+// for forward compatibility.
+//
+// OperatorAuthService is who the key a call carries is (design 9.16): what
+// `loft auth whoami` asks on an operator's connection, and what `loft auth
+// login --operator` asks before it keeps one.
+type OperatorAuthServiceServer interface {
+	// Whoami is the operator `admin.keys` names for the key the call carries:
+	// their name, and the identifier the rows name them by. It reads nothing
+	// else, and a call with no key, or one nobody holds, is refused before it.
+	Whoami(context.Context, *OperatorAuthWhoamiRequest) (*OperatorAuthWhoamiResponse, error)
+	mustEmbedUnimplementedOperatorAuthServiceServer()
+}
+
+// UnimplementedOperatorAuthServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorAuthServiceServer struct{}
+
+func (UnimplementedOperatorAuthServiceServer) Whoami(context.Context, *OperatorAuthWhoamiRequest) (*OperatorAuthWhoamiResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Whoami not implemented")
+}
+func (UnimplementedOperatorAuthServiceServer) mustEmbedUnimplementedOperatorAuthServiceServer() {}
+func (UnimplementedOperatorAuthServiceServer) testEmbeddedByValue()                             {}
+
+// UnsafeOperatorAuthServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorAuthServiceServer will
+// result in compilation errors.
+type UnsafeOperatorAuthServiceServer interface {
+	mustEmbedUnimplementedOperatorAuthServiceServer()
+}
+
+func RegisterOperatorAuthServiceServer(s grpc.ServiceRegistrar, srv OperatorAuthServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorAuthServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorAuthService_ServiceDesc, srv)
+}
+
+func _OperatorAuthService_Whoami_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorAuthWhoamiRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorAuthServiceServer).Whoami(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorAuthService_Whoami_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorAuthServiceServer).Whoami(ctx, req.(*OperatorAuthWhoamiRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperatorAuthService_ServiceDesc is the grpc.ServiceDesc for OperatorAuthService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorAuthService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorAuthService",
+	HandlerType: (*OperatorAuthServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Whoami",
+			Handler:    _OperatorAuthService_Whoami_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "loft/operator.proto",
+}

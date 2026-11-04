@@ -118,7 +118,7 @@ var whole = []byte("whole")
 
 // Grant is what a session's row keeps of what it is narrowed to: [whole] for
 // none, which is what a password and a terminal that asked for nothing get,
-// or payday's Grant listing the methods it may call (`loft login --allow`,
+// or payday's Grant listing the methods it may call (`loft auth login --allow`,
 // D33). Every tenant and every set: a terminal is narrowed by what it may do,
 // and where is its account's.
 func Grant(actions []string) ([]byte, error) {

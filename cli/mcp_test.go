@@ -81,7 +81,7 @@ func said(res *mcp.CallToolResult) string {
 	return b.String()
 }
 
-// made is the id `loft api ... -o json` answered with, which the tools take
+// made is the id `loft <entity> add -o json` answered with, which the tools take
 // as it is.
 func made(t *testing.T, out string) string {
 	t.Helper()
@@ -118,16 +118,16 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 	x := s.x
 	s.signIn("owner", "owner1234")
 
-	building := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "본관", "kind": "space", "tag": "B-1"}`))
-	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3", "to": {"id": "`+building+`"}}`))
-	laptop := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
-	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "회의실 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+room+`"}}`))
-	team := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "개발팀", "kind": "team"}`))
-	notebook := made(t, run(t, cli.NewCmdApi(), "asset-type", "add", "-o", "json", `{"name": "노트북", "kind": "item"}`))
-	run(t, cli.NewCmdApi(), "item-model", "add", "-o", "json", `{"name": "ThinkPad X1", "maker": "Lenovo", "type": {"id": "`+notebook+`"}}`)
-	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "parentId": "`+team+`"}`))
+	building := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "본관", "kind": "space", "tag": "B-1"}`))
+	room := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3", "to": {"id": "`+building+`"}}`))
+	laptop := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
+	made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "회의실 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+room+`"}}`))
+	team := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "개발팀", "kind": "team"}`))
+	notebook := made(t, run(t, root(), "asset-type", "add", "-o", "json", `{"name": "노트북", "kind": "item"}`))
+	run(t, root(), "item-model", "add", "-o", "json", `{"name": "ThinkPad X1", "maker": "Lenovo", "type": {"id": "`+notebook+`"}}`)
+	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "parentId": "`+team+`"}`))
 	due := time.Now().Add(72 * time.Hour).UTC().Format(time.RFC3339)
-	run(t, cli.NewCmdApi(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
+	run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
 
 	a := s.assistant()
 
@@ -367,11 +367,11 @@ func TestAnAssistantReadsWhatAnEventHeld(t *testing.T) {
 	x := s.x
 	s.signIn("owner", "owner1234")
 
-	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3"}`))
-	laptop := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
-	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "minsu@example.com", "phone": "010-1234-5678"}`))
+	room := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3"}`))
+	laptop := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
+	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "minsu@example.com", "phone": "010-1234-5678"}`))
 	due := time.Now().Add(72 * time.Hour).UTC().Truncate(time.Second)
-	loan := made(t, run(t, cli.NewCmdApi(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due.Format(time.RFC3339)+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`))
+	loan := made(t, run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due.Format(time.RFC3339)+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`))
 
 	a := s.assistant()
 	var v struct {
@@ -424,9 +424,9 @@ func TestAnAssistantReadsAMemoAsThePersonReadsIt(t *testing.T) {
 	s.signIn("owner", "owner1234")
 
 	const memo = "출장용, 박지민 씨 요청"
-	laptop := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1"}`))
-	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "minsu@example.com", "phone": "010-1234-5678"}`))
-	handed := made(t, run(t, cli.NewCmdApi(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "desc": "`+memo+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`))
+	laptop := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1"}`))
+	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "minsu@example.com", "phone": "010-1234-5678"}`))
+	handed := made(t, run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "desc": "`+memo+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`))
 	x.NoError(s.s.Access.Flush(ctx))
 	before, err := s.s.Ent.Access.Query().Where(entaccess.ActionEQ(app.CustodyService_List_FullMethodName)).Count(ctx)
 	x.NoError(err)
@@ -476,9 +476,11 @@ func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	run(t, cli.NewCmdApi(), "--workspace", "acme", "asset", "add", "-o", "json", `{"name": "공용 프린터", "kind": "item", "tag": "PR-1"}`)
-	lab := strings.TrimPrefix(strings.Fields(run(t, cli.NewCmdWorkspace(), "new", "연구실"))[0], "@")
-	run(t, cli.NewCmdApi(), "--workspace", lab, "asset", "add", "-o", "json", `{"name": "연구용 프린터", "kind": "item", "tag": "PR-1"}`)
+	run(t, root(), "--workspace", "acme", "asset", "add", "-o", "json", `{"name": "공용 프린터", "kind": "item", "tag": "PR-1"}`)
+	var made struct{ Alias string }
+	x.NoError(json.Unmarshal([]byte(run(t, root(), "tenant", "create", "-o", "json", `{"name": "연구실"}`)), &made))
+	lab := made.Alias
+	run(t, root(), "--workspace", lab, "asset", "add", "-o", "json", `{"name": "연구용 프린터", "kind": "item", "tag": "PR-1"}`)
 
 	type found struct {
 		Total int        `json:"total"`
@@ -517,8 +519,8 @@ func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 	a.call("whoami", nil, &narrowed)
 	x.Contains(narrowed.Allow, "/loft.*/Search")
 
-	run(t, cli.NewCmdLogout())
-	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "loft login")
+	run(t, cli.NewCmdAuth(), "logout")
+	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "loft auth login")
 }
 
 type planned struct {
@@ -565,11 +567,11 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	building := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "본관", "kind": "space", "tag": "B-1"}`))
-	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3", "to": {"id": "`+building+`"}}`))
-	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "4층 회의실", "kind": "space", "tag": "R-4", "to": {"id": "`+building+`"}}`))
-	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+room+`"}, "enabled": true}`)
-	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person"}`))
+	building := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "본관", "kind": "space", "tag": "B-1"}`))
+	made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3", "to": {"id": "`+building+`"}}`))
+	room := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "4층 회의실", "kind": "space", "tag": "R-4", "to": {"id": "`+building+`"}}`))
+	run(t, root(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+room+`"}, "enabled": true}`)
+	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person"}`))
 	a := s.assistant()
 
 	// Added, where it is put.
@@ -624,7 +626,7 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	p = a.plan("plan_asset", map[string]any{"action": "correct", "asset": "NB-1", "row": row, "retract": true, "reason": "잘못 입력"})
 	x.Equal("정정: NB-1 개발용 노트북의 기록 '"+what+"'을(를) 없었던 일로 — 잘못 입력", p.Summary)
 	a.apply(p)
-	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "도킹 스테이션", "kind": "item", "tag": "DK-1"}`))
+	made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "도킹 스테이션", "kind": "item", "tag": "DK-1"}`))
 	p = a.plan("plan_asset", map[string]any{"action": "relate", "asset": "NB-1", "target": "DK-1", "relation": "connected_to"})
 	x.Equal("연결: NB-1 개발용 노트북 ↔ DK-1 도킹 스테이션", p.Summary)
 	a.apply(p)
@@ -752,11 +754,11 @@ func TestAnAssistantTakesWhatGoesOutOfUseOutOfItsKits(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "장비실", "kind": "space", "tag": "S-1"}`))
-	kit := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "촬영 키트", "kind": "kit", "tag": "K-1"}`))
+	room := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "장비실", "kind": "space", "tag": "S-1"}`))
+	kit := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "촬영 키트", "kind": "kit", "tag": "K-1"}`))
 	for _, v := range []string{`{"name": "카메라", "kind": "item", "tag": "CM-1"}`, `{"name": "렌즈", "kind": "item", "tag": "LN-1", "to": {"id": "` + room + `"}}`} {
-		member := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", v))
-		run(t, cli.NewCmdApi(), "asset", "relate", member, `{"target": {"id": "`+kit+`"}, "kind": "member_of", "required": true}`)
+		member := made(t, run(t, root(), "asset", "add", "-o", "json", v))
+		run(t, root(), "asset", "relate", member, `{"target": {"id": "`+kit+`"}, "kind": "member_of", "required": true}`)
 	}
 	a := s.assistant()
 	inKit := func(tag string) bool {
@@ -820,10 +822,10 @@ func TestAnAssistantSaysWhatABookingTakesIsOutOfUse(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	kit := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "촬영 키트", "kind": "kit", "tag": "K-1"}`))
-	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+kit+`"}, "enabled": true}`)
-	battery := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "배터리", "kind": "item", "tag": "BT-1"}`))
-	run(t, cli.NewCmdApi(), "asset", "relate", battery, `{"target": {"id": "`+kit+`"}, "kind": "member_of", "required": true}`)
+	kit := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "촬영 키트", "kind": "kit", "tag": "K-1"}`))
+	run(t, root(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+kit+`"}, "enabled": true}`)
+	battery := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "배터리", "kind": "item", "tag": "BT-1"}`))
+	run(t, root(), "asset", "relate", battery, `{"target": {"id": "`+kit+`"}, "kind": "member_of", "required": true}`)
 	a := s.assistant()
 
 	now := time.Now()
@@ -859,9 +861,9 @@ func TestAnAssistantSaysWhatABookingTakesIsOut(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	camera := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "카메라", "kind": "item", "tag": "CM-1"}`))
-	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+camera+`"}, "enabled": true}`)
-	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민준", "kind": "person"}`))
+	camera := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "카메라", "kind": "item", "tag": "CM-1"}`))
+	run(t, root(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+camera+`"}, "enabled": true}`)
+	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민준", "kind": "person"}`))
 	a := s.assistant()
 
 	now := time.Now()
@@ -909,10 +911,10 @@ func TestAnAssistantIsToldWhatIsOutOfUseIsNotBooked(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "회의실", "kind": "space", "tag": "R-1"}`))
-	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+room+`"}, "enabled": true, "approval": true}`)
-	battery := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "배터리", "kind": "item", "tag": "BT-1"}`))
-	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+battery+`"}, "enabled": true}`)
+	room := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "회의실", "kind": "space", "tag": "R-1"}`))
+	run(t, root(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+room+`"}, "enabled": true, "approval": true}`)
+	battery := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "배터리", "kind": "item", "tag": "BT-1"}`))
+	run(t, root(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+battery+`"}, "enabled": true}`)
 	a := s.assistant()
 
 	now := time.Now()
@@ -971,10 +973,10 @@ func TestAnAssistantIsToldWhatWasDeletedIsOutOfUse(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	pool := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "카메라 풀", "kind": "group", "tag": "G-1"}`))
-	camera := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "카메라", "kind": "item", "tag": "CM-1"}`))
-	run(t, cli.NewCmdApi(), "asset", "relate", camera, `{"target": {"id": "`+pool+`"}, "kind": "member_of"}`)
-	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+pool+`"}, "enabled": true, "approval": true}`)
+	pool := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "카메라 풀", "kind": "group", "tag": "G-1"}`))
+	camera := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "카메라", "kind": "item", "tag": "CM-1"}`))
+	run(t, root(), "asset", "relate", camera, `{"target": {"id": "`+pool+`"}, "kind": "member_of"}`)
+	run(t, root(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+pool+`"}, "enabled": true, "approval": true}`)
 	a := s.assistant()
 
 	now := time.Now()
@@ -1012,7 +1014,7 @@ func TestAnAssistantSaysWhetherAKitTakesAMember(t *testing.T) {
 		`{"name": "카메라", "kind": "item", "tag": "CM-1"}`,
 		`{"name": "렌즈", "kind": "item", "tag": "LN-1"}`,
 	} {
-		made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", v))
+		made(t, run(t, root(), "asset", "add", "-o", "json", v))
 	}
 	a := s.assistant()
 	// What the history says of the asset's membership now: whether it is
@@ -1084,12 +1086,12 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	building := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "본관", "kind": "space", "tag": "B-1"}`))
-	store := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "창고", "kind": "space", "tag": "S-1", "to": {"id": "`+building+`"}}`))
-	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "2층 창고", "kind": "space", "tag": "S-2", "to": {"id": "`+building+`"}}`))
-	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+store+`"}}`))
-	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "사무용 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+store+`"}}`))
-	vendor := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "델코리아", "kind": "vendor"}`))
+	building := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "본관", "kind": "space", "tag": "B-1"}`))
+	store := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "창고", "kind": "space", "tag": "S-1", "to": {"id": "`+building+`"}}`))
+	made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "2층 창고", "kind": "space", "tag": "S-2", "to": {"id": "`+building+`"}}`))
+	made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+store+`"}}`))
+	made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "사무용 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+store+`"}}`))
+	vendor := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "델코리아", "kind": "vendor"}`))
 	a := s.assistant()
 
 	// A model, and stock of it.
@@ -1241,7 +1243,7 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	p = a.plan("plan_purchase", map[string]any{"action": "add", "name": "케이블",
 		"lines": []map[string]any{{"desc": "HDMI 케이블", "quantity": 2, "unit_cost": 12000}}})
 	x.Equal("구매 등록: 케이블: HDMI 케이블 ×2, 합계 24,000 KRW", p.Summary)
-	run(t, cli.NewCmdApi(), "tenant", "configure", "@acme", `{"currency": "USD"}`)
+	run(t, root(), "tenant", "configure", "@acme", `{"currency": "USD"}`)
 	a.apply(p)
 	var priced struct {
 		Items []struct {
@@ -1264,14 +1266,14 @@ func TestAnAssistantReadsTheReports(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	s.signIn("owner", "owner1234")
-	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3"}`))
-	laptop := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
-	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "회의실 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+room+`"}}`))
-	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "kim@acme.example"}`))
+	room := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3"}`))
+	laptop := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
+	made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "회의실 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+room+`"}}`))
+	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "kim@acme.example"}`))
 	due := time.Now().Add(72 * time.Hour).UTC().Format(time.RFC3339)
-	run(t, cli.NewCmdApi(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
-	model := made(t, run(t, cli.NewCmdApi(), "item-model", "add", "-o", "json", `{"name": "건전지"}`))
-	run(t, cli.NewCmdApi(), "stock", "add", "-o", "json", `{"model": {"id": "`+model+`"}, "space": {"id": "`+room+`"}, "quantity": 12}`)
+	run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
+	model := made(t, run(t, root(), "item-model", "add", "-o", "json", `{"name": "건전지"}`))
+	run(t, root(), "stock", "add", "-o", "json", `{"model": {"id": "`+model+`"}, "space": {"id": "`+room+`"}, "quantity": 12}`)
 
 	a := s.assistant()
 	var v struct {

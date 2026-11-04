@@ -1,5 +1,5 @@
 // Package clilogin signs a terminal in as whoever approves it in a browser:
-// `loft login`.
+// `loft auth login`.
 //
 // A terminal cannot do what the sign-in page does -- SaaS signs people in
 // through an issuer and the IdP's own pages (D28), which want a browser -- and
@@ -15,7 +15,7 @@
 //     it was approved and uses the key it kept.
 //
 // A terminal may ask for less than its account may do: the methods it lists
-// (`loft login --allow`, D33), which the page shows and the session is
+// (`loft auth login --allow`, D33), which the page shows and the session is
 // narrowed to -- an assistant handed that terminal can do that much and no
 // more, whatever it does with the key.
 //
@@ -30,7 +30,7 @@
 // read out to the person ("approve this for me"), signs that terminal in as
 // them -- which is the shape of every flow like this one, and why the page
 // says where the asking came from and asks them to approve only a terminal of
-// their own that they just ran `loft login` on.
+// their own that they just ran `loft auth login` on.
 package clilogin
 
 import (
@@ -474,7 +474,7 @@ func (l *Logins) waiting(w http.ResponseWriter, r *http.Request, code string) (*
 	}
 	v, err := l.Db.CliLogin.Query().Where(entclilogin.Code(code), entclilogin.State(pending)).First(r.Context())
 	if ent.IsNotFound(err) || (err == nil && !l.now().Before(v.DateExpires)) {
-		http.Error(w, "no such sign-in, or it is too late: run `loft login` again", http.StatusNotFound)
+		http.Error(w, "no such sign-in, or it is too late: run `loft auth login` again", http.StatusNotFound)
 		return nil, false
 	}
 	if err != nil {

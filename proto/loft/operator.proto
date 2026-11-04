@@ -929,3 +929,22 @@ message OperatorAccessRow {
   uint32 subjects = 9;
   string reason = 10;
 }
+
+// OperatorAuthService is who the key a call carries is (design 9.16): what
+// `loft auth whoami` asks on an operator's connection, and what `loft auth
+// login --operator` asks before it keeps one.
+service OperatorAuthService {
+  // Whoami is the operator `admin.keys` names for the key the call carries:
+  // their name, and the identifier the rows name them by. It reads nothing
+  // else, and a call with no key, or one nobody holds, is refused before it.
+  rpc Whoami(OperatorAuthWhoamiRequest) returns (OperatorAuthWhoamiResponse);
+}
+
+message OperatorAuthWhoamiRequest {}
+
+message OperatorAuthWhoamiResponse {
+  // The operator's name in `admin.keys`.
+  string name = 1;
+  // The identifier the rows they write name them by (`operator.Id`).
+  bytes id = 2;
+}

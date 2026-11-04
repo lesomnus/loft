@@ -23,18 +23,18 @@ func TestATerminalAgreesBeforeItIsServed(t *testing.T) {
 	x := s.x
 	s.signIn("owner", "owner1234")
 
-	err := cli.NewCmdApi().Run(context.Background(), []string{"party", "me"})
+	err := root().Run(context.Background(), []string{"party", "me"})
 	x.ErrorContains(err, "loft consent")
 
 	out := run(t, cli.NewCmdConsent())
 	x.Contains(out, "owed\t이용약관 (terms)\t2026-10-01\thttps://loft.example/terms")
 	x.Contains(out, "owed\t개인정보 처리방침 (privacy)\t2026-10-01\thttps://loft.example/privacy")
 	x.Contains(out, "loft consent --agree")
-	err = cli.NewCmdApi().Run(context.Background(), []string{"party", "me"})
+	err = root().Run(context.Background(), []string{"party", "me"})
 	x.ErrorContains(err, "loft consent", "reading what is owed agrees to nothing")
 
 	x.Contains(run(t, cli.NewCmdConsent(), "--agree"), "agreed")
-	run(t, cli.NewCmdApi(), "party", "me")
+	run(t, root(), "party", "me")
 	out = run(t, cli.NewCmdConsent())
 	x.Contains(out, "agreed\tterms\t2026-10-01")
 	x.Contains(out, "agreed\tprivacy\t2026-10-01")

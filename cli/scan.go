@@ -40,14 +40,14 @@ func NewCmdScan() *xli.Command {
 			if status.Code(err) == codes.NotFound {
 				// Not here: perhaps a label in another workspace of the
 				// account's, which is asked of the account.
-				c, lerr := loadClient()
+				_, c, lerr := signedInFor(ctx, "`loft scan`")
 				if lerr != nil {
 					return lerr
 				}
-				in, lerr := app.NewLabelServiceClient(c.conn("")).Locate(ctx, app.LabelLocateRequest_builder{Code: code}.Build())
+				in, lerr := app.NewLabelServiceClient(c.person("")).Locate(ctx, app.LabelLocateRequest_builder{Code: code}.Build())
 				if lerr == nil && in.GetAlias() != "" {
 					self.Printf("# in @%s\n", in.GetAlias())
-					err = c.conn(in.GetAlias()).Invoke(ctx, app.LabelService_Resolve_FullMethodName, req, out)
+					err = c.person(in.GetAlias()).Invoke(ctx, app.LabelService_Resolve_FullMethodName, req, out)
 				}
 			}
 			if err != nil {

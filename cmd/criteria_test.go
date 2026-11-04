@@ -376,8 +376,10 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 	as := metadata.AppendToOutgoingContext(ctx, "cookie", started.Cookie+"="+key)
 	_, err = app.NewPartyServiceClient(w.conn).Me(as, &app.PartyMeRequest{})
 	x.Equal(codes.Unauthenticated, status.Code(err), "a terminal nobody approved")
-	for _, f := range cli.NewCmdLogin().Flags {
-		x.NotContains(strings.ToLower(f.Info().Name), "pass", "`loft login` takes a password")
+	login := cli.NewCmdAuth().Commands.Get("login")
+	x.NotNil(login)
+	for _, f := range login.Flags {
+		x.NotContains(strings.ToLower(f.Info().Name), "pass", "`loft auth login` takes a password")
 	}
 
 	// What carries a password, of every call this app serves: setting one's

@@ -68,27 +68,27 @@
 
 ## 터미널에서
 
-결제 화면의 일은 모두 `loft api payment` 입니다. 계정 자신의 호출이라 워크스페이스를 밝히지 않아도 됩니다. ID는 levyan의 것이라 문자열로 씁니다. 결제수단 등록(Paddle의 결제창)만은 브라우저에서 합니다. 비서(`loft mcp`)의 도구에는 아직 없습니다.
+결제 화면의 일은 모두 `loft payment` 입니다. 계정 자신의 호출이라 워크스페이스를 밝히지 않아도 됩니다. ID는 levyan의 것이라 문자열로 씁니다. 결제수단 등록(Paddle의 결제창)만은 브라우저에서 합니다. 비서(`loft mcp`)의 도구에는 아직 없습니다.
 
 ```sh
-loft api payment list-billing-accounts
-loft api payment create-billing-account '{"name": "이하은 개인", "country": "KR"}'
-loft api payment get-billing-account '{"id": "<결제 계정 ID>"}'           # 수금 상태, 구독, 연체, 크레딧, 잔액
-loft api payment update-billing-account '{"id": "<결제 계정 ID>", "name": "개발팀 카드"}'
+loft payment list-billing-accounts
+loft payment create-billing-account '{"name": "이하은 개인", "country": "KR"}'
+loft payment get-billing-account '{"id": "<결제 계정 ID>"}'               # 수금 상태, 구독, 연체, 크레딧, 잔액
+loft payment update-billing-account '{"id": "<결제 계정 ID>", "name": "개발팀 카드"}'
 
-loft api payment list-offers                                              # 받은 제안
-loft api payment accept '{"offer": "<제안 ID>", "billing_account": "<결제 계정 ID>"}'   # 결제 계정은 나중에 정해도 됨
-loft api payment decline '{"offer": "<제안 ID>"}'
+loft payment list-offers                                                  # 받은 제안
+loft payment accept '{"offer": "<제안 ID>", "billing_account": "<결제 계정 ID>"}'       # 결제 계정은 나중에 정해도 됨
+loft payment decline '{"offer": "<제안 ID>"}'
 
-loft api payment list-links                                               # 내는 워크스페이스
-loft api payment use '{"workspace": "<워크스페이스 ID>", "billing_account": "<결제 계정 ID>"}'   # 다음 기간부터 이 결제 계정으로
-loft api payment stop '{"workspace": "<워크스페이스 ID>"}'                 # 이번 기간이 끝나면 그만 내기
+loft payment list-links                                                   # 내는 워크스페이스
+loft payment use '{"workspace": "<워크스페이스 ID>", "billing_account": "<결제 계정 ID>"}'       # 다음 기간부터 이 결제 계정으로
+loft payment stop '{"workspace": "<워크스페이스 ID>"}'                     # 이번 기간이 끝나면 그만 내기
 
-loft api payment list-invoices
-loft api payment get-invoice '{"id": "<청구서 ID>"}'                       # 줄, 정정 청구, 연체
-loft api payment list-credit-notes '{"billing_account": "<결제 계정 ID>"}'
-loft api payment list-payer-statements
-loft api payment get-payer-statement '{"id": "<명세서 ID>"}'               # 청구서 줄의 statement
+loft payment list-invoices
+loft payment get-invoice '{"id": "<청구서 ID>"}'                           # 줄, 정정 청구, 연체
+loft payment list-credit-notes '{"billing_account": "<결제 계정 ID>"}'
+loft payment list-payer-statements
+loft payment get-payer-statement '{"id": "<명세서 ID>"}'                   # 청구서 줄의 statement
 ```
 
-워크스페이스의 ID는 `loft api party me -o json` 의 `tenant` 에 있습니다.
+워크스페이스의 ID는 `loft party me -o json` 의 `tenant` 에 있습니다.

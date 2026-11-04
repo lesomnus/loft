@@ -13,7 +13,7 @@
 - **플래그는 인자보다 앞에 씁니다.** `loft-admin tenant export --reason "…" acme` 이고, `tenant export acme --reason "…"` 는 명령 해석기(xli)가 `flag must come before arguments` 로 거부합니다. 4단계에서 이 명령들을 `loft` 로 옮겨도 같습니다.
 - 명령은 스키마의 이름을 씁니다. `tenant` 는 `workspace`, `ws` 로도 씁니다. 워크스페이스는 주소로 씁니다(`acme` 나 `@acme`).
 - **운영자 명령이 말하는 날짜는 UTC입니다.** `loft` 와 `loft-admin` 이 말하는 날짜와 시각은 셸의 시간대와 상관없이 UTC입니다. `--effective 2027-01-01` 처럼 주는 날짜도 UTC의 그날입니다. 워크스페이스의 사람이 앱에서 읽는 날짜는 그 워크스페이스의 시간대를 따릅니다(loft#144).
-- 운영자 명령은 터미널의 로그인(`LOFT_CLIENT_CONFIG`)을 읽지 않고, 터미널 명령(`loft api` 등)은 서버의 설정을 읽지 않습니다([터미널과 비서](terminal.md)). `loft-admin` 의 명령도 서버의 설정을 읽지 않고, 진입점의 주소와 자기 키(`LOFT_ADMIN_URL`, `LOFT_ADMIN_KEY`)만 읽습니다.
+- 운영자 명령은 터미널의 로그인(`LOFT_CLIENT_CONFIG`)을 읽지 않고, 터미널 명령(`loft asset` 등)은 서버의 설정을 읽지 않습니다([터미널과 비서](terminal.md)). `loft-admin` 의 명령도 서버의 설정을 읽지 않고, 진입점의 주소와 자기 키(`LOFT_ADMIN_URL`, `LOFT_ADMIN_KEY`)만 읽습니다.
 - 이 문서의 예는 체험용 워크스페이스(`/@loft`, [체험용 워크스페이스](README.md#따라-하기-체험용-워크스페이스))를 씁니다. 컨테이너 안이면 `loft --config /etc/loft/loft.yaml init …` 처럼 설정 파일을 줍니다(`deploy/compose`, `deploy/k8s` 의 예).
 
 ## 처음 띄우기
@@ -184,7 +184,7 @@ loft-admin access reviews --tenant loft                                         
 ```
 
 - 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다. 키를 바꿔도 이름이 같으면 기록에는 같은 운영자입니다.
-- RPC를 그대로 부를 수도 있습니다: `curl -H "authorization: Bearer $KEY" -H 'content-type: application/json' -H 'connect-protocol-version: 1' -d '{}' http://127.0.0.1:8081/loft.TenantService/List`. 진입점이 내는 메서드는 `server/admin` 의 표(`Table`)에 있습니다.
+- RPC를 그대로 부를 수도 있습니다: `curl -H "authorization: Bearer $KEY" -H 'content-type: application/json' -H 'connect-protocol-version: 1' -d '{}' http://127.0.0.1:8081/loft.TenantService/List`. 진입점이 내는 메서드는 `server/operator` 의 표(`Table`)에 있습니다.
 - 리버스 프록시의 on-demand TLS 확인(`/internal/tls-ask`)도 이 진입점으로 옮겼습니다(키 없이 답함). 공개 서버에는 더 이상 없습니다.
 - Kubernetes에서는 Service가 없고 NetworkPolicy가 닫으므로 `kubectl port-forward` 로만 들어옵니다. compose에서는 호스트의 루프백에만 열리므로 SSH 터널로 들어옵니다. 각 README의 "운영자 진입점"에 있습니다.
 - 셸의 운영자 명령은 모두 진입점의 RPC가 됐습니다(loft#285). `loft` 에는 `init`, `migrate`, `serve`, `config`, `version` 과 터미널의 명령만 남습니다. 운영자 웹 화면은 나중입니다.

@@ -36,57 +36,25 @@ var columnOf = map[string]string{
 	"attributes":  "속성",
 }
 
-// NewCmdRegister is `loft register FILE`: new assets from a CSV in loft's
-// form, as one intake (design 9.13). The sheet is read by the deployment --
-// the form is read in one place, and the page reads it there too -- and what
-// would be registered is shown, every issue by its line, until `--yes`
-// registers it. With `--form` it writes the empty form to FILE instead: a CSV
-// of its header, which Excel opens.
-func NewCmdRegister() *xli.Command {
+// newCmdAssetAddMany is `loft asset add-many FILE`: new assets from a CSV in
+// loft's form, as one intake (design 9.13). The sheet is read by the
+// deployment -- the form is read in one place, and the page reads it there
+// too -- and what would be registered is shown, every issue by its line,
+// until `--yes` registers it.
+func newCmdAssetAddMany() *xli.Command {
 	return &xli.Command{
-		Name:  "register",
 		Brief: "register new assets from a sheet in loft's form (대량 등록), shown first until --yes",
 		Flags: flg.Flags{
-			&flg.String{Name: "workspace", Brief: "the workspace to register in, by alias; `loft use` sets the default"},
 			&flg.String{Name: "reason", Brief: "what the intake is, for the history: 10월 입고"},
 			&flg.Switch{Name: "yes", Brief: "register them; without this it only says what it would"},
-			&flg.Switch{Name: "form", Brief: "write the empty form to FILE instead"},
 		},
-		Args: arg.Args{&arg.String{Name: "FILE", Brief: "a .csv in the form; a workbook is refused"}},
+		Args: arg.Args{&arg.String{Name: "FILE", Brief: "a .csv in the form (`loft asset form`); a workbook is refused"}},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			path, _ := arg.Get[string](self, "FILE")
 			yes, _ := flg.Find[bool](self, "yes")
-			if ws := flag(self, "workspace"); ws != "" {
-				ctx = context.WithValue(ctx, workspaceKey{}, ws)
-			}
-
-			form, _ := flg.Find[bool](self, "form")
-			if form && !strings.EqualFold(filepath.Ext(path), ".csv") {
-				return errors.New("양식은 CSV입니다: 파일 이름을 양식.csv처럼 적으세요")
-			}
 			conn, _, err := remote{}.Connect(ctx)
 			if err != nil {
 				return err
-			}
-
-			if form {
-				out := &app.AssetExportResponse{}
-				if err := conn.Invoke(ctx, app.AssetService_Form_FullMethodName, &app.AssetFormRequest{}, out); err != nil {
-					return err
-				}
-				f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
-				if err != nil {
-					return err
-				}
-				if _, err := f.Write(out.GetData()); err != nil {
-					f.Close()
-					return err
-				}
-				if err := f.Close(); err != nil {
-					return err
-				}
-				self.Printf("%s: 대량 등록 양식 (엑셀에서 적었으면 'CSV UTF-8(쉼표로 분리)'로 저장하세요)\n", path)
-				return next(ctx)
 			}
 
 			data, err := os.ReadFile(path)
@@ -152,6 +120,43 @@ func NewCmdRegister() *xli.Command {
 				return err
 			}
 			self.Printf("%d개를 등록했습니다\n", len(done.GetItems()))
+			return next(ctx)
+		}),
+	}
+}
+
+// newCmdAssetForm is `loft asset form FILE`: the empty form `asset add-many`
+// reads, written to FILE -- a CSV of its header, which Excel opens. It names
+// nobody, so it is no download (`AssetService.Form`).
+func newCmdAssetForm() *xli.Command {
+	return &xli.Command{
+		Brief: "write the empty form `asset add-many` reads (대량 등록 양식) to FILE",
+		Args:  arg.Args{&arg.String{Name: "FILE", Brief: "where to write it, a .csv; an existing file is left as it is"}},
+		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+			path, _ := arg.Get[string](self, "FILE")
+			if !strings.EqualFold(filepath.Ext(path), ".csv") {
+				return errors.New("양식은 CSV입니다: 파일 이름을 양식.csv처럼 적으세요")
+			}
+			conn, _, err := remote{}.Connect(ctx)
+			if err != nil {
+				return err
+			}
+			out := &app.AssetExportResponse{}
+			if err := conn.Invoke(ctx, app.AssetService_Form_FullMethodName, &app.AssetFormRequest{}, out); err != nil {
+				return err
+			}
+			f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+			if err != nil {
+				return err
+			}
+			if _, err := f.Write(out.GetData()); err != nil {
+				f.Close()
+				return err
+			}
+			if err := f.Close(); err != nil {
+				return err
+			}
+			self.Printf("%s: 대량 등록 양식 (엑셀에서 적었으면 'CSV UTF-8(쉼표로 분리)'로 저장하세요)\n", path)
 			return next(ctx)
 		}),
 	}

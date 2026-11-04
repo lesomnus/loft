@@ -140,7 +140,7 @@ func TestEveryMethodAnswersAnOperatorsKeyAndNothingElse(t *testing.T) {
 	x := e.x
 
 	methods := slices.Sorted(func(yield func(string) bool) {
-		for m := range admin.Table {
+		for m := range operator.Table {
 			if !yield(m) {
 				return
 			}
@@ -188,14 +188,21 @@ func TestTheTableIsWhatIsServed(t *testing.T) {
 		for _, m := range info.Methods {
 			method := "/" + name + "/" + m.Name
 			served[method] = true
-			if strings.HasPrefix(name, "loft.Operator") {
-				x.Contains(admin.Table, method, "%s is the operator's and not in the table", method)
+			if operator.Own(method) {
+				x.Contains(operator.Table, method, "%s is the operator's and not in the table", method)
 			}
 		}
 	}
-	for m := range admin.Table {
+	for m := range operator.Table {
 		x.True(served[m], "%s is in the table and not served", m)
 	}
+	own := app.File_loft_operator_proto.Services()
+	for i := range own.Len() {
+		sd := own.Get(i)
+		x.Contains(g.GetServiceInfo(), string(sd.FullName()), "the operator's own %s is served", sd.FullName())
+		x.True(operator.Own("/" + string(sd.FullName()) + "/" + string(sd.Methods().Get(0).Name())))
+	}
+	x.False(operator.Own(app.TenantService_Close_FullMethodName), "an entity's, which the public server serves too")
 }
 
 // TestThePublicServerServesNoneOfTheOperators: the public server registers no
@@ -206,12 +213,14 @@ func TestThePublicServerServesNoneOfTheOperators(t *testing.T) {
 
 	g, err := e.s.Grpc(t.Context(), e.c)
 	x.NoError(err)
-	for name := range g.GetServiceInfo() {
-		x.False(strings.HasPrefix(name, "loft.Operator"), "%s is served by the public server", name)
+	for name, info := range g.GetServiceInfo() {
+		for _, m := range info.Methods {
+			x.False(operator.Own("/"+name+"/"+m.Name), "%s is served by the public server", name)
+		}
 	}
 	public := pdtest.Serve(t, g)
-	for m, k := range admin.Table {
-		if !strings.HasPrefix(m, "/loft.Operator") {
+	for m, k := range operator.Table {
+		if !operator.Own(m) {
 			continue
 		}
 		code := status.Code(call(as(key), public, m))

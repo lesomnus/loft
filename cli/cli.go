@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strings"
 	"time"
 	"uuid"
 
@@ -39,7 +40,9 @@ import (
 	"github.com/lesomnus/xli/mode"
 	"github.com/protobuf-orm/ent/dialect"
 	entsql "github.com/protobuf-orm/ent/dialect/sql"
+	"google.golang.org/grpc/metadata"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdcmd"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/rename"
@@ -68,22 +71,20 @@ import (
 // is the stack -- which layers, in which order, with the wall on which server
 // -- and that is the most important thing a reader of an app can see.
 //
-// The configuration is read on the **root**, so it has happened whichever
-// subcommand runs -- `config` prints what came out, `serve` listens on what it
-// says. A command that loaded it for itself would be one more place for the
-// order to be wrong. What `c` holds when the loader is made is the defaults:
+// The configuration is read on the **root**, so it has happened whichever of
+// the box's commands runs -- `config` prints what came out, `serve` listens on
+// what it says. A command that loaded it for itself would be one more place
+// for the order to be wrong. The terminal's half beside them, the schema's
+// commands and the utilities, reads none of it (design 9.16). What `c` holds when the loader is made is the defaults:
 // every load starts from it, and the file, the environment and the flags go
 // over the top.
 func Cmd(c *cmd.Config) *xli.Command {
-	l := cfg.New(cmd.Name, c)
+	l := cfg.New(cmd.Name, c, TerminalReads)
 
 	// `version` needs no configuration, and is what somebody runs to ask a
 	// deployment whose configuration is wrong what build it is.
 	version := pdcmd.NewCmdVersion()
-
-	// The terminal's half, which runs anywhere as a person and reads none of
-	// a deployment's configuration: it keeps its own (`LOFT_CLIENT_CONFIG`).
-	login, logout, whoami, use, ws, api, scan, register, agree, assist := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi(), NewCmdScan(), NewCmdRegister(), NewCmdConsent(), NewCmdMcp()
+	config := cfg.NewCmdConfig(l)
 
 	// The deployment's own life, which runs where there is no server to ask
 	// (design 9.15): its first workspace, and its database brought to this
@@ -91,38 +92,70 @@ func Cmd(c *cmd.Config) *xli.Command {
 	// one thing and exits, and is observed as the deployment is
 	// (`observed`). Everything else an operator does is asked of the entry
 	// point (`loft-admin`), as the operator.
-	first, migrate := NewCmdInit(c), NewCmdMigrate(c)
+	first, migrate, serve := NewCmdInit(c), NewCmdMigrate(c), NewCmdServe(c)
 
-	return &xli.Command{
+	root := &xli.Command{
 		Name:  cmd.Name,
 		Brief: "loft",
 
-		Flags: flg.Flags{cfg.ConfigFlag()},
-
-		Commands: []*xli.Command{
-			version,
-			cfg.NewCmdConfig(l),
-			first,
-			migrate,
-			NewCmdServe(c),
-			login,
-			logout,
-			whoami,
-			use,
-			ws,
-			api,
-			scan,
-			register,
-			agree,
-			assist,
+		Flags: flg.Flags{
+			cfg.ConfigFlag(),
+			&flg.String{Name: "connection", Brief: "the connection to use, by name (`loft auth list`); LOFT_CONNECTION, or the one `loft auth switch` chose"},
+			&flg.String{Name: "url", Brief: "with --key, the operator's entry point for this command alone; LOFT_ADMIN_URL, or http://127.0.0.1:8081"},
+			&flg.String{Name: "key", Brief: "the operator's key, as env:NAME or file:PATH -- never the key -- for this command alone; LOFT_ADMIN_KEY"},
+			&flg.String{Name: "workspace", Brief: "a person's: the workspace to speak to, by alias; LOFT_WORKSPACE, or the one `loft use` chose"},
+			&flg.String{Name: "reason", Brief: "what a download is for -- `tenant export`, `asset export` hand people's data out and are refused without one; it is recorded"},
 		},
 
-		Handler: xli.Chain(
-			cfg.Load(l, version, login, logout, whoami, use, ws, api, scan, register, agree, assist),
-			observed(c, first, migrate),
-			xli.RequireSubcommand(),
-		),
+		// The terminal's half, which runs anywhere, as the person or the
+		// operator its connection is (design 9.16): the utilities, and the
+		// schema's commands mounted beside them below.
+		Commands: []*xli.Command{
+			version,
+			config,
+			first,
+			migrate,
+			serve,
+			NewCmdAuth(),
+			NewCmdUse(),
+			newCmdCall(),
+			NewCmdScan(),
+			NewCmdConsent(),
+			NewCmdMcp(),
+		},
 	}
+	if err := mount(root); err != nil {
+		panic(err)
+	}
+
+	// Only the box's commands read a deployment's configuration. The
+	// terminal's half reads none of it, and keeps its own
+	// (`LOFT_CLIENT_CONFIG`): a terminal runs where no deployment is.
+	box := []*xli.Command{config, first, migrate, serve}
+	terminal := slices.DeleteFunc(slices.Clone(root.Commands), func(v *xli.Command) bool { return slices.Contains(box, v) })
+
+	root.Handler = xli.Chain(
+		cfg.Load(l, terminal...),
+		// Who the terminal's commands are, and to which workspace and why,
+		// as the command line says it (design 9.16): read where they
+		// connect.
+		xli.OnRunPass(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+			ctx = withChoice(ctx, Choice{Name: flag(self, "connection"), Url: flag(self, "url"), Key: flag(self, "key")})
+			if ws := flag(self, "workspace"); ws != "" {
+				ctx = context.WithValue(ctx, workspaceKey{}, ws)
+			}
+			// Said to every call, and read by the downloads: what the access
+			// record keeps beside who took what (loft#136).
+			if why := strings.TrimSpace(flag(self, "reason")); why != "" {
+				ctx = metadata.AppendToOutgoingContext(ctx, access.ReasonKey, why)
+			}
+			return next(ctx)
+		}),
+		observed(c, first, migrate),
+		xli.RequireSubcommand(),
+	)
+
+	return root
 }
 
 // observed builds the deployment's telemetry (`cmd.Telemetry`) for the commands

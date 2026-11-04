@@ -85,7 +85,7 @@ go run ./cmd/loft-admin trail rows
 
 ## 터미널로 써 보기
 
-띄운 서버에 터미널로 로그인하는 법은 [터미널과 비서](../guide/terminal.md)에 있습니다. `loft api` 는 서버의 설정을 읽지 않고, 자기 로그인 정보(`LOFT_CLIENT_CONFIG`)만 읽습니다.
+띄운 서버에 터미널로 로그인하는 법은 [터미널과 비서](../guide/terminal.md)에 있습니다. 터미널의 명령은 서버의 설정을 읽지 않고, 자기 연결(`LOFT_CLIENT_CONFIG`)만 읽습니다.
 
 ## 예전 체크아웃
 

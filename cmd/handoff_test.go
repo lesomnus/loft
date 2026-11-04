@@ -313,7 +313,7 @@ func TestAHandoffGoesToAnActiveAppDomainAlone(t *testing.T) {
 	sum := sha256.Sum256([]byte(key))
 	x.NoError(w.s.Handoff.Store.Adopt(ctx, w.accountOf(inAcme), w.s.Handoff.Store.KeptSum(sum[:]), grant, time.Now().Add(time.Hour), time.Now().Add(time.Hour)))
 	narrowed := withCookie(&http.Cookie{Name: authsession.DefaultCookie, Value: key})
-	x.Equal(http.StatusForbidden, w.give(narrowed, ownHost, &tr).Code, "a sign-in narrowed by `loft login --allow`")
+	x.Equal(http.StatusForbidden, w.give(narrowed, ownHost, &tr).Code, "a sign-in narrowed by `loft auth login --allow`")
 	bad := tr
 	bad.value = "made-up"
 	x.Equal(http.StatusBadRequest, w.give(as, ownHost, &bad).Code, "a state no domain made")

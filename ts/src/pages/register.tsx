@@ -8,7 +8,7 @@ import { useAct } from '../rpc.js'
 import { Card, Empty, Field, PageHead, useToast } from '../ui.js'
 import { kindWord } from '../words.js'
 
-/** The form's column for what an AddMany calls a field, as `loft register` says it. */
+/** The form's column for what an AddMany calls a field, as `loft asset add-many` says it. */
 const columnOf: Record<string, string> = {
 	name: '이름',
 	kind: '종류',

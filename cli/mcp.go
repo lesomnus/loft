@@ -32,20 +32,20 @@ import (
 // assistant -- Claude Code, Claude Desktop -- to read a workspace with, as the
 // account this terminal signed in as (D32, loft#91).
 //
-// It is a terminal command like `loft api`, and holds nothing of its own. A
+// It is a terminal command like the schema's, and holds nothing of its own. A
 // tool is RPCs to the address a browser reaches the deployment at, with this
 // terminal's session: what an assistant can read is what its person can,
 // through the same policy and the same wall as the page, and the deployment
 // does not know there is an assistant. The sign-in is read again for every
-// call, so that `loft login` and `loft use` take effect without starting this
-// again.
+// call, so that `loft auth login` and `loft use` take effect without starting
+// this again.
 //
 // Every tool reads. One that writes waits for a way for the person to say yes
 // to what it is about to do.
 func NewCmdMcp() *xli.Command {
 	return &xli.Command{
 		Name:  "mcp",
-		Brief: "an MCP server on stdin and stdout: an assistant reads the workspace as this terminal's account (`loft login` first)",
+		Brief: "an MCP server on stdin and stdout: an assistant reads the workspace as this terminal's account (`loft auth login` first)",
 		Flags: flg.Flags{
 			&flg.String{Name: "workspace", Brief: "the workspace it reads, by alias; `loft use` sets the default"},
 		},
@@ -74,7 +74,7 @@ const mcpInstructions = `Loft is the register of a workspace's tangible assets: 
 - Tools take the ids other tools answer with. An asset may also be named by its tag.
 - Times are RFC 3339; a date alone is midnight in this machine's zone, but for a report's period it is the workspace's day.
 - The read tools read, as the person signed in. To change the register, a plan_* tool answers what would happen, in names, with a token: show the person that summary, and only once they say yes, call apply with the token and the summary word for word. A plan changes nothing; a plan never applied does nothing.
-- What may be done is the person's role's to say, and a terminal signed in with loft login --allow is held to what it allows.`
+- What may be done is the person's role's to say, and a terminal signed in with loft auth login --allow is held to what it allows.`
 
 // newMcp is the server `loft mcp` runs: the tools, each of them reads, over
 // the connection the terminal's sign-in makes for `ws`.
@@ -313,12 +313,12 @@ type mcpTools struct {
 // call is what one tool call reads with: the terminal's sign-in as it is now,
 // and the names of what it reads, asked once each.
 func (t mcpTools) call(ctx context.Context) (*mcpCall, error) {
-	c, err := loadClient()
+	// An assistant speaks as a person, and only as one: an operator's
+	// powers handed to an assistant are the owner's to decide on, later
+	// (design 9.16).
+	_, c, err := signedInFor(ctx, "`loft mcp`")
 	if err != nil {
 		return nil, err
-	}
-	if !c.signedIn() {
-		return nil, errNoLogin
 	}
 	ws := t.ws
 	if ws == "" {
@@ -329,9 +329,9 @@ func (t mcpTools) call(ctx context.Context) (*mcpCall, error) {
 	}
 	return &mcpCall{
 		ctx:     ctx,
-		client:  c,
+		client:  c.Connection,
 		ws:      ws,
-		conn:    c.conn(ws),
+		conn:    c.person(ws),
 		assets:  map[pdid.Id]*app.Asset{},
 		parties: map[pdid.Id]string{},
 		holders: map[pdid.Id]string{},
@@ -343,7 +343,7 @@ func (t mcpTools) call(ctx context.Context) (*mcpCall, error) {
 
 type mcpCall struct {
 	ctx    context.Context
-	client clientConfig
+	client *Connection
 	ws     string
 	conn   grpc.ClientConnInterface
 
@@ -643,7 +643,7 @@ type mcpWhoami struct {
 	Person     *mcpRef        `json:"person,omitempty" jsonschema:"the person this account is in that workspace"`
 	History    string         `json:"history" jsonschema:"how far back the workspace keeps its history"`
 	Workspaces []mcpWorkspace `json:"workspaces" jsonschema:"every workspace the account is in; another is read by starting loft mcp --workspace ALIAS"`
-	Allow      []string       `json:"allow,omitempty" jsonschema:"the only methods this terminal's sign-in may call (loft login --allow); absent is all that the account may do"`
+	Allow      []string       `json:"allow,omitempty" jsonschema:"the only methods this terminal's sign-in may call (loft auth login --allow); absent is all that the account may do"`
 }
 
 func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoamiIn) (*mcp.CallToolResult, mcpWhoami, error) {
@@ -664,7 +664,7 @@ func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoam
 	out.Workspaces = []mcpWorkspace{}
 	// What it is in, asked as the account (D73) -- which a sign-in narrowed
 	// to less than reading may not ask, and is then told none of.
-	mine, err := app.NewTenantServiceClient(c.client.conn("")).Mine(ctx, &app.TenantMineRequest{})
+	mine, err := app.NewTenantServiceClient(c.client.person("")).Mine(ctx, &app.TenantMineRequest{})
 	switch {
 	case err == nil:
 		for _, w := range mine.GetWorkspaces() {
