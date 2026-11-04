@@ -46,7 +46,7 @@ func (s contracts) Add(ctx context.Context, req *app.TenantContractAddRequest) (
 	if !v.HasDateEffective() {
 		v.SetDateEffective(timestamppb.Now())
 	}
-	return s.a.S.Base.TenantContract().Add(operator.Frame(ctx, pdid.Id(t.Id)), v)
+	return s.a.S.Base.TenantContract().Add(operator.Frame(ctx, pdid.Nil), v)
 }
 
 // Get is one contract, of any workspace.
@@ -81,7 +81,7 @@ func (s holds) Add(ctx context.Context, req *app.LegalHoldAddRequest) (*app.Lega
 	if err != nil {
 		return nil, err
 	}
-	return s.a.S.Base.LegalHold().Add(operator.Frame(ctx, pdid.Id(t.Id)), app.LegalHoldAddRequest_builder{
+	return s.a.S.Base.LegalHold().Add(operator.Frame(ctx, pdid.Nil), app.LegalHoldAddRequest_builder{
 		Tenant: app.TenantRef_builder{Id: t.Id[:]}.Build(),
 		Name:   why,
 		Desc:   strings.TrimSpace(req.GetDesc()),
@@ -116,7 +116,7 @@ func (s holds) Patch(ctx context.Context, req *app.LegalHoldPatchRequest) (*app.
 	if l.DateLifted != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "the hold was lifted already, %s", l.DateLifted.UTC().Format(time.RFC3339))
 	}
-	return s.a.S.Base.LegalHold().Patch(operator.Frame(ctx, pdid.Id(l.TenantId)), req)
+	return s.a.S.Base.LegalHold().Patch(operator.Frame(ctx, pdid.Nil), req)
 }
 
 // Get is one hold, of any workspace.

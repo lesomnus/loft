@@ -80,8 +80,15 @@ func Actor(ctx context.Context) pdid.Id {
 
 // Frame is `ctx` framed as the deployment's own work in `tenant`, of that
 // tenant alone -- or of none, for Nil: the operator `ctx` carries as its actor,
-// or nobody. It is the frame `domain.Deps.System` makes the deployment's work
-// in a workspace, for a write the entry point makes past the domain layer.
+// or nobody.
+//
+// `domain.Deps.System` frames the deployment's work in a workspace so, which
+// the past needs to say where an operation happened. A write the entry point
+// makes past the domain layer is framed in none: the operator is held by no
+// workspace, a workspace's rows are filed under their own workspace whatever
+// the frame says, and a row behind no wall -- an address held -- is filed
+// under the frame's tenant, where it is the deployment's and outlives any
+// workspace it was about.
 //
 // Nothing that decides what a call may do reads it: the servers it is handed
 // to have no wall and no gate. What reads it is what names who wrote -- the

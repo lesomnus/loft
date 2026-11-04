@@ -143,11 +143,13 @@ for what is no entity's -- which the public server never registers. What it
 serves is one table, `admin.Table`; a method not in it is refused. The
 operator is a name in `admin.keys` and the identifier it makes
 (`server/operator`, domain 11, no row), carried in the context and not in a
-frame: `access.Config.Operator` names them on a read's row, and
-`domain.Deps.System` -- or `operator.Frame`, for a write past the domain layer
--- frames the deployment's work in the workspace as theirs, so the past, the
-trail and the access record name them while the domain decides as the
-deployment. A hand-written proto cannot import the generated `*_svc.g.proto`,
+frame: `access.Config.Operator` names them on a read's row,
+`domain.Deps.System` frames the deployment's work in a workspace as theirs,
+and a write past the domain layer is framed as theirs in no workspace
+(`operator.Frame(ctx, pdid.Nil)`) -- a row behind no wall is filed under the
+frame's tenant, and a held address must outlive the workspace it was about.
+So the past, the trail and the access record name them while the domain
+decides as the deployment. A hand-written proto cannot import the generated `*_svc.g.proto`,
 so the operator's requests name a workspace with `OperatorTenantRef`.
 
 ## The wall is a predicate, so it only applies to reads
