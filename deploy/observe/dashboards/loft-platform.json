@@ -745,7 +745,7 @@
     {
       "type": "timeseries",
       "title": "디스크 사용률",
-      "description": "노드 수집기(hostmetrics)의 파일 시스템 사용률. local-path 볼륨은 노드 디스크에 있습니다",
+      "description": "노드 수집기(host_metrics)의 파일 시스템 사용률. local-path 볼륨은 노드 디스크에 있습니다",
       "datasource": {
         "type": "grafana-clickhouse-datasource",
         "uid": "clickhouse"

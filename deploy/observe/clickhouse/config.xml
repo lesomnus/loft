@@ -4,7 +4,9 @@
   small node, its own logs on stdout, and its own tables kept short.
 
   It replaces the image's config.d, and so says what that said: listen on
-  every address.
+  the pod's address. IPv4's, which is what a Service has unless the cluster
+  is IPv6 alone; the image's `::` beside it only adds a warning at every
+  start where a pod has no IPv6.
 -->
 <clickhouse>
     <listen_host>0.0.0.0</listen_host>

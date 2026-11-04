@@ -268,10 +268,10 @@ def platform():
                 "볼륨 백업(loft-volumes-backup) 같은 Job의 실패한 파드 수"), 12, 8)
 
     b.row("노드")
-    # The node collector says which node it is (../node/collector.yaml).
+    # The node collector says which node it is (../node/config.yaml).
     node = "ResourceAttributes['host.name']"
     b.add(timeseries("디스크 사용률", series(GAUGE, "system.filesystem.utilization", f"concat({node}, ' ', Attributes['mountpoint'])", value="max(Value)"),
-                     "percentunit", "노드 수집기(hostmetrics)의 파일 시스템 사용률. local-path 볼륨은 노드 디스크에 있습니다", legend="list"), 8, 8)
+                     "percentunit", "노드 수집기(host_metrics)의 파일 시스템 사용률. local-path 볼륨은 노드 디스크에 있습니다", legend="list"), 8, 8)
     b.add(timeseries("메모리 사용률", series(GAUGE, "system.memory.utilization", node, value="avgIf(Value, Attributes['state'] = 'used')"),
                      "percentunit", "노드별 used 비율", legend="list"), 8, 8)
     b.add(timeseries("CPU 사용률",
