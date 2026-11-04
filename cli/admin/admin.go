@@ -43,7 +43,7 @@ import (
 
 // Cmd is the root of `loft-admin`.
 func Cmd(c *cmd.Config) *xli.Command {
-	l := cfg.New(cmd.Name, c)
+	l := cfg.New(cmd.Name, c, cli.TerminalReads)
 	version := pdcmd.NewCmdVersion()
 	ws, contract, hold, trail := newCmdTenant(), newCmdContract(), newCmdHold(), newCmdTrail()
 	search, retention := newCmdSearch(), newCmdRetention()

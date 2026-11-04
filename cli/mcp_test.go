@@ -517,8 +517,8 @@ func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 	a.call("whoami", nil, &narrowed)
 	x.Contains(narrowed.Allow, "/loft.*/Search")
 
-	run(t, cli.NewCmdLogout())
-	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "loft login")
+	run(t, cli.NewCmdAuth(), "logout")
+	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "loft auth login")
 }
 
 type planned struct {

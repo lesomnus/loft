@@ -133,7 +133,7 @@ type Server struct {
 	Lifecycle lifecycle.Lifecycle
 
 	// Logins is a terminal signed in by somebody approving it in a browser
-	// (`loft login`, `server/clilogin`).
+	// (`loft auth login`, `server/clilogin`).
 	Logins *clilogin.Logins
 
 	// Handoff is signing in on a workspace's own domain: done at the

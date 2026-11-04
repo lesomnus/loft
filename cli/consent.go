@@ -22,12 +22,9 @@ func NewCmdConsent() *xli.Command {
 			&flg.Switch{Name: "agree", Brief: "agree to every document owed, at the version printed, having read it"},
 		},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			c, err := loadClient()
+			_, c, err := signedInFor(ctx, "`loft consent`")
 			if err != nil {
 				return err
-			}
-			if !c.signedIn() {
-				return errNoLogin
 			}
 			var v struct {
 				Owed []struct {

@@ -406,4 +406,4 @@ func codeOf(v string) codes.Code {
 	return codes.Unknown
 }
 
-var errNoLogin = errors.New("not signed in: run `loft login --url <the app's address>`")
+var errNoLogin = errors.New("not signed in: `loft auth login --url <the app's address>`")

@@ -32,7 +32,7 @@
 - **감사자**: 이력과 감사 기록을 읽고 접속기록을 점검합니다 → [감사자 안내서](docs/guide/auditor.md)
 - **결제 담당**: 결제 계정과 결제수단, 청구서와 크레딧을 맡습니다 → [결제 담당 안내서](docs/guide/payer.md)
 - **배포 운영자**: 서버를 띄우고 올리고, 워크스페이스의 요청을 운영자 진입점(`loft-admin`)에서 처리합니다 → [배포 운영자 안내서](docs/guide/operator.md)
-- **모두**: 터미널(`loft login`, `loft api`)과 비서(`loft mcp`) → [터미널과 비서](docs/guide/terminal.md)
+- **모두**: 터미널(`loft auth login`, `loft api`)과 비서(`loft mcp`) → [터미널과 비서](docs/guide/terminal.md)
 
 안내서의 예는 모두 아래의 체험용 워크스페이스를 씁니다. 무엇이 들어 있는지는 [안내서](docs/guide/README.md)에 있습니다.
 
@@ -57,7 +57,7 @@ go run ./cmd/loft serve
 
 ```sh
 go install ./cmd/loft
-loft login --url http://localhost:8080          # 나온 주소를 로그인한 브라우저에서 열고 승인
+loft auth login --url http://localhost:8080          # 나온 주소를 로그인한 브라우저에서 열고 승인
 loft api asset search -o wide '{"q": "노트북"}'
 ```
 

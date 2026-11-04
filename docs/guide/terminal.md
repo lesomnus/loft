@@ -17,16 +17,16 @@ go install ./cmd/loft
 터미널의 로그인은 이미 로그인한 브라우저에서 승인해서 합니다. SSO만 쓰는 배포에서도 그대로 됩니다.
 
 ```sh
-loft login --url http://localhost:8080   # 주소와 코드가 나오면, 로그인한 브라우저에서 열고 승인
-loft login --no-browser                  # 브라우저를 열지 않고 주소만 출력 (--url을 빼면 마지막에 쓴 주소)
-loft whoami                              # 계정과 속한 워크스페이스
+loft auth login --url http://localhost:8080   # 주소와 코드가 나오면, 로그인한 브라우저에서 열고 승인
+loft auth login --no-browser                  # 브라우저를 열지 않고 주소만 출력 (--url을 빼면 마지막에 쓴 주소)
+loft auth whoami                              # 계정과 속한 워크스페이스
 loft use loft                            # 기본 워크스페이스 (하나뿐이면 필요 없음)
 loft use                                 # 지금 기본으로 쓰는 워크스페이스
 loft use --none                          # 기본을 지움
-loft logout
+loft auth logout
 ```
 
-- 승인 화면(`/cli?code=…`)은 요청한 터미널과 위치를 보여 줍니다. **내 터미널에서 방금 `loft login` 을 실행했고 같은 코드가 보일 때만 승인하세요.**
+- 승인 화면(`/cli?code=…`)은 요청한 터미널과 위치를 보여 줍니다. **내 터미널에서 방금 `loft auth login` 을 실행했고 같은 코드가 보일 때만 승인하세요.**
 - 승인하면 그 계정의 세션이 터미널에 생깁니다. 브라우저와 같은 권한 표를 따르고, 유지 시간도 같으며, roster에서 계정이 중지·삭제되면 함께 끝납니다.
 - 로그인 정보는 `~/.config/loft/client.json` 에 주인만 읽을 수 있게 저장됩니다. 세션 키가 들어 있습니다. 다른 곳에 두려면 `LOFT_CLIENT_CONFIG` 에 경로를 줍니다.
 - 워크스페이스가 둘 이상인 계정은 명령마다 어느 워크스페이스인지 밝힙니다. `loft use` 로 기본을 정하거나, 그때그때 `--workspace` 를 줍니다(`loft api --workspace loft ...`). 정하지 않으면 `this account is in more than one tenant` 로 거부됩니다.
@@ -37,15 +37,15 @@ loft logout
 터미널이 부를 수 있는 작업만 적어서 로그인할 수 있습니다(D33). 비서에게 맡기는 터미널이 그 정도만 하게 하려는 것입니다.
 
 ```sh
-loft login --allow read                                          # 읽기만: 조회, 검색, 이력
-loft login --allow read --allow '/loft.ReservationService/*'     # 읽기와 예약
-loft login --allow '/loft.AssetService/Move'                     # 메서드 하나
+loft auth login --allow read                                          # 읽기만: 조회, 검색, 이력
+loft auth login --allow read --allow '/loft.ReservationService/*'     # 읽기와 예약
+loft auth login --allow '/loft.AssetService/Move'                     # 메서드 하나
 ```
 
 - 패턴은 `/패키지.서비스/메서드` 이고, 어느 부분이든 `*` 로 쓸 수 있습니다(`/loft.*/Get`). `read` 는 읽기만 하는 메서드 모두입니다.
 - 승인 화면에 그 목록이 나오고, 세션에 그대로 적힙니다. 서버가 모든 호출에서 지키므로, 세션 키를 가진 누구도 목록 밖은 하지 못합니다(`this credential is not for that`).
 - 좁힌 세션은 RPC 옆의 HTTP 중 계정·동의 내역·라벨 조회 같은 읽기만 됩니다. 다른 터미널 승인, 데이터 내보내기, 워크스페이스 만들기, 약관 동의는 거부됩니다.
-- `loft whoami` 가 그 목록을 보여 줍니다. 넓히려면 `--allow` 없이 다시 로그인합니다.
+- `loft auth whoami` 가 그 목록을 보여 줍니다. 넓히려면 `--allow` 없이 다시 로그인합니다.
 
 ## `loft api`: 모든 RPC를 명령으로
 
@@ -132,7 +132,7 @@ loft consent --agree                     # 읽은 뒤 동의
 
 ## 비서에게 맡기기 (MCP)
 
-`loft mcp` 는 MCP 서버입니다(D32). Claude Code나 Claude Desktop 같은 MCP 클라이언트가 이 명령을 띄우면, 비서가 터미널에 로그인한 계정으로 워크스페이스를 읽고, 그 사람이 승인한 것을 바꿉니다. 먼저 `loft login` 을 하고, `loft` 가 PATH에 있어야 합니다.
+`loft mcp` 는 MCP 서버입니다(D32). Claude Code나 Claude Desktop 같은 MCP 클라이언트가 이 명령을 띄우면, 비서가 터미널에 로그인한 계정으로 워크스페이스를 읽고, 그 사람이 승인한 것을 바꿉니다. 먼저 `loft auth login` 을 하고, `loft` 가 PATH에 있어야 합니다.
 
 ```sh
 claude mcp add --scope user loft -- loft mcp                      # Claude Code
@@ -171,8 +171,8 @@ Claude Desktop은 설정 파일(`claude_desktop_config.json`)의 `mcpServers` �
   - 사람이 그 문장을 보고 "예"라고 하면, 비서가 `apply` 에 토큰과 그 문장을 그대로 넘겨 실행합니다. 문장이 `apply` 의 인자라서, 클라이언트가 실행 전에 묻는 승인 창에도 그 문장이 보입니다.
   - 토큰은 10분 동안, 한 번만 쓰입니다. 같은 작업을 다시 보내도 서버는 한 번으로 처리합니다.
   - 이력에는 그 사람이 한 것으로 남습니다.
-- **비서가 할 수 있는 것을 좁히려면** 그 터미널을 `loft login --allow` 로 로그인합니다. 예를 들어 `--allow read` 면 읽기만 하고, 미리보기 단계에서 거부됩니다.
+- **비서가 할 수 있는 것을 좁히려면** 그 터미널을 `loft auth login --allow` 로 로그인합니다. 예를 들어 `--allow read` 면 읽기만 하고, 미리보기 단계에서 거부됩니다.
 - 브라우저와 같은 권한 표와 벽을 따르므로, 비서는 그 사람이 볼 수 있는 것만 봅니다. 서버는 MCP를 모르고, 새로 여는 것도 없습니다.
-- 로그인은 부를 때마다 다시 읽습니다. `loft login` 과 `loft use` 는 비서를 다시 띄우지 않아도 다음 호출부터 적용됩니다.
+- 로그인은 부를 때마다 다시 읽습니다. `loft auth login` 과 `loft use` 는 비서를 다시 띄우지 않아도 다음 호출부터 적용됩니다.
 - 도구의 답(자산과 사람의 이름 등)은 비서를 제공하는 쪽으로 갑니다. 그래서 사람의 이메일과 전화번호는 답에 넣지 않습니다.
 - 결제(`loft api payment ...`)는 비서의 도구에 아직 없습니다.

@@ -58,7 +58,7 @@ type Account struct {
 	// Owes is what it has to agree to before it uses anything here, at the
 	// versions in force; absent for nothing (design 9.11).
 	Owes []consent.Document `json:"owes,omitempty"`
-	// Allow is the methods the session asking is narrowed to (`loft login
+	// Allow is the methods the session asking is narrowed to (`loft auth login
 	// --allow`, D33); absent is all that the account may do.
 	Allow []string `json:"allow,omitempty"`
 	// Pinned is the workspace a workspace's own domain serves alone, by its
@@ -272,7 +272,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 // SignedIn is the account the request's session names, or false with the
 // answer written: what every HTTP route beside the RPCs asks first.
 //
-// A session narrowed to some methods (`loft login --allow`, D33) is refused.
+// A session narrowed to some methods (`loft auth login --allow`, D33) is refused.
 // What is served beside the RPCs is no method a grant names, and what a route
 // there does -- approve another terminal, agree to terms -- is not what a
 // terminal that may do less than its account asked for: one that could
@@ -289,7 +289,7 @@ func signedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sess
 		return identity.Person{}, authsession.Session{}, false
 	}
 	if !v.Grant.IsWhole() {
-		http.Error(w, "this sign-in may only do what `loft login --allow` named, and this is not that: sign in without it", http.StatusForbidden)
+		http.Error(w, "this sign-in may only do what `loft auth login --allow` named, and this is not that: sign in without it", http.StatusForbidden)
 		return identity.Person{}, authsession.Session{}, false
 	}
 	return p, v, true

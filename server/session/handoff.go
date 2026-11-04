@@ -39,7 +39,7 @@ import (
 //     service's `GET /handoff?to=<host>&state=<state>`.
 //  2. The service makes a code for an active `app` domain alone -- any other
 //     host is answered no, and nothing is sent anywhere -- and for a browser
-//     signed in there as an account that may do all it may (no `loft login
+//     signed in there as an account that may do all it may (no `loft auth login
 //     --allow`), that has agreed to what the deployment asks, and that is a
 //     member of the domain's workspace. Anybody else is signed in first, or
 //     told no. The code goes to that domain's `GET /handoff/callback`.
@@ -204,7 +204,7 @@ func (h Handoff) give(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !v.Grant.IsWhole() {
-		http.Error(w, "this sign-in may only do what `loft login --allow` named, and hands nothing on: sign in without it", http.StatusForbidden)
+		http.Error(w, "this sign-in may only do what `loft auth login --allow` named, and hands nothing on: sign in without it", http.StatusForbidden)
 		return
 	}
 	account, err := pdid.Parse(v.Id)

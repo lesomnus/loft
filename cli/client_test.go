@@ -30,6 +30,7 @@ import (
 type served struct {
 	t   *testing.T
 	x   *require.Assertions
+	c   cmd.Config
 	s   *cmd.Server
 	url string
 }
@@ -66,7 +67,7 @@ func serveWith(t *testing.T, with func(*cmd.Config)) *served {
 
 	t.Setenv("LOFT_CLIENT_CONFIG", filepath.Join(t.TempDir(), "client.json"))
 	t.Setenv("LOFT_WORKSPACE", "")
-	return &served{t: t, x: x, s: s, url: srv.URL}
+	return &served{t: t, x: x, c: c, s: s, url: srv.URL}
 }
 
 // http is one plain call, as the page makes it.
@@ -123,15 +124,15 @@ func (s *served) waiting() string {
 	return code
 }
 
-// login runs `loft login` and answers it in a browser as somebody: what
+// login runs `loft auth login` and answers it in a browser as somebody: what
 // `answer` does with the code it was shown.
 func (s *served) login(answer func(code string), args ...string) error {
 	s.t.Helper()
-	k := cli.NewCmdLogin()
+	k := cli.NewCmdAuth()
 	k.Writer = io.Discard
 	done := make(chan error, 1)
 	go func() {
-		done <- k.Run(context.Background(), append([]string{"--url", s.url, "--no-browser"}, args...))
+		done <- k.Run(context.Background(), append([]string{"login", "--url", s.url, "--no-browser"}, args...))
 	}()
 	answer(s.waiting())
 	select {
@@ -144,7 +145,7 @@ func (s *served) login(answer func(code string), args ...string) error {
 }
 
 // signIn is a terminal signed in as somebody, approved in their browser --
-// narrowed to what `allow` names, for `loft login --allow`.
+// narrowed to what `allow` names, for `loft auth login --allow`.
 func (s *served) signIn(login, password string, allow ...string) {
 	s.t.Helper()
 	cookie := s.browser(login, password)
@@ -161,20 +162,24 @@ func (s *served) signIn(login, password string, allow ...string) {
 	}, args...))
 }
 
-// terminal is the cookie the terminal signed in last holds, as `loft api`
-// sends it.
+// terminal is the cookie the connection in use holds, as `loft api` sends
+// it.
 func (s *served) terminal() string {
 	s.t.Helper()
 	b, err := os.ReadFile(os.Getenv("LOFT_CLIENT_CONFIG"))
 	s.x.NoError(err)
-	var v struct{ Cookie, Key string }
+	var v struct {
+		Current     string
+		Connections map[string]struct{ Cookie, Key string }
+	}
 	s.x.NoError(json.Unmarshal(b, &v))
-	return v.Cookie + "=" + v.Key
+	c := v.Connections[v.Current]
+	return c.Cookie + "=" + c.Key
 }
 
 // TestATerminalSignsInByBeingApproved.
 //
-// `loft login` shows a code; a person signed in at the app approves it; the
+// `loft auth login` shows a code; a person signed in at the app approves it; the
 // terminal is then that person, through every operation the API has -- the
 // entities' verbs, the domain's operations, any method by name -- and signing
 // out ends it where it lives.
@@ -183,7 +188,7 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 	x := s.x
 	s.signIn("owner", "owner1234")
 
-	out := run(t, cli.NewCmdWhoami())
+	out := run(t, cli.NewCmdAuth(), "whoami")
 	x.Contains(out, "owner")
 	x.Contains(out, "@acme\towner")
 
@@ -202,12 +207,12 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 	x.Contains(out, "연구실")
 	x.Error(cli.NewCmdUse().Run(context.Background(), []string{"nowhere"}), "a workspace it is not in")
 	run(t, cli.NewCmdUse(), "acme")
-	out = run(t, cli.NewCmdWhoami())
+	out = run(t, cli.NewCmdAuth(), "whoami")
 	x.Contains(out, "* @acme")
 
-	run(t, cli.NewCmdLogout())
-	err := cli.NewCmdWhoami().Run(context.Background(), nil)
-	x.ErrorContains(err, "not signed in")
+	run(t, cli.NewCmdAuth(), "logout")
+	err := cli.NewCmdAuth().Run(context.Background(), []string{"whoami"})
+	x.ErrorContains(err, "no connection", "signed out, and forgotten")
 }
 
 // TestATerminalNamesAWorkspaceItsAccountOwns (D58): what a workspace is called,
@@ -263,7 +268,7 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 		x.Equal(http.StatusNoContent, status, body)
 	}, "--allow", "read"))
 
-	out := run(t, cli.NewCmdWhoami())
+	out := run(t, cli.NewCmdAuth(), "whoami")
 	x.Contains(out, "allowed only: /loft.*/Get, /loft.*/List")
 	out = run(t, cli.NewCmdApi(), "asset", "ls", "-o", "json")
 	x.NotContains(out, "error", "a read")
@@ -352,7 +357,7 @@ func TestASignInNobodyApprovedIsNotOne(t *testing.T) {
 			x.Equal(http.StatusNoContent, status)
 		})
 		x.ErrorContains(err, "turned away")
-		x.ErrorContains(cli.NewCmdWhoami().Run(context.Background(), nil), "not signed in")
+		x.ErrorContains(cli.NewCmdAuth().Run(context.Background(), []string{"whoami"}), "no connection")
 	})
 
 	t.Run("approved by nobody signed in", func(t *testing.T) {

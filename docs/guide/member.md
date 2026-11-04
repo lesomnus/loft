@@ -23,7 +23,7 @@
 3. **최근 알림**: 인수 확인 요청, 승인 결과, 반납 기한 같은 것입니다. 위의 종 모양에서 전부 봅니다.
 
 ```sh
-loft whoami                                   # 누구로, 어느 워크스페이스에
+loft auth whoami                                   # 누구로, 어느 워크스페이스에
 loft api notification inbox '{"unread": true}'  # 읽지 않은 알림
 loft api notification mark-read               # 모두 읽음으로
 ```

@@ -303,7 +303,7 @@ function Boot(): ReactNode {
 				setState({ at: 'billing', account: a })
 				return
 			}
-			// A terminal asking to be signed in as the account (`loft login`).
+			// A terminal asking to be signed in as the account (`loft auth login`).
 			if (location.pathname === '/cli') {
 				setState({ at: 'terminal', account: a })
 				return

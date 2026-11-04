@@ -75,15 +75,16 @@ import (
 // every load starts from it, and the file, the environment and the flags go
 // over the top.
 func Cmd(c *cmd.Config) *xli.Command {
-	l := cfg.New(cmd.Name, c)
+	l := cfg.New(cmd.Name, c, TerminalReads)
 
 	// `version` needs no configuration, and is what somebody runs to ask a
 	// deployment whose configuration is wrong what build it is.
 	version := pdcmd.NewCmdVersion()
 
-	// The terminal's half, which runs anywhere as a person and reads none of
-	// a deployment's configuration: it keeps its own (`LOFT_CLIENT_CONFIG`).
-	login, logout, whoami, use, ws, api, scan, register, agree, assist := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi(), NewCmdScan(), NewCmdRegister(), NewCmdConsent(), NewCmdMcp()
+	// The terminal's half, which runs anywhere, as the person or the operator
+	// its connection is (design 9.16), and reads none of a deployment's
+	// configuration: it keeps its own (`LOFT_CLIENT_CONFIG`).
+	auth, use, ws, api, scan, register, agree, assist := NewCmdAuth(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi(), NewCmdScan(), NewCmdRegister(), NewCmdConsent(), NewCmdMcp()
 
 	// The deployment's own life, which runs where there is no server to ask
 	// (design 9.15): its first workspace, and its database brought to this
@@ -97,7 +98,12 @@ func Cmd(c *cmd.Config) *xli.Command {
 		Name:  cmd.Name,
 		Brief: "loft",
 
-		Flags: flg.Flags{cfg.ConfigFlag()},
+		Flags: flg.Flags{
+			cfg.ConfigFlag(),
+			&flg.String{Name: "connection", Brief: "the connection to use, by name (`loft auth list`); LOFT_CONNECTION, or the one `loft auth switch` chose"},
+			&flg.String{Name: "url", Brief: "with --key, the operator's entry point for this command alone; LOFT_ADMIN_URL, or http://127.0.0.1:8081"},
+			&flg.String{Name: "key", Brief: "the operator's key, as env:NAME or file:PATH -- never the key -- for this command alone; LOFT_ADMIN_KEY"},
+		},
 
 		Commands: []*xli.Command{
 			version,
@@ -105,9 +111,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 			first,
 			migrate,
 			NewCmdServe(c),
-			login,
-			logout,
-			whoami,
+			auth,
 			use,
 			ws,
 			api,
@@ -118,7 +122,12 @@ func Cmd(c *cmd.Config) *xli.Command {
 		},
 
 		Handler: xli.Chain(
-			cfg.Load(l, version, login, logout, whoami, use, ws, api, scan, register, agree, assist),
+			cfg.Load(l, version, auth, use, ws, api, scan, register, agree, assist),
+			// Which connection the terminal's commands use, as the command
+			// line says it (design 9.16): read where they connect.
+			xli.OnRunPass(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+				return next(withChoice(ctx, Choice{Name: flag(self, "connection"), Url: flag(self, "url"), Key: flag(self, "key")}))
+			}),
 			observed(c, first, migrate),
 			xli.RequireSubcommand(),
 		),

@@ -36,7 +36,7 @@ import (
 // person read.
 //
 // What may be done is what the person may do. The policy table and the
-// domain decide when apply calls; a terminal signed in narrowed (`loft login
+// domain decide when apply calls; a terminal signed in narrowed (`loft auth login
 // --allow`) is held to that by the server, and is told so here at the plan.
 // The history names the person, and nothing of the assistant.
 //
@@ -157,7 +157,7 @@ func (t mcpTools) planned(c *mcpCall, p *plan) (*mcp.CallToolResult, mcpPlanned,
 		return nil, out, err
 	}
 	if !ok {
-		return nil, out, fmt.Errorf("this terminal's sign-in may not call %s (loft whoami says what it may); signing in again without that --allow is the person's to do", p.method)
+		return nil, out, fmt.Errorf("this terminal's sign-in may not call %s (loft auth whoami says what it may); signing in again without that --allow is the person's to do", p.method)
 	}
 	token, err := t.plans.put(p)
 	if err != nil {

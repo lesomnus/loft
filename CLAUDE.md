@@ -353,15 +353,15 @@ asked of a running deployment over the address a browser reaches it at
 (`cli/connect.go` speaks Connect to the same transcoder the page does): payday's
 entity tree (`pdcmd`), every other method of an entity's service beside it
 (`loft api asset move`), and `loft api call` by name. A terminal signs in with
-`loft login`, which a person signed in at the app approves (`server/clilogin`):
+`loft auth login`, which a person signed in at the app approves (`server/clilogin`):
 the terminal makes up its session key and sends only its hash, so the session
 is a browser's session in every respect. These commands read no server
 configuration; their own is `LOFT_CLIENT_CONFIG`. A new feature is an RPC, so it
 is a command too -- and what is HTTP beside the RPCs (`/account`) is only
-what a session is told of itself (`loft whoami`, `loft consent`); the
+what a session is told of itself (`loft auth whoami`, `loft consent`); the
 account's workspaces are RPCs (`loft workspace`, D73).
 
-A terminal may sign in narrowed (`loft login --allow PATTERN`, D33): the page
+A terminal may sign in narrowed (`loft auth login --allow PATTERN`, D33): the page
 that approves it shows the methods, and the session is narrowed to them --
 `Session.grant`, a payday `frame.Grant` that the gRPC chain holds every call
 to, so whoever holds the key can do that much and no more. Beside the RPCs a

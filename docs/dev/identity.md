@@ -84,7 +84,7 @@ roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchServic
 - 로그인한 사람이 roster에서 중지·삭제되거나 "모든 곳에서 로그아웃"되면 Loft의 세션도 끝납니다. 외부 roster면 roster가 말하는 즉시(roster의 동기화 스트림), 그렇지 않아도 30초 안에 끝납니다. roster에 물을 수 없으면 로그인과 세션이 거부됩니다(503).
 - 처음 로그인한 계정이 어느 워크스페이스에도 없으면 자기 워크스페이스가 하나 생깁니다(`tenancy.Workspaces.Arrive`). 그 뒤로 만드는 워크스페이스는 `TenantService.Create` 이고, `TenantService.Mine` 이 계정이 속한 것을 답합니다. 둘 다 계정으로 부르는 메서드입니다(payday#184, D73). 어느 워크스페이스의 구성원 자격도 아닌 계정 자신으로 처리되므로 워크스페이스를 고르기 전에 부릅니다.
 - RPC 옆의 HTTP로 남은 것은 세션이 자기에 대해 듣는 것뿐입니다. `GET /account` 는 누구인지, 동의할 것, `--allow`, 그리고 워크스페이스의 자기 도메인에서는 그 워크스페이스(`here`)를 답하고, 약관 동의는 `GET`·`POST /account/consents` 입니다. 동의하지 않은 계정은 가진 것(`Mine`, 자기 워크스페이스의 내보내기) 말고는 모든 RPC가 거절되므로, 동의는 그 거절 밖에 있어야 합니다.
-- 터미널의 로그인(`loft login`)은 브라우저에서 승인하는 같은 계정의 세션입니다([터미널과 비서](../guide/terminal.md)). 로그인 실패와 터미널 로그인의 제한은 [보안](security.md#로그인-제한)에 있습니다.
+- 터미널의 로그인(`loft auth login`)은 브라우저에서 승인하는 같은 계정의 세션입니다([터미널과 비서](../guide/terminal.md)). 로그인 실패와 터미널 로그인의 제한은 [보안](security.md#로그인-제한)에 있습니다.
 
 ## SSO
 
