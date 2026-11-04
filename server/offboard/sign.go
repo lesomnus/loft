@@ -247,7 +247,7 @@ func Verify(r io.ReaderAt, size int64, trust []crypto.PublicKey) (Manifest, erro
 }
 
 // Fingerprints names an export and the key it is signed by, as a restore
-// records them and `loft-admin tenant verify` prints them: the SHA-256 of its
+// records them and `loft tenant verify` prints them: the SHA-256 of its
 // manifest, which holds the digest of every other file in it, and of the
 // public key its signature is by -- each `sha256:` and hex. Whoever keeps the
 // export can show by them that it is the one a workspace was restored from,

@@ -56,7 +56,7 @@ var errDry = errors.New("offboard: a dry run")
 // floors (`audit.min`, `audit.by.<kind>.min`) and no archive, which is where a
 // retirement keeps what they are on and the record that it left (payday#115).
 // Nothing of it has been taken. It retires once `audit.archive` names one, or
-// is purged on an operator's word -- `loft-admin tenant purge`, or a contract that
+// is purged on an operator's word -- `loft tenant purge`, or a contract that
 // says `purge_floors` -- which takes what the floors are on with it.
 var ErrNoArchive = errors.New("a tenant retires into the trail's archive, which keeps what the deployment's floors are on, and audit.archive names none")
 

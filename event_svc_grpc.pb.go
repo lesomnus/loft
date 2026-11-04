@@ -49,7 +49,7 @@ type EventServiceClient interface {
 	// event of its own, `event.redact`, whose reason is the request's
 	// reference. It answers the event as it is now. No role is given it yet
 	// (`server/policy`): who may is the workspace's to say, and the
-	// deployment's operator does it at the entry point (`loft-admin event
+	// deployment's operator does it at the entry point (`loft event
 	// redact`, design 9.15).
 	Redact(ctx context.Context, in *EventRedactRequest, opts ...grpc.CallOption) (*Event, error)
 }
@@ -144,7 +144,7 @@ type EventServiceServer interface {
 	// event of its own, `event.redact`, whose reason is the request's
 	// reference. It answers the event as it is now. No role is given it yet
 	// (`server/policy`): who may is the workspace's to say, and the
-	// deployment's operator does it at the entry point (`loft-admin event
+	// deployment's operator does it at the entry point (`loft event
 	// redact`, design 9.15).
 	Redact(context.Context, *EventRedactRequest) (*Event, error)
 	mustEmbedUnimplementedEventServiceServer()

@@ -279,7 +279,7 @@ func init() {
 	allow(Owner, "PaymentService", "Offer")
 
 	// A tenant's contract and the legal holds on it are the operator's: the
-	// entry point writes them (`loft-admin contract`, `hold`), and no role here
+	// entry point writes them (`loft tenant-contract add`, `loft legal-hold add`), and no role here
 	// may. The contract is everybody's to read, since it says what becomes of
 	// the workspace's trail when it is destroyed; a hold is for the people who
 	// run the tenant. How long the workspace keeps its history is its own,

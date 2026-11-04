@@ -481,7 +481,7 @@ func TestAnOperatorsHandIsNotReadOnly(t *testing.T) {
 	_, err = w.s.Ungated.AssetType().Add(as, app.AssetTypeAddRequest_builder{Name: "입력 장치", Kind: "item"}.Build())
 	x.NoError(err)
 	h := w.holder("han", "member")
-	x.NotNil(h, "a membership an operator adds (`loft-admin holder add`)")
+	x.NotNil(h, "a membership an operator adds (`loft holder add`)")
 }
 
 // TestReadOnlyRefusesWithItsOwnReason (D64): a workspace levyan both

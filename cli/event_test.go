@@ -345,9 +345,9 @@ func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) 
 	x.NoError(err, out)
 }
 
-// TestAnOperatorReadsTheAccessRecordAndItsReviews: `access ls` says each call
-// by identifier, an operator's by name too, narrowed as it is asked; and
-// `access reviews` what every workspace's administrators recorded, or one
+// TestAnOperatorReadsTheAccessRecordAndItsReviews: `access list` says each
+// call by identifier, an operator's by name too, narrowed as it is asked; and
+// `access-review list` what every workspace's administrators recorded, or one
 // workspace's.
 func TestAnOperatorReadsTheAccessRecordAndItsReviews(t *testing.T) {
 	x := require.New(t)

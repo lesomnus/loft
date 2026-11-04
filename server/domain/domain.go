@@ -124,7 +124,7 @@ type Deps struct {
 	// of payday's `owed` for each, which a rollback takes with the rest. What
 	// a legal hold is on stays as it was, and it answers how many of the
 	// database's rows that kept; what a hold keeps in the archive stays owed
-	// (`loft-admin trail owed`). Nil blanks the database's rows only, which is all
+	// (`loft trail owed`). Nil blanks the database's rows only, which is all
 	// there is when the trail has no archive.
 	Forget func(ctx context.Context, db *ent.Client, objects []pdid.Id) (held int, err error)
 
