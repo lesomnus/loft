@@ -123,14 +123,16 @@ func TestADomainsTableAnEarlierBuildMadeIsMovedToItsName(t *testing.T) {
 	x.True(is("index", "domain_page"))
 	x.True(is("index", "domain_host"))
 	if s.Dialect == "postgres" {
-		for _, q := range []string{
-			`SELECT count(*) FROM pg_constraint WHERE conname = 'domain_tenant_tenant'`,
-			`SELECT count(*) FROM pg_constraint WHERE conname = 'label_domain_domain'`,
-			`SELECT count(*) FROM pg_constraint WHERE conname = 'domain_pkey'`,
+		// Each of its table, which is this test's: the database holds other
+		// tests' beside it, each with its own.
+		for _, c := range []struct{ name, table string }{
+			{"domain_tenant_tenant", "domain"},
+			{"label_domain_domain", "label"},
+			{"domain_pkey", "domain"},
 		} {
 			n := 0
-			x.NoError(s.Db.QueryRowContext(ctx, q).Scan(&n))
-			x.Equal(1, n, q)
+			x.NoError(s.Db.QueryRowContext(ctx, `SELECT count(*) FROM pg_constraint WHERE conname = $1 AND conrelid = $2::regclass`, c.name, c.table).Scan(&n))
+			x.Equal(1, n, "constraint %s of %s", c.name, c.table)
 		}
 	}
 
