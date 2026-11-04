@@ -24,12 +24,17 @@
 # E2E_OPENSEARCH names an OpenSearch to search on (D31) -- https://user:pass@…,
 # the password in letters a URL leaves as they are, and its CA in
 # E2E_OPENSEARCH_CA. Each server has indexes of its own there, e2e-PORT-…,
-# taken out and made again from its database before it serves.
+# taken out and made again from its database before it serves -- asked of
+# the operator's entry point (D74), which is stood up for that alone on
+# 127.0.0.1:PORT+2 with a key made up for the run, and stopped before the
+# server starts, so that no test races the loop that makes an index when
+# there is none.
 #
 # Nothing of a desk's reaches it: its configuration is the environment written
 # here, every other LOFT_* is unset, and there is no loft.yaml where it runs.
 # E2E_LOFT names a loft already built -- CI's, or one built on a host for a
-# container that has no Go.
+# container that has no Go -- and E2E_LOFT_ADMIN the loft-admin beside it,
+# which only E2E_OPENSEARCH asks for.
 set -eu
 
 port=${1:-}
@@ -57,6 +62,14 @@ bin=${E2E_LOFT:-}
 if [ -z "$bin" ]; then
 	bin=$dir/loft
 	(cd "$root" && go build -o "$bin" ./cmd/loft)
+fi
+admin=
+if [ -n "${E2E_OPENSEARCH:-}" ]; then
+	admin=${E2E_LOFT_ADMIN:-}
+	if [ -z "$admin" ]; then
+		admin=$dir/loft-admin
+		(cd "$root" && go build -o "$admin" ./cmd/loft-admin)
+	fi
 fi
 
 for v in $(env | sed -n 's/^\(LOFT_[A-Za-z0-9_]*\)=.*/\1/p'); do
@@ -126,14 +139,35 @@ billing)
 esac
 
 # It writes a line for every call, so what it says goes to the log, and only
-# the end of that is shown -- when it stops on its own, which is a failure.
-trap 'status=$?; [ "$status" -eq 0 ] || tail -n 40 "$log" >&2' EXIT
+# the end of that is shown -- when it stops on its own, which is a failure. An
+# entry point stood up below and not stopped yet is stopped with it.
+served=
+trap 'status=$?; [ -z "$served" ] || kill "$served" 2>/dev/null; [ "$status" -eq 0 ] || tail -n 40 "$log" >&2' EXIT
 
 cd "$dir"
 "$bin" init --tenant acme --login owner --password owner-pass-1234 --demo >"$log" 2>&1
 if [ -n "${E2E_OPENSEARCH:-}" ]; then
-	# What a run before left there is another database's.
-	"$bin" search remove --yes >>"$log" 2>&1
-	"$bin" search reindex >>"$log" 2>&1
+	# What a run before left there is another database's: taken out, and made
+	# again from this one, by the operator's entry point.
+	at=127.0.0.1:$((port + 2))
+	key=$dir/admin.key
+	od -An -tx1 -N32 /dev/urandom | tr -d ' \n' >"$key"
+	ask() { "$admin" --url "http://$at" --key "file:$key" "$@"; }
+	LOFT_ADMIN_ADDR=$at LOFT_ADMIN_KEYS="e2e=file:$key" "$admin" serve >>"$log" 2>&1 &
+	served=$!
+	i=0
+	until ask tenant ls >/dev/null 2>&1; do
+		i=$((i + 1))
+		if ! kill -0 "$served" 2>/dev/null || [ "$i" -ge 150 ]; then
+			echo "serve.sh: the entry point on $at did not answer" >&2
+			exit 1
+		fi
+		sleep 0.2
+	done
+	ask search remove --yes >>"$log" 2>&1
+	ask search reindex >>"$log" 2>&1
+	kill "$served"
+	wait "$served" 2>/dev/null || true
+	served=
 fi
 "$bin" serve >>"$log" 2>&1

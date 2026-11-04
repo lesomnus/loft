@@ -56,7 +56,7 @@ npx playwright test                          # 또는 npm run e2e
 npx playwright show-trace test-results/<실패한 테스트>/trace.zip
 ```
 
-브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 loft와 발급자와 levyan을 `E2E_LOFT`, `E2E_ISSUER`, `E2E_LEVYAN` 으로 넘기고, 태그의 버전은 `ts/package-lock.json` 이 설치하는 Playwright에서 읽습니다. 이미지의 브라우저는 그 버전이 다루는 브라우저라서, Playwright를 올리면 이미지도 따라 바뀝니다.
+브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 loft와 발급자와 levyan을 `E2E_LOFT`, `E2E_ISSUER`, `E2E_LEVYAN` 으로 넘기고(OpenSearch에서 돌릴 때는 loft-admin도 `E2E_LOFT_ADMIN` 으로), 태그의 버전은 `ts/package-lock.json` 이 설치하는 Playwright에서 읽습니다. 이미지의 브라우저는 그 버전이 다루는 브라우저라서, Playwright를 올리면 이미지도 따라 바뀝니다.
 
 ```sh
 CGO_ENABLED=0 GOOS=linux go build -o /tmp/loft ./cmd/loft
@@ -86,7 +86,7 @@ Playwright 이미지로 돌릴 때는 앞의 Playwright `docker run` 에 `--netw
 
 ### OpenSearch에서
 
-검색을 OpenSearch로 돌리려면 `E2E_OPENSEARCH` 에 클러스터 주소를 줍니다. TLS면 `https://사용자:비밀번호@…` 로 주고, CA는 `E2E_OPENSEARCH_CA` 에 줍니다. 서버마다 자기 인덱스(`e2e-<포트>-…`)를 쓰고, 뜨기 전에 지운 뒤 자기 DB로 다시 만듭니다. CI의 `e2e (sqlite, opensearch)` 가 이렇게 돕니다(`scripts/opensearch.sh`). 개발용 클러스터는 [검색 엔진](search.md#개발용-클러스터)에 있습니다.
+검색을 OpenSearch로 돌리려면 `E2E_OPENSEARCH` 에 클러스터 주소를 줍니다. TLS면 `https://사용자:비밀번호@…` 로 주고, CA는 `E2E_OPENSEARCH_CA` 에 줍니다. 서버마다 자기 인덱스(`e2e-<포트>-…`)를 쓰고, 뜨기 전에 지운 뒤 자기 DB로 다시 만듭니다. 그 일은 운영자 진입점에 묻습니다. 서버마다 그 일에만 쓰는 진입점을 `<포트>+2` 에, 그 실행만의 키로 띄웠다가 서버가 뜨기 전에 내립니다(`ts/e2e/serve.sh`). CI의 `e2e (sqlite, opensearch)` 가 이렇게 돕니다(`scripts/opensearch.sh`). 개발용 클러스터는 [검색 엔진](search.md#개발용-클러스터)에 있습니다.
 
 ```sh
 E2E_OPENSEARCH=http://127.0.0.1:9200 npx playwright test
