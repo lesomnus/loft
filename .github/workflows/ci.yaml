@@ -183,8 +183,8 @@ jobs:
       - name: this build, the one it comes after, and the oldest a deployment runs
         env:
           BEFORE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          # Staging's (loft#99), c91c626.
-          OLDEST: c91c626bfca64485ea185d8eaba99da8cc433294
+          # Staging's (loft#99), eb7acef.
+          OLDEST: eb7acef4e4f7b639387af7f8ebe681c8dd5a7b04
         run: |
           go build -o "${RUNNER_TEMP}/bin-now/" ./cmd/loft ./cmd/loft-admin
           # old NAME COMMIT: the build at COMMIT, in bin-NAME -- or, for one
