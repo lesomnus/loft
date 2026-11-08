@@ -109,7 +109,7 @@ func TestACheckInAndTheNoShowSweepAtOnceDoNotBothLand(t *testing.T) {
 	case "no_show":
 		x.Equal(codes.FailedPrecondition, codeOf(checkIn), "told it checked in, and it is a no-show: %v", checkIn)
 		x.False(e.blocking(v))
-		x.False(v.HasCheckedInAt(), "a no-show somebody checked into")
+		x.False(v.HasDateCheckedIn(), "a no-show somebody checked into")
 	default:
 		x.Failf("neither", "%s", v.GetStatus())
 	}

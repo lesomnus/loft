@@ -195,7 +195,7 @@ func (t *Tx) expire(c time.Time, out *Expired) ([]string, error) {
 		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
 			return t.db.Stewardship.Delete().Where(stewardship.IdIn(ids...)).Exec(ctx)
 		}))
-	out.StockMovements = n(expireRows(t.ctx, &removed, t.db.StockMovement.Query().Where(stockmovement.TenantId(tid), stockmovement.OccurredAtLT(c)).Ids,
+	out.StockMovements = n(expireRows(t.ctx, &removed, t.db.StockMovement.Query().Where(stockmovement.TenantId(tid), stockmovement.DateOccurredLT(c)).Ids,
 		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
 			return t.db.StockMovement.Delete().Where(stockmovement.IdIn(ids...)).Exec(ctx)
 		}))
@@ -296,22 +296,22 @@ func expireRows(ctx context.Context, removed *[]pdid.Id, ids func(context.Contex
 
 func placementExpired(c time.Time) predicate.Placement {
 	return placement.Or(
-		placement.And(placement.ValidToNotNil(), placement.ValidToLTE(c)),
-		placement.And(placement.SupersededAtNotNil(), placement.SupersededAtLTE(c)),
+		placement.And(placement.DateEndNotNil(), placement.DateEndLTE(c)),
+		placement.And(placement.DateSupersededNotNil(), placement.DateSupersededLTE(c)),
 	)
 }
 
 func linkExpired(c time.Time) predicate.Link {
 	return link.Or(
-		link.And(link.ValidToNotNil(), link.ValidToLTE(c)),
-		link.And(link.SupersededAtNotNil(), link.SupersededAtLTE(c)),
+		link.And(link.DateEndNotNil(), link.DateEndLTE(c)),
+		link.And(link.DateSupersededNotNil(), link.DateSupersededLTE(c)),
 	)
 }
 
 func stewardshipExpired(c time.Time) predicate.Stewardship {
 	return stewardship.Or(
-		stewardship.And(stewardship.ValidToNotNil(), stewardship.ValidToLTE(c)),
-		stewardship.And(stewardship.SupersededAtNotNil(), stewardship.SupersededAtLTE(c)),
+		stewardship.And(stewardship.DateEndNotNil(), stewardship.DateEndLTE(c)),
+		stewardship.And(stewardship.DateSupersededNotNil(), stewardship.DateSupersededLTE(c)),
 	)
 }
 
@@ -352,7 +352,7 @@ func expiry(loft *Expired) past.Expiry {
 			return nil
 		}
 		return app.RetentionExpired_builder{
-			Before:         ts(v.Before),
+			DateBefore:     ts(v.Before),
 			Placements:     uint32(all.Placements),
 			Links:          uint32(all.Links),
 			Stewardships:   uint32(all.Stewardships),
@@ -377,7 +377,7 @@ var going = map[pdid.Domain]past.Going{
 	pd.LinkDomain:        func(c time.Time) func(*sql.Selector) { return linkExpired(c) },
 	pd.StewardshipDomain: func(c time.Time) func(*sql.Selector) { return stewardshipExpired(c) },
 	pd.StockMovementDomain: func(c time.Time) func(*sql.Selector) {
-		return stockmovement.And(stockmovement.OccurredAtNotNil(), stockmovement.OccurredAtLT(c))
+		return stockmovement.And(stockmovement.DateOccurredNotNil(), stockmovement.DateOccurredLT(c))
 	},
 }
 
@@ -415,7 +415,7 @@ func (t *Tx) takes(c time.Time) (Expired, error) {
 	out.Placements = n(t.db.Placement.Query().Where(placement.TenantId(tid), placementExpired(c)).Count(t.ctx))
 	out.Links = n(t.db.Link.Query().Where(link.TenantId(tid), linkExpired(c)).Count(t.ctx))
 	out.Stewardships = n(t.db.Stewardship.Query().Where(stewardship.TenantId(tid), stewardshipExpired(c)).Count(t.ctx))
-	out.StockMovements = n(t.db.StockMovement.Query().Where(stockmovement.TenantId(tid), stockmovement.OccurredAtLT(c)).Count(t.ctx))
+	out.StockMovements = n(t.db.StockMovement.Query().Where(stockmovement.TenantId(tid), stockmovement.DateOccurredLT(c)).Count(t.ctx))
 	out.Reservations = n(t.db.Reservation.Query().Where(reservation.TenantId(tid), reservationOver(c)).Count(t.ctx))
 	out.Custodies = n(t.db.Custody.Query().Where(custody.TenantId(tid), custodyOver(c)).Count(t.ctx))
 	out.Counts = n(t.db.InventoryCount.Query().Where(inventorycount.TenantId(tid), countOver(c)).Count(t.ctx))
@@ -444,19 +444,19 @@ func (t *Tx) takes(c time.Time) (Expired, error) {
 func reservationOver(s time.Time) predicate.Reservation {
 	return reservation.And(
 		reservation.StatusIn(resCompleted, resCancelled, resRejected, resExpired, resNoShow),
-		reservation.EndsAtLT(s),
+		reservation.DateEndLT(s),
 	)
 }
 
 // custodyOver is a hand-over all of which was back before `s`. A loan still
 // out is the present, however long ago it was made.
 func custodyOver(s time.Time) predicate.Custody {
-	return custody.And(custody.Status("returned"), custody.ReturnedAtNotNil(), custody.ReturnedAtLT(s))
+	return custody.And(custody.Status("returned"), custody.DateReturnedNotNil(), custody.DateReturnedLT(s))
 }
 
 // countOver is a count closed before `s`.
 func countOver(s time.Time) predicate.InventoryCount {
-	return inventorycount.And(inventorycount.Status("closed"), inventorycount.ClosedAtNotNil(), inventorycount.ClosedAtLT(s))
+	return inventorycount.And(inventorycount.Status("closed"), inventorycount.DateClosedNotNil(), inventorycount.DateClosedLT(s))
 }
 
 // workOver is a work order done or called off before `s`.
@@ -464,8 +464,8 @@ func workOver(s time.Time) predicate.WorkOrder {
 	return workorder.And(
 		workorder.StatusIn("done", "cancelled"),
 		workorder.Or(
-			workorder.And(workorder.CompletedAtNotNil(), workorder.CompletedAtLT(s)),
-			workorder.And(workorder.CompletedAtIsNil(), workorder.DateUpdatedLT(s)),
+			workorder.And(workorder.DateCompletedNotNil(), workorder.DateCompletedLT(s)),
+			workorder.And(workorder.DateCompletedIsNil(), workorder.DateUpdatedLT(s)),
 		),
 	)
 }

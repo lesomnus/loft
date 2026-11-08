@@ -352,7 +352,7 @@ func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 	if by == ClosedByDeployment {
 		why = ""
 	}
-	if err := t.begin(nil, "workspace.close", pdid.Nil, t.now, why, app.WorkspaceClosed_builder{By: by, Destroy: ts(destroy)}.Build()); err != nil {
+	if err := t.begin(nil, "workspace.close", pdid.Nil, t.now, why, app.WorkspaceClosed_builder{By: by, DateDestroy: ts(destroy)}.Build()); err != nil {
 		return nil, err
 	}
 	v, err := t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{

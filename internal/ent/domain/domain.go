@@ -28,18 +28,18 @@ const (
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
-	// FieldVerifiedAt holds the string denoting the verified_at field in the database.
-	FieldVerifiedAt = "verified_at"
-	// FieldCheckedAt holds the string denoting the checked_at field in the database.
-	FieldCheckedAt = "checked_at"
+	// FieldDateVerified holds the string denoting the date_verified field in the database.
+	FieldDateVerified = "date_verified"
+	// FieldDateChecked holds the string denoting the date_checked field in the database.
+	FieldDateChecked = "date_checked"
 	// FieldFailures holds the string denoting the failures field in the database.
 	FieldFailures = "failures"
-	// FieldFailingSince holds the string denoting the failing_since field in the database.
-	FieldFailingSince = "failing_since"
+	// FieldDateFailing holds the string denoting the date_failing field in the database.
+	FieldDateFailing = "date_failing"
 	// FieldDateLapsed holds the string denoting the date_lapsed field in the database.
 	FieldDateLapsed = "date_lapsed"
-	// FieldRedirectUntil holds the string denoting the redirect_until field in the database.
-	FieldRedirectUntil = "redirect_until"
+	// FieldDateRedirectUntil holds the string denoting the date_redirect_until field in the database.
+	FieldDateRedirectUntil = "date_redirect_until"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
@@ -66,12 +66,12 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
-	FieldVerifiedAt,
-	FieldCheckedAt,
+	FieldDateVerified,
+	FieldDateChecked,
 	FieldFailures,
-	FieldFailingSince,
+	FieldDateFailing,
 	FieldDateLapsed,
-	FieldRedirectUntil,
+	FieldDateRedirectUntil,
 	FieldTenantId,
 }
 
@@ -138,14 +138,14 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
 }
 
-// ByVerifiedAt orders the results by the verified_at field.
-func ByVerifiedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldVerifiedAt, opts...).ToFunc()
+// ByDateVerified orders the results by the date_verified field.
+func ByDateVerified(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateVerified, opts...).ToFunc()
 }
 
-// ByCheckedAt orders the results by the checked_at field.
-func ByCheckedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCheckedAt, opts...).ToFunc()
+// ByDateChecked orders the results by the date_checked field.
+func ByDateChecked(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateChecked, opts...).ToFunc()
 }
 
 // ByFailures orders the results by the failures field.
@@ -153,9 +153,9 @@ func ByFailures(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFailures, opts...).ToFunc()
 }
 
-// ByFailingSince orders the results by the failing_since field.
-func ByFailingSince(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFailingSince, opts...).ToFunc()
+// ByDateFailing orders the results by the date_failing field.
+func ByDateFailing(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateFailing, opts...).ToFunc()
 }
 
 // ByDateLapsed orders the results by the date_lapsed field.
@@ -163,9 +163,9 @@ func ByDateLapsed(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateLapsed, opts...).ToFunc()
 }
 
-// ByRedirectUntil orders the results by the redirect_until field.
-func ByRedirectUntil(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRedirectUntil, opts...).ToFunc()
+// ByDateRedirectUntil orders the results by the date_redirect_until field.
+func ByDateRedirectUntil(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateRedirectUntil, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.

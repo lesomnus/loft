@@ -44,10 +44,10 @@ func (Asset) Fields() []ent.Field {
 		field.String("slot"),
 		field.Json("attributes", map[string]string{}).
 			Optional(),
-		field.Time("acquired_at").
+		field.Time("date_acquired").
 			Nillable().
 			Optional(),
-		field.Time("disposed_at").
+		field.Time("date_disposed").
 			Nillable().
 			Optional(),
 		field.Uint64("content_version"),
@@ -208,22 +208,22 @@ func (Domain) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.Time("verified_at").
+		field.Time("date_verified").
 			Nillable().
 			Optional(),
-		field.Time("checked_at").
+		field.Time("date_checked").
 			Nillable().
 			Optional(),
 		field.Uint32("failures").
 			Optional().
 			Default(0),
-		field.Time("failing_since").
+		field.Time("date_failing").
 			Nillable().
 			Optional(),
 		field.Time("date_lapsed").
 			Nillable().
 			Optional(),
-		field.Time("redirect_until").
+		field.Time("date_redirect_until").
 			Nillable().
 			Optional(),
 		field.Uuid("tenant_id").
@@ -270,10 +270,10 @@ func (Label) Fields() []ent.Field {
 			Nillable().
 			Optional(),
 		field.String("state"),
-		field.Time("bound_at").
+		field.Time("date_bound").
 			Nillable().
 			Optional(),
-		field.Time("printed_at").
+		field.Time("date_printed").
 			Nillable().
 			Optional(),
 		field.Time("date_updated"),

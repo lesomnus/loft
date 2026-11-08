@@ -22,10 +22,10 @@ type AccessReview struct {
 	Id uuid.UUID `json:"id,omitempty"`
 	// Desc holds the value of the "desc" field.
 	Desc string `json:"desc,omitempty"`
-	// PeriodFrom holds the value of the "period_from" field.
-	PeriodFrom time.Time `json:"period_from,omitempty"`
-	// PeriodTo holds the value of the "period_to" field.
-	PeriodTo time.Time `json:"period_to,omitempty"`
+	// DateStart holds the value of the "date_start" field.
+	DateStart time.Time `json:"date_start,omitempty"`
+	// DateEnd holds the value of the "date_end" field.
+	DateEnd time.Time `json:"date_end,omitempty"`
 	// Calls holds the value of the "calls" field.
 	Calls uint32 `json:"calls,omitempty"`
 	// Downloads holds the value of the "downloads" field.
@@ -86,7 +86,7 @@ func (*AccessReview) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case accessreview.FieldDesc:
 			values[i] = new(sql.NullString)
-		case accessreview.FieldPeriodFrom, accessreview.FieldPeriodTo, accessreview.FieldDateCreated:
+		case accessreview.FieldDateStart, accessreview.FieldDateEnd, accessreview.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case accessreview.FieldId, accessreview.FieldTenantId, accessreview.FieldReviewerId:
 			values[i] = new(uuid.UUID)
@@ -117,17 +117,17 @@ func (_m *AccessReview) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Desc = value.String
 			}
-		case accessreview.FieldPeriodFrom:
+		case accessreview.FieldDateStart:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field period_from", values[i])
+				return fmt.Errorf("unexpected type %T for field date_start", values[i])
 			} else if value.Valid {
-				_m.PeriodFrom = value.Time
+				_m.DateStart = value.Time
 			}
-		case accessreview.FieldPeriodTo:
+		case accessreview.FieldDateEnd:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field period_to", values[i])
+				return fmt.Errorf("unexpected type %T for field date_end", values[i])
 			} else if value.Valid {
-				_m.PeriodTo = value.Time
+				_m.DateEnd = value.Time
 			}
 		case accessreview.FieldCalls:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -214,11 +214,11 @@ func (_m *AccessReview) String() string {
 	builder.WriteString("desc=")
 	builder.WriteString(_m.Desc)
 	builder.WriteString(", ")
-	builder.WriteString("period_from=")
-	builder.WriteString(_m.PeriodFrom.Format(time.ANSIC))
+	builder.WriteString("date_start=")
+	builder.WriteString(_m.DateStart.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("period_to=")
-	builder.WriteString(_m.PeriodTo.Format(time.ANSIC))
+	builder.WriteString("date_end=")
+	builder.WriteString(_m.DateEnd.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("calls=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Calls))

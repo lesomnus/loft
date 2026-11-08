@@ -45,19 +45,19 @@ func TestADetailSaysEachKindOfValue(t *testing.T) {
 	}
 
 	got, err := d.of(row("workspace.import", app.WorkspaceImported_builder{
-		ExportedAt: timestamppb.New(time.Date(2026, 10, 20, 23, 0, 0, 0, time.UTC)),
-		Rows:       120,
-		Released:   []string{"acme", "acme-old"},
-		Reopened:   true,
-		Left:       map[string]uint32{"party": 1, "asset": 3},
+		DateExported: timestamppb.New(time.Date(2026, 10, 20, 23, 0, 0, 0, time.UTC)),
+		Rows:         120,
+		Released:     []string{"acme", "acme-old"},
+		Reopened:     true,
+		Left:         map[string]uint32{"party": 1, "asset": 3},
 	}.Build()))
 	x.NoError(err)
 	x.Equal(map[string]string{
-		"exported_at": "2026-10-21T08:00:00+09:00",
-		"rows":        "120",
-		"released":    "acme, acme-old",
-		"reopened":    "true",
-		"left":        "asset=3, party=1",
+		"date_exported": "2026-10-21T08:00:00+09:00",
+		"rows":          "120",
+		"released":      "acme, acme-old",
+		"reopened":      "true",
+		"left":          "asset=3, party=1",
 	}, got)
 
 	got, err = d.of(row("asset.relate", app.AssetRelated_builder{

@@ -207,7 +207,7 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	x.NoError(err, "taking back")
 	at := time.Now().Add(48 * time.Hour).Truncate(time.Hour)
 	_, err = reservations.Add(w.signIn(booker), app.ReservationAddRequest_builder{
-		Name: "회의", BeginsAt: timestamppb.New(at), EndsAt: timestamppb.New(at.Add(time.Hour)),
+		Name: "회의", DateStart: timestamppb.New(at), DateEnd: timestamppb.New(at.Add(time.Hour)),
 		Items: []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: aref(room)}.Build()},
 	}.Build())
 	x.NoError(err, "booking")

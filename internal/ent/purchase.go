@@ -28,10 +28,10 @@ type Purchase struct {
 	Reference string `json:"reference,omitempty"`
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
-	// OrderedAt holds the value of the "ordered_at" field.
-	OrderedAt time.Time `json:"ordered_at,omitempty"`
-	// ReceivedAt holds the value of the "received_at" field.
-	ReceivedAt *time.Time `json:"received_at,omitempty"`
+	// DateOrdered holds the value of the "date_ordered" field.
+	DateOrdered time.Time `json:"date_ordered,omitempty"`
+	// DateReceived holds the value of the "date_received" field.
+	DateReceived *time.Time `json:"date_received,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
@@ -94,7 +94,7 @@ func (*Purchase) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case purchase.FieldName, purchase.FieldDesc, purchase.FieldReference, purchase.FieldStatus, purchase.FieldCurrency:
 			values[i] = new(sql.NullString)
-		case purchase.FieldOrderedAt, purchase.FieldReceivedAt, purchase.FieldDateUpdated, purchase.FieldDateErased, purchase.FieldDateCreated:
+		case purchase.FieldDateOrdered, purchase.FieldDateReceived, purchase.FieldDateUpdated, purchase.FieldDateErased, purchase.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case purchase.FieldVendorId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -145,18 +145,18 @@ func (_m *Purchase) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Status = value.String
 			}
-		case purchase.FieldOrderedAt:
+		case purchase.FieldDateOrdered:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field ordered_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_ordered", values[i])
 			} else if value.Valid {
-				_m.OrderedAt = value.Time
+				_m.DateOrdered = value.Time
 			}
-		case purchase.FieldReceivedAt:
+		case purchase.FieldDateReceived:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field received_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_received", values[i])
 			} else if value.Valid {
-				_m.ReceivedAt = new(time.Time)
-				*_m.ReceivedAt = value.Time
+				_m.DateReceived = new(time.Time)
+				*_m.DateReceived = value.Time
 			}
 		case purchase.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -259,11 +259,11 @@ func (_m *Purchase) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
-	builder.WriteString("ordered_at=")
-	builder.WriteString(_m.OrderedAt.Format(time.ANSIC))
+	builder.WriteString("date_ordered=")
+	builder.WriteString(_m.DateOrdered.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := _m.ReceivedAt; v != nil {
-		builder.WriteString("received_at=")
+	if v := _m.DateReceived; v != nil {
+		builder.WriteString("date_received=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

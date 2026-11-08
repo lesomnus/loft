@@ -237,43 +237,43 @@ func (_u *AssetUpdate) ClearAttributes() *AssetUpdate {
 	return _u
 }
 
-// SetAcquiredAt sets the "acquired_at" field.
-func (_u *AssetUpdate) SetAcquiredAt(v time.Time) *AssetUpdate {
-	_u.mutation.SetAcquiredAt(v)
+// SetDateAcquired sets the "date_acquired" field.
+func (_u *AssetUpdate) SetDateAcquired(v time.Time) *AssetUpdate {
+	_u.mutation.SetDateAcquired(v)
 	return _u
 }
 
-// SetNillableAcquiredAt sets the "acquired_at" field if the given value is not nil.
-func (_u *AssetUpdate) SetNillableAcquiredAt(v *time.Time) *AssetUpdate {
+// SetNillableDateAcquired sets the "date_acquired" field if the given value is not nil.
+func (_u *AssetUpdate) SetNillableDateAcquired(v *time.Time) *AssetUpdate {
 	if v != nil {
-		_u.SetAcquiredAt(*v)
+		_u.SetDateAcquired(*v)
 	}
 	return _u
 }
 
-// ClearAcquiredAt clears the value of the "acquired_at" field.
-func (_u *AssetUpdate) ClearAcquiredAt() *AssetUpdate {
-	_u.mutation.ClearAcquiredAt()
+// ClearDateAcquired clears the value of the "date_acquired" field.
+func (_u *AssetUpdate) ClearDateAcquired() *AssetUpdate {
+	_u.mutation.ClearDateAcquired()
 	return _u
 }
 
-// SetDisposedAt sets the "disposed_at" field.
-func (_u *AssetUpdate) SetDisposedAt(v time.Time) *AssetUpdate {
-	_u.mutation.SetDisposedAt(v)
+// SetDateDisposed sets the "date_disposed" field.
+func (_u *AssetUpdate) SetDateDisposed(v time.Time) *AssetUpdate {
+	_u.mutation.SetDateDisposed(v)
 	return _u
 }
 
-// SetNillableDisposedAt sets the "disposed_at" field if the given value is not nil.
-func (_u *AssetUpdate) SetNillableDisposedAt(v *time.Time) *AssetUpdate {
+// SetNillableDateDisposed sets the "date_disposed" field if the given value is not nil.
+func (_u *AssetUpdate) SetNillableDateDisposed(v *time.Time) *AssetUpdate {
 	if v != nil {
-		_u.SetDisposedAt(*v)
+		_u.SetDateDisposed(*v)
 	}
 	return _u
 }
 
-// ClearDisposedAt clears the value of the "disposed_at" field.
-func (_u *AssetUpdate) ClearDisposedAt() *AssetUpdate {
-	_u.mutation.ClearDisposedAt()
+// ClearDateDisposed clears the value of the "date_disposed" field.
+func (_u *AssetUpdate) ClearDateDisposed() *AssetUpdate {
+	_u.mutation.ClearDateDisposed()
 	return _u
 }
 
@@ -548,23 +548,23 @@ func (_u *AssetUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.AttributesCleared() {
 		_spec.ClearField(asset.FieldAttributes, field.TypeJson)
 	}
-	if value, ok := _u.mutation.AcquiredAt(); ok {
-		_spec.SetField(asset.FieldAcquiredAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateAcquired(); ok {
+		_spec.SetField(asset.FieldDateAcquired, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(asset.FieldAcquiredAt); ok {
-		_spec.SetField(asset.FieldAcquiredAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(asset.FieldDateAcquired); ok {
+		_spec.SetField(asset.FieldDateAcquired, field.TypeTime, e)
 	}
-	if _u.mutation.AcquiredAtCleared() {
-		_spec.ClearField(asset.FieldAcquiredAt, field.TypeTime)
+	if _u.mutation.DateAcquiredCleared() {
+		_spec.ClearField(asset.FieldDateAcquired, field.TypeTime)
 	}
-	if value, ok := _u.mutation.DisposedAt(); ok {
-		_spec.SetField(asset.FieldDisposedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateDisposed(); ok {
+		_spec.SetField(asset.FieldDateDisposed, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(asset.FieldDisposedAt); ok {
-		_spec.SetField(asset.FieldDisposedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(asset.FieldDateDisposed); ok {
+		_spec.SetField(asset.FieldDateDisposed, field.TypeTime, e)
 	}
-	if _u.mutation.DisposedAtCleared() {
-		_spec.ClearField(asset.FieldDisposedAt, field.TypeTime)
+	if _u.mutation.DateDisposedCleared() {
+		_spec.ClearField(asset.FieldDateDisposed, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ContentVersion(); ok {
 		_spec.SetField(asset.FieldContentVersion, field.TypeUint64, value)
@@ -888,43 +888,43 @@ func (_u *AssetUpdateOne) ClearAttributes() *AssetUpdateOne {
 	return _u
 }
 
-// SetAcquiredAt sets the "acquired_at" field.
-func (_u *AssetUpdateOne) SetAcquiredAt(v time.Time) *AssetUpdateOne {
-	_u.mutation.SetAcquiredAt(v)
+// SetDateAcquired sets the "date_acquired" field.
+func (_u *AssetUpdateOne) SetDateAcquired(v time.Time) *AssetUpdateOne {
+	_u.mutation.SetDateAcquired(v)
 	return _u
 }
 
-// SetNillableAcquiredAt sets the "acquired_at" field if the given value is not nil.
-func (_u *AssetUpdateOne) SetNillableAcquiredAt(v *time.Time) *AssetUpdateOne {
+// SetNillableDateAcquired sets the "date_acquired" field if the given value is not nil.
+func (_u *AssetUpdateOne) SetNillableDateAcquired(v *time.Time) *AssetUpdateOne {
 	if v != nil {
-		_u.SetAcquiredAt(*v)
+		_u.SetDateAcquired(*v)
 	}
 	return _u
 }
 
-// ClearAcquiredAt clears the value of the "acquired_at" field.
-func (_u *AssetUpdateOne) ClearAcquiredAt() *AssetUpdateOne {
-	_u.mutation.ClearAcquiredAt()
+// ClearDateAcquired clears the value of the "date_acquired" field.
+func (_u *AssetUpdateOne) ClearDateAcquired() *AssetUpdateOne {
+	_u.mutation.ClearDateAcquired()
 	return _u
 }
 
-// SetDisposedAt sets the "disposed_at" field.
-func (_u *AssetUpdateOne) SetDisposedAt(v time.Time) *AssetUpdateOne {
-	_u.mutation.SetDisposedAt(v)
+// SetDateDisposed sets the "date_disposed" field.
+func (_u *AssetUpdateOne) SetDateDisposed(v time.Time) *AssetUpdateOne {
+	_u.mutation.SetDateDisposed(v)
 	return _u
 }
 
-// SetNillableDisposedAt sets the "disposed_at" field if the given value is not nil.
-func (_u *AssetUpdateOne) SetNillableDisposedAt(v *time.Time) *AssetUpdateOne {
+// SetNillableDateDisposed sets the "date_disposed" field if the given value is not nil.
+func (_u *AssetUpdateOne) SetNillableDateDisposed(v *time.Time) *AssetUpdateOne {
 	if v != nil {
-		_u.SetDisposedAt(*v)
+		_u.SetDateDisposed(*v)
 	}
 	return _u
 }
 
-// ClearDisposedAt clears the value of the "disposed_at" field.
-func (_u *AssetUpdateOne) ClearDisposedAt() *AssetUpdateOne {
-	_u.mutation.ClearDisposedAt()
+// ClearDateDisposed clears the value of the "date_disposed" field.
+func (_u *AssetUpdateOne) ClearDateDisposed() *AssetUpdateOne {
+	_u.mutation.ClearDateDisposed()
 	return _u
 }
 
@@ -1229,23 +1229,23 @@ func (_u *AssetUpdateOne) sqlSave(ctx context.Context) (_node *Asset, err error)
 	if _u.mutation.AttributesCleared() {
 		_spec.ClearField(asset.FieldAttributes, field.TypeJson)
 	}
-	if value, ok := _u.mutation.AcquiredAt(); ok {
-		_spec.SetField(asset.FieldAcquiredAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateAcquired(); ok {
+		_spec.SetField(asset.FieldDateAcquired, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(asset.FieldAcquiredAt); ok {
-		_spec.SetField(asset.FieldAcquiredAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(asset.FieldDateAcquired); ok {
+		_spec.SetField(asset.FieldDateAcquired, field.TypeTime, e)
 	}
-	if _u.mutation.AcquiredAtCleared() {
-		_spec.ClearField(asset.FieldAcquiredAt, field.TypeTime)
+	if _u.mutation.DateAcquiredCleared() {
+		_spec.ClearField(asset.FieldDateAcquired, field.TypeTime)
 	}
-	if value, ok := _u.mutation.DisposedAt(); ok {
-		_spec.SetField(asset.FieldDisposedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateDisposed(); ok {
+		_spec.SetField(asset.FieldDateDisposed, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(asset.FieldDisposedAt); ok {
-		_spec.SetField(asset.FieldDisposedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(asset.FieldDateDisposed); ok {
+		_spec.SetField(asset.FieldDateDisposed, field.TypeTime, e)
 	}
-	if _u.mutation.DisposedAtCleared() {
-		_spec.ClearField(asset.FieldDisposedAt, field.TypeTime)
+	if _u.mutation.DateDisposedCleared() {
+		_spec.ClearField(asset.FieldDateDisposed, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ContentVersion(); ok {
 		_spec.SetField(asset.FieldContentVersion, field.TypeUint64, value)

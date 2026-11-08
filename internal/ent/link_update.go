@@ -84,43 +84,43 @@ func (_u *LinkUpdate) SetNillableDateUpdated(v *time.Time) *LinkUpdate {
 	return _u
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_u *LinkUpdate) SetValidFrom(v time.Time) *LinkUpdate {
-	_u.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_u *LinkUpdate) SetDateStart(v time.Time) *LinkUpdate {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_u *LinkUpdate) SetNillableValidFrom(v *time.Time) *LinkUpdate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableDateStart(v *time.Time) *LinkUpdate {
 	if v != nil {
-		_u.SetValidFrom(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearValidFrom clears the value of the "valid_from" field.
-func (_u *LinkUpdate) ClearValidFrom() *LinkUpdate {
-	_u.mutation.ClearValidFrom()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *LinkUpdate) ClearDateStart() *LinkUpdate {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_u *LinkUpdate) SetValidTo(v time.Time) *LinkUpdate {
-	_u.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *LinkUpdate) SetDateEnd(v time.Time) *LinkUpdate {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_u *LinkUpdate) SetNillableValidTo(v *time.Time) *LinkUpdate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableDateEnd(v *time.Time) *LinkUpdate {
 	if v != nil {
-		_u.SetValidTo(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearValidTo clears the value of the "valid_to" field.
-func (_u *LinkUpdate) ClearValidTo() *LinkUpdate {
-	_u.mutation.ClearValidTo()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *LinkUpdate) ClearDateEnd() *LinkUpdate {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -138,23 +138,23 @@ func (_u *LinkUpdate) SetNillableEventId(v *uuid.UUID) *LinkUpdate {
 	return _u
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_u *LinkUpdate) SetSupersededAt(v time.Time) *LinkUpdate {
-	_u.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_u *LinkUpdate) SetDateSuperseded(v time.Time) *LinkUpdate {
+	_u.mutation.SetDateSuperseded(v)
 	return _u
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_u *LinkUpdate) SetNillableSupersededAt(v *time.Time) *LinkUpdate {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_u *LinkUpdate) SetNillableDateSuperseded(v *time.Time) *LinkUpdate {
 	if v != nil {
-		_u.SetSupersededAt(*v)
+		_u.SetDateSuperseded(*v)
 	}
 	return _u
 }
 
-// ClearSupersededAt clears the value of the "superseded_at" field.
-func (_u *LinkUpdate) ClearSupersededAt() *LinkUpdate {
-	_u.mutation.ClearSupersededAt()
+// ClearDateSuperseded clears the value of the "date_superseded" field.
+func (_u *LinkUpdate) ClearDateSuperseded() *LinkUpdate {
+	_u.mutation.ClearDateSuperseded()
 	return _u
 }
 
@@ -272,23 +272,23 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(link.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidFrom(); ok {
-		_spec.SetField(link.FieldValidFrom, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(link.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(link.FieldValidFrom); ok {
-		_spec.SetField(link.FieldValidFrom, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(link.FieldDateStart); ok {
+		_spec.SetField(link.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.ValidFromCleared() {
-		_spec.ClearField(link.FieldValidFrom, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(link.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidTo(); ok {
-		_spec.SetField(link.FieldValidTo, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(link.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(link.FieldValidTo); ok {
-		_spec.SetField(link.FieldValidTo, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(link.FieldDateEnd); ok {
+		_spec.SetField(link.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.ValidToCleared() {
-		_spec.ClearField(link.FieldValidTo, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(link.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(link.FieldEventId, field.TypeUuid, value)
@@ -296,14 +296,14 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(link.FieldEventId); ok {
 		_spec.SetField(link.FieldEventId, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.SupersededAt(); ok {
-		_spec.SetField(link.FieldSupersededAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateSuperseded(); ok {
+		_spec.SetField(link.FieldDateSuperseded, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(link.FieldSupersededAt); ok {
-		_spec.SetField(link.FieldSupersededAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(link.FieldDateSuperseded); ok {
+		_spec.SetField(link.FieldDateSuperseded, field.TypeTime, e)
 	}
-	if _u.mutation.SupersededAtCleared() {
-		_spec.ClearField(link.FieldSupersededAt, field.TypeTime)
+	if _u.mutation.DateSupersededCleared() {
+		_spec.ClearField(link.FieldDateSuperseded, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(link.FieldSupersededBy, field.TypeUuid, value)
@@ -390,43 +390,43 @@ func (_u *LinkUpdateOne) SetNillableDateUpdated(v *time.Time) *LinkUpdateOne {
 	return _u
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_u *LinkUpdateOne) SetValidFrom(v time.Time) *LinkUpdateOne {
-	_u.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_u *LinkUpdateOne) SetDateStart(v time.Time) *LinkUpdateOne {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_u *LinkUpdateOne) SetNillableValidFrom(v *time.Time) *LinkUpdateOne {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableDateStart(v *time.Time) *LinkUpdateOne {
 	if v != nil {
-		_u.SetValidFrom(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearValidFrom clears the value of the "valid_from" field.
-func (_u *LinkUpdateOne) ClearValidFrom() *LinkUpdateOne {
-	_u.mutation.ClearValidFrom()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *LinkUpdateOne) ClearDateStart() *LinkUpdateOne {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_u *LinkUpdateOne) SetValidTo(v time.Time) *LinkUpdateOne {
-	_u.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *LinkUpdateOne) SetDateEnd(v time.Time) *LinkUpdateOne {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_u *LinkUpdateOne) SetNillableValidTo(v *time.Time) *LinkUpdateOne {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableDateEnd(v *time.Time) *LinkUpdateOne {
 	if v != nil {
-		_u.SetValidTo(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearValidTo clears the value of the "valid_to" field.
-func (_u *LinkUpdateOne) ClearValidTo() *LinkUpdateOne {
-	_u.mutation.ClearValidTo()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *LinkUpdateOne) ClearDateEnd() *LinkUpdateOne {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -444,23 +444,23 @@ func (_u *LinkUpdateOne) SetNillableEventId(v *uuid.UUID) *LinkUpdateOne {
 	return _u
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_u *LinkUpdateOne) SetSupersededAt(v time.Time) *LinkUpdateOne {
-	_u.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_u *LinkUpdateOne) SetDateSuperseded(v time.Time) *LinkUpdateOne {
+	_u.mutation.SetDateSuperseded(v)
 	return _u
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_u *LinkUpdateOne) SetNillableSupersededAt(v *time.Time) *LinkUpdateOne {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_u *LinkUpdateOne) SetNillableDateSuperseded(v *time.Time) *LinkUpdateOne {
 	if v != nil {
-		_u.SetSupersededAt(*v)
+		_u.SetDateSuperseded(*v)
 	}
 	return _u
 }
 
-// ClearSupersededAt clears the value of the "superseded_at" field.
-func (_u *LinkUpdateOne) ClearSupersededAt() *LinkUpdateOne {
-	_u.mutation.ClearSupersededAt()
+// ClearDateSuperseded clears the value of the "date_superseded" field.
+func (_u *LinkUpdateOne) ClearDateSuperseded() *LinkUpdateOne {
+	_u.mutation.ClearDateSuperseded()
 	return _u
 }
 
@@ -608,23 +608,23 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(link.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidFrom(); ok {
-		_spec.SetField(link.FieldValidFrom, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(link.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(link.FieldValidFrom); ok {
-		_spec.SetField(link.FieldValidFrom, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(link.FieldDateStart); ok {
+		_spec.SetField(link.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.ValidFromCleared() {
-		_spec.ClearField(link.FieldValidFrom, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(link.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidTo(); ok {
-		_spec.SetField(link.FieldValidTo, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(link.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(link.FieldValidTo); ok {
-		_spec.SetField(link.FieldValidTo, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(link.FieldDateEnd); ok {
+		_spec.SetField(link.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.ValidToCleared() {
-		_spec.ClearField(link.FieldValidTo, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(link.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(link.FieldEventId, field.TypeUuid, value)
@@ -632,14 +632,14 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	if e, ok := _u.mutation.FieldExpr(link.FieldEventId); ok {
 		_spec.SetField(link.FieldEventId, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.SupersededAt(); ok {
-		_spec.SetField(link.FieldSupersededAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateSuperseded(); ok {
+		_spec.SetField(link.FieldDateSuperseded, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(link.FieldSupersededAt); ok {
-		_spec.SetField(link.FieldSupersededAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(link.FieldDateSuperseded); ok {
+		_spec.SetField(link.FieldDateSuperseded, field.TypeTime, e)
 	}
-	if _u.mutation.SupersededAtCleared() {
-		_spec.ClearField(link.FieldSupersededAt, field.TypeTime)
+	if _u.mutation.DateSupersededCleared() {
+		_spec.ClearField(link.FieldDateSuperseded, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(link.FieldSupersededBy, field.TypeUuid, value)

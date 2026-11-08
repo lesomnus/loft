@@ -86,7 +86,7 @@ message StockMovement {
     type: TYPE_UUID
     nullable: true
   }];
-  google.protobuf.Timestamp occurred_at = 12 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_occurred = 12 [(orm.field) = {default: ""}];
 
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {
@@ -110,7 +110,7 @@ message StockMovement {
       },
       {
         name: "stock"
-        refs: [{name: "stock", number: 8}, {name: "occurred_at", number: 12}]
+        refs: [{name: "stock", number: 8}, {name: "date_occurred", number: 12}]
       },
       // The movements an event wrote. An expiry asks of each event it would
       // take whether a movement that stays names it (design 8.2), and

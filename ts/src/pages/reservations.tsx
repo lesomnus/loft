@@ -63,8 +63,8 @@ function Calendar(): ReactNode {
 	const enabled = c.bookables.filter((b) => b.enabled)
 	const resources = resource === '' ? enabled.map((b) => b.asset?.id).filter((v): v is Uint8Array => v !== undefined) : [idBytes(resource)]
 
-	const cal = useRpc(ReservationService.method.calendar, { resources: resources.map(ref), from: ts(start), to: ts(end) }, { poll: 60_000 })
-	const busy = useRpc(BookableService.method.availability, resource === '' ? null : { resources: [ref(idBytes(resource))], from: ts(start), to: ts(end) })
+	const cal = useRpc(ReservationService.method.calendar, { resources: resources.map(ref), dateFrom: ts(start), dateTo: ts(end) }, { poll: 60_000 })
+	const busy = useRpc(BookableService.method.availability, resource === '' ? null : { resources: [ref(idBytes(resource))], dateFrom: ts(start), dateTo: ts(end) })
 	const names = useResourceNames()
 	const kinds = useResourceKinds()
 
@@ -142,17 +142,17 @@ function Calendar(): ReactNode {
 								{(busy.data?.busy ?? [])
 									.filter((b) => b.kind !== 'reservation')
 									.map((b, i) => {
-										const p = pos(dateOf(b.beginsAt) ?? d, dateOf(b.endsAt) ?? d, d)
+										const p = pos(dateOf(b.dateStart) ?? d, dateOf(b.dateEnd) ?? d, d)
 										return p === undefined ? null : (
 											<div key={`b${i}`} className={`busy ${b.kind}`} style={p} title={b.label}>
-												{b.kind === 'maintenance' ? '정비' : b.kind === 'closed' ? '운영 시간 외' : b.kind === 'waiting' ? `${kinds.get(resource) === 'group' ? '수량 대기' : '구성품 대기'}: ${b.label}` : b.kind === 'custody' ? `${b.label}${endless(dateOf(b.endsAt)) ? ' · 반납 전까지' : ''}` : b.label}
+												{b.kind === 'maintenance' ? '정비' : b.kind === 'closed' ? '운영 시간 외' : b.kind === 'waiting' ? `${kinds.get(resource) === 'group' ? '수량 대기' : '구성품 대기'}: ${b.label}` : b.kind === 'custody' ? `${b.label}${endless(dateOf(b.dateEnd)) ? ' · 반납 전까지' : ''}` : b.label}
 											</div>
 										)
 									})}
 								{(cal.data?.entries ?? []).map((e) => {
 									const r = e.reservation
 									if (r === undefined || ['cancelled', 'rejected', 'expired'].includes(r.status)) return null
-									const p = pos(dateOf(r.beginsAt) ?? d, dateOf(r.endsAt) ?? d, d)
+									const p = pos(dateOf(r.dateStart) ?? d, dateOf(r.dateEnd) ?? d, d)
 									if (p === undefined) return null
 									const mine = sameId(r.party?.id, c.me.party?.id)
 									return (
@@ -167,7 +167,7 @@ function Calendar(): ReactNode {
 										>
 											<strong>{r.name}</strong>
 											<span>
-												{fmt(r.beginsAt, 'time')}–{fmt(r.endsAt, 'time')}
+												{fmt(r.dateStart, 'time')}–{fmt(r.dateEnd, 'time')}
 											</span>
 											{resource === '' && <span>{e.resourceIds.map((x) => names.get(idStr(x)) ?? '').join(', ')}</span>}
 											<span>{e.partyName}</span>
@@ -249,8 +249,8 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 					ReservationService.method.add,
 					{
 						name: name || '예약',
-						beginsAt: ts(fromInput(from)),
-						endsAt: ts(fromInput(to)),
+						dateStart: ts(fromInput(from)),
+						dateEnd: ts(fromInput(to)),
 						items: [{ resource: ref(idBytes(resource)) }],
 						repeat,
 						party: party === '' ? undefined : ref(idBytes(party)),
@@ -365,7 +365,7 @@ function ReservationDialog(props: {
 		if (v !== undefined) props.onClose()
 	}
 	const now = Date.now()
-	const begins = dateOf(r.beginsAt)?.getTime() ?? 0
+	const begins = dateOf(r.dateStart)?.getTime() ?? 0
 	const isSpace = props.resources.every((x) => c.space(x) !== undefined)
 	const gone = props.outOfUse.map(outOfUseItem)
 	const unusable = booked(gone, props.resources)
@@ -379,13 +379,13 @@ function ReservationDialog(props: {
 	return (
 		<Modal title={r.name} onClose={props.onClose}>
 			<p>
-				<Badge v={r.status} words={reservationWord} /> {fmt(r.beginsAt)} – {fmt(r.endsAt)}
+				<Badge v={r.status} words={reservationWord} /> {fmt(r.dateStart)} – {fmt(r.dateEnd)}
 			</p>
 			<p>
 				{props.resources.map((x) => names.get(idStr(x)) ?? '').join(', ')} · {c.called(r.party?.id)}
 			</p>
 			{r.rrule !== '' && <p className="mute small">반복: {r.rrule}</p>}
-			{r.status === 'held' && r.expiresAt !== undefined && <p className="warn small">{fmt(r.expiresAt, 'time')}까지 확정하지 않으면 풀립니다.</p>}
+			{r.status === 'held' && r.dateExpires !== undefined && <p className="warn small">{fmt(r.dateExpires, 'time')}까지 확정하지 않으면 풀립니다.</p>}
 			<Waiting conflicts={props.conflicts} />
 			<OutOfUse items={gone} more="분실·불용·폐기되었거나 삭제되어 수령할 때 건네지 않습니다." />
 			<Out items={props.out} />
@@ -593,7 +593,7 @@ function NewCustodyForPickup(props: {
 			}))}
 			party={idStr(props.r.party?.id)}
 			reservation={props.r.id}
-			due={dateOf(props.r.endsAt)}
+			due={dateOf(props.r.dateEnd)}
 			note={
 				props.conflicts.length > 0 || gone.length > 0 || props.out.length > 0 ? (
 					<>
@@ -626,8 +626,8 @@ function Waiting(props: { conflicts: ReservationConflict[]; more?: string; short
 					<strong>구성품 충돌</strong>
 					<ul className="waiting">
 						{members.map((c) => (
-							<li key={`${idStr(c.resourceId)}-${fmt(c.beginsAt)}`}>
-								{c.resourceTag} {c.resourceName} ({fmt(c.beginsAt)} – {fmt(c.endsAt, 'time')}):{' '}
+							<li key={`${idStr(c.resourceId)}-${fmt(c.dateStart)}`}>
+								{c.resourceTag} {c.resourceName} ({fmt(c.dateStart)} – {fmt(c.dateEnd, 'time')}):{' '}
 								{c.heldBy.length === 0 ? '지금은 비어 있어 곧 이 예약에 잡힙니다.' : `${heldByAll(c.heldBy)}이(가) 잡고 있습니다.`}
 							</li>
 						))}
@@ -641,8 +641,8 @@ function Waiting(props: { conflicts: ReservationConflict[]; more?: string; short
 					<strong>수량 부족</strong>
 					<ul className="waiting">
 						{pools.map((c) => (
-							<li key={`${idStr(c.resourceId)}-${fmt(c.beginsAt)}`}>
-								{c.resourceTag} {c.resourceName} ({fmt(c.beginsAt)} – {fmt(c.endsAt, 'time')}): {c.units}개 가운데{' '}
+							<li key={`${idStr(c.resourceId)}-${fmt(c.dateStart)}`}>
+								{c.resourceTag} {c.resourceName} ({fmt(c.dateStart)} – {fmt(c.dateEnd, 'time')}): {c.units}개 가운데{' '}
 								{c.available === 0 ? '남은 것이 없습니다.' : `${c.available}개만 남아 있습니다.`}
 								{c.heldBy.length > 0 && ` ${heldByAll(c.heldBy)}이(가) 잡고 있습니다.`}
 							</li>
@@ -680,7 +680,7 @@ function Out(props: { items: ReservationOut[]; more?: string }): ReactNode {
 	const c = useCatalog()
 	if (props.items.length === 0) return null
 	const until = (v: ReservationOut) =>
-		v.overdue ? `반납 기한(${fmt(v.dueAt)})이 지났는데 아직 돌아오지 않았습니다` : v.kind === 'loan' ? `${fmt(v.dueAt)}까지 대여 중입니다` : '지급되어 반납될 때까지 나가 있습니다'
+		v.overdue ? `반납 기한(${fmt(v.dateDue)})이 지났는데 아직 돌아오지 않았습니다` : v.kind === 'loan' ? `${fmt(v.dateDue)}까지 대여 중입니다` : '지급되어 반납될 때까지 나가 있습니다'
 	return (
 		<div className="note warn" role="note" aria-label="나가 있는 자산">
 			<strong>나가 있는 자산</strong>
@@ -707,7 +707,7 @@ function List(props: { mine?: boolean }): ReactNode {
 	const [open, setOpen] = useState<CalendarEntry>()
 	const from = new Date(minute().getTime() - 30 * day)
 	const to = new Date(minute().getTime() + 90 * day)
-	const cal = useRpc(ReservationService.method.calendar, { from: ts(from), to: ts(to), mine: props.mine === true })
+	const cal = useRpc(ReservationService.method.calendar, { dateFrom: ts(from), dateTo: ts(to), mine: props.mine === true })
 	const names = useResourceNames()
 	return (
 		<Card title={props.mine ? '내 예약 (지난 30일 ~ 앞으로 90일)' : '전체 예약'}>
@@ -731,7 +731,7 @@ function List(props: { mine?: boolean }): ReactNode {
 									{d.entries.map((e) => (
 										<tr key={idStr(e.reservation?.id)} className="link" onClick={() => setOpen(e)}>
 											<td>
-												{fmt(e.reservation?.beginsAt)} – {fmt(e.reservation?.endsAt, 'time')}
+												{fmt(e.reservation?.dateStart)} – {fmt(e.reservation?.dateEnd, 'time')}
 											</td>
 											<td>{e.resourceIds.map((x) => names.get(idStr(x)) ?? '').join(', ')}</td>
 											<td>{e.reservation?.name}</td>
@@ -765,7 +765,7 @@ function Approvals(): ReactNode {
 	const [open, setOpen] = useState<CalendarEntry>()
 	const from = new Date(minute().getTime() - day)
 	const to = new Date(minute().getTime() + 3650 * day)
-	const list = useRpc(ReservationService.method.calendar, { statuses: ['requested'], from: ts(from), to: ts(to) })
+	const list = useRpc(ReservationService.method.calendar, { statuses: ['requested'], dateFrom: ts(from), dateTo: ts(to) })
 	return (
 		<Card title="승인 대기">
 			<Load q={list}>
@@ -783,7 +783,7 @@ function Approvals(): ReactNode {
 								return (
 									<li key={idStr(r.id)}>
 										<span>
-											{fmt(r.beginsAt)} – {fmt(r.endsAt, 'time')} ·{' '}
+											{fmt(r.dateStart)} – {fmt(r.dateEnd, 'time')} ·{' '}
 											<button className="link" onClick={() => setOpen(e)}>
 												<strong>{r.name}</strong>
 											</button>{' '}
@@ -836,7 +836,7 @@ function History(props: { r: Reservation }): ReactNode {
 								const first = g.entries[0]
 								return (
 									<li key={idStr(first.rowId)}>
-										<span className="when">{fmt(first.validFrom)}</span>
+										<span className="when">{fmt(first.dateStart)}</span>
 										<span className="what">
 											{g.cause === '' ? <Said e={first} /> : g.cause}
 											{g.cause !== '' && (

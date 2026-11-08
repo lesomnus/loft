@@ -141,30 +141,30 @@ func (_c *AssetCreate) SetAttributes(v map[string]string) *AssetCreate {
 	return _c
 }
 
-// SetAcquiredAt sets the "acquired_at" field.
-func (_c *AssetCreate) SetAcquiredAt(v time.Time) *AssetCreate {
-	_c.mutation.SetAcquiredAt(v)
+// SetDateAcquired sets the "date_acquired" field.
+func (_c *AssetCreate) SetDateAcquired(v time.Time) *AssetCreate {
+	_c.mutation.SetDateAcquired(v)
 	return _c
 }
 
-// SetNillableAcquiredAt sets the "acquired_at" field if the given value is not nil.
-func (_c *AssetCreate) SetNillableAcquiredAt(v *time.Time) *AssetCreate {
+// SetNillableDateAcquired sets the "date_acquired" field if the given value is not nil.
+func (_c *AssetCreate) SetNillableDateAcquired(v *time.Time) *AssetCreate {
 	if v != nil {
-		_c.SetAcquiredAt(*v)
+		_c.SetDateAcquired(*v)
 	}
 	return _c
 }
 
-// SetDisposedAt sets the "disposed_at" field.
-func (_c *AssetCreate) SetDisposedAt(v time.Time) *AssetCreate {
-	_c.mutation.SetDisposedAt(v)
+// SetDateDisposed sets the "date_disposed" field.
+func (_c *AssetCreate) SetDateDisposed(v time.Time) *AssetCreate {
+	_c.mutation.SetDateDisposed(v)
 	return _c
 }
 
-// SetNillableDisposedAt sets the "disposed_at" field if the given value is not nil.
-func (_c *AssetCreate) SetNillableDisposedAt(v *time.Time) *AssetCreate {
+// SetNillableDateDisposed sets the "date_disposed" field if the given value is not nil.
+func (_c *AssetCreate) SetNillableDateDisposed(v *time.Time) *AssetCreate {
 	if v != nil {
-		_c.SetDisposedAt(*v)
+		_c.SetDateDisposed(*v)
 	}
 	return _c
 }
@@ -436,13 +436,13 @@ func (_c *AssetCreate) createSpec() (*Asset, *sqlgraph.CreateSpec) {
 		_spec.SetField(asset.FieldAttributes, field.TypeJson, value)
 		_node.Attributes = value
 	}
-	if value, ok := _c.mutation.AcquiredAt(); ok {
-		_spec.SetField(asset.FieldAcquiredAt, field.TypeTime, value)
-		_node.AcquiredAt = &value
+	if value, ok := _c.mutation.DateAcquired(); ok {
+		_spec.SetField(asset.FieldDateAcquired, field.TypeTime, value)
+		_node.DateAcquired = &value
 	}
-	if value, ok := _c.mutation.DisposedAt(); ok {
-		_spec.SetField(asset.FieldDisposedAt, field.TypeTime, value)
-		_node.DisposedAt = &value
+	if value, ok := _c.mutation.DateDisposed(); ok {
+		_spec.SetField(asset.FieldDateDisposed, field.TypeTime, value)
+		_node.DateDisposed = &value
 	}
 	if value, ok := _c.mutation.ContentVersion(); ok {
 		_spec.SetField(asset.FieldContentVersion, field.TypeUint64, value)

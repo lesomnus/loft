@@ -82,8 +82,8 @@ func TestAVoidedPoolsBookingsAreMarkedAndTold(t *testing.T) {
 	// book before, is shown its bookings with the rest.
 	cal, err := e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{
 		Resources: append(all, assetRef(cameras)),
-		From:      timestamppb.New(at.Add(-time.Minute)),
-		To:        timestamppb.New(until),
+		DateFrom:  timestamppb.New(at.Add(-time.Minute)),
+		DateTo:    timestamppb.New(until),
 	}.Build())
 	x.NoError(err)
 	x.True(slices.ContainsFunc(cal.GetEntries(), func(v *app.CalendarEntry) bool { return sameId(v.GetReservation().GetId(), booked.GetId()) }))

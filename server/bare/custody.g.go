@@ -172,13 +172,13 @@ func (st CustodyServiceServer) create(ctx context.Context, req *loft.CustodyAddR
 	}
 	q.SetKind(req.GetKind())
 	q.SetStatus(req.GetStatus())
-	if req.HasIssuedAt() {
-		q.SetIssuedAt(req.GetIssuedAt().AsTime())
+	if req.HasDateIssued() {
+		q.SetDateIssued(req.GetDateIssued().AsTime())
 	} else {
-		q.SetIssuedAt(st.now())
+		q.SetDateIssued(st.now())
 	}
-	if req.HasDueAt() {
-		q.SetDueAt(req.GetDueAt().AsTime())
+	if req.HasDateDue() {
+		q.SetDateDue(req.GetDateDue().AsTime())
 	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
@@ -186,11 +186,11 @@ func (st CustodyServiceServer) create(ctx context.Context, req *loft.CustodyAddR
 	} else {
 		q.SetDateCreated(st.now())
 	}
-	if req.HasAcknowledgedAt() {
-		q.SetAcknowledgedAt(req.GetAcknowledgedAt().AsTime())
+	if req.HasDateAcknowledged() {
+		q.SetDateAcknowledged(req.GetDateAcknowledged().AsTime())
 	}
-	if req.HasReturnedAt() {
-		q.SetReturnedAt(req.GetReturnedAt().AsTime())
+	if req.HasDateReturned() {
+		q.SetDateReturned(req.GetDateReturned().AsTime())
 	}
 	if req.HasReservationId() {
 		if v, err := entuuid.FromBytes(req.GetReservationId()); err != nil {
@@ -343,11 +343,11 @@ func CustodySelectedFields(m *loft.CustodySelect) []string {
 	if m.GetStatus() {
 		vs = append(vs, custody.FieldStatus)
 	}
-	if m.GetIssuedAt() {
-		vs = append(vs, custody.FieldIssuedAt)
+	if m.GetDateIssued() {
+		vs = append(vs, custody.FieldDateIssued)
 	}
-	if m.GetDueAt() {
-		vs = append(vs, custody.FieldDueAt)
+	if m.GetDateDue() {
+		vs = append(vs, custody.FieldDateDue)
 	}
 	if m.GetDateUpdated() {
 		vs = append(vs, custody.FieldDateUpdated)
@@ -358,11 +358,11 @@ func CustodySelectedFields(m *loft.CustodySelect) []string {
 	if m.GetDateCreated() {
 		vs = append(vs, custody.FieldDateCreated)
 	}
-	if m.GetAcknowledgedAt() {
-		vs = append(vs, custody.FieldAcknowledgedAt)
+	if m.GetDateAcknowledged() {
+		vs = append(vs, custody.FieldDateAcknowledged)
 	}
-	if m.GetReturnedAt() {
-		vs = append(vs, custody.FieldReturnedAt)
+	if m.GetDateReturned() {
+		vs = append(vs, custody.FieldDateReturned)
 	}
 	if m.GetReservationId() {
 		vs = append(vs, custody.FieldReservationId)
@@ -448,7 +448,7 @@ func CustodyGetKey(ctx context.Context, db *ent.Client, ref *loft.CustodyRef) (u
 var custodyOrmEntity = ormpatch.MustEntityOf(loft.File_loft_custody_proto, "Custody")
 
 var custodyPatchColumns = entpatch.Columns{
-	1: custody.FieldId, 2: custody.TenantColumn, 6: custody.FieldDesc, 8: custody.PartyColumn, 9: custody.FieldKind, 10: custody.FieldStatus, 11: custody.FieldIssuedAt, 12: custody.FieldDueAt, 13: custody.FieldDateUpdated, 14: custody.FieldDateErased, 15: custody.FieldDateCreated, 16: custody.FieldAcknowledgedAt, 17: custody.FieldReturnedAt, 18: custody.FieldReservationId, 19: custody.FieldIssuedBy, 20: custody.FieldOverdueNoticed}
+	1: custody.FieldId, 2: custody.TenantColumn, 6: custody.FieldDesc, 8: custody.PartyColumn, 9: custody.FieldKind, 10: custody.FieldStatus, 11: custody.FieldDateIssued, 12: custody.FieldDateDue, 13: custody.FieldDateUpdated, 14: custody.FieldDateErased, 15: custody.FieldDateCreated, 16: custody.FieldDateAcknowledged, 17: custody.FieldDateReturned, 18: custody.FieldReservationId, 19: custody.FieldIssuedBy, 20: custody.FieldOverdueNoticed}
 
 func (s CustodyServiceServer) Apply(ctx context.Context, req *loft.CustodyApplyRequest) (*loft.Custody, error) {
 	if !req.HasPatch() {
@@ -879,13 +879,13 @@ func (st CustodyLineServiceServer) create(ctx context.Context, req *loft.Custody
 	} else {
 		q.SetDateCreated(st.now())
 	}
-	if req.HasOutAt() {
-		q.SetOutAt(req.GetOutAt().AsTime())
+	if req.HasDateOut() {
+		q.SetDateOut(req.GetDateOut().AsTime())
 	} else {
-		q.SetOutAt(st.now())
+		q.SetDateOut(st.now())
 	}
-	if req.HasReturnedAt() {
-		q.SetReturnedAt(req.GetReturnedAt().AsTime())
+	if req.HasDateReturned() {
+		q.SetDateReturned(req.GetDateReturned().AsTime())
 	}
 	q.SetConditionOut(req.GetConditionOut())
 	q.SetConditionIn(req.GetConditionIn())
@@ -1028,11 +1028,11 @@ func CustodyLineSelectedFields(m *loft.CustodyLineSelect) []string {
 	if m.GetDateCreated() {
 		vs = append(vs, custodyline.FieldDateCreated)
 	}
-	if m.GetOutAt() {
-		vs = append(vs, custodyline.FieldOutAt)
+	if m.GetDateOut() {
+		vs = append(vs, custodyline.FieldDateOut)
 	}
-	if m.GetReturnedAt() {
-		vs = append(vs, custodyline.FieldReturnedAt)
+	if m.GetDateReturned() {
+		vs = append(vs, custodyline.FieldDateReturned)
 	}
 	if m.GetConditionOut() {
 		vs = append(vs, custodyline.FieldConditionOut)
@@ -1127,7 +1127,7 @@ func CustodyLineGetKey(ctx context.Context, db *ent.Client, ref *loft.CustodyLin
 var custodyLineOrmEntity = ormpatch.MustEntityOf(loft.File_loft_custody_proto, "CustodyLine")
 
 var custodyLinePatchColumns = entpatch.Columns{
-	1: custodyline.FieldId, 2: custodyline.TenantColumn, 8: custodyline.CustodyColumn, 9: custodyline.AssetColumn, 10: custodyline.StockColumn, 11: custodyline.FieldQuantity, 12: custodyline.FieldReturnedQuantity, 13: custodyline.FieldDateUpdated, 15: custodyline.FieldDateCreated, 16: custodyline.FieldOutAt, 17: custodyline.FieldReturnedAt, 18: custodyline.FieldConditionOut, 19: custodyline.FieldConditionIn}
+	1: custodyline.FieldId, 2: custodyline.TenantColumn, 8: custodyline.CustodyColumn, 9: custodyline.AssetColumn, 10: custodyline.StockColumn, 11: custodyline.FieldQuantity, 12: custodyline.FieldReturnedQuantity, 13: custodyline.FieldDateUpdated, 15: custodyline.FieldDateCreated, 16: custodyline.FieldDateOut, 17: custodyline.FieldDateReturned, 18: custodyline.FieldConditionOut, 19: custodyline.FieldConditionIn}
 
 func (s CustodyLineServiceServer) Apply(ctx context.Context, req *loft.CustodyLineApplyRequest) (*loft.CustodyLine, error) {
 	if !req.HasPatch() {

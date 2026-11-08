@@ -91,9 +91,9 @@ func ExpectedParentId(v uuid.UUID) predicate.CountFinding {
 	return predicate.CountFinding(sql.FieldEQ(FieldExpectedParentId, v))
 }
 
-// SeenAt applies equality check predicate on the "seen_at" field. It's identical to SeenAtEQ.
-func SeenAt(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldEQ(FieldSeenAt, v))
+// DateSeen applies equality check predicate on the "date_seen" field. It's identical to DateSeenEQ.
+func DateSeen(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldEQ(FieldDateSeen, v))
 }
 
 // RecordedBy applies equality check predicate on the "recorded_by" field. It's identical to RecordedByEQ.
@@ -106,9 +106,9 @@ func Resolution(v string) predicate.CountFinding {
 	return predicate.CountFinding(sql.FieldEQ(FieldResolution, v))
 }
 
-// ResolvedAt applies equality check predicate on the "resolved_at" field. It's identical to ResolvedAtEQ.
-func ResolvedAt(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldEQ(FieldResolvedAt, v))
+// DateResolved applies equality check predicate on the "date_resolved" field. It's identical to DateResolvedEQ.
+func DateResolved(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldEQ(FieldDateResolved, v))
 }
 
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
@@ -496,54 +496,54 @@ func ExpectedParentIdNotNil() predicate.CountFinding {
 	return predicate.CountFinding(sql.FieldNotNull(FieldExpectedParentId))
 }
 
-// SeenAtEQ applies the EQ predicate on the "seen_at" field.
-func SeenAtEQ(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldEQ(FieldSeenAt, v))
+// DateSeenEQ applies the EQ predicate on the "date_seen" field.
+func DateSeenEQ(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldEQ(FieldDateSeen, v))
 }
 
-// SeenAtNEQ applies the NEQ predicate on the "seen_at" field.
-func SeenAtNEQ(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldNEQ(FieldSeenAt, v))
+// DateSeenNEQ applies the NEQ predicate on the "date_seen" field.
+func DateSeenNEQ(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldNEQ(FieldDateSeen, v))
 }
 
-// SeenAtIn applies the In predicate on the "seen_at" field.
-func SeenAtIn(vs ...time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldIn(FieldSeenAt, vs...))
+// DateSeenIn applies the In predicate on the "date_seen" field.
+func DateSeenIn(vs ...time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldIn(FieldDateSeen, vs...))
 }
 
-// SeenAtNotIn applies the NotIn predicate on the "seen_at" field.
-func SeenAtNotIn(vs ...time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldNotIn(FieldSeenAt, vs...))
+// DateSeenNotIn applies the NotIn predicate on the "date_seen" field.
+func DateSeenNotIn(vs ...time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldNotIn(FieldDateSeen, vs...))
 }
 
-// SeenAtGT applies the GT predicate on the "seen_at" field.
-func SeenAtGT(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldGT(FieldSeenAt, v))
+// DateSeenGT applies the GT predicate on the "date_seen" field.
+func DateSeenGT(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldGT(FieldDateSeen, v))
 }
 
-// SeenAtGTE applies the GTE predicate on the "seen_at" field.
-func SeenAtGTE(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldGTE(FieldSeenAt, v))
+// DateSeenGTE applies the GTE predicate on the "date_seen" field.
+func DateSeenGTE(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldGTE(FieldDateSeen, v))
 }
 
-// SeenAtLT applies the LT predicate on the "seen_at" field.
-func SeenAtLT(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldLT(FieldSeenAt, v))
+// DateSeenLT applies the LT predicate on the "date_seen" field.
+func DateSeenLT(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldLT(FieldDateSeen, v))
 }
 
-// SeenAtLTE applies the LTE predicate on the "seen_at" field.
-func SeenAtLTE(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldLTE(FieldSeenAt, v))
+// DateSeenLTE applies the LTE predicate on the "date_seen" field.
+func DateSeenLTE(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldLTE(FieldDateSeen, v))
 }
 
-// SeenAtIsNil applies the IsNil predicate on the "seen_at" field.
-func SeenAtIsNil() predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldIsNull(FieldSeenAt))
+// DateSeenIsNil applies the IsNil predicate on the "date_seen" field.
+func DateSeenIsNil() predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldIsNull(FieldDateSeen))
 }
 
-// SeenAtNotNil applies the NotNil predicate on the "seen_at" field.
-func SeenAtNotNil() predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldNotNull(FieldSeenAt))
+// DateSeenNotNil applies the NotNil predicate on the "date_seen" field.
+func DateSeenNotNil() predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldNotNull(FieldDateSeen))
 }
 
 // RecordedByEQ applies the EQ predicate on the "recorded_by" field.
@@ -661,54 +661,54 @@ func ResolutionContainsFold(v string) predicate.CountFinding {
 	return predicate.CountFinding(sql.FieldContainsFold(FieldResolution, v))
 }
 
-// ResolvedAtEQ applies the EQ predicate on the "resolved_at" field.
-func ResolvedAtEQ(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldEQ(FieldResolvedAt, v))
+// DateResolvedEQ applies the EQ predicate on the "date_resolved" field.
+func DateResolvedEQ(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldEQ(FieldDateResolved, v))
 }
 
-// ResolvedAtNEQ applies the NEQ predicate on the "resolved_at" field.
-func ResolvedAtNEQ(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldNEQ(FieldResolvedAt, v))
+// DateResolvedNEQ applies the NEQ predicate on the "date_resolved" field.
+func DateResolvedNEQ(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldNEQ(FieldDateResolved, v))
 }
 
-// ResolvedAtIn applies the In predicate on the "resolved_at" field.
-func ResolvedAtIn(vs ...time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldIn(FieldResolvedAt, vs...))
+// DateResolvedIn applies the In predicate on the "date_resolved" field.
+func DateResolvedIn(vs ...time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldIn(FieldDateResolved, vs...))
 }
 
-// ResolvedAtNotIn applies the NotIn predicate on the "resolved_at" field.
-func ResolvedAtNotIn(vs ...time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldNotIn(FieldResolvedAt, vs...))
+// DateResolvedNotIn applies the NotIn predicate on the "date_resolved" field.
+func DateResolvedNotIn(vs ...time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldNotIn(FieldDateResolved, vs...))
 }
 
-// ResolvedAtGT applies the GT predicate on the "resolved_at" field.
-func ResolvedAtGT(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldGT(FieldResolvedAt, v))
+// DateResolvedGT applies the GT predicate on the "date_resolved" field.
+func DateResolvedGT(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldGT(FieldDateResolved, v))
 }
 
-// ResolvedAtGTE applies the GTE predicate on the "resolved_at" field.
-func ResolvedAtGTE(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldGTE(FieldResolvedAt, v))
+// DateResolvedGTE applies the GTE predicate on the "date_resolved" field.
+func DateResolvedGTE(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldGTE(FieldDateResolved, v))
 }
 
-// ResolvedAtLT applies the LT predicate on the "resolved_at" field.
-func ResolvedAtLT(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldLT(FieldResolvedAt, v))
+// DateResolvedLT applies the LT predicate on the "date_resolved" field.
+func DateResolvedLT(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldLT(FieldDateResolved, v))
 }
 
-// ResolvedAtLTE applies the LTE predicate on the "resolved_at" field.
-func ResolvedAtLTE(v time.Time) predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldLTE(FieldResolvedAt, v))
+// DateResolvedLTE applies the LTE predicate on the "date_resolved" field.
+func DateResolvedLTE(v time.Time) predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldLTE(FieldDateResolved, v))
 }
 
-// ResolvedAtIsNil applies the IsNil predicate on the "resolved_at" field.
-func ResolvedAtIsNil() predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldIsNull(FieldResolvedAt))
+// DateResolvedIsNil applies the IsNil predicate on the "date_resolved" field.
+func DateResolvedIsNil() predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldIsNull(FieldDateResolved))
 }
 
-// ResolvedAtNotNil applies the NotNil predicate on the "resolved_at" field.
-func ResolvedAtNotNil() predicate.CountFinding {
-	return predicate.CountFinding(sql.FieldNotNull(FieldResolvedAt))
+// DateResolvedNotNil applies the NotNil predicate on the "date_resolved" field.
+func DateResolvedNotNil() predicate.CountFinding {
+	return predicate.CountFinding(sql.FieldNotNull(FieldDateResolved))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

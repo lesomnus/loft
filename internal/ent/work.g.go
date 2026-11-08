@@ -30,11 +30,11 @@ func (e *WorkOrder) Proto() *loft.WorkOrder {
 	}
 	x.SetKind(e.Kind)
 	x.SetStatus(e.Status)
-	if e.BeginsAt != nil {
-		x.SetBeginsAt(timestamppb.New(*e.BeginsAt))
+	if e.DateStart != nil {
+		x.SetDateStart(timestamppb.New(*e.DateStart))
 	}
-	if e.EndsAt != nil {
-		x.SetEndsAt(timestamppb.New(*e.EndsAt))
+	if e.DateEnd != nil {
+		x.SetDateEnd(timestamppb.New(*e.DateEnd))
 	}
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {
@@ -50,8 +50,8 @@ func (e *WorkOrder) Proto() *loft.WorkOrder {
 	}
 	x.SetCost(e.Cost)
 	x.SetCurrency(e.Currency)
-	if e.CompletedAt != nil {
-		x.SetCompletedAt(timestamppb.New(*e.CompletedAt))
+	if e.DateCompleted != nil {
+		x.SetDateCompleted(timestamppb.New(*e.DateCompleted))
 	}
 	x.SetBlocking(e.Blocking)
 	x.SetEveryDays(e.EveryDays)
@@ -78,9 +78,9 @@ func (e *Purchase) Proto() *loft.Purchase {
 	}
 	x.SetReference(e.Reference)
 	x.SetStatus(e.Status)
-	x.SetOrderedAt(timestamppb.New(e.OrderedAt))
-	if e.ReceivedAt != nil {
-		x.SetReceivedAt(timestamppb.New(*e.ReceivedAt))
+	x.SetDateOrdered(timestamppb.New(e.DateOrdered))
+	if e.DateReceived != nil {
+		x.SetDateReceived(timestamppb.New(*e.DateReceived))
 	}
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {

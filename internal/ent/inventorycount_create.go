@@ -43,30 +43,30 @@ func (_c *InventoryCountCreate) SetStatus(v string) *InventoryCountCreate {
 	return _c
 }
 
-// SetStartedAt sets the "started_at" field.
-func (_c *InventoryCountCreate) SetStartedAt(v time.Time) *InventoryCountCreate {
-	_c.mutation.SetStartedAt(v)
+// SetDateStarted sets the "date_started" field.
+func (_c *InventoryCountCreate) SetDateStarted(v time.Time) *InventoryCountCreate {
+	_c.mutation.SetDateStarted(v)
 	return _c
 }
 
-// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (_c *InventoryCountCreate) SetNillableStartedAt(v *time.Time) *InventoryCountCreate {
+// SetNillableDateStarted sets the "date_started" field if the given value is not nil.
+func (_c *InventoryCountCreate) SetNillableDateStarted(v *time.Time) *InventoryCountCreate {
 	if v != nil {
-		_c.SetStartedAt(*v)
+		_c.SetDateStarted(*v)
 	}
 	return _c
 }
 
-// SetClosedAt sets the "closed_at" field.
-func (_c *InventoryCountCreate) SetClosedAt(v time.Time) *InventoryCountCreate {
-	_c.mutation.SetClosedAt(v)
+// SetDateClosed sets the "date_closed" field.
+func (_c *InventoryCountCreate) SetDateClosed(v time.Time) *InventoryCountCreate {
+	_c.mutation.SetDateClosed(v)
 	return _c
 }
 
-// SetNillableClosedAt sets the "closed_at" field if the given value is not nil.
-func (_c *InventoryCountCreate) SetNillableClosedAt(v *time.Time) *InventoryCountCreate {
+// SetNillableDateClosed sets the "date_closed" field if the given value is not nil.
+func (_c *InventoryCountCreate) SetNillableDateClosed(v *time.Time) *InventoryCountCreate {
 	if v != nil {
-		_c.SetClosedAt(*v)
+		_c.SetDateClosed(*v)
 	}
 	return _c
 }
@@ -289,13 +289,13 @@ func (_c *InventoryCountCreate) createSpec() (*InventoryCount, *sqlgraph.CreateS
 		_spec.SetField(inventorycount.FieldStatus, field.TypeString, value)
 		_node.Status = value
 	}
-	if value, ok := _c.mutation.StartedAt(); ok {
-		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, value)
-		_node.StartedAt = value
+	if value, ok := _c.mutation.DateStarted(); ok {
+		_spec.SetField(inventorycount.FieldDateStarted, field.TypeTime, value)
+		_node.DateStarted = value
 	}
-	if value, ok := _c.mutation.ClosedAt(); ok {
-		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, value)
-		_node.ClosedAt = &value
+	if value, ok := _c.mutation.DateClosed(); ok {
+		_spec.SetField(inventorycount.FieldDateClosed, field.TypeTime, value)
+		_node.DateClosed = &value
 	}
 	if value, ok := _c.mutation.StartedBy(); ok {
 		_spec.SetField(inventorycount.FieldStartedBy, field.TypeUuid, value)

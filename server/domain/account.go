@@ -70,11 +70,11 @@ func (s Domain) membership(ctx context.Context, db *ent.Client, m tenancy.Member
 		Role:  m.Role,
 	}.Build()
 	if m.Closed != nil {
-		v.SetClosed(timestamppb.New(*m.Closed))
+		v.SetDateClosed(timestamppb.New(*m.Closed))
 		v.SetAliasHoldDays(uint32(s.deps.AliasHold / (24 * time.Hour)))
 	}
 	if m.Destroy != nil {
-		v.SetDestroy(timestamppb.New(*m.Destroy))
+		v.SetDateDestroy(timestamppb.New(*m.Destroy))
 	}
 	// Where its app is, when that is a domain of its own (loft#155): what a
 	// page opens it at.

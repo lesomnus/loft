@@ -204,7 +204,7 @@ func newCmdRetention() *xli.Command {
 // printTaken is what a workspace's windows took, or would.
 func printTaken(self *xli.Command, x *app.OperatorRetentionTaken) {
 	switch {
-	case !x.HasBefore():
+	case !x.HasDateBefore():
 		self.Printf("%s: kept forever\n", x.GetAlias())
 		return
 	case len(x.GetHeld()) > 0:
@@ -229,7 +229,7 @@ func printTaken(self *xli.Command, x *app.OperatorRetentionTaken) {
 			parts = append(parts, fmt.Sprintf("%d %s", x.GetTaken()[k], k))
 		}
 	}
-	self.Printf("%s: what was over before %s\n", x.GetAlias(), x.GetBefore().AsTime().UTC().Format(time.DateOnly))
+	self.Printf("%s: what was over before %s\n", x.GetAlias(), x.GetDateBefore().AsTime().UTC().Format(time.DateOnly))
 	self.Printf("  history %s %d: %s\n", verb, total, strings.Join(parts, ", "))
 	if len(x.GetLost()) > 0 {
 		self.Printf("  files that could not be removed: %s\n", strings.Join(x.GetLost(), ", "))

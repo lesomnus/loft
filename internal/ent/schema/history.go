@@ -29,13 +29,13 @@ func (Placement) Fields() []ent.Field {
 			Immutable().
 			Optional(),
 		field.Int32("u_to"),
-		field.Time("valid_from").
+		field.Time("date_start").
 			Optional(),
-		field.Time("valid_to").
+		field.Time("date_end").
 			Nillable().
 			Optional(),
 		field.Uuid("event_id"),
-		field.Time("superseded_at").
+		field.Time("date_superseded").
 			Nillable().
 			Optional(),
 		field.Uuid("superseded_by").
@@ -74,9 +74,9 @@ func (Placement) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
 			StorageKey("placement_page"),
-		index.Fields("child_id", "valid_from").
+		index.Fields("child_id", "date_start").
 			StorageKey("placement_child"),
-		index.Fields("parent_id", "valid_from").
+		index.Fields("parent_id", "date_start").
 			StorageKey("placement_parent"),
 		index.Fields("event_id").
 			StorageKey("placement_event"),
@@ -108,13 +108,13 @@ func (Link) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.Time("valid_from").
+		field.Time("date_start").
 			Optional(),
-		field.Time("valid_to").
+		field.Time("date_end").
 			Nillable().
 			Optional(),
 		field.Uuid("event_id"),
-		field.Time("superseded_at").
+		field.Time("date_superseded").
 			Nillable().
 			Optional(),
 		field.Uuid("superseded_by").
@@ -153,9 +153,9 @@ func (Link) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
 			StorageKey("link_page"),
-		index.Fields("source_id", "valid_from").
+		index.Fields("source_id", "date_start").
 			StorageKey("link_source"),
-		index.Fields("target_id", "valid_from").
+		index.Fields("target_id", "date_start").
 			StorageKey("link_target"),
 		index.Fields("event_id").
 			StorageKey("link_event"),
@@ -184,13 +184,13 @@ func (Stewardship) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.Time("valid_from").
+		field.Time("date_start").
 			Optional(),
-		field.Time("valid_to").
+		field.Time("date_end").
 			Nillable().
 			Optional(),
 		field.Uuid("event_id"),
-		field.Time("superseded_at").
+		field.Time("date_superseded").
 			Nillable().
 			Optional(),
 		field.Uuid("superseded_by").
@@ -229,9 +229,9 @@ func (Stewardship) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
 			StorageKey("stewardship_page"),
-		index.Fields("asset_id", "valid_from").
+		index.Fields("asset_id", "date_start").
 			StorageKey("stewardship_asset"),
-		index.Fields("party_id", "valid_from").
+		index.Fields("party_id", "date_start").
 			StorageKey("stewardship_party"),
 		index.Fields("event_id").
 			StorageKey("stewardship_event"),

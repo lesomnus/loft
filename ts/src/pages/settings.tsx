@@ -457,12 +457,12 @@ function DomainRow(props: { d: Domain; target: string; admin: boolean; act: Retu
 				</span>
 				{d.state === 'lapsed' && (
 					<div className="small bad">
-						DNS가 {fmt(d.failingSince)}부터 이 서비스를 가리키지 않거나 TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔습니다.
+						DNS가 {fmt(d.dateFailing)}부터 이 서비스를 가리키지 않거나 TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔습니다.
 					</div>
 				)}
 				{d.state === 'active' && d.failures > 0 && (
 					<div className="small bad">
-						DNS 확인이 {fmt(d.failingSince)}부터 {d.failures}번 연속 실패했습니다. 여섯 번 연속 실패하면 사용을 멈춥니다.
+						DNS 확인이 {fmt(d.dateFailing)}부터 {d.failures}번 연속 실패했습니다. 여섯 번 연속 실패하면 사용을 멈춥니다.
 					</div>
 				)}
 				{(d.state === 'pending' || d.state === 'lapsed') && (
@@ -681,8 +681,8 @@ function Access(): ReactNode {
 	const [pages, setPages] = useState<string[]>([''])
 	const after = pages[pages.length - 1] ?? ''
 	const q = useRpc(AccessService.method.review, {
-		from: ts(from),
-		to: ts(to),
+		dateFrom: ts(from),
+		dateTo: ts(to),
 		actor: actor === '' ? undefined : idBytes(actor),
 		subject: subject === '' ? undefined : idBytes(subject),
 		kind,
@@ -768,7 +768,7 @@ function Access(): ReactNode {
 												const rest = e.subjectCount - e.subjects.length
 												return (
 													<tr key={idStr(e.id)}>
-														<td>{fmt(e.at)}</td>
+														<td>{fmt(e.dateCreated)}</td>
 														<td>{e.actorName}</td>
 														<td>
 															{accessWord[e.kind] ?? e.kind} <code>{e.action.replace('/loft.', '')}</code>
@@ -800,7 +800,7 @@ function Access(): ReactNode {
 					<button
 						className="primary"
 						onClick={() =>
-							void act(AccessReviewService.method.add, { periodFrom: ts(from), periodTo: ts(to), desc: note }, { ok: '점검을 기록했습니다.' }).then((r) => {
+							void act(AccessReviewService.method.add, { dateStart: ts(from), dateEnd: ts(to), desc: note }, { ok: '점검을 기록했습니다.' }).then((r) => {
 								if (r !== undefined) setNote('')
 							})
 						}
@@ -829,7 +829,7 @@ function Access(): ReactNode {
 									{d.items.map((r) => (
 										<tr key={idStr(r.id)}>
 											<td>
-												{fmt(r.periodFrom, 'date')} – {fmt(r.periodTo === undefined ? undefined : new Date(Number(r.periodTo.seconds) * 1000 - 1), 'date')}
+												{fmt(r.dateStart, 'date')} – {fmt(r.dateEnd === undefined ? undefined : new Date(Number(r.dateEnd.seconds) * 1000 - 1), 'date')}
 											</td>
 											<td>{name(r.reviewer?.id)}</td>
 											<td>{fmt(r.dateCreated)}</td>
@@ -979,8 +979,8 @@ function KeepCard(props: { t: Tenant }): ReactNode {
 					<p className="mute small">
 						접속기록은 지금 {n.accessKeepDays > 0 ? `${daysWord(n.accessKeepDays)} 보관합니다` : '영원히 보관합니다'}
 						{n.accessFloorDays > 0 && `. 법이 정한 ${daysWord(n.accessFloorDays)}보다 짧게 둘 수 없습니다`}.
-						{waiting(n.keepFrom) && ` 줄인 이력 보관 기간은 ${fmt(n.keepFrom, 'date')}부터 적용됩니다.`}
-						{waiting(n.accessKeepFrom) && ` 줄인 접속기록 보관 기간은 ${fmt(n.accessKeepFrom, 'date')}부터 적용됩니다.`}
+						{waiting(n.dateKeepEffective) && ` 줄인 이력 보관 기간은 ${fmt(n.dateKeepEffective, 'date')}부터 적용됩니다.`}
+						{waiting(n.dateAccessKeepEffective) && ` 줄인 접속기록 보관 기간은 ${fmt(n.dateAccessKeepEffective, 'date')}부터 적용됩니다.`}
 					</p>
 				)}
 			</Load>
@@ -1007,7 +1007,7 @@ function Foresee(props: { v: TenantPreviewResponse; keep: boolean; access: boole
 			{props.keep &&
 				(v.keepDays > 0 ? (
 					<p>
-						저장하면 {fmt(v.keepFrom, 'date')}부터 {daysWord(v.keepDays)}보다 오래된 이력이 지워집니다
+						저장하면 {fmt(v.dateKeepEffective, 'date')}부터 {daysWord(v.keepDays)}보다 오래된 이력이 지워집니다
 						{takes.length > 0
 							? `: ${takes.map(([k, n]) => `${takesWord[k] ?? k} ${n}건`).join(', ')} (지금 있는 이력으로 셈).`
 							: '. 지금 있는 이력 가운데 그때 지워질 것은 없습니다.'}
@@ -1018,7 +1018,7 @@ function Foresee(props: { v: TenantPreviewResponse; keep: boolean; access: boole
 			{props.access && (
 				<p>
 					{v.accessKeepDays > 0
-						? `저장하면 ${fmt(v.accessKeepFrom, 'date')}부터 ${daysWord(v.accessKeepDays)}이 지난 접속기록이 지워집니다.`
+						? `저장하면 ${fmt(v.dateAccessKeepEffective, 'date')}부터 ${daysWord(v.accessKeepDays)}이 지난 접속기록이 지워집니다.`
 						: '저장하면 접속기록을 영원히 보관합니다.'}
 				</p>
 			)}

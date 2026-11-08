@@ -109,11 +109,11 @@ func (_u *AccessReviewUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if e, ok := _u.mutation.FieldExpr(accessreview.FieldDesc); ok {
 		_spec.SetField(accessreview.FieldDesc, field.TypeString, e)
 	}
-	if _u.mutation.PeriodFromCleared() {
-		_spec.ClearField(accessreview.FieldPeriodFrom, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(accessreview.FieldDateStart, field.TypeTime)
 	}
-	if _u.mutation.PeriodToCleared() {
-		_spec.ClearField(accessreview.FieldPeriodTo, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(accessreview.FieldDateEnd, field.TypeTime)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(accessreview.FieldDateCreated, field.TypeTime)
@@ -251,11 +251,11 @@ func (_u *AccessReviewUpdateOne) sqlSave(ctx context.Context) (_node *AccessRevi
 	if e, ok := _u.mutation.FieldExpr(accessreview.FieldDesc); ok {
 		_spec.SetField(accessreview.FieldDesc, field.TypeString, e)
 	}
-	if _u.mutation.PeriodFromCleared() {
-		_spec.ClearField(accessreview.FieldPeriodFrom, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(accessreview.FieldDateStart, field.TypeTime)
 	}
-	if _u.mutation.PeriodToCleared() {
-		_spec.ClearField(accessreview.FieldPeriodTo, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(accessreview.FieldDateEnd, field.TypeTime)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(accessreview.FieldDateCreated, field.TypeTime)

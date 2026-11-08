@@ -22,7 +22,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/history_svc.g.proto.
  */
 export const file_loft_history_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Chhsb2Z0L2hpc3Rvcnlfc3ZjLmcucHJvdG8SBGxvZnQiygMKE1BsYWNlbWVudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSHwoGdGVuYW50GAIgASgLMg8ubG9mdC5UZW5hbnRSZWYSHQoFY2hpbGQYCCABKAsyDi5sb2Z0LkFzc2V0UmVmEh4KBnBhcmVudBgJIAEoCzIOLmxvZnQuQXNzZXRSZWYSEwoEbW9kZRgKIAEoCUIFqgECCAISEwoEc2xvdBgLIAEoCUIFqgECCAISFQoGdV9mcm9tGAwgASgFQgWqAQIIAhIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBHVfdG8YECABKAVCBaoBAggCEi4KCnZhbGlkX2Zyb20YESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCHZhbGlkX3RvGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIXCghldmVudF9pZBgTIAEoDEIFqgECCAISMQoNc3VwZXJzZWRlZF9hdBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFQoNc3VwZXJzZWRlZF9ieRgVIAEoDCJDChdQbGFjZW1lbnRBZGRNYW55UmVxdWVzdBIoCgVpdGVtcxgBIAMoCzIZLmxvZnQuUGxhY2VtZW50QWRkUmVxdWVzdCI6ChhQbGFjZW1lbnRBZGRNYW55UmVzcG9uc2USHgoFaXRlbXMYASADKAsyDy5sb2Z0LlBsYWNlbWVudCJdChNQbGFjZW1lbnRHZXRSZXF1ZXN0Eh8KA3JlZhgBIAEoCzISLmxvZnQuUGxhY2VtZW50UmVmEiUKBnNlbGVjdBgCIAEoCzIVLmxvZnQuUGxhY2VtZW50U2VsZWN0IiMKDFBsYWNlbWVudFJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSLTAgoPUGxhY2VtZW50U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5sb2Z0LlRlbmFudFNlbGVjdBIgCgVjaGlsZBgIIAEoCzIRLmxvZnQuQXNzZXRTZWxlY3QSIQoGcGFyZW50GAkgASgLMhEubG9mdC5Bc3NldFNlbGVjdBIMCgRtb2RlGAogASgIEgwKBHNsb3QYCyABKAgSDgoGdV9mcm9tGAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDAoEdV90bxgQIAEoCBISCgp2YWxpZF9mcm9tGBEgASgIEhAKCHZhbGlkX3RvGBIgASgIEhAKCGV2ZW50X2lkGBMgASgIEhUKDXN1cGVyc2VkZWRfYXQYFCABKAgSFQoNc3VwZXJzZWRlZF9ieRgVIAEoCCLJAwoVUGxhY2VtZW50UGF0Y2hSZXF1ZXN0Eh8KA3JlZhgBIAEoCzISLmxvZnQuUGxhY2VtZW50UmVmEgwKBG1vZGUYFCABKAkSDAoEc2xvdBgWIAEoCRIOCgZ1X2Zyb20YGCABKAUSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSDAoEdV90bxggIAEoBRIuCgp2YWxpZF9mcm9tGCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCgh2YWxpZF90bxgkIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFQoNdmFsaWRfdG9fbnVsbBglIAEoCBIQCghldmVudF9pZBgmIAEoDBIxCg1zdXBlcnNlZGVkX2F0GCggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJzdXBlcnNlZGVkX2F0X251bGwYKSABKAgSFQoNc3VwZXJzZWRlZF9ieRgqIAEoDBIaChJzdXBlcnNlZGVkX2J5X251bGwYKyABKAgiVQoVUGxhY2VtZW50QXBwbHlSZXF1ZXN0Eh8KA3JlZhgBIAEoCzISLmxvZnQuUGxhY2VtZW50UmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giKAoWUGxhY2VtZW50RXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgigQEKFFBsYWNlbWVudExpc3RSZXF1ZXN0EiYKB2ZpbHRlcnMYASADKAsyFS5sb2Z0LlBsYWNlbWVudEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiTAoVUGxhY2VtZW50TGlzdFJlc3BvbnNlEh4KBWl0ZW1zGAEgAygLMg8ubG9mdC5QbGFjZW1lbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIicQoPUGxhY2VtZW50RmlsdGVyEh8KA3JlZhgBIAEoCzISLmxvZnQuUGxhY2VtZW50UmVmEh0KBWNoaWxkGAIgASgLMg4ubG9mdC5Bc3NldFJlZhIeCgZwYXJlbnQYAyABKAsyDi5sb2Z0LkFzc2V0UmVmIv8DCg5MaW5rQWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5sb2Z0LlRlbmFudFJlZhIwCgZsYWJlbHMYByADKAsyIC5sb2Z0LkxpbmtBZGRSZXF1ZXN0LkxhYmVsc0VudHJ5Eh4KBnNvdXJjZRgIIAEoCzIOLmxvZnQuQXNzZXRSZWYSHgoGdGFyZ2V0GAkgASgLMg4ubG9mdC5Bc3NldFJlZhITCgRraW5kGAogASgJQgWqAQIIAhIXCghyZXF1aXJlZBgLIAEoCEIFqgECCAISMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp2YWxpZF9mcm9tGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCgh2YWxpZF90bxgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFwoIZXZlbnRfaWQYEyABKAxCBaoBAggCEjEKDXN1cGVyc2VkZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhUKDXN1cGVyc2VkZWRfYnkYFSABKAwaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJOCg5MaW5rR2V0UmVxdWVzdBIaCgNyZWYYASABKAsyDS5sb2Z0LkxpbmtSZWYSIAoGc2VsZWN0GAIgASgLMhAubG9mdC5MaW5rU2VsZWN0Ih4KB0xpbmtSZWYSDAoCaWQYASABKAxIAEIFCgNrZXkixQIKCkxpbmtTZWxlY3QSCwoDYWxsGAEgASgIEiIKBnRlbmFudBgCIAEoCzISLmxvZnQuVGVuYW50U2VsZWN0Eg4KBmxhYmVscxgHIAEoCBIhCgZzb3VyY2UYCCABKAsyES5sb2Z0LkFzc2V0U2VsZWN0EiEKBnRhcmdldBgJIAEoCzIRLmxvZnQuQXNzZXRTZWxlY3QSDAoEa2luZBgKIAEoCBIQCghyZXF1aXJlZBgLIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhIKCnZhbGlkX2Zyb20YESABKAgSEAoIdmFsaWRfdG8YEiABKAgSEAoIZXZlbnRfaWQYEyABKAgSFQoNc3VwZXJzZWRlZF9hdBgUIAEoCBIVCg1zdXBlcnNlZGVkX2J5GBUgASgIIogEChBMaW5rUGF0Y2hSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmxvZnQuTGlua1JlZhIyCgZsYWJlbHMYDiADKAsyIi5sb2Z0LkxpbmtQYXRjaFJlcXVlc3QuTGFiZWxzRW50cnkSDAoEa2luZBgUIAEoCRIQCghyZXF1aXJlZBgWIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIuCgp2YWxpZF9mcm9tGCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCgh2YWxpZF90bxgkIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFQoNdmFsaWRfdG9fbnVsbBglIAEoCBIQCghldmVudF9pZBgmIAEoDBIxCg1zdXBlcnNlZGVkX2F0GCggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJzdXBlcnNlZGVkX2F0X251bGwYKSABKAgSFQoNc3VwZXJzZWRlZF9ieRgqIAEoDBIaChJzdXBlcnNlZGVkX2J5X251bGwYKyABKAgaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJLChBMaW5rQXBwbHlSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmxvZnQuTGlua1JlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiMKEUxpbmtFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCJ3Cg9MaW5rTGlzdFJlcXVlc3QSIQoHZmlsdGVycxgBIAMoCzIQLmxvZnQuTGlua0ZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiQgoQTGlua0xpc3RSZXNwb25zZRIZCgVpdGVtcxgBIAMoCzIKLmxvZnQuTGluaxITCgRuZXh0GAIgASgJQgWqAQIIAiJ2CgpMaW5rRmlsdGVyEhoKA3JlZhgBIAEoCzINLmxvZnQuTGlua1JlZhIeCgZzb3VyY2UYAiABKAsyDi5sb2Z0LkFzc2V0UmVmEh4KBnRhcmdldBgDIAEoCzIOLmxvZnQuQXNzZXRSZWYSDAoEa2luZBgEIAEoCSKKAwoVU3Rld2FyZHNoaXBBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLmxvZnQuVGVuYW50UmVmEh0KBWFzc2V0GAggASgLMg4ubG9mdC5Bc3NldFJlZhIdCgVwYXJ0eRgJIAEoCzIOLmxvZnQuUGFydHlSZWYSEwoEcm9sZRgKIAEoCUIFqgECCAISMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp2YWxpZF9mcm9tGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCgh2YWxpZF90bxgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFwoIZXZlbnRfaWQYEyABKAxCBaoBAggCEjEKDXN1cGVyc2VkZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhUKDXN1cGVyc2VkZWRfYnkYFSABKAwiYwoVU3Rld2FyZHNoaXBHZXRSZXF1ZXN0EiEKA3JlZhgBIAEoCzIULmxvZnQuU3Rld2FyZHNoaXBSZWYSJwoGc2VsZWN0GAIgASgLMhcubG9mdC5TdGV3YXJkc2hpcFNlbGVjdCIlCg5TdGV3YXJkc2hpcFJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSKoAgoRU3Rld2FyZHNoaXBTZWxlY3QSCwoDYWxsGAEgASgIEiIKBnRlbmFudBgCIAEoCzISLmxvZnQuVGVuYW50U2VsZWN0EiAKBWFzc2V0GAggASgLMhEubG9mdC5Bc3NldFNlbGVjdBIgCgVwYXJ0eRgJIAEoCzIRLmxvZnQuUGFydHlTZWxlY3QSDAoEcm9sZRgKIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhIKCnZhbGlkX2Zyb20YESABKAgSEAoIdmFsaWRfdG8YEiABKAgSEAoIZXZlbnRfaWQYEyABKAgSFQoNc3VwZXJzZWRlZF9hdBgUIAEoCBIVCg1zdXBlcnNlZGVkX2J5GBUgASgIIqEDChdTdGV3YXJkc2hpcFBhdGNoUmVxdWVzdBIhCgNyZWYYASABKAsyFC5sb2Z0LlN0ZXdhcmRzaGlwUmVmEgwKBHJvbGUYFCABKAkSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSLgoKdmFsaWRfZnJvbRgiIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIdmFsaWRfdG8YJCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhUKDXZhbGlkX3RvX251bGwYJSABKAgSEAoIZXZlbnRfaWQYJiABKAwSMQoNc3VwZXJzZWRlZF9hdBgoIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSc3VwZXJzZWRlZF9hdF9udWxsGCkgASgIEhUKDXN1cGVyc2VkZWRfYnkYKiABKAwSGgoSc3VwZXJzZWRlZF9ieV9udWxsGCsgASgIIlkKF1N0ZXdhcmRzaGlwQXBwbHlSZXF1ZXN0EiEKA3JlZhgBIAEoCzIULmxvZnQuU3Rld2FyZHNoaXBSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIqChhTdGV3YXJkc2hpcEVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIoUBChZTdGV3YXJkc2hpcExpc3RSZXF1ZXN0EigKB2ZpbHRlcnMYASADKAsyFy5sb2Z0LlN0ZXdhcmRzaGlwRmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJQChdTdGV3YXJkc2hpcExpc3RSZXNwb25zZRIgCgVpdGVtcxgBIAMoCzIRLmxvZnQuU3Rld2FyZHNoaXASEwoEbmV4dBgCIAEoCUIFqgECCAIiggEKEVN0ZXdhcmRzaGlwRmlsdGVyEiEKA3JlZhgBIAEoCzIULmxvZnQuU3Rld2FyZHNoaXBSZWYSHQoFYXNzZXQYAiABKAsyDi5sb2Z0LkFzc2V0UmVmEh0KBXBhcnR5GAMgASgLMg4ubG9mdC5QYXJ0eVJlZhIMCgRyb2xlGAQgASgJMqwDChBQbGFjZW1lbnRTZXJ2aWNlEjEKA0FkZBIZLmxvZnQuUGxhY2VtZW50QWRkUmVxdWVzdBoPLmxvZnQuUGxhY2VtZW50EkgKB0FkZE1hbnkSHS5sb2Z0LlBsYWNlbWVudEFkZE1hbnlSZXF1ZXN0Gh4ubG9mdC5QbGFjZW1lbnRBZGRNYW55UmVzcG9uc2USMQoDR2V0EhkubG9mdC5QbGFjZW1lbnRHZXRSZXF1ZXN0Gg8ubG9mdC5QbGFjZW1lbnQSNQoFUGF0Y2gSGy5sb2Z0LlBsYWNlbWVudFBhdGNoUmVxdWVzdBoPLmxvZnQuUGxhY2VtZW50EjUKBUFwcGx5EhsubG9mdC5QbGFjZW1lbnRBcHBseVJlcXVlc3QaDy5sb2Z0LlBsYWNlbWVudBI5CgVFcmFzZRISLmxvZnQuUGxhY2VtZW50UmVmGhwubG9mdC5QbGFjZW1lbnRFcmFzZVJlc3BvbnNlEj8KBExpc3QSGi5sb2Z0LlBsYWNlbWVudExpc3RSZXF1ZXN0GhsubG9mdC5QbGFjZW1lbnRMaXN0UmVzcG9uc2UyoQIKC0xpbmtTZXJ2aWNlEicKA0FkZBIULmxvZnQuTGlua0FkZFJlcXVlc3QaCi5sb2Z0LkxpbmsSJwoDR2V0EhQubG9mdC5MaW5rR2V0UmVxdWVzdBoKLmxvZnQuTGluaxIrCgVQYXRjaBIWLmxvZnQuTGlua1BhdGNoUmVxdWVzdBoKLmxvZnQuTGluaxIrCgVBcHBseRIWLmxvZnQuTGlua0FwcGx5UmVxdWVzdBoKLmxvZnQuTGluaxIvCgVFcmFzZRINLmxvZnQuTGlua1JlZhoXLmxvZnQuTGlua0VyYXNlUmVzcG9uc2USNQoETGlzdBIVLmxvZnQuTGlua0xpc3RSZXF1ZXN0GhYubG9mdC5MaW5rTGlzdFJlc3BvbnNlMvwCChJTdGV3YXJkc2hpcFNlcnZpY2USNQoDQWRkEhsubG9mdC5TdGV3YXJkc2hpcEFkZFJlcXVlc3QaES5sb2Z0LlN0ZXdhcmRzaGlwEjUKA0dldBIbLmxvZnQuU3Rld2FyZHNoaXBHZXRSZXF1ZXN0GhEubG9mdC5TdGV3YXJkc2hpcBI5CgVQYXRjaBIdLmxvZnQuU3Rld2FyZHNoaXBQYXRjaFJlcXVlc3QaES5sb2Z0LlN0ZXdhcmRzaGlwEjkKBUFwcGx5Eh0ubG9mdC5TdGV3YXJkc2hpcEFwcGx5UmVxdWVzdBoRLmxvZnQuU3Rld2FyZHNoaXASPQoFRXJhc2USFC5sb2Z0LlN0ZXdhcmRzaGlwUmVmGh4ubG9mdC5TdGV3YXJkc2hpcEVyYXNlUmVzcG9uc2USQwoETGlzdBIcLmxvZnQuU3Rld2FyZHNoaXBMaXN0UmVxdWVzdBodLmxvZnQuU3Rld2FyZHNoaXBMaXN0UmVzcG9uc2VCGloYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0YghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_loft_asset_svc_g, file_loft_history, file_loft_org_svc_g, file_loft_payday_tenant_svc_g, file_patch_patch]);
+  fileDesc("Chhsb2Z0L2hpc3Rvcnlfc3ZjLmcucHJvdG8SBGxvZnQizAMKE1BsYWNlbWVudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSHwoGdGVuYW50GAIgASgLMg8ubG9mdC5UZW5hbnRSZWYSHQoFY2hpbGQYCCABKAsyDi5sb2Z0LkFzc2V0UmVmEh4KBnBhcmVudBgJIAEoCzIOLmxvZnQuQXNzZXRSZWYSEwoEbW9kZRgKIAEoCUIFqgECCAISEwoEc2xvdBgLIAEoCUIFqgECCAISFQoGdV9mcm9tGAwgASgFQgWqAQIIAhIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKBHVfdG8YECABKAVCBaoBAggCEi4KCmRhdGVfc3RhcnQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRhdGVfZW5kGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIXCghldmVudF9pZBgTIAEoDEIFqgECCAISMwoPZGF0ZV9zdXBlcnNlZGVkGBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIVCg1zdXBlcnNlZGVkX2J5GBUgASgMIkMKF1BsYWNlbWVudEFkZE1hbnlSZXF1ZXN0EigKBWl0ZW1zGAEgAygLMhkubG9mdC5QbGFjZW1lbnRBZGRSZXF1ZXN0IjoKGFBsYWNlbWVudEFkZE1hbnlSZXNwb25zZRIeCgVpdGVtcxgBIAMoCzIPLmxvZnQuUGxhY2VtZW50Il0KE1BsYWNlbWVudEdldFJlcXVlc3QSHwoDcmVmGAEgASgLMhIubG9mdC5QbGFjZW1lbnRSZWYSJQoGc2VsZWN0GAIgASgLMhUubG9mdC5QbGFjZW1lbnRTZWxlY3QiIwoMUGxhY2VtZW50UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5ItUCCg9QbGFjZW1lbnRTZWxlY3QSCwoDYWxsGAEgASgIEiIKBnRlbmFudBgCIAEoCzISLmxvZnQuVGVuYW50U2VsZWN0EiAKBWNoaWxkGAggASgLMhEubG9mdC5Bc3NldFNlbGVjdBIhCgZwYXJlbnQYCSABKAsyES5sb2Z0LkFzc2V0U2VsZWN0EgwKBG1vZGUYCiABKAgSDAoEc2xvdBgLIAEoCBIOCgZ1X2Zyb20YDCABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBIMCgR1X3RvGBAgASgIEhIKCmRhdGVfc3RhcnQYESABKAgSEAoIZGF0ZV9lbmQYEiABKAgSEAoIZXZlbnRfaWQYEyABKAgSFwoPZGF0ZV9zdXBlcnNlZGVkGBQgASgIEhUKDXN1cGVyc2VkZWRfYnkYFSABKAgizQMKFVBsYWNlbWVudFBhdGNoUmVxdWVzdBIfCgNyZWYYASABKAsyEi5sb2Z0LlBsYWNlbWVudFJlZhIMCgRtb2RlGBQgASgJEgwKBHNsb3QYFiABKAkSDgoGdV9mcm9tGBggASgFEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIEgwKBHVfdG8YICABKAUSLgoKZGF0ZV9zdGFydBgiIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9lbmQYJCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhUKDWRhdGVfZW5kX251bGwYJSABKAgSEAoIZXZlbnRfaWQYJiABKAwSMwoPZGF0ZV9zdXBlcnNlZGVkGCggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIcChRkYXRlX3N1cGVyc2VkZWRfbnVsbBgpIAEoCBIVCg1zdXBlcnNlZGVkX2J5GCogASgMEhoKEnN1cGVyc2VkZWRfYnlfbnVsbBgrIAEoCCJVChVQbGFjZW1lbnRBcHBseVJlcXVlc3QSHwoDcmVmGAEgASgLMhIubG9mdC5QbGFjZW1lbnRSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIoChZQbGFjZW1lbnRFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCKBAQoUUGxhY2VtZW50TGlzdFJlcXVlc3QSJgoHZmlsdGVycxgBIAMoCzIVLmxvZnQuUGxhY2VtZW50RmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJMChVQbGFjZW1lbnRMaXN0UmVzcG9uc2USHgoFaXRlbXMYASADKAsyDy5sb2Z0LlBsYWNlbWVudBITCgRuZXh0GAIgASgJQgWqAQIIAiJxCg9QbGFjZW1lbnRGaWx0ZXISHwoDcmVmGAEgASgLMhIubG9mdC5QbGFjZW1lbnRSZWYSHQoFY2hpbGQYAiABKAsyDi5sb2Z0LkFzc2V0UmVmEh4KBnBhcmVudBgDIAEoCzIOLmxvZnQuQXNzZXRSZWYigQQKDkxpbmtBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLmxvZnQuVGVuYW50UmVmEjAKBmxhYmVscxgHIAMoCzIgLmxvZnQuTGlua0FkZFJlcXVlc3QuTGFiZWxzRW50cnkSHgoGc291cmNlGAggASgLMg4ubG9mdC5Bc3NldFJlZhIeCgZ0YXJnZXQYCSABKAsyDi5sb2Z0LkFzc2V0UmVmEhMKBGtpbmQYCiABKAlCBaoBAggCEhcKCHJlcXVpcmVkGAsgASgIQgWqAQIIAhIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi4KCmRhdGVfc3RhcnQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRhdGVfZW5kGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIXCghldmVudF9pZBgTIAEoDEIFqgECCAISMwoPZGF0ZV9zdXBlcnNlZGVkGBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIVCg1zdXBlcnNlZGVkX2J5GBUgASgMGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTgoOTGlua0dldFJlcXVlc3QSGgoDcmVmGAEgASgLMg0ubG9mdC5MaW5rUmVmEiAKBnNlbGVjdBgCIAEoCzIQLmxvZnQuTGlua1NlbGVjdCIeCgdMaW5rUmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IscCCgpMaW5rU2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5sb2Z0LlRlbmFudFNlbGVjdBIOCgZsYWJlbHMYByABKAgSIQoGc291cmNlGAggASgLMhEubG9mdC5Bc3NldFNlbGVjdBIhCgZ0YXJnZXQYCSABKAsyES5sb2Z0LkFzc2V0U2VsZWN0EgwKBGtpbmQYCiABKAgSEAoIcmVxdWlyZWQYCyABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBISCgpkYXRlX3N0YXJ0GBEgASgIEhAKCGRhdGVfZW5kGBIgASgIEhAKCGV2ZW50X2lkGBMgASgIEhcKD2RhdGVfc3VwZXJzZWRlZBgUIAEoCBIVCg1zdXBlcnNlZGVkX2J5GBUgASgIIowEChBMaW5rUGF0Y2hSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmxvZnQuTGlua1JlZhIyCgZsYWJlbHMYDiADKAsyIi5sb2Z0LkxpbmtQYXRjaFJlcXVlc3QuTGFiZWxzRW50cnkSDAoEa2luZBgUIAEoCRIQCghyZXF1aXJlZBgWIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIuCgpkYXRlX3N0YXJ0GCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghkYXRlX2VuZBgkIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFQoNZGF0ZV9lbmRfbnVsbBglIAEoCBIQCghldmVudF9pZBgmIAEoDBIzCg9kYXRlX3N1cGVyc2VkZWQYKCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhwKFGRhdGVfc3VwZXJzZWRlZF9udWxsGCkgASgIEhUKDXN1cGVyc2VkZWRfYnkYKiABKAwSGgoSc3VwZXJzZWRlZF9ieV9udWxsGCsgASgIGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiSwoQTGlua0FwcGx5UmVxdWVzdBIaCgNyZWYYASABKAsyDS5sb2Z0LkxpbmtSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIjChFMaW5rRXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgidwoPTGlua0xpc3RSZXF1ZXN0EiEKB2ZpbHRlcnMYASADKAsyEC5sb2Z0LkxpbmtGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIkIKEExpbmtMaXN0UmVzcG9uc2USGQoFaXRlbXMYASADKAsyCi5sb2Z0LkxpbmsSEwoEbmV4dBgCIAEoCUIFqgECCAIidgoKTGlua0ZpbHRlchIaCgNyZWYYASABKAsyDS5sb2Z0LkxpbmtSZWYSHgoGc291cmNlGAIgASgLMg4ubG9mdC5Bc3NldFJlZhIeCgZ0YXJnZXQYAyABKAsyDi5sb2Z0LkFzc2V0UmVmEgwKBGtpbmQYBCABKAkijAMKFVN0ZXdhcmRzaGlwQWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5sb2Z0LlRlbmFudFJlZhIdCgVhc3NldBgIIAEoCzIOLmxvZnQuQXNzZXRSZWYSHQoFcGFydHkYCSABKAsyDi5sb2Z0LlBhcnR5UmVmEhMKBHJvbGUYCiABKAlCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKZGF0ZV9zdGFydBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9lbmQYEiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKCGV2ZW50X2lkGBMgASgMQgWqAQIIAhIzCg9kYXRlX3N1cGVyc2VkZWQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhUKDXN1cGVyc2VkZWRfYnkYFSABKAwiYwoVU3Rld2FyZHNoaXBHZXRSZXF1ZXN0EiEKA3JlZhgBIAEoCzIULmxvZnQuU3Rld2FyZHNoaXBSZWYSJwoGc2VsZWN0GAIgASgLMhcubG9mdC5TdGV3YXJkc2hpcFNlbGVjdCIlCg5TdGV3YXJkc2hpcFJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSKqAgoRU3Rld2FyZHNoaXBTZWxlY3QSCwoDYWxsGAEgASgIEiIKBnRlbmFudBgCIAEoCzISLmxvZnQuVGVuYW50U2VsZWN0EiAKBWFzc2V0GAggASgLMhEubG9mdC5Bc3NldFNlbGVjdBIgCgVwYXJ0eRgJIAEoCzIRLmxvZnQuUGFydHlTZWxlY3QSDAoEcm9sZRgKIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhIKCmRhdGVfc3RhcnQYESABKAgSEAoIZGF0ZV9lbmQYEiABKAgSEAoIZXZlbnRfaWQYEyABKAgSFwoPZGF0ZV9zdXBlcnNlZGVkGBQgASgIEhUKDXN1cGVyc2VkZWRfYnkYFSABKAgipQMKF1N0ZXdhcmRzaGlwUGF0Y2hSZXF1ZXN0EiEKA3JlZhgBIAEoCzIULmxvZnQuU3Rld2FyZHNoaXBSZWYSDAoEcm9sZRgUIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIuCgpkYXRlX3N0YXJ0GCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghkYXRlX2VuZBgkIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFQoNZGF0ZV9lbmRfbnVsbBglIAEoCBIQCghldmVudF9pZBgmIAEoDBIzCg9kYXRlX3N1cGVyc2VkZWQYKCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhwKFGRhdGVfc3VwZXJzZWRlZF9udWxsGCkgASgIEhUKDXN1cGVyc2VkZWRfYnkYKiABKAwSGgoSc3VwZXJzZWRlZF9ieV9udWxsGCsgASgIIlkKF1N0ZXdhcmRzaGlwQXBwbHlSZXF1ZXN0EiEKA3JlZhgBIAEoCzIULmxvZnQuU3Rld2FyZHNoaXBSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIqChhTdGV3YXJkc2hpcEVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIoUBChZTdGV3YXJkc2hpcExpc3RSZXF1ZXN0EigKB2ZpbHRlcnMYASADKAsyFy5sb2Z0LlN0ZXdhcmRzaGlwRmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJQChdTdGV3YXJkc2hpcExpc3RSZXNwb25zZRIgCgVpdGVtcxgBIAMoCzIRLmxvZnQuU3Rld2FyZHNoaXASEwoEbmV4dBgCIAEoCUIFqgECCAIiggEKEVN0ZXdhcmRzaGlwRmlsdGVyEiEKA3JlZhgBIAEoCzIULmxvZnQuU3Rld2FyZHNoaXBSZWYSHQoFYXNzZXQYAiABKAsyDi5sb2Z0LkFzc2V0UmVmEh0KBXBhcnR5GAMgASgLMg4ubG9mdC5QYXJ0eVJlZhIMCgRyb2xlGAQgASgJMqwDChBQbGFjZW1lbnRTZXJ2aWNlEjEKA0FkZBIZLmxvZnQuUGxhY2VtZW50QWRkUmVxdWVzdBoPLmxvZnQuUGxhY2VtZW50EkgKB0FkZE1hbnkSHS5sb2Z0LlBsYWNlbWVudEFkZE1hbnlSZXF1ZXN0Gh4ubG9mdC5QbGFjZW1lbnRBZGRNYW55UmVzcG9uc2USMQoDR2V0EhkubG9mdC5QbGFjZW1lbnRHZXRSZXF1ZXN0Gg8ubG9mdC5QbGFjZW1lbnQSNQoFUGF0Y2gSGy5sb2Z0LlBsYWNlbWVudFBhdGNoUmVxdWVzdBoPLmxvZnQuUGxhY2VtZW50EjUKBUFwcGx5EhsubG9mdC5QbGFjZW1lbnRBcHBseVJlcXVlc3QaDy5sb2Z0LlBsYWNlbWVudBI5CgVFcmFzZRISLmxvZnQuUGxhY2VtZW50UmVmGhwubG9mdC5QbGFjZW1lbnRFcmFzZVJlc3BvbnNlEj8KBExpc3QSGi5sb2Z0LlBsYWNlbWVudExpc3RSZXF1ZXN0GhsubG9mdC5QbGFjZW1lbnRMaXN0UmVzcG9uc2UyoQIKC0xpbmtTZXJ2aWNlEicKA0FkZBIULmxvZnQuTGlua0FkZFJlcXVlc3QaCi5sb2Z0LkxpbmsSJwoDR2V0EhQubG9mdC5MaW5rR2V0UmVxdWVzdBoKLmxvZnQuTGluaxIrCgVQYXRjaBIWLmxvZnQuTGlua1BhdGNoUmVxdWVzdBoKLmxvZnQuTGluaxIrCgVBcHBseRIWLmxvZnQuTGlua0FwcGx5UmVxdWVzdBoKLmxvZnQuTGluaxIvCgVFcmFzZRINLmxvZnQuTGlua1JlZhoXLmxvZnQuTGlua0VyYXNlUmVzcG9uc2USNQoETGlzdBIVLmxvZnQuTGlua0xpc3RSZXF1ZXN0GhYubG9mdC5MaW5rTGlzdFJlc3BvbnNlMvwCChJTdGV3YXJkc2hpcFNlcnZpY2USNQoDQWRkEhsubG9mdC5TdGV3YXJkc2hpcEFkZFJlcXVlc3QaES5sb2Z0LlN0ZXdhcmRzaGlwEjUKA0dldBIbLmxvZnQuU3Rld2FyZHNoaXBHZXRSZXF1ZXN0GhEubG9mdC5TdGV3YXJkc2hpcBI5CgVQYXRjaBIdLmxvZnQuU3Rld2FyZHNoaXBQYXRjaFJlcXVlc3QaES5sb2Z0LlN0ZXdhcmRzaGlwEjkKBUFwcGx5Eh0ubG9mdC5TdGV3YXJkc2hpcEFwcGx5UmVxdWVzdBoRLmxvZnQuU3Rld2FyZHNoaXASPQoFRXJhc2USFC5sb2Z0LlN0ZXdhcmRzaGlwUmVmGh4ubG9mdC5TdGV3YXJkc2hpcEVyYXNlUmVzcG9uc2USQwoETGlzdBIcLmxvZnQuU3Rld2FyZHNoaXBMaXN0UmVxdWVzdBodLmxvZnQuU3Rld2FyZHNoaXBMaXN0UmVzcG9uc2VCGloYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0YghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_loft_asset_svc_g, file_loft_history, file_loft_org_svc_g, file_loft_payday_tenant_svc_g, file_patch_patch]);
 
 /**
  * @generated from message loft.PlacementAddRequest
@@ -74,14 +74,14 @@ export type PlacementAddRequest = Message<"loft.PlacementAddRequest"> & {
   uTo: number;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 17;
+   * @generated from field: google.protobuf.Timestamp date_start = 17;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 18;
+   * @generated from field: google.protobuf.Timestamp date_end = 18;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes event_id = 19 [features.field_presence = IMPLICIT];
@@ -89,9 +89,9 @@ export type PlacementAddRequest = Message<"loft.PlacementAddRequest"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 20;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 20;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes superseded_by = 21;
@@ -240,14 +240,14 @@ export type PlacementSelect = Message<"loft.PlacementSelect"> & {
   uTo: boolean;
 
   /**
-   * @generated from field: bool valid_from = 17;
+   * @generated from field: bool date_start = 17;
    */
-  validFrom: boolean;
+  dateStart: boolean;
 
   /**
-   * @generated from field: bool valid_to = 18;
+   * @generated from field: bool date_end = 18;
    */
-  validTo: boolean;
+  dateEnd: boolean;
 
   /**
    * @generated from field: bool event_id = 19;
@@ -255,9 +255,9 @@ export type PlacementSelect = Message<"loft.PlacementSelect"> & {
   eventId: boolean;
 
   /**
-   * @generated from field: bool superseded_at = 20;
+   * @generated from field: bool date_superseded = 20;
    */
-  supersededAt: boolean;
+  dateSuperseded: boolean;
 
   /**
    * @generated from field: bool superseded_by = 21;
@@ -326,24 +326,24 @@ export type PlacementPatchRequest = Message<"loft.PlacementPatchRequest"> & {
   uTo: number;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 34;
+   * @generated from field: google.protobuf.Timestamp date_start = 34;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 36;
+   * @generated from field: google.protobuf.Timestamp date_end = 36;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
-   * Clear valid_to instead of writing it.
+   * Clear date_end instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and valid_to clears.
+   * outright: setting both this and date_end clears.
    *
-   * @generated from field: bool valid_to_null = 37;
+   * @generated from field: bool date_end_null = 37;
    */
-  validToNull: boolean;
+  dateEndNull: boolean;
 
   /**
    * @generated from field: bytes event_id = 38;
@@ -351,19 +351,19 @@ export type PlacementPatchRequest = Message<"loft.PlacementPatchRequest"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 40;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 40;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
-   * Clear superseded_at instead of writing it.
+   * Clear date_superseded instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and superseded_at clears.
+   * outright: setting both this and date_superseded clears.
    *
-   * @generated from field: bool superseded_at_null = 41;
+   * @generated from field: bool date_superseded_null = 41;
    */
-  supersededAtNull: boolean;
+  dateSupersededNull: boolean;
 
   /**
    * @generated from field: bytes superseded_by = 42;
@@ -584,14 +584,14 @@ export type LinkAddRequest = Message<"loft.LinkAddRequest"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 17;
+   * @generated from field: google.protobuf.Timestamp date_start = 17;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 18;
+   * @generated from field: google.protobuf.Timestamp date_end = 18;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes event_id = 19 [features.field_presence = IMPLICIT];
@@ -599,9 +599,9 @@ export type LinkAddRequest = Message<"loft.LinkAddRequest"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 20;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 20;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes superseded_by = 21;
@@ -711,14 +711,14 @@ export type LinkSelect = Message<"loft.LinkSelect"> & {
   dateCreated: boolean;
 
   /**
-   * @generated from field: bool valid_from = 17;
+   * @generated from field: bool date_start = 17;
    */
-  validFrom: boolean;
+  dateStart: boolean;
 
   /**
-   * @generated from field: bool valid_to = 18;
+   * @generated from field: bool date_end = 18;
    */
-  validTo: boolean;
+  dateEnd: boolean;
 
   /**
    * @generated from field: bool event_id = 19;
@@ -726,9 +726,9 @@ export type LinkSelect = Message<"loft.LinkSelect"> & {
   eventId: boolean;
 
   /**
-   * @generated from field: bool superseded_at = 20;
+   * @generated from field: bool date_superseded = 20;
    */
-  supersededAt: boolean;
+  dateSuperseded: boolean;
 
   /**
    * @generated from field: bool superseded_by = 21;
@@ -792,24 +792,24 @@ export type LinkPatchRequest = Message<"loft.LinkPatchRequest"> & {
   dateUpdatedForce: boolean;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 34;
+   * @generated from field: google.protobuf.Timestamp date_start = 34;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 36;
+   * @generated from field: google.protobuf.Timestamp date_end = 36;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
-   * Clear valid_to instead of writing it.
+   * Clear date_end instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and valid_to clears.
+   * outright: setting both this and date_end clears.
    *
-   * @generated from field: bool valid_to_null = 37;
+   * @generated from field: bool date_end_null = 37;
    */
-  validToNull: boolean;
+  dateEndNull: boolean;
 
   /**
    * @generated from field: bytes event_id = 38;
@@ -817,19 +817,19 @@ export type LinkPatchRequest = Message<"loft.LinkPatchRequest"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 40;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 40;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
-   * Clear superseded_at instead of writing it.
+   * Clear date_superseded instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and superseded_at clears.
+   * outright: setting both this and date_superseded clears.
    *
-   * @generated from field: bool superseded_at_null = 41;
+   * @generated from field: bool date_superseded_null = 41;
    */
-  supersededAtNull: boolean;
+  dateSupersededNull: boolean;
 
   /**
    * @generated from field: bytes superseded_by = 42;
@@ -1045,14 +1045,14 @@ export type StewardshipAddRequest = Message<"loft.StewardshipAddRequest"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 17;
+   * @generated from field: google.protobuf.Timestamp date_start = 17;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 18;
+   * @generated from field: google.protobuf.Timestamp date_end = 18;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes event_id = 19 [features.field_presence = IMPLICIT];
@@ -1060,9 +1060,9 @@ export type StewardshipAddRequest = Message<"loft.StewardshipAddRequest"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 20;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 20;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes superseded_by = 21;
@@ -1162,14 +1162,14 @@ export type StewardshipSelect = Message<"loft.StewardshipSelect"> & {
   dateCreated: boolean;
 
   /**
-   * @generated from field: bool valid_from = 17;
+   * @generated from field: bool date_start = 17;
    */
-  validFrom: boolean;
+  dateStart: boolean;
 
   /**
-   * @generated from field: bool valid_to = 18;
+   * @generated from field: bool date_end = 18;
    */
-  validTo: boolean;
+  dateEnd: boolean;
 
   /**
    * @generated from field: bool event_id = 19;
@@ -1177,9 +1177,9 @@ export type StewardshipSelect = Message<"loft.StewardshipSelect"> & {
   eventId: boolean;
 
   /**
-   * @generated from field: bool superseded_at = 20;
+   * @generated from field: bool date_superseded = 20;
    */
-  supersededAt: boolean;
+  dateSuperseded: boolean;
 
   /**
    * @generated from field: bool superseded_by = 21;
@@ -1233,24 +1233,24 @@ export type StewardshipPatchRequest = Message<"loft.StewardshipPatchRequest"> & 
   dateUpdatedForce: boolean;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 34;
+   * @generated from field: google.protobuf.Timestamp date_start = 34;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 36;
+   * @generated from field: google.protobuf.Timestamp date_end = 36;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
-   * Clear valid_to instead of writing it.
+   * Clear date_end instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and valid_to clears.
+   * outright: setting both this and date_end clears.
    *
-   * @generated from field: bool valid_to_null = 37;
+   * @generated from field: bool date_end_null = 37;
    */
-  validToNull: boolean;
+  dateEndNull: boolean;
 
   /**
    * @generated from field: bytes event_id = 38;
@@ -1258,19 +1258,19 @@ export type StewardshipPatchRequest = Message<"loft.StewardshipPatchRequest"> & 
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 40;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 40;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
-   * Clear superseded_at instead of writing it.
+   * Clear date_superseded instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and superseded_at clears.
+   * outright: setting both this and date_superseded clears.
    *
-   * @generated from field: bool superseded_at_null = 41;
+   * @generated from field: bool date_superseded_null = 41;
    */
-  supersededAtNull: boolean;
+  dateSupersededNull: boolean;
 
   /**
    * @generated from field: bytes superseded_by = 42;

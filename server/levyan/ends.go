@@ -56,7 +56,7 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 	}
 	vs, err := t.Db.LevyanNotice.Query().
 		Where(levyannotice.KindIn(Closed, Restored, Destroyed)).
-		Select(levyannotice.FieldWorkspace, levyannotice.FieldKind, levyannotice.FieldAt).
+		Select(levyannotice.FieldWorkspace, levyannotice.FieldKind, levyannotice.FieldDateOccurred).
 		All(ctx)
 	if err != nil {
 		return out, err
@@ -64,7 +64,7 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 	have := map[said]bool{}
 	destroyed := map[uuid.UUID]bool{}
 	for _, v := range vs {
-		have[said{v.Workspace, v.Kind, moment(v.At)}] = true
+		have[said{v.Workspace, v.Kind, moment(v.DateOccurred)}] = true
 		if v.Kind == Destroyed {
 			destroyed[v.Workspace] = true
 		}

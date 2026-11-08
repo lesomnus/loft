@@ -116,7 +116,7 @@ func TestAnOperationIsOneMoment(t *testing.T) {
 	x.Equal(e.now.UTC().Truncate(time.Microsecond), ev.DateCreated.UTC(), "to the microsecond a database keeps")
 	for _, f := range fs {
 		x.True(ev.DateCreated.Equal(f.DateCreated), "a fact known at %s, and its event at %s", f.DateCreated, ev.DateCreated)
-		x.True(f.ValidFrom.Equal(p.ValidFrom), "a fact from %s, and where it was from %s", f.ValidFrom, p.ValidFrom)
+		x.True(f.ValidFrom.Equal(p.DateStart), "a fact from %s, and where it was from %s", f.ValidFrom, p.DateStart)
 		x.Equal(ev.Id, f.EventId)
 	}
 	x.True(ev.DateCreated.Equal(p.DateCreated))

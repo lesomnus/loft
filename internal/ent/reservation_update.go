@@ -92,43 +92,43 @@ func (_u *ReservationUpdate) SetNillableStatus(v *string) *ReservationUpdate {
 	return _u
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_u *ReservationUpdate) SetBeginsAt(v time.Time) *ReservationUpdate {
-	_u.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_u *ReservationUpdate) SetDateStart(v time.Time) *ReservationUpdate {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_u *ReservationUpdate) SetNillableBeginsAt(v *time.Time) *ReservationUpdate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *ReservationUpdate) SetNillableDateStart(v *time.Time) *ReservationUpdate {
 	if v != nil {
-		_u.SetBeginsAt(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearBeginsAt clears the value of the "begins_at" field.
-func (_u *ReservationUpdate) ClearBeginsAt() *ReservationUpdate {
-	_u.mutation.ClearBeginsAt()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *ReservationUpdate) ClearDateStart() *ReservationUpdate {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_u *ReservationUpdate) SetEndsAt(v time.Time) *ReservationUpdate {
-	_u.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *ReservationUpdate) SetDateEnd(v time.Time) *ReservationUpdate {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_u *ReservationUpdate) SetNillableEndsAt(v *time.Time) *ReservationUpdate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *ReservationUpdate) SetNillableDateEnd(v *time.Time) *ReservationUpdate {
 	if v != nil {
-		_u.SetEndsAt(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearEndsAt clears the value of the "ends_at" field.
-func (_u *ReservationUpdate) ClearEndsAt() *ReservationUpdate {
-	_u.mutation.ClearEndsAt()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *ReservationUpdate) ClearDateEnd() *ReservationUpdate {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -166,23 +166,23 @@ func (_u *ReservationUpdate) ClearDateErased() *ReservationUpdate {
 	return _u
 }
 
-// SetExpiresAt sets the "expires_at" field.
-func (_u *ReservationUpdate) SetExpiresAt(v time.Time) *ReservationUpdate {
-	_u.mutation.SetExpiresAt(v)
+// SetDateExpires sets the "date_expires" field.
+func (_u *ReservationUpdate) SetDateExpires(v time.Time) *ReservationUpdate {
+	_u.mutation.SetDateExpires(v)
 	return _u
 }
 
-// SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (_u *ReservationUpdate) SetNillableExpiresAt(v *time.Time) *ReservationUpdate {
+// SetNillableDateExpires sets the "date_expires" field if the given value is not nil.
+func (_u *ReservationUpdate) SetNillableDateExpires(v *time.Time) *ReservationUpdate {
 	if v != nil {
-		_u.SetExpiresAt(*v)
+		_u.SetDateExpires(*v)
 	}
 	return _u
 }
 
-// ClearExpiresAt clears the value of the "expires_at" field.
-func (_u *ReservationUpdate) ClearExpiresAt() *ReservationUpdate {
-	_u.mutation.ClearExpiresAt()
+// ClearDateExpires clears the value of the "date_expires" field.
+func (_u *ReservationUpdate) ClearDateExpires() *ReservationUpdate {
+	_u.mutation.ClearDateExpires()
 	return _u
 }
 
@@ -240,23 +240,23 @@ func (_u *ReservationUpdate) ClearDecidedBy() *ReservationUpdate {
 	return _u
 }
 
-// SetCheckedInAt sets the "checked_in_at" field.
-func (_u *ReservationUpdate) SetCheckedInAt(v time.Time) *ReservationUpdate {
-	_u.mutation.SetCheckedInAt(v)
+// SetDateCheckedIn sets the "date_checked_in" field.
+func (_u *ReservationUpdate) SetDateCheckedIn(v time.Time) *ReservationUpdate {
+	_u.mutation.SetDateCheckedIn(v)
 	return _u
 }
 
-// SetNillableCheckedInAt sets the "checked_in_at" field if the given value is not nil.
-func (_u *ReservationUpdate) SetNillableCheckedInAt(v *time.Time) *ReservationUpdate {
+// SetNillableDateCheckedIn sets the "date_checked_in" field if the given value is not nil.
+func (_u *ReservationUpdate) SetNillableDateCheckedIn(v *time.Time) *ReservationUpdate {
 	if v != nil {
-		_u.SetCheckedInAt(*v)
+		_u.SetDateCheckedIn(*v)
 	}
 	return _u
 }
 
-// ClearCheckedInAt clears the value of the "checked_in_at" field.
-func (_u *ReservationUpdate) ClearCheckedInAt() *ReservationUpdate {
-	_u.mutation.ClearCheckedInAt()
+// ClearDateCheckedIn clears the value of the "date_checked_in" field.
+func (_u *ReservationUpdate) ClearDateCheckedIn() *ReservationUpdate {
+	_u.mutation.ClearDateCheckedIn()
 	return _u
 }
 
@@ -348,23 +348,23 @@ func (_u *ReservationUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if e, ok := _u.mutation.FieldExpr(reservation.FieldStatus); ok {
 		_spec.SetField(reservation.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.BeginsAt(); ok {
-		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(reservation.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(reservation.FieldBeginsAt); ok {
-		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateStart); ok {
+		_spec.SetField(reservation.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.BeginsAtCleared() {
-		_spec.ClearField(reservation.FieldBeginsAt, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(reservation.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.EndsAt(); ok {
-		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(reservation.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(reservation.FieldEndsAt); ok {
-		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateEnd); ok {
+		_spec.SetField(reservation.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.EndsAtCleared() {
-		_spec.ClearField(reservation.FieldEndsAt, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(reservation.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(reservation.FieldDateUpdated, field.TypeTime, value)
@@ -384,14 +384,14 @@ func (_u *ReservationUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(reservation.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ExpiresAt(); ok {
-		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateExpires(); ok {
+		_spec.SetField(reservation.FieldDateExpires, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(reservation.FieldExpiresAt); ok {
-		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateExpires); ok {
+		_spec.SetField(reservation.FieldDateExpires, field.TypeTime, e)
 	}
-	if _u.mutation.ExpiresAtCleared() {
-		_spec.ClearField(reservation.FieldExpiresAt, field.TypeTime)
+	if _u.mutation.DateExpiresCleared() {
+		_spec.ClearField(reservation.FieldDateExpires, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Rrule(); ok {
 		_spec.SetField(reservation.FieldRrule, field.TypeString, value)
@@ -417,14 +417,14 @@ func (_u *ReservationUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.DecidedByCleared() {
 		_spec.ClearField(reservation.FieldDecidedBy, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.CheckedInAt(); ok {
-		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateCheckedIn(); ok {
+		_spec.SetField(reservation.FieldDateCheckedIn, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(reservation.FieldCheckedInAt); ok {
-		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateCheckedIn); ok {
+		_spec.SetField(reservation.FieldDateCheckedIn, field.TypeTime, e)
 	}
-	if _u.mutation.CheckedInAtCleared() {
-		_spec.ClearField(reservation.FieldCheckedInAt, field.TypeTime)
+	if _u.mutation.DateCheckedInCleared() {
+		_spec.ClearField(reservation.FieldDateCheckedIn, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -510,43 +510,43 @@ func (_u *ReservationUpdateOne) SetNillableStatus(v *string) *ReservationUpdateO
 	return _u
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_u *ReservationUpdateOne) SetBeginsAt(v time.Time) *ReservationUpdateOne {
-	_u.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_u *ReservationUpdateOne) SetDateStart(v time.Time) *ReservationUpdateOne {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_u *ReservationUpdateOne) SetNillableBeginsAt(v *time.Time) *ReservationUpdateOne {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *ReservationUpdateOne) SetNillableDateStart(v *time.Time) *ReservationUpdateOne {
 	if v != nil {
-		_u.SetBeginsAt(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearBeginsAt clears the value of the "begins_at" field.
-func (_u *ReservationUpdateOne) ClearBeginsAt() *ReservationUpdateOne {
-	_u.mutation.ClearBeginsAt()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *ReservationUpdateOne) ClearDateStart() *ReservationUpdateOne {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_u *ReservationUpdateOne) SetEndsAt(v time.Time) *ReservationUpdateOne {
-	_u.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *ReservationUpdateOne) SetDateEnd(v time.Time) *ReservationUpdateOne {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_u *ReservationUpdateOne) SetNillableEndsAt(v *time.Time) *ReservationUpdateOne {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *ReservationUpdateOne) SetNillableDateEnd(v *time.Time) *ReservationUpdateOne {
 	if v != nil {
-		_u.SetEndsAt(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearEndsAt clears the value of the "ends_at" field.
-func (_u *ReservationUpdateOne) ClearEndsAt() *ReservationUpdateOne {
-	_u.mutation.ClearEndsAt()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *ReservationUpdateOne) ClearDateEnd() *ReservationUpdateOne {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -584,23 +584,23 @@ func (_u *ReservationUpdateOne) ClearDateErased() *ReservationUpdateOne {
 	return _u
 }
 
-// SetExpiresAt sets the "expires_at" field.
-func (_u *ReservationUpdateOne) SetExpiresAt(v time.Time) *ReservationUpdateOne {
-	_u.mutation.SetExpiresAt(v)
+// SetDateExpires sets the "date_expires" field.
+func (_u *ReservationUpdateOne) SetDateExpires(v time.Time) *ReservationUpdateOne {
+	_u.mutation.SetDateExpires(v)
 	return _u
 }
 
-// SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (_u *ReservationUpdateOne) SetNillableExpiresAt(v *time.Time) *ReservationUpdateOne {
+// SetNillableDateExpires sets the "date_expires" field if the given value is not nil.
+func (_u *ReservationUpdateOne) SetNillableDateExpires(v *time.Time) *ReservationUpdateOne {
 	if v != nil {
-		_u.SetExpiresAt(*v)
+		_u.SetDateExpires(*v)
 	}
 	return _u
 }
 
-// ClearExpiresAt clears the value of the "expires_at" field.
-func (_u *ReservationUpdateOne) ClearExpiresAt() *ReservationUpdateOne {
-	_u.mutation.ClearExpiresAt()
+// ClearDateExpires clears the value of the "date_expires" field.
+func (_u *ReservationUpdateOne) ClearDateExpires() *ReservationUpdateOne {
+	_u.mutation.ClearDateExpires()
 	return _u
 }
 
@@ -658,23 +658,23 @@ func (_u *ReservationUpdateOne) ClearDecidedBy() *ReservationUpdateOne {
 	return _u
 }
 
-// SetCheckedInAt sets the "checked_in_at" field.
-func (_u *ReservationUpdateOne) SetCheckedInAt(v time.Time) *ReservationUpdateOne {
-	_u.mutation.SetCheckedInAt(v)
+// SetDateCheckedIn sets the "date_checked_in" field.
+func (_u *ReservationUpdateOne) SetDateCheckedIn(v time.Time) *ReservationUpdateOne {
+	_u.mutation.SetDateCheckedIn(v)
 	return _u
 }
 
-// SetNillableCheckedInAt sets the "checked_in_at" field if the given value is not nil.
-func (_u *ReservationUpdateOne) SetNillableCheckedInAt(v *time.Time) *ReservationUpdateOne {
+// SetNillableDateCheckedIn sets the "date_checked_in" field if the given value is not nil.
+func (_u *ReservationUpdateOne) SetNillableDateCheckedIn(v *time.Time) *ReservationUpdateOne {
 	if v != nil {
-		_u.SetCheckedInAt(*v)
+		_u.SetDateCheckedIn(*v)
 	}
 	return _u
 }
 
-// ClearCheckedInAt clears the value of the "checked_in_at" field.
-func (_u *ReservationUpdateOne) ClearCheckedInAt() *ReservationUpdateOne {
-	_u.mutation.ClearCheckedInAt()
+// ClearDateCheckedIn clears the value of the "date_checked_in" field.
+func (_u *ReservationUpdateOne) ClearDateCheckedIn() *ReservationUpdateOne {
+	_u.mutation.ClearDateCheckedIn()
 	return _u
 }
 
@@ -796,23 +796,23 @@ func (_u *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservation
 	if e, ok := _u.mutation.FieldExpr(reservation.FieldStatus); ok {
 		_spec.SetField(reservation.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.BeginsAt(); ok {
-		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(reservation.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(reservation.FieldBeginsAt); ok {
-		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateStart); ok {
+		_spec.SetField(reservation.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.BeginsAtCleared() {
-		_spec.ClearField(reservation.FieldBeginsAt, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(reservation.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.EndsAt(); ok {
-		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(reservation.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(reservation.FieldEndsAt); ok {
-		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateEnd); ok {
+		_spec.SetField(reservation.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.EndsAtCleared() {
-		_spec.ClearField(reservation.FieldEndsAt, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(reservation.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(reservation.FieldDateUpdated, field.TypeTime, value)
@@ -832,14 +832,14 @@ func (_u *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservation
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(reservation.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ExpiresAt(); ok {
-		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateExpires(); ok {
+		_spec.SetField(reservation.FieldDateExpires, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(reservation.FieldExpiresAt); ok {
-		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateExpires); ok {
+		_spec.SetField(reservation.FieldDateExpires, field.TypeTime, e)
 	}
-	if _u.mutation.ExpiresAtCleared() {
-		_spec.ClearField(reservation.FieldExpiresAt, field.TypeTime)
+	if _u.mutation.DateExpiresCleared() {
+		_spec.ClearField(reservation.FieldDateExpires, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Rrule(); ok {
 		_spec.SetField(reservation.FieldRrule, field.TypeString, value)
@@ -865,14 +865,14 @@ func (_u *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservation
 	if _u.mutation.DecidedByCleared() {
 		_spec.ClearField(reservation.FieldDecidedBy, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.CheckedInAt(); ok {
-		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateCheckedIn(); ok {
+		_spec.SetField(reservation.FieldDateCheckedIn, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(reservation.FieldCheckedInAt); ok {
-		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateCheckedIn); ok {
+		_spec.SetField(reservation.FieldDateCheckedIn, field.TypeTime, e)
 	}
-	if _u.mutation.CheckedInAtCleared() {
-		_spec.ClearField(reservation.FieldCheckedInAt, field.TypeTime)
+	if _u.mutation.DateCheckedInCleared() {
+		_spec.ClearField(reservation.FieldDateCheckedIn, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Reservation{config: _u.config}

@@ -39,16 +39,17 @@ const maxReviewed = 92 * 24 * time.Hour
 // fifty calls.
 const named = 5
 
-// stretch is the period a review asks of, refused when it is none.
-func stretch(from, to time.Time, fromSet, toSet bool) error {
+// stretch is the period a review asks of, refused when it is none -- by the
+// fields its request says it in, `first` and `last`.
+func stretch(from, to time.Time, fromSet, toSet bool, first, last string) error {
 	if !fromSet || !toSet {
-		return invalid("from", "점검할 기간의 시작과 끝을 정하세요")
+		return invalid(first, "점검할 기간의 시작과 끝을 정하세요")
 	}
 	if !to.After(from) {
-		return invalid("to", "기간의 끝은 시작보다 뒤여야 합니다")
+		return invalid(last, "기간의 끝은 시작보다 뒤여야 합니다")
 	}
 	if to.Sub(from) > maxReviewed {
-		return invalid("to", "한 번에 %d일까지 봅니다", int(maxReviewed/(24*time.Hour)))
+		return invalid(last, "한 번에 %d일까지 봅니다", int(maxReviewed/(24*time.Hour)))
 	}
 	return nil
 }
@@ -57,8 +58,8 @@ func stretch(from, to time.Time, fromSet, toSet bool) error {
 // record it is, which is the calls that carried this workspace's people's
 // data, whoever made them.
 func (s domainAccess) Review(ctx context.Context, req *app.AccessReviewRequest) (*app.AccessReviewResponse, error) {
-	from, to := req.GetFrom().AsTime(), req.GetTo().AsTime()
-	if err := stretch(from, to, req.HasFrom(), req.HasTo()); err != nil {
+	from, to := req.GetDateFrom().AsTime(), req.GetDateTo().AsTime()
+	if err := stretch(from, to, req.HasDateFrom(), req.HasDateTo(), "date_from", "date_to"); err != nil {
 		return nil, err
 	}
 	switch req.GetKind() {
@@ -162,7 +163,7 @@ func carried(v *ent.Access, id []byte) bool {
 func entryOf(n *namer, v *ent.Access, first []byte) *app.AccessEntry {
 	e := app.AccessEntry_builder{
 		Id:           pdid.Id(v.Id).Bytes(),
-		At:           ts(v.DateCreated),
+		DateCreated:  ts(v.DateCreated),
 		Action:       v.Action,
 		Kind:         v.Kind,
 		Result:       v.Result,
@@ -252,15 +253,15 @@ type domainAccessReview struct {
 // what it held is counted here; a review says no more of itself than what
 // they found.
 func (s domainAccessReview) Add(ctx context.Context, req *app.AccessReviewAddRequest) (*app.AccessReview, error) {
-	from, to := req.GetPeriodFrom().AsTime(), req.GetPeriodTo().AsTime()
-	if err := stretch(from, to, req.HasPeriodFrom(), req.HasPeriodTo()); err != nil {
+	from, to := req.GetDateStart().AsTime(), req.GetDateEnd().AsTime()
+	if err := stretch(from, to, req.HasDateStart(), req.HasDateEnd(), "date_start", "date_end"); err != nil {
 		return nil, err
 	}
 
 	var out *app.AccessReview
 	err := s.tx(ctx, func(t *Tx) error {
 		if !from.Before(t.now) {
-			return invalid("period_from", "아직 오지 않은 기간은 점검하지 못합니다")
+			return invalid("date_start", "아직 오지 않은 기간은 점검하지 못합니다")
 		}
 		in := []predicate.Access{
 			entaccess.TenantId(t.tenant.Uuid()),
@@ -288,8 +289,8 @@ func (s domainAccessReview) Add(ctx context.Context, req *app.AccessReviewAddReq
 		id := pdid.New(pd.AccessReviewDomain)
 		if err := t.begin(nil, "access.review", pdid.Nil, t.now, desc, app.AccessReviewed_builder{
 			Review:    id.Bytes(),
-			From:      ts(from),
-			To:        ts(to),
+			DateStart: ts(from),
+			DateEnd:   ts(to),
 			Calls:     calls,
 			Downloads: downloads,
 			Refused:   refused,
@@ -297,15 +298,15 @@ func (s domainAccessReview) Add(ctx context.Context, req *app.AccessReviewAddReq
 			return err
 		}
 		out, err = t.next.AccessReview().Add(t.ctx, app.AccessReviewAddRequest_builder{
-			Id:         id.Bytes(),
-			Tenant:     t.tenantRef(),
-			Desc:       desc,
-			PeriodFrom: ts(from),
-			PeriodTo:   ts(to),
-			Reviewer:   app.HolderRef_builder{Id: t.actor.Bytes()}.Build(),
-			Calls:      calls,
-			Downloads:  downloads,
-			Refused:    refused,
+			Id:        id.Bytes(),
+			Tenant:    t.tenantRef(),
+			Desc:      desc,
+			DateStart: ts(from),
+			DateEnd:   ts(to),
+			Reviewer:  app.HolderRef_builder{Id: t.actor.Bytes()}.Build(),
+			Calls:     calls,
+			Downloads: downloads,
+			Refused:   refused,
 		}.Build())
 		return err
 	})

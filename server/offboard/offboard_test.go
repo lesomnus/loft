@@ -201,6 +201,30 @@ func TestARenamedTableIsOneThisBuildHas(t *testing.T) {
 	}
 }
 
+// TestARenamedColumnIsOneThisBuildHas (D76): a column an earlier build made
+// under another name (offboard.RenamedColumns, and payday's own,
+// pd.ColumnRenames) is a column of a table this build has, under the name it
+// moves to and not the one it moves from -- and that one is no name a rename
+// moves another column of the table to, which would leave two names that
+// were each other's.
+func TestARenamedColumnIsOneThisBuildHas(t *testing.T) {
+	x := require.New(t)
+	all := slices.Concat(pd.ColumnRenames, offboard.RenamedColumns)
+	x.NotEmpty(offboard.RenamedColumns)
+	for _, c := range all {
+		i := slices.IndexFunc(migrate.Tables, func(tb *entschema.Table) bool { return tb.Name == c.Table })
+		x.GreaterOrEqual(i, 0, "%s is no table of this build's: say a table by its name now (offboard.Renamed)", c.Table)
+		has := func(name string) bool {
+			return slices.ContainsFunc(migrate.Tables[i].Columns, func(v *entschema.Column) bool { return v.Name == name })
+		}
+		x.True(has(c.To), "%s.%s, which %s is called now, is no column of this build's", c.Table, c.To, c.From)
+		x.False(has(c.From), "%s.%s is a column of this build's, and what %s was called before", c.Table, c.From, c.To)
+		for _, d := range all {
+			x.False(d.Table == c.Table && d.To == c.From, "%s.%s was renamed to %s, which is renamed again: say its newest name", c.Table, d.From, c.From)
+		}
+	}
+}
+
 // TestAPurgeTakesEverythingOfOneTenantAndNothingElse.
 func TestAPurgeTakesEverythingOfOneTenantAndNothingElse(t *testing.T) {
 	e := newEnv(t)

@@ -59,11 +59,11 @@ func (e *Asset) Proto() *loft.Asset {
 		x.SetCustodian(r)
 	}
 	x.SetAttributes(e.Attributes)
-	if e.AcquiredAt != nil {
-		x.SetAcquiredAt(timestamppb.New(*e.AcquiredAt))
+	if e.DateAcquired != nil {
+		x.SetDateAcquired(timestamppb.New(*e.DateAcquired))
 	}
-	if e.DisposedAt != nil {
-		x.SetDisposedAt(timestamppb.New(*e.DisposedAt))
+	if e.DateDisposed != nil {
+		x.SetDateDisposed(timestamppb.New(*e.DateDisposed))
 	}
 	x.SetContentVersion(e.ContentVersion)
 	return x
@@ -119,21 +119,21 @@ func (e *Domain) Proto() *loft.Domain {
 		x.SetDateErased(timestamppb.New(*e.DateErased))
 	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	if e.VerifiedAt != nil {
-		x.SetVerifiedAt(timestamppb.New(*e.VerifiedAt))
+	if e.DateVerified != nil {
+		x.SetDateVerified(timestamppb.New(*e.DateVerified))
 	}
-	if e.CheckedAt != nil {
-		x.SetCheckedAt(timestamppb.New(*e.CheckedAt))
+	if e.DateChecked != nil {
+		x.SetDateChecked(timestamppb.New(*e.DateChecked))
 	}
 	x.SetFailures(e.Failures)
-	if e.FailingSince != nil {
-		x.SetFailingSince(timestamppb.New(*e.FailingSince))
+	if e.DateFailing != nil {
+		x.SetDateFailing(timestamppb.New(*e.DateFailing))
 	}
 	if e.DateLapsed != nil {
 		x.SetDateLapsed(timestamppb.New(*e.DateLapsed))
 	}
-	if e.RedirectUntil != nil {
-		x.SetRedirectUntil(timestamppb.New(*e.RedirectUntil))
+	if e.DateRedirectUntil != nil {
+		x.SetDateRedirectUntil(timestamppb.New(*e.DateRedirectUntil))
 	}
 	return x
 }
@@ -158,11 +158,11 @@ func (e *Label) Proto() *loft.Label {
 		x.SetSubjectId(e.SubjectId[:])
 	}
 	x.SetState(e.State)
-	if e.BoundAt != nil {
-		x.SetBoundAt(timestamppb.New(*e.BoundAt))
+	if e.DateBound != nil {
+		x.SetDateBound(timestamppb.New(*e.DateBound))
 	}
-	if e.PrintedAt != nil {
-		x.SetPrintedAt(timestamppb.New(*e.PrintedAt))
+	if e.DatePrinted != nil {
+		x.SetDatePrinted(timestamppb.New(*e.DatePrinted))
 	}
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {

@@ -57,8 +57,9 @@ service AssetService {
   // time. The old row is superseded, never edited (design 3.3).
   rpc Correct(AssetCorrectRequest) returns (Asset);
   rpc Timeline(AssetTimelineRequest) returns (AssetTimelineResponse);
-  // QueryAt answers an asset and everything inside it as it was at `at`, by
-  // what is known now -- or by what was known at `known`, which is AsOf.
+  // QueryAt answers an asset and everything inside it as it was at
+  // `date_as_of`, by what is known now -- or by what was known at
+  // `date_known`.
   rpc QueryAt(AssetQueryAtRequest) returns (AssetQueryAtResponse);
   rpc Diff(AssetDiffRequest) returns (AssetDiffResponse);
   rpc Search(AssetSearchRequest) returns (AssetSearchResponse);
@@ -229,16 +230,16 @@ message AssetAddRequest {
   string slot = 20 [features.field_presence = IMPLICIT];
   PartyRef custodian = 21;
   map<string, string> attributes = 22;
-  google.protobuf.Timestamp acquired_at = 23;
-  google.protobuf.Timestamp disposed_at = 24;
+  google.protobuf.Timestamp date_acquired = 23;
+  google.protobuf.Timestamp date_disposed = 24;
   uint64 content_version = 25 [features.field_presence = IMPLICIT];
   // When the asset started being what the request says: the initial facts
   // and placement are valid from here. Empty is now.
-  google.protobuf.Timestamp since = 100;
+  google.protobuf.Timestamp date_occurred = 100;
   // A client-minted Event id, so that a retry is the same operation.
   bytes op = 101;
   string reason = 102;
-  // Where it is, from `since`. Taken from here rather than from parent_id so
+  // Where it is, from `date_occurred`. Taken from here rather than from parent_id so
   // that a mode and a slot come with it.
   AssetRef to = 103;
   string mode = 104;
@@ -321,8 +322,8 @@ message AssetSelect {
   bool slot = 20;
   PartySelect custodian = 21;
   bool attributes = 22;
-  bool acquired_at = 23;
-  bool disposed_at = 24;
+  bool date_acquired = 23;
+  bool date_disposed = 24;
   bool content_version = 25;
 }
 
@@ -377,18 +378,18 @@ message AssetPatchRequest {
   // outright: setting both this and custodian clears.
   bool custodian_null = 43;
   map<string, string> attributes = 44;
-  google.protobuf.Timestamp acquired_at = 46;
-  // Clear acquired_at instead of writing it.
+  google.protobuf.Timestamp date_acquired = 46;
+  // Clear date_acquired instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and acquired_at clears.
-  bool acquired_at_null = 47;
-  google.protobuf.Timestamp disposed_at = 48;
-  // Clear disposed_at instead of writing it.
+  // outright: setting both this and date_acquired clears.
+  bool date_acquired_null = 47;
+  google.protobuf.Timestamp date_disposed = 48;
+  // Clear date_disposed instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and disposed_at clears.
-  bool disposed_at_null = 49;
+  // outright: setting both this and date_disposed clears.
+  bool date_disposed_null = 49;
   uint64 content_version = 50;
 }
 
@@ -512,7 +513,7 @@ message AssetMoveRequest {
   string slot = 4 [features.field_presence = IMPLICIT];
   int32 u_from = 5 [features.field_presence = IMPLICIT];
   int32 u_to = 6 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp at = 7;
+  google.protobuf.Timestamp date_occurred = 7;
   string reason = 8 [features.field_presence = IMPLICIT];
   bytes op = 9 [features.field_presence = IMPLICIT];
 }
@@ -523,13 +524,13 @@ message AssetSetAttributesRequest {
   // attribute key. An empty value clears an attribute.
   map<string, string> set = 2;
   repeated string clear = 3;
-  google.protobuf.Timestamp at = 4;
+  google.protobuf.Timestamp date_occurred = 4;
   string reason = 5 [features.field_presence = IMPLICIT];
   bytes op = 6 [features.field_presence = IMPLICIT];
   // The kits and groups it leaves as it goes out of use -- with `status` set
   // to lost, retired or disposed, and refused otherwise. Its membership of
   // each ends in this operation, as a relation of its own this one is the
-  // cause of (design D34), from `at`, or from now when it was made a member
+  // cause of (design D34), from `date_occurred`, or from now when it was made a member
   // after that; and the bookings of a kit let it go (design 4). One it is no
   // member of now is passed over.
   repeated AssetRef leave = 7;
@@ -541,7 +542,7 @@ message AssetAssignRequest {
   string role = 2 [features.field_presence = IMPLICIT];
   // Absent ends the role.
   PartyRef party = 3;
-  google.protobuf.Timestamp at = 4;
+  google.protobuf.Timestamp date_occurred = 4;
   string reason = 5 [features.field_presence = IMPLICIT];
   bytes op = 6 [features.field_presence = IMPLICIT];
 }
@@ -554,7 +555,7 @@ message AssetRelateRequest {
   bool required = 4 [features.field_presence = IMPLICIT];
   // End the relation instead of starting it.
   bool end = 5 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp at = 6;
+  google.protobuf.Timestamp date_occurred = 6;
   string reason = 7 [features.field_presence = IMPLICIT];
   bytes op = 8 [features.field_presence = IMPLICIT];
 }
@@ -566,7 +567,7 @@ message AssetCorrectRequest {
   // It never happened.
   bool retract = 3 [features.field_presence = IMPLICIT];
   // It happened, but from this moment instead.
-  google.protobuf.Timestamp valid_from = 4;
+  google.protobuf.Timestamp date_start = 4;
   string reason = 5 [features.field_presence = IMPLICIT];
   bytes op = 6 [features.field_presence = IMPLICIT];
 }
@@ -576,7 +577,7 @@ message AssetTimelineRequest {
   // Also the rows later corrections superseded.
   bool superseded = 2 [features.field_presence = IMPLICIT];
   // As the system knew it then.
-  google.protobuf.Timestamp known = 3;
+  google.protobuf.Timestamp date_known = 3;
   uint32 limit = 4 [features.field_presence = IMPLICIT];
 }
 
@@ -588,10 +589,10 @@ message TimelineEntry {
   // placement | fact | stewardship | link | event
   string kind = 1 [features.field_presence = IMPLICIT];
   bytes row_id = 2 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp valid_from = 3;
-  google.protobuf.Timestamp valid_to = 4;
-  google.protobuf.Timestamp recorded_at = 5;
-  google.protobuf.Timestamp superseded_at = 6;
+  google.protobuf.Timestamp date_start = 3;
+  google.protobuf.Timestamp date_end = 4;
+  google.protobuf.Timestamp date_recorded = 5;
+  google.protobuf.Timestamp date_superseded = 6;
   // What it says, for a person.
   string summary = 7 [features.field_presence = IMPLICIT];
   // What it holds, field by field: a placement's mode, slot and rack
@@ -621,9 +622,9 @@ message TimelineEntry {
 
 message AssetQueryAtRequest {
   AssetRef root = 1;
-  google.protobuf.Timestamp at = 2;
-  // AsOf: by what was recorded at this moment. Empty is what is known now.
-  google.protobuf.Timestamp known = 3;
+  google.protobuf.Timestamp date_as_of = 2;
+  // By what was recorded at this moment. Empty is what is known now.
+  google.protobuf.Timestamp date_known = 3;
   // How deep under the root. Zero is everything.
   uint32 depth = 4 [features.field_presence = IMPLICIT];
 }
@@ -653,8 +654,8 @@ message AssetState {
 
 message AssetDiffRequest {
   AssetRef root = 1;
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
 }
 
 message AssetDiffResponse {
@@ -692,8 +693,8 @@ message AssetSearchResponse {
 message AssetReportRequest {
   // summary | custody | utilization | stock | work
   string kind = 1 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
 }
 
 message AssetReportResponse {
@@ -761,7 +762,7 @@ message AssetCensusResponse {
   // All of them.
   AssetCensusRow total = 2;
   // When it was counted.
-  google.protobuf.Timestamp at = 3;
+  google.protobuf.Timestamp date_as_of = 3;
   // What it counted and by what, as the request said it or as it was taken.
   string by = 4 [features.field_presence = IMPLICIT];
   string kind = 5 [features.field_presence = IMPLICIT];
@@ -795,12 +796,12 @@ message DomainAddRequest {
   string token = 11 [features.field_presence = IMPLICIT];
   string source = 12 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
-  google.protobuf.Timestamp verified_at = 16;
-  google.protobuf.Timestamp checked_at = 18;
+  google.protobuf.Timestamp date_verified = 16;
+  google.protobuf.Timestamp date_checked = 18;
   uint32 failures = 19;
-  google.protobuf.Timestamp failing_since = 20;
+  google.protobuf.Timestamp date_failing = 20;
   google.protobuf.Timestamp date_lapsed = 17;
-  google.protobuf.Timestamp redirect_until = 21;
+  google.protobuf.Timestamp date_redirect_until = 21;
   // The label for a default subdomain; the host is made from it.
   string sub = 100;
 }
@@ -828,12 +829,12 @@ message DomainSelect {
   bool date_updated = 13;
   bool date_erased = 14;
   bool date_created = 15;
-  bool verified_at = 16;
-  bool checked_at = 18;
+  bool date_verified = 16;
+  bool date_checked = 18;
   bool failures = 19;
-  bool failing_since = 20;
+  bool date_failing = 20;
   bool date_lapsed = 17;
-  bool redirect_until = 21;
+  bool date_redirect_until = 21;
 }
 
 message DomainPatchRequest {
@@ -857,37 +858,37 @@ message DomainPatchRequest {
   // refused rather than assumed, because an unset field cannot be told
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
-  google.protobuf.Timestamp verified_at = 32;
-  // Clear verified_at instead of writing it.
+  google.protobuf.Timestamp date_verified = 32;
+  // Clear date_verified instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and verified_at clears.
-  bool verified_at_null = 33;
-  google.protobuf.Timestamp checked_at = 36;
-  // Clear checked_at instead of writing it.
+  // outright: setting both this and date_verified clears.
+  bool date_verified_null = 33;
+  google.protobuf.Timestamp date_checked = 36;
+  // Clear date_checked instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and checked_at clears.
-  bool checked_at_null = 37;
+  // outright: setting both this and date_checked clears.
+  bool date_checked_null = 37;
   uint32 failures = 38;
-  google.protobuf.Timestamp failing_since = 40;
-  // Clear failing_since instead of writing it.
+  google.protobuf.Timestamp date_failing = 40;
+  // Clear date_failing instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and failing_since clears.
-  bool failing_since_null = 41;
+  // outright: setting both this and date_failing clears.
+  bool date_failing_null = 41;
   google.protobuf.Timestamp date_lapsed = 34;
   // Clear date_lapsed instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and date_lapsed clears.
   bool date_lapsed_null = 35;
-  google.protobuf.Timestamp redirect_until = 42;
-  // Clear redirect_until instead of writing it.
+  google.protobuf.Timestamp date_redirect_until = 42;
+  // Clear date_redirect_until instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and redirect_until clears.
-  bool redirect_until_null = 43;
+  // outright: setting both this and date_redirect_until clears.
+  bool date_redirect_until_null = 43;
 }
 
 message DomainApplyRequest {
@@ -1035,8 +1036,8 @@ message LabelAddRequest {
   DomainRef domain = 8;
   bytes subject_id = 9;
   string state = 10 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp bound_at = 11;
-  google.protobuf.Timestamp printed_at = 12;
+  google.protobuf.Timestamp date_bound = 11;
+  google.protobuf.Timestamp date_printed = 12;
   google.protobuf.Timestamp date_created = 15;
   string batch = 16 [features.field_presence = IMPLICIT];
   string code = 17;
@@ -1060,8 +1061,8 @@ message LabelSelect {
   DomainSelect domain = 8;
   bool subject_id = 9;
   bool state = 10;
-  bool bound_at = 11;
-  bool printed_at = 12;
+  bool date_bound = 11;
+  bool date_printed = 12;
   bool date_updated = 13;
   bool date_erased = 14;
   bool date_created = 15;
@@ -1084,18 +1085,18 @@ message LabelPatchRequest {
   // outright: setting both this and subject_id clears.
   bool subject_id_null = 19;
   string state = 20;
-  google.protobuf.Timestamp bound_at = 22;
-  // Clear bound_at instead of writing it.
+  google.protobuf.Timestamp date_bound = 22;
+  // Clear date_bound instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and bound_at clears.
-  bool bound_at_null = 23;
-  google.protobuf.Timestamp printed_at = 24;
-  // Clear printed_at instead of writing it.
+  // outright: setting both this and date_bound clears.
+  bool date_bound_null = 23;
+  google.protobuf.Timestamp date_printed = 24;
+  // Clear date_printed instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and printed_at clears.
-  bool printed_at_null = 25;
+  // outright: setting both this and date_printed clears.
+  bool date_printed_null = 25;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.
@@ -1440,5 +1441,5 @@ message AttachmentUrlRequest {
 
 message AttachmentUrlResponse {
   string url = 1 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp expires_at = 2;
+  google.protobuf.Timestamp date_expires = 2;
 }

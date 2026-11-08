@@ -363,7 +363,7 @@ echo "== a workspace's own domain, through the front"
 said "200" "a workspace's domain was not added" \
 	web -o /dev/null -w '%{http_code}' -b /w/jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
 		-d '{"host":"assets.rig.example"}' https://loft.localhost/loft.DomainService/Add
-kube "kubectl -n ${NS} exec statefulset/postgres -- psql -U loft -d loft -qc \"UPDATE domain SET state = 'active', verified_at = now() WHERE host = 'assets.rig.example'\" >/dev/null"
+kube "kubectl -n ${NS} exec statefulset/postgres -- psql -U loft -d loft -qc \"UPDATE domain SET state = 'active', date_verified = now() WHERE host = 'assets.rig.example'\" >/dev/null"
 front() {
 	kube "kubectl create namespace rig >/dev/null 2>&1; kubectl -n rig delete pod front --ignore-not-found >/dev/null 2>&1
 		kubectl -n rig run front --image=${CURL_IMAGE} --restart=Never --command -- sh -c \

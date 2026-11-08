@@ -401,7 +401,7 @@ var IndexRenames = []rename.Index{
 	{Table: "access", From: "access_date_created_id", To: "access_by_time"},
 	{Table: "accessreview", From: "accessreview_tenant_id_date_created_id", To: "accessreview_page"},
 	{Table: "allocation", From: "allocation_tenant_id_date_created_id", To: "allocation_page"},
-	{Table: "allocation", From: "allocation_resource_id_begins_at", To: "allocation_resource"},
+	{Table: "allocation", From: "allocation_resource_id_date_start", To: "allocation_resource"},
 	{Table: "allocation", From: "allocation_ref_id", To: "allocation_ref"},
 	{Table: "archived", From: "archived_namespace_digest", To: "archived_blob"},
 	{Table: "asset", From: "asset_tenant_id_date_created_id", To: "asset_page"},
@@ -424,10 +424,10 @@ var IndexRenames = []rename.Index{
 	{Table: "countfinding", From: "countfinding_tenant_id_date_created_id", To: "countfinding_page"},
 	{Table: "countfinding", From: "countfinding_count_id_kind", To: "countfinding_count"},
 	{Table: "custody", From: "custody_tenant_id_date_created_id", To: "custody_page"},
-	{Table: "custody", From: "custody_party_id_issued_at", To: "custody_party"},
-	{Table: "custody", From: "custody_tenant_id_status_due_at", To: "custody_open"},
+	{Table: "custody", From: "custody_party_id_date_issued", To: "custody_party"},
+	{Table: "custody", From: "custody_tenant_id_status_date_due", To: "custody_open"},
 	{Table: "custody", From: "custody_reservation_id", To: "custody_reservation"},
-	{Table: "custody", From: "custody_tenant_id_issued_at", To: "custody_issued"},
+	{Table: "custody", From: "custody_tenant_id_date_issued", To: "custody_issued"},
 	{Table: "custodyline", From: "custodyline_tenant_id_date_created_id", To: "custodyline_page"},
 	{Table: "custodyline", From: "custodyline_custody_id", To: "custodyline_custody"},
 	{Table: "custodyline", From: "custodyline_asset_id", To: "custodyline_asset"},
@@ -451,11 +451,11 @@ var IndexRenames = []rename.Index{
 	{Table: "label", From: "label_tenant_id_date_created_id", To: "label_page"},
 	{Table: "label", From: "label_subject_id", To: "label_subject"},
 	{Table: "legalhold", From: "legalhold_tenant_id_date_created_id", To: "legalhold_page"},
-	{Table: "levyannotice", From: "levyannotice_date_told_at", To: "levyannotice_waiting"},
+	{Table: "levyannotice", From: "levyannotice_date_told_date_occurred", To: "levyannotice_waiting"},
 	{Table: "levyannotice", From: "levyannotice_workspace_kind", To: "levyannotice_workspace"},
 	{Table: "link", From: "link_tenant_id_date_created_id", To: "link_page"},
-	{Table: "link", From: "link_source_id_valid_from", To: "link_source"},
-	{Table: "link", From: "link_target_id_valid_from", To: "link_target"},
+	{Table: "link", From: "link_source_id_date_start", To: "link_source"},
+	{Table: "link", From: "link_target_id_date_start", To: "link_target"},
 	{Table: "link", From: "link_event_id", To: "link_event"},
 	{Table: "link", From: "link_superseded_by", To: "link_superseded"},
 	{Table: "notification", From: "notification_tenant_id_date_created_id", To: "notification_page"},
@@ -465,28 +465,28 @@ var IndexRenames = []rename.Index{
 	{Table: "party", From: "party_tenant_id_date_created_id", To: "party_page"},
 	{Table: "party", From: "party_holder_id", To: "party_holder"},
 	{Table: "placement", From: "placement_tenant_id_date_created_id", To: "placement_page"},
-	{Table: "placement", From: "placement_child_id_valid_from", To: "placement_child"},
-	{Table: "placement", From: "placement_parent_id_valid_from", To: "placement_parent"},
+	{Table: "placement", From: "placement_child_id_date_start", To: "placement_child"},
+	{Table: "placement", From: "placement_parent_id_date_start", To: "placement_parent"},
 	{Table: "placement", From: "placement_event_id", To: "placement_event"},
 	{Table: "placement", From: "placement_superseded_by", To: "placement_superseded"},
 	{Table: "purchase", From: "purchase_tenant_id_date_created_id", To: "purchase_page"},
 	{Table: "purchaseline", From: "purchaseline_tenant_id_date_created_id", To: "purchaseline_page"},
 	{Table: "purchaseline", From: "purchaseline_purchase_id", To: "purchaseline_purchase"},
 	{Table: "reservation", From: "reservation_tenant_id_date_created_id", To: "reservation_page"},
-	{Table: "reservation", From: "reservation_party_id_begins_at", To: "reservation_party"},
-	{Table: "reservation", From: "reservation_tenant_id_begins_at", To: "reservation_begins"},
+	{Table: "reservation", From: "reservation_party_id_date_start", To: "reservation_party"},
+	{Table: "reservation", From: "reservation_tenant_id_date_start", To: "reservation_begins"},
 	{Table: "reservationitem", From: "reservationitem_tenant_id_date_created_id", To: "reservationitem_page"},
 	{Table: "reservationitem", From: "reservationitem_reservation_id", To: "reservationitem_reservation"},
 	{Table: "signinfailure", From: "signinfailure_subject_date_created", To: "signinfailure_subject"},
 	{Table: "stewardship", From: "stewardship_tenant_id_date_created_id", To: "stewardship_page"},
-	{Table: "stewardship", From: "stewardship_asset_id_valid_from", To: "stewardship_asset"},
-	{Table: "stewardship", From: "stewardship_party_id_valid_from", To: "stewardship_party"},
+	{Table: "stewardship", From: "stewardship_asset_id_date_start", To: "stewardship_asset"},
+	{Table: "stewardship", From: "stewardship_party_id_date_start", To: "stewardship_party"},
 	{Table: "stewardship", From: "stewardship_event_id", To: "stewardship_event"},
 	{Table: "stewardship", From: "stewardship_superseded_by", To: "stewardship_superseded"},
 	{Table: "stock", From: "stock_tenant_id_date_created_id", To: "stock_page"},
 	{Table: "stock", From: "stock_model_id_space_id", To: "stock_slot"},
 	{Table: "stockmovement", From: "stockmovement_tenant_id_date_created_id", To: "stockmovement_page"},
-	{Table: "stockmovement", From: "stockmovement_stock_id_occurred_at", To: "stockmovement_stock"},
+	{Table: "stockmovement", From: "stockmovement_stock_id_date_occurred", To: "stockmovement_stock"},
 	{Table: "stockmovement", From: "stockmovement_event_id", To: "stockmovement_event"},
 	{Table: "tagcounter", From: "tagcounter_tenant_id_prefix", To: "tagcounter_prefix"},
 	{Table: "tenant", From: "tenant_date_created_id", To: "tenant_page"},
@@ -15182,8 +15182,8 @@ func (s Gate) Custody() loft.CustodyServiceServer {
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Custody].
 func (s gateCustody) admit(ctx context.Context, req *loft.CustodyAddRequest) (*loft.CustodyAddRequest, error) {
-	if req.HasAcknowledgedAt() {
-		return nil, pderr.Invalidf("acknowledged_at", "is established by this deployment and not asserted by a request")
+	if req.HasDateAcknowledged() {
+		return nil, pderr.Invalidf("date_acknowledged", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
@@ -15334,8 +15334,8 @@ func (s Gate) Domain() loft.DomainServiceServer {
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Domain].
 func (s gateDomain) admit(ctx context.Context, req *loft.DomainAddRequest) (*loft.DomainAddRequest, error) {
-	if req.HasVerifiedAt() {
-		return nil, pderr.Invalidf("verified_at", "is established by this deployment and not asserted by a request")
+	if req.HasDateVerified() {
+		return nil, pderr.Invalidf("date_verified", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
@@ -16038,8 +16038,8 @@ func (s Gate) Link() loft.LinkServiceServer {
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Link].
 func (s gateLink) admit(ctx context.Context, req *loft.LinkAddRequest) (*loft.LinkAddRequest, error) {
-	if req.HasSupersededAt() {
-		return nil, pderr.Invalidf("superseded_at", "is established by this deployment and not asserted by a request")
+	if req.HasDateSuperseded() {
+		return nil, pderr.Invalidf("date_superseded", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
@@ -16308,8 +16308,8 @@ func (s Gate) Placement() loft.PlacementServiceServer {
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Placement].
 func (s gatePlacement) admit(ctx context.Context, req *loft.PlacementAddRequest) (*loft.PlacementAddRequest, error) {
-	if req.HasSupersededAt() {
-		return nil, pderr.Invalidf("superseded_at", "is established by this deployment and not asserted by a request")
+	if req.HasDateSuperseded() {
+		return nil, pderr.Invalidf("date_superseded", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
@@ -16800,8 +16800,8 @@ func (s Gate) Stewardship() loft.StewardshipServiceServer {
 // It is what an Add is asked, and an AddMany of every item it carries;
 // see [Gate.Stewardship].
 func (s gateStewardship) admit(ctx context.Context, req *loft.StewardshipAddRequest) (*loft.StewardshipAddRequest, error) {
-	if req.HasSupersededAt() {
-		return nil, pderr.Invalidf("superseded_at", "is established by this deployment and not asserted by a request")
+	if req.HasDateSuperseded() {
+		return nil, pderr.Invalidf("date_superseded", "is established by this deployment and not asserted by a request")
 	}
 
 	if ref := req.GetTenant(); ref != nil {
@@ -31788,8 +31788,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 1, Name: entAccessReview.FieldId, Type: 64, Nullable: false, Key: 0},
 				{Number: 2, Name: entAccessReview.TenantColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 6, Name: entAccessReview.FieldDesc, Type: 9, Nullable: false, Key: 0},
-				{Number: 8, Name: entAccessReview.FieldPeriodFrom, Type: 65, Nullable: false, Key: 0},
-				{Number: 9, Name: entAccessReview.FieldPeriodTo, Type: 65, Nullable: false, Key: 0},
+				{Number: 8, Name: entAccessReview.FieldDateStart, Type: 65, Nullable: false, Key: 0},
+				{Number: 9, Name: entAccessReview.FieldDateEnd, Type: 65, Nullable: false, Key: 0},
 				{Number: 10, Name: entAccessReview.ReviewerColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 11, Name: entAccessReview.FieldCalls, Type: 13, Nullable: false, Key: 0},
 				{Number: 12, Name: entAccessReview.FieldDownloads, Type: 13, Nullable: false, Key: 0},
@@ -31826,8 +31826,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 2, Name: entAllocation.TenantColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 8, Name: entAllocation.ResourceColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 9, Name: entAllocation.FieldKind, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entAllocation.FieldBeginsAt, Type: 65, Nullable: false, Key: 0},
-				{Number: 12, Name: entAllocation.FieldEndsAt, Type: 65, Nullable: false, Key: 0},
+				{Number: 11, Name: entAllocation.FieldDateStart, Type: 65, Nullable: false, Key: 0},
+				{Number: 12, Name: entAllocation.FieldDateEnd, Type: 65, Nullable: false, Key: 0},
 				{Number: 13, Name: entAllocation.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 15, Name: entAllocation.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
 				{Number: 16, Name: entAllocation.FieldBlocking, Type: 8, Nullable: false, Key: 0},
@@ -31877,8 +31877,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 19, Name: entAsset.FieldPlacementMode, Type: 9, Nullable: false, Key: 0},
 				{Number: 20, Name: entAsset.FieldSlot, Type: 9, Nullable: false, Key: 0},
 				{Number: 21, Name: entAsset.CustodianColumn, Type: 64, Nullable: true, Key: 1},
-				{Number: 23, Name: entAsset.FieldAcquiredAt, Type: 65, Nullable: true, Key: 0},
-				{Number: 24, Name: entAsset.FieldDisposedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 23, Name: entAsset.FieldDateAcquired, Type: 65, Nullable: true, Key: 0},
+				{Number: 24, Name: entAsset.FieldDateDisposed, Type: 65, Nullable: true, Key: 0},
 				{Number: 25, Name: entAsset.FieldContentVersion, Type: 4, Nullable: false, Key: 0},
 			}, v)
 			if err != nil {
@@ -32072,9 +32072,9 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 11, Name: entCountFinding.FieldKind, Type: 9, Nullable: false, Key: 0},
 				{Number: 13, Name: entCountFinding.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 15, Name: entCountFinding.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 17, Name: entCountFinding.FieldSeenAt, Type: 65, Nullable: false, Key: 0},
+				{Number: 17, Name: entCountFinding.FieldDateSeen, Type: 65, Nullable: false, Key: 0},
 				{Number: 19, Name: entCountFinding.FieldResolution, Type: 9, Nullable: false, Key: 0},
-				{Number: 20, Name: entCountFinding.FieldResolvedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 20, Name: entCountFinding.FieldDateResolved, Type: 65, Nullable: true, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err
@@ -32108,13 +32108,13 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 8, Name: entCustody.PartyColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 9, Name: entCustody.FieldKind, Type: 9, Nullable: false, Key: 0},
 				{Number: 10, Name: entCustody.FieldStatus, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entCustody.FieldIssuedAt, Type: 65, Nullable: false, Key: 0},
-				{Number: 12, Name: entCustody.FieldDueAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 11, Name: entCustody.FieldDateIssued, Type: 65, Nullable: false, Key: 0},
+				{Number: 12, Name: entCustody.FieldDateDue, Type: 65, Nullable: true, Key: 0},
 				{Number: 13, Name: entCustody.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 14, Name: entCustody.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: entCustody.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 16, Name: entCustody.FieldAcknowledgedAt, Type: 65, Nullable: true, Key: 0},
-				{Number: 17, Name: entCustody.FieldReturnedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 16, Name: entCustody.FieldDateAcknowledged, Type: 65, Nullable: true, Key: 0},
+				{Number: 17, Name: entCustody.FieldDateReturned, Type: 65, Nullable: true, Key: 0},
 				{Number: 20, Name: entCustody.FieldOverdueNoticed, Type: 8, Nullable: false, Key: 0},
 			}, v)
 			if err != nil {
@@ -32152,8 +32152,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 12, Name: entCustodyLine.FieldReturnedQuantity, Type: 3, Nullable: false, Key: 0},
 				{Number: 13, Name: entCustodyLine.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 15, Name: entCustodyLine.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 16, Name: entCustodyLine.FieldOutAt, Type: 65, Nullable: false, Key: 0},
-				{Number: 17, Name: entCustodyLine.FieldReturnedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 16, Name: entCustodyLine.FieldDateOut, Type: 65, Nullable: false, Key: 0},
+				{Number: 17, Name: entCustodyLine.FieldDateReturned, Type: 65, Nullable: true, Key: 0},
 				{Number: 18, Name: entCustodyLine.FieldConditionOut, Type: 9, Nullable: false, Key: 0},
 				{Number: 19, Name: entCustodyLine.FieldConditionIn, Type: 9, Nullable: false, Key: 0},
 			}, v)
@@ -32193,12 +32193,12 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 13, Name: entDomain.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 14, Name: entDomain.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: entDomain.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 16, Name: entDomain.FieldVerifiedAt, Type: 65, Nullable: true, Key: 0},
-				{Number: 18, Name: entDomain.FieldCheckedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 16, Name: entDomain.FieldDateVerified, Type: 65, Nullable: true, Key: 0},
+				{Number: 18, Name: entDomain.FieldDateChecked, Type: 65, Nullable: true, Key: 0},
 				{Number: 19, Name: entDomain.FieldFailures, Type: 13, Nullable: false, Key: 0},
-				{Number: 20, Name: entDomain.FieldFailingSince, Type: 65, Nullable: true, Key: 0},
+				{Number: 20, Name: entDomain.FieldDateFailing, Type: 65, Nullable: true, Key: 0},
 				{Number: 17, Name: entDomain.FieldDateLapsed, Type: 65, Nullable: true, Key: 0},
-				{Number: 21, Name: entDomain.FieldRedirectUntil, Type: 65, Nullable: true, Key: 0},
+				{Number: 21, Name: entDomain.FieldDateRedirectUntil, Type: 65, Nullable: true, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err
@@ -32346,8 +32346,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 6, Name: entInventoryCount.FieldDesc, Type: 9, Nullable: false, Key: 0},
 				{Number: 8, Name: entInventoryCount.ScopeColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 9, Name: entInventoryCount.FieldStatus, Type: 9, Nullable: false, Key: 0},
-				{Number: 10, Name: entInventoryCount.FieldStartedAt, Type: 65, Nullable: false, Key: 0},
-				{Number: 11, Name: entInventoryCount.FieldClosedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 10, Name: entInventoryCount.FieldDateStarted, Type: 65, Nullable: false, Key: 0},
+				{Number: 11, Name: entInventoryCount.FieldDateClosed, Type: 65, Nullable: true, Key: 0},
 				{Number: 13, Name: entInventoryCount.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 14, Name: entInventoryCount.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: entInventoryCount.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
@@ -32461,8 +32461,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 2, Name: entLabel.TenantColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 8, Name: entLabel.DomainColumn, Type: 64, Nullable: true, Key: 1},
 				{Number: 10, Name: entLabel.FieldState, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entLabel.FieldBoundAt, Type: 65, Nullable: true, Key: 0},
-				{Number: 12, Name: entLabel.FieldPrintedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 11, Name: entLabel.FieldDateBound, Type: 65, Nullable: true, Key: 0},
+				{Number: 12, Name: entLabel.FieldDatePrinted, Type: 65, Nullable: true, Key: 0},
 				{Number: 13, Name: entLabel.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 14, Name: entLabel.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: entLabel.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
@@ -32535,10 +32535,10 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 11, Name: entLink.FieldRequired, Type: 8, Nullable: false, Key: 0},
 				{Number: 13, Name: entLink.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 15, Name: entLink.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 17, Name: entLink.FieldValidFrom, Type: 65, Nullable: false, Key: 0},
-				{Number: 18, Name: entLink.FieldValidTo, Type: 65, Nullable: true, Key: 0},
+				{Number: 17, Name: entLink.FieldDateStart, Type: 65, Nullable: false, Key: 0},
+				{Number: 18, Name: entLink.FieldDateEnd, Type: 65, Nullable: true, Key: 0},
 				{Number: 19, Name: entLink.FieldEventId, Type: 64, Nullable: false, Key: 0},
-				{Number: 20, Name: entLink.FieldSupersededAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 20, Name: entLink.FieldDateSuperseded, Type: 65, Nullable: true, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err
@@ -32572,7 +32572,7 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 6, Name: entNotification.FieldDesc, Type: 9, Nullable: false, Key: 0},
 				{Number: 8, Name: entNotification.HolderColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 9, Name: entNotification.FieldKind, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entNotification.FieldReadAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 11, Name: entNotification.FieldDateRead, Type: 65, Nullable: true, Key: 0},
 				{Number: 12, Name: entNotification.FieldLink, Type: 9, Nullable: false, Key: 0},
 				{Number: 16, Name: entNotification.FieldMail, Type: 8, Nullable: false, Key: 0},
 				{Number: 17, Name: entNotification.FieldDateMailed, Type: 65, Nullable: true, Key: 0},
@@ -32655,10 +32655,10 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 13, Name: entPlacement.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 15, Name: entPlacement.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
 				{Number: 16, Name: entPlacement.FieldUTo, Type: 5, Nullable: false, Key: 0},
-				{Number: 17, Name: entPlacement.FieldValidFrom, Type: 65, Nullable: false, Key: 0},
-				{Number: 18, Name: entPlacement.FieldValidTo, Type: 65, Nullable: true, Key: 0},
+				{Number: 17, Name: entPlacement.FieldDateStart, Type: 65, Nullable: false, Key: 0},
+				{Number: 18, Name: entPlacement.FieldDateEnd, Type: 65, Nullable: true, Key: 0},
 				{Number: 19, Name: entPlacement.FieldEventId, Type: 64, Nullable: false, Key: 0},
-				{Number: 20, Name: entPlacement.FieldSupersededAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 20, Name: entPlacement.FieldDateSuperseded, Type: 65, Nullable: true, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err
@@ -32693,8 +32693,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 8, Name: entPurchase.VendorColumn, Type: 64, Nullable: true, Key: 1},
 				{Number: 9, Name: entPurchase.FieldReference, Type: 9, Nullable: false, Key: 0},
 				{Number: 10, Name: entPurchase.FieldStatus, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entPurchase.FieldOrderedAt, Type: 65, Nullable: false, Key: 0},
-				{Number: 12, Name: entPurchase.FieldReceivedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 11, Name: entPurchase.FieldDateOrdered, Type: 65, Nullable: false, Key: 0},
+				{Number: 12, Name: entPurchase.FieldDateReceived, Type: 65, Nullable: true, Key: 0},
 				{Number: 13, Name: entPurchase.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 14, Name: entPurchase.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: entPurchase.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
@@ -32771,14 +32771,14 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 6, Name: entReservation.FieldDesc, Type: 9, Nullable: false, Key: 0},
 				{Number: 8, Name: entReservation.PartyColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 10, Name: entReservation.FieldStatus, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entReservation.FieldBeginsAt, Type: 65, Nullable: false, Key: 0},
-				{Number: 12, Name: entReservation.FieldEndsAt, Type: 65, Nullable: false, Key: 0},
+				{Number: 11, Name: entReservation.FieldDateStart, Type: 65, Nullable: false, Key: 0},
+				{Number: 12, Name: entReservation.FieldDateEnd, Type: 65, Nullable: false, Key: 0},
 				{Number: 13, Name: entReservation.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 14, Name: entReservation.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: entReservation.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 16, Name: entReservation.FieldExpiresAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 16, Name: entReservation.FieldDateExpires, Type: 65, Nullable: true, Key: 0},
 				{Number: 17, Name: entReservation.FieldRrule, Type: 9, Nullable: false, Key: 0},
-				{Number: 20, Name: entReservation.FieldCheckedInAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 20, Name: entReservation.FieldDateCheckedIn, Type: 65, Nullable: true, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err
@@ -32847,10 +32847,10 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 10, Name: entStewardship.FieldRole, Type: 9, Nullable: false, Key: 0},
 				{Number: 13, Name: entStewardship.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 15, Name: entStewardship.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 17, Name: entStewardship.FieldValidFrom, Type: 65, Nullable: false, Key: 0},
-				{Number: 18, Name: entStewardship.FieldValidTo, Type: 65, Nullable: true, Key: 0},
+				{Number: 17, Name: entStewardship.FieldDateStart, Type: 65, Nullable: false, Key: 0},
+				{Number: 18, Name: entStewardship.FieldDateEnd, Type: 65, Nullable: true, Key: 0},
 				{Number: 19, Name: entStewardship.FieldEventId, Type: 64, Nullable: false, Key: 0},
-				{Number: 20, Name: entStewardship.FieldSupersededAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 20, Name: entStewardship.FieldDateSuperseded, Type: 65, Nullable: true, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err
@@ -32921,7 +32921,7 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 8, Name: entStockMovement.StockColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 9, Name: entStockMovement.FieldDelta, Type: 3, Nullable: false, Key: 0},
 				{Number: 10, Name: entStockMovement.FieldReason, Type: 9, Nullable: false, Key: 0},
-				{Number: 12, Name: entStockMovement.FieldOccurredAt, Type: 65, Nullable: false, Key: 0},
+				{Number: 12, Name: entStockMovement.FieldDateOccurred, Type: 65, Nullable: false, Key: 0},
 				{Number: 13, Name: entStockMovement.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 15, Name: entStockMovement.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
 				{Number: 16, Name: entStockMovement.FieldEventId, Type: 64, Nullable: false, Key: 0},
@@ -33042,15 +33042,15 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 8, Name: entWorkOrder.AssetColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 9, Name: entWorkOrder.FieldKind, Type: 9, Nullable: false, Key: 0},
 				{Number: 10, Name: entWorkOrder.FieldStatus, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entWorkOrder.FieldBeginsAt, Type: 65, Nullable: true, Key: 0},
-				{Number: 12, Name: entWorkOrder.FieldEndsAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 11, Name: entWorkOrder.FieldDateStart, Type: 65, Nullable: true, Key: 0},
+				{Number: 12, Name: entWorkOrder.FieldDateEnd, Type: 65, Nullable: true, Key: 0},
 				{Number: 13, Name: entWorkOrder.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 14, Name: entWorkOrder.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: entWorkOrder.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
 				{Number: 16, Name: entWorkOrder.VendorColumn, Type: 64, Nullable: true, Key: 1},
 				{Number: 17, Name: entWorkOrder.FieldCost, Type: 3, Nullable: false, Key: 0},
 				{Number: 18, Name: entWorkOrder.FieldCurrency, Type: 9, Nullable: false, Key: 0},
-				{Number: 19, Name: entWorkOrder.FieldCompletedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 19, Name: entWorkOrder.FieldDateCompleted, Type: 65, Nullable: true, Key: 0},
 				{Number: 20, Name: entWorkOrder.FieldBlocking, Type: 8, Nullable: false, Key: 0},
 				{Number: 21, Name: entWorkOrder.FieldEveryDays, Type: 5, Nullable: false, Key: 0},
 			}, v)

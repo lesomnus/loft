@@ -18,8 +18,8 @@ type Mutation struct {
 	op              ent.Op
 	typ             string
 	desc            *string
-	period_from     *time.Time
-	period_to       *time.Time
+	date_start      *time.Time
+	date_end        *time.Time
 	calls           *uint32
 	addcalls        *int32
 	downloads       *uint32
@@ -71,70 +71,70 @@ func (m *Mutation) ResetDesc() {
 	delete(m.exprs, FieldDesc)
 }
 
-// SetPeriodFrom sets the "period_from" field.
-func (m *Mutation) SetPeriodFrom(t time.Time) {
-	m.period_from = &t
-	delete(m.clearedFields, FieldPeriodFrom)
+// SetDateStart sets the "date_start" field.
+func (m *Mutation) SetDateStart(t time.Time) {
+	m.date_start = &t
+	delete(m.clearedFields, FieldDateStart)
 }
 
-// PeriodFrom returns the value of the "period_from" field in the mutation.
-func (m *Mutation) PeriodFrom() (r time.Time, exists bool) {
-	v := m.period_from
+// DateStart returns the value of the "date_start" field in the mutation.
+func (m *Mutation) DateStart() (r time.Time, exists bool) {
+	v := m.date_start
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearPeriodFrom clears the value of the "period_from" field.
-func (m *Mutation) ClearPeriodFrom() {
-	m.period_from = nil
-	m.clearedFields[FieldPeriodFrom] = struct{}{}
+// ClearDateStart clears the value of the "date_start" field.
+func (m *Mutation) ClearDateStart() {
+	m.date_start = nil
+	m.clearedFields[FieldDateStart] = struct{}{}
 }
 
-// PeriodFromCleared returns if the "period_from" field was cleared in this mutation.
-func (m *Mutation) PeriodFromCleared() bool {
-	_, ok := m.clearedFields[FieldPeriodFrom]
+// DateStartCleared returns if the "date_start" field was cleared in this mutation.
+func (m *Mutation) DateStartCleared() bool {
+	_, ok := m.clearedFields[FieldDateStart]
 	return ok
 }
 
-// ResetPeriodFrom resets all changes to the "period_from" field.
-func (m *Mutation) ResetPeriodFrom() {
-	m.period_from = nil
-	delete(m.clearedFields, FieldPeriodFrom)
+// ResetDateStart resets all changes to the "date_start" field.
+func (m *Mutation) ResetDateStart() {
+	m.date_start = nil
+	delete(m.clearedFields, FieldDateStart)
 }
 
-// SetPeriodTo sets the "period_to" field.
-func (m *Mutation) SetPeriodTo(t time.Time) {
-	m.period_to = &t
-	delete(m.clearedFields, FieldPeriodTo)
+// SetDateEnd sets the "date_end" field.
+func (m *Mutation) SetDateEnd(t time.Time) {
+	m.date_end = &t
+	delete(m.clearedFields, FieldDateEnd)
 }
 
-// PeriodTo returns the value of the "period_to" field in the mutation.
-func (m *Mutation) PeriodTo() (r time.Time, exists bool) {
-	v := m.period_to
+// DateEnd returns the value of the "date_end" field in the mutation.
+func (m *Mutation) DateEnd() (r time.Time, exists bool) {
+	v := m.date_end
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearPeriodTo clears the value of the "period_to" field.
-func (m *Mutation) ClearPeriodTo() {
-	m.period_to = nil
-	m.clearedFields[FieldPeriodTo] = struct{}{}
+// ClearDateEnd clears the value of the "date_end" field.
+func (m *Mutation) ClearDateEnd() {
+	m.date_end = nil
+	m.clearedFields[FieldDateEnd] = struct{}{}
 }
 
-// PeriodToCleared returns if the "period_to" field was cleared in this mutation.
-func (m *Mutation) PeriodToCleared() bool {
-	_, ok := m.clearedFields[FieldPeriodTo]
+// DateEndCleared returns if the "date_end" field was cleared in this mutation.
+func (m *Mutation) DateEndCleared() bool {
+	_, ok := m.clearedFields[FieldDateEnd]
 	return ok
 }
 
-// ResetPeriodTo resets all changes to the "period_to" field.
-func (m *Mutation) ResetPeriodTo() {
-	m.period_to = nil
-	delete(m.clearedFields, FieldPeriodTo)
+// ResetDateEnd resets all changes to the "date_end" field.
+func (m *Mutation) ResetDateEnd() {
+	m.date_end = nil
+	delete(m.clearedFields, FieldDateEnd)
 }
 
 // SetCalls sets the "calls" field.
@@ -417,11 +417,11 @@ func (m *Mutation) Fields() []string {
 	if m.desc != nil || m.exprs[FieldDesc] != nil {
 		fields = append(fields, FieldDesc)
 	}
-	if m.period_from != nil {
-		fields = append(fields, FieldPeriodFrom)
+	if m.date_start != nil {
+		fields = append(fields, FieldDateStart)
 	}
-	if m.period_to != nil {
-		fields = append(fields, FieldPeriodTo)
+	if m.date_end != nil {
+		fields = append(fields, FieldDateEnd)
 	}
 	if m.calls != nil {
 		fields = append(fields, FieldCalls)
@@ -457,10 +457,10 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case FieldDesc:
 		return m.Desc()
-	case FieldPeriodFrom:
-		return m.PeriodFrom()
-	case FieldPeriodTo:
-		return m.PeriodTo()
+	case FieldDateStart:
+		return m.DateStart()
+	case FieldDateEnd:
+		return m.DateEnd()
 	case FieldCalls:
 		return m.Calls()
 	case FieldDownloads:
@@ -502,7 +502,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDesc(v)
 		return nil
-	case FieldPeriodFrom:
+	case FieldDateStart:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -510,9 +510,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPeriodFrom(v)
+		m.SetDateStart(v)
 		return nil
-	case FieldPeriodTo:
+	case FieldDateEnd:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -520,7 +520,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPeriodTo(v)
+		m.SetDateEnd(v)
 		return nil
 	case FieldCalls:
 		v, ok := value.(uint32)
@@ -606,9 +606,9 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 	switch name {
 	case FieldDesc:
 		m.ResetDesc()
-	case FieldPeriodFrom:
+	case FieldDateStart:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
-	case FieldPeriodTo:
+	case FieldDateEnd:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
 	case FieldCalls:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
@@ -714,11 +714,11 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldPeriodFrom) {
-		fields = append(fields, FieldPeriodFrom)
+	if m.FieldCleared(FieldDateStart) {
+		fields = append(fields, FieldDateStart)
 	}
-	if m.FieldCleared(FieldPeriodTo) {
-		fields = append(fields, FieldPeriodTo)
+	if m.FieldCleared(FieldDateEnd) {
+		fields = append(fields, FieldDateEnd)
 	}
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
@@ -737,11 +737,11 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldPeriodFrom:
-		m.ClearPeriodFrom()
+	case FieldDateStart:
+		m.ClearDateStart()
 		return nil
-	case FieldPeriodTo:
-		m.ClearPeriodTo()
+	case FieldDateEnd:
+		m.ClearDateEnd()
 		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
@@ -757,11 +757,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldDesc:
 		m.ResetDesc()
 		return nil
-	case FieldPeriodFrom:
-		m.ResetPeriodFrom()
+	case FieldDateStart:
+		m.ResetDateStart()
 		return nil
-	case FieldPeriodTo:
-		m.ResetPeriodTo()
+	case FieldDateEnd:
+		m.ResetDateEnd()
 		return nil
 	case FieldCalls:
 		m.ResetCalls()

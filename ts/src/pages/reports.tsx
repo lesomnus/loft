@@ -96,11 +96,11 @@ function lastYear(): Days {
 }
 
 /** What a request says of a period: the first day's start, and the day after the last. */
-function span(d: Days): { from?: Timestamp; to?: Timestamp } {
+function span(d: Days): { dateFrom?: Timestamp; dateTo?: Timestamp } {
 	const first = fromInput(d.from)
 	const last = fromInput(d.to)
 	if (Number.isNaN(first.getTime()) || Number.isNaN(last.getTime())) return {}
-	return { from: ts(first), to: ts(shift(last, 1)) }
+	return { dateFrom: ts(first), dateTo: ts(shift(last, 1)) }
 }
 
 function Period(props: { value: Days; onChange: (v: Days) => void; year?: boolean }): ReactNode {
@@ -159,7 +159,7 @@ function Census(): ReactNode {
 					d.rows.length === 0 ? (
 						<Empty>셀 자산이 없습니다.</Empty>
 					) : (
-						<CensusTable rows={d.rows} total={d.total} places={d.by === 'location'} at={d.at} />
+						<CensusTable rows={d.rows} total={d.total} places={d.by === 'location'} at={d.dateAsOf} />
 					)
 				}
 			</Load>
@@ -295,8 +295,8 @@ function Loans(): ReactNode {
 													{n(r.quantity)}
 													{r.unit !== '' && ` ${r.unit}`}
 												</td>
-												<td>{fmt(r.issuedAt, 'date')}</td>
-												<td className={r.overdue ? 'bad' : ''}>{r.dueAt !== undefined ? fmt(r.dueAt) : '-'}</td>
+												<td>{fmt(r.dateIssued, 'date')}</td>
+												<td className={r.overdue ? 'bad' : ''}>{r.dateDue !== undefined ? fmt(r.dateDue) : '-'}</td>
 												<td className={`num ${r.overdue ? 'bad' : ''}`}>{r.overdue ? (r.overdueDays > 0 ? `${n(r.overdueDays)}일` : '오늘') : '-'}</td>
 												<td>{r.acknowledged ? '확인' : <span className="warn">대기</span>}</td>
 											</tr>
@@ -353,7 +353,7 @@ function Bookings(): ReactNode {
 						<Empty>예약할 수 있는 자원이 없습니다.</Empty>
 					) : (
 						<>
-							<p>{said(d.from, d.to)}</p>
+							<p>{said(d.dateFrom, d.dateTo)}</p>
 							<div className="table-wrap">
 								<table className="table compact" aria-label="자원별 이용률">
 									<thead>
@@ -430,7 +430,7 @@ function Counts(): ReactNode {
 						<Empty>이 기간에 시작한 실사가 없습니다.</Empty>
 					) : (
 						<>
-							<p>{said(d.from, d.to)}</p>
+							<p>{said(d.dateFrom, d.dateTo)}</p>
 							<div className="table-wrap">
 								<table className="table compact" aria-label="실사별 결과">
 									<thead>
@@ -455,7 +455,7 @@ function Counts(): ReactNode {
 												<td>{r.name}</td>
 												<td>{r.scopeName}</td>
 												<td>{countWord[r.status] ?? r.status}</td>
-												<td>{fmt(r.startedAt, 'date')}</td>
+												<td>{fmt(r.dateStarted, 'date')}</td>
 												<td className="num">{n(r.seen)}</td>
 												<td className="num">{n(r.misplaced)}</td>
 												<td className="num">{n(r.missing)}</td>
@@ -497,7 +497,7 @@ function Flow(): ReactNode {
 						<Empty>재고 품목이 없습니다.</Empty>
 					) : (
 						<>
-							<p>{said(d.from, d.to)}</p>
+							<p>{said(d.dateFrom, d.dateTo)}</p>
 							<div className="table-wrap">
 								<table className="table compact" aria-label="재고별 입출고">
 									<thead>

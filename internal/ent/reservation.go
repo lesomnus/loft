@@ -28,26 +28,26 @@ type Reservation struct {
 	RequestedBy *uuid.UUID `json:"requested_by,omitempty"`
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
-	// BeginsAt holds the value of the "begins_at" field.
-	BeginsAt time.Time `json:"begins_at,omitempty"`
-	// EndsAt holds the value of the "ends_at" field.
-	EndsAt time.Time `json:"ends_at,omitempty"`
+	// DateStart holds the value of the "date_start" field.
+	DateStart time.Time `json:"date_start,omitempty"`
+	// DateEnd holds the value of the "date_end" field.
+	DateEnd time.Time `json:"date_end,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
 	DateErased *time.Time `json:"date_erased,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
 	DateCreated time.Time `json:"date_created,omitempty"`
-	// ExpiresAt holds the value of the "expires_at" field.
-	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	// DateExpires holds the value of the "date_expires" field.
+	DateExpires *time.Time `json:"date_expires,omitempty"`
 	// Rrule holds the value of the "rrule" field.
 	Rrule string `json:"rrule,omitempty"`
 	// SeriesId holds the value of the "series_id" field.
 	SeriesId *uuid.UUID `json:"series_id,omitempty"`
 	// DecidedBy holds the value of the "decided_by" field.
 	DecidedBy *uuid.UUID `json:"decided_by,omitempty"`
-	// CheckedInAt holds the value of the "checked_in_at" field.
-	CheckedInAt *time.Time `json:"checked_in_at,omitempty"`
+	// DateCheckedIn holds the value of the "date_checked_in" field.
+	DateCheckedIn *time.Time `json:"date_checked_in,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// PartyId holds the value of the "party_id" field.
@@ -98,7 +98,7 @@ func (*Reservation) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case reservation.FieldName, reservation.FieldDesc, reservation.FieldStatus, reservation.FieldRrule:
 			values[i] = new(sql.NullString)
-		case reservation.FieldBeginsAt, reservation.FieldEndsAt, reservation.FieldDateUpdated, reservation.FieldDateErased, reservation.FieldDateCreated, reservation.FieldExpiresAt, reservation.FieldCheckedInAt:
+		case reservation.FieldDateStart, reservation.FieldDateEnd, reservation.FieldDateUpdated, reservation.FieldDateErased, reservation.FieldDateCreated, reservation.FieldDateExpires, reservation.FieldDateCheckedIn:
 			values[i] = new(sql.NullTime)
 		case reservation.FieldRequestedBy, reservation.FieldSeriesId, reservation.FieldDecidedBy:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -150,17 +150,17 @@ func (_m *Reservation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Status = value.String
 			}
-		case reservation.FieldBeginsAt:
+		case reservation.FieldDateStart:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field begins_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_start", values[i])
 			} else if value.Valid {
-				_m.BeginsAt = value.Time
+				_m.DateStart = value.Time
 			}
-		case reservation.FieldEndsAt:
+		case reservation.FieldDateEnd:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field ends_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_end", values[i])
 			} else if value.Valid {
-				_m.EndsAt = value.Time
+				_m.DateEnd = value.Time
 			}
 		case reservation.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -181,12 +181,12 @@ func (_m *Reservation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DateCreated = value.Time
 			}
-		case reservation.FieldExpiresAt:
+		case reservation.FieldDateExpires:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field expires_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_expires", values[i])
 			} else if value.Valid {
-				_m.ExpiresAt = new(time.Time)
-				*_m.ExpiresAt = value.Time
+				_m.DateExpires = new(time.Time)
+				*_m.DateExpires = value.Time
 			}
 		case reservation.FieldRrule:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -208,12 +208,12 @@ func (_m *Reservation) assignValues(columns []string, values []any) error {
 				_m.DecidedBy = new(uuid.UUID)
 				*_m.DecidedBy = value.V
 			}
-		case reservation.FieldCheckedInAt:
+		case reservation.FieldDateCheckedIn:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field checked_in_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_checked_in", values[i])
 			} else if value.Valid {
-				_m.CheckedInAt = new(time.Time)
-				*_m.CheckedInAt = value.Time
+				_m.DateCheckedIn = new(time.Time)
+				*_m.DateCheckedIn = value.Time
 			}
 		case reservation.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -287,11 +287,11 @@ func (_m *Reservation) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
-	builder.WriteString("begins_at=")
-	builder.WriteString(_m.BeginsAt.Format(time.ANSIC))
+	builder.WriteString("date_start=")
+	builder.WriteString(_m.DateStart.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("ends_at=")
-	builder.WriteString(_m.EndsAt.Format(time.ANSIC))
+	builder.WriteString("date_end=")
+	builder.WriteString(_m.DateEnd.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("date_updated=")
 	builder.WriteString(_m.DateUpdated.Format(time.ANSIC))
@@ -304,8 +304,8 @@ func (_m *Reservation) String() string {
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := _m.ExpiresAt; v != nil {
-		builder.WriteString("expires_at=")
+	if v := _m.DateExpires; v != nil {
+		builder.WriteString("date_expires=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
@@ -322,8 +322,8 @@ func (_m *Reservation) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := _m.CheckedInAt; v != nil {
-		builder.WriteString("checked_in_at=")
+	if v := _m.DateCheckedIn; v != nil {
+		builder.WriteString("date_checked_in=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

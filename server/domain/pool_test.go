@@ -385,12 +385,12 @@ func TestAPoolsMemberUnderMaintenanceIsNotOneOfItsUnitsThen(t *testing.T) {
 	// A repair that takes the afternoon before and the morning: the booking
 	// made last waits, for as long as the work order takes the laptop.
 	w, err := e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{
-		Asset:    assetRef(two),
-		Kind:     "repair",
-		Name:     "배터리 교체",
-		BeginsAt: timestamppb.New(e.tomorrow(8, 0)),
-		EndsAt:   timestamppb.New(e.tomorrow(10, 30)),
-		Blocking: true,
+		Asset:     assetRef(two),
+		Kind:      "repair",
+		Name:      "배터리 교체",
+		DateStart: timestamppb.New(e.tomorrow(8, 0)),
+		DateEnd:   timestamppb.New(e.tomorrow(10, 30)),
+		Blocking:  true,
 	}.Build())
 	x.NoError(err)
 	x.True(e.holds(first, laptops))
@@ -511,7 +511,7 @@ func TestAReservationInUseIsNotMoved(t *testing.T) {
 	x.NoError(err)
 	_, err = e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
 		Party:         ref[app.PartyRef](party.GetId()),
-		DueAt:         timestamppb.New(e.now.Add(3 * time.Hour)),
+		DateDue:       timestamppb.New(e.now.Add(3 * time.Hour)),
 		ReservationId: out.GetId(),
 		Lines:         []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(one)}.Build()},
 	}.Build())
@@ -586,7 +586,7 @@ func TestTheUnitsOfAPoolAreKeptOnItsRow(t *testing.T) {
 	cameras := e.pool("카메라", one, two)
 	x.EqualValues(2, e.units(cameras))
 
-	f, err := e.app().Asset().SetAttributes(e.owner, app.AssetSetAttributesRequest_builder{Ref: assetRef(two), Set: map[string]string{"status": "lost"}, At: e.ago(time.Hour)}.Build())
+	f, err := e.app().Asset().SetAttributes(e.owner, app.AssetSetAttributesRequest_builder{Ref: assetRef(two), Set: map[string]string{"status": "lost"}, DateOccurred: e.ago(time.Hour)}.Build())
 	x.NoError(err)
 	x.Equal("lost", f.GetStatus())
 	x.EqualValues(1, e.units(cameras))
@@ -596,10 +596,10 @@ func TestTheUnitsOfAPoolAreKeptOnItsRow(t *testing.T) {
 	x.NoError(err)
 	var row *app.TimelineEntry
 	for _, en := range tl.GetEntries() {
-		if en.GetKind() != "fact" || en.GetDetail()["key"] != "status" || en.HasSupersededAt() {
+		if en.GetKind() != "fact" || en.GetDetail()["key"] != "status" || en.HasDateSuperseded() {
 			continue
 		}
-		if row == nil || en.GetValidFrom().AsTime().After(row.GetValidFrom().AsTime()) {
+		if row == nil || en.GetDateStart().AsTime().After(row.GetDateStart().AsTime()) {
 			row = en
 		}
 	}

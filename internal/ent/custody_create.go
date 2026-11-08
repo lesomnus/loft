@@ -43,30 +43,30 @@ func (_c *CustodyCreate) SetStatus(v string) *CustodyCreate {
 	return _c
 }
 
-// SetIssuedAt sets the "issued_at" field.
-func (_c *CustodyCreate) SetIssuedAt(v time.Time) *CustodyCreate {
-	_c.mutation.SetIssuedAt(v)
+// SetDateIssued sets the "date_issued" field.
+func (_c *CustodyCreate) SetDateIssued(v time.Time) *CustodyCreate {
+	_c.mutation.SetDateIssued(v)
 	return _c
 }
 
-// SetNillableIssuedAt sets the "issued_at" field if the given value is not nil.
-func (_c *CustodyCreate) SetNillableIssuedAt(v *time.Time) *CustodyCreate {
+// SetNillableDateIssued sets the "date_issued" field if the given value is not nil.
+func (_c *CustodyCreate) SetNillableDateIssued(v *time.Time) *CustodyCreate {
 	if v != nil {
-		_c.SetIssuedAt(*v)
+		_c.SetDateIssued(*v)
 	}
 	return _c
 }
 
-// SetDueAt sets the "due_at" field.
-func (_c *CustodyCreate) SetDueAt(v time.Time) *CustodyCreate {
-	_c.mutation.SetDueAt(v)
+// SetDateDue sets the "date_due" field.
+func (_c *CustodyCreate) SetDateDue(v time.Time) *CustodyCreate {
+	_c.mutation.SetDateDue(v)
 	return _c
 }
 
-// SetNillableDueAt sets the "due_at" field if the given value is not nil.
-func (_c *CustodyCreate) SetNillableDueAt(v *time.Time) *CustodyCreate {
+// SetNillableDateDue sets the "date_due" field if the given value is not nil.
+func (_c *CustodyCreate) SetNillableDateDue(v *time.Time) *CustodyCreate {
 	if v != nil {
-		_c.SetDueAt(*v)
+		_c.SetDateDue(*v)
 	}
 	return _c
 }
@@ -105,30 +105,30 @@ func (_c *CustodyCreate) SetNillableDateCreated(v *time.Time) *CustodyCreate {
 	return _c
 }
 
-// SetAcknowledgedAt sets the "acknowledged_at" field.
-func (_c *CustodyCreate) SetAcknowledgedAt(v time.Time) *CustodyCreate {
-	_c.mutation.SetAcknowledgedAt(v)
+// SetDateAcknowledged sets the "date_acknowledged" field.
+func (_c *CustodyCreate) SetDateAcknowledged(v time.Time) *CustodyCreate {
+	_c.mutation.SetDateAcknowledged(v)
 	return _c
 }
 
-// SetNillableAcknowledgedAt sets the "acknowledged_at" field if the given value is not nil.
-func (_c *CustodyCreate) SetNillableAcknowledgedAt(v *time.Time) *CustodyCreate {
+// SetNillableDateAcknowledged sets the "date_acknowledged" field if the given value is not nil.
+func (_c *CustodyCreate) SetNillableDateAcknowledged(v *time.Time) *CustodyCreate {
 	if v != nil {
-		_c.SetAcknowledgedAt(*v)
+		_c.SetDateAcknowledged(*v)
 	}
 	return _c
 }
 
-// SetReturnedAt sets the "returned_at" field.
-func (_c *CustodyCreate) SetReturnedAt(v time.Time) *CustodyCreate {
-	_c.mutation.SetReturnedAt(v)
+// SetDateReturned sets the "date_returned" field.
+func (_c *CustodyCreate) SetDateReturned(v time.Time) *CustodyCreate {
+	_c.mutation.SetDateReturned(v)
 	return _c
 }
 
-// SetNillableReturnedAt sets the "returned_at" field if the given value is not nil.
-func (_c *CustodyCreate) SetNillableReturnedAt(v *time.Time) *CustodyCreate {
+// SetNillableDateReturned sets the "date_returned" field if the given value is not nil.
+func (_c *CustodyCreate) SetNillableDateReturned(v *time.Time) *CustodyCreate {
 	if v != nil {
-		_c.SetReturnedAt(*v)
+		_c.SetDateReturned(*v)
 	}
 	return _c
 }
@@ -322,13 +322,13 @@ func (_c *CustodyCreate) createSpec() (*Custody, *sqlgraph.CreateSpec) {
 		_spec.SetField(custody.FieldStatus, field.TypeString, value)
 		_node.Status = value
 	}
-	if value, ok := _c.mutation.IssuedAt(); ok {
-		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, value)
-		_node.IssuedAt = value
+	if value, ok := _c.mutation.DateIssued(); ok {
+		_spec.SetField(custody.FieldDateIssued, field.TypeTime, value)
+		_node.DateIssued = value
 	}
-	if value, ok := _c.mutation.DueAt(); ok {
-		_spec.SetField(custody.FieldDueAt, field.TypeTime, value)
-		_node.DueAt = &value
+	if value, ok := _c.mutation.DateDue(); ok {
+		_spec.SetField(custody.FieldDateDue, field.TypeTime, value)
+		_node.DateDue = &value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(custody.FieldDateUpdated, field.TypeTime, value)
@@ -342,13 +342,13 @@ func (_c *CustodyCreate) createSpec() (*Custody, *sqlgraph.CreateSpec) {
 		_spec.SetField(custody.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
 	}
-	if value, ok := _c.mutation.AcknowledgedAt(); ok {
-		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, value)
-		_node.AcknowledgedAt = &value
+	if value, ok := _c.mutation.DateAcknowledged(); ok {
+		_spec.SetField(custody.FieldDateAcknowledged, field.TypeTime, value)
+		_node.DateAcknowledged = &value
 	}
-	if value, ok := _c.mutation.ReturnedAt(); ok {
-		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, value)
-		_node.ReturnedAt = &value
+	if value, ok := _c.mutation.DateReturned(); ok {
+		_spec.SetField(custody.FieldDateReturned, field.TypeTime, value)
+		_node.DateReturned = &value
 	}
 	if value, ok := _c.mutation.ReservationId(); ok {
 		_spec.SetField(custody.FieldReservationId, field.TypeUuid, value)

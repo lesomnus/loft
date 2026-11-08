@@ -32,14 +32,14 @@ type Placement struct {
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// UTo holds the value of the "u_to" field.
 	UTo int32 `json:"u_to,omitempty"`
-	// ValidFrom holds the value of the "valid_from" field.
-	ValidFrom time.Time `json:"valid_from,omitempty"`
-	// ValidTo holds the value of the "valid_to" field.
-	ValidTo *time.Time `json:"valid_to,omitempty"`
+	// DateStart holds the value of the "date_start" field.
+	DateStart time.Time `json:"date_start,omitempty"`
+	// DateEnd holds the value of the "date_end" field.
+	DateEnd *time.Time `json:"date_end,omitempty"`
 	// EventId holds the value of the "event_id" field.
 	EventId uuid.UUID `json:"event_id,omitempty"`
-	// SupersededAt holds the value of the "superseded_at" field.
-	SupersededAt *time.Time `json:"superseded_at,omitempty"`
+	// DateSuperseded holds the value of the "date_superseded" field.
+	DateSuperseded *time.Time `json:"date_superseded,omitempty"`
 	// SupersededBy holds the value of the "superseded_by" field.
 	SupersededBy *uuid.UUID `json:"superseded_by,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
@@ -109,7 +109,7 @@ func (*Placement) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case placement.FieldMode, placement.FieldSlot:
 			values[i] = new(sql.NullString)
-		case placement.FieldDateUpdated, placement.FieldDateCreated, placement.FieldValidFrom, placement.FieldValidTo, placement.FieldSupersededAt:
+		case placement.FieldDateUpdated, placement.FieldDateCreated, placement.FieldDateStart, placement.FieldDateEnd, placement.FieldDateSuperseded:
 			values[i] = new(sql.NullTime)
 		case placement.FieldSupersededBy:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -172,18 +172,18 @@ func (_m *Placement) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.UTo = int32(value.Int64)
 			}
-		case placement.FieldValidFrom:
+		case placement.FieldDateStart:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field valid_from", values[i])
+				return fmt.Errorf("unexpected type %T for field date_start", values[i])
 			} else if value.Valid {
-				_m.ValidFrom = value.Time
+				_m.DateStart = value.Time
 			}
-		case placement.FieldValidTo:
+		case placement.FieldDateEnd:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field valid_to", values[i])
+				return fmt.Errorf("unexpected type %T for field date_end", values[i])
 			} else if value.Valid {
-				_m.ValidTo = new(time.Time)
-				*_m.ValidTo = value.Time
+				_m.DateEnd = new(time.Time)
+				*_m.DateEnd = value.Time
 			}
 		case placement.FieldEventId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -191,12 +191,12 @@ func (_m *Placement) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				_m.EventId = *value
 			}
-		case placement.FieldSupersededAt:
+		case placement.FieldDateSuperseded:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field superseded_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_superseded", values[i])
 			} else if value.Valid {
-				_m.SupersededAt = new(time.Time)
-				*_m.SupersededAt = value.Time
+				_m.DateSuperseded = new(time.Time)
+				*_m.DateSuperseded = value.Time
 			}
 		case placement.FieldSupersededBy:
 			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
@@ -292,19 +292,19 @@ func (_m *Placement) String() string {
 	builder.WriteString("u_to=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UTo))
 	builder.WriteString(", ")
-	builder.WriteString("valid_from=")
-	builder.WriteString(_m.ValidFrom.Format(time.ANSIC))
+	builder.WriteString("date_start=")
+	builder.WriteString(_m.DateStart.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := _m.ValidTo; v != nil {
-		builder.WriteString("valid_to=")
+	if v := _m.DateEnd; v != nil {
+		builder.WriteString("date_end=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("event_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.EventId))
 	builder.WriteString(", ")
-	if v := _m.SupersededAt; v != nil {
-		builder.WriteString("superseded_at=")
+	if v := _m.DateSuperseded; v != nil {
+		builder.WriteString("date_superseded=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

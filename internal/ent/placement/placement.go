@@ -24,14 +24,14 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldUTo holds the string denoting the u_to field in the database.
 	FieldUTo = "u_to"
-	// FieldValidFrom holds the string denoting the valid_from field in the database.
-	FieldValidFrom = "valid_from"
-	// FieldValidTo holds the string denoting the valid_to field in the database.
-	FieldValidTo = "valid_to"
+	// FieldDateStart holds the string denoting the date_start field in the database.
+	FieldDateStart = "date_start"
+	// FieldDateEnd holds the string denoting the date_end field in the database.
+	FieldDateEnd = "date_end"
 	// FieldEventId holds the string denoting the event_id field in the database.
 	FieldEventId = "event_id"
-	// FieldSupersededAt holds the string denoting the superseded_at field in the database.
-	FieldSupersededAt = "superseded_at"
+	// FieldDateSuperseded holds the string denoting the date_superseded field in the database.
+	FieldDateSuperseded = "date_superseded"
 	// FieldSupersededBy holds the string denoting the superseded_by field in the database.
 	FieldSupersededBy = "superseded_by"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
@@ -80,10 +80,10 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldDateCreated,
 	FieldUTo,
-	FieldValidFrom,
-	FieldValidTo,
+	FieldDateStart,
+	FieldDateEnd,
 	FieldEventId,
-	FieldSupersededAt,
+	FieldDateSuperseded,
 	FieldSupersededBy,
 	FieldTenantId,
 	FieldChildId,
@@ -138,14 +138,14 @@ func ByUTo(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUTo, opts...).ToFunc()
 }
 
-// ByValidFrom orders the results by the valid_from field.
-func ByValidFrom(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldValidFrom, opts...).ToFunc()
+// ByDateStart orders the results by the date_start field.
+func ByDateStart(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateStart, opts...).ToFunc()
 }
 
-// ByValidTo orders the results by the valid_to field.
-func ByValidTo(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldValidTo, opts...).ToFunc()
+// ByDateEnd orders the results by the date_end field.
+func ByDateEnd(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateEnd, opts...).ToFunc()
 }
 
 // ByEventId orders the results by the event_id field.
@@ -153,9 +153,9 @@ func ByEventId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEventId, opts...).ToFunc()
 }
 
-// BySupersededAt orders the results by the superseded_at field.
-func BySupersededAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSupersededAt, opts...).ToFunc()
+// ByDateSuperseded orders the results by the date_superseded field.
+func ByDateSuperseded(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateSuperseded, opts...).ToFunc()
 }
 
 // BySupersededBy orders the results by the superseded_by field.

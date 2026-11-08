@@ -228,7 +228,7 @@ func TestTheRetentionMeterIsTheWindowPreviewSays(t *testing.T) {
 	x.NoError(err)
 	v, err := tenants.Preview(w.owner, app.TenantPreviewRequest_builder{Ref: ref, KeepDays: z.Ptr(uint32(365))}.Build())
 	x.NoError(err)
-	from := v.GetKeepFrom().AsTime()
+	from := v.GetDateKeepEffective().AsTime()
 	x.True(from.After(time.Now().Add(29*24*time.Hour)), "a shorter window waits out the grace")
 
 	x.Zero(keep(), "forever, until the grace is over")

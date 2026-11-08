@@ -220,10 +220,10 @@ func (e *env) retractStatus(a *app.Asset) error {
 	e.x.NoError(err)
 	var row *app.TimelineEntry
 	for _, en := range tl.GetEntries() {
-		if en.GetKind() != "fact" || en.GetDetail()["key"] != "status" || en.HasSupersededAt() {
+		if en.GetKind() != "fact" || en.GetDetail()["key"] != "status" || en.HasDateSuperseded() {
 			continue
 		}
-		if row == nil || en.GetValidFrom().AsTime().After(row.GetValidFrom().AsTime()) {
+		if row == nil || en.GetDateStart().AsTime().After(row.GetDateStart().AsTime()) {
 			row = en
 		}
 	}
@@ -292,7 +292,7 @@ func TestWhatNoBookingIsToBeHandedIsNotSaid(t *testing.T) {
 	x.NoError(err)
 	_, err = e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
 		Party:         ref[app.PartyRef](party.GetId()),
-		DueAt:         timestamppb.New(e.now.Add(3 * time.Hour)),
+		DateDue:       timestamppb.New(e.now.Add(3 * time.Hour)),
 		ReservationId: out.GetId(),
 		Lines:         []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(camera)}.Build()},
 	}.Build())

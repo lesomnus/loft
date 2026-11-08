@@ -41,7 +41,7 @@ func (e *env) handOver(who *app.Party, due *timestamppb.Timestamp, things ...*ap
 	}
 	req := app.CustodyAddRequest_builder{Party: ref[app.PartyRef](who.GetId()), Lines: lines}.Build()
 	if due != nil {
-		req.SetDueAt(due)
+		req.SetDateDue(due)
 	}
 	c, err := e.app().Custody().Add(e.owner, req)
 	e.x.NoError(err)
@@ -102,8 +102,8 @@ func TestWhatIsOutIsNotBookedThen(t *testing.T) {
 	x.Equal("custody", h.Kind)
 	x.True(h.Blocking)
 	x.False(h.Exclusive, "held to by the domain: it lies over what was booked before it")
-	x.True(h.BeginsAt.Equal(e.now))
-	x.True(h.EndsAt.Equal(e.tomorrow(12, 30)), "until it is due back, and its buffer after: %s", h.EndsAt)
+	x.True(h.DateStart.Equal(e.now))
+	x.True(h.DateEnd.Equal(e.tomorrow(12, 30)), "until it is due back, and its buffer after: %s", h.DateEnd)
 
 	_, err := e.reserve(kim, camera, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
 	x.Equal(codes.Aborted, codeOf(err))
@@ -114,7 +114,7 @@ func TestWhatIsOutIsNotBookedThen(t *testing.T) {
 	x.NoError(err, "after it is due back and ready")
 
 	given := e.issue(lee, laptop)
-	x.True(e.hold(given, laptop).EndsAt.Year() == 2200, "for keeps: until it is returned")
+	x.True(e.hold(given, laptop).DateEnd.Year() == 2200, "for keeps: until it is returned")
 	_, err = e.reserve(kim, laptop, e.tomorrow(10, 0).AddDate(1, 0, 0), e.tomorrow(11, 0).AddDate(1, 0, 0), nil)
 	x.Equal(codes.Aborted, codeOf(err))
 	x.Contains(err.Error(), "지급되어")
@@ -124,7 +124,7 @@ func TestWhatIsOutIsNotBookedThen(t *testing.T) {
 	e.giveBack(given)
 	h = e.hold(loan, camera)
 	x.False(h.Blocking)
-	x.True(h.EndsAt.Equal(e.now), "out until it came back")
+	x.True(h.DateEnd.Equal(e.now), "out until it came back")
 	_, err = e.reserve(kim, camera, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
 	x.NoError(err)
 	_, err = e.reserve(kim, laptop, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
@@ -155,7 +155,7 @@ func TestWhatIsHandedOverIsNotRefusedForWhatWasBooked(t *testing.T) {
 	x.Equal([]string{"CM-1 loan"}, e.out(r))
 	v := e.entry(r).GetOut()[0]
 	x.True(sameId(loan.GetId(), v.GetCustodyId()))
-	x.True(v.GetDueAt().AsTime().Equal(e.tomorrow(11, 0)))
+	x.True(v.GetDateDue().AsTime().Equal(e.tomorrow(11, 0)))
 
 	mine := e.notices(kim, "reservation.out")
 	x.Len(mine, 1)
@@ -287,7 +287,7 @@ func TestALateLoanHoldsWhatItLentUntilItIsBack(t *testing.T) {
 
 	e.now = e.now.Add(2 * time.Hour)
 	e.sweep()
-	x.True(e.hold(loan, camera).EndsAt.Year() == 2200, "late, until it is back")
+	x.True(e.hold(loan, camera).DateEnd.Year() == 2200, "late, until it is back")
 	x.Equal([]string{"CM-1 loan late"}, e.out(r))
 	x.Len(e.notices(kim, "reservation.out"), 1)
 	x.NotNil(about(e.notices(boss, "reservation.out"), camera))
@@ -325,13 +325,13 @@ func TestALoanDueLaterHoldsLonger(t *testing.T) {
 	x.NoError(err)
 
 	extend := func(to time.Time) {
-		_, err := e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DueAt: timestamppb.New(to)}.Build())
+		_, err := e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DateDue: timestamppb.New(to)}.Build())
 		x.NoError(err)
 	}
 	extend(e.tomorrow(12, 0))
 	x.Equal([]string{"CM-1 loan"}, e.out(r))
 	x.Len(e.notices(kim, "reservation.out"), 1)
-	x.True(e.hold(loan, camera).EndsAt.Equal(e.tomorrow(12, 0)))
+	x.True(e.hold(loan, camera).DateEnd.Equal(e.tomorrow(12, 0)))
 
 	extend(e.tomorrow(9, 30))
 	x.Empty(e.out(r))
@@ -344,9 +344,9 @@ func TestALoanDueLaterHoldsLonger(t *testing.T) {
 	// An issue given a due is a loan until then.
 	laptop := e.item("노트북", "NB-1", nil, day)
 	given := e.issue(lee, laptop)
-	_, err = e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](given.GetId()), DueAt: timestamppb.New(e.tomorrow(8, 0))}.Build())
+	_, err = e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](given.GetId()), DateDue: timestamppb.New(e.tomorrow(8, 0))}.Build())
 	x.NoError(err)
-	x.True(e.hold(given, laptop).EndsAt.Equal(e.tomorrow(8, 0)))
+	x.True(e.hold(given, laptop).DateEnd.Equal(e.tomorrow(8, 0)))
 }
 
 // TestAPickupHoldsWhatItHandsOutUntilItIsDue: a pickup is a hand-over too: what
@@ -365,7 +365,7 @@ func TestAPickupHoldsWhatItHandsOutUntilItIsDue(t *testing.T) {
 	x.NoError(err)
 	c, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
 		Party:         ref[app.PartyRef](who.GetId()),
-		DueAt:         timestamppb.New(e.now.Add(5 * time.Hour)),
+		DateDue:       timestamppb.New(e.now.Add(5 * time.Hour)),
 		ReservationId: r.GetId(),
 		Lines: []*app.CustodyLineSpec{
 			app.CustodyLineSpec_builder{Asset: assetRef(camera)}.Build(),
@@ -398,8 +398,8 @@ func TestWhatIsOutShowsOnTheCalendarOfIt(t *testing.T) {
 	e.lend(lee, e.tomorrow(12, 0), camera)
 	v, err := e.app().Bookable().Availability(e.owner, app.BookableAvailabilityRequest_builder{
 		Resources: []*app.AssetRef{assetRef(camera)},
-		From:      timestamppb.New(e.now),
-		To:        timestamppb.New(e.now.AddDate(0, 0, 2)),
+		DateFrom:  timestamppb.New(e.now),
+		DateTo:    timestamppb.New(e.now.AddDate(0, 0, 2)),
 	}.Build())
 	x.NoError(err)
 	x.Len(v.GetBusy(), 1)
@@ -407,7 +407,7 @@ func TestWhatIsOutShowsOnTheCalendarOfIt(t *testing.T) {
 	x.Equal("custody", b.GetKind())
 	x.Equal("대여", b.GetLabel())
 	x.True(b.GetBlocking())
-	x.True(b.GetEndsAt().AsTime().Equal(e.tomorrow(12, 0)))
+	x.True(b.GetDateEnd().AsTime().Equal(e.tomorrow(12, 0)))
 }
 
 // TestWhatWasOutBeforeIsHeldOnce: what a build from before handed over holds
@@ -449,8 +449,8 @@ func TestWhatWasOutBeforeIsHeldOnce(t *testing.T) {
 
 	h := e.hold(issued, laptop)
 	x.NotNil(h)
-	x.True(h.BeginsAt.Equal(issued.GetIssuedAt().AsTime()), "from its hand-over")
-	x.True(e.hold(loan, one).EndsAt.Equal(e.tomorrow(12, 0)))
+	x.True(h.DateStart.Equal(issued.GetDateIssued().AsTime()), "from its hand-over")
+	x.True(e.hold(loan, one).DateEnd.Equal(e.tomorrow(12, 0)))
 	x.Equal([]string{"NB-1 issue"}, e.out(booked))
 	x.Contains(e.told(kim), "reservation.out")
 	x.True(e.holds(first, cameras))
@@ -540,9 +540,9 @@ func TestABookingAndAHandOverOfItAtOnceAgree(t *testing.T) {
 		lend := func() error {
 			var err error
 			c, err = e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-				Party: ref[app.PartyRef](lee.GetId()),
-				DueAt: timestamppb.New(at.Add(time.Hour)),
-				Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(camera)}.Build()},
+				Party:   ref[app.PartyRef](lee.GetId()),
+				DateDue: timestamppb.New(at.Add(time.Hour)),
+				Lines:   []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(camera)}.Build()},
 			}.Build())
 			return err
 		}
@@ -586,9 +586,9 @@ func TestAPoolsBookingAndAHandOverOfItsMemberAtOnceAgree(t *testing.T) {
 		}
 		lend := func() error {
 			_, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-				Party: ref[app.PartyRef](lee.GetId()),
-				DueAt: timestamppb.New(at.Add(time.Hour)),
-				Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(one)}.Build()},
+				Party:   ref[app.PartyRef](lee.GetId()),
+				DateDue: timestamppb.New(at.Add(time.Hour)),
+				Lines:   []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(one)}.Build()},
 			}.Build())
 			return err
 		}

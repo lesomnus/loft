@@ -20,7 +20,7 @@ export function Work(): ReactNode {
 
 	const rows = (list.data?.items ?? [])
 		.filter((w) => status !== 'active' || ['open', 'scheduled', 'in_progress'].includes(w.status))
-		.sort((a, b) => (dateOf(a.beginsAt ?? a.dateCreated)?.getTime() ?? 0) - (dateOf(b.beginsAt ?? b.dateCreated)?.getTime() ?? 0))
+		.sort((a, b) => (dateOf(a.dateStart ?? a.dateCreated)?.getTime() ?? 0) - (dateOf(b.dateStart ?? b.dateCreated)?.getTime() ?? 0))
 
 	return (
 		<>
@@ -71,7 +71,7 @@ export function Work(): ReactNode {
 											<td onClick={(e) => e.stopPropagation()}>
 												<WorkAsset id={w.asset?.id} />
 											</td>
-											<td>{w.beginsAt !== undefined ? fmt(w.beginsAt) : <span className="mute">접수 {fmt(w.dateCreated, 'date')}</span>}</td>
+											<td>{w.dateStart !== undefined ? fmt(w.dateStart) : <span className="mute">접수 {fmt(w.dateCreated, 'date')}</span>}</td>
 											<td>{w.cost > 0n ? money(w.cost, w.currency) : '-'}</td>
 											<td>
 												<Badge v={w.status} words={workStatusWord} />
@@ -126,8 +126,8 @@ export function NewWorkOrder(props: { asset?: Asset; onClose: () => void }): Rea
 							kind,
 							name,
 							desc,
-							beginsAt: begins === '' ? undefined : ts(fromInput(begins)),
-							endsAt: ends === '' ? undefined : ts(fromInput(ends)),
+							dateStart: begins === '' ? undefined : ts(fromInput(begins)),
+							dateEnd: ends === '' ? undefined : ts(fromInput(ends)),
 							blocking,
 							everyDays: Number(every || 0),
 							vendor: vendor === '' ? undefined : ref(idBytes(vendor)),
@@ -188,8 +188,8 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 	const [name, setName] = useState(w.name)
 	const [desc, setDesc] = useState(w.desc)
 	const [status, setStatus] = useState(w.status)
-	const [begins, setBegins] = useState(localInput(dateOf(w.beginsAt)))
-	const [ends, setEnds] = useState(localInput(dateOf(w.endsAt)))
+	const [begins, setBegins] = useState(localInput(dateOf(w.dateStart)))
+	const [ends, setEnds] = useState(localInput(dateOf(w.dateEnd)))
 	const [blocking, setBlocking] = useState(w.blocking)
 	const [cost, setCost] = useState(amountText(w.cost, w.currency))
 	const [condition, setCondition] = useState('')
@@ -204,12 +204,12 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 						['구분', workKindWord[w.kind] ?? w.kind],
 						['상태', <Badge key="s" v={w.status} words={workStatusWord} />],
 						['자산', <WorkAsset key="a" id={w.asset?.id} />],
-						['일정', w.beginsAt !== undefined ? `${fmt(w.beginsAt)}${w.endsAt !== undefined ? ` – ${fmt(w.endsAt)}` : ''}` : '-'],
+						['일정', w.dateStart !== undefined ? `${fmt(w.dateStart)}${w.dateEnd !== undefined ? ` – ${fmt(w.dateEnd)}` : ''}` : '-'],
 						['예약 막음', w.blocking ? '예' : '아니오'],
 						['반복', w.everyDays > 0 ? `${w.everyDays}일마다` : '-'],
 						['업체', c.called(w.vendor?.id) || '-'],
 						['비용', w.cost > 0n ? money(w.cost, w.currency) : '-'],
-						['완료', fmt(w.completedAt)],
+						['완료', fmt(w.dateCompleted)],
 						['접수', fmt(w.dateCreated)],
 					]}
 				/>
@@ -240,8 +240,8 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 							name,
 							desc,
 							status: status === w.status ? '' : status,
-							beginsAt: begins === '' ? undefined : ts(fromInput(begins)),
-							endsAt: ends === '' ? undefined : ts(fromInput(ends)),
+							dateStart: begins === '' ? undefined : ts(fromInput(begins)),
+							dateEnd: ends === '' ? undefined : ts(fromInput(ends)),
 							blocking,
 							cost: amountIn(cost, w.currency) ?? 0n,
 						},

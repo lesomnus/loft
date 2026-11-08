@@ -71,14 +71,14 @@ func Status(v string) predicate.InventoryCount {
 	return predicate.InventoryCount(sql.FieldEQ(FieldStatus, v))
 }
 
-// StartedAt applies equality check predicate on the "started_at" field. It's identical to StartedAtEQ.
-func StartedAt(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldEQ(FieldStartedAt, v))
+// DateStarted applies equality check predicate on the "date_started" field. It's identical to DateStartedEQ.
+func DateStarted(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldEQ(FieldDateStarted, v))
 }
 
-// ClosedAt applies equality check predicate on the "closed_at" field. It's identical to ClosedAtEQ.
-func ClosedAt(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldEQ(FieldClosedAt, v))
+// DateClosed applies equality check predicate on the "date_closed" field. It's identical to DateClosedEQ.
+func DateClosed(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldEQ(FieldDateClosed, v))
 }
 
 // StartedBy applies equality check predicate on the "started_by" field. It's identical to StartedByEQ.
@@ -316,104 +316,104 @@ func StatusContainsFold(v string) predicate.InventoryCount {
 	return predicate.InventoryCount(sql.FieldContainsFold(FieldStatus, v))
 }
 
-// StartedAtEQ applies the EQ predicate on the "started_at" field.
-func StartedAtEQ(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldEQ(FieldStartedAt, v))
+// DateStartedEQ applies the EQ predicate on the "date_started" field.
+func DateStartedEQ(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldEQ(FieldDateStarted, v))
 }
 
-// StartedAtNEQ applies the NEQ predicate on the "started_at" field.
-func StartedAtNEQ(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldNEQ(FieldStartedAt, v))
+// DateStartedNEQ applies the NEQ predicate on the "date_started" field.
+func DateStartedNEQ(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldNEQ(FieldDateStarted, v))
 }
 
-// StartedAtIn applies the In predicate on the "started_at" field.
-func StartedAtIn(vs ...time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldIn(FieldStartedAt, vs...))
+// DateStartedIn applies the In predicate on the "date_started" field.
+func DateStartedIn(vs ...time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldIn(FieldDateStarted, vs...))
 }
 
-// StartedAtNotIn applies the NotIn predicate on the "started_at" field.
-func StartedAtNotIn(vs ...time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldNotIn(FieldStartedAt, vs...))
+// DateStartedNotIn applies the NotIn predicate on the "date_started" field.
+func DateStartedNotIn(vs ...time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldNotIn(FieldDateStarted, vs...))
 }
 
-// StartedAtGT applies the GT predicate on the "started_at" field.
-func StartedAtGT(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldGT(FieldStartedAt, v))
+// DateStartedGT applies the GT predicate on the "date_started" field.
+func DateStartedGT(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldGT(FieldDateStarted, v))
 }
 
-// StartedAtGTE applies the GTE predicate on the "started_at" field.
-func StartedAtGTE(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldGTE(FieldStartedAt, v))
+// DateStartedGTE applies the GTE predicate on the "date_started" field.
+func DateStartedGTE(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldGTE(FieldDateStarted, v))
 }
 
-// StartedAtLT applies the LT predicate on the "started_at" field.
-func StartedAtLT(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldLT(FieldStartedAt, v))
+// DateStartedLT applies the LT predicate on the "date_started" field.
+func DateStartedLT(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldLT(FieldDateStarted, v))
 }
 
-// StartedAtLTE applies the LTE predicate on the "started_at" field.
-func StartedAtLTE(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldLTE(FieldStartedAt, v))
+// DateStartedLTE applies the LTE predicate on the "date_started" field.
+func DateStartedLTE(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldLTE(FieldDateStarted, v))
 }
 
-// StartedAtIsNil applies the IsNil predicate on the "started_at" field.
-func StartedAtIsNil() predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldIsNull(FieldStartedAt))
+// DateStartedIsNil applies the IsNil predicate on the "date_started" field.
+func DateStartedIsNil() predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldIsNull(FieldDateStarted))
 }
 
-// StartedAtNotNil applies the NotNil predicate on the "started_at" field.
-func StartedAtNotNil() predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldNotNull(FieldStartedAt))
+// DateStartedNotNil applies the NotNil predicate on the "date_started" field.
+func DateStartedNotNil() predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldNotNull(FieldDateStarted))
 }
 
-// ClosedAtEQ applies the EQ predicate on the "closed_at" field.
-func ClosedAtEQ(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldEQ(FieldClosedAt, v))
+// DateClosedEQ applies the EQ predicate on the "date_closed" field.
+func DateClosedEQ(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldEQ(FieldDateClosed, v))
 }
 
-// ClosedAtNEQ applies the NEQ predicate on the "closed_at" field.
-func ClosedAtNEQ(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldNEQ(FieldClosedAt, v))
+// DateClosedNEQ applies the NEQ predicate on the "date_closed" field.
+func DateClosedNEQ(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldNEQ(FieldDateClosed, v))
 }
 
-// ClosedAtIn applies the In predicate on the "closed_at" field.
-func ClosedAtIn(vs ...time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldIn(FieldClosedAt, vs...))
+// DateClosedIn applies the In predicate on the "date_closed" field.
+func DateClosedIn(vs ...time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldIn(FieldDateClosed, vs...))
 }
 
-// ClosedAtNotIn applies the NotIn predicate on the "closed_at" field.
-func ClosedAtNotIn(vs ...time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldNotIn(FieldClosedAt, vs...))
+// DateClosedNotIn applies the NotIn predicate on the "date_closed" field.
+func DateClosedNotIn(vs ...time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldNotIn(FieldDateClosed, vs...))
 }
 
-// ClosedAtGT applies the GT predicate on the "closed_at" field.
-func ClosedAtGT(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldGT(FieldClosedAt, v))
+// DateClosedGT applies the GT predicate on the "date_closed" field.
+func DateClosedGT(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldGT(FieldDateClosed, v))
 }
 
-// ClosedAtGTE applies the GTE predicate on the "closed_at" field.
-func ClosedAtGTE(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldGTE(FieldClosedAt, v))
+// DateClosedGTE applies the GTE predicate on the "date_closed" field.
+func DateClosedGTE(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldGTE(FieldDateClosed, v))
 }
 
-// ClosedAtLT applies the LT predicate on the "closed_at" field.
-func ClosedAtLT(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldLT(FieldClosedAt, v))
+// DateClosedLT applies the LT predicate on the "date_closed" field.
+func DateClosedLT(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldLT(FieldDateClosed, v))
 }
 
-// ClosedAtLTE applies the LTE predicate on the "closed_at" field.
-func ClosedAtLTE(v time.Time) predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldLTE(FieldClosedAt, v))
+// DateClosedLTE applies the LTE predicate on the "date_closed" field.
+func DateClosedLTE(v time.Time) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldLTE(FieldDateClosed, v))
 }
 
-// ClosedAtIsNil applies the IsNil predicate on the "closed_at" field.
-func ClosedAtIsNil() predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldIsNull(FieldClosedAt))
+// DateClosedIsNil applies the IsNil predicate on the "date_closed" field.
+func DateClosedIsNil() predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldIsNull(FieldDateClosed))
 }
 
-// ClosedAtNotNil applies the NotNil predicate on the "closed_at" field.
-func ClosedAtNotNil() predicate.InventoryCount {
-	return predicate.InventoryCount(sql.FieldNotNull(FieldClosedAt))
+// DateClosedNotNil applies the NotNil predicate on the "date_closed" field.
+func DateClosedNotNil() predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldNotNull(FieldDateClosed))
 }
 
 // StartedByEQ applies the EQ predicate on the "started_by" field.

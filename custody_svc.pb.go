@@ -23,27 +23,27 @@ const (
 )
 
 type CustodyAddRequest struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id             []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant         *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Desc           string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Party          *PartyRef              `protobuf:"bytes,8,opt,name=party"`
-	xxx_hidden_Kind           string                 `protobuf:"bytes,9,opt,name=kind"`
-	xxx_hidden_Status         string                 `protobuf:"bytes,10,opt,name=status"`
-	xxx_hidden_IssuedAt       *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=issued_at,json=issuedAt"`
-	xxx_hidden_DueAt          *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=due_at,json=dueAt"`
-	xxx_hidden_DateCreated    *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_AcknowledgedAt *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=acknowledged_at,json=acknowledgedAt"`
-	xxx_hidden_ReturnedAt     *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=returned_at,json=returnedAt"`
-	xxx_hidden_ReservationId  []byte                 `protobuf:"bytes,18,opt,name=reservation_id,json=reservationId"`
-	xxx_hidden_IssuedBy       []byte                 `protobuf:"bytes,19,opt,name=issued_by,json=issuedBy"`
-	xxx_hidden_OverdueNoticed bool                   `protobuf:"varint,20,opt,name=overdue_noticed,json=overdueNoticed"`
-	xxx_hidden_Lines          *[]*CustodyLineSpec    `protobuf:"bytes,100,rep,name=lines"`
-	xxx_hidden_Op             []byte                 `protobuf:"bytes,101,opt,name=op"`
-	XXX_raceDetectHookData    protoimpl.RaceDetectHookData
-	XXX_presence              [1]uint32
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	state                       protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id               []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant           *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Desc             string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Party            *PartyRef              `protobuf:"bytes,8,opt,name=party"`
+	xxx_hidden_Kind             string                 `protobuf:"bytes,9,opt,name=kind"`
+	xxx_hidden_Status           string                 `protobuf:"bytes,10,opt,name=status"`
+	xxx_hidden_DateIssued       *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_issued,json=dateIssued"`
+	xxx_hidden_DateDue          *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_due,json=dateDue"`
+	xxx_hidden_DateCreated      *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateAcknowledged *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_acknowledged,json=dateAcknowledged"`
+	xxx_hidden_DateReturned     *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_returned,json=dateReturned"`
+	xxx_hidden_ReservationId    []byte                 `protobuf:"bytes,18,opt,name=reservation_id,json=reservationId"`
+	xxx_hidden_IssuedBy         []byte                 `protobuf:"bytes,19,opt,name=issued_by,json=issuedBy"`
+	xxx_hidden_OverdueNoticed   bool                   `protobuf:"varint,20,opt,name=overdue_noticed,json=overdueNoticed"`
+	xxx_hidden_Lines            *[]*CustodyLineSpec    `protobuf:"bytes,100,rep,name=lines"`
+	xxx_hidden_Op               []byte                 `protobuf:"bytes,101,opt,name=op"`
+	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
+	XXX_presence                [1]uint32
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *CustodyAddRequest) Reset() {
@@ -113,16 +113,16 @@ func (x *CustodyAddRequest) GetStatus() string {
 	return ""
 }
 
-func (x *CustodyAddRequest) GetIssuedAt() *timestamppb.Timestamp {
+func (x *CustodyAddRequest) GetDateIssued() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_IssuedAt
+		return x.xxx_hidden_DateIssued
 	}
 	return nil
 }
 
-func (x *CustodyAddRequest) GetDueAt() *timestamppb.Timestamp {
+func (x *CustodyAddRequest) GetDateDue() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DueAt
+		return x.xxx_hidden_DateDue
 	}
 	return nil
 }
@@ -134,16 +134,16 @@ func (x *CustodyAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *CustodyAddRequest) GetAcknowledgedAt() *timestamppb.Timestamp {
+func (x *CustodyAddRequest) GetDateAcknowledged() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AcknowledgedAt
+		return x.xxx_hidden_DateAcknowledged
 	}
 	return nil
 }
 
-func (x *CustodyAddRequest) GetReturnedAt() *timestamppb.Timestamp {
+func (x *CustodyAddRequest) GetDateReturned() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAt
+		return x.xxx_hidden_DateReturned
 	}
 	return nil
 }
@@ -213,24 +213,24 @@ func (x *CustodyAddRequest) SetStatus(v string) {
 	x.xxx_hidden_Status = v
 }
 
-func (x *CustodyAddRequest) SetIssuedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_IssuedAt = v
+func (x *CustodyAddRequest) SetDateIssued(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateIssued = v
 }
 
-func (x *CustodyAddRequest) SetDueAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DueAt = v
+func (x *CustodyAddRequest) SetDateDue(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDue = v
 }
 
 func (x *CustodyAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *CustodyAddRequest) SetAcknowledgedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AcknowledgedAt = v
+func (x *CustodyAddRequest) SetDateAcknowledged(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAcknowledged = v
 }
 
-func (x *CustodyAddRequest) SetReturnedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReturnedAt = v
+func (x *CustodyAddRequest) SetDateReturned(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReturned = v
 }
 
 func (x *CustodyAddRequest) SetReservationId(v []byte) {
@@ -286,18 +286,18 @@ func (x *CustodyAddRequest) HasParty() bool {
 	return x.xxx_hidden_Party != nil
 }
 
-func (x *CustodyAddRequest) HasIssuedAt() bool {
+func (x *CustodyAddRequest) HasDateIssued() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_IssuedAt != nil
+	return x.xxx_hidden_DateIssued != nil
 }
 
-func (x *CustodyAddRequest) HasDueAt() bool {
+func (x *CustodyAddRequest) HasDateDue() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DueAt != nil
+	return x.xxx_hidden_DateDue != nil
 }
 
 func (x *CustodyAddRequest) HasDateCreated() bool {
@@ -307,18 +307,18 @@ func (x *CustodyAddRequest) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *CustodyAddRequest) HasAcknowledgedAt() bool {
+func (x *CustodyAddRequest) HasDateAcknowledged() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AcknowledgedAt != nil
+	return x.xxx_hidden_DateAcknowledged != nil
 }
 
-func (x *CustodyAddRequest) HasReturnedAt() bool {
+func (x *CustodyAddRequest) HasDateReturned() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReturnedAt != nil
+	return x.xxx_hidden_DateReturned != nil
 }
 
 func (x *CustodyAddRequest) HasReservationId() bool {
@@ -355,24 +355,24 @@ func (x *CustodyAddRequest) ClearParty() {
 	x.xxx_hidden_Party = nil
 }
 
-func (x *CustodyAddRequest) ClearIssuedAt() {
-	x.xxx_hidden_IssuedAt = nil
+func (x *CustodyAddRequest) ClearDateIssued() {
+	x.xxx_hidden_DateIssued = nil
 }
 
-func (x *CustodyAddRequest) ClearDueAt() {
-	x.xxx_hidden_DueAt = nil
+func (x *CustodyAddRequest) ClearDateDue() {
+	x.xxx_hidden_DateDue = nil
 }
 
 func (x *CustodyAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *CustodyAddRequest) ClearAcknowledgedAt() {
-	x.xxx_hidden_AcknowledgedAt = nil
+func (x *CustodyAddRequest) ClearDateAcknowledged() {
+	x.xxx_hidden_DateAcknowledged = nil
 }
 
-func (x *CustodyAddRequest) ClearReturnedAt() {
-	x.xxx_hidden_ReturnedAt = nil
+func (x *CustodyAddRequest) ClearDateReturned() {
+	x.xxx_hidden_DateReturned = nil
 }
 
 func (x *CustodyAddRequest) ClearReservationId() {
@@ -393,22 +393,22 @@ func (x *CustodyAddRequest) ClearOp() {
 type CustodyAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id             []byte
-	Tenant         *TenantRef
-	Desc           string
-	Party          *PartyRef
-	Kind           string
-	Status         string
-	IssuedAt       *timestamppb.Timestamp
-	DueAt          *timestamppb.Timestamp
-	DateCreated    *timestamppb.Timestamp
-	AcknowledgedAt *timestamppb.Timestamp
-	ReturnedAt     *timestamppb.Timestamp
-	ReservationId  []byte
-	IssuedBy       []byte
-	OverdueNoticed bool
-	Lines          []*CustodyLineSpec
-	Op             []byte
+	Id               []byte
+	Tenant           *TenantRef
+	Desc             string
+	Party            *PartyRef
+	Kind             string
+	Status           string
+	DateIssued       *timestamppb.Timestamp
+	DateDue          *timestamppb.Timestamp
+	DateCreated      *timestamppb.Timestamp
+	DateAcknowledged *timestamppb.Timestamp
+	DateReturned     *timestamppb.Timestamp
+	ReservationId    []byte
+	IssuedBy         []byte
+	OverdueNoticed   bool
+	Lines            []*CustodyLineSpec
+	Op               []byte
 }
 
 func (b0 CustodyAddRequest_builder) Build() *CustodyAddRequest {
@@ -424,11 +424,11 @@ func (b0 CustodyAddRequest_builder) Build() *CustodyAddRequest {
 	x.xxx_hidden_Party = b.Party
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_Status = b.Status
-	x.xxx_hidden_IssuedAt = b.IssuedAt
-	x.xxx_hidden_DueAt = b.DueAt
+	x.xxx_hidden_DateIssued = b.DateIssued
+	x.xxx_hidden_DateDue = b.DateDue
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_AcknowledgedAt = b.AcknowledgedAt
-	x.xxx_hidden_ReturnedAt = b.ReturnedAt
+	x.xxx_hidden_DateAcknowledged = b.DateAcknowledged
+	x.xxx_hidden_DateReturned = b.DateReturned
 	if b.ReservationId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 16)
 		x.xxx_hidden_ReservationId = b.ReservationId
@@ -787,27 +787,27 @@ type custodyRef_Id struct {
 func (*custodyRef_Id) isCustodyRef_Key() {}
 
 type CustodySelect struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All            bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant         *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Desc           bool                   `protobuf:"varint,6,opt,name=desc"`
-	xxx_hidden_Party          *PartySelect           `protobuf:"bytes,8,opt,name=party"`
-	xxx_hidden_Kind           bool                   `protobuf:"varint,9,opt,name=kind"`
-	xxx_hidden_Status         bool                   `protobuf:"varint,10,opt,name=status"`
-	xxx_hidden_IssuedAt       bool                   `protobuf:"varint,11,opt,name=issued_at,json=issuedAt"`
-	xxx_hidden_DueAt          bool                   `protobuf:"varint,12,opt,name=due_at,json=dueAt"`
-	xxx_hidden_DateUpdated    bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased     bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated    bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_AcknowledgedAt bool                   `protobuf:"varint,16,opt,name=acknowledged_at,json=acknowledgedAt"`
-	xxx_hidden_ReturnedAt     bool                   `protobuf:"varint,17,opt,name=returned_at,json=returnedAt"`
-	xxx_hidden_ReservationId  bool                   `protobuf:"varint,18,opt,name=reservation_id,json=reservationId"`
-	xxx_hidden_IssuedBy       bool                   `protobuf:"varint,19,opt,name=issued_by,json=issuedBy"`
-	xxx_hidden_OverdueNoticed bool                   `protobuf:"varint,20,opt,name=overdue_noticed,json=overdueNoticed"`
-	XXX_raceDetectHookData    protoimpl.RaceDetectHookData
-	XXX_presence              [1]uint32
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	state                       protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All              bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Tenant           *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Desc             bool                   `protobuf:"varint,6,opt,name=desc"`
+	xxx_hidden_Party            *PartySelect           `protobuf:"bytes,8,opt,name=party"`
+	xxx_hidden_Kind             bool                   `protobuf:"varint,9,opt,name=kind"`
+	xxx_hidden_Status           bool                   `protobuf:"varint,10,opt,name=status"`
+	xxx_hidden_DateIssued       bool                   `protobuf:"varint,11,opt,name=date_issued,json=dateIssued"`
+	xxx_hidden_DateDue          bool                   `protobuf:"varint,12,opt,name=date_due,json=dateDue"`
+	xxx_hidden_DateUpdated      bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased       bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated      bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateAcknowledged bool                   `protobuf:"varint,16,opt,name=date_acknowledged,json=dateAcknowledged"`
+	xxx_hidden_DateReturned     bool                   `protobuf:"varint,17,opt,name=date_returned,json=dateReturned"`
+	xxx_hidden_ReservationId    bool                   `protobuf:"varint,18,opt,name=reservation_id,json=reservationId"`
+	xxx_hidden_IssuedBy         bool                   `protobuf:"varint,19,opt,name=issued_by,json=issuedBy"`
+	xxx_hidden_OverdueNoticed   bool                   `protobuf:"varint,20,opt,name=overdue_noticed,json=overdueNoticed"`
+	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
+	XXX_presence                [1]uint32
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *CustodySelect) Reset() {
@@ -877,16 +877,16 @@ func (x *CustodySelect) GetStatus() bool {
 	return false
 }
 
-func (x *CustodySelect) GetIssuedAt() bool {
+func (x *CustodySelect) GetDateIssued() bool {
 	if x != nil {
-		return x.xxx_hidden_IssuedAt
+		return x.xxx_hidden_DateIssued
 	}
 	return false
 }
 
-func (x *CustodySelect) GetDueAt() bool {
+func (x *CustodySelect) GetDateDue() bool {
 	if x != nil {
-		return x.xxx_hidden_DueAt
+		return x.xxx_hidden_DateDue
 	}
 	return false
 }
@@ -912,16 +912,16 @@ func (x *CustodySelect) GetDateCreated() bool {
 	return false
 }
 
-func (x *CustodySelect) GetAcknowledgedAt() bool {
+func (x *CustodySelect) GetDateAcknowledged() bool {
 	if x != nil {
-		return x.xxx_hidden_AcknowledgedAt
+		return x.xxx_hidden_DateAcknowledged
 	}
 	return false
 }
 
-func (x *CustodySelect) GetReturnedAt() bool {
+func (x *CustodySelect) GetDateReturned() bool {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAt
+		return x.xxx_hidden_DateReturned
 	}
 	return false
 }
@@ -975,13 +975,13 @@ func (x *CustodySelect) SetStatus(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 16)
 }
 
-func (x *CustodySelect) SetIssuedAt(v bool) {
-	x.xxx_hidden_IssuedAt = v
+func (x *CustodySelect) SetDateIssued(v bool) {
+	x.xxx_hidden_DateIssued = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 16)
 }
 
-func (x *CustodySelect) SetDueAt(v bool) {
-	x.xxx_hidden_DueAt = v
+func (x *CustodySelect) SetDateDue(v bool) {
+	x.xxx_hidden_DateDue = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 16)
 }
 
@@ -1000,13 +1000,13 @@ func (x *CustodySelect) SetDateCreated(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 16)
 }
 
-func (x *CustodySelect) SetAcknowledgedAt(v bool) {
-	x.xxx_hidden_AcknowledgedAt = v
+func (x *CustodySelect) SetDateAcknowledged(v bool) {
+	x.xxx_hidden_DateAcknowledged = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 16)
 }
 
-func (x *CustodySelect) SetReturnedAt(v bool) {
-	x.xxx_hidden_ReturnedAt = v
+func (x *CustodySelect) SetDateReturned(v bool) {
+	x.xxx_hidden_DateReturned = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 16)
 }
 
@@ -1067,14 +1067,14 @@ func (x *CustodySelect) HasStatus() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *CustodySelect) HasIssuedAt() bool {
+func (x *CustodySelect) HasDateIssued() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *CustodySelect) HasDueAt() bool {
+func (x *CustodySelect) HasDateDue() bool {
 	if x == nil {
 		return false
 	}
@@ -1102,14 +1102,14 @@ func (x *CustodySelect) HasDateCreated() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *CustodySelect) HasAcknowledgedAt() bool {
+func (x *CustodySelect) HasDateAcknowledged() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
-func (x *CustodySelect) HasReturnedAt() bool {
+func (x *CustodySelect) HasDateReturned() bool {
 	if x == nil {
 		return false
 	}
@@ -1165,14 +1165,14 @@ func (x *CustodySelect) ClearStatus() {
 	x.xxx_hidden_Status = false
 }
 
-func (x *CustodySelect) ClearIssuedAt() {
+func (x *CustodySelect) ClearDateIssued() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_IssuedAt = false
+	x.xxx_hidden_DateIssued = false
 }
 
-func (x *CustodySelect) ClearDueAt() {
+func (x *CustodySelect) ClearDateDue() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_DueAt = false
+	x.xxx_hidden_DateDue = false
 }
 
 func (x *CustodySelect) ClearDateUpdated() {
@@ -1190,14 +1190,14 @@ func (x *CustodySelect) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = false
 }
 
-func (x *CustodySelect) ClearAcknowledgedAt() {
+func (x *CustodySelect) ClearDateAcknowledged() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
-	x.xxx_hidden_AcknowledgedAt = false
+	x.xxx_hidden_DateAcknowledged = false
 }
 
-func (x *CustodySelect) ClearReturnedAt() {
+func (x *CustodySelect) ClearDateReturned() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
-	x.xxx_hidden_ReturnedAt = false
+	x.xxx_hidden_DateReturned = false
 }
 
 func (x *CustodySelect) ClearReservationId() {
@@ -1218,22 +1218,22 @@ func (x *CustodySelect) ClearOverdueNoticed() {
 type CustodySelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	All            *bool
-	Tenant         *TenantSelect
-	Desc           *bool
-	Party          *PartySelect
-	Kind           *bool
-	Status         *bool
-	IssuedAt       *bool
-	DueAt          *bool
-	DateUpdated    *bool
-	DateErased     *bool
-	DateCreated    *bool
-	AcknowledgedAt *bool
-	ReturnedAt     *bool
-	ReservationId  *bool
-	IssuedBy       *bool
-	OverdueNoticed *bool
+	All              *bool
+	Tenant           *TenantSelect
+	Desc             *bool
+	Party            *PartySelect
+	Kind             *bool
+	Status           *bool
+	DateIssued       *bool
+	DateDue          *bool
+	DateUpdated      *bool
+	DateErased       *bool
+	DateCreated      *bool
+	DateAcknowledged *bool
+	DateReturned     *bool
+	ReservationId    *bool
+	IssuedBy         *bool
+	OverdueNoticed   *bool
 }
 
 func (b0 CustodySelect_builder) Build() *CustodySelect {
@@ -1258,13 +1258,13 @@ func (b0 CustodySelect_builder) Build() *CustodySelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 16)
 		x.xxx_hidden_Status = *b.Status
 	}
-	if b.IssuedAt != nil {
+	if b.DateIssued != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 16)
-		x.xxx_hidden_IssuedAt = *b.IssuedAt
+		x.xxx_hidden_DateIssued = *b.DateIssued
 	}
-	if b.DueAt != nil {
+	if b.DateDue != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 16)
-		x.xxx_hidden_DueAt = *b.DueAt
+		x.xxx_hidden_DateDue = *b.DateDue
 	}
 	if b.DateUpdated != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 16)
@@ -1278,13 +1278,13 @@ func (b0 CustodySelect_builder) Build() *CustodySelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 16)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
-	if b.AcknowledgedAt != nil {
+	if b.DateAcknowledged != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 16)
-		x.xxx_hidden_AcknowledgedAt = *b.AcknowledgedAt
+		x.xxx_hidden_DateAcknowledged = *b.DateAcknowledged
 	}
-	if b.ReturnedAt != nil {
+	if b.DateReturned != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 16)
-		x.xxx_hidden_ReturnedAt = *b.ReturnedAt
+		x.xxx_hidden_DateReturned = *b.DateReturned
 	}
 	if b.ReservationId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 16)
@@ -1302,29 +1302,29 @@ func (b0 CustodySelect_builder) Build() *CustodySelect {
 }
 
 type CustodyPatchRequest struct {
-	state                         protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref                *CustodyRef            `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Desc               *string                `protobuf:"bytes,12,opt,name=desc"`
-	xxx_hidden_Kind               *string                `protobuf:"bytes,18,opt,name=kind"`
-	xxx_hidden_Status             *string                `protobuf:"bytes,20,opt,name=status"`
-	xxx_hidden_IssuedAt           *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=issued_at,json=issuedAt"`
-	xxx_hidden_DueAt              *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=due_at,json=dueAt"`
-	xxx_hidden_DueAtNull          bool                   `protobuf:"varint,25,opt,name=due_at_null,json=dueAtNull"`
-	xxx_hidden_DateUpdated        *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateUpdatedForce   bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
-	xxx_hidden_AcknowledgedAt     *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=acknowledged_at,json=acknowledgedAt"`
-	xxx_hidden_AcknowledgedAtNull bool                   `protobuf:"varint,33,opt,name=acknowledged_at_null,json=acknowledgedAtNull"`
-	xxx_hidden_ReturnedAt         *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=returned_at,json=returnedAt"`
-	xxx_hidden_ReturnedAtNull     bool                   `protobuf:"varint,35,opt,name=returned_at_null,json=returnedAtNull"`
-	xxx_hidden_ReservationId      []byte                 `protobuf:"bytes,36,opt,name=reservation_id,json=reservationId"`
-	xxx_hidden_ReservationIdNull  bool                   `protobuf:"varint,37,opt,name=reservation_id_null,json=reservationIdNull"`
-	xxx_hidden_IssuedBy           []byte                 `protobuf:"bytes,38,opt,name=issued_by,json=issuedBy"`
-	xxx_hidden_IssuedByNull       bool                   `protobuf:"varint,39,opt,name=issued_by_null,json=issuedByNull"`
-	xxx_hidden_OverdueNoticed     bool                   `protobuf:"varint,40,opt,name=overdue_noticed,json=overdueNoticed"`
-	XXX_raceDetectHookData        protoimpl.RaceDetectHookData
-	XXX_presence                  [1]uint32
-	unknownFields                 protoimpl.UnknownFields
-	sizeCache                     protoimpl.SizeCache
+	state                           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref                  *CustodyRef            `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Desc                 *string                `protobuf:"bytes,12,opt,name=desc"`
+	xxx_hidden_Kind                 *string                `protobuf:"bytes,18,opt,name=kind"`
+	xxx_hidden_Status               *string                `protobuf:"bytes,20,opt,name=status"`
+	xxx_hidden_DateIssued           *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_issued,json=dateIssued"`
+	xxx_hidden_DateDue              *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_due,json=dateDue"`
+	xxx_hidden_DateDueNull          bool                   `protobuf:"varint,25,opt,name=date_due_null,json=dateDueNull"`
+	xxx_hidden_DateUpdated          *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateUpdatedForce     bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
+	xxx_hidden_DateAcknowledged     *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=date_acknowledged,json=dateAcknowledged"`
+	xxx_hidden_DateAcknowledgedNull bool                   `protobuf:"varint,33,opt,name=date_acknowledged_null,json=dateAcknowledgedNull"`
+	xxx_hidden_DateReturned         *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_returned,json=dateReturned"`
+	xxx_hidden_DateReturnedNull     bool                   `protobuf:"varint,35,opt,name=date_returned_null,json=dateReturnedNull"`
+	xxx_hidden_ReservationId        []byte                 `protobuf:"bytes,36,opt,name=reservation_id,json=reservationId"`
+	xxx_hidden_ReservationIdNull    bool                   `protobuf:"varint,37,opt,name=reservation_id_null,json=reservationIdNull"`
+	xxx_hidden_IssuedBy             []byte                 `protobuf:"bytes,38,opt,name=issued_by,json=issuedBy"`
+	xxx_hidden_IssuedByNull         bool                   `protobuf:"varint,39,opt,name=issued_by_null,json=issuedByNull"`
+	xxx_hidden_OverdueNoticed       bool                   `protobuf:"varint,40,opt,name=overdue_noticed,json=overdueNoticed"`
+	XXX_raceDetectHookData          protoimpl.RaceDetectHookData
+	XXX_presence                    [1]uint32
+	unknownFields                   protoimpl.UnknownFields
+	sizeCache                       protoimpl.SizeCache
 }
 
 func (x *CustodyPatchRequest) Reset() {
@@ -1389,23 +1389,23 @@ func (x *CustodyPatchRequest) GetStatus() string {
 	return ""
 }
 
-func (x *CustodyPatchRequest) GetIssuedAt() *timestamppb.Timestamp {
+func (x *CustodyPatchRequest) GetDateIssued() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_IssuedAt
+		return x.xxx_hidden_DateIssued
 	}
 	return nil
 }
 
-func (x *CustodyPatchRequest) GetDueAt() *timestamppb.Timestamp {
+func (x *CustodyPatchRequest) GetDateDue() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DueAt
+		return x.xxx_hidden_DateDue
 	}
 	return nil
 }
 
-func (x *CustodyPatchRequest) GetDueAtNull() bool {
+func (x *CustodyPatchRequest) GetDateDueNull() bool {
 	if x != nil {
-		return x.xxx_hidden_DueAtNull
+		return x.xxx_hidden_DateDueNull
 	}
 	return false
 }
@@ -1424,30 +1424,30 @@ func (x *CustodyPatchRequest) GetDateUpdatedForce() bool {
 	return false
 }
 
-func (x *CustodyPatchRequest) GetAcknowledgedAt() *timestamppb.Timestamp {
+func (x *CustodyPatchRequest) GetDateAcknowledged() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AcknowledgedAt
+		return x.xxx_hidden_DateAcknowledged
 	}
 	return nil
 }
 
-func (x *CustodyPatchRequest) GetAcknowledgedAtNull() bool {
+func (x *CustodyPatchRequest) GetDateAcknowledgedNull() bool {
 	if x != nil {
-		return x.xxx_hidden_AcknowledgedAtNull
+		return x.xxx_hidden_DateAcknowledgedNull
 	}
 	return false
 }
 
-func (x *CustodyPatchRequest) GetReturnedAt() *timestamppb.Timestamp {
+func (x *CustodyPatchRequest) GetDateReturned() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAt
+		return x.xxx_hidden_DateReturned
 	}
 	return nil
 }
 
-func (x *CustodyPatchRequest) GetReturnedAtNull() bool {
+func (x *CustodyPatchRequest) GetDateReturnedNull() bool {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAtNull
+		return x.xxx_hidden_DateReturnedNull
 	}
 	return false
 }
@@ -1506,16 +1506,16 @@ func (x *CustodyPatchRequest) SetStatus(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 18)
 }
 
-func (x *CustodyPatchRequest) SetIssuedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_IssuedAt = v
+func (x *CustodyPatchRequest) SetDateIssued(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateIssued = v
 }
 
-func (x *CustodyPatchRequest) SetDueAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DueAt = v
+func (x *CustodyPatchRequest) SetDateDue(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDue = v
 }
 
-func (x *CustodyPatchRequest) SetDueAtNull(v bool) {
-	x.xxx_hidden_DueAtNull = v
+func (x *CustodyPatchRequest) SetDateDueNull(v bool) {
+	x.xxx_hidden_DateDueNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 18)
 }
 
@@ -1528,21 +1528,21 @@ func (x *CustodyPatchRequest) SetDateUpdatedForce(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 18)
 }
 
-func (x *CustodyPatchRequest) SetAcknowledgedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AcknowledgedAt = v
+func (x *CustodyPatchRequest) SetDateAcknowledged(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAcknowledged = v
 }
 
-func (x *CustodyPatchRequest) SetAcknowledgedAtNull(v bool) {
-	x.xxx_hidden_AcknowledgedAtNull = v
+func (x *CustodyPatchRequest) SetDateAcknowledgedNull(v bool) {
+	x.xxx_hidden_DateAcknowledgedNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 18)
 }
 
-func (x *CustodyPatchRequest) SetReturnedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReturnedAt = v
+func (x *CustodyPatchRequest) SetDateReturned(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReturned = v
 }
 
-func (x *CustodyPatchRequest) SetReturnedAtNull(v bool) {
-	x.xxx_hidden_ReturnedAtNull = v
+func (x *CustodyPatchRequest) SetDateReturnedNull(v bool) {
+	x.xxx_hidden_DateReturnedNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 18)
 }
 
@@ -1605,21 +1605,21 @@ func (x *CustodyPatchRequest) HasStatus() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *CustodyPatchRequest) HasIssuedAt() bool {
+func (x *CustodyPatchRequest) HasDateIssued() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_IssuedAt != nil
+	return x.xxx_hidden_DateIssued != nil
 }
 
-func (x *CustodyPatchRequest) HasDueAt() bool {
+func (x *CustodyPatchRequest) HasDateDue() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DueAt != nil
+	return x.xxx_hidden_DateDue != nil
 }
 
-func (x *CustodyPatchRequest) HasDueAtNull() bool {
+func (x *CustodyPatchRequest) HasDateDueNull() bool {
 	if x == nil {
 		return false
 	}
@@ -1640,28 +1640,28 @@ func (x *CustodyPatchRequest) HasDateUpdatedForce() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *CustodyPatchRequest) HasAcknowledgedAt() bool {
+func (x *CustodyPatchRequest) HasDateAcknowledged() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AcknowledgedAt != nil
+	return x.xxx_hidden_DateAcknowledged != nil
 }
 
-func (x *CustodyPatchRequest) HasAcknowledgedAtNull() bool {
+func (x *CustodyPatchRequest) HasDateAcknowledgedNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *CustodyPatchRequest) HasReturnedAt() bool {
+func (x *CustodyPatchRequest) HasDateReturned() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReturnedAt != nil
+	return x.xxx_hidden_DateReturned != nil
 }
 
-func (x *CustodyPatchRequest) HasReturnedAtNull() bool {
+func (x *CustodyPatchRequest) HasDateReturnedNull() bool {
 	if x == nil {
 		return false
 	}
@@ -1722,17 +1722,17 @@ func (x *CustodyPatchRequest) ClearStatus() {
 	x.xxx_hidden_Status = nil
 }
 
-func (x *CustodyPatchRequest) ClearIssuedAt() {
-	x.xxx_hidden_IssuedAt = nil
+func (x *CustodyPatchRequest) ClearDateIssued() {
+	x.xxx_hidden_DateIssued = nil
 }
 
-func (x *CustodyPatchRequest) ClearDueAt() {
-	x.xxx_hidden_DueAt = nil
+func (x *CustodyPatchRequest) ClearDateDue() {
+	x.xxx_hidden_DateDue = nil
 }
 
-func (x *CustodyPatchRequest) ClearDueAtNull() {
+func (x *CustodyPatchRequest) ClearDateDueNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_DueAtNull = false
+	x.xxx_hidden_DateDueNull = false
 }
 
 func (x *CustodyPatchRequest) ClearDateUpdated() {
@@ -1744,22 +1744,22 @@ func (x *CustodyPatchRequest) ClearDateUpdatedForce() {
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
-func (x *CustodyPatchRequest) ClearAcknowledgedAt() {
-	x.xxx_hidden_AcknowledgedAt = nil
+func (x *CustodyPatchRequest) ClearDateAcknowledged() {
+	x.xxx_hidden_DateAcknowledged = nil
 }
 
-func (x *CustodyPatchRequest) ClearAcknowledgedAtNull() {
+func (x *CustodyPatchRequest) ClearDateAcknowledgedNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
-	x.xxx_hidden_AcknowledgedAtNull = false
+	x.xxx_hidden_DateAcknowledgedNull = false
 }
 
-func (x *CustodyPatchRequest) ClearReturnedAt() {
-	x.xxx_hidden_ReturnedAt = nil
+func (x *CustodyPatchRequest) ClearDateReturned() {
+	x.xxx_hidden_DateReturned = nil
 }
 
-func (x *CustodyPatchRequest) ClearReturnedAtNull() {
+func (x *CustodyPatchRequest) ClearDateReturnedNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
-	x.xxx_hidden_ReturnedAtNull = false
+	x.xxx_hidden_DateReturnedNull = false
 }
 
 func (x *CustodyPatchRequest) ClearReservationId() {
@@ -1790,17 +1790,17 @@ func (x *CustodyPatchRequest) ClearOverdueNoticed() {
 type CustodyPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref      *CustodyRef
-	Desc     *string
-	Kind     *string
-	Status   *string
-	IssuedAt *timestamppb.Timestamp
-	DueAt    *timestamppb.Timestamp
-	// Clear due_at instead of writing it.
+	Ref        *CustodyRef
+	Desc       *string
+	Kind       *string
+	Status     *string
+	DateIssued *timestamppb.Timestamp
+	DateDue    *timestamppb.Timestamp
+	// Clear date_due instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and due_at clears.
-	DueAtNull *bool
+	// outright: setting both this and date_due clears.
+	DateDueNull *bool
 	// The version this update requires the stored date_updated to be.
 	// It is a precondition, not a write: the update applies only if the row
 	// still holds this value, and the server stamps the new version itself.
@@ -1815,19 +1815,19 @@ type CustodyPatchRequest_builder struct {
 	// refused rather than assumed, because an unset field cannot be told
 	// apart from a caller who never considered locking at all.
 	DateUpdatedForce *bool
-	AcknowledgedAt   *timestamppb.Timestamp
-	// Clear acknowledged_at instead of writing it.
+	DateAcknowledged *timestamppb.Timestamp
+	// Clear date_acknowledged instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and acknowledged_at clears.
-	AcknowledgedAtNull *bool
-	ReturnedAt         *timestamppb.Timestamp
-	// Clear returned_at instead of writing it.
+	// outright: setting both this and date_acknowledged clears.
+	DateAcknowledgedNull *bool
+	DateReturned         *timestamppb.Timestamp
+	// Clear date_returned instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and returned_at clears.
-	ReturnedAtNull *bool
-	ReservationId  []byte
+	// outright: setting both this and date_returned clears.
+	DateReturnedNull *bool
+	ReservationId    []byte
 	// Clear reservation_id instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
@@ -1859,26 +1859,26 @@ func (b0 CustodyPatchRequest_builder) Build() *CustodyPatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 18)
 		x.xxx_hidden_Status = b.Status
 	}
-	x.xxx_hidden_IssuedAt = b.IssuedAt
-	x.xxx_hidden_DueAt = b.DueAt
-	if b.DueAtNull != nil {
+	x.xxx_hidden_DateIssued = b.DateIssued
+	x.xxx_hidden_DateDue = b.DateDue
+	if b.DateDueNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 18)
-		x.xxx_hidden_DueAtNull = *b.DueAtNull
+		x.xxx_hidden_DateDueNull = *b.DateDueNull
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 18)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
-	x.xxx_hidden_AcknowledgedAt = b.AcknowledgedAt
-	if b.AcknowledgedAtNull != nil {
+	x.xxx_hidden_DateAcknowledged = b.DateAcknowledged
+	if b.DateAcknowledgedNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 18)
-		x.xxx_hidden_AcknowledgedAtNull = *b.AcknowledgedAtNull
+		x.xxx_hidden_DateAcknowledgedNull = *b.DateAcknowledgedNull
 	}
-	x.xxx_hidden_ReturnedAt = b.ReturnedAt
-	if b.ReturnedAtNull != nil {
+	x.xxx_hidden_DateReturned = b.DateReturned
+	if b.DateReturnedNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 18)
-		x.xxx_hidden_ReturnedAtNull = *b.ReturnedAtNull
+		x.xxx_hidden_DateReturnedNull = *b.DateReturnedNull
 	}
 	if b.ReservationId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 18)
@@ -2812,14 +2812,14 @@ func (b0 CustodyAcknowledgeRequest_builder) Build() *CustodyAcknowledgeRequest {
 }
 
 type CustodyReturnRequest struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref   *CustodyRef            `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Lines *[]*CustodyReturnLine  `protobuf:"bytes,2,rep,name=lines"`
-	xxx_hidden_At    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=at"`
-	xxx_hidden_To    *AssetRef              `protobuf:"bytes,4,opt,name=to"`
-	xxx_hidden_Op    []byte                 `protobuf:"bytes,5,opt,name=op"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref          *CustodyRef            `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Lines        *[]*CustodyReturnLine  `protobuf:"bytes,2,rep,name=lines"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_To           *AssetRef              `protobuf:"bytes,4,opt,name=to"`
+	xxx_hidden_Op           []byte                 `protobuf:"bytes,5,opt,name=op"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *CustodyReturnRequest) Reset() {
@@ -2863,9 +2863,9 @@ func (x *CustodyReturnRequest) GetLines() []*CustodyReturnLine {
 	return nil
 }
 
-func (x *CustodyReturnRequest) GetAt() *timestamppb.Timestamp {
+func (x *CustodyReturnRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -2892,8 +2892,8 @@ func (x *CustodyReturnRequest) SetLines(v []*CustodyReturnLine) {
 	x.xxx_hidden_Lines = &v
 }
 
-func (x *CustodyReturnRequest) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *CustodyReturnRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *CustodyReturnRequest) SetTo(v *AssetRef) {
@@ -2914,11 +2914,11 @@ func (x *CustodyReturnRequest) HasRef() bool {
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *CustodyReturnRequest) HasAt() bool {
+func (x *CustodyReturnRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *CustodyReturnRequest) HasTo() bool {
@@ -2932,8 +2932,8 @@ func (x *CustodyReturnRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *CustodyReturnRequest) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *CustodyReturnRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 func (x *CustodyReturnRequest) ClearTo() {
@@ -2945,8 +2945,8 @@ type CustodyReturnRequest_builder struct {
 
 	Ref *CustodyRef
 	// Empty: everything still out.
-	Lines []*CustodyReturnLine
-	At    *timestamppb.Timestamp
+	Lines        []*CustodyReturnLine
+	DateOccurred *timestamppb.Timestamp
 	// Where the returned assets go.
 	To *AssetRef
 	Op []byte
@@ -2958,7 +2958,7 @@ func (b0 CustodyReturnRequest_builder) Build() *CustodyReturnRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_Lines = &b.Lines
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_To = b.To
 	x.xxx_hidden_Op = b.Op
 	return m0
@@ -3187,11 +3187,11 @@ type custodyLineRef_Id struct {
 func (*custodyLineRef_Id) isCustodyLineRef_Key() {}
 
 type CustodyExtendRequest struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref   *CustodyRef            `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_DueAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=due_at,json=dueAt"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref     *CustodyRef            `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_DateDue *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_due,json=dateDue"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CustodyExtendRequest) Reset() {
@@ -3226,9 +3226,9 @@ func (x *CustodyExtendRequest) GetRef() *CustodyRef {
 	return nil
 }
 
-func (x *CustodyExtendRequest) GetDueAt() *timestamppb.Timestamp {
+func (x *CustodyExtendRequest) GetDateDue() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DueAt
+		return x.xxx_hidden_DateDue
 	}
 	return nil
 }
@@ -3237,8 +3237,8 @@ func (x *CustodyExtendRequest) SetRef(v *CustodyRef) {
 	x.xxx_hidden_Ref = v
 }
 
-func (x *CustodyExtendRequest) SetDueAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DueAt = v
+func (x *CustodyExtendRequest) SetDateDue(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDue = v
 }
 
 func (x *CustodyExtendRequest) HasRef() bool {
@@ -3248,26 +3248,26 @@ func (x *CustodyExtendRequest) HasRef() bool {
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *CustodyExtendRequest) HasDueAt() bool {
+func (x *CustodyExtendRequest) HasDateDue() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DueAt != nil
+	return x.xxx_hidden_DateDue != nil
 }
 
 func (x *CustodyExtendRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *CustodyExtendRequest) ClearDueAt() {
-	x.xxx_hidden_DueAt = nil
+func (x *CustodyExtendRequest) ClearDateDue() {
+	x.xxx_hidden_DateDue = nil
 }
 
 type CustodyExtendRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref   *CustodyRef
-	DueAt *timestamppb.Timestamp
+	Ref     *CustodyRef
+	DateDue *timestamppb.Timestamp
 }
 
 func (b0 CustodyExtendRequest_builder) Build() *CustodyExtendRequest {
@@ -3275,7 +3275,7 @@ func (b0 CustodyExtendRequest_builder) Build() *CustodyExtendRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
-	x.xxx_hidden_DueAt = b.DueAt
+	x.xxx_hidden_DateDue = b.DateDue
 	return m0
 }
 
@@ -3391,7 +3391,7 @@ type CustodyOutstandingResponse struct {
 	xxx_hidden_People    uint32                    `protobuf:"varint,5,opt,name=people"`
 	xxx_hidden_Assets    uint32                    `protobuf:"varint,6,opt,name=assets"`
 	xxx_hidden_Stocks    uint32                    `protobuf:"varint,7,opt,name=stocks"`
-	xxx_hidden_At        *timestamppb.Timestamp    `protobuf:"bytes,8,opt,name=at"`
+	xxx_hidden_DateAsOf  *timestamppb.Timestamp    `protobuf:"bytes,8,opt,name=date_as_of,json=dateAsOf"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -3472,9 +3472,9 @@ func (x *CustodyOutstandingResponse) GetStocks() uint32 {
 	return 0
 }
 
-func (x *CustodyOutstandingResponse) GetAt() *timestamppb.Timestamp {
+func (x *CustodyOutstandingResponse) GetDateAsOf() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateAsOf
 	}
 	return nil
 }
@@ -3507,19 +3507,19 @@ func (x *CustodyOutstandingResponse) SetStocks(v uint32) {
 	x.xxx_hidden_Stocks = v
 }
 
-func (x *CustodyOutstandingResponse) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *CustodyOutstandingResponse) SetDateAsOf(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAsOf = v
 }
 
-func (x *CustodyOutstandingResponse) HasAt() bool {
+func (x *CustodyOutstandingResponse) HasDateAsOf() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateAsOf != nil
 }
 
-func (x *CustodyOutstandingResponse) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *CustodyOutstandingResponse) ClearDateAsOf() {
+	x.xxx_hidden_DateAsOf = nil
 }
 
 type CustodyOutstandingResponse_builder struct {
@@ -3540,7 +3540,7 @@ type CustodyOutstandingResponse_builder struct {
 	Assets    uint32
 	Stocks    uint32
 	// When it was read, which what is overdue is overdue at.
-	At *timestamppb.Timestamp
+	DateAsOf *timestamppb.Timestamp
 }
 
 func (b0 CustodyOutstandingResponse_builder) Build() *CustodyOutstandingResponse {
@@ -3554,7 +3554,7 @@ func (b0 CustodyOutstandingResponse_builder) Build() *CustodyOutstandingResponse
 	x.xxx_hidden_People = b.People
 	x.xxx_hidden_Assets = b.Assets
 	x.xxx_hidden_Stocks = b.Stocks
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateAsOf = b.DateAsOf
 	return m0
 }
 
@@ -3574,8 +3574,8 @@ type CustodyOutstandingRow struct {
 	xxx_hidden_StockName    string                 `protobuf:"bytes,10,opt,name=stock_name,json=stockName"`
 	xxx_hidden_Quantity     int64                  `protobuf:"varint,11,opt,name=quantity"`
 	xxx_hidden_Unit         string                 `protobuf:"bytes,12,opt,name=unit"`
-	xxx_hidden_IssuedAt     *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=issued_at,json=issuedAt"`
-	xxx_hidden_DueAt        *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=due_at,json=dueAt"`
+	xxx_hidden_DateIssued   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_issued,json=dateIssued"`
+	xxx_hidden_DateDue      *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_due,json=dateDue"`
 	xxx_hidden_Overdue      bool                   `protobuf:"varint,15,opt,name=overdue"`
 	xxx_hidden_OverdueDays  uint32                 `protobuf:"varint,16,opt,name=overdue_days,json=overdueDays"`
 	xxx_hidden_Acknowledged bool                   `protobuf:"varint,17,opt,name=acknowledged"`
@@ -3692,16 +3692,16 @@ func (x *CustodyOutstandingRow) GetUnit() string {
 	return ""
 }
 
-func (x *CustodyOutstandingRow) GetIssuedAt() *timestamppb.Timestamp {
+func (x *CustodyOutstandingRow) GetDateIssued() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_IssuedAt
+		return x.xxx_hidden_DateIssued
 	}
 	return nil
 }
 
-func (x *CustodyOutstandingRow) GetDueAt() *timestamppb.Timestamp {
+func (x *CustodyOutstandingRow) GetDateDue() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DueAt
+		return x.xxx_hidden_DateDue
 	}
 	return nil
 }
@@ -3790,12 +3790,12 @@ func (x *CustodyOutstandingRow) SetUnit(v string) {
 	x.xxx_hidden_Unit = v
 }
 
-func (x *CustodyOutstandingRow) SetIssuedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_IssuedAt = v
+func (x *CustodyOutstandingRow) SetDateIssued(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateIssued = v
 }
 
-func (x *CustodyOutstandingRow) SetDueAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DueAt = v
+func (x *CustodyOutstandingRow) SetDateDue(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDue = v
 }
 
 func (x *CustodyOutstandingRow) SetOverdue(v bool) {
@@ -3810,26 +3810,26 @@ func (x *CustodyOutstandingRow) SetAcknowledged(v bool) {
 	x.xxx_hidden_Acknowledged = v
 }
 
-func (x *CustodyOutstandingRow) HasIssuedAt() bool {
+func (x *CustodyOutstandingRow) HasDateIssued() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_IssuedAt != nil
+	return x.xxx_hidden_DateIssued != nil
 }
 
-func (x *CustodyOutstandingRow) HasDueAt() bool {
+func (x *CustodyOutstandingRow) HasDateDue() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DueAt != nil
+	return x.xxx_hidden_DateDue != nil
 }
 
-func (x *CustodyOutstandingRow) ClearIssuedAt() {
-	x.xxx_hidden_IssuedAt = nil
+func (x *CustodyOutstandingRow) ClearDateIssued() {
+	x.xxx_hidden_DateIssued = nil
 }
 
-func (x *CustodyOutstandingRow) ClearDueAt() {
-	x.xxx_hidden_DueAt = nil
+func (x *CustodyOutstandingRow) ClearDateDue() {
+	x.xxx_hidden_DateDue = nil
 }
 
 type CustodyOutstandingRow_builder struct {
@@ -3846,15 +3846,15 @@ type CustodyOutstandingRow_builder struct {
 	PartyName string
 	// What it is: an asset, by its tag and name; or a stock, by its name, how
 	// many of it are still out, and in what.
-	AssetId   []byte
-	AssetTag  string
-	AssetName string
-	StockId   []byte
-	StockName string
-	Quantity  int64
-	Unit      string
-	IssuedAt  *timestamppb.Timestamp
-	DueAt     *timestamppb.Timestamp
+	AssetId    []byte
+	AssetTag   string
+	AssetName  string
+	StockId    []byte
+	StockName  string
+	Quantity   int64
+	Unit       string
+	DateIssued *timestamppb.Timestamp
+	DateDue    *timestamppb.Timestamp
 	// Past its due date, and by how many of the workspace's days: one due
 	// yesterday is a day late, and one due earlier today none, late as it is.
 	Overdue     bool
@@ -3879,8 +3879,8 @@ func (b0 CustodyOutstandingRow_builder) Build() *CustodyOutstandingRow {
 	x.xxx_hidden_StockName = b.StockName
 	x.xxx_hidden_Quantity = b.Quantity
 	x.xxx_hidden_Unit = b.Unit
-	x.xxx_hidden_IssuedAt = b.IssuedAt
-	x.xxx_hidden_DueAt = b.DueAt
+	x.xxx_hidden_DateIssued = b.DateIssued
+	x.xxx_hidden_DateDue = b.DateDue
 	x.xxx_hidden_Overdue = b.Overdue
 	x.xxx_hidden_OverdueDays = b.OverdueDays
 	x.xxx_hidden_Acknowledged = b.Acknowledged
@@ -3897,8 +3897,8 @@ type CustodyLineAddRequest struct {
 	xxx_hidden_Quantity         int64                  `protobuf:"varint,11,opt,name=quantity"`
 	xxx_hidden_ReturnedQuantity int64                  `protobuf:"varint,12,opt,name=returned_quantity,json=returnedQuantity"`
 	xxx_hidden_DateCreated      *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_OutAt            *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=out_at,json=outAt"`
-	xxx_hidden_ReturnedAt       *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=returned_at,json=returnedAt"`
+	xxx_hidden_DateOut          *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_out,json=dateOut"`
+	xxx_hidden_DateReturned     *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_returned,json=dateReturned"`
 	xxx_hidden_ConditionOut     string                 `protobuf:"bytes,18,opt,name=condition_out,json=conditionOut"`
 	xxx_hidden_ConditionIn      string                 `protobuf:"bytes,19,opt,name=condition_in,json=conditionIn"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
@@ -3988,16 +3988,16 @@ func (x *CustodyLineAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *CustodyLineAddRequest) GetOutAt() *timestamppb.Timestamp {
+func (x *CustodyLineAddRequest) GetDateOut() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_OutAt
+		return x.xxx_hidden_DateOut
 	}
 	return nil
 }
 
-func (x *CustodyLineAddRequest) GetReturnedAt() *timestamppb.Timestamp {
+func (x *CustodyLineAddRequest) GetDateReturned() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAt
+		return x.xxx_hidden_DateReturned
 	}
 	return nil
 }
@@ -4052,12 +4052,12 @@ func (x *CustodyLineAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *CustodyLineAddRequest) SetOutAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OutAt = v
+func (x *CustodyLineAddRequest) SetDateOut(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOut = v
 }
 
-func (x *CustodyLineAddRequest) SetReturnedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReturnedAt = v
+func (x *CustodyLineAddRequest) SetDateReturned(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReturned = v
 }
 
 func (x *CustodyLineAddRequest) SetConditionOut(v string) {
@@ -4110,18 +4110,18 @@ func (x *CustodyLineAddRequest) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *CustodyLineAddRequest) HasOutAt() bool {
+func (x *CustodyLineAddRequest) HasDateOut() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_OutAt != nil
+	return x.xxx_hidden_DateOut != nil
 }
 
-func (x *CustodyLineAddRequest) HasReturnedAt() bool {
+func (x *CustodyLineAddRequest) HasDateReturned() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReturnedAt != nil
+	return x.xxx_hidden_DateReturned != nil
 }
 
 func (x *CustodyLineAddRequest) ClearId() {
@@ -4149,12 +4149,12 @@ func (x *CustodyLineAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *CustodyLineAddRequest) ClearOutAt() {
-	x.xxx_hidden_OutAt = nil
+func (x *CustodyLineAddRequest) ClearDateOut() {
+	x.xxx_hidden_DateOut = nil
 }
 
-func (x *CustodyLineAddRequest) ClearReturnedAt() {
-	x.xxx_hidden_ReturnedAt = nil
+func (x *CustodyLineAddRequest) ClearDateReturned() {
+	x.xxx_hidden_DateReturned = nil
 }
 
 type CustodyLineAddRequest_builder struct {
@@ -4168,8 +4168,8 @@ type CustodyLineAddRequest_builder struct {
 	Quantity         int64
 	ReturnedQuantity int64
 	DateCreated      *timestamppb.Timestamp
-	OutAt            *timestamppb.Timestamp
-	ReturnedAt       *timestamppb.Timestamp
+	DateOut          *timestamppb.Timestamp
+	DateReturned     *timestamppb.Timestamp
 	ConditionOut     string
 	ConditionIn      string
 }
@@ -4189,8 +4189,8 @@ func (b0 CustodyLineAddRequest_builder) Build() *CustodyLineAddRequest {
 	x.xxx_hidden_Quantity = b.Quantity
 	x.xxx_hidden_ReturnedQuantity = b.ReturnedQuantity
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_OutAt = b.OutAt
-	x.xxx_hidden_ReturnedAt = b.ReturnedAt
+	x.xxx_hidden_DateOut = b.DateOut
+	x.xxx_hidden_DateReturned = b.DateReturned
 	x.xxx_hidden_ConditionOut = b.ConditionOut
 	x.xxx_hidden_ConditionIn = b.ConditionIn
 	return m0
@@ -4300,8 +4300,8 @@ type CustodyLineSelect struct {
 	xxx_hidden_ReturnedQuantity bool                   `protobuf:"varint,12,opt,name=returned_quantity,json=returnedQuantity"`
 	xxx_hidden_DateUpdated      bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateCreated      bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_OutAt            bool                   `protobuf:"varint,16,opt,name=out_at,json=outAt"`
-	xxx_hidden_ReturnedAt       bool                   `protobuf:"varint,17,opt,name=returned_at,json=returnedAt"`
+	xxx_hidden_DateOut          bool                   `protobuf:"varint,16,opt,name=date_out,json=dateOut"`
+	xxx_hidden_DateReturned     bool                   `protobuf:"varint,17,opt,name=date_returned,json=dateReturned"`
 	xxx_hidden_ConditionOut     bool                   `protobuf:"varint,18,opt,name=condition_out,json=conditionOut"`
 	xxx_hidden_ConditionIn      bool                   `protobuf:"varint,19,opt,name=condition_in,json=conditionIn"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
@@ -4398,16 +4398,16 @@ func (x *CustodyLineSelect) GetDateCreated() bool {
 	return false
 }
 
-func (x *CustodyLineSelect) GetOutAt() bool {
+func (x *CustodyLineSelect) GetDateOut() bool {
 	if x != nil {
-		return x.xxx_hidden_OutAt
+		return x.xxx_hidden_DateOut
 	}
 	return false
 }
 
-func (x *CustodyLineSelect) GetReturnedAt() bool {
+func (x *CustodyLineSelect) GetDateReturned() bool {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAt
+		return x.xxx_hidden_DateReturned
 	}
 	return false
 }
@@ -4467,13 +4467,13 @@ func (x *CustodyLineSelect) SetDateCreated(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 13)
 }
 
-func (x *CustodyLineSelect) SetOutAt(v bool) {
-	x.xxx_hidden_OutAt = v
+func (x *CustodyLineSelect) SetDateOut(v bool) {
+	x.xxx_hidden_DateOut = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
 }
 
-func (x *CustodyLineSelect) SetReturnedAt(v bool) {
-	x.xxx_hidden_ReturnedAt = v
+func (x *CustodyLineSelect) SetDateReturned(v bool) {
+	x.xxx_hidden_DateReturned = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
 }
 
@@ -4550,14 +4550,14 @@ func (x *CustodyLineSelect) HasDateCreated() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *CustodyLineSelect) HasOutAt() bool {
+func (x *CustodyLineSelect) HasDateOut() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *CustodyLineSelect) HasReturnedAt() bool {
+func (x *CustodyLineSelect) HasDateReturned() bool {
 	if x == nil {
 		return false
 	}
@@ -4619,14 +4619,14 @@ func (x *CustodyLineSelect) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = false
 }
 
-func (x *CustodyLineSelect) ClearOutAt() {
+func (x *CustodyLineSelect) ClearDateOut() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
-	x.xxx_hidden_OutAt = false
+	x.xxx_hidden_DateOut = false
 }
 
-func (x *CustodyLineSelect) ClearReturnedAt() {
+func (x *CustodyLineSelect) ClearDateReturned() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
-	x.xxx_hidden_ReturnedAt = false
+	x.xxx_hidden_DateReturned = false
 }
 
 func (x *CustodyLineSelect) ClearConditionOut() {
@@ -4651,8 +4651,8 @@ type CustodyLineSelect_builder struct {
 	ReturnedQuantity *bool
 	DateUpdated      *bool
 	DateCreated      *bool
-	OutAt            *bool
-	ReturnedAt       *bool
+	DateOut          *bool
+	DateReturned     *bool
 	ConditionOut     *bool
 	ConditionIn      *bool
 }
@@ -4685,13 +4685,13 @@ func (b0 CustodyLineSelect_builder) Build() *CustodyLineSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 13)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
-	if b.OutAt != nil {
+	if b.DateOut != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
-		x.xxx_hidden_OutAt = *b.OutAt
+		x.xxx_hidden_DateOut = *b.DateOut
 	}
-	if b.ReturnedAt != nil {
+	if b.DateReturned != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
-		x.xxx_hidden_ReturnedAt = *b.ReturnedAt
+		x.xxx_hidden_DateReturned = *b.DateReturned
 	}
 	if b.ConditionOut != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
@@ -4711,9 +4711,9 @@ type CustodyLinePatchRequest struct {
 	xxx_hidden_ReturnedQuantity int64                  `protobuf:"varint,24,opt,name=returned_quantity,json=returnedQuantity"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
-	xxx_hidden_OutAt            *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=out_at,json=outAt"`
-	xxx_hidden_ReturnedAt       *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=returned_at,json=returnedAt"`
-	xxx_hidden_ReturnedAtNull   bool                   `protobuf:"varint,35,opt,name=returned_at_null,json=returnedAtNull"`
+	xxx_hidden_DateOut          *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=date_out,json=dateOut"`
+	xxx_hidden_DateReturned     *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_returned,json=dateReturned"`
+	xxx_hidden_DateReturnedNull bool                   `protobuf:"varint,35,opt,name=date_returned_null,json=dateReturnedNull"`
 	xxx_hidden_ConditionOut     *string                `protobuf:"bytes,36,opt,name=condition_out,json=conditionOut"`
 	xxx_hidden_ConditionIn      *string                `protobuf:"bytes,38,opt,name=condition_in,json=conditionIn"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
@@ -4782,23 +4782,23 @@ func (x *CustodyLinePatchRequest) GetDateUpdatedForce() bool {
 	return false
 }
 
-func (x *CustodyLinePatchRequest) GetOutAt() *timestamppb.Timestamp {
+func (x *CustodyLinePatchRequest) GetDateOut() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_OutAt
+		return x.xxx_hidden_DateOut
 	}
 	return nil
 }
 
-func (x *CustodyLinePatchRequest) GetReturnedAt() *timestamppb.Timestamp {
+func (x *CustodyLinePatchRequest) GetDateReturned() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAt
+		return x.xxx_hidden_DateReturned
 	}
 	return nil
 }
 
-func (x *CustodyLinePatchRequest) GetReturnedAtNull() bool {
+func (x *CustodyLinePatchRequest) GetDateReturnedNull() bool {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAtNull
+		return x.xxx_hidden_DateReturnedNull
 	}
 	return false
 }
@@ -4846,16 +4846,16 @@ func (x *CustodyLinePatchRequest) SetDateUpdatedForce(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
 }
 
-func (x *CustodyLinePatchRequest) SetOutAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OutAt = v
+func (x *CustodyLinePatchRequest) SetDateOut(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOut = v
 }
 
-func (x *CustodyLinePatchRequest) SetReturnedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReturnedAt = v
+func (x *CustodyLinePatchRequest) SetDateReturned(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReturned = v
 }
 
-func (x *CustodyLinePatchRequest) SetReturnedAtNull(v bool) {
-	x.xxx_hidden_ReturnedAtNull = v
+func (x *CustodyLinePatchRequest) SetDateReturnedNull(v bool) {
+	x.xxx_hidden_DateReturnedNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
 }
 
@@ -4904,21 +4904,21 @@ func (x *CustodyLinePatchRequest) HasDateUpdatedForce() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *CustodyLinePatchRequest) HasOutAt() bool {
+func (x *CustodyLinePatchRequest) HasDateOut() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_OutAt != nil
+	return x.xxx_hidden_DateOut != nil
 }
 
-func (x *CustodyLinePatchRequest) HasReturnedAt() bool {
+func (x *CustodyLinePatchRequest) HasDateReturned() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReturnedAt != nil
+	return x.xxx_hidden_DateReturned != nil
 }
 
-func (x *CustodyLinePatchRequest) HasReturnedAtNull() bool {
+func (x *CustodyLinePatchRequest) HasDateReturnedNull() bool {
 	if x == nil {
 		return false
 	}
@@ -4962,17 +4962,17 @@ func (x *CustodyLinePatchRequest) ClearDateUpdatedForce() {
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
-func (x *CustodyLinePatchRequest) ClearOutAt() {
-	x.xxx_hidden_OutAt = nil
+func (x *CustodyLinePatchRequest) ClearDateOut() {
+	x.xxx_hidden_DateOut = nil
 }
 
-func (x *CustodyLinePatchRequest) ClearReturnedAt() {
-	x.xxx_hidden_ReturnedAt = nil
+func (x *CustodyLinePatchRequest) ClearDateReturned() {
+	x.xxx_hidden_DateReturned = nil
 }
 
-func (x *CustodyLinePatchRequest) ClearReturnedAtNull() {
+func (x *CustodyLinePatchRequest) ClearDateReturnedNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_ReturnedAtNull = false
+	x.xxx_hidden_DateReturnedNull = false
 }
 
 func (x *CustodyLinePatchRequest) ClearConditionOut() {
@@ -5005,15 +5005,15 @@ type CustodyLinePatchRequest_builder struct {
 	// refused rather than assumed, because an unset field cannot be told
 	// apart from a caller who never considered locking at all.
 	DateUpdatedForce *bool
-	OutAt            *timestamppb.Timestamp
-	ReturnedAt       *timestamppb.Timestamp
-	// Clear returned_at instead of writing it.
+	DateOut          *timestamppb.Timestamp
+	DateReturned     *timestamppb.Timestamp
+	// Clear date_returned instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and returned_at clears.
-	ReturnedAtNull *bool
-	ConditionOut   *string
-	ConditionIn    *string
+	// outright: setting both this and date_returned clears.
+	DateReturnedNull *bool
+	ConditionOut     *string
+	ConditionIn      *string
 }
 
 func (b0 CustodyLinePatchRequest_builder) Build() *CustodyLinePatchRequest {
@@ -5034,11 +5034,11 @@ func (b0 CustodyLinePatchRequest_builder) Build() *CustodyLinePatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
-	x.xxx_hidden_OutAt = b.OutAt
-	x.xxx_hidden_ReturnedAt = b.ReturnedAt
-	if b.ReturnedAtNull != nil {
+	x.xxx_hidden_DateOut = b.DateOut
+	x.xxx_hidden_DateReturned = b.DateReturned
+	if b.DateReturnedNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
-		x.xxx_hidden_ReturnedAtNull = *b.ReturnedAtNull
+		x.xxx_hidden_DateReturnedNull = *b.DateReturnedNull
 	}
 	if b.ConditionOut != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 10)
@@ -5565,7 +5565,7 @@ var File_loft_custody_svc_g_proto protoreflect.FileDescriptor
 
 const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x18loft/custody_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16loft/asset_svc.g.proto\x1a\x12loft/custody.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x16loft/stock_svc.g.proto\x1a\x11patch/patch.proto\"\xa5\x05\n" +
+	"\x18loft/custody_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16loft/asset_svc.g.proto\x1a\x12loft/custody.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x16loft/stock_svc.g.proto\x1a\x11patch/patch.proto\"\xb5\x05\n" +
 	"\x11CustodyAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
@@ -5573,13 +5573,13 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\x05party\x18\b \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x19\n" +
 	"\x04kind\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1d\n" +
 	"\x06status\x18\n" +
-	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x127\n" +
-	"\tissued_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\bissuedAt\x121\n" +
-	"\x06due_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\x05dueAt\x12=\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12C\n" +
-	"\x0facknowledged_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\x0eacknowledgedAt\x12;\n" +
-	"\vreturned_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"returnedAt\x12%\n" +
+	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x12;\n" +
+	"\vdate_issued\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateIssued\x125\n" +
+	"\bdate_due\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\x12=\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12G\n" +
+	"\x11date_acknowledged\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\x10dateAcknowledged\x12?\n" +
+	"\rdate_returned\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\fdateReturned\x12%\n" +
 	"\x0ereservation_id\x18\x12 \x01(\fR\rreservationId\x12\x1b\n" +
 	"\tissued_by\x18\x13 \x01(\fR\bissuedBy\x12.\n" +
 	"\x0foverdue_noticed\x18\x14 \x01(\bB\x05\xaa\x01\x02\b\x02R\x0eoverdueNoticed\x12+\n" +
@@ -5596,7 +5596,7 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"CustodyRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\x88\x04\n" +
+	"\x03key\"\x98\x04\n" +
 	"\rCustodySelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
@@ -5604,34 +5604,34 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\x05party\x18\b \x01(\v2\x11.loft.PartySelectR\x05party\x12\x12\n" +
 	"\x04kind\x18\t \x01(\bR\x04kind\x12\x16\n" +
 	"\x06status\x18\n" +
-	" \x01(\bR\x06status\x12\x1b\n" +
-	"\tissued_at\x18\v \x01(\bR\bissuedAt\x12\x15\n" +
-	"\x06due_at\x18\f \x01(\bR\x05dueAt\x12!\n" +
+	" \x01(\bR\x06status\x12\x1f\n" +
+	"\vdate_issued\x18\v \x01(\bR\n" +
+	"dateIssued\x12\x19\n" +
+	"\bdate_due\x18\f \x01(\bR\adateDue\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12'\n" +
-	"\x0facknowledged_at\x18\x10 \x01(\bR\x0eacknowledgedAt\x12\x1f\n" +
-	"\vreturned_at\x18\x11 \x01(\bR\n" +
-	"returnedAt\x12%\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12+\n" +
+	"\x11date_acknowledged\x18\x10 \x01(\bR\x10dateAcknowledged\x12#\n" +
+	"\rdate_returned\x18\x11 \x01(\bR\fdateReturned\x12%\n" +
 	"\x0ereservation_id\x18\x12 \x01(\bR\rreservationId\x12\x1b\n" +
 	"\tissued_by\x18\x13 \x01(\bR\bissuedBy\x12'\n" +
-	"\x0foverdue_noticed\x18\x14 \x01(\bR\x0eoverdueNoticed\"\x93\x06\n" +
+	"\x0foverdue_noticed\x18\x14 \x01(\bR\x0eoverdueNoticed\"\xaf\x06\n" +
 	"\x13CustodyPatchRequest\x12\"\n" +
 	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12\x12\n" +
 	"\x04kind\x18\x12 \x01(\tR\x04kind\x12\x16\n" +
-	"\x06status\x18\x14 \x01(\tR\x06status\x127\n" +
-	"\tissued_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\bissuedAt\x121\n" +
-	"\x06due_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\x05dueAt\x12\x1e\n" +
-	"\vdue_at_null\x18\x19 \x01(\bR\tdueAtNull\x12=\n" +
+	"\x06status\x18\x14 \x01(\tR\x06status\x12;\n" +
+	"\vdate_issued\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateIssued\x125\n" +
+	"\bdate_due\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\x12\"\n" +
+	"\rdate_due_null\x18\x19 \x01(\bR\vdateDueNull\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
-	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12C\n" +
-	"\x0facknowledged_at\x18  \x01(\v2\x1a.google.protobuf.TimestampR\x0eacknowledgedAt\x120\n" +
-	"\x14acknowledged_at_null\x18! \x01(\bR\x12acknowledgedAtNull\x12;\n" +
-	"\vreturned_at\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"returnedAt\x12(\n" +
-	"\x10returned_at_null\x18# \x01(\bR\x0ereturnedAtNull\x12%\n" +
+	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12G\n" +
+	"\x11date_acknowledged\x18  \x01(\v2\x1a.google.protobuf.TimestampR\x10dateAcknowledged\x124\n" +
+	"\x16date_acknowledged_null\x18! \x01(\bR\x14dateAcknowledgedNull\x12?\n" +
+	"\rdate_returned\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\fdateReturned\x12,\n" +
+	"\x12date_returned_null\x18# \x01(\bR\x10dateReturnedNull\x12%\n" +
 	"\x0ereservation_id\x18$ \x01(\fR\rreservationId\x12.\n" +
 	"\x13reservation_id_null\x18% \x01(\bR\x11reservationIdNull\x12\x1b\n" +
 	"\tissued_by\x18& \x01(\fR\bissuedBy\x12$\n" +
@@ -5666,11 +5666,11 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\r.loft.CustodyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"?\n" +
 	"\x19CustodyAcknowledgeRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\"\xcc\x01\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\"\xe1\x01\n" +
 	"\x14CustodyReturnRequest\x12\"\n" +
 	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x12-\n" +
-	"\x05lines\x18\x02 \x03(\v2\x17.loft.CustodyReturnLineR\x05lines\x12*\n" +
-	"\x02at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1e\n" +
+	"\x05lines\x18\x02 \x03(\v2\x17.loft.CustodyReturnLineR\x05lines\x12?\n" +
+	"\rdate_occurred\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x1e\n" +
 	"\x02to\x18\x04 \x01(\v2\x0e.loft.AssetRefR\x02to\x12\x15\n" +
 	"\x02op\x18\x05 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\x85\x01\n" +
 	"\x11CustodyReturnLine\x12(\n" +
@@ -5679,15 +5679,15 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\tcondition\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\tcondition\")\n" +
 	"\x0eCustodyLineRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"m\n" +
+	"\x03key\"q\n" +
 	"\x14CustodyExtendRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x121\n" +
-	"\x06due_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05dueAt\"\x91\x01\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.loft.CustodyRefR\x03ref\x125\n" +
+	"\bdate_due\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\"\x91\x01\n" +
 	"\x19CustodyOutstandingRequest\x12\x1f\n" +
 	"\aoverdue\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\aoverdue\x12\x19\n" +
 	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x19\n" +
 	"\x04size\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x1d\n" +
-	"\x06offset\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06offset\"\xb9\x02\n" +
+	"\x06offset\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06offset\"\xc7\x02\n" +
 	"\x1aCustodyOutstandingResponse\x12/\n" +
 	"\x04rows\x18\x01 \x03(\v2\x1b.loft.CustodyOutstandingRowR\x04rows\x12\x1b\n" +
 	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\x12#\n" +
@@ -5695,8 +5695,9 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\aoverdue\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\aoverdue\x12\x1d\n" +
 	"\x06people\x18\x05 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06people\x12\x1d\n" +
 	"\x06assets\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06assets\x12\x1d\n" +
-	"\x06stocks\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x06stocks\x12*\n" +
-	"\x02at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x02at\"\x94\x05\n" +
+	"\x06stocks\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x06stocks\x128\n" +
+	"\n" +
+	"date_as_of\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\bdateAsOf\"\x9c\x05\n" +
 	"\x15CustodyOutstandingRow\x12$\n" +
 	"\n" +
 	"custody_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\tcustodyId\x12\x1e\n" +
@@ -5714,12 +5715,13 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"stock_name\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\tstockName\x12!\n" +
 	"\bquantity\x18\v \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x12\x19\n" +
-	"\x04unit\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x04unit\x127\n" +
-	"\tissued_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\bissuedAt\x121\n" +
-	"\x06due_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\x05dueAt\x12\x1f\n" +
+	"\x04unit\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x04unit\x12;\n" +
+	"\vdate_issued\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateIssued\x125\n" +
+	"\bdate_due\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\x12\x1f\n" +
 	"\aoverdue\x18\x0f \x01(\bB\x05\xaa\x01\x02\b\x02R\aoverdue\x12(\n" +
 	"\foverdue_days\x18\x10 \x01(\rB\x05\xaa\x01\x02\b\x02R\voverdueDays\x12)\n" +
-	"\facknowledged\x18\x11 \x01(\bB\x05\xaa\x01\x02\b\x02R\facknowledged\"\xa4\x04\n" +
+	"\facknowledged\x18\x11 \x01(\bB\x05\xaa\x01\x02\b\x02R\facknowledged\"\xac\x04\n" +
 	"\x15CustodyLineAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12*\n" +
@@ -5729,15 +5731,14 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	" \x01(\v2\x0e.loft.StockRefR\x05stock\x12!\n" +
 	"\bquantity\x18\v \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x122\n" +
 	"\x11returned_quantity\x18\f \x01(\x03B\x05\xaa\x01\x02\b\x02R\x10returnedQuantity\x12=\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x121\n" +
-	"\x06out_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\x05outAt\x12;\n" +
-	"\vreturned_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"returnedAt\x12*\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x125\n" +
+	"\bdate_out\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\adateOut\x12?\n" +
+	"\rdate_returned\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\fdateReturned\x12*\n" +
 	"\rcondition_out\x18\x12 \x01(\tB\x05\xaa\x01\x02\b\x02R\fconditionOut\x12(\n" +
 	"\fcondition_in\x18\x13 \x01(\tB\x05\xaa\x01\x02\b\x02R\vconditionIn\"p\n" +
 	"\x15CustodyLineGetRequest\x12&\n" +
 	"\x03ref\x18\x01 \x01(\v2\x14.loft.CustodyLineRefR\x03ref\x12/\n" +
-	"\x06select\x18\x02 \x01(\v2\x17.loft.CustodyLineSelectR\x06select\"\xe1\x03\n" +
+	"\x06select\x18\x02 \x01(\v2\x17.loft.CustodyLineSelectR\x06select\"\xe9\x03\n" +
 	"\x11CustodyLineSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12-\n" +
@@ -5748,22 +5749,20 @@ const file_loft_custody_svc_g_proto_rawDesc = "" +
 	"\bquantity\x18\v \x01(\bR\bquantity\x12+\n" +
 	"\x11returned_quantity\x18\f \x01(\bR\x10returnedQuantity\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x15\n" +
-	"\x06out_at\x18\x10 \x01(\bR\x05outAt\x12\x1f\n" +
-	"\vreturned_at\x18\x11 \x01(\bR\n" +
-	"returnedAt\x12#\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x19\n" +
+	"\bdate_out\x18\x10 \x01(\bR\adateOut\x12#\n" +
+	"\rdate_returned\x18\x11 \x01(\bR\fdateReturned\x12#\n" +
 	"\rcondition_out\x18\x12 \x01(\bR\fconditionOut\x12!\n" +
-	"\fcondition_in\x18\x13 \x01(\bR\vconditionIn\"\xd9\x03\n" +
+	"\fcondition_in\x18\x13 \x01(\bR\vconditionIn\"\xe5\x03\n" +
 	"\x17CustodyLinePatchRequest\x12&\n" +
 	"\x03ref\x18\x01 \x01(\v2\x14.loft.CustodyLineRefR\x03ref\x12\x1a\n" +
 	"\bquantity\x18\x16 \x01(\x03R\bquantity\x12+\n" +
 	"\x11returned_quantity\x18\x18 \x01(\x03R\x10returnedQuantity\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
-	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x121\n" +
-	"\x06out_at\x18  \x01(\v2\x1a.google.protobuf.TimestampR\x05outAt\x12;\n" +
-	"\vreturned_at\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"returnedAt\x12(\n" +
-	"\x10returned_at_null\x18# \x01(\bR\x0ereturnedAtNull\x12#\n" +
+	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x125\n" +
+	"\bdate_out\x18  \x01(\v2\x1a.google.protobuf.TimestampR\adateOut\x12?\n" +
+	"\rdate_returned\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\fdateReturned\x12,\n" +
+	"\x12date_returned_null\x18# \x01(\bR\x10dateReturnedNull\x12#\n" +
 	"\rcondition_out\x18$ \x01(\tR\fconditionOut\x12!\n" +
 	"\fcondition_in\x18& \x01(\tR\vconditionIn\"e\n" +
 	"\x17CustodyLineApplyRequest\x12&\n" +
@@ -5855,11 +5854,11 @@ var file_loft_custody_svc_g_proto_goTypes = []any{
 var file_loft_custody_svc_g_proto_depIdxs = []int32{
 	31, // 0: loft.CustodyAddRequest.tenant:type_name -> loft.TenantRef
 	32, // 1: loft.CustodyAddRequest.party:type_name -> loft.PartyRef
-	33, // 2: loft.CustodyAddRequest.issued_at:type_name -> google.protobuf.Timestamp
-	33, // 3: loft.CustodyAddRequest.due_at:type_name -> google.protobuf.Timestamp
+	33, // 2: loft.CustodyAddRequest.date_issued:type_name -> google.protobuf.Timestamp
+	33, // 3: loft.CustodyAddRequest.date_due:type_name -> google.protobuf.Timestamp
 	33, // 4: loft.CustodyAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	33, // 5: loft.CustodyAddRequest.acknowledged_at:type_name -> google.protobuf.Timestamp
-	33, // 6: loft.CustodyAddRequest.returned_at:type_name -> google.protobuf.Timestamp
+	33, // 5: loft.CustodyAddRequest.date_acknowledged:type_name -> google.protobuf.Timestamp
+	33, // 6: loft.CustodyAddRequest.date_returned:type_name -> google.protobuf.Timestamp
 	1,  // 7: loft.CustodyAddRequest.lines:type_name -> loft.CustodyLineSpec
 	34, // 8: loft.CustodyLineSpec.asset:type_name -> loft.AssetRef
 	35, // 9: loft.CustodyLineSpec.stock:type_name -> loft.StockRef
@@ -5868,11 +5867,11 @@ var file_loft_custody_svc_g_proto_depIdxs = []int32{
 	36, // 12: loft.CustodySelect.tenant:type_name -> loft.TenantSelect
 	37, // 13: loft.CustodySelect.party:type_name -> loft.PartySelect
 	3,  // 14: loft.CustodyPatchRequest.ref:type_name -> loft.CustodyRef
-	33, // 15: loft.CustodyPatchRequest.issued_at:type_name -> google.protobuf.Timestamp
-	33, // 16: loft.CustodyPatchRequest.due_at:type_name -> google.protobuf.Timestamp
+	33, // 15: loft.CustodyPatchRequest.date_issued:type_name -> google.protobuf.Timestamp
+	33, // 16: loft.CustodyPatchRequest.date_due:type_name -> google.protobuf.Timestamp
 	33, // 17: loft.CustodyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	33, // 18: loft.CustodyPatchRequest.acknowledged_at:type_name -> google.protobuf.Timestamp
-	33, // 19: loft.CustodyPatchRequest.returned_at:type_name -> google.protobuf.Timestamp
+	33, // 18: loft.CustodyPatchRequest.date_acknowledged:type_name -> google.protobuf.Timestamp
+	33, // 19: loft.CustodyPatchRequest.date_returned:type_name -> google.protobuf.Timestamp
 	3,  // 20: loft.CustodyApplyRequest.ref:type_name -> loft.CustodyRef
 	38, // 21: loft.CustodyApplyRequest.patch:type_name -> patch.Patch
 	10, // 22: loft.CustodyListRequest.filters:type_name -> loft.CustodyFilter
@@ -5885,22 +5884,22 @@ var file_loft_custody_svc_g_proto_depIdxs = []int32{
 	3,  // 29: loft.CustodyAcknowledgeRequest.ref:type_name -> loft.CustodyRef
 	3,  // 30: loft.CustodyReturnRequest.ref:type_name -> loft.CustodyRef
 	16, // 31: loft.CustodyReturnRequest.lines:type_name -> loft.CustodyReturnLine
-	33, // 32: loft.CustodyReturnRequest.at:type_name -> google.protobuf.Timestamp
+	33, // 32: loft.CustodyReturnRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	34, // 33: loft.CustodyReturnRequest.to:type_name -> loft.AssetRef
 	17, // 34: loft.CustodyReturnLine.line:type_name -> loft.CustodyLineRef
 	3,  // 35: loft.CustodyExtendRequest.ref:type_name -> loft.CustodyRef
-	33, // 36: loft.CustodyExtendRequest.due_at:type_name -> google.protobuf.Timestamp
+	33, // 36: loft.CustodyExtendRequest.date_due:type_name -> google.protobuf.Timestamp
 	21, // 37: loft.CustodyOutstandingResponse.rows:type_name -> loft.CustodyOutstandingRow
-	33, // 38: loft.CustodyOutstandingResponse.at:type_name -> google.protobuf.Timestamp
-	33, // 39: loft.CustodyOutstandingRow.issued_at:type_name -> google.protobuf.Timestamp
-	33, // 40: loft.CustodyOutstandingRow.due_at:type_name -> google.protobuf.Timestamp
+	33, // 38: loft.CustodyOutstandingResponse.date_as_of:type_name -> google.protobuf.Timestamp
+	33, // 39: loft.CustodyOutstandingRow.date_issued:type_name -> google.protobuf.Timestamp
+	33, // 40: loft.CustodyOutstandingRow.date_due:type_name -> google.protobuf.Timestamp
 	31, // 41: loft.CustodyLineAddRequest.tenant:type_name -> loft.TenantRef
 	3,  // 42: loft.CustodyLineAddRequest.custody:type_name -> loft.CustodyRef
 	34, // 43: loft.CustodyLineAddRequest.asset:type_name -> loft.AssetRef
 	35, // 44: loft.CustodyLineAddRequest.stock:type_name -> loft.StockRef
 	33, // 45: loft.CustodyLineAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	33, // 46: loft.CustodyLineAddRequest.out_at:type_name -> google.protobuf.Timestamp
-	33, // 47: loft.CustodyLineAddRequest.returned_at:type_name -> google.protobuf.Timestamp
+	33, // 46: loft.CustodyLineAddRequest.date_out:type_name -> google.protobuf.Timestamp
+	33, // 47: loft.CustodyLineAddRequest.date_returned:type_name -> google.protobuf.Timestamp
 	17, // 48: loft.CustodyLineGetRequest.ref:type_name -> loft.CustodyLineRef
 	24, // 49: loft.CustodyLineGetRequest.select:type_name -> loft.CustodyLineSelect
 	36, // 50: loft.CustodyLineSelect.tenant:type_name -> loft.TenantSelect
@@ -5909,8 +5908,8 @@ var file_loft_custody_svc_g_proto_depIdxs = []int32{
 	41, // 53: loft.CustodyLineSelect.stock:type_name -> loft.StockSelect
 	17, // 54: loft.CustodyLinePatchRequest.ref:type_name -> loft.CustodyLineRef
 	33, // 55: loft.CustodyLinePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	33, // 56: loft.CustodyLinePatchRequest.out_at:type_name -> google.protobuf.Timestamp
-	33, // 57: loft.CustodyLinePatchRequest.returned_at:type_name -> google.protobuf.Timestamp
+	33, // 56: loft.CustodyLinePatchRequest.date_out:type_name -> google.protobuf.Timestamp
+	33, // 57: loft.CustodyLinePatchRequest.date_returned:type_name -> google.protobuf.Timestamp
 	17, // 58: loft.CustodyLineApplyRequest.ref:type_name -> loft.CustodyLineRef
 	38, // 59: loft.CustodyLineApplyRequest.patch:type_name -> patch.Patch
 	30, // 60: loft.CustodyLineListRequest.filters:type_name -> loft.CustodyLineFilter

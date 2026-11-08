@@ -120,8 +120,8 @@ func TestAWorkspaceIsClosedByItsOwnerAndRestored(t *testing.T) {
 	// how long their address is then held -- the deployment's, a year unset.
 	mine, err := tenants.Mine(w.owner, &app.TenantMineRequest{})
 	x.NoError(err)
-	x.True(mine.GetWorkspaces()[0].HasClosed())
-	x.True(mine.GetWorkspaces()[0].HasDestroy())
+	x.True(mine.GetWorkspaces()[0].HasDateClosed())
+	x.True(mine.GetWorkspaces()[0].HasDateDestroy())
 	x.EqualValues(365, mine.GetWorkspaces()[0].GetAliasHoldDays())
 
 	// And what its owner takes out before it goes.

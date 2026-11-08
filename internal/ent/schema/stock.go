@@ -92,7 +92,7 @@ func (StockMovement) Fields() []ent.Field {
 		field.Uuid("ref_id").
 			Nillable().
 			Optional(),
-		field.Time("occurred_at").
+		field.Time("date_occurred").
 			Optional(),
 		field.Time("date_updated"),
 		field.Time("date_created").
@@ -126,7 +126,7 @@ func (StockMovement) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
 			StorageKey("stockmovement_page"),
-		index.Fields("stock_id", "occurred_at").
+		index.Fields("stock_id", "date_occurred").
 			StorageKey("stockmovement_stock"),
 		index.Fields("event_id").
 			StorageKey("stockmovement_event"),

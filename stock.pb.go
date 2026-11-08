@@ -308,20 +308,20 @@ func (b0 Stock_builder) Build() *Stock {
 
 // StockMovement is one change to a stock, written once.
 type StockMovement struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Stock       *Stock                 `protobuf:"bytes,8,opt,name=stock"`
-	xxx_hidden_Delta       int64                  `protobuf:"varint,9,opt,name=delta"`
-	xxx_hidden_Reason      string                 `protobuf:"bytes,10,opt,name=reason"`
-	xxx_hidden_RefId       []byte                 `protobuf:"bytes,11,opt,name=ref_id,json=refId"`
-	xxx_hidden_OccurredAt  *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=occurred_at,json=occurredAt"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_EventId     []byte                 `protobuf:"bytes,16,opt,name=event_id,json=eventId"`
-	xxx_hidden_Balance     int64                  `protobuf:"varint,17,opt,name=balance"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant       *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Stock        *Stock                 `protobuf:"bytes,8,opt,name=stock"`
+	xxx_hidden_Delta        int64                  `protobuf:"varint,9,opt,name=delta"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,10,opt,name=reason"`
+	xxx_hidden_RefId        []byte                 `protobuf:"bytes,11,opt,name=ref_id,json=refId"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_DateUpdated  *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_EventId      []byte                 `protobuf:"bytes,16,opt,name=event_id,json=eventId"`
+	xxx_hidden_Balance      int64                  `protobuf:"varint,17,opt,name=balance"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *StockMovement) Reset() {
@@ -391,9 +391,9 @@ func (x *StockMovement) GetRefId() []byte {
 	return nil
 }
 
-func (x *StockMovement) GetOccurredAt() *timestamppb.Timestamp {
+func (x *StockMovement) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_OccurredAt
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -456,8 +456,8 @@ func (x *StockMovement) SetRefId(v []byte) {
 	x.xxx_hidden_RefId = v
 }
 
-func (x *StockMovement) SetOccurredAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OccurredAt = v
+func (x *StockMovement) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *StockMovement) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -493,11 +493,11 @@ func (x *StockMovement) HasStock() bool {
 	return x.xxx_hidden_Stock != nil
 }
 
-func (x *StockMovement) HasOccurredAt() bool {
+func (x *StockMovement) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_OccurredAt != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *StockMovement) HasDateUpdated() bool {
@@ -522,8 +522,8 @@ func (x *StockMovement) ClearStock() {
 	x.xxx_hidden_Stock = nil
 }
 
-func (x *StockMovement) ClearOccurredAt() {
-	x.xxx_hidden_OccurredAt = nil
+func (x *StockMovement) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 func (x *StockMovement) ClearDateUpdated() {
@@ -542,11 +542,11 @@ type StockMovement_builder struct {
 	Stock  *Stock
 	Delta  int64
 	// receive | consume | transfer_in | transfer_out | adjust | convert | issue | return
-	Reason      string
-	RefId       []byte
-	OccurredAt  *timestamppb.Timestamp
-	DateUpdated *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
+	Reason       string
+	RefId        []byte
+	DateOccurred *timestamppb.Timestamp
+	DateUpdated  *timestamppb.Timestamp
+	DateCreated  *timestamppb.Timestamp
 	// The event that moved it, which stays while this does.
 	EventId []byte
 	Balance int64
@@ -562,7 +562,7 @@ func (b0 StockMovement_builder) Build() *StockMovement {
 	x.xxx_hidden_Delta = b.Delta
 	x.xxx_hidden_Reason = b.Reason
 	x.xxx_hidden_RefId = b.RefId
-	x.xxx_hidden_OccurredAt = b.OccurredAt
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_EventId = b.EventId
@@ -608,7 +608,7 @@ const file_loft_stock_proto_rawDesc = "" +
 	"\x03ref\x1a\a\n" +
 	"\x05model\x1a\a\n" +
 	"\x05space d(\xf4\x03:\x00\"$\n" +
-	"\x06tenant\"\fmodel.tenant\"\fspace.tenant\"\xc5\x05\n" +
+	"\x06tenant\"\fmodel.tenant\"\fspace.tenant\"\xcb\x05\n" +
 	"\rStockMovement\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
@@ -616,19 +616,18 @@ const file_loft_stock_proto_rawDesc = "" +
 	"\x05delta\x18\t \x01(\x03R\x05delta\x12\x16\n" +
 	"\x06reason\x18\n" +
 	" \x01(\tR\x06reason\x12\x1f\n" +
-	"\x06ref_id\x18\v \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x05refId\x12D\n" +
-	"\voccurred_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\n" +
-	"occurredAt\x12F\n" +
+	"\x06ref_id\x18\v \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x05refId\x12H\n" +
+	"\rdate_occurred\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\fdateOccurred\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12'\n" +
 	"\bevent_id\x18\x10 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12\x18\n" +
-	"\abalance\x18\x11 \x01(\x03R\abalance:\xd3\x01\xca\xfc\x15n\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\abalance\x18\x11 \x01(\x03R\abalance:\xd5\x01\xca\xfc\x15p\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x1a#\x12\x05stock\x1a\t\n" +
-	"\x05stock\x10\b\x1a\x0f\n" +
-	"\voccurred_at\x10\f\x1a\x15\x12\x05event\x1a\f\n" +
+	"\x02id\x10\x01\x1a%\x12\x05stock\x1a\t\n" +
+	"\x05stock\x10\b\x1a\x11\n" +
+	"\rdate_occurred\x10\f\x1a\x15\x12\x05event\x1a\f\n" +
 	"\bevent_id\x10\x10\x8a\xbb\x16]\b\x1e2=\n" +
 	"\x12\n" +
 	"\x0e\n" +
@@ -662,7 +661,7 @@ var file_loft_stock_proto_depIdxs = []int32{
 	6,  // 6: loft.Stock.date_created:type_name -> google.protobuf.Timestamp
 	3,  // 7: loft.StockMovement.tenant:type_name -> loft.Tenant
 	0,  // 8: loft.StockMovement.stock:type_name -> loft.Stock
-	6,  // 9: loft.StockMovement.occurred_at:type_name -> google.protobuf.Timestamp
+	6,  // 9: loft.StockMovement.date_occurred:type_name -> google.protobuf.Timestamp
 	6,  // 10: loft.StockMovement.date_updated:type_name -> google.protobuf.Timestamp
 	6,  // 11: loft.StockMovement.date_created:type_name -> google.protobuf.Timestamp
 	12, // [12:12] is the sub-list for method output_type

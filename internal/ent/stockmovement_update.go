@@ -85,23 +85,23 @@ func (_u *StockMovementUpdate) ClearRefId() *StockMovementUpdate {
 	return _u
 }
 
-// SetOccurredAt sets the "occurred_at" field.
-func (_u *StockMovementUpdate) SetOccurredAt(v time.Time) *StockMovementUpdate {
-	_u.mutation.SetOccurredAt(v)
+// SetDateOccurred sets the "date_occurred" field.
+func (_u *StockMovementUpdate) SetDateOccurred(v time.Time) *StockMovementUpdate {
+	_u.mutation.SetDateOccurred(v)
 	return _u
 }
 
-// SetNillableOccurredAt sets the "occurred_at" field if the given value is not nil.
-func (_u *StockMovementUpdate) SetNillableOccurredAt(v *time.Time) *StockMovementUpdate {
+// SetNillableDateOccurred sets the "date_occurred" field if the given value is not nil.
+func (_u *StockMovementUpdate) SetNillableDateOccurred(v *time.Time) *StockMovementUpdate {
 	if v != nil {
-		_u.SetOccurredAt(*v)
+		_u.SetDateOccurred(*v)
 	}
 	return _u
 }
 
-// ClearOccurredAt clears the value of the "occurred_at" field.
-func (_u *StockMovementUpdate) ClearOccurredAt() *StockMovementUpdate {
-	_u.mutation.ClearOccurredAt()
+// ClearDateOccurred clears the value of the "date_occurred" field.
+func (_u *StockMovementUpdate) ClearDateOccurred() *StockMovementUpdate {
+	_u.mutation.ClearDateOccurred()
 	return _u
 }
 
@@ -239,14 +239,14 @@ func (_u *StockMovementUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if _u.mutation.RefIdCleared() {
 		_spec.ClearField(stockmovement.FieldRefId, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.OccurredAt(); ok {
-		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateOccurred(); ok {
+		_spec.SetField(stockmovement.FieldDateOccurred, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldOccurredAt); ok {
-		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldDateOccurred); ok {
+		_spec.SetField(stockmovement.FieldDateOccurred, field.TypeTime, e)
 	}
-	if _u.mutation.OccurredAtCleared() {
-		_spec.ClearField(stockmovement.FieldOccurredAt, field.TypeTime)
+	if _u.mutation.DateOccurredCleared() {
+		_spec.ClearField(stockmovement.FieldDateOccurred, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(stockmovement.FieldDateUpdated, field.TypeTime, value)
@@ -349,23 +349,23 @@ func (_u *StockMovementUpdateOne) ClearRefId() *StockMovementUpdateOne {
 	return _u
 }
 
-// SetOccurredAt sets the "occurred_at" field.
-func (_u *StockMovementUpdateOne) SetOccurredAt(v time.Time) *StockMovementUpdateOne {
-	_u.mutation.SetOccurredAt(v)
+// SetDateOccurred sets the "date_occurred" field.
+func (_u *StockMovementUpdateOne) SetDateOccurred(v time.Time) *StockMovementUpdateOne {
+	_u.mutation.SetDateOccurred(v)
 	return _u
 }
 
-// SetNillableOccurredAt sets the "occurred_at" field if the given value is not nil.
-func (_u *StockMovementUpdateOne) SetNillableOccurredAt(v *time.Time) *StockMovementUpdateOne {
+// SetNillableDateOccurred sets the "date_occurred" field if the given value is not nil.
+func (_u *StockMovementUpdateOne) SetNillableDateOccurred(v *time.Time) *StockMovementUpdateOne {
 	if v != nil {
-		_u.SetOccurredAt(*v)
+		_u.SetDateOccurred(*v)
 	}
 	return _u
 }
 
-// ClearOccurredAt clears the value of the "occurred_at" field.
-func (_u *StockMovementUpdateOne) ClearOccurredAt() *StockMovementUpdateOne {
-	_u.mutation.ClearOccurredAt()
+// ClearDateOccurred clears the value of the "date_occurred" field.
+func (_u *StockMovementUpdateOne) ClearDateOccurred() *StockMovementUpdateOne {
+	_u.mutation.ClearDateOccurred()
 	return _u
 }
 
@@ -533,14 +533,14 @@ func (_u *StockMovementUpdateOne) sqlSave(ctx context.Context) (_node *StockMove
 	if _u.mutation.RefIdCleared() {
 		_spec.ClearField(stockmovement.FieldRefId, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.OccurredAt(); ok {
-		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateOccurred(); ok {
+		_spec.SetField(stockmovement.FieldDateOccurred, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldOccurredAt); ok {
-		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldDateOccurred); ok {
+		_spec.SetField(stockmovement.FieldDateOccurred, field.TypeTime, e)
 	}
-	if _u.mutation.OccurredAtCleared() {
-		_spec.ClearField(stockmovement.FieldOccurredAt, field.TypeTime)
+	if _u.mutation.DateOccurredCleared() {
+		_spec.ClearField(stockmovement.FieldDateOccurred, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(stockmovement.FieldDateUpdated, field.TypeTime, value)

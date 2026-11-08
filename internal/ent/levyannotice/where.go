@@ -70,9 +70,9 @@ func Account(v uuid.UUID) predicate.LevyanNotice {
 	return predicate.LevyanNotice(sql.FieldEQ(FieldAccount, v))
 }
 
-// At applies equality check predicate on the "at" field. It's identical to AtEQ.
-func At(v time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldEQ(FieldAt, v))
+// DateOccurred applies equality check predicate on the "date_occurred" field. It's identical to DateOccurredEQ.
+func DateOccurred(v time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldEQ(FieldDateOccurred, v))
 }
 
 // DateTold applies equality check predicate on the "date_told" field. It's identical to DateToldEQ.
@@ -240,54 +240,54 @@ func AccountLTE(v uuid.UUID) predicate.LevyanNotice {
 	return predicate.LevyanNotice(sql.FieldLTE(FieldAccount, v))
 }
 
-// AtEQ applies the EQ predicate on the "at" field.
-func AtEQ(v time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldEQ(FieldAt, v))
+// DateOccurredEQ applies the EQ predicate on the "date_occurred" field.
+func DateOccurredEQ(v time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldEQ(FieldDateOccurred, v))
 }
 
-// AtNEQ applies the NEQ predicate on the "at" field.
-func AtNEQ(v time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldNEQ(FieldAt, v))
+// DateOccurredNEQ applies the NEQ predicate on the "date_occurred" field.
+func DateOccurredNEQ(v time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldNEQ(FieldDateOccurred, v))
 }
 
-// AtIn applies the In predicate on the "at" field.
-func AtIn(vs ...time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldIn(FieldAt, vs...))
+// DateOccurredIn applies the In predicate on the "date_occurred" field.
+func DateOccurredIn(vs ...time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldIn(FieldDateOccurred, vs...))
 }
 
-// AtNotIn applies the NotIn predicate on the "at" field.
-func AtNotIn(vs ...time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldNotIn(FieldAt, vs...))
+// DateOccurredNotIn applies the NotIn predicate on the "date_occurred" field.
+func DateOccurredNotIn(vs ...time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldNotIn(FieldDateOccurred, vs...))
 }
 
-// AtGT applies the GT predicate on the "at" field.
-func AtGT(v time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldGT(FieldAt, v))
+// DateOccurredGT applies the GT predicate on the "date_occurred" field.
+func DateOccurredGT(v time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldGT(FieldDateOccurred, v))
 }
 
-// AtGTE applies the GTE predicate on the "at" field.
-func AtGTE(v time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldGTE(FieldAt, v))
+// DateOccurredGTE applies the GTE predicate on the "date_occurred" field.
+func DateOccurredGTE(v time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldGTE(FieldDateOccurred, v))
 }
 
-// AtLT applies the LT predicate on the "at" field.
-func AtLT(v time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldLT(FieldAt, v))
+// DateOccurredLT applies the LT predicate on the "date_occurred" field.
+func DateOccurredLT(v time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldLT(FieldDateOccurred, v))
 }
 
-// AtLTE applies the LTE predicate on the "at" field.
-func AtLTE(v time.Time) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldLTE(FieldAt, v))
+// DateOccurredLTE applies the LTE predicate on the "date_occurred" field.
+func DateOccurredLTE(v time.Time) predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldLTE(FieldDateOccurred, v))
 }
 
-// AtIsNil applies the IsNil predicate on the "at" field.
-func AtIsNil() predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldIsNull(FieldAt))
+// DateOccurredIsNil applies the IsNil predicate on the "date_occurred" field.
+func DateOccurredIsNil() predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldIsNull(FieldDateOccurred))
 }
 
-// AtNotNil applies the NotNil predicate on the "at" field.
-func AtNotNil() predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldNotNull(FieldAt))
+// DateOccurredNotNil applies the NotNil predicate on the "date_occurred" field.
+func DateOccurredNotNil() predicate.LevyanNotice {
+	return predicate.LevyanNotice(sql.FieldNotNull(FieldDateOccurred))
 }
 
 // DateToldEQ applies the EQ predicate on the "date_told" field.

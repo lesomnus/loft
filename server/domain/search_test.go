@@ -42,8 +42,8 @@ func (e *env) shelf() {
 	kim, err := e.app().Party().Add(e.owner, app.PartyAddRequest_builder{Name: "김민수", Kind: "person"}.Build())
 	x.NoError(err)
 	for _, v := range []*app.AssetAddRequest{
-		app.AssetAddRequest_builder{Name: "회의실 빔", Kind: "item", Type: ref[app.AssetTypeRef](ty.GetId()), Since: e.ago(day)}.Build(),
-		app.AssetAddRequest_builder{Name: "개발용 노트북", Kind: "item", Model: ref[app.ItemModelRef](model.GetId()), Serial: "SN-55-ZX", Since: e.ago(day)}.Build(),
+		app.AssetAddRequest_builder{Name: "회의실 빔", Kind: "item", Type: ref[app.AssetTypeRef](ty.GetId()), DateOccurred: e.ago(day)}.Build(),
+		app.AssetAddRequest_builder{Name: "개발용 노트북", Kind: "item", Model: ref[app.ItemModelRef](model.GetId()), Serial: "SN-55-ZX", DateOccurred: e.ago(day)}.Build(),
 	} {
 		v.SetTo(assetRef(room))
 		_, err := e.app().Asset().Add(e.owner, v)

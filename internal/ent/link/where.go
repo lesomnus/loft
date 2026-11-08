@@ -76,14 +76,14 @@ func DateCreated(v time.Time) predicate.Link {
 	return predicate.Link(sql.FieldEQ(FieldDateCreated, v))
 }
 
-// ValidFrom applies equality check predicate on the "valid_from" field. It's identical to ValidFromEQ.
-func ValidFrom(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldEQ(FieldValidFrom, v))
+// DateStart applies equality check predicate on the "date_start" field. It's identical to DateStartEQ.
+func DateStart(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldDateStart, v))
 }
 
-// ValidTo applies equality check predicate on the "valid_to" field. It's identical to ValidToEQ.
-func ValidTo(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldEQ(FieldValidTo, v))
+// DateEnd applies equality check predicate on the "date_end" field. It's identical to DateEndEQ.
+func DateEnd(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldDateEnd, v))
 }
 
 // EventId applies equality check predicate on the "event_id" field. It's identical to EventIdEQ.
@@ -91,9 +91,9 @@ func EventId(v uuid.UUID) predicate.Link {
 	return predicate.Link(sql.FieldEQ(FieldEventId, v))
 }
 
-// SupersededAt applies equality check predicate on the "superseded_at" field. It's identical to SupersededAtEQ.
-func SupersededAt(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldEQ(FieldSupersededAt, v))
+// DateSuperseded applies equality check predicate on the "date_superseded" field. It's identical to DateSupersededEQ.
+func DateSuperseded(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldDateSuperseded, v))
 }
 
 // SupersededBy applies equality check predicate on the "superseded_by" field. It's identical to SupersededByEQ.
@@ -291,104 +291,104 @@ func DateCreatedNotNil() predicate.Link {
 	return predicate.Link(sql.FieldNotNull(FieldDateCreated))
 }
 
-// ValidFromEQ applies the EQ predicate on the "valid_from" field.
-func ValidFromEQ(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldEQ(FieldValidFrom, v))
+// DateStartEQ applies the EQ predicate on the "date_start" field.
+func DateStartEQ(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldDateStart, v))
 }
 
-// ValidFromNEQ applies the NEQ predicate on the "valid_from" field.
-func ValidFromNEQ(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldNEQ(FieldValidFrom, v))
+// DateStartNEQ applies the NEQ predicate on the "date_start" field.
+func DateStartNEQ(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldDateStart, v))
 }
 
-// ValidFromIn applies the In predicate on the "valid_from" field.
-func ValidFromIn(vs ...time.Time) predicate.Link {
-	return predicate.Link(sql.FieldIn(FieldValidFrom, vs...))
+// DateStartIn applies the In predicate on the "date_start" field.
+func DateStartIn(vs ...time.Time) predicate.Link {
+	return predicate.Link(sql.FieldIn(FieldDateStart, vs...))
 }
 
-// ValidFromNotIn applies the NotIn predicate on the "valid_from" field.
-func ValidFromNotIn(vs ...time.Time) predicate.Link {
-	return predicate.Link(sql.FieldNotIn(FieldValidFrom, vs...))
+// DateStartNotIn applies the NotIn predicate on the "date_start" field.
+func DateStartNotIn(vs ...time.Time) predicate.Link {
+	return predicate.Link(sql.FieldNotIn(FieldDateStart, vs...))
 }
 
-// ValidFromGT applies the GT predicate on the "valid_from" field.
-func ValidFromGT(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldGT(FieldValidFrom, v))
+// DateStartGT applies the GT predicate on the "date_start" field.
+func DateStartGT(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldGT(FieldDateStart, v))
 }
 
-// ValidFromGTE applies the GTE predicate on the "valid_from" field.
-func ValidFromGTE(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldGTE(FieldValidFrom, v))
+// DateStartGTE applies the GTE predicate on the "date_start" field.
+func DateStartGTE(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldGTE(FieldDateStart, v))
 }
 
-// ValidFromLT applies the LT predicate on the "valid_from" field.
-func ValidFromLT(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldLT(FieldValidFrom, v))
+// DateStartLT applies the LT predicate on the "date_start" field.
+func DateStartLT(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldLT(FieldDateStart, v))
 }
 
-// ValidFromLTE applies the LTE predicate on the "valid_from" field.
-func ValidFromLTE(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldLTE(FieldValidFrom, v))
+// DateStartLTE applies the LTE predicate on the "date_start" field.
+func DateStartLTE(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldLTE(FieldDateStart, v))
 }
 
-// ValidFromIsNil applies the IsNil predicate on the "valid_from" field.
-func ValidFromIsNil() predicate.Link {
-	return predicate.Link(sql.FieldIsNull(FieldValidFrom))
+// DateStartIsNil applies the IsNil predicate on the "date_start" field.
+func DateStartIsNil() predicate.Link {
+	return predicate.Link(sql.FieldIsNull(FieldDateStart))
 }
 
-// ValidFromNotNil applies the NotNil predicate on the "valid_from" field.
-func ValidFromNotNil() predicate.Link {
-	return predicate.Link(sql.FieldNotNull(FieldValidFrom))
+// DateStartNotNil applies the NotNil predicate on the "date_start" field.
+func DateStartNotNil() predicate.Link {
+	return predicate.Link(sql.FieldNotNull(FieldDateStart))
 }
 
-// ValidToEQ applies the EQ predicate on the "valid_to" field.
-func ValidToEQ(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldEQ(FieldValidTo, v))
+// DateEndEQ applies the EQ predicate on the "date_end" field.
+func DateEndEQ(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldDateEnd, v))
 }
 
-// ValidToNEQ applies the NEQ predicate on the "valid_to" field.
-func ValidToNEQ(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldNEQ(FieldValidTo, v))
+// DateEndNEQ applies the NEQ predicate on the "date_end" field.
+func DateEndNEQ(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldDateEnd, v))
 }
 
-// ValidToIn applies the In predicate on the "valid_to" field.
-func ValidToIn(vs ...time.Time) predicate.Link {
-	return predicate.Link(sql.FieldIn(FieldValidTo, vs...))
+// DateEndIn applies the In predicate on the "date_end" field.
+func DateEndIn(vs ...time.Time) predicate.Link {
+	return predicate.Link(sql.FieldIn(FieldDateEnd, vs...))
 }
 
-// ValidToNotIn applies the NotIn predicate on the "valid_to" field.
-func ValidToNotIn(vs ...time.Time) predicate.Link {
-	return predicate.Link(sql.FieldNotIn(FieldValidTo, vs...))
+// DateEndNotIn applies the NotIn predicate on the "date_end" field.
+func DateEndNotIn(vs ...time.Time) predicate.Link {
+	return predicate.Link(sql.FieldNotIn(FieldDateEnd, vs...))
 }
 
-// ValidToGT applies the GT predicate on the "valid_to" field.
-func ValidToGT(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldGT(FieldValidTo, v))
+// DateEndGT applies the GT predicate on the "date_end" field.
+func DateEndGT(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldGT(FieldDateEnd, v))
 }
 
-// ValidToGTE applies the GTE predicate on the "valid_to" field.
-func ValidToGTE(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldGTE(FieldValidTo, v))
+// DateEndGTE applies the GTE predicate on the "date_end" field.
+func DateEndGTE(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldGTE(FieldDateEnd, v))
 }
 
-// ValidToLT applies the LT predicate on the "valid_to" field.
-func ValidToLT(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldLT(FieldValidTo, v))
+// DateEndLT applies the LT predicate on the "date_end" field.
+func DateEndLT(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldLT(FieldDateEnd, v))
 }
 
-// ValidToLTE applies the LTE predicate on the "valid_to" field.
-func ValidToLTE(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldLTE(FieldValidTo, v))
+// DateEndLTE applies the LTE predicate on the "date_end" field.
+func DateEndLTE(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldLTE(FieldDateEnd, v))
 }
 
-// ValidToIsNil applies the IsNil predicate on the "valid_to" field.
-func ValidToIsNil() predicate.Link {
-	return predicate.Link(sql.FieldIsNull(FieldValidTo))
+// DateEndIsNil applies the IsNil predicate on the "date_end" field.
+func DateEndIsNil() predicate.Link {
+	return predicate.Link(sql.FieldIsNull(FieldDateEnd))
 }
 
-// ValidToNotNil applies the NotNil predicate on the "valid_to" field.
-func ValidToNotNil() predicate.Link {
-	return predicate.Link(sql.FieldNotNull(FieldValidTo))
+// DateEndNotNil applies the NotNil predicate on the "date_end" field.
+func DateEndNotNil() predicate.Link {
+	return predicate.Link(sql.FieldNotNull(FieldDateEnd))
 }
 
 // EventIdEQ applies the EQ predicate on the "event_id" field.
@@ -431,54 +431,54 @@ func EventIdLTE(v uuid.UUID) predicate.Link {
 	return predicate.Link(sql.FieldLTE(FieldEventId, v))
 }
 
-// SupersededAtEQ applies the EQ predicate on the "superseded_at" field.
-func SupersededAtEQ(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldEQ(FieldSupersededAt, v))
+// DateSupersededEQ applies the EQ predicate on the "date_superseded" field.
+func DateSupersededEQ(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldEQ(FieldDateSuperseded, v))
 }
 
-// SupersededAtNEQ applies the NEQ predicate on the "superseded_at" field.
-func SupersededAtNEQ(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldNEQ(FieldSupersededAt, v))
+// DateSupersededNEQ applies the NEQ predicate on the "date_superseded" field.
+func DateSupersededNEQ(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldNEQ(FieldDateSuperseded, v))
 }
 
-// SupersededAtIn applies the In predicate on the "superseded_at" field.
-func SupersededAtIn(vs ...time.Time) predicate.Link {
-	return predicate.Link(sql.FieldIn(FieldSupersededAt, vs...))
+// DateSupersededIn applies the In predicate on the "date_superseded" field.
+func DateSupersededIn(vs ...time.Time) predicate.Link {
+	return predicate.Link(sql.FieldIn(FieldDateSuperseded, vs...))
 }
 
-// SupersededAtNotIn applies the NotIn predicate on the "superseded_at" field.
-func SupersededAtNotIn(vs ...time.Time) predicate.Link {
-	return predicate.Link(sql.FieldNotIn(FieldSupersededAt, vs...))
+// DateSupersededNotIn applies the NotIn predicate on the "date_superseded" field.
+func DateSupersededNotIn(vs ...time.Time) predicate.Link {
+	return predicate.Link(sql.FieldNotIn(FieldDateSuperseded, vs...))
 }
 
-// SupersededAtGT applies the GT predicate on the "superseded_at" field.
-func SupersededAtGT(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldGT(FieldSupersededAt, v))
+// DateSupersededGT applies the GT predicate on the "date_superseded" field.
+func DateSupersededGT(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldGT(FieldDateSuperseded, v))
 }
 
-// SupersededAtGTE applies the GTE predicate on the "superseded_at" field.
-func SupersededAtGTE(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldGTE(FieldSupersededAt, v))
+// DateSupersededGTE applies the GTE predicate on the "date_superseded" field.
+func DateSupersededGTE(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldGTE(FieldDateSuperseded, v))
 }
 
-// SupersededAtLT applies the LT predicate on the "superseded_at" field.
-func SupersededAtLT(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldLT(FieldSupersededAt, v))
+// DateSupersededLT applies the LT predicate on the "date_superseded" field.
+func DateSupersededLT(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldLT(FieldDateSuperseded, v))
 }
 
-// SupersededAtLTE applies the LTE predicate on the "superseded_at" field.
-func SupersededAtLTE(v time.Time) predicate.Link {
-	return predicate.Link(sql.FieldLTE(FieldSupersededAt, v))
+// DateSupersededLTE applies the LTE predicate on the "date_superseded" field.
+func DateSupersededLTE(v time.Time) predicate.Link {
+	return predicate.Link(sql.FieldLTE(FieldDateSuperseded, v))
 }
 
-// SupersededAtIsNil applies the IsNil predicate on the "superseded_at" field.
-func SupersededAtIsNil() predicate.Link {
-	return predicate.Link(sql.FieldIsNull(FieldSupersededAt))
+// DateSupersededIsNil applies the IsNil predicate on the "date_superseded" field.
+func DateSupersededIsNil() predicate.Link {
+	return predicate.Link(sql.FieldIsNull(FieldDateSuperseded))
 }
 
-// SupersededAtNotNil applies the NotNil predicate on the "superseded_at" field.
-func SupersededAtNotNil() predicate.Link {
-	return predicate.Link(sql.FieldNotNull(FieldSupersededAt))
+// DateSupersededNotNil applies the NotNil predicate on the "date_superseded" field.
+func DateSupersededNotNil() predicate.Link {
+	return predicate.Link(sql.FieldNotNull(FieldDateSuperseded))
 }
 
 // SupersededByEQ applies the EQ predicate on the "superseded_by" field.

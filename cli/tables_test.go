@@ -3,6 +3,8 @@ package cli_test
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -258,4 +260,94 @@ func TestADomainsTableUnderBothNames(t *testing.T) {
 		x.Equal(1, rows("domain"))
 		x.Equal(1, rows("tenantdomain"))
 	})
+}
+
+// asColumnsBefore makes a database of this build's shape into the one a build
+// before D76 made: each column renamed since under the name it had then
+// (offboard.RenamedColumns, and payday's own) -- and on PostgreSQL 18 a NOT
+// NULL named after it, as that build's would have been. Every column renamed
+// so far takes NULL and has none; one that does not is held by the test below
+// to have no constraint left named after its old name, which a rename would
+// leave.
+func asColumnsBefore(t *testing.T, s *cmd.Server) {
+	t.Helper()
+	q := func(v string) string { return `"` + v + `"` }
+	for _, c := range slices.Concat(pd.ColumnRenames, offboard.RenamedColumns) {
+		execOn(t, s.Db, `ALTER TABLE `+q(c.Table)+` RENAME COLUMN `+q(c.To)+` TO `+q(c.From))
+		if s.Dialect != "postgres" {
+			continue
+		}
+		// PostgreSQL 17 keeps no such constraint.
+		for _, n := range names(t, s.Db, `SELECT conname FROM pg_constraint WHERE conrelid = '`+c.Table+`'::regclass AND contype = 'n' AND conname = '`+c.Table+`_`+c.To+`_not_null'`) {
+			execOn(t, s.Db, `ALTER TABLE `+q(c.Table)+` RENAME CONSTRAINT `+q(n)+` TO `+q(c.Table+"_"+c.From+"_not_null"))
+		}
+	}
+}
+
+// TestColumnsAnEarlierBuildMadeAreMovedToTheirNames (D76): every time Loft
+// keeps is a `date_*`, and a database a build before made keeps them under the
+// names it had then. Migrated, each is under its name now with what it held
+// -- the database in this build's shape, and on PostgreSQL nothing named
+// after the column it was -- and a second migration finds nothing to do.
+func TestColumnsAnEarlierBuildMadeAreMovedToTheirNames(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234", "--demo")
+
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	defer s.Close()
+
+	// What each holds, by its row, under the name it has: as text, which is
+	// what it was before and after alike.
+	held := func(table, column string) []string {
+		rows, err := s.Db.QueryContext(ctx, `SELECT id, "`+column+`" FROM "`+table+`" ORDER BY id`)
+		x.NoError(err)
+		defer rows.Close()
+		out := []string{}
+		for rows.Next() {
+			var id, v any
+			x.NoError(rows.Scan(&id, &v))
+			out = append(out, fmt.Sprintf("%v=%v", id, v))
+		}
+		x.NoError(rows.Err())
+		return out
+	}
+	cs := slices.Concat(pd.ColumnRenames, offboard.RenamedColumns)
+	before := map[string][]string{}
+	some := 0
+	for _, c := range cs {
+		before[c.Table+"."+c.To] = held(c.Table, c.To)
+		some += len(before[c.Table+"."+c.To])
+	}
+	x.Positive(some, "the demo wrote no row with a column renamed")
+
+	asColumnsBefore(t, s)
+	x.Error(entschema.Check(ctx, s.Db, s.Dialect, entmigrate.Tables), "the build before's database is in this build's shape")
+
+	x.NoError(cli.Migrate(ctx, s))
+	x.NoError(entschema.Check(ctx, s.Db, s.Dialect, entmigrate.Tables))
+	for _, c := range cs {
+		x.Equal(before[c.Table+"."+c.To], held(c.Table, c.To), "%s.%s, which was %s", c.Table, c.To, c.From)
+	}
+	if s.Dialect == "postgres" {
+		for _, c := range cs {
+			x.Empty(names(t, s.Db, `
+				SELECT c.conname FROM pg_constraint c JOIN pg_namespace n ON n.oid = c.connamespace
+				WHERE n.nspname = current_schema() AND c.conname = '`+c.Table+`_`+c.From+`_not_null'`),
+				"named after the column %s.%s was", c.Table, c.From)
+		}
+	}
+
+	x.NoError(cli.Migrate(ctx, s), "a second time")
+	x.NoError(entschema.Check(ctx, s.Db, s.Dialect, entmigrate.Tables))
+	for _, c := range cs {
+		x.Equal(before[c.Table+"."+c.To], held(c.Table, c.To), "%s.%s, migrated again", c.Table, c.To)
+	}
 }

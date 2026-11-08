@@ -25,24 +25,24 @@ const (
 
 // Placement is a child asset physically inside a parent asset.
 type Placement struct {
-	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant       *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Child        *Asset                 `protobuf:"bytes,8,opt,name=child"`
-	xxx_hidden_Parent       *Asset                 `protobuf:"bytes,9,opt,name=parent"`
-	xxx_hidden_Mode         string                 `protobuf:"bytes,10,opt,name=mode"`
-	xxx_hidden_Slot         string                 `protobuf:"bytes,11,opt,name=slot"`
-	xxx_hidden_UFrom        int32                  `protobuf:"varint,12,opt,name=u_from,json=uFrom"`
-	xxx_hidden_DateUpdated  *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_UTo          int32                  `protobuf:"varint,16,opt,name=u_to,json=uTo"`
-	xxx_hidden_ValidFrom    *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=valid_from,json=validFrom"`
-	xxx_hidden_ValidTo      *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=valid_to,json=validTo"`
-	xxx_hidden_EventId      []byte                 `protobuf:"bytes,19,opt,name=event_id,json=eventId"`
-	xxx_hidden_SupersededAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=superseded_at,json=supersededAt"`
-	xxx_hidden_SupersededBy []byte                 `protobuf:"bytes,21,opt,name=superseded_by,json=supersededBy"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id             []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant         *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Child          *Asset                 `protobuf:"bytes,8,opt,name=child"`
+	xxx_hidden_Parent         *Asset                 `protobuf:"bytes,9,opt,name=parent"`
+	xxx_hidden_Mode           string                 `protobuf:"bytes,10,opt,name=mode"`
+	xxx_hidden_Slot           string                 `protobuf:"bytes,11,opt,name=slot"`
+	xxx_hidden_UFrom          int32                  `protobuf:"varint,12,opt,name=u_from,json=uFrom"`
+	xxx_hidden_DateUpdated    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated    *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_UTo            int32                  `protobuf:"varint,16,opt,name=u_to,json=uTo"`
+	xxx_hidden_DateStart      *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd        *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_EventId        []byte                 `protobuf:"bytes,19,opt,name=event_id,json=eventId"`
+	xxx_hidden_DateSuperseded *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=date_superseded,json=dateSuperseded"`
+	xxx_hidden_SupersededBy   []byte                 `protobuf:"bytes,21,opt,name=superseded_by,json=supersededBy"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *Placement) Reset() {
@@ -140,16 +140,16 @@ func (x *Placement) GetUTo() int32 {
 	return 0
 }
 
-func (x *Placement) GetValidFrom() *timestamppb.Timestamp {
+func (x *Placement) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidFrom
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *Placement) GetValidTo() *timestamppb.Timestamp {
+func (x *Placement) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidTo
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -161,9 +161,9 @@ func (x *Placement) GetEventId() []byte {
 	return nil
 }
 
-func (x *Placement) GetSupersededAt() *timestamppb.Timestamp {
+func (x *Placement) GetDateSuperseded() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_SupersededAt
+		return x.xxx_hidden_DateSuperseded
 	}
 	return nil
 }
@@ -218,12 +218,12 @@ func (x *Placement) SetUTo(v int32) {
 	x.xxx_hidden_UTo = v
 }
 
-func (x *Placement) SetValidFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidFrom = v
+func (x *Placement) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *Placement) SetValidTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidTo = v
+func (x *Placement) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *Placement) SetEventId(v []byte) {
@@ -233,8 +233,8 @@ func (x *Placement) SetEventId(v []byte) {
 	x.xxx_hidden_EventId = v
 }
 
-func (x *Placement) SetSupersededAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_SupersededAt = v
+func (x *Placement) SetDateSuperseded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateSuperseded = v
 }
 
 func (x *Placement) SetSupersededBy(v []byte) {
@@ -279,25 +279,25 @@ func (x *Placement) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *Placement) HasValidFrom() bool {
+func (x *Placement) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidFrom != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *Placement) HasValidTo() bool {
+func (x *Placement) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidTo != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *Placement) HasSupersededAt() bool {
+func (x *Placement) HasDateSuperseded() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_SupersededAt != nil
+	return x.xxx_hidden_DateSuperseded != nil
 }
 
 func (x *Placement) ClearTenant() {
@@ -320,16 +320,16 @@ func (x *Placement) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *Placement) ClearValidFrom() {
-	x.xxx_hidden_ValidFrom = nil
+func (x *Placement) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *Placement) ClearValidTo() {
-	x.xxx_hidden_ValidTo = nil
+func (x *Placement) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
-func (x *Placement) ClearSupersededAt() {
-	x.xxx_hidden_SupersededAt = nil
+func (x *Placement) ClearDateSuperseded() {
+	x.xxx_hidden_DateSuperseded = nil
 }
 
 type Placement_builder struct {
@@ -343,15 +343,15 @@ type Placement_builder struct {
 	Mode string
 	Slot string
 	// A rack position, inclusive, when the parent is a rack. Zero is none.
-	UFrom        int32
-	DateUpdated  *timestamppb.Timestamp
-	DateCreated  *timestamppb.Timestamp
-	UTo          int32
-	ValidFrom    *timestamppb.Timestamp
-	ValidTo      *timestamppb.Timestamp
-	EventId      []byte
-	SupersededAt *timestamppb.Timestamp
-	SupersededBy []byte
+	UFrom          int32
+	DateUpdated    *timestamppb.Timestamp
+	DateCreated    *timestamppb.Timestamp
+	UTo            int32
+	DateStart      *timestamppb.Timestamp
+	DateEnd        *timestamppb.Timestamp
+	EventId        []byte
+	DateSuperseded *timestamppb.Timestamp
+	SupersededBy   []byte
 }
 
 func (b0 Placement_builder) Build() *Placement {
@@ -368,10 +368,10 @@ func (b0 Placement_builder) Build() *Placement {
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_UTo = b.UTo
-	x.xxx_hidden_ValidFrom = b.ValidFrom
-	x.xxx_hidden_ValidTo = b.ValidTo
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_EventId = b.EventId
-	x.xxx_hidden_SupersededAt = b.SupersededAt
+	x.xxx_hidden_DateSuperseded = b.DateSuperseded
 	x.xxx_hidden_SupersededBy = b.SupersededBy
 	return m0
 }
@@ -379,23 +379,23 @@ func (b0 Placement_builder) Build() *Placement {
 // Link is a logical relation between two assets: membership of a kit or a
 // group, or a connection. Many to many.
 type Link struct {
-	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant       *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Labels       map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_Source       *Asset                 `protobuf:"bytes,8,opt,name=source"`
-	xxx_hidden_Target       *Asset                 `protobuf:"bytes,9,opt,name=target"`
-	xxx_hidden_Kind         string                 `protobuf:"bytes,10,opt,name=kind"`
-	xxx_hidden_Required     bool                   `protobuf:"varint,11,opt,name=required"`
-	xxx_hidden_DateUpdated  *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_ValidFrom    *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=valid_from,json=validFrom"`
-	xxx_hidden_ValidTo      *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=valid_to,json=validTo"`
-	xxx_hidden_EventId      []byte                 `protobuf:"bytes,19,opt,name=event_id,json=eventId"`
-	xxx_hidden_SupersededAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=superseded_at,json=supersededAt"`
-	xxx_hidden_SupersededBy []byte                 `protobuf:"bytes,21,opt,name=superseded_by,json=supersededBy"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id             []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant         *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Labels         map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_Source         *Asset                 `protobuf:"bytes,8,opt,name=source"`
+	xxx_hidden_Target         *Asset                 `protobuf:"bytes,9,opt,name=target"`
+	xxx_hidden_Kind           string                 `protobuf:"bytes,10,opt,name=kind"`
+	xxx_hidden_Required       bool                   `protobuf:"varint,11,opt,name=required"`
+	xxx_hidden_DateUpdated    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated    *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateStart      *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd        *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_EventId        []byte                 `protobuf:"bytes,19,opt,name=event_id,json=eventId"`
+	xxx_hidden_DateSuperseded *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=date_superseded,json=dateSuperseded"`
+	xxx_hidden_SupersededBy   []byte                 `protobuf:"bytes,21,opt,name=superseded_by,json=supersededBy"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *Link) Reset() {
@@ -486,16 +486,16 @@ func (x *Link) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Link) GetValidFrom() *timestamppb.Timestamp {
+func (x *Link) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidFrom
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *Link) GetValidTo() *timestamppb.Timestamp {
+func (x *Link) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidTo
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -507,9 +507,9 @@ func (x *Link) GetEventId() []byte {
 	return nil
 }
 
-func (x *Link) GetSupersededAt() *timestamppb.Timestamp {
+func (x *Link) GetDateSuperseded() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_SupersededAt
+		return x.xxx_hidden_DateSuperseded
 	}
 	return nil
 }
@@ -560,12 +560,12 @@ func (x *Link) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *Link) SetValidFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidFrom = v
+func (x *Link) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *Link) SetValidTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidTo = v
+func (x *Link) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *Link) SetEventId(v []byte) {
@@ -575,8 +575,8 @@ func (x *Link) SetEventId(v []byte) {
 	x.xxx_hidden_EventId = v
 }
 
-func (x *Link) SetSupersededAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_SupersededAt = v
+func (x *Link) SetDateSuperseded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateSuperseded = v
 }
 
 func (x *Link) SetSupersededBy(v []byte) {
@@ -621,25 +621,25 @@ func (x *Link) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *Link) HasValidFrom() bool {
+func (x *Link) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidFrom != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *Link) HasValidTo() bool {
+func (x *Link) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidTo != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *Link) HasSupersededAt() bool {
+func (x *Link) HasDateSuperseded() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_SupersededAt != nil
+	return x.xxx_hidden_DateSuperseded != nil
 }
 
 func (x *Link) ClearTenant() {
@@ -662,16 +662,16 @@ func (x *Link) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *Link) ClearValidFrom() {
-	x.xxx_hidden_ValidFrom = nil
+func (x *Link) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *Link) ClearValidTo() {
-	x.xxx_hidden_ValidTo = nil
+func (x *Link) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
-func (x *Link) ClearSupersededAt() {
-	x.xxx_hidden_SupersededAt = nil
+func (x *Link) ClearDateSuperseded() {
+	x.xxx_hidden_DateSuperseded = nil
 }
 
 type Link_builder struct {
@@ -685,14 +685,14 @@ type Link_builder struct {
 	// member_of | connected_to
 	Kind string
 	// For member_of: the kit cannot go out without it.
-	Required     bool
-	DateUpdated  *timestamppb.Timestamp
-	DateCreated  *timestamppb.Timestamp
-	ValidFrom    *timestamppb.Timestamp
-	ValidTo      *timestamppb.Timestamp
-	EventId      []byte
-	SupersededAt *timestamppb.Timestamp
-	SupersededBy []byte
+	Required       bool
+	DateUpdated    *timestamppb.Timestamp
+	DateCreated    *timestamppb.Timestamp
+	DateStart      *timestamppb.Timestamp
+	DateEnd        *timestamppb.Timestamp
+	EventId        []byte
+	DateSuperseded *timestamppb.Timestamp
+	SupersededBy   []byte
 }
 
 func (b0 Link_builder) Build() *Link {
@@ -708,10 +708,10 @@ func (b0 Link_builder) Build() *Link {
 	x.xxx_hidden_Required = b.Required
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_ValidFrom = b.ValidFrom
-	x.xxx_hidden_ValidTo = b.ValidTo
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_EventId = b.EventId
-	x.xxx_hidden_SupersededAt = b.SupersededAt
+	x.xxx_hidden_DateSuperseded = b.DateSuperseded
 	x.xxx_hidden_SupersededBy = b.SupersededBy
 	return m0
 }
@@ -719,21 +719,21 @@ func (b0 Link_builder) Build() *Link {
 // Stewardship is who an asset is owned by, managed by or held by. One party
 // per role at a time.
 type Stewardship struct {
-	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant       *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Asset        *Asset                 `protobuf:"bytes,8,opt,name=asset"`
-	xxx_hidden_Party        *Party                 `protobuf:"bytes,9,opt,name=party"`
-	xxx_hidden_Role         string                 `protobuf:"bytes,10,opt,name=role"`
-	xxx_hidden_DateUpdated  *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_ValidFrom    *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=valid_from,json=validFrom"`
-	xxx_hidden_ValidTo      *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=valid_to,json=validTo"`
-	xxx_hidden_EventId      []byte                 `protobuf:"bytes,19,opt,name=event_id,json=eventId"`
-	xxx_hidden_SupersededAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=superseded_at,json=supersededAt"`
-	xxx_hidden_SupersededBy []byte                 `protobuf:"bytes,21,opt,name=superseded_by,json=supersededBy"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id             []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant         *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Asset          *Asset                 `protobuf:"bytes,8,opt,name=asset"`
+	xxx_hidden_Party          *Party                 `protobuf:"bytes,9,opt,name=party"`
+	xxx_hidden_Role           string                 `protobuf:"bytes,10,opt,name=role"`
+	xxx_hidden_DateUpdated    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated    *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateStart      *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd        *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_EventId        []byte                 `protobuf:"bytes,19,opt,name=event_id,json=eventId"`
+	xxx_hidden_DateSuperseded *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=date_superseded,json=dateSuperseded"`
+	xxx_hidden_SupersededBy   []byte                 `protobuf:"bytes,21,opt,name=superseded_by,json=supersededBy"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *Stewardship) Reset() {
@@ -810,16 +810,16 @@ func (x *Stewardship) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Stewardship) GetValidFrom() *timestamppb.Timestamp {
+func (x *Stewardship) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidFrom
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *Stewardship) GetValidTo() *timestamppb.Timestamp {
+func (x *Stewardship) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidTo
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -831,9 +831,9 @@ func (x *Stewardship) GetEventId() []byte {
 	return nil
 }
 
-func (x *Stewardship) GetSupersededAt() *timestamppb.Timestamp {
+func (x *Stewardship) GetDateSuperseded() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_SupersededAt
+		return x.xxx_hidden_DateSuperseded
 	}
 	return nil
 }
@@ -876,12 +876,12 @@ func (x *Stewardship) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *Stewardship) SetValidFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidFrom = v
+func (x *Stewardship) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *Stewardship) SetValidTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidTo = v
+func (x *Stewardship) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *Stewardship) SetEventId(v []byte) {
@@ -891,8 +891,8 @@ func (x *Stewardship) SetEventId(v []byte) {
 	x.xxx_hidden_EventId = v
 }
 
-func (x *Stewardship) SetSupersededAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_SupersededAt = v
+func (x *Stewardship) SetDateSuperseded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateSuperseded = v
 }
 
 func (x *Stewardship) SetSupersededBy(v []byte) {
@@ -937,25 +937,25 @@ func (x *Stewardship) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *Stewardship) HasValidFrom() bool {
+func (x *Stewardship) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidFrom != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *Stewardship) HasValidTo() bool {
+func (x *Stewardship) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidTo != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *Stewardship) HasSupersededAt() bool {
+func (x *Stewardship) HasDateSuperseded() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_SupersededAt != nil
+	return x.xxx_hidden_DateSuperseded != nil
 }
 
 func (x *Stewardship) ClearTenant() {
@@ -978,16 +978,16 @@ func (x *Stewardship) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *Stewardship) ClearValidFrom() {
-	x.xxx_hidden_ValidFrom = nil
+func (x *Stewardship) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *Stewardship) ClearValidTo() {
-	x.xxx_hidden_ValidTo = nil
+func (x *Stewardship) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
-func (x *Stewardship) ClearSupersededAt() {
-	x.xxx_hidden_SupersededAt = nil
+func (x *Stewardship) ClearDateSuperseded() {
+	x.xxx_hidden_DateSuperseded = nil
 }
 
 type Stewardship_builder struct {
@@ -998,14 +998,14 @@ type Stewardship_builder struct {
 	Asset  *Asset
 	Party  *Party
 	// owner | manager | custodian
-	Role         string
-	DateUpdated  *timestamppb.Timestamp
-	DateCreated  *timestamppb.Timestamp
-	ValidFrom    *timestamppb.Timestamp
-	ValidTo      *timestamppb.Timestamp
-	EventId      []byte
-	SupersededAt *timestamppb.Timestamp
-	SupersededBy []byte
+	Role           string
+	DateUpdated    *timestamppb.Timestamp
+	DateCreated    *timestamppb.Timestamp
+	DateStart      *timestamppb.Timestamp
+	DateEnd        *timestamppb.Timestamp
+	EventId        []byte
+	DateSuperseded *timestamppb.Timestamp
+	SupersededBy   []byte
 }
 
 func (b0 Stewardship_builder) Build() *Stewardship {
@@ -1019,10 +1019,10 @@ func (b0 Stewardship_builder) Build() *Stewardship {
 	x.xxx_hidden_Role = b.Role
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_ValidFrom = b.ValidFrom
-	x.xxx_hidden_ValidTo = b.ValidTo
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_EventId = b.EventId
-	x.xxx_hidden_SupersededAt = b.SupersededAt
+	x.xxx_hidden_DateSuperseded = b.DateSuperseded
 	x.xxx_hidden_SupersededBy = b.SupersededBy
 	return m0
 }
@@ -1031,7 +1031,7 @@ var File_loft_history_proto protoreflect.FileDescriptor
 
 const file_loft_history_proto_rawDesc = "" +
 	"\n" +
-	"\x12loft/history.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xef\a\n" +
+	"\x12loft/history.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xf3\a\n" +
 	"\tPlacement\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
@@ -1045,10 +1045,10 @@ const file_loft_history_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x11\n" +
 	"\x04u_to\x18\x10 \x01(\x05R\x03uTo\x12B\n" +
 	"\n" +
-	"valid_from\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tvalidFrom\x12=\n" +
-	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12'\n" +
-	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12M\n" +
-	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x123\n" +
+	"date_start\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tdateStart\x12=\n" +
+	"\bdate_end\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\adateEnd\x12'\n" +
+	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12Q\n" +
+	"\x0fdate_superseded\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\x0edateSuperseded\x123\n" +
 	"\rsuperseded_by\x18\x15 \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02(\x01R\fsupersededBy:\xaa\x02\xca\xfc\x15\xb9\x01\x12\a\x10\x01\x82\x01\x02\x12\x00\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
@@ -1056,11 +1056,11 @@ const file_loft_history_proto_rawDesc = "" +
 	"\x02id\x10\x01\x1a\"\x12\x05child\x1a\t\n" +
 	"\x05child\x10\b\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x1a$\x12\x06parent\x1a\n" +
+	"date_start\x10\x11\x1a$\x12\x06parent\x1a\n" +
 	"\n" +
 	"\x06parent\x10\t\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
+	"date_start\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
 	"\bevent_id\x10\x13\x1a\x1f\x12\n" +
 	"superseded\x1a\x11\n" +
 	"\rsuperseded_by\x10\x15\x8a\xbb\x16h\b\r29\n" +
@@ -1074,7 +1074,7 @@ const file_loft_history_proto_rawDesc = "" +
 	"\x05child\x1a\b\n" +
 	"\x06parent d(\xe8\aB\x02\n" +
 	"\x00\"%\n" +
-	"\x06tenant\"\fchild.tenant\"\rparent.tenant\"\xbc\b\n" +
+	"\x06tenant\"\fchild.tenant\"\rparent.tenant\"\xc0\b\n" +
 	"\x04Link\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
@@ -1087,10 +1087,10 @@ const file_loft_history_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12B\n" +
 	"\n" +
-	"valid_from\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tvalidFrom\x12=\n" +
-	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12'\n" +
-	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12M\n" +
-	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x123\n" +
+	"date_start\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tdateStart\x12=\n" +
+	"\bdate_end\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\adateEnd\x12'\n" +
+	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12Q\n" +
+	"\x0fdate_superseded\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\x0edateSuperseded\x123\n" +
 	"\rsuperseded_by\x18\x15 \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02(\x01R\fsupersededBy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -1102,11 +1102,11 @@ const file_loft_history_proto_rawDesc = "" +
 	"\n" +
 	"\x06source\x10\b\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x1a$\x12\x06target\x1a\n" +
+	"date_start\x10\x11\x1a$\x12\x06target\x1a\n" +
 	"\n" +
 	"\x06target\x10\t\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
+	"date_start\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
 	"\bevent_id\x10\x13\x1a\x1f\x12\n" +
 	"superseded\x1a\x11\n" +
 	"\rsuperseded_by\x10\x15\x8a\xbb\x16r\b\x0e2B\n" +
@@ -1121,7 +1121,7 @@ const file_loft_history_proto_rawDesc = "" +
 	"\x06target\x1a\x06\n" +
 	"\x04kind d(\xe8\aB\x02\n" +
 	"\x00\"&\n" +
-	"\x06tenant\"\rsource.tenant\"\rtarget.tenant\"\xb0\a\n" +
+	"\x06tenant\"\rsource.tenant\"\rtarget.tenant\"\xb4\a\n" +
 	"\vStewardship\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
@@ -1132,10 +1132,10 @@ const file_loft_history_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12B\n" +
 	"\n" +
-	"valid_from\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tvalidFrom\x12=\n" +
-	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12'\n" +
-	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12M\n" +
-	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x123\n" +
+	"date_start\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tdateStart\x12=\n" +
+	"\bdate_end\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\adateEnd\x12'\n" +
+	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12Q\n" +
+	"\x0fdate_superseded\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\x0edateSuperseded\x123\n" +
 	"\rsuperseded_by\x18\x15 \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02(\x01R\fsupersededBy:\xa9\x02\xca\xfc\x15\xb2\x01\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
@@ -1143,10 +1143,10 @@ const file_loft_history_proto_rawDesc = "" +
 	"\x02id\x10\x01\x1a\"\x12\x05asset\x1a\t\n" +
 	"\x05asset\x10\b\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x1a\"\x12\x05party\x1a\t\n" +
+	"date_start\x10\x11\x1a\"\x12\x05party\x1a\t\n" +
 	"\x05party\x10\t\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
+	"date_start\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
 	"\bevent_id\x10\x13\x1a\x1f\x12\n" +
 	"superseded\x1a\x11\n" +
 	"\rsuperseded_by\x10\x15\x8a\xbb\x16n\b\x0f2@\n" +
@@ -1180,26 +1180,26 @@ var file_loft_history_proto_depIdxs = []int32{
 	5,  // 2: loft.Placement.parent:type_name -> loft.Asset
 	6,  // 3: loft.Placement.date_updated:type_name -> google.protobuf.Timestamp
 	6,  // 4: loft.Placement.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 5: loft.Placement.valid_from:type_name -> google.protobuf.Timestamp
-	6,  // 6: loft.Placement.valid_to:type_name -> google.protobuf.Timestamp
-	6,  // 7: loft.Placement.superseded_at:type_name -> google.protobuf.Timestamp
+	6,  // 5: loft.Placement.date_start:type_name -> google.protobuf.Timestamp
+	6,  // 6: loft.Placement.date_end:type_name -> google.protobuf.Timestamp
+	6,  // 7: loft.Placement.date_superseded:type_name -> google.protobuf.Timestamp
 	4,  // 8: loft.Link.tenant:type_name -> loft.Tenant
 	3,  // 9: loft.Link.labels:type_name -> loft.Link.LabelsEntry
 	5,  // 10: loft.Link.source:type_name -> loft.Asset
 	5,  // 11: loft.Link.target:type_name -> loft.Asset
 	6,  // 12: loft.Link.date_updated:type_name -> google.protobuf.Timestamp
 	6,  // 13: loft.Link.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 14: loft.Link.valid_from:type_name -> google.protobuf.Timestamp
-	6,  // 15: loft.Link.valid_to:type_name -> google.protobuf.Timestamp
-	6,  // 16: loft.Link.superseded_at:type_name -> google.protobuf.Timestamp
+	6,  // 14: loft.Link.date_start:type_name -> google.protobuf.Timestamp
+	6,  // 15: loft.Link.date_end:type_name -> google.protobuf.Timestamp
+	6,  // 16: loft.Link.date_superseded:type_name -> google.protobuf.Timestamp
 	4,  // 17: loft.Stewardship.tenant:type_name -> loft.Tenant
 	5,  // 18: loft.Stewardship.asset:type_name -> loft.Asset
 	7,  // 19: loft.Stewardship.party:type_name -> loft.Party
 	6,  // 20: loft.Stewardship.date_updated:type_name -> google.protobuf.Timestamp
 	6,  // 21: loft.Stewardship.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 22: loft.Stewardship.valid_from:type_name -> google.protobuf.Timestamp
-	6,  // 23: loft.Stewardship.valid_to:type_name -> google.protobuf.Timestamp
-	6,  // 24: loft.Stewardship.superseded_at:type_name -> google.protobuf.Timestamp
+	6,  // 22: loft.Stewardship.date_start:type_name -> google.protobuf.Timestamp
+	6,  // 23: loft.Stewardship.date_end:type_name -> google.protobuf.Timestamp
+	6,  // 24: loft.Stewardship.date_superseded:type_name -> google.protobuf.Timestamp
 	25, // [25:25] is the sub-list for method output_type
 	25, // [25:25] is the sub-list for method input_type
 	25, // [25:25] is the sub-list for extension type_name

@@ -115,9 +115,9 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	x.NoError(err)
 	day := 24 * time.Hour
 	now := time.Now().UTC().Truncate(time.Microsecond)
-	laptop, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "노트북", Tag: "NB-1", Since: timestamppb.New(now.Add(-300 * day))}.Build())
+	laptop, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "노트북", Tag: "NB-1", DateOccurred: timestamppb.New(now.Add(-300 * day))}.Build())
 	x.NoError(err)
-	room, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "회의실", Tag: "S-1", Kind: "space", Since: timestamppb.New(now.Add(-300 * day))}.Build())
+	room, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "회의실", Tag: "S-1", Kind: "space", DateOccurred: timestamppb.New(now.Add(-300 * day))}.Build())
 	x.NoError(err)
 	a, r := uuid.UUID(laptop.GetId()), uuid.UUID(room.GetId())
 
@@ -251,7 +251,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	// What it was at a moment, as it read before -- a type and a model by
 	// the one form an identifier is written in.
 	for _, m := range moments {
-		v, err := s.Walled.Asset().QueryAt(owner, app.AssetQueryAtRequest_builder{Root: app.AssetById(a[:]), At: timestamppb.New(m), Depth: 1}.Build())
+		v, err := s.Walled.Asset().QueryAt(owner, app.AssetQueryAtRequest_builder{Root: app.AssetById(a[:]), DateAsOf: timestamppb.New(m), Depth: 1}.Build())
 		x.NoError(err)
 		want := oracle[m]
 		for _, k := range []string{"type", "model"} {
@@ -293,7 +293,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	x.Equal(3, gone.Facts, "the old name, and what the status was before it was active")
 	x.Equal(before-gone.Facts, must(s.Ent.Fact.Query().Count(ctx)))
 	for _, m := range moments[2:] {
-		v, err := s.Walled.Asset().QueryAt(owner, app.AssetQueryAtRequest_builder{Root: app.AssetById(a[:]), At: timestamppb.New(m), Depth: 1}.Build())
+		v, err := s.Walled.Asset().QueryAt(owner, app.AssetQueryAtRequest_builder{Root: app.AssetById(a[:]), DateAsOf: timestamppb.New(m), Depth: 1}.Build())
 		x.NoError(err)
 		x.Equal(oracle[m], v.GetItems()[0].GetFacts(), "inside the window, at %s", m)
 	}

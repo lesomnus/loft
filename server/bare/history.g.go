@@ -197,21 +197,21 @@ func (st PlacementServiceServer) create(ctx context.Context, req *loft.Placement
 		q.SetDateCreated(st.now())
 	}
 	q.SetUTo(req.GetUTo())
-	if req.HasValidFrom() {
-		q.SetValidFrom(req.GetValidFrom().AsTime())
+	if req.HasDateStart() {
+		q.SetDateStart(req.GetDateStart().AsTime())
 	} else {
-		q.SetValidFrom(st.now())
+		q.SetDateStart(st.now())
 	}
-	if req.HasValidTo() {
-		q.SetValidTo(req.GetValidTo().AsTime())
+	if req.HasDateEnd() {
+		q.SetDateEnd(req.GetDateEnd().AsTime())
 	}
 	if v, err := entuuid.FromBytes(req.GetEventId()); err != nil {
 		return nil, nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
 	} else {
 		q.SetEventId(v)
 	}
-	if req.HasSupersededAt() {
-		q.SetSupersededAt(req.GetSupersededAt().AsTime())
+	if req.HasDateSuperseded() {
+		q.SetDateSuperseded(req.GetDateSuperseded().AsTime())
 	}
 	if req.HasSupersededBy() {
 		if v, err := entuuid.FromBytes(req.GetSupersededBy()); err != nil {
@@ -489,17 +489,17 @@ func PlacementSelectedFields(m *loft.PlacementSelect) []string {
 	if m.GetUTo() {
 		vs = append(vs, placement.FieldUTo)
 	}
-	if m.GetValidFrom() {
-		vs = append(vs, placement.FieldValidFrom)
+	if m.GetDateStart() {
+		vs = append(vs, placement.FieldDateStart)
 	}
-	if m.GetValidTo() {
-		vs = append(vs, placement.FieldValidTo)
+	if m.GetDateEnd() {
+		vs = append(vs, placement.FieldDateEnd)
 	}
 	if m.GetEventId() {
 		vs = append(vs, placement.FieldEventId)
 	}
-	if m.GetSupersededAt() {
-		vs = append(vs, placement.FieldSupersededAt)
+	if m.GetDateSuperseded() {
+		vs = append(vs, placement.FieldDateSuperseded)
 	}
 	if m.GetSupersededBy() {
 		vs = append(vs, placement.FieldSupersededBy)
@@ -585,7 +585,7 @@ func PlacementGetKey(ctx context.Context, db *ent.Client, ref *loft.PlacementRef
 var placementOrmEntity = ormpatch.MustEntityOf(loft.File_loft_history_proto, "Placement")
 
 var placementPatchColumns = entpatch.Columns{
-	1: placement.FieldId, 2: placement.TenantColumn, 8: placement.ChildColumn, 9: placement.ParentColumn, 10: placement.FieldMode, 11: placement.FieldSlot, 12: placement.FieldUFrom, 13: placement.FieldDateUpdated, 15: placement.FieldDateCreated, 16: placement.FieldUTo, 17: placement.FieldValidFrom, 18: placement.FieldValidTo, 19: placement.FieldEventId, 20: placement.FieldSupersededAt, 21: placement.FieldSupersededBy}
+	1: placement.FieldId, 2: placement.TenantColumn, 8: placement.ChildColumn, 9: placement.ParentColumn, 10: placement.FieldMode, 11: placement.FieldSlot, 12: placement.FieldUFrom, 13: placement.FieldDateUpdated, 15: placement.FieldDateCreated, 16: placement.FieldUTo, 17: placement.FieldDateStart, 18: placement.FieldDateEnd, 19: placement.FieldEventId, 20: placement.FieldDateSuperseded, 21: placement.FieldSupersededBy}
 
 func (s PlacementServiceServer) Apply(ctx context.Context, req *loft.PlacementApplyRequest) (*loft.Placement, error) {
 	if !req.HasPatch() {
@@ -972,21 +972,21 @@ func (st LinkServiceServer) create(ctx context.Context, req *loft.LinkAddRequest
 	} else {
 		q.SetDateCreated(st.now())
 	}
-	if req.HasValidFrom() {
-		q.SetValidFrom(req.GetValidFrom().AsTime())
+	if req.HasDateStart() {
+		q.SetDateStart(req.GetDateStart().AsTime())
 	} else {
-		q.SetValidFrom(st.now())
+		q.SetDateStart(st.now())
 	}
-	if req.HasValidTo() {
-		q.SetValidTo(req.GetValidTo().AsTime())
+	if req.HasDateEnd() {
+		q.SetDateEnd(req.GetDateEnd().AsTime())
 	}
 	if v, err := entuuid.FromBytes(req.GetEventId()); err != nil {
 		return nil, nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
 	} else {
 		q.SetEventId(v)
 	}
-	if req.HasSupersededAt() {
-		q.SetSupersededAt(req.GetSupersededAt().AsTime())
+	if req.HasDateSuperseded() {
+		q.SetDateSuperseded(req.GetDateSuperseded().AsTime())
 	}
 	if req.HasSupersededBy() {
 		if v, err := entuuid.FromBytes(req.GetSupersededBy()); err != nil {
@@ -1137,17 +1137,17 @@ func LinkSelectedFields(m *loft.LinkSelect) []string {
 	if m.GetDateCreated() {
 		vs = append(vs, link.FieldDateCreated)
 	}
-	if m.GetValidFrom() {
-		vs = append(vs, link.FieldValidFrom)
+	if m.GetDateStart() {
+		vs = append(vs, link.FieldDateStart)
 	}
-	if m.GetValidTo() {
-		vs = append(vs, link.FieldValidTo)
+	if m.GetDateEnd() {
+		vs = append(vs, link.FieldDateEnd)
 	}
 	if m.GetEventId() {
 		vs = append(vs, link.FieldEventId)
 	}
-	if m.GetSupersededAt() {
-		vs = append(vs, link.FieldSupersededAt)
+	if m.GetDateSuperseded() {
+		vs = append(vs, link.FieldDateSuperseded)
 	}
 	if m.GetSupersededBy() {
 		vs = append(vs, link.FieldSupersededBy)
@@ -1233,7 +1233,7 @@ func LinkGetKey(ctx context.Context, db *ent.Client, ref *loft.LinkRef) (uuid.UU
 var linkOrmEntity = ormpatch.MustEntityOf(loft.File_loft_history_proto, "Link")
 
 var linkPatchColumns = entpatch.Columns{
-	1: link.FieldId, 2: link.TenantColumn, 7: link.FieldLabels, 8: link.SourceColumn, 9: link.TargetColumn, 10: link.FieldKind, 11: link.FieldRequired, 13: link.FieldDateUpdated, 15: link.FieldDateCreated, 17: link.FieldValidFrom, 18: link.FieldValidTo, 19: link.FieldEventId, 20: link.FieldSupersededAt, 21: link.FieldSupersededBy}
+	1: link.FieldId, 2: link.TenantColumn, 7: link.FieldLabels, 8: link.SourceColumn, 9: link.TargetColumn, 10: link.FieldKind, 11: link.FieldRequired, 13: link.FieldDateUpdated, 15: link.FieldDateCreated, 17: link.FieldDateStart, 18: link.FieldDateEnd, 19: link.FieldEventId, 20: link.FieldDateSuperseded, 21: link.FieldSupersededBy}
 
 func (s LinkServiceServer) Apply(ctx context.Context, req *loft.LinkApplyRequest) (*loft.Link, error) {
 	if !req.HasPatch() {
@@ -1616,21 +1616,21 @@ func (st StewardshipServiceServer) create(ctx context.Context, req *loft.Steward
 	} else {
 		q.SetDateCreated(st.now())
 	}
-	if req.HasValidFrom() {
-		q.SetValidFrom(req.GetValidFrom().AsTime())
+	if req.HasDateStart() {
+		q.SetDateStart(req.GetDateStart().AsTime())
 	} else {
-		q.SetValidFrom(st.now())
+		q.SetDateStart(st.now())
 	}
-	if req.HasValidTo() {
-		q.SetValidTo(req.GetValidTo().AsTime())
+	if req.HasDateEnd() {
+		q.SetDateEnd(req.GetDateEnd().AsTime())
 	}
 	if v, err := entuuid.FromBytes(req.GetEventId()); err != nil {
 		return nil, nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
 	} else {
 		q.SetEventId(v)
 	}
-	if req.HasSupersededAt() {
-		q.SetSupersededAt(req.GetSupersededAt().AsTime())
+	if req.HasDateSuperseded() {
+		q.SetDateSuperseded(req.GetDateSuperseded().AsTime())
 	}
 	if req.HasSupersededBy() {
 		if v, err := entuuid.FromBytes(req.GetSupersededBy()); err != nil {
@@ -1775,17 +1775,17 @@ func StewardshipSelectedFields(m *loft.StewardshipSelect) []string {
 	if m.GetDateCreated() {
 		vs = append(vs, stewardship.FieldDateCreated)
 	}
-	if m.GetValidFrom() {
-		vs = append(vs, stewardship.FieldValidFrom)
+	if m.GetDateStart() {
+		vs = append(vs, stewardship.FieldDateStart)
 	}
-	if m.GetValidTo() {
-		vs = append(vs, stewardship.FieldValidTo)
+	if m.GetDateEnd() {
+		vs = append(vs, stewardship.FieldDateEnd)
 	}
 	if m.GetEventId() {
 		vs = append(vs, stewardship.FieldEventId)
 	}
-	if m.GetSupersededAt() {
-		vs = append(vs, stewardship.FieldSupersededAt)
+	if m.GetDateSuperseded() {
+		vs = append(vs, stewardship.FieldDateSuperseded)
 	}
 	if m.GetSupersededBy() {
 		vs = append(vs, stewardship.FieldSupersededBy)
@@ -1871,7 +1871,7 @@ func StewardshipGetKey(ctx context.Context, db *ent.Client, ref *loft.Stewardshi
 var stewardshipOrmEntity = ormpatch.MustEntityOf(loft.File_loft_history_proto, "Stewardship")
 
 var stewardshipPatchColumns = entpatch.Columns{
-	1: stewardship.FieldId, 2: stewardship.TenantColumn, 8: stewardship.AssetColumn, 9: stewardship.PartyColumn, 10: stewardship.FieldRole, 13: stewardship.FieldDateUpdated, 15: stewardship.FieldDateCreated, 17: stewardship.FieldValidFrom, 18: stewardship.FieldValidTo, 19: stewardship.FieldEventId, 20: stewardship.FieldSupersededAt, 21: stewardship.FieldSupersededBy}
+	1: stewardship.FieldId, 2: stewardship.TenantColumn, 8: stewardship.AssetColumn, 9: stewardship.PartyColumn, 10: stewardship.FieldRole, 13: stewardship.FieldDateUpdated, 15: stewardship.FieldDateCreated, 17: stewardship.FieldDateStart, 18: stewardship.FieldDateEnd, 19: stewardship.FieldEventId, 20: stewardship.FieldDateSuperseded, 21: stewardship.FieldSupersededBy}
 
 func (s StewardshipServiceServer) Apply(ctx context.Context, req *loft.StewardshipApplyRequest) (*loft.Stewardship, error) {
 	if !req.HasPatch() {

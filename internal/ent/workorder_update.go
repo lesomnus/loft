@@ -87,43 +87,43 @@ func (_u *WorkOrderUpdate) SetNillableStatus(v *string) *WorkOrderUpdate {
 	return _u
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_u *WorkOrderUpdate) SetBeginsAt(v time.Time) *WorkOrderUpdate {
-	_u.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_u *WorkOrderUpdate) SetDateStart(v time.Time) *WorkOrderUpdate {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_u *WorkOrderUpdate) SetNillableBeginsAt(v *time.Time) *WorkOrderUpdate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *WorkOrderUpdate) SetNillableDateStart(v *time.Time) *WorkOrderUpdate {
 	if v != nil {
-		_u.SetBeginsAt(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearBeginsAt clears the value of the "begins_at" field.
-func (_u *WorkOrderUpdate) ClearBeginsAt() *WorkOrderUpdate {
-	_u.mutation.ClearBeginsAt()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *WorkOrderUpdate) ClearDateStart() *WorkOrderUpdate {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_u *WorkOrderUpdate) SetEndsAt(v time.Time) *WorkOrderUpdate {
-	_u.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *WorkOrderUpdate) SetDateEnd(v time.Time) *WorkOrderUpdate {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_u *WorkOrderUpdate) SetNillableEndsAt(v *time.Time) *WorkOrderUpdate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *WorkOrderUpdate) SetNillableDateEnd(v *time.Time) *WorkOrderUpdate {
 	if v != nil {
-		_u.SetEndsAt(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearEndsAt clears the value of the "ends_at" field.
-func (_u *WorkOrderUpdate) ClearEndsAt() *WorkOrderUpdate {
-	_u.mutation.ClearEndsAt()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *WorkOrderUpdate) ClearDateEnd() *WorkOrderUpdate {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -196,23 +196,23 @@ func (_u *WorkOrderUpdate) SetNillableCurrency(v *string) *WorkOrderUpdate {
 	return _u
 }
 
-// SetCompletedAt sets the "completed_at" field.
-func (_u *WorkOrderUpdate) SetCompletedAt(v time.Time) *WorkOrderUpdate {
-	_u.mutation.SetCompletedAt(v)
+// SetDateCompleted sets the "date_completed" field.
+func (_u *WorkOrderUpdate) SetDateCompleted(v time.Time) *WorkOrderUpdate {
+	_u.mutation.SetDateCompleted(v)
 	return _u
 }
 
-// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (_u *WorkOrderUpdate) SetNillableCompletedAt(v *time.Time) *WorkOrderUpdate {
+// SetNillableDateCompleted sets the "date_completed" field if the given value is not nil.
+func (_u *WorkOrderUpdate) SetNillableDateCompleted(v *time.Time) *WorkOrderUpdate {
 	if v != nil {
-		_u.SetCompletedAt(*v)
+		_u.SetDateCompleted(*v)
 	}
 	return _u
 }
 
-// ClearCompletedAt clears the value of the "completed_at" field.
-func (_u *WorkOrderUpdate) ClearCompletedAt() *WorkOrderUpdate {
-	_u.mutation.ClearCompletedAt()
+// ClearDateCompleted clears the value of the "date_completed" field.
+func (_u *WorkOrderUpdate) ClearDateCompleted() *WorkOrderUpdate {
+	_u.mutation.ClearDateCompleted()
 	return _u
 }
 
@@ -367,23 +367,23 @@ func (_u *WorkOrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(workorder.FieldStatus); ok {
 		_spec.SetField(workorder.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.BeginsAt(); ok {
-		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(workorder.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(workorder.FieldBeginsAt); ok {
-		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateStart); ok {
+		_spec.SetField(workorder.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.BeginsAtCleared() {
-		_spec.ClearField(workorder.FieldBeginsAt, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(workorder.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.EndsAt(); ok {
-		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(workorder.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(workorder.FieldEndsAt); ok {
-		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateEnd); ok {
+		_spec.SetField(workorder.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.EndsAtCleared() {
-		_spec.ClearField(workorder.FieldEndsAt, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(workorder.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(workorder.FieldDateUpdated, field.TypeTime, value)
@@ -418,14 +418,14 @@ func (_u *WorkOrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(workorder.FieldCurrency); ok {
 		_spec.SetField(workorder.FieldCurrency, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.CompletedAt(); ok {
-		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateCompleted(); ok {
+		_spec.SetField(workorder.FieldDateCompleted, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(workorder.FieldCompletedAt); ok {
-		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateCompleted); ok {
+		_spec.SetField(workorder.FieldDateCompleted, field.TypeTime, e)
 	}
-	if _u.mutation.CompletedAtCleared() {
-		_spec.ClearField(workorder.FieldCompletedAt, field.TypeTime)
+	if _u.mutation.DateCompletedCleared() {
+		_spec.ClearField(workorder.FieldDateCompleted, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Blocking(); ok {
 		_spec.SetField(workorder.FieldBlocking, field.TypeBool, value)
@@ -549,43 +549,43 @@ func (_u *WorkOrderUpdateOne) SetNillableStatus(v *string) *WorkOrderUpdateOne {
 	return _u
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_u *WorkOrderUpdateOne) SetBeginsAt(v time.Time) *WorkOrderUpdateOne {
-	_u.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_u *WorkOrderUpdateOne) SetDateStart(v time.Time) *WorkOrderUpdateOne {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_u *WorkOrderUpdateOne) SetNillableBeginsAt(v *time.Time) *WorkOrderUpdateOne {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *WorkOrderUpdateOne) SetNillableDateStart(v *time.Time) *WorkOrderUpdateOne {
 	if v != nil {
-		_u.SetBeginsAt(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearBeginsAt clears the value of the "begins_at" field.
-func (_u *WorkOrderUpdateOne) ClearBeginsAt() *WorkOrderUpdateOne {
-	_u.mutation.ClearBeginsAt()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *WorkOrderUpdateOne) ClearDateStart() *WorkOrderUpdateOne {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_u *WorkOrderUpdateOne) SetEndsAt(v time.Time) *WorkOrderUpdateOne {
-	_u.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *WorkOrderUpdateOne) SetDateEnd(v time.Time) *WorkOrderUpdateOne {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_u *WorkOrderUpdateOne) SetNillableEndsAt(v *time.Time) *WorkOrderUpdateOne {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *WorkOrderUpdateOne) SetNillableDateEnd(v *time.Time) *WorkOrderUpdateOne {
 	if v != nil {
-		_u.SetEndsAt(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearEndsAt clears the value of the "ends_at" field.
-func (_u *WorkOrderUpdateOne) ClearEndsAt() *WorkOrderUpdateOne {
-	_u.mutation.ClearEndsAt()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *WorkOrderUpdateOne) ClearDateEnd() *WorkOrderUpdateOne {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -658,23 +658,23 @@ func (_u *WorkOrderUpdateOne) SetNillableCurrency(v *string) *WorkOrderUpdateOne
 	return _u
 }
 
-// SetCompletedAt sets the "completed_at" field.
-func (_u *WorkOrderUpdateOne) SetCompletedAt(v time.Time) *WorkOrderUpdateOne {
-	_u.mutation.SetCompletedAt(v)
+// SetDateCompleted sets the "date_completed" field.
+func (_u *WorkOrderUpdateOne) SetDateCompleted(v time.Time) *WorkOrderUpdateOne {
+	_u.mutation.SetDateCompleted(v)
 	return _u
 }
 
-// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (_u *WorkOrderUpdateOne) SetNillableCompletedAt(v *time.Time) *WorkOrderUpdateOne {
+// SetNillableDateCompleted sets the "date_completed" field if the given value is not nil.
+func (_u *WorkOrderUpdateOne) SetNillableDateCompleted(v *time.Time) *WorkOrderUpdateOne {
 	if v != nil {
-		_u.SetCompletedAt(*v)
+		_u.SetDateCompleted(*v)
 	}
 	return _u
 }
 
-// ClearCompletedAt clears the value of the "completed_at" field.
-func (_u *WorkOrderUpdateOne) ClearCompletedAt() *WorkOrderUpdateOne {
-	_u.mutation.ClearCompletedAt()
+// ClearDateCompleted clears the value of the "date_completed" field.
+func (_u *WorkOrderUpdateOne) ClearDateCompleted() *WorkOrderUpdateOne {
+	_u.mutation.ClearDateCompleted()
 	return _u
 }
 
@@ -859,23 +859,23 @@ func (_u *WorkOrderUpdateOne) sqlSave(ctx context.Context) (_node *WorkOrder, er
 	if e, ok := _u.mutation.FieldExpr(workorder.FieldStatus); ok {
 		_spec.SetField(workorder.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.BeginsAt(); ok {
-		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(workorder.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(workorder.FieldBeginsAt); ok {
-		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateStart); ok {
+		_spec.SetField(workorder.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.BeginsAtCleared() {
-		_spec.ClearField(workorder.FieldBeginsAt, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(workorder.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.EndsAt(); ok {
-		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(workorder.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(workorder.FieldEndsAt); ok {
-		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateEnd); ok {
+		_spec.SetField(workorder.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.EndsAtCleared() {
-		_spec.ClearField(workorder.FieldEndsAt, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(workorder.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(workorder.FieldDateUpdated, field.TypeTime, value)
@@ -910,14 +910,14 @@ func (_u *WorkOrderUpdateOne) sqlSave(ctx context.Context) (_node *WorkOrder, er
 	if e, ok := _u.mutation.FieldExpr(workorder.FieldCurrency); ok {
 		_spec.SetField(workorder.FieldCurrency, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.CompletedAt(); ok {
-		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateCompleted(); ok {
+		_spec.SetField(workorder.FieldDateCompleted, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(workorder.FieldCompletedAt); ok {
-		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateCompleted); ok {
+		_spec.SetField(workorder.FieldDateCompleted, field.TypeTime, e)
 	}
-	if _u.mutation.CompletedAtCleared() {
-		_spec.ClearField(workorder.FieldCompletedAt, field.TypeTime)
+	if _u.mutation.DateCompletedCleared() {
+		_spec.ClearField(workorder.FieldDateCompleted, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Blocking(); ok {
 		_spec.SetField(workorder.FieldBlocking, field.TypeBool, value)

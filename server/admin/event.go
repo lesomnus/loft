@@ -122,12 +122,12 @@ func (s operatorEvents) Redaction(ctx context.Context, req *app.OperatorEventRed
 		return nil, err
 	}
 	out := app.OperatorEventRedactionResponse_builder{
-		Event:    id.Bytes(),
-		Tenant:   t.Alias,
-		Kind:     ev.Kind,
-		Occurred: timestamppb.New(ev.OccurredAt),
-		Recorded: timestamppb.New(ev.DateCreated),
-		Said:     said,
+		Event:        id.Bytes(),
+		Tenant:       t.Alias,
+		Kind:         ev.Kind,
+		DateOccurred: timestamppb.New(ev.OccurredAt),
+		DateRecorded: timestamppb.New(ev.DateCreated),
+		Said:         said,
 	}.Build()
 	if ev.SubjectId != nil {
 		out.SetSubject(pdid.Id(*ev.SubjectId).Bytes())
@@ -220,7 +220,7 @@ func (s operatorEvents) acts(ctx context.Context, ev *ent.Event, id pdid.Id) ([]
 		if v.Value == nil || v.Value.UnmarshalTo(m) != nil || !bytes.Equal(m.GetEvent(), id.Bytes()) {
 			continue
 		}
-		a := app.OperatorEventRedactionAct_builder{Event: pdid.Id(v.Id).Bytes(), Recorded: timestamppb.New(v.DateCreated)}.Build()
+		a := app.OperatorEventRedactionAct_builder{Event: pdid.Id(v.Id).Bytes(), DateRecorded: timestamppb.New(v.DateCreated)}.Build()
 		if v.ActorId != nil {
 			who := pdid.Id(*v.ActorId)
 			a.SetActor(who.Bytes())

@@ -76,14 +76,14 @@ func Status(v string) predicate.Reservation {
 	return predicate.Reservation(sql.FieldEQ(FieldStatus, v))
 }
 
-// BeginsAt applies equality check predicate on the "begins_at" field. It's identical to BeginsAtEQ.
-func BeginsAt(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldEQ(FieldBeginsAt, v))
+// DateStart applies equality check predicate on the "date_start" field. It's identical to DateStartEQ.
+func DateStart(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldEQ(FieldDateStart, v))
 }
 
-// EndsAt applies equality check predicate on the "ends_at" field. It's identical to EndsAtEQ.
-func EndsAt(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldEQ(FieldEndsAt, v))
+// DateEnd applies equality check predicate on the "date_end" field. It's identical to DateEndEQ.
+func DateEnd(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldEQ(FieldDateEnd, v))
 }
 
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
@@ -101,9 +101,9 @@ func DateCreated(v time.Time) predicate.Reservation {
 	return predicate.Reservation(sql.FieldEQ(FieldDateCreated, v))
 }
 
-// ExpiresAt applies equality check predicate on the "expires_at" field. It's identical to ExpiresAtEQ.
-func ExpiresAt(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldEQ(FieldExpiresAt, v))
+// DateExpires applies equality check predicate on the "date_expires" field. It's identical to DateExpiresEQ.
+func DateExpires(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldEQ(FieldDateExpires, v))
 }
 
 // Rrule applies equality check predicate on the "rrule" field. It's identical to RruleEQ.
@@ -121,9 +121,9 @@ func DecidedBy(v uuid.UUID) predicate.Reservation {
 	return predicate.Reservation(sql.FieldEQ(FieldDecidedBy, v))
 }
 
-// CheckedInAt applies equality check predicate on the "checked_in_at" field. It's identical to CheckedInAtEQ.
-func CheckedInAt(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldEQ(FieldCheckedInAt, v))
+// DateCheckedIn applies equality check predicate on the "date_checked_in" field. It's identical to DateCheckedInEQ.
+func DateCheckedIn(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldEQ(FieldDateCheckedIn, v))
 }
 
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
@@ -381,104 +381,104 @@ func StatusContainsFold(v string) predicate.Reservation {
 	return predicate.Reservation(sql.FieldContainsFold(FieldStatus, v))
 }
 
-// BeginsAtEQ applies the EQ predicate on the "begins_at" field.
-func BeginsAtEQ(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldEQ(FieldBeginsAt, v))
+// DateStartEQ applies the EQ predicate on the "date_start" field.
+func DateStartEQ(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldEQ(FieldDateStart, v))
 }
 
-// BeginsAtNEQ applies the NEQ predicate on the "begins_at" field.
-func BeginsAtNEQ(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldNEQ(FieldBeginsAt, v))
+// DateStartNEQ applies the NEQ predicate on the "date_start" field.
+func DateStartNEQ(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldNEQ(FieldDateStart, v))
 }
 
-// BeginsAtIn applies the In predicate on the "begins_at" field.
-func BeginsAtIn(vs ...time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldIn(FieldBeginsAt, vs...))
+// DateStartIn applies the In predicate on the "date_start" field.
+func DateStartIn(vs ...time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldIn(FieldDateStart, vs...))
 }
 
-// BeginsAtNotIn applies the NotIn predicate on the "begins_at" field.
-func BeginsAtNotIn(vs ...time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldNotIn(FieldBeginsAt, vs...))
+// DateStartNotIn applies the NotIn predicate on the "date_start" field.
+func DateStartNotIn(vs ...time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldNotIn(FieldDateStart, vs...))
 }
 
-// BeginsAtGT applies the GT predicate on the "begins_at" field.
-func BeginsAtGT(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldGT(FieldBeginsAt, v))
+// DateStartGT applies the GT predicate on the "date_start" field.
+func DateStartGT(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldGT(FieldDateStart, v))
 }
 
-// BeginsAtGTE applies the GTE predicate on the "begins_at" field.
-func BeginsAtGTE(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldGTE(FieldBeginsAt, v))
+// DateStartGTE applies the GTE predicate on the "date_start" field.
+func DateStartGTE(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldGTE(FieldDateStart, v))
 }
 
-// BeginsAtLT applies the LT predicate on the "begins_at" field.
-func BeginsAtLT(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldLT(FieldBeginsAt, v))
+// DateStartLT applies the LT predicate on the "date_start" field.
+func DateStartLT(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldLT(FieldDateStart, v))
 }
 
-// BeginsAtLTE applies the LTE predicate on the "begins_at" field.
-func BeginsAtLTE(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldLTE(FieldBeginsAt, v))
+// DateStartLTE applies the LTE predicate on the "date_start" field.
+func DateStartLTE(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldLTE(FieldDateStart, v))
 }
 
-// BeginsAtIsNil applies the IsNil predicate on the "begins_at" field.
-func BeginsAtIsNil() predicate.Reservation {
-	return predicate.Reservation(sql.FieldIsNull(FieldBeginsAt))
+// DateStartIsNil applies the IsNil predicate on the "date_start" field.
+func DateStartIsNil() predicate.Reservation {
+	return predicate.Reservation(sql.FieldIsNull(FieldDateStart))
 }
 
-// BeginsAtNotNil applies the NotNil predicate on the "begins_at" field.
-func BeginsAtNotNil() predicate.Reservation {
-	return predicate.Reservation(sql.FieldNotNull(FieldBeginsAt))
+// DateStartNotNil applies the NotNil predicate on the "date_start" field.
+func DateStartNotNil() predicate.Reservation {
+	return predicate.Reservation(sql.FieldNotNull(FieldDateStart))
 }
 
-// EndsAtEQ applies the EQ predicate on the "ends_at" field.
-func EndsAtEQ(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldEQ(FieldEndsAt, v))
+// DateEndEQ applies the EQ predicate on the "date_end" field.
+func DateEndEQ(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldEQ(FieldDateEnd, v))
 }
 
-// EndsAtNEQ applies the NEQ predicate on the "ends_at" field.
-func EndsAtNEQ(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldNEQ(FieldEndsAt, v))
+// DateEndNEQ applies the NEQ predicate on the "date_end" field.
+func DateEndNEQ(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldNEQ(FieldDateEnd, v))
 }
 
-// EndsAtIn applies the In predicate on the "ends_at" field.
-func EndsAtIn(vs ...time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldIn(FieldEndsAt, vs...))
+// DateEndIn applies the In predicate on the "date_end" field.
+func DateEndIn(vs ...time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldIn(FieldDateEnd, vs...))
 }
 
-// EndsAtNotIn applies the NotIn predicate on the "ends_at" field.
-func EndsAtNotIn(vs ...time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldNotIn(FieldEndsAt, vs...))
+// DateEndNotIn applies the NotIn predicate on the "date_end" field.
+func DateEndNotIn(vs ...time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldNotIn(FieldDateEnd, vs...))
 }
 
-// EndsAtGT applies the GT predicate on the "ends_at" field.
-func EndsAtGT(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldGT(FieldEndsAt, v))
+// DateEndGT applies the GT predicate on the "date_end" field.
+func DateEndGT(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldGT(FieldDateEnd, v))
 }
 
-// EndsAtGTE applies the GTE predicate on the "ends_at" field.
-func EndsAtGTE(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldGTE(FieldEndsAt, v))
+// DateEndGTE applies the GTE predicate on the "date_end" field.
+func DateEndGTE(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldGTE(FieldDateEnd, v))
 }
 
-// EndsAtLT applies the LT predicate on the "ends_at" field.
-func EndsAtLT(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldLT(FieldEndsAt, v))
+// DateEndLT applies the LT predicate on the "date_end" field.
+func DateEndLT(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldLT(FieldDateEnd, v))
 }
 
-// EndsAtLTE applies the LTE predicate on the "ends_at" field.
-func EndsAtLTE(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldLTE(FieldEndsAt, v))
+// DateEndLTE applies the LTE predicate on the "date_end" field.
+func DateEndLTE(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldLTE(FieldDateEnd, v))
 }
 
-// EndsAtIsNil applies the IsNil predicate on the "ends_at" field.
-func EndsAtIsNil() predicate.Reservation {
-	return predicate.Reservation(sql.FieldIsNull(FieldEndsAt))
+// DateEndIsNil applies the IsNil predicate on the "date_end" field.
+func DateEndIsNil() predicate.Reservation {
+	return predicate.Reservation(sql.FieldIsNull(FieldDateEnd))
 }
 
-// EndsAtNotNil applies the NotNil predicate on the "ends_at" field.
-func EndsAtNotNil() predicate.Reservation {
-	return predicate.Reservation(sql.FieldNotNull(FieldEndsAt))
+// DateEndNotNil applies the NotNil predicate on the "date_end" field.
+func DateEndNotNil() predicate.Reservation {
+	return predicate.Reservation(sql.FieldNotNull(FieldDateEnd))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.
@@ -621,54 +621,54 @@ func DateCreatedNotNil() predicate.Reservation {
 	return predicate.Reservation(sql.FieldNotNull(FieldDateCreated))
 }
 
-// ExpiresAtEQ applies the EQ predicate on the "expires_at" field.
-func ExpiresAtEQ(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldEQ(FieldExpiresAt, v))
+// DateExpiresEQ applies the EQ predicate on the "date_expires" field.
+func DateExpiresEQ(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldEQ(FieldDateExpires, v))
 }
 
-// ExpiresAtNEQ applies the NEQ predicate on the "expires_at" field.
-func ExpiresAtNEQ(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldNEQ(FieldExpiresAt, v))
+// DateExpiresNEQ applies the NEQ predicate on the "date_expires" field.
+func DateExpiresNEQ(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldNEQ(FieldDateExpires, v))
 }
 
-// ExpiresAtIn applies the In predicate on the "expires_at" field.
-func ExpiresAtIn(vs ...time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldIn(FieldExpiresAt, vs...))
+// DateExpiresIn applies the In predicate on the "date_expires" field.
+func DateExpiresIn(vs ...time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldIn(FieldDateExpires, vs...))
 }
 
-// ExpiresAtNotIn applies the NotIn predicate on the "expires_at" field.
-func ExpiresAtNotIn(vs ...time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldNotIn(FieldExpiresAt, vs...))
+// DateExpiresNotIn applies the NotIn predicate on the "date_expires" field.
+func DateExpiresNotIn(vs ...time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldNotIn(FieldDateExpires, vs...))
 }
 
-// ExpiresAtGT applies the GT predicate on the "expires_at" field.
-func ExpiresAtGT(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldGT(FieldExpiresAt, v))
+// DateExpiresGT applies the GT predicate on the "date_expires" field.
+func DateExpiresGT(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldGT(FieldDateExpires, v))
 }
 
-// ExpiresAtGTE applies the GTE predicate on the "expires_at" field.
-func ExpiresAtGTE(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldGTE(FieldExpiresAt, v))
+// DateExpiresGTE applies the GTE predicate on the "date_expires" field.
+func DateExpiresGTE(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldGTE(FieldDateExpires, v))
 }
 
-// ExpiresAtLT applies the LT predicate on the "expires_at" field.
-func ExpiresAtLT(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldLT(FieldExpiresAt, v))
+// DateExpiresLT applies the LT predicate on the "date_expires" field.
+func DateExpiresLT(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldLT(FieldDateExpires, v))
 }
 
-// ExpiresAtLTE applies the LTE predicate on the "expires_at" field.
-func ExpiresAtLTE(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldLTE(FieldExpiresAt, v))
+// DateExpiresLTE applies the LTE predicate on the "date_expires" field.
+func DateExpiresLTE(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldLTE(FieldDateExpires, v))
 }
 
-// ExpiresAtIsNil applies the IsNil predicate on the "expires_at" field.
-func ExpiresAtIsNil() predicate.Reservation {
-	return predicate.Reservation(sql.FieldIsNull(FieldExpiresAt))
+// DateExpiresIsNil applies the IsNil predicate on the "date_expires" field.
+func DateExpiresIsNil() predicate.Reservation {
+	return predicate.Reservation(sql.FieldIsNull(FieldDateExpires))
 }
 
-// ExpiresAtNotNil applies the NotNil predicate on the "expires_at" field.
-func ExpiresAtNotNil() predicate.Reservation {
-	return predicate.Reservation(sql.FieldNotNull(FieldExpiresAt))
+// DateExpiresNotNil applies the NotNil predicate on the "date_expires" field.
+func DateExpiresNotNil() predicate.Reservation {
+	return predicate.Reservation(sql.FieldNotNull(FieldDateExpires))
 }
 
 // RruleEQ applies the EQ predicate on the "rrule" field.
@@ -836,54 +836,54 @@ func DecidedByNotNil() predicate.Reservation {
 	return predicate.Reservation(sql.FieldNotNull(FieldDecidedBy))
 }
 
-// CheckedInAtEQ applies the EQ predicate on the "checked_in_at" field.
-func CheckedInAtEQ(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldEQ(FieldCheckedInAt, v))
+// DateCheckedInEQ applies the EQ predicate on the "date_checked_in" field.
+func DateCheckedInEQ(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldEQ(FieldDateCheckedIn, v))
 }
 
-// CheckedInAtNEQ applies the NEQ predicate on the "checked_in_at" field.
-func CheckedInAtNEQ(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldNEQ(FieldCheckedInAt, v))
+// DateCheckedInNEQ applies the NEQ predicate on the "date_checked_in" field.
+func DateCheckedInNEQ(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldNEQ(FieldDateCheckedIn, v))
 }
 
-// CheckedInAtIn applies the In predicate on the "checked_in_at" field.
-func CheckedInAtIn(vs ...time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldIn(FieldCheckedInAt, vs...))
+// DateCheckedInIn applies the In predicate on the "date_checked_in" field.
+func DateCheckedInIn(vs ...time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldIn(FieldDateCheckedIn, vs...))
 }
 
-// CheckedInAtNotIn applies the NotIn predicate on the "checked_in_at" field.
-func CheckedInAtNotIn(vs ...time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldNotIn(FieldCheckedInAt, vs...))
+// DateCheckedInNotIn applies the NotIn predicate on the "date_checked_in" field.
+func DateCheckedInNotIn(vs ...time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldNotIn(FieldDateCheckedIn, vs...))
 }
 
-// CheckedInAtGT applies the GT predicate on the "checked_in_at" field.
-func CheckedInAtGT(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldGT(FieldCheckedInAt, v))
+// DateCheckedInGT applies the GT predicate on the "date_checked_in" field.
+func DateCheckedInGT(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldGT(FieldDateCheckedIn, v))
 }
 
-// CheckedInAtGTE applies the GTE predicate on the "checked_in_at" field.
-func CheckedInAtGTE(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldGTE(FieldCheckedInAt, v))
+// DateCheckedInGTE applies the GTE predicate on the "date_checked_in" field.
+func DateCheckedInGTE(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldGTE(FieldDateCheckedIn, v))
 }
 
-// CheckedInAtLT applies the LT predicate on the "checked_in_at" field.
-func CheckedInAtLT(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldLT(FieldCheckedInAt, v))
+// DateCheckedInLT applies the LT predicate on the "date_checked_in" field.
+func DateCheckedInLT(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldLT(FieldDateCheckedIn, v))
 }
 
-// CheckedInAtLTE applies the LTE predicate on the "checked_in_at" field.
-func CheckedInAtLTE(v time.Time) predicate.Reservation {
-	return predicate.Reservation(sql.FieldLTE(FieldCheckedInAt, v))
+// DateCheckedInLTE applies the LTE predicate on the "date_checked_in" field.
+func DateCheckedInLTE(v time.Time) predicate.Reservation {
+	return predicate.Reservation(sql.FieldLTE(FieldDateCheckedIn, v))
 }
 
-// CheckedInAtIsNil applies the IsNil predicate on the "checked_in_at" field.
-func CheckedInAtIsNil() predicate.Reservation {
-	return predicate.Reservation(sql.FieldIsNull(FieldCheckedInAt))
+// DateCheckedInIsNil applies the IsNil predicate on the "date_checked_in" field.
+func DateCheckedInIsNil() predicate.Reservation {
+	return predicate.Reservation(sql.FieldIsNull(FieldDateCheckedIn))
 }
 
-// CheckedInAtNotNil applies the NotNil predicate on the "checked_in_at" field.
-func CheckedInAtNotNil() predicate.Reservation {
-	return predicate.Reservation(sql.FieldNotNull(FieldCheckedInAt))
+// DateCheckedInNotNil applies the NotNil predicate on the "date_checked_in" field.
+func DateCheckedInNotNil() predicate.Reservation {
+	return predicate.Reservation(sql.FieldNotNull(FieldDateCheckedIn))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

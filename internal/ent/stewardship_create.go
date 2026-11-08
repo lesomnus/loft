@@ -52,30 +52,30 @@ func (_c *StewardshipCreate) SetNillableDateCreated(v *time.Time) *StewardshipCr
 	return _c
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_c *StewardshipCreate) SetValidFrom(v time.Time) *StewardshipCreate {
-	_c.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_c *StewardshipCreate) SetDateStart(v time.Time) *StewardshipCreate {
+	_c.mutation.SetDateStart(v)
 	return _c
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_c *StewardshipCreate) SetNillableValidFrom(v *time.Time) *StewardshipCreate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_c *StewardshipCreate) SetNillableDateStart(v *time.Time) *StewardshipCreate {
 	if v != nil {
-		_c.SetValidFrom(*v)
+		_c.SetDateStart(*v)
 	}
 	return _c
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_c *StewardshipCreate) SetValidTo(v time.Time) *StewardshipCreate {
-	_c.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_c *StewardshipCreate) SetDateEnd(v time.Time) *StewardshipCreate {
+	_c.mutation.SetDateEnd(v)
 	return _c
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_c *StewardshipCreate) SetNillableValidTo(v *time.Time) *StewardshipCreate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_c *StewardshipCreate) SetNillableDateEnd(v *time.Time) *StewardshipCreate {
 	if v != nil {
-		_c.SetValidTo(*v)
+		_c.SetDateEnd(*v)
 	}
 	return _c
 }
@@ -86,16 +86,16 @@ func (_c *StewardshipCreate) SetEventId(v uuid.UUID) *StewardshipCreate {
 	return _c
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_c *StewardshipCreate) SetSupersededAt(v time.Time) *StewardshipCreate {
-	_c.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_c *StewardshipCreate) SetDateSuperseded(v time.Time) *StewardshipCreate {
+	_c.mutation.SetDateSuperseded(v)
 	return _c
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_c *StewardshipCreate) SetNillableSupersededAt(v *time.Time) *StewardshipCreate {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_c *StewardshipCreate) SetNillableDateSuperseded(v *time.Time) *StewardshipCreate {
 	if v != nil {
-		_c.SetSupersededAt(*v)
+		_c.SetDateSuperseded(*v)
 	}
 	return _c
 }
@@ -280,21 +280,21 @@ func (_c *StewardshipCreate) createSpec() (*Stewardship, *sqlgraph.CreateSpec) {
 		_spec.SetField(stewardship.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
 	}
-	if value, ok := _c.mutation.ValidFrom(); ok {
-		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, value)
-		_node.ValidFrom = value
+	if value, ok := _c.mutation.DateStart(); ok {
+		_spec.SetField(stewardship.FieldDateStart, field.TypeTime, value)
+		_node.DateStart = value
 	}
-	if value, ok := _c.mutation.ValidTo(); ok {
-		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, value)
-		_node.ValidTo = &value
+	if value, ok := _c.mutation.DateEnd(); ok {
+		_spec.SetField(stewardship.FieldDateEnd, field.TypeTime, value)
+		_node.DateEnd = &value
 	}
 	if value, ok := _c.mutation.EventId(); ok {
 		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, value)
 		_node.EventId = value
 	}
-	if value, ok := _c.mutation.SupersededAt(); ok {
-		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, value)
-		_node.SupersededAt = &value
+	if value, ok := _c.mutation.DateSuperseded(); ok {
+		_spec.SetField(stewardship.FieldDateSuperseded, field.TypeTime, value)
+		_node.DateSuperseded = &value
 	}
 	if value, ok := _c.mutation.SupersededBy(); ok {
 		_spec.SetField(stewardship.FieldSupersededBy, field.TypeUuid, value)

@@ -280,10 +280,10 @@ func TestWhatTheDoorTakesOutOfANoticeIsOnTheRecordAsWritten(t *testing.T) {
 	at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
 	reservations := app.NewReservationServiceClient(w.conn)
 	r, err := reservations.Add(w.signIn(kh), app.ReservationAddRequest_builder{
-		Name:     "인터뷰",
-		BeginsAt: timestamppb.New(at),
-		EndsAt:   timestamppb.New(at.Add(time.Hour)),
-		Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: hall.GetId()}.Build()}.Build()},
+		Name:      "인터뷰",
+		DateStart: timestamppb.New(at),
+		DateEnd:   timestamppb.New(at.Add(time.Hour)),
+		Items:     []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: hall.GetId()}.Build()}.Build()},
 	}.Build())
 	x.NoError(err)
 	_, err = reservations.Reject(admin, app.ReservationDecideRequest_builder{Ref: app.ReservationRef_builder{Id: r.GetId()}.Build(), Reason: erased}.Build())

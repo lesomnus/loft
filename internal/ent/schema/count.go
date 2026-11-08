@@ -24,9 +24,9 @@ func (InventoryCount) Fields() []ent.Field {
 		field.String("name"),
 		field.String("desc"),
 		field.String("status"),
-		field.Time("started_at").
+		field.Time("date_started").
 			Optional(),
-		field.Time("closed_at").
+		field.Time("date_closed").
 			Nillable().
 			Optional(),
 		field.Uuid("started_by").
@@ -100,13 +100,13 @@ func (CountFinding) Fields() []ent.Field {
 		field.Uuid("expected_parent_id").
 			Nillable().
 			Optional(),
-		field.Time("seen_at").
+		field.Time("date_seen").
 			Optional(),
 		field.Uuid("recorded_by").
 			Nillable().
 			Optional(),
 		field.String("resolution"),
-		field.Time("resolved_at").
+		field.Time("date_resolved").
 			Nillable().
 			Optional(),
 		field.Uuid("tenant_id").

@@ -54,7 +54,7 @@ function Rack(p: PluginProps): ReactNode {
 	const n = rackUnits(p) || 42
 	// The U range is the placement's, so the rack is read as it is now.
 	const [now] = useState(() => ts(new Date()))
-	const q = useRpc(AssetService.method.queryAt, { root: ref(p.a.id), at: now, depth: 1 })
+	const q = useRpc(AssetService.method.queryAt, { root: ref(p.a.id), dateAsOf: now, depth: 1 })
 	const [install, setInstall] = useState<number>()
 	const at = new Map<number, AssetState>()
 	const loose: AssetState[] = []

@@ -189,11 +189,11 @@ func (st WorkOrderServiceServer) create(ctx context.Context, req *loft.WorkOrder
 	}
 	q.SetKind(req.GetKind())
 	q.SetStatus(req.GetStatus())
-	if req.HasBeginsAt() {
-		q.SetBeginsAt(req.GetBeginsAt().AsTime())
+	if req.HasDateStart() {
+		q.SetDateStart(req.GetDateStart().AsTime())
 	}
-	if req.HasEndsAt() {
-		q.SetEndsAt(req.GetEndsAt().AsTime())
+	if req.HasDateEnd() {
+		q.SetDateEnd(req.GetDateEnd().AsTime())
 	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
@@ -213,8 +213,8 @@ func (st WorkOrderServiceServer) create(ctx context.Context, req *loft.WorkOrder
 	}
 	q.SetCost(req.GetCost())
 	q.SetCurrency(req.GetCurrency())
-	if req.HasCompletedAt() {
-		q.SetCompletedAt(req.GetCompletedAt().AsTime())
+	if req.HasDateCompleted() {
+		q.SetDateCompleted(req.GetDateCompleted().AsTime())
 	}
 	q.SetBlocking(req.GetBlocking())
 	q.SetEveryDays(req.GetEveryDays())
@@ -357,11 +357,11 @@ func WorkOrderSelectedFields(m *loft.WorkOrderSelect) []string {
 	if m.GetStatus() {
 		vs = append(vs, workorder.FieldStatus)
 	}
-	if m.GetBeginsAt() {
-		vs = append(vs, workorder.FieldBeginsAt)
+	if m.GetDateStart() {
+		vs = append(vs, workorder.FieldDateStart)
 	}
-	if m.GetEndsAt() {
-		vs = append(vs, workorder.FieldEndsAt)
+	if m.GetDateEnd() {
+		vs = append(vs, workorder.FieldDateEnd)
 	}
 	if m.GetDateUpdated() {
 		vs = append(vs, workorder.FieldDateUpdated)
@@ -378,8 +378,8 @@ func WorkOrderSelectedFields(m *loft.WorkOrderSelect) []string {
 	if m.GetCurrency() {
 		vs = append(vs, workorder.FieldCurrency)
 	}
-	if m.GetCompletedAt() {
-		vs = append(vs, workorder.FieldCompletedAt)
+	if m.GetDateCompleted() {
+		vs = append(vs, workorder.FieldDateCompleted)
 	}
 	if m.GetBlocking() {
 		vs = append(vs, workorder.FieldBlocking)
@@ -478,7 +478,7 @@ func WorkOrderGetKey(ctx context.Context, db *ent.Client, ref *loft.WorkOrderRef
 var workOrderOrmEntity = ormpatch.MustEntityOf(loft.File_loft_work_proto, "WorkOrder")
 
 var workOrderPatchColumns = entpatch.Columns{
-	1: workorder.FieldId, 2: workorder.TenantColumn, 5: workorder.FieldName, 6: workorder.FieldDesc, 8: workorder.AssetColumn, 9: workorder.FieldKind, 10: workorder.FieldStatus, 11: workorder.FieldBeginsAt, 12: workorder.FieldEndsAt, 13: workorder.FieldDateUpdated, 14: workorder.FieldDateErased, 15: workorder.FieldDateCreated, 16: workorder.VendorColumn, 17: workorder.FieldCost, 18: workorder.FieldCurrency, 19: workorder.FieldCompletedAt, 20: workorder.FieldBlocking, 21: workorder.FieldEveryDays}
+	1: workorder.FieldId, 2: workorder.TenantColumn, 5: workorder.FieldName, 6: workorder.FieldDesc, 8: workorder.AssetColumn, 9: workorder.FieldKind, 10: workorder.FieldStatus, 11: workorder.FieldDateStart, 12: workorder.FieldDateEnd, 13: workorder.FieldDateUpdated, 14: workorder.FieldDateErased, 15: workorder.FieldDateCreated, 16: workorder.VendorColumn, 17: workorder.FieldCost, 18: workorder.FieldCurrency, 19: workorder.FieldDateCompleted, 20: workorder.FieldBlocking, 21: workorder.FieldEveryDays}
 
 func (s WorkOrderServiceServer) Apply(ctx context.Context, req *loft.WorkOrderApplyRequest) (*loft.WorkOrder, error) {
 	if !req.HasPatch() {
@@ -863,13 +863,13 @@ func (st PurchaseServiceServer) create(ctx context.Context, req *loft.PurchaseAd
 	}
 	q.SetReference(req.GetReference())
 	q.SetStatus(req.GetStatus())
-	if req.HasOrderedAt() {
-		q.SetOrderedAt(req.GetOrderedAt().AsTime())
+	if req.HasDateOrdered() {
+		q.SetDateOrdered(req.GetDateOrdered().AsTime())
 	} else {
-		q.SetOrderedAt(st.now())
+		q.SetDateOrdered(st.now())
 	}
-	if req.HasReceivedAt() {
-		q.SetReceivedAt(req.GetReceivedAt().AsTime())
+	if req.HasDateReceived() {
+		q.SetDateReceived(req.GetDateReceived().AsTime())
 	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
@@ -1018,11 +1018,11 @@ func PurchaseSelectedFields(m *loft.PurchaseSelect) []string {
 	if m.GetStatus() {
 		vs = append(vs, purchase.FieldStatus)
 	}
-	if m.GetOrderedAt() {
-		vs = append(vs, purchase.FieldOrderedAt)
+	if m.GetDateOrdered() {
+		vs = append(vs, purchase.FieldDateOrdered)
 	}
-	if m.GetReceivedAt() {
-		vs = append(vs, purchase.FieldReceivedAt)
+	if m.GetDateReceived() {
+		vs = append(vs, purchase.FieldDateReceived)
 	}
 	if m.GetDateUpdated() {
 		vs = append(vs, purchase.FieldDateUpdated)
@@ -1124,7 +1124,7 @@ func PurchaseGetKey(ctx context.Context, db *ent.Client, ref *loft.PurchaseRef) 
 var purchaseOrmEntity = ormpatch.MustEntityOf(loft.File_loft_work_proto, "Purchase")
 
 var purchasePatchColumns = entpatch.Columns{
-	1: purchase.FieldId, 2: purchase.TenantColumn, 5: purchase.FieldName, 6: purchase.FieldDesc, 8: purchase.VendorColumn, 9: purchase.FieldReference, 10: purchase.FieldStatus, 11: purchase.FieldOrderedAt, 12: purchase.FieldReceivedAt, 13: purchase.FieldDateUpdated, 14: purchase.FieldDateErased, 15: purchase.FieldDateCreated, 16: purchase.FieldCurrency, 17: purchase.FieldTotal}
+	1: purchase.FieldId, 2: purchase.TenantColumn, 5: purchase.FieldName, 6: purchase.FieldDesc, 8: purchase.VendorColumn, 9: purchase.FieldReference, 10: purchase.FieldStatus, 11: purchase.FieldDateOrdered, 12: purchase.FieldDateReceived, 13: purchase.FieldDateUpdated, 14: purchase.FieldDateErased, 15: purchase.FieldDateCreated, 16: purchase.FieldCurrency, 17: purchase.FieldTotal}
 
 func (s PurchaseServiceServer) Apply(ctx context.Context, req *loft.PurchaseApplyRequest) (*loft.Purchase, error) {
 	if !req.HasPatch() {

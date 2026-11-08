@@ -94,9 +94,9 @@ func TestAThousandThingsAtAMomentAnswerInASecond(t *testing.T) {
 	place := func(child, parent uuid.UUID, from time.Time, to *time.Time) {
 		c := e.s.Ent.Placement.Create().SetId(pdid.New(pd.PlacementDomain).Uuid()).SetTenantId(tenant).
 			SetChildId(child).SetParentId(parent).SetMode("located").SetSlot("").SetUFrom(0).SetUTo(0).
-			SetValidFrom(from).SetEventId(ev).SetDateUpdated(from).SetDateCreated(from)
+			SetDateStart(from).SetEventId(ev).SetDateUpdated(from).SetDateCreated(from)
 		if to != nil {
-			c.SetValidTo(*to)
+			c.SetDateEnd(*to)
 		}
 		places = append(places, c)
 	}
@@ -137,7 +137,7 @@ func TestAThousandThingsAtAMomentAnswerInASecond(t *testing.T) {
 		at := year.Add(time.Duration(r.Int64N(int64(365 * day))))
 		start := time.Now()
 		v, err := e.app().Asset().QueryAt(e.owner, app.AssetQueryAtRequest_builder{
-			Root: app.AssetRef_builder{Id: pdid.Id(root).Bytes()}.Build(), At: timestamppb.New(at),
+			Root: app.AssetRef_builder{Id: pdid.Id(root).Bytes()}.Build(), DateAsOf: timestamppb.New(at),
 		}.Build())
 		took = append(took, time.Since(start))
 		x.NoError(err)

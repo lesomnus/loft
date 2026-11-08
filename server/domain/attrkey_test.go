@@ -91,7 +91,7 @@ func TestAnAttributeKeyedByNothingBeforeReadsAsItDid(t *testing.T) {
 	made := e.now
 
 	// What it was at a moment.
-	q, err := e.app().Asset().QueryAt(e.owner, app.AssetQueryAtRequest_builder{Root: assetRef(a), At: timestamppb.New(made)}.Build())
+	q, err := e.app().Asset().QueryAt(e.owner, app.AssetQueryAtRequest_builder{Root: assetRef(a), DateAsOf: timestamppb.New(made)}.Build())
 	x.NoError(err)
 	x.NotEmpty(q.GetItems())
 	x.Equal("보증서 없음", q.GetItems()[0].GetFacts()["attr."])
@@ -109,9 +109,9 @@ func TestAnAttributeKeyedByNothingBeforeReadsAsItDid(t *testing.T) {
 
 	// What changed between the two: the size, and not what stayed.
 	d, err := e.app().Asset().Diff(e.owner, app.AssetDiffRequest_builder{
-		Root: assetRef(a),
-		From: timestamppb.New(made),
-		To:   timestamppb.New(e.now),
+		Root:     assetRef(a),
+		DateFrom: timestamppb.New(made),
+		DateTo:   timestamppb.New(e.now),
 	}.Build())
 	x.NoError(err)
 	changed := []string{}

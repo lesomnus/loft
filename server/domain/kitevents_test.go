@@ -49,7 +49,7 @@ func summaries(es []*app.TimelineEntry) []string {
 
 // begins is when a reservation begins, as a sentence of it says it.
 func begins(r *app.Reservation) string {
-	return r.GetBeginsAt().AsTime().In(domain.DefaultZone).Format("01-02 15:04")
+	return r.GetDateStart().AsTime().In(domain.DefaultZone).Format("01-02 15:04")
 }
 
 // about is the events of `kind` by their subject, each the only one of it.

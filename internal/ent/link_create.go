@@ -63,30 +63,30 @@ func (_c *LinkCreate) SetNillableDateCreated(v *time.Time) *LinkCreate {
 	return _c
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_c *LinkCreate) SetValidFrom(v time.Time) *LinkCreate {
-	_c.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_c *LinkCreate) SetDateStart(v time.Time) *LinkCreate {
+	_c.mutation.SetDateStart(v)
 	return _c
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_c *LinkCreate) SetNillableValidFrom(v *time.Time) *LinkCreate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableDateStart(v *time.Time) *LinkCreate {
 	if v != nil {
-		_c.SetValidFrom(*v)
+		_c.SetDateStart(*v)
 	}
 	return _c
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_c *LinkCreate) SetValidTo(v time.Time) *LinkCreate {
-	_c.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_c *LinkCreate) SetDateEnd(v time.Time) *LinkCreate {
+	_c.mutation.SetDateEnd(v)
 	return _c
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_c *LinkCreate) SetNillableValidTo(v *time.Time) *LinkCreate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableDateEnd(v *time.Time) *LinkCreate {
 	if v != nil {
-		_c.SetValidTo(*v)
+		_c.SetDateEnd(*v)
 	}
 	return _c
 }
@@ -97,16 +97,16 @@ func (_c *LinkCreate) SetEventId(v uuid.UUID) *LinkCreate {
 	return _c
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_c *LinkCreate) SetSupersededAt(v time.Time) *LinkCreate {
-	_c.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_c *LinkCreate) SetDateSuperseded(v time.Time) *LinkCreate {
+	_c.mutation.SetDateSuperseded(v)
 	return _c
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_c *LinkCreate) SetNillableSupersededAt(v *time.Time) *LinkCreate {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_c *LinkCreate) SetNillableDateSuperseded(v *time.Time) *LinkCreate {
 	if v != nil {
-		_c.SetSupersededAt(*v)
+		_c.SetDateSuperseded(*v)
 	}
 	return _c
 }
@@ -302,21 +302,21 @@ func (_c *LinkCreate) createSpec() (*Link, *sqlgraph.CreateSpec) {
 		_spec.SetField(link.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
 	}
-	if value, ok := _c.mutation.ValidFrom(); ok {
-		_spec.SetField(link.FieldValidFrom, field.TypeTime, value)
-		_node.ValidFrom = value
+	if value, ok := _c.mutation.DateStart(); ok {
+		_spec.SetField(link.FieldDateStart, field.TypeTime, value)
+		_node.DateStart = value
 	}
-	if value, ok := _c.mutation.ValidTo(); ok {
-		_spec.SetField(link.FieldValidTo, field.TypeTime, value)
-		_node.ValidTo = &value
+	if value, ok := _c.mutation.DateEnd(); ok {
+		_spec.SetField(link.FieldDateEnd, field.TypeTime, value)
+		_node.DateEnd = &value
 	}
 	if value, ok := _c.mutation.EventId(); ok {
 		_spec.SetField(link.FieldEventId, field.TypeUuid, value)
 		_node.EventId = value
 	}
-	if value, ok := _c.mutation.SupersededAt(); ok {
-		_spec.SetField(link.FieldSupersededAt, field.TypeTime, value)
-		_node.SupersededAt = &value
+	if value, ok := _c.mutation.DateSuperseded(); ok {
+		_spec.SetField(link.FieldDateSuperseded, field.TypeTime, value)
+		_node.DateSuperseded = &value
 	}
 	if value, ok := _c.mutation.SupersededBy(); ok {
 		_spec.SetField(link.FieldSupersededBy, field.TypeUuid, value)

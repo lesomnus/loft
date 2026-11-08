@@ -144,7 +144,7 @@ func (o *oracle) recorded(what string) {
 }
 
 func (o *oracle) add(name, kind string, in *app.Asset, since time.Time) *app.Asset {
-	req := app.AssetAddRequest_builder{Name: name, Kind: kind, Since: timestamppb.New(since)}.Build()
+	req := app.AssetAddRequest_builder{Name: name, Kind: kind, DateOccurred: timestamppb.New(since)}.Build()
 	if in != nil {
 		req.SetTo(assetRef(in))
 	}
@@ -160,7 +160,7 @@ func (o *oracle) add(name, kind string, in *app.Asset, since time.Time) *app.Ass
 func (o *oracle) rows(item int, k *time.Time) []*app.TimelineEntry {
 	req := app.AssetTimelineRequest_builder{Ref: assetRef(o.items[item])}.Build()
 	if k != nil {
-		req.SetKnown(timestamppb.New(*k))
+		req.SetDateKnown(timestamppb.New(*k))
 	}
 	v, err := o.e.app().Asset().Timeline(o.e.owner, req)
 	if err != nil {
@@ -172,7 +172,7 @@ func (o *oracle) rows(item int, k *time.Time) []*app.TimelineEntry {
 			out = append(out, en)
 		}
 	}
-	slices.SortFunc(out, func(a, b *app.TimelineEntry) int { return a.GetValidFrom().AsTime().Compare(b.GetValidFrom().AsTime()) })
+	slices.SortFunc(out, func(a, b *app.TimelineEntry) int { return a.GetDateStart().AsTime().Compare(b.GetDateStart().AsTime()) })
 	return out
 }
 
@@ -183,9 +183,9 @@ func (o *oracle) spaceOf(id []byte) int {
 // where is every item's space on day `d`, by QueryAt over the root -- known
 // now, or as known at `k`.
 func (o *oracle) where(d int, k *time.Time) map[int]int {
-	req := app.AssetQueryAtRequest_builder{Root: assetRef(o.root), At: timestamppb.New(o.day(d))}.Build()
+	req := app.AssetQueryAtRequest_builder{Root: assetRef(o.root), DateAsOf: timestamppb.New(o.day(d))}.Build()
 	if k != nil {
-		req.SetKnown(timestamppb.New(*k))
+		req.SetDateKnown(timestamppb.New(*k))
 	}
 	v, err := o.e.app().Asset().QueryAt(o.e.owner, req)
 	if err != nil {
@@ -248,10 +248,10 @@ func (o *oracle) check() {
 			got := []seg{}
 			for _, en := range o.rows(item, &k) {
 				to := -1
-				if en.HasValidTo() {
-					to = o.dayOf(en.GetValidTo().AsTime())
+				if en.HasDateEnd() {
+					to = o.dayOf(en.GetDateEnd().AsTime())
 				}
-				got = append(got, seg{o.dayOf(en.GetValidFrom().AsTime()), to, o.spaceOf(en.GetOtherId())})
+				got = append(got, seg{o.dayOf(en.GetDateStart().AsTime()), to, o.spaceOf(en.GetOtherId())})
 			}
 			if want := []seg(s.m[item]); !slices.Equal(got, want) {
 				o.rt.Fatalf("item %d's rows as known after step %d (%s): the Timeline says %v, the rule says %v%s", item, i, s.what, got, want, o.history())
@@ -307,7 +307,7 @@ func TestWhatWasTrueThenIsWhatTheRuleSays(t *testing.T) {
 			switch rapid.SampledFrom([]string{"move", "move", "remove", "reschedule", "retract"}).Draw(rt, "op") {
 			case "move":
 				in := rapid.IntRange(0, len(o.spaces)-1).Draw(rt, "to")
-				_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: ref, To: assetRef(o.spaces[in]), At: timestamppb.New(o.day(d)), Reason: "oracle"}.Build())
+				_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: ref, To: assetRef(o.spaces[in]), DateOccurred: timestamppb.New(o.day(d)), Reason: "oracle"}.Build())
 				if err != nil {
 					rt.Fatalf("move item %d to room %d on day %d: %v%s", item, in, d, err, o.history())
 				}
@@ -315,7 +315,7 @@ func TestWhatWasTrueThenIsWhatTheRuleSays(t *testing.T) {
 				o.recorded(fmt.Sprintf("item %d to room %d from day %d", item, in, d))
 
 			case "remove":
-				_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: ref, At: timestamppb.New(o.day(d)), Reason: "oracle"}.Build())
+				_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: ref, DateOccurred: timestamppb.New(o.day(d)), Reason: "oracle"}.Build())
 				if err != nil {
 					rt.Fatalf("take item %d out on day %d: %v%s", item, d, err, o.history())
 				}
@@ -328,14 +328,14 @@ func TestWhatWasTrueThenIsWhatTheRuleSays(t *testing.T) {
 					continue
 				}
 				r := rows[rapid.IntRange(0, len(rows)-1).Draw(rt, "row")]
-				from := o.dayOf(r.GetValidFrom().AsTime())
+				from := o.dayOf(r.GetDateStart().AsTime())
 				req := app.AssetCorrectRequest_builder{Ref: ref, RowId: r.GetRowId(), Reason: "oracle"}.Build()
 				what := fmt.Sprintf("item %d's placement from day %d never happened", item, from)
 				if rapid.Bool().Draw(rt, "retract") {
 					req.SetRetract(true)
 					o.now[item], _ = o.now[item].retract(from)
 				} else {
-					req.SetValidFrom(timestamppb.New(o.day(d)))
+					req.SetDateStart(timestamppb.New(o.day(d)))
 					k, gone := o.now[item].retract(from)
 					o.now[item] = k.set(d, gone.in)
 					what = fmt.Sprintf("item %d's placement from day %d was from day %d", item, from, d)

@@ -26,10 +26,10 @@ type InventoryCount struct {
 	Desc string `json:"desc,omitempty"`
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
-	// StartedAt holds the value of the "started_at" field.
-	StartedAt time.Time `json:"started_at,omitempty"`
-	// ClosedAt holds the value of the "closed_at" field.
-	ClosedAt *time.Time `json:"closed_at,omitempty"`
+	// DateStarted holds the value of the "date_started" field.
+	DateStarted time.Time `json:"date_started,omitempty"`
+	// DateClosed holds the value of the "date_closed" field.
+	DateClosed *time.Time `json:"date_closed,omitempty"`
 	// StartedBy holds the value of the "started_by" field.
 	StartedBy *uuid.UUID `json:"started_by,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
@@ -96,7 +96,7 @@ func (*InventoryCount) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case inventorycount.FieldName, inventorycount.FieldDesc, inventorycount.FieldStatus:
 			values[i] = new(sql.NullString)
-		case inventorycount.FieldStartedAt, inventorycount.FieldClosedAt, inventorycount.FieldDateUpdated, inventorycount.FieldDateErased, inventorycount.FieldDateCreated:
+		case inventorycount.FieldDateStarted, inventorycount.FieldDateClosed, inventorycount.FieldDateUpdated, inventorycount.FieldDateErased, inventorycount.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case inventorycount.FieldStartedBy:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -141,18 +141,18 @@ func (_m *InventoryCount) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Status = value.String
 			}
-		case inventorycount.FieldStartedAt:
+		case inventorycount.FieldDateStarted:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field started_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_started", values[i])
 			} else if value.Valid {
-				_m.StartedAt = value.Time
+				_m.DateStarted = value.Time
 			}
-		case inventorycount.FieldClosedAt:
+		case inventorycount.FieldDateClosed:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field closed_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_closed", values[i])
 			} else if value.Valid {
-				_m.ClosedAt = new(time.Time)
-				*_m.ClosedAt = value.Time
+				_m.DateClosed = new(time.Time)
+				*_m.DateClosed = value.Time
 			}
 		case inventorycount.FieldStartedBy:
 			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
@@ -259,11 +259,11 @@ func (_m *InventoryCount) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
-	builder.WriteString("started_at=")
-	builder.WriteString(_m.StartedAt.Format(time.ANSIC))
+	builder.WriteString("date_started=")
+	builder.WriteString(_m.DateStarted.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := _m.ClosedAt; v != nil {
-		builder.WriteString("closed_at=")
+	if v := _m.DateClosed; v != nil {
+		builder.WriteString("date_closed=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

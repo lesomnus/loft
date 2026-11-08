@@ -31,7 +31,7 @@ import (
 func (w *world) notices() []*ent.LevyanNotice {
 	vs, err := w.s.Ent.LevyanNotice.Query().
 		Where(levyannotice.KindNEQ(levyan.Past)).
-		Order(ent.Asc(levyannotice.FieldAt), ent.Asc(levyannotice.FieldId)).
+		Order(ent.Asc(levyannotice.FieldDateOccurred), ent.Asc(levyannotice.FieldId)).
 		All(context.Background())
 	w.x.NoError(err)
 	return vs
@@ -113,7 +113,7 @@ func TestAWorkspaceIsToldToLevyanByWhoMadeIt(t *testing.T) {
 		got = append(got, said(v.Kind, pdid.Id(v.Workspace), pdid.Id(v.Account)))
 		x.Equal(levyan.ByChange, v.Origin)
 		x.Nil(v.DateTold, "told when the teller tells it, and not before")
-		x.Equal(w.madeAt(pdid.Id(v.Workspace)), v.At.UTC(), "from when it was made")
+		x.Equal(w.madeAt(pdid.Id(v.Workspace)), v.DateOccurred.UTC(), "from when it was made")
 	}
 	x.Equal(want, got, "the world's own workspace was made past every way an account makes one: the backfill's")
 

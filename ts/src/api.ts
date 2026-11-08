@@ -271,8 +271,8 @@ export function workspaceOf(m: TenantMembership): Workspace {
 		alias: m.alias,
 		name: m.name,
 		role: m.role,
-		closed: m.closed === undefined ? undefined : timestampDate(m.closed).toISOString(),
-		destroy: m.destroy === undefined ? undefined : timestampDate(m.destroy).toISOString(),
+		closed: m.dateClosed === undefined ? undefined : timestampDate(m.dateClosed).toISOString(),
+		destroy: m.dateDestroy === undefined ? undefined : timestampDate(m.dateDestroy).toISOString(),
 		alias_hold_days: m.aliasHoldDays === 0 ? undefined : m.aliasHoldDays,
 		home: m.home === '' ? undefined : m.home,
 	}

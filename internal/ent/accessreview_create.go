@@ -31,30 +31,30 @@ func (_c *AccessReviewCreate) SetDesc(v string) *AccessReviewCreate {
 	return _c
 }
 
-// SetPeriodFrom sets the "period_from" field.
-func (_c *AccessReviewCreate) SetPeriodFrom(v time.Time) *AccessReviewCreate {
-	_c.mutation.SetPeriodFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_c *AccessReviewCreate) SetDateStart(v time.Time) *AccessReviewCreate {
+	_c.mutation.SetDateStart(v)
 	return _c
 }
 
-// SetNillablePeriodFrom sets the "period_from" field if the given value is not nil.
-func (_c *AccessReviewCreate) SetNillablePeriodFrom(v *time.Time) *AccessReviewCreate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_c *AccessReviewCreate) SetNillableDateStart(v *time.Time) *AccessReviewCreate {
 	if v != nil {
-		_c.SetPeriodFrom(*v)
+		_c.SetDateStart(*v)
 	}
 	return _c
 }
 
-// SetPeriodTo sets the "period_to" field.
-func (_c *AccessReviewCreate) SetPeriodTo(v time.Time) *AccessReviewCreate {
-	_c.mutation.SetPeriodTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_c *AccessReviewCreate) SetDateEnd(v time.Time) *AccessReviewCreate {
+	_c.mutation.SetDateEnd(v)
 	return _c
 }
 
-// SetNillablePeriodTo sets the "period_to" field if the given value is not nil.
-func (_c *AccessReviewCreate) SetNillablePeriodTo(v *time.Time) *AccessReviewCreate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_c *AccessReviewCreate) SetNillableDateEnd(v *time.Time) *AccessReviewCreate {
 	if v != nil {
-		_c.SetPeriodTo(*v)
+		_c.SetDateEnd(*v)
 	}
 	return _c
 }
@@ -235,13 +235,13 @@ func (_c *AccessReviewCreate) createSpec() (*AccessReview, *sqlgraph.CreateSpec)
 		_spec.SetField(accessreview.FieldDesc, field.TypeString, value)
 		_node.Desc = value
 	}
-	if value, ok := _c.mutation.PeriodFrom(); ok {
-		_spec.SetField(accessreview.FieldPeriodFrom, field.TypeTime, value)
-		_node.PeriodFrom = value
+	if value, ok := _c.mutation.DateStart(); ok {
+		_spec.SetField(accessreview.FieldDateStart, field.TypeTime, value)
+		_node.DateStart = value
 	}
-	if value, ok := _c.mutation.PeriodTo(); ok {
-		_spec.SetField(accessreview.FieldPeriodTo, field.TypeTime, value)
-		_node.PeriodTo = value
+	if value, ok := _c.mutation.DateEnd(); ok {
+		_spec.SetField(accessreview.FieldDateEnd, field.TypeTime, value)
+		_node.DateEnd = value
 	}
 	if value, ok := _c.mutation.Calls(); ok {
 		_spec.SetField(accessreview.FieldCalls, field.TypeUint32, value)

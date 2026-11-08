@@ -101,11 +101,11 @@ func newCmdEvent() *xli.Command {
 					if len(v.GetSubject()) > 0 {
 						about = ", about " + idSaid(v.GetSubject())
 					}
-					self.Printf("event %s of @%s: %s, happened %s, recorded %s%s\n", id, v.GetTenant(), v.GetKind(), momentOf(v.GetOccurred()), momentOf(v.GetRecorded()), about)
+					self.Printf("event %s of @%s: %s, happened %s, recorded %s%s\n", id, v.GetTenant(), v.GetKind(), momentOf(v.GetDateOccurred()), momentOf(v.GetDateRecorded()), about)
 					if !v.GetSaid() {
 						self.Printf("it has no reason: there is nothing to take out\n")
 						for _, a := range v.GetActs() {
-							self.Printf("event %s took it out, %s%s\n", idSaid(a.GetEvent()), momentOf(a.GetRecorded()), byWhom(a))
+							self.Printf("event %s took it out, %s%s\n", idSaid(a.GetEvent()), momentOf(a.GetDateRecorded()), byWhom(a))
 						}
 						return next(ctx)
 					}
@@ -200,7 +200,7 @@ func newCmdAccess() *xli.Command {
 					for _, f := range []struct {
 						name string
 						set  func(*timestamppb.Timestamp)
-					}{{"from", req.SetFrom}, {"to", req.SetTo}} {
+					}{{"from", req.SetDateFrom}, {"to", req.SetDateTo}} {
 						if v := str(self, f.name); v != "" {
 							t, err := instant(v)
 							if err != nil {
@@ -246,7 +246,7 @@ func newCmdAccess() *xli.Command {
 							address = "-"
 						}
 						self.Printf("%s  %s  %-8s %-18s %s  actor=%s  from=%s  subjects=%d%s\n",
-							momentOf(r.GetAt()), r.GetTenant(), r.GetKind(), r.GetResult(), r.GetAction(), actor, address, r.GetSubjects(), reason)
+							momentOf(r.GetDateCreated()), r.GetTenant(), r.GetKind(), r.GetResult(), r.GetAction(), actor, address, r.GetSubjects(), reason)
 					}
 					if len(v.GetItems()) == 0 {
 						self.Printf("nothing in that stretch\n")
@@ -314,7 +314,7 @@ func newCmdAccess() *xli.Command {
 						}
 						self.Printf("%s  %s  %s – %s  calls=%d downloads=%d refused=%d  by=%s%s\n",
 							momentOf(r.GetDateCreated()), aliasOf(r.GetTenant().GetId()),
-							momentOf(r.GetPeriodFrom()), momentOf(r.GetPeriodTo()),
+							momentOf(r.GetDateStart()), momentOf(r.GetDateEnd()),
 							r.GetCalls(), r.GetDownloads(), r.GetRefused(), idSaid(r.GetReviewer().GetId()), desc)
 					}
 					if len(vs) == 0 {

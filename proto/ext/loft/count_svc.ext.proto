@@ -10,7 +10,7 @@ option go_package = "github.com/lesomnus/loft";
 
 service InventoryCountService {
   // Scan records that something was seen, where. Offline scans arrive with the
-  // device's `seen_at` and their own op, so a replay is the same scan.
+  // device's `date_seen` and their own op, so a replay is the same scan.
   rpc Scan(InventoryCountScanRequest) returns (CountFinding);
   // Reconcile marks what was expected under the scope and never seen.
   rpc Reconcile(InventoryCountReconcileRequest) returns (InventoryCountReconcileResponse);
@@ -36,7 +36,7 @@ message InventoryCountScanRequest {
   AssetRef asset = 3;
   // Where it was seen. Empty is the count's scope.
   AssetRef at = 4;
-  google.protobuf.Timestamp seen_at = 5;
+  google.protobuf.Timestamp date_seen = 5;
   bytes op = 6 [features.field_presence = IMPLICIT];
   string note = 7 [features.field_presence = IMPLICIT];
 }
@@ -67,18 +67,18 @@ message InventoryCountCloseRequest {
 }
 
 message InventoryCountResultsRequest {
-  // The counts begun from `from` and before `to`, a year at most. Unsaid, the
+  // The counts begun from `date_from` and before `date_to`, a year at most. Unsaid, the
   // last year of the workspace's days, today among them.
-  google.protobuf.Timestamp from = 1;
-  google.protobuf.Timestamp to = 2;
+  google.protobuf.Timestamp date_from = 1;
+  google.protobuf.Timestamp date_to = 2;
 }
 
 message InventoryCountResultsResponse {
   // The newest first.
   repeated InventoryCountResult rows = 1;
   // The period it read.
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
 }
 
 // InventoryCountResult is what one count found, by kind, and how what it
@@ -91,8 +91,8 @@ message InventoryCountResult {
   string scope_name = 4 [features.field_presence = IMPLICIT];
   // open | closed
   string status = 5 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp started_at = 6;
-  google.protobuf.Timestamp closed_at = 7;
+  google.protobuf.Timestamp date_started = 6;
+  google.protobuf.Timestamp date_closed = 7;
   // What it found: where it should be, somewhere else, never seen, and
   // scanned but not registered. The last three are the differences.
   uint32 seen = 8 [features.field_presence = IMPLICIT];

@@ -45,30 +45,30 @@ func (_c *AllocationCreate) SetNillableRefId(v *uuid.UUID) *AllocationCreate {
 	return _c
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_c *AllocationCreate) SetBeginsAt(v time.Time) *AllocationCreate {
-	_c.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_c *AllocationCreate) SetDateStart(v time.Time) *AllocationCreate {
+	_c.mutation.SetDateStart(v)
 	return _c
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_c *AllocationCreate) SetNillableBeginsAt(v *time.Time) *AllocationCreate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_c *AllocationCreate) SetNillableDateStart(v *time.Time) *AllocationCreate {
 	if v != nil {
-		_c.SetBeginsAt(*v)
+		_c.SetDateStart(*v)
 	}
 	return _c
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_c *AllocationCreate) SetEndsAt(v time.Time) *AllocationCreate {
-	_c.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_c *AllocationCreate) SetDateEnd(v time.Time) *AllocationCreate {
+	_c.mutation.SetDateEnd(v)
 	return _c
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_c *AllocationCreate) SetNillableEndsAt(v *time.Time) *AllocationCreate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_c *AllocationCreate) SetNillableDateEnd(v *time.Time) *AllocationCreate {
 	if v != nil {
-		_c.SetEndsAt(*v)
+		_c.SetDateEnd(*v)
 	}
 	return _c
 }
@@ -262,13 +262,13 @@ func (_c *AllocationCreate) createSpec() (*Allocation, *sqlgraph.CreateSpec) {
 		_spec.SetField(allocation.FieldRefId, field.TypeUuid, value)
 		_node.RefId = &value
 	}
-	if value, ok := _c.mutation.BeginsAt(); ok {
-		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, value)
-		_node.BeginsAt = value
+	if value, ok := _c.mutation.DateStart(); ok {
+		_spec.SetField(allocation.FieldDateStart, field.TypeTime, value)
+		_node.DateStart = value
 	}
-	if value, ok := _c.mutation.EndsAt(); ok {
-		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, value)
-		_node.EndsAt = value
+	if value, ok := _c.mutation.DateEnd(); ok {
+		_spec.SetField(allocation.FieldDateEnd, field.TypeTime, value)
+		_node.DateEnd = value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(allocation.FieldDateUpdated, field.TypeTime, value)

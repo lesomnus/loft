@@ -24,9 +24,9 @@ func (Custody) Fields() []ent.Field {
 		field.String("desc"),
 		field.String("kind"),
 		field.String("status"),
-		field.Time("issued_at").
+		field.Time("date_issued").
 			Optional(),
-		field.Time("due_at").
+		field.Time("date_due").
 			Nillable().
 			Optional(),
 		field.Time("date_updated"),
@@ -36,10 +36,10 @@ func (Custody) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.Time("acknowledged_at").
+		field.Time("date_acknowledged").
 			Nillable().
 			Optional(),
-		field.Time("returned_at").
+		field.Time("date_returned").
 			Nillable().
 			Optional(),
 		field.Uuid("reservation_id").
@@ -75,13 +75,13 @@ func (Custody) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
 			StorageKey("custody_page"),
-		index.Fields("party_id", "issued_at").
+		index.Fields("party_id", "date_issued").
 			StorageKey("custody_party"),
-		index.Fields("tenant_id", "status", "due_at").
+		index.Fields("tenant_id", "status", "date_due").
 			StorageKey("custody_open"),
 		index.Fields("reservation_id").
 			StorageKey("custody_reservation"),
-		index.Fields("tenant_id", "issued_at").
+		index.Fields("tenant_id", "date_issued").
 			StorageKey("custody_issued"),
 	}
 }
@@ -107,9 +107,9 @@ func (CustodyLine) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.Time("out_at").
+		field.Time("date_out").
 			Optional(),
-		field.Time("returned_at").
+		field.Time("date_returned").
 			Nillable().
 			Optional(),
 		field.String("condition_out"),

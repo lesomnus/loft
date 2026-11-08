@@ -57,7 +57,7 @@ func TestWhatPoolsGiveIsReadAtEachMoment(t *testing.T) {
 	l := &ledger{units: map[uuid.UUID][]uuid.UUID{one: {m}, two: {m, b}}, set: map[uuid.UUID]uint32{}}
 	at := time.Date(2026, 10, 27, 9, 0, 0, 0, time.UTC)
 	span := func(of uuid.UUID, from, to int, units uint32) *ent.Allocation {
-		return &ent.Allocation{ResourceId: of, BeginsAt: at.Add(time.Duration(from) * time.Hour), EndsAt: at.Add(time.Duration(to) * time.Hour), Units: units}
+		return &ent.Allocation{ResourceId: of, DateStart: at.Add(time.Duration(from) * time.Hour), DateEnd: at.Add(time.Duration(to) * time.Hour), Units: units}
 	}
 
 	own := []*ent.Allocation{span(one, 0, 3, 1), span(two, 2, 4, 1)}

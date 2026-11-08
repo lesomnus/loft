@@ -66,14 +66,14 @@ func State(v string) predicate.Label {
 	return predicate.Label(sql.FieldEQ(FieldState, v))
 }
 
-// BoundAt applies equality check predicate on the "bound_at" field. It's identical to BoundAtEQ.
-func BoundAt(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldEQ(FieldBoundAt, v))
+// DateBound applies equality check predicate on the "date_bound" field. It's identical to DateBoundEQ.
+func DateBound(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldEQ(FieldDateBound, v))
 }
 
-// PrintedAt applies equality check predicate on the "printed_at" field. It's identical to PrintedAtEQ.
-func PrintedAt(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldEQ(FieldPrintedAt, v))
+// DatePrinted applies equality check predicate on the "date_printed" field. It's identical to DatePrintedEQ.
+func DatePrinted(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldEQ(FieldDatePrinted, v))
 }
 
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
@@ -226,104 +226,104 @@ func StateContainsFold(v string) predicate.Label {
 	return predicate.Label(sql.FieldContainsFold(FieldState, v))
 }
 
-// BoundAtEQ applies the EQ predicate on the "bound_at" field.
-func BoundAtEQ(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldEQ(FieldBoundAt, v))
+// DateBoundEQ applies the EQ predicate on the "date_bound" field.
+func DateBoundEQ(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldEQ(FieldDateBound, v))
 }
 
-// BoundAtNEQ applies the NEQ predicate on the "bound_at" field.
-func BoundAtNEQ(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldNEQ(FieldBoundAt, v))
+// DateBoundNEQ applies the NEQ predicate on the "date_bound" field.
+func DateBoundNEQ(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldNEQ(FieldDateBound, v))
 }
 
-// BoundAtIn applies the In predicate on the "bound_at" field.
-func BoundAtIn(vs ...time.Time) predicate.Label {
-	return predicate.Label(sql.FieldIn(FieldBoundAt, vs...))
+// DateBoundIn applies the In predicate on the "date_bound" field.
+func DateBoundIn(vs ...time.Time) predicate.Label {
+	return predicate.Label(sql.FieldIn(FieldDateBound, vs...))
 }
 
-// BoundAtNotIn applies the NotIn predicate on the "bound_at" field.
-func BoundAtNotIn(vs ...time.Time) predicate.Label {
-	return predicate.Label(sql.FieldNotIn(FieldBoundAt, vs...))
+// DateBoundNotIn applies the NotIn predicate on the "date_bound" field.
+func DateBoundNotIn(vs ...time.Time) predicate.Label {
+	return predicate.Label(sql.FieldNotIn(FieldDateBound, vs...))
 }
 
-// BoundAtGT applies the GT predicate on the "bound_at" field.
-func BoundAtGT(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldGT(FieldBoundAt, v))
+// DateBoundGT applies the GT predicate on the "date_bound" field.
+func DateBoundGT(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldGT(FieldDateBound, v))
 }
 
-// BoundAtGTE applies the GTE predicate on the "bound_at" field.
-func BoundAtGTE(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldGTE(FieldBoundAt, v))
+// DateBoundGTE applies the GTE predicate on the "date_bound" field.
+func DateBoundGTE(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldGTE(FieldDateBound, v))
 }
 
-// BoundAtLT applies the LT predicate on the "bound_at" field.
-func BoundAtLT(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldLT(FieldBoundAt, v))
+// DateBoundLT applies the LT predicate on the "date_bound" field.
+func DateBoundLT(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldLT(FieldDateBound, v))
 }
 
-// BoundAtLTE applies the LTE predicate on the "bound_at" field.
-func BoundAtLTE(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldLTE(FieldBoundAt, v))
+// DateBoundLTE applies the LTE predicate on the "date_bound" field.
+func DateBoundLTE(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldLTE(FieldDateBound, v))
 }
 
-// BoundAtIsNil applies the IsNil predicate on the "bound_at" field.
-func BoundAtIsNil() predicate.Label {
-	return predicate.Label(sql.FieldIsNull(FieldBoundAt))
+// DateBoundIsNil applies the IsNil predicate on the "date_bound" field.
+func DateBoundIsNil() predicate.Label {
+	return predicate.Label(sql.FieldIsNull(FieldDateBound))
 }
 
-// BoundAtNotNil applies the NotNil predicate on the "bound_at" field.
-func BoundAtNotNil() predicate.Label {
-	return predicate.Label(sql.FieldNotNull(FieldBoundAt))
+// DateBoundNotNil applies the NotNil predicate on the "date_bound" field.
+func DateBoundNotNil() predicate.Label {
+	return predicate.Label(sql.FieldNotNull(FieldDateBound))
 }
 
-// PrintedAtEQ applies the EQ predicate on the "printed_at" field.
-func PrintedAtEQ(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldEQ(FieldPrintedAt, v))
+// DatePrintedEQ applies the EQ predicate on the "date_printed" field.
+func DatePrintedEQ(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldEQ(FieldDatePrinted, v))
 }
 
-// PrintedAtNEQ applies the NEQ predicate on the "printed_at" field.
-func PrintedAtNEQ(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldNEQ(FieldPrintedAt, v))
+// DatePrintedNEQ applies the NEQ predicate on the "date_printed" field.
+func DatePrintedNEQ(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldNEQ(FieldDatePrinted, v))
 }
 
-// PrintedAtIn applies the In predicate on the "printed_at" field.
-func PrintedAtIn(vs ...time.Time) predicate.Label {
-	return predicate.Label(sql.FieldIn(FieldPrintedAt, vs...))
+// DatePrintedIn applies the In predicate on the "date_printed" field.
+func DatePrintedIn(vs ...time.Time) predicate.Label {
+	return predicate.Label(sql.FieldIn(FieldDatePrinted, vs...))
 }
 
-// PrintedAtNotIn applies the NotIn predicate on the "printed_at" field.
-func PrintedAtNotIn(vs ...time.Time) predicate.Label {
-	return predicate.Label(sql.FieldNotIn(FieldPrintedAt, vs...))
+// DatePrintedNotIn applies the NotIn predicate on the "date_printed" field.
+func DatePrintedNotIn(vs ...time.Time) predicate.Label {
+	return predicate.Label(sql.FieldNotIn(FieldDatePrinted, vs...))
 }
 
-// PrintedAtGT applies the GT predicate on the "printed_at" field.
-func PrintedAtGT(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldGT(FieldPrintedAt, v))
+// DatePrintedGT applies the GT predicate on the "date_printed" field.
+func DatePrintedGT(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldGT(FieldDatePrinted, v))
 }
 
-// PrintedAtGTE applies the GTE predicate on the "printed_at" field.
-func PrintedAtGTE(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldGTE(FieldPrintedAt, v))
+// DatePrintedGTE applies the GTE predicate on the "date_printed" field.
+func DatePrintedGTE(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldGTE(FieldDatePrinted, v))
 }
 
-// PrintedAtLT applies the LT predicate on the "printed_at" field.
-func PrintedAtLT(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldLT(FieldPrintedAt, v))
+// DatePrintedLT applies the LT predicate on the "date_printed" field.
+func DatePrintedLT(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldLT(FieldDatePrinted, v))
 }
 
-// PrintedAtLTE applies the LTE predicate on the "printed_at" field.
-func PrintedAtLTE(v time.Time) predicate.Label {
-	return predicate.Label(sql.FieldLTE(FieldPrintedAt, v))
+// DatePrintedLTE applies the LTE predicate on the "date_printed" field.
+func DatePrintedLTE(v time.Time) predicate.Label {
+	return predicate.Label(sql.FieldLTE(FieldDatePrinted, v))
 }
 
-// PrintedAtIsNil applies the IsNil predicate on the "printed_at" field.
-func PrintedAtIsNil() predicate.Label {
-	return predicate.Label(sql.FieldIsNull(FieldPrintedAt))
+// DatePrintedIsNil applies the IsNil predicate on the "date_printed" field.
+func DatePrintedIsNil() predicate.Label {
+	return predicate.Label(sql.FieldIsNull(FieldDatePrinted))
 }
 
-// PrintedAtNotNil applies the NotNil predicate on the "printed_at" field.
-func PrintedAtNotNil() predicate.Label {
-	return predicate.Label(sql.FieldNotNull(FieldPrintedAt))
+// DatePrintedNotNil applies the NotNil predicate on the "date_printed" field.
+func DatePrintedNotNil() predicate.Label {
+	return predicate.Label(sql.FieldNotNull(FieldDatePrinted))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.

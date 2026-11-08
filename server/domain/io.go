@@ -141,8 +141,8 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 				loc = p.Tag
 			}
 		}
-		if a.AcquiredAt != nil {
-			acquired = a.AcquiredAt.In(t.zone()).Format(time.DateOnly)
+		if a.DateAcquired != nil {
+			acquired = a.DateAcquired.In(t.zone()).Format(time.DateOnly)
 		}
 		// A column no `personal` declaration can see: the file carries the
 		// custodian's name, and the team's beside it for a name two go by,

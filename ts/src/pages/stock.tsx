@@ -193,7 +193,7 @@ function History(props: { s: Stock; onClose: () => void }): ReactNode {
 							<tbody>
 								{d.items.map((m) => (
 									<tr key={idStr(m.id)}>
-										<td>{fmt(m.occurredAt)}</td>
+										<td>{fmt(m.dateOccurred)}</td>
 										<td>{movementWord[m.reason] ?? m.reason}</td>
 										<td className={`num ${m.delta < 0n ? 'bad' : 'ok'}`}>{m.delta > 0n ? `+${m.delta}` : String(m.delta)}</td>
 										<td className="num">{String(m.balance)}</td>

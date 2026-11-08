@@ -96,14 +96,14 @@ func DateCreated(v time.Time) predicate.Domain {
 	return predicate.Domain(sql.FieldEQ(FieldDateCreated, v))
 }
 
-// VerifiedAt applies equality check predicate on the "verified_at" field. It's identical to VerifiedAtEQ.
-func VerifiedAt(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldEQ(FieldVerifiedAt, v))
+// DateVerified applies equality check predicate on the "date_verified" field. It's identical to DateVerifiedEQ.
+func DateVerified(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDateVerified, v))
 }
 
-// CheckedAt applies equality check predicate on the "checked_at" field. It's identical to CheckedAtEQ.
-func CheckedAt(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldEQ(FieldCheckedAt, v))
+// DateChecked applies equality check predicate on the "date_checked" field. It's identical to DateCheckedEQ.
+func DateChecked(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDateChecked, v))
 }
 
 // Failures applies equality check predicate on the "failures" field. It's identical to FailuresEQ.
@@ -111,9 +111,9 @@ func Failures(v uint32) predicate.Domain {
 	return predicate.Domain(sql.FieldEQ(FieldFailures, v))
 }
 
-// FailingSince applies equality check predicate on the "failing_since" field. It's identical to FailingSinceEQ.
-func FailingSince(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldEQ(FieldFailingSince, v))
+// DateFailing applies equality check predicate on the "date_failing" field. It's identical to DateFailingEQ.
+func DateFailing(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDateFailing, v))
 }
 
 // DateLapsed applies equality check predicate on the "date_lapsed" field. It's identical to DateLapsedEQ.
@@ -121,9 +121,9 @@ func DateLapsed(v time.Time) predicate.Domain {
 	return predicate.Domain(sql.FieldEQ(FieldDateLapsed, v))
 }
 
-// RedirectUntil applies equality check predicate on the "redirect_until" field. It's identical to RedirectUntilEQ.
-func RedirectUntil(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldEQ(FieldRedirectUntil, v))
+// DateRedirectUntil applies equality check predicate on the "date_redirect_until" field. It's identical to DateRedirectUntilEQ.
+func DateRedirectUntil(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDateRedirectUntil, v))
 }
 
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
@@ -596,104 +596,104 @@ func DateCreatedNotNil() predicate.Domain {
 	return predicate.Domain(sql.FieldNotNull(FieldDateCreated))
 }
 
-// VerifiedAtEQ applies the EQ predicate on the "verified_at" field.
-func VerifiedAtEQ(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldEQ(FieldVerifiedAt, v))
+// DateVerifiedEQ applies the EQ predicate on the "date_verified" field.
+func DateVerifiedEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDateVerified, v))
 }
 
-// VerifiedAtNEQ applies the NEQ predicate on the "verified_at" field.
-func VerifiedAtNEQ(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldNEQ(FieldVerifiedAt, v))
+// DateVerifiedNEQ applies the NEQ predicate on the "date_verified" field.
+func DateVerifiedNEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldDateVerified, v))
 }
 
-// VerifiedAtIn applies the In predicate on the "verified_at" field.
-func VerifiedAtIn(vs ...time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldIn(FieldVerifiedAt, vs...))
+// DateVerifiedIn applies the In predicate on the "date_verified" field.
+func DateVerifiedIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldDateVerified, vs...))
 }
 
-// VerifiedAtNotIn applies the NotIn predicate on the "verified_at" field.
-func VerifiedAtNotIn(vs ...time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldNotIn(FieldVerifiedAt, vs...))
+// DateVerifiedNotIn applies the NotIn predicate on the "date_verified" field.
+func DateVerifiedNotIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldDateVerified, vs...))
 }
 
-// VerifiedAtGT applies the GT predicate on the "verified_at" field.
-func VerifiedAtGT(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldGT(FieldVerifiedAt, v))
+// DateVerifiedGT applies the GT predicate on the "date_verified" field.
+func DateVerifiedGT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldDateVerified, v))
 }
 
-// VerifiedAtGTE applies the GTE predicate on the "verified_at" field.
-func VerifiedAtGTE(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldGTE(FieldVerifiedAt, v))
+// DateVerifiedGTE applies the GTE predicate on the "date_verified" field.
+func DateVerifiedGTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldDateVerified, v))
 }
 
-// VerifiedAtLT applies the LT predicate on the "verified_at" field.
-func VerifiedAtLT(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldLT(FieldVerifiedAt, v))
+// DateVerifiedLT applies the LT predicate on the "date_verified" field.
+func DateVerifiedLT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldDateVerified, v))
 }
 
-// VerifiedAtLTE applies the LTE predicate on the "verified_at" field.
-func VerifiedAtLTE(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldLTE(FieldVerifiedAt, v))
+// DateVerifiedLTE applies the LTE predicate on the "date_verified" field.
+func DateVerifiedLTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldDateVerified, v))
 }
 
-// VerifiedAtIsNil applies the IsNil predicate on the "verified_at" field.
-func VerifiedAtIsNil() predicate.Domain {
-	return predicate.Domain(sql.FieldIsNull(FieldVerifiedAt))
+// DateVerifiedIsNil applies the IsNil predicate on the "date_verified" field.
+func DateVerifiedIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldDateVerified))
 }
 
-// VerifiedAtNotNil applies the NotNil predicate on the "verified_at" field.
-func VerifiedAtNotNil() predicate.Domain {
-	return predicate.Domain(sql.FieldNotNull(FieldVerifiedAt))
+// DateVerifiedNotNil applies the NotNil predicate on the "date_verified" field.
+func DateVerifiedNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldDateVerified))
 }
 
-// CheckedAtEQ applies the EQ predicate on the "checked_at" field.
-func CheckedAtEQ(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldEQ(FieldCheckedAt, v))
+// DateCheckedEQ applies the EQ predicate on the "date_checked" field.
+func DateCheckedEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDateChecked, v))
 }
 
-// CheckedAtNEQ applies the NEQ predicate on the "checked_at" field.
-func CheckedAtNEQ(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldNEQ(FieldCheckedAt, v))
+// DateCheckedNEQ applies the NEQ predicate on the "date_checked" field.
+func DateCheckedNEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldDateChecked, v))
 }
 
-// CheckedAtIn applies the In predicate on the "checked_at" field.
-func CheckedAtIn(vs ...time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldIn(FieldCheckedAt, vs...))
+// DateCheckedIn applies the In predicate on the "date_checked" field.
+func DateCheckedIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldDateChecked, vs...))
 }
 
-// CheckedAtNotIn applies the NotIn predicate on the "checked_at" field.
-func CheckedAtNotIn(vs ...time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldNotIn(FieldCheckedAt, vs...))
+// DateCheckedNotIn applies the NotIn predicate on the "date_checked" field.
+func DateCheckedNotIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldDateChecked, vs...))
 }
 
-// CheckedAtGT applies the GT predicate on the "checked_at" field.
-func CheckedAtGT(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldGT(FieldCheckedAt, v))
+// DateCheckedGT applies the GT predicate on the "date_checked" field.
+func DateCheckedGT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldDateChecked, v))
 }
 
-// CheckedAtGTE applies the GTE predicate on the "checked_at" field.
-func CheckedAtGTE(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldGTE(FieldCheckedAt, v))
+// DateCheckedGTE applies the GTE predicate on the "date_checked" field.
+func DateCheckedGTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldDateChecked, v))
 }
 
-// CheckedAtLT applies the LT predicate on the "checked_at" field.
-func CheckedAtLT(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldLT(FieldCheckedAt, v))
+// DateCheckedLT applies the LT predicate on the "date_checked" field.
+func DateCheckedLT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldDateChecked, v))
 }
 
-// CheckedAtLTE applies the LTE predicate on the "checked_at" field.
-func CheckedAtLTE(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldLTE(FieldCheckedAt, v))
+// DateCheckedLTE applies the LTE predicate on the "date_checked" field.
+func DateCheckedLTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldDateChecked, v))
 }
 
-// CheckedAtIsNil applies the IsNil predicate on the "checked_at" field.
-func CheckedAtIsNil() predicate.Domain {
-	return predicate.Domain(sql.FieldIsNull(FieldCheckedAt))
+// DateCheckedIsNil applies the IsNil predicate on the "date_checked" field.
+func DateCheckedIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldDateChecked))
 }
 
-// CheckedAtNotNil applies the NotNil predicate on the "checked_at" field.
-func CheckedAtNotNil() predicate.Domain {
-	return predicate.Domain(sql.FieldNotNull(FieldCheckedAt))
+// DateCheckedNotNil applies the NotNil predicate on the "date_checked" field.
+func DateCheckedNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldDateChecked))
 }
 
 // FailuresEQ applies the EQ predicate on the "failures" field.
@@ -746,54 +746,54 @@ func FailuresNotNil() predicate.Domain {
 	return predicate.Domain(sql.FieldNotNull(FieldFailures))
 }
 
-// FailingSinceEQ applies the EQ predicate on the "failing_since" field.
-func FailingSinceEQ(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldEQ(FieldFailingSince, v))
+// DateFailingEQ applies the EQ predicate on the "date_failing" field.
+func DateFailingEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDateFailing, v))
 }
 
-// FailingSinceNEQ applies the NEQ predicate on the "failing_since" field.
-func FailingSinceNEQ(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldNEQ(FieldFailingSince, v))
+// DateFailingNEQ applies the NEQ predicate on the "date_failing" field.
+func DateFailingNEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldDateFailing, v))
 }
 
-// FailingSinceIn applies the In predicate on the "failing_since" field.
-func FailingSinceIn(vs ...time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldIn(FieldFailingSince, vs...))
+// DateFailingIn applies the In predicate on the "date_failing" field.
+func DateFailingIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldDateFailing, vs...))
 }
 
-// FailingSinceNotIn applies the NotIn predicate on the "failing_since" field.
-func FailingSinceNotIn(vs ...time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldNotIn(FieldFailingSince, vs...))
+// DateFailingNotIn applies the NotIn predicate on the "date_failing" field.
+func DateFailingNotIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldDateFailing, vs...))
 }
 
-// FailingSinceGT applies the GT predicate on the "failing_since" field.
-func FailingSinceGT(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldGT(FieldFailingSince, v))
+// DateFailingGT applies the GT predicate on the "date_failing" field.
+func DateFailingGT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldDateFailing, v))
 }
 
-// FailingSinceGTE applies the GTE predicate on the "failing_since" field.
-func FailingSinceGTE(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldGTE(FieldFailingSince, v))
+// DateFailingGTE applies the GTE predicate on the "date_failing" field.
+func DateFailingGTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldDateFailing, v))
 }
 
-// FailingSinceLT applies the LT predicate on the "failing_since" field.
-func FailingSinceLT(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldLT(FieldFailingSince, v))
+// DateFailingLT applies the LT predicate on the "date_failing" field.
+func DateFailingLT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldDateFailing, v))
 }
 
-// FailingSinceLTE applies the LTE predicate on the "failing_since" field.
-func FailingSinceLTE(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldLTE(FieldFailingSince, v))
+// DateFailingLTE applies the LTE predicate on the "date_failing" field.
+func DateFailingLTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldDateFailing, v))
 }
 
-// FailingSinceIsNil applies the IsNil predicate on the "failing_since" field.
-func FailingSinceIsNil() predicate.Domain {
-	return predicate.Domain(sql.FieldIsNull(FieldFailingSince))
+// DateFailingIsNil applies the IsNil predicate on the "date_failing" field.
+func DateFailingIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldDateFailing))
 }
 
-// FailingSinceNotNil applies the NotNil predicate on the "failing_since" field.
-func FailingSinceNotNil() predicate.Domain {
-	return predicate.Domain(sql.FieldNotNull(FieldFailingSince))
+// DateFailingNotNil applies the NotNil predicate on the "date_failing" field.
+func DateFailingNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldDateFailing))
 }
 
 // DateLapsedEQ applies the EQ predicate on the "date_lapsed" field.
@@ -846,54 +846,54 @@ func DateLapsedNotNil() predicate.Domain {
 	return predicate.Domain(sql.FieldNotNull(FieldDateLapsed))
 }
 
-// RedirectUntilEQ applies the EQ predicate on the "redirect_until" field.
-func RedirectUntilEQ(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldEQ(FieldRedirectUntil, v))
+// DateRedirectUntilEQ applies the EQ predicate on the "date_redirect_until" field.
+func DateRedirectUntilEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDateRedirectUntil, v))
 }
 
-// RedirectUntilNEQ applies the NEQ predicate on the "redirect_until" field.
-func RedirectUntilNEQ(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldNEQ(FieldRedirectUntil, v))
+// DateRedirectUntilNEQ applies the NEQ predicate on the "date_redirect_until" field.
+func DateRedirectUntilNEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldDateRedirectUntil, v))
 }
 
-// RedirectUntilIn applies the In predicate on the "redirect_until" field.
-func RedirectUntilIn(vs ...time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldIn(FieldRedirectUntil, vs...))
+// DateRedirectUntilIn applies the In predicate on the "date_redirect_until" field.
+func DateRedirectUntilIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldDateRedirectUntil, vs...))
 }
 
-// RedirectUntilNotIn applies the NotIn predicate on the "redirect_until" field.
-func RedirectUntilNotIn(vs ...time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldNotIn(FieldRedirectUntil, vs...))
+// DateRedirectUntilNotIn applies the NotIn predicate on the "date_redirect_until" field.
+func DateRedirectUntilNotIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldDateRedirectUntil, vs...))
 }
 
-// RedirectUntilGT applies the GT predicate on the "redirect_until" field.
-func RedirectUntilGT(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldGT(FieldRedirectUntil, v))
+// DateRedirectUntilGT applies the GT predicate on the "date_redirect_until" field.
+func DateRedirectUntilGT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldDateRedirectUntil, v))
 }
 
-// RedirectUntilGTE applies the GTE predicate on the "redirect_until" field.
-func RedirectUntilGTE(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldGTE(FieldRedirectUntil, v))
+// DateRedirectUntilGTE applies the GTE predicate on the "date_redirect_until" field.
+func DateRedirectUntilGTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldDateRedirectUntil, v))
 }
 
-// RedirectUntilLT applies the LT predicate on the "redirect_until" field.
-func RedirectUntilLT(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldLT(FieldRedirectUntil, v))
+// DateRedirectUntilLT applies the LT predicate on the "date_redirect_until" field.
+func DateRedirectUntilLT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldDateRedirectUntil, v))
 }
 
-// RedirectUntilLTE applies the LTE predicate on the "redirect_until" field.
-func RedirectUntilLTE(v time.Time) predicate.Domain {
-	return predicate.Domain(sql.FieldLTE(FieldRedirectUntil, v))
+// DateRedirectUntilLTE applies the LTE predicate on the "date_redirect_until" field.
+func DateRedirectUntilLTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldDateRedirectUntil, v))
 }
 
-// RedirectUntilIsNil applies the IsNil predicate on the "redirect_until" field.
-func RedirectUntilIsNil() predicate.Domain {
-	return predicate.Domain(sql.FieldIsNull(FieldRedirectUntil))
+// DateRedirectUntilIsNil applies the IsNil predicate on the "date_redirect_until" field.
+func DateRedirectUntilIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldDateRedirectUntil))
 }
 
-// RedirectUntilNotNil applies the NotNil predicate on the "redirect_until" field.
-func RedirectUntilNotNil() predicate.Domain {
-	return predicate.Domain(sql.FieldNotNull(FieldRedirectUntil))
+// DateRedirectUntilNotNil applies the NotNil predicate on the "date_redirect_until" field.
+func DateRedirectUntilNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldDateRedirectUntil))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

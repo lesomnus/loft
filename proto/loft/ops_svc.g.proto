@@ -82,7 +82,7 @@ message NotificationAddRequest {
   HolderRef holder = 8;
   string kind = 9 [features.field_presence = IMPLICIT];
   bytes subject_id = 10;
-  google.protobuf.Timestamp read_at = 11;
+  google.protobuf.Timestamp date_read = 11;
   string link = 12 [features.field_presence = IMPLICIT];
   bool mail = 16 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_mailed = 17;
@@ -109,7 +109,7 @@ message NotificationSelect {
   HolderSelect holder = 8;
   bool kind = 9;
   bool subject_id = 10;
-  bool read_at = 11;
+  bool date_read = 11;
   bool link = 12;
   bool mail = 16;
   bool date_mailed = 17;
@@ -129,12 +129,12 @@ message NotificationPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and subject_id clears.
   bool subject_id_null = 21;
-  google.protobuf.Timestamp read_at = 22;
-  // Clear read_at instead of writing it.
+  google.protobuf.Timestamp date_read = 22;
+  // Clear date_read instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and read_at clears.
-  bool read_at_null = 23;
+  // outright: setting both this and date_read clears.
+  bool date_read_null = 23;
   string link = 24;
   bool mail = 32;
   google.protobuf.Timestamp date_mailed = 34;
@@ -437,8 +437,8 @@ message AccessReviewAddRequest {
   bytes id = 1;
   TenantRef tenant = 2;
   string desc = 6 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp period_from = 8;
-  google.protobuf.Timestamp period_to = 9;
+  google.protobuf.Timestamp date_start = 8;
+  google.protobuf.Timestamp date_end = 9;
   HolderRef reviewer = 10;
   uint32 calls = 11 [features.field_presence = IMPLICIT];
   uint32 downloads = 12 [features.field_presence = IMPLICIT];
@@ -461,8 +461,8 @@ message AccessReviewSelect {
   bool all = 1;
   TenantSelect tenant = 2;
   bool desc = 6;
-  bool period_from = 8;
-  bool period_to = 9;
+  bool date_start = 8;
+  bool date_end = 9;
   HolderSelect reviewer = 10;
   bool calls = 11;
   bool downloads = 12;

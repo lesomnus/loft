@@ -26,14 +26,14 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldExpectedParentId holds the string denoting the expected_parent_id field in the database.
 	FieldExpectedParentId = "expected_parent_id"
-	// FieldSeenAt holds the string denoting the seen_at field in the database.
-	FieldSeenAt = "seen_at"
+	// FieldDateSeen holds the string denoting the date_seen field in the database.
+	FieldDateSeen = "date_seen"
 	// FieldRecordedBy holds the string denoting the recorded_by field in the database.
 	FieldRecordedBy = "recorded_by"
 	// FieldResolution holds the string denoting the resolution field in the database.
 	FieldResolution = "resolution"
-	// FieldResolvedAt holds the string denoting the resolved_at field in the database.
-	FieldResolvedAt = "resolved_at"
+	// FieldDateResolved holds the string denoting the date_resolved field in the database.
+	FieldDateResolved = "date_resolved"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// FieldCountId holds the string denoting the count_id field in the database.
@@ -81,10 +81,10 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldDateCreated,
 	FieldExpectedParentId,
-	FieldSeenAt,
+	FieldDateSeen,
 	FieldRecordedBy,
 	FieldResolution,
-	FieldResolvedAt,
+	FieldDateResolved,
 	FieldTenantId,
 	FieldCountId,
 	FieldAssetId,
@@ -143,9 +143,9 @@ func ByExpectedParentId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldExpectedParentId, opts...).ToFunc()
 }
 
-// BySeenAt orders the results by the seen_at field.
-func BySeenAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldSeenAt, opts...).ToFunc()
+// ByDateSeen orders the results by the date_seen field.
+func ByDateSeen(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateSeen, opts...).ToFunc()
 }
 
 // ByRecordedBy orders the results by the recorded_by field.
@@ -158,9 +158,9 @@ func ByResolution(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldResolution, opts...).ToFunc()
 }
 
-// ByResolvedAt orders the results by the resolved_at field.
-func ByResolvedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldResolvedAt, opts...).ToFunc()
+// ByDateResolved orders the results by the date_resolved field.
+func ByDateResolved(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateResolved, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.

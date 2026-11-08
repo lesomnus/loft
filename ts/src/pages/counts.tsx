@@ -38,7 +38,7 @@ export function Counts(): ReactNode {
 								<li key={idStr(x.id)} className="link" onClick={() => go(`/counts/${idStr(x.id)}`)}>
 									<span>
 										<strong>{x.name}</strong>
-										<span className="mute"> · {c.path(x.scope?.id)} · {fmt(x.startedAt, 'date')}</span>
+										<span className="mute"> · {c.path(x.scope?.id)} · {fmt(x.dateStarted, 'date')}</span>
 										{x.selfService && <span className="chip">자가 실사</span>}
 									</span>
 									<Badge v={x.status} words={countWord} />
@@ -106,6 +106,12 @@ function CountRead(props: { id: string }): ReactNode {
  */
 const SCAN = 'count.scan'
 
+/**
+ * A scan as the queue keeps it, in the browser's storage: `seenAt` is when it
+ * was seen, sent as the request's `dateSeen`. The key stays what it was before
+ * every time was a `date_*` (D76), so that a scan queued by the page before is
+ * sent by this one.
+ */
 type Queued = { count: string; code: string; at: string; seenAt: string; op: string }
 
 /** A scan kept to send later, saying so -- or saying it could not be kept. */
@@ -140,7 +146,7 @@ function CountView(props: { c: InventoryCount }): ReactNode {
 				ref: ref(idBytes(q.count)),
 				code: q.code,
 				at: q.at === '' ? undefined : ref(idBytes(q.at)),
-				seenAt: ts(new Date(q.seenAt)),
+				dateSeen: ts(new Date(q.seenAt)),
 				op: idBytes(q.op),
 			},
 			{ quiet: true },
@@ -191,8 +197,8 @@ function CountView(props: { c: InventoryCount }): ReactNode {
 				title={x.name}
 				sub={
 					<>
-						<Badge v={x.status} words={countWord} /> {c.path(x.scope?.id)} · 시작 {fmt(x.startedAt)}
-						{x.closedAt !== undefined && ` · 종료 ${fmt(x.closedAt)}`}
+						<Badge v={x.status} words={countWord} /> {c.path(x.scope?.id)} · 시작 {fmt(x.dateStarted)}
+						{x.dateClosed !== undefined && ` · 종료 ${fmt(x.dateClosed)}`}
 					</>
 				}
 				actions={
@@ -287,7 +293,7 @@ function Finding(props: { f: CountFinding; name: { id: Uint8Array; tag: string; 
 					</span>
 				)}
 				{f.kind === 'missing' && <span className="mute small"> — 장부상 {c.path(f.expectedParentId) || '?'}</span>}
-				<span className="mute small"> · {fmt(f.seenAt)}</span>
+				<span className="mute small"> · {fmt(f.dateSeen)}</span>
 			</span>
 			<span className="inline">
 				<Badge v={f.resolution} words={resolutionWord} />

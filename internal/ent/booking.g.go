@@ -70,15 +70,15 @@ func (e *Reservation) Proto() *loft.Reservation {
 		x.SetRequestedBy(e.RequestedBy[:])
 	}
 	x.SetStatus(e.Status)
-	x.SetBeginsAt(timestamppb.New(e.BeginsAt))
-	x.SetEndsAt(timestamppb.New(e.EndsAt))
+	x.SetDateStart(timestamppb.New(e.DateStart))
+	x.SetDateEnd(timestamppb.New(e.DateEnd))
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))
 	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	if e.ExpiresAt != nil {
-		x.SetExpiresAt(timestamppb.New(*e.ExpiresAt))
+	if e.DateExpires != nil {
+		x.SetDateExpires(timestamppb.New(*e.DateExpires))
 	}
 	x.SetRrule(e.Rrule)
 	if e.SeriesId != nil {
@@ -87,8 +87,8 @@ func (e *Reservation) Proto() *loft.Reservation {
 	if e.DecidedBy != nil {
 		x.SetDecidedBy(e.DecidedBy[:])
 	}
-	if e.CheckedInAt != nil {
-		x.SetCheckedInAt(timestamppb.New(*e.CheckedInAt))
+	if e.DateCheckedIn != nil {
+		x.SetDateCheckedIn(timestamppb.New(*e.DateCheckedIn))
 	}
 	return x
 }
@@ -142,8 +142,8 @@ func (e *Allocation) Proto() *loft.Allocation {
 	if e.RefId != nil {
 		x.SetRefId(e.RefId[:])
 	}
-	x.SetBeginsAt(timestamppb.New(e.BeginsAt))
-	x.SetEndsAt(timestamppb.New(e.EndsAt))
+	x.SetDateStart(timestamppb.New(e.DateStart))
+	x.SetDateEnd(timestamppb.New(e.DateEnd))
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	x.SetBlocking(e.Blocking)

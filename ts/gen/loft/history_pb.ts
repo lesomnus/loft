@@ -21,7 +21,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/history.proto.
  */
 export const file_loft_history: GenFile = /*@__PURE__*/
-  fileDesc("ChJsb2Z0L2hpc3RvcnkucHJvdG8SBGxvZnQi6QYKCVBsYWNlbWVudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIiCgVjaGlsZBgIIAEoCzILLmxvZnQuQXNzZXRCBvKCFgJAARIjCgZwYXJlbnQYCSABKAsyCy5sb2Z0LkFzc2V0QgbyghYCQAESDAoEbW9kZRgKIAEoCRIMCgRzbG90GAsgASgJEg4KBnVfZnJvbRgMIAEoBRI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIMCgR1X3RvGBAgASgFEjcKCnZhbGlkX2Zyb20YESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjQKCHZhbGlkX3RvGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEh4KCGV2ZW50X2lkGBMgASgMQgzqghYCEECqwRYCKAESPwoNc3VwZXJzZWRlZF9hdBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCDOqCFgI4AarBFgIQARIlCg1zdXBlcnNlZGVkX2J5GBUgASgMQg7qghYEEEA4AarBFgIoATqqAsr8FbkBEgcQAYIBAhIAGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoiEgVjaGlsZBoJCgVjaGlsZBAIGg4KCnZhbGlkX2Zyb20QERokEgZwYXJlbnQaCgoGcGFyZW50EAkaDgoKdmFsaWRfZnJvbRARGhUSBWV2ZW50GgwKCGV2ZW50X2lkEBMaHxIKc3VwZXJzZWRlZBoRCg1zdXBlcnNlZGVkX2J5EBWKuxZoCA0yOQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoHCgVjaGlsZBoICgZwYXJlbnQgZCjoB0ICCgAiJQoGdGVuYW50IgxjaGlsZC50ZW5hbnQiDXBhcmVudC50ZW5hbnQiqQcKBExpbmsSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESJgoGbGFiZWxzGAcgAygLMhYubG9mdC5MaW5rLkxhYmVsc0VudHJ5EiMKBnNvdXJjZRgIIAEoCzILLmxvZnQuQXNzZXRCBvKCFgJAARIjCgZ0YXJnZXQYCSABKAsyCy5sb2Z0LkFzc2V0QgbyghYCQAESDAoEa2luZBgKIAEoCRIQCghyZXF1aXJlZBgLIAEoCBI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABI3Cgp2YWxpZF9mcm9tGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI0Cgh2YWxpZF90bxgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIeCghldmVudF9pZBgTIAEoDEIM6oIWAhBAqsEWAigBEj8KDXN1cGVyc2VkZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgzqghYCOAGqwRYCEAESJQoNc3VwZXJzZWRlZF9ieRgVIAEoDEIO6oIWBBBAOAGqwRYCKAEaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqxAsr8FbYBEgIQARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaJBIGc291cmNlGgoKBnNvdXJjZRAIGg4KCnZhbGlkX2Zyb20QERokEgZ0YXJnZXQaCgoGdGFyZ2V0EAkaDgoKdmFsaWRfZnJvbRARGhUSBWV2ZW50GgwKCGV2ZW50X2lkEBMaHxIKc3VwZXJzZWRlZBoRCg1zdXBlcnNlZGVkX2J5EBWKuxZyCA4yQgoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZzb3VyY2UaCAoGdGFyZ2V0GgYKBGtpbmQgZCjoB0ICCgAiJgoGdGVuYW50Ig1zb3VyY2UudGVuYW50Ig10YXJnZXQudGVuYW50Ir0GCgtTdGV3YXJkc2hpcBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIiCgVhc3NldBgIIAEoCzILLmxvZnQuQXNzZXRCBvKCFgJAARIiCgVwYXJ0eRgJIAEoCzILLmxvZnQuUGFydHlCBvKCFgJAARIMCgRyb2xlGAogASgJEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEjcKCnZhbGlkX2Zyb20YESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjQKCHZhbGlkX3RvGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEh4KCGV2ZW50X2lkGBMgASgMQgzqghYCEECqwRYCKAESPwoNc3VwZXJzZWRlZF9hdBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCDOqCFgI4AarBFgIQARIlCg1zdXBlcnNlZGVkX2J5GBUgASgMQg7qghYEEEA4AarBFgIoATqpAsr8FbIBEgIQARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaIhIFYXNzZXQaCQoFYXNzZXQQCBoOCgp2YWxpZF9mcm9tEBEaIhIFcGFydHkaCQoFcGFydHkQCRoOCgp2YWxpZF9mcm9tEBEaFRIFZXZlbnQaDAoIZXZlbnRfaWQQExofEgpzdXBlcnNlZGVkGhEKDXN1cGVyc2VkZWRfYnkQFYq7Fm4IDzJAChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgcKBWFzc2V0GgcKBXBhcnR5GgYKBHJvbGUgZCjoB0ICCgAiJAoGdGVuYW50Igxhc3NldC50ZW5hbnQiDHBhcnR5LnRlbmFudEIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_asset, file_loft_org, file_loft_payday_tenant]);
+  fileDesc("ChJsb2Z0L2hpc3RvcnkucHJvdG8SBGxvZnQi6wYKCVBsYWNlbWVudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIiCgVjaGlsZBgIIAEoCzILLmxvZnQuQXNzZXRCBvKCFgJAARIjCgZwYXJlbnQYCSABKAsyCy5sb2Z0LkFzc2V0QgbyghYCQAESDAoEbW9kZRgKIAEoCRIMCgRzbG90GAsgASgJEg4KBnVfZnJvbRgMIAEoBRI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIMCgR1X3RvGBAgASgFEjcKCmRhdGVfc3RhcnQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjQKCGRhdGVfZW5kGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEh4KCGV2ZW50X2lkGBMgASgMQgzqghYCEECqwRYCKAESQQoPZGF0ZV9zdXBlcnNlZGVkGBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIM6oIWAjgBqsEWAhABEiUKDXN1cGVyc2VkZWRfYnkYFSABKAxCDuqCFgQQQDgBqsEWAigBOqoCyvwVuQESBxABggECEgAaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGiISBWNoaWxkGgkKBWNoaWxkEAgaDgoKZGF0ZV9zdGFydBARGiQSBnBhcmVudBoKCgZwYXJlbnQQCRoOCgpkYXRlX3N0YXJ0EBEaFRIFZXZlbnQaDAoIZXZlbnRfaWQQExofEgpzdXBlcnNlZGVkGhEKDXN1cGVyc2VkZWRfYnkQFYq7FmgIDTI5ChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgcKBWNoaWxkGggKBnBhcmVudCBkKOgHQgIKACIlCgZ0ZW5hbnQiDGNoaWxkLnRlbmFudCINcGFyZW50LnRlbmFudCKrBwoETGluaxIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARImCgZsYWJlbHMYByADKAsyFi5sb2Z0LkxpbmsuTGFiZWxzRW50cnkSIwoGc291cmNlGAggASgLMgsubG9mdC5Bc3NldEIG8oIWAkABEiMKBnRhcmdldBgJIAEoCzILLmxvZnQuQXNzZXRCBvKCFgJAARIMCgRraW5kGAogASgJEhAKCHJlcXVpcmVkGAsgASgIEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEjcKCmRhdGVfc3RhcnQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjQKCGRhdGVfZW5kGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEh4KCGV2ZW50X2lkGBMgASgMQgzqghYCEECqwRYCKAESQQoPZGF0ZV9zdXBlcnNlZGVkGBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIM6oIWAjgBqsEWAhABEiUKDXN1cGVyc2VkZWRfYnkYFSABKAxCDuqCFgQQQDgBqsEWAigBGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6sQLK/BW2ARICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGiQSBnNvdXJjZRoKCgZzb3VyY2UQCBoOCgpkYXRlX3N0YXJ0EBEaJBIGdGFyZ2V0GgoKBnRhcmdldBAJGg4KCmRhdGVfc3RhcnQQERoVEgVldmVudBoMCghldmVudF9pZBATGh8SCnN1cGVyc2VkZWQaEQoNc3VwZXJzZWRlZF9ieRAVirsWcggOMkIKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaCAoGc291cmNlGggKBnRhcmdldBoGCgRraW5kIGQo6AdCAgoAIiYKBnRlbmFudCINc291cmNlLnRlbmFudCINdGFyZ2V0LnRlbmFudCK/BgoLU3Rld2FyZHNoaXASFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESIgoFYXNzZXQYCCABKAsyCy5sb2Z0LkFzc2V0QgbyghYCQAESIgoFcGFydHkYCSABKAsyCy5sb2Z0LlBhcnR5QgbyghYCQAESDAoEcm9sZRgKIAEoCRI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABI3CgpkYXRlX3N0YXJ0GBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI0CghkYXRlX2VuZBgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIeCghldmVudF9pZBgTIAEoDEIM6oIWAhBAqsEWAigBEkEKD2RhdGVfc3VwZXJzZWRlZBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCDOqCFgI4AarBFgIQARIlCg1zdXBlcnNlZGVkX2J5GBUgASgMQg7qghYEEEA4AarBFgIoATqpAsr8FbIBEgIQARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaIhIFYXNzZXQaCQoFYXNzZXQQCBoOCgpkYXRlX3N0YXJ0EBEaIhIFcGFydHkaCQoFcGFydHkQCRoOCgpkYXRlX3N0YXJ0EBEaFRIFZXZlbnQaDAoIZXZlbnRfaWQQExofEgpzdXBlcnNlZGVkGhEKDXN1cGVyc2VkZWRfYnkQFYq7Fm4IDzJAChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgcKBWFzc2V0GgcKBXBhcnR5GgYKBHJvbGUgZCjoB0ICCgAiJAoGdGVuYW50Igxhc3NldC50ZW5hbnQiDHBhcnR5LnRlbmFudEIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_asset, file_loft_org, file_loft_payday_tenant]);
 
 /**
  * Placement is a child asset physically inside a parent asset.
@@ -84,14 +84,14 @@ export type Placement = Message<"loft.Placement"> & {
   uTo: number;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 17;
+   * @generated from field: google.protobuf.Timestamp date_start = 17;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 18;
+   * @generated from field: google.protobuf.Timestamp date_end = 18;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes event_id = 19;
@@ -99,9 +99,9 @@ export type Placement = Message<"loft.Placement"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 20;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 20;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes superseded_by = 21;
@@ -173,14 +173,14 @@ export type Link = Message<"loft.Link"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 17;
+   * @generated from field: google.protobuf.Timestamp date_start = 17;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 18;
+   * @generated from field: google.protobuf.Timestamp date_end = 18;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes event_id = 19;
@@ -188,9 +188,9 @@ export type Link = Message<"loft.Link"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 20;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 20;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes superseded_by = 21;
@@ -250,14 +250,14 @@ export type Stewardship = Message<"loft.Stewardship"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 17;
+   * @generated from field: google.protobuf.Timestamp date_start = 17;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_to = 18;
+   * @generated from field: google.protobuf.Timestamp date_end = 18;
    */
-  validTo?: Timestamp | undefined;
+  dateEnd?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes event_id = 19;
@@ -265,9 +265,9 @@ export type Stewardship = Message<"loft.Stewardship"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 20;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 20;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes superseded_by = 21;

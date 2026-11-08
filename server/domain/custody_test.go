@@ -108,9 +108,9 @@ func TestLoansGoLate(t *testing.T) {
 	kimCtx, kim := e.person("member")
 
 	c, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-		Party: ref[app.PartyRef](kim.GetId()),
-		DueAt: e.in(2 * day),
-		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(phone)}.Build()},
+		Party:   ref[app.PartyRef](kim.GetId()),
+		DateDue: e.in(2 * day),
+		Lines:   []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(phone)}.Build()},
 	}.Build())
 	x.NoError(err)
 	x.Equal("loan", c.GetKind())
@@ -137,7 +137,7 @@ func TestLoansGoLate(t *testing.T) {
 	e.sweep()
 	x.Equal(1, count("custody.overdue"), "told once that it is late")
 
-	_, err = e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](c.GetId()), DueAt: e.in(7 * day)}.Build())
+	_, err = e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](c.GetId()), DateDue: e.in(7 * day)}.Build())
 	x.NoError(err)
 	e.now = e.now.Add(8 * day)
 	e.sweep()
@@ -197,7 +197,7 @@ func TestCount(t *testing.T) {
 
 	seenAt := e.now.Add(-time.Hour)
 	scan := func(code string) *app.CountFinding {
-		v, err := e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: cref, Code: code, SeenAt: timestamppb.New(seenAt), Op: newOp()}.Build())
+		v, err := e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: cref, Code: code, DateSeen: timestamppb.New(seenAt), Op: newOp()}.Build())
 		x.NoError(err)
 		return v
 	}
@@ -614,8 +614,8 @@ func TestAHandOverSentAgainIsTheSameHandOver(t *testing.T) {
 	_, kim := e.person("member")
 
 	give := app.CustodyAddRequest_builder{
-		Party: ref[app.PartyRef](kim.GetId()),
-		DueAt: e.in(day),
+		Party:   ref[app.PartyRef](kim.GetId()),
+		DateDue: e.in(day),
 		Lines: []*app.CustodyLineSpec{
 			app.CustodyLineSpec_builder{Asset: assetRef(laptop)}.Build(),
 			app.CustodyLineSpec_builder{Stock: ref[app.StockRef](paper.GetId()), Quantity: 3}.Build(),

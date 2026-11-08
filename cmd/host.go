@@ -118,7 +118,7 @@ func (h Hosts) where(ctx context.Context, host string) (place, apphost.Pinned, *
 // movedOn is where a page asked for on `d` is now, when `d` is an app domain
 // another took the place of and still sends its pages on; empty otherwise.
 func (h Hosts) movedOn(r *http.Request, d *ent.Domain) (string, error) {
-	if d == nil || d.Purpose != "app" || d.State != "legacy" || d.RedirectUntil == nil {
+	if d == nil || d.Purpose != "app" || d.State != "legacy" || d.DateRedirectUntil == nil {
 		return "", nil
 	}
 	if r.Method != http.MethodGet && r.Method != http.MethodHead {
@@ -128,7 +128,7 @@ func (h Hosts) movedOn(r *http.Request, d *ent.Domain) (string, error) {
 	if h.Now != nil {
 		now = h.Now()
 	}
-	if !now.Before(*d.RedirectUntil) {
+	if !now.Before(*d.DateRedirectUntil) {
 		return "", nil
 	}
 	at, err := h.Links.Of(r.Context(), h.Db, pdid.Id(d.TenantId), apphost.Page)

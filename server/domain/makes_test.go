@@ -52,7 +52,7 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 
 	at := e.now.Add(-2 * time.Hour)
 	v, err := e.app().Purchase().Receive(e.owner, app.PurchaseReceiveRequest_builder{
-		Ref: ref[app.PurchaseRef](p.GetId()), Into: assetRef(room), At: e.ago(2 * time.Hour), TagPrefix: "PO",
+		Ref: ref[app.PurchaseRef](p.GetId()), Into: assetRef(room), DateOccurred: e.ago(2 * time.Hour), TagPrefix: "PO",
 	}.Build())
 	x.NoError(err)
 	x.Equal("received", v.GetPurchase().GetStatus())
@@ -77,7 +77,7 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 		got := e.get(a)
 		x.Equal(room.GetId(), got.GetParentId())
 		x.Equal("located", got.GetPlacementMode())
-		x.True(at.Equal(got.GetAcquiredAt().AsTime()), "%s acquired when it arrived", a.GetTag())
+		x.True(at.Equal(got.GetDateAcquired().AsTime()), "%s acquired when it arrived", a.GetTag())
 		if i < 2 {
 			x.Equal("U2723QE", got.GetName())
 			x.Equal(m.GetId(), got.GetModel().GetId())
@@ -110,7 +110,7 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 		pl, err := e.s.Ent.Placement.Query().Where(placement.ChildId(id)).Only(ctx)
 		x.NoError(err)
 		x.Equal(mine.Id, pl.EventId, "%s's place is its own event's", a.GetTag())
-		x.True(at.Equal(pl.ValidFrom))
+		x.True(at.Equal(pl.DateStart))
 
 		found := false
 		for _, en := range e.timeline(a, false) {

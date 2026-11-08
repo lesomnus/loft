@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -161,8 +162,17 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, err
 	}
 
+	// An export of a format before this build's may name a field by the name
+	// an earlier build stored it under: read under the name it has now.
+	old := m.Format != Format
 	t := &app.Tenant{}
-	if err := protojson.Unmarshal(m.Tenant, t); err != nil {
+	tb := m.Tenant
+	if old {
+		if tb, err = renames(tb, renamed("tenant", t.ProtoReflect().Descriptor())); err != nil {
+			return out, fmt.Errorf("%w: its tenant: %v", ErrFormat, err)
+		}
+	}
+	if err := protojson.Unmarshal(tb, t); err != nil {
 		return out, fmt.Errorf("%w: its tenant: %v", ErrFormat, err)
 	}
 	tid, err := keyOf(t.GetId())
@@ -279,7 +289,7 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	// address the restore took back, erased past the servers here.
 	restored := append([]pdid.Id{out.Tenant}, releasedHolds...)
 	for _, p := range plans {
-		n, err := d.restore(ctx, db, z, p, tid, &out, &restored)
+		n, err := d.restore(ctx, db, z, p, tid, old, &out, &restored)
 		if err != nil {
 			return out, err
 		}
@@ -314,16 +324,16 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		left[k] = uint32(n)
 	}
 	value, err := anypb.New(app.WorkspaceImported_builder{
-		ExportedAt: timestamppb.New(m.ExportedAt),
-		Manifest:   out.Manifest,
-		SignedBy:   out.Key,
-		Rows:       uint32(out.Total()),
-		Files:      uint32(m.Files),
-		Asked:      out.Asked,
-		Released:   out.Released,
-		Unlinked:   uint32(len(out.Unlinked)),
-		Reopened:   out.Reopened,
-		Left:       left,
+		DateExported: timestamppb.New(m.DateExported),
+		Manifest:     out.Manifest,
+		SignedBy:     out.Key,
+		Rows:         uint32(out.Total()),
+		Files:        uint32(m.Files),
+		Asked:        out.Asked,
+		Released:     out.Released,
+		Unlinked:     uint32(len(out.Unlinked)),
+		Reopened:     out.Reopened,
+		Left:         left,
 	}.Build())
 	if err != nil {
 		return out, fmt.Errorf("the restore's event: %w", err)
@@ -471,11 +481,14 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 	return want, released, ids, nil
 }
 
-// restore writes back every row of one table the export has, as it was.
 // Imported is the act a restore is on the trail as.
 const Imported = "loft.workspace.import"
 
-func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, out *Restored, restored *[]pdid.Id) (int, error) {
+// restore writes back every row of one table the export has, as it was. A
+// row of an export of a format before this build's (`old`) is read with each
+// field it names by a name an earlier build stored it under moved to the name
+// it has now ([renamed]).
+func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, old bool, out *Restored, restored *[]pdid.Id) (int, error) {
 	name := p.table
 	f, err := z.Open("rows/" + name + ".jsonl")
 	if errors.Is(err, fs.ErrNotExist) {
@@ -499,6 +512,11 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 	}
 	defer f.Close()
 
+	var was map[string]string
+	if old {
+		was = renamed(p.table, p.msg.Descriptor())
+	}
+
 	n := 0
 	batch := make([]protoreflect.Message, 0, p.chunk)
 	flush := func() error {
@@ -520,6 +538,11 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 			continue
 		}
 		n++
+		if len(was) > 0 {
+			if line, err = renames(line, was); err != nil {
+				return n, fmt.Errorf("%w: rows/%s.jsonl, line %d: %v", ErrFormat, name, n, err)
+			}
+		}
 		v := p.msg.New()
 		if err := protojson.Unmarshal(line, v.Interface()); err != nil {
 			return n, fmt.Errorf("%w: rows/%s.jsonl, line %d: %v", ErrFormat, name, n, err)
@@ -546,6 +569,77 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 		return n, fmt.Errorf("rows/%s.jsonl: %w", name, err)
 	}
 	return n, flush()
+}
+
+// renamed is what a row of `table`, whose message is `md`, may name a field by
+// in an export of a format before this build's: the name an earlier build
+// stored it under ([RenamedColumns], and payday's own, `pd.ColumnRenames`), as
+// JSON writes it and as the schema said it, and the field's name in JSON now.
+// A rename that is no field of the message names none.
+func renamed(table string, md protoreflect.MessageDescriptor) map[string]string {
+	out := map[string]string{}
+	for _, c := range slices.Concat(RenamedColumns, pd.ColumnRenames) {
+		if c.Table != table {
+			continue
+		}
+		f := md.Fields().ByName(protoreflect.Name(c.To))
+		if f == nil {
+			continue
+		}
+		out[jsonName(c.From)] = f.JSONName()
+		out[c.From] = f.JSONName()
+	}
+	return out
+}
+
+// jsonName is the name protobuf's JSON gives a field of `name` that says no
+// other: lowerCamelCase, as `valid_from` is `validFrom`.
+func jsonName(name string) string {
+	var b strings.Builder
+	up := false
+	for _, r := range name {
+		if r == '_' {
+			up = true
+			continue
+		}
+		if up {
+			r = unicode.ToUpper(r)
+		}
+		b.WriteRune(r)
+		up = false
+	}
+	return b.String()
+}
+
+// renames is the JSON object `b` with each field it names by a key of `as`
+// named by its value instead: a row of an export before a rename, read as
+// this build names its fields. One that names a field by both its names says
+// two things of one field, and is refused.
+func renames(b []byte, as map[string]string) ([]byte, error) {
+	if len(as) == 0 {
+		return b, nil
+	}
+	var row map[string]json.RawMessage
+	if err := json.Unmarshal(b, &row); err != nil {
+		return nil, err
+	}
+	moved := false
+	for was, is := range as {
+		v, ok := row[was]
+		if !ok {
+			continue
+		}
+		if _, both := row[is]; both {
+			return nil, fmt.Errorf("%s is said twice, as %s and as %s", is, was, is)
+		}
+		delete(row, was)
+		row[is] = v
+		moved = true
+	}
+	if !moved {
+		return b, nil
+	}
+	return json.Marshal(row)
 }
 
 // formerly is the names an earlier build had `table` under ([Renamed]), in

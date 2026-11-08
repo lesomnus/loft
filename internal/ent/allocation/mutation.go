@@ -19,8 +19,8 @@ type Mutation struct {
 	typ             string
 	kind            *string
 	ref_id          *uuid.UUID
-	begins_at       *time.Time
-	ends_at         *time.Time
+	date_start      *time.Time
+	date_end        *time.Time
 	date_updated    *time.Time
 	date_created    *time.Time
 	blocking        *bool
@@ -107,76 +107,76 @@ func (m *Mutation) ResetRefId() {
 	delete(m.exprs, FieldRefId)
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (m *Mutation) SetBeginsAt(t time.Time) {
-	m.begins_at = &t
-	delete(m.clearedFields, FieldBeginsAt)
-	delete(m.exprs, FieldBeginsAt)
+// SetDateStart sets the "date_start" field.
+func (m *Mutation) SetDateStart(t time.Time) {
+	m.date_start = &t
+	delete(m.clearedFields, FieldDateStart)
+	delete(m.exprs, FieldDateStart)
 }
 
-// BeginsAt returns the value of the "begins_at" field in the mutation.
-func (m *Mutation) BeginsAt() (r time.Time, exists bool) {
-	v := m.begins_at
+// DateStart returns the value of the "date_start" field in the mutation.
+func (m *Mutation) DateStart() (r time.Time, exists bool) {
+	v := m.date_start
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearBeginsAt clears the value of the "begins_at" field.
-func (m *Mutation) ClearBeginsAt() {
-	m.begins_at = nil
-	delete(m.exprs, FieldBeginsAt)
-	m.clearedFields[FieldBeginsAt] = struct{}{}
+// ClearDateStart clears the value of the "date_start" field.
+func (m *Mutation) ClearDateStart() {
+	m.date_start = nil
+	delete(m.exprs, FieldDateStart)
+	m.clearedFields[FieldDateStart] = struct{}{}
 }
 
-// BeginsAtCleared returns if the "begins_at" field was cleared in this mutation.
-func (m *Mutation) BeginsAtCleared() bool {
-	_, ok := m.clearedFields[FieldBeginsAt]
+// DateStartCleared returns if the "date_start" field was cleared in this mutation.
+func (m *Mutation) DateStartCleared() bool {
+	_, ok := m.clearedFields[FieldDateStart]
 	return ok
 }
 
-// ResetBeginsAt resets all changes to the "begins_at" field.
-func (m *Mutation) ResetBeginsAt() {
-	m.begins_at = nil
-	delete(m.clearedFields, FieldBeginsAt)
-	delete(m.exprs, FieldBeginsAt)
+// ResetDateStart resets all changes to the "date_start" field.
+func (m *Mutation) ResetDateStart() {
+	m.date_start = nil
+	delete(m.clearedFields, FieldDateStart)
+	delete(m.exprs, FieldDateStart)
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (m *Mutation) SetEndsAt(t time.Time) {
-	m.ends_at = &t
-	delete(m.clearedFields, FieldEndsAt)
-	delete(m.exprs, FieldEndsAt)
+// SetDateEnd sets the "date_end" field.
+func (m *Mutation) SetDateEnd(t time.Time) {
+	m.date_end = &t
+	delete(m.clearedFields, FieldDateEnd)
+	delete(m.exprs, FieldDateEnd)
 }
 
-// EndsAt returns the value of the "ends_at" field in the mutation.
-func (m *Mutation) EndsAt() (r time.Time, exists bool) {
-	v := m.ends_at
+// DateEnd returns the value of the "date_end" field in the mutation.
+func (m *Mutation) DateEnd() (r time.Time, exists bool) {
+	v := m.date_end
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearEndsAt clears the value of the "ends_at" field.
-func (m *Mutation) ClearEndsAt() {
-	m.ends_at = nil
-	delete(m.exprs, FieldEndsAt)
-	m.clearedFields[FieldEndsAt] = struct{}{}
+// ClearDateEnd clears the value of the "date_end" field.
+func (m *Mutation) ClearDateEnd() {
+	m.date_end = nil
+	delete(m.exprs, FieldDateEnd)
+	m.clearedFields[FieldDateEnd] = struct{}{}
 }
 
-// EndsAtCleared returns if the "ends_at" field was cleared in this mutation.
-func (m *Mutation) EndsAtCleared() bool {
-	_, ok := m.clearedFields[FieldEndsAt]
+// DateEndCleared returns if the "date_end" field was cleared in this mutation.
+func (m *Mutation) DateEndCleared() bool {
+	_, ok := m.clearedFields[FieldDateEnd]
 	return ok
 }
 
-// ResetEndsAt resets all changes to the "ends_at" field.
-func (m *Mutation) ResetEndsAt() {
-	m.ends_at = nil
-	delete(m.clearedFields, FieldEndsAt)
-	delete(m.exprs, FieldEndsAt)
+// ResetDateEnd resets all changes to the "date_end" field.
+func (m *Mutation) ResetDateEnd() {
+	m.date_end = nil
+	delete(m.clearedFields, FieldDateEnd)
+	delete(m.exprs, FieldDateEnd)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -449,11 +449,11 @@ func (m *Mutation) Fields() []string {
 	if m.ref_id != nil || m.exprs[FieldRefId] != nil {
 		fields = append(fields, FieldRefId)
 	}
-	if m.begins_at != nil || m.exprs[FieldBeginsAt] != nil {
-		fields = append(fields, FieldBeginsAt)
+	if m.date_start != nil || m.exprs[FieldDateStart] != nil {
+		fields = append(fields, FieldDateStart)
 	}
-	if m.ends_at != nil || m.exprs[FieldEndsAt] != nil {
-		fields = append(fields, FieldEndsAt)
+	if m.date_end != nil || m.exprs[FieldDateEnd] != nil {
+		fields = append(fields, FieldDateEnd)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -494,10 +494,10 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Kind()
 	case FieldRefId:
 		return m.RefId()
-	case FieldBeginsAt:
-		return m.BeginsAt()
-	case FieldEndsAt:
-		return m.EndsAt()
+	case FieldDateStart:
+		return m.DateStart()
+	case FieldDateEnd:
+		return m.DateEnd()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateCreated:
@@ -551,7 +551,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRefId(v)
 		return nil
-	case FieldBeginsAt:
+	case FieldDateStart:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -559,9 +559,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBeginsAt(v)
+		m.SetDateStart(v)
 		return nil
-	case FieldEndsAt:
+	case FieldDateEnd:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -569,7 +569,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetEndsAt(v)
+		m.SetDateEnd(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -667,10 +667,10 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetKind()
 	case FieldRefId:
 		m.ResetRefId()
-	case FieldBeginsAt:
-		m.ResetBeginsAt()
-	case FieldEndsAt:
-		m.ResetEndsAt()
+	case FieldDateStart:
+		m.ResetDateStart()
+	case FieldDateEnd:
+		m.ResetDateEnd()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateCreated:
@@ -712,11 +712,11 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldRefId]; ok {
 		fields = append(fields, FieldRefId)
 	}
-	if _, ok := m.exprs[FieldBeginsAt]; ok {
-		fields = append(fields, FieldBeginsAt)
+	if _, ok := m.exprs[FieldDateStart]; ok {
+		fields = append(fields, FieldDateStart)
 	}
-	if _, ok := m.exprs[FieldEndsAt]; ok {
-		fields = append(fields, FieldEndsAt)
+	if _, ok := m.exprs[FieldDateEnd]; ok {
+		fields = append(fields, FieldDateEnd)
 	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
@@ -777,11 +777,11 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldRefId) {
 		fields = append(fields, FieldRefId)
 	}
-	if m.FieldCleared(FieldBeginsAt) {
-		fields = append(fields, FieldBeginsAt)
+	if m.FieldCleared(FieldDateStart) {
+		fields = append(fields, FieldDateStart)
 	}
-	if m.FieldCleared(FieldEndsAt) {
-		fields = append(fields, FieldEndsAt)
+	if m.FieldCleared(FieldDateEnd) {
+		fields = append(fields, FieldDateEnd)
 	}
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
@@ -803,11 +803,11 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldRefId:
 		m.ClearRefId()
 		return nil
-	case FieldBeginsAt:
-		m.ClearBeginsAt()
+	case FieldDateStart:
+		m.ClearDateStart()
 		return nil
-	case FieldEndsAt:
-		m.ClearEndsAt()
+	case FieldDateEnd:
+		m.ClearDateEnd()
 		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
@@ -826,11 +826,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldRefId:
 		m.ResetRefId()
 		return nil
-	case FieldBeginsAt:
-		m.ResetBeginsAt()
+	case FieldDateStart:
+		m.ResetDateStart()
 		return nil
-	case FieldEndsAt:
-		m.ResetEndsAt()
+	case FieldDateEnd:
+		m.ResetDateEnd()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()

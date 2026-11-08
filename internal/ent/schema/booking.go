@@ -97,9 +97,9 @@ func (Reservation) Fields() []ent.Field {
 			Nillable().
 			Optional(),
 		field.String("status"),
-		field.Time("begins_at").
+		field.Time("date_start").
 			Optional(),
-		field.Time("ends_at").
+		field.Time("date_end").
 			Optional(),
 		field.Time("date_updated"),
 		field.Time("date_erased").
@@ -108,7 +108,7 @@ func (Reservation) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.Time("expires_at").
+		field.Time("date_expires").
 			Nillable().
 			Optional(),
 		field.String("rrule"),
@@ -118,7 +118,7 @@ func (Reservation) Fields() []ent.Field {
 		field.Uuid("decided_by").
 			Nillable().
 			Optional(),
-		field.Time("checked_in_at").
+		field.Time("date_checked_in").
 			Nillable().
 			Optional(),
 		field.Uuid("tenant_id").
@@ -147,9 +147,9 @@ func (Reservation) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
 			StorageKey("reservation_page"),
-		index.Fields("party_id", "begins_at").
+		index.Fields("party_id", "date_start").
 			StorageKey("reservation_party"),
-		index.Fields("tenant_id", "begins_at").
+		index.Fields("tenant_id", "date_start").
 			StorageKey("reservation_begins"),
 	}
 }
@@ -231,9 +231,9 @@ func (Allocation) Fields() []ent.Field {
 		field.Uuid("ref_id").
 			Nillable().
 			Optional(),
-		field.Time("begins_at").
+		field.Time("date_start").
 			Optional(),
-		field.Time("ends_at").
+		field.Time("date_end").
 			Optional(),
 		field.Time("date_updated"),
 		field.Time("date_created").
@@ -268,7 +268,7 @@ func (Allocation) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
 			StorageKey("allocation_page"),
-		index.Fields("resource_id", "begins_at").
+		index.Fields("resource_id", "date_start").
 			StorageKey("allocation_resource"),
 		index.Fields("ref_id").
 			StorageKey("allocation_ref"),

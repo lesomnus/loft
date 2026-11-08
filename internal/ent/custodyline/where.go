@@ -76,14 +76,14 @@ func DateCreated(v time.Time) predicate.CustodyLine {
 	return predicate.CustodyLine(sql.FieldEQ(FieldDateCreated, v))
 }
 
-// OutAt applies equality check predicate on the "out_at" field. It's identical to OutAtEQ.
-func OutAt(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldEQ(FieldOutAt, v))
+// DateOut applies equality check predicate on the "date_out" field. It's identical to DateOutEQ.
+func DateOut(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldEQ(FieldDateOut, v))
 }
 
-// ReturnedAt applies equality check predicate on the "returned_at" field. It's identical to ReturnedAtEQ.
-func ReturnedAt(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldEQ(FieldReturnedAt, v))
+// DateReturned applies equality check predicate on the "date_returned" field. It's identical to DateReturnedEQ.
+func DateReturned(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldEQ(FieldDateReturned, v))
 }
 
 // ConditionOut applies equality check predicate on the "condition_out" field. It's identical to ConditionOutEQ.
@@ -286,104 +286,104 @@ func DateCreatedNotNil() predicate.CustodyLine {
 	return predicate.CustodyLine(sql.FieldNotNull(FieldDateCreated))
 }
 
-// OutAtEQ applies the EQ predicate on the "out_at" field.
-func OutAtEQ(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldEQ(FieldOutAt, v))
+// DateOutEQ applies the EQ predicate on the "date_out" field.
+func DateOutEQ(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldEQ(FieldDateOut, v))
 }
 
-// OutAtNEQ applies the NEQ predicate on the "out_at" field.
-func OutAtNEQ(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldNEQ(FieldOutAt, v))
+// DateOutNEQ applies the NEQ predicate on the "date_out" field.
+func DateOutNEQ(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldNEQ(FieldDateOut, v))
 }
 
-// OutAtIn applies the In predicate on the "out_at" field.
-func OutAtIn(vs ...time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldIn(FieldOutAt, vs...))
+// DateOutIn applies the In predicate on the "date_out" field.
+func DateOutIn(vs ...time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldIn(FieldDateOut, vs...))
 }
 
-// OutAtNotIn applies the NotIn predicate on the "out_at" field.
-func OutAtNotIn(vs ...time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldNotIn(FieldOutAt, vs...))
+// DateOutNotIn applies the NotIn predicate on the "date_out" field.
+func DateOutNotIn(vs ...time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldNotIn(FieldDateOut, vs...))
 }
 
-// OutAtGT applies the GT predicate on the "out_at" field.
-func OutAtGT(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldGT(FieldOutAt, v))
+// DateOutGT applies the GT predicate on the "date_out" field.
+func DateOutGT(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldGT(FieldDateOut, v))
 }
 
-// OutAtGTE applies the GTE predicate on the "out_at" field.
-func OutAtGTE(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldGTE(FieldOutAt, v))
+// DateOutGTE applies the GTE predicate on the "date_out" field.
+func DateOutGTE(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldGTE(FieldDateOut, v))
 }
 
-// OutAtLT applies the LT predicate on the "out_at" field.
-func OutAtLT(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldLT(FieldOutAt, v))
+// DateOutLT applies the LT predicate on the "date_out" field.
+func DateOutLT(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldLT(FieldDateOut, v))
 }
 
-// OutAtLTE applies the LTE predicate on the "out_at" field.
-func OutAtLTE(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldLTE(FieldOutAt, v))
+// DateOutLTE applies the LTE predicate on the "date_out" field.
+func DateOutLTE(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldLTE(FieldDateOut, v))
 }
 
-// OutAtIsNil applies the IsNil predicate on the "out_at" field.
-func OutAtIsNil() predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldIsNull(FieldOutAt))
+// DateOutIsNil applies the IsNil predicate on the "date_out" field.
+func DateOutIsNil() predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldIsNull(FieldDateOut))
 }
 
-// OutAtNotNil applies the NotNil predicate on the "out_at" field.
-func OutAtNotNil() predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldNotNull(FieldOutAt))
+// DateOutNotNil applies the NotNil predicate on the "date_out" field.
+func DateOutNotNil() predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldNotNull(FieldDateOut))
 }
 
-// ReturnedAtEQ applies the EQ predicate on the "returned_at" field.
-func ReturnedAtEQ(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldEQ(FieldReturnedAt, v))
+// DateReturnedEQ applies the EQ predicate on the "date_returned" field.
+func DateReturnedEQ(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldEQ(FieldDateReturned, v))
 }
 
-// ReturnedAtNEQ applies the NEQ predicate on the "returned_at" field.
-func ReturnedAtNEQ(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldNEQ(FieldReturnedAt, v))
+// DateReturnedNEQ applies the NEQ predicate on the "date_returned" field.
+func DateReturnedNEQ(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldNEQ(FieldDateReturned, v))
 }
 
-// ReturnedAtIn applies the In predicate on the "returned_at" field.
-func ReturnedAtIn(vs ...time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldIn(FieldReturnedAt, vs...))
+// DateReturnedIn applies the In predicate on the "date_returned" field.
+func DateReturnedIn(vs ...time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldIn(FieldDateReturned, vs...))
 }
 
-// ReturnedAtNotIn applies the NotIn predicate on the "returned_at" field.
-func ReturnedAtNotIn(vs ...time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldNotIn(FieldReturnedAt, vs...))
+// DateReturnedNotIn applies the NotIn predicate on the "date_returned" field.
+func DateReturnedNotIn(vs ...time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldNotIn(FieldDateReturned, vs...))
 }
 
-// ReturnedAtGT applies the GT predicate on the "returned_at" field.
-func ReturnedAtGT(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldGT(FieldReturnedAt, v))
+// DateReturnedGT applies the GT predicate on the "date_returned" field.
+func DateReturnedGT(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldGT(FieldDateReturned, v))
 }
 
-// ReturnedAtGTE applies the GTE predicate on the "returned_at" field.
-func ReturnedAtGTE(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldGTE(FieldReturnedAt, v))
+// DateReturnedGTE applies the GTE predicate on the "date_returned" field.
+func DateReturnedGTE(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldGTE(FieldDateReturned, v))
 }
 
-// ReturnedAtLT applies the LT predicate on the "returned_at" field.
-func ReturnedAtLT(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldLT(FieldReturnedAt, v))
+// DateReturnedLT applies the LT predicate on the "date_returned" field.
+func DateReturnedLT(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldLT(FieldDateReturned, v))
 }
 
-// ReturnedAtLTE applies the LTE predicate on the "returned_at" field.
-func ReturnedAtLTE(v time.Time) predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldLTE(FieldReturnedAt, v))
+// DateReturnedLTE applies the LTE predicate on the "date_returned" field.
+func DateReturnedLTE(v time.Time) predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldLTE(FieldDateReturned, v))
 }
 
-// ReturnedAtIsNil applies the IsNil predicate on the "returned_at" field.
-func ReturnedAtIsNil() predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldIsNull(FieldReturnedAt))
+// DateReturnedIsNil applies the IsNil predicate on the "date_returned" field.
+func DateReturnedIsNil() predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldIsNull(FieldDateReturned))
 }
 
-// ReturnedAtNotNil applies the NotNil predicate on the "returned_at" field.
-func ReturnedAtNotNil() predicate.CustodyLine {
-	return predicate.CustodyLine(sql.FieldNotNull(FieldReturnedAt))
+// DateReturnedNotNil applies the NotNil predicate on the "date_returned" field.
+func DateReturnedNotNil() predicate.CustodyLine {
+	return predicate.CustodyLine(sql.FieldNotNull(FieldDateReturned))
 }
 
 // ConditionOutEQ applies the EQ predicate on the "condition_out" field.

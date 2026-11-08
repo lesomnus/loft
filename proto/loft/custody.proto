@@ -36,8 +36,8 @@ message Custody {
   string kind = 9 [(payday.field) = {personal: false}];
   // open | returned | cancelled
   string status = 10 [(payday.field) = {personal: false}];
-  google.protobuf.Timestamp issued_at = 11 [(orm.field) = {default: ""}];
-  google.protobuf.Timestamp due_at = 12 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp date_issued = 11 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_due = 12 [(orm.field) = {nullable: true}];
 
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
@@ -46,11 +46,11 @@ message Custody {
     default: ""
   }];
 
-  google.protobuf.Timestamp acknowledged_at = 16 [
+  google.protobuf.Timestamp date_acknowledged = 16 [
     (orm.field) = {nullable: true},
     (payday.field) = {stamped: true}
   ];
-  google.protobuf.Timestamp returned_at = 17 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp date_returned = 17 [(orm.field) = {nullable: true}];
   bytes reservation_id = 18 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
@@ -70,7 +70,7 @@ message Custody {
       },
       {
         name: "party"
-        refs: [{name: "party", number: 8}, {name: "issued_at", number: 11}]
+        refs: [{name: "party", number: 8}, {name: "date_issued", number: 11}]
       },
       // What is out in a workspace, the soonest due first: what the report
       // of it reads (design 9.14), and the sweep that tells who is late. A
@@ -78,7 +78,7 @@ message Custody {
       // went through every one of them.
       {
         name: "open"
-        refs: [{name: "tenant", number: 2}, {name: "status", number: 10}, {name: "due_at", number: 12}]
+        refs: [{name: "tenant", number: 2}, {name: "status", number: 10}, {name: "date_due", number: 12}]
       },
       // What fulfilled a reservation, which its history reads (D45), and the
       // report of how what may be booked was used of each reservation it
@@ -93,7 +93,7 @@ message Custody {
       // ever made.
       {
         name: "issued"
-        refs: [{name: "tenant", number: 2}, {name: "issued_at", number: 11}]
+        refs: [{name: "tenant", number: 2}, {name: "date_issued", number: 11}]
       }
     ]
   };
@@ -138,8 +138,8 @@ message CustodyLine {
     default: ""
   }];
 
-  google.protobuf.Timestamp out_at = 16 [(orm.field) = {default: ""}];
-  google.protobuf.Timestamp returned_at = 17 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp date_out = 16 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_returned = 17 [(orm.field) = {nullable: true}];
   string condition_out = 18;
   string condition_in = 19;
 

@@ -348,8 +348,8 @@ func TestWhatAnOperatorDoesIsRecordedAsTheirs(t *testing.T) {
 	asOwner := metadata.AppendToOutgoingContext(bg, "cookie", cookie.Name+"="+cookie.Value, cmd.WorkspaceHeader, "acme")
 	now := time.Now()
 	review, err := app.NewAccessServiceClient(public).Review(asOwner, app.AccessReviewRequest_builder{
-		From: timestamppb.New(now.Add(-time.Hour)),
-		To:   timestamppb.New(now.Add(time.Hour)),
+		DateFrom: timestamppb.New(now.Add(-time.Hour)),
+		DateTo:   timestamppb.New(now.Add(time.Hour)),
 	}.Build())
 	x.NoError(err)
 	named := 0
@@ -392,7 +392,7 @@ func TestAnOperatorMovesAnAddressAndNamesNoOtherThing(t *testing.T) {
 	v, err = ops.Move(ctx, app.OperatorTenantMoveRequest_builder{Ref: ref, To: "@acme-two"}.Build())
 	x.NoError(err)
 	x.Equal("acme-two", v.GetTenant().GetAlias())
-	x.True(v.GetHeldUntil().AsTime().After(time.Now()))
+	x.True(v.GetDateHeldUntil().AsTime().After(time.Now()))
 	moved, err := e.s.Ent.Tenant.Query().Where(tenant.Alias("acme-two")).Only(bg)
 	x.NoError(err)
 	rows, err := e.s.Ent.Audit.Query().Where(entaudit.ObjectId(moved.Id), entaudit.ActorId(operator.Id("alice").Uuid())).Count(bg)

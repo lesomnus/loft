@@ -19,9 +19,9 @@ const day = 24 * time.Hour
 // where answers what an asset was in at a moment, as known at another (or
 // now), read through QueryAt over `root`.
 func (e *env) where(root, a *app.Asset, at time.Time, known *time.Time) []byte {
-	req := app.AssetQueryAtRequest_builder{Root: assetRef(root), At: timestamppb.New(at)}.Build()
+	req := app.AssetQueryAtRequest_builder{Root: assetRef(root), DateAsOf: timestamppb.New(at)}.Build()
 	if known != nil {
-		req.SetKnown(timestamppb.New(*known))
+		req.SetDateKnown(timestamppb.New(*known))
 	}
 	v, err := e.app().Asset().QueryAt(e.owner, req)
 	e.x.NoError(err)
@@ -44,10 +44,10 @@ func TestTimeTravel(t *testing.T) {
 
 	// Found out today that it went to B ten days ago.
 	_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{
-		Ref:    assetRef(laptop),
-		To:     assetRef(b),
-		At:     e.ago(10 * day),
-		Reason: "늦게 알게 됨",
+		Ref:          assetRef(laptop),
+		To:           assetRef(b),
+		DateOccurred: e.ago(10 * day),
+		Reason:       "늦게 알게 됨",
 	}.Build())
 	x.NoError(err)
 
@@ -65,7 +65,7 @@ func TestTimeTravel(t *testing.T) {
 		}
 	}
 	x.NotNil(toB)
-	x.WithinDuration(e.now.Add(-10*day), toB.GetValidFrom().AsTime(), time.Second)
+	x.WithinDuration(e.now.Add(-10*day), toB.GetDateStart().AsTime(), time.Second)
 
 	// It turns out the move was fifteen days ago, not ten.
 	before := e.now
@@ -73,7 +73,7 @@ func TestTimeTravel(t *testing.T) {
 	_, err = e.app().Asset().Correct(e.owner, app.AssetCorrectRequest_builder{
 		Ref:       assetRef(laptop),
 		RowId:     toB.GetRowId(),
-		ValidFrom: e.ago(15 * day),
+		DateStart: e.ago(15 * day),
 		Reason:    "영수증 확인",
 	}.Build())
 	x.NoError(err)
@@ -85,7 +85,7 @@ func TestTimeTravel(t *testing.T) {
 	x.NoError(err)
 	toB = nil
 	for _, en := range tl.GetEntries() {
-		if en.GetKind() == "placement" && sameId(en.GetOtherId(), b.GetId()) && !en.HasSupersededAt() {
+		if en.GetKind() == "placement" && sameId(en.GetOtherId(), b.GetId()) && !en.HasDateSuperseded() {
 			toB = en
 		}
 	}
@@ -105,7 +105,7 @@ func TestTimeTravel(t *testing.T) {
 	x.NoError(err)
 	gone := 0
 	for _, en := range tl.GetEntries() {
-		if en.HasSupersededAt() {
+		if en.HasDateSuperseded() {
 			gone++
 		}
 	}
@@ -122,7 +122,7 @@ func TestNoCycles(t *testing.T) {
 	e.x.Error(err, "a building cannot go inside its own room")
 
 	// Nor at a moment in the past, which a later fact would make a loop of.
-	_, err = e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(floor), To: assetRef(room), At: e.ago(day)}.Build())
+	_, err = e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(floor), To: assetRef(room), DateOccurred: e.ago(day)}.Build())
 	e.x.Error(err)
 }
 
@@ -133,9 +133,9 @@ func TestAttributesAndHistory(t *testing.T) {
 	a := e.item("모니터", "MN-1", room, 10*day)
 
 	_, err := e.app().Asset().SetAttributes(e.owner, app.AssetSetAttributesRequest_builder{
-		Ref: assetRef(a),
-		Set: map[string]string{"status": "in_repair", "condition": "broken", "attr.size": "27"},
-		At:  e.ago(2 * day),
+		Ref:          assetRef(a),
+		Set:          map[string]string{"status": "in_repair", "condition": "broken", "attr.size": "27"},
+		DateOccurred: e.ago(2 * day),
 	}.Build())
 	x.NoError(err)
 	v := e.get(a)
@@ -149,7 +149,7 @@ func TestAttributesAndHistory(t *testing.T) {
 	}.Build())
 	x.Equal(codes.InvalidArgument, codeOf(err))
 
-	q, err := e.app().Asset().QueryAt(e.owner, app.AssetQueryAtRequest_builder{Root: assetRef(room), At: e.ago(5 * day)}.Build())
+	q, err := e.app().Asset().QueryAt(e.owner, app.AssetQueryAtRequest_builder{Root: assetRef(room), DateAsOf: e.ago(5 * day)}.Build())
 	x.NoError(err)
 	for _, s := range q.GetItems() {
 		if sameId(s.GetId(), a.GetId()) {
@@ -206,7 +206,7 @@ func TestACorrectionSentAgainIsTheSameCorrection(t *testing.T) {
 	a := e.space("A", nil)
 	b := e.space("B", nil)
 	laptop := e.item("노트북", "NB-1", a, 10*day)
-	_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(laptop), To: assetRef(b), At: e.ago(2 * day)}.Build())
+	_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(laptop), To: assetRef(b), DateOccurred: e.ago(2 * day)}.Build())
 	x.NoError(err)
 
 	tl, err := e.app().Asset().Timeline(e.owner, app.AssetTimelineRequest_builder{Ref: assetRef(laptop)}.Build())
@@ -220,7 +220,7 @@ func TestACorrectionSentAgainIsTheSameCorrection(t *testing.T) {
 	x.NotNil(toB)
 
 	req := app.AssetCorrectRequest_builder{
-		Ref: assetRef(laptop), RowId: toB.GetRowId(), ValidFrom: e.ago(5 * day), Reason: "영수증",
+		Ref: assetRef(laptop), RowId: toB.GetRowId(), DateStart: e.ago(5 * day), Reason: "영수증",
 		Op: pdid.New(pd.EventDomain).Bytes(),
 	}.Build()
 	_, err = e.app().Asset().Correct(e.owner, req)
@@ -282,8 +282,8 @@ func TestTheWallHoldsUnderTheDomainLayer(t *testing.T) {
 			SetSlot("").
 			SetUFrom(0).
 			SetUTo(0).
-			SetValidFrom(e.now.Add(-10 * day)).
-			SetValidTo(e.now.Add(-9 * day)).
+			SetDateStart(e.now.Add(-10 * day)).
+			SetDateEnd(e.now.Add(-9 * day)).
 			SetEventId(newOpUUID()).
 			SetDateUpdated(e.now).
 			Exec(ctx)
@@ -324,13 +324,13 @@ func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
 
 	// What the domain layer wrote: a part in a slot and a server in a rack
 	// from twenty days ago, and an owner from as long.
-	_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(dimm), To: assetRef(server), Mode: "installed", Slot: "DIMM1", At: e.ago(20 * day)}.Build())
+	_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(dimm), To: assetRef(server), Mode: "installed", Slot: "DIMM1", DateOccurred: e.ago(20 * day)}.Build())
 	x.NoError(err)
-	_, err = e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(host), To: assetRef(rack), Mode: "installed", UFrom: 10, UTo: 11, At: e.ago(20 * day)}.Build())
+	_, err = e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(host), To: assetRef(rack), Mode: "installed", UFrom: 10, UTo: 11, DateOccurred: e.ago(20 * day)}.Build())
 	x.NoError(err)
-	_, err = e.app().Asset().Assign(e.owner, app.AssetAssignRequest_builder{Ref: assetRef(dimm), Role: "owner", Party: ref[app.PartyRef](kim.GetId()), At: e.ago(20 * day)}.Build())
+	_, err = e.app().Asset().Assign(e.owner, app.AssetAssignRequest_builder{Ref: assetRef(dimm), Role: "owner", Party: ref[app.PartyRef](kim.GetId()), DateOccurred: e.ago(20 * day)}.Build())
 	x.NoError(err)
-	_, err = e.app().Asset().Relate(e.owner, app.AssetRelateRequest_builder{Ref: assetRef(server), Target: assetRef(host), Kind: "connected_to", At: e.ago(20 * day)}.Build())
+	_, err = e.app().Asset().Relate(e.owner, app.AssetRelateRequest_builder{Ref: assetRef(server), Target: assetRef(host), Kind: "connected_to", DateOccurred: e.ago(20 * day)}.Build())
 	x.NoError(err)
 
 	refused := func(err error, constraint string) {
@@ -353,8 +353,8 @@ func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
 			SetSlot(slot).
 			SetUFrom(u).
 			SetUTo(0).
-			SetValidFrom(from).
-			SetValidTo(to).
+			SetDateStart(from).
+			SetDateEnd(to).
 			SetEventId(newOpUUID()).
 			SetDateUpdated(e.now)
 		if u > 0 {
@@ -376,8 +376,8 @@ func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
 			SetAssetId(idUUID(dimm.GetId())).
 			SetRole("owner").
 			SetPartyId(idUUID(party.GetId())).
-			SetValidFrom(since).
-			SetValidTo(since.Add(day)).
+			SetDateStart(since).
+			SetDateEnd(since.Add(day)).
 			SetEventId(newOpUUID()).
 			SetDateUpdated(e.now).
 			Exec(ctx)
@@ -393,8 +393,8 @@ func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
 			SetTargetId(idUUID(target.GetId())).
 			SetKind("connected_to").
 			SetRequired(false).
-			SetValidFrom(from).
-			SetValidTo(to).
+			SetDateStart(from).
+			SetDateEnd(to).
 			SetEventId(newOpUUID()).
 			SetDateUpdated(e.now).
 			Exec(ctx)

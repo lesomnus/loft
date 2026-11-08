@@ -76,11 +76,11 @@ message CustodyAddRequest {
   PartyRef party = 8;
   string kind = 9 [features.field_presence = IMPLICIT];
   string status = 10 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp issued_at = 11;
-  google.protobuf.Timestamp due_at = 12;
+  google.protobuf.Timestamp date_issued = 11;
+  google.protobuf.Timestamp date_due = 12;
   google.protobuf.Timestamp date_created = 15;
-  google.protobuf.Timestamp acknowledged_at = 16;
-  google.protobuf.Timestamp returned_at = 17;
+  google.protobuf.Timestamp date_acknowledged = 16;
+  google.protobuf.Timestamp date_returned = 17;
   bytes reservation_id = 18;
   bytes issued_by = 19;
   bool overdue_noticed = 20 [features.field_presence = IMPLICIT];
@@ -113,13 +113,13 @@ message CustodySelect {
   PartySelect party = 8;
   bool kind = 9;
   bool status = 10;
-  bool issued_at = 11;
-  bool due_at = 12;
+  bool date_issued = 11;
+  bool date_due = 12;
   bool date_updated = 13;
   bool date_erased = 14;
   bool date_created = 15;
-  bool acknowledged_at = 16;
-  bool returned_at = 17;
+  bool date_acknowledged = 16;
+  bool date_returned = 17;
   bool reservation_id = 18;
   bool issued_by = 19;
   bool overdue_noticed = 20;
@@ -130,13 +130,13 @@ message CustodyPatchRequest {
   string desc = 12;
   string kind = 18;
   string status = 20;
-  google.protobuf.Timestamp issued_at = 22;
-  google.protobuf.Timestamp due_at = 24;
-  // Clear due_at instead of writing it.
+  google.protobuf.Timestamp date_issued = 22;
+  google.protobuf.Timestamp date_due = 24;
+  // Clear date_due instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and due_at clears.
-  bool due_at_null = 25;
+  // outright: setting both this and date_due clears.
+  bool date_due_null = 25;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.
@@ -151,18 +151,18 @@ message CustodyPatchRequest {
   // refused rather than assumed, because an unset field cannot be told
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
-  google.protobuf.Timestamp acknowledged_at = 32;
-  // Clear acknowledged_at instead of writing it.
+  google.protobuf.Timestamp date_acknowledged = 32;
+  // Clear date_acknowledged instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and acknowledged_at clears.
-  bool acknowledged_at_null = 33;
-  google.protobuf.Timestamp returned_at = 34;
-  // Clear returned_at instead of writing it.
+  // outright: setting both this and date_acknowledged clears.
+  bool date_acknowledged_null = 33;
+  google.protobuf.Timestamp date_returned = 34;
+  // Clear date_returned instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and returned_at clears.
-  bool returned_at_null = 35;
+  // outright: setting both this and date_returned clears.
+  bool date_returned_null = 35;
   bytes reservation_id = 36;
   // Clear reservation_id instead of writing it.
   // It takes a field of its own because an unset value already means
@@ -292,7 +292,7 @@ message CustodyReturnRequest {
   CustodyRef ref = 1;
   // Empty: everything still out.
   repeated CustodyReturnLine lines = 2;
-  google.protobuf.Timestamp at = 3;
+  google.protobuf.Timestamp date_occurred = 3;
   // Where the returned assets go.
   AssetRef to = 4;
   bytes op = 5 [features.field_presence = IMPLICIT];
@@ -312,7 +312,7 @@ message CustodyLineRef {
 
 message CustodyExtendRequest {
   CustodyRef ref = 1;
-  google.protobuf.Timestamp due_at = 2;
+  google.protobuf.Timestamp date_due = 2;
 }
 
 message CustodyOutstandingRequest {
@@ -342,7 +342,7 @@ message CustodyOutstandingResponse {
   uint32 assets = 6 [features.field_presence = IMPLICIT];
   uint32 stocks = 7 [features.field_presence = IMPLICIT];
   // When it was read, which what is overdue is overdue at.
-  google.protobuf.Timestamp at = 8;
+  google.protobuf.Timestamp date_as_of = 8;
 }
 
 // CustodyOutstandingRow is one line of a hand-over still out: an asset, or
@@ -366,8 +366,8 @@ message CustodyOutstandingRow {
   string stock_name = 10 [features.field_presence = IMPLICIT];
   int64 quantity = 11 [features.field_presence = IMPLICIT];
   string unit = 12 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp issued_at = 13;
-  google.protobuf.Timestamp due_at = 14;
+  google.protobuf.Timestamp date_issued = 13;
+  google.protobuf.Timestamp date_due = 14;
   // Past its due date, and by how many of the workspace's days: one due
   // yesterday is a day late, and one due earlier today none, late as it is.
   bool overdue = 15 [features.field_presence = IMPLICIT];
@@ -385,8 +385,8 @@ message CustodyLineAddRequest {
   int64 quantity = 11 [features.field_presence = IMPLICIT];
   int64 returned_quantity = 12 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
-  google.protobuf.Timestamp out_at = 16;
-  google.protobuf.Timestamp returned_at = 17;
+  google.protobuf.Timestamp date_out = 16;
+  google.protobuf.Timestamp date_returned = 17;
   string condition_out = 18 [features.field_presence = IMPLICIT];
   string condition_in = 19 [features.field_presence = IMPLICIT];
 }
@@ -406,8 +406,8 @@ message CustodyLineSelect {
   bool returned_quantity = 12;
   bool date_updated = 13;
   bool date_created = 15;
-  bool out_at = 16;
-  bool returned_at = 17;
+  bool date_out = 16;
+  bool date_returned = 17;
   bool condition_out = 18;
   bool condition_in = 19;
 }
@@ -430,13 +430,13 @@ message CustodyLinePatchRequest {
   // refused rather than assumed, because an unset field cannot be told
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
-  google.protobuf.Timestamp out_at = 32;
-  google.protobuf.Timestamp returned_at = 34;
-  // Clear returned_at instead of writing it.
+  google.protobuf.Timestamp date_out = 32;
+  google.protobuf.Timestamp date_returned = 34;
+  // Clear date_returned instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and returned_at clears.
-  bool returned_at_null = 35;
+  // outright: setting both this and date_returned clears.
+  bool date_returned_null = 35;
   string condition_out = 36;
   string condition_in = 38;
 }

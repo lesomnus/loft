@@ -61,14 +61,14 @@ func Desc(v string) predicate.AccessReview {
 	return predicate.AccessReview(sql.FieldEQ(FieldDesc, v))
 }
 
-// PeriodFrom applies equality check predicate on the "period_from" field. It's identical to PeriodFromEQ.
-func PeriodFrom(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldEQ(FieldPeriodFrom, v))
+// DateStart applies equality check predicate on the "date_start" field. It's identical to DateStartEQ.
+func DateStart(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldEQ(FieldDateStart, v))
 }
 
-// PeriodTo applies equality check predicate on the "period_to" field. It's identical to PeriodToEQ.
-func PeriodTo(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldEQ(FieldPeriodTo, v))
+// DateEnd applies equality check predicate on the "date_end" field. It's identical to DateEndEQ.
+func DateEnd(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldEQ(FieldDateEnd, v))
 }
 
 // Calls applies equality check predicate on the "calls" field. It's identical to CallsEQ.
@@ -166,104 +166,104 @@ func DescContainsFold(v string) predicate.AccessReview {
 	return predicate.AccessReview(sql.FieldContainsFold(FieldDesc, v))
 }
 
-// PeriodFromEQ applies the EQ predicate on the "period_from" field.
-func PeriodFromEQ(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldEQ(FieldPeriodFrom, v))
+// DateStartEQ applies the EQ predicate on the "date_start" field.
+func DateStartEQ(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldEQ(FieldDateStart, v))
 }
 
-// PeriodFromNEQ applies the NEQ predicate on the "period_from" field.
-func PeriodFromNEQ(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldNEQ(FieldPeriodFrom, v))
+// DateStartNEQ applies the NEQ predicate on the "date_start" field.
+func DateStartNEQ(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldNEQ(FieldDateStart, v))
 }
 
-// PeriodFromIn applies the In predicate on the "period_from" field.
-func PeriodFromIn(vs ...time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldIn(FieldPeriodFrom, vs...))
+// DateStartIn applies the In predicate on the "date_start" field.
+func DateStartIn(vs ...time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldIn(FieldDateStart, vs...))
 }
 
-// PeriodFromNotIn applies the NotIn predicate on the "period_from" field.
-func PeriodFromNotIn(vs ...time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldNotIn(FieldPeriodFrom, vs...))
+// DateStartNotIn applies the NotIn predicate on the "date_start" field.
+func DateStartNotIn(vs ...time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldNotIn(FieldDateStart, vs...))
 }
 
-// PeriodFromGT applies the GT predicate on the "period_from" field.
-func PeriodFromGT(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldGT(FieldPeriodFrom, v))
+// DateStartGT applies the GT predicate on the "date_start" field.
+func DateStartGT(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldGT(FieldDateStart, v))
 }
 
-// PeriodFromGTE applies the GTE predicate on the "period_from" field.
-func PeriodFromGTE(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldGTE(FieldPeriodFrom, v))
+// DateStartGTE applies the GTE predicate on the "date_start" field.
+func DateStartGTE(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldGTE(FieldDateStart, v))
 }
 
-// PeriodFromLT applies the LT predicate on the "period_from" field.
-func PeriodFromLT(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldLT(FieldPeriodFrom, v))
+// DateStartLT applies the LT predicate on the "date_start" field.
+func DateStartLT(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldLT(FieldDateStart, v))
 }
 
-// PeriodFromLTE applies the LTE predicate on the "period_from" field.
-func PeriodFromLTE(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldLTE(FieldPeriodFrom, v))
+// DateStartLTE applies the LTE predicate on the "date_start" field.
+func DateStartLTE(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldLTE(FieldDateStart, v))
 }
 
-// PeriodFromIsNil applies the IsNil predicate on the "period_from" field.
-func PeriodFromIsNil() predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldIsNull(FieldPeriodFrom))
+// DateStartIsNil applies the IsNil predicate on the "date_start" field.
+func DateStartIsNil() predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldIsNull(FieldDateStart))
 }
 
-// PeriodFromNotNil applies the NotNil predicate on the "period_from" field.
-func PeriodFromNotNil() predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldNotNull(FieldPeriodFrom))
+// DateStartNotNil applies the NotNil predicate on the "date_start" field.
+func DateStartNotNil() predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldNotNull(FieldDateStart))
 }
 
-// PeriodToEQ applies the EQ predicate on the "period_to" field.
-func PeriodToEQ(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldEQ(FieldPeriodTo, v))
+// DateEndEQ applies the EQ predicate on the "date_end" field.
+func DateEndEQ(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldEQ(FieldDateEnd, v))
 }
 
-// PeriodToNEQ applies the NEQ predicate on the "period_to" field.
-func PeriodToNEQ(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldNEQ(FieldPeriodTo, v))
+// DateEndNEQ applies the NEQ predicate on the "date_end" field.
+func DateEndNEQ(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldNEQ(FieldDateEnd, v))
 }
 
-// PeriodToIn applies the In predicate on the "period_to" field.
-func PeriodToIn(vs ...time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldIn(FieldPeriodTo, vs...))
+// DateEndIn applies the In predicate on the "date_end" field.
+func DateEndIn(vs ...time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldIn(FieldDateEnd, vs...))
 }
 
-// PeriodToNotIn applies the NotIn predicate on the "period_to" field.
-func PeriodToNotIn(vs ...time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldNotIn(FieldPeriodTo, vs...))
+// DateEndNotIn applies the NotIn predicate on the "date_end" field.
+func DateEndNotIn(vs ...time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldNotIn(FieldDateEnd, vs...))
 }
 
-// PeriodToGT applies the GT predicate on the "period_to" field.
-func PeriodToGT(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldGT(FieldPeriodTo, v))
+// DateEndGT applies the GT predicate on the "date_end" field.
+func DateEndGT(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldGT(FieldDateEnd, v))
 }
 
-// PeriodToGTE applies the GTE predicate on the "period_to" field.
-func PeriodToGTE(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldGTE(FieldPeriodTo, v))
+// DateEndGTE applies the GTE predicate on the "date_end" field.
+func DateEndGTE(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldGTE(FieldDateEnd, v))
 }
 
-// PeriodToLT applies the LT predicate on the "period_to" field.
-func PeriodToLT(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldLT(FieldPeriodTo, v))
+// DateEndLT applies the LT predicate on the "date_end" field.
+func DateEndLT(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldLT(FieldDateEnd, v))
 }
 
-// PeriodToLTE applies the LTE predicate on the "period_to" field.
-func PeriodToLTE(v time.Time) predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldLTE(FieldPeriodTo, v))
+// DateEndLTE applies the LTE predicate on the "date_end" field.
+func DateEndLTE(v time.Time) predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldLTE(FieldDateEnd, v))
 }
 
-// PeriodToIsNil applies the IsNil predicate on the "period_to" field.
-func PeriodToIsNil() predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldIsNull(FieldPeriodTo))
+// DateEndIsNil applies the IsNil predicate on the "date_end" field.
+func DateEndIsNil() predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldIsNull(FieldDateEnd))
 }
 
-// PeriodToNotNil applies the NotNil predicate on the "period_to" field.
-func PeriodToNotNil() predicate.AccessReview {
-	return predicate.AccessReview(sql.FieldNotNull(FieldPeriodTo))
+// DateEndNotNil applies the NotNil predicate on the "date_end" field.
+func DateEndNotNil() predicate.AccessReview {
+	return predicate.AccessReview(sql.FieldNotNull(FieldDateEnd))
 }
 
 // CallsEQ applies the EQ predicate on the "calls" field.

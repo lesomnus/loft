@@ -16,7 +16,10 @@
 # export is taken and checked as this deployment's (`tenant export`, `tenant
 # verify`). Both builds are given the keys a deployment's processes have: the
 # one the trail's rows are digested with, and the one the trail is signed
-# with, which signs an export too.
+# with, which signs an export too. What BEFORE exported of the workspace
+# before the migration is restored by NOW, the workspace purged first (`tenant
+# import`): an export of any build before, in the format it wrote, is one a
+# restore reads (D76).
 #
 # What an operator does is asked of the entry point (D74): NOW's
 # `loft-admin serve`, on a port of its own and with an operator's key only
@@ -133,6 +136,57 @@ unserve() {
 	fi
 }
 
+# held NAME WAS IS: whether every time a row of the export WAS holds is held
+# by the same row of the export IS -- under its own name, or under a name the
+# row did not have before, which is the one it was renamed to (D76) -- and
+# what it found of each table, in NAME's log. A time a row was last changed
+# at is no time it holds. A migration that makes a table again without a
+# column it renamed loses what the column held, as SQLite's does of any table
+# with an index, and does it without a word: so a time not held is a
+# failure, and so is one held otherwise. And the tables the demo's times are
+# in are read, or nothing was checked: a booking, a hand-over and a
+# placement, each with a time in an index it declares, and what a
+# hand-over handed over, a table with indexes and its time in none.
+held() {
+	log=$dir/$1.log
+	compared=
+	for f in $(unzip -Z1 "$2" 'rows/*.jsonl'); do
+		table=${f#rows/}
+		table=${table%.jsonl}
+		unzip -p "$2" "$f" >"$dir/$1-was.jsonl"
+		unzip -p "$3" "$f" >"$dir/$1-is.jsonl" 2>/dev/null || continue
+		said=$(jq -rn --slurpfile was "$dir/$1-was.jsonl" --slurpfile is "$dir/$1-is.jsonl" '
+			($is | map({key: .id, value: .}) | from_entries) as $now
+			| [$was[] | . as $row | $now[$row.id] as $n | select($n != null)
+				| to_entries[]
+				| select(.key != "dateUpdated" and (.value | type) == "string" and (.value | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T")))
+				| . as $e
+				| if ($n | has($e.key)) then (if $n[$e.key] == $e.value then "same" else "changed:\($e.key)" end)
+				  elif ([$n | to_entries[] | select((.key as $k | $row | has($k) | not) and .value == $e.value)] | length) > 0 then "renamed:\($e.key)"
+				  else "lost:\($e.key)" end]
+			| group_by(.) | map("\(.[0])=\(length)") | join(" ")')
+		echo "held: $table: ${said:-no time}" >>"$log"
+		case " $said " in
+		*" lost:"* | *" changed:"*)
+			echo "upgrade: $1: a time of $table is not what the build before held: $said" >&2
+			exit 1
+			;;
+		esac
+		case $table:$said in
+		reservation:?* | custody:?* | custodyline:?* | placement:?*) compared="$compared $table" ;;
+		esac
+	done
+	for t in reservation custody custodyline placement; do
+		case " $compared " in
+		*" $t "*) ;;
+		*)
+			echo "upgrade: $1: no time of $t was read, so none of it was checked" >&2
+			exit 1
+			;;
+		esac
+	done
+}
+
 # check NAME: what BEFORE makes on the database the environment names,
 # migrated by NOW.
 check() {
@@ -158,6 +212,22 @@ check() {
 	else
 		serve "$log" "$before"
 		run "$log" ask "$before" tenant-contract add --name before --yes acme
+		unserve
+	fi
+	# An export the build before wrote, for this one to restore once it has
+	# migrated (below): an export is a contract with whoever kept it (D34),
+	# in every format a build wrote one in (D76). On the box, by a build from
+	# before the operator's commands were the entry point's.
+	exported=$dir/$1-before.zip
+	if "$before/loft" tenant export --help 2>&1 | grep -q -- '--tenant'; then
+		run "$log" "$before/loft" tenant export --tenant acme --out "$exported"
+	else
+		serve "$log" "$before"
+		if "$before/loft-admin" tenant --help >/dev/null 2>&1; then
+			run "$log" ask "$before" tenant export --reason "an upgrade, checked" --out "$exported" acme
+		else
+			run "$log" ask "$before" --reason "an upgrade, checked" tenant export --out "$exported" acme
+		fi
 		unserve
 	fi
 	run "$log" "$now/loft" migrate
@@ -211,6 +281,15 @@ check() {
 	run "$log" ask "$now" retention plan --tenant acme
 	run "$log" ask "$now" --reason "an upgrade, checked" tenant export --out "$dir/$1.zip" acme
 	run "$log" ask "$now" tenant verify --file "$dir/$1.zip"
+	held "$1" "$exported" "$dir/$1.zip"
+	# And what the build before exported, restored by this one into a
+	# deployment that does not have the workspace -- so it goes first -- and
+	# again what the trail says it is.
+	run "$log" ask "$now" tenant verify --file "$exported"
+	run "$log" ask "$now" tenant purge --yes acme
+	run "$log" ask "$now" tenant import --yes --file "$exported"
+	run "$log" ask "$now" tenant show acme
+	run "$log" ask "$now" trail rows
 	unserve
 	echo "upgrade: $1: what the build before made is in this build's shape, and what the trail says of it${moved:+ (${moved% *} facts moved into payday's past)}${held:+ (${held} things out held their time)}"
 }

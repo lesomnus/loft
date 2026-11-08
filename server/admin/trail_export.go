@@ -167,8 +167,8 @@ func (s operatorTrail) Export(req *app.OperatorTrailExportRequest, out grpc.Serv
 		x.SetUncovered(slices.ContainsFunc(v.Chunks, func(c trail.ExportChunk) bool { return !c.Covered }))
 	}
 	if r := v.Retired; r != nil {
-		x.SetRetired(timestamppb.New(r.At))
-		x.SetKeptUntil(timestamppb.New(r.Until))
+		x.SetDateRetired(timestamppb.New(r.At))
+		x.SetDateKeptUntil(timestamppb.New(r.Until))
 	}
 	log.From(ctx).InfoContext(ctx, "trail: a workspace's trail taken out", "operator", o.Name, "tenant", tenant, "manifest", v.Digest, "people", len(people))
 	return out.Send(app.OperatorTrailExportResponse_builder{Exported: x}.Build())

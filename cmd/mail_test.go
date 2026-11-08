@@ -64,9 +64,9 @@ func TestAnOperationUndoneMailsNothing(t *testing.T) {
 
 	reserve := func(at time.Time) *app.ReservationAddRequest {
 		return app.ReservationAddRequest_builder{
-			Name:     "회의",
-			BeginsAt: timestamppb.New(at),
-			EndsAt:   timestamppb.New(at.Add(time.Hour)),
+			Name:      "회의",
+			DateStart: timestamppb.New(at),
+			DateEnd:   timestamppb.New(at.Add(time.Hour)),
 			Items: []*app.ReservationItemSpec{app.ReservationItemSpec_builder{
 				Resource: app.AssetRef_builder{Id: hall.GetId()}.Build(),
 			}.Build()},

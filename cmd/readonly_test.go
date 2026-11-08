@@ -132,7 +132,7 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	asBooker := w.signIn(booker)
 	at := time.Now().Add(48 * time.Hour).Truncate(time.Hour)
 	booked, err := reservations.Add(asBooker, app.ReservationAddRequest_builder{
-		Name: "회의", BeginsAt: timestamppb.New(at), EndsAt: timestamppb.New(at.Add(time.Hour)),
+		Name: "회의", DateStart: timestamppb.New(at), DateEnd: timestamppb.New(at.Add(time.Hour)),
 		Items: []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: aref(room)}.Build()},
 	}.Build())
 	x.NoError(err)
@@ -190,7 +190,7 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	_, err = labels.Print(w.owner, app.LabelPrintRequest_builder{Count: 1}.Build())
 	w.refusedReadOnly(err, app.LabelService_Print_FullMethodName)
 	_, err = reservations.Add(asBooker, app.ReservationAddRequest_builder{
-		Name: "회의", BeginsAt: timestamppb.New(at.Add(24 * time.Hour)), EndsAt: timestamppb.New(at.Add(25 * time.Hour)),
+		Name: "회의", DateStart: timestamppb.New(at.Add(24 * time.Hour)), DateEnd: timestamppb.New(at.Add(25 * time.Hour)),
 		Items: []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: aref(room)}.Build()},
 	}.Build())
 	w.refusedReadOnly(err, app.ReservationService_Add_FullMethodName)
@@ -267,7 +267,7 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	x.NoError(err)
 	_, err = parties.Search(w.owner, app.PartySearchRequest_builder{Q: "김"}.Build())
 	x.NoError(err)
-	_, err = reservations.Calendar(asBooker, app.ReservationCalendarRequest_builder{From: timestamppb.New(at.Add(-time.Hour)), To: timestamppb.New(at.Add(2 * time.Hour))}.Build())
+	_, err = reservations.Calendar(asBooker, app.ReservationCalendarRequest_builder{DateFrom: timestamppb.New(at.Add(-time.Hour)), DateTo: timestamppb.New(at.Add(2 * time.Hour))}.Build())
 	x.NoError(err)
 	_, err = tenants.Preview(w.owner, app.TenantPreviewRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(365))}.Build())
 	x.NoError(err, "what a change would take, which changes nothing")
@@ -301,9 +301,9 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	// Who saw whose data, read -- and not a review of it recorded, which is
 	// a write.
 	from, to := time.Now().Add(-time.Hour), time.Now().Add(time.Minute)
-	_, err = app.NewAccessServiceClient(w.conn).Review(w.owner, app.AccessReviewRequest_builder{From: timestamppb.New(from), To: timestamppb.New(to)}.Build())
+	_, err = app.NewAccessServiceClient(w.conn).Review(w.owner, app.AccessReviewRequest_builder{DateFrom: timestamppb.New(from), DateTo: timestamppb.New(to)}.Build())
 	x.NoError(err)
-	_, err = app.NewAccessReviewServiceClient(w.conn).Add(w.owner, app.AccessReviewAddRequest_builder{PeriodFrom: timestamppb.New(from), PeriodTo: timestamppb.New(to), Desc: "이상 없음"}.Build())
+	_, err = app.NewAccessReviewServiceClient(w.conn).Add(w.owner, app.AccessReviewAddRequest_builder{DateStart: timestamppb.New(from), DateEnd: timestamppb.New(to), Desc: "이상 없음"}.Build())
 	w.refusedReadOnly(err, app.AccessReviewService_Add_FullMethodName)
 
 	// Paid for: who pays for it, asked by the people who run it, and the

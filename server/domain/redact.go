@@ -515,12 +515,12 @@ func keeping(ctx context.Context, db *ent.Client, tenant pdid.Id, v *ent.Event) 
 			if v.ActorId != nil {
 				in = append(in, countfinding.RecordedBy(*v.ActorId))
 			}
-			fs, err := db.CountFinding.Query().Where(in...).Select(countfinding.FieldId, countfinding.FieldSeenAt).All(ctx)
+			fs, err := db.CountFinding.Query().Where(in...).Select(countfinding.FieldId, countfinding.FieldDateSeen).All(ctx)
 			if err != nil {
 				return nil, err
 			}
 			for _, f := range fs {
-				if f.SeenAt.Equal(v.OccurredAt) {
+				if f.DateSeen.Equal(v.OccurredAt) {
 					us = append(us, f.Id)
 				}
 			}

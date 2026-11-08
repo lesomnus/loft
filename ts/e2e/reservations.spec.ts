@@ -49,7 +49,7 @@ test('a booking says in its history who booked it, who approved it and why, and 
 	await rpc(admin, 'BookableService/Add', { asset: { id: camera.id }, approval: true })
 	await signIn(page, people.historian.login)
 	const [from, to] = [momentAt(44, 9), momentAt(44, 12)]
-	const booked = await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: camera.id } }], beginsAt: from, endsAt: to })
+	const booked = await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: camera.id } }], dateStart: from, dateEnd: to })
 	const booking = `예약: ${name} ${from.slice(5, 10)} 09:00`
 
 	// A manager opens the request where it waits for them, and reads who
@@ -66,7 +66,7 @@ test('a booking says in its history who booked it, who approved it and why, and 
 	// It is approved, with a reason, and picked up.
 	await rpc(manager, 'ReservationService/Approve', { ref: { id: booked.id }, reason: 'e2e 승인 사유' })
 	const party = (booked.party as { id: string }).id
-	await rpc(manager, 'CustodyService/Add', { party: { id: party }, dueAt: to, reservationId: booked.id, lines: [{ asset: { id: camera.id } }] })
+	await rpc(manager, 'CustodyService/Add', { party: { id: party }, dateDue: to, reservationId: booked.id, lines: [{ asset: { id: camera.id } }] })
 
 	// Its booker opens it, and reads what happened to it, newest first, by
 	// whom: the pickup, the approval and why, and the booking.
@@ -110,7 +110,7 @@ test('a booking opens in its dialog wherever it is listed: from the dashboard, w
 	await rpc(admin, 'BookableService/Add', { asset: { id: camera.id }, approval: true })
 	await signIn(page, people.opener.login)
 	const from = momentAt(1, 10)
-	await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: camera.id } }], beginsAt: from, endsAt: momentAt(1, 12) })
+	await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: camera.id } }], dateStart: from, dateEnd: momentAt(1, 12) })
 	const booking = `예약: ${name} ${from.slice(5, 10)} 10:00`
 
 	// What its dialog says of it, read and closed: its name, where it is, and
@@ -237,8 +237,8 @@ test('a kit is picked up with the members its booking holds, and without one it 
 
 	await signIn(page, people.approver.login)
 	const [from, to] = [momentAt(42, 9), momentAt(42, 12)]
-	await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: kit.id } }], beginsAt: from, endsAt: to })
-	await rpc(page, 'ReservationService/Add', { name: unique('e2e 조명'), items: [{ resource: { id: light.id } }], beginsAt: from, endsAt: to })
+	await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: kit.id } }], dateStart: from, dateEnd: to })
+	await rpc(page, 'ReservationService/Add', { name: unique('e2e 조명'), items: [{ resource: { id: light.id } }], dateStart: from, dateEnd: to })
 	await rpc(admin, 'AssetService/Relate', { ref: { id: light.id }, target: { id: kit.id }, kind: 'member_of', required: true })
 
 	// Its pickup hands out the camera the booking holds, and says the light
@@ -290,7 +290,7 @@ test('a pool books as many as its members in use, the booking made last waits on
 	// Both of them booked for one morning six weeks out, one after the other.
 	const [from, to] = [momentAt(43, 9), momentAt(43, 12)]
 	for (const title of [first, later]) {
-		await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: pool.id } }], beginsAt: from, endsAt: to })
+		await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: pool.id } }], dateStart: from, dateEnd: to })
 	}
 
 	// One of the cameras disposed of: the pool has one, and the booking made
@@ -374,7 +374,7 @@ test('what is disposed of, or found lost by a count, is offered out of its kit; 
 	const count = await rpc(admin, 'InventoryCountService/Add', { name: unique('e2e 장비실 실사'), scope: { id: room.id } })
 	await rpc(admin, 'InventoryCountService/Reconcile', { ref: { id: count.id } })
 	await signIn(page, people.approver.login)
-	await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: kit.id } }], beginsAt: momentAt(49, 9), endsAt: momentAt(49, 12) })
+	await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: kit.id } }], dateStart: momentAt(49, 9), dateEnd: momentAt(49, 12) })
 	const offer = (form: Locator) => field(form, '속한 키트·그룹').getByRole('checkbox', { name: new RegExp(`^${tag.kit} .*에서 빼기`) })
 
 	// The tripod is disposed of, and taken out of the kit in the same
@@ -482,7 +482,7 @@ test('a room that goes out of use: its booking says so and its booker is told, i
 	await signIn(page, people.booker.login)
 	const from = new Date(Date.now() + 5 * 60_000)
 	const to = new Date(from.getTime() + 60 * 60_000)
-	const r = await rpc(page, 'ReservationService/Add', { name: talk, items: [{ resource: { id: room.id } }], beginsAt: from.toISOString(), endsAt: to.toISOString() })
+	const r = await rpc(page, 'ReservationService/Add', { name: talk, items: [{ resource: { id: room.id } }], dateStart: from.toISOString(), dateEnd: to.toISOString() })
 	await page.goto(`${workspace}/reservations?tab=mine`)
 	const booked = page.getByRole('row').filter({ hasText: talk })
 	await booked.click()
@@ -541,7 +541,7 @@ test('a group deleted as registered by mistake: its booking says so and its book
 	await rpc(admin, 'BookableService/Add', { asset: { id: pool.id } })
 	await signIn(page, people.booker.login)
 	const [from, to] = [momentAt(44, 9), momentAt(44, 12)]
-	const r = await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: pool.id } }], beginsAt: from, endsAt: to })
+	const r = await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: pool.id } }], dateStart: from, dateEnd: to })
 
 	// The owner deletes the group from its page, at a desk of their own.
 	await admin.goto(`${workspace}/assets/${idOf(pool.id)}`)
@@ -567,6 +567,6 @@ test('a group deleted as registered by mistake: its booking says so and its book
 	await page.getByRole('dialog').getByRole('button', { name: '닫기' }).click()
 	const person = await rpc(admin, 'PartyService/Me', {})
 	expect(
-		await refusal(admin, 'CustodyService/Add', { party: { id: (person.party as { id: string }).id }, kind: 'loan', dueAt: to, reservationId: r.id, lines: [{ asset: { id: camera.id } }] }),
+		await refusal(admin, 'CustodyService/Add', { party: { id: (person.party as { id: string }).id }, kind: 'loan', dateDue: to, reservationId: r.id, lines: [{ asset: { id: camera.id } }] }),
 	).toContain(`수령할 수 없습니다: ${tag.pool} ${name}(삭제)`)
 })

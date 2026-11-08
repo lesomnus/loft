@@ -235,7 +235,7 @@ func (n *Notices) create(db *ent.Client, kind string, workspace, account pdid.Id
 		SetKind(kind).
 		SetWorkspace(workspace.Uuid()).
 		SetAccount(account.Uuid()).
-		SetAt(moment(at)).
+		SetDateOccurred(moment(at)).
 		SetDateCreated(n.now()).
 		SetOrigin(origin).
 		SetRefused("")
@@ -422,12 +422,12 @@ func (t *Teller) tell(ctx context.Context) (Told, error) {
 	for {
 		q := t.Db.LevyanNotice.Query().Where(levyannotice.DateToldIsNil())
 		if last != nil {
-			at, id := last.At, last.Id
+			at, id := last.DateOccurred, last.Id
 			q = q.Where(func(s *sql.Selector) {
-				s.Where(sql.CompositeGT([]string{s.C(levyannotice.FieldAt), s.C(levyannotice.FieldId)}, at, id))
+				s.Where(sql.CompositeGT([]string{s.C(levyannotice.FieldDateOccurred), s.C(levyannotice.FieldId)}, at, id))
 			})
 		}
-		vs, err := q.Order(ent.Asc(levyannotice.FieldAt), ent.Asc(levyannotice.FieldId)).Limit(noticesPage).All(ctx)
+		vs, err := q.Order(ent.Asc(levyannotice.FieldDateOccurred), ent.Asc(levyannotice.FieldId)).Limit(noticesPage).All(ctx)
 		if err != nil {
 			return out, err
 		}
@@ -490,7 +490,7 @@ func (t *Teller) tell(ctx context.Context) (Told, error) {
 func (t *Teller) refusal(ctx context.Context, v *ent.LevyanNotice, err error) {
 	if ending(v.Kind) {
 		log.From(ctx).WarnContext(ctx, "levyan: what became of a workspace was refused, which is a fault of Loft's to look into; it is not told again",
-			"workspace", pdid.Id(v.Workspace).String(), "kind", v.Kind, "at", v.At.UTC().Format(time.RFC3339Nano), "origin", v.Origin, "err", err)
+			"workspace", pdid.Id(v.Workspace).String(), "kind", v.Kind, "at", v.DateOccurred.UTC().Format(time.RFC3339Nano), "origin", v.Origin, "err", err)
 		return
 	}
 	log.From(ctx).WarnContext(ctx, "levyan: a notice of who pays was refused, and is not told again",
@@ -556,7 +556,7 @@ func (t *Teller) arrival(ctx context.Context, workspace uuid.UUID) (*ent.LevyanN
 		for _, p := range ps {
 			q = q.Where(p)
 		}
-		v, err := q.Order(ent.Asc(levyannotice.FieldAt), ent.Asc(levyannotice.FieldId)).First(ctx)
+		v, err := q.Order(ent.Asc(levyannotice.FieldDateOccurred), ent.Asc(levyannotice.FieldId)).First(ctx)
 		if ent.IsNotFound(err) {
 			return nil, nil
 		}
@@ -575,7 +575,7 @@ func (t *Teller) arrival(ctx context.Context, workspace uuid.UUID) (*ent.LevyanN
 	case err != nil:
 		return nil, "", err
 	case was != nil:
-		account, at = was.Account, was.At
+		account, at = was.Account, was.DateOccurred
 	default:
 		w, err := t.Db.Tenant.Get(ctx, workspace)
 		if ent.IsNotFound(err) {
@@ -613,15 +613,15 @@ func (t *Teller) say(ctx context.Context, v *ent.LevyanNotice) error {
 	ws := pdid.Id(v.Workspace)
 	switch v.Kind {
 	case Arrived:
-		return t.Levyan.Arrive(ctx, ws, pdid.Id(v.Account), v.At)
+		return t.Levyan.Arrive(ctx, ws, pdid.Id(v.Account), v.DateOccurred)
 	case Left:
 		return t.Levyan.Leave(ctx, ws, pdid.Id(v.Account))
 	case Closed:
-		return t.Levyan.CloseWorkspace(ctx, ws, v.At)
+		return t.Levyan.CloseWorkspace(ctx, ws, v.DateOccurred)
 	case Restored:
-		return t.Levyan.RestoreWorkspace(ctx, ws, v.At)
+		return t.Levyan.RestoreWorkspace(ctx, ws, v.DateOccurred)
 	case Destroyed:
-		return t.Levyan.DestroyWorkspace(ctx, ws, v.At)
+		return t.Levyan.DestroyWorkspace(ctx, ws, v.DateOccurred)
 	}
 
 	// A kind a later build writes, which this one cannot tell: it waits for

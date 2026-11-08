@@ -223,7 +223,7 @@ func (t mcpTools) listWorkOrders(ctx context.Context, _ *mcp.CallToolRequest, in
 		item := mcpWork{
 			Id: idString(w.GetId()), Name: w.GetName(), Kind: w.GetKind(), Status: w.GetStatus(),
 			Vendor: c.named(c.parties, w.GetVendor().GetId()),
-			Begins: stamp(w.GetBeginsAt()), Ends: stamp(w.GetEndsAt()), Done: stamp(w.GetCompletedAt()),
+			Begins: stamp(w.GetDateStart()), Ends: stamp(w.GetDateEnd()), Done: stamp(w.GetDateCompleted()),
 			Cost: w.GetCost(), Currency: w.GetCurrency(), Blocking: w.GetBlocking(), Every: w.GetEveryDays(), Desc: w.GetDesc(),
 		}
 		if a := c.assets[pid(w.GetAsset().GetId())]; a != nil {
@@ -325,13 +325,13 @@ func (t mcpTools) listCounts(ctx context.Context, _ *mcp.CallToolRequest, in mcp
 	for _, k := range v.GetItems() {
 		item := mcpCount{
 			Id: idString(k.GetId()), Name: k.GetName(), Status: k.GetStatus(), Scope: named(k.GetScope().GetId()),
-			Self: k.GetSelfService(), Started: stamp(k.GetStartedAt()), Closed: stamp(k.GetClosedAt()),
+			Self: k.GetSelfService(), Started: stamp(k.GetDateStarted()), Closed: stamp(k.GetDateClosed()),
 		}
 		for _, f := range findings {
 			item.Findings = append(item.Findings, mcpFinding{
 				Id: idString(f.GetId()), Kind: f.GetKind(), Resolution: or(f.GetResolution(), "open"),
 				Asset: named(f.GetAsset().GetId()), Seen: named(f.GetObservedParentId()), Expected: named(f.GetExpectedParentId()),
-				At: stamp(f.GetSeenAt()), Desc: f.GetDesc(),
+				At: stamp(f.GetDateSeen()), Desc: f.GetDesc(),
 			})
 		}
 		out.Items = append(out.Items, item)
@@ -406,7 +406,7 @@ func (t mcpTools) listPurchases(ctx context.Context, _ *mcp.CallToolRequest, in 
 	for _, p := range v.GetItems() {
 		item := mcpPurchase{
 			Id: idString(p.GetId()), Name: p.GetName(), Status: p.GetStatus(), Vendor: c.named(c.parties, p.GetVendor().GetId()),
-			Reference: p.GetReference(), Ordered: stamp(p.GetOrderedAt()), Received: stamp(p.GetReceivedAt()),
+			Reference: p.GetReference(), Ordered: stamp(p.GetDateOrdered()), Received: stamp(p.GetDateReceived()),
 			Total: p.GetTotal(), Currency: p.GetCurrency(),
 		}
 		if in.Purchase != "" {
@@ -531,7 +531,7 @@ func (c *mcpCall) stockPlan(in mcpStockPlan) (*plan, error) {
 	change := func(word string, delta int64, call func(app.StockServiceClient, context.Context, *app.StockChangeRequest, ...grpc.CallOption) (*app.Stock, error), method string) (*plan, error) {
 		req := app.StockChangeRequest_builder{Ref: ref, Quantity: in.Quantity, Reason: in.Reason, Op: op()}.Build()
 		if at != nil {
-			req.SetAt(at)
+			req.SetDateOccurred(at)
 		}
 		return &plan{
 			method:  method,
@@ -562,7 +562,7 @@ func (c *mcpCall) stockPlan(in mcpStockPlan) (*plan, error) {
 		}
 		req := app.StockTransferRequest_builder{Ref: ref, To: app.AssetById(to.GetId()), Quantity: in.Quantity, Reason: in.Reason, Op: op()}.Build()
 		if at != nil {
-			req.SetAt(at)
+			req.SetDateOccurred(at)
 		}
 		return &plan{
 			method:  app.StockService_Transfer_FullMethodName,
@@ -825,7 +825,7 @@ func (c *mcpCall) workPlan(in mcpWorkPlan) (*plan, error) {
 		}
 		kind := or(in.Kind, "repair")
 		blocking := in.Blocking != nil && *in.Blocking
-		req := app.WorkOrderAddRequest_builder{Name: name, Desc: in.Desc, Asset: app.AssetById(a.GetId()), Kind: kind, Blocking: blocking, EveryDays: in.Every, BeginsAt: begins, EndsAt: ends}.Build()
+		req := app.WorkOrderAddRequest_builder{Name: name, Desc: in.Desc, Asset: app.AssetById(a.GetId()), Kind: kind, Blocking: blocking, EveryDays: in.Every, DateStart: begins, DateEnd: ends}.Build()
 		who := ""
 		if in.Vendor != "" {
 			p, name, err := c.party("vendor", in.Vendor)
@@ -867,7 +867,7 @@ func (c *mcpCall) workPlan(in mcpWorkPlan) (*plan, error) {
 		if in.Blocking != nil {
 			blocking = *in.Blocking
 		}
-		req := app.WorkOrderUpdateRequest_builder{Ref: ref, Name: in.Name, Desc: in.Desc, Status: in.Status, Cost: in.Cost, Currency: in.Currency, Blocking: blocking, BeginsAt: begins, EndsAt: ends}.Build()
+		req := app.WorkOrderUpdateRequest_builder{Ref: ref, Name: in.Name, Desc: in.Desc, Status: in.Status, Cost: in.Cost, Currency: in.Currency, Blocking: blocking, DateStart: begins, DateEnd: ends}.Build()
 		changes := []string{}
 		for _, v := range []struct{ word, to string }{
 			{"이름", in.Name}, {"설명", in.Desc}, {"상태", said(workStatusWord, in.Status)}, {"시작", from}, {"끝", until},
@@ -1043,7 +1043,7 @@ func (c *mcpCall) purchasePlan(in mcpPurchasePlan) (*plan, error) {
 			return nil, err
 		}
 		if at != nil {
-			req.SetAt(at)
+			req.SetDateOccurred(at)
 		}
 		p := &plan{
 			method:  app.PurchaseService_Receive_FullMethodName,

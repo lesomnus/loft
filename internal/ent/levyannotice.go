@@ -24,8 +24,8 @@ type LevyanNotice struct {
 	Workspace uuid.UUID `json:"workspace,omitempty"`
 	// Account holds the value of the "account" field.
 	Account uuid.UUID `json:"account,omitempty"`
-	// At holds the value of the "at" field.
-	At time.Time `json:"at,omitempty"`
+	// DateOccurred holds the value of the "date_occurred" field.
+	DateOccurred time.Time `json:"date_occurred,omitempty"`
 	// DateTold holds the value of the "date_told" field.
 	DateTold *time.Time `json:"date_told,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
@@ -44,7 +44,7 @@ func (*LevyanNotice) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case levyannotice.FieldKind, levyannotice.FieldOrigin, levyannotice.FieldRefused:
 			values[i] = new(sql.NullString)
-		case levyannotice.FieldAt, levyannotice.FieldDateTold, levyannotice.FieldDateCreated:
+		case levyannotice.FieldDateOccurred, levyannotice.FieldDateTold, levyannotice.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case levyannotice.FieldId, levyannotice.FieldWorkspace, levyannotice.FieldAccount:
 			values[i] = new(uuid.UUID)
@@ -87,11 +87,11 @@ func (_m *LevyanNotice) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				_m.Account = *value
 			}
-		case levyannotice.FieldAt:
+		case levyannotice.FieldDateOccurred:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_occurred", values[i])
 			} else if value.Valid {
-				_m.At = value.Time
+				_m.DateOccurred = value.Time
 			}
 		case levyannotice.FieldDateTold:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -163,8 +163,8 @@ func (_m *LevyanNotice) String() string {
 	builder.WriteString("account=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Account))
 	builder.WriteString(", ")
-	builder.WriteString("at=")
-	builder.WriteString(_m.At.Format(time.ANSIC))
+	builder.WriteString("date_occurred=")
+	builder.WriteString(_m.DateOccurred.Format(time.ANSIC))
 	builder.WriteString(", ")
 	if v := _m.DateTold; v != nil {
 		builder.WriteString("date_told=")

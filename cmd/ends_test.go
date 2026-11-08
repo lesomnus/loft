@@ -53,7 +53,7 @@ func moments(fake *levyantest.Levyan, ws pdid.Id) []time.Time {
 func (w *world) ends(ws pdid.Id) []*ent.LevyanNotice {
 	vs, err := w.s.Ent.LevyanNotice.Query().
 		Where(levyannotice.Workspace(ws.Uuid()), levyannotice.KindIn(levyan.Closed, levyan.Restored, levyan.Destroyed)).
-		Order(ent.Asc(levyannotice.FieldAt), ent.Asc(levyannotice.FieldId)).
+		Order(ent.Asc(levyannotice.FieldDateOccurred), ent.Asc(levyannotice.FieldId)).
 		All(context.Background())
 	w.x.NoError(err)
 	return vs
@@ -76,7 +76,7 @@ func (w *world) occurred(ws pdid.Id) []time.Time {
 func ats(vs []*ent.LevyanNotice) []time.Time {
 	out := []time.Time{}
 	for _, v := range vs {
-		out = append(out, v.At.UTC())
+		out = append(out, v.DateOccurred.UTC())
 	}
 	return out
 }
@@ -120,7 +120,7 @@ func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 	x.NoError(err)
 	vs := w.ends(acme)
 	x.Equal([]string{levyan.Closed, levyan.Restored, levyan.Closed, levyan.Restored}, kindsOf(vs))
-	x.Equal(closedAt, vs[0].At.UTC(), "of the moment the workspace said it was closed")
+	x.Equal(closedAt, vs[0].DateOccurred.UTC(), "of the moment the workspace said it was closed")
 	x.Equal(w.occurred(acme), ats(vs), "each of the moment its event says")
 	for _, v := range vs {
 		x.Equal(levyan.ByChange, v.Origin)
@@ -160,12 +160,12 @@ func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 		x.Equal(levyan.Destroyed, d.Kind)
 		hold, err := w.s.Ent.AliasHold.Query().Where(aliashold.Tenant(ws.Uuid())).Only(ctx)
 		x.NoError(err)
-		x.Equal(hold.DateCreated.UTC().Truncate(time.Microsecond), d.At.UTC(), "the moment its address is held from")
+		x.Equal(hold.DateCreated.UTC().Truncate(time.Microsecond), d.DateOccurred.UTC(), "the moment its address is held from")
 		read := false
 		for _, r := range fake.Readings() {
 			if r.GetWorkspace() == ws.String() {
 				read = true
-				x.True(r.GetMeasuredAt().AsTime().Before(d.At), "after its final reading")
+				x.True(r.GetMeasuredAt().AsTime().Before(d.DateOccurred), "after its final reading")
 			}
 		}
 		x.True(read, "its final reading, handed to levyan first")
@@ -186,7 +186,7 @@ func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 	x.False(life.HasDestroyed())
 	life, err = w.s.Levyan.Lifecycle(ctx, alone.Workspace)
 	x.NoError(err)
-	x.Equal(w.ends(alone.Workspace)[0].At.UTC(), life.GetClosedSince().AsTime().UTC(), "destroyed as it was closed")
+	x.Equal(w.ends(alone.Workspace)[0].DateOccurred.UTC(), life.GetClosedSince().AsTime().UTC(), "destroyed as it was closed")
 	x.True(life.HasDestroyed())
 
 	// Told once.
@@ -308,7 +308,7 @@ func TestALevyanThatHeardNothingOfAWorkspaceIsToldItArrivedFirst(t *testing.T) {
 	x.Equal(levyan.ByNotFound, vs[1].Origin)
 	x.Equal(vs[0].Account, vs[1].Account, "as levyan was told it before")
 	x.Equal(park.Id.Uuid(), vs[1].Account)
-	x.Equal(vs[0].At, vs[1].At, "from when it was made")
+	x.Equal(vs[0].DateOccurred, vs[1].DateOccurred, "from when it was made")
 	x.NotNil(vs[1].DateTold)
 
 	x.Equal([]string{levyan.Arrived, levyan.Closed}, kinds(fake, refused), "its arrival by its first owner, then the close")
@@ -317,7 +317,7 @@ func TestALevyanThatHeardNothingOfAWorkspaceIsToldItArrivedFirst(t *testing.T) {
 	x.NotEmpty(vs[0].Refused)
 	x.Equal(levyan.ByNotFound, vs[1].Origin)
 	x.Equal(lee.Id.Uuid(), vs[1].Account)
-	x.Equal(w.madeAt(refused), vs[1].At.UTC())
+	x.Equal(w.madeAt(refused), vs[1].DateOccurred.UTC())
 
 	x.Empty(kinds(fake, gone), "nobody levyan bills")
 	es := w.ends(gone)

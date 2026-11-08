@@ -131,10 +131,10 @@ func (s domainReservation) Timeline(ctx context.Context, req *app.ReservationTim
 
 	sort.SliceStable(entries, func(i, j int) bool {
 		a, b := entries[i], entries[j]
-		if !a.GetValidFrom().AsTime().Equal(b.GetValidFrom().AsTime()) {
-			return a.GetValidFrom().AsTime().After(b.GetValidFrom().AsTime())
+		if !a.GetDateStart().AsTime().Equal(b.GetDateStart().AsTime()) {
+			return a.GetDateStart().AsTime().After(b.GetDateStart().AsTime())
 		}
-		return a.GetRecordedAt().AsTime().After(b.GetRecordedAt().AsTime())
+		return a.GetDateRecorded().AsTime().After(b.GetDateRecorded().AsTime())
 	})
 	return app.ReservationTimelineResponse_builder{Entries: entries}.Build(), nil
 }

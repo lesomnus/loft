@@ -37,9 +37,9 @@ func (s operatorTenants) Retired(ctx context.Context, _ *app.OperatorTenantRetir
 	out := &app.OperatorTenantRetiredResponse{}
 	for _, id := range ids {
 		v := app.OperatorTenantRetirement_builder{
-			Tenant:  id.Bytes(),
-			Retired: timestamppb.New(vs[id].At),
-			Until:   timestamppb.New(vs[id].Until),
+			Tenant:        id.Bytes(),
+			DateRetired:   timestamppb.New(vs[id].At),
+			DateKeptUntil: timestamppb.New(vs[id].Until),
 		}.Build()
 		h, err := s.a.S.Ent.AliasHold.Query().
 			Where(aliashold.Tenant(id.Uuid()), aliashold.Reason(offboard.ReasonRetired)).
@@ -126,7 +126,7 @@ func (s operatorTenants) destroy(req *app.OperatorTenantDestroyRequest, out grpc
 		ContractPurges: w.Purge,
 	}.Build()
 	if !x.Trail.Until.IsZero() {
-		v.SetKeptUntil(timestamppb.New(x.Trail.Until))
+		v.SetDateKeptUntil(timestamppb.New(x.Trail.Until))
 	}
 	if x.Unmeasured != nil {
 		v.SetUnmeasured(x.Unmeasured.Error())

@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/billing.proto.
  */
 export const file_loft_billing: GenFile = /*@__PURE__*/
-  fileDesc("ChJsb2Z0L2JpbGxpbmcucHJvdG8SBGxvZnQi8QQKDExldnlhbk5vdGljZRIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFAoEa2luZBgIIAEoCUIGqsEWAhgAEhkKCXdvcmtzcGFjZRgJIAEoDEIG6oIWAhBAEhcKB2FjY291bnQYCiABKAxCBuqCFgIQQBIvCgJhdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASNQoJZGF0ZV90b2xkGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIWCgZvcmlnaW4YECABKAlCBqrBFgIYABIXCgdyZWZ1c2VkGBEgASgJQgaqwRYCGAA6pwLK/BVIGiASB3dhaXRpbmcaDQoJZGF0ZV90b2xkEAwaBgoCYXQQCxokEgl3b3Jrc3BhY2UaDQoJd29ya3NwYWNlEAkaCAoEa2luZBAIirsW1gEIM0ICCgBSywESyAEKxQFsZXZ5YW4ncyBxdWV1ZTogd2hhdCBpdCBpcyB0byBiZSB0b2xkIG9mIGEgd29ya3NwYWNlIC0tIHdobyBwYXlzIGZvciBpdCwgd2hhdCBiZWNhbWUgb2YgaXQgLS0gd3JpdHRlbiBiZXNpZGUgdGhlIGNoYW5nZSB0aGF0IHRlbGxzIGl0LCB3aGljaCB0aGUgdHJhaWwgaGFzOyBsZXZ5YW4ncyBvd24gdHJhaWwga2VlcHMgd2hhdCBpdCB3YXMgdG9sZCoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("ChJsb2Z0L2JpbGxpbmcucHJvdG8SBGxvZnQihwUKDExldnlhbk5vdGljZRIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFAoEa2luZBgIIAEoCUIGqsEWAhgAEhkKCXdvcmtzcGFjZRgJIAEoDEIG6oIWAhBAEhcKB2FjY291bnQYCiABKAxCBuqCFgIQQBI6Cg1kYXRlX29jY3VycmVkGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI1CglkYXRlX3RvbGQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhYKBm9yaWdpbhgQIAEoCUIGqsEWAhgAEhcKB3JlZnVzZWQYESABKAlCBqrBFgIYADqyAsr8FVMaKxIHd2FpdGluZxoNCglkYXRlX3RvbGQQDBoRCg1kYXRlX29jY3VycmVkEAsaJBIJd29ya3NwYWNlGg0KCXdvcmtzcGFjZRAJGggKBGtpbmQQCIq7FtYBCDNCAgoAUssBEsgBCsUBbGV2eWFuJ3MgcXVldWU6IHdoYXQgaXQgaXMgdG8gYmUgdG9sZCBvZiBhIHdvcmtzcGFjZSAtLSB3aG8gcGF5cyBmb3IgaXQsIHdoYXQgYmVjYW1lIG9mIGl0IC0tIHdyaXR0ZW4gYmVzaWRlIHRoZSBjaGFuZ2UgdGhhdCB0ZWxscyBpdCwgd2hpY2ggdGhlIHRyYWlsIGhhczsgbGV2eWFuJ3Mgb3duIHRyYWlsIGtlZXBzIHdoYXQgaXQgd2FzIHRvbGQqAEIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * LevyanNotice is something levyan is to be told of a workspace, and whether
@@ -53,11 +53,12 @@ export type LevyanNotice = Message<"loft.LevyanNotice"> & {
 
   /**
    * What it tells: `arrive`, the workspace made by `account`, who pays for it
-   * from `at`; `leave`, `account` no longer a member of it from `at`; `close`,
-   * `restore` and `destroy`, the workspace closed, opened again and destroyed
-   * at `at`. And `past`, which is no call of levyan's: written told, once, the
-   * mark that the closes and restores the workspaces' events kept from before
-   * were written to be told (the loop's first pass).
+   * from `date_occurred`; `leave`, `account` no longer a member of it from
+   * `date_occurred`; `close`, `restore` and `destroy`, the workspace closed,
+   * opened again and destroyed at `date_occurred`. And `past`, which is no
+   * call of levyan's: written told, once, the mark that the closes and
+   * restores the workspaces' events kept from before were written to be told
+   * (the loop's first pass).
    *
    * @generated from field: string kind = 8;
    */
@@ -90,9 +91,9 @@ export type LevyanNotice = Message<"loft.LevyanNotice"> & {
    * workspace's life in the order of these moments and not of their telling,
    * so one told late takes its place; told again, it is told of the same one.
    *
-   * @generated from field: google.protobuf.Timestamp at = 11;
+   * @generated from field: google.protobuf.Timestamp date_occurred = 11;
    */
-  at?: Timestamp | undefined;
+  dateOccurred?: Timestamp | undefined;
 
   /**
    * When levyan answered it -- took it, or refused it -- and unset while it

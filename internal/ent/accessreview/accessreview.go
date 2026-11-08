@@ -14,10 +14,10 @@ const (
 	FieldId = "id"
 	// FieldDesc holds the string denoting the desc field in the database.
 	FieldDesc = "desc"
-	// FieldPeriodFrom holds the string denoting the period_from field in the database.
-	FieldPeriodFrom = "period_from"
-	// FieldPeriodTo holds the string denoting the period_to field in the database.
-	FieldPeriodTo = "period_to"
+	// FieldDateStart holds the string denoting the date_start field in the database.
+	FieldDateStart = "date_start"
+	// FieldDateEnd holds the string denoting the date_end field in the database.
+	FieldDateEnd = "date_end"
 	// FieldCalls holds the string denoting the calls field in the database.
 	FieldCalls = "calls"
 	// FieldDownloads holds the string denoting the downloads field in the database.
@@ -56,8 +56,8 @@ const (
 var Columns = []string{
 	FieldId,
 	FieldDesc,
-	FieldPeriodFrom,
-	FieldPeriodTo,
+	FieldDateStart,
+	FieldDateEnd,
 	FieldCalls,
 	FieldDownloads,
 	FieldDateCreated,
@@ -89,14 +89,14 @@ func ByDesc(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDesc, opts...).ToFunc()
 }
 
-// ByPeriodFrom orders the results by the period_from field.
-func ByPeriodFrom(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPeriodFrom, opts...).ToFunc()
+// ByDateStart orders the results by the date_start field.
+func ByDateStart(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateStart, opts...).ToFunc()
 }
 
-// ByPeriodTo orders the results by the period_to field.
-func ByPeriodTo(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPeriodTo, opts...).ToFunc()
+// ByDateEnd orders the results by the date_end field.
+func ByDateEnd(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateEnd, opts...).ToFunc()
 }
 
 // ByCalls orders the results by the calls field.

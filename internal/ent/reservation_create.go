@@ -57,30 +57,30 @@ func (_c *ReservationCreate) SetStatus(v string) *ReservationCreate {
 	return _c
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_c *ReservationCreate) SetBeginsAt(v time.Time) *ReservationCreate {
-	_c.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_c *ReservationCreate) SetDateStart(v time.Time) *ReservationCreate {
+	_c.mutation.SetDateStart(v)
 	return _c
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_c *ReservationCreate) SetNillableBeginsAt(v *time.Time) *ReservationCreate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_c *ReservationCreate) SetNillableDateStart(v *time.Time) *ReservationCreate {
 	if v != nil {
-		_c.SetBeginsAt(*v)
+		_c.SetDateStart(*v)
 	}
 	return _c
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_c *ReservationCreate) SetEndsAt(v time.Time) *ReservationCreate {
-	_c.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_c *ReservationCreate) SetDateEnd(v time.Time) *ReservationCreate {
+	_c.mutation.SetDateEnd(v)
 	return _c
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_c *ReservationCreate) SetNillableEndsAt(v *time.Time) *ReservationCreate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_c *ReservationCreate) SetNillableDateEnd(v *time.Time) *ReservationCreate {
 	if v != nil {
-		_c.SetEndsAt(*v)
+		_c.SetDateEnd(*v)
 	}
 	return _c
 }
@@ -119,16 +119,16 @@ func (_c *ReservationCreate) SetNillableDateCreated(v *time.Time) *ReservationCr
 	return _c
 }
 
-// SetExpiresAt sets the "expires_at" field.
-func (_c *ReservationCreate) SetExpiresAt(v time.Time) *ReservationCreate {
-	_c.mutation.SetExpiresAt(v)
+// SetDateExpires sets the "date_expires" field.
+func (_c *ReservationCreate) SetDateExpires(v time.Time) *ReservationCreate {
+	_c.mutation.SetDateExpires(v)
 	return _c
 }
 
-// SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (_c *ReservationCreate) SetNillableExpiresAt(v *time.Time) *ReservationCreate {
+// SetNillableDateExpires sets the "date_expires" field if the given value is not nil.
+func (_c *ReservationCreate) SetNillableDateExpires(v *time.Time) *ReservationCreate {
 	if v != nil {
-		_c.SetExpiresAt(*v)
+		_c.SetDateExpires(*v)
 	}
 	return _c
 }
@@ -167,16 +167,16 @@ func (_c *ReservationCreate) SetNillableDecidedBy(v *uuid.UUID) *ReservationCrea
 	return _c
 }
 
-// SetCheckedInAt sets the "checked_in_at" field.
-func (_c *ReservationCreate) SetCheckedInAt(v time.Time) *ReservationCreate {
-	_c.mutation.SetCheckedInAt(v)
+// SetDateCheckedIn sets the "date_checked_in" field.
+func (_c *ReservationCreate) SetDateCheckedIn(v time.Time) *ReservationCreate {
+	_c.mutation.SetDateCheckedIn(v)
 	return _c
 }
 
-// SetNillableCheckedInAt sets the "checked_in_at" field if the given value is not nil.
-func (_c *ReservationCreate) SetNillableCheckedInAt(v *time.Time) *ReservationCreate {
+// SetNillableDateCheckedIn sets the "date_checked_in" field if the given value is not nil.
+func (_c *ReservationCreate) SetNillableDateCheckedIn(v *time.Time) *ReservationCreate {
 	if v != nil {
-		_c.SetCheckedInAt(*v)
+		_c.SetDateCheckedIn(*v)
 	}
 	return _c
 }
@@ -340,13 +340,13 @@ func (_c *ReservationCreate) createSpec() (*Reservation, *sqlgraph.CreateSpec) {
 		_spec.SetField(reservation.FieldStatus, field.TypeString, value)
 		_node.Status = value
 	}
-	if value, ok := _c.mutation.BeginsAt(); ok {
-		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, value)
-		_node.BeginsAt = value
+	if value, ok := _c.mutation.DateStart(); ok {
+		_spec.SetField(reservation.FieldDateStart, field.TypeTime, value)
+		_node.DateStart = value
 	}
-	if value, ok := _c.mutation.EndsAt(); ok {
-		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, value)
-		_node.EndsAt = value
+	if value, ok := _c.mutation.DateEnd(); ok {
+		_spec.SetField(reservation.FieldDateEnd, field.TypeTime, value)
+		_node.DateEnd = value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(reservation.FieldDateUpdated, field.TypeTime, value)
@@ -360,9 +360,9 @@ func (_c *ReservationCreate) createSpec() (*Reservation, *sqlgraph.CreateSpec) {
 		_spec.SetField(reservation.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
 	}
-	if value, ok := _c.mutation.ExpiresAt(); ok {
-		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, value)
-		_node.ExpiresAt = &value
+	if value, ok := _c.mutation.DateExpires(); ok {
+		_spec.SetField(reservation.FieldDateExpires, field.TypeTime, value)
+		_node.DateExpires = &value
 	}
 	if value, ok := _c.mutation.Rrule(); ok {
 		_spec.SetField(reservation.FieldRrule, field.TypeString, value)
@@ -376,9 +376,9 @@ func (_c *ReservationCreate) createSpec() (*Reservation, *sqlgraph.CreateSpec) {
 		_spec.SetField(reservation.FieldDecidedBy, field.TypeUuid, value)
 		_node.DecidedBy = &value
 	}
-	if value, ok := _c.mutation.CheckedInAt(); ok {
-		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, value)
-		_node.CheckedInAt = &value
+	if value, ok := _c.mutation.DateCheckedIn(); ok {
+		_spec.SetField(reservation.FieldDateCheckedIn, field.TypeTime, value)
+		_node.DateCheckedIn = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

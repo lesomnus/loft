@@ -49,7 +49,7 @@ func (e *env) pickup(r *app.Reservation, who *app.Party, things ...*app.Asset) (
 	}
 	return e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
 		Party:         ref[app.PartyRef](who.GetId()),
-		DueAt:         r.GetEndsAt(),
+		DateDue:       r.GetDateEnd(),
 		ReservationId: r.GetId(),
 		Lines:         lines,
 	}.Build())
@@ -121,8 +121,8 @@ func TestAPoolsPickupMakesWhatItHandsOutItsOwn(t *testing.T) {
 	x.True(got.Blocking)
 	x.True(got.Exclusive)
 	x.Equal("reservation", got.Kind)
-	x.Equal(e.now, got.BeginsAt.Local().Truncate(time.Second), "from the pickup on")
-	x.True(got.EndsAt.Equal(until))
+	x.Equal(e.now, got.DateStart.Local().Truncate(time.Second), "from the pickup on")
+	x.True(got.DateEnd.Equal(until))
 
 	_, err = e.reserve(kim, two, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
 	x.Equal(codes.Aborted, codeOf(err), "it is out until the reservation ends")
@@ -155,8 +155,8 @@ func TestAPoolPickedUpOnceBegunKeepsWhatItHeldUntilThen(t *testing.T) {
 	x.NoError(err)
 	held := e.allocation(r, cameras)
 	x.NotNil(held)
-	x.True(held.EndsAt.Equal(e.now), "until the pickup")
-	x.True(e.allocation(r, one).BeginsAt.Equal(e.now), "and the camera from then")
+	x.True(held.DateEnd.Equal(e.now), "until the pickup")
+	x.True(e.allocation(r, one).DateStart.Equal(e.now), "and the camera from then")
 }
 
 // TestAPoolsPickupInPartOrBeyond: a pickup that hands out fewer than it holds

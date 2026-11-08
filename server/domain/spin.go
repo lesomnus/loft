@@ -166,7 +166,7 @@ func (t *Tx) release(id pdid.Id, to string) error {
 	if _, err := t.next.Reservation().Patch(t.ctx, app.ReservationPatchRequest_builder{
 		Ref:              app.ReservationRef_builder{Id: id.Bytes()}.Build(),
 		Status:           z.Ptr(to),
-		ExpiresAtNull:    z.Ptr(true),
+		DateExpiresNull:  z.Ptr(true),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build()); err != nil {
 		return err
@@ -208,7 +208,7 @@ func sweepHolds(t *Tx) error {
 	rs, err := t.db.Reservation.Query().Where(
 		reservation.TenantId(t.tenant.Uuid()),
 		reservation.Status(resHeld),
-		reservation.ExpiresAtLT(t.now),
+		reservation.DateExpiresLT(t.now),
 		reservation.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
 	if err != nil || len(rs) == 0 {
@@ -242,7 +242,7 @@ func sweepRequests(t *Tx) error {
 	rs, err := t.db.Reservation.Query().Where(
 		reservation.TenantId(t.tenant.Uuid()),
 		reservation.Status(resRequested),
-		reservation.BeginsAtLT(t.now),
+		reservation.DateStartLT(t.now),
 		reservation.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
 	if err != nil || len(rs) == 0 {
@@ -358,8 +358,8 @@ func sweepNoShows(t *Tx) error {
 	rs, err := t.db.Reservation.Query().Where(
 		reservation.TenantId(t.tenant.Uuid()),
 		reservation.Status(resConfirmed),
-		reservation.BeginsAtLT(t.now.Add(-grace)),
-		reservation.CheckedInAtIsNil(),
+		reservation.DateStartLT(t.now.Add(-grace)),
+		reservation.DateCheckedInIsNil(),
 		reservation.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
 	if err != nil || len(rs) == 0 {
@@ -374,7 +374,7 @@ func sweepNoShows(t *Tx) error {
 		if err != nil {
 			return err
 		}
-		if !spaces && r.EndsAt.After(t.now) {
+		if !spaces && r.DateEnd.After(t.now) {
 			// Equipment is picked up through a custody, any time until it is
 			// due back.
 			continue
@@ -450,7 +450,7 @@ func sweepFinished(t *Tx) error {
 		q := t.db.Reservation.Query().Where(
 			reservation.TenantId(t.tenant.Uuid()),
 			reservation.StatusIn(states...),
-			reservation.EndsAtLT(t.now),
+			reservation.DateEndLT(t.now),
 			reservation.DateErasedIsNil(),
 		)
 		if after != nil {
@@ -537,14 +537,14 @@ func (t *Tx) closedPast(since time.Time) ([]*ent.Reservation, error) {
 		reservation.TenantId(t.tenant.Uuid()),
 		reservation.DateErasedIsNil(),
 		reservation.Or(
-			reservation.And(reservation.Status(resHeld), reservation.ExpiresAtGTE(since), reservation.ExpiresAtLT(t.now)),
-			reservation.And(reservation.Status(resRequested), reservation.BeginsAtGTE(since), reservation.BeginsAtLT(t.now)),
+			reservation.And(reservation.Status(resHeld), reservation.DateExpiresGTE(since), reservation.DateExpiresLT(t.now)),
+			reservation.And(reservation.Status(resRequested), reservation.DateStartGTE(since), reservation.DateStartLT(t.now)),
 			reservation.And(
 				reservation.Status(resConfirmed),
-				reservation.CheckedInAtIsNil(),
-				reservation.BeginsAtLT(t.now),
+				reservation.DateCheckedInIsNil(),
+				reservation.DateStartLT(t.now),
 				// Due at its grace, or at its end: one of them since.
-				reservation.Or(reservation.EndsAtGTE(since), reservation.BeginsAtGTE(since.Add(-grace))),
+				reservation.Or(reservation.DateEndGTE(since), reservation.DateStartGTE(since.Add(-grace))),
 			),
 		),
 	).Ids(t.ctx)
@@ -573,11 +573,11 @@ func (t *Tx) closedPast(since time.Time) ([]*ent.Reservation, error) {
 			switch {
 			case r.DateErased != nil:
 				continue
-			case r.Status == resHeld && r.ExpiresAt != nil:
-				due = *r.ExpiresAt
+			case r.Status == resHeld && r.DateExpires != nil:
+				due = *r.DateExpires
 			case r.Status == resRequested:
-				due = r.BeginsAt
-			case r.Status == resConfirmed && r.CheckedInAt == nil:
+				due = r.DateStart
+			case r.Status == resConfirmed && r.DateCheckedIn == nil:
 				spaces, err := t.spacesOnly(r.Id)
 				if err != nil {
 					return nil, err
@@ -586,9 +586,9 @@ func (t *Tx) closedPast(since time.Time) ([]*ent.Reservation, error) {
 				case spaces && grace <= 0:
 					continue
 				case spaces:
-					due = r.BeginsAt.Add(grace)
+					due = r.DateStart.Add(grace)
 				default:
-					due = later(r.EndsAt, r.BeginsAt.Add(max(grace, 0)))
+					due = later(r.DateEnd, r.DateStart.Add(max(grace, 0)))
 				}
 			default:
 				continue
@@ -660,7 +660,7 @@ func sweepLoans(t *Tx) error {
 	late, err := t.db.Custody.Query().Where(
 		custody.TenantId(t.tenant.Uuid()),
 		custody.Status("open"),
-		custody.DueAtLT(t.now),
+		custody.DateDueLT(t.now),
 		custody.OverdueNoticed(false),
 		custody.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
@@ -693,7 +693,7 @@ func sweepLoans(t *Tx) error {
 		if c, err = t.custodyOf(c.Id); err != nil {
 			return err
 		}
-		if c.Status != "open" || c.OverdueNoticed || c.DueAt == nil || !c.DueAt.Before(t.now) {
+		if c.Status != "open" || c.OverdueNoticed || c.DateDue == nil || !c.DateDue.Before(t.now) {
 			continue
 		}
 		if err := t.overdue(c); err != nil {
@@ -722,8 +722,8 @@ func sweepLoans(t *Tx) error {
 	soon, err := t.db.Custody.Query().Where(
 		custody.TenantId(t.tenant.Uuid()),
 		custody.Status("open"),
-		custody.DueAtGTE(t.now),
-		custody.DueAtLT(t.now.Add(24*time.Hour)),
+		custody.DateDueGTE(t.now),
+		custody.DateDueLT(t.now.Add(24*time.Hour)),
 		custody.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
 	if err != nil {
@@ -738,7 +738,7 @@ func sweepLoans(t *Tx) error {
 			continue
 		}
 		if err := t.notifyParty(c.PartyId, "custody.due", "반납 예정 알림",
-			fmt.Sprintf("%s까지 반납해 주세요", t.when(*c.DueAt)), pdid.Id(c.Id), "/custody"); err != nil {
+			fmt.Sprintf("%s까지 반납해 주세요", t.when(*c.DateDue)), pdid.Id(c.Id), "/custody"); err != nil {
 			return err
 		}
 	}
@@ -754,7 +754,7 @@ func sweepLoans(t *Tx) error {
 // for what it holds waits under it ([Tx.changed]).
 func (t *Tx) overdue(c *ent.Custody) error {
 	said := func(asset []byte) *app.CustodyOverdue {
-		return app.CustodyOverdue_builder{Custody: pdid.Id(c.Id).Bytes(), Due: ts(*c.DueAt), Asset: asset}.Build()
+		return app.CustodyOverdue_builder{Custody: pdid.Id(c.Id).Bytes(), DateDue: ts(*c.DateDue), Asset: asset}.Build()
 	}
 	if err := t.begin(nil, "custody.overdue", pdid.Id(c.Id), t.now, "", said(nil)); err != nil {
 		return err
@@ -782,7 +782,7 @@ func (t *Tx) overdue(c *ent.Custody) error {
 // it -- and whoever has it that a booking waits for what it lent, when one
 // does.
 func (t *Tx) tellLate(c *ent.Custody) error {
-	body := fmt.Sprintf("%s에 반납하기로 한 물품이 아직 반납되지 않았습니다", t.when(*c.DueAt))
+	body := fmt.Sprintf("%s에 반납하기로 한 물품이 아직 반납되지 않았습니다", t.when(*c.DateDue))
 	waited, err := t.waitedFor(c)
 	if err != nil {
 		return err
@@ -795,7 +795,7 @@ func (t *Tx) tellLate(c *ent.Custody) error {
 		return err
 	}
 	return t.notifyManagers("custody.overdue", "연체: "+name,
-		fmt.Sprintf("%s 반납 예정이던 대여가 연체되었습니다", t.when(*c.DueAt)), pdid.Id(c.Id), "/custody")
+		fmt.Sprintf("%s 반납 예정이던 대여가 연체되었습니다", t.when(*c.DateDue)), pdid.Id(c.Id), "/custody")
 }
 
 // lateUntold tells of the loans found late that nobody was told are: found
@@ -823,11 +823,11 @@ func (t *Tx) lateUntold(locked bool) error {
 		return t.db.Custody.Query().Where(
 			custody.TenantId(t.tenant.Uuid()),
 			custody.Status("open"),
-			custody.DueAtLT(t.now),
+			custody.DateDueLT(t.now),
 			custody.OverdueNoticed(true),
 			custody.DateErasedIsNil(),
 			untoldOf("custody.overdue"),
-		).Order(custody.ByDueAt(), custody.ById()).Limit(200).All(t.ctx)
+		).Order(custody.ByDateDue(), custody.ById()).Limit(200).All(t.ctx)
 	}
 	cs, err := untold()
 	if err != nil || len(cs) == 0 {
@@ -874,7 +874,7 @@ func untoldOf(kind string) predicate.Custody {
 				sql.ColumnsEQ(told.C(notification.FieldTenantId), s.C(custody.FieldTenantId)),
 				sql.EQ(told.C(notification.FieldKind), kind),
 				sql.ColumnsEQ(told.C(notification.FieldSubjectId), s.C(custody.FieldId)),
-				sql.ColumnsGT(told.C(notification.FieldDateCreated), s.C(custody.FieldDueAt)),
+				sql.ColumnsGT(told.C(notification.FieldDateCreated), s.C(custody.FieldDateDue)),
 			)),
 		))
 	}
@@ -896,8 +896,8 @@ func (t *Tx) retellLate(c *ent.Custody) error {
 	things := make([]uuid.UUID, 0, len(hs))
 	for _, h := range hs {
 		things = append(things, h.ResourceId)
-		if h.EndsAt.After(t.now) {
-			ss = append(ss, outSpan{thing: h.ResourceId, from: t.now, to: h.EndsAt})
+		if h.DateEnd.After(t.now) {
+			ss = append(ss, outSpan{thing: h.ResourceId, from: t.now, to: h.DateEnd})
 		}
 	}
 	if len(ss) > 0 {
@@ -936,7 +936,7 @@ func (t *Tx) waitingUntold(things []uuid.UUID) ([]poolWait, error) {
 		allocation.TenantId(t.tenant.Uuid()),
 		allocation.ResourceIdIn(ids...),
 		allocation.Kind(allocWaiting),
-		allocation.EndsAtGT(t.now),
+		allocation.DateEndGT(t.now),
 		allocation.RefIdNotNil(),
 	).Order(allocation.ByDateCreated(), allocation.ById()).All(t.ctx)
 	if err != nil || len(as) == 0 {
@@ -951,7 +951,7 @@ func (t *Tx) waitingUntold(things []uuid.UUID) ([]poolWait, error) {
 		if err != nil {
 			return nil, err
 		}
-		if !waits(r.Status) || !r.EndsAt.After(t.now) || r.DateErased != nil {
+		if !waits(r.Status) || !r.DateEnd.After(t.now) || r.DateErased != nil {
 			continue
 		}
 		told, err := t.db.Notification.Query().Where(
@@ -966,7 +966,7 @@ func (t *Tx) waitingUntold(things []uuid.UUID) ([]poolWait, error) {
 		if told {
 			continue
 		}
-		out = append(out, poolWait{r: r, pool: of[a.ResourceId], units: a.Units, from: later(a.BeginsAt, t.now)})
+		out = append(out, poolWait{r: r, pool: of[a.ResourceId], units: a.Units, from: later(a.DateStart, t.now)})
 	}
 	return out, nil
 }
@@ -987,7 +987,7 @@ func sweepWork(t *Tx) error {
 	ws, err := t.db.WorkOrder.Query().Where(
 		workorder.TenantId(t.tenant.Uuid()),
 		workorder.Status("scheduled"),
-		workorder.BeginsAtLT(t.now.Add(24*time.Hour)),
+		workorder.DateStartLT(t.now.Add(24*time.Hour)),
 		workorder.DateErasedIsNil(),
 	).Limit(200).All(t.ctx)
 	if err != nil {
@@ -1003,10 +1003,10 @@ func sweepWork(t *Tx) error {
 		}
 		body := "오늘 예정입니다"
 		switch {
-		case w.BeginsAt != nil && w.BeginsAt.Before(t.now):
-			body = t.when(*w.BeginsAt) + " 예정이었고 아직 시작하지 않았습니다"
-		case w.BeginsAt != nil:
-			body = t.when(*w.BeginsAt) + " 예정입니다"
+		case w.DateStart != nil && w.DateStart.Before(t.now):
+			body = t.when(*w.DateStart) + " 예정이었고 아직 시작하지 않았습니다"
+		case w.DateStart != nil:
+			body = t.when(*w.DateStart) + " 예정입니다"
 		}
 		if err := t.notifyManagers("work.due", "예정된 작업: "+w.Name, body, pdid.Id(w.Id), "/work"); err != nil {
 			return err
@@ -1068,7 +1068,7 @@ func (t *Tx) recheckDomains() error {
 		entdomain.TenantId(t.tenant.Uuid()),
 		entdomain.State(domainActive),
 		entdomain.Source("custom"),
-		entdomain.Or(entdomain.CheckedAtIsNil(), entdomain.CheckedAtLTE(t.now.Add(-RecheckEvery))),
+		entdomain.Or(entdomain.DateCheckedIsNil(), entdomain.DateCheckedLTE(t.now.Add(-RecheckEvery))),
 		entdomain.DateErasedIsNil(),
 	).Limit(20).All(t.ctx)
 	if err != nil {
@@ -1077,17 +1077,17 @@ func (t *Tx) recheckDomains() error {
 	for _, d := range ds {
 		patch := app.DomainPatchRequest_builder{
 			Ref:              app.DomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
-			CheckedAt:        ts(t.now),
+			DateChecked:      ts(t.now),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build()
 		switch t.deps.isHere(t.ctx, d.Host, d.Token) {
 		case heardYes:
 			patch.SetFailures(0)
-			patch.SetFailingSinceNull(true)
+			patch.SetDateFailingNull(true)
 		case heardNo:
 			since := t.now
-			if d.FailingSince != nil {
-				since = *d.FailingSince
+			if d.DateFailing != nil {
+				since = *d.DateFailing
 			}
 			n := d.Failures + 1
 			if n >= RecheckFailures && !t.now.Before(since.Add(RecheckSpan)) {
@@ -1097,7 +1097,7 @@ func (t *Tx) recheckDomains() error {
 				continue
 			}
 			patch.SetFailures(n)
-			patch.SetFailingSince(ts(since))
+			patch.SetDateFailing(ts(since))
 		}
 		if _, err := t.next.Domain().Patch(t.ctx, patch); err != nil {
 			return err
@@ -1118,11 +1118,11 @@ func (t *Tx) lapse(d *ent.Domain, failures uint32, since time.Time) error {
 	// Why is the deployment's to say, and is what the event holds: no
 	// person's words, which a reason is (payday#151).
 	if err := t.begin(nil, "domain.lapse", pdid.Nil, t.now, "", app.TenantDomainLapsed_builder{
-		Domain:       pdid.Id(d.Id).Bytes(),
-		Host:         d.Host,
-		Purpose:      d.Purpose,
-		FailingSince: ts(since),
-		Failures:     failures,
+		Domain:      pdid.Id(d.Id).Bytes(),
+		Host:        d.Host,
+		Purpose:     d.Purpose,
+		DateFailing: ts(since),
+		Failures:    failures,
 	}.Build()); err != nil {
 		return err
 	}
@@ -1130,9 +1130,9 @@ func (t *Tx) lapse(d *ent.Domain, failures uint32, since time.Time) error {
 		Ref:              app.DomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
 		State:            z.Ptr(domainLapsed),
 		DateLapsed:       ts(t.now),
-		CheckedAt:        ts(t.now),
+		DateChecked:      ts(t.now),
 		Failures:         z.Ptr(failures),
-		FailingSince:     ts(since),
+		DateFailing:      ts(since),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build()); err != nil {
 		return err

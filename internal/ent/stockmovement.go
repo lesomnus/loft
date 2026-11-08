@@ -26,8 +26,8 @@ type StockMovement struct {
 	Reason string `json:"reason,omitempty"`
 	// RefId holds the value of the "ref_id" field.
 	RefId *uuid.UUID `json:"ref_id,omitempty"`
-	// OccurredAt holds the value of the "occurred_at" field.
-	OccurredAt time.Time `json:"occurred_at,omitempty"`
+	// DateOccurred holds the value of the "date_occurred" field.
+	DateOccurred time.Time `json:"date_occurred,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
@@ -88,7 +88,7 @@ func (*StockMovement) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case stockmovement.FieldReason:
 			values[i] = new(sql.NullString)
-		case stockmovement.FieldOccurredAt, stockmovement.FieldDateUpdated, stockmovement.FieldDateCreated:
+		case stockmovement.FieldDateOccurred, stockmovement.FieldDateUpdated, stockmovement.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case stockmovement.FieldRefId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -134,11 +134,11 @@ func (_m *StockMovement) assignValues(columns []string, values []any) error {
 				_m.RefId = new(uuid.UUID)
 				*_m.RefId = value.V
 			}
-		case stockmovement.FieldOccurredAt:
+		case stockmovement.FieldDateOccurred:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field occurred_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_occurred", values[i])
 			} else if value.Valid {
-				_m.OccurredAt = value.Time
+				_m.DateOccurred = value.Time
 			}
 		case stockmovement.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -233,8 +233,8 @@ func (_m *StockMovement) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("occurred_at=")
-	builder.WriteString(_m.OccurredAt.Format(time.ANSIC))
+	builder.WriteString("date_occurred=")
+	builder.WriteString(_m.DateOccurred.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("date_updated=")
 	builder.WriteString(_m.DateUpdated.Format(time.ANSIC))

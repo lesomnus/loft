@@ -23,8 +23,8 @@ type Mutation struct {
 	addreturned_quantity *int64
 	date_updated         *time.Time
 	date_created         *time.Time
-	out_at               *time.Time
-	returned_at          *time.Time
+	date_out             *time.Time
+	date_returned        *time.Time
 	condition_out        *string
 	condition_in         *string
 	clearedFields        map[string]struct{}
@@ -190,76 +190,76 @@ func (m *Mutation) ResetDateCreated() {
 	delete(m.clearedFields, FieldDateCreated)
 }
 
-// SetOutAt sets the "out_at" field.
-func (m *Mutation) SetOutAt(t time.Time) {
-	m.out_at = &t
-	delete(m.clearedFields, FieldOutAt)
-	delete(m.exprs, FieldOutAt)
+// SetDateOut sets the "date_out" field.
+func (m *Mutation) SetDateOut(t time.Time) {
+	m.date_out = &t
+	delete(m.clearedFields, FieldDateOut)
+	delete(m.exprs, FieldDateOut)
 }
 
-// OutAt returns the value of the "out_at" field in the mutation.
-func (m *Mutation) OutAt() (r time.Time, exists bool) {
-	v := m.out_at
+// DateOut returns the value of the "date_out" field in the mutation.
+func (m *Mutation) DateOut() (r time.Time, exists bool) {
+	v := m.date_out
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearOutAt clears the value of the "out_at" field.
-func (m *Mutation) ClearOutAt() {
-	m.out_at = nil
-	delete(m.exprs, FieldOutAt)
-	m.clearedFields[FieldOutAt] = struct{}{}
+// ClearDateOut clears the value of the "date_out" field.
+func (m *Mutation) ClearDateOut() {
+	m.date_out = nil
+	delete(m.exprs, FieldDateOut)
+	m.clearedFields[FieldDateOut] = struct{}{}
 }
 
-// OutAtCleared returns if the "out_at" field was cleared in this mutation.
-func (m *Mutation) OutAtCleared() bool {
-	_, ok := m.clearedFields[FieldOutAt]
+// DateOutCleared returns if the "date_out" field was cleared in this mutation.
+func (m *Mutation) DateOutCleared() bool {
+	_, ok := m.clearedFields[FieldDateOut]
 	return ok
 }
 
-// ResetOutAt resets all changes to the "out_at" field.
-func (m *Mutation) ResetOutAt() {
-	m.out_at = nil
-	delete(m.clearedFields, FieldOutAt)
-	delete(m.exprs, FieldOutAt)
+// ResetDateOut resets all changes to the "date_out" field.
+func (m *Mutation) ResetDateOut() {
+	m.date_out = nil
+	delete(m.clearedFields, FieldDateOut)
+	delete(m.exprs, FieldDateOut)
 }
 
-// SetReturnedAt sets the "returned_at" field.
-func (m *Mutation) SetReturnedAt(t time.Time) {
-	m.returned_at = &t
-	delete(m.clearedFields, FieldReturnedAt)
-	delete(m.exprs, FieldReturnedAt)
+// SetDateReturned sets the "date_returned" field.
+func (m *Mutation) SetDateReturned(t time.Time) {
+	m.date_returned = &t
+	delete(m.clearedFields, FieldDateReturned)
+	delete(m.exprs, FieldDateReturned)
 }
 
-// ReturnedAt returns the value of the "returned_at" field in the mutation.
-func (m *Mutation) ReturnedAt() (r time.Time, exists bool) {
-	v := m.returned_at
+// DateReturned returns the value of the "date_returned" field in the mutation.
+func (m *Mutation) DateReturned() (r time.Time, exists bool) {
+	v := m.date_returned
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearReturnedAt clears the value of the "returned_at" field.
-func (m *Mutation) ClearReturnedAt() {
-	m.returned_at = nil
-	delete(m.exprs, FieldReturnedAt)
-	m.clearedFields[FieldReturnedAt] = struct{}{}
+// ClearDateReturned clears the value of the "date_returned" field.
+func (m *Mutation) ClearDateReturned() {
+	m.date_returned = nil
+	delete(m.exprs, FieldDateReturned)
+	m.clearedFields[FieldDateReturned] = struct{}{}
 }
 
-// ReturnedAtCleared returns if the "returned_at" field was cleared in this mutation.
-func (m *Mutation) ReturnedAtCleared() bool {
-	_, ok := m.clearedFields[FieldReturnedAt]
+// DateReturnedCleared returns if the "date_returned" field was cleared in this mutation.
+func (m *Mutation) DateReturnedCleared() bool {
+	_, ok := m.clearedFields[FieldDateReturned]
 	return ok
 }
 
-// ResetReturnedAt resets all changes to the "returned_at" field.
-func (m *Mutation) ResetReturnedAt() {
-	m.returned_at = nil
-	delete(m.clearedFields, FieldReturnedAt)
-	delete(m.exprs, FieldReturnedAt)
+// ResetDateReturned resets all changes to the "date_returned" field.
+func (m *Mutation) ResetDateReturned() {
+	m.date_returned = nil
+	delete(m.clearedFields, FieldDateReturned)
+	delete(m.exprs, FieldDateReturned)
 }
 
 // SetConditionOut sets the "condition_out" field.
@@ -563,11 +563,11 @@ func (m *Mutation) Fields() []string {
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.out_at != nil || m.exprs[FieldOutAt] != nil {
-		fields = append(fields, FieldOutAt)
+	if m.date_out != nil || m.exprs[FieldDateOut] != nil {
+		fields = append(fields, FieldDateOut)
 	}
-	if m.returned_at != nil || m.exprs[FieldReturnedAt] != nil {
-		fields = append(fields, FieldReturnedAt)
+	if m.date_returned != nil || m.exprs[FieldDateReturned] != nil {
+		fields = append(fields, FieldDateReturned)
 	}
 	if m.condition_out != nil || m.exprs[FieldConditionOut] != nil {
 		fields = append(fields, FieldConditionOut)
@@ -609,10 +609,10 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateUpdated()
 	case FieldDateCreated:
 		return m.DateCreated()
-	case FieldOutAt:
-		return m.OutAt()
-	case FieldReturnedAt:
-		return m.ReturnedAt()
+	case FieldDateOut:
+		return m.DateOut()
+	case FieldDateReturned:
+		return m.DateReturned()
 	case FieldConditionOut:
 		return m.ConditionOut()
 	case FieldConditionIn:
@@ -684,7 +684,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateCreated(v)
 		return nil
-	case FieldOutAt:
+	case FieldDateOut:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -692,9 +692,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetOutAt(v)
+		m.SetDateOut(v)
 		return nil
-	case FieldReturnedAt:
+	case FieldDateReturned:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -702,7 +702,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetReturnedAt(v)
+		m.SetDateReturned(v)
 		return nil
 	case FieldConditionOut:
 		v, ok := value.(string)
@@ -794,10 +794,10 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetDateUpdated()
 	case FieldDateCreated:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
-	case FieldOutAt:
-		m.ResetOutAt()
-	case FieldReturnedAt:
-		m.ResetReturnedAt()
+	case FieldDateOut:
+		m.ResetDateOut()
+	case FieldDateReturned:
+		m.ResetDateReturned()
 	case FieldConditionOut:
 		m.ResetConditionOut()
 	case FieldConditionIn:
@@ -840,11 +840,11 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
 	}
-	if _, ok := m.exprs[FieldOutAt]; ok {
-		fields = append(fields, FieldOutAt)
+	if _, ok := m.exprs[FieldDateOut]; ok {
+		fields = append(fields, FieldDateOut)
 	}
-	if _, ok := m.exprs[FieldReturnedAt]; ok {
-		fields = append(fields, FieldReturnedAt)
+	if _, ok := m.exprs[FieldDateReturned]; ok {
+		fields = append(fields, FieldDateReturned)
 	}
 	if _, ok := m.exprs[FieldConditionOut]; ok {
 		fields = append(fields, FieldConditionOut)
@@ -911,11 +911,11 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.FieldCleared(FieldOutAt) {
-		fields = append(fields, FieldOutAt)
+	if m.FieldCleared(FieldDateOut) {
+		fields = append(fields, FieldDateOut)
 	}
-	if m.FieldCleared(FieldReturnedAt) {
-		fields = append(fields, FieldReturnedAt)
+	if m.FieldCleared(FieldDateReturned) {
+		fields = append(fields, FieldDateReturned)
 	}
 	if m.FieldCleared(FieldAssetId) {
 		fields = append(fields, FieldAssetId)
@@ -940,11 +940,11 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldDateCreated:
 		m.ClearDateCreated()
 		return nil
-	case FieldOutAt:
-		m.ClearOutAt()
+	case FieldDateOut:
+		m.ClearDateOut()
 		return nil
-	case FieldReturnedAt:
-		m.ClearReturnedAt()
+	case FieldDateReturned:
+		m.ClearDateReturned()
 		return nil
 	case FieldAssetId:
 		m.ClearAssetId()
@@ -972,11 +972,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldDateCreated:
 		m.ResetDateCreated()
 		return nil
-	case FieldOutAt:
-		m.ResetOutAt()
+	case FieldDateOut:
+		m.ResetDateOut()
 		return nil
-	case FieldReturnedAt:
-		m.ResetReturnedAt()
+	case FieldDateReturned:
+		m.ResetDateReturned()
 		return nil
 	case FieldConditionOut:
 		m.ResetConditionOut()

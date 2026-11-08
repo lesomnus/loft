@@ -782,9 +782,9 @@ func (t mcpTools) getAsset(ctx context.Context, _ *mcp.CallToolRequest, in mcpAs
 	// It and what is directly in it, as they are now: who owns, manages and
 	// has each is the history's to say.
 	now, err := app.NewAssetServiceClient(c.conn).QueryAt(ctx, app.AssetQueryAtRequest_builder{
-		Root:  app.AssetById(a.GetId()),
-		At:    timestamppb.Now(),
-		Depth: 1,
+		Root:     app.AssetById(a.GetId()),
+		DateAsOf: timestamppb.Now(),
+		Depth:    1,
 	}.Build())
 	if err != nil {
 		return nil, out, failed(err)
@@ -811,7 +811,7 @@ func (t mcpTools) getAsset(ctx context.Context, _ *mcp.CallToolRequest, in mcpAs
 	out.Placement = a.GetPlacementMode()
 	out.Slot = a.GetSlot()
 	out.Attributes = a.GetAttributes()
-	out.Acquired = stamp(a.GetAcquiredAt())
+	out.Acquired = stamp(a.GetDateAcquired())
 	for _, st := range now.GetItems() {
 		if st.GetDepth() == 0 && len(st.GetStewardNames()) > 0 {
 			out.Stewards = st.GetStewardNames()
@@ -894,14 +894,14 @@ func (t mcpTools) assetHistory(ctx context.Context, _ *mcp.CallToolRequest, in m
 		out.Entries = append(out.Entries, mcpEntry{
 			Kind:       e.GetKind(),
 			Row:        row,
-			From:       stamp(e.GetValidFrom()),
-			Until:      stamp(e.GetValidTo()),
+			From:       stamp(e.GetDateStart()),
+			Until:      stamp(e.GetDateEnd()),
 			What:       e.GetSummary(),
 			Operation:  e.GetEventKind(),
 			Who:        e.GetActor(),
 			Why:        e.GetReason(),
 			Part:       e.GetCause(),
-			Superseded: stamp(e.GetSupersededAt()),
+			Superseded: stamp(e.GetDateSuperseded()),
 			Detail:     e.GetDetail(),
 		})
 	}
@@ -947,9 +947,9 @@ func (t mcpTools) assetAt(ctx context.Context, _ *mcp.CallToolRequest, in mcpAtI
 		return nil, out, err
 	}
 	v, err := app.NewAssetServiceClient(c.conn).QueryAt(ctx, app.AssetQueryAtRequest_builder{
-		Root:  ref,
-		At:    timestamppb.New(moment),
-		Depth: uint32(max(in.Depth, 0)),
+		Root:     ref,
+		DateAsOf: timestamppb.New(moment),
+		Depth:    uint32(max(in.Depth, 0)),
 	}.Build())
 	if err != nil {
 		return nil, out, failed(err)
@@ -1166,10 +1166,10 @@ func (t mcpTools) listCustody(ctx context.Context, _ *mcp.CallToolRequest, in mc
 			Party:        c.named(c.parties, k.GetParty().GetId()),
 			Kind:         k.GetKind(),
 			Status:       k.GetStatus(),
-			Issued:       stamp(k.GetIssuedAt()),
-			Due:          stamp(k.GetDueAt()),
-			Overdue:      k.GetStatus() == "open" && k.HasDueAt() && k.GetDueAt().AsTime().Before(now),
-			Acknowledged: stamp(k.GetAcknowledgedAt()),
+			Issued:       stamp(k.GetDateIssued()),
+			Due:          stamp(k.GetDateDue()),
+			Overdue:      k.GetStatus() == "open" && k.HasDateDue() && k.GetDateDue().AsTime().Before(now),
+			Acknowledged: stamp(k.GetDateAcknowledged()),
 			Desc:         k.GetDesc(),
 			Lines:        []mcpLine{},
 		}
@@ -1178,8 +1178,8 @@ func (t mcpTools) listCustody(ctx context.Context, _ *mcp.CallToolRequest, in mc
 				Id:        idString(l.GetId()),
 				Quantity:  l.GetQuantity(),
 				Returned:  l.GetReturnedQuantity(),
-				Out:       stamp(l.GetOutAt()),
-				Back:      stamp(l.GetReturnedAt()),
+				Out:       stamp(l.GetDateOut()),
+				Back:      stamp(l.GetDateReturned()),
 				Condition: l.GetConditionOut(),
 			}
 			if id := pid(l.GetAsset().GetId()); !id.IsZero() {
@@ -1246,7 +1246,7 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 			return nil, out, err
 		}
 	}
-	req := app.ReservationCalendarRequest_builder{From: timestamppb.New(from), To: timestamppb.New(to), Mine: in.Mine}.Build()
+	req := app.ReservationCalendarRequest_builder{DateFrom: timestamppb.New(from), DateTo: timestamppb.New(to), Mine: in.Mine}.Build()
 	for _, v := range in.Assets {
 		ref, err := c.assetRef(v)
 		if err != nil {
@@ -1274,8 +1274,8 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 			Id:     idString(r.GetId()),
 			Name:   r.GetName(),
 			Status: r.GetStatus(),
-			Begins: stamp(r.GetBeginsAt()),
-			Ends:   stamp(r.GetEndsAt()),
+			Begins: stamp(r.GetDateStart()),
+			Ends:   stamp(r.GetDateEnd()),
 			For:    e.GetPartyName(),
 			Assets: []mcpRef{},
 			Series: len(r.GetSeriesId()) > 0 || r.GetRrule() != "",
@@ -1302,9 +1302,9 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 			name := strings.TrimSpace(o.GetResourceTag() + " " + o.GetResourceName())
 			switch {
 			case o.GetOverdue():
-				name = fmt.Sprintf("%s (lent, late since %s)", name, stamp(o.GetDueAt()))
+				name = fmt.Sprintf("%s (lent, late since %s)", name, stamp(o.GetDateDue()))
 			case o.GetKind() == "loan":
-				name = fmt.Sprintf("%s (lent until %s)", name, stamp(o.GetDueAt()))
+				name = fmt.Sprintf("%s (lent until %s)", name, stamp(o.GetDateDue()))
 			default:
 				name = fmt.Sprintf("%s (issued until it is returned)", name)
 			}
@@ -1372,7 +1372,7 @@ func (t mcpTools) reservationHistory(ctx context.Context, _ *mcp.CallToolRequest
 			break
 		}
 		out.Entries = append(out.Entries, mcpHappened{
-			When:      stamp(e.GetValidFrom()),
+			When:      stamp(e.GetDateStart()),
 			What:      e.GetSummary(),
 			Operation: e.GetEventKind(),
 			Who:       e.GetActor(),

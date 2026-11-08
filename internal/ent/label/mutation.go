@@ -19,8 +19,8 @@ type Mutation struct {
 	typ           string
 	subject_id    *uuid.UUID
 	state         *string
-	bound_at      *time.Time
-	printed_at    *time.Time
+	date_bound    *time.Time
+	date_printed  *time.Time
 	date_updated  *time.Time
 	date_erased   *time.Time
 	date_created  *time.Time
@@ -106,76 +106,76 @@ func (m *Mutation) ResetState() {
 	delete(m.exprs, FieldState)
 }
 
-// SetBoundAt sets the "bound_at" field.
-func (m *Mutation) SetBoundAt(t time.Time) {
-	m.bound_at = &t
-	delete(m.clearedFields, FieldBoundAt)
-	delete(m.exprs, FieldBoundAt)
+// SetDateBound sets the "date_bound" field.
+func (m *Mutation) SetDateBound(t time.Time) {
+	m.date_bound = &t
+	delete(m.clearedFields, FieldDateBound)
+	delete(m.exprs, FieldDateBound)
 }
 
-// BoundAt returns the value of the "bound_at" field in the mutation.
-func (m *Mutation) BoundAt() (r time.Time, exists bool) {
-	v := m.bound_at
+// DateBound returns the value of the "date_bound" field in the mutation.
+func (m *Mutation) DateBound() (r time.Time, exists bool) {
+	v := m.date_bound
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearBoundAt clears the value of the "bound_at" field.
-func (m *Mutation) ClearBoundAt() {
-	m.bound_at = nil
-	delete(m.exprs, FieldBoundAt)
-	m.clearedFields[FieldBoundAt] = struct{}{}
+// ClearDateBound clears the value of the "date_bound" field.
+func (m *Mutation) ClearDateBound() {
+	m.date_bound = nil
+	delete(m.exprs, FieldDateBound)
+	m.clearedFields[FieldDateBound] = struct{}{}
 }
 
-// BoundAtCleared returns if the "bound_at" field was cleared in this mutation.
-func (m *Mutation) BoundAtCleared() bool {
-	_, ok := m.clearedFields[FieldBoundAt]
+// DateBoundCleared returns if the "date_bound" field was cleared in this mutation.
+func (m *Mutation) DateBoundCleared() bool {
+	_, ok := m.clearedFields[FieldDateBound]
 	return ok
 }
 
-// ResetBoundAt resets all changes to the "bound_at" field.
-func (m *Mutation) ResetBoundAt() {
-	m.bound_at = nil
-	delete(m.clearedFields, FieldBoundAt)
-	delete(m.exprs, FieldBoundAt)
+// ResetDateBound resets all changes to the "date_bound" field.
+func (m *Mutation) ResetDateBound() {
+	m.date_bound = nil
+	delete(m.clearedFields, FieldDateBound)
+	delete(m.exprs, FieldDateBound)
 }
 
-// SetPrintedAt sets the "printed_at" field.
-func (m *Mutation) SetPrintedAt(t time.Time) {
-	m.printed_at = &t
-	delete(m.clearedFields, FieldPrintedAt)
-	delete(m.exprs, FieldPrintedAt)
+// SetDatePrinted sets the "date_printed" field.
+func (m *Mutation) SetDatePrinted(t time.Time) {
+	m.date_printed = &t
+	delete(m.clearedFields, FieldDatePrinted)
+	delete(m.exprs, FieldDatePrinted)
 }
 
-// PrintedAt returns the value of the "printed_at" field in the mutation.
-func (m *Mutation) PrintedAt() (r time.Time, exists bool) {
-	v := m.printed_at
+// DatePrinted returns the value of the "date_printed" field in the mutation.
+func (m *Mutation) DatePrinted() (r time.Time, exists bool) {
+	v := m.date_printed
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearPrintedAt clears the value of the "printed_at" field.
-func (m *Mutation) ClearPrintedAt() {
-	m.printed_at = nil
-	delete(m.exprs, FieldPrintedAt)
-	m.clearedFields[FieldPrintedAt] = struct{}{}
+// ClearDatePrinted clears the value of the "date_printed" field.
+func (m *Mutation) ClearDatePrinted() {
+	m.date_printed = nil
+	delete(m.exprs, FieldDatePrinted)
+	m.clearedFields[FieldDatePrinted] = struct{}{}
 }
 
-// PrintedAtCleared returns if the "printed_at" field was cleared in this mutation.
-func (m *Mutation) PrintedAtCleared() bool {
-	_, ok := m.clearedFields[FieldPrintedAt]
+// DatePrintedCleared returns if the "date_printed" field was cleared in this mutation.
+func (m *Mutation) DatePrintedCleared() bool {
+	_, ok := m.clearedFields[FieldDatePrinted]
 	return ok
 }
 
-// ResetPrintedAt resets all changes to the "printed_at" field.
-func (m *Mutation) ResetPrintedAt() {
-	m.printed_at = nil
-	delete(m.clearedFields, FieldPrintedAt)
-	delete(m.exprs, FieldPrintedAt)
+// ResetDatePrinted resets all changes to the "date_printed" field.
+func (m *Mutation) ResetDatePrinted() {
+	m.date_printed = nil
+	delete(m.clearedFields, FieldDatePrinted)
+	delete(m.exprs, FieldDatePrinted)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -472,11 +472,11 @@ func (m *Mutation) Fields() []string {
 	if m.state != nil || m.exprs[FieldState] != nil {
 		fields = append(fields, FieldState)
 	}
-	if m.bound_at != nil || m.exprs[FieldBoundAt] != nil {
-		fields = append(fields, FieldBoundAt)
+	if m.date_bound != nil || m.exprs[FieldDateBound] != nil {
+		fields = append(fields, FieldDateBound)
 	}
-	if m.printed_at != nil || m.exprs[FieldPrintedAt] != nil {
-		fields = append(fields, FieldPrintedAt)
+	if m.date_printed != nil || m.exprs[FieldDatePrinted] != nil {
+		fields = append(fields, FieldDatePrinted)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -517,10 +517,10 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.SubjectId()
 	case FieldState:
 		return m.State()
-	case FieldBoundAt:
-		return m.BoundAt()
-	case FieldPrintedAt:
-		return m.PrintedAt()
+	case FieldDateBound:
+		return m.DateBound()
+	case FieldDatePrinted:
+		return m.DatePrinted()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateErased:
@@ -574,7 +574,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetState(v)
 		return nil
-	case FieldBoundAt:
+	case FieldDateBound:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -582,9 +582,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetBoundAt(v)
+		m.SetDateBound(v)
 		return nil
-	case FieldPrintedAt:
+	case FieldDatePrinted:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -592,7 +592,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetPrintedAt(v)
+		m.SetDatePrinted(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -690,10 +690,10 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetSubjectId()
 	case FieldState:
 		m.ResetState()
-	case FieldBoundAt:
-		m.ResetBoundAt()
-	case FieldPrintedAt:
-		m.ResetPrintedAt()
+	case FieldDateBound:
+		m.ResetDateBound()
+	case FieldDatePrinted:
+		m.ResetDatePrinted()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateErased:
@@ -735,11 +735,11 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldState]; ok {
 		fields = append(fields, FieldState)
 	}
-	if _, ok := m.exprs[FieldBoundAt]; ok {
-		fields = append(fields, FieldBoundAt)
+	if _, ok := m.exprs[FieldDateBound]; ok {
+		fields = append(fields, FieldDateBound)
 	}
-	if _, ok := m.exprs[FieldPrintedAt]; ok {
-		fields = append(fields, FieldPrintedAt)
+	if _, ok := m.exprs[FieldDatePrinted]; ok {
+		fields = append(fields, FieldDatePrinted)
 	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
@@ -785,11 +785,11 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldSubjectId) {
 		fields = append(fields, FieldSubjectId)
 	}
-	if m.FieldCleared(FieldBoundAt) {
-		fields = append(fields, FieldBoundAt)
+	if m.FieldCleared(FieldDateBound) {
+		fields = append(fields, FieldDateBound)
 	}
-	if m.FieldCleared(FieldPrintedAt) {
-		fields = append(fields, FieldPrintedAt)
+	if m.FieldCleared(FieldDatePrinted) {
+		fields = append(fields, FieldDatePrinted)
 	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
@@ -820,11 +820,11 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldSubjectId:
 		m.ClearSubjectId()
 		return nil
-	case FieldBoundAt:
-		m.ClearBoundAt()
+	case FieldDateBound:
+		m.ClearDateBound()
 		return nil
-	case FieldPrintedAt:
-		m.ClearPrintedAt()
+	case FieldDatePrinted:
+		m.ClearDatePrinted()
 		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
@@ -852,11 +852,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldState:
 		m.ResetState()
 		return nil
-	case FieldBoundAt:
-		m.ResetBoundAt()
+	case FieldDateBound:
+		m.ResetDateBound()
 		return nil
-	case FieldPrintedAt:
-		m.ResetPrintedAt()
+	case FieldDatePrinted:
+		m.ResetDatePrinted()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()

@@ -92,7 +92,7 @@ func TestAClosedWorkspaceIsSweptOnceItIsRestored(t *testing.T) {
 	e.lend(lee, e.now.Add(closure+20*time.Hour), phone)
 	_, err = e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{
 		Asset: assetRef(drill), Kind: "inspection", Name: "드릴 점검",
-		BeginsAt: e.in(5 * time.Hour), EndsAt: e.in(6 * time.Hour),
+		DateStart: e.in(5 * time.Hour), DateEnd: e.in(6 * time.Hour),
 	}.Build())
 	x.NoError(err)
 	held, err := e.reserve(kimCtx, small, e.now.Add(time.Hour), e.now.Add(2*time.Hour), func(r *app.ReservationAddRequest) { r.SetHold(true) })
@@ -108,7 +108,7 @@ func TestAClosedWorkspaceIsSweptOnceItIsRestored(t *testing.T) {
 	for _, addr := range []string{"owner@acme.example", kim.GetEmail(), lee.GetEmail(), chief.GetEmail()} {
 		mailed[addr] = len(box.to(addr))
 	}
-	dueAt := e.hold(loan, camera).EndsAt
+	dueAt := e.hold(loan, camera).DateEnd
 
 	e.closeIt()
 	notices, events := e.toldAndDone()
@@ -131,7 +131,7 @@ func TestAClosedWorkspaceIsSweptOnceItIsRestored(t *testing.T) {
 		late, err := e.s.Ent.Custody.Query().Where(custody.TenantId(e.tenant.Uuid()), custody.OverdueNoticed(true)).Count(ctx)
 		x.NoError(err)
 		x.Zero(late, "%s: a loan found late", why)
-		x.WithinDuration(dueAt, e.hold(loan, camera).EndsAt, 0, "%s: what the loan holds", why)
+		x.WithinDuration(dueAt, e.hold(loan, camera).DateEnd, 0, "%s: what the loan holds", why)
 	}
 	still("closed")
 	e.now = e.now.Add(time.Minute)
@@ -148,7 +148,7 @@ func TestAClosedWorkspaceIsSweptOnceItIsRestored(t *testing.T) {
 	e.sweep()
 	e.mail()
 	x.Len(loansOf(e.eventsOf("custody.overdue")), 1, "the loan found late")
-	x.Equal(2200, e.hold(loan, camera).EndsAt.Year(), "and held until it is back")
+	x.Equal(2200, e.hold(loan, camera).DateEnd.Year(), "and held until it is back")
 	x.Equal([]string{"CM-1 loan late"}, e.out(booked))
 
 	told := func(why string) {
@@ -210,10 +210,10 @@ func TestAClosedWorkspaceIsToldNothingByAnOperator(t *testing.T) {
 	e.closeIt()
 	notices, _ := e.toldAndDone()
 	due := e.tomorrow(12, 0)
-	_, err = e.s.Ungated.Custody().Extend(e.operator(), app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DueAt: timestamppb.New(due)}.Build())
+	_, err = e.s.Ungated.Custody().Extend(e.operator(), app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DateDue: timestamppb.New(due)}.Build())
 	x.NoError(err)
 	e.mail()
-	x.False(e.hold(loan, camera).EndsAt.Before(due), "the loan holds the time it is due")
+	x.False(e.hold(loan, camera).DateEnd.Before(due), "the loan holds the time it is due")
 	x.Equal([]string{"CM-1 loan"}, e.out(booked), "and the booking says so")
 	n, _ := e.toldAndDone()
 	x.Equal(notices, n, "and nobody is told")

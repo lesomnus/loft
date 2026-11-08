@@ -150,7 +150,7 @@ func TestAReadOnlyWorkspaceIsAskedNothingItCannotDo(t *testing.T) {
 	e.lend(lee, e.now.Add(20*time.Hour), phone)
 	_, err = e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{
 		Asset: assetRef(drill), Kind: "inspection", Name: "드릴 점검",
-		BeginsAt: e.in(5 * time.Hour), EndsAt: e.in(6 * time.Hour),
+		DateStart: e.in(5 * time.Hour), DateEnd: e.in(6 * time.Hour),
 	}.Build())
 	x.NoError(err)
 	asked, err := e.reserve(kimCtx, hall, e.now.Add(time.Hour), e.now.Add(90*time.Minute), nil)
@@ -174,7 +174,7 @@ func TestAReadOnlyWorkspaceIsAskedNothingItCannotDo(t *testing.T) {
 	// expired, and the room was let go of -- an expiry too, which nobody
 	// could check in to (D70).
 	x.Len(loansOf(e.eventsOf("custody.overdue")), 1, "found late")
-	x.Equal(2200, e.hold(loan, camera).EndsAt.Year(), "held until it is back")
+	x.Equal(2200, e.hold(loan, camera).DateEnd.Year(), "held until it is back")
 	x.Equal([]string{"CM-1 loan late"}, e.out(r))
 	x.Equal("expired", e.reservation(asked).GetStatus())
 	x.Equal("expired", e.reservation(met).GetStatus())
@@ -315,7 +315,7 @@ func TestALateLoanGivenBackWhileReadOnlyIsToldNothing(t *testing.T) {
 	_, err := e.s.Ungated.Custody().Return(e.operator(), app.CustodyReturnRequest_builder{Ref: ref[app.CustodyRef](back.GetId())}.Build())
 	x.NoError(err)
 	due := e.now.Add(3 * time.Hour).Truncate(time.Minute)
-	_, err = e.s.Ungated.Custody().Extend(e.operator(), app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](later.GetId()), DueAt: timestamppb.New(due)}.Build())
+	_, err = e.s.Ungated.Custody().Extend(e.operator(), app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](later.GetId()), DateDue: timestamppb.New(due)}.Build())
 	x.NoError(err)
 
 	e.paid()
@@ -346,7 +346,7 @@ func TestALoanLateAgainWhileReadOnlyIsToldOfItsSecondDue(t *testing.T) {
 	e.sweep()
 	x.Len(e.notices(leeCtx, "custody.overdue"), 1, "late, and written")
 	due := e.now.Add(time.Hour).Truncate(time.Minute)
-	_, err := e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DueAt: timestamppb.New(due)}.Build())
+	_, err := e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DateDue: timestamppb.New(due)}.Build())
 	x.NoError(err)
 
 	e.readOnly()

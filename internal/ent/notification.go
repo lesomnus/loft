@@ -28,8 +28,8 @@ type Notification struct {
 	Kind string `json:"kind,omitempty"`
 	// SubjectId holds the value of the "subject_id" field.
 	SubjectId *uuid.UUID `json:"subject_id,omitempty"`
-	// ReadAt holds the value of the "read_at" field.
-	ReadAt *time.Time `json:"read_at,omitempty"`
+	// DateRead holds the value of the "date_read" field.
+	DateRead *time.Time `json:"date_read,omitempty"`
 	// Link holds the value of the "link" field.
 	Link string `json:"link,omitempty"`
 	// Mail holds the value of the "mail" field.
@@ -96,7 +96,7 @@ func (*Notification) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case notification.FieldName, notification.FieldDesc, notification.FieldKind, notification.FieldLink:
 			values[i] = new(sql.NullString)
-		case notification.FieldReadAt, notification.FieldDateMailed, notification.FieldDateUpdated, notification.FieldDateCreated:
+		case notification.FieldDateRead, notification.FieldDateMailed, notification.FieldDateUpdated, notification.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case notification.FieldSubjectId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -148,12 +148,12 @@ func (_m *Notification) assignValues(columns []string, values []any) error {
 				_m.SubjectId = new(uuid.UUID)
 				*_m.SubjectId = value.V
 			}
-		case notification.FieldReadAt:
+		case notification.FieldDateRead:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field read_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_read", values[i])
 			} else if value.Valid {
-				_m.ReadAt = new(time.Time)
-				*_m.ReadAt = value.Time
+				_m.DateRead = new(time.Time)
+				*_m.DateRead = value.Time
 			}
 		case notification.FieldLink:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -264,8 +264,8 @@ func (_m *Notification) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	if v := _m.ReadAt; v != nil {
-		builder.WriteString("read_at=")
+	if v := _m.DateRead; v != nil {
+		builder.WriteString("date_read=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

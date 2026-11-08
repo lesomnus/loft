@@ -34,12 +34,12 @@ func TestTheHistorySaysLoftsValuesInThePagesWords(t *testing.T) {
 	}.Build())
 	x.NoError(err)
 	laptop, err := e.app().Asset().Add(e.owner, app.AssetAddRequest_builder{
-		Name:       "개발용 노트북",
-		Tag:        "NB-1",
-		Kind:       "item",
-		Type:       ref[app.AssetTypeRef](notebook.GetId()),
-		Since:      e.ago(10 * day),
-		Attributes: map[string]string{"cpu": "i5", "ram": "8GB", "color": "검정"},
+		Name:         "개발용 노트북",
+		Tag:          "NB-1",
+		Kind:         "item",
+		Type:         ref[app.AssetTypeRef](notebook.GetId()),
+		DateOccurred: e.ago(10 * day),
+		Attributes:   map[string]string{"cpu": "i5", "ram": "8GB", "color": "검정"},
 	}.Build())
 	x.NoError(err)
 	kit, err := e.app().Asset().Add(e.owner, app.AssetAddRequest_builder{Name: "출장 키트", Tag: "K-1", Kind: "kit"}.Build())

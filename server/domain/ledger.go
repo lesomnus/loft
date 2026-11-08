@@ -47,8 +47,8 @@ func (t *Tx) circle(ids []uuid.UUID) ([]*resource, error) {
 			link.TenantId(tid),
 			link.SourceIdIn(things...),
 			link.Kind("member_of"),
-			link.SupersededAtIsNil(),
-			link.ValidToIsNil(),
+			link.DateSupersededIsNil(),
+			link.DateEndIsNil(),
 		).All(t.ctx)
 		if err != nil {
 			return nil, err
@@ -93,8 +93,8 @@ func (t *Tx) circle(ids []uuid.UUID) ([]*resource, error) {
 			link.TenantId(tid),
 			link.TargetIdIn(fresh...),
 			link.Kind("member_of"),
-			link.SupersededAtIsNil(),
-			link.ValidToIsNil(),
+			link.DateSupersededIsNil(),
+			link.DateEndIsNil(),
 		).All(t.ctx)
 		if err != nil {
 			return nil, err
@@ -211,7 +211,7 @@ func moments(from, to time.Time, as ...[]*ent.Allocation) []time.Time {
 	cuts := []time.Time{from}
 	for _, vs := range as {
 		for _, a := range vs {
-			for _, at := range []time.Time{a.BeginsAt, a.EndsAt} {
+			for _, at := range []time.Time{a.DateStart, a.DateEnd} {
 				if at.After(from) && at.Before(to) {
 					cuts = append(cuts, at)
 				}
@@ -227,13 +227,13 @@ func moments(from, to time.Time, as ...[]*ent.Allocation) []time.Time {
 func asOf(own, held []*ent.Allocation, at time.Time) (map[uuid.UUID]int, map[uuid.UUID]bool) {
 	asked := map[uuid.UUID]int{}
 	for _, a := range own {
-		if !a.BeginsAt.After(at) && a.EndsAt.After(at) {
+		if !a.DateStart.After(at) && a.DateEnd.After(at) {
 			asked[a.ResourceId] += int(a.Units)
 		}
 	}
 	busy := map[uuid.UUID]bool{}
 	for _, a := range held {
-		if !a.BeginsAt.After(at) && a.EndsAt.After(at) {
+		if !a.DateStart.After(at) && a.DateEnd.After(at) {
 			busy[a.ResourceId] = true
 		}
 	}

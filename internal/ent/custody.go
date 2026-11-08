@@ -26,20 +26,20 @@ type Custody struct {
 	Kind string `json:"kind,omitempty"`
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
-	// IssuedAt holds the value of the "issued_at" field.
-	IssuedAt time.Time `json:"issued_at,omitempty"`
-	// DueAt holds the value of the "due_at" field.
-	DueAt *time.Time `json:"due_at,omitempty"`
+	// DateIssued holds the value of the "date_issued" field.
+	DateIssued time.Time `json:"date_issued,omitempty"`
+	// DateDue holds the value of the "date_due" field.
+	DateDue *time.Time `json:"date_due,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
 	DateErased *time.Time `json:"date_erased,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
 	DateCreated time.Time `json:"date_created,omitempty"`
-	// AcknowledgedAt holds the value of the "acknowledged_at" field.
-	AcknowledgedAt *time.Time `json:"acknowledged_at,omitempty"`
-	// ReturnedAt holds the value of the "returned_at" field.
-	ReturnedAt *time.Time `json:"returned_at,omitempty"`
+	// DateAcknowledged holds the value of the "date_acknowledged" field.
+	DateAcknowledged *time.Time `json:"date_acknowledged,omitempty"`
+	// DateReturned holds the value of the "date_returned" field.
+	DateReturned *time.Time `json:"date_returned,omitempty"`
 	// ReservationId holds the value of the "reservation_id" field.
 	ReservationId *uuid.UUID `json:"reservation_id,omitempty"`
 	// IssuedBy holds the value of the "issued_by" field.
@@ -98,7 +98,7 @@ func (*Custody) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case custody.FieldDesc, custody.FieldKind, custody.FieldStatus:
 			values[i] = new(sql.NullString)
-		case custody.FieldIssuedAt, custody.FieldDueAt, custody.FieldDateUpdated, custody.FieldDateErased, custody.FieldDateCreated, custody.FieldAcknowledgedAt, custody.FieldReturnedAt:
+		case custody.FieldDateIssued, custody.FieldDateDue, custody.FieldDateUpdated, custody.FieldDateErased, custody.FieldDateCreated, custody.FieldDateAcknowledged, custody.FieldDateReturned:
 			values[i] = new(sql.NullTime)
 		case custody.FieldReservationId, custody.FieldIssuedBy:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -143,18 +143,18 @@ func (_m *Custody) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Status = value.String
 			}
-		case custody.FieldIssuedAt:
+		case custody.FieldDateIssued:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field issued_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_issued", values[i])
 			} else if value.Valid {
-				_m.IssuedAt = value.Time
+				_m.DateIssued = value.Time
 			}
-		case custody.FieldDueAt:
+		case custody.FieldDateDue:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field due_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_due", values[i])
 			} else if value.Valid {
-				_m.DueAt = new(time.Time)
-				*_m.DueAt = value.Time
+				_m.DateDue = new(time.Time)
+				*_m.DateDue = value.Time
 			}
 		case custody.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -175,19 +175,19 @@ func (_m *Custody) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DateCreated = value.Time
 			}
-		case custody.FieldAcknowledgedAt:
+		case custody.FieldDateAcknowledged:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field acknowledged_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_acknowledged", values[i])
 			} else if value.Valid {
-				_m.AcknowledgedAt = new(time.Time)
-				*_m.AcknowledgedAt = value.Time
+				_m.DateAcknowledged = new(time.Time)
+				*_m.DateAcknowledged = value.Time
 			}
-		case custody.FieldReturnedAt:
+		case custody.FieldDateReturned:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field returned_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_returned", values[i])
 			} else if value.Valid {
-				_m.ReturnedAt = new(time.Time)
-				*_m.ReturnedAt = value.Time
+				_m.DateReturned = new(time.Time)
+				*_m.DateReturned = value.Time
 			}
 		case custody.FieldReservationId:
 			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
@@ -276,11 +276,11 @@ func (_m *Custody) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
-	builder.WriteString("issued_at=")
-	builder.WriteString(_m.IssuedAt.Format(time.ANSIC))
+	builder.WriteString("date_issued=")
+	builder.WriteString(_m.DateIssued.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := _m.DueAt; v != nil {
-		builder.WriteString("due_at=")
+	if v := _m.DateDue; v != nil {
+		builder.WriteString("date_due=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
@@ -295,13 +295,13 @@ func (_m *Custody) String() string {
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := _m.AcknowledgedAt; v != nil {
-		builder.WriteString("acknowledged_at=")
+	if v := _m.DateAcknowledged; v != nil {
+		builder.WriteString("date_acknowledged=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := _m.ReturnedAt; v != nil {
-		builder.WriteString("returned_at=")
+	if v := _m.DateReturned; v != nil {
+		builder.WriteString("date_returned=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

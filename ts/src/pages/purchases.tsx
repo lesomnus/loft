@@ -49,7 +49,7 @@ export function Purchases(): ReactNode {
 												{p.reference !== '' && <span className="mute"> · {p.reference}</span>}
 											</td>
 											<td>{c.called(p.vendor?.id) || '-'}</td>
-											<td>{fmt(p.orderedAt, 'date')}</td>
+											<td>{fmt(p.dateOrdered, 'date')}</td>
 											<td className="num">{money(p.total, p.currency)}</td>
 											<td>
 												<Badge v={p.status} words={purchaseWord} />
@@ -206,8 +206,8 @@ function PurchaseDialog(props: { p: Purchase; onClose: () => void }): ReactNode 
 					['상태', <Badge key="s" v={p.status} words={purchaseWord} />],
 					['업체', c.called(p.vendor?.id) || '-'],
 					['주문 번호', p.reference || '-'],
-					['주문일', fmt(p.orderedAt, 'date')],
-					['입고일', fmt(p.receivedAt, 'date')],
+					['주문일', fmt(p.dateOrdered, 'date')],
+					['입고일', fmt(p.dateReceived, 'date')],
 					['합계', money(p.total, p.currency)],
 				]}
 			/>

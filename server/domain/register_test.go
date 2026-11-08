@@ -54,7 +54,7 @@ func TestABulkRegistrationIsOneOperation(t *testing.T) {
 		Op:     op,
 		Reason: "10월 입고",
 		Items: []*app.AssetAddRequest{
-			app.AssetAddRequest_builder{Name: "노트북", To: atTag(room.GetTag()), ModelName: z.Ptr("ThinkPad X1"), Maker: z.Ptr("Lenovo"), Since: e.ago(day)}.Build(),
+			app.AssetAddRequest_builder{Name: "노트북", To: atTag(room.GetTag()), ModelName: z.Ptr("ThinkPad X1"), Maker: z.Ptr("Lenovo"), DateOccurred: e.ago(day)}.Build(),
 			app.AssetAddRequest_builder{Name: "노트북", Tag: "NB-9", To: atTag(room.GetTag()), ModelName: z.Ptr("thinkpad x1"), Maker: z.Ptr("lenovo")}.Build(),
 			app.AssetAddRequest_builder{Name: "의자", Serial: "C-1"}.Build(),
 		},
@@ -173,12 +173,12 @@ func TestABulkRegistrationSaysEveryIssueAndMakesNothing(t *testing.T) {
 		app.AssetAddRequest_builder{Name: "c", Tag: "X-1"}.Build(),
 		app.AssetAddRequest_builder{Name: "d", To: atTag("SP-404")}.Build(),
 		app.AssetAddRequest_builder{Name: "e", To: atTag("DK-1")}.Build(),
-		app.AssetAddRequest_builder{Name: "f", Since: e.in(2 * day)}.Build(),
+		app.AssetAddRequest_builder{Name: "f", DateOccurred: e.in(2 * day)}.Build(),
 		app.AssetAddRequest_builder{Name: "g", TypeName: z.Ptr("프로젝터")}.Build(),
 		app.AssetAddRequest_builder{Name: "h", Custodian: ref[app.PartyRef](kim.GetId())}.Build(),
 		app.AssetAddRequest_builder{Name: "i", Kind: "boat"}.Build(),
 	}
-	want := []string{"0 name", "1 tag", "3 tag", "4 to", "5 to", "6 since", "7 type_name", "8 custodian", "9 kind"}
+	want := []string{"0 name", "1 tag", "3 tag", "4 to", "5 to", "6 date_occurred", "7 type_name", "8 custodian", "9 kind"}
 
 	dry, err := e.app().Asset().AddMany(ctx, app.AssetAddManyRequest_builder{DryRun: true, Items: items}.Build())
 	x.NoError(err)
@@ -199,7 +199,7 @@ func TestABulkRegistrationSaysEveryIssueAndMakesNothing(t *testing.T) {
 	for _, v := range pderr.Violations(err) {
 		fields = append(fields, v.Field)
 	}
-	x.Equal([]string{"items[0].name", "items[1].tag", "items[3].tag", "items[4].to", "items[5].to", "items[6].since", "items[7].type_name", "items[8].custodian", "items[9].kind"}, fields)
+	x.Equal([]string{"items[0].name", "items[1].tag", "items[3].tag", "items[4].to", "items[5].to", "items[6].date_occurred", "items[7].type_name", "items[8].custodian", "items[9].kind"}, fields)
 	x.Equal(before, e.assets(), "nothing was made")
 	x.Empty(e.eventsOf("asset.add_many"))
 }
@@ -291,8 +291,8 @@ func TestASheetIsReadIntoItems(t *testing.T) {
 			x.Equal("PF-1", nb.GetSerial())
 			x.Empty(nb.GetTag())
 			x.Equal("SP-01", nb.GetTo().GetTag().GetTag())
-			x.Equal("2024-03-01", nb.GetAcquiredAt().AsTime().In(domain.DefaultZone).Format(time.DateOnly))
-			x.Equal("2024-03-02", nb.GetSince().AsTime().In(domain.DefaultZone).Format(time.DateOnly))
+			x.Equal("2024-03-01", nb.GetDateAcquired().AsTime().In(domain.DefaultZone).Format(time.DateOnly))
+			x.Equal("2024-03-02", nb.GetDateOccurred().AsTime().In(domain.DefaultZone).Format(time.DateOnly))
 			x.Equal("개발팀", nb.GetDesc())
 			x.Equal(map[string]string{"색상": "검정"}, nb.GetAttributes())
 			room := res.GetItems()[1]
@@ -305,6 +305,28 @@ func TestASheetIsReadIntoItems(t *testing.T) {
 			}
 			x.Equal([]string{"0 사용자", "0 비고칸", "5 취득일"}, said)
 		})
+	}
+}
+
+// TestASheetSaysAFieldByItsNameThenOrNow (D76): a header may say a column by
+// the field of `AssetAddRequest` it fills, as it is named now
+// (`date_acquired`, `date_occurred`) and as it was named before every time was
+// a `date_*` (`acquired_at`, `since`), so that a sheet made by then still
+// reads, and reads the same.
+func TestASheetSaysAFieldByItsNameThenOrNow(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+
+	for _, header := range []string{"name,acquired_at,since", "name,date_acquired,date_occurred", "NAME,Acquired_At,Since"} {
+		res, err := e.app().Asset().ReadSheet(e.owner, app.AssetReadSheetRequest_builder{
+			Data: []byte(header + "\n노트북,2024-03-01,2024-03-02\n"),
+		}.Build())
+		x.NoError(err)
+		x.Empty(res.GetIssues(), header)
+		x.Len(res.GetItems(), 1, header)
+		nb := res.GetItems()[0]
+		x.Equal("2024-03-01", nb.GetDateAcquired().AsTime().In(domain.DefaultZone).Format(time.DateOnly), header)
+		x.Equal("2024-03-02", nb.GetDateOccurred().AsTime().In(domain.DefaultZone).Format(time.DateOnly), header)
 	}
 }
 

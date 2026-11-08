@@ -24,7 +24,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/custody_svc.g.proto.
  */
 export const file_loft_custody_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Chhsb2Z0L2N1c3RvZHlfc3ZjLmcucHJvdG8SBGxvZnQikAQKEUN1c3RvZHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLmxvZnQuVGVuYW50UmVmEhMKBGRlc2MYBiABKAlCBaoBAggCEh0KBXBhcnR5GAggASgLMg4ubG9mdC5QYXJ0eVJlZhITCgRraW5kGAkgASgJQgWqAQIIAhIVCgZzdGF0dXMYCiABKAlCBaoBAggCEi0KCWlzc3VlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoGZHVlX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjMKD2Fja25vd2xlZGdlZF9hdBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLcmV0dXJuZWRfYXQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhYKDnJlc2VydmF0aW9uX2lkGBIgASgMEhEKCWlzc3VlZF9ieRgTIAEoDBIeCg9vdmVyZHVlX25vdGljZWQYFCABKAhCBaoBAggCEiQKBWxpbmVzGGQgAygLMhUubG9mdC5DdXN0b2R5TGluZVNwZWMSCgoCb3AYZSABKAwiggEKD0N1c3RvZHlMaW5lU3BlYxIdCgVhc3NldBgBIAEoCzIOLmxvZnQuQXNzZXRSZWYSHQoFc3RvY2sYAiABKAsyDi5sb2Z0LlN0b2NrUmVmEhcKCHF1YW50aXR5GAMgASgDQgWqAQIIAhIYCgljb25kaXRpb24YBCABKAlCBaoBAggCIlcKEUN1c3RvZHlHZXRSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLmxvZnQuQ3VzdG9keVJlZhIjCgZzZWxlY3QYAiABKAsyEy5sb2Z0LkN1c3RvZHlTZWxlY3QiIQoKQ3VzdG9keVJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSLkAgoNQ3VzdG9keVNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIubG9mdC5UZW5hbnRTZWxlY3QSDAoEZGVzYxgGIAEoCBIgCgVwYXJ0eRgIIAEoCzIRLmxvZnQuUGFydHlTZWxlY3QSDAoEa2luZBgJIAEoCBIOCgZzdGF0dXMYCiABKAgSEQoJaXNzdWVkX2F0GAsgASgIEg4KBmR1ZV9hdBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhcKD2Fja25vd2xlZGdlZF9hdBgQIAEoCBITCgtyZXR1cm5lZF9hdBgRIAEoCBIWCg5yZXNlcnZhdGlvbl9pZBgSIAEoCBIRCglpc3N1ZWRfYnkYEyABKAgSFwoPb3ZlcmR1ZV9ub3RpY2VkGBQgASgIIrUEChNDdXN0b2R5UGF0Y2hSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLmxvZnQuQ3VzdG9keVJlZhIMCgRkZXNjGAwgASgJEgwKBGtpbmQYEiABKAkSDgoGc3RhdHVzGBQgASgJEi0KCWlzc3VlZF9hdBgWIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoGZHVlX2F0GBggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgtkdWVfYXRfbnVsbBgZIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIzCg9hY2tub3dsZWRnZWRfYXQYICABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhwKFGFja25vd2xlZGdlZF9hdF9udWxsGCEgASgIEi8KC3JldHVybmVkX2F0GCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChByZXR1cm5lZF9hdF9udWxsGCMgASgIEhYKDnJlc2VydmF0aW9uX2lkGCQgASgMEhsKE3Jlc2VydmF0aW9uX2lkX251bGwYJSABKAgSEQoJaXNzdWVkX2J5GCYgASgMEhYKDmlzc3VlZF9ieV9udWxsGCcgASgIEhcKD292ZXJkdWVfbm90aWNlZBgoIAEoCCJRChNDdXN0b2R5QXBwbHlSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLmxvZnQuQ3VzdG9keVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiYKFEN1c3RvZHlFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCJ9ChJDdXN0b2R5TGlzdFJlcXVlc3QSJAoHZmlsdGVycxgBIAMoCzITLmxvZnQuQ3VzdG9keUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiSAoTQ3VzdG9keUxpc3RSZXNwb25zZRIcCgVpdGVtcxgBIAMoCzINLmxvZnQuQ3VzdG9keRITCgRuZXh0GAIgASgJQgWqAQIIAiKDAQoNQ3VzdG9keUZpbHRlchIdCgNyZWYYASABKAsyEC5sb2Z0LkN1c3RvZHlSZWYSHQoFcGFydHkYAiABKAsyDi5sb2Z0LlBhcnR5UmVmEg4KBnN0YXR1cxgDIAEoCRIMCgRraW5kGAQgASgJEhYKDnJlc2VydmF0aW9uX2lkGAUgASgMIlkKE0N1c3RvZHlXYXRjaFJlcXVlc3QSJAoHZmlsdGVycxgBIAMoCzITLmxvZnQuQ3VzdG9keUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI9ChRDdXN0b2R5V2F0Y2hSZXNwb25zZRIlCgVpdGVtcxgBIAMoCzIWLmxvZnQuQ3VzdG9keVdhdGNoSXRlbSJTChBDdXN0b2R5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhwKBXZhbHVlGAIgASgLMg0ubG9mdC5DdXN0b2R5EhUKBmFjdGlvbhgDIAEoCUIFqgECCAIiOgoZQ3VzdG9keUFja25vd2xlZGdlUmVxdWVzdBIdCgNyZWYYASABKAsyEC5sb2Z0LkN1c3RvZHlSZWYitAEKFEN1c3RvZHlSZXR1cm5SZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLmxvZnQuQ3VzdG9keVJlZhImCgVsaW5lcxgCIAMoCzIXLmxvZnQuQ3VzdG9keVJldHVybkxpbmUSJgoCYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKAnRvGAQgASgLMg4ubG9mdC5Bc3NldFJlZhIRCgJvcBgFIAEoDEIFqgECCAIiagoRQ3VzdG9keVJldHVybkxpbmUSIgoEbGluZRgBIAEoCzIULmxvZnQuQ3VzdG9keUxpbmVSZWYSFwoIcXVhbnRpdHkYAiABKANCBaoBAggCEhgKCWNvbmRpdGlvbhgDIAEoCUIFqgECCAIiJQoOQ3VzdG9keUxpbmVSZWYSDAoCaWQYASABKAxIAEIFCgNrZXkiYQoUQ3VzdG9keUV4dGVuZFJlcXVlc3QSHQoDcmVmGAEgASgLMhAubG9mdC5DdXN0b2R5UmVmEioKBmR1ZV9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAidAoZQ3VzdG9keU91dHN0YW5kaW5nUmVxdWVzdBIWCgdvdmVyZHVlGAEgASgIQgWqAQIIAhITCgRraW5kGAIgASgJQgWqAQIIAhITCgRzaXplGAMgASgNQgWqAQIIAhIVCgZvZmZzZXQYBCABKA1CBaoBAggCIvwBChpDdXN0b2R5T3V0c3RhbmRpbmdSZXNwb25zZRIpCgRyb3dzGAEgAygLMhsubG9mdC5DdXN0b2R5T3V0c3RhbmRpbmdSb3cSFAoFdG90YWwYAiABKA1CBaoBAggCEhgKCWN1c3RvZGllcxgDIAEoDUIFqgECCAISFgoHb3ZlcmR1ZRgEIAEoDUIFqgECCAISFQoGcGVvcGxlGAUgASgNQgWqAQIIAhIVCgZhc3NldHMYBiABKA1CBaoBAggCEhUKBnN0b2NrcxgHIAEoDUIFqgECCAISJgoCYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIvADChVDdXN0b2R5T3V0c3RhbmRpbmdSb3cSGQoKY3VzdG9keV9pZBgBIAEoDEIFqgECCAISFgoHbGluZV9pZBgCIAEoDEIFqgECCAISEwoEa2luZBgDIAEoCUIFqgECCAISFwoIcGFydHlfaWQYBCABKAxCBaoBAggCEhkKCnBhcnR5X25hbWUYBSABKAlCBaoBAggCEhcKCGFzc2V0X2lkGAYgASgMQgWqAQIIAhIYCglhc3NldF90YWcYByABKAlCBaoBAggCEhkKCmFzc2V0X25hbWUYCCABKAlCBaoBAggCEhcKCHN0b2NrX2lkGAkgASgMQgWqAQIIAhIZCgpzdG9ja19uYW1lGAogASgJQgWqAQIIAhIXCghxdWFudGl0eRgLIAEoA0IFqgECCAISEwoEdW5pdBgMIAEoCUIFqgECCAISLQoJaXNzdWVkX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIqCgZkdWVfYXQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhYKB292ZXJkdWUYDyABKAhCBaoBAggCEhsKDG92ZXJkdWVfZGF5cxgQIAEoDUIFqgECCAISGwoMYWNrbm93bGVkZ2VkGBEgASgIQgWqAQIIAiKqAwoVQ3VzdG9keUxpbmVBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLmxvZnQuVGVuYW50UmVmEiEKB2N1c3RvZHkYCCABKAsyEC5sb2Z0LkN1c3RvZHlSZWYSHQoFYXNzZXQYCSABKAsyDi5sb2Z0LkFzc2V0UmVmEh0KBXN0b2NrGAogASgLMg4ubG9mdC5TdG9ja1JlZhIXCghxdWFudGl0eRgLIAEoA0IFqgECCAISIAoRcmV0dXJuZWRfcXVhbnRpdHkYDCABKANCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoGb3V0X2F0GBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtyZXR1cm5lZF9hdBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASHAoNY29uZGl0aW9uX291dBgSIAEoCUIFqgECCAISGwoMY29uZGl0aW9uX2luGBMgASgJQgWqAQIIAiJjChVDdXN0b2R5TGluZUdldFJlcXVlc3QSIQoDcmVmGAEgASgLMhQubG9mdC5DdXN0b2R5TGluZVJlZhInCgZzZWxlY3QYAiABKAsyFy5sb2Z0LkN1c3RvZHlMaW5lU2VsZWN0ItkCChFDdXN0b2R5TGluZVNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIubG9mdC5UZW5hbnRTZWxlY3QSJAoHY3VzdG9keRgIIAEoCzITLmxvZnQuQ3VzdG9keVNlbGVjdBIgCgVhc3NldBgJIAEoCzIRLmxvZnQuQXNzZXRTZWxlY3QSIAoFc3RvY2sYCiABKAsyES5sb2Z0LlN0b2NrU2VsZWN0EhAKCHF1YW50aXR5GAsgASgIEhkKEXJldHVybmVkX3F1YW50aXR5GAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDgoGb3V0X2F0GBAgASgIEhMKC3JldHVybmVkX2F0GBEgASgIEhUKDWNvbmRpdGlvbl9vdXQYEiABKAgSFAoMY29uZGl0aW9uX2luGBMgASgIItsCChdDdXN0b2R5TGluZVBhdGNoUmVxdWVzdBIhCgNyZWYYASABKAsyFC5sb2Z0LkN1c3RvZHlMaW5lUmVmEhAKCHF1YW50aXR5GBYgASgDEhkKEXJldHVybmVkX3F1YW50aXR5GBggASgDEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIEioKBm91dF9hdBggIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLcmV0dXJuZWRfYXQYIiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEHJldHVybmVkX2F0X251bGwYIyABKAgSFQoNY29uZGl0aW9uX291dBgkIAEoCRIUCgxjb25kaXRpb25faW4YJiABKAkiWQoXQ3VzdG9keUxpbmVBcHBseVJlcXVlc3QSIQoDcmVmGAEgASgLMhQubG9mdC5DdXN0b2R5TGluZVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIioKGEN1c3RvZHlMaW5lRXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgihQEKFkN1c3RvZHlMaW5lTGlzdFJlcXVlc3QSKAoHZmlsdGVycxgBIAMoCzIXLmxvZnQuQ3VzdG9keUxpbmVGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIlAKF0N1c3RvZHlMaW5lTGlzdFJlc3BvbnNlEiAKBWl0ZW1zGAEgAygLMhEubG9mdC5DdXN0b2R5TGluZRITCgRuZXh0GAIgASgJQgWqAQIIAiKXAQoRQ3VzdG9keUxpbmVGaWx0ZXISIQoDcmVmGAEgASgLMhQubG9mdC5DdXN0b2R5TGluZVJlZhIhCgdjdXN0b2R5GAIgASgLMhAubG9mdC5DdXN0b2R5UmVmEh0KBWFzc2V0GAMgASgLMg4ubG9mdC5Bc3NldFJlZhIdCgVzdG9jaxgEIAEoCzIOLmxvZnQuU3RvY2tSZWYy1gUKDkN1c3RvZHlTZXJ2aWNlEi0KA0FkZBIXLmxvZnQuQ3VzdG9keUFkZFJlcXVlc3QaDS5sb2Z0LkN1c3RvZHkSLQoDR2V0EhcubG9mdC5DdXN0b2R5R2V0UmVxdWVzdBoNLmxvZnQuQ3VzdG9keRIxCgVQYXRjaBIZLmxvZnQuQ3VzdG9keVBhdGNoUmVxdWVzdBoNLmxvZnQuQ3VzdG9keRIxCgVBcHBseRIZLmxvZnQuQ3VzdG9keUFwcGx5UmVxdWVzdBoNLmxvZnQuQ3VzdG9keRI1CgVFcmFzZRIQLmxvZnQuQ3VzdG9keVJlZhoaLmxvZnQuQ3VzdG9keUVyYXNlUmVzcG9uc2USOwoETGlzdBIYLmxvZnQuQ3VzdG9keUxpc3RSZXF1ZXN0GhkubG9mdC5DdXN0b2R5TGlzdFJlc3BvbnNlEkAKBVdhdGNoEhkubG9mdC5DdXN0b2R5V2F0Y2hSZXF1ZXN0GhoubG9mdC5DdXN0b2R5V2F0Y2hSZXNwb25zZTABEj0KC0Fja25vd2xlZGdlEh8ubG9mdC5DdXN0b2R5QWNrbm93bGVkZ2VSZXF1ZXN0Gg0ubG9mdC5DdXN0b2R5EjMKBlJldHVybhIaLmxvZnQuQ3VzdG9keVJldHVyblJlcXVlc3QaDS5sb2Z0LkN1c3RvZHkSMwoGRXh0ZW5kEhoubG9mdC5DdXN0b2R5RXh0ZW5kUmVxdWVzdBoNLmxvZnQuQ3VzdG9keRJQCgtPdXRzdGFuZGluZxIfLmxvZnQuQ3VzdG9keU91dHN0YW5kaW5nUmVxdWVzdBogLmxvZnQuQ3VzdG9keU91dHN0YW5kaW5nUmVzcG9uc2USTwoRRXhwb3J0T3V0c3RhbmRpbmcSHy5sb2Z0LkN1c3RvZHlPdXRzdGFuZGluZ1JlcXVlc3QaGS5sb2Z0LkFzc2V0RXhwb3J0UmVzcG9uc2Uy/AIKEkN1c3RvZHlMaW5lU2VydmljZRI1CgNBZGQSGy5sb2Z0LkN1c3RvZHlMaW5lQWRkUmVxdWVzdBoRLmxvZnQuQ3VzdG9keUxpbmUSNQoDR2V0EhsubG9mdC5DdXN0b2R5TGluZUdldFJlcXVlc3QaES5sb2Z0LkN1c3RvZHlMaW5lEjkKBVBhdGNoEh0ubG9mdC5DdXN0b2R5TGluZVBhdGNoUmVxdWVzdBoRLmxvZnQuQ3VzdG9keUxpbmUSOQoFQXBwbHkSHS5sb2Z0LkN1c3RvZHlMaW5lQXBwbHlSZXF1ZXN0GhEubG9mdC5DdXN0b2R5TGluZRI9CgVFcmFzZRIULmxvZnQuQ3VzdG9keUxpbmVSZWYaHi5sb2Z0LkN1c3RvZHlMaW5lRXJhc2VSZXNwb25zZRJDCgRMaXN0EhwubG9mdC5DdXN0b2R5TGluZUxpc3RSZXF1ZXN0Gh0ubG9mdC5DdXN0b2R5TGluZUxpc3RSZXNwb25zZUIaWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnRiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_loft_asset_svc_g, file_loft_custody, file_loft_org_svc_g, file_loft_payday_tenant_svc_g, file_loft_stock_svc_g, file_patch_patch]);
+  fileDesc("Chhsb2Z0L2N1c3RvZHlfc3ZjLmcucHJvdG8SBGxvZnQimAQKEUN1c3RvZHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLmxvZnQuVGVuYW50UmVmEhMKBGRlc2MYBiABKAlCBaoBAggCEh0KBXBhcnR5GAggASgLMg4ubG9mdC5QYXJ0eVJlZhITCgRraW5kGAkgASgJQgWqAQIIAhIVCgZzdGF0dXMYCiABKAlCBaoBAggCEi8KC2RhdGVfaXNzdWVkGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghkYXRlX2R1ZRgMIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI1ChFkYXRlX2Fja25vd2xlZGdlZBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMQoNZGF0ZV9yZXR1cm5lZBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFgoOcmVzZXJ2YXRpb25faWQYEiABKAwSEQoJaXNzdWVkX2J5GBMgASgMEh4KD292ZXJkdWVfbm90aWNlZBgUIAEoCEIFqgECCAISJAoFbGluZXMYZCADKAsyFS5sb2Z0LkN1c3RvZHlMaW5lU3BlYxIKCgJvcBhlIAEoDCKCAQoPQ3VzdG9keUxpbmVTcGVjEh0KBWFzc2V0GAEgASgLMg4ubG9mdC5Bc3NldFJlZhIdCgVzdG9jaxgCIAEoCzIOLmxvZnQuU3RvY2tSZWYSFwoIcXVhbnRpdHkYAyABKANCBaoBAggCEhgKCWNvbmRpdGlvbhgEIAEoCUIFqgECCAIiVwoRQ3VzdG9keUdldFJlcXVlc3QSHQoDcmVmGAEgASgLMhAubG9mdC5DdXN0b2R5UmVmEiMKBnNlbGVjdBgCIAEoCzITLmxvZnQuQ3VzdG9keVNlbGVjdCIhCgpDdXN0b2R5UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IuwCCg1DdXN0b2R5U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5sb2Z0LlRlbmFudFNlbGVjdBIMCgRkZXNjGAYgASgIEiAKBXBhcnR5GAggASgLMhEubG9mdC5QYXJ0eVNlbGVjdBIMCgRraW5kGAkgASgIEg4KBnN0YXR1cxgKIAEoCBITCgtkYXRlX2lzc3VlZBgLIAEoCBIQCghkYXRlX2R1ZRgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhkKEWRhdGVfYWNrbm93bGVkZ2VkGBAgASgIEhUKDWRhdGVfcmV0dXJuZWQYESABKAgSFgoOcmVzZXJ2YXRpb25faWQYEiABKAgSEQoJaXNzdWVkX2J5GBMgASgIEhcKD292ZXJkdWVfbm90aWNlZBgUIAEoCCLDBAoTQ3VzdG9keVBhdGNoUmVxdWVzdBIdCgNyZWYYASABKAsyEC5sb2Z0LkN1c3RvZHlSZWYSDAoEZGVzYxgMIAEoCRIMCgRraW5kGBIgASgJEg4KBnN0YXR1cxgUIAEoCRIvCgtkYXRlX2lzc3VlZBgWIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9kdWUYGCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhUKDWRhdGVfZHVlX251bGwYGSABKAgSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSNQoRZGF0ZV9hY2tub3dsZWRnZWQYICABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh4KFmRhdGVfYWNrbm93bGVkZ2VkX251bGwYISABKAgSMQoNZGF0ZV9yZXR1cm5lZBgiIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV9yZXR1cm5lZF9udWxsGCMgASgIEhYKDnJlc2VydmF0aW9uX2lkGCQgASgMEhsKE3Jlc2VydmF0aW9uX2lkX251bGwYJSABKAgSEQoJaXNzdWVkX2J5GCYgASgMEhYKDmlzc3VlZF9ieV9udWxsGCcgASgIEhcKD292ZXJkdWVfbm90aWNlZBgoIAEoCCJRChNDdXN0b2R5QXBwbHlSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLmxvZnQuQ3VzdG9keVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiYKFEN1c3RvZHlFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCJ9ChJDdXN0b2R5TGlzdFJlcXVlc3QSJAoHZmlsdGVycxgBIAMoCzITLmxvZnQuQ3VzdG9keUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiSAoTQ3VzdG9keUxpc3RSZXNwb25zZRIcCgVpdGVtcxgBIAMoCzINLmxvZnQuQ3VzdG9keRITCgRuZXh0GAIgASgJQgWqAQIIAiKDAQoNQ3VzdG9keUZpbHRlchIdCgNyZWYYASABKAsyEC5sb2Z0LkN1c3RvZHlSZWYSHQoFcGFydHkYAiABKAsyDi5sb2Z0LlBhcnR5UmVmEg4KBnN0YXR1cxgDIAEoCRIMCgRraW5kGAQgASgJEhYKDnJlc2VydmF0aW9uX2lkGAUgASgMIlkKE0N1c3RvZHlXYXRjaFJlcXVlc3QSJAoHZmlsdGVycxgBIAMoCzITLmxvZnQuQ3VzdG9keUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI9ChRDdXN0b2R5V2F0Y2hSZXNwb25zZRIlCgVpdGVtcxgBIAMoCzIWLmxvZnQuQ3VzdG9keVdhdGNoSXRlbSJTChBDdXN0b2R5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhwKBXZhbHVlGAIgASgLMg0ubG9mdC5DdXN0b2R5EhUKBmFjdGlvbhgDIAEoCUIFqgECCAIiOgoZQ3VzdG9keUFja25vd2xlZGdlUmVxdWVzdBIdCgNyZWYYASABKAsyEC5sb2Z0LkN1c3RvZHlSZWYivwEKFEN1c3RvZHlSZXR1cm5SZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLmxvZnQuQ3VzdG9keVJlZhImCgVsaW5lcxgCIAMoCzIXLmxvZnQuQ3VzdG9keVJldHVybkxpbmUSMQoNZGF0ZV9vY2N1cnJlZBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoCdG8YBCABKAsyDi5sb2Z0LkFzc2V0UmVmEhEKAm9wGAUgASgMQgWqAQIIAiJqChFDdXN0b2R5UmV0dXJuTGluZRIiCgRsaW5lGAEgASgLMhQubG9mdC5DdXN0b2R5TGluZVJlZhIXCghxdWFudGl0eRgCIAEoA0IFqgECCAISGAoJY29uZGl0aW9uGAMgASgJQgWqAQIIAiIlCg5DdXN0b2R5TGluZVJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSJjChRDdXN0b2R5RXh0ZW5kUmVxdWVzdBIdCgNyZWYYASABKAsyEC5sb2Z0LkN1c3RvZHlSZWYSLAoIZGF0ZV9kdWUYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wInQKGUN1c3RvZHlPdXRzdGFuZGluZ1JlcXVlc3QSFgoHb3ZlcmR1ZRgBIAEoCEIFqgECCAISEwoEa2luZBgCIAEoCUIFqgECCAISEwoEc2l6ZRgDIAEoDUIFqgECCAISFQoGb2Zmc2V0GAQgASgNQgWqAQIIAiKEAgoaQ3VzdG9keU91dHN0YW5kaW5nUmVzcG9uc2USKQoEcm93cxgBIAMoCzIbLmxvZnQuQ3VzdG9keU91dHN0YW5kaW5nUm93EhQKBXRvdGFsGAIgASgNQgWqAQIIAhIYCgljdXN0b2RpZXMYAyABKA1CBaoBAggCEhYKB292ZXJkdWUYBCABKA1CBaoBAggCEhUKBnBlb3BsZRgFIAEoDUIFqgECCAISFQoGYXNzZXRzGAYgASgNQgWqAQIIAhIVCgZzdG9ja3MYByABKA1CBaoBAggCEi4KCmRhdGVfYXNfb2YYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIvQDChVDdXN0b2R5T3V0c3RhbmRpbmdSb3cSGQoKY3VzdG9keV9pZBgBIAEoDEIFqgECCAISFgoHbGluZV9pZBgCIAEoDEIFqgECCAISEwoEa2luZBgDIAEoCUIFqgECCAISFwoIcGFydHlfaWQYBCABKAxCBaoBAggCEhkKCnBhcnR5X25hbWUYBSABKAlCBaoBAggCEhcKCGFzc2V0X2lkGAYgASgMQgWqAQIIAhIYCglhc3NldF90YWcYByABKAlCBaoBAggCEhkKCmFzc2V0X25hbWUYCCABKAlCBaoBAggCEhcKCHN0b2NrX2lkGAkgASgMQgWqAQIIAhIZCgpzdG9ja19uYW1lGAogASgJQgWqAQIIAhIXCghxdWFudGl0eRgLIAEoA0IFqgECCAISEwoEdW5pdBgMIAEoCUIFqgECCAISLwoLZGF0ZV9pc3N1ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRhdGVfZHVlGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCgdvdmVyZHVlGA8gASgIQgWqAQIIAhIbCgxvdmVyZHVlX2RheXMYECABKA1CBaoBAggCEhsKDGFja25vd2xlZGdlZBgRIAEoCEIFqgECCAIirgMKFUN1c3RvZHlMaW5lQWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5sb2Z0LlRlbmFudFJlZhIhCgdjdXN0b2R5GAggASgLMhAubG9mdC5DdXN0b2R5UmVmEh0KBWFzc2V0GAkgASgLMg4ubG9mdC5Bc3NldFJlZhIdCgVzdG9jaxgKIAEoCzIOLmxvZnQuU3RvY2tSZWYSFwoIcXVhbnRpdHkYCyABKANCBaoBAggCEiAKEXJldHVybmVkX3F1YW50aXR5GAwgASgDQgWqAQIIAhIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRhdGVfb3V0GBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIxCg1kYXRlX3JldHVybmVkGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIcCg1jb25kaXRpb25fb3V0GBIgASgJQgWqAQIIAhIbCgxjb25kaXRpb25faW4YEyABKAlCBaoBAggCImMKFUN1c3RvZHlMaW5lR2V0UmVxdWVzdBIhCgNyZWYYASABKAsyFC5sb2Z0LkN1c3RvZHlMaW5lUmVmEicKBnNlbGVjdBgCIAEoCzIXLmxvZnQuQ3VzdG9keUxpbmVTZWxlY3Qi3QIKEUN1c3RvZHlMaW5lU2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5sb2Z0LlRlbmFudFNlbGVjdBIkCgdjdXN0b2R5GAggASgLMhMubG9mdC5DdXN0b2R5U2VsZWN0EiAKBWFzc2V0GAkgASgLMhEubG9mdC5Bc3NldFNlbGVjdBIgCgVzdG9jaxgKIAEoCzIRLmxvZnQuU3RvY2tTZWxlY3QSEAoIcXVhbnRpdHkYCyABKAgSGQoRcmV0dXJuZWRfcXVhbnRpdHkYDCABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBIQCghkYXRlX291dBgQIAEoCBIVCg1kYXRlX3JldHVybmVkGBEgASgIEhUKDWNvbmRpdGlvbl9vdXQYEiABKAgSFAoMY29uZGl0aW9uX2luGBMgASgIIuECChdDdXN0b2R5TGluZVBhdGNoUmVxdWVzdBIhCgNyZWYYASABKAsyFC5sb2Z0LkN1c3RvZHlMaW5lUmVmEhAKCHF1YW50aXR5GBYgASgDEhkKEXJldHVybmVkX3F1YW50aXR5GBggASgDEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIEiwKCGRhdGVfb3V0GCAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIxCg1kYXRlX3JldHVybmVkGCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3JldHVybmVkX251bGwYIyABKAgSFQoNY29uZGl0aW9uX291dBgkIAEoCRIUCgxjb25kaXRpb25faW4YJiABKAkiWQoXQ3VzdG9keUxpbmVBcHBseVJlcXVlc3QSIQoDcmVmGAEgASgLMhQubG9mdC5DdXN0b2R5TGluZVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIioKGEN1c3RvZHlMaW5lRXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgihQEKFkN1c3RvZHlMaW5lTGlzdFJlcXVlc3QSKAoHZmlsdGVycxgBIAMoCzIXLmxvZnQuQ3VzdG9keUxpbmVGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIlAKF0N1c3RvZHlMaW5lTGlzdFJlc3BvbnNlEiAKBWl0ZW1zGAEgAygLMhEubG9mdC5DdXN0b2R5TGluZRITCgRuZXh0GAIgASgJQgWqAQIIAiKXAQoRQ3VzdG9keUxpbmVGaWx0ZXISIQoDcmVmGAEgASgLMhQubG9mdC5DdXN0b2R5TGluZVJlZhIhCgdjdXN0b2R5GAIgASgLMhAubG9mdC5DdXN0b2R5UmVmEh0KBWFzc2V0GAMgASgLMg4ubG9mdC5Bc3NldFJlZhIdCgVzdG9jaxgEIAEoCzIOLmxvZnQuU3RvY2tSZWYy1gUKDkN1c3RvZHlTZXJ2aWNlEi0KA0FkZBIXLmxvZnQuQ3VzdG9keUFkZFJlcXVlc3QaDS5sb2Z0LkN1c3RvZHkSLQoDR2V0EhcubG9mdC5DdXN0b2R5R2V0UmVxdWVzdBoNLmxvZnQuQ3VzdG9keRIxCgVQYXRjaBIZLmxvZnQuQ3VzdG9keVBhdGNoUmVxdWVzdBoNLmxvZnQuQ3VzdG9keRIxCgVBcHBseRIZLmxvZnQuQ3VzdG9keUFwcGx5UmVxdWVzdBoNLmxvZnQuQ3VzdG9keRI1CgVFcmFzZRIQLmxvZnQuQ3VzdG9keVJlZhoaLmxvZnQuQ3VzdG9keUVyYXNlUmVzcG9uc2USOwoETGlzdBIYLmxvZnQuQ3VzdG9keUxpc3RSZXF1ZXN0GhkubG9mdC5DdXN0b2R5TGlzdFJlc3BvbnNlEkAKBVdhdGNoEhkubG9mdC5DdXN0b2R5V2F0Y2hSZXF1ZXN0GhoubG9mdC5DdXN0b2R5V2F0Y2hSZXNwb25zZTABEj0KC0Fja25vd2xlZGdlEh8ubG9mdC5DdXN0b2R5QWNrbm93bGVkZ2VSZXF1ZXN0Gg0ubG9mdC5DdXN0b2R5EjMKBlJldHVybhIaLmxvZnQuQ3VzdG9keVJldHVyblJlcXVlc3QaDS5sb2Z0LkN1c3RvZHkSMwoGRXh0ZW5kEhoubG9mdC5DdXN0b2R5RXh0ZW5kUmVxdWVzdBoNLmxvZnQuQ3VzdG9keRJQCgtPdXRzdGFuZGluZxIfLmxvZnQuQ3VzdG9keU91dHN0YW5kaW5nUmVxdWVzdBogLmxvZnQuQ3VzdG9keU91dHN0YW5kaW5nUmVzcG9uc2USTwoRRXhwb3J0T3V0c3RhbmRpbmcSHy5sb2Z0LkN1c3RvZHlPdXRzdGFuZGluZ1JlcXVlc3QaGS5sb2Z0LkFzc2V0RXhwb3J0UmVzcG9uc2Uy/AIKEkN1c3RvZHlMaW5lU2VydmljZRI1CgNBZGQSGy5sb2Z0LkN1c3RvZHlMaW5lQWRkUmVxdWVzdBoRLmxvZnQuQ3VzdG9keUxpbmUSNQoDR2V0EhsubG9mdC5DdXN0b2R5TGluZUdldFJlcXVlc3QaES5sb2Z0LkN1c3RvZHlMaW5lEjkKBVBhdGNoEh0ubG9mdC5DdXN0b2R5TGluZVBhdGNoUmVxdWVzdBoRLmxvZnQuQ3VzdG9keUxpbmUSOQoFQXBwbHkSHS5sb2Z0LkN1c3RvZHlMaW5lQXBwbHlSZXF1ZXN0GhEubG9mdC5DdXN0b2R5TGluZRI9CgVFcmFzZRIULmxvZnQuQ3VzdG9keUxpbmVSZWYaHi5sb2Z0LkN1c3RvZHlMaW5lRXJhc2VSZXNwb25zZRJDCgRMaXN0EhwubG9mdC5DdXN0b2R5TGluZUxpc3RSZXF1ZXN0Gh0ubG9mdC5DdXN0b2R5TGluZUxpc3RSZXNwb25zZUIaWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnRiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_loft_asset_svc_g, file_loft_custody, file_loft_org_svc_g, file_loft_payday_tenant_svc_g, file_loft_stock_svc_g, file_patch_patch]);
 
 /**
  * @generated from message loft.CustodyAddRequest
@@ -61,14 +61,14 @@ export type CustodyAddRequest = Message<"loft.CustodyAddRequest"> & {
   status: string;
 
   /**
-   * @generated from field: google.protobuf.Timestamp issued_at = 11;
+   * @generated from field: google.protobuf.Timestamp date_issued = 11;
    */
-  issuedAt?: Timestamp | undefined;
+  dateIssued?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp due_at = 12;
+   * @generated from field: google.protobuf.Timestamp date_due = 12;
    */
-  dueAt?: Timestamp | undefined;
+  dateDue?: Timestamp | undefined;
 
   /**
    * @generated from field: google.protobuf.Timestamp date_created = 15;
@@ -76,14 +76,14 @@ export type CustodyAddRequest = Message<"loft.CustodyAddRequest"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp acknowledged_at = 16;
+   * @generated from field: google.protobuf.Timestamp date_acknowledged = 16;
    */
-  acknowledgedAt?: Timestamp | undefined;
+  dateAcknowledged?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp returned_at = 17;
+   * @generated from field: google.protobuf.Timestamp date_returned = 17;
    */
-  returnedAt?: Timestamp | undefined;
+  dateReturned?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes reservation_id = 18;
@@ -230,14 +230,14 @@ export type CustodySelect = Message<"loft.CustodySelect"> & {
   status: boolean;
 
   /**
-   * @generated from field: bool issued_at = 11;
+   * @generated from field: bool date_issued = 11;
    */
-  issuedAt: boolean;
+  dateIssued: boolean;
 
   /**
-   * @generated from field: bool due_at = 12;
+   * @generated from field: bool date_due = 12;
    */
-  dueAt: boolean;
+  dateDue: boolean;
 
   /**
    * @generated from field: bool date_updated = 13;
@@ -255,14 +255,14 @@ export type CustodySelect = Message<"loft.CustodySelect"> & {
   dateCreated: boolean;
 
   /**
-   * @generated from field: bool acknowledged_at = 16;
+   * @generated from field: bool date_acknowledged = 16;
    */
-  acknowledgedAt: boolean;
+  dateAcknowledged: boolean;
 
   /**
-   * @generated from field: bool returned_at = 17;
+   * @generated from field: bool date_returned = 17;
    */
-  returnedAt: boolean;
+  dateReturned: boolean;
 
   /**
    * @generated from field: bool reservation_id = 18;
@@ -312,24 +312,24 @@ export type CustodyPatchRequest = Message<"loft.CustodyPatchRequest"> & {
   status: string;
 
   /**
-   * @generated from field: google.protobuf.Timestamp issued_at = 22;
+   * @generated from field: google.protobuf.Timestamp date_issued = 22;
    */
-  issuedAt?: Timestamp | undefined;
+  dateIssued?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp due_at = 24;
+   * @generated from field: google.protobuf.Timestamp date_due = 24;
    */
-  dueAt?: Timestamp | undefined;
+  dateDue?: Timestamp | undefined;
 
   /**
-   * Clear due_at instead of writing it.
+   * Clear date_due instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and due_at clears.
+   * outright: setting both this and date_due clears.
    *
-   * @generated from field: bool due_at_null = 25;
+   * @generated from field: bool date_due_null = 25;
    */
-  dueAtNull: boolean;
+  dateDueNull: boolean;
 
   /**
    * The version this update requires the stored date_updated to be.
@@ -356,34 +356,34 @@ export type CustodyPatchRequest = Message<"loft.CustodyPatchRequest"> & {
   dateUpdatedForce: boolean;
 
   /**
-   * @generated from field: google.protobuf.Timestamp acknowledged_at = 32;
+   * @generated from field: google.protobuf.Timestamp date_acknowledged = 32;
    */
-  acknowledgedAt?: Timestamp | undefined;
+  dateAcknowledged?: Timestamp | undefined;
 
   /**
-   * Clear acknowledged_at instead of writing it.
+   * Clear date_acknowledged instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and acknowledged_at clears.
+   * outright: setting both this and date_acknowledged clears.
    *
-   * @generated from field: bool acknowledged_at_null = 33;
+   * @generated from field: bool date_acknowledged_null = 33;
    */
-  acknowledgedAtNull: boolean;
+  dateAcknowledgedNull: boolean;
 
   /**
-   * @generated from field: google.protobuf.Timestamp returned_at = 34;
+   * @generated from field: google.protobuf.Timestamp date_returned = 34;
    */
-  returnedAt?: Timestamp | undefined;
+  dateReturned?: Timestamp | undefined;
 
   /**
-   * Clear returned_at instead of writing it.
+   * Clear date_returned instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and returned_at clears.
+   * outright: setting both this and date_returned clears.
    *
-   * @generated from field: bool returned_at_null = 35;
+   * @generated from field: bool date_returned_null = 35;
    */
-  returnedAtNull: boolean;
+  dateReturnedNull: boolean;
 
   /**
    * @generated from field: bytes reservation_id = 36;
@@ -725,9 +725,9 @@ export type CustodyReturnRequest = Message<"loft.CustodyReturnRequest"> & {
   lines: CustodyReturnLine[];
 
   /**
-   * @generated from field: google.protobuf.Timestamp at = 3;
+   * @generated from field: google.protobuf.Timestamp date_occurred = 3;
    */
-  at?: Timestamp | undefined;
+  dateOccurred?: Timestamp | undefined;
 
   /**
    * Where the returned assets go.
@@ -809,9 +809,9 @@ export type CustodyExtendRequest = Message<"loft.CustodyExtendRequest"> & {
   ref?: CustodyRef | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp due_at = 2;
+   * @generated from field: google.protobuf.Timestamp date_due = 2;
    */
-  dueAt?: Timestamp | undefined;
+  dateDue?: Timestamp | undefined;
 };
 
 /**
@@ -912,9 +912,9 @@ export type CustodyOutstandingResponse = Message<"loft.CustodyOutstandingRespons
   /**
    * When it was read, which what is overdue is overdue at.
    *
-   * @generated from field: google.protobuf.Timestamp at = 8;
+   * @generated from field: google.protobuf.Timestamp date_as_of = 8;
    */
-  at?: Timestamp | undefined;
+  dateAsOf?: Timestamp | undefined;
 };
 
 /**
@@ -1001,14 +1001,14 @@ export type CustodyOutstandingRow = Message<"loft.CustodyOutstandingRow"> & {
   unit: string;
 
   /**
-   * @generated from field: google.protobuf.Timestamp issued_at = 13;
+   * @generated from field: google.protobuf.Timestamp date_issued = 13;
    */
-  issuedAt?: Timestamp | undefined;
+  dateIssued?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp due_at = 14;
+   * @generated from field: google.protobuf.Timestamp date_due = 14;
    */
-  dueAt?: Timestamp | undefined;
+  dateDue?: Timestamp | undefined;
 
   /**
    * Past its due date, and by how many of the workspace's days: one due
@@ -1083,14 +1083,14 @@ export type CustodyLineAddRequest = Message<"loft.CustodyLineAddRequest"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp out_at = 16;
+   * @generated from field: google.protobuf.Timestamp date_out = 16;
    */
-  outAt?: Timestamp | undefined;
+  dateOut?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp returned_at = 17;
+   * @generated from field: google.protobuf.Timestamp date_returned = 17;
    */
-  returnedAt?: Timestamp | undefined;
+  dateReturned?: Timestamp | undefined;
 
   /**
    * @generated from field: string condition_out = 18 [features.field_presence = IMPLICIT];
@@ -1182,14 +1182,14 @@ export type CustodyLineSelect = Message<"loft.CustodyLineSelect"> & {
   dateCreated: boolean;
 
   /**
-   * @generated from field: bool out_at = 16;
+   * @generated from field: bool date_out = 16;
    */
-  outAt: boolean;
+  dateOut: boolean;
 
   /**
-   * @generated from field: bool returned_at = 17;
+   * @generated from field: bool date_returned = 17;
    */
-  returnedAt: boolean;
+  dateReturned: boolean;
 
   /**
    * @generated from field: bool condition_out = 18;
@@ -1253,24 +1253,24 @@ export type CustodyLinePatchRequest = Message<"loft.CustodyLinePatchRequest"> & 
   dateUpdatedForce: boolean;
 
   /**
-   * @generated from field: google.protobuf.Timestamp out_at = 32;
+   * @generated from field: google.protobuf.Timestamp date_out = 32;
    */
-  outAt?: Timestamp | undefined;
+  dateOut?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp returned_at = 34;
+   * @generated from field: google.protobuf.Timestamp date_returned = 34;
    */
-  returnedAt?: Timestamp | undefined;
+  dateReturned?: Timestamp | undefined;
 
   /**
-   * Clear returned_at instead of writing it.
+   * Clear date_returned instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and returned_at clears.
+   * outright: setting both this and date_returned clears.
    *
-   * @generated from field: bool returned_at_null = 35;
+   * @generated from field: bool date_returned_null = 35;
    */
-  returnedAtNull: boolean;
+  dateReturnedNull: boolean;
 
   /**
    * @generated from field: string condition_out = 36;

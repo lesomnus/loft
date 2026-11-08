@@ -133,43 +133,43 @@ func (_u *DomainUpdate) ClearDateErased() *DomainUpdate {
 	return _u
 }
 
-// SetVerifiedAt sets the "verified_at" field.
-func (_u *DomainUpdate) SetVerifiedAt(v time.Time) *DomainUpdate {
-	_u.mutation.SetVerifiedAt(v)
+// SetDateVerified sets the "date_verified" field.
+func (_u *DomainUpdate) SetDateVerified(v time.Time) *DomainUpdate {
+	_u.mutation.SetDateVerified(v)
 	return _u
 }
 
-// SetNillableVerifiedAt sets the "verified_at" field if the given value is not nil.
-func (_u *DomainUpdate) SetNillableVerifiedAt(v *time.Time) *DomainUpdate {
+// SetNillableDateVerified sets the "date_verified" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableDateVerified(v *time.Time) *DomainUpdate {
 	if v != nil {
-		_u.SetVerifiedAt(*v)
+		_u.SetDateVerified(*v)
 	}
 	return _u
 }
 
-// ClearVerifiedAt clears the value of the "verified_at" field.
-func (_u *DomainUpdate) ClearVerifiedAt() *DomainUpdate {
-	_u.mutation.ClearVerifiedAt()
+// ClearDateVerified clears the value of the "date_verified" field.
+func (_u *DomainUpdate) ClearDateVerified() *DomainUpdate {
+	_u.mutation.ClearDateVerified()
 	return _u
 }
 
-// SetCheckedAt sets the "checked_at" field.
-func (_u *DomainUpdate) SetCheckedAt(v time.Time) *DomainUpdate {
-	_u.mutation.SetCheckedAt(v)
+// SetDateChecked sets the "date_checked" field.
+func (_u *DomainUpdate) SetDateChecked(v time.Time) *DomainUpdate {
+	_u.mutation.SetDateChecked(v)
 	return _u
 }
 
-// SetNillableCheckedAt sets the "checked_at" field if the given value is not nil.
-func (_u *DomainUpdate) SetNillableCheckedAt(v *time.Time) *DomainUpdate {
+// SetNillableDateChecked sets the "date_checked" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableDateChecked(v *time.Time) *DomainUpdate {
 	if v != nil {
-		_u.SetCheckedAt(*v)
+		_u.SetDateChecked(*v)
 	}
 	return _u
 }
 
-// ClearCheckedAt clears the value of the "checked_at" field.
-func (_u *DomainUpdate) ClearCheckedAt() *DomainUpdate {
-	_u.mutation.ClearCheckedAt()
+// ClearDateChecked clears the value of the "date_checked" field.
+func (_u *DomainUpdate) ClearDateChecked() *DomainUpdate {
+	_u.mutation.ClearDateChecked()
 	return _u
 }
 
@@ -200,23 +200,23 @@ func (_u *DomainUpdate) ClearFailures() *DomainUpdate {
 	return _u
 }
 
-// SetFailingSince sets the "failing_since" field.
-func (_u *DomainUpdate) SetFailingSince(v time.Time) *DomainUpdate {
-	_u.mutation.SetFailingSince(v)
+// SetDateFailing sets the "date_failing" field.
+func (_u *DomainUpdate) SetDateFailing(v time.Time) *DomainUpdate {
+	_u.mutation.SetDateFailing(v)
 	return _u
 }
 
-// SetNillableFailingSince sets the "failing_since" field if the given value is not nil.
-func (_u *DomainUpdate) SetNillableFailingSince(v *time.Time) *DomainUpdate {
+// SetNillableDateFailing sets the "date_failing" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableDateFailing(v *time.Time) *DomainUpdate {
 	if v != nil {
-		_u.SetFailingSince(*v)
+		_u.SetDateFailing(*v)
 	}
 	return _u
 }
 
-// ClearFailingSince clears the value of the "failing_since" field.
-func (_u *DomainUpdate) ClearFailingSince() *DomainUpdate {
-	_u.mutation.ClearFailingSince()
+// ClearDateFailing clears the value of the "date_failing" field.
+func (_u *DomainUpdate) ClearDateFailing() *DomainUpdate {
+	_u.mutation.ClearDateFailing()
 	return _u
 }
 
@@ -240,23 +240,23 @@ func (_u *DomainUpdate) ClearDateLapsed() *DomainUpdate {
 	return _u
 }
 
-// SetRedirectUntil sets the "redirect_until" field.
-func (_u *DomainUpdate) SetRedirectUntil(v time.Time) *DomainUpdate {
-	_u.mutation.SetRedirectUntil(v)
+// SetDateRedirectUntil sets the "date_redirect_until" field.
+func (_u *DomainUpdate) SetDateRedirectUntil(v time.Time) *DomainUpdate {
+	_u.mutation.SetDateRedirectUntil(v)
 	return _u
 }
 
-// SetNillableRedirectUntil sets the "redirect_until" field if the given value is not nil.
-func (_u *DomainUpdate) SetNillableRedirectUntil(v *time.Time) *DomainUpdate {
+// SetNillableDateRedirectUntil sets the "date_redirect_until" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableDateRedirectUntil(v *time.Time) *DomainUpdate {
 	if v != nil {
-		_u.SetRedirectUntil(*v)
+		_u.SetDateRedirectUntil(*v)
 	}
 	return _u
 }
 
-// ClearRedirectUntil clears the value of the "redirect_until" field.
-func (_u *DomainUpdate) ClearRedirectUntil() *DomainUpdate {
-	_u.mutation.ClearRedirectUntil()
+// ClearDateRedirectUntil clears the value of the "date_redirect_until" field.
+func (_u *DomainUpdate) ClearDateRedirectUntil() *DomainUpdate {
+	_u.mutation.ClearDateRedirectUntil()
 	return _u
 }
 
@@ -366,23 +366,23 @@ func (_u *DomainUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(domain.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.VerifiedAt(); ok {
-		_spec.SetField(domain.FieldVerifiedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateVerified(); ok {
+		_spec.SetField(domain.FieldDateVerified, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(domain.FieldVerifiedAt); ok {
-		_spec.SetField(domain.FieldVerifiedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(domain.FieldDateVerified); ok {
+		_spec.SetField(domain.FieldDateVerified, field.TypeTime, e)
 	}
-	if _u.mutation.VerifiedAtCleared() {
-		_spec.ClearField(domain.FieldVerifiedAt, field.TypeTime)
+	if _u.mutation.DateVerifiedCleared() {
+		_spec.ClearField(domain.FieldDateVerified, field.TypeTime)
 	}
-	if value, ok := _u.mutation.CheckedAt(); ok {
-		_spec.SetField(domain.FieldCheckedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateChecked(); ok {
+		_spec.SetField(domain.FieldDateChecked, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(domain.FieldCheckedAt); ok {
-		_spec.SetField(domain.FieldCheckedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(domain.FieldDateChecked); ok {
+		_spec.SetField(domain.FieldDateChecked, field.TypeTime, e)
 	}
-	if _u.mutation.CheckedAtCleared() {
-		_spec.ClearField(domain.FieldCheckedAt, field.TypeTime)
+	if _u.mutation.DateCheckedCleared() {
+		_spec.ClearField(domain.FieldDateChecked, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Failures(); ok {
 		_spec.SetField(domain.FieldFailures, field.TypeUint32, value)
@@ -396,14 +396,14 @@ func (_u *DomainUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.FailuresCleared() {
 		_spec.ClearField(domain.FieldFailures, field.TypeUint32)
 	}
-	if value, ok := _u.mutation.FailingSince(); ok {
-		_spec.SetField(domain.FieldFailingSince, field.TypeTime, value)
+	if value, ok := _u.mutation.DateFailing(); ok {
+		_spec.SetField(domain.FieldDateFailing, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(domain.FieldFailingSince); ok {
-		_spec.SetField(domain.FieldFailingSince, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(domain.FieldDateFailing); ok {
+		_spec.SetField(domain.FieldDateFailing, field.TypeTime, e)
 	}
-	if _u.mutation.FailingSinceCleared() {
-		_spec.ClearField(domain.FieldFailingSince, field.TypeTime)
+	if _u.mutation.DateFailingCleared() {
+		_spec.ClearField(domain.FieldDateFailing, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateLapsed(); ok {
 		_spec.SetField(domain.FieldDateLapsed, field.TypeTime, value)
@@ -414,14 +414,14 @@ func (_u *DomainUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.DateLapsedCleared() {
 		_spec.ClearField(domain.FieldDateLapsed, field.TypeTime)
 	}
-	if value, ok := _u.mutation.RedirectUntil(); ok {
-		_spec.SetField(domain.FieldRedirectUntil, field.TypeTime, value)
+	if value, ok := _u.mutation.DateRedirectUntil(); ok {
+		_spec.SetField(domain.FieldDateRedirectUntil, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(domain.FieldRedirectUntil); ok {
-		_spec.SetField(domain.FieldRedirectUntil, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(domain.FieldDateRedirectUntil); ok {
+		_spec.SetField(domain.FieldDateRedirectUntil, field.TypeTime, e)
 	}
-	if _u.mutation.RedirectUntilCleared() {
-		_spec.ClearField(domain.FieldRedirectUntil, field.TypeTime)
+	if _u.mutation.DateRedirectUntilCleared() {
+		_spec.ClearField(domain.FieldDateRedirectUntil, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -549,43 +549,43 @@ func (_u *DomainUpdateOne) ClearDateErased() *DomainUpdateOne {
 	return _u
 }
 
-// SetVerifiedAt sets the "verified_at" field.
-func (_u *DomainUpdateOne) SetVerifiedAt(v time.Time) *DomainUpdateOne {
-	_u.mutation.SetVerifiedAt(v)
+// SetDateVerified sets the "date_verified" field.
+func (_u *DomainUpdateOne) SetDateVerified(v time.Time) *DomainUpdateOne {
+	_u.mutation.SetDateVerified(v)
 	return _u
 }
 
-// SetNillableVerifiedAt sets the "verified_at" field if the given value is not nil.
-func (_u *DomainUpdateOne) SetNillableVerifiedAt(v *time.Time) *DomainUpdateOne {
+// SetNillableDateVerified sets the "date_verified" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableDateVerified(v *time.Time) *DomainUpdateOne {
 	if v != nil {
-		_u.SetVerifiedAt(*v)
+		_u.SetDateVerified(*v)
 	}
 	return _u
 }
 
-// ClearVerifiedAt clears the value of the "verified_at" field.
-func (_u *DomainUpdateOne) ClearVerifiedAt() *DomainUpdateOne {
-	_u.mutation.ClearVerifiedAt()
+// ClearDateVerified clears the value of the "date_verified" field.
+func (_u *DomainUpdateOne) ClearDateVerified() *DomainUpdateOne {
+	_u.mutation.ClearDateVerified()
 	return _u
 }
 
-// SetCheckedAt sets the "checked_at" field.
-func (_u *DomainUpdateOne) SetCheckedAt(v time.Time) *DomainUpdateOne {
-	_u.mutation.SetCheckedAt(v)
+// SetDateChecked sets the "date_checked" field.
+func (_u *DomainUpdateOne) SetDateChecked(v time.Time) *DomainUpdateOne {
+	_u.mutation.SetDateChecked(v)
 	return _u
 }
 
-// SetNillableCheckedAt sets the "checked_at" field if the given value is not nil.
-func (_u *DomainUpdateOne) SetNillableCheckedAt(v *time.Time) *DomainUpdateOne {
+// SetNillableDateChecked sets the "date_checked" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableDateChecked(v *time.Time) *DomainUpdateOne {
 	if v != nil {
-		_u.SetCheckedAt(*v)
+		_u.SetDateChecked(*v)
 	}
 	return _u
 }
 
-// ClearCheckedAt clears the value of the "checked_at" field.
-func (_u *DomainUpdateOne) ClearCheckedAt() *DomainUpdateOne {
-	_u.mutation.ClearCheckedAt()
+// ClearDateChecked clears the value of the "date_checked" field.
+func (_u *DomainUpdateOne) ClearDateChecked() *DomainUpdateOne {
+	_u.mutation.ClearDateChecked()
 	return _u
 }
 
@@ -616,23 +616,23 @@ func (_u *DomainUpdateOne) ClearFailures() *DomainUpdateOne {
 	return _u
 }
 
-// SetFailingSince sets the "failing_since" field.
-func (_u *DomainUpdateOne) SetFailingSince(v time.Time) *DomainUpdateOne {
-	_u.mutation.SetFailingSince(v)
+// SetDateFailing sets the "date_failing" field.
+func (_u *DomainUpdateOne) SetDateFailing(v time.Time) *DomainUpdateOne {
+	_u.mutation.SetDateFailing(v)
 	return _u
 }
 
-// SetNillableFailingSince sets the "failing_since" field if the given value is not nil.
-func (_u *DomainUpdateOne) SetNillableFailingSince(v *time.Time) *DomainUpdateOne {
+// SetNillableDateFailing sets the "date_failing" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableDateFailing(v *time.Time) *DomainUpdateOne {
 	if v != nil {
-		_u.SetFailingSince(*v)
+		_u.SetDateFailing(*v)
 	}
 	return _u
 }
 
-// ClearFailingSince clears the value of the "failing_since" field.
-func (_u *DomainUpdateOne) ClearFailingSince() *DomainUpdateOne {
-	_u.mutation.ClearFailingSince()
+// ClearDateFailing clears the value of the "date_failing" field.
+func (_u *DomainUpdateOne) ClearDateFailing() *DomainUpdateOne {
+	_u.mutation.ClearDateFailing()
 	return _u
 }
 
@@ -656,23 +656,23 @@ func (_u *DomainUpdateOne) ClearDateLapsed() *DomainUpdateOne {
 	return _u
 }
 
-// SetRedirectUntil sets the "redirect_until" field.
-func (_u *DomainUpdateOne) SetRedirectUntil(v time.Time) *DomainUpdateOne {
-	_u.mutation.SetRedirectUntil(v)
+// SetDateRedirectUntil sets the "date_redirect_until" field.
+func (_u *DomainUpdateOne) SetDateRedirectUntil(v time.Time) *DomainUpdateOne {
+	_u.mutation.SetDateRedirectUntil(v)
 	return _u
 }
 
-// SetNillableRedirectUntil sets the "redirect_until" field if the given value is not nil.
-func (_u *DomainUpdateOne) SetNillableRedirectUntil(v *time.Time) *DomainUpdateOne {
+// SetNillableDateRedirectUntil sets the "date_redirect_until" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableDateRedirectUntil(v *time.Time) *DomainUpdateOne {
 	if v != nil {
-		_u.SetRedirectUntil(*v)
+		_u.SetDateRedirectUntil(*v)
 	}
 	return _u
 }
 
-// ClearRedirectUntil clears the value of the "redirect_until" field.
-func (_u *DomainUpdateOne) ClearRedirectUntil() *DomainUpdateOne {
-	_u.mutation.ClearRedirectUntil()
+// ClearDateRedirectUntil clears the value of the "date_redirect_until" field.
+func (_u *DomainUpdateOne) ClearDateRedirectUntil() *DomainUpdateOne {
+	_u.mutation.ClearDateRedirectUntil()
 	return _u
 }
 
@@ -812,23 +812,23 @@ func (_u *DomainUpdateOne) sqlSave(ctx context.Context) (_node *Domain, err erro
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(domain.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.VerifiedAt(); ok {
-		_spec.SetField(domain.FieldVerifiedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateVerified(); ok {
+		_spec.SetField(domain.FieldDateVerified, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(domain.FieldVerifiedAt); ok {
-		_spec.SetField(domain.FieldVerifiedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(domain.FieldDateVerified); ok {
+		_spec.SetField(domain.FieldDateVerified, field.TypeTime, e)
 	}
-	if _u.mutation.VerifiedAtCleared() {
-		_spec.ClearField(domain.FieldVerifiedAt, field.TypeTime)
+	if _u.mutation.DateVerifiedCleared() {
+		_spec.ClearField(domain.FieldDateVerified, field.TypeTime)
 	}
-	if value, ok := _u.mutation.CheckedAt(); ok {
-		_spec.SetField(domain.FieldCheckedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateChecked(); ok {
+		_spec.SetField(domain.FieldDateChecked, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(domain.FieldCheckedAt); ok {
-		_spec.SetField(domain.FieldCheckedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(domain.FieldDateChecked); ok {
+		_spec.SetField(domain.FieldDateChecked, field.TypeTime, e)
 	}
-	if _u.mutation.CheckedAtCleared() {
-		_spec.ClearField(domain.FieldCheckedAt, field.TypeTime)
+	if _u.mutation.DateCheckedCleared() {
+		_spec.ClearField(domain.FieldDateChecked, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Failures(); ok {
 		_spec.SetField(domain.FieldFailures, field.TypeUint32, value)
@@ -842,14 +842,14 @@ func (_u *DomainUpdateOne) sqlSave(ctx context.Context) (_node *Domain, err erro
 	if _u.mutation.FailuresCleared() {
 		_spec.ClearField(domain.FieldFailures, field.TypeUint32)
 	}
-	if value, ok := _u.mutation.FailingSince(); ok {
-		_spec.SetField(domain.FieldFailingSince, field.TypeTime, value)
+	if value, ok := _u.mutation.DateFailing(); ok {
+		_spec.SetField(domain.FieldDateFailing, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(domain.FieldFailingSince); ok {
-		_spec.SetField(domain.FieldFailingSince, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(domain.FieldDateFailing); ok {
+		_spec.SetField(domain.FieldDateFailing, field.TypeTime, e)
 	}
-	if _u.mutation.FailingSinceCleared() {
-		_spec.ClearField(domain.FieldFailingSince, field.TypeTime)
+	if _u.mutation.DateFailingCleared() {
+		_spec.ClearField(domain.FieldDateFailing, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateLapsed(); ok {
 		_spec.SetField(domain.FieldDateLapsed, field.TypeTime, value)
@@ -860,14 +860,14 @@ func (_u *DomainUpdateOne) sqlSave(ctx context.Context) (_node *Domain, err erro
 	if _u.mutation.DateLapsedCleared() {
 		_spec.ClearField(domain.FieldDateLapsed, field.TypeTime)
 	}
-	if value, ok := _u.mutation.RedirectUntil(); ok {
-		_spec.SetField(domain.FieldRedirectUntil, field.TypeTime, value)
+	if value, ok := _u.mutation.DateRedirectUntil(); ok {
+		_spec.SetField(domain.FieldDateRedirectUntil, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(domain.FieldRedirectUntil); ok {
-		_spec.SetField(domain.FieldRedirectUntil, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(domain.FieldDateRedirectUntil); ok {
+		_spec.SetField(domain.FieldDateRedirectUntil, field.TypeTime, e)
 	}
-	if _u.mutation.RedirectUntilCleared() {
-		_spec.ClearField(domain.FieldRedirectUntil, field.TypeTime)
+	if _u.mutation.DateRedirectUntilCleared() {
+		_spec.ClearField(domain.FieldDateRedirectUntil, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Domain{config: _u.config}

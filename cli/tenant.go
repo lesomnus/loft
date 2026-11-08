@@ -296,11 +296,11 @@ func printShow(self *xli.Command, v *app.OperatorTenantShowResponse) {
 	w := v.GetWindow()
 	self.Printf("  keeps\thistory %s, access record %s, restore %s once closed, then %s\n",
 		days(w.GetKeepDays(), "forever"), days(w.GetAccessDays(), "forever"), days(w.GetRestoreDays(), "forever"), leaving(w.GetPurge()))
-	if w.HasKeepUntil() {
-		self.Printf("  history\tuntil %s, then %s: made shorter, and waiting out the grace\n", dayOf(w.GetKeepUntil()), days(w.GetKeepThenDays(), "forever"))
+	if w.HasDateKeepUntil() {
+		self.Printf("  history\tuntil %s, then %s: made shorter, and waiting out the grace\n", dayOf(w.GetDateKeepUntil()), days(w.GetKeepThenDays(), "forever"))
 	}
-	if w.HasAccessUntil() {
-		self.Printf("  access record\tuntil %s, then %s: made shorter, and waiting out the grace\n", dayOf(w.GetAccessUntil()), days(w.GetAccessThenDays(), "forever"))
+	if w.HasDateAccessUntil() {
+		self.Printf("  access record\tuntil %s, then %s: made shorter, and waiting out the grace\n", dayOf(w.GetDateAccessUntil()), days(w.GetAccessThenDays(), "forever"))
 	}
 	for _, m := range v.GetMembers() {
 		leaving := ""
@@ -480,8 +480,8 @@ func newCmdTenantClose() *xli.Command {
 				if err != nil {
 					return err
 				}
-				if w.HasClosed() {
-					self.Printf("@%s is closed already, since %s; destroyed after %s\n", ws, dayOf(w.GetClosed()), dayOf(w.GetDestroy()))
+				if w.HasDateClosed() {
+					self.Printf("@%s is closed already, since %s; destroyed after %s\n", ws, dayOf(w.GetDateClosed()), dayOf(w.GetDateDestroy()))
 					return next(ctx)
 				}
 				if !yes(self) {
@@ -547,8 +547,8 @@ func newCmdTenantRestore() *xli.Command {
 						return err
 					}
 					said = "open"
-					if w.HasClosed() {
-						said = fmt.Sprintf("closed %s, destroyed %s", dayOf(w.GetClosed()), dayOf(w.GetDestroy()))
+					if w.HasDateClosed() {
+						said = fmt.Sprintf("closed %s, destroyed %s", dayOf(w.GetDateClosed()), dayOf(w.GetDateDestroy()))
 					}
 				} else {
 					v, err := show(ctx, conn, byAlias(ws))
@@ -593,11 +593,11 @@ func newCmdTenantMove() *xli.Command {
 				return err
 			}
 			if !yes(self) {
-				self.Printf("would move @%s to @%s, holding @%s until %s\n", v.GetFrom(), strings.TrimPrefix(str(self, "to"), "@"), v.GetFrom(), dayOf(v.GetHeldUntil()))
+				self.Printf("would move @%s to @%s, holding @%s until %s\n", v.GetFrom(), strings.TrimPrefix(str(self, "to"), "@"), v.GetFrom(), dayOf(v.GetDateHeldUntil()))
 				nothing(self)
 				return nil
 			}
-			self.Printf("moved @%s to @%s; @%s sends people on until %s\n", v.GetFrom(), v.GetTenant().GetAlias(), v.GetFrom(), dayOf(v.GetHeldUntil()))
+			self.Printf("moved @%s to @%s; @%s sends people on until %s\n", v.GetFrom(), v.GetTenant().GetAlias(), v.GetFrom(), dayOf(v.GetDateHeldUntil()))
 			printTenant(self, v.GetTenant())
 			return nil
 		})
@@ -793,7 +793,7 @@ func newCmdTenantVerify() *xli.Command {
 				t.Alias = "a tenant"
 			}
 			self.Printf("%s: %s, exported %s, signed by a trusted key; every one of its %d files is what was exported\n",
-				named(path), t.Alias, m.ExportedAt.Format(time.RFC3339), len(m.Digests))
+				named(path), t.Alias, m.DateExported.Format(time.RFC3339), len(m.Digests))
 			self.Printf("  manifest %s, key %s\n", manifest, key)
 			return next(ctx)
 		}),
@@ -884,11 +884,11 @@ func newCmdTenantRetired() *xli.Command {
 				if r.GetAlias() != "" {
 					alias = "@" + r.GetAlias()
 				}
-				left := "kept until " + dayOf(r.GetUntil())
-				if !now.Before(r.GetUntil().AsTime()) {
-					left = "past its floors since " + dayOf(r.GetUntil()) + ": the next pass takes what is left"
+				left := "kept until " + dayOf(r.GetDateKeptUntil())
+				if !now.Before(r.GetDateKeptUntil().AsTime()) {
+					left = "past its floors since " + dayOf(r.GetDateKeptUntil()) + ": the next pass takes what is left"
 				}
-				self.Printf("%s\t%s\tretired %s\t%s\n", alias, idSaid(r.GetTenant()), dayOf(r.GetRetired()), left)
+				self.Printf("%s\t%s\tretired %s\t%s\n", alias, idSaid(r.GetTenant()), dayOf(r.GetDateRetired()), left)
 			}
 			if len(v.GetItems()) == 0 {
 				self.Printf("no workspace has retired, or what each kept is gone\n")
@@ -957,7 +957,7 @@ func printDestroyed(self *xli.Command, how string, x *app.OperatorTenantDestroye
 			for _, k := range slices.Sorted(maps.Keys(x.GetKept())) {
 				kept = append(kept, fmt.Sprintf("%s %d", k, x.GetKept()[k]))
 			}
-			self.Printf("  kept until %s, for the deployment's floors: %s\n", dayOf(x.GetKeptUntil()), strings.Join(kept, ", "))
+			self.Printf("  kept until %s, for the deployment's floors: %s\n", dayOf(x.GetDateKeptUntil()), strings.Join(kept, ", "))
 		}
 	}
 	if x.GetEmbedded() {

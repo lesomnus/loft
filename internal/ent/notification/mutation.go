@@ -21,7 +21,7 @@ type Mutation struct {
 	desc          *string
 	kind          *string
 	subject_id    *uuid.UUID
-	read_at       *time.Time
+	date_read     *time.Time
 	link          *string
 	mail          *bool
 	date_mailed   *time.Time
@@ -151,40 +151,40 @@ func (m *Mutation) ResetSubjectId() {
 	delete(m.exprs, FieldSubjectId)
 }
 
-// SetReadAt sets the "read_at" field.
-func (m *Mutation) SetReadAt(t time.Time) {
-	m.read_at = &t
-	delete(m.clearedFields, FieldReadAt)
-	delete(m.exprs, FieldReadAt)
+// SetDateRead sets the "date_read" field.
+func (m *Mutation) SetDateRead(t time.Time) {
+	m.date_read = &t
+	delete(m.clearedFields, FieldDateRead)
+	delete(m.exprs, FieldDateRead)
 }
 
-// ReadAt returns the value of the "read_at" field in the mutation.
-func (m *Mutation) ReadAt() (r time.Time, exists bool) {
-	v := m.read_at
+// DateRead returns the value of the "date_read" field in the mutation.
+func (m *Mutation) DateRead() (r time.Time, exists bool) {
+	v := m.date_read
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearReadAt clears the value of the "read_at" field.
-func (m *Mutation) ClearReadAt() {
-	m.read_at = nil
-	delete(m.exprs, FieldReadAt)
-	m.clearedFields[FieldReadAt] = struct{}{}
+// ClearDateRead clears the value of the "date_read" field.
+func (m *Mutation) ClearDateRead() {
+	m.date_read = nil
+	delete(m.exprs, FieldDateRead)
+	m.clearedFields[FieldDateRead] = struct{}{}
 }
 
-// ReadAtCleared returns if the "read_at" field was cleared in this mutation.
-func (m *Mutation) ReadAtCleared() bool {
-	_, ok := m.clearedFields[FieldReadAt]
+// DateReadCleared returns if the "date_read" field was cleared in this mutation.
+func (m *Mutation) DateReadCleared() bool {
+	_, ok := m.clearedFields[FieldDateRead]
 	return ok
 }
 
-// ResetReadAt resets all changes to the "read_at" field.
-func (m *Mutation) ResetReadAt() {
-	m.read_at = nil
-	delete(m.clearedFields, FieldReadAt)
-	delete(m.exprs, FieldReadAt)
+// ResetDateRead resets all changes to the "date_read" field.
+func (m *Mutation) ResetDateRead() {
+	m.date_read = nil
+	delete(m.clearedFields, FieldDateRead)
+	delete(m.exprs, FieldDateRead)
 }
 
 // SetLink sets the "link" field.
@@ -499,8 +499,8 @@ func (m *Mutation) Fields() []string {
 	if m.subject_id != nil || m.exprs[FieldSubjectId] != nil {
 		fields = append(fields, FieldSubjectId)
 	}
-	if m.read_at != nil || m.exprs[FieldReadAt] != nil {
-		fields = append(fields, FieldReadAt)
+	if m.date_read != nil || m.exprs[FieldDateRead] != nil {
+		fields = append(fields, FieldDateRead)
 	}
 	if m.link != nil || m.exprs[FieldLink] != nil {
 		fields = append(fields, FieldLink)
@@ -548,8 +548,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Kind()
 	case FieldSubjectId:
 		return m.SubjectId()
-	case FieldReadAt:
-		return m.ReadAt()
+	case FieldDateRead:
+		return m.DateRead()
 	case FieldLink:
 		return m.Link()
 	case FieldMail:
@@ -625,7 +625,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSubjectId(v)
 		return nil
-	case FieldReadAt:
+	case FieldDateRead:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -633,7 +633,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetReadAt(v)
+		m.SetDateRead(v)
 		return nil
 	case FieldLink:
 		v, ok := value.(string)
@@ -745,8 +745,8 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetKind()
 	case FieldSubjectId:
 		m.ResetSubjectId()
-	case FieldReadAt:
-		m.ResetReadAt()
+	case FieldDateRead:
+		m.ResetDateRead()
 	case FieldLink:
 		m.ResetLink()
 	case FieldMail:
@@ -796,8 +796,8 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldSubjectId]; ok {
 		fields = append(fields, FieldSubjectId)
 	}
-	if _, ok := m.exprs[FieldReadAt]; ok {
-		fields = append(fields, FieldReadAt)
+	if _, ok := m.exprs[FieldDateRead]; ok {
+		fields = append(fields, FieldDateRead)
 	}
 	if _, ok := m.exprs[FieldLink]; ok {
 		fields = append(fields, FieldLink)
@@ -861,8 +861,8 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldSubjectId) {
 		fields = append(fields, FieldSubjectId)
 	}
-	if m.FieldCleared(FieldReadAt) {
-		fields = append(fields, FieldReadAt)
+	if m.FieldCleared(FieldDateRead) {
+		fields = append(fields, FieldDateRead)
 	}
 	if m.FieldCleared(FieldDateMailed) {
 		fields = append(fields, FieldDateMailed)
@@ -887,8 +887,8 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldSubjectId:
 		m.ClearSubjectId()
 		return nil
-	case FieldReadAt:
-		m.ClearReadAt()
+	case FieldDateRead:
+		m.ClearDateRead()
 		return nil
 	case FieldDateMailed:
 		m.ClearDateMailed()
@@ -916,8 +916,8 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldSubjectId:
 		m.ResetSubjectId()
 		return nil
-	case FieldReadAt:
-		m.ResetReadAt()
+	case FieldDateRead:
+		m.ResetDateRead()
 		return nil
 	case FieldLink:
 		m.ResetLink()

@@ -26,9 +26,9 @@ export function Notifications(): ReactNode {
 								{d.items.map((n) => (
 									<li
 										key={idStr(n.id)}
-										className={`link ${n.readAt === undefined ? 'unread' : ''}`}
+										className={`link ${n.dateRead === undefined ? 'unread' : ''}`}
 										onClick={() => {
-											if (n.readAt === undefined) void act(NotificationService.method.markRead, { ids: [n.id] }, { quiet: true })
+											if (n.dateRead === undefined) void act(NotificationService.method.markRead, { ids: [n.id] }, { quiet: true })
 											if (n.link !== '') go(n.link)
 										}}
 									>

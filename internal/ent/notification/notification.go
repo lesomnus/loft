@@ -20,8 +20,8 @@ const (
 	FieldKind = "kind"
 	// FieldSubjectId holds the string denoting the subject_id field in the database.
 	FieldSubjectId = "subject_id"
-	// FieldReadAt holds the string denoting the read_at field in the database.
-	FieldReadAt = "read_at"
+	// FieldDateRead holds the string denoting the date_read field in the database.
+	FieldDateRead = "date_read"
 	// FieldLink holds the string denoting the link field in the database.
 	FieldLink = "link"
 	// FieldMail holds the string denoting the mail field in the database.
@@ -67,7 +67,7 @@ var Columns = []string{
 	FieldDesc,
 	FieldKind,
 	FieldSubjectId,
-	FieldReadAt,
+	FieldDateRead,
 	FieldLink,
 	FieldMail,
 	FieldDateMailed,
@@ -116,9 +116,9 @@ func BySubjectId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSubjectId, opts...).ToFunc()
 }
 
-// ByReadAt orders the results by the read_at field.
-func ByReadAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldReadAt, opts...).ToFunc()
+// ByDateRead orders the results by the date_read field.
+func ByDateRead(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateRead, opts...).ToFunc()
 }
 
 // ByLink orders the results by the link field.

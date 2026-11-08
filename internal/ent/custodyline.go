@@ -30,10 +30,10 @@ type CustodyLine struct {
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
 	DateCreated time.Time `json:"date_created,omitempty"`
-	// OutAt holds the value of the "out_at" field.
-	OutAt time.Time `json:"out_at,omitempty"`
-	// ReturnedAt holds the value of the "returned_at" field.
-	ReturnedAt *time.Time `json:"returned_at,omitempty"`
+	// DateOut holds the value of the "date_out" field.
+	DateOut time.Time `json:"date_out,omitempty"`
+	// DateReturned holds the value of the "date_returned" field.
+	DateReturned *time.Time `json:"date_returned,omitempty"`
 	// ConditionOut holds the value of the "condition_out" field.
 	ConditionOut string `json:"condition_out,omitempty"`
 	// ConditionIn holds the value of the "condition_in" field.
@@ -120,7 +120,7 @@ func (*CustodyLine) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case custodyline.FieldConditionOut, custodyline.FieldConditionIn:
 			values[i] = new(sql.NullString)
-		case custodyline.FieldDateUpdated, custodyline.FieldDateCreated, custodyline.FieldOutAt, custodyline.FieldReturnedAt:
+		case custodyline.FieldDateUpdated, custodyline.FieldDateCreated, custodyline.FieldDateOut, custodyline.FieldDateReturned:
 			values[i] = new(sql.NullTime)
 		case custodyline.FieldAssetId, custodyline.FieldStockId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -171,18 +171,18 @@ func (_m *CustodyLine) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DateCreated = value.Time
 			}
-		case custodyline.FieldOutAt:
+		case custodyline.FieldDateOut:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field out_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_out", values[i])
 			} else if value.Valid {
-				_m.OutAt = value.Time
+				_m.DateOut = value.Time
 			}
-		case custodyline.FieldReturnedAt:
+		case custodyline.FieldDateReturned:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field returned_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_returned", values[i])
 			} else if value.Valid {
-				_m.ReturnedAt = new(time.Time)
-				*_m.ReturnedAt = value.Time
+				_m.DateReturned = new(time.Time)
+				*_m.DateReturned = value.Time
 			}
 		case custodyline.FieldConditionOut:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -288,11 +288,11 @@ func (_m *CustodyLine) String() string {
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("out_at=")
-	builder.WriteString(_m.OutAt.Format(time.ANSIC))
+	builder.WriteString("date_out=")
+	builder.WriteString(_m.DateOut.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := _m.ReturnedAt; v != nil {
-		builder.WriteString("returned_at=")
+	if v := _m.DateReturned; v != nil {
+		builder.WriteString("date_returned=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

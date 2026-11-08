@@ -66,7 +66,7 @@ func TestAReservationsHistorySaysWhatWasDoneWithIt(t *testing.T) {
 	e.now = e.now.Add(time.Minute)
 	loan, err := e.app().Custody().Add(boss, app.CustodyAddRequest_builder{
 		Party:         ref[app.PartyRef](kimParty.GetId()),
-		DueAt:         timestamppb.New(e.tomorrow(12, 0)),
+		DateDue:       timestamppb.New(e.tomorrow(12, 0)),
 		ReservationId: r.GetId(),
 		Lines:         []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(camera)}.Build()},
 	}.Build())
@@ -222,7 +222,7 @@ func TestEachTimeASeriesTakesPlaceHasAHistoryOfItsOwn(t *testing.T) {
 	x.NoError(err)
 	all := list.GetItems()
 	x.Len(all, 3)
-	slices.SortFunc(all, func(a, b *app.Reservation) int { return a.GetBeginsAt().AsTime().Compare(b.GetBeginsAt().AsTime()) })
+	slices.SortFunc(all, func(a, b *app.Reservation) int { return a.GetDateStart().AsTime().Compare(b.GetDateStart().AsTime()) })
 	x.Equal(first.GetId(), all[0].GetId())
 
 	booked, kids := e.split(e.eventsOf("reservation.add"))

@@ -175,8 +175,8 @@ func (st NotificationServiceServer) create(ctx context.Context, req *loft.Notifi
 			q.SetSubjectId(v)
 		}
 	}
-	if req.HasReadAt() {
-		q.SetReadAt(req.GetReadAt().AsTime())
+	if req.HasDateRead() {
+		q.SetDateRead(req.GetDateRead().AsTime())
 	}
 	q.SetLink(req.GetLink())
 	q.SetMail(req.GetMail())
@@ -329,8 +329,8 @@ func NotificationSelectedFields(m *loft.NotificationSelect) []string {
 	if m.GetSubjectId() {
 		vs = append(vs, notification.FieldSubjectId)
 	}
-	if m.GetReadAt() {
-		vs = append(vs, notification.FieldReadAt)
+	if m.GetDateRead() {
+		vs = append(vs, notification.FieldDateRead)
 	}
 	if m.GetLink() {
 		vs = append(vs, notification.FieldLink)
@@ -425,7 +425,7 @@ func NotificationGetKey(ctx context.Context, db *ent.Client, ref *loft.Notificat
 var notificationOrmEntity = ormpatch.MustEntityOf(loft.File_loft_ops_proto, "Notification")
 
 var notificationPatchColumns = entpatch.Columns{
-	1: notification.FieldId, 2: notification.TenantColumn, 5: notification.FieldName, 6: notification.FieldDesc, 8: notification.HolderColumn, 9: notification.FieldKind, 10: notification.FieldSubjectId, 11: notification.FieldReadAt, 12: notification.FieldLink, 16: notification.FieldMail, 17: notification.FieldDateMailed, 18: notification.FieldMailTries, 13: notification.FieldDateUpdated, 15: notification.FieldDateCreated}
+	1: notification.FieldId, 2: notification.TenantColumn, 5: notification.FieldName, 6: notification.FieldDesc, 8: notification.HolderColumn, 9: notification.FieldKind, 10: notification.FieldSubjectId, 11: notification.FieldDateRead, 12: notification.FieldLink, 16: notification.FieldMail, 17: notification.FieldDateMailed, 18: notification.FieldMailTries, 13: notification.FieldDateUpdated, 15: notification.FieldDateCreated}
 
 func (s NotificationServiceServer) Apply(ctx context.Context, req *loft.NotificationApplyRequest) (*loft.Notification, error) {
 	if !req.HasPatch() {
@@ -1903,15 +1903,15 @@ func (st AccessReviewServiceServer) create(ctx context.Context, req *loft.Access
 		})
 	}
 	q.SetDesc(req.GetDesc())
-	if req.HasPeriodFrom() {
-		q.SetPeriodFrom(req.GetPeriodFrom().AsTime())
+	if req.HasDateStart() {
+		q.SetDateStart(req.GetDateStart().AsTime())
 	} else {
-		q.SetPeriodFrom(st.now())
+		q.SetDateStart(st.now())
 	}
-	if req.HasPeriodTo() {
-		q.SetPeriodTo(req.GetPeriodTo().AsTime())
+	if req.HasDateEnd() {
+		q.SetDateEnd(req.GetDateEnd().AsTime())
 	} else {
-		q.SetPeriodTo(st.now())
+		q.SetDateEnd(st.now())
 	}
 	if k, err := HolderGetKey(ctx, st.Db, req.GetReviewer()); err != nil {
 		return nil, nil, err
@@ -2059,11 +2059,11 @@ func AccessReviewSelectedFields(m *loft.AccessReviewSelect) []string {
 	if m.GetDesc() {
 		vs = append(vs, accessreview.FieldDesc)
 	}
-	if m.GetPeriodFrom() {
-		vs = append(vs, accessreview.FieldPeriodFrom)
+	if m.GetDateStart() {
+		vs = append(vs, accessreview.FieldDateStart)
 	}
-	if m.GetPeriodTo() {
-		vs = append(vs, accessreview.FieldPeriodTo)
+	if m.GetDateEnd() {
+		vs = append(vs, accessreview.FieldDateEnd)
 	}
 	if m.GetCalls() {
 		vs = append(vs, accessreview.FieldCalls)
@@ -2152,7 +2152,7 @@ func AccessReviewGetKey(ctx context.Context, db *ent.Client, ref *loft.AccessRev
 var accessReviewOrmEntity = ormpatch.MustEntityOf(loft.File_loft_ops_proto, "AccessReview")
 
 var accessReviewPatchColumns = entpatch.Columns{
-	1: accessreview.FieldId, 2: accessreview.TenantColumn, 6: accessreview.FieldDesc, 8: accessreview.FieldPeriodFrom, 9: accessreview.FieldPeriodTo, 10: accessreview.ReviewerColumn, 11: accessreview.FieldCalls, 12: accessreview.FieldDownloads, 15: accessreview.FieldDateCreated, 16: accessreview.FieldRefused}
+	1: accessreview.FieldId, 2: accessreview.TenantColumn, 6: accessreview.FieldDesc, 8: accessreview.FieldDateStart, 9: accessreview.FieldDateEnd, 10: accessreview.ReviewerColumn, 11: accessreview.FieldCalls, 12: accessreview.FieldDownloads, 15: accessreview.FieldDateCreated, 16: accessreview.FieldRefused}
 
 func (s AccessReviewServiceServer) Apply(ctx context.Context, req *loft.AccessReviewApplyRequest) (*loft.AccessReview, error) {
 	if !req.HasPatch() {

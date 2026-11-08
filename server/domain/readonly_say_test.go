@@ -178,7 +178,7 @@ func TestAnOperatorsNoticesAreToldInAReadOnlyWorkspace(t *testing.T) {
 	x.Empty(e.notices(kim, "reservation.out"))
 
 	e.readOnly()
-	_, err = e.s.Ungated.Custody().Extend(e.operator(), app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DueAt: timestamppb.New(e.tomorrow(12, 0))}.Build())
+	_, err = e.s.Ungated.Custody().Extend(e.operator(), app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DateDue: timestamppb.New(e.tomorrow(12, 0))}.Build())
 	x.NoError(err)
 	x.Equal([]string{"CM-1 loan"}, e.out(booked))
 	x.Len(e.notices(kim, "reservation.out"), 1, "to whose the booking is")

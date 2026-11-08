@@ -71,9 +71,9 @@ func RefId(v uuid.UUID) predicate.StockMovement {
 	return predicate.StockMovement(sql.FieldEQ(FieldRefId, v))
 }
 
-// OccurredAt applies equality check predicate on the "occurred_at" field. It's identical to OccurredAtEQ.
-func OccurredAt(v time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldEQ(FieldOccurredAt, v))
+// DateOccurred applies equality check predicate on the "date_occurred" field. It's identical to DateOccurredEQ.
+func DateOccurred(v time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldEQ(FieldDateOccurred, v))
 }
 
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
@@ -261,54 +261,54 @@ func RefIdNotNil() predicate.StockMovement {
 	return predicate.StockMovement(sql.FieldNotNull(FieldRefId))
 }
 
-// OccurredAtEQ applies the EQ predicate on the "occurred_at" field.
-func OccurredAtEQ(v time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldEQ(FieldOccurredAt, v))
+// DateOccurredEQ applies the EQ predicate on the "date_occurred" field.
+func DateOccurredEQ(v time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldEQ(FieldDateOccurred, v))
 }
 
-// OccurredAtNEQ applies the NEQ predicate on the "occurred_at" field.
-func OccurredAtNEQ(v time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldNEQ(FieldOccurredAt, v))
+// DateOccurredNEQ applies the NEQ predicate on the "date_occurred" field.
+func DateOccurredNEQ(v time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldNEQ(FieldDateOccurred, v))
 }
 
-// OccurredAtIn applies the In predicate on the "occurred_at" field.
-func OccurredAtIn(vs ...time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldIn(FieldOccurredAt, vs...))
+// DateOccurredIn applies the In predicate on the "date_occurred" field.
+func DateOccurredIn(vs ...time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldIn(FieldDateOccurred, vs...))
 }
 
-// OccurredAtNotIn applies the NotIn predicate on the "occurred_at" field.
-func OccurredAtNotIn(vs ...time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldNotIn(FieldOccurredAt, vs...))
+// DateOccurredNotIn applies the NotIn predicate on the "date_occurred" field.
+func DateOccurredNotIn(vs ...time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldNotIn(FieldDateOccurred, vs...))
 }
 
-// OccurredAtGT applies the GT predicate on the "occurred_at" field.
-func OccurredAtGT(v time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldGT(FieldOccurredAt, v))
+// DateOccurredGT applies the GT predicate on the "date_occurred" field.
+func DateOccurredGT(v time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldGT(FieldDateOccurred, v))
 }
 
-// OccurredAtGTE applies the GTE predicate on the "occurred_at" field.
-func OccurredAtGTE(v time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldGTE(FieldOccurredAt, v))
+// DateOccurredGTE applies the GTE predicate on the "date_occurred" field.
+func DateOccurredGTE(v time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldGTE(FieldDateOccurred, v))
 }
 
-// OccurredAtLT applies the LT predicate on the "occurred_at" field.
-func OccurredAtLT(v time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldLT(FieldOccurredAt, v))
+// DateOccurredLT applies the LT predicate on the "date_occurred" field.
+func DateOccurredLT(v time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldLT(FieldDateOccurred, v))
 }
 
-// OccurredAtLTE applies the LTE predicate on the "occurred_at" field.
-func OccurredAtLTE(v time.Time) predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldLTE(FieldOccurredAt, v))
+// DateOccurredLTE applies the LTE predicate on the "date_occurred" field.
+func DateOccurredLTE(v time.Time) predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldLTE(FieldDateOccurred, v))
 }
 
-// OccurredAtIsNil applies the IsNil predicate on the "occurred_at" field.
-func OccurredAtIsNil() predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldIsNull(FieldOccurredAt))
+// DateOccurredIsNil applies the IsNil predicate on the "date_occurred" field.
+func DateOccurredIsNil() predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldIsNull(FieldDateOccurred))
 }
 
-// OccurredAtNotNil applies the NotNil predicate on the "occurred_at" field.
-func OccurredAtNotNil() predicate.StockMovement {
-	return predicate.StockMovement(sql.FieldNotNull(FieldOccurredAt))
+// DateOccurredNotNil applies the NotNil predicate on the "date_occurred" field.
+func DateOccurredNotNil() predicate.StockMovement {
+	return predicate.StockMovement(sql.FieldNotNull(FieldDateOccurred))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.

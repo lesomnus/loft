@@ -42,10 +42,10 @@ const (
 	FieldSlot = "slot"
 	// FieldAttributes holds the string denoting the attributes field in the database.
 	FieldAttributes = "attributes"
-	// FieldAcquiredAt holds the string denoting the acquired_at field in the database.
-	FieldAcquiredAt = "acquired_at"
-	// FieldDisposedAt holds the string denoting the disposed_at field in the database.
-	FieldDisposedAt = "disposed_at"
+	// FieldDateAcquired holds the string denoting the date_acquired field in the database.
+	FieldDateAcquired = "date_acquired"
+	// FieldDateDisposed holds the string denoting the date_disposed field in the database.
+	FieldDateDisposed = "date_disposed"
 	// FieldContentVersion holds the string denoting the content_version field in the database.
 	FieldContentVersion = "content_version"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
@@ -114,8 +114,8 @@ var Columns = []string{
 	FieldPlacementMode,
 	FieldSlot,
 	FieldAttributes,
-	FieldAcquiredAt,
-	FieldDisposedAt,
+	FieldDateAcquired,
+	FieldDateDisposed,
 	FieldContentVersion,
 	FieldTenantId,
 	FieldTypeId,
@@ -206,14 +206,14 @@ func BySlot(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSlot, opts...).ToFunc()
 }
 
-// ByAcquiredAt orders the results by the acquired_at field.
-func ByAcquiredAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAcquiredAt, opts...).ToFunc()
+// ByDateAcquired orders the results by the date_acquired field.
+func ByDateAcquired(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateAcquired, opts...).ToFunc()
 }
 
-// ByDisposedAt orders the results by the disposed_at field.
-func ByDisposedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDisposedAt, opts...).ToFunc()
+// ByDateDisposed orders the results by the date_disposed field.
+func ByDateDisposed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateDisposed, opts...).ToFunc()
 }
 
 // ByContentVersion orders the results by the content_version field.

@@ -142,7 +142,7 @@ func TestOneMoveSentManyTimesAtOnceIsMadeOnce(t *testing.T) {
 	fix := pdid.New(pd.EventDomain)
 	errs = together(8, func(int) error {
 		_, err := e.app().Asset().Correct(e.owner, app.AssetCorrectRequest_builder{
-			Ref: assetRef(laptop), RowId: toB.GetRowId(), ValidFrom: e.ago(day / 2), Reason: "영수증", Op: fix.Bytes(),
+			Ref: assetRef(laptop), RowId: toB.GetRowId(), DateStart: e.ago(day / 2), Reason: "영수증", Op: fix.Bytes(),
 		}.Build())
 		return err
 	})
@@ -261,8 +261,8 @@ func TestEveryOperationSentManyTimesAtOnceIsMadeOnce(t *testing.T) {
 	})
 	cal, err := e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{
 		Resources: []*app.AssetRef{assetRef(room)},
-		From:      timestamppb.New(e.now),
-		To:        timestamppb.New(e.now.AddDate(0, 0, 3)),
+		DateFrom:  timestamppb.New(e.now),
+		DateTo:    timestamppb.New(e.now.AddDate(0, 0, 3)),
 	}.Build())
 	x.NoError(err)
 	x.Len(cal.GetEntries(), 1, "booked once")
@@ -287,7 +287,7 @@ func TestManyMovesOfOneThingAtOnceLandOneAfterAnother(t *testing.T) {
 
 	at := timestamppb.New(e.now)
 	errs := together(len(rooms), func(i int) error {
-		_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(laptop), To: assetRef(rooms[i]), At: at}.Build())
+		_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(laptop), To: assetRef(rooms[i]), DateOccurred: at}.Build())
 		return err
 	})
 	for i, err := range errs {
@@ -299,7 +299,7 @@ func TestManyMovesOfOneThingAtOnceLandOneAfterAnother(t *testing.T) {
 	x.NoError(err)
 	x.Equal(len(rooms), moves, "every one of them happened")
 
-	cur, err := e.s.Ent.Placement.Query().Where(placement.ChildId(idUUID(laptop.GetId())), placement.SupersededAtIsNil()).All(ctx)
+	cur, err := e.s.Ent.Placement.Query().Where(placement.ChildId(idUUID(laptop.GetId())), placement.DateSupersededIsNil()).All(ctx)
 	x.NoError(err)
 	x.Len(cur, 2, "where it was until then, and the last of the moves")
 	now := e.where(hq, laptop, e.now, nil)

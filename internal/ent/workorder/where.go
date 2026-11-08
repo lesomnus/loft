@@ -76,14 +76,14 @@ func Status(v string) predicate.WorkOrder {
 	return predicate.WorkOrder(sql.FieldEQ(FieldStatus, v))
 }
 
-// BeginsAt applies equality check predicate on the "begins_at" field. It's identical to BeginsAtEQ.
-func BeginsAt(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldEQ(FieldBeginsAt, v))
+// DateStart applies equality check predicate on the "date_start" field. It's identical to DateStartEQ.
+func DateStart(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldEQ(FieldDateStart, v))
 }
 
-// EndsAt applies equality check predicate on the "ends_at" field. It's identical to EndsAtEQ.
-func EndsAt(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldEQ(FieldEndsAt, v))
+// DateEnd applies equality check predicate on the "date_end" field. It's identical to DateEndEQ.
+func DateEnd(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldEQ(FieldDateEnd, v))
 }
 
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
@@ -111,9 +111,9 @@ func Currency(v string) predicate.WorkOrder {
 	return predicate.WorkOrder(sql.FieldEQ(FieldCurrency, v))
 }
 
-// CompletedAt applies equality check predicate on the "completed_at" field. It's identical to CompletedAtEQ.
-func CompletedAt(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldEQ(FieldCompletedAt, v))
+// DateCompleted applies equality check predicate on the "date_completed" field. It's identical to DateCompletedEQ.
+func DateCompleted(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldEQ(FieldDateCompleted, v))
 }
 
 // Blocking applies equality check predicate on the "blocking" field. It's identical to BlockingEQ.
@@ -401,104 +401,104 @@ func StatusContainsFold(v string) predicate.WorkOrder {
 	return predicate.WorkOrder(sql.FieldContainsFold(FieldStatus, v))
 }
 
-// BeginsAtEQ applies the EQ predicate on the "begins_at" field.
-func BeginsAtEQ(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldEQ(FieldBeginsAt, v))
+// DateStartEQ applies the EQ predicate on the "date_start" field.
+func DateStartEQ(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldEQ(FieldDateStart, v))
 }
 
-// BeginsAtNEQ applies the NEQ predicate on the "begins_at" field.
-func BeginsAtNEQ(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNEQ(FieldBeginsAt, v))
+// DateStartNEQ applies the NEQ predicate on the "date_start" field.
+func DateStartNEQ(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNEQ(FieldDateStart, v))
 }
 
-// BeginsAtIn applies the In predicate on the "begins_at" field.
-func BeginsAtIn(vs ...time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldIn(FieldBeginsAt, vs...))
+// DateStartIn applies the In predicate on the "date_start" field.
+func DateStartIn(vs ...time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldIn(FieldDateStart, vs...))
 }
 
-// BeginsAtNotIn applies the NotIn predicate on the "begins_at" field.
-func BeginsAtNotIn(vs ...time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNotIn(FieldBeginsAt, vs...))
+// DateStartNotIn applies the NotIn predicate on the "date_start" field.
+func DateStartNotIn(vs ...time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNotIn(FieldDateStart, vs...))
 }
 
-// BeginsAtGT applies the GT predicate on the "begins_at" field.
-func BeginsAtGT(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldGT(FieldBeginsAt, v))
+// DateStartGT applies the GT predicate on the "date_start" field.
+func DateStartGT(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldGT(FieldDateStart, v))
 }
 
-// BeginsAtGTE applies the GTE predicate on the "begins_at" field.
-func BeginsAtGTE(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldGTE(FieldBeginsAt, v))
+// DateStartGTE applies the GTE predicate on the "date_start" field.
+func DateStartGTE(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldGTE(FieldDateStart, v))
 }
 
-// BeginsAtLT applies the LT predicate on the "begins_at" field.
-func BeginsAtLT(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldLT(FieldBeginsAt, v))
+// DateStartLT applies the LT predicate on the "date_start" field.
+func DateStartLT(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldLT(FieldDateStart, v))
 }
 
-// BeginsAtLTE applies the LTE predicate on the "begins_at" field.
-func BeginsAtLTE(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldLTE(FieldBeginsAt, v))
+// DateStartLTE applies the LTE predicate on the "date_start" field.
+func DateStartLTE(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldLTE(FieldDateStart, v))
 }
 
-// BeginsAtIsNil applies the IsNil predicate on the "begins_at" field.
-func BeginsAtIsNil() predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldIsNull(FieldBeginsAt))
+// DateStartIsNil applies the IsNil predicate on the "date_start" field.
+func DateStartIsNil() predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldIsNull(FieldDateStart))
 }
 
-// BeginsAtNotNil applies the NotNil predicate on the "begins_at" field.
-func BeginsAtNotNil() predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNotNull(FieldBeginsAt))
+// DateStartNotNil applies the NotNil predicate on the "date_start" field.
+func DateStartNotNil() predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNotNull(FieldDateStart))
 }
 
-// EndsAtEQ applies the EQ predicate on the "ends_at" field.
-func EndsAtEQ(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldEQ(FieldEndsAt, v))
+// DateEndEQ applies the EQ predicate on the "date_end" field.
+func DateEndEQ(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldEQ(FieldDateEnd, v))
 }
 
-// EndsAtNEQ applies the NEQ predicate on the "ends_at" field.
-func EndsAtNEQ(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNEQ(FieldEndsAt, v))
+// DateEndNEQ applies the NEQ predicate on the "date_end" field.
+func DateEndNEQ(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNEQ(FieldDateEnd, v))
 }
 
-// EndsAtIn applies the In predicate on the "ends_at" field.
-func EndsAtIn(vs ...time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldIn(FieldEndsAt, vs...))
+// DateEndIn applies the In predicate on the "date_end" field.
+func DateEndIn(vs ...time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldIn(FieldDateEnd, vs...))
 }
 
-// EndsAtNotIn applies the NotIn predicate on the "ends_at" field.
-func EndsAtNotIn(vs ...time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNotIn(FieldEndsAt, vs...))
+// DateEndNotIn applies the NotIn predicate on the "date_end" field.
+func DateEndNotIn(vs ...time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNotIn(FieldDateEnd, vs...))
 }
 
-// EndsAtGT applies the GT predicate on the "ends_at" field.
-func EndsAtGT(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldGT(FieldEndsAt, v))
+// DateEndGT applies the GT predicate on the "date_end" field.
+func DateEndGT(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldGT(FieldDateEnd, v))
 }
 
-// EndsAtGTE applies the GTE predicate on the "ends_at" field.
-func EndsAtGTE(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldGTE(FieldEndsAt, v))
+// DateEndGTE applies the GTE predicate on the "date_end" field.
+func DateEndGTE(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldGTE(FieldDateEnd, v))
 }
 
-// EndsAtLT applies the LT predicate on the "ends_at" field.
-func EndsAtLT(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldLT(FieldEndsAt, v))
+// DateEndLT applies the LT predicate on the "date_end" field.
+func DateEndLT(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldLT(FieldDateEnd, v))
 }
 
-// EndsAtLTE applies the LTE predicate on the "ends_at" field.
-func EndsAtLTE(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldLTE(FieldEndsAt, v))
+// DateEndLTE applies the LTE predicate on the "date_end" field.
+func DateEndLTE(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldLTE(FieldDateEnd, v))
 }
 
-// EndsAtIsNil applies the IsNil predicate on the "ends_at" field.
-func EndsAtIsNil() predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldIsNull(FieldEndsAt))
+// DateEndIsNil applies the IsNil predicate on the "date_end" field.
+func DateEndIsNil() predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldIsNull(FieldDateEnd))
 }
 
-// EndsAtNotNil applies the NotNil predicate on the "ends_at" field.
-func EndsAtNotNil() predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNotNull(FieldEndsAt))
+// DateEndNotNil applies the NotNil predicate on the "date_end" field.
+func DateEndNotNil() predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNotNull(FieldDateEnd))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.
@@ -746,54 +746,54 @@ func CurrencyContainsFold(v string) predicate.WorkOrder {
 	return predicate.WorkOrder(sql.FieldContainsFold(FieldCurrency, v))
 }
 
-// CompletedAtEQ applies the EQ predicate on the "completed_at" field.
-func CompletedAtEQ(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldEQ(FieldCompletedAt, v))
+// DateCompletedEQ applies the EQ predicate on the "date_completed" field.
+func DateCompletedEQ(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldEQ(FieldDateCompleted, v))
 }
 
-// CompletedAtNEQ applies the NEQ predicate on the "completed_at" field.
-func CompletedAtNEQ(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNEQ(FieldCompletedAt, v))
+// DateCompletedNEQ applies the NEQ predicate on the "date_completed" field.
+func DateCompletedNEQ(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNEQ(FieldDateCompleted, v))
 }
 
-// CompletedAtIn applies the In predicate on the "completed_at" field.
-func CompletedAtIn(vs ...time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldIn(FieldCompletedAt, vs...))
+// DateCompletedIn applies the In predicate on the "date_completed" field.
+func DateCompletedIn(vs ...time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldIn(FieldDateCompleted, vs...))
 }
 
-// CompletedAtNotIn applies the NotIn predicate on the "completed_at" field.
-func CompletedAtNotIn(vs ...time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNotIn(FieldCompletedAt, vs...))
+// DateCompletedNotIn applies the NotIn predicate on the "date_completed" field.
+func DateCompletedNotIn(vs ...time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNotIn(FieldDateCompleted, vs...))
 }
 
-// CompletedAtGT applies the GT predicate on the "completed_at" field.
-func CompletedAtGT(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldGT(FieldCompletedAt, v))
+// DateCompletedGT applies the GT predicate on the "date_completed" field.
+func DateCompletedGT(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldGT(FieldDateCompleted, v))
 }
 
-// CompletedAtGTE applies the GTE predicate on the "completed_at" field.
-func CompletedAtGTE(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldGTE(FieldCompletedAt, v))
+// DateCompletedGTE applies the GTE predicate on the "date_completed" field.
+func DateCompletedGTE(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldGTE(FieldDateCompleted, v))
 }
 
-// CompletedAtLT applies the LT predicate on the "completed_at" field.
-func CompletedAtLT(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldLT(FieldCompletedAt, v))
+// DateCompletedLT applies the LT predicate on the "date_completed" field.
+func DateCompletedLT(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldLT(FieldDateCompleted, v))
 }
 
-// CompletedAtLTE applies the LTE predicate on the "completed_at" field.
-func CompletedAtLTE(v time.Time) predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldLTE(FieldCompletedAt, v))
+// DateCompletedLTE applies the LTE predicate on the "date_completed" field.
+func DateCompletedLTE(v time.Time) predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldLTE(FieldDateCompleted, v))
 }
 
-// CompletedAtIsNil applies the IsNil predicate on the "completed_at" field.
-func CompletedAtIsNil() predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldIsNull(FieldCompletedAt))
+// DateCompletedIsNil applies the IsNil predicate on the "date_completed" field.
+func DateCompletedIsNil() predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldIsNull(FieldDateCompleted))
 }
 
-// CompletedAtNotNil applies the NotNil predicate on the "completed_at" field.
-func CompletedAtNotNil() predicate.WorkOrder {
-	return predicate.WorkOrder(sql.FieldNotNull(FieldCompletedAt))
+// DateCompletedNotNil applies the NotNil predicate on the "date_completed" field.
+func DateCompletedNotNil() predicate.WorkOrder {
+	return predicate.WorkOrder(sql.FieldNotNull(FieldDateCompleted))
 }
 
 // BlockingEQ applies the EQ predicate on the "blocking" field.

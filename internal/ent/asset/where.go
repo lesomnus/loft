@@ -121,14 +121,14 @@ func Slot(v string) predicate.Asset {
 	return predicate.Asset(sql.FieldEQ(FieldSlot, v))
 }
 
-// AcquiredAt applies equality check predicate on the "acquired_at" field. It's identical to AcquiredAtEQ.
-func AcquiredAt(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldEQ(FieldAcquiredAt, v))
+// DateAcquired applies equality check predicate on the "date_acquired" field. It's identical to DateAcquiredEQ.
+func DateAcquired(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldDateAcquired, v))
 }
 
-// DisposedAt applies equality check predicate on the "disposed_at" field. It's identical to DisposedAtEQ.
-func DisposedAt(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldEQ(FieldDisposedAt, v))
+// DateDisposed applies equality check predicate on the "date_disposed" field. It's identical to DateDisposedEQ.
+func DateDisposed(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldDateDisposed, v))
 }
 
 // ContentVersion applies equality check predicate on the "content_version" field. It's identical to ContentVersionEQ.
@@ -951,104 +951,104 @@ func AttributesNotNil() predicate.Asset {
 	return predicate.Asset(sql.FieldNotNull(FieldAttributes))
 }
 
-// AcquiredAtEQ applies the EQ predicate on the "acquired_at" field.
-func AcquiredAtEQ(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldEQ(FieldAcquiredAt, v))
+// DateAcquiredEQ applies the EQ predicate on the "date_acquired" field.
+func DateAcquiredEQ(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldDateAcquired, v))
 }
 
-// AcquiredAtNEQ applies the NEQ predicate on the "acquired_at" field.
-func AcquiredAtNEQ(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldNEQ(FieldAcquiredAt, v))
+// DateAcquiredNEQ applies the NEQ predicate on the "date_acquired" field.
+func DateAcquiredNEQ(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldDateAcquired, v))
 }
 
-// AcquiredAtIn applies the In predicate on the "acquired_at" field.
-func AcquiredAtIn(vs ...time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldIn(FieldAcquiredAt, vs...))
+// DateAcquiredIn applies the In predicate on the "date_acquired" field.
+func DateAcquiredIn(vs ...time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldDateAcquired, vs...))
 }
 
-// AcquiredAtNotIn applies the NotIn predicate on the "acquired_at" field.
-func AcquiredAtNotIn(vs ...time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldNotIn(FieldAcquiredAt, vs...))
+// DateAcquiredNotIn applies the NotIn predicate on the "date_acquired" field.
+func DateAcquiredNotIn(vs ...time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldDateAcquired, vs...))
 }
 
-// AcquiredAtGT applies the GT predicate on the "acquired_at" field.
-func AcquiredAtGT(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldGT(FieldAcquiredAt, v))
+// DateAcquiredGT applies the GT predicate on the "date_acquired" field.
+func DateAcquiredGT(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldGT(FieldDateAcquired, v))
 }
 
-// AcquiredAtGTE applies the GTE predicate on the "acquired_at" field.
-func AcquiredAtGTE(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldGTE(FieldAcquiredAt, v))
+// DateAcquiredGTE applies the GTE predicate on the "date_acquired" field.
+func DateAcquiredGTE(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldGTE(FieldDateAcquired, v))
 }
 
-// AcquiredAtLT applies the LT predicate on the "acquired_at" field.
-func AcquiredAtLT(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldLT(FieldAcquiredAt, v))
+// DateAcquiredLT applies the LT predicate on the "date_acquired" field.
+func DateAcquiredLT(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldLT(FieldDateAcquired, v))
 }
 
-// AcquiredAtLTE applies the LTE predicate on the "acquired_at" field.
-func AcquiredAtLTE(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldLTE(FieldAcquiredAt, v))
+// DateAcquiredLTE applies the LTE predicate on the "date_acquired" field.
+func DateAcquiredLTE(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldLTE(FieldDateAcquired, v))
 }
 
-// AcquiredAtIsNil applies the IsNil predicate on the "acquired_at" field.
-func AcquiredAtIsNil() predicate.Asset {
-	return predicate.Asset(sql.FieldIsNull(FieldAcquiredAt))
+// DateAcquiredIsNil applies the IsNil predicate on the "date_acquired" field.
+func DateAcquiredIsNil() predicate.Asset {
+	return predicate.Asset(sql.FieldIsNull(FieldDateAcquired))
 }
 
-// AcquiredAtNotNil applies the NotNil predicate on the "acquired_at" field.
-func AcquiredAtNotNil() predicate.Asset {
-	return predicate.Asset(sql.FieldNotNull(FieldAcquiredAt))
+// DateAcquiredNotNil applies the NotNil predicate on the "date_acquired" field.
+func DateAcquiredNotNil() predicate.Asset {
+	return predicate.Asset(sql.FieldNotNull(FieldDateAcquired))
 }
 
-// DisposedAtEQ applies the EQ predicate on the "disposed_at" field.
-func DisposedAtEQ(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldEQ(FieldDisposedAt, v))
+// DateDisposedEQ applies the EQ predicate on the "date_disposed" field.
+func DateDisposedEQ(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldEQ(FieldDateDisposed, v))
 }
 
-// DisposedAtNEQ applies the NEQ predicate on the "disposed_at" field.
-func DisposedAtNEQ(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldNEQ(FieldDisposedAt, v))
+// DateDisposedNEQ applies the NEQ predicate on the "date_disposed" field.
+func DateDisposedNEQ(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldNEQ(FieldDateDisposed, v))
 }
 
-// DisposedAtIn applies the In predicate on the "disposed_at" field.
-func DisposedAtIn(vs ...time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldIn(FieldDisposedAt, vs...))
+// DateDisposedIn applies the In predicate on the "date_disposed" field.
+func DateDisposedIn(vs ...time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldIn(FieldDateDisposed, vs...))
 }
 
-// DisposedAtNotIn applies the NotIn predicate on the "disposed_at" field.
-func DisposedAtNotIn(vs ...time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldNotIn(FieldDisposedAt, vs...))
+// DateDisposedNotIn applies the NotIn predicate on the "date_disposed" field.
+func DateDisposedNotIn(vs ...time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldNotIn(FieldDateDisposed, vs...))
 }
 
-// DisposedAtGT applies the GT predicate on the "disposed_at" field.
-func DisposedAtGT(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldGT(FieldDisposedAt, v))
+// DateDisposedGT applies the GT predicate on the "date_disposed" field.
+func DateDisposedGT(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldGT(FieldDateDisposed, v))
 }
 
-// DisposedAtGTE applies the GTE predicate on the "disposed_at" field.
-func DisposedAtGTE(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldGTE(FieldDisposedAt, v))
+// DateDisposedGTE applies the GTE predicate on the "date_disposed" field.
+func DateDisposedGTE(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldGTE(FieldDateDisposed, v))
 }
 
-// DisposedAtLT applies the LT predicate on the "disposed_at" field.
-func DisposedAtLT(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldLT(FieldDisposedAt, v))
+// DateDisposedLT applies the LT predicate on the "date_disposed" field.
+func DateDisposedLT(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldLT(FieldDateDisposed, v))
 }
 
-// DisposedAtLTE applies the LTE predicate on the "disposed_at" field.
-func DisposedAtLTE(v time.Time) predicate.Asset {
-	return predicate.Asset(sql.FieldLTE(FieldDisposedAt, v))
+// DateDisposedLTE applies the LTE predicate on the "date_disposed" field.
+func DateDisposedLTE(v time.Time) predicate.Asset {
+	return predicate.Asset(sql.FieldLTE(FieldDateDisposed, v))
 }
 
-// DisposedAtIsNil applies the IsNil predicate on the "disposed_at" field.
-func DisposedAtIsNil() predicate.Asset {
-	return predicate.Asset(sql.FieldIsNull(FieldDisposedAt))
+// DateDisposedIsNil applies the IsNil predicate on the "date_disposed" field.
+func DateDisposedIsNil() predicate.Asset {
+	return predicate.Asset(sql.FieldIsNull(FieldDateDisposed))
 }
 
-// DisposedAtNotNil applies the NotNil predicate on the "disposed_at" field.
-func DisposedAtNotNil() predicate.Asset {
-	return predicate.Asset(sql.FieldNotNull(FieldDisposedAt))
+// DateDisposedNotNil applies the NotNil predicate on the "date_disposed" field.
+func DateDisposedNotNil() predicate.Asset {
+	return predicate.Asset(sql.FieldNotNull(FieldDateDisposed))
 }
 
 // ContentVersionEQ applies the EQ predicate on the "content_version" field.

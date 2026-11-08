@@ -20,8 +20,8 @@ type Mutation struct {
 	name                *string
 	desc                *string
 	status              *string
-	started_at          *time.Time
-	closed_at           *time.Time
+	date_started        *time.Time
+	date_closed         *time.Time
 	started_by          *uuid.UUID
 	date_updated        *time.Time
 	date_erased         *time.Time
@@ -115,76 +115,76 @@ func (m *Mutation) ResetStatus() {
 	delete(m.exprs, FieldStatus)
 }
 
-// SetStartedAt sets the "started_at" field.
-func (m *Mutation) SetStartedAt(t time.Time) {
-	m.started_at = &t
-	delete(m.clearedFields, FieldStartedAt)
-	delete(m.exprs, FieldStartedAt)
+// SetDateStarted sets the "date_started" field.
+func (m *Mutation) SetDateStarted(t time.Time) {
+	m.date_started = &t
+	delete(m.clearedFields, FieldDateStarted)
+	delete(m.exprs, FieldDateStarted)
 }
 
-// StartedAt returns the value of the "started_at" field in the mutation.
-func (m *Mutation) StartedAt() (r time.Time, exists bool) {
-	v := m.started_at
+// DateStarted returns the value of the "date_started" field in the mutation.
+func (m *Mutation) DateStarted() (r time.Time, exists bool) {
+	v := m.date_started
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearStartedAt clears the value of the "started_at" field.
-func (m *Mutation) ClearStartedAt() {
-	m.started_at = nil
-	delete(m.exprs, FieldStartedAt)
-	m.clearedFields[FieldStartedAt] = struct{}{}
+// ClearDateStarted clears the value of the "date_started" field.
+func (m *Mutation) ClearDateStarted() {
+	m.date_started = nil
+	delete(m.exprs, FieldDateStarted)
+	m.clearedFields[FieldDateStarted] = struct{}{}
 }
 
-// StartedAtCleared returns if the "started_at" field was cleared in this mutation.
-func (m *Mutation) StartedAtCleared() bool {
-	_, ok := m.clearedFields[FieldStartedAt]
+// DateStartedCleared returns if the "date_started" field was cleared in this mutation.
+func (m *Mutation) DateStartedCleared() bool {
+	_, ok := m.clearedFields[FieldDateStarted]
 	return ok
 }
 
-// ResetStartedAt resets all changes to the "started_at" field.
-func (m *Mutation) ResetStartedAt() {
-	m.started_at = nil
-	delete(m.clearedFields, FieldStartedAt)
-	delete(m.exprs, FieldStartedAt)
+// ResetDateStarted resets all changes to the "date_started" field.
+func (m *Mutation) ResetDateStarted() {
+	m.date_started = nil
+	delete(m.clearedFields, FieldDateStarted)
+	delete(m.exprs, FieldDateStarted)
 }
 
-// SetClosedAt sets the "closed_at" field.
-func (m *Mutation) SetClosedAt(t time.Time) {
-	m.closed_at = &t
-	delete(m.clearedFields, FieldClosedAt)
-	delete(m.exprs, FieldClosedAt)
+// SetDateClosed sets the "date_closed" field.
+func (m *Mutation) SetDateClosed(t time.Time) {
+	m.date_closed = &t
+	delete(m.clearedFields, FieldDateClosed)
+	delete(m.exprs, FieldDateClosed)
 }
 
-// ClosedAt returns the value of the "closed_at" field in the mutation.
-func (m *Mutation) ClosedAt() (r time.Time, exists bool) {
-	v := m.closed_at
+// DateClosed returns the value of the "date_closed" field in the mutation.
+func (m *Mutation) DateClosed() (r time.Time, exists bool) {
+	v := m.date_closed
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearClosedAt clears the value of the "closed_at" field.
-func (m *Mutation) ClearClosedAt() {
-	m.closed_at = nil
-	delete(m.exprs, FieldClosedAt)
-	m.clearedFields[FieldClosedAt] = struct{}{}
+// ClearDateClosed clears the value of the "date_closed" field.
+func (m *Mutation) ClearDateClosed() {
+	m.date_closed = nil
+	delete(m.exprs, FieldDateClosed)
+	m.clearedFields[FieldDateClosed] = struct{}{}
 }
 
-// ClosedAtCleared returns if the "closed_at" field was cleared in this mutation.
-func (m *Mutation) ClosedAtCleared() bool {
-	_, ok := m.clearedFields[FieldClosedAt]
+// DateClosedCleared returns if the "date_closed" field was cleared in this mutation.
+func (m *Mutation) DateClosedCleared() bool {
+	_, ok := m.clearedFields[FieldDateClosed]
 	return ok
 }
 
-// ResetClosedAt resets all changes to the "closed_at" field.
-func (m *Mutation) ResetClosedAt() {
-	m.closed_at = nil
-	delete(m.clearedFields, FieldClosedAt)
-	delete(m.exprs, FieldClosedAt)
+// ResetDateClosed resets all changes to the "date_closed" field.
+func (m *Mutation) ResetDateClosed() {
+	m.date_closed = nil
+	delete(m.clearedFields, FieldDateClosed)
+	delete(m.exprs, FieldDateClosed)
 }
 
 // SetStartedBy sets the "started_by" field.
@@ -511,11 +511,11 @@ func (m *Mutation) Fields() []string {
 	if m.status != nil || m.exprs[FieldStatus] != nil {
 		fields = append(fields, FieldStatus)
 	}
-	if m.started_at != nil || m.exprs[FieldStartedAt] != nil {
-		fields = append(fields, FieldStartedAt)
+	if m.date_started != nil || m.exprs[FieldDateStarted] != nil {
+		fields = append(fields, FieldDateStarted)
 	}
-	if m.closed_at != nil || m.exprs[FieldClosedAt] != nil {
-		fields = append(fields, FieldClosedAt)
+	if m.date_closed != nil || m.exprs[FieldDateClosed] != nil {
+		fields = append(fields, FieldDateClosed)
 	}
 	if m.started_by != nil || m.exprs[FieldStartedBy] != nil {
 		fields = append(fields, FieldStartedBy)
@@ -561,10 +561,10 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Desc()
 	case FieldStatus:
 		return m.Status()
-	case FieldStartedAt:
-		return m.StartedAt()
-	case FieldClosedAt:
-		return m.ClosedAt()
+	case FieldDateStarted:
+		return m.DateStarted()
+	case FieldDateClosed:
+		return m.DateClosed()
 	case FieldStartedBy:
 		return m.StartedBy()
 	case FieldDateUpdated:
@@ -630,7 +630,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStatus(v)
 		return nil
-	case FieldStartedAt:
+	case FieldDateStarted:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -638,9 +638,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetStartedAt(v)
+		m.SetDateStarted(v)
 		return nil
-	case FieldClosedAt:
+	case FieldDateClosed:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -648,7 +648,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetClosedAt(v)
+		m.SetDateClosed(v)
 		return nil
 	case FieldStartedBy:
 		v, ok := value.(uuid.UUID)
@@ -758,10 +758,10 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetDesc()
 	case FieldStatus:
 		m.ResetStatus()
-	case FieldStartedAt:
-		m.ResetStartedAt()
-	case FieldClosedAt:
-		m.ResetClosedAt()
+	case FieldDateStarted:
+		m.ResetDateStarted()
+	case FieldDateClosed:
+		m.ResetDateClosed()
 	case FieldStartedBy:
 		m.ResetStartedBy()
 	case FieldDateUpdated:
@@ -808,11 +808,11 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldStatus]; ok {
 		fields = append(fields, FieldStatus)
 	}
-	if _, ok := m.exprs[FieldStartedAt]; ok {
-		fields = append(fields, FieldStartedAt)
+	if _, ok := m.exprs[FieldDateStarted]; ok {
+		fields = append(fields, FieldDateStarted)
 	}
-	if _, ok := m.exprs[FieldClosedAt]; ok {
-		fields = append(fields, FieldClosedAt)
+	if _, ok := m.exprs[FieldDateClosed]; ok {
+		fields = append(fields, FieldDateClosed)
 	}
 	if _, ok := m.exprs[FieldStartedBy]; ok {
 		fields = append(fields, FieldStartedBy)
@@ -873,11 +873,11 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldStartedAt) {
-		fields = append(fields, FieldStartedAt)
+	if m.FieldCleared(FieldDateStarted) {
+		fields = append(fields, FieldDateStarted)
 	}
-	if m.FieldCleared(FieldClosedAt) {
-		fields = append(fields, FieldClosedAt)
+	if m.FieldCleared(FieldDateClosed) {
+		fields = append(fields, FieldDateClosed)
 	}
 	if m.FieldCleared(FieldStartedBy) {
 		fields = append(fields, FieldStartedBy)
@@ -902,11 +902,11 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldStartedAt:
-		m.ClearStartedAt()
+	case FieldDateStarted:
+		m.ClearDateStarted()
 		return nil
-	case FieldClosedAt:
-		m.ClearClosedAt()
+	case FieldDateClosed:
+		m.ClearDateClosed()
 		return nil
 	case FieldStartedBy:
 		m.ClearStartedBy()
@@ -934,11 +934,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldStatus:
 		m.ResetStatus()
 		return nil
-	case FieldStartedAt:
-		m.ResetStartedAt()
+	case FieldDateStarted:
+		m.ResetDateStarted()
 		return nil
-	case FieldClosedAt:
-		m.ResetClosedAt()
+	case FieldDateClosed:
+		m.ResetDateClosed()
 		return nil
 	case FieldStartedBy:
 		m.ResetStartedBy()

@@ -54,7 +54,7 @@ func TestAWorkspaceSaysHowLongItKeepsItsHistory(t *testing.T) {
 	x.Zero(window().Keep, "made shorter, and the grace has not run")
 	evs := e.eventsOf("workspace.configure")
 	x.Len(evs, 1)
-	x.Equal(e.now.Add(grace).UTC(), value[*app.WorkspaceConfigured](e, evs[0]).GetKeepFrom().AsTime(), "its event says from when")
+	x.Equal(e.now.Add(grace).UTC(), value[*app.WorkspaceConfigured](e, evs[0]).GetDateKeepEffective().AsTime(), "its event says from when")
 
 	// Said again within the grace, a window still shorter than what is held
 	// is held to it until the grace of the last.
@@ -107,14 +107,14 @@ func TestAPreviewSaysWhatAWindowTakesAndFromWhen(t *testing.T) {
 	x.NoError(err)
 	x.Equal(before, e.rows(), "a preview took something")
 	x.EqualValues(180, v.GetKeepDays())
-	x.WithinDuration(e.now.Add(grace), v.GetKeepFrom().AsTime(), 0, "a shorter window, once the grace is over")
+	x.WithinDuration(e.now.Add(grace), v.GetDateKeepEffective().AsTime(), 0, "a shorter window, once the grace is over")
 	x.EqualValues(grace/day, v.GetGraceDays())
 	x.False(v.GetApply())
 	x.Positive(v.GetKeepTakes()["events"], "an event only a row the window takes points at")
 
 	// What a pass takes once the window is in force, then.
 	e.keep(180)
-	e.now = v.GetKeepFrom().AsTime()
+	e.now = v.GetDateKeepEffective().AsTime()
 	got := e.expire(true)
 	x.Equal(map[string]uint32{
 		"placements": uint32(got.Placements), "links": uint32(got.Links), "stewardships": uint32(got.Stewardships),
@@ -126,7 +126,7 @@ func TestAPreviewSaysWhatAWindowTakesAndFromWhen(t *testing.T) {
 	// A window as long as the one held, or longer, is in force at once.
 	v, err = e.app().Tenant().Preview(e.owner, app.TenantPreviewRequest_builder{Ref: ws, KeepDays: z.Ptr(uint32(365))}.Build())
 	x.NoError(err)
-	x.WithinDuration(e.now, v.GetKeepFrom().AsTime(), 0)
+	x.WithinDuration(e.now, v.GetDateKeepEffective().AsTime(), 0)
 
 	_, err = e.app().Tenant().Preview(e.owner, app.TenantPreviewRequest_builder{Ref: ws, KeepDays: z.Ptr(uint32(100*365 + 1))}.Build())
 	x.Equal(codes.InvalidArgument, codeOf(err), "what Configure would refuse")
@@ -146,7 +146,7 @@ func TestAPreviewHoldsNothing(t *testing.T) {
 	e.aYearOfALaptop()
 	ctx := context.Background()
 
-	gone, err := e.s.Ent.Placement.Query().Where(placement.TenantId(e.tenant.Uuid()), placement.ValidToNotNil(), placement.ValidToLT(e.now.Add(-300*day+time.Hour))).First(ctx)
+	gone, err := e.s.Ent.Placement.Query().Where(placement.TenantId(e.tenant.Uuid()), placement.DateEndNotNil(), placement.DateEndLT(e.now.Add(-300*day+time.Hour))).First(ctx)
 	x.NoError(err)
 	tx, err := e.s.Db.BeginTx(ctx, nil)
 	x.NoError(err)

@@ -226,11 +226,11 @@ func (a Routes) window(ctx context.Context, t *ent.Tenant) (*app.OperatorTenantW
 		Apply:    a.C.App.Retention.Apply,
 	}.Build()
 	if u := retention.KeepOf(t).Until(now, d.Wait(), retention.Days); !u.IsZero() {
-		out.SetKeepUntil(timestamppb.New(u))
+		out.SetDateKeepUntil(timestamppb.New(u))
 		out.SetKeepThenDays(t.KeepDays)
 	}
 	if u := retention.AccessOf(t).Until(now, d.Wait(), d.AccessDays); !u.IsZero() {
-		out.SetAccessUntil(timestamppb.New(u))
+		out.SetDateAccessUntil(timestamppb.New(u))
 		out.SetAccessThenDays(days(d.AccessDays(t.AccessKeepDays)))
 	}
 	if a.S.Trail.Tenants != nil {
@@ -284,7 +284,7 @@ func (s operatorTenants) Move(ctx context.Context, req *app.OperatorTenantMoveRe
 	if err != nil {
 		return nil, err
 	}
-	return app.OperatorTenantMoveResponse_builder{Tenant: row, From: from, HeldUntil: timestamppb.New(until)}.Build(), nil
+	return app.OperatorTenantMoveResponse_builder{Tenant: row, From: from, DateHeldUntil: timestamppb.New(until)}.Build(), nil
 }
 
 // NameOwner makes a member of a workspace one of its owners, as

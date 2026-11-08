@@ -50,7 +50,7 @@ message CustodyReturnRequest {
   CustodyRef ref = 1;
   // Empty: everything still out.
   repeated CustodyReturnLine lines = 2;
-  google.protobuf.Timestamp at = 3;
+  google.protobuf.Timestamp date_occurred = 3;
   // Where the returned assets go.
   AssetRef to = 4;
   bytes op = 5 [features.field_presence = IMPLICIT];
@@ -64,7 +64,7 @@ message CustodyReturnLine {
 
 message CustodyExtendRequest {
   CustodyRef ref = 1;
-  google.protobuf.Timestamp due_at = 2;
+  google.protobuf.Timestamp date_due = 2;
 }
 
 message CustodyOutstandingRequest {
@@ -94,7 +94,7 @@ message CustodyOutstandingResponse {
   uint32 assets = 6 [features.field_presence = IMPLICIT];
   uint32 stocks = 7 [features.field_presence = IMPLICIT];
   // When it was read, which what is overdue is overdue at.
-  google.protobuf.Timestamp at = 8;
+  google.protobuf.Timestamp date_as_of = 8;
 }
 
 // CustodyOutstandingRow is one line of a hand-over still out: an asset, or
@@ -118,8 +118,8 @@ message CustodyOutstandingRow {
   string stock_name = 10 [features.field_presence = IMPLICIT];
   int64 quantity = 11 [features.field_presence = IMPLICIT];
   string unit = 12 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp issued_at = 13;
-  google.protobuf.Timestamp due_at = 14;
+  google.protobuf.Timestamp date_issued = 13;
+  google.protobuf.Timestamp date_due = 14;
   // Past its due date, and by how many of the workspace's days: one due
   // yesterday is a day late, and one due earlier today none, late as it is.
   bool overdue = 15 [features.field_presence = IMPLICIT];

@@ -15,28 +15,28 @@ import (
 
 // Mutation represents an operation that mutates the Custody nodes in the graph.
 type Mutation struct {
-	op              ent.Op
-	typ             string
-	desc            *string
-	kind            *string
-	status          *string
-	issued_at       *time.Time
-	due_at          *time.Time
-	date_updated    *time.Time
-	date_erased     *time.Time
-	date_created    *time.Time
-	acknowledged_at *time.Time
-	returned_at     *time.Time
-	reservation_id  *uuid.UUID
-	issued_by       *uuid.UUID
-	overdue_noticed *bool
-	clearedFields   map[string]struct{}
-	exprs           map[string]sql.Querier
-	tenant          *uuid.UUID
-	clearedtenant   bool
-	party           *uuid.UUID
-	clearedparty    bool
-	predicates      []predicate.Custody
+	op                ent.Op
+	typ               string
+	desc              *string
+	kind              *string
+	status            *string
+	date_issued       *time.Time
+	date_due          *time.Time
+	date_updated      *time.Time
+	date_erased       *time.Time
+	date_created      *time.Time
+	date_acknowledged *time.Time
+	date_returned     *time.Time
+	reservation_id    *uuid.UUID
+	issued_by         *uuid.UUID
+	overdue_noticed   *bool
+	clearedFields     map[string]struct{}
+	exprs             map[string]sql.Querier
+	tenant            *uuid.UUID
+	clearedtenant     bool
+	party             *uuid.UUID
+	clearedparty      bool
+	predicates        []predicate.Custody
 }
 
 // NewMutation creates a new Mutation for the Custody entity.
@@ -116,76 +116,76 @@ func (m *Mutation) ResetStatus() {
 	delete(m.exprs, FieldStatus)
 }
 
-// SetIssuedAt sets the "issued_at" field.
-func (m *Mutation) SetIssuedAt(t time.Time) {
-	m.issued_at = &t
-	delete(m.clearedFields, FieldIssuedAt)
-	delete(m.exprs, FieldIssuedAt)
+// SetDateIssued sets the "date_issued" field.
+func (m *Mutation) SetDateIssued(t time.Time) {
+	m.date_issued = &t
+	delete(m.clearedFields, FieldDateIssued)
+	delete(m.exprs, FieldDateIssued)
 }
 
-// IssuedAt returns the value of the "issued_at" field in the mutation.
-func (m *Mutation) IssuedAt() (r time.Time, exists bool) {
-	v := m.issued_at
+// DateIssued returns the value of the "date_issued" field in the mutation.
+func (m *Mutation) DateIssued() (r time.Time, exists bool) {
+	v := m.date_issued
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearIssuedAt clears the value of the "issued_at" field.
-func (m *Mutation) ClearIssuedAt() {
-	m.issued_at = nil
-	delete(m.exprs, FieldIssuedAt)
-	m.clearedFields[FieldIssuedAt] = struct{}{}
+// ClearDateIssued clears the value of the "date_issued" field.
+func (m *Mutation) ClearDateIssued() {
+	m.date_issued = nil
+	delete(m.exprs, FieldDateIssued)
+	m.clearedFields[FieldDateIssued] = struct{}{}
 }
 
-// IssuedAtCleared returns if the "issued_at" field was cleared in this mutation.
-func (m *Mutation) IssuedAtCleared() bool {
-	_, ok := m.clearedFields[FieldIssuedAt]
+// DateIssuedCleared returns if the "date_issued" field was cleared in this mutation.
+func (m *Mutation) DateIssuedCleared() bool {
+	_, ok := m.clearedFields[FieldDateIssued]
 	return ok
 }
 
-// ResetIssuedAt resets all changes to the "issued_at" field.
-func (m *Mutation) ResetIssuedAt() {
-	m.issued_at = nil
-	delete(m.clearedFields, FieldIssuedAt)
-	delete(m.exprs, FieldIssuedAt)
+// ResetDateIssued resets all changes to the "date_issued" field.
+func (m *Mutation) ResetDateIssued() {
+	m.date_issued = nil
+	delete(m.clearedFields, FieldDateIssued)
+	delete(m.exprs, FieldDateIssued)
 }
 
-// SetDueAt sets the "due_at" field.
-func (m *Mutation) SetDueAt(t time.Time) {
-	m.due_at = &t
-	delete(m.clearedFields, FieldDueAt)
-	delete(m.exprs, FieldDueAt)
+// SetDateDue sets the "date_due" field.
+func (m *Mutation) SetDateDue(t time.Time) {
+	m.date_due = &t
+	delete(m.clearedFields, FieldDateDue)
+	delete(m.exprs, FieldDateDue)
 }
 
-// DueAt returns the value of the "due_at" field in the mutation.
-func (m *Mutation) DueAt() (r time.Time, exists bool) {
-	v := m.due_at
+// DateDue returns the value of the "date_due" field in the mutation.
+func (m *Mutation) DateDue() (r time.Time, exists bool) {
+	v := m.date_due
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearDueAt clears the value of the "due_at" field.
-func (m *Mutation) ClearDueAt() {
-	m.due_at = nil
-	delete(m.exprs, FieldDueAt)
-	m.clearedFields[FieldDueAt] = struct{}{}
+// ClearDateDue clears the value of the "date_due" field.
+func (m *Mutation) ClearDateDue() {
+	m.date_due = nil
+	delete(m.exprs, FieldDateDue)
+	m.clearedFields[FieldDateDue] = struct{}{}
 }
 
-// DueAtCleared returns if the "due_at" field was cleared in this mutation.
-func (m *Mutation) DueAtCleared() bool {
-	_, ok := m.clearedFields[FieldDueAt]
+// DateDueCleared returns if the "date_due" field was cleared in this mutation.
+func (m *Mutation) DateDueCleared() bool {
+	_, ok := m.clearedFields[FieldDateDue]
 	return ok
 }
 
-// ResetDueAt resets all changes to the "due_at" field.
-func (m *Mutation) ResetDueAt() {
-	m.due_at = nil
-	delete(m.clearedFields, FieldDueAt)
-	delete(m.exprs, FieldDueAt)
+// ResetDateDue resets all changes to the "date_due" field.
+func (m *Mutation) ResetDateDue() {
+	m.date_due = nil
+	delete(m.clearedFields, FieldDateDue)
+	delete(m.exprs, FieldDateDue)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -278,76 +278,76 @@ func (m *Mutation) ResetDateCreated() {
 	delete(m.clearedFields, FieldDateCreated)
 }
 
-// SetAcknowledgedAt sets the "acknowledged_at" field.
-func (m *Mutation) SetAcknowledgedAt(t time.Time) {
-	m.acknowledged_at = &t
-	delete(m.clearedFields, FieldAcknowledgedAt)
-	delete(m.exprs, FieldAcknowledgedAt)
+// SetDateAcknowledged sets the "date_acknowledged" field.
+func (m *Mutation) SetDateAcknowledged(t time.Time) {
+	m.date_acknowledged = &t
+	delete(m.clearedFields, FieldDateAcknowledged)
+	delete(m.exprs, FieldDateAcknowledged)
 }
 
-// AcknowledgedAt returns the value of the "acknowledged_at" field in the mutation.
-func (m *Mutation) AcknowledgedAt() (r time.Time, exists bool) {
-	v := m.acknowledged_at
+// DateAcknowledged returns the value of the "date_acknowledged" field in the mutation.
+func (m *Mutation) DateAcknowledged() (r time.Time, exists bool) {
+	v := m.date_acknowledged
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearAcknowledgedAt clears the value of the "acknowledged_at" field.
-func (m *Mutation) ClearAcknowledgedAt() {
-	m.acknowledged_at = nil
-	delete(m.exprs, FieldAcknowledgedAt)
-	m.clearedFields[FieldAcknowledgedAt] = struct{}{}
+// ClearDateAcknowledged clears the value of the "date_acknowledged" field.
+func (m *Mutation) ClearDateAcknowledged() {
+	m.date_acknowledged = nil
+	delete(m.exprs, FieldDateAcknowledged)
+	m.clearedFields[FieldDateAcknowledged] = struct{}{}
 }
 
-// AcknowledgedAtCleared returns if the "acknowledged_at" field was cleared in this mutation.
-func (m *Mutation) AcknowledgedAtCleared() bool {
-	_, ok := m.clearedFields[FieldAcknowledgedAt]
+// DateAcknowledgedCleared returns if the "date_acknowledged" field was cleared in this mutation.
+func (m *Mutation) DateAcknowledgedCleared() bool {
+	_, ok := m.clearedFields[FieldDateAcknowledged]
 	return ok
 }
 
-// ResetAcknowledgedAt resets all changes to the "acknowledged_at" field.
-func (m *Mutation) ResetAcknowledgedAt() {
-	m.acknowledged_at = nil
-	delete(m.clearedFields, FieldAcknowledgedAt)
-	delete(m.exprs, FieldAcknowledgedAt)
+// ResetDateAcknowledged resets all changes to the "date_acknowledged" field.
+func (m *Mutation) ResetDateAcknowledged() {
+	m.date_acknowledged = nil
+	delete(m.clearedFields, FieldDateAcknowledged)
+	delete(m.exprs, FieldDateAcknowledged)
 }
 
-// SetReturnedAt sets the "returned_at" field.
-func (m *Mutation) SetReturnedAt(t time.Time) {
-	m.returned_at = &t
-	delete(m.clearedFields, FieldReturnedAt)
-	delete(m.exprs, FieldReturnedAt)
+// SetDateReturned sets the "date_returned" field.
+func (m *Mutation) SetDateReturned(t time.Time) {
+	m.date_returned = &t
+	delete(m.clearedFields, FieldDateReturned)
+	delete(m.exprs, FieldDateReturned)
 }
 
-// ReturnedAt returns the value of the "returned_at" field in the mutation.
-func (m *Mutation) ReturnedAt() (r time.Time, exists bool) {
-	v := m.returned_at
+// DateReturned returns the value of the "date_returned" field in the mutation.
+func (m *Mutation) DateReturned() (r time.Time, exists bool) {
+	v := m.date_returned
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearReturnedAt clears the value of the "returned_at" field.
-func (m *Mutation) ClearReturnedAt() {
-	m.returned_at = nil
-	delete(m.exprs, FieldReturnedAt)
-	m.clearedFields[FieldReturnedAt] = struct{}{}
+// ClearDateReturned clears the value of the "date_returned" field.
+func (m *Mutation) ClearDateReturned() {
+	m.date_returned = nil
+	delete(m.exprs, FieldDateReturned)
+	m.clearedFields[FieldDateReturned] = struct{}{}
 }
 
-// ReturnedAtCleared returns if the "returned_at" field was cleared in this mutation.
-func (m *Mutation) ReturnedAtCleared() bool {
-	_, ok := m.clearedFields[FieldReturnedAt]
+// DateReturnedCleared returns if the "date_returned" field was cleared in this mutation.
+func (m *Mutation) DateReturnedCleared() bool {
+	_, ok := m.clearedFields[FieldDateReturned]
 	return ok
 }
 
-// ResetReturnedAt resets all changes to the "returned_at" field.
-func (m *Mutation) ResetReturnedAt() {
-	m.returned_at = nil
-	delete(m.clearedFields, FieldReturnedAt)
-	delete(m.exprs, FieldReturnedAt)
+// ResetDateReturned resets all changes to the "date_returned" field.
+func (m *Mutation) ResetDateReturned() {
+	m.date_returned = nil
+	delete(m.clearedFields, FieldDateReturned)
+	delete(m.exprs, FieldDateReturned)
 }
 
 // SetReservationId sets the "reservation_id" field.
@@ -579,11 +579,11 @@ func (m *Mutation) Fields() []string {
 	if m.status != nil || m.exprs[FieldStatus] != nil {
 		fields = append(fields, FieldStatus)
 	}
-	if m.issued_at != nil || m.exprs[FieldIssuedAt] != nil {
-		fields = append(fields, FieldIssuedAt)
+	if m.date_issued != nil || m.exprs[FieldDateIssued] != nil {
+		fields = append(fields, FieldDateIssued)
 	}
-	if m.due_at != nil || m.exprs[FieldDueAt] != nil {
-		fields = append(fields, FieldDueAt)
+	if m.date_due != nil || m.exprs[FieldDateDue] != nil {
+		fields = append(fields, FieldDateDue)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -594,11 +594,11 @@ func (m *Mutation) Fields() []string {
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.acknowledged_at != nil || m.exprs[FieldAcknowledgedAt] != nil {
-		fields = append(fields, FieldAcknowledgedAt)
+	if m.date_acknowledged != nil || m.exprs[FieldDateAcknowledged] != nil {
+		fields = append(fields, FieldDateAcknowledged)
 	}
-	if m.returned_at != nil || m.exprs[FieldReturnedAt] != nil {
-		fields = append(fields, FieldReturnedAt)
+	if m.date_returned != nil || m.exprs[FieldDateReturned] != nil {
+		fields = append(fields, FieldDateReturned)
 	}
 	if m.reservation_id != nil || m.exprs[FieldReservationId] != nil {
 		fields = append(fields, FieldReservationId)
@@ -635,20 +635,20 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Kind()
 	case FieldStatus:
 		return m.Status()
-	case FieldIssuedAt:
-		return m.IssuedAt()
-	case FieldDueAt:
-		return m.DueAt()
+	case FieldDateIssued:
+		return m.DateIssued()
+	case FieldDateDue:
+		return m.DateDue()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateErased:
 		return m.DateErased()
 	case FieldDateCreated:
 		return m.DateCreated()
-	case FieldAcknowledgedAt:
-		return m.AcknowledgedAt()
-	case FieldReturnedAt:
-		return m.ReturnedAt()
+	case FieldDateAcknowledged:
+		return m.DateAcknowledged()
+	case FieldDateReturned:
+		return m.DateReturned()
 	case FieldReservationId:
 		return m.ReservationId()
 	case FieldIssuedBy:
@@ -708,7 +708,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStatus(v)
 		return nil
-	case FieldIssuedAt:
+	case FieldDateIssued:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -716,9 +716,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetIssuedAt(v)
+		m.SetDateIssued(v)
 		return nil
-	case FieldDueAt:
+	case FieldDateDue:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -726,7 +726,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDueAt(v)
+		m.SetDateDue(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -758,7 +758,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateCreated(v)
 		return nil
-	case FieldAcknowledgedAt:
+	case FieldDateAcknowledged:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -766,9 +766,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetAcknowledgedAt(v)
+		m.SetDateAcknowledged(v)
 		return nil
-	case FieldReturnedAt:
+	case FieldDateReturned:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -776,7 +776,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetReturnedAt(v)
+		m.SetDateReturned(v)
 		return nil
 	case FieldReservationId:
 		v, ok := value.(uuid.UUID)
@@ -856,20 +856,20 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetKind()
 	case FieldStatus:
 		m.ResetStatus()
-	case FieldIssuedAt:
-		m.ResetIssuedAt()
-	case FieldDueAt:
-		m.ResetDueAt()
+	case FieldDateIssued:
+		m.ResetDateIssued()
+	case FieldDateDue:
+		m.ResetDateDue()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateErased:
 		m.ResetDateErased()
 	case FieldDateCreated:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
-	case FieldAcknowledgedAt:
-		m.ResetAcknowledgedAt()
-	case FieldReturnedAt:
-		m.ResetReturnedAt()
+	case FieldDateAcknowledged:
+		m.ResetDateAcknowledged()
+	case FieldDateReturned:
+		m.ResetDateReturned()
 	case FieldReservationId:
 		m.ResetReservationId()
 	case FieldIssuedBy:
@@ -910,11 +910,11 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldStatus]; ok {
 		fields = append(fields, FieldStatus)
 	}
-	if _, ok := m.exprs[FieldIssuedAt]; ok {
-		fields = append(fields, FieldIssuedAt)
+	if _, ok := m.exprs[FieldDateIssued]; ok {
+		fields = append(fields, FieldDateIssued)
 	}
-	if _, ok := m.exprs[FieldDueAt]; ok {
-		fields = append(fields, FieldDueAt)
+	if _, ok := m.exprs[FieldDateDue]; ok {
+		fields = append(fields, FieldDateDue)
 	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
@@ -922,11 +922,11 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldDateErased]; ok {
 		fields = append(fields, FieldDateErased)
 	}
-	if _, ok := m.exprs[FieldAcknowledgedAt]; ok {
-		fields = append(fields, FieldAcknowledgedAt)
+	if _, ok := m.exprs[FieldDateAcknowledged]; ok {
+		fields = append(fields, FieldDateAcknowledged)
 	}
-	if _, ok := m.exprs[FieldReturnedAt]; ok {
-		fields = append(fields, FieldReturnedAt)
+	if _, ok := m.exprs[FieldDateReturned]; ok {
+		fields = append(fields, FieldDateReturned)
 	}
 	if _, ok := m.exprs[FieldReservationId]; ok {
 		fields = append(fields, FieldReservationId)
@@ -966,11 +966,11 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldIssuedAt) {
-		fields = append(fields, FieldIssuedAt)
+	if m.FieldCleared(FieldDateIssued) {
+		fields = append(fields, FieldDateIssued)
 	}
-	if m.FieldCleared(FieldDueAt) {
-		fields = append(fields, FieldDueAt)
+	if m.FieldCleared(FieldDateDue) {
+		fields = append(fields, FieldDateDue)
 	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
@@ -978,11 +978,11 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.FieldCleared(FieldAcknowledgedAt) {
-		fields = append(fields, FieldAcknowledgedAt)
+	if m.FieldCleared(FieldDateAcknowledged) {
+		fields = append(fields, FieldDateAcknowledged)
 	}
-	if m.FieldCleared(FieldReturnedAt) {
-		fields = append(fields, FieldReturnedAt)
+	if m.FieldCleared(FieldDateReturned) {
+		fields = append(fields, FieldDateReturned)
 	}
 	if m.FieldCleared(FieldReservationId) {
 		fields = append(fields, FieldReservationId)
@@ -1004,11 +1004,11 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldIssuedAt:
-		m.ClearIssuedAt()
+	case FieldDateIssued:
+		m.ClearDateIssued()
 		return nil
-	case FieldDueAt:
-		m.ClearDueAt()
+	case FieldDateDue:
+		m.ClearDateDue()
 		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
@@ -1016,11 +1016,11 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldDateCreated:
 		m.ClearDateCreated()
 		return nil
-	case FieldAcknowledgedAt:
-		m.ClearAcknowledgedAt()
+	case FieldDateAcknowledged:
+		m.ClearDateAcknowledged()
 		return nil
-	case FieldReturnedAt:
-		m.ClearReturnedAt()
+	case FieldDateReturned:
+		m.ClearDateReturned()
 		return nil
 	case FieldReservationId:
 		m.ClearReservationId()
@@ -1045,11 +1045,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldStatus:
 		m.ResetStatus()
 		return nil
-	case FieldIssuedAt:
-		m.ResetIssuedAt()
+	case FieldDateIssued:
+		m.ResetDateIssued()
 		return nil
-	case FieldDueAt:
-		m.ResetDueAt()
+	case FieldDateDue:
+		m.ResetDateDue()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
@@ -1060,11 +1060,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldDateCreated:
 		m.ResetDateCreated()
 		return nil
-	case FieldAcknowledgedAt:
-		m.ResetAcknowledgedAt()
+	case FieldDateAcknowledged:
+		m.ResetDateAcknowledged()
 		return nil
-	case FieldReturnedAt:
-		m.ResetReturnedAt()
+	case FieldDateReturned:
+		m.ResetDateReturned()
 		return nil
 	case FieldReservationId:
 		m.ResetReservationId()

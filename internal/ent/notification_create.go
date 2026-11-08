@@ -57,16 +57,16 @@ func (_c *NotificationCreate) SetNillableSubjectId(v *uuid.UUID) *NotificationCr
 	return _c
 }
 
-// SetReadAt sets the "read_at" field.
-func (_c *NotificationCreate) SetReadAt(v time.Time) *NotificationCreate {
-	_c.mutation.SetReadAt(v)
+// SetDateRead sets the "date_read" field.
+func (_c *NotificationCreate) SetDateRead(v time.Time) *NotificationCreate {
+	_c.mutation.SetDateRead(v)
 	return _c
 }
 
-// SetNillableReadAt sets the "read_at" field if the given value is not nil.
-func (_c *NotificationCreate) SetNillableReadAt(v *time.Time) *NotificationCreate {
+// SetNillableDateRead sets the "date_read" field if the given value is not nil.
+func (_c *NotificationCreate) SetNillableDateRead(v *time.Time) *NotificationCreate {
 	if v != nil {
-		_c.SetReadAt(*v)
+		_c.SetDateRead(*v)
 	}
 	return _c
 }
@@ -288,9 +288,9 @@ func (_c *NotificationCreate) createSpec() (*Notification, *sqlgraph.CreateSpec)
 		_spec.SetField(notification.FieldSubjectId, field.TypeUuid, value)
 		_node.SubjectId = &value
 	}
-	if value, ok := _c.mutation.ReadAt(); ok {
-		_spec.SetField(notification.FieldReadAt, field.TypeTime, value)
-		_node.ReadAt = &value
+	if value, ok := _c.mutation.DateRead(); ok {
+		_spec.SetField(notification.FieldDateRead, field.TypeTime, value)
+		_node.DateRead = &value
 	}
 	if value, ok := _c.mutation.Link(); ok {
 		_spec.SetField(notification.FieldLink, field.TypeString, value)

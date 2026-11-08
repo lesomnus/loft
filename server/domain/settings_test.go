@@ -107,7 +107,7 @@ func TestAWorkspaceSaysWhereItIs(t *testing.T) {
 		// 03:30 UTC on the 2nd is the 1st in New York and the 2nd in Seoul.
 		at := time.Date(2026, 3, 2, 3, 30, 0, 0, time.UTC)
 		_, err := e.app().Asset().Add(e.owner, app.AssetAddRequest_builder{
-			Name: "모니터", Tag: "MN-1", Kind: "item", Since: e.ago(time.Hour), AcquiredAt: timestamppb.New(at),
+			Name: "모니터", Tag: "MN-1", Kind: "item", DateOccurred: e.ago(time.Hour), DateAcquired: timestamppb.New(at),
 		}.Build())
 		x.NoError(err)
 

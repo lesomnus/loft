@@ -87,43 +87,43 @@ func (_u *PurchaseUpdate) SetNillableStatus(v *string) *PurchaseUpdate {
 	return _u
 }
 
-// SetOrderedAt sets the "ordered_at" field.
-func (_u *PurchaseUpdate) SetOrderedAt(v time.Time) *PurchaseUpdate {
-	_u.mutation.SetOrderedAt(v)
+// SetDateOrdered sets the "date_ordered" field.
+func (_u *PurchaseUpdate) SetDateOrdered(v time.Time) *PurchaseUpdate {
+	_u.mutation.SetDateOrdered(v)
 	return _u
 }
 
-// SetNillableOrderedAt sets the "ordered_at" field if the given value is not nil.
-func (_u *PurchaseUpdate) SetNillableOrderedAt(v *time.Time) *PurchaseUpdate {
+// SetNillableDateOrdered sets the "date_ordered" field if the given value is not nil.
+func (_u *PurchaseUpdate) SetNillableDateOrdered(v *time.Time) *PurchaseUpdate {
 	if v != nil {
-		_u.SetOrderedAt(*v)
+		_u.SetDateOrdered(*v)
 	}
 	return _u
 }
 
-// ClearOrderedAt clears the value of the "ordered_at" field.
-func (_u *PurchaseUpdate) ClearOrderedAt() *PurchaseUpdate {
-	_u.mutation.ClearOrderedAt()
+// ClearDateOrdered clears the value of the "date_ordered" field.
+func (_u *PurchaseUpdate) ClearDateOrdered() *PurchaseUpdate {
+	_u.mutation.ClearDateOrdered()
 	return _u
 }
 
-// SetReceivedAt sets the "received_at" field.
-func (_u *PurchaseUpdate) SetReceivedAt(v time.Time) *PurchaseUpdate {
-	_u.mutation.SetReceivedAt(v)
+// SetDateReceived sets the "date_received" field.
+func (_u *PurchaseUpdate) SetDateReceived(v time.Time) *PurchaseUpdate {
+	_u.mutation.SetDateReceived(v)
 	return _u
 }
 
-// SetNillableReceivedAt sets the "received_at" field if the given value is not nil.
-func (_u *PurchaseUpdate) SetNillableReceivedAt(v *time.Time) *PurchaseUpdate {
+// SetNillableDateReceived sets the "date_received" field if the given value is not nil.
+func (_u *PurchaseUpdate) SetNillableDateReceived(v *time.Time) *PurchaseUpdate {
 	if v != nil {
-		_u.SetReceivedAt(*v)
+		_u.SetDateReceived(*v)
 	}
 	return _u
 }
 
-// ClearReceivedAt clears the value of the "received_at" field.
-func (_u *PurchaseUpdate) ClearReceivedAt() *PurchaseUpdate {
-	_u.mutation.ClearReceivedAt()
+// ClearDateReceived clears the value of the "date_received" field.
+func (_u *PurchaseUpdate) ClearDateReceived() *PurchaseUpdate {
+	_u.mutation.ClearDateReceived()
 	return _u
 }
 
@@ -309,23 +309,23 @@ func (_u *PurchaseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(purchase.FieldStatus); ok {
 		_spec.SetField(purchase.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.OrderedAt(); ok {
-		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateOrdered(); ok {
+		_spec.SetField(purchase.FieldDateOrdered, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(purchase.FieldOrderedAt); ok {
-		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDateOrdered); ok {
+		_spec.SetField(purchase.FieldDateOrdered, field.TypeTime, e)
 	}
-	if _u.mutation.OrderedAtCleared() {
-		_spec.ClearField(purchase.FieldOrderedAt, field.TypeTime)
+	if _u.mutation.DateOrderedCleared() {
+		_spec.ClearField(purchase.FieldDateOrdered, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ReceivedAt(); ok {
-		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateReceived(); ok {
+		_spec.SetField(purchase.FieldDateReceived, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(purchase.FieldReceivedAt); ok {
-		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDateReceived); ok {
+		_spec.SetField(purchase.FieldDateReceived, field.TypeTime, e)
 	}
-	if _u.mutation.ReceivedAtCleared() {
-		_spec.ClearField(purchase.FieldReceivedAt, field.TypeTime)
+	if _u.mutation.DateReceivedCleared() {
+		_spec.ClearField(purchase.FieldDateReceived, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(purchase.FieldDateUpdated, field.TypeTime, value)
@@ -467,43 +467,43 @@ func (_u *PurchaseUpdateOne) SetNillableStatus(v *string) *PurchaseUpdateOne {
 	return _u
 }
 
-// SetOrderedAt sets the "ordered_at" field.
-func (_u *PurchaseUpdateOne) SetOrderedAt(v time.Time) *PurchaseUpdateOne {
-	_u.mutation.SetOrderedAt(v)
+// SetDateOrdered sets the "date_ordered" field.
+func (_u *PurchaseUpdateOne) SetDateOrdered(v time.Time) *PurchaseUpdateOne {
+	_u.mutation.SetDateOrdered(v)
 	return _u
 }
 
-// SetNillableOrderedAt sets the "ordered_at" field if the given value is not nil.
-func (_u *PurchaseUpdateOne) SetNillableOrderedAt(v *time.Time) *PurchaseUpdateOne {
+// SetNillableDateOrdered sets the "date_ordered" field if the given value is not nil.
+func (_u *PurchaseUpdateOne) SetNillableDateOrdered(v *time.Time) *PurchaseUpdateOne {
 	if v != nil {
-		_u.SetOrderedAt(*v)
+		_u.SetDateOrdered(*v)
 	}
 	return _u
 }
 
-// ClearOrderedAt clears the value of the "ordered_at" field.
-func (_u *PurchaseUpdateOne) ClearOrderedAt() *PurchaseUpdateOne {
-	_u.mutation.ClearOrderedAt()
+// ClearDateOrdered clears the value of the "date_ordered" field.
+func (_u *PurchaseUpdateOne) ClearDateOrdered() *PurchaseUpdateOne {
+	_u.mutation.ClearDateOrdered()
 	return _u
 }
 
-// SetReceivedAt sets the "received_at" field.
-func (_u *PurchaseUpdateOne) SetReceivedAt(v time.Time) *PurchaseUpdateOne {
-	_u.mutation.SetReceivedAt(v)
+// SetDateReceived sets the "date_received" field.
+func (_u *PurchaseUpdateOne) SetDateReceived(v time.Time) *PurchaseUpdateOne {
+	_u.mutation.SetDateReceived(v)
 	return _u
 }
 
-// SetNillableReceivedAt sets the "received_at" field if the given value is not nil.
-func (_u *PurchaseUpdateOne) SetNillableReceivedAt(v *time.Time) *PurchaseUpdateOne {
+// SetNillableDateReceived sets the "date_received" field if the given value is not nil.
+func (_u *PurchaseUpdateOne) SetNillableDateReceived(v *time.Time) *PurchaseUpdateOne {
 	if v != nil {
-		_u.SetReceivedAt(*v)
+		_u.SetDateReceived(*v)
 	}
 	return _u
 }
 
-// ClearReceivedAt clears the value of the "received_at" field.
-func (_u *PurchaseUpdateOne) ClearReceivedAt() *PurchaseUpdateOne {
-	_u.mutation.ClearReceivedAt()
+// ClearDateReceived clears the value of the "date_received" field.
+func (_u *PurchaseUpdateOne) ClearDateReceived() *PurchaseUpdateOne {
+	_u.mutation.ClearDateReceived()
 	return _u
 }
 
@@ -719,23 +719,23 @@ func (_u *PurchaseUpdateOne) sqlSave(ctx context.Context) (_node *Purchase, err 
 	if e, ok := _u.mutation.FieldExpr(purchase.FieldStatus); ok {
 		_spec.SetField(purchase.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.OrderedAt(); ok {
-		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateOrdered(); ok {
+		_spec.SetField(purchase.FieldDateOrdered, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(purchase.FieldOrderedAt); ok {
-		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDateOrdered); ok {
+		_spec.SetField(purchase.FieldDateOrdered, field.TypeTime, e)
 	}
-	if _u.mutation.OrderedAtCleared() {
-		_spec.ClearField(purchase.FieldOrderedAt, field.TypeTime)
+	if _u.mutation.DateOrderedCleared() {
+		_spec.ClearField(purchase.FieldDateOrdered, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ReceivedAt(); ok {
-		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateReceived(); ok {
+		_spec.SetField(purchase.FieldDateReceived, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(purchase.FieldReceivedAt); ok {
-		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDateReceived); ok {
+		_spec.SetField(purchase.FieldDateReceived, field.TypeTime, e)
 	}
-	if _u.mutation.ReceivedAtCleared() {
-		_spec.ClearField(purchase.FieldReceivedAt, field.TypeTime)
+	if _u.mutation.DateReceivedCleared() {
+		_spec.ClearField(purchase.FieldDateReceived, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(purchase.FieldDateUpdated, field.TypeTime, value)

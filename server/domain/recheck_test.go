@@ -184,13 +184,13 @@ func TestADomainWhoseDNSLeftLapses(t *testing.T) {
 	d.set(func(d *dns) { d.txt["_loft-challenge.assets.acme.example"] = []string{token} })
 	e.later(time.Hour)
 	x.Zero(failures())
-	x.Nil(e.domainRow(v).FailingSince)
+	x.Nil(e.domainRow(v).DateFailing)
 
 	// Six noes come an hour apart, and are held to it besides: six that came
 	// quicker -- as a count left by checks sooner than this build's -- keep
 	// it until five hours have passed since the first.
 	row := e.domainRow(v)
-	x.NoError(e.s.Ent.Domain.UpdateOneId(row.Id).SetFailures(5).SetFailingSince(e.now.Add(-time.Hour)).Exec(ctx))
+	x.NoError(e.s.Ent.Domain.UpdateOneId(row.Id).SetFailures(5).SetDateFailing(e.now.Add(-time.Hour)).Exec(ctx))
 	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.assets.acme.example") })
 	e.later(time.Hour)
 	x.Equal("active", e.domainRow(v).State, "six noes in two hours")
@@ -367,13 +367,13 @@ func TestAnAppDomainAnotherTookThePlaceOfSendsItsPagesOn(t *testing.T) {
 	x.NoError(err)
 	row := e.domainRow(old)
 	x.Equal("legacy", row.State)
-	x.NotNil(row.RedirectUntil)
-	x.WithinDuration(e.now.Add(90*24*time.Hour), *row.RedirectUntil, time.Second)
+	x.NotNil(row.DateRedirectUntil)
+	x.WithinDuration(e.now.Add(90*24*time.Hour), *row.DateRedirectUntil, time.Second)
 
 	_, err = e.app().Domain().Activate(e.owner, app.DomainActivateRequest_builder{Ref: app.DomainRef_builder{Id: old.GetId()}.Build()}.Build())
 	x.NoError(err)
-	x.Nil(e.domainRow(old).RedirectUntil, "in use again, it sends nothing on")
-	x.NotNil(e.domainRow(next).RedirectUntil)
+	x.Nil(e.domainRow(old).DateRedirectUntil, "in use again, it sends nothing on")
+	x.NotNil(e.domainRow(next).DateRedirectUntil)
 }
 
 // on is where a link to a page of the env's workspace begins, with the

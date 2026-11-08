@@ -239,7 +239,7 @@ message StockChangeRequest {
   StockRef ref = 1;
   int64 quantity = 2 [features.field_presence = IMPLICIT];
   string reason = 3 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp at = 4;
+  google.protobuf.Timestamp date_occurred = 4;
   bytes op = 5 [features.field_presence = IMPLICIT];
 }
 
@@ -248,7 +248,7 @@ message StockTransferRequest {
   AssetRef to = 2;
   int64 quantity = 3 [features.field_presence = IMPLICIT];
   string reason = 4 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp at = 5;
+  google.protobuf.Timestamp date_occurred = 5;
   bytes op = 6 [features.field_presence = IMPLICIT];
 }
 
@@ -266,18 +266,18 @@ message StockConvertResponse {
 }
 
 message StockFlowRequest {
-  // The period, from `from` and before `to`, a year at most. Unsaid, the last
+  // The period, from `date_from` and before `date_to`, a year at most. Unsaid, the last
   // thirty of the workspace's days, today among them.
-  google.protobuf.Timestamp from = 1;
-  google.protobuf.Timestamp to = 2;
+  google.protobuf.Timestamp date_from = 1;
+  google.protobuf.Timestamp date_to = 2;
 }
 
 message StockFlowResponse {
   // Every stock, by name and then by where it is kept.
   repeated StockFlowRow rows = 1;
   // The period it read.
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
 }
 
 // StockFlowRow is one stock over a period, in its own unit: what it had at
@@ -318,7 +318,7 @@ message StockMovementAddRequest {
   int64 delta = 9 [features.field_presence = IMPLICIT];
   string reason = 10 [features.field_presence = IMPLICIT];
   bytes ref_id = 11;
-  google.protobuf.Timestamp occurred_at = 12;
+  google.protobuf.Timestamp date_occurred = 12;
   google.protobuf.Timestamp date_created = 15;
   bytes event_id = 16 [features.field_presence = IMPLICIT];
   int64 balance = 17 [features.field_presence = IMPLICIT];
@@ -342,7 +342,7 @@ message StockMovementSelect {
   bool delta = 9;
   bool reason = 10;
   bool ref_id = 11;
-  bool occurred_at = 12;
+  bool date_occurred = 12;
   bool date_updated = 13;
   bool date_created = 15;
   bool event_id = 16;
@@ -359,7 +359,7 @@ message StockMovementPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and ref_id clears.
   bool ref_id_null = 23;
-  google.protobuf.Timestamp occurred_at = 24;
+  google.protobuf.Timestamp date_occurred = 24;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.

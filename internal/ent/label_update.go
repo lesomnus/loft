@@ -65,43 +65,43 @@ func (_u *LabelUpdate) SetNillableState(v *string) *LabelUpdate {
 	return _u
 }
 
-// SetBoundAt sets the "bound_at" field.
-func (_u *LabelUpdate) SetBoundAt(v time.Time) *LabelUpdate {
-	_u.mutation.SetBoundAt(v)
+// SetDateBound sets the "date_bound" field.
+func (_u *LabelUpdate) SetDateBound(v time.Time) *LabelUpdate {
+	_u.mutation.SetDateBound(v)
 	return _u
 }
 
-// SetNillableBoundAt sets the "bound_at" field if the given value is not nil.
-func (_u *LabelUpdate) SetNillableBoundAt(v *time.Time) *LabelUpdate {
+// SetNillableDateBound sets the "date_bound" field if the given value is not nil.
+func (_u *LabelUpdate) SetNillableDateBound(v *time.Time) *LabelUpdate {
 	if v != nil {
-		_u.SetBoundAt(*v)
+		_u.SetDateBound(*v)
 	}
 	return _u
 }
 
-// ClearBoundAt clears the value of the "bound_at" field.
-func (_u *LabelUpdate) ClearBoundAt() *LabelUpdate {
-	_u.mutation.ClearBoundAt()
+// ClearDateBound clears the value of the "date_bound" field.
+func (_u *LabelUpdate) ClearDateBound() *LabelUpdate {
+	_u.mutation.ClearDateBound()
 	return _u
 }
 
-// SetPrintedAt sets the "printed_at" field.
-func (_u *LabelUpdate) SetPrintedAt(v time.Time) *LabelUpdate {
-	_u.mutation.SetPrintedAt(v)
+// SetDatePrinted sets the "date_printed" field.
+func (_u *LabelUpdate) SetDatePrinted(v time.Time) *LabelUpdate {
+	_u.mutation.SetDatePrinted(v)
 	return _u
 }
 
-// SetNillablePrintedAt sets the "printed_at" field if the given value is not nil.
-func (_u *LabelUpdate) SetNillablePrintedAt(v *time.Time) *LabelUpdate {
+// SetNillableDatePrinted sets the "date_printed" field if the given value is not nil.
+func (_u *LabelUpdate) SetNillableDatePrinted(v *time.Time) *LabelUpdate {
 	if v != nil {
-		_u.SetPrintedAt(*v)
+		_u.SetDatePrinted(*v)
 	}
 	return _u
 }
 
-// ClearPrintedAt clears the value of the "printed_at" field.
-func (_u *LabelUpdate) ClearPrintedAt() *LabelUpdate {
-	_u.mutation.ClearPrintedAt()
+// ClearDatePrinted clears the value of the "date_printed" field.
+func (_u *LabelUpdate) ClearDatePrinted() *LabelUpdate {
+	_u.mutation.ClearDatePrinted()
 	return _u
 }
 
@@ -277,23 +277,23 @@ func (_u *LabelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(label.FieldState); ok {
 		_spec.SetField(label.FieldState, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.BoundAt(); ok {
-		_spec.SetField(label.FieldBoundAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateBound(); ok {
+		_spec.SetField(label.FieldDateBound, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(label.FieldBoundAt); ok {
-		_spec.SetField(label.FieldBoundAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(label.FieldDateBound); ok {
+		_spec.SetField(label.FieldDateBound, field.TypeTime, e)
 	}
-	if _u.mutation.BoundAtCleared() {
-		_spec.ClearField(label.FieldBoundAt, field.TypeTime)
+	if _u.mutation.DateBoundCleared() {
+		_spec.ClearField(label.FieldDateBound, field.TypeTime)
 	}
-	if value, ok := _u.mutation.PrintedAt(); ok {
-		_spec.SetField(label.FieldPrintedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DatePrinted(); ok {
+		_spec.SetField(label.FieldDatePrinted, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(label.FieldPrintedAt); ok {
-		_spec.SetField(label.FieldPrintedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(label.FieldDatePrinted); ok {
+		_spec.SetField(label.FieldDatePrinted, field.TypeTime, e)
 	}
-	if _u.mutation.PrintedAtCleared() {
-		_spec.ClearField(label.FieldPrintedAt, field.TypeTime)
+	if _u.mutation.DatePrintedCleared() {
+		_spec.ClearField(label.FieldDatePrinted, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(label.FieldDateUpdated, field.TypeTime, value)
@@ -413,43 +413,43 @@ func (_u *LabelUpdateOne) SetNillableState(v *string) *LabelUpdateOne {
 	return _u
 }
 
-// SetBoundAt sets the "bound_at" field.
-func (_u *LabelUpdateOne) SetBoundAt(v time.Time) *LabelUpdateOne {
-	_u.mutation.SetBoundAt(v)
+// SetDateBound sets the "date_bound" field.
+func (_u *LabelUpdateOne) SetDateBound(v time.Time) *LabelUpdateOne {
+	_u.mutation.SetDateBound(v)
 	return _u
 }
 
-// SetNillableBoundAt sets the "bound_at" field if the given value is not nil.
-func (_u *LabelUpdateOne) SetNillableBoundAt(v *time.Time) *LabelUpdateOne {
+// SetNillableDateBound sets the "date_bound" field if the given value is not nil.
+func (_u *LabelUpdateOne) SetNillableDateBound(v *time.Time) *LabelUpdateOne {
 	if v != nil {
-		_u.SetBoundAt(*v)
+		_u.SetDateBound(*v)
 	}
 	return _u
 }
 
-// ClearBoundAt clears the value of the "bound_at" field.
-func (_u *LabelUpdateOne) ClearBoundAt() *LabelUpdateOne {
-	_u.mutation.ClearBoundAt()
+// ClearDateBound clears the value of the "date_bound" field.
+func (_u *LabelUpdateOne) ClearDateBound() *LabelUpdateOne {
+	_u.mutation.ClearDateBound()
 	return _u
 }
 
-// SetPrintedAt sets the "printed_at" field.
-func (_u *LabelUpdateOne) SetPrintedAt(v time.Time) *LabelUpdateOne {
-	_u.mutation.SetPrintedAt(v)
+// SetDatePrinted sets the "date_printed" field.
+func (_u *LabelUpdateOne) SetDatePrinted(v time.Time) *LabelUpdateOne {
+	_u.mutation.SetDatePrinted(v)
 	return _u
 }
 
-// SetNillablePrintedAt sets the "printed_at" field if the given value is not nil.
-func (_u *LabelUpdateOne) SetNillablePrintedAt(v *time.Time) *LabelUpdateOne {
+// SetNillableDatePrinted sets the "date_printed" field if the given value is not nil.
+func (_u *LabelUpdateOne) SetNillableDatePrinted(v *time.Time) *LabelUpdateOne {
 	if v != nil {
-		_u.SetPrintedAt(*v)
+		_u.SetDatePrinted(*v)
 	}
 	return _u
 }
 
-// ClearPrintedAt clears the value of the "printed_at" field.
-func (_u *LabelUpdateOne) ClearPrintedAt() *LabelUpdateOne {
-	_u.mutation.ClearPrintedAt()
+// ClearDatePrinted clears the value of the "date_printed" field.
+func (_u *LabelUpdateOne) ClearDatePrinted() *LabelUpdateOne {
+	_u.mutation.ClearDatePrinted()
 	return _u
 }
 
@@ -655,23 +655,23 @@ func (_u *LabelUpdateOne) sqlSave(ctx context.Context) (_node *Label, err error)
 	if e, ok := _u.mutation.FieldExpr(label.FieldState); ok {
 		_spec.SetField(label.FieldState, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.BoundAt(); ok {
-		_spec.SetField(label.FieldBoundAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateBound(); ok {
+		_spec.SetField(label.FieldDateBound, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(label.FieldBoundAt); ok {
-		_spec.SetField(label.FieldBoundAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(label.FieldDateBound); ok {
+		_spec.SetField(label.FieldDateBound, field.TypeTime, e)
 	}
-	if _u.mutation.BoundAtCleared() {
-		_spec.ClearField(label.FieldBoundAt, field.TypeTime)
+	if _u.mutation.DateBoundCleared() {
+		_spec.ClearField(label.FieldDateBound, field.TypeTime)
 	}
-	if value, ok := _u.mutation.PrintedAt(); ok {
-		_spec.SetField(label.FieldPrintedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DatePrinted(); ok {
+		_spec.SetField(label.FieldDatePrinted, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(label.FieldPrintedAt); ok {
-		_spec.SetField(label.FieldPrintedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(label.FieldDatePrinted); ok {
+		_spec.SetField(label.FieldDatePrinted, field.TypeTime, e)
 	}
-	if _u.mutation.PrintedAtCleared() {
-		_spec.ClearField(label.FieldPrintedAt, field.TypeTime)
+	if _u.mutation.DatePrintedCleared() {
+		_spec.ClearField(label.FieldDatePrinted, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(label.FieldDateUpdated, field.TypeTime, value)

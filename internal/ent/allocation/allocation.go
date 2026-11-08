@@ -16,10 +16,10 @@ const (
 	FieldKind = "kind"
 	// FieldRefId holds the string denoting the ref_id field in the database.
 	FieldRefId = "ref_id"
-	// FieldBeginsAt holds the string denoting the begins_at field in the database.
-	FieldBeginsAt = "begins_at"
-	// FieldEndsAt holds the string denoting the ends_at field in the database.
-	FieldEndsAt = "ends_at"
+	// FieldDateStart holds the string denoting the date_start field in the database.
+	FieldDateStart = "date_start"
+	// FieldDateEnd holds the string denoting the date_end field in the database.
+	FieldDateEnd = "date_end"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
@@ -61,8 +61,8 @@ var Columns = []string{
 	FieldId,
 	FieldKind,
 	FieldRefId,
-	FieldBeginsAt,
-	FieldEndsAt,
+	FieldDateStart,
+	FieldDateEnd,
 	FieldDateUpdated,
 	FieldDateCreated,
 	FieldBlocking,
@@ -100,14 +100,14 @@ func ByRefId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRefId, opts...).ToFunc()
 }
 
-// ByBeginsAt orders the results by the begins_at field.
-func ByBeginsAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBeginsAt, opts...).ToFunc()
+// ByDateStart orders the results by the date_start field.
+func ByDateStart(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateStart, opts...).ToFunc()
 }
 
-// ByEndsAt orders the results by the ends_at field.
-func ByEndsAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEndsAt, opts...).ToFunc()
+// ByDateEnd orders the results by the date_end field.
+func ByDateEnd(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateEnd, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.

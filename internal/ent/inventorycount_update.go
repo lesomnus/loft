@@ -72,43 +72,43 @@ func (_u *InventoryCountUpdate) SetNillableStatus(v *string) *InventoryCountUpda
 	return _u
 }
 
-// SetStartedAt sets the "started_at" field.
-func (_u *InventoryCountUpdate) SetStartedAt(v time.Time) *InventoryCountUpdate {
-	_u.mutation.SetStartedAt(v)
+// SetDateStarted sets the "date_started" field.
+func (_u *InventoryCountUpdate) SetDateStarted(v time.Time) *InventoryCountUpdate {
+	_u.mutation.SetDateStarted(v)
 	return _u
 }
 
-// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (_u *InventoryCountUpdate) SetNillableStartedAt(v *time.Time) *InventoryCountUpdate {
+// SetNillableDateStarted sets the "date_started" field if the given value is not nil.
+func (_u *InventoryCountUpdate) SetNillableDateStarted(v *time.Time) *InventoryCountUpdate {
 	if v != nil {
-		_u.SetStartedAt(*v)
+		_u.SetDateStarted(*v)
 	}
 	return _u
 }
 
-// ClearStartedAt clears the value of the "started_at" field.
-func (_u *InventoryCountUpdate) ClearStartedAt() *InventoryCountUpdate {
-	_u.mutation.ClearStartedAt()
+// ClearDateStarted clears the value of the "date_started" field.
+func (_u *InventoryCountUpdate) ClearDateStarted() *InventoryCountUpdate {
+	_u.mutation.ClearDateStarted()
 	return _u
 }
 
-// SetClosedAt sets the "closed_at" field.
-func (_u *InventoryCountUpdate) SetClosedAt(v time.Time) *InventoryCountUpdate {
-	_u.mutation.SetClosedAt(v)
+// SetDateClosed sets the "date_closed" field.
+func (_u *InventoryCountUpdate) SetDateClosed(v time.Time) *InventoryCountUpdate {
+	_u.mutation.SetDateClosed(v)
 	return _u
 }
 
-// SetNillableClosedAt sets the "closed_at" field if the given value is not nil.
-func (_u *InventoryCountUpdate) SetNillableClosedAt(v *time.Time) *InventoryCountUpdate {
+// SetNillableDateClosed sets the "date_closed" field if the given value is not nil.
+func (_u *InventoryCountUpdate) SetNillableDateClosed(v *time.Time) *InventoryCountUpdate {
 	if v != nil {
-		_u.SetClosedAt(*v)
+		_u.SetDateClosed(*v)
 	}
 	return _u
 }
 
-// ClearClosedAt clears the value of the "closed_at" field.
-func (_u *InventoryCountUpdate) ClearClosedAt() *InventoryCountUpdate {
-	_u.mutation.ClearClosedAt()
+// ClearDateClosed clears the value of the "date_closed" field.
+func (_u *InventoryCountUpdate) ClearDateClosed() *InventoryCountUpdate {
+	_u.mutation.ClearDateClosed()
 	return _u
 }
 
@@ -280,23 +280,23 @@ func (_u *InventoryCountUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStatus); ok {
 		_spec.SetField(inventorycount.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.StartedAt(); ok {
-		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStarted(); ok {
+		_spec.SetField(inventorycount.FieldDateStarted, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStartedAt); ok {
-		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDateStarted); ok {
+		_spec.SetField(inventorycount.FieldDateStarted, field.TypeTime, e)
 	}
-	if _u.mutation.StartedAtCleared() {
-		_spec.ClearField(inventorycount.FieldStartedAt, field.TypeTime)
+	if _u.mutation.DateStartedCleared() {
+		_spec.ClearField(inventorycount.FieldDateStarted, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ClosedAt(); ok {
-		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateClosed(); ok {
+		_spec.SetField(inventorycount.FieldDateClosed, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldClosedAt); ok {
-		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDateClosed); ok {
+		_spec.SetField(inventorycount.FieldDateClosed, field.TypeTime, e)
 	}
-	if _u.mutation.ClosedAtCleared() {
-		_spec.ClearField(inventorycount.FieldClosedAt, field.TypeTime)
+	if _u.mutation.DateClosedCleared() {
+		_spec.ClearField(inventorycount.FieldDateClosed, field.TypeTime)
 	}
 	if value, ok := _u.mutation.StartedBy(); ok {
 		_spec.SetField(inventorycount.FieldStartedBy, field.TypeUuid, value)
@@ -404,43 +404,43 @@ func (_u *InventoryCountUpdateOne) SetNillableStatus(v *string) *InventoryCountU
 	return _u
 }
 
-// SetStartedAt sets the "started_at" field.
-func (_u *InventoryCountUpdateOne) SetStartedAt(v time.Time) *InventoryCountUpdateOne {
-	_u.mutation.SetStartedAt(v)
+// SetDateStarted sets the "date_started" field.
+func (_u *InventoryCountUpdateOne) SetDateStarted(v time.Time) *InventoryCountUpdateOne {
+	_u.mutation.SetDateStarted(v)
 	return _u
 }
 
-// SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (_u *InventoryCountUpdateOne) SetNillableStartedAt(v *time.Time) *InventoryCountUpdateOne {
+// SetNillableDateStarted sets the "date_started" field if the given value is not nil.
+func (_u *InventoryCountUpdateOne) SetNillableDateStarted(v *time.Time) *InventoryCountUpdateOne {
 	if v != nil {
-		_u.SetStartedAt(*v)
+		_u.SetDateStarted(*v)
 	}
 	return _u
 }
 
-// ClearStartedAt clears the value of the "started_at" field.
-func (_u *InventoryCountUpdateOne) ClearStartedAt() *InventoryCountUpdateOne {
-	_u.mutation.ClearStartedAt()
+// ClearDateStarted clears the value of the "date_started" field.
+func (_u *InventoryCountUpdateOne) ClearDateStarted() *InventoryCountUpdateOne {
+	_u.mutation.ClearDateStarted()
 	return _u
 }
 
-// SetClosedAt sets the "closed_at" field.
-func (_u *InventoryCountUpdateOne) SetClosedAt(v time.Time) *InventoryCountUpdateOne {
-	_u.mutation.SetClosedAt(v)
+// SetDateClosed sets the "date_closed" field.
+func (_u *InventoryCountUpdateOne) SetDateClosed(v time.Time) *InventoryCountUpdateOne {
+	_u.mutation.SetDateClosed(v)
 	return _u
 }
 
-// SetNillableClosedAt sets the "closed_at" field if the given value is not nil.
-func (_u *InventoryCountUpdateOne) SetNillableClosedAt(v *time.Time) *InventoryCountUpdateOne {
+// SetNillableDateClosed sets the "date_closed" field if the given value is not nil.
+func (_u *InventoryCountUpdateOne) SetNillableDateClosed(v *time.Time) *InventoryCountUpdateOne {
 	if v != nil {
-		_u.SetClosedAt(*v)
+		_u.SetDateClosed(*v)
 	}
 	return _u
 }
 
-// ClearClosedAt clears the value of the "closed_at" field.
-func (_u *InventoryCountUpdateOne) ClearClosedAt() *InventoryCountUpdateOne {
-	_u.mutation.ClearClosedAt()
+// ClearDateClosed clears the value of the "date_closed" field.
+func (_u *InventoryCountUpdateOne) ClearDateClosed() *InventoryCountUpdateOne {
+	_u.mutation.ClearDateClosed()
 	return _u
 }
 
@@ -642,23 +642,23 @@ func (_u *InventoryCountUpdateOne) sqlSave(ctx context.Context) (_node *Inventor
 	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStatus); ok {
 		_spec.SetField(inventorycount.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.StartedAt(); ok {
-		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStarted(); ok {
+		_spec.SetField(inventorycount.FieldDateStarted, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStartedAt); ok {
-		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDateStarted); ok {
+		_spec.SetField(inventorycount.FieldDateStarted, field.TypeTime, e)
 	}
-	if _u.mutation.StartedAtCleared() {
-		_spec.ClearField(inventorycount.FieldStartedAt, field.TypeTime)
+	if _u.mutation.DateStartedCleared() {
+		_spec.ClearField(inventorycount.FieldDateStarted, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ClosedAt(); ok {
-		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateClosed(); ok {
+		_spec.SetField(inventorycount.FieldDateClosed, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldClosedAt); ok {
-		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDateClosed); ok {
+		_spec.SetField(inventorycount.FieldDateClosed, field.TypeTime, e)
 	}
-	if _u.mutation.ClosedAtCleared() {
-		_spec.ClearField(inventorycount.FieldClosedAt, field.TypeTime)
+	if _u.mutation.DateClosedCleared() {
+		_spec.ClearField(inventorycount.FieldDateClosed, field.TypeTime)
 	}
 	if value, ok := _u.mutation.StartedBy(); ok {
 		_spec.SetField(inventorycount.FieldStartedBy, field.TypeUuid, value)
