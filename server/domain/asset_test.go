@@ -413,11 +413,11 @@ func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
 			SetFieldNumber(5).
 			SetKey("").
 			SetValue(`"다른 이름"`).
-			SetValidFrom(e.now.Add(-30 * day)).
+			SetDateStart(e.now.Add(-30 * day)).
 			SetEventId(newOpUUID()).
 			SetDateUpdated(e.now)
 		if superseded {
-			q.SetSupersededAt(e.now)
+			q.SetDateSuperseded(e.now)
 		}
 		return q.Exec(ctx)
 	}

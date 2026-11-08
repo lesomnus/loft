@@ -133,7 +133,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 		x.True(ok)
 		var text string
 		x.NoError(json.Unmarshal([]byte(f.Value), &text), f.Value)
-		rows = append(rows, oldFact{id: f.Id, asset: f.SubjectId, event: f.EventId, key: k, value: text, from: f.ValidFrom, recorded: f.DateCreated})
+		rows = append(rows, oldFact{id: f.Id, asset: f.SubjectId, event: f.EventId, key: k, value: text, from: f.DateStart, recorded: f.DateCreated})
 	}
 	ev := func() uuid.UUID { return pdid.New(pd.EventDomain).Uuid() }
 	at := func(d time.Duration) time.Time {
@@ -226,13 +226,13 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 		x.Equal(entry, f.Key, v.key)
 		x.Equal(value, f.Value, v.key)
 		x.Equal(v.event, f.EventId)
-		x.True(v.from.Equal(f.ValidFrom), "%s from %s, and %s", v.key, v.from, f.ValidFrom)
+		x.True(v.from.Equal(f.DateStart), "%s from %s, and %s", v.key, v.from, f.DateStart)
 		x.True(v.recorded.Equal(f.DateCreated), "%s known from %s, and %s", v.key, v.recorded, f.DateCreated)
 		if v.superseded == nil {
-			x.Nil(f.SupersededAt)
+			x.Nil(f.DateSuperseded)
 			x.Nil(f.SupersededBy)
 		} else {
-			x.True(v.superseded.Equal(*f.SupersededAt))
+			x.True(v.superseded.Equal(*f.DateSuperseded))
 			x.Equal(*v.supersededBy, *f.SupersededBy)
 		}
 	}
@@ -386,9 +386,9 @@ func factsAt(rows []oldFact, asset uuid.UUID, at time.Time) map[string]string {
 func value(t *testing.T, s *cmd.Server, asset uuid.UUID, n uint32) string {
 	t.Helper()
 	var v string
-	q := "SELECT value FROM fact WHERE subject_id = ? AND field_number = ? AND superseded_at IS NULL"
+	q := "SELECT value FROM fact WHERE subject_id = ? AND field_number = ? AND date_superseded IS NULL"
 	if s.Dialect == "postgres" {
-		q = "SELECT value FROM fact WHERE subject_id = $1 AND field_number = $2 AND superseded_at IS NULL"
+		q = "SELECT value FROM fact WHERE subject_id = $1 AND field_number = $2 AND date_superseded IS NULL"
 	}
 	require.NoError(t, s.Db.QueryRowContext(t.Context(), q, asset.String(), n).Scan(&v))
 	return v

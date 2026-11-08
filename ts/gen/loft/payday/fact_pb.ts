@@ -17,10 +17,10 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/payday/fact.proto.
  */
 export const file_loft_payday_fact: GenFile = /*@__PURE__*/
-  fileDesc("ChZsb2Z0L3BheWRheS9mYWN0LnByb3RvEgRsb2Z0Is0GCgRGYWN0EhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5sb2Z0LlRlbmFudEIG8oIWAkABEhoKCnN1YmplY3RfaWQYCCABKAxCBuqCFgIQQBILCgNrZXkYCSABKAkSDQoFdmFsdWUYCiABKAkSHQoMZmllbGRfbnVtYmVyGAwgASgNQgfqghYDggEAEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhcKBmRvbWFpbhgQIAEoDUIH6oIWA4IBABI3Cgp2YWxpZF9mcm9tGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABIeCghldmVudF9pZBgTIAEoDEIM6oIWAhBAqsEWAigBEj8KDXN1cGVyc2VkZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgzqghYCOAGqwRYCEAESJQoNc3VwZXJzZWRlZF9ieRgVIAEoDEIO6oIWBBBAOAGqwRYCKAE63ALK/BWFAhILggECEgCKAQCSAQAaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGkQSB3N1YmplY3QaDgoKc3ViamVjdF9pZBAIGhAKDGZpZWxkX251bWJlchAMGgcKA2tleRAJGg4KCnZhbGlkX2Zyb20QERpKEgVmaWVsZBoKCgZ0ZW5hbnQQAhoKCgZkb21haW4QEBoQCgxmaWVsZF9udW1iZXIQDBoHCgNrZXkQCRoOCgp2YWxpZF9mcm9tEBEaFRIFZXZlbnQaDAoIZXZlbnRfaWQQExofEgpzdXBlcnNlZGVkGhEKDXN1cGVyc2VkZWRfYnkQFYq7Fk4IEDJEChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgwKCnN1YmplY3RfaWQaDgoMZmllbGRfbnVtYmVyIGQo6AdCAgoASApCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
+  fileDesc("ChZsb2Z0L3BheWRheS9mYWN0LnByb3RvEgRsb2Z0Is8GCgRGYWN0EhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5sb2Z0LlRlbmFudEIG8oIWAkABEhoKCnN1YmplY3RfaWQYCCABKAxCBuqCFgIQQBILCgNrZXkYCSABKAkSDQoFdmFsdWUYCiABKAkSHQoMZmllbGRfbnVtYmVyGAwgASgNQgfqghYDggEAEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhcKBmRvbWFpbhgQIAEoDUIH6oIWA4IBABI3CgpkYXRlX3N0YXJ0GBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABIeCghldmVudF9pZBgTIAEoDEIM6oIWAhBAqsEWAigBEkEKD2RhdGVfc3VwZXJzZWRlZBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCDOqCFgI4AarBFgIQARIlCg1zdXBlcnNlZGVkX2J5GBUgASgMQg7qghYEEEA4AarBFgIoATrcAsr8FYUCEguCAQISAIoBAJIBABosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaRBIHc3ViamVjdBoOCgpzdWJqZWN0X2lkEAgaEAoMZmllbGRfbnVtYmVyEAwaBwoDa2V5EAkaDgoKZGF0ZV9zdGFydBARGkoSBWZpZWxkGgoKBnRlbmFudBACGgoKBmRvbWFpbhAQGhAKDGZpZWxkX251bWJlchAMGgcKA2tleRAJGg4KCmRhdGVfc3RhcnQQERoVEgVldmVudBoMCghldmVudF9pZBATGh8SCnN1cGVyc2VkZWQaEQoNc3VwZXJzZWRlZF9ieRAVirsWTggQMkQKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaDAoKc3ViamVjdF9pZBoOCgxmaWVsZF9udW1iZXIgZCjoB0ICCgBICkIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
 
 /**
- * Fact is one field of one resource from a moment on: "from `valid_from`, field
+ * Fact is one field of one resource from a moment on: "from `date_start`, field
  * `field_number` of `subject_id` was `value`" (payday#151).
  *
  * It is typed by the resource's own descriptor rather than by a table of facts
@@ -32,8 +32,8 @@ export const file_loft_payday_fact: GenFile = /*@__PURE__*/
  * One row per field and not one per moment, so that a field can be read as it
  * was at any moment, corrected after the fact, and kept for as long as its own
  * rule says. A row is written once and changed only by being superseded:
- * `superseded_at` and `superseded_by` are set once, by a Patch, when a correction
- * or a later fact replaces it.
+ * `date_superseded` and `superseded_by` are set once, by a Patch, when a
+ * correction or a later fact replaces it.
  *
  * **The numbers declared here are payday's.** An overlay in
  * `proto/ext/payday/fact.ext.proto` adds fields at the ones left empty -- 11
@@ -118,9 +118,9 @@ export type Fact = Message<"loft.Fact"> & {
    * When the value became true, which is not when it was written down:
    * `date_created` is when it was known.
    *
-   * @generated from field: google.protobuf.Timestamp valid_from = 17;
+   * @generated from field: google.protobuf.Timestamp date_start = 17;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
    * The event that wrote this, which stays while this does.
@@ -135,9 +135,9 @@ export type Fact = Message<"loft.Fact"> & {
    * first; both are written once, by the Patch that supersedes the row. The
    * event stays while this does, as the one that wrote it does.
    *
-   * @generated from field: google.protobuf.Timestamp superseded_at = 20;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 20;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes superseded_by = 21;

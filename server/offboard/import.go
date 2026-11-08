@@ -347,7 +347,7 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		SetDesc("").
 		SetReason("").
 		SetPayload("").
-		SetOccurredAt(now).
+		SetDateOccurred(now).
 		SetDateCreated(now).
 		SetDateUpdated(now)
 	// Nobody's in the workspace -- but done at an operator's word, theirs

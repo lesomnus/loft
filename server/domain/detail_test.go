@@ -156,7 +156,7 @@ func TestAnEventsDetailIsWhatItHeld(t *testing.T) {
 		SetPayload("kind=member_of\ntarget=K-1").
 		SetReason("").
 		SetSubjectId(idUUID(laptop.GetId())).
-		SetOccurredAt(e.now).
+		SetDateOccurred(e.now).
 		SetDateCreated(e.now).
 		SetDateUpdated(e.now)
 	x.NoError(q.Exec(ctx))

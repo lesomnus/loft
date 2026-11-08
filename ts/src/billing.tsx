@@ -165,11 +165,11 @@ const reasonWord: Record<number, string> = {
  * levyan did not say.
  */
 function dunningSaid(d: BillingDunning, collection: BillingCollection | undefined): string {
-	const failed = fmt(d.failed, 'date')
+	const failed = fmt(d.dateFailed, 'date')
 	const now = new Date()
-	const from = dateOf(d.restrictedFrom)
+	const from = dateOf(d.dateRestricted)
 	const passed = from !== undefined && from <= now
-	const readOnly = dateOf(d.readonlyFrom)
+	const readOnly = dateOf(d.dateReadonly)
 	const stage2 = readOnly === undefined ? '' : readOnly <= now ? ` ${fmt(readOnly, 'date')}부터 읽기 전용입니다.` : ` ${fmt(readOnly, 'date')}부터는 읽기 전용이 됩니다.`
 	const restricts =
 		(from === undefined ? '' : passed ? `${fmt(from, 'date')}부터 제한되었습니다.` : `${fmt(from, 'date')}까지 결제되지 않으면 제한됩니다.`) +
@@ -188,8 +188,8 @@ function dunningSaid(d: BillingDunning, collection: BillingCollection | undefine
 			return `${failed}에 결제가 실패했습니다. ${how} ${restricts}`
 		}
 		default:
-			return d.nextRetry !== undefined
-				? `${failed}에 결제가 실패했습니다. ${fmt(d.nextRetry)}에 다시 시도합니다. ${restricts}`
+			return d.dateNextRetry !== undefined
+				? `${failed}에 결제가 실패했습니다. ${fmt(d.dateNextRetry)}에 다시 시도합니다. ${restricts}`
 				: `${failed}에 결제가 실패했고, 다시 시도할 일정이 남지 않았습니다. 결제수단을 바꾸면 바로 다시 청구합니다. ${restricts}`
 	}
 }
@@ -259,15 +259,15 @@ function countryName(code: string): string {
 
 /** A period, as the days it covers: its end is the first moment after it. */
 function periodText(p: BillingPeriod | undefined): string {
-	const start = dateOf(p?.start)
-	const end = dateOf(p?.end)
+	const start = dateOf(p?.dateStart)
+	const end = dateOf(p?.dateEnd)
 	if (start === undefined || end === undefined) return ''
 	return `${fmt(start, 'date')} – ${fmt(new Date(end.getTime() - 1), 'date')}`
 }
 
 /** From `start` until the moment before `end`, as days. */
 function spanText(start: Timestamp | undefined, end: Timestamp | undefined): string {
-	return periodText({ start, end } as BillingPeriod)
+	return periodText({ dateStart: start, dateEnd: end } as BillingPeriod)
 }
 
 /** How a payer pays: the kind, the brand and the last four digits, and nothing more of a card. */
@@ -299,7 +299,7 @@ function accountNames(accounts: BillingAccount[]): (b: BillingAccount) => string
 	const own = (b: BillingAccount): string => {
 		const name = b.name.trim()
 		if (name !== '') return name
-		const made = minuteText(b.created)
+		const made = minuteText(b.dateCreated)
 		return made === '' ? '결제 계정' : `결제 계정 (${made} 만듦)`
 	}
 	const seen = new Map<string, number>()
@@ -408,13 +408,13 @@ const expiresSoon = 30 * 24 * 3600_000
 
 /** Whether `c` expires within `expiresSoon`. */
 function soonGone(c: BillingCredit, now: Date): boolean {
-	const d = dateOf(c.expires)
+	const d = dateOf(c.dateExpires)
 	return d !== undefined && d.getTime() - now.getTime() <= expiresSoon
 }
 
 /** What is left of a credit, of what was granted, and until when: "70,000원 남음 (100,000원 중, 2027. 10. 31.까지)". */
 function creditText(c: BillingCredit): string {
-	const until = lastDay(c.expires)
+	const until = lastDay(c.dateExpires)
 	return `${money(c.left, c.currency)} 남음 (${money(c.granted, c.currency)} 중${until === '' ? '' : `, ${until}까지`})`
 }
 
@@ -946,8 +946,8 @@ function AccountRow(props: {
 		items.push(['수금', <CollectionBadge key="c" c={got.collection} />])
 		if (s !== undefined) {
 			items.push(['구독', statusWord[s.status] ?? '-'])
-			if (s.nextBilled !== undefined) items.push(['다음 청구', fmt(s.nextBilled, 'date')])
-			if (s.change !== BillingSubscriptionChange.UNSPECIFIED) items.push(['예정된 변경', `${changeWord[s.change] ?? ''} · ${fmt(s.changeAt, 'date')}`])
+			if (s.dateNextBilled !== undefined) items.push(['다음 청구', fmt(s.dateNextBilled, 'date')])
+			if (s.change !== BillingSubscriptionChange.UNSPECIFIED) items.push(['예정된 변경', `${changeWord[s.change] ?? ''} · ${fmt(s.dateChange, 'date')}`])
 			items.push(['결제수단', methodText(s.method)])
 		}
 	}
@@ -978,7 +978,7 @@ function AccountRow(props: {
 			<div>
 				<strong>{props.called}</strong>
 				{/* One with no name is called by when it was made, which says the day already. */}
-				{b.name.trim() !== '' && <span className="mute small"> {fmt(b.created, 'date')}에 만듦</span>}
+				{b.name.trim() !== '' && <span className="mute small"> {fmt(b.dateCreated, 'date')}에 만듦</span>}
 				<Kv items={items} />
 				{got !== undefined && collectionDo[state] !== undefined && <p className="small">{collectionDo[state]}</p>}
 				{(credits.length > 0 || balance !== 0n) && (
@@ -990,7 +990,7 @@ function AccountRow(props: {
 					.filter((c) => soonGone(c, now))
 					.map((c) => (
 						<p key={`soon-${c.id}`} className="note warn">
-							크레딧 {money(c.left, c.currency)}이 {lastDay(c.expires)}까지라 곧 만료됩니다. 그 뒤에 확정되는 청구서에는 쓰이지 않습니다.
+							크레딧 {money(c.left, c.currency)}이 {lastDay(c.dateExpires)}까지라 곧 만료됩니다. 그 뒤에 확정되는 청구서에는 쓰이지 않습니다.
 						</p>
 					))}
 				{(got?.dunning ?? []).map((d) => (
@@ -1050,7 +1050,7 @@ function Uncollectable(props: {
 				{stuck.map(({ b, state }) => {
 					const pays = props.links
 						.filter((l) => {
-							const end = dateOf(l.end)
+							const end = dateOf(l.dateEnd)
 							return l.billingAccount === b.id && (end === undefined || end > now)
 						})
 						.map((l) => props.named(l.workspace))
@@ -1144,7 +1144,7 @@ function Offers(props: {
 						<li key={o.id}>
 							<div>
 								<strong>{props.named(o.workspace)}</strong>
-								<p className="small">{fmt(o.offered, 'date')}에 결제 담당이 되어 달라는 제안을 받았습니다. 받아들이면 이번 기간이 끝난 뒤부터 냅니다.</p>
+								<p className="small">{fmt(o.dateOffered, 'date')}에 결제 담당이 되어 달라는 제안을 받았습니다. 받아들이면 이번 기간이 끝난 뒤부터 냅니다.</p>
 							</div>
 							<div className="answer">
 								<button
@@ -1210,14 +1210,14 @@ function Links(props: {
 				<ul>
 					{props.links.map((l) => {
 						const b = account(l.billingAccount)
-						const ended = l.end !== undefined
+						const ended = l.dateEnd !== undefined
 						return (
 							<li key={l.id}>
 								<div>
 									<strong>{props.named(l.workspace)}</strong>
 									<p className="small">
-										{b === undefined ? '결제 계정을 아직 정하지 않음' : `${props.called(b)} · ${b.currency}`} · {fmt(l.start, 'date')}부터
-										{ended ? ` ${fmt(l.end, 'date')}까지 (${endedWord[l.ended] ?? '끝남'})` : ''} · {beganWord[l.began] ?? ''}
+										{b === undefined ? '결제 계정을 아직 정하지 않음' : `${props.called(b)} · ${b.currency}`} · {fmt(l.dateStart, 'date')}부터
+										{ended ? ` ${fmt(l.dateEnd, 'date')}까지 (${endedWord[l.ended] ?? '끝남'})` : ''} · {beganWord[l.began] ?? ''}
 									</p>
 								</div>
 								{!ended && (
@@ -1288,7 +1288,7 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 								<li key={v.id}>
 									<button type="button" className="phone-card" onClick={() => setOpen(v)}>
 										<span className="phone-card-head">
-											<strong>{spanText(v.start, v.end)}</strong>
+											<strong>{spanText(v.dateStart, v.dateEnd)}</strong>
 											<Badge v={invoiceWord[v.state]?.[1] ?? 'mute'}>{invoiceWord[v.state]?.[0] ?? '-'}</Badge>
 										</span>
 										<InvoiceAmounts invoice={v} />
@@ -1311,7 +1311,7 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 								<tbody>
 									{props.invoices.map((v) => (
 										<tr key={v.id}>
-											<td>{spanText(v.start, v.end)}</td>
+											<td>{spanText(v.dateStart, v.dateEnd)}</td>
 											<td>
 												<Badge v={invoiceWord[v.state]?.[1] ?? 'mute'}>{invoiceWord[v.state]?.[0] ?? '-'}</Badge>
 											</td>
@@ -1320,7 +1320,7 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 												{v.credited !== 0n && <div className="mute small">크레딧 −{money(v.credited, v.currency)}</div>}
 											</td>
 											<td className="num">{money(v.remaining, v.currency)}</td>
-											<td>{fmt(v.finalized, 'date')}</td>
+											<td>{fmt(v.dateFinalized, 'date')}</td>
 											<td>
 												<button className="link" onClick={() => setOpen(v)}>
 													보기
@@ -1345,7 +1345,7 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 								return (
 									<li key={n.id} className="phone-card">
 										<span className="phone-card-head">
-											<strong>{inv === undefined ? '-' : spanText(inv.start, inv.end)}</strong>
+											<strong>{inv === undefined ? '-' : spanText(inv.dateStart, inv.dateEnd)}</strong>
 											<span>{reasonWord[n.reason] ?? '-'}</span>
 										</span>
 										<span className="phone-card-amounts">
@@ -1353,7 +1353,7 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 												<span className="mute">금액</span> {money(n.total, inv?.currency)}
 											</span>
 											<span>
-												<span className="mute">만든 날</span> {fmt(n.created, 'date')}
+												<span className="mute">만든 날</span> {fmt(n.dateCreated, 'date')}
 											</span>
 										</span>
 									</li>
@@ -1375,10 +1375,10 @@ function Invoices(props: { invoices: BillingInvoice[]; notes: BillingCreditNote[
 										const inv = of(n.invoice)
 										return (
 											<tr key={n.id}>
-												<td>{inv === undefined ? '-' : spanText(inv.start, inv.end)}</td>
+												<td>{inv === undefined ? '-' : spanText(inv.dateStart, inv.dateEnd)}</td>
 												<td>{reasonWord[n.reason] ?? '-'}</td>
 												<td className="num">{money(n.total, inv?.currency)}</td>
-												<td>{fmt(n.created, 'date')}</td>
+												<td>{fmt(n.dateCreated, 'date')}</td>
 											</tr>
 										)
 									})}
@@ -1447,7 +1447,7 @@ function InvoiceModal(props: { invoice: BillingInvoice; named: (id: string) => s
 	}, [props.invoice.id])
 	const inv = v?.invoice ?? props.invoice
 	return (
-		<Modal title={`청구서 · ${spanText(inv.start, inv.end)}`} onClose={props.onClose} wide>
+		<Modal title={`청구서 · ${spanText(inv.dateStart, inv.dateEnd)}`} onClose={props.onClose} wide>
 			{bad !== '' && <p className="bad">{bad}</p>}
 			{v?.dunning !== undefined && (
 				<p className="note warn" role="status">
@@ -1493,7 +1493,7 @@ function InvoiceModal(props: { invoice: BillingInvoice; named: (id: string) => s
 				<ul>
 					{v.creditNotes.map((n) => (
 						<li key={n.id}>
-							{reasonWord[n.reason] ?? '정정'} · {money(n.total, inv.currency)} · {fmt(n.created, 'date')}
+							{reasonWord[n.reason] ?? '정정'} · {money(n.total, inv.currency)} · {fmt(n.dateCreated, 'date')}
 						</li>
 					))}
 				</ul>
@@ -1672,7 +1672,7 @@ function UsageSaid(props: { usage: BillingUsage; credits: BillingCredit[] }): Re
 	return (
 		<>
 			<p className="mute small">
-				{periodText(u.period)} · {fmt(u.asOf)} 기준. 기간이 끝나면 결제 서비스가 확정합니다.
+				{periodText(u.period)} · {fmt(u.dateAsOf)} 기준. 기간이 끝나면 결제 서비스가 확정합니다.
 			</p>
 			<Given usage={u} />
 			{u.lines.length === 0 ? <Empty>아직 잰 것이 없습니다.</Empty> : <Lines lines={u.lines} currency={u.currency} />}
@@ -1696,8 +1696,8 @@ function UsageSaid(props: { usage: BillingUsage; credits: BillingCredit[] }): Re
 
 /** An allowance as the usage says it: "프로모션 무료량: 활성 자산 +500개 (2027. 4. 30.까지)", and from when, where that is past the period's start. */
 function allowanceText(a: BillingAllowance, unit: string, start: Date | undefined): string {
-	const from = dateOf(a.from)
-	const when = [from !== undefined && start !== undefined && from > start ? `${fmt(from, 'date')}부터` : '', a.until !== undefined ? `${lastDay(a.until)}까지` : '']
+	const from = dateOf(a.dateEffective)
+	const when = [from !== undefined && start !== undefined && from > start ? `${fmt(from, 'date')}부터` : '', a.dateExpires !== undefined ? `${lastDay(a.dateExpires)}까지` : '']
 		.filter((v) => v !== '')
 		.join(' ')
 	return `프로모션 무료량: ${meterWord[a.meter] ?? a.meter} +${quantity(a.quantity * 1_000_000n, unit)}${when === '' ? '' : ` (${when})`}`
@@ -1713,7 +1713,7 @@ function allowanceText(a: BillingAllowance, unit: string, start: Date | undefine
 function Given(props: { usage: BillingUsage }): ReactNode {
 	const u = props.usage
 	if (u.allowances.length === 0 && u.pools.length === 0) return null
-	const start = dateOf(u.period?.start)
+	const start = dateOf(u.period?.dateStart)
 	const unitOf = (meter: string): string => u.lines.find((l) => l.meter === meter)?.unit ?? meterUnit[meter] ?? ''
 	// What this period takes of each pool: of its own lines -- what a
 	// correction's say is what the period it corrects takes now, which the
@@ -1744,8 +1744,8 @@ function PoolSaid(props: { p: BillingPool; unit: string; takes: bigint; start: D
 	const { p, unit, takes } = props
 	const left = micros(p.left)
 	const after = left - takes
-	const from = dateOf(p.from)
-	const when = [from !== undefined && props.start !== undefined && from > props.start ? `${fmt(from, 'date')}부터` : '', p.expires !== undefined ? `${lastDay(p.expires)}까지` : '']
+	const from = dateOf(p.dateEffective)
+	const when = [from !== undefined && props.start !== undefined && from > props.start ? `${fmt(from, 'date')}부터` : '', p.dateExpires !== undefined ? `${lastDay(p.dateExpires)}까지` : '']
 		.filter((v) => v !== '')
 		.join(' ')
 	return (
@@ -1864,7 +1864,7 @@ function Statements(props: { statements: BillingStatement[] }): ReactNode {
 						<tr key={s.id}>
 							<td>{periodText(s.period)}</td>
 							<td className="num">{money(s.total, s.currency)}</td>
-							<td>{fmt(s.closed, 'date')}</td>
+							<td>{fmt(s.dateClosed, 'date')}</td>
 							<td>
 								<button className="link" onClick={() => setOpen(s)}>
 									보기
@@ -1878,7 +1878,7 @@ function Statements(props: { statements: BillingStatement[] }): ReactNode {
 				<Modal title={`명세서 · ${periodText(open.period)}`} onClose={() => setOpen(undefined)} wide>
 					{open.lines.length === 0 ? <Empty>잰 것이 없었습니다.</Empty> : <Lines lines={open.lines} currency={open.currency} />}
 					<p>
-						합계 <strong>{money(open.total, open.currency)}</strong> · {fmt(open.closed, 'date')}에 닫음
+						합계 <strong>{money(open.total, open.currency)}</strong> · {fmt(open.dateClosed, 'date')}에 닫음
 					</p>
 				</Modal>
 			)}
@@ -1889,11 +1889,11 @@ function Statements(props: { statements: BillingStatement[] }): ReactNode {
 /** Who pays, as levyan says it. */
 function PayerSaid(props: { payer: BillingPayer | undefined; nameOf: (account: string | undefined) => string; me: string; page: string }): ReactNode {
 	const p = props.payer
-	if (p === undefined || (p.current === undefined && p.next === undefined && p.offer === undefined && p.payerlessSince === undefined && p.dunning.length === 0)) {
+	if (p === undefined || (p.current === undefined && p.next === undefined && p.offer === undefined && p.datePayerless === undefined && p.dunning.length === 0)) {
 		return <p className="mute">결제 서비스가 아직 이 워크스페이스의 결제 담당을 모릅니다. 잠시 뒤에 다시 보세요.</p>
 	}
-	const restricted = dateOf(p.restrictedFrom)
-	const readOnly = dateOf(p.readonlyFrom)
+	const restricted = dateOf(p.dateRestricted)
+	const readOnly = dateOf(p.dateReadonly)
 	const now = new Date()
 	const offeredToMe = p.offer !== undefined && p.offer.account === props.me
 	const paysMe = p.current?.account === props.me || p.next?.account === props.me
@@ -1902,16 +1902,16 @@ function PayerSaid(props: { payer: BillingPayer | undefined; nameOf: (account: s
 			<Kv
 				items={[
 					...(p.current !== undefined
-						? ([['지금 내는 사람', `${props.nameOf(p.current.account)} · ${fmt(p.current.start, 'date')}부터${p.current.end !== undefined ? ` ${fmt(p.current.end, 'date')}까지` : ''}`]] as [ReactNode, ReactNode][])
+						? ([['지금 내는 사람', `${props.nameOf(p.current.account)} · ${fmt(p.current.dateStart, 'date')}부터${p.current.dateEnd !== undefined ? ` ${fmt(p.current.dateEnd, 'date')}까지` : ''}`]] as [ReactNode, ReactNode][])
 						: []),
 					...(p.next !== undefined ? ([['다음 기간부터', props.nameOf(p.next.account)]] as [ReactNode, ReactNode][]) : []),
-					...(p.offer !== undefined ? ([['제안', `${props.nameOf(p.offer.account)} · ${fmt(p.offer.offered, 'date')}에 제안함`]] as [ReactNode, ReactNode][]) : []),
+					...(p.offer !== undefined ? ([['제안', `${props.nameOf(p.offer.account)} · ${fmt(p.offer.dateOffered, 'date')}에 제안함`]] as [ReactNode, ReactNode][]) : []),
 					...(p.collection !== undefined ? ([['수금', <CollectionBadge key="c" c={p.collection} />]] as [ReactNode, ReactNode][]) : []),
 				]}
 			/>
-			{p.payerlessSince !== undefined && (
+			{p.datePayerless !== undefined && (
 				<p className="note warn" role="status">
-					{fmt(p.payerlessSince, 'date')}부터 결제 담당이 없습니다.{' '}
+					{fmt(p.datePayerless, 'date')}부터 결제 담당이 없습니다.{' '}
 					{restricted !== undefined && (restricted <= now ? `${fmt(restricted, 'date')}부터 제한되었습니다.` : `${fmt(restricted, 'date')}부터 제한됩니다.`)}{' '}
 					{readOnly !== undefined && (readOnly <= now ? `${fmt(readOnly, 'date')}부터 읽기 전용입니다.` : `${fmt(readOnly, 'date')}부터는 읽기 전용이 됩니다.`)} 구성원에게 결제 담당을 제안하고, 그 사람이 결제
 					화면에서 받아들이면 풀립니다.
@@ -2109,8 +2109,8 @@ function usePaysHere(ws: string, on: boolean): Here {
 				const [l, o] = await Promise.all([call(PaymentService.method.listLinks, {}), call(PaymentService.method.listOffers, {})])
 				const now = new Date()
 				const pays = l.links.find((v) => {
-					const start = dateOf(v.start)
-					const end = dateOf(v.end)
+					const start = dateOf(v.dateStart)
+					const end = dateOf(v.dateEnd)
 					return v.workspace === ws && start !== undefined && start <= now && (end === undefined || end > now)
 				})
 				const offered = o.offers.find((v) => v.workspace === ws)
@@ -2145,7 +2145,7 @@ function soonest(dates: (Date | undefined)[]): Date | undefined {
  * 6). Every member is told it is restricted or read-only, by the copy of
  * levyan's grants its writes are held to (`PartyService.Me`) or by a write
  * refused for it; read-only, the second stage, is said over the first, and
- * before it comes, from when it will (`readonly_from`), to whoever reads it.
+ * before it comes, from when it will (`date_readonly`), to whoever reads it.
  * Why, and what comes before, the people who run it are told from who pays
  * for it (`GetPayer`), which they alone read; a member who is not one of
  * them, and pays for it or was asked to, by the account's own calls
@@ -2175,12 +2175,12 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 	// the workspace, or, for a payer who reads nothing of the workspace's,
 	// of the billing account it pays with. And from when it is read-only, the
 	// second stage (design 7.10): the soonest either says.
-	const nobodyPays = p?.payerlessSince !== undefined
-	const payerlessFrom = nobodyPays ? dateOf(p.restrictedFrom) : undefined
+	const nobodyPays = p?.datePayerless !== undefined
+	const payerlessFrom = nobodyPays ? dateOf(p.dateRestricted) : undefined
 	const dunnings = admin ? (p?.dunning ?? []) : mine.dunning
 	const dunning = dunnings[0]
-	const dunningFrom = dateOf(dunning?.restrictedFrom)
-	const readOnlyFrom = soonest([nobodyPays ? dateOf(p.readonlyFrom) : undefined, ...dunnings.map((d) => dateOf(d.readonlyFrom))])
+	const dunningFrom = dateOf(dunning?.dateRestricted)
+	const readOnlyFrom = soonest([nobodyPays ? dateOf(p.dateReadonly) : undefined, ...dunnings.map((d) => dateOf(d.dateReadonly))])
 	const passed = (v: Date | undefined): v is Date => v !== undefined && v <= now
 	// Read-only holds it to more than the first stage: by its own grant, as
 	// its writes are held, or -- to whoever knows its day -- once that passed,
@@ -2214,7 +2214,7 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 		const why = nobodyPays
 			? '결제 담당이 없는 채로 오래 지나'
 			: dunning !== undefined
-				? `${fmt(dunning.failed, 'date')}에 결제가 실패한 청구서가 아직 결제되지 않아`
+				? `${fmt(dunning.dateFailed, 'date')}에 결제가 실패한 청구서가 아직 결제되지 않아`
 				: '결제가 오래 정리되지 않아'
 		const ends = nobodyPays
 			? admin

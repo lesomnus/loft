@@ -772,7 +772,7 @@ func (t *Tx) overdue(c *ent.Custody) error {
 			continue
 		}
 		a := pdid.Id(l.AssetId)
-		kids = append(kids, past.Child{Event: past.Event{Kind: "custody.overdue", Subject: a, At: t.now, Value: said(a.Bytes())}})
+		kids = append(kids, past.Child{Event: past.Event{Kind: "custody.overdue", Subject: a, DateOccurred: t.now, Value: said(a.Bytes())}})
 	}
 	_, err = t.op.Batch(t.ctx, kids)
 	return err

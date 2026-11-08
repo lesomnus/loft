@@ -36,14 +36,14 @@ func TestThePastIsWrittenByThePastAlone(t *testing.T) {
 	events := len(e.eventsOf("asset.add"))
 
 	tenant := app.TenantRef_builder{Id: e.tenant.Bytes()}.Build()
-	ev := app.EventAddRequest_builder{Tenant: tenant, Kind: "asset.add", OccurredAt: timestamppb.New(e.now)}.Build()
+	ev := app.EventAddRequest_builder{Tenant: tenant, Kind: "asset.add", DateOccurred: timestamppb.New(e.now)}.Build()
 	f := app.FactAddRequest_builder{
 		Tenant:      tenant,
 		SubjectId:   laptop.GetId(),
 		FieldNumber: z.Ptr(uint32(5)),
 		Domain:      z.Ptr(uint32(pd.AssetDomain)),
 		Value:       `"다른 이름"`,
-		ValidFrom:   timestamppb.New(e.now),
+		DateStart:   timestamppb.New(e.now),
 		EventId:     pdid.New(pd.EventDomain).Bytes(),
 	}.Build()
 	for name, s := range map[string]app.Server{"walled": e.s.Walled, "ungated": e.s.Ungated, "base": e.s.Base} {
@@ -57,7 +57,7 @@ func TestThePastIsWrittenByThePastAlone(t *testing.T) {
 		x.Equal(codes.PermissionDenied, codeOf(err), "%s: facts", name)
 		_, err = s.Fact().Patch(e.owner, app.FactPatchRequest_builder{
 			Ref:              app.FactRef_builder{Id: pdid.Id(standing[0].Id).Bytes()}.Build(),
-			SupersededAt:     timestamppb.New(e.now),
+			DateSuperseded:   timestamppb.New(e.now),
 			SupersededBy:     pdid.New(pd.EventDomain).Bytes(),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
@@ -69,7 +69,7 @@ func TestThePastIsWrittenByThePastAlone(t *testing.T) {
 	x.NoError(err)
 	x.Len(after, len(standing))
 	for _, v := range after {
-		x.Nil(v.SupersededAt)
+		x.Nil(v.DateSuperseded)
 	}
 }
 
@@ -116,7 +116,7 @@ func TestAnOperationIsOneMoment(t *testing.T) {
 	x.Equal(e.now.UTC().Truncate(time.Microsecond), ev.DateCreated.UTC(), "to the microsecond a database keeps")
 	for _, f := range fs {
 		x.True(ev.DateCreated.Equal(f.DateCreated), "a fact known at %s, and its event at %s", f.DateCreated, ev.DateCreated)
-		x.True(f.ValidFrom.Equal(p.DateStart), "a fact from %s, and where it was from %s", f.ValidFrom, p.DateStart)
+		x.True(f.DateStart.Equal(p.DateStart), "a fact from %s, and where it was from %s", f.DateStart, p.DateStart)
 		x.Equal(ev.Id, f.EventId)
 	}
 	x.True(ev.DateCreated.Equal(p.DateCreated))

@@ -3614,17 +3614,17 @@ func (b0 PaymentOfferResponse_builder) Build() *PaymentOfferResponse {
 
 // BillingAccount is what an account pays with: levyan's.
 type BillingAccount struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id        string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Name      string                 `protobuf:"bytes,2,opt,name=name"`
-	xxx_hidden_Country   string                 `protobuf:"bytes,3,opt,name=country"`
-	xxx_hidden_Channel   BillingChannel         `protobuf:"varint,4,opt,name=channel,enum=loft.BillingChannel"`
-	xxx_hidden_Currency  string                 `protobuf:"bytes,5,opt,name=currency"`
-	xxx_hidden_Recipient *BillingRecipient      `protobuf:"bytes,6,opt,name=recipient"`
-	xxx_hidden_Business  *BillingBusiness       `protobuf:"bytes,7,opt,name=business"`
-	xxx_hidden_Created   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          string                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Name        string                 `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_Country     string                 `protobuf:"bytes,3,opt,name=country"`
+	xxx_hidden_Channel     BillingChannel         `protobuf:"varint,4,opt,name=channel,enum=loft.BillingChannel"`
+	xxx_hidden_Currency    string                 `protobuf:"bytes,5,opt,name=currency"`
+	xxx_hidden_Recipient   *BillingRecipient      `protobuf:"bytes,6,opt,name=recipient"`
+	xxx_hidden_Business    *BillingBusiness       `protobuf:"bytes,7,opt,name=business"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_created,json=dateCreated"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *BillingAccount) Reset() {
@@ -3701,9 +3701,9 @@ func (x *BillingAccount) GetBusiness() *BillingBusiness {
 	return nil
 }
 
-func (x *BillingAccount) GetCreated() *timestamppb.Timestamp {
+func (x *BillingAccount) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Created
+		return x.xxx_hidden_DateCreated
 	}
 	return nil
 }
@@ -3736,8 +3736,8 @@ func (x *BillingAccount) SetBusiness(v *BillingBusiness) {
 	x.xxx_hidden_Business = v
 }
 
-func (x *BillingAccount) SetCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Created = v
+func (x *BillingAccount) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
 }
 
 func (x *BillingAccount) HasRecipient() bool {
@@ -3754,11 +3754,11 @@ func (x *BillingAccount) HasBusiness() bool {
 	return x.xxx_hidden_Business != nil
 }
 
-func (x *BillingAccount) HasCreated() bool {
+func (x *BillingAccount) HasDateCreated() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Created != nil
+	return x.xxx_hidden_DateCreated != nil
 }
 
 func (x *BillingAccount) ClearRecipient() {
@@ -3769,8 +3769,8 @@ func (x *BillingAccount) ClearBusiness() {
 	x.xxx_hidden_Business = nil
 }
 
-func (x *BillingAccount) ClearCreated() {
-	x.xxx_hidden_Created = nil
+func (x *BillingAccount) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
 }
 
 type BillingAccount_builder struct {
@@ -3780,12 +3780,12 @@ type BillingAccount_builder struct {
 	Name string
 	// The country it is billed in, and what the deployment sold that country
 	// through when it was made.
-	Country   string
-	Channel   BillingChannel
-	Currency  string
-	Recipient *BillingRecipient
-	Business  *BillingBusiness
-	Created   *timestamppb.Timestamp
+	Country     string
+	Channel     BillingChannel
+	Currency    string
+	Recipient   *BillingRecipient
+	Business    *BillingBusiness
+	DateCreated *timestamppb.Timestamp
 }
 
 func (b0 BillingAccount_builder) Build() *BillingAccount {
@@ -3799,7 +3799,7 @@ func (b0 BillingAccount_builder) Build() *BillingAccount {
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_Recipient = b.Recipient
 	x.xxx_hidden_Business = b.Business
-	x.xxx_hidden_Created = b.Created
+	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
 }
 
@@ -4034,12 +4034,12 @@ func (b0 BillingBusiness_builder) Build() *BillingBusiness {
 // BillingCollection is whether what a billing account is billed can be
 // collected now, and why not.
 type BillingCollection struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_State BillingCollectionState `protobuf:"varint,1,opt,name=state,enum=loft.BillingCollectionState"`
-	xxx_hidden_Since *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=since"`
-	xxx_hidden_Ends  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=ends"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_State     BillingCollectionState `protobuf:"varint,1,opt,name=state,enum=loft.BillingCollectionState"`
+	xxx_hidden_DateSince *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_since,json=dateSince"`
+	xxx_hidden_DateEnds  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_ends,json=dateEnds"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *BillingCollection) Reset() {
@@ -4074,16 +4074,16 @@ func (x *BillingCollection) GetState() BillingCollectionState {
 	return BillingCollectionState_BILLING_COLLECTION_STATE_UNSPECIFIED
 }
 
-func (x *BillingCollection) GetSince() *timestamppb.Timestamp {
+func (x *BillingCollection) GetDateSince() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Since
+		return x.xxx_hidden_DateSince
 	}
 	return nil
 }
 
-func (x *BillingCollection) GetEnds() *timestamppb.Timestamp {
+func (x *BillingCollection) GetDateEnds() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Ends
+		return x.xxx_hidden_DateEnds
 	}
 	return nil
 }
@@ -4092,34 +4092,34 @@ func (x *BillingCollection) SetState(v BillingCollectionState) {
 	x.xxx_hidden_State = v
 }
 
-func (x *BillingCollection) SetSince(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Since = v
+func (x *BillingCollection) SetDateSince(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateSince = v
 }
 
-func (x *BillingCollection) SetEnds(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Ends = v
+func (x *BillingCollection) SetDateEnds(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnds = v
 }
 
-func (x *BillingCollection) HasSince() bool {
+func (x *BillingCollection) HasDateSince() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Since != nil
+	return x.xxx_hidden_DateSince != nil
 }
 
-func (x *BillingCollection) HasEnds() bool {
+func (x *BillingCollection) HasDateEnds() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Ends != nil
+	return x.xxx_hidden_DateEnds != nil
 }
 
-func (x *BillingCollection) ClearSince() {
-	x.xxx_hidden_Since = nil
+func (x *BillingCollection) ClearDateSince() {
+	x.xxx_hidden_DateSince = nil
 }
 
-func (x *BillingCollection) ClearEnds() {
-	x.xxx_hidden_Ends = nil
+func (x *BillingCollection) ClearDateEnds() {
+	x.xxx_hidden_DateEnds = nil
 }
 
 type BillingCollection_builder struct {
@@ -4127,10 +4127,10 @@ type BillingCollection_builder struct {
 
 	State BillingCollectionState
 	// Since when it has been so.
-	Since *timestamppb.Timestamp
+	DateSince *timestamppb.Timestamp
 	// When the subscription ends or pauses, as somebody scheduled it at the
 	// merchant; unset for nothing scheduled.
-	Ends *timestamppb.Timestamp
+	DateEnds *timestamppb.Timestamp
 }
 
 func (b0 BillingCollection_builder) Build() *BillingCollection {
@@ -4138,30 +4138,30 @@ func (b0 BillingCollection_builder) Build() *BillingCollection {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_State = b.State
-	x.xxx_hidden_Since = b.Since
-	x.xxx_hidden_Ends = b.Ends
+	x.xxx_hidden_DateSince = b.DateSince
+	x.xxx_hidden_DateEnds = b.DateEnds
 	return m0
 }
 
 // BillingSubscription is a subscription the merchant of record runs for a
 // billing account, as levyan mirrors it.
 type BillingSubscription struct {
-	state                  protoimpl.MessageState    `protogen:"opaque.v1"`
-	xxx_hidden_Id          string                    `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Merchant    string                    `protobuf:"bytes,2,opt,name=merchant"`
-	xxx_hidden_Status      BillingSubscriptionStatus `protobuf:"varint,3,opt,name=status,enum=loft.BillingSubscriptionStatus"`
-	xxx_hidden_Currency    string                    `protobuf:"bytes,4,opt,name=currency"`
-	xxx_hidden_PeriodStart *timestamppb.Timestamp    `protobuf:"bytes,5,opt,name=period_start,json=periodStart"`
-	xxx_hidden_PeriodEnd   *timestamppb.Timestamp    `protobuf:"bytes,6,opt,name=period_end,json=periodEnd"`
-	xxx_hidden_NextBilled  *timestamppb.Timestamp    `protobuf:"bytes,7,opt,name=next_billed,json=nextBilled"`
-	xxx_hidden_Change      BillingSubscriptionChange `protobuf:"varint,8,opt,name=change,enum=loft.BillingSubscriptionChange"`
-	xxx_hidden_ChangeAt    *timestamppb.Timestamp    `protobuf:"bytes,9,opt,name=change_at,json=changeAt"`
-	xxx_hidden_Canceled    *timestamppb.Timestamp    `protobuf:"bytes,10,opt,name=canceled"`
-	xxx_hidden_Method      *BillingPaymentMethod     `protobuf:"bytes,11,opt,name=method"`
-	xxx_hidden_Updated     *timestamppb.Timestamp    `protobuf:"bytes,12,opt,name=updated"`
-	xxx_hidden_Checked     *timestamppb.Timestamp    `protobuf:"bytes,13,opt,name=checked"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                      protoimpl.MessageState    `protogen:"opaque.v1"`
+	xxx_hidden_Id              string                    `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Merchant        string                    `protobuf:"bytes,2,opt,name=merchant"`
+	xxx_hidden_Status          BillingSubscriptionStatus `protobuf:"varint,3,opt,name=status,enum=loft.BillingSubscriptionStatus"`
+	xxx_hidden_Currency        string                    `protobuf:"bytes,4,opt,name=currency"`
+	xxx_hidden_DatePeriodStart *timestamppb.Timestamp    `protobuf:"bytes,5,opt,name=date_period_start,json=datePeriodStart"`
+	xxx_hidden_DatePeriodEnd   *timestamppb.Timestamp    `protobuf:"bytes,6,opt,name=date_period_end,json=datePeriodEnd"`
+	xxx_hidden_DateNextBilled  *timestamppb.Timestamp    `protobuf:"bytes,7,opt,name=date_next_billed,json=dateNextBilled"`
+	xxx_hidden_Change          BillingSubscriptionChange `protobuf:"varint,8,opt,name=change,enum=loft.BillingSubscriptionChange"`
+	xxx_hidden_DateChange      *timestamppb.Timestamp    `protobuf:"bytes,9,opt,name=date_change,json=dateChange"`
+	xxx_hidden_DateCanceled    *timestamppb.Timestamp    `protobuf:"bytes,10,opt,name=date_canceled,json=dateCanceled"`
+	xxx_hidden_Method          *BillingPaymentMethod     `protobuf:"bytes,11,opt,name=method"`
+	xxx_hidden_DateUpdated     *timestamppb.Timestamp    `protobuf:"bytes,12,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateChecked     *timestamppb.Timestamp    `protobuf:"bytes,13,opt,name=date_checked,json=dateChecked"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *BillingSubscription) Reset() {
@@ -4217,23 +4217,23 @@ func (x *BillingSubscription) GetCurrency() string {
 	return ""
 }
 
-func (x *BillingSubscription) GetPeriodStart() *timestamppb.Timestamp {
+func (x *BillingSubscription) GetDatePeriodStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PeriodStart
+		return x.xxx_hidden_DatePeriodStart
 	}
 	return nil
 }
 
-func (x *BillingSubscription) GetPeriodEnd() *timestamppb.Timestamp {
+func (x *BillingSubscription) GetDatePeriodEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PeriodEnd
+		return x.xxx_hidden_DatePeriodEnd
 	}
 	return nil
 }
 
-func (x *BillingSubscription) GetNextBilled() *timestamppb.Timestamp {
+func (x *BillingSubscription) GetDateNextBilled() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_NextBilled
+		return x.xxx_hidden_DateNextBilled
 	}
 	return nil
 }
@@ -4245,16 +4245,16 @@ func (x *BillingSubscription) GetChange() BillingSubscriptionChange {
 	return BillingSubscriptionChange_BILLING_SUBSCRIPTION_CHANGE_UNSPECIFIED
 }
 
-func (x *BillingSubscription) GetChangeAt() *timestamppb.Timestamp {
+func (x *BillingSubscription) GetDateChange() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ChangeAt
+		return x.xxx_hidden_DateChange
 	}
 	return nil
 }
 
-func (x *BillingSubscription) GetCanceled() *timestamppb.Timestamp {
+func (x *BillingSubscription) GetDateCanceled() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Canceled
+		return x.xxx_hidden_DateCanceled
 	}
 	return nil
 }
@@ -4266,16 +4266,16 @@ func (x *BillingSubscription) GetMethod() *BillingPaymentMethod {
 	return nil
 }
 
-func (x *BillingSubscription) GetUpdated() *timestamppb.Timestamp {
+func (x *BillingSubscription) GetDateUpdated() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Updated
+		return x.xxx_hidden_DateUpdated
 	}
 	return nil
 }
 
-func (x *BillingSubscription) GetChecked() *timestamppb.Timestamp {
+func (x *BillingSubscription) GetDateChecked() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Checked
+		return x.xxx_hidden_DateChecked
 	}
 	return nil
 }
@@ -4296,75 +4296,75 @@ func (x *BillingSubscription) SetCurrency(v string) {
 	x.xxx_hidden_Currency = v
 }
 
-func (x *BillingSubscription) SetPeriodStart(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PeriodStart = v
+func (x *BillingSubscription) SetDatePeriodStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DatePeriodStart = v
 }
 
-func (x *BillingSubscription) SetPeriodEnd(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PeriodEnd = v
+func (x *BillingSubscription) SetDatePeriodEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DatePeriodEnd = v
 }
 
-func (x *BillingSubscription) SetNextBilled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_NextBilled = v
+func (x *BillingSubscription) SetDateNextBilled(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateNextBilled = v
 }
 
 func (x *BillingSubscription) SetChange(v BillingSubscriptionChange) {
 	x.xxx_hidden_Change = v
 }
 
-func (x *BillingSubscription) SetChangeAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ChangeAt = v
+func (x *BillingSubscription) SetDateChange(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateChange = v
 }
 
-func (x *BillingSubscription) SetCanceled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Canceled = v
+func (x *BillingSubscription) SetDateCanceled(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCanceled = v
 }
 
 func (x *BillingSubscription) SetMethod(v *BillingPaymentMethod) {
 	x.xxx_hidden_Method = v
 }
 
-func (x *BillingSubscription) SetUpdated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Updated = v
+func (x *BillingSubscription) SetDateUpdated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUpdated = v
 }
 
-func (x *BillingSubscription) SetChecked(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Checked = v
+func (x *BillingSubscription) SetDateChecked(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateChecked = v
 }
 
-func (x *BillingSubscription) HasPeriodStart() bool {
+func (x *BillingSubscription) HasDatePeriodStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PeriodStart != nil
+	return x.xxx_hidden_DatePeriodStart != nil
 }
 
-func (x *BillingSubscription) HasPeriodEnd() bool {
+func (x *BillingSubscription) HasDatePeriodEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PeriodEnd != nil
+	return x.xxx_hidden_DatePeriodEnd != nil
 }
 
-func (x *BillingSubscription) HasNextBilled() bool {
+func (x *BillingSubscription) HasDateNextBilled() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_NextBilled != nil
+	return x.xxx_hidden_DateNextBilled != nil
 }
 
-func (x *BillingSubscription) HasChangeAt() bool {
+func (x *BillingSubscription) HasDateChange() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ChangeAt != nil
+	return x.xxx_hidden_DateChange != nil
 }
 
-func (x *BillingSubscription) HasCanceled() bool {
+func (x *BillingSubscription) HasDateCanceled() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Canceled != nil
+	return x.xxx_hidden_DateCanceled != nil
 }
 
 func (x *BillingSubscription) HasMethod() bool {
@@ -4374,71 +4374,71 @@ func (x *BillingSubscription) HasMethod() bool {
 	return x.xxx_hidden_Method != nil
 }
 
-func (x *BillingSubscription) HasUpdated() bool {
+func (x *BillingSubscription) HasDateUpdated() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Updated != nil
+	return x.xxx_hidden_DateUpdated != nil
 }
 
-func (x *BillingSubscription) HasChecked() bool {
+func (x *BillingSubscription) HasDateChecked() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Checked != nil
+	return x.xxx_hidden_DateChecked != nil
 }
 
-func (x *BillingSubscription) ClearPeriodStart() {
-	x.xxx_hidden_PeriodStart = nil
+func (x *BillingSubscription) ClearDatePeriodStart() {
+	x.xxx_hidden_DatePeriodStart = nil
 }
 
-func (x *BillingSubscription) ClearPeriodEnd() {
-	x.xxx_hidden_PeriodEnd = nil
+func (x *BillingSubscription) ClearDatePeriodEnd() {
+	x.xxx_hidden_DatePeriodEnd = nil
 }
 
-func (x *BillingSubscription) ClearNextBilled() {
-	x.xxx_hidden_NextBilled = nil
+func (x *BillingSubscription) ClearDateNextBilled() {
+	x.xxx_hidden_DateNextBilled = nil
 }
 
-func (x *BillingSubscription) ClearChangeAt() {
-	x.xxx_hidden_ChangeAt = nil
+func (x *BillingSubscription) ClearDateChange() {
+	x.xxx_hidden_DateChange = nil
 }
 
-func (x *BillingSubscription) ClearCanceled() {
-	x.xxx_hidden_Canceled = nil
+func (x *BillingSubscription) ClearDateCanceled() {
+	x.xxx_hidden_DateCanceled = nil
 }
 
 func (x *BillingSubscription) ClearMethod() {
 	x.xxx_hidden_Method = nil
 }
 
-func (x *BillingSubscription) ClearUpdated() {
-	x.xxx_hidden_Updated = nil
+func (x *BillingSubscription) ClearDateUpdated() {
+	x.xxx_hidden_DateUpdated = nil
 }
 
-func (x *BillingSubscription) ClearChecked() {
-	x.xxx_hidden_Checked = nil
+func (x *BillingSubscription) ClearDateChecked() {
+	x.xxx_hidden_DateChecked = nil
 }
 
 type BillingSubscription_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id          string
-	Merchant    string
-	Status      BillingSubscriptionStatus
-	Currency    string
-	PeriodStart *timestamppb.Timestamp
-	PeriodEnd   *timestamppb.Timestamp
-	NextBilled  *timestamppb.Timestamp
+	Id              string
+	Merchant        string
+	Status          BillingSubscriptionStatus
+	Currency        string
+	DatePeriodStart *timestamppb.Timestamp
+	DatePeriodEnd   *timestamppb.Timestamp
+	DateNextBilled  *timestamppb.Timestamp
 	// What the merchant will do to it, and when.
-	Change   BillingSubscriptionChange
-	ChangeAt *timestamppb.Timestamp
-	Canceled *timestamppb.Timestamp
+	Change       BillingSubscriptionChange
+	DateChange   *timestamppb.Timestamp
+	DateCanceled *timestamppb.Timestamp
 	// How the payer pays: the kind, the brand and the last four digits, and
 	// never more of a card.
-	Method  *BillingPaymentMethod
-	Updated *timestamppb.Timestamp
-	Checked *timestamppb.Timestamp
+	Method      *BillingPaymentMethod
+	DateUpdated *timestamppb.Timestamp
+	DateChecked *timestamppb.Timestamp
 }
 
 func (b0 BillingSubscription_builder) Build() *BillingSubscription {
@@ -4449,15 +4449,15 @@ func (b0 BillingSubscription_builder) Build() *BillingSubscription {
 	x.xxx_hidden_Merchant = b.Merchant
 	x.xxx_hidden_Status = b.Status
 	x.xxx_hidden_Currency = b.Currency
-	x.xxx_hidden_PeriodStart = b.PeriodStart
-	x.xxx_hidden_PeriodEnd = b.PeriodEnd
-	x.xxx_hidden_NextBilled = b.NextBilled
+	x.xxx_hidden_DatePeriodStart = b.DatePeriodStart
+	x.xxx_hidden_DatePeriodEnd = b.DatePeriodEnd
+	x.xxx_hidden_DateNextBilled = b.DateNextBilled
 	x.xxx_hidden_Change = b.Change
-	x.xxx_hidden_ChangeAt = b.ChangeAt
-	x.xxx_hidden_Canceled = b.Canceled
+	x.xxx_hidden_DateChange = b.DateChange
+	x.xxx_hidden_DateCanceled = b.DateCanceled
 	x.xxx_hidden_Method = b.Method
-	x.xxx_hidden_Updated = b.Updated
-	x.xxx_hidden_Checked = b.Checked
+	x.xxx_hidden_DateUpdated = b.DateUpdated
+	x.xxx_hidden_DateChecked = b.DateChecked
 	return m0
 }
 
@@ -4556,8 +4556,8 @@ type BillingCheckout struct {
 	xxx_hidden_Id             string                 `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_BillingAccount string                 `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
 	xxx_hidden_State          BillingCheckoutState   `protobuf:"varint,3,opt,name=state,enum=loft.BillingCheckoutState"`
-	xxx_hidden_Started        *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=started"`
-	xxx_hidden_Done           *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=done"`
+	xxx_hidden_DateStarted    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_started,json=dateStarted"`
+	xxx_hidden_DateDone       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_done,json=dateDone"`
 	xxx_hidden_Window         *BillingCheckoutWindow `protobuf:"bytes,6,opt,name=window"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
@@ -4609,16 +4609,16 @@ func (x *BillingCheckout) GetState() BillingCheckoutState {
 	return BillingCheckoutState_BILLING_CHECKOUT_STATE_UNSPECIFIED
 }
 
-func (x *BillingCheckout) GetStarted() *timestamppb.Timestamp {
+func (x *BillingCheckout) GetDateStarted() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Started
+		return x.xxx_hidden_DateStarted
 	}
 	return nil
 }
 
-func (x *BillingCheckout) GetDone() *timestamppb.Timestamp {
+func (x *BillingCheckout) GetDateDone() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Done
+		return x.xxx_hidden_DateDone
 	}
 	return nil
 }
@@ -4642,30 +4642,30 @@ func (x *BillingCheckout) SetState(v BillingCheckoutState) {
 	x.xxx_hidden_State = v
 }
 
-func (x *BillingCheckout) SetStarted(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Started = v
+func (x *BillingCheckout) SetDateStarted(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStarted = v
 }
 
-func (x *BillingCheckout) SetDone(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Done = v
+func (x *BillingCheckout) SetDateDone(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDone = v
 }
 
 func (x *BillingCheckout) SetWindow(v *BillingCheckoutWindow) {
 	x.xxx_hidden_Window = v
 }
 
-func (x *BillingCheckout) HasStarted() bool {
+func (x *BillingCheckout) HasDateStarted() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Started != nil
+	return x.xxx_hidden_DateStarted != nil
 }
 
-func (x *BillingCheckout) HasDone() bool {
+func (x *BillingCheckout) HasDateDone() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Done != nil
+	return x.xxx_hidden_DateDone != nil
 }
 
 func (x *BillingCheckout) HasWindow() bool {
@@ -4675,12 +4675,12 @@ func (x *BillingCheckout) HasWindow() bool {
 	return x.xxx_hidden_Window != nil
 }
 
-func (x *BillingCheckout) ClearStarted() {
-	x.xxx_hidden_Started = nil
+func (x *BillingCheckout) ClearDateStarted() {
+	x.xxx_hidden_DateStarted = nil
 }
 
-func (x *BillingCheckout) ClearDone() {
-	x.xxx_hidden_Done = nil
+func (x *BillingCheckout) ClearDateDone() {
+	x.xxx_hidden_DateDone = nil
 }
 
 func (x *BillingCheckout) ClearWindow() {
@@ -4693,8 +4693,8 @@ type BillingCheckout_builder struct {
 	Id             string
 	BillingAccount string
 	State          BillingCheckoutState
-	Started        *timestamppb.Timestamp
-	Done           *timestamppb.Timestamp
+	DateStarted    *timestamppb.Timestamp
+	DateDone       *timestamppb.Timestamp
 	// What a page opens it with: answered by `StartCheckout` alone.
 	Window *BillingCheckoutWindow
 }
@@ -4706,8 +4706,8 @@ func (b0 BillingCheckout_builder) Build() *BillingCheckout {
 	x.xxx_hidden_Id = b.Id
 	x.xxx_hidden_BillingAccount = b.BillingAccount
 	x.xxx_hidden_State = b.State
-	x.xxx_hidden_Started = b.Started
-	x.xxx_hidden_Done = b.Done
+	x.xxx_hidden_DateStarted = b.DateStarted
+	x.xxx_hidden_DateDone = b.DateDone
 	x.xxx_hidden_Window = b.Window
 	return m0
 }
@@ -4861,13 +4861,13 @@ func (b0 BillingCheckoutWindow_builder) Build() *BillingCheckoutWindow {
 
 // BillingOffer is a workspace's owner asking an account to pay for it.
 type BillingOffer struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id        string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Workspace string                 `protobuf:"bytes,2,opt,name=workspace"`
-	xxx_hidden_Account   string                 `protobuf:"bytes,3,opt,name=account"`
-	xxx_hidden_Offered   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=offered"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          string                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Workspace   string                 `protobuf:"bytes,2,opt,name=workspace"`
+	xxx_hidden_Account     string                 `protobuf:"bytes,3,opt,name=account"`
+	xxx_hidden_DateOffered *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_offered,json=dateOffered"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *BillingOffer) Reset() {
@@ -4916,9 +4916,9 @@ func (x *BillingOffer) GetAccount() string {
 	return ""
 }
 
-func (x *BillingOffer) GetOffered() *timestamppb.Timestamp {
+func (x *BillingOffer) GetDateOffered() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Offered
+		return x.xxx_hidden_DateOffered
 	}
 	return nil
 }
@@ -4935,19 +4935,19 @@ func (x *BillingOffer) SetAccount(v string) {
 	x.xxx_hidden_Account = v
 }
 
-func (x *BillingOffer) SetOffered(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Offered = v
+func (x *BillingOffer) SetDateOffered(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOffered = v
 }
 
-func (x *BillingOffer) HasOffered() bool {
+func (x *BillingOffer) HasDateOffered() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Offered != nil
+	return x.xxx_hidden_DateOffered != nil
 }
 
-func (x *BillingOffer) ClearOffered() {
-	x.xxx_hidden_Offered = nil
+func (x *BillingOffer) ClearDateOffered() {
+	x.xxx_hidden_DateOffered = nil
 }
 
 type BillingOffer_builder struct {
@@ -4957,8 +4957,8 @@ type BillingOffer_builder struct {
 	// The workspace, by its identifier's canonical text.
 	Workspace string
 	// The account it is made to, roster's.
-	Account string
-	Offered *timestamppb.Timestamp
+	Account     string
+	DateOffered *timestamppb.Timestamp
 }
 
 func (b0 BillingOffer_builder) Build() *BillingOffer {
@@ -4968,7 +4968,7 @@ func (b0 BillingOffer_builder) Build() *BillingOffer {
 	x.xxx_hidden_Id = b.Id
 	x.xxx_hidden_Workspace = b.Workspace
 	x.xxx_hidden_Account = b.Account
-	x.xxx_hidden_Offered = b.Offered
+	x.xxx_hidden_DateOffered = b.DateOffered
 	return m0
 }
 
@@ -4979,8 +4979,8 @@ type BillingLink struct {
 	xxx_hidden_Workspace      string                 `protobuf:"bytes,2,opt,name=workspace"`
 	xxx_hidden_Account        string                 `protobuf:"bytes,3,opt,name=account"`
 	xxx_hidden_BillingAccount string                 `protobuf:"bytes,4,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_Start          *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=start"`
-	xxx_hidden_End            *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=end"`
+	xxx_hidden_DateStart      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_Began          BillingLinkBegan       `protobuf:"varint,7,opt,name=began,enum=loft.BillingLinkBegan"`
 	xxx_hidden_Ended          BillingLinkEnded       `protobuf:"varint,8,opt,name=ended,enum=loft.BillingLinkEnded"`
 	unknownFields             protoimpl.UnknownFields
@@ -5040,16 +5040,16 @@ func (x *BillingLink) GetBillingAccount() string {
 	return ""
 }
 
-func (x *BillingLink) GetStart() *timestamppb.Timestamp {
+func (x *BillingLink) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Start
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *BillingLink) GetEnd() *timestamppb.Timestamp {
+func (x *BillingLink) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_End
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -5084,12 +5084,12 @@ func (x *BillingLink) SetBillingAccount(v string) {
 	x.xxx_hidden_BillingAccount = v
 }
 
-func (x *BillingLink) SetStart(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Start = v
+func (x *BillingLink) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *BillingLink) SetEnd(v *timestamppb.Timestamp) {
-	x.xxx_hidden_End = v
+func (x *BillingLink) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *BillingLink) SetBegan(v BillingLinkBegan) {
@@ -5100,26 +5100,26 @@ func (x *BillingLink) SetEnded(v BillingLinkEnded) {
 	x.xxx_hidden_Ended = v
 }
 
-func (x *BillingLink) HasStart() bool {
+func (x *BillingLink) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Start != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *BillingLink) HasEnd() bool {
+func (x *BillingLink) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_End != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *BillingLink) ClearStart() {
-	x.xxx_hidden_Start = nil
+func (x *BillingLink) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *BillingLink) ClearEnd() {
-	x.xxx_hidden_End = nil
+func (x *BillingLink) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 type BillingLink_builder struct {
@@ -5130,8 +5130,8 @@ type BillingLink_builder struct {
 	Account   string
 	// The billing account it pays with; empty for none yet.
 	BillingAccount string
-	Start          *timestamppb.Timestamp
-	End            *timestamppb.Timestamp
+	DateStart      *timestamppb.Timestamp
+	DateEnd        *timestamppb.Timestamp
 	Began          BillingLinkBegan
 	Ended          BillingLinkEnded
 }
@@ -5144,8 +5144,8 @@ func (b0 BillingLink_builder) Build() *BillingLink {
 	x.xxx_hidden_Workspace = b.Workspace
 	x.xxx_hidden_Account = b.Account
 	x.xxx_hidden_BillingAccount = b.BillingAccount
-	x.xxx_hidden_Start = b.Start
-	x.xxx_hidden_End = b.End
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_Began = b.Began
 	x.xxx_hidden_Ended = b.Ended
 	return m0
@@ -5158,8 +5158,8 @@ type BillingInvoice struct {
 	xxx_hidden_Id             string                   `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_BillingAccount string                   `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
 	xxx_hidden_State          BillingInvoiceState      `protobuf:"varint,3,opt,name=state,enum=loft.BillingInvoiceState"`
-	xxx_hidden_Start          *timestamppb.Timestamp   `protobuf:"bytes,4,opt,name=start"`
-	xxx_hidden_End            *timestamppb.Timestamp   `protobuf:"bytes,5,opt,name=end"`
+	xxx_hidden_DateStart      *timestamppb.Timestamp   `protobuf:"bytes,4,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd        *timestamppb.Timestamp   `protobuf:"bytes,5,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_Channel        BillingChannel           `protobuf:"varint,6,opt,name=channel,enum=loft.BillingChannel"`
 	xxx_hidden_Currency       string                   `protobuf:"bytes,7,opt,name=currency"`
 	xxx_hidden_Subtotal       int64                    `protobuf:"varint,8,opt,name=subtotal"`
@@ -5171,9 +5171,9 @@ type BillingInvoice struct {
 	xxx_hidden_Reduced        int64                    `protobuf:"varint,14,opt,name=reduced"`
 	xxx_hidden_Remaining      int64                    `protobuf:"varint,15,opt,name=remaining"`
 	xxx_hidden_Number         int64                    `protobuf:"varint,16,opt,name=number"`
-	xxx_hidden_Finalized      *timestamppb.Timestamp   `protobuf:"bytes,17,opt,name=finalized"`
-	xxx_hidden_DueDate        *timestamppb.Timestamp   `protobuf:"bytes,18,opt,name=due_date,json=dueDate"`
-	xxx_hidden_Settled        *timestamppb.Timestamp   `protobuf:"bytes,19,opt,name=settled"`
+	xxx_hidden_DateFinalized  *timestamppb.Timestamp   `protobuf:"bytes,17,opt,name=date_finalized,json=dateFinalized"`
+	xxx_hidden_DateDue        *timestamppb.Timestamp   `protobuf:"bytes,18,opt,name=date_due,json=dateDue"`
+	xxx_hidden_DateSettled    *timestamppb.Timestamp   `protobuf:"bytes,19,opt,name=date_settled,json=dateSettled"`
 	xxx_hidden_ChannelNumber  string                   `protobuf:"bytes,20,opt,name=channel_number,json=channelNumber"`
 	xxx_hidden_Lines          *[]*BillingInvoiceLine   `protobuf:"bytes,21,rep,name=lines"`
 	xxx_hidden_Credits        *[]*BillingInvoiceCredit `protobuf:"bytes,22,rep,name=credits"`
@@ -5227,16 +5227,16 @@ func (x *BillingInvoice) GetState() BillingInvoiceState {
 	return BillingInvoiceState_BILLING_INVOICE_STATE_UNSPECIFIED
 }
 
-func (x *BillingInvoice) GetStart() *timestamppb.Timestamp {
+func (x *BillingInvoice) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Start
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *BillingInvoice) GetEnd() *timestamppb.Timestamp {
+func (x *BillingInvoice) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_End
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -5318,23 +5318,23 @@ func (x *BillingInvoice) GetNumber() int64 {
 	return 0
 }
 
-func (x *BillingInvoice) GetFinalized() *timestamppb.Timestamp {
+func (x *BillingInvoice) GetDateFinalized() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Finalized
+		return x.xxx_hidden_DateFinalized
 	}
 	return nil
 }
 
-func (x *BillingInvoice) GetDueDate() *timestamppb.Timestamp {
+func (x *BillingInvoice) GetDateDue() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DueDate
+		return x.xxx_hidden_DateDue
 	}
 	return nil
 }
 
-func (x *BillingInvoice) GetSettled() *timestamppb.Timestamp {
+func (x *BillingInvoice) GetDateSettled() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Settled
+		return x.xxx_hidden_DateSettled
 	}
 	return nil
 }
@@ -5376,12 +5376,12 @@ func (x *BillingInvoice) SetState(v BillingInvoiceState) {
 	x.xxx_hidden_State = v
 }
 
-func (x *BillingInvoice) SetStart(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Start = v
+func (x *BillingInvoice) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *BillingInvoice) SetEnd(v *timestamppb.Timestamp) {
-	x.xxx_hidden_End = v
+func (x *BillingInvoice) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *BillingInvoice) SetChannel(v BillingChannel) {
@@ -5428,16 +5428,16 @@ func (x *BillingInvoice) SetNumber(v int64) {
 	x.xxx_hidden_Number = v
 }
 
-func (x *BillingInvoice) SetFinalized(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Finalized = v
+func (x *BillingInvoice) SetDateFinalized(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFinalized = v
 }
 
-func (x *BillingInvoice) SetDueDate(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DueDate = v
+func (x *BillingInvoice) SetDateDue(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDue = v
 }
 
-func (x *BillingInvoice) SetSettled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Settled = v
+func (x *BillingInvoice) SetDateSettled(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateSettled = v
 }
 
 func (x *BillingInvoice) SetChannelNumber(v string) {
@@ -5452,59 +5452,59 @@ func (x *BillingInvoice) SetCredits(v []*BillingInvoiceCredit) {
 	x.xxx_hidden_Credits = &v
 }
 
-func (x *BillingInvoice) HasStart() bool {
+func (x *BillingInvoice) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Start != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *BillingInvoice) HasEnd() bool {
+func (x *BillingInvoice) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_End != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *BillingInvoice) HasFinalized() bool {
+func (x *BillingInvoice) HasDateFinalized() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Finalized != nil
+	return x.xxx_hidden_DateFinalized != nil
 }
 
-func (x *BillingInvoice) HasDueDate() bool {
+func (x *BillingInvoice) HasDateDue() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DueDate != nil
+	return x.xxx_hidden_DateDue != nil
 }
 
-func (x *BillingInvoice) HasSettled() bool {
+func (x *BillingInvoice) HasDateSettled() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Settled != nil
+	return x.xxx_hidden_DateSettled != nil
 }
 
-func (x *BillingInvoice) ClearStart() {
-	x.xxx_hidden_Start = nil
+func (x *BillingInvoice) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *BillingInvoice) ClearEnd() {
-	x.xxx_hidden_End = nil
+func (x *BillingInvoice) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
-func (x *BillingInvoice) ClearFinalized() {
-	x.xxx_hidden_Finalized = nil
+func (x *BillingInvoice) ClearDateFinalized() {
+	x.xxx_hidden_DateFinalized = nil
 }
 
-func (x *BillingInvoice) ClearDueDate() {
-	x.xxx_hidden_DueDate = nil
+func (x *BillingInvoice) ClearDateDue() {
+	x.xxx_hidden_DateDue = nil
 }
 
-func (x *BillingInvoice) ClearSettled() {
-	x.xxx_hidden_Settled = nil
+func (x *BillingInvoice) ClearDateSettled() {
+	x.xxx_hidden_DateSettled = nil
 }
 
 type BillingInvoice_builder struct {
@@ -5513,8 +5513,8 @@ type BillingInvoice_builder struct {
 	Id             string
 	BillingAccount string
 	State          BillingInvoiceState
-	Start          *timestamppb.Timestamp
-	End            *timestamppb.Timestamp
+	DateStart      *timestamppb.Timestamp
+	DateEnd        *timestamppb.Timestamp
 	Channel        BillingChannel
 	Currency       string
 	Subtotal       int64
@@ -5526,9 +5526,9 @@ type BillingInvoice_builder struct {
 	Reduced        int64
 	Remaining      int64
 	Number         int64
-	Finalized      *timestamppb.Timestamp
-	DueDate        *timestamppb.Timestamp
-	Settled        *timestamppb.Timestamp
+	DateFinalized  *timestamppb.Timestamp
+	DateDue        *timestamppb.Timestamp
+	DateSettled    *timestamppb.Timestamp
 	// The merchant of record's own number, once it collected.
 	ChannelNumber string
 	// Its lines: in `GetInvoice`'s answer.
@@ -5545,8 +5545,8 @@ func (b0 BillingInvoice_builder) Build() *BillingInvoice {
 	x.xxx_hidden_Id = b.Id
 	x.xxx_hidden_BillingAccount = b.BillingAccount
 	x.xxx_hidden_State = b.State
-	x.xxx_hidden_Start = b.Start
-	x.xxx_hidden_End = b.End
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_Channel = b.Channel
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_Subtotal = b.Subtotal
@@ -5558,9 +5558,9 @@ func (b0 BillingInvoice_builder) Build() *BillingInvoice {
 	x.xxx_hidden_Reduced = b.Reduced
 	x.xxx_hidden_Remaining = b.Remaining
 	x.xxx_hidden_Number = b.Number
-	x.xxx_hidden_Finalized = b.Finalized
-	x.xxx_hidden_DueDate = b.DueDate
-	x.xxx_hidden_Settled = b.Settled
+	x.xxx_hidden_DateFinalized = b.DateFinalized
+	x.xxx_hidden_DateDue = b.DateDue
+	x.xxx_hidden_DateSettled = b.DateSettled
 	x.xxx_hidden_ChannelNumber = b.ChannelNumber
 	x.xxx_hidden_Lines = &b.Lines
 	x.xxx_hidden_Credits = &b.Credits
@@ -5570,13 +5570,13 @@ func (b0 BillingInvoice_builder) Build() *BillingInvoice {
 // BillingInvoiceCredit is what of an invoice's total one credit paid, before
 // anything was asked of its channel.
 type BillingInvoiceCredit struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Credit    string                 `protobuf:"bytes,1,opt,name=credit"`
-	xxx_hidden_Amount    int64                  `protobuf:"varint,2,opt,name=amount"`
-	xxx_hidden_Workspace string                 `protobuf:"bytes,3,opt,name=workspace"`
-	xxx_hidden_Expires   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expires"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Credit      string                 `protobuf:"bytes,1,opt,name=credit"`
+	xxx_hidden_Amount      int64                  `protobuf:"varint,2,opt,name=amount"`
+	xxx_hidden_Workspace   string                 `protobuf:"bytes,3,opt,name=workspace"`
+	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_expires,json=dateExpires"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *BillingInvoiceCredit) Reset() {
@@ -5625,9 +5625,9 @@ func (x *BillingInvoiceCredit) GetWorkspace() string {
 	return ""
 }
 
-func (x *BillingInvoiceCredit) GetExpires() *timestamppb.Timestamp {
+func (x *BillingInvoiceCredit) GetDateExpires() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Expires
+		return x.xxx_hidden_DateExpires
 	}
 	return nil
 }
@@ -5644,19 +5644,19 @@ func (x *BillingInvoiceCredit) SetWorkspace(v string) {
 	x.xxx_hidden_Workspace = v
 }
 
-func (x *BillingInvoiceCredit) SetExpires(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Expires = v
+func (x *BillingInvoiceCredit) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
 }
 
-func (x *BillingInvoiceCredit) HasExpires() bool {
+func (x *BillingInvoiceCredit) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Expires != nil
+	return x.xxx_hidden_DateExpires != nil
 }
 
-func (x *BillingInvoiceCredit) ClearExpires() {
-	x.xxx_hidden_Expires = nil
+func (x *BillingInvoiceCredit) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
 }
 
 type BillingInvoiceCredit_builder struct {
@@ -5668,8 +5668,8 @@ type BillingInvoiceCredit_builder struct {
 	Amount int64
 	// The workspace whose lines alone it paid, for a workspace's; and when it
 	// expires.
-	Workspace string
-	Expires   *timestamppb.Timestamp
+	Workspace   string
+	DateExpires *timestamppb.Timestamp
 }
 
 func (b0 BillingInvoiceCredit_builder) Build() *BillingInvoiceCredit {
@@ -5679,7 +5679,7 @@ func (b0 BillingInvoiceCredit_builder) Build() *BillingInvoiceCredit {
 	x.xxx_hidden_Credit = b.Credit
 	x.xxx_hidden_Amount = b.Amount
 	x.xxx_hidden_Workspace = b.Workspace
-	x.xxx_hidden_Expires = b.Expires
+	x.xxx_hidden_DateExpires = b.DateExpires
 	return m0
 }
 
@@ -5696,8 +5696,8 @@ type BillingCredit struct {
 	xxx_hidden_Granted        int64                  `protobuf:"varint,4,opt,name=granted"`
 	xxx_hidden_Left           int64                  `protobuf:"varint,5,opt,name=left"`
 	xxx_hidden_Currency       string                 `protobuf:"bytes,6,opt,name=currency"`
-	xxx_hidden_Expires        *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=expires"`
-	xxx_hidden_Created        *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created"`
+	xxx_hidden_DateExpires    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_expires,json=dateExpires"`
+	xxx_hidden_DateCreated    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_created,json=dateCreated"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -5769,16 +5769,16 @@ func (x *BillingCredit) GetCurrency() string {
 	return ""
 }
 
-func (x *BillingCredit) GetExpires() *timestamppb.Timestamp {
+func (x *BillingCredit) GetDateExpires() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Expires
+		return x.xxx_hidden_DateExpires
 	}
 	return nil
 }
 
-func (x *BillingCredit) GetCreated() *timestamppb.Timestamp {
+func (x *BillingCredit) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Created
+		return x.xxx_hidden_DateCreated
 	}
 	return nil
 }
@@ -5807,34 +5807,34 @@ func (x *BillingCredit) SetCurrency(v string) {
 	x.xxx_hidden_Currency = v
 }
 
-func (x *BillingCredit) SetExpires(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Expires = v
+func (x *BillingCredit) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
 }
 
-func (x *BillingCredit) SetCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Created = v
+func (x *BillingCredit) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
 }
 
-func (x *BillingCredit) HasExpires() bool {
+func (x *BillingCredit) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Expires != nil
+	return x.xxx_hidden_DateExpires != nil
 }
 
-func (x *BillingCredit) HasCreated() bool {
+func (x *BillingCredit) HasDateCreated() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Created != nil
+	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *BillingCredit) ClearExpires() {
-	x.xxx_hidden_Expires = nil
+func (x *BillingCredit) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
 }
 
-func (x *BillingCredit) ClearCreated() {
-	x.xxx_hidden_Created = nil
+func (x *BillingCredit) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
 }
 
 type BillingCredit_builder struct {
@@ -5846,11 +5846,11 @@ type BillingCredit_builder struct {
 	Workspace      string
 	BillingAccount string
 	// What was granted, and what is left, in the currency's minor unit.
-	Granted  int64
-	Left     int64
-	Currency string
-	Expires  *timestamppb.Timestamp
-	Created  *timestamppb.Timestamp
+	Granted     int64
+	Left        int64
+	Currency    string
+	DateExpires *timestamppb.Timestamp
+	DateCreated *timestamppb.Timestamp
 }
 
 func (b0 BillingCredit_builder) Build() *BillingCredit {
@@ -5863,8 +5863,8 @@ func (b0 BillingCredit_builder) Build() *BillingCredit {
 	x.xxx_hidden_Granted = b.Granted
 	x.xxx_hidden_Left = b.Left
 	x.xxx_hidden_Currency = b.Currency
-	x.xxx_hidden_Expires = b.Expires
-	x.xxx_hidden_Created = b.Created
+	x.xxx_hidden_DateExpires = b.DateExpires
+	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
 }
 
@@ -5998,20 +5998,20 @@ func (b0 BillingInvoiceLine_builder) Build() *BillingInvoiceLine {
 
 // BillingCreditNote takes some or all of a finalized invoice back.
 type BillingCreditNote struct {
-	state               protoimpl.MessageState  `protogen:"opaque.v1"`
-	xxx_hidden_Id       string                  `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Invoice  string                  `protobuf:"bytes,2,opt,name=invoice"`
-	xxx_hidden_Reason   BillingCreditNoteReason `protobuf:"varint,3,opt,name=reason,enum=loft.BillingCreditNoteReason"`
-	xxx_hidden_Amount   int64                   `protobuf:"varint,4,opt,name=amount"`
-	xxx_hidden_Tax      int64                   `protobuf:"varint,5,opt,name=tax"`
-	xxx_hidden_Total    int64                   `protobuf:"varint,6,opt,name=total"`
-	xxx_hidden_Reduced  int64                   `protobuf:"varint,7,opt,name=reduced"`
-	xxx_hidden_Refunded int64                   `protobuf:"varint,8,opt,name=refunded"`
-	xxx_hidden_Credited int64                   `protobuf:"varint,9,opt,name=credited"`
-	xxx_hidden_Number   int64                   `protobuf:"varint,10,opt,name=number"`
-	xxx_hidden_Created  *timestamppb.Timestamp  `protobuf:"bytes,11,opt,name=created"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                  protoimpl.MessageState  `protogen:"opaque.v1"`
+	xxx_hidden_Id          string                  `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Invoice     string                  `protobuf:"bytes,2,opt,name=invoice"`
+	xxx_hidden_Reason      BillingCreditNoteReason `protobuf:"varint,3,opt,name=reason,enum=loft.BillingCreditNoteReason"`
+	xxx_hidden_Amount      int64                   `protobuf:"varint,4,opt,name=amount"`
+	xxx_hidden_Tax         int64                   `protobuf:"varint,5,opt,name=tax"`
+	xxx_hidden_Total       int64                   `protobuf:"varint,6,opt,name=total"`
+	xxx_hidden_Reduced     int64                   `protobuf:"varint,7,opt,name=reduced"`
+	xxx_hidden_Refunded    int64                   `protobuf:"varint,8,opt,name=refunded"`
+	xxx_hidden_Credited    int64                   `protobuf:"varint,9,opt,name=credited"`
+	xxx_hidden_Number      int64                   `protobuf:"varint,10,opt,name=number"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp  `protobuf:"bytes,11,opt,name=date_created,json=dateCreated"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *BillingCreditNote) Reset() {
@@ -6109,9 +6109,9 @@ func (x *BillingCreditNote) GetNumber() int64 {
 	return 0
 }
 
-func (x *BillingCreditNote) GetCreated() *timestamppb.Timestamp {
+func (x *BillingCreditNote) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Created
+		return x.xxx_hidden_DateCreated
 	}
 	return nil
 }
@@ -6156,35 +6156,35 @@ func (x *BillingCreditNote) SetNumber(v int64) {
 	x.xxx_hidden_Number = v
 }
 
-func (x *BillingCreditNote) SetCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Created = v
+func (x *BillingCreditNote) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
 }
 
-func (x *BillingCreditNote) HasCreated() bool {
+func (x *BillingCreditNote) HasDateCreated() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Created != nil
+	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *BillingCreditNote) ClearCreated() {
-	x.xxx_hidden_Created = nil
+func (x *BillingCreditNote) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
 }
 
 type BillingCreditNote_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       string
-	Invoice  string
-	Reason   BillingCreditNoteReason
-	Amount   int64
-	Tax      int64
-	Total    int64
-	Reduced  int64
-	Refunded int64
-	Credited int64
-	Number   int64
-	Created  *timestamppb.Timestamp
+	Id          string
+	Invoice     string
+	Reason      BillingCreditNoteReason
+	Amount      int64
+	Tax         int64
+	Total       int64
+	Reduced     int64
+	Refunded    int64
+	Credited    int64
+	Number      int64
+	DateCreated *timestamppb.Timestamp
 }
 
 func (b0 BillingCreditNote_builder) Build() *BillingCreditNote {
@@ -6201,18 +6201,18 @@ func (b0 BillingCreditNote_builder) Build() *BillingCreditNote {
 	x.xxx_hidden_Refunded = b.Refunded
 	x.xxx_hidden_Credited = b.Credited
 	x.xxx_hidden_Number = b.Number
-	x.xxx_hidden_Created = b.Created
+	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
 }
 
 // BillingPeriod is one period of billing: a calendar month in a zone.
 type BillingPeriod struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Start *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=start"`
-	xxx_hidden_End   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=end"`
-	xxx_hidden_Zone  string                 `protobuf:"bytes,3,opt,name=zone"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DateStart *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_Zone      string                 `protobuf:"bytes,3,opt,name=zone"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *BillingPeriod) Reset() {
@@ -6240,16 +6240,16 @@ func (x *BillingPeriod) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *BillingPeriod) GetStart() *timestamppb.Timestamp {
+func (x *BillingPeriod) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Start
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *BillingPeriod) GetEnd() *timestamppb.Timestamp {
+func (x *BillingPeriod) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_End
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -6261,45 +6261,45 @@ func (x *BillingPeriod) GetZone() string {
 	return ""
 }
 
-func (x *BillingPeriod) SetStart(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Start = v
+func (x *BillingPeriod) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *BillingPeriod) SetEnd(v *timestamppb.Timestamp) {
-	x.xxx_hidden_End = v
+func (x *BillingPeriod) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *BillingPeriod) SetZone(v string) {
 	x.xxx_hidden_Zone = v
 }
 
-func (x *BillingPeriod) HasStart() bool {
+func (x *BillingPeriod) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Start != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *BillingPeriod) HasEnd() bool {
+func (x *BillingPeriod) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_End != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *BillingPeriod) ClearStart() {
-	x.xxx_hidden_Start = nil
+func (x *BillingPeriod) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *BillingPeriod) ClearEnd() {
-	x.xxx_hidden_End = nil
+func (x *BillingPeriod) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 type BillingPeriod_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Start *timestamppb.Timestamp
-	End   *timestamppb.Timestamp
+	DateStart *timestamppb.Timestamp
+	DateEnd   *timestamppb.Timestamp
 	// The zone it is a month in, as an IANA name.
 	Zone string
 }
@@ -6308,8 +6308,8 @@ func (b0 BillingPeriod_builder) Build() *BillingPeriod {
 	m0 := &BillingPeriod{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Start = b.Start
-	x.xxx_hidden_End = b.End
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_Zone = b.Zone
 	return m0
 }
@@ -6321,11 +6321,11 @@ type BillingPayer struct {
 	xxx_hidden_Current        *BillingLink           `protobuf:"bytes,2,opt,name=current"`
 	xxx_hidden_Next           *BillingLink           `protobuf:"bytes,3,opt,name=next"`
 	xxx_hidden_Offer          *BillingOffer          `protobuf:"bytes,4,opt,name=offer"`
-	xxx_hidden_PayerlessSince *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=payerless_since,json=payerlessSince"`
-	xxx_hidden_RestrictedFrom *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=restricted_from,json=restrictedFrom"`
+	xxx_hidden_DatePayerless  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_payerless,json=datePayerless"`
+	xxx_hidden_DateRestricted *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_restricted,json=dateRestricted"`
 	xxx_hidden_Collection     *BillingCollection     `protobuf:"bytes,7,opt,name=collection"`
 	xxx_hidden_Dunning        *[]*BillingDunning     `protobuf:"bytes,8,rep,name=dunning"`
-	xxx_hidden_ReadonlyFrom   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=readonly_from,json=readonlyFrom"`
+	xxx_hidden_DateReadonly   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date_readonly,json=dateReadonly"`
 	xxx_hidden_Credits        *[]*BillingCredit      `protobuf:"bytes,10,rep,name=credits"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
@@ -6384,16 +6384,16 @@ func (x *BillingPayer) GetOffer() *BillingOffer {
 	return nil
 }
 
-func (x *BillingPayer) GetPayerlessSince() *timestamppb.Timestamp {
+func (x *BillingPayer) GetDatePayerless() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PayerlessSince
+		return x.xxx_hidden_DatePayerless
 	}
 	return nil
 }
 
-func (x *BillingPayer) GetRestrictedFrom() *timestamppb.Timestamp {
+func (x *BillingPayer) GetDateRestricted() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_RestrictedFrom
+		return x.xxx_hidden_DateRestricted
 	}
 	return nil
 }
@@ -6414,9 +6414,9 @@ func (x *BillingPayer) GetDunning() []*BillingDunning {
 	return nil
 }
 
-func (x *BillingPayer) GetReadonlyFrom() *timestamppb.Timestamp {
+func (x *BillingPayer) GetDateReadonly() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReadonlyFrom
+		return x.xxx_hidden_DateReadonly
 	}
 	return nil
 }
@@ -6446,12 +6446,12 @@ func (x *BillingPayer) SetOffer(v *BillingOffer) {
 	x.xxx_hidden_Offer = v
 }
 
-func (x *BillingPayer) SetPayerlessSince(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PayerlessSince = v
+func (x *BillingPayer) SetDatePayerless(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DatePayerless = v
 }
 
-func (x *BillingPayer) SetRestrictedFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_RestrictedFrom = v
+func (x *BillingPayer) SetDateRestricted(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRestricted = v
 }
 
 func (x *BillingPayer) SetCollection(v *BillingCollection) {
@@ -6462,8 +6462,8 @@ func (x *BillingPayer) SetDunning(v []*BillingDunning) {
 	x.xxx_hidden_Dunning = &v
 }
 
-func (x *BillingPayer) SetReadonlyFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReadonlyFrom = v
+func (x *BillingPayer) SetDateReadonly(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReadonly = v
 }
 
 func (x *BillingPayer) SetCredits(v []*BillingCredit) {
@@ -6491,18 +6491,18 @@ func (x *BillingPayer) HasOffer() bool {
 	return x.xxx_hidden_Offer != nil
 }
 
-func (x *BillingPayer) HasPayerlessSince() bool {
+func (x *BillingPayer) HasDatePayerless() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PayerlessSince != nil
+	return x.xxx_hidden_DatePayerless != nil
 }
 
-func (x *BillingPayer) HasRestrictedFrom() bool {
+func (x *BillingPayer) HasDateRestricted() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_RestrictedFrom != nil
+	return x.xxx_hidden_DateRestricted != nil
 }
 
 func (x *BillingPayer) HasCollection() bool {
@@ -6512,11 +6512,11 @@ func (x *BillingPayer) HasCollection() bool {
 	return x.xxx_hidden_Collection != nil
 }
 
-func (x *BillingPayer) HasReadonlyFrom() bool {
+func (x *BillingPayer) HasDateReadonly() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReadonlyFrom != nil
+	return x.xxx_hidden_DateReadonly != nil
 }
 
 func (x *BillingPayer) ClearCurrent() {
@@ -6531,20 +6531,20 @@ func (x *BillingPayer) ClearOffer() {
 	x.xxx_hidden_Offer = nil
 }
 
-func (x *BillingPayer) ClearPayerlessSince() {
-	x.xxx_hidden_PayerlessSince = nil
+func (x *BillingPayer) ClearDatePayerless() {
+	x.xxx_hidden_DatePayerless = nil
 }
 
-func (x *BillingPayer) ClearRestrictedFrom() {
-	x.xxx_hidden_RestrictedFrom = nil
+func (x *BillingPayer) ClearDateRestricted() {
+	x.xxx_hidden_DateRestricted = nil
 }
 
 func (x *BillingPayer) ClearCollection() {
 	x.xxx_hidden_Collection = nil
 }
 
-func (x *BillingPayer) ClearReadonlyFrom() {
-	x.xxx_hidden_ReadonlyFrom = nil
+func (x *BillingPayer) ClearDateReadonly() {
+	x.xxx_hidden_DateReadonly = nil
 }
 
 type BillingPayer_builder struct {
@@ -6559,8 +6559,8 @@ type BillingPayer_builder struct {
 	Offer *BillingOffer
 	// Since when it has had nobody paying for it, and from when it is
 	// restricted for that.
-	PayerlessSince *timestamppb.Timestamp
-	RestrictedFrom *timestamppb.Timestamp
+	DatePayerless  *timestamppb.Timestamp
+	DateRestricted *timestamppb.Timestamp
 	// Whether what the billing account it is paid for with now is billed can
 	// be collected; unset while nobody pays, or has set up no billing account.
 	Collection *BillingCollection
@@ -6569,9 +6569,9 @@ type BillingPayer_builder struct {
 	Dunning []*BillingDunning
 	// From when it is read-only for having had nobody paying for it, the
 	// second stage of its restriction (`loft.readonly`): sixty days after
-	// `payerless_since` by default, never sooner than `restricted_from`, and
+	// `date_payerless` by default, never sooner than `date_restricted`, and
 	// unset when that is.
-	ReadonlyFrom *timestamppb.Timestamp
+	DateReadonly *timestamppb.Timestamp
 	// The credit levyan's operator granted the workspace itself, neither
 	// spent nor expired: what its lines are paid with first, on whichever
 	// billing account's invoice they are, the soonest to expire first. What a
@@ -6587,11 +6587,11 @@ func (b0 BillingPayer_builder) Build() *BillingPayer {
 	x.xxx_hidden_Current = b.Current
 	x.xxx_hidden_Next = b.Next
 	x.xxx_hidden_Offer = b.Offer
-	x.xxx_hidden_PayerlessSince = b.PayerlessSince
-	x.xxx_hidden_RestrictedFrom = b.RestrictedFrom
+	x.xxx_hidden_DatePayerless = b.DatePayerless
+	x.xxx_hidden_DateRestricted = b.DateRestricted
 	x.xxx_hidden_Collection = b.Collection
 	x.xxx_hidden_Dunning = &b.Dunning
-	x.xxx_hidden_ReadonlyFrom = b.ReadonlyFrom
+	x.xxx_hidden_DateReadonly = b.DateReadonly
 	x.xxx_hidden_Credits = &b.Credits
 	return m0
 }
@@ -6607,11 +6607,11 @@ type BillingDunning struct {
 	xxx_hidden_Invoice        string                 `protobuf:"bytes,1,opt,name=invoice"`
 	xxx_hidden_BillingAccount string                 `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
 	xxx_hidden_Kind           BillingDeclineKind     `protobuf:"varint,3,opt,name=kind,enum=loft.BillingDeclineKind"`
-	xxx_hidden_Failed         *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=failed"`
-	xxx_hidden_NextRetry      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=next_retry,json=nextRetry"`
-	xxx_hidden_GraceEnds      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=grace_ends,json=graceEnds"`
-	xxx_hidden_RestrictedFrom *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=restricted_from,json=restrictedFrom"`
-	xxx_hidden_ReadonlyFrom   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=readonly_from,json=readonlyFrom"`
+	xxx_hidden_DateFailed     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_failed,json=dateFailed"`
+	xxx_hidden_DateNextRetry  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_next_retry,json=dateNextRetry"`
+	xxx_hidden_DateGraceEnds  *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_grace_ends,json=dateGraceEnds"`
+	xxx_hidden_DateRestricted *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_restricted,json=dateRestricted"`
+	xxx_hidden_DateReadonly   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_readonly,json=dateReadonly"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -6662,37 +6662,37 @@ func (x *BillingDunning) GetKind() BillingDeclineKind {
 	return BillingDeclineKind_BILLING_DECLINE_KIND_UNSPECIFIED
 }
 
-func (x *BillingDunning) GetFailed() *timestamppb.Timestamp {
+func (x *BillingDunning) GetDateFailed() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Failed
+		return x.xxx_hidden_DateFailed
 	}
 	return nil
 }
 
-func (x *BillingDunning) GetNextRetry() *timestamppb.Timestamp {
+func (x *BillingDunning) GetDateNextRetry() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_NextRetry
+		return x.xxx_hidden_DateNextRetry
 	}
 	return nil
 }
 
-func (x *BillingDunning) GetGraceEnds() *timestamppb.Timestamp {
+func (x *BillingDunning) GetDateGraceEnds() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_GraceEnds
+		return x.xxx_hidden_DateGraceEnds
 	}
 	return nil
 }
 
-func (x *BillingDunning) GetRestrictedFrom() *timestamppb.Timestamp {
+func (x *BillingDunning) GetDateRestricted() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_RestrictedFrom
+		return x.xxx_hidden_DateRestricted
 	}
 	return nil
 }
 
-func (x *BillingDunning) GetReadonlyFrom() *timestamppb.Timestamp {
+func (x *BillingDunning) GetDateReadonly() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReadonlyFrom
+		return x.xxx_hidden_DateReadonly
 	}
 	return nil
 }
@@ -6709,79 +6709,79 @@ func (x *BillingDunning) SetKind(v BillingDeclineKind) {
 	x.xxx_hidden_Kind = v
 }
 
-func (x *BillingDunning) SetFailed(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Failed = v
+func (x *BillingDunning) SetDateFailed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFailed = v
 }
 
-func (x *BillingDunning) SetNextRetry(v *timestamppb.Timestamp) {
-	x.xxx_hidden_NextRetry = v
+func (x *BillingDunning) SetDateNextRetry(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateNextRetry = v
 }
 
-func (x *BillingDunning) SetGraceEnds(v *timestamppb.Timestamp) {
-	x.xxx_hidden_GraceEnds = v
+func (x *BillingDunning) SetDateGraceEnds(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateGraceEnds = v
 }
 
-func (x *BillingDunning) SetRestrictedFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_RestrictedFrom = v
+func (x *BillingDunning) SetDateRestricted(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRestricted = v
 }
 
-func (x *BillingDunning) SetReadonlyFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReadonlyFrom = v
+func (x *BillingDunning) SetDateReadonly(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReadonly = v
 }
 
-func (x *BillingDunning) HasFailed() bool {
+func (x *BillingDunning) HasDateFailed() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Failed != nil
+	return x.xxx_hidden_DateFailed != nil
 }
 
-func (x *BillingDunning) HasNextRetry() bool {
+func (x *BillingDunning) HasDateNextRetry() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_NextRetry != nil
+	return x.xxx_hidden_DateNextRetry != nil
 }
 
-func (x *BillingDunning) HasGraceEnds() bool {
+func (x *BillingDunning) HasDateGraceEnds() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_GraceEnds != nil
+	return x.xxx_hidden_DateGraceEnds != nil
 }
 
-func (x *BillingDunning) HasRestrictedFrom() bool {
+func (x *BillingDunning) HasDateRestricted() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_RestrictedFrom != nil
+	return x.xxx_hidden_DateRestricted != nil
 }
 
-func (x *BillingDunning) HasReadonlyFrom() bool {
+func (x *BillingDunning) HasDateReadonly() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReadonlyFrom != nil
+	return x.xxx_hidden_DateReadonly != nil
 }
 
-func (x *BillingDunning) ClearFailed() {
-	x.xxx_hidden_Failed = nil
+func (x *BillingDunning) ClearDateFailed() {
+	x.xxx_hidden_DateFailed = nil
 }
 
-func (x *BillingDunning) ClearNextRetry() {
-	x.xxx_hidden_NextRetry = nil
+func (x *BillingDunning) ClearDateNextRetry() {
+	x.xxx_hidden_DateNextRetry = nil
 }
 
-func (x *BillingDunning) ClearGraceEnds() {
-	x.xxx_hidden_GraceEnds = nil
+func (x *BillingDunning) ClearDateGraceEnds() {
+	x.xxx_hidden_DateGraceEnds = nil
 }
 
-func (x *BillingDunning) ClearRestrictedFrom() {
-	x.xxx_hidden_RestrictedFrom = nil
+func (x *BillingDunning) ClearDateRestricted() {
+	x.xxx_hidden_DateRestricted = nil
 }
 
-func (x *BillingDunning) ClearReadonlyFrom() {
-	x.xxx_hidden_ReadonlyFrom = nil
+func (x *BillingDunning) ClearDateReadonly() {
+	x.xxx_hidden_DateReadonly = nil
 }
 
 type BillingDunning_builder struct {
@@ -6792,16 +6792,16 @@ type BillingDunning_builder struct {
 	// The kind of its latest decline: what the payer has to do.
 	Kind BillingDeclineKind
 	// When its first charge failed.
-	Failed *timestamppb.Timestamp
+	DateFailed *timestamppb.Timestamp
 	// When it is charged next; unset when no retry is to come, and it is
 	// charged once its billing account can be collected again.
-	NextRetry      *timestamppb.Timestamp
-	GraceEnds      *timestamppb.Timestamp
-	RestrictedFrom *timestamppb.Timestamp
+	DateNextRetry  *timestamppb.Timestamp
+	DateGraceEnds  *timestamppb.Timestamp
+	DateRestricted *timestamppb.Timestamp
 	// From when every workspace it bills is read-only, the second stage of
 	// their restriction (`loft.readonly`): sixty days after its first failure
-	// by default, and never sooner than `restricted_from`; until it is paid.
-	ReadonlyFrom *timestamppb.Timestamp
+	// by default, and never sooner than `date_restricted`; until it is paid.
+	DateReadonly *timestamppb.Timestamp
 }
 
 func (b0 BillingDunning_builder) Build() *BillingDunning {
@@ -6811,11 +6811,11 @@ func (b0 BillingDunning_builder) Build() *BillingDunning {
 	x.xxx_hidden_Invoice = b.Invoice
 	x.xxx_hidden_BillingAccount = b.BillingAccount
 	x.xxx_hidden_Kind = b.Kind
-	x.xxx_hidden_Failed = b.Failed
-	x.xxx_hidden_NextRetry = b.NextRetry
-	x.xxx_hidden_GraceEnds = b.GraceEnds
-	x.xxx_hidden_RestrictedFrom = b.RestrictedFrom
-	x.xxx_hidden_ReadonlyFrom = b.ReadonlyFrom
+	x.xxx_hidden_DateFailed = b.DateFailed
+	x.xxx_hidden_DateNextRetry = b.DateNextRetry
+	x.xxx_hidden_DateGraceEnds = b.DateGraceEnds
+	x.xxx_hidden_DateRestricted = b.DateRestricted
+	x.xxx_hidden_DateReadonly = b.DateReadonly
 	return m0
 }
 
@@ -6825,7 +6825,7 @@ type BillingUsage struct {
 	state                 protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Workspace  string                 `protobuf:"bytes,1,opt,name=workspace"`
 	xxx_hidden_Period     *BillingPeriod         `protobuf:"bytes,2,opt,name=period"`
-	xxx_hidden_AsOf       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=as_of,json=asOf"`
+	xxx_hidden_DateAsOf   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_as_of,json=dateAsOf"`
 	xxx_hidden_Channel    BillingChannel         `protobuf:"varint,4,opt,name=channel,enum=loft.BillingChannel"`
 	xxx_hidden_Currency   string                 `protobuf:"bytes,5,opt,name=currency"`
 	xxx_hidden_Lines      *[]*BillingLine        `protobuf:"bytes,6,rep,name=lines"`
@@ -6875,9 +6875,9 @@ func (x *BillingUsage) GetPeriod() *BillingPeriod {
 	return nil
 }
 
-func (x *BillingUsage) GetAsOf() *timestamppb.Timestamp {
+func (x *BillingUsage) GetDateAsOf() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AsOf
+		return x.xxx_hidden_DateAsOf
 	}
 	return nil
 }
@@ -6938,8 +6938,8 @@ func (x *BillingUsage) SetPeriod(v *BillingPeriod) {
 	x.xxx_hidden_Period = v
 }
 
-func (x *BillingUsage) SetAsOf(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AsOf = v
+func (x *BillingUsage) SetDateAsOf(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAsOf = v
 }
 
 func (x *BillingUsage) SetChannel(v BillingChannel) {
@@ -6973,19 +6973,19 @@ func (x *BillingUsage) HasPeriod() bool {
 	return x.xxx_hidden_Period != nil
 }
 
-func (x *BillingUsage) HasAsOf() bool {
+func (x *BillingUsage) HasDateAsOf() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AsOf != nil
+	return x.xxx_hidden_DateAsOf != nil
 }
 
 func (x *BillingUsage) ClearPeriod() {
 	x.xxx_hidden_Period = nil
 }
 
-func (x *BillingUsage) ClearAsOf() {
-	x.xxx_hidden_AsOf = nil
+func (x *BillingUsage) ClearDateAsOf() {
+	x.xxx_hidden_DateAsOf = nil
 }
 
 type BillingUsage_builder struct {
@@ -6993,7 +6993,7 @@ type BillingUsage_builder struct {
 
 	Workspace string
 	Period    *BillingPeriod
-	AsOf      *timestamppb.Timestamp
+	DateAsOf  *timestamppb.Timestamp
 	// What it is priced on and in; unset while nothing is priced.
 	Channel  BillingChannel
 	Currency string
@@ -7017,7 +7017,7 @@ func (b0 BillingUsage_builder) Build() *BillingUsage {
 	_, _ = b, x
 	x.xxx_hidden_Workspace = b.Workspace
 	x.xxx_hidden_Period = b.Period
-	x.xxx_hidden_AsOf = b.AsOf
+	x.xxx_hidden_DateAsOf = b.DateAsOf
 	x.xxx_hidden_Channel = b.Channel
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_Lines = &b.Lines
@@ -7032,14 +7032,14 @@ func (b0 BillingUsage_builder) Build() *BillingUsage {
 // +500" -- given its share of a period it is in force for part of. The
 // workspace's whoever pays for it. Nothing here grants one.
 type BillingAllowance struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id       string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Meter    string                 `protobuf:"bytes,2,opt,name=meter"`
-	xxx_hidden_Quantity int64                  `protobuf:"varint,3,opt,name=quantity"`
-	xxx_hidden_From     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from"`
-	xxx_hidden_Until    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=until"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id            string                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Meter         string                 `protobuf:"bytes,2,opt,name=meter"`
+	xxx_hidden_Quantity      int64                  `protobuf:"varint,3,opt,name=quantity"`
+	xxx_hidden_DateEffective *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_effective,json=dateEffective"`
+	xxx_hidden_DateExpires   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_expires,json=dateExpires"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *BillingAllowance) Reset() {
@@ -7088,16 +7088,16 @@ func (x *BillingAllowance) GetQuantity() int64 {
 	return 0
 }
 
-func (x *BillingAllowance) GetFrom() *timestamppb.Timestamp {
+func (x *BillingAllowance) GetDateEffective() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateEffective
 	}
 	return nil
 }
 
-func (x *BillingAllowance) GetUntil() *timestamppb.Timestamp {
+func (x *BillingAllowance) GetDateExpires() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Until
+		return x.xxx_hidden_DateExpires
 	}
 	return nil
 }
@@ -7114,34 +7114,34 @@ func (x *BillingAllowance) SetQuantity(v int64) {
 	x.xxx_hidden_Quantity = v
 }
 
-func (x *BillingAllowance) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *BillingAllowance) SetDateEffective(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEffective = v
 }
 
-func (x *BillingAllowance) SetUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Until = v
+func (x *BillingAllowance) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
 }
 
-func (x *BillingAllowance) HasFrom() bool {
+func (x *BillingAllowance) HasDateEffective() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateEffective != nil
 }
 
-func (x *BillingAllowance) HasUntil() bool {
+func (x *BillingAllowance) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Until != nil
+	return x.xxx_hidden_DateExpires != nil
 }
 
-func (x *BillingAllowance) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *BillingAllowance) ClearDateEffective() {
+	x.xxx_hidden_DateEffective = nil
 }
 
-func (x *BillingAllowance) ClearUntil() {
-	x.xxx_hidden_Until = nil
+func (x *BillingAllowance) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
 }
 
 type BillingAllowance_builder struct {
@@ -7152,10 +7152,11 @@ type BillingAllowance_builder struct {
 	Meter string
 	// How much more each period includes, in the meter's unit.
 	Quantity int64
-	// In force from `from`, and until `until` when it says one -- the first
-	// moment it is not -- and until an operator ends it when it does not.
-	From  *timestamppb.Timestamp
-	Until *timestamppb.Timestamp
+	// In force from `date_effective`, and until `date_expires` when it says
+	// one -- the first moment it is not -- and until an operator ends it when
+	// it does not.
+	DateEffective *timestamppb.Timestamp
+	DateExpires   *timestamppb.Timestamp
 }
 
 func (b0 BillingAllowance_builder) Build() *BillingAllowance {
@@ -7165,8 +7166,8 @@ func (b0 BillingAllowance_builder) Build() *BillingAllowance {
 	x.xxx_hidden_Id = b.Id
 	x.xxx_hidden_Meter = b.Meter
 	x.xxx_hidden_Quantity = b.Quantity
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_Until = b.Until
+	x.xxx_hidden_DateEffective = b.DateEffective
+	x.xxx_hidden_DateExpires = b.DateExpires
 	return m0
 }
 
@@ -7176,15 +7177,15 @@ func (b0 BillingAllowance_builder) Build() *BillingAllowance {
 // the soonest to expire first, and only the rest is priced. Nothing here
 // grants one.
 type BillingPool struct {
-	state              protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id      string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Meter   string                 `protobuf:"bytes,2,opt,name=meter"`
-	xxx_hidden_Granted int64                  `protobuf:"varint,3,opt,name=granted"`
-	xxx_hidden_Left    string                 `protobuf:"bytes,4,opt,name=left"`
-	xxx_hidden_From    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=from"`
-	xxx_hidden_Expires *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expires"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id            string                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Meter         string                 `protobuf:"bytes,2,opt,name=meter"`
+	xxx_hidden_Granted       int64                  `protobuf:"varint,3,opt,name=granted"`
+	xxx_hidden_Left          string                 `protobuf:"bytes,4,opt,name=left"`
+	xxx_hidden_DateEffective *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_effective,json=dateEffective"`
+	xxx_hidden_DateExpires   *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_expires,json=dateExpires"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *BillingPool) Reset() {
@@ -7240,16 +7241,16 @@ func (x *BillingPool) GetLeft() string {
 	return ""
 }
 
-func (x *BillingPool) GetFrom() *timestamppb.Timestamp {
+func (x *BillingPool) GetDateEffective() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateEffective
 	}
 	return nil
 }
 
-func (x *BillingPool) GetExpires() *timestamppb.Timestamp {
+func (x *BillingPool) GetDateExpires() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Expires
+		return x.xxx_hidden_DateExpires
 	}
 	return nil
 }
@@ -7270,34 +7271,34 @@ func (x *BillingPool) SetLeft(v string) {
 	x.xxx_hidden_Left = v
 }
 
-func (x *BillingPool) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *BillingPool) SetDateEffective(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEffective = v
 }
 
-func (x *BillingPool) SetExpires(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Expires = v
+func (x *BillingPool) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
 }
 
-func (x *BillingPool) HasFrom() bool {
+func (x *BillingPool) HasDateEffective() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateEffective != nil
 }
 
-func (x *BillingPool) HasExpires() bool {
+func (x *BillingPool) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Expires != nil
+	return x.xxx_hidden_DateExpires != nil
 }
 
-func (x *BillingPool) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *BillingPool) ClearDateEffective() {
+	x.xxx_hidden_DateEffective = nil
 }
 
-func (x *BillingPool) ClearExpires() {
-	x.xxx_hidden_Expires = nil
+func (x *BillingPool) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
 }
 
 type BillingPool_builder struct {
@@ -7310,10 +7311,10 @@ type BillingPool_builder struct {
 	// took of it: what the period now open takes of. A decimal as text.
 	Granted int64
 	Left    string
-	// In force from `from`; no period that begins from `expires` on takes
-	// from it.
-	From    *timestamppb.Timestamp
-	Expires *timestamppb.Timestamp
+	// In force from `date_effective`; no period that begins from
+	// `date_expires` on takes from it.
+	DateEffective *timestamppb.Timestamp
+	DateExpires   *timestamppb.Timestamp
 }
 
 func (b0 BillingPool_builder) Build() *BillingPool {
@@ -7324,24 +7325,24 @@ func (b0 BillingPool_builder) Build() *BillingPool {
 	x.xxx_hidden_Meter = b.Meter
 	x.xxx_hidden_Granted = b.Granted
 	x.xxx_hidden_Left = b.Left
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_Expires = b.Expires
+	x.xxx_hidden_DateEffective = b.DateEffective
+	x.xxx_hidden_DateExpires = b.DateExpires
 	return m0
 }
 
 // BillingStatement is what one workspace came to over one closed period.
 type BillingStatement struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id        string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Workspace string                 `protobuf:"bytes,2,opt,name=workspace"`
-	xxx_hidden_Period    *BillingPeriod         `protobuf:"bytes,3,opt,name=period"`
-	xxx_hidden_Channel   BillingChannel         `protobuf:"varint,4,opt,name=channel,enum=loft.BillingChannel"`
-	xxx_hidden_Currency  string                 `protobuf:"bytes,5,opt,name=currency"`
-	xxx_hidden_Lines     *[]*BillingLine        `protobuf:"bytes,6,rep,name=lines"`
-	xxx_hidden_Total     int64                  `protobuf:"varint,7,opt,name=total"`
-	xxx_hidden_Closed    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=closed"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id         string                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Workspace  string                 `protobuf:"bytes,2,opt,name=workspace"`
+	xxx_hidden_Period     *BillingPeriod         `protobuf:"bytes,3,opt,name=period"`
+	xxx_hidden_Channel    BillingChannel         `protobuf:"varint,4,opt,name=channel,enum=loft.BillingChannel"`
+	xxx_hidden_Currency   string                 `protobuf:"bytes,5,opt,name=currency"`
+	xxx_hidden_Lines      *[]*BillingLine        `protobuf:"bytes,6,rep,name=lines"`
+	xxx_hidden_Total      int64                  `protobuf:"varint,7,opt,name=total"`
+	xxx_hidden_DateClosed *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_closed,json=dateClosed"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *BillingStatement) Reset() {
@@ -7420,9 +7421,9 @@ func (x *BillingStatement) GetTotal() int64 {
 	return 0
 }
 
-func (x *BillingStatement) GetClosed() *timestamppb.Timestamp {
+func (x *BillingStatement) GetDateClosed() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Closed
+		return x.xxx_hidden_DateClosed
 	}
 	return nil
 }
@@ -7455,8 +7456,8 @@ func (x *BillingStatement) SetTotal(v int64) {
 	x.xxx_hidden_Total = v
 }
 
-func (x *BillingStatement) SetClosed(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Closed = v
+func (x *BillingStatement) SetDateClosed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateClosed = v
 }
 
 func (x *BillingStatement) HasPeriod() bool {
@@ -7466,32 +7467,32 @@ func (x *BillingStatement) HasPeriod() bool {
 	return x.xxx_hidden_Period != nil
 }
 
-func (x *BillingStatement) HasClosed() bool {
+func (x *BillingStatement) HasDateClosed() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Closed != nil
+	return x.xxx_hidden_DateClosed != nil
 }
 
 func (x *BillingStatement) ClearPeriod() {
 	x.xxx_hidden_Period = nil
 }
 
-func (x *BillingStatement) ClearClosed() {
-	x.xxx_hidden_Closed = nil
+func (x *BillingStatement) ClearDateClosed() {
+	x.xxx_hidden_DateClosed = nil
 }
 
 type BillingStatement_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id        string
-	Workspace string
-	Period    *BillingPeriod
-	Channel   BillingChannel
-	Currency  string
-	Lines     []*BillingLine
-	Total     int64
-	Closed    *timestamppb.Timestamp
+	Id         string
+	Workspace  string
+	Period     *BillingPeriod
+	Channel    BillingChannel
+	Currency   string
+	Lines      []*BillingLine
+	Total      int64
+	DateClosed *timestamppb.Timestamp
 }
 
 func (b0 BillingStatement_builder) Build() *BillingStatement {
@@ -7505,7 +7506,7 @@ func (b0 BillingStatement_builder) Build() *BillingStatement {
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_Lines = &b.Lines
 	x.xxx_hidden_Total = b.Total
-	x.xxx_hidden_Closed = b.Closed
+	x.xxx_hidden_DateClosed = b.DateClosed
 	return m0
 }
 
@@ -7941,7 +7942,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\x13PaymentOfferRequest\x12\x16\n" +
 	"\x06holder\x18\x01 \x01(\fR\x06holder\"@\n" +
 	"\x14PaymentOfferResponse\x12(\n" +
-	"\x05offer\x18\x01 \x01(\v2\x12.loft.BillingOfferR\x05offer\"\xb9\x02\n" +
+	"\x05offer\x18\x01 \x01(\v2\x12.loft.BillingOfferR\x05offer\"\xc2\x02\n" +
 	"\x0eBillingAccount\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
@@ -7949,8 +7950,8 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\achannel\x18\x04 \x01(\x0e2\x14.loft.BillingChannelR\achannel\x12\x1a\n" +
 	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x124\n" +
 	"\trecipient\x18\x06 \x01(\v2\x16.loft.BillingRecipientR\trecipient\x121\n" +
-	"\bbusiness\x18\a \x01(\v2\x15.loft.BillingBusinessR\bbusiness\x124\n" +
-	"\acreated\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\acreated\"V\n" +
+	"\bbusiness\x18\a \x01(\v2\x15.loft.BillingBusinessR\bbusiness\x12=\n" +
+	"\fdate_created\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"V\n" +
 	"\x10BillingRecipient\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x18\n" +
@@ -7962,38 +7963,38 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\aaddress\x18\x04 \x01(\tR\aaddress\x12\x12\n" +
 	"\x04kind\x18\x05 \x01(\tR\x04kind\x12\x12\n" +
 	"\x04item\x18\x06 \x01(\tR\x04item\x12\x14\n" +
-	"\x05email\x18\a \x01(\tR\x05email\"\xa9\x01\n" +
+	"\x05email\x18\a \x01(\tR\x05email\"\xbb\x01\n" +
 	"\x11BillingCollection\x122\n" +
-	"\x05state\x18\x01 \x01(\x0e2\x1c.loft.BillingCollectionStateR\x05state\x120\n" +
-	"\x05since\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x05since\x12.\n" +
-	"\x04ends\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04ends\"\x97\x05\n" +
+	"\x05state\x18\x01 \x01(\x0e2\x1c.loft.BillingCollectionStateR\x05state\x129\n" +
+	"\n" +
+	"date_since\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tdateSince\x127\n" +
+	"\tdate_ends\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bdateEnds\"\xd1\x05\n" +
 	"\x13BillingSubscription\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\bmerchant\x18\x02 \x01(\tR\bmerchant\x127\n" +
 	"\x06status\x18\x03 \x01(\x0e2\x1f.loft.BillingSubscriptionStatusR\x06status\x12\x1a\n" +
-	"\bcurrency\x18\x04 \x01(\tR\bcurrency\x12=\n" +
-	"\fperiod_start\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vperiodStart\x129\n" +
-	"\n" +
-	"period_end\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tperiodEnd\x12;\n" +
-	"\vnext_billed\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"nextBilled\x127\n" +
-	"\x06change\x18\b \x01(\x0e2\x1f.loft.BillingSubscriptionChangeR\x06change\x127\n" +
-	"\tchange_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bchangeAt\x126\n" +
-	"\bcanceled\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\bcanceled\x122\n" +
-	"\x06method\x18\v \x01(\v2\x1a.loft.BillingPaymentMethodR\x06method\x124\n" +
-	"\aupdated\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\aupdated\x124\n" +
-	"\achecked\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\achecked\"V\n" +
+	"\bcurrency\x18\x04 \x01(\tR\bcurrency\x12F\n" +
+	"\x11date_period_start\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0fdatePeriodStart\x12B\n" +
+	"\x0fdate_period_end\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\rdatePeriodEnd\x12D\n" +
+	"\x10date_next_billed\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0edateNextBilled\x127\n" +
+	"\x06change\x18\b \x01(\x0e2\x1f.loft.BillingSubscriptionChangeR\x06change\x12;\n" +
+	"\vdate_change\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateChange\x12?\n" +
+	"\rdate_canceled\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\fdateCanceled\x122\n" +
+	"\x06method\x18\v \x01(\v2\x1a.loft.BillingPaymentMethodR\x06method\x12=\n" +
+	"\fdate_updated\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12=\n" +
+	"\fdate_checked\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\vdateChecked\"V\n" +
 	"\x14BillingPaymentMethod\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x14\n" +
-	"\x05last4\x18\x03 \x01(\tR\x05last4\"\x97\x02\n" +
+	"\x05last4\x18\x03 \x01(\tR\x05last4\"\xa9\x02\n" +
 	"\x0fBillingCheckout\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\x120\n" +
-	"\x05state\x18\x03 \x01(\x0e2\x1a.loft.BillingCheckoutStateR\x05state\x124\n" +
-	"\astarted\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\astarted\x12.\n" +
-	"\x04done\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x04done\x123\n" +
+	"\x05state\x18\x03 \x01(\x0e2\x1a.loft.BillingCheckoutStateR\x05state\x12=\n" +
+	"\fdate_started\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vdateStarted\x127\n" +
+	"\tdate_done\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bdateDone\x123\n" +
 	"\x06window\x18\x06 \x01(\v2\x1b.loft.BillingCheckoutWindowR\x06window\"\xde\x01\n" +
 	"\x15BillingCheckoutWindow\x12\x1a\n" +
 	"\bmerchant\x18\x01 \x01(\tR\bmerchant\x12 \n" +
@@ -8002,27 +8003,29 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\fclient_token\x18\x04 \x01(\tR\vclientToken\x12\x16\n" +
 	"\x06script\x18\x05 \x01(\tR\x06script\x12\x10\n" +
 	"\x03url\x18\x06 \x01(\tR\x03url\x12\x18\n" +
-	"\acountry\x18\a \x01(\tR\acountry\"\x8c\x01\n" +
+	"\acountry\x18\a \x01(\tR\acountry\"\x95\x01\n" +
 	"\fBillingOffer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12\x18\n" +
-	"\aaccount\x18\x03 \x01(\tR\aaccount\x124\n" +
-	"\aoffered\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aoffered\"\xba\x02\n" +
+	"\aaccount\x18\x03 \x01(\tR\aaccount\x12=\n" +
+	"\fdate_offered\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vdateOffered\"\xcc\x02\n" +
 	"\vBillingLink\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12\x18\n" +
 	"\aaccount\x18\x03 \x01(\tR\aaccount\x12'\n" +
-	"\x0fbilling_account\x18\x04 \x01(\tR\x0ebillingAccount\x120\n" +
-	"\x05start\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
-	"\x03end\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12,\n" +
+	"\x0fbilling_account\x18\x04 \x01(\tR\x0ebillingAccount\x129\n" +
+	"\n" +
+	"date_start\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12,\n" +
 	"\x05began\x18\a \x01(\x0e2\x16.loft.BillingLinkBeganR\x05began\x12,\n" +
-	"\x05ended\x18\b \x01(\x0e2\x16.loft.BillingLinkEndedR\x05ended\"\xb0\x06\n" +
+	"\x05ended\x18\b \x01(\x0e2\x16.loft.BillingLinkEndedR\x05ended\"\xd4\x06\n" +
 	"\x0eBillingInvoice\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\x12/\n" +
-	"\x05state\x18\x03 \x01(\x0e2\x19.loft.BillingInvoiceStateR\x05state\x120\n" +
-	"\x05start\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
-	"\x03end\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12.\n" +
+	"\x05state\x18\x03 \x01(\x0e2\x19.loft.BillingInvoiceStateR\x05state\x129\n" +
+	"\n" +
+	"date_start\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12.\n" +
 	"\achannel\x18\x06 \x01(\x0e2\x14.loft.BillingChannelR\achannel\x12\x1a\n" +
 	"\bcurrency\x18\a \x01(\tR\bcurrency\x12\x1a\n" +
 	"\bsubtotal\x18\b \x01(\x03R\bsubtotal\x12\x10\n" +
@@ -8034,33 +8037,33 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\x04paid\x18\r \x01(\x03R\x04paid\x12\x18\n" +
 	"\areduced\x18\x0e \x01(\x03R\areduced\x12\x1c\n" +
 	"\tremaining\x18\x0f \x01(\x03R\tremaining\x12\x16\n" +
-	"\x06number\x18\x10 \x01(\x03R\x06number\x128\n" +
-	"\tfinalized\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\tfinalized\x125\n" +
-	"\bdue_date\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\adueDate\x124\n" +
-	"\asettled\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampR\asettled\x12%\n" +
+	"\x06number\x18\x10 \x01(\x03R\x06number\x12A\n" +
+	"\x0edate_finalized\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\rdateFinalized\x125\n" +
+	"\bdate_due\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\x12=\n" +
+	"\fdate_settled\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampR\vdateSettled\x12%\n" +
 	"\x0echannel_number\x18\x14 \x01(\tR\rchannelNumber\x12.\n" +
 	"\x05lines\x18\x15 \x03(\v2\x18.loft.BillingInvoiceLineR\x05lines\x124\n" +
-	"\acredits\x18\x16 \x03(\v2\x1a.loft.BillingInvoiceCreditR\acredits\"\x9a\x01\n" +
+	"\acredits\x18\x16 \x03(\v2\x1a.loft.BillingInvoiceCreditR\acredits\"\xa3\x01\n" +
 	"\x14BillingInvoiceCredit\x12\x16\n" +
 	"\x06credit\x18\x01 \x01(\tR\x06credit\x12\x16\n" +
 	"\x06amount\x18\x02 \x01(\x03R\x06amount\x12\x1c\n" +
-	"\tworkspace\x18\x03 \x01(\tR\tworkspace\x124\n" +
-	"\aexpires\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aexpires\"\x9c\x02\n" +
+	"\tworkspace\x18\x03 \x01(\tR\tworkspace\x12=\n" +
+	"\fdate_expires\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\"\xae\x02\n" +
 	"\rBillingCredit\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12'\n" +
 	"\x0fbilling_account\x18\x03 \x01(\tR\x0ebillingAccount\x12\x18\n" +
 	"\agranted\x18\x04 \x01(\x03R\agranted\x12\x12\n" +
 	"\x04left\x18\x05 \x01(\x03R\x04left\x12\x1a\n" +
-	"\bcurrency\x18\x06 \x01(\tR\bcurrency\x124\n" +
-	"\aexpires\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\aexpires\x124\n" +
-	"\acreated\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\acreated\"\xa9\x01\n" +
+	"\bcurrency\x18\x06 \x01(\tR\bcurrency\x12=\n" +
+	"\fdate_expires\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
+	"\fdate_created\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"\xa9\x01\n" +
 	"\x12BillingInvoiceLine\x12\x1c\n" +
 	"\tstatement\x18\x01 \x01(\tR\tstatement\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12\x14\n" +
 	"\x05label\x18\x03 \x01(\tR\x05label\x12+\n" +
 	"\x06period\x18\x04 \x01(\v2\x13.loft.BillingPeriodR\x06period\x12\x14\n" +
-	"\x05total\x18\x05 \x01(\x03R\x05total\"\xd4\x02\n" +
+	"\x05total\x18\x05 \x01(\x03R\x05total\"\xdd\x02\n" +
 	"\x11BillingCreditNote\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\ainvoice\x18\x02 \x01(\tR\ainvoice\x125\n" +
@@ -8072,41 +8075,42 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\brefunded\x18\b \x01(\x03R\brefunded\x12\x1a\n" +
 	"\bcredited\x18\t \x01(\x03R\bcredited\x12\x16\n" +
 	"\x06number\x18\n" +
-	" \x01(\x03R\x06number\x124\n" +
-	"\acreated\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\acreated\"\x83\x01\n" +
-	"\rBillingPeriod\x120\n" +
-	"\x05start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x05start\x12,\n" +
-	"\x03end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x03end\x12\x12\n" +
-	"\x04zone\x18\x03 \x01(\tR\x04zone\"\x8d\x04\n" +
+	" \x01(\x03R\x06number\x12=\n" +
+	"\fdate_created\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"\x95\x01\n" +
+	"\rBillingPeriod\x129\n" +
+	"\n" +
+	"date_start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12\x12\n" +
+	"\x04zone\x18\x03 \x01(\tR\x04zone\"\x8b\x04\n" +
 	"\fBillingPayer\x12\x1c\n" +
 	"\tworkspace\x18\x01 \x01(\tR\tworkspace\x12+\n" +
 	"\acurrent\x18\x02 \x01(\v2\x11.loft.BillingLinkR\acurrent\x12%\n" +
 	"\x04next\x18\x03 \x01(\v2\x11.loft.BillingLinkR\x04next\x12(\n" +
-	"\x05offer\x18\x04 \x01(\v2\x12.loft.BillingOfferR\x05offer\x12C\n" +
-	"\x0fpayerless_since\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0epayerlessSince\x12C\n" +
-	"\x0frestricted_from\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x0erestrictedFrom\x127\n" +
+	"\x05offer\x18\x04 \x01(\v2\x12.loft.BillingOfferR\x05offer\x12A\n" +
+	"\x0edate_payerless\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\rdatePayerless\x12C\n" +
+	"\x0fdate_restricted\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x0edateRestricted\x127\n" +
 	"\n" +
 	"collection\x18\a \x01(\v2\x17.loft.BillingCollectionR\n" +
 	"collection\x12.\n" +
 	"\adunning\x18\b \x03(\v2\x14.loft.BillingDunningR\adunning\x12?\n" +
-	"\rreadonly_from\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\freadonlyFrom\x12-\n" +
+	"\rdate_readonly\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\fdateReadonly\x12-\n" +
 	"\acredits\x18\n" +
-	" \x03(\v2\x13.loft.BillingCreditR\acredits\"\xb1\x03\n" +
+	" \x03(\v2\x13.loft.BillingCreditR\acredits\"\xcc\x03\n" +
 	"\x0eBillingDunning\x12\x18\n" +
 	"\ainvoice\x18\x01 \x01(\tR\ainvoice\x12'\n" +
 	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\x12,\n" +
-	"\x04kind\x18\x03 \x01(\x0e2\x18.loft.BillingDeclineKindR\x04kind\x122\n" +
-	"\x06failed\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x06failed\x129\n" +
-	"\n" +
-	"next_retry\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tnextRetry\x129\n" +
-	"\n" +
-	"grace_ends\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tgraceEnds\x12C\n" +
-	"\x0frestricted_from\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0erestrictedFrom\x12?\n" +
-	"\rreadonly_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\freadonlyFrom\"\xf6\x02\n" +
+	"\x04kind\x18\x03 \x01(\x0e2\x18.loft.BillingDeclineKindR\x04kind\x12;\n" +
+	"\vdate_failed\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateFailed\x12B\n" +
+	"\x0fdate_next_retry\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\rdateNextRetry\x12B\n" +
+	"\x0fdate_grace_ends\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\rdateGraceEnds\x12C\n" +
+	"\x0fdate_restricted\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0edateRestricted\x12?\n" +
+	"\rdate_readonly\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\fdateReadonly\"\xff\x02\n" +
 	"\fBillingUsage\x12\x1c\n" +
 	"\tworkspace\x18\x01 \x01(\tR\tworkspace\x12+\n" +
-	"\x06period\x18\x02 \x01(\v2\x13.loft.BillingPeriodR\x06period\x12/\n" +
-	"\x05as_of\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04asOf\x12.\n" +
+	"\x06period\x18\x02 \x01(\v2\x13.loft.BillingPeriodR\x06period\x128\n" +
+	"\n" +
+	"date_as_of\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bdateAsOf\x12.\n" +
 	"\achannel\x18\x04 \x01(\x0e2\x14.loft.BillingChannelR\achannel\x12\x1a\n" +
 	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12'\n" +
 	"\x05lines\x18\x06 \x03(\v2\x11.loft.BillingLineR\x05lines\x12\x14\n" +
@@ -8114,20 +8118,20 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\n" +
 	"allowances\x18\b \x03(\v2\x16.loft.BillingAllowanceR\n" +
 	"allowances\x12'\n" +
-	"\x05pools\x18\t \x03(\v2\x11.loft.BillingPoolR\x05pools\"\xb6\x01\n" +
+	"\x05pools\x18\t \x03(\v2\x11.loft.BillingPoolR\x05pools\"\xd6\x01\n" +
 	"\x10BillingAllowance\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05meter\x18\x02 \x01(\tR\x05meter\x12\x1a\n" +
-	"\bquantity\x18\x03 \x01(\x03R\bquantity\x12.\n" +
-	"\x04from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x120\n" +
-	"\x05until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x05until\"\xc7\x01\n" +
+	"\bquantity\x18\x03 \x01(\x03R\bquantity\x12A\n" +
+	"\x0edate_effective\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\rdateEffective\x12=\n" +
+	"\fdate_expires\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\"\xe3\x01\n" +
 	"\vBillingPool\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05meter\x18\x02 \x01(\tR\x05meter\x12\x18\n" +
 	"\agranted\x18\x03 \x01(\x03R\agranted\x12\x12\n" +
-	"\x04left\x18\x04 \x01(\tR\x04left\x12.\n" +
-	"\x04from\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x124\n" +
-	"\aexpires\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\aexpires\"\xac\x02\n" +
+	"\x04left\x18\x04 \x01(\tR\x04left\x12A\n" +
+	"\x0edate_effective\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\rdateEffective\x12=\n" +
+	"\fdate_expires\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\"\xb5\x02\n" +
 	"\x10BillingStatement\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12+\n" +
@@ -8135,8 +8139,9 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\achannel\x18\x04 \x01(\x0e2\x14.loft.BillingChannelR\achannel\x12\x1a\n" +
 	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x12'\n" +
 	"\x05lines\x18\x06 \x03(\v2\x11.loft.BillingLineR\x05lines\x12\x14\n" +
-	"\x05total\x18\a \x01(\x03R\x05total\x122\n" +
-	"\x06closed\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x06closed\"\x80\x03\n" +
+	"\x05total\x18\a \x01(\x03R\x05total\x12;\n" +
+	"\vdate_closed\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateClosed\"\x80\x03\n" +
 	"\vBillingLine\x12\x14\n" +
 	"\x05meter\x18\x01 \x01(\tR\x05meter\x12\x12\n" +
 	"\x04unit\x18\x02 \x01(\tR\x04unit\x12)\n" +
@@ -8382,75 +8387,75 @@ var file_loft_payment_proto_depIdxs = []int32{
 	0,   // 32: loft.BillingAccount.channel:type_name -> loft.BillingChannel
 	54,  // 33: loft.BillingAccount.recipient:type_name -> loft.BillingRecipient
 	55,  // 34: loft.BillingAccount.business:type_name -> loft.BillingBusiness
-	77,  // 35: loft.BillingAccount.created:type_name -> google.protobuf.Timestamp
+	77,  // 35: loft.BillingAccount.date_created:type_name -> google.protobuf.Timestamp
 	1,   // 36: loft.BillingCollection.state:type_name -> loft.BillingCollectionState
-	77,  // 37: loft.BillingCollection.since:type_name -> google.protobuf.Timestamp
-	77,  // 38: loft.BillingCollection.ends:type_name -> google.protobuf.Timestamp
+	77,  // 37: loft.BillingCollection.date_since:type_name -> google.protobuf.Timestamp
+	77,  // 38: loft.BillingCollection.date_ends:type_name -> google.protobuf.Timestamp
 	2,   // 39: loft.BillingSubscription.status:type_name -> loft.BillingSubscriptionStatus
-	77,  // 40: loft.BillingSubscription.period_start:type_name -> google.protobuf.Timestamp
-	77,  // 41: loft.BillingSubscription.period_end:type_name -> google.protobuf.Timestamp
-	77,  // 42: loft.BillingSubscription.next_billed:type_name -> google.protobuf.Timestamp
+	77,  // 40: loft.BillingSubscription.date_period_start:type_name -> google.protobuf.Timestamp
+	77,  // 41: loft.BillingSubscription.date_period_end:type_name -> google.protobuf.Timestamp
+	77,  // 42: loft.BillingSubscription.date_next_billed:type_name -> google.protobuf.Timestamp
 	3,   // 43: loft.BillingSubscription.change:type_name -> loft.BillingSubscriptionChange
-	77,  // 44: loft.BillingSubscription.change_at:type_name -> google.protobuf.Timestamp
-	77,  // 45: loft.BillingSubscription.canceled:type_name -> google.protobuf.Timestamp
+	77,  // 44: loft.BillingSubscription.date_change:type_name -> google.protobuf.Timestamp
+	77,  // 45: loft.BillingSubscription.date_canceled:type_name -> google.protobuf.Timestamp
 	58,  // 46: loft.BillingSubscription.method:type_name -> loft.BillingPaymentMethod
-	77,  // 47: loft.BillingSubscription.updated:type_name -> google.protobuf.Timestamp
-	77,  // 48: loft.BillingSubscription.checked:type_name -> google.protobuf.Timestamp
+	77,  // 47: loft.BillingSubscription.date_updated:type_name -> google.protobuf.Timestamp
+	77,  // 48: loft.BillingSubscription.date_checked:type_name -> google.protobuf.Timestamp
 	4,   // 49: loft.BillingCheckout.state:type_name -> loft.BillingCheckoutState
-	77,  // 50: loft.BillingCheckout.started:type_name -> google.protobuf.Timestamp
-	77,  // 51: loft.BillingCheckout.done:type_name -> google.protobuf.Timestamp
+	77,  // 50: loft.BillingCheckout.date_started:type_name -> google.protobuf.Timestamp
+	77,  // 51: loft.BillingCheckout.date_done:type_name -> google.protobuf.Timestamp
 	60,  // 52: loft.BillingCheckout.window:type_name -> loft.BillingCheckoutWindow
-	77,  // 53: loft.BillingOffer.offered:type_name -> google.protobuf.Timestamp
-	77,  // 54: loft.BillingLink.start:type_name -> google.protobuf.Timestamp
-	77,  // 55: loft.BillingLink.end:type_name -> google.protobuf.Timestamp
+	77,  // 53: loft.BillingOffer.date_offered:type_name -> google.protobuf.Timestamp
+	77,  // 54: loft.BillingLink.date_start:type_name -> google.protobuf.Timestamp
+	77,  // 55: loft.BillingLink.date_end:type_name -> google.protobuf.Timestamp
 	5,   // 56: loft.BillingLink.began:type_name -> loft.BillingLinkBegan
 	6,   // 57: loft.BillingLink.ended:type_name -> loft.BillingLinkEnded
 	7,   // 58: loft.BillingInvoice.state:type_name -> loft.BillingInvoiceState
-	77,  // 59: loft.BillingInvoice.start:type_name -> google.protobuf.Timestamp
-	77,  // 60: loft.BillingInvoice.end:type_name -> google.protobuf.Timestamp
+	77,  // 59: loft.BillingInvoice.date_start:type_name -> google.protobuf.Timestamp
+	77,  // 60: loft.BillingInvoice.date_end:type_name -> google.protobuf.Timestamp
 	0,   // 61: loft.BillingInvoice.channel:type_name -> loft.BillingChannel
-	77,  // 62: loft.BillingInvoice.finalized:type_name -> google.protobuf.Timestamp
-	77,  // 63: loft.BillingInvoice.due_date:type_name -> google.protobuf.Timestamp
-	77,  // 64: loft.BillingInvoice.settled:type_name -> google.protobuf.Timestamp
+	77,  // 62: loft.BillingInvoice.date_finalized:type_name -> google.protobuf.Timestamp
+	77,  // 63: loft.BillingInvoice.date_due:type_name -> google.protobuf.Timestamp
+	77,  // 64: loft.BillingInvoice.date_settled:type_name -> google.protobuf.Timestamp
 	66,  // 65: loft.BillingInvoice.lines:type_name -> loft.BillingInvoiceLine
 	64,  // 66: loft.BillingInvoice.credits:type_name -> loft.BillingInvoiceCredit
-	77,  // 67: loft.BillingInvoiceCredit.expires:type_name -> google.protobuf.Timestamp
-	77,  // 68: loft.BillingCredit.expires:type_name -> google.protobuf.Timestamp
-	77,  // 69: loft.BillingCredit.created:type_name -> google.protobuf.Timestamp
+	77,  // 67: loft.BillingInvoiceCredit.date_expires:type_name -> google.protobuf.Timestamp
+	77,  // 68: loft.BillingCredit.date_expires:type_name -> google.protobuf.Timestamp
+	77,  // 69: loft.BillingCredit.date_created:type_name -> google.protobuf.Timestamp
 	68,  // 70: loft.BillingInvoiceLine.period:type_name -> loft.BillingPeriod
 	8,   // 71: loft.BillingCreditNote.reason:type_name -> loft.BillingCreditNoteReason
-	77,  // 72: loft.BillingCreditNote.created:type_name -> google.protobuf.Timestamp
-	77,  // 73: loft.BillingPeriod.start:type_name -> google.protobuf.Timestamp
-	77,  // 74: loft.BillingPeriod.end:type_name -> google.protobuf.Timestamp
+	77,  // 72: loft.BillingCreditNote.date_created:type_name -> google.protobuf.Timestamp
+	77,  // 73: loft.BillingPeriod.date_start:type_name -> google.protobuf.Timestamp
+	77,  // 74: loft.BillingPeriod.date_end:type_name -> google.protobuf.Timestamp
 	62,  // 75: loft.BillingPayer.current:type_name -> loft.BillingLink
 	62,  // 76: loft.BillingPayer.next:type_name -> loft.BillingLink
 	61,  // 77: loft.BillingPayer.offer:type_name -> loft.BillingOffer
-	77,  // 78: loft.BillingPayer.payerless_since:type_name -> google.protobuf.Timestamp
-	77,  // 79: loft.BillingPayer.restricted_from:type_name -> google.protobuf.Timestamp
+	77,  // 78: loft.BillingPayer.date_payerless:type_name -> google.protobuf.Timestamp
+	77,  // 79: loft.BillingPayer.date_restricted:type_name -> google.protobuf.Timestamp
 	56,  // 80: loft.BillingPayer.collection:type_name -> loft.BillingCollection
 	70,  // 81: loft.BillingPayer.dunning:type_name -> loft.BillingDunning
-	77,  // 82: loft.BillingPayer.readonly_from:type_name -> google.protobuf.Timestamp
+	77,  // 82: loft.BillingPayer.date_readonly:type_name -> google.protobuf.Timestamp
 	65,  // 83: loft.BillingPayer.credits:type_name -> loft.BillingCredit
 	9,   // 84: loft.BillingDunning.kind:type_name -> loft.BillingDeclineKind
-	77,  // 85: loft.BillingDunning.failed:type_name -> google.protobuf.Timestamp
-	77,  // 86: loft.BillingDunning.next_retry:type_name -> google.protobuf.Timestamp
-	77,  // 87: loft.BillingDunning.grace_ends:type_name -> google.protobuf.Timestamp
-	77,  // 88: loft.BillingDunning.restricted_from:type_name -> google.protobuf.Timestamp
-	77,  // 89: loft.BillingDunning.readonly_from:type_name -> google.protobuf.Timestamp
+	77,  // 85: loft.BillingDunning.date_failed:type_name -> google.protobuf.Timestamp
+	77,  // 86: loft.BillingDunning.date_next_retry:type_name -> google.protobuf.Timestamp
+	77,  // 87: loft.BillingDunning.date_grace_ends:type_name -> google.protobuf.Timestamp
+	77,  // 88: loft.BillingDunning.date_restricted:type_name -> google.protobuf.Timestamp
+	77,  // 89: loft.BillingDunning.date_readonly:type_name -> google.protobuf.Timestamp
 	68,  // 90: loft.BillingUsage.period:type_name -> loft.BillingPeriod
-	77,  // 91: loft.BillingUsage.as_of:type_name -> google.protobuf.Timestamp
+	77,  // 91: loft.BillingUsage.date_as_of:type_name -> google.protobuf.Timestamp
 	0,   // 92: loft.BillingUsage.channel:type_name -> loft.BillingChannel
 	75,  // 93: loft.BillingUsage.lines:type_name -> loft.BillingLine
 	72,  // 94: loft.BillingUsage.allowances:type_name -> loft.BillingAllowance
 	73,  // 95: loft.BillingUsage.pools:type_name -> loft.BillingPool
-	77,  // 96: loft.BillingAllowance.from:type_name -> google.protobuf.Timestamp
-	77,  // 97: loft.BillingAllowance.until:type_name -> google.protobuf.Timestamp
-	77,  // 98: loft.BillingPool.from:type_name -> google.protobuf.Timestamp
-	77,  // 99: loft.BillingPool.expires:type_name -> google.protobuf.Timestamp
+	77,  // 96: loft.BillingAllowance.date_effective:type_name -> google.protobuf.Timestamp
+	77,  // 97: loft.BillingAllowance.date_expires:type_name -> google.protobuf.Timestamp
+	77,  // 98: loft.BillingPool.date_effective:type_name -> google.protobuf.Timestamp
+	77,  // 99: loft.BillingPool.date_expires:type_name -> google.protobuf.Timestamp
 	68,  // 100: loft.BillingStatement.period:type_name -> loft.BillingPeriod
 	0,   // 101: loft.BillingStatement.channel:type_name -> loft.BillingChannel
 	75,  // 102: loft.BillingStatement.lines:type_name -> loft.BillingLine
-	77,  // 103: loft.BillingStatement.closed:type_name -> google.protobuf.Timestamp
+	77,  // 103: loft.BillingStatement.date_closed:type_name -> google.protobuf.Timestamp
 	10,  // 104: loft.BillingLine.kind:type_name -> loft.BillingLineKind
 	68,  // 105: loft.BillingLine.corrects:type_name -> loft.BillingPeriod
 	76,  // 106: loft.BillingLine.pools:type_name -> loft.BillingLinePool

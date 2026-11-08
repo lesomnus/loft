@@ -784,14 +784,14 @@ func (t *Tx) makeAssets(in *intake, reason string) ([]*app.Asset, error) {
 		}
 		kids[i] = past.Child{
 			Event: past.Event{
-				Id:      parent.Made(pd.EventDomain, i+1),
-				Kind:    "asset.add",
-				Subject: r.id,
-				At:      r.since,
-				Reason:  reason,
-				Value:   app.AssetAdded_builder{Asset: r.id.Bytes(), Tag: r.tag, Name: r.name, Kind: r.kind}.Build(),
+				Id:           parent.Made(pd.EventDomain, i+1),
+				Kind:         "asset.add",
+				Subject:      r.id,
+				DateOccurred: r.since,
+				Reason:       reason,
+				Value:        app.AssetAdded_builder{Asset: r.id.Bytes(), Tag: r.tag, Name: r.name, Kind: r.kind}.Build(),
 			},
-			Facts: []past.Fact{{Subject: r.id, From: r.since, Values: past.Changes(nil, assetFacts(a))}},
+			Facts: []past.Fact{{Subject: r.id, DateStart: r.since, Values: past.Changes(nil, assetFacts(a))}},
 		}
 	}
 	if _, err := parent.Batch(t.ctx, kids); err != nil {

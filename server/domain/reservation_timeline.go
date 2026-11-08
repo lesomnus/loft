@@ -99,7 +99,7 @@ func (s domainReservation) Timeline(ctx context.Context, req *app.ReservationTim
 	}
 	entries := make([]*app.TimelineEntry, 0, len(evs))
 	for _, v := range evs {
-		e := entry("event", v.Id.Uuid(), v.At, nil, v.Recorded, nil, v.Id.Uuid())
+		e := entry("event", v.Id.Uuid(), v.DateOccurred, nil, v.Recorded, nil, v.Id.Uuid())
 		e.SetSummary(rd.Say(v))
 		e.SetEventKind(v.Kind)
 		e.SetReason(v.Reason)

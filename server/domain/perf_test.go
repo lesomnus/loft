@@ -87,7 +87,7 @@ func TestAThousandThingsAtAMomentAnswerInASecond(t *testing.T) {
 			x.NoError(err)
 			facts = append(facts, e.s.Ent.Fact.Create().SetId(pdid.New(pd.FactDomain).Uuid()).SetTenantId(tenant).SetSubjectId(id).
 				SetDomain(uint32(pd.AssetDomain)).SetFieldNumber(uint32(field)).SetKey(key).SetValue(value).
-				SetValidFrom(since).SetEventId(ev).SetDateUpdated(since).SetDateCreated(since))
+				SetDateStart(since).SetEventId(ev).SetDateUpdated(since).SetDateCreated(since))
 		}
 		return id
 	}

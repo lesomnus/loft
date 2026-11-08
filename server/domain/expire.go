@@ -352,7 +352,7 @@ func expiry(loft *Expired) past.Expiry {
 			return nil
 		}
 		return app.RetentionExpired_builder{
-			DateBefore:     ts(v.Before),
+			DateBefore:     ts(v.DateBefore),
 			Placements:     uint32(all.Placements),
 			Links:          uint32(all.Links),
 			Stewardships:   uint32(all.Stewardships),

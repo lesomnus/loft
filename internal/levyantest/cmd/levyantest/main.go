@@ -186,13 +186,13 @@ func main() {
 			Invoice:        "inv-" + pdid.New(23).String(),
 			BillingAccount: ba,
 			Kind:           kind,
-			Failed:         timestamppb.New(failed),
-			GraceEnds:      timestamppb.New(from),
-			RestrictedFrom: timestamppb.New(from),
-			ReadonlyFrom:   timestamppb.New(readonly),
+			DateFailed:     timestamppb.New(failed),
+			DateGraceEnds:  timestamppb.New(from),
+			DateRestricted: timestamppb.New(from),
+			DateReadonly:   timestamppb.New(readonly),
 		}.Build()
 		if kind == levyanv1.DeclineKind_DECLINE_KIND_TEMPORARY {
-			d.SetNextRetry(timestamppb.New(now.Add(24 * time.Hour)))
+			d.SetDateNextRetry(timestamppb.New(now.Add(24 * time.Hour)))
 		}
 		v.Dun(d, bills...)
 		w.WriteHeader(http.StatusNoContent)
@@ -261,10 +261,10 @@ func main() {
 			return err
 		}
 		a := levyanv1.Allowance_builder{Meter: q.Get("meter"), Quantity: n}.Build()
-		if err := moment(q, "from", a.SetFrom); err != nil {
+		if err := moment(q, "from", a.SetDateEffective); err != nil {
 			return err
 		}
-		if err := moment(q, "until", a.SetUntil); err != nil {
+		if err := moment(q, "until", a.SetDateExpires); err != nil {
 			return err
 		}
 		v.Allow(ws, a)
@@ -280,10 +280,10 @@ func main() {
 			return err
 		}
 		p := levyanv1.Pool_builder{Meter: q.Get("meter"), Granted: n}.Build()
-		if err := moment(q, "from", p.SetFrom); err != nil {
+		if err := moment(q, "from", p.SetDateEffective); err != nil {
 			return err
 		}
-		if err := moment(q, "expires", p.SetExpires); err != nil {
+		if err := moment(q, "expires", p.SetDateExpires); err != nil {
 			return err
 		}
 		v.Pool(ws, p)
@@ -310,7 +310,7 @@ func main() {
 		default:
 			return fmt.Errorf("workspace or billing_account: whose the credit is")
 		}
-		if err := moment(q, "expires", c.SetExpires); err != nil {
+		if err := moment(q, "expires", c.SetDateExpires); err != nil {
 			return err
 		}
 		v.Credit(c)

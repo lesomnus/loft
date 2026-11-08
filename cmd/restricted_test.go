@@ -281,7 +281,7 @@ func TestADeploymentThatBillsNobodyReadsNoCopy(t *testing.T) {
 	x.NoError(pd.EntitlementCopy(w.s.Drv, mustContents(w)).In(ctx, tid, func(ctx context.Context, s entitle.Store) error {
 		_, err := s.Put(ctx, entitle.Row{
 			Tenant: tid, Key: domain.Restricted, Value: entitle.On,
-			Until: time.Now().Add(time.Hour), Grant: []byte("by-hand"), Version: 1,
+			DateExpires: time.Now().Add(time.Hour), Grant: []byte("by-hand"), Version: 1,
 		})
 		return err
 	}))

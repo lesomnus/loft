@@ -417,7 +417,7 @@ message BillingAccount {
   BillingRecipient recipient = 6;
   BillingBusiness business = 7;
 
-  google.protobuf.Timestamp created = 8;
+  google.protobuf.Timestamp date_created = 8;
 }
 
 // BillingRecipient is who receives what a billing account is billed.
@@ -458,11 +458,11 @@ message BillingCollection {
   BillingCollectionState state = 1;
 
   // Since when it has been so.
-  google.protobuf.Timestamp since = 2;
+  google.protobuf.Timestamp date_since = 2;
 
   // When the subscription ends or pauses, as somebody scheduled it at the
   // merchant; unset for nothing scheduled.
-  google.protobuf.Timestamp ends = 3;
+  google.protobuf.Timestamp date_ends = 3;
 }
 
 enum BillingCollectionState {
@@ -484,22 +484,22 @@ message BillingSubscription {
   BillingSubscriptionStatus status = 3;
   string currency = 4;
 
-  google.protobuf.Timestamp period_start = 5;
-  google.protobuf.Timestamp period_end = 6;
-  google.protobuf.Timestamp next_billed = 7;
+  google.protobuf.Timestamp date_period_start = 5;
+  google.protobuf.Timestamp date_period_end = 6;
+  google.protobuf.Timestamp date_next_billed = 7;
 
   // What the merchant will do to it, and when.
   BillingSubscriptionChange change = 8;
-  google.protobuf.Timestamp change_at = 9;
+  google.protobuf.Timestamp date_change = 9;
 
-  google.protobuf.Timestamp canceled = 10;
+  google.protobuf.Timestamp date_canceled = 10;
 
   // How the payer pays: the kind, the brand and the last four digits, and
   // never more of a card.
   BillingPaymentMethod method = 11;
 
-  google.protobuf.Timestamp updated = 12;
-  google.protobuf.Timestamp checked = 13;
+  google.protobuf.Timestamp date_updated = 12;
+  google.protobuf.Timestamp date_checked = 13;
 }
 
 enum BillingSubscriptionStatus {
@@ -536,8 +536,8 @@ message BillingCheckout {
   string billing_account = 2;
   BillingCheckoutState state = 3;
 
-  google.protobuf.Timestamp started = 4;
-  google.protobuf.Timestamp done = 5;
+  google.protobuf.Timestamp date_started = 4;
+  google.protobuf.Timestamp date_done = 5;
 
   // What a page opens it with: answered by `StartCheckout` alone.
   BillingCheckoutWindow window = 6;
@@ -581,7 +581,7 @@ message BillingOffer {
   // The account it is made to, roster's.
   string account = 3;
 
-  google.protobuf.Timestamp offered = 4;
+  google.protobuf.Timestamp date_offered = 4;
 }
 
 // BillingLink is an account paying for a workspace, from when to when.
@@ -593,8 +593,8 @@ message BillingLink {
   // The billing account it pays with; empty for none yet.
   string billing_account = 4;
 
-  google.protobuf.Timestamp start = 5;
-  google.protobuf.Timestamp end = 6;
+  google.protobuf.Timestamp date_start = 5;
+  google.protobuf.Timestamp date_end = 6;
 
   BillingLinkBegan began = 7;
   BillingLinkEnded ended = 8;
@@ -625,8 +625,8 @@ message BillingInvoice {
   string billing_account = 2;
   BillingInvoiceState state = 3;
 
-  google.protobuf.Timestamp start = 4;
-  google.protobuf.Timestamp end = 5;
+  google.protobuf.Timestamp date_start = 4;
+  google.protobuf.Timestamp date_end = 5;
 
   BillingChannel channel = 6;
   string currency = 7;
@@ -642,9 +642,9 @@ message BillingInvoice {
 
   int64 number = 16;
 
-  google.protobuf.Timestamp finalized = 17;
-  google.protobuf.Timestamp due_date = 18;
-  google.protobuf.Timestamp settled = 19;
+  google.protobuf.Timestamp date_finalized = 17;
+  google.protobuf.Timestamp date_due = 18;
+  google.protobuf.Timestamp date_settled = 19;
 
   // The merchant of record's own number, once it collected.
   string channel_number = 20;
@@ -669,7 +669,7 @@ message BillingInvoiceCredit {
   // The workspace whose lines alone it paid, for a workspace's; and when it
   // expires.
   string workspace = 3;
-  google.protobuf.Timestamp expires = 4;
+  google.protobuf.Timestamp date_expires = 4;
 }
 
 // BillingCredit is money levyan's operator granted -- of a promotion, of a
@@ -690,8 +690,8 @@ message BillingCredit {
   int64 left = 5;
   string currency = 6;
 
-  google.protobuf.Timestamp expires = 7;
-  google.protobuf.Timestamp created = 8;
+  google.protobuf.Timestamp date_expires = 7;
+  google.protobuf.Timestamp date_created = 8;
 }
 
 enum BillingInvoiceState {
@@ -734,7 +734,7 @@ message BillingCreditNote {
 
   int64 number = 10;
 
-  google.protobuf.Timestamp created = 11;
+  google.protobuf.Timestamp date_created = 11;
 }
 
 enum BillingCreditNoteReason {
@@ -746,8 +746,8 @@ enum BillingCreditNoteReason {
 
 // BillingPeriod is one period of billing: a calendar month in a zone.
 message BillingPeriod {
-  google.protobuf.Timestamp start = 1;
-  google.protobuf.Timestamp end = 2;
+  google.protobuf.Timestamp date_start = 1;
+  google.protobuf.Timestamp date_end = 2;
 
   // The zone it is a month in, as an IANA name.
   string zone = 3;
@@ -767,8 +767,8 @@ message BillingPayer {
 
   // Since when it has had nobody paying for it, and from when it is
   // restricted for that.
-  google.protobuf.Timestamp payerless_since = 5;
-  google.protobuf.Timestamp restricted_from = 6;
+  google.protobuf.Timestamp date_payerless = 5;
+  google.protobuf.Timestamp date_restricted = 6;
 
   // Whether what the billing account it is paid for with now is billed can
   // be collected; unset while nobody pays, or has set up no billing account.
@@ -780,9 +780,9 @@ message BillingPayer {
 
   // From when it is read-only for having had nobody paying for it, the
   // second stage of its restriction (`loft.readonly`): sixty days after
-  // `payerless_since` by default, never sooner than `restricted_from`, and
+  // `date_payerless` by default, never sooner than `date_restricted`, and
   // unset when that is.
-  google.protobuf.Timestamp readonly_from = 9;
+  google.protobuf.Timestamp date_readonly = 9;
 
   // The credit levyan's operator granted the workspace itself, neither
   // spent nor expired: what its lines are paid with first, on whichever
@@ -805,19 +805,19 @@ message BillingDunning {
   BillingDeclineKind kind = 3;
 
   // When its first charge failed.
-  google.protobuf.Timestamp failed = 4;
+  google.protobuf.Timestamp date_failed = 4;
 
   // When it is charged next; unset when no retry is to come, and it is
   // charged once its billing account can be collected again.
-  google.protobuf.Timestamp next_retry = 5;
+  google.protobuf.Timestamp date_next_retry = 5;
 
-  google.protobuf.Timestamp grace_ends = 6;
-  google.protobuf.Timestamp restricted_from = 7;
+  google.protobuf.Timestamp date_grace_ends = 6;
+  google.protobuf.Timestamp date_restricted = 7;
 
   // From when every workspace it bills is read-only, the second stage of
   // their restriction (`loft.readonly`): sixty days after its first failure
-  // by default, and never sooner than `restricted_from`; until it is paid.
-  google.protobuf.Timestamp readonly_from = 8;
+  // by default, and never sooner than `date_restricted`; until it is paid.
+  google.protobuf.Timestamp date_readonly = 8;
 }
 
 // BillingDeclineKind is which kind of decline a payer's method refused a
@@ -841,7 +841,7 @@ enum BillingDeclineKind {
 message BillingUsage {
   string workspace = 1;
   BillingPeriod period = 2;
-  google.protobuf.Timestamp as_of = 3;
+  google.protobuf.Timestamp date_as_of = 3;
 
   // What it is priced on and in; unset while nothing is priced.
   BillingChannel channel = 4;
@@ -877,10 +877,11 @@ message BillingAllowance {
   // How much more each period includes, in the meter's unit.
   int64 quantity = 3;
 
-  // In force from `from`, and until `until` when it says one -- the first
-  // moment it is not -- and until an operator ends it when it does not.
-  google.protobuf.Timestamp from = 4;
-  google.protobuf.Timestamp until = 5;
+  // In force from `date_effective`, and until `date_expires` when it says
+  // one -- the first moment it is not -- and until an operator ends it when
+  // it does not.
+  google.protobuf.Timestamp date_effective = 4;
+  google.protobuf.Timestamp date_expires = 5;
 }
 
 // BillingPool is a bundle of a meter levyan's operator gave a workspace --
@@ -899,10 +900,10 @@ message BillingPool {
   int64 granted = 3;
   string left = 4;
 
-  // In force from `from`; no period that begins from `expires` on takes
-  // from it.
-  google.protobuf.Timestamp from = 5;
-  google.protobuf.Timestamp expires = 6;
+  // In force from `date_effective`; no period that begins from
+  // `date_expires` on takes from it.
+  google.protobuf.Timestamp date_effective = 5;
+  google.protobuf.Timestamp date_expires = 6;
 }
 
 // BillingStatement is what one workspace came to over one closed period.
@@ -914,7 +915,7 @@ message BillingStatement {
   string currency = 5;
   repeated BillingLine lines = 6;
   int64 total = 7;
-  google.protobuf.Timestamp closed = 8;
+  google.protobuf.Timestamp date_closed = 8;
 }
 
 // BillingLine is what one meter came to over a period, or how much what an

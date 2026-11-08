@@ -90,8 +90,8 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 	if !past {
 		evs, err := t.Db.Event.Query().
 			Where(event.KindIn(closeKind, restoreKind)).
-			Order(ent.Asc(event.FieldOccurredAt), ent.Asc(event.FieldId)).
-			Select(event.FieldId, event.FieldKind, event.FieldOccurredAt, event.FieldTenantId).
+			Order(ent.Asc(event.FieldDateOccurred), ent.Asc(event.FieldId)).
+			Select(event.FieldId, event.FieldKind, event.FieldDateOccurred, event.FieldTenantId).
 			All(ctx)
 		if err != nil {
 			return out, err
@@ -99,11 +99,11 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 		for _, e := range evs {
 			switch e.Kind {
 			case closeKind:
-				if add(Closed, e.TenantId, e.OccurredAt) {
+				if add(Closed, e.TenantId, e.DateOccurred) {
 					out.closed++
 				}
 			case restoreKind:
-				if add(Restored, e.TenantId, e.OccurredAt) {
+				if add(Restored, e.TenantId, e.DateOccurred) {
 					out.restored++
 				}
 			}

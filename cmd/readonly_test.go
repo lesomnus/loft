@@ -424,7 +424,7 @@ func TestAMissingGrantIsNotReadOnly(t *testing.T) {
 
 	off := pdpb.EntitlementGrant_builder{
 		Id: []byte("readonly-off"), TenantId: tenantId(x, w.tenant).Bytes(), Key: domain.ReadOnly, Version: 1,
-		On: proto.Bool(false), ValidUntil: timestamppb.New(time.Now().Add(time.Hour)),
+		On: proto.Bool(false), DateExpires: timestamppb.New(time.Now().Add(time.Hour)),
 	}.Build()
 	fake.Put(off)
 	fake.Grant(tenantId(x, w.tenant), "loft.export", time.Now().Add(time.Hour))
@@ -447,7 +447,7 @@ func TestAMissingGrantIsNotReadOnly(t *testing.T) {
 		x.NoError(pd.EntitlementCopy(w.s.Drv, mustContents(w)).In(ctx, tid, func(ctx context.Context, s entitle.Store) error {
 			_, err := s.Put(ctx, entitle.Row{
 				Tenant: tid, Key: domain.ReadOnly, Value: entitle.On,
-				Until: time.Now().Add(time.Hour), Grant: []byte("by-hand"), Version: 1,
+				DateExpires: time.Now().Add(time.Hour), Grant: []byte("by-hand"), Version: 1,
 			})
 			return err
 		}))

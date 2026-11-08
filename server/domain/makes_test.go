@@ -66,7 +66,7 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 
 	receipt := e.eventOf("purchase.receive")
 	x.Nil(receipt.CauseId)
-	x.True(at.Equal(receipt.OccurredAt), "when it arrived")
+	x.True(at.Equal(receipt.DateOccurred), "when it arrived")
 	x.Equal("입고: 10월 구매", e.say(receipt))
 	adds, err := e.s.Ent.Event.Query().Where(event.CauseId(receipt.Id)).All(ctx)
 	x.NoError(err)
@@ -98,14 +98,14 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 		x.Equal("asset.add", mine.Kind, "the kind a registration of one is")
 		x.Equal(a.GetTag()+" 등록", e.say(mine))
 		x.Equal(a.GetTag(), value[*app.AssetAdded](e, mine).GetTag())
-		x.True(at.Equal(mine.OccurredAt))
+		x.True(at.Equal(mine.DateOccurred))
 
 		fs, err := e.s.Ent.Fact.Query().Where(fact.SubjectId(id)).All(ctx)
 		x.NoError(err)
 		x.NotEmpty(fs)
 		for _, f := range fs {
 			x.Equal(mine.Id, f.EventId, "a fact of %s points at another event", a.GetTag())
-			x.True(at.Equal(f.ValidFrom), "a fact of %s from another moment", a.GetTag())
+			x.True(at.Equal(f.DateStart), "a fact of %s from another moment", a.GetTag())
 		}
 		pl, err := e.s.Ent.Placement.Query().Where(placement.ChildId(id)).Only(ctx)
 		x.NoError(err)

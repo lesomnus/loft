@@ -157,11 +157,11 @@ func TestWhatIsMovedIsWhatWasSaid(t *testing.T) {
 
 	now := timestamppb.Now()
 	v := levyanv1.GetBillingAccountResponse_builder{
-		BillingAccount: levyanv1.BillingAccount_builder{Id: "ba", Country: "KR", Channel: levyanv1.Channel_CHANNEL_MOR, Currency: "KRW", Created: now}.Build(),
-		Collection:     levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE, Since: now}.Build(),
+		BillingAccount: levyanv1.BillingAccount_builder{Id: "ba", Country: "KR", Channel: levyanv1.Channel_CHANNEL_MOR, Currency: "KRW", DateCreated: now}.Build(),
+		Collection:     levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE, DateSince: now}.Build(),
 		Subscription: levyanv1.Subscription_builder{
 			Status: levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE,
-			Change: levyanv1.SubscriptionChange_SUBSCRIPTION_CHANGE_CANCEL, ChangeAt: now,
+			Change: levyanv1.SubscriptionChange_SUBSCRIPTION_CHANGE_CANCEL, DateChange: now,
 			Method: levyanv1.PaymentMethod_builder{Type: "south_korea_local_card", Brand: "hyundai", Last4: "0004"}.Build(),
 		}.Build(),
 	}.Build()
@@ -205,8 +205,8 @@ func TestWhatLevyansOperatorGaveIsMovedAsSaid(t *testing.T) {
 			Billable: "774.193548", Pooled: "700", Pools: []*levyanv1.LinePool{levyanv1.LinePool_builder{Pool: "pl-1", Taken: "700"}.Build()},
 			Amount: "7419.3548",
 		}.Build()},
-		Allowances: []*levyanv1.Allowance{levyanv1.Allowance_builder{Id: "al-1", Meter: "loft.assets.active", Quantity: 500, From: timestamppb.Now(), Until: until}.Build()},
-		Pools:      []*levyanv1.Pool{levyanv1.Pool_builder{Id: "pl-1", Meter: "loft.assets.active", Granted: 10000, Left: "9300", From: timestamppb.Now(), Expires: expires}.Build()},
+		Allowances: []*levyanv1.Allowance{levyanv1.Allowance_builder{Id: "al-1", Meter: "loft.assets.active", Quantity: 500, DateEffective: timestamppb.Now(), DateExpires: until}.Build()},
+		Pools:      []*levyanv1.Pool{levyanv1.Pool_builder{Id: "pl-1", Meter: "loft.assets.active", Granted: 10000, Left: "9300", DateEffective: timestamppb.Now(), DateExpires: expires}.Build()},
 		Total:      7419,
 	}.Build()}.Build()
 	usage := &app.PaymentGetUsageResponse{}
@@ -216,12 +216,12 @@ func TestWhatLevyansOperatorGaveIsMovedAsSaid(t *testing.T) {
 	x.Equal([]string{"pl-1", "700"}, []string{l.GetPools()[0].GetPool(), l.GetPools()[0].GetTaken()})
 	a := usage.GetUsage().GetAllowances()[0]
 	x.Equal([]any{"al-1", "loft.assets.active", int64(500)}, []any{a.GetId(), a.GetMeter(), a.GetQuantity()})
-	x.True(until.AsTime().Equal(a.GetUntil().AsTime()))
+	x.True(until.AsTime().Equal(a.GetDateExpires().AsTime()))
 	p := usage.GetUsage().GetPools()[0]
 	x.Equal([]any{"pl-1", int64(10000), "9300"}, []any{p.GetId(), p.GetGranted(), p.GetLeft()})
-	x.True(expires.AsTime().Equal(p.GetExpires().AsTime()))
+	x.True(expires.AsTime().Equal(p.GetDateExpires().AsTime()))
 
-	credit := levyanv1.Credit_builder{Id: "cr-1", Workspace: "ws-1", Granted: 100000, Left: 70000, Currency: "KRW", Expires: expires, Created: timestamppb.Now()}.Build()
+	credit := levyanv1.Credit_builder{Id: "cr-1", Workspace: "ws-1", Granted: 100000, Left: 70000, Currency: "KRW", DateExpires: expires, DateCreated: timestamppb.Now()}.Build()
 	payer := &app.PaymentGetPayerResponse{}
 	x.NoError(move(levyanv1.GetPayerResponse_builder{Payer: levyanv1.Payer_builder{Workspace: "ws-1", Credits: []*levyanv1.Credit{credit}}.Build()}.Build(), payer))
 	c := payer.GetPayer().GetCredits()[0]
@@ -241,7 +241,7 @@ func TestWhatLevyansOperatorGaveIsMovedAsSaid(t *testing.T) {
 	x.NoError(move(levyanv1.GetInvoiceResponse_builder{Invoice: levyanv1.Invoice_builder{
 		Id: "inv", Total: 80000, Credited: 75000, Due: 5000,
 		Credits: []*levyanv1.InvoiceCredit{
-			levyanv1.InvoiceCredit_builder{Credit: "cr-1", Amount: 70000, Workspace: "ws-1", Expires: expires}.Build(),
+			levyanv1.InvoiceCredit_builder{Credit: "cr-1", Amount: 70000, Workspace: "ws-1", DateExpires: expires}.Build(),
 			levyanv1.InvoiceCredit_builder{Amount: 5000}.Build(),
 		},
 	}.Build()}.Build(), inv))
@@ -266,8 +266,8 @@ func TestAPayersStatementIsMovedAsSaid(t *testing.T) {
 	x.Equal([]any{"ba", int32(5), "next"}, []any{req.GetBillingAccount(), req.GetPageSize(), req.GetPageToken()})
 
 	st := levyanv1.Statement_builder{
-		Id: "st-1", Workspace: "ws-1", Channel: levyanv1.Channel_CHANNEL_MOR, Currency: "KRW", Total: 1000, Closed: end,
-		Period: levyanv1.Period_builder{Start: start, End: end, Zone: "Asia/Seoul"}.Build(),
+		Id: "st-1", Workspace: "ws-1", Channel: levyanv1.Channel_CHANNEL_MOR, Currency: "KRW", Total: 1000, DateClosed: end,
+		Period: levyanv1.Period_builder{DateStart: start, DateEnd: end, Zone: "Asia/Seoul"}.Build(),
 		Lines: []*levyanv1.Line{levyanv1.Line_builder{
 			Meter: "loft.assets.active", Unit: "{asset}", Kind: levyanv1.LineKind_LINE_KIND_USAGE,
 			Usage: "1200", Included: "500", Allowance: "500", Billable: "700", Pooled: "700",
@@ -281,7 +281,7 @@ func TestAPayersStatementIsMovedAsSaid(t *testing.T) {
 	s := got.GetStatement()
 	x.Equal([]any{"st-1", "ws-1", app.BillingChannel_BILLING_CHANNEL_MOR, "KRW", int64(1000)}, []any{s.GetId(), s.GetWorkspace(), s.GetChannel(), s.GetCurrency(), s.GetTotal()})
 	x.Equal("Asia/Seoul", s.GetPeriod().GetZone())
-	x.True(start.AsTime().Equal(s.GetPeriod().GetStart().AsTime()))
+	x.True(start.AsTime().Equal(s.GetPeriod().GetDateStart().AsTime()))
 	l := s.GetLines()[0]
 	x.Equal([]string{"1200", "500", "500", "700", "700", "0"}, []string{l.GetUsage(), l.GetIncluded(), l.GetAllowance(), l.GetBillable(), l.GetPooled(), l.GetAmount()})
 	x.Equal([]string{"pl-1", "700"}, []string{l.GetPools()[0].GetPool(), l.GetPools()[0].GetTaken()})

@@ -63,12 +63,12 @@ func (w *world) ends(ws pdid.Id) []*ent.LevyanNotice {
 func (w *world) occurred(ws pdid.Id) []time.Time {
 	vs, err := w.s.Ent.Event.Query().
 		Where(event.TenantId(ws.Uuid()), event.KindIn("workspace.close", "workspace.restore")).
-		Order(ent.Asc(event.FieldOccurredAt), ent.Asc(event.FieldId)).
+		Order(ent.Asc(event.FieldDateOccurred), ent.Asc(event.FieldId)).
 		All(context.Background())
 	w.x.NoError(err)
 	out := []time.Time{}
 	for _, v := range vs {
-		out = append(out, v.OccurredAt.UTC().Truncate(time.Microsecond))
+		out = append(out, v.DateOccurred.UTC().Truncate(time.Microsecond))
 	}
 	return out
 }
@@ -165,7 +165,7 @@ func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 		for _, r := range fake.Readings() {
 			if r.GetWorkspace() == ws.String() {
 				read = true
-				x.True(r.GetMeasuredAt().AsTime().Before(d.DateOccurred), "after its final reading")
+				x.True(r.GetDateMeasured().AsTime().Before(d.DateOccurred), "after its final reading")
 			}
 		}
 		x.True(read, "its final reading, handed to levyan first")
@@ -182,12 +182,12 @@ func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 
 	life, err := w.s.Levyan.Lifecycle(ctx, acme)
 	x.NoError(err)
-	x.False(life.HasClosedSince(), "open, as it was last restored")
-	x.False(life.HasDestroyed())
+	x.False(life.HasDateClosed(), "open, as it was last restored")
+	x.False(life.HasDateDestroyed())
 	life, err = w.s.Levyan.Lifecycle(ctx, alone.Workspace)
 	x.NoError(err)
-	x.Equal(w.ends(alone.Workspace)[0].DateOccurred.UTC(), life.GetClosedSince().AsTime().UTC(), "destroyed as it was closed")
-	x.True(life.HasDestroyed())
+	x.Equal(w.ends(alone.Workspace)[0].DateOccurred.UTC(), life.GetDateClosed().AsTime().UTC(), "destroyed as it was closed")
+	x.True(life.HasDateDestroyed())
 
 	// Told once.
 	told, err = w.s.Teller.Tell(ctx)
@@ -483,7 +483,7 @@ func TestWhatBecameOfTheWorkspacesBeforeIsToldOnce(t *testing.T) {
 
 	life, err := client.Lifecycle(ctx, acme)
 	x.NoError(err)
-	x.Equal(acmeAt[2], life.GetClosedSince().AsTime().UTC(), "closed since it was closed last")
+	x.Equal(acmeAt[2], life.GetDateClosed().AsTime().UTC(), "closed since it was closed last")
 
 	// Once: by this process, and by the next.
 	heard := len(fake.Heard())

@@ -1030,7 +1030,7 @@ func (t mcpTools) recentEvents(ctx context.Context, _ *mcp.CallToolRequest, in m
 			who = c.holders[a]
 		}
 		ev := mcpEvent{
-			When:      stamp(e.GetOccurredAt()),
+			When:      stamp(e.GetDateOccurred()),
 			Recorded:  stamp(e.GetDateCreated()),
 			Operation: e.GetKind(),
 			What:      e.GetDesc(),

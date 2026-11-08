@@ -188,7 +188,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 			if err != nil {
 				return nil, fmt.Errorf("fact %s: %w", r.Id, err)
 			}
-			e := entry("fact", r.Id.Uuid(), r.From, nil, r.Recorded, r.Superseded, r.Event.Uuid())
+			e := entry("fact", r.Id.Uuid(), r.DateStart, nil, r.Recorded, r.DateSuperseded, r.Event.Uuid())
 			v := text
 			switch {
 			case r.Value == past.Null:
@@ -297,7 +297,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		}
 	}
 	for _, v := range evs {
-		e := entry("event", v.Id.Uuid(), v.At, nil, v.Recorded, nil, v.Id.Uuid())
+		e := entry("event", v.Id.Uuid(), v.DateOccurred, nil, v.Recorded, nil, v.Id.Uuid())
 		e.SetSummary(r.Say(v))
 		e.SetEventKind(v.Kind)
 		e.SetReason(v.Reason)

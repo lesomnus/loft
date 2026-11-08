@@ -221,7 +221,7 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 
 		// What it starts as, from when it was: each of its fields that is a
 		// fact of it, in one statement (payday#84).
-		if err := t.op.Set(t.ctx, past.Fact{Subject: id, From: since, Values: past.Changes(nil, assetFacts(a))}); err != nil {
+		if err := t.op.Set(t.ctx, past.Fact{Subject: id, DateStart: since, Values: past.Changes(nil, assetFacts(a))}); err != nil {
 			return err
 		}
 
@@ -775,7 +775,7 @@ func (t *Tx) addFact(id uuid.UUID, key, value string, cleared bool, at time.Time
 	if err != nil {
 		return err
 	}
-	return t.op.Set(t.ctx, past.Fact{Subject: pdid.Id(id), From: at, Values: []past.Value{f}})
+	return t.op.Set(t.ctx, past.Fact{Subject: pdid.Id(id), DateStart: at, Values: []past.Value{f}})
 }
 
 // factsAt answers each asset's facts at `at`, by the keys Loft says them
@@ -1507,7 +1507,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			}
 
 		case pd.FactDomain:
-			r, err := t.db.Fact.Query().Where(fact.Id(row), fact.TenantId(t.tenant.Uuid()), fact.SubjectId(id.Uuid()), fact.SupersededAtIsNil()).Only(t.ctx)
+			r, err := t.db.Fact.Query().Where(fact.Id(row), fact.TenantId(t.tenant.Uuid()), fact.SubjectId(id.Uuid()), fact.DateSupersededIsNil()).Only(t.ctx)
 			if err != nil {
 				return status.Error(codes.NotFound, "이 자산의 현재 항목 기록이 아닙니다")
 			}

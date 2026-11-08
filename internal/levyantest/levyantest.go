@@ -264,12 +264,12 @@ func (v *Levyan) Grant(tenant pdid.Id, key string, until time.Time) []byte {
 	id := make([]byte, 16)
 	rand.Read(id)
 	v.Put(pdpb.EntitlementGrant_builder{
-		Id:         id,
-		TenantId:   tenant.Bytes(),
-		Key:        key,
-		Version:    1,
-		On:         proto.Bool(true),
-		ValidUntil: timestamppb.New(until),
+		Id:          id,
+		TenantId:    tenant.Bytes(),
+		Key:         key,
+		Version:     1,
+		On:          proto.Bool(true),
+		DateExpires: timestamppb.New(until),
 	}.Build())
 	return id
 }
@@ -294,7 +294,7 @@ func (v *Levyan) End(id []byte) {
 		return
 	}
 	g.SetVersion(g.GetVersion() + 1)
-	g.SetValidUntil(timestamppb.Now())
+	g.SetDateExpires(timestamppb.Now())
 	v.Put(g)
 }
 
@@ -501,8 +501,8 @@ func (v *Levyan) hear(ctx context.Context, t Told) error {
 
 func (v *Levyan) Arrive(ctx context.Context, req *levyanv1.ArriveRequest) (*levyanv1.ArriveResponse, error) {
 	t := Told{Kind: "arrive", Workspace: req.GetWorkspace(), Account: req.GetCreator()}
-	if req.HasCreated() {
-		t.Created = req.GetCreated().AsTime()
+	if req.HasDateCreated() {
+		t.Created = req.GetDateCreated().AsTime()
 	}
 	if err := v.hear(ctx, t); err != nil {
 		return nil, err

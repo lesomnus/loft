@@ -84,8 +84,8 @@ $$;
 -- new value (`past.Op.Set`, payday#151), and so is never in between. Made on
 -- payday's Fact, which the migration made in place of Loft's own table of
 -- facts, and the index on that with it (`cli/facts.go`).
-CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (subject_id, field_number, key, valid_from)
-	WHERE superseded_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (subject_id, field_number, key, date_start)
+	WHERE date_superseded IS NULL;
 
 -- An account is in a workspace once: one holder of it per tenant, among the
 -- holders still here (design 9.10, D27). The domain layer checks before it

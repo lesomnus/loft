@@ -290,7 +290,7 @@ func TestARowFromBeforeIsSaidAsItWasWritten(t *testing.T) {
 		SetPayload("party=" + pdid.Id(idUUID(kimParty.GetId())).String()).
 		SetReason("").
 		SetSubjectId(idUUID(r.GetId())).
-		SetOccurredAt(e.now).
+		SetDateOccurred(e.now).
 		SetDateCreated(e.now).
 		SetDateUpdated(e.now).
 		Exec(context.Background()))

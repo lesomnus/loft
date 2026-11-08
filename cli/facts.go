@@ -224,10 +224,12 @@ func moveFacts(ctx context.Context, s *cmd.Server) (int, int, error) {
 	}
 
 	// Back, rewritten, beside what they were: every moment and every event
-	// copied as the database holds it.
+	// copied as the database holds it -- from the names Loft's table had,
+	// which what was set aside keeps, to the ones payday's past has now
+	// (D76).
 	var res sql.Result
 	if err := tdrv.Exec(ctx, fmt.Sprintf(`INSERT INTO fact (id, tenant_id, subject_id, key, value, field_number, domain,
-		date_updated, date_created, valid_from, event_id, superseded_at, superseded_by)
+		date_updated, date_created, date_start, event_id, date_superseded, superseded_by)
 	SELECT a.id, a.tenant_id, a.asset_id, m.key, m.value, m.field_number, %d,
 		a.date_updated, a.date_created, a.valid_from, a.event_id, a.superseded_at, a.superseded_by
 	FROM %s a JOIN %s m ON m.id = a.id`, pd.AssetDomain, factsAside, factsMoved), []any{}, &res); err != nil {

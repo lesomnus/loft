@@ -575,7 +575,7 @@ function Events(): ReactNode {
 								<tbody>
 									{d.items.map((e) => (
 										<tr key={idStr(e.id)}>
-											<td>{fmt(e.occurredAt)}</td>
+											<td>{fmt(e.dateOccurred)}</td>
 											<td>
 												<code>{e.kind}</code>
 											</td>

@@ -497,14 +497,14 @@ func (t *Tx) reading(n *namer) *past.Reading {
 // said is a row of Loft's Event as payday's past reads one.
 func said(v *ent.Event) past.EventRow {
 	r := past.EventRow{
-		Id:       pdid.Id(v.Id),
-		Tenant:   pdid.Id(v.TenantId),
-		Kind:     v.Kind,
-		At:       v.OccurredAt,
-		Reason:   v.Reason,
-		Trace:    v.TraceId,
-		Value:    v.Value,
-		Recorded: v.DateCreated,
+		Id:           pdid.Id(v.Id),
+		Tenant:       pdid.Id(v.TenantId),
+		Kind:         v.Kind,
+		DateOccurred: v.DateOccurred,
+		Reason:       v.Reason,
+		Trace:        v.TraceId,
+		Value:        v.Value,
+		Recorded:     v.DateCreated,
 	}
 	if v.ActorId != nil {
 		r.Actor = pdid.Id(*v.ActorId)

@@ -77,7 +77,7 @@ func (l *lives) read(rs []*levyanv1.Reading) map[int]bool {
 	l.init()
 	out := map[int]bool{}
 	for i, r := range rs {
-		ws, at := r.GetWorkspace(), moment(r.GetMeasuredAt().AsTime())
+		ws, at := r.GetWorkspace(), moment(r.GetDateMeasured().AsTime())
 		if d, ok := l.destroyed(ws); ok && !at.Before(d) {
 			out[i] = true
 			continue
@@ -151,14 +151,14 @@ func (l *lives) life(workspace string) *levyanv1.Lifecycle {
 			closed = time.Time{}
 		case "destroy":
 			if !closed.IsZero() {
-				out.SetClosedSince(timestamppb.New(closed))
+				out.SetDateClosed(timestamppb.New(closed))
 			}
-			out.SetDestroyed(timestamppb.New(e.At))
+			out.SetDateDestroyed(timestamppb.New(e.At))
 			return out
 		}
 	}
 	if !closed.IsZero() {
-		out.SetClosedSince(timestamppb.New(closed))
+		out.SetDateClosed(timestamppb.New(closed))
 	}
 	return out
 }
@@ -225,7 +225,7 @@ func (v *Levyan) end(ctx context.Context, kind, workspace string, has bool, at t
 }
 
 func (v *Levyan) Close(ctx context.Context, req *levyanv1.CloseRequest) (*levyanv1.CloseResponse, error) {
-	l, err := v.end(ctx, "close", req.GetWorkspace(), req.HasAt(), req.GetAt().AsTime())
+	l, err := v.end(ctx, "close", req.GetWorkspace(), req.HasDateOccurred(), req.GetDateOccurred().AsTime())
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func (v *Levyan) Close(ctx context.Context, req *levyanv1.CloseRequest) (*levyan
 }
 
 func (v *Levyan) Restore(ctx context.Context, req *levyanv1.RestoreRequest) (*levyanv1.RestoreResponse, error) {
-	l, err := v.end(ctx, "restore", req.GetWorkspace(), req.HasAt(), req.GetAt().AsTime())
+	l, err := v.end(ctx, "restore", req.GetWorkspace(), req.HasDateOccurred(), req.GetDateOccurred().AsTime())
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +241,7 @@ func (v *Levyan) Restore(ctx context.Context, req *levyanv1.RestoreRequest) (*le
 }
 
 func (v *Levyan) Destroy(ctx context.Context, req *levyanv1.DestroyRequest) (*levyanv1.DestroyResponse, error) {
-	l, err := v.end(ctx, "destroy", req.GetWorkspace(), req.HasAt(), req.GetAt().AsTime())
+	l, err := v.end(ctx, "destroy", req.GetWorkspace(), req.HasDateOccurred(), req.GetDateOccurred().AsTime())
 	if err != nil {
 		return nil, err
 	}

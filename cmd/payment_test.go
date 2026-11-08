@@ -106,7 +106,7 @@ func TestAPayersCallsAreRelayedAsTheAccount(t *testing.T) {
 	// back of them.
 	fake.Bill(levyanv1.Invoice_builder{
 		Id: "inv-1", BillingAccount: ba.GetId(), State: levyanv1.InvoiceState_INVOICE_STATE_PAID,
-		Start: timestamppb.New(time.Date(2026, 9, 30, 15, 0, 0, 0, time.UTC)), End: timestamppb.New(time.Date(2026, 10, 31, 15, 0, 0, 0, time.UTC)),
+		DateStart: timestamppb.New(time.Date(2026, 9, 30, 15, 0, 0, 0, time.UTC)), DateEnd: timestamppb.New(time.Date(2026, 10, 31, 15, 0, 0, 0, time.UTC)),
 		Channel: levyanv1.Channel_CHANNEL_MOR, Currency: "KRW", Subtotal: 4300, Total: 4300, Due: 4300, Paid: 4300,
 		Lines: []*levyanv1.InvoiceLine{levyanv1.InvoiceLine_builder{Statement: "st-1", Workspace: tenantId(x, w.tenant).String(), Label: "Acme", Total: 4300}.Build()},
 	}.Build(), levyanv1.CreditNote_builder{Id: "cn-1", Invoice: "inv-1", Reason: levyanv1.CreditNoteReason_CREDIT_NOTE_REASON_CORRECTION, Amount: 300, Total: 300, Credited: 300}.Build())
@@ -128,19 +128,19 @@ func TestAPayersCallsAreRelayedAsTheAccount(t *testing.T) {
 	soon, later := time.Now().Add(7*24*time.Hour), time.Now().Add(60*24*time.Hour)
 	fake.Dun(levyanv1.Dunning_builder{
 		Invoice: "inv-1", BillingAccount: ba.GetId(), Kind: levyanv1.DeclineKind_DECLINE_KIND_REPLACE,
-		Failed: timestamppb.Now(), GraceEnds: timestamppb.New(soon), RestrictedFrom: timestamppb.New(soon),
-		ReadonlyFrom: timestamppb.New(later),
+		DateFailed: timestamppb.Now(), DateGraceEnds: timestamppb.New(soon), DateRestricted: timestamppb.New(soon),
+		DateReadonly: timestamppb.New(later),
 	}.Build(), tenantId(x, w.tenant).String())
 	got, err = pay.GetBillingAccount(me, app.PaymentGetBillingAccountRequest_builder{Id: ba.GetId()}.Build())
 	x.NoError(err)
 	x.Len(got.GetDunning(), 1)
 	x.Equal(app.BillingDeclineKind_BILLING_DECLINE_KIND_REPLACE, got.GetDunning()[0].GetKind())
-	x.False(got.GetDunning()[0].HasNextRetry(), "a method to replace is tried again as it is never")
-	x.WithinDuration(later, got.GetDunning()[0].GetReadonlyFrom().AsTime(), time.Second)
+	x.False(got.GetDunning()[0].HasDateNextRetry(), "a method to replace is tried again as it is never")
+	x.WithinDuration(later, got.GetDunning()[0].GetDateReadonly().AsTime(), time.Second)
 	inv, err = pay.GetInvoice(me, app.PaymentGetInvoiceRequest_builder{Id: "inv-1"}.Build())
 	x.NoError(err)
-	x.WithinDuration(soon, inv.GetDunning().GetRestrictedFrom().AsTime(), time.Second)
-	x.WithinDuration(later, inv.GetDunning().GetReadonlyFrom().AsTime(), time.Second)
+	x.WithinDuration(soon, inv.GetDunning().GetDateRestricted().AsTime(), time.Second)
+	x.WithinDuration(later, inv.GetDunning().GetDateReadonly().AsTime(), time.Second)
 }
 
 // TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer: who pays for a
@@ -219,27 +219,27 @@ func TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer(t *testing.T) {
 	// charged again, and from when the workspace is restricted and read-only.
 	retry, from, readonly := time.Now().Add(24*time.Hour), time.Now().Add(7*24*time.Hour), time.Now().Add(60*24*time.Hour)
 	fake.Dun(levyanv1.Dunning_builder{
-		Invoice: "inv-1", Kind: levyanv1.DeclineKind_DECLINE_KIND_TEMPORARY, Failed: timestamppb.Now(),
-		NextRetry: timestamppb.New(retry), GraceEnds: timestamppb.New(from), RestrictedFrom: timestamppb.New(from),
-		ReadonlyFrom: timestamppb.New(readonly),
+		Invoice: "inv-1", Kind: levyanv1.DeclineKind_DECLINE_KIND_TEMPORARY, DateFailed: timestamppb.Now(),
+		DateNextRetry: timestamppb.New(retry), DateGraceEnds: timestamppb.New(from), DateRestricted: timestamppb.New(from),
+		DateReadonly: timestamppb.New(readonly),
 	}.Build(), ws.String())
 	p, err = pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
 	x.NoError(err)
 	x.Len(p.GetPayer().GetDunning(), 1)
 	d := p.GetPayer().GetDunning()[0]
 	x.Equal(app.BillingDeclineKind_BILLING_DECLINE_KIND_TEMPORARY, d.GetKind())
-	x.WithinDuration(retry, d.GetNextRetry().AsTime(), time.Second)
-	x.WithinDuration(from, d.GetRestrictedFrom().AsTime(), time.Second)
-	x.WithinDuration(readonly, d.GetReadonlyFrom().AsTime(), time.Second)
+	x.WithinDuration(retry, d.GetDateNextRetry().AsTime(), time.Second)
+	x.WithinDuration(from, d.GetDateRestricted().AsTime(), time.Second)
+	x.WithinDuration(readonly, d.GetDateReadonly().AsTime(), time.Second)
 
 	// A workspace whose payer left is said to be, and when it is restricted
 	// and read-only for it.
 	fake.Payerless(ws.String(), time.Now().Add(levyantest.Grace))
 	p, err = pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
 	x.NoError(err)
-	x.True(p.GetPayer().HasPayerlessSince())
-	x.WithinDuration(time.Now().Add(levyantest.Grace), p.GetPayer().GetRestrictedFrom().AsTime(), time.Minute)
-	x.WithinDuration(time.Now().Add(levyantest.ReadOnlyAfter), p.GetPayer().GetReadonlyFrom().AsTime(), time.Minute)
+	x.True(p.GetPayer().HasDatePayerless())
+	x.WithinDuration(time.Now().Add(levyantest.Grace), p.GetPayer().GetDateRestricted().AsTime(), time.Minute)
+	x.WithinDuration(time.Now().Add(levyantest.ReadOnlyAfter), p.GetPayer().GetDateReadonly().AsTime(), time.Minute)
 }
 
 // TestEveryMemberIsToldTheWorkspaceIsRestricted (design 7.9): what levyan
@@ -309,7 +309,7 @@ func TestUsageAndStatementsAreOfTheCallersWorkspace(t *testing.T) {
 
 	fake.State(levyanv1.Statement_builder{
 		Id: "st-1", Workspace: ws.String(), Currency: "KRW", Total: 1100,
-		Period: levyanv1.Period_builder{Start: timestamppb.New(time.Date(2026, 8, 31, 15, 0, 0, 0, time.UTC)), End: timestamppb.New(time.Date(2026, 9, 30, 15, 0, 0, 0, time.UTC)), Zone: "Asia/Seoul"}.Build(),
+		Period: levyanv1.Period_builder{DateStart: timestamppb.New(time.Date(2026, 8, 31, 15, 0, 0, 0, time.UTC)), DateEnd: timestamppb.New(time.Date(2026, 9, 30, 15, 0, 0, 0, time.UTC)), Zone: "Asia/Seoul"}.Build(),
 	}.Build())
 	fake.State(levyanv1.Statement_builder{Id: "elsewhere", Workspace: pdid.New(1).String(), Total: 1}.Build())
 	sts, err := pay.ListStatements(w.owner, app.PaymentListStatementsRequest_builder{}.Build())
@@ -356,9 +356,9 @@ func TestWhatLevyansOperatorGaveIsRelayed(t *testing.T) {
 	now := time.Now()
 	before, _ := levyantest.PeriodBefore(now)
 	until, expires := now.AddDate(0, 6, 0).UTC().Truncate(time.Second), now.AddDate(1, 0, 0).UTC().Truncate(time.Second)
-	allowance := fake.Allow(ws, levyanv1.Allowance_builder{Meter: "loft.assets.active", Quantity: 2, From: timestamppb.New(before), Until: timestamppb.New(until)}.Build())
-	ten := fake.Pool(ws, levyanv1.Pool_builder{Meter: "loft.assets.active", Granted: 10, From: timestamppb.New(before), Expires: timestamppb.New(expires)}.Build())
-	five := fake.Pool(ws, levyanv1.Pool_builder{Meter: "loft.members", Granted: 5, From: timestamppb.New(before), Expires: timestamppb.New(expires.AddDate(1, 0, 0))}.Build())
+	allowance := fake.Allow(ws, levyanv1.Allowance_builder{Meter: "loft.assets.active", Quantity: 2, DateEffective: timestamppb.New(before), DateExpires: timestamppb.New(until)}.Build())
+	ten := fake.Pool(ws, levyanv1.Pool_builder{Meter: "loft.assets.active", Granted: 10, DateEffective: timestamppb.New(before), DateExpires: timestamppb.New(expires)}.Build())
+	five := fake.Pool(ws, levyanv1.Pool_builder{Meter: "loft.members", Granted: 5, DateEffective: timestamppb.New(before), DateExpires: timestamppb.New(expires.AddDate(1, 0, 0))}.Build())
 	closed := fake.ClosePeriod(ws)
 
 	// What is billable past what is included, taken out of the pools before
@@ -369,12 +369,12 @@ func TestWhatLevyansOperatorGaveIsRelayed(t *testing.T) {
 	x.Len(usage.GetAllowances(), 1)
 	a := usage.GetAllowances()[0]
 	x.Equal([]any{allowance.GetId(), "loft.assets.active", int64(2)}, []any{a.GetId(), a.GetMeter(), a.GetQuantity()})
-	x.Equal(before, a.GetFrom().AsTime())
-	x.Equal(until, a.GetUntil().AsTime())
+	x.Equal(before, a.GetDateEffective().AsTime())
+	x.Equal(until, a.GetDateExpires().AsTime())
 	x.Len(usage.GetPools(), 2)
 	x.Equal([]string{ten.GetId(), five.GetId()}, []string{usage.GetPools()[0].GetId(), usage.GetPools()[1].GetId()}, "the soonest to expire first")
 	x.Equal([]any{int64(10), "9"}, []any{usage.GetPools()[0].GetGranted(), usage.GetPools()[0].GetLeft()}, "what the period closed left")
-	x.Equal(expires, usage.GetPools()[0].GetExpires().AsTime())
+	x.Equal(expires, usage.GetPools()[0].GetDateExpires().AsTime())
 	x.Equal("4", usage.GetPools()[1].GetLeft())
 	lines := map[string]*app.BillingLine{}
 	for _, l := range usage.GetLines() {
@@ -402,8 +402,8 @@ func TestWhatLevyansOperatorGaveIsRelayed(t *testing.T) {
 
 	// Credit granted the workspace, the billing account and another
 	// workspace, and what the billing account is owed beside it.
-	mine := fake.Credit(levyanv1.Credit_builder{Workspace: ws, Granted: 70000, Expires: timestamppb.New(until)}.Build())
-	theirs := fake.Credit(levyanv1.Credit_builder{BillingAccount: ba, Granted: 30000, Expires: timestamppb.New(expires)}.Build())
+	mine := fake.Credit(levyanv1.Credit_builder{Workspace: ws, Granted: 70000, DateExpires: timestamppb.New(until)}.Build())
+	theirs := fake.Credit(levyanv1.Credit_builder{BillingAccount: ba, Granted: 30000, DateExpires: timestamppb.New(expires)}.Build())
 	fake.Credit(levyanv1.Credit_builder{Workspace: pdid.New(1).String(), Granted: 1000}.Build())
 	fake.Balance(ba, 5000)
 
@@ -415,7 +415,7 @@ func TestWhatLevyansOperatorGaveIsRelayed(t *testing.T) {
 		x.Len(p.GetPayer().GetCredits(), 1)
 		c := p.GetPayer().GetCredits()[0]
 		x.Equal([]any{mine.GetId(), ws, "", int64(70000), int64(70000), "KRW"}, []any{c.GetId(), c.GetWorkspace(), c.GetBillingAccount(), c.GetGranted(), c.GetLeft(), c.GetCurrency()})
-		x.Equal(until, c.GetExpires().AsTime())
+		x.Equal(until, c.GetDateExpires().AsTime())
 	}
 
 	// The payer reads what their billing account may be paid with: the
@@ -440,7 +440,7 @@ func TestWhatLevyansOperatorGaveIsRelayed(t *testing.T) {
 	paid := v.GetInvoice().GetCredits()
 	x.Len(paid, 2)
 	x.Equal([]any{mine.GetId(), int64(70000), ws}, []any{paid[0].GetCredit(), paid[0].GetAmount(), paid[0].GetWorkspace()})
-	x.Equal(until, paid[0].GetExpires().AsTime())
+	x.Equal(until, paid[0].GetDateExpires().AsTime())
 	x.Equal([]any{theirs.GetId(), int64(10000), ""}, []any{paid[1].GetCredit(), paid[1].GetAmount(), paid[1].GetWorkspace()})
 	invs, err := pay.ListInvoices(w.owner, app.PaymentListInvoicesRequest_builder{}.Build())
 	x.NoError(err)
@@ -491,8 +491,8 @@ func TestAPayersStatementsAreRelayedAsTheAccount(t *testing.T) {
 	}
 	x.NoError(w.s.Meters.Read(ctx, tenantId(x, w.tenant)))
 	before, _ := levyantest.PeriodBefore(time.Now())
-	fake.Allow(ws, levyanv1.Allowance_builder{Meter: "loft.assets.active", Quantity: 2, From: timestamppb.New(before)}.Build())
-	ten := fake.Pool(ws, levyanv1.Pool_builder{Meter: "loft.assets.active", Granted: 10, From: timestamppb.New(before), Expires: timestamppb.New(time.Now().AddDate(1, 0, 0))}.Build())
+	fake.Allow(ws, levyanv1.Allowance_builder{Meter: "loft.assets.active", Quantity: 2, DateEffective: timestamppb.New(before)}.Build())
+	ten := fake.Pool(ws, levyanv1.Pool_builder{Meter: "loft.assets.active", Granted: 10, DateEffective: timestamppb.New(before), DateExpires: timestamppb.New(time.Now().AddDate(1, 0, 0))}.Build())
 	closed := fake.ClosePeriod(ws)
 
 	// The payer's, as the account: every one of its billing accounts', and

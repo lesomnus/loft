@@ -80,13 +80,13 @@ func newPayers() payers {
 // contract's, which the account may not change ([Levyan.UpdateBillingAccount]).
 func (v *Levyan) Bank(account, name string, business *levyanv1.Business) *levyanv1.BillingAccount {
 	b := levyanv1.BillingAccount_builder{
-		Id:       newId(),
-		Name:     name,
-		Country:  "KR",
-		Channel:  levyanv1.Channel_CHANNEL_BANK_KR,
-		Currency: "KRW",
-		Business: proto.CloneOf(business),
-		Created:  timestamppb.Now(),
+		Id:          newId(),
+		Name:        name,
+		Country:     "KR",
+		Channel:     levyanv1.Channel_CHANNEL_BANK_KR,
+		Currency:    "KRW",
+		Business:    proto.CloneOf(business),
+		DateCreated: timestamppb.Now(),
 	}.Build()
 
 	v.mu.Lock()
@@ -107,7 +107,7 @@ func (v *Levyan) Collect(id string, state levyanv1.CollectionState) {
 		delete(v.collected, id)
 		return
 	}
-	v.collected[id] = levyanv1.Collection_builder{State: state, Since: timestamppb.Now()}.Build()
+	v.collected[id] = levyanv1.Collection_builder{State: state, DateSince: timestamppb.Now()}.Build()
 }
 
 type checkout struct {
@@ -147,7 +147,7 @@ func (v *Levyan) Dun(d *levyanv1.Dunning, workspaces ...string) {
 	defer v.mu.Unlock()
 	v.dunning = append(v.dunning, &dunned{v: proto.CloneOf(d), workspaces: slices.Clone(workspaces)})
 	sort.SliceStable(v.dunning, func(i, j int) bool {
-		return v.dunning[i].v.GetRestrictedFrom().AsTime().Before(v.dunning[j].v.GetRestrictedFrom().AsTime())
+		return v.dunning[i].v.GetDateRestricted().AsTime().Before(v.dunning[j].v.GetDateRestricted().AsTime())
 	})
 }
 
@@ -194,7 +194,7 @@ func (v *Levyan) PayerlessUntil(workspace string, from, readonly time.Time) {
 	defer v.mu.Unlock()
 	p := v.paying(workspace)
 	if p.current != nil {
-		p.current.SetEnd(timestamppb.Now())
+		p.current.SetDateEnd(timestamppb.Now())
 		p.current.SetEnded(levyanv1.LinkEnded_LINK_ENDED_LEFT)
 	}
 	p.current, p.next = nil, nil
@@ -216,7 +216,7 @@ func (v *Levyan) Turn(workspace string) {
 	}
 	now := timestamppb.New(time.Now().UTC().Truncate(time.Microsecond))
 	l := proto.CloneOf(p.next)
-	l.SetStart(now)
+	l.SetDateStart(now)
 	p.current, p.next = l, nil
 }
 
@@ -257,7 +257,7 @@ func (v *Levyan) Statement(workspace string, start time.Time) *levyanv1.Statemen
 	v.mu.Lock()
 	defer v.mu.Unlock()
 	for _, st := range v.statements[workspace] {
-		if st.GetPeriod().GetStart().AsTime().Equal(start) {
+		if st.GetPeriod().GetDateStart().AsTime().Equal(start) {
 			return proto.CloneOf(st)
 		}
 	}
@@ -321,7 +321,7 @@ func (v *Levyan) madeBy(t Told) *levyanv1.Payer {
 			Id:        newId(),
 			Workspace: t.Workspace,
 			Account:   t.Account,
-			Start:     timestamppb.New(at),
+			DateStart: timestamppb.New(at),
 			Began:     levyanv1.LinkBegan_LINK_BEGAN_ARRIVED,
 		}.Build()
 		if bs := v.billing[t.Account]; len(bs) > 0 {
@@ -387,9 +387,9 @@ func (v *Levyan) payerOf(workspace string) *levyanv1.Payer {
 		}
 	}
 	if !p.payerlessSince.IsZero() {
-		out.SetPayerlessSince(timestamppb.New(p.payerlessSince))
-		out.SetRestrictedFrom(timestamppb.New(p.restrictedFrom))
-		out.SetReadonlyFrom(timestamppb.New(p.readonlyFrom))
+		out.SetDatePayerless(timestamppb.New(p.payerlessSince))
+		out.SetDateRestricted(timestamppb.New(p.restrictedFrom))
+		out.SetDateReadonly(timestamppb.New(p.readonlyFrom))
 	}
 	return out
 }
@@ -426,9 +426,9 @@ func (v *Levyan) collection(id string) *levyanv1.Collection {
 		return proto.CloneOf(c)
 	}
 	if s, ok := v.subs[id]; ok && s.GetStatus() == levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE {
-		return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE, Since: s.GetPeriodStart()}.Build()
+		return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE, DateSince: s.GetDatePeriodStart()}.Build()
 	}
-	return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_NO_SUBSCRIPTION, Since: b.GetCreated()}.Build()
+	return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_NO_SUBSCRIPTION, DateSince: b.GetDateCreated()}.Build()
 }
 
 // relayedFor is the account a PayerService call was relayed for: the key, and
@@ -480,14 +480,14 @@ func (v *Levyan) CreateBillingAccount(ctx context.Context, req *levyanv1.CreateB
 		currency = "KRW"
 	}
 	b := levyanv1.BillingAccount_builder{
-		Id:        newId(),
-		Name:      req.GetName(),
-		Country:   c,
-		Channel:   levyanv1.Channel_CHANNEL_MOR,
-		Currency:  currency,
-		Recipient: req.GetRecipient(),
-		Business:  req.GetBusiness(),
-		Created:   timestamppb.Now(),
+		Id:          newId(),
+		Name:        req.GetName(),
+		Country:     c,
+		Channel:     levyanv1.Channel_CHANNEL_MOR,
+		Currency:    currency,
+		Recipient:   req.GetRecipient(),
+		Business:    req.GetBusiness(),
+		DateCreated: timestamppb.Now(),
 	}.Build()
 
 	v.mu.Lock()
@@ -589,7 +589,7 @@ func (v *Levyan) StartCheckout(ctx context.Context, req *levyanv1.StartCheckoutR
 		Id:             newId(),
 		BillingAccount: b.GetId(),
 		State:          levyanv1.CheckoutState_CHECKOUT_STATE_OPEN,
-		Started:        timestamppb.Now(),
+		DateStarted:    timestamppb.Now(),
 		Window: levyanv1.CheckoutWindow_builder{
 			Merchant:    "paddle",
 			Environment: "sandbox",
@@ -630,22 +630,22 @@ func (v *Levyan) CompleteCheckout(ctx context.Context, req *levyanv1.CompleteChe
 			now := time.Now()
 			start, end := period(now)
 			c.v.SetState(levyanv1.CheckoutState_CHECKOUT_STATE_COMPLETED)
-			c.v.SetDone(timestamppb.New(now))
+			c.v.SetDateDone(timestamppb.New(now))
 			// Collected through the subscription it made from now, whatever
 			// the merchant said of the one before.
 			delete(v.collected, ba)
 			b, _ := v.own(a, ba)
 			v.subs[ba] = levyanv1.Subscription_builder{
-				Id:          newId(),
-				Merchant:    "paddle",
-				Status:      levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE,
-				Currency:    b.GetCurrency(),
-				PeriodStart: timestamppb.New(start),
-				PeriodEnd:   timestamppb.New(end),
-				NextBilled:  timestamppb.New(end),
-				Method:      levyanv1.PaymentMethod_builder{Type: "card", Brand: "visa", Last4: "4242"}.Build(),
-				Updated:     timestamppb.New(now),
-				Checked:     timestamppb.New(now),
+				Id:              newId(),
+				Merchant:        "paddle",
+				Status:          levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE,
+				Currency:        b.GetCurrency(),
+				DatePeriodStart: timestamppb.New(start),
+				DatePeriodEnd:   timestamppb.New(end),
+				DateNextBilled:  timestamppb.New(end),
+				Method:          levyanv1.PaymentMethod_builder{Type: "card", Brand: "visa", Last4: "4242"}.Build(),
+				DateUpdated:     timestamppb.New(now),
+				DateChecked:     timestamppb.New(now),
 			}.Build()
 		}
 	}
@@ -697,7 +697,7 @@ func (v *Levyan) Accept(ctx context.Context, req *levyanv1.AcceptRequest) (*levy
 		Workspace:      o.v.GetWorkspace(),
 		Account:        a,
 		BillingAccount: req.GetBillingAccount(),
-		Start:          timestamppb.New(end),
+		DateStart:      timestamppb.New(end),
 		Began:          levyanv1.LinkBegan_LINK_BEGAN_ACCEPTED,
 	}.Build()
 	o.answered = true
@@ -781,7 +781,7 @@ func (v *Levyan) Use(ctx context.Context, req *levyanv1.UseRequest) (*levyanv1.U
 		Workspace:      req.GetWorkspace(),
 		Account:        a,
 		BillingAccount: req.GetBillingAccount(),
-		Start:          timestamppb.New(end),
+		DateStart:      timestamppb.New(end),
 		Began:          levyanv1.LinkBegan_LINK_BEGAN_USED,
 	}.Build()
 	return levyanv1.UseResponse_builder{Link: proto.CloneOf(p.next)}.Build(), nil
@@ -800,7 +800,7 @@ func (v *Levyan) Stop(ctx context.Context, req *levyanv1.StopRequest) (*levyanv1
 		return nil, status.Errorf(codes.FailedPrecondition, "the account does not pay for workspace %s", req.GetWorkspace())
 	}
 	_, end := period(time.Now())
-	p.current.SetEnd(timestamppb.New(end))
+	p.current.SetDateEnd(timestamppb.New(end))
 	p.current.SetEnded(levyanv1.LinkEnded_LINK_ENDED_STOPPED)
 	p.next = nil
 	return levyanv1.StopResponse_builder{Link: proto.CloneOf(p.current)}.Build(), nil
@@ -829,7 +829,7 @@ func (v *Levyan) ListInvoices(ctx context.Context, req *levyanv1.ListInvoicesReq
 			vs = append(vs, c)
 		}
 	}
-	sort.SliceStable(vs, func(i, j int) bool { return vs[i].GetStart().AsTime().After(vs[j].GetStart().AsTime()) })
+	sort.SliceStable(vs, func(i, j int) bool { return vs[i].GetDateStart().AsTime().After(vs[j].GetDateStart().AsTime()) })
 	return levyanv1.ListInvoicesResponse_builder{Invoices: vs}.Build(), nil
 }
 
@@ -899,7 +899,7 @@ func (v *Levyan) Offer(ctx context.Context, req *levyanv1.OfferRequest) (*levyan
 	}
 	p := v.paying(req.GetWorkspace())
 	for _, l := range []*levyanv1.Link{p.current, p.next} {
-		if l != nil && l.GetAccount() == req.GetAccount() && !l.HasEnd() {
+		if l != nil && l.GetAccount() == req.GetAccount() && !l.HasDateEnd() {
 			return nil, status.Error(codes.FailedPrecondition, "the account pays for the workspace already")
 		}
 	}
@@ -909,10 +909,10 @@ func (v *Levyan) Offer(ctx context.Context, req *levyanv1.OfferRequest) (*levyan
 		}
 	}
 	o := &offer{v: levyanv1.Offer_builder{
-		Id:        newId(),
-		Workspace: req.GetWorkspace(),
-		Account:   req.GetAccount(),
-		Offered:   timestamppb.Now(),
+		Id:          newId(),
+		Workspace:   req.GetWorkspace(),
+		Account:     req.GetAccount(),
+		DateOffered: timestamppb.Now(),
 	}.Build()}
 	v.offers = append(v.offers, o)
 	return levyanv1.OfferResponse_builder{Offer: proto.CloneOf(o.v)}.Build(), nil
@@ -957,8 +957,8 @@ func (v *Levyan) GetUsage(ctx context.Context, req *levyanv1.GetUsageRequest) (*
 	lines, total, _ := v.rated(req.GetWorkspace(), start, end)
 	u := levyanv1.Usage_builder{
 		Workspace: req.GetWorkspace(),
-		Period:    levyanv1.Period_builder{Start: timestamppb.New(start), End: timestamppb.New(end), Zone: "Asia/Seoul"}.Build(),
-		AsOf:      timestamppb.New(now),
+		Period:    levyanv1.Period_builder{DateStart: timestamppb.New(start), DateEnd: timestamppb.New(end), Zone: "Asia/Seoul"}.Build(),
+		DateAsOf:  timestamppb.New(now),
 		Channel:   levyanv1.Channel_CHANNEL_MOR,
 		Currency:  "KRW",
 		Lines:     lines,
@@ -984,7 +984,7 @@ func (v *Levyan) ListStatements(ctx context.Context, req *levyanv1.ListStatement
 		vs = append(vs, proto.CloneOf(st))
 	}
 	sort.SliceStable(vs, func(i, j int) bool {
-		return vs[i].GetPeriod().GetStart().AsTime().After(vs[j].GetPeriod().GetStart().AsTime())
+		return vs[i].GetPeriod().GetDateStart().AsTime().After(vs[j].GetPeriod().GetDateStart().AsTime())
 	})
 	return levyanv1.ListStatementsResponse_builder{Statements: vs}.Build(), nil
 }
@@ -1042,7 +1042,7 @@ func (s payerServer) ListStatements(ctx context.Context, req *levyanv1.PayerServ
 		}
 	}
 	sort.SliceStable(vs, func(i, j int) bool {
-		a, b := vs[i].GetPeriod().GetStart().AsTime(), vs[j].GetPeriod().GetStart().AsTime()
+		a, b := vs[i].GetPeriod().GetDateStart().AsTime(), vs[j].GetPeriod().GetDateStart().AsTime()
 		if !a.Equal(b) {
 			return a.After(b)
 		}

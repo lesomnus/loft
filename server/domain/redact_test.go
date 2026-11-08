@@ -400,7 +400,7 @@ func TestAReasonIsTakenOutOfEveryEventOfItsOperationThatSaysIt(t *testing.T) {
 	var own *ent.Event
 	for _, a := range acts {
 		x.Equal("삭제 요청 2026-21", a.Reason, "the request's reference, which each part copies")
-		x.True(a.OccurredAt.After(before))
+		x.True(a.DateOccurred.After(before))
 		if a.CauseId == nil {
 			x.Nil(own, "one act")
 			own = a

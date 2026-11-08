@@ -73,7 +73,7 @@ func TestALoanFoundLateIsAnEventOnce(t *testing.T) {
 	own, kids := e.split(e.eventsOf("custody.overdue"))
 	x.Equal(idUUID(loan.GetId()), *own.SubjectId, "the loan's")
 	x.Nil(own.ActorId, "the deployment's own work, nobody's")
-	x.True(found.Equal(own.OccurredAt), "when it was found late: %s", own.OccurredAt)
+	x.True(found.Equal(own.DateOccurred), "when it was found late: %s", own.DateOccurred)
 	held := value[*app.CustodyOverdue](e, own)
 	x.True(sameId(loan.GetId(), held.GetCustody()))
 	x.True(due.Equal(held.GetDateDue().AsTime()), "the due it missed")
@@ -83,7 +83,7 @@ func TestALoanFoundLateIsAnEventOnce(t *testing.T) {
 	x.Len(kids, 1, "of what is still out, and not of what is back")
 	kid := kids[idUUID(camera.GetId())]
 	x.NotNil(kid)
-	x.True(found.Equal(kid.OccurredAt))
+	x.True(found.Equal(kid.DateOccurred))
 	x.Nil(kid.ActorId)
 	x.True(sameId(camera.GetId(), value[*app.CustodyOverdue](e, kid).GetAsset()))
 
@@ -118,7 +118,7 @@ func TestALoanFoundLateIsAnEventOnce(t *testing.T) {
 	e.sweep()
 	owns := loansOf(e.eventsOf("custody.overdue"))
 	x.Len(owns, 2, "one for each due it missed")
-	x.True(again.Equal(owns[1].OccurredAt))
+	x.True(again.Equal(owns[1].DateOccurred))
 	x.True(later.Equal(value[*app.CustodyOverdue](e, owns[1]).GetDateDue().AsTime()))
 	x.Equal(sentence(later, ny), e.say(owns[1]))
 	x.Equal([]string{sentence(later, ny), sentence(due, ny)}, summaries(e.happened(camera, "custody.overdue")), "newest first")
@@ -221,7 +221,7 @@ func TestAPickupFoundLateIsOnItsReservationsHistory(t *testing.T) {
 // first.
 func loansOf(vs []*ent.Event) []*ent.Event {
 	out := slices.DeleteFunc(slices.Clone(vs), func(v *ent.Event) bool { return v.CauseId != nil })
-	slices.SortFunc(out, func(a, b *ent.Event) int { return a.OccurredAt.Compare(b.OccurredAt) })
+	slices.SortFunc(out, func(a, b *ent.Event) int { return a.DateOccurred.Compare(b.DateOccurred) })
 	return out
 }
 

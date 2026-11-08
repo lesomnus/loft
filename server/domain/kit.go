@@ -539,8 +539,8 @@ func (t *Tx) changed(cs ...allocChange) error {
 	for _, c := range cs {
 		v := c.said()
 		kids = append(kids,
-			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.r.Id), At: t.now, Value: v}},
-			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.thing.Id), At: t.now, Value: v}},
+			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.r.Id), DateOccurred: t.now, Value: v}},
+			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.thing.Id), DateOccurred: t.now, Value: v}},
 		)
 	}
 	_, err := t.op.Batch(t.ctx, kids)

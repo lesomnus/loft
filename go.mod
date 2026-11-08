@@ -34,12 +34,12 @@ require (
 	github.com/google/jsonschema-go v0.4.3
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/lesomnus/flob v0.0.0-20261010120939-21f89e60609e
-	github.com/lesomnus/levyan/api v0.0.0-20261101164321-aed2b41ddedb
+	github.com/lesomnus/levyan/api v0.0.0-20261108061109-d6b9ca008831
 	github.com/lesomnus/mkot/otlp v0.0.0-20261017184153-a69c4c1f08ca
 	github.com/lesomnus/otx v0.0.0-20261017184159-4cba7a26b155
-	github.com/lesomnus/payday v0.0.0-20261104101932-efee829cf808
+	github.com/lesomnus/payday v0.0.0-20261108053336-3eb8cfbd2d45
 	github.com/lesomnus/protobuf-patch v0.0.0-20260907061053-07bbf2b842da
-	github.com/lesomnus/roster v0.1.2-0.20261104170303-56134615fba3
+	github.com/lesomnus/roster v0.1.2-0.20261108055648-27bbb9790fa1
 	github.com/lesomnus/xli v0.0.0-20261009121920-4ce270c7448c
 	github.com/lesomnus/xli/cfg v0.1.3
 	github.com/lesomnus/z v0.0.0-20260907061127-c3858eb05878

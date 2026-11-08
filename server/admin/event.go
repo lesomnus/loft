@@ -98,7 +98,7 @@ func (s operatorEvents) Redaction(ctx context.Context, req *app.OperatorEventRed
 	}
 	ev, err := q.Select(
 		entevent.FieldId, entevent.FieldTenantId, entevent.FieldKind,
-		entevent.FieldOccurredAt, entevent.FieldDateCreated, entevent.FieldSubjectId,
+		entevent.FieldDateOccurred, entevent.FieldDateCreated, entevent.FieldSubjectId,
 	).Only(ctx)
 	switch {
 	case ent.IsNotFound(err) && t != nil:
@@ -125,7 +125,7 @@ func (s operatorEvents) Redaction(ctx context.Context, req *app.OperatorEventRed
 		Event:        id.Bytes(),
 		Tenant:       t.Alias,
 		Kind:         ev.Kind,
-		DateOccurred: timestamppb.New(ev.OccurredAt),
+		DateOccurred: timestamppb.New(ev.DateOccurred),
 		DateRecorded: timestamppb.New(ev.DateCreated),
 		Said:         said,
 	}.Build()
