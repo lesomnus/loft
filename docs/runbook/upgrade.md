@@ -4,6 +4,18 @@
 
 운영에서는 서버가 테이블을 직접 바꾸지 않습니다(`db.migrate: false`). 새 빌드를 띄우기 전에 `loft migrate` 로 테이블을 맞추고, 모양이 다르면 `serve` 는 시작하지 않습니다. 아래에서 "마이그레이션"은 그 `loft migrate` 입니다.
 
+## 시각이 모두 `date_*`가 되는 판
+
+이 판(D76)부터 Loft가 두는 시각은 모두 `date_*` 입니다. `begins_at` 은 `date_start`, `due_at` 은 `date_due`, 요청의 `at` 은 `date_occurred` 처럼 바뀝니다. **이 판은 되돌릴 수 없습니다.** `loft migrate` 가 18개 표의 43개 열의 이름을 바꾸고, 그 전 빌드는 옛 이름의 열을 찾습니다.
+
+- 올리기 전에 DB를 백업합니다(`pg_dump`, [백업과 복구](restore.md)). 이 판을 넘는 `rollout undo` 는 하지 않습니다. 되돌리려면 백업에서 되살립니다.
+- 열의 이름만 바꾸므로 바로 끝납니다. PostgreSQL에서는 카탈로그만 바뀌고, `pg.sql` 의 제약(`EXCLUDE`)과 인덱스는 열을 따라갑니다. SQLite에서는 표의 정의를 그 자리에서 고칩니다. 행은 그대로입니다.
+- RPC의 JSON에서 필드 이름이 바뀝니다(`beginsAt` → `dateStart`). 이진 gRPC와 `loft` 명령은 필드 번호로 주고받아 그대로입니다. 다만 `loft` 에 JSON으로 적는 요청은 새 이름으로 적습니다. JSON으로 직접 부르는 스크립트는 새 이름으로 고칩니다. 그 전 이름은 읽히지 않고 버려지므로, 비우면 지금으로 읽는 시각(`date_occurred`)은 지금이 됩니다.
+- 올리기 전에 열려 있던 화면은 다시 읽어야 합니다. 그 전의 화면은 옛 이름으로 보냅니다. 오프라인 실사 큐에 남은 스캔은 새 화면이 그대로 보냅니다.
+- 이력(이벤트)의 JSON 이름은 바뀌지 않아, 그 전에 쓴 이력은 그대로 읽힙니다. 감사 기록은 쓴 그대로이고, 다이제스트는 필드 번호에 묶여 그대로 검증됩니다.
+- 이 판 전의 내보내기(`loft-export/1`)는 `loft tenant import` 가 옛 이름을 지금 이름으로 읽습니다. 이 판의 내보내기는 `loft-export/2` 이고, 그 전 빌드는 읽지 못합니다.
+- 대량 등록 시트의 영어 머리말은 `date_acquired`, `date_occurred` 이고, 그 전의 `acquired_at`, `since` 도 읽습니다.
+
 ## 워크스페이스의 도메인이 `Domain`이 되는 판
 
 이 판(D72)부터 워크스페이스의 도메인은 `TenantDomain`이 아니라 `Domain`입니다. **이 판은 되돌릴 수 없습니다.** `loft migrate` 가 도메인의 표를 `tenantdomain` 에서 `domain` 으로 옮기고, 그 전 빌드는 `tenantdomain` 을 찾습니다.

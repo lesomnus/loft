@@ -142,9 +142,9 @@ Phase 번호는 10장의 구현 단계와 같다.
 
 ### 3.3 시간과 이력
 
-**시간 행**은 `Placement`·`Link`·`Stewardship`(기간 `valid_from`~`valid_to`)과 `Fact`(시작 `valid_from`만 있고 같은 키의 다음 Fact까지 유효)다. 모든 시간 행은 기록 시각 `recorded_at`(payday `date_created`, 서버가 찍는다)과 대체 시각 `superseded_at`을 가진다.
+**시간 행**은 `Placement`·`Link`·`Stewardship`(기간 `date_start`~`date_end`)과 `Fact`(시작 `valid_from`만 있고 같은 키의 다음 Fact까지 유효)다. 모든 시간 행은 기록 시각(payday `date_created`, 서버가 찍는다)과 대체 시각(`date_superseded`, payday의 Fact는 `superseded_at`)을 가진다. Loft가 두는 시각은 모두 `date_*`다(D76).
 
-**규칙: 시간 행은 대체 표시를 한 번 하는 것 외에는 바꾸지 않는다.** 바꿀 일이 생기면 기존 행에 `superseded_at`과 그렇게 한 Event(`superseded_by`)를 찍고, 바뀐 기간으로 새 행을 쓴다. 일반적인 이동·반납도, 과거를 고치는 정정도 같은 방식이다. 그래서 어느 시점에 시스템이 무엇을 알고 있었는지가 모두 남는다. 대체 표시를 먼저 하고 새 행을 쓴다. PostgreSQL 제약은 문장마다 바로 검사하므로, 새 행을 먼저 넣으면 아직 대체되지 않은 행과 겹쳐 거부된다(확인함).
+**규칙: 시간 행은 대체 표시를 한 번 하는 것 외에는 바꾸지 않는다.** 바꿀 일이 생기면 기존 행에 `date_superseded`와 그렇게 한 Event(`superseded_by`)를 찍고, 바뀐 기간으로 새 행을 쓴다. 일반적인 이동·반납도, 과거를 고치는 정정도 같은 방식이다. 그래서 어느 시점에 시스템이 무엇을 알고 있었는지가 모두 남는다. 대체 표시를 먼저 하고 새 행을 쓴다. PostgreSQL 제약은 문장마다 바로 검사하므로, 새 행을 먼저 넣으면 아직 대체되지 않은 행과 겹쳐 거부된다(확인함).
 
 ```text
 10/1 기록: 9/1부터 A실             → #1 A실 [9/1, ∞)
@@ -158,7 +158,7 @@ AsOf(9/20, 10/2)   = A실 (#1)
 
 - **조회의 의미**
   - `QueryAt(T)`: 대체되지 않은 행으로 본 T 시점의 상태. 기본 조회다.
-  - `AsOf(T, K)`: K 시점에 기록돼 있던 지식으로 본 T 시점의 상태. `recorded_at ≤ K`이고 `superseded_at`이 없거나 K보다 뒤인 행을 쓴다. 감사와 분쟁 대응용이며 유료 기능 후보다.
+  - `AsOf(T, K)`: K 시점에 기록돼 있던 지식으로 본 T 시점의 상태. `date_created ≤ K`이고 `date_superseded`가 없거나 K보다 뒤인 행을 쓴다. 감사와 분쟁 대응용이며 유료 기능 후보다.
   - `Diff(T1, T2)`: 두 `QueryAt` 결과의 차이.
   - `Timeline`: 자산 하나의 시간 행과 Event를 효력 시각 순으로 나열한다. 예약 하나의 `Timeline`은 그 예약과 그것을 이행한 지급의 Event다(4장 예약의 이력, D45).
 - **속성 이력이 before/after가 아니라 Fact인 이유**: before/after는 '현재 값' 기준의 diff라서 과거 구간만 바꾸는 변경을 표현하지 못한다. 10/1에 이미 '폐기'가 된 자산에 10/5에 "9/20~10/1은 수리 중이었다"를 기록하면 현재 값은 그대로이고, 이 변경의 before/after는 정의되지 않는다. Fact는 "이 시각부터 값은 V"라는 단언이므로 중간에 끼워 넣어도 그대로 성립한다. 속성 키는 표시 이름이 아니라 불변 키로 저장해, 이름을 바꿔도 이력이 깨지지 않게 한다.
@@ -167,7 +167,7 @@ AsOf(9/20, 10/2)   = A실 (#1)
 - **payday의 과거**(payday#151): Event와 Fact는 payday의 것이다. Loft는 `proto/loft/past.proto`에서 과거를 선언하고(`option (payday.app) = {past: {event: 17, fact: 16}}`, Loft 자신의 Event·Fact가 쓰던 도메인), 종류마다 일어난 일의 이름을 붙인 메시지를 하나씩 둔다(`asset.move` → `AssetMoved` 등, 종류 문자열은 그대로). 다만 같은 도메인의 다른 종류와 내용이 거의 같으면 메시지 하나를 함께 쓴다. 필드가 같거나, 한쪽이 다른 쪽에 한두 개를 더한 것이고 둘이 같은 일일 때다(`stock.receive`·`consume`·`adjust` → `StockChanged`, `type.add`·`update` → `AssetTypeSaved`). 함께 쓰는 메시지는 종류마다 쓰는 필드를 주석에 적고, 테스트가 기록한 Event를 모두 그 목록에 맞춘다. 필드는 모두 그 도메인의 것이다. `past.proto` 첫머리의 도메인별 필드 표에서 같은 이름·번호·형·뜻으로 가져오고, 새 필드는 표의 다음 번호를 받는다(`pd gen`과 `server/domain/uses_test.go`가 지킨다). 그래서 한 메시지로 쓴 값을 같은 도메인의 다른 메시지로 읽을 수 있다. 쓰는 것은 payday의 `past` 패키지뿐이다. Audit 계층이 그 밖의 쓰기를 모두 거절한다. Event는 문장을 갖지 않는다. 메시지에 무엇이 일어났는지만 담고(사람은 ID로만), 문장은 읽을 때 만든다(`server/domain/say.go`, 8.2절). 사람의 말인 `reason`은 personal이다. Loft가 스스로 하는 말(도메인이 멈춘 이유, 남은 구성원이 없어 닫은 것 등)은 메시지와 문장에 둔다. 메시지와 그 필드, JSON 이름, 종류는 행이 읽히는 동안 바꾸거나 지우지 않고, 종류를 다른 메시지로 옮기지 않는다(`past.lock`이 지킨다). 새 종류·필드·메시지는 그것을 쓰는 릴리스보다 한 릴리스 먼저 내보낸다.
 - **Fact의 모양**: 한 행이 자산의 필드 하나다. 필드 번호(`field_number`), 맵 필드의 키(`key`, 속성 `attributes`의 항목), 그 값의 정규 JSON(`value`)이다. 같은 값은 누가 언제 써도 같은 글자다(`past.Encode`). Loft는 지금도 사실을 `status`, `attr.cpu` 같은 키로 말하고(`facts.go`, `SlotOf`·`KeyOf`), 유형과 모델은 그 행의 ID를 정규 문자열로 쓴다. Loft 자신의 표에 있던 사실은 마이그레이션이 한 번 옮긴다(`cli/facts.go`, 9.4절).
 - **원인**: 여러 대상에 걸친 작업은 부모 Event 하나와, 영향을 받은 대상마다 자식 Event를 남긴다. 자식은 원인(`cause`)으로 부모를 가리키고, 주 대상은 그 대상이다. 대상의 이력에는 그 대상에 일어난 일이 그 대상의 Event로 있다(9.13절, D34). 작업의 일부인 자식은 작업의 사유를 옮겨 적고, 사유를 지우면 그 작업에서 같은 사유를 가진 Event 모두에서 지운다(D49). 그 사유를 글로 옮긴 알림에서도 지운다(D51). 그 사유를 자기 말로 가진 행(지급의 메모, 실사 발견의 메모, 접속기록 점검 결과, 워크스페이스를 닫은 사유)에서도 지운다(D56).
-- **시각 검증**: 효력 시각은 미래일 수 없다(허용 오차 5분). 오프라인 기기의 시각은 그대로 받되, 서버가 받은 시각(`recorded_at`)과 함께 남긴다.
+- **시각 검증**: 효력 시각은 미래일 수 없다(허용 오차 5분). 오프라인 기기의 시각은 그대로 받되, 서버가 받은 시각(`date_created`)과 함께 남긴다.
 - **과거 복원의 한계**: 보존 기간이 지나 지운 구간은 복원할 수 없다. API와 화면은 조회 가능한 가장 이른 시각을 함께 알려 준다.
 
 ### 3.4 주요 스키마 예시
@@ -176,37 +176,37 @@ payday의 헤더 필드(1 id, 2 tenant, 4 alias, 5 name, 6 desc, 7 labels, 13~15
 
 ```text
 Asset(id, tenant, alias?, name, desc, labels, kind, type, model?, tag, serial?,
-      status, condition, parent?, custodian?, attributes, acquired_at?, disposed_at?,
+      status, condition, parent?, custodian?, attributes, date_acquired?, date_disposed?,
       date_updated, date_erased, date_created)
 AssetType(id, tenant, parent?, schema, schema_version, capabilities)
 ItemModel(id, tenant, maker, model, slots)
 Party(id, tenant, kind, name, contact, parent?, account?, date_erased)
 
 Placement(id, tenant, child, parent, mode, slot?, u_from?, u_to?,
-          valid_from, valid_to?, event, superseded_at?, superseded_by?, date_created)
-Link(id, tenant, source, target, kind, attrs, valid_from, valid_to?,
-     event, superseded_at?, superseded_by?, date_created)
-Stewardship(id, tenant, asset, party, role, valid_from, valid_to?,
-            event, superseded_at?, superseded_by?, date_created)
+          date_start, date_end?, event, date_superseded?, superseded_by?, date_created)
+Link(id, tenant, source, target, kind, attrs, date_start, date_end?,
+     event, date_superseded?, superseded_by?, date_created)
+Stewardship(id, tenant, asset, party, role, date_start, date_end?,
+            event, date_superseded?, superseded_by?, date_created)
 Fact(id, tenant, asset, key, value, valid_from, event, superseded_at?, superseded_by?, date_created)
 Event(id, tenant, kind, actor_id, occurred_at, reason, trace_id, payload, date_created)
 TreeLock(id, tenant, version)
 TagCounter(id, tenant, prefix, last)
 
-Label(id, tenant, domain, subject_id?, state, bound_at?, printed_at?)
-Domain(id, tenant, host, purpose, state, token, verified_at?)
+Label(id, tenant, domain, subject_id?, state, date_bound?, date_printed?)
+Domain(id, tenant, host, purpose, state, token, date_verified?)
 Attachment(id, tenant, subject_id, object_key, size_bytes, content_type, sha256)
-Custody(id, tenant, kind, party, reservation?, issued_at, due_at?, acknowledged_at?, status)
-CustodyLine(id, tenant, custody, asset? | stock? + quantity, out_at, returned_at?,
+Custody(id, tenant, kind, party, reservation?, date_issued, date_due?, date_acknowledged?, status)
+CustodyLine(id, tenant, custody, asset? | stock? + quantity, date_out, date_returned?,
             condition_out, condition_in?)
 Bookable(id, tenant, asset, timezone, opening_hours, buffer_before, buffer_after, approval,
          min_duration, max_duration, lead_time, units, exclusive_group?, schedule_version)
-Reservation(id, tenant, requester, status, begins_at, ends_at, purpose, expires_at?, series?)
+Reservation(id, tenant, requester, status, date_start, date_end, purpose, date_expires?, series?)
 ReservationItem(id, tenant, reservation, resource, units)
-Allocation(id, tenant, resource, begins_at, ends_at, kind, blocking, exclusive, units,
+Allocation(id, tenant, resource, date_start, date_end, kind, blocking, exclusive, units,
            reservation?, work_order?)
 Stock(id, tenant, model, space, quantity)
-StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
+StockMovement(id, tenant, stock, delta, reason, ref_id?, date_occurred)
 ```
 
 - **엣지**: 시간 행과 문서가 테넌트 행을 가리키는 엣지는 모두 불변이며 payday `agrees`로 같은 테넌트임을 확인한다. 대체할 때 한 번 쓰는 `superseded_by`와 `subject_id`, `ref_id`, `actor_id`는 엣지가 아니라 pdid 열이다. pdid의 도메인 바이트가 무엇을 가리키는지 말해 주므로, 여러 종류를 가리키는 참조에 쓴다. 대상은 도메인 작업이 테넌트 경계를 통해 읽어 확인한다.
@@ -295,7 +295,7 @@ StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
   - **이벤트**(D39): 처음에는 새 종류를 만들지 않았다. 구성 변경 자체가 Event(`asset.relate`, `asset.correct`, `asset.void`)이고, 예약의 할당은 그 결과로 같은 트랜잭션에서 쓰며 trail에 남는다. 할당은 Event를 가리키지 않으므로, 나중에 예약에 잡히거나 예약에서 풀린 것은 그 예약과 그 구성품의 이력에 없다.
     - 소유자가 정했다(2026-10-26): "예약이나 구성품마다 이벤트 따로 남기자".
     - 아래는 구현한 에이전트가 정했다. 예약이 대상의 할당을 바꿀 때마다 그 예약의 Event 하나와 그 대상의 Event 하나를 남긴다. 둘은 같은 것을 담고, 원인은 그렇게 한 작업이다(구성 변경, 또는 대상을 놓은 작업). sweep이 기다림을 푼 것은 sweep 자신의 작업이라, 예약의 Event가 그 작업이고 대상의 Event가 그 자식이다.
-    - 종류는 넷이다. `reservation.take`(잡힘), `reservation.wait`(대기), `reservation.resolve`(기다리던 것을 잡음, 확보), `reservation.let_go`(빠짐). 메시지는 `ReservationAllocationChanged` 하나를 함께 쓴다. 필드는 예약 도메인의 표에서 가져온 `reservation`·`name`·`begins_at`·`asset`·`asset_name`·`override`, 그리고 새 `units`(14)다.
+    - 종류는 넷이다. `reservation.take`(잡힘), `reservation.wait`(대기), `reservation.resolve`(기다리던 것을 잡음, 확보), `reservation.let_go`(빠짐). 메시지는 `ReservationAllocationChanged` 하나를 함께 쓴다. 필드는 예약 도메인의 표에서 가져온 `reservation`·`name`·`date_start`(JSON 이름은 쓴 때의 `beginsAt`, D76)·`asset`·`asset_name`·`override`, 그리고 새 `units`(14)다.
     - 풀(그룹)의 수량이 바뀌어 예약이 기다리거나, 다시 잡거나, 놓는 것도 같은 종류로 남긴다. 대상은 풀이고 몇 개인지는 `units`다. 키트의 구성품은 하나이므로 `units`를 비운다.
     - 쓰는 곳은 셋이다. 구성 변경의 재검증이 잡힘·대기·빠짐을 쓴다. 대상을 놓은 작업(취소, 거절, 만료, 노쇼, 일찍 끝냄, 반납, 다른 키트에서 빠짐)이 그 대상을 기다리던 예약의 확보를 쓴다. 따로 예약할 수 없는 구성품이나 정비가 끝난 구성품처럼 그 작업이 잡지 못한 것은 sweep이 잡고 확보를 쓴다.
     - 자식의 시각은 예약이 바뀐 때, 곧 그 작업의 시각이다. 구성 변경의 효력 시각을 과거로 적어도 예약은 지금 바뀐다. 사유는 비운다. 사람이 청한 것은 구성 변경이고, 예약이 바뀐 것은 그 결과다.
@@ -356,8 +356,8 @@ StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
   - **잠금**: 예약과 같은 순서다(트리 → 예약 행 → 자원, loft#75·#76·#206·#214). 건네기·반납·연장·연체 sweep은 트리를 먼저 잡고, 수령이면 그 예약 행을, 그다음 건네는 것의 자산 행을(상태 변경이 일정보다 먼저 잡는 것, D43), 그다음 그것을 예약하는 쪽이 잡는 일정(그것, 그것을 잡는 키트, 그것 주위의 풀, 수령이면 그 예약이 잡은 것)을 한 번에 잡은 뒤 읽는다. 할당이 독점이 아니라 DB 제약이 막아 주지 않으므로, 같은 순간의 예약과 건네기는 이 잠금으로 차례가 된다. 예약이 먼저면 건네기가 그것을 보고 알리고, 건네기가 먼저면 예약이 거절된다. 풀의 예약과 그 구성원의 건네기도 그렇다(PostgreSQL에서 확인함).
   - **마이그레이션**: 그 전 빌드가 건넨 것은 아무 시간도 잡지 않았다. `loft migrate`가 지금 나가 있는 것의 할당을 건넨 때부터 한 번 쓴다(`what is out holds its time: N things`). 배포 자신의 일로 서버를 거쳐 쓰므로 trail에 그대로 남고, 위와 같은 일을 한다. 겹친 예약은 말하고 알리며, 풀은 가장 나중 예약이 기다린다. 마이그레이션은 메일을 보내지 않으므로 그 알림은 앱에서만 간다. 다시 실행하면 할 일이 없다. 그 전 빌드의 내보내기를 `loft tenant import`로 되살릴 때도 같은 일을 한다. sweep이 할 수도 있었지만, 그러면 1분마다 나가 있는 것을 모두 읽는다. 배포는 그 전 빌드를 내린 뒤 마이그레이션하므로(`Recreate`) 그 사이에 할당 없이 건네는 일이 없다.
 - **연체된 때도 Event다**(2026-10-26, D55). 반납 기한이 지난 대여를 sweep이 처음 알아채면 그 할당을 돌아올 때까지로 늘리고, 그 뒤의 예약에 말하며, 빌린 사람과 관리하는 사람에게 알린다(위 연체는 돌아올 때까지 잡는다). 그러나 그 순간은 Event가 아니어서, 지급의 이력도 자산의 이력도 언제 연체되었는지 말하지 않았다. 도메인 작업은 Event를 남긴다(3.3절). 아래는 모두 구현한 에이전트가 정했다.
-  - **종류와 메시지**: 종류는 `custody.overdue`, 메시지는 `CustodyOverdue`다. 지급 도메인의 필드 표(`past.proto`의 `custody.*`)에 있는 `custody`·`due`·`asset`을 같은 번호로 담고, 새 필드는 없다. 기한 연장(`CustodyExtended`)과 담는 것이 비슷하지만 다른 일이라 메시지를 따로 둔다(`past.proto` 머리글의 규칙). 사람은 담지 않는다. 누구의 대여인지는 그 지급이 말하고, 반납과 기한 연장의 Event도 사람을 담지 않는다.
-  - **언제**: sweep이 알아챈 순간이다. 할당을 늘리고 알린 것이 그때 한 일이므로 Event도 그때다. 놓친 기한은 `due`가 말한다. 기한을 Event의 시각으로 하면, 그 작업이 쓴 할당과 알림은 지금인데 Event만 과거가 된다.
+  - **종류와 메시지**: 종류는 `custody.overdue`, 메시지는 `CustodyOverdue`다. 지급 도메인의 필드 표(`past.proto`의 `custody.*`)에 있는 `custody`·`date_due`·`asset`을 같은 번호로 담고, 새 필드는 없다. 기한 연장(`CustodyExtended`)과 담는 것이 비슷하지만 다른 일이라 메시지를 따로 둔다(`past.proto` 머리글의 규칙). 사람은 담지 않는다. 누구의 대여인지는 그 지급이 말하고, 반납과 기한 연장의 Event도 사람을 담지 않는다.
+  - **언제**: sweep이 알아챈 순간이다. 할당을 늘리고 알린 것이 그때 한 일이므로 Event도 그때다. 놓친 기한은 `date_due`가 말한다. 기한을 Event의 시각으로 하면, 그 작업이 쓴 할당과 알림은 지금인데 Event만 과거가 된다.
   - **한 번**: 대여가 놓친 기한마다 한 번이다. 알렸다는 표시(`overdue_noticed`)와 같은 트랜잭션에서 쓰므로 다시 sweep해도 다시 쓰지 않는다. 기한 연장은 그 표시를 지우므로, 새 기한도 놓치면 그 기한으로 한 번 더 쓴다. 알림도 그렇게 다시 간다.
   - **자식**: 건네기·반납처럼, 아직 돌아오지 않은 자산마다 그 자산이 주 대상인 자식을 남긴다(D34). 그래서 자산의 이력이 연체를 말한다. 대여 자신의 Event는 자산을 담지 않는다. 재고 줄과 키트가 함께 가져간 구성품은 건네기에도 자식이 없으므로 여기에도 없다. 연체로 늘린 할당이 일으킨 기다림(풀의 가장 나중 예약, D41)은 이 Event의 자식이다. 그래서 그 예약의 이력이 왜 기다리는지 말한다. 전에는 sweep 자신의 작업이었고, 한 번의 sweep에서 둘째 대여가 일으킨 기다림은 첫째 대여의 기다림 아래에 남았다(진행 중인 작업이 그것이었다).
   - **문장**: "반납 기한 지남: 2026-10-25 18:00". 놓친 기한을 워크스페이스의 시간대로, 분까지 말한다. 대여의 것과 자산의 것이 같은 말이다. 예약을 이행한 대여라면 그 예약의 이력에도 보인다(D45).
@@ -450,7 +450,7 @@ levyan (자기 DB)
 
 - **키는 한 번 정한다.** levyan의 가격표가 키로 값을 매긴다. 다른 것을 세게 된 미터는 새 키이고, 옛 키는 더 읽지 않는다. 같은 키로 다른 것을 세면 한 기간을 두 규칙으로 청구한다.
 - **자산의 상태는 문자열이다.** payday는 enum의 값은 생성할 때마다 검사하지만 문자열의 값은 검사하지 못한다. 스키마는 문자열이 무엇을 가질지 말하지 않기 때문이다. 그래서 `disposed`나 `lost`의 이름을 바꾸면 이 미터는 아무 말 없이 그것을 다시 센다. 자산의 상태를 바꿀 때는 `meter.proto`도 함께 본다.
-- **보존 기간**은 선언으로 말할 수 없어 Go로 쓴다. `TenantService.Preview`가 읽는 것을 그대로 읽는다(`retention.KeepOf`, `app.retention.grace`). 줄인 기간은 grace가 지나 그 기간이 적용되는 날(미리 보기의 `keep_from`)부터 줄어든 값이고, 그 전에는 전의 긴 값이다. 늘린 기간은 바로 늘어난 값이다. levyan의 가격표에는 이 미터를 `unbounded_zero`로 두어 0(영원히)이 가장 긴 구간으로 매겨지게 한다. 구현에서 정한 것이 셋 있다. `app.retention.apply`가 꺼져 아무것도 지우지 않는 배포에서도 워크스페이스가 정한 값을 잰다. 법적 보존이 그보다 오래 남기는 것은 워크스페이스가 정한 것이 아니므로 셈에 넣지 않는다. 없는 워크스페이스는 0(영원히)으로 재지 않고 오류로 빼 놓는다. 0은 가장 긴 구간이라 지나치게 청구하게 된다.
+- **보존 기간**은 선언으로 말할 수 없어 Go로 쓴다. `TenantService.Preview`가 읽는 것을 그대로 읽는다(`retention.KeepOf`, `app.retention.grace`). 줄인 기간은 grace가 지나 그 기간이 적용되는 날(미리 보기의 `date_keep_effective`)부터 줄어든 값이고, 그 전에는 전의 긴 값이다. 늘린 기간은 바로 늘어난 값이다. levyan의 가격표에는 이 미터를 `unbounded_zero`로 두어 0(영원히)이 가장 긴 구간으로 매겨지게 한다. 구현에서 정한 것이 셋 있다. `app.retention.apply`가 꺼져 아무것도 지우지 않는 배포에서도 워크스페이스가 정한 값을 잰다. 법적 보존이 그보다 오래 남기는 것은 워크스페이스가 정한 것이 아니므로 셈에 넣지 않는다. 없는 워크스페이스는 0(영원히)으로 재지 않고 오류로 빼 놓는다. 0은 가장 긴 구간이라 지나치게 청구하게 된다.
 - **인덱스.** 리더는 워크스페이스를 하나씩 읽는다. 세 엔터티 모두 tenant로 시작하는 인덱스(`page`)가 있어 워크스페이스마다 표 전체를 읽지 않는다. 그런 인덱스가 없는 엔터티를 세는 미터는 `pd gen`이 경고한다.
 
 ### 7.3 원천이 지워지기 전에 잰다
@@ -526,7 +526,7 @@ levyan은 워크스페이스를 그 지불자에게 청구한다. 지불자는 r
 - **Claude**: `Arrive`와 `Leave`를 보내는 것. 워크스페이스를 만드는 모든 길과 자격이 끝나는 모든 길. 바뀐 것과 같은 트랜잭션에 쓰고 이름 있는 루프가 보내며, levyan이 멈춰도 Loft의 쓰기가 기다리거나 실패하지 않고, 워크스페이스마다 순서대로 보내는 것. 이미 있는 워크스페이스는 한 번씩, 만든 때와 만든 사람으로 보내고, 만든 사람이 기록되지 않았으면 첫 소유자로 보내는 것. `Offer`는 다음 판(D)이다(2026-10-31, levyan#14를 맡기며).
 - **구현에서 정한 것**: 그 밖에 이 절에 그렇게 적은 것.
 
-**알림**(`LevyanNotice`, 도메인 51, `proto/loft/billing.proto`)은 levyan에 할 말 하나다. `arrive`는 워크스페이스가 `at`에 `account`로 만들어졌다는 것이고, `leave`는 `account`가 그 워크스페이스의 구성원이 아니게 됐다는 것이다. 워크스페이스를 닫고, 되돌리고, 파기한 것(`close`, `restore`, `destroy`)은 7.8절이다. 바뀐 것과 같은 트랜잭션에 쓴다. 그래서 커밋된 변경은 levyan이 듣게 되고, 거둔 변경은 듣지 않는다. 청구하지 않는 배포는 아무것도 쓰지 않는다.
+**알림**(`LevyanNotice`, 도메인 51, `proto/loft/billing.proto`)은 levyan에 할 말 하나다. `arrive`는 워크스페이스가 `date_occurred`에 `account`로 만들어졌다는 것이고, `leave`는 `account`가 그 워크스페이스의 구성원이 아니게 됐다는 것이다. 워크스페이스를 닫고, 되돌리고, 파기한 것(`close`, `restore`, `destroy`)은 7.8절이다. 바뀐 것과 같은 트랜잭션에 쓴다. 그래서 커밋된 변경은 levyan이 듣게 되고, 거둔 변경은 듣지 않는다. 청구하지 않는 배포는 아무것도 쓰지 않는다.
 
 - payday의 Outbox는 watch의 사건을 broker로 보내는 큐이고, 앱이 자기 할 말을 바깥 서비스에 보낼 길은 주지 않는다. 그래서 엔터티를 따로 두었다.
 - 배포의 것이고(`global`), 워크스페이스는 엣지가 아니라 열이다. trail의 행처럼, 알림은 그것이 말하는 워크스페이스의 행보다 오래 남아야 한다(7.8절의 "파기됨"이 그렇다). 파기가 지우는 표에 들지 않고(`offboard.Shared`), 내보내기에도 넣지 않는다.
@@ -542,7 +542,7 @@ levyan은 워크스페이스를 그 지불자에게 청구한다. 지불자는 r
 
 **보내는 것**은 루프 `loft.levyan.notices`다(`levyan.Teller`, lease 아래 한 프로세스, 10초마다).
 
-- 워크스페이스마다 일어난 순서(`at`, 그다음 식별자)대로 보낸다. 하나를 levyan이 받지 않으면 그 워크스페이스의 다음 알림은 기다린다. levyan이 모르는 워크스페이스에 대한 `Leave`는 아무 일도 하지 않으므로, 순서가 바뀌면 떠난 계정이 지불자로 남기 때문이다. 다른 워크스페이스의 알림은 그사이에도 보낸다.
+- 워크스페이스마다 일어난 순서(`date_occurred`, 그다음 식별자)대로 보낸다. 하나를 levyan이 받지 않으면 그 워크스페이스의 다음 알림은 기다린다. levyan이 모르는 워크스페이스에 대한 `Leave`는 아무 일도 하지 않으므로, 순서가 바뀌면 떠난 계정이 지불자로 남기 때문이다. 다른 워크스페이스의 알림은 그사이에도 보낸다.
 - **levyan이 닿지 않으면**(`Unavailable`, 시간 초과) 그 판을 멈추고, 10초부터 1분까지 늘려 가며 다시 묻는다. 알림은 그대로 기다리고, Loft의 어떤 쓰기도 levyan을 기다리거나 실패하지 않는다. 그 밖의 실패는 그 워크스페이스만 다음 판으로 미룬다.
 - levyan은 `Arrive`와 `Leave`를 두 번 들어도 한 번으로 둔다("Said again, it changes nothing"). 그래서 failover 언저리에 두 프로세스가 함께 보내거나, 보내고 표시하지 못한 알림을 다시 보내도 된다.
 - levyan이 **거부한** 알림(`InvalidArgument`, `FailedPrecondition`, `NotFound` 같은 것)은 다시 보내도 거부되므로, levyan의 말을 적어 보낸 것으로 표시하고 경고 로그에 남긴다. 거부된 값을 다시 보내지 않는 미터와 같다(구현에서 정한 것). 닫힘·복구·파기의 `NotFound`는 다르게 한다(7.8절).
@@ -607,7 +607,7 @@ levyan은 닫힌 워크스페이스를 닫힌 동안 청구하지 않고, 되돌
 - **대표**: levyan#1의 표. 과금 단위는 워크스페이스이고, 청구는 levyan이라는 별도 서비스가 한다. 워크스페이스를 닫고, 복구 기간 동안 되돌리고, 그 뒤에 파기하는 절차는 D29(8.4절)다. **닫힌 동안 청구하지 않는 것은 대표의 결정이 아니다.** levyan 쪽의 Claude 결정이고 가격에 관한 것이라 대표가 달리 정할 수 있다(levyan design 17장 102번).
 - **Claude**(2026-10-31, levyan#14의 C2를 맡기며):
   - 무엇을 언제 보내는지. 닫는 트랜잭션이 커밋되면 `Close`, 되돌리는 트랜잭션이 커밋되면 `Restore`, 파기에서는 `closing.Destroy`가 보류와 보관소를 묻고 마지막 측정을 넘긴 뒤 무엇이든 지우기 전에 `Destroy`다. 소유자가 닫든 운영자가 닫든 배포가 닫든 같다. `Restore`의 시각은 알림 행이 갖는다. `Destroy`의 시각은 마지막 측정 뒤다. 마지막 측정이 실패해도 파기한다(D59의 규칙 그대로). 무엇을 지울지 말하기만 하는 실행은 보내지 않는다. 알림은 배포의 것이라 워크스페이스의 행보다 오래 남는다.
-  - 순서. 바뀐 것과 같은 트랜잭션에 쓰고, 커밋된 뒤에 워크스페이스마다 `(at, id)` 순서로, 그 워크스페이스의 `Arrive` 뒤에 보낸다. 다시 보내는 것은 같은 `at`이다.
+  - 순서. 바뀐 것과 같은 트랜잭션에 쓰고, 커밋된 뒤에 워크스페이스마다 `(date_occurred, id)` 순서로, 그 워크스페이스의 `Arrive` 뒤에 보낸다. 다시 보내는 것은 같은 `date_occurred`다.
   - 오류. `Unavailable`과 응답 없음은 다시 보낸다. `NotFound`는 `Arrive`를 먼저 보내고 다시 보내며, levyan이 알기 전에 파기된 워크스페이스라면 버린다. `FailedPrecondition`과 `InvalidArgument`는 Loft의 버그다. 로그에 남기고, 거부로 표시하고, 다시 보내지 않는다(7.6절 큐의 규칙 그대로).
   - 처음 붙일 때(한 번). 남아 있는 `workspace.close`·`workspace.restore` 이벤트를 오래된 것부터 보낸다. 없는 곳은 지금 닫혀 있는 워크스페이스마다 `Close`를 보낸다. levyan이 알던 워크스페이스 가운데 파기된 것마다 `AliasHold`의 시각으로 `Destroy`를 보낸다. 보내지 않으면 그 연결이 지불자의 무료 자리 하나를 영원히 차지한다. 같은 것을 두 번 보내지 않는다.
   - 7.6절과 같은 규칙. Loft의 어떤 것도 levyan을 기다리거나 levyan 때문에 실패하지 않는다. `app.billing.levyan`이 없으면 큐도 없고 지금처럼 돈다. 이미 있는 엔터티에 더하는 필드는 기본값이 있거나 비울 수 있어야 한다(이 판은 열을 더하지 않았다).
@@ -616,7 +616,7 @@ levyan은 닫힌 워크스페이스를 닫힌 동안 청구하지 않고, 되돌
 
 **무엇을, 언제, 어디서**
 
-| 알림 | 언제 | `at` | 어디서 |
+| 알림 | 언제 | `date_occurred` | 어디서 |
 | --- | --- | --- | --- |
 | `Close` | 닫는 트랜잭션이 커밋될 때 | 워크스페이스가 말하는 닫은 시각(`Tenant.date_closed`), 곧 그 이벤트의 시각 | `Tx.closeWorkspace`: 소유자의 `TenantService.Close`, 운영자의 닫기(`loft tenant close`, `TenantService.Close`), 계정이 떠나 구성원이 아무도 남지 않아 배포가 닫는 것(`server/lifecycle`) |
 | `Restore` | 되돌리는 트랜잭션이 커밋될 때 | 되돌린 시각. 워크스페이스는 되돌리면 닫은 시각을 지우므로 알림 행이 갖는다 | `Tx.restoreWorkspace`: 소유자의 `TenantService.Restore`, 운영자의 되돌리기(`loft tenant restore`) |
@@ -959,7 +959,7 @@ levyan의 운영자는 워크스페이스와 결제 계정에 혜택을 준다(l
 | `sweepNoShows` | 체크인 유예가 지난 회의실과 기간이 끝난 장비를 노쇼로 해제하고 알린다 | 닫혀 있어 체크인도 수령도 할 수 없었는데 "체크인하지 않아"(장비는 "수령하지 않아")라고 하고, 이용률이 노쇼로 센다(아래 열린 질문) |
 | `sweepFinished` | 끝난 회의실을 완료한다 | 맞다 |
 | `sweepKits` | 지금부터의 예약이 기다리는 것을 잡는다 | 맞다. 끝나지 않은 예약만 본다 |
-| `sweepLoans` | 기한이 지난 대여를 연체로 한 번 알아채고(D55) 돌아올 때까지 할당을 늘리며(D53), 빌린 사람과 관리하는 사람, 지금부터 그것을 쓰는 예약에 알린다. 하루 안에 기한이 오는 대여에 반납 예정을 알린다 | 맞다. 기록으로는 아직 돌아오지 않았다. 닫힌 동안 돌려받았다면 반납을 적으면 할당이 끝난다. 알아챈 때는 복원된 뒤이고, 놓친 기한은 Event의 `due`가 말한다 |
+| `sweepLoans` | 기한이 지난 대여를 연체로 한 번 알아채고(D55) 돌아올 때까지 할당을 늘리며(D53), 빌린 사람과 관리하는 사람, 지금부터 그것을 쓰는 예약에 알린다. 하루 안에 기한이 오는 대여에 반납 예정을 알린다 | 맞다. 기록으로는 아직 돌아오지 않았다. 닫힌 동안 돌려받았다면 반납을 적으면 할당이 끝난다. 알아챈 때는 복원된 뒤이고, 놓친 기한은 Event의 `date_due`가 말한다 |
 | `sweepWork` | 시작하지 않은 예정된 작업을 한 번 알린다 | 시간이 지난 작업을 "예정입니다"라고 했다. 이제 "예정이었고 아직 시작하지 않았습니다"라고 한다(구현에서 정한 것. 읽기 전용 뒤도 같다) |
 | `sweepDomains` | 다시 확인을 이어 간다 | 맞다. 확인 중인 도메인은 추가하거나 사용이 멈춘 지 일주일이 지나면 저절로 확인하지 않으므로, 사람이 설정에서 확인한다 |
 
@@ -1017,7 +1017,7 @@ levyan의 운영자는 워크스페이스와 결제 계정에 혜택을 준다(l
 
 7.14절부터 sweep은 닫힌 워크스페이스를 건너뛰므로, 복원된 뒤 첫 pass가 닫힌 동안 지난 예약을 노쇼로 해제하고 "체크인하지 않아"라고 알리며 이용률에서 노쇼로 셌다. 이제 복원(`Tx.restoreWorkspace`)이 자기 트랜잭션에서 그것을 정리한다. 소유자의 `TenantService.Restore`도, 운영자의 `loft tenant restore`가 부르는 진입점의 복구(`Deps.RestoreWorkspace`)도 모두 그것을 지난다.
 
-- **닫힌 동안 기한이 온 것**(`Tx.closedPast`, 구현에서 정한 것). 복원하는 트랜잭션이 워크스페이스의 `date_closed`(닫은 때)를 지우기 전에 읽고, 그때부터 지금까지(`date_closed` 이상, 지금 미만) 기한이 온 것을 찾는다. 기한은 sweep이 그것을 놓는 때다. 홀드는 `expires_at`(`sweepHolds`), 요청은 시작(`sweepRequests`), 체크인하지 않은 회의실은 시작 + 유예(`sweepNoShows`), 수령하지 않은 장비는 기간의 끝(유예가 더 늦으면 그것, 체크인을 받지 않으면 끝, `sweepNoShows`와 `sweepFinished`)이다. 닫힌 워크스페이스는 소유자의 조회와 복원 말고는 아무 호출도 받지 않으므로(8.4절) 그동안 누구도 확정·승인·체크인·수령할 수 없었다.
+- **닫힌 동안 기한이 온 것**(`Tx.closedPast`, 구현에서 정한 것). 복원하는 트랜잭션이 워크스페이스의 `date_closed`(닫은 때)를 지우기 전에 읽고, 그때부터 지금까지(`date_closed` 이상, 지금 미만) 기한이 온 것을 찾는다. 기한은 sweep이 그것을 놓는 때다. 홀드는 `date_expires`(`sweepHolds`), 요청은 시작(`sweepRequests`), 체크인하지 않은 회의실은 시작 + 유예(`sweepNoShows`), 수령하지 않은 장비는 기간의 끝(유예가 더 늦으면 그것, 체크인을 받지 않으면 끝, `sweepNoShows`와 `sweepFinished`)이다. 닫힌 워크스페이스는 소유자의 조회와 복원 말고는 아무 호출도 받지 않으므로(8.4절) 그동안 누구도 확정·승인·체크인·수령할 수 없었다.
   - 닫기 전에 기한이 왔는데 아직 sweep하지 않은 것은 열려 있던 동안의 일이라 정리하지 않는다. 다음 pass가 전처럼 놓는다.
   - 기한이 아직 오지 않은 것(유예가 남은 회의실, 기간이 남은 장비, 시작하지 않은 요청)은 다시 사람의 것이라 그대로 둔다.
   - 체크인을 받지 않는 워크스페이스의 회의실은 기한이 없다. 예약한 대로 쓴 것이고 끝나면 `sweepFinished`가 완료한다(4장, 7.14절). 체크인했거나 수령한 것도 끝이나 반납이 끝낸다.
@@ -1256,12 +1256,12 @@ CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 -- 자식마다 한 시점에 물리 부모 하나 (대체되지 않은 행끼리)
 ALTER TABLE placement ADD CONSTRAINT placement_one_parent EXCLUDE USING gist
-  (child_id WITH =, tstzrange(valid_from, valid_to) WITH &&)
-  WHERE (superseded_at IS NULL);
+  (child_id WITH =, tstzrange(date_start, date_end) WITH &&)
+  WHERE (date_superseded IS NULL);
 
 -- 독점 자원의 차단 할당은 겹치지 않는다 (반열린 구간이라 맞닿는 것은 허용)
 ALTER TABLE allocation ADD CONSTRAINT allocation_exclusive EXCLUDE USING gist
-  (resource_id WITH =, tstzrange(begins_at, ends_at) WITH &&)
+  (resource_id WITH =, tstzrange(date_start, date_end) WITH &&)
   WHERE (blocking AND exclusive);
 
 -- 바뀌는 참조도 같은 테넌트 안에서만 (복합 FK 대신)
@@ -1315,7 +1315,7 @@ CREATE TRIGGER asset_parent_same_tenant BEFORE INSERT OR UPDATE OF parent_id, te
 
 ### 9.6 그래프와 성능
 
-- 1~수 단계 탐색은 재귀 CTE와 `(child, superseded_at, valid_from)` 인덱스로 처리한다. 현재 상태는 Asset의 비정규화 열(`parent`, `custodian`)로 생성 List를 쓴다.
+- 1~수 단계 탐색은 재귀 CTE와 `(child, date_superseded, date_start)` 인덱스로 처리한다. 현재 상태는 Asset의 비정규화 열(`parent`, `custodian`)로 생성 List를 쓴다.
 - 하위 트리 전체 조회가 잦아지면 현재 상태용 경로(ltree 또는 closure 테이블)를 추가한다. 자유로운 대규모 경로 분석이 필요해지면 그래프 엔진을 다시 평가한다.
 - **화면 갱신 신호**: payday watch는 행을 지정해야 하므로 "이 방에 있는 자산"처럼 조건으로 정한 집합을 직접 watch할 수 없다. 내용이 바뀌는 컨테이너(공간·키트의 `content_version`), 예약 자원(`Bookable`의 `schedule_version`), 실사(`InventoryCount`의 `findings_version`)의 행 버전을 같은 트랜잭션에서 올리고, 화면은 그 행을 watch하다가 바뀌면 목록을 다시 읽는다(`ts/src/rpc.tsx`의 `<Live>`). 이 갱신은 잠금도 겸한다. 이동이 아주 잦은 창고 공간에서는 이 행이 경합 지점이 될 수 있으므로 계측한다.
 - 테넌트 잠금 행은 배치 트리 변경을 테넌트 단위로 직렬화한다. 사람이 하는 이동량에서는 충분하고, RFID처럼 자동 이동이 많아지면 사업장 단위 잠금으로 나눈다.
@@ -1382,8 +1382,8 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 3. 예전(D23)의 자체 도메인은 `label`로 남는다. 라벨만 쓰고, 그 주소로 인쇄한 라벨은 계속 열린다.
 
 - **호스트**: 소문자, ASCII(IDNA), 끝의 점 없이 저장한다. IP 주소, `localhost` 아래 이름, 서비스 자신의 호스트(`app.public_url`, `app.app_url`)와 그 아래 이름, 기본 도메인 아래 이름(기본 하위 도메인으로 추가한다)은 받지 않는다. 호스트는 배포 전체에서 유일하다.
-- **확인**: spin 루프가 TXT 레코드와 그 도메인이 이 서비스를 가리키는지(CNAME이 `app.labels.target`이거나, CNAME을 펼친 apex처럼 target과 같은 주소를 가짐)를 주기적으로 조회하고, 둘 다 맞으면 `verified_at`을 찍는다(payday `stamped`). 확인하기 전에는 TLS 인증서도 발급하지 않는다.
-- **활성**: 워크스페이스마다 활성 도메인은 하나다(목적과 상관없이). 새로 활성화하면 이전 것은 `LEGACY`가 되어 계속 해석되고, 새로 인쇄하는 라벨만 새 도메인을 쓴다. 이전 것이 앱 도메인이면 `app.workspaces.domain_redirect`(기본 90일) 동안 그 페이지(GET, HEAD)를 지금 앱이 있는 곳의 같은 페이지로 보낸다(`redirect_until`). 호출은 보내지 않는다. 라벨은 인쇄할 때 쓴 도메인을 기록한다. 도메인을 중지하려 하면 그 도메인으로 인쇄한 라벨 수를 보여 주고 확인을 받는다.
+- **확인**: spin 루프가 TXT 레코드와 그 도메인이 이 서비스를 가리키는지(CNAME이 `app.labels.target`이거나, CNAME을 펼친 apex처럼 target과 같은 주소를 가짐)를 주기적으로 조회하고, 둘 다 맞으면 `date_verified`를 찍는다(payday `stamped`). 확인하기 전에는 TLS 인증서도 발급하지 않는다.
+- **활성**: 워크스페이스마다 활성 도메인은 하나다(목적과 상관없이). 새로 활성화하면 이전 것은 `LEGACY`가 되어 계속 해석되고, 새로 인쇄하는 라벨만 새 도메인을 쓴다. 이전 것이 앱 도메인이면 `app.workspaces.domain_redirect`(기본 90일) 동안 그 페이지(GET, HEAD)를 지금 앱이 있는 곳의 같은 페이지로 보낸다(`date_redirect_until`). 호출은 보내지 않는다. 라벨은 인쇄할 때 쓴 도메인을 기록한다. 도메인을 중지하려 하면 그 도메인으로 인쇄한 라벨 수를 보여 주고 확인을 받는다.
 - **재확인과 중지**(loft#155): 활성 자체 도메인은 한 시간마다 다시 확인한다. TXT 레코드가 없거나 이 서비스를 가리키지 않는다는 답이 여섯 번 연속, 다섯 시간 넘게 이어지면 `lapsed`가 된다.
   - 답이 없는 것(시간 초과, DNS 서버 장애)은 세지 않고, 한 번이라도 맞으면 처음부터 다시 센다.
   - 여섯 번인 이유: DNS 호스트가 레코드와 없는 이름에 주는 기본 TTL은 한 시간에서 몇 시간이다. 이전하다 레코드가 잠깐 빠지거나 없는 이름이 잠깐 캐시돼도 대개 TTL 하나면 돌아오고, 다섯 시간은 그보다 길다. 그러면서도 DNS가 다른 곳으로 옮겨 간 도메인은 그날 안에 로그인을 넘겨받지 못하게 된다.
@@ -1678,10 +1678,10 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 - 서버가 행을 읽어 세지 않고 SQL로 묶어 센다. 자산 10만 개의 현황도 답하는 몇백 줄만큼만 읽는다. 문장마다 호출자의 테넌트로 직접 좁힌다.
 - 합성 데이터로 쟀다(PostgreSQL 17). 자산 10만 개인 워크스페이스와 다른 워크스페이스 넷, 자산 31만 개, 지급 15만 7천 건, 예약 8만 6천 건, 재고 이동 40만 건이다. 화면 하나의 응답은 지난 30일이 40~130ms, 1년이 70~450ms, 위치별 자산 현황이 170~230ms였다.
 - 인덱스 둘을 더했다.
-  - `custody (tenant, status, due_at)`: 나가 있는 것은 지급의 일부라, 없으면 워크스페이스의 모든 지급을 읽는다(대여 현황의 한 쪽이 21ms에서 8ms). 1분마다 연체를 알리는 sweep도 이것을 읽는다.
-  - `reservation (tenant, begins_at)`: 기간 안에 시작한 예약만 읽는다(19ms에서 5ms, 예약이 쌓일수록 차이가 커진다).
+  - `custody (tenant, status, date_due)`: 나가 있는 것은 지급의 일부라, 없으면 워크스페이스의 모든 지급을 읽는다(대여 현황의 한 쪽이 21ms에서 8ms). 1분마다 연체를 알리는 sweep도 이것을 읽는다.
+  - `reservation (tenant, date_start)`: 기간 안에 시작한 예약만 읽는다(19ms에서 5ms, 예약이 쌓일수록 차이가 커진다).
   - 예약의 수령을 찾는 `custody (reservation_id)`는 예약의 이력(D45)이 먼저 더했다.
-  - `custody (tenant, issued_at)`는 예약 없이 나간 것(D53)을 기간 안에 건넨 것만 읽으려고 그 뒤에 더했다.
+  - `custody (tenant, date_issued)`는 예약 없이 나간 것(D53)을 기간 안에 건넨 것만 읽으려고 그 뒤에 더했다.
 - 예약 이용률은 예약마다 수령과 끝낸 때를 따로 묻지 않는다. 기간의 예약에 수령과 할당을 묶어 한 번에 읽는다. 따로 묻는 꼴은 PostgreSQL이 그 물음을 쓰는 곳마다 복사했고, `custody (reservation_id)` 없이는 한 달에 56초가 걸렸다.
 - 재고 소모는 워크스페이스의 재고에서 출발한다. 그래서 데이터베이스가 재고와 시각의 인덱스로 기간의 이동만 읽을 수 있다.
 - 자산 현황은 그 워크스페이스의 자산을 한 번 훑는다. 10만 개에서 30~40ms라서 인덱스를 더하지 않았다.
@@ -2048,3 +2048,4 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 | D73 | 계정이 워크스페이스 밖에서 묻던 HTTP를 계정의 메서드로 옮긴다(loft#285의 2단계). **옮긴 것**: 계정이 속한 워크스페이스(`GET /account`의 `workspaces`·`owns`·`may` → `TenantService.Mine`), 새 워크스페이스(`POST /account/workspaces` → `TenantService.Create`), 라벨이 계정의 어느 워크스페이스에 있는지(`GET /account/labels/{code}` → `LabelService.Locate`). 셋 다 계정의 메서드다(`(payday.method) = {account: {}}`, 권한 표의 `Account`, `pd.AccountReads`로 벽을 거쳐 읽는 것이 없다고 선언). `tenancy.Workspaces`로 그 계정의 구성원 자격만 읽고, `TenantMembership`(아이디, 주소, 이름, 역할, 닫힌 때와 파기할 때, 주소를 보류하는 날 수, 앱이 있는 곳)으로 답한다. 이름은 `List`와 `Add`가 생성된 구성원 자격의 메서드라 `Mine`과 `Create`다(`PaymentService.ListPayerStatements`처럼). **내보내기**(`GET /account/workspaces/{alias}/export` → `TenantService.Export`)는 계정의 메서드가 아니라 소유자가 그 워크스페이스에서 구성원 자격으로 부르는 메서드다(권한 표의 `owner`). 한 워크스페이스의 일이고, 닫힌 워크스페이스(`cmd.WhileClosed`)와 그 워크스페이스의 자기 도메인(계정의 메서드를 받지 않는다)에서도 되어야 하며, 접속기록이 그 전처럼 소유자의 구성원 자격으로 남기 때문이다. 서버 스트림이다. 첫 메시지는 파일의 이름과 종류이고, 그 메시지가 나가기 전에 접속기록의 내려받기 행이 쓰인다(`cmd.Downloads`, `payday-reason-bin`). 그래서 내보내기가 자기 행을 담는다. 전부 만든 뒤(loft#120) 512KiB씩 보낸다. **동의하지 않은 계정**은 모든 RPC가 거절되지만 가진 것은 거절되지 않는다(`cmd.WhileOwing`: `Mine`과 `Export`). 만들기는 전처럼 거절된다. 읽기 전용의 표에서 `Mine`·`Create`·`Locate`는 계정의 것(`Account`), `Export`는 `Exports`다. **남긴 것**: `GET /account`는 세션이 누구이고 어디서 묻는지(아이디, 이름, 동의할 것, `--allow`, identity, 결제, 시간대, 계정 관리)를 답하고, 워크스페이스의 자기 도메인에서는 그 워크스페이스(`here`)를 답한다. 동의하지 않은 계정은 RPC가 거절되고 자기 도메인의 세션은 계정으로 부르지 못하므로, 화면의 첫 물음은 RPC일 수 없다. 약관 동의(`GET`/`POST /account/consents`)도 HTTP로 둔다. 거절에서 나가는 길이라 거절 뒤에 둘 수 없고, 어느 엔터티의 것도 아닌 세션의 상태이며, 원장은 roster의 것이다. **화면**: `signedIn`이 `GET /account` 뒤에 `Mine`을 묻고(자기 도메인에서는 `here`), 만들기·라벨·닫힌 워크스페이스의 내보내기가 RPC다. 내보내기는 부분을 모아 한 파일로 저장한다. **터미널**: `loft workspace ls|new|rename|export`, `loft whoami`, `loft use`, `loft login`, `loft scan`, 비서의 `whoami`가 RPC를 부른다. `--allow read`에 `Mine`과 `Locate`를 넣었다. CLI의 새 모양(`loft tenant list|add|export`, loft#285의 4단계)은 이 메서드들을 부른다. **접속기록**: `Mine`과 `Locate`의 읽기 행은 payday#184대로 계정을 행위자로 적고, 접속기록 점검은 그 행위자를 그 워크스페이스의 구성원 자격으로 부른다(`namer.ofMember`). 누가 정했는지: 계정의 HTTP를 `TenantService`의 계정 메서드로 옮기는 것은 Claude(loft#285), CLI의 모양은 대표(2026-11-04, loft#285)다. 메서드의 이름, 내보내기를 소유자의 구성원 자격의 메서드로 둔 것, 라벨을 `LabelService`의 계정 메서드로 옮긴 것, `GET /account`와 동의를 남긴 것, 동의 전에 되는 둘, 스트림의 모양과 접속기록을 쓰는 때, 점검이 계정을 부르는 법, 화면과 터미널이 부르는 법은 구현에서 정한 것이다(9.11절) | 모든 것이 RPC면 화면, 터미널, 비서가 같은 권한 표와 접속기록과 Grant를 지난다. HTTP의 문은 저마다 세션을 읽고 거절하고 기록해서 고칠 곳이 문마다 있었다. payday#184가 계정으로 부르는 메서드를 주었으니 워크스페이스에 들어가기 전의 물음도 RPC로 묻는다. 내보내기는 계정의 것이 아니라 한 워크스페이스의 소유자의 것이다. 계정의 메서드로 두면 자기 도메인에서 막히고 접속기록의 행위자가 바뀐다. 동의와 세션의 첫 물음은 거절의 바깥에 있어야 한다 |
 | D74 | 운영자 진입점이 공개 서버와 같은 서비스를 운영자로 내고, 서버 상자의 명령을 그 RPC로 옮긴다(loft#285의 3단계, 9.15절). **문**: `loft-admin serve`가 `admin.addr`에서 HTTP JSON API(`/admin/...`) 대신 gRPC를 Connect로 낸다. `/internal/tls-ask`는 그대로다. 엔터티의 RPC가 운영자가 하는 일이면 같은 요청 그대로 낸다(`TenantService.Get`·`List`·`Close`·`Restore`·`Export`, `TenantContractService.Add`·`Get`·`List`, `LegalHoldService.Add`·`Get`·`List`·`Patch`(`date_lifted`만), `HolderService.Get`·`List`, `EventService.Redact`, `AccessReviewService.List`). 어느 엔터티의 것도 아닌 일은 `proto/loft/operator.proto`의 `Operator<X>Service`다(`Tenant`, `Trail`, `Search`, `Retention`, `Identity`, `Holder`, `Event`, `Access`). 공개 서버는 그것을 등록하지 않고 운영자의 키를 읽지 않는다. 공개 API에 관리자 플래그는 없다. **누가**: 키(`admin.keys`, `Authorization: Bearer`)로 찾은 운영자다. 이름에서 정해지는 식별자(`operator.Id`, 도메인 11, 이름의 SHA-256)가 있고, 어느 표의 행도 아니다. 운영자는 payday의 frame이 아니라 문맥에 실리고(`operator.Into`), 배포의 일이 워크스페이스에 짓는 틀(`Deps.System`)과 도메인 레이어를 지나지 않는 쓰기의 틀(`operator.Frame`, 워크스페이스 없이)에 행위자로 들어간다. 그래서 이벤트, 작업 기록, 접속기록의 쓰기가 운영자를 적고, 판단은 배포의 일로 한다(`Tx.actor`는 없음). 이력과 점검은 "운영자"로 부른다. **정책**: 진입점의 표 하나(`server/admin`의 `Table`)에 없는 메서드는 아무것도 읽기 전에 거절한다. 운영자 사이에 역할은 없다. **접속기록**: 틀 없는 읽기는 payday#206의 `access.Config.Operator`로 운영자를 적고, 답이 나가기 전에 쓰며(`AtOnce`), 주소는 `admin:<peer>`다. 내려받기는 `payday-reason-bin`을 요구한다. **작업 기록**: 보관소 승인의 `by`는 키가 말하는 운영자이고 `--by`는 없앤다. **긴 작업**: 파기, 색인 다시 만들기, 보존 패스, 작업 기록 점검, 내보내기, roster 이전은 서버 스트림이다. 진행과 15초마다의 메시지 뒤에 결과가 온다. 가져오기는 클라이언트 스트림이다. 끊기면 다음 단계에서 멈추고 다시 돌린다. **미리보기**: 지우거나 옮기는 운영자만의 메서드는 `dry_run`을 받고, CLI는 `--yes`가 없으면 그것으로 부른다. 엔터티의 RPC는 CLI가 먼저 읽어 말한다. 닫기의 `confirm`은 운영자에게는 주소다. **상자**: `serve`, `init`, `migrate`, `config env`, `version`만 남고, 나머지 상자의 명령은 `loft-admin`의 명령이 되며 `loft`에서 지운다. 내보내기와 작업 기록 묶음의 검증은 진입점이 답하는 공개 열쇠(`OperatorTrailService.Keys`)로 CLI가 한다. **순서**: (a) 진입점과 지금 `loft-admin`이 하는 것, (b) 상자의 명령을 가족마다, (c) 상자의 명령을 지우고 문서를 고친다. 누가 정했는지: 운영자가 진입점을 쓰는 연결로 부르고 연결이 행위자를 정하는 것, 명령에 스키마 이름만 쓰는 것은 대표(2026-11-04, loft#285)다. 진입점이 같은 서비스를 운영자로 내는 것, 공개 API에 관리자 플래그를 두지 않는 것, 상자에 `serve`·`init`·`migrate`만 남기는 것은 Claude(loft#285)다. 운영자의 식별자와 도메인, 문맥과 틀, 이벤트도 운영자를 적는 것, 표 하나와 역할 없음, `AtOnce`와 주소, 스트림, `dry_run`, 닫기의 `confirm`, 서비스의 이름, 검증을 CLI에 두는 것, 상자의 명령을 이 단계에서 지우는 것은 구현에서 정한 것이다(9.15절) | 연결이 행위자를 정하면 운영자가 같은 명령으로 같은 RPC를 부르고, 공개 서버에는 모든 워크스페이스를 보는 길이 없다. 서버 상자의 명령은 DB에 바로 붙어 접속기록에 운영자를 적지 못했고(`loft-admin`의 읽기도 그랬다), 운영자가 셸을 열어야 했다. 운영자를 payday의 frame으로 들이면 판단하는 계층이 배포의 일을 호출자의 일로 다룬다(payday#206). 배포의 일이 이미 짓던 틀에 운영자를 넣으면 기록하는 곳이 모두 같은 길로 운영자를 적는다. 운영자는 설정의 이름이라 행이 없고, 이름에서 정해지는 식별자는 키를 바꿔도 같다. 상태가 DB에 있고 모두 다시 돌려도 되므로, 작업을 두는 것보다 스트림이 단순하고 연결을 쉬지 않게 한다 |
 | D75 | `loft`의 명령을 `loft <스키마 이름> <동사>`로 하고, 연결이 행위자를 정한다(loft#285의 4단계, 9.16절). **나무**: pdcmd 트리를 루트에 붙이고(`Mount`, payday#207) `api` 층을 없앤다. 엔터티의 동사와 단항 메서드는 `<엔터티>/<메서드>`, `PaymentService`는 `payment/…`, `Operator<X>Service`는 `<x>/…`다. 파일을 올리고 내리는 것, CLI의 검증, `--yes`의 미리보기와 스트림은 손으로 쓴 명령으로 그 스키마 경로에 둔다(`loft-admin`의 것을 옮기고 동사만 RPC의 이름으로: `tenant move`, `tenant name-owner`, `tenant-contract add`, `legal-hold add|patch`, `trail accept-rows`, `access list`, `access-review list`, `asset add-many|form`). 다른 명령이 쓰는 행(권한 표의 시간 행과 다른 것의 일부인 행)은 숨기고 `loft call`로 닿는다. 별칭은 `tenant`의 `workspace`·`ws`, `configure`의 `conf`·`config`, payday의 `ls`뿐이다. 겹침은 `Mount`가 거절하고, 어느 역할도 부르지 않는 생성된 동사(`holder add`, `access list`)를 운영자의 것으로 바꿔 피한다. **도움말**은 연결과 상관없이 모두를 보이고, 운영자만의 명령에 `(operator)`를 적는다. 연결이 틀리면 진입점의 표(`server/operator`로 옮긴다)를 보고 맞는 연결을 말한다. **연결**: `LOFT_CLIENT_CONFIG`에 이름 붙인 사람(공개 주소, 승인받은 세션, 워크스페이스)과 운영자(진입점의 주소, 키의 참조 `env:`/`file:`, 키 자체는 거절)의 연결을 두고, `--connection`·`--key`, `LOFT_CONNECTION`·`LOFT_ADMIN_KEY`, `current`의 순서로 고른다. 운영자는 설정 파일 없이 `--url`·`--key`(`LOFT_ADMIN_URL`·`LOFT_ADMIN_KEY`)로 부른다. **auth**: `loft auth login|logout|whoami|list|switch`. 사람의 로그인은 지금의 승인(`--allow`, D33)이고, 운영자의 `whoami`는 진입점의 새 `OperatorAuthService.Whoami`다. `loft workspace …`는 `loft tenant mine|create|configure|export`가 된다. **비서**: `loft mcp`는 사람의 것이고 운영자의 연결을 거절한다. **깨지는 것**: 호환을 두지 않는다. `scripts/upgrade.sh`가 BEFORE의 모양을 다시 알아내고, CI·cluster·e2e·문서는 같은 PR에서 바꾼다. 누가 정했는지: 명령의 모양, 스키마 이름만, 별칭의 규칙과 `tenant`의 예외, 동사는 RPC 이름, 연결이 행위자를 정하는 것은 대표(2026-11-04, loft#285)다. `api` 층을 없애고 내부 행을 숨기되 `call`로 두는 것, `loft-admin`의 클라이언트를 합치고 `serve`만 남기는 것, `loft mcp`가 운영자의 연결을 거절하는 것은 Claude(loft#285)다. 연결 설정의 모양과 고르는 순서, 키를 참조로만, 도움말이 모두를 보이는 것, 숨기는 기준, 겹침을 피하는 법, 동사, `auth list|switch`, `Whoami`, 표의 자리, 잘못된 연결의 말, `Apply`를 명령으로 두지 않는 것은 구현에서 정한 것이다(9.16절) | 같은 일에 세 길(`loft api`, `loft-admin`, 상자)이 있던 것을 하나로 한다. 말이 연결마다 같아야 스크립트와 문서와 완성이 어디서나 같고, 진입점이 같은 RPC를 내므로 연결만 바꾸면 운영자가 같은 명령을 부른다. 나무는 설정을 읽기 전에 지으므로 도움말이 연결에 기대지 않는다. 키를 참조로만 받으면 셸의 기록과 설정 파일에 운영자의 비밀이 남지 않는다 |
+| D76 | Loft가 두는 시각은 모두 `date_*`로 부른다(payday의 이름 규칙, payday `docs/migrating.md`: "every other time payday keeps is a `date_*`"). `completed_at`은 `date_completed`, `begins_at`·`ends_at`은 `date_start`·`date_end`가 된다. 필드 번호와 형은 그대로라 이진 wire는 같고, JSON wire와 Go·TS의 이름이 바뀐다. **이름**: 일이 있었던 때는 `date_<일>`이다(`date_acquired`, `date_issued`, `date_verified`). 기간은 `date_start`·`date_end`(시간 행 `Placement`·`Link`·`Stewardship`, 예약·할당·작업, 접속기록 점검의 기간)이고, 대체는 `date_superseded`다. 쓰기 요청이 말하는 일어난 때(`at`, `since`, 비우면 지금)는 `date_occurred`, 읽기가 기준으로 삼는 때는 `date_as_of`, 요청이 말하는 기간의 처음과 끝은 `date_from`·`date_to`, 기한은 `date_due`, `failing_since`는 `date_failing`이다. 짧게 읽히는 이름이 없는 `_until`은 남긴다(`date_redirect_until`, `date_held_until`, `date_keep_until`, `date_access_until`, `date_kept_until`). 줄인 보존 기간이 적용되는 때는 `date_keep_effective`·`date_access_keep_effective`이고, 접속기록의 한 줄(`AccessEntry`, `OperatorAccessRow`)의 때는 그 행의 `date_created`다. **과거**: 이벤트의 메시지는 필드의 이름만 바꾸고, 행을 쓴 JSON 이름을 `json_name`으로 지킨다(15개, `begins_at`은 `date_start`이고 JSON은 `beginsAt` 그대로다). 행은 JSON으로 읽히고 `past.lock`이 JSON 이름을 지키므로, 그 전의 행과 이 판의 행은 같다. `past.proto` 첫머리의 도메인 표는 지금 이름을 쓴다. 타임라인 항목의 `detail`과 비서의 `asset_history`는 필드 이름으로 말하므로 지금 이름이다(`date_start`, `date_due`). **저장된 것**: 18개 표의 43개 열을 옮긴다(`offboard.RenamedColumns`). `loft migrate`가 Loft의 옛 사실을 옆에 둔 뒤, 스키마를 마이그레이션하기 전에 payday의 것(`pd.ColumnRenames`)과 함께 옮긴다(`cli.Migrate`, payday `rename.Columns`). 마이그레이션은 열을 이름으로 찾고, 찾지 못하면 빈 열을 만든다. PostgreSQL에서는 옛 열 옆에 더해 그 전의 값을 아무도 읽지 않게 되고, SQLite에서는 인덱스가 있는 표를 옛 열 없이 다시 만들어 그 값을 잃는다. 그래서 그 앞에서 마이그레이션을 돌리는 것은 없고, 업그레이드 시험(`scripts/upgrade.sh`)이 두 빌드의 내보내기로 행마다 시각이 그대로인지 본다. 옛 사실을 옆에 두기 전에 옮기면, payday의 `fact`와 이름이 같은 Loft의 옛 사실 표의 열까지 바뀌는데 `cli/facts.go`는 그 표를 옛 이름으로 읽는다. PostgreSQL에서는 카탈로그만 바꾸고, `pg.sql`의 `EXCLUDE`와 인덱스의 조건은 열을 따라간다. 옮기는 열은 모두 NULL을 받아, D72의 표처럼 PostgreSQL 18이 열 이름으로 지은 NOT NULL(`<표>_<열>_not_null`)이 옛 이름으로 남지 않는다(테스트가 지킨다). SQLite는 표의 정의를 그 자리에서 고친다. 새로 설치하는 DB를 위해 `pg.sql`은 지금 이름을 쓴다. 그 전 빌드는 옛 열을 찾으므로 이 판은 되돌리지 않는다(`docs/runbook/upgrade.md`). **내보내기**: 형식은 `loft-export/2`다. 복구는 `loft-export/1`의 행을 옛 이름에서 지금 이름으로 옮겨 읽고(`offboard.Formats`), 매니페스트의 `exported_at`은 `date_exported`다. **이름을 글로 가진 곳**: 리포트의 SQL과 그 열, 거절이 가리키는 필드(요청의 필드 이름이라 지금 이름), 대량 등록 시트의 열 키(`date_acquired`, `date_occurred`, 옛 영어 머리말 `acquired_at`·`since`도 읽는다), 등록 화면과 `loft asset add-many`가 이슈를 열로 말하는 표, e2e의 SQL과 본문, CI와 `scripts/cluster.sh`의 SQL. 비서의 도구 인수는 낱말(`at`, `from`, `to`, `due`)이라 그대로 두고, 필드 이름을 그대로 쓰던 `plan_asset`의 `valid_from`만 `date_start`로 바꾼다. 오프라인 실사 큐는 브라우저에 둔 키(`seenAt`)를 그대로 두고 요청의 필드만 `dateSeen`으로 보내므로, 그 전 페이지가 넣어 둔 스캔도 보낸다. **이 판에 없는 것**: payday가 복사해 주는 Event·Fact·Entitlement, levyan을 비추는 `payment.proto`의 40개 필드, roster의 `VouchVerifyResponse.locked_until`은 payday·roster·levyan이 바꾼 판을 올릴 때 바꾼다. **한 판 먼저의 규칙**: 과거의 JSON 이름이 바뀌지 않아 지킬 것이 없다. 열의 이름은 그 규칙으로 지킬 수 없어(그 전 빌드가 새 열을 읽게 할 수 없다) 되돌리지 않는 판으로 적었다. `buf breaking`은 이 이름 바꾸기만 한 번 넘기고(`buf.yaml`), 다음 스키마 변경과 함께 그 예외를 뺀다. 누가 정했는지: 시각을 모두 `date_*`로 바꾸는 것은 대표(2026-11-08, "비슷한거 전부 다")다. 필드마다 무엇이라 부를지, 과거의 JSON 이름을 지키는 것, 열을 옛 사실을 옆에 둔 뒤와 마이그레이션 전에 옮기는 것, 내보내기 형식과 옛 형식을 읽는 것, 매니페스트의 이름, 시트의 옛 머리말, 비서의 인수, `buf breaking`을 한 번 넘기는 것은 Claude(2026-11-08)다 | payday가 두는 시각은 모두 `date_*`인데 Loft의 시각만 `_at`, `_since`, `from`·`to`, `at`으로 제각각이었다. 이름에서 시각인지가 보이면 스키마, SQL, 화면, 비서가 같은 말을 쓴다. 출시 전이라 JSON wire를 한 번 깨는 비용이 가장 작다. 이벤트의 행은 워크스페이스가 이력을 두는 동안 JSON 이름으로 읽히므로 그 이름은 그대로 두고 스키마의 이름만 바꾼다. 열은 마이그레이션이 이름으로 찾으므로 그 전에 옮겨야 값이 남는다 |

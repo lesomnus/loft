@@ -26,9 +26,9 @@
 loft asset search -o wide '{"q": "NB-002"}'
 loft asset timeline <자산 ID>                                         # 이력
 loft asset timeline <자산 ID> '{"superseded": true}'                  # 정정되어 대체된 줄까지
-loft asset timeline <자산 ID> '{"known": "2026-10-01T00:00:00+09:00"}'       # 그때 시스템이 알던 대로
-loft asset query-at '{"root": {"id": "<4층 ID>"}, "at": "2026-06-01T00:00:00+09:00", "depth": 1}'
-loft asset diff '{"root": {"id": "<4층 ID>"}, "from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'
+loft asset timeline <자산 ID> '{"date_known": "2026-10-01T00:00:00+09:00"}'       # 그때 시스템이 알던 대로
+loft asset query-at '{"root": {"id": "<4층 ID>"}, "date_as_of": "2026-06-01T00:00:00+09:00", "depth": 1}'
+loft asset diff '{"root": {"id": "<4층 ID>"}, "date_from": "2026-10-01T00:00:00+09:00", "date_to": "2026-11-01T00:00:00+09:00"}'
 loft reservation timeline <예약 ID>
 ```
 
@@ -58,9 +58,9 @@ loft audit recent '{"size": 20}'                           # 최근 감사 기�
 - 얼마나 보관하는지는 워크스페이스가 정하고(소유자의 설정 › 워크스페이스 › 기록 보관), 법이 정한 최소 기간보다 짧게는 정할 수 없습니다. 정하지 않으면 배포의 기간입니다.
 
 ```sh
-loft access review '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'                         # 한 번에 92일까지
-loft access review '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00", "kind": "download"}'       # read, write, download
-loft access-review add '{"period_from": "2026-10-01T00:00:00+09:00", "period_to": "2026-11-01T00:00:00+09:00", "desc": "이상 없음"}'
+loft access review '{"date_from": "2026-10-01T00:00:00+09:00", "date_to": "2026-11-01T00:00:00+09:00"}'                    # 한 번에 92일까지
+loft access review '{"date_from": "2026-10-01T00:00:00+09:00", "date_to": "2026-11-01T00:00:00+09:00", "kind": "download"}'  # read, write, download
+loft access-review add '{"date_start": "2026-10-01T00:00:00+09:00", "date_end": "2026-11-01T00:00:00+09:00", "desc": "이상 없음"}'
 loft access-review ls
 ```
 

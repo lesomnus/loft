@@ -154,7 +154,8 @@ audit:
 
 워크스페이스 내보내기(`loft tenant export`, 소유자의 데이터 내려받기)는 모든 행(종류마다 JSON 줄, `rows/<종류>.jsonl`), 감사 기록, 첨부 파일을 zip 하나에 담습니다.
 
-- `manifest.json` 에는 형식(`loft-export/1`)과 모든 파일의 SHA-256이 적히고, 감사 기록의 키(`audit.checkpoints.key`)로 서명한 `signature.json` 이 옆에 붙습니다(design D34).
+- `manifest.json` 에는 형식(`loft-export/2`)과 모든 파일의 SHA-256이 적히고, 감사 기록의 키(`audit.checkpoints.key`)로 서명한 `signature.json` 이 옆에 붙습니다(design D34).
+- 복구는 그 전 형식(`loft-export/1`)도 읽습니다. 그 형식은 시각을 옛 이름(`beginsAt`, 매니페스트의 `exported_at`)으로 적었고, 복구가 지금 이름으로 읽습니다(design D76).
 - 복구는 서명된 내보내기만 받으므로, 복구할 수 있는 내보내기를 내려면 키를 설정해야 합니다. 키가 없는 배포의 내보내기에는 서명이 없습니다(`the export is not signed`). 조직의 데이터를 돌려주는 것은 같지만 복구에는 쓰이지 않습니다.
 - 내보내기에는 세션과 운영자의 hold는 들어가지 않고, 무엇을 왜 뺐는지가 `manifest.json` 에 적힙니다. 로그인과 비밀번호는 roster의 것이라 Loft의 내보내기에 없습니다. 행의 봉인도 담지 않습니다.
 - 복구(`loft tenant import`)가 무엇을 하는지는 [운영자 안내서의 워크스페이스 복구](../guide/operator.md#워크스페이스-복구)에 있습니다.

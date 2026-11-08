@@ -84,7 +84,7 @@ loft [--workspace 주소] [--reason 이유] <엔터티> <작업> [-o 형식] [RE
 
 - **명령은 스키마의 이름이고, 작업은 RPC의 이름입니다.** `AddMany` 는 `add-many`, `SetRole` 은 `set-role` 입니다. 다른 말은 셋뿐입니다: `list` 의 `ls`, `tenant` 의 `workspace`·`ws`, `tenant configure` 의 `conf`·`config`.
 - **플래그는 인자보다 앞에 씁니다.** `loft asset search '{"q": "x"}' -o wide` 는 `flag must come before arguments` 로 거부됩니다. 명령 앞의 플래그(`--workspace`, `--reason`, `--connection`)는 명령 이름보다 앞에 씁니다.
-- **요청**은 JSON입니다. 필드 이름은 스키마의 이름(`begins_at`, `beginsAt` 모두 됨)이고, ID는 UUID로 씁니다. `-` 를 주면 stdin에서 읽습니다.
+- **요청**은 JSON입니다. 필드 이름은 스키마의 이름(`date_start`, `dateStart` 모두 됨)이고, ID는 UUID로 씁니다. `-` 를 주면 stdin에서 읽습니다.
 - **REF**는 그 행의 ID(UUID)입니다. 워크스페이스는 `@주소`(`@loft`), 구성원 자격은 `@워크스페이스/아이디`(`@loft/haeun-lee`)로도 씁니다.
 - **출력**(`-o`)은 `pretty`(기본), `json`, `table`, `wide`(이름과 ID), `name`(ID만 한 줄에 하나), `protojson`, `prototext`, `template=…`(Go 템플릿, ID는 base64)입니다.
 - 엔터티마다 할 수 있는 작업은 `loft <엔터티> --help` 가, 모든 명령은 `loft --help-all` 이 보여 줍니다. 도움말은 연결과 상관없이 같습니다. 할 수 없는 작업은 서버가 역할 표로 거부합니다(`구성원 역할로는 할 수 없는 작업입니다`).
