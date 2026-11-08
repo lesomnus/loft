@@ -6,7 +6,7 @@
 
 ## 시각이 모두 `date_*`가 되는 판
 
-이 판(D76)부터 Loft가 두는 시각은 모두 `date_*` 입니다. `begins_at` 은 `date_start`, `due_at` 은 `date_due`, 요청의 `at` 은 `date_occurred` 처럼 바뀝니다. **이 판은 되돌릴 수 없습니다.** `loft migrate` 가 18개 표의 43개 열의 이름을 바꾸고, 그 전 빌드는 옛 이름의 열을 찾습니다.
+이 판(D76)부터 Loft가 두는 시각은 모두 `date_*` 입니다. `begins_at` 은 `date_start`, `due_at` 은 `date_due`, 요청의 `at` 은 `date_occurred` 처럼 바뀝니다. **이 판은 되돌릴 수 없습니다.** `loft migrate` 가 21개 표의 48개 열(Loft의 43개와 payday가 복사해 준 이력·사실·권한 사본의 5개)의 이름을 바꾸고, 그 전 빌드는 옛 이름의 열을 찾습니다.
 
 - 올리기 전에 DB를 백업합니다(`pg_dump`, [백업과 복구](restore.md)). 이 판을 넘는 `rollout undo` 는 하지 않습니다. 되돌리려면 백업에서 되살립니다.
 - 열의 이름만 바꾸므로 바로 끝납니다. PostgreSQL에서는 카탈로그만 바뀌고, `pg.sql` 의 제약(`EXCLUDE`)과 인덱스는 열을 따라갑니다. SQLite에서는 표의 정의를 그 자리에서 고칩니다. 행은 그대로입니다.

@@ -495,7 +495,7 @@ transaction a caller's method opened would commit (`Deps.run`); the
 generated Erases a role is given are served in one (`domain.passing`).
 `FailedPrecondition` with an `ErrorInfo` of reason `READONLY`, and
 `PartyService.Me`'s `readonly` is what the banner reads, with levyan's
-`readonly_from` (`BillingPayer`, `BillingDunning`) for when, to whoever reads
+`date_readonly` (`BillingPayer`, `BillingDunning`) for when, to whoever reads
 who pays. **A new write RPC is refused by a read-only workspace until that
 table says why it is not, and a new read goes in it as `domain.Reads`**:
 `server/domain/readonly_test.go` walks `server/policy`'s table and fails a
