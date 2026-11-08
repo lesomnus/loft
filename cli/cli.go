@@ -209,9 +209,13 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // not migrate: there is no database there that outlives the page.
 //
 // A table an earlier build made under another name -- an entity the schema
-// renamed -- is moved onto its name first, with its rows and what is named
-// after it (D72, [moveTables]): a migration finds a table by its name, and
-// one it does not find it makes, empty, beside the one with the rows.
+// renamed, and says it did (`formerly`, D72, D77) -- is moved onto its name
+// first, with its rows and what is named after it, by payday's
+// `rename.Tables` with `pd.TableRenames`: a migration finds a table by its
+// name, and one it does not find it makes, empty, beside the one with the
+// rows. First, because what moves next is looked for on a table by the name
+// it has now. It renames no column, and no table but those, so the assets'
+// old facts are still where [stashFacts] looks for them, as they were.
 //
 // The indexes an earlier build stored under the names of their columns are
 // moved to the names the schema declares next (payday#132): a migration finds
@@ -240,10 +244,14 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // catalog on PostgreSQL, which carries what `pg.sql` made on the column -- an
 // `EXCLUDE`, an index's predicate -- along with it; and SQLite rewrites the
 // table's definition in place. Every column moved takes NULL, so PostgreSQL
-// 18 named no NOT NULL after it to be left under the old name, as a table D72
-// moved had ([moveTables]). Before the facts are set aside, it would rename
-// the columns of the table an earlier build kept them in, which has payday's
-// Fact's name and is read by its own ([stashFacts]).
+// 18 named no NOT NULL after it to be left under the old name, as it named
+// one after the table D72 renamed for each of its columns (which
+// `rename.Tables` names again). After the tables, since a column is looked
+// for on its table by the name the table has now: the domains' times are in
+// `tenantdomain` in a database from before D72 until it is moved. And before
+// the facts are set aside, it would rename the columns of the table an
+// earlier build kept them in, which has payday's Fact's name and is read by
+// its own ([stashFacts]).
 func Migrate(ctx context.Context, s *cmd.Server) error {
 	_, err := migrate(ctx, s)
 	return err
@@ -271,9 +279,11 @@ func migrate(ctx context.Context, s *cmd.Server) (Migrated, error) {
 		if err := dropGone(ctx, s); err != nil {
 			return err
 		}
-		// Before the indexes, which an earlier build named after the table
-		// as it was.
-		if err := moveTables(ctx, s); err != nil {
+		// The tables first (D77): the indexes and the columns are looked for
+		// on a table by the name it has now. It renames no column, and no
+		// table but those the schema renamed, so it may go before the old
+		// facts are set aside; the columns may not, and wait for them.
+		if err := rename.Tables(ctx, s.Db, s.Dialect, pd.TableRenames); err != nil {
 			return err
 		}
 		if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {

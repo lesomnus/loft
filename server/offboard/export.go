@@ -304,12 +304,14 @@ var Withheld = map[string]string{
 
 // Renamed is every table an earlier build had under another name, by that
 // name, and the one this build has it under: an entity the schema renamed,
-// whose rows a migration moves onto the new name before anything looks for
-// them (`loft migrate`, D72). An export made before names its rows by the old
-// name, `rows/<old>.jsonl`, and a restore reads them as the new one's. A name
-// here is never in this build's schema, nor in [Dropped], which a test
-// refuses; and it is only ever added to, since a deployment and an export may
-// be from any build before.
+// and says it did (`formerly`), whose rows a migration moves onto the new
+// name before anything looks for them (`loft migrate`, with the same tables
+// as `pd.TableRenames`, D72, D77). An export made before names its rows by
+// the old name, `rows/<old>.jsonl`, and a restore reads them as the new
+// one's. A name here is never in this build's schema, nor in [Dropped], and
+// the list is `pd.TableRenames`'s, which tests hold it to; and it is only
+// ever added to, since a deployment and an export may be from any build
+// before.
 var Renamed = map[string]string{
 	// `TenantDomain`, which is `Domain` (D72): only a workspace has domains.
 	"tenantdomain": "domain",
