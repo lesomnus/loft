@@ -298,7 +298,7 @@ func (s operatorTrail) Owed(ctx context.Context, _ *app.OperatorTrailOwedRequest
 	}
 	out := app.OperatorTrailOwedResponse_builder{Objects: uint32(o.Objects)}.Build()
 	if o.Objects > 0 {
-		out.SetOldest(timestamppb.New(o.Oldest))
+		out.SetDateOldest(timestamppb.New(o.Oldest))
 	}
 	for _, id := range slices.SortedFunc(maps.Keys(o.Held), func(a, b pdid.Id) int { return strings.Compare(a.String(), b.String()) }) {
 		v := app.OperatorTrailHeld_builder{Tenant: id.Bytes(), Objects: uint32(o.Held[id])}.Build()

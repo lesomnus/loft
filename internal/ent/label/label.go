@@ -16,10 +16,10 @@ const (
 	FieldSubjectId = "subject_id"
 	// FieldState holds the string denoting the state field in the database.
 	FieldState = "state"
-	// FieldBoundAt holds the string denoting the bound_at field in the database.
-	FieldBoundAt = "bound_at"
-	// FieldPrintedAt holds the string denoting the printed_at field in the database.
-	FieldPrintedAt = "printed_at"
+	// FieldDateBound holds the string denoting the date_bound field in the database.
+	FieldDateBound = "date_bound"
+	// FieldDatePrinted holds the string denoting the date_printed field in the database.
+	FieldDatePrinted = "date_printed"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
@@ -61,8 +61,8 @@ var Columns = []string{
 	FieldId,
 	FieldSubjectId,
 	FieldState,
-	FieldBoundAt,
-	FieldPrintedAt,
+	FieldDateBound,
+	FieldDatePrinted,
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
@@ -100,14 +100,14 @@ func ByState(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldState, opts...).ToFunc()
 }
 
-// ByBoundAt orders the results by the bound_at field.
-func ByBoundAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBoundAt, opts...).ToFunc()
+// ByDateBound orders the results by the date_bound field.
+func ByDateBound(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateBound, opts...).ToFunc()
 }
 
-// ByPrintedAt orders the results by the printed_at field.
-func ByPrintedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPrintedAt, opts...).ToFunc()
+// ByDatePrinted orders the results by the date_printed field.
+func ByDatePrinted(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDatePrinted, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.

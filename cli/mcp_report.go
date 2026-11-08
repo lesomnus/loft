@@ -196,7 +196,7 @@ func (t mcpTools) report(ctx context.Context, _ *mcp.CallToolRequest, in mcpRepo
 			name := strings.Join(append(append([]string{}, r.GetPath()...), r.GetName()), " / ")
 			return mcpCensusRow{Name: name, Tag: r.GetTag(), Total: r.GetTotal(), Within: r.GetWithin(), Statuses: r.GetStatuses()}
 		}
-		out.At = stamp(v.GetAt())
+		out.At = stamp(v.GetDateAsOf())
 		out.Assets = &mcpCensus{By: v.GetBy(), Kind: v.GetKind(), Rows: []mcpCensusRow{}, Total: row(v.GetTotal())}
 		for _, r := range v.GetRows() {
 			out.Assets.Rows = append(out.Assets.Rows, row(r))
@@ -216,7 +216,7 @@ func (t mcpTools) report(ctx context.Context, _ *mcp.CallToolRequest, in mcpRepo
 		if err != nil {
 			return nil, out, failed(err)
 		}
-		out.At = stamp(v.GetAt())
+		out.At = stamp(v.GetDateAsOf())
 		l := &mcpLoans{
 			Total: v.GetTotal(), Custodies: v.GetCustodies(), Overdue: v.GetOverdue(),
 			People: v.GetPeople(), Assets: v.GetAssets(), Stocks: v.GetStocks(), Rows: []mcpLoan{},
@@ -233,8 +233,8 @@ func (t mcpTools) report(ctx context.Context, _ *mcp.CallToolRequest, in mcpRepo
 				What:         what,
 				Quantity:     r.GetQuantity(),
 				Unit:         r.GetUnit(),
-				Issued:       stamp(r.GetIssuedAt()),
-				Due:          stamp(r.GetDueAt()),
+				Issued:       stamp(r.GetDateIssued()),
+				Due:          stamp(r.GetDateDue()),
 				Overdue:      r.GetOverdue(),
 				OverdueDays:  r.GetOverdueDays(),
 				Acknowledged: r.GetAcknowledged(),
@@ -244,11 +244,11 @@ func (t mcpTools) report(ctx context.Context, _ *mcp.CallToolRequest, in mcpRepo
 		out.Loans = l
 
 	case "bookings":
-		v, err := app.NewBookableServiceClient(c.conn).Usage(ctx, app.BookableUsageRequest_builder{From: from, To: to}.Build())
+		v, err := app.NewBookableServiceClient(c.conn).Usage(ctx, app.BookableUsageRequest_builder{DateFrom: from, DateTo: to}.Build())
 		if err != nil {
 			return nil, out, failed(err)
 		}
-		period(v.GetFrom(), v.GetTo())
+		period(v.GetDateFrom(), v.GetDateTo())
 		out.Bookings = []mcpUsage{}
 		for _, r := range v.GetRows() {
 			out.Bookings = append(out.Bookings, mcpUsage{
@@ -264,29 +264,29 @@ func (t mcpTools) report(ctx context.Context, _ *mcp.CallToolRequest, in mcpRepo
 		}
 
 	case "counts":
-		v, err := app.NewInventoryCountServiceClient(c.conn).Results(ctx, app.InventoryCountResultsRequest_builder{From: from, To: to}.Build())
+		v, err := app.NewInventoryCountServiceClient(c.conn).Results(ctx, app.InventoryCountResultsRequest_builder{DateFrom: from, DateTo: to}.Build())
 		if err != nil {
 			return nil, out, failed(err)
 		}
-		period(v.GetFrom(), v.GetTo())
+		period(v.GetDateFrom(), v.GetDateTo())
 		out.Counts = []mcpCountResult{}
 		for _, r := range v.GetRows() {
 			out.Counts = append(out.Counts, mcpCountResult{
 				Count:   &mcpRef{Id: idString(r.GetCountId()), Name: r.GetName()},
 				Scope:   &mcpRef{Id: idString(r.GetScopeId()), Name: r.GetScopeName()},
 				Status:  r.GetStatus(),
-				Started: stamp(r.GetStartedAt()), Closed: stamp(r.GetClosedAt()),
+				Started: stamp(r.GetDateStarted()), Closed: stamp(r.GetDateClosed()),
 				Seen: r.GetSeen(), Misplaced: r.GetMisplaced(), Missing: r.GetMissing(), Unknown: r.GetUnknown(),
 				Moved: r.GetMoved(), Lost: r.GetLost(), Ignored: r.GetIgnored(), Unsettled: r.GetUnsettled(),
 			})
 		}
 
 	case "stock":
-		v, err := app.NewStockServiceClient(c.conn).Flow(ctx, app.StockFlowRequest_builder{From: from, To: to}.Build())
+		v, err := app.NewStockServiceClient(c.conn).Flow(ctx, app.StockFlowRequest_builder{DateFrom: from, DateTo: to}.Build())
 		if err != nil {
 			return nil, out, failed(err)
 		}
-		period(v.GetFrom(), v.GetTo())
+		period(v.GetDateFrom(), v.GetDateTo())
 		out.Stock = []mcpFlow{}
 		for _, r := range v.GetRows() {
 			out.Stock = append(out.Stock, mcpFlow{

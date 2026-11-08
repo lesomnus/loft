@@ -30,10 +30,10 @@ func (e *env) tomorrow(h, m int) time.Time {
 
 func (e *env) reserve(ctx context.Context, what *app.Asset, from, to time.Time, edit func(*app.ReservationAddRequest)) (*app.Reservation, error) {
 	req := app.ReservationAddRequest_builder{
-		Name:     "회의",
-		BeginsAt: timestamppb.New(from),
-		EndsAt:   timestamppb.New(to),
-		Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: assetRef(what)}.Build()},
+		Name:      "회의",
+		DateStart: timestamppb.New(from),
+		DateEnd:   timestamppb.New(to),
+		Items:     []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: assetRef(what)}.Build()},
 	}.Build()
 	if edit != nil {
 		edit(req)
@@ -154,8 +154,8 @@ func TestSeries(t *testing.T) {
 	x.Equal(codes.Aborted, codeOf(err))
 	cal, err := e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{
 		Resources: []*app.AssetRef{assetRef(room2)},
-		From:      timestamppb.New(e.now),
-		To:        timestamppb.New(e.now.AddDate(0, 0, 40)),
+		DateFrom:  timestamppb.New(e.now),
+		DateTo:    timestamppb.New(e.now.AddDate(0, 0, 40)),
 	}.Build())
 	x.NoError(err)
 	x.Len(cal.GetEntries(), 1, "nothing of the refused series was kept")
@@ -305,8 +305,8 @@ func TestMaintenanceBlocks(t *testing.T) {
 		Asset:     assetRef(projector),
 		Kind:      "inspection",
 		Name:      "램프 점검",
-		BeginsAt:  timestamppb.New(e.tomorrow(9, 0)),
-		EndsAt:    timestamppb.New(e.tomorrow(12, 0)),
+		DateStart: timestamppb.New(e.tomorrow(9, 0)),
+		DateEnd:   timestamppb.New(e.tomorrow(12, 0)),
 		Blocking:  true,
 		EveryDays: 90,
 	}.Build())
@@ -324,7 +324,7 @@ func TestMaintenanceBlocks(t *testing.T) {
 	}.Build())
 	x.NoError(err)
 	x.Len(ws.GetItems(), 1, "the next inspection is on the calendar")
-	x.WithinDuration(e.now.AddDate(0, 0, 90), ws.GetItems()[0].GetBeginsAt().AsTime(), time.Minute)
+	x.WithinDuration(e.now.AddDate(0, 0, 90), ws.GetItems()[0].GetDateStart().AsTime(), time.Minute)
 
 	// A member reports something broken, and only that.
 	kim, _ := e.person("member")
@@ -357,8 +357,8 @@ func TestPostgresBackstop(t *testing.T) {
 			SetTenantId(e.tenant.Uuid()).
 			SetResourceId(idUUID(room.GetId())).
 			SetKind("reservation").
-			SetBeginsAt(at).
-			SetEndsAt(at.Add(time.Hour)).
+			SetDateStart(at).
+			SetDateEnd(at.Add(time.Hour)).
 			SetBlocking(true).
 			SetExclusive(true).
 			SetUnits(1).

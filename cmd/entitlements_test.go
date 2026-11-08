@@ -122,7 +122,7 @@ func TestTheCopyFollowsLevyansGrants(t *testing.T) {
 	fake.Cut()
 	gone := fake.Of(seats)
 	gone.SetVersion(4)
-	gone.SetValidUntil(timestamppb.Now())
+	gone.SetDateExpires(timestamppb.Now())
 	fake.Quietly(gone)
 	x.Eventually(func() bool { return fake.Watching() == 1 && fake.Lists() > lists }, 10*time.Second, 10*time.Millisecond, "the follower opened the stream again")
 	x.Eventually(func() bool { return w.grants(w.tenant, "loft.seats").Value.IsNone() }, 5*time.Second, 10*time.Millisecond,
@@ -155,7 +155,7 @@ func TestAMissingGrantRestrictsNothing(t *testing.T) {
 
 	off := pdpb.EntitlementGrant_builder{
 		Id: []byte("restricted-off"), TenantId: tenantId(x, w.tenant).Bytes(), Key: domain.Restricted, Version: 1,
-		On: proto.Bool(false), ValidUntil: timestamppb.New(time.Now().Add(time.Hour)),
+		On: proto.Bool(false), DateExpires: timestamppb.New(time.Now().Add(time.Hour)),
 	}.Build()
 	fake.Put(off)
 	fake.Grant(tenantId(x, w.tenant), "loft.export", time.Now().Add(time.Hour))

@@ -26,8 +26,8 @@ message TenantMembership {
   // When it was closed and when it goes unless it is restored, for one that
   // is closed (D29), and how many days its address is then held from anybody
   // else (`app.workspaces.alias_hold`).
-  google.protobuf.Timestamp closed = 5;
-  google.protobuf.Timestamp destroy = 6;
+  google.protobuf.Timestamp date_closed = 5;
+  google.protobuf.Timestamp date_destroy = 6;
   uint32 alias_hold_days = 7;
 
   // Where its app is when that is a domain of its own (loft#155): the address

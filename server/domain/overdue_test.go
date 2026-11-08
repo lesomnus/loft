@@ -73,17 +73,17 @@ func TestALoanFoundLateIsAnEventOnce(t *testing.T) {
 	own, kids := e.split(e.eventsOf("custody.overdue"))
 	x.Equal(idUUID(loan.GetId()), *own.SubjectId, "the loan's")
 	x.Nil(own.ActorId, "the deployment's own work, nobody's")
-	x.True(found.Equal(own.OccurredAt), "when it was found late: %s", own.OccurredAt)
+	x.True(found.Equal(own.DateOccurred), "when it was found late: %s", own.DateOccurred)
 	held := value[*app.CustodyOverdue](e, own)
 	x.True(sameId(loan.GetId(), held.GetCustody()))
-	x.True(due.Equal(held.GetDue().AsTime()), "the due it missed")
+	x.True(due.Equal(held.GetDateDue().AsTime()), "the due it missed")
 	x.Empty(held.GetAsset(), "the loan's own holds no thing")
 	x.Equal(sentence(due, ny), e.say(own))
 
 	x.Len(kids, 1, "of what is still out, and not of what is back")
 	kid := kids[idUUID(camera.GetId())]
 	x.NotNil(kid)
-	x.True(found.Equal(kid.OccurredAt))
+	x.True(found.Equal(kid.DateOccurred))
 	x.Nil(kid.ActorId)
 	x.True(sameId(camera.GetId(), value[*app.CustodyOverdue](e, kid).GetAsset()))
 
@@ -92,7 +92,7 @@ func TestALoanFoundLateIsAnEventOnce(t *testing.T) {
 	es := e.happened(camera, "custody.overdue")
 	x.Len(es, 1)
 	x.Equal(sentence(due, ny), es[0].GetSummary())
-	x.True(found.Equal(es[0].GetValidFrom().AsTime()))
+	x.True(found.Equal(es[0].GetDateStart().AsTime()))
 	x.True(sameId(es[0].GetCauseId(), pdid.Id(own.Id).Bytes()), "under the loan's")
 	x.Empty(es[0].GetCause(), "which says no more than it")
 	x.Empty(e.happened(lens, "custody.overdue"))
@@ -109,7 +109,7 @@ func TestALoanFoundLateIsAnEventOnce(t *testing.T) {
 	// Given a later due, it is not late, and nothing says it was found so
 	// again until it misses that one too.
 	later := e.now.Add(time.Hour).Truncate(time.Minute)
-	_, err = e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DueAt: timestamppb.New(later)}.Build())
+	_, err = e.app().Custody().Extend(e.owner, app.CustodyExtendRequest_builder{Ref: ref[app.CustodyRef](loan.GetId()), DateDue: timestamppb.New(later)}.Build())
 	x.NoError(err)
 	e.sweep()
 	x.Len(e.eventsOf("custody.overdue"), 2)
@@ -118,8 +118,8 @@ func TestALoanFoundLateIsAnEventOnce(t *testing.T) {
 	e.sweep()
 	owns := loansOf(e.eventsOf("custody.overdue"))
 	x.Len(owns, 2, "one for each due it missed")
-	x.True(again.Equal(owns[1].OccurredAt))
-	x.True(later.Equal(value[*app.CustodyOverdue](e, owns[1]).GetDue().AsTime()))
+	x.True(again.Equal(owns[1].DateOccurred))
+	x.True(later.Equal(value[*app.CustodyOverdue](e, owns[1]).GetDateDue().AsTime()))
 	x.Equal(sentence(later, ny), e.say(owns[1]))
 	x.Equal([]string{sentence(later, ny), sentence(due, ny)}, summaries(e.happened(camera, "custody.overdue")), "newest first")
 
@@ -203,8 +203,8 @@ func TestAPickupFoundLateIsOnItsReservationsHistory(t *testing.T) {
 
 	r, err := e.reserve(kim, camera, e.tomorrow(9, 0), e.tomorrow(12, 0), nil)
 	x.NoError(err)
-	ends := r.GetEndsAt().AsTime()
-	e.now = r.GetBeginsAt().AsTime()
+	ends := r.GetDateEnd().AsTime()
+	e.now = r.GetDateStart().AsTime()
 	_, err = e.pickup(r, kimParty, camera)
 	x.NoError(err)
 
@@ -221,7 +221,7 @@ func TestAPickupFoundLateIsOnItsReservationsHistory(t *testing.T) {
 // first.
 func loansOf(vs []*ent.Event) []*ent.Event {
 	out := slices.DeleteFunc(slices.Clone(vs), func(v *ent.Event) bool { return v.CauseId != nil })
-	slices.SortFunc(out, func(a, b *ent.Event) int { return a.OccurredAt.Compare(b.OccurredAt) })
+	slices.SortFunc(out, func(a, b *ent.Event) int { return a.DateOccurred.Compare(b.DateOccurred) })
 	return out
 }
 

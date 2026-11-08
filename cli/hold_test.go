@@ -58,12 +58,12 @@ func TestAMigrationHoldsWhatABuildBeforeLeftOut(t *testing.T) {
 		// holding nothing of its time.
 		tenant := app.TenantRef_builder{Id: tn.Id[:]}.Build()
 		k, err := s.Base.Custody().Add(owner, app.CustodyAddRequest_builder{
-			Tenant:   tenant,
-			Party:    app.PartyById(p.GetId()),
-			Kind:     "loan",
-			Status:   "open",
-			IssuedAt: timestamppb.Now(),
-			DueAt:    timestamppb.New(tomorrow.Add(2 * time.Hour)),
+			Tenant:     tenant,
+			Party:      app.PartyById(p.GetId()),
+			Kind:       "loan",
+			Status:     "open",
+			DateIssued: timestamppb.Now(),
+			DateDue:    timestamppb.New(tomorrow.Add(2 * time.Hour)),
 		}.Build())
 		x.NoError(err)
 		_, err = s.Base.CustodyLine().Add(owner, app.CustodyLineAddRequest_builder{
@@ -71,16 +71,16 @@ func TestAMigrationHoldsWhatABuildBeforeLeftOut(t *testing.T) {
 			Custody:  app.CustodyById(k.GetId()),
 			Asset:    app.AssetById(camera),
 			Quantity: 1,
-			OutAt:    timestamppb.Now(),
+			DateOut:  timestamppb.Now(),
 		}.Build())
 		x.NoError(err)
 
 		// And booked over, which nothing refused.
 		r, err := s.Walled.Reservation().Add(owner, app.ReservationAddRequest_builder{
-			Name:     "촬영",
-			BeginsAt: timestamppb.New(tomorrow),
-			EndsAt:   timestamppb.New(tomorrow.Add(time.Hour)),
-			Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetById(camera)}.Build()},
+			Name:      "촬영",
+			DateStart: timestamppb.New(tomorrow),
+			DateEnd:   timestamppb.New(tomorrow.Add(time.Hour)),
+			Items:     []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetById(camera)}.Build()},
 		}.Build())
 		x.NoError(err)
 		booking = r.GetId()
@@ -97,7 +97,7 @@ func TestAMigrationHoldsWhatABuildBeforeLeftOut(t *testing.T) {
 		x.NoError(err)
 		x.Len(hs, 1)
 		x.True(hs[0].Blocking)
-		x.True(hs[0].EndsAt.Equal(tomorrow.Add(2*time.Hour)), "until it is due back")
+		x.True(hs[0].DateEnd.Equal(tomorrow.Add(2*time.Hour)), "until it is due back")
 
 		tn, err := s.Ent.Tenant.Query().Where(enttenant.Alias("acme")).Only(ctx)
 		x.NoError(err)
@@ -105,8 +105,8 @@ func TestAMigrationHoldsWhatABuildBeforeLeftOut(t *testing.T) {
 		x.NoError(err)
 		owner := frame.Into(ctx, frame.New(pdid.Id(h.Id), pdid.Id(tn.Id), frame.Whole()).WithScope(frame.Only(pdid.Id(tn.Id))))
 		cal, err := s.Walled.Reservation().Calendar(owner, app.ReservationCalendarRequest_builder{
-			From: timestamppb.New(tomorrow.Add(-time.Hour)),
-			To:   timestamppb.New(tomorrow.Add(2 * time.Hour)),
+			DateFrom: timestamppb.New(tomorrow.Add(-time.Hour)),
+			DateTo:   timestamppb.New(tomorrow.Add(2 * time.Hour)),
 		}.Build())
 		x.NoError(err)
 		x.Len(cal.GetEntries(), 1)

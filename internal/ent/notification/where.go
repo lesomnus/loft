@@ -76,9 +76,9 @@ func SubjectId(v uuid.UUID) predicate.Notification {
 	return predicate.Notification(sql.FieldEQ(FieldSubjectId, v))
 }
 
-// ReadAt applies equality check predicate on the "read_at" field. It's identical to ReadAtEQ.
-func ReadAt(v time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldEQ(FieldReadAt, v))
+// DateRead applies equality check predicate on the "date_read" field. It's identical to DateReadEQ.
+func DateRead(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldDateRead, v))
 }
 
 // Link applies equality check predicate on the "link" field. It's identical to LinkEQ.
@@ -366,54 +366,54 @@ func SubjectIdNotNil() predicate.Notification {
 	return predicate.Notification(sql.FieldNotNull(FieldSubjectId))
 }
 
-// ReadAtEQ applies the EQ predicate on the "read_at" field.
-func ReadAtEQ(v time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldEQ(FieldReadAt, v))
+// DateReadEQ applies the EQ predicate on the "date_read" field.
+func DateReadEQ(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldDateRead, v))
 }
 
-// ReadAtNEQ applies the NEQ predicate on the "read_at" field.
-func ReadAtNEQ(v time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldNEQ(FieldReadAt, v))
+// DateReadNEQ applies the NEQ predicate on the "date_read" field.
+func DateReadNEQ(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldNEQ(FieldDateRead, v))
 }
 
-// ReadAtIn applies the In predicate on the "read_at" field.
-func ReadAtIn(vs ...time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldIn(FieldReadAt, vs...))
+// DateReadIn applies the In predicate on the "date_read" field.
+func DateReadIn(vs ...time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldIn(FieldDateRead, vs...))
 }
 
-// ReadAtNotIn applies the NotIn predicate on the "read_at" field.
-func ReadAtNotIn(vs ...time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldNotIn(FieldReadAt, vs...))
+// DateReadNotIn applies the NotIn predicate on the "date_read" field.
+func DateReadNotIn(vs ...time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldNotIn(FieldDateRead, vs...))
 }
 
-// ReadAtGT applies the GT predicate on the "read_at" field.
-func ReadAtGT(v time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldGT(FieldReadAt, v))
+// DateReadGT applies the GT predicate on the "date_read" field.
+func DateReadGT(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldGT(FieldDateRead, v))
 }
 
-// ReadAtGTE applies the GTE predicate on the "read_at" field.
-func ReadAtGTE(v time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldGTE(FieldReadAt, v))
+// DateReadGTE applies the GTE predicate on the "date_read" field.
+func DateReadGTE(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldGTE(FieldDateRead, v))
 }
 
-// ReadAtLT applies the LT predicate on the "read_at" field.
-func ReadAtLT(v time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldLT(FieldReadAt, v))
+// DateReadLT applies the LT predicate on the "date_read" field.
+func DateReadLT(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldLT(FieldDateRead, v))
 }
 
-// ReadAtLTE applies the LTE predicate on the "read_at" field.
-func ReadAtLTE(v time.Time) predicate.Notification {
-	return predicate.Notification(sql.FieldLTE(FieldReadAt, v))
+// DateReadLTE applies the LTE predicate on the "date_read" field.
+func DateReadLTE(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldLTE(FieldDateRead, v))
 }
 
-// ReadAtIsNil applies the IsNil predicate on the "read_at" field.
-func ReadAtIsNil() predicate.Notification {
-	return predicate.Notification(sql.FieldIsNull(FieldReadAt))
+// DateReadIsNil applies the IsNil predicate on the "date_read" field.
+func DateReadIsNil() predicate.Notification {
+	return predicate.Notification(sql.FieldIsNull(FieldDateRead))
 }
 
-// ReadAtNotNil applies the NotNil predicate on the "read_at" field.
-func ReadAtNotNil() predicate.Notification {
-	return predicate.Notification(sql.FieldNotNull(FieldReadAt))
+// DateReadNotNil applies the NotNil predicate on the "date_read" field.
+func DateReadNotNil() predicate.Notification {
+	return predicate.Notification(sql.FieldNotNull(FieldDateRead))
 }
 
 // LinkEQ applies the EQ predicate on the "link" field.

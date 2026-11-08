@@ -196,7 +196,7 @@ func TestEveryWorkspaceIsMeasuredForLevyan(t *testing.T) {
 	x.Len(calls[0], 4, "every meter of it, in one call")
 	for _, r := range calls[0] {
 		x.Equal(tenantId(x, w.tenant).String(), r.GetWorkspace())
-		x.Equal(calls[0][0].GetMeasuredAt().AsTime(), r.GetMeasuredAt().AsTime(), "one moment")
+		x.Equal(calls[0][0].GetDateMeasured().AsTime(), r.GetDateMeasured().AsTime(), "one moment")
 	}
 	x.Equal(map[string]int64{
 		"loft.assets.active": 1, "loft.attachments.bytes": 0, "loft.members": 1, "loft.history.retention_days": 0,
@@ -228,7 +228,7 @@ func TestTheRetentionMeterIsTheWindowPreviewSays(t *testing.T) {
 	x.NoError(err)
 	v, err := tenants.Preview(w.owner, app.TenantPreviewRequest_builder{Ref: ref, KeepDays: z.Ptr(uint32(365))}.Build())
 	x.NoError(err)
-	from := v.GetKeepFrom().AsTime()
+	from := v.GetDateKeepEffective().AsTime()
 	x.True(from.After(time.Now().Add(29*24*time.Hour)), "a shorter window waits out the grace")
 
 	x.Zero(keep(), "forever, until the grace is over")

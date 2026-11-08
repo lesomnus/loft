@@ -141,7 +141,7 @@ function AssetView(props: { a: Asset }): ReactNode {
 								: []),
 							['사용자', c.called(a.custodian?.id) || '-'],
 							...(a.serial !== '' ? ([['시리얼', <code key="s">{a.serial}</code>]] as [ReactNode, ReactNode][]) : []),
-							['취득일', fmt(a.acquiredAt, 'date')],
+							['취득일', fmt(a.dateAcquired, 'date')],
 							['등록', fmt(a.dateCreated, 'date')],
 							...(ty?.spec?.attributes ?? []).map(
 								(d): [ReactNode, ReactNode] => [d.label || d.key, a.attributes[d.key] !== undefined ? `${a.attributes[d.key]}${d.unit ? ` ${d.unit}` : ''}` : '-'],
@@ -237,10 +237,10 @@ function Acknowledge(props: { a: Asset }): ReactNode {
 	const act = useAct()
 	const mine = props.a.custodian !== undefined && sameId(props.a.custodian.id, c.me.party?.id)
 	const lines = useRpc(CustodyLineService.method.list, mine ? { filters: [{ asset: ref(props.a.id) }], size: 50 } : null)
-	const out = mine ? lines.data?.items.find((l) => l.returnedAt === undefined && l.custody !== undefined) : undefined
+	const out = mine ? lines.data?.items.find((l) => l.dateReturned === undefined && l.custody !== undefined) : undefined
 	const held = useRpc(CustodyService.method.get, out?.custody !== undefined ? { ref: ref(out.custody.id) } : null)
 	const x = held.data
-	if (out === undefined || x === undefined || !sameId(x.id, out.custody?.id) || x.status !== 'open' || x.acknowledgedAt !== undefined) return null
+	if (out === undefined || x === undefined || !sameId(x.id, out.custody?.id) || x.status !== 'open' || x.dateAcknowledged !== undefined) return null
 	return (
 		<button className="primary" onClick={() => void act(CustodyService.method.acknowledge, { ref: ref(x.id) }, { ok: '인수를 확인했습니다.' })}>
 			인수 확인
@@ -255,9 +255,9 @@ function Stewards(props: { a: Asset }): ReactNode {
 	const open = (t.data?.entries ?? []).filter(
 		(e) =>
 			e.kind === 'stewardship' &&
-			e.supersededAt === undefined &&
-			(dateOf(e.validFrom)?.getTime() ?? 0) <= now &&
-			(e.validTo === undefined || (dateOf(e.validTo)?.getTime() ?? 0) > now) &&
+			e.dateSuperseded === undefined &&
+			(dateOf(e.dateStart)?.getTime() ?? 0) <= now &&
+			(e.dateEnd === undefined || (dateOf(e.dateEnd)?.getTime() ?? 0) > now) &&
 			e.detail['role'] !== 'custodian',
 	)
 	if (open.length === 0) return null
@@ -278,7 +278,7 @@ function Timeline(props: { a: Asset }): ReactNode {
 	const t = useRpc(AssetService.method.timeline, {
 		ref: ref(props.a.id),
 		superseded,
-		known: known === '' ? undefined : ts(fromInput(known)),
+		dateKnown: known === '' ? undefined : ts(fromInput(known)),
 	})
 
 	return (
@@ -306,12 +306,12 @@ function Timeline(props: { a: Asset }): ReactNode {
 					) : (
 						<ol className="timeline">
 							{d.entries.map((e, i) => {
-								const gone = e.supersededAt !== undefined
+								const gone = e.dateSuperseded !== undefined
 								return (
 									<li key={`${idStr(e.rowId)}${i}`} className={`${e.kind} ${gone ? 'gone' : ''}`}>
 										<span className="when">
-											{fmt(e.validFrom)}
-											{e.validTo !== undefined && <span className="mute"> → {fmt(e.validTo)}</span>}
+											{fmt(e.dateStart)}
+											{e.dateEnd !== undefined && <span className="mute"> → {fmt(e.dateEnd)}</span>}
 										</span>
 										<span className="what">
 											<span className="icon">{kindIcon[e.kind]}</span>
@@ -320,8 +320,8 @@ function Timeline(props: { a: Asset }): ReactNode {
 											{e.cause !== '' && <span className="mute small"> ({e.cause})</span>}
 										</span>
 										<span className="who mute small">
-											{e.actor !== '' && `${e.actor} · `}기록 {fmt(e.recordedAt)}
-											{gone && ` · 정정됨 ${fmt(e.supersededAt)}`}
+											{e.actor !== '' && `${e.actor} · `}기록 {fmt(e.dateRecorded)}
+											{gone && ` · 정정됨 ${fmt(e.dateSuperseded)}`}
 										</span>
 										{c.can('manager') && !gone && e.kind !== 'event' && (
 											<button className="link small" onClick={() => setCorrect(e)}>
@@ -343,7 +343,7 @@ function Timeline(props: { a: Asset }): ReactNode {
 function Correct(props: { a: Asset; e: TimelineEntry; onClose: () => void }): ReactNode {
 	const act = useAct()
 	const [how, setHow] = useState('from')
-	const [from, setFrom] = useState(localInput(dateOf(props.e.validFrom)))
+	const [from, setFrom] = useState(localInput(dateOf(props.e.dateStart)))
 	const [reason, setReason] = useState('')
 	return (
 		<FormModal
@@ -357,7 +357,7 @@ function Correct(props: { a: Asset; e: TimelineEntry; onClose: () => void }): Re
 						ref: ref(props.a.id),
 						rowId: props.e.rowId,
 						retract: how === 'retract',
-						validFrom: how === 'from' ? ts(fromInput(from)) : undefined,
+						dateStart: how === 'from' ? ts(fromInput(from)) : undefined,
 						reason,
 					},
 					{ ok: '정정했습니다.' },
@@ -365,7 +365,7 @@ function Correct(props: { a: Asset; e: TimelineEntry; onClose: () => void }): Re
 			}
 		>
 			<p className="wide">
-				<strong>{props.e.summary}</strong> ({fmt(props.e.validFrom)}부터)
+				<strong>{props.e.summary}</strong> ({fmt(props.e.dateStart)}부터)
 			</p>
 			<Field label="어떻게">
 				<Select
@@ -426,8 +426,8 @@ function Bookings(props: { a: Asset }): ReactNode {
 	const [open, setOpen] = useState<CalendarEntry>()
 	const cal = useRpc(ReservationService.method.calendar, {
 		resources: [ref(props.a.id)],
-		from: ts(now),
-		to: ts(new Date(now.getTime() + 60 * 86400_000)),
+		dateFrom: ts(now),
+		dateTo: ts(new Date(now.getTime() + 60 * 86400_000)),
 	})
 	return (
 		<Card title="다가오는 예약 (60일)" actions={<Link to={`/reservations?resource=${idStr(props.a.id)}`}>예약 화면</Link>}>
@@ -440,7 +440,7 @@ function Bookings(props: { a: Asset }): ReactNode {
 							{d.entries.map((e) => (
 								<li key={idStr(e.reservation?.id)}>
 									<span>
-										{fmt(e.reservation?.beginsAt)} – {fmt(e.reservation?.endsAt, 'time')} ·{' '}
+										{fmt(e.reservation?.dateStart)} – {fmt(e.reservation?.dateEnd, 'time')} ·{' '}
 										<button className="link" onClick={() => setOpen(e)}>
 											{e.reservation?.name}
 										</button>
@@ -475,7 +475,7 @@ function WorkTab(props: { a: Asset }): ReactNode {
 								<li key={idStr(w.id)}>
 									<span>
 										<span className="chip">{workKindWord[w.kind]}</span> {w.name}
-										<span className="mute"> · {fmt(w.beginsAt ?? w.dateCreated, 'date')}</span>
+										<span className="mute"> · {fmt(w.dateStart ?? w.dateCreated, 'date')}</span>
 									</span>
 									<Badge v={w.status} words={workStatusWord} />
 								</li>
@@ -543,7 +543,7 @@ function Labels(props: { a: Asset }): ReactNode {
 								<li key={idStr(l.id)}>
 									<span>
 										<code>{idStr(l.id).slice(0, 13)}…</code> <Badge v={l.state} words={labelWord} />
-										<span className="mute"> {fmt(l.boundAt ?? l.dateCreated, 'date')}</span>
+										<span className="mute"> {fmt(l.dateBound ?? l.dateCreated, 'date')}</span>
 									</span>
 									{l.state === 'bound' && (
 										<span>
@@ -600,7 +600,7 @@ function Move(props: { a: Asset; onClose: () => void }): ReactNode {
 							slot,
 							uFrom: Number(uFrom || 0),
 							uTo: Number(uTo || 0),
-							at: at === '' ? undefined : ts(fromInput(at)),
+							dateOccurred: at === '' ? undefined : ts(fromInput(at)),
 							reason,
 						},
 						{ ok: '옮겼습니다.' },
@@ -701,7 +701,7 @@ function SetAttrs(props: { a: Asset; onClose: () => void }): ReactNode {
 				return (
 					(await act(
 						AssetService.method.setAttributes,
-						{ ref: ref(a.id), set, clear, at: at === '' ? undefined : ts(fromInput(at)), reason, leave },
+						{ ref: ref(a.id), set, clear, dateOccurred: at === '' ? undefined : ts(fromInput(at)), reason, leave },
 						{ ok: '바꿨습니다.' },
 					)) !== undefined
 				)
@@ -750,7 +750,7 @@ export function useMemberships(id: Uint8Array | undefined): Membership[] | undef
 	return useMemo(
 		() =>
 			t.data?.entries
-				.filter((e) => e.kind === 'link' && e.supersededAt === undefined && e.validTo === undefined && e.detail['kind'] === 'member_of' && e.detail['side'] === 'source')
+				.filter((e) => e.kind === 'link' && e.dateSuperseded === undefined && e.dateEnd === undefined && e.detail['kind'] === 'member_of' && e.detail['side'] === 'source')
 				.map((e) => ({ id: e.otherId, name: e.otherName, required: e.detail['required'] === 'true' })),
 		[t.data],
 	)
@@ -806,7 +806,7 @@ function Assign(props: { a: Asset; onClose: () => void }): ReactNode {
 						ref: ref(props.a.id),
 						role,
 						party: party === '' ? undefined : ref(idBytes(party)),
-						at: at === '' ? undefined : ts(fromInput(at)),
+						dateOccurred: at === '' ? undefined : ts(fromInput(at)),
 					},
 					{ ok: party === '' ? '해제했습니다.' : '지정했습니다.' },
 				)) !== undefined

@@ -360,7 +360,7 @@ func (e *env) person(role string) (context.Context, *app.Party) {
 }
 
 func (e *env) space(name string, in *app.Asset) *app.Asset {
-	req := app.AssetAddRequest_builder{Name: name, Kind: "space", Since: e.ago(365 * 24 * time.Hour)}.Build()
+	req := app.AssetAddRequest_builder{Name: name, Kind: "space", DateOccurred: e.ago(365 * 24 * time.Hour)}.Build()
 	if in != nil {
 		req.SetTo(assetRef(in))
 	}
@@ -370,7 +370,7 @@ func (e *env) space(name string, in *app.Asset) *app.Asset {
 }
 
 func (e *env) item(name, tag string, in *app.Asset, since time.Duration) *app.Asset {
-	req := app.AssetAddRequest_builder{Name: name, Tag: tag, Kind: "item", Since: e.ago(since)}.Build()
+	req := app.AssetAddRequest_builder{Name: name, Tag: tag, Kind: "item", DateOccurred: e.ago(since)}.Build()
 	if in != nil {
 		req.SetTo(assetRef(in))
 	}

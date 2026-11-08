@@ -18,7 +18,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/payday/fact_svc.g.proto.
  */
 export const file_loft_payday_fact_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Chxsb2Z0L3BheWRheS9mYWN0X3N2Yy5nLnByb3RvEgRsb2Z0Iu0CCg5GYWN0QWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5sb2Z0LlRlbmFudFJlZhIZCgpzdWJqZWN0X2lkGAggASgMQgWqAQIIAhISCgNrZXkYCSABKAlCBaoBAggCEhQKBXZhbHVlGAogASgJQgWqAQIIAhIUCgxmaWVsZF9udW1iZXIYDCABKA0SMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIOCgZkb21haW4YECABKA0SLgoKdmFsaWRfZnJvbRgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFwoIZXZlbnRfaWQYEyABKAxCBaoBAggCEjEKDXN1cGVyc2VkZWRfYXQYFCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhUKDXN1cGVyc2VkZWRfYnkYFSABKAwiOQoSRmFjdEFkZE1hbnlSZXF1ZXN0EiMKBWl0ZW1zGAEgAygLMhQubG9mdC5GYWN0QWRkUmVxdWVzdCIwChNGYWN0QWRkTWFueVJlc3BvbnNlEhkKBWl0ZW1zGAEgAygLMgoubG9mdC5GYWN0Ik4KDkZhY3RHZXRSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmxvZnQuRmFjdFJlZhIgCgZzZWxlY3QYAiABKAsyEC5sb2Z0LkZhY3RTZWxlY3QiHgoHRmFjdFJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSKTAgoKRmFjdFNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIubG9mdC5UZW5hbnRTZWxlY3QSEgoKc3ViamVjdF9pZBgIIAEoCBILCgNrZXkYCSABKAgSDQoFdmFsdWUYCiABKAgSFAoMZmllbGRfbnVtYmVyGAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDgoGZG9tYWluGBAgASgIEhIKCnZhbGlkX2Zyb20YESABKAgSEAoIZXZlbnRfaWQYEyABKAgSFQoNc3VwZXJzZWRlZF9hdBgUIAEoCBIVCg1zdXBlcnNlZGVkX2J5GBUgASgIIpYDChBGYWN0UGF0Y2hSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmxvZnQuRmFjdFJlZhISCgpzdWJqZWN0X2lkGBAgASgMEgsKA2tleRgSIAEoCRINCgV2YWx1ZRgUIAEoCRIUCgxmaWVsZF9udW1iZXIYGCABKA0SMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSDgoGZG9tYWluGCAgASgNEi4KCnZhbGlkX2Zyb20YIiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGV2ZW50X2lkGCYgASgMEjEKDXN1cGVyc2VkZWRfYXQYKCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEnN1cGVyc2VkZWRfYXRfbnVsbBgpIAEoCBIVCg1zdXBlcnNlZGVkX2J5GCogASgMEhoKEnN1cGVyc2VkZWRfYnlfbnVsbBgrIAEoCCJLChBGYWN0QXBwbHlSZXF1ZXN0EhoKA3JlZhgBIAEoCzINLmxvZnQuRmFjdFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIncKD0ZhY3RMaXN0UmVxdWVzdBIhCgdmaWx0ZXJzGAEgAygLMhAubG9mdC5GYWN0RmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJCChBGYWN0TGlzdFJlc3BvbnNlEhkKBWl0ZW1zGAEgAygLMgoubG9mdC5GYWN0EhMKBG5leHQYAiABKAlCBaoBAggCIlIKCkZhY3RGaWx0ZXISGgoDcmVmGAEgASgLMg0ubG9mdC5GYWN0UmVmEhIKCnN1YmplY3RfaWQYAiABKAwSFAoMZmllbGRfbnVtYmVyGAMgASgNMrACCgtGYWN0U2VydmljZRInCgNBZGQSFC5sb2Z0LkZhY3RBZGRSZXF1ZXN0GgoubG9mdC5GYWN0Ej4KB0FkZE1hbnkSGC5sb2Z0LkZhY3RBZGRNYW55UmVxdWVzdBoZLmxvZnQuRmFjdEFkZE1hbnlSZXNwb25zZRInCgNHZXQSFC5sb2Z0LkZhY3RHZXRSZXF1ZXN0GgoubG9mdC5GYWN0EisKBVBhdGNoEhYubG9mdC5GYWN0UGF0Y2hSZXF1ZXN0GgoubG9mdC5GYWN0EisKBUFwcGx5EhYubG9mdC5GYWN0QXBwbHlSZXF1ZXN0GgoubG9mdC5GYWN0EjUKBExpc3QSFS5sb2Z0LkZhY3RMaXN0UmVxdWVzdBoWLmxvZnQuRmFjdExpc3RSZXNwb25zZUIaWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnRiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_loft_payday_fact, file_loft_payday_tenant_svc_g, file_patch_patch]);
+  fileDesc("Chxsb2Z0L3BheWRheS9mYWN0X3N2Yy5nLnByb3RvEgRsb2Z0Iu8CCg5GYWN0QWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5sb2Z0LlRlbmFudFJlZhIZCgpzdWJqZWN0X2lkGAggASgMQgWqAQIIAhISCgNrZXkYCSABKAlCBaoBAggCEhQKBXZhbHVlGAogASgJQgWqAQIIAhIUCgxmaWVsZF9udW1iZXIYDCABKA0SMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIOCgZkb21haW4YECABKA0SLgoKZGF0ZV9zdGFydBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFwoIZXZlbnRfaWQYEyABKAxCBaoBAggCEjMKD2RhdGVfc3VwZXJzZWRlZBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFQoNc3VwZXJzZWRlZF9ieRgVIAEoDCI5ChJGYWN0QWRkTWFueVJlcXVlc3QSIwoFaXRlbXMYASADKAsyFC5sb2Z0LkZhY3RBZGRSZXF1ZXN0IjAKE0ZhY3RBZGRNYW55UmVzcG9uc2USGQoFaXRlbXMYASADKAsyCi5sb2Z0LkZhY3QiTgoORmFjdEdldFJlcXVlc3QSGgoDcmVmGAEgASgLMg0ubG9mdC5GYWN0UmVmEiAKBnNlbGVjdBgCIAEoCzIQLmxvZnQuRmFjdFNlbGVjdCIeCgdGYWN0UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IpUCCgpGYWN0U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5sb2Z0LlRlbmFudFNlbGVjdBISCgpzdWJqZWN0X2lkGAggASgIEgsKA2tleRgJIAEoCBINCgV2YWx1ZRgKIAEoCBIUCgxmaWVsZF9udW1iZXIYDCABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBIOCgZkb21haW4YECABKAgSEgoKZGF0ZV9zdGFydBgRIAEoCBIQCghldmVudF9pZBgTIAEoCBIXCg9kYXRlX3N1cGVyc2VkZWQYFCABKAgSFQoNc3VwZXJzZWRlZF9ieRgVIAEoCCKaAwoQRmFjdFBhdGNoUmVxdWVzdBIaCgNyZWYYASABKAsyDS5sb2Z0LkZhY3RSZWYSEgoKc3ViamVjdF9pZBgQIAEoDBILCgNrZXkYEiABKAkSDQoFdmFsdWUYFCABKAkSFAoMZmllbGRfbnVtYmVyGBggASgNEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIEg4KBmRvbWFpbhggIAEoDRIuCgpkYXRlX3N0YXJ0GCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghldmVudF9pZBgmIAEoDBIzCg9kYXRlX3N1cGVyc2VkZWQYKCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhwKFGRhdGVfc3VwZXJzZWRlZF9udWxsGCkgASgIEhUKDXN1cGVyc2VkZWRfYnkYKiABKAwSGgoSc3VwZXJzZWRlZF9ieV9udWxsGCsgASgIIksKEEZhY3RBcHBseVJlcXVlc3QSGgoDcmVmGAEgASgLMg0ubG9mdC5GYWN0UmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2gidwoPRmFjdExpc3RSZXF1ZXN0EiEKB2ZpbHRlcnMYASADKAsyEC5sb2Z0LkZhY3RGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIkIKEEZhY3RMaXN0UmVzcG9uc2USGQoFaXRlbXMYASADKAsyCi5sb2Z0LkZhY3QSEwoEbmV4dBgCIAEoCUIFqgECCAIiUgoKRmFjdEZpbHRlchIaCgNyZWYYASABKAsyDS5sb2Z0LkZhY3RSZWYSEgoKc3ViamVjdF9pZBgCIAEoDBIUCgxmaWVsZF9udW1iZXIYAyABKA0ysAIKC0ZhY3RTZXJ2aWNlEicKA0FkZBIULmxvZnQuRmFjdEFkZFJlcXVlc3QaCi5sb2Z0LkZhY3QSPgoHQWRkTWFueRIYLmxvZnQuRmFjdEFkZE1hbnlSZXF1ZXN0GhkubG9mdC5GYWN0QWRkTWFueVJlc3BvbnNlEicKA0dldBIULmxvZnQuRmFjdEdldFJlcXVlc3QaCi5sb2Z0LkZhY3QSKwoFUGF0Y2gSFi5sb2Z0LkZhY3RQYXRjaFJlcXVlc3QaCi5sb2Z0LkZhY3QSKwoFQXBwbHkSFi5sb2Z0LkZhY3RBcHBseVJlcXVlc3QaCi5sb2Z0LkZhY3QSNQoETGlzdBIVLmxvZnQuRmFjdExpc3RSZXF1ZXN0GhYubG9mdC5GYWN0TGlzdFJlc3BvbnNlQhpaGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdGIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_loft_payday_fact, file_loft_payday_tenant_svc_g, file_patch_patch]);
 
 /**
  * @generated from message loft.FactAddRequest
@@ -65,9 +65,9 @@ export type FactAddRequest = Message<"loft.FactAddRequest"> & {
   domain: number;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 17;
+   * @generated from field: google.protobuf.Timestamp date_start = 17;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes event_id = 19 [features.field_presence = IMPLICIT];
@@ -75,9 +75,9 @@ export type FactAddRequest = Message<"loft.FactAddRequest"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 20;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 20;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes superseded_by = 21;
@@ -221,9 +221,9 @@ export type FactSelect = Message<"loft.FactSelect"> & {
   domain: boolean;
 
   /**
-   * @generated from field: bool valid_from = 17;
+   * @generated from field: bool date_start = 17;
    */
-  validFrom: boolean;
+  dateStart: boolean;
 
   /**
    * @generated from field: bool event_id = 19;
@@ -231,9 +231,9 @@ export type FactSelect = Message<"loft.FactSelect"> & {
   eventId: boolean;
 
   /**
-   * @generated from field: bool superseded_at = 20;
+   * @generated from field: bool date_superseded = 20;
    */
-  supersededAt: boolean;
+  dateSuperseded: boolean;
 
   /**
    * @generated from field: bool superseded_by = 21;
@@ -307,9 +307,9 @@ export type FactPatchRequest = Message<"loft.FactPatchRequest"> & {
   domain: number;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_from = 34;
+   * @generated from field: google.protobuf.Timestamp date_start = 34;
    */
-  validFrom?: Timestamp | undefined;
+  dateStart?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes event_id = 38;
@@ -317,19 +317,19 @@ export type FactPatchRequest = Message<"loft.FactPatchRequest"> & {
   eventId: Uint8Array;
 
   /**
-   * @generated from field: google.protobuf.Timestamp superseded_at = 40;
+   * @generated from field: google.protobuf.Timestamp date_superseded = 40;
    */
-  supersededAt?: Timestamp | undefined;
+  dateSuperseded?: Timestamp | undefined;
 
   /**
-   * Clear superseded_at instead of writing it.
+   * Clear date_superseded instead of writing it.
    * It takes a field of its own because an unset value already means
    * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and superseded_at clears.
+   * outright: setting both this and date_superseded clears.
    *
-   * @generated from field: bool superseded_at_null = 41;
+   * @generated from field: bool date_superseded_null = 41;
    */
-  supersededAtNull: boolean;
+  dateSupersededNull: boolean;
 
   /**
    * @generated from field: bytes superseded_by = 42;

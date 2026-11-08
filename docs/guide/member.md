@@ -56,15 +56,15 @@ loft custody acknowledge <지급·대여 ID>
 
 ```sh
 loft asset search -o wide '{"q": "회의실 B"}'                             # 회의실 B의 ID
-loft bookable availability '{"resources": [{"id": "<회의실 B의 ID>"}], "from": "2026-11-10T00:00:00+09:00", "to": "2026-11-11T00:00:00+09:00"}'       # 그날 잡힌 시간
-loft reservation add '{"name": "개발팀 짝 프로그래밍", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-10T14:00:00+09:00", "ends_at": "2026-11-10T15:00:00+09:00"}'
-loft reservation add '{"name": "스터디", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-12T10:00:00+09:00", "ends_at": "2026-11-12T11:00:00+09:00", "hold": true}'       # 임시 홀드
+loft bookable availability '{"resources": [{"id": "<회의실 B의 ID>"}], "date_from": "2026-11-10T00:00:00+09:00", "date_to": "2026-11-11T00:00:00+09:00"}'       # 그날 잡힌 시간
+loft reservation add '{"name": "개발팀 짝 프로그래밍", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "date_start": "2026-11-10T14:00:00+09:00", "date_end": "2026-11-10T15:00:00+09:00"}'
+loft reservation add '{"name": "스터디", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "date_start": "2026-11-12T10:00:00+09:00", "date_end": "2026-11-12T11:00:00+09:00", "hold": true}'       # 임시 홀드
 loft reservation confirm <예약 ID>                    # 홀드를 확정
 loft reservation calendar '{"mine": true}'          # 내 예약 (지난 7일부터 앞으로 30일)
 loft reservation check-in <예약 ID>                   # 시작 30분 전부터
 loft reservation complete <예약 ID>                   # 일찍 끝내기
 loft reservation cancel <예약 ID> '{"reason": "일정 변경"}'
-loft reservation add '{"name": "개발팀 스탠드업", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "begins_at": "2026-11-16T09:00:00+09:00", "ends_at": "2026-11-16T09:30:00+09:00", "repeat": "FREQ=WEEKLY;COUNT=4"}'       # 매주 4번
+loft reservation add '{"name": "개발팀 스탠드업", "items": [{"resource": {"id": "<회의실 B의 ID>"}}], "date_start": "2026-11-16T09:00:00+09:00", "date_end": "2026-11-16T09:30:00+09:00", "repeat": "FREQ=WEEKLY;COUNT=4"}'       # 매주 4번
 loft reservation cancel <예약 ID> '{"series": true}'       # 이 회차와 그 뒤의 반복을 모두 취소
 loft reservation timeline <예약 ID>                   # 예약 창의 이력
 ```
@@ -95,8 +95,8 @@ loft reservation timeline <예약 ID>                   # 예약 창의 이력
 loft asset search -o wide '{"q": "노트북"}'
 loft asset timeline <자산 ID>                          # 그 자산의 이력
 loft asset search -o wide '{"q": "3층"}'
-loft asset query-at '{"root": {"id": "<3층 ID>"}, "at": "2026-06-01T00:00:00+09:00", "depth": 1}'       # 그때 3층에 있던 것
-loft asset diff '{"root": {"id": "<3층 ID>"}, "from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'      # 그 사이에 바뀐 것
+loft asset query-at '{"root": {"id": "<3층 ID>"}, "date_as_of": "2026-06-01T00:00:00+09:00", "depth": 1}'       # 그때 3층에 있던 것
+loft asset diff '{"root": {"id": "<3층 ID>"}, "date_from": "2026-10-01T00:00:00+09:00", "date_to": "2026-11-01T00:00:00+09:00"}'      # 그 사이에 바뀐 것
 loft party search -o wide '{"q": "김민준"}'
 ```
 

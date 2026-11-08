@@ -72,8 +72,8 @@ func (t *Tx) kitMembers(kit uuid.UUID) ([]uuid.UUID, error) {
 		link.TargetId(kit),
 		link.Kind("member_of"),
 		link.Required(true),
-		link.SupersededAtIsNil(),
-		link.ValidToIsNil(),
+		link.DateSupersededIsNil(),
+		link.DateEndIsNil(),
 	).All(t.ctx)
 	if err != nil {
 		return nil, err
@@ -199,7 +199,7 @@ func (t *Tx) planKits(kits map[uuid.UUID]*ent.Bookable) (kitPlan, error) {
 		allocation.TenantId(tid),
 		allocation.ResourceIdIn(ids...),
 		allocation.RefIdNotNil(),
-		allocation.EndsAtGT(t.now),
+		allocation.DateEndGT(t.now),
 	).All(t.ctx)
 	if err != nil {
 		return p, err
@@ -215,9 +215,9 @@ func (t *Tx) planKits(kits map[uuid.UUID]*ent.Bookable) (kitPlan, error) {
 		reservation.TenantId(tid),
 		reservation.IdIn(refs...),
 		reservation.StatusIn(resHeld, resRequested, resConfirmed),
-		reservation.EndsAtGT(t.now),
+		reservation.DateEndGT(t.now),
 		reservation.DateErasedIsNil(),
-	).Order(reservation.ByBeginsAt(), reservation.ById()).All(t.ctx)
+	).Order(reservation.ByDateStart(), reservation.ById()).All(t.ctx)
 	if err != nil || len(rs) == 0 {
 		return p, err
 	}
@@ -402,7 +402,7 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 				// Not there to take.
 				continue
 			}
-			from, to := window(m.book, s.r.BeginsAt, s.r.EndsAt)
+			from, to := window(m.book, s.r.DateStart, s.r.DateEnd)
 			if from.Before(t.now) {
 				from = t.now
 			}
@@ -414,8 +414,8 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 				Resource:  assetRef(m.asset.Id),
 				Kind:      "reservation",
 				RefId:     pdid.Id(s.r.Id).Bytes(),
-				BeginsAt:  ts(from),
-				EndsAt:    ts(to),
+				DateStart: ts(from),
+				DateEnd:   ts(to),
 				Blocking:  true,
 				Exclusive: m.book.Units <= 1,
 				Units:     1,
@@ -508,7 +508,7 @@ func (c allocChange) said() *app.ReservationAllocationChanged {
 	return app.ReservationAllocationChanged_builder{
 		Reservation: pdid.Id(c.r.Id).Bytes(),
 		Name:        c.r.Name,
-		BeginsAt:    ts(c.r.BeginsAt),
+		DateStart:   ts(c.r.DateStart),
 		Asset:       pdid.Id(c.thing.Id).Bytes(),
 		AssetName:   c.thing.Name,
 		Override:    c.override,
@@ -539,8 +539,8 @@ func (t *Tx) changed(cs ...allocChange) error {
 	for _, c := range cs {
 		v := c.said()
 		kids = append(kids,
-			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.r.Id), At: t.now, Value: v}},
-			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.thing.Id), At: t.now, Value: v}},
+			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.r.Id), DateOccurred: t.now, Value: v}},
+			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.thing.Id), DateOccurred: t.now, Value: v}},
 		)
 	}
 	_, err := t.op.Batch(t.ctx, kids)
@@ -585,7 +585,7 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 		}
 		return false, err
 	}
-	if !waits(r.Status) || !r.EndsAt.After(t.now) {
+	if !waits(r.Status) || !r.DateEnd.After(t.now) {
 		return false, nil
 	}
 	m, err := t.member(w.ResourceId, "")
@@ -595,14 +595,14 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 		return false, nil
 	}
 	// From now on: what it took before now, it did not.
-	from := w.BeginsAt
+	from := w.DateStart
 	if from.Before(t.now) {
 		from = t.now
 	}
-	if !w.EndsAt.After(from) {
+	if !w.DateEnd.After(from) {
 		return false, nil
 	}
-	cs, err := t.conflicts(m, from, w.EndsAt, max(w.Units, 1), []uuid.UUID{r.Id})
+	cs, err := t.conflicts(m, from, w.DateEnd, max(w.Units, 1), []uuid.UUID{r.Id})
 	if err != nil || len(cs) > 0 {
 		return false, err
 	}
@@ -613,7 +613,7 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 	if _, err := t.next.Allocation().Patch(t.ctx, app.AllocationPatchRequest_builder{
 		Ref:              app.AllocationRef_builder{Id: pdid.Id(w.Id).Bytes()}.Build(),
 		Kind:             z.Ptr("reservation"),
-		BeginsAt:         ts(from),
+		DateStart:        ts(from),
 		Blocking:         z.Ptr(true),
 		Exclusive:        z.Ptr(p == nil && n <= 1),
 		DateUpdatedForce: z.Ptr(true),
@@ -706,9 +706,9 @@ func (t *Tx) takeWaiting(resources []uuid.UUID, a *ent.Allocation) error {
 		allocation.TenantId(t.tenant.Uuid()),
 		allocation.ResourceIdIn(resources...),
 		allocation.Kind(allocWaiting),
-		allocation.BeginsAtLT(a.EndsAt),
-		allocation.EndsAtGT(a.BeginsAt),
-		allocation.EndsAtGT(t.now),
+		allocation.DateStartLT(a.DateEnd),
+		allocation.DateEndGT(a.DateStart),
+		allocation.DateEndGT(t.now),
 	).Order(allocation.ByDateCreated(), allocation.ById()).All(t.ctx)
 	if err != nil {
 		return err
@@ -735,7 +735,7 @@ func sweepKits(t *Tx) error {
 	ws, err := t.db.Allocation.Query().Where(
 		allocation.TenantId(t.tenant.Uuid()),
 		allocation.Kind(allocWaiting),
-		allocation.EndsAtGT(t.now),
+		allocation.DateEndGT(t.now),
 		allocation.RefIdNotNil(),
 	).Order(allocation.ByDateCreated(), allocation.ById()).Limit(200).All(t.ctx)
 	if err != nil || len(ws) == 0 {
@@ -749,7 +749,7 @@ func sweepKits(t *Tx) error {
 		reservation.TenantId(t.tenant.Uuid()),
 		reservation.IdIn(refs...),
 		reservation.StatusIn(resHeld, resRequested, resConfirmed),
-		reservation.EndsAtGT(t.now),
+		reservation.DateEndGT(t.now),
 	).Ids(t.ctx)
 	if err != nil || len(rs) == 0 {
 		return err
@@ -822,14 +822,14 @@ func (t *Tx) free(w *ent.Allocation) (bool, error) {
 	if err != nil || poolOutOfUse(m.asset) {
 		return false, nil
 	}
-	from := w.BeginsAt
+	from := w.DateStart
 	if from.Before(t.now) {
 		from = t.now
 	}
-	if !w.EndsAt.After(from) {
+	if !w.DateEnd.After(from) {
 		return false, nil
 	}
-	cs, err := t.conflicts(m, from, w.EndsAt, max(w.Units, 1), []uuid.UUID{*w.RefId})
+	cs, err := t.conflicts(m, from, w.DateEnd, max(w.Units, 1), []uuid.UUID{*w.RefId})
 	return len(cs) == 0, err
 }
 
@@ -925,7 +925,7 @@ func reservationsOf(ws []kitWait) []uuid.UUID {
 func (t *Tx) waitingOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationConflict, error) {
 	ids := []uuid.UUID{}
 	for _, r := range rs {
-		if waits(r.Status) && r.EndsAt.After(t.now) {
+		if waits(r.Status) && r.DateEnd.After(t.now) {
 			ids = append(ids, r.Id)
 		}
 	}
@@ -936,7 +936,7 @@ func (t *Tx) waitingOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationC
 		allocation.TenantId(t.tenant.Uuid()),
 		allocation.RefIdIn(ids...),
 		allocation.Kind(allocWaiting),
-	).Order(allocation.ByBeginsAt(), allocation.ById()).All(t.ctx)
+	).Order(allocation.ByDateStart(), allocation.ById()).All(t.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -956,7 +956,7 @@ func (t *Tx) waitingOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationC
 		if counted && poolOutOfUse(m.asset) {
 			continue
 		}
-		from := w.BeginsAt
+		from := w.DateStart
 		if from.Before(t.now) {
 			from = t.now
 		}
@@ -964,11 +964,11 @@ func (t *Tx) waitingOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationC
 			ResourceId:   pdid.Id(m.asset.Id).Bytes(),
 			ResourceTag:  m.asset.Tag,
 			ResourceName: m.asset.Name,
-			BeginsAt:     ts(w.BeginsAt),
-			EndsAt:       ts(w.EndsAt),
+			DateStart:    ts(w.DateStart),
+			DateEnd:      ts(w.DateEnd),
 		}.Build()
-		if w.EndsAt.After(from) {
-			cs, err := t.conflicts(m, from, w.EndsAt, max(w.Units, 1), []uuid.UUID{*w.RefId})
+		if w.DateEnd.After(from) {
+			cs, err := t.conflicts(m, from, w.DateEnd, max(w.Units, 1), []uuid.UUID{*w.RefId})
 			if err != nil {
 				return nil, err
 			}
@@ -1006,8 +1006,8 @@ func (t *Tx) busy(a *ent.Allocation, r *ent.Reservation) *app.BusySpan {
 	}
 	v := app.BusySpan_builder{
 		ResourceId: pdid.Id(a.ResourceId).Bytes(),
-		BeginsAt:   ts(a.BeginsAt),
-		EndsAt:     ts(a.EndsAt),
+		DateStart:  ts(a.DateStart),
+		DateEnd:    ts(a.DateEnd),
 		Kind:       a.Kind,
 		Units:      a.Units,
 		Blocking:   a.Blocking,

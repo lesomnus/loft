@@ -54,7 +54,7 @@ test("what is out: a loan of its own, who has it, and its CSV, which says what i
 	const what = unique('e2e 리포트 대여품')
 	const person = await rpc(page, 'PartyService/Add', { name: who, kind: 'person' })
 	const thing = await rpc(page, 'AssetService/Add', { name: what, kind: 'item' })
-	await rpc(page, 'CustodyService/Add', { party: { id: person.id }, kind: 'loan', dueAt: momentAt(7, 18), lines: [{ asset: { id: thing.id } }] })
+	await rpc(page, 'CustodyService/Add', { party: { id: person.id }, kind: 'loan', dateDue: momentAt(7, 18), lines: [{ asset: { id: thing.id } }] })
 
 	await report(page, '대여 현황')
 	await page.getByLabel('구분').selectOption({ label: '대여' })
@@ -88,7 +88,7 @@ test('what is late: two of a name, told apart by their teams wherever it is list
 		const t = await rpc(page, 'PartyService/Add', { name: team, kind: 'team' })
 		const p = await rpc(page, 'PartyService/Add', { name, kind: 'person', parentId: t.id })
 		const a = await rpc(page, 'AssetService/Add', { name: unique('e2e 동명이인 노트북'), kind: 'item' })
-		await rpc(page, 'CustodyService/Add', { party: { id: p.id }, kind: 'loan', dueAt: due.toISOString(), lines: [{ asset: { id: a.id } }] })
+		await rpc(page, 'CustodyService/Add', { party: { id: p.id }, kind: 'loan', dateDue: due.toISOString(), lines: [{ asset: { id: a.id } }] })
 	}
 	const told = teams.map((t) => `${name} · ${t}`)
 	await expect.poll(() => Date.now(), { timeout: 10_000 }).toBeGreaterThan(due.getTime() + 500)
@@ -138,13 +138,13 @@ test('how what may be booked was used: a booking of its own, picked up and retur
 	const r = await rpc(page, 'ReservationService/Add', {
 		name: unique('e2e 리포트 촬영'),
 		items: [{ resource: { id: camera.id } }],
-		beginsAt: new Date(now - 5 * 60_000).toISOString(),
-		endsAt: new Date(now + 55 * 60_000).toISOString(),
+		dateStart: new Date(now - 5 * 60_000).toISOString(),
+		dateEnd: new Date(now + 55 * 60_000).toISOString(),
 	})
 	const c = await rpc(page, 'CustodyService/Add', {
 		party: { id: me.party.id },
 		reservationId: r.id,
-		dueAt: new Date(now + 55 * 60_000).toISOString(),
+		dateDue: new Date(now + 55 * 60_000).toISOString(),
 		lines: [{ asset: { id: camera.id } }],
 	})
 	await rpc(page, 'CustodyService/Return', { ref: { id: c.id } })

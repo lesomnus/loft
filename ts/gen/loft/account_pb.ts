@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/account.proto.
  */
 export const file_loft_account: GenFile = /*@__PURE__*/
-  fileDesc("ChJsb2Z0L2FjY291bnQucHJvdG8SBGxvZnQiyQEKEFRlbmFudE1lbWJlcnNoaXASCgoCaWQYASABKAwSDQoFYWxpYXMYAiABKAkSDAoEbmFtZRgDIAEoCRIMCgRyb2xlGAQgASgJEioKBmNsb3NlZBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKwoHZGVzdHJveRgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFwoPYWxpYXNfaG9sZF9kYXlzGAcgASgNEgwKBGhvbWUYCCABKAlCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp]);
+  fileDesc("ChJsb2Z0L2FjY291bnQucHJvdG8SBGxvZnQi0wEKEFRlbmFudE1lbWJlcnNoaXASCgoCaWQYASABKAwSDQoFYWxpYXMYAiABKAkSDAoEbmFtZRgDIAEoCRIMCgRyb2xlGAQgASgJEi8KC2RhdGVfY2xvc2VkGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX2Rlc3Ryb3kYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD2FsaWFzX2hvbGRfZGF5cxgHIAEoDRIMCgRob21lGAggASgJQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp]);
 
 /**
  * TenantMembership is a workspace an account is in, as the account is told it
@@ -57,14 +57,14 @@ export type TenantMembership = Message<"loft.TenantMembership"> & {
    * is closed (D29), and how many days its address is then held from anybody
    * else (`app.workspaces.alias_hold`).
    *
-   * @generated from field: google.protobuf.Timestamp closed = 5;
+   * @generated from field: google.protobuf.Timestamp date_closed = 5;
    */
-  closed?: Timestamp | undefined;
+  dateClosed?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp destroy = 6;
+   * @generated from field: google.protobuf.Timestamp date_destroy = 6;
    */
-  destroy?: Timestamp | undefined;
+  dateDestroy?: Timestamp | undefined;
 
   /**
    * @generated from field: uint32 alias_hold_days = 7;

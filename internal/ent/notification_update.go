@@ -92,23 +92,23 @@ func (_u *NotificationUpdate) ClearSubjectId() *NotificationUpdate {
 	return _u
 }
 
-// SetReadAt sets the "read_at" field.
-func (_u *NotificationUpdate) SetReadAt(v time.Time) *NotificationUpdate {
-	_u.mutation.SetReadAt(v)
+// SetDateRead sets the "date_read" field.
+func (_u *NotificationUpdate) SetDateRead(v time.Time) *NotificationUpdate {
+	_u.mutation.SetDateRead(v)
 	return _u
 }
 
-// SetNillableReadAt sets the "read_at" field if the given value is not nil.
-func (_u *NotificationUpdate) SetNillableReadAt(v *time.Time) *NotificationUpdate {
+// SetNillableDateRead sets the "date_read" field if the given value is not nil.
+func (_u *NotificationUpdate) SetNillableDateRead(v *time.Time) *NotificationUpdate {
 	if v != nil {
-		_u.SetReadAt(*v)
+		_u.SetDateRead(*v)
 	}
 	return _u
 }
 
-// ClearReadAt clears the value of the "read_at" field.
-func (_u *NotificationUpdate) ClearReadAt() *NotificationUpdate {
-	_u.mutation.ClearReadAt()
+// ClearDateRead clears the value of the "date_read" field.
+func (_u *NotificationUpdate) ClearDateRead() *NotificationUpdate {
+	_u.mutation.ClearDateRead()
 	return _u
 }
 
@@ -283,14 +283,14 @@ func (_u *NotificationUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if _u.mutation.SubjectIdCleared() {
 		_spec.ClearField(notification.FieldSubjectId, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.ReadAt(); ok {
-		_spec.SetField(notification.FieldReadAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateRead(); ok {
+		_spec.SetField(notification.FieldDateRead, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(notification.FieldReadAt); ok {
-		_spec.SetField(notification.FieldReadAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(notification.FieldDateRead); ok {
+		_spec.SetField(notification.FieldDateRead, field.TypeTime, e)
 	}
-	if _u.mutation.ReadAtCleared() {
-		_spec.ClearField(notification.FieldReadAt, field.TypeTime)
+	if _u.mutation.DateReadCleared() {
+		_spec.ClearField(notification.FieldDateRead, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Link(); ok {
 		_spec.SetField(notification.FieldLink, field.TypeString, value)
@@ -415,23 +415,23 @@ func (_u *NotificationUpdateOne) ClearSubjectId() *NotificationUpdateOne {
 	return _u
 }
 
-// SetReadAt sets the "read_at" field.
-func (_u *NotificationUpdateOne) SetReadAt(v time.Time) *NotificationUpdateOne {
-	_u.mutation.SetReadAt(v)
+// SetDateRead sets the "date_read" field.
+func (_u *NotificationUpdateOne) SetDateRead(v time.Time) *NotificationUpdateOne {
+	_u.mutation.SetDateRead(v)
 	return _u
 }
 
-// SetNillableReadAt sets the "read_at" field if the given value is not nil.
-func (_u *NotificationUpdateOne) SetNillableReadAt(v *time.Time) *NotificationUpdateOne {
+// SetNillableDateRead sets the "date_read" field if the given value is not nil.
+func (_u *NotificationUpdateOne) SetNillableDateRead(v *time.Time) *NotificationUpdateOne {
 	if v != nil {
-		_u.SetReadAt(*v)
+		_u.SetDateRead(*v)
 	}
 	return _u
 }
 
-// ClearReadAt clears the value of the "read_at" field.
-func (_u *NotificationUpdateOne) ClearReadAt() *NotificationUpdateOne {
-	_u.mutation.ClearReadAt()
+// ClearDateRead clears the value of the "date_read" field.
+func (_u *NotificationUpdateOne) ClearDateRead() *NotificationUpdateOne {
+	_u.mutation.ClearDateRead()
 	return _u
 }
 
@@ -636,14 +636,14 @@ func (_u *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificati
 	if _u.mutation.SubjectIdCleared() {
 		_spec.ClearField(notification.FieldSubjectId, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.ReadAt(); ok {
-		_spec.SetField(notification.FieldReadAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateRead(); ok {
+		_spec.SetField(notification.FieldDateRead, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(notification.FieldReadAt); ok {
-		_spec.SetField(notification.FieldReadAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(notification.FieldDateRead); ok {
+		_spec.SetField(notification.FieldDateRead, field.TypeTime, e)
 	}
-	if _u.mutation.ReadAtCleared() {
-		_spec.ClearField(notification.FieldReadAt, field.TypeTime)
+	if _u.mutation.DateReadCleared() {
+		_spec.ClearField(notification.FieldDateRead, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Link(); ok {
 		_spec.SetField(notification.FieldLink, field.TypeString, value)

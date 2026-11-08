@@ -155,8 +155,8 @@ function Then(props: { root: string }): ReactNode {
 	const [known, setKnown] = useState('')
 	const q = useRpc(AssetService.method.queryAt, {
 		root: ref(idBytes(props.root)),
-		at: ts(fromInput(at)),
-		known: known === '' ? undefined : ts(fromInput(known)),
+		dateAsOf: ts(fromInput(at)),
+		dateKnown: known === '' ? undefined : ts(fromInput(known)),
 		depth: 0,
 	})
 	return (
@@ -259,7 +259,7 @@ const whatWord: Record<string, string> = { entered: '들어옴', left: '나감',
 function Diff(props: { root: string }): ReactNode {
 	const [from, setFrom] = useState(localInput(new Date(Date.now() - 90 * 86400_000)))
 	const [to, setTo] = useState(localInput(new Date()))
-	const q = useRpc(AssetService.method.diff, { root: ref(idBytes(props.root)), from: ts(fromInput(from)), to: ts(fromInput(to)) })
+	const q = useRpc(AssetService.method.diff, { root: ref(idBytes(props.root)), dateFrom: ts(fromInput(from)), dateTo: ts(fromInput(to)) })
 	return (
 		<Card
 			title="두 시점 비교"

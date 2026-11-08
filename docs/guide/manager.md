@@ -101,7 +101,7 @@ loft label unbind <라벨 ID> '{"void": true}'                 # 떼고 폐기
 
 ```sh
 loft asset move <자산 ID> '{"to": {"id": "<회의실 A의 ID>"}, "reason": "회의실 설치"}'
-loft asset move <자산 ID> '{"to": {"id": "<공간 ID>"}, "at": "2026-10-20T09:00:00+09:00", "reason": "지난주에 옮긴 것"}'
+loft asset move <자산 ID> '{"to": {"id": "<공간 ID>"}, "date_occurred": "2026-10-20T09:00:00+09:00", "reason": "지난주에 옮긴 것"}'
 loft asset set-attributes <자산 ID> '{"set": {"condition": "damaged"}, "reason": "화면 긁힘"}'
 loft asset set-attributes <자산 ID> '{"set": {"status": "disposed"}, "leave": [{"id": "<키트 ID>"}], "reason": "수명 다함"}'       # 폐기하고 키트에서도 빼기
 loft asset assign <자산 ID> '{"role": "owner", "party": {"id": "<개발팀 ID>"}, "reason": "개발팀 예산"}'       # owner: 소유, manager: 관리 담당
@@ -121,9 +121,9 @@ loft asset erase <자산 ID>                                        # 잘못 등
 ```sh
 loft party search -o wide '{"q": "이하은"}'
 loft asset search -o wide '{"q": "PH-005"}'
-loft custody add '{"party": {"id": "<이하은 ID>"}, "kind": "loan", "due_at": "2026-11-20T18:00:00+09:00", "desc": "고객사 출장", "lines": [{"asset": {"id": "<PH-005의 ID>"}}]}'
+loft custody add '{"party": {"id": "<이하은 ID>"}, "kind": "loan", "date_due": "2026-11-20T18:00:00+09:00", "desc": "고객사 출장", "lines": [{"asset": {"id": "<PH-005의 ID>"}}]}'
 loft custody ls -o wide '{"filters": [{"party": {"id": "<이하은 ID>"}, "status": "open"}]}'
-loft custody extend <지급·대여 ID> '{"due_at": "2026-11-27T18:00:00+09:00"}'
+loft custody extend <지급·대여 ID> '{"date_due": "2026-11-27T18:00:00+09:00"}'
 loft custody return <지급·대여 ID>                                  # 모두 돌려받기
 loft custody-line ls -o wide '{"filters": [{"custody": {"id": "<지급·대여 ID>"}}]}'
 loft custody return <지급·대여 ID> '{"lines": [{"line": {"id": "<줄 ID>"}}]}'       # 일부만
@@ -145,7 +145,7 @@ loft reservation ls -o wide '{"filters": [{"status": "requested"}]}'
 loft reservation approve <예약 ID> '{"reason": "분기 행사 일정 확인"}'
 loft reservation reject <예약 ID> '{"reason": "그날은 전사 행사가 있습니다"}'
 loft reservation pickup <예약 ID>                         # 풀 예약이면 건넬 수 있는 구성원
-loft custody add '{"party": {"id": "<예약한 사람의 ID>"}, "kind": "loan", "due_at": "<예약이 끝나는 시각>", "reservation_id": "<예약 ID>", "lines": [{"asset": {"id": "<CM-001의 ID>"}}, {"asset": {"id": "<LN-001의 ID>"}}, {"asset": {"id": "<TR-001의 ID>"}}]}'       # 수령 처리
+loft custody add '{"party": {"id": "<예약한 사람의 ID>"}, "kind": "loan", "date_due": "<예약이 끝나는 시각>", "reservation_id": "<예약 ID>", "lines": [{"asset": {"id": "<CM-001의 ID>"}}, {"asset": {"id": "<LN-001의 ID>"}}, {"asset": {"id": "<TR-001의 ID>"}}]}'       # 수령 처리
 loft reservation timeline <예약 ID>
 ```
 
@@ -216,7 +216,7 @@ loft purchase receive <구매 ID> '{"into": {"id": "<창고 ID>"}}'         # �
 
 ```sh
 loft work-order ls -o wide
-loft work-order add '{"name": "무선 AP 펌웨어 업데이트", "asset": {"id": "<AP-001의 ID>"}, "kind": "maintenance", "begins_at": "2026-11-12T19:00:00+09:00", "ends_at": "2026-11-12T20:00:00+09:00", "blocking": true, "cost": 50000}'
+loft work-order add '{"name": "무선 AP 펌웨어 업데이트", "asset": {"id": "<AP-001의 ID>"}, "kind": "maintenance", "date_start": "2026-11-12T19:00:00+09:00", "date_end": "2026-11-12T20:00:00+09:00", "blocking": true, "cost": 50000}'
 loft work-order update <작업 ID> '{"status": "in_progress"}'
 loft work-order complete <작업 ID> '{"reason": "배터리 교체", "condition": "good"}'
 loft work-order cancel <작업 ID> '{"reason": "다음 달로 미룸"}'
@@ -241,9 +241,9 @@ loft work-order cancel <작업 ID> '{"reason": "다음 달로 미룸"}'
 ```sh
 loft asset census '{"by": "type"}'                     # 자산 현황 (by: type, location)
 loft custody outstanding                               # 대여 현황
-loft bookable usage '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'       # 예약 이용률 (기본 지난 30일)
+loft bookable usage '{"date_from": "2026-10-01T00:00:00+09:00", "date_to": "2026-11-01T00:00:00+09:00"}'       # 예약 이용률 (기본 지난 30일)
 loft inventory-count results                           # 실사 결과 (기본 지난 1년)
-loft stock flow '{"from": "2026-10-01T00:00:00+09:00", "to": "2026-11-01T00:00:00+09:00"}'          # 재고 소모 (기본 지난 30일)
+loft stock flow '{"date_from": "2026-10-01T00:00:00+09:00", "date_to": "2026-11-01T00:00:00+09:00"}'          # 재고 소모 (기본 지난 30일)
 loft --reason "11월 대여 점검" custody export-outstanding -o 'template={{.data}}' | base64 -d > 대여.csv
 loft --reason "11월 자산 실사" asset export -o 'template={{.data}}' | base64 -d > 자산.csv
 loft asset export-census -o 'template={{.data}}' | base64 -d > 자산현황.csv

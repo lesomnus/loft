@@ -279,11 +279,11 @@ func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) 
 	x.NoError(err)
 	at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
 	r, err := d.s.Walled.Reservation().Add(owner, app.ReservationAddRequest_builder{
-		Name:     "인터뷰",
-		Party:    app.PartyRef_builder{Id: p.GetId()}.Build(),
-		BeginsAt: timestamppb.New(at),
-		EndsAt:   timestamppb.New(at.Add(time.Hour)),
-		Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetById(hall.GetId())}.Build()},
+		Name:      "인터뷰",
+		Party:     app.PartyRef_builder{Id: p.GetId()}.Build(),
+		DateStart: timestamppb.New(at),
+		DateEnd:   timestamppb.New(at.Add(time.Hour)),
+		Items:     []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetById(hall.GetId())}.Build()},
 	}.Build())
 	x.NoError(err)
 	x.Equal("requested", r.GetStatus())
@@ -375,9 +375,9 @@ func TestAnOperatorReadsTheAccessRecordAndItsReviews(t *testing.T) {
 	x.Contains(out, "no review recorded")
 	now := time.Now()
 	_, err = d.s.Walled.AccessReview().Add(owning(t, d), app.AccessReviewAddRequest_builder{
-		PeriodFrom: timestamppb.New(now.Add(-24 * time.Hour)),
-		PeriodTo:   timestamppb.New(now),
-		Desc:       "이상 없음",
+		DateStart: timestamppb.New(now.Add(-24 * time.Hour)),
+		DateEnd:   timestamppb.New(now),
+		Desc:      "이상 없음",
 	}.Build())
 	x.NoError(err)
 	out, err = d.loft(t, "access-review", "list", "--tenant", "acme")

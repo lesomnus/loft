@@ -162,7 +162,7 @@ func TestAnEventWrittenWithNamesReadsAsWritten(t *testing.T) {
 			SetDesc(desc).
 			SetPayload(payload).
 			SetReason("").
-			SetOccurredAt(e.now).
+			SetDateOccurred(e.now).
 			SetDateCreated(e.now).
 			SetDateUpdated(e.now)
 		if subject != nil {

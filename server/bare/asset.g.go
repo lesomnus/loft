@@ -252,11 +252,11 @@ func (st AssetServiceServer) create(ctx context.Context, req *loft.AssetAddReque
 	if u := req.GetAttributes(); len(u) > 0 {
 		q.SetAttributes(u)
 	}
-	if req.HasAcquiredAt() {
-		q.SetAcquiredAt(req.GetAcquiredAt().AsTime())
+	if req.HasDateAcquired() {
+		q.SetDateAcquired(req.GetDateAcquired().AsTime())
 	}
-	if req.HasDisposedAt() {
-		q.SetDisposedAt(req.GetDisposedAt().AsTime())
+	if req.HasDateDisposed() {
+		q.SetDateDisposed(req.GetDateDisposed().AsTime())
 	}
 	q.SetContentVersion(req.GetContentVersion())
 	return q, ds, nil
@@ -555,11 +555,11 @@ func AssetSelectedFields(m *loft.AssetSelect) []string {
 	if m.GetAttributes() {
 		vs = append(vs, asset.FieldAttributes)
 	}
-	if m.GetAcquiredAt() {
-		vs = append(vs, asset.FieldAcquiredAt)
+	if m.GetDateAcquired() {
+		vs = append(vs, asset.FieldDateAcquired)
 	}
-	if m.GetDisposedAt() {
-		vs = append(vs, asset.FieldDisposedAt)
+	if m.GetDateDisposed() {
+		vs = append(vs, asset.FieldDateDisposed)
 	}
 	if m.GetContentVersion() {
 		vs = append(vs, asset.FieldContentVersion)
@@ -673,7 +673,7 @@ func AssetGetKey(ctx context.Context, db *ent.Client, ref *loft.AssetRef) (uuid.
 var assetOrmEntity = ormpatch.MustEntityOf(loft.File_loft_asset_proto, "Asset")
 
 var assetPatchColumns = entpatch.Columns{
-	1: asset.FieldId, 2: asset.TenantColumn, 5: asset.FieldName, 6: asset.FieldDesc, 7: asset.FieldLabels, 8: asset.FieldKind, 9: asset.TypeColumn, 10: asset.ModelColumn, 11: asset.FieldTag, 12: asset.FieldSerial, 13: asset.FieldDateUpdated, 14: asset.FieldDateErased, 15: asset.FieldDateCreated, 16: asset.FieldStatus, 17: asset.FieldCondition, 18: asset.FieldParentId, 19: asset.FieldPlacementMode, 20: asset.FieldSlot, 21: asset.CustodianColumn, 22: asset.FieldAttributes, 23: asset.FieldAcquiredAt, 24: asset.FieldDisposedAt, 25: asset.FieldContentVersion}
+	1: asset.FieldId, 2: asset.TenantColumn, 5: asset.FieldName, 6: asset.FieldDesc, 7: asset.FieldLabels, 8: asset.FieldKind, 9: asset.TypeColumn, 10: asset.ModelColumn, 11: asset.FieldTag, 12: asset.FieldSerial, 13: asset.FieldDateUpdated, 14: asset.FieldDateErased, 15: asset.FieldDateCreated, 16: asset.FieldStatus, 17: asset.FieldCondition, 18: asset.FieldParentId, 19: asset.FieldPlacementMode, 20: asset.FieldSlot, 21: asset.CustodianColumn, 22: asset.FieldAttributes, 23: asset.FieldDateAcquired, 24: asset.FieldDateDisposed, 25: asset.FieldContentVersion}
 
 func (s AssetServiceServer) Apply(ctx context.Context, req *loft.AssetApplyRequest) (*loft.Asset, error) {
 	if !req.HasPatch() {
@@ -1161,25 +1161,25 @@ func (st DomainServiceServer) create(ctx context.Context, req *loft.DomainAddReq
 	} else {
 		q.SetDateCreated(st.now())
 	}
-	if req.HasVerifiedAt() {
-		q.SetVerifiedAt(req.GetVerifiedAt().AsTime())
+	if req.HasDateVerified() {
+		q.SetDateVerified(req.GetDateVerified().AsTime())
 	}
-	if req.HasCheckedAt() {
-		q.SetCheckedAt(req.GetCheckedAt().AsTime())
+	if req.HasDateChecked() {
+		q.SetDateChecked(req.GetDateChecked().AsTime())
 	}
 	if req.HasFailures() {
 		q.SetFailures(req.GetFailures())
 	} else {
 		q.SetFailures(0)
 	}
-	if req.HasFailingSince() {
-		q.SetFailingSince(req.GetFailingSince().AsTime())
+	if req.HasDateFailing() {
+		q.SetDateFailing(req.GetDateFailing().AsTime())
 	}
 	if req.HasDateLapsed() {
 		q.SetDateLapsed(req.GetDateLapsed().AsTime())
 	}
-	if req.HasRedirectUntil() {
-		q.SetRedirectUntil(req.GetRedirectUntil().AsTime())
+	if req.HasDateRedirectUntil() {
+		q.SetDateRedirectUntil(req.GetDateRedirectUntil().AsTime())
 	}
 	return q, ds, nil
 }
@@ -1332,23 +1332,23 @@ func DomainSelectedFields(m *loft.DomainSelect) []string {
 	if m.GetDateCreated() {
 		vs = append(vs, domain.FieldDateCreated)
 	}
-	if m.GetVerifiedAt() {
-		vs = append(vs, domain.FieldVerifiedAt)
+	if m.GetDateVerified() {
+		vs = append(vs, domain.FieldDateVerified)
 	}
-	if m.GetCheckedAt() {
-		vs = append(vs, domain.FieldCheckedAt)
+	if m.GetDateChecked() {
+		vs = append(vs, domain.FieldDateChecked)
 	}
 	if m.GetFailures() {
 		vs = append(vs, domain.FieldFailures)
 	}
-	if m.GetFailingSince() {
-		vs = append(vs, domain.FieldFailingSince)
+	if m.GetDateFailing() {
+		vs = append(vs, domain.FieldDateFailing)
 	}
 	if m.GetDateLapsed() {
 		vs = append(vs, domain.FieldDateLapsed)
 	}
-	if m.GetRedirectUntil() {
-		vs = append(vs, domain.FieldRedirectUntil)
+	if m.GetDateRedirectUntil() {
+		vs = append(vs, domain.FieldDateRedirectUntil)
 	}
 
 	return vs
@@ -1419,7 +1419,7 @@ func DomainGetKey(ctx context.Context, db *ent.Client, ref *loft.DomainRef) (uui
 var domainOrmEntity = ormpatch.MustEntityOf(loft.File_loft_asset_proto, "Domain")
 
 var domainPatchColumns = entpatch.Columns{
-	1: domain.FieldId, 2: domain.TenantColumn, 8: domain.FieldHost, 9: domain.FieldPurpose, 10: domain.FieldState, 11: domain.FieldToken, 12: domain.FieldSource, 13: domain.FieldDateUpdated, 14: domain.FieldDateErased, 15: domain.FieldDateCreated, 16: domain.FieldVerifiedAt, 18: domain.FieldCheckedAt, 19: domain.FieldFailures, 20: domain.FieldFailingSince, 17: domain.FieldDateLapsed, 21: domain.FieldRedirectUntil}
+	1: domain.FieldId, 2: domain.TenantColumn, 8: domain.FieldHost, 9: domain.FieldPurpose, 10: domain.FieldState, 11: domain.FieldToken, 12: domain.FieldSource, 13: domain.FieldDateUpdated, 14: domain.FieldDateErased, 15: domain.FieldDateCreated, 16: domain.FieldDateVerified, 18: domain.FieldDateChecked, 19: domain.FieldFailures, 20: domain.FieldDateFailing, 17: domain.FieldDateLapsed, 21: domain.FieldDateRedirectUntil}
 
 func (s DomainServiceServer) Apply(ctx context.Context, req *loft.DomainApplyRequest) (*loft.Domain, error) {
 	if !req.HasPatch() {
@@ -1810,11 +1810,11 @@ func (st LabelServiceServer) create(ctx context.Context, req *loft.LabelAddReque
 		}
 	}
 	q.SetState(req.GetState())
-	if req.HasBoundAt() {
-		q.SetBoundAt(req.GetBoundAt().AsTime())
+	if req.HasDateBound() {
+		q.SetDateBound(req.GetDateBound().AsTime())
 	}
-	if req.HasPrintedAt() {
-		q.SetPrintedAt(req.GetPrintedAt().AsTime())
+	if req.HasDatePrinted() {
+		q.SetDatePrinted(req.GetDatePrinted().AsTime())
 	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
@@ -1959,11 +1959,11 @@ func LabelSelectedFields(m *loft.LabelSelect) []string {
 	if m.GetState() {
 		vs = append(vs, label.FieldState)
 	}
-	if m.GetBoundAt() {
-		vs = append(vs, label.FieldBoundAt)
+	if m.GetDateBound() {
+		vs = append(vs, label.FieldDateBound)
 	}
-	if m.GetPrintedAt() {
-		vs = append(vs, label.FieldPrintedAt)
+	if m.GetDatePrinted() {
+		vs = append(vs, label.FieldDatePrinted)
 	}
 	if m.GetDateUpdated() {
 		vs = append(vs, label.FieldDateUpdated)
@@ -2065,7 +2065,7 @@ func LabelGetKey(ctx context.Context, db *ent.Client, ref *loft.LabelRef) (uuid.
 var labelOrmEntity = ormpatch.MustEntityOf(loft.File_loft_asset_proto, "Label")
 
 var labelPatchColumns = entpatch.Columns{
-	1: label.FieldId, 2: label.TenantColumn, 8: label.DomainColumn, 9: label.FieldSubjectId, 10: label.FieldState, 11: label.FieldBoundAt, 12: label.FieldPrintedAt, 13: label.FieldDateUpdated, 14: label.FieldDateErased, 15: label.FieldDateCreated, 16: label.FieldBatch, 17: label.FieldCode}
+	1: label.FieldId, 2: label.TenantColumn, 8: label.DomainColumn, 9: label.FieldSubjectId, 10: label.FieldState, 11: label.FieldDateBound, 12: label.FieldDatePrinted, 13: label.FieldDateUpdated, 14: label.FieldDateErased, 15: label.FieldDateCreated, 16: label.FieldBatch, 17: label.FieldCode}
 
 func (s LabelServiceServer) Apply(ctx context.Context, req *loft.LabelApplyRequest) (*loft.Label, error) {
 	if !req.HasPatch() {

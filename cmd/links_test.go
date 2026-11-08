@@ -87,7 +87,7 @@ func TestALegacyDomainSendsItsPagesOn(t *testing.T) {
 	w.domain(w.tenant, "old.acme.example", "app", "legacy")
 	w.domain(beta, "beta.example", "app", "lapsed")
 	until := func(host string, at time.Time) {
-		x.NoError(w.s.Ent.Domain.Update().Where(entdomain.Host(host)).SetRedirectUntil(at).Exec(ctx))
+		x.NoError(w.s.Ent.Domain.Update().Where(entdomain.Host(host)).SetDateRedirectUntil(at).Exec(ctx))
 	}
 	until("old.acme.example", time.Now().Add(time.Hour))
 

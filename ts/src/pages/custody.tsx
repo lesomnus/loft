@@ -21,8 +21,8 @@ export function Custodies(): ReactNode {
 	const now = Date.now()
 
 	const rows = (list.data?.items ?? [])
-		.filter((x) => !overdue || (x.status === 'open' && (dateOf(x.dueAt)?.getTime() ?? Infinity) < now))
-		.sort((a, b) => (dateOf(b.issuedAt)?.getTime() ?? 0) - (dateOf(a.issuedAt)?.getTime() ?? 0))
+		.filter((x) => !overdue || (x.status === 'open' && (dateOf(x.dateDue)?.getTime() ?? Infinity) < now))
+		.sort((a, b) => (dateOf(b.dateIssued)?.getTime() ?? 0) - (dateOf(a.dateIssued)?.getTime() ?? 0))
 
 	return (
 		<>
@@ -70,14 +70,14 @@ export function Custodies(): ReactNode {
 								</thead>
 								<tbody>
 									{rows.map((x) => {
-										const late = x.status === 'open' && (dateOf(x.dueAt)?.getTime() ?? Infinity) < now
+										const late = x.status === 'open' && (dateOf(x.dateDue)?.getTime() ?? Infinity) < now
 										return (
 											<tr key={idStr(x.id)} className="link" onClick={() => go(`/custody/${idStr(x.id)}`)}>
 												<td>{c.called(x.party?.id) || '-'}</td>
 												<td>{custodyKindWord[x.kind] ?? x.kind}</td>
-												<td>{fmt(x.issuedAt, 'date')}</td>
-												<td className={late ? 'bad' : ''}>{x.dueAt !== undefined ? fmt(x.dueAt) : '-'}</td>
-												<td>{x.acknowledgedAt !== undefined ? fmt(x.acknowledgedAt, 'date') : <span className="warn">대기</span>}</td>
+												<td>{fmt(x.dateIssued, 'date')}</td>
+												<td className={late ? 'bad' : ''}>{x.dateDue !== undefined ? fmt(x.dateDue) : '-'}</td>
+												<td>{x.dateAcknowledged !== undefined ? fmt(x.dateAcknowledged, 'date') : <span className="warn">대기</span>}</td>
 												<td>
 													<Badge v={late ? 'missing' : x.status} words={late ? { missing: '연체' } : custodyWord} />
 												</td>
@@ -109,7 +109,7 @@ function CustodyView(props: { c: Custody }): ReactNode {
 	const lines = useRpc(CustodyLineService.method.list, { filters: [{ custody: ref(x.id) }], size: 500 })
 	const [dialog, setDialog] = useState<'return' | 'extend'>()
 	const mine = sameId(c.me.party?.id, x.party?.id)
-	const late = x.status === 'open' && (dateOf(x.dueAt)?.getTime() ?? Infinity) < Date.now()
+	const late = x.status === 'open' && (dateOf(x.dateDue)?.getTime() ?? Infinity) < Date.now()
 
 	return (
 		<>
@@ -118,7 +118,7 @@ function CustodyView(props: { c: Custody }): ReactNode {
 				sub={<Badge v={late ? 'missing' : x.status} words={late ? { missing: '연체' } : custodyWord} />}
 				actions={
 					<>
-						{x.status === 'open' && x.acknowledgedAt === undefined && (mine || c.can('manager')) && (
+						{x.status === 'open' && x.dateAcknowledged === undefined && (mine || c.can('manager')) && (
 							<button className="primary" onClick={() => void act(CustodyService.method.acknowledge, { ref: ref(x.id) }, { ok: '인수를 확인했습니다.' })}>
 								인수 확인
 							</button>
@@ -139,10 +139,10 @@ function CustodyView(props: { c: Custody }): ReactNode {
 					<Kv
 						items={[
 							['받은 사람', c.called(x.party?.id) || '-'],
-							['건넨 날', fmt(x.issuedAt)],
-							['반납 기한', x.dueAt !== undefined ? fmt(x.dueAt) : '없음 (지급)'],
-							['인수 확인', x.acknowledgedAt !== undefined ? fmt(x.acknowledgedAt) : '대기'],
-							['반납', x.returnedAt !== undefined ? fmt(x.returnedAt) : '-'],
+							['건넨 날', fmt(x.dateIssued)],
+							['반납 기한', x.dateDue !== undefined ? fmt(x.dateDue) : '없음 (지급)'],
+							['인수 확인', x.dateAcknowledged !== undefined ? fmt(x.dateAcknowledged) : '대기'],
+							['반납', x.dateReturned !== undefined ? fmt(x.dateReturned) : '-'],
 							['메모', x.desc || '-'],
 						]}
 					/>
@@ -176,7 +176,7 @@ function Line(props: { l: CustodyLine }): ReactNode {
 				{l.asset !== undefined ? <AssetLink a={a.data} /> : `${s.data?.name ?? '재고'} × ${l.quantity}`}
 				{l.conditionOut !== '' && <span className="mute"> · 건넬 때 {conditionWord[l.conditionOut]}</span>}
 			</span>
-			<span>{left > 0n ? <span className="warn">{l.asset !== undefined ? '사용 중' : `${left} 남음`}</span> : <span className="ok">반납 {fmt(l.returnedAt, 'date')}</span>}</span>
+			<span>{left > 0n ? <span className="warn">{l.asset !== undefined ? '사용 중' : `${left} 남음`}</span> : <span className="ok">반납 {fmt(l.dateReturned, 'date')}</span>}</span>
 		</li>
 	)
 }
@@ -212,7 +212,7 @@ function Return(props: { c: Custody; lines: CustodyLine[]; onClose: () => void }
 							ref: ref(props.c.id),
 							lines,
 							to: to === '' ? undefined : ref(idBytes(to)),
-							at: at === '' ? undefined : ts(fromInput(at)),
+							dateOccurred: at === '' ? undefined : ts(fromInput(at)),
 							op: key,
 						},
 						{ ok: '반납 처리했습니다.' },
@@ -264,7 +264,7 @@ function Extend(props: { c: Custody; onClose: () => void }): ReactNode {
 		<FormModal
 			title="반납 기한 연장"
 			onClose={props.onClose}
-			onSubmit={async () => (await act(CustodyService.method.extend, { ref: ref(props.c.id), dueAt: ts(fromInput(due)) }, { ok: '연장했습니다.' })) !== undefined}
+			onSubmit={async () => (await act(CustodyService.method.extend, { ref: ref(props.c.id), dateDue: ts(fromInput(due)) }, { ok: '연장했습니다.' })) !== undefined}
 		>
 			<Field label="새 기한">
 				<input type="datetime-local" value={due} onChange={(e) => setDue(e.target.value)} required />
@@ -322,7 +322,7 @@ export function NewCustody(props: {
 					{
 						party: ref(idBytes(party)),
 						kind,
-						dueAt: kind === 'loan' && due !== '' ? ts(fromInput(due)) : undefined,
+						dateDue: kind === 'loan' && due !== '' ? ts(fromInput(due)) : undefined,
 						desc,
 						reservationId: props.reservation,
 						op: key,
@@ -460,7 +460,7 @@ function Booked(props: { assets: Asset[]; due: Date | undefined; reservation?: U
 	const buffer = Math.max(0, ...props.assets.map((a) => c.bookable(a.id)?.bufferAfter ?? 0))
 	const to = props.due === undefined ? new Date(from.getTime() + quarter) : new Date(Math.min(props.due.getTime() + buffer * 60_000, from.getTime() + quarter))
 	const ids = props.assets.map((a) => a.id)
-	const busy = useRpc(BookableService.method.availability, ids.length === 0 || to <= from ? null : { resources: ids.map(ref), from: ts(from), to: ts(to) })
+	const busy = useRpc(BookableService.method.availability, ids.length === 0 || to <= from ? null : { resources: ids.map(ref), dateFrom: ts(from), dateTo: ts(to) })
 	const booked = (busy.data?.busy ?? []).filter((b) => (b.kind === 'reservation' || b.kind === 'override') && (props.reservation === undefined || !sameId(b.refId, props.reservation)))
 	if (booked.length === 0) return null
 	const named = (id: Uint8Array) => {
@@ -473,7 +473,7 @@ function Booked(props: { assets: Asset[]; due: Date | undefined; reservation?: U
 			<ul>
 				{booked.map((b) => (
 					<li key={`${idStr(b.resourceId)}-${idStr(b.refId)}`}>
-						{`${named(b.resourceId)}: '${b.label}' ${fmt(b.beginsAt)} – ${fmt(b.endsAt, 'time')}`}
+						{`${named(b.resourceId)}: '${b.label}' ${fmt(b.dateStart)} – ${fmt(b.dateEnd, 'time')}`}
 					</li>
 				))}
 			</ul>

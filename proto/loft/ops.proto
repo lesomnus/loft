@@ -34,7 +34,7 @@ message Notification {
     type: TYPE_UUID
     nullable: true
   }];
-  google.protobuf.Timestamp read_at = 11 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp date_read = 11 [(orm.field) = {nullable: true}];
   // Where a page goes to act on it: a path, which names a thing and not a person.
   string link = 12 [(payday.field) = {personal: false}];
 
@@ -240,10 +240,10 @@ message AccessReview {
   // not immutable; no role is given the RPC that would write it otherwise.
   string desc = 6 [(payday.field) = {personal: true}];
 
-  // The stretch of the record it covers, from `period_from` and before
-  // `period_to`: a month, as the page reviews it.
-  google.protobuf.Timestamp period_from = 8 [(orm.field) = {immutable: true, default: ""}];
-  google.protobuf.Timestamp period_to = 9 [(orm.field) = {immutable: true, default: ""}];
+  // The stretch of the record it covers, from `date_start` and before
+  // `date_end`: a month, as the page reviews it.
+  google.protobuf.Timestamp date_start = 8 [(orm.field) = {immutable: true, default: ""}];
+  google.protobuf.Timestamp date_end = 9 [(orm.field) = {immutable: true, default: ""}];
 
   // Who reviewed it: the membership, as the trail names its actor.
   Holder reviewer = 10 [(orm.edge) = {immutable: true}];

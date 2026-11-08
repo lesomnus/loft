@@ -67,7 +67,7 @@ func (e *StockMovement) Proto() *loft.StockMovement {
 	if e.RefId != nil {
 		x.SetRefId(e.RefId[:])
 	}
-	x.SetOccurredAt(timestamppb.New(e.OccurredAt))
+	x.SetDateOccurred(timestamppb.New(e.DateOccurred))
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	x.SetEventId(e.EventId[:])

@@ -64,43 +64,43 @@ func (_u *AllocationUpdate) ClearRefId() *AllocationUpdate {
 	return _u
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_u *AllocationUpdate) SetBeginsAt(v time.Time) *AllocationUpdate {
-	_u.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_u *AllocationUpdate) SetDateStart(v time.Time) *AllocationUpdate {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_u *AllocationUpdate) SetNillableBeginsAt(v *time.Time) *AllocationUpdate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *AllocationUpdate) SetNillableDateStart(v *time.Time) *AllocationUpdate {
 	if v != nil {
-		_u.SetBeginsAt(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearBeginsAt clears the value of the "begins_at" field.
-func (_u *AllocationUpdate) ClearBeginsAt() *AllocationUpdate {
-	_u.mutation.ClearBeginsAt()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *AllocationUpdate) ClearDateStart() *AllocationUpdate {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_u *AllocationUpdate) SetEndsAt(v time.Time) *AllocationUpdate {
-	_u.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *AllocationUpdate) SetDateEnd(v time.Time) *AllocationUpdate {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_u *AllocationUpdate) SetNillableEndsAt(v *time.Time) *AllocationUpdate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *AllocationUpdate) SetNillableDateEnd(v *time.Time) *AllocationUpdate {
 	if v != nil {
-		_u.SetEndsAt(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearEndsAt clears the value of the "ends_at" field.
-func (_u *AllocationUpdate) ClearEndsAt() *AllocationUpdate {
-	_u.mutation.ClearEndsAt()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *AllocationUpdate) ClearDateEnd() *AllocationUpdate {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -243,23 +243,23 @@ func (_u *AllocationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if _u.mutation.RefIdCleared() {
 		_spec.ClearField(allocation.FieldRefId, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.BeginsAt(); ok {
-		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(allocation.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(allocation.FieldBeginsAt); ok {
-		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldDateStart); ok {
+		_spec.SetField(allocation.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.BeginsAtCleared() {
-		_spec.ClearField(allocation.FieldBeginsAt, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(allocation.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.EndsAt(); ok {
-		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(allocation.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(allocation.FieldEndsAt); ok {
-		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldDateEnd); ok {
+		_spec.SetField(allocation.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.EndsAtCleared() {
-		_spec.ClearField(allocation.FieldEndsAt, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(allocation.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(allocation.FieldDateUpdated, field.TypeTime, value)
@@ -347,43 +347,43 @@ func (_u *AllocationUpdateOne) ClearRefId() *AllocationUpdateOne {
 	return _u
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_u *AllocationUpdateOne) SetBeginsAt(v time.Time) *AllocationUpdateOne {
-	_u.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_u *AllocationUpdateOne) SetDateStart(v time.Time) *AllocationUpdateOne {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_u *AllocationUpdateOne) SetNillableBeginsAt(v *time.Time) *AllocationUpdateOne {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *AllocationUpdateOne) SetNillableDateStart(v *time.Time) *AllocationUpdateOne {
 	if v != nil {
-		_u.SetBeginsAt(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearBeginsAt clears the value of the "begins_at" field.
-func (_u *AllocationUpdateOne) ClearBeginsAt() *AllocationUpdateOne {
-	_u.mutation.ClearBeginsAt()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *AllocationUpdateOne) ClearDateStart() *AllocationUpdateOne {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_u *AllocationUpdateOne) SetEndsAt(v time.Time) *AllocationUpdateOne {
-	_u.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *AllocationUpdateOne) SetDateEnd(v time.Time) *AllocationUpdateOne {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_u *AllocationUpdateOne) SetNillableEndsAt(v *time.Time) *AllocationUpdateOne {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *AllocationUpdateOne) SetNillableDateEnd(v *time.Time) *AllocationUpdateOne {
 	if v != nil {
-		_u.SetEndsAt(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearEndsAt clears the value of the "ends_at" field.
-func (_u *AllocationUpdateOne) ClearEndsAt() *AllocationUpdateOne {
-	_u.mutation.ClearEndsAt()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *AllocationUpdateOne) ClearDateEnd() *AllocationUpdateOne {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -556,23 +556,23 @@ func (_u *AllocationUpdateOne) sqlSave(ctx context.Context) (_node *Allocation, 
 	if _u.mutation.RefIdCleared() {
 		_spec.ClearField(allocation.FieldRefId, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.BeginsAt(); ok {
-		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(allocation.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(allocation.FieldBeginsAt); ok {
-		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldDateStart); ok {
+		_spec.SetField(allocation.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.BeginsAtCleared() {
-		_spec.ClearField(allocation.FieldBeginsAt, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(allocation.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.EndsAt(); ok {
-		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(allocation.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(allocation.FieldEndsAt); ok {
-		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldDateEnd); ok {
+		_spec.SetField(allocation.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.EndsAtCleared() {
-		_spec.ClearField(allocation.FieldEndsAt, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(allocation.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(allocation.FieldDateUpdated, field.TypeTime, value)

@@ -45,7 +45,7 @@ func AddedAsBefore(ctx context.Context, s app.Server, req *app.AssetAddRequest) 
 		if err != nil {
 			return err
 		}
-		if err := t.op.Set(t.ctx, past.Fact{Subject: id, From: t.now, Values: past.Changes(nil, assetFacts(a))}); err != nil {
+		if err := t.op.Set(t.ctx, past.Fact{Subject: id, DateStart: t.now, Values: past.Changes(nil, assetFacts(a))}); err != nil {
 			return err
 		}
 		out, _, err = t.get(assetRef(id.Uuid()), "id")

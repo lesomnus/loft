@@ -52,7 +52,7 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 
 	at := e.now.Add(-2 * time.Hour)
 	v, err := e.app().Purchase().Receive(e.owner, app.PurchaseReceiveRequest_builder{
-		Ref: ref[app.PurchaseRef](p.GetId()), Into: assetRef(room), At: e.ago(2 * time.Hour), TagPrefix: "PO",
+		Ref: ref[app.PurchaseRef](p.GetId()), Into: assetRef(room), DateOccurred: e.ago(2 * time.Hour), TagPrefix: "PO",
 	}.Build())
 	x.NoError(err)
 	x.Equal("received", v.GetPurchase().GetStatus())
@@ -66,7 +66,7 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 
 	receipt := e.eventOf("purchase.receive")
 	x.Nil(receipt.CauseId)
-	x.True(at.Equal(receipt.OccurredAt), "when it arrived")
+	x.True(at.Equal(receipt.DateOccurred), "when it arrived")
 	x.Equal("입고: 10월 구매", e.say(receipt))
 	adds, err := e.s.Ent.Event.Query().Where(event.CauseId(receipt.Id)).All(ctx)
 	x.NoError(err)
@@ -77,7 +77,7 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 		got := e.get(a)
 		x.Equal(room.GetId(), got.GetParentId())
 		x.Equal("located", got.GetPlacementMode())
-		x.True(at.Equal(got.GetAcquiredAt().AsTime()), "%s acquired when it arrived", a.GetTag())
+		x.True(at.Equal(got.GetDateAcquired().AsTime()), "%s acquired when it arrived", a.GetTag())
 		if i < 2 {
 			x.Equal("U2723QE", got.GetName())
 			x.Equal(m.GetId(), got.GetModel().GetId())
@@ -98,19 +98,19 @@ func TestAPurchaseReceivedIsOneOperation(t *testing.T) {
 		x.Equal("asset.add", mine.Kind, "the kind a registration of one is")
 		x.Equal(a.GetTag()+" 등록", e.say(mine))
 		x.Equal(a.GetTag(), value[*app.AssetAdded](e, mine).GetTag())
-		x.True(at.Equal(mine.OccurredAt))
+		x.True(at.Equal(mine.DateOccurred))
 
 		fs, err := e.s.Ent.Fact.Query().Where(fact.SubjectId(id)).All(ctx)
 		x.NoError(err)
 		x.NotEmpty(fs)
 		for _, f := range fs {
 			x.Equal(mine.Id, f.EventId, "a fact of %s points at another event", a.GetTag())
-			x.True(at.Equal(f.ValidFrom), "a fact of %s from another moment", a.GetTag())
+			x.True(at.Equal(f.DateStart), "a fact of %s from another moment", a.GetTag())
 		}
 		pl, err := e.s.Ent.Placement.Query().Where(placement.ChildId(id)).Only(ctx)
 		x.NoError(err)
 		x.Equal(mine.Id, pl.EventId, "%s's place is its own event's", a.GetTag())
-		x.True(at.Equal(pl.ValidFrom))
+		x.True(at.Equal(pl.DateStart))
 
 		found := false
 		for _, en := range e.timeline(a, false) {

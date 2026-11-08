@@ -131,13 +131,13 @@ func sentences() *past.Sentences {
 		return "인수 확인"
 	})
 	past.SayKind(s, "custody.extend", "ko", func(r *past.Reading, ev past.EventRow, m *app.CustodyExtended) string {
-		return "반납 기한 연장: " + m.GetDue().AsTime().In(r.Zone()).Format(time.DateOnly)
+		return "반납 기한 연장: " + m.GetDateDue().AsTime().In(r.Zone()).Format(time.DateOnly)
 	})
 	// A loan the sweep found late, by the due it missed, to the minute: the
 	// moment it was found so is the event's own. Said alike of the loan and
 	// of each thing still out.
 	past.SayKind(s, "custody.overdue", "ko", func(r *past.Reading, ev past.EventRow, m *app.CustodyOverdue) string {
-		return "반납 기한 지남: " + r.Time(m.GetDue().AsTime())
+		return "반납 기한 지남: " + r.Time(m.GetDateDue().AsTime())
 	})
 	past.SayKind(s, "custody.return", "ko", func(r *past.Reading, ev past.EventRow, m *app.CustodyReturned) string {
 		return "반납"
@@ -170,7 +170,7 @@ func sentences() *past.Sentences {
 	// A series by when it begins and how often it takes place: what each time
 	// it takes place says of itself is when that is (D45).
 	past.SayKind(s, "reservation.add", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationAdded) string {
-		when := m.GetBeginsAt().AsTime().In(r.Zone()).Format("01-02 15:04")
+		when := m.GetDateStart().AsTime().In(r.Zone()).Format("01-02 15:04")
 		if n := m.GetOccurrences(); n > 1 {
 			return fmt.Sprintf("반복 예약: %s %s부터 %d회", m.GetAssetName(), when, n)
 		}
@@ -233,7 +233,7 @@ func sentences() *past.Sentences {
 			if n := m.GetUnits(); n > 0 {
 				what = fmt.Sprintf("%s %d개", what, n)
 			}
-			when := m.GetBeginsAt().AsTime().In(r.Zone()).Format("01-02 15:04")
+			when := m.GetDateStart().AsTime().In(r.Zone()).Format("01-02 15:04")
 			return fmt.Sprintf("%s: %s (%s)", did, what, strings.TrimSpace(m.GetName()+" "+when))
 		})
 	}
@@ -258,7 +258,7 @@ func sentences() *past.Sentences {
 	// it as the event's reason -- which is a person's words now.
 	past.SayKind(s, "domain.lapse", "ko", func(r *past.Reading, ev past.EventRow, m *app.TenantDomainLapsed) string {
 		return fmt.Sprintf("%s 사용 중지: %s (DNS가 %s부터 이 서비스를 가리키지 않거나 TXT 레코드가 없습니다)",
-			domainWords(m.GetPurpose()), m.GetHost(), m.GetFailingSince().AsTime().In(r.Zone()).Format("1월 2일 15:04"))
+			domainWords(m.GetPurpose()), m.GetHost(), m.GetDateFailing().AsTime().In(r.Zone()).Format("1월 2일 15:04"))
 	})
 	past.SayKind(s, "label.print", "ko", func(r *past.Reading, ev past.EventRow, m *app.LabelsPrinted) string {
 		return "라벨 인쇄: " + m.GetBatch()
@@ -352,7 +352,7 @@ func sentences() *past.Sentences {
 		return "워크스페이스 복구"
 	})
 	past.SayKind(s, "workspace.import", "ko", func(r *past.Reading, ev past.EventRow, m *app.WorkspaceImported) string {
-		return fmt.Sprintf("워크스페이스 복구 (운영자): %s 내보내기에서", m.GetExportedAt().AsTime().Format(time.DateOnly))
+		return fmt.Sprintf("워크스페이스 복구 (운영자): %s 내보내기에서", m.GetDateExported().AsTime().Format(time.DateOnly))
 	})
 
 	// invitation.go
@@ -394,15 +394,15 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "access.review", "ko", func(r *past.Reading, ev past.EventRow, m *app.AccessReviewed) string {
 		z := r.Zone()
 		period := fmt.Sprintf("%s – %s",
-			m.GetFrom().AsTime().In(z).Format(time.DateOnly),
-			m.GetTo().AsTime().Add(-time.Nanosecond).In(z).Format(time.DateOnly))
+			m.GetDateStart().AsTime().In(z).Format(time.DateOnly),
+			m.GetDateEnd().AsTime().Add(-time.Nanosecond).In(z).Format(time.DateOnly))
 		return fmt.Sprintf("접속기록 점검: %s, 호출 %d건 (내려받기 %d건, 거부 %d건)", period, m.GetCalls(), m.GetDownloads(), m.GetRefused())
 	})
 	past.SayKind(s, "retention.expired", "ko", func(r *past.Reading, ev past.EventRow, m *app.RetentionExpired) string {
 		total := m.GetPlacements() + m.GetLinks() + m.GetStewardships() + m.GetFacts() + m.GetEvents() +
 			m.GetReservations() + m.GetCustodies() + m.GetCounts() + m.GetWorkOrders() + m.GetStockMovements() +
 			m.GetAttachments()
-		return fmt.Sprintf("보존 기간이 지난 이력 %d건 삭제 (%s 이전)", total, m.GetBefore().AsTime().In(r.Zone()).Format("2006년 1월 2일"))
+		return fmt.Sprintf("보존 기간이 지난 이력 %d건 삭제 (%s 이전)", total, m.GetDateBefore().AsTime().In(r.Zone()).Format("2006년 1월 2일"))
 	})
 
 	// An event's reason taken out (payday#151's Redact): what was taken out
@@ -497,14 +497,14 @@ func (t *Tx) reading(n *namer) *past.Reading {
 // said is a row of Loft's Event as payday's past reads one.
 func said(v *ent.Event) past.EventRow {
 	r := past.EventRow{
-		Id:       pdid.Id(v.Id),
-		Tenant:   pdid.Id(v.TenantId),
-		Kind:     v.Kind,
-		At:       v.OccurredAt,
-		Reason:   v.Reason,
-		Trace:    v.TraceId,
-		Value:    v.Value,
-		Recorded: v.DateCreated,
+		Id:           pdid.Id(v.Id),
+		Tenant:       pdid.Id(v.TenantId),
+		Kind:         v.Kind,
+		DateOccurred: v.DateOccurred,
+		Reason:       v.Reason,
+		Trace:        v.TraceId,
+		Value:        v.Value,
+		Recorded:     v.DateCreated,
 	}
 	if v.ActorId != nil {
 		r.Actor = pdid.Id(*v.ActorId)

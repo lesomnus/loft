@@ -24,10 +24,10 @@ type Label struct {
 	SubjectId *uuid.UUID `json:"subject_id,omitempty"`
 	// State holds the value of the "state" field.
 	State string `json:"state,omitempty"`
-	// BoundAt holds the value of the "bound_at" field.
-	BoundAt *time.Time `json:"bound_at,omitempty"`
-	// PrintedAt holds the value of the "printed_at" field.
-	PrintedAt *time.Time `json:"printed_at,omitempty"`
+	// DateBound holds the value of the "date_bound" field.
+	DateBound *time.Time `json:"date_bound,omitempty"`
+	// DatePrinted holds the value of the "date_printed" field.
+	DatePrinted *time.Time `json:"date_printed,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
@@ -88,7 +88,7 @@ func (*Label) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case label.FieldState, label.FieldBatch, label.FieldCode:
 			values[i] = new(sql.NullString)
-		case label.FieldBoundAt, label.FieldPrintedAt, label.FieldDateUpdated, label.FieldDateErased, label.FieldDateCreated:
+		case label.FieldDateBound, label.FieldDatePrinted, label.FieldDateUpdated, label.FieldDateErased, label.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case label.FieldSubjectId, label.FieldDomainId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -128,19 +128,19 @@ func (_m *Label) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.State = value.String
 			}
-		case label.FieldBoundAt:
+		case label.FieldDateBound:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field bound_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_bound", values[i])
 			} else if value.Valid {
-				_m.BoundAt = new(time.Time)
-				*_m.BoundAt = value.Time
+				_m.DateBound = new(time.Time)
+				*_m.DateBound = value.Time
 			}
-		case label.FieldPrintedAt:
+		case label.FieldDatePrinted:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field printed_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_printed", values[i])
 			} else if value.Valid {
-				_m.PrintedAt = new(time.Time)
-				*_m.PrintedAt = value.Time
+				_m.DatePrinted = new(time.Time)
+				*_m.DatePrinted = value.Time
 			}
 		case label.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -240,13 +240,13 @@ func (_m *Label) String() string {
 	builder.WriteString("state=")
 	builder.WriteString(_m.State)
 	builder.WriteString(", ")
-	if v := _m.BoundAt; v != nil {
-		builder.WriteString("bound_at=")
+	if v := _m.DateBound; v != nil {
+		builder.WriteString("date_bound=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := _m.PrintedAt; v != nil {
-		builder.WriteString("printed_at=")
+	if v := _m.DatePrinted; v != nil {
+		builder.WriteString("date_printed=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

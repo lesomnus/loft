@@ -85,43 +85,43 @@ func (_u *CustodyLineUpdate) SetNillableDateUpdated(v *time.Time) *CustodyLineUp
 	return _u
 }
 
-// SetOutAt sets the "out_at" field.
-func (_u *CustodyLineUpdate) SetOutAt(v time.Time) *CustodyLineUpdate {
-	_u.mutation.SetOutAt(v)
+// SetDateOut sets the "date_out" field.
+func (_u *CustodyLineUpdate) SetDateOut(v time.Time) *CustodyLineUpdate {
+	_u.mutation.SetDateOut(v)
 	return _u
 }
 
-// SetNillableOutAt sets the "out_at" field if the given value is not nil.
-func (_u *CustodyLineUpdate) SetNillableOutAt(v *time.Time) *CustodyLineUpdate {
+// SetNillableDateOut sets the "date_out" field if the given value is not nil.
+func (_u *CustodyLineUpdate) SetNillableDateOut(v *time.Time) *CustodyLineUpdate {
 	if v != nil {
-		_u.SetOutAt(*v)
+		_u.SetDateOut(*v)
 	}
 	return _u
 }
 
-// ClearOutAt clears the value of the "out_at" field.
-func (_u *CustodyLineUpdate) ClearOutAt() *CustodyLineUpdate {
-	_u.mutation.ClearOutAt()
+// ClearDateOut clears the value of the "date_out" field.
+func (_u *CustodyLineUpdate) ClearDateOut() *CustodyLineUpdate {
+	_u.mutation.ClearDateOut()
 	return _u
 }
 
-// SetReturnedAt sets the "returned_at" field.
-func (_u *CustodyLineUpdate) SetReturnedAt(v time.Time) *CustodyLineUpdate {
-	_u.mutation.SetReturnedAt(v)
+// SetDateReturned sets the "date_returned" field.
+func (_u *CustodyLineUpdate) SetDateReturned(v time.Time) *CustodyLineUpdate {
+	_u.mutation.SetDateReturned(v)
 	return _u
 }
 
-// SetNillableReturnedAt sets the "returned_at" field if the given value is not nil.
-func (_u *CustodyLineUpdate) SetNillableReturnedAt(v *time.Time) *CustodyLineUpdate {
+// SetNillableDateReturned sets the "date_returned" field if the given value is not nil.
+func (_u *CustodyLineUpdate) SetNillableDateReturned(v *time.Time) *CustodyLineUpdate {
 	if v != nil {
-		_u.SetReturnedAt(*v)
+		_u.SetDateReturned(*v)
 	}
 	return _u
 }
 
-// ClearReturnedAt clears the value of the "returned_at" field.
-func (_u *CustodyLineUpdate) ClearReturnedAt() *CustodyLineUpdate {
-	_u.mutation.ClearReturnedAt()
+// ClearDateReturned clears the value of the "date_returned" field.
+func (_u *CustodyLineUpdate) ClearDateReturned() *CustodyLineUpdate {
+	_u.mutation.ClearDateReturned()
 	return _u
 }
 
@@ -241,23 +241,23 @@ func (_u *CustodyLineUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(custodyline.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.OutAt(); ok {
-		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateOut(); ok {
+		_spec.SetField(custodyline.FieldDateOut, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custodyline.FieldOutAt); ok {
-		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldDateOut); ok {
+		_spec.SetField(custodyline.FieldDateOut, field.TypeTime, e)
 	}
-	if _u.mutation.OutAtCleared() {
-		_spec.ClearField(custodyline.FieldOutAt, field.TypeTime)
+	if _u.mutation.DateOutCleared() {
+		_spec.ClearField(custodyline.FieldDateOut, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ReturnedAt(); ok {
-		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateReturned(); ok {
+		_spec.SetField(custodyline.FieldDateReturned, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custodyline.FieldReturnedAt); ok {
-		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldDateReturned); ok {
+		_spec.SetField(custodyline.FieldDateReturned, field.TypeTime, e)
 	}
-	if _u.mutation.ReturnedAtCleared() {
-		_spec.ClearField(custodyline.FieldReturnedAt, field.TypeTime)
+	if _u.mutation.DateReturnedCleared() {
+		_spec.ClearField(custodyline.FieldDateReturned, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ConditionOut(); ok {
 		_spec.SetField(custodyline.FieldConditionOut, field.TypeString, value)
@@ -349,43 +349,43 @@ func (_u *CustodyLineUpdateOne) SetNillableDateUpdated(v *time.Time) *CustodyLin
 	return _u
 }
 
-// SetOutAt sets the "out_at" field.
-func (_u *CustodyLineUpdateOne) SetOutAt(v time.Time) *CustodyLineUpdateOne {
-	_u.mutation.SetOutAt(v)
+// SetDateOut sets the "date_out" field.
+func (_u *CustodyLineUpdateOne) SetDateOut(v time.Time) *CustodyLineUpdateOne {
+	_u.mutation.SetDateOut(v)
 	return _u
 }
 
-// SetNillableOutAt sets the "out_at" field if the given value is not nil.
-func (_u *CustodyLineUpdateOne) SetNillableOutAt(v *time.Time) *CustodyLineUpdateOne {
+// SetNillableDateOut sets the "date_out" field if the given value is not nil.
+func (_u *CustodyLineUpdateOne) SetNillableDateOut(v *time.Time) *CustodyLineUpdateOne {
 	if v != nil {
-		_u.SetOutAt(*v)
+		_u.SetDateOut(*v)
 	}
 	return _u
 }
 
-// ClearOutAt clears the value of the "out_at" field.
-func (_u *CustodyLineUpdateOne) ClearOutAt() *CustodyLineUpdateOne {
-	_u.mutation.ClearOutAt()
+// ClearDateOut clears the value of the "date_out" field.
+func (_u *CustodyLineUpdateOne) ClearDateOut() *CustodyLineUpdateOne {
+	_u.mutation.ClearDateOut()
 	return _u
 }
 
-// SetReturnedAt sets the "returned_at" field.
-func (_u *CustodyLineUpdateOne) SetReturnedAt(v time.Time) *CustodyLineUpdateOne {
-	_u.mutation.SetReturnedAt(v)
+// SetDateReturned sets the "date_returned" field.
+func (_u *CustodyLineUpdateOne) SetDateReturned(v time.Time) *CustodyLineUpdateOne {
+	_u.mutation.SetDateReturned(v)
 	return _u
 }
 
-// SetNillableReturnedAt sets the "returned_at" field if the given value is not nil.
-func (_u *CustodyLineUpdateOne) SetNillableReturnedAt(v *time.Time) *CustodyLineUpdateOne {
+// SetNillableDateReturned sets the "date_returned" field if the given value is not nil.
+func (_u *CustodyLineUpdateOne) SetNillableDateReturned(v *time.Time) *CustodyLineUpdateOne {
 	if v != nil {
-		_u.SetReturnedAt(*v)
+		_u.SetDateReturned(*v)
 	}
 	return _u
 }
 
-// ClearReturnedAt clears the value of the "returned_at" field.
-func (_u *CustodyLineUpdateOne) ClearReturnedAt() *CustodyLineUpdateOne {
-	_u.mutation.ClearReturnedAt()
+// ClearDateReturned clears the value of the "date_returned" field.
+func (_u *CustodyLineUpdateOne) ClearDateReturned() *CustodyLineUpdateOne {
+	_u.mutation.ClearDateReturned()
 	return _u
 }
 
@@ -535,23 +535,23 @@ func (_u *CustodyLineUpdateOne) sqlSave(ctx context.Context) (_node *CustodyLine
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(custodyline.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.OutAt(); ok {
-		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateOut(); ok {
+		_spec.SetField(custodyline.FieldDateOut, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custodyline.FieldOutAt); ok {
-		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldDateOut); ok {
+		_spec.SetField(custodyline.FieldDateOut, field.TypeTime, e)
 	}
-	if _u.mutation.OutAtCleared() {
-		_spec.ClearField(custodyline.FieldOutAt, field.TypeTime)
+	if _u.mutation.DateOutCleared() {
+		_spec.ClearField(custodyline.FieldDateOut, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ReturnedAt(); ok {
-		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateReturned(); ok {
+		_spec.SetField(custodyline.FieldDateReturned, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custodyline.FieldReturnedAt); ok {
-		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldDateReturned); ok {
+		_spec.SetField(custodyline.FieldDateReturned, field.TypeTime, e)
 	}
-	if _u.mutation.ReturnedAtCleared() {
-		_spec.ClearField(custodyline.FieldReturnedAt, field.TypeTime)
+	if _u.mutation.DateReturnedCleared() {
+		_spec.ClearField(custodyline.FieldDateReturned, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ConditionOut(); ok {
 		_spec.SetField(custodyline.FieldConditionOut, field.TypeString, value)

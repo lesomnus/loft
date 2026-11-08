@@ -50,8 +50,8 @@ type Asset struct {
 	xxx_hidden_Slot           string                 `protobuf:"bytes,20,opt,name=slot"`
 	xxx_hidden_Custodian      *Party                 `protobuf:"bytes,21,opt,name=custodian"`
 	xxx_hidden_Attributes     map[string]string      `protobuf:"bytes,22,rep,name=attributes" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_AcquiredAt     *timestamppb.Timestamp `protobuf:"bytes,23,opt,name=acquired_at,json=acquiredAt"`
-	xxx_hidden_DisposedAt     *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=disposed_at,json=disposedAt"`
+	xxx_hidden_DateAcquired   *timestamppb.Timestamp `protobuf:"bytes,23,opt,name=date_acquired,json=dateAcquired"`
+	xxx_hidden_DateDisposed   *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_disposed,json=dateDisposed"`
 	xxx_hidden_ContentVersion uint64                 `protobuf:"varint,25,opt,name=content_version,json=contentVersion"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
@@ -222,16 +222,16 @@ func (x *Asset) GetAttributes() map[string]string {
 	return nil
 }
 
-func (x *Asset) GetAcquiredAt() *timestamppb.Timestamp {
+func (x *Asset) GetDateAcquired() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AcquiredAt
+		return x.xxx_hidden_DateAcquired
 	}
 	return nil
 }
 
-func (x *Asset) GetDisposedAt() *timestamppb.Timestamp {
+func (x *Asset) GetDateDisposed() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DisposedAt
+		return x.xxx_hidden_DateDisposed
 	}
 	return nil
 }
@@ -329,12 +329,12 @@ func (x *Asset) SetAttributes(v map[string]string) {
 	x.xxx_hidden_Attributes = v
 }
 
-func (x *Asset) SetAcquiredAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AcquiredAt = v
+func (x *Asset) SetDateAcquired(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAcquired = v
 }
 
-func (x *Asset) SetDisposedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DisposedAt = v
+func (x *Asset) SetDateDisposed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDisposed = v
 }
 
 func (x *Asset) SetContentVersion(v uint64) {
@@ -390,18 +390,18 @@ func (x *Asset) HasCustodian() bool {
 	return x.xxx_hidden_Custodian != nil
 }
 
-func (x *Asset) HasAcquiredAt() bool {
+func (x *Asset) HasDateAcquired() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AcquiredAt != nil
+	return x.xxx_hidden_DateAcquired != nil
 }
 
-func (x *Asset) HasDisposedAt() bool {
+func (x *Asset) HasDateDisposed() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DisposedAt != nil
+	return x.xxx_hidden_DateDisposed != nil
 }
 
 func (x *Asset) ClearTenant() {
@@ -432,12 +432,12 @@ func (x *Asset) ClearCustodian() {
 	x.xxx_hidden_Custodian = nil
 }
 
-func (x *Asset) ClearAcquiredAt() {
-	x.xxx_hidden_AcquiredAt = nil
+func (x *Asset) ClearDateAcquired() {
+	x.xxx_hidden_DateAcquired = nil
 }
 
-func (x *Asset) ClearDisposedAt() {
-	x.xxx_hidden_DisposedAt = nil
+func (x *Asset) ClearDateDisposed() {
+	x.xxx_hidden_DateDisposed = nil
 }
 
 type Asset_builder struct {
@@ -468,10 +468,10 @@ type Asset_builder struct {
 	PlacementMode string
 	Slot          string
 	// Who holds it now; see Stewardship.
-	Custodian  *Party
-	Attributes map[string]string
-	AcquiredAt *timestamppb.Timestamp
-	DisposedAt *timestamppb.Timestamp
+	Custodian    *Party
+	Attributes   map[string]string
+	DateAcquired *timestamppb.Timestamp
+	DateDisposed *timestamppb.Timestamp
 	// Bumped whenever what is inside this asset changes, so a page watching a
 	// space or a kit hears about it (design 9.6).
 	ContentVersion uint64
@@ -501,8 +501,8 @@ func (b0 Asset_builder) Build() *Asset {
 	x.xxx_hidden_Slot = b.Slot
 	x.xxx_hidden_Custodian = b.Custodian
 	x.xxx_hidden_Attributes = b.Attributes
-	x.xxx_hidden_AcquiredAt = b.AcquiredAt
-	x.xxx_hidden_DisposedAt = b.DisposedAt
+	x.xxx_hidden_DateAcquired = b.DateAcquired
+	x.xxx_hidden_DateDisposed = b.DateDisposed
 	x.xxx_hidden_ContentVersion = b.ContentVersion
 	return m0
 }
@@ -839,25 +839,25 @@ func (b0 TagCounter_builder) Build() *TagCounter {
 // the messages they were written as, `TenantDomainAdded` and the rest: a
 // message of the past is never renamed.
 type Domain struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant        *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Host          string                 `protobuf:"bytes,8,opt,name=host"`
-	xxx_hidden_Purpose       string                 `protobuf:"bytes,9,opt,name=purpose"`
-	xxx_hidden_State         string                 `protobuf:"bytes,10,opt,name=state"`
-	xxx_hidden_Token         string                 `protobuf:"bytes,11,opt,name=token"`
-	xxx_hidden_Source        string                 `protobuf:"bytes,12,opt,name=source"`
-	xxx_hidden_DateUpdated   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased    *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_VerifiedAt    *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=verified_at,json=verifiedAt"`
-	xxx_hidden_CheckedAt     *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=checked_at,json=checkedAt"`
-	xxx_hidden_Failures      uint32                 `protobuf:"varint,19,opt,name=failures"`
-	xxx_hidden_FailingSince  *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=failing_since,json=failingSince"`
-	xxx_hidden_DateLapsed    *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_lapsed,json=dateLapsed"`
-	xxx_hidden_RedirectUntil *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=redirect_until,json=redirectUntil"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	state                        protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id                []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant            *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Host              string                 `protobuf:"bytes,8,opt,name=host"`
+	xxx_hidden_Purpose           string                 `protobuf:"bytes,9,opt,name=purpose"`
+	xxx_hidden_State             string                 `protobuf:"bytes,10,opt,name=state"`
+	xxx_hidden_Token             string                 `protobuf:"bytes,11,opt,name=token"`
+	xxx_hidden_Source            string                 `protobuf:"bytes,12,opt,name=source"`
+	xxx_hidden_DateUpdated       *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased        *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated       *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateVerified      *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_verified,json=dateVerified"`
+	xxx_hidden_DateChecked       *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_checked,json=dateChecked"`
+	xxx_hidden_Failures          uint32                 `protobuf:"varint,19,opt,name=failures"`
+	xxx_hidden_DateFailing       *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=date_failing,json=dateFailing"`
+	xxx_hidden_DateLapsed        *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_lapsed,json=dateLapsed"`
+	xxx_hidden_DateRedirectUntil *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=date_redirect_until,json=dateRedirectUntil"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *Domain) Reset() {
@@ -955,16 +955,16 @@ func (x *Domain) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Domain) GetVerifiedAt() *timestamppb.Timestamp {
+func (x *Domain) GetDateVerified() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_VerifiedAt
+		return x.xxx_hidden_DateVerified
 	}
 	return nil
 }
 
-func (x *Domain) GetCheckedAt() *timestamppb.Timestamp {
+func (x *Domain) GetDateChecked() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_CheckedAt
+		return x.xxx_hidden_DateChecked
 	}
 	return nil
 }
@@ -976,9 +976,9 @@ func (x *Domain) GetFailures() uint32 {
 	return 0
 }
 
-func (x *Domain) GetFailingSince() *timestamppb.Timestamp {
+func (x *Domain) GetDateFailing() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_FailingSince
+		return x.xxx_hidden_DateFailing
 	}
 	return nil
 }
@@ -990,9 +990,9 @@ func (x *Domain) GetDateLapsed() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Domain) GetRedirectUntil() *timestamppb.Timestamp {
+func (x *Domain) GetDateRedirectUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_RedirectUntil
+		return x.xxx_hidden_DateRedirectUntil
 	}
 	return nil
 }
@@ -1040,28 +1040,28 @@ func (x *Domain) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *Domain) SetVerifiedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_VerifiedAt = v
+func (x *Domain) SetDateVerified(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateVerified = v
 }
 
-func (x *Domain) SetCheckedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_CheckedAt = v
+func (x *Domain) SetDateChecked(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateChecked = v
 }
 
 func (x *Domain) SetFailures(v uint32) {
 	x.xxx_hidden_Failures = v
 }
 
-func (x *Domain) SetFailingSince(v *timestamppb.Timestamp) {
-	x.xxx_hidden_FailingSince = v
+func (x *Domain) SetDateFailing(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFailing = v
 }
 
 func (x *Domain) SetDateLapsed(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateLapsed = v
 }
 
-func (x *Domain) SetRedirectUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_RedirectUntil = v
+func (x *Domain) SetDateRedirectUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRedirectUntil = v
 }
 
 func (x *Domain) HasTenant() bool {
@@ -1092,25 +1092,25 @@ func (x *Domain) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *Domain) HasVerifiedAt() bool {
+func (x *Domain) HasDateVerified() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_VerifiedAt != nil
+	return x.xxx_hidden_DateVerified != nil
 }
 
-func (x *Domain) HasCheckedAt() bool {
+func (x *Domain) HasDateChecked() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_CheckedAt != nil
+	return x.xxx_hidden_DateChecked != nil
 }
 
-func (x *Domain) HasFailingSince() bool {
+func (x *Domain) HasDateFailing() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_FailingSince != nil
+	return x.xxx_hidden_DateFailing != nil
 }
 
 func (x *Domain) HasDateLapsed() bool {
@@ -1120,11 +1120,11 @@ func (x *Domain) HasDateLapsed() bool {
 	return x.xxx_hidden_DateLapsed != nil
 }
 
-func (x *Domain) HasRedirectUntil() bool {
+func (x *Domain) HasDateRedirectUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_RedirectUntil != nil
+	return x.xxx_hidden_DateRedirectUntil != nil
 }
 
 func (x *Domain) ClearTenant() {
@@ -1143,24 +1143,24 @@ func (x *Domain) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *Domain) ClearVerifiedAt() {
-	x.xxx_hidden_VerifiedAt = nil
+func (x *Domain) ClearDateVerified() {
+	x.xxx_hidden_DateVerified = nil
 }
 
-func (x *Domain) ClearCheckedAt() {
-	x.xxx_hidden_CheckedAt = nil
+func (x *Domain) ClearDateChecked() {
+	x.xxx_hidden_DateChecked = nil
 }
 
-func (x *Domain) ClearFailingSince() {
-	x.xxx_hidden_FailingSince = nil
+func (x *Domain) ClearDateFailing() {
+	x.xxx_hidden_DateFailing = nil
 }
 
 func (x *Domain) ClearDateLapsed() {
 	x.xxx_hidden_DateLapsed = nil
 }
 
-func (x *Domain) ClearRedirectUntil() {
-	x.xxx_hidden_RedirectUntil = nil
+func (x *Domain) ClearDateRedirectUntil() {
+	x.xxx_hidden_DateRedirectUntil = nil
 }
 
 type Domain_builder struct {
@@ -1177,25 +1177,25 @@ type Domain_builder struct {
 	// The value the TXT record has to hold.
 	Token string
 	// custom | default
-	Source      string
-	DateUpdated *timestamppb.Timestamp
-	DateErased  *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
-	VerifiedAt  *timestamppb.Timestamp
+	Source       string
+	DateUpdated  *timestamppb.Timestamp
+	DateErased   *timestamppb.Timestamp
+	DateCreated  *timestamppb.Timestamp
+	DateVerified *timestamppb.Timestamp
 	// An active custom domain's DNS is asked about again every hour (loft#155):
 	// whether its TXT record still holds `token`, and whether it still points
-	// here. `checked_at` is when it was last asked, and `failures` how many
-	// answers in a row since `failing_since` said no -- one that said nothing,
+	// here. `date_checked` is when it was last asked, and `failures` how many
+	// answers in a row since `date_failing` said no -- one that said nothing,
 	// a timeout, is none. A domain whose DNS said no often enough for long
 	// enough lapses (`server/domain`'s sweep): `lapsed`, since `date_lapsed`,
 	// and active again only once its TXT record verifies again.
-	CheckedAt    *timestamppb.Timestamp
-	Failures     uint32
-	FailingSince *timestamppb.Timestamp
-	DateLapsed   *timestamppb.Timestamp
+	DateChecked *timestamppb.Timestamp
+	Failures    uint32
+	DateFailing *timestamppb.Timestamp
+	DateLapsed  *timestamppb.Timestamp
 	// For an `app` domain made legacy by another's activation: until when its
 	// pages send a browser on to where the workspace's app is now.
-	RedirectUntil *timestamppb.Timestamp
+	DateRedirectUntil *timestamppb.Timestamp
 }
 
 func (b0 Domain_builder) Build() *Domain {
@@ -1212,12 +1212,12 @@ func (b0 Domain_builder) Build() *Domain {
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_VerifiedAt = b.VerifiedAt
-	x.xxx_hidden_CheckedAt = b.CheckedAt
+	x.xxx_hidden_DateVerified = b.DateVerified
+	x.xxx_hidden_DateChecked = b.DateChecked
 	x.xxx_hidden_Failures = b.Failures
-	x.xxx_hidden_FailingSince = b.FailingSince
+	x.xxx_hidden_DateFailing = b.DateFailing
 	x.xxx_hidden_DateLapsed = b.DateLapsed
-	x.xxx_hidden_RedirectUntil = b.RedirectUntil
+	x.xxx_hidden_DateRedirectUntil = b.DateRedirectUntil
 	return m0
 }
 
@@ -1230,8 +1230,8 @@ type Label struct {
 	xxx_hidden_Domain      *Domain                `protobuf:"bytes,8,opt,name=domain"`
 	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,9,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_State       string                 `protobuf:"bytes,10,opt,name=state"`
-	xxx_hidden_BoundAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=bound_at,json=boundAt"`
-	xxx_hidden_PrintedAt   *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=printed_at,json=printedAt"`
+	xxx_hidden_DateBound   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_bound,json=dateBound"`
+	xxx_hidden_DatePrinted *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_printed,json=datePrinted"`
 	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
@@ -1301,16 +1301,16 @@ func (x *Label) GetState() string {
 	return ""
 }
 
-func (x *Label) GetBoundAt() *timestamppb.Timestamp {
+func (x *Label) GetDateBound() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BoundAt
+		return x.xxx_hidden_DateBound
 	}
 	return nil
 }
 
-func (x *Label) GetPrintedAt() *timestamppb.Timestamp {
+func (x *Label) GetDatePrinted() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PrintedAt
+		return x.xxx_hidden_DatePrinted
 	}
 	return nil
 }
@@ -1376,12 +1376,12 @@ func (x *Label) SetState(v string) {
 	x.xxx_hidden_State = v
 }
 
-func (x *Label) SetBoundAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BoundAt = v
+func (x *Label) SetDateBound(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateBound = v
 }
 
-func (x *Label) SetPrintedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PrintedAt = v
+func (x *Label) SetDatePrinted(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DatePrinted = v
 }
 
 func (x *Label) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -1418,18 +1418,18 @@ func (x *Label) HasDomain() bool {
 	return x.xxx_hidden_Domain != nil
 }
 
-func (x *Label) HasBoundAt() bool {
+func (x *Label) HasDateBound() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BoundAt != nil
+	return x.xxx_hidden_DateBound != nil
 }
 
-func (x *Label) HasPrintedAt() bool {
+func (x *Label) HasDatePrinted() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PrintedAt != nil
+	return x.xxx_hidden_DatePrinted != nil
 }
 
 func (x *Label) HasDateUpdated() bool {
@@ -1461,12 +1461,12 @@ func (x *Label) ClearDomain() {
 	x.xxx_hidden_Domain = nil
 }
 
-func (x *Label) ClearBoundAt() {
-	x.xxx_hidden_BoundAt = nil
+func (x *Label) ClearDateBound() {
+	x.xxx_hidden_DateBound = nil
 }
 
-func (x *Label) ClearPrintedAt() {
-	x.xxx_hidden_PrintedAt = nil
+func (x *Label) ClearDatePrinted() {
+	x.xxx_hidden_DatePrinted = nil
 }
 
 func (x *Label) ClearDateUpdated() {
@@ -1491,8 +1491,8 @@ type Label_builder struct {
 	SubjectId []byte
 	// new | bound | void
 	State       string
-	BoundAt     *timestamppb.Timestamp
-	PrintedAt   *timestamppb.Timestamp
+	DateBound   *timestamppb.Timestamp
+	DatePrinted *timestamppb.Timestamp
 	DateUpdated *timestamppb.Timestamp
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
@@ -1514,8 +1514,8 @@ func (b0 Label_builder) Build() *Label {
 	x.xxx_hidden_Domain = b.Domain
 	x.xxx_hidden_SubjectId = b.SubjectId
 	x.xxx_hidden_State = b.State
-	x.xxx_hidden_BoundAt = b.BoundAt
-	x.xxx_hidden_PrintedAt = b.PrintedAt
+	x.xxx_hidden_DateBound = b.DateBound
+	x.xxx_hidden_DatePrinted = b.DatePrinted
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
@@ -1780,7 +1780,7 @@ var File_loft_asset_proto protoreflect.FileDescriptor
 
 const file_loft_asset_proto_rawDesc = "" +
 	"\n" +
-	"\x10loft/asset.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x12loft/catalog.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xd7\n" +
+	"\x10loft/asset.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x12loft/catalog.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xdf\n" +
 	"\n" +
 	"\x05Asset\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
@@ -1806,11 +1806,9 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\tcustodian\x18\x15 \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\tcustodian\x12;\n" +
 	"\n" +
 	"attributes\x18\x16 \x03(\v2\x1b.loft.Asset.AttributesEntryR\n" +
-	"attributes\x12C\n" +
-	"\vacquired_at\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"acquiredAt\x12C\n" +
-	"\vdisposed_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"disposedAt\x12'\n" +
+	"attributes\x12G\n" +
+	"\rdate_acquired\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\fdateAcquired\x12G\n" +
+	"\rdate_disposed\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\fdateDisposed\x12'\n" +
 	"\x0fcontent_version\x18\x19 \x01(\x04R\x0econtentVersion\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -1866,7 +1864,7 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\n" +
 	"\x06prefix\x10\b0\x01\x8a\xbb\x16\xb4\x01\b1B\x02\n" +
 	"\x00R\xab\x01\x12\xa8\x01\n" +
-	"\xa5\x01the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to\"\xad\a\n" +
+	"\xa5\x01the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to\"\xbc\a\n" +
 	"\x06Domain\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -1879,16 +1877,14 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12I\n" +
-	"\vverified_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\n" +
-	"verifiedAt\x12A\n" +
-	"\n" +
-	"checked_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\tcheckedAt\x12$\n" +
-	"\bfailures\x18\x13 \x01(\rB\b\xea\x82\x16\x04\x82\x01\x010R\bfailures\x12G\n" +
-	"\rfailing_since\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\ffailingSince\x12C\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12M\n" +
+	"\rdate_verified\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fdateVerified\x12E\n" +
+	"\fdate_checked\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateChecked\x12$\n" +
+	"\bfailures\x18\x13 \x01(\rB\b\xea\x82\x16\x04\x82\x01\x010R\bfailures\x12E\n" +
+	"\fdate_failing\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateFailing\x12C\n" +
 	"\vdate_lapsed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"dateLapsed\x12I\n" +
-	"\x0eredirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\rredirectUntil:y\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"dateLapsed\x12R\n" +
+	"\x13date_redirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x11dateRedirectUntil:y\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -1901,7 +1897,7 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\x02id\x1a\x05\n" +
 	"\x03ref\x1a\a\n" +
 	"\x05state\x1a\t\n" +
-	"\apurpose 2(d:\x00\"\xf1\x05\n" +
+	"\apurpose 2(d:\x00\"\xf9\x05\n" +
 	"\x05Label\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12,\n" +
@@ -1909,10 +1905,10 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\n" +
 	"subject_id\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tsubjectId\x12\x14\n" +
 	"\x05state\x18\n" +
-	" \x01(\tR\x05state\x12=\n" +
-	"\bbound_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\aboundAt\x12A\n" +
+	" \x01(\tR\x05state\x12A\n" +
 	"\n" +
-	"printed_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\tprintedAt\x12F\n" +
+	"date_bound\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\tdateBound\x12E\n" +
+	"\fdate_printed\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdatePrinted\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
@@ -1996,8 +1992,8 @@ var file_loft_asset_proto_depIdxs = []int32{
 	11, // 6: loft.Asset.date_created:type_name -> google.protobuf.Timestamp
 	12, // 7: loft.Asset.custodian:type_name -> loft.Party
 	7,  // 8: loft.Asset.attributes:type_name -> loft.Asset.AttributesEntry
-	11, // 9: loft.Asset.acquired_at:type_name -> google.protobuf.Timestamp
-	11, // 10: loft.Asset.disposed_at:type_name -> google.protobuf.Timestamp
+	11, // 9: loft.Asset.date_acquired:type_name -> google.protobuf.Timestamp
+	11, // 10: loft.Asset.date_disposed:type_name -> google.protobuf.Timestamp
 	8,  // 11: loft.TreeLock.tenant:type_name -> loft.Tenant
 	11, // 12: loft.TreeLock.date_updated:type_name -> google.protobuf.Timestamp
 	11, // 13: loft.TreeLock.date_created:type_name -> google.protobuf.Timestamp
@@ -2008,15 +2004,15 @@ var file_loft_asset_proto_depIdxs = []int32{
 	11, // 18: loft.Domain.date_updated:type_name -> google.protobuf.Timestamp
 	11, // 19: loft.Domain.date_erased:type_name -> google.protobuf.Timestamp
 	11, // 20: loft.Domain.date_created:type_name -> google.protobuf.Timestamp
-	11, // 21: loft.Domain.verified_at:type_name -> google.protobuf.Timestamp
-	11, // 22: loft.Domain.checked_at:type_name -> google.protobuf.Timestamp
-	11, // 23: loft.Domain.failing_since:type_name -> google.protobuf.Timestamp
+	11, // 21: loft.Domain.date_verified:type_name -> google.protobuf.Timestamp
+	11, // 22: loft.Domain.date_checked:type_name -> google.protobuf.Timestamp
+	11, // 23: loft.Domain.date_failing:type_name -> google.protobuf.Timestamp
 	11, // 24: loft.Domain.date_lapsed:type_name -> google.protobuf.Timestamp
-	11, // 25: loft.Domain.redirect_until:type_name -> google.protobuf.Timestamp
+	11, // 25: loft.Domain.date_redirect_until:type_name -> google.protobuf.Timestamp
 	8,  // 26: loft.Label.tenant:type_name -> loft.Tenant
 	3,  // 27: loft.Label.domain:type_name -> loft.Domain
-	11, // 28: loft.Label.bound_at:type_name -> google.protobuf.Timestamp
-	11, // 29: loft.Label.printed_at:type_name -> google.protobuf.Timestamp
+	11, // 28: loft.Label.date_bound:type_name -> google.protobuf.Timestamp
+	11, // 29: loft.Label.date_printed:type_name -> google.protobuf.Timestamp
 	11, // 30: loft.Label.date_updated:type_name -> google.protobuf.Timestamp
 	11, // 31: loft.Label.date_erased:type_name -> google.protobuf.Timestamp
 	11, // 32: loft.Label.date_created:type_name -> google.protobuf.Timestamp

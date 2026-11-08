@@ -819,10 +819,10 @@ func (st StockMovementServiceServer) create(ctx context.Context, req *loft.Stock
 			q.SetRefId(v)
 		}
 	}
-	if req.HasOccurredAt() {
-		q.SetOccurredAt(req.GetOccurredAt().AsTime())
+	if req.HasDateOccurred() {
+		q.SetDateOccurred(req.GetDateOccurred().AsTime())
 	} else {
-		q.SetOccurredAt(st.now())
+		q.SetDateOccurred(st.now())
 	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
@@ -972,8 +972,8 @@ func StockMovementSelectedFields(m *loft.StockMovementSelect) []string {
 	if m.GetRefId() {
 		vs = append(vs, stockmovement.FieldRefId)
 	}
-	if m.GetOccurredAt() {
-		vs = append(vs, stockmovement.FieldOccurredAt)
+	if m.GetDateOccurred() {
+		vs = append(vs, stockmovement.FieldDateOccurred)
 	}
 	if m.GetDateUpdated() {
 		vs = append(vs, stockmovement.FieldDateUpdated)
@@ -1062,7 +1062,7 @@ func StockMovementGetKey(ctx context.Context, db *ent.Client, ref *loft.StockMov
 var stockMovementOrmEntity = ormpatch.MustEntityOf(loft.File_loft_stock_proto, "StockMovement")
 
 var stockMovementPatchColumns = entpatch.Columns{
-	1: stockmovement.FieldId, 2: stockmovement.TenantColumn, 8: stockmovement.StockColumn, 9: stockmovement.FieldDelta, 10: stockmovement.FieldReason, 11: stockmovement.FieldRefId, 12: stockmovement.FieldOccurredAt, 13: stockmovement.FieldDateUpdated, 15: stockmovement.FieldDateCreated, 16: stockmovement.FieldEventId, 17: stockmovement.FieldBalance}
+	1: stockmovement.FieldId, 2: stockmovement.TenantColumn, 8: stockmovement.StockColumn, 9: stockmovement.FieldDelta, 10: stockmovement.FieldReason, 11: stockmovement.FieldRefId, 12: stockmovement.FieldDateOccurred, 13: stockmovement.FieldDateUpdated, 15: stockmovement.FieldDateCreated, 16: stockmovement.FieldEventId, 17: stockmovement.FieldBalance}
 
 func (s StockMovementServiceServer) Apply(ctx context.Context, req *loft.StockMovementApplyRequest) (*loft.StockMovement, error) {
 	if !req.HasPatch() {

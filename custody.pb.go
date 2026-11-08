@@ -27,25 +27,25 @@ const (
 // loan with a due date. Adding one opens the custodian stewardships of its
 // lines; returning closes them (design D6).
 type Custody struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id             []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant         *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Desc           string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Party          *Party                 `protobuf:"bytes,8,opt,name=party"`
-	xxx_hidden_Kind           string                 `protobuf:"bytes,9,opt,name=kind"`
-	xxx_hidden_Status         string                 `protobuf:"bytes,10,opt,name=status"`
-	xxx_hidden_IssuedAt       *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=issued_at,json=issuedAt"`
-	xxx_hidden_DueAt          *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=due_at,json=dueAt"`
-	xxx_hidden_DateUpdated    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased     *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated    *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_AcknowledgedAt *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=acknowledged_at,json=acknowledgedAt"`
-	xxx_hidden_ReturnedAt     *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=returned_at,json=returnedAt"`
-	xxx_hidden_ReservationId  []byte                 `protobuf:"bytes,18,opt,name=reservation_id,json=reservationId"`
-	xxx_hidden_IssuedBy       []byte                 `protobuf:"bytes,19,opt,name=issued_by,json=issuedBy"`
-	xxx_hidden_OverdueNoticed bool                   `protobuf:"varint,20,opt,name=overdue_noticed,json=overdueNoticed"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	state                       protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id               []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant           *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Desc             string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Party            *Party                 `protobuf:"bytes,8,opt,name=party"`
+	xxx_hidden_Kind             string                 `protobuf:"bytes,9,opt,name=kind"`
+	xxx_hidden_Status           string                 `protobuf:"bytes,10,opt,name=status"`
+	xxx_hidden_DateIssued       *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_issued,json=dateIssued"`
+	xxx_hidden_DateDue          *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_due,json=dateDue"`
+	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased       *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated      *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateAcknowledged *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_acknowledged,json=dateAcknowledged"`
+	xxx_hidden_DateReturned     *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_returned,json=dateReturned"`
+	xxx_hidden_ReservationId    []byte                 `protobuf:"bytes,18,opt,name=reservation_id,json=reservationId"`
+	xxx_hidden_IssuedBy         []byte                 `protobuf:"bytes,19,opt,name=issued_by,json=issuedBy"`
+	xxx_hidden_OverdueNoticed   bool                   `protobuf:"varint,20,opt,name=overdue_noticed,json=overdueNoticed"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *Custody) Reset() {
@@ -115,16 +115,16 @@ func (x *Custody) GetStatus() string {
 	return ""
 }
 
-func (x *Custody) GetIssuedAt() *timestamppb.Timestamp {
+func (x *Custody) GetDateIssued() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_IssuedAt
+		return x.xxx_hidden_DateIssued
 	}
 	return nil
 }
 
-func (x *Custody) GetDueAt() *timestamppb.Timestamp {
+func (x *Custody) GetDateDue() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DueAt
+		return x.xxx_hidden_DateDue
 	}
 	return nil
 }
@@ -150,16 +150,16 @@ func (x *Custody) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *Custody) GetAcknowledgedAt() *timestamppb.Timestamp {
+func (x *Custody) GetDateAcknowledged() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AcknowledgedAt
+		return x.xxx_hidden_DateAcknowledged
 	}
 	return nil
 }
 
-func (x *Custody) GetReturnedAt() *timestamppb.Timestamp {
+func (x *Custody) GetDateReturned() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAt
+		return x.xxx_hidden_DateReturned
 	}
 	return nil
 }
@@ -212,12 +212,12 @@ func (x *Custody) SetStatus(v string) {
 	x.xxx_hidden_Status = v
 }
 
-func (x *Custody) SetIssuedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_IssuedAt = v
+func (x *Custody) SetDateIssued(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateIssued = v
 }
 
-func (x *Custody) SetDueAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DueAt = v
+func (x *Custody) SetDateDue(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDue = v
 }
 
 func (x *Custody) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -232,12 +232,12 @@ func (x *Custody) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *Custody) SetAcknowledgedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AcknowledgedAt = v
+func (x *Custody) SetDateAcknowledged(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAcknowledged = v
 }
 
-func (x *Custody) SetReturnedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReturnedAt = v
+func (x *Custody) SetDateReturned(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReturned = v
 }
 
 func (x *Custody) SetReservationId(v []byte) {
@@ -272,18 +272,18 @@ func (x *Custody) HasParty() bool {
 	return x.xxx_hidden_Party != nil
 }
 
-func (x *Custody) HasIssuedAt() bool {
+func (x *Custody) HasDateIssued() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_IssuedAt != nil
+	return x.xxx_hidden_DateIssued != nil
 }
 
-func (x *Custody) HasDueAt() bool {
+func (x *Custody) HasDateDue() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DueAt != nil
+	return x.xxx_hidden_DateDue != nil
 }
 
 func (x *Custody) HasDateUpdated() bool {
@@ -307,18 +307,18 @@ func (x *Custody) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *Custody) HasAcknowledgedAt() bool {
+func (x *Custody) HasDateAcknowledged() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AcknowledgedAt != nil
+	return x.xxx_hidden_DateAcknowledged != nil
 }
 
-func (x *Custody) HasReturnedAt() bool {
+func (x *Custody) HasDateReturned() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReturnedAt != nil
+	return x.xxx_hidden_DateReturned != nil
 }
 
 func (x *Custody) ClearTenant() {
@@ -329,12 +329,12 @@ func (x *Custody) ClearParty() {
 	x.xxx_hidden_Party = nil
 }
 
-func (x *Custody) ClearIssuedAt() {
-	x.xxx_hidden_IssuedAt = nil
+func (x *Custody) ClearDateIssued() {
+	x.xxx_hidden_DateIssued = nil
 }
 
-func (x *Custody) ClearDueAt() {
-	x.xxx_hidden_DueAt = nil
+func (x *Custody) ClearDateDue() {
+	x.xxx_hidden_DateDue = nil
 }
 
 func (x *Custody) ClearDateUpdated() {
@@ -349,12 +349,12 @@ func (x *Custody) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *Custody) ClearAcknowledgedAt() {
-	x.xxx_hidden_AcknowledgedAt = nil
+func (x *Custody) ClearDateAcknowledged() {
+	x.xxx_hidden_DateAcknowledged = nil
 }
 
-func (x *Custody) ClearReturnedAt() {
-	x.xxx_hidden_ReturnedAt = nil
+func (x *Custody) ClearDateReturned() {
+	x.xxx_hidden_DateReturned = nil
 }
 
 type Custody_builder struct {
@@ -372,17 +372,17 @@ type Custody_builder struct {
 	// issue | loan
 	Kind string
 	// open | returned | cancelled
-	Status         string
-	IssuedAt       *timestamppb.Timestamp
-	DueAt          *timestamppb.Timestamp
-	DateUpdated    *timestamppb.Timestamp
-	DateErased     *timestamppb.Timestamp
-	DateCreated    *timestamppb.Timestamp
-	AcknowledgedAt *timestamppb.Timestamp
-	ReturnedAt     *timestamppb.Timestamp
-	ReservationId  []byte
-	IssuedBy       []byte
-	OverdueNoticed bool
+	Status           string
+	DateIssued       *timestamppb.Timestamp
+	DateDue          *timestamppb.Timestamp
+	DateUpdated      *timestamppb.Timestamp
+	DateErased       *timestamppb.Timestamp
+	DateCreated      *timestamppb.Timestamp
+	DateAcknowledged *timestamppb.Timestamp
+	DateReturned     *timestamppb.Timestamp
+	ReservationId    []byte
+	IssuedBy         []byte
+	OverdueNoticed   bool
 }
 
 func (b0 Custody_builder) Build() *Custody {
@@ -395,13 +395,13 @@ func (b0 Custody_builder) Build() *Custody {
 	x.xxx_hidden_Party = b.Party
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_Status = b.Status
-	x.xxx_hidden_IssuedAt = b.IssuedAt
-	x.xxx_hidden_DueAt = b.DueAt
+	x.xxx_hidden_DateIssued = b.DateIssued
+	x.xxx_hidden_DateDue = b.DateDue
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_AcknowledgedAt = b.AcknowledgedAt
-	x.xxx_hidden_ReturnedAt = b.ReturnedAt
+	x.xxx_hidden_DateAcknowledged = b.DateAcknowledged
+	x.xxx_hidden_DateReturned = b.DateReturned
 	x.xxx_hidden_ReservationId = b.ReservationId
 	x.xxx_hidden_IssuedBy = b.IssuedBy
 	x.xxx_hidden_OverdueNoticed = b.OverdueNoticed
@@ -421,8 +421,8 @@ type CustodyLine struct {
 	xxx_hidden_ReturnedQuantity int64                  `protobuf:"varint,12,opt,name=returned_quantity,json=returnedQuantity"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateCreated      *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_OutAt            *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=out_at,json=outAt"`
-	xxx_hidden_ReturnedAt       *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=returned_at,json=returnedAt"`
+	xxx_hidden_DateOut          *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_out,json=dateOut"`
+	xxx_hidden_DateReturned     *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_returned,json=dateReturned"`
 	xxx_hidden_ConditionOut     string                 `protobuf:"bytes,18,opt,name=condition_out,json=conditionOut"`
 	xxx_hidden_ConditionIn      string                 `protobuf:"bytes,19,opt,name=condition_in,json=conditionIn"`
 	unknownFields               protoimpl.UnknownFields
@@ -517,16 +517,16 @@ func (x *CustodyLine) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *CustodyLine) GetOutAt() *timestamppb.Timestamp {
+func (x *CustodyLine) GetDateOut() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_OutAt
+		return x.xxx_hidden_DateOut
 	}
 	return nil
 }
 
-func (x *CustodyLine) GetReturnedAt() *timestamppb.Timestamp {
+func (x *CustodyLine) GetDateReturned() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReturnedAt
+		return x.xxx_hidden_DateReturned
 	}
 	return nil
 }
@@ -584,12 +584,12 @@ func (x *CustodyLine) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *CustodyLine) SetOutAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OutAt = v
+func (x *CustodyLine) SetDateOut(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOut = v
 }
 
-func (x *CustodyLine) SetReturnedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReturnedAt = v
+func (x *CustodyLine) SetDateReturned(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReturned = v
 }
 
 func (x *CustodyLine) SetConditionOut(v string) {
@@ -642,18 +642,18 @@ func (x *CustodyLine) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *CustodyLine) HasOutAt() bool {
+func (x *CustodyLine) HasDateOut() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_OutAt != nil
+	return x.xxx_hidden_DateOut != nil
 }
 
-func (x *CustodyLine) HasReturnedAt() bool {
+func (x *CustodyLine) HasDateReturned() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReturnedAt != nil
+	return x.xxx_hidden_DateReturned != nil
 }
 
 func (x *CustodyLine) ClearTenant() {
@@ -680,12 +680,12 @@ func (x *CustodyLine) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *CustodyLine) ClearOutAt() {
-	x.xxx_hidden_OutAt = nil
+func (x *CustodyLine) ClearDateOut() {
+	x.xxx_hidden_DateOut = nil
 }
 
-func (x *CustodyLine) ClearReturnedAt() {
-	x.xxx_hidden_ReturnedAt = nil
+func (x *CustodyLine) ClearDateReturned() {
+	x.xxx_hidden_DateReturned = nil
 }
 
 type CustodyLine_builder struct {
@@ -700,8 +700,8 @@ type CustodyLine_builder struct {
 	ReturnedQuantity int64
 	DateUpdated      *timestamppb.Timestamp
 	DateCreated      *timestamppb.Timestamp
-	OutAt            *timestamppb.Timestamp
-	ReturnedAt       *timestamppb.Timestamp
+	DateOut          *timestamppb.Timestamp
+	DateReturned     *timestamppb.Timestamp
 	ConditionOut     string
 	ConditionIn      string
 }
@@ -719,8 +719,8 @@ func (b0 CustodyLine_builder) Build() *CustodyLine {
 	x.xxx_hidden_ReturnedQuantity = b.ReturnedQuantity
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_OutAt = b.OutAt
-	x.xxx_hidden_ReturnedAt = b.ReturnedAt
+	x.xxx_hidden_DateOut = b.DateOut
+	x.xxx_hidden_DateReturned = b.DateReturned
 	x.xxx_hidden_ConditionOut = b.ConditionOut
 	x.xxx_hidden_ConditionIn = b.ConditionIn
 	return m0
@@ -730,7 +730,7 @@ var File_loft_custody_proto protoreflect.FileDescriptor
 
 const file_loft_custody_proto_rawDesc = "" +
 	"\n" +
-	"\x12loft/custody.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x0eloft/org.proto\x1a\x10loft/stock.proto\x1a\x18loft/payday/tenant.proto\"\x8f\t\n" +
+	"\x12loft/custody.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x0eloft/org.proto\x1a\x10loft/stock.proto\x1a\x18loft/payday/tenant.proto\"\xa5\t\n" +
 	"\aCustody\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -738,36 +738,35 @@ const file_loft_custody_proto_rawDesc = "" +
 	"\x05party\x18\b \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12\x1a\n" +
 	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12\x1e\n" +
 	"\x06status\x18\n" +
-	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12@\n" +
-	"\tissued_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\bissuedAt\x129\n" +
-	"\x06due_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x05dueAt\x12F\n" +
+	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12D\n" +
+	"\vdate_issued\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\n" +
+	"dateIssued\x12=\n" +
+	"\bdate_due\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\adateDue\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12Q\n" +
-	"\x0facknowledged_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\x0eacknowledgedAt\x12C\n" +
-	"\vreturned_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"returnedAt\x12/\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12U\n" +
+	"\x11date_acknowledged\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\x10dateAcknowledged\x12G\n" +
+	"\rdate_returned\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\fdateReturned\x12/\n" +
 	"\x0ereservation_id\x18\x12 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\rreservationId\x12%\n" +
 	"\tissued_by\x18\x13 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\bissuedBy\x12'\n" +
-	"\x0foverdue_noticed\x18\x14 \x01(\bR\x0eoverdueNoticed:\xc7\x02\xca\xfc\x15\xc9\x01\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\x0foverdue_noticed\x18\x14 \x01(\bR\x0eoverdueNoticed:\xcd\x02\xca\xfc\x15\xcf\x01\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x1a!\x12\x05party\x1a\t\n" +
-	"\x05party\x10\b\x1a\r\n" +
-	"\tissued_at\x10\v\x1a*\x12\x04open\x1a\n" +
+	"\x02id\x10\x01\x1a#\x12\x05party\x1a\t\n" +
+	"\x05party\x10\b\x1a\x0f\n" +
+	"\vdate_issued\x10\v\x1a,\x12\x04open\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\n" +
 	"\n" +
 	"\x06status\x10\n" +
-	"\x1a\n" +
+	"\x1a\f\n" +
+	"\bdate_due\x10\f\x1a!\x12\vreservation\x1a\x12\n" +
+	"\x0ereservation_id\x10\x12\x1a%\x12\x06issued\x1a\n" +
 	"\n" +
-	"\x06due_at\x10\f\x1a!\x12\vreservation\x1a\x12\n" +
-	"\x0ereservation_id\x10\x12\x1a#\x12\x06issued\x1a\n" +
-	"\n" +
-	"\x06tenant\x10\x02\x1a\r\n" +
-	"\tissued_at\x10\v\x8a\xbb\x16u\b\x152W\n" +
+	"\x06tenant\x10\x02\x1a\x0f\n" +
+	"\vdate_issued\x10\v\x8a\xbb\x16u\b\x152W\n" +
 	"\x12\n" +
 	"\x0e\n" +
 	"\fdate_created\x10\x01\n" +
@@ -779,7 +778,7 @@ const file_loft_custody_proto_rawDesc = "" +
 	"\x06status\x1a\x06\n" +
 	"\x04kind\x1a\x10\n" +
 	"\x0ereservation_id d(\xf4\x03:\x00\"\x16\n" +
-	"\x06tenant\"\fparty.tenant\"\xf3\x06\n" +
+	"\x06tenant\"\fparty.tenant\"\xfb\x06\n" +
 	"\vCustodyLine\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12/\n" +
@@ -790,10 +789,9 @@ const file_loft_custody_proto_rawDesc = "" +
 	"\bquantity\x18\v \x01(\x03R\bquantity\x12+\n" +
 	"\x11returned_quantity\x18\f \x01(\x03R\x10returnedQuantity\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12:\n" +
-	"\x06out_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\x05outAt\x12C\n" +
-	"\vreturned_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"returnedAt\x12#\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12>\n" +
+	"\bdate_out\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\adateOut\x12G\n" +
+	"\rdate_returned\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\fdateReturned\x12#\n" +
 	"\rcondition_out\x18\x12 \x01(\tR\fconditionOut\x12!\n" +
 	"\fcondition_in\x18\x13 \x01(\tR\vconditionIn:\xe9\x01\xca\xfc\x15^\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
@@ -828,21 +826,21 @@ var file_loft_custody_proto_goTypes = []any{
 var file_loft_custody_proto_depIdxs = []int32{
 	2,  // 0: loft.Custody.tenant:type_name -> loft.Tenant
 	3,  // 1: loft.Custody.party:type_name -> loft.Party
-	4,  // 2: loft.Custody.issued_at:type_name -> google.protobuf.Timestamp
-	4,  // 3: loft.Custody.due_at:type_name -> google.protobuf.Timestamp
+	4,  // 2: loft.Custody.date_issued:type_name -> google.protobuf.Timestamp
+	4,  // 3: loft.Custody.date_due:type_name -> google.protobuf.Timestamp
 	4,  // 4: loft.Custody.date_updated:type_name -> google.protobuf.Timestamp
 	4,  // 5: loft.Custody.date_erased:type_name -> google.protobuf.Timestamp
 	4,  // 6: loft.Custody.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 7: loft.Custody.acknowledged_at:type_name -> google.protobuf.Timestamp
-	4,  // 8: loft.Custody.returned_at:type_name -> google.protobuf.Timestamp
+	4,  // 7: loft.Custody.date_acknowledged:type_name -> google.protobuf.Timestamp
+	4,  // 8: loft.Custody.date_returned:type_name -> google.protobuf.Timestamp
 	2,  // 9: loft.CustodyLine.tenant:type_name -> loft.Tenant
 	0,  // 10: loft.CustodyLine.custody:type_name -> loft.Custody
 	5,  // 11: loft.CustodyLine.asset:type_name -> loft.Asset
 	6,  // 12: loft.CustodyLine.stock:type_name -> loft.Stock
 	4,  // 13: loft.CustodyLine.date_updated:type_name -> google.protobuf.Timestamp
 	4,  // 14: loft.CustodyLine.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 15: loft.CustodyLine.out_at:type_name -> google.protobuf.Timestamp
-	4,  // 16: loft.CustodyLine.returned_at:type_name -> google.protobuf.Timestamp
+	4,  // 15: loft.CustodyLine.date_out:type_name -> google.protobuf.Timestamp
+	4,  // 16: loft.CustodyLine.date_returned:type_name -> google.protobuf.Timestamp
 	17, // [17:17] is the sub-list for method output_type
 	17, // [17:17] is the sub-list for method input_type
 	17, // [17:17] is the sub-list for extension type_name

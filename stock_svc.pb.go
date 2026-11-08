@@ -1954,14 +1954,14 @@ func (b0 StockWatchItem_builder) Build() *StockWatchItem {
 }
 
 type StockChangeRequest struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref      *StockRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Quantity int64                  `protobuf:"varint,2,opt,name=quantity"`
-	xxx_hidden_Reason   string                 `protobuf:"bytes,3,opt,name=reason"`
-	xxx_hidden_At       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=at"`
-	xxx_hidden_Op       []byte                 `protobuf:"bytes,5,opt,name=op"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref          *StockRef              `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Quantity     int64                  `protobuf:"varint,2,opt,name=quantity"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,3,opt,name=reason"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_Op           []byte                 `protobuf:"bytes,5,opt,name=op"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *StockChangeRequest) Reset() {
@@ -2010,9 +2010,9 @@ func (x *StockChangeRequest) GetReason() string {
 	return ""
 }
 
-func (x *StockChangeRequest) GetAt() *timestamppb.Timestamp {
+func (x *StockChangeRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -2036,8 +2036,8 @@ func (x *StockChangeRequest) SetReason(v string) {
 	x.xxx_hidden_Reason = v
 }
 
-func (x *StockChangeRequest) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *StockChangeRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *StockChangeRequest) SetOp(v []byte) {
@@ -2054,29 +2054,29 @@ func (x *StockChangeRequest) HasRef() bool {
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *StockChangeRequest) HasAt() bool {
+func (x *StockChangeRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *StockChangeRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *StockChangeRequest) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *StockChangeRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 type StockChangeRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref      *StockRef
-	Quantity int64
-	Reason   string
-	At       *timestamppb.Timestamp
-	Op       []byte
+	Ref          *StockRef
+	Quantity     int64
+	Reason       string
+	DateOccurred *timestamppb.Timestamp
+	Op           []byte
 }
 
 func (b0 StockChangeRequest_builder) Build() *StockChangeRequest {
@@ -2086,21 +2086,21 @@ func (b0 StockChangeRequest_builder) Build() *StockChangeRequest {
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_Quantity = b.Quantity
 	x.xxx_hidden_Reason = b.Reason
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_Op = b.Op
 	return m0
 }
 
 type StockTransferRequest struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref      *StockRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_To       *AssetRef              `protobuf:"bytes,2,opt,name=to"`
-	xxx_hidden_Quantity int64                  `protobuf:"varint,3,opt,name=quantity"`
-	xxx_hidden_Reason   string                 `protobuf:"bytes,4,opt,name=reason"`
-	xxx_hidden_At       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=at"`
-	xxx_hidden_Op       []byte                 `protobuf:"bytes,6,opt,name=op"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref          *StockRef              `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_To           *AssetRef              `protobuf:"bytes,2,opt,name=to"`
+	xxx_hidden_Quantity     int64                  `protobuf:"varint,3,opt,name=quantity"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,4,opt,name=reason"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_Op           []byte                 `protobuf:"bytes,6,opt,name=op"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *StockTransferRequest) Reset() {
@@ -2156,9 +2156,9 @@ func (x *StockTransferRequest) GetReason() string {
 	return ""
 }
 
-func (x *StockTransferRequest) GetAt() *timestamppb.Timestamp {
+func (x *StockTransferRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -2186,8 +2186,8 @@ func (x *StockTransferRequest) SetReason(v string) {
 	x.xxx_hidden_Reason = v
 }
 
-func (x *StockTransferRequest) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *StockTransferRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *StockTransferRequest) SetOp(v []byte) {
@@ -2211,11 +2211,11 @@ func (x *StockTransferRequest) HasTo() bool {
 	return x.xxx_hidden_To != nil
 }
 
-func (x *StockTransferRequest) HasAt() bool {
+func (x *StockTransferRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *StockTransferRequest) ClearRef() {
@@ -2226,19 +2226,19 @@ func (x *StockTransferRequest) ClearTo() {
 	x.xxx_hidden_To = nil
 }
 
-func (x *StockTransferRequest) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *StockTransferRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 type StockTransferRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref      *StockRef
-	To       *AssetRef
-	Quantity int64
-	Reason   string
-	At       *timestamppb.Timestamp
-	Op       []byte
+	Ref          *StockRef
+	To           *AssetRef
+	Quantity     int64
+	Reason       string
+	DateOccurred *timestamppb.Timestamp
+	Op           []byte
 }
 
 func (b0 StockTransferRequest_builder) Build() *StockTransferRequest {
@@ -2249,7 +2249,7 @@ func (b0 StockTransferRequest_builder) Build() *StockTransferRequest {
 	x.xxx_hidden_To = b.To
 	x.xxx_hidden_Quantity = b.Quantity
 	x.xxx_hidden_Reason = b.Reason
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_Op = b.Op
 	return m0
 }
@@ -2453,11 +2453,11 @@ func (b0 StockConvertResponse_builder) Build() *StockConvertResponse {
 }
 
 type StockFlowRequest struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_From *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=from"`
-	xxx_hidden_To   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=to"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DateFrom *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_to,json=dateTo"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *StockFlowRequest) Reset() {
@@ -2485,75 +2485,75 @@ func (x *StockFlowRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *StockFlowRequest) GetFrom() *timestamppb.Timestamp {
+func (x *StockFlowRequest) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *StockFlowRequest) GetTo() *timestamppb.Timestamp {
+func (x *StockFlowRequest) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
 
-func (x *StockFlowRequest) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *StockFlowRequest) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *StockFlowRequest) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *StockFlowRequest) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
-func (x *StockFlowRequest) HasFrom() bool {
+func (x *StockFlowRequest) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *StockFlowRequest) HasTo() bool {
+func (x *StockFlowRequest) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
-func (x *StockFlowRequest) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *StockFlowRequest) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *StockFlowRequest) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *StockFlowRequest) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type StockFlowRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	// The period, from `from` and before `to`, a year at most. Unsaid, the last
+	// The period, from `date_from` and before `date_to`, a year at most. Unsaid, the last
 	// thirty of the workspace's days, today among them.
-	From *timestamppb.Timestamp
-	To   *timestamppb.Timestamp
+	DateFrom *timestamppb.Timestamp
+	DateTo   *timestamppb.Timestamp
 }
 
 func (b0 StockFlowRequest_builder) Build() *StockFlowRequest {
 	m0 := &StockFlowRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	return m0
 }
 
 type StockFlowResponse struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Rows *[]*StockFlowRow       `protobuf:"bytes,1,rep,name=rows"`
-	xxx_hidden_From *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from"`
-	xxx_hidden_To   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Rows     *[]*StockFlowRow       `protobuf:"bytes,1,rep,name=rows"`
+	xxx_hidden_DateFrom *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_to,json=dateTo"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *StockFlowResponse) Reset() {
@@ -2590,16 +2590,16 @@ func (x *StockFlowResponse) GetRows() []*StockFlowRow {
 	return nil
 }
 
-func (x *StockFlowResponse) GetFrom() *timestamppb.Timestamp {
+func (x *StockFlowResponse) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *StockFlowResponse) GetTo() *timestamppb.Timestamp {
+func (x *StockFlowResponse) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
@@ -2608,34 +2608,34 @@ func (x *StockFlowResponse) SetRows(v []*StockFlowRow) {
 	x.xxx_hidden_Rows = &v
 }
 
-func (x *StockFlowResponse) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *StockFlowResponse) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *StockFlowResponse) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *StockFlowResponse) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
-func (x *StockFlowResponse) HasFrom() bool {
+func (x *StockFlowResponse) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *StockFlowResponse) HasTo() bool {
+func (x *StockFlowResponse) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
-func (x *StockFlowResponse) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *StockFlowResponse) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *StockFlowResponse) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *StockFlowResponse) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type StockFlowResponse_builder struct {
@@ -2644,8 +2644,8 @@ type StockFlowResponse_builder struct {
 	// Every stock, by name and then by where it is kept.
 	Rows []*StockFlowRow
 	// The period it read.
-	From *timestamppb.Timestamp
-	To   *timestamppb.Timestamp
+	DateFrom *timestamppb.Timestamp
+	DateTo   *timestamppb.Timestamp
 }
 
 func (b0 StockFlowResponse_builder) Build() *StockFlowResponse {
@@ -2653,8 +2653,8 @@ func (b0 StockFlowResponse_builder) Build() *StockFlowResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Rows = &b.Rows
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	return m0
 }
 
@@ -2970,21 +2970,21 @@ func (b0 StockFlowRow_builder) Build() *StockFlowRow {
 }
 
 type StockMovementAddRequest struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Stock       *StockRef              `protobuf:"bytes,8,opt,name=stock"`
-	xxx_hidden_Delta       int64                  `protobuf:"varint,9,opt,name=delta"`
-	xxx_hidden_Reason      string                 `protobuf:"bytes,10,opt,name=reason"`
-	xxx_hidden_RefId       []byte                 `protobuf:"bytes,11,opt,name=ref_id,json=refId"`
-	xxx_hidden_OccurredAt  *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=occurred_at,json=occurredAt"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_EventId     []byte                 `protobuf:"bytes,16,opt,name=event_id,json=eventId"`
-	xxx_hidden_Balance     int64                  `protobuf:"varint,17,opt,name=balance"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant       *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Stock        *StockRef              `protobuf:"bytes,8,opt,name=stock"`
+	xxx_hidden_Delta        int64                  `protobuf:"varint,9,opt,name=delta"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,10,opt,name=reason"`
+	xxx_hidden_RefId        []byte                 `protobuf:"bytes,11,opt,name=ref_id,json=refId"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_EventId      []byte                 `protobuf:"bytes,16,opt,name=event_id,json=eventId"`
+	xxx_hidden_Balance      int64                  `protobuf:"varint,17,opt,name=balance"`
+	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
+	XXX_presence            [1]uint32
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *StockMovementAddRequest) Reset() {
@@ -3054,9 +3054,9 @@ func (x *StockMovementAddRequest) GetRefId() []byte {
 	return nil
 }
 
-func (x *StockMovementAddRequest) GetOccurredAt() *timestamppb.Timestamp {
+func (x *StockMovementAddRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_OccurredAt
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -3114,8 +3114,8 @@ func (x *StockMovementAddRequest) SetRefId(v []byte) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
 }
 
-func (x *StockMovementAddRequest) SetOccurredAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OccurredAt = v
+func (x *StockMovementAddRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *StockMovementAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
@@ -3161,11 +3161,11 @@ func (x *StockMovementAddRequest) HasRefId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *StockMovementAddRequest) HasOccurredAt() bool {
+func (x *StockMovementAddRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_OccurredAt != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *StockMovementAddRequest) HasDateCreated() bool {
@@ -3193,8 +3193,8 @@ func (x *StockMovementAddRequest) ClearRefId() {
 	x.xxx_hidden_RefId = nil
 }
 
-func (x *StockMovementAddRequest) ClearOccurredAt() {
-	x.xxx_hidden_OccurredAt = nil
+func (x *StockMovementAddRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 func (x *StockMovementAddRequest) ClearDateCreated() {
@@ -3204,16 +3204,16 @@ func (x *StockMovementAddRequest) ClearDateCreated() {
 type StockMovementAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id          []byte
-	Tenant      *TenantRef
-	Stock       *StockRef
-	Delta       int64
-	Reason      string
-	RefId       []byte
-	OccurredAt  *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
-	EventId     []byte
-	Balance     int64
+	Id           []byte
+	Tenant       *TenantRef
+	Stock        *StockRef
+	Delta        int64
+	Reason       string
+	RefId        []byte
+	DateOccurred *timestamppb.Timestamp
+	DateCreated  *timestamppb.Timestamp
+	EventId      []byte
+	Balance      int64
 }
 
 func (b0 StockMovementAddRequest_builder) Build() *StockMovementAddRequest {
@@ -3232,7 +3232,7 @@ func (b0 StockMovementAddRequest_builder) Build() *StockMovementAddRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
 		x.xxx_hidden_RefId = b.RefId
 	}
-	x.xxx_hidden_OccurredAt = b.OccurredAt
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_EventId = b.EventId
 	x.xxx_hidden_Balance = b.Balance
@@ -3459,22 +3459,22 @@ type stockMovementRef_Id struct {
 func (*stockMovementRef_Id) isStockMovementRef_Key() {}
 
 type StockMovementSelect struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Stock       *StockSelect           `protobuf:"bytes,8,opt,name=stock"`
-	xxx_hidden_Delta       bool                   `protobuf:"varint,9,opt,name=delta"`
-	xxx_hidden_Reason      bool                   `protobuf:"varint,10,opt,name=reason"`
-	xxx_hidden_RefId       bool                   `protobuf:"varint,11,opt,name=ref_id,json=refId"`
-	xxx_hidden_OccurredAt  bool                   `protobuf:"varint,12,opt,name=occurred_at,json=occurredAt"`
-	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_EventId     bool                   `protobuf:"varint,16,opt,name=event_id,json=eventId"`
-	xxx_hidden_Balance     bool                   `protobuf:"varint,17,opt,name=balance"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All          bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Tenant       *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Stock        *StockSelect           `protobuf:"bytes,8,opt,name=stock"`
+	xxx_hidden_Delta        bool                   `protobuf:"varint,9,opt,name=delta"`
+	xxx_hidden_Reason       bool                   `protobuf:"varint,10,opt,name=reason"`
+	xxx_hidden_RefId        bool                   `protobuf:"varint,11,opt,name=ref_id,json=refId"`
+	xxx_hidden_DateOccurred bool                   `protobuf:"varint,12,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_DateUpdated  bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated  bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_EventId      bool                   `protobuf:"varint,16,opt,name=event_id,json=eventId"`
+	xxx_hidden_Balance      bool                   `protobuf:"varint,17,opt,name=balance"`
+	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
+	XXX_presence            [1]uint32
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *StockMovementSelect) Reset() {
@@ -3544,9 +3544,9 @@ func (x *StockMovementSelect) GetRefId() bool {
 	return false
 }
 
-func (x *StockMovementSelect) GetOccurredAt() bool {
+func (x *StockMovementSelect) GetDateOccurred() bool {
 	if x != nil {
-		return x.xxx_hidden_OccurredAt
+		return x.xxx_hidden_DateOccurred
 	}
 	return false
 }
@@ -3607,8 +3607,8 @@ func (x *StockMovementSelect) SetRefId(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
 }
 
-func (x *StockMovementSelect) SetOccurredAt(v bool) {
-	x.xxx_hidden_OccurredAt = v
+func (x *StockMovementSelect) SetDateOccurred(v bool) {
+	x.xxx_hidden_DateOccurred = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
 }
 
@@ -3674,7 +3674,7 @@ func (x *StockMovementSelect) HasRefId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *StockMovementSelect) HasOccurredAt() bool {
+func (x *StockMovementSelect) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
@@ -3737,9 +3737,9 @@ func (x *StockMovementSelect) ClearRefId() {
 	x.xxx_hidden_RefId = false
 }
 
-func (x *StockMovementSelect) ClearOccurredAt() {
+func (x *StockMovementSelect) ClearDateOccurred() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_OccurredAt = false
+	x.xxx_hidden_DateOccurred = false
 }
 
 func (x *StockMovementSelect) ClearDateUpdated() {
@@ -3765,17 +3765,17 @@ func (x *StockMovementSelect) ClearBalance() {
 type StockMovementSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	All         *bool
-	Tenant      *TenantSelect
-	Stock       *StockSelect
-	Delta       *bool
-	Reason      *bool
-	RefId       *bool
-	OccurredAt  *bool
-	DateUpdated *bool
-	DateCreated *bool
-	EventId     *bool
-	Balance     *bool
+	All          *bool
+	Tenant       *TenantSelect
+	Stock        *StockSelect
+	Delta        *bool
+	Reason       *bool
+	RefId        *bool
+	DateOccurred *bool
+	DateUpdated  *bool
+	DateCreated  *bool
+	EventId      *bool
+	Balance      *bool
 }
 
 func (b0 StockMovementSelect_builder) Build() *StockMovementSelect {
@@ -3800,9 +3800,9 @@ func (b0 StockMovementSelect_builder) Build() *StockMovementSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
 		x.xxx_hidden_RefId = *b.RefId
 	}
-	if b.OccurredAt != nil {
+	if b.DateOccurred != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
-		x.xxx_hidden_OccurredAt = *b.OccurredAt
+		x.xxx_hidden_DateOccurred = *b.DateOccurred
 	}
 	if b.DateUpdated != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
@@ -3830,7 +3830,7 @@ type StockMovementPatchRequest struct {
 	xxx_hidden_Reason           *string                `protobuf:"bytes,20,opt,name=reason"`
 	xxx_hidden_RefId            []byte                 `protobuf:"bytes,22,opt,name=ref_id,json=refId"`
 	xxx_hidden_RefIdNull        bool                   `protobuf:"varint,23,opt,name=ref_id_null,json=refIdNull"`
-	xxx_hidden_OccurredAt       *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=occurred_at,json=occurredAt"`
+	xxx_hidden_DateOccurred     *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_occurred,json=dateOccurred"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	xxx_hidden_EventId          []byte                 `protobuf:"bytes,32,opt,name=event_id,json=eventId"`
@@ -3904,9 +3904,9 @@ func (x *StockMovementPatchRequest) GetRefIdNull() bool {
 	return false
 }
 
-func (x *StockMovementPatchRequest) GetOccurredAt() *timestamppb.Timestamp {
+func (x *StockMovementPatchRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_OccurredAt
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -3966,8 +3966,8 @@ func (x *StockMovementPatchRequest) SetRefIdNull(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
 }
 
-func (x *StockMovementPatchRequest) SetOccurredAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OccurredAt = v
+func (x *StockMovementPatchRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *StockMovementPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -4027,11 +4027,11 @@ func (x *StockMovementPatchRequest) HasRefIdNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *StockMovementPatchRequest) HasOccurredAt() bool {
+func (x *StockMovementPatchRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_OccurredAt != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *StockMovementPatchRequest) HasDateUpdated() bool {
@@ -4086,8 +4086,8 @@ func (x *StockMovementPatchRequest) ClearRefIdNull() {
 	x.xxx_hidden_RefIdNull = false
 }
 
-func (x *StockMovementPatchRequest) ClearOccurredAt() {
-	x.xxx_hidden_OccurredAt = nil
+func (x *StockMovementPatchRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 func (x *StockMovementPatchRequest) ClearDateUpdated() {
@@ -4120,8 +4120,8 @@ type StockMovementPatchRequest_builder struct {
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and ref_id clears.
-	RefIdNull  *bool
-	OccurredAt *timestamppb.Timestamp
+	RefIdNull    *bool
+	DateOccurred *timestamppb.Timestamp
 	// The version this update requires the stored date_updated to be.
 	// It is a precondition, not a write: the update applies only if the row
 	// still holds this value, and the server stamps the new version itself.
@@ -4161,7 +4161,7 @@ func (b0 StockMovementPatchRequest_builder) Build() *StockMovementPatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
 		x.xxx_hidden_RefIdNull = *b.RefIdNull
 	}
-	x.xxx_hidden_OccurredAt = b.OccurredAt
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
@@ -4753,19 +4753,19 @@ const file_loft_stock_svc_g_proto_rawDesc = "" +
 	"\x0eStockWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.loft.StockR\x05value\x12\x1d\n" +
-	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\xbb\x01\n" +
+	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\xd0\x01\n" +
 	"\x12StockChangeRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.StockRefR\x03ref\x12!\n" +
 	"\bquantity\x18\x02 \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x12\x1d\n" +
-	"\x06reason\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12*\n" +
-	"\x02at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x15\n" +
-	"\x02op\x18\x05 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xdd\x01\n" +
+	"\x06reason\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12?\n" +
+	"\rdate_occurred\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x15\n" +
+	"\x02op\x18\x05 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xf2\x01\n" +
 	"\x14StockTransferRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.StockRefR\x03ref\x12\x1e\n" +
 	"\x02to\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x02to\x12!\n" +
 	"\bquantity\x18\x03 \x01(\x03B\x05\xaa\x01\x02\b\x02R\bquantity\x12\x1d\n" +
-	"\x06reason\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12*\n" +
-	"\x02at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x15\n" +
+	"\x06reason\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12?\n" +
+	"\rdate_occurred\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x15\n" +
 	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\x97\x01\n" +
 	"\x13StockConvertRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.StockRefR\x03ref\x12!\n" +
@@ -4775,14 +4775,14 @@ const file_loft_stock_svc_g_proto_rawDesc = "" +
 	"\x02op\x18\x04 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"^\n" +
 	"\x14StockConvertResponse\x12!\n" +
 	"\x05stock\x18\x01 \x01(\v2\v.loft.StockR\x05stock\x12#\n" +
-	"\x06assets\x18\x02 \x03(\v2\v.loft.AssetR\x06assets\"n\n" +
-	"\x10StockFlowRequest\x12.\n" +
-	"\x04from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\x97\x01\n" +
+	"\x06assets\x18\x02 \x03(\v2\v.loft.AssetR\x06assets\"\x80\x01\n" +
+	"\x10StockFlowRequest\x127\n" +
+	"\tdate_from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\"\xa9\x01\n" +
 	"\x11StockFlowResponse\x12&\n" +
-	"\x04rows\x18\x01 \x03(\v2\x12.loft.StockFlowRowR\x04rows\x12.\n" +
-	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\x91\x05\n" +
+	"\x04rows\x18\x01 \x03(\v2\x12.loft.StockFlowRowR\x04rows\x127\n" +
+	"\tdate_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\"\x91\x05\n" +
 	"\fStockFlowRow\x12 \n" +
 	"\bstock_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\astockId\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
@@ -4804,7 +4804,7 @@ const file_loft_stock_svc_g_proto_rawDesc = "" +
 	"\tconverted\x18\x0f \x01(\x03B\x05\xaa\x01\x02\b\x02R\tconverted\x12*\n" +
 	"\radjusted_down\x18\x10 \x01(\x03B\x05\xaa\x01\x02\b\x02R\fadjustedDown\x12\x1e\n" +
 	"\acame_in\x18\x11 \x01(\x03B\x05\xaa\x01\x02\b\x02R\x06cameIn\x12 \n" +
-	"\bwent_out\x18\x12 \x01(\x03B\x05\xaa\x01\x02\b\x02R\awentOut\"\x8a\x03\n" +
+	"\bwent_out\x18\x12 \x01(\x03B\x05\xaa\x01\x02\b\x02R\awentOut\"\x8e\x03\n" +
 	"\x17StockMovementAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12$\n" +
@@ -4812,9 +4812,8 @@ const file_loft_stock_svc_g_proto_rawDesc = "" +
 	"\x05delta\x18\t \x01(\x03B\x05\xaa\x01\x02\b\x02R\x05delta\x12\x1d\n" +
 	"\x06reason\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
-	"\x06ref_id\x18\v \x01(\fR\x05refId\x12;\n" +
-	"\voccurred_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"occurredAt\x12=\n" +
+	"\x06ref_id\x18\v \x01(\fR\x05refId\x12?\n" +
+	"\rdate_occurred\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12 \n" +
 	"\bevent_id\x18\x10 \x01(\fB\x05\xaa\x01\x02\b\x02R\aeventId\x12\x1f\n" +
 	"\abalance\x18\x11 \x01(\x03B\x05\xaa\x01\x02\b\x02R\abalance\"v\n" +
@@ -4823,7 +4822,7 @@ const file_loft_stock_svc_g_proto_rawDesc = "" +
 	"\x06select\x18\x02 \x01(\v2\x19.loft.StockMovementSelectR\x06select\"+\n" +
 	"\x10StockMovementRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xdd\x02\n" +
+	"\x03key\"\xe1\x02\n" +
 	"\x13StockMovementSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12'\n" +
@@ -4831,21 +4830,19 @@ const file_loft_stock_svc_g_proto_rawDesc = "" +
 	"\x05delta\x18\t \x01(\bR\x05delta\x12\x16\n" +
 	"\x06reason\x18\n" +
 	" \x01(\bR\x06reason\x12\x15\n" +
-	"\x06ref_id\x18\v \x01(\bR\x05refId\x12\x1f\n" +
-	"\voccurred_at\x18\f \x01(\bR\n" +
-	"occurredAt\x12!\n" +
+	"\x06ref_id\x18\v \x01(\bR\x05refId\x12#\n" +
+	"\rdate_occurred\x18\f \x01(\bR\fdateOccurred\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x19\n" +
 	"\bevent_id\x18\x10 \x01(\bR\aeventId\x12\x18\n" +
-	"\abalance\x18\x11 \x01(\bR\abalance\"\x89\x03\n" +
+	"\abalance\x18\x11 \x01(\bR\abalance\"\x8d\x03\n" +
 	"\x19StockMovementPatchRequest\x12(\n" +
 	"\x03ref\x18\x01 \x01(\v2\x16.loft.StockMovementRefR\x03ref\x12\x14\n" +
 	"\x05delta\x18\x12 \x01(\x03R\x05delta\x12\x16\n" +
 	"\x06reason\x18\x14 \x01(\tR\x06reason\x12\x15\n" +
 	"\x06ref_id\x18\x16 \x01(\fR\x05refId\x12\x1e\n" +
-	"\vref_id_null\x18\x17 \x01(\bR\trefIdNull\x12;\n" +
-	"\voccurred_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"occurredAt\x12=\n" +
+	"\vref_id_null\x18\x17 \x01(\bR\trefIdNull\x12?\n" +
+	"\rdate_occurred\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x19\n" +
 	"\bevent_id\x18  \x01(\fR\aeventId\x12\x18\n" +
@@ -4963,28 +4960,28 @@ var file_loft_stock_svc_g_proto_depIdxs = []int32{
 	12, // 21: loft.StockWatchResponse.items:type_name -> loft.StockWatchItem
 	40, // 22: loft.StockWatchItem.value:type_name -> loft.Stock
 	2,  // 23: loft.StockChangeRequest.ref:type_name -> loft.StockRef
-	35, // 24: loft.StockChangeRequest.at:type_name -> google.protobuf.Timestamp
+	35, // 24: loft.StockChangeRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	2,  // 25: loft.StockTransferRequest.ref:type_name -> loft.StockRef
 	34, // 26: loft.StockTransferRequest.to:type_name -> loft.AssetRef
-	35, // 27: loft.StockTransferRequest.at:type_name -> google.protobuf.Timestamp
+	35, // 27: loft.StockTransferRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	2,  // 28: loft.StockConvertRequest.ref:type_name -> loft.StockRef
 	40, // 29: loft.StockConvertResponse.stock:type_name -> loft.Stock
 	41, // 30: loft.StockConvertResponse.assets:type_name -> loft.Asset
-	35, // 31: loft.StockFlowRequest.from:type_name -> google.protobuf.Timestamp
-	35, // 32: loft.StockFlowRequest.to:type_name -> google.protobuf.Timestamp
+	35, // 31: loft.StockFlowRequest.date_from:type_name -> google.protobuf.Timestamp
+	35, // 32: loft.StockFlowRequest.date_to:type_name -> google.protobuf.Timestamp
 	19, // 33: loft.StockFlowResponse.rows:type_name -> loft.StockFlowRow
-	35, // 34: loft.StockFlowResponse.from:type_name -> google.protobuf.Timestamp
-	35, // 35: loft.StockFlowResponse.to:type_name -> google.protobuf.Timestamp
+	35, // 34: loft.StockFlowResponse.date_from:type_name -> google.protobuf.Timestamp
+	35, // 35: loft.StockFlowResponse.date_to:type_name -> google.protobuf.Timestamp
 	32, // 36: loft.StockMovementAddRequest.tenant:type_name -> loft.TenantRef
 	2,  // 37: loft.StockMovementAddRequest.stock:type_name -> loft.StockRef
-	35, // 38: loft.StockMovementAddRequest.occurred_at:type_name -> google.protobuf.Timestamp
+	35, // 38: loft.StockMovementAddRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	35, // 39: loft.StockMovementAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	22, // 40: loft.StockMovementGetRequest.ref:type_name -> loft.StockMovementRef
 	23, // 41: loft.StockMovementGetRequest.select:type_name -> loft.StockMovementSelect
 	36, // 42: loft.StockMovementSelect.tenant:type_name -> loft.TenantSelect
 	3,  // 43: loft.StockMovementSelect.stock:type_name -> loft.StockSelect
 	22, // 44: loft.StockMovementPatchRequest.ref:type_name -> loft.StockMovementRef
-	35, // 45: loft.StockMovementPatchRequest.occurred_at:type_name -> google.protobuf.Timestamp
+	35, // 45: loft.StockMovementPatchRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	35, // 46: loft.StockMovementPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	22, // 47: loft.StockMovementApplyRequest.ref:type_name -> loft.StockMovementRef
 	39, // 48: loft.StockMovementApplyRequest.patch:type_name -> patch.Patch

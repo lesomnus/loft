@@ -137,10 +137,10 @@ func TestAReservationsHistoryIsOnTheRecord(t *testing.T) {
 	reservations := app.NewReservationServiceClient(w.conn)
 	at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
 	r, err := reservations.Add(kim, app.ReservationAddRequest_builder{
-		Name:     "인터뷰",
-		BeginsAt: timestamppb.New(at),
-		EndsAt:   timestamppb.New(at.Add(time.Hour)),
-		Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: camera.GetId()}.Build()}.Build()},
+		Name:      "인터뷰",
+		DateStart: timestamppb.New(at),
+		DateEnd:   timestamppb.New(at.Add(time.Hour)),
+		Items:     []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: camera.GetId()}.Build()}.Build()},
 	}.Build())
 	x.NoError(err)
 	_, err = reservations.Approve(w.owner, app.ReservationDecideRequest_builder{Ref: app.ReservationRef_builder{Id: r.GetId()}.Build(), Reason: "일정 확인"}.Build())
@@ -184,10 +184,10 @@ func TestANoticeOfABookingIsOnTheRecord(t *testing.T) {
 	kim := w.signIn(kh)
 	at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
 	_, err = app.NewReservationServiceClient(w.conn).Add(kim, app.ReservationAddRequest_builder{
-		Name:     "인터뷰",
-		BeginsAt: timestamppb.New(at),
-		EndsAt:   timestamppb.New(at.Add(time.Hour)),
-		Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: camera.GetId()}.Build()}.Build()},
+		Name:      "인터뷰",
+		DateStart: timestamppb.New(at),
+		DateEnd:   timestamppb.New(at.Add(time.Hour)),
+		Items:     []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: camera.GetId()}.Build()}.Build()},
 	}.Build())
 	x.NoError(err)
 
@@ -439,7 +439,7 @@ func TestAMonthOfTheRecordIsReviewed(t *testing.T) {
 	from, to := time.Now().Add(-time.Hour), time.Now().Add(time.Hour)
 	review := func(edit func(*app.AccessReviewRequest)) *app.AccessReviewResponse {
 		t.Helper()
-		req := app.AccessReviewRequest_builder{From: timestamppb.New(from), To: timestamppb.New(to)}.Build()
+		req := app.AccessReviewRequest_builder{DateFrom: timestamppb.New(from), DateTo: timestamppb.New(to)}.Build()
 		if edit != nil {
 			edit(req)
 		}
@@ -484,17 +484,17 @@ func TestAMonthOfTheRecordIsReviewed(t *testing.T) {
 	}
 	x.Len(seen, 2)
 
-	_, err := accesses.Review(asKim, app.AccessReviewRequest_builder{From: timestamppb.New(from), To: timestamppb.New(to)}.Build())
+	_, err := accesses.Review(asKim, app.AccessReviewRequest_builder{DateFrom: timestamppb.New(from), DateTo: timestamppb.New(to)}.Build())
 	x.Equal(codes.PermissionDenied, status.Code(err), "a member reviews nobody's record")
-	_, err = accesses.Review(asChoi, app.AccessReviewRequest_builder{From: timestamppb.New(to), To: timestamppb.New(from)}.Build())
+	_, err = accesses.Review(asChoi, app.AccessReviewRequest_builder{DateFrom: timestamppb.New(to), DateTo: timestamppb.New(from)}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err), "a stretch that ends before it begins")
-	_, err = accesses.Review(asChoi, app.AccessReviewRequest_builder{From: timestamppb.New(from.Add(-100 * 24 * time.Hour)), To: timestamppb.New(to)}.Build())
+	_, err = accesses.Review(asChoi, app.AccessReviewRequest_builder{DateFrom: timestamppb.New(from.Add(-100 * 24 * time.Hour)), DateTo: timestamppb.New(to)}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err), "more than a quarter at once")
 
 	// That it was looked over, by whom, with what the stretch held then.
 	reviews := app.NewAccessReviewServiceClient(w.conn)
 	v, err := reviews.Add(asChoi, app.AccessReviewAddRequest_builder{
-		PeriodFrom: timestamppb.New(from), PeriodTo: timestamppb.New(to), Desc: "이상 없음",
+		DateStart: timestamppb.New(from), DateEnd: timestamppb.New(to), Desc: "이상 없음",
 	}.Build())
 	x.NoError(err)
 	x.Equal(choi.GetId(), v.GetReviewer().GetId())
@@ -503,10 +503,10 @@ func TestAMonthOfTheRecordIsReviewed(t *testing.T) {
 	vs, err := reviews.List(asLee, app.AccessReviewListRequest_builder{}.Build())
 	x.NoError(err)
 	x.Len(vs.GetItems(), 1, "an administrator reads it too")
-	_, err = reviews.Add(asKim, app.AccessReviewAddRequest_builder{PeriodFrom: timestamppb.New(from), PeriodTo: timestamppb.New(to)}.Build())
+	_, err = reviews.Add(asKim, app.AccessReviewAddRequest_builder{DateStart: timestamppb.New(from), DateEnd: timestamppb.New(to)}.Build())
 	x.Equal(codes.PermissionDenied, status.Code(err))
 	_, err = reviews.Add(asChoi, app.AccessReviewAddRequest_builder{
-		PeriodFrom: timestamppb.New(time.Now().Add(time.Hour)), PeriodTo: timestamppb.New(time.Now().Add(2 * time.Hour)),
+		DateStart: timestamppb.New(time.Now().Add(time.Hour)), DateEnd: timestamppb.New(time.Now().Add(2 * time.Hour)),
 	}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err), "a stretch not come yet")
 }
@@ -544,7 +544,7 @@ func TestAnAccountsOwnCallIsReviewedByItsMembership(t *testing.T) {
 	x.NoError(err)
 	owner := metadata.AppendToOutgoingContext(w.session(ph.Proto()), cmd.WorkspaceHeader, theirs.GetAlias())
 	got, err := app.NewAccessServiceClient(w.conn).Review(owner, app.AccessReviewRequest_builder{
-		From: timestamppb.New(time.Now().Add(-time.Hour)), To: timestamppb.New(time.Now().Add(time.Hour)),
+		DateFrom: timestamppb.New(time.Now().Add(-time.Hour)), DateTo: timestamppb.New(time.Now().Add(time.Hour)),
 	}.Build())
 	x.NoError(err)
 	found := false

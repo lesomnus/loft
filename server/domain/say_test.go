@@ -88,7 +88,7 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"asset.relate", app.AssetRelated_builder{Asset: asset.Bytes(), Tag: "NB-1", Target: other.Bytes(), TargetTag: "K-00001", Relation: "member_of", End: true}.Build(), "NB-1 연결 끝 K-00001 (구성품 / 소속)"},
 		{"asset.relate", app.AssetRelated_builder{Asset: asset.Bytes(), Tag: "NB-1", Target: other.Bytes(), TargetTag: "DK-1", Relation: "connected_to"}.Build(), "NB-1 연결 DK-1 (연결됨)"},
 		{"asset.correct", app.AssetCorrected_builder{Asset: asset.Bytes(), Tag: "NB-1", Row: pdid.New(pd.PlacementDomain).Bytes(), Retract: true}.Build(), "NB-1 배치 정정"},
-		{"asset.correct", app.AssetCorrected_builder{Asset: asset.Bytes(), Tag: "NB-1", Row: pdid.New(pd.LinkDomain).Bytes(), ValidFrom: timestamppb.New(at)}.Build(), "NB-1 관계 정정"},
+		{"asset.correct", app.AssetCorrected_builder{Asset: asset.Bytes(), Tag: "NB-1", Row: pdid.New(pd.LinkDomain).Bytes(), DateStart: timestamppb.New(at)}.Build(), "NB-1 관계 정정"},
 		{"asset.correct", app.AssetCorrected_builder{Asset: asset.Bytes(), Tag: "NB-1", Row: pdid.New(pd.StewardshipDomain).Bytes(), Role: "owner"}.Build(), "NB-1 소유 정정"},
 		{"asset.correct", app.AssetCorrected_builder{Asset: asset.Bytes(), Tag: "NB-1", Row: pdid.New(pd.StewardshipDomain).Bytes(), Role: "manager"}.Build(), "NB-1 관리 담당 정정"},
 		{"asset.correct", app.AssetCorrected_builder{Asset: asset.Bytes(), Tag: "NB-1", Row: pdid.New(pd.FactDomain).Bytes(), Key: "status"}.Build(), "NB-1 상태 정정"},
@@ -104,14 +104,14 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"stock.convert", app.StockConverted_builder{Stock: stock.Bytes(), Name: "모니터", Quantity: 2}.Build(), "재고 → 자산: 모니터 2개"},
 
 		{"custody.issue", app.CustodyIssued_builder{Party: kim.Bytes(), Kind: "issue", Lines: 2}.Build(), "지급: 김철수"},
-		{"custody.issue", app.CustodyIssued_builder{Party: kim.Bytes(), Kind: "loan", Due: timestamppb.New(at), Asset: asset.Bytes()}.Build(), "대여: 김철수"},
+		{"custody.issue", app.CustodyIssued_builder{Party: kim.Bytes(), Kind: "loan", DateDue: timestamppb.New(at), Asset: asset.Bytes()}.Build(), "대여: 김철수"},
 		{"custody.acknowledge", app.CustodyAcknowledged_builder{}.Build(), "인수 확인"},
 		// 05:00 in Seoul, on the 25th.
-		{"custody.extend", app.CustodyExtended_builder{Due: timestamppb.New(time.Date(2026, 10, 24, 20, 0, 0, 0, time.UTC))}.Build(), "반납 기한 연장: 2026-10-25"},
+		{"custody.extend", app.CustodyExtended_builder{DateDue: timestamppb.New(time.Date(2026, 10, 24, 20, 0, 0, 0, time.UTC))}.Build(), "반납 기한 연장: 2026-10-25"},
 		// A kind since events kept a message, written with none before it:
 		// the loan's own, and an asset's of it, by the due it missed.
-		{"custody.overdue", app.CustodyOverdue_builder{Due: timestamppb.New(time.Date(2026, 10, 24, 20, 0, 0, 0, time.UTC))}.Build(), "반납 기한 지남: 2026-10-25 05:00"},
-		{"custody.overdue", app.CustodyOverdue_builder{Due: timestamppb.New(at), Asset: asset.Bytes()}.Build(), "반납 기한 지남: 2026-10-24 10:30"},
+		{"custody.overdue", app.CustodyOverdue_builder{DateDue: timestamppb.New(time.Date(2026, 10, 24, 20, 0, 0, 0, time.UTC))}.Build(), "반납 기한 지남: 2026-10-25 05:00"},
+		{"custody.overdue", app.CustodyOverdue_builder{DateDue: timestamppb.New(at), Asset: asset.Bytes()}.Build(), "반납 기한 지남: 2026-10-24 10:30"},
 		{"custody.return", app.CustodyReturned_builder{Asset: asset.Bytes()}.Build(), "반납"},
 
 		{"count.start", app.CountDelimited_builder{Name: "본관 실사 2026-10-24"}.Build(), "실사 시작: 본관 실사 2026-10-24"},
@@ -125,11 +125,11 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"bookable.update", app.BookableSaved_builder{Asset: asset.Bytes()}.Build(), "예약 정책 변경"},
 		// The one sentence said otherwise than it was written: in the
 		// workspace's zone, where it was "10-24 01:30".
-		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", BeginsAt: timestamppb.New(at), AssetName: "회의실"}.Build(), "예약: 회의실 10-24 10:30"},
+		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", DateStart: timestamppb.New(at), AssetName: "회의실"}.Build(), "예약: 회의실 10-24 10:30"},
 		// A series by how often it takes place; each time it does, which is
 		// a reservation of its own, by when that is.
-		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", Occurrences: 4, BeginsAt: timestamppb.New(at), AssetName: "회의실"}.Build(), "반복 예약: 회의실 10-24 10:30부터 4회"},
-		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", Occurrences: 1, BeginsAt: timestamppb.New(at.AddDate(0, 0, 7)), AssetName: "회의실"}.Build(), "예약: 회의실 10-31 10:30"},
+		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", Occurrences: 4, DateStart: timestamppb.New(at), AssetName: "회의실"}.Build(), "반복 예약: 회의실 10-24 10:30부터 4회"},
+		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", Occurrences: 1, DateStart: timestamppb.New(at.AddDate(0, 0, 7)), AssetName: "회의실"}.Build(), "예약: 회의실 10-31 10:30"},
 		{"reservation.confirm", app.ReservationConfirmed_builder{Name: "주간 회의", Status: "requested"}.Build(), "예약 확정: 주간 회의"},
 		{"reservation.approve", app.ReservationDecided_builder{Name: "주간 회의"}.Build(), "예약 승인: 주간 회의"},
 		{"reservation.reject", app.ReservationDecided_builder{Name: "주간 회의"}.Build(), "예약 거절: 주간 회의"},
@@ -154,14 +154,14 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"reservation.no_show", app.ReservationReleased_builder{Name: "주간 회의"}.Build(), "노쇼: 주간 회의"},
 		// Kinds since events kept a message, written with none before them:
 		// a member of a kit, which is one thing, and a pool, by how many.
-		{"reservation.take", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약에 잡힘: 삼각대 (제품 촬영 10-24 10:30)"},
-		{"reservation.take", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "행사", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대", Override: true}.Build(), "예약에 잡힘: 삼각대 (행사 10-24 10:30)"},
-		{"reservation.wait", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약 대기: 삼각대 (제품 촬영 10-24 10:30)"},
-		{"reservation.wait", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", BeginsAt: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 2}.Build(), "예약 대기: Canon R5 2개 (촬영 10-24 10:30)"},
-		{"reservation.resolve", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약 확보: 삼각대 (제품 촬영 10-24 10:30)"},
-		{"reservation.resolve", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", BeginsAt: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 1}.Build(), "예약 확보: Canon R5 1개 (촬영 10-24 10:30)"},
-		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약에서 빠짐: 삼각대 (제품 촬영 10-24 10:30)"},
-		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", BeginsAt: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 2}.Build(), "예약에서 빠짐: Canon R5 2개 (촬영 10-24 10:30)"},
+		{"reservation.take", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", DateStart: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약에 잡힘: 삼각대 (제품 촬영 10-24 10:30)"},
+		{"reservation.take", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "행사", DateStart: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대", Override: true}.Build(), "예약에 잡힘: 삼각대 (행사 10-24 10:30)"},
+		{"reservation.wait", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", DateStart: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약 대기: 삼각대 (제품 촬영 10-24 10:30)"},
+		{"reservation.wait", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", DateStart: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 2}.Build(), "예약 대기: Canon R5 2개 (촬영 10-24 10:30)"},
+		{"reservation.resolve", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", DateStart: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약 확보: 삼각대 (제품 촬영 10-24 10:30)"},
+		{"reservation.resolve", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", DateStart: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 1}.Build(), "예약 확보: Canon R5 1개 (촬영 10-24 10:30)"},
+		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", DateStart: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약에서 빠짐: 삼각대 (제품 촬영 10-24 10:30)"},
+		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", DateStart: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 2}.Build(), "예약에서 빠짐: Canon R5 2개 (촬영 10-24 10:30)"},
 
 		{"domain.add", app.TenantDomainAdded_builder{Host: "assets.acme.example", Purpose: "app", Source: "custom"}.Build(), "워크스페이스 도메인 등록: assets.acme.example"},
 		{"domain.add", app.TenantDomainAdded_builder{Host: "acme.l.test", Purpose: "label", Source: "default"}.Build(), "라벨 도메인 등록: acme.l.test"},
@@ -170,7 +170,7 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"domain.activate", app.TenantDomainActivated_builder{Host: "assets.acme.example", Purpose: "app"}.Build(), "워크스페이스 도메인 활성화: assets.acme.example"},
 		{"domain.retire", app.TenantDomainRetired_builder{Host: "acme.l.test", Purpose: "label", Force: true, Labels: 3}.Build(), "라벨 도메인 은퇴: acme.l.test"},
 		// What was the reason, loft's own words, said by the sentence.
-		{"domain.lapse", app.TenantDomainLapsed_builder{Host: "assets.acme.example", Purpose: "app", FailingSince: timestamppb.New(time.Date(2026, 10, 23, 3, 0, 0, 0, time.UTC)), Failures: 6}.Build(),
+		{"domain.lapse", app.TenantDomainLapsed_builder{Host: "assets.acme.example", Purpose: "app", DateFailing: timestamppb.New(time.Date(2026, 10, 23, 3, 0, 0, 0, time.UTC)), Failures: 6}.Build(),
 			"워크스페이스 도메인 사용 중지: assets.acme.example (DNS가 10월 23일 12:00부터 이 서비스를 가리키지 않거나 TXT 레코드가 없습니다)"},
 		{"label.print", app.LabelsPrinted_builder{Batch: "2026-10-24 10:30", Count: 20}.Build(), "라벨 인쇄: 2026-10-24 10:30"},
 		{"label.bind", app.LabelBound_builder{Asset: asset.Bytes(), Tag: "NB-1"}.Build(), "NB-1 라벨 부착"},
@@ -198,14 +198,14 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"workspace.configure", app.WorkspaceConfigured_builder{Name: z.Ptr("")}.Build(), "워크스페이스 이름 지움 (소유자의 이름으로 부름)"},
 		{"workspace.configure", app.WorkspaceConfigured_builder{Name: z.Ptr("연구실 장비"), Timezone: z.Ptr("Asia/Seoul")}.Build(), "워크스페이스 설정 변경 (이름: 연구실 장비)"},
 		{"workspace.configure", app.WorkspaceConfigured_builder{Name: z.Ptr(""), RestoreDays: z.Ptr(uint32(90))}.Build(), "워크스페이스 설정 변경 (이름 지움)"},
-		{"workspace.close", app.WorkspaceClosed_builder{By: "owner", Destroy: timestamppb.New(at)}.Build(), "워크스페이스 닫기"},
+		{"workspace.close", app.WorkspaceClosed_builder{By: "owner", DateDestroy: timestamppb.New(at)}.Build(), "워크스페이스 닫기"},
 		{"workspace.close", app.WorkspaceClosed_builder{By: "operator"}.Build(), "워크스페이스 닫기 (운영자)"},
 		{"workspace.close", app.WorkspaceClosed_builder{By: "deployment"}.Build(), "워크스페이스 닫기 (남은 구성원 없음)"},
 		{"workspace.restore", app.WorkspaceRestored_builder{By: "owner"}.Build(), "워크스페이스 복구"},
 		// Declared by D70 a release before D71 wrote it: how many of its
 		// reservations whose time passed while it was closed it let go of.
 		{"workspace.restore", app.WorkspaceRestored_builder{By: "operator", Expired: 3}.Build(), "워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 3건 만료"},
-		{"workspace.import", app.WorkspaceImported_builder{ExportedAt: timestamppb.New(time.Date(2026, 10, 20, 23, 0, 0, 0, time.UTC)), Rows: 120}.Build(), "워크스페이스 복구 (운영자): 2026-10-20 내보내기에서"},
+		{"workspace.import", app.WorkspaceImported_builder{DateExported: timestamppb.New(time.Date(2026, 10, 20, 23, 0, 0, 0, time.UTC)), Rows: 120}.Build(), "워크스페이스 복구 (운영자): 2026-10-20 내보내기에서"},
 
 		{"invitation.add", app.InvitationAdded_builder{Role: "manager"}.Build(), "초대 (매니저)"},
 		{"invitation.claim", app.InvitationChanged_builder{}.Build(), "초대 링크로 받음"},
@@ -221,10 +221,10 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"purchase.receive", app.PurchaseReceived_builder{Name: "노트북 2대"}.Build(), "입고: 노트북 2대"},
 		// The first of October in Seoul to the last.
 		{"access.review", app.AccessReviewed_builder{
-			From: timestamppb.New(time.Date(2026, 9, 30, 15, 0, 0, 0, time.UTC)), To: timestamppb.New(time.Date(2026, 10, 31, 15, 0, 0, 0, time.UTC)),
+			DateStart: timestamppb.New(time.Date(2026, 9, 30, 15, 0, 0, 0, time.UTC)), DateEnd: timestamppb.New(time.Date(2026, 10, 31, 15, 0, 0, 0, time.UTC)),
 			Calls: 12, Downloads: 1, Refused: 2,
 		}.Build(), "접속기록 점검: 2026-10-01 – 2026-10-31, 호출 12건 (내려받기 1건, 거부 2건)"},
-		{"retention.expired", app.RetentionExpired_builder{Before: timestamppb.New(time.Date(2026, 4, 27, 15, 0, 0, 0, time.UTC)), Placements: 2, Facts: 3, Events: 1, Reservations: 1}.Build(),
+		{"retention.expired", app.RetentionExpired_builder{DateBefore: timestamppb.New(time.Date(2026, 4, 27, 15, 0, 0, 0, time.UTC)), Placements: 2, Facts: 3, Events: 1, Reservations: 1}.Build(),
 			"보존 기간이 지난 이력 7건 삭제 (2026년 4월 28일 이전)"},
 
 		// A kind since events kept a message, written with none before it.

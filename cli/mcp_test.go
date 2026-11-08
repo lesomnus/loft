@@ -127,7 +127,7 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 	run(t, root(), "item-model", "add", "-o", "json", `{"name": "ThinkPad X1", "maker": "Lenovo", "type": {"id": "`+notebook+`"}}`)
 	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "parentId": "`+team+`"}`))
 	due := time.Now().Add(72 * time.Hour).UTC().Format(time.RFC3339)
-	run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
+	run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dateDue": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
 
 	a := s.assistant()
 
@@ -371,7 +371,7 @@ func TestAnAssistantReadsWhatAnEventHeld(t *testing.T) {
 	laptop := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
 	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "minsu@example.com", "phone": "010-1234-5678"}`))
 	due := time.Now().Add(72 * time.Hour).UTC().Truncate(time.Second)
-	loan := made(t, run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due.Format(time.RFC3339)+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`))
+	loan := made(t, run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dateDue": "`+due.Format(time.RFC3339)+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`))
 
 	a := s.assistant()
 	var v struct {
@@ -399,9 +399,9 @@ func TestAnAssistantReadsWhatAnEventHeld(t *testing.T) {
 	x.Equal("NB-1 개발용 노트북", lent["asset"])
 	// A hand-over has no name of its own: its id, which the tools take.
 	x.Equal(pid(t, loan), pid(t, lent["custody"]))
-	at, err := time.Parse(time.RFC3339, lent["due"])
-	x.NoError(err, lent["due"])
-	x.True(due.Equal(at), "%s, the moment it is due", lent["due"])
+	at, err := time.Parse(time.RFC3339, lent["date_due"])
+	x.NoError(err, lent["date_due"])
+	x.True(due.Equal(at), "%s, the moment it is due", lent["date_due"])
 	x.Equal("located", rows["placement"]["mode"])
 	x.Equal("custodian", rows["stewardship"]["role"])
 
@@ -1271,7 +1271,7 @@ func TestAnAssistantReadsTheReports(t *testing.T) {
 	made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "회의실 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+room+`"}}`))
 	kim := made(t, run(t, root(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "kim@acme.example"}`))
 	due := time.Now().Add(72 * time.Hour).UTC().Format(time.RFC3339)
-	run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
+	run(t, root(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dateDue": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
 	model := made(t, run(t, root(), "item-model", "add", "-o", "json", `{"name": "건전지"}`))
 	run(t, root(), "stock", "add", "-o", "json", `{"model": {"id": "`+model+`"}, "space": {"id": "`+room+`"}, "quantity": 12}`)
 

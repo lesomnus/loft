@@ -50,30 +50,30 @@ func (_c *WorkOrderCreate) SetStatus(v string) *WorkOrderCreate {
 	return _c
 }
 
-// SetBeginsAt sets the "begins_at" field.
-func (_c *WorkOrderCreate) SetBeginsAt(v time.Time) *WorkOrderCreate {
-	_c.mutation.SetBeginsAt(v)
+// SetDateStart sets the "date_start" field.
+func (_c *WorkOrderCreate) SetDateStart(v time.Time) *WorkOrderCreate {
+	_c.mutation.SetDateStart(v)
 	return _c
 }
 
-// SetNillableBeginsAt sets the "begins_at" field if the given value is not nil.
-func (_c *WorkOrderCreate) SetNillableBeginsAt(v *time.Time) *WorkOrderCreate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_c *WorkOrderCreate) SetNillableDateStart(v *time.Time) *WorkOrderCreate {
 	if v != nil {
-		_c.SetBeginsAt(*v)
+		_c.SetDateStart(*v)
 	}
 	return _c
 }
 
-// SetEndsAt sets the "ends_at" field.
-func (_c *WorkOrderCreate) SetEndsAt(v time.Time) *WorkOrderCreate {
-	_c.mutation.SetEndsAt(v)
+// SetDateEnd sets the "date_end" field.
+func (_c *WorkOrderCreate) SetDateEnd(v time.Time) *WorkOrderCreate {
+	_c.mutation.SetDateEnd(v)
 	return _c
 }
 
-// SetNillableEndsAt sets the "ends_at" field if the given value is not nil.
-func (_c *WorkOrderCreate) SetNillableEndsAt(v *time.Time) *WorkOrderCreate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_c *WorkOrderCreate) SetNillableDateEnd(v *time.Time) *WorkOrderCreate {
 	if v != nil {
-		_c.SetEndsAt(*v)
+		_c.SetDateEnd(*v)
 	}
 	return _c
 }
@@ -124,16 +124,16 @@ func (_c *WorkOrderCreate) SetCurrency(v string) *WorkOrderCreate {
 	return _c
 }
 
-// SetCompletedAt sets the "completed_at" field.
-func (_c *WorkOrderCreate) SetCompletedAt(v time.Time) *WorkOrderCreate {
-	_c.mutation.SetCompletedAt(v)
+// SetDateCompleted sets the "date_completed" field.
+func (_c *WorkOrderCreate) SetDateCompleted(v time.Time) *WorkOrderCreate {
+	_c.mutation.SetDateCompleted(v)
 	return _c
 }
 
-// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (_c *WorkOrderCreate) SetNillableCompletedAt(v *time.Time) *WorkOrderCreate {
+// SetNillableDateCompleted sets the "date_completed" field if the given value is not nil.
+func (_c *WorkOrderCreate) SetNillableDateCompleted(v *time.Time) *WorkOrderCreate {
 	if v != nil {
-		_c.SetCompletedAt(*v)
+		_c.SetDateCompleted(*v)
 	}
 	return _c
 }
@@ -340,13 +340,13 @@ func (_c *WorkOrderCreate) createSpec() (*WorkOrder, *sqlgraph.CreateSpec) {
 		_spec.SetField(workorder.FieldStatus, field.TypeString, value)
 		_node.Status = value
 	}
-	if value, ok := _c.mutation.BeginsAt(); ok {
-		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, value)
-		_node.BeginsAt = &value
+	if value, ok := _c.mutation.DateStart(); ok {
+		_spec.SetField(workorder.FieldDateStart, field.TypeTime, value)
+		_node.DateStart = &value
 	}
-	if value, ok := _c.mutation.EndsAt(); ok {
-		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, value)
-		_node.EndsAt = &value
+	if value, ok := _c.mutation.DateEnd(); ok {
+		_spec.SetField(workorder.FieldDateEnd, field.TypeTime, value)
+		_node.DateEnd = &value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(workorder.FieldDateUpdated, field.TypeTime, value)
@@ -368,9 +368,9 @@ func (_c *WorkOrderCreate) createSpec() (*WorkOrder, *sqlgraph.CreateSpec) {
 		_spec.SetField(workorder.FieldCurrency, field.TypeString, value)
 		_node.Currency = value
 	}
-	if value, ok := _c.mutation.CompletedAt(); ok {
-		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, value)
-		_node.CompletedAt = &value
+	if value, ok := _c.mutation.DateCompleted(); ok {
+		_spec.SetField(workorder.FieldDateCompleted, field.TypeTime, value)
+		_node.DateCompleted = &value
 	}
 	if value, ok := _c.mutation.Blocking(); ok {
 		_spec.SetField(workorder.FieldBlocking, field.TypeBool, value)

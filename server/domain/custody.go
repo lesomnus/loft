@@ -50,7 +50,7 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		kind := req.GetKind()
 		if kind == "" {
 			kind = "issue"
-			if req.HasDueAt() {
+			if req.HasDateDue() {
 				kind = "loan"
 			}
 		}
@@ -62,8 +62,8 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		if err := t.lockTree(); err != nil {
 			return err
 		}
-		if req.HasDueAt() && !req.GetDueAt().AsTime().After(t.now) {
-			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
+		if req.HasDateDue() && !req.GetDateDue().AsTime().After(t.now) {
+			return invalid("date_due", "반납 기한은 지금 이후여야 합니다")
 		}
 		// What was handed over, to whom; each asset an event of its own
 		// below, which says the same of it. Why is the hand-over's memo, in
@@ -79,8 +79,8 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			if asset == nil {
 				v.SetLines(uint32(len(req.GetLines())))
 			}
-			if req.HasDueAt() {
-				v.SetDue(req.GetDueAt())
+			if req.HasDateDue() {
+				v.SetDateDue(req.GetDateDue())
 			}
 			return v
 		}
@@ -89,17 +89,17 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		}
 
 		row := app.CustodyAddRequest_builder{
-			Id:       id.Bytes(),
-			Tenant:   t.tenantRef(),
-			Desc:     req.GetDesc(),
-			Party:    app.PartyRef_builder{Id: p.GetId()}.Build(),
-			Kind:     kind,
-			Status:   "open",
-			IssuedAt: ts(t.now),
-			IssuedBy: t.actor.Bytes(),
+			Id:         id.Bytes(),
+			Tenant:     t.tenantRef(),
+			Desc:       req.GetDesc(),
+			Party:      app.PartyRef_builder{Id: p.GetId()}.Build(),
+			Kind:       kind,
+			Status:     "open",
+			DateIssued: ts(t.now),
+			IssuedBy:   t.actor.Bytes(),
 		}.Build()
-		if req.HasDueAt() {
-			row.SetDueAt(req.GetDueAt())
+		if req.HasDateDue() {
+			row.SetDateDue(req.GetDateDue())
 		}
 		// What it hands over, whose time it holds from now on (hold.go).
 		things := []uuid.UUID{}
@@ -172,7 +172,7 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			if _, err := t.next.Reservation().Patch(t.ctx, app.ReservationPatchRequest_builder{
 				Ref:              app.ReservationRef_builder{Id: rid.Bytes()}.Build(),
 				Status:           z.Ptr(resInUse),
-				CheckedInAt:      ts(t.now),
+				DateCheckedIn:    ts(t.now),
 				DateUpdatedForce: z.Ptr(true),
 			}.Build()); err != nil {
 				return err
@@ -188,7 +188,7 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			line := app.CustodyLineAddRequest_builder{
 				Tenant:       t.tenantRef(),
 				Custody:      app.CustodyRef_builder{Id: id.Bytes()}.Build(),
-				OutAt:        ts(t.now),
+				DateOut:      ts(t.now),
 				ConditionOut: l.GetCondition(),
 			}.Build()
 			switch {
@@ -290,7 +290,7 @@ func (s domainCustody) Acknowledge(ctx context.Context, req *app.CustodyAcknowle
 		if err != nil {
 			return err
 		}
-		if c.HasAcknowledgedAt() {
+		if c.HasDateAcknowledged() {
 			out = c
 			return nil
 		}
@@ -308,7 +308,7 @@ func (s domainCustody) Acknowledge(ctx context.Context, req *app.CustodyAcknowle
 		}
 		out, err = t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{
 			Ref:              req.GetRef(),
-			AcknowledgedAt:   ts(t.now),
+			DateAcknowledged: ts(t.now),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
 		return err
@@ -329,7 +329,7 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 		if err := t.done(req.GetOp()); err != nil {
 			return err
 		}
-		at, err := t.at(req.GetAt(), "at")
+		at, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}
@@ -430,7 +430,7 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 				patch.SetConditionIn(cond)
 			}
 			if ask == left {
-				patch.SetReturnedAt(ts(at))
+				patch.SetDateReturned(ts(at))
 			} else {
 				open++
 			}
@@ -489,7 +489,7 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 		patch := app.CustodyPatchRequest_builder{Ref: req.GetRef(), DateUpdatedForce: z.Ptr(true)}.Build()
 		if open == 0 {
 			patch.SetStatus("returned")
-			patch.SetReturnedAt(ts(at))
+			patch.SetDateReturned(ts(at))
 		}
 		if out, err = t.next.Custody().Patch(t.ctx, patch); err != nil {
 			return err
@@ -549,8 +549,8 @@ func (s domainCustody) Extend(ctx context.Context, req *app.CustodyExtendRequest
 		if c.GetStatus() != "open" {
 			return failed("이 지급은 %s 상태입니다", or(custodySay[c.GetStatus()], c.GetStatus()))
 		}
-		if !req.HasDueAt() || !req.GetDueAt().AsTime().After(t.now) {
-			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
+		if !req.HasDateDue() || !req.GetDateDue().AsTime().After(t.now) {
+			return invalid("date_due", "반납 기한은 지금 이후여야 합니다")
 		}
 		// What it holds the time of, and what a booking of any of it holds,
 		// before it moves (hold.go).
@@ -566,12 +566,12 @@ func (s domainCustody) Extend(ctx context.Context, req *app.CustodyExtendRequest
 		if err := t.holdThings(things, nil); err != nil {
 			return err
 		}
-		if err := t.begin(nil, "custody.extend", cid, t.now, "", app.CustodyExtended_builder{Custody: c.GetId(), Due: req.GetDueAt()}.Build()); err != nil {
+		if err := t.begin(nil, "custody.extend", cid, t.now, "", app.CustodyExtended_builder{Custody: c.GetId(), DateDue: req.GetDateDue()}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{
 			Ref:              req.GetRef(),
-			DueAt:            req.GetDueAt(),
+			DateDue:          req.GetDateDue(),
 			Kind:             z.Ptr("loan"),
 			OverdueNoticed:   z.Ptr(false),
 			DateUpdatedForce: z.Ptr(true),

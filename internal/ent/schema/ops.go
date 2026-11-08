@@ -27,7 +27,7 @@ func (Notification) Fields() []ent.Field {
 		field.Uuid("subject_id").
 			Nillable().
 			Optional(),
-		field.Time("read_at").
+		field.Time("date_read").
 			Nillable().
 			Optional(),
 		field.String("link"),
@@ -182,10 +182,10 @@ func (AccessReview) Fields() []ent.Field {
 			Unique().
 			Immutable(),
 		field.String("desc"),
-		field.Time("period_from").
+		field.Time("date_start").
 			Immutable().
 			Optional(),
-		field.Time("period_to").
+		field.Time("date_end").
 			Immutable().
 			Optional(),
 		field.Uint32("calls").

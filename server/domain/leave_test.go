@@ -26,7 +26,7 @@ import (
 // outOfUse sets `a`'s status, from `at` (now when nil), leaving `leave`.
 func (e *env) outOfUse(a *app.Asset, status string, at *timestamppb.Timestamp, leave ...*app.Asset) error {
 	e.t.Helper()
-	req := app.AssetSetAttributesRequest_builder{Ref: assetRef(a), Set: map[string]string{"status": status}, At: at, Reason: "파손"}.Build()
+	req := app.AssetSetAttributesRequest_builder{Ref: assetRef(a), Set: map[string]string{"status": status}, DateOccurred: at, Reason: "파손"}.Build()
 	for _, v := range leave {
 		req.SetLeave(append(req.GetLeave(), assetRef(v)))
 	}
@@ -42,8 +42,8 @@ func (e *env) membership(member, of *app.Asset) []*ent.Link {
 		link.SourceId(idUUID(member.GetId())),
 		link.TargetId(idUUID(of.GetId())),
 		link.Kind("member_of"),
-		link.SupersededAtIsNil(),
-	).Order(link.ByValidFrom()).All(context.Background())
+		link.DateSupersededIsNil(),
+	).Order(link.ByDateStart()).All(context.Background())
 	e.x.NoError(err)
 	return vs
 }
@@ -82,8 +82,8 @@ func TestWhatGoesOutOfUseLeavesWhatItIsIn(t *testing.T) {
 			for _, of := range []*app.Asset{kit, pool} {
 				rows := e.membership(camera, of)
 				x.Len(rows, 1, "the membership of %s, ended", of.GetName())
-				x.NotNil(rows[0].ValidTo)
-				x.True(rows[0].ValidTo.Equal(e.now), "ended as it went out of use: %s", rows[0].ValidTo)
+				x.NotNil(rows[0].DateEnd)
+				x.True(rows[0].DateEnd.Equal(e.now), "ended as it went out of use: %s", rows[0].DateEnd)
 			}
 			x.Nil(e.allocation(r, camera), "the kit's booking let it go")
 			x.NotNil(e.allocation(r, lens), "and nothing else")
@@ -143,7 +143,7 @@ func TestWhatGoesOutOfUseAloneStaysInItsKits(t *testing.T) {
 	x.NoError(err)
 
 	x.NoError(e.outOfUse(camera, "disposed", nil))
-	x.Nil(e.membership(camera, kit)[0].ValidTo)
+	x.Nil(e.membership(camera, kit)[0].DateEnd)
 	x.NotNil(e.allocation(r, camera))
 	x.Len(e.eventsOf("asset.relate"), 1, "the one that made it a member, and none since")
 }
@@ -166,13 +166,13 @@ func TestLeavingIsOnlyAsItGoesOutOfUse(t *testing.T) {
 	x.Equal(codes.InvalidArgument, codeOf(err), "not as it goes out of use")
 	x.Equal(codes.InvalidArgument, codeOf(e.outOfUse(camera, "in_repair", nil, kit)), "in repair, it is still in use")
 	x.Equal(codes.InvalidArgument, codeOf(e.outOfUse(camera, "disposed", nil, tripod)), "no kit, nor a group")
-	x.Nil(e.membership(camera, kit)[0].ValidTo, "nothing of it done")
+	x.Nil(e.membership(camera, kit)[0].DateEnd, "nothing of it done")
 	x.Equal("active", e.get(camera).GetStatus())
 
 	e.now = e.now.Add(time.Hour)
 	x.NoError(e.outOfUse(camera, "disposed", nil, other, kit))
 	x.Empty(e.membership(camera, other))
-	x.NotNil(e.membership(camera, kit)[0].ValidTo)
+	x.NotNil(e.membership(camera, kit)[0].DateEnd)
 	x.Len(e.causedBy(e.eventsOf("asset.set")[0]), 1, "the one it was a member of")
 }
 
@@ -191,7 +191,7 @@ func TestAMembershipEndsWhenItWentOutOfUse(t *testing.T) {
 		ago time.Duration
 	}{{kit, 10 * day}, {spare, day}} {
 		_, err := e.app().Asset().Relate(e.owner, app.AssetRelateRequest_builder{
-			Ref: assetRef(camera), Target: assetRef(v.kit), Kind: "member_of", Required: true, At: e.ago(v.ago),
+			Ref: assetRef(camera), Target: assetRef(v.kit), Kind: "member_of", Required: true, DateOccurred: e.ago(v.ago),
 		}.Build())
 		x.NoError(err)
 	}
@@ -199,12 +199,12 @@ func TestAMembershipEndsWhenItWentOutOfUse(t *testing.T) {
 	x.NoError(e.outOfUse(camera, "lost", e.ago(3*day), kit, spare))
 	got := e.membership(camera, kit)
 	x.Len(got, 1)
-	x.True(got[0].ValidFrom.Equal(e.now.Add(-10*day)), "%s", got[0].ValidFrom)
-	x.True(got[0].ValidTo.Equal(e.now.Add(-3*day)), "from when it was lost: %s", got[0].ValidTo)
+	x.True(got[0].DateStart.Equal(e.now.Add(-10*day)), "%s", got[0].DateStart)
+	x.True(got[0].DateEnd.Equal(e.now.Add(-3*day)), "from when it was lost: %s", got[0].DateEnd)
 	got = e.membership(camera, spare)
 	x.Len(got, 1)
-	x.True(got[0].ValidFrom.Equal(e.now.Add(-day)), "%s", got[0].ValidFrom)
-	x.True(got[0].ValidTo.Equal(e.now), "now, put in after it was lost: %s", got[0].ValidTo)
+	x.True(got[0].DateStart.Equal(e.now.Add(-day)), "%s", got[0].DateStart)
+	x.True(got[0].DateEnd.Equal(e.now), "now, put in after it was lost: %s", got[0].DateEnd)
 }
 
 // TestWhatACountFindsLostLeavesWhatItIsIn: settling what a count never saw
@@ -241,7 +241,7 @@ func TestWhatACountFindsLostLeavesWhatItIsIn(t *testing.T) {
 	}.Build())
 	x.NoError(err)
 	x.Equal("lost", e.get(camera).GetStatus())
-	x.NotNil(e.membership(camera, kit)[0].ValidTo)
+	x.NotNil(e.membership(camera, kit)[0].DateEnd)
 	x.Nil(e.allocation(r, camera))
 
 	resolves := e.eventsOf("count.resolve")

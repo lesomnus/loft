@@ -427,7 +427,7 @@ func Kept(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid
 		// only, and holds nobody's words (payday#151).
 		vs, err := db.Event.Query().
 			Where(event.TenantId(tenant.Uuid()), event.IdIn(us...), event.KindIn(slices.Collect(maps.Keys(KeptWhy))...)).
-			Select(event.FieldId, event.FieldKind, event.FieldSubjectId, event.FieldActorId, event.FieldOccurredAt, event.FieldValue).
+			Select(event.FieldId, event.FieldKind, event.FieldSubjectId, event.FieldActorId, event.FieldDateOccurred, event.FieldValue).
 			Order(event.ByDateCreated(), event.ById()).
 			All(ctx)
 		if err != nil {
@@ -515,12 +515,12 @@ func keeping(ctx context.Context, db *ent.Client, tenant pdid.Id, v *ent.Event) 
 			if v.ActorId != nil {
 				in = append(in, countfinding.RecordedBy(*v.ActorId))
 			}
-			fs, err := db.CountFinding.Query().Where(in...).Select(countfinding.FieldId, countfinding.FieldSeenAt).All(ctx)
+			fs, err := db.CountFinding.Query().Where(in...).Select(countfinding.FieldId, countfinding.FieldDateSeen).All(ctx)
 			if err != nil {
 				return nil, err
 			}
 			for _, f := range fs {
-				if f.SeenAt.Equal(v.OccurredAt) {
+				if f.DateSeen.Equal(v.DateOccurred) {
 					us = append(us, f.Id)
 				}
 			}

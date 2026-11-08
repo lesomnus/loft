@@ -69,30 +69,30 @@ func (_c *PlacementCreate) SetUTo(v int32) *PlacementCreate {
 	return _c
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_c *PlacementCreate) SetValidFrom(v time.Time) *PlacementCreate {
-	_c.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_c *PlacementCreate) SetDateStart(v time.Time) *PlacementCreate {
+	_c.mutation.SetDateStart(v)
 	return _c
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_c *PlacementCreate) SetNillableValidFrom(v *time.Time) *PlacementCreate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_c *PlacementCreate) SetNillableDateStart(v *time.Time) *PlacementCreate {
 	if v != nil {
-		_c.SetValidFrom(*v)
+		_c.SetDateStart(*v)
 	}
 	return _c
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_c *PlacementCreate) SetValidTo(v time.Time) *PlacementCreate {
-	_c.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_c *PlacementCreate) SetDateEnd(v time.Time) *PlacementCreate {
+	_c.mutation.SetDateEnd(v)
 	return _c
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_c *PlacementCreate) SetNillableValidTo(v *time.Time) *PlacementCreate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_c *PlacementCreate) SetNillableDateEnd(v *time.Time) *PlacementCreate {
 	if v != nil {
-		_c.SetValidTo(*v)
+		_c.SetDateEnd(*v)
 	}
 	return _c
 }
@@ -103,16 +103,16 @@ func (_c *PlacementCreate) SetEventId(v uuid.UUID) *PlacementCreate {
 	return _c
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_c *PlacementCreate) SetSupersededAt(v time.Time) *PlacementCreate {
-	_c.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_c *PlacementCreate) SetDateSuperseded(v time.Time) *PlacementCreate {
+	_c.mutation.SetDateSuperseded(v)
 	return _c
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_c *PlacementCreate) SetNillableSupersededAt(v *time.Time) *PlacementCreate {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_c *PlacementCreate) SetNillableDateSuperseded(v *time.Time) *PlacementCreate {
 	if v != nil {
-		_c.SetSupersededAt(*v)
+		_c.SetDateSuperseded(*v)
 	}
 	return _c
 }
@@ -318,21 +318,21 @@ func (_c *PlacementCreate) createSpec() (*Placement, *sqlgraph.CreateSpec) {
 		_spec.SetField(placement.FieldUTo, field.TypeInt32, value)
 		_node.UTo = value
 	}
-	if value, ok := _c.mutation.ValidFrom(); ok {
-		_spec.SetField(placement.FieldValidFrom, field.TypeTime, value)
-		_node.ValidFrom = value
+	if value, ok := _c.mutation.DateStart(); ok {
+		_spec.SetField(placement.FieldDateStart, field.TypeTime, value)
+		_node.DateStart = value
 	}
-	if value, ok := _c.mutation.ValidTo(); ok {
-		_spec.SetField(placement.FieldValidTo, field.TypeTime, value)
-		_node.ValidTo = &value
+	if value, ok := _c.mutation.DateEnd(); ok {
+		_spec.SetField(placement.FieldDateEnd, field.TypeTime, value)
+		_node.DateEnd = &value
 	}
 	if value, ok := _c.mutation.EventId(); ok {
 		_spec.SetField(placement.FieldEventId, field.TypeUuid, value)
 		_node.EventId = value
 	}
-	if value, ok := _c.mutation.SupersededAt(); ok {
-		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, value)
-		_node.SupersededAt = &value
+	if value, ok := _c.mutation.DateSuperseded(); ok {
+		_spec.SetField(placement.FieldDateSuperseded, field.TypeTime, value)
+		_node.DateSuperseded = &value
 	}
 	if value, ok := _c.mutation.SupersededBy(); ok {
 		_spec.SetField(placement.FieldSupersededBy, field.TypeUuid, value)

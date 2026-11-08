@@ -24,8 +24,8 @@ type Event struct {
 	Kind string `json:"kind,omitempty"`
 	// ActorId holds the value of the "actor_id" field.
 	ActorId *uuid.UUID `json:"actor_id,omitempty"`
-	// OccurredAt holds the value of the "occurred_at" field.
-	OccurredAt time.Time `json:"occurred_at,omitempty"`
+	// DateOccurred holds the value of the "date_occurred" field.
+	DateOccurred time.Time `json:"date_occurred,omitempty"`
 	// Reason holds the value of the "reason" field.
 	Reason string `json:"reason,omitempty"`
 	// SubjectId holds the value of the "subject_id" field.
@@ -81,7 +81,7 @@ func (*Event) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case event.FieldKind, event.FieldReason, event.FieldDesc, event.FieldPayload:
 			values[i] = new(sql.NullString)
-		case event.FieldOccurredAt, event.FieldDateUpdated, event.FieldDateCreated:
+		case event.FieldDateOccurred, event.FieldDateUpdated, event.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case event.FieldActorId, event.FieldSubjectId, event.FieldCauseId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -123,11 +123,11 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 				_m.ActorId = new(uuid.UUID)
 				*_m.ActorId = value.V
 			}
-		case event.FieldOccurredAt:
+		case event.FieldDateOccurred:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field occurred_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_occurred", values[i])
 			} else if value.Valid {
-				_m.OccurredAt = value.Time
+				_m.DateOccurred = value.Time
 			}
 		case event.FieldReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -240,8 +240,8 @@ func (_m *Event) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("occurred_at=")
-	builder.WriteString(_m.OccurredAt.Format(time.ANSIC))
+	builder.WriteString("date_occurred=")
+	builder.WriteString(_m.DateOccurred.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("reason=")
 	builder.WriteString(_m.Reason)

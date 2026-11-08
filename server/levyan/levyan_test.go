@@ -83,7 +83,7 @@ func TestAReadingIsHandedToLevyanAsItWasMeasured(t *testing.T) {
 	r := calls[0][0]
 	x.Equal(tenant.String(), r.GetWorkspace())
 	x.Equal("loft.assets.active", r.GetMeter())
-	x.Equal(at, r.GetMeasuredAt().AsTime())
+	x.Equal(at, r.GetDateMeasured().AsTime())
 	x.EqualValues(120, r.GetValue())
 	x.Equal("{asset}", r.GetUnit())
 	x.Equal("d", calls[0][1].GetUnit())

@@ -20,10 +20,10 @@ const (
 	FieldReference = "reference"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldOrderedAt holds the string denoting the ordered_at field in the database.
-	FieldOrderedAt = "ordered_at"
-	// FieldReceivedAt holds the string denoting the received_at field in the database.
-	FieldReceivedAt = "received_at"
+	// FieldDateOrdered holds the string denoting the date_ordered field in the database.
+	FieldDateOrdered = "date_ordered"
+	// FieldDateReceived holds the string denoting the date_received field in the database.
+	FieldDateReceived = "date_received"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
@@ -67,8 +67,8 @@ var Columns = []string{
 	FieldDesc,
 	FieldReference,
 	FieldStatus,
-	FieldOrderedAt,
-	FieldReceivedAt,
+	FieldDateOrdered,
+	FieldDateReceived,
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
@@ -116,14 +116,14 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByOrderedAt orders the results by the ordered_at field.
-func ByOrderedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrderedAt, opts...).ToFunc()
+// ByDateOrdered orders the results by the date_ordered field.
+func ByDateOrdered(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateOrdered, opts...).ToFunc()
 }
 
-// ByReceivedAt orders the results by the received_at field.
-func ByReceivedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldReceivedAt, opts...).ToFunc()
+// ByDateReceived orders the results by the date_received field.
+func ByDateReceived(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateReceived, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.

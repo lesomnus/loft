@@ -15,27 +15,27 @@ import (
 
 // Mutation represents an operation that mutates the Link nodes in the graph.
 type Mutation struct {
-	op            ent.Op
-	typ           string
-	labels        *map[string]string
-	kind          *string
-	required      *bool
-	date_updated  *time.Time
-	date_created  *time.Time
-	valid_from    *time.Time
-	valid_to      *time.Time
-	event_id      *uuid.UUID
-	superseded_at *time.Time
-	superseded_by *uuid.UUID
-	clearedFields map[string]struct{}
-	exprs         map[string]sql.Querier
-	tenant        *uuid.UUID
-	clearedtenant bool
-	source        *uuid.UUID
-	clearedsource bool
-	target        *uuid.UUID
-	clearedtarget bool
-	predicates    []predicate.Link
+	op              ent.Op
+	typ             string
+	labels          *map[string]string
+	kind            *string
+	required        *bool
+	date_updated    *time.Time
+	date_created    *time.Time
+	date_start      *time.Time
+	date_end        *time.Time
+	event_id        *uuid.UUID
+	date_superseded *time.Time
+	superseded_by   *uuid.UUID
+	clearedFields   map[string]struct{}
+	exprs           map[string]sql.Querier
+	tenant          *uuid.UUID
+	clearedtenant   bool
+	source          *uuid.UUID
+	clearedsource   bool
+	target          *uuid.UUID
+	clearedtarget   bool
+	predicates      []predicate.Link
 }
 
 // NewMutation creates a new Mutation for the Link entity.
@@ -184,76 +184,76 @@ func (m *Mutation) ResetDateCreated() {
 	delete(m.clearedFields, FieldDateCreated)
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (m *Mutation) SetValidFrom(t time.Time) {
-	m.valid_from = &t
-	delete(m.clearedFields, FieldValidFrom)
-	delete(m.exprs, FieldValidFrom)
+// SetDateStart sets the "date_start" field.
+func (m *Mutation) SetDateStart(t time.Time) {
+	m.date_start = &t
+	delete(m.clearedFields, FieldDateStart)
+	delete(m.exprs, FieldDateStart)
 }
 
-// ValidFrom returns the value of the "valid_from" field in the mutation.
-func (m *Mutation) ValidFrom() (r time.Time, exists bool) {
-	v := m.valid_from
+// DateStart returns the value of the "date_start" field in the mutation.
+func (m *Mutation) DateStart() (r time.Time, exists bool) {
+	v := m.date_start
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearValidFrom clears the value of the "valid_from" field.
-func (m *Mutation) ClearValidFrom() {
-	m.valid_from = nil
-	delete(m.exprs, FieldValidFrom)
-	m.clearedFields[FieldValidFrom] = struct{}{}
+// ClearDateStart clears the value of the "date_start" field.
+func (m *Mutation) ClearDateStart() {
+	m.date_start = nil
+	delete(m.exprs, FieldDateStart)
+	m.clearedFields[FieldDateStart] = struct{}{}
 }
 
-// ValidFromCleared returns if the "valid_from" field was cleared in this mutation.
-func (m *Mutation) ValidFromCleared() bool {
-	_, ok := m.clearedFields[FieldValidFrom]
+// DateStartCleared returns if the "date_start" field was cleared in this mutation.
+func (m *Mutation) DateStartCleared() bool {
+	_, ok := m.clearedFields[FieldDateStart]
 	return ok
 }
 
-// ResetValidFrom resets all changes to the "valid_from" field.
-func (m *Mutation) ResetValidFrom() {
-	m.valid_from = nil
-	delete(m.clearedFields, FieldValidFrom)
-	delete(m.exprs, FieldValidFrom)
+// ResetDateStart resets all changes to the "date_start" field.
+func (m *Mutation) ResetDateStart() {
+	m.date_start = nil
+	delete(m.clearedFields, FieldDateStart)
+	delete(m.exprs, FieldDateStart)
 }
 
-// SetValidTo sets the "valid_to" field.
-func (m *Mutation) SetValidTo(t time.Time) {
-	m.valid_to = &t
-	delete(m.clearedFields, FieldValidTo)
-	delete(m.exprs, FieldValidTo)
+// SetDateEnd sets the "date_end" field.
+func (m *Mutation) SetDateEnd(t time.Time) {
+	m.date_end = &t
+	delete(m.clearedFields, FieldDateEnd)
+	delete(m.exprs, FieldDateEnd)
 }
 
-// ValidTo returns the value of the "valid_to" field in the mutation.
-func (m *Mutation) ValidTo() (r time.Time, exists bool) {
-	v := m.valid_to
+// DateEnd returns the value of the "date_end" field in the mutation.
+func (m *Mutation) DateEnd() (r time.Time, exists bool) {
+	v := m.date_end
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearValidTo clears the value of the "valid_to" field.
-func (m *Mutation) ClearValidTo() {
-	m.valid_to = nil
-	delete(m.exprs, FieldValidTo)
-	m.clearedFields[FieldValidTo] = struct{}{}
+// ClearDateEnd clears the value of the "date_end" field.
+func (m *Mutation) ClearDateEnd() {
+	m.date_end = nil
+	delete(m.exprs, FieldDateEnd)
+	m.clearedFields[FieldDateEnd] = struct{}{}
 }
 
-// ValidToCleared returns if the "valid_to" field was cleared in this mutation.
-func (m *Mutation) ValidToCleared() bool {
-	_, ok := m.clearedFields[FieldValidTo]
+// DateEndCleared returns if the "date_end" field was cleared in this mutation.
+func (m *Mutation) DateEndCleared() bool {
+	_, ok := m.clearedFields[FieldDateEnd]
 	return ok
 }
 
-// ResetValidTo resets all changes to the "valid_to" field.
-func (m *Mutation) ResetValidTo() {
-	m.valid_to = nil
-	delete(m.clearedFields, FieldValidTo)
-	delete(m.exprs, FieldValidTo)
+// ResetDateEnd resets all changes to the "date_end" field.
+func (m *Mutation) ResetDateEnd() {
+	m.date_end = nil
+	delete(m.clearedFields, FieldDateEnd)
+	delete(m.exprs, FieldDateEnd)
 }
 
 // SetEventId sets the "event_id" field.
@@ -277,40 +277,40 @@ func (m *Mutation) ResetEventId() {
 	delete(m.exprs, FieldEventId)
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (m *Mutation) SetSupersededAt(t time.Time) {
-	m.superseded_at = &t
-	delete(m.clearedFields, FieldSupersededAt)
-	delete(m.exprs, FieldSupersededAt)
+// SetDateSuperseded sets the "date_superseded" field.
+func (m *Mutation) SetDateSuperseded(t time.Time) {
+	m.date_superseded = &t
+	delete(m.clearedFields, FieldDateSuperseded)
+	delete(m.exprs, FieldDateSuperseded)
 }
 
-// SupersededAt returns the value of the "superseded_at" field in the mutation.
-func (m *Mutation) SupersededAt() (r time.Time, exists bool) {
-	v := m.superseded_at
+// DateSuperseded returns the value of the "date_superseded" field in the mutation.
+func (m *Mutation) DateSuperseded() (r time.Time, exists bool) {
+	v := m.date_superseded
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearSupersededAt clears the value of the "superseded_at" field.
-func (m *Mutation) ClearSupersededAt() {
-	m.superseded_at = nil
-	delete(m.exprs, FieldSupersededAt)
-	m.clearedFields[FieldSupersededAt] = struct{}{}
+// ClearDateSuperseded clears the value of the "date_superseded" field.
+func (m *Mutation) ClearDateSuperseded() {
+	m.date_superseded = nil
+	delete(m.exprs, FieldDateSuperseded)
+	m.clearedFields[FieldDateSuperseded] = struct{}{}
 }
 
-// SupersededAtCleared returns if the "superseded_at" field was cleared in this mutation.
-func (m *Mutation) SupersededAtCleared() bool {
-	_, ok := m.clearedFields[FieldSupersededAt]
+// DateSupersededCleared returns if the "date_superseded" field was cleared in this mutation.
+func (m *Mutation) DateSupersededCleared() bool {
+	_, ok := m.clearedFields[FieldDateSuperseded]
 	return ok
 }
 
-// ResetSupersededAt resets all changes to the "superseded_at" field.
-func (m *Mutation) ResetSupersededAt() {
-	m.superseded_at = nil
-	delete(m.clearedFields, FieldSupersededAt)
-	delete(m.exprs, FieldSupersededAt)
+// ResetDateSuperseded resets all changes to the "date_superseded" field.
+func (m *Mutation) ResetDateSuperseded() {
+	m.date_superseded = nil
+	delete(m.clearedFields, FieldDateSuperseded)
+	delete(m.exprs, FieldDateSuperseded)
 }
 
 // SetSupersededBy sets the "superseded_by" field.
@@ -537,17 +537,17 @@ func (m *Mutation) Fields() []string {
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.valid_from != nil || m.exprs[FieldValidFrom] != nil {
-		fields = append(fields, FieldValidFrom)
+	if m.date_start != nil || m.exprs[FieldDateStart] != nil {
+		fields = append(fields, FieldDateStart)
 	}
-	if m.valid_to != nil || m.exprs[FieldValidTo] != nil {
-		fields = append(fields, FieldValidTo)
+	if m.date_end != nil || m.exprs[FieldDateEnd] != nil {
+		fields = append(fields, FieldDateEnd)
 	}
 	if m.event_id != nil || m.exprs[FieldEventId] != nil {
 		fields = append(fields, FieldEventId)
 	}
-	if m.superseded_at != nil || m.exprs[FieldSupersededAt] != nil {
-		fields = append(fields, FieldSupersededAt)
+	if m.date_superseded != nil || m.exprs[FieldDateSuperseded] != nil {
+		fields = append(fields, FieldDateSuperseded)
 	}
 	if m.superseded_by != nil || m.exprs[FieldSupersededBy] != nil {
 		fields = append(fields, FieldSupersededBy)
@@ -585,14 +585,14 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateUpdated()
 	case FieldDateCreated:
 		return m.DateCreated()
-	case FieldValidFrom:
-		return m.ValidFrom()
-	case FieldValidTo:
-		return m.ValidTo()
+	case FieldDateStart:
+		return m.DateStart()
+	case FieldDateEnd:
+		return m.DateEnd()
 	case FieldEventId:
 		return m.EventId()
-	case FieldSupersededAt:
-		return m.SupersededAt()
+	case FieldDateSuperseded:
+		return m.DateSuperseded()
 	case FieldSupersededBy:
 		return m.SupersededBy()
 	case FieldTenantId:
@@ -670,7 +670,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateCreated(v)
 		return nil
-	case FieldValidFrom:
+	case FieldDateStart:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -678,9 +678,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetValidFrom(v)
+		m.SetDateStart(v)
 		return nil
-	case FieldValidTo:
+	case FieldDateEnd:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -688,7 +688,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetValidTo(v)
+		m.SetDateEnd(v)
 		return nil
 	case FieldEventId:
 		v, ok := value.(uuid.UUID)
@@ -700,7 +700,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetEventId(v)
 		return nil
-	case FieldSupersededAt:
+	case FieldDateSuperseded:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -708,7 +708,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetSupersededAt(v)
+		m.SetDateSuperseded(v)
 		return nil
 	case FieldSupersededBy:
 		v, ok := value.(uuid.UUID)
@@ -782,14 +782,14 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetDateUpdated()
 	case FieldDateCreated:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
-	case FieldValidFrom:
-		m.ResetValidFrom()
-	case FieldValidTo:
-		m.ResetValidTo()
+	case FieldDateStart:
+		m.ResetDateStart()
+	case FieldDateEnd:
+		m.ResetDateEnd()
 	case FieldEventId:
 		m.ResetEventId()
-	case FieldSupersededAt:
-		m.ResetSupersededAt()
+	case FieldDateSuperseded:
+		m.ResetDateSuperseded()
 	case FieldSupersededBy:
 		m.ResetSupersededBy()
 	case FieldTenantId:
@@ -831,17 +831,17 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
 	}
-	if _, ok := m.exprs[FieldValidFrom]; ok {
-		fields = append(fields, FieldValidFrom)
+	if _, ok := m.exprs[FieldDateStart]; ok {
+		fields = append(fields, FieldDateStart)
 	}
-	if _, ok := m.exprs[FieldValidTo]; ok {
-		fields = append(fields, FieldValidTo)
+	if _, ok := m.exprs[FieldDateEnd]; ok {
+		fields = append(fields, FieldDateEnd)
 	}
 	if _, ok := m.exprs[FieldEventId]; ok {
 		fields = append(fields, FieldEventId)
 	}
-	if _, ok := m.exprs[FieldSupersededAt]; ok {
-		fields = append(fields, FieldSupersededAt)
+	if _, ok := m.exprs[FieldDateSuperseded]; ok {
+		fields = append(fields, FieldDateSuperseded)
 	}
 	if _, ok := m.exprs[FieldSupersededBy]; ok {
 		fields = append(fields, FieldSupersededBy)
@@ -881,14 +881,14 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.FieldCleared(FieldValidFrom) {
-		fields = append(fields, FieldValidFrom)
+	if m.FieldCleared(FieldDateStart) {
+		fields = append(fields, FieldDateStart)
 	}
-	if m.FieldCleared(FieldValidTo) {
-		fields = append(fields, FieldValidTo)
+	if m.FieldCleared(FieldDateEnd) {
+		fields = append(fields, FieldDateEnd)
 	}
-	if m.FieldCleared(FieldSupersededAt) {
-		fields = append(fields, FieldSupersededAt)
+	if m.FieldCleared(FieldDateSuperseded) {
+		fields = append(fields, FieldDateSuperseded)
 	}
 	if m.FieldCleared(FieldSupersededBy) {
 		fields = append(fields, FieldSupersededBy)
@@ -913,14 +913,14 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldDateCreated:
 		m.ClearDateCreated()
 		return nil
-	case FieldValidFrom:
-		m.ClearValidFrom()
+	case FieldDateStart:
+		m.ClearDateStart()
 		return nil
-	case FieldValidTo:
-		m.ClearValidTo()
+	case FieldDateEnd:
+		m.ClearDateEnd()
 		return nil
-	case FieldSupersededAt:
-		m.ClearSupersededAt()
+	case FieldDateSuperseded:
+		m.ClearDateSuperseded()
 		return nil
 	case FieldSupersededBy:
 		m.ClearSupersededBy()
@@ -948,17 +948,17 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldDateCreated:
 		m.ResetDateCreated()
 		return nil
-	case FieldValidFrom:
-		m.ResetValidFrom()
+	case FieldDateStart:
+		m.ResetDateStart()
 		return nil
-	case FieldValidTo:
-		m.ResetValidTo()
+	case FieldDateEnd:
+		m.ResetDateEnd()
 		return nil
 	case FieldEventId:
 		m.ResetEventId()
 		return nil
-	case FieldSupersededAt:
-		m.ResetSupersededAt()
+	case FieldDateSuperseded:
+		m.ResetDateSuperseded()
 		return nil
 	case FieldSupersededBy:
 		m.ResetSupersededBy()

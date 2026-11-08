@@ -340,8 +340,8 @@ message BookableUpdateRequest {
 
 message BookableAvailabilityRequest {
   repeated AssetRef resources = 1;
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
 }
 
 message BookableAvailabilityResponse {
@@ -350,10 +350,10 @@ message BookableAvailabilityResponse {
 
 message BusySpan {
   bytes resource_id = 1 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp begins_at = 2;
-  google.protobuf.Timestamp ends_at = 3;
+  google.protobuf.Timestamp date_start = 2;
+  google.protobuf.Timestamp date_end = 3;
   // reservation | maintenance | override | waiting | custody | closed: of
-  // custody, what somebody has out, until it is due back -- `ends_at` the
+  // custody, what somebody has out, until it is due back -- `date_end` the
   // first moment of 2200 when that is until it is back (D53).
   string kind = 4 [features.field_presence = IMPLICIT];
   bytes ref_id = 5 [features.field_presence = IMPLICIT];
@@ -363,10 +363,10 @@ message BusySpan {
 }
 
 message BookableUsageRequest {
-  // The period, from `from` and before `to`, a year at most. Unsaid, the last
+  // The period, from `date_from` and before `date_to`, a year at most. Unsaid, the last
   // thirty of the workspace's days, today among them.
-  google.protobuf.Timestamp from = 1;
-  google.protobuf.Timestamp to = 2;
+  google.protobuf.Timestamp date_from = 1;
+  google.protobuf.Timestamp date_to = 2;
 }
 
 message BookableUsageResponse {
@@ -374,8 +374,8 @@ message BookableUsageResponse {
   // in the period that may no longer be, by tag.
   repeated BookableUsageRow rows = 1;
   // The period it read.
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
 }
 
 // BookableUsageRow is one resource's reservations that began in a period, and
@@ -416,14 +416,14 @@ message ReservationAddRequest {
   PartyRef party = 8;
   bytes requested_by = 9;
   string status = 10 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp begins_at = 11;
-  google.protobuf.Timestamp ends_at = 12;
+  google.protobuf.Timestamp date_start = 11;
+  google.protobuf.Timestamp date_end = 12;
   google.protobuf.Timestamp date_created = 15;
-  google.protobuf.Timestamp expires_at = 16;
+  google.protobuf.Timestamp date_expires = 16;
   string rrule = 17 [features.field_presence = IMPLICIT];
   bytes series_id = 18;
   bytes decided_by = 19;
-  google.protobuf.Timestamp checked_in_at = 20;
+  google.protobuf.Timestamp date_checked_in = 20;
   repeated ReservationItemSpec items = 100;
   // Hold only: take the time for a few minutes while the rest is decided.
   bool hold = 101;
@@ -460,16 +460,16 @@ message ReservationSelect {
   PartySelect party = 8;
   bool requested_by = 9;
   bool status = 10;
-  bool begins_at = 11;
-  bool ends_at = 12;
+  bool date_start = 11;
+  bool date_end = 12;
   bool date_updated = 13;
   bool date_erased = 14;
   bool date_created = 15;
-  bool expires_at = 16;
+  bool date_expires = 16;
   bool rrule = 17;
   bool series_id = 18;
   bool decided_by = 19;
-  bool checked_in_at = 20;
+  bool date_checked_in = 20;
 }
 
 message ReservationPatchRequest {
@@ -483,8 +483,8 @@ message ReservationPatchRequest {
   // outright: setting both this and requested_by clears.
   bool requested_by_null = 19;
   string status = 20;
-  google.protobuf.Timestamp begins_at = 22;
-  google.protobuf.Timestamp ends_at = 24;
+  google.protobuf.Timestamp date_start = 22;
+  google.protobuf.Timestamp date_end = 24;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.
@@ -499,12 +499,12 @@ message ReservationPatchRequest {
   // refused rather than assumed, because an unset field cannot be told
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
-  google.protobuf.Timestamp expires_at = 32;
-  // Clear expires_at instead of writing it.
+  google.protobuf.Timestamp date_expires = 32;
+  // Clear date_expires instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and expires_at clears.
-  bool expires_at_null = 33;
+  // outright: setting both this and date_expires clears.
+  bool date_expires_null = 33;
   string rrule = 34;
   bytes series_id = 36;
   // Clear series_id instead of writing it.
@@ -518,12 +518,12 @@ message ReservationPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and decided_by clears.
   bool decided_by_null = 39;
-  google.protobuf.Timestamp checked_in_at = 40;
-  // Clear checked_in_at instead of writing it.
+  google.protobuf.Timestamp date_checked_in = 40;
+  // Clear date_checked_in instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and checked_in_at clears.
-  bool checked_in_at_null = 41;
+  // outright: setting both this and date_checked_in clears.
+  bool date_checked_in_null = 41;
 }
 
 message ReservationApplyRequest {
@@ -640,8 +640,8 @@ message ReservationDecideRequest {
 
 message ReservationCalendarRequest {
   repeated AssetRef resources = 1;
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
   // Only the caller's own.
   bool mine = 4 [features.field_presence = IMPLICIT];
   // Only the ones in these states: `requested` is what waits for a manager.
@@ -686,8 +686,8 @@ message ReservationConflict {
   string resource_tag = 2 [features.field_presence = IMPLICIT];
   string resource_name = 3 [features.field_presence = IMPLICIT];
   // The time the reservation would take it for.
-  google.protobuf.Timestamp begins_at = 4;
-  google.protobuf.Timestamp ends_at = 5;
+  google.protobuf.Timestamp date_start = 4;
+  google.protobuf.Timestamp date_end = 5;
   // What holds it then -- another reservation, maintenance -- as a calendar
   // shows it: of a pool, its reservations and what takes its members' own
   // time. None once nothing does, and it is taken shortly.
@@ -738,7 +738,7 @@ message ReservationOut {
   // back.
   string kind = 5 [features.field_presence = IMPLICIT];
   // When a loan is due back; none of an issue.
-  google.protobuf.Timestamp due_at = 6;
+  google.protobuf.Timestamp date_due = 6;
   // A loan past its due and not back, which holds the thing until it is.
   bool overdue = 7 [features.field_presence = IMPLICIT];
 }
@@ -893,8 +893,8 @@ message AllocationAddRequest {
   AssetRef resource = 8;
   string kind = 9 [features.field_presence = IMPLICIT];
   bytes ref_id = 10;
-  google.protobuf.Timestamp begins_at = 11;
-  google.protobuf.Timestamp ends_at = 12;
+  google.protobuf.Timestamp date_start = 11;
+  google.protobuf.Timestamp date_end = 12;
   google.protobuf.Timestamp date_created = 15;
   bool blocking = 16 [features.field_presence = IMPLICIT];
   bool exclusive = 17 [features.field_presence = IMPLICIT];
@@ -918,8 +918,8 @@ message AllocationSelect {
   AssetSelect resource = 8;
   bool kind = 9;
   bool ref_id = 10;
-  bool begins_at = 11;
-  bool ends_at = 12;
+  bool date_start = 11;
+  bool date_end = 12;
   bool date_updated = 13;
   bool date_created = 15;
   bool blocking = 16;
@@ -936,8 +936,8 @@ message AllocationPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and ref_id clears.
   bool ref_id_null = 21;
-  google.protobuf.Timestamp begins_at = 22;
-  google.protobuf.Timestamp ends_at = 24;
+  google.protobuf.Timestamp date_start = 22;
+  google.protobuf.Timestamp date_end = 24;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.

@@ -21,8 +21,8 @@ type Mutation struct {
 	desc          *string
 	reference     *string
 	status        *string
-	ordered_at    *time.Time
-	received_at   *time.Time
+	date_ordered  *time.Time
+	date_received *time.Time
 	date_updated  *time.Time
 	date_erased   *time.Time
 	date_created  *time.Time
@@ -136,76 +136,76 @@ func (m *Mutation) ResetStatus() {
 	delete(m.exprs, FieldStatus)
 }
 
-// SetOrderedAt sets the "ordered_at" field.
-func (m *Mutation) SetOrderedAt(t time.Time) {
-	m.ordered_at = &t
-	delete(m.clearedFields, FieldOrderedAt)
-	delete(m.exprs, FieldOrderedAt)
+// SetDateOrdered sets the "date_ordered" field.
+func (m *Mutation) SetDateOrdered(t time.Time) {
+	m.date_ordered = &t
+	delete(m.clearedFields, FieldDateOrdered)
+	delete(m.exprs, FieldDateOrdered)
 }
 
-// OrderedAt returns the value of the "ordered_at" field in the mutation.
-func (m *Mutation) OrderedAt() (r time.Time, exists bool) {
-	v := m.ordered_at
+// DateOrdered returns the value of the "date_ordered" field in the mutation.
+func (m *Mutation) DateOrdered() (r time.Time, exists bool) {
+	v := m.date_ordered
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearOrderedAt clears the value of the "ordered_at" field.
-func (m *Mutation) ClearOrderedAt() {
-	m.ordered_at = nil
-	delete(m.exprs, FieldOrderedAt)
-	m.clearedFields[FieldOrderedAt] = struct{}{}
+// ClearDateOrdered clears the value of the "date_ordered" field.
+func (m *Mutation) ClearDateOrdered() {
+	m.date_ordered = nil
+	delete(m.exprs, FieldDateOrdered)
+	m.clearedFields[FieldDateOrdered] = struct{}{}
 }
 
-// OrderedAtCleared returns if the "ordered_at" field was cleared in this mutation.
-func (m *Mutation) OrderedAtCleared() bool {
-	_, ok := m.clearedFields[FieldOrderedAt]
+// DateOrderedCleared returns if the "date_ordered" field was cleared in this mutation.
+func (m *Mutation) DateOrderedCleared() bool {
+	_, ok := m.clearedFields[FieldDateOrdered]
 	return ok
 }
 
-// ResetOrderedAt resets all changes to the "ordered_at" field.
-func (m *Mutation) ResetOrderedAt() {
-	m.ordered_at = nil
-	delete(m.clearedFields, FieldOrderedAt)
-	delete(m.exprs, FieldOrderedAt)
+// ResetDateOrdered resets all changes to the "date_ordered" field.
+func (m *Mutation) ResetDateOrdered() {
+	m.date_ordered = nil
+	delete(m.clearedFields, FieldDateOrdered)
+	delete(m.exprs, FieldDateOrdered)
 }
 
-// SetReceivedAt sets the "received_at" field.
-func (m *Mutation) SetReceivedAt(t time.Time) {
-	m.received_at = &t
-	delete(m.clearedFields, FieldReceivedAt)
-	delete(m.exprs, FieldReceivedAt)
+// SetDateReceived sets the "date_received" field.
+func (m *Mutation) SetDateReceived(t time.Time) {
+	m.date_received = &t
+	delete(m.clearedFields, FieldDateReceived)
+	delete(m.exprs, FieldDateReceived)
 }
 
-// ReceivedAt returns the value of the "received_at" field in the mutation.
-func (m *Mutation) ReceivedAt() (r time.Time, exists bool) {
-	v := m.received_at
+// DateReceived returns the value of the "date_received" field in the mutation.
+func (m *Mutation) DateReceived() (r time.Time, exists bool) {
+	v := m.date_received
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearReceivedAt clears the value of the "received_at" field.
-func (m *Mutation) ClearReceivedAt() {
-	m.received_at = nil
-	delete(m.exprs, FieldReceivedAt)
-	m.clearedFields[FieldReceivedAt] = struct{}{}
+// ClearDateReceived clears the value of the "date_received" field.
+func (m *Mutation) ClearDateReceived() {
+	m.date_received = nil
+	delete(m.exprs, FieldDateReceived)
+	m.clearedFields[FieldDateReceived] = struct{}{}
 }
 
-// ReceivedAtCleared returns if the "received_at" field was cleared in this mutation.
-func (m *Mutation) ReceivedAtCleared() bool {
-	_, ok := m.clearedFields[FieldReceivedAt]
+// DateReceivedCleared returns if the "date_received" field was cleared in this mutation.
+func (m *Mutation) DateReceivedCleared() bool {
+	_, ok := m.clearedFields[FieldDateReceived]
 	return ok
 }
 
-// ResetReceivedAt resets all changes to the "received_at" field.
-func (m *Mutation) ResetReceivedAt() {
-	m.received_at = nil
-	delete(m.clearedFields, FieldReceivedAt)
-	delete(m.exprs, FieldReceivedAt)
+// ResetDateReceived resets all changes to the "date_received" field.
+func (m *Mutation) ResetDateReceived() {
+	m.date_received = nil
+	delete(m.clearedFields, FieldDateReceived)
+	delete(m.exprs, FieldDateReceived)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -513,11 +513,11 @@ func (m *Mutation) Fields() []string {
 	if m.status != nil || m.exprs[FieldStatus] != nil {
 		fields = append(fields, FieldStatus)
 	}
-	if m.ordered_at != nil || m.exprs[FieldOrderedAt] != nil {
-		fields = append(fields, FieldOrderedAt)
+	if m.date_ordered != nil || m.exprs[FieldDateOrdered] != nil {
+		fields = append(fields, FieldDateOrdered)
 	}
-	if m.received_at != nil || m.exprs[FieldReceivedAt] != nil {
-		fields = append(fields, FieldReceivedAt)
+	if m.date_received != nil || m.exprs[FieldDateReceived] != nil {
+		fields = append(fields, FieldDateReceived)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -562,10 +562,10 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Reference()
 	case FieldStatus:
 		return m.Status()
-	case FieldOrderedAt:
-		return m.OrderedAt()
-	case FieldReceivedAt:
-		return m.ReceivedAt()
+	case FieldDateOrdered:
+		return m.DateOrdered()
+	case FieldDateReceived:
+		return m.DateReceived()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateErased:
@@ -639,7 +639,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetStatus(v)
 		return nil
-	case FieldOrderedAt:
+	case FieldDateOrdered:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -647,9 +647,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetOrderedAt(v)
+		m.SetDateOrdered(v)
 		return nil
-	case FieldReceivedAt:
+	case FieldDateReceived:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -657,7 +657,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetReceivedAt(v)
+		m.SetDateReceived(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -759,10 +759,10 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetReference()
 	case FieldStatus:
 		m.ResetStatus()
-	case FieldOrderedAt:
-		m.ResetOrderedAt()
-	case FieldReceivedAt:
-		m.ResetReceivedAt()
+	case FieldDateOrdered:
+		m.ResetDateOrdered()
+	case FieldDateReceived:
+		m.ResetDateReceived()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateErased:
@@ -810,11 +810,11 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldStatus]; ok {
 		fields = append(fields, FieldStatus)
 	}
-	if _, ok := m.exprs[FieldOrderedAt]; ok {
-		fields = append(fields, FieldOrderedAt)
+	if _, ok := m.exprs[FieldDateOrdered]; ok {
+		fields = append(fields, FieldDateOrdered)
 	}
-	if _, ok := m.exprs[FieldReceivedAt]; ok {
-		fields = append(fields, FieldReceivedAt)
+	if _, ok := m.exprs[FieldDateReceived]; ok {
+		fields = append(fields, FieldDateReceived)
 	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
@@ -872,11 +872,11 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldOrderedAt) {
-		fields = append(fields, FieldOrderedAt)
+	if m.FieldCleared(FieldDateOrdered) {
+		fields = append(fields, FieldDateOrdered)
 	}
-	if m.FieldCleared(FieldReceivedAt) {
-		fields = append(fields, FieldReceivedAt)
+	if m.FieldCleared(FieldDateReceived) {
+		fields = append(fields, FieldDateReceived)
 	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
@@ -901,11 +901,11 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldOrderedAt:
-		m.ClearOrderedAt()
+	case FieldDateOrdered:
+		m.ClearDateOrdered()
 		return nil
-	case FieldReceivedAt:
-		m.ClearReceivedAt()
+	case FieldDateReceived:
+		m.ClearDateReceived()
 		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
@@ -936,11 +936,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldStatus:
 		m.ResetStatus()
 		return nil
-	case FieldOrderedAt:
-		m.ResetOrderedAt()
+	case FieldDateOrdered:
+		m.ResetDateOrdered()
 		return nil
-	case FieldReceivedAt:
-		m.ResetReceivedAt()
+	case FieldDateReceived:
+		m.ResetDateReceived()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()

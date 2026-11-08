@@ -96,7 +96,7 @@ export function Me(): ReactNode {
 				<Card title="인수 확인이 필요한 것">
 					<Load q={custodies}>
 						{(d) => {
-							const waiting = d.items.filter((x) => x.status === 'open' && x.acknowledgedAt === undefined)
+							const waiting = d.items.filter((x) => x.status === 'open' && x.dateAcknowledged === undefined)
 							return waiting.length === 0 ? (
 								<Empty>없습니다.</Empty>
 							) : (
@@ -104,7 +104,7 @@ export function Me(): ReactNode {
 									{waiting.map((x) => (
 										<li key={idStr(x.id)}>
 											<Link to={`/custody/${idStr(x.id)}`}>
-												{custodyKindWord[x.kind]} · {fmt(x.issuedAt, 'date')} {x.desc}
+												{custodyKindWord[x.kind]} · {fmt(x.dateIssued, 'date')} {x.desc}
 											</Link>
 											<button className="primary small" onClick={() => void act(CustodyService.method.acknowledge, { ref: ref(x.id) }, { ok: '확인했습니다.' })}>
 												받았습니다
@@ -145,7 +145,7 @@ export function Me(): ReactNode {
 									{loans.map((x) => (
 										<li key={idStr(x.id)}>
 											<Link to={`/custody/${idStr(x.id)}`}>{x.desc || '대여'}</Link>
-											<span>반납 {fmt(x.dueAt)}</span>
+											<span>반납 {fmt(x.dateDue)}</span>
 										</li>
 									))}
 								</ul>

@@ -3320,18 +3320,18 @@ func (b0 TenantPreviewRequest_builder) Build() *TenantPreviewRequest {
 // TenantPreviewResponse is how long the workspace would keep its history and
 // its access record, from when, and what that takes.
 type TenantPreviewResponse struct {
-	state                      protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Apply           bool                   `protobuf:"varint,1,opt,name=apply"`
-	xxx_hidden_GraceDays       uint32                 `protobuf:"varint,2,opt,name=grace_days,json=graceDays"`
-	xxx_hidden_KeepDays        uint32                 `protobuf:"varint,3,opt,name=keep_days,json=keepDays"`
-	xxx_hidden_KeepFrom        *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=keep_from,json=keepFrom"`
-	xxx_hidden_KeepTakes       map[string]uint32      `protobuf:"bytes,5,rep,name=keep_takes,json=keepTakes" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
-	xxx_hidden_AccessKeepDays  uint32                 `protobuf:"varint,6,opt,name=access_keep_days,json=accessKeepDays"`
-	xxx_hidden_AccessKeepFrom  *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=access_keep_from,json=accessKeepFrom"`
-	xxx_hidden_AccessFloorDays uint32                 `protobuf:"varint,8,opt,name=access_floor_days,json=accessFloorDays"`
-	xxx_hidden_Held            bool                   `protobuf:"varint,9,opt,name=held"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	state                              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Apply                   bool                   `protobuf:"varint,1,opt,name=apply"`
+	xxx_hidden_GraceDays               uint32                 `protobuf:"varint,2,opt,name=grace_days,json=graceDays"`
+	xxx_hidden_KeepDays                uint32                 `protobuf:"varint,3,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_DateKeepEffective       *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_keep_effective,json=dateKeepEffective"`
+	xxx_hidden_KeepTakes               map[string]uint32      `protobuf:"bytes,5,rep,name=keep_takes,json=keepTakes" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_AccessKeepDays          uint32                 `protobuf:"varint,6,opt,name=access_keep_days,json=accessKeepDays"`
+	xxx_hidden_DateAccessKeepEffective *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_access_keep_effective,json=dateAccessKeepEffective"`
+	xxx_hidden_AccessFloorDays         uint32                 `protobuf:"varint,8,opt,name=access_floor_days,json=accessFloorDays"`
+	xxx_hidden_Held                    bool                   `protobuf:"varint,9,opt,name=held"`
+	unknownFields                      protoimpl.UnknownFields
+	sizeCache                          protoimpl.SizeCache
 }
 
 func (x *TenantPreviewResponse) Reset() {
@@ -3380,9 +3380,9 @@ func (x *TenantPreviewResponse) GetKeepDays() uint32 {
 	return 0
 }
 
-func (x *TenantPreviewResponse) GetKeepFrom() *timestamppb.Timestamp {
+func (x *TenantPreviewResponse) GetDateKeepEffective() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_KeepFrom
+		return x.xxx_hidden_DateKeepEffective
 	}
 	return nil
 }
@@ -3401,9 +3401,9 @@ func (x *TenantPreviewResponse) GetAccessKeepDays() uint32 {
 	return 0
 }
 
-func (x *TenantPreviewResponse) GetAccessKeepFrom() *timestamppb.Timestamp {
+func (x *TenantPreviewResponse) GetDateAccessKeepEffective() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AccessKeepFrom
+		return x.xxx_hidden_DateAccessKeepEffective
 	}
 	return nil
 }
@@ -3434,8 +3434,8 @@ func (x *TenantPreviewResponse) SetKeepDays(v uint32) {
 	x.xxx_hidden_KeepDays = v
 }
 
-func (x *TenantPreviewResponse) SetKeepFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_KeepFrom = v
+func (x *TenantPreviewResponse) SetDateKeepEffective(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKeepEffective = v
 }
 
 func (x *TenantPreviewResponse) SetKeepTakes(v map[string]uint32) {
@@ -3446,8 +3446,8 @@ func (x *TenantPreviewResponse) SetAccessKeepDays(v uint32) {
 	x.xxx_hidden_AccessKeepDays = v
 }
 
-func (x *TenantPreviewResponse) SetAccessKeepFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AccessKeepFrom = v
+func (x *TenantPreviewResponse) SetDateAccessKeepEffective(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAccessKeepEffective = v
 }
 
 func (x *TenantPreviewResponse) SetAccessFloorDays(v uint32) {
@@ -3458,26 +3458,26 @@ func (x *TenantPreviewResponse) SetHeld(v bool) {
 	x.xxx_hidden_Held = v
 }
 
-func (x *TenantPreviewResponse) HasKeepFrom() bool {
+func (x *TenantPreviewResponse) HasDateKeepEffective() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_KeepFrom != nil
+	return x.xxx_hidden_DateKeepEffective != nil
 }
 
-func (x *TenantPreviewResponse) HasAccessKeepFrom() bool {
+func (x *TenantPreviewResponse) HasDateAccessKeepEffective() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AccessKeepFrom != nil
+	return x.xxx_hidden_DateAccessKeepEffective != nil
 }
 
-func (x *TenantPreviewResponse) ClearKeepFrom() {
-	x.xxx_hidden_KeepFrom = nil
+func (x *TenantPreviewResponse) ClearDateKeepEffective() {
+	x.xxx_hidden_DateKeepEffective = nil
 }
 
-func (x *TenantPreviewResponse) ClearAccessKeepFrom() {
-	x.xxx_hidden_AccessKeepFrom = nil
+func (x *TenantPreviewResponse) ClearDateAccessKeepEffective() {
+	x.xxx_hidden_DateAccessKeepEffective = nil
 }
 
 type TenantPreviewResponse_builder struct {
@@ -3493,17 +3493,17 @@ type TenantPreviewResponse_builder struct {
 	// How long the history is kept, in days -- 0 is forever -- and from when:
 	// now, or once the grace of a shorter one is over. Until then the longer one
 	// it had holds.
-	KeepDays uint32
-	KeepFrom *timestamppb.Timestamp
+	KeepDays          uint32
+	DateKeepEffective *timestamppb.Timestamp
 	// What that takes of the history as it is now, by kind -- placements,
 	// facts, events, reservations, ... -- as a retention pass would: what was
-	// over before the window, `keep_days` before `keep_from`.
+	// over before the window, `keep_days` before `date_keep_effective`.
 	KeepTakes map[string]uint32
 	// How long the access record is kept, in days -- the deployment's where the
 	// workspace says none, and never below the floor -- and from when. 0 is
 	// forever.
-	AccessKeepDays uint32
-	AccessKeepFrom *timestamppb.Timestamp
+	AccessKeepDays          uint32
+	DateAccessKeepEffective *timestamppb.Timestamp
 	// The deployment's floor, in days: the least the access record is kept,
 	// whatever the workspace says (`audit.by.access.min`).
 	AccessFloorDays uint32
@@ -3519,10 +3519,10 @@ func (b0 TenantPreviewResponse_builder) Build() *TenantPreviewResponse {
 	x.xxx_hidden_Apply = b.Apply
 	x.xxx_hidden_GraceDays = b.GraceDays
 	x.xxx_hidden_KeepDays = b.KeepDays
-	x.xxx_hidden_KeepFrom = b.KeepFrom
+	x.xxx_hidden_DateKeepEffective = b.DateKeepEffective
 	x.xxx_hidden_KeepTakes = b.KeepTakes
 	x.xxx_hidden_AccessKeepDays = b.AccessKeepDays
-	x.xxx_hidden_AccessKeepFrom = b.AccessKeepFrom
+	x.xxx_hidden_DateAccessKeepEffective = b.DateAccessKeepEffective
 	x.xxx_hidden_AccessFloorDays = b.AccessFloorDays
 	x.xxx_hidden_Held = b.Held
 	return m0
@@ -4024,17 +4024,17 @@ const file_loft_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x14TenantPreviewRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\x12\x1b\n" +
 	"\tkeep_days\x18\x02 \x01(\rR\bkeepDays\x12(\n" +
-	"\x10access_keep_days\x18\x03 \x01(\rR\x0eaccessKeepDays\"\x85\x04\n" +
+	"\x10access_keep_days\x18\x03 \x01(\rR\x0eaccessKeepDays\"\xab\x04\n" +
 	"\x15TenantPreviewResponse\x12\x1b\n" +
 	"\x05apply\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\x05apply\x12$\n" +
 	"\n" +
 	"grace_days\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\tgraceDays\x12\"\n" +
-	"\tkeep_days\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\bkeepDays\x127\n" +
-	"\tkeep_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\bkeepFrom\x12I\n" +
+	"\tkeep_days\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\bkeepDays\x12J\n" +
+	"\x13date_keep_effective\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x11dateKeepEffective\x12I\n" +
 	"\n" +
 	"keep_takes\x18\x05 \x03(\v2*.loft.TenantPreviewResponse.KeepTakesEntryR\tkeepTakes\x12/\n" +
-	"\x10access_keep_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x0eaccessKeepDays\x12D\n" +
-	"\x10access_keep_from\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0eaccessKeepFrom\x121\n" +
+	"\x10access_keep_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x0eaccessKeepDays\x12W\n" +
+	"\x1adate_access_keep_effective\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x17dateAccessKeepEffective\x121\n" +
 	"\x11access_floor_days\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\x0faccessFloorDays\x12\x19\n" +
 	"\x04held\x18\t \x01(\bB\x05\xaa\x01\x02\b\x02R\x04held\x1a<\n" +
 	"\x0eKeepTakesEntry\x12\x10\n" +
@@ -4127,9 +4127,9 @@ var file_loft_payday_tenant_svc_g_proto_depIdxs = []int32{
 	2,  // 21: loft.TenantRestoreRequest.ref:type_name -> loft.TenantRef
 	2,  // 22: loft.TenantConfigureRequest.ref:type_name -> loft.TenantRef
 	2,  // 23: loft.TenantPreviewRequest.ref:type_name -> loft.TenantRef
-	23, // 24: loft.TenantPreviewResponse.keep_from:type_name -> google.protobuf.Timestamp
+	23, // 24: loft.TenantPreviewResponse.date_keep_effective:type_name -> google.protobuf.Timestamp
 	22, // 25: loft.TenantPreviewResponse.keep_takes:type_name -> loft.TenantPreviewResponse.KeepTakesEntry
-	23, // 26: loft.TenantPreviewResponse.access_keep_from:type_name -> google.protobuf.Timestamp
+	23, // 26: loft.TenantPreviewResponse.date_access_keep_effective:type_name -> google.protobuf.Timestamp
 	26, // 27: loft.TenantMineResponse.workspaces:type_name -> loft.TenantMembership
 	2,  // 28: loft.TenantExportRequest.ref:type_name -> loft.TenantRef
 	0,  // 29: loft.TenantService.Add:input_type -> loft.TenantAddRequest

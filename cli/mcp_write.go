@@ -327,7 +327,7 @@ type mcpAssetPlan struct {
 
 	Row       string `json:"row,omitempty" jsonschema:"correct: the history row that is wrong, as asset_history's row"`
 	Retract   bool   `json:"retract,omitempty" jsonschema:"correct: it never happened"`
-	ValidFrom string `json:"valid_from,omitempty" jsonschema:"correct: it happened, but from this moment"`
+	DateStart string `json:"date_start,omitempty" jsonschema:"correct: it happened, but from this moment"`
 
 	At     string `json:"at,omitempty" jsonschema:"when it happens, or happened: RFC 3339 or a date; now if left out. For add, since when it has been so"`
 	Reason string `json:"reason,omitempty" jsonschema:"why, for the history"`
@@ -415,7 +415,7 @@ func (c *mcpCall) assetAdd(in mcpAssetPlan) (*plan, error) {
 		return nil, err
 	}
 	if since != nil {
-		req.SetSince(since)
+		req.SetDateOccurred(since)
 	}
 	if in.Reason != "" {
 		req.SetReason(in.Reason)
@@ -447,7 +447,7 @@ func (c *mcpCall) assetMove(in mcpAssetPlan) (*plan, error) {
 		return nil, err
 	}
 	if at != nil {
-		req.SetAt(at)
+		req.SetDateOccurred(at)
 	}
 	summary := ""
 	if in.To == "" {
@@ -533,7 +533,7 @@ func (c *mcpCall) assetSet(in mcpAssetPlan) (*plan, error) {
 		return nil, err
 	}
 	if at != nil {
-		req.SetAt(at)
+		req.SetDateOccurred(at)
 	}
 	stays, err := c.leaving(a, in.Set["status"], in.Leave, func(leave []*app.AssetRef, names string) {
 		req.SetLeave(leave)
@@ -612,7 +612,7 @@ func (c *mcpCall) memberships(a *app.Asset) ([]membership, error) {
 	out := []membership{}
 	for _, e := range v.GetEntries() {
 		d := e.GetDetail()
-		if e.GetKind() != "link" || e.HasSupersededAt() || e.HasValidTo() || d["kind"] != "member_of" || d["side"] != "source" {
+		if e.GetKind() != "link" || e.HasDateSuperseded() || e.HasDateEnd() || d["kind"] != "member_of" || d["side"] != "source" {
 			continue
 		}
 		out = append(out, membership{id: e.GetOtherId(), name: e.GetOtherName(), required: d["required"] == "true"})
@@ -645,7 +645,7 @@ func (c *mcpCall) assetAssign(in mcpAssetPlan) (*plan, error) {
 		return nil, err
 	}
 	if at != nil {
-		req.SetAt(at)
+		req.SetDateOccurred(at)
 	}
 	summary += clause(", %s부터", when) + clause(" — %s", in.Reason)
 	return &plan{
@@ -708,7 +708,7 @@ func (c *mcpCall) assetRelate(in mcpAssetPlan) (*plan, error) {
 		return nil, err
 	}
 	if at != nil {
-		req.SetAt(at)
+		req.SetDateOccurred(at)
 	}
 	summary := fmt.Sprintf(verb, label, other) + as + clause(", %s부터", when) + clause(" — %s", in.Reason)
 	return &plan{
@@ -750,19 +750,19 @@ func (c *mcpCall) assetCorrect(in mcpAssetPlan) (*plan, error) {
 	req := app.AssetCorrectRequest_builder{Ref: app.AssetById(a.GetId()), RowId: row.Bytes(), Retract: in.Retract, Reason: in.Reason, Op: op()}.Build()
 	to := ""
 	switch {
-	case in.Retract && in.ValidFrom != "":
-		return nil, errors.New("retract or valid_from, not both")
+	case in.Retract && in.DateStart != "":
+		return nil, errors.New("retract or date_start, not both")
 	case in.Retract:
 		to = "없었던 일로"
-	case in.ValidFrom != "":
-		from, when, err := moment("valid_from", in.ValidFrom)
+	case in.DateStart != "":
+		from, when, err := moment("date_start", in.DateStart)
 		if err != nil {
 			return nil, err
 		}
-		req.SetValidFrom(from)
+		req.SetDateStart(from)
 		to = when + "부터로"
 	default:
-		return nil, errors.New("retract: it never happened, or valid_from: when it did")
+		return nil, errors.New("retract: it never happened, or date_start: when it did")
 	}
 	summary := fmt.Sprintf("정정: %s의 기록 '%s'을(를) %s%s", label, what, to, clause(" — %s", in.Reason))
 	return &plan{
@@ -884,7 +884,7 @@ func (c *mcpCall) custodyIssue(in mcpCustodyPlan) (*plan, error) {
 	}
 	kind := in.Kind
 	if due != nil {
-		req.SetDueAt(due)
+		req.SetDateDue(due)
 		if kind == "" {
 			kind = "loan"
 		}
@@ -931,7 +931,7 @@ func (c *mcpCall) custodyAnswer(in mcpCustodyPlan) (*plan, error) {
 		if due == nil {
 			return nil, errors.New("due: the new date it is due")
 		}
-		req := app.CustodyExtendRequest_builder{Ref: ref, DueAt: due}.Build()
+		req := app.CustodyExtendRequest_builder{Ref: ref, DateDue: due}.Build()
 		return &plan{
 			method:  app.CustodyService_Extend_FullMethodName,
 			summary: fmt.Sprintf("반납 기한 연장: %s → %s", whose, until),
@@ -1009,7 +1009,7 @@ func (c *mcpCall) custodyAnswer(in mcpCustodyPlan) (*plan, error) {
 		return nil, err
 	}
 	if at != nil {
-		req.SetAt(at)
+		req.SetDateOccurred(at)
 	}
 	return &plan{
 		method:  app.CustodyService_Return_FullMethodName,
@@ -1101,7 +1101,7 @@ func (c *mcpCall) reserve(in mcpReservationPlan) (*plan, error) {
 	if err != nil {
 		return nil, err
 	}
-	req := app.ReservationAddRequest_builder{Name: in.Name, BeginsAt: timestamppb.New(begins), EndsAt: timestamppb.New(ends), Op: op()}.Build()
+	req := app.ReservationAddRequest_builder{Name: in.Name, DateStart: timestamppb.New(begins), DateEnd: timestamppb.New(ends), Op: op()}.Build()
 	what := []string{}
 	gone := []string{}
 	for _, v := range in.Assets {
@@ -1161,8 +1161,8 @@ func (c *mcpCall) reserve(in mcpReservationPlan) (*plan, error) {
 // says it is out of use to it: "G-1 카메라 풀 (voided)" (D48).
 func (c *mcpCall) voided(r *app.Reservation, ids [][]byte) ([]string, error) {
 	v, err := app.NewReservationServiceClient(c.conn).Calendar(c.ctx, app.ReservationCalendarRequest_builder{
-		From: timestamppb.New(r.GetBeginsAt().AsTime().Add(-time.Minute)),
-		To:   timestamppb.New(r.GetEndsAt().AsTime().Add(time.Minute)),
+		DateFrom: timestamppb.New(r.GetDateStart().AsTime().Add(-time.Minute)),
+		DateTo:   timestamppb.New(r.GetDateEnd().AsTime().Add(time.Minute)),
 	}.Build())
 	if err != nil {
 		return nil, failed(err)
@@ -1230,7 +1230,7 @@ func (c *mcpCall) decide(in mcpReservationPlan) (*plan, error) {
 	}
 	d := decisions[in.Action]
 	req := app.ReservationDecideRequest_builder{Ref: app.ReservationById(id.Bytes()), Reason: in.Reason, Series: in.Series}.Build()
-	summary := fmt.Sprintf("%s: %s, %s%s%s%s", d.word, strings.Join(what, ", "), between(r.GetBeginsAt().AsTime(), r.GetEndsAt().AsTime()),
+	summary := fmt.Sprintf("%s: %s, %s%s%s%s", d.word, strings.Join(what, ", "), between(r.GetDateStart().AsTime(), r.GetDateEnd().AsTime()),
 		clause(", %s", r.GetName()), map[bool]string{true: ", 반복 전체"}[in.Series], clause(" — %s", in.Reason))
 	return &plan{
 		method:  d.method,

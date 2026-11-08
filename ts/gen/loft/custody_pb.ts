@@ -23,7 +23,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/custody.proto.
  */
 export const file_loft_custody: GenFile = /*@__PURE__*/
-  fileDesc("ChJsb2Z0L2N1c3RvZHkucHJvdG8SBGxvZnQi7AcKB0N1c3RvZHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESFAoEZGVzYxgGIAEoCUIGqsEWAhgBEiIKBXBhcnR5GAggASgLMgsubG9mdC5QYXJ0eUIG8oIWAkABEhQKBGtpbmQYCSABKAlCBqrBFgIYABIWCgZzdGF0dXMYCiABKAlCBqrBFgIYABI2Cglpc3N1ZWRfYXQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjIKBmR1ZV9hdBgMIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASQQoPYWNrbm93bGVkZ2VkX2F0GBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIM6oIWAjgBqsEWAhABEjcKC3JldHVybmVkX2F0GBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEiAKDnJlc2VydmF0aW9uX2lkGBIgASgMQgjqghYEEEA4ARIbCglpc3N1ZWRfYnkYEyABKAxCCOqCFgQQQDgBEhcKD292ZXJkdWVfbm90aWNlZBgUIAEoCDrHAsr8FckBEgIQARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaIRIFcGFydHkaCQoFcGFydHkQCBoNCglpc3N1ZWRfYXQQCxoqEgRvcGVuGgoKBnRlbmFudBACGgoKBnN0YXR1cxAKGgoKBmR1ZV9hdBAMGiESC3Jlc2VydmF0aW9uGhIKDnJlc2VydmF0aW9uX2lkEBIaIxIGaXNzdWVkGgoKBnRlbmFudBACGg0KCWlzc3VlZF9hdBALirsWdQgVMlcKEgoOCgxkYXRlX2NyZWF0ZWQQAQoICgQKAmlkEAEaBQoDcmVmGgcKBXBhcnR5GggKBnN0YXR1cxoGCgRraW5kGhAKDnJlc2VydmF0aW9uX2lkIGQo9AM6ACIWCgZ0ZW5hbnQiDHBhcnR5LnRlbmFudCLsBQoLQ3VzdG9keUxpbmUSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESJgoHY3VzdG9keRgIIAEoCzINLmxvZnQuQ3VzdG9keUIG8oIWAkABEiQKBWFzc2V0GAkgASgLMgsubG9mdC5Bc3NldEII8oIWBDgBQAESJAoFc3RvY2sYCiABKAsyCy5sb2Z0LlN0b2NrQgjyghYEOAFAARIQCghxdWFudGl0eRgLIAEoAxIZChFyZXR1cm5lZF9xdWFudGl0eRgMIAEoAxI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIzCgZvdXRfYXQYECABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjcKC3JldHVybmVkX2F0GBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEhUKDWNvbmRpdGlvbl9vdXQYEiABKAkSFAoMY29uZGl0aW9uX2luGBMgASgJOukByvwVXhICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhYSB2N1c3RvZHkaCwoHY3VzdG9keRAIGhISBWFzc2V0GgkKBWFzc2V0EAmKuxaCAQgWMkQKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaCQoHY3VzdG9keRoHCgVhc3NldBoHCgVzdG9jayDIASjoB0ICCgAiNAoGdGVuYW50Ig5jdXN0b2R5LnRlbmFudCIMYXNzZXQudGVuYW50IgxzdG9jay50ZW5hbnRCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_asset, file_loft_org, file_loft_stock, file_loft_payday_tenant]);
+  fileDesc("ChJsb2Z0L2N1c3RvZHkucHJvdG8SBGxvZnQi+gcKB0N1c3RvZHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESFAoEZGVzYxgGIAEoCUIGqsEWAhgBEiIKBXBhcnR5GAggASgLMgsubG9mdC5QYXJ0eUIG8oIWAkABEhQKBGtpbmQYCSABKAlCBqrBFgIYABIWCgZzdGF0dXMYCiABKAlCBqrBFgIYABI4CgtkYXRlX2lzc3VlZBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASNAoIZGF0ZV9kdWUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEkMKEWRhdGVfYWNrbm93bGVkZ2VkGBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIM6oIWAjgBqsEWAhABEjkKDWRhdGVfcmV0dXJuZWQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESIAoOcmVzZXJ2YXRpb25faWQYEiABKAxCCOqCFgQQQDgBEhsKCWlzc3VlZF9ieRgTIAEoDEII6oIWBBBAOAESFwoPb3ZlcmR1ZV9ub3RpY2VkGBQgASgIOs0CyvwVzwESAhABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARojEgVwYXJ0eRoJCgVwYXJ0eRAIGg8KC2RhdGVfaXNzdWVkEAsaLBIEb3BlbhoKCgZ0ZW5hbnQQAhoKCgZzdGF0dXMQChoMCghkYXRlX2R1ZRAMGiESC3Jlc2VydmF0aW9uGhIKDnJlc2VydmF0aW9uX2lkEBIaJRIGaXNzdWVkGgoKBnRlbmFudBACGg8KC2RhdGVfaXNzdWVkEAuKuxZ1CBUyVwoSCg4KDGRhdGVfY3JlYXRlZBABCggKBAoCaWQQARoFCgNyZWYaBwoFcGFydHkaCAoGc3RhdHVzGgYKBGtpbmQaEAoOcmVzZXJ2YXRpb25faWQgZCj0AzoAIhYKBnRlbmFudCIMcGFydHkudGVuYW50IvAFCgtDdXN0b2R5TGluZRIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARImCgdjdXN0b2R5GAggASgLMg0ubG9mdC5DdXN0b2R5QgbyghYCQAESJAoFYXNzZXQYCSABKAsyCy5sb2Z0LkFzc2V0QgjyghYEOAFAARIkCgVzdG9jaxgKIAEoCzILLmxvZnQuU3RvY2tCCPKCFgQ4AUABEhAKCHF1YW50aXR5GAsgASgDEhkKEXJldHVybmVkX3F1YW50aXR5GAwgASgDEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEjUKCGRhdGVfb3V0GBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI5Cg1kYXRlX3JldHVybmVkGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEhUKDWNvbmRpdGlvbl9vdXQYEiABKAkSFAoMY29uZGl0aW9uX2luGBMgASgJOukByvwVXhICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhYSB2N1c3RvZHkaCwoHY3VzdG9keRAIGhISBWFzc2V0GgkKBWFzc2V0EAmKuxaCAQgWMkQKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaCQoHY3VzdG9keRoHCgVhc3NldBoHCgVzdG9jayDIASjoB0ICCgAiNAoGdGVuYW50Ig5jdXN0b2R5LnRlbmFudCIMYXNzZXQudGVuYW50IgxzdG9jay50ZW5hbnRCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_asset, file_loft_org, file_loft_stock, file_loft_payday_tenant]);
 
 /**
  * Custody is a document handing assets to somebody: an issue for keeps or a
@@ -74,14 +74,14 @@ export type Custody = Message<"loft.Custody"> & {
   status: string;
 
   /**
-   * @generated from field: google.protobuf.Timestamp issued_at = 11;
+   * @generated from field: google.protobuf.Timestamp date_issued = 11;
    */
-  issuedAt?: Timestamp | undefined;
+  dateIssued?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp due_at = 12;
+   * @generated from field: google.protobuf.Timestamp date_due = 12;
    */
-  dueAt?: Timestamp | undefined;
+  dateDue?: Timestamp | undefined;
 
   /**
    * @generated from field: google.protobuf.Timestamp date_updated = 13;
@@ -99,14 +99,14 @@ export type Custody = Message<"loft.Custody"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp acknowledged_at = 16;
+   * @generated from field: google.protobuf.Timestamp date_acknowledged = 16;
    */
-  acknowledgedAt?: Timestamp | undefined;
+  dateAcknowledged?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp returned_at = 17;
+   * @generated from field: google.protobuf.Timestamp date_returned = 17;
    */
-  returnedAt?: Timestamp | undefined;
+  dateReturned?: Timestamp | undefined;
 
   /**
    * @generated from field: bytes reservation_id = 18;
@@ -184,14 +184,14 @@ export type CustodyLine = Message<"loft.CustodyLine"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp out_at = 16;
+   * @generated from field: google.protobuf.Timestamp date_out = 16;
    */
-  outAt?: Timestamp | undefined;
+  dateOut?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp returned_at = 17;
+   * @generated from field: google.protobuf.Timestamp date_returned = 17;
    */
-  returnedAt?: Timestamp | undefined;
+  dateReturned?: Timestamp | undefined;
 
   /**
    * @generated from field: string condition_out = 18;

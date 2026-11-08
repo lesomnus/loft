@@ -159,7 +159,7 @@ func TestTheFactsAnAssetStartsWithAreThePastsOfIt(t *testing.T) {
 		PlacementMode:  "located",
 		Slot:           "U3",
 		Custodian:      app.Party_builder{Id: pdid.New(pd.PartyDomain).Bytes()}.Build(),
-		AcquiredAt:     timestamppb.Now(),
+		DateAcquired:   timestamppb.Now(),
 		ContentVersion: 4,
 		DateCreated:    timestamppb.Now(),
 		DateUpdated:    timestamppb.Now(),

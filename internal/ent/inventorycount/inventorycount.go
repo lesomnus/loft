@@ -18,10 +18,10 @@ const (
 	FieldDesc = "desc"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldStartedAt holds the string denoting the started_at field in the database.
-	FieldStartedAt = "started_at"
-	// FieldClosedAt holds the string denoting the closed_at field in the database.
-	FieldClosedAt = "closed_at"
+	// FieldDateStarted holds the string denoting the date_started field in the database.
+	FieldDateStarted = "date_started"
+	// FieldDateClosed holds the string denoting the date_closed field in the database.
+	FieldDateClosed = "date_closed"
 	// FieldStartedBy holds the string denoting the started_by field in the database.
 	FieldStartedBy = "started_by"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
@@ -66,8 +66,8 @@ var Columns = []string{
 	FieldName,
 	FieldDesc,
 	FieldStatus,
-	FieldStartedAt,
-	FieldClosedAt,
+	FieldDateStarted,
+	FieldDateClosed,
 	FieldStartedBy,
 	FieldDateUpdated,
 	FieldDateErased,
@@ -111,14 +111,14 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByStartedAt orders the results by the started_at field.
-func ByStartedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldStartedAt, opts...).ToFunc()
+// ByDateStarted orders the results by the date_started field.
+func ByDateStarted(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateStarted, opts...).ToFunc()
 }
 
-// ByClosedAt orders the results by the closed_at field.
-func ByClosedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldClosedAt, opts...).ToFunc()
+// ByDateClosed orders the results by the date_closed field.
+func ByDateClosed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateClosed, opts...).ToFunc()
 }
 
 // ByStartedBy orders the results by the started_by field.

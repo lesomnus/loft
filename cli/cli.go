@@ -228,6 +228,22 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // the migration, `CONCURRENTLY` as docs/runbook/upgrade.md says to, and had the build
 // cancelled, was told the database was in this build's shape while the index
 // served no read. The refusal names it and says what to run to make it again.
+//
+// The columns an earlier build made under another name are moved to theirs
+// once the old facts are set aside (D76): Loft's own
+// ([offboard.RenamedColumns]) and payday's (`pd.ColumnRenames`), by payday's
+// `rename.Columns`. A migration finds a column by its name, and one it does
+// not find it makes, empty: beside the old one on PostgreSQL, which keeps
+// every value and is read by nothing, and on SQLite, in a table it makes
+// again -- any with an index -- in place of the old one, whose values go with
+// it for good. So nothing migrates before it. A rename is one change to the
+// catalog on PostgreSQL, which carries what `pg.sql` made on the column -- an
+// `EXCLUDE`, an index's predicate -- along with it; and SQLite rewrites the
+// table's definition in place. Every column moved takes NULL, so PostgreSQL
+// 18 named no NOT NULL after it to be left under the old name, as a table D72
+// moved had ([moveTables]). Before the facts are set aside, it would rename
+// the columns of the table an earlier build kept them in, which has payday's
+// Fact's name and is read by its own ([stashFacts]).
 func Migrate(ctx context.Context, s *cmd.Server) error {
 	_, err := migrate(ctx, s)
 	return err
@@ -270,6 +286,11 @@ func migrate(ctx context.Context, s *cmd.Server) (Migrated, error) {
 			return err
 		}
 		if err := stashFacts(ctx, s); err != nil {
+			return err
+		}
+		// After the facts are set aside: the table an earlier build kept
+		// them in has payday's name and its own columns, read by those.
+		if err := rename.Columns(ctx, s.Db, s.Dialect, slices.Concat(pd.ColumnRenames, offboard.RenamedColumns)); err != nil {
 			return err
 		}
 		if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {

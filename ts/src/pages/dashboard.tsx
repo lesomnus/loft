@@ -21,12 +21,12 @@ export function Dashboard(): ReactNode {
 	)
 	const now = minute()
 	const week = new Date(now.getTime() + 7 * 86400_000)
-	const cal = useRpc(ReservationService.method.calendar, { from: ts(now), to: ts(week), mine: true })
+	const cal = useRpc(ReservationService.method.calendar, { dateFrom: ts(now), dateTo: ts(week), mine: true })
 	// The requests a manager decides, as the approvals tab reads them: the
 	// sweep lets go of one once it has begun, so all of them are from now on.
 	const pending = useRpc(
 		ReservationService.method.calendar,
-		c.can('manager') ? { statuses: ['requested'], from: ts(new Date(now.getTime() - 86400_000)), to: ts(new Date(now.getTime() + 3650 * 86400_000)) } : null,
+		c.can('manager') ? { statuses: ['requested'], dateFrom: ts(new Date(now.getTime() - 86400_000)), dateTo: ts(new Date(now.getTime() + 3650 * 86400_000)) } : null,
 	)
 	// A reservation listed here opens as it does wherever it is listed (D45).
 	const [open, setOpen] = useState<CalendarEntry>()
@@ -72,7 +72,7 @@ export function Dashboard(): ReactNode {
 							)
 						}
 					</Load>
-					{(openCustody.data?.items ?? []).some((x) => x.status === 'open' && x.acknowledgedAt === undefined) && (
+					{(openCustody.data?.items ?? []).some((x) => x.status === 'open' && x.dateAcknowledged === undefined) && (
 						<p className="note warn">
 							인수 확인을 기다리는 지급이 있습니다. <Link to="/me">확인하기</Link>
 						</p>
@@ -89,7 +89,7 @@ export function Dashboard(): ReactNode {
 									{d.entries.slice(0, 8).map((e) => (
 										<li key={idStr(e.reservation?.id)}>
 											<span>
-												{fmt(e.reservation?.beginsAt)} ·{' '}
+												{fmt(e.reservation?.dateStart)} ·{' '}
 												<button className="link" onClick={() => setOpen(e)}>
 													{e.reservation?.name}
 												</button>
@@ -115,7 +115,7 @@ export function Dashboard(): ReactNode {
 										{d.entries.map((e) => (
 											<li key={idStr(e.reservation?.id)}>
 												<span>
-													{fmt(e.reservation?.beginsAt)} ·{' '}
+													{fmt(e.reservation?.dateStart)} ·{' '}
 													<button className="link" onClick={() => setOpen(e)}>
 														{e.reservation?.name}
 													</button>
@@ -181,7 +181,7 @@ export function Dashboard(): ReactNode {
 							) : (
 								<ul className="rows">
 									{d.items.map((n) => (
-										<li key={idStr(n.id)} className={n.readAt === undefined ? 'unread' : ''}>
+										<li key={idStr(n.id)} className={n.dateRead === undefined ? 'unread' : ''}>
 											<span>
 												<strong>{n.name}</strong> {n.desc}
 											</span>

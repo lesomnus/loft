@@ -2846,8 +2846,8 @@ func (b0 BookableUpdateRequest_builder) Build() *BookableUpdateRequest {
 type BookableAvailabilityRequest struct {
 	state                protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Resources *[]*AssetRef           `protobuf:"bytes,1,rep,name=resources"`
-	xxx_hidden_From      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from"`
-	xxx_hidden_To        *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to"`
+	xxx_hidden_DateFrom  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_to,json=dateTo"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -2886,16 +2886,16 @@ func (x *BookableAvailabilityRequest) GetResources() []*AssetRef {
 	return nil
 }
 
-func (x *BookableAvailabilityRequest) GetFrom() *timestamppb.Timestamp {
+func (x *BookableAvailabilityRequest) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *BookableAvailabilityRequest) GetTo() *timestamppb.Timestamp {
+func (x *BookableAvailabilityRequest) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
@@ -2904,42 +2904,42 @@ func (x *BookableAvailabilityRequest) SetResources(v []*AssetRef) {
 	x.xxx_hidden_Resources = &v
 }
 
-func (x *BookableAvailabilityRequest) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *BookableAvailabilityRequest) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *BookableAvailabilityRequest) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *BookableAvailabilityRequest) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
-func (x *BookableAvailabilityRequest) HasFrom() bool {
+func (x *BookableAvailabilityRequest) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *BookableAvailabilityRequest) HasTo() bool {
+func (x *BookableAvailabilityRequest) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
-func (x *BookableAvailabilityRequest) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *BookableAvailabilityRequest) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *BookableAvailabilityRequest) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *BookableAvailabilityRequest) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type BookableAvailabilityRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Resources []*AssetRef
-	From      *timestamppb.Timestamp
-	To        *timestamppb.Timestamp
+	DateFrom  *timestamppb.Timestamp
+	DateTo    *timestamppb.Timestamp
 }
 
 func (b0 BookableAvailabilityRequest_builder) Build() *BookableAvailabilityRequest {
@@ -2947,8 +2947,8 @@ func (b0 BookableAvailabilityRequest_builder) Build() *BookableAvailabilityReque
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Resources = &b.Resources
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	return m0
 }
 
@@ -3014,8 +3014,8 @@ func (b0 BookableAvailabilityResponse_builder) Build() *BookableAvailabilityResp
 type BusySpan struct {
 	state                 protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_ResourceId []byte                 `protobuf:"bytes,1,opt,name=resource_id,json=resourceId"`
-	xxx_hidden_BeginsAt   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=ends_at,json=endsAt"`
+	xxx_hidden_DateStart  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_Kind       string                 `protobuf:"bytes,4,opt,name=kind"`
 	xxx_hidden_RefId      []byte                 `protobuf:"bytes,5,opt,name=ref_id,json=refId"`
 	xxx_hidden_Units      uint32                 `protobuf:"varint,6,opt,name=units"`
@@ -3057,16 +3057,16 @@ func (x *BusySpan) GetResourceId() []byte {
 	return nil
 }
 
-func (x *BusySpan) GetBeginsAt() *timestamppb.Timestamp {
+func (x *BusySpan) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *BusySpan) GetEndsAt() *timestamppb.Timestamp {
+func (x *BusySpan) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -3113,12 +3113,12 @@ func (x *BusySpan) SetResourceId(v []byte) {
 	x.xxx_hidden_ResourceId = v
 }
 
-func (x *BusySpan) SetBeginsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BeginsAt = v
+func (x *BusySpan) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *BusySpan) SetEndsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_EndsAt = v
+func (x *BusySpan) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *BusySpan) SetKind(v string) {
@@ -3144,36 +3144,36 @@ func (x *BusySpan) SetLabel(v string) {
 	x.xxx_hidden_Label = v
 }
 
-func (x *BusySpan) HasBeginsAt() bool {
+func (x *BusySpan) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BeginsAt != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *BusySpan) HasEndsAt() bool {
+func (x *BusySpan) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_EndsAt != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *BusySpan) ClearBeginsAt() {
-	x.xxx_hidden_BeginsAt = nil
+func (x *BusySpan) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *BusySpan) ClearEndsAt() {
-	x.xxx_hidden_EndsAt = nil
+func (x *BusySpan) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 type BusySpan_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	ResourceId []byte
-	BeginsAt   *timestamppb.Timestamp
-	EndsAt     *timestamppb.Timestamp
+	DateStart  *timestamppb.Timestamp
+	DateEnd    *timestamppb.Timestamp
 	// reservation | maintenance | override | waiting | custody | closed: of
-	// custody, what somebody has out, until it is due back -- `ends_at` the
+	// custody, what somebody has out, until it is due back -- `date_end` the
 	// first moment of 2200 when that is until it is back (D53).
 	Kind     string
 	RefId    []byte
@@ -3187,8 +3187,8 @@ func (b0 BusySpan_builder) Build() *BusySpan {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_ResourceId = b.ResourceId
-	x.xxx_hidden_BeginsAt = b.BeginsAt
-	x.xxx_hidden_EndsAt = b.EndsAt
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_RefId = b.RefId
 	x.xxx_hidden_Units = b.Units
@@ -3198,11 +3198,11 @@ func (b0 BusySpan_builder) Build() *BusySpan {
 }
 
 type BookableUsageRequest struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_From *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=from"`
-	xxx_hidden_To   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=to"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DateFrom *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_to,json=dateTo"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *BookableUsageRequest) Reset() {
@@ -3230,75 +3230,75 @@ func (x *BookableUsageRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *BookableUsageRequest) GetFrom() *timestamppb.Timestamp {
+func (x *BookableUsageRequest) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *BookableUsageRequest) GetTo() *timestamppb.Timestamp {
+func (x *BookableUsageRequest) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
 
-func (x *BookableUsageRequest) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *BookableUsageRequest) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *BookableUsageRequest) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *BookableUsageRequest) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
-func (x *BookableUsageRequest) HasFrom() bool {
+func (x *BookableUsageRequest) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *BookableUsageRequest) HasTo() bool {
+func (x *BookableUsageRequest) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
-func (x *BookableUsageRequest) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *BookableUsageRequest) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *BookableUsageRequest) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *BookableUsageRequest) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type BookableUsageRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	// The period, from `from` and before `to`, a year at most. Unsaid, the last
+	// The period, from `date_from` and before `date_to`, a year at most. Unsaid, the last
 	// thirty of the workspace's days, today among them.
-	From *timestamppb.Timestamp
-	To   *timestamppb.Timestamp
+	DateFrom *timestamppb.Timestamp
+	DateTo   *timestamppb.Timestamp
 }
 
 func (b0 BookableUsageRequest_builder) Build() *BookableUsageRequest {
 	m0 := &BookableUsageRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	return m0
 }
 
 type BookableUsageResponse struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Rows *[]*BookableUsageRow   `protobuf:"bytes,1,rep,name=rows"`
-	xxx_hidden_From *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from"`
-	xxx_hidden_To   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Rows     *[]*BookableUsageRow   `protobuf:"bytes,1,rep,name=rows"`
+	xxx_hidden_DateFrom *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_to,json=dateTo"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *BookableUsageResponse) Reset() {
@@ -3335,16 +3335,16 @@ func (x *BookableUsageResponse) GetRows() []*BookableUsageRow {
 	return nil
 }
 
-func (x *BookableUsageResponse) GetFrom() *timestamppb.Timestamp {
+func (x *BookableUsageResponse) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *BookableUsageResponse) GetTo() *timestamppb.Timestamp {
+func (x *BookableUsageResponse) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
@@ -3353,34 +3353,34 @@ func (x *BookableUsageResponse) SetRows(v []*BookableUsageRow) {
 	x.xxx_hidden_Rows = &v
 }
 
-func (x *BookableUsageResponse) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *BookableUsageResponse) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *BookableUsageResponse) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *BookableUsageResponse) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
-func (x *BookableUsageResponse) HasFrom() bool {
+func (x *BookableUsageResponse) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *BookableUsageResponse) HasTo() bool {
+func (x *BookableUsageResponse) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
-func (x *BookableUsageResponse) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *BookableUsageResponse) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *BookableUsageResponse) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *BookableUsageResponse) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type BookableUsageResponse_builder struct {
@@ -3390,8 +3390,8 @@ type BookableUsageResponse_builder struct {
 	// in the period that may no longer be, by tag.
 	Rows []*BookableUsageRow
 	// The period it read.
-	From *timestamppb.Timestamp
-	To   *timestamppb.Timestamp
+	DateFrom *timestamppb.Timestamp
+	DateTo   *timestamppb.Timestamp
 }
 
 func (b0 BookableUsageResponse_builder) Build() *BookableUsageResponse {
@@ -3399,8 +3399,8 @@ func (b0 BookableUsageResponse_builder) Build() *BookableUsageResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Rows = &b.Rows
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	return m0
 }
 
@@ -3634,32 +3634,32 @@ func (b0 BookableUsageRow_builder) Build() *BookableUsageRow {
 }
 
 type ReservationAddRequest struct {
-	state                  protoimpl.MessageState  `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                  `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *TenantRef              `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Name        string                  `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc        string                  `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Party       *PartyRef               `protobuf:"bytes,8,opt,name=party"`
-	xxx_hidden_RequestedBy []byte                  `protobuf:"bytes,9,opt,name=requested_by,json=requestedBy"`
-	xxx_hidden_Status      string                  `protobuf:"bytes,10,opt,name=status"`
-	xxx_hidden_BeginsAt    *timestamppb.Timestamp  `protobuf:"bytes,11,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt      *timestamppb.Timestamp  `protobuf:"bytes,12,opt,name=ends_at,json=endsAt"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp  `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_ExpiresAt   *timestamppb.Timestamp  `protobuf:"bytes,16,opt,name=expires_at,json=expiresAt"`
-	xxx_hidden_Rrule       string                  `protobuf:"bytes,17,opt,name=rrule"`
-	xxx_hidden_SeriesId    []byte                  `protobuf:"bytes,18,opt,name=series_id,json=seriesId"`
-	xxx_hidden_DecidedBy   []byte                  `protobuf:"bytes,19,opt,name=decided_by,json=decidedBy"`
-	xxx_hidden_CheckedInAt *timestamppb.Timestamp  `protobuf:"bytes,20,opt,name=checked_in_at,json=checkedInAt"`
-	xxx_hidden_Items       *[]*ReservationItemSpec `protobuf:"bytes,100,rep,name=items"`
-	xxx_hidden_Hold        bool                    `protobuf:"varint,101,opt,name=hold"`
-	xxx_hidden_Op          []byte                  `protobuf:"bytes,102,opt,name=op"`
-	xxx_hidden_Repeat      *string                 `protobuf:"bytes,103,opt,name=repeat"`
-	xxx_hidden_Override    bool                    `protobuf:"varint,104,opt,name=override"`
-	xxx_hidden_Reason      *string                 `protobuf:"bytes,105,opt,name=reason"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState  `protogen:"opaque.v1"`
+	xxx_hidden_Id            []byte                  `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant        *TenantRef              `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Name          string                  `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc          string                  `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Party         *PartyRef               `protobuf:"bytes,8,opt,name=party"`
+	xxx_hidden_RequestedBy   []byte                  `protobuf:"bytes,9,opt,name=requested_by,json=requestedBy"`
+	xxx_hidden_Status        string                  `protobuf:"bytes,10,opt,name=status"`
+	xxx_hidden_DateStart     *timestamppb.Timestamp  `protobuf:"bytes,11,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd       *timestamppb.Timestamp  `protobuf:"bytes,12,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_DateCreated   *timestamppb.Timestamp  `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateExpires   *timestamppb.Timestamp  `protobuf:"bytes,16,opt,name=date_expires,json=dateExpires"`
+	xxx_hidden_Rrule         string                  `protobuf:"bytes,17,opt,name=rrule"`
+	xxx_hidden_SeriesId      []byte                  `protobuf:"bytes,18,opt,name=series_id,json=seriesId"`
+	xxx_hidden_DecidedBy     []byte                  `protobuf:"bytes,19,opt,name=decided_by,json=decidedBy"`
+	xxx_hidden_DateCheckedIn *timestamppb.Timestamp  `protobuf:"bytes,20,opt,name=date_checked_in,json=dateCheckedIn"`
+	xxx_hidden_Items         *[]*ReservationItemSpec `protobuf:"bytes,100,rep,name=items"`
+	xxx_hidden_Hold          bool                    `protobuf:"varint,101,opt,name=hold"`
+	xxx_hidden_Op            []byte                  `protobuf:"bytes,102,opt,name=op"`
+	xxx_hidden_Repeat        *string                 `protobuf:"bytes,103,opt,name=repeat"`
+	xxx_hidden_Override      bool                    `protobuf:"varint,104,opt,name=override"`
+	xxx_hidden_Reason        *string                 `protobuf:"bytes,105,opt,name=reason"`
+	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
+	XXX_presence             [1]uint32
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *ReservationAddRequest) Reset() {
@@ -3736,16 +3736,16 @@ func (x *ReservationAddRequest) GetStatus() string {
 	return ""
 }
 
-func (x *ReservationAddRequest) GetBeginsAt() *timestamppb.Timestamp {
+func (x *ReservationAddRequest) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *ReservationAddRequest) GetEndsAt() *timestamppb.Timestamp {
+func (x *ReservationAddRequest) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -3757,9 +3757,9 @@ func (x *ReservationAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *ReservationAddRequest) GetExpiresAt() *timestamppb.Timestamp {
+func (x *ReservationAddRequest) GetDateExpires() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ExpiresAt
+		return x.xxx_hidden_DateExpires
 	}
 	return nil
 }
@@ -3785,9 +3785,9 @@ func (x *ReservationAddRequest) GetDecidedBy() []byte {
 	return nil
 }
 
-func (x *ReservationAddRequest) GetCheckedInAt() *timestamppb.Timestamp {
+func (x *ReservationAddRequest) GetDateCheckedIn() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_CheckedInAt
+		return x.xxx_hidden_DateCheckedIn
 	}
 	return nil
 }
@@ -3878,20 +3878,20 @@ func (x *ReservationAddRequest) SetStatus(v string) {
 	x.xxx_hidden_Status = v
 }
 
-func (x *ReservationAddRequest) SetBeginsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BeginsAt = v
+func (x *ReservationAddRequest) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *ReservationAddRequest) SetEndsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_EndsAt = v
+func (x *ReservationAddRequest) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *ReservationAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *ReservationAddRequest) SetExpiresAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ExpiresAt = v
+func (x *ReservationAddRequest) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
 }
 
 func (x *ReservationAddRequest) SetRrule(v string) {
@@ -3914,8 +3914,8 @@ func (x *ReservationAddRequest) SetDecidedBy(v []byte) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 21)
 }
 
-func (x *ReservationAddRequest) SetCheckedInAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_CheckedInAt = v
+func (x *ReservationAddRequest) SetDateCheckedIn(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCheckedIn = v
 }
 
 func (x *ReservationAddRequest) SetItems(v []*ReservationItemSpec) {
@@ -3978,18 +3978,18 @@ func (x *ReservationAddRequest) HasRequestedBy() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *ReservationAddRequest) HasBeginsAt() bool {
+func (x *ReservationAddRequest) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BeginsAt != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *ReservationAddRequest) HasEndsAt() bool {
+func (x *ReservationAddRequest) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_EndsAt != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
 func (x *ReservationAddRequest) HasDateCreated() bool {
@@ -3999,11 +3999,11 @@ func (x *ReservationAddRequest) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *ReservationAddRequest) HasExpiresAt() bool {
+func (x *ReservationAddRequest) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ExpiresAt != nil
+	return x.xxx_hidden_DateExpires != nil
 }
 
 func (x *ReservationAddRequest) HasSeriesId() bool {
@@ -4020,11 +4020,11 @@ func (x *ReservationAddRequest) HasDecidedBy() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
 }
 
-func (x *ReservationAddRequest) HasCheckedInAt() bool {
+func (x *ReservationAddRequest) HasDateCheckedIn() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_CheckedInAt != nil
+	return x.xxx_hidden_DateCheckedIn != nil
 }
 
 func (x *ReservationAddRequest) HasHold() bool {
@@ -4080,20 +4080,20 @@ func (x *ReservationAddRequest) ClearRequestedBy() {
 	x.xxx_hidden_RequestedBy = nil
 }
 
-func (x *ReservationAddRequest) ClearBeginsAt() {
-	x.xxx_hidden_BeginsAt = nil
+func (x *ReservationAddRequest) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *ReservationAddRequest) ClearEndsAt() {
-	x.xxx_hidden_EndsAt = nil
+func (x *ReservationAddRequest) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 func (x *ReservationAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *ReservationAddRequest) ClearExpiresAt() {
-	x.xxx_hidden_ExpiresAt = nil
+func (x *ReservationAddRequest) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
 }
 
 func (x *ReservationAddRequest) ClearSeriesId() {
@@ -4106,8 +4106,8 @@ func (x *ReservationAddRequest) ClearDecidedBy() {
 	x.xxx_hidden_DecidedBy = nil
 }
 
-func (x *ReservationAddRequest) ClearCheckedInAt() {
-	x.xxx_hidden_CheckedInAt = nil
+func (x *ReservationAddRequest) ClearDateCheckedIn() {
+	x.xxx_hidden_DateCheckedIn = nil
 }
 
 func (x *ReservationAddRequest) ClearHold() {
@@ -4138,22 +4138,22 @@ func (x *ReservationAddRequest) ClearReason() {
 type ReservationAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id          []byte
-	Tenant      *TenantRef
-	Name        string
-	Desc        string
-	Party       *PartyRef
-	RequestedBy []byte
-	Status      string
-	BeginsAt    *timestamppb.Timestamp
-	EndsAt      *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
-	ExpiresAt   *timestamppb.Timestamp
-	Rrule       string
-	SeriesId    []byte
-	DecidedBy   []byte
-	CheckedInAt *timestamppb.Timestamp
-	Items       []*ReservationItemSpec
+	Id            []byte
+	Tenant        *TenantRef
+	Name          string
+	Desc          string
+	Party         *PartyRef
+	RequestedBy   []byte
+	Status        string
+	DateStart     *timestamppb.Timestamp
+	DateEnd       *timestamppb.Timestamp
+	DateCreated   *timestamppb.Timestamp
+	DateExpires   *timestamppb.Timestamp
+	Rrule         string
+	SeriesId      []byte
+	DecidedBy     []byte
+	DateCheckedIn *timestamppb.Timestamp
+	Items         []*ReservationItemSpec
 	// Hold only: take the time for a few minutes while the rest is decided.
 	Hold *bool
 	Op   []byte
@@ -4182,10 +4182,10 @@ func (b0 ReservationAddRequest_builder) Build() *ReservationAddRequest {
 		x.xxx_hidden_RequestedBy = b.RequestedBy
 	}
 	x.xxx_hidden_Status = b.Status
-	x.xxx_hidden_BeginsAt = b.BeginsAt
-	x.xxx_hidden_EndsAt = b.EndsAt
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_ExpiresAt = b.ExpiresAt
+	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_Rrule = b.Rrule
 	if b.SeriesId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 21)
@@ -4195,7 +4195,7 @@ func (b0 ReservationAddRequest_builder) Build() *ReservationAddRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 21)
 		x.xxx_hidden_DecidedBy = b.DecidedBy
 	}
-	x.xxx_hidden_CheckedInAt = b.CheckedInAt
+	x.xxx_hidden_DateCheckedIn = b.DateCheckedIn
 	x.xxx_hidden_Items = &b.Items
 	if b.Hold != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 21)
@@ -4522,28 +4522,28 @@ type reservationRef_Id struct {
 func (*reservationRef_Id) isReservationRef_Key() {}
 
 type ReservationSelect struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Name        bool                   `protobuf:"varint,5,opt,name=name"`
-	xxx_hidden_Desc        bool                   `protobuf:"varint,6,opt,name=desc"`
-	xxx_hidden_Party       *PartySelect           `protobuf:"bytes,8,opt,name=party"`
-	xxx_hidden_RequestedBy bool                   `protobuf:"varint,9,opt,name=requested_by,json=requestedBy"`
-	xxx_hidden_Status      bool                   `protobuf:"varint,10,opt,name=status"`
-	xxx_hidden_BeginsAt    bool                   `protobuf:"varint,11,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt      bool                   `protobuf:"varint,12,opt,name=ends_at,json=endsAt"`
-	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_ExpiresAt   bool                   `protobuf:"varint,16,opt,name=expires_at,json=expiresAt"`
-	xxx_hidden_Rrule       bool                   `protobuf:"varint,17,opt,name=rrule"`
-	xxx_hidden_SeriesId    bool                   `protobuf:"varint,18,opt,name=series_id,json=seriesId"`
-	xxx_hidden_DecidedBy   bool                   `protobuf:"varint,19,opt,name=decided_by,json=decidedBy"`
-	xxx_hidden_CheckedInAt bool                   `protobuf:"varint,20,opt,name=checked_in_at,json=checkedInAt"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All           bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Tenant        *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Name          bool                   `protobuf:"varint,5,opt,name=name"`
+	xxx_hidden_Desc          bool                   `protobuf:"varint,6,opt,name=desc"`
+	xxx_hidden_Party         *PartySelect           `protobuf:"bytes,8,opt,name=party"`
+	xxx_hidden_RequestedBy   bool                   `protobuf:"varint,9,opt,name=requested_by,json=requestedBy"`
+	xxx_hidden_Status        bool                   `protobuf:"varint,10,opt,name=status"`
+	xxx_hidden_DateStart     bool                   `protobuf:"varint,11,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd       bool                   `protobuf:"varint,12,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_DateUpdated   bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased    bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated   bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateExpires   bool                   `protobuf:"varint,16,opt,name=date_expires,json=dateExpires"`
+	xxx_hidden_Rrule         bool                   `protobuf:"varint,17,opt,name=rrule"`
+	xxx_hidden_SeriesId      bool                   `protobuf:"varint,18,opt,name=series_id,json=seriesId"`
+	xxx_hidden_DecidedBy     bool                   `protobuf:"varint,19,opt,name=decided_by,json=decidedBy"`
+	xxx_hidden_DateCheckedIn bool                   `protobuf:"varint,20,opt,name=date_checked_in,json=dateCheckedIn"`
+	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
+	XXX_presence             [1]uint32
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *ReservationSelect) Reset() {
@@ -4620,16 +4620,16 @@ func (x *ReservationSelect) GetStatus() bool {
 	return false
 }
 
-func (x *ReservationSelect) GetBeginsAt() bool {
+func (x *ReservationSelect) GetDateStart() bool {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return false
 }
 
-func (x *ReservationSelect) GetEndsAt() bool {
+func (x *ReservationSelect) GetDateEnd() bool {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return false
 }
@@ -4655,9 +4655,9 @@ func (x *ReservationSelect) GetDateCreated() bool {
 	return false
 }
 
-func (x *ReservationSelect) GetExpiresAt() bool {
+func (x *ReservationSelect) GetDateExpires() bool {
 	if x != nil {
-		return x.xxx_hidden_ExpiresAt
+		return x.xxx_hidden_DateExpires
 	}
 	return false
 }
@@ -4683,9 +4683,9 @@ func (x *ReservationSelect) GetDecidedBy() bool {
 	return false
 }
 
-func (x *ReservationSelect) GetCheckedInAt() bool {
+func (x *ReservationSelect) GetDateCheckedIn() bool {
 	if x != nil {
-		return x.xxx_hidden_CheckedInAt
+		return x.xxx_hidden_DateCheckedIn
 	}
 	return false
 }
@@ -4723,13 +4723,13 @@ func (x *ReservationSelect) SetStatus(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 17)
 }
 
-func (x *ReservationSelect) SetBeginsAt(v bool) {
-	x.xxx_hidden_BeginsAt = v
+func (x *ReservationSelect) SetDateStart(v bool) {
+	x.xxx_hidden_DateStart = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 17)
 }
 
-func (x *ReservationSelect) SetEndsAt(v bool) {
-	x.xxx_hidden_EndsAt = v
+func (x *ReservationSelect) SetDateEnd(v bool) {
+	x.xxx_hidden_DateEnd = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 17)
 }
 
@@ -4748,8 +4748,8 @@ func (x *ReservationSelect) SetDateCreated(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 17)
 }
 
-func (x *ReservationSelect) SetExpiresAt(v bool) {
-	x.xxx_hidden_ExpiresAt = v
+func (x *ReservationSelect) SetDateExpires(v bool) {
+	x.xxx_hidden_DateExpires = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 17)
 }
 
@@ -4768,8 +4768,8 @@ func (x *ReservationSelect) SetDecidedBy(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 17)
 }
 
-func (x *ReservationSelect) SetCheckedInAt(v bool) {
-	x.xxx_hidden_CheckedInAt = v
+func (x *ReservationSelect) SetDateCheckedIn(v bool) {
+	x.xxx_hidden_DateCheckedIn = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 17)
 }
 
@@ -4822,14 +4822,14 @@ func (x *ReservationSelect) HasStatus() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *ReservationSelect) HasBeginsAt() bool {
+func (x *ReservationSelect) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *ReservationSelect) HasEndsAt() bool {
+func (x *ReservationSelect) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
@@ -4857,7 +4857,7 @@ func (x *ReservationSelect) HasDateCreated() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
-func (x *ReservationSelect) HasExpiresAt() bool {
+func (x *ReservationSelect) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
@@ -4885,7 +4885,7 @@ func (x *ReservationSelect) HasDecidedBy() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 15)
 }
 
-func (x *ReservationSelect) HasCheckedInAt() bool {
+func (x *ReservationSelect) HasDateCheckedIn() bool {
 	if x == nil {
 		return false
 	}
@@ -4925,14 +4925,14 @@ func (x *ReservationSelect) ClearStatus() {
 	x.xxx_hidden_Status = false
 }
 
-func (x *ReservationSelect) ClearBeginsAt() {
+func (x *ReservationSelect) ClearDateStart() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_BeginsAt = false
+	x.xxx_hidden_DateStart = false
 }
 
-func (x *ReservationSelect) ClearEndsAt() {
+func (x *ReservationSelect) ClearDateEnd() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
-	x.xxx_hidden_EndsAt = false
+	x.xxx_hidden_DateEnd = false
 }
 
 func (x *ReservationSelect) ClearDateUpdated() {
@@ -4950,9 +4950,9 @@ func (x *ReservationSelect) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = false
 }
 
-func (x *ReservationSelect) ClearExpiresAt() {
+func (x *ReservationSelect) ClearDateExpires() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
-	x.xxx_hidden_ExpiresAt = false
+	x.xxx_hidden_DateExpires = false
 }
 
 func (x *ReservationSelect) ClearRrule() {
@@ -4970,31 +4970,31 @@ func (x *ReservationSelect) ClearDecidedBy() {
 	x.xxx_hidden_DecidedBy = false
 }
 
-func (x *ReservationSelect) ClearCheckedInAt() {
+func (x *ReservationSelect) ClearDateCheckedIn() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 16)
-	x.xxx_hidden_CheckedInAt = false
+	x.xxx_hidden_DateCheckedIn = false
 }
 
 type ReservationSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	All         *bool
-	Tenant      *TenantSelect
-	Name        *bool
-	Desc        *bool
-	Party       *PartySelect
-	RequestedBy *bool
-	Status      *bool
-	BeginsAt    *bool
-	EndsAt      *bool
-	DateUpdated *bool
-	DateErased  *bool
-	DateCreated *bool
-	ExpiresAt   *bool
-	Rrule       *bool
-	SeriesId    *bool
-	DecidedBy   *bool
-	CheckedInAt *bool
+	All           *bool
+	Tenant        *TenantSelect
+	Name          *bool
+	Desc          *bool
+	Party         *PartySelect
+	RequestedBy   *bool
+	Status        *bool
+	DateStart     *bool
+	DateEnd       *bool
+	DateUpdated   *bool
+	DateErased    *bool
+	DateCreated   *bool
+	DateExpires   *bool
+	Rrule         *bool
+	SeriesId      *bool
+	DecidedBy     *bool
+	DateCheckedIn *bool
 }
 
 func (b0 ReservationSelect_builder) Build() *ReservationSelect {
@@ -5023,13 +5023,13 @@ func (b0 ReservationSelect_builder) Build() *ReservationSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 17)
 		x.xxx_hidden_Status = *b.Status
 	}
-	if b.BeginsAt != nil {
+	if b.DateStart != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 17)
-		x.xxx_hidden_BeginsAt = *b.BeginsAt
+		x.xxx_hidden_DateStart = *b.DateStart
 	}
-	if b.EndsAt != nil {
+	if b.DateEnd != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 17)
-		x.xxx_hidden_EndsAt = *b.EndsAt
+		x.xxx_hidden_DateEnd = *b.DateEnd
 	}
 	if b.DateUpdated != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 17)
@@ -5043,9 +5043,9 @@ func (b0 ReservationSelect_builder) Build() *ReservationSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 17)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
-	if b.ExpiresAt != nil {
+	if b.DateExpires != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 17)
-		x.xxx_hidden_ExpiresAt = *b.ExpiresAt
+		x.xxx_hidden_DateExpires = *b.DateExpires
 	}
 	if b.Rrule != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 17)
@@ -5059,38 +5059,38 @@ func (b0 ReservationSelect_builder) Build() *ReservationSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 15, 17)
 		x.xxx_hidden_DecidedBy = *b.DecidedBy
 	}
-	if b.CheckedInAt != nil {
+	if b.DateCheckedIn != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 17)
-		x.xxx_hidden_CheckedInAt = *b.CheckedInAt
+		x.xxx_hidden_DateCheckedIn = *b.DateCheckedIn
 	}
 	return m0
 }
 
 type ReservationPatchRequest struct {
-	state                       protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref              *ReservationRef        `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Name             *string                `protobuf:"bytes,10,opt,name=name"`
-	xxx_hidden_Desc             *string                `protobuf:"bytes,12,opt,name=desc"`
-	xxx_hidden_RequestedBy      []byte                 `protobuf:"bytes,18,opt,name=requested_by,json=requestedBy"`
-	xxx_hidden_RequestedByNull  bool                   `protobuf:"varint,19,opt,name=requested_by_null,json=requestedByNull"`
-	xxx_hidden_Status           *string                `protobuf:"bytes,20,opt,name=status"`
-	xxx_hidden_BeginsAt         *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt           *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=ends_at,json=endsAt"`
-	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
-	xxx_hidden_ExpiresAt        *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=expires_at,json=expiresAt"`
-	xxx_hidden_ExpiresAtNull    bool                   `protobuf:"varint,33,opt,name=expires_at_null,json=expiresAtNull"`
-	xxx_hidden_Rrule            *string                `protobuf:"bytes,34,opt,name=rrule"`
-	xxx_hidden_SeriesId         []byte                 `protobuf:"bytes,36,opt,name=series_id,json=seriesId"`
-	xxx_hidden_SeriesIdNull     bool                   `protobuf:"varint,37,opt,name=series_id_null,json=seriesIdNull"`
-	xxx_hidden_DecidedBy        []byte                 `protobuf:"bytes,38,opt,name=decided_by,json=decidedBy"`
-	xxx_hidden_DecidedByNull    bool                   `protobuf:"varint,39,opt,name=decided_by_null,json=decidedByNull"`
-	xxx_hidden_CheckedInAt      *timestamppb.Timestamp `protobuf:"bytes,40,opt,name=checked_in_at,json=checkedInAt"`
-	xxx_hidden_CheckedInAtNull  bool                   `protobuf:"varint,41,opt,name=checked_in_at_null,json=checkedInAtNull"`
-	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
-	XXX_presence                [1]uint32
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	state                        protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref               *ReservationRef        `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Name              *string                `protobuf:"bytes,10,opt,name=name"`
+	xxx_hidden_Desc              *string                `protobuf:"bytes,12,opt,name=desc"`
+	xxx_hidden_RequestedBy       []byte                 `protobuf:"bytes,18,opt,name=requested_by,json=requestedBy"`
+	xxx_hidden_RequestedByNull   bool                   `protobuf:"varint,19,opt,name=requested_by_null,json=requestedByNull"`
+	xxx_hidden_Status            *string                `protobuf:"bytes,20,opt,name=status"`
+	xxx_hidden_DateStart         *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd           *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_DateUpdated       *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateUpdatedForce  bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
+	xxx_hidden_DateExpires       *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=date_expires,json=dateExpires"`
+	xxx_hidden_DateExpiresNull   bool                   `protobuf:"varint,33,opt,name=date_expires_null,json=dateExpiresNull"`
+	xxx_hidden_Rrule             *string                `protobuf:"bytes,34,opt,name=rrule"`
+	xxx_hidden_SeriesId          []byte                 `protobuf:"bytes,36,opt,name=series_id,json=seriesId"`
+	xxx_hidden_SeriesIdNull      bool                   `protobuf:"varint,37,opt,name=series_id_null,json=seriesIdNull"`
+	xxx_hidden_DecidedBy         []byte                 `protobuf:"bytes,38,opt,name=decided_by,json=decidedBy"`
+	xxx_hidden_DecidedByNull     bool                   `protobuf:"varint,39,opt,name=decided_by_null,json=decidedByNull"`
+	xxx_hidden_DateCheckedIn     *timestamppb.Timestamp `protobuf:"bytes,40,opt,name=date_checked_in,json=dateCheckedIn"`
+	xxx_hidden_DateCheckedInNull bool                   `protobuf:"varint,41,opt,name=date_checked_in_null,json=dateCheckedInNull"`
+	XXX_raceDetectHookData       protoimpl.RaceDetectHookData
+	XXX_presence                 [1]uint32
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *ReservationPatchRequest) Reset() {
@@ -5169,16 +5169,16 @@ func (x *ReservationPatchRequest) GetStatus() string {
 	return ""
 }
 
-func (x *ReservationPatchRequest) GetBeginsAt() *timestamppb.Timestamp {
+func (x *ReservationPatchRequest) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *ReservationPatchRequest) GetEndsAt() *timestamppb.Timestamp {
+func (x *ReservationPatchRequest) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -5197,16 +5197,16 @@ func (x *ReservationPatchRequest) GetDateUpdatedForce() bool {
 	return false
 }
 
-func (x *ReservationPatchRequest) GetExpiresAt() *timestamppb.Timestamp {
+func (x *ReservationPatchRequest) GetDateExpires() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ExpiresAt
+		return x.xxx_hidden_DateExpires
 	}
 	return nil
 }
 
-func (x *ReservationPatchRequest) GetExpiresAtNull() bool {
+func (x *ReservationPatchRequest) GetDateExpiresNull() bool {
 	if x != nil {
-		return x.xxx_hidden_ExpiresAtNull
+		return x.xxx_hidden_DateExpiresNull
 	}
 	return false
 }
@@ -5249,16 +5249,16 @@ func (x *ReservationPatchRequest) GetDecidedByNull() bool {
 	return false
 }
 
-func (x *ReservationPatchRequest) GetCheckedInAt() *timestamppb.Timestamp {
+func (x *ReservationPatchRequest) GetDateCheckedIn() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_CheckedInAt
+		return x.xxx_hidden_DateCheckedIn
 	}
 	return nil
 }
 
-func (x *ReservationPatchRequest) GetCheckedInAtNull() bool {
+func (x *ReservationPatchRequest) GetDateCheckedInNull() bool {
 	if x != nil {
-		return x.xxx_hidden_CheckedInAtNull
+		return x.xxx_hidden_DateCheckedInNull
 	}
 	return false
 }
@@ -5295,12 +5295,12 @@ func (x *ReservationPatchRequest) SetStatus(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 19)
 }
 
-func (x *ReservationPatchRequest) SetBeginsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BeginsAt = v
+func (x *ReservationPatchRequest) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *ReservationPatchRequest) SetEndsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_EndsAt = v
+func (x *ReservationPatchRequest) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *ReservationPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -5312,12 +5312,12 @@ func (x *ReservationPatchRequest) SetDateUpdatedForce(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 19)
 }
 
-func (x *ReservationPatchRequest) SetExpiresAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ExpiresAt = v
+func (x *ReservationPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
 }
 
-func (x *ReservationPatchRequest) SetExpiresAtNull(v bool) {
-	x.xxx_hidden_ExpiresAtNull = v
+func (x *ReservationPatchRequest) SetDateExpiresNull(v bool) {
+	x.xxx_hidden_DateExpiresNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 19)
 }
 
@@ -5352,12 +5352,12 @@ func (x *ReservationPatchRequest) SetDecidedByNull(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 19)
 }
 
-func (x *ReservationPatchRequest) SetCheckedInAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_CheckedInAt = v
+func (x *ReservationPatchRequest) SetDateCheckedIn(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCheckedIn = v
 }
 
-func (x *ReservationPatchRequest) SetCheckedInAtNull(v bool) {
-	x.xxx_hidden_CheckedInAtNull = v
+func (x *ReservationPatchRequest) SetDateCheckedInNull(v bool) {
+	x.xxx_hidden_DateCheckedInNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 18, 19)
 }
 
@@ -5403,18 +5403,18 @@ func (x *ReservationPatchRequest) HasStatus() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *ReservationPatchRequest) HasBeginsAt() bool {
+func (x *ReservationPatchRequest) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BeginsAt != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *ReservationPatchRequest) HasEndsAt() bool {
+func (x *ReservationPatchRequest) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_EndsAt != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
 func (x *ReservationPatchRequest) HasDateUpdated() bool {
@@ -5431,14 +5431,14 @@ func (x *ReservationPatchRequest) HasDateUpdatedForce() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *ReservationPatchRequest) HasExpiresAt() bool {
+func (x *ReservationPatchRequest) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ExpiresAt != nil
+	return x.xxx_hidden_DateExpires != nil
 }
 
-func (x *ReservationPatchRequest) HasExpiresAtNull() bool {
+func (x *ReservationPatchRequest) HasDateExpiresNull() bool {
 	if x == nil {
 		return false
 	}
@@ -5480,14 +5480,14 @@ func (x *ReservationPatchRequest) HasDecidedByNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 16)
 }
 
-func (x *ReservationPatchRequest) HasCheckedInAt() bool {
+func (x *ReservationPatchRequest) HasDateCheckedIn() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_CheckedInAt != nil
+	return x.xxx_hidden_DateCheckedIn != nil
 }
 
-func (x *ReservationPatchRequest) HasCheckedInAtNull() bool {
+func (x *ReservationPatchRequest) HasDateCheckedInNull() bool {
 	if x == nil {
 		return false
 	}
@@ -5523,12 +5523,12 @@ func (x *ReservationPatchRequest) ClearStatus() {
 	x.xxx_hidden_Status = nil
 }
 
-func (x *ReservationPatchRequest) ClearBeginsAt() {
-	x.xxx_hidden_BeginsAt = nil
+func (x *ReservationPatchRequest) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *ReservationPatchRequest) ClearEndsAt() {
-	x.xxx_hidden_EndsAt = nil
+func (x *ReservationPatchRequest) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 func (x *ReservationPatchRequest) ClearDateUpdated() {
@@ -5540,13 +5540,13 @@ func (x *ReservationPatchRequest) ClearDateUpdatedForce() {
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
-func (x *ReservationPatchRequest) ClearExpiresAt() {
-	x.xxx_hidden_ExpiresAt = nil
+func (x *ReservationPatchRequest) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
 }
 
-func (x *ReservationPatchRequest) ClearExpiresAtNull() {
+func (x *ReservationPatchRequest) ClearDateExpiresNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
-	x.xxx_hidden_ExpiresAtNull = false
+	x.xxx_hidden_DateExpiresNull = false
 }
 
 func (x *ReservationPatchRequest) ClearRrule() {
@@ -5574,13 +5574,13 @@ func (x *ReservationPatchRequest) ClearDecidedByNull() {
 	x.xxx_hidden_DecidedByNull = false
 }
 
-func (x *ReservationPatchRequest) ClearCheckedInAt() {
-	x.xxx_hidden_CheckedInAt = nil
+func (x *ReservationPatchRequest) ClearDateCheckedIn() {
+	x.xxx_hidden_DateCheckedIn = nil
 }
 
-func (x *ReservationPatchRequest) ClearCheckedInAtNull() {
+func (x *ReservationPatchRequest) ClearDateCheckedInNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 18)
-	x.xxx_hidden_CheckedInAtNull = false
+	x.xxx_hidden_DateCheckedInNull = false
 }
 
 type ReservationPatchRequest_builder struct {
@@ -5596,8 +5596,8 @@ type ReservationPatchRequest_builder struct {
 	// outright: setting both this and requested_by clears.
 	RequestedByNull *bool
 	Status          *string
-	BeginsAt        *timestamppb.Timestamp
-	EndsAt          *timestamppb.Timestamp
+	DateStart       *timestamppb.Timestamp
+	DateEnd         *timestamppb.Timestamp
 	// The version this update requires the stored date_updated to be.
 	// It is a precondition, not a write: the update applies only if the row
 	// still holds this value, and the server stamps the new version itself.
@@ -5612,14 +5612,14 @@ type ReservationPatchRequest_builder struct {
 	// refused rather than assumed, because an unset field cannot be told
 	// apart from a caller who never considered locking at all.
 	DateUpdatedForce *bool
-	ExpiresAt        *timestamppb.Timestamp
-	// Clear expires_at instead of writing it.
+	DateExpires      *timestamppb.Timestamp
+	// Clear date_expires instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and expires_at clears.
-	ExpiresAtNull *bool
-	Rrule         *string
-	SeriesId      []byte
+	// outright: setting both this and date_expires clears.
+	DateExpiresNull *bool
+	Rrule           *string
+	SeriesId        []byte
 	// Clear series_id instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
@@ -5631,12 +5631,12 @@ type ReservationPatchRequest_builder struct {
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and decided_by clears.
 	DecidedByNull *bool
-	CheckedInAt   *timestamppb.Timestamp
-	// Clear checked_in_at instead of writing it.
+	DateCheckedIn *timestamppb.Timestamp
+	// Clear date_checked_in instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and checked_in_at clears.
-	CheckedInAtNull *bool
+	// outright: setting both this and date_checked_in clears.
+	DateCheckedInNull *bool
 }
 
 func (b0 ReservationPatchRequest_builder) Build() *ReservationPatchRequest {
@@ -5664,17 +5664,17 @@ func (b0 ReservationPatchRequest_builder) Build() *ReservationPatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 19)
 		x.xxx_hidden_Status = b.Status
 	}
-	x.xxx_hidden_BeginsAt = b.BeginsAt
-	x.xxx_hidden_EndsAt = b.EndsAt
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 19)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
-	x.xxx_hidden_ExpiresAt = b.ExpiresAt
-	if b.ExpiresAtNull != nil {
+	x.xxx_hidden_DateExpires = b.DateExpires
+	if b.DateExpiresNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 19)
-		x.xxx_hidden_ExpiresAtNull = *b.ExpiresAtNull
+		x.xxx_hidden_DateExpiresNull = *b.DateExpiresNull
 	}
 	if b.Rrule != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 19)
@@ -5696,10 +5696,10 @@ func (b0 ReservationPatchRequest_builder) Build() *ReservationPatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 19)
 		x.xxx_hidden_DecidedByNull = *b.DecidedByNull
 	}
-	x.xxx_hidden_CheckedInAt = b.CheckedInAt
-	if b.CheckedInAtNull != nil {
+	x.xxx_hidden_DateCheckedIn = b.DateCheckedIn
+	if b.DateCheckedInNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 18, 19)
-		x.xxx_hidden_CheckedInAtNull = *b.CheckedInAtNull
+		x.xxx_hidden_DateCheckedInNull = *b.DateCheckedInNull
 	}
 	return m0
 }
@@ -6611,8 +6611,8 @@ func (b0 ReservationDecideRequest_builder) Build() *ReservationDecideRequest {
 type ReservationCalendarRequest struct {
 	state                protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Resources *[]*AssetRef           `protobuf:"bytes,1,rep,name=resources"`
-	xxx_hidden_From      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from"`
-	xxx_hidden_To        *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to"`
+	xxx_hidden_DateFrom  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_to,json=dateTo"`
 	xxx_hidden_Mine      bool                   `protobuf:"varint,4,opt,name=mine"`
 	xxx_hidden_Statuses  []string               `protobuf:"bytes,5,rep,name=statuses"`
 	unknownFields        protoimpl.UnknownFields
@@ -6653,16 +6653,16 @@ func (x *ReservationCalendarRequest) GetResources() []*AssetRef {
 	return nil
 }
 
-func (x *ReservationCalendarRequest) GetFrom() *timestamppb.Timestamp {
+func (x *ReservationCalendarRequest) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *ReservationCalendarRequest) GetTo() *timestamppb.Timestamp {
+func (x *ReservationCalendarRequest) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
@@ -6685,12 +6685,12 @@ func (x *ReservationCalendarRequest) SetResources(v []*AssetRef) {
 	x.xxx_hidden_Resources = &v
 }
 
-func (x *ReservationCalendarRequest) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *ReservationCalendarRequest) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *ReservationCalendarRequest) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *ReservationCalendarRequest) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
 func (x *ReservationCalendarRequest) SetMine(v bool) {
@@ -6701,34 +6701,34 @@ func (x *ReservationCalendarRequest) SetStatuses(v []string) {
 	x.xxx_hidden_Statuses = v
 }
 
-func (x *ReservationCalendarRequest) HasFrom() bool {
+func (x *ReservationCalendarRequest) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *ReservationCalendarRequest) HasTo() bool {
+func (x *ReservationCalendarRequest) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
-func (x *ReservationCalendarRequest) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *ReservationCalendarRequest) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *ReservationCalendarRequest) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *ReservationCalendarRequest) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type ReservationCalendarRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Resources []*AssetRef
-	From      *timestamppb.Timestamp
-	To        *timestamppb.Timestamp
+	DateFrom  *timestamppb.Timestamp
+	DateTo    *timestamppb.Timestamp
 	// Only the caller's own.
 	Mine bool
 	// Only the ones in these states: `requested` is what waits for a manager.
@@ -6740,8 +6740,8 @@ func (b0 ReservationCalendarRequest_builder) Build() *ReservationCalendarRequest
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Resources = &b.Resources
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	x.xxx_hidden_Mine = b.Mine
 	x.xxx_hidden_Statuses = b.Statuses
 	return m0
@@ -6974,8 +6974,8 @@ type ReservationConflict struct {
 	xxx_hidden_ResourceId   []byte                 `protobuf:"bytes,1,opt,name=resource_id,json=resourceId"`
 	xxx_hidden_ResourceTag  string                 `protobuf:"bytes,2,opt,name=resource_tag,json=resourceTag"`
 	xxx_hidden_ResourceName string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName"`
-	xxx_hidden_BeginsAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=ends_at,json=endsAt"`
+	xxx_hidden_DateStart    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_HeldBy       *[]*BusySpan           `protobuf:"bytes,6,rep,name=held_by,json=heldBy"`
 	xxx_hidden_Units        uint32                 `protobuf:"varint,7,opt,name=units"`
 	xxx_hidden_Available    uint32                 `protobuf:"varint,8,opt,name=available"`
@@ -7029,16 +7029,16 @@ func (x *ReservationConflict) GetResourceName() string {
 	return ""
 }
 
-func (x *ReservationConflict) GetBeginsAt() *timestamppb.Timestamp {
+func (x *ReservationConflict) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *ReservationConflict) GetEndsAt() *timestamppb.Timestamp {
+func (x *ReservationConflict) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -7081,12 +7081,12 @@ func (x *ReservationConflict) SetResourceName(v string) {
 	x.xxx_hidden_ResourceName = v
 }
 
-func (x *ReservationConflict) SetBeginsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BeginsAt = v
+func (x *ReservationConflict) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *ReservationConflict) SetEndsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_EndsAt = v
+func (x *ReservationConflict) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *ReservationConflict) SetHeldBy(v []*BusySpan) {
@@ -7101,26 +7101,26 @@ func (x *ReservationConflict) SetAvailable(v uint32) {
 	x.xxx_hidden_Available = v
 }
 
-func (x *ReservationConflict) HasBeginsAt() bool {
+func (x *ReservationConflict) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BeginsAt != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *ReservationConflict) HasEndsAt() bool {
+func (x *ReservationConflict) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_EndsAt != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *ReservationConflict) ClearBeginsAt() {
-	x.xxx_hidden_BeginsAt = nil
+func (x *ReservationConflict) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *ReservationConflict) ClearEndsAt() {
-	x.xxx_hidden_EndsAt = nil
+func (x *ReservationConflict) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 type ReservationConflict_builder struct {
@@ -7131,8 +7131,8 @@ type ReservationConflict_builder struct {
 	ResourceTag  string
 	ResourceName string
 	// The time the reservation would take it for.
-	BeginsAt *timestamppb.Timestamp
-	EndsAt   *timestamppb.Timestamp
+	DateStart *timestamppb.Timestamp
+	DateEnd   *timestamppb.Timestamp
 	// What holds it then -- another reservation, maintenance -- as a calendar
 	// shows it: of a pool, its reservations and what takes its members' own
 	// time. None once nothing does, and it is taken shortly.
@@ -7151,8 +7151,8 @@ func (b0 ReservationConflict_builder) Build() *ReservationConflict {
 	x.xxx_hidden_ResourceId = b.ResourceId
 	x.xxx_hidden_ResourceTag = b.ResourceTag
 	x.xxx_hidden_ResourceName = b.ResourceName
-	x.xxx_hidden_BeginsAt = b.BeginsAt
-	x.xxx_hidden_EndsAt = b.EndsAt
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_HeldBy = &b.HeldBy
 	x.xxx_hidden_Units = b.Units
 	x.xxx_hidden_Available = b.Available
@@ -7302,7 +7302,7 @@ type ReservationOut struct {
 	xxx_hidden_ResourceName string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName"`
 	xxx_hidden_CustodyId    []byte                 `protobuf:"bytes,4,opt,name=custody_id,json=custodyId"`
 	xxx_hidden_Kind         string                 `protobuf:"bytes,5,opt,name=kind"`
-	xxx_hidden_DueAt        *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=due_at,json=dueAt"`
+	xxx_hidden_DateDue      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_due,json=dateDue"`
 	xxx_hidden_Overdue      bool                   `protobuf:"varint,7,opt,name=overdue"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
@@ -7368,9 +7368,9 @@ func (x *ReservationOut) GetKind() string {
 	return ""
 }
 
-func (x *ReservationOut) GetDueAt() *timestamppb.Timestamp {
+func (x *ReservationOut) GetDateDue() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DueAt
+		return x.xxx_hidden_DateDue
 	}
 	return nil
 }
@@ -7408,23 +7408,23 @@ func (x *ReservationOut) SetKind(v string) {
 	x.xxx_hidden_Kind = v
 }
 
-func (x *ReservationOut) SetDueAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DueAt = v
+func (x *ReservationOut) SetDateDue(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDue = v
 }
 
 func (x *ReservationOut) SetOverdue(v bool) {
 	x.xxx_hidden_Overdue = v
 }
 
-func (x *ReservationOut) HasDueAt() bool {
+func (x *ReservationOut) HasDateDue() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DueAt != nil
+	return x.xxx_hidden_DateDue != nil
 }
 
-func (x *ReservationOut) ClearDueAt() {
-	x.xxx_hidden_DueAt = nil
+func (x *ReservationOut) ClearDateDue() {
+	x.xxx_hidden_DateDue = nil
 }
 
 type ReservationOut_builder struct {
@@ -7440,7 +7440,7 @@ type ReservationOut_builder struct {
 	// back.
 	Kind string
 	// When a loan is due back; none of an issue.
-	DueAt *timestamppb.Timestamp
+	DateDue *timestamppb.Timestamp
 	// A loan past its due and not back, which holds the thing until it is.
 	Overdue bool
 }
@@ -7454,7 +7454,7 @@ func (b0 ReservationOut_builder) Build() *ReservationOut {
 	x.xxx_hidden_ResourceName = b.ResourceName
 	x.xxx_hidden_CustodyId = b.CustodyId
 	x.xxx_hidden_Kind = b.Kind
-	x.xxx_hidden_DueAt = b.DueAt
+	x.xxx_hidden_DateDue = b.DateDue
 	x.xxx_hidden_Overdue = b.Overdue
 	return m0
 }
@@ -9141,8 +9141,8 @@ type AllocationAddRequest struct {
 	xxx_hidden_Resource    *AssetRef              `protobuf:"bytes,8,opt,name=resource"`
 	xxx_hidden_Kind        string                 `protobuf:"bytes,9,opt,name=kind"`
 	xxx_hidden_RefId       []byte                 `protobuf:"bytes,10,opt,name=ref_id,json=refId"`
-	xxx_hidden_BeginsAt    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt      *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=ends_at,json=endsAt"`
+	xxx_hidden_DateStart   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Blocking    bool                   `protobuf:"varint,16,opt,name=blocking"`
 	xxx_hidden_Exclusive   bool                   `protobuf:"varint,17,opt,name=exclusive"`
@@ -9213,16 +9213,16 @@ func (x *AllocationAddRequest) GetRefId() []byte {
 	return nil
 }
 
-func (x *AllocationAddRequest) GetBeginsAt() *timestamppb.Timestamp {
+func (x *AllocationAddRequest) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *AllocationAddRequest) GetEndsAt() *timestamppb.Timestamp {
+func (x *AllocationAddRequest) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -9283,12 +9283,12 @@ func (x *AllocationAddRequest) SetRefId(v []byte) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
 }
 
-func (x *AllocationAddRequest) SetBeginsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BeginsAt = v
+func (x *AllocationAddRequest) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *AllocationAddRequest) SetEndsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_EndsAt = v
+func (x *AllocationAddRequest) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *AllocationAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
@@ -9335,18 +9335,18 @@ func (x *AllocationAddRequest) HasRefId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *AllocationAddRequest) HasBeginsAt() bool {
+func (x *AllocationAddRequest) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BeginsAt != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *AllocationAddRequest) HasEndsAt() bool {
+func (x *AllocationAddRequest) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_EndsAt != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
 func (x *AllocationAddRequest) HasDateCreated() bool {
@@ -9374,12 +9374,12 @@ func (x *AllocationAddRequest) ClearRefId() {
 	x.xxx_hidden_RefId = nil
 }
 
-func (x *AllocationAddRequest) ClearBeginsAt() {
-	x.xxx_hidden_BeginsAt = nil
+func (x *AllocationAddRequest) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *AllocationAddRequest) ClearEndsAt() {
-	x.xxx_hidden_EndsAt = nil
+func (x *AllocationAddRequest) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 func (x *AllocationAddRequest) ClearDateCreated() {
@@ -9394,8 +9394,8 @@ type AllocationAddRequest_builder struct {
 	Resource    *AssetRef
 	Kind        string
 	RefId       []byte
-	BeginsAt    *timestamppb.Timestamp
-	EndsAt      *timestamppb.Timestamp
+	DateStart   *timestamppb.Timestamp
+	DateEnd     *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	Blocking    bool
 	Exclusive   bool
@@ -9417,8 +9417,8 @@ func (b0 AllocationAddRequest_builder) Build() *AllocationAddRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
 		x.xxx_hidden_RefId = b.RefId
 	}
-	x.xxx_hidden_BeginsAt = b.BeginsAt
-	x.xxx_hidden_EndsAt = b.EndsAt
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_Blocking = b.Blocking
 	x.xxx_hidden_Exclusive = b.Exclusive
@@ -9652,8 +9652,8 @@ type AllocationSelect struct {
 	xxx_hidden_Resource    *AssetSelect           `protobuf:"bytes,8,opt,name=resource"`
 	xxx_hidden_Kind        bool                   `protobuf:"varint,9,opt,name=kind"`
 	xxx_hidden_RefId       bool                   `protobuf:"varint,10,opt,name=ref_id,json=refId"`
-	xxx_hidden_BeginsAt    bool                   `protobuf:"varint,11,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt      bool                   `protobuf:"varint,12,opt,name=ends_at,json=endsAt"`
+	xxx_hidden_DateStart   bool                   `protobuf:"varint,11,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd     bool                   `protobuf:"varint,12,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Blocking    bool                   `protobuf:"varint,16,opt,name=blocking"`
@@ -9725,16 +9725,16 @@ func (x *AllocationSelect) GetRefId() bool {
 	return false
 }
 
-func (x *AllocationSelect) GetBeginsAt() bool {
+func (x *AllocationSelect) GetDateStart() bool {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return false
 }
 
-func (x *AllocationSelect) GetEndsAt() bool {
+func (x *AllocationSelect) GetDateEnd() bool {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return false
 }
@@ -9797,13 +9797,13 @@ func (x *AllocationSelect) SetRefId(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
 }
 
-func (x *AllocationSelect) SetBeginsAt(v bool) {
-	x.xxx_hidden_BeginsAt = v
+func (x *AllocationSelect) SetDateStart(v bool) {
+	x.xxx_hidden_DateStart = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
 }
 
-func (x *AllocationSelect) SetEndsAt(v bool) {
-	x.xxx_hidden_EndsAt = v
+func (x *AllocationSelect) SetDateEnd(v bool) {
+	x.xxx_hidden_DateEnd = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
 }
 
@@ -9867,14 +9867,14 @@ func (x *AllocationSelect) HasRefId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *AllocationSelect) HasBeginsAt() bool {
+func (x *AllocationSelect) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *AllocationSelect) HasEndsAt() bool {
+func (x *AllocationSelect) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
@@ -9939,14 +9939,14 @@ func (x *AllocationSelect) ClearRefId() {
 	x.xxx_hidden_RefId = false
 }
 
-func (x *AllocationSelect) ClearBeginsAt() {
+func (x *AllocationSelect) ClearDateStart() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
-	x.xxx_hidden_BeginsAt = false
+	x.xxx_hidden_DateStart = false
 }
 
-func (x *AllocationSelect) ClearEndsAt() {
+func (x *AllocationSelect) ClearDateEnd() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_EndsAt = false
+	x.xxx_hidden_DateEnd = false
 }
 
 func (x *AllocationSelect) ClearDateUpdated() {
@@ -9982,8 +9982,8 @@ type AllocationSelect_builder struct {
 	Resource    *AssetSelect
 	Kind        *bool
 	RefId       *bool
-	BeginsAt    *bool
-	EndsAt      *bool
+	DateStart   *bool
+	DateEnd     *bool
 	DateUpdated *bool
 	DateCreated *bool
 	Blocking    *bool
@@ -10009,13 +10009,13 @@ func (b0 AllocationSelect_builder) Build() *AllocationSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
 		x.xxx_hidden_RefId = *b.RefId
 	}
-	if b.BeginsAt != nil {
+	if b.DateStart != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
-		x.xxx_hidden_BeginsAt = *b.BeginsAt
+		x.xxx_hidden_DateStart = *b.DateStart
 	}
-	if b.EndsAt != nil {
+	if b.DateEnd != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
-		x.xxx_hidden_EndsAt = *b.EndsAt
+		x.xxx_hidden_DateEnd = *b.DateEnd
 	}
 	if b.DateUpdated != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
@@ -10046,8 +10046,8 @@ type AllocationPatchRequest struct {
 	xxx_hidden_Kind             *string                `protobuf:"bytes,18,opt,name=kind"`
 	xxx_hidden_RefId            []byte                 `protobuf:"bytes,20,opt,name=ref_id,json=refId"`
 	xxx_hidden_RefIdNull        bool                   `protobuf:"varint,21,opt,name=ref_id_null,json=refIdNull"`
-	xxx_hidden_BeginsAt         *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt           *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=ends_at,json=endsAt"`
+	xxx_hidden_DateStart        *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd          *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	xxx_hidden_Blocking         bool                   `protobuf:"varint,32,opt,name=blocking"`
@@ -10115,16 +10115,16 @@ func (x *AllocationPatchRequest) GetRefIdNull() bool {
 	return false
 }
 
-func (x *AllocationPatchRequest) GetBeginsAt() *timestamppb.Timestamp {
+func (x *AllocationPatchRequest) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *AllocationPatchRequest) GetEndsAt() *timestamppb.Timestamp {
+func (x *AllocationPatchRequest) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -10186,12 +10186,12 @@ func (x *AllocationPatchRequest) SetRefIdNull(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
 }
 
-func (x *AllocationPatchRequest) SetBeginsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BeginsAt = v
+func (x *AllocationPatchRequest) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *AllocationPatchRequest) SetEndsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_EndsAt = v
+func (x *AllocationPatchRequest) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *AllocationPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -10246,18 +10246,18 @@ func (x *AllocationPatchRequest) HasRefIdNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *AllocationPatchRequest) HasBeginsAt() bool {
+func (x *AllocationPatchRequest) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BeginsAt != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *AllocationPatchRequest) HasEndsAt() bool {
+func (x *AllocationPatchRequest) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_EndsAt != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
 func (x *AllocationPatchRequest) HasDateUpdated() bool {
@@ -10314,12 +10314,12 @@ func (x *AllocationPatchRequest) ClearRefIdNull() {
 	x.xxx_hidden_RefIdNull = false
 }
 
-func (x *AllocationPatchRequest) ClearBeginsAt() {
-	x.xxx_hidden_BeginsAt = nil
+func (x *AllocationPatchRequest) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *AllocationPatchRequest) ClearEndsAt() {
-	x.xxx_hidden_EndsAt = nil
+func (x *AllocationPatchRequest) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 func (x *AllocationPatchRequest) ClearDateUpdated() {
@@ -10357,8 +10357,8 @@ type AllocationPatchRequest_builder struct {
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and ref_id clears.
 	RefIdNull *bool
-	BeginsAt  *timestamppb.Timestamp
-	EndsAt    *timestamppb.Timestamp
+	DateStart *timestamppb.Timestamp
+	DateEnd   *timestamppb.Timestamp
 	// The version this update requires the stored date_updated to be.
 	// It is a precondition, not a write: the update applies only if the row
 	// still holds this value, and the server stamps the new version itself.
@@ -10395,8 +10395,8 @@ func (b0 AllocationPatchRequest_builder) Build() *AllocationPatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
 		x.xxx_hidden_RefIdNull = *b.RefIdNull
 	}
-	x.xxx_hidden_BeginsAt = b.BeginsAt
-	x.xxx_hidden_EndsAt = b.EndsAt
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
@@ -11066,30 +11066,31 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	" \x01(\x05B\x05\xaa\x01\x02\b\x02R\vhorizonDays\x12\x1b\n" +
 	"\x05units\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\x05units\x12.\n" +
 	"\x0fexclusive_group\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x0eexclusiveGroup\x12\x1f\n" +
-	"\aenabled\x18\r \x01(\bB\x05\xaa\x01\x02\b\x02R\aenabled\"\xa7\x01\n" +
+	"\aenabled\x18\r \x01(\bB\x05\xaa\x01\x02\b\x02R\aenabled\"\xb9\x01\n" +
 	"\x1bBookableAvailabilityRequest\x12,\n" +
-	"\tresources\x18\x01 \x03(\v2\x0e.loft.AssetRefR\tresources\x12.\n" +
-	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"B\n" +
+	"\tresources\x18\x01 \x03(\v2\x0e.loft.AssetRefR\tresources\x127\n" +
+	"\tdate_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\"B\n" +
 	"\x1cBookableAvailabilityResponse\x12\"\n" +
-	"\x04busy\x18\x01 \x03(\v2\x0e.loft.BusySpanR\x04busy\"\xb6\x02\n" +
+	"\x04busy\x18\x01 \x03(\v2\x0e.loft.BusySpanR\x04busy\"\xba\x02\n" +
 	"\bBusySpan\x12&\n" +
 	"\vresource_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\n" +
-	"resourceId\x127\n" +
-	"\tbegins_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x123\n" +
-	"\aends_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12\x19\n" +
+	"resourceId\x129\n" +
+	"\n" +
+	"date_start\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12\x19\n" +
 	"\x04kind\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1c\n" +
 	"\x06ref_id\x18\x05 \x01(\fB\x05\xaa\x01\x02\b\x02R\x05refId\x12\x1b\n" +
 	"\x05units\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05units\x12!\n" +
 	"\bblocking\x18\a \x01(\bB\x05\xaa\x01\x02\b\x02R\bblocking\x12\x1b\n" +
-	"\x05label\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x05label\"r\n" +
-	"\x14BookableUsageRequest\x12.\n" +
-	"\x04from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\x9f\x01\n" +
+	"\x05label\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x05label\"\x84\x01\n" +
+	"\x14BookableUsageRequest\x127\n" +
+	"\tdate_from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\"\xb1\x01\n" +
 	"\x15BookableUsageResponse\x12*\n" +
-	"\x04rows\x18\x01 \x03(\v2\x16.loft.BookableUsageRowR\x04rows\x12.\n" +
-	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xc1\x03\n" +
+	"\x04rows\x18\x01 \x03(\v2\x16.loft.BookableUsageRowR\x04rows\x127\n" +
+	"\tdate_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\"\xc1\x03\n" +
 	"\x10BookableUsageRow\x12&\n" +
 	"\vresource_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\n" +
 	"resourceId\x12\x17\n" +
@@ -11105,7 +11106,7 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	" \x01(\x04B\x05\xaa\x01\x02\b\x02R\vusedMinutes\x12$\n" +
 	"\n" +
 	"handed_out\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\thandedOut\x123\n" +
-	"\x12handed_out_minutes\x18\f \x01(\x04B\x05\xaa\x01\x02\b\x02R\x10handedOutMinutes\"\x90\x06\n" +
+	"\x12handed_out_minutes\x18\f \x01(\x04B\x05\xaa\x01\x02\b\x02R\x10handedOutMinutes\"\x9c\x06\n" +
 	"\x15ReservationAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
@@ -11114,17 +11115,17 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\x05party\x18\b \x01(\v2\x0e.loft.PartyRefR\x05party\x12!\n" +
 	"\frequested_by\x18\t \x01(\fR\vrequestedBy\x12\x1d\n" +
 	"\x06status\x18\n" +
-	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x127\n" +
-	"\tbegins_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x123\n" +
-	"\aends_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12=\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x129\n" +
+	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x129\n" +
 	"\n" +
-	"expires_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12\x1b\n" +
+	"date_start\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12=\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12=\n" +
+	"\fdate_expires\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12\x1b\n" +
 	"\x05rrule\x18\x11 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05rrule\x12\x1b\n" +
 	"\tseries_id\x18\x12 \x01(\fR\bseriesId\x12\x1d\n" +
 	"\n" +
-	"decided_by\x18\x13 \x01(\fR\tdecidedBy\x12>\n" +
-	"\rchecked_in_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\vcheckedInAt\x12/\n" +
+	"decided_by\x18\x13 \x01(\fR\tdecidedBy\x12B\n" +
+	"\x0fdate_checked_in\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\rdateCheckedIn\x12/\n" +
 	"\x05items\x18d \x03(\v2\x19.loft.ReservationItemSpecR\x05items\x12\x12\n" +
 	"\x04hold\x18e \x01(\bR\x04hold\x12\x0e\n" +
 	"\x02op\x18f \x01(\fR\x02op\x12\x16\n" +
@@ -11139,7 +11140,7 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\x06select\x18\x02 \x01(\v2\x17.loft.ReservationSelectR\x06select\")\n" +
 	"\x0eReservationRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\x8f\x04\n" +
+	"\x03key\"\x9b\x04\n" +
 	"\x11ReservationSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
@@ -11148,20 +11149,20 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\x05party\x18\b \x01(\v2\x11.loft.PartySelectR\x05party\x12!\n" +
 	"\frequested_by\x18\t \x01(\bR\vrequestedBy\x12\x16\n" +
 	"\x06status\x18\n" +
-	" \x01(\bR\x06status\x12\x1b\n" +
-	"\tbegins_at\x18\v \x01(\bR\bbeginsAt\x12\x17\n" +
-	"\aends_at\x18\f \x01(\bR\x06endsAt\x12!\n" +
+	" \x01(\bR\x06status\x12\x1d\n" +
+	"\n" +
+	"date_start\x18\v \x01(\bR\tdateStart\x12\x19\n" +
+	"\bdate_end\x18\f \x01(\bR\adateEnd\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x1d\n" +
-	"\n" +
-	"expires_at\x18\x10 \x01(\bR\texpiresAt\x12\x14\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12!\n" +
+	"\fdate_expires\x18\x10 \x01(\bR\vdateExpires\x12\x14\n" +
 	"\x05rrule\x18\x11 \x01(\bR\x05rrule\x12\x1b\n" +
 	"\tseries_id\x18\x12 \x01(\bR\bseriesId\x12\x1d\n" +
 	"\n" +
-	"decided_by\x18\x13 \x01(\bR\tdecidedBy\x12\"\n" +
-	"\rchecked_in_at\x18\x14 \x01(\bR\vcheckedInAt\"\x9b\x06\n" +
+	"decided_by\x18\x13 \x01(\bR\tdecidedBy\x12&\n" +
+	"\x0fdate_checked_in\x18\x14 \x01(\bR\rdateCheckedIn\"\xaf\x06\n" +
 	"\x17ReservationPatchRequest\x12&\n" +
 	"\x03ref\x18\x01 \x01(\v2\x14.loft.ReservationRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
@@ -11169,22 +11170,22 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12!\n" +
 	"\frequested_by\x18\x12 \x01(\fR\vrequestedBy\x12*\n" +
 	"\x11requested_by_null\x18\x13 \x01(\bR\x0frequestedByNull\x12\x16\n" +
-	"\x06status\x18\x14 \x01(\tR\x06status\x127\n" +
-	"\tbegins_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x123\n" +
-	"\aends_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12=\n" +
-	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
-	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x129\n" +
+	"\x06status\x18\x14 \x01(\tR\x06status\x129\n" +
 	"\n" +
-	"expires_at\x18  \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12&\n" +
-	"\x0fexpires_at_null\x18! \x01(\bR\rexpiresAtNull\x12\x14\n" +
+	"date_start\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12=\n" +
+	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
+	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12=\n" +
+	"\fdate_expires\x18  \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12*\n" +
+	"\x11date_expires_null\x18! \x01(\bR\x0fdateExpiresNull\x12\x14\n" +
 	"\x05rrule\x18\" \x01(\tR\x05rrule\x12\x1b\n" +
 	"\tseries_id\x18$ \x01(\fR\bseriesId\x12$\n" +
 	"\x0eseries_id_null\x18% \x01(\bR\fseriesIdNull\x12\x1d\n" +
 	"\n" +
 	"decided_by\x18& \x01(\fR\tdecidedBy\x12&\n" +
-	"\x0fdecided_by_null\x18' \x01(\bR\rdecidedByNull\x12>\n" +
-	"\rchecked_in_at\x18( \x01(\v2\x1a.google.protobuf.TimestampR\vcheckedInAt\x12+\n" +
-	"\x12checked_in_at_null\x18) \x01(\bR\x0fcheckedInAtNull\"e\n" +
+	"\x0fdecided_by_null\x18' \x01(\bR\rdecidedByNull\x12B\n" +
+	"\x0fdate_checked_in\x18( \x01(\v2\x1a.google.protobuf.TimestampR\rdateCheckedIn\x12/\n" +
+	"\x14date_checked_in_null\x18) \x01(\bR\x11dateCheckedInNull\"e\n" +
 	"\x17ReservationApplyRequest\x12&\n" +
 	"\x03ref\x18\x01 \x01(\v2\x14.loft.ReservationRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"2\n" +
@@ -11215,11 +11216,11 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\x18ReservationDecideRequest\x12&\n" +
 	"\x03ref\x18\x01 \x01(\v2\x14.loft.ReservationRefR\x03ref\x12\x1d\n" +
 	"\x06reason\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x1d\n" +
-	"\x06series\x18\x03 \x01(\bB\x05\xaa\x01\x02\b\x02R\x06series\"\xdd\x01\n" +
+	"\x06series\x18\x03 \x01(\bB\x05\xaa\x01\x02\b\x02R\x06series\"\xef\x01\n" +
 	"\x1aReservationCalendarRequest\x12,\n" +
-	"\tresources\x18\x01 \x03(\v2\x0e.loft.AssetRefR\tresources\x12.\n" +
-	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x19\n" +
+	"\tresources\x18\x01 \x03(\v2\x0e.loft.AssetRefR\tresources\x127\n" +
+	"\tdate_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\x12\x19\n" +
 	"\x04mine\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\x04mine\x12\x1a\n" +
 	"\bstatuses\x18\x05 \x03(\tR\bstatuses\"L\n" +
 	"\x1bReservationCalendarResponse\x12-\n" +
@@ -11232,14 +11233,15 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\tconflicts\x18\x04 \x03(\v2\x19.loft.ReservationConflictR\tconflicts\x127\n" +
 	"\n" +
 	"out_of_use\x18\x05 \x03(\v2\x19.loft.ReservationOutOfUseR\boutOfUse\x12&\n" +
-	"\x03out\x18\x06 \x03(\v2\x14.loft.ReservationOutR\x03out\"\xec\x02\n" +
+	"\x03out\x18\x06 \x03(\v2\x14.loft.ReservationOutR\x03out\"\xf0\x02\n" +
 	"\x13ReservationConflict\x12&\n" +
 	"\vresource_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\n" +
 	"resourceId\x12(\n" +
 	"\fresource_tag\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\vresourceTag\x12*\n" +
-	"\rresource_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceName\x127\n" +
-	"\tbegins_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x123\n" +
-	"\aends_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12'\n" +
+	"\rresource_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceName\x129\n" +
+	"\n" +
+	"date_start\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12'\n" +
 	"\aheld_by\x18\x06 \x03(\v2\x0e.loft.BusySpanR\x06heldBy\x12\x1b\n" +
 	"\x05units\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x05units\x12#\n" +
 	"\tavailable\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\tavailable\"\xde\x01\n" +
@@ -11249,7 +11251,7 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\fresource_tag\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\vresourceTag\x12*\n" +
 	"\rresource_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceName\x12\x1d\n" +
 	"\x06status\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x12*\n" +
-	"\rresource_kind\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceKind\"\xa3\x02\n" +
+	"\rresource_kind\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceKind\"\xa7\x02\n" +
 	"\x0eReservationOut\x12&\n" +
 	"\vresource_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\n" +
 	"resourceId\x12(\n" +
@@ -11257,8 +11259,8 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\rresource_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceName\x12$\n" +
 	"\n" +
 	"custody_id\x18\x04 \x01(\fB\x05\xaa\x01\x02\b\x02R\tcustodyId\x12\x19\n" +
-	"\x04kind\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x121\n" +
-	"\x06due_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x05dueAt\x12\x1f\n" +
+	"\x04kind\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x125\n" +
+	"\bdate_due\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\x12\x1f\n" +
 	"\aoverdue\x18\a \x01(\bB\x05\xaa\x01\x02\b\x02R\aoverdue\"D\n" +
 	"\x1aReservationTimelineRequest\x12&\n" +
 	"\x03ref\x18\x01 \x01(\v2\x14.loft.ReservationRefR\x03ref\"L\n" +
@@ -11318,16 +11320,17 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\x15ReservationItemFilter\x12*\n" +
 	"\x03ref\x18\x01 \x01(\v2\x18.loft.ReservationItemRefR\x03ref\x126\n" +
 	"\vreservation\x18\x02 \x01(\v2\x14.loft.ReservationRefR\vreservation\x12*\n" +
-	"\bresource\x18\x03 \x01(\v2\x0e.loft.AssetRefR\bresource\"\xbf\x03\n" +
+	"\bresource\x18\x03 \x01(\v2\x0e.loft.AssetRefR\bresource\"\xc3\x03\n" +
 	"\x14AllocationAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12*\n" +
 	"\bresource\x18\b \x01(\v2\x0e.loft.AssetRefR\bresource\x12\x19\n" +
 	"\x04kind\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x15\n" +
 	"\x06ref_id\x18\n" +
-	" \x01(\fR\x05refId\x127\n" +
-	"\tbegins_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x123\n" +
-	"\aends_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12=\n" +
+	" \x01(\fR\x05refId\x129\n" +
+	"\n" +
+	"date_start\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12!\n" +
 	"\bblocking\x18\x10 \x01(\bB\x05\xaa\x01\x02\b\x02R\bblocking\x12#\n" +
 	"\texclusive\x18\x11 \x01(\bB\x05\xaa\x01\x02\b\x02R\texclusive\x12\x1b\n" +
@@ -11337,28 +11340,30 @@ const file_loft_booking_svc_g_proto_rawDesc = "" +
 	"\x06select\x18\x02 \x01(\v2\x16.loft.AllocationSelectR\x06select\"(\n" +
 	"\rAllocationRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xf6\x02\n" +
+	"\x03key\"\xfa\x02\n" +
 	"\x10AllocationSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12-\n" +
 	"\bresource\x18\b \x01(\v2\x11.loft.AssetSelectR\bresource\x12\x12\n" +
 	"\x04kind\x18\t \x01(\bR\x04kind\x12\x15\n" +
 	"\x06ref_id\x18\n" +
-	" \x01(\bR\x05refId\x12\x1b\n" +
-	"\tbegins_at\x18\v \x01(\bR\bbeginsAt\x12\x17\n" +
-	"\aends_at\x18\f \x01(\bR\x06endsAt\x12!\n" +
+	" \x01(\bR\x05refId\x12\x1d\n" +
+	"\n" +
+	"date_start\x18\v \x01(\bR\tdateStart\x12\x19\n" +
+	"\bdate_end\x18\f \x01(\bR\adateEnd\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x1a\n" +
 	"\bblocking\x18\x10 \x01(\bR\bblocking\x12\x1c\n" +
 	"\texclusive\x18\x11 \x01(\bR\texclusive\x12\x14\n" +
-	"\x05units\x18\x12 \x01(\bR\x05units\"\xb5\x03\n" +
+	"\x05units\x18\x12 \x01(\bR\x05units\"\xb9\x03\n" +
 	"\x16AllocationPatchRequest\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.loft.AllocationRefR\x03ref\x12\x12\n" +
 	"\x04kind\x18\x12 \x01(\tR\x04kind\x12\x15\n" +
 	"\x06ref_id\x18\x14 \x01(\fR\x05refId\x12\x1e\n" +
-	"\vref_id_null\x18\x15 \x01(\bR\trefIdNull\x127\n" +
-	"\tbegins_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x123\n" +
-	"\aends_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12=\n" +
+	"\vref_id_null\x18\x15 \x01(\bR\trefIdNull\x129\n" +
+	"\n" +
+	"date_start\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x1a\n" +
 	"\bblocking\x18  \x01(\bR\bblocking\x12\x1c\n" +
@@ -11537,23 +11542,23 @@ var file_loft_booking_svc_g_proto_depIdxs = []int32{
 	2,   // 22: loft.BookableUpdateRequest.ref:type_name -> loft.BookableRef
 	69,  // 23: loft.BookableUpdateRequest.hours:type_name -> loft.OpeningHours
 	68,  // 24: loft.BookableAvailabilityRequest.resources:type_name -> loft.AssetRef
-	70,  // 25: loft.BookableAvailabilityRequest.from:type_name -> google.protobuf.Timestamp
-	70,  // 26: loft.BookableAvailabilityRequest.to:type_name -> google.protobuf.Timestamp
+	70,  // 25: loft.BookableAvailabilityRequest.date_from:type_name -> google.protobuf.Timestamp
+	70,  // 26: loft.BookableAvailabilityRequest.date_to:type_name -> google.protobuf.Timestamp
 	17,  // 27: loft.BookableAvailabilityResponse.busy:type_name -> loft.BusySpan
-	70,  // 28: loft.BusySpan.begins_at:type_name -> google.protobuf.Timestamp
-	70,  // 29: loft.BusySpan.ends_at:type_name -> google.protobuf.Timestamp
-	70,  // 30: loft.BookableUsageRequest.from:type_name -> google.protobuf.Timestamp
-	70,  // 31: loft.BookableUsageRequest.to:type_name -> google.protobuf.Timestamp
+	70,  // 28: loft.BusySpan.date_start:type_name -> google.protobuf.Timestamp
+	70,  // 29: loft.BusySpan.date_end:type_name -> google.protobuf.Timestamp
+	70,  // 30: loft.BookableUsageRequest.date_from:type_name -> google.protobuf.Timestamp
+	70,  // 31: loft.BookableUsageRequest.date_to:type_name -> google.protobuf.Timestamp
 	20,  // 32: loft.BookableUsageResponse.rows:type_name -> loft.BookableUsageRow
-	70,  // 33: loft.BookableUsageResponse.from:type_name -> google.protobuf.Timestamp
-	70,  // 34: loft.BookableUsageResponse.to:type_name -> google.protobuf.Timestamp
+	70,  // 33: loft.BookableUsageResponse.date_from:type_name -> google.protobuf.Timestamp
+	70,  // 34: loft.BookableUsageResponse.date_to:type_name -> google.protobuf.Timestamp
 	67,  // 35: loft.ReservationAddRequest.tenant:type_name -> loft.TenantRef
 	75,  // 36: loft.ReservationAddRequest.party:type_name -> loft.PartyRef
-	70,  // 37: loft.ReservationAddRequest.begins_at:type_name -> google.protobuf.Timestamp
-	70,  // 38: loft.ReservationAddRequest.ends_at:type_name -> google.protobuf.Timestamp
+	70,  // 37: loft.ReservationAddRequest.date_start:type_name -> google.protobuf.Timestamp
+	70,  // 38: loft.ReservationAddRequest.date_end:type_name -> google.protobuf.Timestamp
 	70,  // 39: loft.ReservationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	70,  // 40: loft.ReservationAddRequest.expires_at:type_name -> google.protobuf.Timestamp
-	70,  // 41: loft.ReservationAddRequest.checked_in_at:type_name -> google.protobuf.Timestamp
+	70,  // 40: loft.ReservationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	70,  // 41: loft.ReservationAddRequest.date_checked_in:type_name -> google.protobuf.Timestamp
 	22,  // 42: loft.ReservationAddRequest.items:type_name -> loft.ReservationItemSpec
 	68,  // 43: loft.ReservationItemSpec.resource:type_name -> loft.AssetRef
 	24,  // 44: loft.ReservationGetRequest.ref:type_name -> loft.ReservationRef
@@ -11561,11 +11566,11 @@ var file_loft_booking_svc_g_proto_depIdxs = []int32{
 	71,  // 46: loft.ReservationSelect.tenant:type_name -> loft.TenantSelect
 	76,  // 47: loft.ReservationSelect.party:type_name -> loft.PartySelect
 	24,  // 48: loft.ReservationPatchRequest.ref:type_name -> loft.ReservationRef
-	70,  // 49: loft.ReservationPatchRequest.begins_at:type_name -> google.protobuf.Timestamp
-	70,  // 50: loft.ReservationPatchRequest.ends_at:type_name -> google.protobuf.Timestamp
+	70,  // 49: loft.ReservationPatchRequest.date_start:type_name -> google.protobuf.Timestamp
+	70,  // 50: loft.ReservationPatchRequest.date_end:type_name -> google.protobuf.Timestamp
 	70,  // 51: loft.ReservationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	70,  // 52: loft.ReservationPatchRequest.expires_at:type_name -> google.protobuf.Timestamp
-	70,  // 53: loft.ReservationPatchRequest.checked_in_at:type_name -> google.protobuf.Timestamp
+	70,  // 52: loft.ReservationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	70,  // 53: loft.ReservationPatchRequest.date_checked_in:type_name -> google.protobuf.Timestamp
 	24,  // 54: loft.ReservationApplyRequest.ref:type_name -> loft.ReservationRef
 	73,  // 55: loft.ReservationApplyRequest.patch:type_name -> patch.Patch
 	31,  // 56: loft.ReservationListRequest.filters:type_name -> loft.ReservationFilter
@@ -11577,17 +11582,17 @@ var file_loft_booking_svc_g_proto_depIdxs = []int32{
 	77,  // 62: loft.ReservationWatchItem.value:type_name -> loft.Reservation
 	24,  // 63: loft.ReservationDecideRequest.ref:type_name -> loft.ReservationRef
 	68,  // 64: loft.ReservationCalendarRequest.resources:type_name -> loft.AssetRef
-	70,  // 65: loft.ReservationCalendarRequest.from:type_name -> google.protobuf.Timestamp
-	70,  // 66: loft.ReservationCalendarRequest.to:type_name -> google.protobuf.Timestamp
+	70,  // 65: loft.ReservationCalendarRequest.date_from:type_name -> google.protobuf.Timestamp
+	70,  // 66: loft.ReservationCalendarRequest.date_to:type_name -> google.protobuf.Timestamp
 	38,  // 67: loft.ReservationCalendarResponse.entries:type_name -> loft.CalendarEntry
 	77,  // 68: loft.CalendarEntry.reservation:type_name -> loft.Reservation
 	39,  // 69: loft.CalendarEntry.conflicts:type_name -> loft.ReservationConflict
 	40,  // 70: loft.CalendarEntry.out_of_use:type_name -> loft.ReservationOutOfUse
 	41,  // 71: loft.CalendarEntry.out:type_name -> loft.ReservationOut
-	70,  // 72: loft.ReservationConflict.begins_at:type_name -> google.protobuf.Timestamp
-	70,  // 73: loft.ReservationConflict.ends_at:type_name -> google.protobuf.Timestamp
+	70,  // 72: loft.ReservationConflict.date_start:type_name -> google.protobuf.Timestamp
+	70,  // 73: loft.ReservationConflict.date_end:type_name -> google.protobuf.Timestamp
 	17,  // 74: loft.ReservationConflict.held_by:type_name -> loft.BusySpan
-	70,  // 75: loft.ReservationOut.due_at:type_name -> google.protobuf.Timestamp
+	70,  // 75: loft.ReservationOut.date_due:type_name -> google.protobuf.Timestamp
 	24,  // 76: loft.ReservationTimelineRequest.ref:type_name -> loft.ReservationRef
 	78,  // 77: loft.ReservationTimelineResponse.entries:type_name -> loft.TimelineEntry
 	24,  // 78: loft.ReservationPickupRequest.ref:type_name -> loft.ReservationRef
@@ -11612,16 +11617,16 @@ var file_loft_booking_svc_g_proto_depIdxs = []int32{
 	68,  // 97: loft.ReservationItemFilter.resource:type_name -> loft.AssetRef
 	67,  // 98: loft.AllocationAddRequest.tenant:type_name -> loft.TenantRef
 	68,  // 99: loft.AllocationAddRequest.resource:type_name -> loft.AssetRef
-	70,  // 100: loft.AllocationAddRequest.begins_at:type_name -> google.protobuf.Timestamp
-	70,  // 101: loft.AllocationAddRequest.ends_at:type_name -> google.protobuf.Timestamp
+	70,  // 100: loft.AllocationAddRequest.date_start:type_name -> google.protobuf.Timestamp
+	70,  // 101: loft.AllocationAddRequest.date_end:type_name -> google.protobuf.Timestamp
 	70,  // 102: loft.AllocationAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	59,  // 103: loft.AllocationGetRequest.ref:type_name -> loft.AllocationRef
 	60,  // 104: loft.AllocationGetRequest.select:type_name -> loft.AllocationSelect
 	71,  // 105: loft.AllocationSelect.tenant:type_name -> loft.TenantSelect
 	72,  // 106: loft.AllocationSelect.resource:type_name -> loft.AssetSelect
 	59,  // 107: loft.AllocationPatchRequest.ref:type_name -> loft.AllocationRef
-	70,  // 108: loft.AllocationPatchRequest.begins_at:type_name -> google.protobuf.Timestamp
-	70,  // 109: loft.AllocationPatchRequest.ends_at:type_name -> google.protobuf.Timestamp
+	70,  // 108: loft.AllocationPatchRequest.date_start:type_name -> google.protobuf.Timestamp
+	70,  // 109: loft.AllocationPatchRequest.date_end:type_name -> google.protobuf.Timestamp
 	70,  // 110: loft.AllocationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	59,  // 111: loft.AllocationApplyRequest.ref:type_name -> loft.AllocationRef
 	73,  // 112: loft.AllocationApplyRequest.patch:type_name -> patch.Patch

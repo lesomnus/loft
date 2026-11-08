@@ -67,10 +67,10 @@ message PlacementAddRequest {
   int32 u_from = 12 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
   int32 u_to = 16 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp valid_from = 17;
-  google.protobuf.Timestamp valid_to = 18;
+  google.protobuf.Timestamp date_start = 17;
+  google.protobuf.Timestamp date_end = 18;
   bytes event_id = 19 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp superseded_at = 20;
+  google.protobuf.Timestamp date_superseded = 20;
   bytes superseded_by = 21;
 }
 
@@ -104,10 +104,10 @@ message PlacementSelect {
   bool date_updated = 13;
   bool date_created = 15;
   bool u_to = 16;
-  bool valid_from = 17;
-  bool valid_to = 18;
+  bool date_start = 17;
+  bool date_end = 18;
   bool event_id = 19;
-  bool superseded_at = 20;
+  bool date_superseded = 20;
   bool superseded_by = 21;
 }
 
@@ -131,20 +131,20 @@ message PlacementPatchRequest {
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
   int32 u_to = 32;
-  google.protobuf.Timestamp valid_from = 34;
-  google.protobuf.Timestamp valid_to = 36;
-  // Clear valid_to instead of writing it.
+  google.protobuf.Timestamp date_start = 34;
+  google.protobuf.Timestamp date_end = 36;
+  // Clear date_end instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and valid_to clears.
-  bool valid_to_null = 37;
+  // outright: setting both this and date_end clears.
+  bool date_end_null = 37;
   bytes event_id = 38;
-  google.protobuf.Timestamp superseded_at = 40;
-  // Clear superseded_at instead of writing it.
+  google.protobuf.Timestamp date_superseded = 40;
+  // Clear date_superseded instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and superseded_at clears.
-  bool superseded_at_null = 41;
+  // outright: setting both this and date_superseded clears.
+  bool date_superseded_null = 41;
   bytes superseded_by = 42;
   // Clear superseded_by instead of writing it.
   // It takes a field of its own because an unset value already means
@@ -218,10 +218,10 @@ message LinkAddRequest {
   string kind = 10 [features.field_presence = IMPLICIT];
   bool required = 11 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
-  google.protobuf.Timestamp valid_from = 17;
-  google.protobuf.Timestamp valid_to = 18;
+  google.protobuf.Timestamp date_start = 17;
+  google.protobuf.Timestamp date_end = 18;
   bytes event_id = 19 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp superseded_at = 20;
+  google.protobuf.Timestamp date_superseded = 20;
   bytes superseded_by = 21;
 }
 
@@ -246,10 +246,10 @@ message LinkSelect {
   bool required = 11;
   bool date_updated = 13;
   bool date_created = 15;
-  bool valid_from = 17;
-  bool valid_to = 18;
+  bool date_start = 17;
+  bool date_end = 18;
   bool event_id = 19;
-  bool superseded_at = 20;
+  bool date_superseded = 20;
   bool superseded_by = 21;
 }
 
@@ -272,20 +272,20 @@ message LinkPatchRequest {
   // refused rather than assumed, because an unset field cannot be told
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
-  google.protobuf.Timestamp valid_from = 34;
-  google.protobuf.Timestamp valid_to = 36;
-  // Clear valid_to instead of writing it.
+  google.protobuf.Timestamp date_start = 34;
+  google.protobuf.Timestamp date_end = 36;
+  // Clear date_end instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and valid_to clears.
-  bool valid_to_null = 37;
+  // outright: setting both this and date_end clears.
+  bool date_end_null = 37;
   bytes event_id = 38;
-  google.protobuf.Timestamp superseded_at = 40;
-  // Clear superseded_at instead of writing it.
+  google.protobuf.Timestamp date_superseded = 40;
+  // Clear date_superseded instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and superseded_at clears.
-  bool superseded_at_null = 41;
+  // outright: setting both this and date_superseded clears.
+  bool date_superseded_null = 41;
   bytes superseded_by = 42;
   // Clear superseded_by instead of writing it.
   // It takes a field of its own because an unset value already means
@@ -358,10 +358,10 @@ message StewardshipAddRequest {
   PartyRef party = 9;
   string role = 10 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
-  google.protobuf.Timestamp valid_from = 17;
-  google.protobuf.Timestamp valid_to = 18;
+  google.protobuf.Timestamp date_start = 17;
+  google.protobuf.Timestamp date_end = 18;
   bytes event_id = 19 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp superseded_at = 20;
+  google.protobuf.Timestamp date_superseded = 20;
   bytes superseded_by = 21;
 }
 
@@ -384,10 +384,10 @@ message StewardshipSelect {
   bool role = 10;
   bool date_updated = 13;
   bool date_created = 15;
-  bool valid_from = 17;
-  bool valid_to = 18;
+  bool date_start = 17;
+  bool date_end = 18;
   bool event_id = 19;
-  bool superseded_at = 20;
+  bool date_superseded = 20;
   bool superseded_by = 21;
 }
 
@@ -408,20 +408,20 @@ message StewardshipPatchRequest {
   // refused rather than assumed, because an unset field cannot be told
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
-  google.protobuf.Timestamp valid_from = 34;
-  google.protobuf.Timestamp valid_to = 36;
-  // Clear valid_to instead of writing it.
+  google.protobuf.Timestamp date_start = 34;
+  google.protobuf.Timestamp date_end = 36;
+  // Clear date_end instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and valid_to clears.
-  bool valid_to_null = 37;
+  // outright: setting both this and date_end clears.
+  bool date_end_null = 37;
   bytes event_id = 38;
-  google.protobuf.Timestamp superseded_at = 40;
-  // Clear superseded_at instead of writing it.
+  google.protobuf.Timestamp date_superseded = 40;
+  // Clear date_superseded instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and superseded_at clears.
-  bool superseded_at_null = 41;
+  // outright: setting both this and date_superseded clears.
+  bool date_superseded_null = 41;
   bytes superseded_by = 42;
   // Clear superseded_by instead of writing it.
   // It takes a field of its own because an unset value already means

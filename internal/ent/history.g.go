@@ -39,13 +39,13 @@ func (e *Placement) Proto() *loft.Placement {
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	x.SetUTo(e.UTo)
-	x.SetValidFrom(timestamppb.New(e.ValidFrom))
-	if e.ValidTo != nil {
-		x.SetValidTo(timestamppb.New(*e.ValidTo))
+	x.SetDateStart(timestamppb.New(e.DateStart))
+	if e.DateEnd != nil {
+		x.SetDateEnd(timestamppb.New(*e.DateEnd))
 	}
 	x.SetEventId(e.EventId[:])
-	if e.SupersededAt != nil {
-		x.SetSupersededAt(timestamppb.New(*e.SupersededAt))
+	if e.DateSuperseded != nil {
+		x.SetDateSuperseded(timestamppb.New(*e.DateSuperseded))
 	}
 	if e.SupersededBy != nil {
 		x.SetSupersededBy(e.SupersededBy[:])
@@ -81,13 +81,13 @@ func (e *Link) Proto() *loft.Link {
 	x.SetRequired(e.Required)
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	x.SetValidFrom(timestamppb.New(e.ValidFrom))
-	if e.ValidTo != nil {
-		x.SetValidTo(timestamppb.New(*e.ValidTo))
+	x.SetDateStart(timestamppb.New(e.DateStart))
+	if e.DateEnd != nil {
+		x.SetDateEnd(timestamppb.New(*e.DateEnd))
 	}
 	x.SetEventId(e.EventId[:])
-	if e.SupersededAt != nil {
-		x.SetSupersededAt(timestamppb.New(*e.SupersededAt))
+	if e.DateSuperseded != nil {
+		x.SetDateSuperseded(timestamppb.New(*e.DateSuperseded))
 	}
 	if e.SupersededBy != nil {
 		x.SetSupersededBy(e.SupersededBy[:])
@@ -121,13 +121,13 @@ func (e *Stewardship) Proto() *loft.Stewardship {
 	x.SetRole(e.Role)
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	x.SetValidFrom(timestamppb.New(e.ValidFrom))
-	if e.ValidTo != nil {
-		x.SetValidTo(timestamppb.New(*e.ValidTo))
+	x.SetDateStart(timestamppb.New(e.DateStart))
+	if e.DateEnd != nil {
+		x.SetDateEnd(timestamppb.New(*e.DateEnd))
 	}
 	x.SetEventId(e.EventId[:])
-	if e.SupersededAt != nil {
-		x.SetSupersededAt(timestamppb.New(*e.SupersededAt))
+	if e.DateSuperseded != nil {
+		x.SetDateSuperseded(timestamppb.New(*e.DateSuperseded))
 	}
 	if e.SupersededBy != nil {
 		x.SetSupersededBy(e.SupersededBy[:])

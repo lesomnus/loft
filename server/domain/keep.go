@@ -120,7 +120,7 @@ func (t *Tx) keepPatch(req *app.TenantConfigureRequest, patch *app.TenantPatchRe
 			}
 			said.SetKeepDays(k.Days)
 			if u := k.Until(t.now, d.Wait(), retention.Days); !u.IsZero() {
-				said.SetKeepFrom(ts(u))
+				said.SetDateKeepEffective(ts(u))
 			}
 		}
 		if access != nil {
@@ -133,7 +133,7 @@ func (t *Tx) keepPatch(req *app.TenantConfigureRequest, patch *app.TenantPatchRe
 			}
 			said.SetAccessKeepDays(a.Days)
 			if u := a.Until(t.now, d.Wait(), d.AccessDays); !u.IsZero() {
-				said.SetAccessKeepFrom(ts(u))
+				said.SetDateAccessKeepEffective(ts(u))
 			}
 		}
 	}
@@ -188,14 +188,14 @@ func (s domainTenant) Preview(ctx context.Context, req *app.TenantPreviewRequest
 		return t.now
 	}
 	out := app.TenantPreviewResponse_builder{
-		Apply:           d.Apply,
-		Held:            w.Held(),
-		GraceDays:       daysOf(wait),
-		KeepDays:        k.Days,
-		KeepFrom:        ts(from(k, retention.Days)),
-		AccessKeepDays:  daysOf(d.AccessDays(a.Days)),
-		AccessKeepFrom:  ts(from(a, d.AccessDays)),
-		AccessFloorDays: daysOf(d.AccessFloor),
+		Apply:                   d.Apply,
+		Held:                    w.Held(),
+		GraceDays:               daysOf(wait),
+		KeepDays:                k.Days,
+		DateKeepEffective:       ts(from(k, retention.Days)),
+		AccessKeepDays:          daysOf(d.AccessDays(a.Days)),
+		DateAccessKeepEffective: ts(from(a, d.AccessDays)),
+		AccessFloorDays:         daysOf(d.AccessFloor),
 	}.Build()
 	if k.Days == 0 {
 		return out, nil

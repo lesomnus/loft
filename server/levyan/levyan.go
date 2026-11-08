@@ -217,11 +217,11 @@ func (c *Client) Send(ctx context.Context, rs []meter.Reading) error {
 	vs := make([]*levyanv1.Reading, 0, len(rs))
 	for _, r := range rs {
 		vs = append(vs, levyanv1.Reading_builder{
-			Workspace:  r.Tenant.String(),
-			Meter:      r.Meter,
-			MeasuredAt: timestamppb.New(r.MeasuredAt),
-			Value:      r.Value,
-			Unit:       r.Unit,
+			Workspace:    r.Tenant.String(),
+			Meter:        r.Meter,
+			DateMeasured: timestamppb.New(r.MeasuredAt),
+			Value:        r.Value,
+			Unit:         r.Unit,
 		}.Build())
 	}
 
@@ -290,9 +290,9 @@ func (c *Client) Arrive(ctx context.Context, workspace, creator pdid.Id, created
 	defer cancel()
 
 	_, err := c.workspaces.Arrive(call, levyanv1.ArriveRequest_builder{
-		Workspace: workspace.String(),
-		Creator:   creator.String(),
-		Created:   timestamppb.New(created),
+		Workspace:   workspace.String(),
+		Creator:     creator.String(),
+		DateCreated: timestamppb.New(created),
 	}.Build())
 	return err
 }
@@ -322,8 +322,8 @@ func (c *Client) CloseWorkspace(ctx context.Context, workspace pdid.Id, at time.
 	defer cancel()
 
 	res, err := c.workspaces.Close(call, levyanv1.CloseRequest_builder{
-		Workspace: workspace.String(),
-		At:        timestamppb.New(at),
+		Workspace:    workspace.String(),
+		DateOccurred: timestamppb.New(at),
 	}.Build())
 	if err != nil {
 		return err
@@ -339,8 +339,8 @@ func (c *Client) RestoreWorkspace(ctx context.Context, workspace pdid.Id, at tim
 	defer cancel()
 
 	res, err := c.workspaces.Restore(call, levyanv1.RestoreRequest_builder{
-		Workspace: workspace.String(),
-		At:        timestamppb.New(at),
+		Workspace:    workspace.String(),
+		DateOccurred: timestamppb.New(at),
 	}.Build())
 	if err != nil {
 		return err
@@ -358,8 +358,8 @@ func (c *Client) DestroyWorkspace(ctx context.Context, workspace pdid.Id, at tim
 	defer cancel()
 
 	res, err := c.workspaces.Destroy(call, levyanv1.DestroyRequest_builder{
-		Workspace: workspace.String(),
-		At:        timestamppb.New(at),
+		Workspace:    workspace.String(),
+		DateOccurred: timestamppb.New(at),
 	}.Build())
 	if err != nil {
 		return err

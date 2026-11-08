@@ -61,16 +61,16 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 			if kind != "repair" {
 				return grpcstatus.Error(codes.PermissionDenied, "구성원은 고장 신고만 할 수 있습니다")
 			}
-			if req.GetBlocking() || req.HasBeginsAt() || req.HasEndsAt() || req.GetEveryDays() != 0 || req.GetCost() != 0 || req.HasVendor() {
+			if req.GetBlocking() || req.HasDateStart() || req.HasDateEnd() || req.GetEveryDays() != 0 || req.GetCost() != 0 || req.HasVendor() {
 				return grpcstatus.Error(codes.PermissionDenied, "일정과 비용은 매니저가 정합니다")
 			}
 		}
 		status := "open"
-		if req.HasBeginsAt() {
+		if req.HasDateStart() {
 			status = "scheduled"
 		}
-		if req.HasBeginsAt() && req.HasEndsAt() && !req.GetEndsAt().AsTime().After(req.GetBeginsAt().AsTime()) {
-			return invalid("ends_at", "끝은 시작보다 뒤여야 합니다")
+		if req.HasDateStart() && req.HasDateEnd() && !req.GetDateEnd().AsTime().After(req.GetDateStart().AsTime()) {
+			return invalid("date_end", "끝은 시작보다 뒤여야 합니다")
 		}
 		wid := pdid.New(pd.WorkOrderDomain)
 		if err := t.begin(nil, "work.open", aid, t.now, "", app.WorkOrderSaved_builder{
@@ -96,11 +96,11 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 			Blocking:  req.GetBlocking(),
 			EveryDays: req.GetEveryDays(),
 		}.Build()
-		if req.HasBeginsAt() {
-			row.SetBeginsAt(req.GetBeginsAt())
+		if req.HasDateStart() {
+			row.SetDateStart(req.GetDateStart())
 		}
-		if req.HasEndsAt() {
-			row.SetEndsAt(req.GetEndsAt())
+		if req.HasDateEnd() {
+			row.SetDateEnd(req.GetDateEnd())
 		}
 		if req.HasVendor() {
 			row.SetVendor(req.GetVendor())
@@ -134,7 +134,7 @@ func (t *Tx) block(w *app.WorkOrder) error {
 	if err != nil {
 		return err
 	}
-	want := w.GetBlocking() && w.HasBeginsAt() && w.HasEndsAt() && !slices.Contains([]string{"done", "cancelled"}, w.GetStatus())
+	want := w.GetBlocking() && w.HasDateStart() && w.HasDateEnd() && !slices.Contains([]string{"done", "cancelled"}, w.GetStatus())
 	if !want {
 		for _, a := range as {
 			if a.Blocking {
@@ -152,8 +152,8 @@ func (t *Tx) block(w *app.WorkOrder) error {
 	if len(as) > 0 {
 		_, err := t.next.Allocation().Patch(t.ctx, app.AllocationPatchRequest_builder{
 			Ref:              app.AllocationRef_builder{Id: pdid.Id(as[0].Id).Bytes()}.Build(),
-			BeginsAt:         w.GetBeginsAt(),
-			EndsAt:           w.GetEndsAt(),
+			DateStart:        w.GetDateStart(),
+			DateEnd:          w.GetDateEnd(),
 			Blocking:         z.Ptr(true),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
@@ -164,8 +164,8 @@ func (t *Tx) block(w *app.WorkOrder) error {
 		Resource:  app.AssetRef_builder{Id: w.GetAsset().GetId()}.Build(),
 		Kind:      "maintenance",
 		RefId:     wid.Bytes(),
-		BeginsAt:  w.GetBeginsAt(),
-		EndsAt:    w.GetEndsAt(),
+		DateStart: w.GetDateStart(),
+		DateEnd:   w.GetDateEnd(),
 		Blocking:  true,
 		Exclusive: true,
 		Units:     1,
@@ -193,11 +193,11 @@ func (s domainWorkOrder) Update(ctx context.Context, req *app.WorkOrderUpdateReq
 			}
 			patch.SetStatus(v)
 		}
-		if req.HasBeginsAt() {
-			patch.SetBeginsAt(req.GetBeginsAt())
+		if req.HasDateStart() {
+			patch.SetDateStart(req.GetDateStart())
 		}
-		if req.HasEndsAt() {
-			patch.SetEndsAt(req.GetEndsAt())
+		if req.HasDateEnd() {
+			patch.SetDateEnd(req.GetDateEnd())
 		}
 		if req.GetCost() != 0 {
 			patch.SetCost(req.GetCost())
@@ -280,7 +280,7 @@ func (s domainWorkOrder) finish(ctx context.Context, req *app.WorkOrderCompleteR
 		}
 		patch := app.WorkOrderPatchRequest_builder{Ref: req.GetRef(), Status: z.Ptr(state), DateUpdatedForce: z.Ptr(true)}.Build()
 		if state == "done" {
-			patch.SetCompletedAt(ts(t.now))
+			patch.SetDateCompleted(ts(t.now))
 			if req.GetCost() != 0 {
 				patch.SetCost(req.GetCost())
 			}
@@ -318,13 +318,13 @@ func (s domainWorkOrder) finish(ctx context.Context, req *app.WorkOrderCompleteR
 				Asset:     app.AssetRef_builder{Id: aid.Bytes()}.Build(),
 				Kind:      w.GetKind(),
 				Status:    "scheduled",
-				BeginsAt:  timestamppb.New(next),
+				DateStart: timestamppb.New(next),
 				Currency:  w.GetCurrency(),
 				Blocking:  w.GetBlocking(),
 				EveryDays: w.GetEveryDays(),
 			}.Build()
-			if w.HasBeginsAt() && w.HasEndsAt() {
-				row.SetEndsAt(timestamppb.New(next.Add(w.GetEndsAt().AsTime().Sub(w.GetBeginsAt().AsTime()))))
+			if w.HasDateStart() && w.HasDateEnd() {
+				row.SetDateEnd(timestamppb.New(next.Add(w.GetDateEnd().AsTime().Sub(w.GetDateStart().AsTime()))))
 			}
 			nw, err := t.next.WorkOrder().Add(t.ctx, row)
 			if err != nil {
@@ -401,18 +401,18 @@ func (s domainPurchase) Add(ctx context.Context, req *app.PurchaseAddRequest) (*
 			return err
 		}
 		row := app.PurchaseAddRequest_builder{
-			Id:        pid.Bytes(),
-			Tenant:    t.tenantRef(),
-			Name:      name,
-			Desc:      req.GetDesc(),
-			Reference: req.GetReference(),
-			Status:    "ordered",
-			OrderedAt: ts(t.now),
-			Currency:  currency,
-			Total:     total,
+			Id:          pid.Bytes(),
+			Tenant:      t.tenantRef(),
+			Name:        name,
+			Desc:        req.GetDesc(),
+			Reference:   req.GetReference(),
+			Status:      "ordered",
+			DateOrdered: ts(t.now),
+			Currency:    currency,
+			Total:       total,
 		}.Build()
-		if req.HasOrderedAt() {
-			row.SetOrderedAt(req.GetOrderedAt())
+		if req.HasDateOrdered() {
+			row.SetDateOrdered(req.GetDateOrdered())
 		}
 		if req.HasVendor() {
 			row.SetVendor(req.GetVendor())
@@ -503,7 +503,7 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 				return err
 			}
 		}
-		at, err := t.at(req.GetAt(), "at")
+		at, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}
@@ -517,12 +517,12 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 			}
 			for range a.left {
 				add := app.AssetAddRequest_builder{
-					Name:       or(a.model.GetName(), or(a.line.Desc, "구매 자산")),
-					Kind:       "item",
-					To:         app.AssetRef_builder{Id: intoId.Bytes()}.Build(),
-					AcquiredAt: ts(at),
-					Since:      ts(at),
-					Attributes: map[string]string{},
+					Name:         or(a.model.GetName(), or(a.line.Desc, "구매 자산")),
+					Kind:         "item",
+					To:           app.AssetRef_builder{Id: intoId.Bytes()}.Build(),
+					DateAcquired: ts(at),
+					DateOccurred: ts(at),
+					Attributes:   map[string]string{},
 				}.Build()
 				if a.model != nil {
 					add.SetModel(app.ItemModelRef_builder{Id: a.model.GetId()}.Build())
@@ -544,7 +544,7 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 			if len(in.issues) > 0 {
 				// A line's model and type are the purchase's; where they
 				// go is `into`.
-				return in.refusalAs(map[string]string{"tag": "tag_prefix", "type": "ref", "model": "ref", "attributes": "ref", "to": "into", "since": "at", "acquired_at": "at"})
+				return in.refusalAs(map[string]string{"tag": "tag_prefix", "type": "ref", "model": "ref", "attributes": "ref", "to": "into", "date_occurred": "date_occurred", "date_acquired": "date_occurred"})
 			}
 		}
 
@@ -600,7 +600,7 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 		v, err := t.next.Purchase().Patch(t.ctx, app.PurchasePatchRequest_builder{
 			Ref:              req.GetRef(),
 			Status:           z.Ptr("received"),
-			ReceivedAt:       ts(at),
+			DateReceived:     ts(at),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
 		if err != nil {

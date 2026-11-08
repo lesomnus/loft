@@ -18,20 +18,20 @@ const (
 	FieldKind = "kind"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldIssuedAt holds the string denoting the issued_at field in the database.
-	FieldIssuedAt = "issued_at"
-	// FieldDueAt holds the string denoting the due_at field in the database.
-	FieldDueAt = "due_at"
+	// FieldDateIssued holds the string denoting the date_issued field in the database.
+	FieldDateIssued = "date_issued"
+	// FieldDateDue holds the string denoting the date_due field in the database.
+	FieldDateDue = "date_due"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
-	// FieldAcknowledgedAt holds the string denoting the acknowledged_at field in the database.
-	FieldAcknowledgedAt = "acknowledged_at"
-	// FieldReturnedAt holds the string denoting the returned_at field in the database.
-	FieldReturnedAt = "returned_at"
+	// FieldDateAcknowledged holds the string denoting the date_acknowledged field in the database.
+	FieldDateAcknowledged = "date_acknowledged"
+	// FieldDateReturned holds the string denoting the date_returned field in the database.
+	FieldDateReturned = "date_returned"
 	// FieldReservationId holds the string denoting the reservation_id field in the database.
 	FieldReservationId = "reservation_id"
 	// FieldIssuedBy holds the string denoting the issued_by field in the database.
@@ -70,13 +70,13 @@ var Columns = []string{
 	FieldDesc,
 	FieldKind,
 	FieldStatus,
-	FieldIssuedAt,
-	FieldDueAt,
+	FieldDateIssued,
+	FieldDateDue,
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
-	FieldAcknowledgedAt,
-	FieldReturnedAt,
+	FieldDateAcknowledged,
+	FieldDateReturned,
 	FieldReservationId,
 	FieldIssuedBy,
 	FieldOverdueNoticed,
@@ -117,14 +117,14 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByIssuedAt orders the results by the issued_at field.
-func ByIssuedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldIssuedAt, opts...).ToFunc()
+// ByDateIssued orders the results by the date_issued field.
+func ByDateIssued(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateIssued, opts...).ToFunc()
 }
 
-// ByDueAt orders the results by the due_at field.
-func ByDueAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDueAt, opts...).ToFunc()
+// ByDateDue orders the results by the date_due field.
+func ByDateDue(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateDue, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.
@@ -142,14 +142,14 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
 }
 
-// ByAcknowledgedAt orders the results by the acknowledged_at field.
-func ByAcknowledgedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAcknowledgedAt, opts...).ToFunc()
+// ByDateAcknowledged orders the results by the date_acknowledged field.
+func ByDateAcknowledged(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateAcknowledged, opts...).ToFunc()
 }
 
-// ByReturnedAt orders the results by the returned_at field.
-func ByReturnedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldReturnedAt, opts...).ToFunc()
+// ByDateReturned orders the results by the date_returned field.
+func ByDateReturned(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateReturned, opts...).ToFunc()
 }
 
 // ByReservationId orders the results by the reservation_id field.

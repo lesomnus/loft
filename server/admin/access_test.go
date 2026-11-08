@@ -71,7 +71,7 @@ func TestTheDeploymentsAccessRecordIsTheOperatorsToRead(t *testing.T) {
 	byOwner, byAlice := 0, 0
 	for i, r := range rows {
 		if i > 0 {
-			x.False(r.GetAt().AsTime().After(rows[i-1].GetAt().AsTime()), "the newest first")
+			x.False(r.GetDateCreated().AsTime().After(rows[i-1].GetDateCreated().AsTime()), "the newest first")
 		}
 		switch pdid.Id(uuid.UUID(r.GetActor())) {
 		case pdid.Id(owner.Id):
@@ -98,10 +98,10 @@ func TestTheDeploymentsAccessRecordIsTheOperatorsToRead(t *testing.T) {
 	x.NotEmpty(list(app.OperatorAccessListRequest_builder{Tenant: app.OperatorTenantRef_builder{Alias: z.Ptr("acme")}.Build()}.Build()))
 	x.Len(list(app.OperatorAccessListRequest_builder{Size: 1}.Build()), 1)
 	later := time.Now().Add(time.Hour)
-	x.Empty(list(app.OperatorAccessListRequest_builder{From: timestamppb.New(later), To: timestamppb.New(later.Add(time.Hour))}.Build()))
+	x.Empty(list(app.OperatorAccessListRequest_builder{DateFrom: timestamppb.New(later), DateTo: timestamppb.New(later.Add(time.Hour))}.Build()))
 	for _, req := range []*app.OperatorAccessListRequest{
 		app.OperatorAccessListRequest_builder{Kind: "glance"}.Build(),
-		app.OperatorAccessListRequest_builder{From: timestamppb.New(later), To: timestamppb.New(time.Now())}.Build(),
+		app.OperatorAccessListRequest_builder{DateFrom: timestamppb.New(later), DateTo: timestamppb.New(time.Now())}.Build(),
 		app.OperatorAccessListRequest_builder{Actor: []byte{1, 2, 3}}.Build(),
 	} {
 		_, err := records.List(ctx, req)
@@ -130,9 +130,9 @@ func TestTheDeploymentsAccessRecordIsTheOperatorsToRead(t *testing.T) {
 	asOwnerHere := frame.Into(bg, frame.New(pdid.Id(owner.Id), pdid.Id(acme), frame.Whole()).WithScope(frame.Only(pdid.Id(acme))))
 	now := time.Now()
 	_, err = e.s.Walled.AccessReview().Add(asOwnerHere, app.AccessReviewAddRequest_builder{
-		PeriodFrom: timestamppb.New(now.Add(-24 * time.Hour)),
-		PeriodTo:   timestamppb.New(now),
-		Desc:       "이상 없음",
+		DateStart: timestamppb.New(now.Add(-24 * time.Hour)),
+		DateEnd:   timestamppb.New(now),
+		Desc:      "이상 없음",
 	}.Build())
 	x.NoError(err)
 	reviewed, err := app.NewAccessReviewServiceClient(e.conn).List(ctx, app.AccessReviewListRequest_builder{}.Build())

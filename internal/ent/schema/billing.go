@@ -23,7 +23,7 @@ func (LevyanNotice) Fields() []ent.Field {
 		field.String("kind"),
 		field.Uuid("workspace"),
 		field.Uuid("account"),
-		field.Time("at").
+		field.Time("date_occurred").
 			Optional(),
 		field.Time("date_told").
 			Nillable().
@@ -38,7 +38,7 @@ func (LevyanNotice) Fields() []ent.Field {
 
 func (LevyanNotice) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_told", "at").
+		index.Fields("date_told", "date_occurred").
 			StorageKey("levyannotice_waiting"),
 		index.Fields("workspace", "kind").
 			StorageKey("levyannotice_workspace"),

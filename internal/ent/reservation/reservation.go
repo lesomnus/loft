@@ -20,26 +20,26 @@ const (
 	FieldRequestedBy = "requested_by"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldBeginsAt holds the string denoting the begins_at field in the database.
-	FieldBeginsAt = "begins_at"
-	// FieldEndsAt holds the string denoting the ends_at field in the database.
-	FieldEndsAt = "ends_at"
+	// FieldDateStart holds the string denoting the date_start field in the database.
+	FieldDateStart = "date_start"
+	// FieldDateEnd holds the string denoting the date_end field in the database.
+	FieldDateEnd = "date_end"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
-	// FieldExpiresAt holds the string denoting the expires_at field in the database.
-	FieldExpiresAt = "expires_at"
+	// FieldDateExpires holds the string denoting the date_expires field in the database.
+	FieldDateExpires = "date_expires"
 	// FieldRrule holds the string denoting the rrule field in the database.
 	FieldRrule = "rrule"
 	// FieldSeriesId holds the string denoting the series_id field in the database.
 	FieldSeriesId = "series_id"
 	// FieldDecidedBy holds the string denoting the decided_by field in the database.
 	FieldDecidedBy = "decided_by"
-	// FieldCheckedInAt holds the string denoting the checked_in_at field in the database.
-	FieldCheckedInAt = "checked_in_at"
+	// FieldDateCheckedIn holds the string denoting the date_checked_in field in the database.
+	FieldDateCheckedIn = "date_checked_in"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// FieldPartyId holds the string denoting the party_id field in the database.
@@ -73,16 +73,16 @@ var Columns = []string{
 	FieldDesc,
 	FieldRequestedBy,
 	FieldStatus,
-	FieldBeginsAt,
-	FieldEndsAt,
+	FieldDateStart,
+	FieldDateEnd,
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
-	FieldExpiresAt,
+	FieldDateExpires,
 	FieldRrule,
 	FieldSeriesId,
 	FieldDecidedBy,
-	FieldCheckedInAt,
+	FieldDateCheckedIn,
 	FieldTenantId,
 	FieldPartyId,
 }
@@ -125,14 +125,14 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByBeginsAt orders the results by the begins_at field.
-func ByBeginsAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBeginsAt, opts...).ToFunc()
+// ByDateStart orders the results by the date_start field.
+func ByDateStart(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateStart, opts...).ToFunc()
 }
 
-// ByEndsAt orders the results by the ends_at field.
-func ByEndsAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEndsAt, opts...).ToFunc()
+// ByDateEnd orders the results by the date_end field.
+func ByDateEnd(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateEnd, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.
@@ -150,9 +150,9 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
 }
 
-// ByExpiresAt orders the results by the expires_at field.
-func ByExpiresAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldExpiresAt, opts...).ToFunc()
+// ByDateExpires orders the results by the date_expires field.
+func ByDateExpires(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateExpires, opts...).ToFunc()
 }
 
 // ByRrule orders the results by the rrule field.
@@ -170,9 +170,9 @@ func ByDecidedBy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDecidedBy, opts...).ToFunc()
 }
 
-// ByCheckedInAt orders the results by the checked_in_at field.
-func ByCheckedInAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCheckedInAt, opts...).ToFunc()
+// ByDateCheckedIn orders the results by the date_checked_in field.
+func ByDateCheckedIn(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateCheckedIn, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.

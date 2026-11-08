@@ -58,43 +58,43 @@ func (_u *StewardshipUpdate) SetNillableDateUpdated(v *time.Time) *StewardshipUp
 	return _u
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_u *StewardshipUpdate) SetValidFrom(v time.Time) *StewardshipUpdate {
-	_u.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_u *StewardshipUpdate) SetDateStart(v time.Time) *StewardshipUpdate {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_u *StewardshipUpdate) SetNillableValidFrom(v *time.Time) *StewardshipUpdate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *StewardshipUpdate) SetNillableDateStart(v *time.Time) *StewardshipUpdate {
 	if v != nil {
-		_u.SetValidFrom(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearValidFrom clears the value of the "valid_from" field.
-func (_u *StewardshipUpdate) ClearValidFrom() *StewardshipUpdate {
-	_u.mutation.ClearValidFrom()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *StewardshipUpdate) ClearDateStart() *StewardshipUpdate {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_u *StewardshipUpdate) SetValidTo(v time.Time) *StewardshipUpdate {
-	_u.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *StewardshipUpdate) SetDateEnd(v time.Time) *StewardshipUpdate {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_u *StewardshipUpdate) SetNillableValidTo(v *time.Time) *StewardshipUpdate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *StewardshipUpdate) SetNillableDateEnd(v *time.Time) *StewardshipUpdate {
 	if v != nil {
-		_u.SetValidTo(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearValidTo clears the value of the "valid_to" field.
-func (_u *StewardshipUpdate) ClearValidTo() *StewardshipUpdate {
-	_u.mutation.ClearValidTo()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *StewardshipUpdate) ClearDateEnd() *StewardshipUpdate {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -112,23 +112,23 @@ func (_u *StewardshipUpdate) SetNillableEventId(v *uuid.UUID) *StewardshipUpdate
 	return _u
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_u *StewardshipUpdate) SetSupersededAt(v time.Time) *StewardshipUpdate {
-	_u.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_u *StewardshipUpdate) SetDateSuperseded(v time.Time) *StewardshipUpdate {
+	_u.mutation.SetDateSuperseded(v)
 	return _u
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_u *StewardshipUpdate) SetNillableSupersededAt(v *time.Time) *StewardshipUpdate {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_u *StewardshipUpdate) SetNillableDateSuperseded(v *time.Time) *StewardshipUpdate {
 	if v != nil {
-		_u.SetSupersededAt(*v)
+		_u.SetDateSuperseded(*v)
 	}
 	return _u
 }
 
-// ClearSupersededAt clears the value of the "superseded_at" field.
-func (_u *StewardshipUpdate) ClearSupersededAt() *StewardshipUpdate {
-	_u.mutation.ClearSupersededAt()
+// ClearDateSuperseded clears the value of the "date_superseded" field.
+func (_u *StewardshipUpdate) ClearDateSuperseded() *StewardshipUpdate {
+	_u.mutation.ClearDateSuperseded()
 	return _u
 }
 
@@ -231,23 +231,23 @@ func (_u *StewardshipUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(stewardship.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidFrom(); ok {
-		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(stewardship.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(stewardship.FieldValidFrom); ok {
-		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldDateStart); ok {
+		_spec.SetField(stewardship.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.ValidFromCleared() {
-		_spec.ClearField(stewardship.FieldValidFrom, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(stewardship.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidTo(); ok {
-		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(stewardship.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(stewardship.FieldValidTo); ok {
-		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldDateEnd); ok {
+		_spec.SetField(stewardship.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.ValidToCleared() {
-		_spec.ClearField(stewardship.FieldValidTo, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(stewardship.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, value)
@@ -255,14 +255,14 @@ func (_u *StewardshipUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if e, ok := _u.mutation.FieldExpr(stewardship.FieldEventId); ok {
 		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.SupersededAt(); ok {
-		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateSuperseded(); ok {
+		_spec.SetField(stewardship.FieldDateSuperseded, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(stewardship.FieldSupersededAt); ok {
-		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldDateSuperseded); ok {
+		_spec.SetField(stewardship.FieldDateSuperseded, field.TypeTime, e)
 	}
-	if _u.mutation.SupersededAtCleared() {
-		_spec.ClearField(stewardship.FieldSupersededAt, field.TypeTime)
+	if _u.mutation.DateSupersededCleared() {
+		_spec.ClearField(stewardship.FieldDateSuperseded, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(stewardship.FieldSupersededBy, field.TypeUuid, value)
@@ -323,43 +323,43 @@ func (_u *StewardshipUpdateOne) SetNillableDateUpdated(v *time.Time) *Stewardshi
 	return _u
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_u *StewardshipUpdateOne) SetValidFrom(v time.Time) *StewardshipUpdateOne {
-	_u.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_u *StewardshipUpdateOne) SetDateStart(v time.Time) *StewardshipUpdateOne {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_u *StewardshipUpdateOne) SetNillableValidFrom(v *time.Time) *StewardshipUpdateOne {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *StewardshipUpdateOne) SetNillableDateStart(v *time.Time) *StewardshipUpdateOne {
 	if v != nil {
-		_u.SetValidFrom(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearValidFrom clears the value of the "valid_from" field.
-func (_u *StewardshipUpdateOne) ClearValidFrom() *StewardshipUpdateOne {
-	_u.mutation.ClearValidFrom()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *StewardshipUpdateOne) ClearDateStart() *StewardshipUpdateOne {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_u *StewardshipUpdateOne) SetValidTo(v time.Time) *StewardshipUpdateOne {
-	_u.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *StewardshipUpdateOne) SetDateEnd(v time.Time) *StewardshipUpdateOne {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_u *StewardshipUpdateOne) SetNillableValidTo(v *time.Time) *StewardshipUpdateOne {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *StewardshipUpdateOne) SetNillableDateEnd(v *time.Time) *StewardshipUpdateOne {
 	if v != nil {
-		_u.SetValidTo(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearValidTo clears the value of the "valid_to" field.
-func (_u *StewardshipUpdateOne) ClearValidTo() *StewardshipUpdateOne {
-	_u.mutation.ClearValidTo()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *StewardshipUpdateOne) ClearDateEnd() *StewardshipUpdateOne {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -377,23 +377,23 @@ func (_u *StewardshipUpdateOne) SetNillableEventId(v *uuid.UUID) *StewardshipUpd
 	return _u
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_u *StewardshipUpdateOne) SetSupersededAt(v time.Time) *StewardshipUpdateOne {
-	_u.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_u *StewardshipUpdateOne) SetDateSuperseded(v time.Time) *StewardshipUpdateOne {
+	_u.mutation.SetDateSuperseded(v)
 	return _u
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_u *StewardshipUpdateOne) SetNillableSupersededAt(v *time.Time) *StewardshipUpdateOne {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_u *StewardshipUpdateOne) SetNillableDateSuperseded(v *time.Time) *StewardshipUpdateOne {
 	if v != nil {
-		_u.SetSupersededAt(*v)
+		_u.SetDateSuperseded(*v)
 	}
 	return _u
 }
 
-// ClearSupersededAt clears the value of the "superseded_at" field.
-func (_u *StewardshipUpdateOne) ClearSupersededAt() *StewardshipUpdateOne {
-	_u.mutation.ClearSupersededAt()
+// ClearDateSuperseded clears the value of the "date_superseded" field.
+func (_u *StewardshipUpdateOne) ClearDateSuperseded() *StewardshipUpdateOne {
+	_u.mutation.ClearDateSuperseded()
 	return _u
 }
 
@@ -526,23 +526,23 @@ func (_u *StewardshipUpdateOne) sqlSave(ctx context.Context) (_node *Stewardship
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(stewardship.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidFrom(); ok {
-		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(stewardship.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(stewardship.FieldValidFrom); ok {
-		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldDateStart); ok {
+		_spec.SetField(stewardship.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.ValidFromCleared() {
-		_spec.ClearField(stewardship.FieldValidFrom, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(stewardship.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidTo(); ok {
-		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(stewardship.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(stewardship.FieldValidTo); ok {
-		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldDateEnd); ok {
+		_spec.SetField(stewardship.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.ValidToCleared() {
-		_spec.ClearField(stewardship.FieldValidTo, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(stewardship.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, value)
@@ -550,14 +550,14 @@ func (_u *StewardshipUpdateOne) sqlSave(ctx context.Context) (_node *Stewardship
 	if e, ok := _u.mutation.FieldExpr(stewardship.FieldEventId); ok {
 		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.SupersededAt(); ok {
-		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateSuperseded(); ok {
+		_spec.SetField(stewardship.FieldDateSuperseded, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(stewardship.FieldSupersededAt); ok {
-		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldDateSuperseded); ok {
+		_spec.SetField(stewardship.FieldDateSuperseded, field.TypeTime, e)
 	}
-	if _u.mutation.SupersededAtCleared() {
-		_spec.ClearField(stewardship.FieldSupersededAt, field.TypeTime)
+	if _u.mutation.DateSupersededCleared() {
+		_spec.ClearField(stewardship.FieldDateSuperseded, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(stewardship.FieldSupersededBy, field.TypeUuid, value)

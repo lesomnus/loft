@@ -22,8 +22,8 @@ message WorkOrderUpdateRequest {
   string name = 2 [features.field_presence = IMPLICIT];
   string desc = 3 [features.field_presence = IMPLICIT];
   string status = 4 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp begins_at = 5;
-  google.protobuf.Timestamp ends_at = 6;
+  google.protobuf.Timestamp date_start = 5;
+  google.protobuf.Timestamp date_end = 6;
   // In `currency`'s minor unit, or the work's.
   int64 cost = 7 [features.field_presence = IMPLICIT];
   // A work that has a cost moves to another currency only with `cost` said
@@ -65,7 +65,7 @@ message PurchaseReceiveRequest {
   PurchaseRef ref = 1;
   AssetRef into = 2;
   string tag_prefix = 3 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp at = 4;
+  google.protobuf.Timestamp date_occurred = 4;
 }
 
 message PurchaseReceiveResponse {

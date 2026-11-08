@@ -72,11 +72,11 @@ func TestALivePageHearsOfChanges(t *testing.T) {
 		x.NoError(err)
 		at := time.Now().AddDate(0, 0, 1).Truncate(time.Hour)
 		_, err = app.NewReservationServiceClient(w.conn).Add(w.owner, app.ReservationAddRequest_builder{
-			Name:     "회의",
-			Party:    app.PartyRef_builder{Id: lee.GetId()}.Build(),
-			BeginsAt: timestamppb.New(at),
-			EndsAt:   timestamppb.New(at.Add(time.Hour)),
-			Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: room.GetId()}.Build()}.Build()},
+			Name:      "회의",
+			Party:     app.PartyRef_builder{Id: lee.GetId()}.Build(),
+			DateStart: timestamppb.New(at),
+			DateEnd:   timestamppb.New(at.Add(time.Hour)),
+			Items:     []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: room.GetId()}.Build()}.Build()},
 		}.Build())
 		x.NoError(err)
 		v, err := s.Recv()

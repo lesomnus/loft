@@ -110,7 +110,7 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 				return err
 			}
 		}
-		since, err := t.at(req.GetSince(), "since")
+		since, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}
@@ -221,7 +221,7 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 
 		// What it starts as, from when it was: each of its fields that is a
 		// fact of it, in one statement (payday#84).
-		if err := t.op.Set(t.ctx, past.Fact{Subject: id, From: since, Values: past.Changes(nil, assetFacts(a))}); err != nil {
+		if err := t.op.Set(t.ctx, past.Fact{Subject: id, DateStart: since, Values: past.Changes(nil, assetFacts(a))}); err != nil {
 			return err
 		}
 
@@ -297,7 +297,7 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 			}
 		}
 
-		ps, err := t.db.Placement.Query().Where(placement.TenantId(t.tenant.Uuid()), placement.ChildId(id.Uuid()), placement.SupersededAtIsNil()).Ids(t.ctx)
+		ps, err := t.db.Placement.Query().Where(placement.TenantId(t.tenant.Uuid()), placement.ChildId(id.Uuid()), placement.DateSupersededIsNil()).Ids(t.ctx)
 		if err != nil {
 			return err
 		}
@@ -306,7 +306,7 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 				return err
 			}
 		}
-		ss, err := t.db.Stewardship.Query().Where(stewardship.TenantId(t.tenant.Uuid()), stewardship.AssetId(id.Uuid()), stewardship.SupersededAtIsNil()).Ids(t.ctx)
+		ss, err := t.db.Stewardship.Query().Where(stewardship.TenantId(t.tenant.Uuid()), stewardship.AssetId(id.Uuid()), stewardship.DateSupersededIsNil()).Ids(t.ctx)
 		if err != nil {
 			return err
 		}
@@ -315,7 +315,7 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 				return err
 			}
 		}
-		ls, err := t.db.Link.Query().Where(link.TenantId(t.tenant.Uuid()), link.Or(link.SourceId(id.Uuid()), link.TargetId(id.Uuid())), link.SupersededAtIsNil()).All(t.ctx)
+		ls, err := t.db.Link.Query().Where(link.TenantId(t.tenant.Uuid()), link.Or(link.SourceId(id.Uuid()), link.TargetId(id.Uuid())), link.DateSupersededIsNil()).All(t.ctx)
 		if err != nil {
 			return err
 		}
@@ -406,7 +406,7 @@ func (s domainAsset) Move(ctx context.Context, req *app.AssetMoveRequest) (*app.
 		if err := t.lockTree(); err != nil {
 			return err
 		}
-		at, err := t.at(req.GetAt(), "at")
+		at, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}
@@ -494,8 +494,8 @@ func or(v, otherwise string) string {
 // placements reads a child's current-knowledge placement rows.
 func (t *Tx) placements(child uuid.UUID) (timeline[place], error) {
 	rs, err := t.db.Placement.Query().
-		Where(placement.TenantId(t.tenant.Uuid()), placement.ChildId(child), placement.SupersededAtIsNil()).
-		Order(placement.ByValidFrom()).
+		Where(placement.TenantId(t.tenant.Uuid()), placement.ChildId(child), placement.DateSupersededIsNil()).
+		Order(placement.ByDateStart()).
 		All(t.ctx)
 	if err != nil {
 		return nil, err
@@ -505,8 +505,8 @@ func (t *Tx) placements(child uuid.UUID) (timeline[place], error) {
 	for _, r := range rs {
 		tl = append(tl, span[place]{
 			id:    r.Id,
-			from:  r.ValidFrom,
-			to:    r.ValidTo,
+			from:  r.DateStart,
+			to:    r.DateEnd,
 			state: place{parent: r.ParentId, mode: r.Mode, slot: r.Slot, uFrom: r.UFrom, uTo: r.UTo},
 		})
 	}
@@ -554,7 +554,7 @@ func (t *Tx) checkPlacements(child uuid.UUID, tl, old timeline[place], fresh boo
 				placement.ParentId(p),
 				placement.Slot(s.state.slot),
 				placement.ChildIdNEQ(child),
-				placement.SupersededAtIsNil(),
+				placement.DateSupersededIsNil(),
 				overlapsPlacement(s.from, s.to),
 			).Count(t.ctx)
 			if err != nil {
@@ -572,7 +572,7 @@ func (t *Tx) checkPlacements(child uuid.UUID, tl, old timeline[place], fresh boo
 				placement.UFromLTE(s.state.uTo),
 				placement.UToGTE(s.state.uFrom),
 				placement.ChildIdNEQ(child),
-				placement.SupersededAtIsNil(),
+				placement.DateSupersededIsNil(),
 				overlapsPlacement(s.from, s.to),
 			).Count(t.ctx)
 			if err != nil {
@@ -588,9 +588,9 @@ func (t *Tx) checkPlacements(child uuid.UUID, tl, old timeline[place], fresh boo
 
 // overlapsPlacement is a row whose valid span meets [from, to).
 func overlapsPlacement(from time.Time, to *time.Time) predicate.Placement {
-	ps := []predicate.Placement{placement.Or(placement.ValidToIsNil(), placement.ValidToGT(from))}
+	ps := []predicate.Placement{placement.Or(placement.DateEndIsNil(), placement.DateEndGT(from))}
 	if to != nil {
-		ps = append(ps, placement.ValidFromLT(*to))
+		ps = append(ps, placement.DateStartLT(*to))
 	}
 	return placement.And(ps...)
 }
@@ -605,7 +605,7 @@ func (t *Tx) ancestors(p uuid.UUID, at time.Time, s span[place]) ([]uuid.UUID, [
 		rs, err := t.db.Placement.Query().Where(
 			placement.TenantId(t.tenant.Uuid()),
 			placement.ChildId(cur),
-			placement.SupersededAtIsNil(),
+			placement.DateSupersededIsNil(),
 		).All(t.ctx)
 		if err != nil {
 			return nil, nil, err
@@ -613,10 +613,10 @@ func (t *Tx) ancestors(p uuid.UUID, at time.Time, s span[place]) ([]uuid.UUID, [
 
 		var up uuid.UUID
 		for _, r := range rs {
-			if s.contains(r.ValidFrom) && r.ValidFrom.After(s.from) {
-				changes = append(changes, r.ValidFrom)
+			if s.contains(r.DateStart) && r.DateStart.After(s.from) {
+				changes = append(changes, r.DateStart)
 			}
-			if !r.ValidFrom.After(at) && (r.ValidTo == nil || r.ValidTo.After(at)) {
+			if !r.DateStart.After(at) && (r.DateEnd == nil || r.DateEnd.After(at)) {
 				up = r.ParentId
 			}
 		}
@@ -651,7 +651,7 @@ func (t *Tx) writePlacements(child uuid.UUID, old, tl timeline[place]) error {
 			Slot:      s.state.slot,
 			UFrom:     s.state.uFrom,
 			UTo:       s.state.uTo,
-			ValidFrom: ts(s.from),
+			DateStart: ts(s.from),
 			EventId:   t.ev().Bytes(),
 			// Known from the moment the rows it replaces stopped being known,
 			// and not from whenever the write reads the clock; see
@@ -659,7 +659,7 @@ func (t *Tx) writePlacements(child uuid.UUID, old, tl timeline[place]) error {
 			DateCreated: ts(t.now),
 		}.Build()
 		if s.to != nil {
-			req.SetValidTo(ts(*s.to))
+			req.SetDateEnd(ts(*s.to))
 		}
 		if _, err := t.next.Placement().Add(t.ctx, req); err != nil {
 			return err
@@ -671,7 +671,7 @@ func (t *Tx) writePlacements(child uuid.UUID, old, tl timeline[place]) error {
 func (t *Tx) supersedePlacement(id uuid.UUID) error {
 	_, err := t.next.Placement().Patch(t.ctx, app.PlacementPatchRequest_builder{
 		Ref:              app.PlacementRef_builder{Id: pdid.Id(id).Bytes()}.Build(),
-		SupersededAt:     ts(t.now),
+		DateSuperseded:   ts(t.now),
 		SupersededBy:     t.ev().Bytes(),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
@@ -681,7 +681,7 @@ func (t *Tx) supersedePlacement(id uuid.UUID) error {
 func (t *Tx) supersedeStewardship(id uuid.UUID) error {
 	_, err := t.next.Stewardship().Patch(t.ctx, app.StewardshipPatchRequest_builder{
 		Ref:              app.StewardshipRef_builder{Id: pdid.Id(id).Bytes()}.Build(),
-		SupersededAt:     ts(t.now),
+		DateSuperseded:   ts(t.now),
 		SupersededBy:     t.ev().Bytes(),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
@@ -691,7 +691,7 @@ func (t *Tx) supersedeStewardship(id uuid.UUID) error {
 func (t *Tx) supersedeLink(id uuid.UUID) error {
 	_, err := t.next.Link().Patch(t.ctx, app.LinkPatchRequest_builder{
 		Ref:              app.LinkRef_builder{Id: pdid.Id(id).Bytes()}.Build(),
-		SupersededAt:     ts(t.now),
+		DateSuperseded:   ts(t.now),
 		SupersededBy:     t.ev().Bytes(),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
@@ -775,7 +775,7 @@ func (t *Tx) addFact(id uuid.UUID, key, value string, cleared bool, at time.Time
 	if err != nil {
 		return err
 	}
-	return t.op.Set(t.ctx, past.Fact{Subject: pdid.Id(id), From: at, Values: []past.Value{f}})
+	return t.op.Set(t.ctx, past.Fact{Subject: pdid.Id(id), DateStart: at, Values: []past.Value{f}})
 }
 
 // factsAt answers each asset's facts at `at`, by the keys Loft says them
@@ -821,7 +821,7 @@ func (t *Tx) factsAt(ids []uuid.UUID, at time.Time, known *time.Time) (map[uuid.
 func (s domainAsset) SetAttributes(ctx context.Context, req *app.AssetSetAttributesRequest) (*app.Asset, error) {
 	var out *app.Asset
 	err := s.tx(ctx, func(t *Tx) error {
-		at, err := t.at(req.GetAt(), "at")
+		at, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}
@@ -1031,9 +1031,9 @@ func (t *Tx) sync(id uuid.UUID) (*app.Asset, error) {
 		}
 		req.SetStatus(v)
 		if v == "disposed" {
-			req.SetDisposedAt(ts(t.now))
-		} else if cur.DisposedAt != nil {
-			req.SetDisposedAtNull(true)
+			req.SetDateDisposed(ts(t.now))
+		} else if cur.DateDisposed != nil {
+			req.SetDateDisposedNull(true)
 		}
 	}
 	if v := f["condition"]; v != "" && v != cur.Condition {
@@ -1084,7 +1084,7 @@ func (t *Tx) sync(id uuid.UUID) (*app.Asset, error) {
 func (s domainAsset) Assign(ctx context.Context, req *app.AssetAssignRequest) (*app.Asset, error) {
 	var out *app.Asset
 	err := s.tx(ctx, func(t *Tx) error {
-		at, err := t.at(req.GetAt(), "at")
+		at, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}
@@ -1129,15 +1129,15 @@ func (s domainAsset) Assign(ctx context.Context, req *app.AssetAssignRequest) (*
 // stewards reads an asset's current-knowledge rows in one role.
 func (t *Tx) stewards(id uuid.UUID, role string) (timeline[steward], error) {
 	rs, err := t.db.Stewardship.Query().
-		Where(stewardship.TenantId(t.tenant.Uuid()), stewardship.AssetId(id), stewardship.Role(role), stewardship.SupersededAtIsNil()).
-		Order(stewardship.ByValidFrom()).
+		Where(stewardship.TenantId(t.tenant.Uuid()), stewardship.AssetId(id), stewardship.Role(role), stewardship.DateSupersededIsNil()).
+		Order(stewardship.ByDateStart()).
 		All(t.ctx)
 	if err != nil {
 		return nil, err
 	}
 	tl := timeline[steward]{}
 	for _, r := range rs {
-		tl = append(tl, span[steward]{id: r.Id, from: r.ValidFrom, to: r.ValidTo, state: steward{party: r.PartyId}})
+		tl = append(tl, span[steward]{id: r.Id, from: r.DateStart, to: r.DateEnd, state: steward{party: r.PartyId}})
 	}
 	return tl, nil
 }
@@ -1174,13 +1174,13 @@ func (t *Tx) writeStewards(id uuid.UUID, role string, old, tl timeline[steward])
 			Asset:     assetRef(id),
 			Party:     app.PartyRef_builder{Id: pdid.Id(s.state.party).Bytes()}.Build(),
 			Role:      role,
-			ValidFrom: ts(s.from),
+			DateStart: ts(s.from),
 			EventId:   t.ev().Bytes(),
 			// See [Tx.writePlacements].
 			DateCreated: ts(t.now),
 		}.Build()
 		if s.to != nil {
-			req.SetValidTo(ts(*s.to))
+			req.SetDateEnd(ts(*s.to))
 		}
 		if _, err := t.next.Stewardship().Add(t.ctx, req); err != nil {
 			return err
@@ -1211,7 +1211,7 @@ func (t *Tx) writeStewards(id uuid.UUID, role string, old, tl timeline[steward])
 func (s domainAsset) Relate(ctx context.Context, req *app.AssetRelateRequest) (*app.Asset, error) {
 	var out *app.Asset
 	err := s.tx(ctx, func(t *Tx) error {
-		at, err := t.at(req.GetAt(), "at")
+		at, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}
@@ -1312,8 +1312,8 @@ func (t *Tx) leave(id pdid.Id, at time.Time, refs []*app.AssetRef, reason string
 			link.SourceId(id.Uuid()),
 			link.TargetId(target.Uuid()),
 			link.Kind("member_of"),
-			link.SupersededAtIsNil(),
-			link.ValidToIsNil(),
+			link.DateSupersededIsNil(),
+			link.DateEndIsNil(),
 		).First(t.ctx)
 		if ent.IsNotFound(err) {
 			continue
@@ -1322,19 +1322,19 @@ func (t *Tx) leave(id pdid.Id, at time.Time, refs []*app.AssetRef, reason string
 			return err
 		}
 		end := at
-		if l.ValidFrom.After(end) {
+		if l.DateStart.After(end) {
 			end = t.now
 		}
-		if l.ValidFrom.After(end) {
-			end = l.ValidFrom
+		if l.DateStart.After(end) {
+			end = l.DateStart
 		}
 		if _, err := t.layer().Asset().Relate(t.ctx, app.AssetRelateRequest_builder{
-			Ref:    assetRef(id.Uuid()),
-			Target: assetRef(target.Uuid()),
-			Kind:   "member_of",
-			End:    true,
-			At:     ts(end),
-			Reason: reason,
+			Ref:          assetRef(id.Uuid()),
+			Target:       assetRef(target.Uuid()),
+			Kind:         "member_of",
+			End:          true,
+			DateOccurred: ts(end),
+			Reason:       reason,
 		}.Build()); err != nil {
 			return err
 		}
@@ -1344,15 +1344,15 @@ func (t *Tx) leave(id pdid.Id, at time.Time, refs []*app.AssetRef, reason string
 
 func (t *Tx) links(source, target uuid.UUID, kind string) (timeline[linked], error) {
 	rs, err := t.db.Link.Query().
-		Where(link.TenantId(t.tenant.Uuid()), link.SourceId(source), link.TargetId(target), link.Kind(kind), link.SupersededAtIsNil()).
-		Order(link.ByValidFrom()).
+		Where(link.TenantId(t.tenant.Uuid()), link.SourceId(source), link.TargetId(target), link.Kind(kind), link.DateSupersededIsNil()).
+		Order(link.ByDateStart()).
 		All(t.ctx)
 	if err != nil {
 		return nil, err
 	}
 	tl := timeline[linked]{}
 	for _, r := range rs {
-		tl = append(tl, span[linked]{id: r.Id, from: r.ValidFrom, to: r.ValidTo, state: linked{required: r.Required}})
+		tl = append(tl, span[linked]{id: r.Id, from: r.DateStart, to: r.DateEnd, state: linked{required: r.Required}})
 	}
 	return tl, nil
 }
@@ -1371,13 +1371,13 @@ func (t *Tx) writeLinks(source, target uuid.UUID, kind string, old, tl timeline[
 			Target:    assetRef(target),
 			Kind:      kind,
 			Required:  s.state.required,
-			ValidFrom: ts(s.from),
+			DateStart: ts(s.from),
 			EventId:   t.ev().Bytes(),
 			// See [Tx.writePlacements].
 			DateCreated: ts(t.now),
 		}.Build()
 		if s.to != nil {
-			req.SetValidTo(ts(*s.to))
+			req.SetDateEnd(ts(*s.to))
 		}
 		if _, err := t.next.Link().Add(t.ctx, req); err != nil {
 			return err
@@ -1395,16 +1395,16 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 		if strings.TrimSpace(req.GetReason()) == "" {
 			return invalid("reason", "정정 사유를 적어 주세요")
 		}
-		if !req.GetRetract() && !req.HasValidFrom() {
-			return invalid("valid_from", "실제 시점을 적거나, 없었던 일로 취소하세요")
+		if !req.GetRetract() && !req.HasDateStart() {
+			return invalid("date_start", "실제 시점을 적거나, 없었던 일로 취소하세요")
 		}
 		if err := t.lockTree(); err != nil {
 			return err
 		}
 		var when time.Time
-		if req.HasValidFrom() {
+		if req.HasDateStart() {
 			var err error
-			if when, err = t.at(req.GetValidFrom(), "valid_from"); err != nil {
+			if when, err = t.at(req.GetDateStart(), "date_start"); err != nil {
 				return err
 			}
 		}
@@ -1428,7 +1428,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 				Retract: req.GetRetract(),
 			}.Build()
 			if !req.GetRetract() {
-				said.SetValidFrom(ts(when))
+				said.SetDateStart(ts(when))
 			}
 			return t.begin(req.GetOp(), "asset.correct", id, t.now, req.GetReason(), said)
 		}
@@ -1459,7 +1459,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			return err
 
 		case pd.StewardshipDomain:
-			r, err := t.db.Stewardship.Query().Where(stewardship.Id(row), stewardship.TenantId(t.tenant.Uuid()), stewardship.AssetId(id.Uuid()), stewardship.SupersededAtIsNil()).Only(t.ctx)
+			r, err := t.db.Stewardship.Query().Where(stewardship.Id(row), stewardship.TenantId(t.tenant.Uuid()), stewardship.AssetId(id.Uuid()), stewardship.DateSupersededIsNil()).Only(t.ctx)
 			if err != nil {
 				return status.Error(codes.NotFound, "이 자산의 현재 담당 기록이 아닙니다")
 			}
@@ -1479,7 +1479,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			}
 
 		case pd.LinkDomain:
-			r, err := t.db.Link.Query().Where(link.Id(row), link.TenantId(t.tenant.Uuid()), link.SourceId(id.Uuid()), link.SupersededAtIsNil()).Only(t.ctx)
+			r, err := t.db.Link.Query().Where(link.Id(row), link.TenantId(t.tenant.Uuid()), link.SourceId(id.Uuid()), link.DateSupersededIsNil()).Only(t.ctx)
 			if err != nil {
 				return status.Error(codes.NotFound, "이 자산의 현재 관계 기록이 아닙니다")
 			}
@@ -1507,7 +1507,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			}
 
 		case pd.FactDomain:
-			r, err := t.db.Fact.Query().Where(fact.Id(row), fact.TenantId(t.tenant.Uuid()), fact.SubjectId(id.Uuid()), fact.SupersededAtIsNil()).Only(t.ctx)
+			r, err := t.db.Fact.Query().Where(fact.Id(row), fact.TenantId(t.tenant.Uuid()), fact.SubjectId(id.Uuid()), fact.DateSupersededIsNil()).Only(t.ctx)
 			if err != nil {
 				return status.Error(codes.NotFound, "이 자산의 현재 항목 기록이 아닙니다")
 			}

@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/payday/entitlement.proto.
  */
 export const file_loft_payday_entitlement: GenFile = /*@__PURE__*/
-  fileDesc("Ch1sb2Z0L3BheWRheS9lbnRpdGxlbWVudC5wcm90bxIEbG9mdCKGBAoLRW50aXRsZW1lbnQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESGQoDa2V5GAggASgJQgzqghYCQAGqwRYCGAASJQoFdmFsdWUYCSABKA4yFi5sb2Z0LkVudGl0bGVtZW50VmFsdWUSDgoGYW1vdW50GAogASgDEhoKCGdyYW50X2lkGAsgASgMQgjqghYEEAxAARIVCg1ncmFudF92ZXJzaW9uGAwgASgEEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEjYKCnZhbGlkX2Zyb20YECABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOAoLdmFsaWRfdW50aWwYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAOknK/BU1GhcSBWdyYW50GgwKCGdyYW50X2lkEAswARoaEgNrZXkaCgoGdGVuYW50EAIaBwoDa2V5EAiKuxYMCDJCAgoASA1SAgoAKqgBChBFbnRpdGxlbWVudFZhbHVlEiEKHUVOVElUTEVNRU5UX1ZBTFVFX1VOU1BFQ0lGSUVEEAASGQoVRU5USVRMRU1FTlRfVkFMVUVfT0ZGEAESGAoURU5USVRMRU1FTlRfVkFMVUVfT04QAhIbChdFTlRJVExFTUVOVF9WQUxVRV9MSU1JVBADEh8KG0VOVElUTEVNRU5UX1ZBTFVFX1VOTElNSVRFRBAEQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
+  fileDesc("Ch1sb2Z0L3BheWRheS9lbnRpdGxlbWVudC5wcm90bxIEbG9mdCKLBAoLRW50aXRsZW1lbnQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESGQoDa2V5GAggASgJQgzqghYCQAGqwRYCGAASJQoFdmFsdWUYCSABKA4yFi5sb2Z0LkVudGl0bGVtZW50VmFsdWUSDgoGYW1vdW50GAogASgDEhoKCGdyYW50X2lkGAsgASgMQgjqghYEEAxAARIVCg1ncmFudF92ZXJzaW9uGAwgASgEEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEjoKDmRhdGVfZWZmZWN0aXZlGBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEjkKDGRhdGVfZXhwaXJlcxgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQA6Scr8FTUaFxIFZ3JhbnQaDAoIZ3JhbnRfaWQQCzABGhoSA2tleRoKCgZ0ZW5hbnQQAhoHCgNrZXkQCIq7FgwIMkICCgBIDVICCgAqqAEKEEVudGl0bGVtZW50VmFsdWUSIQodRU5USVRMRU1FTlRfVkFMVUVfVU5TUEVDSUZJRUQQABIZChVFTlRJVExFTUVOVF9WQUxVRV9PRkYQARIYChRFTlRJVExFTUVOVF9WQUxVRV9PThACEhsKF0VOVElUTEVNRU5UX1ZBTFVFX0xJTUlUEAMSHwobRU5USVRMRU1FTlRfVkFMVUVfVU5MSU1JVEVEEARCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
 
 /**
  * Entitlement is one grant a source issued a tenant, as the app keeps a copy
@@ -101,18 +101,18 @@ export type Entitlement = Message<"loft.Entitlement"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * ValidFrom and ValidUntil are the grant's window: in force from the one,
-   * and no longer from the other. A grant may say no beginning, which is from
-   * always; every grant says when it ends.
+   * DateEffective and DateExpires are the grant's window: in force from the
+   * one, and no longer from the other. A grant may say no beginning, which is
+   * from always; every grant says when it ends.
    *
-   * @generated from field: google.protobuf.Timestamp valid_from = 16;
+   * @generated from field: google.protobuf.Timestamp date_effective = 16;
    */
-  validFrom?: Timestamp | undefined;
+  dateEffective?: Timestamp | undefined;
 
   /**
-   * @generated from field: google.protobuf.Timestamp valid_until = 17;
+   * @generated from field: google.protobuf.Timestamp date_expires = 17;
    */
-  validUntil?: Timestamp | undefined;
+  dateExpires?: Timestamp | undefined;
 };
 
 /**

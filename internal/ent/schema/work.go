@@ -25,10 +25,10 @@ func (WorkOrder) Fields() []ent.Field {
 		field.String("desc"),
 		field.String("kind"),
 		field.String("status"),
-		field.Time("begins_at").
+		field.Time("date_start").
 			Nillable().
 			Optional(),
-		field.Time("ends_at").
+		field.Time("date_end").
 			Nillable().
 			Optional(),
 		field.Time("date_updated"),
@@ -40,7 +40,7 @@ func (WorkOrder) Fields() []ent.Field {
 			Optional(),
 		field.Int64("cost"),
 		field.String("currency"),
-		field.Time("completed_at").
+		field.Time("date_completed").
 			Nillable().
 			Optional(),
 		field.Bool("blocking"),
@@ -100,9 +100,9 @@ func (Purchase) Fields() []ent.Field {
 		field.String("desc"),
 		field.String("reference"),
 		field.String("status"),
-		field.Time("ordered_at").
+		field.Time("date_ordered").
 			Optional(),
-		field.Time("received_at").
+		field.Time("date_received").
 			Nillable().
 			Optional(),
 		field.Time("date_updated"),

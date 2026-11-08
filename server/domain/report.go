@@ -68,10 +68,10 @@ func (t *Tx) period(from, to *timestamppb.Timestamp, back func(time.Time) time.T
 		f = moment(back(e.In(z)))
 	}
 	if !f.Before(e) {
-		return time.Time{}, time.Time{}, invalid("to", "기간의 끝은 시작보다 뒤여야 합니다")
+		return time.Time{}, time.Time{}, invalid("date_to", "기간의 끝은 시작보다 뒤여야 합니다")
 	}
 	if e.After(f.In(z).AddDate(0, 0, reportDays)) {
-		return time.Time{}, time.Time{}, invalid("from", "기간은 1년 안에서 정합니다")
+		return time.Time{}, time.Time{}, invalid("date_from", "기간은 1년 안에서 정합니다")
 	}
 	return f, e, nil
 }
@@ -308,7 +308,7 @@ func (t *Tx) census(req *app.AssetCensusRequest) (*app.AssetCensusResponse, erro
 	if err != nil {
 		return nil, err
 	}
-	return app.AssetCensusResponse_builder{Rows: rows, Total: total, At: ts(t.now), By: by, Kind: kind}.Build(), nil
+	return app.AssetCensusResponse_builder{Rows: rows, Total: total, DateAsOf: ts(t.now), By: by, Kind: kind}.Build(), nil
 }
 
 // keeper is what holds something counted, as the census by location reads it
@@ -568,7 +568,7 @@ func (s domainCustody) ExportOutstanding(ctx context.Context, req *app.CustodyOu
 		}
 		rows = append(rows, []string{
 			r.GetPartyName(), or(custodyKindSay[r.GetKind()], r.GetKind()), r.GetAssetTag(), name,
-			number(r.GetQuantity()), r.GetUnit(), t.cell(r.GetIssuedAt()), t.cell(r.GetDueAt()), late, ack,
+			number(r.GetQuantity()), r.GetUnit(), t.cell(r.GetDateIssued()), t.cell(r.GetDateDue()), late, ack,
 		})
 	}
 	return writeCSV("loft-loans-"+t.day(t.now), rows)
@@ -598,17 +598,17 @@ func (t *Tx) outstanding(req *app.CustodyOutstandingRequest, all bool) (*app.Cus
 			return
 		}
 		if req.GetOverdue() {
-			b.S(` AND c."due_at" < `).Arg(t.now)
+			b.S(` AND c."date_due" < `).Arg(t.now)
 		}
 		if kind != "" {
 			b.S(` AND c."kind" = `).Arg(kind)
 		}
 	}
 
-	res := app.CustodyOutstandingResponse_builder{At: ts(t.now)}.Build()
+	res := app.CustodyOutstandingResponse_builder{DateAsOf: ts(t.now)}.Build()
 	{
 		b := t.q()
-		b.S(`SELECT COUNT(DISTINCT c."id") AS "custodies", COUNT(DISTINCT CASE WHEN c."due_at" < `).Arg(t.now).
+		b.S(`SELECT COUNT(DISTINCT c."id") AS "custodies", COUNT(DISTINCT CASE WHEN c."date_due" < `).Arg(t.now).
 			S(` THEN c."id" END) AS "overdue", COUNT(DISTINCT c."party_id") AS "people",` +
 				` COUNT(l."asset_id") AS "assets", COUNT(l."stock_id") AS "stocks"`)
 		out(b, false)
@@ -646,12 +646,12 @@ func (t *Tx) outstanding(req *app.CustodyOutstandingRequest, all bool) (*app.Cus
 	}
 
 	b := t.q()
-	b.S(`SELECT c."id" AS "custody", l."id" AS "line", c."kind", c."party_id", c."issued_at", c."due_at",` +
-		` c."acknowledged_at", l."asset_id", l."stock_id", l."quantity" - l."returned_quantity" AS "out"`)
+	b.S(`SELECT c."id" AS "custody", l."id" AS "line", c."kind", c."party_id", c."date_issued", c."date_due",` +
+		` c."date_acknowledged", l."asset_id", l."stock_id", l."quantity" - l."returned_quantity" AS "out"`)
 	out(b, true)
 	// The most overdue first, then what is due soonest; what is held for
 	// keeps after, the longest held first.
-	b.S(` ORDER BY CASE WHEN c."due_at" IS NULL THEN 1 ELSE 0 END, c."due_at", c."issued_at", c."id", l."id"`)
+	b.S(` ORDER BY CASE WHEN c."date_due" IS NULL THEN 1 ELSE 0 END, c."date_due", c."date_issued", c."id", l."id"`)
 	if !all {
 		b.S(` LIMIT `).Arg(size).S(` OFFSET `).Arg(int(req.GetOffset()))
 	}
@@ -660,9 +660,9 @@ func (t *Tx) outstanding(req *app.CustodyOutstandingRequest, all bool) (*app.Cus
 		Line    stdsql.Null[uuid.UUID] `sql:"line"`
 		Kind    string                 `sql:"kind"`
 		Party   stdsql.Null[uuid.UUID] `sql:"party_id"`
-		Issued  stdsql.NullTime        `sql:"issued_at"`
-		Due     stdsql.NullTime        `sql:"due_at"`
-		Ack     stdsql.NullTime        `sql:"acknowledged_at"`
+		Issued  stdsql.NullTime        `sql:"date_issued"`
+		Due     stdsql.NullTime        `sql:"date_due"`
+		Ack     stdsql.NullTime        `sql:"date_acknowledged"`
 		Asset   stdsql.Null[uuid.UUID] `sql:"asset_id"`
 		Stock   stdsql.Null[uuid.UUID] `sql:"stock_id"`
 		Out     int64                  `sql:"out"`
@@ -718,10 +718,10 @@ func (t *Tx) outstanding(req *app.CustodyOutstandingRequest, all bool) (*app.Cus
 			Acknowledged: l.Ack.Valid,
 		}.Build()
 		if l.Issued.Valid {
-			r.SetIssuedAt(ts(l.Issued.Time))
+			r.SetDateIssued(ts(l.Issued.Time))
 		}
 		if l.Due.Valid {
-			r.SetDueAt(ts(l.Due.Time))
+			r.SetDateDue(ts(l.Due.Time))
 			if l.Due.Time.Before(t.now) {
 				r.SetOverdue(true)
 				r.SetOverdueDays(t.daysLate(l.Due.Time))
@@ -781,7 +781,7 @@ func (s domainBookable) ExportUsage(ctx context.Context, req *app.BookableUsageR
 			number(r.GetHandedOut()), hours(r.GetHandedOutMinutes()),
 		})
 	}
-	return writeCSV("loft-bookings-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
+	return writeCSV("loft-bookings-"+t.span(v.GetDateFrom().AsTime(), v.GetDateTo().AsTime()), rows)
 }
 
 // usage is the reservations that began in the period and were promised their
@@ -805,7 +805,7 @@ func (s domainBookable) ExportUsage(ctx context.Context, req *app.BookableUsageR
 // What was confirmed and not taken, and a no-show, was used for nothing. The
 // database works each out and adds them up by the resource.
 func (t *Tx) usage(req *app.BookableUsageRequest) (*app.BookableUsageResponse, error) {
-	from, to, err := t.period(req.GetFrom(), req.GetTo(), lastDays(30))
+	from, to, err := t.period(req.GetDateFrom(), req.GetDateTo(), lastDays(30))
 	if err != nil {
 		return nil, err
 	}
@@ -819,14 +819,14 @@ func (t *Tx) usage(req *app.BookableUsageRequest) (*app.BookableUsageResponse, e
 	// them all, as it finds cheaper -- and then worked out and added up.
 	b := t.q()
 	b.S(`WITH "r" AS (SELECT r."id", r."status", ` +
-		sec(`r."begins_at"`) + ` AS "begins", ` + sec(`r."ends_at"`) + ` AS "ends", ` + sec(`r."checked_in_at"`) + ` AS "checked"` +
+		sec(`r."date_start"`) + ` AS "begins", ` + sec(`r."date_end"`) + ` AS "ends", ` + sec(`r."date_checked_in"`) + ` AS "checked"` +
 		` FROM "reservation" r WHERE r."tenant_id" = `).Arg(tid).
 		S(` AND r."date_erased" IS NULL AND r."status" IN ('confirmed', 'in_use', 'completed', 'no_show')` +
-			` AND r."begins_at" >= `).Arg(from).S(` AND r."begins_at" < `).Arg(to).
-		S(`), "p" AS (SELECT c."reservation_id" AS "id", MIN(` + sec(`c."issued_at"`) + `) AS "picked",` +
-			` CASE WHEN COUNT(c."returned_at") = COUNT(*) THEN MAX(` + sec(`c."returned_at"`) + `) END AS "back"` +
+			` AND r."date_start" >= `).Arg(from).S(` AND r."date_start" < `).Arg(to).
+		S(`), "p" AS (SELECT c."reservation_id" AS "id", MIN(` + sec(`c."date_issued"`) + `) AS "picked",` +
+			` CASE WHEN COUNT(c."date_returned") = COUNT(*) THEN MAX(` + sec(`c."date_returned"`) + `) END AS "back"` +
 			` FROM "custody" c JOIN "r" ON r."id" = c."reservation_id" WHERE c."tenant_id" = `).Arg(tid).
-		S(` GROUP BY c."reservation_id"), "f" AS (SELECT a."ref_id" AS "id", a."resource_id", MAX(` + sec(`a."ends_at"`) + `) AS "finish"` +
+		S(` GROUP BY c."reservation_id"), "f" AS (SELECT a."ref_id" AS "id", a."resource_id", MAX(` + sec(`a."date_end"`) + `) AS "finish"` +
 			` FROM "allocation" a JOIN "r" ON r."id" = a."ref_id" WHERE a."tenant_id" = `).Arg(tid).
 		S(` GROUP BY a."ref_id", a."resource_id")` +
 			` SELECT "resource_id", COUNT(*) AS "reservations",` +
@@ -865,11 +865,11 @@ func (t *Tx) usage(req *app.BookableUsageRequest) (*app.BookableUsageResponse, e
 	// the hand-over to the thing's return, and to now while it is out.
 	h := t.q()
 	h.S(`SELECT l."asset_id" AS "resource_id", COUNT(*) AS "handed",` +
-		` SUM(` + t.greatest() + `(0.0, COALESCE(` + sec(`l."returned_at"`) + `, `).Arg(now).S(`) - ` + sec(`l."out_at"`) + `)) AS "out_for"` +
+		` SUM(` + t.greatest() + `(0.0, COALESCE(` + sec(`l."date_returned"`) + `, `).Arg(now).S(`) - ` + sec(`l."date_out"`) + `)) AS "out_for"` +
 		` FROM "custodyline" l JOIN "custody" c ON c."id" = l."custody_id"` +
 		` WHERE c."tenant_id" = `).Arg(tid).
 		S(` AND c."reservation_id" IS NULL AND c."date_erased" IS NULL AND l."asset_id" IS NOT NULL` +
-			` AND c."issued_at" >= `).Arg(from).S(` AND c."issued_at" < `).Arg(to).
+			` AND c."date_issued" >= `).Arg(from).S(` AND c."date_issued" < `).Arg(to).
 		S(` GROUP BY l."asset_id"`)
 	var hs []struct {
 		Resource stdsql.Null[uuid.UUID] `sql:"resource_id"`
@@ -947,7 +947,7 @@ func (t *Tx) usage(req *app.BookableUsageRequest) (*app.BookableUsageResponse, e
 		}
 		return strings.Compare(a.GetName(), b.GetName())
 	})
-	return app.BookableUsageResponse_builder{Rows: rows, From: ts(from), To: ts(to)}.Build(), nil
+	return app.BookableUsageResponse_builder{Rows: rows, DateFrom: ts(from), DateTo: ts(to)}.Build(), nil
 }
 
 // --- 실사 결과 ---
@@ -981,19 +981,19 @@ func (s domainCount) ExportResults(ctx context.Context, req *app.InventoryCountR
 	rows := [][]string{head}
 	for _, r := range v.GetRows() {
 		rows = append(rows, []string{
-			r.GetName(), r.GetScopeName(), or(countSay[r.GetStatus()], r.GetStatus()), t.cell(r.GetStartedAt()), t.cell(r.GetClosedAt()),
+			r.GetName(), r.GetScopeName(), or(countSay[r.GetStatus()], r.GetStatus()), t.cell(r.GetDateStarted()), t.cell(r.GetDateClosed()),
 			number(r.GetSeen()), number(r.GetMisplaced()), number(r.GetMissing()), number(r.GetUnknown()),
 			number(r.GetMoved()), number(r.GetLost()), number(r.GetIgnored()), number(r.GetUnsettled()),
 		})
 	}
-	return writeCSV("loft-counts-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
+	return writeCSV("loft-counts-"+t.span(v.GetDateFrom().AsTime(), v.GetDateTo().AsTime()), rows)
 }
 
 // results is the counts begun in the period, the newest first, and what each
 // found: the database adds up its findings by kind and by how each was
 // settled.
 func (t *Tx) results(req *app.InventoryCountResultsRequest) (*app.InventoryCountResultsResponse, error) {
-	from, to, err := t.period(req.GetFrom(), req.GetTo(), func(end time.Time) time.Time { return end.AddDate(-1, 0, 0) })
+	from, to, err := t.period(req.GetDateFrom(), req.GetDateTo(), func(end time.Time) time.Time { return end.AddDate(-1, 0, 0) })
 	if err != nil {
 		return nil, err
 	}
@@ -1002,10 +1002,10 @@ func (t *Tx) results(req *app.InventoryCountResultsRequest) (*app.InventoryCount
 		Where(
 			inventorycount.TenantId(tid),
 			inventorycount.DateErasedIsNil(),
-			inventorycount.StartedAtGTE(from),
-			inventorycount.StartedAtLT(to),
+			inventorycount.DateStartedGTE(from),
+			inventorycount.DateStartedLT(to),
 		).
-		Order(ent.Desc(inventorycount.FieldStartedAt), ent.Desc(inventorycount.FieldId)).
+		Order(ent.Desc(inventorycount.FieldDateStarted), ent.Desc(inventorycount.FieldId)).
 		All(t.ctx)
 	if err != nil {
 		return nil, err
@@ -1046,12 +1046,12 @@ func (t *Tx) results(req *app.InventoryCountResultsRequest) (*app.InventoryCount
 	rows := make([]*app.InventoryCountResult, 0, len(cs))
 	for _, c := range cs {
 		r := app.InventoryCountResult_builder{
-			CountId:   pdid.Id(c.Id).Bytes(),
-			Name:      c.Name,
-			ScopeId:   pdid.Id(c.ScopeId).Bytes(),
-			Status:    c.Status,
-			StartedAt: ts(c.StartedAt),
-			ClosedAt:  tsp(c.ClosedAt),
+			CountId:     pdid.Id(c.Id).Bytes(),
+			Name:        c.Name,
+			ScopeId:     pdid.Id(c.ScopeId).Bytes(),
+			Status:      c.Status,
+			DateStarted: ts(c.DateStarted),
+			DateClosed:  tsp(c.DateClosed),
 		}.Build()
 		if a := as[c.ScopeId]; a != nil {
 			r.SetScopeName(a.Name)
@@ -1085,7 +1085,7 @@ func (t *Tx) results(req *app.InventoryCountResultsRequest) (*app.InventoryCount
 		}
 		rows = append(rows, r)
 	}
-	return app.InventoryCountResultsResponse_builder{Rows: rows, From: ts(from), To: ts(to)}.Build(), nil
+	return app.InventoryCountResultsResponse_builder{Rows: rows, DateFrom: ts(from), DateTo: ts(to)}.Build(), nil
 }
 
 // --- 재고 소모 ---
@@ -1123,7 +1123,7 @@ func (s domainStock) ExportFlow(ctx context.Context, req *app.StockFlowRequest) 
 			number(r.GetClosing()),
 		})
 	}
-	return writeCSV("loft-stock-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
+	return writeCSV("loft-stock-"+t.span(v.GetDateFrom().AsTime(), v.GetDateTo().AsTime()), rows)
 }
 
 // flow is each stock over the period: the database adds up what moved it in
@@ -1135,7 +1135,7 @@ func (s domainStock) ExportFlow(ctx context.Context, req *app.StockFlowRequest) 
 // each stock's movements of the period by the index it keeps of them by the
 // stock and the moment, rather than every movement there is.
 func (t *Tx) flow(req *app.StockFlowRequest) (*app.StockFlowResponse, error) {
-	from, to, err := t.period(req.GetFrom(), req.GetTo(), lastDays(30))
+	from, to, err := t.period(req.GetDateFrom(), req.GetDateTo(), lastDays(30))
 	if err != nil {
 		return nil, err
 	}
@@ -1166,7 +1166,7 @@ func (t *Tx) flow(req *app.StockFlowRequest) (*app.StockFlowResponse, error) {
 		sum(`m."delta" < 0`, `-m."delta"`) + ` AS "went_out"` +
 		` FROM "stock" s JOIN "stockmovement" m ON m."stock_id" = s."id" WHERE s."tenant_id" = `).Arg(tid).
 		S(` AND m."tenant_id" = `).Arg(tid).
-		S(` AND m."occurred_at" >= `).Arg(from).S(` AND m."occurred_at" < `).Arg(to).
+		S(` AND m."date_occurred" >= `).Arg(from).S(` AND m."date_occurred" < `).Arg(to).
 		S(` GROUP BY m."stock_id"`)
 	var moved []struct {
 		Stock          stdsql.Null[uuid.UUID] `sql:"stock_id"`
@@ -1189,7 +1189,7 @@ func (t *Tx) flow(req *app.StockFlowRequest) (*app.StockFlowResponse, error) {
 	b.S(`SELECT m."stock_id", CAST(SUM(m."delta") AS BIGINT) AS "since"` +
 		` FROM "stock" s JOIN "stockmovement" m ON m."stock_id" = s."id" WHERE s."tenant_id" = `).Arg(tid).
 		S(` AND m."tenant_id" = `).Arg(tid).
-		S(` AND m."occurred_at" >= `).Arg(to).
+		S(` AND m."date_occurred" >= `).Arg(to).
 		S(` GROUP BY m."stock_id"`)
 	var after []struct {
 		Stock stdsql.Null[uuid.UUID] `sql:"stock_id"`
@@ -1252,5 +1252,5 @@ func (t *Tx) flow(req *app.StockFlowRequest) (*app.StockFlowResponse, error) {
 		}
 		return strings.Compare(a.GetSpaceName(), b.GetSpaceName())
 	})
-	return app.StockFlowResponse_builder{Rows: rows, From: ts(from), To: ts(to)}.Build(), nil
+	return app.StockFlowResponse_builder{Rows: rows, DateFrom: ts(from), DateTo: ts(to)}.Build(), nil
 }

@@ -23,6 +23,10 @@ import (
 // the template writes them, and what else a header may say for each -- the
 // export's words, and a few a register kept elsewhere uses. What each takes
 // is said on the page that hands the form out (`ts/src/pages/register.tsx`).
+//
+// A key is the field of `AssetAddRequest` its column fills, as an issue names
+// it. A header may say the field's name before D76 too (`acquired_at`,
+// `since`), so that a sheet made by then still reads.
 var registerColumns = []struct {
 	key   string
 	label string
@@ -36,8 +40,8 @@ var registerColumns = []struct {
 	{"serial", "시리얼", []string{"serial", "일련번호", "s/n"}},
 	{"tag", "태그", []string{"tag", "자산번호", "관리번호"}},
 	{"location_tag", "위치태그", []string{"location_tag", "위치 태그"}},
-	{"acquired_at", "취득일", []string{"acquired_at", "구매일"}},
-	{"since", "기준일", []string{"since", "입고일"}},
+	{"date_acquired", "취득일", []string{"date_acquired", "acquired_at", "구매일"}},
+	{"date_occurred", "기준일", []string{"date_occurred", "since", "입고일"}},
 	{"desc", "설명", []string{"desc", "비고", "메모"}},
 	{"status", "상태", []string{"status"}},
 	{"condition", "컨디션", []string{"condition"}},
@@ -234,17 +238,17 @@ func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetReque
 				item.SetTag(v)
 			case "location_tag":
 				item.SetTo(app.AssetRef_builder{Tag: app.AssetRefByTag_builder{Tag: z.Ptr(v)}.Build()}.Build())
-			case "acquired_at", "since":
+			case "date_acquired", "date_occurred":
 				at, err := parseDate(v, zone)
 				if err != nil {
 					say(line, column, "%s", err)
 					ok = false
 					continue
 				}
-				if keys[i] == "since" {
-					item.SetSince(timestamppb.New(at))
+				if keys[i] == "date_occurred" {
+					item.SetDateOccurred(timestamppb.New(at))
 				} else {
-					item.SetAcquiredAt(timestamppb.New(at))
+					item.SetDateAcquired(timestamppb.New(at))
 				}
 			case "desc":
 				item.SetDesc(v)

@@ -29,20 +29,20 @@ func (e *Custody) Proto() *loft.Custody {
 	}
 	x.SetKind(e.Kind)
 	x.SetStatus(e.Status)
-	x.SetIssuedAt(timestamppb.New(e.IssuedAt))
-	if e.DueAt != nil {
-		x.SetDueAt(timestamppb.New(*e.DueAt))
+	x.SetDateIssued(timestamppb.New(e.DateIssued))
+	if e.DateDue != nil {
+		x.SetDateDue(timestamppb.New(*e.DateDue))
 	}
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))
 	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	if e.AcknowledgedAt != nil {
-		x.SetAcknowledgedAt(timestamppb.New(*e.AcknowledgedAt))
+	if e.DateAcknowledged != nil {
+		x.SetDateAcknowledged(timestamppb.New(*e.DateAcknowledged))
 	}
-	if e.ReturnedAt != nil {
-		x.SetReturnedAt(timestamppb.New(*e.ReturnedAt))
+	if e.DateReturned != nil {
+		x.SetDateReturned(timestamppb.New(*e.DateReturned))
 	}
 	if e.ReservationId != nil {
 		x.SetReservationId(e.ReservationId[:])
@@ -88,9 +88,9 @@ func (e *CustodyLine) Proto() *loft.CustodyLine {
 	x.SetReturnedQuantity(e.ReturnedQuantity)
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	x.SetOutAt(timestamppb.New(e.OutAt))
-	if e.ReturnedAt != nil {
-		x.SetReturnedAt(timestamppb.New(*e.ReturnedAt))
+	x.SetDateOut(timestamppb.New(e.DateOut))
+	if e.DateReturned != nil {
+		x.SetDateReturned(timestamppb.New(*e.DateReturned))
 	}
 	x.SetConditionOut(e.ConditionOut)
 	x.SetConditionIn(e.ConditionIn)

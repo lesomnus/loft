@@ -86,7 +86,7 @@ func (s operatorRetention) pass(req *app.OperatorRetentionRequest, out grpc.Serv
 			},
 		}.Build()
 		if !x.Before.IsZero() {
-			v.SetBefore(timestamppb.New(x.Before))
+			v.SetDateBefore(timestamppb.New(x.Before))
 		}
 		if dry && !x.Before.IsZero() && len(x.Held) == 0 && p.Tenants != nil {
 			answer, err := p.Tenants(ctx, id)

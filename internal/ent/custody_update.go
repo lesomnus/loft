@@ -72,43 +72,43 @@ func (_u *CustodyUpdate) SetNillableStatus(v *string) *CustodyUpdate {
 	return _u
 }
 
-// SetIssuedAt sets the "issued_at" field.
-func (_u *CustodyUpdate) SetIssuedAt(v time.Time) *CustodyUpdate {
-	_u.mutation.SetIssuedAt(v)
+// SetDateIssued sets the "date_issued" field.
+func (_u *CustodyUpdate) SetDateIssued(v time.Time) *CustodyUpdate {
+	_u.mutation.SetDateIssued(v)
 	return _u
 }
 
-// SetNillableIssuedAt sets the "issued_at" field if the given value is not nil.
-func (_u *CustodyUpdate) SetNillableIssuedAt(v *time.Time) *CustodyUpdate {
+// SetNillableDateIssued sets the "date_issued" field if the given value is not nil.
+func (_u *CustodyUpdate) SetNillableDateIssued(v *time.Time) *CustodyUpdate {
 	if v != nil {
-		_u.SetIssuedAt(*v)
+		_u.SetDateIssued(*v)
 	}
 	return _u
 }
 
-// ClearIssuedAt clears the value of the "issued_at" field.
-func (_u *CustodyUpdate) ClearIssuedAt() *CustodyUpdate {
-	_u.mutation.ClearIssuedAt()
+// ClearDateIssued clears the value of the "date_issued" field.
+func (_u *CustodyUpdate) ClearDateIssued() *CustodyUpdate {
+	_u.mutation.ClearDateIssued()
 	return _u
 }
 
-// SetDueAt sets the "due_at" field.
-func (_u *CustodyUpdate) SetDueAt(v time.Time) *CustodyUpdate {
-	_u.mutation.SetDueAt(v)
+// SetDateDue sets the "date_due" field.
+func (_u *CustodyUpdate) SetDateDue(v time.Time) *CustodyUpdate {
+	_u.mutation.SetDateDue(v)
 	return _u
 }
 
-// SetNillableDueAt sets the "due_at" field if the given value is not nil.
-func (_u *CustodyUpdate) SetNillableDueAt(v *time.Time) *CustodyUpdate {
+// SetNillableDateDue sets the "date_due" field if the given value is not nil.
+func (_u *CustodyUpdate) SetNillableDateDue(v *time.Time) *CustodyUpdate {
 	if v != nil {
-		_u.SetDueAt(*v)
+		_u.SetDateDue(*v)
 	}
 	return _u
 }
 
-// ClearDueAt clears the value of the "due_at" field.
-func (_u *CustodyUpdate) ClearDueAt() *CustodyUpdate {
-	_u.mutation.ClearDueAt()
+// ClearDateDue clears the value of the "date_due" field.
+func (_u *CustodyUpdate) ClearDateDue() *CustodyUpdate {
+	_u.mutation.ClearDateDue()
 	return _u
 }
 
@@ -146,43 +146,43 @@ func (_u *CustodyUpdate) ClearDateErased() *CustodyUpdate {
 	return _u
 }
 
-// SetAcknowledgedAt sets the "acknowledged_at" field.
-func (_u *CustodyUpdate) SetAcknowledgedAt(v time.Time) *CustodyUpdate {
-	_u.mutation.SetAcknowledgedAt(v)
+// SetDateAcknowledged sets the "date_acknowledged" field.
+func (_u *CustodyUpdate) SetDateAcknowledged(v time.Time) *CustodyUpdate {
+	_u.mutation.SetDateAcknowledged(v)
 	return _u
 }
 
-// SetNillableAcknowledgedAt sets the "acknowledged_at" field if the given value is not nil.
-func (_u *CustodyUpdate) SetNillableAcknowledgedAt(v *time.Time) *CustodyUpdate {
+// SetNillableDateAcknowledged sets the "date_acknowledged" field if the given value is not nil.
+func (_u *CustodyUpdate) SetNillableDateAcknowledged(v *time.Time) *CustodyUpdate {
 	if v != nil {
-		_u.SetAcknowledgedAt(*v)
+		_u.SetDateAcknowledged(*v)
 	}
 	return _u
 }
 
-// ClearAcknowledgedAt clears the value of the "acknowledged_at" field.
-func (_u *CustodyUpdate) ClearAcknowledgedAt() *CustodyUpdate {
-	_u.mutation.ClearAcknowledgedAt()
+// ClearDateAcknowledged clears the value of the "date_acknowledged" field.
+func (_u *CustodyUpdate) ClearDateAcknowledged() *CustodyUpdate {
+	_u.mutation.ClearDateAcknowledged()
 	return _u
 }
 
-// SetReturnedAt sets the "returned_at" field.
-func (_u *CustodyUpdate) SetReturnedAt(v time.Time) *CustodyUpdate {
-	_u.mutation.SetReturnedAt(v)
+// SetDateReturned sets the "date_returned" field.
+func (_u *CustodyUpdate) SetDateReturned(v time.Time) *CustodyUpdate {
+	_u.mutation.SetDateReturned(v)
 	return _u
 }
 
-// SetNillableReturnedAt sets the "returned_at" field if the given value is not nil.
-func (_u *CustodyUpdate) SetNillableReturnedAt(v *time.Time) *CustodyUpdate {
+// SetNillableDateReturned sets the "date_returned" field if the given value is not nil.
+func (_u *CustodyUpdate) SetNillableDateReturned(v *time.Time) *CustodyUpdate {
 	if v != nil {
-		_u.SetReturnedAt(*v)
+		_u.SetDateReturned(*v)
 	}
 	return _u
 }
 
-// ClearReturnedAt clears the value of the "returned_at" field.
-func (_u *CustodyUpdate) ClearReturnedAt() *CustodyUpdate {
-	_u.mutation.ClearReturnedAt()
+// ClearDateReturned clears the value of the "date_returned" field.
+func (_u *CustodyUpdate) ClearDateReturned() *CustodyUpdate {
+	_u.mutation.ClearDateReturned()
 	return _u
 }
 
@@ -319,23 +319,23 @@ func (_u *CustodyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(custody.FieldStatus); ok {
 		_spec.SetField(custody.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.IssuedAt(); ok {
-		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateIssued(); ok {
+		_spec.SetField(custody.FieldDateIssued, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custody.FieldIssuedAt); ok {
-		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateIssued); ok {
+		_spec.SetField(custody.FieldDateIssued, field.TypeTime, e)
 	}
-	if _u.mutation.IssuedAtCleared() {
-		_spec.ClearField(custody.FieldIssuedAt, field.TypeTime)
+	if _u.mutation.DateIssuedCleared() {
+		_spec.ClearField(custody.FieldDateIssued, field.TypeTime)
 	}
-	if value, ok := _u.mutation.DueAt(); ok {
-		_spec.SetField(custody.FieldDueAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateDue(); ok {
+		_spec.SetField(custody.FieldDateDue, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custody.FieldDueAt); ok {
-		_spec.SetField(custody.FieldDueAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateDue); ok {
+		_spec.SetField(custody.FieldDateDue, field.TypeTime, e)
 	}
-	if _u.mutation.DueAtCleared() {
-		_spec.ClearField(custody.FieldDueAt, field.TypeTime)
+	if _u.mutation.DateDueCleared() {
+		_spec.ClearField(custody.FieldDateDue, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(custody.FieldDateUpdated, field.TypeTime, value)
@@ -355,23 +355,23 @@ func (_u *CustodyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(custody.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.AcknowledgedAt(); ok {
-		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateAcknowledged(); ok {
+		_spec.SetField(custody.FieldDateAcknowledged, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custody.FieldAcknowledgedAt); ok {
-		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateAcknowledged); ok {
+		_spec.SetField(custody.FieldDateAcknowledged, field.TypeTime, e)
 	}
-	if _u.mutation.AcknowledgedAtCleared() {
-		_spec.ClearField(custody.FieldAcknowledgedAt, field.TypeTime)
+	if _u.mutation.DateAcknowledgedCleared() {
+		_spec.ClearField(custody.FieldDateAcknowledged, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ReturnedAt(); ok {
-		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateReturned(); ok {
+		_spec.SetField(custody.FieldDateReturned, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custody.FieldReturnedAt); ok {
-		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateReturned); ok {
+		_spec.SetField(custody.FieldDateReturned, field.TypeTime, e)
 	}
-	if _u.mutation.ReturnedAtCleared() {
-		_spec.ClearField(custody.FieldReturnedAt, field.TypeTime)
+	if _u.mutation.DateReturnedCleared() {
+		_spec.ClearField(custody.FieldDateReturned, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ReservationId(); ok {
 		_spec.SetField(custody.FieldReservationId, field.TypeUuid, value)
@@ -461,43 +461,43 @@ func (_u *CustodyUpdateOne) SetNillableStatus(v *string) *CustodyUpdateOne {
 	return _u
 }
 
-// SetIssuedAt sets the "issued_at" field.
-func (_u *CustodyUpdateOne) SetIssuedAt(v time.Time) *CustodyUpdateOne {
-	_u.mutation.SetIssuedAt(v)
+// SetDateIssued sets the "date_issued" field.
+func (_u *CustodyUpdateOne) SetDateIssued(v time.Time) *CustodyUpdateOne {
+	_u.mutation.SetDateIssued(v)
 	return _u
 }
 
-// SetNillableIssuedAt sets the "issued_at" field if the given value is not nil.
-func (_u *CustodyUpdateOne) SetNillableIssuedAt(v *time.Time) *CustodyUpdateOne {
+// SetNillableDateIssued sets the "date_issued" field if the given value is not nil.
+func (_u *CustodyUpdateOne) SetNillableDateIssued(v *time.Time) *CustodyUpdateOne {
 	if v != nil {
-		_u.SetIssuedAt(*v)
+		_u.SetDateIssued(*v)
 	}
 	return _u
 }
 
-// ClearIssuedAt clears the value of the "issued_at" field.
-func (_u *CustodyUpdateOne) ClearIssuedAt() *CustodyUpdateOne {
-	_u.mutation.ClearIssuedAt()
+// ClearDateIssued clears the value of the "date_issued" field.
+func (_u *CustodyUpdateOne) ClearDateIssued() *CustodyUpdateOne {
+	_u.mutation.ClearDateIssued()
 	return _u
 }
 
-// SetDueAt sets the "due_at" field.
-func (_u *CustodyUpdateOne) SetDueAt(v time.Time) *CustodyUpdateOne {
-	_u.mutation.SetDueAt(v)
+// SetDateDue sets the "date_due" field.
+func (_u *CustodyUpdateOne) SetDateDue(v time.Time) *CustodyUpdateOne {
+	_u.mutation.SetDateDue(v)
 	return _u
 }
 
-// SetNillableDueAt sets the "due_at" field if the given value is not nil.
-func (_u *CustodyUpdateOne) SetNillableDueAt(v *time.Time) *CustodyUpdateOne {
+// SetNillableDateDue sets the "date_due" field if the given value is not nil.
+func (_u *CustodyUpdateOne) SetNillableDateDue(v *time.Time) *CustodyUpdateOne {
 	if v != nil {
-		_u.SetDueAt(*v)
+		_u.SetDateDue(*v)
 	}
 	return _u
 }
 
-// ClearDueAt clears the value of the "due_at" field.
-func (_u *CustodyUpdateOne) ClearDueAt() *CustodyUpdateOne {
-	_u.mutation.ClearDueAt()
+// ClearDateDue clears the value of the "date_due" field.
+func (_u *CustodyUpdateOne) ClearDateDue() *CustodyUpdateOne {
+	_u.mutation.ClearDateDue()
 	return _u
 }
 
@@ -535,43 +535,43 @@ func (_u *CustodyUpdateOne) ClearDateErased() *CustodyUpdateOne {
 	return _u
 }
 
-// SetAcknowledgedAt sets the "acknowledged_at" field.
-func (_u *CustodyUpdateOne) SetAcknowledgedAt(v time.Time) *CustodyUpdateOne {
-	_u.mutation.SetAcknowledgedAt(v)
+// SetDateAcknowledged sets the "date_acknowledged" field.
+func (_u *CustodyUpdateOne) SetDateAcknowledged(v time.Time) *CustodyUpdateOne {
+	_u.mutation.SetDateAcknowledged(v)
 	return _u
 }
 
-// SetNillableAcknowledgedAt sets the "acknowledged_at" field if the given value is not nil.
-func (_u *CustodyUpdateOne) SetNillableAcknowledgedAt(v *time.Time) *CustodyUpdateOne {
+// SetNillableDateAcknowledged sets the "date_acknowledged" field if the given value is not nil.
+func (_u *CustodyUpdateOne) SetNillableDateAcknowledged(v *time.Time) *CustodyUpdateOne {
 	if v != nil {
-		_u.SetAcknowledgedAt(*v)
+		_u.SetDateAcknowledged(*v)
 	}
 	return _u
 }
 
-// ClearAcknowledgedAt clears the value of the "acknowledged_at" field.
-func (_u *CustodyUpdateOne) ClearAcknowledgedAt() *CustodyUpdateOne {
-	_u.mutation.ClearAcknowledgedAt()
+// ClearDateAcknowledged clears the value of the "date_acknowledged" field.
+func (_u *CustodyUpdateOne) ClearDateAcknowledged() *CustodyUpdateOne {
+	_u.mutation.ClearDateAcknowledged()
 	return _u
 }
 
-// SetReturnedAt sets the "returned_at" field.
-func (_u *CustodyUpdateOne) SetReturnedAt(v time.Time) *CustodyUpdateOne {
-	_u.mutation.SetReturnedAt(v)
+// SetDateReturned sets the "date_returned" field.
+func (_u *CustodyUpdateOne) SetDateReturned(v time.Time) *CustodyUpdateOne {
+	_u.mutation.SetDateReturned(v)
 	return _u
 }
 
-// SetNillableReturnedAt sets the "returned_at" field if the given value is not nil.
-func (_u *CustodyUpdateOne) SetNillableReturnedAt(v *time.Time) *CustodyUpdateOne {
+// SetNillableDateReturned sets the "date_returned" field if the given value is not nil.
+func (_u *CustodyUpdateOne) SetNillableDateReturned(v *time.Time) *CustodyUpdateOne {
 	if v != nil {
-		_u.SetReturnedAt(*v)
+		_u.SetDateReturned(*v)
 	}
 	return _u
 }
 
-// ClearReturnedAt clears the value of the "returned_at" field.
-func (_u *CustodyUpdateOne) ClearReturnedAt() *CustodyUpdateOne {
-	_u.mutation.ClearReturnedAt()
+// ClearDateReturned clears the value of the "date_returned" field.
+func (_u *CustodyUpdateOne) ClearDateReturned() *CustodyUpdateOne {
+	_u.mutation.ClearDateReturned()
 	return _u
 }
 
@@ -738,23 +738,23 @@ func (_u *CustodyUpdateOne) sqlSave(ctx context.Context) (_node *Custody, err er
 	if e, ok := _u.mutation.FieldExpr(custody.FieldStatus); ok {
 		_spec.SetField(custody.FieldStatus, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.IssuedAt(); ok {
-		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateIssued(); ok {
+		_spec.SetField(custody.FieldDateIssued, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custody.FieldIssuedAt); ok {
-		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateIssued); ok {
+		_spec.SetField(custody.FieldDateIssued, field.TypeTime, e)
 	}
-	if _u.mutation.IssuedAtCleared() {
-		_spec.ClearField(custody.FieldIssuedAt, field.TypeTime)
+	if _u.mutation.DateIssuedCleared() {
+		_spec.ClearField(custody.FieldDateIssued, field.TypeTime)
 	}
-	if value, ok := _u.mutation.DueAt(); ok {
-		_spec.SetField(custody.FieldDueAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateDue(); ok {
+		_spec.SetField(custody.FieldDateDue, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custody.FieldDueAt); ok {
-		_spec.SetField(custody.FieldDueAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateDue); ok {
+		_spec.SetField(custody.FieldDateDue, field.TypeTime, e)
 	}
-	if _u.mutation.DueAtCleared() {
-		_spec.ClearField(custody.FieldDueAt, field.TypeTime)
+	if _u.mutation.DateDueCleared() {
+		_spec.ClearField(custody.FieldDateDue, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(custody.FieldDateUpdated, field.TypeTime, value)
@@ -774,23 +774,23 @@ func (_u *CustodyUpdateOne) sqlSave(ctx context.Context) (_node *Custody, err er
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(custody.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.AcknowledgedAt(); ok {
-		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateAcknowledged(); ok {
+		_spec.SetField(custody.FieldDateAcknowledged, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custody.FieldAcknowledgedAt); ok {
-		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateAcknowledged); ok {
+		_spec.SetField(custody.FieldDateAcknowledged, field.TypeTime, e)
 	}
-	if _u.mutation.AcknowledgedAtCleared() {
-		_spec.ClearField(custody.FieldAcknowledgedAt, field.TypeTime)
+	if _u.mutation.DateAcknowledgedCleared() {
+		_spec.ClearField(custody.FieldDateAcknowledged, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ReturnedAt(); ok {
-		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateReturned(); ok {
+		_spec.SetField(custody.FieldDateReturned, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(custody.FieldReturnedAt); ok {
-		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateReturned); ok {
+		_spec.SetField(custody.FieldDateReturned, field.TypeTime, e)
 	}
-	if _u.mutation.ReturnedAtCleared() {
-		_spec.ClearField(custody.FieldReturnedAt, field.TypeTime)
+	if _u.mutation.DateReturnedCleared() {
+		_spec.ClearField(custody.FieldDateReturned, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ReservationId(); ok {
 		_spec.SetField(custody.FieldReservationId, field.TypeUuid, value)

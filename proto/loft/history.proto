@@ -13,9 +13,10 @@ option features.field_presence = IMPLICIT;
 option go_package = "github.com/lesomnus/loft";
 
 // The time rows (design 3.3). Each is written once and changed only by being
-// superseded: `superseded_at` and `superseded_by` are set once, by the domain
-// layer, when a correction or a later fact replaces the row. `date_created` is
-// when the system learned it; `valid_from`/`valid_to` are when it was true.
+// superseded: `date_superseded` and `superseded_by` are set once, by the
+// domain layer, when a correction or a later fact replaces the row.
+// `date_created` is when the system learned it; `date_start`/`date_end` are
+// when it was true.
 //
 // An asset's facts and the events every row here points at are payday's past
 // (payday#151, `loft/past.proto`): its Event and Fact, written by its `past`
@@ -46,13 +47,13 @@ message Placement {
   }];
 
   int32 u_to = 16;
-  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
-  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp date_start = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_end = 18 [(orm.field) = {nullable: true}];
   bytes event_id = 19 [
     (orm.field) = {type: TYPE_UUID},
     (payday.field) = {event: true}
   ];
-  google.protobuf.Timestamp superseded_at = 20 [
+  google.protobuf.Timestamp date_superseded = 20 [
     (orm.field) = {nullable: true},
     (payday.field) = {stamped: true}
   ];
@@ -78,11 +79,11 @@ message Placement {
       },
       {
         name: "child"
-        refs: [{name: "child", number: 8}, {name: "valid_from", number: 17}]
+        refs: [{name: "child", number: 8}, {name: "date_start", number: 17}]
       },
       {
         name: "parent"
-        refs: [{name: "parent", number: 9}, {name: "valid_from", number: 17}]
+        refs: [{name: "parent", number: 9}, {name: "date_start", number: 17}]
       },
       // The rows an event wrote, and the ones it superseded. An expiry asks
       // of each event it would take whether a row that stays names it, by
@@ -136,13 +137,13 @@ message Link {
     default: ""
   }];
 
-  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
-  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp date_start = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_end = 18 [(orm.field) = {nullable: true}];
   bytes event_id = 19 [
     (orm.field) = {type: TYPE_UUID},
     (payday.field) = {event: true}
   ];
-  google.protobuf.Timestamp superseded_at = 20 [
+  google.protobuf.Timestamp date_superseded = 20 [
     (orm.field) = {nullable: true},
     (payday.field) = {stamped: true}
   ];
@@ -163,11 +164,11 @@ message Link {
       },
       {
         name: "source"
-        refs: [{name: "source", number: 8}, {name: "valid_from", number: 17}]
+        refs: [{name: "source", number: 8}, {name: "date_start", number: 17}]
       },
       {
         name: "target"
-        refs: [{name: "target", number: 9}, {name: "valid_from", number: 17}]
+        refs: [{name: "target", number: 9}, {name: "date_start", number: 17}]
       },
       // The rows an event wrote, and the ones it superseded. An expiry asks
       // of each event it would take whether a row that stays names it, by
@@ -217,13 +218,13 @@ message Stewardship {
     default: ""
   }];
 
-  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
-  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp date_start = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_end = 18 [(orm.field) = {nullable: true}];
   bytes event_id = 19 [
     (orm.field) = {type: TYPE_UUID},
     (payday.field) = {event: true}
   ];
-  google.protobuf.Timestamp superseded_at = 20 [
+  google.protobuf.Timestamp date_superseded = 20 [
     (orm.field) = {nullable: true},
     (payday.field) = {stamped: true}
   ];
@@ -244,11 +245,11 @@ message Stewardship {
       },
       {
         name: "asset"
-        refs: [{name: "asset", number: 8}, {name: "valid_from", number: 17}]
+        refs: [{name: "asset", number: 8}, {name: "date_start", number: 17}]
       },
       {
         name: "party"
-        refs: [{name: "party", number: 9}, {name: "valid_from", number: 17}]
+        refs: [{name: "party", number: 9}, {name: "date_start", number: 17}]
       },
       // The rows an event wrote, and the ones it superseded. An expiry asks
       // of each event it would take whether a row that stays names it, by

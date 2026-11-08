@@ -91,9 +91,9 @@ message AccessFilter {
 }
 
 message AccessReviewRequest {
-  // The stretch: from `from`, and before `to`.
-  google.protobuf.Timestamp from = 1;
-  google.protobuf.Timestamp to = 2;
+  // The stretch: from `date_from`, and before `date_to`.
+  google.protobuf.Timestamp date_from = 1;
+  google.protobuf.Timestamp date_to = 2;
 
   // Only the calls one membership made,
   bytes actor = 3 [features.field_presence = IMPLICIT];
@@ -124,7 +124,7 @@ message AccessReviewResponse {
 // AccessEntry is one row of the access record, read out.
 message AccessEntry {
   bytes id = 1 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp at = 2;
+  google.protobuf.Timestamp date_created = 2;
 
   // Who made the call -- a membership, none for the deployment -- and what
   // they are called now.

@@ -115,9 +115,9 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	x.NoError(err)
 	day := 24 * time.Hour
 	now := time.Now().UTC().Truncate(time.Microsecond)
-	laptop, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "노트북", Tag: "NB-1", Since: timestamppb.New(now.Add(-300 * day))}.Build())
+	laptop, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "노트북", Tag: "NB-1", DateOccurred: timestamppb.New(now.Add(-300 * day))}.Build())
 	x.NoError(err)
-	room, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "회의실", Tag: "S-1", Kind: "space", Since: timestamppb.New(now.Add(-300 * day))}.Build())
+	room, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "회의실", Tag: "S-1", Kind: "space", DateOccurred: timestamppb.New(now.Add(-300 * day))}.Build())
 	x.NoError(err)
 	a, r := uuid.UUID(laptop.GetId()), uuid.UUID(room.GetId())
 
@@ -133,7 +133,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 		x.True(ok)
 		var text string
 		x.NoError(json.Unmarshal([]byte(f.Value), &text), f.Value)
-		rows = append(rows, oldFact{id: f.Id, asset: f.SubjectId, event: f.EventId, key: k, value: text, from: f.ValidFrom, recorded: f.DateCreated})
+		rows = append(rows, oldFact{id: f.Id, asset: f.SubjectId, event: f.EventId, key: k, value: text, from: f.DateStart, recorded: f.DateCreated})
 	}
 	ev := func() uuid.UUID { return pdid.New(pd.EventDomain).Uuid() }
 	at := func(d time.Duration) time.Time {
@@ -226,13 +226,13 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 		x.Equal(entry, f.Key, v.key)
 		x.Equal(value, f.Value, v.key)
 		x.Equal(v.event, f.EventId)
-		x.True(v.from.Equal(f.ValidFrom), "%s from %s, and %s", v.key, v.from, f.ValidFrom)
+		x.True(v.from.Equal(f.DateStart), "%s from %s, and %s", v.key, v.from, f.DateStart)
 		x.True(v.recorded.Equal(f.DateCreated), "%s known from %s, and %s", v.key, v.recorded, f.DateCreated)
 		if v.superseded == nil {
-			x.Nil(f.SupersededAt)
+			x.Nil(f.DateSuperseded)
 			x.Nil(f.SupersededBy)
 		} else {
-			x.True(v.superseded.Equal(*f.SupersededAt))
+			x.True(v.superseded.Equal(*f.DateSuperseded))
 			x.Equal(*v.supersededBy, *f.SupersededBy)
 		}
 	}
@@ -251,7 +251,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	// What it was at a moment, as it read before -- a type and a model by
 	// the one form an identifier is written in.
 	for _, m := range moments {
-		v, err := s.Walled.Asset().QueryAt(owner, app.AssetQueryAtRequest_builder{Root: app.AssetById(a[:]), At: timestamppb.New(m), Depth: 1}.Build())
+		v, err := s.Walled.Asset().QueryAt(owner, app.AssetQueryAtRequest_builder{Root: app.AssetById(a[:]), DateAsOf: timestamppb.New(m), Depth: 1}.Build())
 		x.NoError(err)
 		want := oracle[m]
 		for _, k := range []string{"type", "model"} {
@@ -293,7 +293,7 @@ func TestAnAssetsFactsMoveIntoThePast(t *testing.T) {
 	x.Equal(3, gone.Facts, "the old name, and what the status was before it was active")
 	x.Equal(before-gone.Facts, must(s.Ent.Fact.Query().Count(ctx)))
 	for _, m := range moments[2:] {
-		v, err := s.Walled.Asset().QueryAt(owner, app.AssetQueryAtRequest_builder{Root: app.AssetById(a[:]), At: timestamppb.New(m), Depth: 1}.Build())
+		v, err := s.Walled.Asset().QueryAt(owner, app.AssetQueryAtRequest_builder{Root: app.AssetById(a[:]), DateAsOf: timestamppb.New(m), Depth: 1}.Build())
 		x.NoError(err)
 		x.Equal(oracle[m], v.GetItems()[0].GetFacts(), "inside the window, at %s", m)
 	}
@@ -386,9 +386,9 @@ func factsAt(rows []oldFact, asset uuid.UUID, at time.Time) map[string]string {
 func value(t *testing.T, s *cmd.Server, asset uuid.UUID, n uint32) string {
 	t.Helper()
 	var v string
-	q := "SELECT value FROM fact WHERE subject_id = ? AND field_number = ? AND superseded_at IS NULL"
+	q := "SELECT value FROM fact WHERE subject_id = ? AND field_number = ? AND date_superseded IS NULL"
 	if s.Dialect == "postgres" {
-		q = "SELECT value FROM fact WHERE subject_id = $1 AND field_number = $2 AND superseded_at IS NULL"
+		q = "SELECT value FROM fact WHERE subject_id = $1 AND field_number = $2 AND date_superseded IS NULL"
 	}
 	require.NoError(t, s.Db.QueryRowContext(t.Context(), q, asset.String(), n).Scan(&v))
 	return v

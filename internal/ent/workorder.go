@@ -29,10 +29,10 @@ type WorkOrder struct {
 	Kind string `json:"kind,omitempty"`
 	// Status holds the value of the "status" field.
 	Status string `json:"status,omitempty"`
-	// BeginsAt holds the value of the "begins_at" field.
-	BeginsAt *time.Time `json:"begins_at,omitempty"`
-	// EndsAt holds the value of the "ends_at" field.
-	EndsAt *time.Time `json:"ends_at,omitempty"`
+	// DateStart holds the value of the "date_start" field.
+	DateStart *time.Time `json:"date_start,omitempty"`
+	// DateEnd holds the value of the "date_end" field.
+	DateEnd *time.Time `json:"date_end,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
@@ -43,8 +43,8 @@ type WorkOrder struct {
 	Cost int64 `json:"cost,omitempty"`
 	// Currency holds the value of the "currency" field.
 	Currency string `json:"currency,omitempty"`
-	// CompletedAt holds the value of the "completed_at" field.
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
+	// DateCompleted holds the value of the "date_completed" field.
+	DateCompleted *time.Time `json:"date_completed,omitempty"`
 	// Blocking holds the value of the "blocking" field.
 	Blocking bool `json:"blocking,omitempty"`
 	// EveryDays holds the value of the "every_days" field.
@@ -118,7 +118,7 @@ func (*WorkOrder) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case workorder.FieldName, workorder.FieldDesc, workorder.FieldKind, workorder.FieldStatus, workorder.FieldCurrency:
 			values[i] = new(sql.NullString)
-		case workorder.FieldBeginsAt, workorder.FieldEndsAt, workorder.FieldDateUpdated, workorder.FieldDateErased, workorder.FieldDateCreated, workorder.FieldCompletedAt:
+		case workorder.FieldDateStart, workorder.FieldDateEnd, workorder.FieldDateUpdated, workorder.FieldDateErased, workorder.FieldDateCreated, workorder.FieldDateCompleted:
 			values[i] = new(sql.NullTime)
 		case workorder.FieldVendorId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -169,19 +169,19 @@ func (_m *WorkOrder) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Status = value.String
 			}
-		case workorder.FieldBeginsAt:
+		case workorder.FieldDateStart:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field begins_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_start", values[i])
 			} else if value.Valid {
-				_m.BeginsAt = new(time.Time)
-				*_m.BeginsAt = value.Time
+				_m.DateStart = new(time.Time)
+				*_m.DateStart = value.Time
 			}
-		case workorder.FieldEndsAt:
+		case workorder.FieldDateEnd:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field ends_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_end", values[i])
 			} else if value.Valid {
-				_m.EndsAt = new(time.Time)
-				*_m.EndsAt = value.Time
+				_m.DateEnd = new(time.Time)
+				*_m.DateEnd = value.Time
 			}
 		case workorder.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -214,12 +214,12 @@ func (_m *WorkOrder) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Currency = value.String
 			}
-		case workorder.FieldCompletedAt:
+		case workorder.FieldDateCompleted:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_completed", values[i])
 			} else if value.Valid {
-				_m.CompletedAt = new(time.Time)
-				*_m.CompletedAt = value.Time
+				_m.DateCompleted = new(time.Time)
+				*_m.DateCompleted = value.Time
 			}
 		case workorder.FieldBlocking:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -314,13 +314,13 @@ func (_m *WorkOrder) String() string {
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)
 	builder.WriteString(", ")
-	if v := _m.BeginsAt; v != nil {
-		builder.WriteString("begins_at=")
+	if v := _m.DateStart; v != nil {
+		builder.WriteString("date_start=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := _m.EndsAt; v != nil {
-		builder.WriteString("ends_at=")
+	if v := _m.DateEnd; v != nil {
+		builder.WriteString("date_end=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
@@ -341,8 +341,8 @@ func (_m *WorkOrder) String() string {
 	builder.WriteString("currency=")
 	builder.WriteString(_m.Currency)
 	builder.WriteString(", ")
-	if v := _m.CompletedAt; v != nil {
-		builder.WriteString("completed_at=")
+	if v := _m.DateCompleted; v != nil {
+		builder.WriteString("date_completed=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

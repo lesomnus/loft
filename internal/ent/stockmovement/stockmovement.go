@@ -18,8 +18,8 @@ const (
 	FieldReason = "reason"
 	// FieldRefId holds the string denoting the ref_id field in the database.
 	FieldRefId = "ref_id"
-	// FieldOccurredAt holds the string denoting the occurred_at field in the database.
-	FieldOccurredAt = "occurred_at"
+	// FieldDateOccurred holds the string denoting the date_occurred field in the database.
+	FieldDateOccurred = "date_occurred"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
@@ -60,7 +60,7 @@ var Columns = []string{
 	FieldDelta,
 	FieldReason,
 	FieldRefId,
-	FieldOccurredAt,
+	FieldDateOccurred,
 	FieldDateUpdated,
 	FieldDateCreated,
 	FieldEventId,
@@ -102,9 +102,9 @@ func ByRefId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRefId, opts...).ToFunc()
 }
 
-// ByOccurredAt orders the results by the occurred_at field.
-func ByOccurredAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOccurredAt, opts...).ToFunc()
+// ByDateOccurred orders the results by the date_occurred field.
+func ByDateOccurred(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateOccurred, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.

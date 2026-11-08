@@ -49,30 +49,30 @@ func (_c *PurchaseCreate) SetStatus(v string) *PurchaseCreate {
 	return _c
 }
 
-// SetOrderedAt sets the "ordered_at" field.
-func (_c *PurchaseCreate) SetOrderedAt(v time.Time) *PurchaseCreate {
-	_c.mutation.SetOrderedAt(v)
+// SetDateOrdered sets the "date_ordered" field.
+func (_c *PurchaseCreate) SetDateOrdered(v time.Time) *PurchaseCreate {
+	_c.mutation.SetDateOrdered(v)
 	return _c
 }
 
-// SetNillableOrderedAt sets the "ordered_at" field if the given value is not nil.
-func (_c *PurchaseCreate) SetNillableOrderedAt(v *time.Time) *PurchaseCreate {
+// SetNillableDateOrdered sets the "date_ordered" field if the given value is not nil.
+func (_c *PurchaseCreate) SetNillableDateOrdered(v *time.Time) *PurchaseCreate {
 	if v != nil {
-		_c.SetOrderedAt(*v)
+		_c.SetDateOrdered(*v)
 	}
 	return _c
 }
 
-// SetReceivedAt sets the "received_at" field.
-func (_c *PurchaseCreate) SetReceivedAt(v time.Time) *PurchaseCreate {
-	_c.mutation.SetReceivedAt(v)
+// SetDateReceived sets the "date_received" field.
+func (_c *PurchaseCreate) SetDateReceived(v time.Time) *PurchaseCreate {
+	_c.mutation.SetDateReceived(v)
 	return _c
 }
 
-// SetNillableReceivedAt sets the "received_at" field if the given value is not nil.
-func (_c *PurchaseCreate) SetNillableReceivedAt(v *time.Time) *PurchaseCreate {
+// SetNillableDateReceived sets the "date_received" field if the given value is not nil.
+func (_c *PurchaseCreate) SetNillableDateReceived(v *time.Time) *PurchaseCreate {
 	if v != nil {
-		_c.SetReceivedAt(*v)
+		_c.SetDateReceived(*v)
 	}
 	return _c
 }
@@ -290,13 +290,13 @@ func (_c *PurchaseCreate) createSpec() (*Purchase, *sqlgraph.CreateSpec) {
 		_spec.SetField(purchase.FieldStatus, field.TypeString, value)
 		_node.Status = value
 	}
-	if value, ok := _c.mutation.OrderedAt(); ok {
-		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, value)
-		_node.OrderedAt = value
+	if value, ok := _c.mutation.DateOrdered(); ok {
+		_spec.SetField(purchase.FieldDateOrdered, field.TypeTime, value)
+		_node.DateOrdered = value
 	}
-	if value, ok := _c.mutation.ReceivedAt(); ok {
-		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, value)
-		_node.ReceivedAt = &value
+	if value, ok := _c.mutation.DateReceived(); ok {
+		_spec.SetField(purchase.FieldDateReceived, field.TypeTime, value)
+		_node.DateReceived = &value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(purchase.FieldDateUpdated, field.TypeTime, value)

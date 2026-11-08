@@ -47,11 +47,11 @@ type operatorAccess struct {
 func (s operatorAccess) List(ctx context.Context, req *app.OperatorAccessListRequest) (*app.OperatorAccessListResponse, error) {
 	now := time.Now()
 	from, to := now.Add(-30*24*time.Hour), now
-	if req.HasFrom() {
-		from = req.GetFrom().AsTime()
+	if req.HasDateFrom() {
+		from = req.GetDateFrom().AsTime()
 	}
-	if req.HasTo() {
-		to = req.GetTo().AsTime()
+	if req.HasDateTo() {
+		to = req.GetDateTo().AsTime()
 	}
 	if !to.After(from) {
 		return nil, status.Error(codes.InvalidArgument, "to: before from")
@@ -130,16 +130,16 @@ func (s operatorAccess) List(ctx context.Context, req *app.OperatorAccessListReq
 			_ = proto.Unmarshal(v.Value, d)
 			actor := pdid.Id(v.ActorId)
 			out.SetItems(append(out.GetItems(), app.OperatorAccessRow_builder{
-				At:       timestamppb.New(v.DateCreated),
-				Tenant:   alias(v.TenantId),
-				Kind:     v.Kind,
-				Result:   v.Result,
-				Action:   v.Action,
-				Actor:    actor.Bytes(),
-				Operator: s.a.operatorNamed(actor),
-				Address:  d.GetAddress(),
-				Subjects: v.SubjectCount,
-				Reason:   d.GetReason(),
+				DateCreated: timestamppb.New(v.DateCreated),
+				Tenant:      alias(v.TenantId),
+				Kind:        v.Kind,
+				Result:      v.Result,
+				Action:      v.Action,
+				Actor:       actor.Bytes(),
+				Operator:    s.a.operatorNamed(actor),
+				Address:     d.GetAddress(),
+				Subjects:    v.SubjectCount,
+				Reason:      d.GetReason(),
 			}.Build()))
 			if !operator.Is(actor) {
 				seen = append(seen, access.Subject{Id: actor, Tenant: pdid.Id(v.ActorTenantId)})

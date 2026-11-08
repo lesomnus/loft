@@ -117,7 +117,7 @@ func TestTheEngineNarrowsAsTheRequestDoes(t *testing.T) {
 	x.NoError(err)
 	ty, err := e.app().AssetType().Add(e.owner, app.AssetTypeAddRequest_builder{Name: "입력 장치", Kind: "item"}.Build())
 	x.NoError(err)
-	typed := app.AssetAddRequest_builder{Name: "무선 키보드", Tag: "KB-1", Kind: "item", Type: ref[app.AssetTypeRef](ty.GetId()), Since: e.ago(day)}.Build()
+	typed := app.AssetAddRequest_builder{Name: "무선 키보드", Tag: "KB-1", Kind: "item", Type: ref[app.AssetTypeRef](ty.GetId()), DateOccurred: e.ago(day)}.Build()
 	typed.SetTo(assetRef(store))
 	_, err = e.app().Asset().Add(e.owner, typed)
 	x.NoError(err)
@@ -130,7 +130,7 @@ func TestTheEngineNarrowsAsTheRequestDoes(t *testing.T) {
 	gone := e.item("고장난 키보드", "KB-3", store, day)
 
 	_, beta := e.newTenant("beta")
-	other := app.AssetAddRequest_builder{Name: "다른 곳의 키보드", Tag: "KB-1", Kind: "item", Since: e.ago(day)}.Build()
+	other := app.AssetAddRequest_builder{Name: "다른 곳의 키보드", Tag: "KB-1", Kind: "item", DateOccurred: e.ago(day)}.Build()
 	_, err = e.app().Asset().Add(beta, other)
 	x.NoError(err)
 

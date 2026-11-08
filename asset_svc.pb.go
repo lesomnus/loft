@@ -43,10 +43,10 @@ type AssetAddRequest struct {
 	xxx_hidden_Slot           string                 `protobuf:"bytes,20,opt,name=slot"`
 	xxx_hidden_Custodian      *PartyRef              `protobuf:"bytes,21,opt,name=custodian"`
 	xxx_hidden_Attributes     map[string]string      `protobuf:"bytes,22,rep,name=attributes" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_AcquiredAt     *timestamppb.Timestamp `protobuf:"bytes,23,opt,name=acquired_at,json=acquiredAt"`
-	xxx_hidden_DisposedAt     *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=disposed_at,json=disposedAt"`
+	xxx_hidden_DateAcquired   *timestamppb.Timestamp `protobuf:"bytes,23,opt,name=date_acquired,json=dateAcquired"`
+	xxx_hidden_DateDisposed   *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_disposed,json=dateDisposed"`
 	xxx_hidden_ContentVersion uint64                 `protobuf:"varint,25,opt,name=content_version,json=contentVersion"`
-	xxx_hidden_Since          *timestamppb.Timestamp `protobuf:"bytes,100,opt,name=since"`
+	xxx_hidden_DateOccurred   *timestamppb.Timestamp `protobuf:"bytes,100,opt,name=date_occurred,json=dateOccurred"`
 	xxx_hidden_Op             []byte                 `protobuf:"bytes,101,opt,name=op"`
 	xxx_hidden_Reason         *string                `protobuf:"bytes,102,opt,name=reason"`
 	xxx_hidden_To             *AssetRef              `protobuf:"bytes,103,opt,name=to"`
@@ -211,16 +211,16 @@ func (x *AssetAddRequest) GetAttributes() map[string]string {
 	return nil
 }
 
-func (x *AssetAddRequest) GetAcquiredAt() *timestamppb.Timestamp {
+func (x *AssetAddRequest) GetDateAcquired() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AcquiredAt
+		return x.xxx_hidden_DateAcquired
 	}
 	return nil
 }
 
-func (x *AssetAddRequest) GetDisposedAt() *timestamppb.Timestamp {
+func (x *AssetAddRequest) GetDateDisposed() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DisposedAt
+		return x.xxx_hidden_DateDisposed
 	}
 	return nil
 }
@@ -232,9 +232,9 @@ func (x *AssetAddRequest) GetContentVersion() uint64 {
 	return 0
 }
 
-func (x *AssetAddRequest) GetSince() *timestamppb.Timestamp {
+func (x *AssetAddRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Since
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -383,20 +383,20 @@ func (x *AssetAddRequest) SetAttributes(v map[string]string) {
 	x.xxx_hidden_Attributes = v
 }
 
-func (x *AssetAddRequest) SetAcquiredAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AcquiredAt = v
+func (x *AssetAddRequest) SetDateAcquired(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAcquired = v
 }
 
-func (x *AssetAddRequest) SetDisposedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DisposedAt = v
+func (x *AssetAddRequest) SetDateDisposed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDisposed = v
 }
 
 func (x *AssetAddRequest) SetContentVersion(v uint64) {
 	x.xxx_hidden_ContentVersion = v
 }
 
-func (x *AssetAddRequest) SetSince(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Since = v
+func (x *AssetAddRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *AssetAddRequest) SetOp(v []byte) {
@@ -485,25 +485,25 @@ func (x *AssetAddRequest) HasCustodian() bool {
 	return x.xxx_hidden_Custodian != nil
 }
 
-func (x *AssetAddRequest) HasAcquiredAt() bool {
+func (x *AssetAddRequest) HasDateAcquired() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AcquiredAt != nil
+	return x.xxx_hidden_DateAcquired != nil
 }
 
-func (x *AssetAddRequest) HasDisposedAt() bool {
+func (x *AssetAddRequest) HasDateDisposed() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DisposedAt != nil
+	return x.xxx_hidden_DateDisposed != nil
 }
 
-func (x *AssetAddRequest) HasSince() bool {
+func (x *AssetAddRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Since != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *AssetAddRequest) HasOp() bool {
@@ -585,16 +585,16 @@ func (x *AssetAddRequest) ClearCustodian() {
 	x.xxx_hidden_Custodian = nil
 }
 
-func (x *AssetAddRequest) ClearAcquiredAt() {
-	x.xxx_hidden_AcquiredAt = nil
+func (x *AssetAddRequest) ClearDateAcquired() {
+	x.xxx_hidden_DateAcquired = nil
 }
 
-func (x *AssetAddRequest) ClearDisposedAt() {
-	x.xxx_hidden_DisposedAt = nil
+func (x *AssetAddRequest) ClearDateDisposed() {
+	x.xxx_hidden_DateDisposed = nil
 }
 
-func (x *AssetAddRequest) ClearSince() {
-	x.xxx_hidden_Since = nil
+func (x *AssetAddRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 func (x *AssetAddRequest) ClearOp() {
@@ -652,16 +652,16 @@ type AssetAddRequest_builder struct {
 	Slot           string
 	Custodian      *PartyRef
 	Attributes     map[string]string
-	AcquiredAt     *timestamppb.Timestamp
-	DisposedAt     *timestamppb.Timestamp
+	DateAcquired   *timestamppb.Timestamp
+	DateDisposed   *timestamppb.Timestamp
 	ContentVersion uint64
 	// When the asset started being what the request says: the initial facts
 	// and placement are valid from here. Empty is now.
-	Since *timestamppb.Timestamp
+	DateOccurred *timestamppb.Timestamp
 	// A client-minted Event id, so that a retry is the same operation.
 	Op     []byte
 	Reason *string
-	// Where it is, from `since`. Taken from here rather than from parent_id so
+	// Where it is, from `date_occurred`. Taken from here rather than from parent_id so
 	// that a mode and a slot come with it.
 	To   *AssetRef
 	Mode *string
@@ -703,10 +703,10 @@ func (b0 AssetAddRequest_builder) Build() *AssetAddRequest {
 	x.xxx_hidden_Slot = b.Slot
 	x.xxx_hidden_Custodian = b.Custodian
 	x.xxx_hidden_Attributes = b.Attributes
-	x.xxx_hidden_AcquiredAt = b.AcquiredAt
-	x.xxx_hidden_DisposedAt = b.DisposedAt
+	x.xxx_hidden_DateAcquired = b.DateAcquired
+	x.xxx_hidden_DateDisposed = b.DateDisposed
 	x.xxx_hidden_ContentVersion = b.ContentVersion
-	x.xxx_hidden_Since = b.Since
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	if b.Op != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 22, 29)
 		x.xxx_hidden_Op = b.Op
@@ -1455,8 +1455,8 @@ type AssetSelect struct {
 	xxx_hidden_Slot           bool                   `protobuf:"varint,20,opt,name=slot"`
 	xxx_hidden_Custodian      *PartySelect           `protobuf:"bytes,21,opt,name=custodian"`
 	xxx_hidden_Attributes     bool                   `protobuf:"varint,22,opt,name=attributes"`
-	xxx_hidden_AcquiredAt     bool                   `protobuf:"varint,23,opt,name=acquired_at,json=acquiredAt"`
-	xxx_hidden_DisposedAt     bool                   `protobuf:"varint,24,opt,name=disposed_at,json=disposedAt"`
+	xxx_hidden_DateAcquired   bool                   `protobuf:"varint,23,opt,name=date_acquired,json=dateAcquired"`
+	xxx_hidden_DateDisposed   bool                   `protobuf:"varint,24,opt,name=date_disposed,json=dateDisposed"`
 	xxx_hidden_ContentVersion bool                   `protobuf:"varint,25,opt,name=content_version,json=contentVersion"`
 	XXX_raceDetectHookData    protoimpl.RaceDetectHookData
 	XXX_presence              [1]uint32
@@ -1629,16 +1629,16 @@ func (x *AssetSelect) GetAttributes() bool {
 	return false
 }
 
-func (x *AssetSelect) GetAcquiredAt() bool {
+func (x *AssetSelect) GetDateAcquired() bool {
 	if x != nil {
-		return x.xxx_hidden_AcquiredAt
+		return x.xxx_hidden_DateAcquired
 	}
 	return false
 }
 
-func (x *AssetSelect) GetDisposedAt() bool {
+func (x *AssetSelect) GetDateDisposed() bool {
 	if x != nil {
-		return x.xxx_hidden_DisposedAt
+		return x.xxx_hidden_DateDisposed
 	}
 	return false
 }
@@ -1746,13 +1746,13 @@ func (x *AssetSelect) SetAttributes(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 19, 23)
 }
 
-func (x *AssetSelect) SetAcquiredAt(v bool) {
-	x.xxx_hidden_AcquiredAt = v
+func (x *AssetSelect) SetDateAcquired(v bool) {
+	x.xxx_hidden_DateAcquired = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 20, 23)
 }
 
-func (x *AssetSelect) SetDisposedAt(v bool) {
-	x.xxx_hidden_DisposedAt = v
+func (x *AssetSelect) SetDateDisposed(v bool) {
+	x.xxx_hidden_DateDisposed = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 21, 23)
 }
 
@@ -1901,14 +1901,14 @@ func (x *AssetSelect) HasAttributes() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 19)
 }
 
-func (x *AssetSelect) HasAcquiredAt() bool {
+func (x *AssetSelect) HasDateAcquired() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 20)
 }
 
-func (x *AssetSelect) HasDisposedAt() bool {
+func (x *AssetSelect) HasDateDisposed() bool {
 	if x == nil {
 		return false
 	}
@@ -2018,14 +2018,14 @@ func (x *AssetSelect) ClearAttributes() {
 	x.xxx_hidden_Attributes = false
 }
 
-func (x *AssetSelect) ClearAcquiredAt() {
+func (x *AssetSelect) ClearDateAcquired() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 20)
-	x.xxx_hidden_AcquiredAt = false
+	x.xxx_hidden_DateAcquired = false
 }
 
-func (x *AssetSelect) ClearDisposedAt() {
+func (x *AssetSelect) ClearDateDisposed() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 21)
-	x.xxx_hidden_DisposedAt = false
+	x.xxx_hidden_DateDisposed = false
 }
 
 func (x *AssetSelect) ClearContentVersion() {
@@ -2056,8 +2056,8 @@ type AssetSelect_builder struct {
 	Slot           *bool
 	Custodian      *PartySelect
 	Attributes     *bool
-	AcquiredAt     *bool
-	DisposedAt     *bool
+	DateAcquired   *bool
+	DateDisposed   *bool
 	ContentVersion *bool
 }
 
@@ -2133,13 +2133,13 @@ func (b0 AssetSelect_builder) Build() *AssetSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 19, 23)
 		x.xxx_hidden_Attributes = *b.Attributes
 	}
-	if b.AcquiredAt != nil {
+	if b.DateAcquired != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 20, 23)
-		x.xxx_hidden_AcquiredAt = *b.AcquiredAt
+		x.xxx_hidden_DateAcquired = *b.DateAcquired
 	}
-	if b.DisposedAt != nil {
+	if b.DateDisposed != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 21, 23)
-		x.xxx_hidden_DisposedAt = *b.DisposedAt
+		x.xxx_hidden_DateDisposed = *b.DateDisposed
 	}
 	if b.ContentVersion != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 22, 23)
@@ -2172,10 +2172,10 @@ type AssetPatchRequest struct {
 	xxx_hidden_Custodian        *PartyRef              `protobuf:"bytes,42,opt,name=custodian"`
 	xxx_hidden_CustodianNull    bool                   `protobuf:"varint,43,opt,name=custodian_null,json=custodianNull"`
 	xxx_hidden_Attributes       map[string]string      `protobuf:"bytes,44,rep,name=attributes" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_AcquiredAt       *timestamppb.Timestamp `protobuf:"bytes,46,opt,name=acquired_at,json=acquiredAt"`
-	xxx_hidden_AcquiredAtNull   bool                   `protobuf:"varint,47,opt,name=acquired_at_null,json=acquiredAtNull"`
-	xxx_hidden_DisposedAt       *timestamppb.Timestamp `protobuf:"bytes,48,opt,name=disposed_at,json=disposedAt"`
-	xxx_hidden_DisposedAtNull   bool                   `protobuf:"varint,49,opt,name=disposed_at_null,json=disposedAtNull"`
+	xxx_hidden_DateAcquired     *timestamppb.Timestamp `protobuf:"bytes,46,opt,name=date_acquired,json=dateAcquired"`
+	xxx_hidden_DateAcquiredNull bool                   `protobuf:"varint,47,opt,name=date_acquired_null,json=dateAcquiredNull"`
+	xxx_hidden_DateDisposed     *timestamppb.Timestamp `protobuf:"bytes,48,opt,name=date_disposed,json=dateDisposed"`
+	xxx_hidden_DateDisposedNull bool                   `protobuf:"varint,49,opt,name=date_disposed_null,json=dateDisposedNull"`
 	xxx_hidden_ContentVersion   uint64                 `protobuf:"varint,50,opt,name=content_version,json=contentVersion"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
 	XXX_presence                [1]uint32
@@ -2389,30 +2389,30 @@ func (x *AssetPatchRequest) GetAttributes() map[string]string {
 	return nil
 }
 
-func (x *AssetPatchRequest) GetAcquiredAt() *timestamppb.Timestamp {
+func (x *AssetPatchRequest) GetDateAcquired() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AcquiredAt
+		return x.xxx_hidden_DateAcquired
 	}
 	return nil
 }
 
-func (x *AssetPatchRequest) GetAcquiredAtNull() bool {
+func (x *AssetPatchRequest) GetDateAcquiredNull() bool {
 	if x != nil {
-		return x.xxx_hidden_AcquiredAtNull
+		return x.xxx_hidden_DateAcquiredNull
 	}
 	return false
 }
 
-func (x *AssetPatchRequest) GetDisposedAt() *timestamppb.Timestamp {
+func (x *AssetPatchRequest) GetDateDisposed() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_DisposedAt
+		return x.xxx_hidden_DateDisposed
 	}
 	return nil
 }
 
-func (x *AssetPatchRequest) GetDisposedAtNull() bool {
+func (x *AssetPatchRequest) GetDateDisposedNull() bool {
 	if x != nil {
-		return x.xxx_hidden_DisposedAtNull
+		return x.xxx_hidden_DateDisposedNull
 	}
 	return false
 }
@@ -2530,21 +2530,21 @@ func (x *AssetPatchRequest) SetAttributes(v map[string]string) {
 	x.xxx_hidden_Attributes = v
 }
 
-func (x *AssetPatchRequest) SetAcquiredAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AcquiredAt = v
+func (x *AssetPatchRequest) SetDateAcquired(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAcquired = v
 }
 
-func (x *AssetPatchRequest) SetAcquiredAtNull(v bool) {
-	x.xxx_hidden_AcquiredAtNull = v
+func (x *AssetPatchRequest) SetDateAcquiredNull(v bool) {
+	x.xxx_hidden_DateAcquiredNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 23, 27)
 }
 
-func (x *AssetPatchRequest) SetDisposedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DisposedAt = v
+func (x *AssetPatchRequest) SetDateDisposed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDisposed = v
 }
 
-func (x *AssetPatchRequest) SetDisposedAtNull(v bool) {
-	x.xxx_hidden_DisposedAtNull = v
+func (x *AssetPatchRequest) SetDateDisposedNull(v bool) {
+	x.xxx_hidden_DateDisposedNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 25, 27)
 }
 
@@ -2693,28 +2693,28 @@ func (x *AssetPatchRequest) HasCustodianNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 20)
 }
 
-func (x *AssetPatchRequest) HasAcquiredAt() bool {
+func (x *AssetPatchRequest) HasDateAcquired() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AcquiredAt != nil
+	return x.xxx_hidden_DateAcquired != nil
 }
 
-func (x *AssetPatchRequest) HasAcquiredAtNull() bool {
+func (x *AssetPatchRequest) HasDateAcquiredNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 23)
 }
 
-func (x *AssetPatchRequest) HasDisposedAt() bool {
+func (x *AssetPatchRequest) HasDateDisposed() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_DisposedAt != nil
+	return x.xxx_hidden_DateDisposed != nil
 }
 
-func (x *AssetPatchRequest) HasDisposedAtNull() bool {
+func (x *AssetPatchRequest) HasDateDisposedNull() bool {
 	if x == nil {
 		return false
 	}
@@ -2823,22 +2823,22 @@ func (x *AssetPatchRequest) ClearCustodianNull() {
 	x.xxx_hidden_CustodianNull = false
 }
 
-func (x *AssetPatchRequest) ClearAcquiredAt() {
-	x.xxx_hidden_AcquiredAt = nil
+func (x *AssetPatchRequest) ClearDateAcquired() {
+	x.xxx_hidden_DateAcquired = nil
 }
 
-func (x *AssetPatchRequest) ClearAcquiredAtNull() {
+func (x *AssetPatchRequest) ClearDateAcquiredNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 23)
-	x.xxx_hidden_AcquiredAtNull = false
+	x.xxx_hidden_DateAcquiredNull = false
 }
 
-func (x *AssetPatchRequest) ClearDisposedAt() {
-	x.xxx_hidden_DisposedAt = nil
+func (x *AssetPatchRequest) ClearDateDisposed() {
+	x.xxx_hidden_DateDisposed = nil
 }
 
-func (x *AssetPatchRequest) ClearDisposedAtNull() {
+func (x *AssetPatchRequest) ClearDateDisposedNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 25)
-	x.xxx_hidden_DisposedAtNull = false
+	x.xxx_hidden_DateDisposedNull = false
 }
 
 func (x *AssetPatchRequest) ClearContentVersion() {
@@ -2899,19 +2899,19 @@ type AssetPatchRequest_builder struct {
 	// outright: setting both this and custodian clears.
 	CustodianNull *bool
 	Attributes    map[string]string
-	AcquiredAt    *timestamppb.Timestamp
-	// Clear acquired_at instead of writing it.
+	DateAcquired  *timestamppb.Timestamp
+	// Clear date_acquired instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and acquired_at clears.
-	AcquiredAtNull *bool
-	DisposedAt     *timestamppb.Timestamp
-	// Clear disposed_at instead of writing it.
+	// outright: setting both this and date_acquired clears.
+	DateAcquiredNull *bool
+	DateDisposed     *timestamppb.Timestamp
+	// Clear date_disposed instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and disposed_at clears.
-	DisposedAtNull *bool
-	ContentVersion *uint64
+	// outright: setting both this and date_disposed clears.
+	DateDisposedNull *bool
+	ContentVersion   *uint64
 }
 
 func (b0 AssetPatchRequest_builder) Build() *AssetPatchRequest {
@@ -2985,15 +2985,15 @@ func (b0 AssetPatchRequest_builder) Build() *AssetPatchRequest {
 		x.xxx_hidden_CustodianNull = *b.CustodianNull
 	}
 	x.xxx_hidden_Attributes = b.Attributes
-	x.xxx_hidden_AcquiredAt = b.AcquiredAt
-	if b.AcquiredAtNull != nil {
+	x.xxx_hidden_DateAcquired = b.DateAcquired
+	if b.DateAcquiredNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 23, 27)
-		x.xxx_hidden_AcquiredAtNull = *b.AcquiredAtNull
+		x.xxx_hidden_DateAcquiredNull = *b.DateAcquiredNull
 	}
-	x.xxx_hidden_DisposedAt = b.DisposedAt
-	if b.DisposedAtNull != nil {
+	x.xxx_hidden_DateDisposed = b.DateDisposed
+	if b.DateDisposedNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 25, 27)
-		x.xxx_hidden_DisposedAtNull = *b.DisposedAtNull
+		x.xxx_hidden_DateDisposedNull = *b.DateDisposedNull
 	}
 	if b.ContentVersion != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 26, 27)
@@ -3954,18 +3954,18 @@ func (b0 AssetWatchItem_builder) Build() *AssetWatchItem {
 }
 
 type AssetMoveRequest struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref    *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_To     *AssetRef              `protobuf:"bytes,2,opt,name=to"`
-	xxx_hidden_Mode   string                 `protobuf:"bytes,3,opt,name=mode"`
-	xxx_hidden_Slot   string                 `protobuf:"bytes,4,opt,name=slot"`
-	xxx_hidden_UFrom  int32                  `protobuf:"varint,5,opt,name=u_from,json=uFrom"`
-	xxx_hidden_UTo    int32                  `protobuf:"varint,6,opt,name=u_to,json=uTo"`
-	xxx_hidden_At     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=at"`
-	xxx_hidden_Reason string                 `protobuf:"bytes,8,opt,name=reason"`
-	xxx_hidden_Op     []byte                 `protobuf:"bytes,9,opt,name=op"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref          *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_To           *AssetRef              `protobuf:"bytes,2,opt,name=to"`
+	xxx_hidden_Mode         string                 `protobuf:"bytes,3,opt,name=mode"`
+	xxx_hidden_Slot         string                 `protobuf:"bytes,4,opt,name=slot"`
+	xxx_hidden_UFrom        int32                  `protobuf:"varint,5,opt,name=u_from,json=uFrom"`
+	xxx_hidden_UTo          int32                  `protobuf:"varint,6,opt,name=u_to,json=uTo"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,8,opt,name=reason"`
+	xxx_hidden_Op           []byte                 `protobuf:"bytes,9,opt,name=op"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *AssetMoveRequest) Reset() {
@@ -4035,9 +4035,9 @@ func (x *AssetMoveRequest) GetUTo() int32 {
 	return 0
 }
 
-func (x *AssetMoveRequest) GetAt() *timestamppb.Timestamp {
+func (x *AssetMoveRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -4080,8 +4080,8 @@ func (x *AssetMoveRequest) SetUTo(v int32) {
 	x.xxx_hidden_UTo = v
 }
 
-func (x *AssetMoveRequest) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *AssetMoveRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *AssetMoveRequest) SetReason(v string) {
@@ -4109,11 +4109,11 @@ func (x *AssetMoveRequest) HasTo() bool {
 	return x.xxx_hidden_To != nil
 }
 
-func (x *AssetMoveRequest) HasAt() bool {
+func (x *AssetMoveRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *AssetMoveRequest) ClearRef() {
@@ -4124,8 +4124,8 @@ func (x *AssetMoveRequest) ClearTo() {
 	x.xxx_hidden_To = nil
 }
 
-func (x *AssetMoveRequest) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *AssetMoveRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 type AssetMoveRequest_builder struct {
@@ -4135,13 +4135,13 @@ type AssetMoveRequest_builder struct {
 	// Where it goes. Absent: out of wherever it was.
 	To *AssetRef
 	// located | installed | part
-	Mode   string
-	Slot   string
-	UFrom  int32
-	UTo    int32
-	At     *timestamppb.Timestamp
-	Reason string
-	Op     []byte
+	Mode         string
+	Slot         string
+	UFrom        int32
+	UTo          int32
+	DateOccurred *timestamppb.Timestamp
+	Reason       string
+	Op           []byte
 }
 
 func (b0 AssetMoveRequest_builder) Build() *AssetMoveRequest {
@@ -4154,23 +4154,23 @@ func (b0 AssetMoveRequest_builder) Build() *AssetMoveRequest {
 	x.xxx_hidden_Slot = b.Slot
 	x.xxx_hidden_UFrom = b.UFrom
 	x.xxx_hidden_UTo = b.UTo
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_Reason = b.Reason
 	x.xxx_hidden_Op = b.Op
 	return m0
 }
 
 type AssetSetAttributesRequest struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref    *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Set    map[string]string      `protobuf:"bytes,2,rep,name=set" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_Clear  []string               `protobuf:"bytes,3,rep,name=clear"`
-	xxx_hidden_At     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=at"`
-	xxx_hidden_Reason string                 `protobuf:"bytes,5,opt,name=reason"`
-	xxx_hidden_Op     []byte                 `protobuf:"bytes,6,opt,name=op"`
-	xxx_hidden_Leave  *[]*AssetRef           `protobuf:"bytes,7,rep,name=leave"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref          *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Set          map[string]string      `protobuf:"bytes,2,rep,name=set" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_Clear        []string               `protobuf:"bytes,3,rep,name=clear"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,5,opt,name=reason"`
+	xxx_hidden_Op           []byte                 `protobuf:"bytes,6,opt,name=op"`
+	xxx_hidden_Leave        *[]*AssetRef           `protobuf:"bytes,7,rep,name=leave"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *AssetSetAttributesRequest) Reset() {
@@ -4219,9 +4219,9 @@ func (x *AssetSetAttributesRequest) GetClear() []string {
 	return nil
 }
 
-func (x *AssetSetAttributesRequest) GetAt() *timestamppb.Timestamp {
+func (x *AssetSetAttributesRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -4261,8 +4261,8 @@ func (x *AssetSetAttributesRequest) SetClear(v []string) {
 	x.xxx_hidden_Clear = v
 }
 
-func (x *AssetSetAttributesRequest) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *AssetSetAttributesRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *AssetSetAttributesRequest) SetReason(v string) {
@@ -4287,19 +4287,19 @@ func (x *AssetSetAttributesRequest) HasRef() bool {
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *AssetSetAttributesRequest) HasAt() bool {
+func (x *AssetSetAttributesRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *AssetSetAttributesRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *AssetSetAttributesRequest) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *AssetSetAttributesRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 type AssetSetAttributesRequest_builder struct {
@@ -4308,15 +4308,15 @@ type AssetSetAttributesRequest_builder struct {
 	Ref *AssetRef
 	// Keys: name, desc, status, condition, serial, tag, type, model, or an
 	// attribute key. An empty value clears an attribute.
-	Set    map[string]string
-	Clear  []string
-	At     *timestamppb.Timestamp
-	Reason string
-	Op     []byte
+	Set          map[string]string
+	Clear        []string
+	DateOccurred *timestamppb.Timestamp
+	Reason       string
+	Op           []byte
 	// The kits and groups it leaves as it goes out of use -- with `status` set
 	// to lost, retired or disposed, and refused otherwise. Its membership of
 	// each ends in this operation, as a relation of its own this one is the
-	// cause of (design D34), from `at`, or from now when it was made a member
+	// cause of (design D34), from `date_occurred`, or from now when it was made a member
 	// after that; and the bookings of a kit let it go (design 4). One it is no
 	// member of now is passed over.
 	Leave []*AssetRef
@@ -4329,7 +4329,7 @@ func (b0 AssetSetAttributesRequest_builder) Build() *AssetSetAttributesRequest {
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_Set = b.Set
 	x.xxx_hidden_Clear = b.Clear
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_Reason = b.Reason
 	x.xxx_hidden_Op = b.Op
 	x.xxx_hidden_Leave = &b.Leave
@@ -4337,15 +4337,15 @@ func (b0 AssetSetAttributesRequest_builder) Build() *AssetSetAttributesRequest {
 }
 
 type AssetAssignRequest struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref    *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Role   string                 `protobuf:"bytes,2,opt,name=role"`
-	xxx_hidden_Party  *PartyRef              `protobuf:"bytes,3,opt,name=party"`
-	xxx_hidden_At     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=at"`
-	xxx_hidden_Reason string                 `protobuf:"bytes,5,opt,name=reason"`
-	xxx_hidden_Op     []byte                 `protobuf:"bytes,6,opt,name=op"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref          *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Role         string                 `protobuf:"bytes,2,opt,name=role"`
+	xxx_hidden_Party        *PartyRef              `protobuf:"bytes,3,opt,name=party"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,5,opt,name=reason"`
+	xxx_hidden_Op           []byte                 `protobuf:"bytes,6,opt,name=op"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *AssetAssignRequest) Reset() {
@@ -4394,9 +4394,9 @@ func (x *AssetAssignRequest) GetParty() *PartyRef {
 	return nil
 }
 
-func (x *AssetAssignRequest) GetAt() *timestamppb.Timestamp {
+func (x *AssetAssignRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -4427,8 +4427,8 @@ func (x *AssetAssignRequest) SetParty(v *PartyRef) {
 	x.xxx_hidden_Party = v
 }
 
-func (x *AssetAssignRequest) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *AssetAssignRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *AssetAssignRequest) SetReason(v string) {
@@ -4456,11 +4456,11 @@ func (x *AssetAssignRequest) HasParty() bool {
 	return x.xxx_hidden_Party != nil
 }
 
-func (x *AssetAssignRequest) HasAt() bool {
+func (x *AssetAssignRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *AssetAssignRequest) ClearRef() {
@@ -4471,8 +4471,8 @@ func (x *AssetAssignRequest) ClearParty() {
 	x.xxx_hidden_Party = nil
 }
 
-func (x *AssetAssignRequest) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *AssetAssignRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 type AssetAssignRequest_builder struct {
@@ -4482,10 +4482,10 @@ type AssetAssignRequest_builder struct {
 	// owner | manager | custodian
 	Role string
 	// Absent ends the role.
-	Party  *PartyRef
-	At     *timestamppb.Timestamp
-	Reason string
-	Op     []byte
+	Party        *PartyRef
+	DateOccurred *timestamppb.Timestamp
+	Reason       string
+	Op           []byte
 }
 
 func (b0 AssetAssignRequest_builder) Build() *AssetAssignRequest {
@@ -4495,24 +4495,24 @@ func (b0 AssetAssignRequest_builder) Build() *AssetAssignRequest {
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_Role = b.Role
 	x.xxx_hidden_Party = b.Party
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_Reason = b.Reason
 	x.xxx_hidden_Op = b.Op
 	return m0
 }
 
 type AssetRelateRequest struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref      *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Target   *AssetRef              `protobuf:"bytes,2,opt,name=target"`
-	xxx_hidden_Kind     string                 `protobuf:"bytes,3,opt,name=kind"`
-	xxx_hidden_Required bool                   `protobuf:"varint,4,opt,name=required"`
-	xxx_hidden_End      bool                   `protobuf:"varint,5,opt,name=end"`
-	xxx_hidden_At       *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=at"`
-	xxx_hidden_Reason   string                 `protobuf:"bytes,7,opt,name=reason"`
-	xxx_hidden_Op       []byte                 `protobuf:"bytes,8,opt,name=op"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref          *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Target       *AssetRef              `protobuf:"bytes,2,opt,name=target"`
+	xxx_hidden_Kind         string                 `protobuf:"bytes,3,opt,name=kind"`
+	xxx_hidden_Required     bool                   `protobuf:"varint,4,opt,name=required"`
+	xxx_hidden_End          bool                   `protobuf:"varint,5,opt,name=end"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,7,opt,name=reason"`
+	xxx_hidden_Op           []byte                 `protobuf:"bytes,8,opt,name=op"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *AssetRelateRequest) Reset() {
@@ -4575,9 +4575,9 @@ func (x *AssetRelateRequest) GetEnd() bool {
 	return false
 }
 
-func (x *AssetRelateRequest) GetAt() *timestamppb.Timestamp {
+func (x *AssetRelateRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -4616,8 +4616,8 @@ func (x *AssetRelateRequest) SetEnd(v bool) {
 	x.xxx_hidden_End = v
 }
 
-func (x *AssetRelateRequest) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *AssetRelateRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *AssetRelateRequest) SetReason(v string) {
@@ -4645,11 +4645,11 @@ func (x *AssetRelateRequest) HasTarget() bool {
 	return x.xxx_hidden_Target != nil
 }
 
-func (x *AssetRelateRequest) HasAt() bool {
+func (x *AssetRelateRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *AssetRelateRequest) ClearRef() {
@@ -4660,8 +4660,8 @@ func (x *AssetRelateRequest) ClearTarget() {
 	x.xxx_hidden_Target = nil
 }
 
-func (x *AssetRelateRequest) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *AssetRelateRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 type AssetRelateRequest_builder struct {
@@ -4673,10 +4673,10 @@ type AssetRelateRequest_builder struct {
 	Kind     string
 	Required bool
 	// End the relation instead of starting it.
-	End    bool
-	At     *timestamppb.Timestamp
-	Reason string
-	Op     []byte
+	End          bool
+	DateOccurred *timestamppb.Timestamp
+	Reason       string
+	Op           []byte
 }
 
 func (b0 AssetRelateRequest_builder) Build() *AssetRelateRequest {
@@ -4688,7 +4688,7 @@ func (b0 AssetRelateRequest_builder) Build() *AssetRelateRequest {
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_Required = b.Required
 	x.xxx_hidden_End = b.End
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_Reason = b.Reason
 	x.xxx_hidden_Op = b.Op
 	return m0
@@ -4699,7 +4699,7 @@ type AssetCorrectRequest struct {
 	xxx_hidden_Ref       *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
 	xxx_hidden_RowId     []byte                 `protobuf:"bytes,2,opt,name=row_id,json=rowId"`
 	xxx_hidden_Retract   bool                   `protobuf:"varint,3,opt,name=retract"`
-	xxx_hidden_ValidFrom *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=valid_from,json=validFrom"`
+	xxx_hidden_DateStart *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_start,json=dateStart"`
 	xxx_hidden_Reason    string                 `protobuf:"bytes,5,opt,name=reason"`
 	xxx_hidden_Op        []byte                 `protobuf:"bytes,6,opt,name=op"`
 	unknownFields        protoimpl.UnknownFields
@@ -4752,9 +4752,9 @@ func (x *AssetCorrectRequest) GetRetract() bool {
 	return false
 }
 
-func (x *AssetCorrectRequest) GetValidFrom() *timestamppb.Timestamp {
+func (x *AssetCorrectRequest) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidFrom
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
@@ -4788,8 +4788,8 @@ func (x *AssetCorrectRequest) SetRetract(v bool) {
 	x.xxx_hidden_Retract = v
 }
 
-func (x *AssetCorrectRequest) SetValidFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidFrom = v
+func (x *AssetCorrectRequest) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
 func (x *AssetCorrectRequest) SetReason(v string) {
@@ -4810,19 +4810,19 @@ func (x *AssetCorrectRequest) HasRef() bool {
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *AssetCorrectRequest) HasValidFrom() bool {
+func (x *AssetCorrectRequest) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidFrom != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
 func (x *AssetCorrectRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *AssetCorrectRequest) ClearValidFrom() {
-	x.xxx_hidden_ValidFrom = nil
+func (x *AssetCorrectRequest) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
 type AssetCorrectRequest_builder struct {
@@ -4834,7 +4834,7 @@ type AssetCorrectRequest_builder struct {
 	// It never happened.
 	Retract bool
 	// It happened, but from this moment instead.
-	ValidFrom *timestamppb.Timestamp
+	DateStart *timestamppb.Timestamp
 	Reason    string
 	Op        []byte
 }
@@ -4846,7 +4846,7 @@ func (b0 AssetCorrectRequest_builder) Build() *AssetCorrectRequest {
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_RowId = b.RowId
 	x.xxx_hidden_Retract = b.Retract
-	x.xxx_hidden_ValidFrom = b.ValidFrom
+	x.xxx_hidden_DateStart = b.DateStart
 	x.xxx_hidden_Reason = b.Reason
 	x.xxx_hidden_Op = b.Op
 	return m0
@@ -4856,7 +4856,7 @@ type AssetTimelineRequest struct {
 	state                 protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Ref        *AssetRef              `protobuf:"bytes,1,opt,name=ref"`
 	xxx_hidden_Superseded bool                   `protobuf:"varint,2,opt,name=superseded"`
-	xxx_hidden_Known      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=known"`
+	xxx_hidden_DateKnown  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_known,json=dateKnown"`
 	xxx_hidden_Limit      uint32                 `protobuf:"varint,4,opt,name=limit"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
@@ -4901,9 +4901,9 @@ func (x *AssetTimelineRequest) GetSuperseded() bool {
 	return false
 }
 
-func (x *AssetTimelineRequest) GetKnown() *timestamppb.Timestamp {
+func (x *AssetTimelineRequest) GetDateKnown() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Known
+		return x.xxx_hidden_DateKnown
 	}
 	return nil
 }
@@ -4923,8 +4923,8 @@ func (x *AssetTimelineRequest) SetSuperseded(v bool) {
 	x.xxx_hidden_Superseded = v
 }
 
-func (x *AssetTimelineRequest) SetKnown(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Known = v
+func (x *AssetTimelineRequest) SetDateKnown(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKnown = v
 }
 
 func (x *AssetTimelineRequest) SetLimit(v uint32) {
@@ -4938,19 +4938,19 @@ func (x *AssetTimelineRequest) HasRef() bool {
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *AssetTimelineRequest) HasKnown() bool {
+func (x *AssetTimelineRequest) HasDateKnown() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Known != nil
+	return x.xxx_hidden_DateKnown != nil
 }
 
 func (x *AssetTimelineRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *AssetTimelineRequest) ClearKnown() {
-	x.xxx_hidden_Known = nil
+func (x *AssetTimelineRequest) ClearDateKnown() {
+	x.xxx_hidden_DateKnown = nil
 }
 
 type AssetTimelineRequest_builder struct {
@@ -4960,8 +4960,8 @@ type AssetTimelineRequest_builder struct {
 	// Also the rows later corrections superseded.
 	Superseded bool
 	// As the system knew it then.
-	Known *timestamppb.Timestamp
-	Limit uint32
+	DateKnown *timestamppb.Timestamp
+	Limit     uint32
 }
 
 func (b0 AssetTimelineRequest_builder) Build() *AssetTimelineRequest {
@@ -4970,7 +4970,7 @@ func (b0 AssetTimelineRequest_builder) Build() *AssetTimelineRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_Superseded = b.Superseded
-	x.xxx_hidden_Known = b.Known
+	x.xxx_hidden_DateKnown = b.DateKnown
 	x.xxx_hidden_Limit = b.Limit
 	return m0
 }
@@ -5035,25 +5035,25 @@ func (b0 AssetTimelineResponse_builder) Build() *AssetTimelineResponse {
 }
 
 type TimelineEntry struct {
-	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Kind         string                 `protobuf:"bytes,1,opt,name=kind"`
-	xxx_hidden_RowId        []byte                 `protobuf:"bytes,2,opt,name=row_id,json=rowId"`
-	xxx_hidden_ValidFrom    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=valid_from,json=validFrom"`
-	xxx_hidden_ValidTo      *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=valid_to,json=validTo"`
-	xxx_hidden_RecordedAt   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=recorded_at,json=recordedAt"`
-	xxx_hidden_SupersededAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=superseded_at,json=supersededAt"`
-	xxx_hidden_Summary      string                 `protobuf:"bytes,7,opt,name=summary"`
-	xxx_hidden_Detail       map[string]string      `protobuf:"bytes,8,rep,name=detail" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_EventId      []byte                 `protobuf:"bytes,9,opt,name=event_id,json=eventId"`
-	xxx_hidden_EventKind    string                 `protobuf:"bytes,10,opt,name=event_kind,json=eventKind"`
-	xxx_hidden_Reason       string                 `protobuf:"bytes,11,opt,name=reason"`
-	xxx_hidden_Actor        string                 `protobuf:"bytes,12,opt,name=actor"`
-	xxx_hidden_OtherId      []byte                 `protobuf:"bytes,13,opt,name=other_id,json=otherId"`
-	xxx_hidden_OtherName    string                 `protobuf:"bytes,14,opt,name=other_name,json=otherName"`
-	xxx_hidden_Cause        string                 `protobuf:"bytes,15,opt,name=cause"`
-	xxx_hidden_CauseId      []byte                 `protobuf:"bytes,16,opt,name=cause_id,json=causeId"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Kind           string                 `protobuf:"bytes,1,opt,name=kind"`
+	xxx_hidden_RowId          []byte                 `protobuf:"bytes,2,opt,name=row_id,json=rowId"`
+	xxx_hidden_DateStart      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd        *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_DateRecorded   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_recorded,json=dateRecorded"`
+	xxx_hidden_DateSuperseded *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_superseded,json=dateSuperseded"`
+	xxx_hidden_Summary        string                 `protobuf:"bytes,7,opt,name=summary"`
+	xxx_hidden_Detail         map[string]string      `protobuf:"bytes,8,rep,name=detail" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_EventId        []byte                 `protobuf:"bytes,9,opt,name=event_id,json=eventId"`
+	xxx_hidden_EventKind      string                 `protobuf:"bytes,10,opt,name=event_kind,json=eventKind"`
+	xxx_hidden_Reason         string                 `protobuf:"bytes,11,opt,name=reason"`
+	xxx_hidden_Actor          string                 `protobuf:"bytes,12,opt,name=actor"`
+	xxx_hidden_OtherId        []byte                 `protobuf:"bytes,13,opt,name=other_id,json=otherId"`
+	xxx_hidden_OtherName      string                 `protobuf:"bytes,14,opt,name=other_name,json=otherName"`
+	xxx_hidden_Cause          string                 `protobuf:"bytes,15,opt,name=cause"`
+	xxx_hidden_CauseId        []byte                 `protobuf:"bytes,16,opt,name=cause_id,json=causeId"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *TimelineEntry) Reset() {
@@ -5095,30 +5095,30 @@ func (x *TimelineEntry) GetRowId() []byte {
 	return nil
 }
 
-func (x *TimelineEntry) GetValidFrom() *timestamppb.Timestamp {
+func (x *TimelineEntry) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidFrom
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *TimelineEntry) GetValidTo() *timestamppb.Timestamp {
+func (x *TimelineEntry) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ValidTo
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
 
-func (x *TimelineEntry) GetRecordedAt() *timestamppb.Timestamp {
+func (x *TimelineEntry) GetDateRecorded() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_RecordedAt
+		return x.xxx_hidden_DateRecorded
 	}
 	return nil
 }
 
-func (x *TimelineEntry) GetSupersededAt() *timestamppb.Timestamp {
+func (x *TimelineEntry) GetDateSuperseded() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_SupersededAt
+		return x.xxx_hidden_DateSuperseded
 	}
 	return nil
 }
@@ -5204,20 +5204,20 @@ func (x *TimelineEntry) SetRowId(v []byte) {
 	x.xxx_hidden_RowId = v
 }
 
-func (x *TimelineEntry) SetValidFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidFrom = v
+func (x *TimelineEntry) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *TimelineEntry) SetValidTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidTo = v
+func (x *TimelineEntry) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
-func (x *TimelineEntry) SetRecordedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_RecordedAt = v
+func (x *TimelineEntry) SetDateRecorded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRecorded = v
 }
 
-func (x *TimelineEntry) SetSupersededAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_SupersededAt = v
+func (x *TimelineEntry) SetDateSuperseded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateSuperseded = v
 }
 
 func (x *TimelineEntry) SetSummary(v string) {
@@ -5269,60 +5269,60 @@ func (x *TimelineEntry) SetCauseId(v []byte) {
 	x.xxx_hidden_CauseId = v
 }
 
-func (x *TimelineEntry) HasValidFrom() bool {
+func (x *TimelineEntry) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidFrom != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *TimelineEntry) HasValidTo() bool {
+func (x *TimelineEntry) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ValidTo != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
-func (x *TimelineEntry) HasRecordedAt() bool {
+func (x *TimelineEntry) HasDateRecorded() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_RecordedAt != nil
+	return x.xxx_hidden_DateRecorded != nil
 }
 
-func (x *TimelineEntry) HasSupersededAt() bool {
+func (x *TimelineEntry) HasDateSuperseded() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_SupersededAt != nil
+	return x.xxx_hidden_DateSuperseded != nil
 }
 
-func (x *TimelineEntry) ClearValidFrom() {
-	x.xxx_hidden_ValidFrom = nil
+func (x *TimelineEntry) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *TimelineEntry) ClearValidTo() {
-	x.xxx_hidden_ValidTo = nil
+func (x *TimelineEntry) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
-func (x *TimelineEntry) ClearRecordedAt() {
-	x.xxx_hidden_RecordedAt = nil
+func (x *TimelineEntry) ClearDateRecorded() {
+	x.xxx_hidden_DateRecorded = nil
 }
 
-func (x *TimelineEntry) ClearSupersededAt() {
-	x.xxx_hidden_SupersededAt = nil
+func (x *TimelineEntry) ClearDateSuperseded() {
+	x.xxx_hidden_DateSuperseded = nil
 }
 
 type TimelineEntry_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// placement | fact | stewardship | link | event
-	Kind         string
-	RowId        []byte
-	ValidFrom    *timestamppb.Timestamp
-	ValidTo      *timestamppb.Timestamp
-	RecordedAt   *timestamppb.Timestamp
-	SupersededAt *timestamppb.Timestamp
+	Kind           string
+	RowId          []byte
+	DateStart      *timestamppb.Timestamp
+	DateEnd        *timestamppb.Timestamp
+	DateRecorded   *timestamppb.Timestamp
+	DateSuperseded *timestamppb.Timestamp
 	// What it says, for a person.
 	Summary string
 	// What it holds, field by field: a placement's mode, slot and rack
@@ -5356,10 +5356,10 @@ func (b0 TimelineEntry_builder) Build() *TimelineEntry {
 	_, _ = b, x
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_RowId = b.RowId
-	x.xxx_hidden_ValidFrom = b.ValidFrom
-	x.xxx_hidden_ValidTo = b.ValidTo
-	x.xxx_hidden_RecordedAt = b.RecordedAt
-	x.xxx_hidden_SupersededAt = b.SupersededAt
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
+	x.xxx_hidden_DateRecorded = b.DateRecorded
+	x.xxx_hidden_DateSuperseded = b.DateSuperseded
 	x.xxx_hidden_Summary = b.Summary
 	x.xxx_hidden_Detail = b.Detail
 	x.xxx_hidden_EventId = b.EventId
@@ -5374,13 +5374,13 @@ func (b0 TimelineEntry_builder) Build() *TimelineEntry {
 }
 
 type AssetQueryAtRequest struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Root  *AssetRef              `protobuf:"bytes,1,opt,name=root"`
-	xxx_hidden_At    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=at"`
-	xxx_hidden_Known *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=known"`
-	xxx_hidden_Depth uint32                 `protobuf:"varint,4,opt,name=depth"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Root      *AssetRef              `protobuf:"bytes,1,opt,name=root"`
+	xxx_hidden_DateAsOf  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_as_of,json=dateAsOf"`
+	xxx_hidden_DateKnown *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_known,json=dateKnown"`
+	xxx_hidden_Depth     uint32                 `protobuf:"varint,4,opt,name=depth"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *AssetQueryAtRequest) Reset() {
@@ -5415,16 +5415,16 @@ func (x *AssetQueryAtRequest) GetRoot() *AssetRef {
 	return nil
 }
 
-func (x *AssetQueryAtRequest) GetAt() *timestamppb.Timestamp {
+func (x *AssetQueryAtRequest) GetDateAsOf() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateAsOf
 	}
 	return nil
 }
 
-func (x *AssetQueryAtRequest) GetKnown() *timestamppb.Timestamp {
+func (x *AssetQueryAtRequest) GetDateKnown() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Known
+		return x.xxx_hidden_DateKnown
 	}
 	return nil
 }
@@ -5440,12 +5440,12 @@ func (x *AssetQueryAtRequest) SetRoot(v *AssetRef) {
 	x.xxx_hidden_Root = v
 }
 
-func (x *AssetQueryAtRequest) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *AssetQueryAtRequest) SetDateAsOf(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAsOf = v
 }
 
-func (x *AssetQueryAtRequest) SetKnown(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Known = v
+func (x *AssetQueryAtRequest) SetDateKnown(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKnown = v
 }
 
 func (x *AssetQueryAtRequest) SetDepth(v uint32) {
@@ -5459,39 +5459,39 @@ func (x *AssetQueryAtRequest) HasRoot() bool {
 	return x.xxx_hidden_Root != nil
 }
 
-func (x *AssetQueryAtRequest) HasAt() bool {
+func (x *AssetQueryAtRequest) HasDateAsOf() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateAsOf != nil
 }
 
-func (x *AssetQueryAtRequest) HasKnown() bool {
+func (x *AssetQueryAtRequest) HasDateKnown() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Known != nil
+	return x.xxx_hidden_DateKnown != nil
 }
 
 func (x *AssetQueryAtRequest) ClearRoot() {
 	x.xxx_hidden_Root = nil
 }
 
-func (x *AssetQueryAtRequest) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *AssetQueryAtRequest) ClearDateAsOf() {
+	x.xxx_hidden_DateAsOf = nil
 }
 
-func (x *AssetQueryAtRequest) ClearKnown() {
-	x.xxx_hidden_Known = nil
+func (x *AssetQueryAtRequest) ClearDateKnown() {
+	x.xxx_hidden_DateKnown = nil
 }
 
 type AssetQueryAtRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Root *AssetRef
-	At   *timestamppb.Timestamp
-	// AsOf: by what was recorded at this moment. Empty is what is known now.
-	Known *timestamppb.Timestamp
+	Root     *AssetRef
+	DateAsOf *timestamppb.Timestamp
+	// By what was recorded at this moment. Empty is what is known now.
+	DateKnown *timestamppb.Timestamp
 	// How deep under the root. Zero is everything.
 	Depth uint32
 }
@@ -5501,8 +5501,8 @@ func (b0 AssetQueryAtRequest_builder) Build() *AssetQueryAtRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Root = b.Root
-	x.xxx_hidden_At = b.At
-	x.xxx_hidden_Known = b.Known
+	x.xxx_hidden_DateAsOf = b.DateAsOf
+	x.xxx_hidden_DateKnown = b.DateKnown
 	x.xxx_hidden_Depth = b.Depth
 	return m0
 }
@@ -5801,12 +5801,12 @@ func (b0 AssetState_builder) Build() *AssetState {
 }
 
 type AssetDiffRequest struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Root *AssetRef              `protobuf:"bytes,1,opt,name=root"`
-	xxx_hidden_From *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from"`
-	xxx_hidden_To   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Root     *AssetRef              `protobuf:"bytes,1,opt,name=root"`
+	xxx_hidden_DateFrom *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_to,json=dateTo"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *AssetDiffRequest) Reset() {
@@ -5841,16 +5841,16 @@ func (x *AssetDiffRequest) GetRoot() *AssetRef {
 	return nil
 }
 
-func (x *AssetDiffRequest) GetFrom() *timestamppb.Timestamp {
+func (x *AssetDiffRequest) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *AssetDiffRequest) GetTo() *timestamppb.Timestamp {
+func (x *AssetDiffRequest) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
@@ -5859,12 +5859,12 @@ func (x *AssetDiffRequest) SetRoot(v *AssetRef) {
 	x.xxx_hidden_Root = v
 }
 
-func (x *AssetDiffRequest) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *AssetDiffRequest) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *AssetDiffRequest) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *AssetDiffRequest) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
 func (x *AssetDiffRequest) HasRoot() bool {
@@ -5874,38 +5874,38 @@ func (x *AssetDiffRequest) HasRoot() bool {
 	return x.xxx_hidden_Root != nil
 }
 
-func (x *AssetDiffRequest) HasFrom() bool {
+func (x *AssetDiffRequest) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *AssetDiffRequest) HasTo() bool {
+func (x *AssetDiffRequest) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
 func (x *AssetDiffRequest) ClearRoot() {
 	x.xxx_hidden_Root = nil
 }
 
-func (x *AssetDiffRequest) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *AssetDiffRequest) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *AssetDiffRequest) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *AssetDiffRequest) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type AssetDiffRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Root *AssetRef
-	From *timestamppb.Timestamp
-	To   *timestamppb.Timestamp
+	Root     *AssetRef
+	DateFrom *timestamppb.Timestamp
+	DateTo   *timestamppb.Timestamp
 }
 
 func (b0 AssetDiffRequest_builder) Build() *AssetDiffRequest {
@@ -5913,8 +5913,8 @@ func (b0 AssetDiffRequest_builder) Build() *AssetDiffRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Root = b.Root
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	return m0
 }
 
@@ -6385,12 +6385,12 @@ func (b0 AssetSearchResponse_builder) Build() *AssetSearchResponse {
 }
 
 type AssetReportRequest struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Kind string                 `protobuf:"bytes,1,opt,name=kind"`
-	xxx_hidden_From *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from"`
-	xxx_hidden_To   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Kind     string                 `protobuf:"bytes,1,opt,name=kind"`
+	xxx_hidden_DateFrom *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_to,json=dateTo"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *AssetReportRequest) Reset() {
@@ -6425,16 +6425,16 @@ func (x *AssetReportRequest) GetKind() string {
 	return ""
 }
 
-func (x *AssetReportRequest) GetFrom() *timestamppb.Timestamp {
+func (x *AssetReportRequest) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *AssetReportRequest) GetTo() *timestamppb.Timestamp {
+func (x *AssetReportRequest) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
@@ -6443,43 +6443,43 @@ func (x *AssetReportRequest) SetKind(v string) {
 	x.xxx_hidden_Kind = v
 }
 
-func (x *AssetReportRequest) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *AssetReportRequest) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *AssetReportRequest) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *AssetReportRequest) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
-func (x *AssetReportRequest) HasFrom() bool {
+func (x *AssetReportRequest) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *AssetReportRequest) HasTo() bool {
+func (x *AssetReportRequest) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
-func (x *AssetReportRequest) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *AssetReportRequest) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *AssetReportRequest) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *AssetReportRequest) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type AssetReportRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// summary | custody | utilization | stock | work
-	Kind string
-	From *timestamppb.Timestamp
-	To   *timestamppb.Timestamp
+	Kind     string
+	DateFrom *timestamppb.Timestamp
+	DateTo   *timestamppb.Timestamp
 }
 
 func (b0 AssetReportRequest_builder) Build() *AssetReportRequest {
@@ -6487,8 +6487,8 @@ func (b0 AssetReportRequest_builder) Build() *AssetReportRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Kind = b.Kind
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	return m0
 }
 
@@ -7154,14 +7154,14 @@ func (b0 AssetCensusRequest_builder) Build() *AssetCensusRequest {
 }
 
 type AssetCensusResponse struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Rows  *[]*AssetCensusRow     `protobuf:"bytes,1,rep,name=rows"`
-	xxx_hidden_Total *AssetCensusRow        `protobuf:"bytes,2,opt,name=total"`
-	xxx_hidden_At    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=at"`
-	xxx_hidden_By    string                 `protobuf:"bytes,4,opt,name=by"`
-	xxx_hidden_Kind  string                 `protobuf:"bytes,5,opt,name=kind"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Rows     *[]*AssetCensusRow     `protobuf:"bytes,1,rep,name=rows"`
+	xxx_hidden_Total    *AssetCensusRow        `protobuf:"bytes,2,opt,name=total"`
+	xxx_hidden_DateAsOf *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_as_of,json=dateAsOf"`
+	xxx_hidden_By       string                 `protobuf:"bytes,4,opt,name=by"`
+	xxx_hidden_Kind     string                 `protobuf:"bytes,5,opt,name=kind"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *AssetCensusResponse) Reset() {
@@ -7205,9 +7205,9 @@ func (x *AssetCensusResponse) GetTotal() *AssetCensusRow {
 	return nil
 }
 
-func (x *AssetCensusResponse) GetAt() *timestamppb.Timestamp {
+func (x *AssetCensusResponse) GetDateAsOf() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateAsOf
 	}
 	return nil
 }
@@ -7234,8 +7234,8 @@ func (x *AssetCensusResponse) SetTotal(v *AssetCensusRow) {
 	x.xxx_hidden_Total = v
 }
 
-func (x *AssetCensusResponse) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *AssetCensusResponse) SetDateAsOf(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAsOf = v
 }
 
 func (x *AssetCensusResponse) SetBy(v string) {
@@ -7253,19 +7253,19 @@ func (x *AssetCensusResponse) HasTotal() bool {
 	return x.xxx_hidden_Total != nil
 }
 
-func (x *AssetCensusResponse) HasAt() bool {
+func (x *AssetCensusResponse) HasDateAsOf() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateAsOf != nil
 }
 
 func (x *AssetCensusResponse) ClearTotal() {
 	x.xxx_hidden_Total = nil
 }
 
-func (x *AssetCensusResponse) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *AssetCensusResponse) ClearDateAsOf() {
+	x.xxx_hidden_DateAsOf = nil
 }
 
 type AssetCensusResponse_builder struct {
@@ -7277,7 +7277,7 @@ type AssetCensusResponse_builder struct {
 	// All of them.
 	Total *AssetCensusRow
 	// When it was counted.
-	At *timestamppb.Timestamp
+	DateAsOf *timestamppb.Timestamp
 	// What it counted and by what, as the request said it or as it was taken.
 	By   string
 	Kind string
@@ -7289,7 +7289,7 @@ func (b0 AssetCensusResponse_builder) Build() *AssetCensusResponse {
 	_, _ = b, x
 	x.xxx_hidden_Rows = &b.Rows
 	x.xxx_hidden_Total = b.Total
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateAsOf = b.DateAsOf
 	x.xxx_hidden_By = b.By
 	x.xxx_hidden_Kind = b.Kind
 	return m0
@@ -7449,26 +7449,26 @@ func (b0 AssetCensusRow_builder) Build() *AssetCensusRow {
 }
 
 type DomainAddRequest struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant        *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Host          string                 `protobuf:"bytes,8,opt,name=host"`
-	xxx_hidden_Purpose       string                 `protobuf:"bytes,9,opt,name=purpose"`
-	xxx_hidden_State         string                 `protobuf:"bytes,10,opt,name=state"`
-	xxx_hidden_Token         string                 `protobuf:"bytes,11,opt,name=token"`
-	xxx_hidden_Source        string                 `protobuf:"bytes,12,opt,name=source"`
-	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_VerifiedAt    *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=verified_at,json=verifiedAt"`
-	xxx_hidden_CheckedAt     *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=checked_at,json=checkedAt"`
-	xxx_hidden_Failures      uint32                 `protobuf:"varint,19,opt,name=failures"`
-	xxx_hidden_FailingSince  *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=failing_since,json=failingSince"`
-	xxx_hidden_DateLapsed    *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_lapsed,json=dateLapsed"`
-	xxx_hidden_RedirectUntil *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=redirect_until,json=redirectUntil"`
-	xxx_hidden_Sub           *string                `protobuf:"bytes,100,opt,name=sub"`
-	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
-	XXX_presence             [1]uint32
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	state                        protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id                []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant            *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Host              string                 `protobuf:"bytes,8,opt,name=host"`
+	xxx_hidden_Purpose           string                 `protobuf:"bytes,9,opt,name=purpose"`
+	xxx_hidden_State             string                 `protobuf:"bytes,10,opt,name=state"`
+	xxx_hidden_Token             string                 `protobuf:"bytes,11,opt,name=token"`
+	xxx_hidden_Source            string                 `protobuf:"bytes,12,opt,name=source"`
+	xxx_hidden_DateCreated       *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateVerified      *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_verified,json=dateVerified"`
+	xxx_hidden_DateChecked       *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_checked,json=dateChecked"`
+	xxx_hidden_Failures          uint32                 `protobuf:"varint,19,opt,name=failures"`
+	xxx_hidden_DateFailing       *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=date_failing,json=dateFailing"`
+	xxx_hidden_DateLapsed        *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_lapsed,json=dateLapsed"`
+	xxx_hidden_DateRedirectUntil *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=date_redirect_until,json=dateRedirectUntil"`
+	xxx_hidden_Sub               *string                `protobuf:"bytes,100,opt,name=sub"`
+	XXX_raceDetectHookData       protoimpl.RaceDetectHookData
+	XXX_presence                 [1]uint32
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *DomainAddRequest) Reset() {
@@ -7552,16 +7552,16 @@ func (x *DomainAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *DomainAddRequest) GetVerifiedAt() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetDateVerified() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_VerifiedAt
+		return x.xxx_hidden_DateVerified
 	}
 	return nil
 }
 
-func (x *DomainAddRequest) GetCheckedAt() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetDateChecked() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_CheckedAt
+		return x.xxx_hidden_DateChecked
 	}
 	return nil
 }
@@ -7573,9 +7573,9 @@ func (x *DomainAddRequest) GetFailures() uint32 {
 	return 0
 }
 
-func (x *DomainAddRequest) GetFailingSince() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetDateFailing() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_FailingSince
+		return x.xxx_hidden_DateFailing
 	}
 	return nil
 }
@@ -7587,9 +7587,9 @@ func (x *DomainAddRequest) GetDateLapsed() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *DomainAddRequest) GetRedirectUntil() *timestamppb.Timestamp {
+func (x *DomainAddRequest) GetDateRedirectUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_RedirectUntil
+		return x.xxx_hidden_DateRedirectUntil
 	}
 	return nil
 }
@@ -7640,12 +7640,12 @@ func (x *DomainAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
-func (x *DomainAddRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_VerifiedAt = v
+func (x *DomainAddRequest) SetDateVerified(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateVerified = v
 }
 
-func (x *DomainAddRequest) SetCheckedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_CheckedAt = v
+func (x *DomainAddRequest) SetDateChecked(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateChecked = v
 }
 
 func (x *DomainAddRequest) SetFailures(v uint32) {
@@ -7653,16 +7653,16 @@ func (x *DomainAddRequest) SetFailures(v uint32) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 15)
 }
 
-func (x *DomainAddRequest) SetFailingSince(v *timestamppb.Timestamp) {
-	x.xxx_hidden_FailingSince = v
+func (x *DomainAddRequest) SetDateFailing(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFailing = v
 }
 
 func (x *DomainAddRequest) SetDateLapsed(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateLapsed = v
 }
 
-func (x *DomainAddRequest) SetRedirectUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_RedirectUntil = v
+func (x *DomainAddRequest) SetDateRedirectUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRedirectUntil = v
 }
 
 func (x *DomainAddRequest) SetSub(v string) {
@@ -7691,18 +7691,18 @@ func (x *DomainAddRequest) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *DomainAddRequest) HasVerifiedAt() bool {
+func (x *DomainAddRequest) HasDateVerified() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_VerifiedAt != nil
+	return x.xxx_hidden_DateVerified != nil
 }
 
-func (x *DomainAddRequest) HasCheckedAt() bool {
+func (x *DomainAddRequest) HasDateChecked() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_CheckedAt != nil
+	return x.xxx_hidden_DateChecked != nil
 }
 
 func (x *DomainAddRequest) HasFailures() bool {
@@ -7712,11 +7712,11 @@ func (x *DomainAddRequest) HasFailures() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *DomainAddRequest) HasFailingSince() bool {
+func (x *DomainAddRequest) HasDateFailing() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_FailingSince != nil
+	return x.xxx_hidden_DateFailing != nil
 }
 
 func (x *DomainAddRequest) HasDateLapsed() bool {
@@ -7726,11 +7726,11 @@ func (x *DomainAddRequest) HasDateLapsed() bool {
 	return x.xxx_hidden_DateLapsed != nil
 }
 
-func (x *DomainAddRequest) HasRedirectUntil() bool {
+func (x *DomainAddRequest) HasDateRedirectUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_RedirectUntil != nil
+	return x.xxx_hidden_DateRedirectUntil != nil
 }
 
 func (x *DomainAddRequest) HasSub() bool {
@@ -7753,12 +7753,12 @@ func (x *DomainAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *DomainAddRequest) ClearVerifiedAt() {
-	x.xxx_hidden_VerifiedAt = nil
+func (x *DomainAddRequest) ClearDateVerified() {
+	x.xxx_hidden_DateVerified = nil
 }
 
-func (x *DomainAddRequest) ClearCheckedAt() {
-	x.xxx_hidden_CheckedAt = nil
+func (x *DomainAddRequest) ClearDateChecked() {
+	x.xxx_hidden_DateChecked = nil
 }
 
 func (x *DomainAddRequest) ClearFailures() {
@@ -7766,16 +7766,16 @@ func (x *DomainAddRequest) ClearFailures() {
 	x.xxx_hidden_Failures = 0
 }
 
-func (x *DomainAddRequest) ClearFailingSince() {
-	x.xxx_hidden_FailingSince = nil
+func (x *DomainAddRequest) ClearDateFailing() {
+	x.xxx_hidden_DateFailing = nil
 }
 
 func (x *DomainAddRequest) ClearDateLapsed() {
 	x.xxx_hidden_DateLapsed = nil
 }
 
-func (x *DomainAddRequest) ClearRedirectUntil() {
-	x.xxx_hidden_RedirectUntil = nil
+func (x *DomainAddRequest) ClearDateRedirectUntil() {
+	x.xxx_hidden_DateRedirectUntil = nil
 }
 
 func (x *DomainAddRequest) ClearSub() {
@@ -7786,20 +7786,20 @@ func (x *DomainAddRequest) ClearSub() {
 type DomainAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id            []byte
-	Tenant        *TenantRef
-	Host          string
-	Purpose       string
-	State         string
-	Token         string
-	Source        string
-	DateCreated   *timestamppb.Timestamp
-	VerifiedAt    *timestamppb.Timestamp
-	CheckedAt     *timestamppb.Timestamp
-	Failures      *uint32
-	FailingSince  *timestamppb.Timestamp
-	DateLapsed    *timestamppb.Timestamp
-	RedirectUntil *timestamppb.Timestamp
+	Id                []byte
+	Tenant            *TenantRef
+	Host              string
+	Purpose           string
+	State             string
+	Token             string
+	Source            string
+	DateCreated       *timestamppb.Timestamp
+	DateVerified      *timestamppb.Timestamp
+	DateChecked       *timestamppb.Timestamp
+	Failures          *uint32
+	DateFailing       *timestamppb.Timestamp
+	DateLapsed        *timestamppb.Timestamp
+	DateRedirectUntil *timestamppb.Timestamp
 	// The label for a default subdomain; the host is made from it.
 	Sub *string
 }
@@ -7819,15 +7819,15 @@ func (b0 DomainAddRequest_builder) Build() *DomainAddRequest {
 	x.xxx_hidden_Token = b.Token
 	x.xxx_hidden_Source = b.Source
 	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_VerifiedAt = b.VerifiedAt
-	x.xxx_hidden_CheckedAt = b.CheckedAt
+	x.xxx_hidden_DateVerified = b.DateVerified
+	x.xxx_hidden_DateChecked = b.DateChecked
 	if b.Failures != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 15)
 		x.xxx_hidden_Failures = *b.Failures
 	}
-	x.xxx_hidden_FailingSince = b.FailingSince
+	x.xxx_hidden_DateFailing = b.DateFailing
 	x.xxx_hidden_DateLapsed = b.DateLapsed
-	x.xxx_hidden_RedirectUntil = b.RedirectUntil
+	x.xxx_hidden_DateRedirectUntil = b.DateRedirectUntil
 	if b.Sub != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 15)
 		x.xxx_hidden_Sub = b.Sub
@@ -8095,27 +8095,27 @@ func (*domainRef_Id) isDomainRef_Key() {}
 func (*domainRef_Host) isDomainRef_Key() {}
 
 type DomainSelect struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All           bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant        *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Host          bool                   `protobuf:"varint,8,opt,name=host"`
-	xxx_hidden_Purpose       bool                   `protobuf:"varint,9,opt,name=purpose"`
-	xxx_hidden_State         bool                   `protobuf:"varint,10,opt,name=state"`
-	xxx_hidden_Token         bool                   `protobuf:"varint,11,opt,name=token"`
-	xxx_hidden_Source        bool                   `protobuf:"varint,12,opt,name=source"`
-	xxx_hidden_DateUpdated   bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased    bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated   bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_VerifiedAt    bool                   `protobuf:"varint,16,opt,name=verified_at,json=verifiedAt"`
-	xxx_hidden_CheckedAt     bool                   `protobuf:"varint,18,opt,name=checked_at,json=checkedAt"`
-	xxx_hidden_Failures      bool                   `protobuf:"varint,19,opt,name=failures"`
-	xxx_hidden_FailingSince  bool                   `protobuf:"varint,20,opt,name=failing_since,json=failingSince"`
-	xxx_hidden_DateLapsed    bool                   `protobuf:"varint,17,opt,name=date_lapsed,json=dateLapsed"`
-	xxx_hidden_RedirectUntil bool                   `protobuf:"varint,21,opt,name=redirect_until,json=redirectUntil"`
-	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
-	XXX_presence             [1]uint32
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	state                        protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All               bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Tenant            *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Host              bool                   `protobuf:"varint,8,opt,name=host"`
+	xxx_hidden_Purpose           bool                   `protobuf:"varint,9,opt,name=purpose"`
+	xxx_hidden_State             bool                   `protobuf:"varint,10,opt,name=state"`
+	xxx_hidden_Token             bool                   `protobuf:"varint,11,opt,name=token"`
+	xxx_hidden_Source            bool                   `protobuf:"varint,12,opt,name=source"`
+	xxx_hidden_DateUpdated       bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased        bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated       bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateVerified      bool                   `protobuf:"varint,16,opt,name=date_verified,json=dateVerified"`
+	xxx_hidden_DateChecked       bool                   `protobuf:"varint,18,opt,name=date_checked,json=dateChecked"`
+	xxx_hidden_Failures          bool                   `protobuf:"varint,19,opt,name=failures"`
+	xxx_hidden_DateFailing       bool                   `protobuf:"varint,20,opt,name=date_failing,json=dateFailing"`
+	xxx_hidden_DateLapsed        bool                   `protobuf:"varint,17,opt,name=date_lapsed,json=dateLapsed"`
+	xxx_hidden_DateRedirectUntil bool                   `protobuf:"varint,21,opt,name=date_redirect_until,json=dateRedirectUntil"`
+	XXX_raceDetectHookData       protoimpl.RaceDetectHookData
+	XXX_presence                 [1]uint32
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *DomainSelect) Reset() {
@@ -8213,16 +8213,16 @@ func (x *DomainSelect) GetDateCreated() bool {
 	return false
 }
 
-func (x *DomainSelect) GetVerifiedAt() bool {
+func (x *DomainSelect) GetDateVerified() bool {
 	if x != nil {
-		return x.xxx_hidden_VerifiedAt
+		return x.xxx_hidden_DateVerified
 	}
 	return false
 }
 
-func (x *DomainSelect) GetCheckedAt() bool {
+func (x *DomainSelect) GetDateChecked() bool {
 	if x != nil {
-		return x.xxx_hidden_CheckedAt
+		return x.xxx_hidden_DateChecked
 	}
 	return false
 }
@@ -8234,9 +8234,9 @@ func (x *DomainSelect) GetFailures() bool {
 	return false
 }
 
-func (x *DomainSelect) GetFailingSince() bool {
+func (x *DomainSelect) GetDateFailing() bool {
 	if x != nil {
-		return x.xxx_hidden_FailingSince
+		return x.xxx_hidden_DateFailing
 	}
 	return false
 }
@@ -8248,9 +8248,9 @@ func (x *DomainSelect) GetDateLapsed() bool {
 	return false
 }
 
-func (x *DomainSelect) GetRedirectUntil() bool {
+func (x *DomainSelect) GetDateRedirectUntil() bool {
 	if x != nil {
-		return x.xxx_hidden_RedirectUntil
+		return x.xxx_hidden_DateRedirectUntil
 	}
 	return false
 }
@@ -8304,13 +8304,13 @@ func (x *DomainSelect) SetDateCreated(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 16)
 }
 
-func (x *DomainSelect) SetVerifiedAt(v bool) {
-	x.xxx_hidden_VerifiedAt = v
+func (x *DomainSelect) SetDateVerified(v bool) {
+	x.xxx_hidden_DateVerified = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 16)
 }
 
-func (x *DomainSelect) SetCheckedAt(v bool) {
-	x.xxx_hidden_CheckedAt = v
+func (x *DomainSelect) SetDateChecked(v bool) {
+	x.xxx_hidden_DateChecked = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 16)
 }
 
@@ -8319,8 +8319,8 @@ func (x *DomainSelect) SetFailures(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 16)
 }
 
-func (x *DomainSelect) SetFailingSince(v bool) {
-	x.xxx_hidden_FailingSince = v
+func (x *DomainSelect) SetDateFailing(v bool) {
+	x.xxx_hidden_DateFailing = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 16)
 }
 
@@ -8329,8 +8329,8 @@ func (x *DomainSelect) SetDateLapsed(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 16)
 }
 
-func (x *DomainSelect) SetRedirectUntil(v bool) {
-	x.xxx_hidden_RedirectUntil = v
+func (x *DomainSelect) SetDateRedirectUntil(v bool) {
+	x.xxx_hidden_DateRedirectUntil = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 16)
 }
 
@@ -8404,14 +8404,14 @@ func (x *DomainSelect) HasDateCreated() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *DomainSelect) HasVerifiedAt() bool {
+func (x *DomainSelect) HasDateVerified() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *DomainSelect) HasCheckedAt() bool {
+func (x *DomainSelect) HasDateChecked() bool {
 	if x == nil {
 		return false
 	}
@@ -8425,7 +8425,7 @@ func (x *DomainSelect) HasFailures() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
-func (x *DomainSelect) HasFailingSince() bool {
+func (x *DomainSelect) HasDateFailing() bool {
 	if x == nil {
 		return false
 	}
@@ -8439,7 +8439,7 @@ func (x *DomainSelect) HasDateLapsed() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
 }
 
-func (x *DomainSelect) HasRedirectUntil() bool {
+func (x *DomainSelect) HasDateRedirectUntil() bool {
 	if x == nil {
 		return false
 	}
@@ -8495,14 +8495,14 @@ func (x *DomainSelect) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = false
 }
 
-func (x *DomainSelect) ClearVerifiedAt() {
+func (x *DomainSelect) ClearDateVerified() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
-	x.xxx_hidden_VerifiedAt = false
+	x.xxx_hidden_DateVerified = false
 }
 
-func (x *DomainSelect) ClearCheckedAt() {
+func (x *DomainSelect) ClearDateChecked() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
-	x.xxx_hidden_CheckedAt = false
+	x.xxx_hidden_DateChecked = false
 }
 
 func (x *DomainSelect) ClearFailures() {
@@ -8510,9 +8510,9 @@ func (x *DomainSelect) ClearFailures() {
 	x.xxx_hidden_Failures = false
 }
 
-func (x *DomainSelect) ClearFailingSince() {
+func (x *DomainSelect) ClearDateFailing() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
-	x.xxx_hidden_FailingSince = false
+	x.xxx_hidden_DateFailing = false
 }
 
 func (x *DomainSelect) ClearDateLapsed() {
@@ -8520,30 +8520,30 @@ func (x *DomainSelect) ClearDateLapsed() {
 	x.xxx_hidden_DateLapsed = false
 }
 
-func (x *DomainSelect) ClearRedirectUntil() {
+func (x *DomainSelect) ClearDateRedirectUntil() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 15)
-	x.xxx_hidden_RedirectUntil = false
+	x.xxx_hidden_DateRedirectUntil = false
 }
 
 type DomainSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	All           *bool
-	Tenant        *TenantSelect
-	Host          *bool
-	Purpose       *bool
-	State         *bool
-	Token         *bool
-	Source        *bool
-	DateUpdated   *bool
-	DateErased    *bool
-	DateCreated   *bool
-	VerifiedAt    *bool
-	CheckedAt     *bool
-	Failures      *bool
-	FailingSince  *bool
-	DateLapsed    *bool
-	RedirectUntil *bool
+	All               *bool
+	Tenant            *TenantSelect
+	Host              *bool
+	Purpose           *bool
+	State             *bool
+	Token             *bool
+	Source            *bool
+	DateUpdated       *bool
+	DateErased        *bool
+	DateCreated       *bool
+	DateVerified      *bool
+	DateChecked       *bool
+	Failures          *bool
+	DateFailing       *bool
+	DateLapsed        *bool
+	DateRedirectUntil *bool
 }
 
 func (b0 DomainSelect_builder) Build() *DomainSelect {
@@ -8587,58 +8587,58 @@ func (b0 DomainSelect_builder) Build() *DomainSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 16)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
-	if b.VerifiedAt != nil {
+	if b.DateVerified != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 16)
-		x.xxx_hidden_VerifiedAt = *b.VerifiedAt
+		x.xxx_hidden_DateVerified = *b.DateVerified
 	}
-	if b.CheckedAt != nil {
+	if b.DateChecked != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 16)
-		x.xxx_hidden_CheckedAt = *b.CheckedAt
+		x.xxx_hidden_DateChecked = *b.DateChecked
 	}
 	if b.Failures != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 16)
 		x.xxx_hidden_Failures = *b.Failures
 	}
-	if b.FailingSince != nil {
+	if b.DateFailing != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 16)
-		x.xxx_hidden_FailingSince = *b.FailingSince
+		x.xxx_hidden_DateFailing = *b.DateFailing
 	}
 	if b.DateLapsed != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 16)
 		x.xxx_hidden_DateLapsed = *b.DateLapsed
 	}
-	if b.RedirectUntil != nil {
+	if b.DateRedirectUntil != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 15, 16)
-		x.xxx_hidden_RedirectUntil = *b.RedirectUntil
+		x.xxx_hidden_DateRedirectUntil = *b.DateRedirectUntil
 	}
 	return m0
 }
 
 type DomainPatchRequest struct {
-	state                        protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref               *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Host              *string                `protobuf:"bytes,16,opt,name=host"`
-	xxx_hidden_Purpose           *string                `protobuf:"bytes,18,opt,name=purpose"`
-	xxx_hidden_State             *string                `protobuf:"bytes,20,opt,name=state"`
-	xxx_hidden_Token             *string                `protobuf:"bytes,22,opt,name=token"`
-	xxx_hidden_Source            *string                `protobuf:"bytes,24,opt,name=source"`
-	xxx_hidden_DateUpdated       *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateUpdatedForce  bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
-	xxx_hidden_VerifiedAt        *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=verified_at,json=verifiedAt"`
-	xxx_hidden_VerifiedAtNull    bool                   `protobuf:"varint,33,opt,name=verified_at_null,json=verifiedAtNull"`
-	xxx_hidden_CheckedAt         *timestamppb.Timestamp `protobuf:"bytes,36,opt,name=checked_at,json=checkedAt"`
-	xxx_hidden_CheckedAtNull     bool                   `protobuf:"varint,37,opt,name=checked_at_null,json=checkedAtNull"`
-	xxx_hidden_Failures          uint32                 `protobuf:"varint,38,opt,name=failures"`
-	xxx_hidden_FailingSince      *timestamppb.Timestamp `protobuf:"bytes,40,opt,name=failing_since,json=failingSince"`
-	xxx_hidden_FailingSinceNull  bool                   `protobuf:"varint,41,opt,name=failing_since_null,json=failingSinceNull"`
-	xxx_hidden_DateLapsed        *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_lapsed,json=dateLapsed"`
-	xxx_hidden_DateLapsedNull    bool                   `protobuf:"varint,35,opt,name=date_lapsed_null,json=dateLapsedNull"`
-	xxx_hidden_RedirectUntil     *timestamppb.Timestamp `protobuf:"bytes,42,opt,name=redirect_until,json=redirectUntil"`
-	xxx_hidden_RedirectUntilNull bool                   `protobuf:"varint,43,opt,name=redirect_until_null,json=redirectUntilNull"`
-	XXX_raceDetectHookData       protoimpl.RaceDetectHookData
-	XXX_presence                 [1]uint32
-	unknownFields                protoimpl.UnknownFields
-	sizeCache                    protoimpl.SizeCache
+	state                            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref                   *DomainRef             `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Host                  *string                `protobuf:"bytes,16,opt,name=host"`
+	xxx_hidden_Purpose               *string                `protobuf:"bytes,18,opt,name=purpose"`
+	xxx_hidden_State                 *string                `protobuf:"bytes,20,opt,name=state"`
+	xxx_hidden_Token                 *string                `protobuf:"bytes,22,opt,name=token"`
+	xxx_hidden_Source                *string                `protobuf:"bytes,24,opt,name=source"`
+	xxx_hidden_DateUpdated           *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateUpdatedForce      bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
+	xxx_hidden_DateVerified          *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=date_verified,json=dateVerified"`
+	xxx_hidden_DateVerifiedNull      bool                   `protobuf:"varint,33,opt,name=date_verified_null,json=dateVerifiedNull"`
+	xxx_hidden_DateChecked           *timestamppb.Timestamp `protobuf:"bytes,36,opt,name=date_checked,json=dateChecked"`
+	xxx_hidden_DateCheckedNull       bool                   `protobuf:"varint,37,opt,name=date_checked_null,json=dateCheckedNull"`
+	xxx_hidden_Failures              uint32                 `protobuf:"varint,38,opt,name=failures"`
+	xxx_hidden_DateFailing           *timestamppb.Timestamp `protobuf:"bytes,40,opt,name=date_failing,json=dateFailing"`
+	xxx_hidden_DateFailingNull       bool                   `protobuf:"varint,41,opt,name=date_failing_null,json=dateFailingNull"`
+	xxx_hidden_DateLapsed            *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_lapsed,json=dateLapsed"`
+	xxx_hidden_DateLapsedNull        bool                   `protobuf:"varint,35,opt,name=date_lapsed_null,json=dateLapsedNull"`
+	xxx_hidden_DateRedirectUntil     *timestamppb.Timestamp `protobuf:"bytes,42,opt,name=date_redirect_until,json=dateRedirectUntil"`
+	xxx_hidden_DateRedirectUntilNull bool                   `protobuf:"varint,43,opt,name=date_redirect_until_null,json=dateRedirectUntilNull"`
+	XXX_raceDetectHookData           protoimpl.RaceDetectHookData
+	XXX_presence                     [1]uint32
+	unknownFields                    protoimpl.UnknownFields
+	sizeCache                        protoimpl.SizeCache
 }
 
 func (x *DomainPatchRequest) Reset() {
@@ -8737,30 +8737,30 @@ func (x *DomainPatchRequest) GetDateUpdatedForce() bool {
 	return false
 }
 
-func (x *DomainPatchRequest) GetVerifiedAt() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetDateVerified() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_VerifiedAt
+		return x.xxx_hidden_DateVerified
 	}
 	return nil
 }
 
-func (x *DomainPatchRequest) GetVerifiedAtNull() bool {
+func (x *DomainPatchRequest) GetDateVerifiedNull() bool {
 	if x != nil {
-		return x.xxx_hidden_VerifiedAtNull
+		return x.xxx_hidden_DateVerifiedNull
 	}
 	return false
 }
 
-func (x *DomainPatchRequest) GetCheckedAt() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetDateChecked() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_CheckedAt
+		return x.xxx_hidden_DateChecked
 	}
 	return nil
 }
 
-func (x *DomainPatchRequest) GetCheckedAtNull() bool {
+func (x *DomainPatchRequest) GetDateCheckedNull() bool {
 	if x != nil {
-		return x.xxx_hidden_CheckedAtNull
+		return x.xxx_hidden_DateCheckedNull
 	}
 	return false
 }
@@ -8772,16 +8772,16 @@ func (x *DomainPatchRequest) GetFailures() uint32 {
 	return 0
 }
 
-func (x *DomainPatchRequest) GetFailingSince() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetDateFailing() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_FailingSince
+		return x.xxx_hidden_DateFailing
 	}
 	return nil
 }
 
-func (x *DomainPatchRequest) GetFailingSinceNull() bool {
+func (x *DomainPatchRequest) GetDateFailingNull() bool {
 	if x != nil {
-		return x.xxx_hidden_FailingSinceNull
+		return x.xxx_hidden_DateFailingNull
 	}
 	return false
 }
@@ -8800,16 +8800,16 @@ func (x *DomainPatchRequest) GetDateLapsedNull() bool {
 	return false
 }
 
-func (x *DomainPatchRequest) GetRedirectUntil() *timestamppb.Timestamp {
+func (x *DomainPatchRequest) GetDateRedirectUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_RedirectUntil
+		return x.xxx_hidden_DateRedirectUntil
 	}
 	return nil
 }
 
-func (x *DomainPatchRequest) GetRedirectUntilNull() bool {
+func (x *DomainPatchRequest) GetDateRedirectUntilNull() bool {
 	if x != nil {
-		return x.xxx_hidden_RedirectUntilNull
+		return x.xxx_hidden_DateRedirectUntilNull
 	}
 	return false
 }
@@ -8852,21 +8852,21 @@ func (x *DomainPatchRequest) SetDateUpdatedForce(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 19)
 }
 
-func (x *DomainPatchRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_VerifiedAt = v
+func (x *DomainPatchRequest) SetDateVerified(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateVerified = v
 }
 
-func (x *DomainPatchRequest) SetVerifiedAtNull(v bool) {
-	x.xxx_hidden_VerifiedAtNull = v
+func (x *DomainPatchRequest) SetDateVerifiedNull(v bool) {
+	x.xxx_hidden_DateVerifiedNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 19)
 }
 
-func (x *DomainPatchRequest) SetCheckedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_CheckedAt = v
+func (x *DomainPatchRequest) SetDateChecked(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateChecked = v
 }
 
-func (x *DomainPatchRequest) SetCheckedAtNull(v bool) {
-	x.xxx_hidden_CheckedAtNull = v
+func (x *DomainPatchRequest) SetDateCheckedNull(v bool) {
+	x.xxx_hidden_DateCheckedNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 19)
 }
 
@@ -8875,12 +8875,12 @@ func (x *DomainPatchRequest) SetFailures(v uint32) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 19)
 }
 
-func (x *DomainPatchRequest) SetFailingSince(v *timestamppb.Timestamp) {
-	x.xxx_hidden_FailingSince = v
+func (x *DomainPatchRequest) SetDateFailing(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFailing = v
 }
 
-func (x *DomainPatchRequest) SetFailingSinceNull(v bool) {
-	x.xxx_hidden_FailingSinceNull = v
+func (x *DomainPatchRequest) SetDateFailingNull(v bool) {
+	x.xxx_hidden_DateFailingNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 19)
 }
 
@@ -8893,12 +8893,12 @@ func (x *DomainPatchRequest) SetDateLapsedNull(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 19)
 }
 
-func (x *DomainPatchRequest) SetRedirectUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_RedirectUntil = v
+func (x *DomainPatchRequest) SetDateRedirectUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRedirectUntil = v
 }
 
-func (x *DomainPatchRequest) SetRedirectUntilNull(v bool) {
-	x.xxx_hidden_RedirectUntilNull = v
+func (x *DomainPatchRequest) SetDateRedirectUntilNull(v bool) {
+	x.xxx_hidden_DateRedirectUntilNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 18, 19)
 }
 
@@ -8958,28 +8958,28 @@ func (x *DomainPatchRequest) HasDateUpdatedForce() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *DomainPatchRequest) HasVerifiedAt() bool {
+func (x *DomainPatchRequest) HasDateVerified() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_VerifiedAt != nil
+	return x.xxx_hidden_DateVerified != nil
 }
 
-func (x *DomainPatchRequest) HasVerifiedAtNull() bool {
+func (x *DomainPatchRequest) HasDateVerifiedNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *DomainPatchRequest) HasCheckedAt() bool {
+func (x *DomainPatchRequest) HasDateChecked() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_CheckedAt != nil
+	return x.xxx_hidden_DateChecked != nil
 }
 
-func (x *DomainPatchRequest) HasCheckedAtNull() bool {
+func (x *DomainPatchRequest) HasDateCheckedNull() bool {
 	if x == nil {
 		return false
 	}
@@ -8993,14 +8993,14 @@ func (x *DomainPatchRequest) HasFailures() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
-func (x *DomainPatchRequest) HasFailingSince() bool {
+func (x *DomainPatchRequest) HasDateFailing() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_FailingSince != nil
+	return x.xxx_hidden_DateFailing != nil
 }
 
-func (x *DomainPatchRequest) HasFailingSinceNull() bool {
+func (x *DomainPatchRequest) HasDateFailingNull() bool {
 	if x == nil {
 		return false
 	}
@@ -9021,14 +9021,14 @@ func (x *DomainPatchRequest) HasDateLapsedNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 16)
 }
 
-func (x *DomainPatchRequest) HasRedirectUntil() bool {
+func (x *DomainPatchRequest) HasDateRedirectUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_RedirectUntil != nil
+	return x.xxx_hidden_DateRedirectUntil != nil
 }
 
-func (x *DomainPatchRequest) HasRedirectUntilNull() bool {
+func (x *DomainPatchRequest) HasDateRedirectUntilNull() bool {
 	if x == nil {
 		return false
 	}
@@ -9073,22 +9073,22 @@ func (x *DomainPatchRequest) ClearDateUpdatedForce() {
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
-func (x *DomainPatchRequest) ClearVerifiedAt() {
-	x.xxx_hidden_VerifiedAt = nil
+func (x *DomainPatchRequest) ClearDateVerified() {
+	x.xxx_hidden_DateVerified = nil
 }
 
-func (x *DomainPatchRequest) ClearVerifiedAtNull() {
+func (x *DomainPatchRequest) ClearDateVerifiedNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
-	x.xxx_hidden_VerifiedAtNull = false
+	x.xxx_hidden_DateVerifiedNull = false
 }
 
-func (x *DomainPatchRequest) ClearCheckedAt() {
-	x.xxx_hidden_CheckedAt = nil
+func (x *DomainPatchRequest) ClearDateChecked() {
+	x.xxx_hidden_DateChecked = nil
 }
 
-func (x *DomainPatchRequest) ClearCheckedAtNull() {
+func (x *DomainPatchRequest) ClearDateCheckedNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
-	x.xxx_hidden_CheckedAtNull = false
+	x.xxx_hidden_DateCheckedNull = false
 }
 
 func (x *DomainPatchRequest) ClearFailures() {
@@ -9096,13 +9096,13 @@ func (x *DomainPatchRequest) ClearFailures() {
 	x.xxx_hidden_Failures = 0
 }
 
-func (x *DomainPatchRequest) ClearFailingSince() {
-	x.xxx_hidden_FailingSince = nil
+func (x *DomainPatchRequest) ClearDateFailing() {
+	x.xxx_hidden_DateFailing = nil
 }
 
-func (x *DomainPatchRequest) ClearFailingSinceNull() {
+func (x *DomainPatchRequest) ClearDateFailingNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
-	x.xxx_hidden_FailingSinceNull = false
+	x.xxx_hidden_DateFailingNull = false
 }
 
 func (x *DomainPatchRequest) ClearDateLapsed() {
@@ -9114,13 +9114,13 @@ func (x *DomainPatchRequest) ClearDateLapsedNull() {
 	x.xxx_hidden_DateLapsedNull = false
 }
 
-func (x *DomainPatchRequest) ClearRedirectUntil() {
-	x.xxx_hidden_RedirectUntil = nil
+func (x *DomainPatchRequest) ClearDateRedirectUntil() {
+	x.xxx_hidden_DateRedirectUntil = nil
 }
 
-func (x *DomainPatchRequest) ClearRedirectUntilNull() {
+func (x *DomainPatchRequest) ClearDateRedirectUntilNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 18)
-	x.xxx_hidden_RedirectUntilNull = false
+	x.xxx_hidden_DateRedirectUntilNull = false
 }
 
 type DomainPatchRequest_builder struct {
@@ -9146,37 +9146,37 @@ type DomainPatchRequest_builder struct {
 	// refused rather than assumed, because an unset field cannot be told
 	// apart from a caller who never considered locking at all.
 	DateUpdatedForce *bool
-	VerifiedAt       *timestamppb.Timestamp
-	// Clear verified_at instead of writing it.
+	DateVerified     *timestamppb.Timestamp
+	// Clear date_verified instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and verified_at clears.
-	VerifiedAtNull *bool
-	CheckedAt      *timestamppb.Timestamp
-	// Clear checked_at instead of writing it.
+	// outright: setting both this and date_verified clears.
+	DateVerifiedNull *bool
+	DateChecked      *timestamppb.Timestamp
+	// Clear date_checked instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and checked_at clears.
-	CheckedAtNull *bool
-	Failures      *uint32
-	FailingSince  *timestamppb.Timestamp
-	// Clear failing_since instead of writing it.
+	// outright: setting both this and date_checked clears.
+	DateCheckedNull *bool
+	Failures        *uint32
+	DateFailing     *timestamppb.Timestamp
+	// Clear date_failing instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and failing_since clears.
-	FailingSinceNull *bool
-	DateLapsed       *timestamppb.Timestamp
+	// outright: setting both this and date_failing clears.
+	DateFailingNull *bool
+	DateLapsed      *timestamppb.Timestamp
 	// Clear date_lapsed instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and date_lapsed clears.
-	DateLapsedNull *bool
-	RedirectUntil  *timestamppb.Timestamp
-	// Clear redirect_until instead of writing it.
+	DateLapsedNull    *bool
+	DateRedirectUntil *timestamppb.Timestamp
+	// Clear date_redirect_until instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and redirect_until clears.
-	RedirectUntilNull *bool
+	// outright: setting both this and date_redirect_until clears.
+	DateRedirectUntilNull *bool
 }
 
 func (b0 DomainPatchRequest_builder) Build() *DomainPatchRequest {
@@ -9209,34 +9209,34 @@ func (b0 DomainPatchRequest_builder) Build() *DomainPatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 19)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
-	x.xxx_hidden_VerifiedAt = b.VerifiedAt
-	if b.VerifiedAtNull != nil {
+	x.xxx_hidden_DateVerified = b.DateVerified
+	if b.DateVerifiedNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 19)
-		x.xxx_hidden_VerifiedAtNull = *b.VerifiedAtNull
+		x.xxx_hidden_DateVerifiedNull = *b.DateVerifiedNull
 	}
-	x.xxx_hidden_CheckedAt = b.CheckedAt
-	if b.CheckedAtNull != nil {
+	x.xxx_hidden_DateChecked = b.DateChecked
+	if b.DateCheckedNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 19)
-		x.xxx_hidden_CheckedAtNull = *b.CheckedAtNull
+		x.xxx_hidden_DateCheckedNull = *b.DateCheckedNull
 	}
 	if b.Failures != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 19)
 		x.xxx_hidden_Failures = *b.Failures
 	}
-	x.xxx_hidden_FailingSince = b.FailingSince
-	if b.FailingSinceNull != nil {
+	x.xxx_hidden_DateFailing = b.DateFailing
+	if b.DateFailingNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 19)
-		x.xxx_hidden_FailingSinceNull = *b.FailingSinceNull
+		x.xxx_hidden_DateFailingNull = *b.DateFailingNull
 	}
 	x.xxx_hidden_DateLapsed = b.DateLapsed
 	if b.DateLapsedNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 19)
 		x.xxx_hidden_DateLapsedNull = *b.DateLapsedNull
 	}
-	x.xxx_hidden_RedirectUntil = b.RedirectUntil
-	if b.RedirectUntilNull != nil {
+	x.xxx_hidden_DateRedirectUntil = b.DateRedirectUntil
+	if b.DateRedirectUntilNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 18, 19)
-		x.xxx_hidden_RedirectUntilNull = *b.RedirectUntilNull
+		x.xxx_hidden_DateRedirectUntilNull = *b.DateRedirectUntilNull
 	}
 	return m0
 }
@@ -10407,8 +10407,8 @@ type LabelAddRequest struct {
 	xxx_hidden_Domain      *DomainRef             `protobuf:"bytes,8,opt,name=domain"`
 	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,9,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_State       string                 `protobuf:"bytes,10,opt,name=state"`
-	xxx_hidden_BoundAt     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=bound_at,json=boundAt"`
-	xxx_hidden_PrintedAt   *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=printed_at,json=printedAt"`
+	xxx_hidden_DateBound   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_bound,json=dateBound"`
+	xxx_hidden_DatePrinted *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_printed,json=datePrinted"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Batch       string                 `protobuf:"bytes,16,opt,name=batch"`
 	xxx_hidden_Code        *string                `protobuf:"bytes,17,opt,name=code"`
@@ -10478,16 +10478,16 @@ func (x *LabelAddRequest) GetState() string {
 	return ""
 }
 
-func (x *LabelAddRequest) GetBoundAt() *timestamppb.Timestamp {
+func (x *LabelAddRequest) GetDateBound() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BoundAt
+		return x.xxx_hidden_DateBound
 	}
 	return nil
 }
 
-func (x *LabelAddRequest) GetPrintedAt() *timestamppb.Timestamp {
+func (x *LabelAddRequest) GetDatePrinted() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PrintedAt
+		return x.xxx_hidden_DatePrinted
 	}
 	return nil
 }
@@ -10544,12 +10544,12 @@ func (x *LabelAddRequest) SetState(v string) {
 	x.xxx_hidden_State = v
 }
 
-func (x *LabelAddRequest) SetBoundAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BoundAt = v
+func (x *LabelAddRequest) SetDateBound(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateBound = v
 }
 
-func (x *LabelAddRequest) SetPrintedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PrintedAt = v
+func (x *LabelAddRequest) SetDatePrinted(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DatePrinted = v
 }
 
 func (x *LabelAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
@@ -10593,18 +10593,18 @@ func (x *LabelAddRequest) HasSubjectId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *LabelAddRequest) HasBoundAt() bool {
+func (x *LabelAddRequest) HasDateBound() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BoundAt != nil
+	return x.xxx_hidden_DateBound != nil
 }
 
-func (x *LabelAddRequest) HasPrintedAt() bool {
+func (x *LabelAddRequest) HasDatePrinted() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PrintedAt != nil
+	return x.xxx_hidden_DatePrinted != nil
 }
 
 func (x *LabelAddRequest) HasDateCreated() bool {
@@ -10639,12 +10639,12 @@ func (x *LabelAddRequest) ClearSubjectId() {
 	x.xxx_hidden_SubjectId = nil
 }
 
-func (x *LabelAddRequest) ClearBoundAt() {
-	x.xxx_hidden_BoundAt = nil
+func (x *LabelAddRequest) ClearDateBound() {
+	x.xxx_hidden_DateBound = nil
 }
 
-func (x *LabelAddRequest) ClearPrintedAt() {
-	x.xxx_hidden_PrintedAt = nil
+func (x *LabelAddRequest) ClearDatePrinted() {
+	x.xxx_hidden_DatePrinted = nil
 }
 
 func (x *LabelAddRequest) ClearDateCreated() {
@@ -10664,8 +10664,8 @@ type LabelAddRequest_builder struct {
 	Domain      *DomainRef
 	SubjectId   []byte
 	State       string
-	BoundAt     *timestamppb.Timestamp
-	PrintedAt   *timestamppb.Timestamp
+	DateBound   *timestamppb.Timestamp
+	DatePrinted *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	Batch       string
 	Code        *string
@@ -10686,8 +10686,8 @@ func (b0 LabelAddRequest_builder) Build() *LabelAddRequest {
 		x.xxx_hidden_SubjectId = b.SubjectId
 	}
 	x.xxx_hidden_State = b.State
-	x.xxx_hidden_BoundAt = b.BoundAt
-	x.xxx_hidden_PrintedAt = b.PrintedAt
+	x.xxx_hidden_DateBound = b.DateBound
+	x.xxx_hidden_DatePrinted = b.DatePrinted
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_Batch = b.Batch
 	if b.Code != nil {
@@ -10963,8 +10963,8 @@ type LabelSelect struct {
 	xxx_hidden_Domain      *DomainSelect          `protobuf:"bytes,8,opt,name=domain"`
 	xxx_hidden_SubjectId   bool                   `protobuf:"varint,9,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_State       bool                   `protobuf:"varint,10,opt,name=state"`
-	xxx_hidden_BoundAt     bool                   `protobuf:"varint,11,opt,name=bound_at,json=boundAt"`
-	xxx_hidden_PrintedAt   bool                   `protobuf:"varint,12,opt,name=printed_at,json=printedAt"`
+	xxx_hidden_DateBound   bool                   `protobuf:"varint,11,opt,name=date_bound,json=dateBound"`
+	xxx_hidden_DatePrinted bool                   `protobuf:"varint,12,opt,name=date_printed,json=datePrinted"`
 	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
@@ -11036,16 +11036,16 @@ func (x *LabelSelect) GetState() bool {
 	return false
 }
 
-func (x *LabelSelect) GetBoundAt() bool {
+func (x *LabelSelect) GetDateBound() bool {
 	if x != nil {
-		return x.xxx_hidden_BoundAt
+		return x.xxx_hidden_DateBound
 	}
 	return false
 }
 
-func (x *LabelSelect) GetPrintedAt() bool {
+func (x *LabelSelect) GetDatePrinted() bool {
 	if x != nil {
-		return x.xxx_hidden_PrintedAt
+		return x.xxx_hidden_DatePrinted
 	}
 	return false
 }
@@ -11108,13 +11108,13 @@ func (x *LabelSelect) SetState(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
 }
 
-func (x *LabelSelect) SetBoundAt(v bool) {
-	x.xxx_hidden_BoundAt = v
+func (x *LabelSelect) SetDateBound(v bool) {
+	x.xxx_hidden_DateBound = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
 }
 
-func (x *LabelSelect) SetPrintedAt(v bool) {
-	x.xxx_hidden_PrintedAt = v
+func (x *LabelSelect) SetDatePrinted(v bool) {
+	x.xxx_hidden_DatePrinted = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
 }
 
@@ -11178,14 +11178,14 @@ func (x *LabelSelect) HasState() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *LabelSelect) HasBoundAt() bool {
+func (x *LabelSelect) HasDateBound() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *LabelSelect) HasPrintedAt() bool {
+func (x *LabelSelect) HasDatePrinted() bool {
 	if x == nil {
 		return false
 	}
@@ -11250,14 +11250,14 @@ func (x *LabelSelect) ClearState() {
 	x.xxx_hidden_State = false
 }
 
-func (x *LabelSelect) ClearBoundAt() {
+func (x *LabelSelect) ClearDateBound() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
-	x.xxx_hidden_BoundAt = false
+	x.xxx_hidden_DateBound = false
 }
 
-func (x *LabelSelect) ClearPrintedAt() {
+func (x *LabelSelect) ClearDatePrinted() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_PrintedAt = false
+	x.xxx_hidden_DatePrinted = false
 }
 
 func (x *LabelSelect) ClearDateUpdated() {
@@ -11293,8 +11293,8 @@ type LabelSelect_builder struct {
 	Domain      *DomainSelect
 	SubjectId   *bool
 	State       *bool
-	BoundAt     *bool
-	PrintedAt   *bool
+	DateBound   *bool
+	DatePrinted *bool
 	DateUpdated *bool
 	DateErased  *bool
 	DateCreated *bool
@@ -11320,13 +11320,13 @@ func (b0 LabelSelect_builder) Build() *LabelSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
 		x.xxx_hidden_State = *b.State
 	}
-	if b.BoundAt != nil {
+	if b.DateBound != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
-		x.xxx_hidden_BoundAt = *b.BoundAt
+		x.xxx_hidden_DateBound = *b.DateBound
 	}
-	if b.PrintedAt != nil {
+	if b.DatePrinted != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
-		x.xxx_hidden_PrintedAt = *b.PrintedAt
+		x.xxx_hidden_DatePrinted = *b.DatePrinted
 	}
 	if b.DateUpdated != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
@@ -11359,10 +11359,10 @@ type LabelPatchRequest struct {
 	xxx_hidden_SubjectId        []byte                 `protobuf:"bytes,18,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_SubjectIdNull    bool                   `protobuf:"varint,19,opt,name=subject_id_null,json=subjectIdNull"`
 	xxx_hidden_State            *string                `protobuf:"bytes,20,opt,name=state"`
-	xxx_hidden_BoundAt          *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=bound_at,json=boundAt"`
-	xxx_hidden_BoundAtNull      bool                   `protobuf:"varint,23,opt,name=bound_at_null,json=boundAtNull"`
-	xxx_hidden_PrintedAt        *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=printed_at,json=printedAt"`
-	xxx_hidden_PrintedAtNull    bool                   `protobuf:"varint,25,opt,name=printed_at_null,json=printedAtNull"`
+	xxx_hidden_DateBound        *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_bound,json=dateBound"`
+	xxx_hidden_DateBoundNull    bool                   `protobuf:"varint,23,opt,name=date_bound_null,json=dateBoundNull"`
+	xxx_hidden_DatePrinted      *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_printed,json=datePrinted"`
+	xxx_hidden_DatePrintedNull  bool                   `protobuf:"varint,25,opt,name=date_printed_null,json=datePrintedNull"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	xxx_hidden_Batch            *string                `protobuf:"bytes,32,opt,name=batch"`
@@ -11444,30 +11444,30 @@ func (x *LabelPatchRequest) GetState() string {
 	return ""
 }
 
-func (x *LabelPatchRequest) GetBoundAt() *timestamppb.Timestamp {
+func (x *LabelPatchRequest) GetDateBound() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BoundAt
+		return x.xxx_hidden_DateBound
 	}
 	return nil
 }
 
-func (x *LabelPatchRequest) GetBoundAtNull() bool {
+func (x *LabelPatchRequest) GetDateBoundNull() bool {
 	if x != nil {
-		return x.xxx_hidden_BoundAtNull
+		return x.xxx_hidden_DateBoundNull
 	}
 	return false
 }
 
-func (x *LabelPatchRequest) GetPrintedAt() *timestamppb.Timestamp {
+func (x *LabelPatchRequest) GetDatePrinted() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PrintedAt
+		return x.xxx_hidden_DatePrinted
 	}
 	return nil
 }
 
-func (x *LabelPatchRequest) GetPrintedAtNull() bool {
+func (x *LabelPatchRequest) GetDatePrintedNull() bool {
 	if x != nil {
-		return x.xxx_hidden_PrintedAtNull
+		return x.xxx_hidden_DatePrintedNull
 	}
 	return false
 }
@@ -11544,21 +11544,21 @@ func (x *LabelPatchRequest) SetState(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 15)
 }
 
-func (x *LabelPatchRequest) SetBoundAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BoundAt = v
+func (x *LabelPatchRequest) SetDateBound(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateBound = v
 }
 
-func (x *LabelPatchRequest) SetBoundAtNull(v bool) {
-	x.xxx_hidden_BoundAtNull = v
+func (x *LabelPatchRequest) SetDateBoundNull(v bool) {
+	x.xxx_hidden_DateBoundNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 15)
 }
 
-func (x *LabelPatchRequest) SetPrintedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PrintedAt = v
+func (x *LabelPatchRequest) SetDatePrinted(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DatePrinted = v
 }
 
-func (x *LabelPatchRequest) SetPrintedAtNull(v bool) {
-	x.xxx_hidden_PrintedAtNull = v
+func (x *LabelPatchRequest) SetDatePrintedNull(v bool) {
+	x.xxx_hidden_DatePrintedNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 15)
 }
 
@@ -11628,28 +11628,28 @@ func (x *LabelPatchRequest) HasState() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *LabelPatchRequest) HasBoundAt() bool {
+func (x *LabelPatchRequest) HasDateBound() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BoundAt != nil
+	return x.xxx_hidden_DateBound != nil
 }
 
-func (x *LabelPatchRequest) HasBoundAtNull() bool {
+func (x *LabelPatchRequest) HasDateBoundNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *LabelPatchRequest) HasPrintedAt() bool {
+func (x *LabelPatchRequest) HasDatePrinted() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PrintedAt != nil
+	return x.xxx_hidden_DatePrinted != nil
 }
 
-func (x *LabelPatchRequest) HasPrintedAtNull() bool {
+func (x *LabelPatchRequest) HasDatePrintedNull() bool {
 	if x == nil {
 		return false
 	}
@@ -11719,22 +11719,22 @@ func (x *LabelPatchRequest) ClearState() {
 	x.xxx_hidden_State = nil
 }
 
-func (x *LabelPatchRequest) ClearBoundAt() {
-	x.xxx_hidden_BoundAt = nil
+func (x *LabelPatchRequest) ClearDateBound() {
+	x.xxx_hidden_DateBound = nil
 }
 
-func (x *LabelPatchRequest) ClearBoundAtNull() {
+func (x *LabelPatchRequest) ClearDateBoundNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_BoundAtNull = false
+	x.xxx_hidden_DateBoundNull = false
 }
 
-func (x *LabelPatchRequest) ClearPrintedAt() {
-	x.xxx_hidden_PrintedAt = nil
+func (x *LabelPatchRequest) ClearDatePrinted() {
+	x.xxx_hidden_DatePrinted = nil
 }
 
-func (x *LabelPatchRequest) ClearPrintedAtNull() {
+func (x *LabelPatchRequest) ClearDatePrintedNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
-	x.xxx_hidden_PrintedAtNull = false
+	x.xxx_hidden_DatePrintedNull = false
 }
 
 func (x *LabelPatchRequest) ClearDateUpdated() {
@@ -11778,18 +11778,18 @@ type LabelPatchRequest_builder struct {
 	// outright: setting both this and subject_id clears.
 	SubjectIdNull *bool
 	State         *string
-	BoundAt       *timestamppb.Timestamp
-	// Clear bound_at instead of writing it.
+	DateBound     *timestamppb.Timestamp
+	// Clear date_bound instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and bound_at clears.
-	BoundAtNull *bool
-	PrintedAt   *timestamppb.Timestamp
-	// Clear printed_at instead of writing it.
+	// outright: setting both this and date_bound clears.
+	DateBoundNull *bool
+	DatePrinted   *timestamppb.Timestamp
+	// Clear date_printed instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and printed_at clears.
-	PrintedAtNull *bool
+	// outright: setting both this and date_printed clears.
+	DatePrintedNull *bool
 	// The version this update requires the stored date_updated to be.
 	// It is a precondition, not a write: the update applies only if the row
 	// still holds this value, and the server stamps the new version itself.
@@ -11835,15 +11835,15 @@ func (b0 LabelPatchRequest_builder) Build() *LabelPatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 15)
 		x.xxx_hidden_State = b.State
 	}
-	x.xxx_hidden_BoundAt = b.BoundAt
-	if b.BoundAtNull != nil {
+	x.xxx_hidden_DateBound = b.DateBound
+	if b.DateBoundNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 15)
-		x.xxx_hidden_BoundAtNull = *b.BoundAtNull
+		x.xxx_hidden_DateBoundNull = *b.DateBoundNull
 	}
-	x.xxx_hidden_PrintedAt = b.PrintedAt
-	if b.PrintedAtNull != nil {
+	x.xxx_hidden_DatePrinted = b.DatePrinted
+	if b.DatePrintedNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 15)
-		x.xxx_hidden_PrintedAtNull = *b.PrintedAtNull
+		x.xxx_hidden_DatePrintedNull = *b.DatePrintedNull
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
@@ -15319,11 +15319,11 @@ func (b0 AttachmentUrlRequest_builder) Build() *AttachmentUrlRequest {
 }
 
 type AttachmentUrlResponse struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Url       string                 `protobuf:"bytes,1,opt,name=url"`
-	xxx_hidden_ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Url         string                 `protobuf:"bytes,1,opt,name=url"`
+	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_expires,json=dateExpires"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *AttachmentUrlResponse) Reset() {
@@ -15358,9 +15358,9 @@ func (x *AttachmentUrlResponse) GetUrl() string {
 	return ""
 }
 
-func (x *AttachmentUrlResponse) GetExpiresAt() *timestamppb.Timestamp {
+func (x *AttachmentUrlResponse) GetDateExpires() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ExpiresAt
+		return x.xxx_hidden_DateExpires
 	}
 	return nil
 }
@@ -15369,26 +15369,26 @@ func (x *AttachmentUrlResponse) SetUrl(v string) {
 	x.xxx_hidden_Url = v
 }
 
-func (x *AttachmentUrlResponse) SetExpiresAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ExpiresAt = v
+func (x *AttachmentUrlResponse) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
 }
 
-func (x *AttachmentUrlResponse) HasExpiresAt() bool {
+func (x *AttachmentUrlResponse) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ExpiresAt != nil
+	return x.xxx_hidden_DateExpires != nil
 }
 
-func (x *AttachmentUrlResponse) ClearExpiresAt() {
-	x.xxx_hidden_ExpiresAt = nil
+func (x *AttachmentUrlResponse) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
 }
 
 type AttachmentUrlResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Url       string
-	ExpiresAt *timestamppb.Timestamp
+	Url         string
+	DateExpires *timestamppb.Timestamp
 }
 
 func (b0 AttachmentUrlResponse_builder) Build() *AttachmentUrlResponse {
@@ -15396,7 +15396,7 @@ func (b0 AttachmentUrlResponse_builder) Build() *AttachmentUrlResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Url = b.Url
-	x.xxx_hidden_ExpiresAt = b.ExpiresAt
+	x.xxx_hidden_DateExpires = b.DateExpires
 	return m0
 }
 
@@ -15404,7 +15404,7 @@ var File_loft_asset_svc_g_proto protoreflect.FileDescriptor
 
 const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x16loft/asset_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x12loft/account.proto\x1a\x10loft/asset.proto\x1a\x18loft/catalog_svc.g.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\x1a\fpayday.proto\"\xc2\t\n" +
+	"\x16loft/asset_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x12loft/account.proto\x1a\x10loft/asset.proto\x1a\x18loft/catalog_svc.g.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\x1a\fpayday.proto\"\xd9\t\n" +
 	"\x0fAssetAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
@@ -15426,13 +15426,11 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\tcustodian\x18\x15 \x01(\v2\x0e.loft.PartyRefR\tcustodian\x12E\n" +
 	"\n" +
 	"attributes\x18\x16 \x03(\v2%.loft.AssetAddRequest.AttributesEntryR\n" +
-	"attributes\x12;\n" +
-	"\vacquired_at\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"acquiredAt\x12;\n" +
-	"\vdisposed_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"disposedAt\x12.\n" +
-	"\x0fcontent_version\x18\x19 \x01(\x04B\x05\xaa\x01\x02\b\x02R\x0econtentVersion\x120\n" +
-	"\x05since\x18d \x01(\v2\x1a.google.protobuf.TimestampR\x05since\x12\x0e\n" +
+	"attributes\x12?\n" +
+	"\rdate_acquired\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampR\fdateAcquired\x12?\n" +
+	"\rdate_disposed\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\fdateDisposed\x12.\n" +
+	"\x0fcontent_version\x18\x19 \x01(\x04B\x05\xaa\x01\x02\b\x02R\x0econtentVersion\x12?\n" +
+	"\rdate_occurred\x18d \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x0e\n" +
 	"\x02op\x18e \x01(\fR\x02op\x12\x16\n" +
 	"\x06reason\x18f \x01(\tR\x06reason\x12\x1e\n" +
 	"\x02to\x18g \x01(\v2\x0e.loft.AssetRefR\x02to\x12\x12\n" +
@@ -15473,7 +15471,7 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\amessage\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\amessage\"^\n" +
 	"\x0fAssetGetRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12)\n" +
-	"\x06select\x18\x02 \x01(\v2\x11.loft.AssetSelectR\x06select\"\xd2\x05\n" +
+	"\x06select\x18\x02 \x01(\v2\x11.loft.AssetSelectR\x06select\"\xda\x05\n" +
 	"\vAssetSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
@@ -15498,12 +15496,10 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\tcustodian\x18\x15 \x01(\v2\x11.loft.PartySelectR\tcustodian\x12\x1e\n" +
 	"\n" +
 	"attributes\x18\x16 \x01(\bR\n" +
-	"attributes\x12\x1f\n" +
-	"\vacquired_at\x18\x17 \x01(\bR\n" +
-	"acquiredAt\x12\x1f\n" +
-	"\vdisposed_at\x18\x18 \x01(\bR\n" +
-	"disposedAt\x12'\n" +
-	"\x0fcontent_version\x18\x19 \x01(\bR\x0econtentVersion\"\x96\t\n" +
+	"attributes\x12#\n" +
+	"\rdate_acquired\x18\x17 \x01(\bR\fdateAcquired\x12#\n" +
+	"\rdate_disposed\x18\x18 \x01(\bR\fdateDisposed\x12'\n" +
+	"\x0fcontent_version\x18\x19 \x01(\bR\x0econtentVersion\"\xa6\t\n" +
 	"\x11AssetPatchRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
@@ -15530,13 +15526,11 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x0ecustodian_null\x18+ \x01(\bR\rcustodianNull\x12G\n" +
 	"\n" +
 	"attributes\x18, \x03(\v2'.loft.AssetPatchRequest.AttributesEntryR\n" +
-	"attributes\x12;\n" +
-	"\vacquired_at\x18. \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"acquiredAt\x12(\n" +
-	"\x10acquired_at_null\x18/ \x01(\bR\x0eacquiredAtNull\x12;\n" +
-	"\vdisposed_at\x180 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"disposedAt\x12(\n" +
-	"\x10disposed_at_null\x181 \x01(\bR\x0edisposedAtNull\x12'\n" +
+	"attributes\x12?\n" +
+	"\rdate_acquired\x18. \x01(\v2\x1a.google.protobuf.TimestampR\fdateAcquired\x12,\n" +
+	"\x12date_acquired_null\x18/ \x01(\bR\x10dateAcquiredNull\x12?\n" +
+	"\rdate_disposed\x180 \x01(\v2\x1a.google.protobuf.TimestampR\fdateDisposed\x12,\n" +
+	"\x12date_disposed_null\x181 \x01(\bR\x10dateDisposedNull\x12'\n" +
 	"\x0fcontent_version\x182 \x01(\x04R\x0econtentVersion\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -15585,42 +15579,42 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x0eAssetWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.loft.AssetR\x05value\x12\x1d\n" +
-	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\xa4\x02\n" +
+	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\xb9\x02\n" +
 	"\x10AssetMoveRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\x1e\n" +
 	"\x02to\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x02to\x12\x19\n" +
 	"\x04mode\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04mode\x12\x19\n" +
 	"\x04slot\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04slot\x12\x1c\n" +
 	"\x06u_from\x18\x05 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x05uFrom\x12\x18\n" +
-	"\x04u_to\x18\x06 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x03uTo\x12*\n" +
-	"\x02at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1d\n" +
+	"\x04u_to\x18\x06 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x03uTo\x12?\n" +
+	"\rdate_occurred\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x1d\n" +
 	"\x06reason\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
-	"\x02op\x18\t \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xcf\x02\n" +
+	"\x02op\x18\t \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xe4\x02\n" +
 	"\x19AssetSetAttributesRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12:\n" +
 	"\x03set\x18\x02 \x03(\v2(.loft.AssetSetAttributesRequest.SetEntryR\x03set\x12\x14\n" +
-	"\x05clear\x18\x03 \x03(\tR\x05clear\x12*\n" +
-	"\x02at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1d\n" +
+	"\x05clear\x18\x03 \x03(\tR\x05clear\x12?\n" +
+	"\rdate_occurred\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x1d\n" +
 	"\x06reason\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
 	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\x12$\n" +
 	"\x05leave\x18\a \x03(\v2\x0e.loft.AssetRefR\x05leave\x1a6\n" +
 	"\bSetEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd9\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xee\x01\n" +
 	"\x12AssetAssignRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\x19\n" +
 	"\x04role\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12$\n" +
-	"\x05party\x18\x03 \x01(\v2\x0e.loft.PartyRefR\x05party\x12*\n" +
-	"\x02at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1d\n" +
+	"\x05party\x18\x03 \x01(\v2\x0e.loft.PartyRefR\x05party\x12?\n" +
+	"\rdate_occurred\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x1d\n" +
 	"\x06reason\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
-	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\x97\x02\n" +
+	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xac\x02\n" +
 	"\x12AssetRelateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12&\n" +
 	"\x06target\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x06target\x12\x19\n" +
 	"\x04kind\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12!\n" +
 	"\brequired\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\brequired\x12\x17\n" +
-	"\x03end\x18\x05 \x01(\bB\x05\xaa\x01\x02\b\x02R\x03end\x12*\n" +
-	"\x02at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1d\n" +
+	"\x03end\x18\x05 \x01(\bB\x05\xaa\x01\x02\b\x02R\x03end\x12?\n" +
+	"\rdate_occurred\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x1d\n" +
 	"\x06reason\x18\a \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
 	"\x02op\x18\b \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xe7\x01\n" +
 	"\x13AssetCorrectRequest\x12 \n" +
@@ -15628,27 +15622,27 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x06row_id\x18\x02 \x01(\fB\x05\xaa\x01\x02\b\x02R\x05rowId\x12\x1f\n" +
 	"\aretract\x18\x03 \x01(\bB\x05\xaa\x01\x02\b\x02R\aretract\x129\n" +
 	"\n" +
-	"valid_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tvalidFrom\x12\x1d\n" +
+	"date_start\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x12\x1d\n" +
 	"\x06reason\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
-	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xae\x01\n" +
+	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xb7\x01\n" +
 	"\x14AssetTimelineRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12%\n" +
 	"\n" +
 	"superseded\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\n" +
-	"superseded\x120\n" +
-	"\x05known\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05known\x12\x1b\n" +
+	"superseded\x129\n" +
+	"\n" +
+	"date_known\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tdateKnown\x12\x1b\n" +
 	"\x05limit\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05limit\"F\n" +
 	"\x15AssetTimelineResponse\x12-\n" +
-	"\aentries\x18\x01 \x03(\v2\x13.loft.TimelineEntryR\aentries\"\xd8\x05\n" +
+	"\aentries\x18\x01 \x03(\v2\x13.loft.TimelineEntryR\aentries\"\xe0\x05\n" +
 	"\rTimelineEntry\x12\x19\n" +
 	"\x04kind\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1c\n" +
 	"\x06row_id\x18\x02 \x01(\fB\x05\xaa\x01\x02\b\x02R\x05rowId\x129\n" +
 	"\n" +
-	"valid_from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tvalidFrom\x125\n" +
-	"\bvalid_to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\avalidTo\x12;\n" +
-	"\vrecorded_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"recordedAt\x12?\n" +
-	"\rsuperseded_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12\x1f\n" +
+	"date_start\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12?\n" +
+	"\rdate_recorded\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\fdateRecorded\x12C\n" +
+	"\x0fdate_superseded\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x0edateSuperseded\x12\x1f\n" +
 	"\asummary\x18\a \x01(\tB\x05\xaa\x01\x02\b\x02R\asummary\x127\n" +
 	"\x06detail\x18\b \x03(\v2\x1f.loft.TimelineEntry.DetailEntryR\x06detail\x12 \n" +
 	"\bevent_id\x18\t \x01(\fB\x05\xaa\x01\x02\b\x02R\aeventId\x12$\n" +
@@ -15664,11 +15658,13 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\bcause_id\x18\x10 \x01(\fB\x05\xaa\x01\x02\b\x02R\acauseId\x1a9\n" +
 	"\vDetailEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcb\x01\n" +
 	"\x13AssetQueryAtRequest\x12\"\n" +
-	"\x04root\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x04root\x12*\n" +
-	"\x02at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x120\n" +
-	"\x05known\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05known\x12\x1b\n" +
+	"\x04root\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x04root\x128\n" +
+	"\n" +
+	"date_as_of\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bdateAsOf\x129\n" +
+	"\n" +
+	"date_known\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tdateKnown\x12\x1b\n" +
 	"\x05depth\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05depth\">\n" +
 	"\x14AssetQueryAtResponse\x12&\n" +
 	"\x05items\x18\x01 \x03(\v2\x10.loft.AssetStateR\x05items\"\x97\x05\n" +
@@ -15697,11 +15693,11 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a?\n" +
 	"\x11StewardNamesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x92\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa4\x01\n" +
 	"\x10AssetDiffRequest\x12\"\n" +
-	"\x04root\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x04root\x12.\n" +
-	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"@\n" +
+	"\x04root\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x04root\x127\n" +
+	"\tdate_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\"@\n" +
 	"\x11AssetDiffResponse\x12+\n" +
 	"\achanges\x18\x01 \x03(\v2\x11.loft.AssetChangeR\achanges\"\xcc\x01\n" +
 	"\vAssetChange\x12\x15\n" +
@@ -15723,11 +15719,11 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\tcustodian\x18\b \x01(\v2\x0e.loft.PartyRefR\tcustodian\"U\n" +
 	"\x13AssetSearchResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.loft.AssetR\x05items\x12\x1b\n" +
-	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\"\x8b\x01\n" +
+	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\"\x9d\x01\n" +
 	"\x12AssetReportRequest\x12\x19\n" +
-	"\x04kind\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12.\n" +
-	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\":\n" +
+	"\x04kind\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x127\n" +
+	"\tdate_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\":\n" +
 	"\x13AssetReportResponse\x12#\n" +
 	"\x04rows\x18\x01 \x03(\v2\x0f.loft.ReportRowR\x04rows\"\xeb\x01\n" +
 	"\tReportRow\x12\x1b\n" +
@@ -15757,11 +15753,12 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\amessage\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\amessage\"F\n" +
 	"\x12AssetCensusRequest\x12\x15\n" +
 	"\x02by\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x02by\x12\x19\n" +
-	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\"\xc9\x01\n" +
+	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\"\xd7\x01\n" +
 	"\x13AssetCensusResponse\x12(\n" +
 	"\x04rows\x18\x01 \x03(\v2\x14.loft.AssetCensusRowR\x04rows\x12*\n" +
-	"\x05total\x18\x02 \x01(\v2\x14.loft.AssetCensusRowR\x05total\x12*\n" +
-	"\x02at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x15\n" +
+	"\x05total\x18\x02 \x01(\v2\x14.loft.AssetCensusRowR\x05total\x128\n" +
+	"\n" +
+	"date_as_of\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bdateAsOf\x12\x15\n" +
 	"\x02by\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x02by\x12\x19\n" +
 	"\x04kind\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\"\xa8\x02\n" +
 	"\x0eAssetCensusRow\x12\x15\n" +
@@ -15774,7 +15771,7 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x06within\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x06within\x1a;\n" +
 	"\rStatusesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x86\x05\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x95\x05\n" +
 	"\x10DomainAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
@@ -15784,16 +15781,14 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x05state\x12\x1b\n" +
 	"\x05token\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x05token\x12\x1d\n" +
 	"\x06source\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x06source\x12=\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12;\n" +
-	"\vverified_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"verifiedAt\x129\n" +
-	"\n" +
-	"checked_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12\x1a\n" +
-	"\bfailures\x18\x13 \x01(\rR\bfailures\x12?\n" +
-	"\rfailing_since\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\ffailingSince\x12;\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12?\n" +
+	"\rdate_verified\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\fdateVerified\x12=\n" +
+	"\fdate_checked\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\vdateChecked\x12\x1a\n" +
+	"\bfailures\x18\x13 \x01(\rR\bfailures\x12=\n" +
+	"\fdate_failing\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\vdateFailing\x12;\n" +
 	"\vdate_lapsed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"dateLapsed\x12A\n" +
-	"\x0eredirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampR\rredirectUntil\x12\x10\n" +
+	"dateLapsed\x12J\n" +
+	"\x13date_redirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampR\x11dateRedirectUntil\x12\x10\n" +
 	"\x03sub\x18d \x01(\tR\x03sub\"a\n" +
 	"\x10DomainGetRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12*\n" +
@@ -15801,7 +15796,7 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\tDomainRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x14\n" +
 	"\x04host\x18\b \x01(\tH\x00R\x04hostB\x05\n" +
-	"\x03key\"\xee\x03\n" +
+	"\x03key\"\xfd\x03\n" +
 	"\fDomainSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
@@ -15814,16 +15809,14 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x1f\n" +
-	"\vverified_at\x18\x10 \x01(\bR\n" +
-	"verifiedAt\x12\x1d\n" +
-	"\n" +
-	"checked_at\x18\x12 \x01(\bR\tcheckedAt\x12\x1a\n" +
-	"\bfailures\x18\x13 \x01(\bR\bfailures\x12#\n" +
-	"\rfailing_since\x18\x14 \x01(\bR\ffailingSince\x12\x1f\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12#\n" +
+	"\rdate_verified\x18\x10 \x01(\bR\fdateVerified\x12!\n" +
+	"\fdate_checked\x18\x12 \x01(\bR\vdateChecked\x12\x1a\n" +
+	"\bfailures\x18\x13 \x01(\bR\bfailures\x12!\n" +
+	"\fdate_failing\x18\x14 \x01(\bR\vdateFailing\x12\x1f\n" +
 	"\vdate_lapsed\x18\x11 \x01(\bR\n" +
-	"dateLapsed\x12%\n" +
-	"\x0eredirect_until\x18\x15 \x01(\bR\rredirectUntil\"\xc5\x06\n" +
+	"dateLapsed\x12.\n" +
+	"\x13date_redirect_until\x18\x15 \x01(\bR\x11dateRedirectUntil\"\xe3\x06\n" +
 	"\x12DomainPatchRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12\x12\n" +
 	"\x04host\x18\x10 \x01(\tR\x04host\x12\x18\n" +
@@ -15832,21 +15825,19 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x05token\x18\x16 \x01(\tR\x05token\x12\x16\n" +
 	"\x06source\x18\x18 \x01(\tR\x06source\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
-	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12;\n" +
-	"\vverified_at\x18  \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"verifiedAt\x12(\n" +
-	"\x10verified_at_null\x18! \x01(\bR\x0everifiedAtNull\x129\n" +
-	"\n" +
-	"checked_at\x18$ \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12&\n" +
-	"\x0fchecked_at_null\x18% \x01(\bR\rcheckedAtNull\x12\x1a\n" +
-	"\bfailures\x18& \x01(\rR\bfailures\x12?\n" +
-	"\rfailing_since\x18( \x01(\v2\x1a.google.protobuf.TimestampR\ffailingSince\x12,\n" +
-	"\x12failing_since_null\x18) \x01(\bR\x10failingSinceNull\x12;\n" +
+	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12?\n" +
+	"\rdate_verified\x18  \x01(\v2\x1a.google.protobuf.TimestampR\fdateVerified\x12,\n" +
+	"\x12date_verified_null\x18! \x01(\bR\x10dateVerifiedNull\x12=\n" +
+	"\fdate_checked\x18$ \x01(\v2\x1a.google.protobuf.TimestampR\vdateChecked\x12*\n" +
+	"\x11date_checked_null\x18% \x01(\bR\x0fdateCheckedNull\x12\x1a\n" +
+	"\bfailures\x18& \x01(\rR\bfailures\x12=\n" +
+	"\fdate_failing\x18( \x01(\v2\x1a.google.protobuf.TimestampR\vdateFailing\x12*\n" +
+	"\x11date_failing_null\x18) \x01(\bR\x0fdateFailingNull\x12;\n" +
 	"\vdate_lapsed\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"dateLapsed\x12(\n" +
-	"\x10date_lapsed_null\x18# \x01(\bR\x0edateLapsedNull\x12A\n" +
-	"\x0eredirect_until\x18* \x01(\v2\x1a.google.protobuf.TimestampR\rredirectUntil\x12.\n" +
-	"\x13redirect_until_null\x18+ \x01(\bR\x11redirectUntilNull\"[\n" +
+	"\x10date_lapsed_null\x18# \x01(\bR\x0edateLapsedNull\x12J\n" +
+	"\x13date_redirect_until\x18* \x01(\v2\x1a.google.protobuf.TimestampR\x11dateRedirectUntil\x127\n" +
+	"\x18date_redirect_until_null\x18+ \x01(\bR\x15dateRedirectUntilNull\"[\n" +
 	"\x12DomainApplyRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"-\n" +
@@ -15885,7 +15876,7 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x06active\x18\x02 \x01(\v2\f.loft.DomainR\x06active\x12\x1d\n" +
 	"\x06target\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06target\x12,\n" +
 	"\x0edefault_suffix\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\rdefaultSuffix\x12\x19\n" +
-	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04baseJ\x04\b\x01\x10\x02J\x04\b\x05\x10\x06R\x06labelsR\x0etenant_domains\"\x91\x03\n" +
+	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04baseJ\x04\b\x01\x10\x02J\x04\b\x05\x10\x06R\x06labelsR\x0etenant_domains\"\x99\x03\n" +
 	"\x0fLabelAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12'\n" +
@@ -15893,10 +15884,10 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"subject_id\x18\t \x01(\fR\tsubjectId\x12\x1b\n" +
 	"\x05state\x18\n" +
-	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x05state\x125\n" +
-	"\bbound_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\aboundAt\x129\n" +
+	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x05state\x129\n" +
 	"\n" +
-	"printed_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tprintedAt\x12=\n" +
+	"date_bound\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tdateBound\x12=\n" +
+	"\fdate_printed\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\vdatePrinted\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1b\n" +
 	"\x05batch\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05batch\x12\x12\n" +
 	"\x04code\x18\x11 \x01(\tR\x04code\"^\n" +
@@ -15906,7 +15897,7 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\bLabelRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x14\n" +
 	"\x04code\x18\x11 \x01(\tH\x00R\x04codeB\x05\n" +
-	"\x03key\"\xf7\x02\n" +
+	"\x03key\"\xff\x02\n" +
 	"\vLabelSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12*\n" +
@@ -15914,16 +15905,16 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"subject_id\x18\t \x01(\bR\tsubjectId\x12\x14\n" +
 	"\x05state\x18\n" +
-	" \x01(\bR\x05state\x12\x19\n" +
-	"\bbound_at\x18\v \x01(\bR\aboundAt\x12\x1d\n" +
+	" \x01(\bR\x05state\x12\x1d\n" +
 	"\n" +
-	"printed_at\x18\f \x01(\bR\tprintedAt\x12!\n" +
+	"date_bound\x18\v \x01(\bR\tdateBound\x12!\n" +
+	"\fdate_printed\x18\f \x01(\bR\vdatePrinted\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x14\n" +
 	"\x05batch\x18\x10 \x01(\bR\x05batch\x12\x12\n" +
-	"\x04code\x18\x11 \x01(\bR\x04code\"\xce\x04\n" +
+	"\x04code\x18\x11 \x01(\bR\x04code\"\xde\x04\n" +
 	"\x11LabelPatchRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12'\n" +
 	"\x06domain\x18\x10 \x01(\v2\x0f.loft.DomainRefR\x06domain\x12\x1f\n" +
@@ -15932,12 +15923,12 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"subject_id\x18\x12 \x01(\fR\tsubjectId\x12&\n" +
 	"\x0fsubject_id_null\x18\x13 \x01(\bR\rsubjectIdNull\x12\x14\n" +
-	"\x05state\x18\x14 \x01(\tR\x05state\x125\n" +
-	"\bbound_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\aboundAt\x12\"\n" +
-	"\rbound_at_null\x18\x17 \x01(\bR\vboundAtNull\x129\n" +
+	"\x05state\x18\x14 \x01(\tR\x05state\x129\n" +
 	"\n" +
-	"printed_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\tprintedAt\x12&\n" +
-	"\x0fprinted_at_null\x18\x19 \x01(\bR\rprintedAtNull\x12=\n" +
+	"date_bound\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\tdateBound\x12&\n" +
+	"\x0fdate_bound_null\x18\x17 \x01(\bR\rdateBoundNull\x12=\n" +
+	"\fdate_printed\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\vdatePrinted\x12*\n" +
+	"\x11date_printed_null\x18\x19 \x01(\bR\x0fdatePrintedNull\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x14\n" +
 	"\x05batch\x18  \x01(\tR\x05batch\x12\x12\n" +
@@ -16076,11 +16067,10 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\fcontent_type\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\vcontentType\x12\x19\n" +
 	"\x04data\x18\x04 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\"=\n" +
 	"\x14AttachmentUrlRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.loft.AttachmentRefR\x03ref\"k\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.AttachmentRefR\x03ref\"o\n" +
 	"\x15AttachmentUrlResponse\x12\x17\n" +
-	"\x03url\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x03url\x129\n" +
-	"\n" +
-	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt2\xb3\n" +
+	"\x03url\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x03url\x12=\n" +
+	"\fdate_expires\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires2\xb3\n" +
 	"\n" +
 	"\fAssetService\x12)\n" +
 	"\x03Add\x12\x15.loft.AssetAddRequest\x1a\v.loft.Asset\x12@\n" +
@@ -16283,9 +16273,9 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	115, // 4: loft.AssetAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	116, // 5: loft.AssetAddRequest.custodian:type_name -> loft.PartyRef
 	100, // 6: loft.AssetAddRequest.attributes:type_name -> loft.AssetAddRequest.AttributesEntry
-	115, // 7: loft.AssetAddRequest.acquired_at:type_name -> google.protobuf.Timestamp
-	115, // 8: loft.AssetAddRequest.disposed_at:type_name -> google.protobuf.Timestamp
-	115, // 9: loft.AssetAddRequest.since:type_name -> google.protobuf.Timestamp
+	115, // 7: loft.AssetAddRequest.date_acquired:type_name -> google.protobuf.Timestamp
+	115, // 8: loft.AssetAddRequest.date_disposed:type_name -> google.protobuf.Timestamp
+	115, // 9: loft.AssetAddRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	1,   // 10: loft.AssetAddRequest.to:type_name -> loft.AssetRef
 	2,   // 11: loft.AssetRef.tag:type_name -> loft.AssetRefByTag
 	112, // 12: loft.AssetRefByTag.tenant:type_name -> loft.TenantRef
@@ -16305,8 +16295,8 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	115, // 26: loft.AssetPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	116, // 27: loft.AssetPatchRequest.custodian:type_name -> loft.PartyRef
 	102, // 28: loft.AssetPatchRequest.attributes:type_name -> loft.AssetPatchRequest.AttributesEntry
-	115, // 29: loft.AssetPatchRequest.acquired_at:type_name -> google.protobuf.Timestamp
-	115, // 30: loft.AssetPatchRequest.disposed_at:type_name -> google.protobuf.Timestamp
+	115, // 29: loft.AssetPatchRequest.date_acquired:type_name -> google.protobuf.Timestamp
+	115, // 30: loft.AssetPatchRequest.date_disposed:type_name -> google.protobuf.Timestamp
 	1,   // 31: loft.AssetApplyRequest.ref:type_name -> loft.AssetRef
 	122, // 32: loft.AssetApplyRequest.patch:type_name -> patch.Patch
 	13,  // 33: loft.AssetListRequest.filters:type_name -> loft.AssetFilter
@@ -16322,69 +16312,69 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	117, // 43: loft.AssetWatchItem.value:type_name -> loft.Asset
 	1,   // 44: loft.AssetMoveRequest.ref:type_name -> loft.AssetRef
 	1,   // 45: loft.AssetMoveRequest.to:type_name -> loft.AssetRef
-	115, // 46: loft.AssetMoveRequest.at:type_name -> google.protobuf.Timestamp
+	115, // 46: loft.AssetMoveRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	1,   // 47: loft.AssetSetAttributesRequest.ref:type_name -> loft.AssetRef
 	105, // 48: loft.AssetSetAttributesRequest.set:type_name -> loft.AssetSetAttributesRequest.SetEntry
-	115, // 49: loft.AssetSetAttributesRequest.at:type_name -> google.protobuf.Timestamp
+	115, // 49: loft.AssetSetAttributesRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	1,   // 50: loft.AssetSetAttributesRequest.leave:type_name -> loft.AssetRef
 	1,   // 51: loft.AssetAssignRequest.ref:type_name -> loft.AssetRef
 	116, // 52: loft.AssetAssignRequest.party:type_name -> loft.PartyRef
-	115, // 53: loft.AssetAssignRequest.at:type_name -> google.protobuf.Timestamp
+	115, // 53: loft.AssetAssignRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	1,   // 54: loft.AssetRelateRequest.ref:type_name -> loft.AssetRef
 	1,   // 55: loft.AssetRelateRequest.target:type_name -> loft.AssetRef
-	115, // 56: loft.AssetRelateRequest.at:type_name -> google.protobuf.Timestamp
+	115, // 56: loft.AssetRelateRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	1,   // 57: loft.AssetCorrectRequest.ref:type_name -> loft.AssetRef
-	115, // 58: loft.AssetCorrectRequest.valid_from:type_name -> google.protobuf.Timestamp
+	115, // 58: loft.AssetCorrectRequest.date_start:type_name -> google.protobuf.Timestamp
 	1,   // 59: loft.AssetTimelineRequest.ref:type_name -> loft.AssetRef
-	115, // 60: loft.AssetTimelineRequest.known:type_name -> google.protobuf.Timestamp
+	115, // 60: loft.AssetTimelineRequest.date_known:type_name -> google.protobuf.Timestamp
 	24,  // 61: loft.AssetTimelineResponse.entries:type_name -> loft.TimelineEntry
-	115, // 62: loft.TimelineEntry.valid_from:type_name -> google.protobuf.Timestamp
-	115, // 63: loft.TimelineEntry.valid_to:type_name -> google.protobuf.Timestamp
-	115, // 64: loft.TimelineEntry.recorded_at:type_name -> google.protobuf.Timestamp
-	115, // 65: loft.TimelineEntry.superseded_at:type_name -> google.protobuf.Timestamp
+	115, // 62: loft.TimelineEntry.date_start:type_name -> google.protobuf.Timestamp
+	115, // 63: loft.TimelineEntry.date_end:type_name -> google.protobuf.Timestamp
+	115, // 64: loft.TimelineEntry.date_recorded:type_name -> google.protobuf.Timestamp
+	115, // 65: loft.TimelineEntry.date_superseded:type_name -> google.protobuf.Timestamp
 	106, // 66: loft.TimelineEntry.detail:type_name -> loft.TimelineEntry.DetailEntry
 	1,   // 67: loft.AssetQueryAtRequest.root:type_name -> loft.AssetRef
-	115, // 68: loft.AssetQueryAtRequest.at:type_name -> google.protobuf.Timestamp
-	115, // 69: loft.AssetQueryAtRequest.known:type_name -> google.protobuf.Timestamp
+	115, // 68: loft.AssetQueryAtRequest.date_as_of:type_name -> google.protobuf.Timestamp
+	115, // 69: loft.AssetQueryAtRequest.date_known:type_name -> google.protobuf.Timestamp
 	27,  // 70: loft.AssetQueryAtResponse.items:type_name -> loft.AssetState
 	107, // 71: loft.AssetState.facts:type_name -> loft.AssetState.FactsEntry
 	108, // 72: loft.AssetState.stewards:type_name -> loft.AssetState.StewardsEntry
 	109, // 73: loft.AssetState.steward_names:type_name -> loft.AssetState.StewardNamesEntry
 	1,   // 74: loft.AssetDiffRequest.root:type_name -> loft.AssetRef
-	115, // 75: loft.AssetDiffRequest.from:type_name -> google.protobuf.Timestamp
-	115, // 76: loft.AssetDiffRequest.to:type_name -> google.protobuf.Timestamp
+	115, // 75: loft.AssetDiffRequest.date_from:type_name -> google.protobuf.Timestamp
+	115, // 76: loft.AssetDiffRequest.date_to:type_name -> google.protobuf.Timestamp
 	30,  // 77: loft.AssetDiffResponse.changes:type_name -> loft.AssetChange
 	113, // 78: loft.AssetSearchRequest.type:type_name -> loft.AssetTypeRef
 	1,   // 79: loft.AssetSearchRequest.within:type_name -> loft.AssetRef
 	116, // 80: loft.AssetSearchRequest.custodian:type_name -> loft.PartyRef
 	117, // 81: loft.AssetSearchResponse.items:type_name -> loft.Asset
-	115, // 82: loft.AssetReportRequest.from:type_name -> google.protobuf.Timestamp
-	115, // 83: loft.AssetReportRequest.to:type_name -> google.protobuf.Timestamp
+	115, // 82: loft.AssetReportRequest.date_from:type_name -> google.protobuf.Timestamp
+	115, // 83: loft.AssetReportRequest.date_to:type_name -> google.protobuf.Timestamp
 	35,  // 84: loft.AssetReportResponse.rows:type_name -> loft.ReportRow
 	110, // 85: loft.ReportRow.detail:type_name -> loft.ReportRow.DetailEntry
 	0,   // 86: loft.AssetReadSheetResponse.items:type_name -> loft.AssetAddRequest
 	41,  // 87: loft.AssetReadSheetResponse.issues:type_name -> loft.AssetReadSheetIssue
 	44,  // 88: loft.AssetCensusResponse.rows:type_name -> loft.AssetCensusRow
 	44,  // 89: loft.AssetCensusResponse.total:type_name -> loft.AssetCensusRow
-	115, // 90: loft.AssetCensusResponse.at:type_name -> google.protobuf.Timestamp
+	115, // 90: loft.AssetCensusResponse.date_as_of:type_name -> google.protobuf.Timestamp
 	111, // 91: loft.AssetCensusRow.statuses:type_name -> loft.AssetCensusRow.StatusesEntry
 	112, // 92: loft.DomainAddRequest.tenant:type_name -> loft.TenantRef
 	115, // 93: loft.DomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	115, // 94: loft.DomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
-	115, // 95: loft.DomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
-	115, // 96: loft.DomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
+	115, // 94: loft.DomainAddRequest.date_verified:type_name -> google.protobuf.Timestamp
+	115, // 95: loft.DomainAddRequest.date_checked:type_name -> google.protobuf.Timestamp
+	115, // 96: loft.DomainAddRequest.date_failing:type_name -> google.protobuf.Timestamp
 	115, // 97: loft.DomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	115, // 98: loft.DomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	115, // 98: loft.DomainAddRequest.date_redirect_until:type_name -> google.protobuf.Timestamp
 	47,  // 99: loft.DomainGetRequest.ref:type_name -> loft.DomainRef
 	48,  // 100: loft.DomainGetRequest.select:type_name -> loft.DomainSelect
 	118, // 101: loft.DomainSelect.tenant:type_name -> loft.TenantSelect
 	47,  // 102: loft.DomainPatchRequest.ref:type_name -> loft.DomainRef
 	115, // 103: loft.DomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	115, // 104: loft.DomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
-	115, // 105: loft.DomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
-	115, // 106: loft.DomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
+	115, // 104: loft.DomainPatchRequest.date_verified:type_name -> google.protobuf.Timestamp
+	115, // 105: loft.DomainPatchRequest.date_checked:type_name -> google.protobuf.Timestamp
+	115, // 106: loft.DomainPatchRequest.date_failing:type_name -> google.protobuf.Timestamp
 	115, // 107: loft.DomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	115, // 108: loft.DomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	115, // 108: loft.DomainPatchRequest.date_redirect_until:type_name -> google.protobuf.Timestamp
 	47,  // 109: loft.DomainApplyRequest.ref:type_name -> loft.DomainRef
 	122, // 110: loft.DomainApplyRequest.patch:type_name -> patch.Patch
 	54,  // 111: loft.DomainListRequest.filters:type_name -> loft.DomainFilter
@@ -16399,8 +16389,8 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	123, // 120: loft.DomainStatusResponse.active:type_name -> loft.Domain
 	112, // 121: loft.LabelAddRequest.tenant:type_name -> loft.TenantRef
 	47,  // 122: loft.LabelAddRequest.domain:type_name -> loft.DomainRef
-	115, // 123: loft.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
-	115, // 124: loft.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
+	115, // 123: loft.LabelAddRequest.date_bound:type_name -> google.protobuf.Timestamp
+	115, // 124: loft.LabelAddRequest.date_printed:type_name -> google.protobuf.Timestamp
 	115, // 125: loft.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	65,  // 126: loft.LabelGetRequest.ref:type_name -> loft.LabelRef
 	66,  // 127: loft.LabelGetRequest.select:type_name -> loft.LabelSelect
@@ -16408,8 +16398,8 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	48,  // 129: loft.LabelSelect.domain:type_name -> loft.DomainSelect
 	65,  // 130: loft.LabelPatchRequest.ref:type_name -> loft.LabelRef
 	47,  // 131: loft.LabelPatchRequest.domain:type_name -> loft.DomainRef
-	115, // 132: loft.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
-	115, // 133: loft.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
+	115, // 132: loft.LabelPatchRequest.date_bound:type_name -> google.protobuf.Timestamp
+	115, // 133: loft.LabelPatchRequest.date_printed:type_name -> google.protobuf.Timestamp
 	115, // 134: loft.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	65,  // 135: loft.LabelApplyRequest.ref:type_name -> loft.LabelRef
 	122, // 136: loft.LabelApplyRequest.patch:type_name -> patch.Patch
@@ -16441,7 +16431,7 @@ var file_loft_asset_svc_g_proto_depIdxs = []int32{
 	95,  // 162: loft.AttachmentWatchResponse.items:type_name -> loft.AttachmentWatchItem
 	125, // 163: loft.AttachmentWatchItem.value:type_name -> loft.Attachment
 	85,  // 164: loft.AttachmentUrlRequest.ref:type_name -> loft.AttachmentRef
-	115, // 165: loft.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
+	115, // 165: loft.AttachmentUrlResponse.date_expires:type_name -> google.protobuf.Timestamp
 	0,   // 166: loft.AssetService.Add:input_type -> loft.AssetAddRequest
 	3,   // 167: loft.AssetService.AddMany:input_type -> loft.AssetAddManyRequest
 	6,   // 168: loft.AssetService.Get:input_type -> loft.AssetGetRequest

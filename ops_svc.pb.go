@@ -31,7 +31,7 @@ type NotificationAddRequest struct {
 	xxx_hidden_Holder      *HolderRef             `protobuf:"bytes,8,opt,name=holder"`
 	xxx_hidden_Kind        string                 `protobuf:"bytes,9,opt,name=kind"`
 	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,10,opt,name=subject_id,json=subjectId"`
-	xxx_hidden_ReadAt      *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=read_at,json=readAt"`
+	xxx_hidden_DateRead    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_read,json=dateRead"`
 	xxx_hidden_Link        string                 `protobuf:"bytes,12,opt,name=link"`
 	xxx_hidden_Mail        bool                   `protobuf:"varint,16,opt,name=mail"`
 	xxx_hidden_DateMailed  *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_mailed,json=dateMailed"`
@@ -117,9 +117,9 @@ func (x *NotificationAddRequest) GetSubjectId() []byte {
 	return nil
 }
 
-func (x *NotificationAddRequest) GetReadAt() *timestamppb.Timestamp {
+func (x *NotificationAddRequest) GetDateRead() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReadAt
+		return x.xxx_hidden_DateRead
 	}
 	return nil
 }
@@ -195,8 +195,8 @@ func (x *NotificationAddRequest) SetSubjectId(v []byte) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
 }
 
-func (x *NotificationAddRequest) SetReadAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReadAt = v
+func (x *NotificationAddRequest) SetDateRead(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRead = v
 }
 
 func (x *NotificationAddRequest) SetLink(v string) {
@@ -247,11 +247,11 @@ func (x *NotificationAddRequest) HasSubjectId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *NotificationAddRequest) HasReadAt() bool {
+func (x *NotificationAddRequest) HasDateRead() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReadAt != nil
+	return x.xxx_hidden_DateRead != nil
 }
 
 func (x *NotificationAddRequest) HasDateMailed() bool {
@@ -286,8 +286,8 @@ func (x *NotificationAddRequest) ClearSubjectId() {
 	x.xxx_hidden_SubjectId = nil
 }
 
-func (x *NotificationAddRequest) ClearReadAt() {
-	x.xxx_hidden_ReadAt = nil
+func (x *NotificationAddRequest) ClearDateRead() {
+	x.xxx_hidden_DateRead = nil
 }
 
 func (x *NotificationAddRequest) ClearDateMailed() {
@@ -308,7 +308,7 @@ type NotificationAddRequest_builder struct {
 	Holder      *HolderRef
 	Kind        string
 	SubjectId   []byte
-	ReadAt      *timestamppb.Timestamp
+	DateRead    *timestamppb.Timestamp
 	Link        string
 	Mail        bool
 	DateMailed  *timestamppb.Timestamp
@@ -333,7 +333,7 @@ func (b0 NotificationAddRequest_builder) Build() *NotificationAddRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
 		x.xxx_hidden_SubjectId = b.SubjectId
 	}
-	x.xxx_hidden_ReadAt = b.ReadAt
+	x.xxx_hidden_DateRead = b.DateRead
 	x.xxx_hidden_Link = b.Link
 	x.xxx_hidden_Mail = b.Mail
 	x.xxx_hidden_DateMailed = b.DateMailed
@@ -570,7 +570,7 @@ type NotificationSelect struct {
 	xxx_hidden_Holder      *HolderSelect          `protobuf:"bytes,8,opt,name=holder"`
 	xxx_hidden_Kind        bool                   `protobuf:"varint,9,opt,name=kind"`
 	xxx_hidden_SubjectId   bool                   `protobuf:"varint,10,opt,name=subject_id,json=subjectId"`
-	xxx_hidden_ReadAt      bool                   `protobuf:"varint,11,opt,name=read_at,json=readAt"`
+	xxx_hidden_DateRead    bool                   `protobuf:"varint,11,opt,name=date_read,json=dateRead"`
 	xxx_hidden_Link        bool                   `protobuf:"varint,12,opt,name=link"`
 	xxx_hidden_Mail        bool                   `protobuf:"varint,16,opt,name=mail"`
 	xxx_hidden_DateMailed  bool                   `protobuf:"varint,17,opt,name=date_mailed,json=dateMailed"`
@@ -657,9 +657,9 @@ func (x *NotificationSelect) GetSubjectId() bool {
 	return false
 }
 
-func (x *NotificationSelect) GetReadAt() bool {
+func (x *NotificationSelect) GetDateRead() bool {
 	if x != nil {
-		return x.xxx_hidden_ReadAt
+		return x.xxx_hidden_DateRead
 	}
 	return false
 }
@@ -739,8 +739,8 @@ func (x *NotificationSelect) SetSubjectId(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 14)
 }
 
-func (x *NotificationSelect) SetReadAt(v bool) {
-	x.xxx_hidden_ReadAt = v
+func (x *NotificationSelect) SetDateRead(v bool) {
+	x.xxx_hidden_DateRead = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 14)
 }
 
@@ -823,7 +823,7 @@ func (x *NotificationSelect) HasSubjectId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *NotificationSelect) HasReadAt() bool {
+func (x *NotificationSelect) HasDateRead() bool {
 	if x == nil {
 		return false
 	}
@@ -905,9 +905,9 @@ func (x *NotificationSelect) ClearSubjectId() {
 	x.xxx_hidden_SubjectId = false
 }
 
-func (x *NotificationSelect) ClearReadAt() {
+func (x *NotificationSelect) ClearDateRead() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_ReadAt = false
+	x.xxx_hidden_DateRead = false
 }
 
 func (x *NotificationSelect) ClearLink() {
@@ -950,7 +950,7 @@ type NotificationSelect_builder struct {
 	Holder      *HolderSelect
 	Kind        *bool
 	SubjectId   *bool
-	ReadAt      *bool
+	DateRead    *bool
 	Link        *bool
 	Mail        *bool
 	DateMailed  *bool
@@ -985,9 +985,9 @@ func (b0 NotificationSelect_builder) Build() *NotificationSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 14)
 		x.xxx_hidden_SubjectId = *b.SubjectId
 	}
-	if b.ReadAt != nil {
+	if b.DateRead != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 14)
-		x.xxx_hidden_ReadAt = *b.ReadAt
+		x.xxx_hidden_DateRead = *b.DateRead
 	}
 	if b.Link != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 14)
@@ -1024,8 +1024,8 @@ type NotificationPatchRequest struct {
 	xxx_hidden_Kind             *string                `protobuf:"bytes,18,opt,name=kind"`
 	xxx_hidden_SubjectId        []byte                 `protobuf:"bytes,20,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_SubjectIdNull    bool                   `protobuf:"varint,21,opt,name=subject_id_null,json=subjectIdNull"`
-	xxx_hidden_ReadAt           *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=read_at,json=readAt"`
-	xxx_hidden_ReadAtNull       bool                   `protobuf:"varint,23,opt,name=read_at_null,json=readAtNull"`
+	xxx_hidden_DateRead         *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_read,json=dateRead"`
+	xxx_hidden_DateReadNull     bool                   `protobuf:"varint,23,opt,name=date_read_null,json=dateReadNull"`
 	xxx_hidden_Link             *string                `protobuf:"bytes,24,opt,name=link"`
 	xxx_hidden_Mail             bool                   `protobuf:"varint,32,opt,name=mail"`
 	xxx_hidden_DateMailed       *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_mailed,json=dateMailed"`
@@ -1115,16 +1115,16 @@ func (x *NotificationPatchRequest) GetSubjectIdNull() bool {
 	return false
 }
 
-func (x *NotificationPatchRequest) GetReadAt() *timestamppb.Timestamp {
+func (x *NotificationPatchRequest) GetDateRead() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReadAt
+		return x.xxx_hidden_DateRead
 	}
 	return nil
 }
 
-func (x *NotificationPatchRequest) GetReadAtNull() bool {
+func (x *NotificationPatchRequest) GetDateReadNull() bool {
 	if x != nil {
-		return x.xxx_hidden_ReadAtNull
+		return x.xxx_hidden_DateReadNull
 	}
 	return false
 }
@@ -1213,12 +1213,12 @@ func (x *NotificationPatchRequest) SetSubjectIdNull(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 15)
 }
 
-func (x *NotificationPatchRequest) SetReadAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReadAt = v
+func (x *NotificationPatchRequest) SetDateRead(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRead = v
 }
 
-func (x *NotificationPatchRequest) SetReadAtNull(v bool) {
-	x.xxx_hidden_ReadAtNull = v
+func (x *NotificationPatchRequest) SetDateReadNull(v bool) {
+	x.xxx_hidden_DateReadNull = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 15)
 }
 
@@ -1297,14 +1297,14 @@ func (x *NotificationPatchRequest) HasSubjectIdNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *NotificationPatchRequest) HasReadAt() bool {
+func (x *NotificationPatchRequest) HasDateRead() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReadAt != nil
+	return x.xxx_hidden_DateRead != nil
 }
 
-func (x *NotificationPatchRequest) HasReadAtNull() bool {
+func (x *NotificationPatchRequest) HasDateReadNull() bool {
 	if x == nil {
 		return false
 	}
@@ -1389,13 +1389,13 @@ func (x *NotificationPatchRequest) ClearSubjectIdNull() {
 	x.xxx_hidden_SubjectIdNull = false
 }
 
-func (x *NotificationPatchRequest) ClearReadAt() {
-	x.xxx_hidden_ReadAt = nil
+func (x *NotificationPatchRequest) ClearDateRead() {
+	x.xxx_hidden_DateRead = nil
 }
 
-func (x *NotificationPatchRequest) ClearReadAtNull() {
+func (x *NotificationPatchRequest) ClearDateReadNull() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_ReadAtNull = false
+	x.xxx_hidden_DateReadNull = false
 }
 
 func (x *NotificationPatchRequest) ClearLink() {
@@ -1444,15 +1444,15 @@ type NotificationPatchRequest_builder struct {
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and subject_id clears.
 	SubjectIdNull *bool
-	ReadAt        *timestamppb.Timestamp
-	// Clear read_at instead of writing it.
+	DateRead      *timestamppb.Timestamp
+	// Clear date_read instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and read_at clears.
-	ReadAtNull *bool
-	Link       *string
-	Mail       *bool
-	DateMailed *timestamppb.Timestamp
+	// outright: setting both this and date_read clears.
+	DateReadNull *bool
+	Link         *string
+	Mail         *bool
+	DateMailed   *timestamppb.Timestamp
 	// Clear date_mailed instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
@@ -1500,10 +1500,10 @@ func (b0 NotificationPatchRequest_builder) Build() *NotificationPatchRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 15)
 		x.xxx_hidden_SubjectIdNull = *b.SubjectIdNull
 	}
-	x.xxx_hidden_ReadAt = b.ReadAt
-	if b.ReadAtNull != nil {
+	x.xxx_hidden_DateRead = b.DateRead
+	if b.DateReadNull != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 15)
-		x.xxx_hidden_ReadAtNull = *b.ReadAtNull
+		x.xxx_hidden_DateReadNull = *b.DateReadNull
 	}
 	if b.Link != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 15)
@@ -4990,8 +4990,8 @@ type AccessReviewAddRequest struct {
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
 	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_PeriodFrom  *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=period_from,json=periodFrom"`
-	xxx_hidden_PeriodTo    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=period_to,json=periodTo"`
+	xxx_hidden_DateStart   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_Reviewer    *HolderRef             `protobuf:"bytes,10,opt,name=reviewer"`
 	xxx_hidden_Calls       uint32                 `protobuf:"varint,11,opt,name=calls"`
 	xxx_hidden_Downloads   uint32                 `protobuf:"varint,12,opt,name=downloads"`
@@ -5049,16 +5049,16 @@ func (x *AccessReviewAddRequest) GetDesc() string {
 	return ""
 }
 
-func (x *AccessReviewAddRequest) GetPeriodFrom() *timestamppb.Timestamp {
+func (x *AccessReviewAddRequest) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PeriodFrom
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *AccessReviewAddRequest) GetPeriodTo() *timestamppb.Timestamp {
+func (x *AccessReviewAddRequest) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PeriodTo
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -5114,12 +5114,12 @@ func (x *AccessReviewAddRequest) SetDesc(v string) {
 	x.xxx_hidden_Desc = v
 }
 
-func (x *AccessReviewAddRequest) SetPeriodFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PeriodFrom = v
+func (x *AccessReviewAddRequest) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *AccessReviewAddRequest) SetPeriodTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PeriodTo = v
+func (x *AccessReviewAddRequest) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *AccessReviewAddRequest) SetReviewer(v *HolderRef) {
@@ -5156,18 +5156,18 @@ func (x *AccessReviewAddRequest) HasTenant() bool {
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *AccessReviewAddRequest) HasPeriodFrom() bool {
+func (x *AccessReviewAddRequest) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PeriodFrom != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *AccessReviewAddRequest) HasPeriodTo() bool {
+func (x *AccessReviewAddRequest) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PeriodTo != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
 func (x *AccessReviewAddRequest) HasReviewer() bool {
@@ -5193,12 +5193,12 @@ func (x *AccessReviewAddRequest) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
 
-func (x *AccessReviewAddRequest) ClearPeriodFrom() {
-	x.xxx_hidden_PeriodFrom = nil
+func (x *AccessReviewAddRequest) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *AccessReviewAddRequest) ClearPeriodTo() {
-	x.xxx_hidden_PeriodTo = nil
+func (x *AccessReviewAddRequest) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 func (x *AccessReviewAddRequest) ClearReviewer() {
@@ -5215,8 +5215,8 @@ type AccessReviewAddRequest_builder struct {
 	Id          []byte
 	Tenant      *TenantRef
 	Desc        string
-	PeriodFrom  *timestamppb.Timestamp
-	PeriodTo    *timestamppb.Timestamp
+	DateStart   *timestamppb.Timestamp
+	DateEnd     *timestamppb.Timestamp
 	Reviewer    *HolderRef
 	Calls       uint32
 	Downloads   uint32
@@ -5234,8 +5234,8 @@ func (b0 AccessReviewAddRequest_builder) Build() *AccessReviewAddRequest {
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Desc = b.Desc
-	x.xxx_hidden_PeriodFrom = b.PeriodFrom
-	x.xxx_hidden_PeriodTo = b.PeriodTo
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_Reviewer = b.Reviewer
 	x.xxx_hidden_Calls = b.Calls
 	x.xxx_hidden_Downloads = b.Downloads
@@ -5468,8 +5468,8 @@ type AccessReviewSelect struct {
 	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
 	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
 	xxx_hidden_Desc        bool                   `protobuf:"varint,6,opt,name=desc"`
-	xxx_hidden_PeriodFrom  bool                   `protobuf:"varint,8,opt,name=period_from,json=periodFrom"`
-	xxx_hidden_PeriodTo    bool                   `protobuf:"varint,9,opt,name=period_to,json=periodTo"`
+	xxx_hidden_DateStart   bool                   `protobuf:"varint,8,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd     bool                   `protobuf:"varint,9,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_Reviewer    *HolderSelect          `protobuf:"bytes,10,opt,name=reviewer"`
 	xxx_hidden_Calls       bool                   `protobuf:"varint,11,opt,name=calls"`
 	xxx_hidden_Downloads   bool                   `protobuf:"varint,12,opt,name=downloads"`
@@ -5527,16 +5527,16 @@ func (x *AccessReviewSelect) GetDesc() bool {
 	return false
 }
 
-func (x *AccessReviewSelect) GetPeriodFrom() bool {
+func (x *AccessReviewSelect) GetDateStart() bool {
 	if x != nil {
-		return x.xxx_hidden_PeriodFrom
+		return x.xxx_hidden_DateStart
 	}
 	return false
 }
 
-func (x *AccessReviewSelect) GetPeriodTo() bool {
+func (x *AccessReviewSelect) GetDateEnd() bool {
 	if x != nil {
-		return x.xxx_hidden_PeriodTo
+		return x.xxx_hidden_DateEnd
 	}
 	return false
 }
@@ -5590,13 +5590,13 @@ func (x *AccessReviewSelect) SetDesc(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
 }
 
-func (x *AccessReviewSelect) SetPeriodFrom(v bool) {
-	x.xxx_hidden_PeriodFrom = v
+func (x *AccessReviewSelect) SetDateStart(v bool) {
+	x.xxx_hidden_DateStart = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
 }
 
-func (x *AccessReviewSelect) SetPeriodTo(v bool) {
-	x.xxx_hidden_PeriodTo = v
+func (x *AccessReviewSelect) SetDateEnd(v bool) {
+	x.xxx_hidden_DateEnd = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
 }
 
@@ -5645,14 +5645,14 @@ func (x *AccessReviewSelect) HasDesc() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *AccessReviewSelect) HasPeriodFrom() bool {
+func (x *AccessReviewSelect) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *AccessReviewSelect) HasPeriodTo() bool {
+func (x *AccessReviewSelect) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
@@ -5708,14 +5708,14 @@ func (x *AccessReviewSelect) ClearDesc() {
 	x.xxx_hidden_Desc = false
 }
 
-func (x *AccessReviewSelect) ClearPeriodFrom() {
+func (x *AccessReviewSelect) ClearDateStart() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
-	x.xxx_hidden_PeriodFrom = false
+	x.xxx_hidden_DateStart = false
 }
 
-func (x *AccessReviewSelect) ClearPeriodTo() {
+func (x *AccessReviewSelect) ClearDateEnd() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
-	x.xxx_hidden_PeriodTo = false
+	x.xxx_hidden_DateEnd = false
 }
 
 func (x *AccessReviewSelect) ClearReviewer() {
@@ -5748,8 +5748,8 @@ type AccessReviewSelect_builder struct {
 	All         *bool
 	Tenant      *TenantSelect
 	Desc        *bool
-	PeriodFrom  *bool
-	PeriodTo    *bool
+	DateStart   *bool
+	DateEnd     *bool
 	Reviewer    *HolderSelect
 	Calls       *bool
 	Downloads   *bool
@@ -5770,13 +5770,13 @@ func (b0 AccessReviewSelect_builder) Build() *AccessReviewSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
 		x.xxx_hidden_Desc = *b.Desc
 	}
-	if b.PeriodFrom != nil {
+	if b.DateStart != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
-		x.xxx_hidden_PeriodFrom = *b.PeriodFrom
+		x.xxx_hidden_DateStart = *b.DateStart
 	}
-	if b.PeriodTo != nil {
+	if b.DateEnd != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
-		x.xxx_hidden_PeriodTo = *b.PeriodTo
+		x.xxx_hidden_DateEnd = *b.DateEnd
 	}
 	x.xxx_hidden_Reviewer = b.Reviewer
 	if b.Calls != nil {
@@ -6315,7 +6315,7 @@ var File_loft_ops_svc_g_proto protoreflect.FileDescriptor
 
 const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x14loft/ops_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0eloft/ops.proto\x1a\x1eloft/payday/holder_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xf7\x03\n" +
+	"\x14loft/ops_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x0eloft/ops.proto\x1a\x1eloft/payday/holder_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xfb\x03\n" +
 	"\x16NotificationAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
@@ -6325,8 +6325,8 @@ const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\x04kind\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\n" +
-	" \x01(\fR\tsubjectId\x123\n" +
-	"\aread_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x06readAt\x12\x19\n" +
+	" \x01(\fR\tsubjectId\x127\n" +
+	"\tdate_read\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\bdateRead\x12\x19\n" +
 	"\x04link\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x04link\x12\x19\n" +
 	"\x04mail\x18\x10 \x01(\bB\x05\xaa\x01\x02\b\x02R\x04mail\x12;\n" +
 	"\vdate_mailed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
@@ -6339,7 +6339,7 @@ const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\x06select\x18\x02 \x01(\v2\x18.loft.NotificationSelectR\x06select\"*\n" +
 	"\x0fNotificationRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xa0\x03\n" +
+	"\x03key\"\xa4\x03\n" +
 	"\x12NotificationSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
@@ -6349,8 +6349,8 @@ const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\x04kind\x18\t \x01(\bR\x04kind\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\n" +
-	" \x01(\bR\tsubjectId\x12\x17\n" +
-	"\aread_at\x18\v \x01(\bR\x06readAt\x12\x12\n" +
+	" \x01(\bR\tsubjectId\x12\x1b\n" +
+	"\tdate_read\x18\v \x01(\bR\bdateRead\x12\x12\n" +
 	"\x04link\x18\f \x01(\bR\x04link\x12\x12\n" +
 	"\x04mail\x18\x10 \x01(\bR\x04mail\x12\x1f\n" +
 	"\vdate_mailed\x18\x11 \x01(\bR\n" +
@@ -6358,7 +6358,7 @@ const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"mail_tries\x18\x12 \x01(\bR\tmailTries\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xb8\x04\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xc0\x04\n" +
 	"\x18NotificationPatchRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.loft.NotificationRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
@@ -6367,10 +6367,9 @@ const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\x04kind\x18\x12 \x01(\tR\x04kind\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x14 \x01(\fR\tsubjectId\x12&\n" +
-	"\x0fsubject_id_null\x18\x15 \x01(\bR\rsubjectIdNull\x123\n" +
-	"\aread_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\x06readAt\x12 \n" +
-	"\fread_at_null\x18\x17 \x01(\bR\n" +
-	"readAtNull\x12\x12\n" +
+	"\x0fsubject_id_null\x18\x15 \x01(\bR\rsubjectIdNull\x127\n" +
+	"\tdate_read\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\bdateRead\x12$\n" +
+	"\x0edate_read_null\x18\x17 \x01(\bR\fdateReadNull\x12\x12\n" +
 	"\x04link\x18\x18 \x01(\tR\x04link\x12\x12\n" +
 	"\x04mail\x18  \x01(\bR\x04mail\x12;\n" +
 	"\vdate_mailed\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
@@ -6501,14 +6500,14 @@ const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2\x0f.loft.LegalHoldR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"7\n" +
 	"\x0fLegalHoldFilter\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.loft.LegalHoldRefR\x03ref\"\xb1\x03\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.LegalHoldRefR\x03ref\"\xad\x03\n" +
 	"\x16AccessReviewAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
-	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12;\n" +
-	"\vperiod_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"periodFrom\x127\n" +
-	"\tperiod_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bperiodTo\x12+\n" +
+	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x129\n" +
+	"\n" +
+	"date_start\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12+\n" +
 	"\breviewer\x18\n" +
 	" \x01(\v2\x0f.loft.HolderRefR\breviewer\x12\x1b\n" +
 	"\x05calls\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\x05calls\x12#\n" +
@@ -6520,14 +6519,14 @@ const file_loft_ops_svc_g_proto_rawDesc = "" +
 	"\x06select\x18\x02 \x01(\v2\x18.loft.AccessReviewSelectR\x06select\"*\n" +
 	"\x0fAccessReviewRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xc5\x02\n" +
+	"\x03key\"\xc1\x02\n" +
 	"\x12AccessReviewSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x1f\n" +
-	"\vperiod_from\x18\b \x01(\bR\n" +
-	"periodFrom\x12\x1b\n" +
-	"\tperiod_to\x18\t \x01(\bR\bperiodTo\x12.\n" +
+	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x1d\n" +
+	"\n" +
+	"date_start\x18\b \x01(\bR\tdateStart\x12\x19\n" +
+	"\bdate_end\x18\t \x01(\bR\adateEnd\x12.\n" +
 	"\breviewer\x18\n" +
 	" \x01(\v2\x12.loft.HolderSelectR\breviewer\x12\x14\n" +
 	"\x05calls\x18\v \x01(\bR\x05calls\x12\x1c\n" +
@@ -6645,7 +6644,7 @@ var file_loft_ops_svc_g_proto_goTypes = []any{
 var file_loft_ops_svc_g_proto_depIdxs = []int32{
 	46, // 0: loft.NotificationAddRequest.tenant:type_name -> loft.TenantRef
 	47, // 1: loft.NotificationAddRequest.holder:type_name -> loft.HolderRef
-	48, // 2: loft.NotificationAddRequest.read_at:type_name -> google.protobuf.Timestamp
+	48, // 2: loft.NotificationAddRequest.date_read:type_name -> google.protobuf.Timestamp
 	48, // 3: loft.NotificationAddRequest.date_mailed:type_name -> google.protobuf.Timestamp
 	48, // 4: loft.NotificationAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,  // 5: loft.NotificationGetRequest.ref:type_name -> loft.NotificationRef
@@ -6653,7 +6652,7 @@ var file_loft_ops_svc_g_proto_depIdxs = []int32{
 	49, // 7: loft.NotificationSelect.tenant:type_name -> loft.TenantSelect
 	50, // 8: loft.NotificationSelect.holder:type_name -> loft.HolderSelect
 	2,  // 9: loft.NotificationPatchRequest.ref:type_name -> loft.NotificationRef
-	48, // 10: loft.NotificationPatchRequest.read_at:type_name -> google.protobuf.Timestamp
+	48, // 10: loft.NotificationPatchRequest.date_read:type_name -> google.protobuf.Timestamp
 	48, // 11: loft.NotificationPatchRequest.date_mailed:type_name -> google.protobuf.Timestamp
 	48, // 12: loft.NotificationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,  // 13: loft.NotificationApplyRequest.ref:type_name -> loft.NotificationRef
@@ -6690,8 +6689,8 @@ var file_loft_ops_svc_g_proto_depIdxs = []int32{
 	54, // 44: loft.LegalHoldListResponse.items:type_name -> loft.LegalHold
 	28, // 45: loft.LegalHoldFilter.ref:type_name -> loft.LegalHoldRef
 	46, // 46: loft.AccessReviewAddRequest.tenant:type_name -> loft.TenantRef
-	48, // 47: loft.AccessReviewAddRequest.period_from:type_name -> google.protobuf.Timestamp
-	48, // 48: loft.AccessReviewAddRequest.period_to:type_name -> google.protobuf.Timestamp
+	48, // 47: loft.AccessReviewAddRequest.date_start:type_name -> google.protobuf.Timestamp
+	48, // 48: loft.AccessReviewAddRequest.date_end:type_name -> google.protobuf.Timestamp
 	47, // 49: loft.AccessReviewAddRequest.reviewer:type_name -> loft.HolderRef
 	48, // 50: loft.AccessReviewAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	38, // 51: loft.AccessReviewGetRequest.ref:type_name -> loft.AccessReviewRef

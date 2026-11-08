@@ -270,8 +270,8 @@ func (t *Tx) conflicts(r *resource, from, to time.Time, units uint32, except []u
 		allocation.TenantId(t.tenant.Uuid()),
 		allocation.ResourceIdIn(ids...),
 		allocation.Blocking(true),
-		allocation.BeginsAtLT(to),
-		allocation.EndsAtGT(from),
+		allocation.DateStartLT(to),
+		allocation.DateEndGT(from),
 	)
 	if len(except) > 0 {
 		q = q.Where(allocation.Or(allocation.RefIdIsNil(), allocation.RefIdNotIn(except...)))
@@ -304,7 +304,7 @@ func (t *Tx) conflicts(r *resource, from, to time.Time, units uint32, except []u
 			if err != nil {
 				return nil, err
 			}
-			more := &ent.Allocation{ResourceId: r.asset.Id, BeginsAt: from, EndsAt: to, Units: units}
+			more := &ent.Allocation{ResourceId: r.asset.Id, DateStart: from, DateEnd: to, Units: units}
 			if l.short(append(slices.Clone(l.own), more), l.held, from, to) {
 				return slices.Concat(l.own, l.held), nil
 			}
@@ -334,7 +334,7 @@ func peak(as []*ent.Allocation, from, to time.Time) uint32 {
 	}
 	es := []edge{}
 	for _, a := range as {
-		b, e := a.BeginsAt, a.EndsAt
+		b, e := a.DateStart, a.DateEnd
 		if b.Before(from) {
 			b = from
 		}
@@ -475,15 +475,15 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		if err := t.done(req.GetOp()); err != nil {
 			return err
 		}
-		if !req.HasBeginsAt() || !req.HasEndsAt() {
-			return invalid("begins_at", "시작과 끝을 정하세요")
+		if !req.HasDateStart() || !req.HasDateEnd() {
+			return invalid("date_start", "시작과 끝을 정하세요")
 		}
-		begins, ends := req.GetBeginsAt().AsTime(), req.GetEndsAt().AsTime()
+		begins, ends := req.GetDateStart().AsTime(), req.GetDateEnd().AsTime()
 		if !ends.After(begins) {
-			return invalid("ends_at", "끝은 시작보다 뒤여야 합니다")
+			return invalid("date_end", "끝은 시작보다 뒤여야 합니다")
 		}
 		if ends.Before(t.now) {
-			return invalid("ends_at", "이미 지난 시간입니다")
+			return invalid("date_end", "이미 지난 시간입니다")
 		}
 		if len(req.GetItems()) == 0 {
 			return invalid("items", "무엇을 예약할지 고르세요")
@@ -658,13 +658,13 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			approval = approval || w.r.book.Approval
 			d := int32(ends.Sub(begins).Minutes())
 			if w.item && w.r.book.MinMinutes > 0 && d < w.r.book.MinMinutes {
-				return invalid("ends_at", "%s은(는) %d분 이상 예약합니다", w.r.asset.Name, w.r.book.MinMinutes)
+				return invalid("date_end", "%s은(는) %d분 이상 예약합니다", w.r.asset.Name, w.r.book.MinMinutes)
 			}
 			if w.item && w.r.book.MaxMinutes > 0 && d > w.r.book.MaxMinutes {
-				return invalid("ends_at", "%s은(는) 한 번에 %s까지 예약할 수 있습니다", w.r.asset.Name, minutes(w.r.book.MaxMinutes))
+				return invalid("date_end", "%s은(는) 한 번에 %s까지 예약할 수 있습니다", w.r.asset.Name, minutes(w.r.book.MaxMinutes))
 			}
 			if h := w.r.book.HorizonDays; w.item && h > 0 && begins.After(t.now.AddDate(0, 0, int(h))) {
-				return invalid("begins_at", "%s은(는) %d일 앞까지만 예약할 수 있습니다", w.r.asset.Name, h)
+				return invalid("date_start", "%s은(는) %d일 앞까지만 예약할 수 있습니다", w.r.asset.Name, h)
 			}
 			for _, o := range occs {
 				if w.item && !open(w.r.book, o[0], o[1]) && !override {
@@ -694,8 +694,8 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 				Party:       pdid.Id(who.Id).Bytes(),
 				Status:      state,
 				Occurrences: uint32(len(occs)),
-				BeginsAt:    ts(begins),
-				EndsAt:      ts(ends),
+				DateStart:   ts(begins),
+				DateEnd:     ts(ends),
 				AssetName:   r.asset.Name,
 				Override:    override,
 			}.Build()
@@ -720,8 +720,8 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			v := said(wants[0].r)
 			v.SetReservation(ids[i].Bytes())
 			v.SetOccurrences(1)
-			v.SetBeginsAt(ts(occs[i][0]))
-			v.SetEndsAt(ts(occs[i][1]))
+			v.SetDateStart(ts(occs[i][0]))
+			v.SetDateEnd(ts(occs[i][1]))
 			kids = append(kids, past.Child{Event: past.Event{Kind: "reservation.add", Subject: ids[i], Reason: req.GetReason(), Value: v}})
 		}
 		if _, err := t.op.Batch(t.ctx, kids); err != nil {
@@ -737,11 +737,11 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 				Party:       app.PartyRef_builder{Id: pdid.Id(who.Id).Bytes()}.Build(),
 				RequestedBy: t.actor.Bytes(),
 				Status:      state,
-				BeginsAt:    ts(o[0]),
-				EndsAt:      ts(o[1]),
+				DateStart:   ts(o[0]),
+				DateEnd:     ts(o[1]),
 			}.Build()
 			if expires != nil {
-				row.SetExpiresAt(ts(*expires))
+				row.SetDateExpires(ts(*expires))
 			}
 			row.SetId(ids[i].Bytes())
 			if i == 0 {
@@ -810,8 +810,8 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 					Resource:  assetRef(w.r.asset.Id),
 					Kind:      kind,
 					RefId:     v.GetId(),
-					BeginsAt:  ts(from),
-					EndsAt:    ts(to),
+					DateStart: ts(from),
+					DateEnd:   ts(to),
 					Blocking:  !override,
 					Exclusive: exclusive[w.r.asset.Id],
 					Units:     w.units,
@@ -925,8 +925,8 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 			rs, err := t.db.Reservation.Query().Where(
 				reservation.TenantId(t.tenant.Uuid()),
 				reservation.SeriesId(uuidOf(r.GetSeriesId())),
-				reservation.BeginsAtGTE(r.GetBeginsAt().AsTime()),
-			).Order(reservation.ByBeginsAt()).Ids(t.ctx)
+				reservation.DateStartGTE(r.GetDateStart().AsTime()),
+			).Order(reservation.ByDateStart()).Ids(t.ctx)
 			if err != nil {
 				return err
 			}
@@ -991,9 +991,9 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 			switch to {
 			case resConfirmed, resRejected:
 				patch.SetDecidedBy(t.actor.Bytes())
-				patch.SetExpiresAtNull(true)
+				patch.SetDateExpiresNull(true)
 			case resInUse:
-				patch.SetCheckedInAt(ts(t.now))
+				patch.SetDateCheckedIn(ts(t.now))
 			}
 			v, err := t.next.Reservation().Patch(t.ctx, patch)
 			if err != nil {
@@ -1121,8 +1121,8 @@ func (t *Tx) settleAllocations(rid pdid.Id, state string) error {
 			changed = true
 			freed = append(freed, a)
 		}
-		if state == resCompleted && a.EndsAt.After(t.now) && a.BeginsAt.Before(t.now) {
-			patch.SetEndsAt(ts(t.now))
+		if state == resCompleted && a.DateEnd.After(t.now) && a.DateStart.Before(t.now) {
+			patch.SetDateEnd(ts(t.now))
 			changed = true
 		}
 		if changed {
@@ -1138,7 +1138,7 @@ func (t *Tx) settleAllocations(rid pdid.Id, state string) error {
 func (s domainReservation) Confirm(ctx context.Context, req *app.ReservationDecideRequest) (*app.Reservation, error) {
 	var to string
 	return s.decideTo(ctx, req, "reservation.confirm", []string{resHeld}, &to, func(t *Tx, r *app.Reservation) error {
-		if r.HasExpiresAt() && r.GetExpiresAt().AsTime().Before(t.now) {
+		if r.HasDateExpires() && r.GetDateExpires().AsTime().Before(t.now) {
 			return failed("임시로 잡아 둔 시간이 지났습니다. 다시 예약하세요")
 		}
 		// Confirming a hold is booking what it held, which what is out of
@@ -1196,7 +1196,7 @@ func (s domainReservation) decideTo(ctx context.Context, req *app.ReservationDec
 		patch := app.ReservationPatchRequest_builder{
 			Ref:              req.GetRef(),
 			Status:           z.Ptr(*to),
-			ExpiresAtNull:    z.Ptr(true),
+			DateExpiresNull:  z.Ptr(true),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build()
 		out, err = t.next.Reservation().Patch(t.ctx, patch)
@@ -1253,7 +1253,7 @@ func (s domainReservation) CheckIn(ctx context.Context, req *app.ReservationDeci
 		if err := t.mineOrManager(r); err != nil {
 			return err
 		}
-		if t.now.Before(r.GetBeginsAt().AsTime().Add(-30 * time.Minute)) {
+		if t.now.Before(r.GetDateStart().AsTime().Add(-30 * time.Minute)) {
 			return failed("체크인은 시작 30분 전부터 할 수 있습니다")
 		}
 		return nil
@@ -1289,16 +1289,16 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 		return nil, err
 	}
 	from, to := t.now.AddDate(0, 0, -7), t.now.AddDate(0, 0, 30)
-	if req.HasFrom() {
-		from = req.GetFrom().AsTime()
+	if req.HasDateFrom() {
+		from = req.GetDateFrom().AsTime()
 	}
-	if req.HasTo() {
-		to = req.GetTo().AsTime()
+	if req.HasDateTo() {
+		to = req.GetDateTo().AsTime()
 	}
 	q := t.db.Reservation.Query().Where(
 		reservation.TenantId(t.tenant.Uuid()),
-		reservation.BeginsAtLT(to),
-		reservation.EndsAtGT(from),
+		reservation.DateStartLT(to),
+		reservation.DateEndGT(from),
 		reservation.DateErasedIsNil(),
 	)
 	if len(req.GetResources()) > 0 {
@@ -1343,7 +1343,7 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 	if vs := req.GetStatuses(); len(vs) > 0 {
 		q = q.Where(reservation.StatusIn(vs...))
 	}
-	rs, err := q.Order(reservation.ByBeginsAt()).Limit(1000).All(ctx)
+	rs, err := q.Order(reservation.ByDateStart()).Limit(1000).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -1396,14 +1396,14 @@ func (s domainBookable) Availability(ctx context.Context, req *app.BookableAvail
 		return nil, err
 	}
 	from, to := t.now, t.now.AddDate(0, 0, 7)
-	if req.HasFrom() {
-		from = req.GetFrom().AsTime()
+	if req.HasDateFrom() {
+		from = req.GetDateFrom().AsTime()
 	}
-	if req.HasTo() {
-		to = req.GetTo().AsTime()
+	if req.HasDateTo() {
+		to = req.GetDateTo().AsTime()
 	}
 	if to.Sub(from) > 92*24*time.Hour {
-		return nil, invalid("to", "한 번에 석 달까지 볼 수 있습니다")
+		return nil, invalid("date_to", "한 번에 석 달까지 볼 수 있습니다")
 	}
 
 	busy := []*app.BusySpan{}
@@ -1415,9 +1415,9 @@ func (s domainBookable) Availability(ctx context.Context, req *app.BookableAvail
 		as, err := t.db.Allocation.Query().Where(
 			allocation.TenantId(t.tenant.Uuid()),
 			allocation.ResourceId(id.Uuid()),
-			allocation.BeginsAtLT(to),
-			allocation.EndsAtGT(from),
-		).Order(allocation.ByBeginsAt()).All(ctx)
+			allocation.DateStartLT(to),
+			allocation.DateEndGT(from),
+		).Order(allocation.ByDateStart()).All(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -1426,7 +1426,7 @@ func (s domainBookable) Availability(ctx context.Context, req *app.BookableAvail
 			if a.RefId != nil {
 				r, _ = t.db.Reservation.Query().Where(reservation.Id(*a.RefId), reservation.TenantId(t.tenant.Uuid())).Only(ctx)
 			}
-			if a.Kind == allocWaiting && (r == nil || !waits(r.Status) || !r.EndsAt.After(t.now)) {
+			if a.Kind == allocWaiting && (r == nil || !waits(r.Status) || !r.DateEnd.After(t.now)) {
 				// What a reservation fulfilled or over waited for, and no
 				// longer does.
 				continue
@@ -1457,8 +1457,8 @@ func (s domainBookable) Availability(ctx context.Context, req *app.BookableAvail
 				if b > a {
 					busy = append(busy, app.BusySpan_builder{
 						ResourceId: id.Bytes(),
-						BeginsAt:   ts(day.Add(time.Duration(a) * time.Minute)),
-						EndsAt:     ts(day.Add(time.Duration(b) * time.Minute)),
+						DateStart:  ts(day.Add(time.Duration(a) * time.Minute)),
+						DateEnd:    ts(day.Add(time.Duration(b) * time.Minute)),
 						Kind:       "closed",
 						Blocking:   true,
 						Label:      "운영 시간 외",

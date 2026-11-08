@@ -51,16 +51,16 @@ func (_c *StockMovementCreate) SetNillableRefId(v *uuid.UUID) *StockMovementCrea
 	return _c
 }
 
-// SetOccurredAt sets the "occurred_at" field.
-func (_c *StockMovementCreate) SetOccurredAt(v time.Time) *StockMovementCreate {
-	_c.mutation.SetOccurredAt(v)
+// SetDateOccurred sets the "date_occurred" field.
+func (_c *StockMovementCreate) SetDateOccurred(v time.Time) *StockMovementCreate {
+	_c.mutation.SetDateOccurred(v)
 	return _c
 }
 
-// SetNillableOccurredAt sets the "occurred_at" field if the given value is not nil.
-func (_c *StockMovementCreate) SetNillableOccurredAt(v *time.Time) *StockMovementCreate {
+// SetNillableDateOccurred sets the "date_occurred" field if the given value is not nil.
+func (_c *StockMovementCreate) SetNillableDateOccurred(v *time.Time) *StockMovementCreate {
 	if v != nil {
-		_c.SetOccurredAt(*v)
+		_c.SetDateOccurred(*v)
 	}
 	return _c
 }
@@ -252,9 +252,9 @@ func (_c *StockMovementCreate) createSpec() (*StockMovement, *sqlgraph.CreateSpe
 		_spec.SetField(stockmovement.FieldRefId, field.TypeUuid, value)
 		_node.RefId = &value
 	}
-	if value, ok := _c.mutation.OccurredAt(); ok {
-		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, value)
-		_node.OccurredAt = value
+	if value, ok := _c.mutation.DateOccurred(); ok {
+		_spec.SetField(stockmovement.FieldDateOccurred, field.TypeTime, value)
+		_node.DateOccurred = value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(stockmovement.FieldDateUpdated, field.TypeTime, value)

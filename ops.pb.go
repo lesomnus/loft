@@ -34,7 +34,7 @@ type Notification struct {
 	xxx_hidden_Holder      *Holder                `protobuf:"bytes,8,opt,name=holder"`
 	xxx_hidden_Kind        string                 `protobuf:"bytes,9,opt,name=kind"`
 	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,10,opt,name=subject_id,json=subjectId"`
-	xxx_hidden_ReadAt      *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=read_at,json=readAt"`
+	xxx_hidden_DateRead    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_read,json=dateRead"`
 	xxx_hidden_Link        string                 `protobuf:"bytes,12,opt,name=link"`
 	xxx_hidden_Mail        bool                   `protobuf:"varint,16,opt,name=mail"`
 	xxx_hidden_DateMailed  *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_mailed,json=dateMailed"`
@@ -119,9 +119,9 @@ func (x *Notification) GetSubjectId() []byte {
 	return nil
 }
 
-func (x *Notification) GetReadAt() *timestamppb.Timestamp {
+func (x *Notification) GetDateRead() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReadAt
+		return x.xxx_hidden_DateRead
 	}
 	return nil
 }
@@ -202,8 +202,8 @@ func (x *Notification) SetSubjectId(v []byte) {
 	x.xxx_hidden_SubjectId = v
 }
 
-func (x *Notification) SetReadAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReadAt = v
+func (x *Notification) SetDateRead(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRead = v
 }
 
 func (x *Notification) SetLink(v string) {
@@ -244,11 +244,11 @@ func (x *Notification) HasHolder() bool {
 	return x.xxx_hidden_Holder != nil
 }
 
-func (x *Notification) HasReadAt() bool {
+func (x *Notification) HasDateRead() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReadAt != nil
+	return x.xxx_hidden_DateRead != nil
 }
 
 func (x *Notification) HasDateMailed() bool {
@@ -280,8 +280,8 @@ func (x *Notification) ClearHolder() {
 	x.xxx_hidden_Holder = nil
 }
 
-func (x *Notification) ClearReadAt() {
-	x.xxx_hidden_ReadAt = nil
+func (x *Notification) ClearDateRead() {
+	x.xxx_hidden_DateRead = nil
 }
 
 func (x *Notification) ClearDateMailed() {
@@ -310,7 +310,7 @@ type Notification_builder struct {
 	// custody.overdue | reservation.requested | reservation.decided | stock.low | work.due | count.finding
 	Kind      string
 	SubjectId []byte
-	ReadAt    *timestamppb.Timestamp
+	DateRead  *timestamppb.Timestamp
 	// Where a page goes to act on it: a path, which names a thing and not a person.
 	Link string
 	// Whether it goes by mail as well: set as it is written, so that an
@@ -337,7 +337,7 @@ func (b0 Notification_builder) Build() *Notification {
 	x.xxx_hidden_Holder = b.Holder
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_SubjectId = b.SubjectId
-	x.xxx_hidden_ReadAt = b.ReadAt
+	x.xxx_hidden_DateRead = b.DateRead
 	x.xxx_hidden_Link = b.Link
 	x.xxx_hidden_Mail = b.Mail
 	x.xxx_hidden_DateMailed = b.DateMailed
@@ -765,8 +765,8 @@ type AccessReview struct {
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
 	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_PeriodFrom  *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=period_from,json=periodFrom"`
-	xxx_hidden_PeriodTo    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=period_to,json=periodTo"`
+	xxx_hidden_DateStart   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_Reviewer    *Holder                `protobuf:"bytes,10,opt,name=reviewer"`
 	xxx_hidden_Calls       uint32                 `protobuf:"varint,11,opt,name=calls"`
 	xxx_hidden_Downloads   uint32                 `protobuf:"varint,12,opt,name=downloads"`
@@ -822,16 +822,16 @@ func (x *AccessReview) GetDesc() string {
 	return ""
 }
 
-func (x *AccessReview) GetPeriodFrom() *timestamppb.Timestamp {
+func (x *AccessReview) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PeriodFrom
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *AccessReview) GetPeriodTo() *timestamppb.Timestamp {
+func (x *AccessReview) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_PeriodTo
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -886,12 +886,12 @@ func (x *AccessReview) SetDesc(v string) {
 	x.xxx_hidden_Desc = v
 }
 
-func (x *AccessReview) SetPeriodFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PeriodFrom = v
+func (x *AccessReview) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *AccessReview) SetPeriodTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_PeriodTo = v
+func (x *AccessReview) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *AccessReview) SetReviewer(v *Holder) {
@@ -921,18 +921,18 @@ func (x *AccessReview) HasTenant() bool {
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *AccessReview) HasPeriodFrom() bool {
+func (x *AccessReview) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PeriodFrom != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *AccessReview) HasPeriodTo() bool {
+func (x *AccessReview) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_PeriodTo != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
 func (x *AccessReview) HasReviewer() bool {
@@ -953,12 +953,12 @@ func (x *AccessReview) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
 
-func (x *AccessReview) ClearPeriodFrom() {
-	x.xxx_hidden_PeriodFrom = nil
+func (x *AccessReview) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *AccessReview) ClearPeriodTo() {
-	x.xxx_hidden_PeriodTo = nil
+func (x *AccessReview) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 func (x *AccessReview) ClearReviewer() {
@@ -980,10 +980,10 @@ type AccessReview_builder struct {
 	// taken out (design D56), which is the one write it takes and why it is
 	// not immutable; no role is given the RPC that would write it otherwise.
 	Desc string
-	// The stretch of the record it covers, from `period_from` and before
-	// `period_to`: a month, as the page reviews it.
-	PeriodFrom *timestamppb.Timestamp
-	PeriodTo   *timestamppb.Timestamp
+	// The stretch of the record it covers, from `date_start` and before
+	// `date_end`: a month, as the page reviews it.
+	DateStart *timestamppb.Timestamp
+	DateEnd   *timestamppb.Timestamp
 	// Who reviewed it: the membership, as the trail names its actor.
 	Reviewer *Holder
 	// What the stretch held when it was reviewed: every call that carried
@@ -1001,8 +1001,8 @@ func (b0 AccessReview_builder) Build() *AccessReview {
 	x.xxx_hidden_Id = b.Id
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Desc = b.Desc
-	x.xxx_hidden_PeriodFrom = b.PeriodFrom
-	x.xxx_hidden_PeriodTo = b.PeriodTo
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_Reviewer = b.Reviewer
 	x.xxx_hidden_Calls = b.Calls
 	x.xxx_hidden_Downloads = b.Downloads
@@ -1015,7 +1015,7 @@ var File_loft_ops_proto protoreflect.FileDescriptor
 
 const file_loft_ops_proto_rawDesc = "" +
 	"\n" +
-	"\x0eloft/ops.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/holder.proto\x1a\x18loft/payday/tenant.proto\"\xa9\x06\n" +
+	"\x0eloft/ops.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/holder.proto\x1a\x18loft/payday/tenant.proto\"\xad\x06\n" +
 	"\fNotification\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -1025,8 +1025,8 @@ const file_loft_ops_proto_rawDesc = "" +
 	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12'\n" +
 	"\n" +
 	"subject_id\x18\n" +
-	" \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tsubjectId\x12;\n" +
-	"\aread_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x06readAt\x12\x1a\n" +
+	" \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tsubjectId\x12?\n" +
+	"\tdate_read\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bdateRead\x12\x1a\n" +
 	"\x04link\x18\f \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04link\x12\x12\n" +
 	"\x04mail\x18\x10 \x01(\bR\x04mail\x12C\n" +
 	"\vdate_mailed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
@@ -1096,14 +1096,14 @@ const file_loft_ops_proto_rawDesc = "" +
 	"\x04\n" +
 	"\x02id\x10\x01\x1a\x05\n" +
 	"\x03ref \x14(dB\x02\n" +
-	"\x00\"\xc9\x04\n" +
+	"\x00\"\xc5\x04\n" +
 	"\fAccessReview\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
-	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12F\n" +
-	"\vperiod_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\n" +
-	"periodFrom\x12B\n" +
-	"\tperiod_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\bperiodTo\x120\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12D\n" +
+	"\n" +
+	"date_start\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\tdateStart\x12@\n" +
+	"\bdate_end\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\adateEnd\x120\n" +
 	"\breviewer\x18\n" +
 	" \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x02@\x01R\breviewer\x12\x1c\n" +
 	"\x05calls\x18\v \x01(\rB\x06\xea\x82\x16\x02@\x01R\x05calls\x12$\n" +
@@ -1135,7 +1135,7 @@ var file_loft_ops_proto_goTypes = []any{
 var file_loft_ops_proto_depIdxs = []int32{
 	4,  // 0: loft.Notification.tenant:type_name -> loft.Tenant
 	5,  // 1: loft.Notification.holder:type_name -> loft.Holder
-	6,  // 2: loft.Notification.read_at:type_name -> google.protobuf.Timestamp
+	6,  // 2: loft.Notification.date_read:type_name -> google.protobuf.Timestamp
 	6,  // 3: loft.Notification.date_mailed:type_name -> google.protobuf.Timestamp
 	6,  // 4: loft.Notification.date_updated:type_name -> google.protobuf.Timestamp
 	6,  // 5: loft.Notification.date_created:type_name -> google.protobuf.Timestamp
@@ -1147,8 +1147,8 @@ var file_loft_ops_proto_depIdxs = []int32{
 	6,  // 11: loft.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
 	6,  // 12: loft.LegalHold.date_created:type_name -> google.protobuf.Timestamp
 	4,  // 13: loft.AccessReview.tenant:type_name -> loft.Tenant
-	6,  // 14: loft.AccessReview.period_from:type_name -> google.protobuf.Timestamp
-	6,  // 15: loft.AccessReview.period_to:type_name -> google.protobuf.Timestamp
+	6,  // 14: loft.AccessReview.date_start:type_name -> google.protobuf.Timestamp
+	6,  // 15: loft.AccessReview.date_end:type_name -> google.protobuf.Timestamp
 	5,  // 16: loft.AccessReview.reviewer:type_name -> loft.Holder
 	6,  // 17: loft.AccessReview.date_created:type_name -> google.protobuf.Timestamp
 	18, // [18:18] is the sub-list for method output_type

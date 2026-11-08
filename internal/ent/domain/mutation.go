@@ -15,28 +15,28 @@ import (
 
 // Mutation represents an operation that mutates the Domain nodes in the graph.
 type Mutation struct {
-	op             ent.Op
-	typ            string
-	host           *string
-	purpose        *string
-	state          *string
-	token          *string
-	source         *string
-	date_updated   *time.Time
-	date_erased    *time.Time
-	date_created   *time.Time
-	verified_at    *time.Time
-	checked_at     *time.Time
-	failures       *uint32
-	addfailures    *int32
-	failing_since  *time.Time
-	date_lapsed    *time.Time
-	redirect_until *time.Time
-	clearedFields  map[string]struct{}
-	exprs          map[string]sql.Querier
-	tenant         *uuid.UUID
-	clearedtenant  bool
-	predicates     []predicate.Domain
+	op                  ent.Op
+	typ                 string
+	host                *string
+	purpose             *string
+	state               *string
+	token               *string
+	source              *string
+	date_updated        *time.Time
+	date_erased         *time.Time
+	date_created        *time.Time
+	date_verified       *time.Time
+	date_checked        *time.Time
+	failures            *uint32
+	addfailures         *int32
+	date_failing        *time.Time
+	date_lapsed         *time.Time
+	date_redirect_until *time.Time
+	clearedFields       map[string]struct{}
+	exprs               map[string]sql.Querier
+	tenant              *uuid.UUID
+	clearedtenant       bool
+	predicates          []predicate.Domain
 }
 
 // NewMutation creates a new Mutation for the Domain entity.
@@ -248,76 +248,76 @@ func (m *Mutation) ResetDateCreated() {
 	delete(m.clearedFields, FieldDateCreated)
 }
 
-// SetVerifiedAt sets the "verified_at" field.
-func (m *Mutation) SetVerifiedAt(t time.Time) {
-	m.verified_at = &t
-	delete(m.clearedFields, FieldVerifiedAt)
-	delete(m.exprs, FieldVerifiedAt)
+// SetDateVerified sets the "date_verified" field.
+func (m *Mutation) SetDateVerified(t time.Time) {
+	m.date_verified = &t
+	delete(m.clearedFields, FieldDateVerified)
+	delete(m.exprs, FieldDateVerified)
 }
 
-// VerifiedAt returns the value of the "verified_at" field in the mutation.
-func (m *Mutation) VerifiedAt() (r time.Time, exists bool) {
-	v := m.verified_at
+// DateVerified returns the value of the "date_verified" field in the mutation.
+func (m *Mutation) DateVerified() (r time.Time, exists bool) {
+	v := m.date_verified
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearVerifiedAt clears the value of the "verified_at" field.
-func (m *Mutation) ClearVerifiedAt() {
-	m.verified_at = nil
-	delete(m.exprs, FieldVerifiedAt)
-	m.clearedFields[FieldVerifiedAt] = struct{}{}
+// ClearDateVerified clears the value of the "date_verified" field.
+func (m *Mutation) ClearDateVerified() {
+	m.date_verified = nil
+	delete(m.exprs, FieldDateVerified)
+	m.clearedFields[FieldDateVerified] = struct{}{}
 }
 
-// VerifiedAtCleared returns if the "verified_at" field was cleared in this mutation.
-func (m *Mutation) VerifiedAtCleared() bool {
-	_, ok := m.clearedFields[FieldVerifiedAt]
+// DateVerifiedCleared returns if the "date_verified" field was cleared in this mutation.
+func (m *Mutation) DateVerifiedCleared() bool {
+	_, ok := m.clearedFields[FieldDateVerified]
 	return ok
 }
 
-// ResetVerifiedAt resets all changes to the "verified_at" field.
-func (m *Mutation) ResetVerifiedAt() {
-	m.verified_at = nil
-	delete(m.clearedFields, FieldVerifiedAt)
-	delete(m.exprs, FieldVerifiedAt)
+// ResetDateVerified resets all changes to the "date_verified" field.
+func (m *Mutation) ResetDateVerified() {
+	m.date_verified = nil
+	delete(m.clearedFields, FieldDateVerified)
+	delete(m.exprs, FieldDateVerified)
 }
 
-// SetCheckedAt sets the "checked_at" field.
-func (m *Mutation) SetCheckedAt(t time.Time) {
-	m.checked_at = &t
-	delete(m.clearedFields, FieldCheckedAt)
-	delete(m.exprs, FieldCheckedAt)
+// SetDateChecked sets the "date_checked" field.
+func (m *Mutation) SetDateChecked(t time.Time) {
+	m.date_checked = &t
+	delete(m.clearedFields, FieldDateChecked)
+	delete(m.exprs, FieldDateChecked)
 }
 
-// CheckedAt returns the value of the "checked_at" field in the mutation.
-func (m *Mutation) CheckedAt() (r time.Time, exists bool) {
-	v := m.checked_at
+// DateChecked returns the value of the "date_checked" field in the mutation.
+func (m *Mutation) DateChecked() (r time.Time, exists bool) {
+	v := m.date_checked
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearCheckedAt clears the value of the "checked_at" field.
-func (m *Mutation) ClearCheckedAt() {
-	m.checked_at = nil
-	delete(m.exprs, FieldCheckedAt)
-	m.clearedFields[FieldCheckedAt] = struct{}{}
+// ClearDateChecked clears the value of the "date_checked" field.
+func (m *Mutation) ClearDateChecked() {
+	m.date_checked = nil
+	delete(m.exprs, FieldDateChecked)
+	m.clearedFields[FieldDateChecked] = struct{}{}
 }
 
-// CheckedAtCleared returns if the "checked_at" field was cleared in this mutation.
-func (m *Mutation) CheckedAtCleared() bool {
-	_, ok := m.clearedFields[FieldCheckedAt]
+// DateCheckedCleared returns if the "date_checked" field was cleared in this mutation.
+func (m *Mutation) DateCheckedCleared() bool {
+	_, ok := m.clearedFields[FieldDateChecked]
 	return ok
 }
 
-// ResetCheckedAt resets all changes to the "checked_at" field.
-func (m *Mutation) ResetCheckedAt() {
-	m.checked_at = nil
-	delete(m.clearedFields, FieldCheckedAt)
-	delete(m.exprs, FieldCheckedAt)
+// ResetDateChecked resets all changes to the "date_checked" field.
+func (m *Mutation) ResetDateChecked() {
+	m.date_checked = nil
+	delete(m.clearedFields, FieldDateChecked)
+	delete(m.exprs, FieldDateChecked)
 }
 
 // SetFailures sets the "failures" field.
@@ -377,40 +377,40 @@ func (m *Mutation) ResetFailures() {
 	delete(m.exprs, FieldFailures)
 }
 
-// SetFailingSince sets the "failing_since" field.
-func (m *Mutation) SetFailingSince(t time.Time) {
-	m.failing_since = &t
-	delete(m.clearedFields, FieldFailingSince)
-	delete(m.exprs, FieldFailingSince)
+// SetDateFailing sets the "date_failing" field.
+func (m *Mutation) SetDateFailing(t time.Time) {
+	m.date_failing = &t
+	delete(m.clearedFields, FieldDateFailing)
+	delete(m.exprs, FieldDateFailing)
 }
 
-// FailingSince returns the value of the "failing_since" field in the mutation.
-func (m *Mutation) FailingSince() (r time.Time, exists bool) {
-	v := m.failing_since
+// DateFailing returns the value of the "date_failing" field in the mutation.
+func (m *Mutation) DateFailing() (r time.Time, exists bool) {
+	v := m.date_failing
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearFailingSince clears the value of the "failing_since" field.
-func (m *Mutation) ClearFailingSince() {
-	m.failing_since = nil
-	delete(m.exprs, FieldFailingSince)
-	m.clearedFields[FieldFailingSince] = struct{}{}
+// ClearDateFailing clears the value of the "date_failing" field.
+func (m *Mutation) ClearDateFailing() {
+	m.date_failing = nil
+	delete(m.exprs, FieldDateFailing)
+	m.clearedFields[FieldDateFailing] = struct{}{}
 }
 
-// FailingSinceCleared returns if the "failing_since" field was cleared in this mutation.
-func (m *Mutation) FailingSinceCleared() bool {
-	_, ok := m.clearedFields[FieldFailingSince]
+// DateFailingCleared returns if the "date_failing" field was cleared in this mutation.
+func (m *Mutation) DateFailingCleared() bool {
+	_, ok := m.clearedFields[FieldDateFailing]
 	return ok
 }
 
-// ResetFailingSince resets all changes to the "failing_since" field.
-func (m *Mutation) ResetFailingSince() {
-	m.failing_since = nil
-	delete(m.clearedFields, FieldFailingSince)
-	delete(m.exprs, FieldFailingSince)
+// ResetDateFailing resets all changes to the "date_failing" field.
+func (m *Mutation) ResetDateFailing() {
+	m.date_failing = nil
+	delete(m.clearedFields, FieldDateFailing)
+	delete(m.exprs, FieldDateFailing)
 }
 
 // SetDateLapsed sets the "date_lapsed" field.
@@ -449,40 +449,40 @@ func (m *Mutation) ResetDateLapsed() {
 	delete(m.exprs, FieldDateLapsed)
 }
 
-// SetRedirectUntil sets the "redirect_until" field.
-func (m *Mutation) SetRedirectUntil(t time.Time) {
-	m.redirect_until = &t
-	delete(m.clearedFields, FieldRedirectUntil)
-	delete(m.exprs, FieldRedirectUntil)
+// SetDateRedirectUntil sets the "date_redirect_until" field.
+func (m *Mutation) SetDateRedirectUntil(t time.Time) {
+	m.date_redirect_until = &t
+	delete(m.clearedFields, FieldDateRedirectUntil)
+	delete(m.exprs, FieldDateRedirectUntil)
 }
 
-// RedirectUntil returns the value of the "redirect_until" field in the mutation.
-func (m *Mutation) RedirectUntil() (r time.Time, exists bool) {
-	v := m.redirect_until
+// DateRedirectUntil returns the value of the "date_redirect_until" field in the mutation.
+func (m *Mutation) DateRedirectUntil() (r time.Time, exists bool) {
+	v := m.date_redirect_until
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearRedirectUntil clears the value of the "redirect_until" field.
-func (m *Mutation) ClearRedirectUntil() {
-	m.redirect_until = nil
-	delete(m.exprs, FieldRedirectUntil)
-	m.clearedFields[FieldRedirectUntil] = struct{}{}
+// ClearDateRedirectUntil clears the value of the "date_redirect_until" field.
+func (m *Mutation) ClearDateRedirectUntil() {
+	m.date_redirect_until = nil
+	delete(m.exprs, FieldDateRedirectUntil)
+	m.clearedFields[FieldDateRedirectUntil] = struct{}{}
 }
 
-// RedirectUntilCleared returns if the "redirect_until" field was cleared in this mutation.
-func (m *Mutation) RedirectUntilCleared() bool {
-	_, ok := m.clearedFields[FieldRedirectUntil]
+// DateRedirectUntilCleared returns if the "date_redirect_until" field was cleared in this mutation.
+func (m *Mutation) DateRedirectUntilCleared() bool {
+	_, ok := m.clearedFields[FieldDateRedirectUntil]
 	return ok
 }
 
-// ResetRedirectUntil resets all changes to the "redirect_until" field.
-func (m *Mutation) ResetRedirectUntil() {
-	m.redirect_until = nil
-	delete(m.clearedFields, FieldRedirectUntil)
-	delete(m.exprs, FieldRedirectUntil)
+// ResetDateRedirectUntil resets all changes to the "date_redirect_until" field.
+func (m *Mutation) ResetDateRedirectUntil() {
+	m.date_redirect_until = nil
+	delete(m.clearedFields, FieldDateRedirectUntil)
+	delete(m.exprs, FieldDateRedirectUntil)
 }
 
 // SetTenantId sets the "tenant_id" field.
@@ -590,23 +590,23 @@ func (m *Mutation) Fields() []string {
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.verified_at != nil || m.exprs[FieldVerifiedAt] != nil {
-		fields = append(fields, FieldVerifiedAt)
+	if m.date_verified != nil || m.exprs[FieldDateVerified] != nil {
+		fields = append(fields, FieldDateVerified)
 	}
-	if m.checked_at != nil || m.exprs[FieldCheckedAt] != nil {
-		fields = append(fields, FieldCheckedAt)
+	if m.date_checked != nil || m.exprs[FieldDateChecked] != nil {
+		fields = append(fields, FieldDateChecked)
 	}
 	if m.failures != nil || m.exprs[FieldFailures] != nil {
 		fields = append(fields, FieldFailures)
 	}
-	if m.failing_since != nil || m.exprs[FieldFailingSince] != nil {
-		fields = append(fields, FieldFailingSince)
+	if m.date_failing != nil || m.exprs[FieldDateFailing] != nil {
+		fields = append(fields, FieldDateFailing)
 	}
 	if m.date_lapsed != nil || m.exprs[FieldDateLapsed] != nil {
 		fields = append(fields, FieldDateLapsed)
 	}
-	if m.redirect_until != nil || m.exprs[FieldRedirectUntil] != nil {
-		fields = append(fields, FieldRedirectUntil)
+	if m.date_redirect_until != nil || m.exprs[FieldDateRedirectUntil] != nil {
+		fields = append(fields, FieldDateRedirectUntil)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -641,18 +641,18 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateErased()
 	case FieldDateCreated:
 		return m.DateCreated()
-	case FieldVerifiedAt:
-		return m.VerifiedAt()
-	case FieldCheckedAt:
-		return m.CheckedAt()
+	case FieldDateVerified:
+		return m.DateVerified()
+	case FieldDateChecked:
+		return m.DateChecked()
 	case FieldFailures:
 		return m.Failures()
-	case FieldFailingSince:
-		return m.FailingSince()
+	case FieldDateFailing:
+		return m.DateFailing()
 	case FieldDateLapsed:
 		return m.DateLapsed()
-	case FieldRedirectUntil:
-		return m.RedirectUntil()
+	case FieldDateRedirectUntil:
+		return m.DateRedirectUntil()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -754,7 +754,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateCreated(v)
 		return nil
-	case FieldVerifiedAt:
+	case FieldDateVerified:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -762,9 +762,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetVerifiedAt(v)
+		m.SetDateVerified(v)
 		return nil
-	case FieldCheckedAt:
+	case FieldDateChecked:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -772,7 +772,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCheckedAt(v)
+		m.SetDateChecked(v)
 		return nil
 	case FieldFailures:
 		v, ok := value.(uint32)
@@ -784,7 +784,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetFailures(v)
 		return nil
-	case FieldFailingSince:
+	case FieldDateFailing:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -792,7 +792,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetFailingSince(v)
+		m.SetDateFailing(v)
 		return nil
 	case FieldDateLapsed:
 		v, ok := value.(time.Time)
@@ -804,7 +804,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateLapsed(v)
 		return nil
-	case FieldRedirectUntil:
+	case FieldDateRedirectUntil:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -812,7 +812,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRedirectUntil(v)
+		m.SetDateRedirectUntil(v)
 		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
@@ -862,18 +862,18 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetDateErased()
 	case FieldDateCreated:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
-	case FieldVerifiedAt:
-		m.ResetVerifiedAt()
-	case FieldCheckedAt:
-		m.ResetCheckedAt()
+	case FieldDateVerified:
+		m.ResetDateVerified()
+	case FieldDateChecked:
+		m.ResetDateChecked()
 	case FieldFailures:
 		m.ResetFailures()
-	case FieldFailingSince:
-		m.ResetFailingSince()
+	case FieldDateFailing:
+		m.ResetDateFailing()
 	case FieldDateLapsed:
 		m.ResetDateLapsed()
-	case FieldRedirectUntil:
-		m.ResetRedirectUntil()
+	case FieldDateRedirectUntil:
+		m.ResetDateRedirectUntil()
 	case FieldTenantId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	default:
@@ -918,23 +918,23 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldDateErased]; ok {
 		fields = append(fields, FieldDateErased)
 	}
-	if _, ok := m.exprs[FieldVerifiedAt]; ok {
-		fields = append(fields, FieldVerifiedAt)
+	if _, ok := m.exprs[FieldDateVerified]; ok {
+		fields = append(fields, FieldDateVerified)
 	}
-	if _, ok := m.exprs[FieldCheckedAt]; ok {
-		fields = append(fields, FieldCheckedAt)
+	if _, ok := m.exprs[FieldDateChecked]; ok {
+		fields = append(fields, FieldDateChecked)
 	}
 	if _, ok := m.exprs[FieldFailures]; ok {
 		fields = append(fields, FieldFailures)
 	}
-	if _, ok := m.exprs[FieldFailingSince]; ok {
-		fields = append(fields, FieldFailingSince)
+	if _, ok := m.exprs[FieldDateFailing]; ok {
+		fields = append(fields, FieldDateFailing)
 	}
 	if _, ok := m.exprs[FieldDateLapsed]; ok {
 		fields = append(fields, FieldDateLapsed)
 	}
-	if _, ok := m.exprs[FieldRedirectUntil]; ok {
-		fields = append(fields, FieldRedirectUntil)
+	if _, ok := m.exprs[FieldDateRedirectUntil]; ok {
+		fields = append(fields, FieldDateRedirectUntil)
 	}
 	return fields
 }
@@ -986,23 +986,23 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.FieldCleared(FieldVerifiedAt) {
-		fields = append(fields, FieldVerifiedAt)
+	if m.FieldCleared(FieldDateVerified) {
+		fields = append(fields, FieldDateVerified)
 	}
-	if m.FieldCleared(FieldCheckedAt) {
-		fields = append(fields, FieldCheckedAt)
+	if m.FieldCleared(FieldDateChecked) {
+		fields = append(fields, FieldDateChecked)
 	}
 	if m.FieldCleared(FieldFailures) {
 		fields = append(fields, FieldFailures)
 	}
-	if m.FieldCleared(FieldFailingSince) {
-		fields = append(fields, FieldFailingSince)
+	if m.FieldCleared(FieldDateFailing) {
+		fields = append(fields, FieldDateFailing)
 	}
 	if m.FieldCleared(FieldDateLapsed) {
 		fields = append(fields, FieldDateLapsed)
 	}
-	if m.FieldCleared(FieldRedirectUntil) {
-		fields = append(fields, FieldRedirectUntil)
+	if m.FieldCleared(FieldDateRedirectUntil) {
+		fields = append(fields, FieldDateRedirectUntil)
 	}
 	return fields
 }
@@ -1024,23 +1024,23 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldDateCreated:
 		m.ClearDateCreated()
 		return nil
-	case FieldVerifiedAt:
-		m.ClearVerifiedAt()
+	case FieldDateVerified:
+		m.ClearDateVerified()
 		return nil
-	case FieldCheckedAt:
-		m.ClearCheckedAt()
+	case FieldDateChecked:
+		m.ClearDateChecked()
 		return nil
 	case FieldFailures:
 		m.ClearFailures()
 		return nil
-	case FieldFailingSince:
-		m.ClearFailingSince()
+	case FieldDateFailing:
+		m.ClearDateFailing()
 		return nil
 	case FieldDateLapsed:
 		m.ClearDateLapsed()
 		return nil
-	case FieldRedirectUntil:
-		m.ClearRedirectUntil()
+	case FieldDateRedirectUntil:
+		m.ClearDateRedirectUntil()
 		return nil
 	}
 	return fmt.Errorf("unknown Domain nullable field %s", name)
@@ -1074,23 +1074,23 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldDateCreated:
 		m.ResetDateCreated()
 		return nil
-	case FieldVerifiedAt:
-		m.ResetVerifiedAt()
+	case FieldDateVerified:
+		m.ResetDateVerified()
 		return nil
-	case FieldCheckedAt:
-		m.ResetCheckedAt()
+	case FieldDateChecked:
+		m.ResetDateChecked()
 		return nil
 	case FieldFailures:
 		m.ResetFailures()
 		return nil
-	case FieldFailingSince:
-		m.ResetFailingSince()
+	case FieldDateFailing:
+		m.ResetDateFailing()
 		return nil
 	case FieldDateLapsed:
 		m.ResetDateLapsed()
 		return nil
-	case FieldRedirectUntil:
-		m.ResetRedirectUntil()
+	case FieldDateRedirectUntil:
+		m.ResetDateRedirectUntil()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

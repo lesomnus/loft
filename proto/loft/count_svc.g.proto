@@ -35,7 +35,7 @@ service InventoryCountService {
   // being read -- and that is harmless for the same reason.
   rpc Watch(InventoryCountWatchRequest) returns (stream InventoryCountWatchResponse);
   // Scan records that something was seen, where. Offline scans arrive with the
-  // device's `seen_at` and their own op, so a replay is the same scan.
+  // device's `date_seen` and their own op, so a replay is the same scan.
   rpc Scan(InventoryCountScanRequest) returns (CountFinding);
   // Reconcile marks what was expected under the scope and never seen.
   rpc Reconcile(InventoryCountReconcileRequest) returns (InventoryCountReconcileResponse);
@@ -87,8 +87,8 @@ message InventoryCountAddRequest {
   string desc = 6 [features.field_presence = IMPLICIT];
   AssetRef scope = 8;
   string status = 9 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp started_at = 10;
-  google.protobuf.Timestamp closed_at = 11;
+  google.protobuf.Timestamp date_started = 10;
+  google.protobuf.Timestamp date_closed = 11;
   bytes started_by = 12;
   google.protobuf.Timestamp date_created = 15;
   bool self_service = 16 [features.field_presence = IMPLICIT];
@@ -113,8 +113,8 @@ message InventoryCountSelect {
   bool desc = 6;
   AssetSelect scope = 8;
   bool status = 9;
-  bool started_at = 10;
-  bool closed_at = 11;
+  bool date_started = 10;
+  bool date_closed = 11;
   bool started_by = 12;
   bool date_updated = 13;
   bool date_erased = 14;
@@ -128,13 +128,13 @@ message InventoryCountPatchRequest {
   string name = 10;
   string desc = 12;
   string status = 18;
-  google.protobuf.Timestamp started_at = 20;
-  google.protobuf.Timestamp closed_at = 22;
-  // Clear closed_at instead of writing it.
+  google.protobuf.Timestamp date_started = 20;
+  google.protobuf.Timestamp date_closed = 22;
+  // Clear date_closed instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and closed_at clears.
-  bool closed_at_null = 23;
+  // outright: setting both this and date_closed clears.
+  bool date_closed_null = 23;
   bytes started_by = 24;
   // Clear started_by instead of writing it.
   // It takes a field of its own because an unset value already means
@@ -270,7 +270,7 @@ message InventoryCountScanRequest {
   AssetRef asset = 3;
   // Where it was seen. Empty is the count's scope.
   AssetRef at = 4;
-  google.protobuf.Timestamp seen_at = 5;
+  google.protobuf.Timestamp date_seen = 5;
   bytes op = 6 [features.field_presence = IMPLICIT];
   string note = 7 [features.field_presence = IMPLICIT];
 }
@@ -307,18 +307,18 @@ message InventoryCountCloseRequest {
 }
 
 message InventoryCountResultsRequest {
-  // The counts begun from `from` and before `to`, a year at most. Unsaid, the
+  // The counts begun from `date_from` and before `date_to`, a year at most. Unsaid, the
   // last year of the workspace's days, today among them.
-  google.protobuf.Timestamp from = 1;
-  google.protobuf.Timestamp to = 2;
+  google.protobuf.Timestamp date_from = 1;
+  google.protobuf.Timestamp date_to = 2;
 }
 
 message InventoryCountResultsResponse {
   // The newest first.
   repeated InventoryCountResult rows = 1;
   // The period it read.
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
 }
 
 // InventoryCountResult is what one count found, by kind, and how what it
@@ -331,8 +331,8 @@ message InventoryCountResult {
   string scope_name = 4 [features.field_presence = IMPLICIT];
   // open | closed
   string status = 5 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp started_at = 6;
-  google.protobuf.Timestamp closed_at = 7;
+  google.protobuf.Timestamp date_started = 6;
+  google.protobuf.Timestamp date_closed = 7;
   // What it found: where it should be, somewhere else, never seen, and
   // scanned but not registered. The last three are the differences.
   uint32 seen = 8 [features.field_presence = IMPLICIT];
@@ -358,10 +358,10 @@ message CountFindingAddRequest {
   bytes observed_parent_id = 12;
   google.protobuf.Timestamp date_created = 15;
   bytes expected_parent_id = 16;
-  google.protobuf.Timestamp seen_at = 17;
+  google.protobuf.Timestamp date_seen = 17;
   bytes recorded_by = 18;
   string resolution = 19 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp resolved_at = 20;
+  google.protobuf.Timestamp date_resolved = 20;
 }
 
 message CountFindingGetRequest {
@@ -381,10 +381,10 @@ message CountFindingSelect {
   bool date_updated = 13;
   bool date_created = 15;
   bool expected_parent_id = 16;
-  bool seen_at = 17;
+  bool date_seen = 17;
   bool recorded_by = 18;
   bool resolution = 19;
-  bool resolved_at = 20;
+  bool date_resolved = 20;
 }
 
 message CountFindingPatchRequest {
@@ -423,7 +423,7 @@ message CountFindingPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and expected_parent_id clears.
   bool expected_parent_id_null = 33;
-  google.protobuf.Timestamp seen_at = 34;
+  google.protobuf.Timestamp date_seen = 34;
   bytes recorded_by = 36;
   // Clear recorded_by instead of writing it.
   // It takes a field of its own because an unset value already means
@@ -431,12 +431,12 @@ message CountFindingPatchRequest {
   // outright: setting both this and recorded_by clears.
   bool recorded_by_null = 37;
   string resolution = 38;
-  google.protobuf.Timestamp resolved_at = 40;
-  // Clear resolved_at instead of writing it.
+  google.protobuf.Timestamp date_resolved = 40;
+  // Clear date_resolved instead of writing it.
   // It takes a field of its own because an unset value already means
   // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and resolved_at clears.
-  bool resolved_at_null = 41;
+  // outright: setting both this and date_resolved clears.
+  bool date_resolved_null = 41;
 }
 
 message CountFindingApplyRequest {

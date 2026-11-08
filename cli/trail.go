@@ -220,7 +220,7 @@ func newCmdTrail() *xli.Command {
 						self.Printf("nothing of the trail's erasures is owed\n")
 						return next(ctx)
 					}
-					self.Printf("%d erasure(s) owed, the oldest since %s\n", o.GetObjects(), o.GetOldest().AsTime().UTC().Format(time.RFC3339))
+					self.Printf("%d erasure(s) owed, the oldest since %s\n", o.GetObjects(), o.GetDateOldest().AsTime().UTC().Format(time.RFC3339))
 					for _, h := range o.GetHeld() {
 						name := idSaid(h.GetTenant())
 						if h.GetAlias() != "" {
@@ -469,8 +469,8 @@ func newCmdTrailExport() *xli.Command {
 					fmt.Fprintf(say, "  (a chunk the checkpoint does not list is in it: the manifest marks it, and `trail verify` says why)\n")
 				}
 			}
-			if x.HasRetired() {
-				fmt.Fprintf(say, "  retired %s; what it kept is kept until %s\n", dayOf(x.GetRetired()), dayOf(x.GetKeptUntil()))
+			if x.HasDateRetired() {
+				fmt.Fprintf(say, "  retired %s; what it kept is kept until %s\n", dayOf(x.GetDateRetired()), dayOf(x.GetDateKeptUntil()))
 			}
 			fmt.Fprintf(say, "  %d people in the access record, as a download, for %q\n", x.GetPeople(), why)
 			return next(ctx)

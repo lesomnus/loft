@@ -160,13 +160,13 @@ func (t *Tx) moveStock(st *app.Stock, delta int64, reason string, ref pdid.Id, a
 		return err
 	}
 	req := app.StockMovementAddRequest_builder{
-		Tenant:     t.tenantRef(),
-		Stock:      app.StockRef_builder{Id: st.GetId()}.Build(),
-		Delta:      delta,
-		Reason:     reason,
-		OccurredAt: ts(at),
-		EventId:    t.ev().Bytes(),
-		Balance:    next,
+		Tenant:       t.tenantRef(),
+		Stock:        app.StockRef_builder{Id: st.GetId()}.Build(),
+		Delta:        delta,
+		Reason:       reason,
+		DateOccurred: ts(at),
+		EventId:      t.ev().Bytes(),
+		Balance:      next,
 	}.Build()
 	if !ref.IsZero() {
 		req.SetRefId(ref.Bytes())
@@ -186,7 +186,7 @@ func (s domainStock) change(ctx context.Context, req *app.StockChangeRequest, re
 		if err := t.done(req.GetOp()); err != nil {
 			return err
 		}
-		at, err := t.at(req.GetAt(), "at")
+		at, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}
@@ -240,7 +240,7 @@ func (s domainStock) Transfer(ctx context.Context, req *app.StockTransferRequest
 		if err := t.done(req.GetOp()); err != nil {
 			return err
 		}
-		at, err := t.at(req.GetAt(), "at")
+		at, err := t.at(req.GetDateOccurred(), "date_occurred")
 		if err != nil {
 			return err
 		}

@@ -24,10 +24,10 @@ type Mutation struct {
 	date_updated       *time.Time
 	date_created       *time.Time
 	expected_parent_id *uuid.UUID
-	seen_at            *time.Time
+	date_seen          *time.Time
 	recorded_by        *uuid.UUID
 	resolution         *string
-	resolved_at        *time.Time
+	date_resolved      *time.Time
 	clearedFields      map[string]struct{}
 	exprs              map[string]sql.Querier
 	tenant             *uuid.UUID
@@ -257,40 +257,40 @@ func (m *Mutation) ResetExpectedParentId() {
 	delete(m.exprs, FieldExpectedParentId)
 }
 
-// SetSeenAt sets the "seen_at" field.
-func (m *Mutation) SetSeenAt(t time.Time) {
-	m.seen_at = &t
-	delete(m.clearedFields, FieldSeenAt)
-	delete(m.exprs, FieldSeenAt)
+// SetDateSeen sets the "date_seen" field.
+func (m *Mutation) SetDateSeen(t time.Time) {
+	m.date_seen = &t
+	delete(m.clearedFields, FieldDateSeen)
+	delete(m.exprs, FieldDateSeen)
 }
 
-// SeenAt returns the value of the "seen_at" field in the mutation.
-func (m *Mutation) SeenAt() (r time.Time, exists bool) {
-	v := m.seen_at
+// DateSeen returns the value of the "date_seen" field in the mutation.
+func (m *Mutation) DateSeen() (r time.Time, exists bool) {
+	v := m.date_seen
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearSeenAt clears the value of the "seen_at" field.
-func (m *Mutation) ClearSeenAt() {
-	m.seen_at = nil
-	delete(m.exprs, FieldSeenAt)
-	m.clearedFields[FieldSeenAt] = struct{}{}
+// ClearDateSeen clears the value of the "date_seen" field.
+func (m *Mutation) ClearDateSeen() {
+	m.date_seen = nil
+	delete(m.exprs, FieldDateSeen)
+	m.clearedFields[FieldDateSeen] = struct{}{}
 }
 
-// SeenAtCleared returns if the "seen_at" field was cleared in this mutation.
-func (m *Mutation) SeenAtCleared() bool {
-	_, ok := m.clearedFields[FieldSeenAt]
+// DateSeenCleared returns if the "date_seen" field was cleared in this mutation.
+func (m *Mutation) DateSeenCleared() bool {
+	_, ok := m.clearedFields[FieldDateSeen]
 	return ok
 }
 
-// ResetSeenAt resets all changes to the "seen_at" field.
-func (m *Mutation) ResetSeenAt() {
-	m.seen_at = nil
-	delete(m.clearedFields, FieldSeenAt)
-	delete(m.exprs, FieldSeenAt)
+// ResetDateSeen resets all changes to the "date_seen" field.
+func (m *Mutation) ResetDateSeen() {
+	m.date_seen = nil
+	delete(m.clearedFields, FieldDateSeen)
+	delete(m.exprs, FieldDateSeen)
 }
 
 // SetRecordedBy sets the "recorded_by" field.
@@ -350,40 +350,40 @@ func (m *Mutation) ResetResolution() {
 	delete(m.exprs, FieldResolution)
 }
 
-// SetResolvedAt sets the "resolved_at" field.
-func (m *Mutation) SetResolvedAt(t time.Time) {
-	m.resolved_at = &t
-	delete(m.clearedFields, FieldResolvedAt)
-	delete(m.exprs, FieldResolvedAt)
+// SetDateResolved sets the "date_resolved" field.
+func (m *Mutation) SetDateResolved(t time.Time) {
+	m.date_resolved = &t
+	delete(m.clearedFields, FieldDateResolved)
+	delete(m.exprs, FieldDateResolved)
 }
 
-// ResolvedAt returns the value of the "resolved_at" field in the mutation.
-func (m *Mutation) ResolvedAt() (r time.Time, exists bool) {
-	v := m.resolved_at
+// DateResolved returns the value of the "date_resolved" field in the mutation.
+func (m *Mutation) DateResolved() (r time.Time, exists bool) {
+	v := m.date_resolved
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearResolvedAt clears the value of the "resolved_at" field.
-func (m *Mutation) ClearResolvedAt() {
-	m.resolved_at = nil
-	delete(m.exprs, FieldResolvedAt)
-	m.clearedFields[FieldResolvedAt] = struct{}{}
+// ClearDateResolved clears the value of the "date_resolved" field.
+func (m *Mutation) ClearDateResolved() {
+	m.date_resolved = nil
+	delete(m.exprs, FieldDateResolved)
+	m.clearedFields[FieldDateResolved] = struct{}{}
 }
 
-// ResolvedAtCleared returns if the "resolved_at" field was cleared in this mutation.
-func (m *Mutation) ResolvedAtCleared() bool {
-	_, ok := m.clearedFields[FieldResolvedAt]
+// DateResolvedCleared returns if the "date_resolved" field was cleared in this mutation.
+func (m *Mutation) DateResolvedCleared() bool {
+	_, ok := m.clearedFields[FieldDateResolved]
 	return ok
 }
 
-// ResetResolvedAt resets all changes to the "resolved_at" field.
-func (m *Mutation) ResetResolvedAt() {
-	m.resolved_at = nil
-	delete(m.clearedFields, FieldResolvedAt)
-	delete(m.exprs, FieldResolvedAt)
+// ResetDateResolved resets all changes to the "date_resolved" field.
+func (m *Mutation) ResetDateResolved() {
+	m.date_resolved = nil
+	delete(m.clearedFields, FieldDateResolved)
+	delete(m.exprs, FieldDateResolved)
 }
 
 // SetTenantId sets the "tenant_id" field.
@@ -594,8 +594,8 @@ func (m *Mutation) Fields() []string {
 	if m.expected_parent_id != nil || m.exprs[FieldExpectedParentId] != nil {
 		fields = append(fields, FieldExpectedParentId)
 	}
-	if m.seen_at != nil || m.exprs[FieldSeenAt] != nil {
-		fields = append(fields, FieldSeenAt)
+	if m.date_seen != nil || m.exprs[FieldDateSeen] != nil {
+		fields = append(fields, FieldDateSeen)
 	}
 	if m.recorded_by != nil || m.exprs[FieldRecordedBy] != nil {
 		fields = append(fields, FieldRecordedBy)
@@ -603,8 +603,8 @@ func (m *Mutation) Fields() []string {
 	if m.resolution != nil || m.exprs[FieldResolution] != nil {
 		fields = append(fields, FieldResolution)
 	}
-	if m.resolved_at != nil || m.exprs[FieldResolvedAt] != nil {
-		fields = append(fields, FieldResolvedAt)
+	if m.date_resolved != nil || m.exprs[FieldDateResolved] != nil {
+		fields = append(fields, FieldDateResolved)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -643,14 +643,14 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case FieldExpectedParentId:
 		return m.ExpectedParentId()
-	case FieldSeenAt:
-		return m.SeenAt()
+	case FieldDateSeen:
+		return m.DateSeen()
 	case FieldRecordedBy:
 		return m.RecordedBy()
 	case FieldResolution:
 		return m.Resolution()
-	case FieldResolvedAt:
-		return m.ResolvedAt()
+	case FieldDateResolved:
+		return m.DateResolved()
 	case FieldTenantId:
 		return m.TenantId()
 	case FieldCountId:
@@ -746,7 +746,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetExpectedParentId(v)
 		return nil
-	case FieldSeenAt:
+	case FieldDateSeen:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -754,7 +754,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetSeenAt(v)
+		m.SetDateSeen(v)
 		return nil
 	case FieldRecordedBy:
 		v, ok := value.(uuid.UUID)
@@ -776,7 +776,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetResolution(v)
 		return nil
-	case FieldResolvedAt:
+	case FieldDateResolved:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -784,7 +784,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetResolvedAt(v)
+		m.SetDateResolved(v)
 		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
@@ -852,14 +852,14 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
 	case FieldExpectedParentId:
 		m.ResetExpectedParentId()
-	case FieldSeenAt:
-		m.ResetSeenAt()
+	case FieldDateSeen:
+		m.ResetDateSeen()
 	case FieldRecordedBy:
 		m.ResetRecordedBy()
 	case FieldResolution:
 		m.ResetResolution()
-	case FieldResolvedAt:
-		m.ResetResolvedAt()
+	case FieldDateResolved:
+		m.ResetDateResolved()
 	case FieldTenantId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	case FieldCountId:
@@ -905,8 +905,8 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldExpectedParentId]; ok {
 		fields = append(fields, FieldExpectedParentId)
 	}
-	if _, ok := m.exprs[FieldSeenAt]; ok {
-		fields = append(fields, FieldSeenAt)
+	if _, ok := m.exprs[FieldDateSeen]; ok {
+		fields = append(fields, FieldDateSeen)
 	}
 	if _, ok := m.exprs[FieldRecordedBy]; ok {
 		fields = append(fields, FieldRecordedBy)
@@ -914,8 +914,8 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldResolution]; ok {
 		fields = append(fields, FieldResolution)
 	}
-	if _, ok := m.exprs[FieldResolvedAt]; ok {
-		fields = append(fields, FieldResolvedAt)
+	if _, ok := m.exprs[FieldDateResolved]; ok {
+		fields = append(fields, FieldDateResolved)
 	}
 	return fields
 }
@@ -958,14 +958,14 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldExpectedParentId) {
 		fields = append(fields, FieldExpectedParentId)
 	}
-	if m.FieldCleared(FieldSeenAt) {
-		fields = append(fields, FieldSeenAt)
+	if m.FieldCleared(FieldDateSeen) {
+		fields = append(fields, FieldDateSeen)
 	}
 	if m.FieldCleared(FieldRecordedBy) {
 		fields = append(fields, FieldRecordedBy)
 	}
-	if m.FieldCleared(FieldResolvedAt) {
-		fields = append(fields, FieldResolvedAt)
+	if m.FieldCleared(FieldDateResolved) {
+		fields = append(fields, FieldDateResolved)
 	}
 	if m.FieldCleared(FieldAssetId) {
 		fields = append(fields, FieldAssetId)
@@ -996,14 +996,14 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldExpectedParentId:
 		m.ClearExpectedParentId()
 		return nil
-	case FieldSeenAt:
-		m.ClearSeenAt()
+	case FieldDateSeen:
+		m.ClearDateSeen()
 		return nil
 	case FieldRecordedBy:
 		m.ClearRecordedBy()
 		return nil
-	case FieldResolvedAt:
-		m.ClearResolvedAt()
+	case FieldDateResolved:
+		m.ClearDateResolved()
 		return nil
 	case FieldAssetId:
 		m.ClearAssetId()
@@ -1037,8 +1037,8 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldExpectedParentId:
 		m.ResetExpectedParentId()
 		return nil
-	case FieldSeenAt:
-		m.ResetSeenAt()
+	case FieldDateSeen:
+		m.ResetDateSeen()
 		return nil
 	case FieldRecordedBy:
 		m.ResetRecordedBy()
@@ -1046,8 +1046,8 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldResolution:
 		m.ResetResolution()
 		return nil
-	case FieldResolvedAt:
-		m.ResetResolvedAt()
+	case FieldDateResolved:
+		m.ResetDateResolved()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

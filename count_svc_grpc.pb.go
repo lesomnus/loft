@@ -63,7 +63,7 @@ type InventoryCountServiceClient interface {
 	// being read -- and that is harmless for the same reason.
 	Watch(ctx context.Context, in *InventoryCountWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[InventoryCountWatchResponse], error)
 	// Scan records that something was seen, where. Offline scans arrive with the
-	// device's `seen_at` and their own op, so a replay is the same scan.
+	// device's `date_seen` and their own op, so a replay is the same scan.
 	Scan(ctx context.Context, in *InventoryCountScanRequest, opts ...grpc.CallOption) (*CountFinding, error)
 	// Reconcile marks what was expected under the scope and never seen.
 	Reconcile(ctx context.Context, in *InventoryCountReconcileRequest, opts ...grpc.CallOption) (*InventoryCountReconcileResponse, error)
@@ -257,7 +257,7 @@ type InventoryCountServiceServer interface {
 	// being read -- and that is harmless for the same reason.
 	Watch(*InventoryCountWatchRequest, grpc.ServerStreamingServer[InventoryCountWatchResponse]) error
 	// Scan records that something was seen, where. Offline scans arrive with the
-	// device's `seen_at` and their own op, so a replay is the same scan.
+	// device's `date_seen` and their own op, so a replay is the same scan.
 	Scan(context.Context, *InventoryCountScanRequest) (*CountFinding, error)
 	// Reconcile marks what was expected under the scope and never seen.
 	Reconcile(context.Context, *InventoryCountReconcileRequest) (*InventoryCountReconcileResponse, error)

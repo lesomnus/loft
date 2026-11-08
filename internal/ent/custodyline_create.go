@@ -59,30 +59,30 @@ func (_c *CustodyLineCreate) SetNillableDateCreated(v *time.Time) *CustodyLineCr
 	return _c
 }
 
-// SetOutAt sets the "out_at" field.
-func (_c *CustodyLineCreate) SetOutAt(v time.Time) *CustodyLineCreate {
-	_c.mutation.SetOutAt(v)
+// SetDateOut sets the "date_out" field.
+func (_c *CustodyLineCreate) SetDateOut(v time.Time) *CustodyLineCreate {
+	_c.mutation.SetDateOut(v)
 	return _c
 }
 
-// SetNillableOutAt sets the "out_at" field if the given value is not nil.
-func (_c *CustodyLineCreate) SetNillableOutAt(v *time.Time) *CustodyLineCreate {
+// SetNillableDateOut sets the "date_out" field if the given value is not nil.
+func (_c *CustodyLineCreate) SetNillableDateOut(v *time.Time) *CustodyLineCreate {
 	if v != nil {
-		_c.SetOutAt(*v)
+		_c.SetDateOut(*v)
 	}
 	return _c
 }
 
-// SetReturnedAt sets the "returned_at" field.
-func (_c *CustodyLineCreate) SetReturnedAt(v time.Time) *CustodyLineCreate {
-	_c.mutation.SetReturnedAt(v)
+// SetDateReturned sets the "date_returned" field.
+func (_c *CustodyLineCreate) SetDateReturned(v time.Time) *CustodyLineCreate {
+	_c.mutation.SetDateReturned(v)
 	return _c
 }
 
-// SetNillableReturnedAt sets the "returned_at" field if the given value is not nil.
-func (_c *CustodyLineCreate) SetNillableReturnedAt(v *time.Time) *CustodyLineCreate {
+// SetNillableDateReturned sets the "date_returned" field if the given value is not nil.
+func (_c *CustodyLineCreate) SetNillableDateReturned(v *time.Time) *CustodyLineCreate {
 	if v != nil {
-		_c.SetReturnedAt(*v)
+		_c.SetDateReturned(*v)
 	}
 	return _c
 }
@@ -296,13 +296,13 @@ func (_c *CustodyLineCreate) createSpec() (*CustodyLine, *sqlgraph.CreateSpec) {
 		_spec.SetField(custodyline.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
 	}
-	if value, ok := _c.mutation.OutAt(); ok {
-		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, value)
-		_node.OutAt = value
+	if value, ok := _c.mutation.DateOut(); ok {
+		_spec.SetField(custodyline.FieldDateOut, field.TypeTime, value)
+		_node.DateOut = value
 	}
-	if value, ok := _c.mutation.ReturnedAt(); ok {
-		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, value)
-		_node.ReturnedAt = &value
+	if value, ok := _c.mutation.DateReturned(); ok {
+		_spec.SetField(custodyline.FieldDateReturned, field.TypeTime, value)
+		_node.DateReturned = &value
 	}
 	if value, ok := _c.mutation.ConditionOut(); ok {
 		_spec.SetField(custodyline.FieldConditionOut, field.TypeString, value)

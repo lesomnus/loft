@@ -218,12 +218,12 @@ func (s domainNotification) Inbox(ctx context.Context, req *app.NotificationInbo
 		return nil, err
 	}
 	q := t.db.Notification.Query().Where(notification.TenantId(t.tenant.Uuid()), notification.HolderId(t.actor.Uuid()))
-	unread, err := q.Clone().Where(notification.ReadAtIsNil()).Count(ctx)
+	unread, err := q.Clone().Where(notification.DateReadIsNil()).Count(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if req.GetUnread() {
-		q = q.Where(notification.ReadAtIsNil())
+		q = q.Where(notification.DateReadIsNil())
 	}
 	size := int(req.GetSize())
 	if size <= 0 || size > 200 {
@@ -270,7 +270,7 @@ func (s domainNotification) MarkRead(ctx context.Context, req *app.NotificationM
 		q := t.db.Notification.Query().Where(
 			notification.TenantId(t.tenant.Uuid()),
 			notification.HolderId(t.actor.Uuid()),
-			notification.ReadAtIsNil(),
+			notification.DateReadIsNil(),
 		)
 		if len(req.GetIds()) > 0 {
 			ids := []uuid.UUID{}
@@ -286,7 +286,7 @@ func (s domainNotification) MarkRead(ctx context.Context, req *app.NotificationM
 		for _, k := range ids {
 			if _, err := t.next.Notification().Patch(t.ctx, app.NotificationPatchRequest_builder{
 				Ref:              app.NotificationRef_builder{Id: pdid.Id(k).Bytes()}.Build(),
-				ReadAt:           ts(t.now),
+				DateRead:         ts(t.now),
 				DateUpdatedForce: z.Ptr(true),
 			}.Build()); err != nil {
 				return err

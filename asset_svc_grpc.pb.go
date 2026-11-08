@@ -92,8 +92,9 @@ type AssetServiceClient interface {
 	// time. The old row is superseded, never edited (design 3.3).
 	Correct(ctx context.Context, in *AssetCorrectRequest, opts ...grpc.CallOption) (*Asset, error)
 	Timeline(ctx context.Context, in *AssetTimelineRequest, opts ...grpc.CallOption) (*AssetTimelineResponse, error)
-	// QueryAt answers an asset and everything inside it as it was at `at`, by
-	// what is known now -- or by what was known at `known`, which is AsOf.
+	// QueryAt answers an asset and everything inside it as it was at
+	// `date_as_of`, by what is known now -- or by what was known at
+	// `date_known`.
 	QueryAt(ctx context.Context, in *AssetQueryAtRequest, opts ...grpc.CallOption) (*AssetQueryAtResponse, error)
 	Diff(ctx context.Context, in *AssetDiffRequest, opts ...grpc.CallOption) (*AssetDiffResponse, error)
 	Search(ctx context.Context, in *AssetSearchRequest, opts ...grpc.CallOption) (*AssetSearchResponse, error)
@@ -427,8 +428,9 @@ type AssetServiceServer interface {
 	// time. The old row is superseded, never edited (design 3.3).
 	Correct(context.Context, *AssetCorrectRequest) (*Asset, error)
 	Timeline(context.Context, *AssetTimelineRequest) (*AssetTimelineResponse, error)
-	// QueryAt answers an asset and everything inside it as it was at `at`, by
-	// what is known now -- or by what was known at `known`, which is AsOf.
+	// QueryAt answers an asset and everything inside it as it was at
+	// `date_as_of`, by what is known now -- or by what was known at
+	// `date_known`.
 	QueryAt(context.Context, *AssetQueryAtRequest) (*AssetQueryAtResponse, error)
 	Diff(context.Context, *AssetDiffRequest) (*AssetDiffResponse, error)
 	Search(context.Context, *AssetSearchRequest) (*AssetSearchResponse, error)

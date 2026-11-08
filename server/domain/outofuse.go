@@ -79,7 +79,7 @@ func gone() predicate.Asset {
 func (t *Tx) outOfUseOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationOutOfUse, error) {
 	ids := []uuid.UUID{}
 	for _, r := range rs {
-		if waits(r.Status) && r.EndsAt.After(t.now) {
+		if waits(r.Status) && r.DateEnd.After(t.now) {
 			ids = append(ids, r.Id)
 		}
 	}
@@ -211,7 +211,7 @@ func (t *Tx) takenBy(thing uuid.UUID) ([]*ent.Reservation, error) {
 		allocation.TenantId(tid),
 		allocation.ResourceId(thing),
 		allocation.RefIdNotNil(),
-		allocation.EndsAtGT(t.now),
+		allocation.DateEndGT(t.now),
 	).All(t.ctx)
 	if err != nil || len(as) == 0 {
 		return nil, err
@@ -224,9 +224,9 @@ func (t *Tx) takenBy(thing uuid.UUID) ([]*ent.Reservation, error) {
 		reservation.TenantId(tid),
 		reservation.IdIn(refs...),
 		reservation.StatusIn(resHeld, resRequested, resConfirmed),
-		reservation.EndsAtGT(t.now),
+		reservation.DateEndGT(t.now),
 		reservation.DateErasedIsNil(),
-	).Order(reservation.ByBeginsAt(), reservation.ById()).All(t.ctx)
+	).Order(reservation.ByDateStart(), reservation.ById()).All(t.ctx)
 }
 
 // bookedOf answers the ones of these reservations that booked `thing` itself,
@@ -325,9 +325,9 @@ func (t *Tx) tellOutOfUse(a *ent.Asset, rs []*ent.Reservation) error {
 		return err
 	}
 	return eachParty(rs, func(first *ent.Reservation, title string) error {
-		body := fmt.Sprintf("%s 예약이 잡은 %s은(는) %s 상태라 %s. 다시 쓸 수 있게 되면 알려 드립니다.", t.when(first.BeginsAt), tagged(a), say, k.cannot)
+		body := fmt.Sprintf("%s 예약이 잡은 %s은(는) %s 상태라 %s. 다시 쓸 수 있게 되면 알려 드립니다.", t.when(first.DateStart), tagged(a), say, k.cannot)
 		if a.Kind != "item" {
-			body = fmt.Sprintf("%s 예약의 %s은(는) %s 상태라 %s. 다시 쓸 수 있게 되면 알려 드립니다.", t.when(first.BeginsAt), tagged(a), say, k.cannot)
+			body = fmt.Sprintf("%s 예약의 %s은(는) %s 상태라 %s. 다시 쓸 수 있게 되면 알려 드립니다.", t.when(first.DateStart), tagged(a), say, k.cannot)
 		}
 		return t.notifyParty(first.PartyId, "reservation.out_of_use", fmt.Sprintf("예약 %s %s: %s", k.noun, say, title), body,
 			pdid.Id(first.Id), "/reservations?tab=mine")
@@ -369,7 +369,7 @@ func (t *Tx) tellVoided(a *ent.Asset, rs []*ent.Reservation) error {
 	}
 	return eachParty(rs, func(first *ent.Reservation, title string) error {
 		return t.notifyParty(first.PartyId, "reservation.out_of_use", fmt.Sprintf("예약 %s 삭제: %s", k.noun, title),
-			fmt.Sprintf("%s 예약의 %s은(는) 삭제되어 %s. 취소하고 다른 것으로 다시 예약하세요.", t.when(first.BeginsAt), tagged(a), k.cannot),
+			fmt.Sprintf("%s 예약의 %s은(는) 삭제되어 %s. 취소하고 다른 것으로 다시 예약하세요.", t.when(first.DateStart), tagged(a), k.cannot),
 			pdid.Id(first.Id), "/reservations?tab=mine")
 	})
 }
@@ -383,9 +383,9 @@ func (t *Tx) tellInUse(a *ent.Asset, rs []*ent.Reservation) error {
 	say := or(statusSay[a.Status], a.Status)
 	k := keepsOf(a)
 	return eachParty(rs, func(first *ent.Reservation, title string) error {
-		body := fmt.Sprintf("%s 예약이 잡은 %s은(는) 이제 %s 상태라 %s.", t.when(first.BeginsAt), tagged(a), say, k.can)
+		body := fmt.Sprintf("%s 예약이 잡은 %s은(는) 이제 %s 상태라 %s.", t.when(first.DateStart), tagged(a), say, k.can)
 		if a.Kind != "item" {
-			body = fmt.Sprintf("%s 예약의 %s은(는) 이제 %s 상태라 %s.", t.when(first.BeginsAt), tagged(a), say, k.can)
+			body = fmt.Sprintf("%s 예약의 %s은(는) 이제 %s 상태라 %s.", t.when(first.DateStart), tagged(a), say, k.can)
 		}
 		return t.notifyParty(first.PartyId, "reservation.resolved", fmt.Sprintf("예약 %s 돌아옴: %s", k.noun, title), body,
 			pdid.Id(first.Id), "/reservations?tab=mine")

@@ -32,8 +32,8 @@ type Mutation struct {
 	placement_mode     *string
 	slot               *string
 	attributes         *map[string]string
-	acquired_at        *time.Time
-	disposed_at        *time.Time
+	date_acquired      *time.Time
+	date_disposed      *time.Time
 	content_version    *uint64
 	addcontent_version *int64
 	clearedFields      map[string]struct{}
@@ -450,76 +450,76 @@ func (m *Mutation) ResetAttributes() {
 	delete(m.exprs, FieldAttributes)
 }
 
-// SetAcquiredAt sets the "acquired_at" field.
-func (m *Mutation) SetAcquiredAt(t time.Time) {
-	m.acquired_at = &t
-	delete(m.clearedFields, FieldAcquiredAt)
-	delete(m.exprs, FieldAcquiredAt)
+// SetDateAcquired sets the "date_acquired" field.
+func (m *Mutation) SetDateAcquired(t time.Time) {
+	m.date_acquired = &t
+	delete(m.clearedFields, FieldDateAcquired)
+	delete(m.exprs, FieldDateAcquired)
 }
 
-// AcquiredAt returns the value of the "acquired_at" field in the mutation.
-func (m *Mutation) AcquiredAt() (r time.Time, exists bool) {
-	v := m.acquired_at
+// DateAcquired returns the value of the "date_acquired" field in the mutation.
+func (m *Mutation) DateAcquired() (r time.Time, exists bool) {
+	v := m.date_acquired
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearAcquiredAt clears the value of the "acquired_at" field.
-func (m *Mutation) ClearAcquiredAt() {
-	m.acquired_at = nil
-	delete(m.exprs, FieldAcquiredAt)
-	m.clearedFields[FieldAcquiredAt] = struct{}{}
+// ClearDateAcquired clears the value of the "date_acquired" field.
+func (m *Mutation) ClearDateAcquired() {
+	m.date_acquired = nil
+	delete(m.exprs, FieldDateAcquired)
+	m.clearedFields[FieldDateAcquired] = struct{}{}
 }
 
-// AcquiredAtCleared returns if the "acquired_at" field was cleared in this mutation.
-func (m *Mutation) AcquiredAtCleared() bool {
-	_, ok := m.clearedFields[FieldAcquiredAt]
+// DateAcquiredCleared returns if the "date_acquired" field was cleared in this mutation.
+func (m *Mutation) DateAcquiredCleared() bool {
+	_, ok := m.clearedFields[FieldDateAcquired]
 	return ok
 }
 
-// ResetAcquiredAt resets all changes to the "acquired_at" field.
-func (m *Mutation) ResetAcquiredAt() {
-	m.acquired_at = nil
-	delete(m.clearedFields, FieldAcquiredAt)
-	delete(m.exprs, FieldAcquiredAt)
+// ResetDateAcquired resets all changes to the "date_acquired" field.
+func (m *Mutation) ResetDateAcquired() {
+	m.date_acquired = nil
+	delete(m.clearedFields, FieldDateAcquired)
+	delete(m.exprs, FieldDateAcquired)
 }
 
-// SetDisposedAt sets the "disposed_at" field.
-func (m *Mutation) SetDisposedAt(t time.Time) {
-	m.disposed_at = &t
-	delete(m.clearedFields, FieldDisposedAt)
-	delete(m.exprs, FieldDisposedAt)
+// SetDateDisposed sets the "date_disposed" field.
+func (m *Mutation) SetDateDisposed(t time.Time) {
+	m.date_disposed = &t
+	delete(m.clearedFields, FieldDateDisposed)
+	delete(m.exprs, FieldDateDisposed)
 }
 
-// DisposedAt returns the value of the "disposed_at" field in the mutation.
-func (m *Mutation) DisposedAt() (r time.Time, exists bool) {
-	v := m.disposed_at
+// DateDisposed returns the value of the "date_disposed" field in the mutation.
+func (m *Mutation) DateDisposed() (r time.Time, exists bool) {
+	v := m.date_disposed
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearDisposedAt clears the value of the "disposed_at" field.
-func (m *Mutation) ClearDisposedAt() {
-	m.disposed_at = nil
-	delete(m.exprs, FieldDisposedAt)
-	m.clearedFields[FieldDisposedAt] = struct{}{}
+// ClearDateDisposed clears the value of the "date_disposed" field.
+func (m *Mutation) ClearDateDisposed() {
+	m.date_disposed = nil
+	delete(m.exprs, FieldDateDisposed)
+	m.clearedFields[FieldDateDisposed] = struct{}{}
 }
 
-// DisposedAtCleared returns if the "disposed_at" field was cleared in this mutation.
-func (m *Mutation) DisposedAtCleared() bool {
-	_, ok := m.clearedFields[FieldDisposedAt]
+// DateDisposedCleared returns if the "date_disposed" field was cleared in this mutation.
+func (m *Mutation) DateDisposedCleared() bool {
+	_, ok := m.clearedFields[FieldDateDisposed]
 	return ok
 }
 
-// ResetDisposedAt resets all changes to the "disposed_at" field.
-func (m *Mutation) ResetDisposedAt() {
-	m.disposed_at = nil
-	delete(m.clearedFields, FieldDisposedAt)
-	delete(m.exprs, FieldDisposedAt)
+// ResetDateDisposed resets all changes to the "date_disposed" field.
+func (m *Mutation) ResetDateDisposed() {
+	m.date_disposed = nil
+	delete(m.clearedFields, FieldDateDisposed)
+	delete(m.exprs, FieldDateDisposed)
 }
 
 // SetContentVersion sets the "content_version" field.
@@ -869,11 +869,11 @@ func (m *Mutation) Fields() []string {
 	if m.attributes != nil || m.exprs[FieldAttributes] != nil {
 		fields = append(fields, FieldAttributes)
 	}
-	if m.acquired_at != nil || m.exprs[FieldAcquiredAt] != nil {
-		fields = append(fields, FieldAcquiredAt)
+	if m.date_acquired != nil || m.exprs[FieldDateAcquired] != nil {
+		fields = append(fields, FieldDateAcquired)
 	}
-	if m.disposed_at != nil || m.exprs[FieldDisposedAt] != nil {
-		fields = append(fields, FieldDisposedAt)
+	if m.date_disposed != nil || m.exprs[FieldDateDisposed] != nil {
+		fields = append(fields, FieldDateDisposed)
 	}
 	if m.content_version != nil || m.exprs[FieldContentVersion] != nil {
 		fields = append(fields, FieldContentVersion)
@@ -934,10 +934,10 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Slot()
 	case FieldAttributes:
 		return m.Attributes()
-	case FieldAcquiredAt:
-		return m.AcquiredAt()
-	case FieldDisposedAt:
-		return m.DisposedAt()
+	case FieldDateAcquired:
+		return m.DateAcquired()
+	case FieldDateDisposed:
+		return m.DateDisposed()
 	case FieldContentVersion:
 		return m.ContentVersion()
 	case FieldTenantId:
@@ -1117,7 +1117,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAttributes(v)
 		return nil
-	case FieldAcquiredAt:
+	case FieldDateAcquired:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -1125,9 +1125,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetAcquiredAt(v)
+		m.SetDateAcquired(v)
 		return nil
-	case FieldDisposedAt:
+	case FieldDateDisposed:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -1135,7 +1135,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDisposedAt(v)
+		m.SetDateDisposed(v)
 		return nil
 	case FieldContentVersion:
 		v, ok := value.(uint64)
@@ -1239,10 +1239,10 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetSlot()
 	case FieldAttributes:
 		m.ResetAttributes()
-	case FieldAcquiredAt:
-		m.ResetAcquiredAt()
-	case FieldDisposedAt:
-		m.ResetDisposedAt()
+	case FieldDateAcquired:
+		m.ResetDateAcquired()
+	case FieldDateDisposed:
+		m.ResetDateDisposed()
 	case FieldContentVersion:
 		m.ResetContentVersion()
 	case FieldTenantId:
@@ -1316,11 +1316,11 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldAttributes]; ok {
 		fields = append(fields, FieldAttributes)
 	}
-	if _, ok := m.exprs[FieldAcquiredAt]; ok {
-		fields = append(fields, FieldAcquiredAt)
+	if _, ok := m.exprs[FieldDateAcquired]; ok {
+		fields = append(fields, FieldDateAcquired)
 	}
-	if _, ok := m.exprs[FieldDisposedAt]; ok {
-		fields = append(fields, FieldDisposedAt)
+	if _, ok := m.exprs[FieldDateDisposed]; ok {
+		fields = append(fields, FieldDateDisposed)
 	}
 	if _, ok := m.exprs[FieldContentVersion]; ok {
 		fields = append(fields, FieldContentVersion)
@@ -1384,11 +1384,11 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldAttributes) {
 		fields = append(fields, FieldAttributes)
 	}
-	if m.FieldCleared(FieldAcquiredAt) {
-		fields = append(fields, FieldAcquiredAt)
+	if m.FieldCleared(FieldDateAcquired) {
+		fields = append(fields, FieldDateAcquired)
 	}
-	if m.FieldCleared(FieldDisposedAt) {
-		fields = append(fields, FieldDisposedAt)
+	if m.FieldCleared(FieldDateDisposed) {
+		fields = append(fields, FieldDateDisposed)
 	}
 	if m.FieldCleared(FieldTypeId) {
 		fields = append(fields, FieldTypeId)
@@ -1428,11 +1428,11 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldAttributes:
 		m.ClearAttributes()
 		return nil
-	case FieldAcquiredAt:
-		m.ClearAcquiredAt()
+	case FieldDateAcquired:
+		m.ClearDateAcquired()
 		return nil
-	case FieldDisposedAt:
-		m.ClearDisposedAt()
+	case FieldDateDisposed:
+		m.ClearDateDisposed()
 		return nil
 	case FieldTypeId:
 		m.ClearTypeId()
@@ -1496,11 +1496,11 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldAttributes:
 		m.ResetAttributes()
 		return nil
-	case FieldAcquiredAt:
-		m.ResetAcquiredAt()
+	case FieldDateAcquired:
+		m.ResetDateAcquired()
 		return nil
-	case FieldDisposedAt:
-		m.ResetDisposedAt()
+	case FieldDateDisposed:
+		m.ResetDateDisposed()
 		return nil
 	case FieldContentVersion:
 		m.ResetContentVersion()

@@ -20,10 +20,10 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
-	// FieldOutAt holds the string denoting the out_at field in the database.
-	FieldOutAt = "out_at"
-	// FieldReturnedAt holds the string denoting the returned_at field in the database.
-	FieldReturnedAt = "returned_at"
+	// FieldDateOut holds the string denoting the date_out field in the database.
+	FieldDateOut = "date_out"
+	// FieldDateReturned holds the string denoting the date_returned field in the database.
+	FieldDateReturned = "date_returned"
 	// FieldConditionOut holds the string denoting the condition_out field in the database.
 	FieldConditionOut = "condition_out"
 	// FieldConditionIn holds the string denoting the condition_in field in the database.
@@ -83,8 +83,8 @@ var Columns = []string{
 	FieldReturnedQuantity,
 	FieldDateUpdated,
 	FieldDateCreated,
-	FieldOutAt,
-	FieldReturnedAt,
+	FieldDateOut,
+	FieldDateReturned,
 	FieldConditionOut,
 	FieldConditionIn,
 	FieldTenantId,
@@ -131,14 +131,14 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
 }
 
-// ByOutAt orders the results by the out_at field.
-func ByOutAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOutAt, opts...).ToFunc()
+// ByDateOut orders the results by the date_out field.
+func ByDateOut(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateOut, opts...).ToFunc()
 }
 
-// ByReturnedAt orders the results by the returned_at field.
-func ByReturnedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldReturnedAt, opts...).ToFunc()
+// ByDateReturned orders the results by the date_returned field.
+func ByDateReturned(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateReturned, opts...).ToFunc()
 }
 
 // ByConditionOut orders the results by the condition_out field.

@@ -32,8 +32,8 @@ type InventoryCount struct {
 	xxx_hidden_Desc            string                 `protobuf:"bytes,6,opt,name=desc"`
 	xxx_hidden_Scope           *Asset                 `protobuf:"bytes,8,opt,name=scope"`
 	xxx_hidden_Status          string                 `protobuf:"bytes,9,opt,name=status"`
-	xxx_hidden_StartedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=started_at,json=startedAt"`
-	xxx_hidden_ClosedAt        *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=closed_at,json=closedAt"`
+	xxx_hidden_DateStarted     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date_started,json=dateStarted"`
+	xxx_hidden_DateClosed      *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_closed,json=dateClosed"`
 	xxx_hidden_StartedBy       []byte                 `protobuf:"bytes,12,opt,name=started_by,json=startedBy"`
 	xxx_hidden_DateUpdated     *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateErased      *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
@@ -111,16 +111,16 @@ func (x *InventoryCount) GetStatus() string {
 	return ""
 }
 
-func (x *InventoryCount) GetStartedAt() *timestamppb.Timestamp {
+func (x *InventoryCount) GetDateStarted() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_StartedAt
+		return x.xxx_hidden_DateStarted
 	}
 	return nil
 }
 
-func (x *InventoryCount) GetClosedAt() *timestamppb.Timestamp {
+func (x *InventoryCount) GetDateClosed() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ClosedAt
+		return x.xxx_hidden_DateClosed
 	}
 	return nil
 }
@@ -194,12 +194,12 @@ func (x *InventoryCount) SetStatus(v string) {
 	x.xxx_hidden_Status = v
 }
 
-func (x *InventoryCount) SetStartedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_StartedAt = v
+func (x *InventoryCount) SetDateStarted(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStarted = v
 }
 
-func (x *InventoryCount) SetClosedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ClosedAt = v
+func (x *InventoryCount) SetDateClosed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateClosed = v
 }
 
 func (x *InventoryCount) SetStartedBy(v []byte) {
@@ -243,18 +243,18 @@ func (x *InventoryCount) HasScope() bool {
 	return x.xxx_hidden_Scope != nil
 }
 
-func (x *InventoryCount) HasStartedAt() bool {
+func (x *InventoryCount) HasDateStarted() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_StartedAt != nil
+	return x.xxx_hidden_DateStarted != nil
 }
 
-func (x *InventoryCount) HasClosedAt() bool {
+func (x *InventoryCount) HasDateClosed() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ClosedAt != nil
+	return x.xxx_hidden_DateClosed != nil
 }
 
 func (x *InventoryCount) HasDateUpdated() bool {
@@ -286,12 +286,12 @@ func (x *InventoryCount) ClearScope() {
 	x.xxx_hidden_Scope = nil
 }
 
-func (x *InventoryCount) ClearStartedAt() {
-	x.xxx_hidden_StartedAt = nil
+func (x *InventoryCount) ClearDateStarted() {
+	x.xxx_hidden_DateStarted = nil
 }
 
-func (x *InventoryCount) ClearClosedAt() {
-	x.xxx_hidden_ClosedAt = nil
+func (x *InventoryCount) ClearDateClosed() {
+	x.xxx_hidden_DateClosed = nil
 }
 
 func (x *InventoryCount) ClearDateUpdated() {
@@ -322,8 +322,8 @@ type InventoryCount_builder struct {
 	Scope *Asset
 	// open | closed
 	Status      string
-	StartedAt   *timestamppb.Timestamp
-	ClosedAt    *timestamppb.Timestamp
+	DateStarted *timestamppb.Timestamp
+	DateClosed  *timestamppb.Timestamp
 	StartedBy   []byte
 	DateUpdated *timestamppb.Timestamp
 	DateErased  *timestamppb.Timestamp
@@ -345,8 +345,8 @@ func (b0 InventoryCount_builder) Build() *InventoryCount {
 	x.xxx_hidden_Desc = b.Desc
 	x.xxx_hidden_Scope = b.Scope
 	x.xxx_hidden_Status = b.Status
-	x.xxx_hidden_StartedAt = b.StartedAt
-	x.xxx_hidden_ClosedAt = b.ClosedAt
+	x.xxx_hidden_DateStarted = b.DateStarted
+	x.xxx_hidden_DateClosed = b.DateClosed
 	x.xxx_hidden_StartedBy = b.StartedBy
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
@@ -370,10 +370,10 @@ type CountFinding struct {
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateCreated      *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_ExpectedParentId []byte                 `protobuf:"bytes,16,opt,name=expected_parent_id,json=expectedParentId"`
-	xxx_hidden_SeenAt           *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=seen_at,json=seenAt"`
+	xxx_hidden_DateSeen         *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_seen,json=dateSeen"`
 	xxx_hidden_RecordedBy       []byte                 `protobuf:"bytes,18,opt,name=recorded_by,json=recordedBy"`
 	xxx_hidden_Resolution       string                 `protobuf:"bytes,19,opt,name=resolution"`
-	xxx_hidden_ResolvedAt       *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=resolved_at,json=resolvedAt"`
+	xxx_hidden_DateResolved     *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=date_resolved,json=dateResolved"`
 	unknownFields               protoimpl.UnknownFields
 	sizeCache                   protoimpl.SizeCache
 }
@@ -480,9 +480,9 @@ func (x *CountFinding) GetExpectedParentId() []byte {
 	return nil
 }
 
-func (x *CountFinding) GetSeenAt() *timestamppb.Timestamp {
+func (x *CountFinding) GetDateSeen() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_SeenAt
+		return x.xxx_hidden_DateSeen
 	}
 	return nil
 }
@@ -501,9 +501,9 @@ func (x *CountFinding) GetResolution() string {
 	return ""
 }
 
-func (x *CountFinding) GetResolvedAt() *timestamppb.Timestamp {
+func (x *CountFinding) GetDateResolved() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ResolvedAt
+		return x.xxx_hidden_DateResolved
 	}
 	return nil
 }
@@ -564,8 +564,8 @@ func (x *CountFinding) SetExpectedParentId(v []byte) {
 	x.xxx_hidden_ExpectedParentId = v
 }
 
-func (x *CountFinding) SetSeenAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_SeenAt = v
+func (x *CountFinding) SetDateSeen(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateSeen = v
 }
 
 func (x *CountFinding) SetRecordedBy(v []byte) {
@@ -579,8 +579,8 @@ func (x *CountFinding) SetResolution(v string) {
 	x.xxx_hidden_Resolution = v
 }
 
-func (x *CountFinding) SetResolvedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ResolvedAt = v
+func (x *CountFinding) SetDateResolved(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateResolved = v
 }
 
 func (x *CountFinding) HasTenant() bool {
@@ -618,18 +618,18 @@ func (x *CountFinding) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *CountFinding) HasSeenAt() bool {
+func (x *CountFinding) HasDateSeen() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_SeenAt != nil
+	return x.xxx_hidden_DateSeen != nil
 }
 
-func (x *CountFinding) HasResolvedAt() bool {
+func (x *CountFinding) HasDateResolved() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ResolvedAt != nil
+	return x.xxx_hidden_DateResolved != nil
 }
 
 func (x *CountFinding) ClearTenant() {
@@ -652,12 +652,12 @@ func (x *CountFinding) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
-func (x *CountFinding) ClearSeenAt() {
-	x.xxx_hidden_SeenAt = nil
+func (x *CountFinding) ClearDateSeen() {
+	x.xxx_hidden_DateSeen = nil
 }
 
-func (x *CountFinding) ClearResolvedAt() {
-	x.xxx_hidden_ResolvedAt = nil
+func (x *CountFinding) ClearDateResolved() {
+	x.xxx_hidden_DateResolved = nil
 }
 
 type CountFinding_builder struct {
@@ -680,11 +680,11 @@ type CountFinding_builder struct {
 	DateCreated      *timestamppb.Timestamp
 	ExpectedParentId []byte
 	// When it was seen, on the device: an offline scan arrives later.
-	SeenAt     *timestamppb.Timestamp
+	DateSeen   *timestamppb.Timestamp
 	RecordedBy []byte
 	// open | moved | lost | ignored
-	Resolution string
-	ResolvedAt *timestamppb.Timestamp
+	Resolution   string
+	DateResolved *timestamppb.Timestamp
 }
 
 func (b0 CountFinding_builder) Build() *CountFinding {
@@ -702,10 +702,10 @@ func (b0 CountFinding_builder) Build() *CountFinding {
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_ExpectedParentId = b.ExpectedParentId
-	x.xxx_hidden_SeenAt = b.SeenAt
+	x.xxx_hidden_DateSeen = b.DateSeen
 	x.xxx_hidden_RecordedBy = b.RecordedBy
 	x.xxx_hidden_Resolution = b.Resolution
-	x.xxx_hidden_ResolvedAt = b.ResolvedAt
+	x.xxx_hidden_DateResolved = b.DateResolved
 	return m0
 }
 
@@ -713,18 +713,18 @@ var File_loft_count_proto protoreflect.FileDescriptor
 
 const file_loft_count_proto_rawDesc = "" +
 	"\n" +
-	"\x10loft/count.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x18loft/payday/tenant.proto\"\xca\x06\n" +
+	"\x10loft/count.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x18loft/payday/tenant.proto\"\xd2\x06\n" +
 	"\x0eInventoryCount\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
 	"\x05scope\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x05scope\x12\x1e\n" +
-	"\x06status\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12B\n" +
-	"\n" +
-	"started_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tstartedAt\x12?\n" +
-	"\tclosed_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bclosedAt\x12'\n" +
+	"\x06status\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12F\n" +
+	"\fdate_started\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateStarted\x12C\n" +
+	"\vdate_closed\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
+	"dateClosed\x12'\n" +
 	"\n" +
 	"started_by\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tstartedBy\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
@@ -746,7 +746,7 @@ const file_loft_count_proto_rawDesc = "" +
 	"\x03ref\x1a\a\n" +
 	"\x05scope\x1a\b\n" +
 	"\x06status 2(\xc8\x01:\x00\"\x16\n" +
-	"\x06tenant\"\fscope.tenant\"\xc9\a\n" +
+	"\x06tenant\"\fscope.tenant\"\xd1\a\n" +
 	"\fCountFinding\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -759,15 +759,14 @@ const file_loft_count_proto_rawDesc = "" +
 	"\x12observed_parent_id\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x10observedParentId\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x126\n" +
-	"\x12expected_parent_id\x18\x10 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x10expectedParentId\x12<\n" +
-	"\aseen_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\x06seenAt\x12)\n" +
+	"\x12expected_parent_id\x18\x10 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x10expectedParentId\x12@\n" +
+	"\tdate_seen\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\bdateSeen\x12)\n" +
 	"\vrecorded_by\x18\x12 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\n" +
 	"recordedBy\x12&\n" +
 	"\n" +
 	"resolution\x18\x13 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\n" +
-	"resolution\x12C\n" +
-	"\vresolved_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"resolvedAt:\xd7\x01\xca\xfc\x15P\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"resolution\x12G\n" +
+	"\rdate_resolved\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\fdateResolved:\xd7\x01\xca\xfc\x15P\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -800,8 +799,8 @@ var file_loft_count_proto_goTypes = []any{
 var file_loft_count_proto_depIdxs = []int32{
 	2,  // 0: loft.InventoryCount.tenant:type_name -> loft.Tenant
 	3,  // 1: loft.InventoryCount.scope:type_name -> loft.Asset
-	4,  // 2: loft.InventoryCount.started_at:type_name -> google.protobuf.Timestamp
-	4,  // 3: loft.InventoryCount.closed_at:type_name -> google.protobuf.Timestamp
+	4,  // 2: loft.InventoryCount.date_started:type_name -> google.protobuf.Timestamp
+	4,  // 3: loft.InventoryCount.date_closed:type_name -> google.protobuf.Timestamp
 	4,  // 4: loft.InventoryCount.date_updated:type_name -> google.protobuf.Timestamp
 	4,  // 5: loft.InventoryCount.date_erased:type_name -> google.protobuf.Timestamp
 	4,  // 6: loft.InventoryCount.date_created:type_name -> google.protobuf.Timestamp
@@ -810,8 +809,8 @@ var file_loft_count_proto_depIdxs = []int32{
 	3,  // 9: loft.CountFinding.asset:type_name -> loft.Asset
 	4,  // 10: loft.CountFinding.date_updated:type_name -> google.protobuf.Timestamp
 	4,  // 11: loft.CountFinding.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 12: loft.CountFinding.seen_at:type_name -> google.protobuf.Timestamp
-	4,  // 13: loft.CountFinding.resolved_at:type_name -> google.protobuf.Timestamp
+	4,  // 12: loft.CountFinding.date_seen:type_name -> google.protobuf.Timestamp
+	4,  // 13: loft.CountFinding.date_resolved:type_name -> google.protobuf.Timestamp
 	14, // [14:14] is the sub-list for method output_type
 	14, // [14:14] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name

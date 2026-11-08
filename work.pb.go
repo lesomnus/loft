@@ -26,27 +26,27 @@ const (
 // WorkOrder is a repair, an inspection or maintenance of an asset. One that
 // blocks takes the asset's time like a reservation does.
 type WorkOrder struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Name        string                 `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Asset       *Asset                 `protobuf:"bytes,8,opt,name=asset"`
-	xxx_hidden_Kind        string                 `protobuf:"bytes,9,opt,name=kind"`
-	xxx_hidden_Status      string                 `protobuf:"bytes,10,opt,name=status"`
-	xxx_hidden_BeginsAt    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=begins_at,json=beginsAt"`
-	xxx_hidden_EndsAt      *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=ends_at,json=endsAt"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_Vendor      *Party                 `protobuf:"bytes,16,opt,name=vendor"`
-	xxx_hidden_Cost        int64                  `protobuf:"varint,17,opt,name=cost"`
-	xxx_hidden_Currency    string                 `protobuf:"bytes,18,opt,name=currency"`
-	xxx_hidden_CompletedAt *timestamppb.Timestamp `protobuf:"bytes,19,opt,name=completed_at,json=completedAt"`
-	xxx_hidden_Blocking    bool                   `protobuf:"varint,20,opt,name=blocking"`
-	xxx_hidden_EveryDays   int32                  `protobuf:"varint,21,opt,name=every_days,json=everyDays"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant        *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Name          string                 `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc          string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Asset         *Asset                 `protobuf:"bytes,8,opt,name=asset"`
+	xxx_hidden_Kind          string                 `protobuf:"bytes,9,opt,name=kind"`
+	xxx_hidden_Status        string                 `protobuf:"bytes,10,opt,name=status"`
+	xxx_hidden_DateStart     *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd       *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_end,json=dateEnd"`
+	xxx_hidden_DateUpdated   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased    *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_Vendor        *Party                 `protobuf:"bytes,16,opt,name=vendor"`
+	xxx_hidden_Cost          int64                  `protobuf:"varint,17,opt,name=cost"`
+	xxx_hidden_Currency      string                 `protobuf:"bytes,18,opt,name=currency"`
+	xxx_hidden_DateCompleted *timestamppb.Timestamp `protobuf:"bytes,19,opt,name=date_completed,json=dateCompleted"`
+	xxx_hidden_Blocking      bool                   `protobuf:"varint,20,opt,name=blocking"`
+	xxx_hidden_EveryDays     int32                  `protobuf:"varint,21,opt,name=every_days,json=everyDays"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *WorkOrder) Reset() {
@@ -123,16 +123,16 @@ func (x *WorkOrder) GetStatus() string {
 	return ""
 }
 
-func (x *WorkOrder) GetBeginsAt() *timestamppb.Timestamp {
+func (x *WorkOrder) GetDateStart() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_BeginsAt
+		return x.xxx_hidden_DateStart
 	}
 	return nil
 }
 
-func (x *WorkOrder) GetEndsAt() *timestamppb.Timestamp {
+func (x *WorkOrder) GetDateEnd() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_EndsAt
+		return x.xxx_hidden_DateEnd
 	}
 	return nil
 }
@@ -179,9 +179,9 @@ func (x *WorkOrder) GetCurrency() string {
 	return ""
 }
 
-func (x *WorkOrder) GetCompletedAt() *timestamppb.Timestamp {
+func (x *WorkOrder) GetDateCompleted() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_CompletedAt
+		return x.xxx_hidden_DateCompleted
 	}
 	return nil
 }
@@ -231,12 +231,12 @@ func (x *WorkOrder) SetStatus(v string) {
 	x.xxx_hidden_Status = v
 }
 
-func (x *WorkOrder) SetBeginsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_BeginsAt = v
+func (x *WorkOrder) SetDateStart(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateStart = v
 }
 
-func (x *WorkOrder) SetEndsAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_EndsAt = v
+func (x *WorkOrder) SetDateEnd(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateEnd = v
 }
 
 func (x *WorkOrder) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -263,8 +263,8 @@ func (x *WorkOrder) SetCurrency(v string) {
 	x.xxx_hidden_Currency = v
 }
 
-func (x *WorkOrder) SetCompletedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_CompletedAt = v
+func (x *WorkOrder) SetDateCompleted(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCompleted = v
 }
 
 func (x *WorkOrder) SetBlocking(v bool) {
@@ -289,18 +289,18 @@ func (x *WorkOrder) HasAsset() bool {
 	return x.xxx_hidden_Asset != nil
 }
 
-func (x *WorkOrder) HasBeginsAt() bool {
+func (x *WorkOrder) HasDateStart() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_BeginsAt != nil
+	return x.xxx_hidden_DateStart != nil
 }
 
-func (x *WorkOrder) HasEndsAt() bool {
+func (x *WorkOrder) HasDateEnd() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_EndsAt != nil
+	return x.xxx_hidden_DateEnd != nil
 }
 
 func (x *WorkOrder) HasDateUpdated() bool {
@@ -331,11 +331,11 @@ func (x *WorkOrder) HasVendor() bool {
 	return x.xxx_hidden_Vendor != nil
 }
 
-func (x *WorkOrder) HasCompletedAt() bool {
+func (x *WorkOrder) HasDateCompleted() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_CompletedAt != nil
+	return x.xxx_hidden_DateCompleted != nil
 }
 
 func (x *WorkOrder) ClearTenant() {
@@ -346,12 +346,12 @@ func (x *WorkOrder) ClearAsset() {
 	x.xxx_hidden_Asset = nil
 }
 
-func (x *WorkOrder) ClearBeginsAt() {
-	x.xxx_hidden_BeginsAt = nil
+func (x *WorkOrder) ClearDateStart() {
+	x.xxx_hidden_DateStart = nil
 }
 
-func (x *WorkOrder) ClearEndsAt() {
-	x.xxx_hidden_EndsAt = nil
+func (x *WorkOrder) ClearDateEnd() {
+	x.xxx_hidden_DateEnd = nil
 }
 
 func (x *WorkOrder) ClearDateUpdated() {
@@ -370,8 +370,8 @@ func (x *WorkOrder) ClearVendor() {
 	x.xxx_hidden_Vendor = nil
 }
 
-func (x *WorkOrder) ClearCompletedAt() {
-	x.xxx_hidden_CompletedAt = nil
+func (x *WorkOrder) ClearDateCompleted() {
+	x.xxx_hidden_DateCompleted = nil
 }
 
 type WorkOrder_builder struct {
@@ -391,8 +391,8 @@ type WorkOrder_builder struct {
 	Kind string
 	// open | scheduled | in_progress | done | cancelled
 	Status      string
-	BeginsAt    *timestamppb.Timestamp
-	EndsAt      *timestamppb.Timestamp
+	DateStart   *timestamppb.Timestamp
+	DateEnd     *timestamppb.Timestamp
 	DateUpdated *timestamppb.Timestamp
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
@@ -400,9 +400,9 @@ type WorkOrder_builder struct {
 	// In `currency`'s minor unit, as every amount is: won for KRW, cents for USD.
 	Cost int64
 	// ISO 4217. A new one is priced in the workspace's.
-	Currency    string
-	CompletedAt *timestamppb.Timestamp
-	Blocking    bool
+	Currency      string
+	DateCompleted *timestamppb.Timestamp
+	Blocking      bool
 	// For a recurring inspection: how many days after this one the next is due.
 	EveryDays int32
 }
@@ -418,15 +418,15 @@ func (b0 WorkOrder_builder) Build() *WorkOrder {
 	x.xxx_hidden_Asset = b.Asset
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_Status = b.Status
-	x.xxx_hidden_BeginsAt = b.BeginsAt
-	x.xxx_hidden_EndsAt = b.EndsAt
+	x.xxx_hidden_DateStart = b.DateStart
+	x.xxx_hidden_DateEnd = b.DateEnd
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_Vendor = b.Vendor
 	x.xxx_hidden_Cost = b.Cost
 	x.xxx_hidden_Currency = b.Currency
-	x.xxx_hidden_CompletedAt = b.CompletedAt
+	x.xxx_hidden_DateCompleted = b.DateCompleted
 	x.xxx_hidden_Blocking = b.Blocking
 	x.xxx_hidden_EveryDays = b.EveryDays
 	return m0
@@ -434,23 +434,23 @@ func (b0 WorkOrder_builder) Build() *WorkOrder {
 
 // Purchase is where assets and stock came from, and what they cost.
 type Purchase struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Name        string                 `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Vendor      *Party                 `protobuf:"bytes,8,opt,name=vendor"`
-	xxx_hidden_Reference   string                 `protobuf:"bytes,9,opt,name=reference"`
-	xxx_hidden_Status      string                 `protobuf:"bytes,10,opt,name=status"`
-	xxx_hidden_OrderedAt   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=ordered_at,json=orderedAt"`
-	xxx_hidden_ReceivedAt  *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=received_at,json=receivedAt"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_Currency    string                 `protobuf:"bytes,16,opt,name=currency"`
-	xxx_hidden_Total       int64                  `protobuf:"varint,17,opt,name=total"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant       *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Name         string                 `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc         string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Vendor       *Party                 `protobuf:"bytes,8,opt,name=vendor"`
+	xxx_hidden_Reference    string                 `protobuf:"bytes,9,opt,name=reference"`
+	xxx_hidden_Status       string                 `protobuf:"bytes,10,opt,name=status"`
+	xxx_hidden_DateOrdered  *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_ordered,json=dateOrdered"`
+	xxx_hidden_DateReceived *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_received,json=dateReceived"`
+	xxx_hidden_DateUpdated  *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased   *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_Currency     string                 `protobuf:"bytes,16,opt,name=currency"`
+	xxx_hidden_Total        int64                  `protobuf:"varint,17,opt,name=total"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *Purchase) Reset() {
@@ -527,16 +527,16 @@ func (x *Purchase) GetStatus() string {
 	return ""
 }
 
-func (x *Purchase) GetOrderedAt() *timestamppb.Timestamp {
+func (x *Purchase) GetDateOrdered() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_OrderedAt
+		return x.xxx_hidden_DateOrdered
 	}
 	return nil
 }
 
-func (x *Purchase) GetReceivedAt() *timestamppb.Timestamp {
+func (x *Purchase) GetDateReceived() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_ReceivedAt
+		return x.xxx_hidden_DateReceived
 	}
 	return nil
 }
@@ -607,12 +607,12 @@ func (x *Purchase) SetStatus(v string) {
 	x.xxx_hidden_Status = v
 }
 
-func (x *Purchase) SetOrderedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OrderedAt = v
+func (x *Purchase) SetDateOrdered(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOrdered = v
 }
 
-func (x *Purchase) SetReceivedAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ReceivedAt = v
+func (x *Purchase) SetDateReceived(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateReceived = v
 }
 
 func (x *Purchase) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -649,18 +649,18 @@ func (x *Purchase) HasVendor() bool {
 	return x.xxx_hidden_Vendor != nil
 }
 
-func (x *Purchase) HasOrderedAt() bool {
+func (x *Purchase) HasDateOrdered() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_OrderedAt != nil
+	return x.xxx_hidden_DateOrdered != nil
 }
 
-func (x *Purchase) HasReceivedAt() bool {
+func (x *Purchase) HasDateReceived() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_ReceivedAt != nil
+	return x.xxx_hidden_DateReceived != nil
 }
 
 func (x *Purchase) HasDateUpdated() bool {
@@ -692,12 +692,12 @@ func (x *Purchase) ClearVendor() {
 	x.xxx_hidden_Vendor = nil
 }
 
-func (x *Purchase) ClearOrderedAt() {
-	x.xxx_hidden_OrderedAt = nil
+func (x *Purchase) ClearDateOrdered() {
+	x.xxx_hidden_DateOrdered = nil
 }
 
-func (x *Purchase) ClearReceivedAt() {
-	x.xxx_hidden_ReceivedAt = nil
+func (x *Purchase) ClearDateReceived() {
+	x.xxx_hidden_DateReceived = nil
 }
 
 func (x *Purchase) ClearDateUpdated() {
@@ -728,12 +728,12 @@ type Purchase_builder struct {
 	// The vendor's order's number.
 	Reference string
 	// ordered | received | cancelled
-	Status      string
-	OrderedAt   *timestamppb.Timestamp
-	ReceivedAt  *timestamppb.Timestamp
-	DateUpdated *timestamppb.Timestamp
-	DateErased  *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
+	Status       string
+	DateOrdered  *timestamppb.Timestamp
+	DateReceived *timestamppb.Timestamp
+	DateUpdated  *timestamppb.Timestamp
+	DateErased   *timestamppb.Timestamp
+	DateCreated  *timestamppb.Timestamp
 	// ISO 4217, of the purchase and its lines. A new one is priced in the
 	// workspace's.
 	Currency string
@@ -752,8 +752,8 @@ func (b0 Purchase_builder) Build() *Purchase {
 	x.xxx_hidden_Vendor = b.Vendor
 	x.xxx_hidden_Reference = b.Reference
 	x.xxx_hidden_Status = b.Status
-	x.xxx_hidden_OrderedAt = b.OrderedAt
-	x.xxx_hidden_ReceivedAt = b.ReceivedAt
+	x.xxx_hidden_DateOrdered = b.DateOrdered
+	x.xxx_hidden_DateReceived = b.DateReceived
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
@@ -1025,7 +1025,7 @@ var File_loft_work_proto protoreflect.FileDescriptor
 
 const file_loft_work_proto_rawDesc = "" +
 	"\n" +
-	"\x0floft/work.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x12loft/catalog.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xf0\a\n" +
+	"\x0floft/work.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x12loft/catalog.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xf8\a\n" +
 	"\tWorkOrder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -1034,17 +1034,18 @@ const file_loft_work_proto_rawDesc = "" +
 	"\x05asset\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12\x1a\n" +
 	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12\x1e\n" +
 	"\x06status\x18\n" +
-	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12?\n" +
-	"\tbegins_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bbeginsAt\x12;\n" +
-	"\aends_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x06endsAt\x12F\n" +
+	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12A\n" +
+	"\n" +
+	"date_start\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\tdateStart\x12=\n" +
+	"\bdate_end\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\adateEnd\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12+\n" +
 	"\x06vendor\x18\x10 \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12\x12\n" +
 	"\x04cost\x18\x11 \x01(\x03R\x04cost\x12\"\n" +
-	"\bcurrency\x18\x12 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\bcurrency\x12E\n" +
-	"\fcompleted_at\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vcompletedAt\x12\x1a\n" +
+	"\bcurrency\x18\x12 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\bcurrency\x12I\n" +
+	"\x0edate_completed\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\rdateCompleted\x12\x1a\n" +
 	"\bblocking\x18\x14 \x01(\bR\bblocking\x12\x1d\n" +
 	"\n" +
 	"every_days\x18\x15 \x01(\x05R\teveryDays:\xbb\x01\xca\xfc\x15F\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
@@ -1064,7 +1065,7 @@ const file_loft_work_proto_rawDesc = "" +
 	"\x06status\x1a\x06\n" +
 	"\x04kind\x1a\b\n" +
 	"\x06vendor d(\xf4\x03:\x00\"\x16\n" +
-	"\x06tenant\"\fasset.tenant\"\x9b\x06\n" +
+	"\x06tenant\"\fasset.tenant\"\xa3\x06\n" +
 	"\bPurchase\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -1073,11 +1074,9 @@ const file_loft_work_proto_rawDesc = "" +
 	"\x06vendor\x18\b \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12$\n" +
 	"\treference\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\treference\x12\x1e\n" +
 	"\x06status\x18\n" +
-	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12B\n" +
-	"\n" +
-	"ordered_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\torderedAt\x12C\n" +
-	"\vreceived_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"receivedAt\x12F\n" +
+	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12F\n" +
+	"\fdate_ordered\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateOrdered\x12G\n" +
+	"\rdate_received\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\fdateReceived\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
@@ -1143,17 +1142,17 @@ var file_loft_work_proto_goTypes = []any{
 var file_loft_work_proto_depIdxs = []int32{
 	3,  // 0: loft.WorkOrder.tenant:type_name -> loft.Tenant
 	4,  // 1: loft.WorkOrder.asset:type_name -> loft.Asset
-	5,  // 2: loft.WorkOrder.begins_at:type_name -> google.protobuf.Timestamp
-	5,  // 3: loft.WorkOrder.ends_at:type_name -> google.protobuf.Timestamp
+	5,  // 2: loft.WorkOrder.date_start:type_name -> google.protobuf.Timestamp
+	5,  // 3: loft.WorkOrder.date_end:type_name -> google.protobuf.Timestamp
 	5,  // 4: loft.WorkOrder.date_updated:type_name -> google.protobuf.Timestamp
 	5,  // 5: loft.WorkOrder.date_erased:type_name -> google.protobuf.Timestamp
 	5,  // 6: loft.WorkOrder.date_created:type_name -> google.protobuf.Timestamp
 	6,  // 7: loft.WorkOrder.vendor:type_name -> loft.Party
-	5,  // 8: loft.WorkOrder.completed_at:type_name -> google.protobuf.Timestamp
+	5,  // 8: loft.WorkOrder.date_completed:type_name -> google.protobuf.Timestamp
 	3,  // 9: loft.Purchase.tenant:type_name -> loft.Tenant
 	6,  // 10: loft.Purchase.vendor:type_name -> loft.Party
-	5,  // 11: loft.Purchase.ordered_at:type_name -> google.protobuf.Timestamp
-	5,  // 12: loft.Purchase.received_at:type_name -> google.protobuf.Timestamp
+	5,  // 11: loft.Purchase.date_ordered:type_name -> google.protobuf.Timestamp
+	5,  // 12: loft.Purchase.date_received:type_name -> google.protobuf.Timestamp
 	5,  // 13: loft.Purchase.date_updated:type_name -> google.protobuf.Timestamp
 	5,  // 14: loft.Purchase.date_erased:type_name -> google.protobuf.Timestamp
 	5,  // 15: loft.Purchase.date_created:type_name -> google.protobuf.Timestamp

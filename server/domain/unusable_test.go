@@ -213,7 +213,7 @@ func TestAKitOrAGroupOutOfUseIsNotPickedUp(t *testing.T) {
 	pickup := func(r *app.Reservation, a *app.Asset) error {
 		_, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
 			Party:         ref[app.PartyRef](party.GetId()),
-			DueAt:         timestamppb.New(e.now.Add(3 * time.Hour)),
+			DateDue:       timestamppb.New(e.now.Add(3 * time.Hour)),
 			ReservationId: r.GetId(),
 			Lines:         []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(a)}.Build()},
 		}.Build())

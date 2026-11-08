@@ -154,8 +154,8 @@ func (t *Tx) heldAs(c *ent.Custody, thing uuid.UUID) (time.Time, uint32, error) 
 	if b != nil {
 		units = max(b.Units, 1)
 	}
-	if c.Kind == "loan" && c.DueAt != nil && c.DueAt.After(t.now) {
-		end = moment(*c.DueAt)
+	if c.Kind == "loan" && c.DateDue != nil && c.DateDue.After(t.now) {
+		end = moment(*c.DateDue)
 		if b != nil {
 			end = end.Add(time.Duration(b.BufferAfter) * time.Minute)
 		}
@@ -204,14 +204,14 @@ func (t *Tx) hold(c *ent.Custody, things []uuid.UUID, from time.Time) error {
 			return err
 		}
 		if _, err := t.next.Allocation().Add(t.ctx, app.AllocationAddRequest_builder{
-			Tenant:   t.tenantRef(),
-			Resource: assetRef(v),
-			Kind:     allocCustody,
-			RefId:    pdid.Id(c.Id).Bytes(),
-			BeginsAt: ts(from),
-			EndsAt:   ts(end),
-			Blocking: true,
-			Units:    units,
+			Tenant:    t.tenantRef(),
+			Resource:  assetRef(v),
+			Kind:      allocCustody,
+			RefId:     pdid.Id(c.Id).Bytes(),
+			DateStart: ts(from),
+			DateEnd:   ts(end),
+			Blocking:  true,
+			Units:     units,
 		}.Build()); err != nil {
 			return err
 		}
@@ -237,22 +237,22 @@ func (t *Tx) rehold(c *ent.Custody) error {
 		if err != nil {
 			return err
 		}
-		if end.Equal(a.EndsAt) {
+		if end.Equal(a.DateEnd) {
 			continue
 		}
 		if _, err := t.next.Allocation().Patch(t.ctx, app.AllocationPatchRequest_builder{
 			Ref:              app.AllocationRef_builder{Id: pdid.Id(a.Id).Bytes()}.Build(),
-			EndsAt:           ts(end),
+			DateEnd:          ts(end),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build()); err != nil {
 			return err
 		}
-		if end.After(a.EndsAt) {
-			took = append(took, outSpan{thing: a.ResourceId, from: later(a.EndsAt, t.now), to: end})
+		if end.After(a.DateEnd) {
+			took = append(took, outSpan{thing: a.ResourceId, from: later(a.DateEnd, t.now), to: end})
 			continue
 		}
 		freed = append(freed, a)
-		let = append(let, outSpan{thing: a.ResourceId, from: later(end, t.now), to: a.EndsAt})
+		let = append(let, outSpan{thing: a.ResourceId, from: later(end, t.now), to: a.DateEnd})
 	}
 	if err := t.taken(c, took); err != nil {
 		return err
@@ -286,20 +286,20 @@ func (t *Tx) letGo(c *ent.Custody, back, out []uuid.UUID, at time.Time) error {
 		// It was out until it came back, and holds no more of the time
 		// after: a return said to have been before it went out ends it as
 		// it began.
-		end := later(at, a.BeginsAt)
-		if end.After(a.EndsAt) {
-			end = a.EndsAt
+		end := later(at, a.DateStart)
+		if end.After(a.DateEnd) {
+			end = a.DateEnd
 		}
 		if _, err := t.next.Allocation().Patch(t.ctx, app.AllocationPatchRequest_builder{
 			Ref:              app.AllocationRef_builder{Id: pdid.Id(a.Id).Bytes()}.Build(),
-			EndsAt:           ts(end),
+			DateEnd:          ts(end),
 			Blocking:         z.Ptr(false),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build()); err != nil {
 			return err
 		}
 		freed = append(freed, a)
-		let = append(let, outSpan{thing: a.ResourceId, from: later(end, t.now), to: a.EndsAt})
+		let = append(let, outSpan{thing: a.ResourceId, from: later(end, t.now), to: a.DateEnd})
 	}
 	return t.released(c, freed, let, true)
 }
@@ -361,7 +361,7 @@ func (t *Tx) takers(ss []outSpan) (map[uuid.UUID][]*ent.Reservation, error) {
 		allocation.ResourceIdIn(things...),
 		allocation.KindIn(takes...),
 		allocation.RefIdNotNil(),
-		allocation.EndsAtGT(t.now),
+		allocation.DateEndGT(t.now),
 	).All(t.ctx)
 	if err != nil || len(as) == 0 {
 		return nil, err
@@ -370,7 +370,7 @@ func (t *Tx) takers(ss []outSpan) (map[uuid.UUID][]*ent.Reservation, error) {
 	refs := []uuid.UUID{}
 	for _, a := range as {
 		if !slices.ContainsFunc(ss, func(s outSpan) bool {
-			return s.thing == a.ResourceId && a.BeginsAt.Before(s.to) && a.EndsAt.After(s.from)
+			return s.thing == a.ResourceId && a.DateStart.Before(s.to) && a.DateEnd.After(s.from)
 		}) {
 			continue
 		}
@@ -384,9 +384,9 @@ func (t *Tx) takers(ss []outSpan) (map[uuid.UUID][]*ent.Reservation, error) {
 		reservation.TenantId(t.tenant.Uuid()),
 		reservation.IdIn(refs...),
 		reservation.StatusIn(resHeld, resRequested, resConfirmed),
-		reservation.EndsAtGT(t.now),
+		reservation.DateEndGT(t.now),
 		reservation.DateErasedIsNil(),
-	).Order(reservation.ByBeginsAt(), reservation.ById()).All(t.ctx)
+	).Order(reservation.ByDateStart(), reservation.ById()).All(t.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -410,7 +410,7 @@ func (t *Tx) takers(ss []outSpan) (map[uuid.UUID][]*ent.Reservation, error) {
 func (t *Tx) outOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationOut, error) {
 	ids := []uuid.UUID{}
 	for _, r := range rs {
-		if waits(r.Status) && r.EndsAt.After(t.now) {
+		if waits(r.Status) && r.DateEnd.After(t.now) {
 			ids = append(ids, r.Id)
 		}
 	}
@@ -431,7 +431,7 @@ func (t *Tx) outOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationOut, 
 		allocation.ResourceIdIn(things...),
 		allocation.Kind(allocCustody),
 		allocation.Blocking(true),
-		allocation.EndsAtGT(t.now),
+		allocation.DateEndGT(t.now),
 	).All(t.ctx)
 	if err != nil || len(hs) == 0 {
 		return nil, err
@@ -442,14 +442,14 @@ func (t *Tx) outOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationOut, 
 	order := [][2]uuid.UUID{}
 	for _, a := range as {
 		for _, h := range hs {
-			if h.ResourceId != a.ResourceId || !h.BeginsAt.Before(a.EndsAt) || !h.EndsAt.After(a.BeginsAt) {
+			if h.ResourceId != a.ResourceId || !h.DateStart.Before(a.DateEnd) || !h.DateEnd.After(a.DateStart) {
 				continue
 			}
 			k := [2]uuid.UUID{*a.RefId, a.ResourceId}
 			if v, ok := held[k]; !ok {
 				order = append(order, k)
 				held[k] = h
-			} else if h.EndsAt.After(v.EndsAt) {
+			} else if h.DateEnd.After(v.DateEnd) {
 				held[k] = h
 			}
 		}
@@ -493,8 +493,8 @@ func (t *Tx) outOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationOut, 
 			Kind:         c.Kind,
 			Overdue:      t.late(c),
 		}.Build()
-		if c.Kind == "loan" && c.DueAt != nil {
-			v.SetDueAt(ts(*c.DueAt))
+		if c.Kind == "loan" && c.DateDue != nil {
+			v.SetDateDue(ts(*c.DateDue))
 		}
 		out[k[0]] = append(out[k[0]], v)
 	}
@@ -508,7 +508,7 @@ func (t *Tx) outOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationOut, 
 
 // late says whether `c` is a loan past its due that is not all back.
 func (t *Tx) late(c *ent.Custody) bool {
-	return c.Status == "open" && c.Kind == "loan" && c.DueAt != nil && c.DueAt.Before(t.now)
+	return c.Status == "open" && c.Kind == "loan" && c.DateDue != nil && c.DateDue.Before(t.now)
 }
 
 // outSay is how a hand-over has a thing out, as a notice says it: lent until
@@ -522,9 +522,9 @@ type outSay struct {
 func (t *Tx) outSayOf(c *ent.Custody) outSay {
 	switch {
 	case t.late(c):
-		return outSay{"연체", fmt.Sprintf("대여의 반납 기한(%s)이 지났는데 아직 돌아오지 않아 돌아올 때까지", t.when(*c.DueAt)), "돌아오는 대로"}
-	case c.Kind == "loan" && c.DueAt != nil:
-		return outSay{"대여", fmt.Sprintf("%s까지 대여되어 그때까지", t.when(*c.DueAt)), "그 전에 돌아오면"}
+		return outSay{"연체", fmt.Sprintf("대여의 반납 기한(%s)이 지났는데 아직 돌아오지 않아 돌아올 때까지", t.when(*c.DateDue)), "돌아오는 대로"}
+	case c.Kind == "loan" && c.DateDue != nil:
+		return outSay{"대여", fmt.Sprintf("%s까지 대여되어 그때까지", t.when(*c.DateDue)), "그 전에 돌아오면"}
 	}
 	return outSay{"지급", "지급되어 반납될 때까지", "반납되면"}
 }
@@ -558,7 +558,7 @@ func (t *Tx) tellOut(c *ent.Custody, by map[uuid.UUID][]*ent.Reservation) error 
 		}
 		if err := eachParty(rs, func(first *ent.Reservation, title string) error {
 			return t.notifyParty(first.PartyId, "reservation.out", fmt.Sprintf("예약 자산 %s: %s", say.word, title),
-				fmt.Sprintf("%s 예약이 잡은 %s은(는) %s 나가 있습니다. %s 수령할 때 건넵니다. 돌아오면 알려 드립니다.", t.when(first.BeginsAt), tagged(a), say.until, say.back),
+				fmt.Sprintf("%s 예약이 잡은 %s은(는) %s 나가 있습니다. %s 수령할 때 건넵니다. 돌아오면 알려 드립니다.", t.when(first.DateStart), tagged(a), say.until, say.back),
 				pdid.Id(first.Id), "/reservations?tab=mine")
 		}); err != nil {
 			return err
@@ -602,11 +602,11 @@ func (t *Tx) tellBack(c *ent.Custody, let []outSpan, back bool) error {
 		if err := eachParty(rs, func(first *ent.Reservation, title string) error {
 			if back {
 				return t.notifyParty(first.PartyId, "reservation.resolved", "예약 자산 돌아옴: "+title,
-					fmt.Sprintf("%s 예약이 잡은 %s이(가) 돌아와 수령할 때 건넵니다.", t.when(first.BeginsAt), tagged(a)),
+					fmt.Sprintf("%s 예약이 잡은 %s이(가) 돌아와 수령할 때 건넵니다.", t.when(first.DateStart), tagged(a)),
 					pdid.Id(first.Id), "/reservations?tab=mine")
 			}
 			return t.notifyParty(first.PartyId, "reservation.resolved", "예약 자산 반납 기한 앞당겨짐: "+title,
-				fmt.Sprintf("%s 예약이 잡은 %s은(는) 반납 기한이 %s(으)로 바뀌어, 그 전에 돌아오기로 했습니다.", t.when(first.BeginsAt), tagged(a), t.when(*c.DueAt)),
+				fmt.Sprintf("%s 예약이 잡은 %s은(는) 반납 기한이 %s(으)로 바뀌어, 그 전에 돌아오기로 했습니다.", t.when(first.DateStart), tagged(a), t.when(*c.DateDue)),
 				pdid.Id(first.Id), "/reservations?tab=mine")
 		}); err != nil {
 			return err
@@ -624,7 +624,7 @@ func (t *Tx) waitedFor(c *ent.Custody) (bool, error) {
 	}
 	ss := make([]outSpan, 0, len(hs))
 	for _, h := range hs {
-		ss = append(ss, outSpan{thing: h.ResourceId, from: t.now, to: h.EndsAt})
+		ss = append(ss, outSpan{thing: h.ResourceId, from: t.now, to: h.DateEnd})
 	}
 	by, err := t.takers(ss)
 	return len(by) > 0, err
@@ -644,12 +644,12 @@ func heldOut(as []*ent.Allocation, thing uuid.UUID) *ent.Allocation {
 // outRefusal is the refusal of a booking of `a` over `h`, what a hand-over of
 // it holds: until when, for the person booking to choose another time.
 func (t *Tx) outRefusal(a *ent.Asset, h *ent.Allocation) error {
-	if h.EndsAt.Before(forever) {
-		return status.Errorf(codes.Aborted, "%s은(는) %s까지 대여 중이라 그 전에는 예약할 수 없습니다. 다른 시간을 고르세요", a.Name, t.when(h.EndsAt))
+	if h.DateEnd.Before(forever) {
+		return status.Errorf(codes.Aborted, "%s은(는) %s까지 대여 중이라 그 전에는 예약할 수 없습니다. 다른 시간을 고르세요", a.Name, t.when(h.DateEnd))
 	}
 	if h.RefId != nil {
 		if c, err := t.custodyOf(*h.RefId); err == nil && t.late(c) {
-			return status.Errorf(codes.Aborted, "%s은(는) 대여의 반납 기한(%s)이 지났는데 아직 돌아오지 않아, 돌아오기 전에는 예약할 수 없습니다", a.Name, t.when(*c.DueAt))
+			return status.Errorf(codes.Aborted, "%s은(는) 대여의 반납 기한(%s)이 지났는데 아직 돌아오지 않아, 돌아오기 전에는 예약할 수 없습니다", a.Name, t.when(*c.DateDue))
 		}
 	}
 	return status.Errorf(codes.Aborted, "%s은(는) 지급되어 반납되기 전에는 예약할 수 없습니다", a.Name)
@@ -682,7 +682,7 @@ func unheldIn(ctx context.Context, db *ent.Client, tenant uuid.UUID) (map[uuid.U
 	ls, err := db.CustodyLine.Query().Where(
 		custodyline.TenantId(tenant),
 		custodyline.AssetIdNotNil(),
-		custodyline.ReturnedAtIsNil(),
+		custodyline.DateReturnedIsNil(),
 		custodyline.HasCustodyWith(custody.Status("open"), custody.DateErasedIsNil()),
 	).All(ctx)
 	if err != nil || len(ls) == 0 {
@@ -758,7 +758,7 @@ func holdOut(t *Tx) (int, error) {
 		if err != nil {
 			return 0, err
 		}
-		if err := t.hold(c, out[k], c.IssuedAt); err != nil {
+		if err := t.hold(c, out[k], c.DateIssued); err != nil {
 			return 0, err
 		}
 		after, err := t.holdsOf(k)

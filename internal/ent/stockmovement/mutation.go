@@ -21,7 +21,7 @@ type Mutation struct {
 	adddelta      *int64
 	reason        *string
 	ref_id        *uuid.UUID
-	occurred_at   *time.Time
+	date_occurred *time.Time
 	date_updated  *time.Time
 	date_created  *time.Time
 	event_id      *uuid.UUID
@@ -148,40 +148,40 @@ func (m *Mutation) ResetRefId() {
 	delete(m.exprs, FieldRefId)
 }
 
-// SetOccurredAt sets the "occurred_at" field.
-func (m *Mutation) SetOccurredAt(t time.Time) {
-	m.occurred_at = &t
-	delete(m.clearedFields, FieldOccurredAt)
-	delete(m.exprs, FieldOccurredAt)
+// SetDateOccurred sets the "date_occurred" field.
+func (m *Mutation) SetDateOccurred(t time.Time) {
+	m.date_occurred = &t
+	delete(m.clearedFields, FieldDateOccurred)
+	delete(m.exprs, FieldDateOccurred)
 }
 
-// OccurredAt returns the value of the "occurred_at" field in the mutation.
-func (m *Mutation) OccurredAt() (r time.Time, exists bool) {
-	v := m.occurred_at
+// DateOccurred returns the value of the "date_occurred" field in the mutation.
+func (m *Mutation) DateOccurred() (r time.Time, exists bool) {
+	v := m.date_occurred
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearOccurredAt clears the value of the "occurred_at" field.
-func (m *Mutation) ClearOccurredAt() {
-	m.occurred_at = nil
-	delete(m.exprs, FieldOccurredAt)
-	m.clearedFields[FieldOccurredAt] = struct{}{}
+// ClearDateOccurred clears the value of the "date_occurred" field.
+func (m *Mutation) ClearDateOccurred() {
+	m.date_occurred = nil
+	delete(m.exprs, FieldDateOccurred)
+	m.clearedFields[FieldDateOccurred] = struct{}{}
 }
 
-// OccurredAtCleared returns if the "occurred_at" field was cleared in this mutation.
-func (m *Mutation) OccurredAtCleared() bool {
-	_, ok := m.clearedFields[FieldOccurredAt]
+// DateOccurredCleared returns if the "date_occurred" field was cleared in this mutation.
+func (m *Mutation) DateOccurredCleared() bool {
+	_, ok := m.clearedFields[FieldDateOccurred]
 	return ok
 }
 
-// ResetOccurredAt resets all changes to the "occurred_at" field.
-func (m *Mutation) ResetOccurredAt() {
-	m.occurred_at = nil
-	delete(m.clearedFields, FieldOccurredAt)
-	delete(m.exprs, FieldOccurredAt)
+// ResetDateOccurred resets all changes to the "date_occurred" field.
+func (m *Mutation) ResetDateOccurred() {
+	m.date_occurred = nil
+	delete(m.clearedFields, FieldDateOccurred)
+	delete(m.exprs, FieldDateOccurred)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -436,8 +436,8 @@ func (m *Mutation) Fields() []string {
 	if m.ref_id != nil || m.exprs[FieldRefId] != nil {
 		fields = append(fields, FieldRefId)
 	}
-	if m.occurred_at != nil || m.exprs[FieldOccurredAt] != nil {
-		fields = append(fields, FieldOccurredAt)
+	if m.date_occurred != nil || m.exprs[FieldDateOccurred] != nil {
+		fields = append(fields, FieldDateOccurred)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -477,8 +477,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Reason()
 	case FieldRefId:
 		return m.RefId()
-	case FieldOccurredAt:
-		return m.OccurredAt()
+	case FieldDateOccurred:
+		return m.DateOccurred()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateCreated:
@@ -540,7 +540,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRefId(v)
 		return nil
-	case FieldOccurredAt:
+	case FieldDateOccurred:
 		v, ok := value.(time.Time)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -548,7 +548,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetOccurredAt(v)
+		m.SetDateOccurred(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -638,8 +638,8 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetReason()
 	case FieldRefId:
 		m.ResetRefId()
-	case FieldOccurredAt:
-		m.ResetOccurredAt()
+	case FieldDateOccurred:
+		m.ResetDateOccurred()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateCreated:
@@ -682,8 +682,8 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldRefId]; ok {
 		fields = append(fields, FieldRefId)
 	}
-	if _, ok := m.exprs[FieldOccurredAt]; ok {
-		fields = append(fields, FieldOccurredAt)
+	if _, ok := m.exprs[FieldDateOccurred]; ok {
+		fields = append(fields, FieldDateOccurred)
 	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
@@ -753,8 +753,8 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldRefId) {
 		fields = append(fields, FieldRefId)
 	}
-	if m.FieldCleared(FieldOccurredAt) {
-		fields = append(fields, FieldOccurredAt)
+	if m.FieldCleared(FieldDateOccurred) {
+		fields = append(fields, FieldDateOccurred)
 	}
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
@@ -776,8 +776,8 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldRefId:
 		m.ClearRefId()
 		return nil
-	case FieldOccurredAt:
-		m.ClearOccurredAt()
+	case FieldDateOccurred:
+		m.ClearDateOccurred()
 		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
@@ -799,8 +799,8 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldRefId:
 		m.ResetRefId()
 		return nil
-	case FieldOccurredAt:
-		m.ResetOccurredAt()
+	case FieldDateOccurred:
+		m.ResetDateOccurred()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()

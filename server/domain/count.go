@@ -59,7 +59,7 @@ func (s domainCount) Add(ctx context.Context, req *app.InventoryCountAddRequest)
 			Desc:        req.GetDesc(),
 			Scope:       req.GetScope(),
 			Status:      "open",
-			StartedAt:   ts(t.now),
+			DateStarted: ts(t.now),
 			StartedBy:   t.actor.Bytes(),
 			SelfService: req.GetSelfService(),
 		}.Build())
@@ -88,7 +88,7 @@ func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanReques
 		if !c.GetSelfService() && !manages(t.roleOf()) {
 			return status.Error(codes.PermissionDenied, "이 실사는 매니저만 스캔합니다. 자가 실사에서는 누구나 스캔할 수 있습니다")
 		}
-		seen, err := t.at(req.GetSeenAt(), "seen_at")
+		seen, err := t.at(req.GetDateSeen(), "date_seen")
 		if err != nil {
 			return err
 		}
@@ -156,7 +156,7 @@ func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanReques
 			Desc:             req.GetNote(),
 			Count:            app.InventoryCountRef_builder{Id: c.GetId()}.Build(),
 			ObservedParentId: where.Bytes(),
-			SeenAt:           ts(seen),
+			DateSeen:         ts(seen),
 			RecordedBy:       t.actor.Bytes(),
 			Resolution:       "open",
 		}.Build()
@@ -195,7 +195,7 @@ func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanReques
 				Ref:              app.CountFindingRef_builder{Id: pdid.Id(prev.Id).Bytes()}.Build(),
 				Kind:             z.Ptr(kind),
 				ObservedParentId: where.Bytes(),
-				SeenAt:           ts(seen),
+				DateSeen:         ts(seen),
 				Resolution:       z.Ptr(row.GetResolution()),
 				DateUpdatedForce: z.Ptr(true),
 			}.Build())
@@ -320,7 +320,7 @@ func (s domainCount) Reconcile(ctx context.Context, req *app.InventoryCountRecon
 				Count:      app.InventoryCountRef_builder{Id: c.GetId()}.Build(),
 				Asset:      assetRef(a.Id),
 				Kind:       "missing",
-				SeenAt:     ts(t.now),
+				DateSeen:   ts(t.now),
 				RecordedBy: t.actor.Bytes(),
 				Resolution: "open",
 			}.Build()
@@ -375,10 +375,10 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 				return failed("발견된 위치가 있는 것만 옮길 수 있습니다")
 			}
 			if _, err := layer.Asset().Move(t.ctx, app.AssetMoveRequest_builder{
-				Ref:    app.AssetRef_builder{Id: aid.Bytes()}.Build(),
-				To:     app.AssetRef_builder{Id: f.GetObservedParentId()}.Build(),
-				At:     f.GetSeenAt(),
-				Reason: req.GetReason(),
+				Ref:          app.AssetRef_builder{Id: aid.Bytes()}.Build(),
+				To:           app.AssetRef_builder{Id: f.GetObservedParentId()}.Build(),
+				DateOccurred: f.GetDateSeen(),
+				Reason:       req.GetReason(),
 			}.Build()); err != nil {
 				return err
 			}
@@ -405,7 +405,7 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 		out, err = t.next.CountFinding().Patch(t.ctx, app.CountFindingPatchRequest_builder{
 			Ref:              req.GetRef(),
 			Resolution:       z.Ptr(res),
-			ResolvedAt:       ts(t.now),
+			DateResolved:     ts(t.now),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
 		return err
@@ -434,7 +434,7 @@ func (s domainCount) Close(ctx context.Context, req *app.InventoryCountCloseRequ
 		out, err = t.next.InventoryCount().Patch(t.ctx, app.InventoryCountPatchRequest_builder{
 			Ref:              req.GetRef(),
 			Status:           z.Ptr("closed"),
-			ClosedAt:         ts(t.now),
+			DateClosed:       ts(t.now),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
 		return err

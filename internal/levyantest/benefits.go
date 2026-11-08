@@ -47,8 +47,8 @@ func (v *Levyan) Allow(workspace string, a *levyanv1.Allowance) *levyanv1.Allowa
 	if a.GetId() == "" {
 		a.SetId(newId())
 	}
-	if !a.HasFrom() {
-		a.SetFrom(timestamppb.Now())
+	if !a.HasDateEffective() {
+		a.SetDateEffective(timestamppb.Now())
 	}
 
 	v.mu.Lock()
@@ -68,11 +68,11 @@ func (v *Levyan) Pool(workspace string, p *levyanv1.Pool) *levyanv1.Pool {
 	if p.GetId() == "" {
 		p.SetId(newId())
 	}
-	if !p.HasFrom() {
-		p.SetFrom(timestamppb.Now())
+	if !p.HasDateEffective() {
+		p.SetDateEffective(timestamppb.Now())
 	}
-	if !p.HasExpires() {
-		p.SetExpires(timestamppb.New(p.GetFrom().AsTime().AddDate(1, 0, 0)))
+	if !p.HasDateExpires() {
+		p.SetDateExpires(timestamppb.New(p.GetDateEffective().AsTime().AddDate(1, 0, 0)))
 	}
 	if p.GetLeft() == "" {
 		p.SetLeft(decimal(new(big.Rat).SetInt64(p.GetGranted())))
@@ -95,11 +95,11 @@ func (v *Levyan) Credit(c *levyanv1.Credit) *levyanv1.Credit {
 	if c.GetId() == "" {
 		c.SetId(newId())
 	}
-	if !c.HasCreated() {
-		c.SetCreated(timestamppb.Now())
+	if !c.HasDateCreated() {
+		c.SetDateCreated(timestamppb.Now())
 	}
-	if !c.HasExpires() {
-		c.SetExpires(timestamppb.New(c.GetCreated().AsTime().AddDate(1, 0, 0)))
+	if !c.HasDateExpires() {
+		c.SetDateExpires(timestamppb.New(c.GetDateCreated().AsTime().AddDate(1, 0, 0)))
 	}
 	if c.GetLeft() == 0 {
 		c.SetLeft(c.GetGranted())
@@ -135,8 +135,8 @@ func (v *Levyan) Balance(id string, amount int64) {
 // measures at midnight.
 func (v *Levyan) Handed(r *levyanv1.Reading) {
 	r = proto.CloneOf(r)
-	if !r.HasMeasuredAt() {
-		r.SetMeasuredAt(timestamppb.Now())
+	if !r.HasDateMeasured() {
+		r.SetDateMeasured(timestamppb.Now())
 	}
 
 	v.mu.Lock()
@@ -157,14 +157,14 @@ func (v *Levyan) ClosePeriod(workspace string) *levyanv1.Statement {
 	defer v.mu.Unlock()
 	lines, total, took := v.rated(workspace, start, end)
 	st := levyanv1.Statement_builder{
-		Id:        newId(),
-		Workspace: workspace,
-		Period:    levyanv1.Period_builder{Start: timestamppb.New(start), End: timestamppb.New(end), Zone: "Asia/Seoul"}.Build(),
-		Channel:   levyanv1.Channel_CHANNEL_MOR,
-		Currency:  "KRW",
-		Lines:     lines,
-		Total:     total,
-		Closed:    timestamppb.New(now),
+		Id:         newId(),
+		Workspace:  workspace,
+		Period:     levyanv1.Period_builder{DateStart: timestamppb.New(start), DateEnd: timestamppb.New(end), Zone: "Asia/Seoul"}.Build(),
+		Channel:    levyanv1.Channel_CHANNEL_MOR,
+		Currency:   "KRW",
+		Lines:      lines,
+		Total:      total,
+		DateClosed: timestamppb.New(now),
 	}.Build()
 	v.statements[workspace] = append(v.statements[workspace], st)
 	v.paid(st)
@@ -194,11 +194,11 @@ func (v *Levyan) Finalize(ba string, lines ...*levyanv1.InvoiceLine) *levyanv1.I
 	inv := levyanv1.Invoice_builder{
 		Id:             newId(),
 		BillingAccount: ba,
-		Start:          timestamppb.New(start),
-		End:            timestamppb.New(end),
+		DateStart:      timestamppb.New(start),
+		DateEnd:        timestamppb.New(end),
 		Channel:        levyanv1.Channel_CHANNEL_MOR,
 		Currency:       "KRW",
-		Finalized:      timestamppb.New(now),
+		DateFinalized:  timestamppb.New(now),
 	}.Build()
 	if b := v.billingAccount(ba); b != nil {
 		inv.SetChannel(b.GetChannel())
@@ -209,7 +209,7 @@ func (v *Levyan) Finalize(ba string, lines ...*levyanv1.InvoiceLine) *levyanv1.I
 	for _, l := range lines {
 		l = proto.CloneOf(l)
 		if !l.HasPeriod() {
-			l.SetPeriod(levyanv1.Period_builder{Start: timestamppb.New(start), End: timestamppb.New(end), Zone: "Asia/Seoul"}.Build())
+			l.SetPeriod(levyanv1.Period_builder{DateStart: timestamppb.New(start), DateEnd: timestamppb.New(end), Zone: "Asia/Seoul"}.Build())
 		}
 		inv.SetLines(append(inv.GetLines(), l))
 		total += l.GetTotal()
@@ -221,7 +221,7 @@ func (v *Levyan) Finalize(ba string, lines ...*levyanv1.InvoiceLine) *levyanv1.I
 	lots := []*levyanv1.Credit{}
 	for _, c := range v.credits {
 		mine := c.GetBillingAccount() == ba || (c.GetWorkspace() != "" && of[c.GetWorkspace()] > 0)
-		if mine && c.GetLeft() > 0 && c.GetCurrency() == inv.GetCurrency() && c.GetExpires().AsTime().After(now) {
+		if mine && c.GetLeft() > 0 && c.GetCurrency() == inv.GetCurrency() && c.GetDateExpires().AsTime().After(now) {
 			lots = append(lots, c)
 		}
 	}
@@ -244,7 +244,7 @@ func (v *Levyan) Finalize(ba string, lines ...*levyanv1.InvoiceLine) *levyanv1.I
 		c.SetLeft(c.GetLeft() - n)
 		paid += n
 		inv.SetCredits(append(inv.GetCredits(), levyanv1.InvoiceCredit_builder{
-			Credit: c.GetId(), Amount: n, Workspace: c.GetWorkspace(), Expires: c.GetExpires(),
+			Credit: c.GetId(), Amount: n, Workspace: c.GetWorkspace(), DateExpires: c.GetDateExpires(),
 		}.Build()))
 	}
 	if b := v.balances[ba]; b > 0 && paid < total {
@@ -258,7 +258,7 @@ func (v *Levyan) Finalize(ba string, lines ...*levyanv1.InvoiceLine) *levyanv1.I
 	inv.SetDue(total - paid)
 	if inv.GetDue() == 0 {
 		inv.SetState(levyanv1.InvoiceState_INVOICE_STATE_PAID)
-		inv.SetSettled(timestamppb.New(now))
+		inv.SetDateSettled(timestamppb.New(now))
 	} else {
 		inv.SetState(levyanv1.InvoiceState_INVOICE_STATE_OPEN)
 		inv.SetRemaining(inv.GetDue())
@@ -280,13 +280,13 @@ func (v *Levyan) Note(ba string, reason levyanv1.CreditNoteReason, total int64) 
 	}
 	inv := invs[len(invs)-1]
 	n := levyanv1.CreditNote_builder{
-		Id:       newId(),
-		Invoice:  inv.GetId(),
-		Reason:   reason,
-		Amount:   total,
-		Total:    total,
-		Refunded: total,
-		Created:  timestamppb.New(time.Now()),
+		Id:          newId(),
+		Invoice:     inv.GetId(),
+		Reason:      reason,
+		Amount:      total,
+		Total:       total,
+		Refunded:    total,
+		DateCreated: timestamppb.New(time.Now()),
 	}.Build()
 	v.notes[inv.GetId()] = append(v.notes[inv.GetId()], n)
 	return proto.CloneOf(n)
@@ -297,7 +297,7 @@ func (v *Levyan) Note(ba string, reason levyanv1.CreditNoteReason, total int64) 
 func (v *Levyan) creditOf(workspace string, now time.Time) []*levyanv1.Credit {
 	out := []*levyanv1.Credit{}
 	for _, c := range v.credits {
-		if c.GetWorkspace() == workspace && c.GetLeft() > 0 && c.GetExpires().AsTime().After(now) {
+		if c.GetWorkspace() == workspace && c.GetLeft() > 0 && c.GetDateExpires().AsTime().After(now) {
 			out = append(out, proto.CloneOf(c))
 		}
 	}
@@ -311,7 +311,7 @@ func (v *Levyan) creditOf(workspace string, now time.Time) []*levyanv1.Credit {
 func (v *Levyan) creditFor(ba string, now time.Time) []*levyanv1.Credit {
 	out := []*levyanv1.Credit{}
 	for _, c := range v.credits {
-		if c.GetLeft() <= 0 || !c.GetExpires().AsTime().After(now) {
+		if c.GetLeft() <= 0 || !c.GetDateExpires().AsTime().After(now) {
 			continue
 		}
 		if c.GetBillingAccount() == ba || (c.GetWorkspace() != "" && v.paysFor(ba, c.GetWorkspace())) {
@@ -351,7 +351,7 @@ func (v *Levyan) billingAccount(id string) *levyanv1.BillingAccount {
 
 func soonestFirst(cs []*levyanv1.Credit) {
 	sort.SliceStable(cs, func(i, j int) bool {
-		return cs[i].GetExpires().AsTime().Before(cs[j].GetExpires().AsTime())
+		return cs[i].GetDateExpires().AsTime().Before(cs[j].GetDateExpires().AsTime())
 	})
 }
 
@@ -360,11 +360,13 @@ func soonestFirst(cs []*levyanv1.Credit) {
 func (v *Levyan) allowancesIn(workspace string, start, end time.Time) []*levyanv1.Allowance {
 	out := []*levyanv1.Allowance{}
 	for _, a := range v.allowances[workspace] {
-		if a.GetFrom().AsTime().Before(end) && (!a.HasUntil() || a.GetUntil().AsTime().After(start)) {
+		if a.GetDateEffective().AsTime().Before(end) && (!a.HasDateExpires() || a.GetDateExpires().AsTime().After(start)) {
 			out = append(out, a)
 		}
 	}
-	sort.SliceStable(out, func(i, j int) bool { return out[i].GetFrom().AsTime().Before(out[j].GetFrom().AsTime()) })
+	sort.SliceStable(out, func(i, j int) bool {
+		return out[i].GetDateEffective().AsTime().Before(out[j].GetDateEffective().AsTime())
+	})
 	return out
 }
 
@@ -373,11 +375,11 @@ func (v *Levyan) allowancesIn(workspace string, start, end time.Time) []*levyanv
 func (v *Levyan) poolsIn(workspace string, start, end time.Time) []*levyanv1.Pool {
 	out := []*levyanv1.Pool{}
 	for _, p := range v.pools[workspace] {
-		if p.GetFrom().AsTime().Before(end) && p.GetExpires().AsTime().After(start) {
+		if p.GetDateEffective().AsTime().Before(end) && p.GetDateExpires().AsTime().After(start) {
 			out = append(out, p)
 		}
 	}
-	sort.SliceStable(out, func(i, j int) bool { return out[i].GetExpires().AsTime().Before(out[j].GetExpires().AsTime()) })
+	sort.SliceStable(out, func(i, j int) bool { return out[i].GetDateExpires().AsTime().Before(out[j].GetDateExpires().AsTime()) })
 	return out
 }
 
@@ -391,7 +393,7 @@ func (v *Levyan) latest(workspace string) map[string]*levyanv1.Reading {
 		if r.GetWorkspace() != workspace {
 			continue
 		}
-		if was, ok := out[r.GetMeter()]; !ok || !r.GetMeasuredAt().AsTime().Before(was.GetMeasuredAt().AsTime()) {
+		if was, ok := out[r.GetMeter()]; !ok || !r.GetDateMeasured().AsTime().Before(was.GetDateMeasured().AsTime()) {
 			out[r.GetMeter()] = r
 		}
 	}
@@ -430,12 +432,12 @@ func (v *Levyan) rated(workspace string, start, end time.Time) ([]*levyanv1.Line
 			if a.GetMeter() != m {
 				continue
 			}
-			from, to := a.GetFrom().AsTime(), end
+			from, to := a.GetDateEffective().AsTime(), end
 			if from.Before(start) {
 				from = start
 			}
-			if a.HasUntil() && a.GetUntil().AsTime().Before(to) {
-				to = a.GetUntil().AsTime()
+			if a.HasDateExpires() && a.GetDateExpires().AsTime().Before(to) {
+				to = a.GetDateExpires().AsTime()
 			}
 			if !to.After(from) {
 				continue

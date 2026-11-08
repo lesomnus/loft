@@ -61,8 +61,8 @@ func (e *env) allocation(r *app.Reservation, a *app.Asset) *ent.Allocation {
 func (e *env) entry(r *app.Reservation) *app.CalendarEntry {
 	e.t.Helper()
 	v, err := e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{
-		From: timestamppb.New(r.GetBeginsAt().AsTime().Add(-time.Minute)),
-		To:   timestamppb.New(r.GetEndsAt().AsTime().Add(time.Minute)),
+		DateFrom: timestamppb.New(r.GetDateStart().AsTime().Add(-time.Minute)),
+		DateTo:   timestamppb.New(r.GetDateEnd().AsTime().Add(time.Minute)),
 	}.Build())
 	e.x.NoError(err)
 	for _, en := range v.GetEntries() {
@@ -211,8 +211,8 @@ func TestAMemberBookedElsewhereIsWaitedFor(t *testing.T) {
 
 	busy, err := e.app().Bookable().Availability(e.owner, app.BookableAvailabilityRequest_builder{
 		Resources: []*app.AssetRef{assetRef(tripod)},
-		From:      timestamppb.New(e.tomorrow(0, 0)),
-		To:        timestamppb.New(e.tomorrow(23, 0)),
+		DateFrom:  timestamppb.New(e.tomorrow(0, 0)),
+		DateTo:    timestamppb.New(e.tomorrow(23, 0)),
 	}.Build())
 	x.NoError(err)
 	kinds := []string{}
@@ -226,7 +226,7 @@ func TestAMemberBookedElsewhereIsWaitedFor(t *testing.T) {
 	got = e.allocation(r, tripod)
 	x.Equal("reservation", got.Kind)
 	x.True(got.Blocking)
-	x.True(got.BeginsAt.Equal(e.tomorrow(9, 0)), "for all of it: %s", got.BeginsAt)
+	x.True(got.DateStart.Equal(e.tomorrow(9, 0)), "for all of it: %s", got.DateStart)
 	x.Empty(e.entry(r).GetConflicts())
 	x.Contains(e.told(kim), "reservation.resolved")
 	_, err = e.reserve(lee, tripod, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
@@ -252,12 +252,12 @@ func TestWhatNothingLetGoOfIsTakenByTheSweep(t *testing.T) {
 	other, err := e.reserve(e.owner, spare, e.tomorrow(8, 0), e.tomorrow(10, 0), nil)
 	x.NoError(err)
 	w, err := e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{
-		Asset:    assetRef(light),
-		Kind:     "repair",
-		Name:     "전원 불량",
-		BeginsAt: timestamppb.New(e.tomorrow(7, 0)),
-		EndsAt:   timestamppb.New(e.tomorrow(11, 0)),
-		Blocking: true,
+		Asset:     assetRef(light),
+		Kind:      "repair",
+		Name:      "전원 불량",
+		DateStart: timestamppb.New(e.tomorrow(7, 0)),
+		DateEnd:   timestamppb.New(e.tomorrow(11, 0)),
+		Blocking:  true,
 	}.Build())
 	x.NoError(err)
 
@@ -300,7 +300,7 @@ func TestABookingFulfilledIsLeftAsItWasHandedOut(t *testing.T) {
 	x.NoError(err)
 	_, err = e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
 		Party:         ref[app.PartyRef](party.GetId()),
-		DueAt:         timestamppb.New(e.now.Add(3 * time.Hour)),
+		DateDue:       timestamppb.New(e.now.Add(3 * time.Hour)),
 		ReservationId: r.GetId(),
 		Lines:         []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(camera)}.Build()},
 	}.Build())
@@ -331,8 +331,8 @@ func TestABookingBegunTakesAMemberFromNowOn(t *testing.T) {
 	e.relate(tripod, kit, true)
 	got := e.allocation(r, tripod)
 	x.NotNil(got)
-	x.True(got.BeginsAt.Equal(e.now), "from now: %s", got.BeginsAt)
-	x.True(got.EndsAt.Equal(e.now.Add(2 * time.Hour)))
+	x.True(got.DateStart.Equal(e.now), "from now: %s", got.DateStart)
+	x.True(got.DateEnd.Equal(e.now.Add(2 * time.Hour)))
 }
 
 // TestAnOverrideTakesWhatItsKitIsGivenAsItTookTheRest: a booking made over
@@ -411,8 +411,8 @@ func TestWhatWaitsIsForgottenOnceTheBookingIsOver(t *testing.T) {
 	x.Equal("waiting", e.allocation(r, tripod).Kind, "not taken by a booking that is over")
 	busy, err := e.app().Bookable().Availability(e.owner, app.BookableAvailabilityRequest_builder{
 		Resources: []*app.AssetRef{assetRef(tripod)},
-		From:      timestamppb.New(e.tomorrow(0, 0)),
-		To:        timestamppb.New(e.tomorrow(23, 0)),
+		DateFrom:  timestamppb.New(e.tomorrow(0, 0)),
+		DateTo:    timestamppb.New(e.tomorrow(23, 0)),
 	}.Build())
 	x.NoError(err)
 	for _, b := range busy.GetBusy() {

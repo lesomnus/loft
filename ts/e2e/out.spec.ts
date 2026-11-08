@@ -16,7 +16,7 @@ test('a camera lent at the desk is not booked for the hours it is out, and a boo
 	const camera = await rpc(admin, 'AssetService/Add', { name, kind: 'item', tag })
 	await rpc(admin, 'BookableService/Add', { asset: { id: camera.id } })
 	const booker = await as(people.booksFirst.login)
-	await rpc(booker, 'ReservationService/Add', { name: title, items: [{ resource: { id: camera.id } }], beginsAt: momentAt(9, 10), endsAt: momentAt(9, 12) })
+	await rpc(booker, 'ReservationService/Add', { name: title, items: [{ resource: { id: camera.id } }], dateStart: momentAt(9, 10), dateEnd: momentAt(9, 12) })
 
 	// The desk lends it until eleven that day. The form says what is booked
 	// of it over that time, and it is handed out all the same.

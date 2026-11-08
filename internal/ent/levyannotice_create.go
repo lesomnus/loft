@@ -41,16 +41,16 @@ func (_c *LevyanNoticeCreate) SetAccount(v uuid.UUID) *LevyanNoticeCreate {
 	return _c
 }
 
-// SetAt sets the "at" field.
-func (_c *LevyanNoticeCreate) SetAt(v time.Time) *LevyanNoticeCreate {
-	_c.mutation.SetAt(v)
+// SetDateOccurred sets the "date_occurred" field.
+func (_c *LevyanNoticeCreate) SetDateOccurred(v time.Time) *LevyanNoticeCreate {
+	_c.mutation.SetDateOccurred(v)
 	return _c
 }
 
-// SetNillableAt sets the "at" field if the given value is not nil.
-func (_c *LevyanNoticeCreate) SetNillableAt(v *time.Time) *LevyanNoticeCreate {
+// SetNillableDateOccurred sets the "date_occurred" field if the given value is not nil.
+func (_c *LevyanNoticeCreate) SetNillableDateOccurred(v *time.Time) *LevyanNoticeCreate {
 	if v != nil {
-		_c.SetAt(*v)
+		_c.SetDateOccurred(*v)
 	}
 	return _c
 }
@@ -216,9 +216,9 @@ func (_c *LevyanNoticeCreate) createSpec() (*LevyanNotice, *sqlgraph.CreateSpec)
 		_spec.SetField(levyannotice.FieldAccount, field.TypeUuid, value)
 		_node.Account = value
 	}
-	if value, ok := _c.mutation.At(); ok {
-		_spec.SetField(levyannotice.FieldAt, field.TypeTime, value)
-		_node.At = value
+	if value, ok := _c.mutation.DateOccurred(); ok {
+		_spec.SetField(levyannotice.FieldDateOccurred, field.TypeTime, value)
+		_node.DateOccurred = value
 	}
 	if value, ok := _c.mutation.DateTold(); ok {
 		_spec.SetField(levyannotice.FieldDateTold, field.TypeTime, value)

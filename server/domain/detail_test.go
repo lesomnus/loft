@@ -53,9 +53,9 @@ func TestAnEventsDetailIsWhatItHeld(t *testing.T) {
 	x.NoError(err)
 	due := e.now.Add(7 * 24 * time.Hour)
 	loan, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-		Party: ref[app.PartyRef](kim.GetId()),
-		DueAt: timestamppb.New(due),
-		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(laptop)}.Build()},
+		Party:   ref[app.PartyRef](kim.GetId()),
+		DateDue: timestamppb.New(due),
+		Lines:   []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(laptop)}.Build()},
 	}.Build())
 	x.NoError(err)
 	_, err = e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{Asset: assetRef(laptop), Name: "화면 교체"}.Build())
@@ -87,11 +87,11 @@ func TestAnEventsDetailIsWhatItHeld(t *testing.T) {
 	// A hand-over has no name of its own, and is said as its identifier; its
 	// due date on the workspace's wall.
 	x.Equal(map[string]string{
-		"custody": pdid.Id(idUUID(loan.GetId())).String(),
-		"party":   kim.GetName(),
-		"due":     due.In(domain.DefaultZone).Format(time.RFC3339),
-		"kind":    "loan",
-		"asset":   nb,
+		"custody":  pdid.Id(idUUID(loan.GetId())).String(),
+		"party":    kim.GetName(),
+		"date_due": due.In(domain.DefaultZone).Format(time.RFC3339),
+		"kind":     "loan",
+		"asset":    nb,
 	}, detailOf(es, "custody.issue"))
 	x.Equal(map[string]string{"work_order": "화면 교체", "asset": nb, "name": "화면 교체", "tag": "NB-1", "kind": "repair", "status": "open"}, detailOf(es, "work.open"))
 	set := detailOf(es, "asset.set")
@@ -109,8 +109,8 @@ func TestAnEventsDetailIsWhatItHeld(t *testing.T) {
 		"status":      "confirmed",
 		"party":       kim.GetName(),
 		"occurrences": "1",
-		"begins_at":   begins.In(domain.DefaultZone).Format(time.RFC3339),
-		"ends_at":     ends.In(domain.DefaultZone).Format(time.RFC3339),
+		"date_start":  begins.In(domain.DefaultZone).Format(time.RFC3339),
+		"date_end":    ends.In(domain.DefaultZone).Format(time.RFC3339),
 		"asset":       e.get(room).GetTag() + " 회의실",
 		"asset_name":  "회의실",
 	}, booked)
@@ -156,7 +156,7 @@ func TestAnEventsDetailIsWhatItHeld(t *testing.T) {
 		SetPayload("kind=member_of\ntarget=K-1").
 		SetReason("").
 		SetSubjectId(idUUID(laptop.GetId())).
-		SetOccurredAt(e.now).
+		SetDateOccurred(e.now).
 		SetDateCreated(e.now).
 		SetDateUpdated(e.now)
 	x.NoError(q.Exec(ctx))

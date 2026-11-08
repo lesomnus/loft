@@ -76,14 +76,14 @@ func Status(v string) predicate.Purchase {
 	return predicate.Purchase(sql.FieldEQ(FieldStatus, v))
 }
 
-// OrderedAt applies equality check predicate on the "ordered_at" field. It's identical to OrderedAtEQ.
-func OrderedAt(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldEQ(FieldOrderedAt, v))
+// DateOrdered applies equality check predicate on the "date_ordered" field. It's identical to DateOrderedEQ.
+func DateOrdered(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldEQ(FieldDateOrdered, v))
 }
 
-// ReceivedAt applies equality check predicate on the "received_at" field. It's identical to ReceivedAtEQ.
-func ReceivedAt(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldEQ(FieldReceivedAt, v))
+// DateReceived applies equality check predicate on the "date_received" field. It's identical to DateReceivedEQ.
+func DateReceived(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldEQ(FieldDateReceived, v))
 }
 
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
@@ -381,104 +381,104 @@ func StatusContainsFold(v string) predicate.Purchase {
 	return predicate.Purchase(sql.FieldContainsFold(FieldStatus, v))
 }
 
-// OrderedAtEQ applies the EQ predicate on the "ordered_at" field.
-func OrderedAtEQ(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldEQ(FieldOrderedAt, v))
+// DateOrderedEQ applies the EQ predicate on the "date_ordered" field.
+func DateOrderedEQ(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldEQ(FieldDateOrdered, v))
 }
 
-// OrderedAtNEQ applies the NEQ predicate on the "ordered_at" field.
-func OrderedAtNEQ(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldNEQ(FieldOrderedAt, v))
+// DateOrderedNEQ applies the NEQ predicate on the "date_ordered" field.
+func DateOrderedNEQ(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldNEQ(FieldDateOrdered, v))
 }
 
-// OrderedAtIn applies the In predicate on the "ordered_at" field.
-func OrderedAtIn(vs ...time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldIn(FieldOrderedAt, vs...))
+// DateOrderedIn applies the In predicate on the "date_ordered" field.
+func DateOrderedIn(vs ...time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldIn(FieldDateOrdered, vs...))
 }
 
-// OrderedAtNotIn applies the NotIn predicate on the "ordered_at" field.
-func OrderedAtNotIn(vs ...time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldNotIn(FieldOrderedAt, vs...))
+// DateOrderedNotIn applies the NotIn predicate on the "date_ordered" field.
+func DateOrderedNotIn(vs ...time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldNotIn(FieldDateOrdered, vs...))
 }
 
-// OrderedAtGT applies the GT predicate on the "ordered_at" field.
-func OrderedAtGT(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldGT(FieldOrderedAt, v))
+// DateOrderedGT applies the GT predicate on the "date_ordered" field.
+func DateOrderedGT(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldGT(FieldDateOrdered, v))
 }
 
-// OrderedAtGTE applies the GTE predicate on the "ordered_at" field.
-func OrderedAtGTE(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldGTE(FieldOrderedAt, v))
+// DateOrderedGTE applies the GTE predicate on the "date_ordered" field.
+func DateOrderedGTE(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldGTE(FieldDateOrdered, v))
 }
 
-// OrderedAtLT applies the LT predicate on the "ordered_at" field.
-func OrderedAtLT(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldLT(FieldOrderedAt, v))
+// DateOrderedLT applies the LT predicate on the "date_ordered" field.
+func DateOrderedLT(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldLT(FieldDateOrdered, v))
 }
 
-// OrderedAtLTE applies the LTE predicate on the "ordered_at" field.
-func OrderedAtLTE(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldLTE(FieldOrderedAt, v))
+// DateOrderedLTE applies the LTE predicate on the "date_ordered" field.
+func DateOrderedLTE(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldLTE(FieldDateOrdered, v))
 }
 
-// OrderedAtIsNil applies the IsNil predicate on the "ordered_at" field.
-func OrderedAtIsNil() predicate.Purchase {
-	return predicate.Purchase(sql.FieldIsNull(FieldOrderedAt))
+// DateOrderedIsNil applies the IsNil predicate on the "date_ordered" field.
+func DateOrderedIsNil() predicate.Purchase {
+	return predicate.Purchase(sql.FieldIsNull(FieldDateOrdered))
 }
 
-// OrderedAtNotNil applies the NotNil predicate on the "ordered_at" field.
-func OrderedAtNotNil() predicate.Purchase {
-	return predicate.Purchase(sql.FieldNotNull(FieldOrderedAt))
+// DateOrderedNotNil applies the NotNil predicate on the "date_ordered" field.
+func DateOrderedNotNil() predicate.Purchase {
+	return predicate.Purchase(sql.FieldNotNull(FieldDateOrdered))
 }
 
-// ReceivedAtEQ applies the EQ predicate on the "received_at" field.
-func ReceivedAtEQ(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldEQ(FieldReceivedAt, v))
+// DateReceivedEQ applies the EQ predicate on the "date_received" field.
+func DateReceivedEQ(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldEQ(FieldDateReceived, v))
 }
 
-// ReceivedAtNEQ applies the NEQ predicate on the "received_at" field.
-func ReceivedAtNEQ(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldNEQ(FieldReceivedAt, v))
+// DateReceivedNEQ applies the NEQ predicate on the "date_received" field.
+func DateReceivedNEQ(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldNEQ(FieldDateReceived, v))
 }
 
-// ReceivedAtIn applies the In predicate on the "received_at" field.
-func ReceivedAtIn(vs ...time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldIn(FieldReceivedAt, vs...))
+// DateReceivedIn applies the In predicate on the "date_received" field.
+func DateReceivedIn(vs ...time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldIn(FieldDateReceived, vs...))
 }
 
-// ReceivedAtNotIn applies the NotIn predicate on the "received_at" field.
-func ReceivedAtNotIn(vs ...time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldNotIn(FieldReceivedAt, vs...))
+// DateReceivedNotIn applies the NotIn predicate on the "date_received" field.
+func DateReceivedNotIn(vs ...time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldNotIn(FieldDateReceived, vs...))
 }
 
-// ReceivedAtGT applies the GT predicate on the "received_at" field.
-func ReceivedAtGT(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldGT(FieldReceivedAt, v))
+// DateReceivedGT applies the GT predicate on the "date_received" field.
+func DateReceivedGT(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldGT(FieldDateReceived, v))
 }
 
-// ReceivedAtGTE applies the GTE predicate on the "received_at" field.
-func ReceivedAtGTE(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldGTE(FieldReceivedAt, v))
+// DateReceivedGTE applies the GTE predicate on the "date_received" field.
+func DateReceivedGTE(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldGTE(FieldDateReceived, v))
 }
 
-// ReceivedAtLT applies the LT predicate on the "received_at" field.
-func ReceivedAtLT(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldLT(FieldReceivedAt, v))
+// DateReceivedLT applies the LT predicate on the "date_received" field.
+func DateReceivedLT(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldLT(FieldDateReceived, v))
 }
 
-// ReceivedAtLTE applies the LTE predicate on the "received_at" field.
-func ReceivedAtLTE(v time.Time) predicate.Purchase {
-	return predicate.Purchase(sql.FieldLTE(FieldReceivedAt, v))
+// DateReceivedLTE applies the LTE predicate on the "date_received" field.
+func DateReceivedLTE(v time.Time) predicate.Purchase {
+	return predicate.Purchase(sql.FieldLTE(FieldDateReceived, v))
 }
 
-// ReceivedAtIsNil applies the IsNil predicate on the "received_at" field.
-func ReceivedAtIsNil() predicate.Purchase {
-	return predicate.Purchase(sql.FieldIsNull(FieldReceivedAt))
+// DateReceivedIsNil applies the IsNil predicate on the "date_received" field.
+func DateReceivedIsNil() predicate.Purchase {
+	return predicate.Purchase(sql.FieldIsNull(FieldDateReceived))
 }
 
-// ReceivedAtNotNil applies the NotNil predicate on the "received_at" field.
-func ReceivedAtNotNil() predicate.Purchase {
-	return predicate.Purchase(sql.FieldNotNull(FieldReceivedAt))
+// DateReceivedNotNil applies the NotNil predicate on the "date_received" field.
+func DateReceivedNotNil() predicate.Purchase {
+	return predicate.Purchase(sql.FieldNotNull(FieldDateReceived))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.

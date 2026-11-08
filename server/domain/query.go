@@ -42,33 +42,33 @@ type visible struct {
 func (v visible) placement() []predicate.Placement {
 	switch {
 	case v.known != nil:
-		return []predicate.Placement{placement.DateCreatedLTE(*v.known), placement.Or(placement.SupersededAtIsNil(), placement.SupersededAtGT(*v.known))}
+		return []predicate.Placement{placement.DateCreatedLTE(*v.known), placement.Or(placement.DateSupersededIsNil(), placement.DateSupersededGT(*v.known))}
 	case v.all:
 		return nil
 	default:
-		return []predicate.Placement{placement.SupersededAtIsNil()}
+		return []predicate.Placement{placement.DateSupersededIsNil()}
 	}
 }
 
 func (v visible) stewardship() []predicate.Stewardship {
 	switch {
 	case v.known != nil:
-		return []predicate.Stewardship{stewardship.DateCreatedLTE(*v.known), stewardship.Or(stewardship.SupersededAtIsNil(), stewardship.SupersededAtGT(*v.known))}
+		return []predicate.Stewardship{stewardship.DateCreatedLTE(*v.known), stewardship.Or(stewardship.DateSupersededIsNil(), stewardship.DateSupersededGT(*v.known))}
 	case v.all:
 		return nil
 	default:
-		return []predicate.Stewardship{stewardship.SupersededAtIsNil()}
+		return []predicate.Stewardship{stewardship.DateSupersededIsNil()}
 	}
 }
 
 func (v visible) link() []predicate.Link {
 	switch {
 	case v.known != nil:
-		return []predicate.Link{link.DateCreatedLTE(*v.known), link.Or(link.SupersededAtIsNil(), link.SupersededAtGT(*v.known))}
+		return []predicate.Link{link.DateCreatedLTE(*v.known), link.Or(link.DateSupersededIsNil(), link.DateSupersededGT(*v.known))}
 	case v.all:
 		return nil
 	default:
-		return []predicate.Link{link.SupersededAtIsNil()}
+		return []predicate.Link{link.DateSupersededIsNil()}
 	}
 }
 
@@ -106,8 +106,8 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		}
 	}
 	vis := visible{all: req.GetSuperseded()}
-	if req.HasKnown() {
-		k := req.GetKnown().AsTime()
+	if req.HasDateKnown() {
+		k := req.GetDateKnown().AsTime()
 		vis.known = &k
 	}
 	tid := t.tenant.Uuid()
@@ -121,7 +121,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		return nil, err
 	}
 	for _, r := range ps {
-		e := entry("placement", r.Id, r.ValidFrom, r.ValidTo, r.DateCreated, r.SupersededAt, r.EventId)
+		e := entry("placement", r.Id, r.DateStart, r.DateEnd, r.DateCreated, r.DateSuperseded, r.EventId)
 		e.SetOtherId(pdid.Id(r.ParentId).Bytes())
 		e.SetOtherName(names.asset(r.ParentId))
 		e.SetSummary(fmt.Sprintf("%s 안 (%s)", names.asset(r.ParentId), modeName(r.Mode)))
@@ -141,7 +141,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		return nil, err
 	}
 	for _, r := range ss {
-		e := entry("stewardship", r.Id, r.ValidFrom, r.ValidTo, r.DateCreated, r.SupersededAt, r.EventId)
+		e := entry("stewardship", r.Id, r.DateStart, r.DateEnd, r.DateCreated, r.DateSuperseded, r.EventId)
 		e.SetOtherId(pdid.Id(r.PartyId).Bytes())
 		e.SetOtherName(names.party(r.PartyId))
 		e.SetSummary(fmt.Sprintf("%s: %s", or(stewardSay[r.Role], r.Role), names.party(r.PartyId)))
@@ -160,7 +160,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 			other = r.SourceId
 			dir, side = "←", "target"
 		}
-		e := entry("link", r.Id, r.ValidFrom, r.ValidTo, r.DateCreated, r.SupersededAt, r.EventId)
+		e := entry("link", r.Id, r.DateStart, r.DateEnd, r.DateCreated, r.DateSuperseded, r.EventId)
 		e.SetOtherId(pdid.Id(other).Bytes())
 		e.SetOtherName(names.asset(other))
 		e.SetSummary(fmt.Sprintf("%s %s (%s)", dir, names.asset(other), or(relationSay[r.Kind], r.Kind)))
@@ -188,7 +188,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 			if err != nil {
 				return nil, fmt.Errorf("fact %s: %w", r.Id, err)
 			}
-			e := entry("fact", r.Id.Uuid(), r.From, nil, r.Recorded, r.Superseded, r.Event.Uuid())
+			e := entry("fact", r.Id.Uuid(), r.DateStart, nil, r.Recorded, r.DateSuperseded, r.Event.Uuid())
 			v := text
 			switch {
 			case r.Value == past.Null:
@@ -297,7 +297,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		}
 	}
 	for _, v := range evs {
-		e := entry("event", v.Id.Uuid(), v.At, nil, v.Recorded, nil, v.Id.Uuid())
+		e := entry("event", v.Id.Uuid(), v.DateOccurred, nil, v.Recorded, nil, v.Id.Uuid())
 		e.SetSummary(r.Say(v))
 		e.SetEventKind(v.Kind)
 		e.SetReason(v.Reason)
@@ -325,10 +325,10 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 
 	sort.SliceStable(entries, func(i, j int) bool {
 		a, b := entries[i], entries[j]
-		if !a.GetValidFrom().AsTime().Equal(b.GetValidFrom().AsTime()) {
-			return a.GetValidFrom().AsTime().After(b.GetValidFrom().AsTime())
+		if !a.GetDateStart().AsTime().Equal(b.GetDateStart().AsTime()) {
+			return a.GetDateStart().AsTime().After(b.GetDateStart().AsTime())
 		}
-		return a.GetRecordedAt().AsTime().After(b.GetRecordedAt().AsTime())
+		return a.GetDateRecorded().AsTime().After(b.GetDateRecorded().AsTime())
 	})
 	if n := int(req.GetLimit()); n > 0 && len(entries) > n {
 		entries = entries[:n]
@@ -347,17 +347,17 @@ func (t *Tx) events(st past.Store, ids []pdid.Id) ([]past.EventRow, error) {
 
 func entry(kind string, id uuid.UUID, from time.Time, to *time.Time, recorded time.Time, superseded *time.Time, ev uuid.UUID) *app.TimelineEntry {
 	e := app.TimelineEntry_builder{
-		Kind:       kind,
-		RowId:      pdid.Id(id).Bytes(),
-		ValidFrom:  ts(from),
-		RecordedAt: ts(recorded),
-		EventId:    pdid.Id(ev).Bytes(),
+		Kind:         kind,
+		RowId:        pdid.Id(id).Bytes(),
+		DateStart:    ts(from),
+		DateRecorded: ts(recorded),
+		EventId:      pdid.Id(ev).Bytes(),
 	}.Build()
 	if to != nil {
-		e.SetValidTo(ts(*to))
+		e.SetDateEnd(ts(*to))
 	}
 	if superseded != nil {
-		e.SetSupersededAt(ts(*superseded))
+		e.SetDateSuperseded(ts(*superseded))
 	}
 	return e
 }
@@ -398,12 +398,12 @@ func (s domainAsset) QueryAt(ctx context.Context, req *app.AssetQueryAtRequest) 
 		return nil, err
 	}
 	at := t.now
-	if req.HasAt() {
-		at = req.GetAt().AsTime()
+	if req.HasDateAsOf() {
+		at = req.GetDateAsOf().AsTime()
 	}
 	vis := visible{}
-	if req.HasKnown() {
-		k := req.GetKnown().AsTime()
+	if req.HasDateKnown() {
+		k := req.GetDateKnown().AsTime()
 		vis.known = &k
 	}
 
@@ -420,8 +420,8 @@ func (t *Tx) subtree(root uuid.UUID, at time.Time, vis visible, depth int) ([]*a
 	valid := func() []predicate.Placement {
 		return append(vis.placement(),
 			placement.TenantId(tid),
-			placement.ValidFromLTE(at),
-			placement.Or(placement.ValidToIsNil(), placement.ValidToGT(at)),
+			placement.DateStartLTE(at),
+			placement.Or(placement.DateEndIsNil(), placement.DateEndGT(at)),
 		)
 	}
 
@@ -460,8 +460,8 @@ func (t *Tx) subtree(root uuid.UUID, at time.Time, vis visible, depth int) ([]*a
 	ss, err := t.db.Stewardship.Query().Where(append(vis.stewardship(),
 		stewardship.TenantId(tid),
 		stewardship.AssetIdIn(order...),
-		stewardship.ValidFromLTE(at),
-		stewardship.Or(stewardship.ValidToIsNil(), stewardship.ValidToGT(at)),
+		stewardship.DateStartLTE(at),
+		stewardship.Or(stewardship.DateEndIsNil(), stewardship.DateEndGT(at)),
 	)...).All(t.ctx)
 	if err != nil {
 		return nil, err
@@ -529,14 +529,14 @@ func (s domainAsset) Diff(ctx context.Context, req *app.AssetDiffRequest) (*app.
 	if err != nil {
 		return nil, err
 	}
-	if !req.HasFrom() || !req.HasTo() {
-		return nil, invalid("from", "비교할 두 시점을 정하세요")
+	if !req.HasDateFrom() || !req.HasDateTo() {
+		return nil, invalid("date_from", "비교할 두 시점을 정하세요")
 	}
-	a, err := t.subtree(id.Uuid(), req.GetFrom().AsTime(), visible{}, 0)
+	a, err := t.subtree(id.Uuid(), req.GetDateFrom().AsTime(), visible{}, 0)
 	if err != nil {
 		return nil, err
 	}
-	b, err := t.subtree(id.Uuid(), req.GetTo().AsTime(), visible{}, 0)
+	b, err := t.subtree(id.Uuid(), req.GetDateTo().AsTime(), visible{}, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -809,7 +809,7 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		if err != nil {
 			return nil, err
 		}
-		overdue, err := open.Where(custody.DueAtLT(t.now)).Count(ctx)
+		overdue, err := open.Where(custody.DateDueLT(t.now)).Count(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -828,9 +828,9 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		// people names them, a few hundred to a statement. How late is in
 		// the workspace's days, as what is out says it (D54).
 		open := t.db.Custody.Query().Where(custody.TenantId(tid), custody.Status("open"), custody.DateErasedIsNil())
-		late, err := open.Where(custody.DueAtLT(t.now)).
-			Order(custody.ByDueAt(), custody.ById()).
-			Select(custody.FieldId, custody.FieldPartyId, custody.FieldDueAt).
+		late, err := open.Where(custody.DateDueLT(t.now)).
+			Order(custody.ByDateDue(), custody.ById()).
+			Select(custody.FieldId, custody.FieldPartyId, custody.FieldDateDue).
 			All(ctx)
 		if err != nil {
 			return nil, err
@@ -854,7 +854,7 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 			return nil, err
 		}
 		for _, c := range late {
-			row("overdue", pdid.Id(c.Id).String(), names.apart(c.PartyId), float64(t.daysLate(*c.DueAt)), map[string]string{"due": c.DueAt.In(t.zone()).Format(time.DateOnly)})
+			row("overdue", pdid.Id(c.Id).String(), names.apart(c.PartyId), float64(t.daysLate(*c.DateDue)), map[string]string{"due": c.DateDue.In(t.zone()).Format(time.DateOnly)})
 		}
 		for _, h := range held {
 			row("party", pdid.Id(h.Party.V).String(), names.apart(h.Party.V), float64(h.N), nil)
@@ -862,25 +862,25 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 
 	case "utilization":
 		from, to := t.now.AddDate(0, 0, -30), t.now
-		if req.HasFrom() {
-			from = req.GetFrom().AsTime()
+		if req.HasDateFrom() {
+			from = req.GetDateFrom().AsTime()
 		}
-		if req.HasTo() {
-			to = req.GetTo().AsTime()
+		if req.HasDateTo() {
+			to = req.GetDateTo().AsTime()
 		}
 		as, err := t.db.Allocation.Query().Where(
 			allocation.TenantId(tid),
 			allocation.Kind("reservation"),
 			allocation.Blocking(true),
-			allocation.BeginsAtLT(to),
-			allocation.EndsAtGT(from),
+			allocation.DateStartLT(to),
+			allocation.DateEndGT(from),
 		).All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		hours := map[uuid.UUID]float64{}
 		for _, a := range as {
-			b, e := a.BeginsAt, a.EndsAt
+			b, e := a.DateStart, a.DateEnd
 			if b.Before(from) {
 				b = from
 			}

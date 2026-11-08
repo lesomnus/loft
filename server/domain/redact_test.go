@@ -400,7 +400,7 @@ func TestAReasonIsTakenOutOfEveryEventOfItsOperationThatSaysIt(t *testing.T) {
 	var own *ent.Event
 	for _, a := range acts {
 		x.Equal("삭제 요청 2026-21", a.Reason, "the request's reference, which each part copies")
-		x.True(a.OccurredAt.After(before))
+		x.True(a.DateOccurred.After(before))
 		if a.CauseId == nil {
 			x.Nil(own, "one act")
 			own = a
@@ -478,7 +478,7 @@ func TestAReasonTakenOutOfOneTimeOfASeriesIsTakenOutOfTheBooking(t *testing.T) {
 		x.Equal(asked, k.Reason, "each copies the booking's")
 		m := &app.ReservationAdded{}
 		x.NoError(k.Value.UnmarshalTo(m))
-		if at := m.GetBeginsAt().AsTime(); len(m.GetAsset()) == 0 && at.After(last) {
+		if at := m.GetDateStart().AsTime(); len(m.GetAsset()) == 0 && at.After(last) {
 			last, third = at, k
 		}
 	}
@@ -637,7 +637,7 @@ func TestAReasonIsTakenOutOfTheNoticesThatToldIt(t *testing.T) {
 	x.Equal(was.Kind, now.Kind)
 	x.Equal(was.HolderId, now.HolderId)
 	x.Equal(was.Link, now.Link)
-	x.Equal(was.ReadAt, now.ReadAt)
+	x.Equal(was.DateRead, now.DateRead)
 	x.Equal(was.Mail, now.Mail)
 	x.Equal(asked, told(same).Desc, "another decision's, which nobody asked of")
 	x.Equal("강당 공사", told(apart).Desc)
@@ -685,7 +685,7 @@ func TestAReasonIsTakenOutOfTheNoticesThatToldIt(t *testing.T) {
 		x.Equal(words, n.Desc, "each time it takes place was told why")
 		notices = append(notices, pdid.Id(n.Id))
 	}
-	third := slices.MaxFunc(times, func(a, b *app.Reservation) int { return a.GetBeginsAt().AsTime().Compare(b.GetBeginsAt().AsTime()) })
+	third := slices.MaxFunc(times, func(a, b *app.Reservation) int { return a.GetDateStart().AsTime().Compare(b.GetDateStart().AsTime()) })
 	of, err := e.s.Ent.Event.Query().Where(event.Kind("reservation.reject"), event.SubjectId(idUUID(third.GetId()))).Only(ctx)
 	x.NoError(err)
 	x.NotNil(of.CauseId, "a part of the decision")
@@ -828,10 +828,10 @@ func TestAReasonIsTakenOutOfTheHandOverWhoseMemoItIs(t *testing.T) {
 			lines = append(lines, app.CustodyLineSpec_builder{Asset: assetRef(a)}.Build())
 		}
 		c, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-			Party: ref[app.PartyRef](kim.GetId()),
-			Desc:  asked,
-			DueAt: e.in(7 * day),
-			Lines: lines,
+			Party:   ref[app.PartyRef](kim.GetId()),
+			Desc:    asked,
+			DateDue: e.in(7 * day),
+			Lines:   lines,
 		}.Build())
 		x.NoError(err)
 		return c
@@ -870,8 +870,8 @@ func TestAReasonIsTakenOutOfTheHandOverWhoseMemoItIs(t *testing.T) {
 	x.Equal(c.GetKind(), now.GetKind(), "and the rest of it as it was")
 	x.Equal(c.GetStatus(), now.GetStatus())
 	x.Equal(c.GetParty().GetId(), now.GetParty().GetId())
-	x.True(c.GetDueAt().AsTime().Equal(now.GetDueAt().AsTime()))
-	x.True(c.GetIssuedAt().AsTime().Equal(now.GetIssuedAt().AsTime()))
+	x.True(c.GetDateDue().AsTime().Equal(now.GetDateDue().AsTime()))
+	x.True(c.GetDateIssued().AsTime().Equal(now.GetDateIssued().AsTime()))
 	x.Equal(asked, memo(same).GetDesc(), "another hand-over's, which nobody asked of")
 
 	// The act wrote it, as the owner who did it -- over the wire the line
@@ -1015,9 +1015,9 @@ func TestAReasonIsTakenOutOfTheReviewThatFoundIt(t *testing.T) {
 	ctx := context.Background()
 	month := e.now.Add(-30 * day)
 	r, err := e.app().AccessReview().Add(e.owner, app.AccessReviewAddRequest_builder{
-		PeriodFrom: timestamppb.New(month),
-		PeriodTo:   timestamppb.New(month.Add(28 * day)),
-		Desc:       asked,
+		DateStart: timestamppb.New(month),
+		DateEnd:   timestamppb.New(month.Add(28 * day)),
+		Desc:      asked,
 	}.Build())
 	x.NoError(err)
 	x.Equal(asked, r.GetDesc())
@@ -1035,8 +1035,8 @@ func TestAReasonIsTakenOutOfTheReviewThatFoundIt(t *testing.T) {
 	now, err := e.app().AccessReview().Get(e.owner, app.AccessReviewGetRequest_builder{Ref: ref[app.AccessReviewRef](r.GetId())}.Build())
 	x.NoError(err)
 	x.Empty(now.GetDesc(), "taken out of the review")
-	x.True(r.GetPeriodFrom().AsTime().Equal(now.GetPeriodFrom().AsTime()), "and the rest of it as it was")
-	x.True(r.GetPeriodTo().AsTime().Equal(now.GetPeriodTo().AsTime()))
+	x.True(r.GetDateStart().AsTime().Equal(now.GetDateStart().AsTime()), "and the rest of it as it was")
+	x.True(r.GetDateEnd().AsTime().Equal(now.GetDateEnd().AsTime()))
 	x.Equal(r.GetReviewer().GetId(), now.GetReviewer().GetId())
 	x.Equal(r.GetCalls(), now.GetCalls())
 	x.Equal(r.GetDownloads(), now.GetDownloads())

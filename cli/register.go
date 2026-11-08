@@ -18,22 +18,22 @@ import (
 // columnOf is the form's column for what an AddMany calls a field, so that
 // what it says of an item is said of a sheet's line where a person put it.
 var columnOf = map[string]string{
-	"name":        "이름",
-	"kind":        "종류",
-	"type":        "유형",
-	"type_name":   "유형",
-	"model":       "모델",
-	"model_name":  "모델",
-	"maker":       "제조사",
-	"serial":      "시리얼",
-	"tag":         "태그",
-	"to":          "위치태그",
-	"acquired_at": "취득일",
-	"since":       "기준일",
-	"desc":        "설명",
-	"status":      "상태",
-	"condition":   "컨디션",
-	"attributes":  "속성",
+	"name":          "이름",
+	"kind":          "종류",
+	"type":          "유형",
+	"type_name":     "유형",
+	"model":         "모델",
+	"model_name":    "모델",
+	"maker":         "제조사",
+	"serial":        "시리얼",
+	"tag":           "태그",
+	"to":            "위치태그",
+	"date_acquired": "취득일",
+	"date_occurred": "기준일",
+	"desc":          "설명",
+	"status":        "상태",
+	"condition":     "컨디션",
+	"attributes":    "속성",
 }
 
 // newCmdAssetAddMany is `loft asset add-many FILE`: new assets from a CSV in

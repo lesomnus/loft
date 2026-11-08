@@ -207,7 +207,7 @@ func TestTheDashboardCountsWhatThereIs(t *testing.T) {
 			Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(a)}.Build()},
 		}.Build()
 		if due != nil {
-			req.SetDueAt(timestamppb.New(*due))
+			req.SetDateDue(timestamppb.New(*due))
 		}
 		v, err := e.app().Custody().Add(e.owner, req)
 		x.NoError(err)
@@ -292,9 +292,9 @@ func TestHowLateIsTheSameWhereverItIsSaid(t *testing.T) {
 	_, kim := e.person("member")
 	lend := func(tag string, due time.Time) string {
 		v, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-			Party: ref[app.PartyRef](kim.GetId()),
-			DueAt: timestamppb.New(due),
-			Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(e.item("노트북", tag, store, 0))}.Build()},
+			Party:   ref[app.PartyRef](kim.GetId()),
+			DateDue: timestamppb.New(due),
+			Lines:   []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(e.item("노트북", tag, store, 0))}.Build()},
 		}.Build())
 		x.NoError(err)
 		return idOf(v.GetId()).String()
@@ -393,9 +393,9 @@ func TestAListOfPeopleTellsTwoOfANameApart(t *testing.T) {
 		}
 		tag := fmt.Sprintf("NB-%d", i+1)
 		_, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-			Party: ref[app.PartyRef](p.GetId()),
-			DueAt: timestamppb.New(soon),
-			Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(e.item("노트북", tag, store, 0))}.Build()},
+			Party:   ref[app.PartyRef](p.GetId()),
+			DateDue: timestamppb.New(soon),
+			Lines:   []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(e.item("노트북", tag, store, 0))}.Build()},
 		}.Build())
 		x.NoError(err)
 		from := e.tomorrow(9+i, 0)
@@ -424,8 +424,8 @@ func TestAListOfPeopleTellsTwoOfANameApart(t *testing.T) {
 
 	// Who each booking is for.
 	cal, err := e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{
-		From: timestamppb.New(e.now),
-		To:   timestamppb.New(e.now.Add(72 * time.Hour)),
+		DateFrom: timestamppb.New(e.now),
+		DateTo:   timestamppb.New(e.now.Add(72 * time.Hour)),
 	}.Build())
 	x.NoError(err)
 	got = map[string]string{}
@@ -475,7 +475,7 @@ func TestWhatIsOutSaysWhoHasItAndHowLate(t *testing.T) {
 	give := func(to *app.Party, due *time.Time, lines ...*app.CustodyLineSpec) *app.Custody {
 		req := app.CustodyAddRequest_builder{Party: ref[app.PartyRef](to.GetId()), Lines: lines}.Build()
 		if due != nil {
-			req.SetDueAt(timestamppb.New(*due))
+			req.SetDateDue(timestamppb.New(*due))
 		}
 		v, err := e.app().Custody().Add(e.owner, req)
 		x.NoError(err)
@@ -591,7 +591,7 @@ func TestUsageIsTheTimeBookedAgainstTheTimeUsed(t *testing.T) {
 			Party:         ref[app.PartyRef](kim.GetId()),
 			Lines:         []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(camera)}.Build()},
 			ReservationId: r.GetId(),
-			DueAt:         r.GetEndsAt(),
+			DateDue:       r.GetDateEnd(),
 		}.Build())
 		x.NoError(err)
 		return v
@@ -644,7 +644,7 @@ func TestUsageIsTheTimeBookedAgainstTheTimeUsed(t *testing.T) {
 		}
 		return m, v
 	}
-	october := app.BookableUsageRequest_builder{From: timestamppb.New(at(10, 1, 0, 0)), To: timestamppb.New(at(11, 1, 0, 0))}.Build()
+	october := app.BookableUsageRequest_builder{DateFrom: timestamppb.New(at(10, 1, 0, 0)), DateTo: timestamppb.New(at(11, 1, 0, 0))}.Build()
 	got, _ := read(october)
 	x.Equal(used{3, 1, 2, 60 + 120 + 60, 85}, got["회의실"], "begun in October in Seoul, cancelled or not")
 	x.Equal(used{2, 2, 0, 480 + 60, 560 + 180}, got["카메라"], "back late, and out until now")
@@ -652,12 +652,12 @@ func TestUsageIsTheTimeBookedAgainstTheTimeUsed(t *testing.T) {
 	// Unsaid, the last thirty days today among them: September's too.
 	got, v := read(&app.BookableUsageRequest{})
 	x.EqualValues(4, got["회의실"].reservations)
-	x.Equal(at(10, 6, 0, 0), v.GetTo().AsTime().In(seoul), "today ends as Seoul's does")
-	x.Equal(at(9, 6, 0, 0), v.GetFrom().AsTime().In(seoul))
+	x.Equal(at(10, 6, 0, 0), v.GetDateTo().AsTime().In(seoul), "today ends as Seoul's does")
+	x.Equal(at(9, 6, 0, 0), v.GetDateFrom().AsTime().In(seoul))
 
-	_, err = e.app().Bookable().Usage(e.owner, app.BookableUsageRequest_builder{From: october.GetTo(), To: october.GetFrom()}.Build())
+	_, err = e.app().Bookable().Usage(e.owner, app.BookableUsageRequest_builder{DateFrom: october.GetDateTo(), DateTo: october.GetDateFrom()}.Build())
 	x.Equal(codes.InvalidArgument, codeOf(err), "backwards")
-	_, err = e.app().Bookable().Usage(e.owner, app.BookableUsageRequest_builder{From: timestamppb.New(at(1, 1, 0, 0)), To: timestamppb.New(at(10, 1, 0, 0).AddDate(1, 0, 0))}.Build())
+	_, err = e.app().Bookable().Usage(e.owner, app.BookableUsageRequest_builder{DateFrom: timestamppb.New(at(1, 1, 0, 0)), DateTo: timestamppb.New(at(10, 1, 0, 0).AddDate(1, 0, 0))}.Build())
 	x.Equal(codes.InvalidArgument, codeOf(err), "longer than a year")
 
 	t.Run("and writes it as a CSV, in hours", func(t *testing.T) {
@@ -729,7 +729,7 @@ func TestTheCountsSayWhatTheyFoundAndWhatWasLost(t *testing.T) {
 	e.now = at(10, 2, 9, 0)
 	start("빈 실사")
 
-	october := app.InventoryCountResultsRequest_builder{From: timestamppb.New(at(10, 1, 0, 0)), To: timestamppb.New(at(11, 1, 0, 0))}.Build()
+	october := app.InventoryCountResultsRequest_builder{DateFrom: timestamppb.New(at(10, 1, 0, 0)), DateTo: timestamppb.New(at(11, 1, 0, 0))}.Build()
 	v, err := e.app().InventoryCount().Results(e.owner, october)
 	x.NoError(err)
 	names := []string{}
@@ -819,7 +819,7 @@ func TestTheStockSaysWhatCameInAndWentOut(t *testing.T) {
 	change(consume, 1, at(10, 2, 9, 0))
 	x.EqualValues(20-3+5-1-4+1-2-2-1, e.quantity(batteries))
 
-	day := app.StockFlowRequest_builder{From: timestamppb.New(at(10, 1, 0, 0)), To: timestamppb.New(at(10, 2, 0, 0))}.Build()
+	day := app.StockFlowRequest_builder{DateFrom: timestamppb.New(at(10, 1, 0, 0)), DateTo: timestamppb.New(at(10, 2, 0, 0))}.Build()
 	v, err := e.app().Stock().Flow(e.owner, day)
 	x.NoError(err)
 	x.Len(v.GetRows(), 2, "the stock the transfer began on the shelf too")

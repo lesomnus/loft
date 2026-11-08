@@ -209,14 +209,14 @@ func (t *Tx) intake(items []*app.AssetAddRequest, op []byte) (*intake, error) {
 		if item.HasCustodian() {
 			in.issue(i, "custodian", "사용자는 지급·대여로 정해집니다")
 		}
-		since, err := t.at(item.GetSince(), "since")
+		since, err := t.at(item.GetDateOccurred(), "date_occurred")
 		if err != nil {
-			in.issue(i, "since", "미래의 날짜는 적을 수 없습니다")
+			in.issue(i, "date_occurred", "미래의 날짜는 적을 수 없습니다")
 			since = t.now
 		}
 		r.since = since
-		if item.HasAcquiredAt() && item.GetAcquiredAt().AsTime().After(t.now.Add(5*time.Minute)) {
-			in.issue(i, "acquired_at", "미래의 날짜는 적을 수 없습니다")
+		if item.HasDateAcquired() && item.GetDateAcquired().AsTime().After(t.now.Add(5*time.Minute)) {
+			in.issue(i, "date_acquired", "미래의 날짜는 적을 수 없습니다")
 		}
 
 		if r.name = strings.TrimSpace(item.GetName()); r.name == "" {
@@ -725,8 +725,8 @@ func (t *Tx) makeAssets(in *intake, reason string) ([]*app.Asset, error) {
 			Condition:  r.condition,
 			Attributes: item.GetAttributes(),
 		}.Build()
-		if item.HasAcquiredAt() {
-			row.SetAcquiredAt(item.GetAcquiredAt())
+		if item.HasDateAcquired() {
+			row.SetDateAcquired(item.GetDateAcquired())
 		}
 		if r.typ != nil {
 			row.SetType(app.AssetTypeRef_builder{Id: pdid.Id(r.typ.id).Bytes()}.Build())
@@ -749,7 +749,7 @@ func (t *Tx) makeAssets(in *intake, reason string) ([]*app.Asset, error) {
 				Parent:      assetRef(parentId),
 				Mode:        r.mode,
 				Slot:        item.GetSlot(),
-				ValidFrom:   ts(r.since),
+				DateStart:   ts(r.since),
 				EventId:     ev.Bytes(),
 				DateCreated: ts(t.now),
 			}.Build())
@@ -784,14 +784,14 @@ func (t *Tx) makeAssets(in *intake, reason string) ([]*app.Asset, error) {
 		}
 		kids[i] = past.Child{
 			Event: past.Event{
-				Id:      parent.Made(pd.EventDomain, i+1),
-				Kind:    "asset.add",
-				Subject: r.id,
-				At:      r.since,
-				Reason:  reason,
-				Value:   app.AssetAdded_builder{Asset: r.id.Bytes(), Tag: r.tag, Name: r.name, Kind: r.kind}.Build(),
+				Id:           parent.Made(pd.EventDomain, i+1),
+				Kind:         "asset.add",
+				Subject:      r.id,
+				DateOccurred: r.since,
+				Reason:       reason,
+				Value:        app.AssetAdded_builder{Asset: r.id.Bytes(), Tag: r.tag, Name: r.name, Kind: r.kind}.Build(),
 			},
-			Facts: []past.Fact{{Subject: r.id, From: r.since, Values: past.Changes(nil, assetFacts(a))}},
+			Facts: []past.Fact{{Subject: r.id, DateStart: r.since, Values: past.Changes(nil, assetFacts(a))}},
 		}
 	}
 	if _, err := parent.Batch(t.ctx, kids); err != nil {

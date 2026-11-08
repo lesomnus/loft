@@ -88,13 +88,13 @@ func (t *Tx) handoutOf(r *ent.Reservation) (*handout, error) {
 			// A pool of no members is handed out as nothing of its own.
 			continue
 		}
-		_, end := window(pr.book, r.BeginsAt, r.EndsAt)
+		_, end := window(pr.book, r.DateStart, r.DateEnd)
 		over := false
 		for _, a := range as {
 			if a.ResourceId != pr.asset.Id {
 				continue
 			}
-			end = a.EndsAt
+			end = a.DateEnd
 			over = over || a.Kind == "override"
 			if a.Blocking && a.Kind == "reservation" {
 				h.held[pr.asset.Id] = append(h.held[pr.asset.Id], a)
@@ -155,7 +155,7 @@ func (h *handout) fits(pool, m uuid.UUID, given map[uuid.UUID][]uuid.UUID) bool 
 	}
 	end := h.end[pool]
 	for _, a := range h.l.held {
-		if a.ResourceId == m && (a.RefId == nil || *a.RefId != h.r.Id) && a.BeginsAt.Before(end) && a.EndsAt.After(h.from) {
+		if a.ResourceId == m && (a.RefId == nil || *a.RefId != h.r.Id) && a.DateStart.Before(end) && a.DateEnd.After(h.from) {
 			return false
 		}
 	}
@@ -214,7 +214,7 @@ func (h *handout) with(given map[uuid.UUID][]uuid.UUID) ([]*ent.Allocation, []*e
 	held := slices.Clone(h.l.held)
 	for p, ms := range given {
 		for _, m := range ms {
-			held = append(held, &ent.Allocation{ResourceId: m, BeginsAt: h.from, EndsAt: h.end[p], Units: 1})
+			held = append(held, &ent.Allocation{ResourceId: m, DateStart: h.from, DateEnd: h.end[p], Units: 1})
 		}
 	}
 	return own, held
@@ -239,7 +239,7 @@ func (s domainReservation) Pickup(ctx context.Context, req *app.ReservationPicku
 		return nil, err
 	}
 	out := app.ReservationPickupResponse_builder{}.Build()
-	if !waits(r.Status) || !r.EndsAt.After(t.now) {
+	if !waits(r.Status) || !r.DateEnd.After(t.now) {
 		// Handed out already, or over: nothing to pick up.
 		return out, nil
 	}
@@ -362,8 +362,8 @@ func (t *Tx) handOver(r *ent.Reservation, things []uuid.UUID) error {
 				Resource:  assetRef(m),
 				Kind:      "reservation",
 				RefId:     pdid.Id(r.Id).Bytes(),
-				BeginsAt:  ts(t.now),
-				EndsAt:    ts(h.end[pool]),
+				DateStart: ts(t.now),
+				DateEnd:   ts(h.end[pool]),
 				Blocking:  true,
 				Exclusive: p == nil && n <= 1,
 				Units:     1,
@@ -383,9 +383,9 @@ func (t *Tx) handOver(r *ent.Reservation, things []uuid.UUID) error {
 			switch {
 			case n > 0:
 				_, err = t.next.Allocation().Patch(t.ctx, app.AllocationPatchRequest_builder{Ref: ref, Units: z.Ptr(n), DateUpdatedForce: z.Ptr(true)}.Build())
-			case pa.BeginsAt.Before(t.now):
+			case pa.DateStart.Before(t.now):
 				// What it held of the pool until now, it held.
-				_, err = t.next.Allocation().Patch(t.ctx, app.AllocationPatchRequest_builder{Ref: ref, EndsAt: ts(t.now), DateUpdatedForce: z.Ptr(true)}.Build())
+				_, err = t.next.Allocation().Patch(t.ctx, app.AllocationPatchRequest_builder{Ref: ref, DateEnd: ts(t.now), DateUpdatedForce: z.Ptr(true)}.Build())
 			default:
 				_, err = t.next.Allocation().Erase(t.ctx, ref)
 			}

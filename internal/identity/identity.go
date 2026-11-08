@@ -640,8 +640,8 @@ func (s *Store) Verify(ctx context.Context, login, password string) (Person, err
 			// roster never answers ok beside a continuation: the password was
 			// right, and it is not a sign-in on its own.
 			return Person{}, ErrSecondFactor
-		case res.GetLockedUntil() != nil:
-			return Person{}, Locked{Until: res.GetLockedUntil().AsTime()}
+		case res.GetDateLocked() != nil:
+			return Person{}, Locked{Until: res.GetDateLocked().AsTime()}
 		}
 
 		return Person{}, ErrRefused

@@ -71,14 +71,14 @@ func Status(v string) predicate.Custody {
 	return predicate.Custody(sql.FieldEQ(FieldStatus, v))
 }
 
-// IssuedAt applies equality check predicate on the "issued_at" field. It's identical to IssuedAtEQ.
-func IssuedAt(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldEQ(FieldIssuedAt, v))
+// DateIssued applies equality check predicate on the "date_issued" field. It's identical to DateIssuedEQ.
+func DateIssued(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldEQ(FieldDateIssued, v))
 }
 
-// DueAt applies equality check predicate on the "due_at" field. It's identical to DueAtEQ.
-func DueAt(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldEQ(FieldDueAt, v))
+// DateDue applies equality check predicate on the "date_due" field. It's identical to DateDueEQ.
+func DateDue(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldEQ(FieldDateDue, v))
 }
 
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
@@ -96,14 +96,14 @@ func DateCreated(v time.Time) predicate.Custody {
 	return predicate.Custody(sql.FieldEQ(FieldDateCreated, v))
 }
 
-// AcknowledgedAt applies equality check predicate on the "acknowledged_at" field. It's identical to AcknowledgedAtEQ.
-func AcknowledgedAt(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldEQ(FieldAcknowledgedAt, v))
+// DateAcknowledged applies equality check predicate on the "date_acknowledged" field. It's identical to DateAcknowledgedEQ.
+func DateAcknowledged(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldEQ(FieldDateAcknowledged, v))
 }
 
-// ReturnedAt applies equality check predicate on the "returned_at" field. It's identical to ReturnedAtEQ.
-func ReturnedAt(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldEQ(FieldReturnedAt, v))
+// DateReturned applies equality check predicate on the "date_returned" field. It's identical to DateReturnedEQ.
+func DateReturned(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldEQ(FieldDateReturned, v))
 }
 
 // ReservationId applies equality check predicate on the "reservation_id" field. It's identical to ReservationIdEQ.
@@ -326,104 +326,104 @@ func StatusContainsFold(v string) predicate.Custody {
 	return predicate.Custody(sql.FieldContainsFold(FieldStatus, v))
 }
 
-// IssuedAtEQ applies the EQ predicate on the "issued_at" field.
-func IssuedAtEQ(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldEQ(FieldIssuedAt, v))
+// DateIssuedEQ applies the EQ predicate on the "date_issued" field.
+func DateIssuedEQ(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldEQ(FieldDateIssued, v))
 }
 
-// IssuedAtNEQ applies the NEQ predicate on the "issued_at" field.
-func IssuedAtNEQ(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldNEQ(FieldIssuedAt, v))
+// DateIssuedNEQ applies the NEQ predicate on the "date_issued" field.
+func DateIssuedNEQ(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldNEQ(FieldDateIssued, v))
 }
 
-// IssuedAtIn applies the In predicate on the "issued_at" field.
-func IssuedAtIn(vs ...time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldIn(FieldIssuedAt, vs...))
+// DateIssuedIn applies the In predicate on the "date_issued" field.
+func DateIssuedIn(vs ...time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldIn(FieldDateIssued, vs...))
 }
 
-// IssuedAtNotIn applies the NotIn predicate on the "issued_at" field.
-func IssuedAtNotIn(vs ...time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldNotIn(FieldIssuedAt, vs...))
+// DateIssuedNotIn applies the NotIn predicate on the "date_issued" field.
+func DateIssuedNotIn(vs ...time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldNotIn(FieldDateIssued, vs...))
 }
 
-// IssuedAtGT applies the GT predicate on the "issued_at" field.
-func IssuedAtGT(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldGT(FieldIssuedAt, v))
+// DateIssuedGT applies the GT predicate on the "date_issued" field.
+func DateIssuedGT(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldGT(FieldDateIssued, v))
 }
 
-// IssuedAtGTE applies the GTE predicate on the "issued_at" field.
-func IssuedAtGTE(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldGTE(FieldIssuedAt, v))
+// DateIssuedGTE applies the GTE predicate on the "date_issued" field.
+func DateIssuedGTE(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldGTE(FieldDateIssued, v))
 }
 
-// IssuedAtLT applies the LT predicate on the "issued_at" field.
-func IssuedAtLT(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldLT(FieldIssuedAt, v))
+// DateIssuedLT applies the LT predicate on the "date_issued" field.
+func DateIssuedLT(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldLT(FieldDateIssued, v))
 }
 
-// IssuedAtLTE applies the LTE predicate on the "issued_at" field.
-func IssuedAtLTE(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldLTE(FieldIssuedAt, v))
+// DateIssuedLTE applies the LTE predicate on the "date_issued" field.
+func DateIssuedLTE(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldLTE(FieldDateIssued, v))
 }
 
-// IssuedAtIsNil applies the IsNil predicate on the "issued_at" field.
-func IssuedAtIsNil() predicate.Custody {
-	return predicate.Custody(sql.FieldIsNull(FieldIssuedAt))
+// DateIssuedIsNil applies the IsNil predicate on the "date_issued" field.
+func DateIssuedIsNil() predicate.Custody {
+	return predicate.Custody(sql.FieldIsNull(FieldDateIssued))
 }
 
-// IssuedAtNotNil applies the NotNil predicate on the "issued_at" field.
-func IssuedAtNotNil() predicate.Custody {
-	return predicate.Custody(sql.FieldNotNull(FieldIssuedAt))
+// DateIssuedNotNil applies the NotNil predicate on the "date_issued" field.
+func DateIssuedNotNil() predicate.Custody {
+	return predicate.Custody(sql.FieldNotNull(FieldDateIssued))
 }
 
-// DueAtEQ applies the EQ predicate on the "due_at" field.
-func DueAtEQ(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldEQ(FieldDueAt, v))
+// DateDueEQ applies the EQ predicate on the "date_due" field.
+func DateDueEQ(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldEQ(FieldDateDue, v))
 }
 
-// DueAtNEQ applies the NEQ predicate on the "due_at" field.
-func DueAtNEQ(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldNEQ(FieldDueAt, v))
+// DateDueNEQ applies the NEQ predicate on the "date_due" field.
+func DateDueNEQ(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldNEQ(FieldDateDue, v))
 }
 
-// DueAtIn applies the In predicate on the "due_at" field.
-func DueAtIn(vs ...time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldIn(FieldDueAt, vs...))
+// DateDueIn applies the In predicate on the "date_due" field.
+func DateDueIn(vs ...time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldIn(FieldDateDue, vs...))
 }
 
-// DueAtNotIn applies the NotIn predicate on the "due_at" field.
-func DueAtNotIn(vs ...time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldNotIn(FieldDueAt, vs...))
+// DateDueNotIn applies the NotIn predicate on the "date_due" field.
+func DateDueNotIn(vs ...time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldNotIn(FieldDateDue, vs...))
 }
 
-// DueAtGT applies the GT predicate on the "due_at" field.
-func DueAtGT(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldGT(FieldDueAt, v))
+// DateDueGT applies the GT predicate on the "date_due" field.
+func DateDueGT(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldGT(FieldDateDue, v))
 }
 
-// DueAtGTE applies the GTE predicate on the "due_at" field.
-func DueAtGTE(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldGTE(FieldDueAt, v))
+// DateDueGTE applies the GTE predicate on the "date_due" field.
+func DateDueGTE(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldGTE(FieldDateDue, v))
 }
 
-// DueAtLT applies the LT predicate on the "due_at" field.
-func DueAtLT(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldLT(FieldDueAt, v))
+// DateDueLT applies the LT predicate on the "date_due" field.
+func DateDueLT(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldLT(FieldDateDue, v))
 }
 
-// DueAtLTE applies the LTE predicate on the "due_at" field.
-func DueAtLTE(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldLTE(FieldDueAt, v))
+// DateDueLTE applies the LTE predicate on the "date_due" field.
+func DateDueLTE(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldLTE(FieldDateDue, v))
 }
 
-// DueAtIsNil applies the IsNil predicate on the "due_at" field.
-func DueAtIsNil() predicate.Custody {
-	return predicate.Custody(sql.FieldIsNull(FieldDueAt))
+// DateDueIsNil applies the IsNil predicate on the "date_due" field.
+func DateDueIsNil() predicate.Custody {
+	return predicate.Custody(sql.FieldIsNull(FieldDateDue))
 }
 
-// DueAtNotNil applies the NotNil predicate on the "due_at" field.
-func DueAtNotNil() predicate.Custody {
-	return predicate.Custody(sql.FieldNotNull(FieldDueAt))
+// DateDueNotNil applies the NotNil predicate on the "date_due" field.
+func DateDueNotNil() predicate.Custody {
+	return predicate.Custody(sql.FieldNotNull(FieldDateDue))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.
@@ -566,104 +566,104 @@ func DateCreatedNotNil() predicate.Custody {
 	return predicate.Custody(sql.FieldNotNull(FieldDateCreated))
 }
 
-// AcknowledgedAtEQ applies the EQ predicate on the "acknowledged_at" field.
-func AcknowledgedAtEQ(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldEQ(FieldAcknowledgedAt, v))
+// DateAcknowledgedEQ applies the EQ predicate on the "date_acknowledged" field.
+func DateAcknowledgedEQ(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldEQ(FieldDateAcknowledged, v))
 }
 
-// AcknowledgedAtNEQ applies the NEQ predicate on the "acknowledged_at" field.
-func AcknowledgedAtNEQ(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldNEQ(FieldAcknowledgedAt, v))
+// DateAcknowledgedNEQ applies the NEQ predicate on the "date_acknowledged" field.
+func DateAcknowledgedNEQ(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldNEQ(FieldDateAcknowledged, v))
 }
 
-// AcknowledgedAtIn applies the In predicate on the "acknowledged_at" field.
-func AcknowledgedAtIn(vs ...time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldIn(FieldAcknowledgedAt, vs...))
+// DateAcknowledgedIn applies the In predicate on the "date_acknowledged" field.
+func DateAcknowledgedIn(vs ...time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldIn(FieldDateAcknowledged, vs...))
 }
 
-// AcknowledgedAtNotIn applies the NotIn predicate on the "acknowledged_at" field.
-func AcknowledgedAtNotIn(vs ...time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldNotIn(FieldAcknowledgedAt, vs...))
+// DateAcknowledgedNotIn applies the NotIn predicate on the "date_acknowledged" field.
+func DateAcknowledgedNotIn(vs ...time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldNotIn(FieldDateAcknowledged, vs...))
 }
 
-// AcknowledgedAtGT applies the GT predicate on the "acknowledged_at" field.
-func AcknowledgedAtGT(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldGT(FieldAcknowledgedAt, v))
+// DateAcknowledgedGT applies the GT predicate on the "date_acknowledged" field.
+func DateAcknowledgedGT(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldGT(FieldDateAcknowledged, v))
 }
 
-// AcknowledgedAtGTE applies the GTE predicate on the "acknowledged_at" field.
-func AcknowledgedAtGTE(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldGTE(FieldAcknowledgedAt, v))
+// DateAcknowledgedGTE applies the GTE predicate on the "date_acknowledged" field.
+func DateAcknowledgedGTE(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldGTE(FieldDateAcknowledged, v))
 }
 
-// AcknowledgedAtLT applies the LT predicate on the "acknowledged_at" field.
-func AcknowledgedAtLT(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldLT(FieldAcknowledgedAt, v))
+// DateAcknowledgedLT applies the LT predicate on the "date_acknowledged" field.
+func DateAcknowledgedLT(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldLT(FieldDateAcknowledged, v))
 }
 
-// AcknowledgedAtLTE applies the LTE predicate on the "acknowledged_at" field.
-func AcknowledgedAtLTE(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldLTE(FieldAcknowledgedAt, v))
+// DateAcknowledgedLTE applies the LTE predicate on the "date_acknowledged" field.
+func DateAcknowledgedLTE(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldLTE(FieldDateAcknowledged, v))
 }
 
-// AcknowledgedAtIsNil applies the IsNil predicate on the "acknowledged_at" field.
-func AcknowledgedAtIsNil() predicate.Custody {
-	return predicate.Custody(sql.FieldIsNull(FieldAcknowledgedAt))
+// DateAcknowledgedIsNil applies the IsNil predicate on the "date_acknowledged" field.
+func DateAcknowledgedIsNil() predicate.Custody {
+	return predicate.Custody(sql.FieldIsNull(FieldDateAcknowledged))
 }
 
-// AcknowledgedAtNotNil applies the NotNil predicate on the "acknowledged_at" field.
-func AcknowledgedAtNotNil() predicate.Custody {
-	return predicate.Custody(sql.FieldNotNull(FieldAcknowledgedAt))
+// DateAcknowledgedNotNil applies the NotNil predicate on the "date_acknowledged" field.
+func DateAcknowledgedNotNil() predicate.Custody {
+	return predicate.Custody(sql.FieldNotNull(FieldDateAcknowledged))
 }
 
-// ReturnedAtEQ applies the EQ predicate on the "returned_at" field.
-func ReturnedAtEQ(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldEQ(FieldReturnedAt, v))
+// DateReturnedEQ applies the EQ predicate on the "date_returned" field.
+func DateReturnedEQ(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldEQ(FieldDateReturned, v))
 }
 
-// ReturnedAtNEQ applies the NEQ predicate on the "returned_at" field.
-func ReturnedAtNEQ(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldNEQ(FieldReturnedAt, v))
+// DateReturnedNEQ applies the NEQ predicate on the "date_returned" field.
+func DateReturnedNEQ(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldNEQ(FieldDateReturned, v))
 }
 
-// ReturnedAtIn applies the In predicate on the "returned_at" field.
-func ReturnedAtIn(vs ...time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldIn(FieldReturnedAt, vs...))
+// DateReturnedIn applies the In predicate on the "date_returned" field.
+func DateReturnedIn(vs ...time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldIn(FieldDateReturned, vs...))
 }
 
-// ReturnedAtNotIn applies the NotIn predicate on the "returned_at" field.
-func ReturnedAtNotIn(vs ...time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldNotIn(FieldReturnedAt, vs...))
+// DateReturnedNotIn applies the NotIn predicate on the "date_returned" field.
+func DateReturnedNotIn(vs ...time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldNotIn(FieldDateReturned, vs...))
 }
 
-// ReturnedAtGT applies the GT predicate on the "returned_at" field.
-func ReturnedAtGT(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldGT(FieldReturnedAt, v))
+// DateReturnedGT applies the GT predicate on the "date_returned" field.
+func DateReturnedGT(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldGT(FieldDateReturned, v))
 }
 
-// ReturnedAtGTE applies the GTE predicate on the "returned_at" field.
-func ReturnedAtGTE(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldGTE(FieldReturnedAt, v))
+// DateReturnedGTE applies the GTE predicate on the "date_returned" field.
+func DateReturnedGTE(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldGTE(FieldDateReturned, v))
 }
 
-// ReturnedAtLT applies the LT predicate on the "returned_at" field.
-func ReturnedAtLT(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldLT(FieldReturnedAt, v))
+// DateReturnedLT applies the LT predicate on the "date_returned" field.
+func DateReturnedLT(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldLT(FieldDateReturned, v))
 }
 
-// ReturnedAtLTE applies the LTE predicate on the "returned_at" field.
-func ReturnedAtLTE(v time.Time) predicate.Custody {
-	return predicate.Custody(sql.FieldLTE(FieldReturnedAt, v))
+// DateReturnedLTE applies the LTE predicate on the "date_returned" field.
+func DateReturnedLTE(v time.Time) predicate.Custody {
+	return predicate.Custody(sql.FieldLTE(FieldDateReturned, v))
 }
 
-// ReturnedAtIsNil applies the IsNil predicate on the "returned_at" field.
-func ReturnedAtIsNil() predicate.Custody {
-	return predicate.Custody(sql.FieldIsNull(FieldReturnedAt))
+// DateReturnedIsNil applies the IsNil predicate on the "date_returned" field.
+func DateReturnedIsNil() predicate.Custody {
+	return predicate.Custody(sql.FieldIsNull(FieldDateReturned))
 }
 
-// ReturnedAtNotNil applies the NotNil predicate on the "returned_at" field.
-func ReturnedAtNotNil() predicate.Custody {
-	return predicate.Custody(sql.FieldNotNull(FieldReturnedAt))
+// DateReturnedNotNil applies the NotNil predicate on the "date_returned" field.
+func DateReturnedNotNil() predicate.Custody {
+	return predicate.Custody(sql.FieldNotNull(FieldDateReturned))
 }
 
 // ReservationIdEQ applies the EQ predicate on the "reservation_id" field.

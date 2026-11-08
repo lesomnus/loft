@@ -40,7 +40,7 @@ func (e *env) releases(r *app.Reservation) []*ent.Event {
 // name.
 func (e *env) usage(from, to time.Time) map[string]*app.BookableUsageRow {
 	e.t.Helper()
-	v, err := e.app().Bookable().Usage(e.owner, app.BookableUsageRequest_builder{From: timestamppb.New(from), To: timestamppb.New(to)}.Build())
+	v, err := e.app().Bookable().Usage(e.owner, app.BookableUsageRequest_builder{DateFrom: timestamppb.New(from), DateTo: timestamppb.New(to)}.Build())
 	e.x.NoError(err)
 	out := map[string]*app.BookableUsageRow{}
 	for _, r := range v.GetRows() {
@@ -443,7 +443,7 @@ func TestEquipmentNobodyPickedUpExpiresWhereNobodyIsHeldToIt(t *testing.T) {
 		Party:         ref[app.PartyRef](kim.GetId()),
 		Lines:         []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(lens)}.Build()},
 		ReservationId: taken.GetId(),
-		DueAt:         taken.GetEndsAt(),
+		DateDue:       taken.GetDateEnd(),
 	}.Build())
 	x.NoError(err)
 	x.Equal("in_use", e.reservation(taken).GetStatus())

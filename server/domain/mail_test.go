@@ -122,9 +122,9 @@ func TestLateCustodyAndDueWorkGoByMail(t *testing.T) {
 	_, kim := e.person("member")
 
 	_, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-		Party: ref[app.PartyRef](kim.GetId()),
-		DueAt: e.in(2 * day),
-		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(phone)}.Build()},
+		Party:   ref[app.PartyRef](kim.GetId()),
+		DateDue: e.in(2 * day),
+		Lines:   []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(phone)}.Build()},
 	}.Build())
 	x.NoError(err)
 	e.mail()
@@ -137,11 +137,11 @@ func TestLateCustodyAndDueWorkGoByMail(t *testing.T) {
 	x.Len(box.to("owner@acme.example"), 1, "and to who manages it")
 
 	_, err = e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{
-		Asset:    assetRef(phone),
-		Kind:     "inspection",
-		Name:     "배터리 점검",
-		BeginsAt: timestamppb.New(e.now.Add(2 * time.Hour)),
-		EndsAt:   timestamppb.New(e.now.Add(3 * time.Hour)),
+		Asset:     assetRef(phone),
+		Kind:      "inspection",
+		Name:      "배터리 점검",
+		DateStart: timestamppb.New(e.now.Add(2 * time.Hour)),
+		DateEnd:   timestamppb.New(e.now.Add(3 * time.Hour)),
 	}.Build())
 	x.NoError(err)
 	e.sweep()
@@ -270,9 +270,9 @@ func TestWhatIsToldInTheAppOnlyIsNotQueued(t *testing.T) {
 	store := e.space("창고", nil)
 	phone := e.item("업무폰", "PH-1", store, day)
 	_, err = e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
-		Party: ref[app.PartyRef](kimParty(e, kim)),
-		DueAt: e.in(2 * day),
-		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(phone)}.Build()},
+		Party:   ref[app.PartyRef](kimParty(e, kim)),
+		DateDue: e.in(2 * day),
+		Lines:   []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(phone)}.Build()},
 	}.Build())
 	x.NoError(err)
 	issued, err := e.s.Ent.Notification.Query().Where(notification.Kind("custody.issued")).Only(ctx)

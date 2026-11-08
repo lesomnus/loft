@@ -663,7 +663,7 @@ func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, reason
 		id = v
 	}
 
-	ctx, o, err := past.Begin(t.base, t.past, past.Event{Id: id, Kind: kind, Subject: subject, At: at, Reason: reason, Value: v})
+	ctx, o, err := past.Begin(t.base, t.past, past.Event{Id: id, Kind: kind, Subject: subject, DateOccurred: at, Reason: reason, Value: v})
 	if err != nil {
 		return err
 	}
@@ -699,7 +699,7 @@ func (t *Tx) ev() pdid.Id {
 // records its own event, which is a child of this one's already.
 func (t *Tx) child(kind string, subject pdid.Id, at time.Time, reason string, v proto.Message, f func() error) error {
 	parent := t.op
-	c, err := parent.Child(t.ctx, past.Event{Kind: kind, Subject: subject, At: at, Reason: reason, Value: v})
+	c, err := parent.Child(t.ctx, past.Event{Kind: kind, Subject: subject, DateOccurred: at, Reason: reason, Value: v})
 	if err != nil {
 		return err
 	}

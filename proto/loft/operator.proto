@@ -101,13 +101,13 @@ message OperatorTenantWindow {
   uint32 keep_days = 1;
   // A window made shorter waits out the grace: until when the longer one
   // holds, and the days it then becomes. Unset when nothing waits.
-  google.protobuf.Timestamp keep_until = 2;
+  google.protobuf.Timestamp date_keep_until = 2;
   uint32 keep_then_days = 3;
 
   // Days the trail keeps its access record -- the floor raising a shorter
   // one -- and the same for a shorter one waiting; 0 is forever.
   uint32 access_days = 4;
-  google.protobuf.Timestamp access_until = 5;
+  google.protobuf.Timestamp date_access_until = 5;
   uint32 access_then_days = 6;
 
   // Days it may be restored once closed: its own, or the deployment's.
@@ -137,7 +137,7 @@ message OperatorTenantMoveResponse {
   Tenant tenant = 1;
   // The address it was at, and until when that is held from anybody else.
   string from = 2;
-  google.protobuf.Timestamp held_until = 3;
+  google.protobuf.Timestamp date_held_until = 3;
 }
 
 message OperatorTenantNameOwnerRequest {
@@ -157,9 +157,9 @@ message OperatorTenantRetirement {
   bytes tenant = 1;
   // Its address, as the hold on it names it; empty once none is left.
   string alias = 2;
-  google.protobuf.Timestamp retired = 3;
+  google.protobuf.Timestamp date_retired = 3;
   // When the last of the deployment's floors passes for what it kept.
-  google.protobuf.Timestamp until = 4;
+  google.protobuf.Timestamp date_kept_until = 4;
 }
 
 message OperatorTenantDestroyRequest {
@@ -196,7 +196,7 @@ message OperatorTenantDestroyed {
   // until when the last of them passes.
   bool retired = 10;
   map<string, uint32> kept = 11;
-  google.protobuf.Timestamp kept_until = 12;
+  google.protobuf.Timestamp date_kept_until = 12;
 
   // On the roster in this process (`embedded`), the accounts that were in
   // this workspace and no other, which went with it.
@@ -462,7 +462,7 @@ message OperatorTrailOwedRequest {}
 message OperatorTrailOwedResponse {
   // How many erasures are owed, and since when.
   uint32 objects = 1;
-  google.protobuf.Timestamp oldest = 2;
+  google.protobuf.Timestamp date_oldest = 2;
   // What a legal hold keeps of them, by workspace.
   repeated OperatorTrailHeld held = 3;
 }
@@ -509,8 +509,8 @@ message OperatorTrailExported {
   repeated string witnesses = 10;
   bool uncovered = 11;
   // A workspace that retired: when, and until when what it kept is kept.
-  google.protobuf.Timestamp retired = 12;
-  google.protobuf.Timestamp kept_until = 13;
+  google.protobuf.Timestamp date_retired = 12;
+  google.protobuf.Timestamp date_kept_until = 13;
   // How many people the access record says it carries.
   uint32 people = 14;
 }
@@ -632,7 +632,7 @@ message OperatorRetentionTaken {
   string alias = 2;
   bool dry_run = 3;
   // Where its window begins; unset is a window that keeps everything.
-  google.protobuf.Timestamp before = 4;
+  google.protobuf.Timestamp date_before = 4;
   // What its legal holds are for: while there is one, nothing goes.
   repeated string held = 5;
   // What was over before the window, by kind, and the stored files that
@@ -857,8 +857,8 @@ message OperatorEventRedactionResponse {
   bytes event = 1;
   string tenant = 2;
   string kind = 3;
-  google.protobuf.Timestamp occurred = 4;
-  google.protobuf.Timestamp recorded = 5;
+  google.protobuf.Timestamp date_occurred = 4;
+  google.protobuf.Timestamp date_recorded = 5;
   bytes subject = 6;
   // Whether it has a reason to take out at all.
   bool said = 7;
@@ -876,7 +876,7 @@ message OperatorEventRedactionResponse {
 
 message OperatorEventRedactionAct {
   bytes event = 1;
-  google.protobuf.Timestamp recorded = 2;
+  google.protobuf.Timestamp date_recorded = 2;
   // Who did it; nobody, for the deployment's own work.
   bytes actor = 3;
   // The operator's name, for an act an operator did.
@@ -899,8 +899,8 @@ message OperatorAccessListRequest {
   // Only this workspace's record.
   OperatorTenantRef tenant = 1 [features.field_presence = EXPLICIT];
   // From and before when; thirty days ago and now when unset.
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
   // Only the calls of this actor: a membership, an account, an operator.
   bytes actor = 4;
   // Only the calls that carried this person's data, by their person
@@ -917,7 +917,7 @@ message OperatorAccessListResponse {
 }
 
 message OperatorAccessRow {
-  google.protobuf.Timestamp at = 1;
+  google.protobuf.Timestamp date_created = 1;
   string tenant = 2;
   string kind = 3;
   string result = 4;

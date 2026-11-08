@@ -100,16 +100,16 @@ func (_c *CountFindingCreate) SetNillableExpectedParentId(v *uuid.UUID) *CountFi
 	return _c
 }
 
-// SetSeenAt sets the "seen_at" field.
-func (_c *CountFindingCreate) SetSeenAt(v time.Time) *CountFindingCreate {
-	_c.mutation.SetSeenAt(v)
+// SetDateSeen sets the "date_seen" field.
+func (_c *CountFindingCreate) SetDateSeen(v time.Time) *CountFindingCreate {
+	_c.mutation.SetDateSeen(v)
 	return _c
 }
 
-// SetNillableSeenAt sets the "seen_at" field if the given value is not nil.
-func (_c *CountFindingCreate) SetNillableSeenAt(v *time.Time) *CountFindingCreate {
+// SetNillableDateSeen sets the "date_seen" field if the given value is not nil.
+func (_c *CountFindingCreate) SetNillableDateSeen(v *time.Time) *CountFindingCreate {
 	if v != nil {
-		_c.SetSeenAt(*v)
+		_c.SetDateSeen(*v)
 	}
 	return _c
 }
@@ -134,16 +134,16 @@ func (_c *CountFindingCreate) SetResolution(v string) *CountFindingCreate {
 	return _c
 }
 
-// SetResolvedAt sets the "resolved_at" field.
-func (_c *CountFindingCreate) SetResolvedAt(v time.Time) *CountFindingCreate {
-	_c.mutation.SetResolvedAt(v)
+// SetDateResolved sets the "date_resolved" field.
+func (_c *CountFindingCreate) SetDateResolved(v time.Time) *CountFindingCreate {
+	_c.mutation.SetDateResolved(v)
 	return _c
 }
 
-// SetNillableResolvedAt sets the "resolved_at" field if the given value is not nil.
-func (_c *CountFindingCreate) SetNillableResolvedAt(v *time.Time) *CountFindingCreate {
+// SetNillableDateResolved sets the "date_resolved" field if the given value is not nil.
+func (_c *CountFindingCreate) SetNillableDateResolved(v *time.Time) *CountFindingCreate {
 	if v != nil {
-		_c.SetResolvedAt(*v)
+		_c.SetDateResolved(*v)
 	}
 	return _c
 }
@@ -335,9 +335,9 @@ func (_c *CountFindingCreate) createSpec() (*CountFinding, *sqlgraph.CreateSpec)
 		_spec.SetField(countfinding.FieldExpectedParentId, field.TypeUuid, value)
 		_node.ExpectedParentId = &value
 	}
-	if value, ok := _c.mutation.SeenAt(); ok {
-		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, value)
-		_node.SeenAt = value
+	if value, ok := _c.mutation.DateSeen(); ok {
+		_spec.SetField(countfinding.FieldDateSeen, field.TypeTime, value)
+		_node.DateSeen = value
 	}
 	if value, ok := _c.mutation.RecordedBy(); ok {
 		_spec.SetField(countfinding.FieldRecordedBy, field.TypeUuid, value)
@@ -347,9 +347,9 @@ func (_c *CountFindingCreate) createSpec() (*CountFinding, *sqlgraph.CreateSpec)
 		_spec.SetField(countfinding.FieldResolution, field.TypeString, value)
 		_node.Resolution = value
 	}
-	if value, ok := _c.mutation.ResolvedAt(); ok {
-		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, value)
-		_node.ResolvedAt = &value
+	if value, ok := _c.mutation.DateResolved(); ok {
+		_spec.SetField(countfinding.FieldDateResolved, field.TypeTime, value)
+		_node.DateResolved = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

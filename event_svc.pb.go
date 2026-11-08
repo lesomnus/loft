@@ -23,24 +23,24 @@ const (
 )
 
 type EventAddRequest struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Kind        string                 `protobuf:"bytes,8,opt,name=kind"`
-	xxx_hidden_ActorId     []byte                 `protobuf:"bytes,9,opt,name=actor_id,json=actorId"`
-	xxx_hidden_OccurredAt  *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=occurred_at,json=occurredAt"`
-	xxx_hidden_Reason      string                 `protobuf:"bytes,11,opt,name=reason"`
-	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,12,opt,name=subject_id,json=subjectId"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_TraceId     []byte                 `protobuf:"bytes,16,opt,name=trace_id,json=traceId"`
-	xxx_hidden_CauseId     []byte                 `protobuf:"bytes,18,opt,name=cause_id,json=causeId"`
-	xxx_hidden_Value       *anypb.Any             `protobuf:"bytes,19,opt,name=value"`
-	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Payload     string                 `protobuf:"bytes,17,opt,name=payload"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant       *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Kind         string                 `protobuf:"bytes,8,opt,name=kind"`
+	xxx_hidden_ActorId      []byte                 `protobuf:"bytes,9,opt,name=actor_id,json=actorId"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,11,opt,name=reason"`
+	xxx_hidden_SubjectId    []byte                 `protobuf:"bytes,12,opt,name=subject_id,json=subjectId"`
+	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_TraceId      []byte                 `protobuf:"bytes,16,opt,name=trace_id,json=traceId"`
+	xxx_hidden_CauseId      []byte                 `protobuf:"bytes,18,opt,name=cause_id,json=causeId"`
+	xxx_hidden_Value        *anypb.Any             `protobuf:"bytes,19,opt,name=value"`
+	xxx_hidden_Desc         string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Payload      string                 `protobuf:"bytes,17,opt,name=payload"`
+	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
+	XXX_presence            [1]uint32
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *EventAddRequest) Reset() {
@@ -96,9 +96,9 @@ func (x *EventAddRequest) GetActorId() []byte {
 	return nil
 }
 
-func (x *EventAddRequest) GetOccurredAt() *timestamppb.Timestamp {
+func (x *EventAddRequest) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_OccurredAt
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
@@ -183,8 +183,8 @@ func (x *EventAddRequest) SetActorId(v []byte) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
 }
 
-func (x *EventAddRequest) SetOccurredAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OccurredAt = v
+func (x *EventAddRequest) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
 func (x *EventAddRequest) SetReason(v string) {
@@ -252,11 +252,11 @@ func (x *EventAddRequest) HasActorId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *EventAddRequest) HasOccurredAt() bool {
+func (x *EventAddRequest) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_OccurredAt != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
 func (x *EventAddRequest) HasSubjectId() bool {
@@ -308,8 +308,8 @@ func (x *EventAddRequest) ClearActorId() {
 	x.xxx_hidden_ActorId = nil
 }
 
-func (x *EventAddRequest) ClearOccurredAt() {
-	x.xxx_hidden_OccurredAt = nil
+func (x *EventAddRequest) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
 func (x *EventAddRequest) ClearSubjectId() {
@@ -338,19 +338,19 @@ func (x *EventAddRequest) ClearValue() {
 type EventAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id          []byte
-	Tenant      *TenantRef
-	Kind        string
-	ActorId     []byte
-	OccurredAt  *timestamppb.Timestamp
-	Reason      string
-	SubjectId   []byte
-	DateCreated *timestamppb.Timestamp
-	TraceId     []byte
-	CauseId     []byte
-	Value       *anypb.Any
-	Desc        string
-	Payload     string
+	Id           []byte
+	Tenant       *TenantRef
+	Kind         string
+	ActorId      []byte
+	DateOccurred *timestamppb.Timestamp
+	Reason       string
+	SubjectId    []byte
+	DateCreated  *timestamppb.Timestamp
+	TraceId      []byte
+	CauseId      []byte
+	Value        *anypb.Any
+	Desc         string
+	Payload      string
 }
 
 func (b0 EventAddRequest_builder) Build() *EventAddRequest {
@@ -367,7 +367,7 @@ func (b0 EventAddRequest_builder) Build() *EventAddRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
 		x.xxx_hidden_ActorId = b.ActorId
 	}
-	x.xxx_hidden_OccurredAt = b.OccurredAt
+	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_Reason = b.Reason
 	if b.SubjectId != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
@@ -726,25 +726,25 @@ type eventRef_Id struct {
 func (*eventRef_Id) isEventRef_Key() {}
 
 type EventSelect struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Kind        bool                   `protobuf:"varint,8,opt,name=kind"`
-	xxx_hidden_ActorId     bool                   `protobuf:"varint,9,opt,name=actor_id,json=actorId"`
-	xxx_hidden_OccurredAt  bool                   `protobuf:"varint,10,opt,name=occurred_at,json=occurredAt"`
-	xxx_hidden_Reason      bool                   `protobuf:"varint,11,opt,name=reason"`
-	xxx_hidden_SubjectId   bool                   `protobuf:"varint,12,opt,name=subject_id,json=subjectId"`
-	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_TraceId     bool                   `protobuf:"varint,16,opt,name=trace_id,json=traceId"`
-	xxx_hidden_CauseId     bool                   `protobuf:"varint,18,opt,name=cause_id,json=causeId"`
-	xxx_hidden_Value       bool                   `protobuf:"varint,19,opt,name=value"`
-	xxx_hidden_Desc        bool                   `protobuf:"varint,6,opt,name=desc"`
-	xxx_hidden_Payload     bool                   `protobuf:"varint,17,opt,name=payload"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All          bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Tenant       *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Kind         bool                   `protobuf:"varint,8,opt,name=kind"`
+	xxx_hidden_ActorId      bool                   `protobuf:"varint,9,opt,name=actor_id,json=actorId"`
+	xxx_hidden_DateOccurred bool                   `protobuf:"varint,10,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_Reason       bool                   `protobuf:"varint,11,opt,name=reason"`
+	xxx_hidden_SubjectId    bool                   `protobuf:"varint,12,opt,name=subject_id,json=subjectId"`
+	xxx_hidden_DateUpdated  bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated  bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_TraceId      bool                   `protobuf:"varint,16,opt,name=trace_id,json=traceId"`
+	xxx_hidden_CauseId      bool                   `protobuf:"varint,18,opt,name=cause_id,json=causeId"`
+	xxx_hidden_Value        bool                   `protobuf:"varint,19,opt,name=value"`
+	xxx_hidden_Desc         bool                   `protobuf:"varint,6,opt,name=desc"`
+	xxx_hidden_Payload      bool                   `protobuf:"varint,17,opt,name=payload"`
+	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
+	XXX_presence            [1]uint32
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *EventSelect) Reset() {
@@ -800,9 +800,9 @@ func (x *EventSelect) GetActorId() bool {
 	return false
 }
 
-func (x *EventSelect) GetOccurredAt() bool {
+func (x *EventSelect) GetDateOccurred() bool {
 	if x != nil {
-		return x.xxx_hidden_OccurredAt
+		return x.xxx_hidden_DateOccurred
 	}
 	return false
 }
@@ -889,8 +889,8 @@ func (x *EventSelect) SetActorId(v bool) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 14)
 }
 
-func (x *EventSelect) SetOccurredAt(v bool) {
-	x.xxx_hidden_OccurredAt = v
+func (x *EventSelect) SetDateOccurred(v bool) {
+	x.xxx_hidden_DateOccurred = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 14)
 }
 
@@ -967,7 +967,7 @@ func (x *EventSelect) HasActorId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *EventSelect) HasOccurredAt() bool {
+func (x *EventSelect) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
@@ -1056,9 +1056,9 @@ func (x *EventSelect) ClearActorId() {
 	x.xxx_hidden_ActorId = false
 }
 
-func (x *EventSelect) ClearOccurredAt() {
+func (x *EventSelect) ClearDateOccurred() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
-	x.xxx_hidden_OccurredAt = false
+	x.xxx_hidden_DateOccurred = false
 }
 
 func (x *EventSelect) ClearReason() {
@@ -1109,20 +1109,20 @@ func (x *EventSelect) ClearPayload() {
 type EventSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	All         *bool
-	Tenant      *TenantSelect
-	Kind        *bool
-	ActorId     *bool
-	OccurredAt  *bool
-	Reason      *bool
-	SubjectId   *bool
-	DateUpdated *bool
-	DateCreated *bool
-	TraceId     *bool
-	CauseId     *bool
-	Value       *bool
-	Desc        *bool
-	Payload     *bool
+	All          *bool
+	Tenant       *TenantSelect
+	Kind         *bool
+	ActorId      *bool
+	DateOccurred *bool
+	Reason       *bool
+	SubjectId    *bool
+	DateUpdated  *bool
+	DateCreated  *bool
+	TraceId      *bool
+	CauseId      *bool
+	Value        *bool
+	Desc         *bool
+	Payload      *bool
 }
 
 func (b0 EventSelect_builder) Build() *EventSelect {
@@ -1142,9 +1142,9 @@ func (b0 EventSelect_builder) Build() *EventSelect {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 14)
 		x.xxx_hidden_ActorId = *b.ActorId
 	}
-	if b.OccurredAt != nil {
+	if b.DateOccurred != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 14)
-		x.xxx_hidden_OccurredAt = *b.OccurredAt
+		x.xxx_hidden_DateOccurred = *b.DateOccurred
 	}
 	if b.Reason != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 14)
@@ -1847,15 +1847,14 @@ var File_loft_payday_event_svc_g_proto protoreflect.FileDescriptor
 
 const file_loft_payday_event_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1dloft/payday/event_svc.g.proto\x12\x04loft\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17loft/payday/event.proto\x1a\x1eloft/payday/tenant_svc.g.proto\"\xd8\x03\n" +
+	"\x1dloft/payday/event_svc.g.proto\x12\x04loft\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17loft/payday/event.proto\x1a\x1eloft/payday/tenant_svc.g.proto\"\xdc\x03\n" +
 	"\x0fEventAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04kind\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x19\n" +
-	"\bactor_id\x18\t \x01(\fR\aactorId\x12;\n" +
-	"\voccurred_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"occurredAt\x12\x1d\n" +
+	"\bactor_id\x18\t \x01(\fR\aactorId\x12?\n" +
+	"\rdate_occurred\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12\x1d\n" +
 	"\x06reason\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\f \x01(\fR\tsubjectId\x12=\n" +
@@ -1874,15 +1873,14 @@ const file_loft_payday_event_svc_g_proto_rawDesc = "" +
 	"\x06select\x18\x02 \x01(\v2\x11.loft.EventSelectR\x06select\"#\n" +
 	"\bEventRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\x92\x03\n" +
+	"\x03key\"\x96\x03\n" +
 	"\vEventSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04kind\x18\b \x01(\bR\x04kind\x12\x19\n" +
-	"\bactor_id\x18\t \x01(\bR\aactorId\x12\x1f\n" +
-	"\voccurred_at\x18\n" +
-	" \x01(\bR\n" +
-	"occurredAt\x12\x16\n" +
+	"\bactor_id\x18\t \x01(\bR\aactorId\x12#\n" +
+	"\rdate_occurred\x18\n" +
+	" \x01(\bR\fdateOccurred\x12\x16\n" +
 	"\x06reason\x18\v \x01(\bR\x06reason\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\f \x01(\bR\tsubjectId\x12!\n" +
@@ -1949,7 +1947,7 @@ var file_loft_payday_event_svc_g_proto_goTypes = []any{
 }
 var file_loft_payday_event_svc_g_proto_depIdxs = []int32{
 	12, // 0: loft.EventAddRequest.tenant:type_name -> loft.TenantRef
-	13, // 1: loft.EventAddRequest.occurred_at:type_name -> google.protobuf.Timestamp
+	13, // 1: loft.EventAddRequest.date_occurred:type_name -> google.protobuf.Timestamp
 	13, // 2: loft.EventAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	14, // 3: loft.EventAddRequest.value:type_name -> google.protobuf.Any
 	0,  // 4: loft.EventAddManyRequest.items:type_name -> loft.EventAddRequest

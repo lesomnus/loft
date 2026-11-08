@@ -32,8 +32,8 @@ func (e *Notification) Proto() *loft.Notification {
 	if e.SubjectId != nil {
 		x.SetSubjectId(e.SubjectId[:])
 	}
-	if e.ReadAt != nil {
-		x.SetReadAt(timestamppb.New(*e.ReadAt))
+	if e.DateRead != nil {
+		x.SetDateRead(timestamppb.New(*e.DateRead))
 	}
 	x.SetLink(e.Link)
 	x.SetMail(e.Mail)
@@ -94,8 +94,8 @@ func (e *AccessReview) Proto() *loft.AccessReview {
 		x.SetTenant(r)
 	}
 	x.SetDesc(e.Desc)
-	x.SetPeriodFrom(timestamppb.New(e.PeriodFrom))
-	x.SetPeriodTo(timestamppb.New(e.PeriodTo))
+	x.SetDateStart(timestamppb.New(e.DateStart))
+	x.SetDateEnd(timestamppb.New(e.DateEnd))
 	if v := e.Edges.Reviewer; v != nil {
 		x.SetReviewer(v.Proto())
 	} else if v := e.ReviewerId; v != *new(uuid.UUID) {

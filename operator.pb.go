@@ -407,18 +407,18 @@ func (b0 OperatorTenantShowResponse_builder) Build() *OperatorTenantShowResponse
 // stands now: its own settings (D36), the deployment's where it says none,
 // and the floors and holds over both.
 type OperatorTenantWindow struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_KeepDays       uint32                 `protobuf:"varint,1,opt,name=keep_days,json=keepDays"`
-	xxx_hidden_KeepUntil      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=keep_until,json=keepUntil"`
-	xxx_hidden_KeepThenDays   uint32                 `protobuf:"varint,3,opt,name=keep_then_days,json=keepThenDays"`
-	xxx_hidden_AccessDays     uint32                 `protobuf:"varint,4,opt,name=access_days,json=accessDays"`
-	xxx_hidden_AccessUntil    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=access_until,json=accessUntil"`
-	xxx_hidden_AccessThenDays uint32                 `protobuf:"varint,6,opt,name=access_then_days,json=accessThenDays"`
-	xxx_hidden_RestoreDays    uint32                 `protobuf:"varint,7,opt,name=restore_days,json=restoreDays"`
-	xxx_hidden_Purge          bool                   `protobuf:"varint,8,opt,name=purge"`
-	xxx_hidden_Apply          bool                   `protobuf:"varint,9,opt,name=apply"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	state                      protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_KeepDays        uint32                 `protobuf:"varint,1,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_DateKeepUntil   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_keep_until,json=dateKeepUntil"`
+	xxx_hidden_KeepThenDays    uint32                 `protobuf:"varint,3,opt,name=keep_then_days,json=keepThenDays"`
+	xxx_hidden_AccessDays      uint32                 `protobuf:"varint,4,opt,name=access_days,json=accessDays"`
+	xxx_hidden_DateAccessUntil *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_access_until,json=dateAccessUntil"`
+	xxx_hidden_AccessThenDays  uint32                 `protobuf:"varint,6,opt,name=access_then_days,json=accessThenDays"`
+	xxx_hidden_RestoreDays     uint32                 `protobuf:"varint,7,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_Purge           bool                   `protobuf:"varint,8,opt,name=purge"`
+	xxx_hidden_Apply           bool                   `protobuf:"varint,9,opt,name=apply"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *OperatorTenantWindow) Reset() {
@@ -453,9 +453,9 @@ func (x *OperatorTenantWindow) GetKeepDays() uint32 {
 	return 0
 }
 
-func (x *OperatorTenantWindow) GetKeepUntil() *timestamppb.Timestamp {
+func (x *OperatorTenantWindow) GetDateKeepUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_KeepUntil
+		return x.xxx_hidden_DateKeepUntil
 	}
 	return nil
 }
@@ -474,9 +474,9 @@ func (x *OperatorTenantWindow) GetAccessDays() uint32 {
 	return 0
 }
 
-func (x *OperatorTenantWindow) GetAccessUntil() *timestamppb.Timestamp {
+func (x *OperatorTenantWindow) GetDateAccessUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_AccessUntil
+		return x.xxx_hidden_DateAccessUntil
 	}
 	return nil
 }
@@ -513,8 +513,8 @@ func (x *OperatorTenantWindow) SetKeepDays(v uint32) {
 	x.xxx_hidden_KeepDays = v
 }
 
-func (x *OperatorTenantWindow) SetKeepUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_KeepUntil = v
+func (x *OperatorTenantWindow) SetDateKeepUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKeepUntil = v
 }
 
 func (x *OperatorTenantWindow) SetKeepThenDays(v uint32) {
@@ -525,8 +525,8 @@ func (x *OperatorTenantWindow) SetAccessDays(v uint32) {
 	x.xxx_hidden_AccessDays = v
 }
 
-func (x *OperatorTenantWindow) SetAccessUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_AccessUntil = v
+func (x *OperatorTenantWindow) SetDateAccessUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAccessUntil = v
 }
 
 func (x *OperatorTenantWindow) SetAccessThenDays(v uint32) {
@@ -545,26 +545,26 @@ func (x *OperatorTenantWindow) SetApply(v bool) {
 	x.xxx_hidden_Apply = v
 }
 
-func (x *OperatorTenantWindow) HasKeepUntil() bool {
+func (x *OperatorTenantWindow) HasDateKeepUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_KeepUntil != nil
+	return x.xxx_hidden_DateKeepUntil != nil
 }
 
-func (x *OperatorTenantWindow) HasAccessUntil() bool {
+func (x *OperatorTenantWindow) HasDateAccessUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_AccessUntil != nil
+	return x.xxx_hidden_DateAccessUntil != nil
 }
 
-func (x *OperatorTenantWindow) ClearKeepUntil() {
-	x.xxx_hidden_KeepUntil = nil
+func (x *OperatorTenantWindow) ClearDateKeepUntil() {
+	x.xxx_hidden_DateKeepUntil = nil
 }
 
-func (x *OperatorTenantWindow) ClearAccessUntil() {
-	x.xxx_hidden_AccessUntil = nil
+func (x *OperatorTenantWindow) ClearDateAccessUntil() {
+	x.xxx_hidden_DateAccessUntil = nil
 }
 
 type OperatorTenantWindow_builder struct {
@@ -574,13 +574,13 @@ type OperatorTenantWindow_builder struct {
 	KeepDays uint32
 	// A window made shorter waits out the grace: until when the longer one
 	// holds, and the days it then becomes. Unset when nothing waits.
-	KeepUntil    *timestamppb.Timestamp
-	KeepThenDays uint32
+	DateKeepUntil *timestamppb.Timestamp
+	KeepThenDays  uint32
 	// Days the trail keeps its access record -- the floor raising a shorter
 	// one -- and the same for a shorter one waiting; 0 is forever.
-	AccessDays     uint32
-	AccessUntil    *timestamppb.Timestamp
-	AccessThenDays uint32
+	AccessDays      uint32
+	DateAccessUntil *timestamppb.Timestamp
+	AccessThenDays  uint32
 	// Days it may be restored once closed: its own, or the deployment's.
 	RestoreDays uint32
 	// Whether destroying it takes its whole trail, what the deployment's
@@ -596,10 +596,10 @@ func (b0 OperatorTenantWindow_builder) Build() *OperatorTenantWindow {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_KeepDays = b.KeepDays
-	x.xxx_hidden_KeepUntil = b.KeepUntil
+	x.xxx_hidden_DateKeepUntil = b.DateKeepUntil
 	x.xxx_hidden_KeepThenDays = b.KeepThenDays
 	x.xxx_hidden_AccessDays = b.AccessDays
-	x.xxx_hidden_AccessUntil = b.AccessUntil
+	x.xxx_hidden_DateAccessUntil = b.DateAccessUntil
 	x.xxx_hidden_AccessThenDays = b.AccessThenDays
 	x.xxx_hidden_RestoreDays = b.RestoreDays
 	x.xxx_hidden_Purge = b.Purge
@@ -721,12 +721,12 @@ func (b0 OperatorTenantMoveRequest_builder) Build() *OperatorTenantMoveRequest {
 }
 
 type OperatorTenantMoveResponse struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Tenant    *Tenant                `protobuf:"bytes,1,opt,name=tenant"`
-	xxx_hidden_From      string                 `protobuf:"bytes,2,opt,name=from"`
-	xxx_hidden_HeldUntil *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=held_until,json=heldUntil"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Tenant        *Tenant                `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_From          string                 `protobuf:"bytes,2,opt,name=from"`
+	xxx_hidden_DateHeldUntil *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_held_until,json=dateHeldUntil"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *OperatorTenantMoveResponse) Reset() {
@@ -768,9 +768,9 @@ func (x *OperatorTenantMoveResponse) GetFrom() string {
 	return ""
 }
 
-func (x *OperatorTenantMoveResponse) GetHeldUntil() *timestamppb.Timestamp {
+func (x *OperatorTenantMoveResponse) GetDateHeldUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_HeldUntil
+		return x.xxx_hidden_DateHeldUntil
 	}
 	return nil
 }
@@ -783,8 +783,8 @@ func (x *OperatorTenantMoveResponse) SetFrom(v string) {
 	x.xxx_hidden_From = v
 }
 
-func (x *OperatorTenantMoveResponse) SetHeldUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_HeldUntil = v
+func (x *OperatorTenantMoveResponse) SetDateHeldUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateHeldUntil = v
 }
 
 func (x *OperatorTenantMoveResponse) HasTenant() bool {
@@ -794,19 +794,19 @@ func (x *OperatorTenantMoveResponse) HasTenant() bool {
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *OperatorTenantMoveResponse) HasHeldUntil() bool {
+func (x *OperatorTenantMoveResponse) HasDateHeldUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_HeldUntil != nil
+	return x.xxx_hidden_DateHeldUntil != nil
 }
 
 func (x *OperatorTenantMoveResponse) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
 
-func (x *OperatorTenantMoveResponse) ClearHeldUntil() {
-	x.xxx_hidden_HeldUntil = nil
+func (x *OperatorTenantMoveResponse) ClearDateHeldUntil() {
+	x.xxx_hidden_DateHeldUntil = nil
 }
 
 type OperatorTenantMoveResponse_builder struct {
@@ -815,8 +815,8 @@ type OperatorTenantMoveResponse_builder struct {
 	// The workspace, at its new address -- at its old one for a dry run.
 	Tenant *Tenant
 	// The address it was at, and until when that is held from anybody else.
-	From      string
-	HeldUntil *timestamppb.Timestamp
+	From          string
+	DateHeldUntil *timestamppb.Timestamp
 }
 
 func (b0 OperatorTenantMoveResponse_builder) Build() *OperatorTenantMoveResponse {
@@ -825,7 +825,7 @@ func (b0 OperatorTenantMoveResponse_builder) Build() *OperatorTenantMoveResponse
 	_, _ = b, x
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_From = b.From
-	x.xxx_hidden_HeldUntil = b.HeldUntil
+	x.xxx_hidden_DateHeldUntil = b.DateHeldUntil
 	return m0
 }
 
@@ -1016,13 +1016,13 @@ func (b0 OperatorTenantRetiredResponse_builder) Build() *OperatorTenantRetiredRe
 }
 
 type OperatorTenantRetirement struct {
-	state              protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Tenant  []byte                 `protobuf:"bytes,1,opt,name=tenant"`
-	xxx_hidden_Alias   string                 `protobuf:"bytes,2,opt,name=alias"`
-	xxx_hidden_Retired *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=retired"`
-	xxx_hidden_Until   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=until"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Tenant        []byte                 `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_Alias         string                 `protobuf:"bytes,2,opt,name=alias"`
+	xxx_hidden_DateRetired   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_retired,json=dateRetired"`
+	xxx_hidden_DateKeptUntil *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_kept_until,json=dateKeptUntil"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *OperatorTenantRetirement) Reset() {
@@ -1064,16 +1064,16 @@ func (x *OperatorTenantRetirement) GetAlias() string {
 	return ""
 }
 
-func (x *OperatorTenantRetirement) GetRetired() *timestamppb.Timestamp {
+func (x *OperatorTenantRetirement) GetDateRetired() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Retired
+		return x.xxx_hidden_DateRetired
 	}
 	return nil
 }
 
-func (x *OperatorTenantRetirement) GetUntil() *timestamppb.Timestamp {
+func (x *OperatorTenantRetirement) GetDateKeptUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Until
+		return x.xxx_hidden_DateKeptUntil
 	}
 	return nil
 }
@@ -1089,34 +1089,34 @@ func (x *OperatorTenantRetirement) SetAlias(v string) {
 	x.xxx_hidden_Alias = v
 }
 
-func (x *OperatorTenantRetirement) SetRetired(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Retired = v
+func (x *OperatorTenantRetirement) SetDateRetired(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRetired = v
 }
 
-func (x *OperatorTenantRetirement) SetUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Until = v
+func (x *OperatorTenantRetirement) SetDateKeptUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKeptUntil = v
 }
 
-func (x *OperatorTenantRetirement) HasRetired() bool {
+func (x *OperatorTenantRetirement) HasDateRetired() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Retired != nil
+	return x.xxx_hidden_DateRetired != nil
 }
 
-func (x *OperatorTenantRetirement) HasUntil() bool {
+func (x *OperatorTenantRetirement) HasDateKeptUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Until != nil
+	return x.xxx_hidden_DateKeptUntil != nil
 }
 
-func (x *OperatorTenantRetirement) ClearRetired() {
-	x.xxx_hidden_Retired = nil
+func (x *OperatorTenantRetirement) ClearDateRetired() {
+	x.xxx_hidden_DateRetired = nil
 }
 
-func (x *OperatorTenantRetirement) ClearUntil() {
-	x.xxx_hidden_Until = nil
+func (x *OperatorTenantRetirement) ClearDateKeptUntil() {
+	x.xxx_hidden_DateKeptUntil = nil
 }
 
 type OperatorTenantRetirement_builder struct {
@@ -1124,10 +1124,10 @@ type OperatorTenantRetirement_builder struct {
 
 	Tenant []byte
 	// Its address, as the hold on it names it; empty once none is left.
-	Alias   string
-	Retired *timestamppb.Timestamp
+	Alias       string
+	DateRetired *timestamppb.Timestamp
 	// When the last of the deployment's floors passes for what it kept.
-	Until *timestamppb.Timestamp
+	DateKeptUntil *timestamppb.Timestamp
 }
 
 func (b0 OperatorTenantRetirement_builder) Build() *OperatorTenantRetirement {
@@ -1136,8 +1136,8 @@ func (b0 OperatorTenantRetirement_builder) Build() *OperatorTenantRetirement {
 	_, _ = b, x
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Alias = b.Alias
-	x.xxx_hidden_Retired = b.Retired
-	x.xxx_hidden_Until = b.Until
+	x.xxx_hidden_DateRetired = b.DateRetired
+	x.xxx_hidden_DateKeptUntil = b.DateKeptUntil
 	return m0
 }
 
@@ -1321,7 +1321,7 @@ type OperatorTenantDestroyed struct {
 	xxx_hidden_TrailChunks    uint32                 `protobuf:"varint,9,opt,name=trail_chunks,json=trailChunks"`
 	xxx_hidden_Retired        bool                   `protobuf:"varint,10,opt,name=retired"`
 	xxx_hidden_Kept           map[string]uint32      `protobuf:"bytes,11,rep,name=kept" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
-	xxx_hidden_KeptUntil      *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=kept_until,json=keptUntil"`
+	xxx_hidden_DateKeptUntil  *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_kept_until,json=dateKeptUntil"`
 	xxx_hidden_Embedded       bool                   `protobuf:"varint,13,opt,name=embedded"`
 	xxx_hidden_Forgotten      uint32                 `protobuf:"varint,14,opt,name=forgotten"`
 	xxx_hidden_Bills          bool                   `protobuf:"varint,15,opt,name=bills"`
@@ -1434,9 +1434,9 @@ func (x *OperatorTenantDestroyed) GetKept() map[string]uint32 {
 	return nil
 }
 
-func (x *OperatorTenantDestroyed) GetKeptUntil() *timestamppb.Timestamp {
+func (x *OperatorTenantDestroyed) GetDateKeptUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_KeptUntil
+		return x.xxx_hidden_DateKeptUntil
 	}
 	return nil
 }
@@ -1530,8 +1530,8 @@ func (x *OperatorTenantDestroyed) SetKept(v map[string]uint32) {
 	x.xxx_hidden_Kept = v
 }
 
-func (x *OperatorTenantDestroyed) SetKeptUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_KeptUntil = v
+func (x *OperatorTenantDestroyed) SetDateKeptUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKeptUntil = v
 }
 
 func (x *OperatorTenantDestroyed) SetEmbedded(v bool) {
@@ -1558,15 +1558,15 @@ func (x *OperatorTenantDestroyed) SetContractPurges(v bool) {
 	x.xxx_hidden_ContractPurges = v
 }
 
-func (x *OperatorTenantDestroyed) HasKeptUntil() bool {
+func (x *OperatorTenantDestroyed) HasDateKeptUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_KeptUntil != nil
+	return x.xxx_hidden_DateKeptUntil != nil
 }
 
-func (x *OperatorTenantDestroyed) ClearKeptUntil() {
-	x.xxx_hidden_KeptUntil = nil
+func (x *OperatorTenantDestroyed) ClearDateKeptUntil() {
+	x.xxx_hidden_DateKeptUntil = nil
 }
 
 type OperatorTenantDestroyed_builder struct {
@@ -1587,9 +1587,9 @@ type OperatorTenantDestroyed_builder struct {
 	TrailChunks  uint32
 	// A retirement, which keeps what the deployment's floors are on, by kind,
 	// until when the last of them passes.
-	Retired   bool
-	Kept      map[string]uint32
-	KeptUntil *timestamppb.Timestamp
+	Retired       bool
+	Kept          map[string]uint32
+	DateKeptUntil *timestamppb.Timestamp
 	// On the roster in this process (`embedded`), the accounts that were in
 	// this workspace and no other, which went with it.
 	Embedded  bool
@@ -1620,7 +1620,7 @@ func (b0 OperatorTenantDestroyed_builder) Build() *OperatorTenantDestroyed {
 	x.xxx_hidden_TrailChunks = b.TrailChunks
 	x.xxx_hidden_Retired = b.Retired
 	x.xxx_hidden_Kept = b.Kept
-	x.xxx_hidden_KeptUntil = b.KeptUntil
+	x.xxx_hidden_DateKeptUntil = b.DateKeptUntil
 	x.xxx_hidden_Embedded = b.Embedded
 	x.xxx_hidden_Forgotten = b.Forgotten
 	x.xxx_hidden_Bills = b.Bills
@@ -3776,12 +3776,12 @@ func (b0 OperatorTrailOwedRequest_builder) Build() *OperatorTrailOwedRequest {
 }
 
 type OperatorTrailOwedResponse struct {
-	state              protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Objects uint32                 `protobuf:"varint,1,opt,name=objects"`
-	xxx_hidden_Oldest  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=oldest"`
-	xxx_hidden_Held    *[]*OperatorTrailHeld  `protobuf:"bytes,3,rep,name=held"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Objects    uint32                 `protobuf:"varint,1,opt,name=objects"`
+	xxx_hidden_DateOldest *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_oldest,json=dateOldest"`
+	xxx_hidden_Held       *[]*OperatorTrailHeld  `protobuf:"bytes,3,rep,name=held"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *OperatorTrailOwedResponse) Reset() {
@@ -3816,9 +3816,9 @@ func (x *OperatorTrailOwedResponse) GetObjects() uint32 {
 	return 0
 }
 
-func (x *OperatorTrailOwedResponse) GetOldest() *timestamppb.Timestamp {
+func (x *OperatorTrailOwedResponse) GetDateOldest() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Oldest
+		return x.xxx_hidden_DateOldest
 	}
 	return nil
 }
@@ -3836,31 +3836,31 @@ func (x *OperatorTrailOwedResponse) SetObjects(v uint32) {
 	x.xxx_hidden_Objects = v
 }
 
-func (x *OperatorTrailOwedResponse) SetOldest(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Oldest = v
+func (x *OperatorTrailOwedResponse) SetDateOldest(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOldest = v
 }
 
 func (x *OperatorTrailOwedResponse) SetHeld(v []*OperatorTrailHeld) {
 	x.xxx_hidden_Held = &v
 }
 
-func (x *OperatorTrailOwedResponse) HasOldest() bool {
+func (x *OperatorTrailOwedResponse) HasDateOldest() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Oldest != nil
+	return x.xxx_hidden_DateOldest != nil
 }
 
-func (x *OperatorTrailOwedResponse) ClearOldest() {
-	x.xxx_hidden_Oldest = nil
+func (x *OperatorTrailOwedResponse) ClearDateOldest() {
+	x.xxx_hidden_DateOldest = nil
 }
 
 type OperatorTrailOwedResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// How many erasures are owed, and since when.
-	Objects uint32
-	Oldest  *timestamppb.Timestamp
+	Objects    uint32
+	DateOldest *timestamppb.Timestamp
 	// What a legal hold keeps of them, by workspace.
 	Held []*OperatorTrailHeld
 }
@@ -3870,7 +3870,7 @@ func (b0 OperatorTrailOwedResponse_builder) Build() *OperatorTrailOwedResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Objects = b.Objects
-	x.xxx_hidden_Oldest = b.Oldest
+	x.xxx_hidden_DateOldest = b.DateOldest
 	x.xxx_hidden_Held = &b.Held
 	return m0
 }
@@ -4153,8 +4153,8 @@ type OperatorTrailExported struct {
 	xxx_hidden_CheckpointDigest string                 `protobuf:"bytes,9,opt,name=checkpoint_digest,json=checkpointDigest"`
 	xxx_hidden_Witnesses        []string               `protobuf:"bytes,10,rep,name=witnesses"`
 	xxx_hidden_Uncovered        bool                   `protobuf:"varint,11,opt,name=uncovered"`
-	xxx_hidden_Retired          *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=retired"`
-	xxx_hidden_KeptUntil        *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=kept_until,json=keptUntil"`
+	xxx_hidden_DateRetired      *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_retired,json=dateRetired"`
+	xxx_hidden_DateKeptUntil    *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_kept_until,json=dateKeptUntil"`
 	xxx_hidden_People           uint32                 `protobuf:"varint,14,opt,name=people"`
 	unknownFields               protoimpl.UnknownFields
 	sizeCache                   protoimpl.SizeCache
@@ -4262,16 +4262,16 @@ func (x *OperatorTrailExported) GetUncovered() bool {
 	return false
 }
 
-func (x *OperatorTrailExported) GetRetired() *timestamppb.Timestamp {
+func (x *OperatorTrailExported) GetDateRetired() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Retired
+		return x.xxx_hidden_DateRetired
 	}
 	return nil
 }
 
-func (x *OperatorTrailExported) GetKeptUntil() *timestamppb.Timestamp {
+func (x *OperatorTrailExported) GetDateKeptUntil() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_KeptUntil
+		return x.xxx_hidden_DateKeptUntil
 	}
 	return nil
 }
@@ -4330,38 +4330,38 @@ func (x *OperatorTrailExported) SetUncovered(v bool) {
 	x.xxx_hidden_Uncovered = v
 }
 
-func (x *OperatorTrailExported) SetRetired(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Retired = v
+func (x *OperatorTrailExported) SetDateRetired(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRetired = v
 }
 
-func (x *OperatorTrailExported) SetKeptUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_KeptUntil = v
+func (x *OperatorTrailExported) SetDateKeptUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKeptUntil = v
 }
 
 func (x *OperatorTrailExported) SetPeople(v uint32) {
 	x.xxx_hidden_People = v
 }
 
-func (x *OperatorTrailExported) HasRetired() bool {
+func (x *OperatorTrailExported) HasDateRetired() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Retired != nil
+	return x.xxx_hidden_DateRetired != nil
 }
 
-func (x *OperatorTrailExported) HasKeptUntil() bool {
+func (x *OperatorTrailExported) HasDateKeptUntil() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_KeptUntil != nil
+	return x.xxx_hidden_DateKeptUntil != nil
 }
 
-func (x *OperatorTrailExported) ClearRetired() {
-	x.xxx_hidden_Retired = nil
+func (x *OperatorTrailExported) ClearDateRetired() {
+	x.xxx_hidden_DateRetired = nil
 }
 
-func (x *OperatorTrailExported) ClearKeptUntil() {
-	x.xxx_hidden_KeptUntil = nil
+func (x *OperatorTrailExported) ClearDateKeptUntil() {
+	x.xxx_hidden_DateKeptUntil = nil
 }
 
 type OperatorTrailExported_builder struct {
@@ -4384,8 +4384,8 @@ type OperatorTrailExported_builder struct {
 	Witnesses        []string
 	Uncovered        bool
 	// A workspace that retired: when, and until when what it kept is kept.
-	Retired   *timestamppb.Timestamp
-	KeptUntil *timestamppb.Timestamp
+	DateRetired   *timestamppb.Timestamp
+	DateKeptUntil *timestamppb.Timestamp
 	// How many people the access record says it carries.
 	People uint32
 }
@@ -4405,8 +4405,8 @@ func (b0 OperatorTrailExported_builder) Build() *OperatorTrailExported {
 	x.xxx_hidden_CheckpointDigest = b.CheckpointDigest
 	x.xxx_hidden_Witnesses = b.Witnesses
 	x.xxx_hidden_Uncovered = b.Uncovered
-	x.xxx_hidden_Retired = b.Retired
-	x.xxx_hidden_KeptUntil = b.KeptUntil
+	x.xxx_hidden_DateRetired = b.DateRetired
+	x.xxx_hidden_DateKeptUntil = b.DateKeptUntil
 	x.xxx_hidden_People = b.People
 	return m0
 }
@@ -5339,17 +5339,17 @@ func (b0 OperatorRetentionResponse_builder) Build() *OperatorRetentionResponse {
 }
 
 type OperatorRetentionTaken struct {
-	state             protoimpl.MessageState     `protogen:"opaque.v1"`
-	xxx_hidden_Tenant []byte                     `protobuf:"bytes,1,opt,name=tenant"`
-	xxx_hidden_Alias  string                     `protobuf:"bytes,2,opt,name=alias"`
-	xxx_hidden_DryRun bool                       `protobuf:"varint,3,opt,name=dry_run,json=dryRun"`
-	xxx_hidden_Before *timestamppb.Timestamp     `protobuf:"bytes,4,opt,name=before"`
-	xxx_hidden_Held   []string                   `protobuf:"bytes,5,rep,name=held"`
-	xxx_hidden_Taken  map[string]uint32          `protobuf:"bytes,6,rep,name=taken" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
-	xxx_hidden_Lost   []string                   `protobuf:"bytes,7,rep,name=lost"`
-	xxx_hidden_Trail  *[]*OperatorRetentionTrail `protobuf:"bytes,8,rep,name=trail"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state                 protoimpl.MessageState     `protogen:"opaque.v1"`
+	xxx_hidden_Tenant     []byte                     `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_Alias      string                     `protobuf:"bytes,2,opt,name=alias"`
+	xxx_hidden_DryRun     bool                       `protobuf:"varint,3,opt,name=dry_run,json=dryRun"`
+	xxx_hidden_DateBefore *timestamppb.Timestamp     `protobuf:"bytes,4,opt,name=date_before,json=dateBefore"`
+	xxx_hidden_Held       []string                   `protobuf:"bytes,5,rep,name=held"`
+	xxx_hidden_Taken      map[string]uint32          `protobuf:"bytes,6,rep,name=taken" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_Lost       []string                   `protobuf:"bytes,7,rep,name=lost"`
+	xxx_hidden_Trail      *[]*OperatorRetentionTrail `protobuf:"bytes,8,rep,name=trail"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *OperatorRetentionTaken) Reset() {
@@ -5398,9 +5398,9 @@ func (x *OperatorRetentionTaken) GetDryRun() bool {
 	return false
 }
 
-func (x *OperatorRetentionTaken) GetBefore() *timestamppb.Timestamp {
+func (x *OperatorRetentionTaken) GetDateBefore() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Before
+		return x.xxx_hidden_DateBefore
 	}
 	return nil
 }
@@ -5450,8 +5450,8 @@ func (x *OperatorRetentionTaken) SetDryRun(v bool) {
 	x.xxx_hidden_DryRun = v
 }
 
-func (x *OperatorRetentionTaken) SetBefore(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Before = v
+func (x *OperatorRetentionTaken) SetDateBefore(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateBefore = v
 }
 
 func (x *OperatorRetentionTaken) SetHeld(v []string) {
@@ -5470,15 +5470,15 @@ func (x *OperatorRetentionTaken) SetTrail(v []*OperatorRetentionTrail) {
 	x.xxx_hidden_Trail = &v
 }
 
-func (x *OperatorRetentionTaken) HasBefore() bool {
+func (x *OperatorRetentionTaken) HasDateBefore() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Before != nil
+	return x.xxx_hidden_DateBefore != nil
 }
 
-func (x *OperatorRetentionTaken) ClearBefore() {
-	x.xxx_hidden_Before = nil
+func (x *OperatorRetentionTaken) ClearDateBefore() {
+	x.xxx_hidden_DateBefore = nil
 }
 
 type OperatorRetentionTaken_builder struct {
@@ -5488,7 +5488,7 @@ type OperatorRetentionTaken_builder struct {
 	Alias  string
 	DryRun bool
 	// Where its window begins; unset is a window that keeps everything.
-	Before *timestamppb.Timestamp
+	DateBefore *timestamppb.Timestamp
 	// What its legal holds are for: while there is one, nothing goes.
 	Held []string
 	// What was over before the window, by kind, and the stored files that
@@ -5506,7 +5506,7 @@ func (b0 OperatorRetentionTaken_builder) Build() *OperatorRetentionTaken {
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Alias = b.Alias
 	x.xxx_hidden_DryRun = b.DryRun
-	x.xxx_hidden_Before = b.Before
+	x.xxx_hidden_DateBefore = b.DateBefore
 	x.xxx_hidden_Held = b.Held
 	x.xxx_hidden_Taken = b.Taken
 	x.xxx_hidden_Lost = b.Lost
@@ -7372,21 +7372,21 @@ func (b0 OperatorEventRedactionRequest_builder) Build() *OperatorEventRedactionR
 }
 
 type OperatorEventRedactionResponse struct {
-	state               protoimpl.MessageState        `protogen:"opaque.v1"`
-	xxx_hidden_Event    []byte                        `protobuf:"bytes,1,opt,name=event"`
-	xxx_hidden_Tenant   string                        `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Kind     string                        `protobuf:"bytes,3,opt,name=kind"`
-	xxx_hidden_Occurred *timestamppb.Timestamp        `protobuf:"bytes,4,opt,name=occurred"`
-	xxx_hidden_Recorded *timestamppb.Timestamp        `protobuf:"bytes,5,opt,name=recorded"`
-	xxx_hidden_Subject  []byte                        `protobuf:"bytes,6,opt,name=subject"`
-	xxx_hidden_Said     bool                          `protobuf:"varint,7,opt,name=said"`
-	xxx_hidden_Copies   map[string]uint32             `protobuf:"bytes,8,rep,name=copies" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
-	xxx_hidden_Told     map[string]uint32             `protobuf:"bytes,9,rep,name=told" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
-	xxx_hidden_Mailed   uint32                        `protobuf:"varint,10,opt,name=mailed"`
-	xxx_hidden_Kept     map[string]uint32             `protobuf:"bytes,11,rep,name=kept" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
-	xxx_hidden_Acts     *[]*OperatorEventRedactionAct `protobuf:"bytes,12,rep,name=acts"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                   protoimpl.MessageState        `protogen:"opaque.v1"`
+	xxx_hidden_Event        []byte                        `protobuf:"bytes,1,opt,name=event"`
+	xxx_hidden_Tenant       string                        `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Kind         string                        `protobuf:"bytes,3,opt,name=kind"`
+	xxx_hidden_DateOccurred *timestamppb.Timestamp        `protobuf:"bytes,4,opt,name=date_occurred,json=dateOccurred"`
+	xxx_hidden_DateRecorded *timestamppb.Timestamp        `protobuf:"bytes,5,opt,name=date_recorded,json=dateRecorded"`
+	xxx_hidden_Subject      []byte                        `protobuf:"bytes,6,opt,name=subject"`
+	xxx_hidden_Said         bool                          `protobuf:"varint,7,opt,name=said"`
+	xxx_hidden_Copies       map[string]uint32             `protobuf:"bytes,8,rep,name=copies" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_Told         map[string]uint32             `protobuf:"bytes,9,rep,name=told" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_Mailed       uint32                        `protobuf:"varint,10,opt,name=mailed"`
+	xxx_hidden_Kept         map[string]uint32             `protobuf:"bytes,11,rep,name=kept" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_Acts         *[]*OperatorEventRedactionAct `protobuf:"bytes,12,rep,name=acts"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *OperatorEventRedactionResponse) Reset() {
@@ -7435,16 +7435,16 @@ func (x *OperatorEventRedactionResponse) GetKind() string {
 	return ""
 }
 
-func (x *OperatorEventRedactionResponse) GetOccurred() *timestamppb.Timestamp {
+func (x *OperatorEventRedactionResponse) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Occurred
+		return x.xxx_hidden_DateOccurred
 	}
 	return nil
 }
 
-func (x *OperatorEventRedactionResponse) GetRecorded() *timestamppb.Timestamp {
+func (x *OperatorEventRedactionResponse) GetDateRecorded() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Recorded
+		return x.xxx_hidden_DateRecorded
 	}
 	return nil
 }
@@ -7515,12 +7515,12 @@ func (x *OperatorEventRedactionResponse) SetKind(v string) {
 	x.xxx_hidden_Kind = v
 }
 
-func (x *OperatorEventRedactionResponse) SetOccurred(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Occurred = v
+func (x *OperatorEventRedactionResponse) SetDateOccurred(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateOccurred = v
 }
 
-func (x *OperatorEventRedactionResponse) SetRecorded(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Recorded = v
+func (x *OperatorEventRedactionResponse) SetDateRecorded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRecorded = v
 }
 
 func (x *OperatorEventRedactionResponse) SetSubject(v []byte) {
@@ -7554,37 +7554,37 @@ func (x *OperatorEventRedactionResponse) SetActs(v []*OperatorEventRedactionAct)
 	x.xxx_hidden_Acts = &v
 }
 
-func (x *OperatorEventRedactionResponse) HasOccurred() bool {
+func (x *OperatorEventRedactionResponse) HasDateOccurred() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Occurred != nil
+	return x.xxx_hidden_DateOccurred != nil
 }
 
-func (x *OperatorEventRedactionResponse) HasRecorded() bool {
+func (x *OperatorEventRedactionResponse) HasDateRecorded() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Recorded != nil
+	return x.xxx_hidden_DateRecorded != nil
 }
 
-func (x *OperatorEventRedactionResponse) ClearOccurred() {
-	x.xxx_hidden_Occurred = nil
+func (x *OperatorEventRedactionResponse) ClearDateOccurred() {
+	x.xxx_hidden_DateOccurred = nil
 }
 
-func (x *OperatorEventRedactionResponse) ClearRecorded() {
-	x.xxx_hidden_Recorded = nil
+func (x *OperatorEventRedactionResponse) ClearDateRecorded() {
+	x.xxx_hidden_DateRecorded = nil
 }
 
 type OperatorEventRedactionResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Event    []byte
-	Tenant   string
-	Kind     string
-	Occurred *timestamppb.Timestamp
-	Recorded *timestamppb.Timestamp
-	Subject  []byte
+	Event        []byte
+	Tenant       string
+	Kind         string
+	DateOccurred *timestamppb.Timestamp
+	DateRecorded *timestamppb.Timestamp
+	Subject      []byte
 	// Whether it has a reason to take out at all.
 	Said bool
 	// The other events of its operation that say the same, the notices that
@@ -7606,8 +7606,8 @@ func (b0 OperatorEventRedactionResponse_builder) Build() *OperatorEventRedaction
 	x.xxx_hidden_Event = b.Event
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Kind = b.Kind
-	x.xxx_hidden_Occurred = b.Occurred
-	x.xxx_hidden_Recorded = b.Recorded
+	x.xxx_hidden_DateOccurred = b.DateOccurred
+	x.xxx_hidden_DateRecorded = b.DateRecorded
 	x.xxx_hidden_Subject = b.Subject
 	x.xxx_hidden_Said = b.Said
 	x.xxx_hidden_Copies = b.Copies
@@ -7619,13 +7619,13 @@ func (b0 OperatorEventRedactionResponse_builder) Build() *OperatorEventRedaction
 }
 
 type OperatorEventRedactionAct struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Event    []byte                 `protobuf:"bytes,1,opt,name=event"`
-	xxx_hidden_Recorded *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=recorded"`
-	xxx_hidden_Actor    []byte                 `protobuf:"bytes,3,opt,name=actor"`
-	xxx_hidden_Operator string                 `protobuf:"bytes,4,opt,name=operator"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Event        []byte                 `protobuf:"bytes,1,opt,name=event"`
+	xxx_hidden_DateRecorded *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_recorded,json=dateRecorded"`
+	xxx_hidden_Actor        []byte                 `protobuf:"bytes,3,opt,name=actor"`
+	xxx_hidden_Operator     string                 `protobuf:"bytes,4,opt,name=operator"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *OperatorEventRedactionAct) Reset() {
@@ -7660,9 +7660,9 @@ func (x *OperatorEventRedactionAct) GetEvent() []byte {
 	return nil
 }
 
-func (x *OperatorEventRedactionAct) GetRecorded() *timestamppb.Timestamp {
+func (x *OperatorEventRedactionAct) GetDateRecorded() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_Recorded
+		return x.xxx_hidden_DateRecorded
 	}
 	return nil
 }
@@ -7688,8 +7688,8 @@ func (x *OperatorEventRedactionAct) SetEvent(v []byte) {
 	x.xxx_hidden_Event = v
 }
 
-func (x *OperatorEventRedactionAct) SetRecorded(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Recorded = v
+func (x *OperatorEventRedactionAct) SetDateRecorded(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateRecorded = v
 }
 
 func (x *OperatorEventRedactionAct) SetActor(v []byte) {
@@ -7703,22 +7703,22 @@ func (x *OperatorEventRedactionAct) SetOperator(v string) {
 	x.xxx_hidden_Operator = v
 }
 
-func (x *OperatorEventRedactionAct) HasRecorded() bool {
+func (x *OperatorEventRedactionAct) HasDateRecorded() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Recorded != nil
+	return x.xxx_hidden_DateRecorded != nil
 }
 
-func (x *OperatorEventRedactionAct) ClearRecorded() {
-	x.xxx_hidden_Recorded = nil
+func (x *OperatorEventRedactionAct) ClearDateRecorded() {
+	x.xxx_hidden_DateRecorded = nil
 }
 
 type OperatorEventRedactionAct_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Event    []byte
-	Recorded *timestamppb.Timestamp
+	Event        []byte
+	DateRecorded *timestamppb.Timestamp
 	// Who did it; nobody, for the deployment's own work.
 	Actor []byte
 	// The operator's name, for an act an operator did.
@@ -7730,23 +7730,23 @@ func (b0 OperatorEventRedactionAct_builder) Build() *OperatorEventRedactionAct {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Event = b.Event
-	x.xxx_hidden_Recorded = b.Recorded
+	x.xxx_hidden_DateRecorded = b.DateRecorded
 	x.xxx_hidden_Actor = b.Actor
 	x.xxx_hidden_Operator = b.Operator
 	return m0
 }
 
 type OperatorAccessListRequest struct {
-	state              protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Tenant  *OperatorTenantRef     `protobuf:"bytes,1,opt,name=tenant"`
-	xxx_hidden_From    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=from"`
-	xxx_hidden_To      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=to"`
-	xxx_hidden_Actor   []byte                 `protobuf:"bytes,4,opt,name=actor"`
-	xxx_hidden_Subject []byte                 `protobuf:"bytes,5,opt,name=subject"`
-	xxx_hidden_Kind    string                 `protobuf:"bytes,6,opt,name=kind"`
-	xxx_hidden_Size    uint32                 `protobuf:"varint,7,opt,name=size"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Tenant   *OperatorTenantRef     `protobuf:"bytes,1,opt,name=tenant"`
+	xxx_hidden_DateFrom *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_from,json=dateFrom"`
+	xxx_hidden_DateTo   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_to,json=dateTo"`
+	xxx_hidden_Actor    []byte                 `protobuf:"bytes,4,opt,name=actor"`
+	xxx_hidden_Subject  []byte                 `protobuf:"bytes,5,opt,name=subject"`
+	xxx_hidden_Kind     string                 `protobuf:"bytes,6,opt,name=kind"`
+	xxx_hidden_Size     uint32                 `protobuf:"varint,7,opt,name=size"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *OperatorAccessListRequest) Reset() {
@@ -7781,16 +7781,16 @@ func (x *OperatorAccessListRequest) GetTenant() *OperatorTenantRef {
 	return nil
 }
 
-func (x *OperatorAccessListRequest) GetFrom() *timestamppb.Timestamp {
+func (x *OperatorAccessListRequest) GetDateFrom() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_From
+		return x.xxx_hidden_DateFrom
 	}
 	return nil
 }
 
-func (x *OperatorAccessListRequest) GetTo() *timestamppb.Timestamp {
+func (x *OperatorAccessListRequest) GetDateTo() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_To
+		return x.xxx_hidden_DateTo
 	}
 	return nil
 }
@@ -7827,12 +7827,12 @@ func (x *OperatorAccessListRequest) SetTenant(v *OperatorTenantRef) {
 	x.xxx_hidden_Tenant = v
 }
 
-func (x *OperatorAccessListRequest) SetFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_From = v
+func (x *OperatorAccessListRequest) SetDateFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateFrom = v
 }
 
-func (x *OperatorAccessListRequest) SetTo(v *timestamppb.Timestamp) {
-	x.xxx_hidden_To = v
+func (x *OperatorAccessListRequest) SetDateTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateTo = v
 }
 
 func (x *OperatorAccessListRequest) SetActor(v []byte) {
@@ -7864,30 +7864,30 @@ func (x *OperatorAccessListRequest) HasTenant() bool {
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *OperatorAccessListRequest) HasFrom() bool {
+func (x *OperatorAccessListRequest) HasDateFrom() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_From != nil
+	return x.xxx_hidden_DateFrom != nil
 }
 
-func (x *OperatorAccessListRequest) HasTo() bool {
+func (x *OperatorAccessListRequest) HasDateTo() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_To != nil
+	return x.xxx_hidden_DateTo != nil
 }
 
 func (x *OperatorAccessListRequest) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
 
-func (x *OperatorAccessListRequest) ClearFrom() {
-	x.xxx_hidden_From = nil
+func (x *OperatorAccessListRequest) ClearDateFrom() {
+	x.xxx_hidden_DateFrom = nil
 }
 
-func (x *OperatorAccessListRequest) ClearTo() {
-	x.xxx_hidden_To = nil
+func (x *OperatorAccessListRequest) ClearDateTo() {
+	x.xxx_hidden_DateTo = nil
 }
 
 type OperatorAccessListRequest_builder struct {
@@ -7896,8 +7896,8 @@ type OperatorAccessListRequest_builder struct {
 	// Only this workspace's record.
 	Tenant *OperatorTenantRef
 	// From and before when; thirty days ago and now when unset.
-	From *timestamppb.Timestamp
-	To   *timestamppb.Timestamp
+	DateFrom *timestamppb.Timestamp
+	DateTo   *timestamppb.Timestamp
 	// Only the calls of this actor: a membership, an account, an operator.
 	Actor []byte
 	// Only the calls that carried this person's data, by their person
@@ -7914,8 +7914,8 @@ func (b0 OperatorAccessListRequest_builder) Build() *OperatorAccessListRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_From = b.From
-	x.xxx_hidden_To = b.To
+	x.xxx_hidden_DateFrom = b.DateFrom
+	x.xxx_hidden_DateTo = b.DateTo
 	x.xxx_hidden_Actor = b.Actor
 	x.xxx_hidden_Subject = b.Subject
 	x.xxx_hidden_Kind = b.Kind
@@ -7983,19 +7983,19 @@ func (b0 OperatorAccessListResponse_builder) Build() *OperatorAccessListResponse
 }
 
 type OperatorAccessRow struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_At       *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=at"`
-	xxx_hidden_Tenant   string                 `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Kind     string                 `protobuf:"bytes,3,opt,name=kind"`
-	xxx_hidden_Result   string                 `protobuf:"bytes,4,opt,name=result"`
-	xxx_hidden_Action   string                 `protobuf:"bytes,5,opt,name=action"`
-	xxx_hidden_Actor    []byte                 `protobuf:"bytes,6,opt,name=actor"`
-	xxx_hidden_Operator string                 `protobuf:"bytes,7,opt,name=operator"`
-	xxx_hidden_Address  string                 `protobuf:"bytes,8,opt,name=address"`
-	xxx_hidden_Subjects uint32                 `protobuf:"varint,9,opt,name=subjects"`
-	xxx_hidden_Reason   string                 `protobuf:"bytes,10,opt,name=reason"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_Tenant      string                 `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Kind        string                 `protobuf:"bytes,3,opt,name=kind"`
+	xxx_hidden_Result      string                 `protobuf:"bytes,4,opt,name=result"`
+	xxx_hidden_Action      string                 `protobuf:"bytes,5,opt,name=action"`
+	xxx_hidden_Actor       []byte                 `protobuf:"bytes,6,opt,name=actor"`
+	xxx_hidden_Operator    string                 `protobuf:"bytes,7,opt,name=operator"`
+	xxx_hidden_Address     string                 `protobuf:"bytes,8,opt,name=address"`
+	xxx_hidden_Subjects    uint32                 `protobuf:"varint,9,opt,name=subjects"`
+	xxx_hidden_Reason      string                 `protobuf:"bytes,10,opt,name=reason"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *OperatorAccessRow) Reset() {
@@ -8023,9 +8023,9 @@ func (x *OperatorAccessRow) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *OperatorAccessRow) GetAt() *timestamppb.Timestamp {
+func (x *OperatorAccessRow) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
-		return x.xxx_hidden_At
+		return x.xxx_hidden_DateCreated
 	}
 	return nil
 }
@@ -8093,8 +8093,8 @@ func (x *OperatorAccessRow) GetReason() string {
 	return ""
 }
 
-func (x *OperatorAccessRow) SetAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_At = v
+func (x *OperatorAccessRow) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
 }
 
 func (x *OperatorAccessRow) SetTenant(v string) {
@@ -8136,26 +8136,26 @@ func (x *OperatorAccessRow) SetReason(v string) {
 	x.xxx_hidden_Reason = v
 }
 
-func (x *OperatorAccessRow) HasAt() bool {
+func (x *OperatorAccessRow) HasDateCreated() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_At != nil
+	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *OperatorAccessRow) ClearAt() {
-	x.xxx_hidden_At = nil
+func (x *OperatorAccessRow) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
 }
 
 type OperatorAccessRow_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	At     *timestamppb.Timestamp
-	Tenant string
-	Kind   string
-	Result string
-	Action string
-	Actor  []byte
+	DateCreated *timestamppb.Timestamp
+	Tenant      string
+	Kind        string
+	Result      string
+	Action      string
+	Actor       []byte
 	// The operator's name, for a row an operator made.
 	Operator string
 	Address  string
@@ -8167,7 +8167,7 @@ func (b0 OperatorAccessRow_builder) Build() *OperatorAccessRow {
 	m0 := &OperatorAccessRow{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_At = b.At
+	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_Result = b.Result
@@ -8315,15 +8315,14 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\amembers\x18\x02 \x03(\v2\f.loft.HolderR\amembers\x122\n" +
 	"\tcontracts\x18\x03 \x03(\v2\x14.loft.TenantContractR\tcontracts\x12%\n" +
 	"\x05holds\x18\x04 \x03(\v2\x0f.loft.LegalHoldR\x05holds\x122\n" +
-	"\x06window\x18\x05 \x01(\v2\x1a.loft.OperatorTenantWindowR\x06window\"\xed\x02\n" +
+	"\x06window\x18\x05 \x01(\v2\x1a.loft.OperatorTenantWindowR\x06window\"\xff\x02\n" +
 	"\x14OperatorTenantWindow\x12\x1b\n" +
-	"\tkeep_days\x18\x01 \x01(\rR\bkeepDays\x129\n" +
-	"\n" +
-	"keep_until\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tkeepUntil\x12$\n" +
+	"\tkeep_days\x18\x01 \x01(\rR\bkeepDays\x12B\n" +
+	"\x0fdate_keep_until\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\rdateKeepUntil\x12$\n" +
 	"\x0ekeep_then_days\x18\x03 \x01(\rR\fkeepThenDays\x12\x1f\n" +
 	"\vaccess_days\x18\x04 \x01(\rR\n" +
-	"accessDays\x12=\n" +
-	"\faccess_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vaccessUntil\x12(\n" +
+	"accessDays\x12F\n" +
+	"\x11date_access_until\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0fdateAccessUntil\x12(\n" +
 	"\x10access_then_days\x18\x06 \x01(\rR\x0eaccessThenDays\x12!\n" +
 	"\frestore_days\x18\a \x01(\rR\vrestoreDays\x12\x14\n" +
 	"\x05purge\x18\b \x01(\bR\x05purge\x12\x14\n" +
@@ -8332,29 +8331,28 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x17.loft.OperatorTenantRefR\x03ref\x12\x0e\n" +
 	"\x02to\x18\x02 \x01(\tR\x02to\x12\x14\n" +
 	"\x05reuse\x18\x03 \x01(\bR\x05reuse\x12\x17\n" +
-	"\adry_run\x18\x04 \x01(\bR\x06dryRun\"\x91\x01\n" +
+	"\adry_run\x18\x04 \x01(\bR\x06dryRun\"\x9a\x01\n" +
 	"\x1aOperatorTenantMoveResponse\x12$\n" +
 	"\x06tenant\x18\x01 \x01(\v2\f.loft.TenantR\x06tenant\x12\x12\n" +
-	"\x04from\x18\x02 \x01(\tR\x04from\x129\n" +
-	"\n" +
-	"held_until\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\theldUntil\"c\n" +
+	"\x04from\x18\x02 \x01(\tR\x04from\x12B\n" +
+	"\x0fdate_held_until\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\rdateHeldUntil\"c\n" +
 	"\x1eOperatorTenantNameOwnerRequest\x12)\n" +
 	"\x03ref\x18\x01 \x01(\v2\x17.loft.OperatorTenantRefR\x03ref\x12\x16\n" +
 	"\x06member\x18\x02 \x01(\tR\x06member\"\x1e\n" +
 	"\x1cOperatorTenantRetiredRequest\"U\n" +
 	"\x1dOperatorTenantRetiredResponse\x124\n" +
-	"\x05items\x18\x01 \x03(\v2\x1e.loft.OperatorTenantRetirementR\x05items\"\xb0\x01\n" +
+	"\x05items\x18\x01 \x03(\v2\x1e.loft.OperatorTenantRetirementR\x05items\"\xcb\x01\n" +
 	"\x18OperatorTenantRetirement\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
-	"\x05alias\x18\x02 \x01(\tR\x05alias\x124\n" +
-	"\aretired\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aretired\x120\n" +
-	"\x05until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x05until\"b\n" +
+	"\x05alias\x18\x02 \x01(\tR\x05alias\x12=\n" +
+	"\fdate_retired\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\vdateRetired\x12B\n" +
+	"\x0fdate_kept_until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\rdateKeptUntil\"b\n" +
 	"\x1cOperatorTenantDestroyRequest\x12)\n" +
 	"\x03ref\x18\x01 \x01(\v2\x17.loft.OperatorTenantRefR\x03ref\x12\x17\n" +
 	"\adry_run\x18\x02 \x01(\bR\x06dryRun\"x\n" +
 	"\x1dOperatorTenantDestroyResponse\x12\x1a\n" +
 	"\bprogress\x18\x01 \x01(\tR\bprogress\x12;\n" +
-	"\tdestroyed\x18\x02 \x01(\v2\x1d.loft.OperatorTenantDestroyedR\tdestroyed\"\xe7\x05\n" +
+	"\tdestroyed\x18\x02 \x01(\v2\x1d.loft.OperatorTenantDestroyedR\tdestroyed\"\xf0\x05\n" +
 	"\x17OperatorTenantDestroyed\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
 	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x17\n" +
@@ -8367,9 +8365,8 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\ftrail_chunks\x18\t \x01(\rR\vtrailChunks\x12\x18\n" +
 	"\aretired\x18\n" +
 	" \x01(\bR\aretired\x12;\n" +
-	"\x04kept\x18\v \x03(\v2'.loft.OperatorTenantDestroyed.KeptEntryR\x04kept\x129\n" +
-	"\n" +
-	"kept_until\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tkeptUntil\x12\x1a\n" +
+	"\x04kept\x18\v \x03(\v2'.loft.OperatorTenantDestroyed.KeptEntryR\x04kept\x12B\n" +
+	"\x0fdate_kept_until\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\rdateKeptUntil\x12\x1a\n" +
 	"\bembedded\x18\r \x01(\bR\bembedded\x12\x1c\n" +
 	"\tforgotten\x18\x0e \x01(\rR\tforgotten\x12\x14\n" +
 	"\x05bills\x18\x0f \x01(\bR\x05bills\x12\x1e\n" +
@@ -8490,10 +8487,11 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x05there\x18\x01 \x01(\rR\x05there\x12\x12\n" +
 	"\x04gone\x18\x02 \x01(\rR\x04gone\x12\x16\n" +
 	"\x06sealed\x18\x03 \x01(\rR\x06sealed\"\x1a\n" +
-	"\x18OperatorTrailOwedRequest\"\x96\x01\n" +
+	"\x18OperatorTrailOwedRequest\"\x9f\x01\n" +
 	"\x19OperatorTrailOwedResponse\x12\x18\n" +
-	"\aobjects\x18\x01 \x01(\rR\aobjects\x122\n" +
-	"\x06oldest\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x06oldest\x12+\n" +
+	"\aobjects\x18\x01 \x01(\rR\aobjects\x12;\n" +
+	"\vdate_oldest\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateOldest\x12+\n" +
 	"\x04held\x18\x03 \x03(\v2\x17.loft.OperatorTrailHeldR\x04held\"[\n" +
 	"\x11OperatorTrailHeld\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
@@ -8505,7 +8503,7 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x1bOperatorTrailExportResponse\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04data\x18\x02 \x01(\fR\x04data\x127\n" +
-	"\bexported\x18\x03 \x01(\v2\x1b.loft.OperatorTrailExportedR\bexported\"\xd3\x03\n" +
+	"\bexported\x18\x03 \x01(\v2\x1b.loft.OperatorTrailExportedR\bexported\"\xe5\x03\n" +
 	"\x15OperatorTrailExported\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
 	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x1a\n" +
@@ -8520,10 +8518,9 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x11checkpoint_digest\x18\t \x01(\tR\x10checkpointDigest\x12\x1c\n" +
 	"\twitnesses\x18\n" +
 	" \x03(\tR\twitnesses\x12\x1c\n" +
-	"\tuncovered\x18\v \x01(\bR\tuncovered\x124\n" +
-	"\aretired\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\aretired\x129\n" +
-	"\n" +
-	"kept_until\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tkeptUntil\x12\x16\n" +
+	"\tuncovered\x18\v \x01(\bR\tuncovered\x12=\n" +
+	"\fdate_retired\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\vdateRetired\x12B\n" +
+	"\x0fdate_kept_until\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\rdateKeptUntil\x12\x16\n" +
 	"\x06people\x18\x0e \x01(\rR\x06people\"\x1d\n" +
 	"\x1bOperatorSearchStatusRequest\"S\n" +
 	"\x1cOperatorSearchStatusResponse\x123\n" +
@@ -8562,12 +8559,13 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\bprogress\x18\x01 \x01(\tR\bprogress\x122\n" +
 	"\x05taken\x18\x02 \x01(\v2\x1c.loft.OperatorRetentionTakenR\x05taken\x12\x14\n" +
 	"\x05apply\x18\x03 \x01(\bR\x05apply\x12\x12\n" +
-	"\x04last\x18\x04 \x01(\bR\x04last\"\xe8\x02\n" +
+	"\x04last\x18\x04 \x01(\bR\x04last\"\xf1\x02\n" +
 	"\x16OperatorRetentionTaken\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
 	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x17\n" +
-	"\adry_run\x18\x03 \x01(\bR\x06dryRun\x122\n" +
-	"\x06before\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x06before\x12\x12\n" +
+	"\adry_run\x18\x03 \x01(\bR\x06dryRun\x12;\n" +
+	"\vdate_before\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateBefore\x12\x12\n" +
 	"\x04held\x18\x05 \x03(\tR\x04held\x12=\n" +
 	"\x05taken\x18\x06 \x03(\v2'.loft.OperatorRetentionTaken.TakenEntryR\x05taken\x12\x12\n" +
 	"\x04lost\x18\a \x03(\tR\x04lost\x122\n" +
@@ -8659,13 +8657,13 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\"m\n" +
 	"\x1dOperatorEventRedactionRequest\x12\x14\n" +
 	"\x05event\x18\x01 \x01(\fR\x05event\x126\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x17.loft.OperatorTenantRefB\x05\xaa\x01\x02\b\x01R\x06tenant\"\xcc\x05\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x17.loft.OperatorTenantRefB\x05\xaa\x01\x02\b\x01R\x06tenant\"\xde\x05\n" +
 	"\x1eOperatorEventRedactionResponse\x12\x14\n" +
 	"\x05event\x18\x01 \x01(\fR\x05event\x12\x16\n" +
 	"\x06tenant\x18\x02 \x01(\tR\x06tenant\x12\x12\n" +
-	"\x04kind\x18\x03 \x01(\tR\x04kind\x126\n" +
-	"\boccurred\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\boccurred\x126\n" +
-	"\brecorded\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\brecorded\x12\x18\n" +
+	"\x04kind\x18\x03 \x01(\tR\x04kind\x12?\n" +
+	"\rdate_occurred\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\fdateOccurred\x12?\n" +
+	"\rdate_recorded\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\fdateRecorded\x12\x18\n" +
 	"\asubject\x18\x06 \x01(\fR\asubject\x12\x12\n" +
 	"\x04said\x18\a \x01(\bR\x04said\x12H\n" +
 	"\x06copies\x18\b \x03(\v20.loft.OperatorEventRedactionResponse.CopiesEntryR\x06copies\x12B\n" +
@@ -8682,24 +8680,24 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\x1a7\n" +
 	"\tKeptEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x9b\x01\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\xa4\x01\n" +
 	"\x19OperatorEventRedactionAct\x12\x14\n" +
-	"\x05event\x18\x01 \x01(\fR\x05event\x126\n" +
-	"\brecorded\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\brecorded\x12\x14\n" +
+	"\x05event\x18\x01 \x01(\fR\x05event\x12?\n" +
+	"\rdate_recorded\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\fdateRecorded\x12\x14\n" +
 	"\x05actor\x18\x03 \x01(\fR\x05actor\x12\x1a\n" +
-	"\boperator\x18\x04 \x01(\tR\boperator\"\x87\x02\n" +
+	"\boperator\x18\x04 \x01(\tR\boperator\"\x99\x02\n" +
 	"\x19OperatorAccessListRequest\x126\n" +
-	"\x06tenant\x18\x01 \x01(\v2\x17.loft.OperatorTenantRefB\x05\xaa\x01\x02\b\x01R\x06tenant\x12.\n" +
-	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x14\n" +
+	"\x06tenant\x18\x01 \x01(\v2\x17.loft.OperatorTenantRefB\x05\xaa\x01\x02\b\x01R\x06tenant\x127\n" +
+	"\tdate_from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bdateFrom\x123\n" +
+	"\adate_to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06dateTo\x12\x14\n" +
 	"\x05actor\x18\x04 \x01(\fR\x05actor\x12\x18\n" +
 	"\asubject\x18\x05 \x01(\fR\asubject\x12\x12\n" +
 	"\x04kind\x18\x06 \x01(\tR\x04kind\x12\x12\n" +
 	"\x04size\x18\a \x01(\rR\x04size\"K\n" +
 	"\x1aOperatorAccessListResponse\x12-\n" +
-	"\x05items\x18\x01 \x03(\v2\x17.loft.OperatorAccessRowR\x05items\"\x9b\x02\n" +
-	"\x11OperatorAccessRow\x12*\n" +
-	"\x02at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x16\n" +
+	"\x05items\x18\x01 \x03(\v2\x17.loft.OperatorAccessRowR\x05items\"\xae\x02\n" +
+	"\x11OperatorAccessRow\x12=\n" +
+	"\fdate_created\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x16\n" +
 	"\x06tenant\x18\x02 \x01(\tR\x06tenant\x12\x12\n" +
 	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x16\n" +
 	"\x06result\x18\x04 \x01(\tR\x06result\x12\x16\n" +
@@ -8853,20 +8851,20 @@ var file_loft_operator_proto_depIdxs = []int32{
 	87, // 3: loft.OperatorTenantShowResponse.contracts:type_name -> loft.TenantContract
 	88, // 4: loft.OperatorTenantShowResponse.holds:type_name -> loft.LegalHold
 	3,  // 5: loft.OperatorTenantShowResponse.window:type_name -> loft.OperatorTenantWindow
-	89, // 6: loft.OperatorTenantWindow.keep_until:type_name -> google.protobuf.Timestamp
-	89, // 7: loft.OperatorTenantWindow.access_until:type_name -> google.protobuf.Timestamp
+	89, // 6: loft.OperatorTenantWindow.date_keep_until:type_name -> google.protobuf.Timestamp
+	89, // 7: loft.OperatorTenantWindow.date_access_until:type_name -> google.protobuf.Timestamp
 	0,  // 8: loft.OperatorTenantMoveRequest.ref:type_name -> loft.OperatorTenantRef
 	85, // 9: loft.OperatorTenantMoveResponse.tenant:type_name -> loft.Tenant
-	89, // 10: loft.OperatorTenantMoveResponse.held_until:type_name -> google.protobuf.Timestamp
+	89, // 10: loft.OperatorTenantMoveResponse.date_held_until:type_name -> google.protobuf.Timestamp
 	0,  // 11: loft.OperatorTenantNameOwnerRequest.ref:type_name -> loft.OperatorTenantRef
 	9,  // 12: loft.OperatorTenantRetiredResponse.items:type_name -> loft.OperatorTenantRetirement
-	89, // 13: loft.OperatorTenantRetirement.retired:type_name -> google.protobuf.Timestamp
-	89, // 14: loft.OperatorTenantRetirement.until:type_name -> google.protobuf.Timestamp
+	89, // 13: loft.OperatorTenantRetirement.date_retired:type_name -> google.protobuf.Timestamp
+	89, // 14: loft.OperatorTenantRetirement.date_kept_until:type_name -> google.protobuf.Timestamp
 	0,  // 15: loft.OperatorTenantDestroyRequest.ref:type_name -> loft.OperatorTenantRef
 	12, // 16: loft.OperatorTenantDestroyResponse.destroyed:type_name -> loft.OperatorTenantDestroyed
 	76, // 17: loft.OperatorTenantDestroyed.rows:type_name -> loft.OperatorTenantDestroyed.RowsEntry
 	77, // 18: loft.OperatorTenantDestroyed.kept:type_name -> loft.OperatorTenantDestroyed.KeptEntry
-	89, // 19: loft.OperatorTenantDestroyed.kept_until:type_name -> google.protobuf.Timestamp
+	89, // 19: loft.OperatorTenantDestroyed.date_kept_until:type_name -> google.protobuf.Timestamp
 	14, // 20: loft.OperatorTenantImportRequest.options:type_name -> loft.OperatorTenantImportOptions
 	78, // 21: loft.OperatorTenantImportResponse.rows:type_name -> loft.OperatorTenantImportResponse.RowsEntry
 	79, // 22: loft.OperatorTenantImportResponse.left:type_name -> loft.OperatorTenantImportResponse.LeftEntry
@@ -8879,16 +8877,16 @@ var file_loft_operator_proto_depIdxs = []int32{
 	28, // 29: loft.OperatorTrailRowsChecked.findings:type_name -> loft.OperatorTrailRowFinding
 	29, // 30: loft.OperatorTrailRowsChecked.skipped:type_name -> loft.OperatorTrailSkipped
 	32, // 31: loft.OperatorTrailAcceptRowsResponse.accepted:type_name -> loft.OperatorTrailRowsAccepted
-	89, // 32: loft.OperatorTrailOwedResponse.oldest:type_name -> google.protobuf.Timestamp
+	89, // 32: loft.OperatorTrailOwedResponse.date_oldest:type_name -> google.protobuf.Timestamp
 	35, // 33: loft.OperatorTrailOwedResponse.held:type_name -> loft.OperatorTrailHeld
 	38, // 34: loft.OperatorTrailExportResponse.exported:type_name -> loft.OperatorTrailExported
-	89, // 35: loft.OperatorTrailExported.retired:type_name -> google.protobuf.Timestamp
-	89, // 36: loft.OperatorTrailExported.kept_until:type_name -> google.protobuf.Timestamp
+	89, // 35: loft.OperatorTrailExported.date_retired:type_name -> google.protobuf.Timestamp
+	89, // 36: loft.OperatorTrailExported.date_kept_until:type_name -> google.protobuf.Timestamp
 	41, // 37: loft.OperatorSearchStatusResponse.indexes:type_name -> loft.OperatorSearchIndex
 	44, // 38: loft.OperatorSearchReindexResponse.made:type_name -> loft.OperatorSearchReindexed
 	0,  // 39: loft.OperatorRetentionRequest.ref:type_name -> loft.OperatorTenantRef
 	51, // 40: loft.OperatorRetentionResponse.taken:type_name -> loft.OperatorRetentionTaken
-	89, // 41: loft.OperatorRetentionTaken.before:type_name -> google.protobuf.Timestamp
+	89, // 41: loft.OperatorRetentionTaken.date_before:type_name -> google.protobuf.Timestamp
 	81, // 42: loft.OperatorRetentionTaken.taken:type_name -> loft.OperatorRetentionTaken.TakenEntry
 	52, // 43: loft.OperatorRetentionTaken.trail:type_name -> loft.OperatorRetentionTrail
 	55, // 44: loft.OperatorIdentityMigrateResponse.adopted:type_name -> loft.OperatorIdentityAdopted
@@ -8899,18 +8897,18 @@ var file_loft_operator_proto_depIdxs = []int32{
 	63, // 49: loft.OperatorIdentityReconcileResponse.back:type_name -> loft.OperatorIdentityAccount
 	0,  // 50: loft.OperatorHolderAddRequest.tenant:type_name -> loft.OperatorTenantRef
 	0,  // 51: loft.OperatorEventRedactionRequest.tenant:type_name -> loft.OperatorTenantRef
-	89, // 52: loft.OperatorEventRedactionResponse.occurred:type_name -> google.protobuf.Timestamp
-	89, // 53: loft.OperatorEventRedactionResponse.recorded:type_name -> google.protobuf.Timestamp
+	89, // 52: loft.OperatorEventRedactionResponse.date_occurred:type_name -> google.protobuf.Timestamp
+	89, // 53: loft.OperatorEventRedactionResponse.date_recorded:type_name -> google.protobuf.Timestamp
 	82, // 54: loft.OperatorEventRedactionResponse.copies:type_name -> loft.OperatorEventRedactionResponse.CopiesEntry
 	83, // 55: loft.OperatorEventRedactionResponse.told:type_name -> loft.OperatorEventRedactionResponse.ToldEntry
 	84, // 56: loft.OperatorEventRedactionResponse.kept:type_name -> loft.OperatorEventRedactionResponse.KeptEntry
 	70, // 57: loft.OperatorEventRedactionResponse.acts:type_name -> loft.OperatorEventRedactionAct
-	89, // 58: loft.OperatorEventRedactionAct.recorded:type_name -> google.protobuf.Timestamp
+	89, // 58: loft.OperatorEventRedactionAct.date_recorded:type_name -> google.protobuf.Timestamp
 	0,  // 59: loft.OperatorAccessListRequest.tenant:type_name -> loft.OperatorTenantRef
-	89, // 60: loft.OperatorAccessListRequest.from:type_name -> google.protobuf.Timestamp
-	89, // 61: loft.OperatorAccessListRequest.to:type_name -> google.protobuf.Timestamp
+	89, // 60: loft.OperatorAccessListRequest.date_from:type_name -> google.protobuf.Timestamp
+	89, // 61: loft.OperatorAccessListRequest.date_to:type_name -> google.protobuf.Timestamp
 	73, // 62: loft.OperatorAccessListResponse.items:type_name -> loft.OperatorAccessRow
-	89, // 63: loft.OperatorAccessRow.at:type_name -> google.protobuf.Timestamp
+	89, // 63: loft.OperatorAccessRow.date_created:type_name -> google.protobuf.Timestamp
 	1,  // 64: loft.OperatorTenantService.Show:input_type -> loft.OperatorTenantShowRequest
 	4,  // 65: loft.OperatorTenantService.Move:input_type -> loft.OperatorTenantMoveRequest
 	6,  // 66: loft.OperatorTenantService.NameOwner:input_type -> loft.OperatorTenantNameOwnerRequest

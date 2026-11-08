@@ -66,14 +66,14 @@ func RefId(v uuid.UUID) predicate.Allocation {
 	return predicate.Allocation(sql.FieldEQ(FieldRefId, v))
 }
 
-// BeginsAt applies equality check predicate on the "begins_at" field. It's identical to BeginsAtEQ.
-func BeginsAt(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldEQ(FieldBeginsAt, v))
+// DateStart applies equality check predicate on the "date_start" field. It's identical to DateStartEQ.
+func DateStart(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldEQ(FieldDateStart, v))
 }
 
-// EndsAt applies equality check predicate on the "ends_at" field. It's identical to EndsAtEQ.
-func EndsAt(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldEQ(FieldEndsAt, v))
+// DateEnd applies equality check predicate on the "date_end" field. It's identical to DateEndEQ.
+func DateEnd(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldEQ(FieldDateEnd, v))
 }
 
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
@@ -226,104 +226,104 @@ func RefIdNotNil() predicate.Allocation {
 	return predicate.Allocation(sql.FieldNotNull(FieldRefId))
 }
 
-// BeginsAtEQ applies the EQ predicate on the "begins_at" field.
-func BeginsAtEQ(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldEQ(FieldBeginsAt, v))
+// DateStartEQ applies the EQ predicate on the "date_start" field.
+func DateStartEQ(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldEQ(FieldDateStart, v))
 }
 
-// BeginsAtNEQ applies the NEQ predicate on the "begins_at" field.
-func BeginsAtNEQ(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldNEQ(FieldBeginsAt, v))
+// DateStartNEQ applies the NEQ predicate on the "date_start" field.
+func DateStartNEQ(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldNEQ(FieldDateStart, v))
 }
 
-// BeginsAtIn applies the In predicate on the "begins_at" field.
-func BeginsAtIn(vs ...time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldIn(FieldBeginsAt, vs...))
+// DateStartIn applies the In predicate on the "date_start" field.
+func DateStartIn(vs ...time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldIn(FieldDateStart, vs...))
 }
 
-// BeginsAtNotIn applies the NotIn predicate on the "begins_at" field.
-func BeginsAtNotIn(vs ...time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldNotIn(FieldBeginsAt, vs...))
+// DateStartNotIn applies the NotIn predicate on the "date_start" field.
+func DateStartNotIn(vs ...time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldNotIn(FieldDateStart, vs...))
 }
 
-// BeginsAtGT applies the GT predicate on the "begins_at" field.
-func BeginsAtGT(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldGT(FieldBeginsAt, v))
+// DateStartGT applies the GT predicate on the "date_start" field.
+func DateStartGT(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldGT(FieldDateStart, v))
 }
 
-// BeginsAtGTE applies the GTE predicate on the "begins_at" field.
-func BeginsAtGTE(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldGTE(FieldBeginsAt, v))
+// DateStartGTE applies the GTE predicate on the "date_start" field.
+func DateStartGTE(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldGTE(FieldDateStart, v))
 }
 
-// BeginsAtLT applies the LT predicate on the "begins_at" field.
-func BeginsAtLT(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldLT(FieldBeginsAt, v))
+// DateStartLT applies the LT predicate on the "date_start" field.
+func DateStartLT(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldLT(FieldDateStart, v))
 }
 
-// BeginsAtLTE applies the LTE predicate on the "begins_at" field.
-func BeginsAtLTE(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldLTE(FieldBeginsAt, v))
+// DateStartLTE applies the LTE predicate on the "date_start" field.
+func DateStartLTE(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldLTE(FieldDateStart, v))
 }
 
-// BeginsAtIsNil applies the IsNil predicate on the "begins_at" field.
-func BeginsAtIsNil() predicate.Allocation {
-	return predicate.Allocation(sql.FieldIsNull(FieldBeginsAt))
+// DateStartIsNil applies the IsNil predicate on the "date_start" field.
+func DateStartIsNil() predicate.Allocation {
+	return predicate.Allocation(sql.FieldIsNull(FieldDateStart))
 }
 
-// BeginsAtNotNil applies the NotNil predicate on the "begins_at" field.
-func BeginsAtNotNil() predicate.Allocation {
-	return predicate.Allocation(sql.FieldNotNull(FieldBeginsAt))
+// DateStartNotNil applies the NotNil predicate on the "date_start" field.
+func DateStartNotNil() predicate.Allocation {
+	return predicate.Allocation(sql.FieldNotNull(FieldDateStart))
 }
 
-// EndsAtEQ applies the EQ predicate on the "ends_at" field.
-func EndsAtEQ(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldEQ(FieldEndsAt, v))
+// DateEndEQ applies the EQ predicate on the "date_end" field.
+func DateEndEQ(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldEQ(FieldDateEnd, v))
 }
 
-// EndsAtNEQ applies the NEQ predicate on the "ends_at" field.
-func EndsAtNEQ(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldNEQ(FieldEndsAt, v))
+// DateEndNEQ applies the NEQ predicate on the "date_end" field.
+func DateEndNEQ(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldNEQ(FieldDateEnd, v))
 }
 
-// EndsAtIn applies the In predicate on the "ends_at" field.
-func EndsAtIn(vs ...time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldIn(FieldEndsAt, vs...))
+// DateEndIn applies the In predicate on the "date_end" field.
+func DateEndIn(vs ...time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldIn(FieldDateEnd, vs...))
 }
 
-// EndsAtNotIn applies the NotIn predicate on the "ends_at" field.
-func EndsAtNotIn(vs ...time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldNotIn(FieldEndsAt, vs...))
+// DateEndNotIn applies the NotIn predicate on the "date_end" field.
+func DateEndNotIn(vs ...time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldNotIn(FieldDateEnd, vs...))
 }
 
-// EndsAtGT applies the GT predicate on the "ends_at" field.
-func EndsAtGT(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldGT(FieldEndsAt, v))
+// DateEndGT applies the GT predicate on the "date_end" field.
+func DateEndGT(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldGT(FieldDateEnd, v))
 }
 
-// EndsAtGTE applies the GTE predicate on the "ends_at" field.
-func EndsAtGTE(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldGTE(FieldEndsAt, v))
+// DateEndGTE applies the GTE predicate on the "date_end" field.
+func DateEndGTE(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldGTE(FieldDateEnd, v))
 }
 
-// EndsAtLT applies the LT predicate on the "ends_at" field.
-func EndsAtLT(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldLT(FieldEndsAt, v))
+// DateEndLT applies the LT predicate on the "date_end" field.
+func DateEndLT(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldLT(FieldDateEnd, v))
 }
 
-// EndsAtLTE applies the LTE predicate on the "ends_at" field.
-func EndsAtLTE(v time.Time) predicate.Allocation {
-	return predicate.Allocation(sql.FieldLTE(FieldEndsAt, v))
+// DateEndLTE applies the LTE predicate on the "date_end" field.
+func DateEndLTE(v time.Time) predicate.Allocation {
+	return predicate.Allocation(sql.FieldLTE(FieldDateEnd, v))
 }
 
-// EndsAtIsNil applies the IsNil predicate on the "ends_at" field.
-func EndsAtIsNil() predicate.Allocation {
-	return predicate.Allocation(sql.FieldIsNull(FieldEndsAt))
+// DateEndIsNil applies the IsNil predicate on the "date_end" field.
+func DateEndIsNil() predicate.Allocation {
+	return predicate.Allocation(sql.FieldIsNull(FieldDateEnd))
 }
 
-// EndsAtNotNil applies the NotNil predicate on the "ends_at" field.
-func EndsAtNotNil() predicate.Allocation {
-	return predicate.Allocation(sql.FieldNotNull(FieldEndsAt))
+// DateEndNotNil applies the NotNil predicate on the "date_end" field.
+func DateEndNotNil() predicate.Allocation {
+	return predicate.Allocation(sql.FieldNotNull(FieldDateEnd))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.

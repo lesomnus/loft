@@ -192,7 +192,7 @@ func (s domainDomain) Add(ctx context.Context, req *app.DomainAddRequest) (*app.
 		if row.GetSource() == "default" {
 			if v, err = t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
 				Ref:              app.DomainRef_builder{Id: v.GetId()}.Build(),
-				VerifiedAt:       ts(t.now),
+				DateVerified:     ts(t.now),
 				DateUpdatedForce: z.Ptr(true),
 			}.Build()); err != nil {
 				return err
@@ -293,7 +293,7 @@ func (t *Tx) activate(id []byte) (*app.Domain, error) {
 			DateUpdatedForce: z.Ptr(true),
 		}.Build()
 		if cur.Purpose == purposeApp {
-			legacy.SetRedirectUntil(ts(t.now.Add(t.deps.domainRedirect())))
+			legacy.SetDateRedirectUntil(ts(t.now.Add(t.deps.domainRedirect())))
 		}
 		if _, err := t.next.Domain().Patch(t.ctx, legacy); err != nil {
 			return nil, err
@@ -301,13 +301,13 @@ func (t *Tx) activate(id []byte) (*app.Domain, error) {
 	}
 	// In use from now, and asked about again from now.
 	return t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
-		Ref:               app.DomainRef_builder{Id: id}.Build(),
-		State:             z.Ptr(domainActive),
-		RedirectUntilNull: z.Ptr(true),
-		Failures:          z.Ptr(uint32(0)),
-		FailingSinceNull:  z.Ptr(true),
-		CheckedAt:         ts(t.now),
-		DateUpdatedForce:  z.Ptr(true),
+		Ref:                   app.DomainRef_builder{Id: id}.Build(),
+		State:                 z.Ptr(domainActive),
+		DateRedirectUntilNull: z.Ptr(true),
+		Failures:              z.Ptr(uint32(0)),
+		DateFailingNull:       z.Ptr(true),
+		DateChecked:           ts(t.now),
+		DateUpdatedForce:      z.Ptr(true),
 	}.Build())
 }
 
@@ -357,7 +357,7 @@ func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.
 	v, err := t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
 		Ref:              app.DomainRef_builder{Id: id}.Build(),
 		State:            z.Ptr(domainReady),
-		VerifiedAt:       ts(t.now),
+		DateVerified:     ts(t.now),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
 	if err != nil || (!lapsed && !tell) {
@@ -528,11 +528,11 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 				return err
 			}
 			req := app.LabelAddRequest_builder{
-				Tenant:    t.tenantRef(),
-				State:     "new",
-				PrintedAt: ts(t.now),
-				Batch:     batch,
-				Code:      z.Ptr(code),
+				Tenant:      t.tenantRef(),
+				State:       "new",
+				DatePrinted: ts(t.now),
+				Batch:       batch,
+				Code:        z.Ptr(code),
 			}.Build()
 			if dom != nil {
 				req.SetDomain(app.DomainRef_builder{Id: pdid.Id(dom.Id).Bytes()}.Build())
@@ -540,7 +540,7 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 			if subject != nil {
 				req.SetSubjectId(subject)
 				req.SetState("bound")
-				req.SetBoundAt(ts(t.now))
+				req.SetDateBound(ts(t.now))
 			}
 			v, err := t.next.Label().Add(t.ctx, req)
 			if err != nil {
@@ -604,7 +604,7 @@ func (s domainLabel) Bind(ctx context.Context, req *app.LabelBindRequest) (*app.
 			Ref:              req.GetRef(),
 			SubjectId:        id.Bytes(),
 			State:            z.Ptr("bound"),
-			BoundAt:          ts(t.now),
+			DateBound:        ts(t.now),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
 		return err
@@ -638,7 +638,7 @@ func (s domainLabel) Unbind(ctx context.Context, req *app.LabelUnbindRequest) (*
 			Ref:              req.GetRef(),
 			SubjectIdNull:    z.Ptr(true),
 			State:            z.Ptr(state),
-			BoundAtNull:      z.Ptr(true),
+			DateBoundNull:    z.Ptr(true),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
 		return err
@@ -878,5 +878,5 @@ func (s domainAttachment) Url(ctx context.Context, req *app.AttachmentUrlRequest
 		return nil, err
 	}
 	u, exp := t.deps.Sign.URL(at, v.GetObjectKey(), v.GetName(), t.now)
-	return app.AttachmentUrlResponse_builder{Url: u, ExpiresAt: ts(exp)}.Build(), nil
+	return app.AttachmentUrlResponse_builder{Url: u, DateExpires: ts(exp)}.Build(), nil
 }

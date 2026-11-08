@@ -15,6 +15,7 @@ import (
 	"io"
 	"math"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -142,7 +143,7 @@ func TestARestoreIsTheWorkspaceAsItWasExported(t *testing.T) {
 	x.Nil(ev.ActorId, "somebody in the workspace did it")
 	said := imported(t, ev)
 	x.Positive(said.GetRows())
-	x.Equal(fmt.Sprintf("워크스페이스 복구 (운영자): %s 내보내기에서", said.GetExportedAt().AsTime().Format(time.DateOnly)),
+	x.Equal(fmt.Sprintf("워크스페이스 복구 (운영자): %s 내보내기에서", said.GetDateExported().AsTime().Format(time.DateOnly)),
 		domain.Sentences.Read(ctx, nil, "ko", time.UTC).Say(past.EventRow{Id: pdid.Id(ev.Id), Kind: ev.Kind, Value: ev.Value}))
 
 	// It names the export it came from, which holds the trail it does not
@@ -196,8 +197,9 @@ func cmpTenant(a, b *app.Tenant) []string {
 // done -- its files edited, the files `edit` answers put in and the ones it
 // took out left out, every digest said again and the manifest signed again by
 // `k`, an Ed25519 key -- which is how an export of an earlier build is made by
-// this one.
-func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Manifest, fs map[string][]byte) []string) []byte {
+// this one. Each of `manifest` rewrites the manifest's bytes before they are
+// signed: what a build before named otherwise in it.
+func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Manifest, fs map[string][]byte) []string, manifest ...func([]byte) []byte) []byte {
 	t.Helper()
 	return rezip(t, b, func(fs map[string][]byte, order []string) []string {
 		var m offboard.Manifest
@@ -215,6 +217,9 @@ func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Man
 		}
 		mb, err := json.Marshal(m)
 		require.NoError(t, err)
+		for _, f := range manifest {
+			mb = f(mb)
+		}
 		der, err := x509.MarshalPKIXPublicKey(k.Public())
 		require.NoError(t, err)
 		sig, err := k.Sign(rand.Reader, append([]byte("loft export manifest\n"), mb...), crypto.Hash(0))
@@ -335,6 +340,110 @@ func TestARestoreReadsATableUnderTheNameItHadThen(t *testing.T) {
 	l, err := e.s.Ent.Label.Get(ctx, label)
 	x.NoError(err)
 	x.Equal(dom, l.DomainId)
+}
+
+// TestARestoreReadsAnExportOfTheFormatBefore (D76): an export a build before
+// wrote, `loft-export/1`, names a field by the name it had then -- a
+// placement's `validFrom`, a hand-over's `issuedAt` -- and a restore reads it
+// under the name it has now, and puts back what was exported. One of this
+// build's format names every field as this build does, and a field by its
+// name before is no field of it.
+func TestARestoreReadsAnExportOfTheFormatBefore(t *testing.T) {
+	key, _, err := trail.GenerateKey()
+	require.NoError(t, err)
+	k, err := trail.ParseKey(key)
+	require.NoError(t, err)
+	e := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Key = string(key) })
+	x := e.x
+	ctx := context.Background()
+	acme := e.tenant("acme")
+
+	before := e.rows(acme.id)
+	b := e.export(acme.id)
+	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
+	x.NoError(err)
+
+	x.Equal("loft-export/2", offboard.Format)
+	x.Equal([]string{"loft-export/1", offboard.Format}, offboard.Formats)
+
+	// What the build before wrote: each field renamed since under the name
+	// it had then, as JSON writes it.
+	camel := func(v string) string {
+		parts := strings.Split(v, "_")
+		for i := 1; i < len(parts); i++ {
+			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
+		}
+		return strings.Join(parts, "")
+	}
+	then := func(files map[string][]byte) int {
+		n := 0
+		for _, c := range slices.Concat(pd.ColumnRenames, offboard.RenamedColumns) {
+			name := "rows/" + c.Table + ".jsonl"
+			lines := bytes.Split(bytes.TrimSpace(files[name]), []byte("\n"))
+			for i, line := range lines {
+				if len(line) == 0 {
+					continue
+				}
+				row := map[string]json.RawMessage{}
+				x.NoError(json.Unmarshal(line, &row))
+				v, ok := row[camel(c.To)]
+				if !ok {
+					continue
+				}
+				delete(row, camel(c.To))
+				row[camel(c.From)] = v
+				lines[i], err = json.Marshal(row)
+				x.NoError(err)
+				n++
+			}
+			if _, ok := files[name]; ok {
+				files[name] = append(bytes.Join(lines, []byte("\n")), '\n')
+			}
+		}
+		return n
+	}
+	moved := 0
+	var taken time.Time
+	earlier := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
+		m.Format = "loft-export/1"
+		taken = m.DateExported
+		x.Contains(string(fs["rows/placement.jsonl"]), `"dateStart"`, "this build's export names a field as this build does")
+		moved = then(fs)
+		x.Contains(string(fs["rows/placement.jsonl"]), `"validFrom"`)
+		x.Contains(string(fs["rows/custody.jsonl"]), `"issuedAt"`)
+		x.Contains(string(fs["rows/custodyline.jsonl"]), `"outAt"`)
+		return nil
+	}, func(mb []byte) []byte {
+		// And when it was taken, as its manifest said it then.
+		return bytes.Replace(mb, []byte(`"date_exported"`), []byte(`"exported_at"`), 1)
+	})
+	x.Positive(moved)
+	x.False(taken.IsZero())
+
+	got, err := e.restore(earlier, offboard.ImportOptions{})
+	x.NoError(err)
+	x.Positive(got.Rows["placement"])
+	after := e.rows(acme.id)
+	for k := range before {
+		if k == "event" {
+			continue
+		}
+		x.Equal(before[k], after[k], "%s is not what was exported", k)
+	}
+	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
+	x.NoError(err)
+	x.True(taken.Equal(imported(t, ev).GetDateExported().AsTime()), "when the export was taken, as its manifest said it")
+
+	// And of this build's format, a field by its name before is no field.
+	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
+	x.NoError(err)
+	now := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
+		then(fs)
+		return nil
+	})
+	_, err = e.restore(now, offboard.ImportOptions{})
+	x.ErrorIs(err, offboard.ErrFormat)
+	x.Empty(e.count(acme.id))
 }
 
 // TestARestoreTakesOnlyWhatTheDeploymentWrote: an export with no signature,

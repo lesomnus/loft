@@ -41,11 +41,12 @@ message LevyanNotice {
   }];
 
   // What it tells: `arrive`, the workspace made by `account`, who pays for it
-  // from `at`; `leave`, `account` no longer a member of it from `at`; `close`,
-  // `restore` and `destroy`, the workspace closed, opened again and destroyed
-  // at `at`. And `past`, which is no call of levyan's: written told, once, the
-  // mark that the closes and restores the workspaces' events kept from before
-  // were written to be told (the loop's first pass).
+  // from `date_occurred`; `leave`, `account` no longer a member of it from
+  // `date_occurred`; `close`, `restore` and `destroy`, the workspace closed,
+  // opened again and destroyed at `date_occurred`. And `past`, which is no
+  // call of levyan's: written told, once, the mark that the closes and
+  // restores the workspaces' events kept from before were written to be told
+  // (the loop's first pass).
   string kind = 8 [(payday.field) = {personal: false}];
 
   // The workspace, by its identifier. A column and not an edge, as the
@@ -65,7 +66,7 @@ message LevyanNotice {
   // after its final reading, at which its address is held. levyan reads a
   // workspace's life in the order of these moments and not of their telling,
   // so one told late takes its place; told again, it is told of the same one.
-  google.protobuf.Timestamp at = 11 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_occurred = 11 [(orm.field) = {default: ""}];
 
   // When levyan answered it -- took it, or refused it -- and unset while it
   // waits to be told.
@@ -100,7 +101,7 @@ message LevyanNotice {
             number: 12
           },
           {
-            name: "at"
+            name: "date_occurred"
             number: 11
           }
         ]

@@ -31,7 +31,7 @@ BEGIN
 	-- room is not booked twice, and not booked while it is being repaired.
 	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'allocation_exclusive_no_overlap' AND conrelid = 'allocation'::regclass) THEN
 		ALTER TABLE allocation ADD CONSTRAINT allocation_exclusive_no_overlap
-			EXCLUDE USING gist (resource_id WITH =, tstzrange(begins_at, ends_at, '[)') WITH &&)
+			EXCLUDE USING gist (resource_id WITH =, tstzrange(date_start, date_end, '[)') WITH &&)
 			WHERE (blocking AND exclusive)
 			DEFERRABLE INITIALLY DEFERRED;
 	END IF;
@@ -39,8 +39,8 @@ BEGIN
 	-- A thing is in one place at a time, as far as is known now.
 	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'placement_one_parent' AND conrelid = 'placement'::regclass) THEN
 		ALTER TABLE placement ADD CONSTRAINT placement_one_parent
-			EXCLUDE USING gist (child_id WITH =, tstzrange(valid_from, valid_to, '[)') WITH &&)
-			WHERE (superseded_at IS NULL)
+			EXCLUDE USING gist (child_id WITH =, tstzrange(date_start, date_end, '[)') WITH &&)
+			WHERE (date_superseded IS NULL)
 			DEFERRABLE INITIALLY DEFERRED;
 	END IF;
 
@@ -49,30 +49,30 @@ BEGIN
 	-- and `u_to` are, and zero is no position.
 	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'placement_slot_once' AND conrelid = 'placement'::regclass) THEN
 		ALTER TABLE placement ADD CONSTRAINT placement_slot_once
-			EXCLUDE USING gist (parent_id WITH =, slot WITH =, tstzrange(valid_from, valid_to, '[)') WITH &&)
-			WHERE (superseded_at IS NULL AND slot <> '')
+			EXCLUDE USING gist (parent_id WITH =, slot WITH =, tstzrange(date_start, date_end, '[)') WITH &&)
+			WHERE (date_superseded IS NULL AND slot <> '')
 			DEFERRABLE INITIALLY DEFERRED;
 	END IF;
 	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'placement_rack_once' AND conrelid = 'placement'::regclass) THEN
 		ALTER TABLE placement ADD CONSTRAINT placement_rack_once
-			EXCLUDE USING gist (parent_id WITH =, int4range(u_from, u_to, '[]') WITH &&, tstzrange(valid_from, valid_to, '[)') WITH &&)
-			WHERE (superseded_at IS NULL AND u_from > 0)
+			EXCLUDE USING gist (parent_id WITH =, int4range(u_from, u_to, '[]') WITH &&, tstzrange(date_start, date_end, '[)') WITH &&)
+			WHERE (date_superseded IS NULL AND u_from > 0)
 			DEFERRABLE INITIALLY DEFERRED;
 	END IF;
 
 	-- One owner, one manager and one custodian at a time.
 	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'stewardship_one_per_role' AND conrelid = 'stewardship'::regclass) THEN
 		ALTER TABLE stewardship ADD CONSTRAINT stewardship_one_per_role
-			EXCLUDE USING gist (asset_id WITH =, role WITH =, tstzrange(valid_from, valid_to, '[)') WITH &&)
-			WHERE (superseded_at IS NULL)
+			EXCLUDE USING gist (asset_id WITH =, role WITH =, tstzrange(date_start, date_end, '[)') WITH &&)
+			WHERE (date_superseded IS NULL)
 			DEFERRABLE INITIALLY DEFERRED;
 	END IF;
 
 	-- A relation between two things holds or does not, once at a time.
 	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'link_once' AND conrelid = 'link'::regclass) THEN
 		ALTER TABLE link ADD CONSTRAINT link_once
-			EXCLUDE USING gist (source_id WITH =, target_id WITH =, kind WITH =, tstzrange(valid_from, valid_to, '[)') WITH &&)
-			WHERE (superseded_at IS NULL)
+			EXCLUDE USING gist (source_id WITH =, target_id WITH =, kind WITH =, tstzrange(date_start, date_end, '[)') WITH &&)
+			WHERE (date_superseded IS NULL)
 			DEFERRABLE INITIALLY DEFERRED;
 	END IF;
 END
@@ -84,8 +84,8 @@ $$;
 -- new value (`past.Op.Set`, payday#151), and so is never in between. Made on
 -- payday's Fact, which the migration made in place of Loft's own table of
 -- facts, and the index on that with it (`cli/facts.go`).
-CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (subject_id, field_number, key, valid_from)
-	WHERE superseded_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (subject_id, field_number, key, date_start)
+	WHERE date_superseded IS NULL;
 
 -- An account is in a workspace once: one holder of it per tenant, among the
 -- holders still here (design 9.10, D27). The domain layer checks before it

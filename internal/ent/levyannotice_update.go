@@ -72,23 +72,23 @@ func (_u *LevyanNoticeUpdate) SetNillableAccount(v *uuid.UUID) *LevyanNoticeUpda
 	return _u
 }
 
-// SetAt sets the "at" field.
-func (_u *LevyanNoticeUpdate) SetAt(v time.Time) *LevyanNoticeUpdate {
-	_u.mutation.SetAt(v)
+// SetDateOccurred sets the "date_occurred" field.
+func (_u *LevyanNoticeUpdate) SetDateOccurred(v time.Time) *LevyanNoticeUpdate {
+	_u.mutation.SetDateOccurred(v)
 	return _u
 }
 
-// SetNillableAt sets the "at" field if the given value is not nil.
-func (_u *LevyanNoticeUpdate) SetNillableAt(v *time.Time) *LevyanNoticeUpdate {
+// SetNillableDateOccurred sets the "date_occurred" field if the given value is not nil.
+func (_u *LevyanNoticeUpdate) SetNillableDateOccurred(v *time.Time) *LevyanNoticeUpdate {
 	if v != nil {
-		_u.SetAt(*v)
+		_u.SetDateOccurred(*v)
 	}
 	return _u
 }
 
-// ClearAt clears the value of the "at" field.
-func (_u *LevyanNoticeUpdate) ClearAt() *LevyanNoticeUpdate {
-	_u.mutation.ClearAt()
+// ClearDateOccurred clears the value of the "date_occurred" field.
+func (_u *LevyanNoticeUpdate) ClearDateOccurred() *LevyanNoticeUpdate {
+	_u.mutation.ClearDateOccurred()
 	return _u
 }
 
@@ -205,14 +205,14 @@ func (_u *LevyanNoticeUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldAccount); ok {
 		_spec.SetField(levyannotice.FieldAccount, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.At(); ok {
-		_spec.SetField(levyannotice.FieldAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateOccurred(); ok {
+		_spec.SetField(levyannotice.FieldDateOccurred, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldAt); ok {
-		_spec.SetField(levyannotice.FieldAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldDateOccurred); ok {
+		_spec.SetField(levyannotice.FieldDateOccurred, field.TypeTime, e)
 	}
-	if _u.mutation.AtCleared() {
-		_spec.ClearField(levyannotice.FieldAt, field.TypeTime)
+	if _u.mutation.DateOccurredCleared() {
+		_spec.ClearField(levyannotice.FieldDateOccurred, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateTold(); ok {
 		_spec.SetField(levyannotice.FieldDateTold, field.TypeTime, value)
@@ -302,23 +302,23 @@ func (_u *LevyanNoticeUpdateOne) SetNillableAccount(v *uuid.UUID) *LevyanNoticeU
 	return _u
 }
 
-// SetAt sets the "at" field.
-func (_u *LevyanNoticeUpdateOne) SetAt(v time.Time) *LevyanNoticeUpdateOne {
-	_u.mutation.SetAt(v)
+// SetDateOccurred sets the "date_occurred" field.
+func (_u *LevyanNoticeUpdateOne) SetDateOccurred(v time.Time) *LevyanNoticeUpdateOne {
+	_u.mutation.SetDateOccurred(v)
 	return _u
 }
 
-// SetNillableAt sets the "at" field if the given value is not nil.
-func (_u *LevyanNoticeUpdateOne) SetNillableAt(v *time.Time) *LevyanNoticeUpdateOne {
+// SetNillableDateOccurred sets the "date_occurred" field if the given value is not nil.
+func (_u *LevyanNoticeUpdateOne) SetNillableDateOccurred(v *time.Time) *LevyanNoticeUpdateOne {
 	if v != nil {
-		_u.SetAt(*v)
+		_u.SetDateOccurred(*v)
 	}
 	return _u
 }
 
-// ClearAt clears the value of the "at" field.
-func (_u *LevyanNoticeUpdateOne) ClearAt() *LevyanNoticeUpdateOne {
-	_u.mutation.ClearAt()
+// ClearDateOccurred clears the value of the "date_occurred" field.
+func (_u *LevyanNoticeUpdateOne) ClearDateOccurred() *LevyanNoticeUpdateOne {
+	_u.mutation.ClearDateOccurred()
 	return _u
 }
 
@@ -465,14 +465,14 @@ func (_u *LevyanNoticeUpdateOne) sqlSave(ctx context.Context) (_node *LevyanNoti
 	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldAccount); ok {
 		_spec.SetField(levyannotice.FieldAccount, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.At(); ok {
-		_spec.SetField(levyannotice.FieldAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateOccurred(); ok {
+		_spec.SetField(levyannotice.FieldDateOccurred, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldAt); ok {
-		_spec.SetField(levyannotice.FieldAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldDateOccurred); ok {
+		_spec.SetField(levyannotice.FieldDateOccurred, field.TypeTime, e)
 	}
-	if _u.mutation.AtCleared() {
-		_spec.ClearField(levyannotice.FieldAt, field.TypeTime)
+	if _u.mutation.DateOccurredCleared() {
+		_spec.ClearField(levyannotice.FieldDateOccurred, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateTold(); ok {
 		_spec.SetField(levyannotice.FieldDateTold, field.TypeTime, value)

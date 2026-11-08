@@ -88,30 +88,30 @@ func (_c *DomainCreate) SetNillableDateCreated(v *time.Time) *DomainCreate {
 	return _c
 }
 
-// SetVerifiedAt sets the "verified_at" field.
-func (_c *DomainCreate) SetVerifiedAt(v time.Time) *DomainCreate {
-	_c.mutation.SetVerifiedAt(v)
+// SetDateVerified sets the "date_verified" field.
+func (_c *DomainCreate) SetDateVerified(v time.Time) *DomainCreate {
+	_c.mutation.SetDateVerified(v)
 	return _c
 }
 
-// SetNillableVerifiedAt sets the "verified_at" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableVerifiedAt(v *time.Time) *DomainCreate {
+// SetNillableDateVerified sets the "date_verified" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableDateVerified(v *time.Time) *DomainCreate {
 	if v != nil {
-		_c.SetVerifiedAt(*v)
+		_c.SetDateVerified(*v)
 	}
 	return _c
 }
 
-// SetCheckedAt sets the "checked_at" field.
-func (_c *DomainCreate) SetCheckedAt(v time.Time) *DomainCreate {
-	_c.mutation.SetCheckedAt(v)
+// SetDateChecked sets the "date_checked" field.
+func (_c *DomainCreate) SetDateChecked(v time.Time) *DomainCreate {
+	_c.mutation.SetDateChecked(v)
 	return _c
 }
 
-// SetNillableCheckedAt sets the "checked_at" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableCheckedAt(v *time.Time) *DomainCreate {
+// SetNillableDateChecked sets the "date_checked" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableDateChecked(v *time.Time) *DomainCreate {
 	if v != nil {
-		_c.SetCheckedAt(*v)
+		_c.SetDateChecked(*v)
 	}
 	return _c
 }
@@ -130,16 +130,16 @@ func (_c *DomainCreate) SetNillableFailures(v *uint32) *DomainCreate {
 	return _c
 }
 
-// SetFailingSince sets the "failing_since" field.
-func (_c *DomainCreate) SetFailingSince(v time.Time) *DomainCreate {
-	_c.mutation.SetFailingSince(v)
+// SetDateFailing sets the "date_failing" field.
+func (_c *DomainCreate) SetDateFailing(v time.Time) *DomainCreate {
+	_c.mutation.SetDateFailing(v)
 	return _c
 }
 
-// SetNillableFailingSince sets the "failing_since" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableFailingSince(v *time.Time) *DomainCreate {
+// SetNillableDateFailing sets the "date_failing" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableDateFailing(v *time.Time) *DomainCreate {
 	if v != nil {
-		_c.SetFailingSince(*v)
+		_c.SetDateFailing(*v)
 	}
 	return _c
 }
@@ -158,16 +158,16 @@ func (_c *DomainCreate) SetNillableDateLapsed(v *time.Time) *DomainCreate {
 	return _c
 }
 
-// SetRedirectUntil sets the "redirect_until" field.
-func (_c *DomainCreate) SetRedirectUntil(v time.Time) *DomainCreate {
-	_c.mutation.SetRedirectUntil(v)
+// SetDateRedirectUntil sets the "date_redirect_until" field.
+func (_c *DomainCreate) SetDateRedirectUntil(v time.Time) *DomainCreate {
+	_c.mutation.SetDateRedirectUntil(v)
 	return _c
 }
 
-// SetNillableRedirectUntil sets the "redirect_until" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableRedirectUntil(v *time.Time) *DomainCreate {
+// SetNillableDateRedirectUntil sets the "date_redirect_until" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableDateRedirectUntil(v *time.Time) *DomainCreate {
 	if v != nil {
-		_c.SetRedirectUntil(*v)
+		_c.SetDateRedirectUntil(*v)
 	}
 	return _c
 }
@@ -344,29 +344,29 @@ func (_c *DomainCreate) createSpec() (*Domain, *sqlgraph.CreateSpec) {
 		_spec.SetField(domain.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
 	}
-	if value, ok := _c.mutation.VerifiedAt(); ok {
-		_spec.SetField(domain.FieldVerifiedAt, field.TypeTime, value)
-		_node.VerifiedAt = &value
+	if value, ok := _c.mutation.DateVerified(); ok {
+		_spec.SetField(domain.FieldDateVerified, field.TypeTime, value)
+		_node.DateVerified = &value
 	}
-	if value, ok := _c.mutation.CheckedAt(); ok {
-		_spec.SetField(domain.FieldCheckedAt, field.TypeTime, value)
-		_node.CheckedAt = &value
+	if value, ok := _c.mutation.DateChecked(); ok {
+		_spec.SetField(domain.FieldDateChecked, field.TypeTime, value)
+		_node.DateChecked = &value
 	}
 	if value, ok := _c.mutation.Failures(); ok {
 		_spec.SetField(domain.FieldFailures, field.TypeUint32, value)
 		_node.Failures = value
 	}
-	if value, ok := _c.mutation.FailingSince(); ok {
-		_spec.SetField(domain.FieldFailingSince, field.TypeTime, value)
-		_node.FailingSince = &value
+	if value, ok := _c.mutation.DateFailing(); ok {
+		_spec.SetField(domain.FieldDateFailing, field.TypeTime, value)
+		_node.DateFailing = &value
 	}
 	if value, ok := _c.mutation.DateLapsed(); ok {
 		_spec.SetField(domain.FieldDateLapsed, field.TypeTime, value)
 		_node.DateLapsed = &value
 	}
-	if value, ok := _c.mutation.RedirectUntil(); ok {
-		_spec.SetField(domain.FieldRedirectUntil, field.TypeTime, value)
-		_node.RedirectUntil = &value
+	if value, ok := _c.mutation.DateRedirectUntil(); ok {
+		_spec.SetField(domain.FieldDateRedirectUntil, field.TypeTime, value)
+		_node.DateRedirectUntil = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

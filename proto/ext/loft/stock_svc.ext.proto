@@ -29,18 +29,18 @@ service StockService {
 }
 
 message StockFlowRequest {
-  // The period, from `from` and before `to`, a year at most. Unsaid, the last
+  // The period, from `date_from` and before `date_to`, a year at most. Unsaid, the last
   // thirty of the workspace's days, today among them.
-  google.protobuf.Timestamp from = 1;
-  google.protobuf.Timestamp to = 2;
+  google.protobuf.Timestamp date_from = 1;
+  google.protobuf.Timestamp date_to = 2;
 }
 
 message StockFlowResponse {
   // Every stock, by name and then by where it is kept.
   repeated StockFlowRow rows = 1;
   // The period it read.
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
 }
 
 // StockFlowRow is one stock over a period, in its own unit: what it had at
@@ -82,7 +82,7 @@ message StockChangeRequest {
   StockRef ref = 1;
   int64 quantity = 2 [features.field_presence = IMPLICIT];
   string reason = 3 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp at = 4;
+  google.protobuf.Timestamp date_occurred = 4;
   bytes op = 5 [features.field_presence = IMPLICIT];
 }
 
@@ -91,7 +91,7 @@ message StockTransferRequest {
   AssetRef to = 2;
   int64 quantity = 3 [features.field_presence = IMPLICIT];
   string reason = 4 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp at = 5;
+  google.protobuf.Timestamp date_occurred = 5;
   bytes op = 6 [features.field_presence = IMPLICIT];
 }
 

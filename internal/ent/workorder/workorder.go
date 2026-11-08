@@ -20,10 +20,10 @@ const (
 	FieldKind = "kind"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldBeginsAt holds the string denoting the begins_at field in the database.
-	FieldBeginsAt = "begins_at"
-	// FieldEndsAt holds the string denoting the ends_at field in the database.
-	FieldEndsAt = "ends_at"
+	// FieldDateStart holds the string denoting the date_start field in the database.
+	FieldDateStart = "date_start"
+	// FieldDateEnd holds the string denoting the date_end field in the database.
+	FieldDateEnd = "date_end"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
@@ -34,8 +34,8 @@ const (
 	FieldCost = "cost"
 	// FieldCurrency holds the string denoting the currency field in the database.
 	FieldCurrency = "currency"
-	// FieldCompletedAt holds the string denoting the completed_at field in the database.
-	FieldCompletedAt = "completed_at"
+	// FieldDateCompleted holds the string denoting the date_completed field in the database.
+	FieldDateCompleted = "date_completed"
 	// FieldBlocking holds the string denoting the blocking field in the database.
 	FieldBlocking = "blocking"
 	// FieldEveryDays holds the string denoting the every_days field in the database.
@@ -84,14 +84,14 @@ var Columns = []string{
 	FieldDesc,
 	FieldKind,
 	FieldStatus,
-	FieldBeginsAt,
-	FieldEndsAt,
+	FieldDateStart,
+	FieldDateEnd,
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
 	FieldCost,
 	FieldCurrency,
-	FieldCompletedAt,
+	FieldDateCompleted,
 	FieldBlocking,
 	FieldEveryDays,
 	FieldTenantId,
@@ -137,14 +137,14 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
 }
 
-// ByBeginsAt orders the results by the begins_at field.
-func ByBeginsAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBeginsAt, opts...).ToFunc()
+// ByDateStart orders the results by the date_start field.
+func ByDateStart(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateStart, opts...).ToFunc()
 }
 
-// ByEndsAt orders the results by the ends_at field.
-func ByEndsAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEndsAt, opts...).ToFunc()
+// ByDateEnd orders the results by the date_end field.
+func ByDateEnd(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateEnd, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.
@@ -172,9 +172,9 @@ func ByCurrency(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCurrency, opts...).ToFunc()
 }
 
-// ByCompletedAt orders the results by the completed_at field.
-func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
+// ByDateCompleted orders the results by the date_completed field.
+func ByDateCompleted(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateCompleted, opts...).ToFunc()
 }
 
 // ByBlocking orders the results by the blocking field.

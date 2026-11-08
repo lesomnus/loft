@@ -53,10 +53,10 @@ type Asset struct {
 	Slot string `json:"slot,omitempty"`
 	// Attributes holds the value of the "attributes" field.
 	Attributes map[string]string `json:"attributes,omitempty"`
-	// AcquiredAt holds the value of the "acquired_at" field.
-	AcquiredAt *time.Time `json:"acquired_at,omitempty"`
-	// DisposedAt holds the value of the "disposed_at" field.
-	DisposedAt *time.Time `json:"disposed_at,omitempty"`
+	// DateAcquired holds the value of the "date_acquired" field.
+	DateAcquired *time.Time `json:"date_acquired,omitempty"`
+	// DateDisposed holds the value of the "date_disposed" field.
+	DateDisposed *time.Time `json:"date_disposed,omitempty"`
 	// ContentVersion holds the value of the "content_version" field.
 	ContentVersion uint64 `json:"content_version,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
@@ -143,7 +143,7 @@ func (*Asset) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case asset.FieldName, asset.FieldDesc, asset.FieldKind, asset.FieldTag, asset.FieldSerial, asset.FieldStatus, asset.FieldCondition, asset.FieldPlacementMode, asset.FieldSlot:
 			values[i] = new(sql.NullString)
-		case asset.FieldDateUpdated, asset.FieldDateErased, asset.FieldDateCreated, asset.FieldAcquiredAt, asset.FieldDisposedAt:
+		case asset.FieldDateUpdated, asset.FieldDateErased, asset.FieldDateCreated, asset.FieldDateAcquired, asset.FieldDateDisposed:
 			values[i] = new(sql.NullTime)
 		case asset.FieldParentId, asset.FieldTypeId, asset.FieldModelId, asset.FieldCustodianId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -266,19 +266,19 @@ func (_m *Asset) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field attributes: %w", err)
 				}
 			}
-		case asset.FieldAcquiredAt:
+		case asset.FieldDateAcquired:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field acquired_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_acquired", values[i])
 			} else if value.Valid {
-				_m.AcquiredAt = new(time.Time)
-				*_m.AcquiredAt = value.Time
+				_m.DateAcquired = new(time.Time)
+				*_m.DateAcquired = value.Time
 			}
-		case asset.FieldDisposedAt:
+		case asset.FieldDateDisposed:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field disposed_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_disposed", values[i])
 			} else if value.Valid {
-				_m.DisposedAt = new(time.Time)
-				*_m.DisposedAt = value.Time
+				_m.DateDisposed = new(time.Time)
+				*_m.DateDisposed = value.Time
 			}
 		case asset.FieldContentVersion:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -415,13 +415,13 @@ func (_m *Asset) String() string {
 	builder.WriteString("attributes=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Attributes))
 	builder.WriteString(", ")
-	if v := _m.AcquiredAt; v != nil {
-		builder.WriteString("acquired_at=")
+	if v := _m.DateAcquired; v != nil {
+		builder.WriteString("date_acquired=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := _m.DisposedAt; v != nil {
-		builder.WriteString("disposed_at=")
+	if v := _m.DateDisposed; v != nil {
+		builder.WriteString("date_disposed=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

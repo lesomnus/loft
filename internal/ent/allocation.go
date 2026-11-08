@@ -24,10 +24,10 @@ type Allocation struct {
 	Kind string `json:"kind,omitempty"`
 	// RefId holds the value of the "ref_id" field.
 	RefId *uuid.UUID `json:"ref_id,omitempty"`
-	// BeginsAt holds the value of the "begins_at" field.
-	BeginsAt time.Time `json:"begins_at,omitempty"`
-	// EndsAt holds the value of the "ends_at" field.
-	EndsAt time.Time `json:"ends_at,omitempty"`
+	// DateStart holds the value of the "date_start" field.
+	DateStart time.Time `json:"date_start,omitempty"`
+	// DateEnd holds the value of the "date_end" field.
+	DateEnd time.Time `json:"date_end,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
@@ -92,7 +92,7 @@ func (*Allocation) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case allocation.FieldKind:
 			values[i] = new(sql.NullString)
-		case allocation.FieldBeginsAt, allocation.FieldEndsAt, allocation.FieldDateUpdated, allocation.FieldDateCreated:
+		case allocation.FieldDateStart, allocation.FieldDateEnd, allocation.FieldDateUpdated, allocation.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case allocation.FieldRefId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -132,17 +132,17 @@ func (_m *Allocation) assignValues(columns []string, values []any) error {
 				_m.RefId = new(uuid.UUID)
 				*_m.RefId = value.V
 			}
-		case allocation.FieldBeginsAt:
+		case allocation.FieldDateStart:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field begins_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_start", values[i])
 			} else if value.Valid {
-				_m.BeginsAt = value.Time
+				_m.DateStart = value.Time
 			}
-		case allocation.FieldEndsAt:
+		case allocation.FieldDateEnd:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field ends_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_end", values[i])
 			} else if value.Valid {
-				_m.EndsAt = value.Time
+				_m.DateEnd = value.Time
 			}
 		case allocation.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -240,11 +240,11 @@ func (_m *Allocation) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("begins_at=")
-	builder.WriteString(_m.BeginsAt.Format(time.ANSIC))
+	builder.WriteString("date_start=")
+	builder.WriteString(_m.DateStart.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("ends_at=")
-	builder.WriteString(_m.EndsAt.Format(time.ANSIC))
+	builder.WriteString("date_end=")
+	builder.WriteString(_m.DateEnd.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("date_updated=")
 	builder.WriteString(_m.DateUpdated.Format(time.ANSIC))

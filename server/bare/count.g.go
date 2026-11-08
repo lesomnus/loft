@@ -170,13 +170,13 @@ func (st InventoryCountServiceServer) create(ctx context.Context, req *loft.Inve
 		})
 	}
 	q.SetStatus(req.GetStatus())
-	if req.HasStartedAt() {
-		q.SetStartedAt(req.GetStartedAt().AsTime())
+	if req.HasDateStarted() {
+		q.SetDateStarted(req.GetDateStarted().AsTime())
 	} else {
-		q.SetStartedAt(st.now())
+		q.SetDateStarted(st.now())
 	}
-	if req.HasClosedAt() {
-		q.SetClosedAt(req.GetClosedAt().AsTime())
+	if req.HasDateClosed() {
+		q.SetDateClosed(req.GetDateClosed().AsTime())
 	}
 	if req.HasStartedBy() {
 		if v, err := entuuid.FromBytes(req.GetStartedBy()); err != nil {
@@ -329,11 +329,11 @@ func InventoryCountSelectedFields(m *loft.InventoryCountSelect) []string {
 	if m.GetStatus() {
 		vs = append(vs, inventorycount.FieldStatus)
 	}
-	if m.GetStartedAt() {
-		vs = append(vs, inventorycount.FieldStartedAt)
+	if m.GetDateStarted() {
+		vs = append(vs, inventorycount.FieldDateStarted)
 	}
-	if m.GetClosedAt() {
-		vs = append(vs, inventorycount.FieldClosedAt)
+	if m.GetDateClosed() {
+		vs = append(vs, inventorycount.FieldDateClosed)
 	}
 	if m.GetStartedBy() {
 		vs = append(vs, inventorycount.FieldStartedBy)
@@ -428,7 +428,7 @@ func InventoryCountGetKey(ctx context.Context, db *ent.Client, ref *loft.Invento
 var inventoryCountOrmEntity = ormpatch.MustEntityOf(loft.File_loft_count_proto, "InventoryCount")
 
 var inventoryCountPatchColumns = entpatch.Columns{
-	1: inventorycount.FieldId, 2: inventorycount.TenantColumn, 5: inventorycount.FieldName, 6: inventorycount.FieldDesc, 8: inventorycount.ScopeColumn, 9: inventorycount.FieldStatus, 10: inventorycount.FieldStartedAt, 11: inventorycount.FieldClosedAt, 12: inventorycount.FieldStartedBy, 13: inventorycount.FieldDateUpdated, 14: inventorycount.FieldDateErased, 15: inventorycount.FieldDateCreated, 16: inventorycount.FieldSelfService, 17: inventorycount.FieldFindingsVersion}
+	1: inventorycount.FieldId, 2: inventorycount.TenantColumn, 5: inventorycount.FieldName, 6: inventorycount.FieldDesc, 8: inventorycount.ScopeColumn, 9: inventorycount.FieldStatus, 10: inventorycount.FieldDateStarted, 11: inventorycount.FieldDateClosed, 12: inventorycount.FieldStartedBy, 13: inventorycount.FieldDateUpdated, 14: inventorycount.FieldDateErased, 15: inventorycount.FieldDateCreated, 16: inventorycount.FieldSelfService, 17: inventorycount.FieldFindingsVersion}
 
 func (s InventoryCountServiceServer) Apply(ctx context.Context, req *loft.InventoryCountApplyRequest) (*loft.InventoryCount, error) {
 	if !req.HasPatch() {
@@ -856,10 +856,10 @@ func (st CountFindingServiceServer) create(ctx context.Context, req *loft.CountF
 			q.SetExpectedParentId(v)
 		}
 	}
-	if req.HasSeenAt() {
-		q.SetSeenAt(req.GetSeenAt().AsTime())
+	if req.HasDateSeen() {
+		q.SetDateSeen(req.GetDateSeen().AsTime())
 	} else {
-		q.SetSeenAt(st.now())
+		q.SetDateSeen(st.now())
 	}
 	if req.HasRecordedBy() {
 		if v, err := entuuid.FromBytes(req.GetRecordedBy()); err != nil {
@@ -869,8 +869,8 @@ func (st CountFindingServiceServer) create(ctx context.Context, req *loft.CountF
 		}
 	}
 	q.SetResolution(req.GetResolution())
-	if req.HasResolvedAt() {
-		q.SetResolvedAt(req.GetResolvedAt().AsTime())
+	if req.HasDateResolved() {
+		q.SetDateResolved(req.GetDateResolved().AsTime())
 	}
 	return q, ds, nil
 }
@@ -1020,8 +1020,8 @@ func CountFindingSelectedFields(m *loft.CountFindingSelect) []string {
 	if m.GetExpectedParentId() {
 		vs = append(vs, countfinding.FieldExpectedParentId)
 	}
-	if m.GetSeenAt() {
-		vs = append(vs, countfinding.FieldSeenAt)
+	if m.GetDateSeen() {
+		vs = append(vs, countfinding.FieldDateSeen)
 	}
 	if m.GetRecordedBy() {
 		vs = append(vs, countfinding.FieldRecordedBy)
@@ -1029,8 +1029,8 @@ func CountFindingSelectedFields(m *loft.CountFindingSelect) []string {
 	if m.GetResolution() {
 		vs = append(vs, countfinding.FieldResolution)
 	}
-	if m.GetResolvedAt() {
-		vs = append(vs, countfinding.FieldResolvedAt)
+	if m.GetDateResolved() {
+		vs = append(vs, countfinding.FieldDateResolved)
 	}
 
 	return vs
@@ -1113,7 +1113,7 @@ func CountFindingGetKey(ctx context.Context, db *ent.Client, ref *loft.CountFind
 var countFindingOrmEntity = ormpatch.MustEntityOf(loft.File_loft_count_proto, "CountFinding")
 
 var countFindingPatchColumns = entpatch.Columns{
-	1: countfinding.FieldId, 2: countfinding.TenantColumn, 6: countfinding.FieldDesc, 8: countfinding.CountColumn, 9: countfinding.AssetColumn, 10: countfinding.FieldLabelId, 11: countfinding.FieldKind, 12: countfinding.FieldObservedParentId, 13: countfinding.FieldDateUpdated, 15: countfinding.FieldDateCreated, 16: countfinding.FieldExpectedParentId, 17: countfinding.FieldSeenAt, 18: countfinding.FieldRecordedBy, 19: countfinding.FieldResolution, 20: countfinding.FieldResolvedAt}
+	1: countfinding.FieldId, 2: countfinding.TenantColumn, 6: countfinding.FieldDesc, 8: countfinding.CountColumn, 9: countfinding.AssetColumn, 10: countfinding.FieldLabelId, 11: countfinding.FieldKind, 12: countfinding.FieldObservedParentId, 13: countfinding.FieldDateUpdated, 15: countfinding.FieldDateCreated, 16: countfinding.FieldExpectedParentId, 17: countfinding.FieldDateSeen, 18: countfinding.FieldRecordedBy, 19: countfinding.FieldResolution, 20: countfinding.FieldDateResolved}
 
 func (s CountFindingServiceServer) Apply(ctx context.Context, req *loft.CountFindingApplyRequest) (*loft.CountFinding, error) {
 	if !req.HasPatch() {

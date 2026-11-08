@@ -45,30 +45,30 @@ func (_c *LabelCreate) SetState(v string) *LabelCreate {
 	return _c
 }
 
-// SetBoundAt sets the "bound_at" field.
-func (_c *LabelCreate) SetBoundAt(v time.Time) *LabelCreate {
-	_c.mutation.SetBoundAt(v)
+// SetDateBound sets the "date_bound" field.
+func (_c *LabelCreate) SetDateBound(v time.Time) *LabelCreate {
+	_c.mutation.SetDateBound(v)
 	return _c
 }
 
-// SetNillableBoundAt sets the "bound_at" field if the given value is not nil.
-func (_c *LabelCreate) SetNillableBoundAt(v *time.Time) *LabelCreate {
+// SetNillableDateBound sets the "date_bound" field if the given value is not nil.
+func (_c *LabelCreate) SetNillableDateBound(v *time.Time) *LabelCreate {
 	if v != nil {
-		_c.SetBoundAt(*v)
+		_c.SetDateBound(*v)
 	}
 	return _c
 }
 
-// SetPrintedAt sets the "printed_at" field.
-func (_c *LabelCreate) SetPrintedAt(v time.Time) *LabelCreate {
-	_c.mutation.SetPrintedAt(v)
+// SetDatePrinted sets the "date_printed" field.
+func (_c *LabelCreate) SetDatePrinted(v time.Time) *LabelCreate {
+	_c.mutation.SetDatePrinted(v)
 	return _c
 }
 
-// SetNillablePrintedAt sets the "printed_at" field if the given value is not nil.
-func (_c *LabelCreate) SetNillablePrintedAt(v *time.Time) *LabelCreate {
+// SetNillableDatePrinted sets the "date_printed" field if the given value is not nil.
+func (_c *LabelCreate) SetNillableDatePrinted(v *time.Time) *LabelCreate {
 	if v != nil {
-		_c.SetPrintedAt(*v)
+		_c.SetDatePrinted(*v)
 	}
 	return _c
 }
@@ -274,13 +274,13 @@ func (_c *LabelCreate) createSpec() (*Label, *sqlgraph.CreateSpec) {
 		_spec.SetField(label.FieldState, field.TypeString, value)
 		_node.State = value
 	}
-	if value, ok := _c.mutation.BoundAt(); ok {
-		_spec.SetField(label.FieldBoundAt, field.TypeTime, value)
-		_node.BoundAt = &value
+	if value, ok := _c.mutation.DateBound(); ok {
+		_spec.SetField(label.FieldDateBound, field.TypeTime, value)
+		_node.DateBound = &value
 	}
-	if value, ok := _c.mutation.PrintedAt(); ok {
-		_spec.SetField(label.FieldPrintedAt, field.TypeTime, value)
-		_node.PrintedAt = &value
+	if value, ok := _c.mutation.DatePrinted(); ok {
+		_spec.SetField(label.FieldDatePrinted, field.TypeTime, value)
+		_node.DatePrinted = &value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(label.FieldDateUpdated, field.TypeTime, value)

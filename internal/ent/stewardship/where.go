@@ -71,14 +71,14 @@ func DateCreated(v time.Time) predicate.Stewardship {
 	return predicate.Stewardship(sql.FieldEQ(FieldDateCreated, v))
 }
 
-// ValidFrom applies equality check predicate on the "valid_from" field. It's identical to ValidFromEQ.
-func ValidFrom(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldEQ(FieldValidFrom, v))
+// DateStart applies equality check predicate on the "date_start" field. It's identical to DateStartEQ.
+func DateStart(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldEQ(FieldDateStart, v))
 }
 
-// ValidTo applies equality check predicate on the "valid_to" field. It's identical to ValidToEQ.
-func ValidTo(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldEQ(FieldValidTo, v))
+// DateEnd applies equality check predicate on the "date_end" field. It's identical to DateEndEQ.
+func DateEnd(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldEQ(FieldDateEnd, v))
 }
 
 // EventId applies equality check predicate on the "event_id" field. It's identical to EventIdEQ.
@@ -86,9 +86,9 @@ func EventId(v uuid.UUID) predicate.Stewardship {
 	return predicate.Stewardship(sql.FieldEQ(FieldEventId, v))
 }
 
-// SupersededAt applies equality check predicate on the "superseded_at" field. It's identical to SupersededAtEQ.
-func SupersededAt(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldEQ(FieldSupersededAt, v))
+// DateSuperseded applies equality check predicate on the "date_superseded" field. It's identical to DateSupersededEQ.
+func DateSuperseded(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldEQ(FieldDateSuperseded, v))
 }
 
 // SupersededBy applies equality check predicate on the "superseded_by" field. It's identical to SupersededByEQ.
@@ -266,104 +266,104 @@ func DateCreatedNotNil() predicate.Stewardship {
 	return predicate.Stewardship(sql.FieldNotNull(FieldDateCreated))
 }
 
-// ValidFromEQ applies the EQ predicate on the "valid_from" field.
-func ValidFromEQ(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldEQ(FieldValidFrom, v))
+// DateStartEQ applies the EQ predicate on the "date_start" field.
+func DateStartEQ(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldEQ(FieldDateStart, v))
 }
 
-// ValidFromNEQ applies the NEQ predicate on the "valid_from" field.
-func ValidFromNEQ(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNEQ(FieldValidFrom, v))
+// DateStartNEQ applies the NEQ predicate on the "date_start" field.
+func DateStartNEQ(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNEQ(FieldDateStart, v))
 }
 
-// ValidFromIn applies the In predicate on the "valid_from" field.
-func ValidFromIn(vs ...time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldIn(FieldValidFrom, vs...))
+// DateStartIn applies the In predicate on the "date_start" field.
+func DateStartIn(vs ...time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldIn(FieldDateStart, vs...))
 }
 
-// ValidFromNotIn applies the NotIn predicate on the "valid_from" field.
-func ValidFromNotIn(vs ...time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNotIn(FieldValidFrom, vs...))
+// DateStartNotIn applies the NotIn predicate on the "date_start" field.
+func DateStartNotIn(vs ...time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNotIn(FieldDateStart, vs...))
 }
 
-// ValidFromGT applies the GT predicate on the "valid_from" field.
-func ValidFromGT(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldGT(FieldValidFrom, v))
+// DateStartGT applies the GT predicate on the "date_start" field.
+func DateStartGT(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldGT(FieldDateStart, v))
 }
 
-// ValidFromGTE applies the GTE predicate on the "valid_from" field.
-func ValidFromGTE(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldGTE(FieldValidFrom, v))
+// DateStartGTE applies the GTE predicate on the "date_start" field.
+func DateStartGTE(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldGTE(FieldDateStart, v))
 }
 
-// ValidFromLT applies the LT predicate on the "valid_from" field.
-func ValidFromLT(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldLT(FieldValidFrom, v))
+// DateStartLT applies the LT predicate on the "date_start" field.
+func DateStartLT(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldLT(FieldDateStart, v))
 }
 
-// ValidFromLTE applies the LTE predicate on the "valid_from" field.
-func ValidFromLTE(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldLTE(FieldValidFrom, v))
+// DateStartLTE applies the LTE predicate on the "date_start" field.
+func DateStartLTE(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldLTE(FieldDateStart, v))
 }
 
-// ValidFromIsNil applies the IsNil predicate on the "valid_from" field.
-func ValidFromIsNil() predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldIsNull(FieldValidFrom))
+// DateStartIsNil applies the IsNil predicate on the "date_start" field.
+func DateStartIsNil() predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldIsNull(FieldDateStart))
 }
 
-// ValidFromNotNil applies the NotNil predicate on the "valid_from" field.
-func ValidFromNotNil() predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNotNull(FieldValidFrom))
+// DateStartNotNil applies the NotNil predicate on the "date_start" field.
+func DateStartNotNil() predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNotNull(FieldDateStart))
 }
 
-// ValidToEQ applies the EQ predicate on the "valid_to" field.
-func ValidToEQ(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldEQ(FieldValidTo, v))
+// DateEndEQ applies the EQ predicate on the "date_end" field.
+func DateEndEQ(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldEQ(FieldDateEnd, v))
 }
 
-// ValidToNEQ applies the NEQ predicate on the "valid_to" field.
-func ValidToNEQ(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNEQ(FieldValidTo, v))
+// DateEndNEQ applies the NEQ predicate on the "date_end" field.
+func DateEndNEQ(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNEQ(FieldDateEnd, v))
 }
 
-// ValidToIn applies the In predicate on the "valid_to" field.
-func ValidToIn(vs ...time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldIn(FieldValidTo, vs...))
+// DateEndIn applies the In predicate on the "date_end" field.
+func DateEndIn(vs ...time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldIn(FieldDateEnd, vs...))
 }
 
-// ValidToNotIn applies the NotIn predicate on the "valid_to" field.
-func ValidToNotIn(vs ...time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNotIn(FieldValidTo, vs...))
+// DateEndNotIn applies the NotIn predicate on the "date_end" field.
+func DateEndNotIn(vs ...time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNotIn(FieldDateEnd, vs...))
 }
 
-// ValidToGT applies the GT predicate on the "valid_to" field.
-func ValidToGT(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldGT(FieldValidTo, v))
+// DateEndGT applies the GT predicate on the "date_end" field.
+func DateEndGT(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldGT(FieldDateEnd, v))
 }
 
-// ValidToGTE applies the GTE predicate on the "valid_to" field.
-func ValidToGTE(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldGTE(FieldValidTo, v))
+// DateEndGTE applies the GTE predicate on the "date_end" field.
+func DateEndGTE(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldGTE(FieldDateEnd, v))
 }
 
-// ValidToLT applies the LT predicate on the "valid_to" field.
-func ValidToLT(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldLT(FieldValidTo, v))
+// DateEndLT applies the LT predicate on the "date_end" field.
+func DateEndLT(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldLT(FieldDateEnd, v))
 }
 
-// ValidToLTE applies the LTE predicate on the "valid_to" field.
-func ValidToLTE(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldLTE(FieldValidTo, v))
+// DateEndLTE applies the LTE predicate on the "date_end" field.
+func DateEndLTE(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldLTE(FieldDateEnd, v))
 }
 
-// ValidToIsNil applies the IsNil predicate on the "valid_to" field.
-func ValidToIsNil() predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldIsNull(FieldValidTo))
+// DateEndIsNil applies the IsNil predicate on the "date_end" field.
+func DateEndIsNil() predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldIsNull(FieldDateEnd))
 }
 
-// ValidToNotNil applies the NotNil predicate on the "valid_to" field.
-func ValidToNotNil() predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNotNull(FieldValidTo))
+// DateEndNotNil applies the NotNil predicate on the "date_end" field.
+func DateEndNotNil() predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNotNull(FieldDateEnd))
 }
 
 // EventIdEQ applies the EQ predicate on the "event_id" field.
@@ -406,54 +406,54 @@ func EventIdLTE(v uuid.UUID) predicate.Stewardship {
 	return predicate.Stewardship(sql.FieldLTE(FieldEventId, v))
 }
 
-// SupersededAtEQ applies the EQ predicate on the "superseded_at" field.
-func SupersededAtEQ(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldEQ(FieldSupersededAt, v))
+// DateSupersededEQ applies the EQ predicate on the "date_superseded" field.
+func DateSupersededEQ(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldEQ(FieldDateSuperseded, v))
 }
 
-// SupersededAtNEQ applies the NEQ predicate on the "superseded_at" field.
-func SupersededAtNEQ(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNEQ(FieldSupersededAt, v))
+// DateSupersededNEQ applies the NEQ predicate on the "date_superseded" field.
+func DateSupersededNEQ(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNEQ(FieldDateSuperseded, v))
 }
 
-// SupersededAtIn applies the In predicate on the "superseded_at" field.
-func SupersededAtIn(vs ...time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldIn(FieldSupersededAt, vs...))
+// DateSupersededIn applies the In predicate on the "date_superseded" field.
+func DateSupersededIn(vs ...time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldIn(FieldDateSuperseded, vs...))
 }
 
-// SupersededAtNotIn applies the NotIn predicate on the "superseded_at" field.
-func SupersededAtNotIn(vs ...time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNotIn(FieldSupersededAt, vs...))
+// DateSupersededNotIn applies the NotIn predicate on the "date_superseded" field.
+func DateSupersededNotIn(vs ...time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNotIn(FieldDateSuperseded, vs...))
 }
 
-// SupersededAtGT applies the GT predicate on the "superseded_at" field.
-func SupersededAtGT(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldGT(FieldSupersededAt, v))
+// DateSupersededGT applies the GT predicate on the "date_superseded" field.
+func DateSupersededGT(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldGT(FieldDateSuperseded, v))
 }
 
-// SupersededAtGTE applies the GTE predicate on the "superseded_at" field.
-func SupersededAtGTE(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldGTE(FieldSupersededAt, v))
+// DateSupersededGTE applies the GTE predicate on the "date_superseded" field.
+func DateSupersededGTE(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldGTE(FieldDateSuperseded, v))
 }
 
-// SupersededAtLT applies the LT predicate on the "superseded_at" field.
-func SupersededAtLT(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldLT(FieldSupersededAt, v))
+// DateSupersededLT applies the LT predicate on the "date_superseded" field.
+func DateSupersededLT(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldLT(FieldDateSuperseded, v))
 }
 
-// SupersededAtLTE applies the LTE predicate on the "superseded_at" field.
-func SupersededAtLTE(v time.Time) predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldLTE(FieldSupersededAt, v))
+// DateSupersededLTE applies the LTE predicate on the "date_superseded" field.
+func DateSupersededLTE(v time.Time) predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldLTE(FieldDateSuperseded, v))
 }
 
-// SupersededAtIsNil applies the IsNil predicate on the "superseded_at" field.
-func SupersededAtIsNil() predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldIsNull(FieldSupersededAt))
+// DateSupersededIsNil applies the IsNil predicate on the "date_superseded" field.
+func DateSupersededIsNil() predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldIsNull(FieldDateSuperseded))
 }
 
-// SupersededAtNotNil applies the NotNil predicate on the "superseded_at" field.
-func SupersededAtNotNil() predicate.Stewardship {
-	return predicate.Stewardship(sql.FieldNotNull(FieldSupersededAt))
+// DateSupersededNotNil applies the NotNil predicate on the "date_superseded" field.
+func DateSupersededNotNil() predicate.Stewardship {
+	return predicate.Stewardship(sql.FieldNotNull(FieldDateSuperseded))
 }
 
 // SupersededByEQ applies the EQ predicate on the "superseded_by" field.

@@ -206,12 +206,12 @@ func (d *demo) spaces() error {
 	}
 	for i, sp := range tree {
 		req := app.AssetAddRequest_builder{
-			Name:       sp.name,
-			Kind:       "space",
-			Type:       d.ty(sp.ty),
-			Tag:        fmt.Sprintf("SP-%02d", i+1),
-			Attributes: sp.attrs,
-			Since:      ago(900),
+			Name:         sp.name,
+			Kind:         "space",
+			Type:         d.ty(sp.ty),
+			Tag:          fmt.Sprintf("SP-%02d", i+1),
+			Attributes:   sp.attrs,
+			DateOccurred: ago(900),
 		}.Build()
 		if sp.parent != "" {
 			req.SetTo(ref(d.space[sp.parent]))
@@ -285,39 +285,39 @@ func (d *demo) assets() error {
 		// Three years from when it was bought.
 		attrs["warranty_until"] = time.Now().AddDate(0, 0, -bought).AddDate(3, 0, 0).Format(time.DateOnly)
 		nb, err := d.add(app.AssetAddRequest_builder{
-			Name:       fmt.Sprintf("%s 노트북", p.name),
-			Type:       d.ty(ty),
-			Model:      d.model(model),
-			Tag:        fmt.Sprintf("NB-%03d", i+1),
-			Serial:     fmt.Sprintf("SN%08d", 31000000+i*37),
-			Attributes: attrs,
-			AcquiredAt: ago(bought),
-			Since:      ago(bought),
-			To:         ref(d.space["store"]),
+			Name:         fmt.Sprintf("%s 노트북", p.name),
+			Type:         d.ty(ty),
+			Model:        d.model(model),
+			Tag:          fmt.Sprintf("NB-%03d", i+1),
+			Serial:       fmt.Sprintf("SN%08d", 31000000+i*37),
+			Attributes:   attrs,
+			DateAcquired: ago(bought),
+			DateOccurred: ago(bought),
+			To:           ref(d.space["store"]),
 		}.Build())
 		if err != nil {
 			return err
 		}
 		mn, err := d.add(app.AssetAddRequest_builder{
-			Name:       fmt.Sprintf("%s 모니터", p.name),
-			Type:       d.ty("모니터"),
-			Model:      d.model(map[bool]string{true: "u27", false: "lg27"}[i%2 == 0]),
-			Tag:        fmt.Sprintf("MN-%03d", i+1),
-			Serial:     fmt.Sprintf("MN%08d", 52000000+i*13),
-			Attributes: map[string]string{"size": "27", "resolution": "3840x2160", "warranty_until": time.Now().AddDate(0, 0, -bought).AddDate(2, 0, 0).Format(time.DateOnly)},
-			AcquiredAt: ago(bought),
-			Since:      ago(bought),
-			To:         ref(d.space["store"]),
+			Name:         fmt.Sprintf("%s 모니터", p.name),
+			Type:         d.ty("모니터"),
+			Model:        d.model(map[bool]string{true: "u27", false: "lg27"}[i%2 == 0]),
+			Tag:          fmt.Sprintf("MN-%03d", i+1),
+			Serial:       fmt.Sprintf("MN%08d", 52000000+i*13),
+			Attributes:   map[string]string{"size": "27", "resolution": "3840x2160", "warranty_until": time.Now().AddDate(0, 0, -bought).AddDate(2, 0, 0).Format(time.DateOnly)},
+			DateAcquired: ago(bought),
+			DateOccurred: ago(bought),
+			To:           ref(d.space["store"]),
 		}.Build())
 		if err != nil {
 			return err
 		}
 		for _, id := range [][]byte{nb, mn} {
 			if _, err := d.s.Asset().Move(d.ctx, app.AssetMoveRequest_builder{
-				Ref:    ref(id),
-				To:     ref(d.space[p.team]),
-				At:     ago(bought - 3),
-				Reason: "자리 배치",
+				Ref:          ref(id),
+				To:           ref(d.space[p.team]),
+				DateOccurred: ago(bought - 3),
+				Reason:       "자리 배치",
 			}.Build()); err != nil {
 				return err
 			}
@@ -329,15 +329,15 @@ func (d *demo) assets() error {
 	// Spares in the store room.
 	for i := range 5 {
 		if _, err := d.add(app.AssetAddRequest_builder{
-			Name:       "예비 노트북",
-			Type:       d.ty("노트북"),
-			Model:      d.model("x1"),
-			Tag:        fmt.Sprintf("NB-%03d", 51+i),
-			Serial:     fmt.Sprintf("SN%08d", 39000000+i),
-			Attributes: map[string]string{"cpu": "Intel Core Ultra 7", "ram": "16", "disk": "512", "os": "Windows"},
-			AcquiredAt: ago(120),
-			Since:      ago(120),
-			To:         ref(d.space["store"]),
+			Name:         "예비 노트북",
+			Type:         d.ty("노트북"),
+			Model:        d.model("x1"),
+			Tag:          fmt.Sprintf("NB-%03d", 51+i),
+			Serial:       fmt.Sprintf("SN%08d", 39000000+i),
+			Attributes:   map[string]string{"cpu": "Intel Core Ultra 7", "ram": "16", "disk": "512", "os": "Windows"},
+			DateAcquired: ago(120),
+			DateOccurred: ago(120),
+			To:           ref(d.space["store"]),
 		}.Build()); err != nil {
 			return err
 		}
@@ -350,14 +350,14 @@ func (d *demo) assets() error {
 			model, os = "iphone", "iOS"
 		}
 		id, err := d.add(app.AssetAddRequest_builder{
-			Name:       fmt.Sprintf("업무폰 %d", i+1),
-			Type:       d.ty("휴대폰"),
-			Model:      d.model(model),
-			Tag:        fmt.Sprintf("PH-%03d", i+1),
-			Attributes: map[string]string{"os": os, "number": fmt.Sprintf("010-5%03d-%04d", i, 1000+i*7)},
-			AcquiredAt: ago(300),
-			Since:      ago(300),
-			To:         ref(d.space["store"]),
+			Name:         fmt.Sprintf("업무폰 %d", i+1),
+			Type:         d.ty("휴대폰"),
+			Model:        d.model(model),
+			Tag:          fmt.Sprintf("PH-%03d", i+1),
+			Attributes:   map[string]string{"os": os, "number": fmt.Sprintf("010-5%03d-%04d", i, 1000+i*7)},
+			DateAcquired: ago(300),
+			DateOccurred: ago(300),
+			To:           ref(d.space["store"]),
 		}.Build())
 		if err != nil {
 			return err
@@ -367,12 +367,12 @@ func (d *demo) assets() error {
 
 	// A camera kit, booked as one thing.
 	kit, err := d.add(app.AssetAddRequest_builder{
-		Name:  "촬영 키트",
-		Kind:  "kit",
-		Type:  d.ty("키트"),
-		Tag:   "KT-001",
-		Since: ago(200),
-		To:    ref(d.space["store"]),
+		Name:         "촬영 키트",
+		Kind:         "kit",
+		Type:         d.ty("키트"),
+		Tag:          "KT-001",
+		DateOccurred: ago(200),
+		To:           ref(d.space["store"]),
 	}.Build())
 	if err != nil {
 		return err
@@ -384,24 +384,24 @@ func (d *demo) assets() error {
 		{"TR-001", "삼각대", "tripod"},
 	} {
 		id, err := d.add(app.AssetAddRequest_builder{
-			Name:       m.name,
-			Type:       d.ty("촬영 장비"),
-			Model:      d.model(m.model),
-			Tag:        m.tag,
-			AcquiredAt: ago(200),
-			Since:      ago(200),
-			To:         ref(kit),
-			Mode:       z.Ptr("part"),
+			Name:         m.name,
+			Type:         d.ty("촬영 장비"),
+			Model:        d.model(m.model),
+			Tag:          m.tag,
+			DateAcquired: ago(200),
+			DateOccurred: ago(200),
+			To:           ref(kit),
+			Mode:         z.Ptr("part"),
 		}.Build())
 		if err != nil {
 			return err
 		}
 		if _, err := d.s.Asset().Relate(d.ctx, app.AssetRelateRequest_builder{
-			Ref:      ref(id),
-			Target:   ref(kit),
-			Kind:     "member_of",
-			Required: true,
-			At:       ago(200),
+			Ref:          ref(id),
+			Target:       ref(kit),
+			Kind:         "member_of",
+			Required:     true,
+			DateOccurred: ago(200),
 		}.Build()); err != nil {
 			return err
 		}
@@ -409,13 +409,13 @@ func (d *demo) assets() error {
 
 	for i := range 2 {
 		id, err := d.add(app.AssetAddRequest_builder{
-			Name:       fmt.Sprintf("빔프로젝터 %d", i+1),
-			Type:       d.ty("주변기기"),
-			Model:      d.model("projector"),
-			Tag:        fmt.Sprintf("PJ-%03d", i+1),
-			AcquiredAt: ago(500),
-			Since:      ago(500),
-			To:         ref(d.space["store"]),
+			Name:         fmt.Sprintf("빔프로젝터 %d", i+1),
+			Type:         d.ty("주변기기"),
+			Model:        d.model("projector"),
+			Tag:          fmt.Sprintf("PJ-%03d", i+1),
+			DateAcquired: ago(500),
+			DateOccurred: ago(500),
+			To:           ref(d.space["store"]),
 		}.Build())
 		if err != nil {
 			return err
@@ -424,15 +424,15 @@ func (d *demo) assets() error {
 	}
 	for i, at := range []string{"3f", "3f", "4f", "4f"} {
 		id, err := d.add(app.AssetAddRequest_builder{
-			Name:       fmt.Sprintf("무선 AP %d", i+1),
-			Type:       d.ty("네트워크 장비"),
-			Model:      d.model("ap"),
-			Tag:        fmt.Sprintf("AP-%03d", i+1),
-			Attributes: map[string]string{"ip": fmt.Sprintf("10.0.%d.%d", 3+i/2, 10+i), "mac": fmt.Sprintf("0c:8d:db:00:00:%02x", i+1)},
-			AcquiredAt: ago(800),
-			Since:      ago(800),
-			To:         ref(d.space[at]),
-			Mode:       z.Ptr("installed"),
+			Name:         fmt.Sprintf("무선 AP %d", i+1),
+			Type:         d.ty("네트워크 장비"),
+			Model:        d.model("ap"),
+			Tag:          fmt.Sprintf("AP-%03d", i+1),
+			Attributes:   map[string]string{"ip": fmt.Sprintf("10.0.%d.%d", 3+i/2, 10+i), "mac": fmt.Sprintf("0c:8d:db:00:00:%02x", i+1)},
+			DateAcquired: ago(800),
+			DateOccurred: ago(800),
+			To:           ref(d.space[at]),
+			Mode:         z.Ptr("installed"),
 		}.Build())
 		if err != nil {
 			return err
@@ -442,12 +442,12 @@ func (d *demo) assets() error {
 
 	// A rack in the server room, with what is mounted in it.
 	rk, err := d.add(app.AssetAddRequest_builder{
-		Name:  "서버 랙 A",
-		Type:  d.ty("랙"),
-		Model: d.model("rack"),
-		Tag:   "RK-001",
-		Since: ago(600),
-		To:    ref(d.space["srv"]),
+		Name:         "서버 랙 A",
+		Type:         d.ty("랙"),
+		Model:        d.model("rack"),
+		Tag:          "RK-001",
+		DateOccurred: ago(600),
+		To:           ref(d.space["srv"]),
 	}.Build())
 	if err != nil {
 		return err
@@ -467,25 +467,25 @@ func (d *demo) assets() error {
 			ty = "네트워크 장비"
 		}
 		id, err := d.add(app.AssetAddRequest_builder{
-			Name:       sv.name,
-			Type:       d.ty(ty),
-			Model:      d.model(sv.model),
-			Tag:        sv.tag,
-			Attributes: sv.attrs,
-			AcquiredAt: ago(600),
-			Since:      ago(600),
+			Name:         sv.name,
+			Type:         d.ty(ty),
+			Model:        d.model(sv.model),
+			Tag:          sv.tag,
+			Attributes:   sv.attrs,
+			DateAcquired: ago(600),
+			DateOccurred: ago(600),
 		}.Build())
 		if err != nil {
 			return err
 		}
 		if _, err := d.s.Asset().Move(d.ctx, app.AssetMoveRequest_builder{
-			Ref:    ref(id),
-			To:     ref(rk),
-			Mode:   "installed",
-			UFrom:  sv.from,
-			UTo:    sv.to,
-			At:     ago(598),
-			Reason: "랙 설치",
+			Ref:          ref(id),
+			To:           ref(rk),
+			Mode:         "installed",
+			UFrom:        sv.from,
+			UTo:          sv.to,
+			DateOccurred: ago(598),
+			Reason:       "랙 설치",
 		}.Build()); err != nil {
 			return err
 		}
@@ -512,10 +512,10 @@ func (d *demo) handOver() error {
 	for i, days := range []int{1, 14} {
 		p := d.persons[30+i]
 		if _, err := d.s.Custody().Add(d.ctx, app.CustodyAddRequest_builder{
-			Party: app.PartyRef_builder{Id: p.id}.Build(),
-			Kind:  "loan",
-			Desc:  "출장용 대여",
-			DueAt: timestamppb.New(time.Now().AddDate(0, 0, days)),
+			Party:   app.PartyRef_builder{Id: p.id}.Build(),
+			Kind:    "loan",
+			Desc:    "출장용 대여",
+			DateDue: timestamppb.New(time.Now().AddDate(0, 0, days)),
 			Lines: []*app.CustodyLineSpec{
 				app.CustodyLineSpec_builder{Asset: ref(d.asset[fmt.Sprintf("ph-%d", i)])}.Build(),
 			},
@@ -592,12 +592,12 @@ func (d *demo) bookings() error {
 			id = d.asset[r.key]
 		}
 		if _, err := d.s.Reservation().Add(d.ctx, app.ReservationAddRequest_builder{
-			Name:     r.name,
-			Party:    app.PartyRef_builder{Id: d.persons[r.who].id}.Build(),
-			BeginsAt: timestamppb.New(r.from),
-			EndsAt:   timestamppb.New(r.from.Add(time.Duration(r.hours) * time.Hour)),
-			Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: ref(id)}.Build()},
-			Repeat:   z.Ptr(r.repeat),
+			Name:      r.name,
+			Party:     app.PartyRef_builder{Id: d.persons[r.who].id}.Build(),
+			DateStart: timestamppb.New(r.from),
+			DateEnd:   timestamppb.New(r.from.Add(time.Duration(r.hours) * time.Hour)),
+			Items:     []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: ref(id)}.Build()},
+			Repeat:    z.Ptr(r.repeat),
 		}.Build()); err != nil {
 			return fmt.Errorf("%s: %w", r.name, err)
 		}
@@ -642,8 +642,8 @@ func (d *demo) work() error {
 			Name:      "무선 AP 정기 점검",
 			Asset:     ref(d.asset[fmt.Sprintf("ap-%d", i)]),
 			Kind:      "inspection",
-			BeginsAt:  timestamppb.New(begins),
-			EndsAt:    timestamppb.New(begins.Add(time.Hour)),
+			DateStart: timestamppb.New(begins),
+			DateEnd:   timestamppb.New(begins.Add(time.Hour)),
 			EveryDays: 90,
 		}.Build()); err != nil {
 			return err

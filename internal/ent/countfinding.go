@@ -35,14 +35,14 @@ type CountFinding struct {
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// ExpectedParentId holds the value of the "expected_parent_id" field.
 	ExpectedParentId *uuid.UUID `json:"expected_parent_id,omitempty"`
-	// SeenAt holds the value of the "seen_at" field.
-	SeenAt time.Time `json:"seen_at,omitempty"`
+	// DateSeen holds the value of the "date_seen" field.
+	DateSeen time.Time `json:"date_seen,omitempty"`
 	// RecordedBy holds the value of the "recorded_by" field.
 	RecordedBy *uuid.UUID `json:"recorded_by,omitempty"`
 	// Resolution holds the value of the "resolution" field.
 	Resolution string `json:"resolution,omitempty"`
-	// ResolvedAt holds the value of the "resolved_at" field.
-	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
+	// DateResolved holds the value of the "date_resolved" field.
+	DateResolved *time.Time `json:"date_resolved,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// CountId holds the value of the "count_id" field.
@@ -108,7 +108,7 @@ func (*CountFinding) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case countfinding.FieldDesc, countfinding.FieldKind, countfinding.FieldResolution:
 			values[i] = new(sql.NullString)
-		case countfinding.FieldDateUpdated, countfinding.FieldDateCreated, countfinding.FieldSeenAt, countfinding.FieldResolvedAt:
+		case countfinding.FieldDateUpdated, countfinding.FieldDateCreated, countfinding.FieldDateSeen, countfinding.FieldDateResolved:
 			values[i] = new(sql.NullTime)
 		case countfinding.FieldLabelId, countfinding.FieldObservedParentId, countfinding.FieldExpectedParentId, countfinding.FieldRecordedBy, countfinding.FieldAssetId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -180,11 +180,11 @@ func (_m *CountFinding) assignValues(columns []string, values []any) error {
 				_m.ExpectedParentId = new(uuid.UUID)
 				*_m.ExpectedParentId = value.V
 			}
-		case countfinding.FieldSeenAt:
+		case countfinding.FieldDateSeen:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field seen_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_seen", values[i])
 			} else if value.Valid {
-				_m.SeenAt = value.Time
+				_m.DateSeen = value.Time
 			}
 		case countfinding.FieldRecordedBy:
 			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
@@ -199,12 +199,12 @@ func (_m *CountFinding) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Resolution = value.String
 			}
-		case countfinding.FieldResolvedAt:
+		case countfinding.FieldDateResolved:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field resolved_at", values[i])
+				return fmt.Errorf("unexpected type %T for field date_resolved", values[i])
 			} else if value.Valid {
-				_m.ResolvedAt = new(time.Time)
-				*_m.ResolvedAt = value.Time
+				_m.DateResolved = new(time.Time)
+				*_m.DateResolved = value.Time
 			}
 		case countfinding.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -302,8 +302,8 @@ func (_m *CountFinding) String() string {
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
-	builder.WriteString("seen_at=")
-	builder.WriteString(_m.SeenAt.Format(time.ANSIC))
+	builder.WriteString("date_seen=")
+	builder.WriteString(_m.DateSeen.Format(time.ANSIC))
 	builder.WriteString(", ")
 	if v := _m.RecordedBy; v != nil {
 		builder.WriteString("recorded_by=")
@@ -313,8 +313,8 @@ func (_m *CountFinding) String() string {
 	builder.WriteString("resolution=")
 	builder.WriteString(_m.Resolution)
 	builder.WriteString(", ")
-	if v := _m.ResolvedAt; v != nil {
-		builder.WriteString("resolved_at=")
+	if v := _m.DateResolved; v != nil {
+		builder.WriteString("date_resolved=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

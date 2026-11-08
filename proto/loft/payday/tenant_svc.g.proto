@@ -293,17 +293,17 @@ message TenantPreviewResponse {
   // now, or once the grace of a shorter one is over. Until then the longer one
   // it had holds.
   uint32 keep_days = 3 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp keep_from = 4;
+  google.protobuf.Timestamp date_keep_effective = 4;
   // What that takes of the history as it is now, by kind -- placements,
   // facts, events, reservations, ... -- as a retention pass would: what was
-  // over before the window, `keep_days` before `keep_from`.
+  // over before the window, `keep_days` before `date_keep_effective`.
   map<string, uint32> keep_takes = 5;
 
   // How long the access record is kept, in days -- the deployment's where the
   // workspace says none, and never below the floor -- and from when. 0 is
   // forever.
   uint32 access_keep_days = 6 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp access_keep_from = 7;
+  google.protobuf.Timestamp date_access_keep_effective = 7;
   // The deployment's floor, in days: the least the access record is kept,
   // whatever the workspace says (`audit.by.access.min`).
   uint32 access_floor_days = 8 [features.field_presence = IMPLICIT];

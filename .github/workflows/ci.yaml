@@ -129,6 +129,9 @@ jobs:
   # migrates them, on SQLite and on PostgreSQL. Every other test starts from an
   # empty database, which takes any column the schema adds; a column with no
   # default cannot be added to a table with rows in it, and only this says so.
+  # Nor does any other hold a renamed column's values to what they were (D76),
+  # which the script reads in the two builds' exports of the workspace, and
+  # restores the one the build before wrote.
   #
   # And from the oldest build a deployment still runs, beside it: a migration
   # from the build just before is one step, and a deployment that skipped some
@@ -386,7 +389,7 @@ jobs:
           curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
             -d '{"host":"assets.acme.test"}' https://localhost/loft.DomainService/Add > /dev/null
           docker compose exec -T postgres psql -U loft -d loft -qc \
-            "UPDATE domain SET state = 'active', verified_at = now() WHERE host = 'assets.acme.test'"
+            "UPDATE domain SET state = 'active', date_verified = now() WHERE host = 'assets.acme.test'"
           # Served, on a certificate Caddy took once the entry point said
           # yes; and none for a host nobody verified.
           for i in $(seq 1 30); do

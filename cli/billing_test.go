@@ -104,7 +104,7 @@ func (d *deployment) notices(t *testing.T) []*ent.LevyanNotice {
 	t.Helper()
 	vs, err := d.s.Ent.LevyanNotice.Query().
 		Where(levyannotice.KindNEQ(levyan.Past)).
-		Order(ent.Asc(levyannotice.FieldAt), ent.Asc(levyannotice.FieldId)).
+		Order(ent.Asc(levyannotice.FieldDateOccurred), ent.Asc(levyannotice.FieldId)).
 		All(t.Context())
 	require.NoError(t, err)
 	return vs
@@ -143,7 +143,7 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 	x.Equal(levyan.Arrived, vs[0].Kind)
 	x.Equal(acme.Uuid(), vs[0].Workspace)
 	x.Equal(ownerOf("acme").Uuid(), vs[0].Account)
-	x.Equal(made, vs[0].At.UTC())
+	x.Equal(made, vs[0].DateOccurred.UTC())
 	x.Equal(levyan.ByChange, vs[0].Origin)
 	// The owner is in another workspace too, so its account outlives the
 	// purge below.
@@ -185,7 +185,7 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 	x.NotEqual(vs[0].Id, back.Id)
 	x.Equal(levyan.Arrived, back.Kind)
 	x.Equal(ownerOf("acme").Uuid(), back.Account)
-	x.Equal(made, back.At.UTC(), "made when it was, as levyan was told first")
+	x.Equal(made, back.DateOccurred.UTC(), "made when it was, as levyan was told first")
 	n, err := d.s.Ent.Entitlement.Query().Count(ctx)
 	x.NoError(err)
 	x.Equal(1, n, "what levyan says of it, copied: the restriction")

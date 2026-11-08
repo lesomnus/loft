@@ -21,7 +21,7 @@ async function made(page: Page, name: string): Promise<{ id: string; alias: stri
 }
 
 /** A billing account as levyan lists it, in JSON: no `name` where it has none. */
-type Listed = { id: string; name?: string; created: string }
+type Listed = { id: string; name?: string; dateCreated: string }
 
 /** The billing accounts of whoever `page` is signed in as, in the order the page lists them. */
 async function billingAccounts(page: Page): Promise<Listed[]> {
@@ -40,7 +40,7 @@ function calledAs(accounts: Listed[]): string[] {
 	const p = (n: number) => String(n).padStart(2, '0')
 	const own = accounts.map((b) => {
 		if (b.name !== undefined && b.name !== '') return b.name
-		const d = new Date(Date.parse(b.created) + 9 * 3600_000)
+		const d = new Date(Date.parse(b.dateCreated) + 9 * 3600_000)
 		return `결제 계정 (${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일 ${p(d.getUTCHours())}:${p(d.getUTCMinutes())} 만듦)`
 	})
 	return own.map((v, i) => (own.filter((w) => w === v).length > 1 ? `${v} · #${accounts[i]?.id.slice(-4)}` : v))
@@ -305,7 +305,7 @@ test('an invoice billing a workspace whose charge failed is said above its pages
 	await page.reload()
 	await expect(page.getByRole('alert')).toContainText('결제가 밀려 제한되었습니다.')
 	// And from when it is read-only, the second stage: sixty days after its
-	// charge failed, as levyan says it (`readonly_from`).
+	// charge failed, as levyan says it (`date_readonly`).
 	await expect(page.getByRole('alert')).toContainText('부터는 읽기 전용이 되어 워크스페이스의 데이터를 바꿀 수 없게 됩니다.')
 	await expect(card(page, '결제 담당')).toContainText('부터는 읽기 전용이 됩니다.')
 
@@ -449,7 +449,7 @@ test.describe('in a browser far from the deployment', () => {
 		await field(page.getByRole('dialog'), '이름').fill('개인 카드')
 		await page.getByRole('dialog').getByRole('button', { name: '바꾸기' }).click()
 		await said(page, '이름을 바꿨습니다.')
-		const day = await page.evaluate((t) => new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone: 'Asia/Seoul' }).format(new Date(t)), listed?.created ?? '')
+		const day = await page.evaluate((t) => new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone: 'Asia/Seoul' }).format(new Date(t)), listed?.dateCreated ?? '')
 		await expect(mine.getByRole('listitem', { name: '개인 카드', exact: true })).toContainText(`${day}에 만듦`)
 	})
 })

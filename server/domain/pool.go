@@ -88,8 +88,8 @@ func (t *Tx) poolOf(group uuid.UUID) (*pool, error) {
 		link.TenantId(t.tenant.Uuid()),
 		link.TargetId(group),
 		link.Kind("member_of"),
-		link.SupersededAtIsNil(),
-		link.ValidToIsNil(),
+		link.DateSupersededIsNil(),
+		link.DateEndIsNil(),
 	).All(t.ctx)
 	if err != nil || len(ls) == 0 {
 		return nil, err
@@ -144,8 +144,8 @@ func (t *Tx) heldOf(ids []uuid.UUID, from, to time.Time, except []uuid.UUID) ([]
 		allocation.TenantId(t.tenant.Uuid()),
 		allocation.ResourceIdIn(ids...),
 		allocation.Blocking(true),
-		allocation.BeginsAtLT(to),
-		allocation.EndsAtGT(from),
+		allocation.DateStartLT(to),
+		allocation.DateEndGT(from),
 	)
 	if len(except) > 0 {
 		q = q.Where(allocation.Or(allocation.RefIdIsNil(), allocation.RefIdNotIn(except...)))
@@ -157,7 +157,7 @@ func (t *Tx) heldOf(ids []uuid.UUID, from, to time.Time, except []uuid.UUID) ([]
 func near(as []*ent.Allocation, from, to time.Time) []*ent.Allocation {
 	out := []*ent.Allocation{}
 	for _, a := range as {
-		if a.BeginsAt.Before(to) && a.EndsAt.After(from) {
+		if a.DateStart.Before(to) && a.DateEnd.After(from) {
 			out = append(out, a)
 		}
 	}
@@ -177,8 +177,8 @@ func (t *Tx) poolsOf(ids []uuid.UUID) (map[uuid.UUID][]*resource, error) {
 		link.TenantId(tid),
 		link.SourceIdIn(ids...),
 		link.Kind("member_of"),
-		link.SupersededAtIsNil(),
-		link.ValidToIsNil(),
+		link.DateSupersededIsNil(),
+		link.DateEndIsNil(),
 	).All(t.ctx)
 	if err != nil || len(ls) == 0 {
 		return out, err
@@ -248,7 +248,7 @@ func (t *Tx) poolsShort(r *resource, from, to time.Time, except []uuid.UUID) ([]
 		return nil, err
 	}
 	// It, taken then: one fewer to give, of whichever of them.
-	it := &ent.Allocation{ResourceId: r.asset.Id, BeginsAt: from, EndsAt: to, Units: 1}
+	it := &ent.Allocation{ResourceId: r.asset.Id, DateStart: from, DateEnd: to, Units: 1}
 	if l.short(l.own, append(slices.Clone(l.held), it), from, to) {
 		return slices.Concat(l.own, l.held), nil
 	}
@@ -305,8 +305,8 @@ func (t *Tx) schedulesOf(ids []uuid.UUID) ([]uuid.UUID, error) {
 		link.SourceIdIn(ids...),
 		link.Kind("member_of"),
 		link.Required(true),
-		link.SupersededAtIsNil(),
-		link.ValidToIsNil(),
+		link.DateSupersededIsNil(),
+		link.DateEndIsNil(),
 	).All(t.ctx)
 	if err != nil {
 		return nil, err
@@ -386,8 +386,8 @@ func (t *Tx) poolHolds(groups, changed []uuid.UUID) ([]uuid.UUID, []uuid.UUID, e
 			link.TenantId(t.tenant.Uuid()),
 			link.SourceIdIn(changed...),
 			link.Kind("member_of"),
-			link.SupersededAtIsNil(),
-			link.ValidToIsNil(),
+			link.DateSupersededIsNil(),
+			link.DateEndIsNil(),
 		).All(t.ctx)
 		if err != nil {
 			return nil, nil, err
@@ -442,8 +442,8 @@ func (t *Tx) rebook(pools []*resource) ([]poolWait, error) {
 				link.TenantId(tid),
 				link.TargetId(pr.asset.Id),
 				link.Kind("member_of"),
-				link.ValidToIsNil(),
-				link.SupersededAtGTE(t.now),
+				link.DateEndIsNil(),
+				link.DateSupersededGTE(t.now),
 			).Exist(t.ctx)
 			if err != nil {
 				return nil, err
@@ -479,7 +479,7 @@ func (t *Tx) rebook(pools []*resource) ([]poolWait, error) {
 	as, err := t.db.Allocation.Query().Where(
 		allocation.TenantId(tid),
 		allocation.ResourceIdIn(ids...),
-		allocation.EndsAtGT(t.now),
+		allocation.DateEndGT(t.now),
 		allocation.Or(allocation.Blocking(true), allocation.Kind(allocWaiting)),
 	).Order(allocation.ByDateCreated(), allocation.ById()).All(t.ctx)
 	if err != nil || len(as) == 0 {
@@ -491,8 +491,8 @@ func (t *Tx) rebook(pools []*resource) ([]poolWait, error) {
 		if a.RefId != nil {
 			refs = append(refs, *a.RefId)
 		}
-		if a.EndsAt.After(until) {
-			until = a.EndsAt
+		if a.DateEnd.After(until) {
+			until = a.DateEnd
 		}
 	}
 	rs, err := t.db.Reservation.Query().Where(reservation.TenantId(tid), reservation.IdIn(refs...)).All(t.ctx)
@@ -514,7 +514,7 @@ func (t *Tx) rebook(pools []*resource) ([]poolWait, error) {
 			r = res[*a.RefId]
 		}
 		pr := of[a.ResourceId]
-		pending := r != nil && waits(r.Status) && r.EndsAt.After(t.now) && r.DateErased == nil &&
+		pending := r != nil && waits(r.Status) && r.DateEnd.After(t.now) && r.DateErased == nil &&
 			t.holding(pr) && !poolOutOfUse(pr.asset)
 		switch {
 		case a.Kind == allocWaiting:
@@ -550,11 +550,11 @@ func (t *Tx) rebook(pools []*resource) ([]poolWait, error) {
 	// pool's, children of the change, written at once ([Tx.changed]).
 	did := []allocChange{}
 	for _, a := range flex {
-		from := a.BeginsAt
+		from := a.DateStart
 		if from.Before(t.now) {
 			from = t.now
 		}
-		if !a.EndsAt.After(from) || !l.short(append(near(kept, from, a.EndsAt), a), near(held, from, a.EndsAt), from, a.EndsAt) {
+		if !a.DateEnd.After(from) || !l.short(append(near(kept, from, a.DateEnd), a), near(held, from, a.DateEnd), from, a.DateEnd) {
 			kept = append(kept, a)
 			continue
 		}
@@ -563,13 +563,13 @@ func (t *Tx) rebook(pools []*resource) ([]poolWait, error) {
 			return nil, err
 		}
 		if _, err := t.next.Allocation().Add(t.ctx, app.AllocationAddRequest_builder{
-			Tenant:   t.tenantRef(),
-			Resource: assetRef(pr.asset.Id),
-			Kind:     allocWaiting,
-			RefId:    pdid.Id(r.Id).Bytes(),
-			BeginsAt: ts(from),
-			EndsAt:   ts(a.EndsAt),
-			Units:    a.Units,
+			Tenant:    t.tenantRef(),
+			Resource:  assetRef(pr.asset.Id),
+			Kind:      allocWaiting,
+			RefId:     pdid.Id(r.Id).Bytes(),
+			DateStart: ts(from),
+			DateEnd:   ts(a.DateEnd),
+			Units:     a.Units,
 		}.Build()); err != nil {
 			return nil, err
 		}
@@ -652,8 +652,8 @@ func (t *Tx) recheckPoolsOf(ids ...uuid.UUID) error {
 		link.TenantId(t.tenant.Uuid()),
 		link.SourceIdIn(ids...),
 		link.Kind("member_of"),
-		link.SupersededAtIsNil(),
-		link.ValidToIsNil(),
+		link.DateSupersededIsNil(),
+		link.DateEndIsNil(),
 	).All(t.ctx)
 	if err != nil {
 		return err
@@ -671,7 +671,7 @@ func (t *Tx) recheckPoolsOf(ids ...uuid.UUID) error {
 // everything else takes of it then, the pools around it given what they are
 // booked for first (D44).
 func (t *Tx) available(w *ent.Allocation, from time.Time, m *resource) (uint32, error) {
-	if !w.EndsAt.After(from) {
+	if !w.DateEnd.After(from) {
 		return 0, nil
 	}
 	except := []uuid.UUID{}
@@ -682,11 +682,11 @@ func (t *Tx) available(w *ent.Allocation, from time.Time, m *resource) (uint32, 
 	if err != nil {
 		return 0, err
 	}
-	l, err := t.ledgerOf(around, from, w.EndsAt, except)
+	l, err := t.ledgerOf(around, from, w.DateEnd, except)
 	if err != nil {
 		return 0, err
 	}
-	return l.spare(m.asset.Id, l.own, l.held, from, w.EndsAt), nil
+	return l.spare(m.asset.Id, l.own, l.held, from, w.DateEnd), nil
 }
 
 // booked says whether reservation `r` booked `thing` itself, rather than took
@@ -741,8 +741,8 @@ func (t *Tx) holdLeaving(id pdid.Id, refs []*app.AssetRef) error {
 		link.TenantId(t.tenant.Uuid()),
 		link.SourceId(id.Uuid()),
 		link.Kind("member_of"),
-		link.SupersededAtIsNil(),
-		link.ValidToIsNil(),
+		link.DateSupersededIsNil(),
+		link.DateEndIsNil(),
 	).All(t.ctx)
 	if err != nil {
 		return err

@@ -835,15 +835,15 @@ func (st ReservationServiceServer) create(ctx context.Context, req *loft.Reserva
 		}
 	}
 	q.SetStatus(req.GetStatus())
-	if req.HasBeginsAt() {
-		q.SetBeginsAt(req.GetBeginsAt().AsTime())
+	if req.HasDateStart() {
+		q.SetDateStart(req.GetDateStart().AsTime())
 	} else {
-		q.SetBeginsAt(st.now())
+		q.SetDateStart(st.now())
 	}
-	if req.HasEndsAt() {
-		q.SetEndsAt(req.GetEndsAt().AsTime())
+	if req.HasDateEnd() {
+		q.SetDateEnd(req.GetDateEnd().AsTime())
 	} else {
-		q.SetEndsAt(st.now())
+		q.SetDateEnd(st.now())
 	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
@@ -851,8 +851,8 @@ func (st ReservationServiceServer) create(ctx context.Context, req *loft.Reserva
 	} else {
 		q.SetDateCreated(st.now())
 	}
-	if req.HasExpiresAt() {
-		q.SetExpiresAt(req.GetExpiresAt().AsTime())
+	if req.HasDateExpires() {
+		q.SetDateExpires(req.GetDateExpires().AsTime())
 	}
 	q.SetRrule(req.GetRrule())
 	if req.HasSeriesId() {
@@ -869,8 +869,8 @@ func (st ReservationServiceServer) create(ctx context.Context, req *loft.Reserva
 			q.SetDecidedBy(v)
 		}
 	}
-	if req.HasCheckedInAt() {
-		q.SetCheckedInAt(req.GetCheckedInAt().AsTime())
+	if req.HasDateCheckedIn() {
+		q.SetDateCheckedIn(req.GetDateCheckedIn().AsTime())
 	}
 	return q, ds, nil
 }
@@ -1011,11 +1011,11 @@ func ReservationSelectedFields(m *loft.ReservationSelect) []string {
 	if m.GetStatus() {
 		vs = append(vs, reservation.FieldStatus)
 	}
-	if m.GetBeginsAt() {
-		vs = append(vs, reservation.FieldBeginsAt)
+	if m.GetDateStart() {
+		vs = append(vs, reservation.FieldDateStart)
 	}
-	if m.GetEndsAt() {
-		vs = append(vs, reservation.FieldEndsAt)
+	if m.GetDateEnd() {
+		vs = append(vs, reservation.FieldDateEnd)
 	}
 	if m.GetDateUpdated() {
 		vs = append(vs, reservation.FieldDateUpdated)
@@ -1026,8 +1026,8 @@ func ReservationSelectedFields(m *loft.ReservationSelect) []string {
 	if m.GetDateCreated() {
 		vs = append(vs, reservation.FieldDateCreated)
 	}
-	if m.GetExpiresAt() {
-		vs = append(vs, reservation.FieldExpiresAt)
+	if m.GetDateExpires() {
+		vs = append(vs, reservation.FieldDateExpires)
 	}
 	if m.GetRrule() {
 		vs = append(vs, reservation.FieldRrule)
@@ -1038,8 +1038,8 @@ func ReservationSelectedFields(m *loft.ReservationSelect) []string {
 	if m.GetDecidedBy() {
 		vs = append(vs, reservation.FieldDecidedBy)
 	}
-	if m.GetCheckedInAt() {
-		vs = append(vs, reservation.FieldCheckedInAt)
+	if m.GetDateCheckedIn() {
+		vs = append(vs, reservation.FieldDateCheckedIn)
 	}
 
 	return vs
@@ -1116,7 +1116,7 @@ func ReservationGetKey(ctx context.Context, db *ent.Client, ref *loft.Reservatio
 var reservationOrmEntity = ormpatch.MustEntityOf(loft.File_loft_booking_proto, "Reservation")
 
 var reservationPatchColumns = entpatch.Columns{
-	1: reservation.FieldId, 2: reservation.TenantColumn, 5: reservation.FieldName, 6: reservation.FieldDesc, 8: reservation.PartyColumn, 9: reservation.FieldRequestedBy, 10: reservation.FieldStatus, 11: reservation.FieldBeginsAt, 12: reservation.FieldEndsAt, 13: reservation.FieldDateUpdated, 14: reservation.FieldDateErased, 15: reservation.FieldDateCreated, 16: reservation.FieldExpiresAt, 17: reservation.FieldRrule, 18: reservation.FieldSeriesId, 19: reservation.FieldDecidedBy, 20: reservation.FieldCheckedInAt}
+	1: reservation.FieldId, 2: reservation.TenantColumn, 5: reservation.FieldName, 6: reservation.FieldDesc, 8: reservation.PartyColumn, 9: reservation.FieldRequestedBy, 10: reservation.FieldStatus, 11: reservation.FieldDateStart, 12: reservation.FieldDateEnd, 13: reservation.FieldDateUpdated, 14: reservation.FieldDateErased, 15: reservation.FieldDateCreated, 16: reservation.FieldDateExpires, 17: reservation.FieldRrule, 18: reservation.FieldSeriesId, 19: reservation.FieldDecidedBy, 20: reservation.FieldDateCheckedIn}
 
 func (s ReservationServiceServer) Apply(ctx context.Context, req *loft.ReservationApplyRequest) (*loft.Reservation, error) {
 	if !req.HasPatch() {
@@ -2099,15 +2099,15 @@ func (st AllocationServiceServer) create(ctx context.Context, req *loft.Allocati
 			q.SetRefId(v)
 		}
 	}
-	if req.HasBeginsAt() {
-		q.SetBeginsAt(req.GetBeginsAt().AsTime())
+	if req.HasDateStart() {
+		q.SetDateStart(req.GetDateStart().AsTime())
 	} else {
-		q.SetBeginsAt(st.now())
+		q.SetDateStart(st.now())
 	}
-	if req.HasEndsAt() {
-		q.SetEndsAt(req.GetEndsAt().AsTime())
+	if req.HasDateEnd() {
+		q.SetDateEnd(req.GetDateEnd().AsTime())
 	} else {
-		q.SetEndsAt(st.now())
+		q.SetDateEnd(st.now())
 	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
@@ -2251,11 +2251,11 @@ func AllocationSelectedFields(m *loft.AllocationSelect) []string {
 	if m.GetRefId() {
 		vs = append(vs, allocation.FieldRefId)
 	}
-	if m.GetBeginsAt() {
-		vs = append(vs, allocation.FieldBeginsAt)
+	if m.GetDateStart() {
+		vs = append(vs, allocation.FieldDateStart)
 	}
-	if m.GetEndsAt() {
-		vs = append(vs, allocation.FieldEndsAt)
+	if m.GetDateEnd() {
+		vs = append(vs, allocation.FieldDateEnd)
 	}
 	if m.GetDateUpdated() {
 		vs = append(vs, allocation.FieldDateUpdated)
@@ -2347,7 +2347,7 @@ func AllocationGetKey(ctx context.Context, db *ent.Client, ref *loft.AllocationR
 var allocationOrmEntity = ormpatch.MustEntityOf(loft.File_loft_booking_proto, "Allocation")
 
 var allocationPatchColumns = entpatch.Columns{
-	1: allocation.FieldId, 2: allocation.TenantColumn, 8: allocation.ResourceColumn, 9: allocation.FieldKind, 10: allocation.FieldRefId, 11: allocation.FieldBeginsAt, 12: allocation.FieldEndsAt, 13: allocation.FieldDateUpdated, 15: allocation.FieldDateCreated, 16: allocation.FieldBlocking, 17: allocation.FieldExclusive, 18: allocation.FieldUnits}
+	1: allocation.FieldId, 2: allocation.TenantColumn, 8: allocation.ResourceColumn, 9: allocation.FieldKind, 10: allocation.FieldRefId, 11: allocation.FieldDateStart, 12: allocation.FieldDateEnd, 13: allocation.FieldDateUpdated, 15: allocation.FieldDateCreated, 16: allocation.FieldBlocking, 17: allocation.FieldExclusive, 18: allocation.FieldUnits}
 
 func (s AllocationServiceServer) Apply(ctx context.Context, req *loft.AllocationApplyRequest) (*loft.Allocation, error) {
 	if !req.HasPatch() {

@@ -114,43 +114,43 @@ func (_u *PlacementUpdate) AddUTo(v int32) *PlacementUpdate {
 	return _u
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_u *PlacementUpdate) SetValidFrom(v time.Time) *PlacementUpdate {
-	_u.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_u *PlacementUpdate) SetDateStart(v time.Time) *PlacementUpdate {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_u *PlacementUpdate) SetNillableValidFrom(v *time.Time) *PlacementUpdate {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *PlacementUpdate) SetNillableDateStart(v *time.Time) *PlacementUpdate {
 	if v != nil {
-		_u.SetValidFrom(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearValidFrom clears the value of the "valid_from" field.
-func (_u *PlacementUpdate) ClearValidFrom() *PlacementUpdate {
-	_u.mutation.ClearValidFrom()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *PlacementUpdate) ClearDateStart() *PlacementUpdate {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_u *PlacementUpdate) SetValidTo(v time.Time) *PlacementUpdate {
-	_u.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *PlacementUpdate) SetDateEnd(v time.Time) *PlacementUpdate {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_u *PlacementUpdate) SetNillableValidTo(v *time.Time) *PlacementUpdate {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *PlacementUpdate) SetNillableDateEnd(v *time.Time) *PlacementUpdate {
 	if v != nil {
-		_u.SetValidTo(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearValidTo clears the value of the "valid_to" field.
-func (_u *PlacementUpdate) ClearValidTo() *PlacementUpdate {
-	_u.mutation.ClearValidTo()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *PlacementUpdate) ClearDateEnd() *PlacementUpdate {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -168,23 +168,23 @@ func (_u *PlacementUpdate) SetNillableEventId(v *uuid.UUID) *PlacementUpdate {
 	return _u
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_u *PlacementUpdate) SetSupersededAt(v time.Time) *PlacementUpdate {
-	_u.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_u *PlacementUpdate) SetDateSuperseded(v time.Time) *PlacementUpdate {
+	_u.mutation.SetDateSuperseded(v)
 	return _u
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_u *PlacementUpdate) SetNillableSupersededAt(v *time.Time) *PlacementUpdate {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_u *PlacementUpdate) SetNillableDateSuperseded(v *time.Time) *PlacementUpdate {
 	if v != nil {
-		_u.SetSupersededAt(*v)
+		_u.SetDateSuperseded(*v)
 	}
 	return _u
 }
 
-// ClearSupersededAt clears the value of the "superseded_at" field.
-func (_u *PlacementUpdate) ClearSupersededAt() *PlacementUpdate {
-	_u.mutation.ClearSupersededAt()
+// ClearDateSuperseded clears the value of the "date_superseded" field.
+func (_u *PlacementUpdate) ClearDateSuperseded() *PlacementUpdate {
+	_u.mutation.ClearDateSuperseded()
 	return _u
 }
 
@@ -311,23 +311,23 @@ func (_u *PlacementUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AddedUTo(); ok {
 		_spec.AddField(placement.FieldUTo, field.TypeInt32, value)
 	}
-	if value, ok := _u.mutation.ValidFrom(); ok {
-		_spec.SetField(placement.FieldValidFrom, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(placement.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(placement.FieldValidFrom); ok {
-		_spec.SetField(placement.FieldValidFrom, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(placement.FieldDateStart); ok {
+		_spec.SetField(placement.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.ValidFromCleared() {
-		_spec.ClearField(placement.FieldValidFrom, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(placement.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidTo(); ok {
-		_spec.SetField(placement.FieldValidTo, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(placement.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(placement.FieldValidTo); ok {
-		_spec.SetField(placement.FieldValidTo, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(placement.FieldDateEnd); ok {
+		_spec.SetField(placement.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.ValidToCleared() {
-		_spec.ClearField(placement.FieldValidTo, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(placement.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(placement.FieldEventId, field.TypeUuid, value)
@@ -335,14 +335,14 @@ func (_u *PlacementUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(placement.FieldEventId); ok {
 		_spec.SetField(placement.FieldEventId, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.SupersededAt(); ok {
-		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateSuperseded(); ok {
+		_spec.SetField(placement.FieldDateSuperseded, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(placement.FieldSupersededAt); ok {
-		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(placement.FieldDateSuperseded); ok {
+		_spec.SetField(placement.FieldDateSuperseded, field.TypeTime, e)
 	}
-	if _u.mutation.SupersededAtCleared() {
-		_spec.ClearField(placement.FieldSupersededAt, field.TypeTime)
+	if _u.mutation.DateSupersededCleared() {
+		_spec.ClearField(placement.FieldDateSuperseded, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(placement.FieldSupersededBy, field.TypeUuid, value)
@@ -459,43 +459,43 @@ func (_u *PlacementUpdateOne) AddUTo(v int32) *PlacementUpdateOne {
 	return _u
 }
 
-// SetValidFrom sets the "valid_from" field.
-func (_u *PlacementUpdateOne) SetValidFrom(v time.Time) *PlacementUpdateOne {
-	_u.mutation.SetValidFrom(v)
+// SetDateStart sets the "date_start" field.
+func (_u *PlacementUpdateOne) SetDateStart(v time.Time) *PlacementUpdateOne {
+	_u.mutation.SetDateStart(v)
 	return _u
 }
 
-// SetNillableValidFrom sets the "valid_from" field if the given value is not nil.
-func (_u *PlacementUpdateOne) SetNillableValidFrom(v *time.Time) *PlacementUpdateOne {
+// SetNillableDateStart sets the "date_start" field if the given value is not nil.
+func (_u *PlacementUpdateOne) SetNillableDateStart(v *time.Time) *PlacementUpdateOne {
 	if v != nil {
-		_u.SetValidFrom(*v)
+		_u.SetDateStart(*v)
 	}
 	return _u
 }
 
-// ClearValidFrom clears the value of the "valid_from" field.
-func (_u *PlacementUpdateOne) ClearValidFrom() *PlacementUpdateOne {
-	_u.mutation.ClearValidFrom()
+// ClearDateStart clears the value of the "date_start" field.
+func (_u *PlacementUpdateOne) ClearDateStart() *PlacementUpdateOne {
+	_u.mutation.ClearDateStart()
 	return _u
 }
 
-// SetValidTo sets the "valid_to" field.
-func (_u *PlacementUpdateOne) SetValidTo(v time.Time) *PlacementUpdateOne {
-	_u.mutation.SetValidTo(v)
+// SetDateEnd sets the "date_end" field.
+func (_u *PlacementUpdateOne) SetDateEnd(v time.Time) *PlacementUpdateOne {
+	_u.mutation.SetDateEnd(v)
 	return _u
 }
 
-// SetNillableValidTo sets the "valid_to" field if the given value is not nil.
-func (_u *PlacementUpdateOne) SetNillableValidTo(v *time.Time) *PlacementUpdateOne {
+// SetNillableDateEnd sets the "date_end" field if the given value is not nil.
+func (_u *PlacementUpdateOne) SetNillableDateEnd(v *time.Time) *PlacementUpdateOne {
 	if v != nil {
-		_u.SetValidTo(*v)
+		_u.SetDateEnd(*v)
 	}
 	return _u
 }
 
-// ClearValidTo clears the value of the "valid_to" field.
-func (_u *PlacementUpdateOne) ClearValidTo() *PlacementUpdateOne {
-	_u.mutation.ClearValidTo()
+// ClearDateEnd clears the value of the "date_end" field.
+func (_u *PlacementUpdateOne) ClearDateEnd() *PlacementUpdateOne {
+	_u.mutation.ClearDateEnd()
 	return _u
 }
 
@@ -513,23 +513,23 @@ func (_u *PlacementUpdateOne) SetNillableEventId(v *uuid.UUID) *PlacementUpdateO
 	return _u
 }
 
-// SetSupersededAt sets the "superseded_at" field.
-func (_u *PlacementUpdateOne) SetSupersededAt(v time.Time) *PlacementUpdateOne {
-	_u.mutation.SetSupersededAt(v)
+// SetDateSuperseded sets the "date_superseded" field.
+func (_u *PlacementUpdateOne) SetDateSuperseded(v time.Time) *PlacementUpdateOne {
+	_u.mutation.SetDateSuperseded(v)
 	return _u
 }
 
-// SetNillableSupersededAt sets the "superseded_at" field if the given value is not nil.
-func (_u *PlacementUpdateOne) SetNillableSupersededAt(v *time.Time) *PlacementUpdateOne {
+// SetNillableDateSuperseded sets the "date_superseded" field if the given value is not nil.
+func (_u *PlacementUpdateOne) SetNillableDateSuperseded(v *time.Time) *PlacementUpdateOne {
 	if v != nil {
-		_u.SetSupersededAt(*v)
+		_u.SetDateSuperseded(*v)
 	}
 	return _u
 }
 
-// ClearSupersededAt clears the value of the "superseded_at" field.
-func (_u *PlacementUpdateOne) ClearSupersededAt() *PlacementUpdateOne {
-	_u.mutation.ClearSupersededAt()
+// ClearDateSuperseded clears the value of the "date_superseded" field.
+func (_u *PlacementUpdateOne) ClearDateSuperseded() *PlacementUpdateOne {
+	_u.mutation.ClearDateSuperseded()
 	return _u
 }
 
@@ -686,23 +686,23 @@ func (_u *PlacementUpdateOne) sqlSave(ctx context.Context) (_node *Placement, er
 	if value, ok := _u.mutation.AddedUTo(); ok {
 		_spec.AddField(placement.FieldUTo, field.TypeInt32, value)
 	}
-	if value, ok := _u.mutation.ValidFrom(); ok {
-		_spec.SetField(placement.FieldValidFrom, field.TypeTime, value)
+	if value, ok := _u.mutation.DateStart(); ok {
+		_spec.SetField(placement.FieldDateStart, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(placement.FieldValidFrom); ok {
-		_spec.SetField(placement.FieldValidFrom, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(placement.FieldDateStart); ok {
+		_spec.SetField(placement.FieldDateStart, field.TypeTime, e)
 	}
-	if _u.mutation.ValidFromCleared() {
-		_spec.ClearField(placement.FieldValidFrom, field.TypeTime)
+	if _u.mutation.DateStartCleared() {
+		_spec.ClearField(placement.FieldDateStart, field.TypeTime)
 	}
-	if value, ok := _u.mutation.ValidTo(); ok {
-		_spec.SetField(placement.FieldValidTo, field.TypeTime, value)
+	if value, ok := _u.mutation.DateEnd(); ok {
+		_spec.SetField(placement.FieldDateEnd, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(placement.FieldValidTo); ok {
-		_spec.SetField(placement.FieldValidTo, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(placement.FieldDateEnd); ok {
+		_spec.SetField(placement.FieldDateEnd, field.TypeTime, e)
 	}
-	if _u.mutation.ValidToCleared() {
-		_spec.ClearField(placement.FieldValidTo, field.TypeTime)
+	if _u.mutation.DateEndCleared() {
+		_spec.ClearField(placement.FieldDateEnd, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(placement.FieldEventId, field.TypeUuid, value)
@@ -710,14 +710,14 @@ func (_u *PlacementUpdateOne) sqlSave(ctx context.Context) (_node *Placement, er
 	if e, ok := _u.mutation.FieldExpr(placement.FieldEventId); ok {
 		_spec.SetField(placement.FieldEventId, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.SupersededAt(); ok {
-		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateSuperseded(); ok {
+		_spec.SetField(placement.FieldDateSuperseded, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(placement.FieldSupersededAt); ok {
-		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(placement.FieldDateSuperseded); ok {
+		_spec.SetField(placement.FieldDateSuperseded, field.TypeTime, e)
 	}
-	if _u.mutation.SupersededAtCleared() {
-		_spec.ClearField(placement.FieldSupersededAt, field.TypeTime)
+	if _u.mutation.DateSupersededCleared() {
+		_spec.ClearField(placement.FieldDateSuperseded, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(placement.FieldSupersededBy, field.TypeUuid, value)

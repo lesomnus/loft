@@ -29,9 +29,9 @@ func (e *InventoryCount) Proto() *loft.InventoryCount {
 		x.SetScope(r)
 	}
 	x.SetStatus(e.Status)
-	x.SetStartedAt(timestamppb.New(e.StartedAt))
-	if e.ClosedAt != nil {
-		x.SetClosedAt(timestamppb.New(*e.ClosedAt))
+	x.SetDateStarted(timestamppb.New(e.DateStarted))
+	if e.DateClosed != nil {
+		x.SetDateClosed(timestamppb.New(*e.DateClosed))
 	}
 	if e.StartedBy != nil {
 		x.SetStartedBy(e.StartedBy[:])
@@ -82,13 +82,13 @@ func (e *CountFinding) Proto() *loft.CountFinding {
 	if e.ExpectedParentId != nil {
 		x.SetExpectedParentId(e.ExpectedParentId[:])
 	}
-	x.SetSeenAt(timestamppb.New(e.SeenAt))
+	x.SetDateSeen(timestamppb.New(e.DateSeen))
 	if e.RecordedBy != nil {
 		x.SetRecordedBy(e.RecordedBy[:])
 	}
 	x.SetResolution(e.Resolution)
-	if e.ResolvedAt != nil {
-		x.SetResolvedAt(timestamppb.New(*e.ResolvedAt))
+	if e.DateResolved != nil {
+		x.SetDateResolved(timestamppb.New(*e.DateResolved))
 	}
 	return x
 }

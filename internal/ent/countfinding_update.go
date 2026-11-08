@@ -132,23 +132,23 @@ func (_u *CountFindingUpdate) ClearExpectedParentId() *CountFindingUpdate {
 	return _u
 }
 
-// SetSeenAt sets the "seen_at" field.
-func (_u *CountFindingUpdate) SetSeenAt(v time.Time) *CountFindingUpdate {
-	_u.mutation.SetSeenAt(v)
+// SetDateSeen sets the "date_seen" field.
+func (_u *CountFindingUpdate) SetDateSeen(v time.Time) *CountFindingUpdate {
+	_u.mutation.SetDateSeen(v)
 	return _u
 }
 
-// SetNillableSeenAt sets the "seen_at" field if the given value is not nil.
-func (_u *CountFindingUpdate) SetNillableSeenAt(v *time.Time) *CountFindingUpdate {
+// SetNillableDateSeen sets the "date_seen" field if the given value is not nil.
+func (_u *CountFindingUpdate) SetNillableDateSeen(v *time.Time) *CountFindingUpdate {
 	if v != nil {
-		_u.SetSeenAt(*v)
+		_u.SetDateSeen(*v)
 	}
 	return _u
 }
 
-// ClearSeenAt clears the value of the "seen_at" field.
-func (_u *CountFindingUpdate) ClearSeenAt() *CountFindingUpdate {
-	_u.mutation.ClearSeenAt()
+// ClearDateSeen clears the value of the "date_seen" field.
+func (_u *CountFindingUpdate) ClearDateSeen() *CountFindingUpdate {
+	_u.mutation.ClearDateSeen()
 	return _u
 }
 
@@ -186,23 +186,23 @@ func (_u *CountFindingUpdate) SetNillableResolution(v *string) *CountFindingUpda
 	return _u
 }
 
-// SetResolvedAt sets the "resolved_at" field.
-func (_u *CountFindingUpdate) SetResolvedAt(v time.Time) *CountFindingUpdate {
-	_u.mutation.SetResolvedAt(v)
+// SetDateResolved sets the "date_resolved" field.
+func (_u *CountFindingUpdate) SetDateResolved(v time.Time) *CountFindingUpdate {
+	_u.mutation.SetDateResolved(v)
 	return _u
 }
 
-// SetNillableResolvedAt sets the "resolved_at" field if the given value is not nil.
-func (_u *CountFindingUpdate) SetNillableResolvedAt(v *time.Time) *CountFindingUpdate {
+// SetNillableDateResolved sets the "date_resolved" field if the given value is not nil.
+func (_u *CountFindingUpdate) SetNillableDateResolved(v *time.Time) *CountFindingUpdate {
 	if v != nil {
-		_u.SetResolvedAt(*v)
+		_u.SetDateResolved(*v)
 	}
 	return _u
 }
 
-// ClearResolvedAt clears the value of the "resolved_at" field.
-func (_u *CountFindingUpdate) ClearResolvedAt() *CountFindingUpdate {
-	_u.mutation.ClearResolvedAt()
+// ClearDateResolved clears the value of the "date_resolved" field.
+func (_u *CountFindingUpdate) ClearDateResolved() *CountFindingUpdate {
+	_u.mutation.ClearDateResolved()
 	return _u
 }
 
@@ -315,14 +315,14 @@ func (_u *CountFindingUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if _u.mutation.ExpectedParentIdCleared() {
 		_spec.ClearField(countfinding.FieldExpectedParentId, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.SeenAt(); ok {
-		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateSeen(); ok {
+		_spec.SetField(countfinding.FieldDateSeen, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(countfinding.FieldSeenAt); ok {
-		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldDateSeen); ok {
+		_spec.SetField(countfinding.FieldDateSeen, field.TypeTime, e)
 	}
-	if _u.mutation.SeenAtCleared() {
-		_spec.ClearField(countfinding.FieldSeenAt, field.TypeTime)
+	if _u.mutation.DateSeenCleared() {
+		_spec.ClearField(countfinding.FieldDateSeen, field.TypeTime)
 	}
 	if value, ok := _u.mutation.RecordedBy(); ok {
 		_spec.SetField(countfinding.FieldRecordedBy, field.TypeUuid, value)
@@ -339,14 +339,14 @@ func (_u *CountFindingUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if e, ok := _u.mutation.FieldExpr(countfinding.FieldResolution); ok {
 		_spec.SetField(countfinding.FieldResolution, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.ResolvedAt(); ok {
-		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateResolved(); ok {
+		_spec.SetField(countfinding.FieldDateResolved, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(countfinding.FieldResolvedAt); ok {
-		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldDateResolved); ok {
+		_spec.SetField(countfinding.FieldDateResolved, field.TypeTime, e)
 	}
-	if _u.mutation.ResolvedAtCleared() {
-		_spec.ClearField(countfinding.FieldResolvedAt, field.TypeTime)
+	if _u.mutation.DateResolvedCleared() {
+		_spec.ClearField(countfinding.FieldDateResolved, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -472,23 +472,23 @@ func (_u *CountFindingUpdateOne) ClearExpectedParentId() *CountFindingUpdateOne 
 	return _u
 }
 
-// SetSeenAt sets the "seen_at" field.
-func (_u *CountFindingUpdateOne) SetSeenAt(v time.Time) *CountFindingUpdateOne {
-	_u.mutation.SetSeenAt(v)
+// SetDateSeen sets the "date_seen" field.
+func (_u *CountFindingUpdateOne) SetDateSeen(v time.Time) *CountFindingUpdateOne {
+	_u.mutation.SetDateSeen(v)
 	return _u
 }
 
-// SetNillableSeenAt sets the "seen_at" field if the given value is not nil.
-func (_u *CountFindingUpdateOne) SetNillableSeenAt(v *time.Time) *CountFindingUpdateOne {
+// SetNillableDateSeen sets the "date_seen" field if the given value is not nil.
+func (_u *CountFindingUpdateOne) SetNillableDateSeen(v *time.Time) *CountFindingUpdateOne {
 	if v != nil {
-		_u.SetSeenAt(*v)
+		_u.SetDateSeen(*v)
 	}
 	return _u
 }
 
-// ClearSeenAt clears the value of the "seen_at" field.
-func (_u *CountFindingUpdateOne) ClearSeenAt() *CountFindingUpdateOne {
-	_u.mutation.ClearSeenAt()
+// ClearDateSeen clears the value of the "date_seen" field.
+func (_u *CountFindingUpdateOne) ClearDateSeen() *CountFindingUpdateOne {
+	_u.mutation.ClearDateSeen()
 	return _u
 }
 
@@ -526,23 +526,23 @@ func (_u *CountFindingUpdateOne) SetNillableResolution(v *string) *CountFindingU
 	return _u
 }
 
-// SetResolvedAt sets the "resolved_at" field.
-func (_u *CountFindingUpdateOne) SetResolvedAt(v time.Time) *CountFindingUpdateOne {
-	_u.mutation.SetResolvedAt(v)
+// SetDateResolved sets the "date_resolved" field.
+func (_u *CountFindingUpdateOne) SetDateResolved(v time.Time) *CountFindingUpdateOne {
+	_u.mutation.SetDateResolved(v)
 	return _u
 }
 
-// SetNillableResolvedAt sets the "resolved_at" field if the given value is not nil.
-func (_u *CountFindingUpdateOne) SetNillableResolvedAt(v *time.Time) *CountFindingUpdateOne {
+// SetNillableDateResolved sets the "date_resolved" field if the given value is not nil.
+func (_u *CountFindingUpdateOne) SetNillableDateResolved(v *time.Time) *CountFindingUpdateOne {
 	if v != nil {
-		_u.SetResolvedAt(*v)
+		_u.SetDateResolved(*v)
 	}
 	return _u
 }
 
-// ClearResolvedAt clears the value of the "resolved_at" field.
-func (_u *CountFindingUpdateOne) ClearResolvedAt() *CountFindingUpdateOne {
-	_u.mutation.ClearResolvedAt()
+// ClearDateResolved clears the value of the "date_resolved" field.
+func (_u *CountFindingUpdateOne) ClearDateResolved() *CountFindingUpdateOne {
+	_u.mutation.ClearDateResolved()
 	return _u
 }
 
@@ -685,14 +685,14 @@ func (_u *CountFindingUpdateOne) sqlSave(ctx context.Context) (_node *CountFindi
 	if _u.mutation.ExpectedParentIdCleared() {
 		_spec.ClearField(countfinding.FieldExpectedParentId, field.TypeUuid)
 	}
-	if value, ok := _u.mutation.SeenAt(); ok {
-		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateSeen(); ok {
+		_spec.SetField(countfinding.FieldDateSeen, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(countfinding.FieldSeenAt); ok {
-		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldDateSeen); ok {
+		_spec.SetField(countfinding.FieldDateSeen, field.TypeTime, e)
 	}
-	if _u.mutation.SeenAtCleared() {
-		_spec.ClearField(countfinding.FieldSeenAt, field.TypeTime)
+	if _u.mutation.DateSeenCleared() {
+		_spec.ClearField(countfinding.FieldDateSeen, field.TypeTime)
 	}
 	if value, ok := _u.mutation.RecordedBy(); ok {
 		_spec.SetField(countfinding.FieldRecordedBy, field.TypeUuid, value)
@@ -709,14 +709,14 @@ func (_u *CountFindingUpdateOne) sqlSave(ctx context.Context) (_node *CountFindi
 	if e, ok := _u.mutation.FieldExpr(countfinding.FieldResolution); ok {
 		_spec.SetField(countfinding.FieldResolution, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.ResolvedAt(); ok {
-		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, value)
+	if value, ok := _u.mutation.DateResolved(); ok {
+		_spec.SetField(countfinding.FieldDateResolved, field.TypeTime, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(countfinding.FieldResolvedAt); ok {
-		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, e)
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldDateResolved); ok {
+		_spec.SetField(countfinding.FieldDateResolved, field.TypeTime, e)
 	}
-	if _u.mutation.ResolvedAtCleared() {
-		_spec.ClearField(countfinding.FieldResolvedAt, field.TypeTime)
+	if _u.mutation.DateResolvedCleared() {
+		_spec.ClearField(countfinding.FieldDateResolved, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &CountFinding{config: _u.config}

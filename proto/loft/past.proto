@@ -61,7 +61,10 @@ option (payday.app) = {
 // never dropped nor moved to another message; `loft/payday/past.lock` holds
 // the schema to it. Adding is always fine -- a field, a kind a message takes,
 // a message -- and a kind ships one release before anything writes it, so
-// that the build before can say its rows.
+// that the build before can say its rows. A field's name in the schema may
+// change, as every time Loft keeps became a `date_*` (D76): it keeps the JSON
+// name its rows were written under (`json_name`), which is what a row is read
+// back by, and the tables below say the name it has now.
 //
 // An identifier is the sixteen bytes of a `pdid`. A word out of a vocabulary
 // -- a status, a role -- is a string rather than an enum, whose names a row
@@ -80,8 +83,8 @@ option (payday.app) = {
 //    7  count          uint32                     -- how many assets one registration made
 //    8  row            bytes                      -- the time row said to have been wrong: a placement, a link, a stewardship or a fact, by its identifier's domain
 //    9  key            string                     -- a field as Loft writes facts of it: status, attr.cpu
-//   10  retract        bool                       -- it never held, rather than held from valid_from
-//   11  valid_from     google.protobuf.Timestamp  -- when it held from, said again
+//   10  retract        bool                       -- it never held, rather than held from date_start
+//   11  date_start     google.protobuf.Timestamp  -- when it held from, said again
 //   12  set            repeated string            -- the fields set, each by its key; what each became is the event's facts
 //   13  cleared        repeated string            -- the fields cleared, each by its key
 //   14  to             bytes                      -- where it was put
@@ -112,7 +115,7 @@ option (payday.app) = {
 //
 //    1  custody        bytes                      -- the hand-over
 //    2  party          bytes                      -- who it was handed to
-//    3  due            google.protobuf.Timestamp  -- when it is due back
+//    3  date_due       google.protobuf.Timestamp  -- when it is due back
 //    4  kind           string                     -- issue | loan
 //    5  lines          uint32                     -- how many lines it handed over
 //    6  reservation    bytes                      -- the reservation it fulfils, when it was a pickup
@@ -146,8 +149,8 @@ option (payday.app) = {
 //    4  status         string                     -- what it is from then on: held | requested | confirmed as it was made; confirmed | requested as a hold was confirmed
 //    5  party          bytes                      -- who it is for
 //    6  occurrences    uint32                     -- how many times it takes place
-//    7  begins_at      google.protobuf.Timestamp  -- when it begins
-//    8  ends_at        google.protobuf.Timestamp  -- when it ends
+//    7  date_start     google.protobuf.Timestamp  -- when it begins
+//    8  date_end       google.protobuf.Timestamp  -- when it ends
 //    9  asset          bytes                      -- what it takes: the one thing an event of its own is about; or a member of its kit, or a pool, it takes, waits for or lets go of
 //   10  asset_name     string                     -- what that was called then; of the reservation's own reservation.add, the first thing it takes
 //   11  override       bool                       -- taken over what was booked already, by a manager
@@ -162,7 +165,7 @@ option (payday.app) = {
 //    2  host           string                     -- its host name
 //    3  purpose        string                     -- what it is for: app | label
 //    4  source         string                     -- whose it is: custom | default
-//    5  failing_since  google.protobuf.Timestamp  -- since when its DNS has said no
+//    5  date_failing   google.protobuf.Timestamp  -- since when its DNS has said no
 //    6  failures       uint32                     -- how many times running it has
 //    7  force          bool                       -- stopped though labels printed with it stop opening
 //    8  labels         uint32                     -- how many labels printed with it stopped opening
@@ -231,16 +234,16 @@ option (payday.app) = {
 // workspace.* holds, by number:
 //
 //    1  by             string                     -- who closed or restored it: owner | operator | deployment
-//    2  destroy        google.protobuf.Timestamp  -- when it is destroyed unless it is restored
+//    2  date_destroy   google.protobuf.Timestamp  -- when it is destroyed unless it is restored
 //    3  timezone       string                     -- the zone it says its own times in
 //    4  currency       string                     -- the currency it prices in
 //    5  no_show_minutes int32                     -- how long after a reservation begins nobody came
 //    6  keep_days      uint32                     -- how long it keeps its history
-//    7  keep_from      google.protobuf.Timestamp  -- from when a shorter keep_days holds
+//    7  date_keep_effective google.protobuf.Timestamp -- from when a shorter keep_days holds
 //    8  access_keep_days uint32                   -- how long it keeps its access record
-//    9  access_keep_from google.protobuf.Timestamp -- from when a shorter access_keep_days holds
+//    9  date_access_keep_effective google.protobuf.Timestamp -- from when a shorter access_keep_days holds
 //   10  restore_days   uint32                     -- how long it may be restored once closed
-//   11  exported_at    google.protobuf.Timestamp  -- when the export it was put back from was taken
+//   11  date_exported  google.protobuf.Timestamp  -- when the export it was put back from was taken
 //   12  manifest       string                     -- the digest of that export's manifest
 //   13  signed_by      string                     -- the key the export was signed with
 //   14  rows           uint32                     -- how many rows it held
@@ -256,8 +259,8 @@ option (payday.app) = {
 // access.* holds, by number:
 //
 //    1  review         bytes                      -- the review
-//    2  from           google.protobuf.Timestamp  -- the stretch looked over: from
-//    3  to             google.protobuf.Timestamp  -- and to, exclusive
+//    2  date_start     google.protobuf.Timestamp  -- the stretch looked over: from
+//    3  date_end       google.protobuf.Timestamp  -- and to, exclusive
 //    4  calls          uint32                     -- how many calls it held
 //    5  downloads      uint32                     -- how many of them were downloads
 //    6  refused        uint32                     -- how many were refused
@@ -277,7 +280,7 @@ option (payday.app) = {
 //
 // retention.* holds, by number:
 //
-//    1  before         google.protobuf.Timestamp  -- the cut: what was over before it went
+//    1  date_before    google.protobuf.Timestamp  -- the cut: what was over before it went
 //    2  placements     uint32                     -- how many of each went
 //    3  links          uint32
 //    4  stewardships   uint32
@@ -366,7 +369,7 @@ message AssetRelated {
 }
 
 // AssetCorrected is a time row of an asset said to have been wrong
-// (`asset.correct`): it never held, or held from `valid_from`.
+// (`asset.correct`): it never held, or held from `date_start`.
 message AssetCorrected {
   option (payday.event) = {kinds: "asset.correct"};
 
@@ -376,7 +379,7 @@ message AssetCorrected {
   bytes row = 8;
   string key = 9;
   bool retract = 10;
-  google.protobuf.Timestamp valid_from = 11;
+  google.protobuf.Timestamp date_start = 11 [json_name = "validFrom"];
 }
 
 // AssetVoided is an asset registered by mistake taken back (`asset.void`):
@@ -452,7 +455,7 @@ message CustodyIssued {
 
   bytes custody = 1;
   bytes party = 2;
-  google.protobuf.Timestamp due = 3;
+  google.protobuf.Timestamp date_due = 3 [json_name = "due"];
   string kind = 4;
   uint32 lines = 5;
   bytes reservation = 6;
@@ -472,7 +475,7 @@ message CustodyExtended {
   option (payday.event) = {kinds: "custody.extend"};
 
   bytes custody = 1;
-  google.protobuf.Timestamp due = 3;
+  google.protobuf.Timestamp date_due = 3 [json_name = "due"];
 }
 
 // CustodyOverdue is a loan found past its due with some of what it lent not
@@ -484,7 +487,7 @@ message CustodyOverdue {
   option (payday.event) = {kinds: "custody.overdue"};
 
   bytes custody = 1;
-  google.protobuf.Timestamp due = 3;
+  google.protobuf.Timestamp date_due = 3 [json_name = "due"];
   bytes asset = 7;
 }
 
@@ -578,8 +581,8 @@ message ReservationAdded {
   string status = 4;
   bytes party = 5;
   uint32 occurrences = 6;
-  google.protobuf.Timestamp begins_at = 7;
-  google.protobuf.Timestamp ends_at = 8;
+  google.protobuf.Timestamp date_start = 7 [json_name = "beginsAt"];
+  google.protobuf.Timestamp date_end = 8 [json_name = "endsAt"];
   bytes asset = 9;
   string asset_name = 10;
   bool override = 11;
@@ -673,10 +676,10 @@ message ReservationReleased {
 // the pool, or whatever let the thing go. A wait the sweep settles is an
 // operation of its own, the reservation's, and the thing's is its child.
 //
-//   reservation.take     reservation, name, begins_at, asset, asset_name, override, units
-//   reservation.wait     reservation, name, begins_at, asset, asset_name, units
-//   reservation.resolve  reservation, name, begins_at, asset, asset_name, units
-//   reservation.let_go   reservation, name, begins_at, asset, asset_name, units
+//   reservation.take     reservation, name, date_start, asset, asset_name, override, units
+//   reservation.wait     reservation, name, date_start, asset, asset_name, units
+//   reservation.resolve  reservation, name, date_start, asset, asset_name, units
+//   reservation.let_go   reservation, name, date_start, asset, asset_name, units
 message ReservationAllocationChanged {
   option (payday.event) = {
     kinds: [
@@ -689,7 +692,7 @@ message ReservationAllocationChanged {
 
   bytes reservation = 1;
   string name = 2;
-  google.protobuf.Timestamp begins_at = 7;
+  google.protobuf.Timestamp date_start = 7 [json_name = "beginsAt"];
   bytes asset = 9;
   string asset_name = 10;
   bool override = 11;
@@ -742,14 +745,14 @@ message TenantDomainRetired {
 
 // TenantDomainLapsed is the active domain taken out of use by the deployment
 // (`domain.lapse`): its DNS said no `failures` times running, from
-// `failing_since` (loft#155).
+// `date_failing` (loft#155).
 message TenantDomainLapsed {
   option (payday.event) = {kinds: "domain.lapse"};
 
   bytes domain = 1;
   string host = 2;
   string purpose = 3;
-  google.protobuf.Timestamp failing_since = 5;
+  google.protobuf.Timestamp date_failing = 5 [json_name = "failingSince"];
   uint32 failures = 6;
 }
 
@@ -996,7 +999,7 @@ message WorkspaceClosed {
   option (payday.event) = {kinds: "workspace.close"};
 
   string by = 1;
-  google.protobuf.Timestamp destroy = 2;
+  google.protobuf.Timestamp date_destroy = 2 [json_name = "destroy"];
 }
 
 // WorkspaceRestored is a closed workspace opened again
@@ -1025,9 +1028,9 @@ message WorkspaceConfigured {
   string currency = 4 [features.field_presence = EXPLICIT];
   int32 no_show_minutes = 5 [features.field_presence = EXPLICIT];
   uint32 keep_days = 6 [features.field_presence = EXPLICIT];
-  google.protobuf.Timestamp keep_from = 7;
+  google.protobuf.Timestamp date_keep_effective = 7 [json_name = "keepFrom"];
   uint32 access_keep_days = 8 [features.field_presence = EXPLICIT];
-  google.protobuf.Timestamp access_keep_from = 9;
+  google.protobuf.Timestamp date_access_keep_effective = 9 [json_name = "accessKeepFrom"];
   uint32 restore_days = 10 [features.field_presence = EXPLICIT];
   string name = 21 [features.field_presence = EXPLICIT];
 }
@@ -1038,7 +1041,7 @@ message WorkspaceConfigured {
 message WorkspaceImported {
   option (payday.event) = {kinds: "workspace.import"};
 
-  google.protobuf.Timestamp exported_at = 11;
+  google.protobuf.Timestamp date_exported = 11 [json_name = "exportedAt"];
   string manifest = 12;
   string signed_by = 13;
   uint32 rows = 14;
@@ -1056,8 +1059,8 @@ message AccessReviewed {
   option (payday.event) = {kinds: "access.review"};
 
   bytes review = 1;
-  google.protobuf.Timestamp from = 2;
-  google.protobuf.Timestamp to = 3;
+  google.protobuf.Timestamp date_start = 2 [json_name = "from"];
+  google.protobuf.Timestamp date_end = 3 [json_name = "to"];
   uint32 calls = 4;
   uint32 downloads = 5;
   uint32 refused = 6;
@@ -1091,7 +1094,7 @@ message AttachmentAdded {
 message RetentionExpired {
   option (payday.event) = {kinds: "retention.expired"};
 
-  google.protobuf.Timestamp before = 1;
+  google.protobuf.Timestamp date_before = 1 [json_name = "before"];
   uint32 placements = 2;
   uint32 links = 3;
   uint32 stewardships = 4;
