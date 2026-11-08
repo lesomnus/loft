@@ -78,12 +78,13 @@ Field numbers are read by name across every entity:
 
 Renaming one (D72, `TenantDomain` → `Domain`) keeps its domain number, and
 its events keep the messages they were written as -- `past.lock` holds them.
-What is stored under its name is moved, not left: its table by `loft migrate`
-before anything looks for it (`offboard.Renamed`, `cli/tables.go`), and an
-export from before is read under the old name. payday's
-`(payday.entity).formerly` says the same in the schema once loft links the
-payday that has it, and `pd.TableRenames` and `rename.Tables` replace those
-two then.
+The schema says what it was called (`formerly: [{message: "TenantDomain"}]`,
+D77), and what is stored under the old name is moved, not left: its table by
+`loft migrate`, before anything looks for it (`rename.Tables` with
+`pd.TableRenames`, first in `cli.Migrate`), and the chunks of the trail's
+archive labelled with the old word are read as the kind's. An export from
+before is read under the old name (`offboard.Renamed`, which a test holds to
+the same tables as `pd.TableRenames`).
 
 ## Writing a layer
 

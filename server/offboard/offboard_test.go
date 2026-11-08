@@ -187,8 +187,19 @@ func TestEveryTableIsDecidedAbout(t *testing.T) {
 // another name (offboard.Renamed) is one this build has under the new one,
 // written out by an export like any -- and its old name nothing else's, not
 // even a table this build dropped.
+//
+// And it is a table whose entity the schema says was called that
+// (`formerly`, D77), as every such table is: a migration moves the tables
+// `pd.TableRenames` names, and a restore reads an export from before by
+// this, so a table one of them names and the other does not is moved and
+// then not read, or read and never moved.
 func TestARenamedTableIsOneThisBuildHas(t *testing.T) {
 	x := require.New(t)
+	moved := map[string]string{}
+	for _, v := range pd.TableRenames {
+		moved[v.From] = v.To
+	}
+	x.Equal(moved, offboard.Renamed, "what a migration moves (pd.TableRenames) is not what a restore reads an export from before by")
 	for from, to := range offboard.Renamed {
 		x.True(slices.ContainsFunc(migrate.Tables, func(tb *entschema.Table) bool { return tb.Name == to }), "%s, which %s is called now, is no table of this build's", to, from)
 		_, out := offboard.Exported[to]

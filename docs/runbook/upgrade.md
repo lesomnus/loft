@@ -21,12 +21,12 @@
 이 판(D72)부터 워크스페이스의 도메인은 `TenantDomain`이 아니라 `Domain`입니다. **이 판은 되돌릴 수 없습니다.** `loft migrate` 가 도메인의 표를 `tenantdomain` 에서 `domain` 으로 옮기고, 그 전 빌드는 `tenantdomain` 을 찾습니다.
 
 - 올리기 전에 DB를 백업합니다(`pg_dump`, [백업과 복구](restore.md)). 이 판을 넘는 `rollout undo` 는 하지 않습니다. 되돌리려면 백업에서 되살립니다.
-- PostgreSQL에서는 표와 그 인덱스, 기본 키, 외래 키(라벨의 것까지)의 이름만 바꾸므로 바로 끝납니다. SQLite에서는 `domain` 과 `label` 표를 한 번 다시 만듭니다(행은 그대로).
+- PostgreSQL에서는 표와 그 인덱스, 기본 키, 외래 키(라벨의 것까지)의 이름만 바꾸므로 바로 끝납니다. SQLite에서는 표의 이름을 그 자리에서 바꾸고, 옛 인덱스를 지워 마이그레이션이 새 이름으로 다시 만듭니다. 다시 만드는 표는 없습니다(행은 그대로).
 - 새 이름의 표가 이미 있으면(이 판의 서버가 `db.migrate: true` 로 먼저 떴다면) 비어 있을 때 지우고 옮깁니다. 두 이름 모두에 행이 있으면 아무것도 바꾸지 않고 `the table is there under both its names` 로 멈춥니다. 어느 쪽 행이 맞는지 살펴 한쪽으로 옮기고 다른 쪽을 지운 뒤 다시 실행합니다.
 - RPC는 `/loft.DomainService/*` 이고 터미널에서는 `loft domain …` 입니다. `loft auth login --allow` 로 `/loft.TenantDomainService/Status` 를 받아 둔 터미널은 다시 로그인합니다.
 - 감사 기록은 쓴 그대로입니다. 이 판 전의 도메인 쓰기는 `action` 이 `/loft.TenantDomainService/…` 이고, 그대로 검증됩니다. 이력의 종류(`domain.*`)와 알림은 바뀌지 않습니다.
 - 이 판 전의 내보내기(`rows/tenantdomain.jsonl`)는 `loft tenant import` 가 그대로 읽습니다.
-- 설정에 `audit.by.tenant-domain` 을 두었다면 `audit.by.domain` 으로 바꿉니다. 그대로 두면 서버가 그 종류를 모른다며 뜨지 않습니다.
+- 설정에 `audit.by.tenant-domain` 을 두었다면 `audit.by.domain` 으로 바꿉니다. 이 판의 서버는 그 종류를 모른다며 뜨지 않습니다. D77 판부터는 옛 낱말도 도메인으로 읽지만, 두 낱말을 함께 두지는 않습니다.
 
 ## 작업 기록과 자산의 사실을 payday의 과거로 옮기는 판
 
