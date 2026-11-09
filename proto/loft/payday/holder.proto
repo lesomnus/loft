@@ -197,7 +197,7 @@ message Holder {
   // identifier, and what a session names is the account. Null on a membership
   // a workspace's restore put back with no account -- one this deployment's
   // roster does not have (`offboard.Restored.Unlinked`) -- which nobody signs
-  // in as until `loft identity migrate` gives it one.
+  // in as until `loft identity link` gives it one.
   //
   // It is what a call is resolved by (`(payday.app).accounts`, payday#184),
   // so which account a membership is of is the deployment's to say: the

@@ -1240,7 +1240,7 @@ var OperatorRetentionService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	OperatorIdentityService_Migrate_FullMethodName   = "/loft.OperatorIdentityService/Migrate"
+	OperatorIdentityService_Link_FullMethodName      = "/loft.OperatorIdentityService/Link"
 	OperatorIdentityService_Depart_FullMethodName    = "/loft.OperatorIdentityService/Depart"
 	OperatorIdentityService_Reconcile_FullMethodName = "/loft.OperatorIdentityService/Reconcile"
 )
@@ -1253,14 +1253,15 @@ const (
 // 9.10): an account given to each member who names none, an account leaving
 // every workspace it is in, and every account asked about again.
 type OperatorIdentityServiceClient interface {
-	// Migrate gives an account to every membership that names none, with the
-	// membership's identifier (D27) -- the members of a workspace restored from
-	// an export whose accounts this deployment's roster does not have: on the
-	// roster in this process, an account for each, with a password said once;
-	// for a roster of its own, what its operator makes there, and the ones
-	// made already linked. Run again it makes nothing. A message for each
-	// membership, and last what it came to.
-	Migrate(ctx context.Context, in *OperatorIdentityMigrateRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityMigrateResponse], error)
+	// Link gives an account to every membership that names none, with the
+	// membership's identifier (D27), and links the membership to it -- the
+	// members of a workspace restored from an export whose accounts this
+	// deployment's roster does not have: on the roster in this process, an
+	// account for each, with a password said once; for a roster of its own,
+	// what its operator makes there, and the ones made already linked. Run
+	// again it makes nothing. A message for each membership, and last what it
+	// came to.
+	Link(ctx context.Context, in *OperatorIdentityLinkRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityLinkResponse], error)
 	// Depart is an account leaving every workspace it is in, now, rather than
 	// when roster's grace is over -- for somebody who asked to be forgotten at
 	// once: its person records pseudonymized, its memberships ended, a last
@@ -1281,13 +1282,13 @@ func NewOperatorIdentityServiceClient(cc grpc.ClientConnInterface) OperatorIdent
 	return &operatorIdentityServiceClient{cc}
 }
 
-func (c *operatorIdentityServiceClient) Migrate(ctx context.Context, in *OperatorIdentityMigrateRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityMigrateResponse], error) {
+func (c *operatorIdentityServiceClient) Link(ctx context.Context, in *OperatorIdentityLinkRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityLinkResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &OperatorIdentityService_ServiceDesc.Streams[0], OperatorIdentityService_Migrate_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &OperatorIdentityService_ServiceDesc.Streams[0], OperatorIdentityService_Link_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[OperatorIdentityMigrateRequest, OperatorIdentityMigrateResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[OperatorIdentityLinkRequest, OperatorIdentityLinkResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -1298,7 +1299,7 @@ func (c *operatorIdentityServiceClient) Migrate(ctx context.Context, in *Operato
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type OperatorIdentityService_MigrateClient = grpc.ServerStreamingClient[OperatorIdentityMigrateResponse]
+type OperatorIdentityService_LinkClient = grpc.ServerStreamingClient[OperatorIdentityLinkResponse]
 
 func (c *operatorIdentityServiceClient) Depart(ctx context.Context, in *OperatorIdentityDepartRequest, opts ...grpc.CallOption) (*OperatorIdentityDepartResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -1328,14 +1329,15 @@ func (c *operatorIdentityServiceClient) Reconcile(ctx context.Context, in *Opera
 // 9.10): an account given to each member who names none, an account leaving
 // every workspace it is in, and every account asked about again.
 type OperatorIdentityServiceServer interface {
-	// Migrate gives an account to every membership that names none, with the
-	// membership's identifier (D27) -- the members of a workspace restored from
-	// an export whose accounts this deployment's roster does not have: on the
-	// roster in this process, an account for each, with a password said once;
-	// for a roster of its own, what its operator makes there, and the ones
-	// made already linked. Run again it makes nothing. A message for each
-	// membership, and last what it came to.
-	Migrate(*OperatorIdentityMigrateRequest, grpc.ServerStreamingServer[OperatorIdentityMigrateResponse]) error
+	// Link gives an account to every membership that names none, with the
+	// membership's identifier (D27), and links the membership to it -- the
+	// members of a workspace restored from an export whose accounts this
+	// deployment's roster does not have: on the roster in this process, an
+	// account for each, with a password said once; for a roster of its own,
+	// what its operator makes there, and the ones made already linked. Run
+	// again it makes nothing. A message for each membership, and last what it
+	// came to.
+	Link(*OperatorIdentityLinkRequest, grpc.ServerStreamingServer[OperatorIdentityLinkResponse]) error
 	// Depart is an account leaving every workspace it is in, now, rather than
 	// when roster's grace is over -- for somebody who asked to be forgotten at
 	// once: its person records pseudonymized, its memberships ended, a last
@@ -1356,8 +1358,8 @@ type OperatorIdentityServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOperatorIdentityServiceServer struct{}
 
-func (UnimplementedOperatorIdentityServiceServer) Migrate(*OperatorIdentityMigrateRequest, grpc.ServerStreamingServer[OperatorIdentityMigrateResponse]) error {
-	return status.Error(codes.Unimplemented, "method Migrate not implemented")
+func (UnimplementedOperatorIdentityServiceServer) Link(*OperatorIdentityLinkRequest, grpc.ServerStreamingServer[OperatorIdentityLinkResponse]) error {
+	return status.Error(codes.Unimplemented, "method Link not implemented")
 }
 func (UnimplementedOperatorIdentityServiceServer) Depart(context.Context, *OperatorIdentityDepartRequest) (*OperatorIdentityDepartResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Depart not implemented")
@@ -1387,16 +1389,16 @@ func RegisterOperatorIdentityServiceServer(s grpc.ServiceRegistrar, srv Operator
 	s.RegisterService(&OperatorIdentityService_ServiceDesc, srv)
 }
 
-func _OperatorIdentityService_Migrate_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(OperatorIdentityMigrateRequest)
+func _OperatorIdentityService_Link_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(OperatorIdentityLinkRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(OperatorIdentityServiceServer).Migrate(m, &grpc.GenericServerStream[OperatorIdentityMigrateRequest, OperatorIdentityMigrateResponse]{ServerStream: stream})
+	return srv.(OperatorIdentityServiceServer).Link(m, &grpc.GenericServerStream[OperatorIdentityLinkRequest, OperatorIdentityLinkResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type OperatorIdentityService_MigrateServer = grpc.ServerStreamingServer[OperatorIdentityMigrateResponse]
+type OperatorIdentityService_LinkServer = grpc.ServerStreamingServer[OperatorIdentityLinkResponse]
 
 func _OperatorIdentityService_Depart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OperatorIdentityDepartRequest)
@@ -1452,8 +1454,8 @@ var OperatorIdentityService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Migrate",
-			Handler:       _OperatorIdentityService_Migrate_Handler,
+			StreamName:    "Link",
+			Handler:       _OperatorIdentityService_Link_Handler,
 			ServerStreams: true,
 		},
 	},

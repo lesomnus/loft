@@ -128,7 +128,7 @@ func TestMembersWithNoAccountAreGivenOne(t *testing.T) {
 	was := membersWithNoAccount(t, c)
 	d := entry(t, c)
 
-	out, err := d.loft(t, "identity", "migrate")
+	out, err := d.loft(t, "identity", "link")
 	x.NoError(err, out)
 	got := passwordsOf(out)
 	x.Len(got, 3, out)
@@ -151,7 +151,7 @@ func TestMembersWithNoAccountAreGivenOne(t *testing.T) {
 	x.NoError(err)
 	x.Positive(n, "the links are the operator's writes")
 
-	again, err := d.loft(t, "identity", "migrate")
+	again, err := d.loft(t, "identity", "link")
 	x.NoError(err)
 	x.Contains(again, "nobody to bring in")
 	x.NotContains(again, "password ")
@@ -166,9 +166,9 @@ func TestMembersToTryThingsOnAreGivenOnePassword(t *testing.T) {
 	membersWithNoAccount(t, c)
 	d := entry(t, c)
 
-	_, err := d.loft(t, "identity", "migrate", "--password", "short")
+	_, err := d.loft(t, "identity", "link", "--password", "short")
 	x.ErrorContains(err, "admin")
-	out, err := d.loft(t, "identity", "migrate", "--password", "demo1234")
+	out, err := d.loft(t, "identity", "link", "--password", "demo1234")
 	x.NoError(err, out)
 	x.Contains(out, "3 account(s), every one with the password given")
 	for _, login := range []string{"admin", "kim", "kim-beta"} {
@@ -232,7 +232,7 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 	c.Auth.Roster.Directory = "accounts"
 	d := entry(t, c)
 
-	out, err := d.loft(t, "identity", "migrate")
+	out, err := d.loft(t, "identity", "link")
 	x.NoError(err, out)
 	x.Contains(out, `roster holder add @accounts/kim '{"id":"`+was.kim.String()+`","name":"kim"}'`)
 	x.Contains(out, `roster holder add @accounts/kim '{"id":"`+was.kimElsewhere.String()+`","name":"kim"}'`)
@@ -244,7 +244,7 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 		Alias:  "kim",
 	}.Build())
 	x.NoError(err)
-	out, err = d.loft(t, "identity", "migrate")
+	out, err = d.loft(t, "identity", "link")
 	x.NoError(err, out)
 	x.Contains(out, "@acme/kim  linked")
 	x.NotContains(out, `"id":"`+was.kim.String())

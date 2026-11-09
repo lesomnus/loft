@@ -415,11 +415,11 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 		return true
 	})
 	x.Equal(map[string]bool{
-		"loft.PartyService.SetPassword":        true,
-		"loft.PartyService.Invite":             true,
-		"loft.OperatorHolderService.Add":       true,
-		"loft.OperatorHolderService.Password":  true,
-		"loft.OperatorIdentityService.Migrate": true,
+		"loft.PartyService.SetPassword":       true,
+		"loft.PartyService.Invite":            true,
+		"loft.OperatorHolderService.Add":      true,
+		"loft.OperatorHolderService.Password": true,
+		"loft.OperatorIdentityService.Link":   true,
 	}, carries)
 	for m := range carries {
 		if !strings.HasPrefix(m, "loft.Operator") {

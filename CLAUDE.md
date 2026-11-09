@@ -326,7 +326,7 @@ add|password` make accounts and set passwords there; on an external one they
 are refused, and are done at roster. Ending a membership (deactivate,
 pseudonymize) never touches the account. A member a restore put back with
 no account -- one this deployment's roster does not have -- is given one by
-`loft identity migrate`. `auth.Plain` is not wired; tests
+`loft identity link`. `auth.Plain` is not wired; tests
 mint a session with `Server.Sessions.Mint` and send its cookie (plus
 `loft-workspace` when the account has more than one membership), and set
 `c.Auth.Roster.Db` to a `pdtest.DB` of its own -- the default is a file.

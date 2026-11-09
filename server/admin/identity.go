@@ -36,7 +36,7 @@ type operatorIdentity struct {
 	a Routes
 }
 
-// Migrate gives an account to every membership that names none (D27): a
+// Link gives an account to every membership that names none (D27): a
 // workspace restored from an export, whose members this deployment's roster
 // does not have -- from another deployment, or forgotten here when the
 // workspace was destroyed (`offboard.Restored.Unlinked`). Nobody of them can
@@ -49,7 +49,7 @@ type operatorIdentity struct {
 // already is linked as they are. A roster of its own is its operator's to
 // write to, so for one this says what to make there, and links what was made.
 // Each link is the operator's write.
-func (s operatorIdentity) Migrate(req *app.OperatorIdentityMigrateRequest, out grpc.ServerStreamingServer[app.OperatorIdentityMigrateResponse]) error {
+func (s operatorIdentity) Link(req *app.OperatorIdentityLinkRequest, out grpc.ServerStreamingServer[app.OperatorIdentityLinkResponse]) error {
 	ctx := operator.Frame(out.Context(), pdid.Nil)
 	ts, err := s.a.S.Ent.Tenant.Query().Order(ent.Asc(enttenant.FieldAlias)).All(ctx)
 	if err != nil {
@@ -57,9 +57,9 @@ func (s operatorIdentity) Migrate(req *app.OperatorIdentityMigrateRequest, out g
 	}
 	send := func(h *ent.Holder, v *app.OperatorIdentityAdopted) error {
 		access.Saw(ctx, access.Subject{Id: pdid.Id(h.Id), Tenant: pdid.Id(h.TenantId)})
-		return out.Send(app.OperatorIdentityMigrateResponse_builder{Adopted: v}.Build())
+		return out.Send(app.OperatorIdentityLinkResponse_builder{Adopted: v}.Build())
 	}
-	done := app.OperatorIdentityMigrated_builder{Embedded: s.a.S.Identity.Embedded()}.Build()
+	done := app.OperatorIdentityLinked_builder{Embedded: s.a.S.Identity.Embedded()}.Build()
 	if s.a.S.Identity.Embedded() {
 		err = s.adopt(ctx, ts, req.GetPassword(), send, done)
 	} else {
@@ -68,7 +68,7 @@ func (s operatorIdentity) Migrate(req *app.OperatorIdentityMigrateRequest, out g
 	if err != nil {
 		return err
 	}
-	return out.Send(app.OperatorIdentityMigrateResponse_builder{Done: done}.Build())
+	return out.Send(app.OperatorIdentityLinkResponse_builder{Done: done}.Build())
 }
 
 // unlinked is everybody who signs in to a workspace here and whose holder
@@ -131,7 +131,7 @@ func (s operatorIdentity) aliasFree(ctx context.Context, alias string) (bool, er
 	return !used, err
 }
 
-func (s operatorIdentity) adopt(ctx context.Context, ts []*ent.Tenant, password string, send func(*ent.Holder, *app.OperatorIdentityAdopted) error, done *app.OperatorIdentityMigrated) error {
+func (s operatorIdentity) adopt(ctx context.Context, ts []*ent.Tenant, password string, send func(*ent.Holder, *app.OperatorIdentityAdopted) error, done *app.OperatorIdentityLinked) error {
 	if _, err := s.a.S.Identity.EnsureDirectory(ctx); err != nil {
 		return fmt.Errorf("roster: %w", err)
 	}
@@ -186,7 +186,7 @@ func (s operatorIdentity) adopt(ctx context.Context, ts []*ent.Tenant, password 
 	return nil
 }
 
-func (s operatorIdentity) describe(ctx context.Context, ts []*ent.Tenant, send func(*ent.Holder, *app.OperatorIdentityAdopted) error, done *app.OperatorIdentityMigrated) error {
+func (s operatorIdentity) describe(ctx context.Context, ts []*ent.Tenant, send func(*ent.Holder, *app.OperatorIdentityAdopted) error, done *app.OperatorIdentityLinked) error {
 	d, err := s.a.S.Identity.Directory(ctx)
 	if err != nil {
 		return fmt.Errorf("roster: %w", err)
@@ -251,7 +251,7 @@ func (s operatorIdentity) accountOf(ctx context.Context, req *app.OperatorIdenti
 			return pdid.Nil, err
 		}
 		if h.Account == nil {
-			return pdid.Nil, status.Errorf(codes.FailedPrecondition, "member: %s names no account; `identity migrate` first", member)
+			return pdid.Nil, status.Errorf(codes.FailedPrecondition, "member: %s names no account; `identity link` first", member)
 		}
 		return pdid.Id(*h.Account), nil
 	}

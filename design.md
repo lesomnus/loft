@@ -1475,7 +1475,7 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 
 **roster에 물을 수 없을 때**: 로그인과 세션을 쓰는 호출이 `UNAVAILABLE`로 거부된다. 실패는 잠깐(5초) 기억해 호출마다 묻지 않는다. 묻는 사이에 호출이 먼저 끝난 것은 roster의 실패가 아니어서 기억하지 않는다. 페이지를 떠나 취소된 호출과 시한이 지난 호출이 그렇다. 기억하면 페이지를 다 읽기 전에 떠난 사람의 다음 호출이 5초 동안 모두 거부된다. 외부 roster의 가용성이 Loft의 가용성이 된다는 뜻이고, 서버 한 대 배포가 내장을 쓰는 이유이기도 하다.
 
-**계정이 없는 구성원**: 복구한 워크스페이스에서 이 배포의 roster에 계정이 없는 구성원(다른 배포에서 왔거나 파기 때 계정도 지워진 구성원)은 `loft identity migrate`가 같은 ID로 계정을 주고, 비밀번호는 새로 발급해 한 번 보여 준다(shale `identity migrate`와 같다). roster 이전에 만든 배포를 옮기던 일(그 비밀번호 표 `credential`을 지우는 것까지)은 D78이 지웠다.
+**계정이 없는 구성원**: 복구한 워크스페이스에서 이 배포의 roster에 계정이 없는 구성원(다른 배포에서 왔거나 파기 때 계정도 지워진 구성원)은 `loft identity link`가 같은 ID로 계정을 주고, 비밀번호는 새로 발급해 한 번 보여 준다(shale `identity migrate`와 같다). roster 이전에 만든 배포를 옮기던 일(그 비밀번호 표 `credential`을 지우는 것까지)은 D78이 지웠다. 명령은 그 일의 이름인 `identity migrate`였는데, 남은 일이 구성원을 계정에 잇는 것이어서 `link`로 바꿨다(2026-11-10, 바꾸는 것은 대표가 정했고 이름은 Claude가 골랐다).
 
 **테스트**: 내장 roster는 진짜 roster이므로 테스트는 가짜 대신 내장 roster를 띄운다. 외부 모드는 같은 roster를 TCP 리스너와 키로 띄워 같은 테스트를 돈다.
 
@@ -1627,7 +1627,7 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
   - 섞으면 체인과 체크포인트가 깨진다.
   - 서명된 사본을 배포 안에 두면, 나중에 그 안의 사람을 개인정보 삭제할 때 서명을 깨지 않고는 사본에서 지울 수 없다.
   - 내보내기 파일이 그 기록이고, 원래 서명으로 검증한다(`loft tenant verify`). 복구 이벤트에 그 파일의 manifest 해시와 서명 키 지문을 남겨, 어느 파일에서 복구했는지 맞춰 본다.
-- **계정**: 구성원(Holder)은 roster 계정을 가리킨다. 이 roster에 있는 계정이면 그대로 잇는다. 없으면(다른 배포의 계정, 또는 파기 때 함께 지운 계정) 계정 없이 복구한다. `loft identity migrate`가 그들에게 계정을 준다(D27로 옮길 때와 같은 길). 이메일로 다시 잇기는 나중이다.
+- **계정**: 구성원(Holder)은 roster 계정을 가리킨다. 이 roster에 있는 계정이면 그대로 잇는다. 없으면(다른 배포의 계정, 또는 파기 때 함께 지운 계정) 계정 없이 복구한다. `loft identity link`가 그들에게 계정을 준다(D27로 옮길 때와 같은 길). 이메일로 다시 잇기는 나중이다.
 - **주소**(alias)는 원래 것을 쓴다.
   - 그 워크스페이스가 떠날 때 걸린 보류는 복구가 푼다. 그 워크스페이스를 위해 잡아 둔 주소이기 때문이다.
   - 다른 워크스페이스의 보류는 운영자가 풀고(`--reuse`), 그 사실을 복구 이벤트에 남긴다.
@@ -1753,7 +1753,7 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 | `tenant retired` | `OperatorTenantService.Retired` | 단항 |
 | `tenant retire`, `purge` | `OperatorTenantService.Retire`, `Purge` | 서버 스트림, `dry_run` |
 | `holder add`, `password` | `OperatorHolderService.Add`, `Password` | 단항 |
-| `identity migrate` | `OperatorIdentityService.Migrate` | 서버 스트림 |
+| `identity link` | `OperatorIdentityService.Link` | 서버 스트림 |
 | `identity depart`, `reconcile` | `OperatorIdentityService.Depart`, `Reconcile` | 단항, `dry_run` |
 | `trail verify`, `accept` | `OperatorTrailService.Verify`, `Accept` | 서버 스트림, 단항 |
 | `trail rows`, `rows --accept` | `OperatorTrailService.Rows`, `AcceptRows` | 서버 스트림, 단항 |
@@ -1769,7 +1769,7 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 
 검증 둘(`tenant verify`, `trail verify-export`)은 파일과 그것을 여는 열쇠가 CLI에 있어야 하는 일이다. 작업 기록 묶음은 받을 사람의 개인 열쇠(age의 identity, YubiKey의 플러그인)로 열고, 내보내기는 워크스페이스 전체다. 그래서 진입점은 배포가 서명하고 믿는 공개 열쇠(`Keys`)만 답하고, 검증은 CLI가 한다. 운영자의 키가 없는 사람(묶음의 보관 책임자)은 `trail keys`가 꺼낸 공개 열쇠를 `--trust`로 주고 진입점 없이 검증한다.
 
-**긴 작업은 서버 스트림이다.** 파기(`Retire`, `Purge`), 색인 다시 만들기, 보존 패스, 작업 기록의 점검(`Verify`, `Rows`), 내보내기(`TenantService.Export`, `OperatorTrailService.Export`), roster 이전(`Migrate`)이다. 일이 진행을 말하면 그 메시지를 보내고, 말하지 않는 동안에도 15초마다 보낸다. 마지막 메시지가 결과다. 시작하고 나서 지켜보는 작업(job)으로 두지 않는다.
+**긴 작업은 서버 스트림이다.** 파기(`Retire`, `Purge`), 색인 다시 만들기, 보존 패스, 작업 기록의 점검(`Verify`, `Rows`), 내보내기(`TenantService.Export`, `OperatorTrailService.Export`), 계정이 없는 구성원에게 계정 주기(`Link`)다. 일이 진행을 말하면 그 메시지를 보내고, 말하지 않는 동안에도 15초마다 보낸다. 마지막 메시지가 결과다. 시작하고 나서 지켜보는 작업(job)으로 두지 않는다.
 
 - 상태는 DB에 있다. 진입점의 메모리에 둔 작업은 프로세스와 함께 사라지고, DB에 두면 엔터티와 루프가 하나씩 는다.
 - 모두 멈춘 뒤 다시 돌려도 된다. 파기는 다시 돌리면 남은 것을 마저 하고(`closing.Destroy`), 색인은 새 것이 다 찰 때까지 별칭이 옛 것을 가리키며 다음 다시 만들기가 남은 것을 지운다. 보존 패스와 점검과 내보내기는 처음부터 다시 한다. 상자의 명령을 Ctrl-C로 멈추던 것과 같다.
@@ -1806,7 +1806,7 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 - **손으로 쓴 명령.** pdcmd가 만들 수 없는 것은 그 스키마 경로에 손으로 쓴 명령을 둔다(`Tree.Replace`, `Tree.Add`). 셋이다.
   - 파일을 올리고 내리는 것: `tenant export`, `tenant import`, `trail export`, `asset add-many`(`loft register`였다), `asset form`
   - CLI의 검증: `tenant verify`, `trail verify-export`, `trail keys`, `--trust`
-  - `--yes`의 미리보기와 스트림: `tenant close|restore|move|name-owner|retire|purge`, `tenant-contract add`, `legal-hold add|patch`, `trail verify|accept|rows|accept-rows|owed`, `search status|reindex|remove|analyze`, `retention plan|run`, `identity migrate|depart|reconcile`, `holder add|password`, `event redact`, `access list`, `access-review list`
+  - `--yes`의 미리보기와 스트림: `tenant close|restore|move|name-owner|retire|purge`, `tenant-contract add`, `legal-hold add|patch`, `trail verify|accept|rows|accept-rows|owed`, `search status|reindex|remove|analyze`, `retention plan|run`, `identity link|depart|reconcile`, `holder add|password`, `event redact`, `access list`, `access-review list`
 
   `loft-admin`의 명령이 하던 일과 출력을 그대로 옮긴다. 동사만 RPC의 이름이 된다(아래의 표).
 - **숨김**(`Tree.Hide`). 다른 명령이 쓰는 행은 도움말, 완성, 문서에 없고 이름으로는 돈다. `loft call`로도 부른다. 권한 표가 이미 나눈 두 가지다. 이력이 읽는 시간 행(`placement`, `link`, `stewardship`, `fact`)과 다른 것의 일부인 행(`reservation-item`, `allocation`, `custody-line`, `stock-movement`, `purchase-line`)이다.
