@@ -133,9 +133,9 @@ curl -H "authorization: Bearer $(cat secrets/admin_key)" -H 'content-type: appli
 
 ## 새 버전으로 올리기
 
-세션을 키의 HMAC으로 보관하는 버전으로 처음 올리면 모두 한 번 다시 로그인합니다([판을 올릴 때](../../docs/runbook/upgrade.md#세션을-키의-hmac으로-보관하는-판)). 그 밖에 할 일은 없습니다.
+넘는 판에 한 번 할 일이 있으면 [판을 올릴 때](../../docs/runbook/upgrade.md)에 있습니다. 출시 전에는 이전 빌드의 데이터를 옮기지 않으므로, 호환 세대(`.github/compat-epoch`)가 바뀐 빌드로는 올리지 않고 처음부터 다시 만듭니다.
 
-먼저 새로 필요한 것을 봅니다: `git fetch`한 뒤 `git diff HEAD..<올릴 커밋> -- deploy/compose`. `secrets/`에 만들 파일이 늘었으면 위 `secrets/`의 명령으로(`chmod 444`까지) **먼저 만듭니다**. 예를 들어 610c1c7부터는 `secrets/digest.key`가 있어야 뜹니다. 없으면 `docker compose up`이 `bind source path does not exist`로 멈춥니다.
+먼저 새로 필요한 것을 봅니다: `git fetch`한 뒤 `git diff HEAD..<올릴 커밋> -- deploy/compose`. `secrets/`에 만들 파일이 늘었으면 위 `secrets/`의 명령으로(`chmod 444`까지) **먼저 만듭니다**. 없으면 `docker compose up`이 `bind source path does not exist`로 멈춥니다.
 
 ```sh
 git pull                              # 또는 올릴 태그로

@@ -87,6 +87,6 @@ go run ./cmd/loft trail rows
 
 띄운 서버에 터미널로 로그인하는 법은 [터미널과 비서](../guide/terminal.md)에 있습니다. 터미널의 명령은 서버의 설정을 읽지 않고, 자기 연결(`LOFT_CLIENT_CONFIG`)만 읽습니다.
 
-## 예전 체크아웃
+## 예전 체크아웃의 `data/`
 
-roster 이전에 만든 `data/` 는 로그인이 Loft의 DB에만 있어서 업그레이드한 뒤에는 그대로 로그인할 수 없습니다. 위의 진입점을 띄우고 `loft identity migrate` 로 한 번 옮깁니다([roster 이전의 배포](identity.md#roster-이전의-배포)).
+출시 전에는 이전 빌드가 만든 데이터를 옮기지 않습니다(대표의 결정, 2026-11-09). 호환 세대(`.github/compat-epoch`)가 바뀐 뒤의 빌드는 그 전에 만든 `data/` 를 읽지 못할 수 있습니다. 그럴 때는 `data/` 를 지우고 `init` 부터 다시 합니다.

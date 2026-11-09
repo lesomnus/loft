@@ -8,6 +8,26 @@ then write the part no schema can state.
 uses it, `docs/dev/` how each part works and runs, `design.md` why it is
 shaped this way, and `report.md` the decisions the prototype made.
 
+## Until launch, nothing is kept for an earlier build
+
+Nobody uses Loft yet, and until launch a change that breaks what an earlier
+build stored, exported or was configured with carries no way forward: no
+step in `loft migrate`, no reader of the old shape, no config word kept for
+it, and no doc that tells somebody how to bring one along. It moves the
+**compatibility epoch** instead -- `.github/compat-epoch`, one integer,
+bumped in the change that breaks -- and staging is made again from nothing.
+That is the owner's decision (대표, 2026-11-09), on Claude's recommendation;
+the epoch file and how CI reads it are Claude's.
+
+CI's `upgrade` job migrates and restores what the build before made only
+between builds of one epoch, so within one it says whether a change breaks
+an earlier build; across one it builds nothing and says why. `OLDEST`, the
+oldest build a deployment runs, moves to the first build of a new epoch once
+staging runs it.
+
+From launch the rules below that keep an earlier build's data readable
+apply, and the epoch does not move without the owner's word.
+
 ## Regenerate after touching the schema
 
 ```sh
@@ -76,15 +96,14 @@ Field numbers are read by name across every entity:
 - **8–12 and 16+** are yours. An entity that does not want 4–7 **leaves those
   numbers empty** rather than spending them on something else.
 
-Renaming one (D72, `TenantDomain` → `Domain`) keeps its domain number, and
-its events keep the messages they were written as -- `past.lock` holds them.
-The schema says what it was called (`formerly: [{message: "TenantDomain"}]`,
-D77), and what is stored under the old name is moved, not left: its table by
-`loft migrate`, before anything looks for it (`rename.Tables` with
-`pd.TableRenames`, first in `cli.Migrate`), and the chunks of the trail's
-archive labelled with the old word are read as the kind's. An export from
-before is read under the old name (`offboard.Renamed`, which a test holds to
-the same tables as `pd.TableRenames`).
+Renaming one keeps its domain number. From launch it keeps its events'
+messages too -- `past.lock` holds them -- and the schema says what it was
+called (`(payday.entity).formerly`, D77), so that what is stored under the
+old name is moved, not left: its table by `loft migrate`, before anything
+looks for it (`rename.Tables` with `pd.TableRenames`, first in
+`cli.Migrate`), and the chunks of the trail's archive labelled with the old
+word are read as the kind's. Until launch a rename says no former name, and
+moves the epoch.
 
 ## Writing a layer
 
@@ -186,7 +205,8 @@ cd ts && npm install && npm run build   # or `npm run dev` on :5173, proxied to 
 ```
 
 `init` prints the owner's login; everybody `--demo` makes signs in with
-`demo1234`. Delete `data/` to start over. PostgreSQL is
+`demo1234`. Delete `data/` to start over -- and when the epoch has moved,
+since nothing migrates across one. PostgreSQL is
 `LOFT_DB_DRIVER=pgx LOFT_DB_DSN=...`, and `cli.Migrate` then also installs
 `cli/pg.sql` -- the constraints the schema cannot state. The roster in this
 process then needs a database of its own named too:
@@ -294,8 +314,9 @@ it names no server.
 Roles stay Loft's. On the embedded roster the people screen and `loft holder
 add|password` make accounts and set passwords there; on an external one they
 are refused, and are done at roster. Ending a membership (deactivate,
-pseudonymize) never touches the account. A deployment whose holders name no
-account runs `loft identity migrate` once. `auth.Plain` is not wired; tests
+pseudonymize) never touches the account. A member a restore put back with
+no account -- one this deployment's roster does not have -- is given one by
+`loft identity migrate`. `auth.Plain` is not wired; tests
 mint a session with `Server.Sessions.Mint` and send its cookie (plus
 `loft-workspace` when the account has more than one membership), and set
 `c.Auth.Roster.Db` to a `pdtest.DB` of its own -- the default is a file.
@@ -536,9 +557,10 @@ workspace was closed is let go of by its restore (`restoreWorkspace`,
 `Tx.closedPast`, `Tx.expireClosed`), in the restore's transaction, as its
 children with `workspace: closed`, telling nobody, and the restore says how
 many (`WorkspaceRestored.expired`). Equipment nobody picked up where nobody is
-held to it (`no_show_minutes < 0`) expires at its end. A field one of these
-needs ships a release before anything writes it, and CI's `OLDEST` follows
-staging, so that the oldest build reads it.
+held to it (`no_show_minutes < 0`) expires at its end. From launch a field
+one of these needs ships a release before anything writes it, so that the
+oldest build a deployment runs (CI's `OLDEST`, which follows staging) reads
+it.
 
 Who pays for a workspace is levyan's, and what it cannot know Loft tells it
 (design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and
@@ -666,14 +688,15 @@ An event keeps **no sentence**: it is said when it is read
 called then (`who`, by identifier) -- so a message holds a person by
 identifier only, and never anything of theirs. A new kind is a message (or
 a kind of a shared one) and a sentence in `say.go`
-(`TestEveryKindIsSaidInKorean`); it, a field, or a message **ships one
-release before anything writes it**, so that the build before can read its
-rows. `proto/loft/payday/past.lock` only grows: a message, a field, a JSON
-name or a kind removed or changed, or a kind moved to another message, is a
-row that no longer reads, and `pd gen` refuses it. `reason` is a person's
-words, and personal; what Loft says itself goes in the message and its
-sentence. A row from before keeps `desc` and `payload`, and is said by them
-(`namer.say`, design 8.2).
+(`TestEveryKindIsSaidInKorean`). From launch it, a field, or a message
+**ships one release before anything writes it**, so that the build before
+can read its rows, and `proto/loft/payday/past.lock` only grows: a message,
+a field, a JSON name or a kind removed or changed, or a kind moved to
+another message, is a row that no longer reads, and `pd gen` refuses it.
+Until launch such a change moves the epoch, and the lock is written afresh:
+delete it, and `pd gen` writes it from the schema (done once, 2026-11-09).
+`reason` is a person's words, and personal; what Loft says itself goes in
+the message and its sentence.
 A person forgotten (`Tx.forget`) has the trail's
 rows blanked in the operation's transaction and the archive's half owed there
 (payday#133); the operation that began the transaction pays it after its
@@ -721,7 +744,7 @@ a new RPC is recorded without a line. A person's own words are personal as a
 reason is -- a memo, a note, what a review found -- and what a thing or a
 document is called is not (design 8.2, D56): a field of free text a person
 writes says which, and `pd doctor` asks of each on a kind that holds people. What no declaration sees -- a name
-`namer.say` reads into a sentence, a column of a CSV, a name put in a mail --
+a sentence says (`who`, `say.go`), a column of a CSV, a name put in a mail --
 says `access.Saw` in the call that shows it. A download, which hands people's
 data out to be kept elsewhere, is in `cmd.Downloads` (the workspace's export among
 them, `TenantService.Export`, which says whose data it carries before its

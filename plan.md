@@ -271,7 +271,7 @@ MVP 이후에 파일럿 피드백으로 순서를 다시 정한다.
 - **역할의 출처**: Loft의 `Holder.role`과 정책 표로 둔다. roster의 역할을 `HolderService/Reaches`로 읽는 것은 SCIM 그룹으로 권한을 주는 고객이 생길 때 다시 본다.
 - **테넌트를 만드는 사람과 탈퇴 순서**: 외부 roster에서는 roster 운영자가 만든다(`roster tenant add`, `roster app install --tenant <alias> loft`). 셀프 가입은 두지 않는다. 그 테넌트의 첫 사람이 처음 로그인할 때 Loft에 테넌트가 생기고 그 사람이 소유자가 된다. 탈퇴는 Loft 내보내기 → Loft 전체 삭제 → roster의 테넌트 정리 순서이고, 마지막은 roster 운영자의 일이다. 내장 roster에서는 `loft tenant purge`가 그 테넌트의 사람을 roster에서도 먼저 파기한다(roster에 테넌트를 통째로 지우는 기능이 아직 없어 테넌트 행은 남는다).
 - **사람 삭제의 방향**: 사람을 지우는 것은 roster의 일이다. Loft의 '개인정보 삭제'는 Loft 쪽(Party, Holder, trail)만 지운다. 내장 roster는 Loft만 쓰므로 거기서는 roster의 사람도 파기한다.
-- **옮길 기존 데이터**: 있으면 `loft identity migrate`로 같은 ID로 옮기고, 비밀번호는 새로 발급해 한 번 보여 준다.
+- **옮길 기존 데이터**: 있으면 `loft identity migrate`로 같은 ID로 옮기고, 비밀번호는 새로 발급해 한 번 보여 준다. (출시 전이라 roster 이전의 데이터를 옮기는 길은 design D78이 지웠다. 명령은 복구한 워크스페이스의 계정 없는 구성원에게 계정을 주는 데 남았다.)
 
 같은 날 제품군을 나누면서(design 1.3절) SaaS에 대해 더 정했다. 위의 둘째 항목(roster 운영자가 테넌트를 만들고 셀프 가입은 없다)은 SaaS에서 이것으로 바뀐다.
 
