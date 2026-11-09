@@ -481,7 +481,8 @@ func TestABookingAndAChangeToItsKitAtOnceAgree(t *testing.T) {
 
 // inTurn runs `first` and `second` so that each waits for the schedule of
 // `what` before either has it, `first` ahead: it is held from outside until
-// `first` waits at a lock, and then `second` too, and then let go.
+// `first` waits at its row, and then `second` too ([env.behind]), and then let
+// go.
 func (e *env) inTurn(what *app.Asset, first, second func() error) (error, error) {
 	e.t.Helper()
 	bs, err := e.app().Bookable().List(e.owner, app.BookableListRequest_builder{

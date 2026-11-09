@@ -74,18 +74,28 @@ func (e *env) holdFromOutside(query string, args ...any) *outside {
 	return o
 }
 
-// behind is how many connections wait at a lock `o` holds, or behind one
+// behind is how many connections wait at the row `o` holds, or behind one
 // that waits at it: what the test runs, and nothing of another test's, which
 // share the database -- each in a schema of its own -- and whose own waits
 // said a test's had begun before they had.
+//
+// So a wait is counted only at a row: for the lock of its tuple, or for the
+// transaction that holds it. Another test can wait behind `o` in another way:
+// an index built CONCURRENTLY (cli's TestAnIndexWhoseBuildDidNotFinishIsRefused)
+// waits out every transaction of the database older than it -- `o`, or one the
+// test runs -- at its virtual transaction. Counted, it said the first of two
+// operations waited at the row before it did, and the second, let go then, got
+// there first.
 func (e *env) behind(o *outside) int {
 	e.t.Helper()
 	var n int
 	e.x.NoError(e.s.Db.QueryRowContext(context.Background(), `
 		WITH RECURSIVE behind(pid) AS (
-			SELECT pid FROM pg_stat_activity WHERE $1 = ANY(pg_blocking_pids(pid))
+			SELECT pid FROM pg_stat_activity
+			WHERE $1 = ANY(pg_blocking_pids(pid)) AND wait_event_type = 'Lock' AND wait_event IN ('tuple', 'transactionid')
 			UNION
 			SELECT a.pid FROM pg_stat_activity a JOIN behind b ON b.pid = ANY(pg_blocking_pids(a.pid))
+			WHERE a.wait_event_type = 'Lock' AND a.wait_event IN ('tuple', 'transactionid')
 		)
 		SELECT count(*) FROM behind`, o.pid).Scan(&n))
 	return n
