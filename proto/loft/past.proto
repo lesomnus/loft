@@ -698,9 +698,9 @@ message ReservationAllocationChanged {
   uint32 units = 14;
 }
 
-// TenantDomainAdded is a domain of the workspace's registered (`domain.add`):
+// DomainAdded is a domain of the workspace's registered (`domain.add`):
 // its own, or a default subdomain of the deployment's.
-message TenantDomainAdded {
+message DomainAdded {
   option (payday.event) = {kinds: "domain.add"};
 
   bytes domain = 1;
@@ -709,9 +709,9 @@ message TenantDomainAdded {
   string source = 4;
 }
 
-// TenantDomainVerified is a domain whose DNS checked out (`domain.verify`),
+// DomainVerified is a domain whose DNS checked out (`domain.verify`),
 // `again` when it had lapsed.
-message TenantDomainVerified {
+message DomainVerified {
   option (payday.event) = {kinds: "domain.verify"};
 
   bytes domain = 1;
@@ -720,9 +720,9 @@ message TenantDomainVerified {
   bool again = 9;
 }
 
-// TenantDomainActivated is a domain made the one the workspace is on and its
+// DomainActivated is a domain made the one the workspace is on and its
 // labels print with (`domain.activate`).
-message TenantDomainActivated {
+message DomainActivated {
   option (payday.event) = {kinds: "domain.activate"};
 
   bytes domain = 1;
@@ -730,9 +730,9 @@ message TenantDomainActivated {
   string purpose = 3;
 }
 
-// TenantDomainRetired is a domain stopped (`domain.retire`): `labels` is how
+// DomainRetired is a domain stopped (`domain.retire`): `labels` is how
 // many labels printed with it stopped opening, which `force` was said for.
-message TenantDomainRetired {
+message DomainRetired {
   option (payday.event) = {kinds: "domain.retire"};
 
   bytes domain = 1;
@@ -742,10 +742,10 @@ message TenantDomainRetired {
   uint32 labels = 8;
 }
 
-// TenantDomainLapsed is the active domain taken out of use by the deployment
+// DomainLapsed is the active domain taken out of use by the deployment
 // (`domain.lapse`): its DNS said no `failures` times running, from
 // `date_failing` (loft#155).
-message TenantDomainLapsed {
+message DomainLapsed {
   option (payday.event) = {kinds: "domain.lapse"};
 
   bytes domain = 1;

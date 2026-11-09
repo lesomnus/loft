@@ -3119,9 +3119,9 @@ func (b0 ReservationAllocationChanged_builder) Build() *ReservationAllocationCha
 	return m0
 }
 
-// TenantDomainAdded is a domain of the workspace's registered (`domain.add`):
+// DomainAdded is a domain of the workspace's registered (`domain.add`):
 // its own, or a default subdomain of the deployment's.
-type TenantDomainAdded struct {
+type DomainAdded struct {
 	state              protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Domain  []byte                 `protobuf:"bytes,1,opt,name=domain"`
 	xxx_hidden_Host    string                 `protobuf:"bytes,2,opt,name=host"`
@@ -3131,20 +3131,20 @@ type TenantDomainAdded struct {
 	sizeCache          protoimpl.SizeCache
 }
 
-func (x *TenantDomainAdded) Reset() {
-	*x = TenantDomainAdded{}
+func (x *DomainAdded) Reset() {
+	*x = DomainAdded{}
 	mi := &file_loft_past_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainAdded) String() string {
+func (x *DomainAdded) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainAdded) ProtoMessage() {}
+func (*DomainAdded) ProtoMessage() {}
 
-func (x *TenantDomainAdded) ProtoReflect() protoreflect.Message {
+func (x *DomainAdded) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_past_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3156,54 +3156,54 @@ func (x *TenantDomainAdded) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainAdded) GetDomain() []byte {
+func (x *DomainAdded) GetDomain() []byte {
 	if x != nil {
 		return x.xxx_hidden_Domain
 	}
 	return nil
 }
 
-func (x *TenantDomainAdded) GetHost() string {
+func (x *DomainAdded) GetHost() string {
 	if x != nil {
 		return x.xxx_hidden_Host
 	}
 	return ""
 }
 
-func (x *TenantDomainAdded) GetPurpose() string {
+func (x *DomainAdded) GetPurpose() string {
 	if x != nil {
 		return x.xxx_hidden_Purpose
 	}
 	return ""
 }
 
-func (x *TenantDomainAdded) GetSource() string {
+func (x *DomainAdded) GetSource() string {
 	if x != nil {
 		return x.xxx_hidden_Source
 	}
 	return ""
 }
 
-func (x *TenantDomainAdded) SetDomain(v []byte) {
+func (x *DomainAdded) SetDomain(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Domain = v
 }
 
-func (x *TenantDomainAdded) SetHost(v string) {
+func (x *DomainAdded) SetHost(v string) {
 	x.xxx_hidden_Host = v
 }
 
-func (x *TenantDomainAdded) SetPurpose(v string) {
+func (x *DomainAdded) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = v
 }
 
-func (x *TenantDomainAdded) SetSource(v string) {
+func (x *DomainAdded) SetSource(v string) {
 	x.xxx_hidden_Source = v
 }
 
-type TenantDomainAdded_builder struct {
+type DomainAdded_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Domain  []byte
@@ -3212,8 +3212,8 @@ type TenantDomainAdded_builder struct {
 	Source  string
 }
 
-func (b0 TenantDomainAdded_builder) Build() *TenantDomainAdded {
-	m0 := &TenantDomainAdded{}
+func (b0 DomainAdded_builder) Build() *DomainAdded {
+	m0 := &DomainAdded{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Domain = b.Domain
@@ -3223,9 +3223,9 @@ func (b0 TenantDomainAdded_builder) Build() *TenantDomainAdded {
 	return m0
 }
 
-// TenantDomainVerified is a domain whose DNS checked out (`domain.verify`),
+// DomainVerified is a domain whose DNS checked out (`domain.verify`),
 // `again` when it had lapsed.
-type TenantDomainVerified struct {
+type DomainVerified struct {
 	state              protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Domain  []byte                 `protobuf:"bytes,1,opt,name=domain"`
 	xxx_hidden_Host    string                 `protobuf:"bytes,2,opt,name=host"`
@@ -3235,20 +3235,20 @@ type TenantDomainVerified struct {
 	sizeCache          protoimpl.SizeCache
 }
 
-func (x *TenantDomainVerified) Reset() {
-	*x = TenantDomainVerified{}
+func (x *DomainVerified) Reset() {
+	*x = DomainVerified{}
 	mi := &file_loft_past_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainVerified) String() string {
+func (x *DomainVerified) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainVerified) ProtoMessage() {}
+func (*DomainVerified) ProtoMessage() {}
 
-func (x *TenantDomainVerified) ProtoReflect() protoreflect.Message {
+func (x *DomainVerified) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_past_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3260,54 +3260,54 @@ func (x *TenantDomainVerified) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainVerified) GetDomain() []byte {
+func (x *DomainVerified) GetDomain() []byte {
 	if x != nil {
 		return x.xxx_hidden_Domain
 	}
 	return nil
 }
 
-func (x *TenantDomainVerified) GetHost() string {
+func (x *DomainVerified) GetHost() string {
 	if x != nil {
 		return x.xxx_hidden_Host
 	}
 	return ""
 }
 
-func (x *TenantDomainVerified) GetPurpose() string {
+func (x *DomainVerified) GetPurpose() string {
 	if x != nil {
 		return x.xxx_hidden_Purpose
 	}
 	return ""
 }
 
-func (x *TenantDomainVerified) GetAgain() bool {
+func (x *DomainVerified) GetAgain() bool {
 	if x != nil {
 		return x.xxx_hidden_Again
 	}
 	return false
 }
 
-func (x *TenantDomainVerified) SetDomain(v []byte) {
+func (x *DomainVerified) SetDomain(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Domain = v
 }
 
-func (x *TenantDomainVerified) SetHost(v string) {
+func (x *DomainVerified) SetHost(v string) {
 	x.xxx_hidden_Host = v
 }
 
-func (x *TenantDomainVerified) SetPurpose(v string) {
+func (x *DomainVerified) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = v
 }
 
-func (x *TenantDomainVerified) SetAgain(v bool) {
+func (x *DomainVerified) SetAgain(v bool) {
 	x.xxx_hidden_Again = v
 }
 
-type TenantDomainVerified_builder struct {
+type DomainVerified_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Domain  []byte
@@ -3316,8 +3316,8 @@ type TenantDomainVerified_builder struct {
 	Again   bool
 }
 
-func (b0 TenantDomainVerified_builder) Build() *TenantDomainVerified {
-	m0 := &TenantDomainVerified{}
+func (b0 DomainVerified_builder) Build() *DomainVerified {
+	m0 := &DomainVerified{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Domain = b.Domain
@@ -3327,9 +3327,9 @@ func (b0 TenantDomainVerified_builder) Build() *TenantDomainVerified {
 	return m0
 }
 
-// TenantDomainActivated is a domain made the one the workspace is on and its
+// DomainActivated is a domain made the one the workspace is on and its
 // labels print with (`domain.activate`).
-type TenantDomainActivated struct {
+type DomainActivated struct {
 	state              protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Domain  []byte                 `protobuf:"bytes,1,opt,name=domain"`
 	xxx_hidden_Host    string                 `protobuf:"bytes,2,opt,name=host"`
@@ -3338,20 +3338,20 @@ type TenantDomainActivated struct {
 	sizeCache          protoimpl.SizeCache
 }
 
-func (x *TenantDomainActivated) Reset() {
-	*x = TenantDomainActivated{}
+func (x *DomainActivated) Reset() {
+	*x = DomainActivated{}
 	mi := &file_loft_past_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainActivated) String() string {
+func (x *DomainActivated) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainActivated) ProtoMessage() {}
+func (*DomainActivated) ProtoMessage() {}
 
-func (x *TenantDomainActivated) ProtoReflect() protoreflect.Message {
+func (x *DomainActivated) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_past_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3363,43 +3363,43 @@ func (x *TenantDomainActivated) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainActivated) GetDomain() []byte {
+func (x *DomainActivated) GetDomain() []byte {
 	if x != nil {
 		return x.xxx_hidden_Domain
 	}
 	return nil
 }
 
-func (x *TenantDomainActivated) GetHost() string {
+func (x *DomainActivated) GetHost() string {
 	if x != nil {
 		return x.xxx_hidden_Host
 	}
 	return ""
 }
 
-func (x *TenantDomainActivated) GetPurpose() string {
+func (x *DomainActivated) GetPurpose() string {
 	if x != nil {
 		return x.xxx_hidden_Purpose
 	}
 	return ""
 }
 
-func (x *TenantDomainActivated) SetDomain(v []byte) {
+func (x *DomainActivated) SetDomain(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Domain = v
 }
 
-func (x *TenantDomainActivated) SetHost(v string) {
+func (x *DomainActivated) SetHost(v string) {
 	x.xxx_hidden_Host = v
 }
 
-func (x *TenantDomainActivated) SetPurpose(v string) {
+func (x *DomainActivated) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = v
 }
 
-type TenantDomainActivated_builder struct {
+type DomainActivated_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Domain  []byte
@@ -3407,8 +3407,8 @@ type TenantDomainActivated_builder struct {
 	Purpose string
 }
 
-func (b0 TenantDomainActivated_builder) Build() *TenantDomainActivated {
-	m0 := &TenantDomainActivated{}
+func (b0 DomainActivated_builder) Build() *DomainActivated {
+	m0 := &DomainActivated{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Domain = b.Domain
@@ -3417,9 +3417,9 @@ func (b0 TenantDomainActivated_builder) Build() *TenantDomainActivated {
 	return m0
 }
 
-// TenantDomainRetired is a domain stopped (`domain.retire`): `labels` is how
+// DomainRetired is a domain stopped (`domain.retire`): `labels` is how
 // many labels printed with it stopped opening, which `force` was said for.
-type TenantDomainRetired struct {
+type DomainRetired struct {
 	state              protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Domain  []byte                 `protobuf:"bytes,1,opt,name=domain"`
 	xxx_hidden_Host    string                 `protobuf:"bytes,2,opt,name=host"`
@@ -3430,20 +3430,20 @@ type TenantDomainRetired struct {
 	sizeCache          protoimpl.SizeCache
 }
 
-func (x *TenantDomainRetired) Reset() {
-	*x = TenantDomainRetired{}
+func (x *DomainRetired) Reset() {
+	*x = DomainRetired{}
 	mi := &file_loft_past_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainRetired) String() string {
+func (x *DomainRetired) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainRetired) ProtoMessage() {}
+func (*DomainRetired) ProtoMessage() {}
 
-func (x *TenantDomainRetired) ProtoReflect() protoreflect.Message {
+func (x *DomainRetired) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_past_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3455,65 +3455,65 @@ func (x *TenantDomainRetired) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainRetired) GetDomain() []byte {
+func (x *DomainRetired) GetDomain() []byte {
 	if x != nil {
 		return x.xxx_hidden_Domain
 	}
 	return nil
 }
 
-func (x *TenantDomainRetired) GetHost() string {
+func (x *DomainRetired) GetHost() string {
 	if x != nil {
 		return x.xxx_hidden_Host
 	}
 	return ""
 }
 
-func (x *TenantDomainRetired) GetPurpose() string {
+func (x *DomainRetired) GetPurpose() string {
 	if x != nil {
 		return x.xxx_hidden_Purpose
 	}
 	return ""
 }
 
-func (x *TenantDomainRetired) GetForce() bool {
+func (x *DomainRetired) GetForce() bool {
 	if x != nil {
 		return x.xxx_hidden_Force
 	}
 	return false
 }
 
-func (x *TenantDomainRetired) GetLabels() uint32 {
+func (x *DomainRetired) GetLabels() uint32 {
 	if x != nil {
 		return x.xxx_hidden_Labels
 	}
 	return 0
 }
 
-func (x *TenantDomainRetired) SetDomain(v []byte) {
+func (x *DomainRetired) SetDomain(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Domain = v
 }
 
-func (x *TenantDomainRetired) SetHost(v string) {
+func (x *DomainRetired) SetHost(v string) {
 	x.xxx_hidden_Host = v
 }
 
-func (x *TenantDomainRetired) SetPurpose(v string) {
+func (x *DomainRetired) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = v
 }
 
-func (x *TenantDomainRetired) SetForce(v bool) {
+func (x *DomainRetired) SetForce(v bool) {
 	x.xxx_hidden_Force = v
 }
 
-func (x *TenantDomainRetired) SetLabels(v uint32) {
+func (x *DomainRetired) SetLabels(v uint32) {
 	x.xxx_hidden_Labels = v
 }
 
-type TenantDomainRetired_builder struct {
+type DomainRetired_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Domain  []byte
@@ -3523,8 +3523,8 @@ type TenantDomainRetired_builder struct {
 	Labels  uint32
 }
 
-func (b0 TenantDomainRetired_builder) Build() *TenantDomainRetired {
-	m0 := &TenantDomainRetired{}
+func (b0 DomainRetired_builder) Build() *DomainRetired {
+	m0 := &DomainRetired{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Domain = b.Domain
@@ -3535,10 +3535,10 @@ func (b0 TenantDomainRetired_builder) Build() *TenantDomainRetired {
 	return m0
 }
 
-// TenantDomainLapsed is the active domain taken out of use by the deployment
+// DomainLapsed is the active domain taken out of use by the deployment
 // (`domain.lapse`): its DNS said no `failures` times running, from
 // `date_failing` (loft#155).
-type TenantDomainLapsed struct {
+type DomainLapsed struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Domain      []byte                 `protobuf:"bytes,1,opt,name=domain"`
 	xxx_hidden_Host        string                 `protobuf:"bytes,2,opt,name=host"`
@@ -3549,20 +3549,20 @@ type TenantDomainLapsed struct {
 	sizeCache              protoimpl.SizeCache
 }
 
-func (x *TenantDomainLapsed) Reset() {
-	*x = TenantDomainLapsed{}
+func (x *DomainLapsed) Reset() {
+	*x = DomainLapsed{}
 	mi := &file_loft_past_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *TenantDomainLapsed) String() string {
+func (x *DomainLapsed) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TenantDomainLapsed) ProtoMessage() {}
+func (*DomainLapsed) ProtoMessage() {}
 
-func (x *TenantDomainLapsed) ProtoReflect() protoreflect.Message {
+func (x *DomainLapsed) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_past_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3574,76 +3574,76 @@ func (x *TenantDomainLapsed) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainLapsed) GetDomain() []byte {
+func (x *DomainLapsed) GetDomain() []byte {
 	if x != nil {
 		return x.xxx_hidden_Domain
 	}
 	return nil
 }
 
-func (x *TenantDomainLapsed) GetHost() string {
+func (x *DomainLapsed) GetHost() string {
 	if x != nil {
 		return x.xxx_hidden_Host
 	}
 	return ""
 }
 
-func (x *TenantDomainLapsed) GetPurpose() string {
+func (x *DomainLapsed) GetPurpose() string {
 	if x != nil {
 		return x.xxx_hidden_Purpose
 	}
 	return ""
 }
 
-func (x *TenantDomainLapsed) GetDateFailing() *timestamppb.Timestamp {
+func (x *DomainLapsed) GetDateFailing() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateFailing
 	}
 	return nil
 }
 
-func (x *TenantDomainLapsed) GetFailures() uint32 {
+func (x *DomainLapsed) GetFailures() uint32 {
 	if x != nil {
 		return x.xxx_hidden_Failures
 	}
 	return 0
 }
 
-func (x *TenantDomainLapsed) SetDomain(v []byte) {
+func (x *DomainLapsed) SetDomain(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Domain = v
 }
 
-func (x *TenantDomainLapsed) SetHost(v string) {
+func (x *DomainLapsed) SetHost(v string) {
 	x.xxx_hidden_Host = v
 }
 
-func (x *TenantDomainLapsed) SetPurpose(v string) {
+func (x *DomainLapsed) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = v
 }
 
-func (x *TenantDomainLapsed) SetDateFailing(v *timestamppb.Timestamp) {
+func (x *DomainLapsed) SetDateFailing(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateFailing = v
 }
 
-func (x *TenantDomainLapsed) SetFailures(v uint32) {
+func (x *DomainLapsed) SetFailures(v uint32) {
 	x.xxx_hidden_Failures = v
 }
 
-func (x *TenantDomainLapsed) HasDateFailing() bool {
+func (x *DomainLapsed) HasDateFailing() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_DateFailing != nil
 }
 
-func (x *TenantDomainLapsed) ClearDateFailing() {
+func (x *DomainLapsed) ClearDateFailing() {
 	x.xxx_hidden_DateFailing = nil
 }
 
-type TenantDomainLapsed_builder struct {
+type DomainLapsed_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Domain      []byte
@@ -3653,8 +3653,8 @@ type TenantDomainLapsed_builder struct {
 	Failures    uint32
 }
 
-func (b0 TenantDomainLapsed_builder) Build() *TenantDomainLapsed {
-	m0 := &TenantDomainLapsed{}
+func (b0 DomainLapsed_builder) Build() *DomainLapsed {
+	m0 := &DomainLapsed{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Domain = b.Domain
@@ -6884,33 +6884,33 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x10reservation.take\n" +
 	"\x10reservation.wait\n" +
 	"\x13reservation.resolve\n" +
-	"\x12reservation.let_go\"\x83\x01\n" +
-	"\x11TenantDomainAdded\x12\x16\n" +
+	"\x12reservation.let_go\"}\n" +
+	"\vDomainAdded\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\fR\x06domain\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x18\n" +
 	"\apurpose\x18\x03 \x01(\tR\apurpose\x12\x16\n" +
 	"\x06source\x18\x04 \x01(\tR\x06source:\x10\x92\xbb\x16\f\n" +
 	"\n" +
-	"domain.add\"\x87\x01\n" +
-	"\x14TenantDomainVerified\x12\x16\n" +
+	"domain.add\"\x81\x01\n" +
+	"\x0eDomainVerified\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\fR\x06domain\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x18\n" +
 	"\apurpose\x18\x03 \x01(\tR\apurpose\x12\x14\n" +
 	"\x05again\x18\t \x01(\bR\x05again:\x13\x92\xbb\x16\x0f\n" +
-	"\rdomain.verify\"t\n" +
-	"\x15TenantDomainActivated\x12\x16\n" +
+	"\rdomain.verify\"n\n" +
+	"\x0fDomainActivated\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\fR\x06domain\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x18\n" +
 	"\apurpose\x18\x03 \x01(\tR\apurpose:\x15\x92\xbb\x16\x11\n" +
-	"\x0fdomain.activate\"\x9e\x01\n" +
-	"\x13TenantDomainRetired\x12\x16\n" +
+	"\x0fdomain.activate\"\x98\x01\n" +
+	"\rDomainRetired\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\fR\x06domain\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x18\n" +
 	"\apurpose\x18\x03 \x01(\tR\apurpose\x12\x14\n" +
 	"\x05force\x18\a \x01(\bR\x05force\x12\x16\n" +
 	"\x06labels\x18\b \x01(\rR\x06labels:\x13\x92\xbb\x16\x0f\n" +
-	"\rdomain.retire\"\xc9\x01\n" +
-	"\x12TenantDomainLapsed\x12\x16\n" +
+	"\rdomain.retire\"\xc3\x01\n" +
+	"\fDomainLapsed\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\fR\x06domain\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x18\n" +
 	"\apurpose\x18\x03 \x01(\tR\apurpose\x12=\n" +
@@ -7135,11 +7135,11 @@ var file_loft_past_proto_goTypes = []any{
 	(*ReservationDecided)(nil),           // 24: loft.ReservationDecided
 	(*ReservationReleased)(nil),          // 25: loft.ReservationReleased
 	(*ReservationAllocationChanged)(nil), // 26: loft.ReservationAllocationChanged
-	(*TenantDomainAdded)(nil),            // 27: loft.TenantDomainAdded
-	(*TenantDomainVerified)(nil),         // 28: loft.TenantDomainVerified
-	(*TenantDomainActivated)(nil),        // 29: loft.TenantDomainActivated
-	(*TenantDomainRetired)(nil),          // 30: loft.TenantDomainRetired
-	(*TenantDomainLapsed)(nil),           // 31: loft.TenantDomainLapsed
+	(*DomainAdded)(nil),                  // 27: loft.DomainAdded
+	(*DomainVerified)(nil),               // 28: loft.DomainVerified
+	(*DomainActivated)(nil),              // 29: loft.DomainActivated
+	(*DomainRetired)(nil),                // 30: loft.DomainRetired
+	(*DomainLapsed)(nil),                 // 31: loft.DomainLapsed
 	(*InvitationAdded)(nil),              // 32: loft.InvitationAdded
 	(*InvitationAccepted)(nil),           // 33: loft.InvitationAccepted
 	(*InvitationChanged)(nil),            // 34: loft.InvitationChanged
@@ -7177,7 +7177,7 @@ var file_loft_past_proto_depIdxs = []int32{
 	59, // 4: loft.ReservationAdded.date_start:type_name -> google.protobuf.Timestamp
 	59, // 5: loft.ReservationAdded.date_end:type_name -> google.protobuf.Timestamp
 	59, // 6: loft.ReservationAllocationChanged.date_start:type_name -> google.protobuf.Timestamp
-	59, // 7: loft.TenantDomainLapsed.date_failing:type_name -> google.protobuf.Timestamp
+	59, // 7: loft.DomainLapsed.date_failing:type_name -> google.protobuf.Timestamp
 	59, // 8: loft.WorkspaceClosed.date_destroy:type_name -> google.protobuf.Timestamp
 	59, // 9: loft.WorkspaceConfigured.date_keep_effective:type_name -> google.protobuf.Timestamp
 	59, // 10: loft.WorkspaceConfigured.date_access_keep_effective:type_name -> google.protobuf.Timestamp

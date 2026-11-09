@@ -270,8 +270,8 @@ export const TagCounterSchema: GenMessage<TagCounter> = /*@__PURE__*/
 /**
  * Domain is a domain of a workspace's (design 9.9): one its whole app is on
  * (`app`), or one its QR labels print with (`label`). Only a workspace has
- * domains, so it is called what it is (D72). The events of its kinds hold
- * messages named as it was then, `TenantDomainAdded` and the rest.
+ * domains, so it is called what it is (D72), and so are the messages of its
+ * events, `DomainAdded` and the rest.
  *
  * @generated from message loft.Domain
  */

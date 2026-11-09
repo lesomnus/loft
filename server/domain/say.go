@@ -236,24 +236,24 @@ func sentences() *past.Sentences {
 	}
 
 	// label.go and spin.go
-	past.SayKind(s, "domain.add", "ko", func(r *past.Reading, ev past.EventRow, m *app.TenantDomainAdded) string {
+	past.SayKind(s, "domain.add", "ko", func(r *past.Reading, ev past.EventRow, m *app.DomainAdded) string {
 		return domainWords(m.GetPurpose()) + " 등록: " + m.GetHost()
 	})
-	past.SayKind(s, "domain.verify", "ko", func(r *past.Reading, ev past.EventRow, m *app.TenantDomainVerified) string {
+	past.SayKind(s, "domain.verify", "ko", func(r *past.Reading, ev past.EventRow, m *app.DomainVerified) string {
 		if m.GetAgain() {
 			return domainWords(m.GetPurpose()) + " 다시 확인: " + m.GetHost()
 		}
 		return domainWords(m.GetPurpose()) + " 확인: " + m.GetHost()
 	})
-	past.SayKind(s, "domain.activate", "ko", func(r *past.Reading, ev past.EventRow, m *app.TenantDomainActivated) string {
+	past.SayKind(s, "domain.activate", "ko", func(r *past.Reading, ev past.EventRow, m *app.DomainActivated) string {
 		return domainWords(m.GetPurpose()) + " 활성화: " + m.GetHost()
 	})
-	past.SayKind(s, "domain.retire", "ko", func(r *past.Reading, ev past.EventRow, m *app.TenantDomainRetired) string {
+	past.SayKind(s, "domain.retire", "ko", func(r *past.Reading, ev past.EventRow, m *app.DomainRetired) string {
 		return domainWords(m.GetPurpose()) + " 은퇴: " + m.GetHost()
 	})
 	// Why it lapsed is the deployment's to say, here, where it once wrote
 	// it as the event's reason -- which is a person's words now.
-	past.SayKind(s, "domain.lapse", "ko", func(r *past.Reading, ev past.EventRow, m *app.TenantDomainLapsed) string {
+	past.SayKind(s, "domain.lapse", "ko", func(r *past.Reading, ev past.EventRow, m *app.DomainLapsed) string {
 		return fmt.Sprintf("%s 사용 중지: %s (DNS가 %s부터 이 서비스를 가리키지 않거나 TXT 레코드가 없습니다)",
 			domainWords(m.GetPurpose()), m.GetHost(), m.GetDateFailing().AsTime().In(r.Zone()).Format("1월 2일 15:04"))
 	})

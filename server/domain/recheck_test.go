@@ -222,7 +222,7 @@ func TestADomainWhoseDNSLeftLapses(t *testing.T) {
 	lapses, err := e.s.Ent.Event.Query().Where(event.TenantId(e.tenant.Uuid()), event.Kind("domain.lapse")).All(ctx)
 	x.NoError(err)
 	x.Len(lapses, 1)
-	x.Equal("assets.acme.example", value[*app.TenantDomainLapsed](e, lapses[0]).GetHost())
+	x.Equal("assets.acme.example", value[*app.DomainLapsed](e, lapses[0]).GetHost())
 	x.Contains(e.say(lapses[0]), "assets.acme.example")
 	x.Empty(lapses[0].Reason, "why it lapsed is the deployment's, which the event says, and no person's words")
 	told, err := e.s.Ent.Notification.Query().Where(notification.HolderId(owner.Id), notification.Kind("domain.lapsed")).All(ctx)

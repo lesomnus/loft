@@ -1115,7 +1115,7 @@ func (t *Tx) lapse(d *ent.Domain, failures uint32, since time.Time) error {
 	words := domainWords(d.Purpose)
 	// Why is the deployment's to say, and is what the event holds: no
 	// person's words, which a reason is (payday#151).
-	if err := t.begin(nil, "domain.lapse", pdid.Nil, t.now, "", app.TenantDomainLapsed_builder{
+	if err := t.begin(nil, "domain.lapse", pdid.Nil, t.now, "", app.DomainLapsed_builder{
 		Domain:      pdid.Id(d.Id).Bytes(),
 		Host:        d.Host,
 		Purpose:     d.Purpose,
