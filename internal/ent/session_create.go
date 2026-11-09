@@ -183,6 +183,12 @@ func (_c *SessionCreate) check() error {
 	if _, ok := _c.mutation.Account(); !ok {
 		return &ValidationError{Name: "account", err: errors.New(`ent: missing required field "Session.account"`)}
 	}
+	if _, ok := _c.mutation.Secret(); !ok {
+		return &ValidationError{Name: "secret", err: errors.New(`ent: missing required field "Session.secret"`)}
+	}
+	if _, ok := _c.mutation.Grant(); !ok {
+		return &ValidationError{Name: "grant", err: errors.New(`ent: missing required field "Session.grant"`)}
+	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Session.date_updated"`)}
 	}

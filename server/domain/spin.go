@@ -178,11 +178,10 @@ func (t *Tx) release(id pdid.Id, to string) error {
 // why nobody took it up in time (`ReservationReleased.workspace`, D68):
 // nobody could confirm a hold, decide a request, or check in to or pick up
 // what was booked, so it was nobody's doing -- and a confirmed one is no
-// no-show, but expired (`from: confirmed`). Declared, and said, a release
-// before anything wrote it, so that the build before says its rows (design
-// 7.14); written by the sweeps while the workspace is read-only ([Tx.while]),
-// and by its restore of what passed its time while it was closed
-// ([Tx.closedPast], design 7.15, D70).
+// no-show, but expired (`from: confirmed`) (design 7.14). Written by the
+// sweeps while the workspace is read-only ([Tx.while]), and by its restore of
+// what passed its time while it was closed ([Tx.closedPast], design 7.15,
+// D70).
 const (
 	whileReadOnly = "readonly"
 	whileClosed   = "closed"
@@ -612,9 +611,8 @@ func (t *Tx) closedPast(since time.Time) ([]*ent.Reservation, error) {
 // is to be done; a booking that waited for what one of them held, and has it
 // now, is told it has, as it would be by the next pass ([Tx.heal]).
 //
-// How many it let go of is the restore's to say (`WorkspaceRestored.expired`),
-// declared a release before anything writes it (design 7.15): till then it
-// is in the log, and the restore's children are each one of them.
+// How many it let go of is the restore's to say (`WorkspaceRestored.expired`,
+// design 7.15), and the restore's children are each one of them.
 func (t *Tx) expireClosed(rs []*ent.Reservation) error {
 	for _, r := range rs {
 		id := pdid.Id(r.Id)
@@ -1117,7 +1115,7 @@ func (t *Tx) lapse(d *ent.Domain, failures uint32, since time.Time) error {
 	words := domainWords(d.Purpose)
 	// Why is the deployment's to say, and is what the event holds: no
 	// person's words, which a reason is (payday#151).
-	if err := t.begin(nil, "domain.lapse", pdid.Nil, t.now, "", app.TenantDomainLapsed_builder{
+	if err := t.begin(nil, "domain.lapse", pdid.Nil, t.now, "", app.DomainLapsed_builder{
 		Domain:      pdid.Id(d.Id).Bytes(),
 		Host:        d.Host,
 		Purpose:     d.Purpose,

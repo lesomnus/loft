@@ -45,7 +45,7 @@ func newCmdIdentity() *xli.Command {
 		Commands: xli.Commands{
 			{
 				Name:  "migrate",
-				Brief: "bring the workspaces and people of a deployment from before roster into it, with their identifiers",
+				Brief: "give an account to each member who names none, with the member's identifier: those of a workspace restored from another deployment",
 				Flags: flg.Flags{
 					&flg.String{Name: "password", Brief: "give everybody this one, for a deployment to try things on; empty makes one up for each"},
 				},
@@ -95,12 +95,9 @@ func newCmdIdentity() *xli.Command {
 					case done.GetMade() == 0:
 						self.Printf("\n%d holder(s) linked to the accounts roster had for them\n", done.GetLinked())
 					case done.GetGiven():
-						self.Printf("\n%d account(s), every one with the password given; the ones from before roster are not brought along\n", done.GetMade())
+						self.Printf("\n%d account(s), every one with the password given\n", done.GetMade())
 					default:
-						self.Printf("\n%d password(s), shown once; the ones from before roster are not brought along\n", done.GetMade())
-					}
-					if done.GetDropped() {
-						self.Printf("dropped `credential`, the passwords from before roster\n")
+						self.Printf("\n%d password(s), shown once\n", done.GetMade())
 					}
 					return next(ctx)
 				}),

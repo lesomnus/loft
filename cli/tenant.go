@@ -1028,9 +1028,6 @@ func printImported(self *xli.Command, x *app.OperatorTenantImportResponse) {
 			self.Printf("  it retired from here, and the trail took it back first: %d records of the retirement lifted\n", x.GetReturned())
 		}
 	}
-	for _, k := range slices.Sorted(maps.Keys(x.GetLeft())) {
-		self.Printf("  %d rows of %s left behind: %s\n", x.GetLeft()[k], k, x.GetLeftWhy()[k])
-	}
 	if len(x.GetMissing()) > 0 {
 		self.Printf("  files the export did not have, as the store it came from did not: %s\n", strings.Join(x.GetMissing(), ", "))
 	}
@@ -1041,9 +1038,6 @@ func printImported(self *xli.Command, x *app.OperatorTenantImportResponse) {
 	if dry {
 		self.Printf("(nothing was put back: `--yes` does it)\n")
 		return
-	}
-	if x.GetHeld() > 0 {
-		self.Printf("  what it has out holds its time: %d things, held from when they were handed over\n", x.GetHeld())
 	}
 	if g := x.GetGrants(); g != "" {
 		self.Printf("  what levyan grants it is %s\n", g)

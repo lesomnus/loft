@@ -60,16 +60,16 @@ func entry(t *testing.T, c cmd.Config) *deployment {
 	return &deployment{c: c, s: s, url: srv.URL, key: keyRef(t)}
 }
 
-// before is a deployment whose logins name no account: made before roster
-// held people. Two workspaces, both with somebody called kim; the owner called
-// `admin`, the name roster gives the first holder of every tenant it makes; a
-// login that ended; and the table the passwords were kept in.
-type before struct {
+// unlinked is a deployment whose logins name no account, as a restore of an
+// export from another deployment leaves its members: two workspaces, both
+// with somebody called kim; the owner called `admin`, the name roster gives
+// the first holder of every tenant it makes; and a login that ended.
+type unlinked struct {
 	acme, beta                     pdid.Id
 	admin, kim, gone, kimElsewhere pdid.Id
 }
 
-func deploymentFromBefore(t *testing.T, c cmd.Config) before {
+func membersWithNoAccount(t *testing.T, c cmd.Config) unlinked {
 	t.Helper()
 	x := require.New(t)
 	ctx := context.Background()
@@ -78,7 +78,7 @@ func deploymentFromBefore(t *testing.T, c cmd.Config) before {
 	defer s.Close()
 	x.NoError(cli.Migrate(ctx, s))
 
-	out := before{}
+	out := unlinked{}
 	workspace := func(alias string) (pdid.Id, func(alias, role string) pdid.Id) {
 		v, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: strings.ToUpper(alias)}.Build())
 		x.NoError(err)
@@ -102,11 +102,6 @@ func deploymentFromBefore(t *testing.T, c cmd.Config) before {
 	_, err = s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: out.gone.Bytes()}.Build())
 	x.NoError(err)
 	out.kimElsewhere = beta("kim", "owner")
-
-	_, err = s.Db.ExecContext(ctx, "CREATE TABLE credential (id uuid PRIMARY KEY, secret text NOT NULL)")
-	x.NoError(err)
-	_, err = s.Db.ExecContext(ctx, "INSERT INTO credential (id, secret) VALUES ($1, $2)", pdid.New(37).String(), "$argon2id$v=19$m=65536,t=3,p=4$...")
-	x.NoError(err)
 	return out
 }
 
@@ -122,15 +117,15 @@ func passwordsOf(out string) map[string]adopted {
 	return v
 }
 
-// TestADeploymentFromBeforeRosterIsBroughtIntoIt: every login is made an
-// account in the directory at the roster in this process with the identifier
-// it has here, given a new password said once, its membership linked as the
-// operator's write -- and run again it makes nothing.
-func TestADeploymentFromBeforeRosterIsBroughtIntoIt(t *testing.T) {
+// TestMembersWithNoAccountAreGivenOne: every login that names no account is
+// made an account in the directory at the roster in this process with the
+// identifier it has here, given a new password said once, its membership
+// linked as the operator's write -- and run again it makes nothing.
+func TestMembersWithNoAccountAreGivenOne(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	c := embeddedConfig(t)
-	was := deploymentFromBefore(t, c)
+	was := membersWithNoAccount(t, c)
 	d := entry(t, c)
 
 	out, err := d.loft(t, "identity", "migrate")
@@ -140,7 +135,6 @@ func TestADeploymentFromBeforeRosterIsBroughtIntoIt(t *testing.T) {
 	x.Equal("admin", got["acme/admin"].login, "roster's own admin kept the name from the person who had it")
 	x.Equal("kim", got["acme/kim"].login)
 	x.Equal("kim-beta", got["beta/kim"].login, "two kims and one directory")
-	x.Contains(out, "dropped `credential`")
 
 	for at, id := range map[string]pdid.Id{"acme/admin": was.admin, "acme/kim": was.kim, "beta/kim": was.kimElsewhere} {
 		p, err := d.s.Identity.Verify(ctx, got[at].login, got[at].password)
@@ -161,17 +155,15 @@ func TestADeploymentFromBeforeRosterIsBroughtIntoIt(t *testing.T) {
 	x.NoError(err)
 	x.Contains(again, "nobody to bring in")
 	x.NotContains(again, "password ")
-	x.NotContains(again, "dropped")
 }
 
-// TestADeploymentToTryThingsOnIsBroughtInWithOnePassword: one password
-// roster would not take leaves nobody half brought in; one it takes is
-// everybody's.
-func TestADeploymentToTryThingsOnIsBroughtInWithOnePassword(t *testing.T) {
+// TestMembersToTryThingsOnAreGivenOnePassword: one password roster would not
+// take leaves nobody half brought in; one it takes is everybody's.
+func TestMembersToTryThingsOnAreGivenOnePassword(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	c := embeddedConfig(t)
-	deploymentFromBefore(t, c)
+	membersWithNoAccount(t, c)
 	d := entry(t, c)
 
 	_, err := d.loft(t, "identity", "migrate", "--password", "short")
@@ -231,7 +223,7 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	c := embeddedConfig(t)
-	was := deploymentFromBefore(t, c)
+	was := membersWithNoAccount(t, c)
 	addr, rkey, roster := external(t)
 	c.Auth.Roster = cmd.Config{}.Auth.Roster
 	c.Auth.Roster.Addr = addr
@@ -245,7 +237,6 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 	x.Contains(out, `roster holder add @accounts/kim '{"id":"`+was.kim.String()+`","name":"kim"}'`)
 	x.Contains(out, `roster holder add @accounts/kim '{"id":"`+was.kimElsewhere.String()+`","name":"kim"}'`)
 	x.NotContains(out, was.gone.String(), "a login that ended")
-	x.Contains(out, "dropped `credential`")
 
 	_, err = roster.Ungated.Holder().Add(ctx, rstr.HolderAddRequest_builder{
 		Id:     was.kim.Bytes(),

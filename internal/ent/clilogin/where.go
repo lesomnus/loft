@@ -155,16 +155,6 @@ func SecretLTE(v []byte) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldLTE(FieldSecret, v))
 }
 
-// SecretIsNil applies the IsNil predicate on the "secret" field.
-func SecretIsNil() predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldIsNull(FieldSecret))
-}
-
-// SecretNotNil applies the NotNil predicate on the "secret" field.
-func SecretNotNil() predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldNotNull(FieldSecret))
-}
-
 // CodeEQ applies the EQ predicate on the "code" field.
 func CodeEQ(v string) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldEQ(FieldCode, v))
@@ -415,16 +405,6 @@ func AddressHasSuffix(v string) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldHasSuffix(FieldAddress, v))
 }
 
-// AddressIsNil applies the IsNil predicate on the "address" field.
-func AddressIsNil() predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldIsNull(FieldAddress))
-}
-
-// AddressNotNil applies the NotNil predicate on the "address" field.
-func AddressNotNil() predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldNotNull(FieldAddress))
-}
-
 // AddressEqualFold applies the EqualFold predicate on the "address" field.
 func AddressEqualFold(v string) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldEqualFold(FieldAddress, v))
@@ -523,16 +503,6 @@ func GrantLT(v []byte) predicate.CliLogin {
 // GrantLTE applies the LTE predicate on the "grant" field.
 func GrantLTE(v []byte) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldLTE(FieldGrant, v))
-}
-
-// GrantIsNil applies the IsNil predicate on the "grant" field.
-func GrantIsNil() predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldIsNull(FieldGrant))
-}
-
-// GrantNotNil applies the NotNil predicate on the "grant" field.
-func GrantNotNil() predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldNotNull(FieldGrant))
 }
 
 // StateEQ applies the EQ predicate on the "state" field.

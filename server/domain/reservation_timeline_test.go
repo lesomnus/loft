@@ -13,7 +13,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/server/pd"
 )
 
 // A reservation's history (D45) is every event it is the subject of and every
@@ -265,40 +264,4 @@ func TestEachTimeASeriesTakesPlaceHasAHistoryOfItsOwn(t *testing.T) {
 		}
 	}
 	x.Len(e.said("reservation.cancel"), 1, "the feed says the decision once")
-}
-
-// TestARowFromBeforeIsSaidAsItWasWritten: a reservation's event from before
-// Loft's events kept a message is said in the words it was written with, the
-// people it marks as they are called now (design 8.2).
-func TestARowFromBeforeIsSaidAsItWasWritten(t *testing.T) {
-	e := newEnv(t)
-	x := e.x
-	room := e.space("회의실", nil)
-	e.bookable(room, nil)
-	kim, kimParty := e.person("member")
-	r, err := e.reserve(kim, room, e.tomorrow(9, 0), e.tomorrow(10, 0), nil)
-	x.NoError(err)
-
-	// As one from before was written: no message, its sentence and what it
-	// named beside it, beneath the servers.
-	e.now = e.now.Add(time.Minute)
-	x.NoError(e.s.Ent.Event.Create().
-		SetId(pdid.New(pd.EventDomain).Uuid()).
-		SetTenantId(e.tenant.Uuid()).
-		SetKind("reservation.approve").
-		SetDesc("예약 승인: 회의 ({party})").
-		SetPayload("party=" + pdid.Id(idUUID(kimParty.GetId())).String()).
-		SetReason("").
-		SetSubjectId(idUUID(r.GetId())).
-		SetDateOccurred(e.now).
-		SetDateCreated(e.now).
-		SetDateUpdated(e.now).
-		Exec(context.Background()))
-	_, err = e.app().Party().Update(e.owner, app.PartyUpdateRequest_builder{Ref: ref[app.PartyRef](kimParty.GetId()), Name: "김 대리"}.Build())
-	x.NoError(err)
-
-	es := e.reservationTimeline(kim, r)
-	x.Equal([]string{"예약 승인: 회의 (김 대리)", "예약: 회의실 " + begins(r)}, summaries(es))
-	x.Equal("시스템", es[0].GetActor(), "it names nobody who did it")
-	x.Equal("김 대리", es[1].GetActor())
 }

@@ -23,11 +23,11 @@
     "custody.issue": "loft.CustodyIssued",
     "custody.overdue": "loft.CustodyOverdue",
     "custody.return": "loft.CustodyReturned",
-    "domain.activate": "loft.TenantDomainActivated",
-    "domain.add": "loft.TenantDomainAdded",
-    "domain.lapse": "loft.TenantDomainLapsed",
-    "domain.retire": "loft.TenantDomainRetired",
-    "domain.verify": "loft.TenantDomainVerified",
+    "domain.activate": "loft.DomainActivated",
+    "domain.add": "loft.DomainAdded",
+    "domain.lapse": "loft.DomainLapsed",
+    "domain.retire": "loft.DomainRetired",
+    "domain.verify": "loft.DomainVerified",
     "event.redact": "loft.EventRedacted",
     "invitation.accept": "loft.InvitationAccepted",
     "invitation.add": "loft.InvitationAdded",
@@ -86,12 +86,12 @@
         "kind": "bytes"
       },
       "2": {
-        "json": "from",
+        "json": "dateStart",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
       "3": {
-        "json": "to",
+        "json": "dateEnd",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -200,7 +200,7 @@
         "kind": "bool"
       },
       "11": {
-        "json": "validFrom",
+        "json": "dateStart",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       }
@@ -411,7 +411,7 @@
         "kind": "bytes"
       },
       "3": {
-        "json": "due",
+        "json": "dateDue",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       }
@@ -426,7 +426,7 @@
         "kind": "bytes"
       },
       "3": {
-        "json": "due",
+        "json": "dateDue",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -453,7 +453,7 @@
         "kind": "bytes"
       },
       "3": {
-        "json": "due",
+        "json": "dateDue",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -474,6 +474,101 @@
       "8": {
         "json": "to",
         "kind": "bytes"
+      }
+    },
+    "loft.DomainActivated": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      }
+    },
+    "loft.DomainAdded": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      },
+      "4": {
+        "json": "source",
+        "kind": "string"
+      }
+    },
+    "loft.DomainLapsed": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      },
+      "5": {
+        "json": "dateFailing",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "6": {
+        "json": "failures",
+        "kind": "uint32"
+      }
+    },
+    "loft.DomainRetired": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      },
+      "7": {
+        "json": "force",
+        "kind": "bool"
+      },
+      "8": {
+        "json": "labels",
+        "kind": "uint32"
+      }
+    },
+    "loft.DomainVerified": {
+      "1": {
+        "json": "domain",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "host",
+        "kind": "string"
+      },
+      "3": {
+        "json": "purpose",
+        "kind": "string"
+      },
+      "9": {
+        "json": "again",
+        "kind": "bool"
       }
     },
     "loft.EventRedacted": {
@@ -703,12 +798,12 @@
         "kind": "uint32"
       },
       "7": {
-        "json": "beginsAt",
+        "json": "dateStart",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
       "8": {
-        "json": "endsAt",
+        "json": "dateEnd",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -735,7 +830,7 @@
         "kind": "string"
       },
       "7": {
-        "json": "beginsAt",
+        "json": "dateStart",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -808,7 +903,7 @@
     },
     "loft.RetentionExpired": {
       "1": {
-        "json": "before",
+        "json": "dateBefore",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -933,101 +1028,6 @@
         "kind": "string"
       }
     },
-    "loft.TenantDomainActivated": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      }
-    },
-    "loft.TenantDomainAdded": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      },
-      "4": {
-        "json": "source",
-        "kind": "string"
-      }
-    },
-    "loft.TenantDomainLapsed": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      },
-      "5": {
-        "json": "failingSince",
-        "kind": "message",
-        "type": "google.protobuf.Timestamp"
-      },
-      "6": {
-        "json": "failures",
-        "kind": "uint32"
-      }
-    },
-    "loft.TenantDomainRetired": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      },
-      "7": {
-        "json": "force",
-        "kind": "bool"
-      },
-      "8": {
-        "json": "labels",
-        "kind": "uint32"
-      }
-    },
-    "loft.TenantDomainVerified": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      },
-      "9": {
-        "json": "again",
-        "kind": "bool"
-      }
-    },
     "loft.WorkOrderFinished": {
       "1": {
         "json": "workOrder",
@@ -1082,7 +1082,7 @@
         "kind": "string"
       },
       "2": {
-        "json": "destroy",
+        "json": "dateDestroy",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       }
@@ -1105,7 +1105,7 @@
         "kind": "uint32"
       },
       "7": {
-        "json": "keepFrom",
+        "json": "dateKeepEffective",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -1114,7 +1114,7 @@
         "kind": "uint32"
       },
       "9": {
-        "json": "accessKeepFrom",
+        "json": "dateAccessKeepEffective",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -1129,7 +1129,7 @@
     },
     "loft.WorkspaceImported": {
       "11": {
-        "json": "exportedAt",
+        "json": "dateExported",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -1165,11 +1165,6 @@
       "19": {
         "json": "reopened",
         "kind": "bool"
-      },
-      "20": {
-        "json": "left",
-        "kind": "uint32",
-        "map": "string"
       }
     },
     "loft.WorkspaceRestored": {

@@ -23,11 +23,35 @@ PostgreSQL로 띄우면 내장 roster를 쓰는 배포가 운영처럼 보이므
 
 - 체크아웃의 기본(`db.migrate: true`)은 `serve` 가 시작할 때 테이블을 맞춥니다.
 - 운영에서는 서버가 테이블을 직접 바꾸지 않습니다(`db.migrate: false`). 새 빌드를 띄우기 전에 `loft migrate` 로 테이블을 맞추고, 모양이 다르면 `serve` 는 시작하지 않습니다. 순서는 [운영자 안내서](../guide/operator.md#새-버전-올리기)에 있습니다.
-- 판마다 마이그레이션이 한 번 하는 일(옮기는 행, 짓는 인덱스, 멈추는 경우)은 [판을 올릴 때](../runbook/upgrade.md)에 있습니다. 행이 많은 표에 인덱스를 미리 짓는 법(`CREATE INDEX CONCURRENTLY`)과, 짓다 만 인덱스(`INVALID`)가 있으면 `loft migrate` 가 멈추는 것도 거기에 있습니다.
+- 어떤 판을 넘을 때 운영자가 한 번 할 일은 [판을 올릴 때](../runbook/upgrade.md)에 적습니다. 출시 전에는 이전 빌드의 데이터를 옮기지 않습니다(호환 세대가 바뀌면 스테이징을 처음부터 다시 만듭니다).
 
 ```sh
 loft migrate     # 이 빌드의 모양으로 테이블을 맞추고 끝남 ("the database is in this build's shape")
 ```
+
+### 행이 많은 표에 새 인덱스를 미리 짓기
+
+새 빌드가 선언한 인덱스는 `loft migrate` 가 만듭니다. 행이 있는 표에 인덱스를 만드는 동안 PostgreSQL은 그 표에 쓰기를 막습니다. payday가 잰 것으로는 감사 기록 100만 행에 7–9초, 접속기록 30만 행에 1–3초가 걸립니다(`audit_by_time`, `access_by_time`, payday#157). `Recreate` 로 올리는 배포([`deploy/k8s`](../../deploy/k8s/README.md))는 마이그레이션하는 동안 어차피 서비스가 내려가 있으므로 따로 할 일이 없습니다.
+
+- 그만큼 쓰기를 멈출 수 없는 큰 배포는 올리기 전에 같은 이름으로 미리 만들어 둡니다. 마이그레이션은 만들어 둔 인덱스를 그대로 둡니다. `CONCURRENTLY` 는 트랜잭션 밖에서 한 문장씩 실행합니다.
+
+  ```sql
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS audit_by_time ON audit (date_created, id);
+  ```
+
+- `CONCURRENTLY` 가 도중에 실패하면 그 이름의 인덱스가 쓸 수 없는(`INVALID`) 채로 남습니다. 쓰기마다 갱신되지만 어떤 읽기도 그 인덱스를 쓰지 않습니다. 다시 실행해도 `IF NOT EXISTS` 가 그것을 건너뜁니다. **`loft migrate` 는 스키마가 선언한 인덱스가 이렇게 남아 있으면 테이블을 맞추기 전에 멈춥니다(payday#176).** 멈추면서 인덱스와 표의 이름, 실행할 문장을 알려 줍니다. 그 문장을 트랜잭션 밖에서 한 문장씩 실행하고 `loft migrate` 를 다시 실행합니다. 짓고 있는 인덱스도 끝날 때까지는 `INVALID` 이므로, 짓는 중이면 끝난 뒤에 실행합니다.
+
+  ```sql
+  -- audit_by_time, on audit
+  DROP INDEX CONCURRENTLY public.audit_by_time;
+  CREATE INDEX CONCURRENTLY audit_by_time ON public.audit USING btree (date_created, id);
+  ```
+
+  - 만든 뒤 `\d <표>` 에 `INVALID` 가 없는지 먼저 보면 올리는 도중에 멈추지 않습니다.
+  - 마이그레이션이 직접 다시 만들지 않는 것은, 그러려면 쓰기를 막은 채 짓거나(미리 만든 이유가 없어집니다) 실패한 빌드만큼 오래 걸리고 같은 이유로 또 실패할 수 있는 빌드를 서버가 뜨기 전 단계에서 다시 돌려야 하기 때문입니다.
+  - `loft serve`(`db.migrate: false`)는 이런 인덱스를 경고로 남기고(`db: serving over an index PostgreSQL left invalid`) 그대로 뜹니다. 느려질 뿐인 인덱스 때문에 재시작이 장애가 되지 않게 하려는 것입니다.
+  - 스키마가 선언하지 않은 인덱스(직접 만든 인덱스, `REINDEX CONCURRENTLY` 가 남긴 `_ccnew`)는 멈추지 않고 경고만 남깁니다. `_ccnew` 는 지우기만 합니다.
+- 내장 roster의 DB(`auth.roster.db`)도 같습니다. 내장 roster는 열 때마다 자기 DB를 마이그레이션하므로, 그 기록도 크다면 같은 문장을 그 DB에서도 먼저 실행합니다. 그 DB의 인덱스가 `INVALID` 로 남으면 `loft migrate` 와 `loft serve` 가 모두 `embedded roster:` 로 시작하는 같은 안내와 함께 멈춥니다. 안내의 문장은 그 DB에서 실행합니다.
 
 ## 여러 대로 띄우려면
 

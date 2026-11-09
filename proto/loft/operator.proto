@@ -250,12 +250,9 @@ message OperatorTenantImportResponse {
   bool retired = 7;
   uint32 returned = 8;
 
-  // The rows put back, by table; the export's left behind, by a table this
-  // build has not, with why; the files put back, and the ones its rows name
-  // that the export did not have.
+  // The rows put back, by table; the files put back, and the ones its rows
+  // name that the export did not have.
   map<string, uint32> rows = 9;
-  map<string, uint32> left = 10;
-  map<string, string> left_why = 11;
   uint32 files = 12;
   repeated string missing = 13;
 
@@ -268,10 +265,8 @@ message OperatorTenantImportResponse {
   string manifest = 15;
   string key = 16;
 
-  // Once put back: the things out held from when they were handed over
-  // (D53), and what levyan grants it -- `copied`, or why it is copied at the
-  // next comparison; empty for a deployment that bills nobody.
-  uint32 held = 17;
+  // Once put back, what levyan grants it: `copied`, or why it is copied at
+  // the next comparison; empty for a deployment that bills nobody.
   string grants = 18;
 }
 
@@ -651,15 +646,16 @@ message OperatorRetentionTrail {
 }
 
 // OperatorIdentityService is who people are, which is roster's (design
-// 9.10): a deployment from before roster brought into it, an account leaving
+// 9.10): an account given to each member who names none, an account leaving
 // every workspace it is in, and every account asked about again.
 service OperatorIdentityService {
-  // Migrate brings the workspaces and people of a deployment from before
-  // roster into it, with their identifiers (D27): on the roster in this
-  // process, an account for every membership that names none, each with a
-  // password said once; for a roster of its own, what its operator makes
-  // there, and the ones made already linked. Run again it makes nothing. A
-  // message for each membership, and last what it came to.
+  // Migrate gives an account to every membership that names none, with the
+  // membership's identifier (D27) -- the members of a workspace restored from
+  // an export whose accounts this deployment's roster does not have: on the
+  // roster in this process, an account for each, with a password said once;
+  // for a roster of its own, what its operator makes there, and the ones
+  // made already linked. Run again it makes nothing. A message for each
+  // membership, and last what it came to.
   rpc Migrate(OperatorIdentityMigrateRequest) returns (stream OperatorIdentityMigrateResponse);
 
   // Depart is an account leaving every workspace it is in, now, rather than
@@ -710,8 +706,6 @@ message OperatorIdentityMigrated {
   uint32 todo = 5;
   // Everybody was given the password asked for.
   bool given = 6;
-  // The table the passwords from before roster were kept in, dropped.
-  bool dropped = 7;
 }
 
 message OperatorIdentityDepartRequest {

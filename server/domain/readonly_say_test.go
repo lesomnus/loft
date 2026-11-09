@@ -75,8 +75,7 @@ func TestAReadOnlyWorkspaceSaysNobodyCouldTakeUpWhatItLetGo(t *testing.T) {
 	x.Contains(said["request"], "읽기 전용이라 시작 전까지 승인할 수 없어")
 	x.NotContains(said["request"], "승인되지 않아")
 
-	// And the history says so as well, since the build before this one
-	// says it (D68, D70).
+	// And the history says so as well (D68, D70).
 	for _, ev := range e.eventsOf("reservation.expire") {
 		m := value[*app.ReservationReleased](e.env, ev)
 		x.Equal("readonly", m.GetWorkspace())

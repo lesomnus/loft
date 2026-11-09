@@ -5333,8 +5333,7 @@ type TimelineEntry_builder struct {
 	// fields (`loft/past.proto`): a row it names as the row is called now -- a
 	// person by their name, and nothing else of theirs -- or as its identifier
 	// where nothing names it, and a moment in the workspace's zone, as RFC 3339
-	// writes one. A row from before Loft's past was payday's is what its
-	// `payload` said.
+	// writes one.
 	Detail    map[string]string
 	EventId   []byte
 	EventKind string
@@ -13386,7 +13385,6 @@ func (x *AttachmentAddRequest) SetSha256(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Sha256 = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 9)
 }
 
 func (x *AttachmentAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
@@ -13407,13 +13405,6 @@ func (x *AttachmentAddRequest) HasTenant() bool {
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *AttachmentAddRequest) HasSha256() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
-}
-
 func (x *AttachmentAddRequest) HasDateCreated() bool {
 	if x == nil {
 		return false
@@ -13428,11 +13419,6 @@ func (x *AttachmentAddRequest) ClearId() {
 
 func (x *AttachmentAddRequest) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
-}
-
-func (x *AttachmentAddRequest) ClearSha256() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_Sha256 = nil
 }
 
 func (x *AttachmentAddRequest) ClearDateCreated() {
@@ -13467,10 +13453,7 @@ func (b0 AttachmentAddRequest_builder) Build() *AttachmentAddRequest {
 	x.xxx_hidden_ObjectKey = b.ObjectKey
 	x.xxx_hidden_SizeBytes = b.SizeBytes
 	x.xxx_hidden_ContentType = b.ContentType
-	if b.Sha256 != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 9)
-		x.xxx_hidden_Sha256 = b.Sha256
-	}
+	x.xxx_hidden_Sha256 = b.Sha256
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
 }
@@ -15734,8 +15717,8 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x06detail\x18\x05 \x03(\v2\x1b.loft.ReportRow.DetailEntryR\x06detail\x1a9\n" +
 	"\vDetailEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"$\n" +
-	"\x12AssetExportRequestJ\x04\b\x02\x10\x03R\btemplate\"u\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x14\n" +
+	"\x12AssetExportRequest\"u\n" +
 	"\x13AssetExportResponse\x12\x19\n" +
 	"\x04data\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\x12(\n" +
 	"\fcontent_type\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\vcontentType\x12\x19\n" +
@@ -15871,12 +15854,12 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x13DomainRetireRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.loft.DomainRefR\x03ref\x12\x1b\n" +
 	"\x05force\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\x05force\"\x15\n" +
-	"\x13DomainStatusRequest\"\xc8\x01\n" +
+	"\x13DomainStatusRequest\"\xa4\x01\n" +
 	"\x14DomainStatusResponse\x12$\n" +
 	"\x06active\x18\x02 \x01(\v2\f.loft.DomainR\x06active\x12\x1d\n" +
 	"\x06target\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06target\x12,\n" +
 	"\x0edefault_suffix\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\rdefaultSuffix\x12\x19\n" +
-	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04baseJ\x04\b\x01\x10\x02J\x04\b\x05\x10\x06R\x06labelsR\x0etenant_domains\"\x99\x03\n" +
+	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04base\"\x99\x03\n" +
 	"\x0fLabelAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12'\n" +
@@ -15982,7 +15965,7 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\x05label\x18\x01 \x01(\v2\v.loft.LabelR\x05label\x12!\n" +
 	"\x05asset\x18\x02 \x01(\v2\v.loft.AssetR\x05asset\"/\n" +
 	"\x12LabelLocateRequest\x12\x19\n" +
-	"\x04code\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04code\"\xdd\x02\n" +
+	"\x04code\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04code\"\xe4\x02\n" +
 	"\x14AttachmentAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
@@ -15994,8 +15977,8 @@ const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"size_bytes\x18\n" +
 	" \x01(\x04B\x05\xaa\x01\x02\b\x02R\tsizeBytes\x12(\n" +
-	"\fcontent_type\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\vcontentType\x12\x16\n" +
-	"\x06sha256\x18\f \x01(\fR\x06sha256\x12=\n" +
+	"\fcontent_type\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\vcontentType\x12\x1d\n" +
+	"\x06sha256\x18\f \x01(\fB\x05\xaa\x01\x02\b\x02R\x06sha256\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"m\n" +
 	"\x14AttachmentGetRequest\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.loft.AttachmentRefR\x03ref\x12.\n" +

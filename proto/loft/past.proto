@@ -56,15 +56,16 @@ option (payday.app) = {
 // words of whoever asked: nothing Loft says itself goes there.
 //
 // A row keeps its message as JSON and is read back by name for as long as the
-// workspace keeps its history, which is longer than any build. So a message
-// here is never removed, a field never removed or renamed in JSON, and a kind
-// never dropped nor moved to another message; `loft/payday/past.lock` holds
-// the schema to it. Adding is always fine -- a field, a kind a message takes,
-// a message -- and a kind ships one release before anything writes it, so
-// that the build before can say its rows. A field's name in the schema may
-// change, as every time Loft keeps became a `date_*` (D76): it keeps the JSON
-// name its rows were written under (`json_name`), which is what a row is read
-// back by, and the tables below say the name it has now.
+// workspace keeps its history, which is longer than any build. So from launch
+// a message here is never removed, a field never removed or renamed in JSON,
+// and a kind never dropped nor moved to another message;
+// `loft/payday/past.lock` holds the schema to it. Adding is always fine -- a
+// field, a kind a message takes, a message -- and a kind ships one release
+// before anything writes it, so that the build before can say its rows. Until
+// launch none of it is kept for an earlier build (the owner's decision,
+// 2026-11-09): such a change moves the compatibility epoch
+// (`.github/compat-epoch`), and the lock is written afresh from the schema
+// then. A field's name in the schema is its name in JSON.
 //
 // An identifier is the sixteen bytes of a `pdid`. A word out of a vocabulary
 // -- a status, a role -- is a string rather than an enum, whose names a row
@@ -252,7 +253,6 @@ option (payday.app) = {
 //   17  released       repeated string            -- the holds on addresses the restore took back
 //   18  unlinked       uint32                     -- how many rows were put back unlinked from what this deployment has
 //   19  reopened       bool                       -- it was put back open
-//   20  left           map<string, uint32>        -- what of each kind was left as this deployment had it
 //   21  name           string                     -- what it is called from then on; empty for no name of its own, and then after its owner
 //   22  expired        uint32                     -- how many of its reservations whose time passed while it was closed expired as it was restored
 //
@@ -379,7 +379,7 @@ message AssetCorrected {
   bytes row = 8;
   string key = 9;
   bool retract = 10;
-  google.protobuf.Timestamp date_start = 11 [json_name = "validFrom"];
+  google.protobuf.Timestamp date_start = 11;
 }
 
 // AssetVoided is an asset registered by mistake taken back (`asset.void`):
@@ -455,7 +455,7 @@ message CustodyIssued {
 
   bytes custody = 1;
   bytes party = 2;
-  google.protobuf.Timestamp date_due = 3 [json_name = "due"];
+  google.protobuf.Timestamp date_due = 3;
   string kind = 4;
   uint32 lines = 5;
   bytes reservation = 6;
@@ -475,7 +475,7 @@ message CustodyExtended {
   option (payday.event) = {kinds: "custody.extend"};
 
   bytes custody = 1;
-  google.protobuf.Timestamp date_due = 3 [json_name = "due"];
+  google.protobuf.Timestamp date_due = 3;
 }
 
 // CustodyOverdue is a loan found past its due with some of what it lent not
@@ -487,7 +487,7 @@ message CustodyOverdue {
   option (payday.event) = {kinds: "custody.overdue"};
 
   bytes custody = 1;
-  google.protobuf.Timestamp date_due = 3 [json_name = "due"];
+  google.protobuf.Timestamp date_due = 3;
   bytes asset = 7;
 }
 
@@ -581,8 +581,8 @@ message ReservationAdded {
   string status = 4;
   bytes party = 5;
   uint32 occurrences = 6;
-  google.protobuf.Timestamp date_start = 7 [json_name = "beginsAt"];
-  google.protobuf.Timestamp date_end = 8 [json_name = "endsAt"];
+  google.protobuf.Timestamp date_start = 7;
+  google.protobuf.Timestamp date_end = 8;
   bytes asset = 9;
   string asset_name = 10;
   bool override = 11;
@@ -634,9 +634,8 @@ message ReservationDecided {
 // (D64), or closed (D29) -- which says so (`workspace`): it was nobody's
 // doing. A confirmed one nobody could check in to or pick up then is no
 // no-show; it expired, as a hold nobody could confirm and a request nobody
-// could decide did (`from: confirmed`). Declared a release before anything
-// wrote either (design 7.14, D68): the sweeps write what they let go of
-// while the workspace is read-only, and its restore what passed its time
+// could decide did (`from: confirmed`). The sweeps write what they let go
+// of while the workspace is read-only, and its restore what passed its time
 // while it was closed, each the restore's child (design 7.15, D70). And
 // equipment nobody picked up by the end of its time, where the workspace
 // holds nobody to taking up what they booked -- it takes no check-ins -- is
@@ -692,16 +691,16 @@ message ReservationAllocationChanged {
 
   bytes reservation = 1;
   string name = 2;
-  google.protobuf.Timestamp date_start = 7 [json_name = "beginsAt"];
+  google.protobuf.Timestamp date_start = 7;
   bytes asset = 9;
   string asset_name = 10;
   bool override = 11;
   uint32 units = 14;
 }
 
-// TenantDomainAdded is a domain of the workspace's registered (`domain.add`):
+// DomainAdded is a domain of the workspace's registered (`domain.add`):
 // its own, or a default subdomain of the deployment's.
-message TenantDomainAdded {
+message DomainAdded {
   option (payday.event) = {kinds: "domain.add"};
 
   bytes domain = 1;
@@ -710,9 +709,9 @@ message TenantDomainAdded {
   string source = 4;
 }
 
-// TenantDomainVerified is a domain whose DNS checked out (`domain.verify`),
+// DomainVerified is a domain whose DNS checked out (`domain.verify`),
 // `again` when it had lapsed.
-message TenantDomainVerified {
+message DomainVerified {
   option (payday.event) = {kinds: "domain.verify"};
 
   bytes domain = 1;
@@ -721,9 +720,9 @@ message TenantDomainVerified {
   bool again = 9;
 }
 
-// TenantDomainActivated is a domain made the one the workspace is on and its
+// DomainActivated is a domain made the one the workspace is on and its
 // labels print with (`domain.activate`).
-message TenantDomainActivated {
+message DomainActivated {
   option (payday.event) = {kinds: "domain.activate"};
 
   bytes domain = 1;
@@ -731,9 +730,9 @@ message TenantDomainActivated {
   string purpose = 3;
 }
 
-// TenantDomainRetired is a domain stopped (`domain.retire`): `labels` is how
+// DomainRetired is a domain stopped (`domain.retire`): `labels` is how
 // many labels printed with it stopped opening, which `force` was said for.
-message TenantDomainRetired {
+message DomainRetired {
   option (payday.event) = {kinds: "domain.retire"};
 
   bytes domain = 1;
@@ -743,16 +742,16 @@ message TenantDomainRetired {
   uint32 labels = 8;
 }
 
-// TenantDomainLapsed is the active domain taken out of use by the deployment
+// DomainLapsed is the active domain taken out of use by the deployment
 // (`domain.lapse`): its DNS said no `failures` times running, from
 // `date_failing` (loft#155).
-message TenantDomainLapsed {
+message DomainLapsed {
   option (payday.event) = {kinds: "domain.lapse"};
 
   bytes domain = 1;
   string host = 2;
   string purpose = 3;
-  google.protobuf.Timestamp date_failing = 5 [json_name = "failingSince"];
+  google.protobuf.Timestamp date_failing = 5;
   uint32 failures = 6;
 }
 
@@ -999,7 +998,7 @@ message WorkspaceClosed {
   option (payday.event) = {kinds: "workspace.close"};
 
   string by = 1;
-  google.protobuf.Timestamp date_destroy = 2 [json_name = "destroy"];
+  google.protobuf.Timestamp date_destroy = 2;
 }
 
 // WorkspaceRestored is a closed workspace opened again
@@ -1008,8 +1007,7 @@ message WorkspaceClosed {
 // opened (`expired`, D70): a hold nobody could confirm, a request nobody
 // could decide, a booking nobody could check in to or pick up. Each is an
 // expiry of its own, the restore's child, which says the workspace was
-// closed. Declared a release before anything writes it (design 7.15): until
-// then a restore says none, and its children are what it let go of.
+// closed (design 7.15).
 message WorkspaceRestored {
   option (payday.event) = {kinds: "workspace.restore"};
 
@@ -1028,9 +1026,9 @@ message WorkspaceConfigured {
   string currency = 4 [features.field_presence = EXPLICIT];
   int32 no_show_minutes = 5 [features.field_presence = EXPLICIT];
   uint32 keep_days = 6 [features.field_presence = EXPLICIT];
-  google.protobuf.Timestamp date_keep_effective = 7 [json_name = "keepFrom"];
+  google.protobuf.Timestamp date_keep_effective = 7;
   uint32 access_keep_days = 8 [features.field_presence = EXPLICIT];
-  google.protobuf.Timestamp date_access_keep_effective = 9 [json_name = "accessKeepFrom"];
+  google.protobuf.Timestamp date_access_keep_effective = 9;
   uint32 restore_days = 10 [features.field_presence = EXPLICIT];
   string name = 21 [features.field_presence = EXPLICIT];
 }
@@ -1041,7 +1039,7 @@ message WorkspaceConfigured {
 message WorkspaceImported {
   option (payday.event) = {kinds: "workspace.import"};
 
-  google.protobuf.Timestamp date_exported = 11 [json_name = "exportedAt"];
+  google.protobuf.Timestamp date_exported = 11;
   string manifest = 12;
   string signed_by = 13;
   uint32 rows = 14;
@@ -1050,7 +1048,6 @@ message WorkspaceImported {
   repeated string released = 17;
   uint32 unlinked = 18;
   bool reopened = 19;
-  map<string, uint32> left = 20;
 }
 
 // AccessReviewed is a stretch of the workspace's access record looked over
@@ -1059,8 +1056,8 @@ message AccessReviewed {
   option (payday.event) = {kinds: "access.review"};
 
   bytes review = 1;
-  google.protobuf.Timestamp date_start = 2 [json_name = "from"];
-  google.protobuf.Timestamp date_end = 3 [json_name = "to"];
+  google.protobuf.Timestamp date_start = 2;
+  google.protobuf.Timestamp date_end = 3;
   uint32 calls = 4;
   uint32 downloads = 5;
   uint32 refused = 6;
@@ -1094,7 +1091,7 @@ message AttachmentAdded {
 message RetentionExpired {
   option (payday.event) = {kinds: "retention.expired"};
 
-  google.protobuf.Timestamp date_before = 1 [json_name = "before"];
+  google.protobuf.Timestamp date_before = 1;
   uint32 placements = 2;
   uint32 links = 3;
   uint32 stewardships = 4;

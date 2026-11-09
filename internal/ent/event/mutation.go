@@ -29,7 +29,6 @@ type Mutation struct {
 	cause_id      *uuid.UUID
 	value         **anypb.Any
 	desc          *string
-	payload       *string
 	clearedFields map[string]struct{}
 	exprs         map[string]sql.Querier
 	tenant        *uuid.UUID
@@ -384,27 +383,6 @@ func (m *Mutation) ResetDesc() {
 	delete(m.exprs, FieldDesc)
 }
 
-// SetPayload sets the "payload" field.
-func (m *Mutation) SetPayload(s string) {
-	m.payload = &s
-	delete(m.exprs, FieldPayload)
-}
-
-// Payload returns the value of the "payload" field in the mutation.
-func (m *Mutation) Payload() (r string, exists bool) {
-	v := m.payload
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetPayload resets all changes to the "payload" field.
-func (m *Mutation) ResetPayload() {
-	m.payload = nil
-	delete(m.exprs, FieldPayload)
-}
-
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -485,7 +463,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 12)
 	if m.kind != nil || m.exprs[FieldKind] != nil {
 		fields = append(fields, FieldKind)
 	}
@@ -518,9 +496,6 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.desc != nil || m.exprs[FieldDesc] != nil {
 		fields = append(fields, FieldDesc)
-	}
-	if m.payload != nil || m.exprs[FieldPayload] != nil {
-		fields = append(fields, FieldPayload)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -561,8 +536,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Value()
 	case FieldDesc:
 		return m.Desc()
-	case FieldPayload:
-		return m.Payload()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -694,16 +667,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDesc(v)
 		return nil
-	case FieldPayload:
-		v, ok := value.(string)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPayload(v)
-		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -758,8 +721,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetValue()
 	case FieldDesc:
 		m.ResetDesc()
-	case FieldPayload:
-		m.ResetPayload()
 	case FieldTenantId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	default:
@@ -812,9 +773,6 @@ func (m *Mutation) ExprFields() []string {
 	}
 	if _, ok := m.exprs[FieldDesc]; ok {
 		fields = append(fields, FieldDesc)
-	}
-	if _, ok := m.exprs[FieldPayload]; ok {
-		fields = append(fields, FieldPayload)
 	}
 	return fields
 }
@@ -941,9 +899,6 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldDesc:
 		m.ResetDesc()
-		return nil
-	case FieldPayload:
-		m.ResetPayload()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

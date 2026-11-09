@@ -128,14 +128,11 @@ spec:
         seccompProfile: { type: RuntimeDefault }
 
       # The tables brought into this build's shape, before anything serves.
-      # Only the databases: `loft migrate` opens no file and no trail, so none
-      # of the volumes are mounted here. And the key the trail's rows are
-      # digested with, alone: a row a migration rewrites beneath the servers
-      # is put on the trail with it, and the key is read only then -- a
-      # database with nothing of the kind to rewrite migrates without reading
-      # it. And the key a roster of its own is called with, as in the two
-      # below: the migration opens the configuration's roster as they do, and
-      # reads the key as it opens it.
+      # Only the databases: `loft migrate` opens no file, no trail and no key
+      # of the trail's, so none of the volumes are mounted here. But the key a
+      # roster of its own is called with, as in the two below: the migration
+      # opens the configuration's roster as they do, and reads the key as it
+      # opens it.
       initContainers:
         - name: migrate
           image: ghcr.io/lesomnus/loft
@@ -165,7 +162,6 @@ spec:
             capabilities: { drop: ["ALL"] }
           volumeMounts:
             - { name: config, mountPath: /etc/loft, readOnly: true }
-            - { name: digest, mountPath: /run/secrets/loft, readOnly: true }
             - { name: search, mountPath: /run/secrets/loft-search, readOnly: true }
             - { name: roster, mountPath: /run/secrets/loft-roster, readOnly: true }
             - { name: tmp, mountPath: /tmp }
@@ -282,10 +278,6 @@ spec:
         # rows are digested with, `digest.key`.
         - name: keys
           secret: { secretName: loft-checkpoints, defaultMode: 288 } # 0440: the pod's group reads it
-        # The digest's key alone, where `config.yaml` names it, for the
-        # migration: it signs nothing, so it is not handed the trail's key.
-        - name: digest
-          secret: { secretName: loft-checkpoints, items: [{ key: digest.key, path: digest.key }], defaultMode: 288 }
         # A file per operator, named as `admin.keys` names them.
         - name: operators
           secret: { secretName: loft-admin, defaultMode: 288 }

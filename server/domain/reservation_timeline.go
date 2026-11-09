@@ -89,9 +89,6 @@ func (s domainReservation) Timeline(ctx context.Context, req *app.ReservationTim
 	}
 
 	names := namer{t: t}
-	if err := names.before(byId, causeOf); err != nil {
-		return nil, err
-	}
 	rd := t.reading(&names)
 	held := details{n: &names, events: byId, say: rd.Say}
 	if err := held.read(evs); err != nil {
@@ -116,9 +113,7 @@ func (s domainReservation) Timeline(ctx context.Context, req *app.ReservationTim
 				e.SetCause(said)
 			}
 		}
-		if l, ok := names.legacies[v.Id.Uuid()]; ok && l.payload != "" {
-			e.SetDetail(decode(l.payload))
-		} else if d, err := held.of(v); err != nil {
+		if d, err := held.of(v); err != nil {
 			return nil, err
 		} else if len(d) > 0 {
 			e.SetDetail(d)

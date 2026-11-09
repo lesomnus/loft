@@ -68,15 +68,6 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 					slog.String("because", strings.Join(why, ", ")))
 			}
 
-			// A switch that is gone (loft#155): every workspace may have a
-			// domain of its own, and prints with it when one is active, so
-			// there is nothing for it to say. Said, so that a deployment that
-			// set it reads why its labels no longer wait for a domain.
-			if c.App.Labels.TenantDomains {
-				log.From(ctx).WarnContext(ctx, "labels: app.labels.tenant_domains is gone and is ignored: a workspace prints its labels with its active domain "+
-					"when it has one, and with app.public_url when it has none -- no workspace waits for a domain to have labels (loft#155)")
-			}
-
 			s, err := cmd.Build(ctx, *c)
 			if err != nil {
 				return err
@@ -111,11 +102,6 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 				// restart would be an outage until somebody had built it
 				// again. `loft migrate` is what refuses it (payday#176).
 				log.From(ctx).WarnContext(ctx, "db: serving over an index PostgreSQL left invalid", slog.Any("err", err))
-			}
-			if left, err := fromBeforeRoster(ctx, s); err != nil {
-				return err
-			} else if left {
-				log.From(ctx).WarnContext(ctx, "identity: this deployment's people are from before roster held them, and none of them can sign in until `loft identity migrate`")
 			}
 
 			l, err := net.Listen("tcp", c.Server.ListenAddr())

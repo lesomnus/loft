@@ -256,10 +256,6 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	for _, v := range more {
 		causeOf[v.Id.Uuid()] = v
 	}
-	if err := names.before(byId, causeOf); err != nil {
-		return nil, err
-	}
-
 	r := t.reading(&names)
 	held := details{n: &names, events: byId, say: r.Say}
 	if err := held.read(evs); err != nil {
@@ -308,11 +304,8 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 			e.SetCause(c)
 		}
 		e.SetCauseId(causeId(v))
-		// What it held: a row from before by its payload, one since by
-		// its message, with the names a person reads.
-		if l, ok := names.legacies[v.Id.Uuid()]; ok && l.payload != "" {
-			e.SetDetail(decode(l.payload))
-		} else if d, err := held.of(v); err != nil {
+		// What it held: its message, with the names a person reads.
+		if d, err := held.of(v); err != nil {
 			return nil, err
 		} else if len(d) > 0 {
 			e.SetDetail(d)
@@ -360,17 +353,6 @@ func entry(kind string, id uuid.UUID, from time.Time, to *time.Time, recorded ti
 		e.SetDateSuperseded(ts(*superseded))
 	}
 	return e
-}
-
-func decode(v string) map[string]string {
-	out := map[string]string{}
-	for _, line := range strings.Split(v, "\n") {
-		k, val, ok := strings.Cut(line, "=")
-		if ok {
-			out[k] = val
-		}
-	}
-	return out
 }
 
 func modeName(v string) string {

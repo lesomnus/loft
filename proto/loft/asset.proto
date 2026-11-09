@@ -192,14 +192,8 @@ message TagCounter {
 
 // Domain is a domain of a workspace's (design 9.9): one its whole app is on
 // (`app`), or one its QR labels print with (`label`). Only a workspace has
-// domains, so it is called what it is (D72); it was `TenantDomain`, which
-// `formerly` says (D77). So its rows, in `tenantdomain` in a database a build
-// before made, are moved onto `domain` before the migration looks for them
-// (`rename.Tables`, with `pd.TableRenames`), and the chunks of the trail's
-// archive labelled `tenant-domain` are this kind's. An export from before
-// still names the old table (`offboard.Renamed`). The events of its kinds keep
-// the messages they were written as, `TenantDomainAdded` and the rest: a
-// message of the past is never renamed.
+// domains, so it is called what it is (D72), and so are the messages of its
+// events, `DomainAdded` and the rest.
 message Domain {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -235,7 +229,7 @@ message Domain {
   // whether its TXT record still holds `token`, and whether it still points
   // here. `date_checked` is when it was last asked, and `failures` how many
   // answers in a row since `date_failing` said no -- one that said nothing,
-  // a timeout, is none. A domain whose DNS said no often enough for long
+  // a timeout, is none; 0 for a domain made, which no answer has said no to. A domain whose DNS said no often enough for long
   // enough lapses (`server/domain`'s sweep): `lapsed`, since `date_lapsed`,
   // and active again only once its TXT record verifies again.
   google.protobuf.Timestamp date_checked = 18 [(orm.field) = {nullable: true}];
@@ -258,7 +252,6 @@ message Domain {
   };
   option (payday.entity) = {
     domain: 24
-    formerly: [{message: "TenantDomain"}]
     list: {
       order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
       by: [{name: "ref"}, {name: "state"}, {name: "purpose"}]
@@ -350,7 +343,7 @@ message Attachment {
   string object_key = 9;
   uint64 size_bytes = 10;
   string content_type = 11;
-  bytes sha256 = 12 [(orm.field) = {default: ""}];
+  bytes sha256 = 12;
 
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];

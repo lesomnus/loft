@@ -45,7 +45,6 @@ message EventAddRequest {
   bytes cause_id = 18;
   google.protobuf.Any value = 19;
   string desc = 6 [features.field_presence = IMPLICIT];
-  string payload = 17 [features.field_presence = IMPLICIT];
 }
 
 message EventAddManyRequest {
@@ -81,7 +80,6 @@ message EventSelect {
   bool cause_id = 18;
   bool value = 19;
   bool desc = 6;
-  bool payload = 17;
 }
 
 message EventListRequest {
@@ -132,11 +130,6 @@ message EventRecentRequest {
   uint32 size = 1 [features.field_presence = IMPLICIT];
   // Only events whose kind starts with this: "asset.", "custody.".
   string kind = 2 [features.field_presence = IMPLICIT];
-  // Was `before`, a time to read on from: an operation over many things
-  // records them all at one instant, and a page that ended inside one went on
-  // past the rest of it.
-  reserved 3;
-  reserved before;
   // Also what an operation over many things did to each of them, which the
   // feed otherwise leaves under the operation (design D34).
   bool children = 4 [features.field_presence = IMPLICIT];

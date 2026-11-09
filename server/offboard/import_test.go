@@ -15,7 +15,6 @@ import (
 	"io"
 	"math"
 	"slices"
-	"strings"
 	"testing"
 	"time"
 
@@ -196,10 +195,9 @@ func cmpTenant(a, b *app.Tenant) []string {
 // resigned is an export as a deployment would have written it with `edit`
 // done -- its files edited, the files `edit` answers put in and the ones it
 // took out left out, every digest said again and the manifest signed again by
-// `k`, an Ed25519 key -- which is how an export of an earlier build is made by
-// this one. Each of `manifest` rewrites the manifest's bytes before they are
-// signed: what a build before named otherwise in it.
-func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Manifest, fs map[string][]byte) []string, manifest ...func([]byte) []byte) []byte {
+// `k`, an Ed25519 key -- which is how an export this build did not write is
+// made by this one.
+func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Manifest, fs map[string][]byte) []string) []byte {
 	t.Helper()
 	return rezip(t, b, func(fs map[string][]byte, order []string) []string {
 		var m offboard.Manifest
@@ -217,9 +215,6 @@ func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Man
 		}
 		mb, err := json.Marshal(m)
 		require.NoError(t, err)
-		for _, f := range manifest {
-			mb = f(mb)
-		}
 		der, err := x509.MarshalPKIXPublicKey(k.Public())
 		require.NoError(t, err)
 		sig, err := k.Sign(rand.Reader, append([]byte("loft export manifest\n"), mb...), crypto.Hash(0))
@@ -231,12 +226,10 @@ func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Man
 	})
 }
 
-// TestARestoreLeavesBehindWhatThisBuildDropped: an export from before a
-// table went (offboard.Dropped) is restored without its rows of it, and the
-// restore says how many it left behind, as its event does. One of a table
-// this build never had is refused as before: rows nothing can put back, of a
-// kind nobody decided to leave.
-func TestARestoreLeavesBehindWhatThisBuildDropped(t *testing.T) {
+// TestARestoreRefusesATableThisBuildHasNot: an export with rows of a table
+// this build does not have is refused, and nothing of it is put back: rows
+// nothing can put back, of a kind nobody decided to leave.
+func TestARestoreRefusesATableThisBuildHasNot(t *testing.T) {
 	key, _, err := trail.GenerateKey()
 	require.NoError(t, err)
 	k, err := trail.ParseKey(key)
@@ -246,52 +239,27 @@ func TestARestoreLeavesBehindWhatThisBuildDropped(t *testing.T) {
 	ctx := context.Background()
 	acme := e.tenant("acme")
 
-	before := e.rows(acme.id)
 	b := e.export(acme.id)
 	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
 	x.NoError(err)
 
-	// The export with two rows of `table` in it, as a build that had the
-	// table wrote it.
-	with := func(table string) []byte {
-		return resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
-			name := "rows/" + table + ".jsonl"
-			fs[name] = []byte(`{"day":"2026-10-01","metrics":{"assets.item":"2"}}` + "\n" + `{"day":"2026-10-02","metrics":{"assets.item":"2"}}` + "\n")
-			m.Rows[table] = 2
-			return []string{name}
-		})
-	}
-
-	_, err = e.restore(with("gadget"), offboard.ImportOptions{})
+	// The export with two rows of a table in it that this build has not.
+	with := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
+		name := "rows/gadget.jsonl"
+		fs[name] = []byte(`{"day":"2026-10-01","metrics":{"assets.item":"2"}}` + "\n" + `{"day":"2026-10-02","metrics":{"assets.item":"2"}}` + "\n")
+		m.Rows["gadget"] = 2
+		return []string{name}
+	})
+	_, err = e.restore(with, offboard.ImportOptions{})
 	x.ErrorIs(err, offboard.ErrFormat)
 	x.ErrorContains(err, "2 rows of gadget")
 	x.Empty(e.count(acme.id), "a restore that refused put something back")
-
-	x.Contains(offboard.Dropped, "usagesnapshot")
-	got, err := e.restore(with("usagesnapshot"), offboard.ImportOptions{})
-	x.NoError(err)
-	x.Equal(map[string]int{"usagesnapshot": 2}, got.Left)
-	x.NotContains(got.Rows, "usagesnapshot")
-	after := e.rows(acme.id)
-	for k := range before {
-		if k == "event" {
-			continue
-		}
-		x.Equal(before[k], after[k], "%s is not what was exported", k)
-	}
-
-	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
-	x.NoError(err)
-	x.Equal(map[string]uint32{"usagesnapshot": 2}, imported(t, ev).GetLeft())
 }
 
-// TestARestoreReadsATableUnderTheNameItHadThen (D72): an export from before
-// a table was renamed (offboard.Renamed) names its rows by the old name, and
-// a restore puts them back in the table they are in now -- the domains of an
-// export from before `TenantDomain` was `Domain` are the workspace's domains
-// again, and a label printed with one points at it still. Counted under the
-// table's name now, and left behind as nothing.
-func TestARestoreReadsATableUnderTheNameItHadThen(t *testing.T) {
+// TestATableWithNoFileIsRestoredWithNoRows: a table with no file in the
+// export has no rows in it, and the workspace is put back as the rest of it
+// says.
+func TestATableWithNoFileIsRestoredWithNoRows(t *testing.T) {
 	key, _, err := trail.GenerateKey()
 	require.NoError(t, err)
 	k, err := trail.ParseKey(key)
@@ -301,54 +269,37 @@ func TestARestoreReadsATableUnderTheNameItHadThen(t *testing.T) {
 	ctx := context.Background()
 	acme := e.tenant("acme")
 
-	now := time.Now().UTC().Truncate(time.Microsecond)
-	dom := pdid.New(pd.DomainDomain).Uuid()
-	x.NoError(e.s.Ent.Domain.Create().SetId(dom).SetTenantId(acme.id.Uuid()).
-		SetHost("assets.acme.example").SetPurpose("label").SetState("active").SetToken("loft-test").SetSource("custom").
-		SetDateUpdated(now).SetDateCreated(now).Exec(ctx))
-	label := pdid.New(pd.LabelDomain).Uuid()
-	x.NoError(e.s.Ent.Label.Create().SetId(label).SetTenantId(acme.id.Uuid()).SetState("new").SetBatch("b1").SetDomainId(dom).
-		SetDateUpdated(now).SetDateCreated(now).Exec(ctx))
-
 	before := e.rows(acme.id)
-	x.Len(before["domain"], 1)
+	x.NotContains(before, "label", "the workspace has a label to lose")
 	b := e.export(acme.id)
 	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
 	x.NoError(err)
 
-	x.Equal("domain", offboard.Renamed["tenantdomain"])
-	earlier := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
-		fs["rows/tenantdomain.jsonl"] = fs["rows/domain.jsonl"]
-		delete(fs, "rows/domain.jsonl")
-		m.Rows["tenantdomain"] = m.Rows["domain"]
-		delete(m.Rows, "domain")
-		return []string{"rows/tenantdomain.jsonl"}
+	without := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
+		x.Contains(fs, "rows/label.jsonl")
+		delete(fs, "rows/label.jsonl")
+		delete(m.Rows, "label")
+		return nil
 	})
-
-	got, err := e.restore(earlier, offboard.ImportOptions{})
+	got, err := e.restore(without, offboard.ImportOptions{})
 	x.NoError(err)
-	x.Equal(1, got.Rows["domain"])
-	x.NotContains(got.Rows, "tenantdomain")
-	x.Empty(got.Left)
+	x.NotContains(got.Rows, "label")
 	after := e.rows(acme.id)
+	x.NotContains(after, "label")
 	for k := range before {
 		if k == "event" {
 			continue
 		}
 		x.Equal(before[k], after[k], "%s is not what was exported", k)
 	}
-	l, err := e.s.Ent.Label.Get(ctx, label)
-	x.NoError(err)
-	x.Equal(dom, l.DomainId)
 }
 
-// TestARestoreReadsAnExportOfTheFormatBefore (D76): an export a build before
-// wrote, `loft-export/1`, names a field by the name it had then -- a
-// placement's `validFrom`, a hand-over's `issuedAt` -- and a restore reads it
-// under the name it has now, and puts back what was exported. One of this
-// build's format names every field as this build does, and a field by its
-// name before is no field of it.
-func TestARestoreReadsAnExportOfTheFormatBefore(t *testing.T) {
+// TestARestoreReadsThisBuildsFormatAlone: an export says in its manifest what
+// format it is, and a restore reads this build's alone ([offboard.Format]).
+// One that says another -- an earlier build's, `loft-export/1` -- is refused,
+// and nothing of it is put back: until launch nothing is kept for an earlier
+// build (the owner's decision, 2026-11-09).
+func TestARestoreReadsThisBuildsFormatAlone(t *testing.T) {
 	key, _, err := trail.GenerateKey()
 	require.NoError(t, err)
 	k, err := trail.ParseKey(key)
@@ -358,92 +309,22 @@ func TestARestoreReadsAnExportOfTheFormatBefore(t *testing.T) {
 	ctx := context.Background()
 	acme := e.tenant("acme")
 
-	before := e.rows(acme.id)
 	b := e.export(acme.id)
 	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
 	x.NoError(err)
 
 	x.Equal("loft-export/2", offboard.Format)
-	x.Equal([]string{"loft-export/1", offboard.Format}, offboard.Formats)
-
-	// What the build before wrote: each field renamed since under the name
-	// it had then, as JSON writes it.
-	camel := func(v string) string {
-		parts := strings.Split(v, "_")
-		for i := 1; i < len(parts); i++ {
-			parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
-		}
-		return strings.Join(parts, "")
-	}
-	then := func(files map[string][]byte) int {
-		n := 0
-		for _, c := range slices.Concat(pd.ColumnRenames, offboard.RenamedColumns) {
-			name := "rows/" + c.Table + ".jsonl"
-			lines := bytes.Split(bytes.TrimSpace(files[name]), []byte("\n"))
-			for i, line := range lines {
-				if len(line) == 0 {
-					continue
-				}
-				row := map[string]json.RawMessage{}
-				x.NoError(json.Unmarshal(line, &row))
-				v, ok := row[camel(c.To)]
-				if !ok {
-					continue
-				}
-				delete(row, camel(c.To))
-				row[camel(c.From)] = v
-				lines[i], err = json.Marshal(row)
-				x.NoError(err)
-				n++
-			}
-			if _, ok := files[name]; ok {
-				files[name] = append(bytes.Join(lines, []byte("\n")), '\n')
-			}
-		}
-		return n
-	}
-	moved := 0
-	var taken time.Time
 	earlier := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
 		m.Format = "loft-export/1"
-		taken = m.DateExported
-		x.Contains(string(fs["rows/placement.jsonl"]), `"dateStart"`, "this build's export names a field as this build does")
-		moved = then(fs)
-		x.Contains(string(fs["rows/placement.jsonl"]), `"validFrom"`)
-		x.Contains(string(fs["rows/custody.jsonl"]), `"issuedAt"`)
-		x.Contains(string(fs["rows/custodyline.jsonl"]), `"outAt"`)
-		return nil
-	}, func(mb []byte) []byte {
-		// And when it was taken, as its manifest said it then.
-		return bytes.Replace(mb, []byte(`"date_exported"`), []byte(`"exported_at"`), 1)
-	})
-	x.Positive(moved)
-	x.False(taken.IsZero())
-
-	got, err := e.restore(earlier, offboard.ImportOptions{})
-	x.NoError(err)
-	x.Positive(got.Rows["placement"])
-	after := e.rows(acme.id)
-	for k := range before {
-		if k == "event" {
-			continue
-		}
-		x.Equal(before[k], after[k], "%s is not what was exported", k)
-	}
-	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
-	x.NoError(err)
-	x.True(taken.Equal(imported(t, ev).GetDateExported().AsTime()), "when the export was taken, as its manifest said it")
-
-	// And of this build's format, a field by its name before is no field.
-	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
-	x.NoError(err)
-	now := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
-		then(fs)
 		return nil
 	})
-	_, err = e.restore(now, offboard.ImportOptions{})
+	_, err = e.restore(earlier, offboard.ImportOptions{})
 	x.ErrorIs(err, offboard.ErrFormat)
-	x.Empty(e.count(acme.id))
+	x.Empty(e.count(acme.id), "a restore that refused put something back")
+
+	got, err := e.restore(b, offboard.ImportOptions{})
+	x.NoError(err)
+	x.Positive(got.Total())
 }
 
 // TestARestoreTakesOnlyWhatTheDeploymentWrote: an export with no signature,

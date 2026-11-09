@@ -86,6 +86,9 @@ func (_m *CliLogin) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field secret", values[i])
 			} else if value != nil {
 				_m.Secret = *value
+				if _m.Secret == nil {
+					_m.Secret = []byte{}
+				}
 			}
 		case clilogin.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -123,6 +126,9 @@ func (_m *CliLogin) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field grant", values[i])
 			} else if value != nil {
 				_m.Grant = *value
+				if _m.Grant == nil {
+					_m.Grant = []byte{}
+				}
 			}
 		case clilogin.FieldState:
 			if value, ok := values[i].(*sql.NullString); !ok {

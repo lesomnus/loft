@@ -177,7 +177,7 @@ func (s domainDomain) Add(ctx context.Context, req *app.DomainAddRequest) (*app.
 			row.SetState(domainPending)
 		}
 
-		if err := t.begin(nil, "domain.add", pdid.Nil, t.now, "", app.TenantDomainAdded_builder{
+		if err := t.begin(nil, "domain.add", pdid.Nil, t.now, "", app.DomainAdded_builder{
 			Domain:  row.GetId(),
 			Host:    row.GetHost(),
 			Purpose: row.GetPurpose(),
@@ -346,7 +346,7 @@ func (s domainDomain) Verify(ctx context.Context, req *app.DomainVerifyRequest) 
 // none. One left ready for a person to switch to tells whoever may, when
 // `tell`.
 func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.Domain, error) {
-	if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, "", app.TenantDomainVerified_builder{
+	if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, "", app.DomainVerified_builder{
 		Domain:  id,
 		Host:    host,
 		Purpose: purpose,
@@ -405,7 +405,7 @@ func (s domainDomain) Activate(ctx context.Context, req *app.DomainActivateReque
 		default:
 			return failed("%s은(는) 아직 확인되지 않았습니다. 확인된 도메인만 쓸 수 있습니다", v.GetHost())
 		}
-		if err := t.begin(nil, "domain.activate", pdid.Nil, t.now, "", app.TenantDomainActivated_builder{
+		if err := t.begin(nil, "domain.activate", pdid.Nil, t.now, "", app.DomainActivated_builder{
 			Domain:  v.GetId(),
 			Host:    v.GetHost(),
 			Purpose: v.GetPurpose(),
@@ -434,7 +434,7 @@ func (s domainDomain) Retire(ctx context.Context, req *app.DomainRetireRequest) 
 		if n > 0 && !req.GetForce() {
 			return failed("%s로 인쇄된 라벨 %d장이 더 이상 열리지 않게 됩니다. 그래도 중지하려면 강제로 중지하세요", v.GetHost(), n)
 		}
-		if err := t.begin(nil, "domain.retire", pdid.Nil, t.now, "", app.TenantDomainRetired_builder{
+		if err := t.begin(nil, "domain.retire", pdid.Nil, t.now, "", app.DomainRetired_builder{
 			Domain:  v.GetId(),
 			Host:    v.GetHost(),
 			Purpose: v.GetPurpose(),

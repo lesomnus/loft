@@ -833,14 +833,8 @@ func (b0 TagCounter_builder) Build() *TagCounter {
 
 // Domain is a domain of a workspace's (design 9.9): one its whole app is on
 // (`app`), or one its QR labels print with (`label`). Only a workspace has
-// domains, so it is called what it is (D72); it was `TenantDomain`, which
-// `formerly` says (D77). So its rows, in `tenantdomain` in a database a build
-// before made, are moved onto `domain` before the migration looks for them
-// (`rename.Tables`, with `pd.TableRenames`), and the chunks of the trail's
-// archive labelled `tenant-domain` are this kind's. An export from before
-// still names the old table (`offboard.Renamed`). The events of its kinds keep
-// the messages they were written as, `TenantDomainAdded` and the rest: a
-// message of the past is never renamed.
+// domains, so it is called what it is (D72), and so are the messages of its
+// events, `DomainAdded` and the rest.
 type Domain struct {
 	state                        protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id                []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -1189,7 +1183,7 @@ type Domain_builder struct {
 	// whether its TXT record still holds `token`, and whether it still points
 	// here. `date_checked` is when it was last asked, and `failures` how many
 	// answers in a row since `date_failing` said no -- one that said nothing,
-	// a timeout, is none. A domain whose DNS said no often enough for long
+	// a timeout, is none; 0 for a domain made, which no answer has said no to. A domain whose DNS said no often enough for long
 	// enough lapses (`server/domain`'s sweep): `lapsed`, since `date_lapsed`,
 	// and active again only once its TXT record verifies again.
 	DateChecked *timestamppb.Timestamp
@@ -1867,7 +1861,7 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\n" +
 	"\x06prefix\x10\b0\x01\x8a\xbb\x16\xb4\x01\b1B\x02\n" +
 	"\x00R\xab\x01\x12\xa8\x01\n" +
-	"\xa5\x01the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to\"\xcd\a\n" +
+	"\xa5\x01the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to\"\xbc\a\n" +
 	"\x06Domain\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -1887,11 +1881,11 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\fdate_failing\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateFailing\x12C\n" +
 	"\vdate_lapsed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
 	"dateLapsed\x12R\n" +
-	"\x13date_redirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x11dateRedirectUntil:\x89\x01\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\x13date_redirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x11dateRedirectUntil:y\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x8a\xbb\x16O\b\x1829\n" +
+	"\x02id\x10\x01\x8a\xbb\x16?\b\x1829\n" +
 	"\x10\n" +
 	"\x0e\n" +
 	"\fdate_created\n" +
@@ -1900,8 +1894,7 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\x02id\x1a\x05\n" +
 	"\x03ref\x1a\a\n" +
 	"\x05state\x1a\t\n" +
-	"\apurpose 2(d:\x00Z\x0e\n" +
-	"\fTenantDomain\"\xf9\x05\n" +
+	"\apurpose 2(d:\x00\"\xf9\x05\n" +
 	"\x05Label\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12,\n" +
@@ -1935,7 +1928,7 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\n" +
 	"subject_id\x1a\a\n" +
 	"\x05state\x1a\a\n" +
-	"\x05batch d(\xf4\x03:\x00\"\xfe\x04\n" +
+	"\x05batch d(\xf4\x03:\x00\"\xf5\x04\n" +
 	"\n" +
 	"Attachment\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
@@ -1948,8 +1941,8 @@ const file_loft_asset_proto_rawDesc = "" +
 	"\n" +
 	"size_bytes\x18\n" +
 	" \x01(\x04R\tsizeBytes\x12!\n" +
-	"\fcontent_type\x18\v \x01(\tR\vcontentType\x12\x1f\n" +
-	"\x06sha256\x18\f \x01(\fB\a\xea\x82\x16\x03\x82\x01\x00R\x06sha256\x12F\n" +
+	"\fcontent_type\x18\v \x01(\tR\vcontentType\x12\x16\n" +
+	"\x06sha256\x18\f \x01(\fR\x06sha256\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +

@@ -1,7 +1,6 @@
 package domain_test
 
 import (
-	"context"
 	"strings"
 	"testing"
 	"time"
@@ -12,7 +11,6 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/server/domain"
-	"github.com/lesomnus/loft/server/pd"
 )
 
 // detailOf is what the newest event of `kind` on an asset's timeline holds,
@@ -26,11 +24,10 @@ func detailOf(es []*app.TimelineEntry, kind string) map[string]string {
 	return nil
 }
 
-// TestAnEventsDetailIsWhatItHeld: an event since Loft's events kept a message
-// (payday#151) is detailed on a timeline by that message, field by field
-// under the names its domain's table gives them, in the words a person reads
-// -- what a row from before kept in its payload, which it is detailed by
-// still. A row is named as it is called now: a person by name, and on the
+// TestAnEventsDetailIsWhatItHeld: an event is detailed on a timeline by the
+// message it keeps (payday#151), field by field under the names its domain's
+// table gives them, in the words a person reads. A row is named as it is
+// called now: a person by name, and on the
 // access record of the call for it, whatever the sentence says; an asset by
 // its tag and name; any other row by its own name, through the wall; and a
 // row with no name of its own by its identifier. A moment is the workspace's
@@ -39,7 +36,6 @@ func detailOf(es []*app.TimelineEntry, kind string) map[string]string {
 func TestAnEventsDetailIsWhatItHeld(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
-	ctx := context.Background()
 
 	store := e.space("창고", nil)
 	laptop := e.item("노트북", "NB-1", nil, 24*time.Hour)
@@ -145,20 +141,4 @@ func TestAnEventsDetailIsWhatItHeld(t *testing.T) {
 			x.NotContains(s, "010-1234-5678", "%s %s", en.GetEventKind(), k)
 		}
 	}
-
-	// A row from before keeps no message, and is detailed by the payload it
-	// was written with, as it was.
-	q := e.s.Ent.Event.Create().
-		SetId(pdid.New(pd.EventDomain).Uuid()).
-		SetTenantId(e.tenant.Uuid()).
-		SetKind("asset.relate").
-		SetDesc("NB-1 연결 K-1 (member_of)").
-		SetPayload("kind=member_of\ntarget=K-1").
-		SetReason("").
-		SetSubjectId(idUUID(laptop.GetId())).
-		SetDateOccurred(e.now).
-		SetDateCreated(e.now).
-		SetDateUpdated(e.now)
-	x.NoError(q.Exec(ctx))
-	x.Equal(map[string]string{"kind": "member_of", "target": "K-1"}, detailOf(e.timeline(laptop, false), "asset.relate"))
 }

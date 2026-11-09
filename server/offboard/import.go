@@ -5,12 +5,10 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
-	"maps"
 	"reflect"
 	"slices"
 	"strings"
@@ -80,10 +78,6 @@ type Restored struct {
 	Returned int
 
 	Rows map[string]int
-
-	// Left is the rows of the export's that were not put back, by a table this
-	// build no longer has ([Dropped]): an export from before the table went.
-	Left map[string]int
 
 	// Files is the stored files put back, and Missing the ones its rows name
 	// that the export did not have -- missing from the store it came from
@@ -162,17 +156,8 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, err
 	}
 
-	// An export of a format before this build's may name a field by the name
-	// an earlier build stored it under: read under the name it has now.
-	old := m.Format != Format
 	t := &app.Tenant{}
-	tb := m.Tenant
-	if old {
-		if tb, err = renames(tb, renamed("tenant", t.ProtoReflect().Descriptor())); err != nil {
-			return out, fmt.Errorf("%w: its tenant: %v", ErrFormat, err)
-		}
-	}
-	if err := protojson.Unmarshal(tb, t); err != nil {
+	if err := protojson.Unmarshal(m.Tenant, t); err != nil {
 		return out, fmt.Errorf("%w: its tenant: %v", ErrFormat, err)
 	}
 	tid, err := keyOf(t.GetId())
@@ -212,24 +197,12 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		plans = append(plans, p)
 	}
 	// Rows of a table this build does not have are rows it cannot put back,
-	// and a restore that left them out would say it was all of it -- but for
-	// a table this build dropped, whose rows it leaves behind and says so.
+	// and a restore that left them out would say it was all of it.
 	for name, n := range m.Rows {
-		// Rows of a table renamed since are rows of the table it is now.
-		is := name
-		if v, ok := Renamed[name]; ok {
-			is = v
-		}
-		if n == 0 || slices.ContainsFunc(plans, func(p *plan) bool { return p.table == is }) {
+		if n == 0 || slices.ContainsFunc(plans, func(p *plan) bool { return p.table == name }) {
 			continue
 		}
-		if _, ok := Dropped[name]; !ok {
-			return out, fmt.Errorf("%w: it has %d rows of %s, which this build does not have", ErrFormat, n, name)
-		}
-		if out.Left == nil {
-			out.Left = map[string]int{}
-		}
-		out.Left[name] = n
+		return out, fmt.Errorf("%w: it has %d rows of %s, which this build does not have", ErrFormat, n, name)
 	}
 
 	// Taken back by the trail first, if it retired from here: outside the
@@ -289,7 +262,7 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	// address the restore took back, erased past the servers here.
 	restored := append([]pdid.Id{out.Tenant}, releasedHolds...)
 	for _, p := range plans {
-		n, err := d.restore(ctx, db, z, p, tid, old, &out, &restored)
+		n, err := d.restore(ctx, db, z, p, tid, &out, &restored)
 		if err != nil {
 			return out, err
 		}
@@ -319,10 +292,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	// written, and cannot, in a workspace with nobody in it to have done it
 	// (payday#151). Its message is what it holds; it keeps no sentence.
 	now := d.now().UTC().Truncate(time.Microsecond)
-	left := map[string]uint32{}
-	for k, n := range out.Left {
-		left[k] = uint32(n)
-	}
 	value, err := anypb.New(app.WorkspaceImported_builder{
 		DateExported: timestamppb.New(m.DateExported),
 		Manifest:     out.Manifest,
@@ -333,7 +302,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		Released:     out.Released,
 		Unlinked:     uint32(len(out.Unlinked)),
 		Reopened:     out.Reopened,
-		Left:         left,
 	}.Build())
 	if err != nil {
 		return out, fmt.Errorf("the restore's event: %w", err)
@@ -346,7 +314,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		SetValue(value).
 		SetDesc("").
 		SetReason("").
-		SetPayload("").
 		SetDateOccurred(now).
 		SetDateCreated(now).
 		SetDateUpdated(now)
@@ -485,37 +452,17 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 const Imported = "loft.workspace.import"
 
 // restore writes back every row of one table the export has, as it was. A
-// row of an export of a format before this build's (`old`) is read with each
-// field it names by a name an earlier build stored it under moved to the name
-// it has now ([renamed]).
-func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, old bool, out *Restored, restored *[]pdid.Id) (int, error) {
+// table with no file in the export has no rows in it.
+func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, out *Restored, restored *[]pdid.Id) (int, error) {
 	name := p.table
 	f, err := z.Open("rows/" + name + ".jsonl")
 	if errors.Is(err, fs.ErrNotExist) {
-		// Made before the table was renamed, its rows are under the name it
-		// had then ([Renamed]): what a row of it says is what it said, by the
-		// same fields.
-		for _, was := range formerly(p.table) {
-			if f, err = z.Open("rows/" + was + ".jsonl"); !errors.Is(err, fs.ErrNotExist) {
-				name = was
-				break
-			}
-		}
-	}
-	if errors.Is(err, fs.ErrNotExist) {
-		// A table the deployment that wrote it did not have yet, which had
-		// no rows there.
 		return 0, nil
 	}
 	if err != nil {
 		return 0, err
 	}
 	defer f.Close()
-
-	var was map[string]string
-	if old {
-		was = renamed(p.table, p.msg.Descriptor())
-	}
 
 	n := 0
 	batch := make([]protoreflect.Message, 0, p.chunk)
@@ -538,11 +485,6 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 			continue
 		}
 		n++
-		if len(was) > 0 {
-			if line, err = renames(line, was); err != nil {
-				return n, fmt.Errorf("%w: rows/%s.jsonl, line %d: %v", ErrFormat, name, n, err)
-			}
-		}
 		v := p.msg.New()
 		if err := protojson.Unmarshal(line, v.Interface()); err != nil {
 			return n, fmt.Errorf("%w: rows/%s.jsonl, line %d: %v", ErrFormat, name, n, err)
@@ -569,89 +511,6 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 		return n, fmt.Errorf("rows/%s.jsonl: %w", name, err)
 	}
 	return n, flush()
-}
-
-// renamed is what a row of `table`, whose message is `md`, may name a field by
-// in an export of a format before this build's: the name an earlier build
-// stored it under ([RenamedColumns], and payday's own, `pd.ColumnRenames`), as
-// JSON writes it and as the schema said it, and the field's name in JSON now.
-// A rename that is no field of the message names none.
-func renamed(table string, md protoreflect.MessageDescriptor) map[string]string {
-	out := map[string]string{}
-	for _, c := range slices.Concat(RenamedColumns, pd.ColumnRenames) {
-		if c.Table != table {
-			continue
-		}
-		f := md.Fields().ByName(protoreflect.Name(c.To))
-		if f == nil {
-			continue
-		}
-		out[jsonName(c.From)] = f.JSONName()
-		out[c.From] = f.JSONName()
-	}
-	return out
-}
-
-// jsonName is the name protobuf's JSON gives a field of `name` that says no
-// other: lowerCamelCase, as `valid_from` is `validFrom`.
-func jsonName(name string) string {
-	var b strings.Builder
-	up := false
-	for _, r := range name {
-		if r == '_' {
-			up = true
-			continue
-		}
-		if up {
-			r = unicode.ToUpper(r)
-		}
-		b.WriteRune(r)
-		up = false
-	}
-	return b.String()
-}
-
-// renames is the JSON object `b` with each field it names by a key of `as`
-// named by its value instead: a row of an export before a rename, read as
-// this build names its fields. One that names a field by both its names says
-// two things of one field, and is refused.
-func renames(b []byte, as map[string]string) ([]byte, error) {
-	if len(as) == 0 {
-		return b, nil
-	}
-	var row map[string]json.RawMessage
-	if err := json.Unmarshal(b, &row); err != nil {
-		return nil, err
-	}
-	moved := false
-	for was, is := range as {
-		v, ok := row[was]
-		if !ok {
-			continue
-		}
-		if _, both := row[is]; both {
-			return nil, fmt.Errorf("%s is said twice, as %s and as %s", is, was, is)
-		}
-		delete(row, was)
-		row[is] = v
-		moved = true
-	}
-	if !moved {
-		return b, nil
-	}
-	return json.Marshal(row)
-}
-
-// formerly is the names an earlier build had `table` under ([Renamed]), in
-// order.
-func formerly(table string) []string {
-	out := []string{}
-	for _, was := range slices.Sorted(maps.Keys(Renamed)) {
-		if Renamed[was] == table {
-			out = append(out, was)
-		}
-	}
-	return out
 }
 
 // adjusts is what a restore makes of a row of a table, beside writing it as

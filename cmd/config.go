@@ -616,12 +616,6 @@ type LabelConfig struct {
 	Suffix string `yaml:"suffix"`
 	// Target is what a custom domain's CNAME points at.
 	Target string `yaml:"target"`
-	// TenantDomains is gone (loft#155): every tenant may have a domain of its
-	// own, prints with it when it has one active, and with this deployment's
-	// own address otherwise -- so there is nothing to switch. Read only to
-	// say so where the process comes up, rather than to refuse a file
-	// written for a build before.
-	TenantDomains bool `yaml:"tenant_domains"`
 }
 
 // Default is the suffix a workspace is given a default label host under when

@@ -312,11 +312,6 @@ message PartyMeResponse {
   Tenant tenant = 3;
   string role = 4 [features.field_presence = IMPLICIT];
 
-  // Were where the tenant's view window began, and how many days back: what
-  // is kept is what is seen now (D36).
-  reserved 5, 6;
-  reserved history_since, history_days;
-
   // Whether logins and passwords are made and changed here -- the roster in
   // this process -- or at a roster of its own, by whoever administers the
   // tenant there (design 9.10).

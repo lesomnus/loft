@@ -113,10 +113,11 @@ func TestARoleFromBeforeTheLedgerIsSaidSoAndThenUsed(t *testing.T) {
 	}, 10*time.Second, 50*time.Millisecond)
 }
 
-// TestARoleFromBeforeTheLedgerIsWidenedInThisProcess: the roster in this
-// process is Loft's own, so a role an older Loft wrote there is widened to
-// what this one asks the next time it starts, ledger and all.
-func TestARoleFromBeforeTheLedgerIsWidenedInThisProcess(t *testing.T) {
+// TestTheRoleInThisProcessCarriesWhatThisBuildAsks: the roster in this
+// process is Loft's own, so Loft's role there carries every method this build
+// asks: one that carries fewer -- the ledger's left out here -- is widened
+// the next time a process starts.
+func TestTheRoleInThisProcessCarriesWhatThisBuildAsks(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
 	drv, dsn := pdtest.DB(t)
@@ -143,13 +144,13 @@ func TestARoleFromBeforeTheLedgerIsWidenedInThisProcess(t *testing.T) {
 		x.NoError(err)
 		return r
 	}
-	older := slices.DeleteFunc(slices.Clone(AgentMethods), func(m string) bool {
+	fewer := slices.DeleteFunc(slices.Clone(AgentMethods), func(m string) bool {
 		return strings.HasPrefix(m, "/roster.ConsentService/")
 	})
 	own, cancel := unframed(ctx)
 	_, err = before.em.rs.Ungated.Role().Patch(own, rstr.RolePatchRequest_builder{
 		Ref:              rstr.RoleRef_builder{Id: role(before).GetId()}.Build(),
-		Methods:          older,
+		Methods:          fewer,
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
 	cancel()

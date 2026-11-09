@@ -97,10 +97,6 @@ message Party {
   };
 }
 
-// Domain 37 was `Credential`, a holder's password, until roster held them
-// (design 9.10). It is not for another entity: an identifier in the trail of a
-// deployment from before says what it named.
-
 // Session is a signed-in browser, and what it names is an account rather than a
 // membership: one sign-in reaches every workspace the account belongs to, and
 // which one a request is about is the request's to say (design 9.11). So it is
@@ -124,11 +120,8 @@ message Session {
   // The account signed in: a holder at roster, in this deployment's
   // directory.
   bytes account = 8 [(orm.field) = {type: TYPE_UUID}];
-  bytes secret = 9 [
-    (orm.field) = {default: ""},
-    (payday.field) = {secret: true}
-  ];
-  bytes grant = 10 [(orm.field) = {default: ""}];
+  bytes secret = 9 [(payday.field) = {secret: true}];
+  bytes grant = 10;
   google.protobuf.Timestamp date_expires = 11 [(orm.field) = {nullable: true}];
   google.protobuf.Timestamp date_idle = 12 [(orm.field) = {nullable: true}];
 
@@ -320,10 +313,7 @@ message CliLogin {
   }];
 
   // What the session's key is kept as: `Session.secret`.
-  bytes secret = 8 [
-    (orm.field) = {default: ""},
-    (payday.field) = {secret: true}
-  ];
+  bytes secret = 8 [(payday.field) = {secret: true}];
 
   // What the terminal shows and the person approves: eight letters and
   // digits that read aloud, good for one approval.
@@ -338,7 +328,7 @@ message CliLogin {
   // on how many sign-ins one address may start in a while is counted by
   // (`server/clilogin`). Not personal, on purpose (#119): an access record
   // keeps where a sign-in came from, and so does the trail.
-  string address = 18 [(orm.field) = {default: ""}, (payday.field) = {personal: false}];
+  string address = 18 [(payday.field) = {personal: false}];
 
   // The account that approved it, once one has.
   bytes account = 12 [(orm.field) = {
@@ -347,9 +337,9 @@ message CliLogin {
   }];
 
   // What the terminal asked to be allowed, which the page shows and the
-  // session it gets is narrowed to: `Session.grant`'s bytes. Empty is all
+  // session it gets is narrowed to: `Session.grant`'s bytes, `whole` for all
   // that the account may do (`loft auth login --allow`, D33).
-  bytes grant = 19 [(orm.field) = {default: ""}];
+  bytes grant = 19;
 
   // `pending`, `approved` or `denied`. One still pending after
   // `date_expires` is expired, which is said where it is read.
@@ -445,11 +435,6 @@ message AliasHold {
   };
 }
 
-// Domain 44 was `Consent`, an account's agreement to one of the deployment's
-// documents, until roster's ledger kept them (`ConsentService`, D37). It is not
-// for another entity: an identifier in the trail of a deployment from before
-// says what it named.
-
 // SignInFailure is one wrong answer at the sign-in form, counted against the
 // address it came from and the name it was for (`server/session`): ten in
 // fifteen minutes and the form refuses that pair for a while.
@@ -472,10 +457,7 @@ message SignInFailure {
   // -- an address space, a directory's names -- so a reader of the table who
   // tries them can tell whose a row is. What keeps it from saying much is that
   // nothing older than the window is kept.
-  bytes subject = 8 [
-    (orm.field) = {default: ""},
-    (payday.field) = {secret: true}
-  ];
+  bytes subject = 8 [(payday.field) = {secret: true}];
 
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {
     immutable: true
@@ -526,10 +508,7 @@ message Handoff {
   }];
 
   // What the code is kept as, as a session's key is.
-  bytes secret = 8 [
-    (orm.field) = {default: ""},
-    (payday.field) = {secret: true}
-  ];
+  bytes secret = 8 [(payday.field) = {secret: true}];
 
   // Who it signs in, to which workspace, on which of that workspace's
   // domains: an active `app` one when the code was made.
@@ -539,10 +518,7 @@ message Handoff {
 
   // What the state the host started the round trip with is kept as: the code
   // is good for that round trip and no other.
-  bytes state = 12 [
-    (orm.field) = {default: ""},
-    (payday.field) = {secret: true}
-  ];
+  bytes state = 12 [(payday.field) = {secret: true}];
 
   // The sign-in at the service's address the code was given to, which the
   // session it is exchanged for is handed from (`Session.parent`).

@@ -36,12 +36,6 @@ func (_u *HandoffUpdate) SetSecret(v []byte) *HandoffUpdate {
 	return _u
 }
 
-// ClearSecret clears the value of the "secret" field.
-func (_u *HandoffUpdate) ClearSecret() *HandoffUpdate {
-	_u.mutation.ClearSecret()
-	return _u
-}
-
 // SetAccount sets the "account" field.
 func (_u *HandoffUpdate) SetAccount(v uuid.UUID) *HandoffUpdate {
 	_u.mutation.SetAccount(v)
@@ -87,12 +81,6 @@ func (_u *HandoffUpdate) SetNillableHost(v *string) *HandoffUpdate {
 // SetState sets the "state" field.
 func (_u *HandoffUpdate) SetState(v []byte) *HandoffUpdate {
 	_u.mutation.SetState(v)
-	return _u
-}
-
-// ClearState clears the value of the "state" field.
-func (_u *HandoffUpdate) ClearState() *HandoffUpdate {
-	_u.mutation.ClearState()
 	return _u
 }
 
@@ -183,9 +171,6 @@ func (_u *HandoffUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(handoff.FieldSecret); ok {
 		_spec.SetField(handoff.FieldSecret, field.TypeBytes, e)
 	}
-	if _u.mutation.SecretCleared() {
-		_spec.ClearField(handoff.FieldSecret, field.TypeBytes)
-	}
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(handoff.FieldAccount, field.TypeUuid, value)
 	}
@@ -209,9 +194,6 @@ func (_u *HandoffUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if e, ok := _u.mutation.FieldExpr(handoff.FieldState); ok {
 		_spec.SetField(handoff.FieldState, field.TypeBytes, e)
-	}
-	if _u.mutation.StateCleared() {
-		_spec.ClearField(handoff.FieldState, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.Parent(); ok {
 		_spec.SetField(handoff.FieldParent, field.TypeUuid, value)
@@ -256,12 +238,6 @@ type HandoffUpdateOne struct {
 // SetSecret sets the "secret" field.
 func (_u *HandoffUpdateOne) SetSecret(v []byte) *HandoffUpdateOne {
 	_u.mutation.SetSecret(v)
-	return _u
-}
-
-// ClearSecret clears the value of the "secret" field.
-func (_u *HandoffUpdateOne) ClearSecret() *HandoffUpdateOne {
-	_u.mutation.ClearSecret()
 	return _u
 }
 
@@ -310,12 +286,6 @@ func (_u *HandoffUpdateOne) SetNillableHost(v *string) *HandoffUpdateOne {
 // SetState sets the "state" field.
 func (_u *HandoffUpdateOne) SetState(v []byte) *HandoffUpdateOne {
 	_u.mutation.SetState(v)
-	return _u
-}
-
-// ClearState clears the value of the "state" field.
-func (_u *HandoffUpdateOne) ClearState() *HandoffUpdateOne {
-	_u.mutation.ClearState()
 	return _u
 }
 
@@ -436,9 +406,6 @@ func (_u *HandoffUpdateOne) sqlSave(ctx context.Context) (_node *Handoff, err er
 	if e, ok := _u.mutation.FieldExpr(handoff.FieldSecret); ok {
 		_spec.SetField(handoff.FieldSecret, field.TypeBytes, e)
 	}
-	if _u.mutation.SecretCleared() {
-		_spec.ClearField(handoff.FieldSecret, field.TypeBytes)
-	}
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(handoff.FieldAccount, field.TypeUuid, value)
 	}
@@ -462,9 +429,6 @@ func (_u *HandoffUpdateOne) sqlSave(ctx context.Context) (_node *Handoff, err er
 	}
 	if e, ok := _u.mutation.FieldExpr(handoff.FieldState); ok {
 		_spec.SetField(handoff.FieldState, field.TypeBytes, e)
-	}
-	if _u.mutation.StateCleared() {
-		_spec.ClearField(handoff.FieldState, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.Parent(); ok {
 		_spec.SetField(handoff.FieldParent, field.TypeUuid, value)

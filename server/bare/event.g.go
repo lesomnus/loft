@@ -178,7 +178,6 @@ func (st EventServiceServer) create(ctx context.Context, req *loft.EventAddReque
 		q.SetValue(req.GetValue())
 	}
 	q.SetDesc(req.GetDesc())
-	q.SetPayload(req.GetPayload())
 	return q, ds, nil
 }
 
@@ -462,9 +461,6 @@ func EventSelectedFields(m *loft.EventSelect) []string {
 	}
 	if m.GetDesc() {
 		vs = append(vs, event.FieldDesc)
-	}
-	if m.GetPayload() {
-		vs = append(vs, event.FieldPayload)
 	}
 
 	return vs

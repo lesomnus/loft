@@ -106,11 +106,6 @@ func Desc(v string) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldDesc, v))
 }
 
-// Payload applies equality check predicate on the "payload" field. It's identical to PayloadEQ.
-func Payload(v string) predicate.Event {
-	return predicate.Event(sql.FieldEQ(FieldPayload, v))
-}
-
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
 func TenantId(v uuid.UUID) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldTenantId, v))
@@ -659,71 +654,6 @@ func DescEqualFold(v string) predicate.Event {
 // DescContainsFold applies the ContainsFold predicate on the "desc" field.
 func DescContainsFold(v string) predicate.Event {
 	return predicate.Event(sql.FieldContainsFold(FieldDesc, v))
-}
-
-// PayloadEQ applies the EQ predicate on the "payload" field.
-func PayloadEQ(v string) predicate.Event {
-	return predicate.Event(sql.FieldEQ(FieldPayload, v))
-}
-
-// PayloadNEQ applies the NEQ predicate on the "payload" field.
-func PayloadNEQ(v string) predicate.Event {
-	return predicate.Event(sql.FieldNEQ(FieldPayload, v))
-}
-
-// PayloadIn applies the In predicate on the "payload" field.
-func PayloadIn(vs ...string) predicate.Event {
-	return predicate.Event(sql.FieldIn(FieldPayload, vs...))
-}
-
-// PayloadNotIn applies the NotIn predicate on the "payload" field.
-func PayloadNotIn(vs ...string) predicate.Event {
-	return predicate.Event(sql.FieldNotIn(FieldPayload, vs...))
-}
-
-// PayloadGT applies the GT predicate on the "payload" field.
-func PayloadGT(v string) predicate.Event {
-	return predicate.Event(sql.FieldGT(FieldPayload, v))
-}
-
-// PayloadGTE applies the GTE predicate on the "payload" field.
-func PayloadGTE(v string) predicate.Event {
-	return predicate.Event(sql.FieldGTE(FieldPayload, v))
-}
-
-// PayloadLT applies the LT predicate on the "payload" field.
-func PayloadLT(v string) predicate.Event {
-	return predicate.Event(sql.FieldLT(FieldPayload, v))
-}
-
-// PayloadLTE applies the LTE predicate on the "payload" field.
-func PayloadLTE(v string) predicate.Event {
-	return predicate.Event(sql.FieldLTE(FieldPayload, v))
-}
-
-// PayloadContains applies the Contains predicate on the "payload" field.
-func PayloadContains(v string) predicate.Event {
-	return predicate.Event(sql.FieldContains(FieldPayload, v))
-}
-
-// PayloadHasPrefix applies the HasPrefix predicate on the "payload" field.
-func PayloadHasPrefix(v string) predicate.Event {
-	return predicate.Event(sql.FieldHasPrefix(FieldPayload, v))
-}
-
-// PayloadHasSuffix applies the HasSuffix predicate on the "payload" field.
-func PayloadHasSuffix(v string) predicate.Event {
-	return predicate.Event(sql.FieldHasSuffix(FieldPayload, v))
-}
-
-// PayloadEqualFold applies the EqualFold predicate on the "payload" field.
-func PayloadEqualFold(v string) predicate.Event {
-	return predicate.Event(sql.FieldEqualFold(FieldPayload, v))
-}
-
-// PayloadContainsFold applies the ContainsFold predicate on the "payload" field.
-func PayloadContainsFold(v string) predicate.Event {
-	return predicate.Event(sql.FieldContainsFold(FieldPayload, v))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

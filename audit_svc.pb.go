@@ -2390,10 +2390,10 @@ const file_loft_payday_audit_svc_g_proto_rawDesc = "" +
 	"\bactor_id\x18\x02 \x01(\fR\aactorId\x12\x1b\n" +
 	"\ttenant_id\x18\x03 \x01(\fR\btenantId\x12&\n" +
 	"\x0factor_tenant_id\x18\x04 \x01(\fR\ractorTenantId\x122\n" +
-	"\x15counterpart_tenant_id\x18\x05 \x01(\fR\x13counterpartTenantId\"Z\n" +
+	"\x15counterpart_tenant_id\x18\x05 \x01(\fR\x13counterpartTenantId\"L\n" +
 	"\x12AuditRecentRequest\x12\x19\n" +
 	"\x04size\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05afterJ\x04\b\x02\x10\x03R\x06before\"S\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"S\n" +
 	"\x13AuditRecentResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.loft.AuditR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next2\xed\x02\n" +

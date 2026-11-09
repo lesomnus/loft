@@ -27,9 +27,8 @@ var MaxImport int64 = 16 << 30
 // away again when the call ends. Nothing in it is believed before its
 // signature is (`offboard.Verify`), by a key this deployment trusts.
 //
-// Once put back, what it had out holds its time as anything out does (D53),
-// and what levyan grants it is copied now rather than at the follower's next
-// comparison (design 7.5).
+// Once put back, what levyan grants it is copied now rather than at the
+// follower's next comparison (design 7.5).
 func (s operatorTenants) Import(in grpc.ClientStreamingServer[app.OperatorTenantImportRequest, app.OperatorTenantImportResponse]) error {
 	ctx := in.Context()
 	first, err := in.Recv()
@@ -88,27 +87,16 @@ func (s operatorTenants) Import(in grpc.ClientStreamingServer[app.OperatorTenant
 		Retired:  x.Retired,
 		Returned: uint32(x.Returned),
 		Rows:     counts(x.Rows),
-		Left:     counts(x.Left),
 		Files:    uint32(x.Files),
 		Missing:  x.Missing,
 		Unlinked: x.Unlinked,
 		Manifest: x.Manifest,
 		Key:      x.Key,
 	}.Build()
-	why := map[string]string{}
-	for k := range x.Left {
-		why[k] = offboard.Dropped[k]
-	}
-	out.SetLeftWhy(why)
 	if o.GetDryRun() {
 		return in.SendAndClose(out)
 	}
 
-	held, err := s.a.S.Deps.HoldOut(operator.Frame(ctx, x.Tenant), s.a.S.Base, s.a.S.Drv, x.Tenant)
-	if err != nil {
-		return fmt.Errorf("what @%s has out: %w", x.Alias, err)
-	}
-	out.SetHeld(uint32(held))
 	if s.a.S.Follower != nil {
 		if _, err := s.a.S.Follower.Sync(ctx, x.Tenant); err != nil {
 			out.SetGrants(fmt.Sprintf("copied at the next comparison, as levyan could not be asked now: %v", err))

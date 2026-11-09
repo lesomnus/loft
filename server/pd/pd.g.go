@@ -239,7 +239,6 @@ func init() {
 	pdid.Register("loft.TenantContract", TenantContractDomain, "tenant-contract")
 	pdid.Register("loft.TreeLock", TreeLockDomain, "tree-lock")
 	pdid.Register("loft.WorkOrder", WorkOrderDomain, "work-order")
-	pdid.Formerly("loft.TenantDomain", DomainDomain, "tenant-domain")
 
 	pdid.RegisterTenant(TenantDomain)
 }
@@ -329,11 +328,11 @@ var EventKinds = map[string]protoreflect.MessageType{
 	"custody.issue":        (*loft.CustodyIssued)(nil).ProtoReflect().Type(),
 	"custody.overdue":      (*loft.CustodyOverdue)(nil).ProtoReflect().Type(),
 	"custody.return":       (*loft.CustodyReturned)(nil).ProtoReflect().Type(),
-	"domain.activate":      (*loft.TenantDomainActivated)(nil).ProtoReflect().Type(),
-	"domain.add":           (*loft.TenantDomainAdded)(nil).ProtoReflect().Type(),
-	"domain.lapse":         (*loft.TenantDomainLapsed)(nil).ProtoReflect().Type(),
-	"domain.retire":        (*loft.TenantDomainRetired)(nil).ProtoReflect().Type(),
-	"domain.verify":        (*loft.TenantDomainVerified)(nil).ProtoReflect().Type(),
+	"domain.activate":      (*loft.DomainActivated)(nil).ProtoReflect().Type(),
+	"domain.add":           (*loft.DomainAdded)(nil).ProtoReflect().Type(),
+	"domain.lapse":         (*loft.DomainLapsed)(nil).ProtoReflect().Type(),
+	"domain.retire":        (*loft.DomainRetired)(nil).ProtoReflect().Type(),
+	"domain.verify":        (*loft.DomainVerified)(nil).ProtoReflect().Type(),
 	"event.redact":         (*loft.EventRedacted)(nil).ProtoReflect().Type(),
 	"invitation.accept":    (*loft.InvitationAccepted)(nil).ProtoReflect().Type(),
 	"invitation.add":       (*loft.InvitationAdded)(nil).ProtoReflect().Type(),
@@ -391,9 +390,7 @@ var EventKinds = map[string]protoreflect.MessageType{
 // Hand them to `rename.Tables` first, before `rename.Columns`, `rename.Indexes`
 // and the migration, which otherwise makes each again, empty, beside the one
 // with the rows.
-var TableRenames = []rename.Table{
-	{From: "tenantdomain", To: "domain"},
-}
+var TableRenames = []rename.Table{}
 
 // ColumnRenames are the columns of payday's own entities in this schema that
 // an earlier build stored under another name. Hand them to `rename.Columns`
@@ -32251,7 +32248,6 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 15, Name: entEvent.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
 				{Number: 16, Name: entEvent.FieldTraceId, Type: 12, Nullable: false, Key: 0},
 				{Number: 6, Name: entEvent.FieldDesc, Type: 9, Nullable: false, Key: 0},
-				{Number: 17, Name: entEvent.FieldPayload, Type: 9, Nullable: false, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err

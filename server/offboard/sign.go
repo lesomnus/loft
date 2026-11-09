@@ -17,27 +17,19 @@ import (
 	"fmt"
 	"io"
 	"slices"
-	"time"
 
 	"github.com/lesomnus/payday/trail"
 )
 
-// Format is what an export says it is, in its manifest. A restore reads every
-// format it knows, this one and the ones before it ([Formats]): an export is a
-// contract with whoever kept it (design D34).
-const Format = "loft-export/2"
-
-// Formats is every format a restore reads, oldest first, ending in [Format].
+// Format is what an export says it is, in its manifest, and the one format a
+// restore reads: a row names every field as this build does, and the manifest
+// says when it was taken as `date_exported`.
 //
-//   - loft-export/1: a row names a field by the name an earlier build stored it
-//     under, which this one stores under another ([RenamedColumns], and
-//     payday's own, `pd.ColumnRenames`): a restore reads it under the name it
-//     has now ([renamed]). And its manifest says when it was taken as
-//     `exported_at`. Written until every time an export keeps was a `date_*`
-//     (D76).
-//   - loft-export/2: a row names every field as this build does, and the
-//     manifest says `date_exported`.
-var Formats = []string{"loft-export/1", Format}
+// An export is a contract with whoever kept it (design D34) from launch. Until
+// then nothing is kept for an earlier build (the owner's decision,
+// 2026-11-09): a change that breaks what an earlier build exported moves the
+// compatibility epoch (`.github/compat-epoch`) and leaves this as it is.
+const Format = "loft-export/2"
 
 // The names in an export that are not in its digests: the manifest that lists
 // them, and the signature over the manifest.
@@ -218,18 +210,8 @@ func Verify(r io.ReaderAt, size int64, trust []crypto.PublicKey) (Manifest, erro
 	if err := json.Unmarshal(mb, &m); err != nil {
 		return m, fmt.Errorf("%w: its manifest does not read: %v", ErrFormat, err)
 	}
-	if !slices.Contains(Formats, m.Format) {
+	if m.Format != Format {
 		return m, fmt.Errorf("%w: %q", ErrFormat, m.Format)
-	}
-	if m.Format == "loft-export/1" {
-		// When it was taken, under the name it had then.
-		var was struct {
-			ExportedAt time.Time `json:"exported_at"`
-		}
-		if err := json.Unmarshal(mb, &was); err != nil {
-			return m, fmt.Errorf("%w: its manifest does not read: %v", ErrFormat, err)
-		}
-		m.DateExported = was.ExportedAt
 	}
 
 	seen := map[string]bool{}

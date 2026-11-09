@@ -7,14 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/holder"
-	"github.com/lesomnus/loft/internal/ent/party"
-	"github.com/lesomnus/loft/server/pd"
 )
 
 func (e *env) events() map[string]string {
@@ -132,62 +128,11 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	for _, r := range rows {
 		x.NotNil(r.Value, "%s keeps no message", r.Kind)
 		x.Empty(r.Desc, "%s keeps a sentence", r.Kind)
-		x.Empty(r.Payload, "%s keeps a payload", r.Kind)
 		held := protojson.Format(r.Value)
 		for _, said := range []string{name, "김 대리", alias, lee.GetName()} {
 			x.NotContains(held, said, "an event row named them: %s", r.Kind)
 		}
 	}
-}
-
-// TestAnEventWrittenWithNamesReadsAsWritten.
-//
-// An event from before events kept identifiers named people in its words; it
-// is read as it was written, and so is a sentence that only looks like a mark.
-// A mark names nobody of another workspace's, whatever its payload says.
-func TestAnEventWrittenWithNamesReadsAsWritten(t *testing.T) {
-	e := newEnv(t)
-	x := e.x
-	ctx := context.Background()
-
-	laptop := e.item("노트북", "NB-1", nil, 24*time.Hour)
-	// As one from before Loft's events were payday's past was written: no
-	// message, its sentence and what it named beside it. Beneath the
-	// servers, which write the past's rows only as the past says them.
-	add := func(kind, desc, payload string, subject []byte) {
-		q := e.s.Ent.Event.Create().
-			SetId(pdid.New(pd.EventDomain).Uuid()).
-			SetTenantId(e.tenant.Uuid()).
-			SetKind(kind).
-			SetDesc(desc).
-			SetPayload(payload).
-			SetReason("").
-			SetDateOccurred(e.now).
-			SetDateCreated(e.now).
-			SetDateUpdated(e.now)
-		if subject != nil {
-			q.SetSubjectId(idUUID(subject))
-		}
-		x.NoError(q.Exec(ctx))
-	}
-	add("party.role", "역할 변경: Kim → admin", "", nil)
-	add("party.update", "수정: {party}", "party=Kim", nil)
-	add("asset.assign", "NB-1 owner: Kim", "party=Kim\nrole=owner", laptop.GetId())
-
-	beta, _ := e.newTenant("beta")
-	h, err := e.s.Ent.Holder.Query().Where(holder.TenantId(beta.Uuid())).Only(ctx)
-	x.NoError(err)
-	p, err := e.s.Ent.Party.Query().Where(party.TenantId(beta.Uuid())).Only(ctx)
-	x.NoError(err)
-	add("party.invite", "로그인 발급: {party} ({alias}), {holder}", "holder="+pdid.Id(h.Id).String()+"\nparty="+pdid.Id(p.Id).String(), nil)
-
-	x.Equal(map[string]string{
-		"party.role":   "역할 변경: Kim → admin",
-		"party.update": "수정: {party}",
-		"asset.assign": "NB-1 owner: Kim",
-		"party.invite": "로그인 발급: ? (?), ?",
-	}, pick(e.events(), "party.role", "party.update", "asset.assign", "party.invite"))
-	x.Equal("NB-1 owner: Kim", summaryOf(e.timeline(laptop, false), "asset.assign"))
 }
 
 func pick(m map[string]string, keys ...string) map[string]string {

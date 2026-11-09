@@ -8,7 +8,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/assettype"
 	"github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/bookable"
-	"github.com/lesomnus/loft/internal/ent/clilogin"
 	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
@@ -48,12 +47,6 @@ func init() {
 	// bookableDescHours is the schema descriptor for hours field.
 	bookableDescHours := bookableFields[2].Descriptor()
 	bookable.ValueScanner.Hours = bookableDescHours.ValueScanner.(field.TypeValueScanner[*loft.OpeningHours])
-	cliloginFields := schema.CliLogin{}.Fields()
-	_ = cliloginFields
-	// cliloginDescAddress is the schema descriptor for address field.
-	cliloginDescAddress := cliloginFields[5].Descriptor()
-	// clilogin.DefaultAddress holds the default value on creation for the address field.
-	clilogin.DefaultAddress = cliloginDescAddress.Default.(string)
 	domainFields := schema.Domain{}.Fields()
 	_ = domainFields
 	// domainDescFailures is the schema descriptor for failures field.

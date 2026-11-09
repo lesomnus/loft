@@ -190,16 +190,6 @@ func SecretLTE(v []byte) predicate.Session {
 	return predicate.Session(sql.FieldLTE(FieldSecret, v))
 }
 
-// SecretIsNil applies the IsNil predicate on the "secret" field.
-func SecretIsNil() predicate.Session {
-	return predicate.Session(sql.FieldIsNull(FieldSecret))
-}
-
-// SecretNotNil applies the NotNil predicate on the "secret" field.
-func SecretNotNil() predicate.Session {
-	return predicate.Session(sql.FieldNotNull(FieldSecret))
-}
-
 // GrantEQ applies the EQ predicate on the "grant" field.
 func GrantEQ(v []byte) predicate.Session {
 	return predicate.Session(sql.FieldEQ(FieldGrant, v))
@@ -238,16 +228,6 @@ func GrantLT(v []byte) predicate.Session {
 // GrantLTE applies the LTE predicate on the "grant" field.
 func GrantLTE(v []byte) predicate.Session {
 	return predicate.Session(sql.FieldLTE(FieldGrant, v))
-}
-
-// GrantIsNil applies the IsNil predicate on the "grant" field.
-func GrantIsNil() predicate.Session {
-	return predicate.Session(sql.FieldIsNull(FieldGrant))
-}
-
-// GrantNotNil applies the NotNil predicate on the "grant" field.
-func GrantNotNil() predicate.Session {
-	return predicate.Session(sql.FieldNotNull(FieldGrant))
 }
 
 // DateExpiresEQ applies the EQ predicate on the "date_expires" field.

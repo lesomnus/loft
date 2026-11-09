@@ -3,6 +3,7 @@ package cmd_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"errors"
 	"log/slog"
 	"testing"
@@ -105,8 +106,9 @@ func TestTheMetersCountWhatAWorkspaceHolds(t *testing.T) {
 	asset(beta, "B-3", "disposed")
 
 	file := func(t *app.Tenant, size uint64) *app.Attachment {
+		sum := sha256.Sum256([]byte("f"))
 		v, err := w.s.Base.Attachment().Add(ctx, app.AttachmentAddRequest_builder{
-			Tenant: ref(t), Name: "f", SubjectId: pdid.New(pd.AssetDomain).Bytes(), ObjectKey: "k", SizeBytes: size,
+			Tenant: ref(t), Name: "f", SubjectId: pdid.New(pd.AssetDomain).Bytes(), ObjectKey: "k", SizeBytes: size, Sha256: sum[:],
 		}.Build())
 		x.NoError(err)
 		return v

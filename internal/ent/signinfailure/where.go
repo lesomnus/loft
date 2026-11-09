@@ -105,16 +105,6 @@ func SubjectLTE(v []byte) predicate.SignInFailure {
 	return predicate.SignInFailure(sql.FieldLTE(FieldSubject, v))
 }
 
-// SubjectIsNil applies the IsNil predicate on the "subject" field.
-func SubjectIsNil() predicate.SignInFailure {
-	return predicate.SignInFailure(sql.FieldIsNull(FieldSubject))
-}
-
-// SubjectNotNil applies the NotNil predicate on the "subject" field.
-func SubjectNotNil() predicate.SignInFailure {
-	return predicate.SignInFailure(sql.FieldNotNull(FieldSubject))
-}
-
 // DateCreatedEQ applies the EQ predicate on the "date_created" field.
 func DateCreatedEQ(v time.Time) predicate.SignInFailure {
 	return predicate.SignInFailure(sql.FieldEQ(FieldDateCreated, v))

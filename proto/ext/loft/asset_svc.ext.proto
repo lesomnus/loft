@@ -231,8 +231,7 @@ message TimelineEntry {
   // fields (`loft/past.proto`): a row it names as the row is called now -- a
   // person by their name, and nothing else of theirs -- or as its identifier
   // where nothing names it, and a moment in the workspace's zone, as RFC 3339
-  // writes one. A row from before Loft's past was payday's is what its
-  // `payload` said.
+  // writes one.
   map<string, string> detail = 8;
   bytes event_id = 9 [features.field_presence = IMPLICIT];
   string event_kind = 10 [features.field_presence = IMPLICIT];
@@ -337,12 +336,7 @@ message ReportRow {
   map<string, string> detail = 5;
 }
 
-message AssetExportRequest {
-  // Was `template`, the form in place of the register: `Form` now, since the
-  // one is a download of people and the other of nobody (loft#136).
-  reserved 2;
-  reserved template;
-}
+message AssetExportRequest {}
 
 message AssetFormRequest {}
 
@@ -505,13 +499,6 @@ message DomainRetireRequest {
 message DomainStatusRequest {}
 
 message DomainStatusResponse {
-  // Labels are always on now (loft#155): a tenant prints with its active
-  // domain when it has one, and with the deployment's own address otherwise.
-  // `labels` said whether they were, and `tenant_domains` whether a tenant
-  // could have a domain at all, which every tenant now can.
-  reserved 1, 5;
-  reserved labels, tenant_domains;
-
   // The domain new labels print with, and that the app is on (an `app`
   // domain); none prints with `base`.
   Domain active = 2;

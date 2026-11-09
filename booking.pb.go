@@ -1532,7 +1532,7 @@ const file_loft_booking_proto_rawDesc = "" +
 	"\x05party\x1a\b\n" +
 	"\x06status\x1a\v\n" +
 	"\tseries_id d(\xf4\x03:\x00\"\x16\n" +
-	"\x06tenant\"\fparty.tenant\"\xda\x04\n" +
+	"\x06tenant\"\fparty.tenant\"\xc7\x04\n" +
 	"\x0fReservationItem\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12;\n" +
@@ -1558,7 +1558,7 @@ const file_loft_booking_proto_rawDesc = "" +
 	"\n" +
 	"\bresource d(\xf4\x03B\x02\n" +
 	"\x00\"-\n" +
-	"\x06tenant\"\x12reservation.tenant\"\x0fresource.tenantJ\x04\b\v\x10\fR\vassigned_id\"\x85\x06\n" +
+	"\x06tenant\"\x12reservation.tenant\"\x0fresource.tenant\"\x85\x06\n" +
 	"\n" +
 	"Allocation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +

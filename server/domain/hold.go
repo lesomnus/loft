@@ -3,7 +3,6 @@ package domain
 import (
 	"bytes"
 	"cmp"
-	"context"
 	"fmt"
 	"slices"
 	"strings"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
-	"github.com/protobuf-orm/ent/dialect"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -22,7 +20,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/asset"
 	"github.com/lesomnus/loft/internal/ent/bookable"
 	"github.com/lesomnus/loft/internal/ent/custody"
-	"github.com/lesomnus/loft/internal/ent/custodyline"
 	"github.com/lesomnus/loft/internal/ent/reservation"
 )
 
@@ -669,143 +666,6 @@ func (t *Tx) outLabel(a *ent.Allocation) string {
 		return "대여 (연체)"
 	}
 	return or(custodyKindSay[c.Kind], c.Kind)
-}
-
-// unheld answers what is out in this tenant that its hand-over holds none of
-// the time of, by the hand-over: what a build from before a hand-over held it
-// handed over (D53).
-func (t *Tx) unheld() (map[uuid.UUID][]uuid.UUID, error) {
-	return unheldIn(t.ctx, t.db, t.tenant.Uuid())
-}
-
-func unheldIn(ctx context.Context, db *ent.Client, tenant uuid.UUID) (map[uuid.UUID][]uuid.UUID, error) {
-	ls, err := db.CustodyLine.Query().Where(
-		custodyline.TenantId(tenant),
-		custodyline.AssetIdNotNil(),
-		custodyline.DateReturnedIsNil(),
-		custodyline.HasCustodyWith(custody.Status("open"), custody.DateErasedIsNil()),
-	).All(ctx)
-	if err != nil || len(ls) == 0 {
-		return nil, err
-	}
-	cs := []uuid.UUID{}
-	for _, l := range ls {
-		cs = append(cs, l.CustodyId)
-	}
-	hs, err := db.Allocation.Query().Where(
-		allocation.TenantId(tenant),
-		allocation.RefIdIn(cs...),
-		allocation.Kind(allocCustody),
-	).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	held := map[[2]uuid.UUID]bool{}
-	for _, h := range hs {
-		held[[2]uuid.UUID{*h.RefId, h.ResourceId}] = true
-	}
-	out := map[uuid.UUID][]uuid.UUID{}
-	for _, l := range ls {
-		if l.Quantity-l.ReturnedQuantity <= 0 || held[[2]uuid.UUID{l.CustodyId, l.AssetId}] {
-			continue
-		}
-		if !slices.Contains(out[l.CustodyId], l.AssetId) {
-			out[l.CustodyId] = append(out[l.CustodyId], l.AssetId)
-		}
-	}
-	return out, nil
-}
-
-// holdOut makes the hold of everything out in the tenant that its hand-over
-// holds none of the time of ([Tx.unheld]), from when it was handed over, and
-// does what that does ([Tx.hold]): of a loan due back, until then; of an issue
-// or a loan past its due, until it is back. It answers how many things it
-// held. The tree's lock first, which every hand-over and return takes, and
-// then what a booking of any of it holds.
-func holdOut(t *Tx) (int, error) {
-	out, err := t.unheld()
-	if err != nil || len(out) == 0 {
-		return 0, err
-	}
-	if err := t.lockTree(); err != nil {
-		return 0, err
-	}
-	// Read again, now that no hand-over or return changes it.
-	if out, err = t.unheld(); err != nil || len(out) == 0 {
-		return 0, err
-	}
-	ids := make([]uuid.UUID, 0, len(out))
-	things := []uuid.UUID{}
-	for k, vs := range out {
-		ids = append(ids, k)
-		things = append(things, vs...)
-	}
-	slices.SortFunc(ids, func(a, b uuid.UUID) int { return a.Compare(b) })
-	all, err := t.heldWith(things)
-	if err != nil {
-		return 0, err
-	}
-	if err := t.holdThings(all, nil); err != nil {
-		return 0, err
-	}
-	n := 0
-	for _, k := range ids {
-		c, err := t.custodyOf(k)
-		if err != nil {
-			return 0, err
-		}
-		before, err := t.holdsOf(k)
-		if err != nil {
-			return 0, err
-		}
-		if err := t.hold(c, out[k], c.DateIssued); err != nil {
-			return 0, err
-		}
-		after, err := t.holdsOf(k)
-		if err != nil {
-			return 0, err
-		}
-		n += len(after) - len(before)
-	}
-	return n, nil
-}
-
-// HoldOut makes the hold of everything out in `tenant` that its hand-over
-// holds none of the time of -- what a build from before a hand-over held it
-// handed over (2026-10-26, D53) -- with what holding it does: what was booked
-// over it says so and is told, and a pool's latest reservations wait. The
-// deployment's own work, as a sweep's is; `server` is the ungated stack. It
-// answers how many things it held.
-func (d *Deps) HoldOut(ctx context.Context, server app.Server, drv dialect.Driver, tenant pdid.Id) (int, error) {
-	n := 0
-	err := d.System(ctx, server, drv, tenant, func(t *Tx) error {
-		var err error
-		n, err = holdOut(t)
-		return err
-	})
-	return n, err
-}
-
-// Unheld answers the tenants something is out in that its hand-over holds
-// none of the time of ([Deps.HoldOut]), in identifier order: read as it is,
-// holding nothing and writing nothing.
-func Unheld(ctx context.Context, db *ent.Client) ([]pdid.Id, error) {
-	ts, err := db.Tenant.Query().Ids(ctx)
-	if err != nil {
-		return nil, err
-	}
-	slices.SortFunc(ts, func(a, b uuid.UUID) int { return a.Compare(b) })
-	out := []pdid.Id{}
-	for _, k := range ts {
-		v, err := unheldIn(ctx, db, k)
-		if err != nil {
-			return nil, err
-		}
-		if len(v) > 0 {
-			out = append(out, pdid.Id(k))
-		}
-	}
-	return out, nil
 }
 
 // later is the later of two moments.

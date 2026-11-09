@@ -40,7 +40,6 @@ func (m *Mutation) Predicates() []predicate.SignInFailure {
 // SetSubject sets the "subject" field.
 func (m *Mutation) SetSubject(b []byte) {
 	m.subject = &b
-	delete(m.clearedFields, FieldSubject)
 	delete(m.exprs, FieldSubject)
 }
 
@@ -53,23 +52,9 @@ func (m *Mutation) Subject() (r []byte, exists bool) {
 	return *v, true
 }
 
-// ClearSubject clears the value of the "subject" field.
-func (m *Mutation) ClearSubject() {
-	m.subject = nil
-	delete(m.exprs, FieldSubject)
-	m.clearedFields[FieldSubject] = struct{}{}
-}
-
-// SubjectCleared returns if the "subject" field was cleared in this mutation.
-func (m *Mutation) SubjectCleared() bool {
-	_, ok := m.clearedFields[FieldSubject]
-	return ok
-}
-
 // ResetSubject resets all changes to the "subject" field.
 func (m *Mutation) ResetSubject() {
 	m.subject = nil
-	delete(m.clearedFields, FieldSubject)
 	delete(m.exprs, FieldSubject)
 }
 
@@ -283,9 +268,6 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldSubject) {
-		fields = append(fields, FieldSubject)
-	}
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
 	}
@@ -303,9 +285,6 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldSubject:
-		m.ClearSubject()
-		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
 		return nil

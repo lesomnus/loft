@@ -6197,23 +6197,6 @@ func (m *EventMutation) OldDesc(ctx context.Context) (v string, err error) {
 	return oldValue.Desc, nil
 }
 
-// OldPayload returns the old "payload" field's value of the Event entity.
-// If the Event object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EventMutation) OldPayload(ctx context.Context) (v string, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldPayload is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldPayload requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPayload: %w", err)
-	}
-	return oldValue.Payload, nil
-}
-
 // OldTenantId returns the old "tenant_id" field's value of the Event entity.
 // If the Event object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -6258,8 +6241,6 @@ func (m *EventMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldValue(ctx)
 	case event.FieldDesc:
 		return m.OldDesc(ctx)
-	case event.FieldPayload:
-		return m.OldPayload(ctx)
 	case event.FieldTenantId:
 		return m.OldTenantId(ctx)
 	}

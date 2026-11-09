@@ -176,7 +176,6 @@ func (m *Mutation) ResetContentType() {
 // SetSha256 sets the "sha256" field.
 func (m *Mutation) SetSha256(b []byte) {
 	m.sha256 = &b
-	delete(m.clearedFields, FieldSha256)
 	delete(m.exprs, FieldSha256)
 }
 
@@ -189,23 +188,9 @@ func (m *Mutation) Sha256() (r []byte, exists bool) {
 	return *v, true
 }
 
-// ClearSha256 clears the value of the "sha256" field.
-func (m *Mutation) ClearSha256() {
-	m.sha256 = nil
-	delete(m.exprs, FieldSha256)
-	m.clearedFields[FieldSha256] = struct{}{}
-}
-
-// Sha256Cleared returns if the "sha256" field was cleared in this mutation.
-func (m *Mutation) Sha256Cleared() bool {
-	_, ok := m.clearedFields[FieldSha256]
-	return ok
-}
-
 // ResetSha256 resets all changes to the "sha256" field.
 func (m *Mutation) ResetSha256() {
 	m.sha256 = nil
-	delete(m.clearedFields, FieldSha256)
 	delete(m.exprs, FieldSha256)
 }
 
@@ -694,9 +679,6 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldSha256) {
-		fields = append(fields, FieldSha256)
-	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
 	}
@@ -717,9 +699,6 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldSha256:
-		m.ClearSha256()
-		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
 		return nil

@@ -46,7 +46,7 @@ resources:
    | | `signing-key` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키([세션의 키](../../docs/dev/security.md#세션의-키)). 모든 프로세스가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `loft-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
-   | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `loft trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다. init 컨테이너 `migrate`는 이 Secret에서 이 키 하나만 받고, 마이그레이션이 감사 기록에 남길 행이 있을 때만 읽습니다 | `openssl rand -base64 32` |
+   | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `loft trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다. init 컨테이너 `migrate`는 이 Secret을 받지 않습니다 | `openssl rand -base64 32` |
    | `loft-admin` | 운영자 이름마다 파일 하나(`operator`) | 운영자 키, 32자 이상. 운영자를 더하면 `admin.keys`에도 이름을 더합니다 | `openssl rand -hex 32` |
    | `loft-search` | `password`, `ca.pem` | 검색 클러스터의 Loft 사용자 비밀번호와 그 클러스터의 CA. 검색을 켤 때만 둡니다(아래 9) | |
    | `loft-levyan-key` | `key` | levyan이 이 배포에 발급한 제품 키(`lvk_…`, `levyan-admin key issue`). 과금을 켤 때만 둡니다(아래 12) | |
@@ -192,10 +192,10 @@ curl https://<호스트>/healthz   # ok
 
 ## 새 버전 올리기
 
-세션을 키의 HMAC으로 보관하는 버전으로 처음 올리면 모두 한 번 다시 로그인합니다([판을 올릴 때](../../docs/runbook/upgrade.md#세션을-키의-hmac으로-보관하는-판)). 그 밖에 할 일은 없습니다.
+넘는 판에 한 번 할 일이 있으면 [판을 올릴 때](../../docs/runbook/upgrade.md)에 있습니다. 출시 전에는 이전 빌드의 데이터를 옮기지 않으므로, 호환 세대(`.github/compat-epoch`)가 바뀐 빌드로는 올리지 않고 처음부터 다시 만듭니다.
 
 1. **빌드.** main에 머지되면 CI의 `image` 작업이 모든 검사가 통과한 뒤 `ghcr.io/lesomnus/loft:edge`로 올립니다. digest는 그 실행의 요약(Summary)에 남습니다. 오버레이에는 `edge`가 아니라 이 digest를 적습니다.
-2. **새로 필요한 것.** 지금 올라가 있는 커밋과 새 커밋 사이에 이 디렉터리가 어떻게 바뀌었는지 봅니다: `git diff <지금 커밋>..<새 커밋> -- deploy/k8s`. 위 표에 Secret의 키가 늘었거나 `config.yaml`이 새 파일을 가리키면, **그 Secret을 먼저 넣고** 설정과 digest는 그다음에 sync합니다. 예를 들어 610c1c7부터는 `loft-checkpoints`에 `digest.key`가 있어야 뜹니다.
+2. **새로 필요한 것.** 지금 올라가 있는 커밋과 새 커밋 사이에 이 디렉터리가 어떻게 바뀌었는지 봅니다: `git diff <지금 커밋>..<새 커밋> -- deploy/k8s`. 위 표에 Secret의 키가 늘었거나 `config.yaml`이 새 파일을 가리키면, **그 Secret을 먼저 넣고** 설정과 digest는 그다음에 sync합니다.
    - 순서를 거꾸로 하면 새 파드의 `loft`와 `loft-admin`이 파일이 없다며 뜨지 않습니다(`digest: key: open /run/secrets/loft/digest.key: no such file or directory`). `Recreate`라 이전 파드는 이미 내려가 있으니, Secret을 넣을 때까지 끊깁니다.
    - Secret을 오버레이에 함께 두었다면(SOPS) 같은 커밋에 넣어 한 번에 sync하면 됩니다. 따로 넣는다면 먼저 넣습니다.
 3. **스테이징.** 스테이징 오버레이의 digest를 바꿔 sync합니다. `healthz`, 로그인, 바꾼 기능을 확인합니다.

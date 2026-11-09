@@ -163,6 +163,9 @@ func (_c *AttachmentCreate) check() error {
 	if _, ok := _c.mutation.ContentType(); !ok {
 		return &ValidationError{Name: "content_type", err: errors.New(`ent: missing required field "Attachment.content_type"`)}
 	}
+	if _, ok := _c.mutation.Sha256(); !ok {
+		return &ValidationError{Name: "sha256", err: errors.New(`ent: missing required field "Attachment.sha256"`)}
+	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Attachment.date_updated"`)}
 	}

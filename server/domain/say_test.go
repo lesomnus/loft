@@ -163,14 +163,14 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", DateStart: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약에서 빠짐: 삼각대 (제품 촬영 10-24 10:30)"},
 		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", DateStart: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 2}.Build(), "예약에서 빠짐: Canon R5 2개 (촬영 10-24 10:30)"},
 
-		{"domain.add", app.TenantDomainAdded_builder{Host: "assets.acme.example", Purpose: "app", Source: "custom"}.Build(), "워크스페이스 도메인 등록: assets.acme.example"},
-		{"domain.add", app.TenantDomainAdded_builder{Host: "acme.l.test", Purpose: "label", Source: "default"}.Build(), "라벨 도메인 등록: acme.l.test"},
-		{"domain.verify", app.TenantDomainVerified_builder{Host: "assets.acme.example", Purpose: "app"}.Build(), "워크스페이스 도메인 확인: assets.acme.example"},
-		{"domain.verify", app.TenantDomainVerified_builder{Host: "assets.acme.example", Purpose: "app", Again: true}.Build(), "워크스페이스 도메인 다시 확인: assets.acme.example"},
-		{"domain.activate", app.TenantDomainActivated_builder{Host: "assets.acme.example", Purpose: "app"}.Build(), "워크스페이스 도메인 활성화: assets.acme.example"},
-		{"domain.retire", app.TenantDomainRetired_builder{Host: "acme.l.test", Purpose: "label", Force: true, Labels: 3}.Build(), "라벨 도메인 은퇴: acme.l.test"},
+		{"domain.add", app.DomainAdded_builder{Host: "assets.acme.example", Purpose: "app", Source: "custom"}.Build(), "워크스페이스 도메인 등록: assets.acme.example"},
+		{"domain.add", app.DomainAdded_builder{Host: "acme.l.test", Purpose: "label", Source: "default"}.Build(), "라벨 도메인 등록: acme.l.test"},
+		{"domain.verify", app.DomainVerified_builder{Host: "assets.acme.example", Purpose: "app"}.Build(), "워크스페이스 도메인 확인: assets.acme.example"},
+		{"domain.verify", app.DomainVerified_builder{Host: "assets.acme.example", Purpose: "app", Again: true}.Build(), "워크스페이스 도메인 다시 확인: assets.acme.example"},
+		{"domain.activate", app.DomainActivated_builder{Host: "assets.acme.example", Purpose: "app"}.Build(), "워크스페이스 도메인 활성화: assets.acme.example"},
+		{"domain.retire", app.DomainRetired_builder{Host: "acme.l.test", Purpose: "label", Force: true, Labels: 3}.Build(), "라벨 도메인 은퇴: acme.l.test"},
 		// What was the reason, loft's own words, said by the sentence.
-		{"domain.lapse", app.TenantDomainLapsed_builder{Host: "assets.acme.example", Purpose: "app", DateFailing: timestamppb.New(time.Date(2026, 10, 23, 3, 0, 0, 0, time.UTC)), Failures: 6}.Build(),
+		{"domain.lapse", app.DomainLapsed_builder{Host: "assets.acme.example", Purpose: "app", DateFailing: timestamppb.New(time.Date(2026, 10, 23, 3, 0, 0, 0, time.UTC)), Failures: 6}.Build(),
 			"워크스페이스 도메인 사용 중지: assets.acme.example (DNS가 10월 23일 12:00부터 이 서비스를 가리키지 않거나 TXT 레코드가 없습니다)"},
 		{"label.print", app.LabelsPrinted_builder{Batch: "2026-10-24 10:30", Count: 20}.Build(), "라벨 인쇄: 2026-10-24 10:30"},
 		{"label.bind", app.LabelBound_builder{Asset: asset.Bytes(), Tag: "NB-1"}.Build(), "NB-1 라벨 부착"},
@@ -237,27 +237,4 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 	}
 	x.NoError(r.Err())
 	x.Empty(slices.DeleteFunc(slices.Sorted(maps.Keys(pd.EventKinds)), func(k string) bool { return said[k] }), "a kind with no sentence here")
-}
-
-// TestAnEventFromBeforeIsSaidAsItWasWritten: a row from before Loft's events
-// kept a message holds none, and is said by the words it was written with,
-// the people it marks named as they are now.
-func TestAnEventFromBeforeIsSaidAsItWasWritten(t *testing.T) {
-	x := require.New(t)
-	ctx := context.Background()
-	tenant := pdid.New(pd.TenantDomain)
-	kim := pdid.New(pd.PartyDomain)
-	n := &namer{t: &Tx{ctx: ctx, tenant: tenant}, parties: map[uuid.UUID]called{kim.Uuid(): {found: true, name: "김 대리"}}}
-	r := Sentences.Read(withNamer(ctx, n), n, "ko", time.UTC)
-
-	for _, c := range []struct{ desc, payload, want string }{
-		{"수정: {party}", "party=" + kim.String(), "수정: 김 대리"},
-		{"역할 변경: Kim → admin", "", "역할 변경: Kim → admin"},
-		{"수정: {party}", "party=Kim", "수정: {party}"},
-	} {
-		id := pdid.New(pd.EventDomain)
-		n.knows(id.Uuid(), c.desc, c.payload)
-		x.Equal(c.want, r.Say(past.EventRow{Id: id, Tenant: tenant, Kind: "party.update"}))
-	}
-	x.NoError(r.Err())
 }

@@ -47,10 +47,6 @@ type namer struct {
 	// labels is what each asset's type calls its attributes, by the asset:
 	// what a sentence that names one of them says ([namer.attribute]).
 	labels map[uuid.UUID]map[string]string
-
-	// legacies is what each row from before Loft's events kept a message
-	// said, by the row: its sentence and what it named ([Sentences]).
-	legacies map[uuid.UUID]legacyRow
 }
 
 var _ past.Names = (*namer)(nil)
@@ -444,47 +440,4 @@ func (n *namer) ofLabels(ctx context.Context, id uuid.UUID) (map[string]string, 
 		ty = *v.ParentId
 	}
 	return out, nil
-}
-
-// An event from before Loft's events kept a message (payday#151) kept the
-// sentence it was written with instead, `desc`, and named the people it was
-// about by identifier in its `payload`, its sentence by a mark for each; the
-// words are read with the event, so that one about somebody forgotten reads
-// with the pseudonym they were left with, and one about somebody renamed with
-// the name they have now (design 8.2). One written before marks named them in
-// its words, and reads as written. Every event since is said from its message
-// (`say.go`), and names people the same way.
-//
-// What it says of a thing -- a tag, a type, a reservation -- is what the thing
-// was called then, and stays.
-var marks = []struct {
-	mark, key string
-	say       func(*namer, uuid.UUID) string
-}{
-	// The person record.
-	{"{party}", "party", (*namer).party},
-	// The membership, as the history names whoever did something.
-	{"{holder}", "holder", func(n *namer, id uuid.UUID) string { return n.actor(&id) }},
-	// The membership by the name it signs in with.
-	{"{alias}", "holder", (*namer).member},
-}
-
-// say is an event's sentence with the people it marks named as they are now,
-// each on the access record of the call that shows it.
-func (n *namer) say(desc, payload string) string {
-	if !strings.Contains(desc, "{") {
-		return desc
-	}
-	p := decode(payload)
-	for _, m := range marks {
-		if !strings.Contains(desc, m.mark) {
-			continue
-		}
-		id, err := pdid.Parse(p[m.key])
-		if err != nil {
-			continue
-		}
-		desc = strings.ReplaceAll(desc, m.mark, m.say(n, id.Uuid()))
-	}
-	return desc
 }

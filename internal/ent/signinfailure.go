@@ -62,6 +62,9 @@ func (_m *SignInFailure) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field subject", values[i])
 			} else if value != nil {
 				_m.Subject = *value
+				if _m.Subject == nil {
+					_m.Subject = []byte{}
+				}
 			}
 		case signinfailure.FieldDateCreated:
 			if value, ok := values[i].(*sql.NullTime); !ok {

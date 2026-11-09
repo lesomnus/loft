@@ -123,8 +123,11 @@ func (e *embedded) Close() error {
 }
 
 // agent writes the `loft` holder, the role it holds and the binding into a
-// tenant, through the deployment's own door. It refuses a tenant that is not
-// there rather than making one, since a tenant is a customer.
+// tenant, through the deployment's own door, as each is not there already: and
+// the role carries every method this build asks ([AgentMethods]), which a
+// process ensures the first time it asks as Loft in the tenant. It refuses a
+// tenant that is not there rather than making one, since a tenant is a
+// customer.
 func (e *embedded) agent(ctx context.Context, tenant string) error {
 	ctx, cancel := unframed(ctx)
 	defer cancel()
@@ -164,7 +167,8 @@ func (e *embedded) agent(ctx context.Context, tenant string) error {
 			return fmt.Errorf("role %s: %w", Agent, err)
 		}
 	} else if missing := slices.DeleteFunc(slices.Clone(AgentMethods), func(m string) bool { return slices.Contains(r.GetMethods(), m) }); len(missing) > 0 {
-		// A role written by an older Loft: what this one asks is added.
+		// The role carries what this build asks: what it does not carry yet
+		// is added.
 		if _, err := own.Role().Patch(ctx, rstr.RolePatchRequest_builder{
 			Ref:              rstr.RoleRef_builder{Id: r.GetId()}.Build(),
 			Methods:          append(slices.Clone(r.GetMethods()), missing...),
@@ -235,7 +239,9 @@ func (s *Store) MakeDirectory(ctx context.Context, login, name string) (Person, 
 
 // EnsureDirectory is the directory at the embedded roster, made with nobody in
 // it but the administrator roster makes every tenant with when it is not
-// there: what bringing in a deployment from before roster starts from.
+// there: what giving accounts to members who name none starts from, on a
+// deployment that has only ever restored workspaces (`loft identity
+// migrate`).
 func (s *Store) EnsureDirectory(ctx context.Context) (Directory, error) {
 	if s.em == nil {
 		return Directory{}, ErrExternal
@@ -472,17 +478,14 @@ type Adoptee struct {
 	Name  string
 }
 
-// Adopt writes people made here before roster held them into the directory of
-// the embedded roster as accounts, with the identifiers they already have, and
+// Adopt writes members who name no account into the directory of the
+// embedded roster as accounts, with the identifiers they already have, and
 // issues each of them a password -- `password`, or one made up for each when
-// it is empty: the upgrade of a deployment from before roster (design 9.10).
+// it is empty: the members of a workspace restored from an export whose
+// accounts this roster does not have (design 9.10, `loft identity migrate`).
 // Somebody roster has already is left alone, so it can be run again. It
 // answers the passwords by alias, for the accounts it made. The directory has
 // to be there ([Store.EnsureDirectory]).
-//
-// The verifiers they had are not brought along. Nothing says the two apps'
-// formats agree, and a road that brings in a verifier brings in whatever is
-// put on it.
 func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (map[string]string, error) {
 	if s.em == nil {
 		return nil, ErrExternal

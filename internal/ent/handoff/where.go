@@ -135,16 +135,6 @@ func SecretLTE(v []byte) predicate.Handoff {
 	return predicate.Handoff(sql.FieldLTE(FieldSecret, v))
 }
 
-// SecretIsNil applies the IsNil predicate on the "secret" field.
-func SecretIsNil() predicate.Handoff {
-	return predicate.Handoff(sql.FieldIsNull(FieldSecret))
-}
-
-// SecretNotNil applies the NotNil predicate on the "secret" field.
-func SecretNotNil() predicate.Handoff {
-	return predicate.Handoff(sql.FieldNotNull(FieldSecret))
-}
-
 // AccountEQ applies the EQ predicate on the "account" field.
 func AccountEQ(v uuid.UUID) predicate.Handoff {
 	return predicate.Handoff(sql.FieldEQ(FieldAccount, v))
@@ -328,16 +318,6 @@ func StateLT(v []byte) predicate.Handoff {
 // StateLTE applies the LTE predicate on the "state" field.
 func StateLTE(v []byte) predicate.Handoff {
 	return predicate.Handoff(sql.FieldLTE(FieldState, v))
-}
-
-// StateIsNil applies the IsNil predicate on the "state" field.
-func StateIsNil() predicate.Handoff {
-	return predicate.Handoff(sql.FieldIsNull(FieldState))
-}
-
-// StateNotNil applies the NotNil predicate on the "state" field.
-func StateNotNil() predicate.Handoff {
-	return predicate.Handoff(sql.FieldNotNull(FieldState))
 }
 
 // ParentEQ applies the EQ predicate on the "parent" field.

@@ -393,9 +393,9 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 	// password, none signing anybody in, and each a call made with a session
 	// there is already. And the operator's, at the entry point alone
 	// (`server/admin`, design 9.15): an account made, or given a password,
-	// on the roster in this process, and a deployment from before roster
-	// brought into it -- each setting a password, for an operator's key, and
-	// none of them served here.
+	// on the roster in this process, and the members who name no account
+	// given one -- each setting a password, for an operator's key, and none
+	// of them served here.
 	carries := map[string]bool{}
 	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
 		if fd.Package() != "loft" {

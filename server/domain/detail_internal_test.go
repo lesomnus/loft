@@ -49,7 +49,6 @@ func TestADetailSaysEachKindOfValue(t *testing.T) {
 		Rows:         120,
 		Released:     []string{"acme", "acme-old"},
 		Reopened:     true,
-		Left:         map[string]uint32{"party": 1, "asset": 3},
 	}.Build()))
 	x.NoError(err)
 	x.Equal(map[string]string{
@@ -57,7 +56,6 @@ func TestADetailSaysEachKindOfValue(t *testing.T) {
 		"rows":          "120",
 		"released":      "acme, acme-old",
 		"reopened":      "true",
-		"left":          "asset=3, party=1",
 	}, got)
 
 	got, err = d.of(row("asset.relate", app.AssetRelated_builder{
@@ -77,9 +75,4 @@ func TestADetailSaysEachKindOfValue(t *testing.T) {
 		"relation":   "member_of",
 		"required":   "true",
 	}, got, "an end that did not happen is not said")
-
-	// A row from before holds no message, and is the payload's to say.
-	got, err = d.of(past.EventRow{Id: pdid.New(pd.EventDomain), Tenant: tenant, Kind: "asset.relate"})
-	x.NoError(err)
-	x.Empty(got)
 }

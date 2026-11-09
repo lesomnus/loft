@@ -89,7 +89,7 @@ func TestAConnectionIsChosenByTheCommandLineThenTheEnvironmentThenTheFile(t *tes
 
 // TestAKeyIsNamedAndNeverKept: an operator's key is read where its reference
 // says, and one written out is refused -- in the file as on the command
-// line -- and a file from before connections is not read as one.
+// line.
 func TestAKeyIsNamedAndNeverKept(t *testing.T) {
 	x := require.New(t)
 	dir := t.TempDir()
@@ -116,7 +116,6 @@ func TestAKeyIsNamedAndNeverKept(t *testing.T) {
 	path := filepath.Join(dir, "client.json")
 	t.Setenv("LOFT_CLIENT_CONFIG", path)
 	for body, says := range map[string]string{
-		`{"url": "https://loft.example", "cookie": "c", "key": "k"}`:                                      "before connections",
 		`{"connections": {"ops": {"kind": "operator", "url": "http://e:8081", "key": "the-key-itself"}}}`: "by reference",
 		`{"connections": {"x": {"kind": "robot", "url": "http://e:8081"}}}`:                               "a person's or an operator's",
 	} {

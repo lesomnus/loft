@@ -109,14 +109,9 @@ func (s domainEvent) Recent(ctx context.Context, req *app.EventRecentRequest) (*
 		vs = vs[:size]
 		out.SetNext(afterFor(vs[size-1].DateCreated, vs[size-1].Id))
 	}
-	// Each said as it is read (payday#151): a row from before by the words
-	// it was written with, read here with it.
+	// Each said as it is read (payday#151), in the workspace's zone, its
+	// people as they are called now.
 	names := namer{t: t}
-	for _, v := range vs {
-		if v.Value == nil {
-			names.knows(v.Id, v.Desc, v.Payload)
-		}
-	}
 	r := t.reading(&names)
 	for _, v := range vs {
 		e := v.Proto()

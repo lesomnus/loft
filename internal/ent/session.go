@@ -88,12 +88,18 @@ func (_m *Session) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field secret", values[i])
 			} else if value != nil {
 				_m.Secret = *value
+				if _m.Secret == nil {
+					_m.Secret = []byte{}
+				}
 			}
 		case session.FieldGrant:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field grant", values[i])
 			} else if value != nil {
 				_m.Grant = *value
+				if _m.Grant == nil {
+					_m.Grant = []byte{}
+				}
 			}
 		case session.FieldDateExpires:
 			if value, ok := values[i].(*sql.NullTime); !ok {

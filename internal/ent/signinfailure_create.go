@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 	"uuid"
@@ -84,6 +85,9 @@ func (_c *SignInFailureCreate) ExecX(ctx context.Context) {
 func (_c *SignInFailureCreate) check() error {
 	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
 		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "SignInFailure.%s" was assigned an expression, which only an update writes`, fs[0])}
+	}
+	if _, ok := _c.mutation.Subject(); !ok {
+		return &ValidationError{Name: "subject", err: errors.New(`ent: missing required field "SignInFailure.subject"`)}
 	}
 	return nil
 }

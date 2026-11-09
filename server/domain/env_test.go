@@ -97,17 +97,13 @@ func newEnvWith(t *testing.T, with func(c *cmd.Config)) *env {
 
 // heldToKinds holds every event of the deployment to what payday's past
 // writes (payday#151): the message its kind declares, which reads as one,
-// holding only what the kind uses of it (`domain.Beyond`) -- or, for a row a
-// test wrote as one from before, none and the sentence it was written with.
+// holding only what the kind uses of it (`domain.Beyond`).
 func (e *env) heldToKinds() {
 	e.t.Helper()
 	vs, err := e.s.Ent.Event.Query().All(context.Background())
 	e.x.NoError(err)
 	for _, v := range vs {
-		if v.Value == nil {
-			e.x.NotEmpty(v.Desc, "%s %s holds no message, and is no row from before", v.Kind, pdid.Id(v.Id))
-			continue
-		}
+		e.x.NotNil(v.Value, "%s %s holds no message", v.Kind, pdid.Id(v.Id))
 		typ, ok := pd.EventKinds[v.Kind]
 		e.x.True(ok, "%s is a kind nothing declares", v.Kind)
 		e.x.Equal(typ.Descriptor().FullName(), v.Value.MessageName(), "%s holds another kind's message", v.Kind)

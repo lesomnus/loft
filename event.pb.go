@@ -55,7 +55,6 @@ type Event struct {
 	xxx_hidden_CauseId      []byte                 `protobuf:"bytes,18,opt,name=cause_id,json=causeId"`
 	xxx_hidden_Value        *anypb.Any             `protobuf:"bytes,19,opt,name=value"`
 	xxx_hidden_Desc         string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Payload      string                 `protobuf:"bytes,17,opt,name=payload"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -176,13 +175,6 @@ func (x *Event) GetDesc() string {
 	return ""
 }
 
-func (x *Event) GetPayload() string {
-	if x != nil {
-		return x.xxx_hidden_Payload
-	}
-	return ""
-}
-
 func (x *Event) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -248,10 +240,6 @@ func (x *Event) SetValue(v *anypb.Any) {
 
 func (x *Event) SetDesc(v string) {
 	x.xxx_hidden_Desc = v
-}
-
-func (x *Event) SetPayload(v string) {
-	x.xxx_hidden_Payload = v
 }
 
 func (x *Event) HasTenant() bool {
@@ -347,9 +335,8 @@ type Event_builder struct {
 	// a field of one is not renamed, or the rows of it no longer read. It names
 	// people by identifier and holds nothing of theirs, which is why it is not
 	// personal and `reason` is.
-	Value   *anypb.Any
-	Desc    string
-	Payload string
+	Value *anypb.Any
+	Desc  string
 }
 
 func (b0 Event_builder) Build() *Event {
@@ -369,7 +356,6 @@ func (b0 Event_builder) Build() *Event {
 	x.xxx_hidden_CauseId = b.CauseId
 	x.xxx_hidden_Value = b.Value
 	x.xxx_hidden_Desc = b.Desc
-	x.xxx_hidden_Payload = b.Payload
 	return m0
 }
 
@@ -377,7 +363,7 @@ var File_loft_payday_event_proto protoreflect.FileDescriptor
 
 const file_loft_payday_event_proto_rawDesc = "" +
 	"\n" +
-	"\x17loft/payday/event.proto\x12\x04loft\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/tenant.proto\"\xef\x06\n" +
+	"\x17loft/payday/event.proto\x12\x04loft\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/tenant.proto\"\xcd\x06\n" +
 	"\x05Event\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -393,8 +379,7 @@ const file_loft_payday_event_proto_rawDesc = "" +
 	"\btrace_id\x18\x10 \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\x18\x00R\atraceId\x12)\n" +
 	"\bcause_id\x18\x12 \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02(\x01R\acauseId\x128\n" +
 	"\x05value\x18\x13 \x01(\v2\x14.google.protobuf.AnyB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x18\x00R\x05value\x12\x1a\n" +
-	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04desc\x12 \n" +
-	"\apayload\x18\x11 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\apayload:\xe7\x01\xca\xfc\x15}\x12\b\x82\x01\x02\x12\x00\x8a\x01\x00\x1a,\x12\x04page\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04desc:\xe7\x01\xca\xfc\x15}\x12\b\x82\x01\x02\x12\x00\x8a\x01\x00\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +

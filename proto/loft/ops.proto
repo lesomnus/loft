@@ -80,12 +80,6 @@ message Notification {
   };
 }
 
-// Domain 20 was UsageSnapshot's, a tenant's usage written once a day. Loft
-// writes no rows for a bill: what is billed is measured from the rows
-// themselves and handed to levyan, which keeps the readings (design 7, D35,
-// D59). Never give it to anything else: the trail still names rows by it.
-
-
 // TenantContract is what the operator's agreement with a workspace says of
 // what the deployment owes beyond it: whether its trail goes whole when it is
 // destroyed (payday#115). How long the workspace keeps its history, its
@@ -113,13 +107,6 @@ message TenantContract {
   // "standard".
   string name = 5;
   string desc = 6;
-
-  // Were the view window, how long the history was kept, the grace a shorter
-  // one waited out, the access record's keep and the restore window: the
-  // view is gone, and what is kept is what is seen; the rest are the
-  // workspace's own (D36), and the grace the deployment's.
-  reserved 8, 9, 10, 12, 16;
-  reserved view_days, keep_days, grace_days, access_keep_days, restore_days;
 
   // From when this one applies. Unsaid is now.
   google.protobuf.Timestamp date_effective = 11 [(orm.field) = {default: ""}];

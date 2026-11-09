@@ -131,12 +131,6 @@ func (_c *EventCreate) SetDesc(v string) *EventCreate {
 	return _c
 }
 
-// SetPayload sets the "payload" field.
-func (_c *EventCreate) SetPayload(v string) *EventCreate {
-	_c.mutation.SetPayload(v)
-	return _c
-}
-
 // SetTenantId sets the "tenant_id" field.
 func (_c *EventCreate) SetTenantId(v uuid.UUID) *EventCreate {
 	_c.mutation.SetTenantId(v)
@@ -202,9 +196,6 @@ func (_c *EventCreate) check() error {
 	}
 	if _, ok := _c.mutation.Desc(); !ok {
 		return &ValidationError{Name: "desc", err: errors.New(`ent: missing required field "Event.desc"`)}
-	}
-	if _, ok := _c.mutation.Payload(); !ok {
-		return &ValidationError{Name: "payload", err: errors.New(`ent: missing required field "Event.payload"`)}
 	}
 	if _, ok := _c.mutation.TenantId(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Event.tenant_id"`)}
@@ -316,10 +307,6 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec, error) {
 	if value, ok := _c.mutation.Desc(); ok {
 		_spec.SetField(event.FieldDesc, field.TypeString, value)
 		_node.Desc = value
-	}
-	if value, ok := _c.mutation.Payload(); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, value)
-		_node.Payload = value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

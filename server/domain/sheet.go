@@ -25,8 +25,7 @@ import (
 // is said on the page that hands the form out (`ts/src/pages/register.tsx`).
 //
 // A key is the field of `AssetAddRequest` its column fills, as an issue names
-// it. A header may say the field's name before D76 too (`acquired_at`,
-// `since`), so that a sheet made by then still reads.
+// it.
 var registerColumns = []struct {
 	key   string
 	label string
@@ -40,8 +39,8 @@ var registerColumns = []struct {
 	{"serial", "시리얼", []string{"serial", "일련번호", "s/n"}},
 	{"tag", "태그", []string{"tag", "자산번호", "관리번호"}},
 	{"location_tag", "위치태그", []string{"location_tag", "위치 태그"}},
-	{"date_acquired", "취득일", []string{"date_acquired", "acquired_at", "구매일"}},
-	{"date_occurred", "기준일", []string{"date_occurred", "since", "입고일"}},
+	{"date_acquired", "취득일", []string{"date_acquired", "구매일"}},
+	{"date_occurred", "기준일", []string{"date_occurred", "입고일"}},
 	{"desc", "설명", []string{"desc", "비고", "메모"}},
 	{"status", "상태", []string{"status"}},
 	{"condition", "컨디션", []string{"condition"}},
