@@ -37,6 +37,5 @@ func (e *Event) Proto() *loft.Event {
 	if e.Value != nil {
 		x.SetValue(e.Value)
 	}
-	x.SetDesc(e.Desc)
 	return x
 }

@@ -1,4 +1,5 @@
 edition = "2023";
+
 package loft;
 
 import "google/protobuf/any.proto";
@@ -8,6 +9,11 @@ import "payday.proto";
 import "loft/payday/tenant.proto";
 
 option features.field_presence = IMPLICIT;
+
+// The Go package is the app's, and `pd gen` writes it in, as it does for every
+// entity payday ships. Unlike the others this one is copied only into an app
+// that declares a past -- `option (payday.app) = {past: {event: 17, fact: 16}}`
+// -- and its domain is the app's to choose; see `payday.Past`.
 option go_package = "github.com/lesomnus/loft";
 
 // Event is one operation of the app's: what was done, to what, by whom, when it
@@ -17,15 +23,15 @@ option go_package = "github.com/lesomnus/loft";
 // operation, and `kind` says which. No sentence is kept: one is made when the
 // event is read, in the reader's language, naming the people in it as they are
 // called then -- which a sentence written down at the time could not do once
-// somebody was renamed or forgotten.
+// somebody was renamed or forgotten. `desc` is where an answer says it.
 //
 // An event is never changed, so there is no Patch, and never erased one at a
 // time: its rows leave when they expire, or with their tenant.
 //
 // **The numbers declared here are payday's.** An overlay in
-// `proto/ext/payday/event.ext.proto` adds fields at the ones left empty -- 6 and
-// 17 are the ones an app adopting its own events into this table has needed --
-// and indexes, and nothing else.
+// `proto/ext/payday/event.ext.proto` adds fields at the ones left empty -- 17
+// and from 20 on, which is where an app adopting its own events into this table
+// keeps what they had -- and indexes, and nothing else.
 message Event {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -33,37 +39,58 @@ message Event {
     default: ""
   }];
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // The sentence the event is said in, made as it is read -- `Reading.Say` of
+  // package `past`, in the reader's language and zone, its people named as
+  // they are called then -- by whatever answers with it.
+  //
+  // No row holds one, which is what `disabled` says: the field is the
+  // message's and not the table's, so it is in no column, no Add and no
+  // Select, and a generated Get or List answers it empty. A sentence kept
+  // would be the one written down at the time, which is what an event does
+  // not keep; and one an app's overlay kept here, empty in every row, was a
+  // column nothing read.
+  //
+  // Not `personal`, which is said of a column. Whose names a sentence says
+  // is on the access record of the call that said it (`Reading.Name`).
+  string desc = 6 [(orm.field) = {disabled: true}];
+
   // What kind of operation this was, which says what `value` holds. It is a
   // word of the app's and about no one.
   string kind = 8 [(payday.field) = {personal: false}];
+
   // The holder that asked, and empty for the deployment's own work.
   bytes actor_id = 9 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
   }];
+
   // When it happened, which is not always when it was written down.
   google.protobuf.Timestamp date_occurred = 10 [(orm.field) = {default: ""}];
+
   // Why, in the words of whoever asked. Free text, and nothing can tell whether
   // somebody is named in it, so it is personal: the trail records that it was
   // written and never what it said.
   string reason = 11 [(payday.field) = {personal: true}];
+
   // The thing this was about, so that its timeline can find it.
   bytes subject_id = 12 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
   }];
-  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {
-    version: {}
-  }];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {
     immutable: true
     default: ""
   }];
+
   // The trace the operation was part of, empty if it was not traced.
   bytes trace_id = 16 [
     (orm.field) = {default: ""},
     (payday.field) = {personal: false}
   ];
+
   // The operation this is part of, and empty on an operation's own event. One
   // that changes many things records an event of its own and a child for each
   // thing it changed, with that thing as the subject and this naming the
@@ -79,6 +106,7 @@ message Event {
     },
     (payday.field) = {event: true}
   ];
+
   // What was done, as the message the app declares for its kind.
   //
   // It is kept as that message's canonical protobuf JSON, so what a row holds
@@ -90,13 +118,12 @@ message Event {
     (orm.field) = {nullable: true},
     (payday.field) = {personal: false}
   ];
+
   option (orm.message) = {
     // AddMany as well as Add: an operation over many things writes a child for
     // each thing it changed, a few hundred to a statement rather than one each.
     rpc: {
-      add: {
-        many: {}
-      }
+      add: {many: {}}
       get: {}
     }
     indexes: [
@@ -151,9 +178,6 @@ message Event {
     // this; see `Own` in entity.proto.
     own: OWN_EVENT
 
-    // Nothing about tenancy, which is the declaration: behind the wall, by the
-    // edge called `tenant`.
-
     // The app's, and the one thing in this file that is: `pd gen` writes the
     // number the app declared in `option (payday.app) = {past: ...}` in place
     // of this zero. Zero is no domain at all, so this file is not an entity
@@ -162,21 +186,16 @@ message Event {
 
     // An event is not erased one at a time, as it is not changed: its rows go
     // when they expire, or with their tenant, and either is a delete.
-    erase: {
-      hard: {}
-    }
+    erase: {hard: {}}
+
+    // Nothing about tenancy, which is the declaration: behind the wall, by the
+    // edge called `tenant`.
 
     // What happened last, first.
     list: {
       order: [
-        {
-          field: {name: "date_created"}
-          desc: true
-        },
-        {
-          field: {name: "id"}
-          desc: true
-        }
+        {field: {name: "date_created"}, desc: true},
+        {field: {name: "id"}, desc: true}
       ]
       by: [
         {name: "ref"},
@@ -189,5 +208,4 @@ message Event {
       max: 500
     }
   };
-  string desc = 6 [(payday.field) = {personal: false}];
 }

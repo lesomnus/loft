@@ -44,7 +44,6 @@ func (Event) Fields() []ent.Field {
 			Optional(),
 		field.Json("value", &anypb.Any{}).ValueScanner(entpb.ValueScanner[*anypb.Any]{}).
 			Optional(),
-		field.String("desc"),
 		field.Uuid("tenant_id").
 			Immutable(),
 	}

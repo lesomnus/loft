@@ -177,20 +177,6 @@ func (_u *EventUpdate) ClearValue() *EventUpdate {
 	return _u
 }
 
-// SetDesc sets the "desc" field.
-func (_u *EventUpdate) SetDesc(v string) *EventUpdate {
-	_u.mutation.SetDesc(v)
-	return _u
-}
-
-// SetNillableDesc sets the "desc" field if the given value is not nil.
-func (_u *EventUpdate) SetNillableDesc(v *string) *EventUpdate {
-	if v != nil {
-		_u.SetDesc(*v)
-	}
-	return _u
-}
-
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdate) Mutation() *EventMutation {
 	return _u.mutation
@@ -330,12 +316,6 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.ValueCleared() {
 		_spec.ClearField(event.FieldValue, field.TypeJson)
-	}
-	if value, ok := _u.mutation.Desc(); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -502,20 +482,6 @@ func (_u *EventUpdateOne) SetValue(v *anypb.Any) *EventUpdateOne {
 // ClearValue clears the value of the "value" field.
 func (_u *EventUpdateOne) ClearValue() *EventUpdateOne {
 	_u.mutation.ClearValue()
-	return _u
-}
-
-// SetDesc sets the "desc" field.
-func (_u *EventUpdateOne) SetDesc(v string) *EventUpdateOne {
-	_u.mutation.SetDesc(v)
-	return _u
-}
-
-// SetNillableDesc sets the "desc" field if the given value is not nil.
-func (_u *EventUpdateOne) SetNillableDesc(v *string) *EventUpdateOne {
-	if v != nil {
-		_u.SetDesc(*v)
-	}
 	return _u
 }
 
@@ -688,12 +654,6 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if _u.mutation.ValueCleared() {
 		_spec.ClearField(event.FieldValue, field.TypeJson)
-	}
-	if value, ok := _u.mutation.Desc(); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Event{config: _u.config}

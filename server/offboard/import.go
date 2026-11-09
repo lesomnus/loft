@@ -18,7 +18,9 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/protobuf-orm/ent/dialect/sql/schema"
+	"github.com/protobuf-orm/protobuf-orm/ormpb"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -312,7 +314,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		SetTenantId(tid).
 		SetKind("workspace.import").
 		SetValue(value).
-		SetDesc("").
 		SetReason("").
 		SetDateOccurred(now).
 		SetDateCreated(now).
@@ -627,6 +628,10 @@ func planOf(table string) (*plan, error) {
 	fs := mt.Descriptor().Fields()
 	for i := range fs.Len() {
 		f := fs.Get(i)
+		if !stored(f) {
+			// No row holds it, so no export's row does either.
+			continue
+		}
 		s := setter{f: f}
 
 		name := string(f.Name())
@@ -667,6 +672,16 @@ func planOf(table string) (*plan, error) {
 		return nil, fmt.Errorf("%s: its rows name no tenant", table)
 	}
 	return p, nil
+}
+
+// stored says whether a table keeps f in a column. protobuf-orm makes none
+// of a field or an edge the schema declares disabled: a message may carry
+// what no row holds, as payday's `Event` carries `desc`, the sentence an
+// event is said in when it is read (payday#224).
+func stored(f protoreflect.FieldDescriptor) bool {
+	of, _ := proto.GetExtension(f.Options(), ormpb.E_Field).(*ormpb.FieldOptions)
+	oe, _ := proto.GetExtension(f.Options(), ormpb.E_Edge).(*ormpb.EdgeOptions)
+	return !of.GetDisabled() && !oe.GetDisabled()
 }
 
 // check refuses a setter that does not take what the field is.
