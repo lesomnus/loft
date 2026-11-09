@@ -25,6 +25,12 @@ an earlier build; across one it builds nothing and says why. `OLDEST`, the
 oldest build a deployment runs, moves to the first build of a new epoch once
 staging runs it.
 
+Epoch 2 is payday#224 (2026-11-10). payday's `Event` declares its `desc`
+disabled, so no row holds a sentence, and the overlay that made `desc` a
+column of Loft's is gone. A store an epoch-1 build made still has
+`event.desc`, NOT NULL with no default, and a migration drops no column: in
+it, every event written after `loft migrate` would fail. Nothing drops it.
+
 From launch the rules below that keep an earlier build's data readable
 apply, and the epoch does not move without the owner's word.
 
