@@ -154,11 +154,6 @@ message AuditFilter {
 
 message AuditRecentRequest {
   uint32 size = 1 [features.field_presence = IMPLICIT];
-  // Was `before`, a time to read on from: a line is stamped to the
-  // microsecond, lines written together can share one, and a page that ended
-  // inside one went on past the rest of it.
-  reserved 2;
-  reserved before;
   // Where the page before ended (`next`), for the page after it.
   string after = 3 [features.field_presence = IMPLICIT];
 }

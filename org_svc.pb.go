@@ -6304,7 +6304,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.loft.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\xaf\x04\n" +
+	"\x0ePartyMeRequest\"\x86\x04\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.loft.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.loft.PartyR\x05party\x12$\n" +
@@ -6322,7 +6322,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"restricted\x18\x0e \x01(\bB\x05\xaa\x01\x02\b\x02R\n" +
 	"restricted\x12!\n" +
-	"\breadonly\x18\x0f \x01(\bB\x05\xaa\x01\x02\b\x02R\breadonlyJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
+	"\breadonly\x18\x0f \x01(\bB\x05\xaa\x01\x02\b\x02R\breadonly\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
