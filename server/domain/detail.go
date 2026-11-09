@@ -29,8 +29,7 @@ import (
 // details is what the events of one answer held, as its entries' `detail`
 // says it (`TimelineEntry.detail`): each field of an event's message its kind
 // wrote, by the name its domain's table gives it (`loft/past.proto`), in the
-// words a person reads -- what a row from before kept in its `payload`, for
-// an event since, which keeps a message instead (payday#151).
+// words a person reads (payday#151).
 //
 // A field that names a row says what the row is called now, read by the
 // answer's namer: a person as they are called, on the access record of the
@@ -170,9 +169,8 @@ func ids(m protoreflect.Message, f func(pdid.Id)) {
 	})
 }
 
-// of is what `ev` held, field by field; nothing for a row from before, which
-// keeps no message, and for a value this build cannot read -- the sentence
-// says what it can of that one.
+// of is what `ev` held, field by field; nothing for a value this build
+// cannot read -- the sentence says what it can of that one.
 func (d *details) of(ev past.EventRow) (map[string]string, error) {
 	m, ok := d.held[ev.Id]
 	if !ok {

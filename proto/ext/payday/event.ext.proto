@@ -2,17 +2,14 @@ edition = "2023";
 
 package payday;
 
-// What Loft adds to payday's Event: the two columns its own events had, which
-// a row from before Loft's past was payday's keeps (payday#151). `desc` is the
-// sentence it was written with and `payload` what it named, as `k=v` lines;
-// such a row holds no `value`, and is said with them when it is read
-// (`server/domain/say.go`). Nothing writes either any more. Every event since
-// keeps a message instead, and is said from it, in the reader's words.
+// What Loft adds to payday's Event: `desc`, the sentence the event is said in
+// when it is read -- in the reader's words, the workspace's zone, its people
+// as they are called then (`server/domain/say.go`) -- which the feed answers
+// with each event it reads (`EventService.Recent`). No row is written with
+// one: an event keeps its message (payday#151), and is said from it.
 //
-// Neither is personal (payday#151): a sentence names people by a mark --
-// `{party}`, `{holder}` -- and the payload by identifier, never by a name
-// (design 8.2).
+// Not personal: what is said is made when it is read, and the access record
+// of that call names whose names it read (design 8.2).
 message Event {
   string desc = 6 [(payday.field) = {personal: false}];
-  string payload = 17 [(payday.field) = {personal: false}];
 }

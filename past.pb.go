@@ -719,7 +719,7 @@ type AssetCorrected struct {
 	xxx_hidden_Row       []byte                 `protobuf:"bytes,8,opt,name=row"`
 	xxx_hidden_Key       string                 `protobuf:"bytes,9,opt,name=key"`
 	xxx_hidden_Retract   bool                   `protobuf:"varint,10,opt,name=retract"`
-	xxx_hidden_DateStart *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_start,json=validFrom"`
+	xxx_hidden_DateStart *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_start,json=dateStart"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -1396,7 +1396,7 @@ type CustodyIssued struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Custody     []byte                 `protobuf:"bytes,1,opt,name=custody"`
 	xxx_hidden_Party       []byte                 `protobuf:"bytes,2,opt,name=party"`
-	xxx_hidden_DateDue     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_due,json=due"`
+	xxx_hidden_DateDue     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_due,json=dateDue"`
 	xxx_hidden_Kind        string                 `protobuf:"bytes,4,opt,name=kind"`
 	xxx_hidden_Lines       uint32                 `protobuf:"varint,5,opt,name=lines"`
 	xxx_hidden_Reservation []byte                 `protobuf:"bytes,6,opt,name=reservation"`
@@ -1622,7 +1622,7 @@ func (b0 CustodyAcknowledged_builder) Build() *CustodyAcknowledged {
 type CustodyExtended struct {
 	state              protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Custody []byte                 `protobuf:"bytes,1,opt,name=custody"`
-	xxx_hidden_DateDue *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_due,json=due"`
+	xxx_hidden_DateDue *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_due,json=dateDue"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1712,7 +1712,7 @@ func (b0 CustodyExtended_builder) Build() *CustodyExtended {
 type CustodyOverdue struct {
 	state              protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Custody []byte                 `protobuf:"bytes,1,opt,name=custody"`
-	xxx_hidden_DateDue *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_due,json=due"`
+	xxx_hidden_DateDue *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_due,json=dateDue"`
 	xxx_hidden_Asset   []byte                 `protobuf:"bytes,7,opt,name=asset"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -2423,8 +2423,8 @@ type ReservationAdded struct {
 	xxx_hidden_Status      string                 `protobuf:"bytes,4,opt,name=status"`
 	xxx_hidden_Party       []byte                 `protobuf:"bytes,5,opt,name=party"`
 	xxx_hidden_Occurrences uint32                 `protobuf:"varint,6,opt,name=occurrences"`
-	xxx_hidden_DateStart   *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_start,json=beginsAt"`
-	xxx_hidden_DateEnd     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_end,json=endsAt"`
+	xxx_hidden_DateStart   *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_Asset       []byte                 `protobuf:"bytes,9,opt,name=asset"`
 	xxx_hidden_AssetName   string                 `protobuf:"bytes,10,opt,name=asset_name,json=assetName"`
 	xxx_hidden_Override    bool                   `protobuf:"varint,11,opt,name=override"`
@@ -2828,9 +2828,8 @@ func (b0 ReservationDecided_builder) Build() *ReservationDecided {
 // (D64), or closed (D29) -- which says so (`workspace`): it was nobody's
 // doing. A confirmed one nobody could check in to or pick up then is no
 // no-show; it expired, as a hold nobody could confirm and a request nobody
-// could decide did (`from: confirmed`). Declared a release before anything
-// wrote either (design 7.14, D68): the sweeps write what they let go of
-// while the workspace is read-only, and its restore what passed its time
+// could decide did (`from: confirmed`). The sweeps write what they let go
+// of while the workspace is read-only, and its restore what passed its time
 // while it was closed, each the restore's child (design 7.15, D70). And
 // equipment nobody picked up by the end of its time, where the workspace
 // holds nobody to taking up what they booked -- it takes no check-ins -- is
@@ -2966,7 +2965,7 @@ type ReservationAllocationChanged struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Reservation []byte                 `protobuf:"bytes,1,opt,name=reservation"`
 	xxx_hidden_Name        string                 `protobuf:"bytes,2,opt,name=name"`
-	xxx_hidden_DateStart   *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_start,json=beginsAt"`
+	xxx_hidden_DateStart   *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_start,json=dateStart"`
 	xxx_hidden_Asset       []byte                 `protobuf:"bytes,9,opt,name=asset"`
 	xxx_hidden_AssetName   string                 `protobuf:"bytes,10,opt,name=asset_name,json=assetName"`
 	xxx_hidden_Override    bool                   `protobuf:"varint,11,opt,name=override"`
@@ -3544,7 +3543,7 @@ type TenantDomainLapsed struct {
 	xxx_hidden_Domain      []byte                 `protobuf:"bytes,1,opt,name=domain"`
 	xxx_hidden_Host        string                 `protobuf:"bytes,2,opt,name=host"`
 	xxx_hidden_Purpose     string                 `protobuf:"bytes,3,opt,name=purpose"`
-	xxx_hidden_DateFailing *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_failing,json=failingSince"`
+	xxx_hidden_DateFailing *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_failing,json=dateFailing"`
 	xxx_hidden_Failures    uint32                 `protobuf:"varint,6,opt,name=failures"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -5386,7 +5385,7 @@ func (b0 WorkOrderFinished_builder) Build() *WorkOrderFinished {
 type WorkspaceClosed struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_By          string                 `protobuf:"bytes,1,opt,name=by"`
-	xxx_hidden_DateDestroy *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_destroy,json=destroy"`
+	xxx_hidden_DateDestroy *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_destroy,json=dateDestroy"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -5471,8 +5470,7 @@ func (b0 WorkspaceClosed_builder) Build() *WorkspaceClosed {
 // opened (`expired`, D70): a hold nobody could confirm, a request nobody
 // could decide, a booking nobody could check in to or pick up. Each is an
 // expiry of its own, the restore's child, which says the workspace was
-// closed. Declared a release before anything writes it (design 7.15): until
-// then a restore says none, and its children are what it let go of.
+// closed (design 7.15).
 type WorkspaceRestored struct {
 	state              protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_By      string                 `protobuf:"bytes,1,opt,name=by"`
@@ -5554,9 +5552,9 @@ type WorkspaceConfigured struct {
 	xxx_hidden_Currency                *string                `protobuf:"bytes,4,opt,name=currency"`
 	xxx_hidden_NoShowMinutes           int32                  `protobuf:"varint,5,opt,name=no_show_minutes,json=noShowMinutes"`
 	xxx_hidden_KeepDays                uint32                 `protobuf:"varint,6,opt,name=keep_days,json=keepDays"`
-	xxx_hidden_DateKeepEffective       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_keep_effective,json=keepFrom"`
+	xxx_hidden_DateKeepEffective       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=date_keep_effective,json=dateKeepEffective"`
 	xxx_hidden_AccessKeepDays          uint32                 `protobuf:"varint,8,opt,name=access_keep_days,json=accessKeepDays"`
-	xxx_hidden_DateAccessKeepEffective *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date_access_keep_effective,json=accessKeepFrom"`
+	xxx_hidden_DateAccessKeepEffective *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=date_access_keep_effective,json=dateAccessKeepEffective"`
 	xxx_hidden_RestoreDays             uint32                 `protobuf:"varint,10,opt,name=restore_days,json=restoreDays"`
 	xxx_hidden_Name                    *string                `protobuf:"bytes,21,opt,name=name"`
 	XXX_raceDetectHookData             protoimpl.RaceDetectHookData
@@ -5867,7 +5865,7 @@ func (b0 WorkspaceConfigured_builder) Build() *WorkspaceConfigured {
 // and what of it could not be put back as it was.
 type WorkspaceImported struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_DateExported *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_exported,json=exportedAt"`
+	xxx_hidden_DateExported *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_exported,json=dateExported"`
 	xxx_hidden_Manifest     string                 `protobuf:"bytes,12,opt,name=manifest"`
 	xxx_hidden_SignedBy     string                 `protobuf:"bytes,13,opt,name=signed_by,json=signedBy"`
 	xxx_hidden_Rows         uint32                 `protobuf:"varint,14,opt,name=rows"`
@@ -5876,7 +5874,6 @@ type WorkspaceImported struct {
 	xxx_hidden_Released     []string               `protobuf:"bytes,17,rep,name=released"`
 	xxx_hidden_Unlinked     uint32                 `protobuf:"varint,18,opt,name=unlinked"`
 	xxx_hidden_Reopened     bool                   `protobuf:"varint,19,opt,name=reopened"`
-	xxx_hidden_Left         map[string]uint32      `protobuf:"bytes,20,rep,name=left" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -5969,13 +5966,6 @@ func (x *WorkspaceImported) GetReopened() bool {
 	return false
 }
 
-func (x *WorkspaceImported) GetLeft() map[string]uint32 {
-	if x != nil {
-		return x.xxx_hidden_Left
-	}
-	return nil
-}
-
 func (x *WorkspaceImported) SetDateExported(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateExported = v
 }
@@ -6012,10 +6002,6 @@ func (x *WorkspaceImported) SetReopened(v bool) {
 	x.xxx_hidden_Reopened = v
 }
 
-func (x *WorkspaceImported) SetLeft(v map[string]uint32) {
-	x.xxx_hidden_Left = v
-}
-
 func (x *WorkspaceImported) HasDateExported() bool {
 	if x == nil {
 		return false
@@ -6039,7 +6025,6 @@ type WorkspaceImported_builder struct {
 	Released     []string
 	Unlinked     uint32
 	Reopened     bool
-	Left         map[string]uint32
 }
 
 func (b0 WorkspaceImported_builder) Build() *WorkspaceImported {
@@ -6055,7 +6040,6 @@ func (b0 WorkspaceImported_builder) Build() *WorkspaceImported {
 	x.xxx_hidden_Released = b.Released
 	x.xxx_hidden_Unlinked = b.Unlinked
 	x.xxx_hidden_Reopened = b.Reopened
-	x.xxx_hidden_Left = b.Left
 	return m0
 }
 
@@ -6064,8 +6048,8 @@ func (b0 WorkspaceImported_builder) Build() *WorkspaceImported {
 type AccessReviewed struct {
 	state                protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Review    []byte                 `protobuf:"bytes,1,opt,name=review"`
-	xxx_hidden_DateStart *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_start,json=from"`
-	xxx_hidden_DateEnd   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_end,json=to"`
+	xxx_hidden_DateStart *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_start,json=dateStart"`
+	xxx_hidden_DateEnd   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=date_end,json=dateEnd"`
 	xxx_hidden_Calls     uint32                 `protobuf:"varint,4,opt,name=calls"`
 	xxx_hidden_Downloads uint32                 `protobuf:"varint,5,opt,name=downloads"`
 	xxx_hidden_Refused   uint32                 `protobuf:"varint,6,opt,name=refused"`
@@ -6413,7 +6397,7 @@ func (b0 AttachmentAdded_builder) Build() *AttachmentAdded {
 // when -- never what they said.
 type RetentionExpired struct {
 	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_DateBefore     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date_before,json=before"`
+	xxx_hidden_DateBefore     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=date_before,json=dateBefore"`
 	xxx_hidden_Placements     uint32                 `protobuf:"varint,2,opt,name=placements"`
 	xxx_hidden_Links          uint32                 `protobuf:"varint,3,opt,name=links"`
 	xxx_hidden_Stewardships   uint32                 `protobuf:"varint,4,opt,name=stewardships"`
@@ -6755,7 +6739,7 @@ const file_loft_past_proto_rawDesc = "" +
 	"\aretract\x18\n" +
 	" \x01(\bR\aretract\x129\n" +
 	"\n" +
-	"date_start\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tvalidFrom:\x13\x92\xbb\x16\x0f\n" +
+	"date_start\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart:\x13\x92\xbb\x16\x0f\n" +
 	"\rasset.correct\"G\n" +
 	"\vAssetVoided\x12\x14\n" +
 	"\x05asset\x18\x01 \x01(\fR\x05asset\x12\x10\n" +
@@ -6790,11 +6774,11 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x05stock\x18\x01 \x01(\fR\x05stock\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
 	"\bquantity\x18\x04 \x01(\x03R\bquantity:\x13\x92\xbb\x16\x0f\n" +
-	"\rstock.convert\"\xe9\x01\n" +
+	"\rstock.convert\"\xed\x01\n" +
 	"\rCustodyIssued\x12\x18\n" +
 	"\acustody\x18\x01 \x01(\fR\acustody\x12\x14\n" +
-	"\x05party\x18\x02 \x01(\fR\x05party\x121\n" +
-	"\bdate_due\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x03due\x12\x12\n" +
+	"\x05party\x18\x02 \x01(\fR\x05party\x125\n" +
+	"\bdate_due\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\x12\x12\n" +
 	"\x04kind\x18\x04 \x01(\tR\x04kind\x12\x14\n" +
 	"\x05lines\x18\x05 \x01(\rR\x05lines\x12 \n" +
 	"\vreservation\x18\x06 \x01(\fR\vreservation\x12\x14\n" +
@@ -6802,14 +6786,14 @@ const file_loft_past_proto_rawDesc = "" +
 	"\rcustody.issue\"J\n" +
 	"\x13CustodyAcknowledged\x12\x18\n" +
 	"\acustody\x18\x01 \x01(\fR\acustody:\x19\x92\xbb\x16\x15\n" +
-	"\x13custody.acknowledge\"t\n" +
+	"\x13custody.acknowledge\"x\n" +
 	"\x0fCustodyExtended\x12\x18\n" +
-	"\acustody\x18\x01 \x01(\fR\acustody\x121\n" +
-	"\bdate_due\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x03due:\x14\x92\xbb\x16\x10\n" +
-	"\x0ecustody.extend\"\x8a\x01\n" +
+	"\acustody\x18\x01 \x01(\fR\acustody\x125\n" +
+	"\bdate_due\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\adateDue:\x14\x92\xbb\x16\x10\n" +
+	"\x0ecustody.extend\"\x8e\x01\n" +
 	"\x0eCustodyOverdue\x12\x18\n" +
-	"\acustody\x18\x01 \x01(\fR\acustody\x121\n" +
-	"\bdate_due\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x03due\x12\x14\n" +
+	"\acustody\x18\x01 \x01(\fR\acustody\x125\n" +
+	"\bdate_due\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\x12\x14\n" +
 	"\x05asset\x18\a \x01(\fR\x05asset:\x15\x92\xbb\x16\x11\n" +
 	"\x0fcustody.overdue\"g\n" +
 	"\x0fCustodyReturned\x12\x18\n" +
@@ -6849,15 +6833,15 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x05asset\x18\x02 \x01(\fR\x05asset\x12\x10\n" +
 	"\x03tag\x18\x03 \x01(\tR\x03tag:#\x92\xbb\x16\x1f\n" +
 	"\fbookable.add\n" +
-	"\x0fbookable.update\"\xdc\x02\n" +
+	"\x0fbookable.update\"\xde\x02\n" +
 	"\x10ReservationAdded\x12 \n" +
 	"\vreservation\x18\x01 \x01(\fR\vreservation\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x12\x14\n" +
 	"\x05party\x18\x05 \x01(\fR\x05party\x12 \n" +
-	"\voccurrences\x18\x06 \x01(\rR\voccurrences\x128\n" +
+	"\voccurrences\x18\x06 \x01(\rR\voccurrences\x129\n" +
 	"\n" +
-	"date_start\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x124\n" +
-	"\bdate_end\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12\x14\n" +
+	"date_start\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12\x14\n" +
 	"\x05asset\x18\t \x01(\fR\x05asset\x12\x1d\n" +
 	"\n" +
 	"asset_name\x18\n" +
@@ -6885,12 +6869,12 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x04from\x18\r \x01(\tR\x04from\x12\x1c\n" +
 	"\tworkspace\x18\x0f \x01(\tR\tworkspace:-\x92\xbb\x16)\n" +
 	"\x12reservation.expire\n" +
-	"\x13reservation.no_show\"\xc8\x02\n" +
+	"\x13reservation.no_show\"\xc9\x02\n" +
 	"\x1cReservationAllocationChanged\x12 \n" +
 	"\vreservation\x18\x01 \x01(\fR\vreservation\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x128\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x129\n" +
 	"\n" +
-	"date_start\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x12\x14\n" +
+	"date_start\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x12\x14\n" +
 	"\x05asset\x18\t \x01(\fR\x05asset\x12\x1d\n" +
 	"\n" +
 	"asset_name\x18\n" +
@@ -6925,12 +6909,12 @@ const file_loft_past_proto_rawDesc = "" +
 	"\apurpose\x18\x03 \x01(\tR\apurpose\x12\x14\n" +
 	"\x05force\x18\a \x01(\bR\x05force\x12\x16\n" +
 	"\x06labels\x18\b \x01(\rR\x06labels:\x13\x92\xbb\x16\x0f\n" +
-	"\rdomain.retire\"\xca\x01\n" +
+	"\rdomain.retire\"\xc9\x01\n" +
 	"\x12TenantDomainLapsed\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\fR\x06domain\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x18\n" +
-	"\apurpose\x18\x03 \x01(\tR\apurpose\x12>\n" +
-	"\fdate_failing\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\ffailingSince\x12\x1a\n" +
+	"\apurpose\x18\x03 \x01(\tR\apurpose\x12=\n" +
+	"\fdate_failing\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vdateFailing\x12\x1a\n" +
 	"\bfailures\x18\x06 \x01(\rR\bfailures:\x12\x92\xbb\x16\x0e\n" +
 	"\fdomain.lapse\"q\n" +
 	"\x0fInvitationAdded\x12\x1e\n" +
@@ -7044,30 +7028,29 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x04cost\x18\a \x01(\x03R\x04cost\x12\x1a\n" +
 	"\bcurrency\x18\b \x01(\tR\bcurrency:\x1f\x92\xbb\x16\x1b\n" +
 	"\twork.done\n" +
-	"\x0ework.cancelled\"s\n" +
+	"\x0ework.cancelled\"w\n" +
 	"\x0fWorkspaceClosed\x12\x0e\n" +
-	"\x02by\x18\x01 \x01(\tR\x02by\x129\n" +
-	"\fdate_destroy\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\adestroy:\x15\x92\xbb\x16\x11\n" +
+	"\x02by\x18\x01 \x01(\tR\x02by\x12=\n" +
+	"\fdate_destroy\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vdateDestroy:\x15\x92\xbb\x16\x11\n" +
 	"\x0fworkspace.close\"V\n" +
 	"\x11WorkspaceRestored\x12\x0e\n" +
 	"\x02by\x18\x01 \x01(\tR\x02by\x12\x18\n" +
 	"\aexpired\x18\x16 \x01(\rR\aexpired:\x17\x92\xbb\x16\x13\n" +
-	"\x11workspace.restore\"\xd2\x03\n" +
+	"\x11workspace.restore\"\xe4\x03\n" +
 	"\x13WorkspaceConfigured\x12!\n" +
 	"\btimezone\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x01R\btimezone\x12!\n" +
 	"\bcurrency\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x01R\bcurrency\x12-\n" +
 	"\x0fno_show_minutes\x18\x05 \x01(\x05B\x05\xaa\x01\x02\b\x01R\rnoShowMinutes\x12\"\n" +
-	"\tkeep_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x01R\bkeepDays\x12A\n" +
-	"\x13date_keep_effective\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\bkeepFrom\x12/\n" +
-	"\x10access_keep_days\x18\b \x01(\rB\x05\xaa\x01\x02\b\x01R\x0eaccessKeepDays\x12N\n" +
-	"\x1adate_access_keep_effective\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x0eaccessKeepFrom\x12(\n" +
+	"\tkeep_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x01R\bkeepDays\x12J\n" +
+	"\x13date_keep_effective\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x11dateKeepEffective\x12/\n" +
+	"\x10access_keep_days\x18\b \x01(\rB\x05\xaa\x01\x02\b\x01R\x0eaccessKeepDays\x12W\n" +
+	"\x1adate_access_keep_effective\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x17dateAccessKeepEffective\x12(\n" +
 	"\frestore_days\x18\n" +
 	" \x01(\rB\x05\xaa\x01\x02\b\x01R\vrestoreDays\x12\x19\n" +
 	"\x04name\x18\x15 \x01(\tB\x05\xaa\x01\x02\b\x01R\x04name:\x19\x92\xbb\x16\x15\n" +
-	"\x13workspace.configure\"\xa7\x03\n" +
-	"\x11WorkspaceImported\x12=\n" +
-	"\rdate_exported\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"exportedAt\x12\x1a\n" +
+	"\x13workspace.configure\"\xb9\x02\n" +
+	"\x11WorkspaceImported\x12?\n" +
+	"\rdate_exported\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\fdateExported\x12\x1a\n" +
 	"\bmanifest\x18\f \x01(\tR\bmanifest\x12\x1b\n" +
 	"\tsigned_by\x18\r \x01(\tR\bsignedBy\x12\x12\n" +
 	"\x04rows\x18\x0e \x01(\rR\x04rows\x12\x14\n" +
@@ -7075,17 +7058,13 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x05asked\x18\x10 \x01(\tR\x05asked\x12\x1a\n" +
 	"\breleased\x18\x11 \x03(\tR\breleased\x12\x1a\n" +
 	"\bunlinked\x18\x12 \x01(\rR\bunlinked\x12\x1a\n" +
-	"\breopened\x18\x13 \x01(\bR\breopened\x125\n" +
-	"\x04left\x18\x14 \x03(\v2!.loft.WorkspaceImported.LeftEntryR\x04left\x1a7\n" +
-	"\tLeftEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01:\x16\x92\xbb\x16\x12\n" +
-	"\x10workspace.import\"\xf3\x01\n" +
+	"\breopened\x18\x13 \x01(\bR\breopened:\x16\x92\xbb\x16\x12\n" +
+	"\x10workspace.import\"\xfd\x01\n" +
 	"\x0eAccessReviewed\x12\x16\n" +
-	"\x06review\x18\x01 \x01(\fR\x06review\x124\n" +
+	"\x06review\x18\x01 \x01(\fR\x06review\x129\n" +
 	"\n" +
-	"date_start\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x120\n" +
-	"\bdate_end\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x14\n" +
+	"date_start\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
+	"\bdate_end\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12\x14\n" +
 	"\x05calls\x18\x04 \x01(\rR\x05calls\x12\x1c\n" +
 	"\tdownloads\x18\x05 \x01(\rR\tdownloads\x12\x18\n" +
 	"\arefused\x18\x06 \x01(\rR\arefused:\x13\x92\xbb\x16\x0f\n" +
@@ -7102,9 +7081,10 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12!\n" +
 	"\fcontent_type\x18\x04 \x01(\tR\vcontentType\x12\x12\n" +
 	"\x04size\x18\x05 \x01(\x04R\x04size:\x14\x92\xbb\x16\x10\n" +
-	"\x0eattachment.add\"\xb2\x03\n" +
-	"\x10RetentionExpired\x127\n" +
-	"\vdate_before\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x06before\x12\x1e\n" +
+	"\x0eattachment.add\"\xb6\x03\n" +
+	"\x10RetentionExpired\x12;\n" +
+	"\vdate_before\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateBefore\x12\x1e\n" +
 	"\n" +
 	"placements\x18\x02 \x01(\rR\n" +
 	"placements\x12\x14\n" +
@@ -7126,7 +7106,7 @@ const file_loft_past_proto_rawDesc = "" +
 	"\fevent.redactB)\xca\xc7\x16\x06\n" +
 	"\x04\b\x11\x10\x10Z\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_loft_past_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_loft_past_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_loft_past_proto_goTypes = []any{
 	(*AssetAdded)(nil),                   // 0: loft.AssetAdded
 	(*AssetsAdded)(nil),                  // 1: loft.AssetsAdded
@@ -7187,31 +7167,29 @@ var file_loft_past_proto_goTypes = []any{
 	(*AttachmentAdded)(nil),              // 56: loft.AttachmentAdded
 	(*RetentionExpired)(nil),             // 57: loft.RetentionExpired
 	(*EventRedacted)(nil),                // 58: loft.EventRedacted
-	nil,                                  // 59: loft.WorkspaceImported.LeftEntry
-	(*timestamppb.Timestamp)(nil),        // 60: google.protobuf.Timestamp
+	(*timestamppb.Timestamp)(nil),        // 59: google.protobuf.Timestamp
 }
 var file_loft_past_proto_depIdxs = []int32{
-	60, // 0: loft.AssetCorrected.date_start:type_name -> google.protobuf.Timestamp
-	60, // 1: loft.CustodyIssued.date_due:type_name -> google.protobuf.Timestamp
-	60, // 2: loft.CustodyExtended.date_due:type_name -> google.protobuf.Timestamp
-	60, // 3: loft.CustodyOverdue.date_due:type_name -> google.protobuf.Timestamp
-	60, // 4: loft.ReservationAdded.date_start:type_name -> google.protobuf.Timestamp
-	60, // 5: loft.ReservationAdded.date_end:type_name -> google.protobuf.Timestamp
-	60, // 6: loft.ReservationAllocationChanged.date_start:type_name -> google.protobuf.Timestamp
-	60, // 7: loft.TenantDomainLapsed.date_failing:type_name -> google.protobuf.Timestamp
-	60, // 8: loft.WorkspaceClosed.date_destroy:type_name -> google.protobuf.Timestamp
-	60, // 9: loft.WorkspaceConfigured.date_keep_effective:type_name -> google.protobuf.Timestamp
-	60, // 10: loft.WorkspaceConfigured.date_access_keep_effective:type_name -> google.protobuf.Timestamp
-	60, // 11: loft.WorkspaceImported.date_exported:type_name -> google.protobuf.Timestamp
-	59, // 12: loft.WorkspaceImported.left:type_name -> loft.WorkspaceImported.LeftEntry
-	60, // 13: loft.AccessReviewed.date_start:type_name -> google.protobuf.Timestamp
-	60, // 14: loft.AccessReviewed.date_end:type_name -> google.protobuf.Timestamp
-	60, // 15: loft.RetentionExpired.date_before:type_name -> google.protobuf.Timestamp
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	59, // 0: loft.AssetCorrected.date_start:type_name -> google.protobuf.Timestamp
+	59, // 1: loft.CustodyIssued.date_due:type_name -> google.protobuf.Timestamp
+	59, // 2: loft.CustodyExtended.date_due:type_name -> google.protobuf.Timestamp
+	59, // 3: loft.CustodyOverdue.date_due:type_name -> google.protobuf.Timestamp
+	59, // 4: loft.ReservationAdded.date_start:type_name -> google.protobuf.Timestamp
+	59, // 5: loft.ReservationAdded.date_end:type_name -> google.protobuf.Timestamp
+	59, // 6: loft.ReservationAllocationChanged.date_start:type_name -> google.protobuf.Timestamp
+	59, // 7: loft.TenantDomainLapsed.date_failing:type_name -> google.protobuf.Timestamp
+	59, // 8: loft.WorkspaceClosed.date_destroy:type_name -> google.protobuf.Timestamp
+	59, // 9: loft.WorkspaceConfigured.date_keep_effective:type_name -> google.protobuf.Timestamp
+	59, // 10: loft.WorkspaceConfigured.date_access_keep_effective:type_name -> google.protobuf.Timestamp
+	59, // 11: loft.WorkspaceImported.date_exported:type_name -> google.protobuf.Timestamp
+	59, // 12: loft.AccessReviewed.date_start:type_name -> google.protobuf.Timestamp
+	59, // 13: loft.AccessReviewed.date_end:type_name -> google.protobuf.Timestamp
+	59, // 14: loft.RetentionExpired.date_before:type_name -> google.protobuf.Timestamp
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_loft_past_proto_init() }
@@ -7225,7 +7203,7 @@ func file_loft_past_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_past_proto_rawDesc), len(file_loft_past_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   60,
+			NumMessages:   59,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

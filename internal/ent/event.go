@@ -42,8 +42,6 @@ type Event struct {
 	Value *anypb.Any `json:"value,omitempty"`
 	// Desc holds the value of the "desc" field.
 	Desc string `json:"desc,omitempty"`
-	// Payload holds the value of the "payload" field.
-	Payload string `json:"payload,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -79,7 +77,7 @@ func (*Event) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case event.FieldTraceId:
 			values[i] = new([]byte)
-		case event.FieldKind, event.FieldReason, event.FieldDesc, event.FieldPayload:
+		case event.FieldKind, event.FieldReason, event.FieldDesc:
 			values[i] = new(sql.NullString)
 		case event.FieldDateOccurred, event.FieldDateUpdated, event.FieldDateCreated:
 			values[i] = new(sql.NullTime)
@@ -179,12 +177,6 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Desc = value.String
 			}
-		case event.FieldPayload:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field payload", values[i])
-			} else if value.Valid {
-				_m.Payload = value.String
-			}
 		case event.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
@@ -270,9 +262,6 @@ func (_m *Event) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("desc=")
 	builder.WriteString(_m.Desc)
-	builder.WriteString(", ")
-	builder.WriteString("payload=")
-	builder.WriteString(_m.Payload)
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))

@@ -190,5 +190,4 @@ message Event {
     }
   };
   string desc = 6 [(payday.field) = {personal: false}];
-  string payload = 17 [(payday.field) = {personal: false}];
 }

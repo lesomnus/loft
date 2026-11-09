@@ -38,6 +38,5 @@ func (e *Event) Proto() *loft.Event {
 		x.SetValue(e.Value)
 	}
 	x.SetDesc(e.Desc)
-	x.SetPayload(e.Payload)
 	return x
 }

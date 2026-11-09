@@ -807,7 +807,6 @@ var (
 		{Name: "cause_id", Type: field.TypeUuid, Nullable: true},
 		{Name: "value", Type: field.TypeJson, Nullable: true},
 		{Name: "desc", Type: field.TypeString},
-		{Name: "payload", Type: field.TypeString},
 		{Name: "tenant_id", Type: field.TypeUuid},
 	}
 	// EventTable holds the schema information for the "event" table.
@@ -818,7 +817,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "event_tenant_tenant",
-				Columns:    []*schema.Column{EventColumns[13]},
+				Columns:    []*schema.Column{EventColumns[12]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -827,7 +826,7 @@ var (
 			{
 				Name:    "event_page",
 				Unique:  false,
-				Columns: []*schema.Column{EventColumns[13], EventColumns[7], EventColumns[0]},
+				Columns: []*schema.Column{EventColumns[12], EventColumns[7], EventColumns[0]},
 			},
 			{
 				Name:    "event_subject",

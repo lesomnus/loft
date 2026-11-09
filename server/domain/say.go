@@ -3,17 +3,14 @@ package domain
 import (
 	"context"
 	"fmt"
-	"slices"
 	"strings"
 	"time"
-	"uuid"
 
 	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -32,7 +29,7 @@ import (
 // movement, how a finding was settled, what was done to a reservation -- is
 // said in the word the page says it in (`io.go`), where it was written as its
 // code; and a reservation's time is said in the workspace's zone, where it was
-// UTC. A row from before reads as it was written.
+// UTC.
 
 // Sentences is what Loft says of its events.
 var Sentences = sentences()
@@ -411,21 +408,6 @@ func sentences() *past.Sentences {
 		return "작업 기록의 사유 삭제"
 	})
 
-	// A row from before Loft's events were the past's: the sentence it was
-	// written with, and the people it marks named as they are now.
-	s.Legacy(func(r *past.Reading, ev past.EventRow) string {
-		n := namerOf(r.Context())
-		if n == nil {
-			return ""
-		}
-		v, err := n.legacy(r.Context(), ev.Id)
-		if err != nil {
-			r.Fail(err)
-			return ""
-		}
-		return n.say(v.desc, v.payload)
-	})
-
 	return s
 }
 
@@ -476,7 +458,7 @@ func attribute(r *past.Reading, asset []byte, key string) string {
 
 // namerKey is the namer of the answer being said, on the context its reading
 // is for: what a sentence that says more than [past.Reading.Name] does --
-// a membership's alias, a row from before -- reads with.
+// a membership's alias, an attribute's label -- reads with.
 type namerKey struct{}
 
 func withNamer(ctx context.Context, n *namer) context.Context {
@@ -516,59 +498,4 @@ func said(v *ent.Event) past.EventRow {
 		r.Cause = pdid.Id(*v.CauseId)
 	}
 	return r
-}
-
-// legacyRow is what a row from before kept of what it said: the sentence,
-// and what it named.
-type legacyRow struct{ desc, payload string }
-
-// legacy is what the row `id` said, read once: off what the answer read of
-// it already, or else off the row.
-func (n *namer) legacy(ctx context.Context, id pdid.Id) (legacyRow, error) {
-	if v, ok := n.legacies[id.Uuid()]; ok {
-		return v, nil
-	}
-	v, err := n.t.db.Event.Query().
-		Where(event.Id(id.Uuid()), event.TenantId(n.t.tenant.Uuid())).
-		Select(event.FieldDesc, event.FieldPayload).
-		Only(ctx)
-	if err != nil {
-		return legacyRow{}, err
-	}
-	n.knows(v.Id, v.Desc, v.Payload)
-	return n.legacies[v.Id], nil
-}
-
-// before reads what the rows from before among `rows` said, the ones it does
-// not know yet, in one read: a row that holds no message is one of them.
-func (n *namer) before(rows ...map[uuid.UUID]past.EventRow) error {
-	var ids []uuid.UUID
-	for _, m := range rows {
-		for k, v := range m {
-			if _, ok := n.legacies[k]; !ok && v.Value == nil {
-				ids = append(ids, k)
-			}
-		}
-	}
-	for page := range slices.Chunk(ids, 500) {
-		vs, err := n.t.db.Event.Query().
-			Where(event.IdIn(page...), event.TenantId(n.t.tenant.Uuid())).
-			Select(event.FieldId, event.FieldDesc, event.FieldPayload).
-			All(n.t.ctx)
-		if err != nil {
-			return err
-		}
-		for _, v := range vs {
-			n.knows(v.Id, v.Desc, v.Payload)
-		}
-	}
-	return nil
-}
-
-// knows is what a row from before said, read with it.
-func (n *namer) knows(id uuid.UUID, desc, payload string) {
-	if n.legacies == nil {
-		n.legacies = map[uuid.UUID]legacyRow{}
-	}
-	n.legacies[id] = legacyRow{desc, payload}
 }

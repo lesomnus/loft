@@ -238,26 +238,3 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 	x.NoError(r.Err())
 	x.Empty(slices.DeleteFunc(slices.Sorted(maps.Keys(pd.EventKinds)), func(k string) bool { return said[k] }), "a kind with no sentence here")
 }
-
-// TestAnEventFromBeforeIsSaidAsItWasWritten: a row from before Loft's events
-// kept a message holds none, and is said by the words it was written with,
-// the people it marks named as they are now.
-func TestAnEventFromBeforeIsSaidAsItWasWritten(t *testing.T) {
-	x := require.New(t)
-	ctx := context.Background()
-	tenant := pdid.New(pd.TenantDomain)
-	kim := pdid.New(pd.PartyDomain)
-	n := &namer{t: &Tx{ctx: ctx, tenant: tenant}, parties: map[uuid.UUID]called{kim.Uuid(): {found: true, name: "김 대리"}}}
-	r := Sentences.Read(withNamer(ctx, n), n, "ko", time.UTC)
-
-	for _, c := range []struct{ desc, payload, want string }{
-		{"수정: {party}", "party=" + kim.String(), "수정: 김 대리"},
-		{"역할 변경: Kim → admin", "", "역할 변경: Kim → admin"},
-		{"수정: {party}", "party=Kim", "수정: {party}"},
-	} {
-		id := pdid.New(pd.EventDomain)
-		n.knows(id.Uuid(), c.desc, c.payload)
-		x.Equal(c.want, r.Say(past.EventRow{Id: id, Tenant: tenant, Kind: "party.update"}))
-	}
-	x.NoError(r.Err())
-}

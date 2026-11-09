@@ -86,12 +86,12 @@
         "kind": "bytes"
       },
       "2": {
-        "json": "from",
+        "json": "dateStart",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
       "3": {
-        "json": "to",
+        "json": "dateEnd",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -200,7 +200,7 @@
         "kind": "bool"
       },
       "11": {
-        "json": "validFrom",
+        "json": "dateStart",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       }
@@ -411,7 +411,7 @@
         "kind": "bytes"
       },
       "3": {
-        "json": "due",
+        "json": "dateDue",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       }
@@ -426,7 +426,7 @@
         "kind": "bytes"
       },
       "3": {
-        "json": "due",
+        "json": "dateDue",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -453,7 +453,7 @@
         "kind": "bytes"
       },
       "3": {
-        "json": "due",
+        "json": "dateDue",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -703,12 +703,12 @@
         "kind": "uint32"
       },
       "7": {
-        "json": "beginsAt",
+        "json": "dateStart",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
       "8": {
-        "json": "endsAt",
+        "json": "dateEnd",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -735,7 +735,7 @@
         "kind": "string"
       },
       "7": {
-        "json": "beginsAt",
+        "json": "dateStart",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -808,7 +808,7 @@
     },
     "loft.RetentionExpired": {
       "1": {
-        "json": "before",
+        "json": "dateBefore",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -979,7 +979,7 @@
         "kind": "string"
       },
       "5": {
-        "json": "failingSince",
+        "json": "dateFailing",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -1082,7 +1082,7 @@
         "kind": "string"
       },
       "2": {
-        "json": "destroy",
+        "json": "dateDestroy",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       }
@@ -1105,7 +1105,7 @@
         "kind": "uint32"
       },
       "7": {
-        "json": "keepFrom",
+        "json": "dateKeepEffective",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -1114,7 +1114,7 @@
         "kind": "uint32"
       },
       "9": {
-        "json": "accessKeepFrom",
+        "json": "dateAccessKeepEffective",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -1129,7 +1129,7 @@
     },
     "loft.WorkspaceImported": {
       "11": {
-        "json": "exportedAt",
+        "json": "dateExported",
         "kind": "message",
         "type": "google.protobuf.Timestamp"
       },
@@ -1165,11 +1165,6 @@
       "19": {
         "json": "reopened",
         "kind": "bool"
-      },
-      "20": {
-        "json": "left",
-        "kind": "uint32",
-        "map": "string"
       }
     },
     "loft.WorkspaceRestored": {

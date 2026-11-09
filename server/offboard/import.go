@@ -314,7 +314,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		SetValue(value).
 		SetDesc("").
 		SetReason("").
-		SetPayload("").
 		SetDateOccurred(now).
 		SetDateCreated(now).
 		SetDateUpdated(now)

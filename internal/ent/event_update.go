@@ -191,20 +191,6 @@ func (_u *EventUpdate) SetNillableDesc(v *string) *EventUpdate {
 	return _u
 }
 
-// SetPayload sets the "payload" field.
-func (_u *EventUpdate) SetPayload(v string) *EventUpdate {
-	_u.mutation.SetPayload(v)
-	return _u
-}
-
-// SetNillablePayload sets the "payload" field if the given value is not nil.
-func (_u *EventUpdate) SetNillablePayload(v *string) *EventUpdate {
-	if v != nil {
-		_u.SetPayload(*v)
-	}
-	return _u
-}
-
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdate) Mutation() *EventMutation {
 	return _u.mutation
@@ -350,12 +336,6 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
 		_spec.SetField(event.FieldDesc, field.TypeString, e)
-	}
-	if value, ok := _u.mutation.Payload(); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(event.FieldPayload); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -539,20 +519,6 @@ func (_u *EventUpdateOne) SetNillableDesc(v *string) *EventUpdateOne {
 	return _u
 }
 
-// SetPayload sets the "payload" field.
-func (_u *EventUpdateOne) SetPayload(v string) *EventUpdateOne {
-	_u.mutation.SetPayload(v)
-	return _u
-}
-
-// SetNillablePayload sets the "payload" field if the given value is not nil.
-func (_u *EventUpdateOne) SetNillablePayload(v *string) *EventUpdateOne {
-	if v != nil {
-		_u.SetPayload(*v)
-	}
-	return _u
-}
-
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdateOne) Mutation() *EventMutation {
 	return _u.mutation
@@ -728,12 +694,6 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
 		_spec.SetField(event.FieldDesc, field.TypeString, e)
-	}
-	if value, ok := _u.mutation.Payload(); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(event.FieldPayload); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Event{config: _u.config}

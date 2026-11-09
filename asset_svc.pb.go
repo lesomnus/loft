@@ -5333,8 +5333,7 @@ type TimelineEntry_builder struct {
 	// fields (`loft/past.proto`): a row it names as the row is called now -- a
 	// person by their name, and nothing else of theirs -- or as its identifier
 	// where nothing names it, and a moment in the workspace's zone, as RFC 3339
-	// writes one. A row from before Loft's past was payday's is what its
-	// `payload` said.
+	// writes one.
 	Detail    map[string]string
 	EventId   []byte
 	EventKind string
