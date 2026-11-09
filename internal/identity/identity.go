@@ -140,19 +140,20 @@ const RosterAdministrator = rostercore.Administers
 // Not `ConsentService/Withdraw`: every document Loft asks for is required,
 // and leaving one is leaving the deployment, which is the account's erase.
 //
-// An installation older than the list has its role widened to it. Installing
-// again does not: it leaves a role the tenant has as the tenant has it
-// (roster's `docs/apps.md`), so the role is patched, with the whole list --
+// Installing again leaves a role the tenant has as the tenant has it
+// (roster's `docs/apps.md`): a role is changed by patching it, with the whole
+// list --
 //
 //	roster --as <operator> role patch @acme/loft-app '{"methods": [...], "date_updated_force": true}'
 //
 // -- at roster's own box, naming the operator who does it where there is a
 // control plane (roster#221) --
 //
-// Until it is, an account sees only the invitations it holds a link for, a
-// session learns what roster says of its account only when it next asks, and
-// on a deployment that asks for its documents to be agreed to (`app.consent`)
-// every account is refused, since whether it agreed cannot be told.
+// While the role lacks one of them, an account sees only the invitations it
+// holds a link for, a session learns what roster says of its account only
+// when it next asks, and on a deployment that asks for its documents to be
+// agreed to (`app.consent`) every account is refused, since whether it agreed
+// cannot be told.
 //
 // People are made, given passwords and suspended at roster, by whoever
 // administers the tenant there; on the embedded roster Loft does those through

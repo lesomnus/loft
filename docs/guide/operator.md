@@ -56,7 +56,7 @@ loft config env --set # 설정이 읽는 환경변수 가운데 정해진 것
 
 - **내장 roster**(기본): Loft 프로세스 안에서 함께 뜨고, DB는 Loft의 것 옆에 하나 더 있습니다. 서버 한 대의 배포를 간단하게 하려는 것이라, 운영처럼 보이는 배포(PostgreSQL이거나 `app.public_url` 이 이 기계가 아님)에서는 `serve` 가 시작할 때 경고합니다. 서버 한 대의 CE라면 그대로 두어도 됩니다.
 - **외부 roster**: 서버가 여러 대이거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 roster를 따로 운영합니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 13에 있습니다.
-- **역할 넓히기**: 예전에 설치했거나 내장 roster에서 옮긴 배포에서 Loft가 새로 묻는 메서드가 생기면, roster 운영자가 `roster role patch` 로 역할을 넓힙니다([역할 넓히기](../dev/identity.md#역할-넓히기-roster-role-patch)). 넓히기 전에는 서버 로그에 `roster role patch` 가 적힙니다.
+- **역할 바꾸기**: 외부 roster에서 Loft의 역할은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다.
 - **SSO**: roster의 issuer로 로그인하게 하는 설정과 roster 쪽에 필요한 것은 [SSO](../dev/identity.md#sso)에 있습니다.
 
 내장 roster라면 화면 없이 운영자 진입점에서 계정을 만들고 비밀번호를 줄 수 있습니다(예: 소유자가 비밀번호를 잊었을 때). 외부 roster면 둘 다 거부되고 roster에서 합니다.

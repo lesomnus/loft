@@ -55,9 +55,9 @@ LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rk_… loft serve
 
 `auth.roster.account_url` 에 roster의 계정 페이지(디렉터리의 front door, 예: `https://id.example.com/`)를 주면, 내 정보 화면에 "로그인 방법 관리"와 "계정 탈퇴" 링크가 생깁니다. 탈퇴 링크는 그 페이지의 `#leave` 로 가고, 계정 삭제는 roster에서 합니다(`MeService.Leave`, roster#106). 삭제는 디렉터리가 허용할 때만 되므로, SaaS의 디렉터리는 roster 운영자가 `TenantConfig.leave` 를 켭니다(관리 콘솔의 테넌트 화면, 또는 resources 파일의 `config.leave`). 삭제된 계정은 위의 스트림으로 Loft에 들어와 떠나는 중이 됩니다.
 
-### 역할 넓히기 (`roster role patch`)
+### 역할 바꾸기 (`roster role patch`)
 
-이 권한들이 없던 때 설치한 배포, 그리고 내장 roster에서 옮긴 뒤에 Loft가 더 묻게 된 배포는 역할을 넓혀야 합니다. `app install` 을 다시 실행해도 이미 있는 역할은 그대로 두므로(roster `docs/apps.md`), roster 운영자가 역할을 직접 고칩니다. 목록을 통째로 바꾸므로 전체를 줍니다.
+`app install` 을 다시 실행해도 이미 있는 역할은 그대로 두므로(roster `docs/apps.md`), 역할은 roster 운영자가 `roster role patch` 로 바꿉니다. 목록을 통째로 바꾸므로 위의 메서드 전체를 줍니다.
 
 역할의 이름은 Loft가 그 디렉터리에 들어온 길을 따릅니다. `roster app install` 로 설치한 배포는 `loft-app` 이고, 내장 roster에서 옮긴 배포는 내장 roster가 만든 `loft` 입니다(디렉터리를 따로 적지 않았다면 디렉터리도 `loft` 라 `@loft/loft`).
 
@@ -68,7 +68,7 @@ roster --as <운영자> role patch @accounts/loft-app '{"methods": ["/roster.Vou
 roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch", "/roster.ConsentService/Agree", "/roster.ConsentService/Settled", "/roster.ConsentService/List"], "date_updated_force": true}'
 ```
 
-고치기 전까지는 이렇습니다.
+역할에 이 메서드가 없으면 이렇습니다.
 
 - 초대 메일의 링크로 받은 초대장만 초대함에 보입니다.
 - 세션은 다음 호출에서(30초 안에) 끝나며, 삭제된 계정은 떠나는 중으로 표시되지 않습니다.

@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/payday/fact.proto.
  */
 export const file_loft_payday_fact: GenFile = /*@__PURE__*/
-  fileDesc("ChZsb2Z0L3BheWRheS9mYWN0LnByb3RvEgRsb2Z0Is8GCgRGYWN0EhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5sb2Z0LlRlbmFudEIG8oIWAkABEhoKCnN1YmplY3RfaWQYCCABKAxCBuqCFgIQQBILCgNrZXkYCSABKAkSDQoFdmFsdWUYCiABKAkSHQoMZmllbGRfbnVtYmVyGAwgASgNQgfqghYDggEAEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhcKBmRvbWFpbhgQIAEoDUIH6oIWA4IBABI3CgpkYXRlX3N0YXJ0GBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABIeCghldmVudF9pZBgTIAEoDEIM6oIWAhBAqsEWAigBEkEKD2RhdGVfc3VwZXJzZWRlZBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCDOqCFgI4AarBFgIQARIlCg1zdXBlcnNlZGVkX2J5GBUgASgMQg7qghYEEEA4AarBFgIoATrcAsr8FYUCEguCAQISAIoBAJIBABosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaRBIHc3ViamVjdBoOCgpzdWJqZWN0X2lkEAgaEAoMZmllbGRfbnVtYmVyEAwaBwoDa2V5EAkaDgoKZGF0ZV9zdGFydBARGkoSBWZpZWxkGgoKBnRlbmFudBACGgoKBmRvbWFpbhAQGhAKDGZpZWxkX251bWJlchAMGgcKA2tleRAJGg4KCmRhdGVfc3RhcnQQERoVEgVldmVudBoMCghldmVudF9pZBATGh8SCnN1cGVyc2VkZWQaEQoNc3VwZXJzZWRlZF9ieRAVirsWTggQMkQKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaDAoKc3ViamVjdF9pZBoOCgxmaWVsZF9udW1iZXIgZCjoB0ICCgBICkIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
+  fileDesc("ChZsb2Z0L3BheWRheS9mYWN0LnByb3RvEgRsb2Z0Ir0GCgRGYWN0EhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5sb2Z0LlRlbmFudEIG8oIWAkABEhoKCnN1YmplY3RfaWQYCCABKAxCBuqCFgIQQBILCgNrZXkYCSABKAkSDQoFdmFsdWUYCiABKAkSFAoMZmllbGRfbnVtYmVyGAwgASgNEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEg4KBmRvbWFpbhgQIAEoDRI3CgpkYXRlX3N0YXJ0GBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABIeCghldmVudF9pZBgTIAEoDEIM6oIWAhBAqsEWAigBEkEKD2RhdGVfc3VwZXJzZWRlZBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCDOqCFgI4AarBFgIQARIlCg1zdXBlcnNlZGVkX2J5GBUgASgMQg7qghYEEEA4AarBFgIoATrcAsr8FYUCEguCAQISAIoBAJIBABosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaRBIHc3ViamVjdBoOCgpzdWJqZWN0X2lkEAgaEAoMZmllbGRfbnVtYmVyEAwaBwoDa2V5EAkaDgoKZGF0ZV9zdGFydBARGkoSBWZpZWxkGgoKBnRlbmFudBACGgoKBmRvbWFpbhAQGhAKDGZpZWxkX251bWJlchAMGgcKA2tleRAJGg4KCmRhdGVfc3RhcnQQERoVEgVldmVudBoMCghldmVudF9pZBATGh8SCnN1cGVyc2VkZWQaEQoNc3VwZXJzZWRlZF9ieRAVirsWTggQMkQKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaDAoKc3ViamVjdF9pZBoOCgxmaWVsZF9udW1iZXIgZCjoB0ICCgBICkIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
 
 /**
  * Fact is one field of one resource from a moment on: "from `date_start`, field
@@ -82,9 +82,7 @@ export type Fact = Message<"loft.Fact"> & {
 
   /**
    * Which of the subject's fields, by its number in the subject's descriptor --
-   * `protoreflect.FieldNumber`, which is what it is called in Go as well. Zero
-   * on a row written before the column was, which is what the default is for:
-   * a table that has rows can be given it.
+   * `protoreflect.FieldNumber`, which is what it is called in Go as well.
    *
    * Not `field`: ent's generated mutation already has `AddField`, `ClearField`
    * and the rest, which take any field by its name, and a column of that name
@@ -108,7 +106,7 @@ export type Fact = Message<"loft.Fact"> & {
    * Which entity the subject is, by its domain. A field number means something
    * only within one entity, so a read across resources has to say which; the
    * identifier carries it too, at byte nine, and no database indexes into a
-   * byte of a uuid. Zero on a row written before the column was.
+   * byte of a uuid.
    *
    * @generated from field: uint32 domain = 16;
    */
