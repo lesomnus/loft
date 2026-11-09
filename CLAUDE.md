@@ -96,6 +96,14 @@ Field numbers are read by name across every entity:
 - **8–12 and 16+** are yours. An entity that does not want 4–7 **leaves those
   numbers empty** rather than spending them on something else.
 
+A field says a default only where a row nobody set it for means something:
+a time's `default: ""` is now when an `Add` leaves it out (`pd gen` refuses a
+time that says neither that nor `nullable`), `Holder.role` is `member`, a
+workspace's own setting is the deployment's. A default is no way to bring
+along the rows an earlier build wrote: until launch a field those rows lack
+moves the epoch instead, and so does a new entity an export writes
+(`offboard.Exported`), since a restore refuses an export without its file.
+
 Renaming one keeps its domain number. From launch it keeps its events'
 messages too -- `past.lock` holds them -- and the schema says what it was
 called (`(payday.entity).formerly`, D77), so that what is stored under the
