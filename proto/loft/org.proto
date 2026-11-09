@@ -97,10 +97,6 @@ message Party {
   };
 }
 
-// Domain 37 was `Credential`, a holder's password, until roster held them
-// (design 9.10). It is not for another entity: an identifier in the trail of a
-// deployment from before says what it named.
-
 // Session is a signed-in browser, and what it names is an account rather than a
 // membership: one sign-in reaches every workspace the account belongs to, and
 // which one a request is about is the request's to say (design 9.11). So it is
@@ -444,11 +440,6 @@ message AliasHold {
     trail: {recorded: {}}
   };
 }
-
-// Domain 44 was `Consent`, an account's agreement to one of the deployment's
-// documents, until roster's ledger kept them (`ConsentService`, D37). It is not
-// for another entity: an identifier in the trail of a deployment from before
-// says what it named.
 
 // SignInFailure is one wrong answer at the sign-in form, counted against the
 // address it came from and the name it was for (`server/session`): ten in

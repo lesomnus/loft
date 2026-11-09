@@ -88,9 +88,9 @@ pdid 도메인 번호는 한 번 정하면 바꾸거나 재사용하지 않는�
 
 - "외부에 여는 생성 RPC"에 없는 생성 메서드는 `seal`이 닫는다. "(완성)"은 도메인 레이어가 생성 동사를 완성한 것이고, 그 밖의 상태 변경은 새 도메인 RPC다(design 6장·9.8절).
 - 테넌트 행을 가리키는 엣지는 불변으로 두고 `agrees`에 선언한다. 바뀌는 참조(`Asset.parent`, `custodian`, `type`, `model`, `Party.parent`, `Party.account`)에는 pg-extra에 테넌트 일치 트리거를 둔다.
-- 프로토타입이 만든 `Credential`(37)은 비밀번호가 roster로 가면서 지웠다(design 9.10절). 번호는 비워 둔다. 예전 배포의 trail에 남은 ID가 그것을 가리킨다.
-- `UsageSnapshot`(20)은 청구할 숫자를 Loft 밖에서 원천으로 재기로 하면서 지웠다(design 7장, D35). 번호는 비워 둔다. 예전 배포의 trail에 남은 ID가 그것을 가리킨다.
-- `Consent`(44)는 동의 기록을 roster의 동의 원장(`ConsentService`)에 두기로 하면서 지웠다(design 9.11절, D37). 번호는 비워 둔다. 예전 배포의 trail에 남은 ID가 그것을 가리킨다.
+- 프로토타입이 만든 `Credential`(37)은 비밀번호가 roster로 가면서 지웠다(design 9.10절). 번호는 비워 둔다.
+- `UsageSnapshot`(20)은 청구할 숫자를 Loft 밖에서 원천으로 재기로 하면서 지웠다(design 7장, D35). 번호는 비워 둔다.
+- `Consent`(44)는 동의 기록을 roster의 동의 원장(`ConsentService`)에 두기로 하면서 지웠다(design 9.11절, D37). 번호는 비워 둔다.
 
 ## 5. 마일스톤
 
