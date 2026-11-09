@@ -44,4 +44,4 @@ patches:
 images:
   # An overlay pins a digest.
   - name: caddy
-    newTag: 2.11.7
+    newTag: 2.11.9
