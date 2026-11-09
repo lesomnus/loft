@@ -1033,7 +1033,7 @@ func printImported(self *xli.Command, x *app.OperatorTenantImportResponse) {
 	}
 	if len(x.GetUnlinked()) > 0 {
 		self.Printf("  %d member(s) whose accounts this roster does not have, restored with none: %s\n", len(x.GetUnlinked()), strings.Join(x.GetUnlinked(), ", "))
-		self.Printf("  (nobody of them signs in until `loft identity migrate` gives each an account)\n")
+		self.Printf("  (nobody of them signs in until `loft identity link` gives each an account)\n")
 	}
 	if dry {
 		self.Printf("(nothing was put back: `--yes` does it)\n")

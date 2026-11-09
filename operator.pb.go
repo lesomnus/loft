@@ -5569,27 +5569,27 @@ func (b0 OperatorRetentionTrail_builder) Build() *OperatorRetentionTrail {
 	return m0
 }
 
-type OperatorIdentityMigrateRequest struct {
+type OperatorIdentityLinkRequest struct {
 	state               protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Password string                 `protobuf:"bytes,1,opt,name=password"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
 
-func (x *OperatorIdentityMigrateRequest) Reset() {
-	*x = OperatorIdentityMigrateRequest{}
+func (x *OperatorIdentityLinkRequest) Reset() {
+	*x = OperatorIdentityLinkRequest{}
 	mi := &file_loft_operator_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OperatorIdentityMigrateRequest) String() string {
+func (x *OperatorIdentityLinkRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OperatorIdentityMigrateRequest) ProtoMessage() {}
+func (*OperatorIdentityLinkRequest) ProtoMessage() {}
 
-func (x *OperatorIdentityMigrateRequest) ProtoReflect() protoreflect.Message {
+func (x *OperatorIdentityLinkRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_operator_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -5601,18 +5601,18 @@ func (x *OperatorIdentityMigrateRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *OperatorIdentityMigrateRequest) GetPassword() string {
+func (x *OperatorIdentityLinkRequest) GetPassword() string {
 	if x != nil {
 		return x.xxx_hidden_Password
 	}
 	return ""
 }
 
-func (x *OperatorIdentityMigrateRequest) SetPassword(v string) {
+func (x *OperatorIdentityLinkRequest) SetPassword(v string) {
 	x.xxx_hidden_Password = v
 }
 
-type OperatorIdentityMigrateRequest_builder struct {
+type OperatorIdentityLinkRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Give everybody this one, for a deployment to try things on; empty makes
@@ -5620,36 +5620,36 @@ type OperatorIdentityMigrateRequest_builder struct {
 	Password string
 }
 
-func (b0 OperatorIdentityMigrateRequest_builder) Build() *OperatorIdentityMigrateRequest {
-	m0 := &OperatorIdentityMigrateRequest{}
+func (b0 OperatorIdentityLinkRequest_builder) Build() *OperatorIdentityLinkRequest {
+	m0 := &OperatorIdentityLinkRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Password = b.Password
 	return m0
 }
 
-type OperatorIdentityMigrateResponse struct {
-	state              protoimpl.MessageState    `protogen:"opaque.v1"`
-	xxx_hidden_Adopted *OperatorIdentityAdopted  `protobuf:"bytes,1,opt,name=adopted"`
-	xxx_hidden_Done    *OperatorIdentityMigrated `protobuf:"bytes,2,opt,name=done"`
+type OperatorIdentityLinkResponse struct {
+	state              protoimpl.MessageState   `protogen:"opaque.v1"`
+	xxx_hidden_Adopted *OperatorIdentityAdopted `protobuf:"bytes,1,opt,name=adopted"`
+	xxx_hidden_Done    *OperatorIdentityLinked  `protobuf:"bytes,2,opt,name=done"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
-func (x *OperatorIdentityMigrateResponse) Reset() {
-	*x = OperatorIdentityMigrateResponse{}
+func (x *OperatorIdentityLinkResponse) Reset() {
+	*x = OperatorIdentityLinkResponse{}
 	mi := &file_loft_operator_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OperatorIdentityMigrateResponse) String() string {
+func (x *OperatorIdentityLinkResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OperatorIdentityMigrateResponse) ProtoMessage() {}
+func (*OperatorIdentityLinkResponse) ProtoMessage() {}
 
-func (x *OperatorIdentityMigrateResponse) ProtoReflect() protoreflect.Message {
+func (x *OperatorIdentityLinkResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_operator_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -5661,59 +5661,59 @@ func (x *OperatorIdentityMigrateResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *OperatorIdentityMigrateResponse) GetAdopted() *OperatorIdentityAdopted {
+func (x *OperatorIdentityLinkResponse) GetAdopted() *OperatorIdentityAdopted {
 	if x != nil {
 		return x.xxx_hidden_Adopted
 	}
 	return nil
 }
 
-func (x *OperatorIdentityMigrateResponse) GetDone() *OperatorIdentityMigrated {
+func (x *OperatorIdentityLinkResponse) GetDone() *OperatorIdentityLinked {
 	if x != nil {
 		return x.xxx_hidden_Done
 	}
 	return nil
 }
 
-func (x *OperatorIdentityMigrateResponse) SetAdopted(v *OperatorIdentityAdopted) {
+func (x *OperatorIdentityLinkResponse) SetAdopted(v *OperatorIdentityAdopted) {
 	x.xxx_hidden_Adopted = v
 }
 
-func (x *OperatorIdentityMigrateResponse) SetDone(v *OperatorIdentityMigrated) {
+func (x *OperatorIdentityLinkResponse) SetDone(v *OperatorIdentityLinked) {
 	x.xxx_hidden_Done = v
 }
 
-func (x *OperatorIdentityMigrateResponse) HasAdopted() bool {
+func (x *OperatorIdentityLinkResponse) HasAdopted() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Adopted != nil
 }
 
-func (x *OperatorIdentityMigrateResponse) HasDone() bool {
+func (x *OperatorIdentityLinkResponse) HasDone() bool {
 	if x == nil {
 		return false
 	}
 	return x.xxx_hidden_Done != nil
 }
 
-func (x *OperatorIdentityMigrateResponse) ClearAdopted() {
+func (x *OperatorIdentityLinkResponse) ClearAdopted() {
 	x.xxx_hidden_Adopted = nil
 }
 
-func (x *OperatorIdentityMigrateResponse) ClearDone() {
+func (x *OperatorIdentityLinkResponse) ClearDone() {
 	x.xxx_hidden_Done = nil
 }
 
-type OperatorIdentityMigrateResponse_builder struct {
+type OperatorIdentityLinkResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Adopted *OperatorIdentityAdopted
-	Done    *OperatorIdentityMigrated
+	Done    *OperatorIdentityLinked
 }
 
-func (b0 OperatorIdentityMigrateResponse_builder) Build() *OperatorIdentityMigrateResponse {
-	m0 := &OperatorIdentityMigrateResponse{}
+func (b0 OperatorIdentityLinkResponse_builder) Build() *OperatorIdentityLinkResponse {
+	m0 := &OperatorIdentityLinkResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Adopted = b.Adopted
@@ -5852,7 +5852,7 @@ func (b0 OperatorIdentityAdopted_builder) Build() *OperatorIdentityAdopted {
 	return m0
 }
 
-type OperatorIdentityMigrated struct {
+type OperatorIdentityLinked struct {
 	state                protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Embedded  bool                   `protobuf:"varint,1,opt,name=embedded"`
 	xxx_hidden_Made      uint32                 `protobuf:"varint,2,opt,name=made"`
@@ -5864,20 +5864,20 @@ type OperatorIdentityMigrated struct {
 	sizeCache            protoimpl.SizeCache
 }
 
-func (x *OperatorIdentityMigrated) Reset() {
-	*x = OperatorIdentityMigrated{}
+func (x *OperatorIdentityLinked) Reset() {
+	*x = OperatorIdentityLinked{}
 	mi := &file_loft_operator_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OperatorIdentityMigrated) String() string {
+func (x *OperatorIdentityLinked) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OperatorIdentityMigrated) ProtoMessage() {}
+func (*OperatorIdentityLinked) ProtoMessage() {}
 
-func (x *OperatorIdentityMigrated) ProtoReflect() protoreflect.Message {
+func (x *OperatorIdentityLinked) ProtoReflect() protoreflect.Message {
 	mi := &file_loft_operator_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -5889,73 +5889,73 @@ func (x *OperatorIdentityMigrated) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *OperatorIdentityMigrated) GetEmbedded() bool {
+func (x *OperatorIdentityLinked) GetEmbedded() bool {
 	if x != nil {
 		return x.xxx_hidden_Embedded
 	}
 	return false
 }
 
-func (x *OperatorIdentityMigrated) GetMade() uint32 {
+func (x *OperatorIdentityLinked) GetMade() uint32 {
 	if x != nil {
 		return x.xxx_hidden_Made
 	}
 	return 0
 }
 
-func (x *OperatorIdentityMigrated) GetLinked() uint32 {
+func (x *OperatorIdentityLinked) GetLinked() uint32 {
 	if x != nil {
 		return x.xxx_hidden_Linked
 	}
 	return 0
 }
 
-func (x *OperatorIdentityMigrated) GetDirectory() string {
+func (x *OperatorIdentityLinked) GetDirectory() string {
 	if x != nil {
 		return x.xxx_hidden_Directory
 	}
 	return ""
 }
 
-func (x *OperatorIdentityMigrated) GetTodo() uint32 {
+func (x *OperatorIdentityLinked) GetTodo() uint32 {
 	if x != nil {
 		return x.xxx_hidden_Todo
 	}
 	return 0
 }
 
-func (x *OperatorIdentityMigrated) GetGiven() bool {
+func (x *OperatorIdentityLinked) GetGiven() bool {
 	if x != nil {
 		return x.xxx_hidden_Given
 	}
 	return false
 }
 
-func (x *OperatorIdentityMigrated) SetEmbedded(v bool) {
+func (x *OperatorIdentityLinked) SetEmbedded(v bool) {
 	x.xxx_hidden_Embedded = v
 }
 
-func (x *OperatorIdentityMigrated) SetMade(v uint32) {
+func (x *OperatorIdentityLinked) SetMade(v uint32) {
 	x.xxx_hidden_Made = v
 }
 
-func (x *OperatorIdentityMigrated) SetLinked(v uint32) {
+func (x *OperatorIdentityLinked) SetLinked(v uint32) {
 	x.xxx_hidden_Linked = v
 }
 
-func (x *OperatorIdentityMigrated) SetDirectory(v string) {
+func (x *OperatorIdentityLinked) SetDirectory(v string) {
 	x.xxx_hidden_Directory = v
 }
 
-func (x *OperatorIdentityMigrated) SetTodo(v uint32) {
+func (x *OperatorIdentityLinked) SetTodo(v uint32) {
 	x.xxx_hidden_Todo = v
 }
 
-func (x *OperatorIdentityMigrated) SetGiven(v bool) {
+func (x *OperatorIdentityLinked) SetGiven(v bool) {
 	x.xxx_hidden_Given = v
 }
 
-type OperatorIdentityMigrated_builder struct {
+type OperatorIdentityLinked_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// The roster is this process's.
@@ -5970,8 +5970,8 @@ type OperatorIdentityMigrated_builder struct {
 	Given bool
 }
 
-func (b0 OperatorIdentityMigrated_builder) Build() *OperatorIdentityMigrated {
-	m0 := &OperatorIdentityMigrated{}
+func (b0 OperatorIdentityLinked_builder) Build() *OperatorIdentityLinked {
+	m0 := &OperatorIdentityLinked{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Embedded = b.Embedded
@@ -8509,20 +8509,20 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12\x1a\n" +
 	"\barchived\x18\x02 \x01(\rR\barchived\x12\x1c\n" +
 	"\tdiscarded\x18\x03 \x01(\rR\tdiscarded\x12\x1c\n" +
-	"\tdestroyed\x18\x04 \x01(\rR\tdestroyed\"<\n" +
-	"\x1eOperatorIdentityMigrateRequest\x12\x1a\n" +
-	"\bpassword\x18\x01 \x01(\tR\bpassword\"\x8e\x01\n" +
-	"\x1fOperatorIdentityMigrateResponse\x127\n" +
-	"\aadopted\x18\x01 \x01(\v2\x1d.loft.OperatorIdentityAdoptedR\aadopted\x122\n" +
-	"\x04done\x18\x02 \x01(\v2\x1e.loft.OperatorIdentityMigratedR\x04done\"\xad\x01\n" +
+	"\tdestroyed\x18\x04 \x01(\rR\tdestroyed\"9\n" +
+	"\x1bOperatorIdentityLinkRequest\x12\x1a\n" +
+	"\bpassword\x18\x01 \x01(\tR\bpassword\"\x89\x01\n" +
+	"\x1cOperatorIdentityLinkResponse\x127\n" +
+	"\aadopted\x18\x01 \x01(\v2\x1d.loft.OperatorIdentityAdoptedR\aadopted\x120\n" +
+	"\x04done\x18\x02 \x01(\v2\x1c.loft.OperatorIdentityLinkedR\x04done\"\xad\x01\n" +
 	"\x17OperatorIdentityAdopted\x12\x1c\n" +
 	"\tworkspace\x18\x01 \x01(\tR\tworkspace\x12\x16\n" +
 	"\x06member\x18\x02 \x01(\tR\x06member\x12\x14\n" +
 	"\x05login\x18\x03 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x16\n" +
 	"\x06linked\x18\x05 \x01(\bR\x06linked\x12\x12\n" +
-	"\x04make\x18\x06 \x01(\tR\x04make\"\xaa\x01\n" +
-	"\x18OperatorIdentityMigrated\x12\x1a\n" +
+	"\x04make\x18\x06 \x01(\tR\x04make\"\xa8\x01\n" +
+	"\x16OperatorIdentityLinked\x12\x1a\n" +
 	"\bembedded\x18\x01 \x01(\bR\bembedded\x12\x12\n" +
 	"\x04made\x18\x02 \x01(\rR\x04made\x12\x16\n" +
 	"\x06linked\x18\x03 \x01(\rR\x06linked\x12\x1c\n" +
@@ -8666,9 +8666,9 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\aAnalyze\x12\".loft.OperatorSearchAnalyzeRequest\x1a#.loft.OperatorSearchAnalyzeResponse2\xaf\x01\n" +
 	"\x18OperatorRetentionService\x12I\n" +
 	"\x04Plan\x12\x1e.loft.OperatorRetentionRequest\x1a\x1f.loft.OperatorRetentionResponse0\x01\x12H\n" +
-	"\x03Run\x12\x1e.loft.OperatorRetentionRequest\x1a\x1f.loft.OperatorRetentionResponse0\x012\xa6\x02\n" +
-	"\x17OperatorIdentityService\x12X\n" +
-	"\aMigrate\x12$.loft.OperatorIdentityMigrateRequest\x1a%.loft.OperatorIdentityMigrateResponse0\x01\x12S\n" +
+	"\x03Run\x12\x1e.loft.OperatorRetentionRequest\x1a\x1f.loft.OperatorRetentionResponse0\x012\x9d\x02\n" +
+	"\x17OperatorIdentityService\x12O\n" +
+	"\x04Link\x12!.loft.OperatorIdentityLinkRequest\x1a\".loft.OperatorIdentityLinkResponse0\x01\x12S\n" +
 	"\x06Depart\x12#.loft.OperatorIdentityDepartRequest\x1a$.loft.OperatorIdentityDepartResponse\x12\\\n" +
 	"\tReconcile\x12&.loft.OperatorIdentityReconcileRequest\x1a'.loft.OperatorIdentityReconcileResponse2\xb6\x01\n" +
 	"\x15OperatorHolderService\x12F\n" +
@@ -8736,10 +8736,10 @@ var file_loft_operator_proto_goTypes = []any{
 	(*OperatorRetentionResponse)(nil),         // 50: loft.OperatorRetentionResponse
 	(*OperatorRetentionTaken)(nil),            // 51: loft.OperatorRetentionTaken
 	(*OperatorRetentionTrail)(nil),            // 52: loft.OperatorRetentionTrail
-	(*OperatorIdentityMigrateRequest)(nil),    // 53: loft.OperatorIdentityMigrateRequest
-	(*OperatorIdentityMigrateResponse)(nil),   // 54: loft.OperatorIdentityMigrateResponse
+	(*OperatorIdentityLinkRequest)(nil),       // 53: loft.OperatorIdentityLinkRequest
+	(*OperatorIdentityLinkResponse)(nil),      // 54: loft.OperatorIdentityLinkResponse
 	(*OperatorIdentityAdopted)(nil),           // 55: loft.OperatorIdentityAdopted
-	(*OperatorIdentityMigrated)(nil),          // 56: loft.OperatorIdentityMigrated
+	(*OperatorIdentityLinked)(nil),            // 56: loft.OperatorIdentityLinked
 	(*OperatorIdentityDepartRequest)(nil),     // 57: loft.OperatorIdentityDepartRequest
 	(*OperatorIdentityDepartResponse)(nil),    // 58: loft.OperatorIdentityDepartResponse
 	(*OperatorIdentityMembership)(nil),        // 59: loft.OperatorIdentityMembership
@@ -8815,8 +8815,8 @@ var file_loft_operator_proto_depIdxs = []int32{
 	87, // 39: loft.OperatorRetentionTaken.date_before:type_name -> google.protobuf.Timestamp
 	79, // 40: loft.OperatorRetentionTaken.taken:type_name -> loft.OperatorRetentionTaken.TakenEntry
 	52, // 41: loft.OperatorRetentionTaken.trail:type_name -> loft.OperatorRetentionTrail
-	55, // 42: loft.OperatorIdentityMigrateResponse.adopted:type_name -> loft.OperatorIdentityAdopted
-	56, // 43: loft.OperatorIdentityMigrateResponse.done:type_name -> loft.OperatorIdentityMigrated
+	55, // 42: loft.OperatorIdentityLinkResponse.adopted:type_name -> loft.OperatorIdentityAdopted
+	56, // 43: loft.OperatorIdentityLinkResponse.done:type_name -> loft.OperatorIdentityLinked
 	59, // 44: loft.OperatorIdentityDepartResponse.members:type_name -> loft.OperatorIdentityMembership
 	60, // 45: loft.OperatorIdentityDepartResponse.left:type_name -> loft.OperatorIdentityLeft
 	63, // 46: loft.OperatorIdentityReconcileResponse.gone:type_name -> loft.OperatorIdentityAccount
@@ -8855,7 +8855,7 @@ var file_loft_operator_proto_depIdxs = []int32{
 	47, // 79: loft.OperatorSearchService.Analyze:input_type -> loft.OperatorSearchAnalyzeRequest
 	49, // 80: loft.OperatorRetentionService.Plan:input_type -> loft.OperatorRetentionRequest
 	49, // 81: loft.OperatorRetentionService.Run:input_type -> loft.OperatorRetentionRequest
-	53, // 82: loft.OperatorIdentityService.Migrate:input_type -> loft.OperatorIdentityMigrateRequest
+	53, // 82: loft.OperatorIdentityService.Link:input_type -> loft.OperatorIdentityLinkRequest
 	57, // 83: loft.OperatorIdentityService.Depart:input_type -> loft.OperatorIdentityDepartRequest
 	61, // 84: loft.OperatorIdentityService.Reconcile:input_type -> loft.OperatorIdentityReconcileRequest
 	64, // 85: loft.OperatorHolderService.Add:input_type -> loft.OperatorHolderAddRequest
@@ -8883,7 +8883,7 @@ var file_loft_operator_proto_depIdxs = []int32{
 	48, // 107: loft.OperatorSearchService.Analyze:output_type -> loft.OperatorSearchAnalyzeResponse
 	50, // 108: loft.OperatorRetentionService.Plan:output_type -> loft.OperatorRetentionResponse
 	50, // 109: loft.OperatorRetentionService.Run:output_type -> loft.OperatorRetentionResponse
-	54, // 110: loft.OperatorIdentityService.Migrate:output_type -> loft.OperatorIdentityMigrateResponse
+	54, // 110: loft.OperatorIdentityService.Link:output_type -> loft.OperatorIdentityLinkResponse
 	58, // 111: loft.OperatorIdentityService.Depart:output_type -> loft.OperatorIdentityDepartResponse
 	62, // 112: loft.OperatorIdentityService.Reconcile:output_type -> loft.OperatorIdentityReconcileResponse
 	65, // 113: loft.OperatorHolderService.Add:output_type -> loft.OperatorHolderAddResponse

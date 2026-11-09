@@ -96,7 +96,7 @@ var Table = map[string]Kind{
 
 	// Who people are, which is roster's (design 9.10), and an account and
 	// its memberships on the roster in this process.
-	app.OperatorIdentityService_Migrate_FullMethodName:   Write,
+	app.OperatorIdentityService_Link_FullMethodName:      Write,
 	app.OperatorIdentityService_Depart_FullMethodName:    Write,
 	app.OperatorIdentityService_Reconcile_FullMethodName: Write,
 	app.OperatorHolderService_Add_FullMethodName:         Write,

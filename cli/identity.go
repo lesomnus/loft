@@ -22,7 +22,7 @@ import (
 // and the operator's own is its place.
 func identityWritten() []written {
 	out := group(newCmdIdentity(), map[string][]string{
-		"migrate":   {app.OperatorIdentityService_Migrate_FullMethodName},
+		"link":      {app.OperatorIdentityService_Link_FullMethodName},
 		"depart":    {app.OperatorIdentityService_Depart_FullMethodName},
 		"reconcile": {app.OperatorIdentityService_Reconcile_FullMethodName},
 	})
@@ -44,7 +44,7 @@ func newCmdIdentity() *xli.Command {
 		Brief: "who people are: roster, in this process or of its own",
 		Commands: xli.Commands{
 			{
-				Name:  "migrate",
+				Name:  "link",
 				Brief: "give an account to each member who names none, with the member's identifier: those of a workspace restored from another deployment",
 				Flags: flg.Flags{
 					&flg.String{Name: "password", Brief: "give everybody this one, for a deployment to try things on; empty makes one up for each"},
@@ -54,13 +54,13 @@ func newCmdIdentity() *xli.Command {
 					if err != nil {
 						return err
 					}
-					stream, err := app.NewOperatorIdentityServiceClient(conn).Migrate(ctx, app.OperatorIdentityMigrateRequest_builder{Password: str(self, "password")}.Build())
+					stream, err := app.NewOperatorIdentityServiceClient(conn).Link(ctx, app.OperatorIdentityLinkRequest_builder{Password: str(self, "password")}.Build())
 					if err != nil {
 						return err
 					}
-					var done *app.OperatorIdentityMigrated
+					var done *app.OperatorIdentityLinked
 					told := false
-					if err := each(stream, self, func(m *app.OperatorIdentityMigrateResponse) string {
+					if err := each(stream, self, func(m *app.OperatorIdentityLinkResponse) string {
 						if v := m.GetAdopted(); m.HasAdopted() {
 							switch {
 							case v.GetMake() != "":

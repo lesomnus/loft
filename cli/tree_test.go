@@ -177,7 +177,7 @@ func TestTheOperatorsCommandsSaySo(t *testing.T) {
 		"trail/owed": true, "trail/keys": true, "trail/export": true,
 		"search": true, "search/status": true, "search/reindex": true, "search/remove": true, "search/analyze": true,
 		"retention": true, "retention/plan": true, "retention/run": true,
-		"identity": true, "identity/migrate": true, "identity/depart": true, "identity/reconcile": true,
+		"identity": true, "identity/link": true, "identity/depart": true, "identity/reconcile": true,
 		"holder/add": true, "holder/password": true,
 		"event/redact": true, "access/list": true,
 	}, marked)

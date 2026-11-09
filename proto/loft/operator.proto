@@ -649,14 +649,15 @@ message OperatorRetentionTrail {
 // 9.10): an account given to each member who names none, an account leaving
 // every workspace it is in, and every account asked about again.
 service OperatorIdentityService {
-  // Migrate gives an account to every membership that names none, with the
-  // membership's identifier (D27) -- the members of a workspace restored from
-  // an export whose accounts this deployment's roster does not have: on the
-  // roster in this process, an account for each, with a password said once;
-  // for a roster of its own, what its operator makes there, and the ones
-  // made already linked. Run again it makes nothing. A message for each
-  // membership, and last what it came to.
-  rpc Migrate(OperatorIdentityMigrateRequest) returns (stream OperatorIdentityMigrateResponse);
+  // Link gives an account to every membership that names none, with the
+  // membership's identifier (D27), and links the membership to it -- the
+  // members of a workspace restored from an export whose accounts this
+  // deployment's roster does not have: on the roster in this process, an
+  // account for each, with a password said once; for a roster of its own,
+  // what its operator makes there, and the ones made already linked. Run
+  // again it makes nothing. A message for each membership, and last what it
+  // came to.
+  rpc Link(OperatorIdentityLinkRequest) returns (stream OperatorIdentityLinkResponse);
 
   // Depart is an account leaving every workspace it is in, now, rather than
   // when roster's grace is over -- for somebody who asked to be forgotten at
@@ -671,15 +672,15 @@ service OperatorIdentityService {
   rpc Reconcile(OperatorIdentityReconcileRequest) returns (OperatorIdentityReconcileResponse);
 }
 
-message OperatorIdentityMigrateRequest {
+message OperatorIdentityLinkRequest {
   // Give everybody this one, for a deployment to try things on; empty makes
   // one up for each.
   string password = 1;
 }
 
-message OperatorIdentityMigrateResponse {
+message OperatorIdentityLinkResponse {
   OperatorIdentityAdopted adopted = 1;
-  OperatorIdentityMigrated done = 2;
+  OperatorIdentityLinked done = 2;
 }
 
 // OperatorIdentityAdopted is one membership brought into roster, or to be.
@@ -695,7 +696,7 @@ message OperatorIdentityAdopted {
   string make = 6;
 }
 
-message OperatorIdentityMigrated {
+message OperatorIdentityLinked {
   // The roster is this process's.
   bool embedded = 1;
   uint32 made = 2;

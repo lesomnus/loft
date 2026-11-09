@@ -482,7 +482,7 @@ type Adoptee struct {
 // embedded roster as accounts, with the identifiers they already have, and
 // issues each of them a password -- `password`, or one made up for each when
 // it is empty: the members of a workspace restored from an export whose
-// accounts this roster does not have (design 9.10, `loft identity migrate`).
+// accounts this roster does not have (design 9.10, `loft identity link`).
 // Somebody roster has already is left alone, so it can be run again. It
 // answers the passwords by alias, for the accounts it made. The directory has
 // to be there ([Store.EnsureDirectory]).
