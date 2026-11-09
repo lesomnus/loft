@@ -5860,7 +5860,6 @@ type OperatorIdentityMigrated struct {
 	xxx_hidden_Directory string                 `protobuf:"bytes,4,opt,name=directory"`
 	xxx_hidden_Todo      uint32                 `protobuf:"varint,5,opt,name=todo"`
 	xxx_hidden_Given     bool                   `protobuf:"varint,6,opt,name=given"`
-	xxx_hidden_Dropped   bool                   `protobuf:"varint,7,opt,name=dropped"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -5932,13 +5931,6 @@ func (x *OperatorIdentityMigrated) GetGiven() bool {
 	return false
 }
 
-func (x *OperatorIdentityMigrated) GetDropped() bool {
-	if x != nil {
-		return x.xxx_hidden_Dropped
-	}
-	return false
-}
-
 func (x *OperatorIdentityMigrated) SetEmbedded(v bool) {
 	x.xxx_hidden_Embedded = v
 }
@@ -5963,10 +5955,6 @@ func (x *OperatorIdentityMigrated) SetGiven(v bool) {
 	x.xxx_hidden_Given = v
 }
 
-func (x *OperatorIdentityMigrated) SetDropped(v bool) {
-	x.xxx_hidden_Dropped = v
-}
-
 type OperatorIdentityMigrated_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -5980,8 +5968,6 @@ type OperatorIdentityMigrated_builder struct {
 	Todo      uint32
 	// Everybody was given the password asked for.
 	Given bool
-	// The table the passwords from before roster were kept in, dropped.
-	Dropped bool
 }
 
 func (b0 OperatorIdentityMigrated_builder) Build() *OperatorIdentityMigrated {
@@ -5994,7 +5980,6 @@ func (b0 OperatorIdentityMigrated_builder) Build() *OperatorIdentityMigrated {
 	x.xxx_hidden_Directory = b.Directory
 	x.xxx_hidden_Todo = b.Todo
 	x.xxx_hidden_Given = b.Given
-	x.xxx_hidden_Dropped = b.Dropped
 	return m0
 }
 
@@ -8536,15 +8521,14 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\x05login\x18\x03 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x04 \x01(\tR\bpassword\x12\x16\n" +
 	"\x06linked\x18\x05 \x01(\bR\x06linked\x12\x12\n" +
-	"\x04make\x18\x06 \x01(\tR\x04make\"\xc4\x01\n" +
+	"\x04make\x18\x06 \x01(\tR\x04make\"\xaa\x01\n" +
 	"\x18OperatorIdentityMigrated\x12\x1a\n" +
 	"\bembedded\x18\x01 \x01(\bR\bembedded\x12\x12\n" +
 	"\x04made\x18\x02 \x01(\rR\x04made\x12\x16\n" +
 	"\x06linked\x18\x03 \x01(\rR\x06linked\x12\x1c\n" +
 	"\tdirectory\x18\x04 \x01(\tR\tdirectory\x12\x12\n" +
 	"\x04todo\x18\x05 \x01(\rR\x04todo\x12\x14\n" +
-	"\x05given\x18\x06 \x01(\bR\x05given\x12\x18\n" +
-	"\adropped\x18\a \x01(\bR\adropped\"u\n" +
+	"\x05given\x18\x06 \x01(\bR\x05given\"u\n" +
 	"\x1dOperatorIdentityDepartRequest\x12\x18\n" +
 	"\x06member\x18\x01 \x01(\tH\x00R\x06member\x12\x1a\n" +
 	"\aaccount\x18\x02 \x01(\fH\x00R\aaccount\x12\x17\n" +

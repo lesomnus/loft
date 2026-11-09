@@ -340,9 +340,10 @@ type Holder_builder struct {
 	// The account this is a membership of: a holder at roster, in this
 	// deployment's directory (design 9.10, D27). An account belongs to many
 	// workspaces with one holder in each, every one its own row with its own
-	// identifier, and what a session names is the account. Null on a holder made
-	// before accounts were, which nobody signs in as until `loft identity
-	// migrate` fills it.
+	// identifier, and what a session names is the account. Null on a membership
+	// a workspace's restore put back with no account -- one this deployment's
+	// roster does not have (`offboard.Restored.Unlinked`) -- which nobody signs
+	// in as until `loft identity migrate` gives it one.
 	//
 	// It is what a call is resolved by (`(payday.app).accounts`, payday#184),
 	// so which account a membership is of is the deployment's to say: the
@@ -366,8 +367,7 @@ type Holder_builder struct {
 	// membership through it and forgets the membership's names and the trail's
 	// copies of it too; through the record's link alone it found nothing
 	// (loft#25, decided in loft#35). Null on a membership the record still
-	// points at, and on one stopped before this was kept. Written by the
-	// domain layer, and by nobody else.
+	// points at. Written by the domain layer, and by nobody else.
 	Party []byte
 }
 

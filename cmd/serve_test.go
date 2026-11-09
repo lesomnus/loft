@@ -312,11 +312,12 @@ func TestSignIn(t *testing.T) {
 		x.Equal(http.StatusNoContent, post(`{"login":"park","password":"correct horse"}`).Code, "the account went with the membership")
 	})
 
-	t.Run("a holder from before accounts is nobody's membership", func(t *testing.T) {
+	t.Run("a holder that names no account is nobody's membership", func(t *testing.T) {
 		x := require.New(t)
 
-		// A login this deployment made before holders named accounts, and an
-		// account of the same name at roster.
+		// A login that names no account -- as a restore puts back a member
+		// this roster does not have -- and an account of the same name at
+		// roster.
 		_, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
 			Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
 			Alias:  "choi",

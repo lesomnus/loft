@@ -112,11 +112,6 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 				// again. `loft migrate` is what refuses it (payday#176).
 				log.From(ctx).WarnContext(ctx, "db: serving over an index PostgreSQL left invalid", slog.Any("err", err))
 			}
-			if left, err := fromBeforeRoster(ctx, s); err != nil {
-				return err
-			} else if left {
-				log.From(ctx).WarnContext(ctx, "identity: this deployment's people are from before roster held them, and none of them can sign in until `loft identity migrate`")
-			}
 
 			l, err := net.Listen("tcp", c.Server.ListenAddr())
 			if err != nil {

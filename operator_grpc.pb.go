@@ -1250,15 +1250,16 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // OperatorIdentityService is who people are, which is roster's (design
-// 9.10): a deployment from before roster brought into it, an account leaving
+// 9.10): an account given to each member who names none, an account leaving
 // every workspace it is in, and every account asked about again.
 type OperatorIdentityServiceClient interface {
-	// Migrate brings the workspaces and people of a deployment from before
-	// roster into it, with their identifiers (D27): on the roster in this
-	// process, an account for every membership that names none, each with a
-	// password said once; for a roster of its own, what its operator makes
-	// there, and the ones made already linked. Run again it makes nothing. A
-	// message for each membership, and last what it came to.
+	// Migrate gives an account to every membership that names none, with the
+	// membership's identifier (D27) -- the members of a workspace restored from
+	// an export whose accounts this deployment's roster does not have: on the
+	// roster in this process, an account for each, with a password said once;
+	// for a roster of its own, what its operator makes there, and the ones
+	// made already linked. Run again it makes nothing. A message for each
+	// membership, and last what it came to.
 	Migrate(ctx context.Context, in *OperatorIdentityMigrateRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityMigrateResponse], error)
 	// Depart is an account leaving every workspace it is in, now, rather than
 	// when roster's grace is over -- for somebody who asked to be forgotten at
@@ -1324,15 +1325,16 @@ func (c *operatorIdentityServiceClient) Reconcile(ctx context.Context, in *Opera
 // for forward compatibility.
 //
 // OperatorIdentityService is who people are, which is roster's (design
-// 9.10): a deployment from before roster brought into it, an account leaving
+// 9.10): an account given to each member who names none, an account leaving
 // every workspace it is in, and every account asked about again.
 type OperatorIdentityServiceServer interface {
-	// Migrate brings the workspaces and people of a deployment from before
-	// roster into it, with their identifiers (D27): on the roster in this
-	// process, an account for every membership that names none, each with a
-	// password said once; for a roster of its own, what its operator makes
-	// there, and the ones made already linked. Run again it makes nothing. A
-	// message for each membership, and last what it came to.
+	// Migrate gives an account to every membership that names none, with the
+	// membership's identifier (D27) -- the members of a workspace restored from
+	// an export whose accounts this deployment's roster does not have: on the
+	// roster in this process, an account for each, with a password said once;
+	// for a roster of its own, what its operator makes there, and the ones
+	// made already linked. Run again it makes nothing. A message for each
+	// membership, and last what it came to.
 	Migrate(*OperatorIdentityMigrateRequest, grpc.ServerStreamingServer[OperatorIdentityMigrateResponse]) error
 	// Depart is an account leaving every workspace it is in, now, rather than
 	// when roster's grace is over -- for somebody who asked to be forgotten at

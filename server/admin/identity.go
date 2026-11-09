@@ -36,18 +36,19 @@ type operatorIdentity struct {
 	a Routes
 }
 
-// Migrate is the upgrade of a deployment whose memberships name no account
-// (D27): made before roster held people, or before holders named accounts --
-// nobody of them can sign in. On the roster in this process it makes the
-// directory when there is none and writes every such membership into it as an
-// account with the identifier the membership has, so that what the trail says
-// each did is still theirs; each is given a new password, said once, and the
+// Migrate gives an account to every membership that names none (D27): a
+// workspace restored from an export, whose members this deployment's roster
+// does not have -- from another deployment, or forgotten here when the
+// workspace was destroyed (`offboard.Restored.Unlinked`). Nobody of them can
+// sign in until then. On the roster in this process it makes the directory
+// when there is none and writes every such membership into it as an account
+// with the identifier the membership has, so that what the trail says each did
+// is still theirs; each is given a new password, said once, and the
 // membership linked to it. A login another workspace has too gets that
 // workspace's address beside it. Somebody roster has by that identifier
 // already is linked as they are. A roster of its own is its operator's to
 // write to, so for one this says what to make there, and links what was made.
-// Either way the table the passwords from before were kept in goes then,
-// which nothing reads any more. Each link is the operator's write.
+// Each link is the operator's write.
 func (s operatorIdentity) Migrate(req *app.OperatorIdentityMigrateRequest, out grpc.ServerStreamingServer[app.OperatorIdentityMigrateResponse]) error {
 	ctx := operator.Frame(out.Context(), pdid.Nil)
 	ts, err := s.a.S.Ent.Tenant.Query().Order(ent.Asc(enttenant.FieldAlias)).All(ctx)
@@ -67,11 +68,6 @@ func (s operatorIdentity) Migrate(req *app.OperatorIdentityMigrateRequest, out g
 	if err != nil {
 		return err
 	}
-	dropped, err := s.dropCredentials(ctx)
-	if err != nil {
-		return err
-	}
-	done.SetDropped(dropped)
 	return out.Send(app.OperatorIdentityMigrateResponse_builder{Done: done}.Build())
 }
 
@@ -225,26 +221,6 @@ func (s operatorIdentity) describe(ctx context.Context, ts []*ent.Tenant, send f
 		}
 	}
 	return nil
-}
-
-// dropCredentials takes out the table a deployment from before roster kept its
-// password verifiers in, which nothing reads.
-func (s operatorIdentity) dropCredentials(ctx context.Context) (bool, error) {
-	q := "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'credential'"
-	if s.a.S.Dialect == "postgres" {
-		q = "SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = 'credential'"
-	}
-	n := 0
-	if err := s.a.S.Db.QueryRowContext(ctx, q).Scan(&n); err != nil {
-		return false, err
-	}
-	if n == 0 {
-		return false, nil
-	}
-	if _, err := s.a.S.Db.ExecContext(ctx, "DROP TABLE credential"); err != nil {
-		return false, err
-	}
-	return true, nil
 }
 
 // accountOf is the account a request names: by its identifier, or by one of
