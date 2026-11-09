@@ -34,12 +34,6 @@ func (_u *SignInFailureUpdate) SetSubject(v []byte) *SignInFailureUpdate {
 	return _u
 }
 
-// ClearSubject clears the value of the "subject" field.
-func (_u *SignInFailureUpdate) ClearSubject() *SignInFailureUpdate {
-	_u.mutation.ClearSubject()
-	return _u
-}
-
 // Mutation returns the SignInFailureMutation object of the builder.
 func (_u *SignInFailureUpdate) Mutation() *SignInFailureMutation {
 	return _u.mutation
@@ -93,9 +87,6 @@ func (_u *SignInFailureUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if e, ok := _u.mutation.FieldExpr(signinfailure.FieldSubject); ok {
 		_spec.SetField(signinfailure.FieldSubject, field.TypeBytes, e)
 	}
-	if _u.mutation.SubjectCleared() {
-		_spec.ClearField(signinfailure.FieldSubject, field.TypeBytes)
-	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(signinfailure.FieldDateCreated, field.TypeTime)
 	}
@@ -124,12 +115,6 @@ type SignInFailureUpdateOne struct {
 // SetSubject sets the "subject" field.
 func (_u *SignInFailureUpdateOne) SetSubject(v []byte) *SignInFailureUpdateOne {
 	_u.mutation.SetSubject(v)
-	return _u
-}
-
-// ClearSubject clears the value of the "subject" field.
-func (_u *SignInFailureUpdateOne) ClearSubject() *SignInFailureUpdateOne {
-	_u.mutation.ClearSubject()
 	return _u
 }
 
@@ -215,9 +200,6 @@ func (_u *SignInFailureUpdateOne) sqlSave(ctx context.Context) (_node *SignInFai
 	}
 	if e, ok := _u.mutation.FieldExpr(signinfailure.FieldSubject); ok {
 		_spec.SetField(signinfailure.FieldSubject, field.TypeBytes, e)
-	}
-	if _u.mutation.SubjectCleared() {
-		_spec.ClearField(signinfailure.FieldSubject, field.TypeBytes)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(signinfailure.FieldDateCreated, field.TypeTime)

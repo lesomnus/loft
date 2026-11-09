@@ -71,7 +71,6 @@ func (m *Mutation) ResetAccount() {
 // SetSecret sets the "secret" field.
 func (m *Mutation) SetSecret(b []byte) {
 	m.secret = &b
-	delete(m.clearedFields, FieldSecret)
 	delete(m.exprs, FieldSecret)
 }
 
@@ -84,30 +83,15 @@ func (m *Mutation) Secret() (r []byte, exists bool) {
 	return *v, true
 }
 
-// ClearSecret clears the value of the "secret" field.
-func (m *Mutation) ClearSecret() {
-	m.secret = nil
-	delete(m.exprs, FieldSecret)
-	m.clearedFields[FieldSecret] = struct{}{}
-}
-
-// SecretCleared returns if the "secret" field was cleared in this mutation.
-func (m *Mutation) SecretCleared() bool {
-	_, ok := m.clearedFields[FieldSecret]
-	return ok
-}
-
 // ResetSecret resets all changes to the "secret" field.
 func (m *Mutation) ResetSecret() {
 	m.secret = nil
-	delete(m.clearedFields, FieldSecret)
 	delete(m.exprs, FieldSecret)
 }
 
 // SetGrant sets the "grant" field.
 func (m *Mutation) SetGrant(b []byte) {
 	m.grant = &b
-	delete(m.clearedFields, FieldGrant)
 	delete(m.exprs, FieldGrant)
 }
 
@@ -120,23 +104,9 @@ func (m *Mutation) Grant() (r []byte, exists bool) {
 	return *v, true
 }
 
-// ClearGrant clears the value of the "grant" field.
-func (m *Mutation) ClearGrant() {
-	m.grant = nil
-	delete(m.exprs, FieldGrant)
-	m.clearedFields[FieldGrant] = struct{}{}
-}
-
-// GrantCleared returns if the "grant" field was cleared in this mutation.
-func (m *Mutation) GrantCleared() bool {
-	_, ok := m.clearedFields[FieldGrant]
-	return ok
-}
-
 // ResetGrant resets all changes to the "grant" field.
 func (m *Mutation) ResetGrant() {
 	m.grant = nil
-	delete(m.clearedFields, FieldGrant)
 	delete(m.exprs, FieldGrant)
 }
 
@@ -767,12 +737,6 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldSecret) {
-		fields = append(fields, FieldSecret)
-	}
-	if m.FieldCleared(FieldGrant) {
-		fields = append(fields, FieldGrant)
-	}
 	if m.FieldCleared(FieldDateExpires) {
 		fields = append(fields, FieldDateExpires)
 	}
@@ -808,12 +772,6 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldSecret:
-		m.ClearSecret()
-		return nil
-	case FieldGrant:
-		m.ClearGrant()
-		return nil
 	case FieldDateExpires:
 		m.ClearDateExpires()
 		return nil

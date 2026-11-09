@@ -50,21 +50,9 @@ func (_u *SessionUpdate) SetSecret(v []byte) *SessionUpdate {
 	return _u
 }
 
-// ClearSecret clears the value of the "secret" field.
-func (_u *SessionUpdate) ClearSecret() *SessionUpdate {
-	_u.mutation.ClearSecret()
-	return _u
-}
-
 // SetGrant sets the "grant" field.
 func (_u *SessionUpdate) SetGrant(v []byte) *SessionUpdate {
 	_u.mutation.SetGrant(v)
-	return _u
-}
-
-// ClearGrant clears the value of the "grant" field.
-func (_u *SessionUpdate) ClearGrant() *SessionUpdate {
-	_u.mutation.ClearGrant()
 	return _u
 }
 
@@ -253,17 +241,11 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(session.FieldSecret); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, e)
 	}
-	if _u.mutation.SecretCleared() {
-		_spec.ClearField(session.FieldSecret, field.TypeBytes)
-	}
 	if value, ok := _u.mutation.Grant(); ok {
 		_spec.SetField(session.FieldGrant, field.TypeBytes, value)
 	}
 	if e, ok := _u.mutation.FieldExpr(session.FieldGrant); ok {
 		_spec.SetField(session.FieldGrant, field.TypeBytes, e)
-	}
-	if _u.mutation.GrantCleared() {
-		_spec.ClearField(session.FieldGrant, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.DateExpires(); ok {
 		_spec.SetField(session.FieldDateExpires, field.TypeTime, value)
@@ -370,21 +352,9 @@ func (_u *SessionUpdateOne) SetSecret(v []byte) *SessionUpdateOne {
 	return _u
 }
 
-// ClearSecret clears the value of the "secret" field.
-func (_u *SessionUpdateOne) ClearSecret() *SessionUpdateOne {
-	_u.mutation.ClearSecret()
-	return _u
-}
-
 // SetGrant sets the "grant" field.
 func (_u *SessionUpdateOne) SetGrant(v []byte) *SessionUpdateOne {
 	_u.mutation.SetGrant(v)
-	return _u
-}
-
-// ClearGrant clears the value of the "grant" field.
-func (_u *SessionUpdateOne) ClearGrant() *SessionUpdateOne {
-	_u.mutation.ClearGrant()
 	return _u
 }
 
@@ -603,17 +573,11 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 	if e, ok := _u.mutation.FieldExpr(session.FieldSecret); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, e)
 	}
-	if _u.mutation.SecretCleared() {
-		_spec.ClearField(session.FieldSecret, field.TypeBytes)
-	}
 	if value, ok := _u.mutation.Grant(); ok {
 		_spec.SetField(session.FieldGrant, field.TypeBytes, value)
 	}
 	if e, ok := _u.mutation.FieldExpr(session.FieldGrant); ok {
 		_spec.SetField(session.FieldGrant, field.TypeBytes, e)
-	}
-	if _u.mutation.GrantCleared() {
-		_spec.ClearField(session.FieldGrant, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.DateExpires(); ok {
 		_spec.SetField(session.FieldDateExpires, field.TypeTime, value)

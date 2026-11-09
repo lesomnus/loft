@@ -130,6 +130,9 @@ func (_c *HandoffCreate) check() error {
 	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
 		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Handoff.%s" was assigned an expression, which only an update writes`, fs[0])}
 	}
+	if _, ok := _c.mutation.Secret(); !ok {
+		return &ValidationError{Name: "secret", err: errors.New(`ent: missing required field "Handoff.secret"`)}
+	}
 	if _, ok := _c.mutation.Account(); !ok {
 		return &ValidationError{Name: "account", err: errors.New(`ent: missing required field "Handoff.account"`)}
 	}
@@ -138,6 +141,9 @@ func (_c *HandoffCreate) check() error {
 	}
 	if _, ok := _c.mutation.Host(); !ok {
 		return &ValidationError{Name: "host", err: errors.New(`ent: missing required field "Handoff.host"`)}
+	}
+	if _, ok := _c.mutation.State(); !ok {
+		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "Handoff.state"`)}
 	}
 	if _, ok := _c.mutation.Parent(); !ok {
 		return &ValidationError{Name: "parent", err: errors.New(`ent: missing required field "Handoff.parent"`)}

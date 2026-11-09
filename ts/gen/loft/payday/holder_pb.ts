@@ -111,7 +111,8 @@ export type Holder = Message<"loft.Holder"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
-   * Not personal: who made somebody an administrator is the record (payday#92).
+   * `member` when what makes the membership says no other. Not personal: who
+   * made somebody an administrator is the record (payday#92).
    *
    * @generated from field: string role = 8;
    */

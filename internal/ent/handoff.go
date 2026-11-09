@@ -76,6 +76,9 @@ func (_m *Handoff) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field secret", values[i])
 			} else if value != nil {
 				_m.Secret = *value
+				if _m.Secret == nil {
+					_m.Secret = []byte{}
+				}
 			}
 		case handoff.FieldAccount:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -100,6 +103,9 @@ func (_m *Handoff) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field state", values[i])
 			} else if value != nil {
 				_m.State = *value
+				if _m.State == nil {
+					_m.State = []byte{}
+				}
 			}
 		case handoff.FieldParent:
 			if value, ok := values[i].(*uuid.UUID); !ok {

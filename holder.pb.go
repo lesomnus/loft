@@ -335,7 +335,8 @@ type Holder_builder struct {
 	// the alias comes free again.
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
-	// Not personal: who made somebody an administrator is the record (payday#92).
+	// `member` when what makes the membership says no other. Not personal: who
+	// made somebody an administrator is the record (payday#92).
 	Role string
 	// The account this is a membership of: a holder at roster, in this
 	// deployment's directory (design 9.10, D27). An account belongs to many

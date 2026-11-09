@@ -53,14 +53,6 @@ func (_c *CliLoginCreate) SetAddress(v string) *CliLoginCreate {
 	return _c
 }
 
-// SetNillableAddress sets the "address" field if the given value is not nil.
-func (_c *CliLoginCreate) SetNillableAddress(v *string) *CliLoginCreate {
-	if v != nil {
-		_c.SetAddress(*v)
-	}
-	return _c
-}
-
 // SetAccount sets the "account" field.
 func (_c *CliLoginCreate) SetAccount(v uuid.UUID) *CliLoginCreate {
 	_c.mutation.SetAccount(v)
@@ -148,7 +140,6 @@ func (_c *CliLoginCreate) Mutation() *CliLoginMutation {
 
 // Save creates the CliLogin in the database.
 func (_c *CliLoginCreate) Save(ctx context.Context) (*CliLogin, error) {
-	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -174,20 +165,13 @@ func (_c *CliLoginCreate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (_c *CliLoginCreate) defaults() {
-	if _, ok := _c.mutation.Address(); !ok {
-		if _, ok := _c.mutation.FieldExpr(clilogin.FieldAddress); !ok {
-			v := clilogin.DefaultAddress
-			_c.mutation.SetAddress(v)
-		}
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (_c *CliLoginCreate) check() error {
 	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
 		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "CliLogin.%s" was assigned an expression, which only an update writes`, fs[0])}
+	}
+	if _, ok := _c.mutation.Secret(); !ok {
+		return &ValidationError{Name: "secret", err: errors.New(`ent: missing required field "CliLogin.secret"`)}
 	}
 	if _, ok := _c.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "CliLogin.code"`)}
@@ -197,6 +181,12 @@ func (_c *CliLoginCreate) check() error {
 	}
 	if _, ok := _c.mutation.Origin(); !ok {
 		return &ValidationError{Name: "origin", err: errors.New(`ent: missing required field "CliLogin.origin"`)}
+	}
+	if _, ok := _c.mutation.Address(); !ok {
+		return &ValidationError{Name: "address", err: errors.New(`ent: missing required field "CliLogin.address"`)}
+	}
+	if _, ok := _c.mutation.Grant(); !ok {
+		return &ValidationError{Name: "grant", err: errors.New(`ent: missing required field "CliLogin.grant"`)}
 	}
 	if _, ok := _c.mutation.State(); !ok {
 		return &ValidationError{Name: "state", err: errors.New(`ent: missing required field "CliLogin.state"`)}
@@ -350,7 +340,6 @@ func (_c *CliLoginCreateBulk) Save(ctx context.Context) ([]*CliLogin, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CliLoginMutation)
 				if !ok {

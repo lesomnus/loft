@@ -136,6 +136,9 @@ func (_m *Attachment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field sha256", values[i])
 			} else if value != nil {
 				_m.Sha256 = *value
+				if _m.Sha256 == nil {
+					_m.Sha256 = []byte{}
+				}
 			}
 		case attachment.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {

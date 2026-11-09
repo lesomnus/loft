@@ -2433,11 +2433,7 @@ func (st AttachmentServiceServer) create(ctx context.Context, req *loft.Attachme
 	q.SetObjectKey(req.GetObjectKey())
 	q.SetSizeBytes(req.GetSizeBytes())
 	q.SetContentType(req.GetContentType())
-	if req.HasSha256() {
-		q.SetSha256(req.GetSha256())
-	} else {
-		q.SetSha256([]byte{})
-	}
+	q.SetSha256(req.GetSha256())
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())

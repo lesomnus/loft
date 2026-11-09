@@ -339,8 +339,7 @@ func (Attachment) Fields() []ent.Field {
 		field.String("object_key"),
 		field.Uint64("size_bytes"),
 		field.String("content_type"),
-		field.Bytes("sha256").
-			Optional(),
+		field.Bytes("sha256"),
 		field.Time("date_updated"),
 		field.Time("date_erased").
 			Nillable().

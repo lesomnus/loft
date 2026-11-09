@@ -325,7 +325,7 @@ var (
 		{Name: "object_key", Type: field.TypeString},
 		{Name: "size_bytes", Type: field.TypeUint64},
 		{Name: "content_type", Type: field.TypeString},
-		{Name: "sha256", Type: field.TypeBytes, Nullable: true},
+		{Name: "sha256", Type: field.TypeBytes},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
@@ -482,13 +482,13 @@ var (
 	// CliloginColumns holds the columns for the "clilogin" table.
 	CliloginColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "secret", Type: field.TypeBytes, Nullable: true},
+		{Name: "secret", Type: field.TypeBytes},
 		{Name: "code", Type: field.TypeString},
 		{Name: "client", Type: field.TypeString},
 		{Name: "origin", Type: field.TypeString},
-		{Name: "address", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "address", Type: field.TypeString},
 		{Name: "account", Type: field.TypeUuid, Nullable: true},
-		{Name: "grant", Type: field.TypeBytes, Nullable: true},
+		{Name: "grant", Type: field.TypeBytes},
 		{Name: "state", Type: field.TypeString},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
 		{Name: "date_updated", Type: field.TypeTime},
@@ -900,11 +900,11 @@ var (
 	// HandoffColumns holds the columns for the "handoff" table.
 	HandoffColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "secret", Type: field.TypeBytes, Nullable: true},
+		{Name: "secret", Type: field.TypeBytes},
 		{Name: "account", Type: field.TypeUuid},
 		{Name: "workspace", Type: field.TypeUuid},
 		{Name: "host", Type: field.TypeString},
-		{Name: "state", Type: field.TypeBytes, Nullable: true},
+		{Name: "state", Type: field.TypeBytes},
 		{Name: "parent", Type: field.TypeUuid},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
@@ -1776,8 +1776,8 @@ var (
 	SessionColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
 		{Name: "account", Type: field.TypeUuid},
-		{Name: "secret", Type: field.TypeBytes, Nullable: true},
-		{Name: "grant", Type: field.TypeBytes, Nullable: true},
+		{Name: "secret", Type: field.TypeBytes},
+		{Name: "grant", Type: field.TypeBytes},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
 		{Name: "date_idle", Type: field.TypeTime, Nullable: true},
 		{Name: "held", Type: field.TypeBytes, Nullable: true},
@@ -1813,7 +1813,7 @@ var (
 	// SigninfailureColumns holds the columns for the "signinfailure" table.
 	SigninfailureColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "subject", Type: field.TypeBytes, Nullable: true},
+		{Name: "subject", Type: field.TypeBytes},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 	}
 	// SigninfailureTable holds the schema information for the "signinfailure" table.

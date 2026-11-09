@@ -151,9 +151,8 @@ message Tenant {
   google.protobuf.Timestamp date_destroy = 11 [(orm.field) = {nullable: true}];
   // The workspace's own settings (#144): what differs from one organization to
   // the next where it operates, and is its owner's to say. Empty is the
-  // deployment's `app.locale`, or `app.no_show_after` -- and is what the
-  // database fills a workspace that was there before them with, which is
-  // why each says a default.
+  // deployment's `app.locale`, or `app.no_show_after`: what a workspace says
+  // until its owner sets its own, which is why each says a default.
   //
   // Timezone is where a date said without a zone is: a file's dates, the time
   // in a notification, the date a sheet's cell means -- an IANA name, such as

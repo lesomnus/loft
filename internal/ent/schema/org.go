@@ -86,10 +86,8 @@ func (Session) Fields() []ent.Field {
 			Unique().
 			Immutable(),
 		field.Uuid("account"),
-		field.Bytes("secret").
-			Optional(),
-		field.Bytes("grant").
-			Optional(),
+		field.Bytes("secret"),
+		field.Bytes("grant"),
 		field.Time("date_expires").
 			Nillable().
 			Optional(),
@@ -223,19 +221,15 @@ func (CliLogin) Fields() []ent.Field {
 		field.Uuid("id").
 			Unique().
 			Immutable(),
-		field.Bytes("secret").
-			Optional(),
+		field.Bytes("secret"),
 		field.String("code"),
 		field.String("client"),
 		field.String("origin"),
-		field.String("address").
-			Optional().
-			Default(""),
+		field.String("address"),
 		field.Uuid("account").
 			Nillable().
 			Optional(),
-		field.Bytes("grant").
-			Optional(),
+		field.Bytes("grant"),
 		field.String("state"),
 		field.Time("date_expires").
 			Optional(),
@@ -313,8 +307,7 @@ func (SignInFailure) Fields() []ent.Field {
 		field.Uuid("id").
 			Unique().
 			Immutable(),
-		field.Bytes("subject").
-			Optional(),
+		field.Bytes("subject"),
 		field.Time("date_created").
 			Immutable().
 			Optional(),
@@ -345,13 +338,11 @@ func (Handoff) Fields() []ent.Field {
 		field.Uuid("id").
 			Unique().
 			Immutable(),
-		field.Bytes("secret").
-			Optional(),
+		field.Bytes("secret"),
 		field.Uuid("account"),
 		field.Uuid("workspace"),
 		field.String("host"),
-		field.Bytes("state").
-			Optional(),
+		field.Bytes("state"),
 		field.Uuid("parent"),
 		field.Time("date_expires").
 			Optional(),

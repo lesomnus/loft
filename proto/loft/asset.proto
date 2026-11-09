@@ -229,7 +229,7 @@ message Domain {
   // whether its TXT record still holds `token`, and whether it still points
   // here. `date_checked` is when it was last asked, and `failures` how many
   // answers in a row since `date_failing` said no -- one that said nothing,
-  // a timeout, is none. A domain whose DNS said no often enough for long
+  // a timeout, is none; 0 for a domain made, which no answer has said no to. A domain whose DNS said no often enough for long
   // enough lapses (`server/domain`'s sweep): `lapsed`, since `date_lapsed`,
   // and active again only once its TXT record verifies again.
   google.protobuf.Timestamp date_checked = 18 [(orm.field) = {nullable: true}];
@@ -343,7 +343,7 @@ message Attachment {
   string object_key = 9;
   uint64 size_bytes = 10;
   string content_type = 11;
-  bytes sha256 = 12 [(orm.field) = {default: ""}];
+  bytes sha256 = 12;
 
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];

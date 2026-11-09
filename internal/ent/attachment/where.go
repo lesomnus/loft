@@ -421,16 +421,6 @@ func Sha256LTE(v []byte) predicate.Attachment {
 	return predicate.Attachment(sql.FieldLTE(FieldSha256, v))
 }
 
-// Sha256IsNil applies the IsNil predicate on the "sha256" field.
-func Sha256IsNil() predicate.Attachment {
-	return predicate.Attachment(sql.FieldIsNull(FieldSha256))
-}
-
-// Sha256NotNil applies the NotNil predicate on the "sha256" field.
-func Sha256NotNil() predicate.Attachment {
-	return predicate.Attachment(sql.FieldNotNull(FieldSha256))
-}
-
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.
 func DateUpdatedEQ(v time.Time) predicate.Attachment {
 	return predicate.Attachment(sql.FieldEQ(FieldDateUpdated, v))

@@ -113,12 +113,6 @@ func (_u *AttachmentUpdate) SetSha256(v []byte) *AttachmentUpdate {
 	return _u
 }
 
-// ClearSha256 clears the value of the "sha256" field.
-func (_u *AttachmentUpdate) ClearSha256() *AttachmentUpdate {
-	_u.mutation.ClearSha256()
-	return _u
-}
-
 // SetDateUpdated sets the "date_updated" field.
 func (_u *AttachmentUpdate) SetDateUpdated(v time.Time) *AttachmentUpdate {
 	_u.mutation.SetDateUpdated(v)
@@ -250,9 +244,6 @@ func (_u *AttachmentUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if e, ok := _u.mutation.FieldExpr(attachment.FieldSha256); ok {
 		_spec.SetField(attachment.FieldSha256, field.TypeBytes, e)
 	}
-	if _u.mutation.Sha256Cleared() {
-		_spec.ClearField(attachment.FieldSha256, field.TypeBytes)
-	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(attachment.FieldDateUpdated, field.TypeTime, value)
 	}
@@ -373,12 +364,6 @@ func (_u *AttachmentUpdateOne) SetNillableContentType(v *string) *AttachmentUpda
 // SetSha256 sets the "sha256" field.
 func (_u *AttachmentUpdateOne) SetSha256(v []byte) *AttachmentUpdateOne {
 	_u.mutation.SetSha256(v)
-	return _u
-}
-
-// ClearSha256 clears the value of the "sha256" field.
-func (_u *AttachmentUpdateOne) ClearSha256() *AttachmentUpdateOne {
-	_u.mutation.ClearSha256()
 	return _u
 }
 
@@ -542,9 +527,6 @@ func (_u *AttachmentUpdateOne) sqlSave(ctx context.Context) (_node *Attachment, 
 	}
 	if e, ok := _u.mutation.FieldExpr(attachment.FieldSha256); ok {
 		_spec.SetField(attachment.FieldSha256, field.TypeBytes, e)
-	}
-	if _u.mutation.Sha256Cleared() {
-		_spec.ClearField(attachment.FieldSha256, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(attachment.FieldDateUpdated, field.TypeTime, value)

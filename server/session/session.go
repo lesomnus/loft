@@ -144,9 +144,10 @@ func Actions(b []byte) ([]string, error) {
 
 // grantOf is what a row's grant allows, read back as payday reads one off a
 // token: an attenuation of whatever the account may do, which the gRPC chain
-// holds every call to.
+// holds every call to. A row says [whole] for none: every sign-in writes
+// one or the other.
 func grantOf(b []byte) (frame.Grant, error) {
-	if len(b) == 0 || bytes.Equal(b, whole) {
+	if bytes.Equal(b, whole) {
 		return frame.Whole(), nil
 	}
 	g := &pdpb.Grant{}
