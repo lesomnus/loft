@@ -123,8 +123,11 @@ func (e *embedded) Close() error {
 }
 
 // agent writes the `loft` holder, the role it holds and the binding into a
-// tenant, through the deployment's own door. It refuses a tenant that is not
-// there rather than making one, since a tenant is a customer.
+// tenant, through the deployment's own door, as each is not there already: and
+// the role carries every method this build asks ([AgentMethods]), which a
+// process ensures the first time it asks as Loft in the tenant. It refuses a
+// tenant that is not there rather than making one, since a tenant is a
+// customer.
 func (e *embedded) agent(ctx context.Context, tenant string) error {
 	ctx, cancel := unframed(ctx)
 	defer cancel()
@@ -164,7 +167,8 @@ func (e *embedded) agent(ctx context.Context, tenant string) error {
 			return fmt.Errorf("role %s: %w", Agent, err)
 		}
 	} else if missing := slices.DeleteFunc(slices.Clone(AgentMethods), func(m string) bool { return slices.Contains(r.GetMethods(), m) }); len(missing) > 0 {
-		// A role written by an older Loft: what this one asks is added.
+		// The role carries what this build asks: what it does not carry yet
+		// is added.
 		if _, err := own.Role().Patch(ctx, rstr.RolePatchRequest_builder{
 			Ref:              rstr.RoleRef_builder{Id: r.GetId()}.Build(),
 			Methods:          append(slices.Clone(r.GetMethods()), missing...),
