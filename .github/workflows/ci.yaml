@@ -43,8 +43,31 @@ jobs:
           restore-keys: |
             go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
             go-${{ runner.os }}-
+      # The buf `pd` pins, kept between runs. `pd` fetches it from GitHub's
+      # releases into ~/.cache/payday/buf/<version> the first time it needs
+      # one and finds it there after, and a runner starts with that empty --
+      # so every run fetched it, from releases that answer 504 for minutes at
+      # a time. Kept under the payday go.mod requires, which is what decides
+      # the version, it is fetched once for each payday rather than on every
+      # run: by `pd gen` below, checked against its digest and asked again
+      # for a minute when GitHub does not answer.
+      - name: the payday loft requires
+        id: payday
+        run: echo "version=$(go list -m -f '{{.Version}}' github.com/lesomnus/payday)" >> "${GITHUB_OUTPUT}"
+      - id: buf
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/payday/buf
+          key: payday-buf-${{ steps.payday.outputs.version }}-${{ runner.os }}-${{ runner.arch }}
       - name: generated code matches the schema
         run: go tool pd gen --check .
+      # Saved as soon as the step above has fetched it, rather than at the
+      # end of the job, which `actions/cache` does only for a job that passed.
+      - if: steps.buf.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/payday/buf
+          key: ${{ steps.buf.outputs.cache-primary-key }}
       # pd doctor holds the Node the page is built with to payday's floor:
       # the one the `ui` job builds the page with, rather than whichever the
       # runner's image has.
@@ -461,11 +484,13 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # The release's own binary, held to the digest its checksums say,
-      # rather than an installer that follows `main`.
+      # rather than an installer that follows `main` -- and asked for again,
+      # since GitHub's releases answer 504 for minutes at a time: #311's
+      # `cluster` died on one.
       - name: k3d
         run: |
           mkdir -p "${RUNNER_TEMP}/bin"
-          curl -fsSL -o "${RUNNER_TEMP}/bin/k3d" https://github.com/k3d-io/k3d/releases/download/v5.9.0/k3d-linux-amd64
+          curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 -o "${RUNNER_TEMP}/bin/k3d" https://github.com/k3d-io/k3d/releases/download/v5.9.0/k3d-linux-amd64
           echo "06d8f25bc3a971c4eb29e0ff08429b180402db0f4dec838c9eac427e296800a0  ${RUNNER_TEMP}/bin/k3d" | sha256sum -c -
           chmod +x "${RUNNER_TEMP}/bin/k3d"
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
