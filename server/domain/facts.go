@@ -89,48 +89,6 @@ func KeyOf(s past.Slot) (string, bool) {
 	return string(fd.Name()), true
 }
 
-// LegacyFact is a fact Loft wrote under `key`, saying `value` or `cleared`, as
-// payday's past writes the same fact: the field, the entry of a map -- empty
-// for any other field -- and the value's canonical JSON, `null` for one
-// cleared.
-//
-// A type and a model are edges, which the past writes by the identifier of
-// the row they name. Loft kept the identifier as text, in whatever form the
-// request wrote it -- a uuid is read in upper case, in braces, as a URN -- so
-// it is read as an identifier and written as its canonical string. A key that
-// is no fact of an asset is refused, and so is a value the past cannot write:
-// text that is not UTF-8, or an identifier that does not read as one.
-func LegacyFact(key, value string, cleared bool) (field protoreflect.FieldNumber, entry, canonical string, err error) {
-	s, err := SlotOf(key)
-	if err != nil {
-		return 0, "", "", err
-	}
-	if cleared {
-		return s.Field, s.Key, past.Null, nil
-	}
-
-	fd := assetDesc.Fields().ByNumber(s.Field)
-	v := protoreflect.ValueOfString(value)
-	switch {
-	case fd.IsMap():
-		fd = fd.MapValue()
-	case fd.Message() != nil:
-		id, err := pdid.Parse(value)
-		if err != nil {
-			return 0, "", "", fmt.Errorf("fact %q: %q is not an identifier: %w", key, value, err)
-		}
-		row := (&app.Asset{}).ProtoReflect().NewField(fd).Message()
-		row.Set(row.Descriptor().Fields().ByName("id"), protoreflect.ValueOfBytes(id.Bytes()))
-		v = protoreflect.ValueOfMessage(row)
-	}
-
-	j, err := past.Encode(fd, v)
-	if err != nil {
-		return 0, "", "", fmt.Errorf("fact %q: %w", key, err)
-	}
-	return s.Field, s.Key, j, nil
-}
-
 // valueOf is a fact Loft says under `key` -- `value`, or cleared for nil -- as
 // the value of the asset's field payday's past writes it as: an attribute an
 // entry of the map, gone when it is cleared, and a type or a model the edge to

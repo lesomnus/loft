@@ -10,7 +10,9 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
@@ -18,6 +20,9 @@ import (
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/pd"
 )
+
+// assetFields is what a fact of an asset is a field of.
+var assetFields = (&app.Asset{}).ProtoReflect().Descriptor().Fields()
 
 // TestAThousandThingsAtAMomentAnswerInASecond: plan.md M1, the size design
 // 1.2 is written for -- a hundred thousand assets and a year of history -- and
@@ -83,10 +88,12 @@ func TestAThousandThingsAtAMomentAnswerInASecond(t *testing.T) {
 		// Each as payday's past keeps it: the asset's field, and its
 		// value's canonical JSON (payday#151).
 		for k, v := range map[string]string{"name": tag, "status": "active", "condition": "good", "tag": tag} {
-			field, key, value, err := domain.LegacyFact(k, v, false)
+			slot, err := domain.SlotOf(k)
+			x.NoError(err)
+			value, err := past.Encode(assetFields.ByNumber(slot.Field), protoreflect.ValueOfString(v))
 			x.NoError(err)
 			facts = append(facts, e.s.Ent.Fact.Create().SetId(pdid.New(pd.FactDomain).Uuid()).SetTenantId(tenant).SetSubjectId(id).
-				SetDomain(uint32(pd.AssetDomain)).SetFieldNumber(uint32(field)).SetKey(key).SetValue(value).
+				SetDomain(uint32(pd.AssetDomain)).SetFieldNumber(uint32(slot.Field)).SetKey(slot.Key).SetValue(value).
 				SetDateStart(since).SetEventId(ev).SetDateUpdated(since).SetDateCreated(since))
 		}
 		return id

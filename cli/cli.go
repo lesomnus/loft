@@ -22,38 +22,26 @@
 package cli
 
 import (
-	"cmp"
 	"context"
-	"database/sql"
 	_ "embed"
 	"fmt"
-	"maps"
 	"slices"
 	"strings"
-	"time"
-	"uuid"
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/cfg"
 	"github.com/lesomnus/xli/flg"
 	"github.com/lesomnus/xli/frm"
 	"github.com/lesomnus/xli/mode"
-	"github.com/protobuf-orm/ent/dialect"
-	entsql "github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdcmd"
-	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/rename"
 	"github.com/lesomnus/payday/valid"
 
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/ent"
 	entmigrate "github.com/lesomnus/loft/internal/ent/migrate"
-	"github.com/lesomnus/loft/internal/ent/tenantcontract"
-	"github.com/lesomnus/loft/server/domain"
-	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -208,419 +196,49 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // migration engine, and `cmd` is what an app's sandbox imports. A sandbox does
 // not migrate: there is no database there that outlives the page.
 //
-// A table an earlier build made under another name -- an entity the schema
-// renamed, and says it did (`formerly`, D72, D77) -- is moved onto its name
-// first, with its rows and what is named after it, by payday's
-// `rename.Tables` with `pd.TableRenames`: a migration finds a table by its
-// name, and one it does not find it makes, empty, beside the one with the
-// rows. First, because what moves next is looked for on a table by the name
-// it has now. It renames no column, and no table but those, so the assets'
-// old facts are still where [stashFacts] looks for them, as they were.
-//
-// The indexes an earlier build stored under the names of their columns are
-// moved to the names the schema declares next (payday#132): a migration finds
-// an index by its name, and one it does not find it makes again, from every
-// row, beside the old one -- which it leaves, since it drops no index. On
-// PostgreSQL that is a rename, which builds nothing; SQLite renames no index,
-// so the old one is dropped and `Create` makes the new one. It replaces the list
-// of replaced indexes this dropped by hand after #122, whose every deployment
-// has migrated past that build.
+// What payday renames is moved onto its name first, in payday's order
+// (`rename`): the tables of an entity the schema renamed and says it did
+// (`formerly`), the columns of payday's own entities, and the indexes stored
+// under the names of their columns, each list as `pd gen` writes it. A
+// migration finds each of them by its name, and one it does not find it
+// makes again beside the old -- an empty table, an empty column, or an index
+// built from every row. The tables first, since the columns and the indexes
+// are looked for on a table by the name it has now.
 //
 // And then an index this build declares that PostgreSQL left invalid is
 // refused, before anything else is changed (payday#176). Found by its name,
-// it would be taken for made: an operator who built `audit_by_time` ahead of
-// the migration, `CONCURRENTLY` as docs/runbook/upgrade.md says to, and had the build
-// cancelled, was told the database was in this build's shape while the index
-// served no read. The refusal names it and says what to run to make it again.
+// it would be taken for made: an operator who built an index ahead of the
+// migration, `CONCURRENTLY`, and had the build cancelled, was told the
+// database was in this build's shape while the index served no read. The
+// refusal names it and says what to run to make it again
+// (docs/dev/postgres.md).
 //
-// The columns an earlier build made under another name are moved to theirs
-// once the old facts are set aside (D76): Loft's own
-// ([offboard.RenamedColumns]) and payday's (`pd.ColumnRenames`), by payday's
-// `rename.Columns`. A migration finds a column by its name, and one it does
-// not find it makes, empty: beside the old one on PostgreSQL, which keeps
-// every value and is read by nothing, and on SQLite, in a table it makes
-// again -- any with an index -- in place of the old one, whose values go with
-// it for good. So nothing migrates before it. A rename is one change to the
-// catalog on PostgreSQL, which carries what `pg.sql` made on the column -- an
-// `EXCLUDE`, an index's predicate -- along with it; and SQLite rewrites the
-// table's definition in place. Every column moved takes NULL, so PostgreSQL
-// 18 named no NOT NULL after it to be left under the old name, as it named
-// one after the table D72 renamed for each of its columns (which
-// `rename.Tables` names again). After the tables, since a column is looked
-// for on its table by the name the table has now: the domains' times are in
-// `tenantdomain` in a database from before D72 until it is moved. And before
-// the facts are set aside, it would rename the columns of the table an
-// earlier build kept them in, which has payday's Fact's name and is read by
-// its own ([stashFacts]).
+// Until launch it brings nothing else along (the owner's decision,
+// 2026-11-09): a change that breaks what an earlier build stored carries no
+// step of its own here, and a deployment from before it is made again from
+// nothing (`.github/compat-epoch`).
 func Migrate(ctx context.Context, s *cmd.Server) error {
-	_, err := migrate(ctx, s)
-	return err
-}
-
-// Migrated is what a migration did that is more than the schema's shape:
-// rows it rewrote, and how many of them it put on the trail.
-type Migrated struct {
-	// Facts is the assets' facts moved into payday's past (payday#151), and
-	// Recorded the lines the trail was given of them.
-	Facts, Recorded int
-
-	// Held is the things out whose hand-over took their time (D53), which a
-	// build from before did not.
-	Held int
-}
-
-// migrate is [Migrate], answering what it rewrote.
-func migrate(ctx context.Context, s *cmd.Server) (Migrated, error) {
-	out := Migrated{}
-	err := func() error {
-		if err := dropOldSessions(ctx, s); err != nil {
-			return err
-		}
-		if err := dropGone(ctx, s); err != nil {
-			return err
-		}
-		// The tables first (D77): the indexes and the columns are looked for
-		// on a table by the name it has now. It renames no column, and no
-		// table but those the schema renamed, so it may go before the old
-		// facts are set aside; the columns may not, and wait for them.
-		if err := rename.Tables(ctx, s.Db, s.Dialect, pd.TableRenames); err != nil {
-			return err
-		}
-		if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {
-			return err
-		}
-		if err := valid.Indexes(ctx, s.Db, s.Dialect, entmigrate.Tables); err != nil {
-			return err
-		}
-		if err := stashTerms(ctx, s); err != nil {
-			return err
-		}
-		if err := stashFacts(ctx, s); err != nil {
-			return err
-		}
-		// After the facts are set aside: the table an earlier build kept
-		// them in has payday's name and its own columns, read by those.
-		if err := rename.Columns(ctx, s.Db, s.Dialect, slices.Concat(pd.ColumnRenames, offboard.RenamedColumns)); err != nil {
-			return err
-		}
-		if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
-			return err
-		}
-		if err := moveTerms(ctx, s); err != nil {
-			return err
-		}
-		var err error
-		if out.Facts, out.Recorded, err = moveFacts(ctx, s); err != nil {
-			return err
-		}
-		if s.Dialect == "postgres" {
-			if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
-				return fmt.Errorf("postgres extras: %w", err)
-			}
-		}
-		// Once the database is in this build's shape: what this build's
-		// servers write it is written in.
-		out.Held, err = holdOut(ctx, s)
+	if err := rename.Tables(ctx, s.Db, s.Dialect, pd.TableRenames); err != nil {
 		return err
-	}()
-	return out, err
-}
-
-// holdOut makes the hold of everything out that its hand-over holds none of
-// the time of (D53) -- what a build from before a hand-over held it handed
-// over -- from when it was handed over, in each workspace as the
-// deployment's own work: through the servers, so that each write is on the
-// trail as any is, and with what holding it does. What was booked over it
-// says so and is told, and a pool's latest reservations wait
-// ([domain.Deps.HoldOut]). A database with nothing of the kind opens nothing
-// for it: no servers, and no key.
-func holdOut(ctx context.Context, s *cmd.Server) (int, error) {
-	ts, err := domain.Unheld(ctx, s.Ent)
-	if err != nil || len(ts) == 0 {
-		return 0, err
 	}
-	own, err := s.Own()
-	if err != nil {
-		return 0, err
+	if err := rename.Columns(ctx, s.Db, s.Dialect, pd.ColumnRenames); err != nil {
+		return err
 	}
-	n := 0
-	for _, t := range ts {
-		k, err := s.Deps.HoldOut(ctx, own, s.Drv, t)
-		if err != nil {
-			return n, fmt.Errorf("what is out in tenant %s: %w", t, err)
-		}
-		n += k
+	if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {
+		return err
 	}
-	return n, nil
-}
-
-// dropOldSessions takes out a session table from before a session was an
-// account's (D27). Its rows each name a tenant and a holder the new ones have
-// no use for, and a migration only adds, so the columns would stay and refuse
-// every new row. Sessions are only who is signed in: everybody signs in again.
-func dropOldSessions(ctx context.Context, s *cmd.Server) error {
-	q := "SELECT count(*) FROM pragma_table_info('session') WHERE name = 'holder_id'"
+	if err := valid.Indexes(ctx, s.Db, s.Dialect, entmigrate.Tables); err != nil {
+		return err
+	}
+	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
+		return err
+	}
 	if s.Dialect == "postgres" {
-		q = "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'session' AND column_name = 'holder_id'"
-	}
-	n := 0
-	if err := s.Db.QueryRowContext(ctx, q).Scan(&n); err != nil {
-		return fmt.Errorf("sessions from before accounts: %w", err)
-	}
-	if n == 0 {
-		return nil
-	}
-	if _, err := s.Db.ExecContext(ctx, "DROP TABLE session"); err != nil {
-		return fmt.Errorf("sessions from before accounts: %w", err)
-	}
-	return nil
-}
-
-// dropGone takes out the tables an earlier build had and this one does not
-// ([offboard.Dropped]), rows and all. A migration only adds, so the table
-// would stay -- and its rows each point at their tenant, which a workspace's
-// destruction could then not delete.
-func dropGone(ctx context.Context, s *cmd.Server) error {
-	for _, name := range slices.Sorted(maps.Keys(offboard.Dropped)) {
-		if _, err := s.Db.ExecContext(ctx, "DROP TABLE IF EXISTS "+name); err != nil {
-			return fmt.Errorf("%s, which this build does not have: %w", name, err)
+		if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
+			return fmt.Errorf("postgres extras: %w", err)
 		}
 	}
 	return nil
-}
-
-// The contracts' terms a workspace's own settings took over (D36), and the
-// columns they were kept in, with the view window's and the grace's: a
-// migration only adds, and these say no default, so every contract written
-// without them would be refused.
-var oldTerms = []string{"view_days", "keep_days", "grace_days", "access_keep_days", "restore_days"}
-
-// termsAside is where [stashTerms] sets the contracts' terms aside, by
-// contract, while the schema is migrated beneath them.
-const termsAside = "loft_contract_terms"
-
-// stashTerms sets aside what the workspaces' contracts said of how long each
-// keeps its history and its access record and may be restored once closed,
-// before the schema is migrated, for [moveTerms] to move onto the workspaces
-// once it is (D36).
-//
-// Before, because the schema's migration may take the columns first. On
-// SQLite a table is changed by making it again -- a new table, its rows copied
-// in, the old one dropped -- and what is copied is the columns the schema
-// declares: a contract table that has to change for anything else, as one
-// from before `purge_floors` does, comes out of it without these. Set aside,
-// they are a table of their own the migration does not touch, until the move
-// has them.
-//
-// While the columns are there they are what the contracts say, and the terms
-// are set aside again from them; once they are gone, what was set aside is
-// all there is, and it is kept.
-func stashTerms(ctx context.Context, s *cmd.Server) error {
-	has, err := hasColumn(ctx, s, "tenantcontract", "keep_days")
-	if err != nil || !has {
-		return err
-	}
-
-	tx, err := s.Db.BeginTx(ctx, nil)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	for _, q := range []string{
-		"DROP TABLE IF EXISTS " + termsAside,
-		"CREATE TABLE " + termsAside + " AS SELECT id AS contract_id, keep_days, access_keep_days, restore_days FROM tenantcontract",
-	} {
-		if _, err := tx.ExecContext(ctx, q); err != nil {
-			return fmt.Errorf("the contracts' terms, set aside: %w", err)
-		}
-	}
-
-	return tx.Commit()
-}
-
-// moveTerms moves the contracts' terms onto the workspaces, once: they are
-// each workspace's own settings now (D36). Then the contracts' columns for them
-// go, where the schema's migration left them, and what [stashTerms] set aside.
-//
-// The terms are the columns' while they are there -- what a contract written
-// since they were set aside says too -- and what was set aside once they are
-// not. A contract written after the columns had gone said none, and keeps
-// none.
-//
-// The contract in force says what a workspace keeps. The one before it says
-// what it kept before, from when the one in force took effect: a shorter window
-// waits out the deployment's grace (`app.retention.grace`) from then, as it
-// waited out the contract's own. What a contract dated ahead of the migration
-// said of these is not carried; the rest of it is, and it still takes effect.
-//
-// The contracts are read as the app reads them, through ent: which of them is
-// in force is their dates, in whatever form the database holds a time. A
-// contract whose terms do not read, or do not go onto its workspace, is
-// refused by name, and nothing is moved or dropped.
-//
-// A contract that said any of them is a row a migration rewrote, and the trail
-// finds it so (`loft trail rows`) until an operator accepts it once.
-func moveTerms(ctx context.Context, s *cmd.Server) error {
-	columns, err := hasColumn(ctx, s, "tenantcontract", "keep_days")
-	if err != nil {
-		return err
-	}
-	aside, err := hasTable(ctx, s, termsAside)
-	if err != nil {
-		return err
-	}
-	if !columns && !aside {
-		return nil
-	}
-
-	tdrv, tx, err := dialect.BeginTx(ctx, s.Drv)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	db := ent.NewClient(ent.Driver(tdrv))
-
-	from := "SELECT contract_id, keep_days, access_keep_days, restore_days FROM " + termsAside
-	if columns {
-		from = "SELECT id, keep_days, access_keep_days, restore_days FROM tenantcontract"
-	}
-	type terms struct{ keep, access, restore int64 }
-	said := map[uuid.UUID]terms{}
-	rows := &entsql.Rows{}
-	if err := tdrv.Query(ctx, from, []any{}, rows); err != nil {
-		return fmt.Errorf("the contracts' terms: %w", err)
-	}
-	for rows.Next() {
-		var id string
-		var keep, access, restore sql.NullInt64
-		if err := rows.Scan(&id, &keep, &access, &restore); err != nil {
-			rows.Close()
-			return fmt.Errorf("the contracts' terms: %w", err)
-		}
-		k, err := uuid.Parse(id)
-		if err != nil {
-			rows.Close()
-			return fmt.Errorf("the contracts' terms: contract %q: %w", id, err)
-		}
-		said[k] = terms{keep.Int64, access.Int64, restore.Int64}
-	}
-	rows.Close()
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("the contracts' terms: %w", err)
-	}
-
-	cs, err := db.TenantContract.Query().Where(tenantcontract.DateErasedIsNil()).All(ctx)
-	if err != nil {
-		return fmt.Errorf("the contracts, as they are read: %w", err)
-	}
-	byTenant := map[uuid.UUID][]*ent.TenantContract{}
-	for _, c := range cs {
-		byTenant[c.TenantId] = append(byTenant[c.TenantId], c)
-	}
-
-	now := time.Now()
-	for _, t := range slices.SortedFunc(maps.Keys(byTenant), func(a, b uuid.UUID) int { return a.Compare(b) }) {
-		vs := byTenant[t]
-		// The latest first, as the contract in force is read.
-		slices.SortFunc(vs, func(a, b *ent.TenantContract) int {
-			return cmp.Or(b.DateEffective.Compare(a.DateEffective), b.Id.Compare(a.Id))
-		})
-		i := slices.IndexFunc(vs, func(v *ent.TenantContract) bool { return !v.DateEffective.After(now) })
-		if i < 0 {
-			continue
-		}
-		in, is := vs[i], said[vs[i].Id]
-		up := db.Tenant.UpdateOneId(t).
-			SetKeepDays(uint32(is.keep)).
-			SetAccessKeepDays(uint32(is.access)).
-			SetRestoreDays(uint32(is.restore))
-		if i+1 < len(vs) {
-			was := said[vs[i+1].Id]
-			if outlasts(was.keep, is.keep) {
-				up.SetKeepDaysBefore(uint32(was.keep)).SetDateKeepShortened(in.DateEffective)
-			}
-			// Whether the deployment's access record outlasts a count of days is
-			// the deployment's to say when it is read: which keeps longer is
-			// read then.
-			if was.access != is.access {
-				up.SetAccessKeepDaysBefore(uint32(was.access)).SetDateAccessKeepShortened(in.DateEffective)
-			}
-		}
-		if err := up.Exec(ctx); err != nil {
-			return fmt.Errorf("contract %s, onto tenant %s: %w", pdid.Id(in.Id), pdid.Id(t), err)
-		}
-	}
-
-	if columns {
-		for _, c := range oldTerms {
-			has, err := hasColumnIn(ctx, tdrv, s.Dialect, "tenantcontract", c)
-			if err != nil {
-				return err
-			}
-			if !has {
-				continue
-			}
-			if err := tdrv.Exec(ctx, "ALTER TABLE tenantcontract DROP COLUMN "+c, []any{}, nil); err != nil {
-				return fmt.Errorf("the contracts' %s: %w", c, err)
-			}
-		}
-	}
-	if aside {
-		if err := tdrv.Exec(ctx, "DROP TABLE "+termsAside, []any{}, nil); err != nil {
-			return fmt.Errorf("the contracts' terms, set aside: %w", err)
-		}
-	}
-
-	return tx.Commit()
-}
-
-// hasColumn answers whether a table of the database has a column.
-func hasColumn(ctx context.Context, s *cmd.Server, table, column string) (bool, error) {
-	return hasColumnIn(ctx, s.Drv, s.Dialect, table, column)
-}
-
-// hasColumnIn is [hasColumn] through `drv`, which may be a transaction's.
-func hasColumnIn(ctx context.Context, drv dialect.Driver, d, table, column string) (bool, error) {
-	q := "SELECT count(*) FROM pragma_table_info(?) WHERE name = ?"
-	if d == "postgres" {
-		q = "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = $1 AND column_name = $2"
-	}
-
-	return counted(ctx, drv, q, table, column)
-}
-
-// hasTable answers whether the database has a table.
-func hasTable(ctx context.Context, s *cmd.Server, table string) (bool, error) {
-	q := "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = ?"
-	if s.Dialect == "postgres" {
-		q = "SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = $1"
-	}
-
-	return counted(ctx, s.Drv, q, table)
-}
-
-// counted answers whether a count asked of the database is more than none.
-func counted(ctx context.Context, drv dialect.Driver, q string, args ...any) (bool, error) {
-	rows := &entsql.Rows{}
-	if err := drv.Query(ctx, q, args, rows); err != nil {
-		return false, err
-	}
-	defer rows.Close()
-
-	n := 0
-	if rows.Next() {
-		if err := rows.Scan(&n); err != nil {
-			return false, err
-		}
-	}
-
-	return n > 0, rows.Err()
-}
-
-// outlasts answers whether a count of days keeps longer than another, where 0
-// is forever.
-func outlasts(a, b int64) bool {
-	return b > 0 && (a == 0 || a > b)
 }
 
 // pgExtras is what PostgreSQL promises beyond the schema; see the file.
