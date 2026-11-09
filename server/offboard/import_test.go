@@ -256,35 +256,6 @@ func TestARestoreRefusesATableThisBuildHasNot(t *testing.T) {
 	x.Empty(e.count(acme.id), "a restore that refused put something back")
 }
 
-// TestARestoreRefusesAnExportWithoutATable: this build writes a file for every
-// table it exports, rows or none, so an export without one -- a build's that
-// had no such table -- is refused, and nothing of it is put back.
-func TestARestoreRefusesAnExportWithoutATable(t *testing.T) {
-	key, _, err := trail.GenerateKey()
-	require.NoError(t, err)
-	k, err := trail.ParseKey(key)
-	require.NoError(t, err)
-	e := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Key = string(key) })
-	x := e.x
-	ctx := context.Background()
-	acme := e.tenant("acme")
-
-	b := e.export(acme.id)
-	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
-	x.NoError(err)
-
-	without := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
-		x.Contains(fs, "rows/label.jsonl", "this build exports its labels")
-		delete(fs, "rows/label.jsonl")
-		delete(m.Rows, "label")
-		return nil
-	})
-	_, err = e.restore(without, offboard.ImportOptions{})
-	x.ErrorIs(err, offboard.ErrFormat)
-	x.ErrorContains(err, "rows/label.jsonl")
-	x.Empty(e.count(acme.id), "a restore that refused put something back")
-}
-
 // TestARestoreReadsThisBuildsFormatAlone: an export says in its manifest what
 // format it is, and a restore reads this build's alone ([offboard.Format]).
 // One that says another -- an earlier build's, `loft-export/1` -- is refused,

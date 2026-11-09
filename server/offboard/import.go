@@ -452,15 +452,13 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 const Imported = "loft.workspace.import"
 
 // restore writes back every row of one table the export has, as it was.
-//
-// This build's export has a file for every table it writes, with rows or
-// none ([Exported]): one without a table's file was written by a build
-// without the table, and is not read.
 func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, out *Restored, restored *[]pdid.Id) (int, error) {
 	name := p.table
 	f, err := z.Open("rows/" + name + ".jsonl")
 	if errors.Is(err, fs.ErrNotExist) {
-		return 0, fmt.Errorf("%w: it has no rows/%s.jsonl", ErrFormat, name)
+		// A table the deployment that wrote it did not have yet, which had
+		// no rows there.
+		return 0, nil
 	}
 	if err != nil {
 		return 0, err
