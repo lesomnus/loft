@@ -26,7 +26,7 @@
 - RPC는 `/loft.DomainService/*` 이고 터미널에서는 `loft domain …` 입니다. `loft auth login --allow` 로 `/loft.TenantDomainService/Status` 를 받아 둔 터미널은 다시 로그인합니다.
 - 감사 기록은 쓴 그대로입니다. 이 판 전의 도메인 쓰기는 `action` 이 `/loft.TenantDomainService/…` 이고, 그대로 검증됩니다. 이력의 종류(`domain.*`)와 알림은 바뀌지 않습니다.
 - 이 판 전의 내보내기(`rows/tenantdomain.jsonl`)는 `loft tenant import` 가 그대로 읽습니다.
-- 설정에 `audit.by.tenant-domain` 을 두었다면 `audit.by.domain` 으로 바꿉니다. 이 판의 서버는 그 종류를 모른다며 뜨지 않습니다. D77 판부터는 옛 낱말도 도메인으로 읽지만, 두 낱말을 함께 두지는 않습니다.
+- 설정에 `audit.by.tenant-domain` 을 두었다면 `audit.by.domain` 으로 바꿉니다. 이 판의 서버는 그 종류를 모른다며 뜨지 않습니다. D77 판부터는 옛 낱말도 도메인으로 읽지만, 두 낱말을 함께 두지는 않습니다. payday ff0a583을 쓰는 판부터는 둘을 함께 두면 서버가 두 키를 말하며 뜨지 않습니다(payday#218). 전에는 둘 가운데 어느 쪽이 적용될지 정해져 있지 않았습니다.
 
 ## 작업 기록과 자산의 사실을 payday의 과거로 옮기는 판
 
