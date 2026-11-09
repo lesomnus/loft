@@ -40,8 +40,8 @@ func TestThePastIsWrittenByThePastAlone(t *testing.T) {
 	f := app.FactAddRequest_builder{
 		Tenant:      tenant,
 		SubjectId:   laptop.GetId(),
-		FieldNumber: z.Ptr(uint32(5)),
-		Domain:      z.Ptr(uint32(pd.AssetDomain)),
+		FieldNumber: 5,
+		Domain:      uint32(pd.AssetDomain),
 		Value:       `"다른 이름"`,
 		DateStart:   timestamppb.New(e.now),
 		EventId:     pdid.New(pd.EventDomain).Bytes(),

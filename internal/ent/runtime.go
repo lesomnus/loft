@@ -10,7 +10,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/bookable"
 	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/event"
-	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/itemmodel"
 	"github.com/lesomnus/loft/internal/ent/schema"
@@ -58,16 +57,6 @@ func init() {
 	// eventDescValue is the schema descriptor for value field.
 	eventDescValue := eventFields[10].Descriptor()
 	event.ValueScanner.Value = eventDescValue.ValueScanner.(field.TypeValueScanner[*anypb.Any])
-	factFields := schema.Fact{}.Fields()
-	_ = factFields
-	// factDescFieldNumber is the schema descriptor for field_number field.
-	factDescFieldNumber := factFields[4].Descriptor()
-	// fact.DefaultFieldNumber holds the default value on creation for the field_number field.
-	fact.DefaultFieldNumber = factDescFieldNumber.Default.(uint32)
-	// factDescDomain is the schema descriptor for domain field.
-	factDescDomain := factFields[7].Descriptor()
-	// fact.DefaultDomain holds the default value on creation for the domain field.
-	fact.DefaultDomain = factDescDomain.Default.(uint32)
 	holderFields := schema.Holder{}.Fields()
 	_ = holderFields
 	// holderDescRole is the schema descriptor for role field.
