@@ -127,7 +127,6 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	}), "a reservation keeps who it is for by identifier")
 	for _, r := range rows {
 		x.NotNil(r.Value, "%s keeps no message", r.Kind)
-		x.Empty(r.Desc, "%s keeps a sentence", r.Kind)
 		held := protojson.Format(r.Value)
 		for _, said := range []string{name, "김 대리", alias, lee.GetName()} {
 			x.NotContains(held, said, "an event row named them: %s", r.Kind)

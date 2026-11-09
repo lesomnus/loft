@@ -125,12 +125,6 @@ func (_c *EventCreate) SetValue(v *anypb.Any) *EventCreate {
 	return _c
 }
 
-// SetDesc sets the "desc" field.
-func (_c *EventCreate) SetDesc(v string) *EventCreate {
-	_c.mutation.SetDesc(v)
-	return _c
-}
-
 // SetTenantId sets the "tenant_id" field.
 func (_c *EventCreate) SetTenantId(v uuid.UUID) *EventCreate {
 	_c.mutation.SetTenantId(v)
@@ -193,9 +187,6 @@ func (_c *EventCreate) check() error {
 	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Event.date_updated"`)}
-	}
-	if _, ok := _c.mutation.Desc(); !ok {
-		return &ValidationError{Name: "desc", err: errors.New(`ent: missing required field "Event.desc"`)}
 	}
 	if _, ok := _c.mutation.TenantId(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Event.tenant_id"`)}
@@ -303,10 +294,6 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec, error) {
 		}
 		_spec.SetField(event.FieldValue, field.TypeJson, vv)
 		_node.Value = value
-	}
-	if value, ok := _c.mutation.Desc(); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, value)
-		_node.Desc = value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
