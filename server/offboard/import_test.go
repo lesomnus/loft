@@ -256,6 +256,44 @@ func TestARestoreRefusesATableThisBuildHasNot(t *testing.T) {
 	x.Empty(e.count(acme.id), "a restore that refused put something back")
 }
 
+// TestATableWithNoFileIsRestoredWithNoRows: a table with no file in the
+// export has no rows in it, and the workspace is put back as the rest of it
+// says.
+func TestATableWithNoFileIsRestoredWithNoRows(t *testing.T) {
+	key, _, err := trail.GenerateKey()
+	require.NoError(t, err)
+	k, err := trail.ParseKey(key)
+	require.NoError(t, err)
+	e := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Key = string(key) })
+	x := e.x
+	ctx := context.Background()
+	acme := e.tenant("acme")
+
+	before := e.rows(acme.id)
+	x.NotContains(before, "label", "the workspace has a label to lose")
+	b := e.export(acme.id)
+	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
+	x.NoError(err)
+
+	without := resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
+		x.Contains(fs, "rows/label.jsonl")
+		delete(fs, "rows/label.jsonl")
+		delete(m.Rows, "label")
+		return nil
+	})
+	got, err := e.restore(without, offboard.ImportOptions{})
+	x.NoError(err)
+	x.NotContains(got.Rows, "label")
+	after := e.rows(acme.id)
+	x.NotContains(after, "label")
+	for k := range before {
+		if k == "event" {
+			continue
+		}
+		x.Equal(before[k], after[k], "%s is not what was exported", k)
+	}
+}
+
 // TestARestoreReadsThisBuildsFormatAlone: an export says in its manifest what
 // format it is, and a restore reads this build's alone ([offboard.Format]).
 // One that says another -- an earlier build's, `loft-export/1` -- is refused,
