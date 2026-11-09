@@ -275,8 +275,9 @@ workspace handed on), and one roster has again stops leaving. `loft identity
 depart` does it now for one account, and `Lifecycle.Reconcile` finds what the
 stream missed -- it replays nothing -- every `app.accounts.reconcile` by
 itself, and now with `loft identity reconcile`. The role Loft is installed with carries every method in
-`identity.AgentMethods`; installing again leaves an existing role as it is, so
-an older install is widened with `roster role patch` (`docs/dev/identity.md`).
+`identity.AgentMethods`; installing again leaves an existing role as it is, and
+a role is changed with `roster role patch`, the whole list
+(`docs/dev/identity.md`).
 
 Through roster's issuer instead (`auth.sso`, `server/sso`), Loft is a relying
 party in the `itself` shape of roster's `docs/relying-party.md`: `GET

@@ -171,7 +171,7 @@ resources:
       4. **설정.** `auth.roster`를 위의 모양으로 바꿔 sync합니다. 새 파드부터 Loft가 그 roster에 묻습니다. `roster-db-dsn`은 Loft가 더 읽지 않으므로 지워도 되고, 되돌릴 때를 위해 두어도 됩니다.
 
       앞의 것이 없는 채로 설정을 바꾸면 새 파드가 뜨지 않거나(키가 없으면 `auth.roster.key`를 읽지 못합니다), 로그인과 세션이 거부됩니다(roster에 닿지 않으면 503). 되돌릴 때는 roster의 Deployment를 내리고 설정을 내장 roster의 것으로 되돌립니다. 같은 DB이므로 그 사이 roster에서 바꾼 계정과 비밀번호도 그대로입니다.
-    - **역할의 이름.** 내장 roster에서 옮긴 배포의 역할은 내장 roster가 만든 **`loft`**(`@loft/loft`)입니다. `roster app install`로 들인 배포의 역할은 `loft-app`입니다. 내장 roster일 때는 새 판의 Loft가 더 묻는 메서드를 스스로 이 역할에 더했지만, 외부 roster에서는 roster 운영자가 `roster role patch`로 넓힙니다([역할 넓히기](../../docs/dev/identity.md#역할-넓히기-roster-role-patch)). 디렉터리의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 그때 키도 새로 만듭니다.
+    - **역할의 이름.** 내장 roster에서 옮긴 배포의 역할은 내장 roster가 만든 **`loft`**(`@loft/loft`)입니다. `roster app install`로 들인 배포의 역할은 `loft-app`입니다. 외부 roster에서 역할은 roster 운영자가 `roster role patch`로 바꿉니다([역할 바꾸기](../../docs/dev/identity.md#역할-바꾸기-roster-role-patch)). 디렉터리의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 역할을 바꾸면 키도 새로 만듭니다.
 
 ## 처음 띄우기
 
