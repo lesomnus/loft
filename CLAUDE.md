@@ -100,9 +100,10 @@ A field says a default only where a row nobody set it for means something:
 a time's `default: ""` is now when an `Add` leaves it out (`pd gen` refuses a
 time that says neither that nor `nullable`), `Holder.role` is `member`, a
 workspace's own setting is the deployment's. A default is no way to bring
-along the rows an earlier build wrote: until launch a field those rows lack
-moves the epoch instead, and so does a new entity an export writes
-(`offboard.Exported`), since a restore refuses an export without its file.
+along the rows an earlier build wrote: until launch a field those rows lack,
+which a new row has to have and no default means anything for, breaks the
+store, and moves the epoch instead. A new entity breaks nothing -- an export
+with no file for a table has no rows of it -- and moves no epoch.
 
 Renaming one keeps its domain number. From launch it keeps its events'
 messages too -- `past.lock` holds them -- and the schema says what it was
