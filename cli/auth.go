@@ -59,13 +59,8 @@ func newCmdAuthLogin() *xli.Command {
 		},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			cs, err := loadConnections()
-			if err != nil && !errors.Is(err, errOldFile) {
+			if err != nil {
 				return err
-			}
-			if errors.Is(err, errOldFile) {
-				// What a terminal kept before connections is let go of here,
-				// and only here: this is how a person signs in again.
-				cs = &connections{Connections: map[string]*Connection{}}
 			}
 			operator, _ := flg.Find[bool](self, "operator")
 			base := strings.TrimSuffix(strings.TrimSpace(flag(self, "url")), "/")

@@ -78,7 +78,6 @@ var TerminalReads = cfg.Reads("CLIENT_CONFIG", "WORKSPACE", "CONNECTION", "ADMIN
 var (
 	errNoConnection = errors.New("no connection: `loft auth login --url <the app's address>`, or the entry point's with --url and --key (LOFT_ADMIN_URL, LOFT_ADMIN_KEY)")
 	errLiteralKey   = errors.New("a key is named by reference -- env:NAME or file:PATH -- and never written out, so that it is in no file, shell history or process list")
-	errOldFile      = errors.New("this file is from before connections (D75): `loft auth login` again")
 )
 
 // clientConfigPath is where the connections are kept: `LOFT_CLIENT_CONFIG`,
@@ -107,19 +106,6 @@ func loadConnections() (*connections, error) {
 	}
 	if err != nil {
 		return nil, err
-	}
-	// What a terminal kept before it kept connections, a session at the top,
-	// is not read as one: it would be a connection of no kind.
-	var top map[string]json.RawMessage
-	if err := json.Unmarshal(b, &top); err != nil {
-		return nil, fmt.Errorf("%s: %w", p, err)
-	}
-	if _, ok := top["connections"]; !ok {
-		for _, k := range []string{"url", "cookie", "key"} {
-			if _, old := top[k]; old {
-				return nil, fmt.Errorf("%s: %w", p, errOldFile)
-			}
-		}
 	}
 	if err := json.Unmarshal(b, cs); err != nil {
 		return nil, fmt.Errorf("%s: %w", p, err)

@@ -308,16 +308,15 @@ func TestASheetIsReadIntoItems(t *testing.T) {
 	}
 }
 
-// TestASheetSaysAFieldByItsNameThenOrNow (D76): a header may say a column by
-// the field of `AssetAddRequest` it fills, as it is named now
-// (`date_acquired`, `date_occurred`) and as it was named before every time was
-// a `date_*` (`acquired_at`, `since`), so that a sheet made by then still
-// reads, and reads the same.
-func TestASheetSaysAFieldByItsNameThenOrNow(t *testing.T) {
+// TestASheetSaysAFieldByItsName (D76): a header may say a column by the field
+// of `AssetAddRequest` it fills (`date_acquired`, `date_occurred`), in any
+// case. What a field was named before every time was a `date_*`
+// (`acquired_at`, `since`) is no column of the form.
+func TestASheetSaysAFieldByItsName(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 
-	for _, header := range []string{"name,acquired_at,since", "name,date_acquired,date_occurred", "NAME,Acquired_At,Since"} {
+	for _, header := range []string{"name,date_acquired,date_occurred", "NAME,Date_Acquired,DATE_OCCURRED"} {
 		res, err := e.app().Asset().ReadSheet(e.owner, app.AssetReadSheetRequest_builder{
 			Data: []byte(header + "\n노트북,2024-03-01,2024-03-02\n"),
 		}.Build())
@@ -328,6 +327,18 @@ func TestASheetSaysAFieldByItsNameThenOrNow(t *testing.T) {
 		x.Equal("2024-03-01", nb.GetDateAcquired().AsTime().In(domain.DefaultZone).Format(time.DateOnly), header)
 		x.Equal("2024-03-02", nb.GetDateOccurred().AsTime().In(domain.DefaultZone).Format(time.DateOnly), header)
 	}
+
+	res, err := e.app().Asset().ReadSheet(e.owner, app.AssetReadSheetRequest_builder{
+		Data: []byte("name,acquired_at,since\n노트북,2024-03-01,2024-03-02\n"),
+	}.Build())
+	x.NoError(err)
+	columns := []string{}
+	for _, v := range res.GetIssues() {
+		columns = append(columns, v.GetColumn())
+	}
+	x.Equal([]string{"acquired_at", "since"}, columns, "a name a field had before is a column of the form")
+	x.Len(res.GetItems(), 1)
+	x.False(res.GetItems()[0].HasDateAcquired())
 }
 
 // TestTheFormIsWhatASheetIsReadAs: the template's header is the form's, and a
