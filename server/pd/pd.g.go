@@ -239,7 +239,6 @@ func init() {
 	pdid.Register("loft.TenantContract", TenantContractDomain, "tenant-contract")
 	pdid.Register("loft.TreeLock", TreeLockDomain, "tree-lock")
 	pdid.Register("loft.WorkOrder", WorkOrderDomain, "work-order")
-	pdid.Formerly("loft.TenantDomain", DomainDomain, "tenant-domain")
 
 	pdid.RegisterTenant(TenantDomain)
 }
@@ -391,9 +390,7 @@ var EventKinds = map[string]protoreflect.MessageType{
 // Hand them to `rename.Tables` first, before `rename.Columns`, `rename.Indexes`
 // and the migration, which otherwise makes each again, empty, beside the one
 // with the rows.
-var TableRenames = []rename.Table{
-	{From: "tenantdomain", To: "domain"},
-}
+var TableRenames = []rename.Table{}
 
 // ColumnRenames are the columns of payday's own entities in this schema that
 // an earlier build stored under another name. Hand them to `rename.Columns`

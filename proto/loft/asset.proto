@@ -192,14 +192,8 @@ message TagCounter {
 
 // Domain is a domain of a workspace's (design 9.9): one its whole app is on
 // (`app`), or one its QR labels print with (`label`). Only a workspace has
-// domains, so it is called what it is (D72); it was `TenantDomain`, which
-// `formerly` says (D77). So its rows, in `tenantdomain` in a database a build
-// before made, are moved onto `domain` before the migration looks for them
-// (`rename.Tables`, with `pd.TableRenames`), and the chunks of the trail's
-// archive labelled `tenant-domain` are this kind's. An export from before
-// still names the old table (`offboard.Renamed`). The events of its kinds keep
-// the messages they were written as, `TenantDomainAdded` and the rest: a
-// message of the past is never renamed.
+// domains, so it is called what it is (D72). The events of its kinds hold
+// messages named as it was then, `TenantDomainAdded` and the rest.
 message Domain {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -258,7 +252,6 @@ message Domain {
   };
   option (payday.entity) = {
     domain: 24
-    formerly: [{message: "TenantDomain"}]
     list: {
       order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
       by: [{name: "ref"}, {name: "state"}, {name: "purpose"}]
