@@ -18,7 +18,6 @@ import (
 	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/payday/rename"
 	"github.com/protobuf-orm/ent/dialect"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -300,92 +299,6 @@ var Withheld = map[string]string{
 	"tagcounter":    "the deployment's bookkeeping: the last number made up for each prefix of tag, which a restored workspace counts again from its tags",
 	"legalhold":     "the operator's",
 	"tenant":        "the manifest's",
-}
-
-// Renamed is every table an earlier build had under another name, by that
-// name, and the one this build has it under: an entity the schema renamed,
-// and says it did (`formerly`), whose rows a migration moves onto the new
-// name before anything looks for them (`loft migrate`, with the same tables
-// as `pd.TableRenames`, D72, D77). An export made before names its rows by
-// the old name, `rows/<old>.jsonl`, and a restore reads them as the new
-// one's. A name here is never in this build's schema, nor in [Dropped], and
-// the list is `pd.TableRenames`'s, which tests hold it to; and it is only
-// ever added to, since a deployment and an export may be from any build
-// before.
-var Renamed = map[string]string{
-	// `TenantDomain`, which is `Domain` (D72): only a workspace has domains.
-	"tenantdomain": "domain",
-}
-
-// RenamedColumns is every column of Loft's own tables an earlier build made
-// under another name, on the table this build has it in (by its name now, as
-// [Renamed] says it), and the name this build makes it under. `loft migrate`
-// moves each onto its name, with what it holds, before the schema is migrated
-// beneath it (`rename.Columns`, with payday's own, `pd.ColumnRenames`): a
-// migration finds a column by its name, and one it does not find it makes,
-// empty -- beside the old one, or in its place in a table SQLite makes again.
-// An export made before names the field by the old name, which a restore
-// reads as the new one's ([Formats]).
-//
-// A name it moves from is never a column of the table in this build's schema,
-// nor one it moves to again, which a test refuses; and it is only ever added
-// to, since a deployment and an export may be from any build before.
-var RenamedColumns = []rename.Column{
-	// Every time Loft keeps is a `date_*` (D76): a field named for what
-	// happened, as payday names its own -- `date_created`, `date_erased`.
-	{Table: "accessreview", From: "period_from", To: "date_start"},
-	{Table: "accessreview", From: "period_to", To: "date_end"},
-	{Table: "allocation", From: "begins_at", To: "date_start"},
-	{Table: "allocation", From: "ends_at", To: "date_end"},
-	{Table: "asset", From: "acquired_at", To: "date_acquired"},
-	{Table: "asset", From: "disposed_at", To: "date_disposed"},
-	{Table: "countfinding", From: "seen_at", To: "date_seen"},
-	{Table: "countfinding", From: "resolved_at", To: "date_resolved"},
-	{Table: "custody", From: "issued_at", To: "date_issued"},
-	{Table: "custody", From: "due_at", To: "date_due"},
-	{Table: "custody", From: "acknowledged_at", To: "date_acknowledged"},
-	{Table: "custody", From: "returned_at", To: "date_returned"},
-	{Table: "custodyline", From: "out_at", To: "date_out"},
-	{Table: "custodyline", From: "returned_at", To: "date_returned"},
-	{Table: "domain", From: "verified_at", To: "date_verified"},
-	{Table: "domain", From: "checked_at", To: "date_checked"},
-	{Table: "domain", From: "failing_since", To: "date_failing"},
-	{Table: "domain", From: "redirect_until", To: "date_redirect_until"},
-	{Table: "inventorycount", From: "started_at", To: "date_started"},
-	{Table: "inventorycount", From: "closed_at", To: "date_closed"},
-	{Table: "label", From: "bound_at", To: "date_bound"},
-	{Table: "label", From: "printed_at", To: "date_printed"},
-	{Table: "levyannotice", From: "at", To: "date_occurred"},
-	{Table: "link", From: "valid_from", To: "date_start"},
-	{Table: "link", From: "valid_to", To: "date_end"},
-	{Table: "link", From: "superseded_at", To: "date_superseded"},
-	{Table: "notification", From: "read_at", To: "date_read"},
-	{Table: "placement", From: "valid_from", To: "date_start"},
-	{Table: "placement", From: "valid_to", To: "date_end"},
-	{Table: "placement", From: "superseded_at", To: "date_superseded"},
-	{Table: "purchase", From: "ordered_at", To: "date_ordered"},
-	{Table: "purchase", From: "received_at", To: "date_received"},
-	{Table: "reservation", From: "begins_at", To: "date_start"},
-	{Table: "reservation", From: "ends_at", To: "date_end"},
-	{Table: "reservation", From: "expires_at", To: "date_expires"},
-	{Table: "reservation", From: "checked_in_at", To: "date_checked_in"},
-	{Table: "stewardship", From: "valid_from", To: "date_start"},
-	{Table: "stewardship", From: "valid_to", To: "date_end"},
-	{Table: "stewardship", From: "superseded_at", To: "date_superseded"},
-	{Table: "stockmovement", From: "occurred_at", To: "date_occurred"},
-	{Table: "workorder", From: "begins_at", To: "date_start"},
-	{Table: "workorder", From: "ends_at", To: "date_end"},
-	{Table: "workorder", From: "completed_at", To: "date_completed"},
-}
-
-// Dropped is every table an earlier build had and this one does not, and why
-// it went: a migration drops it, rows and all (`loft migrate`), and a restore
-// of an export made before leaves its rows behind and says how many
-// ([Restored.Left]). A table is never in this and in this build's schema at
-// once, which a test refuses.
-var Dropped = map[string]string{
-	"usagesnapshot": "a workspace's usage, written once a day until what is billed was measured outside loft, from the source (design 7, D35)",
-	"consent":       "an account's agreements to the deployment's documents, kept here until roster's consent ledger kept them (design 9.11, D37)",
 }
 
 // Export writes everything a tenant has as one zip archive: a JSON line per

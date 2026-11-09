@@ -410,60 +410,6 @@ func TestWhatIsOutShowsOnTheCalendarOfIt(t *testing.T) {
 	x.True(b.GetDateEnd().AsTime().Equal(e.tomorrow(12, 0)))
 }
 
-// TestWhatWasOutBeforeIsHeldOnce: what a build from before handed over holds
-// none of its time; once held -- as a migration does -- it holds it from its
-// hand-over, a pool's latest booking waits, and what was booked over it says
-// so. Asked again, nothing is left to hold.
-func TestWhatWasOutBeforeIsHeldOnce(t *testing.T) {
-	e := newEnv(t)
-	x := e.x
-	ctx := context.Background()
-	one := e.item("카메라 1", "CM-1", nil, day)
-	two := e.item("카메라 2", "CM-2", nil, day)
-	cameras := e.pool("카메라", one, two)
-	laptop := e.item("노트북", "NB-1", nil, day)
-	e.bookable(laptop, nil)
-	kim, _ := e.person("member")
-	lee, _ := e.person("member")
-	_, park := e.person("member")
-
-	issued := e.issue(park, laptop)
-	loan := e.lend(park, e.tomorrow(12, 0), one)
-	// As a build from before left them: out, and holding nothing.
-	_, err := e.s.Ent.Allocation.Delete().Where(allocation.Kind("custody")).Exec(ctx)
-	x.NoError(err)
-	booked, err := e.reserve(kim, laptop, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
-	x.NoError(err, "nothing held it")
-	first, err := e.take(kim, cameras, 1, e.tomorrow(9, 0), e.tomorrow(12, 0))
-	x.NoError(err)
-	later, err := e.take(lee, cameras, 1, e.tomorrow(10, 0), e.tomorrow(11, 0))
-	x.NoError(err, "the pool counted what was out")
-
-	ts, err := domain.Unheld(ctx, e.s.Ent)
-	x.NoError(err)
-	x.Len(ts, 1)
-	x.Equal(e.tenant, ts[0])
-	n, err := e.s.Deps.HoldOut(ctx, e.s.Base, e.s.Drv, e.tenant)
-	x.NoError(err)
-	x.Equal(2, n)
-
-	h := e.hold(issued, laptop)
-	x.NotNil(h)
-	x.True(h.DateStart.Equal(issued.GetDateIssued().AsTime()), "from its hand-over")
-	x.True(e.hold(loan, one).DateEnd.Equal(e.tomorrow(12, 0)))
-	x.Equal([]string{"NB-1 issue"}, e.out(booked))
-	x.Contains(e.told(kim), "reservation.out")
-	x.True(e.holds(first, cameras))
-	x.False(e.holds(later, cameras), "made last, waits")
-
-	ts, err = domain.Unheld(ctx, e.s.Ent)
-	x.NoError(err)
-	x.Empty(ts)
-	n, err = e.s.Deps.HoldOut(ctx, e.s.Base, e.s.Drv, e.tenant)
-	x.NoError(err)
-	x.Zero(n, "nothing left to hold")
-}
-
 // TestWhatIsOutIsUsageBesideTheBookings: the report of how what may be booked
 // was used says what was handed over of it with no reservation, and for how
 // long, beside what was booked.

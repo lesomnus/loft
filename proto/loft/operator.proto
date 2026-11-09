@@ -250,12 +250,9 @@ message OperatorTenantImportResponse {
   bool retired = 7;
   uint32 returned = 8;
 
-  // The rows put back, by table; the export's left behind, by a table this
-  // build has not, with why; the files put back, and the ones its rows name
-  // that the export did not have.
+  // The rows put back, by table; the files put back, and the ones its rows
+  // name that the export did not have.
   map<string, uint32> rows = 9;
-  map<string, uint32> left = 10;
-  map<string, string> left_why = 11;
   uint32 files = 12;
   repeated string missing = 13;
 
@@ -268,10 +265,8 @@ message OperatorTenantImportResponse {
   string manifest = 15;
   string key = 16;
 
-  // Once put back: the things out held from when they were handed over
-  // (D53), and what levyan grants it -- `copied`, or why it is copied at the
-  // next comparison; empty for a deployment that bills nobody.
-  uint32 held = 17;
+  // Once put back, what levyan grants it: `copied`, or why it is copied at
+  // the next comparison; empty for a deployment that bills nobody.
   string grants = 18;
 }
 

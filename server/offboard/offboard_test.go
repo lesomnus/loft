@@ -25,7 +25,6 @@ import (
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql"
-	entschema "github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -164,10 +163,6 @@ func TestEveryTableIsDecidedAbout(t *testing.T) {
 		_, out := offboard.Exported[tb.Name]
 		_, held := offboard.Withheld[tb.Name]
 		x.True(out != held, "%s is exported, withheld, or both", tb.Name)
-		_, gone := offboard.Dropped[tb.Name]
-		x.False(gone, "%s is a table of this build's, and one it dropped", tb.Name)
-		_, was := offboard.Renamed[tb.Name]
-		x.False(was, "%s is a table of this build's, and what one was called before", tb.Name)
 
 		if tb.Name == "tenant" || slices.Contains(offboard.Trail, tb.Name) || slices.Contains(offboard.Shared, tb.Name) {
 			x.NotContains(order, tb.Name)
@@ -179,59 +174,6 @@ func TestEveryTableIsDecidedAbout(t *testing.T) {
 			if j := slices.Index(order, fk.RefTable.Name); j >= 0 && fk.RefTable.Name != tb.Name {
 				x.Less(i, j, "%s goes after %s, which it points at", tb.Name, fk.RefTable.Name)
 			}
-		}
-	}
-}
-
-// TestARenamedTableIsOneThisBuildHas: a table an earlier build had under
-// another name (offboard.Renamed) is one this build has under the new one,
-// written out by an export like any -- and its old name nothing else's, not
-// even a table this build dropped.
-//
-// And it is a table whose entity the schema says was called that
-// (`formerly`, D77), as every such table is: a migration moves the tables
-// `pd.TableRenames` names, and a restore reads an export from before by
-// this, so a table one of them names and the other does not is moved and
-// then not read, or read and never moved.
-func TestARenamedTableIsOneThisBuildHas(t *testing.T) {
-	x := require.New(t)
-	moved := map[string]string{}
-	for _, v := range pd.TableRenames {
-		moved[v.From] = v.To
-	}
-	x.Equal(moved, offboard.Renamed, "what a migration moves (pd.TableRenames) is not what a restore reads an export from before by")
-	for from, to := range offboard.Renamed {
-		x.True(slices.ContainsFunc(migrate.Tables, func(tb *entschema.Table) bool { return tb.Name == to }), "%s, which %s is called now, is no table of this build's", to, from)
-		_, out := offboard.Exported[to]
-		_, held := offboard.Withheld[to]
-		x.True(out || held, "%s is neither exported nor withheld", to)
-		_, gone := offboard.Dropped[from]
-		x.False(gone, "%s was renamed and dropped", from)
-		_, chain := offboard.Renamed[to]
-		x.False(chain, "%s was renamed to %s, which is renamed again: say %s's newest name", from, to, from)
-	}
-}
-
-// TestARenamedColumnIsOneThisBuildHas (D76): a column an earlier build made
-// under another name (offboard.RenamedColumns, and payday's own,
-// pd.ColumnRenames) is a column of a table this build has, under the name it
-// moves to and not the one it moves from -- and that one is no name a rename
-// moves another column of the table to, which would leave two names that
-// were each other's.
-func TestARenamedColumnIsOneThisBuildHas(t *testing.T) {
-	x := require.New(t)
-	all := slices.Concat(pd.ColumnRenames, offboard.RenamedColumns)
-	x.NotEmpty(offboard.RenamedColumns)
-	for _, c := range all {
-		i := slices.IndexFunc(migrate.Tables, func(tb *entschema.Table) bool { return tb.Name == c.Table })
-		x.GreaterOrEqual(i, 0, "%s is no table of this build's: say a table by its name now (offboard.Renamed)", c.Table)
-		has := func(name string) bool {
-			return slices.ContainsFunc(migrate.Tables[i].Columns, func(v *entschema.Column) bool { return v.Name == name })
-		}
-		x.True(has(c.To), "%s.%s, which %s is called now, is no column of this build's", c.Table, c.To, c.From)
-		x.False(has(c.From), "%s.%s is a column of this build's, and what %s was called before", c.Table, c.From, c.To)
-		for _, d := range all {
-			x.False(d.Table == c.Table && d.To == c.From, "%s.%s was renamed to %s, which is renamed again: say its newest name", c.Table, d.From, c.From)
 		}
 	}
 }
