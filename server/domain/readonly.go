@@ -103,8 +103,8 @@ const (
 
 // ReadOnlyAllows is what a read-only workspace still does, by the method a
 // caller asks for it by, and why. A method a role may be given is in it or is
-// refused, whichever way the call came: an RPC, an operation of a batch, the
-// page, the terminal, the assistant's `apply`.
+// refused, whichever way the call came: an RPC, the page, the terminal, the
+// assistant's `apply`.
 //
 // That it reads, takes its data out, pays and closes is the owner's
 // (levyan#1, 2026-11-01). That its members may leave it and that what is an

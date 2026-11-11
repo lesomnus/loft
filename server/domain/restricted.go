@@ -70,10 +70,9 @@ const (
 //
 // A key is the method a caller asks for it by, for one whose every call grows
 // a meter: refused as the operation begins ([Tx.begin]), whichever way the
-// call came -- an RPC, an operation of a batch, the page, the terminal, the
-// assistant's `apply` -- before anything it does is done. Or it is a case the
-// domain layer sees grow inside a method that does more than that, refused
-// where it sees it.
+// call came -- an RPC, the page, the terminal, the assistant's `apply` --
+// before anything it does is done. Or it is a case the domain layer sees grow
+// inside a method that does more than that, refused where it sees it.
 var Grows = map[string]string{
 	// A new asset, of whatever kind, and many at once.
 	app.AssetService_Add_FullMethodName:     "자산을 새로 등록할 수 없습니다",

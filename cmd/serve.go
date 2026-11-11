@@ -32,7 +32,6 @@ import (
 	"github.com/lesomnus/payday/grpcx"
 	"github.com/lesomnus/payday/meter"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/payday/spin"
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/payday/watch"
@@ -73,8 +72,10 @@ type Server struct {
 	Ent *ent.Client
 
 	// Drv is what the client was built on, kept because a transaction is begun
-	// on a driver and a `*ent.Client` does not hand out the one it holds. It is
-	// what `pd.Batch` puts a whole stack onto.
+	// on a driver and a `*ent.Client` does not hand out the one it holds: the
+	// deployment's own work that is one transaction -- `init`, a sweep, an
+	// operator closing or restoring a workspace -- begins it here, and
+	// `migrate` makes the schema on it.
 	Drv dialect.Driver
 
 	// Dialect is what that driver speaks, which `Open` worked out and nothing
@@ -196,11 +197,8 @@ type Server struct {
 	// the answer payday gives on its own: their own tenant and nothing more.
 	//
 	// A field beside [Server.Auth] because they are the pair -- who is calling,
-	// and what that means here -- and because the two places it has to be
-	// installed are not one place. `gate.Interceptor` covers the calls gRPC
-	// dispatches; `c.Server.Guard` covers the operations inside a batch, which
-	// arrive as one method carrying many and would otherwise be authorised as
-	// the batch rather than as themselves.
+	// and what that means here -- and are installed on the one chain every
+	// call goes through (`gate.Interceptor`).
 	//
 	// It is what a second binary is built from. A deployment that wants an
 	// operator's path serves this app again with a policy that answers
@@ -825,19 +823,6 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	// relayed to levyan (design 7.9), through the same chain.
 	app.RegisterPaymentServiceServer(g, s.Payment)
 
-	// The batch, with the same rules the chain above enforces -- read off the
-	// same configuration rather than written out again, which is the only way
-	// the two stay in step. What they enforce by looking at the method gRPC
-	// dispatched, this enforces per operation.
-	if b, err := pd.Batch(s.Walled, s.Drv, c.Server.Guard(s.Policy)); err == nil {
-		pdpb.RegisterBatchServiceServer(g, b)
-	} else {
-		// A deployment that closed nothing, limits nothing and has no policy.
-		// It is a real thing to be and it is also what a guard nobody filled in
-		// looks like, so the batch is not served rather than served open.
-		log.From(ctx).WarnContext(ctx, "no batch", slog.Any("err", err))
-	}
-
 	return g, nil
 }
 
@@ -947,8 +932,7 @@ func httpServer(ctx context.Context, h http.Handler) *http.Server {
 // Downloads are the RPCs that hand people's data out to be kept somewhere else
 // (loft#136): each says what it is for, in `payday-reason-bin`, or is refused,
 // and its row of the access record is written before it is answered -- before
-// each message of a stream. Each is called by itself, and refused as an
-// operation of a batch.
+// each message of a stream.
 var Downloads = []string{
 	app.AssetService_Export_FullMethodName,
 	// Who has what is out, by name (design 9.14). The other reports' CSVs

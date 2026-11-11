@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/access"
@@ -65,12 +64,11 @@ func restrict(w *world, fake *levyantest.Levyan) []byte {
 // refused -- a new asset of any kind, many at once, stock made assets, an
 // asset brought back from disposed or lost, a purchase received as assets, a
 // file, a member by a login, an invitation sent or accepted, its history
-// kept longer -- through the RPCs and a batch's operations alike, and with a
-// reason a page tells it by. Everything else it does as it did: reads and
-// downloads, hands things out and takes them back, books, moves, changes what
-// bills nothing, disposes of and deletes, keeps its history shorter, takes
-// stock in, ends a membership, and closes. Once levyan ends the grant, it
-// grows again.
+// kept longer -- with a reason a page tells it by. Everything else it does as
+// it did: reads and downloads, hands things out and takes them back, books,
+// moves, changes what bills nothing, disposes of and deletes, keeps its
+// history shorter, takes stock in, ends a membership, and closes. Once levyan
+// ends the grant, it grows again.
 func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	fake := levyantest.Start(t)
 	w := newInvites(t, func(c *cmd.Config) {
@@ -181,15 +179,6 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	w.refusedRestricted(err, "이력을 지금보다 오래 보관하도록 바꿀 수 없습니다")
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(0))}.Build())
 	w.refusedRestricted(err, "이력을 지금보다 오래 보관하도록 바꿀 수 없습니다")
-
-	// And as an operation of a batch, which the domain layer serves in the
-	// batch's transaction.
-	add, err := anypb.New(app.AssetAddRequest_builder{Name: "프린터"}.Build())
-	x.NoError(err)
-	_, err = pdpb.NewBatchServiceClient(w.conn).Do(w.owner, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: app.AssetService_Add_FullMethodName, Request: add}.Build(),
-	}}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err), "%v", err)
 
 	// Everything else, as it was.
 	_, err = assets.Search(w.owner, app.AssetSearchRequest_builder{}.Build())

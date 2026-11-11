@@ -24,6 +24,7 @@ PostgreSQL로 띄우면 내장 roster를 쓰는 배포가 운영처럼 보이므
 - 체크아웃의 기본(`db.migrate: true`)은 `serve` 가 시작할 때 테이블을 맞춥니다.
 - 운영에서는 서버가 테이블을 직접 바꾸지 않습니다(`db.migrate: false`). 새 빌드를 띄우기 전에 `loft migrate` 로 테이블을 맞추고, 모양이 다르면 `serve` 는 시작하지 않습니다. 순서는 [운영자 안내서](../guide/operator.md#새-버전-올리기)에 있습니다.
 - 어떤 판을 넘을 때 운영자가 한 번 할 일은 [판을 올릴 때](../runbook/upgrade.md)에 적습니다. 출시 전에는 이전 빌드의 데이터를 옮기지 않습니다(호환 세대가 바뀌면 스테이징을 처음부터 다시 만듭니다).
+- 앞 빌드가 선언했고 이 빌드가 뺀 열 가운데 값 없이는 행을 받지 않는 열(NOT NULL이고 기본값이 없는 열)이 있으면 `loft migrate` 가 테이블을 맞추기 전에 멈추고, `loft serve`(`db.migrate: false`)도 시작하지 않습니다(payday#228). 마이그레이션은 열을 지우지 않으므로, 그대로 두면 그 표에 쓰는 모든 행이 거절됩니다. 멈추면서 표와 열의 이름, 그 열을 지우는 문장을 알려 줍니다. 그 열을 읽는 것이 더 없으면 지우고, 남겨야 하면 기본값을 준 뒤(PostgreSQL) 다시 실행합니다. 내장 roster의 DB도 같고, 그때는 안내가 `embedded roster:` 로 시작합니다.
 
 ```sh
 loft migrate     # 이 빌드의 모양으로 테이블을 맞추고 끝남 ("the database is in this build's shape")

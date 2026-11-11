@@ -15,7 +15,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/access"
@@ -72,15 +71,14 @@ func makeReadOnly(w *world, fake *levyantest.Levyan) []byte {
 // levyan makes a workspace read-only, every write of every kind is refused --
 // the register and its catalog, files, labels, bookings, hand-overs, stock,
 // counts, work, purchases, people and their roles, invitations sent and
-// answered, the record of an access review, its settings and its domains, as
-// an RPC and as an operation of a batch, and a write that begins no
-// operation as one that does -- with the reason a page tells it by. What it
-// still does, as levyan's `docs/apps.md` says an app takes of one, it does:
-// reads and reports, takes its data out and its files, is paid for, and lets
-// its members leave and a person be forgotten; and a password, which is the
-// account's, is changed, and what a person is told, which is theirs (D67), is
-// marked read and kept off their mail. Once levyan ends the grant it writes
-// again; and read-only or not, it closes.
+// answered, the record of an access review, its settings and its domains,
+// and a write that begins no operation as one that does -- with the reason a
+// page tells it by. What it still does, as levyan's `docs/apps.md` says an
+// app takes of one, it does: reads and reports, takes its data out and its
+// files, is paid for, and lets its members leave and a person be forgotten;
+// and a password, which is the account's, is changed, and what a person is
+// told, which is theirs (D67), is marked read and kept off their mail. Once
+// levyan ends the grant it writes again; and read-only or not, it closes.
 func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	fake := levyantest.Start(t)
 	w := newInvites(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
@@ -238,16 +236,6 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	w.refusedReadOnly(err, app.TenantService_Configure_FullMethodName)
 	_, err = domains.Add(w.owner, app.DomainAddRequest_builder{Host: "assets.acme.example"}.Build())
 	w.refusedReadOnly(err, app.DomainService_Add_FullMethodName)
-
-	// And as an operation of a batch, which the domain layer serves in the
-	// batch's transaction: refused as its own method.
-	add, err := anypb.New(app.AssetAddRequest_builder{Name: "프린터"}.Build())
-	x.NoError(err)
-	_, err = pdpb.NewBatchServiceClient(w.conn).Do(w.owner, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: app.AssetService_Add_FullMethodName, Request: add}.Build(),
-	}}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err), "%v", err)
-	x.Contains(status.Convert(err).Message(), "읽기 전용", "%v", err)
 
 	// Nothing of any of it was written.
 	got, err := assets.Search(w.owner, app.AssetSearchRequest_builder{}.Build())

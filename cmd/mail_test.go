@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/audit"
+	"github.com/lesomnus/payday/frame"
+	"github.com/lesomnus/payday/grpcx"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/payday/trail"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/anypb"
+	"github.com/protobuf-orm/ent/dialect"
+	"github.com/protobuf-orm/protoc-gen-orm-ent/runtime/enttx"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
@@ -28,8 +28,10 @@ import (
 
 // TestAnOperationUndoneMailsNothing: a notification is queued in the
 // operation's own transaction and mailed after it, so an operation that is
-// undone -- here, the first half of a batch whose second half is refused --
-// leaves nothing to mail, where the same operation on its own is mailed.
+// undone -- here, one that joined a transaction rolled back after it, as an
+// operation inside a call that writes more does when a later write is
+// refused -- leaves nothing to mail, where the same operation on its own is
+// mailed.
 func TestAnOperationUndoneMailsNothing(t *testing.T) {
 	// With a digest key from the first write, since a check of the rows finds
 	// a line written without one (payday#115): what is asked of it below is
@@ -77,17 +79,25 @@ func TestAnOperationUndoneMailsNothing(t *testing.T) {
 	}
 	tomorrow := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
 
-	add, err := anypb.New(reserve(tomorrow))
+	// Asked as kim, served as the method kim would have called, on the stack
+	// a caller reaches rebound onto a transaction: the domain layer joins it
+	// rather than opening its own, and is undone with it.
+	kid, err := pdid.From(kh.GetId())
 	x.NoError(err)
-	// The same time again, which the first holds while it waits: allowed to
-	// ask, and refused once asked, after the first was written.
-	again, err := anypb.New(reserve(tomorrow))
+	tid, err := pdid.From(w.tenant.GetId())
 	x.NoError(err)
-	_, err = pdpb.NewBatchServiceClient(w.conn).Do(kim, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: "/loft.ReservationService/Add", Request: add}.Build(),
-		pdpb.Op_builder{Method: "/loft.ReservationService/Add", Request: again}.Build(),
-	}}.Build())
-	x.Equal(codes.Aborted, status.Code(err), "the second overlaps the first, so the batch is undone: %v", err)
+	asKim := frame.Into(ctx, frame.New(kid, tid, frame.Whole()).WithScope(frame.Only(tid)).WithRow(kh))
+	tdrv, tx, err := dialect.BeginTx(ctx, w.s.Drv)
+	x.NoError(err)
+	defer tx.Rollback()
+	walled, err := enttx.Rebind(w.s.Walled, tdrv)
+	x.NoError(err)
+	_, err = walled.Reservation().Add(grpcx.AsMethod(asKim, app.ReservationService_Add_FullMethodName), reserve(tomorrow))
+	x.NoError(err)
+	queued, err := ent.NewClient(ent.Driver(tdrv)).Notification.Query().Where(notification.Kind("reservation.requested")).Count(ctx)
+	x.NoError(err)
+	x.Equal(1, queued, "the request was queued in the transaction")
+	x.NoError(tx.Rollback())
 	n, err := w.s.Ent.Notification.Query().Where(notification.Kind("reservation.requested")).Count(ctx)
 	x.NoError(err)
 	x.Zero(n, "the request was undone with it")

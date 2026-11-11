@@ -8,9 +8,9 @@
 | --- | --- | --- |
 | `auth.Plain`을 아무도 닿는 곳에 두지 않는다 | 문제없음 | 공개 서버는 세션 쿠키로 읽습니다(`cmd.Build`가 `Server.Auth`를 채움). Plain은 내장 roster를 프로세스 안에서(bufconn) 부를 때만 씁니다(`internal/identity`) |
 | 벽 밖(`global: {}`)의 엔티티 목록을 읽는다 | 7개, 모두 RPC로 열려 있지 않음 | Session, CliLogin, AliasHold, SignInFailure, SearchStale, Outbox, Archived(Consent는 roster의 동의 원장으로 가며 지웠습니다, D37). 권한 표에 이들의 RPC가 하나도 없고, 생기면 `TestNothingBeyondTheWallIsInTheTable`(새로)이 실패합니다 |
-| 서빙하는 서버는 벽이 있는 것이고, 벽 없는 것은 서빙하지 않는다 | 문제없음 | `app.RegisterServer(g, s.Walled)`, batch도 `s.Walled`(`cmd/serve.go`) |
+| 서빙하는 서버는 벽이 있는 것이고, 벽 없는 것은 서빙하지 않는다 | 문제없음 | `app.RegisterServer(g, s.Walled)`(`cmd/serve.go`) |
 | `gate.Interceptor`가 `auth.Interceptor` 뒤에 있다 | 문제없음 | `Server.Grpc`의 순서: auth → 호출 제한 → gate → watch → 닫힌 워크스페이스 |
-| 정책이 gate와 batch의 Guard 둘 다에 간다 | 문제없음 | `gate.Interceptor(s.Policy)`, `c.Server.Guard(s.Policy)`. 서빙되는 스택이 표대로인지는 `TestEveryMethodIsAsTheTableSaysForEveryRole`이 봅니다 |
+| 정책이 gate에, 그리고 `ResourceService`를 서빙한다면 그 Guard에도 간다 | 문제없음 | `gate.Interceptor(s.Policy)`. 행을 보내는 `ResourceService`는 서빙하지 않아 Guard가 갈 곳이 없고, 엔티티의 Watch는 RPC라 gate를 지납니다. 서빙되는 스택이 표대로인지는 `TestEveryMethodIsAsTheTableSaysForEveryRole`이 봅니다 |
 | 발급하는 자격증명의 Grant가 의도한 것이다 | 의도한 것 | 브라우저와 터미널 세션은 `frame.Whole()`입니다. 좁히는 것은 권한 표와 벽입니다 |
 | field 3을 선언했다면 `pd.Grouped`가 있다 | 해당 없음 | field 3을 선언한 엔티티가 없습니다 |
 | 두 번째 엣지가 같은 테넌트여야 하면 `agrees:`를 쓴다 | 문제없음 | 17개 엔티티가 `agrees:`를 씁니다. 바꿀 수 있는 엣지에는 쓸 수 없어서(payday는 바뀌지 않는 경로만 비교) 아래 셋은 gate가 엣지마다 벽을 거쳐 읽는 것으로 지킵니다 |

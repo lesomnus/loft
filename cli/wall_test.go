@@ -484,12 +484,6 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 			absent = append(absent, full)
 			continue
 		}
-		if svc == "payday.BatchService" {
-			// Every operation in a batch is held to the same table and the
-			// same layers; the operations themselves are swept here one by one.
-			continue
-		}
-
 		in, err := protoregistry.GlobalTypes.FindMessageByName(md.Input().FullName())
 		x.NoError(err, full)
 		out, err := protoregistry.GlobalTypes.FindMessageByName(md.Output().FullName())

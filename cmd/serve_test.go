@@ -11,7 +11,6 @@ import (
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
@@ -19,7 +18,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/anypb"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cli"
@@ -167,24 +165,8 @@ func TestTheRoleTable(t *testing.T) {
 	_, err = app.NewAuditServiceClient(w.conn).Recent(member, app.AuditRecentRequest_builder{}.Build())
 	x.Equal(codes.PermissionDenied, code(err))
 
-	// A batch is checked per operation, not as the batch.
-	any, err := anypb.New(app.PlacementAddRequest_builder{}.Build())
-	x.NoError(err)
-	_, err = pdpb.NewBatchServiceClient(w.conn).Do(w.owner, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: "/loft.PlacementService/Add", Request: any}.Build(),
-	}}.Build())
-	x.Equal(codes.PermissionDenied, code(err))
-
-	move, err := anypb.New(app.AssetMoveRequest_builder{Ref: app.AssetRef_builder{Id: laptop.GetId()}.Build(), To: app.AssetRef_builder{Id: room.GetId()}.Build()}.Build())
-	x.NoError(err)
-	_, err = pdpb.NewBatchServiceClient(w.conn).Do(member, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: "/loft.AssetService/Move", Request: move}.Build(),
-	}}.Build())
-	x.Equal(codes.PermissionDenied, code(err))
-	_, err = pdpb.NewBatchServiceClient(w.conn).Do(w.owner, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		pdpb.Op_builder{Method: "/loft.AssetService/Move", Request: move}.Build(),
-	}}.Build())
-	x.NoError(err, "the owner may, and the domain layer runs inside the batch's transaction")
+	_, err = assets.Move(w.owner, app.AssetMoveRequest_builder{Ref: app.AssetRef_builder{Id: laptop.GetId()}.Build(), To: app.AssetRef_builder{Id: room.GetId()}.Build()}.Build())
+	x.NoError(err, "the owner moves things")
 	got, err := assets.Get(w.owner, app.AssetGetRequest_builder{Ref: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build())
 	x.NoError(err)
 	x.Equal(room.GetId(), got.GetParentId())

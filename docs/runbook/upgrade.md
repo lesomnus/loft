@@ -9,5 +9,5 @@
 운영에서는 서버가 테이블을 직접 바꾸지 않습니다(`db.migrate: false`). 새 빌드를 띄우기 전에 `loft migrate` 로 테이블을 맞추고, 모양이 다르면 `serve` 는 시작하지 않습니다. 언제나 하는 일은 다른 곳에 있습니다.
 
 - 새 비밀이 필요한 판은 그 비밀을 먼저 넣고 올립니다. 순서는 `deploy/compose/README.md` 와 `deploy/k8s/README.md` 의 "새 버전" 절에 있습니다.
-- 행이 많은 표에 새 인덱스를 미리 짓는 법과, 짓다 만 인덱스(`INVALID`)가 있으면 `loft migrate` 가 멈추는 것은 [PostgreSQL](../dev/postgres.md#마이그레이션)에 있습니다.
+- 행이 많은 표에 새 인덱스를 미리 짓는 법과, 짓다 만 인덱스(`INVALID`)나 이 빌드가 선언하지 않은 NOT NULL 열이 있으면 `loft migrate` 가 멈추는 것은 [PostgreSQL](../dev/postgres.md#마이그레이션)에 있습니다.
 - 감사 기록의 서명 키를 처음 둘 때 한 번 받아들이는 것은 [감사 기록 위변조 감지 대응](trail-integrity.md#서명-키를-처음-둘-때)에 있습니다.
