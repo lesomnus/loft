@@ -206,10 +206,10 @@ jobs:
       - name: this build, the one it comes after, and the oldest a deployment runs
         env:
           BEFORE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          # Staging's, 5124204: the first build of compatibility epoch 2, which
-          # staging's store was brought to by dropping event.desc by hand
-          # (2026-11-10).
-          OLDEST: 5124204c27c0276099c1c63718163993416139c3
+          # The build staging runs, 6c6644f (2026-11-11), of compatibility
+          # epoch 2. It moves when staging moves: to what staging runs once it
+          # runs it.
+          OLDEST: 6c6644f250fe9ac4b7674d8cf8f65cbe04e5ddcb
         run: |
           go build -o "${RUNNER_TEMP}/bin-now/" ./cmd/loft ./cmd/loft-admin
           # epoch TREE: the compatibility epoch TREE is of, and 0 for a tree
