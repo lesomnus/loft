@@ -211,7 +211,11 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // migration, `CONCURRENTLY`, and had the build cancelled, was told the
 // database was in this build's shape while the index served no read. The
 // refusal names it and says what to run to make it again
-// (docs/dev/postgres.md).
+// (docs/dev/postgres.md). So is a column an earlier build declared and this
+// one does not, where it takes no row without a value (payday#228): the
+// migration drops no column, and left where it is it refuses every row
+// written to its table after. The refusal names it and the statement that
+// drops it.
 //
 // Until launch it brings nothing else along (the owner's decision,
 // 2026-11-09): a change that breaks what an earlier build stored carries no
@@ -228,6 +232,9 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 		return err
 	}
 	if err := valid.Indexes(ctx, s.Db, s.Dialect, entmigrate.Tables); err != nil {
+		return err
+	}
+	if err := valid.Columns(ctx, s.Db, s.Dialect, entmigrate.Tables); err != nil {
 		return err
 	}
 	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
