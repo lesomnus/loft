@@ -122,8 +122,9 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 		Annotations: read,
 	}, t.assetAt)
 	mcp.AddTool(s, &mcp.Tool{
-		Name:        "recent_events",
-		Description: "What happened in the workspace lately, newest first: each operation, who did it, and why.",
+		Name: "recent_events",
+		Description: "What happened in the workspace lately, newest first: each operation, who did it, and why -- the workspace's whole work log. " +
+			"An administrator's, an owner's and an auditor's: a member or a manager is refused, and reads what happened to one asset with asset_history.",
 		Annotations: read,
 	}, t.recentEvents)
 	mcp.AddTool(s, &mcp.Tool{

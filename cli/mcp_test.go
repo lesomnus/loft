@@ -16,6 +16,7 @@ import (
 	"github.com/lesomnus/loft/cli"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/loftest"
 )
 
 // assistant is an MCP client speaking to `loft mcp` the way Claude Code
@@ -521,6 +522,54 @@ func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 
 	run(t, cli.NewCmdAuth(), "logout")
 	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "loft auth login")
+}
+
+// TestAnAssistantReadsTheWorkLogAsWhoeverRunsTheWorkspaceOrAuditsIt (D79):
+// recent_events is the workspace's whole work log, which the people who run
+// it and its auditors read. A member's assistant is refused it, in words
+// that say the role is why, and reads what happened to one asset, the reason
+// with it, as the member's page does.
+func TestAnAssistantReadsTheWorkLogAsWhoeverRunsTheWorkspaceOrAuditsIt(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	loftest.Member(t, s.s, "acme", "lee", "auditor", "lee-password")
+	s.signIn("owner", "owner1234")
+	room := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3"}`))
+	laptop := made(t, run(t, root(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1"}`))
+	run(t, root(), "asset", "move", laptop, `{"to": {"id": "`+room+`"}, "reason": "자리 배치"}`)
+
+	a := s.assistant()
+	type feed struct {
+		Items []struct {
+			Operation string `json:"operation"`
+			Why       string `json:"why"`
+		} `json:"items"`
+	}
+	for _, who := range [][2]string{{"owner", "owner1234"}, {"lee", "lee-password"}} {
+		s.signIn(who[0], who[1])
+		var v feed
+		a.call("recent_events", map[string]any{"kind": "asset.move"}, &v)
+		x.Len(v.Items, 1, who[0])
+		x.Equal("자리 배치", v.Items[0].Why, who[0])
+	}
+
+	s.signIn("kim", "kim-password")
+	refused := a.refused("recent_events", nil)
+	x.Contains(refused, "PermissionDenied")
+	x.Contains(refused, "구성원 역할로는 할 수 없는 작업입니다 (/loft.EventService/Recent)", "the role is why")
+	var h struct {
+		Entries []struct {
+			Kind      string `json:"kind"`
+			Operation string `json:"operation"`
+			Why       string `json:"why"`
+		} `json:"entries"`
+	}
+	a.call("asset_history", map[string]any{"asset": "NB-1"}, &h)
+	moved := false
+	for _, e := range h.Entries {
+		moved = moved || (e.Kind == "event" && e.Operation == "asset.move" && e.Why == "자리 배치")
+	}
+	x.True(moved, "what happened to one asset is a member's to read: %+v", h.Entries)
 }
 
 type planned struct {
