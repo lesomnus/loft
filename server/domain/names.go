@@ -34,6 +34,14 @@ import (
 type namer struct {
 	t *Tx
 
+	// tellApart is that the answer names each person as a list of people
+	// does, told apart from whoever else goes by their name
+	// ([namer.readApart]): an answer of history (D80), in its sentences and
+	// beside them. A person record is named so ([namer.Name], [namer.party]),
+	// and a membership by the person record it is ([namer.actor]). Without
+	// it a person is named by their name alone.
+	tellApart bool
+
 	// What it read of each kind of row, by the row: an asset by its tag and
 	// name, a person record by its name, a membership as whoever did
 	// something is named and by the name it signs in with, and a type and a
@@ -62,17 +70,18 @@ type called struct {
 }
 
 // Name is what the row `id` is called now, and whose data saying it shows, by
-// the kind of row it is: a person record by its name, a membership as the
-// history names whoever did something ([namer.actor]), an asset, a type and a
-// model by theirs, which are nobody's. Empty, and no error, for a row of any
-// other kind and for one the tenant does not have; an error for one that
-// could not be read.
+// the kind of row it is: a person record by its name -- told apart from
+// whoever goes by it, by a namer that tells people apart ([namer.person]) --
+// a membership as the history names whoever did something ([namer.actor]),
+// an asset, a type and a model by theirs, which are nobody's. Empty, and no
+// error, for a row of any other kind and for one the tenant does not have; an
+// error for one that could not be read.
 func (n *namer) Name(ctx context.Context, id pdid.Id) (string, []access.Subject, error) {
 	var v called
 	u := id.Uuid()
 	switch id.Domain() {
 	case pd.PartyDomain:
-		v = n.look(ctx, &n.parties, u, n.ofParty)
+		v = n.person(ctx, u)
 	case pd.HolderDomain:
 		v = n.look(ctx, &n.holders, u, n.ofHolder)
 	case pd.AssetDomain:
@@ -128,16 +137,16 @@ func (n *namer) whose(id uuid.UUID) []access.Subject {
 }
 
 // readApart reads at once the person records an answer lists -- who has what
-// is out, who a booking is for, who has each asset of the register -- so that
-// naming each in it ([namer.apart]) reads none of them again, a few hundred
-// to a statement. A list names each by its name, and, where another record
-// of the workspace goes by the same name, with what tells them apart and is
-// never how either is reached (D50, D54). That is what the page tells them
-// apart by where it lists them (`PartySelect`, the people screen): the team
-// the record is in; then, where another of the name is in a team of that
-// name too, its 사번 (`code`); and, where neither tells them apart, its
-// identifier. A team's name is as personal as a person's, so saying it shows
-// the team too.
+// is out, who a booking is for, who has each asset of the register, everybody
+// a page of history names ([namer.readSaid]) -- so that naming each in it
+// ([namer.told]) reads none of them again, a few hundred to a statement. A
+// list names each by its name, and, where another record of the workspace
+// goes by the same name, with what tells them apart and is never how either
+// is reached (D50, D54, D80). That is what the page tells them apart by where
+// it lists them (`PartySelect`, the people screen): the team the record is
+// in; then, where another of the name is in a team of that name too, its 사번
+// (`code`); and, where neither tells them apart, its identifier. A team's
+// name is as personal as a person's, so saying it shows the team too.
 //
 // What it reads is the records it is asked for, every other that goes by one
 // of their names -- whoever a reader might take one of them for -- and the
@@ -260,20 +269,96 @@ func (n *namer) readApart(ids []uuid.UUID) error {
 	return nil
 }
 
-// apart is the person record `id` as a list of people names it
+// told is the person record `id` as a list of people names it
 // ([namer.readApart]): read by itself, with whoever goes by its name, when
 // the answer did not read it with the rest.
-func (n *namer) apart(id uuid.UUID) string {
+func (n *namer) told(id uuid.UUID) called {
 	if _, ok := n.listed[id]; !ok {
 		if err := n.readApart([]uuid.UUID{id}); err != nil {
 			n.listed[id] = called{err: err}
 		}
 	}
-	return n.show(n.listed[id])
+	return n.listed[id]
+}
+
+// apart is the person record `id` as a list of people says it ([namer.told]).
+func (n *namer) apart(id uuid.UUID) string { return n.show(n.told(id)) }
+
+// person is the person record `id` as this answer names one: told apart from
+// whoever goes by its name by a namer that tells people apart ([namer.told]),
+// and by its name alone by any other.
+func (n *namer) person(ctx context.Context, id uuid.UUID) called {
+	if n.tellApart {
+		return n.told(id)
+	}
+	return n.look(ctx, &n.parties, id, n.ofParty)
+}
+
+// readSaid reads at once everybody a page of history names, for a namer that
+// tells people apart: each person record and membership the events `evs` hold
+// -- what their sentences and their details say -- and `more`, whoever did
+// one and whom a row of it is of. A person record is read as a list of people
+// names it ([namer.readApart]) and a membership as the person record it is,
+// so that saying them reads none of them again, a few hundred to a
+// statement, however many sentences name them. A membership that is no
+// person record's, and an account -- whoever did what an account does as
+// itself (D73) -- are read as each is named, as they always were. A namer
+// that names people by their names alone reads nothing here.
+func (n *namer) readSaid(evs []past.EventRow, more ...pdid.Id) error {
+	if !n.tellApart {
+		return nil
+	}
+	parties, holders := []uuid.UUID{}, []uuid.UUID{}
+	person := func(id pdid.Id) {
+		switch id.Domain() {
+		case pd.PartyDomain:
+			parties = append(parties, id.Uuid())
+		case pd.HolderDomain:
+			holders = append(holders, id.Uuid())
+		}
+	}
+	for _, ev := range evs {
+		if m := heldBy(ev); m != nil {
+			ids(m.ProtoReflect(), person)
+		}
+	}
+	for _, id := range more {
+		person(id)
+	}
+
+	// The person record of each membership, of which there is one at most.
+	if n.holders == nil {
+		n.holders = map[uuid.UUID]called{}
+	}
+	need := slices.DeleteFunc(slices.Compact(sortedIds(holders)), func(h uuid.UUID) bool {
+		_, ok := n.holders[h]
+		return ok
+	})
+	of := map[uuid.UUID]uuid.UUID{}
+	for some := range slices.Chunk(need, 500) {
+		ps, err := n.t.db.Party.Query().
+			Where(party.TenantId(n.t.tenant.Uuid()), party.HolderIdIn(some...)).
+			Select(party.FieldId, party.FieldHolderId).
+			All(n.t.ctx)
+		if err != nil {
+			return err
+		}
+		for _, p := range ps {
+			of[p.HolderId] = p.Id
+			parties = append(parties, p.Id)
+		}
+	}
+	if err := n.readApart(parties); err != nil {
+		return err
+	}
+	for h, p := range of {
+		n.holders[h] = n.listed[p]
+	}
+	return nil
 }
 
 func (n *namer) asset(id uuid.UUID) string { return n.show(n.look(n.t.ctx, &n.assets, id, n.ofAsset)) }
-func (n *namer) party(id uuid.UUID) string { return n.show(n.look(n.t.ctx, &n.parties, id, n.ofParty)) }
+func (n *namer) party(id uuid.UUID) string { return n.show(n.person(n.t.ctx, id)) }
 func (n *namer) kind(id uuid.UUID) string  { return n.show(n.look(n.t.ctx, &n.kinds, id, n.ofKind)) }
 func (n *namer) model(id uuid.UUID) string { return n.show(n.look(n.t.ctx, &n.models, id, n.ofModel)) }
 
@@ -322,10 +407,14 @@ func (n *namer) ofParty(ctx context.Context, id uuid.UUID) called {
 	return called{found: true, name: p.Name, saw: n.whose(id)}
 }
 
-// ofHolder is a membership as [namer.actor] names it.
+// ofHolder is a membership as [namer.actor] names it: by the person record it
+// is -- told apart from whoever goes by its name, by a namer that tells
+// people apart -- or by its own name when it is no person record's.
 func (n *namer) ofHolder(ctx context.Context, id uuid.UUID) called {
 	p, err := n.t.db.Party.Query().Where(party.TenantId(n.t.tenant.Uuid()), party.HolderId(id)).First(ctx)
 	switch {
+	case err == nil && n.tellApart:
+		return n.told(p.Id)
 	case err == nil:
 		return called{found: true, name: p.Name, saw: n.whose(p.Id)}
 	case !ent.IsNotFound(err):

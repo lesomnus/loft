@@ -2,6 +2,7 @@ package domain_test
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"sync"
 	"testing"
@@ -44,6 +45,18 @@ func (c *perConn) reset() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	clear(c.n)
+}
+
+// total is what every connection sent: what a read outside a transaction
+// sent, which may take any of them for each statement.
+func (c *perConn) total() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	n := 0
+	for _, v := range c.n {
+		n += v
+	}
+	return n
 }
 
 // most is what the busiest connection sent, which is the operation's: it is
@@ -205,4 +218,75 @@ func TestAnAssetAddedByItselfIsAFewStatements(t *testing.T) {
 	n = add(placed())
 	t.Logf("%d statements, with a place, a type and a model", n)
 	x.LessOrEqual(n, 31, "an asset added with a place, a type and a model is %d statements; it was 27 when this was written", n)
+}
+
+// TestAPageOfHistoryReadsItsPeopleAtOnce (D80): a page of history names each
+// person told apart from whoever goes by their name, and reads them for it
+// all at once -- the people its events hold, every record of their names and
+// the teams that tell them apart, a few hundred to a statement -- and not a
+// sentence at a time. Counted on the work log, each sentence of which names
+// somebody, two of each name: a page that names four times as many people
+// sends what the smaller one sent.
+//
+// PostgreSQL only: it counts what pgx is asked, and that is the round trip.
+func TestAPageOfHistoryReadsItsPeopleAtOnce(t *testing.T) {
+	if os.Getenv("PDTEST_POSTGRES") == "" {
+		t.Skip("counts what pgx is asked: set PDTEST_POSTGRES")
+	}
+
+	c := &perConn{n: map[*pgx.Conn]int{}}
+	e := newEnvWith(t, func(cfg *cmd.Config) {
+		v, err := pgx.ParseConfig(cfg.Db.Dsn)
+		if err != nil {
+			t.Fatal(err)
+		}
+		v.Tracer = c
+
+		name := stdlib.RegisterConnConfig(v)
+		t.Cleanup(func() { stdlib.UnregisterConnConfig(name) })
+		cfg.Db.Dsn = name
+	})
+	x := e.x
+
+	teams := []*app.Party{}
+	for _, name := range []string{"개발팀", "영업팀"} {
+		v, err := e.app().Party().Add(e.owner, app.PartyAddRequest_builder{Name: name, Kind: "team"}.Build())
+		x.NoError(err)
+		teams = append(teams, v)
+	}
+	made := 0
+	people := func(n int) {
+		for range n {
+			made++
+			for _, team := range teams {
+				_, err := e.app().Party().Add(e.owner, app.PartyAddRequest_builder{
+					Name:     fmt.Sprintf("사람 %d", made),
+					Kind:     "person",
+					ParentId: team.GetId(),
+				}.Build())
+				x.NoError(err)
+			}
+		}
+	}
+	page := func() int {
+		c.reset()
+		c.count(true)
+		v, err := e.app().Event().Recent(e.owner, app.EventRecentRequest_builder{Size: 500}.Build())
+		c.count(false)
+		x.NoError(err)
+		said := []string{}
+		for _, ev := range v.GetItems() {
+			said = append(said, ev.GetDesc())
+		}
+		x.Contains(said, "추가: 사람 1 · 개발팀")
+		x.Contains(said, fmt.Sprintf("추가: 사람 %d · 영업팀", made))
+		return c.total()
+	}
+
+	people(5)
+	few := page()
+	people(15)
+	many := page()
+	t.Logf("%d statements for a page naming 10 people, %d for 40", few, many)
+	x.Equal(few, many, "a page of history read its people a sentence at a time")
 }

@@ -113,7 +113,9 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	tid := t.tenant.Uuid()
 	a := id.Uuid()
 
-	names := namer{t: t}
+	// Its people told apart from whoever goes by their names, as a list of
+	// people tells them (D80): read at once, once everybody it names is known.
+	names := namer{t: t, tellApart: true}
 	entries := []*app.TimelineEntry{}
 
 	ps, err := t.db.Placement.Query().Where(append(vis.placement(), placement.TenantId(tid), placement.ChildId(a))...).All(ctx)
@@ -140,11 +142,10 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	if err != nil {
 		return nil, err
 	}
+	// Whom each is of is named below, with everybody else the history names.
 	for _, r := range ss {
 		e := entry("stewardship", r.Id, r.DateStart, r.DateEnd, r.DateCreated, r.DateSuperseded, r.EventId)
 		e.SetOtherId(pdid.Id(r.PartyId).Bytes())
-		e.SetOtherName(names.party(r.PartyId))
-		e.SetSummary(fmt.Sprintf("%s: %s", or(stewardSay[r.Role], r.Role), names.party(r.PartyId)))
 		e.SetDetail(map[string]string{"role": r.Role})
 		entries = append(entries, e)
 	}
@@ -256,6 +257,29 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	for _, v := range more {
 		causeOf[v.Id.Uuid()] = v
 	}
+
+	// Everybody the history names, read at once: whom its events and their
+	// operations hold, whoever did each, and whom each stewardship is of.
+	every := append(slices.Collect(maps.Values(byId)), more...)
+	people := make([]pdid.Id, 0, len(byId)+len(ss))
+	for _, v := range byId {
+		people = append(people, v.Actor)
+	}
+	for _, r := range ss {
+		people = append(people, pdid.Id(r.PartyId))
+	}
+	if err := names.readSaid(every, people...); err != nil {
+		return nil, err
+	}
+	for _, e := range entries {
+		if e.GetKind() != "stewardship" {
+			continue
+		}
+		role, whom := e.GetDetail()["role"], names.party(uuidOf(e.GetOtherId()))
+		e.SetOtherName(whom)
+		e.SetSummary(fmt.Sprintf("%s: %s", or(stewardSay[role], role), whom))
+	}
+
 	r := t.reading(&names)
 	held := details{n: &names, events: byId, say: r.Say}
 	if err := held.read(evs); err != nil {
