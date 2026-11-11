@@ -102,23 +102,31 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	x.NoError(err)
 	pseudonym := v.GetName()
 	x.True(strings.HasPrefix(pseudonym, "익명 "))
-	_, err = e.app().Party().Pseudonymize(e.owner, app.PartyPseudonymizeRequest_builder{Ref: ref[app.PartyRef](lee.GetId())}.Build())
+	w, err := e.app().Party().Pseudonymize(e.owner, app.PartyPseudonymizeRequest_builder{Ref: ref[app.PartyRef](lee.GetId())}.Build())
 	x.NoError(err)
+	// A pseudonym is "익명" and the start of the record's identifier, which
+	// is when it was made: two records made close together can go by one,
+	// and the history then tells them apart as a list of people does (D80)
+	// -- by identifier, neither being in a team or having a 사번 any more.
+	called := pseudonym
+	if w.GetName() == pseudonym {
+		called += " · " + idOf(kim.GetId()).String()
+	}
 
 	got := e.events()
 	x.Equal(map[string]string{
-		"party.update":  "수정: " + pseudonym,
-		"party.role":    "역할 변경: " + pseudonym + " → 매니저",
-		"asset.assign":  "NB-1 소유: " + pseudonym,
-		"custody.issue": "지급: " + pseudonym,
+		"party.update":  "수정: " + called,
+		"party.role":    "역할 변경: " + called + " → 매니저",
+		"asset.assign":  "NB-1 소유: " + called,
+		"custody.issue": "지급: " + called,
 	}, pick(got, "party.update", "party.role", "asset.assign", "custody.issue"))
 	x.True(strings.HasPrefix(got["party.deactivate"], "로그인 비활성화: 익명 "), got["party.deactivate"])
-	x.Equal("NB-1 소유: "+pseudonym, summaryOf(e.timeline(laptop, false), "asset.assign"))
+	x.Equal("NB-1 소유: "+called, summaryOf(e.timeline(laptop, false), "asset.assign"))
 	for _, said := range e.said("party.add", "party.invite") {
 		x.NotContains(said, name)
 		x.NotContains(said, alias)
 	}
-	x.Contains(e.said("party.invite"), "로그인 발급: "+pseudonym+" ("+pseudonym+")")
+	x.Contains(e.said("party.invite"), "로그인 발급: "+called+" ("+pseudonym+")")
 
 	rows, err := e.s.Ent.Event.Query().All(ctx)
 	x.NoError(err)

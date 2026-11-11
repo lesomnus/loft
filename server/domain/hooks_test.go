@@ -9,13 +9,14 @@ import (
 	app "github.com/lesomnus/loft"
 )
 
-// NamesFor is what an answer of the layer over `next` names rows by, for the
-// caller in `ctx`, as payday's past asks for names (`past.Names`): for the
-// tests outside the package.
+// NamesFor is what an answer of history of the layer over `next` names rows
+// by, for the caller in `ctx`, as payday's past asks for names (`past.Names`):
+// each person told apart from whoever goes by their name (D80). For the tests
+// outside the package.
 func NamesFor(ctx context.Context, next app.Server, drv dialect.Driver, deps *Deps) (past.Names, error) {
 	t, err := New(next, drv, deps).read(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &namer{t: t}, nil
+	return &namer{t: t, tellApart: true}, nil
 }

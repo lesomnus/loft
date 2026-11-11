@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"slices"
 	"sort"
 	"uuid"
 
@@ -88,7 +89,17 @@ func (s domainReservation) Timeline(ctx context.Context, req *app.ReservationTim
 		causeOf[v.Id.Uuid()] = v
 	}
 
-	names := namer{t: t}
+	// Everybody it names, told apart from whoever goes by their names (D80)
+	// and read at once: whom its events and their operations hold, and
+	// whoever did each.
+	names := namer{t: t, tellApart: true}
+	actors := make([]pdid.Id, 0, len(evs))
+	for _, v := range evs {
+		actors = append(actors, v.Actor)
+	}
+	if err := names.readSaid(append(slices.Clone(evs), more...), actors...); err != nil {
+		return nil, err
+	}
 	rd := t.reading(&names)
 	held := details{n: &names, events: byId, say: rd.Say}
 	if err := held.read(evs); err != nil {

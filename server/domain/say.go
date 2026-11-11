@@ -16,10 +16,11 @@ import (
 
 // An event keeps no sentence (payday#151): it keeps its kind's message
 // (`loft/past.proto`), and what it says is made of that when it is read -- in
-// the workspace's zone, naming the people in it as they are called then, each
-// of them on the access record of the call that reads it (design 8.2). What
-// is here is what Loft says of each kind, in Korean, once: a sentence for
-// each, a kind of a shared message reading what its kind uses.
+// the workspace's zone, naming the people in it as they are called then and
+// told apart from whoever goes by their names as a list of people tells them
+// (D80), each of them on the access record of the call that reads it (design
+// 8.2). What is here is what Loft says of each kind, in Korean, once: a
+// sentence for each, a kind of a shared message reading what its kind uses.
 //
 // A thing is said as the message holds it -- an asset by the tag it had, a
 // reservation by the name it had -- and a person by identifier, named when it
@@ -412,9 +413,11 @@ func sentences() *past.Sentences {
 }
 
 // who is the person or membership `b` names, as a sentence says one: as they
-// are called when it is read -- a membership by the person record it is, as
-// whoever did something is named -- each on the access record of the call
-// that reads it; and "?" where nothing names it, as Loft has always said one.
+// are called when it is read, told apart from whoever goes by their name by
+// the namer of an answer of history (D80) -- a membership by the person
+// record it is, as whoever did something is named -- each on the access
+// record of the call that reads it, with what told them apart; and "?" where
+// nothing names it, as Loft has always said one.
 func who(r *past.Reading, b []byte) string {
 	id := idOf(b)
 	if id.IsZero() {

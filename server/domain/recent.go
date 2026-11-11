@@ -9,6 +9,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/past"
 	"github.com/protobuf-orm/ent/dialect/sql"
 
 	app "github.com/lesomnus/loft"
@@ -110,12 +111,20 @@ func (s domainEvent) Recent(ctx context.Context, req *app.EventRecentRequest) (*
 		out.SetNext(afterFor(vs[size-1].DateCreated, vs[size-1].Id))
 	}
 	// Each said as it is read (payday#151), in the workspace's zone, its
-	// people as they are called now.
-	names := namer{t: t}
+	// people as they are called now and told apart from whoever goes by
+	// their names (D80): all of them read at once.
+	rows := make([]past.EventRow, len(vs))
+	for i, v := range vs {
+		rows[i] = said(v)
+	}
+	names := namer{t: t, tellApart: true}
+	if err := names.readSaid(rows); err != nil {
+		return nil, err
+	}
 	r := t.reading(&names)
-	for _, v := range vs {
+	for i, v := range vs {
 		e := v.Proto()
-		e.SetDesc(r.Say(said(v)))
+		e.SetDesc(r.Say(rows[i]))
 		out.SetItems(append(out.GetItems(), e))
 	}
 	if err := r.Err(); err != nil {
