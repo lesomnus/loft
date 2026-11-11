@@ -70,9 +70,9 @@
 /loft.DomainService/Status	read
 /loft.DomainService/Verify	admin
 /loft.DomainService/Watch	read
-/loft.EventService/Get	read
-/loft.EventService/List	read
-/loft.EventService/Recent	read
+/loft.EventService/Get	admin +auditor
+/loft.EventService/List	admin +auditor
+/loft.EventService/Recent	admin +auditor
 /loft.EventService/Redact	nobody
 /loft.HolderService/Get	admin +auditor
 /loft.HolderService/List	admin +auditor
