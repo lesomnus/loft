@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"testing"
 
 	"github.com/lesomnus/payday/auth/authsession"
@@ -170,6 +171,62 @@ func TestTheRoleTable(t *testing.T) {
 	got, err := assets.Get(w.owner, app.AssetGetRequest_builder{Ref: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build())
 	x.NoError(err)
 	x.Equal(room.GetId(), got.GetParentId())
+}
+
+// TestTheWorkLogIsReadByWhoeverRunsTheWorkspaceOrAuditsIt (D79): the
+// workspace's work log -- every operation, and why, in the words of whoever
+// did it -- is read as the trail is, by the people who run the workspace and
+// by its auditors, which the owner decided. A member and a manager are
+// refused it by the table, in their role's words: by Recent, which says each
+// event, and by Get and List, which are its rows. What happened to one asset
+// is not the log: its history is everybody's still, the reason in it too.
+func TestTheWorkLogIsReadByWhoeverRunsTheWorkspaceOrAuditsIt(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	const why = "3층 공사로 옮김"
+	id := w.moved(why)
+	moved, err := w.s.Ent.Event.Get(context.Background(), id.Uuid())
+	x.NoError(err)
+	x.NotNil(moved.SubjectId)
+	laptop := app.AssetById(pdid.Id(*moved.SubjectId).Bytes())
+
+	events := app.NewEventServiceClient(w.conn)
+	assets := app.NewAssetServiceClient(w.conn)
+	refused := map[string]string{"member": "구성원", "manager": "매니저"}
+	for _, role := range []string{"owner", "admin", "auditor", "manager", "member"} {
+		as := w.owner
+		if role != "owner" {
+			as = w.signIn(w.holder("as-"+role, role))
+		}
+		feed, recent := events.Recent(as, app.EventRecentRequest_builder{Kind: "asset.move"}.Build())
+		rows, list := events.List(as, app.EventListRequest_builder{}.Build())
+		one, get := events.Get(as, app.EventGetRequest_builder{Ref: app.EventRef_builder{Id: id.Bytes()}.Build()}.Build())
+		if word, ok := refused[role]; ok {
+			for m, err := range map[string]error{
+				app.EventService_Recent_FullMethodName: recent,
+				app.EventService_List_FullMethodName:   list,
+				app.EventService_Get_FullMethodName:    get,
+			} {
+				x.True(refusedByTable(err, m), "%s %s: %v", role, m, err)
+				x.Contains(status.Convert(err).Message(), word+" 역할로는 할 수 없는 작업입니다", "%s %s", role, m)
+			}
+		} else {
+			x.NoError(recent, role)
+			x.Len(feed.GetItems(), 1, role)
+			x.Equal(why, feed.GetItems()[0].GetReason(), role)
+			x.NotEmpty(feed.GetItems()[0].GetDesc(), "%s: said as it is read", role)
+			x.NoError(list, role)
+			x.NotEmpty(rows.GetItems(), role)
+			x.NoError(get, role)
+			x.Equal(why, one.GetReason(), role)
+		}
+
+		tl, err := assets.Timeline(as, app.AssetTimelineRequest_builder{Ref: laptop}.Build())
+		x.NoError(err, "%s reads what happened to one asset", role)
+		x.True(slices.ContainsFunc(tl.GetEntries(), func(e *app.TimelineEntry) bool {
+			return e.GetEventKind() == "asset.move" && e.GetReason() == why
+		}), "%s reads why it was moved, on its own history", role)
+	}
 }
 
 // TestSignIn is a password roster checked, and a session for the account: the

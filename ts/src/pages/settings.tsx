@@ -41,15 +41,18 @@ import { attrTypeWord, domainWord, kindWord } from '../words.js'
 export function Settings(props: { account: Account }): ReactNode {
 	const c = useCatalog()
 	const [sp, setSp] = useSearchParams()
-	const tab = sp.get('tab') ?? 'types'
 	const tabs = [
 		{ key: 'types', label: '유형' },
 		{ key: 'models', label: '모델' },
 		{ key: 'bookables', label: '예약 자원' },
 		{ key: 'labels', label: '도메인과 라벨' },
-		{ key: 'events', label: '작업 기록' },
+		// The workspace's records -- what was done and why, every write, who
+		// saw whose data -- are read by the people who run it and by its
+		// auditors (`server/policy`, D79). What happened to one asset is on
+		// its page, for everybody.
 		...(c.can('admin') || c.role === 'auditor'
 			? [
+					{ key: 'events', label: '작업 기록' },
 					{ key: 'audit', label: '감사 기록' },
 					{ key: 'access', label: '접속기록' },
 				]
@@ -59,6 +62,10 @@ export function Settings(props: { account: Account }): ReactNode {
 		// 7.9): read by the people who run it, on a deployment that bills.
 		...(props.account.billing === true && c.can('admin') ? [{ key: 'billing', label: '결제' }] : []),
 	]
+	// A tab this person is not shown -- in a link kept from before, or made
+	// by somebody else -- opens the first one, and not a refusal.
+	const asked = sp.get('tab') ?? 'types'
+	const tab = tabs.some((t) => t.key === asked) ? asked : 'types'
 	return (
 		<>
 			<PageHead title="설정" />

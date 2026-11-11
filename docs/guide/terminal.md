@@ -180,7 +180,7 @@ Claude Desktop은 설정 파일(`claude_desktop_config.json`)의 `mcpServers` �
 
 - **읽는 도구:**
   - 자산 찾기(`search_assets`), 자산 하나(`get_asset`), 이력(`asset_history`), 어느 시점의 모습(`asset_at`)
-  - 최근에 일어난 일(`recent_events`), 지급과 대여(`list_custody`), 예약(`reservations`), 예약 하나의 이력(`reservation_history`)
+  - 최근에 일어난 일(`recent_events`, 설정 › 작업 기록과 같은 권한으로 관리자 이상과 감사자), 지급과 대여(`list_custody`), 예약(`reservations`), 예약 하나의 이력(`reservation_history`)
   - 사람과 팀 찾기(`find_people`), 모델 찾기(`find_models`)
   - 재고(`list_stock`), 작업 지시(`list_work_orders`), 실사와 그 결과(`list_counts`), 구매(`list_purchases`)
   - 리포트(`report`): 자산 현황, 대여 현황, 예약 이용률, 실사 결과, 재고 소모. 리포트 화면과 같은 권한(매니저 이상과 감사자)이고, CSV는 내지 않습니다.

@@ -136,10 +136,9 @@ func init() {
 	} {
 		allow(Read, s+"Service", reads...)
 	}
-	// And what nobody watches -- the events, the tenant's own row, and the
-	// rows that are a part of another -- by Get and List.
+	// And what nobody watches -- the tenant's own row, and the rows that are a
+	// part of another -- by Get and List.
 	for _, s := range []string{
-		"Event",
 		"Tenant",
 		"ReservationItem", "Allocation",
 		"CustodyLine",
@@ -151,6 +150,14 @@ func init() {
 
 	// What only the people who run the tenant, or audit it, read.
 	oversee("AuditService", "Get", "List", "Recent")
+	// The work log (설정 › 작업 기록): every operation in the workspace,
+	// newest first, with the reasons people wrote, which are theirs. The
+	// owner decided it is read as the trail is (2026-11-12, D79). Get and List
+	// are the same rows without the sentence, so they go with it. What
+	// happened to one thing is not the log: an asset's history
+	// (`AssetService.Timeline` and the rest, below) is everybody's still, and
+	// a reservation's is as D45 has it.
+	oversee("EventService", "Get", "List", "Recent")
 	// And who read or wrote whose data (loft#136): the record a tenant's
 	// administrators review each month, and an auditor reads -- and that it
 	// was reviewed, which either of them records. Read out by Review alone,
@@ -159,7 +166,6 @@ func init() {
 	// served.
 	oversee("AccessService", "Review")
 	oversee("AccessReviewService", "Add", "Get", "List")
-	allow(Read, "EventService", "Recent")
 	// Taking an event's reason out, for a person whose request to erase what
 	// it says of them points at it (payday#151's Redact): who may is the
 	// owner's to decide, and until then nobody here may. The deployment's
