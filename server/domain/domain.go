@@ -4,8 +4,10 @@
 // It sits above payday's Gate (design 9.3, D20), so every write it issues on
 // a caller's behalf goes through the same edge checks a caller's own write
 // would. Every operation that writes more than one row is one transaction:
-// [Domain.tx] begins it on the driver this layer was built with, so inside a
-// batch it joins the batch's transaction instead of opening a second one.
+// [Domain.tx] begins it on the driver this layer was built with, so on a stack
+// rebound onto a transaction already begun -- a workspace made with what it
+// starts with (`tenancy`) -- it joins that transaction instead of opening a
+// second one.
 //
 // Reads that a generated List cannot express -- a subtree at a moment, a
 // timeline, a search -- go to ent directly, and every one of them is narrowed
@@ -283,9 +285,9 @@ type builder struct {
 
 func (b builder) Build(next app.Server) (app.Server, error) { return New(next, b.drv, b.deps), nil }
 
-// WithDriver carries the driver it is given: inside a batch that driver is the
-// batch's transaction, and a transaction begun on it joins rather than opens a
-// second one.
+// WithDriver carries the driver it is given: on a stack rebound onto a
+// transaction that driver is the transaction, and a transaction begun on it
+// joins rather than opens a second one.
 func (s Domain) WithDriver(drv dialect.Driver) (app.Server, error) {
 	next, err := enttx.Rebind(s.Next(), drv)
 	if err != nil {

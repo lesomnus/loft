@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/lesomnus/payday/grpcx"
-	"github.com/lesomnus/payday/pdpb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -35,8 +34,7 @@ import (
 // (`func (s Domain) Asset() app.AssetServiceServer`) declares it, and writes
 // in a transaction when it -- or a function of this package it calls, by
 // name -- opens one (`tx`, `run`, `System`). The general writes, `Patch` and
-// `Apply`, are no caller's to ask for at all (payday's `grpcx.Closed`), and
-// a batch holds each of its operations to the table by itself.
+// `Apply`, are no caller's to ask for at all (payday's `grpcx.Closed`).
 func TestReadOnlyRefusesEveryWriteItDoesNotAllow(t *testing.T) {
 	src := parse(t)
 	require.NotEmpty(t, src.served, "no service accessor was read: the test reads nothing")
@@ -45,7 +43,7 @@ func TestReadOnlyRefusesEveryWriteItDoesNotAllow(t *testing.T) {
 
 	writes := []string{"tx", "run", "System"}
 	for m := range policy.Table {
-		if m == pdpb.BatchService_Do_FullMethodName || grpcx.GeneralWrite(m) {
+		if grpcx.GeneralWrite(m) {
 			continue
 		}
 		svc, name, ok := strings.Cut(strings.TrimPrefix(m, "/loft."), "/")

@@ -15,9 +15,9 @@
 // an asset changes through Move and SetAttributes, so that the history is
 // written with it, and never by a Patch that would leave the history behind.
 //
-// A policy is asked once per call, about the method the caller named, and a
-// batch asks it once per operation. What the domain layer then calls on the
-// caller's behalf is not asked about again; that is the point of the layer.
+// A policy is asked once per call, about the method the caller named. What the
+// domain layer then calls on the caller's behalf is not asked about again;
+// that is the point of the layer.
 package policy
 
 import (
@@ -286,9 +286,6 @@ func init() {
 	// its owner's to say (`TenantService.Configure`, D36).
 	allow(Read, "TenantContractService", "Get", "List")
 	oversee("LegalHoldService", "Get", "List")
-
-	// A batch is checked per operation, by the same table.
-	Table["/payday.BatchService/Do"] = rule{min: Read}
 }
 
 var roleWord = map[string]string{"owner": "소유자", "admin": "관리자", "manager": "매니저", "member": "구성원", "auditor": "감사자"}

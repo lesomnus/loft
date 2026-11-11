@@ -21,7 +21,6 @@ import (
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
@@ -31,13 +30,11 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
-	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/migrate"
 	"github.com/lesomnus/loft/server/clilogin"
 	"github.com/lesomnus/loft/server/pd"
@@ -200,71 +197,6 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 	for _, c := range calls {
 		err := ask(context.Background(), c)
 		x.True(slices.Contains([]codes.Code{codes.Unauthenticated, codes.Unimplemented}, status.Code(err)), "%s answered nobody: %v", c.full, err)
-	}
-}
-
-// TestAMemberSlipsNothingPastTheTableInABatch: a batch is held to the table one
-// operation at a time, and is one transaction -- so an operation a member may
-// not call refuses the whole of it, and what came before it in the batch is
-// not written either.
-func TestAMemberSlipsNothingPastTheTableInABatch(t *testing.T) {
-	w := newWorld(t)
-	x := w.x
-	ctx := context.Background()
-	kim := w.holder("kim", "member")
-	member := w.signIn(kim)
-	batch := pdpb.NewBatchServiceClient(w.conn)
-	op := func(method string, req interface {
-		ProtoReflect() protoreflect.Message
-	}) *pdpb.Op {
-		v, err := anypb.New(req)
-		x.NoError(err)
-		return pdpb.Op_builder{Method: method, Request: v}.Build()
-	}
-	mailOff := func() bool {
-		id, err := pdid.From(kim.GetId())
-		x.NoError(err)
-		h, err := w.s.Ent.Holder.Get(ctx, id.Uuid())
-		x.NoError(err)
-		return h.MailOff
-	}
-	kimRef := app.HolderRef_builder{Id: kim.GetId()}.Build()
-
-	// What a member may do, alone in a batch, is done.
-	_, err := batch.Do(member, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		op("/loft.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: true}.Build()),
-	}}.Build())
-	x.NoError(err, "a member's own operation, batched")
-	x.True(mailOff())
-	_, err = batch.Do(member, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-		op("/loft.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: false}.Build()),
-	}}.Build())
-	x.NoError(err)
-	x.False(mailOff())
-
-	// The same beside an administrator's -- a type, a role of their own --
-	// is nothing done.
-	for _, slipped := range []*pdpb.Op{
-		op("/loft.AssetTypeService/Add", app.AssetTypeAddRequest_builder{Name: "슬쩍", Kind: "item"}.Build()),
-		op("/loft.PartyService/SetRole", app.PartySetRoleRequest_builder{Role: "owner"}.Build()),
-		op("/loft.HolderService/Patch", app.HolderPatchRequest_builder{Ref: kimRef, Role: z.Ptr("owner")}.Build()),
-	} {
-		_, err := batch.Do(member, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-			op("/loft.NotificationService/SetMail", app.NotificationSetMailRequest_builder{Off: true}.Build()),
-			slipped,
-		}}.Build())
-		// Refused by the table -- or, for a general write, closed before any
-		// table is asked, which is refused all the same.
-		x.Contains([]codes.Code{codes.PermissionDenied, codes.Unimplemented}, status.Code(err), "%s: %v", slipped.GetMethod(), err)
-		x.False(mailOff(), "%s: the operation before it was written", slipped.GetMethod())
-	}
-	v, err := w.s.Ent.Holder.Query().Where(holder.Alias("kim")).Only(ctx)
-	x.NoError(err)
-	x.Equal("member", v.Role, "still a member")
-	types, err := app.NewAssetTypeServiceClient(w.conn).List(w.owner, app.AssetTypeListRequest_builder{}.Build())
-	x.NoError(err)
-	for _, ty := range types.GetItems() {
-		x.NotEqual("슬쩍", ty.GetName(), "a type a member slipped in")
 	}
 }
 

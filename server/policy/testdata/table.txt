@@ -201,4 +201,3 @@
 /loft.WorkOrderService/List	read
 /loft.WorkOrderService/Update	manager
 /loft.WorkOrderService/Watch	read
-/payday.BatchService/Do	read

@@ -9,12 +9,9 @@ import (
 
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
-	"github.com/lesomnus/payday/pdpb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
@@ -29,11 +26,10 @@ import (
 
 // TestAnAccountReachesItsOwnMethodsAndNoOthers: a call framed as the account
 // itself -- what a session's call to a method the schema marks is resolved to
-// -- is refused every other method this deployment serves, the batch
-// included, before any policy is asked: by the gate's interceptor, and by a
-// batch's guard, which both ask `gate.Decide`. It sees no workspace. And the
-// other way round: the table gives a membership none of the account's own,
-// whatever its role.
+// -- is refused every other method this deployment serves before any policy
+// is asked, by the gate's interceptor, which asks `gate.Decide`. It sees no
+// workspace. And the other way round: the table gives a membership none of
+// the account's own, whatever its role.
 func TestAnAccountReachesItsOwnMethodsAndNoOthers(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
@@ -52,7 +48,6 @@ func TestAnAccountReachesItsOwnMethodsAndNoOthers(t *testing.T) {
 	}
 	sort.Strings(methods)
 	x.Greater(len(methods), 200, "every method the stack serves")
-	x.Contains(methods, "/payday.BatchService/Do")
 
 	a := w.accountOf(w.holder("kim", "member"))
 	var own []string
@@ -121,14 +116,11 @@ func TestAnAccountReachesItsOwnMethodsAndNoOthers(t *testing.T) {
 	}
 }
 
-// TestAnAccountsAnswerIsNotAMembershipsInABatch: a batch is a membership's
-// call, of the workspace it names, so an operation of it that is the
-// account's own -- an answer to an invitation from another workspace -- is
-// refused, and nothing of it is written. The same account answers it as
-// itself, whichever workspace that call names. Let through, a batch would be
-// how a sign-in bound to one workspace's domain answered for the account
-// across all of them.
-func TestAnAccountsAnswerIsNotAMembershipsInABatch(t *testing.T) {
+// TestAnAccountAnswersAsItselfWhicheverWorkspaceItsCallNames: an answer to an
+// invitation is the account's own (D30), so a call that names a workspace the
+// account is already in answers one from another workspace as the account,
+// and the account is then a member of the workspace that asked.
+func TestAnAccountAnswersAsItselfWhicheverWorkspaceItsCallNames(t *testing.T) {
 	w := newInvites(t, nil)
 	x := w.x
 	ctx := context.Background()
@@ -141,25 +133,6 @@ func TestAnAccountsAnswerIsNotAMembershipsInABatch(t *testing.T) {
 	x.NoError(err)
 
 	inBeta := metadata.AppendToOutgoingContext(w.as(kim), cmd.WorkspaceHeader, "beta")
-	for _, op := range []struct {
-		method string
-		req    proto.Message
-	}{
-		{app.InvitationService_Accept_FullMethodName, app.InvitationAcceptRequest_builder{Ref: ref(v)}.Build()},
-		{app.InvitationService_Deny_FullMethodName, app.InvitationDenyRequest_builder{Ref: ref(v)}.Build()},
-		{app.InvitationService_Inbox_FullMethodName, app.InvitationInboxRequest_builder{}.Build()},
-	} {
-		req, err := anypb.New(op.req)
-		x.NoError(err)
-		_, err = pdpb.NewBatchServiceClient(w.conn).Do(inBeta, pdpb.BatchRequest_builder{Ops: []*pdpb.Op{
-			pdpb.Op_builder{Method: op.method, Request: req}.Build(),
-		}}.Build())
-		x.Equal(codes.PermissionDenied, status.Code(err), "%s, in a batch: %v", op.method, err)
-	}
-	waiting := w.inbox(w.as(kim))
-	x.Len(waiting, 1, "the invitation is still waiting")
-	x.Equal("pending", waiting[0].GetState())
-
 	got, err := w.svc.Accept(inBeta, app.InvitationAcceptRequest_builder{Ref: ref(v)}.Build())
 	x.NoError(err, "the account's own, whatever workspace the call names")
 	x.Equal("accepted", got.GetState())

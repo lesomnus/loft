@@ -141,7 +141,7 @@ var (
 )
 ```
 
-Leave it out and **nothing fails until a transaction is opened** — a batch, or a
+Leave it out and **nothing fails until a transaction is opened** — a
 multi-write RPC — because `enttx.Rebind` asks at run time. `pd doctor` finds it.
 
 Note it is `enttx.Rebind(s.Next(), ...)` and not `s.Next().WithDriver(...)`:
@@ -315,7 +315,7 @@ addressed to it -- nobody's member in that workspace yet --
 `(payday.method) = {account: {}}` (payday#184): `pd.AccountResolver` serves
 them as the account itself (`frame.OfAccount`, no tenant), payday refuses such
 a frame every other method, the policy gives them to the account alone
-(`policy.Account`, never a membership, and never inside a membership's batch),
+(`policy.Account`, never a membership),
 and each declares it reads nothing through the walled servers
 (`pd.AccountReads`). The access record names the account as who made such a
 call, and its review names it by its membership of the workspace
