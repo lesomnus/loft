@@ -614,10 +614,10 @@ type mcpWhoamiIn struct{}
 type mcpWorkspace struct {
 	Alias string `json:"alias"`
 	Name  string `json:"name"`
-	// May is how many of the workspace's methods the person may call, as
-	// roster says it (D89): no role is named, since the workspace's roles are
-	// its administrators' to name at roster.
-	May int `json:"may" jsonschema:"how many of the workspace's methods the person may call, as roster says it"`
+	// May is the methods the person may call, as roster says it (D89): no
+	// role is named, since the workspace's roles are its administrators' to
+	// name and change at roster.
+	May []string `json:"may" jsonschema:"the methods the person may call in the workspace, as roster says it; a write not among them is refused"`
 }
 
 type mcpWhoami struct {
@@ -646,7 +646,7 @@ func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoam
 	if err != nil {
 		return nil, out, err
 	}
-	out.Workspace = &mcpWorkspace{Alias: me.GetTenant().GetAlias(), Name: me.GetWorkspaceName(), May: len(me.GetMethods())}
+	out.Workspace = &mcpWorkspace{Alias: me.GetTenant().GetAlias(), Name: me.GetWorkspaceName(), May: me.GetMethods()}
 	if p := me.GetParty(); len(p.GetId()) > 0 {
 		out.Person = &mcpRef{Id: idString(p.GetId()), Name: p.GetName()}
 	}

@@ -313,8 +313,8 @@ type external struct {
 	// which is the only way the sync stream hears of it -- and admin acme's
 	// own administrator, who binds and changes its roles there the same way.
 	key, operator, admin string
-	acme, beta    pdid.Id
-	kim           pdid.Id
+	acme, beta           pdid.Id
+	kim                  pdid.Id
 }
 
 func newExternal(t *testing.T) *external {

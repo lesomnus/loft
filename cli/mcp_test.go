@@ -138,14 +138,14 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 		var v struct {
 			Login     string `json:"login"`
 			Workspace struct {
-				Alias string `json:"alias"`
-				May   int    `json:"may"`
+				Alias string   `json:"alias"`
+				May   []string `json:"may"`
 			} `json:"workspace"`
 		}
 		a.call("whoami", nil, &v)
 		x.Equal("owner", v.Login)
 		x.Equal("acme", v.Workspace.Alias)
-		x.Positive(v.Workspace.May, "how many of the workspace's methods roster says they may call, and no role's name")
+		x.Contains(v.Workspace.May, app.TenantService_Configure_FullMethodName, "the methods roster says they may call, and no role's name")
 	}
 
 	// A search, with where each is and who has it.
