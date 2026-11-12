@@ -56,14 +56,14 @@ loft config env --set # 설정이 읽는 환경변수 가운데 정해진 것
 
 ## 계정: roster
 
-사람과 비밀번호는 roster의 것입니다([사람과 로그인](../dev/identity.md)).
+사람과 비밀번호는 roster의 것입니다([사람과 로그인](../dev/identity.md)). 구성원을 넣고 빼는 일은 roster의 화면에서 하고, Loft에 초대는 없습니다(D87).
 
 - **내장 roster**(`auth.roster.addr` 를 비우면): Loft 프로세스 안에서 함께 뜨고, DB는 Loft의 것 옆에 하나 더 있습니다. 시험과 써 보기용이라, 운영처럼 보이는 배포(PostgreSQL이거나 `app.public_url` 이 이 기계가 아님)에서는 `serve` 가 시작할 때 경고합니다. 사람을 넣고 빼는 roster의 화면이 없습니다.
-- **외부 roster**: 직접 운영하는 배포는 roster를 따로 띄웁니다. 사람을 넣고 빼는 화면이 roster에 있고, 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
+- **외부 roster**: 직접 운영하는 배포는 roster를 따로 띄웁니다. 사람을 넣고 빼는 화면(user console)이 roster에 있고, 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다. 그 화면의 주소를 `auth.roster.console_url` 에 주면 Loft의 사람 화면이 그리로 가는 링크를 보입니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
 - **역할 바꾸기**: 외부 roster에서 Loft의 역할은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다.
 - **SSO**: roster의 issuer로 로그인하게 하는 설정과 roster 쪽에 필요한 것은 [SSO](../dev/identity.md#sso)에 있습니다.
 
-내장 roster라면 화면 없이 운영자 진입점에서 사람을 만들고 비밀번호를 줄 수 있습니다(예: 소유자가 비밀번호를 잊었을 때). 외부 roster면 둘 다 거부되고 roster에서 합니다.
+내장 roster에는 사람을 넣는 화면이 없으므로, 운영자 진입점에서 사람을 만들어 구성원으로 넣고 비밀번호를 줍니다(예: 새로 온 사람, 소유자가 비밀번호를 잊었을 때). `loft init --demo` 의 사람도 같은 길로 만듭니다. 외부 roster면 둘 다 거부되고 roster의 화면에서 합니다.
 
 ```sh
 loft holder add --login minsu --name 김민수 --role member   # roster에 없으면 만들고 비밀번호를 한 번 출력
@@ -90,9 +90,9 @@ loft identity link                                          # roster에 없는 �
 
 ## 메일
 
-메일은 `app.mail`(SMTP)로 보냅니다. 초대와 알림 메일이 이것을 씁니다.
+메일은 `app.mail`(SMTP)로 보냅니다. 알림 메일이 이것을 씁니다.
 
-- 비워 두면 보내지 않고 초대 메일의 내용을 서버 로그에 남깁니다(`loft.yaml` 의 예시 참고). 알림 메일은 쌓지도, 로그에 남기지도 않습니다.
+- 비워 두면 메일을 보내지 않습니다. 알림은 앱에서만 받고, 메일로 보낼 것을 쌓지도, 로그에 남기지도 않습니다.
 - 알림 메일은 알림을 만든 작업이 끝난 뒤 1분마다 보냅니다. 되돌려진 작업의 알림은 보내지 않고, 보내지 못한 메일은 다음에 다시 시도하며 8번 실패하면 서버 로그에 남기고 포기합니다.
 - 어떤 알림이 메일로 가는지와 받는 사람이 끄는 법은 [안내서의 알림](README.md#알림)에 있습니다.
 
