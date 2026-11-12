@@ -12,6 +12,7 @@ import (
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
+	"github.com/lesomnus/z"
 
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
@@ -212,7 +213,12 @@ func initWorkspace(ctx context.Context, s *cmd.Server, t identity.Tenant, name s
 		return nil, nil, err
 	}
 
-	ws, err := base.Tenant().Add(ctx, app.TenantAddRequest_builder{Id: t.Id.Bytes(), Alias: t.Alias, Name: name}.Build())
+	// Its roles at roster are as this release has them once `putUp` has
+	// written them, and given what each release after it adds (D90).
+	ws, err := base.Tenant().Add(ctx, app.TenantAddRequest_builder{
+		Id: t.Id.Bytes(), Alias: t.Alias, Name: name,
+		RolesRelease: z.Ptr(policy.Releases.Latest()),
+	}.Build())
 	if err != nil {
 		return nil, nil, fmt.Errorf("workspace @%s: %w", t.Alias, err)
 	}

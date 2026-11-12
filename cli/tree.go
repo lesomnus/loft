@@ -171,6 +171,7 @@ func handwritten() []written {
 	out = append(out, trailWritten()...)
 	out = append(out, searchWritten()...)
 	out = append(out, identityWritten()...)
+	out = append(out, roleWritten()...)
 	out = append(out, eventWritten()...)
 	return out
 }

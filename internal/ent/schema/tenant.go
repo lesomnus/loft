@@ -68,6 +68,9 @@ func (Tenant) Fields() []ent.Field {
 		field.Time("date_access_keep_shortened").
 			Nillable().
 			Optional(),
+		field.Uint32("roles_release").
+			Optional().
+			Default(0),
 	}
 }
 

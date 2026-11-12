@@ -72,6 +72,7 @@ message TenantAddRequest {
   google.protobuf.Timestamp date_keep_shortened = 22;
   uint32 access_keep_days_before = 23;
   google.protobuf.Timestamp date_access_keep_shortened = 24;
+  uint32 roles_release = 25;
 }
 
 message TenantGetRequest {
@@ -108,6 +109,7 @@ message TenantSelect {
   bool date_keep_shortened = 22;
   bool access_keep_days_before = 23;
   bool date_access_keep_shortened = 24;
+  bool roles_release = 25;
 }
 
 message TenantPatchRequest {
@@ -164,6 +166,7 @@ message TenantPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and date_access_keep_shortened clears.
   bool date_access_keep_shortened_null = 49;
+  uint32 roles_release = 50;
 }
 
 message TenantApplyRequest {

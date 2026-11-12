@@ -59,7 +59,9 @@ type Tenant struct {
 	AccessKeepDaysBefore uint32 `json:"access_keep_days_before,omitempty"`
 	// DateAccessKeepShortened holds the value of the "date_access_keep_shortened" field.
 	DateAccessKeepShortened *time.Time `json:"date_access_keep_shortened,omitempty"`
-	selectValues            sql.SelectValues
+	// RolesRelease holds the value of the "roles_release" field.
+	RolesRelease uint32 `json:"roles_release,omitempty"`
+	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -69,7 +71,7 @@ func (*Tenant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case tenant.FieldLabels:
 			values[i] = new([]byte)
-		case tenant.FieldNoShowMinutes, tenant.FieldKeepDays, tenant.FieldAccessKeepDays, tenant.FieldRestoreDays, tenant.FieldKeepDaysBefore, tenant.FieldAccessKeepDaysBefore:
+		case tenant.FieldNoShowMinutes, tenant.FieldKeepDays, tenant.FieldAccessKeepDays, tenant.FieldRestoreDays, tenant.FieldKeepDaysBefore, tenant.FieldAccessKeepDaysBefore, tenant.FieldRolesRelease:
 			values[i] = new(sql.NullInt64)
 		case tenant.FieldAlias, tenant.FieldName, tenant.FieldDesc, tenant.FieldClosedBy, tenant.FieldCloseReason, tenant.FieldTimezone, tenant.FieldCurrency:
 			values[i] = new(sql.NullString)
@@ -224,6 +226,12 @@ func (_m *Tenant) assignValues(columns []string, values []any) error {
 				_m.DateAccessKeepShortened = new(time.Time)
 				*_m.DateAccessKeepShortened = value.Time
 			}
+		case tenant.FieldRolesRelease:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field roles_release", values[i])
+			} else if value.Valid {
+				_m.RolesRelease = uint32(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -327,6 +335,9 @@ func (_m *Tenant) String() string {
 		builder.WriteString("date_access_keep_shortened=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("roles_release=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RolesRelease))
 	builder.WriteByte(')')
 	return builder.String()
 }

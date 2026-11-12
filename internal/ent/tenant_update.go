@@ -407,6 +407,33 @@ func (_u *TenantUpdate) ClearDateAccessKeepShortened() *TenantUpdate {
 	return _u
 }
 
+// SetRolesRelease sets the "roles_release" field.
+func (_u *TenantUpdate) SetRolesRelease(v uint32) *TenantUpdate {
+	_u.mutation.ResetRolesRelease()
+	_u.mutation.SetRolesRelease(v)
+	return _u
+}
+
+// SetNillableRolesRelease sets the "roles_release" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableRolesRelease(v *uint32) *TenantUpdate {
+	if v != nil {
+		_u.SetRolesRelease(*v)
+	}
+	return _u
+}
+
+// AddRolesRelease adds value to the "roles_release" field.
+func (_u *TenantUpdate) AddRolesRelease(v int32) *TenantUpdate {
+	_u.mutation.AddRolesRelease(v)
+	return _u
+}
+
+// ClearRolesRelease clears the value of the "roles_release" field.
+func (_u *TenantUpdate) ClearRolesRelease() *TenantUpdate {
+	_u.mutation.ClearRolesRelease()
+	return _u
+}
+
 // Mutation returns the TenantMutation object of the builder.
 func (_u *TenantUpdate) Mutation() *TenantMutation {
 	return _u.mutation
@@ -627,6 +654,18 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DateAccessKeepShortenedCleared() {
 		_spec.ClearField(tenant.FieldDateAccessKeepShortened, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RolesRelease(); ok {
+		_spec.SetField(tenant.FieldRolesRelease, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldRolesRelease); ok {
+		_spec.SetField(tenant.FieldRolesRelease, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedRolesRelease(); ok {
+		_spec.AddField(tenant.FieldRolesRelease, field.TypeUint32, value)
+	}
+	if _u.mutation.RolesReleaseCleared() {
+		_spec.ClearField(tenant.FieldRolesRelease, field.TypeUint32)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -1028,6 +1067,33 @@ func (_u *TenantUpdateOne) ClearDateAccessKeepShortened() *TenantUpdateOne {
 	return _u
 }
 
+// SetRolesRelease sets the "roles_release" field.
+func (_u *TenantUpdateOne) SetRolesRelease(v uint32) *TenantUpdateOne {
+	_u.mutation.ResetRolesRelease()
+	_u.mutation.SetRolesRelease(v)
+	return _u
+}
+
+// SetNillableRolesRelease sets the "roles_release" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableRolesRelease(v *uint32) *TenantUpdateOne {
+	if v != nil {
+		_u.SetRolesRelease(*v)
+	}
+	return _u
+}
+
+// AddRolesRelease adds value to the "roles_release" field.
+func (_u *TenantUpdateOne) AddRolesRelease(v int32) *TenantUpdateOne {
+	_u.mutation.AddRolesRelease(v)
+	return _u
+}
+
+// ClearRolesRelease clears the value of the "roles_release" field.
+func (_u *TenantUpdateOne) ClearRolesRelease() *TenantUpdateOne {
+	_u.mutation.ClearRolesRelease()
+	return _u
+}
+
 // Mutation returns the TenantMutation object of the builder.
 func (_u *TenantUpdateOne) Mutation() *TenantMutation {
 	return _u.mutation
@@ -1278,6 +1344,18 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 	}
 	if _u.mutation.DateAccessKeepShortenedCleared() {
 		_spec.ClearField(tenant.FieldDateAccessKeepShortened, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RolesRelease(); ok {
+		_spec.SetField(tenant.FieldRolesRelease, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldRolesRelease); ok {
+		_spec.SetField(tenant.FieldRolesRelease, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedRolesRelease(); ok {
+		_spec.AddField(tenant.FieldRolesRelease, field.TypeUint32, value)
+	}
+	if _u.mutation.RolesReleaseCleared() {
+		_spec.ClearField(tenant.FieldRolesRelease, field.TypeUint32)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Tenant{config: _u.config}

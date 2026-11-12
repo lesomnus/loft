@@ -3,6 +3,7 @@ package identity
 import (
 	"context"
 	"errors"
+	"slices"
 	"testing"
 	"time"
 
@@ -172,4 +173,35 @@ func TestWhatSomebodyMayCallIsWhatRosterSaysNow(t *testing.T) {
 
 	d.unbind(t, member)
 	until(t, func() error { return s.Enters(ctx, e.kim) }, reach.ErrDenied, "no role of Loft's left: nothing here")
+}
+
+// TestARoleIsWidenedAsLoftAsks (D90): a role Loft wrote at roster is given
+// more as the holder Loft is there -- what a later release added -- and asking
+// twice is asking once; a role the tenant took away is said, and nothing is
+// made of it.
+func TestARoleIsWidenedAsLoftAsks(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+	e := newExternal(t)
+	s := e.open(t, e.key, "")
+	d := e.door(t)
+
+	_, err := s.WriteRoles(ctx, policy.Roles)
+	x.NoError(err)
+	approve := app.ReservationService_Approve_FullMethodName
+	member, _ := policy.RoleOf("member")
+	x.NotContains(member.Methods, approve)
+
+	for range 2 {
+		x.NoError(s.WidenRole(ctx, "loft-member", []string{approve}))
+	}
+	v, err := d.roles.Get(d.ctx, rstr.RoleGetRequest_builder{
+		Ref:    d.role("loft-member"),
+		Select: rstr.RoleSelect_builder{Methods: z.Ptr(true)}.Build(),
+	}.Build())
+	x.NoError(err)
+	x.ElementsMatch(append(slices.Clone(member.Methods), approve), v.GetMethods(), "given it once, and nothing taken")
+
+	err = s.WidenRole(ctx, "loft-nobody", []string{approve})
+	x.ErrorIs(err, ErrRoleGone)
 }

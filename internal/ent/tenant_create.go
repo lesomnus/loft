@@ -247,6 +247,20 @@ func (_c *TenantCreate) SetNillableDateAccessKeepShortened(v *time.Time) *Tenant
 	return _c
 }
 
+// SetRolesRelease sets the "roles_release" field.
+func (_c *TenantCreate) SetRolesRelease(v uint32) *TenantCreate {
+	_c.mutation.SetRolesRelease(v)
+	return _c
+}
+
+// SetNillableRolesRelease sets the "roles_release" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableRolesRelease(v *uint32) *TenantCreate {
+	if v != nil {
+		_c.SetRolesRelease(*v)
+	}
+	return _c
+}
+
 // SetId sets the "id" field.
 func (_c *TenantCreate) SetId(v uuid.UUID) *TenantCreate {
 	_c.mutation.SetId(v)
@@ -334,6 +348,12 @@ func (_c *TenantCreate) defaults() {
 		if _, ok := _c.mutation.FieldExpr(tenant.FieldAccessKeepDaysBefore); !ok {
 			v := tenant.DefaultAccessKeepDaysBefore
 			_c.mutation.SetAccessKeepDaysBefore(v)
+		}
+	}
+	if _, ok := _c.mutation.RolesRelease(); !ok {
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldRolesRelease); !ok {
+			v := tenant.DefaultRolesRelease
+			_c.mutation.SetRolesRelease(v)
 		}
 	}
 }
@@ -491,6 +511,10 @@ func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateAccessKeepShortened(); ok {
 		_spec.SetField(tenant.FieldDateAccessKeepShortened, field.TypeTime, value)
 		_node.DateAccessKeepShortened = &value
+	}
+	if value, ok := _c.mutation.RolesRelease(); ok {
+		_spec.SetField(tenant.FieldRolesRelease, field.TypeUint32, value)
+		_node.RolesRelease = value
 	}
 	return _node, _spec
 }

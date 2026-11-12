@@ -285,8 +285,6 @@ func (s operatorIdentity) Depart(ctx context.Context, req *app.OperatorIdentityD
 	return out, nil
 }
 
-// departure is what a member leaving does, or would: who the workspace goes
-// to, or that nobody is there to take it, and whether it closes.
 // Reconcile is `Lifecycle.Reconcile`, asked for now and told first.
 func (s operatorIdentity) Reconcile(ctx context.Context, req *app.OperatorIdentityReconcileRequest) (*app.OperatorIdentityReconcileResponse, error) {
 	v, err := s.a.S.Lifecycle.Reconcile(operator.Frame(ctx, pdid.Nil), !req.GetDryRun())

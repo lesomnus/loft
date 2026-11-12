@@ -48,6 +48,7 @@ func (a Routes) Grpc(ctx context.Context, opts ...grpc.ServerOption) (*grpc.Serv
 	app.RegisterOperatorRetentionServiceServer(g, operatorRetention{a: a})
 	app.RegisterOperatorIdentityServiceServer(g, operatorIdentity{a: a})
 	app.RegisterOperatorHolderServiceServer(g, operatorHolder{a: a})
+	app.RegisterOperatorRoleServiceServer(g, operatorRole{a: a})
 	app.RegisterEventServiceServer(g, events{a: a})
 	app.RegisterOperatorEventServiceServer(g, operatorEvents{a: a})
 	app.RegisterOperatorAccessServiceServer(g, operatorAccess{a: a})

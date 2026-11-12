@@ -180,6 +180,7 @@ func TestTheOperatorsCommandsSaySo(t *testing.T) {
 		"retention": true, "retention/plan": true, "retention/run": true,
 		"identity": true, "identity/link": true, "identity/depart": true, "identity/reconcile": true,
 		"holder/add": true, "holder/password": true,
+		"role": true, "role/widen": true,
 		"event/redact": true, "access/list": true,
 	}, marked)
 

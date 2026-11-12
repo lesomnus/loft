@@ -1175,8 +1175,9 @@ type OperatorIdentityServiceClient interface {
 	Link(ctx context.Context, in *OperatorIdentityLinkRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityLinkResponse], error)
 	// Depart is a member leaving the workspace now, rather than when roster's
 	// grace is over -- for somebody who asked to be forgotten at once: their
-	// person record pseudonymized, their membership ended, the workspace handed
-	// on when they were its last owner. It cannot be undone.
+	// person record pseudonymized and their membership ended. Who owns the
+	// workspace then is whom roster binds `loft-owner` (D89). It cannot be
+	// undone.
 	Depart(ctx context.Context, in *OperatorIdentityDepartRequest, opts ...grpc.CallOption) (*OperatorIdentityDepartResponse, error)
 	// Reconcile asks roster about every member, marks those it has nobody by as
 	// leaving -- from now, so that they wait the whole grace -- and unmarks
@@ -1250,8 +1251,9 @@ type OperatorIdentityServiceServer interface {
 	Link(*OperatorIdentityLinkRequest, grpc.ServerStreamingServer[OperatorIdentityLinkResponse]) error
 	// Depart is a member leaving the workspace now, rather than when roster's
 	// grace is over -- for somebody who asked to be forgotten at once: their
-	// person record pseudonymized, their membership ended, the workspace handed
-	// on when they were its last owner. It cannot be undone.
+	// person record pseudonymized and their membership ended. Who owns the
+	// workspace then is whom roster binds `loft-owner` (D89). It cannot be
+	// undone.
 	Depart(context.Context, *OperatorIdentityDepartRequest) (*OperatorIdentityDepartResponse, error)
 	// Reconcile asks roster about every member, marks those it has nobody by as
 	// leaving -- from now, so that they wait the whole grace -- and unmarks
@@ -1369,6 +1371,126 @@ var OperatorIdentityService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
+	Metadata: "loft/operator.proto",
+}
+
+const (
+	OperatorRoleService_Widen_FullMethodName = "/loft.OperatorRoleService/Widen"
+)
+
+// OperatorRoleServiceClient is the client API for OperatorRoleService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// OperatorRoleService is the roles Loft ships, as the tenant at roster has
+// them (D89, D90): written by `loft init`, and the tenant's from then on.
+type OperatorRoleServiceClient interface {
+	// Widen gives the tenant's roles at roster what each release of the roles
+	// Loft ships added since the release they were last given
+	// (`policy.Releases`, #327's decision 33) -- never what the roles hold
+	// now, which would give back what the tenant took out of one -- and
+	// records the release they are at (`Tenant.roles_release`). What a served
+	// deployment does as it starts, and every hour after, asked for now.
+	Widen(ctx context.Context, in *OperatorRoleWidenRequest, opts ...grpc.CallOption) (*OperatorRoleWidenResponse, error)
+}
+
+type operatorRoleServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOperatorRoleServiceClient(cc grpc.ClientConnInterface) OperatorRoleServiceClient {
+	return &operatorRoleServiceClient{cc}
+}
+
+func (c *operatorRoleServiceClient) Widen(ctx context.Context, in *OperatorRoleWidenRequest, opts ...grpc.CallOption) (*OperatorRoleWidenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperatorRoleWidenResponse)
+	err := c.cc.Invoke(ctx, OperatorRoleService_Widen_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OperatorRoleServiceServer is the server API for OperatorRoleService service.
+// All implementations must embed UnimplementedOperatorRoleServiceServer
+// for forward compatibility.
+//
+// OperatorRoleService is the roles Loft ships, as the tenant at roster has
+// them (D89, D90): written by `loft init`, and the tenant's from then on.
+type OperatorRoleServiceServer interface {
+	// Widen gives the tenant's roles at roster what each release of the roles
+	// Loft ships added since the release they were last given
+	// (`policy.Releases`, #327's decision 33) -- never what the roles hold
+	// now, which would give back what the tenant took out of one -- and
+	// records the release they are at (`Tenant.roles_release`). What a served
+	// deployment does as it starts, and every hour after, asked for now.
+	Widen(context.Context, *OperatorRoleWidenRequest) (*OperatorRoleWidenResponse, error)
+	mustEmbedUnimplementedOperatorRoleServiceServer()
+}
+
+// UnimplementedOperatorRoleServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedOperatorRoleServiceServer struct{}
+
+func (UnimplementedOperatorRoleServiceServer) Widen(context.Context, *OperatorRoleWidenRequest) (*OperatorRoleWidenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Widen not implemented")
+}
+func (UnimplementedOperatorRoleServiceServer) mustEmbedUnimplementedOperatorRoleServiceServer() {}
+func (UnimplementedOperatorRoleServiceServer) testEmbeddedByValue()                             {}
+
+// UnsafeOperatorRoleServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OperatorRoleServiceServer will
+// result in compilation errors.
+type UnsafeOperatorRoleServiceServer interface {
+	mustEmbedUnimplementedOperatorRoleServiceServer()
+}
+
+func RegisterOperatorRoleServiceServer(s grpc.ServiceRegistrar, srv OperatorRoleServiceServer) {
+	// If the following call panics, it indicates UnimplementedOperatorRoleServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&OperatorRoleService_ServiceDesc, srv)
+}
+
+func _OperatorRoleService_Widen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperatorRoleWidenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OperatorRoleServiceServer).Widen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OperatorRoleService_Widen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OperatorRoleServiceServer).Widen(ctx, req.(*OperatorRoleWidenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OperatorRoleService_ServiceDesc is the grpc.ServiceDesc for OperatorRoleService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OperatorRoleService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "loft.OperatorRoleService",
+	HandlerType: (*OperatorRoleServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Widen",
+			Handler:    _OperatorRoleService_Widen_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "loft/operator.proto",
 }
 

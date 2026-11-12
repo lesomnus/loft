@@ -39,5 +39,6 @@ func (e *Tenant) Proto() *loft.Tenant {
 	if e.DateAccessKeepShortened != nil {
 		x.SetDateAccessKeepShortened(timestamppb.New(*e.DateAccessKeepShortened))
 	}
+	x.SetRolesRelease(e.RolesRelease)
 	return x
 }

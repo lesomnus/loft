@@ -825,6 +825,38 @@ func (s *Store) Bind(ctx context.Context, role string, holder pdid.Id) error {
 	return nil
 }
 
+// ErrRoleGone is a role the tenant at roster has none by the alias Loft wrote
+// it under: taken away, or made another, which is the tenant's.
+var ErrRoleGone = errors.New("the tenant at roster has no role by that alias")
+
+// WidenRole gives the tenant's role `alias` at roster `methods` as well, as
+// the holder Loft is there (`RoleService.Widen`, #327's decision 32): only
+// adding, and nothing it holds already, so that asking twice is asking once
+// -- what a later release gave the roles Loft ships (D90). [ErrRoleGone] is
+// a role the tenant has none by. What is kept of what its holders may call is
+// asked again within [standing.HeldTtl], and at once where roster's stream
+// says so.
+func (s *Store) WidenRole(ctx context.Context, alias string, methods []string) error {
+	as, d, err := s.inTenant(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = rstr.NewRoleServiceClient(s.conn).Widen(as, rstr.RoleWidenRequest_builder{
+		Ref: rstr.RoleRef_builder{Slug: rstr.RoleRefBySlug_builder{
+			Alias:  z.Ptr(alias),
+			Tenant: rstr.TenantRef_builder{Id: d.Id.Bytes()}.Build(),
+		}.Build()}.Build(),
+		Methods: methods,
+	}.Build())
+	switch {
+	case status.Code(err) == codes.NotFound:
+		return fmt.Errorf("%w: %s", ErrRoleGone, alias)
+	case err != nil:
+		return fmt.Errorf("roster: widening %s: %w", alias, err)
+	}
+	return nil
+}
+
 // Enters says whether roster says somebody may come in at all: call
 // `PartyService.Me`, which every page asks first and every role Loft ships
 // holds (D89). Nil when it does; [reach.ErrDenied] when it does not -- no role

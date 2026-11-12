@@ -616,8 +616,9 @@ service OperatorIdentityService {
 
   // Depart is a member leaving the workspace now, rather than when roster's
   // grace is over -- for somebody who asked to be forgotten at once: their
-  // person record pseudonymized, their membership ended, the workspace handed
-  // on when they were its last owner. It cannot be undone.
+  // person record pseudonymized and their membership ended. Who owns the
+  // workspace then is whom roster binds `loft-owner` (D89). It cannot be
+  // undone.
   rpc Depart(OperatorIdentityDepartRequest) returns (OperatorIdentityDepartResponse);
 
   // Reconcile asks roster about every member, marks those it has nobody by as
@@ -714,6 +715,51 @@ message OperatorIdentityMember {
   bytes id = 1;
   // By their alias here.
   string member = 2;
+}
+
+// OperatorRoleService is the roles Loft ships, as the tenant at roster has
+// them (D89, D90): written by `loft init`, and the tenant's from then on.
+service OperatorRoleService {
+  // Widen gives the tenant's roles at roster what each release of the roles
+  // Loft ships added since the release they were last given
+  // (`policy.Releases`, #327's decision 33) -- never what the roles hold
+  // now, which would give back what the tenant took out of one -- and
+  // records the release they are at (`Tenant.roles_release`). What a served
+  // deployment does as it starts, and every hour after, asked for now.
+  rpc Widen(OperatorRoleWidenRequest) returns (OperatorRoleWidenResponse);
+}
+
+message OperatorRoleWidenRequest {
+  // Say what it would give, and give nothing.
+  bool dry_run = 1;
+  // Give what the releases after this one added, rather than after the one
+  // recorded: for roles the tenant had before this deployment recorded
+  // anything of them. 0 is the recorded one.
+  uint32 from = 2;
+}
+
+message OperatorRoleWidenResponse {
+  bool dry_run = 1;
+  // The release the roles were at, and the one they are at now -- or would
+  // be.
+  uint32 from = 2;
+  uint32 to = 3;
+  // Each role given something, or that would be.
+  repeated OperatorRoleWidened roles = 4;
+  // Nothing was recorded of the roles, so they were taken as given what
+  // there is: recorded at the last release, and given nothing.
+  bool unrecorded = 5;
+}
+
+// OperatorRoleWidened is one role and what it was given.
+message OperatorRoleWidened {
+  // The role, by its alias at roster.
+  string role = 1;
+  // What it was given, or would be.
+  repeated string methods = 2;
+  // The tenant has no role by that alias -- taken away or made another at
+  // roster, which is the tenant's -- and it was given nothing.
+  bool missing = 3;
 }
 
 // OperatorHolderService is a member, on the roster in this process (design
