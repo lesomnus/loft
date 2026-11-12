@@ -317,7 +317,6 @@ var EventKinds = map[string]protoreflect.MessageType{
 	"model.update":         (*loft.ItemModelSaved)(nil).ProtoReflect().Type(),
 	"party.add":            (*loft.PartySaved)(nil).ProtoReflect().Type(),
 	"party.pseudonymize":   (*loft.PartyPseudonymized)(nil).ProtoReflect().Type(),
-	"party.role":           (*loft.PartyRoleSet)(nil).ProtoReflect().Type(),
 	"party.update":         (*loft.PartySaved)(nil).ProtoReflect().Type(),
 	"purchase.add":         (*loft.PurchaseAdded)(nil).ProtoReflect().Type(),
 	"purchase.receive":     (*loft.PurchaseReceived)(nil).ProtoReflect().Type(),
@@ -21166,11 +21165,6 @@ func (s interceptParty) Update(ctx context.Context, req *loft.PartyUpdateRequest
 		loft.PartyService_Update_FullMethodName, req, s.PartyServiceServer.Update)
 }
 
-func (s interceptParty) SetRole(ctx context.Context, req *loft.PartySetRoleRequest) (*loft.Party, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		loft.PartyService_SetRole_FullMethodName, req, s.PartyServiceServer.SetRole)
-}
-
 func (s interceptParty) Pseudonymize(ctx context.Context, req *loft.PartyPseudonymizeRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
 		loft.PartyService_Pseudonymize_FullMethodName, req, s.PartyServiceServer.Pseudonymize)
@@ -26050,7 +26044,6 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard resource.Guard) r
 				{Number: 13, Name: entHolder.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
 				{Number: 14, Name: entHolder.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: entHolder.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 8, Name: entHolder.FieldRole, Type: 9, Nullable: false, Key: 0},
 				{Number: 10, Name: entHolder.FieldDateLeaving, Type: 65, Nullable: true, Key: 0},
 				{Number: 11, Name: entHolder.FieldMailOff, Type: 8, Nullable: false, Key: 0},
 			}, v)

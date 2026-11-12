@@ -75,13 +75,14 @@ func TestNoRoleTakesAnEventsReasonOutYet(t *testing.T) {
 	x.Zero(n)
 }
 
-// redactOpened is the table with Redact given to a workspace's administrators --
-// what the one line that opens it would say -- for the door behind it to be
-// tried over the wire.
+// redactOpened is the policy with Redact given to a workspace's administrators
+// -- what the one line that opens it would say: whoever roster says may run
+// the person records, which the administrator's role Loft ships holds -- for
+// the door behind it to be tried over the wire.
 type redactOpened struct{ policy.Policy }
 
 func (p redactOpened) May(ctx context.Context, c gate.Call) error {
-	if c.Action == app.EventService_Redact_FullMethodName && policy.Levels[policy.Role(c)] >= policy.Admin {
+	if c.Action == app.EventService_Redact_FullMethodName && p.Reach.May(ctx, c.Actor, app.PartyService_Pseudonymize_FullMethodName) == nil {
 		return nil
 	}
 	return p.Policy.May(ctx, c)
@@ -103,7 +104,7 @@ func TestTheDoorOnceOpenedKeepsNoReasonAndRecordsWhatItRead(t *testing.T) {
 	hid, err := pdid.From(h.GetId())
 	x.NoError(err)
 
-	w.s.Policy = redactOpened{policy.Policy{}}
+	w.s.Policy = redactOpened{w.s.Policy.(policy.Policy)}
 	g, err := w.s.Grpc(ctx, w.c)
 	x.NoError(err)
 	events := app.NewEventServiceClient(pdtest.Serve(t, g))
@@ -202,7 +203,7 @@ func TestWhatTheDoorTakesOutOfAnOperationIsOnTheRecordAsTheFirstIs(t *testing.T)
 		said = append(said, pdid.Id(p.Id))
 	}
 
-	w.s.Policy = redactOpened{policy.Policy{}}
+	w.s.Policy = redactOpened{w.s.Policy.(policy.Policy)}
 	g, err := w.s.Grpc(ctx, w.c)
 	x.NoError(err)
 	events := app.NewEventServiceClient(pdtest.Serve(t, g))
@@ -296,7 +297,7 @@ func TestWhatTheDoorTakesOutOfANoticeIsOnTheRecordAsWritten(t *testing.T) {
 	x.NoError(err)
 	x.Equal(erased, told.Desc)
 
-	w.s.Policy = redactOpened{policy.Policy{}}
+	w.s.Policy = redactOpened{w.s.Policy.(policy.Policy)}
 	g, err := w.s.Grpc(ctx, w.c)
 	x.NoError(err)
 	events := app.NewEventServiceClient(pdtest.Serve(t, g))
@@ -387,7 +388,7 @@ func TestWhatTheDoorTakesOutOfAHandOverIsOnTheRecordAsWritten(t *testing.T) {
 
 	issue, err := w.s.Ent.Event.Query().Where(event.Kind("custody.issue"), event.SubjectId(cid.Uuid())).Only(ctx)
 	x.NoError(err)
-	w.s.Policy = redactOpened{policy.Policy{}}
+	w.s.Policy = redactOpened{w.s.Policy.(policy.Policy)}
 	g, err := w.s.Grpc(ctx, w.c)
 	x.NoError(err)
 	events := app.NewEventServiceClient(pdtest.Serve(t, g))

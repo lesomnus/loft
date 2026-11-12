@@ -85,7 +85,7 @@ func membersRosterDoesNotHave(t *testing.T, c cmd.Config) restored {
 		id, _ := pdid.From(v.GetId())
 		tref := app.TenantRef_builder{Id: v.GetId()}.Build()
 		return id, func(alias, role string) pdid.Id {
-			h, err := s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{Tenant: tref, Alias: alias, Name: alias, Role: z.Ptr(role)}.Build())
+			h, err := s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{Tenant: tref, Alias: alias, Name: alias}.Build())
 			x.NoError(err)
 			_, err = s.Base.Party().Add(ctx, app.PartyAddRequest_builder{Tenant: tref, Name: alias, Kind: "person", Holder: app.HolderRef_builder{Id: h.GetId()}.Build()}.Build())
 			x.NoError(err)
@@ -406,14 +406,14 @@ func TestAnOperatorDepartsAMemberAtOnce(t *testing.T) {
 
 	out, err := d.loft(t, "identity", "depart", "--member", "kim")
 	x.NoError(err, out)
-	x.Contains(out, "kim ("+kim.String()+"), member")
+	x.Contains(out, "kim ("+kim.String()+")\n")
 	x.Contains(out, "nothing was done")
 	_, err = d.s.Identity.Verify(ctx, "kim", "kim-password")
 	x.NoError(err, "only asked about")
 
 	out, err = d.loft(t, "identity", "depart", "--member", kim.String(), "--yes")
 	x.NoError(err, out)
-	x.Contains(out, "left: kim ("+kim.String()+"), member\n")
+	x.Contains(out, "left: kim ("+kim.String()+")\n")
 	x.Contains(out, "forgot "+kim.String())
 	_, err = d.s.Identity.Verify(ctx, "kim", "kim-password")
 	x.ErrorIs(err, identity.ErrRefused)
@@ -428,26 +428,18 @@ func TestAnOperatorDepartsAMemberAtOnce(t *testing.T) {
 }
 
 // TestADepartureAskedAboutChangesNothing: without `--yes` a departure says,
-// by the rules it then follows, what it would do -- a last owner's workspace
-// handed on, and to whom -- and changes nothing: no table of the deployment's
-// or of the roster in this process, levyan told nothing, nobody signed out;
-// only the access record says the operator saw who they are. Done, it does
-// what it said.
+// by the rules it then follows, what it would do, and changes nothing: no
+// table of the deployment's or of the roster in this process, levyan told
+// nothing, nobody signed out; only the access record says the operator saw
+// who they are. Done, it does what it said -- and hands nothing on, whoever
+// they were: who may run the workspace is roster's, by the roles its tenant
+// binds there (D89).
 func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	d := aDeployment(t, func(c *cmd.Config) { c.App.Billing.Levyan = levyantest.Start(t).Config() })
-	// kim is the workspace's last owner, and lee its manager, next; the one
-	// it was put up for audits it.
-	for login, role := range map[string]string{"owner": "auditor", "kim": "owner", "lee": "manager"} {
-		_, err := d.s.Base.Holder().Patch(ctx, app.HolderPatchRequest_builder{
-			Ref:              app.HolderRef_builder{Id: memberIdOf(t, d.s, login).Bytes()}.Build(),
-			Role:             z.Ptr(role),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build())
-		x.NoError(err, login)
-	}
-	kim, lee := memberIdOf(t, d.s, "kim"), memberIdOf(t, d.s, "lee")
+	kim := memberIdOf(t, d.s, "kim")
+	x.NoError(d.s.Identity.Bind(ctx, "loft-owner", kim))
 	_, _, err := d.s.Sessions.Mint(ctx, authsession.Session{Id: kim.String(), Grant: frame.Whole()})
 	x.NoError(err)
 
@@ -462,7 +454,7 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 
 	out, err := d.loft(t, "identity", "depart", "--member", "kim")
 	x.NoError(err, out)
-	x.Contains(out, "kim ("+kim.String()+"), owner; the last owner, so the workspace would be lee's\n")
+	x.Contains(out, "kim ("+kim.String()+")\n")
 	x.Contains(out, "(nothing was done: `--yes` does it. It cannot be undone)")
 
 	now := deployment()
@@ -487,14 +479,13 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 		}
 	}
 	x.True(saw[kim], "the operator saw kim")
-	x.True(saw[lee], "and who the workspace would go to")
 	x.False(saw[memberIdOf(t, d.s, "owner")], "and nobody else")
 
 	out, err = d.loft(t, "identity", "depart", "--member", "kim", "--yes")
 	x.NoError(err, out)
-	x.Contains(out, "left: kim ("+kim.String()+"), owner; the last owner, so the workspace is lee's now\n")
+	x.Contains(out, "left: kim ("+kim.String()+")\n")
 	x.Equal(wasNotices, notices(), "levyan is told nothing: who pays is the portal's to tell it (D84)")
-	x.Equal("owner", d.s.Ent.Holder.GetX(ctx, lee.Uuid()).Role, "the workspace is lee's")
+	x.Error(d.s.Identity.Reach().May(ctx, memberIdOf(t, d.s, "lee"), app.TenantService_Configure_FullMethodName), "nobody was made the owner")
 	n, err := d.s.Ent.Session.Query().Where(entsession.Holder(kim.Uuid())).Count(ctx)
 	x.NoError(err)
 	x.Zero(n, "where they were signed in")

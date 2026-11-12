@@ -23,7 +23,7 @@ export function Counts(): ReactNode {
 			<PageHead
 				title="실사"
 				sub="공간을 정해 실제로 있는 것을 스캔하고, 있어야 할 것과 맞춰 봅니다. 자가 실사는 누구나 스캔할 수 있습니다."
-				actions={c.can('manager') && <button className="primary" onClick={() => setAdding(true)}>+ 실사 시작</button>}
+				actions={c.may(InventoryCountService.method.add) && <button className="primary" onClick={() => setAdding(true)}>+ 실사 시작</button>}
 			/>
 			<div className="filters">
 				<OrderSelect value={order} onChange={setOrder} />
@@ -203,7 +203,7 @@ function CountView(props: { c: InventoryCount }): ReactNode {
 				}
 				actions={
 					open &&
-					c.can('manager') && (
+					c.may(InventoryCountService.method.close) && (
 						<>
 							<button onClick={() => void act(InventoryCountService.method.reconcile, { ref: ref(x.id) }, { ok: '대조했습니다. 못 찾은 자산이 표시됩니다.' })}>
 								대조
@@ -297,7 +297,7 @@ function Finding(props: { f: CountFinding; name: { id: Uint8Array; tag: string; 
 			</span>
 			<span className="inline">
 				<Badge v={f.resolution} words={resolutionWord} />
-				{props.open && f.resolution === 'open' && c.can('manager') && (
+				{props.open && f.resolution === 'open' && c.may(InventoryCountService.method.resolve) && (
 					<button className="small" onClick={() => setResolve(true)}>
 						처리
 					</button>

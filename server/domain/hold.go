@@ -548,7 +548,7 @@ func (t *Tx) tellOut(c *ent.Custody, by map[uuid.UUID][]*ent.Reservation) error 
 			return err
 		}
 		rs := by[k]
-		if err := t.notifyManagers("reservation.out", fmt.Sprintf("예약된 자산 %s: %s", say.word, tagged(a)),
+		if err := t.notifyWhoMay(app.PermissionService_ActOnOthersBookings_FullMethodName, "reservation.out", fmt.Sprintf("예약된 자산 %s: %s", say.word, tagged(a)),
 			fmt.Sprintf("%s은(는) %s 나가 있어, 그것을 잡은 예약 %d건의 시간과 겹칩니다. 돌아오기 전에는 그 예약의 수령 때 건넬 수 없습니다. 예약은 그 시간을 그대로 잡습니다.", tagged(a), say.until, len(rs)),
 			pdid.Id(a.Id), "/reservations?tab=all"); err != nil {
 			return err

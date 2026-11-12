@@ -36,12 +36,11 @@ service PartyService {
   // once in that first message and once as a change that happened while it was
   // being read -- and that is harmless for the same reason.
   rpc Watch(PartyWatchRequest) returns (stream PartyWatchResponse);
-  // Me answers who is calling: the member, the person it is, the tenant and
-  // the role.
+  // Me answers who is calling: the member, the person it is, the tenant, and
+  // what they may call.
   rpc Me(PartyMeRequest) returns (PartyMeResponse);
   // Update changes a party's own fields.
   rpc Update(PartyUpdateRequest) returns (Party);
-  rpc SetRole(PartySetRoleRequest) returns (Party);
   // Pseudonymize answers a request to forget a person (design 8.2).
   rpc Pseudonymize(PartyPseudonymizeRequest) returns (Party);
   // Search finds people, teams, organizations and vendors by what a person
@@ -253,7 +252,13 @@ message PartyMeResponse {
   Holder holder = 1;
   Party party = 2;
   Tenant tenant = 3;
-  string role = 4 [features.field_presence = IMPLICIT];
+  // What the member may call (D89): every method a role may be given here
+  // (`policy.Grantable`) that roster says they may, by its full name --
+  // `/loft.AssetService/Add`, `/loft.PermissionService/BookForOthers` --
+  // which is what the page draws its menus and buttons from. What they may
+  // call is roster's, by the roles the tenant binds them there; their names
+  // are no business of Loft's, and none is said.
+  repeated string methods = 17;
 
   // Where the member manages how they sign in at roster -- and deletes their
   // holder there, where the tenant offers that -- for a roster of its own
@@ -304,11 +309,6 @@ message PartyUpdateRequest {
   string phone = 8 [features.field_presence = IMPLICIT];
   string code = 9 [features.field_presence = IMPLICIT];
   map<string, string> labels = 10;
-}
-
-message PartySetRoleRequest {
-  PartyRef ref = 1;
-  string role = 2 [features.field_presence = IMPLICIT];
 }
 
 message PartyPseudonymizeRequest {

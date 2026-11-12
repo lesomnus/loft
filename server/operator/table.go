@@ -64,8 +64,7 @@ var Table = map[string]Kind{
 	app.HolderService_Get_FullMethodName:  Read,
 	app.HolderService_List_FullMethodName: Read,
 
-	app.OperatorTenantService_Show_FullMethodName:      Read,
-	app.OperatorTenantService_NameOwner_FullMethodName: Write,
+	app.OperatorTenantService_Show_FullMethodName: Read,
 	// A workspace's end by the operator's hand, and its return from an
 	// export (design 8.2, D34).
 	app.OperatorTenantService_Retired_FullMethodName: Read,

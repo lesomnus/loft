@@ -35,7 +35,13 @@ const cameBack: Record<string, string> = {
 	failed: '로그인하지 못했습니다. 다시 해 보세요.',
 	unavailable: '지금은 로그인을 확인할 수 없습니다. 잠시 뒤에 다시 해 보세요.',
 	ended: '이 워크스페이스에서 로그인이 중지된 사람입니다. 관리자에게 문의하세요.',
+	// Somebody roster binds no role of Loft's (D89): what they may do is the
+	// roles the tenant's administrators bind them at roster.
+	norole: 'Loft에서 받은 역할이 없습니다. roster에서 이 워크스페이스의 관리자에게 역할을 받으세요.',
 }
+
+/** What `POST /session` answers beside 403 for somebody roster binds no role of Loft's (`session.NoRole`). */
+const noRole = "no role of loft's at roster"
 
 /** What the last round trip came to, read once and taken out of the address. */
 function signinOutcome(): string {
@@ -119,11 +125,12 @@ function PasswordForm(props: {
 						props.onIn()
 						return
 					}
+					const why = res.status === 403 ? (await res.text()).trim() : ''
 					setBad(
 						res.status === 401
 							? '아이디 또는 비밀번호가 맞지 않습니다.'
 							: res.status === 403
-								? (cameBack['ended'] ?? '')
+								? (cameBack[why === noRole ? 'norole' : 'ended'] ?? '')
 								: res.status === 503
 									? '지금은 로그인을 확인할 수 없습니다. 잠시 뒤에 다시 해 보세요.'
 									: `로그인할 수 없습니다 (${res.status}).`,

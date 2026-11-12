@@ -4,13 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/server/domain"
 )
 
 // identityWritten is `loft identity`, who the members are, which is roster's
@@ -122,14 +120,8 @@ func newCmdIdentity() *xli.Command {
 					if err != nil {
 						return err
 					}
-					line := fmt.Sprintf("%s (%s), %s", v.GetMember(), idSaid(v.GetId()), v.GetRole())
+					line := fmt.Sprintf("%s (%s)", v.GetMember(), idSaid(v.GetId()))
 					if v.GetDryRun() {
-						switch {
-						case v.GetOwner() != "":
-							line += "; the last owner, so the workspace would be " + v.GetOwner() + "'s"
-						case v.GetOwnerless():
-							line += "; the last owner, and nobody is there to hand the workspace to"
-						}
 						if v.GetCloses() {
 							line += "; nobody would be left, so the workspace would close"
 						}
@@ -138,12 +130,6 @@ func newCmdIdentity() *xli.Command {
 						return next(ctx)
 					}
 					line = "left: " + line
-					switch {
-					case v.GetOwner() != "":
-						line += "; the last owner, so the workspace is " + v.GetOwner() + "'s now"
-					case v.GetOwnerless():
-						line += "; the last owner, and nobody was there to hand the workspace to"
-					}
 					if v.GetCloses() {
 						line += "; nobody was left, so the workspace is closed"
 					}
@@ -216,7 +202,7 @@ func newCmdHolder() *xli.Command {
 					&flg.String{Name: "login", Brief: "what they sign in with"},
 					&flg.String{Name: "name", Brief: "their name; the login by default"},
 					&flg.String{Name: "email", Brief: "their e-mail, kept on the person record"},
-					&flg.String{Name: "role", Brief: "what they may do: " + strings.Join(domain.Roles, ", ") + "; member by default"},
+					&flg.String{Name: "role", Brief: "the role Loft ships they are bound at the roster in this process: owner, admin, manager, member or auditor; member by default"},
 					&flg.String{Name: "password", Brief: "a password for somebody new at roster; empty makes one up"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {

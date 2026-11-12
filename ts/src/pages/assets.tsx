@@ -68,9 +68,9 @@ export function Assets(): ReactNode {
 						{picked.size > 0 && (
 							<button onClick={() => go(`/labels/print?assets=${[...picked].join(',')}`)}>라벨 인쇄 ({picked.size})</button>
 						)}
-						{c.can('manager') && (
+						{c.may(AssetService.method.export) && <button onClick={() => setExporting(true)}>CSV로 내보내기</button>}
+						{c.may(AssetService.method.add) && (
 							<>
-								<button onClick={() => setExporting(true)}>CSV로 내보내기</button>
 								<Link className="button" to="/assets/register">
 									대량 등록
 								</Link>

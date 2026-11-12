@@ -3657,113 +3657,6 @@ func (b0 PartySaved_builder) Build() *PartySaved {
 	return m0
 }
 
-// PartyRoleSet is what a member may do, changed (`party.role`): by somebody
-// who may, or `by` the deployment.
-type PartyRoleSet struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Party  []byte                 `protobuf:"bytes,1,opt,name=party"`
-	xxx_hidden_Holder []byte                 `protobuf:"bytes,2,opt,name=holder"`
-	xxx_hidden_Role   string                 `protobuf:"bytes,4,opt,name=role"`
-	xxx_hidden_By     string                 `protobuf:"bytes,6,opt,name=by"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *PartyRoleSet) Reset() {
-	*x = PartyRoleSet{}
-	mi := &file_loft_past_proto_msgTypes[33]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PartyRoleSet) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PartyRoleSet) ProtoMessage() {}
-
-func (x *PartyRoleSet) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[33]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PartyRoleSet) GetParty() []byte {
-	if x != nil {
-		return x.xxx_hidden_Party
-	}
-	return nil
-}
-
-func (x *PartyRoleSet) GetHolder() []byte {
-	if x != nil {
-		return x.xxx_hidden_Holder
-	}
-	return nil
-}
-
-func (x *PartyRoleSet) GetRole() string {
-	if x != nil {
-		return x.xxx_hidden_Role
-	}
-	return ""
-}
-
-func (x *PartyRoleSet) GetBy() string {
-	if x != nil {
-		return x.xxx_hidden_By
-	}
-	return ""
-}
-
-func (x *PartyRoleSet) SetParty(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Party = v
-}
-
-func (x *PartyRoleSet) SetHolder(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Holder = v
-}
-
-func (x *PartyRoleSet) SetRole(v string) {
-	x.xxx_hidden_Role = v
-}
-
-func (x *PartyRoleSet) SetBy(v string) {
-	x.xxx_hidden_By = v
-}
-
-type PartyRoleSet_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Party  []byte
-	Holder []byte
-	Role   string
-	By     string
-}
-
-func (b0 PartyRoleSet_builder) Build() *PartyRoleSet {
-	m0 := &PartyRoleSet{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Party = b.Party
-	x.xxx_hidden_Holder = b.Holder
-	x.xxx_hidden_Role = b.Role
-	x.xxx_hidden_By = b.By
-	return m0
-}
-
 // PartyPseudonymized is a person forgotten in the workspace
 // (`party.pseudonymize`), whom it names nowhere.
 type PartyPseudonymized struct {
@@ -3775,7 +3668,7 @@ type PartyPseudonymized struct {
 
 func (x *PartyPseudonymized) Reset() {
 	*x = PartyPseudonymized{}
-	mi := &file_loft_past_proto_msgTypes[34]
+	mi := &file_loft_past_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3787,7 +3680,7 @@ func (x *PartyPseudonymized) String() string {
 func (*PartyPseudonymized) ProtoMessage() {}
 
 func (x *PartyPseudonymized) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[34]
+	mi := &file_loft_past_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3839,7 +3732,7 @@ type PurchaseAdded struct {
 
 func (x *PurchaseAdded) Reset() {
 	*x = PurchaseAdded{}
-	mi := &file_loft_past_proto_msgTypes[35]
+	mi := &file_loft_past_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3851,7 +3744,7 @@ func (x *PurchaseAdded) String() string {
 func (*PurchaseAdded) ProtoMessage() {}
 
 func (x *PurchaseAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[35]
+	mi := &file_loft_past_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3972,7 +3865,7 @@ type PurchaseReceived struct {
 
 func (x *PurchaseReceived) Reset() {
 	*x = PurchaseReceived{}
-	mi := &file_loft_past_proto_msgTypes[36]
+	mi := &file_loft_past_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3984,7 +3877,7 @@ func (x *PurchaseReceived) String() string {
 func (*PurchaseReceived) ProtoMessage() {}
 
 func (x *PurchaseReceived) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[36]
+	mi := &file_loft_past_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4072,7 +3965,7 @@ type WorkOrderSaved struct {
 
 func (x *WorkOrderSaved) Reset() {
 	*x = WorkOrderSaved{}
-	mi := &file_loft_past_proto_msgTypes[37]
+	mi := &file_loft_past_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4084,7 +3977,7 @@ func (x *WorkOrderSaved) String() string {
 func (*WorkOrderSaved) ProtoMessage() {}
 
 func (x *WorkOrderSaved) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[37]
+	mi := &file_loft_past_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4209,7 +4102,7 @@ type WorkOrderFinished struct {
 
 func (x *WorkOrderFinished) Reset() {
 	*x = WorkOrderFinished{}
-	mi := &file_loft_past_proto_msgTypes[38]
+	mi := &file_loft_past_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4221,7 +4114,7 @@ func (x *WorkOrderFinished) String() string {
 func (*WorkOrderFinished) ProtoMessage() {}
 
 func (x *WorkOrderFinished) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[38]
+	mi := &file_loft_past_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4328,7 +4221,7 @@ type WorkspaceClosed struct {
 
 func (x *WorkspaceClosed) Reset() {
 	*x = WorkspaceClosed{}
-	mi := &file_loft_past_proto_msgTypes[39]
+	mi := &file_loft_past_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4340,7 +4233,7 @@ func (x *WorkspaceClosed) String() string {
 func (*WorkspaceClosed) ProtoMessage() {}
 
 func (x *WorkspaceClosed) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[39]
+	mi := &file_loft_past_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4417,7 +4310,7 @@ type WorkspaceRestored struct {
 
 func (x *WorkspaceRestored) Reset() {
 	*x = WorkspaceRestored{}
-	mi := &file_loft_past_proto_msgTypes[40]
+	mi := &file_loft_past_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4429,7 +4322,7 @@ func (x *WorkspaceRestored) String() string {
 func (*WorkspaceRestored) ProtoMessage() {}
 
 func (x *WorkspaceRestored) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[40]
+	mi := &file_loft_past_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4478,10 +4371,10 @@ func (b0 WorkspaceRestored_builder) Build() *WorkspaceRestored {
 	return m0
 }
 
-// WorkspaceConfigured is what the workspace's owner said of its own settings
+// WorkspaceConfigured is what was said of the workspace's own settings
 // (`workspace.configure`, #144, D36): only what was said, and of a window made
 // shorter, from when it is. Its name too: what it is called, which is nobody's
-// (payday#180), or none -- and then it is called after its owner (D57).
+// (payday#180), or none -- and then it is called by its address (D89).
 type WorkspaceConfigured struct {
 	state                              protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Timezone                *string                `protobuf:"bytes,3,opt,name=timezone"`
@@ -4501,7 +4394,7 @@ type WorkspaceConfigured struct {
 
 func (x *WorkspaceConfigured) Reset() {
 	*x = WorkspaceConfigured{}
-	mi := &file_loft_past_proto_msgTypes[41]
+	mi := &file_loft_past_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4513,7 +4406,7 @@ func (x *WorkspaceConfigured) String() string {
 func (*WorkspaceConfigured) ProtoMessage() {}
 
 func (x *WorkspaceConfigured) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[41]
+	mi := &file_loft_past_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4816,7 +4709,7 @@ type WorkspaceImported struct {
 
 func (x *WorkspaceImported) Reset() {
 	*x = WorkspaceImported{}
-	mi := &file_loft_past_proto_msgTypes[42]
+	mi := &file_loft_past_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4828,7 +4721,7 @@ func (x *WorkspaceImported) String() string {
 func (*WorkspaceImported) ProtoMessage() {}
 
 func (x *WorkspaceImported) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[42]
+	mi := &file_loft_past_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4995,7 +4888,7 @@ type AccessReviewed struct {
 
 func (x *AccessReviewed) Reset() {
 	*x = AccessReviewed{}
-	mi := &file_loft_past_proto_msgTypes[43]
+	mi := &file_loft_past_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5007,7 +4900,7 @@ func (x *AccessReviewed) String() string {
 func (*AccessReviewed) ProtoMessage() {}
 
 func (x *AccessReviewed) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[43]
+	mi := &file_loft_past_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5135,20 +5028,18 @@ func (b0 AccessReviewed_builder) Build() *AccessReviewed {
 
 // AccountDeparted is a member leaving the workspace once roster erased their
 // holder (`account.depart`, named when a member was an account's): their
-// person record pseudonymized as a person forgotten is, and the workspace
-// handed on when they were its last owner -- or `ownerless`, with nobody to
-// hand it to.
+// person record pseudonymized as a person forgotten is. Who may run the
+// workspace then is roster's, by the roles the tenant binds there (D89).
 type AccountDeparted struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Held      uint32                 `protobuf:"varint,1,opt,name=held"`
-	xxx_hidden_Ownerless bool                   `protobuf:"varint,2,opt,name=ownerless"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Held uint32                 `protobuf:"varint,1,opt,name=held"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AccountDeparted) Reset() {
 	*x = AccountDeparted{}
-	mi := &file_loft_past_proto_msgTypes[44]
+	mi := &file_loft_past_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5160,7 +5051,7 @@ func (x *AccountDeparted) String() string {
 func (*AccountDeparted) ProtoMessage() {}
 
 func (x *AccountDeparted) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[44]
+	mi := &file_loft_past_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5178,26 +5069,14 @@ func (x *AccountDeparted) GetHeld() uint32 {
 	return 0
 }
 
-func (x *AccountDeparted) GetOwnerless() bool {
-	if x != nil {
-		return x.xxx_hidden_Ownerless
-	}
-	return false
-}
-
 func (x *AccountDeparted) SetHeld(v uint32) {
 	x.xxx_hidden_Held = v
-}
-
-func (x *AccountDeparted) SetOwnerless(v bool) {
-	x.xxx_hidden_Ownerless = v
 }
 
 type AccountDeparted_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Held      uint32
-	Ownerless bool
+	Held uint32
 }
 
 func (b0 AccountDeparted_builder) Build() *AccountDeparted {
@@ -5205,7 +5084,6 @@ func (b0 AccountDeparted_builder) Build() *AccountDeparted {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Held = b.Held
-	x.xxx_hidden_Ownerless = b.Ownerless
 	return m0
 }
 
@@ -5224,7 +5102,7 @@ type AttachmentAdded struct {
 
 func (x *AttachmentAdded) Reset() {
 	*x = AttachmentAdded{}
-	mi := &file_loft_past_proto_msgTypes[45]
+	mi := &file_loft_past_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5236,7 +5114,7 @@ func (x *AttachmentAdded) String() string {
 func (*AttachmentAdded) ProtoMessage() {}
 
 func (x *AttachmentAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[45]
+	mi := &file_loft_past_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5353,7 +5231,7 @@ type RetentionExpired struct {
 
 func (x *RetentionExpired) Reset() {
 	*x = RetentionExpired{}
-	mi := &file_loft_past_proto_msgTypes[46]
+	mi := &file_loft_past_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5365,7 +5243,7 @@ func (x *RetentionExpired) String() string {
 func (*RetentionExpired) ProtoMessage() {}
 
 func (x *RetentionExpired) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[46]
+	mi := &file_loft_past_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5568,7 +5446,7 @@ type EventRedacted struct {
 
 func (x *EventRedacted) Reset() {
 	*x = EventRedacted{}
-	mi := &file_loft_past_proto_msgTypes[47]
+	mi := &file_loft_past_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5580,7 +5458,7 @@ func (x *EventRedacted) String() string {
 func (*EventRedacted) ProtoMessage() {}
 
 func (x *EventRedacted) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_past_proto_msgTypes[47]
+	mi := &file_loft_past_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5857,14 +5735,7 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x05party\x18\x01 \x01(\fR\x05party\x12\x12\n" +
 	"\x04kind\x18\x03 \x01(\tR\x04kind:\x1d\x92\xbb\x16\x19\n" +
 	"\tparty.add\n" +
-	"\fparty.update\"r\n" +
-	"\fPartyRoleSet\x12\x14\n" +
-	"\x05party\x18\x01 \x01(\fR\x05party\x12\x16\n" +
-	"\x06holder\x18\x02 \x01(\fR\x06holder\x12\x12\n" +
-	"\x04role\x18\x04 \x01(\tR\x04role\x12\x0e\n" +
-	"\x02by\x18\x06 \x01(\tR\x02by:\x10\x92\xbb\x16\f\n" +
-	"\n" +
-	"party.role\"B\n" +
+	"\fparty.update\"B\n" +
 	"\x12PartyPseudonymized\x12\x12\n" +
 	"\x04held\x18\a \x01(\rR\x04held:\x18\x92\xbb\x16\x14\n" +
 	"\x12party.pseudonymize\"\xb3\x01\n" +
@@ -5939,10 +5810,9 @@ const file_loft_past_proto_rawDesc = "" +
 	"\x05calls\x18\x04 \x01(\rR\x05calls\x12\x1c\n" +
 	"\tdownloads\x18\x05 \x01(\rR\tdownloads\x12\x18\n" +
 	"\arefused\x18\x06 \x01(\rR\arefused:\x13\x92\xbb\x16\x0f\n" +
-	"\raccess.review\"Y\n" +
+	"\raccess.review\";\n" +
 	"\x0fAccountDeparted\x12\x12\n" +
-	"\x04held\x18\x01 \x01(\rR\x04held\x12\x1c\n" +
-	"\townerless\x18\x02 \x01(\bR\townerless:\x14\x92\xbb\x16\x10\n" +
+	"\x04held\x18\x01 \x01(\rR\x04held:\x14\x92\xbb\x16\x10\n" +
 	"\x0eaccount.depart\"\xac\x01\n" +
 	"\x0fAttachmentAdded\x12\x1e\n" +
 	"\n" +
@@ -5977,7 +5847,7 @@ const file_loft_past_proto_rawDesc = "" +
 	"\fevent.redactB)\xca\xc7\x16\x06\n" +
 	"\x04\b\x11\x10\x10Z\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_loft_past_proto_msgTypes = make([]protoimpl.MessageInfo, 48)
+var file_loft_past_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_loft_past_proto_goTypes = []any{
 	(*AssetAdded)(nil),                   // 0: loft.AssetAdded
 	(*AssetsAdded)(nil),                  // 1: loft.AssetsAdded
@@ -6012,38 +5882,37 @@ var file_loft_past_proto_goTypes = []any{
 	(*ItemModelSaved)(nil),               // 30: loft.ItemModelSaved
 	(*AssetTypeSaved)(nil),               // 31: loft.AssetTypeSaved
 	(*PartySaved)(nil),                   // 32: loft.PartySaved
-	(*PartyRoleSet)(nil),                 // 33: loft.PartyRoleSet
-	(*PartyPseudonymized)(nil),           // 34: loft.PartyPseudonymized
-	(*PurchaseAdded)(nil),                // 35: loft.PurchaseAdded
-	(*PurchaseReceived)(nil),             // 36: loft.PurchaseReceived
-	(*WorkOrderSaved)(nil),               // 37: loft.WorkOrderSaved
-	(*WorkOrderFinished)(nil),            // 38: loft.WorkOrderFinished
-	(*WorkspaceClosed)(nil),              // 39: loft.WorkspaceClosed
-	(*WorkspaceRestored)(nil),            // 40: loft.WorkspaceRestored
-	(*WorkspaceConfigured)(nil),          // 41: loft.WorkspaceConfigured
-	(*WorkspaceImported)(nil),            // 42: loft.WorkspaceImported
-	(*AccessReviewed)(nil),               // 43: loft.AccessReviewed
-	(*AccountDeparted)(nil),              // 44: loft.AccountDeparted
-	(*AttachmentAdded)(nil),              // 45: loft.AttachmentAdded
-	(*RetentionExpired)(nil),             // 46: loft.RetentionExpired
-	(*EventRedacted)(nil),                // 47: loft.EventRedacted
-	(*timestamppb.Timestamp)(nil),        // 48: google.protobuf.Timestamp
+	(*PartyPseudonymized)(nil),           // 33: loft.PartyPseudonymized
+	(*PurchaseAdded)(nil),                // 34: loft.PurchaseAdded
+	(*PurchaseReceived)(nil),             // 35: loft.PurchaseReceived
+	(*WorkOrderSaved)(nil),               // 36: loft.WorkOrderSaved
+	(*WorkOrderFinished)(nil),            // 37: loft.WorkOrderFinished
+	(*WorkspaceClosed)(nil),              // 38: loft.WorkspaceClosed
+	(*WorkspaceRestored)(nil),            // 39: loft.WorkspaceRestored
+	(*WorkspaceConfigured)(nil),          // 40: loft.WorkspaceConfigured
+	(*WorkspaceImported)(nil),            // 41: loft.WorkspaceImported
+	(*AccessReviewed)(nil),               // 42: loft.AccessReviewed
+	(*AccountDeparted)(nil),              // 43: loft.AccountDeparted
+	(*AttachmentAdded)(nil),              // 44: loft.AttachmentAdded
+	(*RetentionExpired)(nil),             // 45: loft.RetentionExpired
+	(*EventRedacted)(nil),                // 46: loft.EventRedacted
+	(*timestamppb.Timestamp)(nil),        // 47: google.protobuf.Timestamp
 }
 var file_loft_past_proto_depIdxs = []int32{
-	48, // 0: loft.AssetCorrected.date_start:type_name -> google.protobuf.Timestamp
-	48, // 1: loft.CustodyIssued.date_due:type_name -> google.protobuf.Timestamp
-	48, // 2: loft.CustodyExtended.date_due:type_name -> google.protobuf.Timestamp
-	48, // 3: loft.CustodyOverdue.date_due:type_name -> google.protobuf.Timestamp
-	48, // 4: loft.ReservationAdded.date_start:type_name -> google.protobuf.Timestamp
-	48, // 5: loft.ReservationAdded.date_end:type_name -> google.protobuf.Timestamp
-	48, // 6: loft.ReservationAllocationChanged.date_start:type_name -> google.protobuf.Timestamp
-	48, // 7: loft.WorkspaceClosed.date_destroy:type_name -> google.protobuf.Timestamp
-	48, // 8: loft.WorkspaceConfigured.date_keep_effective:type_name -> google.protobuf.Timestamp
-	48, // 9: loft.WorkspaceConfigured.date_access_keep_effective:type_name -> google.protobuf.Timestamp
-	48, // 10: loft.WorkspaceImported.date_exported:type_name -> google.protobuf.Timestamp
-	48, // 11: loft.AccessReviewed.date_start:type_name -> google.protobuf.Timestamp
-	48, // 12: loft.AccessReviewed.date_end:type_name -> google.protobuf.Timestamp
-	48, // 13: loft.RetentionExpired.date_before:type_name -> google.protobuf.Timestamp
+	47, // 0: loft.AssetCorrected.date_start:type_name -> google.protobuf.Timestamp
+	47, // 1: loft.CustodyIssued.date_due:type_name -> google.protobuf.Timestamp
+	47, // 2: loft.CustodyExtended.date_due:type_name -> google.protobuf.Timestamp
+	47, // 3: loft.CustodyOverdue.date_due:type_name -> google.protobuf.Timestamp
+	47, // 4: loft.ReservationAdded.date_start:type_name -> google.protobuf.Timestamp
+	47, // 5: loft.ReservationAdded.date_end:type_name -> google.protobuf.Timestamp
+	47, // 6: loft.ReservationAllocationChanged.date_start:type_name -> google.protobuf.Timestamp
+	47, // 7: loft.WorkspaceClosed.date_destroy:type_name -> google.protobuf.Timestamp
+	47, // 8: loft.WorkspaceConfigured.date_keep_effective:type_name -> google.protobuf.Timestamp
+	47, // 9: loft.WorkspaceConfigured.date_access_keep_effective:type_name -> google.protobuf.Timestamp
+	47, // 10: loft.WorkspaceImported.date_exported:type_name -> google.protobuf.Timestamp
+	47, // 11: loft.AccessReviewed.date_start:type_name -> google.protobuf.Timestamp
+	47, // 12: loft.AccessReviewed.date_end:type_name -> google.protobuf.Timestamp
+	47, // 13: loft.RetentionExpired.date_before:type_name -> google.protobuf.Timestamp
 	14, // [14:14] is the sub-list for method output_type
 	14, // [14:14] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
@@ -6062,7 +5931,7 @@ func file_loft_past_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_past_proto_rawDesc), len(file_loft_past_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   48,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -8,7 +8,6 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
@@ -17,16 +16,12 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent/audit"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/server/pd"
 )
 
-// The kinds of party and the roles a holder acts with.
-var (
-	PartyKinds = []string{"person", "team", "org", "vendor"}
-	Roles      = []string{"owner", "admin", "manager", "member", "auditor"}
-)
+// The kinds of party.
+var PartyKinds = []string{"person", "team", "org", "vendor"}
 
 type domainParty struct {
 	Domain
@@ -82,7 +77,8 @@ func (t *Tx) parentParty(id pdid.Id) error {
 	return nil
 }
 
-// Me answers who is calling.
+// Me answers who is calling, and what they may call: what roster says of them
+// now (D89), which is what their page is drawn from.
 func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyMeResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
@@ -96,22 +92,25 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 	if err != nil {
 		return nil, err
 	}
-	// What it is called, which for one with no name of its own is after its
-	// owner (D57): their name, shown.
+	// What it is called, which for one with no name of its own is its
+	// address (D57, D89).
 	called, err := t.workspaceName()
+	if err != nil {
+		return nil, err
+	}
+	methods, err := t.methodsOf(t.actor)
 	if err != nil {
 		return nil, err
 	}
 	out := app.PartyMeResponse_builder{
 		Holder:        h,
 		Tenant:        tn,
-		Role:          h.GetRole(),
+		Methods:       methods,
 		Timezone:      t.zone().String(),
 		Currency:      t.settings().currency,
 		RestoreDays:   uint32(t.restoreWithin() / (24 * time.Hour)),
 		WorkspaceName: called.Said,
 	}.Build()
-	access.Saw(ctx, called.Saw...)
 	if s.deps.People != nil {
 		out.SetAccountUrl(s.deps.People.AccountPage())
 		out.SetConsoleUrl(s.deps.People.ConsolePage())
@@ -185,55 +184,6 @@ func (s domainParty) Update(ctx context.Context, req *app.PartyUpdateRequest) (*
 			return err
 		}
 		out, err = t.next.Party().Patch(t.ctx, patch)
-		return err
-	})
-	return out, err
-}
-
-// SetRole changes what a person may do. The last owner of a tenant cannot be
-// demoted, or nobody could manage it.
-func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) (*app.Party, error) {
-	var out *app.Party
-	err := s.tx(ctx, func(t *Tx) error {
-		if !slices.Contains(Roles, req.GetRole()) {
-			return invalid("role", "역할이 올바르지 않습니다 (%s)", strings.Join(Roles, ", "))
-		}
-		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
-		if err != nil {
-			return err
-		}
-		h := idOf(p.GetHolder().GetId())
-		if h.IsZero() {
-			return failed("%s은(는) 로그인이 없습니다", p.GetName())
-		}
-		cur, err := t.db.Holder.Query().Where(holder.Id(h.Uuid())).Only(t.ctx)
-		if err != nil {
-			return err
-		}
-		if cur.Role == "owner" && req.GetRole() != "owner" {
-			n, err := t.db.Holder.Query().Where(holder.TenantId(t.tenant.Uuid()), holder.Role("owner"), holder.DateErasedIsNil()).Count(t.ctx)
-			if err != nil {
-				return err
-			}
-			if n <= 1 {
-				return failed("마지막 소유자입니다. 먼저 다른 사람을 소유자로 정하세요")
-			}
-		}
-		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "", app.PartyRoleSet_builder{
-			Holder: h.Bytes(),
-			Party:  p.GetId(),
-			Role:   req.GetRole(),
-		}.Build()); err != nil {
-			return err
-		}
-		if _, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
-			Ref:              app.HolderRef_builder{Id: h.Bytes()}.Build(),
-			Role:             z.Ptr(req.GetRole()),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build()); err != nil {
-			return err
-		}
-		out, err = t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
 		return err
 	})
 	return out, err

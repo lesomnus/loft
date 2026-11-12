@@ -23,19 +23,15 @@ import (
 // deployment's own work in the workspace ([Deps.Depart]).
 //
 // Leaving is what an administrator's 개인정보 삭제 does to the person
-// ([Tx.pseudonymize]), done by the deployment -- and one thing more: a
-// workspace whose last owner this was is handed on ([Tx.succeed]), since
-// nobody would be left who may.
+// ([Tx.pseudonymize]), done by the deployment. Who may run the workspace once
+// they have gone is roster's, by the roles the tenant binds there (D89): it
+// used to be handed on to whoever was next, when this was its last owner, and
+// nothing here knows who that is now.
 
 // Departure is what a member leaving did.
 type Departure struct {
 	// Party is the person record forgotten, when the workspace kept one.
 	Party pdid.Id
-	// Owner is who the workspace was handed on to, when this was its last
-	// owner and there was somebody to hand it to; Ownerless is a workspace
-	// whose last owner this was with nobody to hand it to.
-	Owner     pdid.Id
-	Ownerless bool
 	// Held is how many of the trail's rows in the database a legal hold kept
 	// as they were. What it keeps in the archive is learnt when the archive's
 	// half is paid, after the commit, and stays owed (`loft trail owed`).
@@ -64,10 +60,6 @@ func (t *Tx) depart(member pdid.Id) (Departure, error) {
 		return out, err
 	}
 
-	if out.Owner, out.Ownerless, err = t.succeed(h); err != nil {
-		return out, err
-	}
-
 	// The person record this membership is, when the workspace keeps one;
 	// a membership with none is forgotten as itself.
 	p, err := t.db.Party.Query().Where(party.HolderId(h.Id), party.TenantId(t.tenant.Uuid()), party.DateErasedIsNil()).First(t.ctx)
@@ -90,8 +82,7 @@ func (t *Tx) depart(member pdid.Id) (Departure, error) {
 	}
 
 	return out, t.begin(nil, "account.depart", pdid.Nil, t.now, "", app.AccountDeparted_builder{
-		Held:      uint32(out.Held),
-		Ownerless: out.Ownerless,
+		Held: uint32(out.Held),
 	}.Build())
 }
 
@@ -171,72 +162,4 @@ func (t *Tx) endMembership(member, person pdid.Id, objects []pdid.Id) (int, erro
 	// The trail kept the rows as they were after every write; those copies
 	// are the person too.
 	return t.forget(objects)
-}
-
-// succeed hands a workspace on when its last owner leaves, to whoever
-// [Successor] says, and answers who, or that there was nobody: a workspace
-// with no owner is still everybody else's, and only an operator can give it
-// one.
-func (t *Tx) succeed(h *ent.Holder) (pdid.Id, bool, error) {
-	next, ownerless, err := Successor(t.ctx, t.db, h)
-	if err != nil || next == nil {
-		return pdid.Nil, ownerless, err
-	}
-
-	id := pdid.Id(next.Id)
-	if err := t.begin(nil, "party.role", pdid.Nil, t.now, "", app.PartyRoleSet_builder{
-		Holder: id.Bytes(),
-		Role:   "owner",
-		By:     "succession",
-	}.Build()); err != nil {
-		return pdid.Nil, false, err
-	}
-	if _, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
-		Ref:              app.HolderRef_builder{Id: id.Bytes()}.Build(),
-		Role:             z.Ptr("owner"),
-		DateUpdatedForce: z.Ptr(true),
-	}.Build()); err != nil {
-		return pdid.Nil, false, err
-	}
-	return id, false, nil
-}
-
-// Successor is who a workspace goes to when `h` leaves it, as its last
-// owner: the most senior member who remains -- the widest role, then whoever
-// joined first -- among those not leaving themselves, and never an auditor,
-// whose role is to change nothing. Nobody when `h` is no owner or another
-// owner remains; ownerless when there is nobody to take it.
-//
-// It writes nothing, so what a member leaving would do is said before it is
-// done (`lifecycle.Lifecycle.Departing`), by the rule that then does it.
-func Successor(ctx context.Context, db *ent.Client, h *ent.Holder) (*ent.Holder, bool, error) {
-	if h.Role != "owner" {
-		return nil, false, nil
-	}
-	live := func(q *ent.HolderQuery) *ent.HolderQuery {
-		return q.Where(
-			holder.TenantId(h.TenantId),
-			holder.IdNEQ(h.Id),
-			holder.DateErasedIsNil(),
-			holder.DateLeavingIsNil(),
-		)
-	}
-	others, err := live(db.Holder.Query()).Where(holder.Role("owner")).Exist(ctx)
-	if err != nil || others {
-		return nil, false, err
-	}
-
-	for _, role := range []string{"admin", "manager", "member"} {
-		next, err := live(db.Holder.Query()).Where(holder.Role(role)).
-			Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).
-			First(ctx)
-		if ent.IsNotFound(err) {
-			continue
-		}
-		if err != nil {
-			return nil, false, err
-		}
-		return next, false, nil
-	}
-	return nil, true, nil
 }

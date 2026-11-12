@@ -185,10 +185,7 @@ option (payday.app) = {
 // party.* holds, by number:
 //
 //    1  party          bytes                      -- the person, team, organization or vendor
-//    2  holder         bytes                      -- the membership: a login of the workspace
 //    3  kind           string                     -- what the party is: person | team | org | vendor
-//    4  role           string                     -- what the membership may do from then on
-//    6  by             string                     -- who said it, where no person did: succession | operator
 //    7  held           uint32                     -- how many of the trail's rows a legal hold kept as they were
 //
 // purchase.* holds, by number:
@@ -233,7 +230,7 @@ option (payday.app) = {
 //   17  released       repeated string            -- the holds on addresses the restore took back (none since D86, which holds none)
 //   18  unlinked       uint32                     -- how many of its members this deployment's roster does not have
 //   19  reopened       bool                       -- it was put back open
-//   21  name           string                     -- what it is called from then on; empty for no name of its own, and then after its owner
+//   21  name           string                     -- what it is called from then on; empty for no name of its own, and then by its address
 //   22  expired        uint32                     -- how many of its reservations whose time passed while it was closed expired as it was restored
 //
 // access.* holds, by number:
@@ -248,7 +245,6 @@ option (payday.app) = {
 // account.* holds, by number:
 //
 //    1  held           uint32                     -- how many of the trail's rows a legal hold kept as they were
-//    2  ownerless      bool                       -- a workspace it was the last owner of had nobody to be handed to
 //
 // attachment.* holds, by number:
 //
@@ -761,17 +757,6 @@ message PartySaved {
   string kind = 3;
 }
 
-// PartyRoleSet is what a member may do, changed (`party.role`): by somebody
-// who may, or `by` the deployment.
-message PartyRoleSet {
-  option (payday.event) = {kinds: "party.role"};
-
-  bytes party = 1;
-  bytes holder = 2;
-  string role = 4;
-  string by = 6;
-}
-
 // PartyPseudonymized is a person forgotten in the workspace
 // (`party.pseudonymize`), whom it names nowhere.
 message PartyPseudonymized {
@@ -870,10 +855,10 @@ message WorkspaceRestored {
   uint32 expired = 22;
 }
 
-// WorkspaceConfigured is what the workspace's owner said of its own settings
+// WorkspaceConfigured is what was said of the workspace's own settings
 // (`workspace.configure`, #144, D36): only what was said, and of a window made
 // shorter, from when it is. Its name too: what it is called, which is nobody's
-// (payday#180), or none -- and then it is called after its owner (D57).
+// (payday#180), or none -- and then it is called by its address (D89).
 message WorkspaceConfigured {
   option (payday.event) = {kinds: "workspace.configure"};
 
@@ -920,14 +905,12 @@ message AccessReviewed {
 
 // AccountDeparted is a member leaving the workspace once roster erased their
 // holder (`account.depart`, named when a member was an account's): their
-// person record pseudonymized as a person forgotten is, and the workspace
-// handed on when they were its last owner -- or `ownerless`, with nobody to
-// hand it to.
+// person record pseudonymized as a person forgotten is. Who may run the
+// workspace then is roster's, by the roles the tenant binds there (D89).
 message AccountDeparted {
   option (payday.event) = {kinds: "account.depart"};
 
   uint32 held = 1;
-  bool ownerless = 2;
 }
 
 // AttachmentAdded is a file kept for something (`attachment.add`): an asset,

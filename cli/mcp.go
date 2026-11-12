@@ -67,7 +67,7 @@ const mcpInstructions = `Loft is the register of a workspace's tangible assets: 
 - Tools take the ids other tools answer with. An asset may also be named by its tag.
 - Times are RFC 3339; a date alone is midnight in this machine's zone, but for a report's period it is the workspace's day.
 - The read tools read, as the person signed in. To change the register, a plan_* tool answers what would happen, in names, with a token: show the person that summary, and only once they say yes, call apply with the token and the summary word for word. A plan changes nothing; a plan never applied does nothing.
-- What may be done is the person's role's to say, and a terminal signed in with loft auth login --allow is held to what it allows.`
+- What may be done is what roster says the person may call, by the roles the workspace's administrators bound them there, and a terminal signed in with loft auth login --allow is held to what it allows.`
 
 // newMcp is the server `loft mcp` runs: the tools, each of them reads, over
 // the connection the terminal's sign-in makes.
@@ -84,7 +84,7 @@ func newMcp(log *slog.Logger) *mcp.Server {
 
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "whoami",
-		Description: "Who these tools read as: the member signed in, the workspace the deployment serves and their role there, and the person record they are in it.",
+		Description: "Who these tools read as: the member signed in, the workspace the deployment serves, the person record they are in it, and how many of the workspace's methods they may call.",
 		Annotations: read,
 	}, t.whoami)
 	mcp.AddTool(s, &mcp.Tool{
@@ -614,7 +614,10 @@ type mcpWhoamiIn struct{}
 type mcpWorkspace struct {
 	Alias string `json:"alias"`
 	Name  string `json:"name"`
-	Role  string `json:"role"`
+	// May is how many of the workspace's methods the person may call, as
+	// roster says it (D89): no role is named, since the workspace's roles are
+	// its administrators' to name at roster.
+	May int `json:"may" jsonschema:"how many of the workspace's methods the person may call, as roster says it"`
 }
 
 type mcpWhoami struct {
@@ -643,7 +646,7 @@ func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoam
 	if err != nil {
 		return nil, out, err
 	}
-	out.Workspace = &mcpWorkspace{Alias: me.GetTenant().GetAlias(), Name: me.GetWorkspaceName(), Role: me.GetRole()}
+	out.Workspace = &mcpWorkspace{Alias: me.GetTenant().GetAlias(), Name: me.GetWorkspaceName(), May: len(me.GetMethods())}
 	if p := me.GetParty(); len(p.GetId()) > 0 {
 		out.Person = &mcpRef{Id: idString(p.GetId()), Name: p.GetName()}
 	}

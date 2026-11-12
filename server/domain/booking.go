@@ -23,7 +23,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/allocation"
 	"github.com/lesomnus/loft/internal/ent/asset"
 	"github.com/lesomnus/loft/internal/ent/bookable"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/internal/ent/reservation"
 	"github.com/lesomnus/loft/internal/ent/reservationitem"
@@ -452,17 +451,6 @@ func (t *Tx) partyOf() (*ent.Party, error) {
 	return p, nil
 }
 
-// roleOf answers the caller's role.
-func (t *Tx) roleOf() string {
-	h, err := t.db.Holder.Query().Where(holder.Id(t.actor.Uuid())).Only(t.ctx)
-	if err != nil {
-		return ""
-	}
-	return h.Role
-}
-
-func manages(role string) bool { return role == "owner" || role == "admin" || role == "manager" }
-
 // Add reserves resources: a hold, a request waiting for approval, or a
 // confirmed reservation, depending on what the resources ask. A series is all
 // of its occurrences or none of them.
@@ -490,15 +478,16 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		}
 		override := req.GetOverride()
 		if override {
-			if !manages(t.roleOf()) {
-				return status.Error(codes.PermissionDenied, "겹치게 예약하는 것은 매니저만 할 수 있습니다")
+			if err := t.may(app.PermissionService_BookOverConflicts_FullMethodName, "겹치게 예약할 수 있는 역할이 없습니다"); err != nil {
+				return err
 			}
 			if strings.TrimSpace(req.GetReason()) == "" {
 				return invalid("reason", "겹치게 예약하는 사유를 적어 주세요")
 			}
 		}
 
-		// Who it is for: the caller, unless a manager says otherwise.
+		// Who it is for: the caller, unless whoever may book for others says
+		// otherwise.
 		var who *ent.Party
 		var err error
 		if req.HasParty() {
@@ -506,8 +495,10 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			if err != nil {
 				return err
 			}
-			if me, _ := t.partyOf(); (me == nil || pdid.Id(me.Id) != idOf(p.GetId())) && !manages(t.roleOf()) {
-				return status.Error(codes.PermissionDenied, "다른 사람의 예약은 매니저만 할 수 있습니다")
+			if me, _ := t.partyOf(); me == nil || pdid.Id(me.Id) != idOf(p.GetId()) {
+				if err := t.may(app.PermissionService_BookForOthers_FullMethodName, "다른 사람의 예약을 할 수 있는 역할이 없습니다"); err != nil {
+					return err
+				}
 			}
 			who, err = t.db.Party.Query().Where(party.Id(uuidOf(p.GetId()))).Only(t.ctx)
 			if err != nil {
@@ -822,7 +813,7 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		}
 
 		if state == resRequested {
-			if err := t.notifyManagers("reservation.requested", fmt.Sprintf("승인 요청: %s", out.GetName()),
+			if err := t.notifyWhoMay(app.ReservationService_Approve_FullMethodName, "reservation.requested", fmt.Sprintf("승인 요청: %s", out.GetName()),
 				fmt.Sprintf("%s님이 %s %s 예약을 요청했습니다", who.Name, out.GetName(), begins.Format("01-02 15:04")),
 				idOf(out.GetId()), "/reservations"); err != nil {
 				return err
@@ -1204,7 +1195,7 @@ func (s domainReservation) decideTo(ctx context.Context, req *app.ReservationDec
 			return err
 		}
 		if *to == resRequested {
-			return t.notifyManagers("reservation.requested", "승인 요청: "+r.GetName(), "확정된 홀드가 승인을 기다립니다", idOf(r.GetId()), "/reservations")
+			return t.notifyWhoMay(app.ReservationService_Approve_FullMethodName, "reservation.requested", "승인 요청: "+r.GetName(), "확정된 홀드가 승인을 기다립니다", idOf(r.GetId()), "/reservations")
 		}
 		return nil
 	})
@@ -1225,21 +1216,20 @@ func (t *Tx) needsApproval(rid pdid.Id) (bool, error) {
 	return false, nil
 }
 
-// managerOnly is the check of a decision that is a manager's. The role table
-// says so already for a call from outside; this says it for any other way in.
-func managerOnly(t *Tx, _ *app.Reservation) error {
-	if !manages(t.roleOf()) {
-		return status.Error(codes.PermissionDenied, "매니저가 결정할 일입니다")
+// deciding is the check of a decision that is its own method's: the gate asks
+// roster already for a call from outside; this asks it for any other way in.
+func deciding(method string) func(t *Tx, _ *app.Reservation) error {
+	return func(t *Tx, _ *app.Reservation) error {
+		return t.may(method, "예약을 결정할 수 있는 역할이 없습니다")
 	}
-	return nil
 }
 
 func (s domainReservation) Approve(ctx context.Context, req *app.ReservationDecideRequest) (*app.Reservation, error) {
-	return s.decide(ctx, req, "reservation.approve", []string{resRequested}, resConfirmed, managerOnly)
+	return s.decide(ctx, req, "reservation.approve", []string{resRequested}, resConfirmed, deciding(app.ReservationService_Approve_FullMethodName))
 }
 
 func (s domainReservation) Reject(ctx context.Context, req *app.ReservationDecideRequest) (*app.Reservation, error) {
-	return s.decide(ctx, req, "reservation.reject", []string{resRequested, resHeld}, resRejected, managerOnly)
+	return s.decide(ctx, req, "reservation.reject", []string{resRequested, resHeld}, resRejected, deciding(app.ReservationService_Reject_FullMethodName))
 }
 
 func (s domainReservation) Cancel(ctx context.Context, req *app.ReservationDecideRequest) (*app.Reservation, error) {
@@ -1266,11 +1256,11 @@ func (s domainReservation) Complete(ctx context.Context, req *app.ReservationDec
 	})
 }
 
-// mineOrManager lets a person act on their own reservation, and a manager on
-// anybody's.
+// mineOrManager lets a person act on their own reservation, and whoever may
+// act on others' (`PermissionService.ActOnOthersBookings`) on anybody's.
 func (t *Tx) mineOrManager(r *app.Reservation) error {
-	if manages(t.roleOf()) {
-		return nil
+	if ok, err := t.mayTo(app.PermissionService_ActOnOthersBookings_FullMethodName); err != nil || ok {
+		return err
 	}
 	me, err := t.partyOf()
 	if err != nil {

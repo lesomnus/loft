@@ -34,6 +34,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/policy"
 )
 
 // env is a deployment with one tenant in it, and its owner signed in.
@@ -297,10 +298,14 @@ func aboutRow(ev *ent.Event, d pdid.Domain, id uuid.UUID, points []uuid.UUID) bo
 func (e *env) newTenant(alias string) (pdid.Id, context.Context) {
 	ctx := context.Background()
 	tid, hid := pdid.New(pd.TenantDomain), pdid.New(pd.HolderDomain)
-	if alias == e.cfg.Auth.Roster.Tenant {
+	served := alias == e.cfg.Auth.Roster.Tenant
+	if served {
 		t, p, _, err := e.s.Identity.MakeTenant(ctx, alias, "owner-"+alias, "Owner of "+alias)
 		e.x.NoError(err)
 		tid, hid = t.Id, p.Id
+		// And the roles Loft ships, as `loft init` writes them (D89).
+		_, err = e.s.Identity.WriteRoles(ctx, policy.Roles)
+		e.x.NoError(err)
 	}
 	t, err := e.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Id: tid.Bytes(), Alias: alias, Name: alias}.Build())
 	e.x.NoError(err)
@@ -310,9 +315,11 @@ func (e *env) newTenant(alias string) (pdid.Id, context.Context) {
 		Tenant: tenant,
 		Alias:  "owner",
 		Name:   "Owner",
-		Role:   z.Ptr("owner"),
 	}.Build())
 	e.x.NoError(err)
+	if served {
+		e.x.NoError(e.s.Identity.Bind(ctx, "loft-owner", hid))
+	}
 	_, err = e.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
 		Tenant: tenant,
 		Name:   "Owner of " + alias,

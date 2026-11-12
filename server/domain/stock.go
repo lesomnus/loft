@@ -175,7 +175,7 @@ func (t *Tx) moveStock(st *app.Stock, delta int64, reason string, ref pdid.Id, a
 		return err
 	}
 	if delta < 0 && cur.Threshold > 0 && next <= cur.Threshold && cur.Quantity > cur.Threshold {
-		return t.notifyManagers("stock.low", "재고 부족: "+cur.Name, fmt.Sprintf("%d%s 남았습니다 (기준 %d)", next, cur.Unit, cur.Threshold), pdid.Id(cur.Id), "/stock")
+		return t.notifyWhoMay(app.StockService_Receive_FullMethodName, "stock.low", "재고 부족: "+cur.Name, fmt.Sprintf("%d%s 남았습니다 (기준 %d)", next, cur.Unit, cur.Threshold), pdid.Id(cur.Id), "/stock")
 	}
 	return nil
 }

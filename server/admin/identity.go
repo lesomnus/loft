@@ -21,8 +21,8 @@ import (
 	"github.com/lesomnus/loft/internal/ent/session"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/operator"
+	"github.com/lesomnus/loft/server/policy"
 	"github.com/lesomnus/loft/server/tenancy"
 )
 
@@ -255,21 +255,12 @@ func (s operatorIdentity) Depart(ctx context.Context, req *app.OperatorIdentityD
 	}
 
 	out := app.OperatorIdentityDepartResponse_builder{
-		Id: id.Bytes(), DryRun: req.GetDryRun(), Member: h.Alias, Role: h.Role,
+		Id: id.Bytes(), DryRun: req.GetDryRun(), Member: h.Alias,
 		Embedded: s.a.S.Identity.Embedded(),
 	}.Build()
 	seen := []access.Subject{{Id: id, Tenant: pdid.Id(h.TenantId)}}
-	said := func(v departure) {
-		out.SetOwner("")
-		out.SetOwnerless(v.Ownerless)
-		out.SetCloses(v.Closed)
-		if !v.Owner.IsZero() {
-			out.SetOwner(s.memberAlias(ctx, v.Owner))
-			seen = append(seen, access.Subject{Id: v.Owner, Tenant: pdid.Id(h.TenantId)})
-		}
-	}
 	if ahead != nil {
-		said(departure{Owner: ahead.Owner, Ownerless: ahead.Ownerless, Closed: ahead.Closed})
+		out.SetCloses(ahead.Closed)
 	}
 	if req.GetDryRun() {
 		access.Saw(ctx, seen...)
@@ -278,7 +269,7 @@ func (s operatorIdentity) Depart(ctx context.Context, req *app.OperatorIdentityD
 
 	gone, err := s.a.S.Lifecycle.Depart(ctx, id)
 	if gone != nil {
-		said(departure{Owner: gone.Owner, Ownerless: gone.Ownerless, Closed: gone.Closed})
+		out.SetCloses(gone.Closed)
 		out.SetHeld(uint32(gone.Held))
 	}
 	access.Saw(ctx, seen...)
@@ -296,21 +287,6 @@ func (s operatorIdentity) Depart(ctx context.Context, req *app.OperatorIdentityD
 
 // departure is what a member leaving does, or would: who the workspace goes
 // to, or that nobody is there to take it, and whether it closes.
-type departure struct {
-	Owner     pdid.Id
-	Ownerless bool
-	Closed    bool
-}
-
-// memberAlias is a member by their alias, or their identifier when they have
-// none any more.
-func (s operatorIdentity) memberAlias(ctx context.Context, member pdid.Id) string {
-	if h, err := s.a.S.Ent.Holder.Get(ctx, member.Uuid()); err == nil && h.Alias != "" {
-		return h.Alias
-	}
-	return member.String()
-}
-
 // Reconcile is `Lifecycle.Reconcile`, asked for now and told first.
 func (s operatorIdentity) Reconcile(ctx context.Context, req *app.OperatorIdentityReconcileRequest) (*app.OperatorIdentityReconcileResponse, error) {
 	v, err := s.a.S.Lifecycle.Reconcile(operator.Frame(ctx, pdid.Nil), !req.GetDryRun())
@@ -365,12 +341,15 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 		return nil, status.Error(codes.InvalidArgument, "login: what they sign in with")
 	}
 	name := strings.TrimSpace(req.GetName())
+	// The role it is bound at the roster in this process, one Loft ships
+	// (`policy.Roles`): on a roster of its own that is its tenant's
+	// administrators', in roster's screens (D89).
 	role := strings.TrimSpace(req.GetRole())
 	if role == "" {
 		role = "member"
 	}
-	if !slices.Contains(domain.Roles, role) {
-		return nil, status.Errorf(codes.InvalidArgument, "role: one of %s", strings.Join(domain.Roles, ", "))
+	if _, ok := policy.RoleOf(role); !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "role: one of owner, admin, manager, member, auditor -- the roles Loft ships, bound at the roster in this process")
 	}
 	if err := s.embedded(); err != nil {
 		return nil, err

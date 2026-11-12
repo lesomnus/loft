@@ -1,0 +1,168 @@
+/loft.AccessReviewService/Add	owner admin auditor
+/loft.AccessReviewService/Get	owner admin auditor
+/loft.AccessReviewService/List	owner admin auditor
+/loft.AccessService/Review	owner admin auditor
+/loft.AllocationService/Get	owner admin manager member auditor
+/loft.AllocationService/List	owner admin manager member auditor
+/loft.AssetService/Add	owner admin manager
+/loft.AssetService/AddMany	owner admin manager
+/loft.AssetService/Assign	owner admin manager
+/loft.AssetService/Census	owner admin manager auditor
+/loft.AssetService/Correct	owner admin manager
+/loft.AssetService/Diff	owner admin manager member auditor
+/loft.AssetService/Erase	owner admin manager
+/loft.AssetService/Export	owner admin manager
+/loft.AssetService/ExportCensus	owner admin manager auditor
+/loft.AssetService/Form	owner admin manager
+/loft.AssetService/Get	owner admin manager member auditor
+/loft.AssetService/List	owner admin manager member auditor
+/loft.AssetService/Move	owner admin manager
+/loft.AssetService/QueryAt	owner admin manager member auditor
+/loft.AssetService/ReadSheet	owner admin manager
+/loft.AssetService/Relate	owner admin manager
+/loft.AssetService/Report	owner admin manager member auditor
+/loft.AssetService/Search	owner admin manager member auditor
+/loft.AssetService/SetAttributes	owner admin manager
+/loft.AssetService/Timeline	owner admin manager member auditor
+/loft.AssetService/Watch	owner admin manager member auditor
+/loft.AssetTypeService/Add	owner admin
+/loft.AssetTypeService/Erase	owner admin
+/loft.AssetTypeService/Get	owner admin manager member auditor
+/loft.AssetTypeService/List	owner admin manager member auditor
+/loft.AssetTypeService/Update	owner admin
+/loft.AssetTypeService/Watch	owner admin manager member auditor
+/loft.AttachmentService/Erase	owner admin manager
+/loft.AttachmentService/Get	owner admin manager member auditor
+/loft.AttachmentService/List	owner admin manager member auditor
+/loft.AttachmentService/Upload	owner admin manager member
+/loft.AttachmentService/Url	owner admin manager member auditor
+/loft.AttachmentService/Watch	owner admin manager member auditor
+/loft.AuditService/Get	owner admin auditor
+/loft.AuditService/List	owner admin auditor
+/loft.AuditService/Recent	owner admin auditor
+/loft.BookableService/Add	owner admin
+/loft.BookableService/Availability	owner admin manager member auditor
+/loft.BookableService/ExportUsage	owner admin manager auditor
+/loft.BookableService/Get	owner admin manager member auditor
+/loft.BookableService/List	owner admin manager member auditor
+/loft.BookableService/Update	owner admin
+/loft.BookableService/Usage	owner admin manager auditor
+/loft.BookableService/Watch	owner admin manager member auditor
+/loft.CountFindingService/Get	owner admin manager member auditor
+/loft.CountFindingService/List	owner admin manager member auditor
+/loft.CountFindingService/Watch	owner admin manager member auditor
+/loft.CustodyLineService/Get	owner admin manager member auditor
+/loft.CustodyLineService/List	owner admin manager member auditor
+/loft.CustodyService/Acknowledge	owner admin manager member
+/loft.CustodyService/Add	owner admin manager
+/loft.CustodyService/ExportOutstanding	owner admin manager auditor
+/loft.CustodyService/Extend	owner admin manager
+/loft.CustodyService/Get	owner admin manager member auditor
+/loft.CustodyService/List	owner admin manager member auditor
+/loft.CustodyService/Outstanding	owner admin manager auditor
+/loft.CustodyService/Return	owner admin manager
+/loft.CustodyService/Watch	owner admin manager member auditor
+/loft.EventService/Get	owner admin auditor
+/loft.EventService/List	owner admin auditor
+/loft.EventService/Recent	owner admin auditor
+/loft.EventService/Redact	closed
+/loft.HolderService/Get	owner admin auditor
+/loft.HolderService/List	owner admin auditor
+/loft.HolderService/Watch	owner admin auditor
+/loft.InventoryCountService/Add	owner admin manager
+/loft.InventoryCountService/Close	owner admin manager
+/loft.InventoryCountService/ExportResults	owner admin manager auditor
+/loft.InventoryCountService/Get	owner admin manager member auditor
+/loft.InventoryCountService/List	owner admin manager member auditor
+/loft.InventoryCountService/Reconcile	owner admin manager
+/loft.InventoryCountService/Resolve	owner admin manager
+/loft.InventoryCountService/Results	owner admin manager auditor
+/loft.InventoryCountService/Scan	owner admin manager member
+/loft.InventoryCountService/Watch	owner admin manager member auditor
+/loft.ItemModelService/Add	owner admin manager
+/loft.ItemModelService/Erase	owner admin
+/loft.ItemModelService/Get	owner admin manager member auditor
+/loft.ItemModelService/List	owner admin manager member auditor
+/loft.ItemModelService/Search	owner admin manager member auditor
+/loft.ItemModelService/Update	owner admin manager
+/loft.ItemModelService/Watch	owner admin manager member auditor
+/loft.LabelService/Bind	owner admin manager
+/loft.LabelService/Get	owner admin manager member auditor
+/loft.LabelService/List	owner admin manager member auditor
+/loft.LabelService/Print	owner admin manager
+/loft.LabelService/Resolve	owner admin manager member auditor
+/loft.LabelService/Unbind	owner admin manager
+/loft.LabelService/Watch	owner admin manager member auditor
+/loft.LegalHoldService/Get	owner admin auditor
+/loft.LegalHoldService/List	owner admin auditor
+/loft.NotificationService/Inbox	owner admin manager member auditor
+/loft.NotificationService/MarkRead	owner admin manager member auditor
+/loft.NotificationService/SetMail	owner admin manager member auditor
+/loft.PartyService/Add	owner admin
+/loft.PartyService/Get	owner admin manager member auditor
+/loft.PartyService/List	owner admin manager member auditor
+/loft.PartyService/Me	owner admin manager member auditor
+/loft.PartyService/Pseudonymize	owner admin
+/loft.PartyService/Search	owner admin manager member auditor
+/loft.PartyService/Update	owner admin
+/loft.PartyService/Watch	owner admin manager member auditor
+/loft.PaymentService/GetPayer	owner admin
+/loft.PaymentService/GetUsage	owner admin
+/loft.PaymentService/ListStatements	owner admin
+/loft.PaymentService/Offer	owner
+/loft.PermissionService/AcknowledgeForOthers	owner admin manager
+/loft.PermissionService/ActOnOthersBookings	owner admin manager
+/loft.PermissionService/BookForOthers	owner admin manager
+/loft.PermissionService/BookOverConflicts	owner admin manager
+/loft.PermissionService/ReadEveryReservation	owner admin manager auditor
+/loft.PermissionService/RunWork	owner admin manager
+/loft.PermissionService/ScanAnyCount	owner admin manager
+/loft.PurchaseLineService/Get	owner admin manager member auditor
+/loft.PurchaseLineService/List	owner admin manager member auditor
+/loft.PurchaseService/Add	owner admin manager
+/loft.PurchaseService/Get	owner admin manager member auditor
+/loft.PurchaseService/List	owner admin manager member auditor
+/loft.PurchaseService/Receive	owner admin manager
+/loft.PurchaseService/Watch	owner admin manager member auditor
+/loft.ReservationItemService/Get	owner admin manager member auditor
+/loft.ReservationItemService/List	owner admin manager member auditor
+/loft.ReservationService/Add	owner admin manager member
+/loft.ReservationService/Approve	owner admin manager
+/loft.ReservationService/Calendar	owner admin manager member auditor
+/loft.ReservationService/Cancel	owner admin manager member
+/loft.ReservationService/CheckIn	owner admin manager member
+/loft.ReservationService/Complete	owner admin manager member
+/loft.ReservationService/Confirm	owner admin manager member
+/loft.ReservationService/Get	owner admin manager member auditor
+/loft.ReservationService/List	owner admin manager member auditor
+/loft.ReservationService/Pickup	owner admin manager
+/loft.ReservationService/Reject	owner admin manager
+/loft.ReservationService/Timeline	owner admin manager member auditor
+/loft.ReservationService/Watch	owner admin manager member auditor
+/loft.StockMovementService/Get	owner admin manager member auditor
+/loft.StockMovementService/List	owner admin manager member auditor
+/loft.StockService/Add	owner admin manager
+/loft.StockService/Adjust	owner admin manager
+/loft.StockService/Consume	owner admin manager member
+/loft.StockService/Convert	owner admin manager
+/loft.StockService/ExportFlow	owner admin manager auditor
+/loft.StockService/Flow	owner admin manager auditor
+/loft.StockService/Get	owner admin manager member auditor
+/loft.StockService/List	owner admin manager member auditor
+/loft.StockService/Receive	owner admin manager
+/loft.StockService/Transfer	owner admin manager
+/loft.StockService/Watch	owner admin manager member auditor
+/loft.TenantContractService/Get	owner admin manager member auditor
+/loft.TenantContractService/List	owner admin manager member auditor
+/loft.TenantService/Configure	owner
+/loft.TenantService/Get	owner admin manager member auditor
+/loft.TenantService/List	owner admin manager member auditor
+/loft.TenantService/Patch	owner
+/loft.TenantService/Preview	owner
+/loft.WorkOrderService/Add	owner admin manager member
+/loft.WorkOrderService/Cancel	owner admin manager
+/loft.WorkOrderService/Complete	owner admin manager
+/loft.WorkOrderService/Get	owner admin manager member auditor
+/loft.WorkOrderService/List	owner admin manager member auditor
+/loft.WorkOrderService/Update	owner admin manager
+/loft.WorkOrderService/Watch	owner admin manager member auditor

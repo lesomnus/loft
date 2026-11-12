@@ -34,8 +34,6 @@ type Holder struct {
 	DateErased *time.Time `json:"date_erased,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
 	DateCreated time.Time `json:"date_created,omitempty"`
-	// Role holds the value of the "role" field.
-	Role string `json:"role,omitempty"`
 	// DateLeaving holds the value of the "date_leaving" field.
 	DateLeaving *time.Time `json:"date_leaving,omitempty"`
 	// MailOff holds the value of the "mail_off" field.
@@ -77,7 +75,7 @@ func (*Holder) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case holder.FieldMailOff:
 			values[i] = new(sql.NullBool)
-		case holder.FieldAlias, holder.FieldName, holder.FieldDesc, holder.FieldRole:
+		case holder.FieldAlias, holder.FieldName, holder.FieldDesc:
 			values[i] = new(sql.NullString)
 		case holder.FieldDateUpdated, holder.FieldDateErased, holder.FieldDateCreated, holder.FieldDateLeaving:
 			values[i] = new(sql.NullTime)
@@ -148,12 +146,6 @@ func (_m *Holder) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field date_created", values[i])
 			} else if value.Valid {
 				_m.DateCreated = value.Time
-			}
-		case holder.FieldRole:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field role", values[i])
-			} else if value.Valid {
-				_m.Role = value.String
 			}
 		case holder.FieldDateLeaving:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -237,9 +229,6 @@ func (_m *Holder) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("role=")
-	builder.WriteString(_m.Role)
 	builder.WriteString(", ")
 	if v := _m.DateLeaving; v != nil {
 		builder.WriteString("date_leaving=")

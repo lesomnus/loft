@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -44,7 +43,6 @@ func TestALabelOpensTheScanPage(t *testing.T) {
 	theirs, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
 		Tenant: app.TenantRef_builder{Id: beta.GetId()}.Build(),
 		Alias:  "owner",
-		Role:   z.Ptr("owner"),
 	}.Build())
 	x.NoError(err)
 	_, err = w.s.Walled.Label().Resolve(frameOf(x, theirs), app.LabelResolveRequest_builder{Code: code}.Build())

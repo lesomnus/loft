@@ -4,28 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Asset } from '../../gen/loft/asset_pb.js'
 import type { TimelineEntry } from '../../gen/loft/asset_svc_pb.js'
 import type { CalendarEntry } from '../../gen/loft/booking_svc_pb.js'
-import {
-	AssetService,
-	AttachmentService,
-	BookableService,
-	CustodyLineService,
-	CustodyService,
-	LabelService,
-	ReservationService,
-	WorkOrderService,
-	dateOf,
-	fmt,
-	fromInput,
-	idBytes,
-	idStr,
-	localInput,
-	minute,
-	raw,
-	readFile,
-	ref,
-	sameId,
-	ts,
-} from '../api.js'
+import { AssetService, AttachmentService, BookableService, CustodyLineService, CustodyService, LabelService, PermissionService, ReservationService, WorkOrderService, dateOf, fmt, fromInput, idBytes, idStr, localInput, minute, raw, readFile, ref, sameId, ts } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect, SpaceSelect, Where } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
@@ -81,7 +60,7 @@ function AssetView(props: { a: Asset }): ReactNode {
 	const [tab, setTab] = useState('timeline')
 	const [dialog, setDialog] = useState<Dialog>()
 	const ty = c.type(a.type?.id)
-	const mgr = c.can('manager')
+	const mgr = c.may(AssetService.method.assign)
 	const bookable = c.bookable(a.id)
 	const holds = a.kind === 'space' || a.kind === 'kit' || a.kind === 'group'
 
@@ -116,12 +95,12 @@ function AssetView(props: { a: Asset }): ReactNode {
 				actions={
 					<>
 						<Acknowledge a={a} />
-						{mgr && <button onClick={() => setDialog('move')}>이동</button>}
-						{mgr && <button onClick={() => setDialog('set')}>정보·상태 변경</button>}
-						{mgr && a.kind === 'item' && a.custodian === undefined && (
+						{c.may(AssetService.method.move) && <button onClick={() => setDialog('move')}>이동</button>}
+						{c.may(AssetService.method.setAttributes) && <button onClick={() => setDialog('set')}>정보·상태 변경</button>}
+						{c.may(CustodyService.method.add) && a.kind === 'item' && a.custodian === undefined && (
 							<button onClick={() => setDialog('custody')}>지급·대여</button>
 						)}
-						<button onClick={() => setDialog('work')}>{mgr ? '작업 등록' : '고장 신고'}</button>
+						<button onClick={() => setDialog('work')}>{c.may(PermissionService.method.runWork) ? '작업 등록' : '고장 신고'}</button>
 						{bookable !== undefined && !outOfUse.includes(a.status) && (
 							<button className="primary" onClick={() => go(`/reservations?resource=${idStr(a.id)}`)}>
 								예약
@@ -166,7 +145,7 @@ function AssetView(props: { a: Asset }): ReactNode {
 							<button className="small" onClick={() => setDialog('relate')}>
 								키트·그룹 연결
 							</button>
-							{c.can('admin') && bookable === undefined && (
+							{c.may(BookableService.method.add) && bookable === undefined && (
 								<button className="small" onClick={() => setDialog('bookable')}>
 									예약 가능하게
 								</button>
@@ -323,7 +302,7 @@ function Timeline(props: { a: Asset }): ReactNode {
 											{e.actor !== '' && `${e.actor} · `}기록 {fmt(e.dateRecorded)}
 											{gone && ` · 정정됨 ${fmt(e.dateSuperseded)}`}
 										</span>
-										{c.can('manager') && !gone && e.kind !== 'event' && (
+										{c.may(AssetService.method.correct) && !gone && e.kind !== 'event' && (
 											<button className="link small" onClick={() => setCorrect(e)}>
 												정정
 											</button>

@@ -257,15 +257,6 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "party.update", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartySaved) string {
 		return "수정: " + who(r, m.GetParty())
 	})
-	past.SayKind(s, "party.role", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyRoleSet) string {
-		switch m.GetBy() {
-		case "succession":
-			return fmt.Sprintf("소유자 승계: %s (마지막 소유자의 계정 탈퇴)", who(r, m.GetHolder()))
-		case "operator":
-			return fmt.Sprintf("소유자 지정: %s (운영자)", who(r, m.GetHolder()))
-		}
-		return fmt.Sprintf("역할 변경: %s → %s", who(r, m.GetParty()), or(roleWords[m.GetRole()], m.GetRole()))
-	})
 	past.SayKind(s, "party.pseudonymize", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyPseudonymized) string {
 		return "개인정보 삭제"
 	})
@@ -289,12 +280,12 @@ func sentences() *past.Sentences {
 			return "워크스페이스 설정 변경"
 		}
 		// Its name, said alone as the page says it, or beside the rest. None
-		// is called after its owner (D57), whose name is not said here.
+		// is called by its address (D57, D89).
 		alone := !m.HasTimezone() && !m.HasCurrency() && !m.HasNoShowMinutes() &&
 			!m.HasKeepDays() && !m.HasAccessKeepDays() && !m.HasRestoreDays()
 		switch {
 		case alone && m.GetName() == "":
-			return "워크스페이스 이름 지움 (소유자의 이름으로 부름)"
+			return "워크스페이스 이름 지움 (주소로 부름)"
 		case alone:
 			return "워크스페이스 이름 변경: " + m.GetName()
 		case m.GetName() == "":

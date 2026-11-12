@@ -6,7 +6,7 @@ import { useCatalog } from '../catalog.js'
 import { AssetLink, PartySelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Kv, Load, Modal, PageHead, Search, Select, Tabs } from '../ui.js'
-import { partyKindWord, roleWord, statusWord } from '../words.js'
+import { partyKindWord, statusWord } from '../words.js'
 
 export function People(): ReactNode {
 	const c = useCatalog()
@@ -14,8 +14,7 @@ export function People(): ReactNode {
 	const [q, setQ] = useState('')
 	const [adding, setAdding] = useState<string>()
 	const [open, setOpen] = useState<Party>()
-	const holders = useRpc(HolderService.method.list, c.can('admin') ? { size: 500 } : null)
-	const roles = useMemo(() => new Map((holders.data?.items ?? []).map((h) => [idStr(h.id), h.role])), [holders.data])
+	const holders = useRpc(HolderService.method.list, c.may(HolderService.method.list) ? { size: 500 } : null)
 	// Memberships whose holder roster erased, which are leaving from then.
 	const leaving = useMemo(() => new Set((holders.data?.items ?? []).filter((h) => h.dateLeaving !== undefined).map((h) => idStr(h.id))), [holders.data])
 
@@ -37,7 +36,7 @@ export function People(): ReactNode {
 				{p.p.holder !== undefined && leaving.has(idStr(p.p.holder.id)) ? (
 					<Badge v="leaving">떠나는 중</Badge>
 				) : p.p.holder !== undefined ? (
-					<Badge v={roles.get(idStr(p.p.holder.id)) === 'member' ? 'mute' : 'info'}>{roleWord[roles.get(idStr(p.p.holder.id)) ?? ''] ?? '로그인 있음'}</Badge>
+					<Badge v="mute">로그인 있음</Badge>
 				) : (
 					<span className="mute small">로그인 없음</span>
 				)}
@@ -51,7 +50,7 @@ export function People(): ReactNode {
 				title="사람"
 				sub={`${people.length}명 · 팀 ${teams.filter((t) => t.kind === 'team').length}개`}
 				actions={
-					c.can('admin') && (
+					c.may(PartyService.method.add) && (
 						<>
 							<button onClick={() => setAdding('team')}>+ 팀</button>
 							<button onClick={() => setAdding('vendor')}>+ 거래처</button>
@@ -62,9 +61,9 @@ export function People(): ReactNode {
 					)
 				}
 			/>
-			{c.can('admin') && (
+			{c.may(PartyService.method.add) && (
 				<p className="note" role="note" aria-label="구성원 관리">
-					구성원과 로그인은 roster에서 관리합니다. 넣고 빼는 일과 비밀번호는 거기서 하고, 여기서는 사람 기록과 그 역할을 다룹니다.{' '}
+					구성원과 로그인, 역할은 roster에서 관리합니다. 넣고 빼는 일과 비밀번호, 누가 무엇을 할 수 있는지는 거기서 하고, 여기서는 사람 기록을 다룹니다.{' '}
 					{c.me.consoleUrl !== '' && <a href={c.me.consoleUrl}>roster 열기</a>}
 				</p>
 			)}
@@ -124,7 +123,7 @@ export function People(): ReactNode {
 				</Card>
 			)}
 			{adding !== undefined && <PartyForm kind={adding} onClose={() => setAdding(undefined)} />}
-			{open !== undefined && <PartyDialog p={open} role={roles.get(idStr(open.holder?.id))} onClose={() => setOpen(undefined)} />}
+			{open !== undefined && <PartyDialog p={open} onClose={() => setOpen(undefined)} />}
 		</>
 	)
 }
@@ -188,17 +187,16 @@ function PartyForm(props: { kind: string; p?: Party; onClose: () => void }): Rea
 	)
 }
 
-function PartyDialog(props: { p: Party; role: string | undefined; onClose: () => void }): ReactNode {
+function PartyDialog(props: { p: Party; onClose: () => void }): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
 	const p = props.p
-	const [mode, setMode] = useState<'view' | 'edit' | 'role'>('view')
+	const [mode, setMode] = useState<'view' | 'edit'>('view')
 	const holds = useRpc(AssetService.method.search, p.kind === 'vendor' ? null : { custodian: ref(p.id), size: 100 })
-	const admin = c.can('admin')
+	const admin = c.may(PartyService.method.update)
 	const self = idStr(c.me.party?.id) === idStr(p.id)
 
 	if (mode === 'edit') return <PartyForm kind={p.kind} p={p} onClose={props.onClose} />
-	if (mode === 'role') return <SetRole p={p} role={props.role ?? 'member'} onClose={props.onClose} />
 
 	return (
 		<Modal title={p.name} onClose={props.onClose} wide>
@@ -208,7 +206,7 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 					['소속', c.called(p.parentId) || '-'],
 					['이메일', p.email || '-'],
 					['전화', p.phone || '-'],
-					...(p.kind === 'person' ? ([['사번', p.code || '-'], ['역할', p.holder !== undefined ? roleWord[props.role ?? ''] ?? '로그인 있음' : '로그인 없음']] as [ReactNode, ReactNode][]) : []),
+					...(p.kind === 'person' ? ([['사번', p.code || '-'], ['로그인', p.holder !== undefined ? '있음' : '없음']] as [ReactNode, ReactNode][]) : []),
 				]}
 			/>
 			{p.kind !== 'vendor' && (
@@ -234,7 +232,6 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 			{admin && (
 				<footer className="modal-actions">
 					<button onClick={() => setMode('edit')}>수정</button>
-					{p.kind === 'person' && p.holder !== undefined && !self && <button onClick={() => setMode('role')}>역할 변경</button>}
 					{p.kind === 'person' && !self && (
 						<Confirm
 							label="개인정보 삭제"
@@ -249,34 +246,5 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 				</footer>
 			)}
 		</Modal>
-	)
-}
-
-function SetRole(props: { p: Party; role: string; onClose: () => void }): ReactNode {
-	const c = useCatalog()
-	const act = useAct()
-	const [role, setRole] = useState(props.role)
-	return (
-		<FormModal
-			title={`${props.p.name} 역할`}
-			onClose={props.onClose}
-			onSubmit={async () => (await act(PartyService.method.setRole, { ref: ref(props.p.id), role }, { ok: '바꿨습니다.' })) !== undefined}
-		>
-			<Field label="역할">
-				<Select
-					value={role}
-					onChange={setRole}
-					options={Object.entries(roleWord)
-						.filter(([k]) => k !== 'owner' || c.can('owner'))
-						.map(([value, label]) => ({ value, label }))}
-				/>
-			</Field>
-			<ul className="wide small mute">
-				<li>구성원: 조회, 예약, 고장 신고, 재고 사용, 자가 실사</li>
-				<li>매니저: 자산 등록·이동, 지급·반납, 실사, 재고, 작업, 구매, 예약 승인</li>
-				<li>관리자: 사람·역할, 유형, 예약 자원, 라벨 도메인</li>
-				<li>감사자: 모든 조회와 감사 기록, 변경은 못 함</li>
-			</ul>
-		</FormModal>
 	)
 }

@@ -15,8 +15,8 @@ import (
 
 // TestAWorkspaceIsCalledWhatItsOwnerSays (D58): what a workspace is called is
 // its own, its owner's to say through Configure with its event, and to take
-// back -- and then it is called after its owner again (D57). Not the general
-// write's, which has no event.
+// back -- and then it is called by its address again (D57, D89). Not the
+// general write's, which has no event.
 func TestAWorkspaceIsCalledWhatItsOwnerSays(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
@@ -46,12 +46,12 @@ func TestAWorkspaceIsCalledWhatItsOwnerSays(t *testing.T) {
 	v, err = name("")
 	x.NoError(err)
 	x.Empty(v.GetName())
-	x.Equal("Owner of acme의 워크스페이스", called(), "none of its own: called after its owner again")
+	x.Equal("acme", called(), "none of its own: called by its address (D89)")
 
 	// Configured otherwise, it is called as it was.
 	_, err = e.app().Tenant().Configure(e.owner, app.TenantConfigureRequest_builder{Ref: ws, Currency: z.Ptr("USD")}.Build())
 	x.NoError(err)
-	x.Equal("Owner of acme의 워크스페이스", called())
+	x.Equal("acme", called())
 
 	type said struct {
 		named          bool
@@ -64,7 +64,7 @@ func TestAWorkspaceIsCalledWhatItsOwnerSays(t *testing.T) {
 	}
 	x.ElementsMatch([]said{
 		{true, "연구실 장비", "워크스페이스 이름 변경: 연구실 장비"},
-		{true, "", "워크스페이스 이름 지움 (소유자의 이름으로 부름)"},
+		{true, "", "워크스페이스 이름 지움 (주소로 부름)"},
 		{false, "", "워크스페이스 설정 변경"},
 	}, got)
 }

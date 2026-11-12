@@ -36,6 +36,7 @@ import { PurchaseLineService, PurchaseService, WorkOrderService } from '../gen/l
 import { StockMovementService, StockService } from '../gen/loft/stock_svc_pb.js'
 import { TenantService } from '../gen/loft/payday/tenant_svc_pb.js'
 import { PaymentService } from '../gen/loft/payment_pb.js'
+import { PermissionService } from '../gen/loft/permission_pb.js'
 
 export {
 	AccessReviewService,
@@ -57,6 +58,7 @@ export {
 	NotificationService,
 	PartyService,
 	PaymentService,
+	PermissionService,
 	PurchaseLineService,
 	PurchaseService,
 	ReservationService,

@@ -42,7 +42,9 @@ package lifecycle
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/lesomnus/otx/log"
@@ -60,6 +62,7 @@ import (
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/policy"
 	"github.com/lesomnus/loft/server/session"
 )
 
@@ -198,10 +201,6 @@ func (l Lifecycle) Depart(ctx context.Context, member pdid.Id) (*Departed, error
 	if err != nil {
 		return nil, fmt.Errorf("workspace %s: %w", workspace, err)
 	}
-	if v.Ownerless {
-		log.From(ctx).WarnContext(ctx, "lifecycle: the workspace's last owner left, and nobody was there to hand it to",
-			"workspace", workspace.String())
-	}
 	out := &Departed{Workspace: workspace, Member: member, Departure: v}
 	if out.Closed, err = l.closeIfNobody(ctx, workspace); err != nil {
 		return out, fmt.Errorf("workspace %s: %w", workspace, err)
@@ -212,12 +211,10 @@ func (l Lifecycle) Depart(ctx context.Context, member pdid.Id) (*Departed, error
 	return out, nil
 }
 
-// Departing is what Depart would do were it asked now, and does nothing: who
-// the workspace would go to when the member is its last owner, or that nobody
-// is there to take it, and whether it would close with nobody left in it --
-// by the rules Depart then follows. What an operator is told before it is
-// done (`loft identity depart` without `--yes`). A membership ended already
-// answers nil.
+// Departing is what Depart would do were it asked now, and does nothing:
+// whether the workspace would close with nobody left in it, by the rule Depart
+// then follows. What an operator is told before it is done (`loft identity
+// depart` without `--yes`). A membership ended already answers nil.
 func (l Lifecycle) Departing(ctx context.Context, member pdid.Id) (*Departed, error) {
 	h, err := l.Db.Holder.Query().Where(holder.Id(member.Uuid()), holder.DateErasedIsNil()).Only(ctx)
 	if ent.IsNotFound(err) {
@@ -227,14 +224,7 @@ func (l Lifecycle) Departing(ctx context.Context, member pdid.Id) (*Departed, er
 		return nil, err
 	}
 
-	next, ownerless, err := domain.Successor(ctx, l.Db, h)
-	if err != nil {
-		return nil, err
-	}
-	out := &Departed{Workspace: pdid.Id(h.TenantId), Member: member, Departure: domain.Departure{Ownerless: ownerless}}
-	if next != nil {
-		out.Owner = pdid.Id(next.Id)
-	}
+	out := &Departed{Workspace: pdid.Id(h.TenantId), Member: member}
 	others, err := l.Db.Holder.Query().
 		Where(holder.TenantId(h.TenantId), holder.IdNEQ(h.Id), holder.DateErasedIsNil()).
 		Exist(ctx)
@@ -254,8 +244,9 @@ func (l Lifecycle) Departing(ctx context.Context, member pdid.Id) (*Departed, er
 
 // closeIfNobody closes a workspace nobody is left in (design 8.4: one only
 // that member was in goes the way a closed workspace goes), and says why when
-// only auditors are -- who may change nothing, so nobody can look after it,
-// and an operator has to.
+// nobody left may change anything a member may -- auditors, say, or people
+// roster binds no role of Loft's -- so that nobody can look after it, and its
+// tenant's administrators at roster have to give somebody a role (D89).
 func (l Lifecycle) closeIfNobody(ctx context.Context, workspace pdid.Id) (bool, error) {
 	left, err := l.Db.Holder.Query().Where(holder.TenantId(workspace.Uuid()), holder.DateErasedIsNil()).All(ctx)
 	if err != nil {
@@ -270,11 +261,12 @@ func (l Lifecycle) closeIfNobody(ctx context.Context, workspace pdid.Id) (bool, 
 		return err == nil, err
 	}
 	for _, h := range left {
-		if h.Role != "auditor" {
+		if l.looksAfter(ctx, pdid.Id(h.Id)) {
 			return false, nil
 		}
 	}
-	log.From(ctx).WarnContext(ctx, "lifecycle: only auditors are left in a workspace, and nobody can look after it",
+	log.From(ctx).WarnContext(ctx, "lifecycle: nobody left in a workspace may change anything a member may, so nobody can look after it; "+
+		"its tenant's administrators at roster have to bind somebody one of Loft's roles",
 		"workspace", workspace.String())
 	return false, nil
 }
@@ -284,4 +276,29 @@ func (l Lifecycle) now() time.Time {
 		return l.Deps.Now()
 	}
 	return time.Now()
+}
+
+// looksAfter says whether roster says `member` may change something a member
+// may: one method the member's role ships with that the auditor's does not
+// (`policy.Roles`). Somebody roster could not be asked about is taken to, so
+// that a roster that is down says nothing of anybody here.
+func (l Lifecycle) looksAfter(ctx context.Context, member pdid.Id) bool {
+	if l.People == nil || l.People.Reach() == nil {
+		return true
+	}
+	r, err := l.People.Reach().Reach(ctx, member)
+	switch {
+	case errors.Is(err, identity.ErrNoPerson):
+		return false
+	case err != nil:
+		return true
+	}
+	writes, _ := policy.RoleOf("member")
+	reads, _ := policy.RoleOf("auditor")
+	for _, m := range writes.Methods {
+		if !slices.Contains(reads.Methods, m) && r.Covers(m) {
+			return true
+		}
+	}
+	return false
 }

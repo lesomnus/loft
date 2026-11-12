@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/lesomnus/payday/auth/authsession"
@@ -24,6 +25,7 @@ import (
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/policy"
 	"github.com/lesomnus/loft/server/session"
 )
 
@@ -57,7 +59,7 @@ func (w *world) memberId(h *app.Holder) pdid.Id {
 
 // holder is somebody in the tenant at roster -- where they sign in and what a
 // session is held to -- and their membership of the world's workspace, by the
-// same identifier, with a role.
+// same identifier, bound at roster to one of the roles Loft ships.
 func (w *world) holder(alias, role string) *app.Holder {
 	p, err := w.s.Identity.AddPerson(context.Background(), alias, alias, pdid.Nil)
 	w.x.NoError(err)
@@ -70,17 +72,28 @@ func (w *world) here(p identity.Person, role string) *app.Holder {
 }
 
 // member is a membership of `t` by the identifier `p` has at roster: of the
-// world's workspace, which is the tenant at roster; of another, a membership
-// nobody at roster is.
+// world's workspace, which is the tenant at roster, bound there to `role`, one
+// of the roles Loft ships by its word (`policy.RoleOf`) -- what they may call
+// is what roster says (D89); of another, a membership nobody at roster is,
+// bound nothing.
 func (w *world) member(t *app.Tenant, p identity.Person, role string) *app.Holder {
 	h, err := w.s.Base.Holder().Add(context.Background(), app.HolderAddRequest_builder{
 		Id:     p.Id.Bytes(),
 		Tenant: app.TenantRef_builder{Id: t.GetId()}.Build(),
 		Alias:  p.Alias,
-		Role:   z.Ptr(role),
 	}.Build())
 	w.x.NoError(err)
+	if string(t.GetId()) == string(w.tenant.GetId()) {
+		w.bind(p.Id, role)
+	}
 	return h
+}
+
+// bind binds somebody at roster to one of the roles Loft ships, by its word.
+func (w *world) bind(holder pdid.Id, role string) {
+	r, ok := policy.RoleOf(role)
+	w.x.True(ok, "a role Loft ships: %s", role)
+	w.x.NoError(w.s.Identity.Bind(context.Background(), r.Alias, holder))
 }
 
 func newWorld(t *testing.T) *world { return newWorldWith(t, nil) }
@@ -112,6 +125,10 @@ func newWorldWith(t *testing.T, with func(*cmd.Config)) *world {
 	rt, owner, _, err := s.Identity.MakeTenant(ctx, "", "owner", "")
 	x.NoError(err)
 	tn, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Id: rt.Id.Bytes(), Alias: rt.Alias}.Build())
+	x.NoError(err)
+	// And the roles Loft ships, written into it at roster as `loft init`
+	// writes them (D89).
+	_, err = s.Identity.WriteRoles(ctx, policy.Roles)
 	x.NoError(err)
 
 	g, err := s.Grpc(ctx, c)
@@ -189,7 +206,7 @@ func TestTheWorkLogIsReadByWhoeverRunsTheWorkspaceOrAuditsIt(t *testing.T) {
 
 	events := app.NewEventServiceClient(w.conn)
 	assets := app.NewAssetServiceClient(w.conn)
-	refused := map[string]string{"member": "구성원", "manager": "매니저"}
+	refused := map[string]bool{"member": true, "manager": true}
 	for _, role := range []string{"owner", "admin", "auditor", "manager", "member"} {
 		as := w.owner
 		if role != "owner" {
@@ -198,14 +215,14 @@ func TestTheWorkLogIsReadByWhoeverRunsTheWorkspaceOrAuditsIt(t *testing.T) {
 		feed, recent := events.Recent(as, app.EventRecentRequest_builder{Kind: "asset.move"}.Build())
 		rows, list := events.List(as, app.EventListRequest_builder{}.Build())
 		one, get := events.Get(as, app.EventGetRequest_builder{Ref: app.EventRef_builder{Id: id.Bytes()}.Build()}.Build())
-		if word, ok := refused[role]; ok {
+		if refused[role] {
 			for m, err := range map[string]error{
 				app.EventService_Recent_FullMethodName: recent,
 				app.EventService_List_FullMethodName:   list,
 				app.EventService_Get_FullMethodName:    get,
 			} {
 				x.True(refusedByTable(err, m), "%s %s: %v", role, m, err)
-				x.Contains(status.Convert(err).Message(), word+" 역할로는 할 수 없는 작업입니다", "%s %s", role, m)
+				x.Contains(status.Convert(err).Message(), "roster에서 받은 역할로는 할 수 없는 작업입니다", "%s %s", role, m)
 			}
 		} else {
 			x.NoError(recent, role)
@@ -240,6 +257,7 @@ func TestASignInAFormOfAnotherSiteCouldPostIsRefused(t *testing.T) {
 	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
 	x.NoError(err)
 	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
+	w.bind(park.Id, "member")
 
 	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, w.s.Members)
 	post := func(ct, body string) *httptest.ResponseRecorder {
@@ -314,13 +332,22 @@ func TestSignIn(t *testing.T) {
 	x.Equal(http.StatusUnauthorized, post(`{"login":"nobody","password":"correct horse"}`).Code)
 	x.Zero(members(park.Id), "a sign-in refused made a member")
 
+	// Somebody roster binds no role of Loft's comes no further, is told why,
+	// and is no member for having tried (D89).
+	res := post(`{"login":"park","password":"correct horse"}`)
+	x.Equal(http.StatusForbidden, res.Code)
+	x.Equal(session.NoRole, strings.TrimSpace(res.Body.String()))
+	x.Zero(members(park.Id), "a sign-in with no role made a member")
+	w.bind(park.Id, "member")
+
 	md := signedIn(`{"login":"park","password":"correct horse"}`)
 	v, err := me.Me(md, &app.PartyMeRequest{})
 	x.NoError(err, "a member from the first sign-in")
 	x.Equal(park.Id.Bytes(), v.GetHolder().GetId(), "by roster's identifier for them")
 	x.Equal("park", v.GetHolder().GetAlias())
 	x.Equal("박", v.GetHolder().GetName())
-	x.Equal("member", v.GetRole())
+	member, _ := policy.RoleOf("member")
+	x.Equal(member.Methods, v.GetMethods(), "what roster binds them, every method of it")
 	x.Equal(record.GetId(), v.GetParty().GetId(), "the person record at the address roster holds as checked")
 	signedIn(`{"login":"park","password":"correct horse"}`)
 	x.Equal(1, members(park.Id), "a second sign-in made a second member")
@@ -350,22 +377,23 @@ func TestSignIn(t *testing.T) {
 
 		// A member nobody at roster is -- as a restore puts back one from
 		// another deployment -- and somebody at roster by the same name.
-		_, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		other, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
 			Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
 			Alias:  "choi",
 			Name:   "최",
-			Role:   z.Ptr("admin"),
 		}.Build())
 		x.NoError(err)
+		x.Error(w.s.Identity.Bind(ctx, "loft-admin", w.memberId(other)), "nobody at roster is the other")
 		choi, err := w.s.Identity.AddPerson(ctx, "choi", "최", pdid.Nil)
 		x.NoError(err)
 		x.NoError(w.s.Identity.SetPassword(ctx, choi.Id, "correct horse"))
+		w.bind(choi.Id, "member")
 
 		v, err := me.Me(signedIn(`{"login":"choi","password":"correct horse"}`), &app.PartyMeRequest{})
 		x.NoError(err)
 		x.Equal(choi.Id.Bytes(), v.GetHolder().GetId(), "a member of their own")
 		x.Equal("choi-2", v.GetHolder().GetAlias(), "called by their name and a number, while somebody here goes by it")
-		x.Equal("member", v.GetRole(), "and nothing of the other's")
+		x.Equal(member.Methods, v.GetMethods(), "and nothing of the other's")
 	})
 
 	t.Run("a login ended here stays ended, and the holder at roster with it", func(t *testing.T) {
@@ -387,6 +415,7 @@ func TestSignIn(t *testing.T) {
 		lee, err := w.s.Identity.AddPerson(ctx, "lee", "이", pdid.Nil)
 		x.NoError(err)
 		x.NoError(w.s.Identity.SetPassword(ctx, lee.Id, "correct horse"))
+		w.bind(lee.Id, "member")
 		for range 10 {
 			post(`{"login":"lee","password":"a guess at it"}`)
 		}
@@ -438,7 +467,6 @@ func TestAMemberSeesTheirWorkspaceAlone(t *testing.T) {
 	theirs, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
 		Tenant: app.TenantRef_builder{Id: beta.GetId()}.Build(),
 		Alias:  "owner",
-		Role:   z.Ptr("owner"),
 	}.Build())
 	x.NoError(err)
 	box, err := w.s.Ungated.Asset().Add(frameOf(x, theirs), app.AssetAddRequest_builder{Name: "beta의 노트북"}.Build())

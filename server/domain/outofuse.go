@@ -320,7 +320,7 @@ func (t *Tx) tellOutOfUse(a *ent.Asset, rs []*ent.Reservation) error {
 	if a.Kind != "item" {
 		body = fmt.Sprintf("%s은(는) %s 상태라 그것의 예약 %d건은 %s. 새로 예약할 수도 없고, 예약은 취소하기 전까지 그 시간을 잡습니다.", tagged(a), say, len(rs), k.cannot)
 	}
-	if err := t.notifyManagers("reservation.out_of_use", fmt.Sprintf("예약된 %s %s: %s", k.noun, say, tagged(a)), body,
+	if err := t.notifyWhoMay(app.PermissionService_ActOnOthersBookings_FullMethodName, "reservation.out_of_use", fmt.Sprintf("예약된 %s %s: %s", k.noun, say, tagged(a)), body,
 		pdid.Id(a.Id), "/reservations?tab=all"); err != nil {
 		return err
 	}
@@ -362,7 +362,7 @@ func (t *Tx) voidedOf(id uuid.UUID) error {
 // it will be, and whoever each is for is told to book something else.
 func (t *Tx) tellVoided(a *ent.Asset, rs []*ent.Reservation) error {
 	k := keepsOf(a)
-	if err := t.notifyManagers("reservation.out_of_use", fmt.Sprintf("예약된 %s 삭제: %s", k.noun, tagged(a)),
+	if err := t.notifyWhoMay(app.PermissionService_ActOnOthersBookings_FullMethodName, "reservation.out_of_use", fmt.Sprintf("예약된 %s 삭제: %s", k.noun, tagged(a)),
 		fmt.Sprintf("%s은(는) 삭제되어 그것의 예약 %d건은 %s. 예약은 취소하기 전까지 남습니다.", tagged(a), len(rs), k.cannot),
 		pdid.Id(a.Id), "/reservations?tab=all"); err != nil {
 		return err

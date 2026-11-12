@@ -19,8 +19,8 @@ option go_package = "github.com/lesomnus/loft";
 // request, as the operator.
 //
 // Each is `Operator<X>Service`, X the name in the schema of what it is about:
-// what a terminal mounts its methods under (`OperatorTenantService.NameOwner`
-// is `tenant name-owner`).
+// what a terminal mounts its methods under (`OperatorTenantService.Retired`
+// is `tenant retired`).
 
 // OperatorTenantService is what an operator does to a workspace from outside
 // it, besides what `TenantService` serves them.
@@ -29,10 +29,6 @@ service OperatorTenantService {
   // its contracts and its legal holds, and what its own settings, its
   // contracts and its holds come to now.
   rpc Show(OperatorTenantShowRequest) returns (OperatorTenantShowResponse);
-
-  // NameOwner makes a member of a workspace one of its owners (decision 17):
-  // for one whose owners are gone, or who asked. Whoever owned it still does.
-  rpc NameOwner(OperatorTenantNameOwnerRequest) returns (Holder);
 
   // Retired is the workspaces that retired from this deployment, and what is
   // left of each: when it retired, and until when the deployment's floors
@@ -114,12 +110,6 @@ message OperatorTenantWindow {
   // Whether the deployment destroys anything by these windows at all
   // (`app.retention.apply`).
   bool apply = 9;
-}
-
-message OperatorTenantNameOwnerRequest {
-  OperatorTenantRef ref = 1;
-  // The membership, by its alias in the workspace (`@` or not).
-  string member = 2;
 }
 
 message OperatorTenantRetiredRequest {}
@@ -692,12 +682,9 @@ message OperatorIdentityDepartResponse {
   bytes id = 1;
   bool dry_run = 2;
   string member = 7;
-  string role = 8;
-  // What leaving does, said before it is done, or what it did: who the
-  // workspace goes to when they were its last owner, or that nobody is there
-  // to take it; and that nobody is left in it, so that it closes (D29).
-  string owner = 9;
-  bool ownerless = 10;
+  // What leaving does, said before it is done, or what it did: that nobody
+  // is left in the workspace, so that it closes (D29). Who may run it once
+  // they have left is roster's, by the roles the tenant binds there (D89).
   bool closes = 11;
   // Rows of its trail a legal hold kept.
   uint32 held = 12;

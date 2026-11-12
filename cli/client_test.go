@@ -210,8 +210,8 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 
 // TestATerminalNamesTheWorkspaceItsOwnerOwns (D58): what a workspace is
 // called, said from the terminal as its settings say it (`tenant configure`,
-// its owner's one door) -- and none of its own, and it is called after its
-// owner (D57). Its owner's alone.
+// its owner's one door) -- and none of its own, and it is called by its
+// address (D57, D89). Its owner's alone.
 func TestATerminalNamesTheWorkspaceItsOwnerOwns(t *testing.T) {
 	s := serve(t)
 	x := s.x
@@ -227,7 +227,7 @@ func TestATerminalNamesTheWorkspaceItsOwnerOwns(t *testing.T) {
 	x.Contains(run(t, root(), "tenant", "configure", "@acme", `{"name": "연구실 장비"}`), "연구실 장비")
 	x.Equal("연구실 장비", called())
 	run(t, root(), "ws", "conf", "@acme", `{"name": ""}`)
-	x.Equal("관리자의 워크스페이스", called(), "called after its owner, whom `loft init` calls so")
+	x.Equal("acme", called(), "called by its address")
 
 	s.signIn("kim", "kim-password")
 	x.ErrorContains(root().Run(ctx, []string{"tenant", "configure", "@acme", `{"name": "김의 장비"}`}), "PermissionDenied")

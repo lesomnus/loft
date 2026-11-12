@@ -26,7 +26,7 @@ export function Dashboard(): ReactNode {
 	// sweep lets go of one once it has begun, so all of them are from now on.
 	const pending = useRpc(
 		ReservationService.method.calendar,
-		c.can('manager') ? { statuses: ['requested'], dateFrom: ts(new Date(now.getTime() - 86400_000)), dateTo: ts(new Date(now.getTime() + 3650 * 86400_000)) } : null,
+		c.may(ReservationService.method.approve) ? { statuses: ['requested'], dateFrom: ts(new Date(now.getTime() - 86400_000)), dateTo: ts(new Date(now.getTime() + 3650 * 86400_000)) } : null,
 	)
 	// A reservation listed here opens as it does wherever it is listed (D45).
 	const [open, setOpen] = useState<CalendarEntry>()
@@ -34,7 +34,7 @@ export function Dashboard(): ReactNode {
 	// What is late, by who has it as a list tells people apart and by how
 	// many of the workspace's days, as the report of what is out says both
 	// (D54): due earlier today is late, and no day late yet.
-	const overdue = useRpc(AssetService.method.report, c.can('manager') ? { kind: 'custody' } : null)
+	const overdue = useRpc(AssetService.method.report, c.may(CustodyService.method.return) ? { kind: 'custody' } : null)
 	const openCustody = useRpc(CustodyService.method.list, c.me.party === undefined ? null : { filters: [{ party: ref(c.me.party.id) }], size: 50 })
 
 	const v = (group: string, key: string) =>
@@ -104,7 +104,7 @@ export function Dashboard(): ReactNode {
 					</Load>
 				</Card>
 
-				{c.can('manager') && (
+				{c.may(ReservationService.method.approve) && (
 					<Card title="승인 대기 예약" actions={<Link to="/reservations?tab=approve">처리</Link>}>
 						<Load q={pending}>
 							{(d) =>
@@ -130,7 +130,7 @@ export function Dashboard(): ReactNode {
 					</Card>
 				)}
 
-				{c.can('manager') && (
+				{c.may(CustodyService.method.return) && (
 					<Card title="연체된 대여" actions={<Link to="/custody?overdue=1">전체</Link>}>
 						<Load q={overdue}>
 							{(d) => {

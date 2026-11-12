@@ -19,12 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OperatorTenantService_Show_FullMethodName      = "/loft.OperatorTenantService/Show"
-	OperatorTenantService_NameOwner_FullMethodName = "/loft.OperatorTenantService/NameOwner"
-	OperatorTenantService_Retired_FullMethodName   = "/loft.OperatorTenantService/Retired"
-	OperatorTenantService_Retire_FullMethodName    = "/loft.OperatorTenantService/Retire"
-	OperatorTenantService_Purge_FullMethodName     = "/loft.OperatorTenantService/Purge"
-	OperatorTenantService_Import_FullMethodName    = "/loft.OperatorTenantService/Import"
+	OperatorTenantService_Show_FullMethodName    = "/loft.OperatorTenantService/Show"
+	OperatorTenantService_Retired_FullMethodName = "/loft.OperatorTenantService/Retired"
+	OperatorTenantService_Retire_FullMethodName  = "/loft.OperatorTenantService/Retire"
+	OperatorTenantService_Purge_FullMethodName   = "/loft.OperatorTenantService/Purge"
+	OperatorTenantService_Import_FullMethodName  = "/loft.OperatorTenantService/Import"
 )
 
 // OperatorTenantServiceClient is the client API for OperatorTenantService service.
@@ -38,9 +37,6 @@ type OperatorTenantServiceClient interface {
 	// its contracts and its legal holds, and what its own settings, its
 	// contracts and its holds come to now.
 	Show(ctx context.Context, in *OperatorTenantShowRequest, opts ...grpc.CallOption) (*OperatorTenantShowResponse, error)
-	// NameOwner makes a member of a workspace one of its owners (decision 17):
-	// for one whose owners are gone, or who asked. Whoever owned it still does.
-	NameOwner(ctx context.Context, in *OperatorTenantNameOwnerRequest, opts ...grpc.CallOption) (*Holder, error)
 	// Retired is the workspaces that retired from this deployment, and what is
 	// left of each: when it retired, and until when the deployment's floors
 	// keep what it kept (`trail.Policy.Retired`). What an operator asked to
@@ -74,16 +70,6 @@ func (c *operatorTenantServiceClient) Show(ctx context.Context, in *OperatorTena
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(OperatorTenantShowResponse)
 	err := c.cc.Invoke(ctx, OperatorTenantService_Show_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *operatorTenantServiceClient) NameOwner(ctx context.Context, in *OperatorTenantNameOwnerRequest, opts ...grpc.CallOption) (*Holder, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Holder)
-	err := c.cc.Invoke(ctx, OperatorTenantService_NameOwner_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -162,9 +148,6 @@ type OperatorTenantServiceServer interface {
 	// its contracts and its legal holds, and what its own settings, its
 	// contracts and its holds come to now.
 	Show(context.Context, *OperatorTenantShowRequest) (*OperatorTenantShowResponse, error)
-	// NameOwner makes a member of a workspace one of its owners (decision 17):
-	// for one whose owners are gone, or who asked. Whoever owned it still does.
-	NameOwner(context.Context, *OperatorTenantNameOwnerRequest) (*Holder, error)
 	// Retired is the workspaces that retired from this deployment, and what is
 	// left of each: when it retired, and until when the deployment's floors
 	// keep what it kept (`trail.Policy.Retired`). What an operator asked to
@@ -196,9 +179,6 @@ type UnimplementedOperatorTenantServiceServer struct{}
 
 func (UnimplementedOperatorTenantServiceServer) Show(context.Context, *OperatorTenantShowRequest) (*OperatorTenantShowResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Show not implemented")
-}
-func (UnimplementedOperatorTenantServiceServer) NameOwner(context.Context, *OperatorTenantNameOwnerRequest) (*Holder, error) {
-	return nil, status.Error(codes.Unimplemented, "method NameOwner not implemented")
 }
 func (UnimplementedOperatorTenantServiceServer) Retired(context.Context, *OperatorTenantRetiredRequest) (*OperatorTenantRetiredResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Retired not implemented")
@@ -247,24 +227,6 @@ func _OperatorTenantService_Show_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OperatorTenantServiceServer).Show(ctx, req.(*OperatorTenantShowRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _OperatorTenantService_NameOwner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OperatorTenantNameOwnerRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OperatorTenantServiceServer).NameOwner(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: OperatorTenantService_NameOwner_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OperatorTenantServiceServer).NameOwner(ctx, req.(*OperatorTenantNameOwnerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -326,10 +288,6 @@ var OperatorTenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Show",
 			Handler:    _OperatorTenantService_Show_Handler,
-		},
-		{
-			MethodName: "NameOwner",
-			Handler:    _OperatorTenantService_NameOwner_Handler,
 		},
 		{
 			MethodName: "Retired",

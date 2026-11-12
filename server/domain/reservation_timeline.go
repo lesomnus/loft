@@ -146,12 +146,13 @@ func (s domainReservation) Timeline(ctx context.Context, req *app.ReservationTim
 }
 
 // readsHistory lets a person read the history of a reservation that is
-// theirs -- for them, or asked for by them -- and whoever runs the register
-// or audits it anybody's: who booked what for whom, who said no and why, is
-// the people's whose reservation it is and theirs who decide on it.
+// theirs -- for them, or asked for by them -- and whoever may read every one
+// (`PermissionService.ReadEveryReservation`: who runs the register, or audits
+// it) anybody's: who booked what for whom, who said no and why, is the
+// people's whose reservation it is and theirs who decide on it.
 func (t *Tx) readsHistory(r *app.Reservation) error {
-	if role := t.roleOf(); manages(role) || role == "auditor" {
-		return nil
+	if ok, err := t.mayTo(app.PermissionService_ReadEveryReservation_FullMethodName); err != nil || ok {
+		return err
 	}
 	if by := idOf(r.GetRequestedBy()); !by.IsZero() && by == t.actor {
 		return nil

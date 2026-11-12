@@ -323,9 +323,16 @@ type People interface {
 	Embedded() bool
 }
 
+// NoRole is what a sign-in roster binds no role of Loft's for is answered
+// with, beside 403: somebody the tenant has who may do nothing here, and who
+// is told to ask its administrators at roster rather than that their
+// password is wrong (D89).
+const NoRole = "no role of loft's at roster"
+
 // Members is who somebody roster vouched for is here: their membership, made
 // the first time they sign in ([tenancy.Members.Of]) -- [tenancy.ErrEnded]
-// for one ended here, [tenancy.ErrNoWorkspace] before `loft init`.
+// for one ended here, [tenancy.ErrNoWorkspace] before `loft init`, and
+// [tenancy.ErrNoRole] for somebody roster binds no role of Loft's.
 type Members interface {
 	Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
 }
@@ -406,6 +413,11 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, membe
 		switch {
 		case errors.Is(err, tenancy.ErrEnded):
 			http.Error(w, "this login was ended here", http.StatusForbidden)
+			return
+		case errors.Is(err, tenancy.ErrNoRole):
+			// Somebody roster binds no role of Loft's comes no further, and
+			// is told to ask at roster rather than that a password is wrong.
+			http.Error(w, NoRole, http.StatusForbidden)
 			return
 		case err != nil:
 			log.From(ctx).ErrorContext(ctx, "session: somebody roster vouched for is no member here", slog.Any("err", err))

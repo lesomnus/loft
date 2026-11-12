@@ -237,7 +237,7 @@ function PurchaseDialog(props: { p: Purchase; onClose: () => void }): ReactNode 
 					</table>
 				)}
 			</Load>
-			{p.status === 'ordered' && c.can('manager') && (
+			{p.status === 'ordered' && c.may(PurchaseService.method.receive) && (
 				<footer className="modal-actions">
 					<button className="primary" onClick={() => setReceive(true)}>
 						입고 처리

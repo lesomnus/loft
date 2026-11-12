@@ -9,7 +9,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/bookable"
 	"github.com/lesomnus/loft/internal/ent/event"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/itemmodel"
 	"github.com/lesomnus/loft/internal/ent/schema"
 	"github.com/lesomnus/loft/internal/ent/tenant"
@@ -50,12 +49,6 @@ func init() {
 	// eventDescValue is the schema descriptor for value field.
 	eventDescValue := eventFields[10].Descriptor()
 	event.ValueScanner.Value = eventDescValue.ValueScanner.(field.TypeValueScanner[*anypb.Any])
-	holderFields := schema.Holder{}.Fields()
-	_ = holderFields
-	// holderDescRole is the schema descriptor for role field.
-	holderDescRole := holderFields[8].Descriptor()
-	// holder.DefaultRole holds the default value on creation for the role field.
-	holder.DefaultRole = holderDescRole.Default.(string)
 	itemmodelFields := schema.ItemModel{}.Fields()
 	_ = itemmodelFields
 	// itemmodelDescSpec is the schema descriptor for spec field.

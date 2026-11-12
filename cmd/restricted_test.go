@@ -337,7 +337,6 @@ func TestWhatARestrictedWorkspaceMayNotDoIsWhatItIsBilledBy(t *testing.T) {
 		if !strings.HasPrefix(key, "/") {
 			continue
 		}
-		_, ok := policy.Table[key]
-		x.True(ok, "%s is no method anybody may call", key)
+		x.True(policy.Grantable(key), "%s is no method anybody may call", key)
 	}
 }

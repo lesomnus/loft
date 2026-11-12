@@ -168,7 +168,7 @@ function BindBlank(props: { label: Label; onDone: () => void }): ReactNode {
 	}
 	return (
 		<Card title="아직 아무 자산에도 붙지 않은 라벨">
-			{c.can('manager') ? (
+			{c.may(LabelService.method.bind) ? (
 				<>
 					<p>이 라벨을 붙일 자산을 고르세요.</p>
 					<Field label="자산" wide group>

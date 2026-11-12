@@ -140,7 +140,7 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: aref(laptop)}.Build()},
 	}.Build())
 	x.NoError(err)
-	member := partyOf(w, w.holder("choi", "member"))
+	w.holder("choi", "member")
 	jung := w.holder("jung", "member")
 	asJung := w.signIn(jung)
 
@@ -211,8 +211,6 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	w.refusedReadOnly(err, app.PartyService_Add_FullMethodName)
 	_, err = parties.Update(w.owner, app.PartyUpdateRequest_builder{Ref: pref(kim), Name: "김 대리"}.Build())
 	w.refusedReadOnly(err, app.PartyService_Update_FullMethodName)
-	_, err = parties.SetRole(w.owner, app.PartySetRoleRequest_builder{Ref: pref(member), Role: "manager"}.Build())
-	w.refusedReadOnly(err, app.PartyService_SetRole_FullMethodName)
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, Timezone: z.Ptr("Asia/Tokyo")}.Build())
 	w.refusedReadOnly(err, app.TenantService_Configure_FullMethodName)
 
@@ -337,15 +335,6 @@ func TestAnOperatorClosesAndRestoresAReadOnlyWorkspace(t *testing.T) {
 	x.True(w.readOnly(w.tenant), "and read-only until it is paid for")
 	_, err = app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "키보드"}.Build())
 	w.refusedReadOnly(err, app.AssetService_Add_FullMethodName)
-
-	// And what else the operator writes there, which no table of a
-	// read-only workspace's names: an owner named.
-	w.holder("kim", "member")
-	_, err = app.NewOperatorTenantServiceClient(entry).NameOwner(byOperator(), app.OperatorTenantNameOwnerRequest_builder{
-		Ref:    app.OperatorTenantRef_builder{Alias: z.Ptr(w.tenant.GetAlias())}.Build(),
-		Member: "kim",
-	}.Build())
-	x.NoError(err, "an owner named, read-only")
 }
 
 // ownerHolder is the membership the world's owner signs in as.

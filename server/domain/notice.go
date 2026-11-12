@@ -10,7 +10,6 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/internal/ent/party"
 )
@@ -138,21 +137,19 @@ func (t *Tx) notify(h uuid.UUID, kind, title, body string, subject pdid.Id, link
 	return err
 }
 
-// notifyManagers tells everybody who may act on it.
-func (t *Tx) notifyManagers(kind, title, body string, subject pdid.Id, link string) error {
-	hs, err := t.db.Holder.Query().Where(
-		holder.TenantId(t.tenant.Uuid()),
-		holder.RoleIn("owner", "admin", "manager"),
-		holder.DateErasedIsNil(),
-	).Ids(t.ctx)
+// notifyWhoMay tells everybody who may act on it: whom roster says may call
+// `method`, the method that acts on it (D89) -- the one that approves a
+// request, takes a loan back, receives stock -- and never whoever wrote it.
+func (t *Tx) notifyWhoMay(method, kind, title, body string, subject pdid.Id, link string) error {
+	hs, err := t.whoMay(method)
 	if err != nil {
 		return err
 	}
 	for _, h := range hs {
-		if pdid.Id(h) == t.actor {
+		if h == t.actor {
 			continue
 		}
-		if err := t.notify(h, kind, title, body, subject, link); err != nil {
+		if err := t.notify(h.Uuid(), kind, title, body, subject, link); err != nil {
 			return err
 		}
 	}

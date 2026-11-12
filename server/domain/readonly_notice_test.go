@@ -108,7 +108,7 @@ func sweepsOf(t *testing.T) []string {
 }
 
 // noticeWriters is where a notice is written, by the argument it says its kind in.
-var noticeWriters = map[string]int{"notify": 1, "notifyParty": 1, "notifyManagers": 0}
+var noticeWriters = map[string]int{"notify": 1, "notifyParty": 1, "notifyWhoMay": 1}
 
 // notices answers the kind of every notice `fd`, or what of this package it
 // calls by name, writes -- a call is followed as [source.reaches] follows one

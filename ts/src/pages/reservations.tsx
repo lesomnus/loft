@@ -5,7 +5,7 @@ import type { Asset } from '../../gen/loft/asset_pb.js'
 import type { TimelineEntry } from '../../gen/loft/asset_svc_pb.js'
 import type { BusySpan, CalendarEntry, ReservationConflict, ReservationOut, ReservationOutOfUse } from '../../gen/loft/booking_svc_pb.js'
 import type { Allocation, Reservation } from '../../gen/loft/booking_pb.js'
-import { AllocationService, BookableService, ReservationService, at, dateInput, dateOf, fmt, fmtWith, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, shift, ts, wall } from '../api.js'
+import { AllocationService, BookableService, CustodyService, PermissionService, ReservationService, at, dateInput, dateOf, fmt, fmtWith, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, shift, ts, wall } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { PartySelect, useAssets, useAssetsRead } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
@@ -39,7 +39,7 @@ export function Reservations(): ReactNode {
 				tabs={[
 					{ key: 'calendar', label: '캘린더' },
 					{ key: 'mine', label: '내 예약' },
-					...(c.can('manager') ? [{ key: 'approve', label: '승인' }, { key: 'all', label: '전체 목록' }] : []),
+					...(c.may(ReservationService.method.approve) ? [{ key: 'approve', label: '승인' }, { key: 'all', label: '전체 목록' }] : []),
 				]}
 				at={tab}
 				onChange={(k) => setSp((p) => { const n = new URLSearchParams(p); n.set('tab', k); return n })}
@@ -296,7 +296,7 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 			<Field label="반복">
 				<Select value={repeat} onChange={setRepeat} options={repeatOptions} />
 			</Field>
-			{c.can('manager') && (
+			{c.may(PermissionService.method.bookForOthers) && (
 				<Field label="누구를 위해" hint="비우면 나">
 					<PartySelect value={party} onChange={setParty} kinds={['person', 'team']} empty="(나)" />
 				</Field>
@@ -304,7 +304,7 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 			<label className="check wide">
 				<input type="checkbox" checked={hold} onChange={(e) => setHold(e.target.checked)} /> 10분간 임시로 잡아 두고 나중에 확정
 			</label>
-			{c.can('manager') && (
+			{c.may(PermissionService.method.bookOverConflicts) && (
 				<label className="check wide">
 					<input type="checkbox" checked={override} onChange={(e) => setOverride(e.target.checked)} /> 겹쳐도 예약 (관리자 강제, 사유 필요)
 				</label>
@@ -358,7 +358,8 @@ function ReservationDialog(props: {
 	const names = useResourceNames()
 	const r = props.r
 	const mine = sameId(r.party?.id, c.me.party?.id) || sameId(r.requestedBy, c.me.holder?.id)
-	const mgr = c.can('manager')
+	// Somebody else's reservation: whoever may act on others' (D89).
+	const mgr = c.may(PermissionService.method.actOnOthersBookings)
 	const [pickup, setPickup] = useState(false)
 	const decide = async (m: typeof ReservationService.method.cancel, ok: string, series = false) => {
 		const v = await act(m, { ref: ref(r.id), series }, { ok })
@@ -390,14 +391,14 @@ function ReservationDialog(props: {
 			<OutOfUse items={gone} more="분실·불용·폐기되었거나 삭제되어 수령할 때 건네지 않습니다." />
 			<Out items={props.out} />
 			<Unusable status={r.status} items={unusable} />
-			{(mine || mgr || c.role === 'auditor') && <History r={r} />}
+			{(mine || c.may(PermissionService.method.readEveryReservation)) && <History r={r} />}
 			<footer className="modal-actions">
 				{r.status === 'held' && (mine || mgr) && unusable.length === 0 && (
 					<button className="primary" onClick={() => void decide(ReservationService.method.confirm, '확정했습니다.')}>
 						확정
 					</button>
 				)}
-				{r.status === 'requested' && mgr && (
+				{r.status === 'requested' && c.may(ReservationService.method.approve) && (
 					<>
 						<button onClick={() => void decide(ReservationService.method.reject, '거절했습니다.')}>거절</button>
 						{unusable.length === 0 && (
@@ -412,7 +413,7 @@ function ReservationDialog(props: {
 						체크인
 					</button>
 				)}
-				{r.status === 'confirmed' && !isSpace && mgr && pickable && (
+				{r.status === 'confirmed' && !isSpace && c.may(ReservationService.method.pickup) && pickable && (
 					<button className="primary" onClick={() => setPickup(true)}>
 						수령 처리 (대여)
 					</button>
@@ -688,7 +689,7 @@ function Out(props: { items: ReservationOut[]; more?: string }): ReactNode {
 				{props.items.map((v) => (
 					<li key={idStr(v.resourceId)}>
 						{v.resourceTag} {v.resourceName}: {until(v)}
-						{c.can('manager') && (
+						{c.may(CustodyService.method.add) && (
 							<>
 								{' '}
 								<Link to={`/custody/${idStr(v.custodyId)}`}>건넨 기록</Link>

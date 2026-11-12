@@ -82,20 +82,6 @@ func (_c *HolderCreate) SetNillableDateCreated(v *time.Time) *HolderCreate {
 	return _c
 }
 
-// SetRole sets the "role" field.
-func (_c *HolderCreate) SetRole(v string) *HolderCreate {
-	_c.mutation.SetRole(v)
-	return _c
-}
-
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (_c *HolderCreate) SetNillableRole(v *string) *HolderCreate {
-	if v != nil {
-		_c.SetRole(*v)
-	}
-	return _c
-}
-
 // SetDateLeaving sets the "date_leaving" field.
 func (_c *HolderCreate) SetDateLeaving(v time.Time) *HolderCreate {
 	_c.mutation.SetDateLeaving(v)
@@ -140,7 +126,6 @@ func (_c *HolderCreate) Mutation() *HolderMutation {
 
 // Save creates the Holder in the database.
 func (_c *HolderCreate) Save(ctx context.Context) (*Holder, error) {
-	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -163,16 +148,6 @@ func (_c *HolderCreate) Exec(ctx context.Context) error {
 func (_c *HolderCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (_c *HolderCreate) defaults() {
-	if _, ok := _c.mutation.Role(); !ok {
-		if _, ok := _c.mutation.FieldExpr(holder.FieldRole); !ok {
-			v := holder.DefaultRole
-			_c.mutation.SetRole(v)
-		}
 	}
 }
 
@@ -281,10 +256,6 @@ func (_c *HolderCreate) createSpec() (*Holder, *sqlgraph.CreateSpec) {
 		_spec.SetField(holder.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
 	}
-	if value, ok := _c.mutation.Role(); ok {
-		_spec.SetField(holder.FieldRole, field.TypeString, value)
-		_node.Role = value
-	}
 	if value, ok := _c.mutation.DateLeaving(); ok {
 		_spec.SetField(holder.FieldDateLeaving, field.TypeTime, value)
 		_node.DateLeaving = &value
@@ -357,7 +328,6 @@ func (_c *HolderCreateBulk) Save(ctx context.Context) ([]*Holder, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
-			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*HolderMutation)
 				if !ok {

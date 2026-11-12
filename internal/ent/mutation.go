@@ -6121,23 +6121,6 @@ func (m *HolderMutation) OldDateCreated(ctx context.Context) (v time.Time, err e
 	return oldValue.DateCreated, nil
 }
 
-// OldRole returns the old "role" field's value of the Holder entity.
-// If the Holder object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HolderMutation) OldRole(ctx context.Context) (v string, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldRole is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldRole requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRole: %w", err)
-	}
-	return oldValue.Role, nil
-}
-
 // OldDateLeaving returns the old "date_leaving" field's value of the Holder entity.
 // If the Holder object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -6208,8 +6191,6 @@ func (m *HolderMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateErased(ctx)
 	case holder.FieldDateCreated:
 		return m.OldDateCreated(ctx)
-	case holder.FieldRole:
-		return m.OldRole(ctx)
 	case holder.FieldDateLeaving:
 		return m.OldDateLeaving(ctx)
 	case holder.FieldMailOff:

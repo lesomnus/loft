@@ -526,10 +526,11 @@ func TestADeploymentThatBillsNobodyTellsNothingOfAWorkspacesEnd(t *testing.T) {
 	x.Empty(w.notices())
 }
 
-// firstOwner is the world's workspace's first owner.
+// firstOwner is the world's workspace's first owner: whom it was put up for,
+// and bound the owner's role at roster.
 func (w *world) firstOwner() *app.Holder {
 	h, err := w.s.Ent.Holder.Query().
-		Where(holder.TenantId(tenantId(w.x, w.tenant).Uuid()), holder.Role("owner")).
+		Where(holder.TenantId(tenantId(w.x, w.tenant).Uuid()), holder.Alias("owner")).
 		Order(ent.Asc(holder.FieldDateCreated)).
 		First(context.Background())
 	w.x.NoError(err)

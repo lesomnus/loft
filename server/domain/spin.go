@@ -24,7 +24,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/asset"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/internal/ent/predicate"
@@ -789,7 +788,7 @@ func (t *Tx) tellLate(c *ent.Custody) error {
 	if err := t.notifyParty(c.PartyId, "custody.overdue", "반납 기한이 지났습니다", body, pdid.Id(c.Id), "/custody"); err != nil {
 		return err
 	}
-	return t.notifyManagers("custody.overdue", "연체: "+name,
+	return t.notifyWhoMay(app.CustodyService_Return_FullMethodName, "custody.overdue", "연체: "+name,
 		fmt.Sprintf("%s 반납 예정이던 대여가 연체되었습니다", t.when(*c.DateDue)), pdid.Id(c.Id), "/custody")
 }
 
@@ -805,10 +804,10 @@ func (t *Tx) tellLate(c *ent.Custody) error {
 // ([Tx.retellLate]). `locked` is that this transaction holds the tree's lock
 // already.
 //
-// A workspace with nobody to manage it -- its last owner left, with nobody
-// to hand it on to -- is told nothing, and asked nothing again each pass: a
-// loan is told by a notice to its managers, which is not written while there
-// are none.
+// A workspace with nobody to manage it -- nobody roster says may take a loan
+// back (D89) -- is told nothing, and asked nothing again each pass: a loan is
+// told by a notice to whoever may, which is not written while there is
+// nobody.
 func (t *Tx) lateUntold(locked bool) error {
 	quiet, err := t.readonly()
 	if err != nil || quiet {
@@ -828,12 +827,8 @@ func (t *Tx) lateUntold(locked bool) error {
 	if err != nil || len(cs) == 0 {
 		return err
 	}
-	managed, err := t.db.Holder.Query().Where(
-		holder.TenantId(t.tenant.Uuid()),
-		holder.RoleIn("owner", "admin", "manager"),
-		holder.DateErasedIsNil(),
-	).Exist(t.ctx)
-	if err != nil || !managed {
+	managers, err := t.whoMay(app.CustodyService_Return_FullMethodName)
+	if err != nil || len(managers) == 0 {
 		return err
 	}
 	if !locked {
@@ -1003,7 +998,7 @@ func sweepWork(t *Tx) error {
 		case w.DateStart != nil:
 			body = t.when(*w.DateStart) + " 예정입니다"
 		}
-		if err := t.notifyManagers("work.due", "예정된 작업: "+w.Name, body, pdid.Id(w.Id), "/work"); err != nil {
+		if err := t.notifyWhoMay(app.WorkOrderService_Update_FullMethodName, "work.due", "예정된 작업: "+w.Name, body, pdid.Id(w.Id), "/work"); err != nil {
 			return err
 		}
 	}

@@ -7,20 +7,21 @@ import (
 	"testing"
 
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/policy"
 )
 
-// Member puts `login` in the workspace `alias` as `role`, with a person
-// record, and answers the membership: by their identifier at roster (D85),
-// made on the roster in this process with `password` when there is nobody by
-// that login, as `loft holder add` made them before an operator asked the
-// entry point for it (D74).
+// Member puts `login` in the workspace `alias` with a person record, bound at
+// the roster in this process to `role` -- one Loft ships, by its word
+// (`policy.RoleOf`) -- and answers the membership: by their identifier at
+// roster (D85), made there with `password` when there is nobody by that login,
+// as `loft holder add` made them before an operator asked the entry point for
+// it (D74). What they may call is what roster says of them (D89).
 // The deployment's own writes, through the servers, by no operator and no
 // member, so that what a test then holds an operator's or a member's rows to
 // is theirs alone.
@@ -45,9 +46,15 @@ func Member(t testing.TB, s *cmd.Server, alias, login, role, password string) pd
 		Tenant: ref,
 		Alias:  p.Alias,
 		Name:   login,
-		Role:   z.Ptr(role),
 	}.Build())
 	x.NoError(err)
+	r, ok := policy.RoleOf(role)
+	x.True(ok, "a role Loft ships: %s", role)
+	// Bound at roster when the workspace is the tenant there; a workspace of
+	// this database alone -- one an import put up -- is nobody's at roster.
+	if rt, err := s.Identity.Tenant(ctx); err == nil && rt.Id == pdid.Id(tn.Id) {
+		x.NoError(s.Identity.Bind(ctx, r.Alias, p.Id))
+	}
 	_, err = s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
 		Tenant: ref,
 		Name:   login,

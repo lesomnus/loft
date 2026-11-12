@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/pdid"
-	"google.golang.org/protobuf/encoding/protojson"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
@@ -39,13 +38,6 @@ func (e *env) holderRow(id []byte) *ent.Holder {
 	h, err := e.s.Ent.Holder.Get(context.Background(), idUUID(id))
 	e.x.NoError(err)
 	return h
-}
-
-func (e *env) roleOf(id pdid.Id) string {
-	e.t.Helper()
-	h, err := e.s.Ent.Holder.Get(context.Background(), id.Uuid())
-	e.x.NoError(err)
-	return h.Role
 }
 
 // TestAMemberLeavingIsForgottenThere.
@@ -129,104 +121,27 @@ func TestAWorkspaceIsForgottenOfAPersonTheSameWayByItsAdministrators(t *testing.
 	x.Zero(full)
 }
 
-// TestTheLastOwnerLeavingHandsTheWorkspaceOn.
-//
-// Nobody could manage a workspace whose last owner left, so it goes to the
-// most senior member who remains: the widest role first, then whoever joined
-// first -- among those who can sign in and are not leaving themselves, and
-// never an auditor, whose role is to change nothing.
-func TestTheLastOwnerLeavingHandsTheWorkspaceOn(t *testing.T) {
+// TestTheLastOwnerLeavingHandsNothingOn: who may run the workspace is
+// roster's, by the roles its tenant binds there (D89). Its last owner leaving
+// is pseudonymized as anybody leaving is, and nothing more: nobody here is
+// made anything, and what the others may call is what roster says, as it was
+// -- the tenant's administrators at roster bind somebody the owner's role.
+func TestTheLastOwnerLeavingHandsNothingOn(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
 	ctx := context.Background()
+	_, admin := e.person("admin")
+	them := idOf(admin.GetHolder().GetId())
+	may := func(method string) bool { return e.s.Identity.Reach().May(ctx, them, method) == nil }
+	x.True(may(app.PartyService_Pseudonymize_FullMethodName))
+	x.False(may(app.TenantService_Configure_FullMethodName))
 
-	t.Run("the widest role, then who joined first", func(t *testing.T) {
-		e := newEnv(t)
-		x := e.x
-		_, auditor := e.person("auditor")
-		_, member := e.person("member")
-		e.now = e.now.Add(time.Second)
-		_, early := e.person("manager")
-		e.now = e.now.Add(time.Second)
-		_, late := e.person("manager")
-
-		v := e.depart(e.holderOf("owner").Bytes())
-		x.Equal(idOf(early.GetHolder().GetId()), v.Owner)
-		x.False(v.Ownerless)
-		x.Equal("owner", e.roleOf(idOf(early.GetHolder().GetId())))
-		x.Equal("manager", e.roleOf(idOf(late.GetHolder().GetId())))
-		x.Equal("member", e.roleOf(idOf(member.GetHolder().GetId())))
-		x.Equal("auditor", e.roleOf(idOf(auditor.GetHolder().GetId())))
-
-		ev, err := e.s.Ent.Event.Query().Where(event.Kind("party.role")).Only(ctx)
-		x.NoError(err)
-		x.Contains(e.say(ev), "소유자 승계")
-		x.Equal("succession", value[*app.PartyRoleSet](e, ev).GetBy())
-		x.NotContains(protojson.Format(ev.Value), early.GetName(), "the event keeps who by identifier")
-		x.Equal("소유자 승계: "+early.GetName()+" (마지막 소유자의 계정 탈퇴)", e.events()["party.role"])
-	})
-
-	t.Run("an admin over a manager who joined before", func(t *testing.T) {
-		e := newEnv(t)
-		x := e.x
-		e.person("manager")
-		e.now = e.now.Add(time.Second)
-		_, admin := e.person("admin")
-
-		v := e.depart(e.holderOf("owner").Bytes())
-		x.Equal(idOf(admin.GetHolder().GetId()), v.Owner)
-	})
-
-	t.Run("not to somebody leaving too", func(t *testing.T) {
-		e := newEnv(t)
-		x := e.x
-		_, first := e.person("admin")
-		e.now = e.now.Add(time.Second)
-		_, second := e.person("admin")
-		x.NoError(e.s.Ent.Holder.UpdateOneId(idUUID(first.GetHolder().GetId())).SetDateLeaving(e.now).Exec(ctx))
-
-		v := e.depart(e.holderOf("owner").Bytes())
-		x.Equal(idOf(second.GetHolder().GetId()), v.Owner)
-	})
-
-	t.Run("another owner is enough", func(t *testing.T) {
-		e := newEnv(t)
-		x := e.x
-		_, other := e.person("owner")
-		e.person("admin")
-
-		v := e.depart(e.holderOf("owner").Bytes())
-		x.Zero(v.Owner)
-		x.False(v.Ownerless)
-		x.Equal("owner", e.roleOf(idOf(other.GetHolder().GetId())))
-		n, err := e.s.Ent.Event.Query().Where(event.Kind("party.role")).Count(ctx)
-		x.NoError(err)
-		x.Zero(n)
-	})
-
-	t.Run("nobody but an auditor, and it says so", func(t *testing.T) {
-		e := newEnv(t)
-		x := e.x
-		_, auditor := e.person("auditor")
-
-		v := e.depart(e.holderOf("owner").Bytes())
-		x.Zero(v.Owner)
-		x.True(v.Ownerless)
-		x.Equal("auditor", e.roleOf(idOf(auditor.GetHolder().GetId())))
-		ev, err := e.s.Ent.Event.Query().Where(event.Kind("account.depart")).Only(ctx)
-		x.NoError(err)
-		x.True(value[*app.AccountDeparted](e, ev).GetOwnerless())
-	})
-
-	t.Run("a member leaving is not an owner leaving", func(t *testing.T) {
-		e := newEnv(t)
-		x := e.x
-		_, kim := e.person("member")
-		_, admin := e.person("admin")
-
-		v := e.depart(kim.GetHolder().GetId())
-		x.Zero(v.Owner)
-		x.False(v.Ownerless)
-		x.Equal("admin", e.roleOf(idOf(admin.GetHolder().GetId())))
-	})
+	e.depart(e.holderOf("owner").Bytes())
+	x.True(may(app.PartyService_Pseudonymize_FullMethodName))
+	x.False(may(app.TenantService_Configure_FullMethodName), "an administrator is no owner for the owner having left")
+	n, err := e.s.Ent.Event.Query().Where(event.Kind("account.depart")).Count(ctx)
+	x.NoError(err)
+	x.Equal(1, n, "and the act is the leaving alone")
 }
 
 func idOf(b []byte) pdid.Id {

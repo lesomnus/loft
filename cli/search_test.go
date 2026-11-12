@@ -11,6 +11,7 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/asset"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/holder"
@@ -97,7 +98,8 @@ func TestAReindexMakesTheIndexAndPointsTheAliasAtIt(t *testing.T) {
 func ownerOf(t *testing.T, d *deployment, tenant [16]byte) context.Context {
 	t.Helper()
 	ctx := context.Background()
-	h, err := d.s.Ent.Holder.Query().Where(holder.TenantId(tenant), holder.Role("owner")).Only(ctx)
+	// The first of the workspace's members: whom it was put up for.
+	h, err := d.s.Ent.Holder.Query().Where(holder.TenantId(tenant)).Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).First(ctx)
 	require.NoError(t, err)
 	row, err := d.s.Base.Holder().Get(ctx, app.HolderGetRequest_builder{Ref: app.HolderRef_builder{Id: h.Id[:]}.Build()}.Build())
 	require.NoError(t, err)

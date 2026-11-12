@@ -67,7 +67,7 @@ export function Register(): ReactNode {
 	const [busy, setBusy] = useState(false)
 	const [failed, setFailed] = useState('')
 
-	if (!c.can('manager')) return <Empty>대량 등록은 매니저 이상이 합니다.</Empty>
+	if (!c.may(AssetService.method.addMany)) return <Empty>대량 등록을 할 수 있는 역할이 없습니다.</Empty>
 
 	const form = async () => {
 		try {

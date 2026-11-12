@@ -142,7 +142,6 @@ func (s operatorTenants) Show(ctx context.Context, req *app.OperatorTenantShowRe
 			Tenant:      tref,
 			Alias:       h.Alias,
 			Name:        h.Name,
-			Role:        h.Role,
 			DateCreated: timestamppb.New(h.DateCreated),
 		}.Build()
 		if h.DateLeaving != nil {
@@ -253,30 +252,6 @@ func days(d time.Duration) uint32 {
 		return 0
 	}
 	return uint32(d / (24 * time.Hour))
-}
-
-// NameOwner makes a member of a workspace one of its owners, as
-// [domain.Deps.NameOwner] does: the operator's work in the workspace.
-func (s operatorTenants) NameOwner(ctx context.Context, req *app.OperatorTenantNameOwnerRequest) (*app.Holder, error) {
-	t, err := s.a.workspace(ctx, req.GetRef())
-	if err != nil {
-		return nil, err
-	}
-	alias := strings.TrimPrefix(strings.TrimSpace(req.GetMember()), "@")
-	if alias == "" {
-		return nil, status.Error(codes.InvalidArgument, "member: the membership, by its alias in the workspace")
-	}
-	h, err := s.a.S.Ent.Holder.Query().Where(holder.TenantId(t.Id), holder.Alias(alias), holder.DateErasedIsNil()).Only(ctx)
-	if ent.IsNotFound(err) {
-		return nil, status.Errorf(codes.NotFound, "@%s has no member @%s", t.Alias, alias)
-	}
-	if err != nil {
-		return nil, err
-	}
-	if err := s.a.S.Deps.NameOwner(ctx, s.a.S.Base, s.a.S.Drv, pdid.Id(t.Id), pdid.Id(h.Id)); err != nil {
-		return nil, err
-	}
-	return s.a.S.Base.Holder().Get(ctx, app.HolderGetRequest_builder{Ref: app.HolderRef_builder{Id: h.Id[:]}.Build()}.Build())
 }
 
 // refused is what was asked refused, as the status it is: one said in words,

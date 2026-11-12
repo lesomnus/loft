@@ -7,27 +7,7 @@ import type { Party } from '../../gen/loft/org_pb.js'
 import type { Tenant } from '../../gen/loft/payday/tenant_pb.js'
 import type { TenantPreviewResponse } from '../../gen/loft/payday/tenant_svc_pb.js'
 import type { Timestamp } from '@bufbuild/protobuf/wkt'
-import {
-	AccessReviewService,
-	AccessService,
-	AssetTypeService,
-	AuditService,
-	BookableService,
-	EventService,
-	ItemModelService,
-	TenantService,
-	at,
-	dateOf,
-	daysWord,
-	fmt,
-	fmtWith,
-	idBytes,
-	idStr,
-	ref,
-	ts,
-	wall,
-	type Session,
-} from '../api.js'
+import { AccessReviewService, AccessService, AssetTypeService, AuditService, BookableService, EventService, ItemModelService, PaymentService, TenantService, at, dateOf, daysWord, fmt, fmtWith, idBytes, idStr, ref, ts, wall, type Session } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { PaymentTab } from '../billing.js'
 import { TypeSelect, useAssets } from '../pickers.js'
@@ -47,17 +27,17 @@ export function Settings(props: { session: Session }): ReactNode {
 		// saw whose data -- are read by the people who run it and by its
 		// auditors (`server/policy`, D79). What happened to one asset is on
 		// its page, for everybody.
-		...(c.can('admin') || c.role === 'auditor'
+		...(c.may(EventService.method.recent)
 			? [
 					{ key: 'events', label: '작업 기록' },
 					{ key: 'audit', label: '감사 기록' },
 					{ key: 'access', label: '접속기록' },
 				]
 			: []),
-		...(c.can('owner') ? [{ key: 'workspace', label: '워크스페이스' }] : []),
+		...(c.may(TenantService.method.configure) ? [{ key: 'workspace', label: '워크스페이스' }] : []),
 		// Who pays for the workspace, what it used and its statements (design
 		// 7.9): read by the people who run it, on a deployment that bills.
-		...(props.session.billing === true && c.can('admin') ? [{ key: 'billing', label: '결제' }] : []),
+		...(props.session.billing === true && c.may(PaymentService.method.getPayer) ? [{ key: 'billing', label: '결제' }] : []),
 	]
 	// A tab this person is not shown -- in a link kept from before, or made
 	// by somebody else -- opens the first one, and not a refusal.
@@ -75,7 +55,7 @@ export function Settings(props: { session: Session }): ReactNode {
 			{tab === 'audit' && <Audit />}
 			{tab === 'access' && <Access />}
 			{tab === 'workspace' && <WorkspaceTab />}
-			{tab === 'billing' && props.session.billing === true && c.can('admin') && <PaymentTab session={props.session} />}
+			{tab === 'billing' && props.session.billing === true && c.may(PaymentService.method.getPayer) && <PaymentTab session={props.session} />}
 		</>
 	)
 }
@@ -84,14 +64,14 @@ function Types(): ReactNode {
 	const c = useCatalog()
 	const [open, setOpen] = useState<AssetType | 'new'>()
 	return (
-		<Card title="자산 유형" actions={c.can('admin') && <button className="primary small" onClick={() => setOpen('new')}>+ 유형</button>}>
+		<Card title="자산 유형" actions={c.may(AssetTypeService.method.add) && <button className="primary small" onClick={() => setOpen('new')}>+ 유형</button>}>
 			<p className="mute small">유형은 자산이 가지는 속성(예: 노트북의 CPU, 메모리)을 정합니다. 속성의 키는 바꾸지 않는 것이 좋습니다 — 이력이 키로 남습니다.</p>
 			<ul className="rows">
 				{c.types
 					.slice()
 					.sort((a, b) => (a.kind === b.kind ? a.name.localeCompare(b.name, 'ko') : a.kind.localeCompare(b.kind)))
 					.map((t) => (
-						<li key={idStr(t.id)} className={c.can('admin') ? 'link' : ''} onClick={() => c.can('admin') && setOpen(t)}>
+						<li key={idStr(t.id)} className={c.may(AssetTypeService.method.update) ? 'link' : ''} onClick={() => c.may(AssetTypeService.method.update) && setOpen(t)}>
 							<span>
 								<strong>{t.name}</strong> <span className="chip">{kindWord[t.kind]}</span>
 								<span className="mute small"> {(t.spec?.attributes ?? []).map((a) => a.label || a.key).join(', ')}</span>
@@ -204,13 +184,13 @@ function Models(): ReactNode {
 	const c = useCatalog()
 	const [open, setOpen] = useState<ItemModel | 'new'>()
 	return (
-		<Card title="모델" actions={c.can('manager') && <button className="primary small" onClick={() => setOpen('new')}>+ 모델</button>}>
+		<Card title="모델" actions={c.may(ItemModelService.method.add) && <button className="primary small" onClick={() => setOpen('new')}>+ 모델</button>}>
 			<ul className="rows">
 				{c.models
 					.slice()
 					.sort((a, b) => modelName(a).localeCompare(modelName(b), 'ko'))
 					.map((m) => (
-						<li key={idStr(m.id)} className={c.can('manager') ? 'link' : ''} onClick={() => c.can('manager') && setOpen(m)}>
+						<li key={idStr(m.id)} className={c.may(ItemModelService.method.update) ? 'link' : ''} onClick={() => c.may(ItemModelService.method.update) && setOpen(m)}>
 							<span>
 								<strong>{modelName(m)}</strong>
 								{m.code !== '' && <span className="mute"> · {m.code}</span>}
@@ -285,7 +265,7 @@ function Bookables(): ReactNode {
 					{c.bookables.map((b) => {
 						const a = assets.get(idStr(b.asset?.id))
 						return (
-							<li key={idStr(b.id)} className={c.can('admin') ? 'link' : ''} onClick={() => c.can('admin') && setOpen(b)}>
+							<li key={idStr(b.id)} className={c.may(BookableService.method.update) ? 'link' : ''} onClick={() => c.may(BookableService.method.update) && setOpen(b)}>
 								<span>
 									<strong>{a?.name ?? '…'}</strong> <span className="mute small">{a?.tag}</span>
 									{!b.enabled && <span className="chip">중지</span>}

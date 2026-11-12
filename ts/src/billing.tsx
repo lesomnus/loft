@@ -47,7 +47,6 @@ import { HolderService, PaymentService, dateOf, fmt, idStr, money, type Session 
 import { useCatalog } from './catalog.js'
 import { useAct, useReadOnly, useRestricted, useRpc } from './rpc.js'
 import { Badge, Card, Empty, Field, Kv, Load, Modal, Select } from './ui.js'
-import { roleWord } from './words.js'
 
 /** Whether what a billing account is billed can be collected, as a person says it, and the badge tone of a status like it (`tone`). */
 const collectionWord: Record<number, [string, string]> = {
@@ -248,7 +247,7 @@ function CollectionBadge(props: { c: BillingCollection | undefined }): ReactNode
 // A workspace's, in its settings.
 
 /** A member who signs in: their membership, what they are called, and told apart by (D54). */
-type Member = { holder: Uint8Array; name: string; called: string; role: string; leaving: boolean }
+type Member = { holder: Uint8Array; name: string; called: string; leaving: boolean }
 
 /**
  * The workspace's members, by their identifier: the holder at roster each is
@@ -267,7 +266,6 @@ function useMembers(): Map<string, Member> {
 				holder: h.id,
 				name,
 				called: (party !== undefined && c.called(party.id)) || name,
-				role: h.role,
 				leaving: h.dateLeaving !== undefined,
 			})
 		}
@@ -298,7 +296,7 @@ export function PaymentTab(props: { session: Session }): ReactNode {
 			<Card title="결제 담당">
 				<Load q={payer}>{(v) => <PayerSaid payer={v.payer} nameOf={nameOf} />}</Load>
 			</Card>
-			{c.can('owner') && <Load q={payer}>{(v) => <OfferCard payer={v.payer} members={members} me={props.session.id} />}</Load>}
+			{c.may(PaymentService.method.offer) && <Load q={payer}>{(v) => <OfferCard payer={v.payer} members={members} me={props.session.id} />}</Load>}
 			<WorkspaceCredit credits={credits} />
 			<Card title="이번 기간 사용량과 예상 금액">
 				<Load q={usage}>{(v) => (v.usage === undefined ? <Empty /> : <UsageSaid usage={v.usage} credits={credits} />)}</Load>
@@ -626,7 +624,7 @@ function OfferCard(props: { payer: BillingPayer | undefined; members: Map<string
 	const pays = new Set([props.payer?.current?.account, props.payer?.next?.account].filter((v): v is string => v !== undefined && v !== ''))
 	const options = [...props.members.entries()]
 		.filter(([id, m]) => !m.leaving && !pays.has(id))
-		.map(([id, m]) => ({ value: idStr(m.holder), label: `${id === props.me ? `${m.called} (나)` : m.called} · ${roleWord[m.role] ?? m.role}` }))
+		.map(([id, m]) => ({ value: idStr(m.holder), label: id === props.me ? `${m.called} (나)` : m.called }))
 	const [holder, setHolder] = useState('')
 	const chosen = options.some((o) => o.value === holder) ? holder : ''
 	return (
@@ -689,7 +687,7 @@ export function BillingBanner(props: { session: Session }): ReactNode {
 	const refused = useRestricted()
 	const refusedReadOnly = useReadOnly()
 	const billed = props.session.billing === true
-	const admin = c.can('admin')
+	const admin = c.may(PaymentService.method.getPayer)
 	const payer = useRpc(PaymentService.method.getPayer, billed && admin ? {} : null, { poll: 10 * 60_000 })
 	const p = payer.data?.payer
 	const now = new Date()
@@ -724,7 +722,7 @@ export function BillingBanner(props: { session: Session }): ReactNode {
 		// run it, who alone read who pays for it.
 		const state = p?.collection?.state
 		if (!admin || state === undefined || collectionDo[state] === undefined) return null
-		return <CollectionBanner state={state} payerIsMe={payerIsMe} owner={c.can('owner')} />
+		return <CollectionBanner state={state} payerIsMe={payerIsMe} owner={c.may(PaymentService.method.offer)} />
 	}
 	const grows = '자산 등록, 첨부 올리기처럼 청구되는 것을 늘리는 일'
 
@@ -785,7 +783,7 @@ export function BillingBanner(props: { session: Session }): ReactNode {
 	// and nowhere outside the workspace -- where a payer pays is not here
 	// (D81).
 	let go: ReactNode
-	if (c.can('owner')) {
+	if (c.may(PaymentService.method.offer)) {
 		go = <Link to="/settings?tab=billing">{payerless ? '결제 담당 정하기 →' : '결제 설정 보기 →'}</Link>
 	} else if (admin) {
 		go = <Link to="/settings?tab=billing">결제 설정 보기 → (결제 담당은 소유자가 정합니다)</Link>

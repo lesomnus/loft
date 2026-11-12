@@ -14,24 +14,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/xli"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
 
-	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/ent/event"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
 	"github.com/lesomnus/loft/internal/loftest"
 	"github.com/lesomnus/loft/server/admin"
-	"github.com/lesomnus/loft/server/operator"
 )
 
 // ran runs a command and answers what it printed, read as it prints: a pipe
@@ -210,7 +204,6 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	// nine: the days the commands say are UTC's, whatever the machine's.
 	inZone(t, awayFromUTC(time.Now()))
 	d := deploy(t)
-	ctx := context.Background()
 	month := func(from time.Time) (time.Time, time.Time) {
 		return from.Add(30 * 24 * time.Hour), time.Now().Add(30 * 24 * time.Hour)
 	}
@@ -229,8 +222,8 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 
 	out = must("tenant", "show", "@acme")
 	x.Contains(out, "2 people")
-	x.Contains(out, "owners owner")
-	x.Contains(out, "member\t@kim\tmember")
+	x.NotContains(out, "owners", "who holds which role is roster's (D89)")
+	x.Contains(out, "member\t@kim\t")
 
 	began := time.Now()
 	out = must("tenant", "close", "--reason", "asked", "acme")
@@ -254,15 +247,6 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	x.NotContains(must("tenant", "restore", "--yes", "acme"), "closed")
 	x.NotContains(must("tenant", "ls", "--closed"), "@acme", "open again")
 
-	x.Contains(must("tenant", "name-owner", "--member", "@kim", "acme"), "would make @kim")
-	out = must("tenant", "name-owner", "--member", "@kim", "--yes", "acme")
-	x.Contains(out, "owners kim,owner")
-	_, err := d.loft(t, "tenant", "name-owner", "--member", "nobody", "--yes", "acme")
-	x.ErrorContains(err, "no member")
-
-	tn, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
-	x.NoError(err)
-
 	x.Contains(must("tenant-contract", "add", "--name", "pilot", "acme"), "would write a contract")
 	out = must("tenant-contract", "add", "--name", "pilot", "--yes", "acme")
 	x.Contains(out, "contract\t")
@@ -276,27 +260,6 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	id := strings.Fields(out[i:])[1]
 	x.Contains(must("legal-hold", "patch", "--lift", id), "would lift hold")
 	x.Contains(must("legal-hold", "patch", "--lift", "--yes", id), "a case\tlifted")
-
-	// What the history says of the owner named, and who did it, is the
-	// deployment's work at the operator's word: their identifier, and no
-	// name of theirs or of the member's.
-	owners, err := d.s.Ent.Holder.Query().Where(holder.TenantId(tn.Id), holder.Role("owner")).Count(ctx)
-	x.NoError(err)
-	x.Equal(2, owners)
-	kim, err := d.s.Ent.Holder.Query().Where(holder.TenantId(tn.Id), holder.Alias("kim")).Only(ctx)
-	x.NoError(err)
-	ev, err := d.s.Ent.Event.Query().Where(event.TenantId(tn.Id), event.Kind("party.role")).Only(ctx)
-	x.NoError(err)
-	x.NotNil(ev.ActorId)
-	x.Equal(operator.Id("alice").Uuid(), *ev.ActorId, "alice did it")
-	x.NotNil(ev.Value)
-	said := &app.PartyRoleSet{}
-	x.NoError(ev.Value.UnmarshalTo(said))
-	x.Equal("operator", said.GetBy())
-	x.Equal("owner", said.GetRole())
-	x.Equal(pdid.Id(kim.Id).Bytes(), said.GetHolder())
-	x.NotContains(protojson.Format(ev.Value), kim.Name)
-	x.NotContains(protojson.Format(ev.Value), "alice")
 }
 
 // TestAnOperatorWritesEveryTermOfAContract: `tenant-contract add` at the
@@ -368,7 +331,6 @@ func TestAnOperatorsCommandWantsAnOperatorsConnection(t *testing.T) {
 	s.signIn("owner", "owner1234")
 	for _, args := range [][]string{
 		{"tenant", "show", "acme"},
-		{"tenant", "name-owner", "--member", "kim", "acme"},
 		{"trail", "verify"},
 		{"search", "status"},
 		{"tenant-contract", "add", "--name", "x", "acme"},

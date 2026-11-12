@@ -142,25 +142,16 @@ func TestAnErasedMemberBeginsToLeave(t *testing.T) {
 // TestAMemberStillGoneAfterTheGraceLeaves: once the grace is over, roster is
 // asked again about a member who is still leaving. One it has again was
 // restored, and stops leaving; one whose grace is not over waits; and one
-// roster still has nobody by leaves -- their person record pseudonymized,
-// their membership ended, and the workspace handed to whoever is next when
-// they were its last owner.
+// roster still has nobody by leaves -- their person record pseudonymized and
+// their membership ended. Nothing is handed on: who may run the workspace is
+// roster's, by the roles its tenant binds there (D89).
 func TestAMemberStillGoneAfterTheGraceLeaves(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
 	kim, err := w.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
 	x.NoError(err)
-	// Kim is the workspace's last owner: the one it was put up for is a
-	// manager now, and lee an administrator, who is next.
-	next := w.holder("lee", "admin")
 	here := w.here(kim, "owner")
-	_, err = w.s.Base.Holder().Patch(ctx, app.HolderPatchRequest_builder{
-		Ref:              app.HolderRef_builder{Id: w.ownerHolder().GetId()}.Build(),
-		Role:             z.Ptr("manager"),
-		DateUpdatedForce: z.Ptr(true),
-	}.Build())
-	x.NoError(err)
 	person, err := w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
 		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
 		Name:   "김민수", Kind: "person", Email: "kim@acme.example",
@@ -211,10 +202,6 @@ func TestAMemberStillGoneAfterTheGraceLeaves(t *testing.T) {
 	x.NoError(err)
 	x.NotEqual("김민수", p.GetName())
 	x.Empty(p.GetEmail())
-	x.Equal("owner", row(next).Role, "its last owner left, and it went to who was next")
-	owners, err := w.s.Ent.Holder.Query().Where(holder.TenantId(idUuid(w.tenant.GetId())), holder.Role("owner"), holder.DateErasedIsNil()).Count(ctx)
-	x.NoError(err)
-	x.Equal(1, owners)
 
 	// Nothing more to do the next time.
 	x.NoError(w.s.Lifecycle.Sweep(ctx))

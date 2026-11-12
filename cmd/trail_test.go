@@ -74,7 +74,7 @@ func TestATerminalsSignInIsOnTheTrail(t *testing.T) {
 	w, d := digestWorld(t, nil)
 	x := w.x
 	ctx := context.Background()
-	h, err := w.s.Ent.Holder.Query().Where(holder.Role("owner")).First(ctx)
+	h, err := w.s.Ent.Holder.Query().Where(holder.Alias("owner")).First(ctx)
 	x.NoError(err)
 	owner := pdid.Id(h.Id)
 

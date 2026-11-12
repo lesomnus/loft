@@ -336,6 +336,10 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 	case errors.Is(err, tenancy.ErrEnded):
 		http.Redirect(w, r, "/?signin=ended", http.StatusSeeOther)
 		return
+	case errors.Is(err, tenancy.ErrNoRole):
+		// Somebody roster binds no role of Loft's comes no further (D89).
+		http.Redirect(w, r, "/?signin=norole", http.StatusSeeOther)
+		return
 	case err != nil:
 		log.From(ctx).ErrorContext(ctx, "sso: somebody roster vouched for is no member here", slog.Any("err", err))
 		http.Redirect(w, r, "/?signin=unavailable", http.StatusSeeOther)
