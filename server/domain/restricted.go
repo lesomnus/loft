@@ -83,10 +83,8 @@ var Grows = map[string]string{
 	// A file kept, which `loft.attachments.bytes` sums: the page uploads it
 	// through this, over HTTP as any of its calls.
 	app.AttachmentService_Upload_FullMethodName: "첨부를 올릴 수 없습니다",
-	// A new member, which `loft.members` counts: a login given to a person
-	// record, and an invitation sent.
-	app.PartyService_Invite_FullMethodName:   "로그인을 새로 발급할 수 없습니다",
-	app.InvitationService_Add_FullMethodName: "구성원을 초대할 수 없습니다",
+	// A new member, which `loft.members` counts, is roster's to make (D87),
+	// and their first sign-in here is refused nothing (D85).
 
 	GrowsAssetBack:      "분실·폐기한 자산을 다시 쓰는 상태로 바꿀 수 없습니다",
 	GrowsKeptLonger:     "이력을 지금보다 오래 보관하도록 바꿀 수 없습니다",

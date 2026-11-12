@@ -27,26 +27,6 @@ func (e *env) depart(member []byte) domain.Departure {
 	return v
 }
 
-// invited is an invitation in this env's workspace, as the invitation verbs
-// leave one: from the owner, to `email`.
-func (e *env) invited(email, state string, edit func(*app.InvitationAddRequest)) *app.Invitation {
-	e.t.Helper()
-	req := app.InvitationAddRequest_builder{
-		Tenant:      app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-		Inviter:     app.HolderRef_builder{Id: e.holderOf("owner").Bytes()}.Build(),
-		Email:       email,
-		Role:        "member",
-		State:       state,
-		DateExpires: e.in(30 * 24 * time.Hour),
-	}.Build()
-	if edit != nil {
-		edit(req)
-	}
-	v, err := e.s.Base.Invitation().Add(context.Background(), req)
-	e.x.NoError(err)
-	return v
-}
-
 func (e *env) holderOf(alias string) pdid.Id {
 	e.t.Helper()
 	h, err := e.s.Ent.Holder.Query().Where(holder.Alias(alias), holder.TenantId(e.tenant.Uuid()), holder.DateErasedIsNil()).Only(context.Background())
@@ -72,9 +52,8 @@ func (e *env) roleOf(id pdid.Id) string {
 //
 // What a member leaving takes from the workspace is everything that said who
 // they were: the person record keeps its identifier and nothing else, the
-// membership ends and its name goes too, the invitations sent to them lose
-// the address, and the trail's copies of all of it are forgotten. What they
-// did stays, said by the pseudonym.
+// membership ends and its name goes too, and the trail's copies of all of it
+// are forgotten. What they did stays, said by the pseudonym.
 func TestAMemberLeavingIsForgottenThere(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
@@ -88,17 +67,7 @@ func TestAMemberLeavingIsForgottenThere(t *testing.T) {
 	_, err := e.app().Asset().Move(kimAt, app.AssetMoveRequest_builder{Ref: assetRef(laptop), To: assetRef(room)}.Build())
 	x.NoError(err)
 
-	// What the workspace sent them: the invitation they took, one naming
-	// their person record that waits still, and somebody else's.
-	took := e.invited("kim@example.com", "accepted", func(r *app.InvitationAddRequest) {
-		r.SetHolder(app.HolderRef_builder{Id: member}.Build())
-	})
-	waiting := e.invited("kim@example.com", "pending", func(r *app.InvitationAddRequest) {
-		r.SetParty(app.PartyRef_builder{Id: kim.GetId()}.Build())
-	})
-	other := e.invited("lee@example.com", "pending", nil)
-
-	full, _ := e.copies(kim.GetId(), member, took.GetId(), waiting.GetId())
+	full, _ := e.copies(kim.GetId(), member)
 	x.Positive(full)
 
 	v := e.depart(member)
@@ -116,20 +85,7 @@ func TestAMemberLeavingIsForgottenThere(t *testing.T) {
 	x.Empty(h.Alias, "and its name went with it")
 	x.Equal(p.GetName(), h.Name, "it goes by its person's pseudonym")
 
-	for _, inv := range []*app.Invitation{took, waiting} {
-		got, err := e.s.Ent.Invitation.Get(ctx, idUUID(inv.GetId()))
-		x.NoError(err)
-		x.Empty(got.Email)
-	}
-	got, err := e.s.Ent.Invitation.Get(ctx, idUUID(waiting.GetId()))
-	x.NoError(err)
-	x.Equal("revoked", got.State, "one still waiting is taken back")
-	got, err = e.s.Ent.Invitation.Get(ctx, idUUID(other.GetId()))
-	x.NoError(err)
-	x.Equal("lee@example.com", got.Email, "and nobody else's is touched")
-	x.Equal("pending", got.State)
-
-	full, _ = e.copies(kim.GetId(), member, took.GetId(), waiting.GetId())
+	full, _ = e.copies(kim.GetId(), member)
 	x.Zero(full, "a copy of them in the trail")
 
 	// What they did is still said, by the pseudonym.
@@ -156,20 +112,12 @@ func TestAMemberLeavingIsForgottenThere(t *testing.T) {
 // TestAWorkspaceIsForgottenOfAPersonTheSameWayByItsAdministrators.
 //
 // 개인정보 삭제 from the people screen is the same forgetting: the
-// membership's name and the invitations sent to them go too, which they did
-// not before.
+// membership's name goes too.
 func TestAWorkspaceIsForgottenOfAPersonTheSameWayByItsAdministrators(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
-	ctx := context.Background()
 	_, kim := e.person("member")
 	member := kim.GetHolder().GetId()
-	took := e.invited("kim@example.com", "accepted", func(r *app.InvitationAddRequest) {
-		r.SetHolder(app.HolderRef_builder{Id: member}.Build())
-	})
-	named := e.invited("kim@work.example", "pending", func(r *app.InvitationAddRequest) {
-		r.SetParty(app.PartyRef_builder{Id: kim.GetId()}.Build())
-	})
 
 	_, err := e.app().Party().Pseudonymize(e.owner, app.PartyPseudonymizeRequest_builder{Ref: ref[app.PartyRef](kim.GetId())}.Build())
 	x.NoError(err)
@@ -177,12 +125,7 @@ func TestAWorkspaceIsForgottenOfAPersonTheSameWayByItsAdministrators(t *testing.
 	h := e.holderRow(member)
 	x.Empty(h.Alias)
 	x.True(strings.HasPrefix(h.Name, "익명 "))
-	for _, inv := range []*app.Invitation{took, named} {
-		got, err := e.s.Ent.Invitation.Get(ctx, idUUID(inv.GetId()))
-		x.NoError(err)
-		x.Empty(got.Email)
-	}
-	full, _ := e.copies(took.GetId(), named.GetId())
+	full, _ := e.copies(member)
 	x.Zero(full)
 }
 

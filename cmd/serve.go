@@ -394,9 +394,6 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 	ungated := domain.New(base, drv, deps)
-	// What the domain layer writes as the deployment's own work in a
-	// workspace, past the gate.
-	deps.Base = base
 
 	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people, Search: engine, Notices: notices}
 	s.Contents = func() (audit.Contents, error) { return content, nil }
@@ -953,11 +950,6 @@ func depsOf(c Config) (*domain.Deps, error) {
 		RestoreWithin: c.App.Workspaces.Restore(),
 		Retention:     c.App.Retention.Defaults(),
 		Mail:          sender,
-		Invitations: domain.InvitationRules{
-			Ttl:     c.App.Invitations.Ttl,
-			Pending: c.App.Invitations.Pending,
-			Daily:   c.App.Invitations.Daily,
-		},
 	}, nil
 }
 

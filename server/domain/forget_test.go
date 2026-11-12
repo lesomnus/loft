@@ -7,10 +7,6 @@ import (
 	"testing"
 	"uuid"
 
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent/audit"
@@ -37,7 +33,8 @@ func (e *env) copies(ids ...[]byte) (full, all int) {
 // TestAPersonForgottenIsForgottenInTheTrail.
 //
 // The trail kept the person's row, and their login's, after every write. They
-// go with the person; that the writes happened stays.
+// go with the person; that the writes happened stays. Their membership ends,
+// and the name it signs in with and is called by goes with it.
 func TestAPersonForgottenIsForgottenInTheTrail(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
@@ -54,6 +51,11 @@ func TestAPersonForgottenIsForgottenInTheTrail(t *testing.T) {
 	full, after := e.copies(kim.GetId(), h)
 	x.Zero(full, "a copy of the person in the trail")
 	x.GreaterOrEqual(after, all, "the record that the writes happened went with them")
+
+	row := e.holderRow(h)
+	x.NotNil(row.DateErased, "the membership did not end")
+	x.Empty(row.Alias, "the login name stayed on the membership")
+	x.True(strings.HasPrefix(row.Name, "익명 "), row.Name)
 }
 
 // TestTheTrailHoldsNoValueOfAPerson: what identifies or describes a person --
@@ -129,77 +131,4 @@ func TestAHoldKeepsWhatTheTrailSaidOfAPerson(t *testing.T) {
 	ev, err := e.s.Ent.Event.Query().Where(event.Kind("party.pseudonymize")).Only(context.Background())
 	x.NoError(err)
 	x.Positive(value[*app.PartyPseudonymized](e, ev).GetHeld())
-}
-
-// TestAPersonWhoseLoginWasStoppedFirstIsForgottenToo (loft#25, decided in
-// loft#35). Stopping a login takes the person record's link to its membership
-// away, and 개인정보 삭제 found the membership through that link and nothing
-// else: the membership's login name and name stayed on it after, and the
-// trail's copies of it. The membership now keeps which record it was.
-func TestAPersonWhoseLoginWasStoppedFirstIsForgottenToo(t *testing.T) {
-	e := newEnv(t)
-	x := e.x
-	_, lee := e.person("member")
-	h := lee.GetHolder().GetId()
-	alias, name := e.holderRow(h).Alias, lee.GetName()
-	x.NotEmpty(alias)
-
-	_, err := e.app().Party().Deactivate(e.owner, app.PartyDeactivateRequest_builder{Ref: ref[app.PartyRef](lee.GetId())}.Build())
-	x.NoError(err)
-	row := e.holderRow(h)
-	x.NotNil(row.Party, "the membership does not say which record it was")
-	x.Equal(idUUID(lee.GetId()), *row.Party)
-	full, _ := e.copies(h)
-	x.Positive(full, "the trail kept nothing of the membership to begin with")
-
-	_, err = e.app().Party().Pseudonymize(e.owner, app.PartyPseudonymizeRequest_builder{Ref: ref[app.PartyRef](lee.GetId())}.Build())
-	x.NoError(err)
-
-	row = e.holderRow(h)
-	x.Empty(row.Alias, "the login name stayed on the membership")
-	x.NotEqual(name, row.Name)
-	x.True(strings.HasPrefix(row.Name, "익명 "), row.Name)
-	full, _ = e.copies(lee.GetId(), h)
-	x.Zero(full, "a copy of the person or their membership in the trail")
-
-	t.Run("and one stopped and given again is two memberships, both forgotten", func(t *testing.T) {
-		x := require.New(t)
-
-		_, park := e.person("member")
-		first := park.GetHolder().GetId()
-		_, err := e.app().Party().Deactivate(e.owner, app.PartyDeactivateRequest_builder{Ref: ref[app.PartyRef](park.GetId())}.Build())
-		x.NoError(err)
-		v, err := e.app().Party().Invite(e.owner, app.PartyInviteRequest_builder{
-			Ref:      ref[app.PartyRef](park.GetId()),
-			Alias:    "park-again",
-			Role:     "member",
-			Password: "password1234",
-		}.Build())
-		x.NoError(err)
-		second := v.GetHolder().GetId()
-		x.NotEqual(first, second)
-
-		_, err = e.app().Party().Pseudonymize(e.owner, app.PartyPseudonymizeRequest_builder{Ref: ref[app.PartyRef](park.GetId())}.Build())
-		x.NoError(err)
-		for _, h := range [][]byte{first, second} {
-			row := e.holderRow(h)
-			x.Empty(row.Alias)
-			x.True(strings.HasPrefix(row.Name, "익명 "), row.Name)
-			x.NotNil(row.DateErased)
-		}
-		full, _ := e.copies(park.GetId(), first, second)
-		x.Zero(full)
-	})
-
-	t.Run("and no request says which record a membership is", func(t *testing.T) {
-		x := require.New(t)
-
-		_, err := e.app().Holder().Add(e.owner, app.HolderAddRequest_builder{
-			Tenant: app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-			Alias:  "made-up",
-			Name:   "Made up",
-			Party:  lee.GetId(),
-		}.Build())
-		x.Equal(codes.InvalidArgument, status.Code(err), "%v", err)
-	})
 }

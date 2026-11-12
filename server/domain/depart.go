@@ -10,9 +10,7 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/holder"
-	"github.com/lesomnus/loft/internal/ent/invitation"
 	"github.com/lesomnus/loft/internal/ent/party"
-	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -99,9 +97,8 @@ func (t *Tx) depart(member pdid.Id) (Departure, error) {
 
 // pseudonymize forgets a person here: the record keeps its identifier, so the
 // history that names it still reads, and loses everything that said who it
-// was; their membership ends and its name goes with it; the invitations sent
-// to them lose the address; and the trail's copies of all of it are
-// forgotten (design 8.2, D13). It answers the record as it is now, and how
+// was; their membership ends and its name goes with it; and the trail's
+// copies of all of it are forgotten (design 8.2, D13). It answers the record as it is now, and how
 // many of the trail's rows a legal hold kept as they were.
 func (t *Tx) pseudonymize(p *app.Party) (*app.Party, int, error) {
 	id := idOf(p.GetId())
@@ -123,32 +120,8 @@ func (t *Tx) pseudonymize(p *app.Party) (*app.Party, int, error) {
 		return nil, 0, err
 	}
 
-	h := idOf(p.GetHolder().GetId())
-	held, err := t.endMembership(h, id, objects)
-	if err != nil {
-		return out, held, err
-	}
-
-	// And the memberships it was before a login was stopped, which the
-	// record no longer points at: each keeps which record it was
-	// (`Holder.party`, loft#25). One stopped and then given again is two.
-	was, err := t.db.Holder.Query().
-		Where(holder.TenantId(t.tenant.Uuid()), holder.Party(id.Uuid())).
-		Ids(t.ctx)
-	if err != nil {
-		return out, held, err
-	}
-	for _, v := range was {
-		if pdid.Id(v) == h {
-			continue
-		}
-		n, err := t.endMembership(pdid.Id(v), id, nil)
-		if err != nil {
-			return out, held, err
-		}
-		held += n
-	}
-	return out, held, nil
+	held, err := t.endMembership(idOf(p.GetHolder().GetId()), id, objects)
+	return out, held, err
 }
 
 // Pseudonymized is the act a membership's own name going is on the trail as.
@@ -156,7 +129,7 @@ const Pseudonymized = "loft.holder.pseudonymize"
 
 // endMembership ends a membership of somebody being forgotten, and forgets
 // what the trail kept of it and of `objects` beside it: the person record
-// it was, and the invitations sent to them.
+// it was.
 //
 // Its own name goes too, through ent rather than a Patch, because a record of
 // what was blanked would be the thing blanked. What the history calls the
@@ -195,57 +168,9 @@ func (t *Tx) endMembership(member, person pdid.Id, objects []pdid.Id) (int, erro
 		objects = append(objects, member)
 	}
 
-	sent, err := t.forgetInvitations(member, person)
-	if err != nil {
-		return 0, err
-	}
-	objects = append(objects, sent...)
-
 	// The trail kept the rows as they were after every write; those copies
 	// are the person too.
 	return t.forget(objects)
-}
-
-// forgetInvitations takes the address off this workspace's invitations to
-// somebody being forgotten -- the one that made their membership, the ones
-// naming their person record -- and takes back any still waiting. It answers
-// which they were, for the trail's copies of them to go too.
-//
-// One sent to an address that names neither is not theirs to anybody's
-// knowledge here, and stays.
-func (t *Tx) forgetInvitations(member, person pdid.Id) ([]pdid.Id, error) {
-	whose := []predicate.Invitation{}
-	if !member.IsZero() {
-		whose = append(whose, invitation.HolderId(member.Uuid()))
-	}
-	if !person.IsZero() {
-		whose = append(whose, invitation.PartyId(person.Uuid()))
-	}
-	if len(whose) == 0 {
-		return nil, nil
-	}
-	vs, err := t.db.Invitation.Query().Where(invitation.TenantId(t.tenant.Uuid()), invitation.Or(whose...)).All(t.ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	ids := make([]pdid.Id, 0, len(vs))
-	for _, v := range vs {
-		req := app.InvitationPatchRequest_builder{
-			Ref:              app.InvitationRef_builder{Id: pdid.Id(v.Id).Bytes()}.Build(),
-			Email:            z.Ptr(""),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build()
-		if v.State == invitePending {
-			req.SetState(inviteRevoked)
-			req.SetDateSettled(ts(t.now))
-		}
-		if _, err := t.next.Invitation().Patch(t.ctx, req); err != nil {
-			return nil, err
-		}
-		ids = append(ids, pdid.Id(v.Id))
-	}
-	return ids, nil
 }
 
 // succeed hands a workspace on when its last owner leaves, to whoever

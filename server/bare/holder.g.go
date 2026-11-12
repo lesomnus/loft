@@ -164,13 +164,6 @@ func (st HolderServiceServer) create(ctx context.Context, req *loft.HolderAddReq
 		q.SetDateLeaving(req.GetDateLeaving().AsTime())
 	}
 	q.SetMailOff(req.GetMailOff())
-	if req.HasParty() {
-		if v, err := entuuid.FromBytes(req.GetParty()); err != nil {
-			return nil, nil, status.Errorf(codes.InvalidArgument, "party: %s", err)
-		} else {
-			q.SetParty(v)
-		}
-	}
 	return q, ds, nil
 }
 
@@ -328,9 +321,6 @@ func HolderSelectedFields(m *loft.HolderSelect) []string {
 	if m.GetMailOff() {
 		vs = append(vs, holder.FieldMailOff)
 	}
-	if m.GetParty() {
-		vs = append(vs, holder.FieldParty)
-	}
 
 	return vs
 }
@@ -400,7 +390,7 @@ func HolderGetKey(ctx context.Context, db *ent.Client, ref *loft.HolderRef) (uui
 var holderOrmEntity = ormpatch.MustEntityOf(loft.File_loft_payday_holder_proto, "Holder")
 
 var holderPatchColumns = entpatch.Columns{
-	1: holder.FieldId, 2: holder.TenantColumn, 4: holder.FieldAlias, 5: holder.FieldName, 6: holder.FieldDesc, 7: holder.FieldLabels, 13: holder.FieldDateUpdated, 14: holder.FieldDateErased, 15: holder.FieldDateCreated, 8: holder.FieldRole, 10: holder.FieldDateLeaving, 11: holder.FieldMailOff, 12: holder.FieldParty}
+	1: holder.FieldId, 2: holder.TenantColumn, 4: holder.FieldAlias, 5: holder.FieldName, 6: holder.FieldDesc, 7: holder.FieldLabels, 13: holder.FieldDateUpdated, 14: holder.FieldDateErased, 15: holder.FieldDateCreated, 8: holder.FieldRole, 10: holder.FieldDateLeaving, 11: holder.FieldMailOff}
 
 func (s HolderServiceServer) Apply(ctx context.Context, req *loft.HolderApplyRequest) (*loft.Holder, error) {
 	if !req.HasPatch() {

@@ -27,7 +27,7 @@ import { AssetTypeService, ItemModelService } from '../gen/loft/catalog_svc_pb.j
 import { AccessService } from '../gen/loft/payday/access_svc_pb.js'
 import { AuditService } from '../gen/loft/payday/audit_svc_pb.js'
 import { CountFindingService, InventoryCountService } from '../gen/loft/count_svc_pb.js'
-import { InvitationService, PartyService } from '../gen/loft/org_svc_pb.js'
+import { PartyService } from '../gen/loft/org_svc_pb.js'
 import { CustodyLineService, CustodyService } from '../gen/loft/custody_svc_pb.js'
 import { EventService } from '../gen/loft/payday/event_svc_pb.js'
 import { HolderService } from '../gen/loft/payday/holder_svc_pb.js'
@@ -52,7 +52,6 @@ export {
 	EventService,
 	HolderService,
 	InventoryCountService,
-	InvitationService,
 	ItemModelService,
 	LabelService,
 	NotificationService,

@@ -141,18 +141,11 @@ func TestTheHistoryTellsTwoOfANameApart(t *testing.T) {
 	// Two of a name, one of whom lends things out, and one of a name of
 	// her own.
 	kim, other, lee := party("김민준", "person", dev), party("김민준", "person", sales), party("이서연", "person", design)
-	signed, err := e.app().Party().Invite(e.owner, app.PartyInviteRequest_builder{
-		Ref:      ref[app.PartyRef](other.GetId()),
-		Alias:    "minjun",
-		Role:     "manager",
-		Password: "password1234",
-	}.Build())
-	x.NoError(err)
-	lender := e.as(signed.GetHolder())
+	lender, signed := e.admit(other, "minjun", "manager")
 
 	store := e.space("창고", nil)
 	laptop := e.item("노트북", "NB-1", store, day)
-	_, err = e.app().Asset().Assign(e.owner, app.AssetAssignRequest_builder{Ref: assetRef(laptop), Role: "owner", Party: ref[app.PartyRef](lee.GetId())}.Build())
+	_, err := e.app().Asset().Assign(e.owner, app.AssetAssignRequest_builder{Ref: assetRef(laptop), Role: "owner", Party: ref[app.PartyRef](lee.GetId())}.Build())
 	x.NoError(err)
 	_, err = e.app().Custody().Add(lender, app.CustodyAddRequest_builder{
 		Party: ref[app.PartyRef](kim.GetId()),
@@ -198,7 +191,6 @@ func TestTheHistoryTellsTwoOfANameApart(t *testing.T) {
 		"추가: 김민준 · 영업팀",
 		"추가: 이서연",
 		"추가: 개발팀",
-		"로그인 발급: 김민준 · 영업팀 (@minjun)",
 		"NB-1 소유: 이서연",
 		"지급: 김민준 · 개발팀",
 	} {

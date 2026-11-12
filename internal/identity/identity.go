@@ -84,6 +84,12 @@ type Config struct {
 	// tenant offers it (roster's `TenantConfig.leave`), deletes their holder
 	// there (`#leave`). It is an external roster's; empty draws no link.
 	AccountUrl string `yaml:"account_url"`
+
+	// ConsoleUrl is roster's user console for the tenant: where its
+	// administrators add and remove the members and give them a way in,
+	// which is roster's and not Loft's (D87). The people screen links to it.
+	// It is an external roster's; empty draws no link.
+	ConsoleUrl string `yaml:"console_url"`
 }
 
 // DefaultTenant is the tenant of the roster in this process when the
@@ -229,8 +235,8 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 	}
 	s := &Store{cfg: cfg, log: log, agents: map[string]bool{}, now: time.Now}
 	if cfg.Embedded() {
-		if cfg.Key != "" || cfg.CaFile != "" || cfg.Insecure || cfg.AccountUrl != "" {
-			return nil, errors.New("auth.roster: key, ca_file, insecure and account_url are an external roster's, and addr names none")
+		if cfg.Key != "" || cfg.CaFile != "" || cfg.Insecure || cfg.AccountUrl != "" || cfg.ConsoleUrl != "" {
+			return nil, errors.New("auth.roster: key, ca_file, insecure, account_url and console_url are an external roster's, and addr names none")
 		}
 		em, err := openEmbedded(ctx, cfg, stateDir, log)
 		if err != nil {
@@ -647,6 +653,11 @@ func (s *Store) inTenant(ctx context.Context) (context.Context, Tenant, error) {
 // AccountPage is roster's page where somebody manages how they sign in, and
 // deletes themselves where the tenant offers that; empty for none.
 func (s *Store) AccountPage() string { return s.cfg.AccountUrl }
+
+// ConsolePage is roster's user console for the tenant, where its
+// administrators add and remove members and give them a way in; empty for
+// none.
+func (s *Store) ConsolePage() string { return s.cfg.ConsoleUrl }
 
 // Standing is what roster says of somebody now -- when everything issued to
 // them before stopped being good, when they were suspended, when they were

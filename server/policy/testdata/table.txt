@@ -79,9 +79,6 @@
 /loft.InventoryCountService/Results	manager +auditor
 /loft.InventoryCountService/Scan	member
 /loft.InventoryCountService/Watch	read
-/loft.InvitationService/Add	admin
-/loft.InvitationService/List	admin
-/loft.InvitationService/Revoke	admin
 /loft.ItemModelService/Add	manager
 /loft.ItemModelService/Erase	admin
 /loft.ItemModelService/Get	read
@@ -102,14 +99,11 @@
 /loft.NotificationService/MarkRead	read
 /loft.NotificationService/SetMail	read
 /loft.PartyService/Add	admin
-/loft.PartyService/Deactivate	admin
 /loft.PartyService/Get	read
-/loft.PartyService/Invite	admin
 /loft.PartyService/List	read
 /loft.PartyService/Me	read
 /loft.PartyService/Pseudonymize	admin
 /loft.PartyService/Search	read
-/loft.PartyService/SetPassword	read
 /loft.PartyService/SetRole	admin
 /loft.PartyService/Update	admin
 /loft.PartyService/Watch	read

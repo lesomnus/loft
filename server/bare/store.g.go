@@ -26,7 +26,6 @@ import (
 	fact "github.com/lesomnus/loft/internal/ent/fact"
 	holder "github.com/lesomnus/loft/internal/ent/holder"
 	inventorycount "github.com/lesomnus/loft/internal/ent/inventorycount"
-	invitation "github.com/lesomnus/loft/internal/ent/invitation"
 	itemmodel "github.com/lesomnus/loft/internal/ent/itemmodel"
 	label "github.com/lesomnus/loft/internal/ent/label"
 	legalhold "github.com/lesomnus/loft/internal/ent/legalhold"
@@ -410,7 +409,6 @@ type Scope interface {
 	HolderScope(ctx context.Context) (predicate.Holder, error)
 	PartyScope(ctx context.Context) (predicate.Party, error)
 	SessionScope(ctx context.Context) (predicate.Session, error)
-	InvitationScope(ctx context.Context) (predicate.Invitation, error)
 	CliLoginScope(ctx context.Context) (predicate.CliLogin, error)
 	SignInFailureScope(ctx context.Context) (predicate.SignInFailure, error)
 	AssetScope(ctx context.Context) (predicate.Asset, error)
@@ -479,9 +477,6 @@ func (Unscoped) PartyScope(_ context.Context) (predicate.Party, error) {
 	return nil, nil
 }
 func (Unscoped) SessionScope(_ context.Context) (predicate.Session, error) {
-	return nil, nil
-}
-func (Unscoped) InvitationScope(_ context.Context) (predicate.Invitation, error) {
 	return nil, nil
 }
 func (Unscoped) CliLoginScope(_ context.Context) (predicate.CliLogin, error) {
@@ -736,26 +731,6 @@ func (ss Scopes) SessionScope(ctx context.Context) (predicate.Session, error) {
 	}
 
 	return session.And(ps...), nil
-}
-
-func (ss Scopes) InvitationScope(ctx context.Context) (predicate.Invitation, error) {
-	ps := make([]predicate.Invitation, 0, len(ss))
-	for _, s := range ss {
-		p, err := s.InvitationScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if p == nil {
-			continue
-		}
-
-		ps = append(ps, p)
-	}
-	if len(ps) == 0 {
-		return nil, nil
-	}
-
-	return invitation.And(ps...), nil
 }
 
 func (ss Scopes) CliLoginScope(ctx context.Context) (predicate.CliLogin, error) {
@@ -1653,7 +1628,7 @@ func ItemError(i int, err error) error {
 // is rendered for that dialect, not just what this server writes.
 //
 // That set is also what a soft erasure needs, so this is the whole
-// check. Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract and WorkOrder free the names they held when a row
+// check. Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Holder, InventoryCount, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract and WorkOrder free the names they held when a row
 // is erased, which is a unique index covering only the rows that are
 // still there -- a partial index, and the dialects above are the ones
 // that have one. MySQL does not, and ent writes the annotation out for
@@ -1698,12 +1673,9 @@ func (s Server) AssetType() loft.AssetTypeServiceServer {
 func (s Server) ItemModel() loft.ItemModelServiceServer {
 	return ItemModelServiceServer{Store: s.Store}
 }
-func (s Server) Holder() loft.HolderServiceServer   { return HolderServiceServer{Store: s.Store} }
-func (s Server) Party() loft.PartyServiceServer     { return PartyServiceServer{Store: s.Store} }
-func (s Server) Session() loft.SessionServiceServer { return SessionServiceServer{Store: s.Store} }
-func (s Server) Invitation() loft.InvitationServiceServer {
-	return InvitationServiceServer{Store: s.Store}
-}
+func (s Server) Holder() loft.HolderServiceServer     { return HolderServiceServer{Store: s.Store} }
+func (s Server) Party() loft.PartyServiceServer       { return PartyServiceServer{Store: s.Store} }
+func (s Server) Session() loft.SessionServiceServer   { return SessionServiceServer{Store: s.Store} }
 func (s Server) CliLogin() loft.CliLoginServiceServer { return CliLoginServiceServer{Store: s.Store} }
 func (s Server) SignInFailure() loft.SignInFailureServiceServer {
 	return SignInFailureServiceServer{Store: s.Store}

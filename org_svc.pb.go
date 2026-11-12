@@ -2437,8 +2437,8 @@ type PartyMeResponse struct {
 	xxx_hidden_Party         *Party                 `protobuf:"bytes,2,opt,name=party"`
 	xxx_hidden_Tenant        *Tenant                `protobuf:"bytes,3,opt,name=tenant"`
 	xxx_hidden_Role          string                 `protobuf:"bytes,4,opt,name=role"`
-	xxx_hidden_AccountsHere  bool                   `protobuf:"varint,7,opt,name=accounts_here,json=accountsHere"`
 	xxx_hidden_AccountUrl    string                 `protobuf:"bytes,8,opt,name=account_url,json=accountUrl"`
+	xxx_hidden_ConsoleUrl    string                 `protobuf:"bytes,16,opt,name=console_url,json=consoleUrl"`
 	xxx_hidden_Timezone      string                 `protobuf:"bytes,9,opt,name=timezone"`
 	xxx_hidden_Currency      string                 `protobuf:"bytes,10,opt,name=currency"`
 	xxx_hidden_RestoreDays   uint32                 `protobuf:"varint,11,opt,name=restore_days,json=restoreDays"`
@@ -2502,16 +2502,16 @@ func (x *PartyMeResponse) GetRole() string {
 	return ""
 }
 
-func (x *PartyMeResponse) GetAccountsHere() bool {
-	if x != nil {
-		return x.xxx_hidden_AccountsHere
-	}
-	return false
-}
-
 func (x *PartyMeResponse) GetAccountUrl() string {
 	if x != nil {
 		return x.xxx_hidden_AccountUrl
+	}
+	return ""
+}
+
+func (x *PartyMeResponse) GetConsoleUrl() string {
+	if x != nil {
+		return x.xxx_hidden_ConsoleUrl
 	}
 	return ""
 }
@@ -2574,12 +2574,12 @@ func (x *PartyMeResponse) SetRole(v string) {
 	x.xxx_hidden_Role = v
 }
 
-func (x *PartyMeResponse) SetAccountsHere(v bool) {
-	x.xxx_hidden_AccountsHere = v
-}
-
 func (x *PartyMeResponse) SetAccountUrl(v string) {
 	x.xxx_hidden_AccountUrl = v
+}
+
+func (x *PartyMeResponse) SetConsoleUrl(v string) {
+	x.xxx_hidden_ConsoleUrl = v
 }
 
 func (x *PartyMeResponse) SetTimezone(v string) {
@@ -2646,14 +2646,14 @@ type PartyMeResponse_builder struct {
 	Party  *Party
 	Tenant *Tenant
 	Role   string
-	// Whether logins and passwords are made and changed here -- the roster in
-	// this process -- or at a roster of its own, by whoever administers the
-	// tenant there (design 9.10).
-	AccountsHere bool
 	// Where the member manages how they sign in at roster -- and deletes their
 	// holder there, where the tenant offers that -- for a roster of its own
 	// (`auth.roster.account_url`). Empty is no such page.
 	AccountUrl string
+	// Where the tenant's administrators add and remove its members and give
+	// them a way in: roster's user console (`auth.roster.console_url`, D87).
+	// Empty is no such page.
+	ConsoleUrl string
 	// Where the workspace is, as the server tells it (#144): the zone its dates
 	// are told in, an IANA name, and the currency a new amount is priced in --
 	// the workspace's own, or the deployment's where it says none.
@@ -2689,8 +2689,8 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_Party = b.Party
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Role = b.Role
-	x.xxx_hidden_AccountsHere = b.AccountsHere
 	x.xxx_hidden_AccountUrl = b.AccountUrl
+	x.xxx_hidden_ConsoleUrl = b.ConsoleUrl
 	x.xxx_hidden_Timezone = b.Timezone
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_RestoreDays = b.RestoreDays
@@ -2897,226 +2897,6 @@ func (b0 PartyUpdateRequest_builder) Build() *PartyUpdateRequest {
 	return m0
 }
 
-type PartyInviteRequest struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref      *PartyRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Alias    string                 `protobuf:"bytes,2,opt,name=alias"`
-	xxx_hidden_Role     string                 `protobuf:"bytes,3,opt,name=role"`
-	xxx_hidden_Password string                 `protobuf:"bytes,4,opt,name=password"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *PartyInviteRequest) Reset() {
-	*x = PartyInviteRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PartyInviteRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PartyInviteRequest) ProtoMessage() {}
-
-func (x *PartyInviteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PartyInviteRequest) GetRef() *PartyRef {
-	if x != nil {
-		return x.xxx_hidden_Ref
-	}
-	return nil
-}
-
-func (x *PartyInviteRequest) GetAlias() string {
-	if x != nil {
-		return x.xxx_hidden_Alias
-	}
-	return ""
-}
-
-func (x *PartyInviteRequest) GetRole() string {
-	if x != nil {
-		return x.xxx_hidden_Role
-	}
-	return ""
-}
-
-func (x *PartyInviteRequest) GetPassword() string {
-	if x != nil {
-		return x.xxx_hidden_Password
-	}
-	return ""
-}
-
-func (x *PartyInviteRequest) SetRef(v *PartyRef) {
-	x.xxx_hidden_Ref = v
-}
-
-func (x *PartyInviteRequest) SetAlias(v string) {
-	x.xxx_hidden_Alias = v
-}
-
-func (x *PartyInviteRequest) SetRole(v string) {
-	x.xxx_hidden_Role = v
-}
-
-func (x *PartyInviteRequest) SetPassword(v string) {
-	x.xxx_hidden_Password = v
-}
-
-func (x *PartyInviteRequest) HasRef() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Ref != nil
-}
-
-func (x *PartyInviteRequest) ClearRef() {
-	x.xxx_hidden_Ref = nil
-}
-
-type PartyInviteRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Ref *PartyRef
-	// The name the person signs in with: lowercase letters, digits, hyphens.
-	Alias string
-	Role  string
-	// Empty: one is made up and answered once.
-	Password string
-}
-
-func (b0 PartyInviteRequest_builder) Build() *PartyInviteRequest {
-	m0 := &PartyInviteRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Ref = b.Ref
-	x.xxx_hidden_Alias = b.Alias
-	x.xxx_hidden_Role = b.Role
-	x.xxx_hidden_Password = b.Password
-	return m0
-}
-
-type PartyInviteResponse struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Party    *Party                 `protobuf:"bytes,1,opt,name=party"`
-	xxx_hidden_Holder   *Holder                `protobuf:"bytes,2,opt,name=holder"`
-	xxx_hidden_Password string                 `protobuf:"bytes,3,opt,name=password"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *PartyInviteResponse) Reset() {
-	*x = PartyInviteResponse{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PartyInviteResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PartyInviteResponse) ProtoMessage() {}
-
-func (x *PartyInviteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PartyInviteResponse) GetParty() *Party {
-	if x != nil {
-		return x.xxx_hidden_Party
-	}
-	return nil
-}
-
-func (x *PartyInviteResponse) GetHolder() *Holder {
-	if x != nil {
-		return x.xxx_hidden_Holder
-	}
-	return nil
-}
-
-func (x *PartyInviteResponse) GetPassword() string {
-	if x != nil {
-		return x.xxx_hidden_Password
-	}
-	return ""
-}
-
-func (x *PartyInviteResponse) SetParty(v *Party) {
-	x.xxx_hidden_Party = v
-}
-
-func (x *PartyInviteResponse) SetHolder(v *Holder) {
-	x.xxx_hidden_Holder = v
-}
-
-func (x *PartyInviteResponse) SetPassword(v string) {
-	x.xxx_hidden_Password = v
-}
-
-func (x *PartyInviteResponse) HasParty() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Party != nil
-}
-
-func (x *PartyInviteResponse) HasHolder() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Holder != nil
-}
-
-func (x *PartyInviteResponse) ClearParty() {
-	x.xxx_hidden_Party = nil
-}
-
-func (x *PartyInviteResponse) ClearHolder() {
-	x.xxx_hidden_Holder = nil
-}
-
-type PartyInviteResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Party  *Party
-	Holder *Holder
-	// Only when it was made up here; it is not stored.
-	Password string
-}
-
-func (b0 PartyInviteResponse_builder) Build() *PartyInviteResponse {
-	m0 := &PartyInviteResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Party = b.Party
-	x.xxx_hidden_Holder = b.Holder
-	x.xxx_hidden_Password = b.Password
-	return m0
-}
-
 type PartySetRoleRequest struct {
 	state           protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Ref  *PartyRef              `protobuf:"bytes,1,opt,name=ref"`
@@ -3127,7 +2907,7 @@ type PartySetRoleRequest struct {
 
 func (x *PartySetRoleRequest) Reset() {
 	*x = PartySetRoleRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[19]
+	mi := &file_loft_org_svc_g_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3139,7 +2919,7 @@ func (x *PartySetRoleRequest) String() string {
 func (*PartySetRoleRequest) ProtoMessage() {}
 
 func (x *PartySetRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[19]
+	mi := &file_loft_org_svc_g_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3199,214 +2979,6 @@ func (b0 PartySetRoleRequest_builder) Build() *PartySetRoleRequest {
 	return m0
 }
 
-type PartySetPasswordRequest struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref      *PartyRef              `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Current  string                 `protobuf:"bytes,2,opt,name=current"`
-	xxx_hidden_Password string                 `protobuf:"bytes,3,opt,name=password"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *PartySetPasswordRequest) Reset() {
-	*x = PartySetPasswordRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[20]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PartySetPasswordRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PartySetPasswordRequest) ProtoMessage() {}
-
-func (x *PartySetPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[20]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PartySetPasswordRequest) GetRef() *PartyRef {
-	if x != nil {
-		return x.xxx_hidden_Ref
-	}
-	return nil
-}
-
-func (x *PartySetPasswordRequest) GetCurrent() string {
-	if x != nil {
-		return x.xxx_hidden_Current
-	}
-	return ""
-}
-
-func (x *PartySetPasswordRequest) GetPassword() string {
-	if x != nil {
-		return x.xxx_hidden_Password
-	}
-	return ""
-}
-
-func (x *PartySetPasswordRequest) SetRef(v *PartyRef) {
-	x.xxx_hidden_Ref = v
-}
-
-func (x *PartySetPasswordRequest) SetCurrent(v string) {
-	x.xxx_hidden_Current = v
-}
-
-func (x *PartySetPasswordRequest) SetPassword(v string) {
-	x.xxx_hidden_Password = v
-}
-
-func (x *PartySetPasswordRequest) HasRef() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Ref != nil
-}
-
-func (x *PartySetPasswordRequest) ClearRef() {
-	x.xxx_hidden_Ref = nil
-}
-
-type PartySetPasswordRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// Empty: the caller's own.
-	Ref      *PartyRef
-	Current  string
-	Password string
-}
-
-func (b0 PartySetPasswordRequest_builder) Build() *PartySetPasswordRequest {
-	m0 := &PartySetPasswordRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Ref = b.Ref
-	x.xxx_hidden_Current = b.Current
-	x.xxx_hidden_Password = b.Password
-	return m0
-}
-
-type PartySetPasswordResponse struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PartySetPasswordResponse) Reset() {
-	*x = PartySetPasswordResponse{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[21]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PartySetPasswordResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PartySetPasswordResponse) ProtoMessage() {}
-
-func (x *PartySetPasswordResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[21]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type PartySetPasswordResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 PartySetPasswordResponse_builder) Build() *PartySetPasswordResponse {
-	m0 := &PartySetPasswordResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
-type PartyDeactivateRequest struct {
-	state          protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref *PartyRef              `protobuf:"bytes,1,opt,name=ref"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *PartyDeactivateRequest) Reset() {
-	*x = PartyDeactivateRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[22]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PartyDeactivateRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PartyDeactivateRequest) ProtoMessage() {}
-
-func (x *PartyDeactivateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[22]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PartyDeactivateRequest) GetRef() *PartyRef {
-	if x != nil {
-		return x.xxx_hidden_Ref
-	}
-	return nil
-}
-
-func (x *PartyDeactivateRequest) SetRef(v *PartyRef) {
-	x.xxx_hidden_Ref = v
-}
-
-func (x *PartyDeactivateRequest) HasRef() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Ref != nil
-}
-
-func (x *PartyDeactivateRequest) ClearRef() {
-	x.xxx_hidden_Ref = nil
-}
-
-type PartyDeactivateRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Ref *PartyRef
-}
-
-func (b0 PartyDeactivateRequest_builder) Build() *PartyDeactivateRequest {
-	m0 := &PartyDeactivateRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Ref = b.Ref
-	return m0
-}
-
 type PartyPseudonymizeRequest struct {
 	state          protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Ref *PartyRef              `protobuf:"bytes,1,opt,name=ref"`
@@ -3416,7 +2988,7 @@ type PartyPseudonymizeRequest struct {
 
 func (x *PartyPseudonymizeRequest) Reset() {
 	*x = PartyPseudonymizeRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[23]
+	mi := &file_loft_org_svc_g_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3428,7 +3000,7 @@ func (x *PartyPseudonymizeRequest) String() string {
 func (*PartyPseudonymizeRequest) ProtoMessage() {}
 
 func (x *PartyPseudonymizeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[23]
+	mi := &file_loft_org_svc_g_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3487,7 +3059,7 @@ type PartySearchRequest struct {
 
 func (x *PartySearchRequest) Reset() {
 	*x = PartySearchRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[24]
+	mi := &file_loft_org_svc_g_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3499,7 +3071,7 @@ func (x *PartySearchRequest) String() string {
 func (*PartySearchRequest) ProtoMessage() {}
 
 func (x *PartySearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[24]
+	mi := &file_loft_org_svc_g_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3585,7 +3157,7 @@ type PartySearchResponse struct {
 
 func (x *PartySearchResponse) Reset() {
 	*x = PartySearchResponse{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[25]
+	mi := &file_loft_org_svc_g_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3597,7 +3169,7 @@ func (x *PartySearchResponse) String() string {
 func (*PartySearchResponse) ProtoMessage() {}
 
 func (x *PartySearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[25]
+	mi := &file_loft_org_svc_g_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3645,1903 +3217,6 @@ func (b0 PartySearchResponse_builder) Build() *PartySearchResponse {
 	_, _ = b, x
 	x.xxx_hidden_Items = &b.Items
 	x.xxx_hidden_Total = b.Total
-	return m0
-}
-
-type InvitationAddRequest struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Inviter     *HolderRef             `protobuf:"bytes,8,opt,name=inviter"`
-	xxx_hidden_Email       string                 `protobuf:"bytes,9,opt,name=email"`
-	xxx_hidden_Role        string                 `protobuf:"bytes,10,opt,name=role"`
-	xxx_hidden_Party       *PartyRef              `protobuf:"bytes,11,opt,name=party"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
-	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
-	xxx_hidden_DateSettled *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_settled,json=dateSettled"`
-	xxx_hidden_Holder      *HolderRef             `protobuf:"bytes,19,opt,name=holder"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *InvitationAddRequest) Reset() {
-	*x = InvitationAddRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[26]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationAddRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationAddRequest) ProtoMessage() {}
-
-func (x *InvitationAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[26]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationAddRequest) GetId() []byte {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return nil
-}
-
-func (x *InvitationAddRequest) GetTenant() *TenantRef {
-	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *InvitationAddRequest) GetInviter() *HolderRef {
-	if x != nil {
-		return x.xxx_hidden_Inviter
-	}
-	return nil
-}
-
-func (x *InvitationAddRequest) GetEmail() string {
-	if x != nil {
-		return x.xxx_hidden_Email
-	}
-	return ""
-}
-
-func (x *InvitationAddRequest) GetRole() string {
-	if x != nil {
-		return x.xxx_hidden_Role
-	}
-	return ""
-}
-
-func (x *InvitationAddRequest) GetParty() *PartyRef {
-	if x != nil {
-		return x.xxx_hidden_Party
-	}
-	return nil
-}
-
-func (x *InvitationAddRequest) GetDateCreated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return nil
-}
-
-func (x *InvitationAddRequest) GetState() string {
-	if x != nil {
-		return x.xxx_hidden_State
-	}
-	return ""
-}
-
-func (x *InvitationAddRequest) GetDateExpires() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateExpires
-	}
-	return nil
-}
-
-func (x *InvitationAddRequest) GetDateSettled() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateSettled
-	}
-	return nil
-}
-
-func (x *InvitationAddRequest) GetHolder() *HolderRef {
-	if x != nil {
-		return x.xxx_hidden_Holder
-	}
-	return nil
-}
-
-func (x *InvitationAddRequest) SetId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
-}
-
-func (x *InvitationAddRequest) SetTenant(v *TenantRef) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *InvitationAddRequest) SetInviter(v *HolderRef) {
-	x.xxx_hidden_Inviter = v
-}
-
-func (x *InvitationAddRequest) SetEmail(v string) {
-	x.xxx_hidden_Email = v
-}
-
-func (x *InvitationAddRequest) SetRole(v string) {
-	x.xxx_hidden_Role = v
-}
-
-func (x *InvitationAddRequest) SetParty(v *PartyRef) {
-	x.xxx_hidden_Party = v
-}
-
-func (x *InvitationAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCreated = v
-}
-
-func (x *InvitationAddRequest) SetState(v string) {
-	x.xxx_hidden_State = v
-}
-
-func (x *InvitationAddRequest) SetDateExpires(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateExpires = v
-}
-
-func (x *InvitationAddRequest) SetDateSettled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateSettled = v
-}
-
-func (x *InvitationAddRequest) SetHolder(v *HolderRef) {
-	x.xxx_hidden_Holder = v
-}
-
-func (x *InvitationAddRequest) HasId() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *InvitationAddRequest) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *InvitationAddRequest) HasInviter() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Inviter != nil
-}
-
-func (x *InvitationAddRequest) HasParty() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Party != nil
-}
-
-func (x *InvitationAddRequest) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCreated != nil
-}
-
-func (x *InvitationAddRequest) HasDateExpires() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateExpires != nil
-}
-
-func (x *InvitationAddRequest) HasDateSettled() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateSettled != nil
-}
-
-func (x *InvitationAddRequest) HasHolder() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Holder != nil
-}
-
-func (x *InvitationAddRequest) ClearId() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_Id = nil
-}
-
-func (x *InvitationAddRequest) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *InvitationAddRequest) ClearInviter() {
-	x.xxx_hidden_Inviter = nil
-}
-
-func (x *InvitationAddRequest) ClearParty() {
-	x.xxx_hidden_Party = nil
-}
-
-func (x *InvitationAddRequest) ClearDateCreated() {
-	x.xxx_hidden_DateCreated = nil
-}
-
-func (x *InvitationAddRequest) ClearDateExpires() {
-	x.xxx_hidden_DateExpires = nil
-}
-
-func (x *InvitationAddRequest) ClearDateSettled() {
-	x.xxx_hidden_DateSettled = nil
-}
-
-func (x *InvitationAddRequest) ClearHolder() {
-	x.xxx_hidden_Holder = nil
-}
-
-type InvitationAddRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id          []byte
-	Tenant      *TenantRef
-	Inviter     *HolderRef
-	Email       string
-	Role        string
-	Party       *PartyRef
-	DateCreated *timestamppb.Timestamp
-	State       string
-	DateExpires *timestamppb.Timestamp
-	DateSettled *timestamppb.Timestamp
-	Holder      *HolderRef
-}
-
-func (b0 InvitationAddRequest_builder) Build() *InvitationAddRequest {
-	m0 := &InvitationAddRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
-		x.xxx_hidden_Id = b.Id
-	}
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Inviter = b.Inviter
-	x.xxx_hidden_Email = b.Email
-	x.xxx_hidden_Role = b.Role
-	x.xxx_hidden_Party = b.Party
-	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_State = b.State
-	x.xxx_hidden_DateExpires = b.DateExpires
-	x.xxx_hidden_DateSettled = b.DateSettled
-	x.xxx_hidden_Holder = b.Holder
-	return m0
-}
-
-type InvitationGetRequest struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref    *InvitationRef         `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Select *InvitationSelect      `protobuf:"bytes,2,opt,name=select"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *InvitationGetRequest) Reset() {
-	*x = InvitationGetRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[27]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationGetRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationGetRequest) ProtoMessage() {}
-
-func (x *InvitationGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[27]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationGetRequest) GetRef() *InvitationRef {
-	if x != nil {
-		return x.xxx_hidden_Ref
-	}
-	return nil
-}
-
-func (x *InvitationGetRequest) GetSelect() *InvitationSelect {
-	if x != nil {
-		return x.xxx_hidden_Select
-	}
-	return nil
-}
-
-func (x *InvitationGetRequest) SetRef(v *InvitationRef) {
-	x.xxx_hidden_Ref = v
-}
-
-func (x *InvitationGetRequest) SetSelect(v *InvitationSelect) {
-	x.xxx_hidden_Select = v
-}
-
-func (x *InvitationGetRequest) HasRef() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Ref != nil
-}
-
-func (x *InvitationGetRequest) HasSelect() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Select != nil
-}
-
-func (x *InvitationGetRequest) ClearRef() {
-	x.xxx_hidden_Ref = nil
-}
-
-func (x *InvitationGetRequest) ClearSelect() {
-	x.xxx_hidden_Select = nil
-}
-
-type InvitationGetRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Ref    *InvitationRef
-	Select *InvitationSelect
-}
-
-func (b0 InvitationGetRequest_builder) Build() *InvitationGetRequest {
-	m0 := &InvitationGetRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Ref = b.Ref
-	x.xxx_hidden_Select = b.Select
-	return m0
-}
-
-type InvitationRef struct {
-	state          protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Key isInvitationRef_Key    `protobuf_oneof:"key"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *InvitationRef) Reset() {
-	*x = InvitationRef{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[28]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationRef) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationRef) ProtoMessage() {}
-
-func (x *InvitationRef) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[28]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationRef) GetId() []byte {
-	if x != nil {
-		if x, ok := x.xxx_hidden_Key.(*invitationRef_Id); ok {
-			return x.Id
-		}
-	}
-	return nil
-}
-
-func (x *InvitationRef) SetId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Key = &invitationRef_Id{v}
-}
-
-func (x *InvitationRef) HasKey() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Key != nil
-}
-
-func (x *InvitationRef) HasId() bool {
-	if x == nil {
-		return false
-	}
-	_, ok := x.xxx_hidden_Key.(*invitationRef_Id)
-	return ok
-}
-
-func (x *InvitationRef) ClearKey() {
-	x.xxx_hidden_Key = nil
-}
-
-func (x *InvitationRef) ClearId() {
-	if _, ok := x.xxx_hidden_Key.(*invitationRef_Id); ok {
-		x.xxx_hidden_Key = nil
-	}
-}
-
-const InvitationRef_Key_not_set_case case_InvitationRef_Key = 0
-const InvitationRef_Id_case case_InvitationRef_Key = 1
-
-func (x *InvitationRef) WhichKey() case_InvitationRef_Key {
-	if x == nil {
-		return InvitationRef_Key_not_set_case
-	}
-	switch x.xxx_hidden_Key.(type) {
-	case *invitationRef_Id:
-		return InvitationRef_Id_case
-	default:
-		return InvitationRef_Key_not_set_case
-	}
-}
-
-type InvitationRef_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// Fields of oneof xxx_hidden_Key:
-	Id []byte
-	// -- end of xxx_hidden_Key
-}
-
-func (b0 InvitationRef_builder) Build() *InvitationRef {
-	m0 := &InvitationRef{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.Id != nil {
-		x.xxx_hidden_Key = &invitationRef_Id{b.Id}
-	}
-	return m0
-}
-
-type case_InvitationRef_Key protoreflect.FieldNumber
-
-func (x case_InvitationRef_Key) String() string {
-	md := file_loft_org_svc_g_proto_msgTypes[28].Descriptor()
-	if x == 0 {
-		return "not set"
-	}
-	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
-}
-
-type isInvitationRef_Key interface {
-	isInvitationRef_Key()
-}
-
-type invitationRef_Id struct {
-	Id []byte `protobuf:"bytes,1,opt,name=id,oneof"`
-}
-
-func (*invitationRef_Id) isInvitationRef_Key() {}
-
-type InvitationSelect struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Inviter     *HolderSelect          `protobuf:"bytes,8,opt,name=inviter"`
-	xxx_hidden_Email       bool                   `protobuf:"varint,9,opt,name=email"`
-	xxx_hidden_Role        bool                   `protobuf:"varint,10,opt,name=role"`
-	xxx_hidden_Party       *PartySelect           `protobuf:"bytes,11,opt,name=party"`
-	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_State       bool                   `protobuf:"varint,16,opt,name=state"`
-	xxx_hidden_DateExpires bool                   `protobuf:"varint,17,opt,name=date_expires,json=dateExpires"`
-	xxx_hidden_DateSettled bool                   `protobuf:"varint,18,opt,name=date_settled,json=dateSettled"`
-	xxx_hidden_Holder      *HolderSelect          `protobuf:"bytes,19,opt,name=holder"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *InvitationSelect) Reset() {
-	*x = InvitationSelect{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[29]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationSelect) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationSelect) ProtoMessage() {}
-
-func (x *InvitationSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[29]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationSelect) GetAll() bool {
-	if x != nil {
-		return x.xxx_hidden_All
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetTenant() *TenantSelect {
-	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *InvitationSelect) GetInviter() *HolderSelect {
-	if x != nil {
-		return x.xxx_hidden_Inviter
-	}
-	return nil
-}
-
-func (x *InvitationSelect) GetEmail() bool {
-	if x != nil {
-		return x.xxx_hidden_Email
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetRole() bool {
-	if x != nil {
-		return x.xxx_hidden_Role
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetParty() *PartySelect {
-	if x != nil {
-		return x.xxx_hidden_Party
-	}
-	return nil
-}
-
-func (x *InvitationSelect) GetDateUpdated() bool {
-	if x != nil {
-		return x.xxx_hidden_DateUpdated
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetDateErased() bool {
-	if x != nil {
-		return x.xxx_hidden_DateErased
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetDateCreated() bool {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetState() bool {
-	if x != nil {
-		return x.xxx_hidden_State
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetDateExpires() bool {
-	if x != nil {
-		return x.xxx_hidden_DateExpires
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetDateSettled() bool {
-	if x != nil {
-		return x.xxx_hidden_DateSettled
-	}
-	return false
-}
-
-func (x *InvitationSelect) GetHolder() *HolderSelect {
-	if x != nil {
-		return x.xxx_hidden_Holder
-	}
-	return nil
-}
-
-func (x *InvitationSelect) SetAll(v bool) {
-	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 13)
-}
-
-func (x *InvitationSelect) SetTenant(v *TenantSelect) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *InvitationSelect) SetInviter(v *HolderSelect) {
-	x.xxx_hidden_Inviter = v
-}
-
-func (x *InvitationSelect) SetEmail(v bool) {
-	x.xxx_hidden_Email = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
-}
-
-func (x *InvitationSelect) SetRole(v bool) {
-	x.xxx_hidden_Role = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 13)
-}
-
-func (x *InvitationSelect) SetParty(v *PartySelect) {
-	x.xxx_hidden_Party = v
-}
-
-func (x *InvitationSelect) SetDateUpdated(v bool) {
-	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
-}
-
-func (x *InvitationSelect) SetDateErased(v bool) {
-	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
-}
-
-func (x *InvitationSelect) SetDateCreated(v bool) {
-	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 13)
-}
-
-func (x *InvitationSelect) SetState(v bool) {
-	x.xxx_hidden_State = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
-}
-
-func (x *InvitationSelect) SetDateExpires(v bool) {
-	x.xxx_hidden_DateExpires = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
-}
-
-func (x *InvitationSelect) SetDateSettled(v bool) {
-	x.xxx_hidden_DateSettled = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
-}
-
-func (x *InvitationSelect) SetHolder(v *HolderSelect) {
-	x.xxx_hidden_Holder = v
-}
-
-func (x *InvitationSelect) HasAll() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *InvitationSelect) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *InvitationSelect) HasInviter() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Inviter != nil
-}
-
-func (x *InvitationSelect) HasEmail() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
-}
-
-func (x *InvitationSelect) HasRole() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
-}
-
-func (x *InvitationSelect) HasParty() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Party != nil
-}
-
-func (x *InvitationSelect) HasDateUpdated() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
-}
-
-func (x *InvitationSelect) HasDateErased() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
-}
-
-func (x *InvitationSelect) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
-}
-
-func (x *InvitationSelect) HasState() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
-}
-
-func (x *InvitationSelect) HasDateExpires() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
-}
-
-func (x *InvitationSelect) HasDateSettled() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
-}
-
-func (x *InvitationSelect) HasHolder() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Holder != nil
-}
-
-func (x *InvitationSelect) ClearAll() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_All = false
-}
-
-func (x *InvitationSelect) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *InvitationSelect) ClearInviter() {
-	x.xxx_hidden_Inviter = nil
-}
-
-func (x *InvitationSelect) ClearEmail() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
-	x.xxx_hidden_Email = false
-}
-
-func (x *InvitationSelect) ClearRole() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
-	x.xxx_hidden_Role = false
-}
-
-func (x *InvitationSelect) ClearParty() {
-	x.xxx_hidden_Party = nil
-}
-
-func (x *InvitationSelect) ClearDateUpdated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_DateUpdated = false
-}
-
-func (x *InvitationSelect) ClearDateErased() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
-	x.xxx_hidden_DateErased = false
-}
-
-func (x *InvitationSelect) ClearDateCreated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
-	x.xxx_hidden_DateCreated = false
-}
-
-func (x *InvitationSelect) ClearState() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
-	x.xxx_hidden_State = false
-}
-
-func (x *InvitationSelect) ClearDateExpires() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
-	x.xxx_hidden_DateExpires = false
-}
-
-func (x *InvitationSelect) ClearDateSettled() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
-	x.xxx_hidden_DateSettled = false
-}
-
-func (x *InvitationSelect) ClearHolder() {
-	x.xxx_hidden_Holder = nil
-}
-
-type InvitationSelect_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	All         *bool
-	Tenant      *TenantSelect
-	Inviter     *HolderSelect
-	Email       *bool
-	Role        *bool
-	Party       *PartySelect
-	DateUpdated *bool
-	DateErased  *bool
-	DateCreated *bool
-	State       *bool
-	DateExpires *bool
-	DateSettled *bool
-	Holder      *HolderSelect
-}
-
-func (b0 InvitationSelect_builder) Build() *InvitationSelect {
-	m0 := &InvitationSelect{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 13)
-		x.xxx_hidden_All = *b.All
-	}
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Inviter = b.Inviter
-	if b.Email != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
-		x.xxx_hidden_Email = *b.Email
-	}
-	if b.Role != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 13)
-		x.xxx_hidden_Role = *b.Role
-	}
-	x.xxx_hidden_Party = b.Party
-	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
-		x.xxx_hidden_DateUpdated = *b.DateUpdated
-	}
-	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
-		x.xxx_hidden_DateErased = *b.DateErased
-	}
-	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 13)
-		x.xxx_hidden_DateCreated = *b.DateCreated
-	}
-	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
-		x.xxx_hidden_State = *b.State
-	}
-	if b.DateExpires != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
-		x.xxx_hidden_DateExpires = *b.DateExpires
-	}
-	if b.DateSettled != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
-		x.xxx_hidden_DateSettled = *b.DateSettled
-	}
-	x.xxx_hidden_Holder = b.Holder
-	return m0
-}
-
-type InvitationPatchRequest struct {
-	state                       protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref              *InvitationRef         `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Email            *string                `protobuf:"bytes,18,opt,name=email"`
-	xxx_hidden_Party            *PartyRef              `protobuf:"bytes,22,opt,name=party"`
-	xxx_hidden_PartyNull        bool                   `protobuf:"varint,23,opt,name=party_null,json=partyNull"`
-	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
-	xxx_hidden_State            *string                `protobuf:"bytes,32,opt,name=state"`
-	xxx_hidden_DateExpires      *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_expires,json=dateExpires"`
-	xxx_hidden_DateSettled      *timestamppb.Timestamp `protobuf:"bytes,36,opt,name=date_settled,json=dateSettled"`
-	xxx_hidden_DateSettledNull  bool                   `protobuf:"varint,37,opt,name=date_settled_null,json=dateSettledNull"`
-	xxx_hidden_Holder           *HolderRef             `protobuf:"bytes,38,opt,name=holder"`
-	xxx_hidden_HolderNull       bool                   `protobuf:"varint,39,opt,name=holder_null,json=holderNull"`
-	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
-	XXX_presence                [1]uint32
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
-}
-
-func (x *InvitationPatchRequest) Reset() {
-	*x = InvitationPatchRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[30]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationPatchRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationPatchRequest) ProtoMessage() {}
-
-func (x *InvitationPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[30]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationPatchRequest) GetRef() *InvitationRef {
-	if x != nil {
-		return x.xxx_hidden_Ref
-	}
-	return nil
-}
-
-func (x *InvitationPatchRequest) GetEmail() string {
-	if x != nil {
-		if x.xxx_hidden_Email != nil {
-			return *x.xxx_hidden_Email
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *InvitationPatchRequest) GetParty() *PartyRef {
-	if x != nil {
-		return x.xxx_hidden_Party
-	}
-	return nil
-}
-
-func (x *InvitationPatchRequest) GetPartyNull() bool {
-	if x != nil {
-		return x.xxx_hidden_PartyNull
-	}
-	return false
-}
-
-func (x *InvitationPatchRequest) GetDateUpdated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateUpdated
-	}
-	return nil
-}
-
-func (x *InvitationPatchRequest) GetDateUpdatedForce() bool {
-	if x != nil {
-		return x.xxx_hidden_DateUpdatedForce
-	}
-	return false
-}
-
-func (x *InvitationPatchRequest) GetState() string {
-	if x != nil {
-		if x.xxx_hidden_State != nil {
-			return *x.xxx_hidden_State
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *InvitationPatchRequest) GetDateExpires() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateExpires
-	}
-	return nil
-}
-
-func (x *InvitationPatchRequest) GetDateSettled() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateSettled
-	}
-	return nil
-}
-
-func (x *InvitationPatchRequest) GetDateSettledNull() bool {
-	if x != nil {
-		return x.xxx_hidden_DateSettledNull
-	}
-	return false
-}
-
-func (x *InvitationPatchRequest) GetHolder() *HolderRef {
-	if x != nil {
-		return x.xxx_hidden_Holder
-	}
-	return nil
-}
-
-func (x *InvitationPatchRequest) GetHolderNull() bool {
-	if x != nil {
-		return x.xxx_hidden_HolderNull
-	}
-	return false
-}
-
-func (x *InvitationPatchRequest) SetRef(v *InvitationRef) {
-	x.xxx_hidden_Ref = v
-}
-
-func (x *InvitationPatchRequest) SetEmail(v string) {
-	x.xxx_hidden_Email = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
-}
-
-func (x *InvitationPatchRequest) SetParty(v *PartyRef) {
-	x.xxx_hidden_Party = v
-}
-
-func (x *InvitationPatchRequest) SetPartyNull(v bool) {
-	x.xxx_hidden_PartyNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
-}
-
-func (x *InvitationPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateUpdated = v
-}
-
-func (x *InvitationPatchRequest) SetDateUpdatedForce(v bool) {
-	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
-}
-
-func (x *InvitationPatchRequest) SetState(v string) {
-	x.xxx_hidden_State = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
-}
-
-func (x *InvitationPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateExpires = v
-}
-
-func (x *InvitationPatchRequest) SetDateSettled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateSettled = v
-}
-
-func (x *InvitationPatchRequest) SetDateSettledNull(v bool) {
-	x.xxx_hidden_DateSettledNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 12)
-}
-
-func (x *InvitationPatchRequest) SetHolder(v *HolderRef) {
-	x.xxx_hidden_Holder = v
-}
-
-func (x *InvitationPatchRequest) SetHolderNull(v bool) {
-	x.xxx_hidden_HolderNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
-}
-
-func (x *InvitationPatchRequest) HasRef() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Ref != nil
-}
-
-func (x *InvitationPatchRequest) HasEmail() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
-}
-
-func (x *InvitationPatchRequest) HasParty() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Party != nil
-}
-
-func (x *InvitationPatchRequest) HasPartyNull() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
-}
-
-func (x *InvitationPatchRequest) HasDateUpdated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateUpdated != nil
-}
-
-func (x *InvitationPatchRequest) HasDateUpdatedForce() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
-}
-
-func (x *InvitationPatchRequest) HasState() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
-}
-
-func (x *InvitationPatchRequest) HasDateExpires() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateExpires != nil
-}
-
-func (x *InvitationPatchRequest) HasDateSettled() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateSettled != nil
-}
-
-func (x *InvitationPatchRequest) HasDateSettledNull() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
-}
-
-func (x *InvitationPatchRequest) HasHolder() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Holder != nil
-}
-
-func (x *InvitationPatchRequest) HasHolderNull() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
-}
-
-func (x *InvitationPatchRequest) ClearRef() {
-	x.xxx_hidden_Ref = nil
-}
-
-func (x *InvitationPatchRequest) ClearEmail() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_Email = nil
-}
-
-func (x *InvitationPatchRequest) ClearParty() {
-	x.xxx_hidden_Party = nil
-}
-
-func (x *InvitationPatchRequest) ClearPartyNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
-	x.xxx_hidden_PartyNull = false
-}
-
-func (x *InvitationPatchRequest) ClearDateUpdated() {
-	x.xxx_hidden_DateUpdated = nil
-}
-
-func (x *InvitationPatchRequest) ClearDateUpdatedForce() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
-	x.xxx_hidden_DateUpdatedForce = false
-}
-
-func (x *InvitationPatchRequest) ClearState() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_State = nil
-}
-
-func (x *InvitationPatchRequest) ClearDateExpires() {
-	x.xxx_hidden_DateExpires = nil
-}
-
-func (x *InvitationPatchRequest) ClearDateSettled() {
-	x.xxx_hidden_DateSettled = nil
-}
-
-func (x *InvitationPatchRequest) ClearDateSettledNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
-	x.xxx_hidden_DateSettledNull = false
-}
-
-func (x *InvitationPatchRequest) ClearHolder() {
-	x.xxx_hidden_Holder = nil
-}
-
-func (x *InvitationPatchRequest) ClearHolderNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
-	x.xxx_hidden_HolderNull = false
-}
-
-type InvitationPatchRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Ref   *InvitationRef
-	Email *string
-	Party *PartyRef
-	// Clear party instead of writing it.
-	// It takes a field of its own because an unset value already means
-	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and party clears.
-	PartyNull *bool
-	// The version this update requires the stored date_updated to be.
-	// It is a precondition, not a write: the update applies only if the row
-	// still holds this value, and the server stamps the new version itself.
-	// Setting it together with date_updated_force is an error --
-	// the version is the token every client's compare-and-swap is measured
-	// against, so it is not the caller's to choose.
-	DateUpdated *timestamppb.Timestamp
-	// Update whatever the stored date_updated is, with no precondition.
-	// The server still stamps a new version, so other clients' tokens are
-	// invalidated as usual; this declines the check for THIS update only.
-	// One of date_updated or this must be set. An omitted version is
-	// refused rather than assumed, because an unset field cannot be told
-	// apart from a caller who never considered locking at all.
-	DateUpdatedForce *bool
-	State            *string
-	DateExpires      *timestamppb.Timestamp
-	DateSettled      *timestamppb.Timestamp
-	// Clear date_settled instead of writing it.
-	// It takes a field of its own because an unset value already means
-	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and date_settled clears.
-	DateSettledNull *bool
-	Holder          *HolderRef
-	// Clear holder instead of writing it.
-	// It takes a field of its own because an unset value already means
-	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and holder clears.
-	HolderNull *bool
-}
-
-func (b0 InvitationPatchRequest_builder) Build() *InvitationPatchRequest {
-	m0 := &InvitationPatchRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Ref = b.Ref
-	if b.Email != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
-		x.xxx_hidden_Email = b.Email
-	}
-	x.xxx_hidden_Party = b.Party
-	if b.PartyNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
-		x.xxx_hidden_PartyNull = *b.PartyNull
-	}
-	x.xxx_hidden_DateUpdated = b.DateUpdated
-	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
-		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
-	}
-	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
-		x.xxx_hidden_State = b.State
-	}
-	x.xxx_hidden_DateExpires = b.DateExpires
-	x.xxx_hidden_DateSettled = b.DateSettled
-	if b.DateSettledNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 12)
-		x.xxx_hidden_DateSettledNull = *b.DateSettledNull
-	}
-	x.xxx_hidden_Holder = b.Holder
-	if b.HolderNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
-		x.xxx_hidden_HolderNull = *b.HolderNull
-	}
-	return m0
-}
-
-type InvitationApplyRequest struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref   *InvitationRef         `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Patch *patchpb.Patch         `protobuf:"bytes,2,opt,name=patch"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *InvitationApplyRequest) Reset() {
-	*x = InvitationApplyRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[31]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationApplyRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationApplyRequest) ProtoMessage() {}
-
-func (x *InvitationApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[31]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationApplyRequest) GetRef() *InvitationRef {
-	if x != nil {
-		return x.xxx_hidden_Ref
-	}
-	return nil
-}
-
-func (x *InvitationApplyRequest) GetPatch() *patchpb.Patch {
-	if x != nil {
-		return x.xxx_hidden_Patch
-	}
-	return nil
-}
-
-func (x *InvitationApplyRequest) SetRef(v *InvitationRef) {
-	x.xxx_hidden_Ref = v
-}
-
-func (x *InvitationApplyRequest) SetPatch(v *patchpb.Patch) {
-	x.xxx_hidden_Patch = v
-}
-
-func (x *InvitationApplyRequest) HasRef() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Ref != nil
-}
-
-func (x *InvitationApplyRequest) HasPatch() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Patch != nil
-}
-
-func (x *InvitationApplyRequest) ClearRef() {
-	x.xxx_hidden_Ref = nil
-}
-
-func (x *InvitationApplyRequest) ClearPatch() {
-	x.xxx_hidden_Patch = nil
-}
-
-type InvitationApplyRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Ref   *InvitationRef
-	Patch *patchpb.Patch
-}
-
-func (b0 InvitationApplyRequest_builder) Build() *InvitationApplyRequest {
-	m0 := &InvitationApplyRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Ref = b.Ref
-	x.xxx_hidden_Patch = b.Patch
-	return m0
-}
-
-type InvitationEraseResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Erased      bool                   `protobuf:"varint,1,opt,name=erased"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *InvitationEraseResponse) Reset() {
-	*x = InvitationEraseResponse{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[32]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationEraseResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationEraseResponse) ProtoMessage() {}
-
-func (x *InvitationEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[32]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationEraseResponse) GetErased() bool {
-	if x != nil {
-		return x.xxx_hidden_Erased
-	}
-	return false
-}
-
-func (x *InvitationEraseResponse) SetErased(v bool) {
-	x.xxx_hidden_Erased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
-}
-
-func (x *InvitationEraseResponse) HasErased() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *InvitationEraseResponse) ClearErased() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_Erased = false
-}
-
-type InvitationEraseResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// Erased is whether this call is the one that erased the row.
-	//
-	// False for a row that was already gone, was never there, or is out
-	// of this caller's reach -- which are one answer on purpose, and the
-	// reason the RPC does not fail instead.
-	Erased *bool
-}
-
-func (b0 InvitationEraseResponse_builder) Build() *InvitationEraseResponse {
-	m0 := &InvitationEraseResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.Erased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
-		x.xxx_hidden_Erased = *b.Erased
-	}
-	return m0
-}
-
-type InvitationListRequest struct {
-	state              protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Filters *[]*InvitationFilter   `protobuf:"bytes,1,rep,name=filters"`
-	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
-	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
-	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *InvitationListRequest) Reset() {
-	*x = InvitationListRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[33]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationListRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationListRequest) ProtoMessage() {}
-
-func (x *InvitationListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[33]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationListRequest) GetFilters() []*InvitationFilter {
-	if x != nil {
-		if x.xxx_hidden_Filters != nil {
-			return *x.xxx_hidden_Filters
-		}
-	}
-	return nil
-}
-
-func (x *InvitationListRequest) GetSize() int32 {
-	if x != nil {
-		return x.xxx_hidden_Size
-	}
-	return 0
-}
-
-func (x *InvitationListRequest) GetAfter() string {
-	if x != nil {
-		return x.xxx_hidden_After
-	}
-	return ""
-}
-
-func (x *InvitationListRequest) GetReverse() bool {
-	if x != nil {
-		return x.xxx_hidden_Reverse
-	}
-	return false
-}
-
-func (x *InvitationListRequest) SetFilters(v []*InvitationFilter) {
-	x.xxx_hidden_Filters = &v
-}
-
-func (x *InvitationListRequest) SetSize(v int32) {
-	x.xxx_hidden_Size = v
-}
-
-func (x *InvitationListRequest) SetAfter(v string) {
-	x.xxx_hidden_After = v
-}
-
-func (x *InvitationListRequest) SetReverse(v bool) {
-	x.xxx_hidden_Reverse = v
-}
-
-type InvitationListRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// Bounded because the work is: each filter is a predicate in the same query,
-	// so this is what says how much of the database one request may read.
-	Filters []*InvitationFilter
-	// How many to answer with. Nothing said is what the schema declared, and more
-	// than the cap is the cap -- a caller asking for more than there is meant no
-	// harm, so it is not an error and it is not the whole table either.
-	Size int32
-	// Where to carry on from: the "next" of the answer before. It names the last
-	// row of that page rather than counting rows from the start, so a row added
-	// ahead of the page does not shift it and a caller reading through never sees
-	// one twice or misses one.
-	After string
-	// Read the order the other way round, every column of it at once -- newest
-	// first where it is oldest first -- which the index the order walks walks
-	// from the other end. A cursor is of the way it was read, so the next page
-	// carries on that way, and one of the other way is refused.
-	Reverse bool
-}
-
-func (b0 InvitationListRequest_builder) Build() *InvitationListRequest {
-	m0 := &InvitationListRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Filters = &b.Filters
-	x.xxx_hidden_Size = b.Size
-	x.xxx_hidden_After = b.After
-	x.xxx_hidden_Reverse = b.Reverse
-	return m0
-}
-
-type InvitationListResponse struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Items *[]*Invitation         `protobuf:"bytes,1,rep,name=items"`
-	xxx_hidden_Next  string                 `protobuf:"bytes,2,opt,name=next"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *InvitationListResponse) Reset() {
-	*x = InvitationListResponse{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[34]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationListResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationListResponse) ProtoMessage() {}
-
-func (x *InvitationListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[34]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationListResponse) GetItems() []*Invitation {
-	if x != nil {
-		if x.xxx_hidden_Items != nil {
-			return *x.xxx_hidden_Items
-		}
-	}
-	return nil
-}
-
-func (x *InvitationListResponse) GetNext() string {
-	if x != nil {
-		return x.xxx_hidden_Next
-	}
-	return ""
-}
-
-func (x *InvitationListResponse) SetItems(v []*Invitation) {
-	x.xxx_hidden_Items = &v
-}
-
-func (x *InvitationListResponse) SetNext(v string) {
-	x.xxx_hidden_Next = v
-}
-
-type InvitationListResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Items []*Invitation
-	// What to ask for next, and empty when this was the last of them.
-	//
-	// Empty means there is no more *for now*: a list is read as it is, and one
-	// that has grown since answers a fresh call. It is not empty merely because
-	// the page came back short -- a page is short when the last row of it was the
-	// last row there was, which is a thing the server can only know by having
-	// looked.
-	Next string
-}
-
-func (b0 InvitationListResponse_builder) Build() *InvitationListResponse {
-	m0 := &InvitationListResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Items = &b.Items
-	x.xxx_hidden_Next = b.Next
-	return m0
-}
-
-type InvitationFilter struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref         *InvitationRef         `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_State       *string                `protobuf:"bytes,3,opt,name=state"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *InvitationFilter) Reset() {
-	*x = InvitationFilter{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[35]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationFilter) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationFilter) ProtoMessage() {}
-
-func (x *InvitationFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[35]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationFilter) GetRef() *InvitationRef {
-	if x != nil {
-		return x.xxx_hidden_Ref
-	}
-	return nil
-}
-
-func (x *InvitationFilter) GetTenant() *TenantRef {
-	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *InvitationFilter) GetState() string {
-	if x != nil {
-		if x.xxx_hidden_State != nil {
-			return *x.xxx_hidden_State
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *InvitationFilter) SetRef(v *InvitationRef) {
-	x.xxx_hidden_Ref = v
-}
-
-func (x *InvitationFilter) SetTenant(v *TenantRef) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *InvitationFilter) SetState(v string) {
-	x.xxx_hidden_State = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
-}
-
-func (x *InvitationFilter) HasRef() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Ref != nil
-}
-
-func (x *InvitationFilter) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *InvitationFilter) HasState() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
-}
-
-func (x *InvitationFilter) ClearRef() {
-	x.xxx_hidden_Ref = nil
-}
-
-func (x *InvitationFilter) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *InvitationFilter) ClearState() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
-	x.xxx_hidden_State = nil
-}
-
-type InvitationFilter_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Ref    *InvitationRef
-	Tenant *TenantRef
-	State  *string
-}
-
-func (b0 InvitationFilter_builder) Build() *InvitationFilter {
-	m0 := &InvitationFilter{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Ref = b.Ref
-	x.xxx_hidden_Tenant = b.Tenant
-	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
-		x.xxx_hidden_State = b.State
-	}
-	return m0
-}
-
-type InvitationRevokeRequest struct {
-	state          protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref *InvitationRef         `protobuf:"bytes,1,opt,name=ref"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *InvitationRevokeRequest) Reset() {
-	*x = InvitationRevokeRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[36]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *InvitationRevokeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*InvitationRevokeRequest) ProtoMessage() {}
-
-func (x *InvitationRevokeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[36]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *InvitationRevokeRequest) GetRef() *InvitationRef {
-	if x != nil {
-		return x.xxx_hidden_Ref
-	}
-	return nil
-}
-
-func (x *InvitationRevokeRequest) SetRef(v *InvitationRef) {
-	x.xxx_hidden_Ref = v
-}
-
-func (x *InvitationRevokeRequest) HasRef() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Ref != nil
-}
-
-func (x *InvitationRevokeRequest) ClearRef() {
-	x.xxx_hidden_Ref = nil
-}
-
-type InvitationRevokeRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Ref *InvitationRef
-}
-
-func (b0 InvitationRevokeRequest_builder) Build() *InvitationRevokeRequest {
-	m0 := &InvitationRevokeRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Ref = b.Ref
 	return m0
 }
 
@@ -5646,15 +3321,16 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.loft.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\xd7\x03\n" +
+	"\x0ePartyMeRequest\"\xd3\x03\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.loft.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.loft.PartyR\x05party\x12$\n" +
 	"\x06tenant\x18\x03 \x01(\v2\f.loft.TenantR\x06tenant\x12\x19\n" +
-	"\x04role\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12*\n" +
-	"\raccounts_here\x18\a \x01(\bB\x05\xaa\x01\x02\b\x02R\faccountsHere\x12&\n" +
+	"\x04role\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12&\n" +
 	"\vaccount_url\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\n" +
-	"accountUrl\x12!\n" +
+	"accountUrl\x12&\n" +
+	"\vconsole_url\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\n" +
+	"consoleUrl\x12!\n" +
 	"\btimezone\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\btimezone\x12!\n" +
 	"\bcurrency\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12(\n" +
@@ -5679,26 +3355,10 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	" \x03(\v2$.loft.PartyUpdateRequest.LabelsEntryR\x06labels\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x91\x01\n" +
-	"\x12PartyInviteRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x1b\n" +
-	"\x05alias\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05alias\x12\x19\n" +
-	"\x04role\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12!\n" +
-	"\bpassword\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\bpassword\"\x81\x01\n" +
-	"\x13PartyInviteResponse\x12!\n" +
-	"\x05party\x18\x01 \x01(\v2\v.loft.PartyR\x05party\x12$\n" +
-	"\x06holder\x18\x02 \x01(\v2\f.loft.HolderR\x06holder\x12!\n" +
-	"\bpassword\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\bpassword\"R\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"R\n" +
 	"\x13PartySetRoleRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x19\n" +
-	"\x04role\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\"\x7f\n" +
-	"\x17PartySetPasswordRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x1f\n" +
-	"\acurrent\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\acurrent\x12!\n" +
-	"\bpassword\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\bpassword\"\x1a\n" +
-	"\x18PartySetPasswordResponse\":\n" +
-	"\x16PartyDeactivateRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\"<\n" +
+	"\x04role\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\"<\n" +
 	"\x18PartyPseudonymizeRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\"~\n" +
 	"\x12PartySearchRequest\x12\x13\n" +
@@ -5708,76 +3368,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x06offset\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06offset\"U\n" +
 	"\x13PartySearchResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.loft.PartyR\x05items\x12\x1b\n" +
-	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\"\xdb\x03\n" +
-	"\x14InvitationAddRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12)\n" +
-	"\ainviter\x18\b \x01(\v2\x0f.loft.HolderRefR\ainviter\x12\x1b\n" +
-	"\x05email\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x05email\x12\x19\n" +
-	"\x04role\x18\n" +
-	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12$\n" +
-	"\x05party\x18\v \x01(\v2\x0e.loft.PartyRefR\x05party\x12=\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1b\n" +
-	"\x05state\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05state\x12=\n" +
-	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
-	"\fdate_settled\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\vdateSettled\x12'\n" +
-	"\x06holder\x18\x13 \x01(\v2\x0f.loft.HolderRefR\x06holder\"m\n" +
-	"\x14InvitationGetRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12.\n" +
-	"\x06select\x18\x02 \x01(\v2\x16.loft.InvitationSelectR\x06select\"(\n" +
-	"\rInvitationRef\x12\x10\n" +
-	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xc0\x03\n" +
-	"\x10InvitationSelect\x12\x10\n" +
-	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12,\n" +
-	"\ainviter\x18\b \x01(\v2\x12.loft.HolderSelectR\ainviter\x12\x14\n" +
-	"\x05email\x18\t \x01(\bR\x05email\x12\x12\n" +
-	"\x04role\x18\n" +
-	" \x01(\bR\x04role\x12'\n" +
-	"\x05party\x18\v \x01(\v2\x11.loft.PartySelectR\x05party\x12!\n" +
-	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
-	"\vdate_erased\x18\x0e \x01(\bR\n" +
-	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x14\n" +
-	"\x05state\x18\x10 \x01(\bR\x05state\x12!\n" +
-	"\fdate_expires\x18\x11 \x01(\bR\vdateExpires\x12!\n" +
-	"\fdate_settled\x18\x12 \x01(\bR\vdateSettled\x12*\n" +
-	"\x06holder\x18\x13 \x01(\v2\x12.loft.HolderSelectR\x06holder\"\x91\x04\n" +
-	"\x16InvitationPatchRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12\x14\n" +
-	"\x05email\x18\x12 \x01(\tR\x05email\x12$\n" +
-	"\x05party\x18\x16 \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x1d\n" +
-	"\n" +
-	"party_null\x18\x17 \x01(\bR\tpartyNull\x12=\n" +
-	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
-	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x14\n" +
-	"\x05state\x18  \x01(\tR\x05state\x12=\n" +
-	"\fdate_expires\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
-	"\fdate_settled\x18$ \x01(\v2\x1a.google.protobuf.TimestampR\vdateSettled\x12*\n" +
-	"\x11date_settled_null\x18% \x01(\bR\x0fdateSettledNull\x12'\n" +
-	"\x06holder\x18& \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x1f\n" +
-	"\vholder_null\x18' \x01(\bR\n" +
-	"holderNull\"c\n" +
-	"\x16InvitationApplyRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12\"\n" +
-	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"1\n" +
-	"\x17InvitationEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa2\x01\n" +
-	"\x15InvitationListRequest\x120\n" +
-	"\afilters\x18\x01 \x03(\v2\x16.loft.InvitationFilterR\afilters\x12\x19\n" +
-	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
-	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"[\n" +
-	"\x16InvitationListResponse\x12&\n" +
-	"\x05items\x18\x01 \x03(\v2\x10.loft.InvitationR\x05items\x12\x19\n" +
-	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"x\n" +
-	"\x10InvitationFilter\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x14\n" +
-	"\x05state\x18\x03 \x01(\tR\x05state\"@\n" +
-	"\x17InvitationRevokeRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref2\xc5\x06\n" +
+	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total2\xff\x04\n" +
 	"\fPartyService\x12)\n" +
 	"\x03Add\x12\x15.loft.PartyAddRequest\x1a\v.loft.Party\x12)\n" +
 	"\x03Get\x12\x15.loft.PartyGetRequest\x1a\v.loft.Party\x12-\n" +
@@ -5787,27 +3378,15 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x04List\x12\x16.loft.PartyListRequest\x1a\x17.loft.PartyListResponse\x12<\n" +
 	"\x05Watch\x12\x17.loft.PartyWatchRequest\x1a\x18.loft.PartyWatchResponse0\x01\x121\n" +
 	"\x02Me\x12\x14.loft.PartyMeRequest\x1a\x15.loft.PartyMeResponse\x12/\n" +
-	"\x06Update\x12\x18.loft.PartyUpdateRequest\x1a\v.loft.Party\x12=\n" +
-	"\x06Invite\x12\x18.loft.PartyInviteRequest\x1a\x19.loft.PartyInviteResponse\x121\n" +
-	"\aSetRole\x12\x19.loft.PartySetRoleRequest\x1a\v.loft.Party\x12L\n" +
-	"\vSetPassword\x12\x1d.loft.PartySetPasswordRequest\x1a\x1e.loft.PartySetPasswordResponse\x127\n" +
-	"\n" +
-	"Deactivate\x12\x1c.loft.PartyDeactivateRequest\x1a\v.loft.Party\x12;\n" +
+	"\x06Update\x12\x18.loft.PartyUpdateRequest\x1a\v.loft.Party\x121\n" +
+	"\aSetRole\x12\x19.loft.PartySetRoleRequest\x1a\v.loft.Party\x12;\n" +
 	"\fPseudonymize\x12\x1e.loft.PartyPseudonymizeRequest\x1a\v.loft.Party\x12=\n" +
 	"\x06Search\x12\x18.loft.PartySearchRequest\x1a\x19.loft.PartySearchResponse2\x10\n" +
-	"\x0eSessionService2\xaa\x03\n" +
-	"\x11InvitationService\x123\n" +
-	"\x03Add\x12\x1a.loft.InvitationAddRequest\x1a\x10.loft.Invitation\x123\n" +
-	"\x03Get\x12\x1a.loft.InvitationGetRequest\x1a\x10.loft.Invitation\x127\n" +
-	"\x05Patch\x12\x1c.loft.InvitationPatchRequest\x1a\x10.loft.Invitation\x127\n" +
-	"\x05Apply\x12\x1c.loft.InvitationApplyRequest\x1a\x10.loft.Invitation\x12;\n" +
-	"\x05Erase\x12\x13.loft.InvitationRef\x1a\x1d.loft.InvitationEraseResponse\x12A\n" +
-	"\x04List\x12\x1b.loft.InvitationListRequest\x1a\x1c.loft.InvitationListResponse\x129\n" +
-	"\x06Revoke\x12\x1d.loft.InvitationRevokeRequest\x1a\x10.loft.Invitation2\x11\n" +
+	"\x0eSessionService2\x11\n" +
 	"\x0fCliLoginService2\x16\n" +
 	"\x14SignInFailureServiceB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_loft_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
+var file_loft_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_loft_org_svc_g_proto_goTypes = []any{
 	(*PartyAddRequest)(nil),          // 0: loft.PartyAddRequest
 	(*PartyGetRequest)(nil),          // 1: loft.PartyGetRequest
@@ -5826,154 +3405,86 @@ var file_loft_org_svc_g_proto_goTypes = []any{
 	(*PartyMeRequest)(nil),           // 14: loft.PartyMeRequest
 	(*PartyMeResponse)(nil),          // 15: loft.PartyMeResponse
 	(*PartyUpdateRequest)(nil),       // 16: loft.PartyUpdateRequest
-	(*PartyInviteRequest)(nil),       // 17: loft.PartyInviteRequest
-	(*PartyInviteResponse)(nil),      // 18: loft.PartyInviteResponse
-	(*PartySetRoleRequest)(nil),      // 19: loft.PartySetRoleRequest
-	(*PartySetPasswordRequest)(nil),  // 20: loft.PartySetPasswordRequest
-	(*PartySetPasswordResponse)(nil), // 21: loft.PartySetPasswordResponse
-	(*PartyDeactivateRequest)(nil),   // 22: loft.PartyDeactivateRequest
-	(*PartyPseudonymizeRequest)(nil), // 23: loft.PartyPseudonymizeRequest
-	(*PartySearchRequest)(nil),       // 24: loft.PartySearchRequest
-	(*PartySearchResponse)(nil),      // 25: loft.PartySearchResponse
-	(*InvitationAddRequest)(nil),     // 26: loft.InvitationAddRequest
-	(*InvitationGetRequest)(nil),     // 27: loft.InvitationGetRequest
-	(*InvitationRef)(nil),            // 28: loft.InvitationRef
-	(*InvitationSelect)(nil),         // 29: loft.InvitationSelect
-	(*InvitationPatchRequest)(nil),   // 30: loft.InvitationPatchRequest
-	(*InvitationApplyRequest)(nil),   // 31: loft.InvitationApplyRequest
-	(*InvitationEraseResponse)(nil),  // 32: loft.InvitationEraseResponse
-	(*InvitationListRequest)(nil),    // 33: loft.InvitationListRequest
-	(*InvitationListResponse)(nil),   // 34: loft.InvitationListResponse
-	(*InvitationFilter)(nil),         // 35: loft.InvitationFilter
-	(*InvitationRevokeRequest)(nil),  // 36: loft.InvitationRevokeRequest
-	nil,                              // 37: loft.PartyAddRequest.LabelsEntry
-	nil,                              // 38: loft.PartyPatchRequest.LabelsEntry
-	nil,                              // 39: loft.PartyFilter.LabelsEntry
-	nil,                              // 40: loft.PartyUpdateRequest.LabelsEntry
-	(*TenantRef)(nil),                // 41: loft.TenantRef
-	(*HolderRef)(nil),                // 42: loft.HolderRef
-	(*timestamppb.Timestamp)(nil),    // 43: google.protobuf.Timestamp
-	(*TenantSelect)(nil),             // 44: loft.TenantSelect
-	(*HolderSelect)(nil),             // 45: loft.HolderSelect
-	(*patchpb.Patch)(nil),            // 46: patch.Patch
-	(*Party)(nil),                    // 47: loft.Party
-	(*Holder)(nil),                   // 48: loft.Holder
-	(*Tenant)(nil),                   // 49: loft.Tenant
-	(*Invitation)(nil),               // 50: loft.Invitation
+	(*PartySetRoleRequest)(nil),      // 17: loft.PartySetRoleRequest
+	(*PartyPseudonymizeRequest)(nil), // 18: loft.PartyPseudonymizeRequest
+	(*PartySearchRequest)(nil),       // 19: loft.PartySearchRequest
+	(*PartySearchResponse)(nil),      // 20: loft.PartySearchResponse
+	nil,                              // 21: loft.PartyAddRequest.LabelsEntry
+	nil,                              // 22: loft.PartyPatchRequest.LabelsEntry
+	nil,                              // 23: loft.PartyFilter.LabelsEntry
+	nil,                              // 24: loft.PartyUpdateRequest.LabelsEntry
+	(*TenantRef)(nil),                // 25: loft.TenantRef
+	(*HolderRef)(nil),                // 26: loft.HolderRef
+	(*timestamppb.Timestamp)(nil),    // 27: google.protobuf.Timestamp
+	(*TenantSelect)(nil),             // 28: loft.TenantSelect
+	(*HolderSelect)(nil),             // 29: loft.HolderSelect
+	(*patchpb.Patch)(nil),            // 30: patch.Patch
+	(*Party)(nil),                    // 31: loft.Party
+	(*Holder)(nil),                   // 32: loft.Holder
+	(*Tenant)(nil),                   // 33: loft.Tenant
 }
 var file_loft_org_svc_g_proto_depIdxs = []int32{
-	41, // 0: loft.PartyAddRequest.tenant:type_name -> loft.TenantRef
-	37, // 1: loft.PartyAddRequest.labels:type_name -> loft.PartyAddRequest.LabelsEntry
-	42, // 2: loft.PartyAddRequest.holder:type_name -> loft.HolderRef
-	43, // 3: loft.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	25, // 0: loft.PartyAddRequest.tenant:type_name -> loft.TenantRef
+	21, // 1: loft.PartyAddRequest.labels:type_name -> loft.PartyAddRequest.LabelsEntry
+	26, // 2: loft.PartyAddRequest.holder:type_name -> loft.HolderRef
+	27, // 3: loft.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,  // 4: loft.PartyGetRequest.ref:type_name -> loft.PartyRef
 	4,  // 5: loft.PartyGetRequest.select:type_name -> loft.PartySelect
 	3,  // 6: loft.PartyRef.holder:type_name -> loft.PartyRefByHolder
-	42, // 7: loft.PartyRefByHolder.holder:type_name -> loft.HolderRef
-	44, // 8: loft.PartySelect.tenant:type_name -> loft.TenantSelect
-	45, // 9: loft.PartySelect.holder:type_name -> loft.HolderSelect
+	26, // 7: loft.PartyRefByHolder.holder:type_name -> loft.HolderRef
+	28, // 8: loft.PartySelect.tenant:type_name -> loft.TenantSelect
+	29, // 9: loft.PartySelect.holder:type_name -> loft.HolderSelect
 	2,  // 10: loft.PartyPatchRequest.ref:type_name -> loft.PartyRef
-	38, // 11: loft.PartyPatchRequest.labels:type_name -> loft.PartyPatchRequest.LabelsEntry
-	42, // 12: loft.PartyPatchRequest.holder:type_name -> loft.HolderRef
-	43, // 13: loft.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	22, // 11: loft.PartyPatchRequest.labels:type_name -> loft.PartyPatchRequest.LabelsEntry
+	26, // 12: loft.PartyPatchRequest.holder:type_name -> loft.HolderRef
+	27, // 13: loft.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,  // 14: loft.PartyApplyRequest.ref:type_name -> loft.PartyRef
-	46, // 15: loft.PartyApplyRequest.patch:type_name -> patch.Patch
+	30, // 15: loft.PartyApplyRequest.patch:type_name -> patch.Patch
 	10, // 16: loft.PartyListRequest.filters:type_name -> loft.PartyFilter
-	47, // 17: loft.PartyListResponse.items:type_name -> loft.Party
+	31, // 17: loft.PartyListResponse.items:type_name -> loft.Party
 	2,  // 18: loft.PartyFilter.ref:type_name -> loft.PartyRef
-	42, // 19: loft.PartyFilter.holder:type_name -> loft.HolderRef
-	39, // 20: loft.PartyFilter.labels:type_name -> loft.PartyFilter.LabelsEntry
+	26, // 19: loft.PartyFilter.holder:type_name -> loft.HolderRef
+	23, // 20: loft.PartyFilter.labels:type_name -> loft.PartyFilter.LabelsEntry
 	10, // 21: loft.PartyWatchRequest.filters:type_name -> loft.PartyFilter
 	13, // 22: loft.PartyWatchResponse.items:type_name -> loft.PartyWatchItem
-	47, // 23: loft.PartyWatchItem.value:type_name -> loft.Party
-	48, // 24: loft.PartyMeResponse.holder:type_name -> loft.Holder
-	47, // 25: loft.PartyMeResponse.party:type_name -> loft.Party
-	49, // 26: loft.PartyMeResponse.tenant:type_name -> loft.Tenant
+	31, // 23: loft.PartyWatchItem.value:type_name -> loft.Party
+	32, // 24: loft.PartyMeResponse.holder:type_name -> loft.Holder
+	31, // 25: loft.PartyMeResponse.party:type_name -> loft.Party
+	33, // 26: loft.PartyMeResponse.tenant:type_name -> loft.Tenant
 	2,  // 27: loft.PartyUpdateRequest.ref:type_name -> loft.PartyRef
-	40, // 28: loft.PartyUpdateRequest.labels:type_name -> loft.PartyUpdateRequest.LabelsEntry
-	2,  // 29: loft.PartyInviteRequest.ref:type_name -> loft.PartyRef
-	47, // 30: loft.PartyInviteResponse.party:type_name -> loft.Party
-	48, // 31: loft.PartyInviteResponse.holder:type_name -> loft.Holder
-	2,  // 32: loft.PartySetRoleRequest.ref:type_name -> loft.PartyRef
-	2,  // 33: loft.PartySetPasswordRequest.ref:type_name -> loft.PartyRef
-	2,  // 34: loft.PartyDeactivateRequest.ref:type_name -> loft.PartyRef
-	2,  // 35: loft.PartyPseudonymizeRequest.ref:type_name -> loft.PartyRef
-	47, // 36: loft.PartySearchResponse.items:type_name -> loft.Party
-	41, // 37: loft.InvitationAddRequest.tenant:type_name -> loft.TenantRef
-	42, // 38: loft.InvitationAddRequest.inviter:type_name -> loft.HolderRef
-	2,  // 39: loft.InvitationAddRequest.party:type_name -> loft.PartyRef
-	43, // 40: loft.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	43, // 41: loft.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	43, // 42: loft.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
-	42, // 43: loft.InvitationAddRequest.holder:type_name -> loft.HolderRef
-	28, // 44: loft.InvitationGetRequest.ref:type_name -> loft.InvitationRef
-	29, // 45: loft.InvitationGetRequest.select:type_name -> loft.InvitationSelect
-	44, // 46: loft.InvitationSelect.tenant:type_name -> loft.TenantSelect
-	45, // 47: loft.InvitationSelect.inviter:type_name -> loft.HolderSelect
-	4,  // 48: loft.InvitationSelect.party:type_name -> loft.PartySelect
-	45, // 49: loft.InvitationSelect.holder:type_name -> loft.HolderSelect
-	28, // 50: loft.InvitationPatchRequest.ref:type_name -> loft.InvitationRef
-	2,  // 51: loft.InvitationPatchRequest.party:type_name -> loft.PartyRef
-	43, // 52: loft.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	43, // 53: loft.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	43, // 54: loft.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
-	42, // 55: loft.InvitationPatchRequest.holder:type_name -> loft.HolderRef
-	28, // 56: loft.InvitationApplyRequest.ref:type_name -> loft.InvitationRef
-	46, // 57: loft.InvitationApplyRequest.patch:type_name -> patch.Patch
-	35, // 58: loft.InvitationListRequest.filters:type_name -> loft.InvitationFilter
-	50, // 59: loft.InvitationListResponse.items:type_name -> loft.Invitation
-	28, // 60: loft.InvitationFilter.ref:type_name -> loft.InvitationRef
-	41, // 61: loft.InvitationFilter.tenant:type_name -> loft.TenantRef
-	28, // 62: loft.InvitationRevokeRequest.ref:type_name -> loft.InvitationRef
-	0,  // 63: loft.PartyService.Add:input_type -> loft.PartyAddRequest
-	1,  // 64: loft.PartyService.Get:input_type -> loft.PartyGetRequest
-	5,  // 65: loft.PartyService.Patch:input_type -> loft.PartyPatchRequest
-	6,  // 66: loft.PartyService.Apply:input_type -> loft.PartyApplyRequest
-	2,  // 67: loft.PartyService.Erase:input_type -> loft.PartyRef
-	8,  // 68: loft.PartyService.List:input_type -> loft.PartyListRequest
-	11, // 69: loft.PartyService.Watch:input_type -> loft.PartyWatchRequest
-	14, // 70: loft.PartyService.Me:input_type -> loft.PartyMeRequest
-	16, // 71: loft.PartyService.Update:input_type -> loft.PartyUpdateRequest
-	17, // 72: loft.PartyService.Invite:input_type -> loft.PartyInviteRequest
-	19, // 73: loft.PartyService.SetRole:input_type -> loft.PartySetRoleRequest
-	20, // 74: loft.PartyService.SetPassword:input_type -> loft.PartySetPasswordRequest
-	22, // 75: loft.PartyService.Deactivate:input_type -> loft.PartyDeactivateRequest
-	23, // 76: loft.PartyService.Pseudonymize:input_type -> loft.PartyPseudonymizeRequest
-	24, // 77: loft.PartyService.Search:input_type -> loft.PartySearchRequest
-	26, // 78: loft.InvitationService.Add:input_type -> loft.InvitationAddRequest
-	27, // 79: loft.InvitationService.Get:input_type -> loft.InvitationGetRequest
-	30, // 80: loft.InvitationService.Patch:input_type -> loft.InvitationPatchRequest
-	31, // 81: loft.InvitationService.Apply:input_type -> loft.InvitationApplyRequest
-	28, // 82: loft.InvitationService.Erase:input_type -> loft.InvitationRef
-	33, // 83: loft.InvitationService.List:input_type -> loft.InvitationListRequest
-	36, // 84: loft.InvitationService.Revoke:input_type -> loft.InvitationRevokeRequest
-	47, // 85: loft.PartyService.Add:output_type -> loft.Party
-	47, // 86: loft.PartyService.Get:output_type -> loft.Party
-	47, // 87: loft.PartyService.Patch:output_type -> loft.Party
-	47, // 88: loft.PartyService.Apply:output_type -> loft.Party
-	7,  // 89: loft.PartyService.Erase:output_type -> loft.PartyEraseResponse
-	9,  // 90: loft.PartyService.List:output_type -> loft.PartyListResponse
-	12, // 91: loft.PartyService.Watch:output_type -> loft.PartyWatchResponse
-	15, // 92: loft.PartyService.Me:output_type -> loft.PartyMeResponse
-	47, // 93: loft.PartyService.Update:output_type -> loft.Party
-	18, // 94: loft.PartyService.Invite:output_type -> loft.PartyInviteResponse
-	47, // 95: loft.PartyService.SetRole:output_type -> loft.Party
-	21, // 96: loft.PartyService.SetPassword:output_type -> loft.PartySetPasswordResponse
-	47, // 97: loft.PartyService.Deactivate:output_type -> loft.Party
-	47, // 98: loft.PartyService.Pseudonymize:output_type -> loft.Party
-	25, // 99: loft.PartyService.Search:output_type -> loft.PartySearchResponse
-	50, // 100: loft.InvitationService.Add:output_type -> loft.Invitation
-	50, // 101: loft.InvitationService.Get:output_type -> loft.Invitation
-	50, // 102: loft.InvitationService.Patch:output_type -> loft.Invitation
-	50, // 103: loft.InvitationService.Apply:output_type -> loft.Invitation
-	32, // 104: loft.InvitationService.Erase:output_type -> loft.InvitationEraseResponse
-	34, // 105: loft.InvitationService.List:output_type -> loft.InvitationListResponse
-	50, // 106: loft.InvitationService.Revoke:output_type -> loft.Invitation
-	85, // [85:107] is the sub-list for method output_type
-	63, // [63:85] is the sub-list for method input_type
-	63, // [63:63] is the sub-list for extension type_name
-	63, // [63:63] is the sub-list for extension extendee
-	0,  // [0:63] is the sub-list for field type_name
+	24, // 28: loft.PartyUpdateRequest.labels:type_name -> loft.PartyUpdateRequest.LabelsEntry
+	2,  // 29: loft.PartySetRoleRequest.ref:type_name -> loft.PartyRef
+	2,  // 30: loft.PartyPseudonymizeRequest.ref:type_name -> loft.PartyRef
+	31, // 31: loft.PartySearchResponse.items:type_name -> loft.Party
+	0,  // 32: loft.PartyService.Add:input_type -> loft.PartyAddRequest
+	1,  // 33: loft.PartyService.Get:input_type -> loft.PartyGetRequest
+	5,  // 34: loft.PartyService.Patch:input_type -> loft.PartyPatchRequest
+	6,  // 35: loft.PartyService.Apply:input_type -> loft.PartyApplyRequest
+	2,  // 36: loft.PartyService.Erase:input_type -> loft.PartyRef
+	8,  // 37: loft.PartyService.List:input_type -> loft.PartyListRequest
+	11, // 38: loft.PartyService.Watch:input_type -> loft.PartyWatchRequest
+	14, // 39: loft.PartyService.Me:input_type -> loft.PartyMeRequest
+	16, // 40: loft.PartyService.Update:input_type -> loft.PartyUpdateRequest
+	17, // 41: loft.PartyService.SetRole:input_type -> loft.PartySetRoleRequest
+	18, // 42: loft.PartyService.Pseudonymize:input_type -> loft.PartyPseudonymizeRequest
+	19, // 43: loft.PartyService.Search:input_type -> loft.PartySearchRequest
+	31, // 44: loft.PartyService.Add:output_type -> loft.Party
+	31, // 45: loft.PartyService.Get:output_type -> loft.Party
+	31, // 46: loft.PartyService.Patch:output_type -> loft.Party
+	31, // 47: loft.PartyService.Apply:output_type -> loft.Party
+	7,  // 48: loft.PartyService.Erase:output_type -> loft.PartyEraseResponse
+	9,  // 49: loft.PartyService.List:output_type -> loft.PartyListResponse
+	12, // 50: loft.PartyService.Watch:output_type -> loft.PartyWatchResponse
+	15, // 51: loft.PartyService.Me:output_type -> loft.PartyMeResponse
+	31, // 52: loft.PartyService.Update:output_type -> loft.Party
+	31, // 53: loft.PartyService.SetRole:output_type -> loft.Party
+	31, // 54: loft.PartyService.Pseudonymize:output_type -> loft.Party
+	20, // 55: loft.PartyService.Search:output_type -> loft.PartySearchResponse
+	44, // [44:56] is the sub-list for method output_type
+	32, // [32:44] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_loft_org_svc_g_proto_init() }
@@ -5990,18 +3501,15 @@ func file_loft_org_svc_g_proto_init() {
 		(*partyRef_Id)(nil),
 		(*partyRef_Holder)(nil),
 	}
-	file_loft_org_svc_g_proto_msgTypes[28].OneofWrappers = []any{
-		(*invitationRef_Id)(nil),
-	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_org_svc_g_proto_rawDesc), len(file_loft_org_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   41,
+			NumMessages:   25,
 			NumExtensions: 0,
-			NumServices:   5,
+			NumServices:   4,
 		},
 		GoTypes:           file_loft_org_svc_g_proto_goTypes,
 		DependencyIndexes: file_loft_org_svc_g_proto_depIdxs,

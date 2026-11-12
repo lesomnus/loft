@@ -3,7 +3,6 @@ package domain_test
 import (
 	"context"
 	"testing"
-	"time"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent/holder"
@@ -19,62 +18,20 @@ func (e *env) signsIn(login, password string) bool {
 	return err == nil
 }
 
-// TestAPasswordIsRosters.
-//
-// What the people screen does to a password it does at the roster in this
-// process: one's own needs the current one, and a reset by somebody else ends
-// where they were signed in.
-func TestAPasswordIsRosters(t *testing.T) {
+// TestAPersonForgottenHereEndsTheMembership, and not their holder at roster:
+// who is a member, and how they sign in, is roster's (D87), and that is the
+// tenant's administrator's there to end.
+func TestAPersonForgottenHereEndsTheMembership(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
-	kimCtx, kim := e.person("member")
-	login := "p1"
-	x.True(e.signsIn(login, "password1234"))
+	_, kim := e.person("member")
+	who := idOf(kim.GetHolder().GetId())
 
-	_, err := e.app().Party().SetPassword(kimCtx, app.PartySetPasswordRequest_builder{Current: "wrong-password", Password: "another1234"}.Build())
-	x.Error(err, "a password changed without the current one")
-	_, err = e.app().Party().SetPassword(kimCtx, app.PartySetPasswordRequest_builder{Current: "password1234", Password: "another1234"}.Build())
+	_, err := e.app().Party().Pseudonymize(e.owner, app.PartyPseudonymizeRequest_builder{Ref: ref[app.PartyRef](kim.GetId())}.Build())
 	x.NoError(err)
-	x.False(e.signsIn(login, "password1234"))
-	x.True(e.signsIn(login, "another1234"))
 
-	began := time.Now().Add(-time.Second)
-	_, err = e.app().Party().SetPassword(e.owner, app.PartySetPasswordRequest_builder{Ref: ref[app.PartyRef](kim.GetId()), Password: "reset-by-owner"}.Build())
+	live, err := e.s.Ent.Holder.Query().Where(holder.Id(who.Uuid()), holder.DateErasedIsNil()).Exist(context.Background())
 	x.NoError(err)
-	x.True(e.signsIn(login, "reset-by-owner"))
-	st, err := e.s.Identity.StandingOf(context.Background(), idOf(kim.GetHolder().GetId()))
-	x.NoError(err)
-	x.False(st.Good(began), "a reset that left them signed in at roster")
-}
-
-// TestALoginEndedHereIsTheMembership.
-//
-// Stopping a login or forgetting a person ends their membership of this
-// workspace, and not their holder at roster: that is the tenant's
-// administrator's there to end. Ended here, a sign-in by it is refused here
-// all the same (`tenancy.ErrEnded`).
-func TestALoginEndedHereIsTheMembership(t *testing.T) {
-	for _, end := range []string{"deactivate", "pseudonymize"} {
-		t.Run(end, func(t *testing.T) {
-			e := newEnv(t)
-			x := e.x
-			_, kim := e.person("member")
-			who := idOf(kim.GetHolder().GetId())
-
-			r := ref[app.PartyRef](kim.GetId())
-			var err error
-			switch end {
-			case "deactivate":
-				_, err = e.app().Party().Deactivate(e.owner, app.PartyDeactivateRequest_builder{Ref: r}.Build())
-			case "pseudonymize":
-				_, err = e.app().Party().Pseudonymize(e.owner, app.PartyPseudonymizeRequest_builder{Ref: r}.Build())
-			}
-			x.NoError(err)
-
-			live, err := e.s.Ent.Holder.Query().Where(holder.Id(who.Uuid()), holder.DateErasedIsNil()).Exist(context.Background())
-			x.NoError(err)
-			x.False(live, "the membership outlived the login")
-			x.True(e.signsIn("p1", "password1234"), "the holder at roster went with the membership")
-		})
-	}
+	x.False(live, "the membership outlived the person")
+	x.True(e.signsIn("p1", "password1234"), "the holder at roster went with the membership")
 }

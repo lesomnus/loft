@@ -174,7 +174,7 @@ func putUp(ctx context.Context, s *cmd.Server, t identity.Tenant, name string, p
 		return nil, err
 	}
 	if demo {
-		if err := seedDemo(ctx, s.Ungated, out); err != nil {
+		if err := seedDemo(ctx, s, out); err != nil {
 			return nil, fmt.Errorf("demo: %w", err)
 		}
 	}

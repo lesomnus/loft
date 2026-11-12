@@ -151,7 +151,7 @@ func hasColumn(table, column string) bool {
 var referent = map[string]string{
 	"parent": "Asset", "child": "Asset", "resource": "Asset", "scope": "Asset", "space": "Asset",
 	"source": "Asset", "target": "Asset", "subject": "Asset", "item": "Asset", "root": "Asset",
-	"vendor": "Party", "custodian": "Party", "person": "Party", "inviter": "Holder", "actor": "Holder",
+	"vendor": "Party", "custodian": "Party", "person": "Party", "actor": "Holder",
 	"type": "AssetType", "model": "ItemModel", "count": "InventoryCount",
 	"row": "Placement", "line": "CustodyLine",
 }
@@ -353,7 +353,7 @@ func leaks(m protoreflect.Message, v victim, path string) string {
 
 // furnish gives a demo workspace one of each kind of row the demo does not
 // make, so that a call naming one names a real row of it: a label, a count
-// and what it found, an attachment, an invitation -- as its owner, through
+// and what it found, an attachment -- as its owner, through
 // the stack with the wall, since nobody of a workspace from elsewhere signs
 // in here -- and the operator's legal hold and contract.
 func furnish(t *testing.T, s *cmd.Server, alias, login string) {
@@ -385,8 +385,6 @@ func furnish(t *testing.T, s *cmd.Server, alias, login string) {
 	_, err = w.Attachment().Upload(as, app.AttachmentUploadRequest_builder{
 		SubjectId: pdid.Id(item.Id).Bytes(), Name: "영수증.txt", ContentType: "text/plain", Data: []byte("영수증"),
 	}.Build())
-	x.NoError(err)
-	_, err = w.Invitation().Add(as, app.InvitationAddRequest_builder{Email: "someone@example.com", Role: "member"}.Build())
 	x.NoError(err)
 
 	tref := app.TenantRef_builder{Id: pdid.Id(tid).Bytes()}.Build()

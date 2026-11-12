@@ -199,10 +199,7 @@ func TestNobodyToMailIsNoMail(t *testing.T) {
 	// none checked for them either.
 	p, err := e.app().Party().Add(e.owner, app.PartyAddRequest_builder{Name: "주소 없는 매니저", Kind: "person"}.Build())
 	x.NoError(err)
-	_, err = e.app().Party().Invite(e.owner, app.PartyInviteRequest_builder{
-		Ref: ref[app.PartyRef](p.GetId()), Alias: "noaddr", Role: "manager", Password: "password1234",
-	}.Build())
-	x.NoError(err)
+	e.admit(p, "noaddr", "manager")
 
 	_, err = e.reserve(kim, hall, e.tomorrow(9, 0), e.tomorrow(10, 0), nil)
 	x.NoError(err)

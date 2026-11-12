@@ -3,7 +3,6 @@ import { useMemo, useState, type ReactNode } from 'react'
 import type { Party } from '../../gen/loft/org_pb.js'
 import { AssetService, HolderService, PartyService, idBytes, idStr, ref } from '../api.js'
 import { useCatalog } from '../catalog.js'
-import { InviteForm, SentInvitations } from '../invitations.js'
 import { AssetLink, PartySelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Kv, Load, Modal, PageHead, Search, Select, Tabs } from '../ui.js'
@@ -14,7 +13,6 @@ export function People(): ReactNode {
 	const [tab, setTab] = useState('org')
 	const [q, setQ] = useState('')
 	const [adding, setAdding] = useState<string>()
-	const [inviting, setInviting] = useState(false)
 	const [open, setOpen] = useState<Party>()
 	const holders = useRpc(HolderService.method.list, c.can('admin') ? { size: 500 } : null)
 	const roles = useMemo(() => new Map((holders.data?.items ?? []).map((h) => [idStr(h.id), h.role])), [holders.data])
@@ -57,7 +55,6 @@ export function People(): ReactNode {
 						<>
 							<button onClick={() => setAdding('team')}>+ 팀</button>
 							<button onClick={() => setAdding('vendor')}>+ 거래처</button>
-							<button onClick={() => setInviting(true)}>+ 초대</button>
 							<button className="primary" onClick={() => setAdding('person')}>
 								+ 사람
 							</button>
@@ -65,12 +62,17 @@ export function People(): ReactNode {
 					)
 				}
 			/>
+			{c.can('admin') && (
+				<p className="note" role="note" aria-label="구성원 관리">
+					구성원과 로그인은 roster에서 관리합니다. 넣고 빼는 일과 비밀번호는 거기서 하고, 여기서는 사람 기록과 그 역할을 다룹니다.{' '}
+					{c.me.consoleUrl !== '' && <a href={c.me.consoleUrl}>roster 열기</a>}
+				</p>
+			)}
 			<div className="filters">
 				<Tabs
 					tabs={[
 						{ key: 'org', label: '조직도' },
 						{ key: 'vendor', label: '거래처' },
-						...(c.can('admin') ? [{ key: 'invites', label: '초대' }] : []),
 					]}
 					at={tab}
 					onChange={setTab}
@@ -121,9 +123,7 @@ export function People(): ReactNode {
 					)}
 				</Card>
 			)}
-			{tab === 'invites' && <SentInvitations />}
 			{adding !== undefined && <PartyForm kind={adding} onClose={() => setAdding(undefined)} />}
-			{inviting && <InviteForm onClose={() => setInviting(false)} />}
 			{open !== undefined && <PartyDialog p={open} role={roles.get(idStr(open.holder?.id))} onClose={() => setOpen(undefined)} />}
 		</>
 	)
@@ -170,7 +170,7 @@ function PartyForm(props: { kind: string; p?: Party; onClose: () => void }): Rea
 					<PartySelect value={parent} onChange={setParent} kinds={['team', 'org']} empty="(없음)" />
 				</Field>
 			)}
-			<Field label="이메일" hint={kind === 'person' ? '로그인할 때도 씁니다' : undefined}>
+			<Field label="이메일" hint={kind === 'person' ? 'roster에서 이 주소를 확인한 구성원과 이어집니다' : undefined}>
 				<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
 			</Field>
 			<Field label="전화">
@@ -192,26 +192,16 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 	const c = useCatalog()
 	const act = useAct()
 	const p = props.p
-	const [mode, setMode] = useState<'view' | 'edit' | 'invite' | 'mail' | 'role' | 'password'>('view')
-	const [made, setMade] = useState<{ alias: string; password: string }>()
+	const [mode, setMode] = useState<'view' | 'edit' | 'role'>('view')
 	const holds = useRpc(AssetService.method.search, p.kind === 'vendor' ? null : { custodian: ref(p.id), size: 100 })
 	const admin = c.can('admin')
 	const self = idStr(c.me.party?.id) === idStr(p.id)
 
 	if (mode === 'edit') return <PartyForm kind={p.kind} p={p} onClose={props.onClose} />
-	if (mode === 'invite') return <Invite p={p} onMade={(v) => { setMade(v); setMode('view') }} onClose={props.onClose} />
-	if (mode === 'mail') return <InviteForm party={p} onClose={props.onClose} />
 	if (mode === 'role') return <SetRole p={p} role={props.role ?? 'member'} onClose={props.onClose} />
-	if (mode === 'password') return <ResetPassword p={p} onMade={(v) => { setMade(v); setMode('view') }} onClose={props.onClose} />
 
 	return (
 		<Modal title={p.name} onClose={props.onClose} wide>
-			{made !== undefined && (
-				<div className="note ok">
-					로그인: <code>{made.alias}</code> / 비밀번호: <code>{made.password}</code>
-					<br />이 비밀번호는 다시 볼 수 없습니다. 지금 전달하세요.
-				</div>
-			)}
 			<Kv
 				items={[
 					['구분', partyKindWord[p.kind]],
@@ -244,15 +234,7 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 			{admin && (
 				<footer className="modal-actions">
 					<button onClick={() => setMode('edit')}>수정</button>
-					{p.kind === 'person' && p.holder === undefined && <button className="primary" onClick={() => setMode('mail')}>초대</button>}
-					{p.kind === 'person' && p.holder === undefined && c.me.accountsHere && <button onClick={() => setMode('invite')}>로그인 발급</button>}
-					{p.kind === 'person' && p.holder !== undefined && !self && (
-						<>
-							<button onClick={() => setMode('role')}>역할 변경</button>
-							{c.me.accountsHere && <button onClick={() => setMode('password')}>비밀번호 재설정</button>}
-							<Confirm label="로그인 중지" danger question={`${p.name}의 로그인을 중지합니다. 사람과 이력은 남습니다.`} onYes={() => act(PartyService.method.deactivate, { ref: ref(p.id) }, { ok: '중지했습니다.' })} />
-						</>
-					)}
+					{p.kind === 'person' && p.holder !== undefined && !self && <button onClick={() => setMode('role')}>역할 변경</button>}
 					{p.kind === 'person' && !self && (
 						<Confirm
 							label="개인정보 삭제"
@@ -267,37 +249,6 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 				</footer>
 			)}
 		</Modal>
-	)
-}
-
-function Invite(props: { p: Party; onMade: (v: { alias: string; password: string }) => void; onClose: () => void }): ReactNode {
-	const act = useAct()
-	const guess = (props.p.email.split('@')[0] ?? '').toLowerCase().replace(/[^a-z0-9-]/g, '-')
-	const [alias, setAlias] = useState(guess)
-	const [role, setRole] = useState('member')
-	const [password, setPassword] = useState('')
-	return (
-		<FormModal
-			title={`${props.p.name} 로그인 발급`}
-			submit="발급"
-			onClose={props.onClose}
-			onSubmit={async () => {
-				const v = await act(PartyService.method.invite, { ref: ref(props.p.id), alias, role, password }, { ok: '발급했습니다.' })
-				if (v === undefined) return false
-				props.onMade({ alias, password: v.password || '(입력한 비밀번호)' })
-				return false
-			}}
-		>
-			<Field label="아이디 *" hint="영문 소문자, 숫자, -">
-				<input value={alias} onChange={(e) => setAlias(e.target.value)} required pattern="[a-z0-9][a-z0-9\-]*" />
-			</Field>
-			<Field label="역할">
-				<Select value={role} onChange={setRole} options={Object.entries(roleWord).filter(([k]) => k !== 'owner').map(([value, label]) => ({ value, label }))} />
-			</Field>
-			<Field label="비밀번호" hint="비우면 만들어 드립니다 (8자 이상)">
-				<input value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} />
-			</Field>
-		</FormModal>
 	)
 }
 
@@ -326,28 +277,6 @@ function SetRole(props: { p: Party; role: string; onClose: () => void }): ReactN
 				<li>관리자: 사람·역할, 유형, 예약 자원, 라벨 도메인</li>
 				<li>감사자: 모든 조회와 감사 기록, 변경은 못 함</li>
 			</ul>
-		</FormModal>
-	)
-}
-
-function ResetPassword(props: { p: Party; onMade: (v: { alias: string; password: string }) => void; onClose: () => void }): ReactNode {
-	const act = useAct()
-	const [password, setPassword] = useState(() => Math.random().toString(36).slice(2, 6) + '-' + Math.random().toString(36).slice(2, 6) + '-' + Math.random().toString(36).slice(2, 6))
-	return (
-		<FormModal
-			title={`${props.p.name} 비밀번호 재설정`}
-			submit="재설정"
-			onClose={props.onClose}
-			onSubmit={async () => {
-				const v = await act(PartyService.method.setPassword, { ref: ref(props.p.id), password }, { ok: '재설정했습니다. 기존 로그인은 모두 끊깁니다.' })
-				if (v === undefined) return false
-				props.onMade({ alias: props.p.holder === undefined ? '' : '(기존 아이디)', password })
-				return false
-			}}
-		>
-			<Field label="새 비밀번호">
-				<input value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required />
-			</Field>
 		</FormModal>
 	)
 }

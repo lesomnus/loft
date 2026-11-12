@@ -14,14 +14,7 @@ service PartyService {
   rpc Me(PartyMeRequest) returns (PartyMeResponse);
   // Update changes a party's own fields.
   rpc Update(PartyUpdateRequest) returns (Party);
-  // Invite gives a person a login: a holder, a password, and the role.
-  rpc Invite(PartyInviteRequest) returns (PartyInviteResponse);
   rpc SetRole(PartySetRoleRequest) returns (Party);
-  // SetPassword changes the caller's own password, or -- for an admin --
-  // somebody else's.
-  rpc SetPassword(PartySetPasswordRequest) returns (PartySetPasswordResponse);
-  // Deactivate ends a person's login and keeps the person.
-  rpc Deactivate(PartyDeactivateRequest) returns (Party);
   // Pseudonymize answers a request to forget a person (design 8.2).
   rpc Pseudonymize(PartyPseudonymizeRequest) returns (Party);
   // Search finds people, teams, organizations and vendors by what a person
@@ -51,14 +44,14 @@ message PartyMeResponse {
   Tenant tenant = 3;
   string role = 4 [features.field_presence = IMPLICIT];
 
-  // Whether logins and passwords are made and changed here -- the roster in
-  // this process -- or at a roster of its own, by whoever administers the
-  // tenant there (design 9.10).
-  bool accounts_here = 7 [features.field_presence = IMPLICIT];
   // Where the member manages how they sign in at roster -- and deletes their
   // holder there, where the tenant offers that -- for a roster of its own
   // (`auth.roster.account_url`). Empty is no such page.
   string account_url = 8 [features.field_presence = IMPLICIT];
+  // Where the tenant's administrators add and remove its members and give
+  // them a way in: roster's user console (`auth.roster.console_url`, D87).
+  // Empty is no such page.
+  string console_url = 16 [features.field_presence = IMPLICIT];
 
   // Where the workspace is, as the server tells it (#144): the zone its dates
   // are told in, an IANA name, and the currency a new amount is priced in --
@@ -102,54 +95,11 @@ message PartyUpdateRequest {
   map<string, string> labels = 10;
 }
 
-message PartyInviteRequest {
-  PartyRef ref = 1;
-  // The name the person signs in with: lowercase letters, digits, hyphens.
-  string alias = 2 [features.field_presence = IMPLICIT];
-  string role = 3 [features.field_presence = IMPLICIT];
-  // Empty: one is made up and answered once.
-  string password = 4 [features.field_presence = IMPLICIT];
-}
-
-message PartyInviteResponse {
-  Party party = 1;
-  Holder holder = 2;
-  // Only when it was made up here; it is not stored.
-  string password = 3 [features.field_presence = IMPLICIT];
-}
-
 message PartySetRoleRequest {
   PartyRef ref = 1;
   string role = 2 [features.field_presence = IMPLICIT];
 }
 
-message PartySetPasswordRequest {
-  // Empty: the caller's own.
-  PartyRef ref = 1;
-  string current = 2 [features.field_presence = IMPLICIT];
-  string password = 3 [features.field_presence = IMPLICIT];
-}
-
-message PartySetPasswordResponse {}
-
-message PartyDeactivateRequest {
-  PartyRef ref = 1;
-}
-
 message PartyPseudonymizeRequest {
   PartyRef ref = 1;
-}
-
-// What an invitation is answered with, beside the generated Add and List,
-// which the domain layer completes (`server/domain/invitation.go`): the
-// workspace's, by somebody who runs it, served as their membership of it.
-// Answering one is no call of this deployment's any more (D85): its member
-// is who roster has in its tenant.
-service InvitationService {
-  // Revoke takes back an invitation nobody has answered.
-  rpc Revoke(InvitationRevokeRequest) returns (Invitation);
-}
-
-message InvitationRevokeRequest {
-  InvitationRef ref = 1;
 }

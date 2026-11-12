@@ -66,9 +66,6 @@ export const HolderDomain = 2
 /** The domain identifiers of loft.InventoryCount carry. */
 export const InventoryCountDomain = 31
 
-/** The domain identifiers of loft.Invitation carry. */
-export const InvitationDomain = 41
-
 /** The domain identifiers of loft.ItemModel carry. */
 export const ItemModelDomain = 9
 
@@ -167,7 +164,6 @@ pdid.register("loft.Event", EventDomain, "event")
 pdid.register("loft.Fact", FactDomain, "fact")
 pdid.register("loft.Holder", HolderDomain, "holder")
 pdid.register("loft.InventoryCount", InventoryCountDomain, "inventory-count")
-pdid.register("loft.Invitation", InvitationDomain, "invitation")
 pdid.register("loft.ItemModel", ItemModelDomain, "item-model")
 pdid.register("loft.Label", LabelDomain, "label")
 pdid.register("loft.LegalHold", LegalHoldDomain, "legal-hold")

@@ -29,7 +29,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/inventorycount"
-	"github.com/lesomnus/loft/internal/ent/invitation"
 	"github.com/lesomnus/loft/internal/ent/itemmodel"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/legalhold"
@@ -101,8 +100,6 @@ type Client struct {
 	Holder *HolderClient
 	// InventoryCount is the client for interacting with the InventoryCount builders.
 	InventoryCount *InventoryCountClient
-	// Invitation is the client for interacting with the Invitation builders.
-	Invitation *InvitationClient
 	// ItemModel is the client for interacting with the ItemModel builders.
 	ItemModel *ItemModelClient
 	// Label is the client for interacting with the Label builders.
@@ -183,7 +180,6 @@ func (c *Client) init() {
 	c.Fact = NewFactClient(c.config)
 	c.Holder = NewHolderClient(c.config)
 	c.InventoryCount = NewInventoryCountClient(c.config)
-	c.Invitation = NewInvitationClient(c.config)
 	c.ItemModel = NewItemModelClient(c.config)
 	c.Label = NewLabelClient(c.config)
 	c.LegalHold = NewLegalHoldClient(c.config)
@@ -320,7 +316,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Fact:            NewFactClient(cfg),
 		Holder:          NewHolderClient(cfg),
 		InventoryCount:  NewInventoryCountClient(cfg),
-		Invitation:      NewInvitationClient(cfg),
 		ItemModel:       NewItemModelClient(cfg),
 		Label:           NewLabelClient(cfg),
 		LegalHold:       NewLegalHoldClient(cfg),
@@ -384,7 +379,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Fact:            NewFactClient(cfg),
 		Holder:          NewHolderClient(cfg),
 		InventoryCount:  NewInventoryCountClient(cfg),
-		Invitation:      NewInvitationClient(cfg),
 		ItemModel:       NewItemModelClient(cfg),
 		Label:           NewLabelClient(cfg),
 		LegalHold:       NewLegalHoldClient(cfg),
@@ -489,11 +483,11 @@ func (c *Client) Use(hooks ...Hook) {
 		c.Access, c.AccessReview, c.Allocation, c.Archived, c.Asset, c.AssetType,
 		c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding, c.Custody,
 		c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Holder, c.InventoryCount,
-		c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.LevyanNotice, c.Link,
-		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
-		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
-		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement,
-		c.TagCounter, c.Tenant, c.TenantContract, c.TreeLock, c.WorkOrder,
+		c.ItemModel, c.Label, c.LegalHold, c.LevyanNotice, c.Link, c.Notification,
+		c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase, c.PurchaseLine,
+		c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale, c.Session,
+		c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.TagCounter,
+		c.Tenant, c.TenantContract, c.TreeLock, c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -506,11 +500,11 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.Access, c.AccessReview, c.Allocation, c.Archived, c.Asset, c.AssetType,
 		c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding, c.Custody,
 		c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Holder, c.InventoryCount,
-		c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.LevyanNotice, c.Link,
-		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
-		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
-		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement,
-		c.TagCounter, c.Tenant, c.TenantContract, c.TreeLock, c.WorkOrder,
+		c.ItemModel, c.Label, c.LegalHold, c.LevyanNotice, c.Link, c.Notification,
+		c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase, c.PurchaseLine,
+		c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale, c.Session,
+		c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.TagCounter,
+		c.Tenant, c.TenantContract, c.TreeLock, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -555,8 +549,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Holder.mutate(ctx, m)
 	case *InventoryCountMutation:
 		return c.InventoryCount.mutate(ctx, m)
-	case *InvitationMutation:
-		return c.Invitation.mutate(ctx, m)
 	case *ItemModelMutation:
 		return c.ItemModel.mutate(ctx, m)
 	case *LabelMutation:
@@ -3437,203 +3429,6 @@ func (c *InventoryCountClient) mutate(ctx context.Context, m *InventoryCountMuta
 		return (&InventoryCountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown InventoryCount mutation op: %q", m.Op())
-	}
-}
-
-// InvitationClient is a client for the Invitation schema.
-type InvitationClient struct {
-	config
-}
-
-// NewInvitationClient returns a client for the Invitation from the given config.
-func NewInvitationClient(c config) *InvitationClient {
-	return &InvitationClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `invitation.Hooks(f(g(h())))`.
-func (c *InvitationClient) Use(hooks ...Hook) {
-	c.hooks.Invitation = append(c.hooks.Invitation, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `invitation.Intercept(f(g(h())))`.
-func (c *InvitationClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Invitation = append(c.inters.Invitation, interceptors...)
-}
-
-// Create returns a builder for creating a Invitation entity.
-func (c *InvitationClient) Create() *InvitationCreate {
-	mutation := newInvitationMutation(c.config, OpCreate)
-	return &InvitationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Invitation entities.
-func (c *InvitationClient) CreateBulk(builders ...*InvitationCreate) *InvitationCreateBulk {
-	return &InvitationCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *InvitationClient) MapCreateBulk(slice any, setFunc func(*InvitationCreate, int)) *InvitationCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &InvitationCreateBulk{err: fmt.Errorf("calling to InvitationClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*InvitationCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &InvitationCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Invitation.
-func (c *InvitationClient) Update() *InvitationUpdate {
-	mutation := newInvitationMutation(c.config, OpUpdate)
-	return &InvitationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *InvitationClient) UpdateOne(_m *Invitation) *InvitationUpdateOne {
-	mutation := newInvitationMutation(c.config, OpUpdateOne, withInvitation(_m))
-	return &InvitationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneId returns an update builder for the given id.
-func (c *InvitationClient) UpdateOneId(id uuid.UUID) *InvitationUpdateOne {
-	mutation := newInvitationMutation(c.config, OpUpdateOne, withInvitationId(id))
-	return &InvitationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Invitation.
-func (c *InvitationClient) Delete() *InvitationDelete {
-	mutation := newInvitationMutation(c.config, OpDelete)
-	return &InvitationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *InvitationClient) DeleteOne(_m *Invitation) *InvitationDeleteOne {
-	return c.DeleteOneId(_m.Id)
-}
-
-// DeleteOneId returns a builder for deleting the given entity by its id.
-func (c *InvitationClient) DeleteOneId(id uuid.UUID) *InvitationDeleteOne {
-	builder := c.Delete().Where(invitation.Id(id))
-	builder.mutation.id = &id
-	builder.mutation.SetOp(OpDeleteOne)
-	return &InvitationDeleteOne{builder}
-}
-
-// Query returns a query builder for Invitation.
-func (c *InvitationClient) Query() *InvitationQuery {
-	return &InvitationQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeInvitation},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Invitation entity by its id.
-func (c *InvitationClient) Get(ctx context.Context, id uuid.UUID) (*Invitation, error) {
-	return c.Query().Where(invitation.Id(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *InvitationClient) GetX(ctx context.Context, id uuid.UUID) *Invitation {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryTenant queries the tenant edge of a Invitation.
-func (c *InvitationClient) QueryTenant(_m *Invitation) *TenantQuery {
-	query := (&TenantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(invitation.Table, invitation.FieldId, id),
-			sqlgraph.To(tenant.Table, tenant.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, invitation.TenantTable, invitation.TenantColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryInviter queries the inviter edge of a Invitation.
-func (c *InvitationClient) QueryInviter(_m *Invitation) *HolderQuery {
-	query := (&HolderClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(invitation.Table, invitation.FieldId, id),
-			sqlgraph.To(holder.Table, holder.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, invitation.InviterTable, invitation.InviterColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryParty queries the party edge of a Invitation.
-func (c *InvitationClient) QueryParty(_m *Invitation) *PartyQuery {
-	query := (&PartyClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(invitation.Table, invitation.FieldId, id),
-			sqlgraph.To(party.Table, party.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, invitation.PartyTable, invitation.PartyColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryHolder queries the holder edge of a Invitation.
-func (c *InvitationClient) QueryHolder(_m *Invitation) *HolderQuery {
-	query := (&HolderClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(invitation.Table, invitation.FieldId, id),
-			sqlgraph.To(holder.Table, holder.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, invitation.HolderTable, invitation.HolderColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *InvitationClient) Hooks() []Hook {
-	return c.hooks.Invitation
-}
-
-// Interceptors returns the client interceptors.
-func (c *InvitationClient) Interceptors() []Interceptor {
-	return c.inters.Invitation
-}
-
-func (c *InvitationClient) mutate(ctx context.Context, m *InvitationMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&InvitationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&InvitationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&InvitationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&InvitationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Invitation mutation op: %q", m.Op())
 	}
 }
 
@@ -7708,19 +7503,19 @@ type (
 	hooks struct {
 		Access, AccessReview, Allocation, Archived, Asset, AssetType, Attachment, Audit,
 		Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event,
-		Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold,
-		LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
-		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
-		SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
-		TenantContract, TreeLock, WorkOrder []ent.Hook
+		Fact, Holder, InventoryCount, ItemModel, Label, LegalHold, LevyanNotice, Link,
+		Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine,
+		Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure,
+		Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract,
+		TreeLock, WorkOrder []ent.Hook
 	}
 	inters struct {
 		Access, AccessReview, Allocation, Archived, Asset, AssetType, Attachment, Audit,
 		Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event,
-		Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold,
-		LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
-		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
-		SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
-		TenantContract, TreeLock, WorkOrder []ent.Interceptor
+		Fact, Holder, InventoryCount, ItemModel, Label, LegalHold, LevyanNotice, Link,
+		Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine,
+		Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure,
+		Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract,
+		TreeLock, WorkOrder []ent.Interceptor
 	}
 )

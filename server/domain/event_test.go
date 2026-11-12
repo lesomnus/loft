@@ -80,11 +80,10 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	alias := "@" + e.holderRow(kim.GetHolder().GetId()).Alias
 	x.Equal(map[string]string{
 		"party.add":     "추가: " + name,
-		"party.invite":  "로그인 발급: " + name + " (" + alias + ")",
 		"party.role":    "역할 변경: " + name + " → 매니저",
 		"asset.assign":  "NB-1 소유: " + name,
 		"custody.issue": "지급: " + name,
-	}, pick(e.events(), "party.add", "party.invite", "party.role", "asset.assign", "custody.issue"))
+	}, pick(e.events(), "party.add", "party.role", "asset.assign", "custody.issue"))
 	x.Equal("NB-1 소유: "+name, summaryOf(e.timeline(laptop, false), "asset.assign"))
 
 	// Renamed, they are called what they are called now.
@@ -92,11 +91,7 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	x.NoError(err)
 	x.Equal("역할 변경: 김 대리 → 매니저", e.events()["party.role"])
 
-	// A login ended is still theirs to read about.
 	_, lee := e.person("member")
-	_, err = e.app().Party().Deactivate(e.owner, app.PartyDeactivateRequest_builder{Ref: ref[app.PartyRef](lee.GetId())}.Build())
-	x.NoError(err)
-	x.Equal("로그인 비활성화: "+lee.GetName(), e.events()["party.deactivate"])
 
 	v, err := e.app().Party().Pseudonymize(e.owner, app.PartyPseudonymizeRequest_builder{Ref: ref[app.PartyRef](kim.GetId())}.Build())
 	x.NoError(err)
@@ -120,13 +115,10 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 		"asset.assign":  "NB-1 소유: " + called,
 		"custody.issue": "지급: " + called,
 	}, pick(got, "party.update", "party.role", "asset.assign", "custody.issue"))
-	x.True(strings.HasPrefix(got["party.deactivate"], "로그인 비활성화: 익명 "), got["party.deactivate"])
 	x.Equal("NB-1 소유: "+called, summaryOf(e.timeline(laptop, false), "asset.assign"))
-	for _, said := range e.said("party.add", "party.invite") {
+	for _, said := range e.said("party.add") {
 		x.NotContains(said, name)
-		x.NotContains(said, alias)
 	}
-	x.Contains(e.said("party.invite"), "로그인 발급: "+called+" ("+pseudonym+")")
 
 	rows, err := e.s.Ent.Event.Query().All(ctx)
 	x.NoError(err)

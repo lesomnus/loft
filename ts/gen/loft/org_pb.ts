@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/org.proto.
  */
 export const file_loft_org: GenFile = /*@__PURE__*/
-  fileDesc("Cg5sb2Z0L29yZy5wcm90bxIEbG9mdCLLBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESFAoEbmFtZRgFIAEoCUIGqsEWAhgBEhQKBGRlc2MYBiABKAlCBqrBFgIYARIvCgZsYWJlbHMYByADKAsyFy5sb2Z0LlBhcnR5LkxhYmVsc0VudHJ5QgaqwRYCGAESFAoEa2luZBgIIAEoCUIGqsEWAhgAEhsKCXBhcmVudF9pZBgJIAEoDEII6oIWBBBAOAESJAoGaG9sZGVyGAogASgLMgwubG9mdC5Ib2xkZXJCBvKCFgI4ARIVCgVlbWFpbBgLIAEoCUIGqsEWAhgBEhUKBXBob25lGAwgASgJQgaqwRYCGAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhQKBGNvZGUYECABKAlCBqrBFgIYARotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOqcByvwVShICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhYSBmhvbGRlchoKCgZob2xkZXIQCjABirsWVQgKMk8KEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaBgoEa2luZBoLCglwYXJlbnRfaWQaCAoGaG9sZGVyGggKBmxhYmVscyAyKPQDOgAi1QQKB1Nlc3Npb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhYKBmhvbGRlchgIIAEoDEIG6oIWAhBAEhYKBnNlY3JldBgJIAEoDEIGqsEWAggBEg0KBWdyYW50GAogASgMEjgKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI1CglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGgoEaGVsZBgQIAEoDEIM6oIWAjgBqsEWAggBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADqyAcr8FSwaFBIGc2VjcmV0GgoKBnNlY3JldBAJGhQSBmhvbGRlchoKCgZob2xkZXIQCIq7Fn4IJlJ4EnYKdGEgc2lnbi1pbiwgd2hvc2UgaWRsZSBjbG9jayBtb3ZlcyBvbiBldmVyeSByZXF1ZXN0OyB3aG8gc2lnbmVkIGluLCBhbmQgZnJvbSB3aGVyZSwgaXMgdGhlIGFjY2VzcyByZWNvcmQncyAobG9mdCMxMzYpKgAiuwUKCkludml0YXRpb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESJQoHaW52aXRlchgIIAEoCzIMLmxvZnQuSG9sZGVyQgbyghYCQAESFQoFZW1haWwYCSABKAlCBqrBFgIYARIaCgRyb2xlGAogASgJQgzqghYCQAGqwRYCGAASIgoFcGFydHkYCyABKAsyCy5sb2Z0LlBhcnR5QgbyghYCOAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhUKBXN0YXRlGBAgASgJQgaqwRYCGAASOQoMZGF0ZV9leHBpcmVzGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI4CgxkYXRlX3NldHRsZWQYEiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESJAoGaG9sZGVyGBMgASgLMgwubG9mdC5Ib2xkZXJCBvKCFgI4ATqLAcr8FUYSAhABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoSEgVlbWFpbBoJCgVlbWFpbBAJirsWPQgpMjkKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaCAoGdGVuYW50GgcKBXN0YXRlIDIoyAEiiwQKCENsaUxvZ2luEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIWCgZzZWNyZXQYCCABKAxCBqrBFgIIARIMCgRjb2RlGAkgASgJEg4KBmNsaWVudBgKIAEoCRIOCgZvcmlnaW4YCyABKAkSFwoHYWRkcmVzcxgSIAEoCUIGqsEWAhgAEhgKBmhvbGRlchgMIAEoDEII6oIWBBBAOAESDQoFZ3JhbnQYEyABKAwSDQoFc3RhdGUYECABKAkSOQoMZGF0ZV9leHBpcmVzGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6Ysr8FVIaEBIEY29kZRoICgRjb2RlEAkaFBIGc2VjcmV0GgoKBnNlY3JldBAIGigSB2FkZHJlc3MaCwoHYWRkcmVzcxASGhAKDGRhdGVfY3JlYXRlZBAPirsWCAgqUgIKACoAIr4CCg1TaWduSW5GYWlsdXJlEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIXCgdzdWJqZWN0GAggASgMQgaqwRYCCAESOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOr0ByvwVTBooEgdzdWJqZWN0GgsKB3N1YmplY3QQCBoQCgxkYXRlX2NyZWF0ZWQQDxogEgxkYXRlX2NyZWF0ZWQaEAoMZGF0ZV9jcmVhdGVkEA+KuxZpCC1CAgoAUl8SXQpbYSBjb3VudCBvZiB0aGUgc2lnbi1pbnMgYW4gYWRkcmVzcyBnb3Qgd3JvbmcsIGtlcHQgZm9yIGhvdXJzIHRvIHNsb3cgdGhlIG5leHQ7IG5vYm9keSdzIGFjdCoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_holder, file_loft_payday_tenant]);
+  fileDesc("Cg5sb2Z0L29yZy5wcm90bxIEbG9mdCLLBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESFAoEbmFtZRgFIAEoCUIGqsEWAhgBEhQKBGRlc2MYBiABKAlCBqrBFgIYARIvCgZsYWJlbHMYByADKAsyFy5sb2Z0LlBhcnR5LkxhYmVsc0VudHJ5QgaqwRYCGAESFAoEa2luZBgIIAEoCUIGqsEWAhgAEhsKCXBhcmVudF9pZBgJIAEoDEII6oIWBBBAOAESJAoGaG9sZGVyGAogASgLMgwubG9mdC5Ib2xkZXJCBvKCFgI4ARIVCgVlbWFpbBgLIAEoCUIGqsEWAhgBEhUKBXBob25lGAwgASgJQgaqwRYCGAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhQKBGNvZGUYECABKAlCBqrBFgIYARotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOqcByvwVShICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhYSBmhvbGRlchoKCgZob2xkZXIQCjABirsWVQgKMk8KEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaBgoEa2luZBoLCglwYXJlbnRfaWQaCAoGaG9sZGVyGggKBmxhYmVscyAyKPQDOgAi1QQKB1Nlc3Npb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhYKBmhvbGRlchgIIAEoDEIG6oIWAhBAEhYKBnNlY3JldBgJIAEoDEIGqsEWAggBEg0KBWdyYW50GAogASgMEjgKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI1CglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGgoEaGVsZBgQIAEoDEIM6oIWAjgBqsEWAggBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADqyAcr8FSwaFBIGc2VjcmV0GgoKBnNlY3JldBAJGhQSBmhvbGRlchoKCgZob2xkZXIQCIq7Fn4IJlJ4EnYKdGEgc2lnbi1pbiwgd2hvc2UgaWRsZSBjbG9jayBtb3ZlcyBvbiBldmVyeSByZXF1ZXN0OyB3aG8gc2lnbmVkIGluLCBhbmQgZnJvbSB3aGVyZSwgaXMgdGhlIGFjY2VzcyByZWNvcmQncyAobG9mdCMxMzYpKgAiiwQKCENsaUxvZ2luEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIWCgZzZWNyZXQYCCABKAxCBqrBFgIIARIMCgRjb2RlGAkgASgJEg4KBmNsaWVudBgKIAEoCRIOCgZvcmlnaW4YCyABKAkSFwoHYWRkcmVzcxgSIAEoCUIGqsEWAhgAEhgKBmhvbGRlchgMIAEoDEII6oIWBBBAOAESDQoFZ3JhbnQYEyABKAwSDQoFc3RhdGUYECABKAkSOQoMZGF0ZV9leHBpcmVzGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6Ysr8FVIaEBIEY29kZRoICgRjb2RlEAkaFBIGc2VjcmV0GgoKBnNlY3JldBAIGigSB2FkZHJlc3MaCwoHYWRkcmVzcxASGhAKDGRhdGVfY3JlYXRlZBAPirsWCAgqUgIKACoAIr4CCg1TaWduSW5GYWlsdXJlEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIXCgdzdWJqZWN0GAggASgMQgaqwRYCCAESOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOr0ByvwVTBooEgdzdWJqZWN0GgsKB3N1YmplY3QQCBoQCgxkYXRlX2NyZWF0ZWQQDxogEgxkYXRlX2NyZWF0ZWQaEAoMZGF0ZV9jcmVhdGVkEA+KuxZpCC1CAgoAUl8SXQpbYSBjb3VudCBvZiB0aGUgc2lnbi1pbnMgYW4gYWRkcmVzcyBnb3Qgd3JvbmcsIGtlcHQgZm9yIGhvdXJzIHRvIHNsb3cgdGhlIG5leHQ7IG5vYm9keSdzIGFjdCoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_holder, file_loft_payday_tenant]);
 
 /**
  * Party is a person, a team, an organization or a vendor: whoever an asset is
@@ -202,116 +202,6 @@ export const SessionSchema: GenMessage<Session> = /*@__PURE__*/
   messageDesc(file_loft_org, 1);
 
 /**
- * Invitation is somebody asked into a workspace, by address, with a role
- * (design 9.11, M2 step 4): what the people who run the workspace send and
- * take back. Nothing here answers one -- somebody comes to be a member by
- * signing in as a holder of the tenant at roster (D85) -- and the rest goes
- * with #332.
- *
- * It is the workspace's row: who invited whom, as what, and what became of it
- * are this workspace's history, and leave with it. Nothing here says whether
- * an address is anybody's: the people who invite learn what became of the
- * invitation, and nothing about who was asked.
- *
- * @generated from message loft.Invitation
- */
-export type Invitation = Message<"loft.Invitation"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: loft.Tenant tenant = 2;
-   */
-  tenant?: Tenant | undefined;
-
-  /**
-   * Who invited: their membership of this workspace.
-   *
-   * @generated from field: loft.Holder inviter = 8;
-   */
-  inviter?: Holder | undefined;
-
-  /**
-   * The address it was sent to, folded as an address is compared. Written
-   * once, and emptied when the person it was for is forgotten -- by the
-   * workspace, or by their leaving it (`server/domain/depart.go`) -- which is
-   * the one write it takes and why it is not immutable. Personal (payday#92):
-   * on the trail as having been set, and never as what to.
-   *
-   * @generated from field: string email = 9;
-   */
-  email: string;
-
-  /**
-   * What the person it is for is to be here: a role, which is the record and
-   * not the person.
-   *
-   * @generated from field: string role = 10;
-   */
-  role: string;
-
-  /**
-   * The person record they are: one this workspace already keeps, or empty
-   * for one made when they come.
-   *
-   * @generated from field: loft.Party party = 11;
-   */
-  party?: Party | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_updated = 13;
-   */
-  dateUpdated?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_erased = 14;
-   */
-  dateErased?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-
-  /**
-   * `pending`, `accepted`, `denied` or `revoked`. One still pending after
-   * `date_expires` is expired, which is said where it is read rather than
-   * written by a sweep.
-   *
-   * @generated from field: string state = 16;
-   */
-  state: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 17;
-   */
-  dateExpires?: Timestamp | undefined;
-
-  /**
-   * When it was answered or taken back.
-   *
-   * @generated from field: google.protobuf.Timestamp date_settled = 18;
-   */
-  dateSettled?: Timestamp | undefined;
-
-  /**
-   * The membership accepting it made.
-   *
-   * @generated from field: loft.Holder holder = 19;
-   */
-  holder?: Holder | undefined;
-};
-
-/**
- * Describes the message loft.Invitation.
- * Use `create(InvitationSchema)` to create a new message.
- */
-export const InvitationSchema: GenMessage<Invitation> = /*@__PURE__*/
-  messageDesc(file_loft_org, 2);
-
-/**
  * CliLogin is a terminal asking to be signed in as whoever approves it in a
  * browser (`loft auth login`).
  *
@@ -421,7 +311,7 @@ export type CliLogin = Message<"loft.CliLogin"> & {
  * Use `create(CliLoginSchema)` to create a new message.
  */
 export const CliLoginSchema: GenMessage<CliLogin> = /*@__PURE__*/
-  messageDesc(file_loft_org, 3);
+  messageDesc(file_loft_org, 2);
 
 /**
  * SignInFailure is one wrong answer at the sign-in form, counted against the
@@ -465,5 +355,5 @@ export type SignInFailure = Message<"loft.SignInFailure"> & {
  * Use `create(SignInFailureSchema)` to create a new message.
  */
 export const SignInFailureSchema: GenMessage<SignInFailure> = /*@__PURE__*/
-  messageDesc(file_loft_org, 4);
+  messageDesc(file_loft_org, 3);
 

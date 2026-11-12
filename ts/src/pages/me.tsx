@@ -1,17 +1,16 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import { AssetService, CustodyService, NotificationService, PartyService, fmt, idStr, leavePage, ref } from '../api.js'
+import { AssetService, CustodyService, NotificationService, fmt, idStr, leavePage, ref } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
-import { Badge, Card, Empty, Field, FormModal, Kv, Load, PageHead } from '../ui.js'
+import { Badge, Card, Empty, Kv, Load, PageHead } from '../ui.js'
 import { custodyKindWord, roleWord, statusWord } from '../words.js'
 
 export function Me(): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
-	const [pw, setPw] = useState(false)
 	// Whether what this person is told here goes by mail as well: theirs.
 	const [mailOff, setMailOff] = useState(c.me.holder?.mailOff ?? false)
 	const [mailBusy, setMailBusy] = useState(false)
@@ -30,14 +29,12 @@ export function Me(): ReactNode {
 			<PageHead
 				title="내 정보"
 				actions={
-					c.me.accountsHere ? (
-						<button onClick={() => setPw(true)}>비밀번호 변경</button>
-					) : c.me.accountUrl !== '' ? (
+					c.me.accountUrl !== '' ? (
 						<a className="button" href={c.me.accountUrl}>
 							로그인 방법 관리
 						</a>
 					) : (
-						<span className="mute small">비밀번호는 roster에서 바꿉니다</span>
+						<span className="mute small">로그인 방법은 roster에서 관리합니다</span>
 					)
 				}
 			/>
@@ -132,36 +129,6 @@ export function Me(): ReactNode {
 					</Load>
 				</Card>
 			</div>
-			{pw && <ChangePassword onClose={() => setPw(false)} />}
 		</>
-	)
-}
-
-function ChangePassword(props: { onClose: () => void }): ReactNode {
-	const act = useAct()
-	const [current, setCurrent] = useState('')
-	const [next, setNext] = useState('')
-	const [again, setAgain] = useState('')
-	return (
-		<FormModal
-			title="비밀번호 변경"
-			submit="변경"
-			onClose={props.onClose}
-			onSubmit={async () => {
-				if (next !== again) return false
-				return (await act(PartyService.method.setPassword, { current, password: next }, { ok: '바꿨습니다.' })) !== undefined
-			}}
-		>
-			<Field label="지금 비밀번호">
-				<input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} required autoComplete="current-password" />
-			</Field>
-			<Field label="새 비밀번호" hint="8자 이상">
-				<input type="password" value={next} onChange={(e) => setNext(e.target.value)} required minLength={8} autoComplete="new-password" />
-			</Field>
-			<Field label="새 비밀번호 확인">
-				<input type="password" value={again} onChange={(e) => setAgain(e.target.value)} required minLength={8} autoComplete="new-password" />
-			</Field>
-			{again !== '' && next !== again && <p className="bad wide">새 비밀번호가 서로 다릅니다.</p>}
-		</FormModal>
 	)
 }

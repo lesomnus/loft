@@ -1640,10 +1640,10 @@ type AccessSubject_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Id []byte
-	// What the identifier is of: `party`, `holder`, `invitation`, ...
+	// What the identifier is of: `party`, `holder`, `notification`, ...
 	Kind string
 	// What a person record or a membership is called now; empty for anything
-	// else, whose name is not one to show here (an invitation's address).
+	// else, whose name is not one to show here (a notice's words).
 	Name string
 }
 

@@ -63,16 +63,16 @@ func restrict(w *world, fake *levyantest.Levyan) []byte {
 // restricts a workspace, every way it adds to what it is billed for is
 // refused -- a new asset of any kind, many at once, stock made assets, an
 // asset brought back from disposed or lost, a purchase received as assets, a
-// file, a member by a login, an invitation sent, its history kept longer --
-// with a reason a page tells it by. Everything else it does as it did: reads
-// and downloads, hands things out and takes them back, books, moves, changes
-// what bills nothing, disposes of and deletes, keeps its history shorter,
-// takes stock in, ends a membership and makes one of somebody the tenant at
-// roster has who signs in (D85); and its operator closes it (D83). Once
-// levyan ends the grant, it grows again.
+// file, its history kept longer -- with a reason a page tells it by.
+// Everything else it does as it did: reads and downloads, hands things out
+// and takes them back, books, moves, changes what bills nothing, disposes of
+// and deletes, keeps its history shorter, takes stock in, and makes a member
+// of somebody the tenant at roster has who signs in (D85) -- who is a member
+// is roster's (D87); and its operator closes it (D83). Once levyan ends the
+// grant, it grows again.
 func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	fake := levyantest.Start(t)
-	w := newInvites(t, func(c *cmd.Config) {
+	w := newWorldWith(t, func(c *cmd.Config) {
 		c.App.Billing.Levyan = fake.Config()
 		// A window made shorter is the shorter one at once, for the one
 		// made longer after it to be longer than the window in force.
@@ -85,7 +85,6 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	stocks := app.NewStockServiceClient(w.conn)
 	purchases := app.NewPurchaseServiceClient(w.conn)
 	attachments := app.NewAttachmentServiceClient(w.conn)
-	parties := app.NewPartyServiceClient(w.conn)
 	tenants := app.NewTenantServiceClient(w.conn)
 	custody := app.NewCustodyServiceClient(w.conn)
 	reservations := app.NewReservationServiceClient(w.conn)
@@ -119,18 +118,16 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 		Lines: []*app.PurchaseLineSpec{app.PurchaseLineSpec_builder{Model: mref, Quantity: 30, UnitCost: 500, ReceiveAs: "stock"}.Build()},
 	}.Build())
 	x.NoError(err)
-	park := w.person("박지민", "park@example.com")
 	kim := w.person("김철수", "kim@example.com")
 	_, err = app.NewBookableServiceClient(w.conn).Add(w.owner, app.BookableAddRequest_builder{Asset: aref(room)}.Build())
 	x.NoError(err)
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(365))}.Build())
 	x.NoError(err)
 	time.Sleep(10 * time.Millisecond)
-	member := partyOf(w.world, w.holder("choi", "member"))
 	booker := w.holder("yun", "member")
-	partyOf(w.world, booker)
+	partyOf(w, booker)
 
-	grant := restrict(w.world, fake)
+	grant := restrict(w, fake)
 
 	files := func() int {
 		n := 0
@@ -165,12 +162,6 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	n, err := w.s.Ent.Attachment.Query().Where(attachment.TenantId(tenantId(x, w.tenant).Uuid())).Count(ctx)
 	x.NoError(err)
 	x.Zero(n)
-	_, err = parties.Invite(w.owner, app.PartyInviteRequest_builder{Ref: app.PartyRef_builder{Id: park.GetId()}.Build(), Alias: "park", Role: "member"}.Build())
-	w.refusedRestricted(err, "로그인을 새로 발급할 수 없습니다")
-	_, err = w.s.Identity.Lookup(ctx, "park")
-	x.Error(err, "and nobody was made for it at roster")
-	_, err = w.invite(w.owner, "kim@example.com", "member")
-	w.refusedRestricted(err, "구성원을 초대할 수 없습니다")
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(730))}.Build())
 	w.refusedRestricted(err, "이력을 지금보다 오래 보관하도록 바꿀 수 없습니다")
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(0))}.Build())
@@ -208,8 +199,6 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	x.NoError(err, "stock taken in")
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(180)), Timezone: z.Ptr("Asia/Tokyo")}.Build())
 	x.NoError(err, "the history kept shorter, and a setting that bills nothing")
-	_, err = parties.Deactivate(w.owner, app.PartyDeactivateRequest_builder{Ref: app.PartyRef_builder{Id: member.GetId()}.Build()}.Build())
-	x.NoError(err, "a membership ended")
 	// Somebody the tenant at roster has signs in, and is a member: who is in
 	// the workspace is roster's to say (D85), and the workspace is billed
 	// for its members rather than held back from having them.
@@ -227,7 +216,7 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	x.NoError(err, "a grant ended is a restriction lifted")
 
 	// And its operator closes it, restricted or not, at the entry point.
-	restrict(w.world, fake)
+	restrict(w, fake)
 	_, err = app.NewTenantServiceClient(w.entryPoint(t)).Close(byOperator(), app.TenantCloseRequest_builder{Ref: tref, Confirm: w.tenant.GetAlias()}.Build())
 	x.NoError(err, "closing")
 }

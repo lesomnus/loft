@@ -6,7 +6,7 @@ import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegen
 import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import type { Invitation, InvitationSchema, Party, PartySchema } from "./org_pb.js";
+import type { Party, PartySchema } from "./org_pb.js";
 import { file_loft_org } from "./org_pb.js";
 import type { Holder } from "./payday/holder_pb.js";
 import { file_loft_payday_holder } from "./payday/holder_pb.js";
@@ -24,7 +24,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/org_svc.g.proto.
  */
 export const file_loft_org_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("ChRsb2Z0L29yZ19zdmMuZy5wcm90bxIEbG9mdCKGAwoPUGFydHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLmxvZnQuVGVuYW50UmVmEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjEKBmxhYmVscxgHIAMoCzIhLmxvZnQuUGFydHlBZGRSZXF1ZXN0LkxhYmVsc0VudHJ5EhMKBGtpbmQYCCABKAlCBaoBAggCEhEKCXBhcmVudF9pZBgJIAEoDBIfCgZob2xkZXIYCiABKAsyDy5sb2Z0LkhvbGRlclJlZhIUCgVlbWFpbBgLIAEoCUIFqgECCAISFAoFcGhvbmUYDCABKAlCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoEY29kZRgQIAEoCUIFqgECCAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJRCg9QYXJ0eUdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ubG9mdC5QYXJ0eVJlZhIhCgZzZWxlY3QYAiABKAsyES5sb2Z0LlBhcnR5U2VsZWN0IkkKCFBhcnR5UmVmEgwKAmlkGAEgASgMSAASKAoGaG9sZGVyGAogASgLMhYubG9mdC5QYXJ0eVJlZkJ5SG9sZGVySABCBQoDa2V5IjMKEFBhcnR5UmVmQnlIb2xkZXISHwoGaG9sZGVyGAogASgLMg8ubG9mdC5Ib2xkZXJSZWYinAIKC1BhcnR5U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5sb2Z0LlRlbmFudFNlbGVjdBIMCgRuYW1lGAUgASgIEgwKBGRlc2MYBiABKAgSDgoGbGFiZWxzGAcgASgIEgwKBGtpbmQYCCABKAgSEQoJcGFyZW50X2lkGAkgASgIEiIKBmhvbGRlchgKIAEoCzISLmxvZnQuSG9sZGVyU2VsZWN0Eg0KBWVtYWlsGAsgASgIEg0KBXBob25lGAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDAoEY29kZRgQIAEoCCKZAwoRUGFydHlQYXRjaFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ubG9mdC5QYXJ0eVJlZhIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSMwoGbGFiZWxzGA4gAygLMiMubG9mdC5QYXJ0eVBhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIMCgRraW5kGBAgASgJEhEKCXBhcmVudF9pZBgSIAEoDBIWCg5wYXJlbnRfaWRfbnVsbBgTIAEoCBIfCgZob2xkZXIYFCABKAsyDy5sb2Z0LkhvbGRlclJlZhITCgtob2xkZXJfbnVsbBgVIAEoCBINCgVlbWFpbBgWIAEoCRINCgVwaG9uZRgYIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIMCgRjb2RlGCAgASgJGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTQoRUGFydHlBcHBseVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ubG9mdC5QYXJ0eVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiQKElBhcnR5RXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgieQoQUGFydHlMaXN0UmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEubG9mdC5QYXJ0eUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiRAoRUGFydHlMaXN0UmVzcG9uc2USGgoFaXRlbXMYASADKAsyCy5sb2Z0LlBhcnR5EhMKBG5leHQYAiABKAlCBaoBAggCIsoBCgtQYXJ0eUZpbHRlchIbCgNyZWYYASABKAsyDi5sb2Z0LlBhcnR5UmVmEgwKBGtpbmQYAiABKAkSEQoJcGFyZW50X2lkGAMgASgMEh8KBmhvbGRlchgEIAEoCzIPLmxvZnQuSG9sZGVyUmVmEi0KBmxhYmVscxgFIAMoCzIdLmxvZnQuUGFydHlGaWx0ZXIuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJVChFQYXJ0eVdhdGNoUmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEubG9mdC5QYXJ0eUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI5ChJQYXJ0eVdhdGNoUmVzcG9uc2USIwoFaXRlbXMYASADKAsyFC5sb2Z0LlBhcnR5V2F0Y2hJdGVtIk8KDlBhcnR5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhoKBXZhbHVlGAIgASgLMgsubG9mdC5QYXJ0eRIVCgZhY3Rpb24YAyABKAlCBaoBAggCIhAKDlBhcnR5TWVSZXF1ZXN0ItoCCg9QYXJ0eU1lUmVzcG9uc2USHAoGaG9sZGVyGAEgASgLMgwubG9mdC5Ib2xkZXISGgoFcGFydHkYAiABKAsyCy5sb2Z0LlBhcnR5EhwKBnRlbmFudBgDIAEoCzIMLmxvZnQuVGVuYW50EhMKBHJvbGUYBCABKAlCBaoBAggCEhwKDWFjY291bnRzX2hlcmUYByABKAhCBaoBAggCEhoKC2FjY291bnRfdXJsGAggASgJQgWqAQIIAhIXCgh0aW1lem9uZRgJIAEoCUIFqgECCAISFwoIY3VycmVuY3kYCiABKAlCBaoBAggCEhsKDHJlc3RvcmVfZGF5cxgLIAEoDUIFqgECCAISHQoOd29ya3NwYWNlX25hbWUYDSABKAlCBaoBAggCEhkKCnJlc3RyaWN0ZWQYDiABKAhCBaoBAggCEhcKCHJlYWRvbmx5GA8gASgIQgWqAQIIAiLMAgoSUGFydHlVcGRhdGVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLmxvZnQuUGFydHlSZWYSEwoEbmFtZRgCIAEoCUIFqgECCAISEwoEZGVzYxgDIAEoCUIFqgECCAISEwoEa2luZBgEIAEoCUIFqgECCAISGAoJcGFyZW50X2lkGAUgASgMQgWqAQIIAhIaCgtwYXJlbnRfbnVsbBgGIAEoCEIFqgECCAISFAoFZW1haWwYByABKAlCBaoBAggCEhQKBXBob25lGAggASgJQgWqAQIIAhITCgRjb2RlGAkgASgJQgWqAQIIAhI0CgZsYWJlbHMYCiADKAsyJC5sb2Z0LlBhcnR5VXBkYXRlUmVxdWVzdC5MYWJlbHNFbnRyeRotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBInUKElBhcnR5SW52aXRlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5sb2Z0LlBhcnR5UmVmEhQKBWFsaWFzGAIgASgJQgWqAQIIAhITCgRyb2xlGAMgASgJQgWqAQIIAhIXCghwYXNzd29yZBgEIAEoCUIFqgECCAIiaAoTUGFydHlJbnZpdGVSZXNwb25zZRIaCgVwYXJ0eRgBIAEoCzILLmxvZnQuUGFydHkSHAoGaG9sZGVyGAIgASgLMgwubG9mdC5Ib2xkZXISFwoIcGFzc3dvcmQYAyABKAlCBaoBAggCIkcKE1BhcnR5U2V0Um9sZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ubG9mdC5QYXJ0eVJlZhITCgRyb2xlGAIgASgJQgWqAQIIAiJnChdQYXJ0eVNldFBhc3N3b3JkUmVxdWVzdBIbCgNyZWYYASABKAsyDi5sb2Z0LlBhcnR5UmVmEhYKB2N1cnJlbnQYAiABKAlCBaoBAggCEhcKCHBhc3N3b3JkGAMgASgJQgWqAQIIAiIaChhQYXJ0eVNldFBhc3N3b3JkUmVzcG9uc2UiNQoWUGFydHlEZWFjdGl2YXRlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5sb2Z0LlBhcnR5UmVmIjcKGFBhcnR5UHNldWRvbnltaXplUmVxdWVzdBIbCgNyZWYYASABKAsyDi5sb2Z0LlBhcnR5UmVmImcKElBhcnR5U2VhcmNoUmVxdWVzdBIQCgFxGAEgASgJQgWqAQIIAhITCgRraW5kGAIgASgJQgWqAQIIAhITCgRzaXplGAMgASgNQgWqAQIIAhIVCgZvZmZzZXQYBCABKA1CBaoBAggCIkcKE1BhcnR5U2VhcmNoUmVzcG9uc2USGgoFaXRlbXMYASADKAsyCy5sb2Z0LlBhcnR5EhQKBXRvdGFsGAIgASgNQgWqAQIIAiL8AgoUSW52aXRhdGlvbkFkZFJlcXVlc3QSCgoCaWQYASABKAwSHwoGdGVuYW50GAIgASgLMg8ubG9mdC5UZW5hbnRSZWYSIAoHaW52aXRlchgIIAEoCzIPLmxvZnQuSG9sZGVyUmVmEhQKBWVtYWlsGAkgASgJQgWqAQIIAhITCgRyb2xlGAogASgJQgWqAQIIAhIdCgVwYXJ0eRgLIAEoCzIOLmxvZnQuUGFydHlSZWYSMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIUCgVzdGF0ZRgQIAEoCUIFqgECCAISMAoMZGF0ZV9leHBpcmVzGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX3NldHRsZWQYEiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh8KBmhvbGRlchgTIAEoCzIPLmxvZnQuSG9sZGVyUmVmImAKFEludml0YXRpb25HZXRSZXF1ZXN0EiAKA3JlZhgBIAEoCzITLmxvZnQuSW52aXRhdGlvblJlZhImCgZzZWxlY3QYAiABKAsyFi5sb2Z0Lkludml0YXRpb25TZWxlY3QiJAoNSW52aXRhdGlvblJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSLHAgoQSW52aXRhdGlvblNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIubG9mdC5UZW5hbnRTZWxlY3QSIwoHaW52aXRlchgIIAEoCzISLmxvZnQuSG9sZGVyU2VsZWN0Eg0KBWVtYWlsGAkgASgIEgwKBHJvbGUYCiABKAgSIAoFcGFydHkYCyABKAsyES5sb2Z0LlBhcnR5U2VsZWN0EhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDQoFc3RhdGUYECABKAgSFAoMZGF0ZV9leHBpcmVzGBEgASgIEhQKDGRhdGVfc2V0dGxlZBgSIAEoCBIiCgZob2xkZXIYEyABKAsyEi5sb2Z0LkhvbGRlclNlbGVjdCKOAwoWSW52aXRhdGlvblBhdGNoUmVxdWVzdBIgCgNyZWYYASABKAsyEy5sb2Z0Lkludml0YXRpb25SZWYSDQoFZW1haWwYEiABKAkSHQoFcGFydHkYFiABKAsyDi5sb2Z0LlBhcnR5UmVmEhIKCnBhcnR5X251bGwYFyABKAgSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSDQoFc3RhdGUYICABKAkSMAoMZGF0ZV9leHBpcmVzGCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX3NldHRsZWQYJCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWRhdGVfc2V0dGxlZF9udWxsGCUgASgIEh8KBmhvbGRlchgmIAEoCzIPLmxvZnQuSG9sZGVyUmVmEhMKC2hvbGRlcl9udWxsGCcgASgIIlcKFkludml0YXRpb25BcHBseVJlcXVlc3QSIAoDcmVmGAEgASgLMhMubG9mdC5JbnZpdGF0aW9uUmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giKQoXSW52aXRhdGlvbkVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIoMBChVJbnZpdGF0aW9uTGlzdFJlcXVlc3QSJwoHZmlsdGVycxgBIAMoCzIWLmxvZnQuSW52aXRhdGlvbkZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiTgoWSW52aXRhdGlvbkxpc3RSZXNwb25zZRIfCgVpdGVtcxgBIAMoCzIQLmxvZnQuSW52aXRhdGlvbhITCgRuZXh0GAIgASgJQgWqAQIIAiJkChBJbnZpdGF0aW9uRmlsdGVyEiAKA3JlZhgBIAEoCzITLmxvZnQuSW52aXRhdGlvblJlZhIfCgZ0ZW5hbnQYAiABKAsyDy5sb2Z0LlRlbmFudFJlZhINCgVzdGF0ZRgDIAEoCSI7ChdJbnZpdGF0aW9uUmV2b2tlUmVxdWVzdBIgCgNyZWYYASABKAsyEy5sb2Z0Lkludml0YXRpb25SZWYyxQYKDFBhcnR5U2VydmljZRIpCgNBZGQSFS5sb2Z0LlBhcnR5QWRkUmVxdWVzdBoLLmxvZnQuUGFydHkSKQoDR2V0EhUubG9mdC5QYXJ0eUdldFJlcXVlc3QaCy5sb2Z0LlBhcnR5Ei0KBVBhdGNoEhcubG9mdC5QYXJ0eVBhdGNoUmVxdWVzdBoLLmxvZnQuUGFydHkSLQoFQXBwbHkSFy5sb2Z0LlBhcnR5QXBwbHlSZXF1ZXN0GgsubG9mdC5QYXJ0eRIxCgVFcmFzZRIOLmxvZnQuUGFydHlSZWYaGC5sb2Z0LlBhcnR5RXJhc2VSZXNwb25zZRI3CgRMaXN0EhYubG9mdC5QYXJ0eUxpc3RSZXF1ZXN0GhcubG9mdC5QYXJ0eUxpc3RSZXNwb25zZRI8CgVXYXRjaBIXLmxvZnQuUGFydHlXYXRjaFJlcXVlc3QaGC5sb2Z0LlBhcnR5V2F0Y2hSZXNwb25zZTABEjEKAk1lEhQubG9mdC5QYXJ0eU1lUmVxdWVzdBoVLmxvZnQuUGFydHlNZVJlc3BvbnNlEi8KBlVwZGF0ZRIYLmxvZnQuUGFydHlVcGRhdGVSZXF1ZXN0GgsubG9mdC5QYXJ0eRI9CgZJbnZpdGUSGC5sb2Z0LlBhcnR5SW52aXRlUmVxdWVzdBoZLmxvZnQuUGFydHlJbnZpdGVSZXNwb25zZRIxCgdTZXRSb2xlEhkubG9mdC5QYXJ0eVNldFJvbGVSZXF1ZXN0GgsubG9mdC5QYXJ0eRJMCgtTZXRQYXNzd29yZBIdLmxvZnQuUGFydHlTZXRQYXNzd29yZFJlcXVlc3QaHi5sb2Z0LlBhcnR5U2V0UGFzc3dvcmRSZXNwb25zZRI3CgpEZWFjdGl2YXRlEhwubG9mdC5QYXJ0eURlYWN0aXZhdGVSZXF1ZXN0GgsubG9mdC5QYXJ0eRI7CgxQc2V1ZG9ueW1pemUSHi5sb2Z0LlBhcnR5UHNldWRvbnltaXplUmVxdWVzdBoLLmxvZnQuUGFydHkSPQoGU2VhcmNoEhgubG9mdC5QYXJ0eVNlYXJjaFJlcXVlc3QaGS5sb2Z0LlBhcnR5U2VhcmNoUmVzcG9uc2UyEAoOU2Vzc2lvblNlcnZpY2UyqgMKEUludml0YXRpb25TZXJ2aWNlEjMKA0FkZBIaLmxvZnQuSW52aXRhdGlvbkFkZFJlcXVlc3QaEC5sb2Z0Lkludml0YXRpb24SMwoDR2V0EhoubG9mdC5JbnZpdGF0aW9uR2V0UmVxdWVzdBoQLmxvZnQuSW52aXRhdGlvbhI3CgVQYXRjaBIcLmxvZnQuSW52aXRhdGlvblBhdGNoUmVxdWVzdBoQLmxvZnQuSW52aXRhdGlvbhI3CgVBcHBseRIcLmxvZnQuSW52aXRhdGlvbkFwcGx5UmVxdWVzdBoQLmxvZnQuSW52aXRhdGlvbhI7CgVFcmFzZRITLmxvZnQuSW52aXRhdGlvblJlZhodLmxvZnQuSW52aXRhdGlvbkVyYXNlUmVzcG9uc2USQQoETGlzdBIbLmxvZnQuSW52aXRhdGlvbkxpc3RSZXF1ZXN0GhwubG9mdC5JbnZpdGF0aW9uTGlzdFJlc3BvbnNlEjkKBlJldm9rZRIdLmxvZnQuSW52aXRhdGlvblJldm9rZVJlcXVlc3QaEC5sb2Z0Lkludml0YXRpb24yEQoPQ2xpTG9naW5TZXJ2aWNlMhYKFFNpZ25JbkZhaWx1cmVTZXJ2aWNlQhpaGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdGIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_loft_org, file_loft_payday_holder, file_loft_payday_holder_svc_g, file_loft_payday_tenant, file_loft_payday_tenant_svc_g, file_patch_patch]);
+  fileDesc("ChRsb2Z0L29yZ19zdmMuZy5wcm90bxIEbG9mdCKGAwoPUGFydHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLmxvZnQuVGVuYW50UmVmEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjEKBmxhYmVscxgHIAMoCzIhLmxvZnQuUGFydHlBZGRSZXF1ZXN0LkxhYmVsc0VudHJ5EhMKBGtpbmQYCCABKAlCBaoBAggCEhEKCXBhcmVudF9pZBgJIAEoDBIfCgZob2xkZXIYCiABKAsyDy5sb2Z0LkhvbGRlclJlZhIUCgVlbWFpbBgLIAEoCUIFqgECCAISFAoFcGhvbmUYDCABKAlCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoEY29kZRgQIAEoCUIFqgECCAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJRCg9QYXJ0eUdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ubG9mdC5QYXJ0eVJlZhIhCgZzZWxlY3QYAiABKAsyES5sb2Z0LlBhcnR5U2VsZWN0IkkKCFBhcnR5UmVmEgwKAmlkGAEgASgMSAASKAoGaG9sZGVyGAogASgLMhYubG9mdC5QYXJ0eVJlZkJ5SG9sZGVySABCBQoDa2V5IjMKEFBhcnR5UmVmQnlIb2xkZXISHwoGaG9sZGVyGAogASgLMg8ubG9mdC5Ib2xkZXJSZWYinAIKC1BhcnR5U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5sb2Z0LlRlbmFudFNlbGVjdBIMCgRuYW1lGAUgASgIEgwKBGRlc2MYBiABKAgSDgoGbGFiZWxzGAcgASgIEgwKBGtpbmQYCCABKAgSEQoJcGFyZW50X2lkGAkgASgIEiIKBmhvbGRlchgKIAEoCzISLmxvZnQuSG9sZGVyU2VsZWN0Eg0KBWVtYWlsGAsgASgIEg0KBXBob25lGAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDAoEY29kZRgQIAEoCCKZAwoRUGFydHlQYXRjaFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ubG9mdC5QYXJ0eVJlZhIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSMwoGbGFiZWxzGA4gAygLMiMubG9mdC5QYXJ0eVBhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIMCgRraW5kGBAgASgJEhEKCXBhcmVudF9pZBgSIAEoDBIWCg5wYXJlbnRfaWRfbnVsbBgTIAEoCBIfCgZob2xkZXIYFCABKAsyDy5sb2Z0LkhvbGRlclJlZhITCgtob2xkZXJfbnVsbBgVIAEoCBINCgVlbWFpbBgWIAEoCRINCgVwaG9uZRgYIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIMCgRjb2RlGCAgASgJGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTQoRUGFydHlBcHBseVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ubG9mdC5QYXJ0eVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiQKElBhcnR5RXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgieQoQUGFydHlMaXN0UmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEubG9mdC5QYXJ0eUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiRAoRUGFydHlMaXN0UmVzcG9uc2USGgoFaXRlbXMYASADKAsyCy5sb2Z0LlBhcnR5EhMKBG5leHQYAiABKAlCBaoBAggCIsoBCgtQYXJ0eUZpbHRlchIbCgNyZWYYASABKAsyDi5sb2Z0LlBhcnR5UmVmEgwKBGtpbmQYAiABKAkSEQoJcGFyZW50X2lkGAMgASgMEh8KBmhvbGRlchgEIAEoCzIPLmxvZnQuSG9sZGVyUmVmEi0KBmxhYmVscxgFIAMoCzIdLmxvZnQuUGFydHlGaWx0ZXIuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJVChFQYXJ0eVdhdGNoUmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEubG9mdC5QYXJ0eUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI5ChJQYXJ0eVdhdGNoUmVzcG9uc2USIwoFaXRlbXMYASADKAsyFC5sb2Z0LlBhcnR5V2F0Y2hJdGVtIk8KDlBhcnR5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhoKBXZhbHVlGAIgASgLMgsubG9mdC5QYXJ0eRIVCgZhY3Rpb24YAyABKAlCBaoBAggCIhAKDlBhcnR5TWVSZXF1ZXN0ItgCCg9QYXJ0eU1lUmVzcG9uc2USHAoGaG9sZGVyGAEgASgLMgwubG9mdC5Ib2xkZXISGgoFcGFydHkYAiABKAsyCy5sb2Z0LlBhcnR5EhwKBnRlbmFudBgDIAEoCzIMLmxvZnQuVGVuYW50EhMKBHJvbGUYBCABKAlCBaoBAggCEhoKC2FjY291bnRfdXJsGAggASgJQgWqAQIIAhIaCgtjb25zb2xlX3VybBgQIAEoCUIFqgECCAISFwoIdGltZXpvbmUYCSABKAlCBaoBAggCEhcKCGN1cnJlbmN5GAogASgJQgWqAQIIAhIbCgxyZXN0b3JlX2RheXMYCyABKA1CBaoBAggCEh0KDndvcmtzcGFjZV9uYW1lGA0gASgJQgWqAQIIAhIZCgpyZXN0cmljdGVkGA4gASgIQgWqAQIIAhIXCghyZWFkb25seRgPIAEoCEIFqgECCAIizAIKElBhcnR5VXBkYXRlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5sb2Z0LlBhcnR5UmVmEhMKBG5hbWUYAiABKAlCBaoBAggCEhMKBGRlc2MYAyABKAlCBaoBAggCEhMKBGtpbmQYBCABKAlCBaoBAggCEhgKCXBhcmVudF9pZBgFIAEoDEIFqgECCAISGgoLcGFyZW50X251bGwYBiABKAhCBaoBAggCEhQKBWVtYWlsGAcgASgJQgWqAQIIAhIUCgVwaG9uZRgIIAEoCUIFqgECCAISEwoEY29kZRgJIAEoCUIFqgECCAISNAoGbGFiZWxzGAogAygLMiQubG9mdC5QYXJ0eVVwZGF0ZVJlcXVlc3QuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJHChNQYXJ0eVNldFJvbGVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLmxvZnQuUGFydHlSZWYSEwoEcm9sZRgCIAEoCUIFqgECCAIiNwoYUGFydHlQc2V1ZG9ueW1pemVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLmxvZnQuUGFydHlSZWYiZwoSUGFydHlTZWFyY2hSZXF1ZXN0EhAKAXEYASABKAlCBaoBAggCEhMKBGtpbmQYAiABKAlCBaoBAggCEhMKBHNpemUYAyABKA1CBaoBAggCEhUKBm9mZnNldBgEIAEoDUIFqgECCAIiRwoTUGFydHlTZWFyY2hSZXNwb25zZRIaCgVpdGVtcxgBIAMoCzILLmxvZnQuUGFydHkSFAoFdG90YWwYAiABKA1CBaoBAggCMv8ECgxQYXJ0eVNlcnZpY2USKQoDQWRkEhUubG9mdC5QYXJ0eUFkZFJlcXVlc3QaCy5sb2Z0LlBhcnR5EikKA0dldBIVLmxvZnQuUGFydHlHZXRSZXF1ZXN0GgsubG9mdC5QYXJ0eRItCgVQYXRjaBIXLmxvZnQuUGFydHlQYXRjaFJlcXVlc3QaCy5sb2Z0LlBhcnR5Ei0KBUFwcGx5EhcubG9mdC5QYXJ0eUFwcGx5UmVxdWVzdBoLLmxvZnQuUGFydHkSMQoFRXJhc2USDi5sb2Z0LlBhcnR5UmVmGhgubG9mdC5QYXJ0eUVyYXNlUmVzcG9uc2USNwoETGlzdBIWLmxvZnQuUGFydHlMaXN0UmVxdWVzdBoXLmxvZnQuUGFydHlMaXN0UmVzcG9uc2USPAoFV2F0Y2gSFy5sb2Z0LlBhcnR5V2F0Y2hSZXF1ZXN0GhgubG9mdC5QYXJ0eVdhdGNoUmVzcG9uc2UwARIxCgJNZRIULmxvZnQuUGFydHlNZVJlcXVlc3QaFS5sb2Z0LlBhcnR5TWVSZXNwb25zZRIvCgZVcGRhdGUSGC5sb2Z0LlBhcnR5VXBkYXRlUmVxdWVzdBoLLmxvZnQuUGFydHkSMQoHU2V0Um9sZRIZLmxvZnQuUGFydHlTZXRSb2xlUmVxdWVzdBoLLmxvZnQuUGFydHkSOwoMUHNldWRvbnltaXplEh4ubG9mdC5QYXJ0eVBzZXVkb255bWl6ZVJlcXVlc3QaCy5sb2Z0LlBhcnR5Ej0KBlNlYXJjaBIYLmxvZnQuUGFydHlTZWFyY2hSZXF1ZXN0GhkubG9mdC5QYXJ0eVNlYXJjaFJlc3BvbnNlMhAKDlNlc3Npb25TZXJ2aWNlMhEKD0NsaUxvZ2luU2VydmljZTIWChRTaWduSW5GYWlsdXJlU2VydmljZUIaWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnRiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_loft_org, file_loft_payday_holder, file_loft_payday_holder_svc_g, file_loft_payday_tenant, file_loft_payday_tenant_svc_g, file_patch_patch]);
 
 /**
  * @generated from message loft.PartyAddRequest
@@ -655,15 +655,6 @@ export type PartyMeResponse = Message<"loft.PartyMeResponse"> & {
   role: string;
 
   /**
-   * Whether logins and passwords are made and changed here -- the roster in
-   * this process -- or at a roster of its own, by whoever administers the
-   * tenant there (design 9.10).
-   *
-   * @generated from field: bool accounts_here = 7 [features.field_presence = IMPLICIT];
-   */
-  accountsHere: boolean;
-
-  /**
    * Where the member manages how they sign in at roster -- and deletes their
    * holder there, where the tenant offers that -- for a roster of its own
    * (`auth.roster.account_url`). Empty is no such page.
@@ -671,6 +662,15 @@ export type PartyMeResponse = Message<"loft.PartyMeResponse"> & {
    * @generated from field: string account_url = 8 [features.field_presence = IMPLICIT];
    */
   accountUrl: string;
+
+  /**
+   * Where the tenant's administrators add and remove its members and give
+   * them a way in: roster's user console (`auth.roster.console_url`, D87).
+   * Empty is no such page.
+   *
+   * @generated from field: string console_url = 16 [features.field_presence = IMPLICIT];
+   */
+  consoleUrl: string;
 
   /**
    * Where the workspace is, as the server tells it (#144): the zone its dates
@@ -797,71 +797,6 @@ export const PartyUpdateRequestSchema: GenMessage<PartyUpdateRequest> = /*@__PUR
   messageDesc(file_loft_org_svc_g, 16);
 
 /**
- * @generated from message loft.PartyInviteRequest
- */
-export type PartyInviteRequest = Message<"loft.PartyInviteRequest"> & {
-  /**
-   * @generated from field: loft.PartyRef ref = 1;
-   */
-  ref?: PartyRef | undefined;
-
-  /**
-   * The name the person signs in with: lowercase letters, digits, hyphens.
-   *
-   * @generated from field: string alias = 2 [features.field_presence = IMPLICIT];
-   */
-  alias: string;
-
-  /**
-   * @generated from field: string role = 3 [features.field_presence = IMPLICIT];
-   */
-  role: string;
-
-  /**
-   * Empty: one is made up and answered once.
-   *
-   * @generated from field: string password = 4 [features.field_presence = IMPLICIT];
-   */
-  password: string;
-};
-
-/**
- * Describes the message loft.PartyInviteRequest.
- * Use `create(PartyInviteRequestSchema)` to create a new message.
- */
-export const PartyInviteRequestSchema: GenMessage<PartyInviteRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 17);
-
-/**
- * @generated from message loft.PartyInviteResponse
- */
-export type PartyInviteResponse = Message<"loft.PartyInviteResponse"> & {
-  /**
-   * @generated from field: loft.Party party = 1;
-   */
-  party?: Party | undefined;
-
-  /**
-   * @generated from field: loft.Holder holder = 2;
-   */
-  holder?: Holder | undefined;
-
-  /**
-   * Only when it was made up here; it is not stored.
-   *
-   * @generated from field: string password = 3 [features.field_presence = IMPLICIT];
-   */
-  password: string;
-};
-
-/**
- * Describes the message loft.PartyInviteResponse.
- * Use `create(PartyInviteResponseSchema)` to create a new message.
- */
-export const PartyInviteResponseSchema: GenMessage<PartyInviteResponse> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 18);
-
-/**
  * @generated from message loft.PartySetRoleRequest
  */
 export type PartySetRoleRequest = Message<"loft.PartySetRoleRequest"> & {
@@ -881,66 +816,7 @@ export type PartySetRoleRequest = Message<"loft.PartySetRoleRequest"> & {
  * Use `create(PartySetRoleRequestSchema)` to create a new message.
  */
 export const PartySetRoleRequestSchema: GenMessage<PartySetRoleRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 19);
-
-/**
- * @generated from message loft.PartySetPasswordRequest
- */
-export type PartySetPasswordRequest = Message<"loft.PartySetPasswordRequest"> & {
-  /**
-   * Empty: the caller's own.
-   *
-   * @generated from field: loft.PartyRef ref = 1;
-   */
-  ref?: PartyRef | undefined;
-
-  /**
-   * @generated from field: string current = 2 [features.field_presence = IMPLICIT];
-   */
-  current: string;
-
-  /**
-   * @generated from field: string password = 3 [features.field_presence = IMPLICIT];
-   */
-  password: string;
-};
-
-/**
- * Describes the message loft.PartySetPasswordRequest.
- * Use `create(PartySetPasswordRequestSchema)` to create a new message.
- */
-export const PartySetPasswordRequestSchema: GenMessage<PartySetPasswordRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 20);
-
-/**
- * @generated from message loft.PartySetPasswordResponse
- */
-export type PartySetPasswordResponse = Message<"loft.PartySetPasswordResponse"> & {
-};
-
-/**
- * Describes the message loft.PartySetPasswordResponse.
- * Use `create(PartySetPasswordResponseSchema)` to create a new message.
- */
-export const PartySetPasswordResponseSchema: GenMessage<PartySetPasswordResponse> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 21);
-
-/**
- * @generated from message loft.PartyDeactivateRequest
- */
-export type PartyDeactivateRequest = Message<"loft.PartyDeactivateRequest"> & {
-  /**
-   * @generated from field: loft.PartyRef ref = 1;
-   */
-  ref?: PartyRef | undefined;
-};
-
-/**
- * Describes the message loft.PartyDeactivateRequest.
- * Use `create(PartyDeactivateRequestSchema)` to create a new message.
- */
-export const PartyDeactivateRequestSchema: GenMessage<PartyDeactivateRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 22);
+  messageDesc(file_loft_org_svc_g, 17);
 
 /**
  * @generated from message loft.PartyPseudonymizeRequest
@@ -957,7 +833,7 @@ export type PartyPseudonymizeRequest = Message<"loft.PartyPseudonymizeRequest"> 
  * Use `create(PartyPseudonymizeRequestSchema)` to create a new message.
  */
 export const PartyPseudonymizeRequestSchema: GenMessage<PartyPseudonymizeRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 23);
+  messageDesc(file_loft_org_svc_g, 18);
 
 /**
  * @generated from message loft.PartySearchRequest
@@ -991,7 +867,7 @@ export type PartySearchRequest = Message<"loft.PartySearchRequest"> & {
  * Use `create(PartySearchRequestSchema)` to create a new message.
  */
 export const PartySearchRequestSchema: GenMessage<PartySearchRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 24);
+  messageDesc(file_loft_org_svc_g, 19);
 
 /**
  * @generated from message loft.PartySearchResponse
@@ -1013,465 +889,7 @@ export type PartySearchResponse = Message<"loft.PartySearchResponse"> & {
  * Use `create(PartySearchResponseSchema)` to create a new message.
  */
 export const PartySearchResponseSchema: GenMessage<PartySearchResponse> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 25);
-
-/**
- * @generated from message loft.InvitationAddRequest
- */
-export type InvitationAddRequest = Message<"loft.InvitationAddRequest"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: loft.TenantRef tenant = 2;
-   */
-  tenant?: TenantRef | undefined;
-
-  /**
-   * @generated from field: loft.HolderRef inviter = 8;
-   */
-  inviter?: HolderRef | undefined;
-
-  /**
-   * @generated from field: string email = 9 [features.field_presence = IMPLICIT];
-   */
-  email: string;
-
-  /**
-   * @generated from field: string role = 10 [features.field_presence = IMPLICIT];
-   */
-  role: string;
-
-  /**
-   * @generated from field: loft.PartyRef party = 11;
-   */
-  party?: PartyRef | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-
-  /**
-   * @generated from field: string state = 16 [features.field_presence = IMPLICIT];
-   */
-  state: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 17;
-   */
-  dateExpires?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_settled = 18;
-   */
-  dateSettled?: Timestamp | undefined;
-
-  /**
-   * @generated from field: loft.HolderRef holder = 19;
-   */
-  holder?: HolderRef | undefined;
-};
-
-/**
- * Describes the message loft.InvitationAddRequest.
- * Use `create(InvitationAddRequestSchema)` to create a new message.
- */
-export const InvitationAddRequestSchema: GenMessage<InvitationAddRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 26);
-
-/**
- * @generated from message loft.InvitationGetRequest
- */
-export type InvitationGetRequest = Message<"loft.InvitationGetRequest"> & {
-  /**
-   * @generated from field: loft.InvitationRef ref = 1;
-   */
-  ref?: InvitationRef | undefined;
-
-  /**
-   * @generated from field: loft.InvitationSelect select = 2;
-   */
-  select?: InvitationSelect | undefined;
-};
-
-/**
- * Describes the message loft.InvitationGetRequest.
- * Use `create(InvitationGetRequestSchema)` to create a new message.
- */
-export const InvitationGetRequestSchema: GenMessage<InvitationGetRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 27);
-
-/**
- * @generated from message loft.InvitationRef
- */
-export type InvitationRef = Message<"loft.InvitationRef"> & {
-  /**
-   * @generated from oneof loft.InvitationRef.key
-   */
-  key: {
-    /**
-     * @generated from field: bytes id = 1;
-     */
-    value: Uint8Array;
-    case: "id";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message loft.InvitationRef.
- * Use `create(InvitationRefSchema)` to create a new message.
- */
-export const InvitationRefSchema: GenMessage<InvitationRef> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 28);
-
-/**
- * @generated from message loft.InvitationSelect
- */
-export type InvitationSelect = Message<"loft.InvitationSelect"> & {
-  /**
-   * @generated from field: bool all = 1;
-   */
-  all: boolean;
-
-  /**
-   * @generated from field: loft.TenantSelect tenant = 2;
-   */
-  tenant?: TenantSelect | undefined;
-
-  /**
-   * @generated from field: loft.HolderSelect inviter = 8;
-   */
-  inviter?: HolderSelect | undefined;
-
-  /**
-   * @generated from field: bool email = 9;
-   */
-  email: boolean;
-
-  /**
-   * @generated from field: bool role = 10;
-   */
-  role: boolean;
-
-  /**
-   * @generated from field: loft.PartySelect party = 11;
-   */
-  party?: PartySelect | undefined;
-
-  /**
-   * @generated from field: bool date_updated = 13;
-   */
-  dateUpdated: boolean;
-
-  /**
-   * @generated from field: bool date_erased = 14;
-   */
-  dateErased: boolean;
-
-  /**
-   * @generated from field: bool date_created = 15;
-   */
-  dateCreated: boolean;
-
-  /**
-   * @generated from field: bool state = 16;
-   */
-  state: boolean;
-
-  /**
-   * @generated from field: bool date_expires = 17;
-   */
-  dateExpires: boolean;
-
-  /**
-   * @generated from field: bool date_settled = 18;
-   */
-  dateSettled: boolean;
-
-  /**
-   * @generated from field: loft.HolderSelect holder = 19;
-   */
-  holder?: HolderSelect | undefined;
-};
-
-/**
- * Describes the message loft.InvitationSelect.
- * Use `create(InvitationSelectSchema)` to create a new message.
- */
-export const InvitationSelectSchema: GenMessage<InvitationSelect> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 29);
-
-/**
- * @generated from message loft.InvitationPatchRequest
- */
-export type InvitationPatchRequest = Message<"loft.InvitationPatchRequest"> & {
-  /**
-   * @generated from field: loft.InvitationRef ref = 1;
-   */
-  ref?: InvitationRef | undefined;
-
-  /**
-   * @generated from field: string email = 18;
-   */
-  email: string;
-
-  /**
-   * @generated from field: loft.PartyRef party = 22;
-   */
-  party?: PartyRef | undefined;
-
-  /**
-   * Clear party instead of writing it.
-   * It takes a field of its own because an unset value already means
-   * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and party clears.
-   *
-   * @generated from field: bool party_null = 23;
-   */
-  partyNull: boolean;
-
-  /**
-   * The version this update requires the stored date_updated to be.
-   * It is a precondition, not a write: the update applies only if the row
-   * still holds this value, and the server stamps the new version itself.
-   * Setting it together with date_updated_force is an error --
-   * the version is the token every client's compare-and-swap is measured
-   * against, so it is not the caller's to choose.
-   *
-   * @generated from field: google.protobuf.Timestamp date_updated = 26;
-   */
-  dateUpdated?: Timestamp | undefined;
-
-  /**
-   * Update whatever the stored date_updated is, with no precondition.
-   * The server still stamps a new version, so other clients' tokens are
-   * invalidated as usual; this declines the check for THIS update only.
-   * One of date_updated or this must be set. An omitted version is
-   * refused rather than assumed, because an unset field cannot be told
-   * apart from a caller who never considered locking at all.
-   *
-   * @generated from field: bool date_updated_force = 27;
-   */
-  dateUpdatedForce: boolean;
-
-  /**
-   * @generated from field: string state = 32;
-   */
-  state: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 34;
-   */
-  dateExpires?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_settled = 36;
-   */
-  dateSettled?: Timestamp | undefined;
-
-  /**
-   * Clear date_settled instead of writing it.
-   * It takes a field of its own because an unset value already means
-   * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and date_settled clears.
-   *
-   * @generated from field: bool date_settled_null = 37;
-   */
-  dateSettledNull: boolean;
-
-  /**
-   * @generated from field: loft.HolderRef holder = 38;
-   */
-  holder?: HolderRef | undefined;
-
-  /**
-   * Clear holder instead of writing it.
-   * It takes a field of its own because an unset value already means
-   * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and holder clears.
-   *
-   * @generated from field: bool holder_null = 39;
-   */
-  holderNull: boolean;
-};
-
-/**
- * Describes the message loft.InvitationPatchRequest.
- * Use `create(InvitationPatchRequestSchema)` to create a new message.
- */
-export const InvitationPatchRequestSchema: GenMessage<InvitationPatchRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 30);
-
-/**
- * @generated from message loft.InvitationApplyRequest
- */
-export type InvitationApplyRequest = Message<"loft.InvitationApplyRequest"> & {
-  /**
-   * @generated from field: loft.InvitationRef ref = 1;
-   */
-  ref?: InvitationRef | undefined;
-
-  /**
-   * @generated from field: patch.Patch patch = 2;
-   */
-  patch?: Patch | undefined;
-};
-
-/**
- * Describes the message loft.InvitationApplyRequest.
- * Use `create(InvitationApplyRequestSchema)` to create a new message.
- */
-export const InvitationApplyRequestSchema: GenMessage<InvitationApplyRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 31);
-
-/**
- * @generated from message loft.InvitationEraseResponse
- */
-export type InvitationEraseResponse = Message<"loft.InvitationEraseResponse"> & {
-  /**
-   * Erased is whether this call is the one that erased the row.
-   *
-   * False for a row that was already gone, was never there, or is out
-   * of this caller's reach -- which are one answer on purpose, and the
-   * reason the RPC does not fail instead.
-   *
-   * @generated from field: bool erased = 1;
-   */
-  erased: boolean;
-};
-
-/**
- * Describes the message loft.InvitationEraseResponse.
- * Use `create(InvitationEraseResponseSchema)` to create a new message.
- */
-export const InvitationEraseResponseSchema: GenMessage<InvitationEraseResponse> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 32);
-
-/**
- * @generated from message loft.InvitationListRequest
- */
-export type InvitationListRequest = Message<"loft.InvitationListRequest"> & {
-  /**
-   * Bounded because the work is: each filter is a predicate in the same query,
-   * so this is what says how much of the database one request may read.
-   *
-   * @generated from field: repeated loft.InvitationFilter filters = 1;
-   */
-  filters: InvitationFilter[];
-
-  /**
-   * How many to answer with. Nothing said is what the schema declared, and more
-   * than the cap is the cap -- a caller asking for more than there is meant no
-   * harm, so it is not an error and it is not the whole table either.
-   *
-   * @generated from field: int32 size = 2 [features.field_presence = IMPLICIT];
-   */
-  size: number;
-
-  /**
-   * Where to carry on from: the "next" of the answer before. It names the last
-   * row of that page rather than counting rows from the start, so a row added
-   * ahead of the page does not shift it and a caller reading through never sees
-   * one twice or misses one.
-   *
-   * @generated from field: string after = 3 [features.field_presence = IMPLICIT];
-   */
-  after: string;
-
-  /**
-   * Read the order the other way round, every column of it at once -- newest
-   * first where it is oldest first -- which the index the order walks walks
-   * from the other end. A cursor is of the way it was read, so the next page
-   * carries on that way, and one of the other way is refused.
-   *
-   * @generated from field: bool reverse = 4 [features.field_presence = IMPLICIT];
-   */
-  reverse: boolean;
-};
-
-/**
- * Describes the message loft.InvitationListRequest.
- * Use `create(InvitationListRequestSchema)` to create a new message.
- */
-export const InvitationListRequestSchema: GenMessage<InvitationListRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 33);
-
-/**
- * @generated from message loft.InvitationListResponse
- */
-export type InvitationListResponse = Message<"loft.InvitationListResponse"> & {
-  /**
-   * @generated from field: repeated loft.Invitation items = 1;
-   */
-  items: Invitation[];
-
-  /**
-   * What to ask for next, and empty when this was the last of them.
-   *
-   * Empty means there is no more *for now*: a list is read as it is, and one
-   * that has grown since answers a fresh call. It is not empty merely because
-   * the page came back short -- a page is short when the last row of it was the
-   * last row there was, which is a thing the server can only know by having
-   * looked.
-   *
-   * @generated from field: string next = 2 [features.field_presence = IMPLICIT];
-   */
-  next: string;
-};
-
-/**
- * Describes the message loft.InvitationListResponse.
- * Use `create(InvitationListResponseSchema)` to create a new message.
- */
-export const InvitationListResponseSchema: GenMessage<InvitationListResponse> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 34);
-
-/**
- * @generated from message loft.InvitationFilter
- */
-export type InvitationFilter = Message<"loft.InvitationFilter"> & {
-  /**
-   * @generated from field: loft.InvitationRef ref = 1;
-   */
-  ref?: InvitationRef | undefined;
-
-  /**
-   * @generated from field: loft.TenantRef tenant = 2;
-   */
-  tenant?: TenantRef | undefined;
-
-  /**
-   * @generated from field: string state = 3;
-   */
-  state: string;
-};
-
-/**
- * Describes the message loft.InvitationFilter.
- * Use `create(InvitationFilterSchema)` to create a new message.
- */
-export const InvitationFilterSchema: GenMessage<InvitationFilter> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 35);
-
-/**
- * @generated from message loft.InvitationRevokeRequest
- */
-export type InvitationRevokeRequest = Message<"loft.InvitationRevokeRequest"> & {
-  /**
-   * @generated from field: loft.InvitationRef ref = 1;
-   */
-  ref?: InvitationRef | undefined;
-};
-
-/**
- * Describes the message loft.InvitationRevokeRequest.
- * Use `create(InvitationRevokeRequestSchema)` to create a new message.
- */
-export const InvitationRevokeRequestSchema: GenMessage<InvitationRevokeRequest> = /*@__PURE__*/
-  messageDesc(file_loft_org_svc_g, 36);
+  messageDesc(file_loft_org_svc_g, 20);
 
 /**
  * @generated from service loft.PartyService
@@ -1579,42 +997,11 @@ export const PartyService: GenService<{
     output: typeof PartySchema;
   },
   /**
-   * Invite gives a person a login: a holder, a password, and the role.
-   *
-   * @generated from rpc loft.PartyService.Invite
-   */
-  invite: {
-    methodKind: "unary";
-    input: typeof PartyInviteRequestSchema;
-    output: typeof PartyInviteResponseSchema;
-  },
-  /**
    * @generated from rpc loft.PartyService.SetRole
    */
   setRole: {
     methodKind: "unary";
     input: typeof PartySetRoleRequestSchema;
-    output: typeof PartySchema;
-  },
-  /**
-   * SetPassword changes the caller's own password, or -- for an admin --
-   * somebody else's.
-   *
-   * @generated from rpc loft.PartyService.SetPassword
-   */
-  setPassword: {
-    methodKind: "unary";
-    input: typeof PartySetPasswordRequestSchema;
-    output: typeof PartySetPasswordResponseSchema;
-  },
-  /**
-   * Deactivate ends a person's login and keeps the person.
-   *
-   * @generated from rpc loft.PartyService.Deactivate
-   */
-  deactivate: {
-    methodKind: "unary";
-    input: typeof PartyDeactivateRequestSchema;
     output: typeof PartySchema;
   },
   /**
@@ -1650,93 +1037,16 @@ export const SessionService: GenService<{
   serviceDesc(file_loft_org_svc_g, 1);
 
 /**
- * @generated from service loft.InvitationService
- */
-export const InvitationService: GenService<{
-  /**
-   * Add creates a new Invitation
-   *
-   * @generated from rpc loft.InvitationService.Add
-   */
-  add: {
-    methodKind: "unary";
-    input: typeof InvitationAddRequestSchema;
-    output: typeof InvitationSchema;
-  },
-  /**
-   * Get retrieves a Invitation
-   *
-   * @generated from rpc loft.InvitationService.Get
-   */
-  get: {
-    methodKind: "unary";
-    input: typeof InvitationGetRequestSchema;
-    output: typeof InvitationSchema;
-  },
-  /**
-   * Patch updates an existing Invitation
-   *
-   * @generated from rpc loft.InvitationService.Patch
-   */
-  patch: {
-    methodKind: "unary";
-    input: typeof InvitationPatchRequestSchema;
-    output: typeof InvitationSchema;
-  },
-  /**
-   * Apply applies a patch document to an existing Invitation
-   *
-   * @generated from rpc loft.InvitationService.Apply
-   */
-  apply: {
-    methodKind: "unary";
-    input: typeof InvitationApplyRequestSchema;
-    output: typeof InvitationSchema;
-  },
-  /**
-   * Erase deletes a Invitation
-   *
-   * @generated from rpc loft.InvitationService.Erase
-   */
-  erase: {
-    methodKind: "unary";
-    input: typeof InvitationRefSchema;
-    output: typeof InvitationEraseResponseSchema;
-  },
-  /**
-   * List reads Invitations a page at a time.
-   *
-   * @generated from rpc loft.InvitationService.List
-   */
-  list: {
-    methodKind: "unary";
-    input: typeof InvitationListRequestSchema;
-    output: typeof InvitationListResponseSchema;
-  },
-  /**
-   * Revoke takes back an invitation nobody has answered.
-   *
-   * @generated from rpc loft.InvitationService.Revoke
-   */
-  revoke: {
-    methodKind: "unary";
-    input: typeof InvitationRevokeRequestSchema;
-    output: typeof InvitationSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_loft_org_svc_g, 2);
-
-/**
  * @generated from service loft.CliLoginService
  */
 export const CliLoginService: GenService<{
 }> = /*@__PURE__*/
-  serviceDesc(file_loft_org_svc_g, 3);
+  serviceDesc(file_loft_org_svc_g, 2);
 
 /**
  * @generated from service loft.SignInFailureService
  */
 export const SignInFailureService: GenService<{
 }> = /*@__PURE__*/
-  serviceDesc(file_loft_org_svc_g, 4);
+  serviceDesc(file_loft_org_svc_g, 3);
 

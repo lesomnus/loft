@@ -27,7 +27,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/inventorycount"
-	"github.com/lesomnus/loft/internal/ent/invitation"
 	"github.com/lesomnus/loft/internal/ent/itemmodel"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/legalhold"
@@ -135,7 +134,6 @@ func checkColumn(t, c string) error {
 			fact.Table:            fact.ValidColumn,
 			holder.Table:          holder.ValidColumn,
 			inventorycount.Table:  inventorycount.ValidColumn,
-			invitation.Table:      invitation.ValidColumn,
 			itemmodel.Table:       itemmodel.ValidColumn,
 			label.Table:           label.ValidColumn,
 			legalhold.Table:       legalhold.ValidColumn,

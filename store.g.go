@@ -32,7 +32,6 @@ type Server interface {
 	Holder() HolderServiceServer
 	Party() PartyServiceServer
 	Session() SessionServiceServer
-	Invitation() InvitationServiceServer
 	CliLogin() CliLoginServiceServer
 	SignInFailure() SignInFailureServiceServer
 	Asset() AssetServiceServer
@@ -84,7 +83,6 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterHolderServiceServer(g, s.Holder())
 	RegisterPartyServiceServer(g, s.Party())
 	RegisterSessionServiceServer(g, s.Session())
-	RegisterInvitationServiceServer(g, s.Invitation())
 	RegisterCliLoginServiceServer(g, s.CliLogin())
 	RegisterSignInFailureServiceServer(g, s.SignInFailure())
 	RegisterAssetServiceServer(g, s.Asset())
@@ -132,7 +130,6 @@ type UnimplementedServer struct {
 	HolderServer          HolderServiceServer
 	PartyServer           PartyServiceServer
 	SessionServer         SessionServiceServer
-	InvitationServer      InvitationServiceServer
 	CliLoginServer        CliLoginServiceServer
 	SignInFailureServer   SignInFailureServiceServer
 	AssetServer           AssetServiceServer
@@ -183,9 +180,6 @@ func (UnimplementedServer) ItemModel() ItemModelServiceServer {
 func (UnimplementedServer) Holder() HolderServiceServer   { return UnimplementedHolderServiceServer{} }
 func (UnimplementedServer) Party() PartyServiceServer     { return UnimplementedPartyServiceServer{} }
 func (UnimplementedServer) Session() SessionServiceServer { return UnimplementedSessionServiceServer{} }
-func (UnimplementedServer) Invitation() InvitationServiceServer {
-	return UnimplementedInvitationServiceServer{}
-}
 func (UnimplementedServer) CliLogin() CliLoginServiceServer {
 	return UnimplementedCliLoginServiceServer{}
 }
@@ -284,7 +278,6 @@ type StaticServer struct {
 	HolderServer          HolderServiceServer
 	PartyServer           PartyServiceServer
 	SessionServer         SessionServiceServer
-	InvitationServer      InvitationServiceServer
 	CliLoginServer        CliLoginServiceServer
 	SignInFailureServer   SignInFailureServiceServer
 	AssetServer           AssetServiceServer
@@ -331,7 +324,6 @@ func (s StaticServer) ItemModel() ItemModelServiceServer             { return s.
 func (s StaticServer) Holder() HolderServiceServer                   { return s.HolderServer }
 func (s StaticServer) Party() PartyServiceServer                     { return s.PartyServer }
 func (s StaticServer) Session() SessionServiceServer                 { return s.SessionServer }
-func (s StaticServer) Invitation() InvitationServiceServer           { return s.InvitationServer }
 func (s StaticServer) CliLogin() CliLoginServiceServer               { return s.CliLoginServer }
 func (s StaticServer) SignInFailure() SignInFailureServiceServer     { return s.SignInFailureServer }
 func (s StaticServer) Asset() AssetServiceServer                     { return s.AssetServer }
@@ -378,7 +370,6 @@ type Client interface {
 	Holder() HolderServiceClient
 	Party() PartyServiceClient
 	Session() SessionServiceClient
-	Invitation() InvitationServiceClient
 	CliLogin() CliLoginServiceClient
 	SignInFailure() SignInFailureServiceClient
 	Asset() AssetServiceClient
@@ -427,7 +418,6 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Holder:          NewHolderServiceClient(c),
 		_Party:           NewPartyServiceClient(c),
 		_Session:         NewSessionServiceClient(c),
-		_Invitation:      NewInvitationServiceClient(c),
 		_CliLogin:        NewCliLoginServiceClient(c),
 		_SignInFailure:   NewSignInFailureServiceClient(c),
 		_Asset:           NewAssetServiceClient(c),
@@ -476,7 +466,6 @@ type client struct {
 	_Holder          HolderServiceClient
 	_Party           PartyServiceClient
 	_Session         SessionServiceClient
-	_Invitation      InvitationServiceClient
 	_CliLogin        CliLoginServiceClient
 	_SignInFailure   SignInFailureServiceClient
 	_Asset           AssetServiceClient
@@ -523,7 +512,6 @@ func (c *client) ItemModel() ItemModelServiceClient             { return c._Item
 func (c *client) Holder() HolderServiceClient                   { return c._Holder }
 func (c *client) Party() PartyServiceClient                     { return c._Party }
 func (c *client) Session() SessionServiceClient                 { return c._Session }
-func (c *client) Invitation() InvitationServiceClient           { return c._Invitation }
 func (c *client) CliLogin() CliLoginServiceClient               { return c._CliLogin }
 func (c *client) SignInFailure() SignInFailureServiceClient     { return c._SignInFailure }
 func (c *client) Asset() AssetServiceClient                     { return c._Asset }

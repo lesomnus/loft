@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/payday/holder.proto.
  */
 export const file_loft_payday_holder: GenFile = /*@__PURE__*/
-  fileDesc("Chhsb2Z0L3BheWRheS9ob2xkZXIucHJvdG8SBGxvZnQiygUKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIVCgVhbGlhcxgEIAEoCUIGqsEWAhgBEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESMAoGbGFiZWxzGAcgAygLMhgubG9mdC5Ib2xkZXIuTGFiZWxzRW50cnlCBqrBFgIYARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASIQoEcm9sZRgIIAEoCUIT6oIWCYIBBm1lbWJlcqrBFgIYABI4CgxkYXRlX2xlYXZpbmcYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEAoIbWFpbF9vZmYYCyABKAgSHQoFcGFydHkYDCABKAxCDuqCFgQQQDgBqsEWAhABGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6nAHK/BVTEgIQARofEgRzbHVnGgkKBWFsaWFzEAQaCgoGdGVuYW50EAIwARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAGKuxZBCAIyOQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZ0ZW5hbnQaCAoGbGFiZWxzIBQoZDoASAJCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
+  fileDesc("Chhsb2Z0L3BheWRheS9ob2xkZXIucHJvdG8SBGxvZnQiqwUKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIVCgVhbGlhcxgEIAEoCUIGqsEWAhgBEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESMAoGbGFiZWxzGAcgAygLMhgubG9mdC5Ib2xkZXIuTGFiZWxzRW50cnlCBqrBFgIYARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASIQoEcm9sZRgIIAEoCUIT6oIWCYIBBm1lbWJlcqrBFgIYABI4CgxkYXRlX2xlYXZpbmcYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEAoIbWFpbF9vZmYYCyABKAgaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqcAcr8FVMSAhABGh8SBHNsdWcaCQoFYWxpYXMQBBoKCgZ0ZW5hbnQQAjABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FkEIAjI5ChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGggKBnRlbmFudBoICgZsYWJlbHMgFChkOgBIAkIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
 
 /**
  * Holder is who a request is from.
@@ -138,19 +138,6 @@ export type Holder = Message<"loft.Holder"> & {
    * @generated from field: bool mail_off = 11;
    */
   mailOff: boolean;
-
-  /**
-   * The person record this was a membership of, kept from the moment a
-   * stopped login takes the record's link to it away
-   * (`PartyService.Deactivate`). A later 개인정보 삭제 of the record finds the
-   * membership through it and forgets the membership's names and the trail's
-   * copies of it too; through the record's link alone it found nothing
-   * (loft#25, decided in loft#35). Null on a membership the record still
-   * points at. Written by the domain layer, and by nobody else.
-   *
-   * @generated from field: bytes party = 12;
-   */
-  party: Uint8Array;
 };
 
 /**

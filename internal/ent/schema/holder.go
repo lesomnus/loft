@@ -40,9 +40,6 @@ func (Holder) Fields() []ent.Field {
 			Nillable().
 			Optional(),
 		field.Bool("mail_off"),
-		field.Uuid("party").
-			Nillable().
-			Optional(),
 		field.Uuid("tenant_id").
 			Immutable(),
 	}

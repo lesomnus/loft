@@ -39,7 +39,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/inventorycount"
-	"github.com/lesomnus/loft/internal/ent/invitation"
 	"github.com/lesomnus/loft/internal/ent/itemmodel"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/link"
@@ -214,10 +213,6 @@ var Exported = map[string]reader{
 	},
 	"holder": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.Holder).Proto)(db.Holder.Query().Where(holder.TenantId(t), after(last)).Order(ent.Asc(holder.FieldDateCreated, holder.FieldId)).Limit(n).All(ctx))
-	},
-	// Who was invited, as what, and what became of it.
-	"invitation": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
-		return each((*ent.Invitation).Proto)(db.Invitation.Query().Where(invitation.TenantId(t), after(last)).Order(ent.Asc(invitation.FieldDateCreated, invitation.FieldId)).Limit(n).All(ctx))
 	},
 	"inventorycount": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.InventoryCount).Proto)(db.InventoryCount.Query().Where(inventorycount.TenantId(t), after(last)).Order(ent.Asc(inventorycount.FieldDateCreated, inventorycount.FieldId)).Limit(n).All(ctx))

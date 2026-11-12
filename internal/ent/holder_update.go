@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"uuid"
 
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/predicate"
@@ -172,26 +171,6 @@ func (_u *HolderUpdate) SetNillableMailOff(v *bool) *HolderUpdate {
 	return _u
 }
 
-// SetParty sets the "party" field.
-func (_u *HolderUpdate) SetParty(v uuid.UUID) *HolderUpdate {
-	_u.mutation.SetParty(v)
-	return _u
-}
-
-// SetNillableParty sets the "party" field if the given value is not nil.
-func (_u *HolderUpdate) SetNillableParty(v *uuid.UUID) *HolderUpdate {
-	if v != nil {
-		_u.SetParty(*v)
-	}
-	return _u
-}
-
-// ClearParty clears the value of the "party" field.
-func (_u *HolderUpdate) ClearParty() *HolderUpdate {
-	_u.mutation.ClearParty()
-	return _u
-}
-
 // Mutation returns the HolderMutation object of the builder.
 func (_u *HolderUpdate) Mutation() *HolderMutation {
 	return _u.mutation
@@ -318,15 +297,6 @@ func (_u *HolderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if e, ok := _u.mutation.FieldExpr(holder.FieldMailOff); ok {
 		_spec.SetField(holder.FieldMailOff, field.TypeBool, e)
-	}
-	if value, ok := _u.mutation.Party(); ok {
-		_spec.SetField(holder.FieldParty, field.TypeUuid, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(holder.FieldParty); ok {
-		_spec.SetField(holder.FieldParty, field.TypeUuid, e)
-	}
-	if _u.mutation.PartyCleared() {
-		_spec.ClearField(holder.FieldParty, field.TypeUuid)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -492,26 +462,6 @@ func (_u *HolderUpdateOne) SetNillableMailOff(v *bool) *HolderUpdateOne {
 	return _u
 }
 
-// SetParty sets the "party" field.
-func (_u *HolderUpdateOne) SetParty(v uuid.UUID) *HolderUpdateOne {
-	_u.mutation.SetParty(v)
-	return _u
-}
-
-// SetNillableParty sets the "party" field if the given value is not nil.
-func (_u *HolderUpdateOne) SetNillableParty(v *uuid.UUID) *HolderUpdateOne {
-	if v != nil {
-		_u.SetParty(*v)
-	}
-	return _u
-}
-
-// ClearParty clears the value of the "party" field.
-func (_u *HolderUpdateOne) ClearParty() *HolderUpdateOne {
-	_u.mutation.ClearParty()
-	return _u
-}
-
 // Mutation returns the HolderMutation object of the builder.
 func (_u *HolderUpdateOne) Mutation() *HolderMutation {
 	return _u.mutation
@@ -668,15 +618,6 @@ func (_u *HolderUpdateOne) sqlSave(ctx context.Context) (_node *Holder, err erro
 	}
 	if e, ok := _u.mutation.FieldExpr(holder.FieldMailOff); ok {
 		_spec.SetField(holder.FieldMailOff, field.TypeBool, e)
-	}
-	if value, ok := _u.mutation.Party(); ok {
-		_spec.SetField(holder.FieldParty, field.TypeUuid, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(holder.FieldParty); ok {
-		_spec.SetField(holder.FieldParty, field.TypeUuid, e)
-	}
-	if _u.mutation.PartyCleared() {
-		_spec.ClearField(holder.FieldParty, field.TypeUuid)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Holder{config: _u.config}

@@ -257,9 +257,6 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "party.update", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartySaved) string {
 		return "수정: " + who(r, m.GetParty())
 	})
-	past.SayKind(s, "party.invite", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyInvited) string {
-		return fmt.Sprintf("로그인 발급: %s (%s)", who(r, m.GetParty()), alias(r, m.GetHolder()))
-	})
 	past.SayKind(s, "party.role", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyRoleSet) string {
 		switch m.GetBy() {
 		case "succession":
@@ -268,12 +265,6 @@ func sentences() *past.Sentences {
 			return fmt.Sprintf("소유자 지정: %s (운영자)", who(r, m.GetHolder()))
 		}
 		return fmt.Sprintf("역할 변경: %s → %s", who(r, m.GetParty()), or(roleWords[m.GetRole()], m.GetRole()))
-	})
-	past.SayKind(s, "party.password", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyPasswordSet) string {
-		return "비밀번호 변경"
-	})
-	past.SayKind(s, "party.deactivate", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyDeactivated) string {
-		return "로그인 비활성화: " + who(r, m.GetParty())
 	})
 	past.SayKind(s, "party.pseudonymize", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyPseudonymized) string {
 		return "개인정보 삭제"
@@ -330,23 +321,6 @@ func sentences() *past.Sentences {
 	})
 	past.SayKind(s, "workspace.import", "ko", func(r *past.Reading, ev past.EventRow, m *app.WorkspaceImported) string {
 		return fmt.Sprintf("워크스페이스 복구 (운영자): %s 내보내기에서", m.GetDateExported().AsTime().Format(time.DateOnly))
-	})
-
-	// invitation.go
-	past.SayKind(s, "invitation.add", "ko", func(r *past.Reading, ev past.EventRow, m *app.InvitationAdded) string {
-		return "초대 (" + roleWords[m.GetRole()] + ")"
-	})
-	past.SayKind(s, "invitation.claim", "ko", func(r *past.Reading, ev past.EventRow, m *app.InvitationChanged) string {
-		return "초대 링크로 받음"
-	})
-	past.SayKind(s, "invitation.accept", "ko", func(r *past.Reading, ev past.EventRow, m *app.InvitationAccepted) string {
-		return "초대 수락 (" + roleWords[m.GetRole()] + ")"
-	})
-	past.SayKind(s, "invitation.deny", "ko", func(r *past.Reading, ev past.EventRow, m *app.InvitationChanged) string {
-		return "초대 거절"
-	})
-	past.SayKind(s, "invitation.revoke", "ko", func(r *past.Reading, ev past.EventRow, m *app.InvitationChanged) string {
-		return "초대 취소"
 	})
 
 	// work.go, access.go and expire.go
@@ -406,18 +380,6 @@ func who(r *past.Reading, b []byte) string {
 		return v
 	}
 	return "?"
-}
-
-// alias is a membership by the name it signs in with, `@` and it, or the
-// pseudonym of somebody forgotten: what the namer the reading is for says,
-// which puts whose it is on the access record as [who] does.
-func alias(r *past.Reading, b []byte) string {
-	n := namerOf(r.Context())
-	id := idOf(b)
-	if n == nil || id.IsZero() {
-		return "?"
-	}
-	return n.member(id.Uuid())
 }
 
 // attribute is an asset's attribute `key` as a sentence says it: by the label

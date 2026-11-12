@@ -46,7 +46,6 @@ message HolderAddRequest {
   string role = 8;
   google.protobuf.Timestamp date_leaving = 10;
   bool mail_off = 11 [features.field_presence = IMPLICIT];
-  bytes party = 12;
 }
 
 message HolderGetRequest {
@@ -79,7 +78,6 @@ message HolderSelect {
   bool role = 8;
   bool date_leaving = 10;
   bool mail_off = 11;
-  bool party = 12;
 }
 
 message HolderPatchRequest {
@@ -110,12 +108,6 @@ message HolderPatchRequest {
   // outright: setting both this and date_leaving clears.
   bool date_leaving_null = 21;
   bool mail_off = 22;
-  bytes party = 24;
-  // Clear party instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and party clears.
-  bool party_null = 25;
 }
 
 message HolderApplyRequest {

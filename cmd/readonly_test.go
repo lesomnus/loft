@@ -70,20 +70,18 @@ func makeReadOnly(w *world, fake *levyantest.Levyan) []byte {
 // TestAReadOnlyWorkspaceIsReadAndPaidFor (design 7.10, D64): while
 // levyan makes a workspace read-only, every write of every kind is refused --
 // the register and its catalog, files, labels, bookings, hand-overs, stock,
-// counts, work, purchases, people and their roles, invitations sent and
-// taken back, the record of an access review, the workspace's settings, and a
-// write that begins no operation as one that does -- with the reason a page
+// counts, work, purchases, people and their roles, the record of an access
+// review, the workspace's settings, and a write that begins no operation as
+// one that does -- with the reason a page
 // tells it by. What it still does, as levyan's `docs/apps.md` says an
 // app takes of one, it does: reads and reports, takes its data out and its
-// files, is paid for, and lets its members leave and a person be forgotten;
-// and a password, which is the person's at roster, is changed, and what a
-// person is told, which is theirs (D67), is marked read and kept off their
-// mail. Once levyan ends the grant it writes again. Closing it is its
+// files, is paid for, and lets a person be forgotten; and what a person is
+// told, which is theirs (D67), is marked read and kept off their mail. Once levyan ends the grant it writes again. Closing it is its
 // operator's, and no role's in it (D83):
 // TestAnOperatorClosesAndRestoresAReadOnlyWorkspace.
 func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	fake := levyantest.Start(t)
-	w := newInvites(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
+	w := newWorldWith(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
 	x := w.x
 	ctx := context.Background()
 
@@ -127,7 +125,7 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	_, err = bookables.Add(w.owner, app.BookableAddRequest_builder{Asset: aref(room)}.Build())
 	x.NoError(err)
 	booker := w.holder("yun", "member")
-	partyOf(w.world, booker)
+	partyOf(w, booker)
 	asBooker := w.signIn(booker)
 	at := time.Now().Add(48 * time.Hour).Truncate(time.Hour)
 	booked, err := reservations.Add(asBooker, app.ReservationAddRequest_builder{
@@ -142,14 +140,11 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: aref(laptop)}.Build()},
 	}.Build())
 	x.NoError(err)
-	leaving := partyOf(w.world, w.holder("choi", "member"))
+	member := partyOf(w, w.holder("choi", "member"))
 	jung := w.holder("jung", "member")
-	x.NoError(w.s.Identity.SetPassword(ctx, w.memberId(jung), "password1234"))
 	asJung := w.signIn(jung)
-	held, err := w.invite(w.owner, "han@example.com", "member")
-	x.NoError(err)
 
-	grant := makeReadOnly(w.world, fake)
+	grant := makeReadOnly(w, fake)
 	files := func() int {
 		n := 0
 		for range walk(t, w.c.App.Files) {
@@ -216,18 +211,8 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	w.refusedReadOnly(err, app.PartyService_Add_FullMethodName)
 	_, err = parties.Update(w.owner, app.PartyUpdateRequest_builder{Ref: pref(kim), Name: "김 대리"}.Build())
 	w.refusedReadOnly(err, app.PartyService_Update_FullMethodName)
-	_, err = parties.Invite(w.owner, app.PartyInviteRequest_builder{Ref: pref(park), Alias: "park", Role: "member"}.Build())
-	w.refusedReadOnly(err, app.PartyService_Invite_FullMethodName)
-	_, err = w.s.Identity.Lookup(ctx, "park")
-	x.Error(err, "and nobody was made for it at roster")
-	_, err = parties.SetRole(w.owner, app.PartySetRoleRequest_builder{Ref: pref(leaving), Role: "manager"}.Build())
+	_, err = parties.SetRole(w.owner, app.PartySetRoleRequest_builder{Ref: pref(member), Role: "manager"}.Build())
 	w.refusedReadOnly(err, app.PartyService_SetRole_FullMethodName)
-	mailed := len(w.box.sent)
-	_, err = w.invite(w.owner, "kang@example.com", "member")
-	w.refusedReadOnly(err, app.InvitationService_Add_FullMethodName)
-	x.Len(w.box.sent, mailed, "and nobody was mailed")
-	_, err = w.svc.Revoke(w.owner, app.InvitationRevokeRequest_builder{Ref: ref(held)}.Build())
-	w.refusedReadOnly(err, app.InvitationService_Revoke_FullMethodName)
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, Timezone: z.Ptr("Asia/Tokyo")}.Build())
 	w.refusedReadOnly(err, app.TenantService_Configure_FullMethodName)
 
@@ -292,10 +277,7 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	_, err = w.payments().Offer(w.owner, app.PaymentOfferRequest_builder{Holder: jung.GetId()}.Build())
 	x.NoError(err, "a member asked to pay for it")
 
-	// A password, which is the member's at roster and how they sign in.
-	_, err = parties.SetPassword(asJung, app.PartySetPasswordRequest_builder{Current: "password1234", Password: "another1234"}.Build())
-	x.NoError(err, "a password changed")
-	// And what a person is told here, which is theirs (D67): marked read,
+	// What a person is told here, which is theirs (D67): marked read,
 	// and kept off their mail -- a write that begins no operation, which a
 	// read-only workspace still commits for these two.
 	_, err = notifications.MarkRead(asJung, &app.NotificationMarkReadRequest{})
@@ -307,9 +289,7 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	x.NoError(err)
 	x.True(me.GetHolder().GetMailOff(), "what the person's page reads")
 
-	// Members leaving it, and a person forgotten.
-	_, err = parties.Deactivate(w.owner, app.PartyDeactivateRequest_builder{Ref: pref(leaving)}.Build())
-	x.NoError(err, "a membership ended")
+	// A person forgotten.
 	_, err = parties.Pseudonymize(w.owner, app.PartyPseudonymizeRequest_builder{Ref: pref(park)}.Build())
 	x.NoError(err, "a person forgotten")
 

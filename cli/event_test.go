@@ -274,7 +274,12 @@ func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) 
 	x.NoError(err)
 	p, err := d.s.Walled.Party().Add(owner, app.PartyAddRequest_builder{Name: "박철수", Kind: "person", Email: "park@acme.example"}.Build())
 	x.NoError(err)
-	_, err = d.s.Walled.Party().Invite(owner, app.PartyInviteRequest_builder{Ref: app.PartyRef_builder{Id: p.GetId()}.Build(), Alias: "park", Role: "member", Password: "park-password-1234"}.Build())
+	// A member, as roster makes them and the operator admits them (D87).
+	rp, err := d.s.Identity.AddPerson(ctx, "park", "박철수", pdid.Nil)
+	x.NoError(err)
+	record, err := pdid.From(p.GetId())
+	x.NoError(err)
+	_, err = d.s.Members.Admit(ctx, rp, "member", record, "")
 	x.NoError(err)
 	at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
 	r, err := d.s.Walled.Reservation().Add(owner, app.ReservationAddRequest_builder{

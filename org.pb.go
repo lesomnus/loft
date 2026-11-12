@@ -603,358 +603,6 @@ func (b0 Session_builder) Build() *Session {
 	return m0
 }
 
-// Invitation is somebody asked into a workspace, by address, with a role
-// (design 9.11, M2 step 4): what the people who run the workspace send and
-// take back. Nothing here answers one -- somebody comes to be a member by
-// signing in as a holder of the tenant at roster (D85) -- and the rest goes
-// with #332.
-//
-// It is the workspace's row: who invited whom, as what, and what became of it
-// are this workspace's history, and leave with it. Nothing here says whether
-// an address is anybody's: the people who invite learn what became of the
-// invitation, and nothing about who was asked.
-type Invitation struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Inviter     *Holder                `protobuf:"bytes,8,opt,name=inviter"`
-	xxx_hidden_Email       string                 `protobuf:"bytes,9,opt,name=email"`
-	xxx_hidden_Role        string                 `protobuf:"bytes,10,opt,name=role"`
-	xxx_hidden_Party       *Party                 `protobuf:"bytes,11,opt,name=party"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
-	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
-	xxx_hidden_DateSettled *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_settled,json=dateSettled"`
-	xxx_hidden_Holder      *Holder                `protobuf:"bytes,19,opt,name=holder"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *Invitation) Reset() {
-	*x = Invitation{}
-	mi := &file_loft_org_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Invitation) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Invitation) ProtoMessage() {}
-
-func (x *Invitation) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *Invitation) GetId() []byte {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return nil
-}
-
-func (x *Invitation) GetTenant() *Tenant {
-	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *Invitation) GetInviter() *Holder {
-	if x != nil {
-		return x.xxx_hidden_Inviter
-	}
-	return nil
-}
-
-func (x *Invitation) GetEmail() string {
-	if x != nil {
-		return x.xxx_hidden_Email
-	}
-	return ""
-}
-
-func (x *Invitation) GetRole() string {
-	if x != nil {
-		return x.xxx_hidden_Role
-	}
-	return ""
-}
-
-func (x *Invitation) GetParty() *Party {
-	if x != nil {
-		return x.xxx_hidden_Party
-	}
-	return nil
-}
-
-func (x *Invitation) GetDateUpdated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateUpdated
-	}
-	return nil
-}
-
-func (x *Invitation) GetDateErased() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateErased
-	}
-	return nil
-}
-
-func (x *Invitation) GetDateCreated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return nil
-}
-
-func (x *Invitation) GetState() string {
-	if x != nil {
-		return x.xxx_hidden_State
-	}
-	return ""
-}
-
-func (x *Invitation) GetDateExpires() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateExpires
-	}
-	return nil
-}
-
-func (x *Invitation) GetDateSettled() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateSettled
-	}
-	return nil
-}
-
-func (x *Invitation) GetHolder() *Holder {
-	if x != nil {
-		return x.xxx_hidden_Holder
-	}
-	return nil
-}
-
-func (x *Invitation) SetId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Id = v
-}
-
-func (x *Invitation) SetTenant(v *Tenant) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *Invitation) SetInviter(v *Holder) {
-	x.xxx_hidden_Inviter = v
-}
-
-func (x *Invitation) SetEmail(v string) {
-	x.xxx_hidden_Email = v
-}
-
-func (x *Invitation) SetRole(v string) {
-	x.xxx_hidden_Role = v
-}
-
-func (x *Invitation) SetParty(v *Party) {
-	x.xxx_hidden_Party = v
-}
-
-func (x *Invitation) SetDateUpdated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateUpdated = v
-}
-
-func (x *Invitation) SetDateErased(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateErased = v
-}
-
-func (x *Invitation) SetDateCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCreated = v
-}
-
-func (x *Invitation) SetState(v string) {
-	x.xxx_hidden_State = v
-}
-
-func (x *Invitation) SetDateExpires(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateExpires = v
-}
-
-func (x *Invitation) SetDateSettled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateSettled = v
-}
-
-func (x *Invitation) SetHolder(v *Holder) {
-	x.xxx_hidden_Holder = v
-}
-
-func (x *Invitation) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *Invitation) HasInviter() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Inviter != nil
-}
-
-func (x *Invitation) HasParty() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Party != nil
-}
-
-func (x *Invitation) HasDateUpdated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateUpdated != nil
-}
-
-func (x *Invitation) HasDateErased() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateErased != nil
-}
-
-func (x *Invitation) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCreated != nil
-}
-
-func (x *Invitation) HasDateExpires() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateExpires != nil
-}
-
-func (x *Invitation) HasDateSettled() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateSettled != nil
-}
-
-func (x *Invitation) HasHolder() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Holder != nil
-}
-
-func (x *Invitation) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *Invitation) ClearInviter() {
-	x.xxx_hidden_Inviter = nil
-}
-
-func (x *Invitation) ClearParty() {
-	x.xxx_hidden_Party = nil
-}
-
-func (x *Invitation) ClearDateUpdated() {
-	x.xxx_hidden_DateUpdated = nil
-}
-
-func (x *Invitation) ClearDateErased() {
-	x.xxx_hidden_DateErased = nil
-}
-
-func (x *Invitation) ClearDateCreated() {
-	x.xxx_hidden_DateCreated = nil
-}
-
-func (x *Invitation) ClearDateExpires() {
-	x.xxx_hidden_DateExpires = nil
-}
-
-func (x *Invitation) ClearDateSettled() {
-	x.xxx_hidden_DateSettled = nil
-}
-
-func (x *Invitation) ClearHolder() {
-	x.xxx_hidden_Holder = nil
-}
-
-type Invitation_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id     []byte
-	Tenant *Tenant
-	// Who invited: their membership of this workspace.
-	Inviter *Holder
-	// The address it was sent to, folded as an address is compared. Written
-	// once, and emptied when the person it was for is forgotten -- by the
-	// workspace, or by their leaving it (`server/domain/depart.go`) -- which is
-	// the one write it takes and why it is not immutable. Personal (payday#92):
-	// on the trail as having been set, and never as what to.
-	Email string
-	// What the person it is for is to be here: a role, which is the record and
-	// not the person.
-	Role string
-	// The person record they are: one this workspace already keeps, or empty
-	// for one made when they come.
-	Party       *Party
-	DateUpdated *timestamppb.Timestamp
-	DateErased  *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
-	// `pending`, `accepted`, `denied` or `revoked`. One still pending after
-	// `date_expires` is expired, which is said where it is read rather than
-	// written by a sweep.
-	State       string
-	DateExpires *timestamppb.Timestamp
-	// When it was answered or taken back.
-	DateSettled *timestamppb.Timestamp
-	// The membership accepting it made.
-	Holder *Holder
-}
-
-func (b0 Invitation_builder) Build() *Invitation {
-	m0 := &Invitation{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Inviter = b.Inviter
-	x.xxx_hidden_Email = b.Email
-	x.xxx_hidden_Role = b.Role
-	x.xxx_hidden_Party = b.Party
-	x.xxx_hidden_DateUpdated = b.DateUpdated
-	x.xxx_hidden_DateErased = b.DateErased
-	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_State = b.State
-	x.xxx_hidden_DateExpires = b.DateExpires
-	x.xxx_hidden_DateSettled = b.DateSettled
-	x.xxx_hidden_Holder = b.Holder
-	return m0
-}
-
 // CliLogin is a terminal asking to be signed in as whoever approves it in a
 // browser (`loft auth login`).
 //
@@ -988,7 +636,7 @@ type CliLogin struct {
 
 func (x *CliLogin) Reset() {
 	*x = CliLogin{}
-	mi := &file_loft_org_proto_msgTypes[3]
+	mi := &file_loft_org_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1000,7 +648,7 @@ func (x *CliLogin) String() string {
 func (*CliLogin) ProtoMessage() {}
 
 func (x *CliLogin) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_proto_msgTypes[3]
+	mi := &file_loft_org_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1284,7 +932,7 @@ type SignInFailure struct {
 
 func (x *SignInFailure) Reset() {
 	*x = SignInFailure{}
-	mi := &file_loft_org_proto_msgTypes[4]
+	mi := &file_loft_org_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1296,7 +944,7 @@ func (x *SignInFailure) String() string {
 func (*SignInFailure) ProtoMessage() {}
 
 func (x *SignInFailure) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_proto_msgTypes[4]
+	mi := &file_loft_org_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1441,38 +1089,7 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x06secret\x10\t\x1a\x14\x12\x06holder\x1a\n" +
 	"\n" +
 	"\x06holder\x10\b\x8a\xbb\x16~\b&Rx\x12v\n" +
-	"ta sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (loft#136)*\x00\"\xb3\x06\n" +
-	"\n" +
-	"Invitation\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
-	"\ainviter\x18\b \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x02@\x01R\ainviter\x12\x1c\n" +
-	"\x05email\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x05email\x12 \n" +
-	"\x04role\x18\n" +
-	" \x01(\tB\f\xea\x82\x16\x02@\x01\xaa\xc1\x16\x02\x18\x00R\x04role\x12)\n" +
-	"\x05party\x18\v \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\x05party\x12F\n" +
-	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
-	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
-	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x1c\n" +
-	"\x05state\x18\x10 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x05state\x12F\n" +
-	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12E\n" +
-	"\fdate_settled\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateSettled\x12,\n" +
-	"\x06holder\x18\x13 \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder:\x8b\x01\xca\xfc\x15F\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
-	"\n" +
-	"\x06tenant\x10\x02\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x1a\x12\x12\x05email\x1a\t\n" +
-	"\x05email\x10\t\x8a\xbb\x16=\b)29\n" +
-	"\x10\n" +
-	"\x0e\n" +
-	"\fdate_created\n" +
-	"\x06\n" +
-	"\x04\n" +
-	"\x02id\x1a\x05\n" +
-	"\x03ref\x1a\b\n" +
-	"\x06tenant\x1a\a\n" +
-	"\x05state 2(\xc8\x01\"\xff\x04\n" +
+	"ta sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (loft#136)*\x00\"\xff\x04\n" +
 	"\bCliLogin\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1e\n" +
 	"\x06secret\x18\b \x01(\fB\x06\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x12\n" +
@@ -1505,49 +1122,39 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x00R_\x12]\n" +
 	"[a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_loft_org_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_loft_org_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_loft_org_proto_goTypes = []any{
 	(*Party)(nil),                 // 0: loft.Party
 	(*Session)(nil),               // 1: loft.Session
-	(*Invitation)(nil),            // 2: loft.Invitation
-	(*CliLogin)(nil),              // 3: loft.CliLogin
-	(*SignInFailure)(nil),         // 4: loft.SignInFailure
-	nil,                           // 5: loft.Party.LabelsEntry
-	(*Tenant)(nil),                // 6: loft.Tenant
-	(*Holder)(nil),                // 7: loft.Holder
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*CliLogin)(nil),              // 2: loft.CliLogin
+	(*SignInFailure)(nil),         // 3: loft.SignInFailure
+	nil,                           // 4: loft.Party.LabelsEntry
+	(*Tenant)(nil),                // 5: loft.Tenant
+	(*Holder)(nil),                // 6: loft.Holder
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
 }
 var file_loft_org_proto_depIdxs = []int32{
-	6,  // 0: loft.Party.tenant:type_name -> loft.Tenant
-	5,  // 1: loft.Party.labels:type_name -> loft.Party.LabelsEntry
-	7,  // 2: loft.Party.holder:type_name -> loft.Holder
-	8,  // 3: loft.Party.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 4: loft.Party.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 5: loft.Party.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 6: loft.Session.date_expires:type_name -> google.protobuf.Timestamp
-	8,  // 7: loft.Session.date_idle:type_name -> google.protobuf.Timestamp
-	8,  // 8: loft.Session.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 9: loft.Session.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 10: loft.Session.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 11: loft.Invitation.tenant:type_name -> loft.Tenant
-	7,  // 12: loft.Invitation.inviter:type_name -> loft.Holder
-	0,  // 13: loft.Invitation.party:type_name -> loft.Party
-	8,  // 14: loft.Invitation.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 15: loft.Invitation.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 16: loft.Invitation.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 17: loft.Invitation.date_expires:type_name -> google.protobuf.Timestamp
-	8,  // 18: loft.Invitation.date_settled:type_name -> google.protobuf.Timestamp
-	7,  // 19: loft.Invitation.holder:type_name -> loft.Holder
-	8,  // 20: loft.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
-	8,  // 21: loft.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 22: loft.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 23: loft.CliLogin.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 24: loft.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
-	25, // [25:25] is the sub-list for method output_type
-	25, // [25:25] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	5,  // 0: loft.Party.tenant:type_name -> loft.Tenant
+	4,  // 1: loft.Party.labels:type_name -> loft.Party.LabelsEntry
+	6,  // 2: loft.Party.holder:type_name -> loft.Holder
+	7,  // 3: loft.Party.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 4: loft.Party.date_erased:type_name -> google.protobuf.Timestamp
+	7,  // 5: loft.Party.date_created:type_name -> google.protobuf.Timestamp
+	7,  // 6: loft.Session.date_expires:type_name -> google.protobuf.Timestamp
+	7,  // 7: loft.Session.date_idle:type_name -> google.protobuf.Timestamp
+	7,  // 8: loft.Session.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 9: loft.Session.date_erased:type_name -> google.protobuf.Timestamp
+	7,  // 10: loft.Session.date_created:type_name -> google.protobuf.Timestamp
+	7,  // 11: loft.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
+	7,  // 12: loft.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 13: loft.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
+	7,  // 14: loft.CliLogin.date_created:type_name -> google.protobuf.Timestamp
+	7,  // 15: loft.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_loft_org_proto_init() }
@@ -1563,7 +1170,7 @@ func file_loft_org_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_org_proto_rawDesc), len(file_loft_org_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
