@@ -370,6 +370,15 @@ func TestAnOperatorClosesAndRestoresAReadOnlyWorkspace(t *testing.T) {
 	x.True(w.readOnly(w.tenant), "and read-only until it is paid for")
 	_, err = app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "키보드"}.Build())
 	w.refusedReadOnly(err, app.AssetService_Add_FullMethodName)
+
+	// And what else the operator writes there, which no table of a
+	// read-only workspace's names: an owner named.
+	w.holder("kim", "member")
+	_, err = app.NewOperatorTenantServiceClient(entry).NameOwner(byOperator(), app.OperatorTenantNameOwnerRequest_builder{
+		Ref:    app.OperatorTenantRef_builder{Alias: z.Ptr(w.tenant.GetAlias())}.Build(),
+		Member: "kim",
+	}.Build())
+	x.NoError(err, "an owner named, read-only")
 }
 
 // ownerHolder is the membership the world's owner signs in as.
