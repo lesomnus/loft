@@ -152,6 +152,7 @@ kubectl -n loft rollout status deploy/loft
 
 # 4. 워크스페이스와 소유자: 섬기는 roster 테넌트를 같은 ID로 세운다. 외부 roster면 --login의 사람이
 #    roster에 있어야 하고(기본 admin), 내장 roster면 테넌트와 소유자까지 만들고 비밀번호를 한 번 보여 준다.
+#    내장 roster의 테넌트는 config.yaml의 auth.roster.tenant(비우면 loft)이고, 세운 뒤에는 바꾸지 않는다.
 kubectl -n loft exec deploy/loft -c loft -- loft --config /etc/loft/loft.yaml init \
   --name "ACME" --login owner --person "홍길동" --email owner@example.com
 

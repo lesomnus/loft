@@ -69,6 +69,10 @@ auth:
     db:
       driver: pgx
       # dsn: LOFT_AUTH_ROSTER_DB_DSN, from the Secret `loft`.
+    # The tenant this deployment serves, which is its workspace and the
+    # address it goes by (D85): `loft` unless it says. Said before `loft init`
+    # puts it up, and not changed after.
+    # tenant: loft
 
 app:
   # Where people open it, and what a label's QR code carries: decided before

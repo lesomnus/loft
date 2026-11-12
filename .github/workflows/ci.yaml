@@ -351,6 +351,7 @@ jobs:
         run: |
           cp .env.example .env
           sed -i -e "s/^LOFT_DOMAIN=.*/LOFT_DOMAIN=localhost/" \
+            -e "s/^LOFT_TENANT=.*/LOFT_TENANT=acme/" \
             -e "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" \
             -e "s/^LOFT_SIGNING_KEY=.*/LOFT_SIGNING_KEY=$(openssl rand -hex 32)/" \
             -e "s/^LOFT_VERSION=.*/LOFT_VERSION=ci/" .env
@@ -370,7 +371,7 @@ jobs:
       - name: a workspace, signed in to and asked
         run: |
           docker compose run --rm loft --config /etc/loft/loft.yaml init \
-            --tenant acme --name ACME --login owner --person Owner --email owner@example.com --password owner-pass-1234
+            --name ACME --login owner --person Owner --email owner@example.com --password owner-pass-1234
           curl -skf -c jar -H 'content-type: application/json' \
             -d '{"login":"owner","password":"owner-pass-1234"}' https://localhost/session
           # Each to whichever replica Caddy picks: a session is the database's.
