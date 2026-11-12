@@ -181,7 +181,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 - 사용량 계량은 Loft가 자기 테이블에서 재서 levyan에 넘긴다(design 7장, D59). 처음에 둔 `UsageSnapshot` spin 루프는 지웠다(D35).
 - levyan의 권한을 사본으로 두고(`Entitlement` 50, `loft.restricted`), 지불자를 정하는 데 필요한 것(워크스페이스를 만든 사람, 떠난 계정)을 알린다(`LevyanNotice` 51; design 7.5·7.6절, D60). **D84가 그 알림을 걷어냈다**(2026-11-12): 포털이 levyan에 알린다. 제한의 2단계인 읽기 전용(`loft.readonly`)은 되는 것의 표 하나로 그 밖의 쓰기를 모두 막는다(design 7.10절, D64). 워크스페이스를 닫고, 되돌리고, 파기한 것도 같은 알림으로 알린다(design 7.8절, D62). 지불자 제안, 설정 › 결제, 연체의 배너는 `loft.PaymentService`로 levyan에 묻는다(design 7.9절, D63). levyan의 운영자가 준 추가 무료량·사용량 크레딧·금액 크레딧은 설정 › 결제에 보이기만 하고, Loft는 아무것도 주지 않는다(design 7.11절, D65). 지불자의 결제 화면(결제 계정, 결제창, 청구서와 그 줄의 명세서)은 포털로 갔다(design 7.7·7.9·7.12절, D81).
 - trail 보존 설정: Holder는 `pipa` 이상(`audit.min` 또는 `audit.by`), 이력 도메인은 조직의 계약이 정하는 보존 기간(design 8.2절, `server/retention`).
-- 운영 환경: Kubernetes(`deploy/k8s`, 2026-10-13 결정). `deploy/compose`는 같은 이미지를 한 대에 띄워 보는 시험용이다.
+- 운영 환경: Kubernetes(`deploy/k8s`, 2026-10-13 결정). `deploy/compose`는 같은 이미지를 한 대에 띄워 보는 시험용이다. 둘 다 roster를 Loft 곁에 따로 띄우는 self-hosted의 모양이다(design D91).
   - kustomize base와 k3d 시험(`scripts/cluster.sh`, CI `cluster`), 실제 배포는 그 위의 오버레이(GitOps).
   - 인그레스와 인증서는 클러스터의 것. 공개 진입점만 인그레스에 두고, 운영자 진입점은 `kubectl port-forward`로만 닿게 한다.
 - 백업: pgBackRest(또는 WAL-G)로 WAL 보관 PITR을 하고, 첨부 디렉터리 백업과 함께 다른 장소로 보낸다. 복구 리허설로 RPO·RTO를 측정한다.

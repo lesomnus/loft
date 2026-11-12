@@ -261,6 +261,17 @@ theirs, each from what the test's levyan says of a workspace it has just met.
 CI runs them on both databases. A change to a page a flow goes through is not
 done until they pass; find things by role and label, as a person does.
 
+A deployment people use runs roster beside Loft (D91), and the roster in
+this process is for tests, development and trying Loft out. `deploy/compose`
+is the whole of it on one host -- roster's user console on a host of its own,
+Loft installed in the tenant and calling with its key -- and CI's `bundle`
+job runs it from nothing to a sign-in, in the order its README gives.
+`deploy/k8s` is the base that attaches to roster's own reference deployment;
+its rig (`scripts/cluster.sh`, the `cluster` job) runs the embedded roster.
+The rig runs every k3d call with a kubeconfig of its own, `cluster delete`
+included: never run k3d against the default kubeconfig, which on a desk is
+somebody's real clusters.
+
 A form's `Field` (`ts/src/ui.tsx`) is a <label> beside the **one** control it
 names, which takes the id the field hands it (`Labelled`). A field of more
 than one control -- an asset picker, a row of boxes -- is `group`; never put
