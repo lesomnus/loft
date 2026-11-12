@@ -7,7 +7,7 @@ PDTEST_OPENSEARCH=http://127.0.0.1:9200 go test ./...           # 검색 색인�
 cd ts && npm run check                                           # 타입 검사
 ```
 
-- 도메인 테스트는 실제 호출과 같은 경로(게이트, 테넌트 벽, 도메인 계층)를 지나고, `cmd` 테스트는 gRPC 체인(세션 쿠키, 역할 표, 배치) 전체를 지납니다.
+- 도메인 테스트는 실제 호출과 같은 경로(게이트, 테넌트 벽, 도메인 계층)를 지나고, `cmd` 테스트는 gRPC 체인(세션 쿠키, roster에 묻는 권한, 배치) 전체를 지납니다. 테스트의 구성원은 roster에 역할이 묶여 있어야 합니다(`Identity.WriteRoles`, `Identity.Bind`).
 - 클러스터가 필요한 테스트는 `internal/opensearchtest.Config(t)` 로 클러스터를 받고, 없으면 건너뜁니다. CI의 `opensearch` 작업은 그 패키지들을 security 플러그인을 켠 `deploy/opensearch` 에서, 운영자에게 주는 것과 같은 role로 돌립니다([검색 엔진](search.md#운영-구성에서-켜기)). 그 role보다 많은 권한이 필요한 호출은 거기서 실패합니다(`scripts/opensearch.sh`).
 - 테스트는 세션을 직접 만들고 그 쿠키를 보냅니다. 내장 roster의 DB도 테스트마다 따로 둡니다.
 - 개발용 PostgreSQL과 클러스터를 띄우는 법은 [PostgreSQL](postgres.md)과 [검색 엔진](search.md#개발용-클러스터)에 있습니다.

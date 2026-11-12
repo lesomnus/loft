@@ -36,7 +36,7 @@ loft init --name "우리 회사" --password admin1234 --demo
 - 외부 roster면 `init` 은 키의 테넌트를 같은 ID와 주소로 워크스페이스로 세우고, `--login` 의 사람(기본은 roster가 테넌트를 만들 때 넣는 `admin`)을 소유자로 둡니다. 그 사람은 roster에 있어야 하고, 로그인 방법은 테넌트의 관리자가 roster에서 줍니다. `--password` 와 `--demo` 는 거부합니다.
 - 내장 roster면 `auth.roster.tenant`(기본 `loft`)의 테넌트와 소유자(기본 아이디 `admin`, 이름 "관리자")를 만들고, `--password` 를 빼면 비밀번호를 만들어서 한 번 보여 줍니다.
 - `init` 은 워크스페이스가 이미 있으면 실패합니다. 배포는 워크스페이스 하나를 섬기고, 잘못된 배포에서 조용히 아무것도 하지 않는 것보다 낫기 때문입니다.
-- 그 테넌트의 다른 사람은 처음 로그인할 때 구성원이 됩니다. 역할은 소유자·관리자가 사람 화면에서 줍니다.
+- `init` 은 Loft의 처음 다섯 역할(`loft-owner`, `loft-admin`, `loft-manager`, `loft-member`, `loft-auditor`)을 roster에 쓰고, 소유자에게 `loft-owner` 를 묶습니다(D89). 테넌트에 같은 별칭의 역할이 이미 있으면 그대로 둡니다. 그 테넌트의 다른 사람은 테넌트의 관리자가 roster에서 Loft의 역할을 묶으면, 처음 로그인할 때 구성원이 됩니다.
 - 써 보는 배포에서 보관소(`audit.archive`)를 두고 서명 키를 두지 않았으면, `init` 이 보관소 옆에 이 배포만의 키를 만들고 어디에 썼는지 알려 줍니다. `serve` 전에 그 경로를 `audit.checkpoints.key` 에 적습니다.
 
 ## 새 버전 올리기
@@ -60,7 +60,7 @@ loft config env --set # 설정이 읽는 환경변수 가운데 정해진 것
 
 - **내장 roster**(`auth.roster.addr` 를 비우면): Loft 프로세스 안에서 함께 뜨고, DB는 Loft의 것 옆에 하나 더 있습니다. 시험과 써 보기용이라, 운영처럼 보이는 배포(PostgreSQL이거나 `app.public_url` 이 이 기계가 아님)에서는 `serve` 가 시작할 때 경고합니다. 사람을 넣고 빼는 roster의 화면이 없습니다.
 - **외부 roster**: 직접 운영하는 배포는 roster를 따로 띄웁니다. 사람을 넣고 빼는 화면(user console)이 roster에 있고, 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다. 그 화면의 주소를 `auth.roster.console_url` 에 주면 Loft의 사람 화면이 그리로 가는 링크를 보입니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
-- **역할 바꾸기**: 외부 roster에서 Loft의 역할은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다.
+- **Loft 자신의 역할 바꾸기**: 외부 roster에서 Loft가 roster에 묻는 역할(`loft-app`)은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#loft-자신의-역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다. 사람의 역할(`loft-owner` 등)은 테넌트의 관리자가 roster에서 묶고 고칩니다([관리자·소유자 안내서의 역할](admin.md#역할)).
 - **SSO**: roster의 issuer로 로그인하게 하는 설정과 roster 쪽에 필요한 것은 [SSO](../dev/identity.md#sso)에 있습니다.
 
 내장 roster에는 사람을 넣는 화면이 없으므로, 운영자 진입점에서 사람을 만들어 구성원으로 넣고 비밀번호를 줍니다(예: 새로 온 사람, 소유자가 비밀번호를 잊었을 때). `loft init --demo` 의 사람도 같은 길로 만듭니다. 여기서 구성원 자격이 끝난 사람에게 `holder add` 를 하면 그 자격을 다시 들입니다(D88). roster가 그 사람을 멈춰 두었으면 거절합니다. 외부 roster면 둘 다 거부되고 roster의 화면에서 합니다.
@@ -132,7 +132,6 @@ loft tenant show loft                            # 구성원, 보관 기간과 �
 loft tenant close --reason "요청" loft            # 무엇을 할지만
 loft tenant close --reason "요청" --yes loft      # 닫기 (복구 기간 안에는 운영자가 복구할 수 있음)
 loft tenant restore --yes loft
-loft tenant name-owner --member gunwoo-lee --yes loft  # 구성원을 소유자로 지정
 loft tenant-contract add --name abroad --purge-floors --yes loft
 loft legal-hold add --why "사건 번호" --yes loft
 loft legal-hold patch --lift --yes <ID>                         # ID는 tenant show의 hold 줄
@@ -185,9 +184,9 @@ loft access-review list --tenant loft                                           
 ## 워크스페이스의 문의
 
 - **주소를 바꿔 달라**: 주소는 roster 테넌트의 주소이고(D86), 사용자도 운영자도 Loft에서 바꾸지 않습니다. 화면의 주소에는 쓰이지 않고, 운영자가 워크스페이스를 부르는 이름입니다. roster에서 테넌트의 주소를 바꾸면 Loft는 다음에 서버가 시작할 때 그 주소를 따릅니다. 그동안에도 로그인은 됩니다. 외부 roster에 `auth.roster.tenant` 를 적어 두었다면 새 주소로 고친 뒤 다시 시작합니다(비워 두면 키의 테넌트를 따릅니다). 내장 roster는 시험과 써 보기용이라 주소를 바꾸는 길이 없습니다.
-- **소유자가 없다, 소유자를 바꿔 달라**: `loft tenant name-owner` 로 구성원을 소유자로 지정합니다.
-- **닫아 달라, 다시 열어 달라, 데이터를 달라**: 워크스페이스 안에서는 소유자도 닫고, 되돌리고, 모두 내보내지 못하므로 운영자가 합니다(design D83). 요청한 사람이 그 워크스페이스의 소유자인지 확인하고(`loft tenant show` 의 소유자), 닫을 때는 까닭을 `--reason` 에 적습니다. 닫힌 워크스페이스에는 소유자도 들어오지 못하고, 화면은 운영자에게 문의하라고만 말합니다. 복구 기간 안에는 되돌릴 수 있고, 지나면 파기됩니다. 내보낸 파일은 모든 사람의 데이터이므로 소유자에게 안전하게 건넵니다.
-- 워크스페이스의 이름은 운영자가 바꾸지 않습니다. `loft tenant ls|show` 는 저장된 이름을 보이므로, 소유자의 이름으로 부르는 워크스페이스(이름이 없는 것)는 빈칸입니다. 주소와 소유자의 아이디로 찾습니다.
+- **소유자가 없다, 소유자를 바꿔 달라, 누구에게 무엇을 할 수 있게 해 달라**: 누가 무엇을 할 수 있는지는 roster의 역할입니다(design D89). 그 워크스페이스의 테넌트를 roster에서 관리하는 사람이 Loft의 역할(`loft-owner`, `loft-admin`, `loft-manager`, `loft-member`, `loft-auditor`)을 사람에게 묶거나 풉니다. 소유자는 `loft-owner` 가 묶인 사람입니다. 운영자는 Loft에서 정하지 않습니다. 테넌트에 관리자가 아무도 없으면 roster의 운영자에게 요청합니다.
+- **닫아 달라, 다시 열어 달라, 데이터를 달라**: 워크스페이스 안에서는 소유자도 닫고, 되돌리고, 모두 내보내지 못하므로 운영자가 합니다(design D83). 요청한 사람이 그 워크스페이스의 소유자인지 roster에서 확인하고(그 사람에게 `loft-owner` 가 묶여 있는지), 닫을 때는 까닭을 `--reason` 에 적습니다. 닫힌 워크스페이스에는 소유자도 들어오지 못하고, 화면은 운영자에게 문의하라고만 말합니다. 복구 기간 안에는 되돌릴 수 있고, 지나면 파기됩니다. 내보낸 파일은 모든 사람의 데이터이므로 소유자에게 안전하게 건넵니다.
+- 워크스페이스의 이름은 운영자가 바꾸지 않습니다. `loft tenant ls|show` 는 저장된 이름을 보이므로, 이름이 없어 주소로 부르는 워크스페이스는 빈칸입니다. 주소로 찾습니다.
 
 ```sh
 loft tenant close --reason "요청" --yes loft       # 복구 기간이 지나면 파기
@@ -224,7 +223,7 @@ loft event redact --tenant loft --event <작업 기록의 ID> --why "삭제 요�
 - 여러 대상에 걸친 작업은 그 사유를 대상마다의 기록에 옮겨 적습니다(예약한 것마다, 반복의 회차마다, 건넨 것마다, 한 번에 등록한 것마다, 실사의 처리가 부른 상태 변경). 그 가운데 어느 것을 지정해도 그 작업에서 같은 사유를 가진 기록을 모두 지웁니다(design D49). `--yes` 없이 실행하면 그런 기록이 몇 개이고 어떤 종류인지 말합니다. 사유의 내용은 읽지 않습니다. 지운 기록마다 이 일의 작업 기록이 그 대상의 이력에 남고, 감사 기록과 접속기록에도 하나씩 남습니다.
 - 그 사유를 글로 옮긴 알림(예약의 승인·거절 알림)에서도 지웁니다(design D51). 알림의 제목과 나머지는 그대로입니다. `--yes` 없이 실행하면 그런 알림이 몇 개이고 어떤 종류인지, 그 가운데 몇 개가 이미 메일로 갔는지 말합니다. **이미 보낸 메일은 되돌릴 수 없습니다.** 요청에 답할 때 알려 주세요. 아직 보내지 않은 메일은 지운 글 없이 갑니다. 고친 알림은 감사 기록과 접속기록에 이 일이 쓴 것으로 남습니다.
 - 그 사유를 자기 글로 가진 행에서도 지웁니다(design D56). 지급·대여의 메모(`custody.issue`), 실사 스캔이 남긴 발견의 메모(`count.scan`), 접속기록 점검 결과(`access.review`), 워크스페이스를 닫은 사유(`workspace.close`, 그 닫기로 닫혀 있을 때)입니다. 행의 나머지는 그대로입니다. `--yes` 없이 실행하면 그런 행이 몇 개이고 어떤 종류인지 말합니다. 고친 행은 감사 기록과 접속기록에 이 일이 쓴 것으로 남습니다.
-- 워크스페이스 안에서 이 일을 할 수 있는 역할은 아직 없습니다. `EventService.Redact` 는 정책 표에서 닫혀 있고, 누가 할지 정해지면 표의 한 줄로 엽니다.
+- 워크스페이스 안에서 이 일을 할 수 있는 역할은 아직 없습니다. `EventService.Redact` 는 `server/policy` 에서 닫혀 있어 roster에서 어느 역할에 담아도 거부되고, 누가 할지 정해지면 처음 역할의 한 줄로 엽니다.
 - 되돌릴 수 없습니다.
 
 ## 워크스페이스가 떠날 때

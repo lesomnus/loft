@@ -51,6 +51,12 @@ invitations. An epoch-5 store keeps the `invitation` table and
 gone (`invitation.*`, `party.invite`, `party.password`, `party.deactivate`)
 no longer read.
 
+Epoch 7 is D89 (#334): what somebody may call is what the roles roster binds
+them hold. An epoch-6 store keeps `holder.role` and its exports hold
+`Holder.role`, its events of the kind gone (`party.role`) and the
+`ownerless` of its `account.depart` no longer read, and its roster has none
+of the roles Loft asks about, so nobody would sign in.
+
 From launch the rules below that keep an earlier build's data readable
 apply, and the epoch does not move without the owner's word.
 
@@ -124,8 +130,8 @@ Field numbers are read by name across every entity:
 
 A field says a default only where a row nobody set it for means something:
 a time's `default: ""` is now when an `Add` leaves it out (`pd gen` refuses a
-time that says neither that nor `nullable`), `Holder.role` is `member`, a
-workspace's own setting is the deployment's. A default is no way to bring
+time that says neither that nor `nullable`), and a workspace's own setting is
+the deployment's. A default is no way to bring
 along the rows an earlier build wrote: until launch a field those rows lack,
 which a new row has to have and no default means anything for, breaks the
 store, and moves the epoch instead. A new entity breaks nothing -- an export
@@ -282,16 +288,19 @@ workspace: `loft init` puts the Loft tenant up by its identifier and alias. A
 member is a holder of that tenant at roster, and their `Holder` here has the
 same identifier and nothing else that says so (D86): made the first time they
 sign in (`tenancy.Members`), a member, with the person record this workspace
-keeps at an address roster holds as checked for them, or a new one. Roles
-stay Loft's (`Holder.role`). Who is a member is roster's (D87): they are
-added and taken away, and how they sign in is set, at roster's screens --
-the people screen links to its user console, `auth.roster.console_url` --
-and Loft keeps the person records, which membership each is, and the role.
-A membership ended here -- the person forgotten, or gone from roster past
-its grace -- is theirs again when roster vouches for them again (D88): the
-same row taken up again (on the trail as `tenancy.Readmitted`), a member,
-with a person record found or made as for anybody new and none of the
-sessions it had; `loft holder add` does the same while roster has them. An
+keeps at an address roster holds as checked for them, or a new one. Who is a
+member is roster's (D87): they are added and taken away, and how they sign
+in is set, at roster's screens -- the people screen links to its user
+console, `auth.roster.console_url` -- and Loft keeps the person records and
+which membership each is. What they may call is roster's too (D89): the
+roles bound to them there, which are the tenant's to rename, split, narrow
+and bind (see **What may be called**); somebody it binds no role of Loft's
+is refused at sign-in (`tenancy.ErrNoRole`). A membership ended here -- the
+person forgotten, or gone from roster past its grace -- is theirs again when
+roster vouches for them again (D88): the same row taken up again (on the
+trail as `tenancy.Readmitted`), with a person record found or made as for
+anybody new and none of the sessions it had, and what roster binds it as it
+was; `loft holder add` does the same while roster has them. An
 administrator links a person record to a membership by hand
 (`PartyService.LinkMember`, `UnlinkMember`), and a membership taken off its
 record is no record's until one is linked to it. Nothing is chosen -- there
@@ -325,14 +334,17 @@ no erasure, and clears the mark -- but the stream does not replay what was
 said while Loft was not listening, so whatever acts on a mark asks roster
 first. That is `Lifecycle.Sweep`: past `app.members.forget_after`, a member
 roster still has nobody by leaves (`domain.Deps.Depart`: pseudonymized as
-개인정보 삭제 is, and the workspace handed on when they were its last owner),
-and one roster has again stops leaving. `loft identity depart` does it now
+개인정보 삭제 is), and one roster has again stops leaving. Nothing is handed
+on: who owns the workspace is whom roster binds `loft-owner`, which a
+member leaving here does not change (D89). `loft identity depart` does it now
 for one member, and `Lifecycle.Reconcile` finds what the stream missed -- it
 replays nothing -- every `app.members.reconcile` by itself, and now with
 `loft identity reconcile`. The role Loft is installed with carries every
-method in `identity.AgentMethods`; installing again leaves an existing role as
-it is, and a role is changed with `roster role patch`, the whole list
-(`docs/dev/identity.md`).
+method in `identity.AgentMethods` -- `/loft.*/*` among them, so that the
+roles it writes are grants it may make -- and is installed with `--administer
+'/loft.*/*'`, without which the tenant's administrators could bind none of
+them; installing again leaves an existing role as it is, and a role is
+changed with `roster role patch`, the whole list (`docs/dev/identity.md`).
 
 Through roster's issuer instead (`auth.sso`, `server/sso`), Loft is a relying
 party in the `itself` shape of roster's `docs/relying-party.md`: `GET
@@ -361,7 +373,9 @@ roster does not have is made there by `loft identity link` (by the
 identifier they have here), unless roster erased somebody by it, which link
 says and makes nobody.
 `auth.Plain` is not wired; tests mint a session with `Server.Sessions.Mint`,
-naming the member, and send its cookie, and set `c.Auth.Roster.Db` to a
+naming the member, and send its cookie -- the member bound a role at roster
+(`Identity.Bind`, after `Identity.WriteRoles`), or every call is refused --
+and set `c.Auth.Roster.Db` to a
 `pdtest.DB` of its own -- the default is a file -- and `c.Auth.Roster.Tenant`
 to the workspace they put up. Another workspace in the database -- one
 `tenant import` put back -- is walled off as ever, and nobody signs in to it
@@ -375,9 +389,9 @@ never by anybody in it, its owner neither (D83) -- and closing destroys
 nothing: `cmd.Resolver` refuses every call into a closed workspace, whoever
 makes it, with an `ErrorInfo` of reason `CLOSED` (`cmd.ErrorClosed`), and the
 page draws a notice that says to ask the operator. Restoring it and taking
-its data out are the operator's too (`loft tenant restore|export`): the policy
-table gives no role `TenantService.Close`, `Restore` or `Export`, which the
-entry point alone serves. Once
+its data out are the operator's too (`loft tenant restore|export`): no role
+Loft writes holds `TenantService.Close`, `Restore` or `Export`, so none at
+roster may be given them, and the entry point alone serves them. Once
 its restore window is over -- its own `restore_days` (D36), or
 `app.workspaces.restore_within` -- and nothing holds it, `server/closing`
 destroys it; its people and its address stay at roster, the tenant's (D85,
@@ -570,7 +584,8 @@ generated Erases a role is given are served in one (`domain.passing`).
 `date_readonly` (`BillingPayer`, `BillingDunning`) for when, to whoever reads
 who pays. **A new write RPC is refused by a read-only workspace until that
 table says why it is not, and a new read goes in it as `domain.Reads`**:
-`server/domain/readonly_test.go` walks `server/policy`'s table and fails a
+`server/domain/readonly_test.go` walks every method a role may be given
+(`policy.Named`) and fails a
 method that is neither in it nor served by this layer in a transaction of
 its own, read off the layer's source. The doors that are no RPC -- a
 file's download, signing in -- read or are a person's, and are not
@@ -666,9 +681,35 @@ told levyan is told nothing after: nothing of it is left to say so (D86).
 
 ## What may be called
 
-`server/policy` is one table of role → RPC, and what is not in it is refused --
-which is also what keeps callers off the history rows only the domain layer
-writes. A new RPC is closed until it is added there.
+What somebody may call is what the roles roster binds them hold (D89): Loft
+keeps no role. The gate asks roster's `reach` of every call
+(`policy.Policy`, `reach.Holders.May`), about the caller and never their
+role, so a tenant renames, splits and narrows its roles at roster without
+Loft noticing. The answer is kept for `standing.HeldTtl` and dropped as
+roster's sync stream speaks of the person (`Reach().Follower`, every
+process, an external roster only).
+
+`server/policy` is what the five roles Loft writes at roster start with
+(`policy.Roles`: `loft-owner`, `loft-admin`, `loft-manager`, `loft-member`,
+`loft-auditor`), written out a method a line in
+`server/policy/testdata/roles.txt` (`go test ./server/policy -update`, and
+read the diff). `loft init` writes them (`identity.Store.WriteRoles`; a role
+the tenant has already is the tenant's) and binds the first owner. A method
+no role starts with is refused before roster is asked -- which is also what
+keeps callers off the history rows only the domain layer writes, and off
+`closed` ones nobody has decided to give -- so **a new RPC is closed until a
+role in `policy.go` holds it**.
+
+What is finer than one method -- the same act over somebody else's -- is a
+method of `PermissionService` (`proto/loft/permission.proto`), which
+nothing serves: a role holds it as any other, and the domain asks
+(`Tx.may`, `mayTo`). Never ask which role somebody holds, nor compare a
+role's name: ask whether they may call the method that does it, and tell
+whoever may act on something by the method that acts (`Tx.notifyWhoMay`).
+The page draws its menus and buttons from `PartyService.Me`'s `methods` the
+same way (`useCatalog().may`). Somebody roster binds no role of Loft's --
+who may not call `PartyService.Me` -- is refused at sign-in
+(`tenancy.ErrNoRole`).
 
 ## The domain layer
 
@@ -740,7 +781,7 @@ words where they are kept, never by reading them; mail already sent stays
 said. A notice whose words are somebody's is of a kind in `ToldWhy`, and a
 row's field that keeps a reason is in `KeptWhy` and declared personal, or
 every domain test that writes one fails at its end. No role is given `EventService.Redact` yet (`closed` in
-`server/policy`: the owner decides who); the operator does it with `loft
+`server/policy`, so no role at roster opens it either: the owner decides who); the operator does it with `loft
 event redact`, on the workspace's word.
 
 **A write through ent is not on the trail**, and `loft trail rows` then finds

@@ -67,10 +67,10 @@ loft asset search -o wide '{"q": "노트북"}'
 Loft와 [roster](https://github.com/lesomnus/roster)를 따로 띄웁니다. 사람과 로그인, 사람을 넣고 빼는 화면은 roster의 것이고, Loft는 roster의 테넌트 하나를 워크스페이스로 섬깁니다.
 
 1. roster를 띄우고, 조직의 테넌트를 만듭니다(`roster tenant add @acme`).
-2. 그 테넌트에 Loft를 설치하고(`roster app install --tenant acme --role <Loft가 묻는 메서드> loft`), Loft의 키를 만듭니다(`roster key add --tenant acme --holder loft`, `rt_…`).
+2. 그 테넌트에 Loft를 설치하고(`roster app install --tenant acme --role <Loft가 묻는 메서드> --administer '/loft.*/*' loft`), Loft의 키를 만듭니다(`roster key add --tenant acme --holder loft`, `rt_…`). `--administer` 는 테넌트의 관리자가 Loft의 역할을 사람에게 묶을 수 있게 합니다.
 3. Loft의 설정에 roster의 주소와 그 키를 적습니다(`auth.roster.addr`, `auth.roster.key`).
-4. `loft init` 이 그 테넌트를 같은 ID로 워크스페이스로 세우고, roster가 테넌트를 만들 때 넣은 `admin`(또는 `--login` 의 사람)을 소유자로 둡니다.
-5. `loft serve`. 그 테넌트의 사람은 처음 로그인할 때 구성원이 됩니다.
+4. `loft init` 이 그 테넌트를 같은 ID로 워크스페이스로 세우고, Loft의 처음 역할 다섯(`loft-owner`, `loft-admin`, `loft-manager`, `loft-member`, `loft-auditor`)을 roster에 쓰고, roster가 테넌트를 만들 때 넣은 `admin`(또는 `--login` 의 사람)에게 `loft-owner` 를 묶습니다.
+5. `loft serve`. 테넌트의 관리자가 roster에서 Loft의 역할을 묶은 사람은 처음 로그인할 때 구성원이 됩니다. 누가 무엇을 할 수 있는지는 그 역할이 정하고, 역할은 roster에서 고칩니다.
 
 명령과 메서드 목록은 [사람과 로그인](docs/dev/identity.md#roster를-따로-운영할-때), 배포 구성은 아래의 운영 문서에 있습니다.
 

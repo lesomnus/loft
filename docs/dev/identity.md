@@ -28,8 +28,8 @@ self-hosted의 순서입니다. roster 운영자가 테넌트를 만들고, Loft
 ```sh
 # roster 운영자
 roster --as <운영자> tenant add @acme '{"name": "ACME"}'
-roster app install --tenant acme --role /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch loft
-roster key add --tenant acme --holder loft --name loft --allow <위의 --role과 같은 목록>   # rt_… 출력
+roster app install --tenant acme --role '/roster.VouchService/Verify,/roster.HolderService/Get,/roster.HolderService/Reaches,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen,/roster.BindingService/Add,/loft.*/*' --administer '/loft.*/*' loft
+roster key add --tenant acme --holder loft --name loft --allow '<위의 --role과 같은 목록>'   # rt_… 출력
 
 # Loft: 그 키로 붙고, 그 테넌트를 워크스페이스로 세운다
 LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rt_… loft init
@@ -37,7 +37,8 @@ LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY
 ```
 
 - 키는 그 테넌트의 키(`rt_…`)입니다(roster `docs/apps.md` 의 C 모양). 키 하나가 테넌트 하나에만 닿습니다. `auth.roster.tenant` 는 비워 두면 키의 테넌트이고, 적으면 그것과 맞아야 합니다.
-- `loft init` 은 그 테넌트를 같은 ID와 주소로 워크스페이스로 세우고, `--login` 의 사람(기본은 roster가 테넌트를 만들 때 넣는 `admin`)을 소유자로 둡니다. 그 사람은 테넌트의 관리자가 roster에서 미리 비밀번호나 로그인 방법을 줍니다. `--password` 와 `--demo` 는 받지 않습니다.
+- `--administer '/loft.*/*'` 는 테넌트의 관리자에게 Loft의 메서드를 남에게 줄 수 있게 합니다. 없으면 테넌트의 관리자가 Loft의 역할을 아무에게도 묶지 못합니다(roster의 권한 상승 규칙: 가진 것만 남에게 줍니다).
+- `loft init` 은 그 테넌트를 같은 ID와 주소로 워크스페이스로 세우고, Loft의 처음 역할 다섯을 roster에 쓰고(아래 *Loft의 역할*), `--login` 의 사람(기본은 roster가 테넌트를 만들 때 넣는 `admin`)에게 `loft-owner` 를 묶어 소유자로 둡니다. 그 사람은 테넌트의 관리자가 roster에서 미리 비밀번호나 로그인 방법을 줍니다. `--password` 와 `--demo` 는 받지 않습니다.
 - 이때 `loft holder add|password` 는 거부되고, 사람을 넣고 빼는 일과 비밀번호는 roster의 화면에서 합니다(아래 *roster의 화면*).
 - 내장 roster에서 옮기는 순서와 Kubernetes에서 키를 붙이는 곳은 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
 - roster의 박스에서 `tenant`, `role` 같은 명령을 할 때는 그 명령을 하는 운영자를 `--as <운영자>` 로 밝힙니다(control plane이 있는 roster, roster#221). roster의 접속기록이 그 사람을 남기고, 밝히지 않으면 거부됩니다. `app install` 과 `key add` 에는 필요 없습니다.
@@ -47,8 +48,11 @@ LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY
 위 `--role` 의 목록이 Loft가 roster에 묻는 메서드 전부입니다(`identity.AgentMethods`).
 
 - `VouchService/Verify`: 비밀번호 로그인. `HolderService/Get`, `TenantService/Get`, `MeService/Get`: 사람과 테넌트, 키가 누구의 것인지를 읽습니다.
+- `HolderService/Reaches`: 부르는 사람이 무엇을 부를 수 있는지 묻습니다(D89, roster의 `reach`). 이것이 없으면 아무 요청도 받지 못합니다.
+- `RoleService/Add`·`Get`, `BindingService/Add`: `loft init` 이 처음 역할을 쓰고 첫 소유자에게 묶습니다. `RoleService/Widen` 은 다음 판이 처음 역할에 더한 메서드를 이미 쓴 역할에 더하는 데 씁니다.
+- `/loft.*/*`: Loft가 쓰는 역할이 담는 메서드입니다. 역할과 바인딩은 자기가 가진 것만 남에게 줄 수 있어서 Loft의 역할도 갖습니다. Loft는 자기로서 불리는 일이 없으므로 이것으로 할 수 있게 되는 것은 없습니다.
 - `EmailService` 의 두 권한은 roster가 확인한 주소를 읽습니다. 처음 로그인한 사람의 사람 기록을 그 주소로 찾습니다.
-- `SyncService/Watch` 는 roster의 동기화 스트림입니다. roster가 사람을 중지·삭제하거나 모든 곳에서 로그아웃시키면 Loft가 그 자리에서 세션을 끝내고, 삭제된 사람을 떠나는 중으로 표시합니다. roster가 테넌트를 닫으면(`roster tenant close`, roster#105) 모든 사람의 세션이 끝나고, 닫혀 있는 동안은 아무도 로그인하지 못합니다. 아무것도 지우지 않으므로 테넌트를 복구하면 다시 로그인할 수 있습니다.
+- `SyncService/Watch` 는 roster의 동기화 스트림입니다. roster가 사람을 중지·삭제하거나 모든 곳에서 로그아웃시키면 Loft가 그 자리에서 세션을 끝내고, 삭제된 사람을 떠나는 중으로 표시합니다. 사람에게 묶은 역할이나 그 역할의 메서드가 바뀌면 Loft가 그 사람에 대해 기억한 답을 버리고 다음 요청에서 다시 묻습니다(모든 프로세스가 따릅니다). roster가 테넌트를 닫으면(`roster tenant close`, roster#105) 모든 사람의 세션이 끝나고, 닫혀 있는 동안은 아무도 로그인하지 못합니다. 아무것도 지우지 않으므로 테넌트를 복구하면 다시 로그인할 수 있습니다.
 
 ### 계정 페이지
 
@@ -58,7 +62,24 @@ LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY
 
 `auth.roster.console_url` 에 그 테넌트의 사람이 여는 roster의 화면(user console, roster `docs/operating.md` 의 *The user console*)을 주면, Loft의 사람 화면 위의 안내 "구성원과 로그인은 roster에서 관리합니다"에 그리로 가는 링크가 생깁니다. 테넌트의 관리자가 거기서 사람을 넣고 빼고 로그인 방법을 줍니다(D87). 비워 두면 안내만 보입니다. 내장 roster에는 그 화면이 없으므로, 내장 roster에 이것을 적으면 시작하지 않습니다(`account_url` 도 같습니다).
 
-### 역할 바꾸기 (`roster role patch`)
+### Loft의 역할
+
+누가 무엇을 할 수 있는지는 roster의 역할입니다(D89). `loft init` 이 테넌트에 처음 역할 다섯을 쓰고, 그 뒤로는 테넌트의 것입니다. 이미 같은 별칭의 역할이 있으면 그대로 둡니다.
+
+| 별칭 | 이름 |
+| --- | --- |
+| `loft-owner` | Loft 소유자 |
+| `loft-admin` | Loft 관리자 |
+| `loft-manager` | Loft 매니저 |
+| `loft-member` | Loft 구성원 |
+| `loft-auditor` | Loft 감사자 |
+
+- 처음 담는 메서드는 `server/policy/policy.go`(`policy.Roles`)이고, 메서드마다 어느 역할이 갖는지는 `server/policy/testdata/roles.txt` 에 있습니다. 메서드보다 잘게 나눈 권한은 `/loft.PermissionService/…` 이고([관리자·소유자 안내서의 역할](../guide/admin.md#역할)), 역할에 다른 메서드처럼 담깁니다.
+- 테넌트의 관리자가 roster의 화면에서 사람에게 묶고 풉니다. 이름을 바꾸고, 메서드를 빼고 더하고, 새 역할을 만들어도 Loft는 그 역할이 담은 메서드대로 따릅니다. 처음 역할 어디에도 없는 메서드는 담아도 거부됩니다(`policy.Grantable`).
+- Loft의 역할이 하나도 묶이지 않은 사람은 로그인이 거절되고(`POST /session` 의 403 `no role of loft's at roster`), 화면은 roster에서 역할을 받으라고 말합니다.
+- 내장 roster도 같습니다. `loft init` 이 같은 다섯을 쓰고, `init --demo` 와 `loft holder add --role` 이 사람에게 묶습니다.
+
+### Loft 자신의 역할 바꾸기 (`roster role patch`)
 
 `app install` 을 다시 실행해도 이미 있는 역할은 그대로 두므로(roster `docs/apps.md`), 역할은 roster 운영자가 `roster role patch` 로 바꿉니다. 목록을 통째로 바꾸므로 위의 메서드 전체를 줍니다.
 
@@ -66,15 +87,17 @@ LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY
 
 ```sh
 # roster app install로 설치한 배포 (위의 예: 테넌트 acme)
-roster --as <운영자> role patch @acme/loft-app '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch"], "date_updated_force": true}'
+roster --as <운영자> role patch @acme/loft-app '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.HolderService/Reaches", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch", "/roster.RoleService/Add", "/roster.RoleService/Get", "/roster.RoleService/Widen", "/roster.BindingService/Add", "/loft.*/*"], "date_updated_force": true}'
 # 내장 roster에서 옮긴 배포 (테넌트 loft)
-roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch"], "date_updated_force": true}'
+roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.HolderService/Reaches", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch", "/roster.RoleService/Add", "/roster.RoleService/Get", "/roster.RoleService/Widen", "/roster.BindingService/Add", "/loft.*/*"], "date_updated_force": true}'
 ```
 
 역할에 이 메서드가 없으면 이렇습니다.
 
+- `HolderService/Reaches` 가 없으면 아무 요청도 받지 못합니다(`Unavailable`).
+- `RoleService`·`BindingService` 의 것이나 `/loft.*/*` 가 없으면 `loft init` 이 역할을 쓰지 못해 실패합니다.
 - 처음 로그인한 사람의 사람 기록을 roster가 확인한 주소로 찾지 못하고 새로 만듭니다.
-- 세션은 다음 호출에서(30초 안에) 끝나며, 삭제된 사람은 떠나는 중으로 표시되지 않습니다.
+- 세션은 다음 호출에서(30초 안에) 끝나며, 삭제된 사람은 떠나는 중으로 표시되지 않습니다. roster에서 바꾼 역할도 30초 안에야 따릅니다.
 
 스트림을 거부당한 Loft는 서버 로그에 오류를 한 번 남기고 10분마다 다시 청하므로, 역할을 고친 뒤 다시 시작하지 않아도 됩니다. 키가 허용한 메서드에도 들어 있어야 하므로 키를 새로 만듭니다.
 
