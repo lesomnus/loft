@@ -199,4 +199,12 @@ message Tenant {
   google.protobuf.Timestamp date_keep_shortened = 22 [(orm.field) = {nullable: true}];
   uint32 access_keep_days_before = 23 [(orm.field) = {default: ""}];
   google.protobuf.Timestamp date_access_keep_shortened = 24 [(orm.field) = {nullable: true}];
+  // RolesRelease is how many of the releases of the roles Loft ships
+  // (`policy.Releases`) the tenant's roles at roster have been given (D90):
+  // `loft init` writes the roles as the last one has them and records it,
+  // and each release after it gives them what it added
+  // (`tenancy.Roles.Widen`, #327's decision 33) -- never what the roles hold
+  // by then, which would give back what the tenant took out of one. 0 is no
+  // record of giving them anything, which is taken as given what there is.
+  uint32 roles_release = 25 [(orm.field) = {default: ""}];
 }

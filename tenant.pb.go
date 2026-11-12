@@ -58,6 +58,7 @@ type Tenant struct {
 	xxx_hidden_DateKeepShortened       *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_keep_shortened,json=dateKeepShortened"`
 	xxx_hidden_AccessKeepDaysBefore    uint32                 `protobuf:"varint,23,opt,name=access_keep_days_before,json=accessKeepDaysBefore"`
 	xxx_hidden_DateAccessKeepShortened *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_access_keep_shortened,json=dateAccessKeepShortened"`
+	xxx_hidden_RolesRelease            uint32                 `protobuf:"varint,25,opt,name=roles_release,json=rolesRelease"`
 	unknownFields                      protoimpl.UnknownFields
 	sizeCache                          protoimpl.SizeCache
 }
@@ -234,6 +235,13 @@ func (x *Tenant) GetDateAccessKeepShortened() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Tenant) GetRolesRelease() uint32 {
+	if x != nil {
+		return x.xxx_hidden_RolesRelease
+	}
+	return 0
+}
+
 func (x *Tenant) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -319,6 +327,10 @@ func (x *Tenant) SetAccessKeepDaysBefore(v uint32) {
 
 func (x *Tenant) SetDateAccessKeepShortened(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateAccessKeepShortened = v
+}
+
+func (x *Tenant) SetRolesRelease(v uint32) {
+	x.xxx_hidden_RolesRelease = v
 }
 
 func (x *Tenant) HasDateUpdated() bool {
@@ -478,6 +490,14 @@ type Tenant_builder struct {
 	DateKeepShortened       *timestamppb.Timestamp
 	AccessKeepDaysBefore    uint32
 	DateAccessKeepShortened *timestamppb.Timestamp
+	// RolesRelease is how many of the releases of the roles Loft ships
+	// (`policy.Releases`) the tenant's roles at roster have been given (D90):
+	// `loft init` writes the roles as the last one has them and records it,
+	// and each release after it gives them what it added
+	// (`tenancy.Roles.Widen`, #327's decision 33) -- never what the roles hold
+	// by then, which would give back what the tenant took out of one. 0 is no
+	// record of giving them anything, which is taken as given what there is.
+	RolesRelease uint32
 }
 
 func (b0 Tenant_builder) Build() *Tenant {
@@ -505,6 +525,7 @@ func (b0 Tenant_builder) Build() *Tenant {
 	x.xxx_hidden_DateKeepShortened = b.DateKeepShortened
 	x.xxx_hidden_AccessKeepDaysBefore = b.AccessKeepDaysBefore
 	x.xxx_hidden_DateAccessKeepShortened = b.DateAccessKeepShortened
+	x.xxx_hidden_RolesRelease = b.RolesRelease
 	return m0
 }
 
@@ -512,7 +533,8 @@ var File_loft_payday_tenant_proto protoreflect.FileDescriptor
 
 const file_loft_payday_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x18loft/payday/tenant.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xf9\t\n" +
+	"\x18loft/payday/tenant.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xa7\n" +
+	"\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\"\n" +
 	"\x05alias\x18\x04 \x01(\tB\f\xea\x82\x16\x020\x01\xaa\xc1\x16\x02\x18\x00R\x05alias\x12\x1a\n" +
@@ -536,7 +558,8 @@ const file_loft_payday_tenant_proto_rawDesc = "" +
 	"\x10keep_days_before\x18\x15 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\x0ekeepDaysBefore\x12R\n" +
 	"\x13date_keep_shortened\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x11dateKeepShortened\x12>\n" +
 	"\x17access_keep_days_before\x18\x17 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\x14accessKeepDaysBefore\x12_\n" +
-	"\x1adate_access_keep_shortened\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x17dateAccessKeepShortened\x1a9\n" +
+	"\x1adate_access_keep_shortened\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x17dateAccessKeepShortened\x12,\n" +
+	"\rroles_release\x18\x19 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\frolesRelease\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:_\xca\xfc\x15&\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +

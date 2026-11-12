@@ -27,6 +27,7 @@ import (
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/entitle"
+	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/grpcx"
 	"github.com/lesomnus/payday/meter"
@@ -135,6 +136,11 @@ type Server struct {
 	// Members is how somebody roster vouched for comes to be a member here:
 	// the first time they sign in (`tenancy.Members`, D85).
 	Members tenancy.Members
+
+	// Roles brings the roles Loft ships, as the tenant at roster has them, to
+	// this release's: what each release since the one they were last given
+	// added (`tenancy.Roles`, D90).
+	Roles tenancy.Roles
 
 	// Closing is what becomes of a closed workspace and of a workspace's
 	// address (D29, `server/closing`).
@@ -404,6 +410,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// Who somebody roster vouched for is here: a member, made the first time
 	// they sign in (D85), and taken up again by one ended here (D88).
 	s.Members = tenancy.Members{Base: base, Drv: drv, People: people, Audit: content}
+	s.Roles = tenancy.Roles{Base: base, People: people}
 
 	// Who is calling is a session cookie, held on every call to what roster
 	// says of its person, and what they may call is what roster says of them
@@ -496,6 +503,12 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	}
 	// And the members still erased once roster's grace is over, leaving.
 	s.Spin = append(s.Spin, spinEvery("loft.departures", c.App.Members.Interval(), s.Lifecycle.Sweep))
+	// And the workspace's roles at roster given what each release since the
+	// one they last had added (D90): as the deployment starts, so that what
+	// this release brings is somebody's at once, and every hour after, for a
+	// roster that could not be asked then. One process's, under the lease; a
+	// pass with nothing to give asks roster nothing.
+	s.Spin = append(s.Spin, spinEvery("loft.roles", time.Hour, s.WidenRoles))
 	// And every member asked about again, for an erasure the stream did not
 	// carry because this was not listening (design 9.10).
 	if d := c.App.Members.ReconcileEvery(); d > 0 {
@@ -671,6 +684,35 @@ func (s *Server) Follow(ctx context.Context) (string, error) {
 		return "", err
 	}
 	return tenancy.Follow(ctx, s.Base, t)
+}
+
+// WidenRoles gives the roles of the workspace this deployment serves what each
+// release since the one they last had added (`tenancy.Roles.Widen`, D90), as
+// the deployment's own work in it, and says what it gave. A deployment with no
+// workspace yet, or before roster has its tenant, is nothing to do.
+func (s *Server) WidenRoles(ctx context.Context) error {
+	t, err := s.Identity.Tenant(ctx)
+	if errors.Is(err, identity.ErrNoTenant) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	as := frame.Into(ctx, frame.New(pdid.Nil, t.Id, frame.Whole()).WithScope(frame.Only(t.Id)))
+	v, err := s.Roles.Widen(as, t.Id, 0, false)
+	if err != nil {
+		return fmt.Errorf("roles: %w", err)
+	}
+	for _, r := range v.Roles {
+		if r.Missing {
+			log.From(ctx).WarnContext(ctx, "roles: the tenant has no role by this alias at roster, so it was given nothing of what a release added",
+				slog.String("role", r.Role), slog.Int("methods", len(r.Methods)))
+			continue
+		}
+		log.From(ctx).InfoContext(ctx, "roles: given what a release added", slog.String("role", r.Role), slog.Int("methods", len(r.Methods)),
+			slog.Uint64("from", uint64(v.From)), slog.Uint64("to", uint64(v.To)))
+	}
+	return nil
 }
 
 // Offboard is what a tenant's export and purge work on.

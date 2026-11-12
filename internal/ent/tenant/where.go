@@ -150,6 +150,11 @@ func DateAccessKeepShortened(v time.Time) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEQ(FieldDateAccessKeepShortened, v))
 }
 
+// RolesRelease applies equality check predicate on the "roles_release" field. It's identical to RolesReleaseEQ.
+func RolesRelease(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldRolesRelease, v))
+}
+
 // AliasEQ applies the EQ predicate on the "alias" field.
 func AliasEQ(v string) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEQ(FieldAlias, v))
@@ -1223,6 +1228,56 @@ func DateAccessKeepShortenedIsNil() predicate.Tenant {
 // DateAccessKeepShortenedNotNil applies the NotNil predicate on the "date_access_keep_shortened" field.
 func DateAccessKeepShortenedNotNil() predicate.Tenant {
 	return predicate.Tenant(sql.FieldNotNull(FieldDateAccessKeepShortened))
+}
+
+// RolesReleaseEQ applies the EQ predicate on the "roles_release" field.
+func RolesReleaseEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldRolesRelease, v))
+}
+
+// RolesReleaseNEQ applies the NEQ predicate on the "roles_release" field.
+func RolesReleaseNEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldRolesRelease, v))
+}
+
+// RolesReleaseIn applies the In predicate on the "roles_release" field.
+func RolesReleaseIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldRolesRelease, vs...))
+}
+
+// RolesReleaseNotIn applies the NotIn predicate on the "roles_release" field.
+func RolesReleaseNotIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldRolesRelease, vs...))
+}
+
+// RolesReleaseGT applies the GT predicate on the "roles_release" field.
+func RolesReleaseGT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldRolesRelease, v))
+}
+
+// RolesReleaseGTE applies the GTE predicate on the "roles_release" field.
+func RolesReleaseGTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldRolesRelease, v))
+}
+
+// RolesReleaseLT applies the LT predicate on the "roles_release" field.
+func RolesReleaseLT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldRolesRelease, v))
+}
+
+// RolesReleaseLTE applies the LTE predicate on the "roles_release" field.
+func RolesReleaseLTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldRolesRelease, v))
+}
+
+// RolesReleaseIsNil applies the IsNil predicate on the "roles_release" field.
+func RolesReleaseIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldRolesRelease))
+}
+
+// RolesReleaseNotNil applies the NotNil predicate on the "roles_release" field.
+func RolesReleaseNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldRolesRelease))
 }
 
 // And groups predicates with the AND operator between them.

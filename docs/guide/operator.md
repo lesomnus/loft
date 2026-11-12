@@ -61,6 +61,7 @@ loft config env --set # 설정이 읽는 환경변수 가운데 정해진 것
 
 - **내장 roster**(`auth.roster.addr` 를 비우면): Loft 프로세스 안에서 함께 뜨고, DB는 Loft의 것 옆에 하나 더 있습니다. 시험과 써 보기용이라, 운영처럼 보이는 배포(PostgreSQL이거나 `app.public_url` 이 이 기계가 아님)에서는 `serve` 가 시작할 때 경고합니다. 사람을 넣고 빼는 roster의 화면이 없습니다.
 - **roster를 곁에 둔 배포**(self-hosted, D91): 사람이 쓰는 배포는 roster를 따로 띄웁니다. 사람을 넣고 빼는 화면(user console)이 roster에 있고, 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다. 그 화면의 주소를 `auth.roster.console_url` 에 주면 Loft의 사람 화면이 그리로 가는 링크를 보입니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
+- **Loft의 역할 넓히기**: 새 판이 Loft의 처음 역할(`loft-owner` 등)에 더한 메서드는 `serve` 가 시작할 때 그 더한 것만 테넌트의 역할에 더합니다(D90). 테넌트가 뺀 것은 되살리지 않고, 지운 역할은 건너뜁니다. 지금 하거나 무엇을 더할지 보려면 `loft role widen`(`--yes` 로 함), 이 배포가 적기 전부터 테넌트에 있던 역할이면 `--from <판>` 을 씁니다.
 - **Loft 자신의 역할 바꾸기**: 외부 roster에서 Loft가 roster에 묻는 역할(`loft-app`)은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#loft-자신의-역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다. 사람의 역할(`loft-owner` 등)은 테넌트의 관리자가 roster에서 묶고 고칩니다([관리자·소유자 안내서의 역할](admin.md#역할)).
 - **SSO**: roster의 issuer로 로그인하게 하는 설정과 roster 쪽에 필요한 것은 [SSO](../dev/identity.md#sso)에 있습니다.
 

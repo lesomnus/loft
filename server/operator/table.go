@@ -102,6 +102,10 @@ var Table = map[string]Kind{
 	app.OperatorHolderService_Add_FullMethodName:         Write,
 	app.OperatorHolderService_Password_FullMethodName:    Write,
 
+	// The roles Loft ships, given at roster what each release since the
+	// tenant's last added (D90).
+	app.OperatorRoleService_Widen_FullMethodName: Write,
+
 	// An event's reason taken out, on the word of the workspace it is of,
 	// for a person whose request to erase what it says of them points at it
 	// (payday#151) -- which no role of a workspace is given yet -- and what

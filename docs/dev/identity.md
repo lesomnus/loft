@@ -89,6 +89,7 @@ loft serve
 - 테넌트의 관리자가 roster의 화면에서 사람에게 묶고 풉니다. 이름을 바꾸고, 메서드를 빼고 더하고, 새 역할을 만들어도 Loft는 그 역할이 담은 메서드대로 따릅니다. 처음 역할 어디에도 없는 메서드는 담아도 거부됩니다(`policy.Grantable`).
 - Loft의 역할이 하나도 묶이지 않은 사람은 로그인이 거절되고(`POST /session` 의 403 `no role of loft's at roster`), 화면은 roster에서 역할을 받으라고 말합니다.
 - 내장 roster도 같습니다. `loft init` 이 같은 다섯을 쓰고, `init --demo` 와 `loft holder add --role` 이 사람에게 묶습니다.
+- **새 판이 처음 역할에 더한 것**은 그 더한 것만 테넌트의 역할에 더합니다(D90). 워크스페이스는 자기 역할이 몇 번째 판까지 받았는지 두고(`init` 이 적음), `serve` 가 시작할 때와 한 시간마다 받지 않은 판들이 더한 것을 `RoleService/Widen` 으로 더합니다. 지금 역할이 담은 것 전부로 넓히지 않으므로 테넌트가 뺀 메서드는 되살아나지 않습니다. 테넌트가 지운 역할은 건너뜁니다. 운영자는 `loft role widen` 으로 무엇을 더할지 보고, `--yes` 로 지금 합니다.
 
 ### Loft 자신의 역할 바꾸기 (`roster role patch`)
 

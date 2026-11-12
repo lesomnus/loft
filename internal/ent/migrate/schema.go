@@ -1860,6 +1860,7 @@ var (
 		{Name: "date_keep_shortened", Type: field.TypeTime, Nullable: true},
 		{Name: "access_keep_days_before", Type: field.TypeUint32, Nullable: true, Default: 0},
 		{Name: "date_access_keep_shortened", Type: field.TypeTime, Nullable: true},
+		{Name: "roles_release", Type: field.TypeUint32, Nullable: true, Default: 0},
 	}
 	// TenantTable holds the schema information for the "tenant" table.
 	TenantTable = &schema.Table{

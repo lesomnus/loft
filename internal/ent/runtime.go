@@ -88,6 +88,10 @@ func init() {
 	tenantDescAccessKeepDaysBefore := tenantFields[19].Descriptor()
 	// tenant.DefaultAccessKeepDaysBefore holds the default value on creation for the access_keep_days_before field.
 	tenant.DefaultAccessKeepDaysBefore = tenantDescAccessKeepDaysBefore.Default.(uint32)
+	// tenantDescRolesRelease is the schema descriptor for roles_release field.
+	tenantDescRolesRelease := tenantFields[21].Descriptor()
+	// tenant.DefaultRolesRelease holds the default value on creation for the roles_release field.
+	tenant.DefaultRolesRelease = tenantDescRolesRelease.Default.(uint32)
 	tenantcontractFields := schema.TenantContract{}.Fields()
 	_ = tenantcontractFields
 	// tenantcontractDescPurgeFloors is the schema descriptor for purge_floors field.

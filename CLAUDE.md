@@ -711,6 +711,21 @@ keeps callers off the history rows only the domain layer writes, and off
 `closed` ones nobody has decided to give -- so **a new RPC is closed until a
 role in `policy.go` holds it**.
 
+A tenant's roles were written by the release that ran `loft init`, and a role
+at roster is the tenant's from then: a method a later release gives a role
+reaches it only as that release's addition (D90, #327's decision 33). Every
+addition is a release in the ledger, `server/policy/releases/NNNN.txt`, which
+`go test ./server/policy -update` writes from what the roles hold and no
+release gave -- read it beside `roles.txt`, say in its first line what it is
+for, and **never edit one that shipped**: a tenant recorded at it has had it.
+The workspace records the release its roles have had (`Tenant.roles_release`),
+and `serve` gives them what each release since added, as it starts and every
+hour (`loft.roles`, `tenancy.Roles.Widen`), never what the roles hold by then
+-- that would give back what the tenant took out of one. `loft role widen` is
+the same, said first and asked for now. Nothing here takes a method from a
+role: a role holding less than its releases gave fails the test, and is a
+decision about the tenants' roles to make, not a line to write.
+
 What is finer than one method -- the same act over somebody else's -- is a
 method of `PermissionService` (`proto/loft/permission.proto`), which
 nothing serves: a role holds it as any other, and the domain asks

@@ -42,6 +42,8 @@ type Mutation struct {
 	access_keep_days_before    *uint32
 	addaccess_keep_days_before *int32
 	date_access_keep_shortened *time.Time
+	roles_release              *uint32
+	addroles_release           *int32
 	clearedFields              map[string]struct{}
 	exprs                      map[string]sql.Querier
 	predicates                 []predicate.Tenant
@@ -814,6 +816,63 @@ func (m *Mutation) ResetDateAccessKeepShortened() {
 	delete(m.exprs, FieldDateAccessKeepShortened)
 }
 
+// SetRolesRelease sets the "roles_release" field.
+func (m *Mutation) SetRolesRelease(u uint32) {
+	m.roles_release = &u
+	m.addroles_release = nil
+	delete(m.clearedFields, FieldRolesRelease)
+	delete(m.exprs, FieldRolesRelease)
+}
+
+// RolesRelease returns the value of the "roles_release" field in the mutation.
+func (m *Mutation) RolesRelease() (r uint32, exists bool) {
+	v := m.roles_release
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// AddRolesRelease adds u to the "roles_release" field.
+func (m *Mutation) AddRolesRelease(u int32) {
+	if m.addroles_release != nil {
+		*m.addroles_release += u
+	} else {
+		m.addroles_release = &u
+	}
+}
+
+// AddedRolesRelease returns the value that was added to the "roles_release" field in this mutation.
+func (m *Mutation) AddedRolesRelease() (r int32, exists bool) {
+	v := m.addroles_release
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearRolesRelease clears the value of the "roles_release" field.
+func (m *Mutation) ClearRolesRelease() {
+	m.roles_release = nil
+	m.addroles_release = nil
+	delete(m.exprs, FieldRolesRelease)
+	m.clearedFields[FieldRolesRelease] = struct{}{}
+}
+
+// RolesReleaseCleared returns if the "roles_release" field was cleared in this mutation.
+func (m *Mutation) RolesReleaseCleared() bool {
+	_, ok := m.clearedFields[FieldRolesRelease]
+	return ok
+}
+
+// ResetRolesRelease resets all changes to the "roles_release" field.
+func (m *Mutation) ResetRolesRelease() {
+	m.roles_release = nil
+	m.addroles_release = nil
+	delete(m.clearedFields, FieldRolesRelease)
+	delete(m.exprs, FieldRolesRelease)
+}
+
 // Where appends a list predicates to the Mutation builder.
 func (m *Mutation) Where(ps ...predicate.Tenant) {
 	m.predicates = append(m.predicates, ps...)
@@ -848,7 +907,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 20)
+	fields := make([]string, 0, 21)
 	if m.alias != nil || m.exprs[FieldAlias] != nil {
 		fields = append(fields, FieldAlias)
 	}
@@ -909,6 +968,9 @@ func (m *Mutation) Fields() []string {
 	if m.date_access_keep_shortened != nil || m.exprs[FieldDateAccessKeepShortened] != nil {
 		fields = append(fields, FieldDateAccessKeepShortened)
 	}
+	if m.roles_release != nil || m.exprs[FieldRolesRelease] != nil {
+		fields = append(fields, FieldRolesRelease)
+	}
 	return fields
 }
 
@@ -963,6 +1025,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.AccessKeepDaysBefore()
 	case FieldDateAccessKeepShortened:
 		return m.DateAccessKeepShortened()
+	case FieldRolesRelease:
+		return m.RolesRelease()
 	}
 	return nil, false
 }
@@ -1182,6 +1246,16 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateAccessKeepShortened(v)
 		return nil
+	case FieldRolesRelease:
+		v, ok := value.(uint32)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRolesRelease(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Tenant field %s", name)
 }
@@ -1244,6 +1318,8 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetAccessKeepDaysBefore()
 	case FieldDateAccessKeepShortened:
 		m.ResetDateAccessKeepShortened()
+	case FieldRolesRelease:
+		m.ResetRolesRelease()
 	default:
 		return fmt.Errorf("unknown Tenant field %s", name)
 	}
@@ -1322,6 +1398,9 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldDateAccessKeepShortened]; ok {
 		fields = append(fields, FieldDateAccessKeepShortened)
 	}
+	if _, ok := m.exprs[FieldRolesRelease]; ok {
+		fields = append(fields, FieldRolesRelease)
+	}
 	return fields
 }
 
@@ -1347,6 +1426,9 @@ func (m *Mutation) AddedFields() []string {
 	if m.addaccess_keep_days_before != nil {
 		fields = append(fields, FieldAccessKeepDaysBefore)
 	}
+	if m.addroles_release != nil {
+		fields = append(fields, FieldRolesRelease)
+	}
 	return fields
 }
 
@@ -1367,6 +1449,8 @@ func (m *Mutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedKeepDaysBefore()
 	case FieldAccessKeepDaysBefore:
 		return m.AddedAccessKeepDaysBefore()
+	case FieldRolesRelease:
+		return m.AddedRolesRelease()
 	}
 	return nil, false
 }
@@ -1418,6 +1502,13 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddAccessKeepDaysBefore(v)
 		return nil
+	case FieldRolesRelease:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRolesRelease(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Tenant numeric field %s", name)
 }
@@ -1467,6 +1558,9 @@ func (m *Mutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(FieldDateAccessKeepShortened) {
 		fields = append(fields, FieldDateAccessKeepShortened)
+	}
+	if m.FieldCleared(FieldRolesRelease) {
+		fields = append(fields, FieldRolesRelease)
 	}
 	return fields
 }
@@ -1523,6 +1617,9 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldDateAccessKeepShortened:
 		m.ClearDateAccessKeepShortened()
+		return nil
+	case FieldRolesRelease:
+		m.ClearRolesRelease()
 		return nil
 	}
 	return fmt.Errorf("unknown Tenant nullable field %s", name)
@@ -1591,6 +1688,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldDateAccessKeepShortened:
 		m.ResetDateAccessKeepShortened()
+		return nil
+	case FieldRolesRelease:
+		m.ResetRolesRelease()
 		return nil
 	}
 	return fmt.Errorf("unknown Tenant field %s", name)

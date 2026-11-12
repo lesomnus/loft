@@ -181,6 +181,11 @@ func (st TenantServiceServer) create(ctx context.Context, req *loft.TenantAddReq
 	if req.HasDateAccessKeepShortened() {
 		q.SetDateAccessKeepShortened(req.GetDateAccessKeepShortened().AsTime())
 	}
+	if req.HasRolesRelease() {
+		q.SetRolesRelease(req.GetRolesRelease())
+	} else {
+		q.SetRolesRelease(0)
+	}
 	return q, ds, nil
 }
 
@@ -368,6 +373,9 @@ func TenantSelectedFields(m *loft.TenantSelect) []string {
 	if m.GetDateAccessKeepShortened() {
 		vs = append(vs, tenant.FieldDateAccessKeepShortened)
 	}
+	if m.GetRolesRelease() {
+		vs = append(vs, tenant.FieldRolesRelease)
+	}
 
 	return vs
 }
@@ -432,7 +440,7 @@ func TenantGetKey(ctx context.Context, db *ent.Client, ref *loft.TenantRef) (uui
 var tenantOrmEntity = ormpatch.MustEntityOf(loft.File_loft_payday_tenant_proto, "Tenant")
 
 var tenantPatchColumns = entpatch.Columns{
-	1: tenant.FieldId, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated, 8: tenant.FieldDateClosed, 9: tenant.FieldClosedBy, 10: tenant.FieldCloseReason, 11: tenant.FieldDateDestroy, 12: tenant.FieldTimezone, 16: tenant.FieldCurrency, 17: tenant.FieldNoShowMinutes, 18: tenant.FieldKeepDays, 19: tenant.FieldAccessKeepDays, 20: tenant.FieldRestoreDays, 21: tenant.FieldKeepDaysBefore, 22: tenant.FieldDateKeepShortened, 23: tenant.FieldAccessKeepDaysBefore, 24: tenant.FieldDateAccessKeepShortened}
+	1: tenant.FieldId, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated, 8: tenant.FieldDateClosed, 9: tenant.FieldClosedBy, 10: tenant.FieldCloseReason, 11: tenant.FieldDateDestroy, 12: tenant.FieldTimezone, 16: tenant.FieldCurrency, 17: tenant.FieldNoShowMinutes, 18: tenant.FieldKeepDays, 19: tenant.FieldAccessKeepDays, 20: tenant.FieldRestoreDays, 21: tenant.FieldKeepDaysBefore, 22: tenant.FieldDateKeepShortened, 23: tenant.FieldAccessKeepDaysBefore, 24: tenant.FieldDateAccessKeepShortened, 25: tenant.FieldRolesRelease}
 
 func (s TenantServiceServer) Apply(ctx context.Context, req *loft.TenantApplyRequest) (*loft.Tenant, error) {
 	if !req.HasPatch() {

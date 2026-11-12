@@ -26677,6 +26677,7 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard resource.Guard) r
 				{Number: 22, Name: entTenant.FieldDateKeepShortened, Type: 65, Nullable: true, Key: 0},
 				{Number: 23, Name: entTenant.FieldAccessKeepDaysBefore, Type: 13, Nullable: false, Key: 0},
 				{Number: 24, Name: entTenant.FieldDateAccessKeepShortened, Type: 65, Nullable: true, Key: 0},
+				{Number: 25, Name: entTenant.FieldRolesRelease, Type: 13, Nullable: false, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err

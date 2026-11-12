@@ -51,6 +51,8 @@ const (
 	FieldAccessKeepDaysBefore = "access_keep_days_before"
 	// FieldDateAccessKeepShortened holds the string denoting the date_access_keep_shortened field in the database.
 	FieldDateAccessKeepShortened = "date_access_keep_shortened"
+	// FieldRolesRelease holds the string denoting the roles_release field in the database.
+	FieldRolesRelease = "roles_release"
 	// Table holds the table name of the tenant in the database.
 	Table = "tenant"
 )
@@ -78,6 +80,7 @@ var Columns = []string{
 	FieldDateKeepShortened,
 	FieldAccessKeepDaysBefore,
 	FieldDateAccessKeepShortened,
+	FieldRolesRelease,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -107,6 +110,8 @@ var (
 	DefaultKeepDaysBefore uint32
 	// DefaultAccessKeepDaysBefore holds the default value on creation for the "access_keep_days_before" field.
 	DefaultAccessKeepDaysBefore uint32
+	// DefaultRolesRelease holds the default value on creation for the "roles_release" field.
+	DefaultRolesRelease uint32
 )
 
 // OrderOption defines the ordering options for the Tenant queries.
@@ -210,4 +215,9 @@ func ByAccessKeepDaysBefore(opts ...sql.OrderTermOption) OrderOption {
 // ByDateAccessKeepShortened orders the results by the date_access_keep_shortened field.
 func ByDateAccessKeepShortened(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateAccessKeepShortened, opts...).ToFunc()
+}
+
+// ByRolesRelease orders the results by the roles_release field.
+func ByRolesRelease(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRolesRelease, opts...).ToFunc()
 }

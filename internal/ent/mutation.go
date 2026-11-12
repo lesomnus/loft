@@ -13383,6 +13383,23 @@ func (m *TenantMutation) OldDateAccessKeepShortened(ctx context.Context) (v *tim
 	return oldValue.DateAccessKeepShortened, nil
 }
 
+// OldRolesRelease returns the old "roles_release" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantMutation) OldRolesRelease(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldRolesRelease is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldRolesRelease requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRolesRelease: %w", err)
+	}
+	return oldValue.RolesRelease, nil
+}
+
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
@@ -13428,6 +13445,8 @@ func (m *TenantMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldAccessKeepDaysBefore(ctx)
 	case tenant.FieldDateAccessKeepShortened:
 		return m.OldDateAccessKeepShortened(ctx)
+	case tenant.FieldRolesRelease:
+		return m.OldRolesRelease(ctx)
 	}
 	return nil, fmt.Errorf("unknown Tenant field %s", name)
 }
