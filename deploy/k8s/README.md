@@ -16,7 +16,6 @@ resources:
 | `loft` Deployment | 파드 하나에 컨테이너 셋: `migrate`(init 컨테이너, `loft migrate`), `loft`(`loft serve`, 8080), `loft-admin`(운영자 진입점, 8081) |
 | PVC 셋 | `loft-files`(첨부), `loft-audit`(감사 기록 보관소), `loft-checkpoints`(그 체크포인트). 모두 ReadWriteOnce |
 | 컴포넌트 `witness/` (선택) | 감사 기록의 증인 저장소(`store:`)를 위한 PVC `loft-witness`와 그 마운트. base에는 넣지 않습니다(아래 6) |
-| 컴포넌트 `domains/` (선택) | 워크스페이스 도메인의 프런트: 인증서를 요청 시점에 받는 Caddy(`loft-edge`)와 그 PVC·LoadBalancer, 운영자 진입점의 물음 포트(`loft-ask`). 아래 11 |
 | `loft` Service | 8080 하나. 인그레스가 이리로 보냅니다. 운영자 진입점에는 Service가 없습니다 |
 | NetworkPolicy `loft` | 네트워크로는 8080만 받습니다. gRPC(50051)와 운영자 진입점(8081)에는 아무것도 닿지 않습니다 |
 | ConfigMap `loft` | `config.yaml`, 모든 프로세스가 `--config`로 읽는 파일 |
@@ -42,15 +41,15 @@ resources:
    | Secret | 키 | 내용 | 만드는 법 |
    | --- | --- | --- | --- |
    | `loft` | `db-dsn` | Loft의 DB 주소. 예: `postgres://loft:…@db:5432/loft?sslmode=require` | |
-   | | `roster-db-dsn` | 내장 roster의 DB 주소. Loft와 다른 데이터베이스입니다. 외부 roster면 두지 않습니다(아래 13) | |
+   | | `roster-db-dsn` | 내장 roster의 DB 주소. Loft와 다른 데이터베이스입니다. 외부 roster면 두지 않습니다(아래 12) | |
    | | `signing-key` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키([세션의 키](../../docs/dev/security.md#세션의-키)). 모든 프로세스가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `loft-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
    | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `loft trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다. init 컨테이너 `migrate`는 이 Secret을 받지 않습니다 | `openssl rand -base64 32` |
    | `loft-admin` | 운영자 이름마다 파일 하나(`operator`) | 운영자 키, 32자 이상. 운영자를 더하면 `admin.keys`에도 이름을 더합니다 | `openssl rand -hex 32` |
    | `loft-search` | `password`, `ca.pem` | 검색 클러스터의 Loft 사용자 비밀번호와 그 클러스터의 CA. 검색을 켤 때만 둡니다(아래 9) | |
-   | `loft-levyan-key` | `key` | levyan이 이 배포에 발급한 제품 키(`lvk_…`, `levyan-admin key issue`). 과금을 켤 때만 둡니다(아래 12) | |
-   | `loft-roster-key` | `key` | Loft가 외부 roster를 부르는 키(`rk_…`나 `rt_…`). roster 운영자가 만듭니다. 외부 roster일 때만 둡니다(아래 13) | |
+   | `loft-levyan-key` | `key` | levyan이 이 배포에 발급한 제품 키(`lvk_…`, `levyan-admin key issue`). 과금을 켤 때만 둡니다(아래 11) | |
+   | `loft-roster-key` | `key` | Loft가 외부 roster를 부르는 키(`rk_…`나 `rt_…`). roster 운영자가 만듭니다. 외부 roster일 때만 둡니다(아래 12) | |
 
 3. **설정.** base의 `config.yaml`을 복사해 채우고 바꿔 끼웁니다.
 
@@ -90,7 +89,7 @@ resources:
 
      `loft-witness`는 보관소와 다른 스토리지에, DB·보관소와 다른 권한으로 둡니다. 삭제를 거부하는 클래스면 더 좋습니다. 보관소와 같은 디스크의 증인은 증인이 아닙니다. 둘 다에 손댈 수 있는 사람은 둘에서 함께 지웁니다.
 7. **이미지.** 태그가 아니라 digest로 고정합니다: `images: [{name: ghcr.io/lesomnus/loft, digest: sha256:…}]`.
-8. **PostgreSQL.** Loft와 내장 roster의 데이터베이스 두 개가 필요합니다. 외부 roster면 Loft의 것 하나이고, roster의 것은 roster의 배포가 씁니다(아래 13).
+8. **PostgreSQL.** Loft와 내장 roster의 데이터베이스 두 개가 필요합니다. 외부 roster면 Loft의 것 하나이고, roster의 것은 roster의 배포가 씁니다(아래 12).
    - 필요한 확장은 `btree_gist` 하나입니다. 검색은 9의 검색 엔진이 답하고, 없으면 데이터베이스가 인덱스 없이 답합니다.
    - 어디서 돌릴지(operator인지 관리형인지)는 백업과 함께 정합니다(loft#37).
    - LISTEN과 세션 잠금은 트랜잭션 모드 풀러를 거치면 안 됩니다. 풀러를 쓴다면 `watch.dsn`과 `spin.dsn`에 DB로 바로 가는 주소를 줍니다.
@@ -106,45 +105,13 @@ resources:
     - 서버와 운영자 진입점이 같은 설정으로 함께 보냅니다. 둘 다 `service.name`이 `loft`입니다.
     - 대시보드는 [`deploy/observe`](../observe/README.md)에 있습니다. ClickHouse 위의 Grafana입니다. 노드마다 수집기와 ClickHouse가 없으면 같은 곳의 `node/`와 `clickhouse/`를 함께 띄웁니다. 경보는 아직 없고, 무엇에 걸지는 `docs/runbook/observe.md`에 있습니다(loft#38).
 
-11. **워크스페이스 도메인(선택).** 워크스페이스가 자기 도메인(`assets.acme.co.kr`)에서 앱을 쓰게 합니다(loft#155). 서비스 주소의 인그레스와 인증서는 그대로 둡니다. 그 밖의 호스트를 받는 프런트를 따로 하나 둡니다.
-
-    ```yaml
-    components:
-      - github.com/lesomnus/loft//deploy/k8s/domains?ref=<base와 같은 커밋>
-    ```
-
-    - **무엇이 생기나.**
-      - `loft-edge`: Caddy, 파드 하나. 인증서와 ACME 계정은 PVC `loft-edge`(1 GiB)에 둡니다.
-      - Service `loft-edge`: LoadBalancer, 80과 443.
-      - `loft-ask`: 운영자 진입점의 `/internal/tls-ask`만 받는 포트(8082, `admin.ask.addr`).
-      - NetworkPolicy `loft-edge`: 그 포트와 서버의 8080에 프런트만 닿게 합니다.
-    - **인증서.** 프런트는 인증서를 불러오거나, 받거나, 갱신하기 전에 운영자 진입점에 묻습니다. 그 호스트가 확인되어 쓰이는 워크스페이스 도메인이어야 하고(`ready`, `active`, `legacy`), 너무 자주 묻지 않아야 합니다.
-      - 아니면 인증서가 없고 핸드셰이크가 실패합니다. 아무 도메인이나 이 프런트를 가리켜 인증서를 받아 갈 수 없습니다.
-      - DNS가 떠나 `lapsed`가 된 도메인은 갱신도 거절됩니다.
-    - **발급 횟수 제한**(`admin.ask`): Caddy는 2.8부터 자체 제한(`interval`, `burst`)을 없앴고, 제한은 묻는 곳이 합니다.
-      - 호스트 하나에는 한꺼번에 10번, 그 뒤로 5분에 한 번 "예"라고 답합니다(`host_burst`, `host_every`).
-      - 모든 호스트를 합쳐서는 한꺼번에 300번, 그 뒤로 30초에 한 번입니다(`burst`, `every`).
-      - 넘으면 429로 답하고, 프런트는 다음 핸드셰이크에서 다시 묻습니다.
-      - 왜 이 값인가:
-        - Caddy는 실패한 시도를 기억하지 않아, 인증서가 없는 동안 핸드셰이크마다 묻습니다. 검증에 계속 실패하는 호스트도 시간당 열두 번만 시도하게 됩니다(Let's Encrypt는 호스트당 실패 검증을 시간당 다섯 번까지 받습니다).
-        - 재시작한 프런트는 저장된 인증서마다 한 번씩 묻습니다. 300이면 그만큼의 도메인이 바로 뜨고, 그 뒤 시간당 120번은 Let's Encrypt의 계정당 새 주문 한도(3시간에 300)보다 적습니다.
-        - 도메인이 300개를 넘는 배포는 `burst`를 그 수에 맞춥니다.
-    - **오버레이가 정할 것:**
-      - `config.yaml`의 `app.labels.target`에 프런트의 LoadBalancer를 가리키는 DNS 이름(예: `edge.loft.example`)을 넣습니다. 고객의 CNAME이 이 이름을 가리키고, 한 시간마다 하는 DNS 재확인이 그것을 봅니다.
-      - `app.trusted_proxies`는 파드 네트워크를 넣었다면 그대로 프런트도 포함합니다.
-      - Service는 `externalTrafficPolicy: Local`입니다. 그래야 서버가 브라우저의 주소를 봅니다. 그러려면 로드밸런서가 프런트가 도는 노드로 보내야 합니다(클라우드의 LB는 대개 그렇게 합니다).
-      - ACME 계정의 메일은 프런트의 환경 변수 `LOFT_EDGE_OPTIONS`에 `email ops@example.com`으로 줍니다(patch). 줄마다 Caddy의 전역 옵션 하나입니다.
-      - PVC의 `storageClassName`과, 이미지 `caddy`의 digest를 정합니다.
-    - **고객이 할 일:** 설정 › 도메인과 라벨에 도메인을 더하고, 화면에 나오는 레코드 둘을 DNS에 만듭니다. 확인된 뒤에도 지우지 않습니다.
-      - CNAME `<도메인>` → `app.labels.target`. CNAME을 둘 수 없는 apex라면 DNS 업체의 ALIAS·CNAME 펼치기로 같은 주소를 가리킵니다.
-      - TXT `_loft-challenge.<도메인>` = 토큰.
-12. **과금(선택).** 워크스페이스마다 가진 것(자산 수, 첨부 저장량, 구성원 수, 이력 보존 기간)을 재서 청구 서비스 levyan에 넘깁니다(design 7장, D59). 시작할 때와 자정(UTC)마다 재고, 워크스페이스를 파기하기 직전에 한 번 더 잽니다.
+11. **과금(선택).** 워크스페이스마다 가진 것(자산 수, 첨부 저장량, 구성원 수, 이력 보존 기간)을 재서 청구 서비스 levyan에 넘깁니다(design 7장, D59). 시작할 때와 자정(UTC)마다 재고, 워크스페이스를 파기하기 직전에 한 번 더 잽니다.
     - levyan은 이 구성에 들어 있지 않습니다. levyan의 `deploy/k8s`로 따로 띄우고, levyan의 운영자가 제품과 가격표의 미터를 만들고 키를 발급합니다([과금과 결제](../../docs/dev/billing.md#levyan에서-할-일)).
     - 키를 Secret `loft-levyan-key`의 `key`에 넣습니다. 서버와 운영자 진입점 컨테이너가 `/run/secrets/loft-levyan/`에서 받습니다. 둘 다 같은 서버를 짓기 때문입니다. 마이그레이션은 재지 않으므로 받지 않습니다.
     - `config.yaml`의 `app.billing` 주석을 풀어 levyan의 주소를 넣습니다. levyan의 참조 배포는 클러스터 안에서 평문 gRPC(50051)이므로 `insecure: true`를 씁니다. 그 밖이면 TLS이고, 사설 CA는 `tls.ca_file`로 줍니다.
     - levyan의 NetworkPolicy가 Loft의 파드(`app.kubernetes.io/name: loft`, namespace의 이름)만 받도록 좁힙니다(levyan의 `deploy/k8s/README.md` 4). Loft의 NetworkPolicy는 들어오는 것만 막으므로 나가는 길은 열려 있습니다.
     - 키가 없거나 `lvk_`로 시작하지 않으면 서버가 뜨지 않습니다. levyan이 답하지 않으면 서버는 그대로 돌고, 그 값을 다시 보냅니다. 그동안 복구 기간이 지난 워크스페이스는 마지막 측정 없이 파기되고, 경고 로그에 남습니다(design 7.3).
-13. **외부 roster(선택).** 계정을 Loft 프로세스 안의 roster가 아니라 따로 도는 roster에 둡니다. 서버를 여러 대 띄우거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 이렇게 합니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)).
+12. **외부 roster(선택).** 계정을 Loft 프로세스 안의 roster가 아니라 따로 도는 roster에 둡니다. 서버를 여러 대 띄우거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 이렇게 합니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)).
     - **base가 하는 것.** Secret `loft-roster-key`의 `key`를 세 컨테이너(`migrate`, `loft`, `loft-admin`)의 `/run/secrets/loft-roster/`에 붙입니다. 셋 모두 설정의 roster를 열고, 열 때 키를 읽기 때문입니다. 이 Secret도, Secret `loft`의 `roster-db-dsn`도 `optional`입니다. 그래서 외부 roster의 배포는 `roster-db-dsn` 대신 이 Secret을 두면 되고, 오버레이에서 패치할 것이 없습니다.
     - **설정.** `auth.roster`에서 `db:`와 `consent_keep`을 지우고(내장 roster의 것입니다) 주소, 디렉터리, 키를 적습니다. roster의 참조 배포는 클러스터 안에서 평문 gRPC(Service `roster-data`, 8080)이므로 `insecure: true`를 씁니다. 그 참조 배포에는 NetworkPolicy가 없으니, roster의 오버레이가 Loft의 파드(와 roster를 묻는 다른 앱의 파드)만 그 포트에 닿게 합니다. 그 밖이면 TLS이고, 사설 CA는 `ca_file`로 줍니다.
 
@@ -176,7 +143,7 @@ resources:
 ## 처음 띄우기
 
 ```sh
-# 1. 데이터베이스 둘. roster의 것은 Loft의 것 옆에 하나 더(외부 roster면 Loft의 것만, 위 13):
+# 1. 데이터베이스 둘. roster의 것은 Loft의 것 옆에 하나 더(외부 roster면 Loft의 것만, 위 12):
 #      CREATE DATABASE roster OWNER loft;
 # 2. Secret 셋 (위의 표)
 # 3. sync. Argo CD가 아니라면:
@@ -221,7 +188,7 @@ curl https://<호스트>/healthz   # ok
 
 ## 운영자 진입점
 
-네트워크로는 닿지 않습니다. Service가 없고, NetworkPolicy가 8081을 닫습니다. 들어오는 길은 `kubectl port-forward` 하나입니다. 컴포넌트 `domains/`가 여는 것은 따로 띄운 물음 포트(8082)뿐입니다. 거기에는 `/internal/tls-ask` 말고 아무것도 없고, 프런트만 닿습니다.
+네트워크로는 닿지 않습니다. Service가 없고, NetworkPolicy가 8081을 닫습니다. 들어오는 길은 `kubectl port-forward` 하나입니다.
 
 ```sh
 kubectl -n loft port-forward deploy/loft 8081:8081 &
@@ -265,7 +232,6 @@ k3d와 Docker가 필요합니다. 이 체크아웃으로 이미지를 빌드해�
 - 인그레스를 거쳐 로그인되고, 보안 헤더와 CSP가 붙습니다.
 - 운영자 진입점은 port-forward로는 키에 답하고, 인그레스 컨트롤러가 아닌 파드에서는 서버에도 진입점에도 닿지 않습니다.
 - 새 빌드가 파드를 바꾸고 `rollout undo`가 이전 것을 되돌립니다. 그 사이에도 처음 로그인한 세션이 그대로 살아 있습니다.
-- 워크스페이스 도메인의 프런트(`domains/`)가 `restricted` 아래에서 뜹니다. 확인된 도메인은 요청 시점에 받은 인증서로 서빙하고(rig에서는 Caddy 자체 CA), 아무도 확인하지 않은 호스트에는 인증서를 주지 않습니다. 물음 포트에는 프런트 말고 아무것도 닿지 않습니다.
 
 기본 kubeconfig는 건드리지 않습니다. k3d에 그러지 말라고 하고, 스크립트도 그 파일을 읽지 않습니다.
 
@@ -274,5 +240,4 @@ k3d와 Docker가 필요합니다. 이 체크아웃으로 이미지를 빌드해�
 - PostgreSQL과 그 백업. 무엇을 백업하고 어떤 순서로 되살리는지, 리허설은 `docs/runbook/restore.md`에 있습니다(loft#37)
 - 관측(수집기, 대시보드, 경보): loft#38
 - 자동 배포: 오버레이의 digest를 바꾸는 것은 사람이 합니다
-- 워크스페이스 도메인의 인증서(loft#155): K8s에서는 on-demand TLS 대신 도메인마다 인증서(cert-manager)가 필요해서 아직 없습니다. loft#155의 TLS 앞단 PR이 다룹니다
 - 파드 둘 이상: loft#45
