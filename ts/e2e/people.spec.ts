@@ -1,22 +1,23 @@
 import { choose, expect, field, owner, people, said, signIn, test, unique } from './loft.js'
 
 // The people screen (D87): who is a member, and how they sign in, is roster's
-// -- added and taken away there, their passwords set there -- and the screen
-// keeps the person records and what a member may do here. It says so to the
-// people who run the workspace, and a member's own page says where their way
-// in is kept.
+// -- added and taken away there, their passwords set there -- and so is what
+// they may do here (D89): the screen keeps the person records. It says so to
+// the people who run the workspace, and a member's own page says where their
+// way in is kept.
 
 test('the people screen keeps person records, and leaves members and how they sign in to roster', async ({ page }) => {
 	await signIn(page, owner.login, owner.password)
 
 	await page.getByRole('navigation').getByRole('link', { name: /사람/ }).click()
-	await expect(page.getByRole('note', { name: '구성원 관리' })).toContainText('구성원과 로그인은 roster에서 관리합니다')
+	await expect(page.getByRole('note', { name: '구성원 관리' })).toContainText('구성원과 로그인, 역할은 roster에서 관리합니다')
 
-	// A member: what they may do here, and nothing of how they sign in.
+	// A member: their record, and nothing of how they sign in or what they
+	// may do, which roster binds them.
 	await page.getByRole('listitem').filter({ hasText: people.member.name }).first().click()
 	const dialog = page.getByRole('dialog')
-	await expect(dialog.getByRole('button', { name: '역할 변경' })).toBeVisible()
 	await expect(dialog.getByRole('button', { name: '개인정보 삭제' })).toBeVisible()
+	await expect(dialog.getByRole('button', { name: /역할/ })).toHaveCount(0)
 	await expect(dialog.getByRole('button', { name: /비밀번호|로그인/ })).toHaveCount(0)
 
 	await page.goto('/me')
@@ -51,7 +52,7 @@ test('a member is linked by hand to the person record they are, and let go of it
 	await expect(link.getByText(`지금은 ${people.linked.name}의 기록과 이어져 있습니다.`, { exact: false })).toBeVisible()
 	await link.getByRole('button', { name: '잇기' }).click()
 	await said(page, '이었습니다.')
-	await expect(mine).toContainText('구성원')
+	await expect(mine).toContainText('로그인 있음')
 	await expect(was).toContainText('로그인 없음')
 
 	await mine.click()
@@ -70,6 +71,6 @@ test('a member is linked by hand to the person record they are, and let go of it
 	await choose(field(page.getByRole('dialog'), '구성원'), login)
 	await page.getByRole('dialog').getByRole('button', { name: '잇기' }).click()
 	await said(page, '이었습니다.')
-	await expect(was).toContainText('구성원')
+	await expect(was).toContainText('로그인 있음')
 	await expect(recordless).toHaveCount(0)
 })

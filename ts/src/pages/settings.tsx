@@ -927,13 +927,13 @@ function NameCard(props: { t: Tenant }): ReactNode {
 		<Card title="워크스페이스">
 			<Field
 				label="이름"
-				hint="구성원의 화면과 알림 메일이 이 이름으로 부릅니다. 비워 두면 소유자의 이름으로 부릅니다. 이름은 누구의 정보도 아니어서 작업 기록에 그대로 남으니, 사람의 이름은 넣지 마세요."
+				hint="구성원의 화면과 알림 메일이 이 이름으로 부릅니다. 비워 두면 주소로 부릅니다. 이름은 누구의 정보도 아니어서 작업 기록에 그대로 남으니, 사람의 이름은 넣지 마세요."
 			>
 				<input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder="예: 연구지원팀 장비" />
 			</Field>
 			{people.length > 0 && (
 				<p className="note warn" role="status">
-					이름에 이 워크스페이스에 있는 사람의 이름({people.join(', ')})이 들어 있습니다. 워크스페이스 이름은 작업 기록에 그대로 남아, 그 사람의 정보를 지워도 지워지지 않습니다. 소유자의 이름으로 부르려면 비워 두세요.
+					이름에 이 워크스페이스에 있는 사람의 이름({people.join(', ')})이 들어 있습니다. 워크스페이스 이름은 작업 기록에 그대로 남아, 그 사람의 정보를 지워도 지워지지 않습니다. 주소로 부르려면 비워 두세요.
 				</p>
 			)}
 			<dl className="kv">
