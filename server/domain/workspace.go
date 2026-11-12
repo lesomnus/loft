@@ -21,7 +21,7 @@ import (
 
 // A workspace closing (D29, design 8.4).
 //
-//	close → restore window (30 days) → destroy → address held (a year) → free
+//	close → restore window (30 days) → destroy
 //	           ↑ restore                 ↑ a legal hold waits it out
 //
 // Closing destroys nothing: the workspace's rows stay as they are, and nobody

@@ -24,9 +24,9 @@ import (
 	"github.com/lesomnus/loft/server/tenancy"
 )
 
-// What Loft writes past its servers -- a terminal's sign-in, an address held
-// -- is on the trail as the act it is (payday#108), so a check of the rows
-// finds nothing after it, and finds a row changed past it.
+// What Loft writes past its servers -- a terminal's sign-in -- is on the trail
+// as the act it is (payday#108), so a check of the rows finds nothing after
+// it, and finds a row changed past it.
 
 var digestKey = bytes.Repeat([]byte{7}, 32)
 

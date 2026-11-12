@@ -24,7 +24,7 @@ import (
 // restoring and export among them (D83); a few -- a workspace's list, its
 // access reviews -- are either kind's, as the RPCs they call are.
 
-// called is how the command running was written: `loft tenant move`.
+// called is how the command running was written: `loft tenant name-owner`.
 func called(self *xli.Command) string {
 	names := []string{}
 	for _, c := range self.Tree() {
