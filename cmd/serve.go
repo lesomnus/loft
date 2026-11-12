@@ -688,8 +688,10 @@ func (s *Server) Follow(ctx context.Context) (string, error) {
 
 // WidenRoles gives the roles of the workspace this deployment serves what each
 // release since the one they last had added (`tenancy.Roles.Widen`, D90), as
-// the deployment's own work in it, and says what it gave. A deployment with no
-// workspace yet, or before roster has its tenant, is nothing to do.
+// the deployment's own work in it, and says what it gave -- and, once, the
+// release it took them as having when the workspace recorded none. A
+// deployment with no workspace yet, or before roster has its tenant, is
+// nothing to do.
 func (s *Server) WidenRoles(ctx context.Context) error {
 	t, err := s.Identity.Tenant(ctx)
 	if errors.Is(err, identity.ErrNoTenant) {
@@ -703,14 +705,27 @@ func (s *Server) WidenRoles(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("roles: %w", err)
 	}
+	// Said as it is decided, since what a later release gives the roles
+	// follows from it: a release taken as had, once, when the workspace
+	// recorded none -- which only the trail would say otherwise -- and what
+	// each role was given, by its methods.
+	if v.Unrecorded {
+		log.From(ctx).InfoContext(ctx, "roles: the workspace recorded no release of its roles at roster, so they are taken as given the last and given nothing; "+
+			"`loft role widen --from` gives them what came after an earlier one",
+			slog.Uint64("release", uint64(v.To)))
+	}
+	given := []any{}
 	for _, r := range v.Roles {
 		if r.Missing {
 			log.From(ctx).WarnContext(ctx, "roles: the tenant has no role by this alias at roster, so it was given nothing of what a release added",
-				slog.String("role", r.Role), slog.Int("methods", len(r.Methods)))
+				slog.String("role", r.Role), slog.String("methods", strings.Join(r.Methods, ",")))
 			continue
 		}
-		log.From(ctx).InfoContext(ctx, "roles: given what a release added", slog.String("role", r.Role), slog.Int("methods", len(r.Methods)),
-			slog.Uint64("from", uint64(v.From)), slog.Uint64("to", uint64(v.To)))
+		given = append(given, slog.String(r.Role, strings.Join(r.Methods, ",")))
+	}
+	if len(given) > 0 {
+		log.From(ctx).InfoContext(ctx, "roles: given at roster what the releases since theirs added",
+			slog.Uint64("from", uint64(v.From)), slog.Uint64("to", uint64(v.To)), slog.Group("given", given...))
 	}
 	return nil
 }

@@ -721,8 +721,10 @@ for, and **never edit one that shipped**: a tenant recorded at it has had it.
 The workspace records the release its roles have had (`Tenant.roles_release`),
 and `serve` gives them what each release since added, as it starts and every
 hour (`loft.roles`, `tenancy.Roles.Widen`), never what the roles hold by then
--- that would give back what the tenant took out of one. `loft role widen` is
-the same, said first and asked for now. Nothing here takes a method from a
+-- that would give back what the tenant took out of one -- and says in the log
+what it gave each role, and once the release it took a workspace that
+recorded none as having. `loft role widen` is the same, said first and asked
+for now. Nothing here takes a method from a
 role: a role holding less than its releases gave fails the test, and is a
 decision about the tenants' roles to make, not a line to write.
 
