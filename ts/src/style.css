@@ -1544,8 +1544,7 @@ ul.consent > li > a {
 	width: min(520px, 100%);
 	/* Never wider than the screen for what it holds: a table wider than a
 	   phone slides sideways in its own wrap, as in a dialog (`.modal`),
-	   rather than push the page wider -- and the invoices on /billing are
-	   cards there (`.phone-cards`). */
+	   rather than push the page wider. */
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
@@ -1561,10 +1560,9 @@ ul.consent > li > a {
 	gap: 10px;
 }
 /*
- * A row -- an invitation, or on /billing a billing account, an offer, a
- * workspace paid for -- is what it is beside what can be done with it, and
- * the buttons go under the words where the two do not fit side by side, and
- * onto a line of their own where they do not fit on one: a row is never
+ * A row -- an invitation -- is what it is beside what can be done with it,
+ * and the buttons go under the words where the two do not fit side by side,
+ * and onto a line of their own where they do not fit on one: a row is never
  * wider than the screen, nor a long name in it.
  */
 .inbox li {
@@ -1670,38 +1668,7 @@ ul.consent > li > a {
 	background: var(--warn-soft);
 	color: var(--warn);
 }
-.inbox.billing .card.uncollectable {
-	background: var(--warn-soft);
-}
-/*
- * The heads of a billing account's form -- who its bills go to, and its
- * business -- and a business that is not the account's to change, said with
- * the room its longer names take. Not <p>, which a page's list rows would
- * dim: the form is drawn in the row whose account it is.
- */
-.form .fields > .subhead {
-	margin: 6px 0 -4px;
-}
-.form .fields > .fixed .kv > div {
-	grid-template-columns: 128px 1fr;
-}
-.form .fields > .fixed .said {
-	margin-top: 8px;
-}
-.login > .inbox.billing {
-	width: min(880px, 100%);
-}
-.inbox.billing .card {
-	box-shadow: none;
-}
-.inbox.billing li .kv {
-	margin-top: 6px;
-}
-/*
- * What levyan's operator gave (design 7.11): a credit, an allowance or a
- * pool a line each -- inside a billing account's row too, whose own list
- * items are boxes.
- */
+/* What levyan's operator gave (design 7.11): a credit, an allowance or a pool a line each. */
 ul.credits,
 ul.benefits {
 	list-style: none;
@@ -1711,12 +1678,8 @@ ul.benefits {
 ul.benefits {
 	margin: 8px 0 12px;
 }
-.inbox ul.credits {
-	display: block;
-}
 ul.credits > li,
-ul.benefits > li,
-.inbox ul.credits > li {
+ul.benefits > li {
 	display: block;
 	padding: 0;
 	border: none;
@@ -1726,71 +1689,6 @@ ul.benefits > li,
 /* A period's lines, six columns of them: scrolled sideways on a phone rather than broken a letter a line. */
 .table.lines td {
 	white-space: nowrap;
-}
-/*
- * On a phone the payer's invoices and credit notes are cards, and on a wider
- * screen the tables they were (loft#269): wider than a phone however their
- * cells broke, a table slid sideways in its wrap, and the button that opens
- * an invoice was at its end. An invoice's card is that button, all of it.
- */
-.phone-cards,
-.inbox ul.phone-cards {
-	display: none;
-}
-@media (max-width: 520px) {
-	.phone-hides {
-		display: none;
-	}
-	.phone-cards,
-	.inbox ul.phone-cards {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
-}
-.inbox ul.phone-cards > li {
-	display: block;
-	padding: 0;
-	border: none;
-	border-radius: 0;
-}
-.phone-card,
-.inbox ul.phone-cards > li.phone-card {
-	display: flex;
-	flex-direction: column;
-	align-items: stretch;
-	gap: 6px;
-	width: 100%;
-	padding: 10px 12px;
-	border: 1px solid var(--line);
-	border-radius: var(--radius);
-	text-align: left;
-	white-space: normal;
-	overflow-wrap: anywhere;
-}
-.phone-card-head {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	align-items: center;
-	gap: 6px;
-}
-.phone-card-amounts {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 2px 14px;
-	font-size: 13px;
-}
-/* An invoice's lines in its dialog, each its statement's (levyan#47): under the workspace and the period it is of. */
-.line-statement {
-	margin-top: 14px;
-}
-.line-statement h3 {
-	font-size: 13.5px;
-	margin-bottom: 4px;
 }
 .card form.inline {
 	display: flex;
