@@ -171,12 +171,9 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"party.add", app.PartySaved_builder{Party: kim.Bytes(), Kind: "person"}.Build(), "추가: 김철수"},
 		{"party.update", app.PartySaved_builder{Party: kim.Bytes()}.Build(), "수정: 김철수"},
 		{"party.update", app.PartySaved_builder{Party: nobody.Bytes()}.Build(), "수정: ?"},
-		{"party.invite", app.PartyInvited_builder{Party: kim.Bytes(), Holder: kimHolder.Bytes(), Role: "member"}.Build(), "로그인 발급: 김철수 (@kim)"},
 		{"party.role", app.PartyRoleSet_builder{Holder: kimHolder.Bytes(), Party: kim.Bytes(), Role: "manager"}.Build(), "역할 변경: 김철수 → 매니저"},
 		{"party.role", app.PartyRoleSet_builder{Holder: kimHolder.Bytes(), Role: "owner", By: "succession"}.Build(), "소유자 승계: 김철수 (마지막 소유자의 계정 탈퇴)"},
 		{"party.role", app.PartyRoleSet_builder{Holder: kimHolder.Bytes(), Role: "owner", By: "operator"}.Build(), "소유자 지정: 김철수 (운영자)"},
-		{"party.password", app.PartyPasswordSet_builder{Holder: kimHolder.Bytes(), Own: true}.Build(), "비밀번호 변경"},
-		{"party.deactivate", app.PartyDeactivated_builder{Party: kim.Bytes(), Holder: kimHolder.Bytes()}.Build(), "로그인 비활성화: 김철수"},
 		{"party.pseudonymize", app.PartyPseudonymized_builder{Held: 2}.Build(), "개인정보 삭제"},
 		{"type.add", app.AssetTypeSaved_builder{Name: "노트북", Kind: "item"}.Build(), "유형 추가: 노트북"},
 		{"type.update", app.AssetTypeSaved_builder{Name: "노트북"}.Build(), "유형 수정: 노트북"},
@@ -197,12 +194,6 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		// reservations whose time passed while it was closed it let go of.
 		{"workspace.restore", app.WorkspaceRestored_builder{By: "operator", Expired: 3}.Build(), "워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 3건 만료"},
 		{"workspace.import", app.WorkspaceImported_builder{DateExported: timestamppb.New(time.Date(2026, 10, 20, 23, 0, 0, 0, time.UTC)), Rows: 120}.Build(), "워크스페이스 복구 (운영자): 2026-10-20 내보내기에서"},
-
-		{"invitation.add", app.InvitationAdded_builder{Role: "manager"}.Build(), "초대 (매니저)"},
-		{"invitation.claim", app.InvitationChanged_builder{}.Build(), "초대 링크로 받음"},
-		{"invitation.accept", app.InvitationAccepted_builder{Role: "member", Holder: kimHolder.Bytes()}.Build(), "초대 수락 (구성원)"},
-		{"invitation.deny", app.InvitationChanged_builder{}.Build(), "초대 거절"},
-		{"invitation.revoke", app.InvitationChanged_builder{}.Build(), "초대 취소"},
 
 		{"work.open", app.WorkOrderSaved_builder{Asset: asset.Bytes(), Tag: "NB-1", Name: "화면 교체", Kind: "repair", Status: "open"}.Build(), "작업 열림: 화면 교체 (NB-1)"},
 		{"work.update", app.WorkOrderSaved_builder{Name: "화면 교체", Status: "in_progress"}.Build(), "작업 수정: 화면 교체"},

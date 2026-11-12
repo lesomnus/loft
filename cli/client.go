@@ -72,7 +72,7 @@ func (c *Connection) do(ctx context.Context, method, path string, body any, out 
 // read -- every entity's Get, List and Watch, and the searches, histories and
 // answers beside them -- for a terminal handed to an assistant that may look
 // and not touch. Named by pattern, so that a read added later is one too, and
-// never a method that writes: SetPassword and MarkRead are not here.
+// never a method that writes: MarkRead is not here.
 var reads = []string{
 	"/loft.*/Get", "/loft.*/List", "/loft.*/Watch", "/loft.*/Search", "/loft.*/Recent",
 	"/loft.AssetService/Timeline", "/loft.AssetService/QueryAt", "/loft.AssetService/Diff", "/loft.AssetService/Report",

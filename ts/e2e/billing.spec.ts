@@ -89,7 +89,7 @@ test('a workspace nobody pays for says so above every page, and that it is restr
 	await page.goto('/')
 	const banner = page.getByRole('alert')
 	await expect(banner).toContainText('이 워크스페이스에는 결제 담당이 없습니다.')
-	await expect(banner).toContainText('제한되어 자산 등록, 초대, 첨부 올리기처럼')
+	await expect(banner).toContainText('제한되어 자산 등록, 첨부 올리기처럼')
 	await banner.getByRole('link', { name: '결제 담당 정하기 →' }).click()
 	await expect(card(page, '결제 담당')).toContainText('결제 담당이 없습니다.')
 	await expect(card(page, '결제 담당')).toContainText('제한됩니다.')

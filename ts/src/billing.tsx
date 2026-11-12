@@ -726,7 +726,7 @@ export function BillingBanner(props: { session: Session }): ReactNode {
 		if (!admin || state === undefined || collectionDo[state] === undefined) return null
 		return <CollectionBanner state={state} payerIsMe={payerIsMe} owner={c.can('owner')} />
 	}
-	const grows = '자산 등록, 초대, 첨부 올리기처럼 청구되는 것을 늘리는 일'
+	const grows = '자산 등록, 첨부 올리기처럼 청구되는 것을 늘리는 일'
 
 	let said: ReactNode
 	if (readOnly) {

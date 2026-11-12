@@ -24,20 +24,12 @@
     "custody.overdue": "loft.CustodyOverdue",
     "custody.return": "loft.CustodyReturned",
     "event.redact": "loft.EventRedacted",
-    "invitation.accept": "loft.InvitationAccepted",
-    "invitation.add": "loft.InvitationAdded",
-    "invitation.claim": "loft.InvitationChanged",
-    "invitation.deny": "loft.InvitationChanged",
-    "invitation.revoke": "loft.InvitationChanged",
     "label.bind": "loft.LabelBound",
     "label.print": "loft.LabelsPrinted",
     "label.unbind": "loft.LabelUnbound",
     "model.add": "loft.ItemModelSaved",
     "model.update": "loft.ItemModelSaved",
     "party.add": "loft.PartySaved",
-    "party.deactivate": "loft.PartyDeactivated",
-    "party.invite": "loft.PartyInvited",
-    "party.password": "loft.PartyPasswordSet",
     "party.pseudonymize": "loft.PartyPseudonymized",
     "party.role": "loft.PartyRoleSet",
     "party.update": "loft.PartySaved",
@@ -477,40 +469,6 @@
         "kind": "bytes"
       }
     },
-    "loft.InvitationAccepted": {
-      "1": {
-        "json": "invitation",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "role",
-        "kind": "string"
-      },
-      "4": {
-        "json": "holder",
-        "kind": "bytes"
-      }
-    },
-    "loft.InvitationAdded": {
-      "1": {
-        "json": "invitation",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "role",
-        "kind": "string"
-      },
-      "3": {
-        "json": "party",
-        "kind": "bytes"
-      }
-    },
-    "loft.InvitationChanged": {
-      "1": {
-        "json": "invitation",
-        "kind": "bytes"
-      }
-    },
     "loft.ItemModelSaved": {
       "1": {
         "json": "model",
@@ -566,44 +524,6 @@
         "json": "assets",
         "kind": "bytes",
         "list": true
-      }
-    },
-    "loft.PartyDeactivated": {
-      "1": {
-        "json": "party",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "holder",
-        "kind": "bytes"
-      }
-    },
-    "loft.PartyInvited": {
-      "1": {
-        "json": "party",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "holder",
-        "kind": "bytes"
-      },
-      "4": {
-        "json": "role",
-        "kind": "string"
-      }
-    },
-    "loft.PartyPasswordSet": {
-      "1": {
-        "json": "party",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "holder",
-        "kind": "bytes"
-      },
-      "5": {
-        "json": "own",
-        "kind": "bool"
       }
     },
     "loft.PartyPseudonymized": {

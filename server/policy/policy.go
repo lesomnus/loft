@@ -187,10 +187,9 @@ func init() {
 	allow(Manager, "AttachmentService", "Erase")
 
 	allow(Read, "PartyService", "Me", "Search")
-	// Their own password; somebody else's is an admin's, which the domain
-	// layer checks against the row.
-	allow(Read, "PartyService", "SetPassword")
-	allow(Admin, "PartyService", "Add", "Update", "Invite", "SetRole", "Deactivate", "Pseudonymize")
+	// Who is a member, and how they sign in, is roster's (D87): what is here
+	// is the person records, and the roles until #334.
+	allow(Admin, "PartyService", "Add", "Update", "SetRole", "Pseudonymize")
 
 	// A workspace's settings are its owner's. Its end is not anybody's in it
 	// (D83): closing it, restoring it and taking all of it out are the
@@ -241,11 +240,6 @@ func init() {
 	report("BookableService", "Usage", "ExportUsage")
 	report("InventoryCountService", "Results", "ExportResults")
 	report("StockService", "Flow", "ExportFlow")
-
-	// Inviting into the workspace is its administrators', up to their own
-	// role, which the domain layer checks: sent, read and taken back as their
-	// membership of it. Answering one is nobody's here (D85).
-	allow(Admin, "InvitationService", "Add", "List", "Revoke")
 
 	// How a workspace is paid for (design 7.9): who pays for it, what it has
 	// used and its statements are for the people who run it to read; and

@@ -92,7 +92,7 @@ app:
   csp: report-only
 
   # mail: LOFT_APP_MAIL_*, the password from the Secret `loft`. With no host
-  # every invitation is written to the log instead.
+  # nothing is mailed, and a notice is told in the app only.
 
   # Search on OpenSearch with nori (D31), on a cluster this deployment does
   # not run (README.md): its role, its user and the Secret `loft-search`.

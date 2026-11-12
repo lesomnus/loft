@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/z"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/server/domain"
 )
 
@@ -19,9 +21,11 @@ const DemoPassword = "demo1234"
 // seedDemo fills a tenant the way an office of five teams would be: people,
 // rooms, a hundred-odd assets with a past, hand-overs, bookings, stock and
 // work. It goes through the domain layer as the owner, so it is exactly what
-// doing it by hand would have written.
-func seedDemo(ctx context.Context, s app.Server, out *xli.Command) error {
-	d := &demo{ctx: ctx, s: s, types: map[string][]byte{}, models: map[string][]byte{}}
+// doing it by hand would have written -- but for its people, who are made at
+// the roster in this process first and then made members, as an operator
+// makes them (`loft holder add`, D87): who is a member is roster's.
+func seedDemo(ctx context.Context, server *cmd.Server, out *xli.Command) error {
+	d := &demo{ctx: ctx, s: server.Ungated, server: server, types: map[string][]byte{}, models: map[string][]byte{}}
 	if err := d.loadTypes(); err != nil {
 		return err
 	}
@@ -61,8 +65,9 @@ type person struct {
 }
 
 type demo struct {
-	ctx context.Context
-	s   app.Server
+	ctx    context.Context
+	s      app.Server
+	server *cmd.Server
 
 	types  map[string][]byte
 	models map[string][]byte
@@ -152,12 +157,18 @@ func (d *demo) people() error {
 			return err
 		}
 		p.id = v.GetId()
-		if _, err := d.s.Party().Invite(d.ctx, app.PartyInviteRequest_builder{
-			Ref:      app.PartyRef_builder{Id: p.id}.Build(),
-			Alias:    alias,
-			Role:     role,
-			Password: DemoPassword,
-		}.Build()); err != nil {
+		at, err := d.server.Identity.AddPerson(d.ctx, alias, p.name, pdid.Nil)
+		if err != nil {
+			return fmt.Errorf("roster: %w", err)
+		}
+		if err := d.server.Identity.SetPassword(d.ctx, at.Id, DemoPassword); err != nil {
+			return fmt.Errorf("roster: %w", err)
+		}
+		record, err := pdid.From(p.id)
+		if err != nil {
+			return err
+		}
+		if _, err := d.server.Members.Admit(d.ctx, at, role, record, ""); err != nil {
 			return err
 		}
 		d.persons = append(d.persons, p)

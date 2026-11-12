@@ -1,5 +1,5 @@
-// Package mail sends what this deployment writes to somebody's mailbox: an
-// invitation, for now (design 9.11).
+// Package mail sends what this deployment writes to somebody's mailbox: a
+// notification worth one (`domain.Mailer`).
 //
 // It is SMTP and nothing more particular, so which service a deployment sends
 // through -- every one of them speaks it -- is configuration and not code

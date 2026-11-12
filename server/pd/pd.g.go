@@ -35,7 +35,6 @@ import (
 	entFact "github.com/lesomnus/loft/internal/ent/fact"
 	entHolder "github.com/lesomnus/loft/internal/ent/holder"
 	entInventoryCount "github.com/lesomnus/loft/internal/ent/inventorycount"
-	entInvitation "github.com/lesomnus/loft/internal/ent/invitation"
 	entItemModel "github.com/lesomnus/loft/internal/ent/itemmodel"
 	entLabel "github.com/lesomnus/loft/internal/ent/label"
 	entLegalHold "github.com/lesomnus/loft/internal/ent/legalhold"
@@ -152,7 +151,6 @@ const (
 	FactDomain            pdid.Domain = 16  // "fact"
 	HolderDomain          pdid.Domain = 2   // "holder"
 	InventoryCountDomain  pdid.Domain = 31  // "inventory-count"
-	InvitationDomain      pdid.Domain = 41  // "invitation"
 	ItemModelDomain       pdid.Domain = 9   // "item-model"
 	LabelDomain           pdid.Domain = 18  // "label"
 	LegalHoldDomain       pdid.Domain = 40  // "legal-hold"
@@ -200,7 +198,6 @@ func init() {
 	pdid.Register("loft.Fact", FactDomain, "fact")
 	pdid.Register("loft.Holder", HolderDomain, "holder")
 	pdid.Register("loft.InventoryCount", InventoryCountDomain, "inventory-count")
-	pdid.Register("loft.Invitation", InvitationDomain, "invitation")
 	pdid.Register("loft.ItemModel", ItemModelDomain, "item-model")
 	pdid.Register("loft.Label", LabelDomain, "label")
 	pdid.Register("loft.LegalHold", LegalHoldDomain, "legal-hold")
@@ -252,7 +249,6 @@ var Domains = map[string]pdid.Domain{
 	"loft.Fact":            FactDomain,
 	"loft.Holder":          HolderDomain,
 	"loft.InventoryCount":  InventoryCountDomain,
-	"loft.Invitation":      InvitationDomain,
 	"loft.ItemModel":       ItemModelDomain,
 	"loft.Label":           LabelDomain,
 	"loft.LegalHold":       LegalHoldDomain,
@@ -314,20 +310,12 @@ var EventKinds = map[string]protoreflect.MessageType{
 	"custody.overdue":      (*loft.CustodyOverdue)(nil).ProtoReflect().Type(),
 	"custody.return":       (*loft.CustodyReturned)(nil).ProtoReflect().Type(),
 	"event.redact":         (*loft.EventRedacted)(nil).ProtoReflect().Type(),
-	"invitation.accept":    (*loft.InvitationAccepted)(nil).ProtoReflect().Type(),
-	"invitation.add":       (*loft.InvitationAdded)(nil).ProtoReflect().Type(),
-	"invitation.claim":     (*loft.InvitationChanged)(nil).ProtoReflect().Type(),
-	"invitation.deny":      (*loft.InvitationChanged)(nil).ProtoReflect().Type(),
-	"invitation.revoke":    (*loft.InvitationChanged)(nil).ProtoReflect().Type(),
 	"label.bind":           (*loft.LabelBound)(nil).ProtoReflect().Type(),
 	"label.print":          (*loft.LabelsPrinted)(nil).ProtoReflect().Type(),
 	"label.unbind":         (*loft.LabelUnbound)(nil).ProtoReflect().Type(),
 	"model.add":            (*loft.ItemModelSaved)(nil).ProtoReflect().Type(),
 	"model.update":         (*loft.ItemModelSaved)(nil).ProtoReflect().Type(),
 	"party.add":            (*loft.PartySaved)(nil).ProtoReflect().Type(),
-	"party.deactivate":     (*loft.PartyDeactivated)(nil).ProtoReflect().Type(),
-	"party.invite":         (*loft.PartyInvited)(nil).ProtoReflect().Type(),
-	"party.password":       (*loft.PartyPasswordSet)(nil).ProtoReflect().Type(),
 	"party.pseudonymize":   (*loft.PartyPseudonymized)(nil).ProtoReflect().Type(),
 	"party.role":           (*loft.PartyRoleSet)(nil).ProtoReflect().Type(),
 	"party.update":         (*loft.PartySaved)(nil).ProtoReflect().Type(),
@@ -675,20 +663,6 @@ func (wall) InventoryCountScope(ctx context.Context) (predicate.InventoryCount, 
 	}
 
 	return entInventoryCount.TenantIdIn(vs...), nil
-}
-
-// InvitationScope: a row belongs to the tenant its "tenant" reaches.
-func (wall) InvitationScope(ctx context.Context) (predicate.Invitation, error) {
-	if _, ok := frame.AccountOf(ctx); ok {
-		return nothing[predicate.Invitation](), nil
-	}
-
-	vs, all, err := frame.Narrow(ctx)
-	if all || err != nil {
-		return nil, err
-	}
-
-	return entInvitation.TenantIdIn(vs...), nil
 }
 
 // ItemModelScope: a row belongs to the tenant its "tenant" reaches.
@@ -6830,234 +6804,6 @@ func (s sinkInventoryCount) watchInventoryCountKeys(
 	}
 
 	return ks, nil
-}
-
-type sinkInvitation struct {
-	loft.InvitationServiceServer
-	store  bare.Store
-	w      *watch.Watch
-	namer  slug.Namer
-	joined bool
-}
-
-func (s Sink) Invitation() loft.InvitationServiceServer {
-	return sinkInvitation{s.Server.Invitation(), s.Server.Store, s.w, s.namer, s.joined}
-}
-
-// Erase forgets what the transaction was told about the row, before it is
-// erased: whether a frame may see it, and where a walk from it arrives.
-// Neither is true of a row that is gone, nor of another put under its
-// key. See [seen.Forget].
-func (s sinkInvitation) Erase(ctx context.Context, req *loft.InvitationRef) (*loft.InvitationEraseResponse, error) {
-	seen.Forget(s.store.Db.Driver(), "Invitation", req)
-
-	return s.InvitationServiceServer.Erase(ctx, req)
-}
-
-// Apply forgets what the transaction was told about the row, before it is
-// written: a document may move it to a set the caller cannot see. See
-// [seen.Forget].
-func (s sinkInvitation) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
-	seen.Forget(s.store.Db.Driver(), "Invitation", req.GetRef())
-
-	return s.InvitationServiceServer.Apply(ctx, req)
-}
-
-// Patch forgets what the transaction was told about the row, before it is
-// written; see [sinkInvitation.Apply].
-func (s sinkInvitation) Patch(ctx context.Context, req *loft.InvitationPatchRequest) (*loft.Invitation, error) {
-	seen.Forget(s.store.Db.Driver(), "Invitation", req.GetRef())
-
-	return s.InvitationServiceServer.Patch(ctx, req)
-}
-
-// orderInvitation is how Invitations come back.
-//
-// The last column is the key, and it is not decoration: a cursor cannot
-// tell apart two rows equal in every column of the order, so the page after
-// the first of them either repeats the second or skips it. Rows written by
-// one request are stamped a moment apart at best.
-var orderInvitation = []sqlpage.Order{
-	{Column: entInvitation.FieldDateCreated, Desc: false},
-	{Column: entInvitation.FieldId, Desc: false},
-}
-
-func afterInvitation(v string, by []sqlpage.Order, tag string) (func(*sql.Selector), error) {
-	var (
-		at0 time.Time
-		at1 uuid.UUID
-	)
-	if err := pdAfter(v, tag, &at0, &at1); err != nil {
-		return nil, err
-	}
-
-	return sqlpage.After(by, []any{at0, at1})
-}
-
-func nextInvitation(last *ent.Invitation, tag string) (string, error) {
-	return pdNext(tag, last.DateCreated, last.Id)
-}
-
-// orderByInvitation is an order as ent orders a query by it.
-func orderByInvitation(by []sqlpage.Order) []entInvitation.OrderOption {
-	out := make([]entInvitation.OrderOption, len(by))
-	for i, o := range by {
-		if o.Desc {
-			out[i] = sql.OrderByField(o.Column, sql.OrderDesc()).ToFunc()
-			continue
-		}
-
-		out[i] = sql.OrderByField(o.Column).ToFunc()
-	}
-
-	return out
-}
-
-const (
-	// InvitationPageSize is what a request that did not say gets, and
-	// InvitationPageLimit is the most it gets however loudly it asks.
-	InvitationPageSize  = 50
-	InvitationPageLimit = 200
-
-	// InvitationFilterLimit is how many filters one request may carry. Each is a
-	// predicate in the same query, so it is what says how much of the
-	// database a request may ask to read -- and it is refused rather than
-	// clamped, because dropping half the filters would answer a question
-	// nobody asked.
-	InvitationFilterLimit = 32
-)
-
-// List answers with the Invitations that match any of the given filters, or with
-// every one there is if the request named none, a page at a time.
-func (s sinkInvitation) List(ctx context.Context, req *loft.InvitationListRequest) (*loft.InvitationListResponse, error) {
-	q := s.store.Db.Invitation.Query()
-
-	// Through the same narrowing every generated read goes through, and not
-	// by asking the scope alone: what narrows a read is the wall today and
-	// the wall and something else tomorrow, and a list that reached past it
-	// would be the one read that missed the something else.
-	if p, err := bare.InvitationNarrow(ctx, s.store.Scope, nil); err != nil {
-		return nil, err
-	} else if p != nil {
-		q.Where(p)
-	}
-
-	if fs := req.GetFilters(); len(fs) > 0 {
-		if len(fs) > InvitationFilterLimit {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"filters: %d of them, and %d is the most one list carries", len(fs), InvitationFilterLimit)
-		}
-
-		ps := make([]predicate.Invitation, 0, len(fs))
-		for i, f := range fs {
-			p, err := filterInvitation(f)
-			if err != nil {
-				return nil, status.Errorf(codes.InvalidArgument, "filters[%d]: %s", i, err)
-			}
-
-			ps = append(ps, p)
-		}
-
-		q.Where(entInvitation.Or(ps...))
-	}
-
-	// Which order, and which way: one the schema declared, and never one a
-	// request makes up, since an order is a walk of an index.
-	by, after, next, tag := orderInvitation, afterInvitation, nextInvitation, ""
-	if req.GetReverse() {
-		// The same index, walked from the other end.
-		by, tag = pdReverse(by), tag+"/reverse"
-	}
-
-	if v := req.GetAfter(); v != "" {
-		p, err := after(v, by, tag)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "after: %s", err)
-		}
-
-		q.Where(p)
-	}
-
-	// One row more than the page, which is how "is there another" is answered
-	// without a second query and without a count. The extra is dropped before
-	// the answer is built; it was only ever asked for to see whether it was
-	// there -- so a full last page answers with no cursor rather than sending
-	// the caller back for an empty one.
-	size := sqlpage.Size(int(req.GetSize()), InvitationPageSize, InvitationPageLimit)
-	us, err := q.Order(orderByInvitation(by)...).Limit(size + 1).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	more := len(us) > size
-	if more {
-		us = us[:size]
-	}
-
-	items := make([]*loft.Invitation, len(us))
-	for i, u := range us {
-		items[i] = u.Proto()
-	}
-
-	res := loft.InvitationListResponse_builder{Items: items}.Build()
-	if more {
-		v, err := next(us[len(us)-1], tag)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "next: %s", err)
-		}
-
-		res.SetNext(v)
-	}
-
-	return res, nil
-}
-
-// filterInvitation turns one filter into the predicate that selects what it
-// names. Naming nothing is refused, since the request asked for "these" and
-// did not say which.
-func filterInvitation(f *loft.InvitationFilter) (predicate.Invitation, error) {
-	ps := make([]predicate.Invitation, 0, 1)
-	if f.HasRef() {
-		p, err := bare.InvitationPick(f.GetRef())
-		if err != nil {
-			return nil, err
-		}
-
-		ps = append(ps, p)
-	}
-	if f.HasTenant() {
-		w := f.GetTenant()
-		if b := w.GetId(); len(b) > 0 {
-			// The **foreign key column** on this row, which is what an
-			// edge is. A subquery for a comparison against an indexed
-			// column is work nobody asked for.
-			k, err := entuuid.FromBytes(b)
-			if err != nil {
-				return nil, status.Errorf(codes.InvalidArgument, "tenant: %s", err)
-			}
-
-			ps = append(ps, entInvitation.TenantIdEQ(k))
-		} else {
-			// Named some other way -- an alias, a slug. Resolving it
-			// would be a read, and a predicate is built without one, so
-			// it becomes a condition on the target instead. One hop,
-			// against whatever index that column has.
-			q, err := bare.TenantPick(w)
-			if err != nil {
-				return nil, err
-			}
-
-			ps = append(ps, entInvitation.HasTenantWith(q))
-		}
-	}
-	if f.HasState() {
-		ps = append(ps, entInvitation.StateEQ(f.GetState()))
-	}
-	if len(ps) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "a filter that names nothing")
-	}
-
-	return entInvitation.And(ps...), nil
 }
 
 type sinkItemModel struct {
@@ -13778,10 +13524,6 @@ func (s gateHolder) admit(ctx context.Context, req *loft.HolderAddRequest) (*lof
 		return nil, err
 	}
 
-	if req.HasParty() {
-		return nil, pderr.Invalidf("party", "is established by this deployment and not asserted by a request")
-	}
-
 	if err := seen.Visible(ctx, s.Gate.drv, "Tenant", req.GetTenant(), func() error {
 		_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
 			Ref: req.GetTenant(),
@@ -14666,201 +14408,6 @@ func (s gateInventoryCount) admit(ctx context.Context, req *loft.InventoryCountA
 
 	return req, nil
 }
-
-type gateInvitation struct {
-	Gate
-	loft.InvitationServiceServer
-}
-
-func (s Gate) Invitation() loft.InvitationServiceServer {
-	v := gateInvitation{s, s.Next().Invitation()}
-	v.InvitationServiceServer = bare.InvitationWithAddRule(v.InvitationServiceServer, v.admit)
-	return v
-}
-
-// admit refuses a Invitation put into a Tenant this caller cannot see.
-//
-// The wall is a predicate and an Add has no query, so without this the
-// identifier in `tenant` becomes a foreign key with nothing consulted.
-// The row is then invisible to whoever planted it and visible to whoever
-// holds that Tenant, which is the shape of the bug rather than a
-// mitigation of it.
-//
-// NotFound rather than a refusal, for the reason on `gateHolder.admit`:
-// that a row exists is itself something a caller who may not see it
-// should not be told.
-//
-// It is what an Add is asked, and an AddMany of every item it carries;
-// see [Gate.Invitation].
-func (s gateInvitation) admit(ctx context.Context, req *loft.InvitationAddRequest) (*loft.InvitationAddRequest, error) {
-	if ref := req.GetTenant(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Tenant")
-			}
-
-			return nil, err
-		}
-	}
-
-	if ref := req.GetInviter(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Holder")
-			}
-
-			return nil, err
-		}
-	}
-
-	if ref := req.GetParty(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Party")
-			}
-
-			return nil, err
-		}
-	}
-
-	if ref := req.GetHolder(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Holder")
-			}
-
-			return nil, err
-		}
-	}
-
-	return req, nil
-}
-
-// Patch refuses an edge moved onto a row this caller cannot see.
-//
-// The wall narrows the row being written and says nothing about what the
-// write points **at**. An edge is a read -- a `Select` walks it -- so one
-// moved out of the caller's scope is a way through the wall one hop later,
-// exactly as it would have been at `Add`.
-func (s gateInvitation) Patch(ctx context.Context, req *loft.InvitationPatchRequest) (*loft.Invitation, error) {
-	if ref := req.GetParty(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-			_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Party")
-			}
-
-			return nil, err
-		}
-	}
-
-	if ref := req.GetHolder(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-			_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Holder")
-			}
-
-			return nil, err
-		}
-	}
-
-	return s.InvitationServiceServer.Patch(ctx, req)
-}
-
-// Apply refuses a document that moves an edge onto a row this caller cannot
-// see, as Patch refuses a request that does.
-//
-// A document names the row an edge points at by its key, and the server
-// behind writes that key into the column as it is -- compiling a document
-// reads nothing. So the read Patch is asked is asked here of the key the
-// document lands in the column, compiled the way the server behind will.
-func (s gateInvitation) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
-	if !req.HasPatch() {
-		// Nothing written, and the server behind refuses it in its own words.
-		return s.InvitationServiceServer.Apply(ctx, req)
-	}
-
-	plan, err := ormpatch.Compile(gateInvitationEntity, req.GetPatch())
-	if err != nil {
-		// Refused here rather than passed on, in the codes the server behind
-		// gives the same document: one this layer cannot read is one it can
-		// say nothing about.
-		if errors.Is(err, ormpatch.ErrUnsupported) {
-			return nil, status.Errorf(codes.Unimplemented, "%s", err)
-		}
-
-		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
-	}
-	if w, ok := plan.WriteTo(11); ok {
-		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := loft.PartyRef_builder{Id: k.Key.Bytes()}.Build()
-			if err := seen.Visible(ctx, s.Gate.drv, "Party", ref, func() error {
-				_, err := s.Gate.Next().Party().Get(ctx, loft.PartyGetRequest_builder{
-					Ref: ref,
-				}.Build())
-				return err
-			}); err != nil {
-				if status.Code(err) == codes.NotFound {
-					return nil, gate.ErrNotFound("Party")
-				}
-
-				return nil, err
-			}
-		}
-	}
-	if w, ok := plan.WriteTo(19); ok {
-		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := loft.HolderRef_builder{Id: k.Key.Bytes()}.Build()
-			if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
-				_, err := s.Gate.Next().Holder().Get(ctx, loft.HolderGetRequest_builder{
-					Ref: ref,
-				}.Build())
-				return err
-			}); err != nil {
-				if status.Code(err) == codes.NotFound {
-					return nil, gate.ErrNotFound("Holder")
-				}
-
-				return nil, err
-			}
-		}
-	}
-
-	return s.InvitationServiceServer.Apply(ctx, req)
-}
-
-// gateInvitationEntity is what a Invitation document is compiled against: the entity
-// parsed from the file that declares it, as the server behind parses it.
-var gateInvitationEntity = ormpatch.MustEntityOf((*loft.Invitation)(nil).ProtoReflect().Descriptor().ParentFile(), "Invitation")
 
 type gateItemModel struct {
 	Gate
@@ -16651,8 +16198,6 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedHolder.md, describedHolder.secret, describedHolder.personal
 	case InventoryCountDomain:
 		return describedInventoryCount.md, describedInventoryCount.secret, describedInventoryCount.personal
-	case InvitationDomain:
-		return describedInvitation.md, describedInvitation.secret, describedInvitation.personal
 	case ItemModelDomain:
 		return describedItemModel.md, describedItemModel.secret, describedItemModel.personal
 	case LabelDomain:
@@ -16784,9 +16329,6 @@ var (
 	describedInventoryCount = describe((*loft.InventoryCount)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
-	describedInvitation = describe((*loft.Invitation)(nil),
-		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{9})
 	describedItemModel = describe((*loft.ItemModel)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -16902,7 +16444,6 @@ func added(by string) bool {
 		loft.FactService_AddMany_FullMethodName,
 		loft.HolderService_Add_FullMethodName,
 		loft.InventoryCountService_Add_FullMethodName,
-		loft.InvitationService_Add_FullMethodName,
 		loft.ItemModelService_Add_FullMethodName,
 		loft.LabelService_Add_FullMethodName,
 		loft.LegalHoldService_Add_FullMethodName,
@@ -17371,38 +16912,6 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		if keep {
 			kept := row
 			kept = proto.Clone(row).(*loft.InventoryCount)
-			_, secret, personal := described(key)
-			audit.Clear(kept, secret)
-			audit.Clear(kept, personal)
-
-			v, err := proto.Marshal(kept)
-			if err != nil {
-				return uuid.Nil(), nil, err
-			}
-			b = v
-		}
-
-		if !row.HasTenant() {
-			return uuid.Nil(), b, nil
-		}
-
-		k, err := entuuid.FromBytes(row.GetTenant().GetId())
-		if err != nil {
-			return uuid.Nil(), nil, err
-		}
-
-		return k, b, nil
-
-	case InvitationDomain:
-		row, ok := image.(*loft.Invitation)
-		if !ok {
-			return uuid.Nil(), []byte{}, nil
-		}
-
-		b := []byte{}
-		if keep {
-			kept := row
-			kept = proto.Clone(row).(*loft.Invitation)
 			_, secret, personal := described(key)
 			audit.Clear(kept, secret)
 			audit.Clear(kept, personal)
@@ -17960,8 +17469,6 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 		vs, err = rowsHolder(ctx, s.Db, entHolder.IdEQ(uuid.UUID(key)))
 	case InventoryCountDomain:
 		vs, err = rowsInventoryCount(ctx, s.Db, entInventoryCount.IdEQ(uuid.UUID(key)))
-	case InvitationDomain:
-		vs, err = rowsInvitation(ctx, s.Db, entInvitation.IdEQ(uuid.UUID(key)))
 	case ItemModelDomain:
 		vs, err = rowsItemModel(ctx, s.Db, entItemModel.IdEQ(uuid.UUID(key)))
 	case LabelDomain:
@@ -18152,7 +17659,7 @@ func (v *keptTrail) write(ctx context.Context) error {
 // row's seal covers (payday#115).
 func isSealed(key pdid.Id) bool {
 	switch key.Domain() {
-	case AccessReviewDomain, CountFindingDomain, CustodyDomain, EventDomain, HolderDomain, InventoryCountDomain, InvitationDomain, NotificationDomain, PartyDomain, PurchaseDomain, ReservationDomain, TenantDomain, WorkOrderDomain:
+	case AccessReviewDomain, CountFindingDomain, CustodyDomain, EventDomain, HolderDomain, InventoryCountDomain, NotificationDomain, PartyDomain, PurchaseDomain, ReservationDomain, TenantDomain, WorkOrderDomain:
 		return true
 	}
 
@@ -18421,9 +17928,6 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 	}
 	if err := audit.CheckKind(ctx, d, checkedInventoryCount(db), archived, &out); err != nil {
 		return out, fmt.Errorf("inventory-count: %w", err)
-	}
-	if err := audit.CheckKind(ctx, d, checkedInvitation(db), archived, &out); err != nil {
-		return out, fmt.Errorf("invitation: %w", err)
 	}
 	if err := audit.CheckKind(ctx, d, checkedItemModel(db), archived, &out); err != nil {
 		return out, fmt.Errorf("item-model: %w", err)
@@ -19193,58 +18697,6 @@ func checkedInventoryCount(db *ent.Client) audit.Kind {
 			var out map[pdid.Id]*audit.Recorded
 			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
 				rows, err := rowsInventoryCount(ctx, db, entInventoryCount.IdIn(uuids(ids)...))
-				if err != nil {
-					return err
-				}
-
-				out, err = goneOf(ctx, db, ids, rows)
-				return err
-			})
-
-			return out, err
-		},
-	}
-}
-
-// checkedInvitation is what a check of the rows reads of the invitation kind.
-func checkedInvitation(db *ent.Client) audit.Kind {
-	read := func(ctx context.Context, ps ...predicate.Invitation) (audit.Page, error) {
-		var out audit.Page
-		err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-			rows, err := rowsInvitation(ctx, db, ps...)
-			if err != nil {
-				return err
-			}
-
-			recorded, err := newestDigests(ctx, db, objects(rows))
-			if err != nil {
-				return err
-			}
-
-			seals, err := sealsOf(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
-			return err
-		})
-
-		return out, err
-	}
-
-	return audit.Kind{
-		Domain: InvitationDomain,
-		Sealed: true,
-		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
-			return read(ctx, entInvitation.IdGT(uuid.UUID(after)))
-		},
-		Of: func(ctx context.Context, ids []pdid.Id) (audit.Page, error) {
-			return read(ctx, entInvitation.IdIn(uuids(ids)...))
-		},
-		Trail: func(ctx context.Context, yield func([]pdid.Id) error) error {
-			return trailObjects(ctx, db, InvitationDomain, yield)
-		},
-		Gone: func(ctx context.Context, ids []pdid.Id) (map[pdid.Id]*audit.Recorded, error) {
-			var out map[pdid.Id]*audit.Recorded
-			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-				rows, err := rowsInvitation(ctx, db, entInvitation.IdIn(uuids(ids)...))
 				if err != nil {
 					return err
 				}
@@ -20374,26 +19826,6 @@ func rowsInventoryCount(ctx context.Context, db *ent.Client, ps ...predicate.Inv
 	return out, nil
 }
 
-// rowsInvitation is the rows `ps` says of the invitation kind -- every row there is,
-// live or erased softly -- at most a page of them in identifier order, each as
-// a Get reads it.
-func rowsInvitation(ctx context.Context, db *ent.Client, ps ...predicate.Invitation) ([]audit.Live, error) {
-	q := db.Invitation.Query().Where(ps...)
-	bare.InvitationSelectInit(q, nil)
-
-	vs, err := q.Order(entInvitation.ById()).Limit(audit.RowsPage).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]audit.Live, len(vs))
-	for i, v := range vs {
-		out[i] = audit.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
-	}
-
-	return out, nil
-}
-
 // rowsItemModel is the rows `ps` says of the item-model kind -- every row there is,
 // live or erased softly -- at most a page of them in identifier order, each as
 // a Get reads it.
@@ -21101,8 +20533,6 @@ func record(ctx context.Context, db *ent.Client, content audit.Contents, action 
 				rows, err = rowsHolder(ctx, db, entHolder.IdIn(uuids(page)...))
 			case InventoryCountDomain:
 				rows, err = rowsInventoryCount(ctx, db, entInventoryCount.IdIn(uuids(page)...))
-			case InvitationDomain:
-				rows, err = rowsInvitation(ctx, db, entInvitation.IdIn(uuids(page)...))
 			case ItemModelDomain:
 				rows, err = rowsItemModel(ctx, db, entItemModel.IdIn(uuids(page)...))
 			case LabelDomain:
@@ -21281,8 +20711,6 @@ func (s trailStore) Carry(ctx context.Context, digest *audit.Digest, d pdid.Doma
 			rows, err = rowsHolder(ctx, s.db, entHolder.IdIn(uuids(ids)...))
 		case InventoryCountDomain:
 			rows, err = rowsInventoryCount(ctx, s.db, entInventoryCount.IdIn(uuids(ids)...))
-		case InvitationDomain:
-			rows, err = rowsInvitation(ctx, s.db, entInvitation.IdIn(uuids(ids)...))
 		case ItemModelDomain:
 			rows, err = rowsItemModel(ctx, s.db, entItemModel.IdIn(uuids(ids)...))
 		case LabelDomain:
@@ -21738,24 +21166,9 @@ func (s interceptParty) Update(ctx context.Context, req *loft.PartyUpdateRequest
 		loft.PartyService_Update_FullMethodName, req, s.PartyServiceServer.Update)
 }
 
-func (s interceptParty) Invite(ctx context.Context, req *loft.PartyInviteRequest) (*loft.PartyInviteResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		loft.PartyService_Invite_FullMethodName, req, s.PartyServiceServer.Invite)
-}
-
 func (s interceptParty) SetRole(ctx context.Context, req *loft.PartySetRoleRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
 		loft.PartyService_SetRole_FullMethodName, req, s.PartyServiceServer.SetRole)
-}
-
-func (s interceptParty) SetPassword(ctx context.Context, req *loft.PartySetPasswordRequest) (*loft.PartySetPasswordResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		loft.PartyService_SetPassword_FullMethodName, req, s.PartyServiceServer.SetPassword)
-}
-
-func (s interceptParty) Deactivate(ctx context.Context, req *loft.PartyDeactivateRequest) (*loft.Party, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
-		loft.PartyService_Deactivate_FullMethodName, req, s.PartyServiceServer.Deactivate)
 }
 
 func (s interceptParty) Pseudonymize(ctx context.Context, req *loft.PartyPseudonymizeRequest) (*loft.Party, error) {
@@ -21766,50 +21179,6 @@ func (s interceptParty) Pseudonymize(ctx context.Context, req *loft.PartyPseudon
 func (s interceptParty) Search(ctx context.Context, req *loft.PartySearchRequest) (*loft.PartySearchResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
 		loft.PartyService_Search_FullMethodName, req, s.PartyServiceServer.Search)
-}
-
-func (s Intercept) Invitation() loft.InvitationServiceServer {
-	return interceptInvitation{s, s.Next().Invitation()}
-}
-
-type interceptInvitation struct {
-	Intercept
-	loft.InvitationServiceServer
-}
-
-func (s interceptInvitation) Add(ctx context.Context, req *loft.InvitationAddRequest) (*loft.Invitation, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		loft.InvitationService_Add_FullMethodName, req, s.InvitationServiceServer.Add)
-}
-
-func (s interceptInvitation) Get(ctx context.Context, req *loft.InvitationGetRequest) (*loft.Invitation, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		loft.InvitationService_Get_FullMethodName, req, s.InvitationServiceServer.Get)
-}
-
-func (s interceptInvitation) Patch(ctx context.Context, req *loft.InvitationPatchRequest) (*loft.Invitation, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		loft.InvitationService_Patch_FullMethodName, req, s.InvitationServiceServer.Patch)
-}
-
-func (s interceptInvitation) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		loft.InvitationService_Apply_FullMethodName, req, s.InvitationServiceServer.Apply)
-}
-
-func (s interceptInvitation) Erase(ctx context.Context, req *loft.InvitationRef) (*loft.InvitationEraseResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		loft.InvitationService_Erase_FullMethodName, req, s.InvitationServiceServer.Erase)
-}
-
-func (s interceptInvitation) List(ctx context.Context, req *loft.InvitationListRequest) (*loft.InvitationListResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		loft.InvitationService_List_FullMethodName, req, s.InvitationServiceServer.List)
-}
-
-func (s interceptInvitation) Revoke(ctx context.Context, req *loft.InvitationRevokeRequest) (*loft.Invitation, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
-		loft.InvitationService_Revoke_FullMethodName, req, s.InvitationServiceServer.Revoke)
 }
 
 func (s Intercept) Asset() loft.AssetServiceServer {
@@ -24627,8 +23996,6 @@ func (s pastStore) TenantOf(ctx context.Context, ids []pdid.Id) (map[pdid.Id]pdi
 				rows, err = rowsHolder(ctx, s.db, entHolder.IdIn(uuids(page)...))
 			case InventoryCountDomain:
 				rows, err = rowsInventoryCount(ctx, s.db, entInventoryCount.IdIn(uuids(page)...))
-			case InvitationDomain:
-				rows, err = rowsInvitation(ctx, s.db, entInvitation.IdIn(uuids(page)...))
 			case ItemModelDomain:
 				rows, err = rowsItemModel(ctx, s.db, entItemModel.IdIn(uuids(page)...))
 			case LabelDomain:
@@ -25544,21 +24911,6 @@ func init() {
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
-		md := (&loft.Invitation{}).ProtoReflect().Descriptor()
-		fs := md.Fields()
-		personals[md.FullName()] = personal{
-			key: fs.ByNumber(1),
-			fields: []protoreflect.FieldDescriptor{
-				fs.ByNumber(9),
-			},
-			tenant: func(m protoreflect.Message) pdid.Id {
-				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
-			},
-		}
-		r := (&loft.InvitationRef{}).ProtoReflect().Descriptor()
-		refs[r.FullName()] = r.Fields().ByName("id")
-	}
-	{
 		md := (&loft.Notification{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
@@ -25910,9 +25262,6 @@ func (accessRecorder) Snapshots(method string) bare.SnapshotOptions {
 		loft.InventoryCountService_Add_FullMethodName,
 		loft.InventoryCountService_Patch_FullMethodName,
 		loft.InventoryCountService_Apply_FullMethodName,
-		loft.InvitationService_Add_FullMethodName,
-		loft.InvitationService_Patch_FullMethodName,
-		loft.InvitationService_Apply_FullMethodName,
 		loft.NotificationService_Add_FullMethodName,
 		loft.NotificationService_Patch_FullMethodName,
 		loft.NotificationService_Apply_FullMethodName,
@@ -25937,7 +25286,6 @@ func (accessRecorder) Snapshots(method string) bare.SnapshotOptions {
 		loft.CustodyService_Erase_FullMethodName,
 		loft.HolderService_Erase_FullMethodName,
 		loft.InventoryCountService_Erase_FullMethodName,
-		loft.InvitationService_Erase_FullMethodName,
 		loft.NotificationService_Erase_FullMethodName,
 		loft.PartyService_Erase_FullMethodName,
 		loft.PurchaseService_Erase_FullMethodName,
@@ -26116,7 +25464,6 @@ func Resources(w *watch.Watch, project resource.Project) (*resource.Server, erro
 		&loft.Fact{},
 		&loft.Holder{},
 		&loft.InventoryCount{},
-		&loft.Invitation{},
 		&loft.ItemModel{},
 		&loft.Label{},
 		&loft.LegalHold{},
@@ -26751,46 +26098,6 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard resource.Guard) r
 				return nil, err
 			}
 			query := db.InventoryCount.Query()
-			if pred != nil {
-				query.Where(pred)
-			}
-			ok, err := query.Modify(func(q *sql.Selector) { q.From(row) }).Exist(ctx)
-			if err != nil || !ok {
-				return nil, err
-			}
-			return publicResource(v), nil
-		case *loft.Invitation:
-			ctx, err := guard.Allow(ctx, loft.InvitationService_Get_FullMethodName)
-			if err != nil {
-				switch status.Code(err) {
-				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
-					return nil, nil
-				}
-				return nil, err
-			}
-			pred, err := bare.InvitationNarrow(ctx, scope, nil)
-			if err != nil {
-				return nil, err
-			}
-			row, err := resourcesql.Row(db.Dialect(), entInvitation.Table, []resourcesql.Column{
-				{Number: 1, Name: entInvitation.FieldId, Type: 64, Nullable: false, Key: 0},
-				{Number: 2, Name: entInvitation.TenantColumn, Type: 64, Nullable: false, Key: 1},
-				{Number: 8, Name: entInvitation.InviterColumn, Type: 64, Nullable: false, Key: 1},
-				{Number: 9, Name: entInvitation.FieldEmail, Type: 9, Nullable: false, Key: 0},
-				{Number: 10, Name: entInvitation.FieldRole, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entInvitation.PartyColumn, Type: 64, Nullable: true, Key: 1},
-				{Number: 13, Name: entInvitation.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
-				{Number: 14, Name: entInvitation.FieldDateErased, Type: 65, Nullable: true, Key: 0},
-				{Number: 15, Name: entInvitation.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 16, Name: entInvitation.FieldState, Type: 9, Nullable: false, Key: 0},
-				{Number: 17, Name: entInvitation.FieldDateExpires, Type: 65, Nullable: false, Key: 0},
-				{Number: 18, Name: entInvitation.FieldDateSettled, Type: 65, Nullable: true, Key: 0},
-				{Number: 19, Name: entInvitation.HolderColumn, Type: 64, Nullable: true, Key: 1},
-			}, v)
-			if err != nil {
-				return nil, err
-			}
-			query := db.Invitation.Query()
 			if pred != nil {
 				query.Where(pred)
 			}
@@ -27603,14 +26910,6 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
 	case loft.InventoryCountService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case loft.InvitationService_Add_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case loft.InvitationService_Patch_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case loft.InvitationService_Apply_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case loft.InvitationService_Erase_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case loft.ItemModelService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case loft.ItemModelService_Patch_FullMethodName:
@@ -27767,7 +27066,7 @@ func (r resourceRecorder) Record(ctx context.Context, s bare.Server, c bare.Chan
 		return nil
 	}
 	switch image.ProtoReflect().Descriptor().FullName() {
-	case "loft.Access", "loft.AccessReview", "loft.Allocation", "loft.Asset", "loft.AssetType", "loft.Attachment", "loft.Audit", "loft.Bookable", "loft.CountFinding", "loft.Custody", "loft.CustodyLine", "loft.Event", "loft.Fact", "loft.Holder", "loft.InventoryCount", "loft.Invitation", "loft.ItemModel", "loft.Label", "loft.LegalHold", "loft.Link", "loft.Notification", "loft.Party", "loft.Placement", "loft.Purchase", "loft.PurchaseLine", "loft.Reservation", "loft.ReservationItem", "loft.Stewardship", "loft.Stock", "loft.StockMovement", "loft.Tenant", "loft.TenantContract", "loft.WorkOrder":
+	case "loft.Access", "loft.AccessReview", "loft.Allocation", "loft.Asset", "loft.AssetType", "loft.Attachment", "loft.Audit", "loft.Bookable", "loft.CountFinding", "loft.Custody", "loft.CustodyLine", "loft.Event", "loft.Fact", "loft.Holder", "loft.InventoryCount", "loft.ItemModel", "loft.Label", "loft.LegalHold", "loft.Link", "loft.Notification", "loft.Party", "loft.Placement", "loft.Purchase", "loft.PurchaseLine", "loft.Reservation", "loft.ReservationItem", "loft.Stewardship", "loft.Stock", "loft.StockMovement", "loft.Tenant", "loft.TenantContract", "loft.WorkOrder":
 	default:
 		return nil
 	}

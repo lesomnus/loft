@@ -20,7 +20,7 @@ import { ArchivedSchema } from './loft/payday/archived_pb.js'
 import { AssetSchema, AttachmentSchema, LabelSchema, TagCounterSchema, TreeLockSchema } from './loft/asset_pb.js'
 import { AssetTypeSchema, ItemModelSchema } from './loft/catalog_pb.js'
 import { AuditSchema } from './loft/payday/audit_pb.js'
-import { CliLoginSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './loft/org_pb.js'
+import { CliLoginSchema, PartySchema, SessionSchema, SignInFailureSchema } from './loft/org_pb.js'
 import { CountFindingSchema, InventoryCountSchema } from './loft/count_pb.js'
 import { CustodySchema, CustodyLineSchema } from './loft/custody_pb.js'
 import { EntitlementSchema } from './loft/payday/entitlement_pb.js'
@@ -43,7 +43,7 @@ import { ArchivedService } from './loft/payday/archived_svc_pb.js'
 import { AssetService, AttachmentService, LabelService, TagCounterService, TreeLockService } from './loft/asset_svc_pb.js'
 import { AssetTypeService, ItemModelService } from './loft/catalog_svc_pb.js'
 import { AuditService } from './loft/payday/audit_svc_pb.js'
-import { CliLoginService, InvitationService, PartyService, SessionService, SignInFailureService } from './loft/org_svc_pb.js'
+import { CliLoginService, PartyService, SessionService, SignInFailureService } from './loft/org_svc_pb.js'
 import { CountFindingService, InventoryCountService } from './loft/count_svc_pb.js'
 import { CustodyService, CustodyLineService } from './loft/custody_svc_pb.js'
 import { EntitlementService } from './loft/payday/entitlement_svc_pb.js'
@@ -255,7 +255,7 @@ export const Holder = {
 	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	alias: "alias",
 	key: "id",
-	ids: ["id", "party"],
+	ids: ["id"],
 	service: HolderService,
 } as const satisfies EntityDesc
 
@@ -269,18 +269,6 @@ export const InventoryCount = {
 	key: "id",
 	ids: ["id", "startedBy"],
 	service: InventoryCountService,
-} as const satisfies EntityDesc
-
-/** loft.Invitation, as the store holds it. */
-export const Invitation = {
-	typeName: "loft.Invitation",
-	schema: InvitationSchema,
-	domain: 41,
-	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "inviter", to: "loft.Holder" }, { field: "party", to: "loft.Party" }, { field: "holder", to: "loft.Holder" }],
-	key: "id",
-	ids: ["id"],
-	service: InvitationService,
 } as const satisfies EntityDesc
 
 /** loft.ItemModel, as the store holds it. */
@@ -583,5 +571,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [Access, AccessReview, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TreeLock, WorkOrder] as const
+export const entities = [Access, AccessReview, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event, Fact, Holder, InventoryCount, ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TreeLock, WorkOrder] as const
 

@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/payday/slug"
 	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,8 +19,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/party"
-	"github.com/lesomnus/loft/internal/ent/session"
-	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -110,7 +106,6 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 		Holder:        h,
 		Tenant:        tn,
 		Role:          h.GetRole(),
-		AccountsHere:  s.deps.People != nil && s.deps.People.Embedded(),
 		Timezone:      t.zone().String(),
 		Currency:      t.settings().currency,
 		RestoreDays:   uint32(t.restoreWithin() / (24 * time.Hour)),
@@ -119,6 +114,7 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 	access.Saw(ctx, called.Saw...)
 	if s.deps.People != nil {
 		out.SetAccountUrl(s.deps.People.AccountPage())
+		out.SetConsoleUrl(s.deps.People.ConsolePage())
 	}
 	// What every member's page says above it while levyan restricts the
 	// workspace or makes it read-only (design 7.9, 7.10): the copy its
@@ -194,126 +190,6 @@ func (s domainParty) Update(ctx context.Context, req *app.PartyUpdateRequest) (*
 	return out, err
 }
 
-// Invite gives a person a login.
-func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*app.PartyInviteResponse, error) {
-	people, err := s.deps.here()
-	if err != nil {
-		return nil, err
-	}
-
-	var out *app.PartyInviteResponse
-	var made pdid.Id
-	err = s.tx(ctx, func(t *Tx) error {
-		// Before somebody is made at roster for it, which a transaction
-		// undone would leave there (D60, D64).
-		if err := t.held(); err != nil {
-			return err
-		}
-		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
-		if err != nil {
-			return err
-		}
-		if p.GetKind() != "person" {
-			return invalid("ref", "사람에게만 로그인을 발급합니다")
-		}
-		if p.HasHolder() {
-			return failed("%s은(는) 이미 로그인이 있습니다", p.GetName())
-		}
-		alias, err := slug.ParseAlias(req.GetAlias())
-		if err != nil {
-			return invalid("alias", "아이디는 영문 소문자, 숫자, -로 씁니다 (%v)", err)
-		}
-		role := or(req.GetRole(), "member")
-		if !slices.Contains(Roles, role) {
-			return invalid("role", "역할이 올바르지 않습니다 (%s)", strings.Join(Roles, ", "))
-		}
-		if taken, err := t.db.Holder.Query().Where(holder.TenantId(t.tenant.Uuid()), holder.Alias(alias), holder.DateErasedIsNil()).Exist(t.ctx); err != nil {
-			return err
-		} else if taken {
-			return invalid("alias", "이미 있는 아이디입니다")
-		}
-
-		// Them first, in the tenant at roster, which is where they sign
-		// in; the holder here is their membership, by the same identifier
-		// (D85) -- of the workspace that tenant is, and of no other.
-		if rt, err := people.Tenant(t.ctx); err != nil {
-			return err
-		} else if rt.Id != t.tenant {
-			return failed("이 배포가 섬기는 워크스페이스(@%s)가 아닙니다", rt.Alias)
-		}
-		person, err := people.AddPerson(t.ctx, alias, p.GetName(), pdid.Nil)
-		if err != nil {
-			if status.Code(err) == codes.AlreadyExists {
-				return invalid("alias", "이미 있는 아이디입니다")
-			}
-			return err
-		}
-		made = person.Id
-		shown := ""
-		if pw := req.GetPassword(); pw != "" {
-			if err := people.SetPassword(t.ctx, person.Id, pw); err != nil {
-				return passwordRefused(err)
-			}
-		} else if shown, err = people.IssuePassword(t.ctx, person.Id); err != nil {
-			return err
-		}
-
-		// Which holder at roster the membership is -- its identifier -- is
-		// not a request's to say, and the gate refuses it to one: it is
-		// written through the deployment's own servers, on this
-		// transaction, as the caller and in the caller's workspace -- the
-		// identifier of the one just made for it.
-		base, err := t.deployment()
-		if err != nil {
-			return err
-		}
-		h, err := base.Holder().Add(t.ctx, app.HolderAddRequest_builder{
-			Id:     person.Id.Bytes(),
-			Tenant: t.tenantRef(),
-			Alias:  alias,
-			Name:   p.GetName(),
-			Role:   z.Ptr(role),
-		}.Build())
-		if err != nil {
-			return err
-		}
-		if err := t.begin(nil, "party.invite", pdid.Nil, t.now, "", app.PartyInvited_builder{
-			Party:  p.GetId(),
-			Holder: h.GetId(),
-			Role:   role,
-		}.Build()); err != nil {
-			return err
-		}
-		v, err := t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
-			Ref:              req.GetRef(),
-			Holder:           app.HolderRef_builder{Id: h.GetId()}.Build(),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build())
-		if err != nil {
-			return err
-		}
-		out = app.PartyInviteResponse_builder{Party: v, Holder: h, Password: shown}.Build()
-		return nil
-	})
-	if err != nil && made != pdid.Nil {
-		// Loft kept nothing of them, so roster keeps nothing of the holder
-		// made for it either.
-		if e := people.ForgetPerson(ctx, made); e != nil {
-			err = fmt.Errorf("%w (and the person made at roster for it is still there: %v)", err, e)
-		}
-	}
-	return out, err
-}
-
-// passwordRefused is a password roster would not take, as the field it was
-// typed into.
-func passwordRefused(err error) error {
-	if status.Code(err) == codes.InvalidArgument {
-		return invalid("password", "%s", status.Convert(err).Message())
-	}
-	return err
-}
-
 // SetRole changes what a person may do. The last owner of a tenant cannot be
 // demoted, or nobody could manage it.
 func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) (*app.Party, error) {
@@ -358,129 +234,6 @@ func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) 
 			return err
 		}
 		out, err = t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
-		return err
-	})
-	return out, err
-}
-
-// SetPassword changes somebody's password at roster: the caller's own after
-// checking the current one, or another member's for an admin, which the policy
-// decides.
-func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordRequest) (*app.PartySetPasswordResponse, error) {
-	people, err := s.deps.here()
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.tx(ctx, func(t *Tx) error {
-		target := t.actor
-		own := true
-		var whose []byte
-		if req.HasRef() {
-			p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
-			if err != nil {
-				return err
-			}
-			whose = p.GetId()
-			if h := idOf(p.GetHolder().GetId()); !h.IsZero() && h != t.actor {
-				target, own = h, false
-			}
-		}
-		if !own {
-			me, err := t.db.Holder.Query().Where(holder.Id(t.actor.Uuid())).Only(t.ctx)
-			if err != nil {
-				return err
-			}
-			if me.Role != "owner" && me.Role != "admin" {
-				return status.Error(codes.PermissionDenied, "다른 사람의 비밀번호는 관리자만 바꿀 수 있습니다")
-			}
-		}
-
-		h, err := t.db.Holder.Get(t.ctx, target.Uuid())
-		if err != nil || h.DateErased != nil {
-			return failed("바꿀 비밀번호가 없는 사람입니다")
-		}
-		if own {
-			p, err := people.ById(t.ctx, target.String())
-			if err != nil {
-				return err
-			}
-			if _, err := people.Verify(t.ctx, p.Alias, req.GetCurrent()); err != nil {
-				if errors.Is(err, identity.ErrRefused) {
-					return invalid("current", "지금 비밀번호가 맞지 않습니다")
-				}
-				return err
-			}
-		}
-		if err := t.begin(nil, "party.password", pdid.Nil, t.now, "", app.PartyPasswordSet_builder{
-			Party:  whose,
-			Holder: target.Bytes(),
-			Own:    own,
-		}.Build()); err != nil {
-			return err
-		}
-		if err := people.SetPassword(t.ctx, target, req.GetPassword()); err != nil {
-			return passwordRefused(err)
-		}
-		if !own {
-			// A password reset by somebody else is somebody being locked out
-			// of wherever they are signed in: here, and at roster.
-			if err := people.Invalidate(t.ctx, target); err != nil {
-				return err
-			}
-			return t.signOut(target)
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &app.PartySetPasswordResponse{}, nil
-}
-
-// Deactivate ends a login and keeps the person and their history.
-//
-// What ends is the membership of this workspace. Their holder at roster is
-// the tenant's, and is not touched; nor are their sessions: a call stops
-// finding a holder to be served as the moment the membership is gone, and a
-// sign-in finds the membership ended (`tenancy.ErrEnded`).
-func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateRequest) (*app.Party, error) {
-	var out *app.Party
-	err := s.tx(ctx, func(t *Tx) error {
-		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
-		if err != nil {
-			return err
-		}
-		h := idOf(p.GetHolder().GetId())
-		if h.IsZero() {
-			out = p
-			return nil
-		}
-		if h == t.actor {
-			return failed("자기 로그인은 중지할 수 없습니다")
-		}
-		if err := t.begin(nil, "party.deactivate", pdid.Nil, t.now, "", app.PartyDeactivated_builder{
-			Party:  p.GetId(),
-			Holder: h.Bytes(),
-		}.Build()); err != nil {
-			return err
-		}
-		// The record's link to the membership goes below, and with it the
-		// one way a later 개인정보 삭제 had to the membership's names: the
-		// membership keeps which record it was (`Holder.party`, loft#25).
-		// Through ent, as [Tx.endMembership] writes a membership: a stamp,
-		// which no request may set.
-		if err := t.db.Holder.UpdateOneId(h.Uuid()).SetParty(uuidOf(p.GetId())).Exec(t.ctx); err != nil {
-			return err
-		}
-		if _, err := t.next.Holder().Erase(t.ctx, app.HolderRef_builder{Id: h.Bytes()}.Build()); err != nil {
-			return err
-		}
-		out, err = t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
-			Ref:              req.GetRef(),
-			HolderNull:       z.Ptr(true),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build())
 		return err
 	})
 	return out, err
@@ -774,10 +527,4 @@ func (s domainItemModel) Update(ctx context.Context, req *app.ItemModelUpdateReq
 		return err
 	})
 	return out, err
-}
-
-// signOut ends every session a member has.
-func (t *Tx) signOut(member pdid.Id) error {
-	_, err := t.db.Session.Delete().Where(session.Holder(member.Uuid())).Exec(t.ctx)
-	return err
 }

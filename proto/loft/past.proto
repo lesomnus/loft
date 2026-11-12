@@ -160,13 +160,6 @@ option (payday.app) = {
 //   14  units          uint32                     -- how many of a pool it takes, waits for or lets go of
 //   15  workspace      string                     -- what its workspace was as its time came, when that is why nobody took it up: readonly | closed
 //
-// invitation.* holds, by number:
-//
-//    1  invitation     bytes                      -- the invitation
-//    2  role           string                     -- the role of the membership it makes
-//    3  party          bytes                      -- the person record it names
-//    4  holder         bytes                      -- the membership it made
-//
 // label.* holds, by number:
 //
 //    1  label          bytes                      -- the label
@@ -195,7 +188,6 @@ option (payday.app) = {
 //    2  holder         bytes                      -- the membership: a login of the workspace
 //    3  kind           string                     -- what the party is: person | team | org | vendor
 //    4  role           string                     -- what the membership may do from then on
-//    5  own            bool                       -- the member's own password, not somebody's by an administrator
 //    6  by             string                     -- who said it, where no person did: succession | operator
 //    7  held           uint32                     -- how many of the trail's rows a legal hold kept as they were
 //
@@ -686,45 +678,6 @@ message ReservationAllocationChanged {
   uint32 units = 14;
 }
 
-// InvitationAdded is somebody invited to the workspace (`invitation.add`), as
-// `role` -- and as the person record `party`, when it names one.
-message InvitationAdded {
-  option (payday.event) = {kinds: "invitation.add"};
-
-  bytes invitation = 1;
-  string role = 2;
-  bytes party = 3;
-}
-
-// InvitationAccepted is an invitation said yes to (`invitation.accept`): the
-// membership `holder` made, as `role`.
-message InvitationAccepted {
-  option (payday.event) = {kinds: "invitation.accept"};
-
-  bytes invitation = 1;
-  string role = 2;
-  bytes holder = 4;
-}
-
-// InvitationChanged is an invitation moved on with nothing to say but which
-// (D30): made an account's by the code its mail carried, said no to, or taken
-// back by the workspace. The three hold the same.
-//
-//   invitation.claim   invitation
-//   invitation.deny    invitation
-//   invitation.revoke  invitation
-message InvitationChanged {
-  option (payday.event) = {
-    kinds: [
-      "invitation.claim",
-      "invitation.deny",
-      "invitation.revoke"
-    ]
-  };
-
-  bytes invitation = 1;
-}
-
 // LabelsPrinted is labels made (`label.print`): blank, or one for each of
 // `assets`.
 message LabelsPrinted {
@@ -808,16 +761,6 @@ message PartySaved {
   string kind = 3;
 }
 
-// PartyInvited is a person given a login (`party.invite`): a membership of
-// the workspace, as `role`.
-message PartyInvited {
-  option (payday.event) = {kinds: "party.invite"};
-
-  bytes party = 1;
-  bytes holder = 2;
-  string role = 4;
-}
-
 // PartyRoleSet is what a member may do, changed (`party.role`): by somebody
 // who may, or `by` the deployment.
 message PartyRoleSet {
@@ -827,25 +770,6 @@ message PartyRoleSet {
   bytes holder = 2;
   string role = 4;
   string by = 6;
-}
-
-// PartyPasswordSet is a password changed (`party.password`): the member's
-// own, or somebody else's by an administrator.
-message PartyPasswordSet {
-  option (payday.event) = {kinds: "party.password"};
-
-  bytes party = 1;
-  bytes holder = 2;
-  bool own = 5;
-}
-
-// PartyDeactivated is a login ended, the person and their history kept
-// (`party.deactivate`).
-message PartyDeactivated {
-  option (payday.event) = {kinds: "party.deactivate"};
-
-  bytes party = 1;
-  bytes holder = 2;
 }
 
 // PartyPseudonymized is a person forgotten in the workspace

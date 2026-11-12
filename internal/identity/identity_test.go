@@ -840,19 +840,23 @@ func TestRostersWordArrivesAsItHappens(t *testing.T) {
 }
 
 // TestAnAccountPageIsAnExternalRostersOwn: the page where somebody manages
-// how they sign in is roster's, at its front door; the roster in this process
-// has none to name.
+// how they sign in, and the console where the tenant's administrators manage
+// its members, are roster's, at its front door; the roster in this process
+// has neither to name.
 func TestAnAccountPageIsAnExternalRostersOwn(t *testing.T) {
 	x := require.New(t)
 	e := newExternal(t)
-	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: e.key, AccountUrl: "https://id.example/"}, "", slog.Default())
+	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: e.key, AccountUrl: "https://id.example/", ConsoleUrl: "https://id.example/console"}, "", slog.Default())
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
 	x.Equal("https://id.example/", s.AccountPage())
+	x.Equal("https://id.example/console", s.ConsolePage())
 
 	drv, dsn := pdtest.DB(t)
 	_, err = Open(t.Context(), Config{Db: config.DbConfig{Driver: drv, Dsn: dsn}, AccountUrl: "https://id.example/"}, t.TempDir(), slog.Default())
 	x.ErrorContains(err, "account_url")
+	_, err = Open(t.Context(), Config{Db: config.DbConfig{Driver: drv, Dsn: dsn}, ConsoleUrl: "https://id.example/console"}, t.TempDir(), slog.Default())
+	x.ErrorContains(err, "console_url")
 }
 
 // TestTheRosterInThisProcessSaysWhereItIs: it believes its callers -- it has no

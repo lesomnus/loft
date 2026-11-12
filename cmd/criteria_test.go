@@ -299,15 +299,12 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 		x.NotContains(strings.ToLower(f.Info().Name), "pass", "`loft auth login` takes a password")
 	}
 
-	// What carries a password, of every call this app serves: setting one's
-	// own or, for an administrator, somebody's, and the login an
-	// administrator issues on the roster in this process -- each setting a
-	// password, none signing anybody in, and each a call made with a session
-	// there is already. And the operator's, at the entry point alone
-	// (`server/admin`, design 9.15): an account made, or given a password,
-	// on the roster in this process, and the members who name no account
-	// given one -- each setting a password, for an operator's key, and none
-	// of them served here.
+	// What carries a password, of every call this app serves: none -- who
+	// signs in and how is roster's (D87). The operator's, at the entry point
+	// alone (`server/admin`, design 9.15): somebody made, or given a
+	// password, on the roster in this process, and the members a restore
+	// brought back made there -- each setting a password, for an operator's
+	// key, and none of them served here.
 	carries := map[string]bool{}
 	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
 		if fd.Package() != "loft" {
@@ -327,8 +324,6 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 		return true
 	})
 	x.Equal(map[string]bool{
-		"loft.PartyService.SetPassword":       true,
-		"loft.PartyService.Invite":            true,
 		"loft.OperatorHolderService.Add":      true,
 		"loft.OperatorHolderService.Password": true,
 		"loft.OperatorIdentityService.Link":   true,
@@ -341,6 +336,4 @@ func TestNoOtherDoorTakesAPassword(t *testing.T) {
 		err := w.conn.Invoke(ctx, "/"+m[:i]+"/"+m[i+1:], &emptypb.Empty{}, &emptypb.Empty{})
 		x.Equal(codes.Unimplemented, status.Code(err), "%s is served here: %v", m, err)
 	}
-	_, err = app.NewPartyServiceClient(w.conn).SetPassword(ctx, app.PartySetPasswordRequest_builder{Password: "correct horse"}.Build())
-	x.Equal(codes.Unauthenticated, status.Code(err), "a password set by nobody")
 }

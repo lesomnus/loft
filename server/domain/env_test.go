@@ -332,7 +332,9 @@ func (e *env) as(h *app.Holder) context.Context {
 
 func (e *env) app() app.Server { return e.s.Walled }
 
-// person is somebody with a login and a role, signed in.
+// person is somebody with a login and a role, signed in: a person record of
+// the workspace's, and somebody roster has, made a member with it as an
+// operator makes one (D87).
 func (e *env) person(role string) (context.Context, *app.Party) {
 	e.n++
 	p, err := e.app().Party().Add(e.owner, app.PartyAddRequest_builder{
@@ -341,14 +343,27 @@ func (e *env) person(role string) (context.Context, *app.Party) {
 		Email: fmt.Sprintf("p%d@example.com", e.n),
 	}.Build())
 	e.x.NoError(err)
-	v, err := e.app().Party().Invite(e.owner, app.PartyInviteRequest_builder{
-		Ref:      ref[app.PartyRef](p.GetId()),
-		Alias:    fmt.Sprintf("p%d", e.n),
-		Role:     role,
-		Password: "password1234",
+	return e.admit(p, fmt.Sprintf("p%d", e.n), role)
+}
+
+// admit makes somebody roster has, signing in as `login`, the member the
+// person record `p` is, with `role`, and answers them signed in and the
+// record as it is then.
+func (e *env) admit(p *app.Party, login, role string) (context.Context, *app.Party) {
+	ctx := context.Background()
+	at, err := e.s.Identity.AddPerson(ctx, login, p.GetName(), pdid.Nil)
+	e.x.NoError(err)
+	e.x.NoError(e.s.Identity.SetPassword(ctx, at.Id, "password1234"))
+	_, err = e.s.Members.Admit(ctx, at, role, idOf(p.GetId()), "")
+	e.x.NoError(err)
+	h, err := e.s.Base.Holder().Get(ctx, app.HolderGetRequest_builder{
+		Ref:    app.HolderRef_builder{Id: at.Id.Bytes()}.Build(),
+		Select: app.HolderSelect_builder{All: z.Ptr(true), Tenant: app.TenantSelect_builder{All: z.Ptr(true)}.Build()}.Build(),
 	}.Build())
 	e.x.NoError(err)
-	return e.as(v.GetHolder()), v.GetParty()
+	v, err := e.s.Base.Party().Get(ctx, app.PartyGetRequest_builder{Ref: ref[app.PartyRef](p.GetId())}.Build())
+	e.x.NoError(err)
+	return e.as(h), v
 }
 
 func (e *env) space(name string, in *app.Asset) *app.Asset {

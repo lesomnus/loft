@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"sync"
 	"testing"
 	"time"
 
@@ -23,8 +24,22 @@ import (
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/pd"
 )
+
+// mailbox is every message the deployment sent.
+type mailbox struct {
+	mu   sync.Mutex
+	sent []mail.Message
+}
+
+func (m *mailbox) Send(_ context.Context, v mail.Message) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.sent = append(m.sent, v)
+	return nil
+}
 
 // TestAnOperationUndoneMailsNothing: a notification is queued in the
 // operation's own transaction and mailed after it, so an operation that is

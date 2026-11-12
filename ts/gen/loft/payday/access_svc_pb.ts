@@ -443,7 +443,7 @@ export type AccessSubject = Message<"loft.AccessSubject"> & {
   id: Uint8Array;
 
   /**
-   * What the identifier is of: `party`, `holder`, `invitation`, ...
+   * What the identifier is of: `party`, `holder`, `notification`, ...
    *
    * @generated from field: string kind = 2 [features.field_presence = IMPLICIT];
    */
@@ -451,7 +451,7 @@ export type AccessSubject = Message<"loft.AccessSubject"> & {
 
   /**
    * What a person record or a membership is called now; empty for anything
-   * else, whose name is not one to show here (an invitation's address).
+   * else, whose name is not one to show here (a notice's words).
    *
    * @generated from field: string name = 3 [features.field_presence = IMPLICIT];
    */

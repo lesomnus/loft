@@ -113,9 +113,9 @@ func TestAMessageIsSentAsTheConfigurationSays(t *testing.T) {
 	}, func(ref string) (string, error) { return "the password", nil }, nil)
 	x.NoError(err)
 
-	body := "김민수님이 Loft의 연구실 워크스페이스에 구성원으로 초대했습니다.\n\nhttps://loft.example\n"
+	body := "노트북(NB-1)의 반납 기한이 지났습니다.\n\nhttps://loft.example/custody\n"
 	x.NoError(sender.Send(context.Background(), loftmail.Message{
-		To: "kim@acme.example", Subject: "김민수님이 Loft의 연구실에 초대했습니다", Body: body,
+		To: "kim@acme.example", Subject: "연구실 워크스페이스: 반납 기한", Body: body,
 	}))
 
 	s.mu.Lock()
@@ -130,7 +130,7 @@ func TestAMessageIsSentAsTheConfigurationSays(t *testing.T) {
 	x.NoError(err)
 	subject, err := new(mime.WordDecoder).DecodeHeader(m.Header.Get("Subject"))
 	x.NoError(err)
-	x.Equal("김민수님이 Loft의 연구실에 초대했습니다", subject)
+	x.Equal("연구실 워크스페이스: 반납 기한", subject)
 	x.Equal("text/plain; charset=UTF-8", m.Header.Get("Content-Type"))
 	raw, err := io.ReadAll(base64.NewDecoder(base64.StdEncoding, m.Body))
 	x.NoError(err)
@@ -138,7 +138,7 @@ func TestAMessageIsSentAsTheConfigurationSays(t *testing.T) {
 }
 
 // What cannot work is said when the configuration is read, and not at the
-// first invitation.
+// first mail.
 func TestAConfigurationThatCannotSendIsRefused(t *testing.T) {
 	x := require.New(t)
 	none := func(string) (string, error) { return "", nil }

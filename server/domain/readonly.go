@@ -79,16 +79,11 @@ const (
 	// here (D81), is how it ends.
 	Pays Allowed = "pays"
 
-	// Leaves is a member leaving it (떠나기): a membership ended, and a
-	// person forgotten in it (개인정보 삭제) -- which ends their membership,
-	// and is besides an erasure somebody is owed, which waits for no bill as
-	// a workspace's destruction waits for none (D59).
+	// Leaves is a person forgotten in it (떠나기, 개인정보 삭제) -- which ends
+	// their membership, and is besides an erasure somebody is owed, which
+	// waits for no bill as a workspace's destruction waits for none (D59).
+	// A membership ended otherwise is roster's (D87).
 	Leaves Allowed = "leaves"
-
-	// SignIn is the person's at roster and not the workspace's (D85): how
-	// they sign in, a password -- their own, or one an administrator sets for
-	// a member who could not get in to read, take out or pay otherwise.
-	SignIn Allowed = "sign-in"
 
 	// Own is a person's own of what the deployment tells them here (D67): a
 	// notice marked read, and whether one comes by mail as well -- their own
@@ -190,8 +185,8 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.AssetService_ReadSheet_FullMethodName:        Reads,
 
 	// The workspace itself: its settings and what a change of them would
-	// take, its contract and its legal holds, its memberships, its
-	// invitations, what it tells people, its trail, and who saw whose data.
+	// take, its contract and its legal holds, its memberships, what it tells
+	// people, its trail, and who saw whose data.
 	app.TenantService_Get_FullMethodName:          Reads,
 	app.TenantService_List_FullMethodName:         Reads,
 	app.TenantService_Preview_FullMethodName:      Reads,
@@ -202,7 +197,6 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.HolderService_Get_FullMethodName:          Reads,
 	app.HolderService_List_FullMethodName:         Reads,
 	app.HolderService_Watch_FullMethodName:        Reads,
-	app.InvitationService_List_FullMethodName:     Reads,
 	app.NotificationService_Inbox_FullMethodName:  Reads,
 	app.AuditService_Get_FullMethodName:           Reads,
 	app.AuditService_List_FullMethodName:          Reads,
@@ -228,11 +222,7 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.PaymentService_Offer_FullMethodName:          Pays,
 
 	// Leaving it.
-	app.PartyService_Deactivate_FullMethodName:   Leaves,
 	app.PartyService_Pseudonymize_FullMethodName: Leaves,
-
-	// Signing in, which is the person's at roster.
-	app.PartyService_SetPassword_FullMethodName: SignIn,
 
 	// What a person is told here, which is their own: read, and by mail or
 	// not.

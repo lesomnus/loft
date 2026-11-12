@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -29,6 +30,10 @@ var (
 	// or into a tenant this one does not serve: `loft init` puts the
 	// workspace up.
 	ErrNoWorkspace = errors.New("there is no workspace here for the tenant roster vouched in: `loft init` puts it up")
+
+	// ErrRecord is a person record a member cannot be linked to: none of
+	// this workspace's, or somebody else's already.
+	ErrRecord = errors.New("not a person record a member can be")
 )
 
 // Addresses is what roster holds as checked of somebody: the addresses a
@@ -95,6 +100,27 @@ func (m Members) here(ctx context.Context, db *ent.Client, p identity.Person) (*
 }
 
 func (m Members) make(ctx context.Context, p identity.Person) error {
+	return m.admit(ctx, p, "member", pdid.Nil, "", true)
+}
+
+// Admit makes somebody roster has a member of the workspace with `role`: their
+// membership by their identifier there (D85), and the person record they are
+// -- `record`, one this workspace keeps that no login is linked to, or a new
+// one called as roster calls them, with `email` on it. What an operator does
+// at the roster in this process (`loft holder add`) and `init --demo`, which
+// make the people at roster first: one transaction, the deployment's own
+// work. Who comes to be a member by signing in is [Members.Of]'s.
+func (m Members) Admit(ctx context.Context, p identity.Person, role string, record pdid.Id, email string) (*ent.Holder, error) {
+	if err := m.admit(ctx, p, role, record, email, false); err != nil {
+		return nil, err
+	}
+	return ent.NewClient(ent.Driver(m.Drv)).Holder.Get(ctx, p.Id.Uuid())
+}
+
+// admit is a new membership and the person record it is, in one transaction:
+// `record` when it names one, the one found at an address roster checked when
+// `find`, or a new one.
+func (m Members) admit(ctx context.Context, p identity.Person, role string, record pdid.Id, email string, find bool) error {
 	tdrv, tx, err := dialect.BeginTx(ctx, m.Drv)
 	if err != nil {
 		return err
@@ -126,20 +152,37 @@ func (m Members) make(ctx context.Context, p identity.Person) error {
 		Tenant: tref,
 		Alias:  alias,
 		Name:   name,
-		Role:   z.Ptr("member"),
+		Role:   z.Ptr(role),
 	}.Build())
 	if err != nil {
 		return fmt.Errorf("@%s/%s: %w", p.TenantAlias, alias, err)
 	}
 	href := app.HolderRef_builder{Id: h.GetId()}.Build()
 
-	record, err := m.record(ctx, db, p)
-	if err != nil {
-		return err
+	var found *ent.Party
+	switch {
+	case !record.IsZero():
+		v, err := db.Party.Query().
+			Where(party.Id(record.Uuid()), party.TenantId(p.Tenant.Uuid()), party.Kind("person"), party.DateErasedIsNil()).
+			Only(ctx)
+		if ent.IsNotFound(err) {
+			return fmt.Errorf("%w: no person record %s here", ErrRecord, record)
+		}
+		if err != nil {
+			return err
+		}
+		if v.HolderId != (uuid.UUID{}) {
+			return fmt.Errorf("%w: %s is a member's already", ErrRecord, record)
+		}
+		found = v
+	case find:
+		if found, err = m.record(ctx, db, p); err != nil {
+			return err
+		}
 	}
-	if record != nil {
+	if found != nil {
 		if _, err := base.Party().Patch(ctx, app.PartyPatchRequest_builder{
-			Ref:              app.PartyRef_builder{Id: pdid.Id(record.Id).Bytes()}.Build(),
+			Ref:              app.PartyRef_builder{Id: pdid.Id(found.Id).Bytes()}.Build(),
 			Holder:           href,
 			DateUpdatedForce: z.Ptr(true),
 		}.Build()); err != nil {
@@ -149,6 +192,7 @@ func (m Members) make(ctx context.Context, p identity.Person) error {
 		Tenant: tref,
 		Name:   name,
 		Kind:   "person",
+		Email:  strings.TrimSpace(email),
 		Holder: href,
 	}.Build()); err != nil {
 		return err

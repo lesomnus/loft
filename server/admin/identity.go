@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/z"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -365,9 +365,6 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 		return nil, status.Error(codes.InvalidArgument, "login: what they sign in with")
 	}
 	name := strings.TrimSpace(req.GetName())
-	if name == "" {
-		name = login
-	}
 	role := strings.TrimSpace(req.GetRole())
 	if role == "" {
 		role = "member"
@@ -391,7 +388,7 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 			return nil, status.Errorf(codes.FailedPrecondition, "password: %s is at roster already, with a password of their own; `holder password` changes it", login)
 		}
 	case errors.Is(err, identity.ErrNoPerson):
-		p, err = s.a.S.Identity.AddPerson(ctx, login, name, pdid.Nil)
+		p, err = s.a.S.Identity.AddPerson(ctx, login, cmp.Or(name, login), pdid.Nil)
 		if err != nil {
 			return nil, fmt.Errorf("roster: %w", err)
 		}
@@ -432,25 +429,11 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 		return nil, status.Errorf(codes.AlreadyExists, "login: %s is somebody else here already", p.Alias)
 	}
 
-	as := operator.Frame(ctx, pdid.Nil)
-	tref := app.TenantRef_builder{Id: t.Id[:]}.Build()
-	h, err := s.a.S.Base.Holder().Add(as, app.HolderAddRequest_builder{
-		Id:     p.Id.Bytes(),
-		Tenant: tref,
-		Alias:  p.Alias,
-		Name:   name,
-		Role:   z.Ptr(role),
-	}.Build())
-	if err == nil {
-		_, err = s.a.S.Base.Party().Add(as, app.PartyAddRequest_builder{
-			Tenant: tref,
-			Name:   name,
-			Kind:   "person",
-			Email:  strings.TrimSpace(req.GetEmail()),
-			Holder: app.HolderRef_builder{Id: h.GetId()}.Build(),
-		}.Build())
-	}
-	if err != nil {
+	// Their membership and person record, written as the operator's, the
+	// way init --demo admits its people (`tenancy.Members.Admit`): called as
+	// the operator said, or as roster calls them.
+	p.Name = cmp.Or(name, p.Name, login)
+	if _, err := s.a.S.Members.Admit(operator.Frame(ctx, pdid.Nil), p, role, pdid.Nil, req.GetEmail()); err != nil {
 		undo()
 		return nil, err
 	}

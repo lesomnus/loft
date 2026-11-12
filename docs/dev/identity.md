@@ -5,6 +5,7 @@
 - 배포가 섬기는 테넌트는 `auth.roster.tenant` 입니다. 내장 roster는 비우면 `loft` 이고, 외부 roster는 그 테넌트의 키로 붙으므로 키의 테넌트입니다.
 - Loft의 워크스페이스(`Tenant`)는 그 테넌트의 ID와 주소(alias)를 갖습니다. `loft init` 이 세웁니다.
 - 구성원(`Holder`)은 그 테넌트의 holder이고 ID가 같습니다. 처음 로그인할 때 구성원(member)으로 생기고, 역할은 Loft의 것입니다.
+- 구성원을 넣고 빼는 일과 비밀번호는 roster의 화면에서 합니다(D87). Loft의 사람 화면은 사람 기록과 역할을 다루고, 초대도 로그인 발급도 없습니다.
 
 화면에서 하는 일은 [관리자·소유자 안내서](../guide/admin.md), 운영자가 운영자 진입점에서 하는 일은 [운영자 안내서](../guide/operator.md#계정-roster)에 있습니다.
 
@@ -13,7 +14,7 @@
 roster를 Loft 프로세스 안에서 함께 띄우는 **내장** 모드는 따로 설치할 것이 없어 시험과 개발, 써 보기에 씁니다(loft#327의 결정 5). roster의 DB는 Loft의 SQLite 파일 옆 `data/roster.db` 이고(PostgreSQL이면 `auth.roster.db`), 사람은 그 안의 테넌트(`auth.roster.tenant`, 기본 `loft`)에 있습니다. Loft는 그 roster를 `bufconn` 으로 부릅니다.
 
 - `loft init` 은 테넌트와 첫 사람(소유자, 아이디 기본 `admin`, 이름 기본 "관리자")을 만들고 비밀번호를 한 번 보여 줍니다. `--password` 로 정할 수도 있습니다.
-- `loft holder`, 사람 화면의 로그인 발급과 비밀번호 재설정은 이 roster에 사람을 만들고 비밀번호를 정합니다.
+- 이 roster에는 사람을 넣는 화면이 없으므로, 운영자가 `loft holder add|password` 로 사람을 만들어 구성원으로 넣고 비밀번호를 정합니다. `loft init --demo` 의 사람도 같은 길로 만듭니다.
 
 **운영처럼 보이는 배포에서 내장 roster를 쓰면 `loft serve` 가 시작할 때 경고합니다.** 거부하지는 않습니다. 운영처럼 보인다는 것은 DB가 PostgreSQL(`db.driver: pgx`)이거나, `app.public_url` 이 이 기계(`localhost`, `*.localhost`, 루프백 주소)가 아닌 경우입니다. 경고에는 둘 중 무엇 때문인지가 함께 나옵니다.
 
@@ -37,7 +38,7 @@ LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY
 
 - 키는 그 테넌트의 키(`rt_…`)입니다(roster `docs/apps.md` 의 C 모양). 키 하나가 테넌트 하나에만 닿습니다. `auth.roster.tenant` 는 비워 두면 키의 테넌트이고, 적으면 그것과 맞아야 합니다.
 - `loft init` 은 그 테넌트를 같은 ID와 주소로 워크스페이스로 세우고, `--login` 의 사람(기본은 roster가 테넌트를 만들 때 넣는 `admin`)을 소유자로 둡니다. 그 사람은 테넌트의 관리자가 roster에서 미리 비밀번호나 로그인 방법을 줍니다. `--password` 와 `--demo` 는 받지 않습니다.
-- 이때 `loft holder`, 사람 화면의 로그인 발급·비밀번호 변경은 거부되고 roster에서 합니다.
+- 이때 `loft holder add|password` 는 거부되고, 사람을 넣고 빼는 일과 비밀번호는 roster의 화면에서 합니다(아래 *roster의 화면*).
 - 내장 roster에서 옮기는 순서와 Kubernetes에서 키를 붙이는 곳은 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
 - roster의 박스에서 `tenant`, `role` 같은 명령을 할 때는 그 명령을 하는 운영자를 `--as <운영자>` 로 밝힙니다(control plane이 있는 roster, roster#221). roster의 접속기록이 그 사람을 남기고, 밝히지 않으면 거부됩니다. `app install` 과 `key add` 에는 필요 없습니다.
 
@@ -52,6 +53,10 @@ LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY
 ### 계정 페이지
 
 `auth.roster.account_url` 에 roster의 계정 페이지(그 테넌트의 front door, 예: `https://id.example.com/`)를 주면, 내 정보 화면에 "로그인 방법 관리"와 "계정 탈퇴" 링크가 생깁니다. 탈퇴 링크는 그 페이지의 `#leave` 로 가고, 삭제는 roster에서 합니다(`MeService.Leave`, roster#106). 삭제는 테넌트가 허용할 때만 되므로, roster 운영자가 `TenantConfig.leave` 를 켭니다(관리 콘솔의 테넌트 화면, 또는 resources 파일의 `config.leave`). 삭제된 사람은 위의 스트림으로 Loft에 들어와 떠나는 중이 됩니다.
+
+### roster의 화면
+
+`auth.roster.console_url` 에 그 테넌트의 사람이 여는 roster의 화면(user console, roster `docs/operating.md` 의 *The user console*)을 주면, Loft의 사람 화면 위의 안내 "구성원과 로그인은 roster에서 관리합니다"에 그리로 가는 링크가 생깁니다. 테넌트의 관리자가 거기서 사람을 넣고 빼고 로그인 방법을 줍니다(D87). 비워 두면 안내만 보입니다. 내장 roster에는 그 화면이 없으므로, 내장 roster에 이것을 적으면 시작하지 않습니다(`account_url` 도 같습니다).
 
 ### 역할 바꾸기 (`roster role patch`)
 
@@ -75,10 +80,10 @@ roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchServic
 
 ## 로그인과 세션
 
-- 로그인은 아이디나 이메일로 합니다. 이메일은 내장 roster면 사람 기록의 이메일이고, 외부 roster면 roster에서 확인된 주소입니다. 2단계 인증을 켠 사람은 비밀번호만으로 들어올 수 없고, SSO로 들어옵니다.
+- 로그인은 아이디나 이메일로 합니다. 이메일은 roster가 그 사람의 것으로 확인한 주소입니다. 내장 roster의 사람에게는 확인된 주소가 없으므로 아이디로 합니다. 2단계 인증을 켠 사람은 비밀번호만으로 들어올 수 없고, SSO로 들어옵니다.
 - 브라우저는 `POST /session` 으로 로그인합니다(`server/session`). 비밀번호는 roster의 `VouchService.Verify` 로 가고, 세션은 그 **구성원**의 것입니다. 고를 워크스페이스는 없습니다. 요청에도 주소에도 워크스페이스가 없고, 화면은 앱의 뿌리(`/`)입니다.
 - **처음 로그인하면 구성원이 됩니다**(`tenancy.Members`). roster의 holder ID로 Loft의 구성원 자격을 만들고, 역할은 구성원(member)입니다. 사람 기록은 roster가 확인한 주소로 찾습니다. 그 주소의 사람 기록 가운데 로그인이 없는 것이 꼭 하나면 그것을 잇고, 없거나 여럿이면 새로 만듭니다. 확인되지 않은 주소로는 잇지 않습니다(누구나 아무 주소나 적을 수 있으니까요). 아이디는 roster의 것이고, 여기서 이미 누가 쓰면 `kim-2` 처럼 번호를 붙입니다.
-- 여기서 끝낸 구성원 자격(로그인 중지, 개인정보 삭제)은 roster가 무엇이라 하든 다시 만들지 않습니다. 그 사람의 로그인은 403이고, SSO는 로그인 화면에 "이 워크스페이스에서 로그인이 중지된 사람입니다"를 보입니다. 같은 roster의 사람을 다시 들이는 길은 아직 없습니다(#332에서 정합니다).
+- 여기서 끝낸 구성원 자격(개인정보 삭제)은 roster가 무엇이라 하든 다시 만들지 않습니다. 그 사람의 로그인은 403이고, SSO는 로그인 화면에 "이 워크스페이스에서 로그인이 중지된 사람입니다"를 보입니다. 같은 roster의 사람을 다시 들이는 길은 아직 없습니다(#332에서 정합니다).
 - `loft init` 전이라 워크스페이스가 없으면 로그인은 503입니다.
 - 로그인한 사람이 roster에서 중지·삭제되거나 "모든 곳에서 로그아웃"되면 Loft의 세션도 끝납니다. 외부 roster면 roster가 말하는 즉시(roster의 동기화 스트림), 그렇지 않아도 30초 안에 끝납니다. roster에 물을 수 없으면 로그인과 세션이 거부됩니다(503).
 - 화면이 가장 먼저 묻는 것은 `GET /session` 입니다(`session.Who`). 세션이 누구인지(구성원의 ID, 아이디, 이름), `--allow` 로 좁힌 메서드, 결제를 다루는 배포인지, 워크스페이스(ID, 주소, 이름, 시간대, 닫혔으면 닫힌 때와 지워질 때)를 답합니다. 닫힌 워크스페이스는 RPC를 받지 않으므로 그 안내는 이것으로 그립니다.
@@ -111,13 +116,12 @@ roster 쪽에 필요한 것:
 
 테스트는 `internal/oidctest` 의 issuer로 로그인합니다([테스트](testing.md)).
 
-## 초대
+## 구성원 들이기
 
-워크스페이스의 소유자·관리자가 이메일 주소를 자기 역할까지의 역할로 초대하고, 보낸 초대를 보고 취소합니다(D30). 화면의 흐름은 [관리자·소유자 안내서](../guide/admin.md#사람-들이기)에 있습니다.
+구성원은 테넌트의 관리자가 roster의 화면에서 넣고, 넣은 사람은 처음 로그인할 때 구성원이 됩니다(위의 *처음 로그인하면 구성원이 됩니다*, D87). 화면의 흐름은 [관리자·소유자 안내서](../guide/admin.md#사람-들이기)에 있습니다.
 
-- 메일은 누가 어디에 초대했는지와 로그인할 주소를 알립니다. 받는 사람은 그 테넌트의 사람으로 로그인하면 구성원이 됩니다. roster에 없는 사람은 테넌트의 관리자가 roster에서 넣습니다.
-- 초대를 받아들이거나 거절하는 쪽(초대함)은 없습니다(D85). 초대의 나머지는 #332에서 정합니다.
-- 메일은 `app.mail`(SMTP)로 보냅니다. 비워 두면 보내지 않고 메일 내용을 서버 로그에 남깁니다(`loft.yaml` 의 예시 참고). 기다리는 초대는 30일 뒤 만료됩니다.
+- Loft에는 초대도, 로그인 발급도, 비밀번호를 바꾸는 화면도 없습니다. 초대(D30)는 D87이 걷어냈습니다. 누구를 넣을지는 roster가 알고, 넣은 사람은 이미 그 테넌트의 사람이어서 들어오라고 알릴 것이 남지 않기 때문입니다.
+- 내장 roster에는 화면이 없으므로 운영자가 `loft holder add` 로 넣습니다(위의 *내장 roster*).
 
 ## 사람이 떠날 때
 
@@ -127,7 +131,7 @@ roster 쪽에 필요한 것:
 - 되살린 사람은 다음 확인(1시간마다, `app.members.every`) 때 원래대로 돌아옵니다.
 - roster의 동기화 스트림은 끊긴 사이의 일을 다시 보내지 않습니다. Loft가 듣고 있지 않을 때 삭제된 사람은 서버가 하루에 한 번(`app.members.reconcile`, 기본 24h, 0이나 음수면 끔) roster에 모든 구성원을 다시 물어 찾아내고, 지금부터 떠나는 중으로 표시하고, 무엇을 표시했는지 서버 로그에 남깁니다(`Lifecycle.Reconcile`). roster가 하나도 모른다고 답하면 테넌트나 키가 잘못된 것으로 보고 아무것도 표시하지 않습니다. 구성원은 roster의 holder와 같은 ID라는 것 말고 따로 적어 두는 것이 없어서(D86), 복구한 뒤 roster에 만들지 않은 구성원도 roster가 모르는 사람으로 표시됩니다. `loft identity link` 로 만들면 다음 대조에서 돌아옵니다.
 - 바로 잊어 달라는 요청과 지금 다시 맞추는 일은 운영자가 `loft identity depart`, `loft identity reconcile` 로 합니다([운영자 안내서](../guide/operator.md#계정을-지워-달라는-요청)).
-- 구성원 자격만 끝내는 것(로그인 중지, 개인정보 삭제)은 roster의 사람을 건드리지 않습니다. 워크스페이스를 파기해도 roster의 사람은 그 테넌트에 남습니다.
+- 개인정보 삭제로 구성원 자격을 끝내는 것은 roster의 사람을 건드리지 않습니다. 워크스페이스를 파기해도 roster의 사람은 그 테넌트에 남습니다.
 
 ## roster에 없는 구성원
 

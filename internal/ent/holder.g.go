@@ -33,8 +33,5 @@ func (e *Holder) Proto() *loft.Holder {
 		x.SetDateLeaving(timestamppb.New(*e.DateLeaving))
 	}
 	x.SetMailOff(e.MailOff)
-	if e.Party != nil {
-		x.SetParty(e.Party[:])
-	}
 	return x
 }

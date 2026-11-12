@@ -45,7 +45,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/treelock"
-	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/opensearch"
 	"github.com/lesomnus/loft/server/operator"
@@ -107,24 +106,13 @@ type Deps struct {
 	// of it to the pass.
 	Pay func(ctx context.Context, objects []pdid.Id) error
 
-	// People is where the people of a tenant are: roster (design 9.10). Nil
-	// is a deployment whose people cannot be changed from here.
+	// People is where the people of a tenant are: roster (design 9.10), asked
+	// where a member's mail goes and where its pages are. Nil asks it nothing.
 	People People
 
-	// Mail sends what goes to somebody's mailbox -- an invitation, a
-	// notification -- with a link [Deps.Links] makes. Nil sends nothing.
+	// Mail sends what goes to somebody's mailbox -- a notification -- with a
+	// link [Deps.Links] makes. Nil sends nothing.
 	Mail mail.Sender
-
-	// Invitations is how long an invitation waits and how many a workspace
-	// may have out.
-	Invitations InvitationRules
-
-	// Base is the stack with neither the wall nor this layer: what a
-	// membership made by a login given is written through, by the identifier
-	// of the holder made at roster for it, which no request may say. Never
-	// handed to anything a caller reaches; this layer writes through it,
-	// after its own checks, and nothing else does.
-	Base app.Server
 
 	// Audit is what the trail keeps of each kind's writes (`audit.content`,
 	// `audit.digest.key`), as the recorder is given it: what a write this
@@ -158,43 +146,27 @@ type Closings interface {
 	Restore(ctx context.Context, db *ent.Client, workspace pdid.Id, at time.Time) error
 }
 
-// People is roster, as the people operations reach it: the holders of the
-// tenant this deployment serves, each a member here by the same identifier
-// (design 9.10, D85). On the roster in this process Loft makes them and gives
-// them passwords there; on an external one those are roster's, and the
-// operations that would do them are refused.
+// People is roster, as the domain layer reads it: the holders of the tenant
+// this deployment serves, each a member here by the same identifier (design
+// 9.10, D85). Who they are, how they sign in and whether they are a member
+// at all is roster's, and nothing here changes it (D87).
 type People interface {
+	// Embedded is whether roster runs in this process, which checks nobody's
+	// address: a member's mail then goes to their person record's.
 	Embedded() bool
-	// Tenant is the roster tenant the deployment serves: its workspace, by
-	// the same identifier (D85).
-	Tenant(ctx context.Context) (identity.Tenant, error)
-	AddPerson(ctx context.Context, alias, name string, id pdid.Id) (identity.Person, error)
-	ById(ctx context.Context, sub string) (identity.Person, error)
-	SetPassword(ctx context.Context, holder pdid.Id, password string) error
-	IssuePassword(ctx context.Context, holder pdid.Id) (string, error)
-	Verify(ctx context.Context, login, password string) (identity.Person, error)
-	Invalidate(ctx context.Context, holder pdid.Id) error
-	ForgetPerson(ctx context.Context, holder pdid.Id) error
 	// Addresses is somebody's addresses that somebody checked: where their
 	// mail goes.
 	Addresses(ctx context.Context, holder pdid.Id) ([]string, error)
 	// AccountPage is roster's page where somebody manages how they sign in,
 	// for a roster of its own; empty for none.
 	AccountPage() string
-}
-
-// here answers the people somebody is made and changed at, or the refusal a
-// deployment whose people are an external roster's gives.
-func (d *Deps) here() (People, error) {
-	if d.People == nil || !d.People.Embedded() {
-		return nil, failed("계정과 비밀번호는 roster에서 관리합니다")
-	}
-	return d.People, nil
+	// ConsolePage is roster's user console, where the tenant's administrators
+	// add and remove its members and give them a way in; empty for none.
+	ConsolePage() string
 }
 
 // mailing says whether this deployment sends mail at all. One with no SMTP
-// server writes what it would have sent to the log, which is right for an
-// invitation, whose link somebody is waiting for, and wrong for every
+// server would write what it sent to the log, which is wrong for every
 // notification: those are not queued.
 func (d *Deps) mailing() bool {
 	if d == nil || d.Mail == nil {
@@ -485,12 +457,12 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 // an overdue loan, an operator's act. `server` is the ungated stack.
 //
 // The context is framed as the deployment's work in the tenant, unless it is
-// framed in that tenant already -- an invitation's answer is, as the
-// membership it makes: the past reads who did an operation, and where, off the
-// frame (payday#151). A sweep's is nobody's; an operator's, done at their word
-// at the operator's entry point, is theirs (`operator.Frame`, D74), so that its
-// event, its trail and its access record name them. Either way it is decided
-// as the deployment's: the actor `f` is handed is nobody.
+// framed in that tenant already: the past reads who did an operation, and
+// where, off the frame (payday#151). A sweep's is nobody's; an operator's,
+// done at their word at the operator's entry point, is theirs
+// (`operator.Frame`, D74), so that its event, its trail and its access record
+// name them. Either way it is decided as the deployment's: the actor `f` is
+// handed is nobody.
 func (d *Deps) System(ctx context.Context, server app.Server, drv dialect.Driver, tenant pdid.Id, f func(t *Tx) error) error {
 	if fr, err := gate.Actor(ctx); err != nil || fr.Tenant != tenant {
 		ctx = operator.Frame(ctx, tenant)
@@ -501,18 +473,6 @@ func (d *Deps) System(ctx context.Context, server app.Server, drv dialect.Driver
 // layer is this layer on the transaction, for an operation that is made of
 // others: what it calls joins this transaction and records its own events.
 func (t *Tx) layer() Domain { return New(t.next, t.drv, t.deps) }
-
-// deployment is the deployment's own servers ([Deps.Base], neither the wall
-// nor the gate) on this transaction: for a write a layer above the gate makes
-// that no request may, which holder at roster a membership is (D85). What
-// goes through it is checked here first, and is written as the caller, in the
-// caller's workspace.
-func (t *Tx) deployment() (app.Server, error) {
-	if t.deps.Base == nil {
-		return nil, status.Error(codes.Unimplemented, "memberships cannot be made on this deployment")
-	}
-	return enttx.Rebind(t.deps.Base, t.drv)
-}
 
 // tenantRef is the caller's tenant, as a reference.
 func (t *Tx) tenantRef() *app.TenantRef {

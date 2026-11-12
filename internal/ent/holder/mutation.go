@@ -27,7 +27,6 @@ type Mutation struct {
 	role          *string
 	date_leaving  *time.Time
 	mail_off      *bool
-	party         *uuid.UUID
 	clearedFields map[string]struct{}
 	exprs         map[string]sql.Querier
 	tenant        *uuid.UUID
@@ -331,42 +330,6 @@ func (m *Mutation) ResetMailOff() {
 	delete(m.exprs, FieldMailOff)
 }
 
-// SetParty sets the "party" field.
-func (m *Mutation) SetParty(u uuid.UUID) {
-	m.party = &u
-	delete(m.clearedFields, FieldParty)
-	delete(m.exprs, FieldParty)
-}
-
-// Party returns the value of the "party" field in the mutation.
-func (m *Mutation) Party() (r uuid.UUID, exists bool) {
-	v := m.party
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearParty clears the value of the "party" field.
-func (m *Mutation) ClearParty() {
-	m.party = nil
-	delete(m.exprs, FieldParty)
-	m.clearedFields[FieldParty] = struct{}{}
-}
-
-// PartyCleared returns if the "party" field was cleared in this mutation.
-func (m *Mutation) PartyCleared() bool {
-	_, ok := m.clearedFields[FieldParty]
-	return ok
-}
-
-// ResetParty resets all changes to the "party" field.
-func (m *Mutation) ResetParty() {
-	m.party = nil
-	delete(m.clearedFields, FieldParty)
-	delete(m.exprs, FieldParty)
-}
-
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -447,7 +410,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 11)
 	if m.alias != nil || m.exprs[FieldAlias] != nil {
 		fields = append(fields, FieldAlias)
 	}
@@ -477,9 +440,6 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.mail_off != nil || m.exprs[FieldMailOff] != nil {
 		fields = append(fields, FieldMailOff)
-	}
-	if m.party != nil || m.exprs[FieldParty] != nil {
-		fields = append(fields, FieldParty)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -518,8 +478,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateLeaving()
 	case FieldMailOff:
 		return m.MailOff()
-	case FieldParty:
-		return m.Party()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -641,16 +599,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMailOff(v)
 		return nil
-	case FieldParty:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetParty(v)
-		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -703,8 +651,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetDateLeaving()
 	case FieldMailOff:
 		m.ResetMailOff()
-	case FieldParty:
-		m.ResetParty()
 	case FieldTenantId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	default:
@@ -755,9 +701,6 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldMailOff]; ok {
 		fields = append(fields, FieldMailOff)
 	}
-	if _, ok := m.exprs[FieldParty]; ok {
-		fields = append(fields, FieldParty)
-	}
 	return fields
 }
 
@@ -802,9 +745,6 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateLeaving) {
 		fields = append(fields, FieldDateLeaving)
 	}
-	if m.FieldCleared(FieldParty) {
-		fields = append(fields, FieldParty)
-	}
 	return fields
 }
 
@@ -833,9 +773,6 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldDateLeaving:
 		m.ClearDateLeaving()
-		return nil
-	case FieldParty:
-		m.ClearParty()
 		return nil
 	}
 	return fmt.Errorf("unknown Holder nullable field %s", name)
@@ -874,9 +811,6 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldMailOff:
 		m.ResetMailOff()
-		return nil
-	case FieldParty:
-		m.ResetParty()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

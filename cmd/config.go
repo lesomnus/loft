@@ -267,13 +267,9 @@ type AppConfig struct {
 	// Workspaces is a workspace's end (D29).
 	Workspaces WorkspacesConfig `yaml:"workspaces"`
 
-	// Mail is the SMTP server what goes to a mailbox is sent through -- an
-	// invitation. With no host, nothing is sent and each message is logged.
+	// Mail is the SMTP server what goes to a mailbox is sent through -- a
+	// notification worth one. With no host, nothing is sent.
 	Mail mail.Config `yaml:"mail"`
-
-	// Invitations is how long one waits and how many a workspace may have
-	// out (design 9.11).
-	Invitations InvitationsConfig `yaml:"invitations"`
 
 	// Members is what becomes of a member whose holder roster erased (design
 	// 9.10).
@@ -340,17 +336,6 @@ func (c MembersConfig) ReconcileEvery() time.Duration {
 		return 24 * time.Hour
 	}
 	return max(*c.Reconcile, 0)
-}
-
-// InvitationsConfig is how long an invitation waits, and how many a
-// workspace may have out: what keeps one from mailing the world.
-type InvitationsConfig struct {
-	// Ttl is how long one waits for an answer; unset is 30 days.
-	Ttl time.Duration `yaml:"ttl"`
-	// Pending is how many may wait at once (unset 50), and Daily how many
-	// may go out in a day (unset 100). Negative is no limit.
-	Pending int `yaml:"pending"`
-	Daily   int `yaml:"daily"`
 }
 
 // WorkspacesConfig is a workspace's end (D29). Its address is the tenant's at

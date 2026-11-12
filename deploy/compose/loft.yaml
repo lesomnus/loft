@@ -42,8 +42,8 @@ app:
   files: /var/lib/loft/files
   csp: report-only
 
-  # mail: LOFT_APP_MAIL_*, from .env. With no host every invitation is
-  # written to the log instead.
+  # mail: LOFT_APP_MAIL_*, from .env. With no host nothing is mailed, and a
+  # notice is told in the app only.
 
 audit:
   # Where the trail goes once it leaves the database, and the checkpoints of

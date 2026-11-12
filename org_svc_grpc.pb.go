@@ -28,10 +28,7 @@ const (
 	PartyService_Watch_FullMethodName        = "/loft.PartyService/Watch"
 	PartyService_Me_FullMethodName           = "/loft.PartyService/Me"
 	PartyService_Update_FullMethodName       = "/loft.PartyService/Update"
-	PartyService_Invite_FullMethodName       = "/loft.PartyService/Invite"
 	PartyService_SetRole_FullMethodName      = "/loft.PartyService/SetRole"
-	PartyService_SetPassword_FullMethodName  = "/loft.PartyService/SetPassword"
-	PartyService_Deactivate_FullMethodName   = "/loft.PartyService/Deactivate"
 	PartyService_Pseudonymize_FullMethodName = "/loft.PartyService/Pseudonymize"
 	PartyService_Search_FullMethodName       = "/loft.PartyService/Search"
 )
@@ -69,14 +66,7 @@ type PartyServiceClient interface {
 	Me(ctx context.Context, in *PartyMeRequest, opts ...grpc.CallOption) (*PartyMeResponse, error)
 	// Update changes a party's own fields.
 	Update(ctx context.Context, in *PartyUpdateRequest, opts ...grpc.CallOption) (*Party, error)
-	// Invite gives a person a login: a holder, a password, and the role.
-	Invite(ctx context.Context, in *PartyInviteRequest, opts ...grpc.CallOption) (*PartyInviteResponse, error)
 	SetRole(ctx context.Context, in *PartySetRoleRequest, opts ...grpc.CallOption) (*Party, error)
-	// SetPassword changes the caller's own password, or -- for an admin --
-	// somebody else's.
-	SetPassword(ctx context.Context, in *PartySetPasswordRequest, opts ...grpc.CallOption) (*PartySetPasswordResponse, error)
-	// Deactivate ends a person's login and keeps the person.
-	Deactivate(ctx context.Context, in *PartyDeactivateRequest, opts ...grpc.CallOption) (*Party, error)
 	// Pseudonymize answers a request to forget a person (design 8.2).
 	Pseudonymize(ctx context.Context, in *PartyPseudonymizeRequest, opts ...grpc.CallOption) (*Party, error)
 	// Search finds people, teams, organizations and vendors by what a person
@@ -192,40 +182,10 @@ func (c *partyServiceClient) Update(ctx context.Context, in *PartyUpdateRequest,
 	return out, nil
 }
 
-func (c *partyServiceClient) Invite(ctx context.Context, in *PartyInviteRequest, opts ...grpc.CallOption) (*PartyInviteResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PartyInviteResponse)
-	err := c.cc.Invoke(ctx, PartyService_Invite_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *partyServiceClient) SetRole(ctx context.Context, in *PartySetRoleRequest, opts ...grpc.CallOption) (*Party, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Party)
 	err := c.cc.Invoke(ctx, PartyService_SetRole_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *partyServiceClient) SetPassword(ctx context.Context, in *PartySetPasswordRequest, opts ...grpc.CallOption) (*PartySetPasswordResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PartySetPasswordResponse)
-	err := c.cc.Invoke(ctx, PartyService_SetPassword_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *partyServiceClient) Deactivate(ctx context.Context, in *PartyDeactivateRequest, opts ...grpc.CallOption) (*Party, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Party)
-	err := c.cc.Invoke(ctx, PartyService_Deactivate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -285,14 +245,7 @@ type PartyServiceServer interface {
 	Me(context.Context, *PartyMeRequest) (*PartyMeResponse, error)
 	// Update changes a party's own fields.
 	Update(context.Context, *PartyUpdateRequest) (*Party, error)
-	// Invite gives a person a login: a holder, a password, and the role.
-	Invite(context.Context, *PartyInviteRequest) (*PartyInviteResponse, error)
 	SetRole(context.Context, *PartySetRoleRequest) (*Party, error)
-	// SetPassword changes the caller's own password, or -- for an admin --
-	// somebody else's.
-	SetPassword(context.Context, *PartySetPasswordRequest) (*PartySetPasswordResponse, error)
-	// Deactivate ends a person's login and keeps the person.
-	Deactivate(context.Context, *PartyDeactivateRequest) (*Party, error)
 	// Pseudonymize answers a request to forget a person (design 8.2).
 	Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error)
 	// Search finds people, teams, organizations and vendors by what a person
@@ -336,17 +289,8 @@ func (UnimplementedPartyServiceServer) Me(context.Context, *PartyMeRequest) (*Pa
 func (UnimplementedPartyServiceServer) Update(context.Context, *PartyUpdateRequest) (*Party, error) {
 	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedPartyServiceServer) Invite(context.Context, *PartyInviteRequest) (*PartyInviteResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Invite not implemented")
-}
 func (UnimplementedPartyServiceServer) SetRole(context.Context, *PartySetRoleRequest) (*Party, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetRole not implemented")
-}
-func (UnimplementedPartyServiceServer) SetPassword(context.Context, *PartySetPasswordRequest) (*PartySetPasswordResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetPassword not implemented")
-}
-func (UnimplementedPartyServiceServer) Deactivate(context.Context, *PartyDeactivateRequest) (*Party, error) {
-	return nil, status.Error(codes.Unimplemented, "method Deactivate not implemented")
 }
 func (UnimplementedPartyServiceServer) Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error) {
 	return nil, status.Error(codes.Unimplemented, "method Pseudonymize not implemented")
@@ -530,24 +474,6 @@ func _PartyService_Update_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PartyService_Invite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PartyInviteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PartyServiceServer).Invite(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PartyService_Invite_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PartyServiceServer).Invite(ctx, req.(*PartyInviteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _PartyService_SetRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PartySetRoleRequest)
 	if err := dec(in); err != nil {
@@ -562,42 +488,6 @@ func _PartyService_SetRole_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PartyServiceServer).SetRole(ctx, req.(*PartySetRoleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _PartyService_SetPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PartySetPasswordRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PartyServiceServer).SetPassword(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PartyService_SetPassword_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PartyServiceServer).SetPassword(ctx, req.(*PartySetPasswordRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _PartyService_Deactivate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PartyDeactivateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PartyServiceServer).Deactivate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PartyService_Deactivate_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PartyServiceServer).Deactivate(ctx, req.(*PartyDeactivateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -678,20 +568,8 @@ var PartyService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PartyService_Update_Handler,
 		},
 		{
-			MethodName: "Invite",
-			Handler:    _PartyService_Invite_Handler,
-		},
-		{
 			MethodName: "SetRole",
 			Handler:    _PartyService_SetRole_Handler,
-		},
-		{
-			MethodName: "SetPassword",
-			Handler:    _PartyService_SetPassword_Handler,
-		},
-		{
-			MethodName: "Deactivate",
-			Handler:    _PartyService_Deactivate_Handler,
 		},
 		{
 			MethodName: "Pseudonymize",
@@ -770,350 +648,6 @@ var SessionService_ServiceDesc = grpc.ServiceDesc{
 	Methods:     []grpc.MethodDesc{},
 	Streams:     []grpc.StreamDesc{},
 	Metadata:    "loft/org_svc.g.proto",
-}
-
-const (
-	InvitationService_Add_FullMethodName    = "/loft.InvitationService/Add"
-	InvitationService_Get_FullMethodName    = "/loft.InvitationService/Get"
-	InvitationService_Patch_FullMethodName  = "/loft.InvitationService/Patch"
-	InvitationService_Apply_FullMethodName  = "/loft.InvitationService/Apply"
-	InvitationService_Erase_FullMethodName  = "/loft.InvitationService/Erase"
-	InvitationService_List_FullMethodName   = "/loft.InvitationService/List"
-	InvitationService_Revoke_FullMethodName = "/loft.InvitationService/Revoke"
-)
-
-// InvitationServiceClient is the client API for InvitationService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type InvitationServiceClient interface {
-	// Add creates a new Invitation
-	Add(ctx context.Context, in *InvitationAddRequest, opts ...grpc.CallOption) (*Invitation, error)
-	// Get retrieves a Invitation
-	Get(ctx context.Context, in *InvitationGetRequest, opts ...grpc.CallOption) (*Invitation, error)
-	// Patch updates an existing Invitation
-	Patch(ctx context.Context, in *InvitationPatchRequest, opts ...grpc.CallOption) (*Invitation, error)
-	// Apply applies a patch document to an existing Invitation
-	Apply(ctx context.Context, in *InvitationApplyRequest, opts ...grpc.CallOption) (*Invitation, error)
-	// Erase deletes a Invitation
-	Erase(ctx context.Context, in *InvitationRef, opts ...grpc.CallOption) (*InvitationEraseResponse, error)
-	// List reads Invitations a page at a time.
-	List(ctx context.Context, in *InvitationListRequest, opts ...grpc.CallOption) (*InvitationListResponse, error)
-	// Revoke takes back an invitation nobody has answered.
-	Revoke(ctx context.Context, in *InvitationRevokeRequest, opts ...grpc.CallOption) (*Invitation, error)
-}
-
-type invitationServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewInvitationServiceClient(cc grpc.ClientConnInterface) InvitationServiceClient {
-	return &invitationServiceClient{cc}
-}
-
-func (c *invitationServiceClient) Add(ctx context.Context, in *InvitationAddRequest, opts ...grpc.CallOption) (*Invitation, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Invitation)
-	err := c.cc.Invoke(ctx, InvitationService_Add_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) Get(ctx context.Context, in *InvitationGetRequest, opts ...grpc.CallOption) (*Invitation, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Invitation)
-	err := c.cc.Invoke(ctx, InvitationService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) Patch(ctx context.Context, in *InvitationPatchRequest, opts ...grpc.CallOption) (*Invitation, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Invitation)
-	err := c.cc.Invoke(ctx, InvitationService_Patch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) Apply(ctx context.Context, in *InvitationApplyRequest, opts ...grpc.CallOption) (*Invitation, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Invitation)
-	err := c.cc.Invoke(ctx, InvitationService_Apply_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) Erase(ctx context.Context, in *InvitationRef, opts ...grpc.CallOption) (*InvitationEraseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(InvitationEraseResponse)
-	err := c.cc.Invoke(ctx, InvitationService_Erase_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) List(ctx context.Context, in *InvitationListRequest, opts ...grpc.CallOption) (*InvitationListResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(InvitationListResponse)
-	err := c.cc.Invoke(ctx, InvitationService_List_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) Revoke(ctx context.Context, in *InvitationRevokeRequest, opts ...grpc.CallOption) (*Invitation, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Invitation)
-	err := c.cc.Invoke(ctx, InvitationService_Revoke_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// InvitationServiceServer is the server API for InvitationService service.
-// All implementations must embed UnimplementedInvitationServiceServer
-// for forward compatibility.
-type InvitationServiceServer interface {
-	// Add creates a new Invitation
-	Add(context.Context, *InvitationAddRequest) (*Invitation, error)
-	// Get retrieves a Invitation
-	Get(context.Context, *InvitationGetRequest) (*Invitation, error)
-	// Patch updates an existing Invitation
-	Patch(context.Context, *InvitationPatchRequest) (*Invitation, error)
-	// Apply applies a patch document to an existing Invitation
-	Apply(context.Context, *InvitationApplyRequest) (*Invitation, error)
-	// Erase deletes a Invitation
-	Erase(context.Context, *InvitationRef) (*InvitationEraseResponse, error)
-	// List reads Invitations a page at a time.
-	List(context.Context, *InvitationListRequest) (*InvitationListResponse, error)
-	// Revoke takes back an invitation nobody has answered.
-	Revoke(context.Context, *InvitationRevokeRequest) (*Invitation, error)
-	mustEmbedUnimplementedInvitationServiceServer()
-}
-
-// UnimplementedInvitationServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedInvitationServiceServer struct{}
-
-func (UnimplementedInvitationServiceServer) Add(context.Context, *InvitationAddRequest) (*Invitation, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedInvitationServiceServer) Get(context.Context, *InvitationGetRequest) (*Invitation, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedInvitationServiceServer) Patch(context.Context, *InvitationPatchRequest) (*Invitation, error) {
-	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
-}
-func (UnimplementedInvitationServiceServer) Apply(context.Context, *InvitationApplyRequest) (*Invitation, error) {
-	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
-}
-func (UnimplementedInvitationServiceServer) Erase(context.Context, *InvitationRef) (*InvitationEraseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
-}
-func (UnimplementedInvitationServiceServer) List(context.Context, *InvitationListRequest) (*InvitationListResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method List not implemented")
-}
-func (UnimplementedInvitationServiceServer) Revoke(context.Context, *InvitationRevokeRequest) (*Invitation, error) {
-	return nil, status.Error(codes.Unimplemented, "method Revoke not implemented")
-}
-func (UnimplementedInvitationServiceServer) mustEmbedUnimplementedInvitationServiceServer() {}
-func (UnimplementedInvitationServiceServer) testEmbeddedByValue()                           {}
-
-// UnsafeInvitationServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to InvitationServiceServer will
-// result in compilation errors.
-type UnsafeInvitationServiceServer interface {
-	mustEmbedUnimplementedInvitationServiceServer()
-}
-
-func RegisterInvitationServiceServer(s grpc.ServiceRegistrar, srv InvitationServiceServer) {
-	// If the following call panics, it indicates UnimplementedInvitationServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
-	s.RegisterService(&InvitationService_ServiceDesc, srv)
-}
-
-func _InvitationService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Add(ctx, req.(*InvitationAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationGetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Get(ctx, req.(*InvitationGetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationPatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Patch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Patch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Patch(ctx, req.(*InvitationPatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationApplyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Apply(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Apply_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Apply(ctx, req.(*InvitationApplyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationRef)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Erase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Erase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Erase(ctx, req.(*InvitationRef))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationListRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).List(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_List_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).List(ctx, req.(*InvitationListRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_Revoke_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationRevokeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Revoke(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Revoke_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Revoke(ctx, req.(*InvitationRevokeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// InvitationService_ServiceDesc is the grpc.ServiceDesc for InvitationService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var InvitationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "loft.InvitationService",
-	HandlerType: (*InvitationServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Add",
-			Handler:    _InvitationService_Add_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _InvitationService_Get_Handler,
-		},
-		{
-			MethodName: "Patch",
-			Handler:    _InvitationService_Patch_Handler,
-		},
-		{
-			MethodName: "Apply",
-			Handler:    _InvitationService_Apply_Handler,
-		},
-		{
-			MethodName: "Erase",
-			Handler:    _InvitationService_Erase_Handler,
-		},
-		{
-			MethodName: "List",
-			Handler:    _InvitationService_List_Handler,
-		},
-		{
-			MethodName: "Revoke",
-			Handler:    _InvitationService_Revoke_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "loft/org_svc.g.proto",
 }
 
 // CliLoginServiceClient is the client API for CliLoginService service.

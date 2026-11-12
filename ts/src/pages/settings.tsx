@@ -523,12 +523,10 @@ const accessWord: Record<string, string> = { read: '조회', write: '수정', do
 
 /**
  * What a row the record names holds of somebody, by its kind, for one that is
- * no person or membership -- those are named: an invitation's address, a
- * notice's words, an event's reason, and the memos and notes that are
- * somebody's own words (design D56).
+ * no person or membership -- those are named: a notice's words, an event's
+ * reason, and the memos and notes that are somebody's own words (design D56).
  */
 const subjectWord: Record<string, string> = {
-	invitation: '초대 주소',
 	notification: '알림',
 	event: '작업 기록의 사유',
 	custody: '지급·대여 메모',
@@ -949,7 +947,7 @@ function NameCard(props: { t: Tenant }): ReactNode {
 		<Card title="워크스페이스">
 			<Field
 				label="이름"
-				hint="구성원의 화면, 초대와 알림 메일이 이 이름으로 부릅니다. 비워 두면 소유자의 이름으로 부릅니다. 이름은 누구의 정보도 아니어서 작업 기록에 그대로 남으니, 사람의 이름은 넣지 마세요."
+				hint="구성원의 화면과 알림 메일이 이 이름으로 부릅니다. 비워 두면 소유자의 이름으로 부릅니다. 이름은 누구의 정보도 아니어서 작업 기록에 그대로 남으니, 사람의 이름은 넣지 마세요."
 			>
 				<input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder="예: 연구지원팀 장비" />
 			</Field>

@@ -45,6 +45,12 @@ and the workspace's address is the tenant's at roster. An epoch-4 store keeps
 `session.account`, NOT NULL, `holder.account` and the `aliashold` table, and
 its exports hold `Holder.account`.
 
+Epoch 6 is D87 (#332): members are roster's to add, and there are no
+invitations. An epoch-5 store keeps the `invitation` table and
+`holder.party`, its exports hold `Holder.party`, and its events of the kinds
+gone (`invitation.*`, `party.invite`, `party.password`, `party.deactivate`)
+no longer read.
+
 From launch the rules below that keep an earlier build's data readable
 apply, and the epoch does not move without the owner's word.
 
@@ -277,10 +283,13 @@ member is a holder of that tenant at roster, and their `Holder` here has the
 same identifier and nothing else that says so (D86): made the first time they
 sign in (`tenancy.Members`), a member, with the person record this workspace
 keeps at an address roster holds as checked for them, or a new one. Roles
-stay Loft's (`Holder.role`). A membership ended here (deactivated,
-pseudonymized) stays ended, whatever roster says: its sign-in is refused
-(`tenancy.ErrEnded`). Nothing is chosen -- there is no workspace in a
-request, no `/@alias`, and no account layer.
+stay Loft's (`Holder.role`). Who is a member is roster's (D87): they are
+added and taken away, and how they sign in is set, at roster's screens --
+the people screen links to its user console, `auth.roster.console_url` --
+and Loft keeps the person records, which membership each is, and the role.
+A membership ended here (pseudonymized) stays ended, whatever roster says:
+its sign-in is refused (`tenancy.ErrEnded`). Nothing is chosen -- there is
+no workspace in a request, no `/@alias`, and no account layer.
 
 **The address is roster's (D86).** The workspace's alias is the tenant's at
 roster: `init` writes it, a restore takes it (`offboard.Deployment.Serves`),
@@ -331,16 +340,16 @@ through `internal/oidctest`, an issuer that holds a relying party to what it
 has to send. There are no terms to agree to: the service's terms are the
 portal's (D84).
 
-Invitations are what the people who run the workspace send and take back
-(`InvitationService.Add`, `List`, `Revoke`), and their mail says where the
-workspace is signed in to. Nothing here answers one: who is a member is who
-signs in as a holder of the tenant (D85), and the rest goes with #332. Mail is
-`app.mail`, SMTP, and logged when it names no server.
+There are no invitations (D87): somebody roster has is a member from the
+first time they sign in, and nothing is left to tell them. Mail is
+`app.mail`, SMTP, for the notices somebody is told by mail as well, and
+nothing is mailed when it names no server.
 
-On the embedded roster the people screen and `loft holder add|password` make
-people and set passwords there; on an external one they are refused, and are
-done at roster. Ending a membership (deactivate, pseudonymize) never touches
-the holder at roster, and destroying the workspace does not either: its
+The embedded roster has no screens: on it `loft holder add|password` make
+people members and set their passwords, as `init --demo` makes its people
+(`tenancy.Members.Admit`); on an external one they are refused, and are done
+at roster. Ending a membership (pseudonymize) never touches the holder at
+roster, and destroying the workspace does not either: its
 people are the tenant's. A member a restore put back whom this deployment's
 roster does not have is made there by `loft identity link` (by the
 identifier they have here), unless roster erased somebody by it, which link
@@ -544,9 +553,8 @@ the other way round: what a read-only workspace **still does**,
 `domain.ReadOnlyAllows` -- what levyan's `docs/apps.md` (3, "제한의 두 단계")
 says an app takes of one: reading, taking its data out, paying, its members
 leaving -- closing is the operator's (D83), and in no row of it -- and a
-password, which is the person's at roster, and a person's own notices, read and kept
-off their mail (`domain.Own`, D67) -- each with why, and every other write is
-refused. Keep it matching that chapter. Refused as
+person's own notices, read and kept off their mail (`domain.Own`, D67) --
+each with why, and every other write is refused. Keep it matching that chapter. Refused as
 its operation begins (`Tx.begin`, `Tx.held`: read-only first, then
 `Grows`), and, for a write that begins none, as the domain layer's
 transaction a caller's method opened would commit (`Deps.run`); the
@@ -699,7 +707,7 @@ can read its rows, and `proto/loft/payday/past.lock` only grows: a message,
 a field, a JSON name or a kind removed or changed, or a kind moved to
 another message, is a row that no longer reads, and `pd gen` refuses it.
 Until launch such a change moves the epoch, and the lock is written afresh:
-delete it, and `pd gen` writes it from the schema (done once, 2026-11-09).
+delete it, and `pd gen` writes it from the schema (first 2026-11-09).
 `reason` is a person's words, and personal; what Loft says itself goes in
 the message and its sentence.
 A person forgotten (`Tx.forget`) has the trail's

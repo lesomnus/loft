@@ -35,8 +35,6 @@ func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
 	})
 	x := w.x
 	ctx := context.Background()
-	box := &mailbox{}
-	w.s.Deps.Mail = box
 	parties := app.NewPartyServiceClient(w.conn)
 
 	// The owner's person record, which is what they are called.
@@ -53,7 +51,6 @@ func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
 	x.Equal("박지민의 워크스페이스", me.GetWorkspaceName(), "and is called after its owner")
 	ws, err := pdid.From(me.GetTenant().GetId())
 	x.NoError(err)
-	ref := app.TenantRef_builder{Id: ws.Bytes()}.Build()
 
 	// Nor is it on the trail, at any line about the workspace.
 	lines := w.acts(t, ws)
@@ -97,15 +94,6 @@ func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
 	var said session.Answer
 	x.NoError(json.Unmarshal(rec.Body.Bytes(), &said))
 	x.Equal(w.tenant.GetAlias(), said.Workspace.Name)
-
-	// An invitation out of it, in the mail.
-	_, err = app.NewInvitationServiceClient(w.conn).Add(w.owner, app.InvitationAddRequest_builder{
-		Tenant: ref, Email: "lee@example.com", Role: "member",
-	}.Build())
-	x.NoError(err)
-	x.Len(box.sent, 1)
-	x.Equal("박서준님이 Loft의 박서준의 워크스페이스에 초대했습니다", box.sent[0].Subject)
-	x.Contains(box.sent[0].Body, "박서준님이 Loft의 박서준의 워크스페이스에 구성원으로 초대했습니다.")
 }
 
 // TestAWorkspaceIsRenamedByItsOwnerAlone is D58 over the wire: the owner of a
