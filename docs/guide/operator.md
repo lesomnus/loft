@@ -4,7 +4,7 @@
 
 운영자가 쓰는 것은 셋입니다(design 9.15, 9.16, D74, D75).
 
-- **서버 상자의 `loft`**: 배포의 생애에 관한 것만 남았습니다. `init`(첫 워크스페이스), `migrate`(서버가 뜨기 전에 DB를 이 빌드의 모양으로), `serve`, `config env`, `version` 입니다. 물을 서버가 없을 때 돌기 때문에, 서버와 같은 설정(`loft.yaml`, `LOFT_*`)으로 DB에 바로 붙습니다.
+- **서버 상자의 `loft`**: 배포의 생애에 관한 것만 남았습니다. `init`(워크스페이스), `migrate`(서버가 뜨기 전에 DB를 이 빌드의 모양으로), `serve`, `config env`, `version` 입니다. 물을 서버가 없을 때 돌기 때문에, 서버와 같은 설정(`loft.yaml`, `LOFT_*`)으로 DB에 바로 붙습니다.
 - **`loft-admin serve`**: 운영자 진입점입니다. `loft-admin` 에는 이것과 `config`, `version` 만 있습니다.
 - **운영자의 연결로 부르는 `loft`**: 그 밖의 운영자의 일(`tenant`, `tenant-contract`, `legal-hold`, `holder`, `identity`, `trail`, `event`, `access`, `search`, `retention`)은 모두 진입점에 묻는 명령이고, 사람의 명령과 같은 `loft <스키마 이름> <동사>` 입니다. 운영자 네트워크에서 자기 키로 부르고, 한 일은 작업 기록과 접속기록에 그 운영자의 것으로 남습니다. 운영자만 부르는 명령은 도움말에 `(operator)` 라고 적혀 있습니다.
 
@@ -15,7 +15,7 @@
 - 명령은 스키마의 이름을 씁니다. `tenant` 는 `workspace`, `ws` 로도 씁니다. 워크스페이스는 주소로 씁니다(`acme` 나 `@acme`).
 - **운영자 명령이 말하는 날짜는 UTC입니다.** 운영자의 명령이 말하는 날짜와 시각은 셸의 시간대와 상관없이 UTC입니다. `--effective 2027-01-01` 처럼 주는 날짜도 UTC의 그날입니다. 워크스페이스의 사람이 앱에서 읽는 날짜는 그 워크스페이스의 시간대를 따릅니다(loft#144).
 - 서버 상자의 명령은 터미널의 연결(`LOFT_CLIENT_CONFIG`)을 읽지 않고, 터미널의 명령은 서버의 설정을 읽지 않습니다([터미널과 비서](terminal.md)). 진입점에 묻는 명령은 운영자의 연결이 정하는 진입점의 주소와 자기 키만 씁니다.
-- 이 문서의 예는 체험용 워크스페이스(`/@loft`, [체험용 워크스페이스](README.md#따라-하기-체험용-워크스페이스))를 씁니다. 컨테이너 안이면 `loft --config /etc/loft/loft.yaml init …` 처럼 설정 파일을 줍니다(`deploy/compose`, `deploy/k8s` 의 예).
+- 이 문서의 예는 체험용 워크스페이스(주소 `loft`, [체험용 워크스페이스](README.md#따라-하기-체험용-워크스페이스))를 씁니다. 컨테이너 안이면 `loft --config /etc/loft/loft.yaml init …` 처럼 설정 파일을 줍니다(`deploy/compose`, `deploy/k8s` 의 예).
 
 ## 처음 띄우기
 
@@ -24,15 +24,19 @@
 - 관측(로그, 추적, 지표, 대시보드)은 [`deploy/observe`](../../deploy/observe/README.md)와 [관측 런북](../runbook/observe.md)에 있습니다.
 - 운영 전에 정할 것: `app.public_url`(라벨 QR이 담으므로 **라벨을 인쇄하기 전에 정하고 바꾸지 않습니다**), `app.signing_key`, `app.trusted_proxies`, `app.mail`, 감사 기록의 보존 기간(`audit.by`), 감사 기록의 서명 키와 지문의 키. 무엇인지는 두 `deploy/` README의 표와 [보안](../dev/security.md), [기록과 보존](../dev/retention.md)에 있습니다.
 
-첫 워크스페이스와 그 소유자는 서버 상자에서 만듭니다. `--password` 를 빼면 만들어서 한 번 보여 줍니다.
+배포는 roster 테넌트 하나를 섬기고, 그 테넌트가 곧 워크스페이스입니다(design 9.10, D85). 워크스페이스와 그 소유자는 서버 상자의 `init` 이 세웁니다.
 
 ```sh
-loft init --tenant acme --name "ACME" --login owner --person "홍길동" --email owner@example.com
-loft init --tenant loft --name "우리 회사" --login admin --password admin1234 --demo   # 써 보는 배포라면 체험용 데이터까지
+# 외부 roster: roster 운영자가 테넌트를 만들고 Loft를 설치하고 키를 준 뒤([roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때))
+loft init --name "ACME" --login owner --person "홍길동" --email owner@example.com
+# 내장 roster(시험과 써 보기): 테넌트와 소유자까지 만들고 체험용 데이터도
+loft init --name "우리 회사" --password admin1234 --demo
 ```
 
-- `init` 은 같은 주소의 워크스페이스가 이미 있으면 실패합니다. 잘못된 배포에서 조용히 아무것도 하지 않는 것보다 낫기 때문입니다.
-- 외부 roster를 쓰는 배포에서는 `init` 이 계정을 만들지 않고 거부합니다. 계정은 roster의 것이고, 워크스페이스는 로그인한 계정이 만듭니다.
+- 외부 roster면 `init` 은 키의 테넌트를 같은 ID와 주소로 워크스페이스로 세우고, `--login` 의 사람(기본은 roster가 테넌트를 만들 때 넣는 `admin`)을 소유자로 둡니다. 그 사람은 roster에 있어야 하고, 로그인 방법은 테넌트의 관리자가 roster에서 줍니다. `--password` 와 `--demo` 는 거부합니다.
+- 내장 roster면 `auth.roster.tenant`(기본 `loft`)의 테넌트와 소유자(기본 아이디 `admin`, 이름 "관리자")를 만들고, `--password` 를 빼면 비밀번호를 만들어서 한 번 보여 줍니다.
+- `init` 은 워크스페이스가 이미 있으면 실패합니다. 배포는 워크스페이스 하나를 섬기고, 잘못된 배포에서 조용히 아무것도 하지 않는 것보다 낫기 때문입니다.
+- 그 테넌트의 다른 사람은 처음 로그인할 때 구성원이 됩니다. 역할은 소유자·관리자가 사람 화면에서 줍니다.
 - 써 보는 배포에서 보관소(`audit.archive`)를 두고 서명 키를 두지 않았으면, `init` 이 보관소 옆에 이 배포만의 키를 만들고 어디에 썼는지 알려 줍니다. `serve` 전에 그 경로를 `audit.checkpoints.key` 에 적습니다.
 
 ## 새 버전 올리기
@@ -52,19 +56,19 @@ loft config env --set # 설정이 읽는 환경변수 가운데 정해진 것
 
 ## 계정: roster
 
-계정과 비밀번호는 roster의 것입니다([계정과 로그인](../dev/identity.md)).
+사람과 비밀번호는 roster의 것입니다([사람과 로그인](../dev/identity.md)).
 
-- **내장 roster**(기본): Loft 프로세스 안에서 함께 뜨고, DB는 Loft의 것 옆에 하나 더 있습니다. 서버 한 대의 배포를 간단하게 하려는 것이라, 운영처럼 보이는 배포(PostgreSQL이거나 `app.public_url` 이 이 기계가 아님)에서는 `serve` 가 시작할 때 경고합니다. 서버 한 대의 CE라면 그대로 두어도 됩니다.
-- **외부 roster**: 서버가 여러 대이거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 roster를 따로 운영합니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
+- **내장 roster**(`auth.roster.addr` 를 비우면): Loft 프로세스 안에서 함께 뜨고, DB는 Loft의 것 옆에 하나 더 있습니다. 시험과 써 보기용이라, 운영처럼 보이는 배포(PostgreSQL이거나 `app.public_url` 이 이 기계가 아님)에서는 `serve` 가 시작할 때 경고합니다. 사람을 넣고 빼는 roster의 화면이 없습니다.
+- **외부 roster**: 직접 운영하는 배포는 roster를 따로 띄웁니다. 사람을 넣고 빼는 화면이 roster에 있고, 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
 - **역할 바꾸기**: 외부 roster에서 Loft의 역할은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다.
 - **SSO**: roster의 issuer로 로그인하게 하는 설정과 roster 쪽에 필요한 것은 [SSO](../dev/identity.md#sso)에 있습니다.
 
-내장 roster라면 화면 없이 운영자 진입점에서 계정을 만들고 비밀번호를 줄 수 있습니다(예: 소유자가 비밀번호를 잊었을 때). 외부 roster면 둘 다 거부되고 roster에서 합니다.
+내장 roster라면 화면 없이 운영자 진입점에서 사람을 만들고 비밀번호를 줄 수 있습니다(예: 소유자가 비밀번호를 잊었을 때). 외부 roster면 둘 다 거부되고 roster에서 합니다.
 
 ```sh
-loft holder add --tenant loft --login minsu --name 김민수 --role member   # 계정이 없으면 만들고 비밀번호를 한 번 출력
-loft holder password --login admin                                       # 계정에 새 비밀번호를 한 번 출력, 로그인된 곳은 모두 끝남
-loft identity link                                                       # 계정이 없는 구성원(복구한 워크스페이스)에게 계정을 줌
+loft holder add --tenant loft --login minsu --name 김민수 --role member   # roster에 없으면 만들고 비밀번호를 한 번 출력
+loft holder password --login admin                                       # 새 비밀번호를 한 번 출력, 로그인된 곳은 모두 끝남
+loft identity link                                                       # roster에 없는 구성원(복구한 워크스페이스)을 roster에 만듦
 ```
 
 ## 워크스페이스의 기본값
@@ -78,8 +82,7 @@ loft identity link                                                       # 계�
 | `app.no_show_after` | 회의실 예약을 체크인 없이 몇 분 뒤 풀지 | 0은 체크인을 받지 않음. 저장소의 `loft.yaml` 은 15분 |
 | `app.workspaces.restore_within` | 닫은 뒤 복구할 수 있는 기간 | 30일 |
 | `app.workspaces.alias_hold` | 파기했거나 옮긴 주소를 아무도 쓰지 못하게 두는 기간 | 1년 |
-| `app.workspaces.owned` | 계정마다 결제 없이 더 만들 수 있는 워크스페이스 | 3. 음수면 제한 없음 |
-| `app.workspaces.alias_length` | 새 주소의 길이 | 7 |
+| `app.workspaces.alias_length` | 가져온 워크스페이스에 새로 주는 주소의 길이 | 7 |
 | `app.workspaces.reserved` | 더 막을 주소 | 없음(앱이 막는 것만) |
 | `app.retention.apply` | 보관 기간으로 기록을 지울지 | 끔 |
 | `app.retention.grace` | 줄인 보관 기간이 기다리는 유예 | 30일 |
@@ -92,7 +95,7 @@ loft identity link                                                       # 계�
 
 메일은 `app.mail`(SMTP)로 보냅니다. 초대와 알림 메일이 이것을 씁니다.
 
-- 비워 두면 보내지 않고 초대 메일의 내용과 링크를 서버 로그에 남깁니다(`loft.yaml` 의 예시 참고). 알림 메일은 쌓지도, 로그에 남기지도 않습니다.
+- 비워 두면 보내지 않고 초대 메일의 내용을 서버 로그에 남깁니다(`loft.yaml` 의 예시 참고). 알림 메일은 쌓지도, 로그에 남기지도 않습니다.
 - 알림 메일은 알림을 만든 작업이 끝난 뒤 1분마다 보냅니다. 되돌려진 작업의 알림은 보내지 않고, 보내지 못한 메일은 다음에 다시 시도하며 8번 실패하면 서버 로그에 남기고 포기합니다.
 - 어떤 알림이 메일로 가는지와 받는 사람이 끄는 법은 [안내서의 알림](README.md#알림)에 있습니다.
 
@@ -161,13 +164,13 @@ loft search remove --yes                            # 이 배포가 만든 인�
 loft retention plan --tenant loft                   # 보관 기간이 지금 가져갈 것 (아무것도 바꾸지 않음)
 loft retention run                                  # app.retention.apply가 켜져 있을 때만 가져감
 
-# 계정 (내장 roster) 과 roster
-loft holder add --tenant loft --login minsu --name 김민수 --role member   # 계정이 없으면 만들고 비밀번호를 한 번 출력
+# 사람 (내장 roster) 과 roster
+loft holder add --tenant loft --login minsu --name 김민수 --role member   # roster에 없으면 만들고 비밀번호를 한 번 출력
 loft holder password --login admin                  # 새 비밀번호를 한 번 출력, 로그인된 곳은 모두 끝남
-loft identity depart --member @loft/minsu           # 워크스페이스마다 할 일: 누구에게 넘어가는지, 닫히는지 (아무것도 바꾸지 않음)
-loft identity depart --member @loft/minsu --yes     # 지금 모든 워크스페이스에서 떠남
-loft identity reconcile --yes                       # roster에 모든 계정을 다시 물음
-loft identity link                                  # 계정이 없는 구성원(복구한 워크스페이스)에게 계정을 줌
+loft identity depart --member @loft/minsu           # 할 일: 누구에게 넘어가는지, 닫히는지 (아무것도 바꾸지 않음)
+loft identity depart --member @loft/minsu --yes     # 지금 떠남
+loft identity reconcile --yes                       # roster에 모든 구성원을 다시 물음
+loft identity link                                  # roster에 없는 구성원(복구한 워크스페이스)을 roster에 만듦
 
 # 작업 기록의 사유와 접속기록 (아래 "작업 기록의 사유를 지울 때"와 "접속기록")
 loft event redact --tenant loft --event <작업 기록의 ID> --why "삭제 요청 2026-17"         # 무엇을 지울지만 (아무것도 바꾸지 않음)
@@ -185,11 +188,10 @@ loft access-review list --tenant loft                                           
 
 ## 워크스페이스의 문의
 
-- **주소를 바꿔 달라**: 주소는 사용자가 바꿀 수 없습니다. 운영자가 바꾸면 이전 주소는 1년(`app.workspaces.alias_hold`) 동안 아무도 쓰지 못하게 보류되고 그동안 새 주소로 넘겨 줍니다. 예약어(`www`, `api`, `admin`, `l`, `sso`, `login` 등, `app.workspaces.reserved` 로 더함)는 쓸 수 없습니다. 보류된 주소를 굳이 쓰려면 `--reuse` 입니다.
+- **주소를 바꿔 달라**: 주소는 roster 테넌트의 것으로 시작하고, 사용자가 바꿀 수 없습니다. 화면의 주소에는 쓰이지 않고, 운영자가 워크스페이스를 부르는 이름입니다. 운영자가 바꾸면 이전 주소는 1년(`app.workspaces.alias_hold`) 동안 아무도 쓰지 못하게 보류됩니다. roster의 테넌트 주소는 따로 roster에서 바꿉니다. 예약어(`www`, `api`, `admin`, `l`, `sso`, `login` 등, `app.workspaces.reserved` 로 더함)는 쓸 수 없습니다. 보류된 주소를 굳이 쓰려면 `--reuse` 입니다.
 - **소유자가 없다, 소유자를 바꿔 달라**: `loft tenant name-owner` 로 구성원을 소유자로 지정합니다.
 - **닫아 달라, 다시 열어 달라, 데이터를 달라**: 워크스페이스 안에서는 소유자도 닫고, 되돌리고, 모두 내보내지 못하므로 운영자가 합니다(design D83). 요청한 사람이 그 워크스페이스의 소유자인지 확인하고(`loft tenant show` 의 소유자), 닫을 때는 까닭을 `--reason` 에 적습니다. 닫힌 워크스페이스에는 소유자도 들어오지 못하고, 화면은 운영자에게 문의하라고만 말합니다. 복구 기간 안에는 되돌릴 수 있고, 지나면 파기됩니다. 내보낸 파일은 모든 사람의 데이터이므로 소유자에게 안전하게 건넵니다.
 - 워크스페이스의 이름은 운영자가 바꾸지 않습니다. `loft tenant ls|show` 는 저장된 이름을 보이므로, 소유자의 이름으로 부르는 워크스페이스(이름이 없는 것)는 빈칸입니다. 주소와 소유자의 아이디로 찾습니다.
-- 워크스페이스는 계정마다 3개까지 더 만들 수 있습니다(`app.workspaces.owned`, 닫은 것은 세지 않음). 주소의 길이는 `app.workspaces.alias_length` 입니다.
 
 ```sh
 loft tenant move --to woori loft                 # 무엇을 할지만
@@ -201,14 +203,14 @@ loft --reason "소유자의 요청" tenant export --out loft.zip loft   # 닫혀
 
 ## 계정을 지워 달라는 요청
 
-- 계정을 지우는 것은 roster의 일입니다. roster에서 삭제된 계정은 속한 모든 워크스페이스에서 떠나는 중이 되고, roster의 유예(`holder.forget_after`)가 지나면 떠납니다. Loft는 그만큼 기다리므로(`app.accounts.forget_after`) 둘을 같게 둡니다.
-- **바로 잊어 달라는 요청**은 `loft identity depart` 입니다. `--yes` 없이는 그 계정이 떠날 워크스페이스와 거기서 일어날 일을 말하고 아무것도 바꾸지 않습니다. 마지막 소유자였던 워크스페이스가 누구에게 넘어가는지, 넘겨받을 사람이 없는지, 아무도 남지 않아 닫히는지입니다. `--yes` 를 붙이면 지금 모든 워크스페이스에서 떠나게 합니다. 워크스페이스마다 개인정보 삭제와 같은 일이 일어나고, 마지막 소유자였던 워크스페이스는 남은 사람에게 넘깁니다. 내장 roster면 계정도 roster에서 파기합니다. 되돌릴 수 없습니다.
+- 사람을 지우는 것은 roster의 일입니다. roster에서 삭제된 사람은 떠나는 중이 되고, roster의 유예(`holder.forget_after`)가 지나면 떠납니다. Loft는 그만큼 기다리므로(`app.accounts.forget_after`) 둘을 같게 둡니다.
+- **바로 잊어 달라는 요청**은 `loft identity depart` 입니다. `--yes` 없이는 거기서 일어날 일을 말하고 아무것도 바꾸지 않습니다. 마지막 소유자였으면 누구에게 넘어가는지, 넘겨받을 사람이 없는지, 아무도 남지 않아 닫히는지입니다. `--yes` 를 붙이면 지금 떠나게 합니다. 개인정보 삭제와 같은 일이 일어나고, 마지막 소유자였으면 남은 사람에게 넘깁니다. 내장 roster면 그 사람을 roster에서도 파기합니다. 되돌릴 수 없습니다.
 - **스트림이 놓친 삭제**는 서버가 하루에 한 번(`app.accounts.reconcile`) roster에 다시 물어 찾아냅니다. `loft identity reconcile` 은 같은 일을 바로 하되 무엇을 할지 먼저 보여 주고, `--yes` 를 붙이면 합니다.
 
 ```sh
-loft identity depart --member @loft/minsu           # 그 계정이 떠날 워크스페이스와 거기서 일어날 일
+loft identity depart --member @loft/minsu           # 거기서 일어날 일
 loft identity depart --member @loft/minsu --yes
-loft identity depart --account <roster의 계정 ID> --yes
+loft identity depart --account <roster의 holder ID> --yes
 loft identity reconcile                             # "N account(s) with a membership here; roster has N of them"
 loft identity reconcile --yes
 ```
@@ -244,7 +246,7 @@ loft tenant purge --yes loft         # 감사 기록까지 모두 지움: 바닥
 loft tenant retired                  # retire한 워크스페이스와 무엇이 언제까지 남는지
 ```
 
-- **retire와 purge 가운데 무엇을 쓰나**: 둘 다 조직의 행, 파일, 내장 roster에서 그 워크스페이스에만 있던 계정을 지우고 주소를 보류합니다. 다른 것은 감사 기록입니다. retire는 배포의 바닥값(법이 정한 최소 보관 기간, `audit.min`, `audit.by.<종류>.min`)이 걸린 기록을 그 기간까지 남기고(출력의 `kept until …`), purge는 모두 지금 지웁니다. **기본은 retire**이고, 서버의 파기는 그때 효력이 있는 계약을 따릅니다. 자세한 것은 [워크스페이스의 파기](../dev/retention.md#워크스페이스의-파기)에 있습니다.
+- **retire와 purge 가운데 무엇을 쓰나**: 둘 다 조직의 행과 파일을 지우고 주소를 보류합니다. roster의 사람은 그 테넌트에 남습니다(D85). 다른 것은 감사 기록입니다. retire는 배포의 바닥값(법이 정한 최소 보관 기간, `audit.min`, `audit.by.<종류>.min`)이 걸린 기록을 그 기간까지 남기고(출력의 `kept until …`), purge는 모두 지금 지웁니다. **기본은 retire**이고, 서버의 파기는 그때 효력이 있는 계약을 따릅니다. 자세한 것은 [워크스페이스의 파기](../dev/retention.md#워크스페이스의-파기)에 있습니다.
 - **retire는 보관소가 있어야 합니다.** 바닥값이 있는데 `audit.archive` 가 없으면 아무것도 지우기 전에 거부하고, 서버는 그 워크스페이스를 닫힌 채로 두고 경고합니다.
 - **청구하는 배포**는 지우기 전에 마지막 측정을 levyan에 넘깁니다. 넘기지 못해도 지우고, 명령이 그렇다고 한 줄 말합니다([과금](../dev/billing.md#파기-전의-마지막-측정)).
 - **내보내기의 서명**: `manifest.json` 에 모든 파일의 SHA-256이 적히고, 감사 기록의 키로 서명한 `signature.json` 이 옆에 붙습니다(design D34). 복구는 서명된 내보내기만 받으므로, 복구할 수 있는 내보내기를 내려면 `audit.checkpoints.key` 를 설정해야 합니다. 키가 없는 배포의 내보내기는 `tenant verify` 가 `the export is not signed` 로 거부합니다.
@@ -282,7 +284,7 @@ loft tenant import --file loft.zip --yes    # 실제로 복구. 파일은 진입
 - 주소는 내보내기의 것을 씁니다. 그 워크스페이스가 떠날 때 걸린 보류는 저절로 풉니다. 다른 워크스페이스의 보류가 걸려 있으면 `--reuse` 로 풀거나 `--alias` 로 다른 주소에 넣습니다. 다른 워크스페이스가 그 주소를 쓰고 있으면 새 주소를 만들어 넣습니다(`--alias` 로 정할 수 있음).
 - 닫힌 채로 내보낸 워크스페이스는 열린 상태로 돌아옵니다. 닫힌 채 두면 다음 파기 주기에 다시 파기되기 때문입니다.
 - 이 빌드의 형식(`loft-export/2`)만 받습니다. 이 빌드에 없는 테이블의 행이 있으면 거부하고, 파일이 없는 테이블은 행이 없는 것으로 읽습니다. 출시 전에는 이전 빌드의 내보내기를 읽는 길을 두지 않습니다(대표의 결정, 2026-11-09).
-- 이 roster에 계정이 없는 구성원(다른 배포에서 왔거나, 파기 때 계정도 지워진 구성원)은 계정 없이 복구됩니다. `loft identity link` 가 그들에게 계정을 줍니다(내장 roster는 새 비밀번호를 한 번 보여 주고, roster를 따로 운영하면 무엇을 만들지 출력합니다).
+- 이 roster에 없는 구성원(다른 배포에서 왔거나 그 뒤 roster에서 잊힌 구성원)은 roster의 사람 없이 복구됩니다. `loft identity link` 가 같은 ID로 그들을 roster에 만듭니다(내장 roster는 새 비밀번호를 한 번 보여 주고, roster를 따로 운영하면 무엇을 만들지 출력합니다). 이 배포가 섬기는 워크스페이스의 구성원만 로그인할 수 있습니다.
 - 감사 기록은 이 배포의 체인에 넣지 않고, 따로 보관하지도 않습니다. 내보내기 파일이 그 기록이므로 보관해 두세요. 원래 서명으로 계속 검증할 수 있습니다(`tenant verify`). 배포 안에 서명된 사본을 두면, 나중에 그 안의 사람을 개인정보 삭제해도 서명을 깨지 않고는 그 사본에서 지울 수 없습니다.
 - 워크스페이스의 이력에 "워크스페이스 복구 (운영자)" 이벤트가 남습니다. 이벤트에는 그 내보내기의 manifest 해시와 서명 키 지문이 적혀서, 어느 파일에서 복구했는지 맞춰 볼 수 있습니다(`tenant verify` 도 둘을 출력합니다). 검색 색인은 복구한 자산·모델·사람을 다시 만듭니다.
 

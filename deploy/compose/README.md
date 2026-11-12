@@ -56,9 +56,10 @@ chmod 444 secrets/*   # 컨테이너 안의 사용자가 읽게. 디렉터리가
 docker compose up -d --build
 docker compose ps                     # migrate는 Exited (0), 나머지는 running
 
-# 첫 워크스페이스와 소유자. --password를 빼면 만들어서 한 번 보여 줍니다.
+# 워크스페이스와 소유자: 내장 roster의 테넌트(auth.roster.tenant, 기본 loft)를 세웁니다.
+# --password를 빼면 만들어서 한 번 보여 줍니다.
 docker compose run --rm loft --config /etc/loft/loft.yaml init \
-  --tenant acme --name "ACME" --login owner --person "홍길동" --email owner@example.com
+  --name "ACME" --login owner --person "홍길동" --email owner@example.com
 
 curl https://$LOFT_DOMAIN/healthz     # ok
 ```

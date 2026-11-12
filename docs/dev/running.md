@@ -14,8 +14,8 @@
 # UI 빌드 (한 번)
 cd ts && npm install && npm run build && cd ..
 
-# 첫 워크스페이스와 소유자, 그리고 체험용 데이터(5개 팀 50명, 공간, 자산 140여 개)
-go run ./cmd/loft init --tenant loft --name "우리 회사" --login admin --password admin1234 --demo
+# 워크스페이스(내장 roster의 테넌트 loft)와 소유자 admin, 그리고 체험용 데이터(5개 팀 50명, 공간, 자산 140여 개)
+go run ./cmd/loft init --name "우리 회사" --password admin1234 --demo
 
 # 서버
 go run ./cmd/loft serve
@@ -25,11 +25,11 @@ go run ./cmd/loft serve
 
 - `--demo` 로 만든 사람들은 모두 비밀번호 `demo1234` 로 로그인할 수 있습니다. `init` 이 역할별 예시 아이디를 출력합니다(매니저 `minjun-kim`, 관리자 `gunwoo-lee`, 감사자 `naeun-park`, 구성원 `haeun-lee` 등). 체험용 데이터에 무엇이 있는지는 [안내서의 첫머리](../guide/README.md)에 있습니다.
 - 체험용 데이터 없이 실제로 쓰려면 `--demo` 를 뺍니다. `--password` 를 빼면 비밀번호를 만들어 출력합니다.
-- 소유자의 이름은 `--person`(기본 `관리자`)으로 정합니다. 사람 기록과 roster 계정에 같은 이름이 들어갑니다. 그래서 그 계정이 나중에 화면에서 만드는 워크스페이스에서도 그 이름으로 불립니다.
-- `--tenant` 를 빼면 주소는 `loft`, `--login` 을 빼면 `admin` 입니다.
+- 소유자의 이름은 `--person`(기본 `관리자`)으로 정합니다. 사람 기록과 roster에 같은 이름이 들어갑니다.
+- 워크스페이스는 roster의 테넌트이고, 그 주소는 `auth.roster.tenant`(기본 `loft`)입니다. `--login` 을 빼면 소유자의 아이디는 `admin` 입니다. 배포는 워크스페이스 하나를 섬기므로 `init` 을 다시 하면 거절됩니다.
 - 처음부터 다시 하려면 `data/` 디렉터리를 지웁니다.
 
-계정은 Loft 프로세스 안에서 함께 뜨는 roster에 있습니다. roster의 DB는 Loft의 SQLite 파일 옆 `data/roster.db` 입니다([계정과 로그인](identity.md)).
+사람은 Loft 프로세스 안에서 함께 뜨는 roster에 있습니다. roster의 DB는 Loft의 SQLite 파일 옆 `data/roster.db` 입니다([사람과 로그인](identity.md)).
 
 ## 설정
 
@@ -44,7 +44,7 @@ go run ./cmd/loft --config 다른.yaml serve
 
 - `--config` 를 주지 않으면 지금 디렉터리의 `loft.yaml` 을 읽습니다. 체크아웃 밖에서 띄울 때는 `--config` 로 파일을 정하고, DB와 파일의 경로도 그 파일에 적습니다.
 - 키를 비워 둔 체크아웃은 시작할 때마다 서명 키를 새로 만듭니다. 그래서 다시 시작하면 다시 로그인합니다. 로그인을 이어 가려면 키를 하나 줍니다(`LOFT_APP_SIGNING_KEY`, [세션의 키](security.md#세션의-키)).
-- 메일 서버(`app.mail`)를 비워 두면 메일을 보내지 않고 메일 내용과 링크를 서버 로그에 남깁니다. 초대 링크는 그 로그에서 읽습니다.
+- 메일 서버(`app.mail`)를 비워 두면 메일을 보내지 않고 메일 내용과 링크를 서버 로그에 남깁니다.
 
 ## UI 개발
 

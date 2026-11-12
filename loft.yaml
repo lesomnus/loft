@@ -59,26 +59,27 @@ spin:
 # names -- and nothing outside the process can reach it.
 #
 # `addr` is a roster deployment of its own. `key` is what Loft acts with there,
-# as `env:NAME`, `file:PATH` or the key itself: an `rk_` its operator minted
-# (`roster control key add --allow /roster.NominationService/List loft`), which
-# serves every tenant that installed Loft (`roster app install --tenant
-# accounts loft`), or an `rt_` of one tenant's.
+# as `env:NAME`, `file:PATH` or the key itself: the `rt_` of the tenant this
+# deployment serves, on the holder installing Loft made there (`roster app
+# install --tenant acme ... loft`, then `roster key add --tenant acme --holder
+# loft`; roster's docs/apps.md, shape C).
 #
-# `directory` is the roster tenant this deployment's accounts are in (D27):
-# workspaces are Loft's own tenants, and an account belongs to as many as it
-# is put in. An `rk_` is told which; an `rt_`'s is its own tenant; the roster
-# in this process has `loft`.
+# `tenant` is the roster tenant this deployment serves (D85), which is its
+# workspace: `loft init` puts it up by the same identifier, and a holder of it
+# is a member from the first time they sign in. Empty is the key's own tenant
+# on a roster of its own -- named, it is held to the key's -- and `loft` on
+# the roster in this process.
 #
-# `account_url` is roster's account page, at the directory's front door: the
+# `account_url` is roster's account page, at the tenant's front door: the
 # page "내 정보" sends somebody to for how they sign in, and to its `#leave`
-# to delete their account where the directory offers that (roster's
+# to delete themselves where the tenant offers that (roster's
 # `TenantConfig.leave`). Only a roster of its own has one.
 #
 # auth:
 #   roster:
 #     addr: roster.example.com:443
 #     key: env:ROSTER_KEY
-#     directory: accounts
+#     # tenant: acme
 #     # account_url: https://id.example.com/
 #     # ca_file: /etc/loft/roster-ca.pem
 #   # or, in this process on PostgreSQL:
@@ -88,7 +89,7 @@ spin:
 #       dsn: postgres://loft:loft@localhost:5432/roster
 #
 # `sso` signs people in through roster's issuer -- its Hydra, in front of the
-# directory -- and draws a button per connection of the directory there (D28).
+# tenant -- and draws a button per connection of the tenant there (D28).
 # The client is registered at Hydra with `client_secret_basic`,
 # `<app_url>/sso/callback` as its redirect and `<app_url>/` as where a
 # sign-out may come back to. `sso_only` turns the password form off, which is
@@ -129,14 +130,14 @@ spin:
 #     pending: 50                        # waiting at once, per workspace
 #     daily: 100                         # sent in a day, per workspace
 #   workspaces:
-#     alias_length: 7                    # a new address; grows by itself when crowded
+#     alias_length: 7                    # an address a restore makes up; grows by itself when crowded
 #     reserved: [acme-corp]              # beside the app's own (`tenancy.Reserved`)
 #     restore_within: 720h               # a closed workspace may be restored for 30 days, or as its contract says
 #     alias_hold: 8760h                  # then its address is nobody's for a year
 #   accounts:
 #     forget_after: 720h                 # 30 days, roster's default
 #     every: 1h                          # how often the leaving are looked at
-#     reconcile: 24h                     # every account asked about again; 0 is off
+#     reconcile: 24h                     # every member asked about again; 0 is off
 app:
   # Where a browser reaches the HTTP listener. Its scheme says whether the
   # session cookie needs HTTPS, and labels print with it and a code unique in
@@ -187,20 +188,12 @@ app:
   #   grace: 720h
   #   every: 1h
 
-  # What an account may make (design 9.11). `personal` gives an account in no
-  # workspace one of its own when it signs in, which is what signing up is;
-  # `owned` is how many it owns before another is paid for (-1 is no limit).
-  #
-  # workspaces:
-  #   personal: true
-  #   owned: 3
-
   # What the workspaces are billed by (design 7, D59, D60): levyan, which what
   # each holds is measured for and handed to -- every workspace as `serve`
   # starts and at each midnight UTC, and each once more before it is
   # destroyed -- whose grants are copied here and read by a workspace's writes
-  # (`loft.restricted`), and which is told who made each workspace and who
-  # left one, which is who pays for it. One connection for all of it. `key` is
+  # (`loft.restricted`); who made a workspace and who pays for it, the portal
+  # tells it (D84). One connection for all of it. `key` is
   # the product key levyan's operator issued (`levyan-admin key issue`,
   # lvk_…), as env:NAME, file:PATH or itself, and is said nowhere. Plaintext
   # only when `insecure` says so; anything else is TLS, as `tls` says. Unset,

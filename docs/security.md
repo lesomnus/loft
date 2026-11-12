@@ -53,7 +53,7 @@
 1. **로그인 CSRF.** `POST /session`이 Content-Type을 보지 않았습니다.
    - 위험: 다른 사이트의 폼이 `text/plain`으로 JSON 본문을 보내면, 방문자의 브라우저가 공격자가 고른 계정으로 로그인됩니다. 그 사람이 이어서 넣는 것은 공격자의 것이 됩니다.
    - 고침: 이제 JSON만 받습니다(415). 다른 사이트는 이 서버의 허락(CORS) 없이 JSON을 보낼 수 없습니다(`TestASignInAFormOfAnotherSiteCouldPostIsRefused`).
-   - 다른 쓰기는 이미 막혀 있었습니다. 쿠키로 인증하는 쓰기는 쿠키가 `SameSite=Lax`라 다른 사이트의 POST에 실리지 않고, `/account`와 `/cli`는 원래 JSON만 받았습니다.
+   - 다른 쓰기는 이미 막혀 있었습니다. 쿠키로 인증하는 쓰기는 쿠키가 `SameSite=Lax`라 다른 사이트의 POST에 실리지 않고, `/cli`는 원래 JSON만 받았습니다.
 2. **공개 주소가 없는 배포.** 여러 프로세스로 도는데 `app.public_url`이 없으면 `http://localhost:8080`으로 동작했습니다. 세션 쿠키에 Secure가 빠지고, 링크와 라벨도 아무도 열지 않는 주소를 가리켰습니다. 이제 서버가 시작하지 않습니다(`TestADeploymentIsToldWhereItIs`).
 3. **의존성 취약점** (govulncheck, 이 코드가 실제로 부르는 것): 19개에서 0개로 줄었습니다.
    - Go 1.27.2: 표준 라이브러리 12개. HTTP/2 서버 크래시와 메모리 고갈, 요청 해석 어긋남, Range 헤더, MIME, TLS, html/template입니다. `go.mod`의 `toolchain`과 `Dockerfile`이 같은 릴리스를 가리킵니다.
