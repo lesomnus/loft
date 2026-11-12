@@ -221,3 +221,72 @@ func TestNothingBeyondTheWallMayBeGiven(t *testing.T) {
 		}
 	}
 }
+
+// TestTheReleasesGiveWhatTheRolesHold (D90): every method a role Loft ships
+// holds was given it by a release, so that a tenant whose roles were written
+// before is given it too -- and a role holds everything its releases gave it
+// that may still be given, since a release only ever adds (#327's decision
+// 33). `go test ./server/policy -update` writes what the roles hold and no
+// release gave as the next release, for a review to read beside
+// `testdata/roles.txt`.
+func TestTheReleasesGiveWhatTheRolesHold(t *testing.T) {
+	x := require.New(t)
+	x.NotEmpty(Releases)
+	given := Releases.Since(0)
+
+	next := map[string][]string{}
+	for _, r := range Roles {
+		for _, m := range given[r.Alias] {
+			x.Contains(r.Methods, m, "a release gave %s %s, and a role takes nothing back: that is a decision about the tenants' roles, not a line here", r.Alias, m)
+		}
+		for _, m := range r.Methods {
+			if !slices.Contains(given[r.Alias], m) {
+				next[m] = append(next[m], strings.TrimPrefix(r.Alias, "loft-"))
+			}
+		}
+	}
+	for alias := range given {
+		_, ok := RoleOf(alias)
+		x.True(ok, "a release gave %s, which is no role Loft ships", alias)
+	}
+	if len(next) == 0 {
+		return
+	}
+
+	lines := []string{}
+	for m, to := range next {
+		lines = append(lines, m+"\t"+strings.Join(to, " "))
+	}
+	sort.Strings(lines)
+	path := filepath.Join("releases", fmt.Sprintf("%04d.txt", len(Releases)+1))
+	if *update {
+		body := "# What this release gives the roles Loft ships; say what it is for.\n" + strings.Join(lines, "\n") + "\n"
+		require.NoError(t, os.WriteFile(path, []byte(body), 0o644))
+		return
+	}
+	t.Fatalf("the roles hold what no release gave them, which a tenant's roles written before would never be given; -update writes %s:\n%s", path, strings.Join(lines, "\n"))
+}
+
+// TestALedgerGivesWhatCameAfter: what the releases after a tenant's gave,
+// each method once, and nothing of a method Loft no longer has.
+func TestALedgerGivesWhatCameAfter(t *testing.T) {
+	x := require.New(t)
+	get, list, gone := app.AssetService_Get_FullMethodName, app.AssetService_List_FullMethodName, "/loft.GoneService/Gone"
+	l := Ledger{
+		{Name: "0001", Adds: map[string][]string{"loft-member": {get}}},
+		{Name: "0002", Adds: map[string][]string{"loft-member": {list, gone}, "loft-auditor": {get}}},
+		{Name: "0003", Adds: map[string][]string{"loft-member": {list}}},
+	}
+	x.EqualValues(3, l.Latest())
+	x.Equal(map[string][]string{"loft-member": {get, list}, "loft-auditor": {get}}, l.Since(0))
+	x.Equal(map[string][]string{"loft-member": {list}, "loft-auditor": {get}}, l.Since(1))
+	x.Equal(map[string][]string{"loft-member": {list}}, l.Since(2))
+	x.Empty(l.Since(3))
+
+	r, err := parseRelease("0009", "# for a test\n/loft.AssetService/Get\towner member\n\n")
+	x.NoError(err)
+	x.Equal("for a test", r.Desc)
+	x.Equal(map[string][]string{"loft-owner": {get}, "loft-member": {get}}, r.Adds)
+	_, err = parseRelease("0009", "/loft.AssetService/Get\n")
+	x.Error(err, "a method no role went to")
+}
