@@ -199,11 +199,13 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	x.NoError(err, "stock taken in")
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(180)), Timezone: z.Ptr("Asia/Tokyo")}.Build())
 	x.NoError(err, "the history kept shorter, and a setting that bills nothing")
-	// Somebody the tenant at roster has signs in, and is a member: who is in
-	// the workspace is roster's to say (D85), and the workspace is billed
-	// for its members rather than held back from having them.
+	// Somebody the tenant at roster has, and binds a role of Loft's, signs
+	// in, and is a member: who is in the workspace is roster's to say (D85,
+	// D89), and the workspace is billed for its members rather than held
+	// back from having them.
 	han, err := w.s.Identity.AddPerson(ctx, "han", "Han", pdid.Nil)
 	x.NoError(err)
+	x.NoError(w.s.Identity.Bind(ctx, "loft-member", han.Id))
 	_, err = w.s.Members.Of(ctx, han)
 	x.NoError(err, "a first sign-in")
 

@@ -100,10 +100,12 @@
 /loft.NotificationService/SetMail	owner admin manager member auditor
 /loft.PartyService/Add	owner admin
 /loft.PartyService/Get	owner admin manager member auditor
+/loft.PartyService/LinkMember	owner admin
 /loft.PartyService/List	owner admin manager member auditor
 /loft.PartyService/Me	owner admin manager member auditor
 /loft.PartyService/Pseudonymize	owner admin
 /loft.PartyService/Search	owner admin manager member auditor
+/loft.PartyService/UnlinkMember	owner admin
 /loft.PartyService/Update	owner admin
 /loft.PartyService/Watch	owner admin manager member auditor
 /loft.PaymentService/GetPayer	owner admin
