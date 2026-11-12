@@ -35,7 +35,7 @@ import (
 // that ended, a person who turned mail off, no address -- leaves the queue
 // without a mail.
 //
-// The address is the one roster holds as checked for the account, and on the
+// The address is the one roster holds as checked for the member, and on the
 // roster in this process the person record's beside it, which is where that
 // deployment's addresses are written. A person record's address on a roster
 // of its own is a workspace's note and nobody's proof, and is not mailed.
@@ -198,11 +198,13 @@ func (m Mailer) recorded(ctx context.Context, db *ent.Client, act string, n *ent
 	return tx.Commit()
 }
 
-// addressOf is where a membership's mail goes, or nowhere.
+// addressOf is where a member's mail goes, or nowhere: an address roster
+// holds as checked of the holder they are (D85), or -- on the roster in this
+// process, which checks none -- their person record's.
 func (m Mailer) addressOf(ctx context.Context, db *ent.Client, h *ent.Holder) (string, error) {
 	people := m.Deps.People
-	if h.Account != nil && people != nil {
-		as, err := people.Addresses(ctx, pdid.Id(*h.Account))
+	if people != nil {
+		as, err := people.Addresses(ctx, pdid.Id(h.Id))
 		switch {
 		case errors.Is(err, identity.ErrNoPerson):
 		case err != nil:

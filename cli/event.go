@@ -187,7 +187,7 @@ func newCmdAccess() *xli.Command {
 					&flg.String{Name: "tenant", Brief: "only this workspace's record, by address"},
 					&flg.String{Name: "from", Brief: "from this date or instant (RFC 3339); thirty days ago if left out"},
 					&flg.String{Name: "to", Brief: "before this date or instant; now if left out"},
-					&flg.String{Name: "actor", Brief: "only the calls of this actor -- a membership, an account, an operator -- by id"},
+					&flg.String{Name: "actor", Brief: "only the calls of this actor -- a member, or an operator -- by id"},
 					&flg.String{Name: "subject", Brief: "only the calls that carried this person's data, by the id of their person record or membership"},
 					&flg.String{Name: "kind", Brief: "only read, write or download"},
 					&flg.Uint32{Name: "limit", Brief: "at most this many; 100 if left out, and 1000 at most"},

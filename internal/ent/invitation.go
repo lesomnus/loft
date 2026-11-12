@@ -25,8 +25,6 @@ type Invitation struct {
 	Email string `json:"email,omitempty"`
 	// Role holds the value of the "role" field.
 	Role string `json:"role,omitempty"`
-	// Account holds the value of the "account" field.
-	Account *uuid.UUID `json:"account,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
@@ -39,8 +37,6 @@ type Invitation struct {
 	DateExpires time.Time `json:"date_expires,omitempty"`
 	// DateSettled holds the value of the "date_settled" field.
 	DateSettled *time.Time `json:"date_settled,omitempty"`
-	// Claim holds the value of the "claim" field.
-	Claim *[]byte `json:"claim,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// InviterId holds the value of the "inviter_id" field.
@@ -119,13 +115,11 @@ func (*Invitation) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case invitation.FieldClaim:
-			values[i] = new([]byte)
 		case invitation.FieldEmail, invitation.FieldRole, invitation.FieldState:
 			values[i] = new(sql.NullString)
 		case invitation.FieldDateUpdated, invitation.FieldDateErased, invitation.FieldDateCreated, invitation.FieldDateExpires, invitation.FieldDateSettled:
 			values[i] = new(sql.NullTime)
-		case invitation.FieldAccount, invitation.FieldPartyId, invitation.FieldHolderId:
+		case invitation.FieldPartyId, invitation.FieldHolderId:
 			values[i] = new(sql.Null[uuid.UUID])
 		case invitation.FieldId, invitation.FieldTenantId, invitation.FieldInviterId:
 			values[i] = new(uuid.UUID)
@@ -161,13 +155,6 @@ func (_m *Invitation) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field role", values[i])
 			} else if value.Valid {
 				_m.Role = value.String
-			}
-		case invitation.FieldAccount:
-			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
-				return fmt.Errorf("unexpected type %T for field account", values[i])
-			} else if value.Valid {
-				_m.Account = new(uuid.UUID)
-				*_m.Account = value.V
 			}
 		case invitation.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -206,12 +193,6 @@ func (_m *Invitation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DateSettled = new(time.Time)
 				*_m.DateSettled = value.Time
-			}
-		case invitation.FieldClaim:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field claim", values[i])
-			} else if value != nil {
-				_m.Claim = value
 			}
 		case invitation.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -299,11 +280,6 @@ func (_m *Invitation) String() string {
 	builder.WriteString("role=")
 	builder.WriteString(_m.Role)
 	builder.WriteString(", ")
-	if v := _m.Account; v != nil {
-		builder.WriteString("account=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
-	builder.WriteString(", ")
 	builder.WriteString("date_updated=")
 	builder.WriteString(_m.DateUpdated.Format(time.ANSIC))
 	builder.WriteString(", ")
@@ -324,11 +300,6 @@ func (_m *Invitation) String() string {
 	if v := _m.DateSettled; v != nil {
 		builder.WriteString("date_settled=")
 		builder.WriteString(v.Format(time.ANSIC))
-	}
-	builder.WriteString(", ")
-	if v := _m.Claim; v != nil {
-		builder.WriteString("claim=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")

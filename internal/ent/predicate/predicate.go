@@ -12,9 +12,6 @@ type Access func(*sql.Selector)
 // AccessReview is the predicate function for accessreview builders.
 type AccessReview func(*sql.Selector)
 
-// AliasHold is the predicate function for aliashold builders.
-type AliasHold func(*sql.Selector)
-
 // Allocation is the predicate function for allocation builders.
 type Allocation func(*sql.Selector)
 

@@ -13,7 +13,6 @@ import (
 	"github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/accessreview"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/allocation"
 	"github.com/lesomnus/loft/internal/ent/archived"
 	"github.com/lesomnus/loft/internal/ent/asset"
@@ -72,7 +71,6 @@ const (
 	// Node types.
 	TypeAccess          = "Access"
 	TypeAccessReview    = "AccessReview"
-	TypeAliasHold       = "AliasHold"
 	TypeAllocation      = "Allocation"
 	TypeArchived        = "Archived"
 	TypeAsset           = "Asset"
@@ -755,278 +753,6 @@ func (m *AccessReviewMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldReviewerId(ctx)
 	}
 	return nil, fmt.Errorf("unknown AccessReview field %s", name)
-}
-
-// AliasHoldMutation represents an operation that mutates the AliasHold nodes in the graph.
-type AliasHoldMutation struct {
-	aliashold.Mutation
-	config
-	id       *uuid.UUID
-	done     bool
-	oldValue func(context.Context) (*AliasHold, error)
-}
-
-var _ ent.Mutation = (*AliasHoldMutation)(nil)
-
-// aliasholdOption allows management of the mutation configuration using functional options.
-type aliasholdOption func(*AliasHoldMutation)
-
-// newAliasHoldMutation creates new mutation for the AliasHold entity.
-func newAliasHoldMutation(c config, op Op, opts ...aliasholdOption) *AliasHoldMutation {
-	m := &AliasHoldMutation{
-		Mutation: *aliashold.NewMutation(op),
-		config:   c,
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// SetId sets the value of the id field. Note that this
-// operation is only accepted on creation of AliasHold entities.
-func (m *AliasHoldMutation) SetId(id uuid.UUID) {
-	m.id = &id
-}
-
-// Id returns the Id value in the mutation. Note that the Id is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *AliasHoldMutation) Id() (id uuid.UUID, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// withAliasHoldId sets the Id field of the mutation.
-func withAliasHoldId(id uuid.UUID) aliasholdOption {
-	return func(m *AliasHoldMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *AliasHold
-		)
-		m.oldValue = func(ctx context.Context) (*AliasHold, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().AliasHold.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withAliasHold sets the old AliasHold of the mutation.
-func withAliasHold(node *AliasHold) aliasholdOption {
-	return func(m *AliasHoldMutation) {
-		m.oldValue = func(context.Context) (*AliasHold, error) {
-			return node, nil
-		}
-		m.id = &node.Id
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m AliasHoldMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m AliasHoldMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// Ids queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *AliasHoldMutation) Ids(ctx context.Context) ([]uuid.UUID, error) {
-	switch {
-	case m.Op().Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.Id()
-		if exists {
-			return []uuid.UUID{id}, nil
-		}
-		fallthrough
-	case m.Op().Is(OpUpdate | OpDelete):
-		return m.Client().AliasHold.Query().Where(m.Predicates()...).Ids(ctx)
-	default:
-		return nil, fmt.Errorf("Ids is not allowed on %s operations", m.Op())
-	}
-}
-
-// OldHeld returns the old "held" field's value of the AliasHold entity.
-// If the AliasHold object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AliasHoldMutation) OldHeld(ctx context.Context) (v string, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldHeld is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldHeld requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHeld: %w", err)
-	}
-	return oldValue.Held, nil
-}
-
-// OldReason returns the old "reason" field's value of the AliasHold entity.
-// If the AliasHold object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AliasHoldMutation) OldReason(ctx context.Context) (v string, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldReason is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldReason requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldReason: %w", err)
-	}
-	return oldValue.Reason, nil
-}
-
-// OldMovedTo returns the old "moved_to" field's value of the AliasHold entity.
-// If the AliasHold object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AliasHoldMutation) OldMovedTo(ctx context.Context) (v string, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldMovedTo is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldMovedTo requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMovedTo: %w", err)
-	}
-	return oldValue.MovedTo, nil
-}
-
-// OldTenant returns the old "tenant" field's value of the AliasHold entity.
-// If the AliasHold object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AliasHoldMutation) OldTenant(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldTenant is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldTenant requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTenant: %w", err)
-	}
-	return oldValue.Tenant, nil
-}
-
-// OldDateUntil returns the old "date_until" field's value of the AliasHold entity.
-// If the AliasHold object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AliasHoldMutation) OldDateUntil(ctx context.Context) (v time.Time, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldDateUntil is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldDateUntil requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDateUntil: %w", err)
-	}
-	return oldValue.DateUntil, nil
-}
-
-// OldDateUpdated returns the old "date_updated" field's value of the AliasHold entity.
-// If the AliasHold object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AliasHoldMutation) OldDateUpdated(ctx context.Context) (v time.Time, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldDateUpdated is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldDateUpdated requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDateUpdated: %w", err)
-	}
-	return oldValue.DateUpdated, nil
-}
-
-// OldDateErased returns the old "date_erased" field's value of the AliasHold entity.
-// If the AliasHold object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AliasHoldMutation) OldDateErased(ctx context.Context) (v *time.Time, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldDateErased is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldDateErased requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDateErased: %w", err)
-	}
-	return oldValue.DateErased, nil
-}
-
-// OldDateCreated returns the old "date_created" field's value of the AliasHold entity.
-// If the AliasHold object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AliasHoldMutation) OldDateCreated(ctx context.Context) (v time.Time, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldDateCreated is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldDateCreated requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDateCreated: %w", err)
-	}
-	return oldValue.DateCreated, nil
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *AliasHoldMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case aliashold.FieldHeld:
-		return m.OldHeld(ctx)
-	case aliashold.FieldReason:
-		return m.OldReason(ctx)
-	case aliashold.FieldMovedTo:
-		return m.OldMovedTo(ctx)
-	case aliashold.FieldTenant:
-		return m.OldTenant(ctx)
-	case aliashold.FieldDateUntil:
-		return m.OldDateUntil(ctx)
-	case aliashold.FieldDateUpdated:
-		return m.OldDateUpdated(ctx)
-	case aliashold.FieldDateErased:
-		return m.OldDateErased(ctx)
-	case aliashold.FieldDateCreated:
-		return m.OldDateCreated(ctx)
-	}
-	return nil, fmt.Errorf("unknown AliasHold field %s", name)
 }
 
 // AllocationMutation represents an operation that mutates the Allocation nodes in the graph.
@@ -3889,21 +3615,21 @@ func (m *CliLoginMutation) OldAddress(ctx context.Context) (v string, err error)
 	return oldValue.Address, nil
 }
 
-// OldAccount returns the old "account" field's value of the CliLogin entity.
+// OldHolder returns the old "holder" field's value of the CliLogin entity.
 // If the CliLogin object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CliLoginMutation) OldAccount(ctx context.Context) (v *uuid.UUID, err error) {
+func (m *CliLoginMutation) OldHolder(ctx context.Context) (v *uuid.UUID, err error) {
 	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldAccount is only allowed on UpdateOne operations")
+		return v, errors.New("OldHolder is only allowed on UpdateOne operations")
 	}
 	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldAccount requires an Id field in the mutation")
+		return v, errors.New("OldHolder requires an Id field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAccount: %w", err)
+		return v, fmt.Errorf("querying old value for OldHolder: %w", err)
 	}
-	return oldValue.Account, nil
+	return oldValue.Holder, nil
 }
 
 // OldGrant returns the old "grant" field's value of the CliLogin entity.
@@ -4023,8 +3749,8 @@ func (m *CliLoginMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldOrigin(ctx)
 	case clilogin.FieldAddress:
 		return m.OldAddress(ctx)
-	case clilogin.FieldAccount:
-		return m.OldAccount(ctx)
+	case clilogin.FieldHolder:
+		return m.OldHolder(ctx)
 	case clilogin.FieldGrant:
 		return m.OldGrant(ctx)
 	case clilogin.FieldState:
@@ -6414,23 +6140,6 @@ func (m *HolderMutation) OldRole(ctx context.Context) (v string, err error) {
 	return oldValue.Role, nil
 }
 
-// OldAccount returns the old "account" field's value of the Holder entity.
-// If the Holder object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HolderMutation) OldAccount(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldAccount is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldAccount requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAccount: %w", err)
-	}
-	return oldValue.Account, nil
-}
-
 // OldDateLeaving returns the old "date_leaving" field's value of the Holder entity.
 // If the Holder object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -6520,8 +6229,6 @@ func (m *HolderMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateCreated(ctx)
 	case holder.FieldRole:
 		return m.OldRole(ctx)
-	case holder.FieldAccount:
-		return m.OldAccount(ctx)
 	case holder.FieldDateLeaving:
 		return m.OldDateLeaving(ctx)
 	case holder.FieldMailOff:
@@ -7046,23 +6753,6 @@ func (m *InvitationMutation) OldRole(ctx context.Context) (v string, err error) 
 	return oldValue.Role, nil
 }
 
-// OldAccount returns the old "account" field's value of the Invitation entity.
-// If the Invitation object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *InvitationMutation) OldAccount(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldAccount is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldAccount requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAccount: %w", err)
-	}
-	return oldValue.Account, nil
-}
-
 // OldDateUpdated returns the old "date_updated" field's value of the Invitation entity.
 // If the Invitation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -7165,23 +6855,6 @@ func (m *InvitationMutation) OldDateSettled(ctx context.Context) (v *time.Time, 
 	return oldValue.DateSettled, nil
 }
 
-// OldClaim returns the old "claim" field's value of the Invitation entity.
-// If the Invitation object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *InvitationMutation) OldClaim(ctx context.Context) (v *[]byte, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldClaim is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldClaim requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldClaim: %w", err)
-	}
-	return oldValue.Claim, nil
-}
-
 // OldTenantId returns the old "tenant_id" field's value of the Invitation entity.
 // If the Invitation object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -7259,8 +6932,6 @@ func (m *InvitationMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldEmail(ctx)
 	case invitation.FieldRole:
 		return m.OldRole(ctx)
-	case invitation.FieldAccount:
-		return m.OldAccount(ctx)
 	case invitation.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
 	case invitation.FieldDateErased:
@@ -7273,8 +6944,6 @@ func (m *InvitationMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldDateExpires(ctx)
 	case invitation.FieldDateSettled:
 		return m.OldDateSettled(ctx)
-	case invitation.FieldClaim:
-		return m.OldClaim(ctx)
 	case invitation.FieldTenantId:
 		return m.OldTenantId(ctx)
 	case invitation.FieldInviterId:
@@ -12130,21 +11799,21 @@ func (m *SessionMutation) Ids(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
-// OldAccount returns the old "account" field's value of the Session entity.
+// OldHolder returns the old "holder" field's value of the Session entity.
 // If the Session object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SessionMutation) OldAccount(ctx context.Context) (v uuid.UUID, err error) {
+func (m *SessionMutation) OldHolder(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldAccount is only allowed on UpdateOne operations")
+		return v, errors.New("OldHolder is only allowed on UpdateOne operations")
 	}
 	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldAccount requires an Id field in the mutation")
+		return v, errors.New("OldHolder requires an Id field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAccount: %w", err)
+		return v, fmt.Errorf("querying old value for OldHolder: %w", err)
 	}
-	return oldValue.Account, nil
+	return oldValue.Holder, nil
 }
 
 // OldSecret returns the old "secret" field's value of the Session entity.
@@ -12288,8 +11957,8 @@ func (m *SessionMutation) OldDateCreated(ctx context.Context) (v time.Time, err 
 // database failed.
 func (m *SessionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case session.FieldAccount:
-		return m.OldAccount(ctx)
+	case session.FieldHolder:
+		return m.OldHolder(ctx)
 	case session.FieldSecret:
 		return m.OldSecret(ctx)
 	case session.FieldGrant:

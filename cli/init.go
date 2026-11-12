@@ -202,12 +202,11 @@ func initWorkspace(ctx context.Context, s *cmd.Server, t identity.Tenant, name s
 	}
 	tenant := app.TenantRef_builder{Id: ws.GetId()}.Build()
 	h, err := base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Id:      p.Id.Bytes(),
-		Tenant:  tenant,
-		Alias:   p.Alias,
-		Name:    cmp.Or(person, p.Alias),
-		Role:    z.Ptr("owner"),
-		Account: p.Id.Bytes(),
+		Id:     p.Id.Bytes(),
+		Tenant: tenant,
+		Alias:  p.Alias,
+		Name:   cmp.Or(person, p.Alias),
+		Role:   z.Ptr("owner"),
 	}.Build())
 	if err != nil {
 		return nil, nil, fmt.Errorf("holder %q: %w", p.Alias, err)

@@ -64,23 +64,20 @@ type Deployment struct {
 	// (`opensearch.Remember`).
 	Reindex func(ctx context.Context, db *ent.Client, tenant uuid.UUID) error
 
-	// Aliases is what a restore asks of the address it restores a workspace
-	// at (`tenancy.Aliases`). Nil takes the export's as it is.
-	Aliases Aliases
+	// Serves is the tenant at roster this deployment serves (D85): its
+	// identifier and its alias, which is the workspace's address (D86). A
+	// restore of any other is refused, and the one it takes is at that
+	// address. The nil identifier is a roster with no tenant yet -- the one
+	// in this process, of a deployment made to restore into -- which takes
+	// any, at the export's address, until `loft identity link` makes the
+	// tenant and the workspace takes its address. Nil restores any, at the
+	// export's.
+	Serves func(ctx context.Context) (pdid.Id, string, error)
 
-	// Known says whether the deployment's roster has an account: a restored
-	// member keeps its account when it does, and is restored with none when
-	// it does not. Nil keeps every account as the export has it.
-	Known func(ctx context.Context, account pdid.Id) (bool, error)
-}
-
-// Aliases is what a restore asks about addresses.
-type Aliases interface {
-	// Valid refuses an address no workspace may have.
-	Valid(v string) error
-
-	// Make is an address nobody has.
-	Make(ctx context.Context) (string, error)
+	// Known says whether the deployment's roster has a member, by their
+	// identifier: one it does not have is restored as they are, and said
+	// ([Restored.Unlinked]). Nil asks nothing.
+	Known func(ctx context.Context, member pdid.Id) (bool, error)
 }
 
 func (d Deployment) now() time.Time {
@@ -114,12 +111,12 @@ func (d Deployment) held(ctx context.Context, tenant pdid.Id) error {
 var Trail = []string{"audit", "archived", "access", "rowseal", "owed"}
 
 // Shared is the deployment's own tables, which no tenant has rows in: a
-// session is an account's, and an account is in no workspace (D27); a failed
-// sign-in is an address's, before anybody is anybody; what the search index
-// has yet to hear of is the deployment's work, which a purge adds to rather
-// than takes from; and so is what levyan is to be told of who pays, which
-// outlives the workspace it is about (design 7.6).
-var Shared = []string{"session", "clilogin", "aliashold", "signinfailure", "searchstale", "levyannotice"}
+// session, a browser's or a terminal's, is the deployment's record of a
+// sign-in; a failed sign-in is an address's, before anybody is anybody; what
+// the search index has yet to hear of is the deployment's work, which a purge
+// adds to rather than takes from; and so is what levyan is to be told of who
+// pays, which outlives the workspace it is about (design 7.6).
+var Shared = []string{"session", "clilogin", "signinfailure", "searchstale", "levyannotice"}
 
 // Tables is every table a tenant has rows in, each before every table it
 // points at, so that deleting in this order leaves no reference dangling. The

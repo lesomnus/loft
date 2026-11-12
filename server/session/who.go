@@ -58,12 +58,9 @@ type Workspace struct {
 	// (`app.locale`) while it says none (design 7.9).
 	Timezone string `json:"timezone"`
 	// Closed is when it was closed and Destroy when it goes unless an
-	// operator restores it, for one that is closed (D29, D83), and
-	// AliasHoldDays how many days its address is then held from anybody else
-	// (`app.workspaces.alias_hold`).
-	Closed        *time.Time `json:"closed,omitempty"`
-	Destroy       *time.Time `json:"destroy,omitempty"`
-	AliasHoldDays uint32     `json:"alias_hold_days,omitempty"`
+	// operator restores it, for one that is closed (D29, D83).
+	Closed  *time.Time `json:"closed,omitempty"`
+	Destroy *time.Time `json:"destroy,omitempty"`
 }
 
 // Who is `GET /session`.
@@ -74,9 +71,6 @@ type Who struct {
 	// Zone is the deployment's zone, what a workspace that says none of its
 	// own is told in.
 	Zone *time.Location
-	// Hold is how long a destroyed workspace's address is held
-	// (`app.workspaces.alias_hold`).
-	Hold time.Duration
 	// Billing says the deployment bills (`app.billing.levyan`).
 	Billing bool
 }
@@ -104,7 +98,6 @@ func (a Who) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if t.DateClosed != nil {
 		v.Workspace.Closed, v.Workspace.Destroy = t.DateClosed, t.DateDestroy
-		v.Workspace.AliasHoldDays = uint32(a.Hold / (24 * time.Hour))
 	}
 	answer(w, http.StatusOK, v)
 }

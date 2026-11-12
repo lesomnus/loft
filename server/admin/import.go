@@ -70,9 +70,7 @@ func (s operatorTenants) Import(in grpc.ClientStreamingServer[app.OperatorTenant
 		return status.Error(codes.InvalidArgument, "data: the export, which came empty")
 	}
 
-	x, err := s.a.S.Offboard(s.a.C).Import(operator.Frame(ctx, pdid.Nil), f, size, offboard.ImportOptions{
-		Alias: o.GetAlias(), Reuse: o.GetReuse(), Dry: o.GetDryRun(),
-	})
+	x, err := s.a.S.Offboard(s.a.C).Import(operator.Frame(ctx, pdid.Nil), f, size, offboard.ImportOptions{Dry: o.GetDryRun()})
 	if err != nil {
 		return refused(err)
 	}
@@ -82,7 +80,6 @@ func (s operatorTenants) Import(in grpc.ClientStreamingServer[app.OperatorTenant
 		DryRun:   o.GetDryRun(),
 		Alias:    x.Alias,
 		Asked:    x.Asked,
-		Released: x.Released,
 		Reopened: x.Reopened,
 		Retired:  x.Retired,
 		Returned: uint32(x.Returned),

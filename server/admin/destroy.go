@@ -16,8 +16,6 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/server/closing"
 	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/operator"
@@ -26,8 +24,9 @@ import (
 )
 
 // Retired is the workspaces that retired from this deployment and what is
-// left of each (`trail.Policy.Retired`), the address each was at as the hold
-// on it names it.
+// left of each (`trail.Policy.Retired`): the one this deployment serves by
+// the address it goes by at roster (D86), and any other by its identifier
+// alone, which is all that is left of it here.
 func (s operatorTenants) Retired(ctx context.Context, _ *app.OperatorTenantRetiredRequest) (*app.OperatorTenantRetiredResponse, error) {
 	vs, err := s.a.S.Trail.Retired(ctx, pd.TrailStore(s.a.S.Ent))
 	if err != nil {
@@ -35,21 +34,15 @@ func (s operatorTenants) Retired(ctx context.Context, _ *app.OperatorTenantRetir
 	}
 	ids := slices.SortedFunc(maps.Keys(vs), func(a, b pdid.Id) int { return vs[a].At.Compare(vs[b].At) })
 	out := &app.OperatorTenantRetiredResponse{}
+	served, _ := s.a.S.Identity.Tenant(ctx)
 	for _, id := range ids {
 		v := app.OperatorTenantRetirement_builder{
 			Tenant:        id.Bytes(),
 			DateRetired:   timestamppb.New(vs[id].At),
 			DateKeptUntil: timestamppb.New(vs[id].Until),
 		}.Build()
-		h, err := s.a.S.Ent.AliasHold.Query().
-			Where(aliashold.Tenant(id.Uuid()), aliashold.Reason(offboard.ReasonRetired)).
-			Order(ent.Desc(aliashold.FieldDateCreated)).
-			First(ctx)
-		switch {
-		case err == nil:
-			v.SetAlias(h.Held)
-		case !ent.IsNotFound(err):
-			return nil, err
+		if id == served.Id {
+			v.SetAlias(served.Alias)
 		}
 		out.SetItems(append(out.GetItems(), v))
 	}

@@ -56,11 +56,11 @@ func TestARowIsNamedAsThePastAsks(t *testing.T) {
 	p, err := e.s.Identity.AddPerson(ctx, "bot", "Bot", pdid.Nil)
 	x.NoError(err)
 	bot, err := e.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Tenant:  app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-		Alias:   "bot",
-		Name:    "Bot",
-		Role:    z.Ptr("member"),
-		Account: p.Id.Bytes(),
+		Id:     p.Id.Bytes(),
+		Tenant: app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
+		Alias:  "bot",
+		Name:   "Bot",
+		Role:   z.Ptr("member"),
 	}.Build())
 	x.NoError(err)
 	n, saw = name(bot.GetId())

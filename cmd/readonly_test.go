@@ -144,7 +144,7 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	x.NoError(err)
 	leaving := partyOf(w.world, w.holder("choi", "member"))
 	jung := w.holder("jung", "member")
-	x.NoError(w.s.Identity.SetPassword(ctx, w.accountOf(jung), "password1234"))
+	x.NoError(w.s.Identity.SetPassword(ctx, w.memberId(jung), "password1234"))
 	asJung := w.signIn(jung)
 	held, err := w.invite(w.owner, "han@example.com", "member")
 	x.NoError(err)

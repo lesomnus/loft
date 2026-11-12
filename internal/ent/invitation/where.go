@@ -66,11 +66,6 @@ func Role(v string) predicate.Invitation {
 	return predicate.Invitation(sql.FieldEQ(FieldRole, v))
 }
 
-// Account applies equality check predicate on the "account" field. It's identical to AccountEQ.
-func Account(v uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldEQ(FieldAccount, v))
-}
-
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
 func DateUpdated(v time.Time) predicate.Invitation {
 	return predicate.Invitation(sql.FieldEQ(FieldDateUpdated, v))
@@ -99,11 +94,6 @@ func DateExpires(v time.Time) predicate.Invitation {
 // DateSettled applies equality check predicate on the "date_settled" field. It's identical to DateSettledEQ.
 func DateSettled(v time.Time) predicate.Invitation {
 	return predicate.Invitation(sql.FieldEQ(FieldDateSettled, v))
-}
-
-// Claim applies equality check predicate on the "claim" field. It's identical to ClaimEQ.
-func Claim(v []byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldEQ(FieldClaim, v))
 }
 
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
@@ -254,56 +244,6 @@ func RoleEqualFold(v string) predicate.Invitation {
 // RoleContainsFold applies the ContainsFold predicate on the "role" field.
 func RoleContainsFold(v string) predicate.Invitation {
 	return predicate.Invitation(sql.FieldContainsFold(FieldRole, v))
-}
-
-// AccountEQ applies the EQ predicate on the "account" field.
-func AccountEQ(v uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldEQ(FieldAccount, v))
-}
-
-// AccountNEQ applies the NEQ predicate on the "account" field.
-func AccountNEQ(v uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldNEQ(FieldAccount, v))
-}
-
-// AccountIn applies the In predicate on the "account" field.
-func AccountIn(vs ...uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldIn(FieldAccount, vs...))
-}
-
-// AccountNotIn applies the NotIn predicate on the "account" field.
-func AccountNotIn(vs ...uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldNotIn(FieldAccount, vs...))
-}
-
-// AccountGT applies the GT predicate on the "account" field.
-func AccountGT(v uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldGT(FieldAccount, v))
-}
-
-// AccountGTE applies the GTE predicate on the "account" field.
-func AccountGTE(v uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldGTE(FieldAccount, v))
-}
-
-// AccountLT applies the LT predicate on the "account" field.
-func AccountLT(v uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldLT(FieldAccount, v))
-}
-
-// AccountLTE applies the LTE predicate on the "account" field.
-func AccountLTE(v uuid.UUID) predicate.Invitation {
-	return predicate.Invitation(sql.FieldLTE(FieldAccount, v))
-}
-
-// AccountIsNil applies the IsNil predicate on the "account" field.
-func AccountIsNil() predicate.Invitation {
-	return predicate.Invitation(sql.FieldIsNull(FieldAccount))
-}
-
-// AccountNotNil applies the NotNil predicate on the "account" field.
-func AccountNotNil() predicate.Invitation {
-	return predicate.Invitation(sql.FieldNotNull(FieldAccount))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.
@@ -609,56 +549,6 @@ func DateSettledIsNil() predicate.Invitation {
 // DateSettledNotNil applies the NotNil predicate on the "date_settled" field.
 func DateSettledNotNil() predicate.Invitation {
 	return predicate.Invitation(sql.FieldNotNull(FieldDateSettled))
-}
-
-// ClaimEQ applies the EQ predicate on the "claim" field.
-func ClaimEQ(v []byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldEQ(FieldClaim, v))
-}
-
-// ClaimNEQ applies the NEQ predicate on the "claim" field.
-func ClaimNEQ(v []byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldNEQ(FieldClaim, v))
-}
-
-// ClaimIn applies the In predicate on the "claim" field.
-func ClaimIn(vs ...[]byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldIn(FieldClaim, vs...))
-}
-
-// ClaimNotIn applies the NotIn predicate on the "claim" field.
-func ClaimNotIn(vs ...[]byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldNotIn(FieldClaim, vs...))
-}
-
-// ClaimGT applies the GT predicate on the "claim" field.
-func ClaimGT(v []byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldGT(FieldClaim, v))
-}
-
-// ClaimGTE applies the GTE predicate on the "claim" field.
-func ClaimGTE(v []byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldGTE(FieldClaim, v))
-}
-
-// ClaimLT applies the LT predicate on the "claim" field.
-func ClaimLT(v []byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldLT(FieldClaim, v))
-}
-
-// ClaimLTE applies the LTE predicate on the "claim" field.
-func ClaimLTE(v []byte) predicate.Invitation {
-	return predicate.Invitation(sql.FieldLTE(FieldClaim, v))
-}
-
-// ClaimIsNil applies the IsNil predicate on the "claim" field.
-func ClaimIsNil() predicate.Invitation {
-	return predicate.Invitation(sql.FieldIsNull(FieldClaim))
-}
-
-// ClaimNotNil applies the NotNil predicate on the "claim" field.
-func ClaimNotNil() predicate.Invitation {
-	return predicate.Invitation(sql.FieldNotNull(FieldClaim))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

@@ -16,8 +16,6 @@ const (
 	FieldEmail = "email"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
-	// FieldAccount holds the string denoting the account field in the database.
-	FieldAccount = "account"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
@@ -30,8 +28,6 @@ const (
 	FieldDateExpires = "date_expires"
 	// FieldDateSettled holds the string denoting the date_settled field in the database.
 	FieldDateSettled = "date_settled"
-	// FieldClaim holds the string denoting the claim field in the database.
-	FieldClaim = "claim"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// FieldInviterId holds the string denoting the inviter_id field in the database.
@@ -85,14 +81,12 @@ var Columns = []string{
 	FieldId,
 	FieldEmail,
 	FieldRole,
-	FieldAccount,
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
 	FieldState,
 	FieldDateExpires,
 	FieldDateSettled,
-	FieldClaim,
 	FieldTenantId,
 	FieldInviterId,
 	FieldPartyId,
@@ -125,11 +119,6 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByRole orders the results by the role field.
 func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
-}
-
-// ByAccount orders the results by the account field.
-func ByAccount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccount, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.

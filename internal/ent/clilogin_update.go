@@ -92,23 +92,23 @@ func (_u *CliLoginUpdate) SetNillableAddress(v *string) *CliLoginUpdate {
 	return _u
 }
 
-// SetAccount sets the "account" field.
-func (_u *CliLoginUpdate) SetAccount(v uuid.UUID) *CliLoginUpdate {
-	_u.mutation.SetAccount(v)
+// SetHolder sets the "holder" field.
+func (_u *CliLoginUpdate) SetHolder(v uuid.UUID) *CliLoginUpdate {
+	_u.mutation.SetHolder(v)
 	return _u
 }
 
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_u *CliLoginUpdate) SetNillableAccount(v *uuid.UUID) *CliLoginUpdate {
+// SetNillableHolder sets the "holder" field if the given value is not nil.
+func (_u *CliLoginUpdate) SetNillableHolder(v *uuid.UUID) *CliLoginUpdate {
 	if v != nil {
-		_u.SetAccount(*v)
+		_u.SetHolder(*v)
 	}
 	return _u
 }
 
-// ClearAccount clears the value of the "account" field.
-func (_u *CliLoginUpdate) ClearAccount() *CliLoginUpdate {
-	_u.mutation.ClearAccount()
+// ClearHolder clears the value of the "holder" field.
+func (_u *CliLoginUpdate) ClearHolder() *CliLoginUpdate {
+	_u.mutation.ClearHolder()
 	return _u
 }
 
@@ -263,14 +263,14 @@ func (_u *CliLoginUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(clilogin.FieldAddress); ok {
 		_spec.SetField(clilogin.FieldAddress, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.Account(); ok {
-		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)
+	if value, ok := _u.mutation.Holder(); ok {
+		_spec.SetField(clilogin.FieldHolder, field.TypeUuid, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(clilogin.FieldAccount); ok {
-		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, e)
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldHolder); ok {
+		_spec.SetField(clilogin.FieldHolder, field.TypeUuid, e)
 	}
-	if _u.mutation.AccountCleared() {
-		_spec.ClearField(clilogin.FieldAccount, field.TypeUuid)
+	if _u.mutation.HolderCleared() {
+		_spec.ClearField(clilogin.FieldHolder, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.Grant(); ok {
 		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, value)
@@ -395,23 +395,23 @@ func (_u *CliLoginUpdateOne) SetNillableAddress(v *string) *CliLoginUpdateOne {
 	return _u
 }
 
-// SetAccount sets the "account" field.
-func (_u *CliLoginUpdateOne) SetAccount(v uuid.UUID) *CliLoginUpdateOne {
-	_u.mutation.SetAccount(v)
+// SetHolder sets the "holder" field.
+func (_u *CliLoginUpdateOne) SetHolder(v uuid.UUID) *CliLoginUpdateOne {
+	_u.mutation.SetHolder(v)
 	return _u
 }
 
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_u *CliLoginUpdateOne) SetNillableAccount(v *uuid.UUID) *CliLoginUpdateOne {
+// SetNillableHolder sets the "holder" field if the given value is not nil.
+func (_u *CliLoginUpdateOne) SetNillableHolder(v *uuid.UUID) *CliLoginUpdateOne {
 	if v != nil {
-		_u.SetAccount(*v)
+		_u.SetHolder(*v)
 	}
 	return _u
 }
 
-// ClearAccount clears the value of the "account" field.
-func (_u *CliLoginUpdateOne) ClearAccount() *CliLoginUpdateOne {
-	_u.mutation.ClearAccount()
+// ClearHolder clears the value of the "holder" field.
+func (_u *CliLoginUpdateOne) ClearHolder() *CliLoginUpdateOne {
+	_u.mutation.ClearHolder()
 	return _u
 }
 
@@ -596,14 +596,14 @@ func (_u *CliLoginUpdateOne) sqlSave(ctx context.Context) (_node *CliLogin, err 
 	if e, ok := _u.mutation.FieldExpr(clilogin.FieldAddress); ok {
 		_spec.SetField(clilogin.FieldAddress, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.Account(); ok {
-		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)
+	if value, ok := _u.mutation.Holder(); ok {
+		_spec.SetField(clilogin.FieldHolder, field.TypeUuid, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(clilogin.FieldAccount); ok {
-		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, e)
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldHolder); ok {
+		_spec.SetField(clilogin.FieldHolder, field.TypeUuid, e)
 	}
-	if _u.mutation.AccountCleared() {
-		_spec.ClearField(clilogin.FieldAccount, field.TypeUuid)
+	if _u.mutation.HolderCleared() {
+		_spec.ClearField(clilogin.FieldHolder, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.Grant(); ok {
 		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, value)

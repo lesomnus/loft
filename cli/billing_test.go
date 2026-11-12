@@ -134,7 +134,7 @@ func TestWhatAnOperatorMakesTellsLevyanNothingOfWhoPays(t *testing.T) {
 	fake.Restrict(acme)
 	_, err = d.s.Follower.Sync(ctx, acme)
 	x.NoError(err)
-	out, err := d.loft(t, "holder", "add", "--tenant", "acme", "--login", "kim", "--password", "kim-password")
+	out, err := d.loft(t, "holder", "add", "--login", "kim", "--password", "kim-password")
 	x.NoError(err, out)
 
 	// Out, gone, and back: what levyan grants it copied, and nothing told.
@@ -189,7 +189,7 @@ func TestLevyanIsToldWhatAnOperatorEnds(t *testing.T) {
 	x.NoError(err)
 	owner, err := d.s.Ent.Holder.Query().Where(holder.TenantId(acme.Id), holder.Role("owner")).Only(ctx)
 	x.NoError(err)
-	fake.Arrived(pdid.Id(acme.Id), pdid.Id(*owner.Account), acme.DateCreated)
+	fake.Arrived(pdid.Id(acme.Id), pdid.Id(owner.Id), acme.DateCreated)
 
 	out, err := d.loft(t, "tenant", "close", "--reason", "미납", "acme")
 	x.NoError(err, out)

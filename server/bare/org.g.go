@@ -8,7 +8,6 @@ import (
 	errors "errors"
 	loft "github.com/lesomnus/loft"
 	ent "github.com/lesomnus/loft/internal/ent"
-	aliashold "github.com/lesomnus/loft/internal/ent/aliashold"
 	clilogin "github.com/lesomnus/loft/internal/ent/clilogin"
 	holder "github.com/lesomnus/loft/internal/ent/holder"
 	invitation "github.com/lesomnus/loft/internal/ent/invitation"
@@ -928,13 +927,6 @@ func (st InvitationServiceServer) create(ctx context.Context, req *loft.Invitati
 			})
 		}
 	}
-	if req.HasAccount() {
-		if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
-			return nil, nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
-		} else {
-			q.SetAccount(v)
-		}
-	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
@@ -959,9 +951,6 @@ func (st InvitationServiceServer) create(ctx context.Context, req *loft.Invitati
 				v.SetHolder(loft.Holder_builder{Id: k[:]}.Build())
 			})
 		}
-	}
-	if req.HasClaim() {
-		q.SetClaim(req.GetClaim())
 	}
 	return q, ds, nil
 }
@@ -1096,9 +1085,6 @@ func InvitationSelectedFields(m *loft.InvitationSelect) []string {
 	if m.GetRole() {
 		vs = append(vs, invitation.FieldRole)
 	}
-	if m.GetAccount() {
-		vs = append(vs, invitation.FieldAccount)
-	}
 	if m.GetDateUpdated() {
 		vs = append(vs, invitation.FieldDateUpdated)
 	}
@@ -1116,9 +1102,6 @@ func InvitationSelectedFields(m *loft.InvitationSelect) []string {
 	}
 	if m.GetDateSettled() {
 		vs = append(vs, invitation.FieldDateSettled)
-	}
-	if m.GetClaim() {
-		vs = append(vs, invitation.FieldClaim)
 	}
 
 	return vs
@@ -1223,7 +1206,7 @@ func InvitationGetKey(ctx context.Context, db *ent.Client, ref *loft.InvitationR
 var invitationOrmEntity = ormpatch.MustEntityOf(loft.File_loft_org_proto, "Invitation")
 
 var invitationPatchColumns = entpatch.Columns{
-	1: invitation.FieldId, 2: invitation.TenantColumn, 8: invitation.InviterColumn, 9: invitation.FieldEmail, 10: invitation.FieldRole, 11: invitation.PartyColumn, 12: invitation.FieldAccount, 13: invitation.FieldDateUpdated, 14: invitation.FieldDateErased, 15: invitation.FieldDateCreated, 16: invitation.FieldState, 17: invitation.FieldDateExpires, 18: invitation.FieldDateSettled, 19: invitation.HolderColumn, 20: invitation.FieldClaim}
+	1: invitation.FieldId, 2: invitation.TenantColumn, 8: invitation.InviterColumn, 9: invitation.FieldEmail, 10: invitation.FieldRole, 11: invitation.PartyColumn, 13: invitation.FieldDateUpdated, 14: invitation.FieldDateErased, 15: invitation.FieldDateCreated, 16: invitation.FieldState, 17: invitation.FieldDateExpires, 18: invitation.FieldDateSettled, 19: invitation.HolderColumn}
 
 func (s InvitationServiceServer) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
 	if !req.HasPatch() {
@@ -1519,65 +1502,6 @@ func CliLoginNarrow(ctx context.Context, scope Scope, p predicate.CliLogin) (pre
 // narrow is [CliLoginNarrow] with this server's own scope.
 func (s CliLoginServiceServer) narrow(ctx context.Context, p predicate.CliLogin) (predicate.CliLogin, error) {
 	return CliLoginNarrow(ctx, s.Scope, p)
-}
-
-type AliasHoldServiceServer struct {
-	Store
-
-	loft.UnimplementedAliasHoldServiceServer
-}
-
-// NewAliasHoldServiceServer answers with a server that runs its queries with `db`.
-//
-// It takes the options of [Server] so that what is built here can be told
-// where to report its writes and what it may see. Built without them, it
-// reports nowhere and sees everything.
-func NewAliasHoldServiceServer(db *ent.Client, opts ...Option) loft.AliasHoldServiceServer {
-	s := Server{Store: Store{Db: db}}
-	for _, opt := range opts {
-		opt(&s)
-	}
-	return AliasHoldServiceServer{Store: s.Store}
-}
-
-// AliasHoldNarrow answers with `p` and everything else that narrows a
-// read of a AliasHold: the rows that have not been erased, and whatever
-// `scope` says of those.
-//
-// Every read this package makes goes through it, and a read written by
-// hand should too -- a List is the one read nothing generates, and so the
-// one that would otherwise answer with rows nobody should be given.
-func AliasHoldNarrow(ctx context.Context, scope Scope, p predicate.AliasHold) (predicate.AliasHold, error) {
-	ps := make([]predicate.AliasHold, 0, 3)
-
-	// A row that was erased is not a row a read answers with.
-	ps = append(ps, aliashold.DateErasedIsNil())
-	if p != nil {
-		ps = append(ps, p)
-	}
-	if scope != nil {
-		q, err := scope.AliasHoldScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if q != nil {
-			ps = append(ps, q)
-		}
-	}
-
-	switch len(ps) {
-	case 0:
-		return nil, nil
-	case 1:
-		return ps[0], nil
-	default:
-		return aliashold.And(ps...), nil
-	}
-}
-
-// narrow is [AliasHoldNarrow] with this server's own scope.
-func (s AliasHoldServiceServer) narrow(ctx context.Context, p predicate.AliasHold) (predicate.AliasHold, error) {
-	return AliasHoldNarrow(ctx, s.Scope, p)
 }
 
 type SignInFailureServiceServer struct {

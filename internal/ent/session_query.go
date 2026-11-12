@@ -265,12 +265,12 @@ func (_q *SessionQuery) Clone() *SessionQuery {
 // Example:
 //
 //	var v []struct {
-//		Account uuid.UUID `json:"account,omitempty"`
+//		Holder uuid.UUID `json:"holder,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Session.Query().
-//		GroupBy(session.FieldAccount).
+//		GroupBy(session.FieldHolder).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *SessionQuery) GroupBy(field string, fields ...string) *SessionGroupBy {
@@ -288,11 +288,11 @@ func (_q *SessionQuery) GroupBy(field string, fields ...string) *SessionGroupBy 
 // Example:
 //
 //	var v []struct {
-//		Account uuid.UUID `json:"account,omitempty"`
+//		Holder uuid.UUID `json:"holder,omitempty"`
 //	}
 //
 //	client.Session.Query().
-//		Select(session.FieldAccount).
+//		Select(session.FieldHolder).
 //		Scan(ctx, &v)
 func (_q *SessionQuery) Select(fields ...string) *SessionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -19,7 +19,6 @@ import (
 	ent "github.com/lesomnus/loft/internal/ent"
 	entAccess "github.com/lesomnus/loft/internal/ent/access"
 	entAccessReview "github.com/lesomnus/loft/internal/ent/accessreview"
-	entAliasHold "github.com/lesomnus/loft/internal/ent/aliashold"
 	entAllocation "github.com/lesomnus/loft/internal/ent/allocation"
 	entArchived "github.com/lesomnus/loft/internal/ent/archived"
 	entAsset "github.com/lesomnus/loft/internal/ent/asset"
@@ -137,7 +136,6 @@ func Check() error { return version.Same(Payday) }
 const (
 	AccessDomain          pdid.Domain = 6   // "access"
 	AccessReviewDomain    pdid.Domain = 47  // "access-review"
-	AliasHoldDomain       pdid.Domain = 43  // "alias-hold"
 	AllocationDomain      pdid.Domain = 28  // "allocation"
 	ArchivedDomain        pdid.Domain = 5   // "archived"
 	AssetDomain           pdid.Domain = 7   // "asset"
@@ -186,7 +184,6 @@ const (
 func init() {
 	pdid.Register("loft.Access", AccessDomain, "access")
 	pdid.Register("loft.AccessReview", AccessReviewDomain, "access-review")
-	pdid.Register("loft.AliasHold", AliasHoldDomain, "alias-hold")
 	pdid.Register("loft.Allocation", AllocationDomain, "allocation")
 	pdid.Register("loft.Archived", ArchivedDomain, "archived")
 	pdid.Register("loft.Asset", AssetDomain, "asset")
@@ -239,7 +236,6 @@ func init() {
 var Domains = map[string]pdid.Domain{
 	"loft.Access":          AccessDomain,
 	"loft.AccessReview":    AccessReviewDomain,
-	"loft.AliasHold":       AliasHoldDomain,
 	"loft.Allocation":      AllocationDomain,
 	"loft.Archived":        ArchivedDomain,
 	"loft.Asset":           AssetDomain,
@@ -465,15 +461,6 @@ func (wall) AccessReviewScope(ctx context.Context) (predicate.AccessReview, erro
 	}
 
 	return entAccessReview.TenantIdIn(vs...), nil
-}
-
-// AliasHoldScope: declared `global`, so it is not behind the wall at all.
-func (wall) AliasHoldScope(ctx context.Context) (predicate.AliasHold, error) {
-	if _, ok := frame.AccountOf(ctx); ok {
-		return nothing[predicate.AliasHold](), nil
-	}
-
-	return nil, nil
 }
 
 // AllocationScope: a row belongs to the tenant its "tenant" reaches.
@@ -7062,14 +7049,6 @@ func filterInvitation(f *loft.InvitationFilter) (predicate.Invitation, error) {
 
 			ps = append(ps, entInvitation.HasTenantWith(q))
 		}
-	}
-	if f.HasAccount() {
-		k, err := entuuid.FromBytes(f.GetAccount())
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
-		}
-
-		ps = append(ps, entInvitation.AccountEQ(k))
 	}
 	if f.HasState() {
 		ps = append(ps, entInvitation.StateEQ(f.GetState()))
@@ -16640,8 +16619,6 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedAccess.md, describedAccess.secret, describedAccess.personal
 	case AccessReviewDomain:
 		return describedAccessReview.md, describedAccessReview.secret, describedAccessReview.personal
-	case AliasHoldDomain:
-		return describedAliasHold.md, describedAliasHold.secret, describedAliasHold.personal
 	case AllocationDomain:
 		return describedAllocation.md, describedAllocation.secret, describedAllocation.personal
 	case ArchivedDomain:
@@ -16759,9 +16736,6 @@ var (
 	describedAccessReview = describe((*loft.AccessReview)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
-	describedAliasHold = describe((*loft.AliasHold)(nil),
-		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
 	describedAllocation = describe((*loft.Allocation)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -16811,7 +16785,7 @@ var (
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{6})
 	describedInvitation = describe((*loft.Invitation)(nil),
-		[]protoreflect.FieldNumber{20},
+		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{9})
 	describedItemModel = describe((*loft.ItemModel)(nil),
 		[]protoreflect.FieldNumber{},
@@ -17958,8 +17932,6 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 	switch key.Domain() {
 	case AccessReviewDomain:
 		vs, err = rowsAccessReview(ctx, s.Db, entAccessReview.IdEQ(uuid.UUID(key)))
-	case AliasHoldDomain:
-		vs, err = rowsAliasHold(ctx, s.Db, entAliasHold.IdEQ(uuid.UUID(key)))
 	case AllocationDomain:
 		vs, err = rowsAllocation(ctx, s.Db, entAllocation.IdEQ(uuid.UUID(key)))
 	case AssetDomain:
@@ -18408,9 +18380,6 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 	if err := audit.CheckKind(ctx, d, checkedAccessReview(db), archived, &out); err != nil {
 		return out, fmt.Errorf("access-review: %w", err)
 	}
-	if err := audit.CheckKind(ctx, d, checkedAliasHold(db), archived, &out); err != nil {
-		return out, fmt.Errorf("alias-hold: %w", err)
-	}
 	if err := audit.CheckKind(ctx, d, checkedAllocation(db), archived, &out); err != nil {
 		return out, fmt.Errorf("allocation: %w", err)
 	}
@@ -18550,52 +18519,6 @@ func checkedAccessReview(db *ent.Client) audit.Kind {
 			var out map[pdid.Id]*audit.Recorded
 			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
 				rows, err := rowsAccessReview(ctx, db, entAccessReview.IdIn(uuids(ids)...))
-				if err != nil {
-					return err
-				}
-
-				out, err = goneOf(ctx, db, ids, rows)
-				return err
-			})
-
-			return out, err
-		},
-	}
-}
-
-// checkedAliasHold is what a check of the rows reads of the alias-hold kind.
-func checkedAliasHold(db *ent.Client) audit.Kind {
-	read := func(ctx context.Context, ps ...predicate.AliasHold) (audit.Page, error) {
-		var out audit.Page
-		err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-			rows, err := rowsAliasHold(ctx, db, ps...)
-			if err != nil {
-				return err
-			}
-
-			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
-			return err
-		})
-
-		return out, err
-	}
-
-	return audit.Kind{
-		Domain: AliasHoldDomain,
-		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
-			return read(ctx, entAliasHold.IdGT(uuid.UUID(after)))
-		},
-		Of: func(ctx context.Context, ids []pdid.Id) (audit.Page, error) {
-			return read(ctx, entAliasHold.IdIn(uuids(ids)...))
-		},
-		Trail: func(ctx context.Context, yield func([]pdid.Id) error) error {
-			return trailObjects(ctx, db, AliasHoldDomain, yield)
-		},
-		Gone: func(ctx context.Context, ids []pdid.Id) (map[pdid.Id]*audit.Recorded, error) {
-			var out map[pdid.Id]*audit.Recorded
-			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-				rows, err := rowsAliasHold(ctx, db, entAliasHold.IdIn(uuids(ids)...))
 				if err != nil {
 					return err
 				}
@@ -20173,25 +20096,6 @@ func rowsAccessReview(ctx context.Context, db *ent.Client, ps ...predicate.Acces
 	return out, nil
 }
 
-// rowsAliasHold is the rows `ps` says of the alias-hold kind -- every row there is,
-// live or erased softly -- at most a page of them in identifier order, each as
-// a Get reads it.
-func rowsAliasHold(ctx context.Context, db *ent.Client, ps ...predicate.AliasHold) ([]audit.Live, error) {
-	q := db.AliasHold.Query().Where(ps...)
-
-	vs, err := q.Order(entAliasHold.ById()).Limit(audit.RowsPage).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]audit.Live, len(vs))
-	for i, v := range vs {
-		out[i] = audit.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
-	}
-
-	return out, nil
-}
-
 // rowsAllocation is the rows `ps` says of the allocation kind -- every row there is,
 // live or erased softly -- at most a page of them in identifier order, each as
 // a Get reads it.
@@ -21169,8 +21073,6 @@ func record(ctx context.Context, db *ent.Client, content audit.Contents, action 
 			switch d {
 			case AccessReviewDomain:
 				rows, err = rowsAccessReview(ctx, db, entAccessReview.IdIn(uuids(page)...))
-			case AliasHoldDomain:
-				rows, err = rowsAliasHold(ctx, db, entAliasHold.IdIn(uuids(page)...))
 			case AllocationDomain:
 				rows, err = rowsAllocation(ctx, db, entAllocation.IdIn(uuids(page)...))
 			case AssetDomain:
@@ -21351,8 +21253,6 @@ func (s trailStore) Carry(ctx context.Context, digest *audit.Digest, d pdid.Doma
 		switch d {
 		case AccessReviewDomain:
 			rows, err = rowsAccessReview(ctx, s.db, entAccessReview.IdIn(uuids(ids)...))
-		case AliasHoldDomain:
-			rows, err = rowsAliasHold(ctx, s.db, entAliasHold.IdIn(uuids(ids)...))
 		case AllocationDomain:
 			rows, err = rowsAllocation(ctx, s.db, entAllocation.IdIn(uuids(ids)...))
 		case AssetDomain:
@@ -21496,127 +21396,6 @@ func (s trailStore) Carry(ctx context.Context, digest *audit.Digest, d pdid.Doma
 }
 
 var _ *patchpb.Patch
-
-// Secret is the layer that keeps a declared secret off the wire.
-//
-// Every field marked `(payday.field).secret` is cleared on the way out:
-// from what an `Add` echoes, what a `Get` answers, and every item of a
-// `List` or an `AddMany`. The write side is untouched, because writing is
-// the half that works.
-//
-//	app.Build(walled, core.Build(), pd.AuditBuild(), pd.SecretBuild(), pd.GateBuild())
-//
-// It clears rather than refuses. A caller asking for a column that is not
-// answered has not done anything wrong -- `Select{All: true}` is the
-// ordinary way to ask for a row -- and an error there would make the
-// common call the failing one.
-type Secret struct {
-	loft.Overlay
-}
-
-func NewSecret(next loft.Server) Secret {
-	return Secret{loft.NewOverlay(next)}
-}
-
-var _ loft.Server = Secret{}
-
-// WithDriver answers with this stack running on `drv`.
-//
-// Every layer writes this and none can inherit it: an overlay holds what
-// is behind it and cannot make itself again.
-func (s Secret) WithDriver(drv dialect.Driver) (loft.Server, error) {
-	next, err := enttx.Rebind(s.Next(), drv)
-	if err != nil {
-		return nil, err
-	}
-
-	return NewSecret(next), nil
-}
-
-func SecretBuild() loft.Builder { return secretBuilder{} }
-
-type secretBuilder struct{}
-
-func (secretBuilder) Build(next loft.Server) (loft.Server, error) {
-	return NewSecret(next), nil
-}
-
-func (s Secret) Invitation() loft.InvitationServiceServer {
-	return secretInvitation{s, s.Next().Invitation()}
-}
-
-type secretInvitation struct {
-	Secret
-	loft.InvitationServiceServer
-}
-
-func (s secretInvitation) Add(ctx context.Context, req *loft.InvitationAddRequest) (*loft.Invitation, error) {
-	v, err := s.InvitationServiceServer.Add(ctx, req)
-
-	return hideInvitation(v), err
-}
-
-func (s secretInvitation) Get(ctx context.Context, req *loft.InvitationGetRequest) (*loft.Invitation, error) {
-	v, err := s.InvitationServiceServer.Get(ctx, req)
-
-	return hideInvitation(v), err
-}
-
-func (s secretInvitation) Patch(ctx context.Context, req *loft.InvitationPatchRequest) (*loft.Invitation, error) {
-	v, err := s.InvitationServiceServer.Patch(ctx, req)
-
-	return hideInvitation(v), err
-}
-
-func (s secretInvitation) Apply(ctx context.Context, req *loft.InvitationApplyRequest) (*loft.Invitation, error) {
-	v, err := s.InvitationServiceServer.Apply(ctx, req)
-
-	return hideInvitation(v), err
-}
-
-func (s secretInvitation) List(ctx context.Context, req *loft.InvitationListRequest) (*loft.InvitationListResponse, error) {
-	v, err := s.InvitationServiceServer.List(ctx, req)
-	if v == nil {
-		return v, err
-	}
-
-	for _, w := range v.GetItems() {
-		hideInvitation(w)
-	}
-
-	return v, err
-}
-
-// hideInvitation clears what this entity declared it never answers with.
-//
-// A nil row passes through, because an error is answered with one and the
-// caller of this is handing both on.
-//
-// By field number and through the descriptor, rather than a setter per
-// field, because a setter's argument has a type and this has to hold for
-// every field a row can carry. A `Set<F>(nil)` per secret is what this
-// was, and it compiled only while every secret anybody had declared was
-// `bytes`: a `string` one ended the build in a generated file, and an
-// enum would have needed its own type spelled out here to say zero.
-//
-// Clear is also the truer word. A field with presence is **absent**
-// afterwards rather than present and empty, which is what "never answered
-// with" says; one without presence reads as its zero value either way.
-// And the numbers are the ones `hidden` filters the trail's patch by, so
-// the two cannot come to disagree about which fields they are.
-func hideInvitation(v *loft.Invitation) *loft.Invitation {
-	if v == nil {
-		return nil
-	}
-
-	m := v.ProtoReflect()
-	fs := m.Descriptor().Fields()
-	for _, n := range []protoreflect.FieldNumber{20} {
-		m.Clear(fs.ByNumber(n))
-	}
-
-	return v
-}
 
 // Intercept is the layer that runs gRPC interceptors between two layers.
 //
@@ -24819,9 +24598,6 @@ func (s pastStore) TenantOf(ctx context.Context, ids []pdid.Id) (map[pdid.Id]pdi
 			switch d {
 			case AccessReviewDomain:
 				rows, err = rowsAccessReview(ctx, s.db, entAccessReview.IdIn(uuids(page)...))
-			case AliasHoldDomain:
-				rows, err = rowsAliasHold(ctx, s.db, entAliasHold.IdIn(uuids(page)...))
-				global = true
 			case AllocationDomain:
 				rows, err = rowsAllocation(ctx, s.db, entAllocation.IdIn(uuids(page)...))
 			case AssetDomain:
@@ -26324,7 +26100,6 @@ func Resources(w *watch.Watch, project resource.Project) (*resource.Server, erro
 	return resource.New(w, project,
 		&loft.Access{},
 		&loft.AccessReview{},
-		&loft.AliasHold{},
 		&loft.Allocation{},
 		&loft.Archived{},
 		&loft.Asset{},
@@ -26374,9 +26149,6 @@ func Resources(w *watch.Watch, project resource.Project) (*resource.Server, erro
 var resourceSecrets = map[protoreflect.FullName][]protoreflect.FieldNumber{
 	"loft.CliLogin": {
 		8,
-	},
-	"loft.Invitation": {
-		20,
 	},
 	"loft.Session": {
 		9,

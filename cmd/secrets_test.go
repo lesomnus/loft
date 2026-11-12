@@ -35,7 +35,7 @@ func TestARowPutPastTheServersSignsNobodyIn(t *testing.T) {
 	ctx := context.Background()
 
 	h := w.holder("kim", "member")
-	account := w.accountOf(h)
+	member := w.memberId(h)
 	me := func(cookie string) codes.Code {
 		_, err := app.NewPartyServiceClient(w.conn).Me(metadata.AppendToOutgoingContext(ctx, "cookie", cookie), &app.PartyMeRequest{})
 		return status.Code(err)
@@ -44,7 +44,7 @@ func TestARowPutPastTheServersSignsNobodyIn(t *testing.T) {
 		now := time.Now()
 		x.NoError(w.s.Ent.Session.Create().
 			SetId(pdid.New(pd.SessionDomain).Uuid()).
-			SetAccount(account.Uuid()).
+			SetHolder(member.Uuid()).
 			SetSecret(secret).
 			SetGrant([]byte("whole")).
 			SetDateIdle(now.Add(time.Hour)).
@@ -56,7 +56,7 @@ func TestARowPutPastTheServersSignsNobodyIn(t *testing.T) {
 
 	// A session the server made.
 	x.Equal(codes.OK, me(cookieOf(w.session(h))))
-	_, c, err := w.s.Sessions.Mint(ctx, authsession.Session{Id: account.String()})
+	_, c, err := w.s.Sessions.Mint(ctx, authsession.Session{Id: member.String()})
 	x.NoError(err)
 	sum := sha256.Sum256([]byte(c.Value))
 	x.NotEqual(sum[:], w.rowOf(c).Secret, "kept as nothing a writer of the table could work out")

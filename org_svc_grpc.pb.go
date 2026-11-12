@@ -1176,66 +1176,6 @@ var CliLoginService_ServiceDesc = grpc.ServiceDesc{
 	Metadata:    "loft/org_svc.g.proto",
 }
 
-// AliasHoldServiceClient is the client API for AliasHoldService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AliasHoldServiceClient interface {
-}
-
-type aliasHoldServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewAliasHoldServiceClient(cc grpc.ClientConnInterface) AliasHoldServiceClient {
-	return &aliasHoldServiceClient{cc}
-}
-
-// AliasHoldServiceServer is the server API for AliasHoldService service.
-// All implementations must embed UnimplementedAliasHoldServiceServer
-// for forward compatibility.
-type AliasHoldServiceServer interface {
-	mustEmbedUnimplementedAliasHoldServiceServer()
-}
-
-// UnimplementedAliasHoldServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedAliasHoldServiceServer struct{}
-
-func (UnimplementedAliasHoldServiceServer) mustEmbedUnimplementedAliasHoldServiceServer() {}
-func (UnimplementedAliasHoldServiceServer) testEmbeddedByValue()                          {}
-
-// UnsafeAliasHoldServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AliasHoldServiceServer will
-// result in compilation errors.
-type UnsafeAliasHoldServiceServer interface {
-	mustEmbedUnimplementedAliasHoldServiceServer()
-}
-
-func RegisterAliasHoldServiceServer(s grpc.ServiceRegistrar, srv AliasHoldServiceServer) {
-	// If the following call panics, it indicates UnimplementedAliasHoldServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
-	s.RegisterService(&AliasHoldService_ServiceDesc, srv)
-}
-
-// AliasHoldService_ServiceDesc is the grpc.ServiceDesc for AliasHoldService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var AliasHoldService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "loft.AliasHoldService",
-	HandlerType: (*AliasHoldServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "loft/org_svc.g.proto",
-}
-
 // SignInFailureServiceClient is the client API for SignInFailureService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.

@@ -183,7 +183,7 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 
 	create := s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
-		SetAccount(member.Uuid()).
+		SetHolder(member.Uuid()).
 		SetSecret(s.Kept(v.Key)).
 		SetGrant(whole).
 		SetNillableDateIdle(nonzero(v.Idle)).
@@ -205,7 +205,7 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 		return authsession.Session{}, err
 	}
 	if s.People != nil {
-		switch err := s.People.Held(ctx, pdid.Id(v.Account), v.DateCreated); {
+		switch err := s.People.Held(ctx, pdid.Id(v.Holder), v.DateCreated); {
 		case errors.Is(err, identity.ErrRefused):
 			// Over: what roster says of them since it began ends it here too.
 			if _, err := s.Db.Session.Delete().Where(session.Id(v.Id)).Exec(ctx); err != nil {
@@ -225,7 +225,7 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 	}
 	out := authsession.Session{
 		Key:   key,
-		Id:    pdid.Id(v.Account).String(),
+		Id:    pdid.Id(v.Holder).String(),
 		Grant: g,
 	}
 	if v.DateExpires != nil {
@@ -265,7 +265,7 @@ func (s Store) Adopt(ctx context.Context, member pdid.Id, kept, grant []byte, id
 	now := time.Now()
 	return s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
-		SetAccount(member.Uuid()).
+		SetHolder(member.Uuid()).
 		SetSecret(kept).
 		SetGrant(grant).
 		SetNillableDateIdle(nonzero(idle)).
@@ -279,7 +279,7 @@ func (s Store) Adopt(ctx context.Context, member pdid.Id, kept, grant []byte, id
 // when it is zero: what roster said of them voids them, and a row left would
 // be a cookie answered with no until it ran out.
 func (s Store) End(ctx context.Context, member pdid.Id, before time.Time) (int, error) {
-	q := s.Db.Session.Delete().Where(session.Account(member.Uuid()))
+	q := s.Db.Session.Delete().Where(session.Holder(member.Uuid()))
 	if !before.IsZero() {
 		q = q.Where(session.DateCreatedLT(before))
 	}

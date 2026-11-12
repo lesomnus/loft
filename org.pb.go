@@ -348,7 +348,7 @@ func (b0 Party_builder) Build() *Party {
 type Session struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Account     []byte                 `protobuf:"bytes,8,opt,name=account"`
+	xxx_hidden_Holder      []byte                 `protobuf:"bytes,8,opt,name=holder"`
 	xxx_hidden_Secret      []byte                 `protobuf:"bytes,9,opt,name=secret"`
 	xxx_hidden_Grant       []byte                 `protobuf:"bytes,10,opt,name=grant"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_expires,json=dateExpires"`
@@ -393,9 +393,9 @@ func (x *Session) GetId() []byte {
 	return nil
 }
 
-func (x *Session) GetAccount() []byte {
+func (x *Session) GetHolder() []byte {
 	if x != nil {
-		return x.xxx_hidden_Account
+		return x.xxx_hidden_Holder
 	}
 	return nil
 }
@@ -463,11 +463,11 @@ func (x *Session) SetId(v []byte) {
 	x.xxx_hidden_Id = v
 }
 
-func (x *Session) SetAccount(v []byte) {
+func (x *Session) SetHolder(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
-	x.xxx_hidden_Account = v
+	x.xxx_hidden_Holder = v
 }
 
 func (x *Session) SetSecret(v []byte) {
@@ -572,7 +572,7 @@ type Session_builder struct {
 	Id []byte
 	// Who signed in: a holder of the roster tenant this deployment serves,
 	// which is their membership here by the same identifier (D85).
-	Account     []byte
+	Holder      []byte
 	Secret      []byte
 	Grant       []byte
 	DateExpires *timestamppb.Timestamp
@@ -591,7 +591,7 @@ func (b0 Session_builder) Build() *Session {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Account = b.Account
+	x.xxx_hidden_Holder = b.Holder
 	x.xxx_hidden_Secret = b.Secret
 	x.xxx_hidden_Grant = b.Grant
 	x.xxx_hidden_DateExpires = b.DateExpires
@@ -605,9 +605,9 @@ func (b0 Session_builder) Build() *Session {
 
 // Invitation is somebody asked into a workspace, by address, with a role
 // (design 9.11, M2 step 4): what the people who run the workspace send and
-// take back. Nothing here answers one any more -- somebody comes to be a
-// member by signing in as a holder of the tenant at roster (D85) -- and the
-// rest goes with #332.
+// take back. Nothing here answers one -- somebody comes to be a member by
+// signing in as a holder of the tenant at roster (D85) -- and the rest goes
+// with #332.
 //
 // It is the workspace's row: who invited whom, as what, and what became of it
 // are this workspace's history, and leave with it. Nothing here says whether
@@ -621,7 +621,6 @@ type Invitation struct {
 	xxx_hidden_Email       string                 `protobuf:"bytes,9,opt,name=email"`
 	xxx_hidden_Role        string                 `protobuf:"bytes,10,opt,name=role"`
 	xxx_hidden_Party       *Party                 `protobuf:"bytes,11,opt,name=party"`
-	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
 	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
@@ -629,7 +628,6 @@ type Invitation struct {
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateSettled *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_settled,json=dateSettled"`
 	xxx_hidden_Holder      *Holder                `protobuf:"bytes,19,opt,name=holder"`
-	xxx_hidden_Claim       []byte                 `protobuf:"bytes,20,opt,name=claim"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -701,13 +699,6 @@ func (x *Invitation) GetParty() *Party {
 	return nil
 }
 
-func (x *Invitation) GetAccount() []byte {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return nil
-}
-
 func (x *Invitation) GetDateUpdated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -757,13 +748,6 @@ func (x *Invitation) GetHolder() *Holder {
 	return nil
 }
 
-func (x *Invitation) GetClaim() []byte {
-	if x != nil {
-		return x.xxx_hidden_Claim
-	}
-	return nil
-}
-
 func (x *Invitation) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -789,13 +773,6 @@ func (x *Invitation) SetRole(v string) {
 
 func (x *Invitation) SetParty(v *Party) {
 	x.xxx_hidden_Party = v
-}
-
-func (x *Invitation) SetAccount(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Account = v
 }
 
 func (x *Invitation) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -824,13 +801,6 @@ func (x *Invitation) SetDateSettled(v *timestamppb.Timestamp) {
 
 func (x *Invitation) SetHolder(v *Holder) {
 	x.xxx_hidden_Holder = v
-}
-
-func (x *Invitation) SetClaim(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Claim = v
 }
 
 func (x *Invitation) HasTenant() bool {
@@ -941,20 +911,16 @@ type Invitation_builder struct {
 	Inviter *Holder
 	// The address it was sent to, folded as an address is compared. Written
 	// once, and emptied when the person it was for is forgotten -- by the
-	// workspace, or by their account leaving (`server/domain/depart.go`) -- which
-	// is the one write it takes and why it is not immutable. Personal
-	// (payday#92): on the trail as having been set, and never as what to.
+	// workspace, or by their leaving it (`server/domain/depart.go`) -- which is
+	// the one write it takes and why it is not immutable. Personal (payday#92):
+	// on the trail as having been set, and never as what to.
 	Email string
-	// What an account that accepts is here: a role, which is the record and not
-	// the person.
+	// What the person it is for is to be here: a role, which is the record and
+	// not the person.
 	Role string
-	// The person record an account that accepts becomes: one this workspace
-	// already keeps, or empty for one made then.
-	Party *Party
-	// Who it was for at roster, once that was known -- its link was opened, or
-	// it was answered -- and empty while it is only an address. Nothing writes
-	// it any more (D85).
-	Account     []byte
+	// The person record they are: one this workspace already keeps, or empty
+	// for one made when they come.
+	Party       *Party
 	DateUpdated *timestamppb.Timestamp
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
@@ -967,9 +933,6 @@ type Invitation_builder struct {
 	DateSettled *timestamppb.Timestamp
 	// The membership accepting it made.
 	Holder *Holder
-	// The SHA-256 of the code its mail carried, while one opened it to answer.
-	// Nothing writes it any more (D85).
-	Claim []byte
 }
 
 func (b0 Invitation_builder) Build() *Invitation {
@@ -982,7 +945,6 @@ func (b0 Invitation_builder) Build() *Invitation {
 	x.xxx_hidden_Email = b.Email
 	x.xxx_hidden_Role = b.Role
 	x.xxx_hidden_Party = b.Party
-	x.xxx_hidden_Account = b.Account
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
@@ -990,7 +952,6 @@ func (b0 Invitation_builder) Build() *Invitation {
 	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_DateSettled = b.DateSettled
 	x.xxx_hidden_Holder = b.Holder
-	x.xxx_hidden_Claim = b.Claim
 	return m0
 }
 
@@ -1014,7 +975,7 @@ type CliLogin struct {
 	xxx_hidden_Client      string                 `protobuf:"bytes,10,opt,name=client"`
 	xxx_hidden_Origin      string                 `protobuf:"bytes,11,opt,name=origin"`
 	xxx_hidden_Address     string                 `protobuf:"bytes,18,opt,name=address"`
-	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
+	xxx_hidden_Holder      []byte                 `protobuf:"bytes,12,opt,name=holder"`
 	xxx_hidden_Grant       []byte                 `protobuf:"bytes,19,opt,name=grant"`
 	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
@@ -1092,9 +1053,9 @@ func (x *CliLogin) GetAddress() string {
 	return ""
 }
 
-func (x *CliLogin) GetAccount() []byte {
+func (x *CliLogin) GetHolder() []byte {
 	if x != nil {
-		return x.xxx_hidden_Account
+		return x.xxx_hidden_Holder
 	}
 	return nil
 }
@@ -1171,11 +1132,11 @@ func (x *CliLogin) SetAddress(v string) {
 	x.xxx_hidden_Address = v
 }
 
-func (x *CliLogin) SetAccount(v []byte) {
+func (x *CliLogin) SetHolder(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
-	x.xxx_hidden_Account = v
+	x.xxx_hidden_Holder = v
 }
 
 func (x *CliLogin) SetGrant(v []byte) {
@@ -1268,7 +1229,7 @@ type CliLogin_builder struct {
 	// keeps where a sign-in came from, and so does the trail.
 	Address string
 	// Who approved it, once somebody has: the member signed in at the page.
-	Account []byte
+	Holder []byte
 	// What the terminal asked to be allowed, which the page shows and the
 	// session it gets is narrowed to: `Session.grant`'s bytes, `whole` for all
 	// that the member may do (`loft auth login --allow`, D33).
@@ -1292,246 +1253,10 @@ func (b0 CliLogin_builder) Build() *CliLogin {
 	x.xxx_hidden_Client = b.Client
 	x.xxx_hidden_Origin = b.Origin
 	x.xxx_hidden_Address = b.Address
-	x.xxx_hidden_Account = b.Account
+	x.xxx_hidden_Holder = b.Holder
 	x.xxx_hidden_Grant = b.Grant
 	x.xxx_hidden_State = b.State
 	x.xxx_hidden_DateExpires = b.DateExpires
-	x.xxx_hidden_DateUpdated = b.DateUpdated
-	x.xxx_hidden_DateErased = b.DateErased
-	x.xxx_hidden_DateCreated = b.DateCreated
-	return m0
-}
-
-// AliasHold is a workspace address nobody may take for a while: one a
-// destroyed workspace went by, or one a workspace was moved off (D29, design
-// 8.4). A name a workspace went by is still how people know it -- an
-// operator's notes, its export's file name, mail that named it -- and a
-// workspace that took it the next day would be that name to all of them.
-//
-// The deployment's (`global`), written only by `server/tenancy`, and the
-// policy opens no RPC of it.
-type AliasHold struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Held        string                 `protobuf:"bytes,8,opt,name=held"`
-	xxx_hidden_Reason      string                 `protobuf:"bytes,9,opt,name=reason"`
-	xxx_hidden_MovedTo     string                 `protobuf:"bytes,10,opt,name=moved_to,json=movedTo"`
-	xxx_hidden_Tenant      []byte                 `protobuf:"bytes,11,opt,name=tenant"`
-	xxx_hidden_DateUntil   *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_until,json=dateUntil"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *AliasHold) Reset() {
-	*x = AliasHold{}
-	mi := &file_loft_org_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AliasHold) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AliasHold) ProtoMessage() {}
-
-func (x *AliasHold) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *AliasHold) GetId() []byte {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return nil
-}
-
-func (x *AliasHold) GetHeld() string {
-	if x != nil {
-		return x.xxx_hidden_Held
-	}
-	return ""
-}
-
-func (x *AliasHold) GetReason() string {
-	if x != nil {
-		return x.xxx_hidden_Reason
-	}
-	return ""
-}
-
-func (x *AliasHold) GetMovedTo() string {
-	if x != nil {
-		return x.xxx_hidden_MovedTo
-	}
-	return ""
-}
-
-func (x *AliasHold) GetTenant() []byte {
-	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *AliasHold) GetDateUntil() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateUntil
-	}
-	return nil
-}
-
-func (x *AliasHold) GetDateUpdated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateUpdated
-	}
-	return nil
-}
-
-func (x *AliasHold) GetDateErased() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateErased
-	}
-	return nil
-}
-
-func (x *AliasHold) GetDateCreated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return nil
-}
-
-func (x *AliasHold) SetId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Id = v
-}
-
-func (x *AliasHold) SetHeld(v string) {
-	x.xxx_hidden_Held = v
-}
-
-func (x *AliasHold) SetReason(v string) {
-	x.xxx_hidden_Reason = v
-}
-
-func (x *AliasHold) SetMovedTo(v string) {
-	x.xxx_hidden_MovedTo = v
-}
-
-func (x *AliasHold) SetTenant(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *AliasHold) SetDateUntil(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateUntil = v
-}
-
-func (x *AliasHold) SetDateUpdated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateUpdated = v
-}
-
-func (x *AliasHold) SetDateErased(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateErased = v
-}
-
-func (x *AliasHold) SetDateCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCreated = v
-}
-
-func (x *AliasHold) HasDateUntil() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateUntil != nil
-}
-
-func (x *AliasHold) HasDateUpdated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateUpdated != nil
-}
-
-func (x *AliasHold) HasDateErased() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateErased != nil
-}
-
-func (x *AliasHold) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCreated != nil
-}
-
-func (x *AliasHold) ClearDateUntil() {
-	x.xxx_hidden_DateUntil = nil
-}
-
-func (x *AliasHold) ClearDateUpdated() {
-	x.xxx_hidden_DateUpdated = nil
-}
-
-func (x *AliasHold) ClearDateErased() {
-	x.xxx_hidden_DateErased = nil
-}
-
-func (x *AliasHold) ClearDateCreated() {
-	x.xxx_hidden_DateCreated = nil
-}
-
-type AliasHold_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id []byte
-	// The address held.
-	Held string
-	// `destroyed`, `retired` or `renamed`, and for a rename the address it
-	// moved to. A hold of a destroyed workspace is also this deployment's word
-	// that it was destroyed here, and `retired` that it left keeping what the
-	// deployment's floors are on of its trail, which a restore of it under its
-	// identifier has the trail take back first (`trail.Policy.Return`): it
-	// stays when the hold is over.
-	Reason  string
-	MovedTo string
-	// Whose it was.
-	Tenant []byte
-	// Until when nobody may take it.
-	DateUntil   *timestamppb.Timestamp
-	DateUpdated *timestamppb.Timestamp
-	DateErased  *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
-}
-
-func (b0 AliasHold_builder) Build() *AliasHold {
-	m0 := &AliasHold{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Held = b.Held
-	x.xxx_hidden_Reason = b.Reason
-	x.xxx_hidden_MovedTo = b.MovedTo
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_DateUntil = b.DateUntil
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
@@ -1559,7 +1284,7 @@ type SignInFailure struct {
 
 func (x *SignInFailure) Reset() {
 	*x = SignInFailure{}
-	mi := &file_loft_org_proto_msgTypes[5]
+	mi := &file_loft_org_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1571,7 +1296,7 @@ func (x *SignInFailure) String() string {
 func (*SignInFailure) ProtoMessage() {}
 
 func (x *SignInFailure) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_proto_msgTypes[5]
+	mi := &file_loft_org_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1698,10 +1423,10 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x04kind\x1a\v\n" +
 	"\tparent_id\x1a\b\n" +
 	"\x06holder\x1a\b\n" +
-	"\x06labels 2(\xf4\x03:\x00\"\xb7\x05\n" +
+	"\x06labels 2(\xf4\x03:\x00\"\xb3\x05\n" +
 	"\aSession\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12 \n" +
-	"\aaccount\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\aaccount\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1e\n" +
+	"\x06holder\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\x06holder\x12\x1e\n" +
 	"\x06secret\x18\t \x01(\fB\x06\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x14\n" +
 	"\x05grant\x18\n" +
 	" \x01(\fR\x05grant\x12E\n" +
@@ -1711,11 +1436,12 @@ const file_loft_org_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\xb4\x01\xca\xfc\x15.\x1a\x14\x12\x06secret\x1a\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\xb2\x01\xca\xfc\x15,\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
-	"\x06secret\x10\t\x1a\x16\x12\aaccount\x1a\v\n" +
-	"\aaccount\x10\b\x8a\xbb\x16~\b&Rx\x12v\n" +
-	"ta sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (loft#136)*\x00\"\xb2\a\n" +
+	"\x06secret\x10\t\x1a\x14\x12\x06holder\x1a\n" +
+	"\n" +
+	"\x06holder\x10\b\x8a\xbb\x16~\b&Rx\x12v\n" +
+	"ta sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (loft#136)*\x00\"\xb3\x06\n" +
 	"\n" +
 	"Invitation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
@@ -1724,8 +1450,7 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x05email\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x05email\x12 \n" +
 	"\x04role\x18\n" +
 	" \x01(\tB\f\xea\x82\x16\x02@\x01\xaa\xc1\x16\x02\x18\x00R\x04role\x12)\n" +
-	"\x05party\x18\v \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\x05party\x12\"\n" +
-	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12F\n" +
+	"\x05party\x18\v \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x028\x01R\x05party\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
@@ -1733,15 +1458,12 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x05state\x18\x10 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x05state\x12F\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12E\n" +
 	"\fdate_settled\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateSettled\x12,\n" +
-	"\x06holder\x18\x13 \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder\x12\"\n" +
-	"\x05claim\x18\x14 \x01(\fB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\b\x01R\x05claim:\xc2\x01\xca\xfc\x15r\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\x06holder\x18\x13 \x01(\v2\f.loft.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder:\x8b\x01\xca\xfc\x15F\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x1a\x12\x12\x05claim\x1a\t\n" +
-	"\x05claim\x10\x14\x1a\x16\x12\aaccount\x1a\v\n" +
-	"\aaccount\x10\f\x1a\x12\x12\x05email\x1a\t\n" +
-	"\x05email\x10\t\x8a\xbb\x16H\b)2D\n" +
+	"\x02id\x10\x01\x1a\x12\x12\x05email\x1a\t\n" +
+	"\x05email\x10\t\x8a\xbb\x16=\b)29\n" +
 	"\x10\n" +
 	"\x0e\n" +
 	"\fdate_created\n" +
@@ -1749,9 +1471,8 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x04\n" +
 	"\x02id\x1a\x05\n" +
 	"\x03ref\x1a\b\n" +
-	"\x06tenant\x1a\t\n" +
-	"\aaccount\x1a\a\n" +
-	"\x05state 2(\xc8\x01\"\x81\x05\n" +
+	"\x06tenant\x1a\a\n" +
+	"\x05state 2(\xc8\x01\"\xff\x04\n" +
 	"\bCliLogin\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1e\n" +
 	"\x06secret\x18\b \x01(\fB\x06\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x12\n" +
@@ -1759,8 +1480,8 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x06client\x18\n" +
 	" \x01(\tR\x06client\x12\x16\n" +
 	"\x06origin\x18\v \x01(\tR\x06origin\x12 \n" +
-	"\aaddress\x18\x12 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\aaddress\x12\"\n" +
-	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12\x14\n" +
+	"\aaddress\x18\x12 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\aaddress\x12 \n" +
+	"\x06holder\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x06holder\x12\x14\n" +
 	"\x05grant\x18\x13 \x01(\fR\x05grant\x12\x14\n" +
 	"\x05state\x18\x10 \x01(\tR\x05state\x12F\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12F\n" +
@@ -1773,21 +1494,6 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x06secret\x10\b\x1a(\x12\aaddress\x1a\v\n" +
 	"\aaddress\x10\x12\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x8a\xbb\x16\b\b*R\x02\n" +
-	"\x00*\x00\"\xcf\x03\n" +
-	"\tAliasHold\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x12\n" +
-	"\x04held\x18\b \x01(\tR\x04held\x12\x16\n" +
-	"\x06reason\x18\t \x01(\tR\x06reason\x12\x19\n" +
-	"\bmoved_to\x18\n" +
-	" \x01(\tR\amovedTo\x12\x1e\n" +
-	"\x06tenant\x18\v \x01(\fB\x06\xea\x82\x16\x02\x10@R\x06tenant\x12B\n" +
-	"\n" +
-	"date_until\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tdateUntil\x12F\n" +
-	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
-	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
-	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\"\xca\xfc\x15\x12\x1a\x10\x12\x04held\x1a\b\n" +
-	"\x04held\x10\b\x8a\xbb\x16\b\b+R\x02\n" +
 	"\x00*\x00\"\xd8\x02\n" +
 	"\rSignInFailure\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12 \n" +
@@ -1799,54 +1505,49 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x00R_\x12]\n" +
 	"[a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_loft_org_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_loft_org_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_loft_org_proto_goTypes = []any{
 	(*Party)(nil),                 // 0: loft.Party
 	(*Session)(nil),               // 1: loft.Session
 	(*Invitation)(nil),            // 2: loft.Invitation
 	(*CliLogin)(nil),              // 3: loft.CliLogin
-	(*AliasHold)(nil),             // 4: loft.AliasHold
-	(*SignInFailure)(nil),         // 5: loft.SignInFailure
-	nil,                           // 6: loft.Party.LabelsEntry
-	(*Tenant)(nil),                // 7: loft.Tenant
-	(*Holder)(nil),                // 8: loft.Holder
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(*SignInFailure)(nil),         // 4: loft.SignInFailure
+	nil,                           // 5: loft.Party.LabelsEntry
+	(*Tenant)(nil),                // 6: loft.Tenant
+	(*Holder)(nil),                // 7: loft.Holder
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_loft_org_proto_depIdxs = []int32{
-	7,  // 0: loft.Party.tenant:type_name -> loft.Tenant
-	6,  // 1: loft.Party.labels:type_name -> loft.Party.LabelsEntry
-	8,  // 2: loft.Party.holder:type_name -> loft.Holder
-	9,  // 3: loft.Party.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 4: loft.Party.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 5: loft.Party.date_created:type_name -> google.protobuf.Timestamp
-	9,  // 6: loft.Session.date_expires:type_name -> google.protobuf.Timestamp
-	9,  // 7: loft.Session.date_idle:type_name -> google.protobuf.Timestamp
-	9,  // 8: loft.Session.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 9: loft.Session.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 10: loft.Session.date_created:type_name -> google.protobuf.Timestamp
-	7,  // 11: loft.Invitation.tenant:type_name -> loft.Tenant
-	8,  // 12: loft.Invitation.inviter:type_name -> loft.Holder
+	6,  // 0: loft.Party.tenant:type_name -> loft.Tenant
+	5,  // 1: loft.Party.labels:type_name -> loft.Party.LabelsEntry
+	7,  // 2: loft.Party.holder:type_name -> loft.Holder
+	8,  // 3: loft.Party.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 4: loft.Party.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 5: loft.Party.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 6: loft.Session.date_expires:type_name -> google.protobuf.Timestamp
+	8,  // 7: loft.Session.date_idle:type_name -> google.protobuf.Timestamp
+	8,  // 8: loft.Session.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 9: loft.Session.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 10: loft.Session.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 11: loft.Invitation.tenant:type_name -> loft.Tenant
+	7,  // 12: loft.Invitation.inviter:type_name -> loft.Holder
 	0,  // 13: loft.Invitation.party:type_name -> loft.Party
-	9,  // 14: loft.Invitation.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 15: loft.Invitation.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 16: loft.Invitation.date_created:type_name -> google.protobuf.Timestamp
-	9,  // 17: loft.Invitation.date_expires:type_name -> google.protobuf.Timestamp
-	9,  // 18: loft.Invitation.date_settled:type_name -> google.protobuf.Timestamp
-	8,  // 19: loft.Invitation.holder:type_name -> loft.Holder
-	9,  // 20: loft.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
-	9,  // 21: loft.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 22: loft.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 23: loft.CliLogin.date_created:type_name -> google.protobuf.Timestamp
-	9,  // 24: loft.AliasHold.date_until:type_name -> google.protobuf.Timestamp
-	9,  // 25: loft.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 26: loft.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 27: loft.AliasHold.date_created:type_name -> google.protobuf.Timestamp
-	9,  // 28: loft.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
-	29, // [29:29] is the sub-list for method output_type
-	29, // [29:29] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	8,  // 14: loft.Invitation.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 15: loft.Invitation.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 16: loft.Invitation.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 17: loft.Invitation.date_expires:type_name -> google.protobuf.Timestamp
+	8,  // 18: loft.Invitation.date_settled:type_name -> google.protobuf.Timestamp
+	7,  // 19: loft.Invitation.holder:type_name -> loft.Holder
+	8,  // 20: loft.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
+	8,  // 21: loft.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 22: loft.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 23: loft.CliLogin.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 24: loft.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
+	25, // [25:25] is the sub-list for method output_type
+	25, // [25:25] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_loft_org_proto_init() }
@@ -1862,7 +1563,7 @@ func file_loft_org_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_org_proto_rawDesc), len(file_loft_org_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

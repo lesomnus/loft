@@ -21,8 +21,8 @@ const (
 	FieldOrigin = "origin"
 	// FieldAddress holds the string denoting the address field in the database.
 	FieldAddress = "address"
-	// FieldAccount holds the string denoting the account field in the database.
-	FieldAccount = "account"
+	// FieldHolder holds the string denoting the holder field in the database.
+	FieldHolder = "holder"
 	// FieldGrant holds the string denoting the grant field in the database.
 	FieldGrant = "grant"
 	// FieldState holds the string denoting the state field in the database.
@@ -47,7 +47,7 @@ var Columns = []string{
 	FieldClient,
 	FieldOrigin,
 	FieldAddress,
-	FieldAccount,
+	FieldHolder,
 	FieldGrant,
 	FieldState,
 	FieldDateExpires,
@@ -94,9 +94,9 @@ func ByAddress(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAddress, opts...).ToFunc()
 }
 
-// ByAccount orders the results by the account field.
-func ByAccount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccount, opts...).ToFunc()
+// ByHolder orders the results by the holder field.
+func ByHolder(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHolder, opts...).ToFunc()
 }
 
 // ByState orders the results by the state field.

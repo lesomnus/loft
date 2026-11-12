@@ -264,7 +264,7 @@ type AppConfig struct {
 	// destroys anything at all, and the grace a shorter one waits out.
 	Retention RetentionConfig `yaml:"retention"`
 
-	// Workspaces is a workspace's address and its end (D29).
+	// Workspaces is a workspace's end (D29).
 	Workspaces WorkspacesConfig `yaml:"workspaces"`
 
 	// Mail is the SMTP server what goes to a mailbox is sent through -- an
@@ -275,9 +275,9 @@ type AppConfig struct {
 	// out (design 9.11).
 	Invitations InvitationsConfig `yaml:"invitations"`
 
-	// Accounts is what becomes of the memberships of an account roster erased
-	// (design 9.10).
-	Accounts AccountsConfig `yaml:"accounts"`
+	// Members is what becomes of a member whose holder roster erased (design
+	// 9.10).
+	Members MembersConfig `yaml:"members"`
 
 	// Search is what answers a search (D31, design 9.5).
 	Search SearchConfig `yaml:"search"`
@@ -302,41 +302,40 @@ type SearchConfig struct {
 	Opensearch opensearch.Config `yaml:"opensearch"`
 }
 
-// AccountsConfig is how long the memberships of an account roster erased
-// wait before the account leaves every workspace it was in.
-type AccountsConfig struct {
-	// ForgetAfter is how long after roster erased an account it leaves here
-	// -- its person records pseudonymized, its memberships ended -- if roster
-	// has not restored it by then. It is roster's own grace
-	// (`holder.forget_after`) and is kept equal to it: shorter, and an account
-	// roster restores comes back to nothing; longer, and this keeps who
+// MembersConfig is how long a member whose holder roster erased waits before
+// they leave the workspace.
+type MembersConfig struct {
+	// ForgetAfter is how long after roster erased a member's holder they
+	// leave here -- their person record pseudonymized, their membership
+	// ended -- if roster has not restored it by then. It is roster's own
+	// grace (`holder.forget_after`) and is kept equal to it: shorter, and a
+	// member roster restores comes back to nothing; longer, and this keeps who
 	// somebody was after roster has forgotten them. Unset is 30 days, which is
 	// roster's default.
 	ForgetAfter time.Duration `yaml:"forget_after"`
-	// Every is how often the memberships still leaving are looked at. Unset
-	// is an hour.
+	// Every is how often the members still leaving are looked at. Unset is an
+	// hour.
 	Every time.Duration `yaml:"every"`
-	// Reconcile is how often every account with a membership here is asked
-	// about at roster, and the ones it has nobody by begin to leave: what
-	// `loft identity reconcile --yes` does, done by the deployment, for an
-	// erasure the stream did not carry (design 9.10). Unset is a day; zero or
-	// negative turns it off.
+	// Reconcile is how often every member is asked about at roster, and the
+	// ones it has nobody by begin to leave: what `loft identity reconcile
+	// --yes` does, done by the deployment, for an erasure the stream did not
+	// carry (design 9.10). Unset is a day; zero or negative turns it off.
 	Reconcile *time.Duration `yaml:"reconcile"`
 }
 
-// DefaultForgetAfter is how long an erased account's memberships wait when
-// the configuration says nothing: roster's own default grace.
+// DefaultForgetAfter is how long an erased member waits when the
+// configuration says nothing: roster's own default grace.
 const DefaultForgetAfter = 30 * 24 * time.Hour
 
-// Grace is how long an erased account's memberships wait.
-func (c AccountsConfig) Grace() time.Duration { return or(c.ForgetAfter, DefaultForgetAfter) }
+// Grace is how long an erased member waits.
+func (c MembersConfig) Grace() time.Duration { return or(c.ForgetAfter, DefaultForgetAfter) }
 
-// Interval is how often the memberships still leaving are looked at.
-func (c AccountsConfig) Interval() time.Duration { return or(c.Every, time.Hour) }
+// Interval is how often the members still leaving are looked at.
+func (c MembersConfig) Interval() time.Duration { return or(c.Every, time.Hour) }
 
-// ReconcileEvery is how often every account is asked about at roster, and
-// zero when it is not.
-func (c AccountsConfig) ReconcileEvery() time.Duration {
+// ReconcileEvery is how often every member is asked about at roster, and zero
+// when it is not.
+func (c MembersConfig) ReconcileEvery() time.Duration {
 	if c.Reconcile == nil {
 		return 24 * time.Hour
 	}
@@ -354,35 +353,19 @@ type InvitationsConfig struct {
 	Daily   int `yaml:"daily"`
 }
 
-// WorkspacesConfig is a workspace's address and its end (D29).
+// WorkspacesConfig is a workspace's end (D29). Its address is the tenant's at
+// roster (D86), and nothing here says it.
 type WorkspacesConfig struct {
-	// AliasLength is how many characters an address made up for a workspace
-	// is -- one restored where its own is taken (`loft tenant import`): 7
-	// unless said. It grows by itself when that many are crowded.
-	AliasLength int `yaml:"alias_length"`
-	// Reserved is addresses no workspace may have, beside the ones this app
-	// keeps for itself (`tenancy.Reserved`).
-	Reserved []string `yaml:"reserved"`
-
 	// RestoreWithin is how long a closed workspace may be restored before it
-	// is destroyed, and AliasHold how long its address is kept from anybody
-	// else after that, or after it moved (D29). Unset are 30 days and a year.
-	// A workspace whose contract says its own restore window is held to that
-	// (`restore_days`, #144).
+	// is destroyed (D29). Unset is 30 days. A workspace that says its own
+	// restore window is held to that (`restore_days`, #144).
 	RestoreWithin time.Duration `yaml:"restore_within"`
-	AliasHold     time.Duration `yaml:"alias_hold"`
 	// Every is how often closed workspaces are looked at. Unset is an hour.
 	Every time.Duration `yaml:"every"`
 }
 
 // Restore is how long a closed workspace may be restored.
 func (c WorkspacesConfig) Restore() time.Duration { return or(c.RestoreWithin, 30*24*time.Hour) }
-
-// Hold is how long an address is kept from anybody else.
-func (c WorkspacesConfig) Hold() time.Duration { return or(c.AliasHold, 365*24*time.Hour) }
-
-// Length is how many characters a new address is made of.
-func (c WorkspacesConfig) Length() int { return or(c.AliasLength, 7) }
 
 // RetentionConfig is the deployment's half of design 8: whether a window
 // destroys anything at all, how long a window made shorter waits, and how

@@ -23,13 +23,13 @@ import (
 	"github.com/lesomnus/loft/internal/identity"
 )
 
-// What roster says of an account is handed to [cmd.Server.Lifecycle] here as
+// What roster says of a member is handed to [cmd.Server.Lifecycle] here as
 // the stream from a roster of its own hands it (roster's
 // `standing.Accounts.Follower`, whose own tests are the stream): the roster in
 // this process has none.
 
-// TestRostersWordEndsTheSessionsHere: an account roster signed out everywhere,
-// suspended or erased has its sessions here ended then, rather than at each
+// TestRostersWordEndsTheSessionsHere: a member roster signed out everywhere,
+// suspended or erased has their sessions here ended then, rather than at each
 // one's next call.
 func TestRostersWordEndsTheSessionsHere(t *testing.T) {
 	w := newWorld(t)
@@ -37,9 +37,9 @@ func TestRostersWordEndsTheSessionsHere(t *testing.T) {
 	ctx := context.Background()
 	me := app.NewPartyServiceClient(w.conn)
 	kim := w.holder("kim", "member")
-	account := w.accountOf(kim)
+	member := w.memberId(kim)
 	sessions := func() int {
-		n, err := w.s.Ent.Session.Query().Where(entsession.Account(account.Uuid())).Count(ctx)
+		n, err := w.s.Ent.Session.Query().Where(entsession.Holder(member.Uuid())).Count(ctx)
 		x.NoError(err)
 		return n
 	}
@@ -52,7 +52,7 @@ func TestRostersWordEndsTheSessionsHere(t *testing.T) {
 	x.Equal(2, sessions())
 
 	// Signed out everywhere: what began before it, and nothing after.
-	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: account, Invalidated: cut}))
+	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: member, Invalidated: cut}))
 	x.Equal(1, sessions(), "the row went, not only the next call")
 	_, err := me.Me(before, &app.PartyMeRequest{})
 	x.Equal(codes.Unauthenticated, status.Code(err))
@@ -60,20 +60,21 @@ func TestRostersWordEndsTheSessionsHere(t *testing.T) {
 	x.NoError(err)
 
 	// Suspended: all of them.
-	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: account, Invalidated: cut, Disabled: time.Now()}))
+	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: member, Invalidated: cut, Disabled: time.Now()}))
 	x.Zero(sessions())
 	_, err = me.Me(after, &app.PartyMeRequest{})
 	x.Equal(codes.Unauthenticated, status.Code(err))
 
 	// And an event says the state, so the same one again is no different.
-	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: account, Invalidated: cut, Disabled: time.Now()}))
+	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: member, Invalidated: cut, Disabled: time.Now()}))
 	x.Zero(sessions())
 
-	// The directory closed (roster#105): every session, and no leaving --
-	// closing destroys nothing, and a directory restored lets them back.
+	// The tenant closed at roster (roster#105): every session, and no
+	// leaving -- closing destroys nothing, and a tenant restored there lets
+	// them back.
 	again := w.signIn(kim)
 	x.Equal(1, sessions())
-	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: account, Closed: time.Now()}))
+	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: member, Closed: time.Now()}))
 	x.Zero(sessions())
 	_, err = me.Me(again, &app.PartyMeRequest{})
 	x.Equal(codes.Unauthenticated, status.Code(err))
@@ -81,16 +82,16 @@ func TestRostersWordEndsTheSessionsHere(t *testing.T) {
 	x.NoError(err)
 	h, err := w.s.Ent.Holder.Get(ctx, kid.Uuid())
 	x.NoError(err)
-	x.Nil(h.DateLeaving, "a directory closed is nobody leaving")
+	x.Nil(h.DateLeaving, "a tenant closed is nobody leaving")
 
 	_, err = me.Me(w.owner, &app.PartyMeRequest{})
 	x.NoError(err, "nobody else's")
 }
 
-// TestAnErasedAccountBeginsToLeave: a member roster erased begins to leave
+// TestAnErasedMemberBeginsToLeave: a member roster erased begins to leave
 // the workspace, from when roster erased them -- and one roster restored stops
 // leaving, which is what roster's grace is for.
-func TestAnErasedAccountBeginsToLeave(t *testing.T) {
+func TestAnErasedMemberBeginsToLeave(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
@@ -119,7 +120,7 @@ func TestAnErasedAccountBeginsToLeave(t *testing.T) {
 	x.True(leaving(here).Equal(erased))
 
 	// What a membership ended here already is not roster's to change.
-	other := w.accountOf(park)
+	other := w.memberId(park)
 	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: other, Erased: erased}))
 	_, err = w.s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: park.GetId()}.Build())
 	x.NoError(err)
@@ -138,13 +139,13 @@ func TestAnErasedAccountBeginsToLeave(t *testing.T) {
 	x.False(v.HasDateLeaving())
 }
 
-// TestAnAccountStillGoneAfterTheGraceLeaves: once the grace is over, roster is
+// TestAMemberStillGoneAfterTheGraceLeaves: once the grace is over, roster is
 // asked again about a member who is still leaving. One it has again was
 // restored, and stops leaving; one whose grace is not over waits; and one
 // roster still has nobody by leaves -- their person record pseudonymized,
 // their membership ended, and the workspace handed to whoever is next when
 // they were its last owner.
-func TestAnAccountStillGoneAfterTheGraceLeaves(t *testing.T) {
+func TestAMemberStillGoneAfterTheGraceLeaves(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
@@ -224,12 +225,12 @@ func idUuid(b []byte) uuid.UUID {
 	return v.Uuid()
 }
 
-// TestTheDeploymentReconcilesByItself: every `app.accounts.reconcile` -- a
-// day, unless told otherwise -- the deployment asks roster about every
-// account with a membership here, as `loft identity reconcile --yes` does: one
-// roster erased while the stream was not heard begins to leave, from now; one
-// leaving here that roster has again stops; and what it marked is in the log.
-// A roster that has nobody at all marks nobody.
+// TestTheDeploymentReconcilesByItself: every `app.members.reconcile` -- a
+// day, unless told otherwise -- the deployment asks roster about every member
+// here, as `loft identity reconcile --yes` does: one roster erased while the
+// stream was not heard begins to leave, from now; one leaving here that roster
+// has again stops; and what it marked is in the log. A roster that has nobody
+// at all marks nobody.
 func TestTheDeploymentReconcilesByItself(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
@@ -258,8 +259,8 @@ func TestTheDeploymentReconcilesByItself(t *testing.T) {
 	x.NotNil(leaving(gone))
 	x.True(leaving(gone).After(before), "from now, to wait the whole grace")
 	x.Nil(leaving(back))
-	x.Contains(said.String(), "account="+kim.Id.String())
-	x.Contains(said.String(), "account="+lee.Id.String())
+	x.Contains(said.String(), "member="+kim.Id.String())
+	x.Contains(said.String(), "member="+lee.Id.String())
 
 	// Nothing more to do, and nothing said.
 	said.Reset()
@@ -276,10 +277,10 @@ func TestTheDeploymentReconcilesByItself(t *testing.T) {
 	x.Contains(said.String(), "auth.roster.tenant")
 
 	// It is one of the deployment's loops, unless it is turned off.
-	off := newWorldWith(t, func(c *cmd.Config) { c.App.Accounts.Reconcile = z.Ptr(time.Duration(0)) })
+	off := newWorldWith(t, func(c *cmd.Config) { c.App.Members.Reconcile = z.Ptr(time.Duration(0)) })
 	x.Len(off.s.Spin, len(w.s.Spin)-1)
 	for _, v := range []*time.Duration{nil, z.Ptr(time.Duration(0)), z.Ptr(-time.Hour), z.Ptr(6 * time.Hour)} {
-		c := cmd.AccountsConfig{Reconcile: v}
+		c := cmd.MembersConfig{Reconcile: v}
 		switch {
 		case v == nil:
 			x.Equal(24*time.Hour, c.ReconcileEvery())

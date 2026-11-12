@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lesomnus/payday/pdid"
-
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/identity"
@@ -19,12 +17,6 @@ func (e *env) signsIn(login, password string) bool {
 		e.x.ErrorIs(err, identity.ErrRefused, "not a refusal: %v", err)
 	}
 	return err == nil
-}
-
-// accountOf is who a party's login is at roster: the membership's own
-// identifier, which is their holder there (D85).
-func (e *env) accountOf(p *app.Party) pdid.Id {
-	return pdid.Id(e.holderRow(p.GetHolder().GetId()).Id)
 }
 
 // TestAPasswordIsRosters.
@@ -50,7 +42,7 @@ func TestAPasswordIsRosters(t *testing.T) {
 	_, err = e.app().Party().SetPassword(e.owner, app.PartySetPasswordRequest_builder{Ref: ref[app.PartyRef](kim.GetId()), Password: "reset-by-owner"}.Build())
 	x.NoError(err)
 	x.True(e.signsIn(login, "reset-by-owner"))
-	st, err := e.s.Identity.StandingOf(context.Background(), e.accountOf(kim))
+	st, err := e.s.Identity.StandingOf(context.Background(), idOf(kim.GetHolder().GetId()))
 	x.NoError(err)
 	x.False(st.Good(began), "a reset that left them signed in at roster")
 }
@@ -67,7 +59,7 @@ func TestALoginEndedHereIsTheMembership(t *testing.T) {
 			e := newEnv(t)
 			x := e.x
 			_, kim := e.person("member")
-			who := e.accountOf(kim)
+			who := idOf(kim.GetHolder().GetId())
 
 			r := ref[app.PartyRef](kim.GetId())
 			var err error

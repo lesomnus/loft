@@ -217,7 +217,6 @@ func TestNoPasswordIsKeptHere(t *testing.T) {
 		"session.secret":      "an HMAC, under a key the database does not hold, of the digest of a session key this deployment made for a browser, or a terminal made and sent the digest of",
 		"session.held":        "the ID token an issuer handed over, given back to it at signing out",
 		"clilogin.secret":     "the session key a terminal made up and sent the digest of, kept as a session's is",
-		"invitation.claim":    "the digest of the code an invitation's mail carries, which proves the mailbox and signs nobody in",
 		"archived.digest":     "the checksum of a chunk of the trail's archive",
 		"audit.digest":        "a keyed digest of the row a write left, which says whether a live row is still that row (payday#102)",
 		"audit.digest_fields": "the numbers of the fields that digest covers",

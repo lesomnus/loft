@@ -87,13 +87,6 @@ $$;
 CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (subject_id, field_number, key, date_start)
 	WHERE date_superseded IS NULL;
 
--- A holder at roster is one membership here: one holder of it per tenant,
--- among the holders still here (design 9.10, D85). What makes a membership
--- checks before it writes, and this is the answer to two writes at once. An index the schema
--- does not know is one its check leaves alone.
-CREATE UNIQUE INDEX IF NOT EXISTS holder_account_once ON holder (tenant_id, account)
-	WHERE date_erased IS NULL AND account IS NOT NULL;
-
 -- A row names rows of its own tenant only (design 6, D11). The gate refuses a
 -- reference into another tenant; this is the answer to SQL that did not go
 -- through it -- a script, a hand-run fix, a bug in a layer. A foreign key says

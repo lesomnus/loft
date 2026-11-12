@@ -201,11 +201,9 @@ func keyRef(t *testing.T) string {
 }
 
 // TestAnOperatorWorksFromOutsideTheBox: what an operator does to a workspace
-// -- finds it, closes and restores it, names an owner, moves its address,
-// writes its contract and a hold -- asked of the entry point on a connection
-// of their key,
-// from wherever they are: each says what it would do until it is told
-// `--yes`.
+// -- finds it, closes and restores it, names an owner, writes its contract
+// and a hold -- asked of the entry point on a connection of their key, from
+// wherever they are: each says what it would do until it is told `--yes`.
 func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	x := require.New(t)
 	// In a zone whose date is not UTC's now, as Seoul's is from midnight to
@@ -262,25 +260,16 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	_, err := d.loft(t, "tenant", "name-owner", "--member", "nobody", "--yes", "acme")
 	x.ErrorContains(err, "no member")
 
-	out = must("tenant", "move", "--to", "acme-two", "acme")
-	x.Contains(out, "would move @acme to @acme-two")
-	held := d.c.App.Workspaces.Hold()
-	x.True(saysDay(out, "holding @acme until ", time.Now().Add(held-time.Minute), time.Now().Add(held)), "not UTC's day: %s", out)
-	x.Contains(must("tenant", "ls"), "@acme\t", "nothing was done")
-	out = must("tenant", "move", "--to", "acme-two", "--yes", "acme")
-	x.Contains(out, "@acme-two\t")
-	tn, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme-two")).Only(ctx)
+	tn, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)
-	_, err = d.loft(t, "tenant", "move", "--to", "acme", "--yes", "acme-two")
-	x.ErrorContains(err, "held", "the old address is held, and not taken back by accident")
 
-	x.Contains(must("tenant-contract", "add", "--name", "pilot", "acme-two"), "would write a contract")
-	out = must("tenant-contract", "add", "--name", "pilot", "--yes", "acme-two")
+	x.Contains(must("tenant-contract", "add", "--name", "pilot", "acme"), "would write a contract")
+	out = must("tenant-contract", "add", "--name", "pilot", "--yes", "acme")
 	x.Contains(out, "contract\t")
 	x.Contains(out, "pilot\tthen retire")
 
-	x.Contains(must("legal-hold", "add", "--why", "a case", "acme-two"), "would keep everything")
-	out = must("legal-hold", "add", "--why", "a case", "--yes", "acme-two")
+	x.Contains(must("legal-hold", "add", "--why", "a case", "acme"), "would keep everything")
+	out = must("legal-hold", "add", "--why", "a case", "--yes", "acme")
 	x.Contains(out, "a case\theld")
 	i := strings.Index(out, "hold\t")
 	x.Positive(i)
@@ -379,7 +368,7 @@ func TestAnOperatorsCommandWantsAnOperatorsConnection(t *testing.T) {
 	s.signIn("owner", "owner1234")
 	for _, args := range [][]string{
 		{"tenant", "show", "acme"},
-		{"tenant", "move", "--to", "elsewhere", "acme"},
+		{"tenant", "name-owner", "--member", "kim", "acme"},
 		{"trail", "verify"},
 		{"search", "status"},
 		{"tenant-contract", "add", "--name", "x", "acme"},

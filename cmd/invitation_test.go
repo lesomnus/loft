@@ -84,7 +84,6 @@ func TestAnInvitationIsSentAndSeenByWhoeverSentIt(t *testing.T) {
 	x.NoError(err)
 	x.Equal("kim@acme.example", v.GetEmail())
 	x.Equal("pending", v.GetState())
-	x.Empty(v.GetClaim(), "the code went back to the people who invited")
 
 	// The mail: who asked, into what.
 	x.Len(w.box.sent, 1)
@@ -150,8 +149,8 @@ func TestWhoMayInviteAndAsWhat(t *testing.T) {
 		x.Equal(codes.InvalidArgument, status.Code(err), "%v", err)
 		_, err = w.svc.List(w.owner, app.InvitationListRequest_builder{
 			Filters: []*app.InvitationFilter{app.InvitationFilter_builder{
-				Tenant:  app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
-				Account: pdid.New(1).Bytes(),
+				Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+				Ref:    app.InvitationRef_builder{Id: pdid.New(1).Bytes()}.Build(),
 			}.Build()},
 		}.Build())
 		x.Equal(codes.InvalidArgument, status.Code(err), "%v", err)

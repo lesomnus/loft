@@ -19,7 +19,6 @@ import (
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/tenantcontract"
 	"github.com/lesomnus/loft/server/domain"
-	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/retention"
 )
@@ -146,9 +145,6 @@ func (s operatorTenants) Show(ctx context.Context, req *app.OperatorTenantShowRe
 			Role:        h.Role,
 			DateCreated: timestamppb.New(h.DateCreated),
 		}.Build()
-		if h.Account != nil {
-			v.SetAccount(h.Account[:])
-		}
 		if h.DateLeaving != nil {
 			v.SetDateLeaving(timestamppb.New(*h.DateLeaving))
 		}
@@ -257,35 +253,6 @@ func days(d time.Duration) uint32 {
 		return 0
 	}
 	return uint32(d / (24 * time.Hour))
-}
-
-// Move gives a workspace another address, as [closing.Closing.Rename] does,
-// written as the operator's work in the workspace. A dry run is refused where
-// the move would be, and moves nothing.
-func (s operatorTenants) Move(ctx context.Context, req *app.OperatorTenantMoveRequest) (*app.OperatorTenantMoveResponse, error) {
-	t, err := s.a.workspace(ctx, req.GetRef())
-	if err != nil {
-		return nil, err
-	}
-	to := strings.ToLower(strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(req.GetTo()), "@")))
-	if to == "" {
-		return nil, status.Error(codes.InvalidArgument, "to: the new address")
-	}
-	if _, _, err := s.a.S.Closing.Renaming(ctx, t.Alias, to, req.GetReuse()); err != nil {
-		return nil, refused(err)
-	}
-	from := t.Alias
-	until := time.Now().Add(s.a.C.App.Workspaces.Hold())
-	if !req.GetDryRun() {
-		if err := s.a.S.Closing.Rename(operator.Frame(ctx, pdid.Nil), from, to, req.GetReuse()); err != nil {
-			return nil, refused(err)
-		}
-	}
-	row, err := s.a.row(ctx, t.Id)
-	if err != nil {
-		return nil, err
-	}
-	return app.OperatorTenantMoveResponse_builder{Tenant: row, From: from, DateHeldUntil: timestamppb.New(until)}.Build(), nil
 }
 
 // NameOwner makes a member of a workspace one of its owners, as

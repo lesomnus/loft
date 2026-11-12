@@ -33,11 +33,9 @@ import (
 	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	entaudit "github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/holder"
-	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/loftest"
 	"github.com/lesomnus/loft/server/admin"
 	"github.com/lesomnus/loft/server/operator"
@@ -362,59 +360,17 @@ func TestWhatAnOperatorDoesIsRecordedAsTheirs(t *testing.T) {
 	x.Positive(named, "the operator's rows are in the workspace's record")
 }
 
-// TestAnOperatorMovesAnAddressAndNamesNoOtherThing: a move says what it would
-// do and does nothing until it is asked to, the old address held -- and its
-// write is the operator's; a hold is lifted by when, and nothing else of it
-// is written.
-func TestAnOperatorMovesAnAddressAndNamesNoOtherThing(t *testing.T) {
+// TestAnOperatorLiftsAHoldAndNamesNoOtherThing: a hold says what it is for,
+// is lifted by when, and nothing else of it is written.
+func TestAnOperatorLiftsAHoldAndNamesNoOtherThing(t *testing.T) {
 	e := open(t)
 	x := e.x
 	ctx := as(key)
-	bg := context.Background()
-	ops := app.NewOperatorTenantServiceClient(e.conn)
-	ref := app.OperatorTenantRef_builder{Alias: z.Ptr("acme")}.Build()
-
-	trail, err := e.s.Ent.Audit.Query().Count(bg)
-	x.NoError(err)
-	v, err := ops.Move(ctx, app.OperatorTenantMoveRequest_builder{Ref: ref, To: "acme-two", DryRun: true}.Build())
-	x.NoError(err)
-	x.Equal("acme", v.GetFrom())
-	x.Equal("acme", v.GetTenant().GetAlias(), "a dry run moves nothing")
-	after, err := e.s.Ent.Audit.Query().Count(bg)
-	x.NoError(err)
-	x.Equal(trail, after, "and writes nothing")
-	kept, err := e.s.Ent.AliasHold.Query().Count(bg)
-	x.NoError(err)
-	x.Zero(kept, "and holds nothing")
-	_, err = ops.Move(ctx, app.OperatorTenantMoveRequest_builder{Ref: ref, To: "www", DryRun: true}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err), "refused as the move would be: %v", err)
-
-	v, err = ops.Move(ctx, app.OperatorTenantMoveRequest_builder{Ref: ref, To: "@acme-two"}.Build())
-	x.NoError(err)
-	x.Equal("acme-two", v.GetTenant().GetAlias())
-	x.True(v.GetDateHeldUntil().AsTime().After(time.Now()))
-	moved, err := e.s.Ent.Tenant.Query().Where(tenant.Alias("acme-two")).Only(bg)
-	x.NoError(err)
-	rows, err := e.s.Ent.Audit.Query().Where(entaudit.ObjectId(moved.Id), entaudit.ActorId(operator.Id("alice").Uuid())).Count(bg)
-	x.NoError(err)
-	x.Positive(rows, "the move is on the trail as the operator's")
-	// And the old address, held: a row behind no wall, the deployment's, which
-	// outlives the workspace it sends people on to.
-	address, err := e.s.Ent.AliasHold.Query().Where(aliashold.Held("acme")).Only(bg)
-	x.NoError(err)
-	held, err := e.s.Ent.Audit.Query().Where(entaudit.ObjectId(address.Id)).Only(bg)
-	x.NoError(err)
-	x.Equal(operator.Id("alice").Uuid(), held.ActorId)
-	x.Equal(uuid.UUID{}, held.TenantId, "filed under no workspace, so that none takes it with it")
-	_, err = ops.Move(ctx, app.OperatorTenantMoveRequest_builder{
-		Ref: app.OperatorTenantRef_builder{Alias: z.Ptr("acme-two")}.Build(), To: "acme",
-	}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err), "the old address is held, and not taken back by accident")
 
 	holds := app.NewLegalHoldServiceClient(e.conn)
-	h, err := holds.Add(ctx, app.LegalHoldAddRequest_builder{Tenant: app.TenantRef_builder{Alias: z.Ptr("acme-two")}.Build()}.Build())
+	h, err := holds.Add(ctx, app.LegalHoldAddRequest_builder{Tenant: app.TenantRef_builder{Alias: z.Ptr("acme")}.Build()}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err), "a hold says what it is for")
-	h, err = holds.Add(ctx, app.LegalHoldAddRequest_builder{Tenant: app.TenantRef_builder{Alias: z.Ptr("acme-two")}.Build(), Name: "a case"}.Build())
+	h, err = holds.Add(ctx, app.LegalHoldAddRequest_builder{Tenant: app.TenantRef_builder{Alias: z.Ptr("acme")}.Build(), Name: "a case"}.Build())
 	x.NoError(err)
 	hold := app.LegalHoldRef_builder{Id: h.GetId()}.Build()
 	_, err = holds.Patch(ctx, app.LegalHoldPatchRequest_builder{Ref: hold, Name: z.Ptr("another"), DateLifted: timestamppb.Now()}.Build())

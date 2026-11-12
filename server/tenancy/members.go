@@ -122,12 +122,11 @@ func (m Members) make(ctx context.Context, p identity.Person) error {
 	}
 	name := or(p.Name, p.Alias)
 	h, err := base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Id:      p.Id.Bytes(),
-		Tenant:  tref,
-		Alias:   alias,
-		Name:    name,
-		Role:    z.Ptr("member"),
-		Account: p.Id.Bytes(),
+		Id:     p.Id.Bytes(),
+		Tenant: tref,
+		Alias:  alias,
+		Name:   name,
+		Role:   z.Ptr("member"),
 	}.Build())
 	if err != nil {
 		return fmt.Errorf("@%s/%s: %w", p.TenantAlias, alias, err)

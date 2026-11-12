@@ -184,7 +184,7 @@ var (
 	ErrUnreachable = standing.ErrUnreachable
 )
 
-// Locked is a refusal that says when the account opens again.
+// Locked is a refusal that says when somebody's login opens again.
 type Locked struct{ Until time.Time }
 
 func (e Locked) Error() string      { return "locked until " + e.Until.UTC().Format(time.RFC3339) }
@@ -448,12 +448,16 @@ func (s *Store) ensureAgent(ctx context.Context, tenant string) error {
 // Verify checks somebody's password with roster and answers who they are.
 // `login` is their alias in the tenant, or -- with an `@` in it -- the
 // address they are reached at.
+//
+// The tenant is not named: Loft calls as its holder in it, which says which
+// one (roster's `VouchWho.tenant`), so a tenant renamed at roster goes on
+// signing people in before this process takes its new address (D86).
 func (s *Store) Verify(ctx context.Context, login, password string) (Person, error) {
-	as, d, err := s.inTenant(ctx)
+	as, _, err := s.inTenant(ctx)
 	if err != nil {
 		return Person{}, err
 	}
-	who := rstr.VouchWho_builder{Tenant: d.Alias}
+	who := rstr.VouchWho_builder{}
 	if strings.Contains(login, "@") {
 		who.Address = login
 	} else {
@@ -524,8 +528,8 @@ func (s *Store) ById(ctx context.Context, sub string) (Person, error) {
 // method. Any tenant's administrator may put any address on a user of their
 // own, and a provider passes it on (nOAuth); roster keeps it, with nothing
 // claimed, and a person record found by it would be whoever typed it.
-func (s *Store) Addresses(ctx context.Context, account pdid.Id) ([]string, error) {
-	return s.accounts.Addresses(ctx, account)
+func (s *Store) Addresses(ctx context.Context, holder pdid.Id) ([]string, error) {
+	return s.accounts.Addresses(ctx, holder)
 }
 
 func (s *Store) person(as context.Context, ref *rstr.HolderRef) (Person, error) {
@@ -655,8 +659,8 @@ type Standing = standing.Standing
 // else is a roster that could not be asked. It reads the four facts and
 // nothing of the person's: a read of those would be a row of roster's access
 // record every time a session is held to it.
-func (s *Store) StandingOf(ctx context.Context, account pdid.Id) (Standing, error) {
-	return s.accounts.StandingOf(ctx, account)
+func (s *Store) StandingOf(ctx context.Context, holder pdid.Id) (Standing, error) {
+	return s.accounts.StandingOf(ctx, holder)
 }
 
 // HeldTtl is how long what roster says of a person is believed before it is

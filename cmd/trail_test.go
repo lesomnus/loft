@@ -16,12 +16,12 @@ import (
 
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	entaudit "github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/clilogin"
-	"github.com/lesomnus/loft/server/closing"
 	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // What Loft writes past its servers -- a terminal's sign-in, an address held
@@ -76,7 +76,7 @@ func TestATerminalsSignInIsOnTheTrail(t *testing.T) {
 	ctx := context.Background()
 	h, err := w.s.Ent.Holder.Query().Where(holder.Role("owner")).First(ctx)
 	x.NoError(err)
-	owner := pdid.Id(*h.Account)
+	owner := pdid.Id(h.Id)
 
 	ask := func() clilogin.Started {
 		key := make([]byte, 32)
@@ -102,7 +102,7 @@ func TestATerminalsSignInIsOnTheTrail(t *testing.T) {
 	x.Equal(http.StatusNoContent, w.post(w.owner, "/cli/logins/approve", `{"code":"`+approved.Code+`"}`).Code)
 	x.Equal([]string{clilogin.Asked, clilogin.Approved}, actions(approved))
 	id, _ := pdid.Parse(approved.Id)
-	x.Equal(owner.Uuid(), w.acts(t, id)[1].ActorId, "answered by the account at the page")
+	x.Equal(owner.Uuid(), w.acts(t, id)[1].ActorId, "answered by the member at the page")
 
 	denied := ask()
 	x.Equal(http.StatusNoContent, w.post(w.owner, "/cli/logins/deny", `{"code":"`+denied.Code+`"}`).Code)
@@ -112,18 +112,19 @@ func TestATerminalsSignInIsOnTheTrail(t *testing.T) {
 	x.True(got.Ok(), "%+v", got)
 }
 
-func TestAnAddressHeldIsOnTheTrail(t *testing.T) {
+// TestTheAddressFollowedIsOnTheTrail (D86): the workspace taking the tenant's
+// address at roster is a write through the servers, which the trail says.
+func TestTheAddressFollowedIsOnTheTrail(t *testing.T) {
 	w, d := digestWorld(t, nil)
 	x := w.x
 	ctx := context.Background()
 
-	old := w.tenant.GetAlias()
-	x.NoError(w.s.Closing.Rename(ctx, old, "lab-2", false))
-	held, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(old)).Only(ctx)
+	tid := tenantId(x, w.tenant)
+	before := len(w.acts(t, tid))
+	was, err := tenancy.Follow(ctx, w.s.Base, identity.Tenant{Id: tid, Alias: "lab-2"})
 	x.NoError(err)
-	acts := w.acts(t, pdid.Id(held.Id))
-	x.Len(acts, 1)
-	x.Equal(closing.Held, acts[0].Action)
+	x.Equal(w.tenant.GetAlias(), was)
+	x.Len(w.acts(t, tid), before+1)
 
 	got := w.check(t, d)
 	x.True(got.Ok(), "%+v", got)

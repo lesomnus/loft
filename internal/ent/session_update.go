@@ -30,16 +30,16 @@ func (_u *SessionUpdate) Where(ps ...predicate.Session) *SessionUpdate {
 	return _u
 }
 
-// SetAccount sets the "account" field.
-func (_u *SessionUpdate) SetAccount(v uuid.UUID) *SessionUpdate {
-	_u.mutation.SetAccount(v)
+// SetHolder sets the "holder" field.
+func (_u *SessionUpdate) SetHolder(v uuid.UUID) *SessionUpdate {
+	_u.mutation.SetHolder(v)
 	return _u
 }
 
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_u *SessionUpdate) SetNillableAccount(v *uuid.UUID) *SessionUpdate {
+// SetNillableHolder sets the "holder" field if the given value is not nil.
+func (_u *SessionUpdate) SetNillableHolder(v *uuid.UUID) *SessionUpdate {
 	if v != nil {
-		_u.SetAccount(*v)
+		_u.SetHolder(*v)
 	}
 	return _u
 }
@@ -189,11 +189,11 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
-	if value, ok := _u.mutation.Account(); ok {
-		_spec.SetField(session.FieldAccount, field.TypeUuid, value)
+	if value, ok := _u.mutation.Holder(); ok {
+		_spec.SetField(session.FieldHolder, field.TypeUuid, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(session.FieldAccount); ok {
-		_spec.SetField(session.FieldAccount, field.TypeUuid, e)
+	if e, ok := _u.mutation.FieldExpr(session.FieldHolder); ok {
+		_spec.SetField(session.FieldHolder, field.TypeUuid, e)
 	}
 	if value, ok := _u.mutation.Secret(); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, value)
@@ -274,16 +274,16 @@ type SessionUpdateOne struct {
 	modifiers []func(*sql.UpdateBuilder)
 }
 
-// SetAccount sets the "account" field.
-func (_u *SessionUpdateOne) SetAccount(v uuid.UUID) *SessionUpdateOne {
-	_u.mutation.SetAccount(v)
+// SetHolder sets the "holder" field.
+func (_u *SessionUpdateOne) SetHolder(v uuid.UUID) *SessionUpdateOne {
+	_u.mutation.SetHolder(v)
 	return _u
 }
 
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_u *SessionUpdateOne) SetNillableAccount(v *uuid.UUID) *SessionUpdateOne {
+// SetNillableHolder sets the "holder" field if the given value is not nil.
+func (_u *SessionUpdateOne) SetNillableHolder(v *uuid.UUID) *SessionUpdateOne {
 	if v != nil {
-		_u.SetAccount(*v)
+		_u.SetHolder(*v)
 	}
 	return _u
 }
@@ -463,11 +463,11 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 			}
 		}
 	}
-	if value, ok := _u.mutation.Account(); ok {
-		_spec.SetField(session.FieldAccount, field.TypeUuid, value)
+	if value, ok := _u.mutation.Holder(); ok {
+		_spec.SetField(session.FieldHolder, field.TypeUuid, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(session.FieldAccount); ok {
-		_spec.SetField(session.FieldAccount, field.TypeUuid, e)
+	if e, ok := _u.mutation.FieldExpr(session.FieldHolder); ok {
+		_spec.SetField(session.FieldHolder, field.TypeUuid, e)
 	}
 	if value, ok := _u.mutation.Secret(); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, value)

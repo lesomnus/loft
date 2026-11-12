@@ -17,7 +17,7 @@ import (
 type Mutation struct {
 	op            ent.Op
 	typ           string
-	account       *uuid.UUID
+	holder        *uuid.UUID
 	secret        *[]byte
 	grant         *[]byte
 	date_expires  *time.Time
@@ -45,25 +45,25 @@ func (m *Mutation) Predicates() []predicate.Session {
 	return m.predicates
 }
 
-// SetAccount sets the "account" field.
-func (m *Mutation) SetAccount(u uuid.UUID) {
-	m.account = &u
-	delete(m.exprs, FieldAccount)
+// SetHolder sets the "holder" field.
+func (m *Mutation) SetHolder(u uuid.UUID) {
+	m.holder = &u
+	delete(m.exprs, FieldHolder)
 }
 
-// Account returns the value of the "account" field in the mutation.
-func (m *Mutation) Account() (r uuid.UUID, exists bool) {
-	v := m.account
+// Holder returns the value of the "holder" field in the mutation.
+func (m *Mutation) Holder() (r uuid.UUID, exists bool) {
+	v := m.holder
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetAccount resets all changes to the "account" field.
-func (m *Mutation) ResetAccount() {
-	m.account = nil
-	delete(m.exprs, FieldAccount)
+// ResetHolder resets all changes to the "holder" field.
+func (m *Mutation) ResetHolder() {
+	m.holder = nil
+	delete(m.exprs, FieldHolder)
 }
 
 // SetSecret sets the "secret" field.
@@ -341,8 +341,8 @@ func (m *Mutation) Type() string {
 // AddedFields().
 func (m *Mutation) Fields() []string {
 	fields := make([]string, 0, 9)
-	if m.account != nil || m.exprs[FieldAccount] != nil {
-		fields = append(fields, FieldAccount)
+	if m.holder != nil || m.exprs[FieldHolder] != nil {
+		fields = append(fields, FieldHolder)
 	}
 	if m.secret != nil || m.exprs[FieldSecret] != nil {
 		fields = append(fields, FieldSecret)
@@ -382,8 +382,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return e, true
 	}
 	switch name {
-	case FieldAccount:
-		return m.Account()
+	case FieldHolder:
+		return m.Holder()
 	case FieldSecret:
 		return m.Secret()
 	case FieldGrant:
@@ -419,7 +419,7 @@ func (m *Mutation) OldField(ctx context.Context, name string) (ent.Value, error)
 // that what Field returns for a field can be set back on it.
 func (m *Mutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case FieldAccount:
+	case FieldHolder:
 		v, ok := value.(uuid.UUID)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -427,7 +427,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetAccount(v)
+		m.SetHolder(v)
 		return nil
 	case FieldSecret:
 		v, ok := value.([]byte)
@@ -531,8 +531,8 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		return fmt.Errorf("field %s cannot be assigned an expression: a create writes values, and an expression is written only by an update", name)
 	}
 	switch name {
-	case FieldAccount:
-		m.ResetAccount()
+	case FieldHolder:
+		m.ResetHolder()
 	case FieldSecret:
 		m.ResetSecret()
 	case FieldGrant:
@@ -570,8 +570,8 @@ func (m *Mutation) FieldExpr(name string) (sql.Querier, bool) {
 // SetFieldExpr.
 func (m *Mutation) ExprFields() []string {
 	var fields []string
-	if _, ok := m.exprs[FieldAccount]; ok {
-		fields = append(fields, FieldAccount)
+	if _, ok := m.exprs[FieldHolder]; ok {
+		fields = append(fields, FieldHolder)
 	}
 	if _, ok := m.exprs[FieldSecret]; ok {
 		fields = append(fields, FieldSecret)
@@ -675,8 +675,8 @@ func (m *Mutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *Mutation) ResetField(name string) error {
 	switch name {
-	case FieldAccount:
-		m.ResetAccount()
+	case FieldHolder:
+		m.ResetHolder()
 		return nil
 	case FieldSecret:
 		m.ResetSecret()

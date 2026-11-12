@@ -32,7 +32,6 @@ type HolderAddRequest struct {
 	xxx_hidden_Labels      map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Role        *string                `protobuf:"bytes,8,opt,name=role"`
-	xxx_hidden_Account     []byte                 `protobuf:"bytes,9,opt,name=account"`
 	xxx_hidden_DateLeaving *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date_leaving,json=dateLeaving"`
 	xxx_hidden_MailOff     bool                   `protobuf:"varint,11,opt,name=mail_off,json=mailOff"`
 	xxx_hidden_Party       []byte                 `protobuf:"bytes,12,opt,name=party"`
@@ -126,13 +125,6 @@ func (x *HolderAddRequest) GetRole() string {
 	return ""
 }
 
-func (x *HolderAddRequest) GetAccount() []byte {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return nil
-}
-
 func (x *HolderAddRequest) GetDateLeaving() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateLeaving
@@ -159,7 +151,7 @@ func (x *HolderAddRequest) SetId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
 }
 
 func (x *HolderAddRequest) SetTenant(v *TenantRef) {
@@ -188,15 +180,7 @@ func (x *HolderAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 
 func (x *HolderAddRequest) SetRole(v string) {
 	x.xxx_hidden_Role = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
-}
-
-func (x *HolderAddRequest) SetAccount(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
 }
 
 func (x *HolderAddRequest) SetDateLeaving(v *timestamppb.Timestamp) {
@@ -212,7 +196,7 @@ func (x *HolderAddRequest) SetParty(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Party = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
 }
 
 func (x *HolderAddRequest) HasId() bool {
@@ -243,13 +227,6 @@ func (x *HolderAddRequest) HasRole() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *HolderAddRequest) HasAccount() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
-}
-
 func (x *HolderAddRequest) HasDateLeaving() bool {
 	if x == nil {
 		return false
@@ -261,7 +238,7 @@ func (x *HolderAddRequest) HasParty() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
 func (x *HolderAddRequest) ClearId() {
@@ -282,17 +259,12 @@ func (x *HolderAddRequest) ClearRole() {
 	x.xxx_hidden_Role = nil
 }
 
-func (x *HolderAddRequest) ClearAccount() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
-	x.xxx_hidden_Account = nil
-}
-
 func (x *HolderAddRequest) ClearDateLeaving() {
 	x.xxx_hidden_DateLeaving = nil
 }
 
 func (x *HolderAddRequest) ClearParty() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_Party = nil
 }
 
@@ -307,7 +279,6 @@ type HolderAddRequest_builder struct {
 	Labels      map[string]string
 	DateCreated *timestamppb.Timestamp
 	Role        *string
-	Account     []byte
 	DateLeaving *timestamppb.Timestamp
 	MailOff     bool
 	Party       []byte
@@ -318,7 +289,7 @@ func (b0 HolderAddRequest_builder) Build() *HolderAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Tenant = b.Tenant
@@ -328,17 +299,13 @@ func (b0 HolderAddRequest_builder) Build() *HolderAddRequest {
 	x.xxx_hidden_Labels = b.Labels
 	x.xxx_hidden_DateCreated = b.DateCreated
 	if b.Role != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
 		x.xxx_hidden_Role = b.Role
-	}
-	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
-		x.xxx_hidden_Account = b.Account
 	}
 	x.xxx_hidden_DateLeaving = b.DateLeaving
 	x.xxx_hidden_MailOff = b.MailOff
 	if b.Party != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
 		x.xxx_hidden_Party = b.Party
 	}
 	return m0
@@ -722,7 +689,6 @@ type HolderSelect struct {
 	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Role        bool                   `protobuf:"varint,8,opt,name=role"`
-	xxx_hidden_Account     bool                   `protobuf:"varint,9,opt,name=account"`
 	xxx_hidden_DateLeaving bool                   `protobuf:"varint,10,opt,name=date_leaving,json=dateLeaving"`
 	xxx_hidden_MailOff     bool                   `protobuf:"varint,11,opt,name=mail_off,json=mailOff"`
 	xxx_hidden_Party       bool                   `protobuf:"varint,12,opt,name=party"`
@@ -827,13 +793,6 @@ func (x *HolderSelect) GetRole() bool {
 	return false
 }
 
-func (x *HolderSelect) GetAccount() bool {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return false
-}
-
 func (x *HolderSelect) GetDateLeaving() bool {
 	if x != nil {
 		return x.xxx_hidden_DateLeaving
@@ -857,7 +816,7 @@ func (x *HolderSelect) GetParty() bool {
 
 func (x *HolderSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 13)
 }
 
 func (x *HolderSelect) SetTenant(v *TenantSelect) {
@@ -866,62 +825,57 @@ func (x *HolderSelect) SetTenant(v *TenantSelect) {
 
 func (x *HolderSelect) SetAlias(v bool) {
 	x.xxx_hidden_Alias = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 13)
 }
 
 func (x *HolderSelect) SetName(v bool) {
 	x.xxx_hidden_Name = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
 }
 
 func (x *HolderSelect) SetDesc(v bool) {
 	x.xxx_hidden_Desc = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 13)
 }
 
 func (x *HolderSelect) SetLabels(v bool) {
 	x.xxx_hidden_Labels = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 13)
 }
 
 func (x *HolderSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
 }
 
 func (x *HolderSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
 }
 
 func (x *HolderSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 13)
 }
 
 func (x *HolderSelect) SetRole(v bool) {
 	x.xxx_hidden_Role = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 14)
-}
-
-func (x *HolderSelect) SetAccount(v bool) {
-	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
 }
 
 func (x *HolderSelect) SetDateLeaving(v bool) {
 	x.xxx_hidden_DateLeaving = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
 }
 
 func (x *HolderSelect) SetMailOff(v bool) {
 	x.xxx_hidden_MailOff = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
 }
 
 func (x *HolderSelect) SetParty(v bool) {
 	x.xxx_hidden_Party = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
 }
 
 func (x *HolderSelect) HasAll() bool {
@@ -994,32 +948,25 @@ func (x *HolderSelect) HasRole() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *HolderSelect) HasAccount() bool {
+func (x *HolderSelect) HasDateLeaving() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *HolderSelect) HasDateLeaving() bool {
+func (x *HolderSelect) HasMailOff() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
-func (x *HolderSelect) HasMailOff() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
-}
-
 func (x *HolderSelect) HasParty() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
 func (x *HolderSelect) ClearAll() {
@@ -1071,23 +1018,18 @@ func (x *HolderSelect) ClearRole() {
 	x.xxx_hidden_Role = false
 }
 
-func (x *HolderSelect) ClearAccount() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
-	x.xxx_hidden_Account = false
-}
-
 func (x *HolderSelect) ClearDateLeaving() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_DateLeaving = false
 }
 
 func (x *HolderSelect) ClearMailOff() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_MailOff = false
 }
 
 func (x *HolderSelect) ClearParty() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
 	x.xxx_hidden_Party = false
 }
 
@@ -1104,7 +1046,6 @@ type HolderSelect_builder struct {
 	DateErased  *bool
 	DateCreated *bool
 	Role        *bool
-	Account     *bool
 	DateLeaving *bool
 	MailOff     *bool
 	Party       *bool
@@ -1115,56 +1056,52 @@ func (b0 HolderSelect_builder) Build() *HolderSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 13)
 		x.xxx_hidden_All = *b.All
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	if b.Alias != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 13)
 		x.xxx_hidden_Alias = *b.Alias
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
 		x.xxx_hidden_Name = *b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 13)
 		x.xxx_hidden_Desc = *b.Desc
 	}
 	if b.Labels != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 13)
 		x.xxx_hidden_Labels = *b.Labels
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 13)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	if b.Role != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
 		x.xxx_hidden_Role = *b.Role
 	}
-	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 14)
-		x.xxx_hidden_Account = *b.Account
-	}
 	if b.DateLeaving != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
 		x.xxx_hidden_DateLeaving = *b.DateLeaving
 	}
 	if b.MailOff != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
 		x.xxx_hidden_MailOff = *b.MailOff
 	}
 	if b.Party != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
 		x.xxx_hidden_Party = *b.Party
 	}
 	return m0
@@ -1180,8 +1117,6 @@ type HolderPatchRequest struct {
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	xxx_hidden_Role             *string                `protobuf:"bytes,16,opt,name=role"`
-	xxx_hidden_Account          []byte                 `protobuf:"bytes,18,opt,name=account"`
-	xxx_hidden_AccountNull      bool                   `protobuf:"varint,19,opt,name=account_null,json=accountNull"`
 	xxx_hidden_DateLeaving      *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=date_leaving,json=dateLeaving"`
 	xxx_hidden_DateLeavingNull  bool                   `protobuf:"varint,21,opt,name=date_leaving_null,json=dateLeavingNull"`
 	xxx_hidden_MailOff          bool                   `protobuf:"varint,22,opt,name=mail_off,json=mailOff"`
@@ -1286,20 +1221,6 @@ func (x *HolderPatchRequest) GetRole() string {
 	return ""
 }
 
-func (x *HolderPatchRequest) GetAccount() []byte {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return nil
-}
-
-func (x *HolderPatchRequest) GetAccountNull() bool {
-	if x != nil {
-		return x.xxx_hidden_AccountNull
-	}
-	return false
-}
-
 func (x *HolderPatchRequest) GetDateLeaving() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateLeaving
@@ -1341,17 +1262,17 @@ func (x *HolderPatchRequest) SetRef(v *HolderRef) {
 
 func (x *HolderPatchRequest) SetAlias(v string) {
 	x.xxx_hidden_Alias = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 13)
 }
 
 func (x *HolderPatchRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 13)
 }
 
 func (x *HolderPatchRequest) SetDesc(v string) {
 	x.xxx_hidden_Desc = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
 }
 
 func (x *HolderPatchRequest) SetLabels(v map[string]string) {
@@ -1364,25 +1285,12 @@ func (x *HolderPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *HolderPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
 }
 
 func (x *HolderPatchRequest) SetRole(v string) {
 	x.xxx_hidden_Role = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 15)
-}
-
-func (x *HolderPatchRequest) SetAccount(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 15)
-}
-
-func (x *HolderPatchRequest) SetAccountNull(v bool) {
-	x.xxx_hidden_AccountNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
 }
 
 func (x *HolderPatchRequest) SetDateLeaving(v *timestamppb.Timestamp) {
@@ -1391,12 +1299,12 @@ func (x *HolderPatchRequest) SetDateLeaving(v *timestamppb.Timestamp) {
 
 func (x *HolderPatchRequest) SetDateLeavingNull(v bool) {
 	x.xxx_hidden_DateLeavingNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
 }
 
 func (x *HolderPatchRequest) SetMailOff(v bool) {
 	x.xxx_hidden_MailOff = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
 }
 
 func (x *HolderPatchRequest) SetParty(v []byte) {
@@ -1404,12 +1312,12 @@ func (x *HolderPatchRequest) SetParty(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Party = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
 }
 
 func (x *HolderPatchRequest) SetPartyNull(v bool) {
 	x.xxx_hidden_PartyNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
 }
 
 func (x *HolderPatchRequest) HasRef() bool {
@@ -1461,20 +1369,6 @@ func (x *HolderPatchRequest) HasRole() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *HolderPatchRequest) HasAccount() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
-}
-
-func (x *HolderPatchRequest) HasAccountNull() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
-}
-
 func (x *HolderPatchRequest) HasDateLeaving() bool {
 	if x == nil {
 		return false
@@ -1486,28 +1380,28 @@ func (x *HolderPatchRequest) HasDateLeavingNull() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
 func (x *HolderPatchRequest) HasMailOff() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
 func (x *HolderPatchRequest) HasParty() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
 func (x *HolderPatchRequest) HasPartyNull() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
 func (x *HolderPatchRequest) ClearRef() {
@@ -1543,37 +1437,27 @@ func (x *HolderPatchRequest) ClearRole() {
 	x.xxx_hidden_Role = nil
 }
 
-func (x *HolderPatchRequest) ClearAccount() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
-	x.xxx_hidden_Account = nil
-}
-
-func (x *HolderPatchRequest) ClearAccountNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
-	x.xxx_hidden_AccountNull = false
-}
-
 func (x *HolderPatchRequest) ClearDateLeaving() {
 	x.xxx_hidden_DateLeaving = nil
 }
 
 func (x *HolderPatchRequest) ClearDateLeavingNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_DateLeavingNull = false
 }
 
 func (x *HolderPatchRequest) ClearMailOff() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_MailOff = false
 }
 
 func (x *HolderPatchRequest) ClearParty() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_Party = nil
 }
 
 func (x *HolderPatchRequest) ClearPartyNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
 	x.xxx_hidden_PartyNull = false
 }
 
@@ -1600,13 +1484,7 @@ type HolderPatchRequest_builder struct {
 	// apart from a caller who never considered locking at all.
 	DateUpdatedForce *bool
 	Role             *string
-	Account          []byte
-	// Clear account instead of writing it.
-	// It takes a field of its own because an unset value already means
-	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and account clears.
-	AccountNull *bool
-	DateLeaving *timestamppb.Timestamp
+	DateLeaving      *timestamppb.Timestamp
 	// Clear date_leaving instead of writing it.
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
@@ -1627,50 +1505,42 @@ func (b0 HolderPatchRequest_builder) Build() *HolderPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Alias != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 13)
 		x.xxx_hidden_Alias = b.Alias
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 13)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
 		x.xxx_hidden_Desc = b.Desc
 	}
 	x.xxx_hidden_Labels = b.Labels
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	if b.Role != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
 		x.xxx_hidden_Role = b.Role
-	}
-	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 15)
-		x.xxx_hidden_Account = b.Account
-	}
-	if b.AccountNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 15)
-		x.xxx_hidden_AccountNull = *b.AccountNull
 	}
 	x.xxx_hidden_DateLeaving = b.DateLeaving
 	if b.DateLeavingNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
 		x.xxx_hidden_DateLeavingNull = *b.DateLeavingNull
 	}
 	if b.MailOff != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
 		x.xxx_hidden_MailOff = *b.MailOff
 	}
 	if b.Party != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
 		x.xxx_hidden_Party = b.Party
 	}
 	if b.PartyNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
 		x.xxx_hidden_PartyNull = *b.PartyNull
 	}
 	return m0
@@ -2433,7 +2303,7 @@ var File_loft_payday_holder_svc_g_proto protoreflect.FileDescriptor
 
 const file_loft_payday_holder_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1eloft/payday/holder_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18loft/payday/holder.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xf9\x03\n" +
+	"\x1eloft/payday/holder_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18loft/payday/holder.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xdf\x03\n" +
 	"\x10HolderAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x1b\n" +
@@ -2442,8 +2312,7 @@ const file_loft_payday_holder_svc_g_proto_rawDesc = "" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12:\n" +
 	"\x06labels\x18\a \x03(\v2\".loft.HolderAddRequest.LabelsEntryR\x06labels\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x12\n" +
-	"\x04role\x18\b \x01(\tR\x04role\x12\x18\n" +
-	"\aaccount\x18\t \x01(\fR\aaccount\x12=\n" +
+	"\x04role\x18\b \x01(\tR\x04role\x12=\n" +
 	"\fdate_leaving\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\vdateLeaving\x12 \n" +
 	"\bmail_off\x18\v \x01(\bB\x05\xaa\x01\x02\b\x02R\amailOff\x12\x14\n" +
@@ -2460,7 +2329,7 @@ const file_loft_payday_holder_svc_g_proto_rawDesc = "" +
 	"\x03key\"P\n" +
 	"\x0fHolderRefBySlug\x12\x14\n" +
 	"\x05alias\x18\x04 \x01(\tR\x05alias\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\"\x8b\x03\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\"\xf1\x02\n" +
 	"\fHolderSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x14\n" +
@@ -2472,12 +2341,11 @@ const file_loft_payday_holder_svc_g_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x12\n" +
-	"\x04role\x18\b \x01(\bR\x04role\x12\x18\n" +
-	"\aaccount\x18\t \x01(\bR\aaccount\x12!\n" +
+	"\x04role\x18\b \x01(\bR\x04role\x12!\n" +
 	"\fdate_leaving\x18\n" +
 	" \x01(\bR\vdateLeaving\x12\x19\n" +
 	"\bmail_off\x18\v \x01(\bR\amailOff\x12\x14\n" +
-	"\x05party\x18\f \x01(\bR\x05party\"\xe7\x04\n" +
+	"\x05party\x18\f \x01(\bR\x05party\"\xaa\x04\n" +
 	"\x12HolderPatchRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.loft.HolderRefR\x03ref\x12\x14\n" +
 	"\x05alias\x18\b \x01(\tR\x05alias\x12\x12\n" +
@@ -2487,9 +2355,7 @@ const file_loft_payday_holder_svc_g_proto_rawDesc = "" +
 	"\x06labels\x18\x0e \x03(\v2$.loft.HolderPatchRequest.LabelsEntryR\x06labels\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x12\n" +
-	"\x04role\x18\x10 \x01(\tR\x04role\x12\x18\n" +
-	"\aaccount\x18\x12 \x01(\fR\aaccount\x12!\n" +
-	"\faccount_null\x18\x13 \x01(\bR\vaccountNull\x12=\n" +
+	"\x04role\x18\x10 \x01(\tR\x04role\x12=\n" +
 	"\fdate_leaving\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\vdateLeaving\x12*\n" +
 	"\x11date_leaving_null\x18\x15 \x01(\bR\x0fdateLeavingNull\x12\x19\n" +
 	"\bmail_off\x18\x16 \x01(\bR\amailOff\x12\x14\n" +

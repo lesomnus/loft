@@ -251,7 +251,7 @@ func (s domainInvitation) Revoke(ctx context.Context, req *app.InvitationRevokeR
 // anything else is refused rather than answered with everything.
 func (s domainInvitation) List(ctx context.Context, req *app.InvitationListRequest) (*app.InvitationListResponse, error) {
 	fs := req.GetFilters()
-	if len(fs) != 1 || fs[0].GetTenant() == nil || len(fs[0].GetAccount()) > 0 || fs[0].GetRef() != nil {
+	if len(fs) != 1 || fs[0].GetTenant() == nil || fs[0].GetRef() != nil {
 		return nil, invalid("filters", "보낸 초대는 워크스페이스(tenant) 하나로 찾습니다")
 	}
 	f := fs[0]
@@ -309,8 +309,7 @@ func shown(ctx context.Context, db *ent.Client, rows []*ent.Invitation, now time
 }
 
 // protoOf is an invitation as the people who sent it read it: the workspace by
-// what it is called and its alias, who invited by their name, and never the
-// code its mail carried.
+// what it is called and its alias, and who invited by their name.
 func protoOf(v *ent.Invitation, now time.Time, names map[uuid.UUID]string, called map[uuid.UUID]tenancy.Name) *app.Invitation {
 	b := app.Invitation_builder{
 		Id:          pdid.Id(v.Id).Bytes(),
@@ -332,9 +331,6 @@ func protoOf(v *ent.Invitation, now time.Time, names map[uuid.UUID]string, calle
 		h.Name = or(w.Name, w.Alias)
 	}
 	b.Inviter = h.Build()
-	if v.Account != nil {
-		b.Account = pdid.Id(*v.Account).Bytes()
-	}
 	if v.PartyId != (uuid.UUID{}) {
 		b.Party = app.Party_builder{Id: pdid.Id(v.PartyId).Bytes()}.Build()
 	}

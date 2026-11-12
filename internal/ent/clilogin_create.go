@@ -53,16 +53,16 @@ func (_c *CliLoginCreate) SetAddress(v string) *CliLoginCreate {
 	return _c
 }
 
-// SetAccount sets the "account" field.
-func (_c *CliLoginCreate) SetAccount(v uuid.UUID) *CliLoginCreate {
-	_c.mutation.SetAccount(v)
+// SetHolder sets the "holder" field.
+func (_c *CliLoginCreate) SetHolder(v uuid.UUID) *CliLoginCreate {
+	_c.mutation.SetHolder(v)
 	return _c
 }
 
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_c *CliLoginCreate) SetNillableAccount(v *uuid.UUID) *CliLoginCreate {
+// SetNillableHolder sets the "holder" field if the given value is not nil.
+func (_c *CliLoginCreate) SetNillableHolder(v *uuid.UUID) *CliLoginCreate {
 	if v != nil {
-		_c.SetAccount(*v)
+		_c.SetHolder(*v)
 	}
 	return _c
 }
@@ -265,9 +265,9 @@ func (_c *CliLoginCreate) createSpec() (*CliLogin, *sqlgraph.CreateSpec) {
 		_spec.SetField(clilogin.FieldAddress, field.TypeString, value)
 		_node.Address = value
 	}
-	if value, ok := _c.mutation.Account(); ok {
-		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)
-		_node.Account = &value
+	if value, ok := _c.mutation.Holder(); ok {
+		_spec.SetField(clilogin.FieldHolder, field.TypeUuid, value)
+		_node.Holder = &value
 	}
 	if value, ok := _c.mutation.Grant(); ok {
 		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, value)

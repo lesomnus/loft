@@ -16,8 +16,8 @@ import (
 	"github.com/lesomnus/loft/server/domain"
 )
 
-// depart is the account of `member` leaving this env's workspace, as the
-// lifecycle does it once roster's grace is over.
+// depart is `member` leaving this env's workspace, as the lifecycle does it
+// once roster's grace is over.
 func (e *env) depart(member []byte) domain.Departure {
 	e.t.Helper()
 	id, err := pdid.From(member)
@@ -68,20 +68,19 @@ func (e *env) roleOf(id pdid.Id) string {
 	return h.Role
 }
 
-// TestAnAccountLeavingIsForgottenThere.
+// TestAMemberLeavingIsForgottenThere.
 //
-// What an account leaving takes from a workspace is everything that said who
-// it was: the person record keeps its identifier and nothing else, the
+// What a member leaving takes from the workspace is everything that said who
+// they were: the person record keeps its identifier and nothing else, the
 // membership ends and its name goes too, the invitations sent to them lose
 // the address, and the trail's copies of all of it are forgotten. What they
 // did stays, said by the pseudonym.
-func TestAnAccountLeavingIsForgottenThere(t *testing.T) {
+func TestAMemberLeavingIsForgottenThere(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 	ctx := context.Background()
 	kimAt, kim := e.person("manager")
 	member := kim.GetHolder().GetId()
-	account := e.accountOf(kim)
 
 	// Something kim did, for the history to say who did it.
 	room := e.space("회의실", nil)
@@ -89,13 +88,14 @@ func TestAnAccountLeavingIsForgottenThere(t *testing.T) {
 	_, err := e.app().Asset().Move(kimAt, app.AssetMoveRequest_builder{Ref: assetRef(laptop), To: assetRef(room)}.Build())
 	x.NoError(err)
 
-	// What the workspace sent them: the invitation they took, one their
-	// account was sent again and has not answered, and somebody else's.
+	// What the workspace sent them: the invitation they took, one naming
+	// their person record that waits still, and somebody else's.
 	took := e.invited("kim@example.com", "accepted", func(r *app.InvitationAddRequest) {
 		r.SetHolder(app.HolderRef_builder{Id: member}.Build())
-		r.SetAccount(account.Bytes())
 	})
-	waiting := e.invited("kim@example.com", "pending", func(r *app.InvitationAddRequest) { r.SetAccount(account.Bytes()) })
+	waiting := e.invited("kim@example.com", "pending", func(r *app.InvitationAddRequest) {
+		r.SetParty(app.PartyRef_builder{Id: kim.GetId()}.Build())
+	})
 	other := e.invited("lee@example.com", "pending", nil)
 
 	full, _ := e.copies(kim.GetId(), member, took.GetId(), waiting.GetId())

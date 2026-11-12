@@ -120,17 +120,6 @@ func (d Deployment) Leave(ctx context.Context, tenant pdid.Id, dry bool) (Purged
 // Retired is the act a row a retirement deletes is on the trail as.
 const Retired = "loft.workspace.retire"
 
-// Why a destroyed workspace's address is held (`AliasHold.reason`), which
-// every destruction writes (`closing.Closing.Destroy`): this deployment's word
-// that the workspace was destroyed here, which stays after the hold is over.
-// ReasonRetired is one that retired in a deployment that keeps floors, and so
-// left a record of it with the trail, which a restore under its identifier has
-// the trail take back first ([Deployment.Import]).
-const (
-	ReasonDestroyed = "destroyed"
-	ReasonRetired   = "retired"
-)
-
 // leave is a purge, or a retirement when `retire`.
 func (d Deployment) leave(ctx context.Context, tenant pdid.Id, dry, retire bool) (Purged, error) {
 	out := Purged{Tenant: tenant, Retired: retire, Rows: map[string]int{}}
@@ -194,12 +183,6 @@ func (d Deployment) leave(ctx context.Context, tenant pdid.Id, dry, retire bool)
 
 	return out, nil
 }
-
-// Floored answers whether the deployment keeps floors of its trail
-// (`audit.min`, `audit.by.<kind>.min`), which a retirement keeps what they are
-// on for: with none, a retirement keeps nothing and leaves no record, and is a
-// purge.
-func (d Deployment) Floored() bool { return floored(d.Trail) }
 
 // floored answers whether the deployment keeps a floor of any kind, which a
 // retirement keeps what it is on for. payday refuses to retire a tenant with

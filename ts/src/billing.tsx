@@ -250,18 +250,20 @@ function CollectionBadge(props: { c: BillingCollection | undefined }): ReactNode
 /** A member who signs in: their membership, what they are called, and told apart by (D54). */
 type Member = { holder: Uint8Array; name: string; called: string; role: string; leaving: boolean }
 
-/** The workspace's members who sign in, by the account each is a membership of. */
+/**
+ * The workspace's members, by their identifier: the holder at roster each is
+ * (D85), which levyan names a payer by.
+ */
 function useMembers(): Map<string, Member> {
 	const c = useCatalog()
 	const holders = useRpc(HolderService.method.list, { size: 500 })
 	return useMemo(() => {
 		const out = new Map<string, Member>()
 		for (const h of holders.data?.items ?? []) {
-			const account = idStr(h.account)
-			if (account === '') continue
-			const party = c.parties.find((p) => idStr(p.holder?.id) === idStr(h.id))
+			const id = idStr(h.id)
+			const party = c.parties.find((p) => idStr(p.holder?.id) === id)
 			const name = party?.name || h.name || h.alias
-			out.set(account, {
+			out.set(id, {
 				holder: h.id,
 				name,
 				called: (party !== undefined && c.called(party.id)) || name,
@@ -288,7 +290,7 @@ export function PaymentTab(props: { session: Session }): ReactNode {
 	const nameOf = (account: string | undefined): string => {
 		if (account === undefined || account === '') return ''
 		if (account === props.session.id) return '나'
-		return members.get(account)?.name ?? '이 워크스페이스에 없는 계정'
+		return members.get(account)?.name ?? '이 워크스페이스에 없는 사람'
 	}
 	const credits = payer.data?.payer?.credits ?? []
 	return (
@@ -615,16 +617,16 @@ function PayerSaid(props: { payer: BillingPayer | undefined; nameOf: (account: s
 }
 
 /**
- * The owner asking a member to pay for the workspace: who signs in, is not
- * leaving, and does not pay already -- themself too. The member answers where
- * a payer pays, which is not here (D81).
+ * The owner asking a member to pay for the workspace: one who is not leaving,
+ * and does not pay already -- themself too. The member answers where a payer
+ * pays, which is not here (D81).
  */
 function OfferCard(props: { payer: BillingPayer | undefined; members: Map<string, Member>; me: string }): ReactNode {
 	const act = useAct()
 	const pays = new Set([props.payer?.current?.account, props.payer?.next?.account].filter((v): v is string => v !== undefined && v !== ''))
 	const options = [...props.members.entries()]
-		.filter(([account, m]) => !m.leaving && !pays.has(account))
-		.map(([account, m]) => ({ value: idStr(m.holder), label: `${account === props.me ? `${m.called} (나)` : m.called} · ${roleWord[m.role] ?? m.role}` }))
+		.filter(([id, m]) => !m.leaving && !pays.has(id))
+		.map(([id, m]) => ({ value: idStr(m.holder), label: `${id === props.me ? `${m.called} (나)` : m.called} · ${roleWord[m.role] ?? m.role}` }))
 	const [holder, setHolder] = useState('')
 	const chosen = options.some((o) => o.value === holder) ? holder : ''
 	return (
@@ -633,7 +635,7 @@ function OfferCard(props: { payer: BillingPayer | undefined; members: Map<string
 				제안받은 사람이 받아들이면 이번 기간이 끝난 뒤부터 그 사람이 냅니다. 새 제안은 전의 제안을 거둡니다.{pays.has(props.me) ? '' : ' 내가 내려면 나에게 제안하세요.'}
 			</p>
 			{options.length === 0 ? (
-				<Empty>제안할 수 있는 구성원이 없습니다. 로그인하는 구성원에게만 제안할 수 있습니다.</Empty>
+				<Empty>제안할 수 있는 구성원이 없습니다.</Empty>
 			) : (
 				<form
 					className="inline"

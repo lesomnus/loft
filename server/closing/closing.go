@@ -1,5 +1,4 @@
-// Package closing is what becomes of a closed workspace, and of a workspace's
-// address (D29, design 8.4).
+// Package closing is what becomes of a closed workspace (D29, design 8.4).
 //
 // A workspace is closed and restored by the domain layer, as the
 // deployment's own work (`domain.Deps.CloseWorkspace` and `RestoreWorkspace`:
@@ -10,11 +9,12 @@
 //   - [Closing.Sweep]: a workspace still closed once its restore window is
 //     over, and held by nothing, is destroyed -- every row and file of it,
 //     and its trail as its contract says: retired, keeping what the
-//     deployment's floors are on until they pass, or purged -- and its
-//     address is held. `loft tenant retire` and `purge` are the same
-//     destruction by an operator's hand ([Closing.Destroy]);
-//   - [Closing.Rename]: an operator moving a workspace to another address,
-//     which holds the old one.
+//     deployment's floors are on until they pass, or purged. `loft tenant
+//     retire` and `purge` are the same destruction by an operator's hand
+//     ([Closing.Destroy]).
+//
+// Its address is nothing of the deployment's to keep: it is the tenant's at
+// roster (D86), which roster keeps or gives to another.
 //
 // A legal hold on a workspace stops the destroying, not the closing: the
 // workspace stays closed, and is destroyed once the hold is lifted.
@@ -35,41 +35,26 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"uuid"
 
 	"github.com/lesomnus/otx/log"
-	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/meter"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
-	"github.com/lesomnus/z"
-	"github.com/protobuf-orm/ent/dialect"
 
-	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/offboard"
-	"github.com/lesomnus/loft/server/pd"
-	"github.com/lesomnus/loft/server/tenancy"
 )
 
-// Closing is a workspace's end, and its address's.
+// Closing is a workspace's end.
 type Closing struct {
 	Db       *ent.Client
 	Offboard offboard.Deployment
 
-	// Base, Drv and Deps are what an operator's change is written through,
-	// as the deployment's own work in the workspace.
-	Base app.Server
-	Drv  dialect.Driver
+	// Deps is the deployment's clock.
 	Deps *domain.Deps
-
-	Aliases tenancy.Aliases
-	// Hold is how long an address is kept from anybody else.
-	Hold time.Duration
 
 	// Meters is what a workspace holds, read and handed to levyan before it
 	// is destroyed, as its final reading: the reader the deployment measures
@@ -153,9 +138,9 @@ type Destroyed struct {
 }
 
 // Destroy is a workspace taken out of the deployment, its trail as `how`
-// says, and its address held -- which is also this deployment's word that the
-// workspace was destroyed here, read by a restore of it (`offboard.Import`).
-// `dry` says what it would do and does none of it.
+// says. `dry` says what it would do and does none of it. A retirement leaves
+// the trail its record that the workspace left, which a restore of it here
+// reads to have the trail take it back first (`offboard.Deployment.Import`).
 //
 // A hold on it refuses, [trail.ErrHeld], and so does a retirement this
 // deployment cannot keep, [offboard.ErrNoArchive]: both before anything is
@@ -163,9 +148,9 @@ type Destroyed struct {
 // deployment bills ([Closing.Meters]), after those and before anything is
 // taken, as its final reading -- and when that cannot be done it is destroyed
 // all the same, the reason said in the log and in [Destroyed.Unmeasured].
-// levyan is then to be told it was destroyed, at a moment after that reading
-// -- the one its address is held from -- before anything is taken
-// ([Closing.Notices]). A dry run measures nothing, and tells nothing.
+// levyan is then to be told it was destroyed, at a moment after that reading,
+// before anything is taken ([Closing.Notices]). A dry run measures nothing,
+// and tells nothing.
 func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) (Destroyed, error) {
 	id := pdid.Id(t.Id)
 	plan, err := c.leave(ctx, id, how, true)
@@ -212,18 +197,6 @@ func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) 
 		return out, fmt.Errorf("levyan, to be told it was destroyed: %w", err)
 	}
 
-	// The address first: held before the workspace is gone, so that no
-	// moment comes when it is free -- and saying how it went, which a restore
-	// of it here reads to have the trail take a retired one back first
-	// (`offboard.Deployment.Import`). Held from the moment levyan is told it
-	// was destroyed at, which is when it was.
-	reason := offboard.ReasonDestroyed
-	if plan.Retired && c.Offboard.Floored() {
-		reason = offboard.ReasonRetired
-	}
-	if err := c.hold(ctx, at, t.Alias, reason, "", id); err != nil {
-		return out, err
-	}
 	if out.Purged, err = c.leave(ctx, id, how, false); err != nil {
 		return out, err
 	}
@@ -243,137 +216,3 @@ func (c Closing) leave(ctx context.Context, id pdid.Id, how How, dry bool) (offb
 		return c.Offboard.Leave(ctx, id, dry)
 	}
 }
-
-// Rename moves a workspace to another address, as an operator: the address is
-// one a workspace may have and nobody has, and the old one is held for as long
-// as a destroyed workspace's is. `reuse` takes an address that is held anyway,
-// and says so.
-func (c Closing) Rename(ctx context.Context, from, to string, reuse bool) error {
-	t, h, err := c.Renaming(ctx, from, to, reuse)
-	if err != nil {
-		return err
-	}
-	if h != nil {
-		if err := c.release(ctx, h.Id); err != nil {
-			return err
-		}
-		log.From(ctx).WarnContext(ctx, "closing: a held address was taken early", "alias", to, "held", h.Reason)
-	}
-
-	id := pdid.Id(t.Id)
-	if _, err := c.Base.Tenant().Patch(ctx, app.TenantPatchRequest_builder{
-		Ref:              app.TenantRef_builder{Id: id.Bytes()}.Build(),
-		Alias:            z.Ptr(to),
-		DateUpdatedForce: z.Ptr(true),
-	}.Build()); err != nil {
-		return err
-	}
-	return c.hold(ctx, c.now(), from, "renamed", to, id)
-}
-
-// Renaming is what [Closing.Rename] would do, refused as it would be and
-// changing nothing: the workspace at `from`, and the hold on `to` it would take
-// back early, for `reuse`, when there is one. What it refuses is what was
-// asked, said in words.
-func (c Closing) Renaming(ctx context.Context, from, to string, reuse bool) (*ent.Tenant, *ent.AliasHold, error) {
-	t, err := c.Db.Tenant.Query().Where(enttenant.Alias(from)).Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, nil, fmt.Errorf("no workspace is @%s", from)
-		}
-		return nil, nil, err
-	}
-	if err := c.Aliases.Valid(to); err != nil {
-		return nil, nil, err
-	}
-	taken, err := c.Db.Tenant.Query().Where(enttenant.Alias(to)).Exist(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-	if taken {
-		return nil, nil, fmt.Errorf("@%s is another workspace's", to)
-	}
-	h, err := c.Aliases.Held(ctx, to)
-	if err != nil {
-		return nil, nil, err
-	}
-	if h != nil && !reuse {
-		return nil, nil, fmt.Errorf("@%s is held until %s (%s); --reuse takes it anyway", to, h.DateUntil.Format(time.DateOnly), h.Reason)
-	}
-	return t, h, nil
-}
-
-// hold keeps `alias` from anybody else from `now` -- and, for a destroyed
-// workspace, says it went then -- unless it is held for that already.
-func (c Closing) hold(ctx context.Context, now time.Time, alias, reason, to string, tenant pdid.Id) error {
-	hold := c.Hold
-	if hold <= 0 {
-		hold = 365 * 24 * time.Hour
-	}
-	exists, err := c.Db.AliasHold.Query().Where(
-		aliashold.Held(alias), aliashold.Tenant(tenant.Uuid()), aliashold.Reason(reason),
-		aliashold.DateUntilGT(now), aliashold.DateErasedIsNil(),
-	).Exist(ctx)
-	if err != nil || exists {
-		return err
-	}
-	// On the trail as the act it is (payday#108, `trail: {recorded: {}}` on
-	// AliasHold), by the deployment, in one transaction with the hold.
-	tx, err := c.Db.Tx(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	id := pdid.New(pd.AliasHoldDomain)
-	if err := tx.AliasHold.Create().
-		SetId(id.Uuid()).
-		SetHeld(alias).
-		SetReason(reason).
-		SetMovedTo(to).
-		SetTenant(tenant.Uuid()).
-		SetDateUntil(now.Add(hold)).
-		SetDateCreated(now).
-		SetDateUpdated(now).
-		Exec(ctx); err != nil {
-		return err
-	}
-	var cs audit.Contents
-	if c.Deps != nil {
-		cs = c.Deps.Audit
-	}
-	if _, err := pd.Record(ctx, tx.Client(), cs, Held, []pdid.Id{id}); err != nil {
-		return err
-	}
-	return tx.Commit()
-}
-
-// release erases a hold before its time, and puts it on the trail as the act
-// it is in the same transaction: written past the servers, an erase nobody
-// recorded is a row the trail says is other than it is (payday#115).
-func (c Closing) release(ctx context.Context, id uuid.UUID) error {
-	tx, err := c.Db.Tx(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := tx.AliasHold.UpdateOneId(id).SetDateErased(c.now()).SetDateUpdated(c.now()).Exec(ctx); err != nil {
-		return err
-	}
-	var cs audit.Contents
-	if c.Deps != nil {
-		cs = c.Deps.Audit
-	}
-	if _, err := pd.Record(ctx, tx.Client(), cs, Reused, []pdid.Id{pdid.Id(id)}); err != nil {
-		return err
-	}
-	return tx.Commit()
-}
-
-// Held is the act a held address is on the trail as, and Reused the hold
-// erased early, for an operator who took the address anyway.
-const (
-	Held   = "loft.alias.hold"
-	Reused = "loft.alias.reuse"
-)

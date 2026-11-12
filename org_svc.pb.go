@@ -3656,13 +3656,11 @@ type InvitationAddRequest struct {
 	xxx_hidden_Email       string                 `protobuf:"bytes,9,opt,name=email"`
 	xxx_hidden_Role        string                 `protobuf:"bytes,10,opt,name=role"`
 	xxx_hidden_Party       *PartyRef              `protobuf:"bytes,11,opt,name=party"`
-	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateSettled *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_settled,json=dateSettled"`
 	xxx_hidden_Holder      *HolderRef             `protobuf:"bytes,19,opt,name=holder"`
-	xxx_hidden_Claim       []byte                 `protobuf:"bytes,20,opt,name=claim"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -3736,13 +3734,6 @@ func (x *InvitationAddRequest) GetParty() *PartyRef {
 	return nil
 }
 
-func (x *InvitationAddRequest) GetAccount() []byte {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return nil
-}
-
 func (x *InvitationAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateCreated
@@ -3778,19 +3769,12 @@ func (x *InvitationAddRequest) GetHolder() *HolderRef {
 	return nil
 }
 
-func (x *InvitationAddRequest) GetClaim() []byte {
-	if x != nil {
-		return x.xxx_hidden_Claim
-	}
-	return nil
-}
-
 func (x *InvitationAddRequest) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
 }
 
 func (x *InvitationAddRequest) SetTenant(v *TenantRef) {
@@ -3813,14 +3797,6 @@ func (x *InvitationAddRequest) SetParty(v *PartyRef) {
 	x.xxx_hidden_Party = v
 }
 
-func (x *InvitationAddRequest) SetAccount(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
-}
-
 func (x *InvitationAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
@@ -3839,14 +3815,6 @@ func (x *InvitationAddRequest) SetDateSettled(v *timestamppb.Timestamp) {
 
 func (x *InvitationAddRequest) SetHolder(v *HolderRef) {
 	x.xxx_hidden_Holder = v
-}
-
-func (x *InvitationAddRequest) SetClaim(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Claim = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
 }
 
 func (x *InvitationAddRequest) HasId() bool {
@@ -3877,13 +3845,6 @@ func (x *InvitationAddRequest) HasParty() bool {
 	return x.xxx_hidden_Party != nil
 }
 
-func (x *InvitationAddRequest) HasAccount() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
-}
-
 func (x *InvitationAddRequest) HasDateCreated() bool {
 	if x == nil {
 		return false
@@ -3912,13 +3873,6 @@ func (x *InvitationAddRequest) HasHolder() bool {
 	return x.xxx_hidden_Holder != nil
 }
 
-func (x *InvitationAddRequest) HasClaim() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
-}
-
 func (x *InvitationAddRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -3934,11 +3888,6 @@ func (x *InvitationAddRequest) ClearInviter() {
 
 func (x *InvitationAddRequest) ClearParty() {
 	x.xxx_hidden_Party = nil
-}
-
-func (x *InvitationAddRequest) ClearAccount() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_Account = nil
 }
 
 func (x *InvitationAddRequest) ClearDateCreated() {
@@ -3957,11 +3906,6 @@ func (x *InvitationAddRequest) ClearHolder() {
 	x.xxx_hidden_Holder = nil
 }
 
-func (x *InvitationAddRequest) ClearClaim() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
-	x.xxx_hidden_Claim = nil
-}
-
 type InvitationAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -3971,13 +3915,11 @@ type InvitationAddRequest_builder struct {
 	Email       string
 	Role        string
 	Party       *PartyRef
-	Account     []byte
 	DateCreated *timestamppb.Timestamp
 	State       string
 	DateExpires *timestamppb.Timestamp
 	DateSettled *timestamppb.Timestamp
 	Holder      *HolderRef
-	Claim       []byte
 }
 
 func (b0 InvitationAddRequest_builder) Build() *InvitationAddRequest {
@@ -3985,7 +3927,7 @@ func (b0 InvitationAddRequest_builder) Build() *InvitationAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Tenant = b.Tenant
@@ -3993,19 +3935,11 @@ func (b0 InvitationAddRequest_builder) Build() *InvitationAddRequest {
 	x.xxx_hidden_Email = b.Email
 	x.xxx_hidden_Role = b.Role
 	x.xxx_hidden_Party = b.Party
-	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
-		x.xxx_hidden_Account = b.Account
-	}
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_State = b.State
 	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_DateSettled = b.DateSettled
 	x.xxx_hidden_Holder = b.Holder
-	if b.Claim != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
-		x.xxx_hidden_Claim = b.Claim
-	}
 	return m0
 }
 
@@ -4236,7 +4170,6 @@ type InvitationSelect struct {
 	xxx_hidden_Email       bool                   `protobuf:"varint,9,opt,name=email"`
 	xxx_hidden_Role        bool                   `protobuf:"varint,10,opt,name=role"`
 	xxx_hidden_Party       *PartySelect           `protobuf:"bytes,11,opt,name=party"`
-	xxx_hidden_Account     bool                   `protobuf:"varint,12,opt,name=account"`
 	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
@@ -4244,7 +4177,6 @@ type InvitationSelect struct {
 	xxx_hidden_DateExpires bool                   `protobuf:"varint,17,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateSettled bool                   `protobuf:"varint,18,opt,name=date_settled,json=dateSettled"`
 	xxx_hidden_Holder      *HolderSelect          `protobuf:"bytes,19,opt,name=holder"`
-	xxx_hidden_Claim       bool                   `protobuf:"varint,20,opt,name=claim"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -4318,13 +4250,6 @@ func (x *InvitationSelect) GetParty() *PartySelect {
 	return nil
 }
 
-func (x *InvitationSelect) GetAccount() bool {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return false
-}
-
 func (x *InvitationSelect) GetDateUpdated() bool {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -4374,16 +4299,9 @@ func (x *InvitationSelect) GetHolder() *HolderSelect {
 	return nil
 }
 
-func (x *InvitationSelect) GetClaim() bool {
-	if x != nil {
-		return x.xxx_hidden_Claim
-	}
-	return false
-}
-
 func (x *InvitationSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 13)
 }
 
 func (x *InvitationSelect) SetTenant(v *TenantSelect) {
@@ -4396,60 +4314,50 @@ func (x *InvitationSelect) SetInviter(v *HolderSelect) {
 
 func (x *InvitationSelect) SetEmail(v bool) {
 	x.xxx_hidden_Email = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
 }
 
 func (x *InvitationSelect) SetRole(v bool) {
 	x.xxx_hidden_Role = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 13)
 }
 
 func (x *InvitationSelect) SetParty(v *PartySelect) {
 	x.xxx_hidden_Party = v
 }
 
-func (x *InvitationSelect) SetAccount(v bool) {
-	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 15)
-}
-
 func (x *InvitationSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
 }
 
 func (x *InvitationSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
 }
 
 func (x *InvitationSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 13)
 }
 
 func (x *InvitationSelect) SetState(v bool) {
 	x.xxx_hidden_State = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
 }
 
 func (x *InvitationSelect) SetDateExpires(v bool) {
 	x.xxx_hidden_DateExpires = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
 }
 
 func (x *InvitationSelect) SetDateSettled(v bool) {
 	x.xxx_hidden_DateSettled = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 15)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
 }
 
 func (x *InvitationSelect) SetHolder(v *HolderSelect) {
 	x.xxx_hidden_Holder = v
-}
-
-func (x *InvitationSelect) SetClaim(v bool) {
-	x.xxx_hidden_Claim = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 15)
 }
 
 func (x *InvitationSelect) HasAll() bool {
@@ -4494,53 +4402,46 @@ func (x *InvitationSelect) HasParty() bool {
 	return x.xxx_hidden_Party != nil
 }
 
-func (x *InvitationSelect) HasAccount() bool {
+func (x *InvitationSelect) HasDateUpdated() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *InvitationSelect) HasDateUpdated() bool {
+func (x *InvitationSelect) HasDateErased() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *InvitationSelect) HasDateErased() bool {
+func (x *InvitationSelect) HasDateCreated() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *InvitationSelect) HasDateCreated() bool {
+func (x *InvitationSelect) HasState() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *InvitationSelect) HasState() bool {
+func (x *InvitationSelect) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *InvitationSelect) HasDateExpires() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
-}
-
 func (x *InvitationSelect) HasDateSettled() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
 func (x *InvitationSelect) HasHolder() bool {
@@ -4548,13 +4449,6 @@ func (x *InvitationSelect) HasHolder() bool {
 		return false
 	}
 	return x.xxx_hidden_Holder != nil
-}
-
-func (x *InvitationSelect) HasClaim() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
 }
 
 func (x *InvitationSelect) ClearAll() {
@@ -4584,48 +4478,38 @@ func (x *InvitationSelect) ClearParty() {
 	x.xxx_hidden_Party = nil
 }
 
-func (x *InvitationSelect) ClearAccount() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
-	x.xxx_hidden_Account = false
-}
-
 func (x *InvitationSelect) ClearDateUpdated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_DateUpdated = false
 }
 
 func (x *InvitationSelect) ClearDateErased() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_DateErased = false
 }
 
 func (x *InvitationSelect) ClearDateCreated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
 	x.xxx_hidden_DateCreated = false
 }
 
 func (x *InvitationSelect) ClearState() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_State = false
 }
 
 func (x *InvitationSelect) ClearDateExpires() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_DateExpires = false
 }
 
 func (x *InvitationSelect) ClearDateSettled() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_DateSettled = false
 }
 
 func (x *InvitationSelect) ClearHolder() {
 	x.xxx_hidden_Holder = nil
-}
-
-func (x *InvitationSelect) ClearClaim() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
-	x.xxx_hidden_Claim = false
 }
 
 type InvitationSelect_builder struct {
@@ -4637,7 +4521,6 @@ type InvitationSelect_builder struct {
 	Email       *bool
 	Role        *bool
 	Party       *PartySelect
-	Account     *bool
 	DateUpdated *bool
 	DateErased  *bool
 	DateCreated *bool
@@ -4645,7 +4528,6 @@ type InvitationSelect_builder struct {
 	DateExpires *bool
 	DateSettled *bool
 	Holder      *HolderSelect
-	Claim       *bool
 }
 
 func (b0 InvitationSelect_builder) Build() *InvitationSelect {
@@ -4653,53 +4535,45 @@ func (b0 InvitationSelect_builder) Build() *InvitationSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 13)
 		x.xxx_hidden_All = *b.All
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Inviter = b.Inviter
 	if b.Email != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
 		x.xxx_hidden_Email = *b.Email
 	}
 	if b.Role != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 13)
 		x.xxx_hidden_Role = *b.Role
 	}
 	x.xxx_hidden_Party = b.Party
-	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 15)
-		x.xxx_hidden_Account = *b.Account
-	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 13)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
 		x.xxx_hidden_State = *b.State
 	}
 	if b.DateExpires != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
 		x.xxx_hidden_DateExpires = *b.DateExpires
 	}
 	if b.DateSettled != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 15)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
 		x.xxx_hidden_DateSettled = *b.DateSettled
 	}
 	x.xxx_hidden_Holder = b.Holder
-	if b.Claim != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 15)
-		x.xxx_hidden_Claim = *b.Claim
-	}
 	return m0
 }
 
@@ -4709,8 +4583,6 @@ type InvitationPatchRequest struct {
 	xxx_hidden_Email            *string                `protobuf:"bytes,18,opt,name=email"`
 	xxx_hidden_Party            *PartyRef              `protobuf:"bytes,22,opt,name=party"`
 	xxx_hidden_PartyNull        bool                   `protobuf:"varint,23,opt,name=party_null,json=partyNull"`
-	xxx_hidden_Account          []byte                 `protobuf:"bytes,24,opt,name=account"`
-	xxx_hidden_AccountNull      bool                   `protobuf:"varint,25,opt,name=account_null,json=accountNull"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	xxx_hidden_State            *string                `protobuf:"bytes,32,opt,name=state"`
@@ -4719,8 +4591,6 @@ type InvitationPatchRequest struct {
 	xxx_hidden_DateSettledNull  bool                   `protobuf:"varint,37,opt,name=date_settled_null,json=dateSettledNull"`
 	xxx_hidden_Holder           *HolderRef             `protobuf:"bytes,38,opt,name=holder"`
 	xxx_hidden_HolderNull       bool                   `protobuf:"varint,39,opt,name=holder_null,json=holderNull"`
-	xxx_hidden_Claim            []byte                 `protobuf:"bytes,40,opt,name=claim"`
-	xxx_hidden_ClaimNull        bool                   `protobuf:"varint,41,opt,name=claim_null,json=claimNull"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
 	XXX_presence                [1]uint32
 	unknownFields               protoimpl.UnknownFields
@@ -4779,20 +4649,6 @@ func (x *InvitationPatchRequest) GetParty() *PartyRef {
 func (x *InvitationPatchRequest) GetPartyNull() bool {
 	if x != nil {
 		return x.xxx_hidden_PartyNull
-	}
-	return false
-}
-
-func (x *InvitationPatchRequest) GetAccount() []byte {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return nil
-}
-
-func (x *InvitationPatchRequest) GetAccountNull() bool {
-	if x != nil {
-		return x.xxx_hidden_AccountNull
 	}
 	return false
 }
@@ -4856,27 +4712,13 @@ func (x *InvitationPatchRequest) GetHolderNull() bool {
 	return false
 }
 
-func (x *InvitationPatchRequest) GetClaim() []byte {
-	if x != nil {
-		return x.xxx_hidden_Claim
-	}
-	return nil
-}
-
-func (x *InvitationPatchRequest) GetClaimNull() bool {
-	if x != nil {
-		return x.xxx_hidden_ClaimNull
-	}
-	return false
-}
-
 func (x *InvitationPatchRequest) SetRef(v *InvitationRef) {
 	x.xxx_hidden_Ref = v
 }
 
 func (x *InvitationPatchRequest) SetEmail(v string) {
 	x.xxx_hidden_Email = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
 }
 
 func (x *InvitationPatchRequest) SetParty(v *PartyRef) {
@@ -4885,20 +4727,7 @@ func (x *InvitationPatchRequest) SetParty(v *PartyRef) {
 
 func (x *InvitationPatchRequest) SetPartyNull(v bool) {
 	x.xxx_hidden_PartyNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 16)
-}
-
-func (x *InvitationPatchRequest) SetAccount(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 16)
-}
-
-func (x *InvitationPatchRequest) SetAccountNull(v bool) {
-	x.xxx_hidden_AccountNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
 }
 
 func (x *InvitationPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -4907,12 +4736,12 @@ func (x *InvitationPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *InvitationPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
 }
 
 func (x *InvitationPatchRequest) SetState(v string) {
 	x.xxx_hidden_State = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
 }
 
 func (x *InvitationPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
@@ -4925,7 +4754,7 @@ func (x *InvitationPatchRequest) SetDateSettled(v *timestamppb.Timestamp) {
 
 func (x *InvitationPatchRequest) SetDateSettledNull(v bool) {
 	x.xxx_hidden_DateSettledNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 12)
 }
 
 func (x *InvitationPatchRequest) SetHolder(v *HolderRef) {
@@ -4934,20 +4763,7 @@ func (x *InvitationPatchRequest) SetHolder(v *HolderRef) {
 
 func (x *InvitationPatchRequest) SetHolderNull(v bool) {
 	x.xxx_hidden_HolderNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 16)
-}
-
-func (x *InvitationPatchRequest) SetClaim(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Claim = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 16)
-}
-
-func (x *InvitationPatchRequest) SetClaimNull(v bool) {
-	x.xxx_hidden_ClaimNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
 }
 
 func (x *InvitationPatchRequest) HasRef() bool {
@@ -4978,20 +4794,6 @@ func (x *InvitationPatchRequest) HasPartyNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *InvitationPatchRequest) HasAccount() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
-}
-
-func (x *InvitationPatchRequest) HasAccountNull() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
-}
-
 func (x *InvitationPatchRequest) HasDateUpdated() bool {
 	if x == nil {
 		return false
@@ -5003,14 +4805,14 @@ func (x *InvitationPatchRequest) HasDateUpdatedForce() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
 func (x *InvitationPatchRequest) HasState() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
 func (x *InvitationPatchRequest) HasDateExpires() bool {
@@ -5031,7 +4833,7 @@ func (x *InvitationPatchRequest) HasDateSettledNull() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
 func (x *InvitationPatchRequest) HasHolder() bool {
@@ -5045,21 +4847,7 @@ func (x *InvitationPatchRequest) HasHolderNull() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
-}
-
-func (x *InvitationPatchRequest) HasClaim() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
-}
-
-func (x *InvitationPatchRequest) HasClaimNull() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 15)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
 func (x *InvitationPatchRequest) ClearRef() {
@@ -5080,27 +4868,17 @@ func (x *InvitationPatchRequest) ClearPartyNull() {
 	x.xxx_hidden_PartyNull = false
 }
 
-func (x *InvitationPatchRequest) ClearAccount() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
-	x.xxx_hidden_Account = nil
-}
-
-func (x *InvitationPatchRequest) ClearAccountNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
-	x.xxx_hidden_AccountNull = false
-}
-
 func (x *InvitationPatchRequest) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = nil
 }
 
 func (x *InvitationPatchRequest) ClearDateUpdatedForce() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
 func (x *InvitationPatchRequest) ClearState() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_State = nil
 }
 
@@ -5113,7 +4891,7 @@ func (x *InvitationPatchRequest) ClearDateSettled() {
 }
 
 func (x *InvitationPatchRequest) ClearDateSettledNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_DateSettledNull = false
 }
 
@@ -5122,18 +4900,8 @@ func (x *InvitationPatchRequest) ClearHolder() {
 }
 
 func (x *InvitationPatchRequest) ClearHolderNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_HolderNull = false
-}
-
-func (x *InvitationPatchRequest) ClearClaim() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
-	x.xxx_hidden_Claim = nil
-}
-
-func (x *InvitationPatchRequest) ClearClaimNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 15)
-	x.xxx_hidden_ClaimNull = false
 }
 
 type InvitationPatchRequest_builder struct {
@@ -5147,12 +4915,6 @@ type InvitationPatchRequest_builder struct {
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and party clears.
 	PartyNull *bool
-	Account   []byte
-	// Clear account instead of writing it.
-	// It takes a field of its own because an unset value already means
-	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and account clears.
-	AccountNull *bool
 	// The version this update requires the stored date_updated to be.
 	// It is a precondition, not a write: the update applies only if the row
 	// still holds this value, and the server stamps the new version itself.
@@ -5181,12 +4943,6 @@ type InvitationPatchRequest_builder struct {
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and holder clears.
 	HolderNull *bool
-	Claim      []byte
-	// Clear claim instead of writing it.
-	// It takes a field of its own because an unset value already means
-	// "leave it alone", so no value could have meant NULL. It wins
-	// outright: setting both this and claim clears.
-	ClaimNull *bool
 }
 
 func (b0 InvitationPatchRequest_builder) Build() *InvitationPatchRequest {
@@ -5195,49 +4951,33 @@ func (b0 InvitationPatchRequest_builder) Build() *InvitationPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Email != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
 		x.xxx_hidden_Email = b.Email
 	}
 	x.xxx_hidden_Party = b.Party
 	if b.PartyNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
 		x.xxx_hidden_PartyNull = *b.PartyNull
-	}
-	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 16)
-		x.xxx_hidden_Account = b.Account
-	}
-	if b.AccountNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 16)
-		x.xxx_hidden_AccountNull = *b.AccountNull
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
 		x.xxx_hidden_State = b.State
 	}
 	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_DateSettled = b.DateSettled
 	if b.DateSettledNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 12)
 		x.xxx_hidden_DateSettledNull = *b.DateSettledNull
 	}
 	x.xxx_hidden_Holder = b.Holder
 	if b.HolderNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
 		x.xxx_hidden_HolderNull = *b.HolderNull
-	}
-	if b.Claim != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 16)
-		x.xxx_hidden_Claim = b.Claim
-	}
-	if b.ClaimNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 15, 16)
-		x.xxx_hidden_ClaimNull = *b.ClaimNull
 	}
 	return m0
 }
@@ -5613,8 +5353,7 @@ type InvitationFilter struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Ref         *InvitationRef         `protobuf:"bytes,1,opt,name=ref"`
 	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Account     []byte                 `protobuf:"bytes,3,opt,name=account"`
-	xxx_hidden_State       *string                `protobuf:"bytes,4,opt,name=state"`
+	xxx_hidden_State       *string                `protobuf:"bytes,3,opt,name=state"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -5660,13 +5399,6 @@ func (x *InvitationFilter) GetTenant() *TenantRef {
 	return nil
 }
 
-func (x *InvitationFilter) GetAccount() []byte {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return nil
-}
-
 func (x *InvitationFilter) GetState() string {
 	if x != nil {
 		if x.xxx_hidden_State != nil {
@@ -5685,17 +5417,9 @@ func (x *InvitationFilter) SetTenant(v *TenantRef) {
 	x.xxx_hidden_Tenant = v
 }
 
-func (x *InvitationFilter) SetAccount(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
-}
-
 func (x *InvitationFilter) SetState(v string) {
 	x.xxx_hidden_State = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
 }
 
 func (x *InvitationFilter) HasRef() bool {
@@ -5712,18 +5436,11 @@ func (x *InvitationFilter) HasTenant() bool {
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *InvitationFilter) HasAccount() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
-}
-
 func (x *InvitationFilter) HasState() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
 func (x *InvitationFilter) ClearRef() {
@@ -5734,23 +5451,17 @@ func (x *InvitationFilter) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
 
-func (x *InvitationFilter) ClearAccount() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
-	x.xxx_hidden_Account = nil
-}
-
 func (x *InvitationFilter) ClearState() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_State = nil
 }
 
 type InvitationFilter_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref     *InvitationRef
-	Tenant  *TenantRef
-	Account []byte
-	State   *string
+	Ref    *InvitationRef
+	Tenant *TenantRef
+	State  *string
 }
 
 func (b0 InvitationFilter_builder) Build() *InvitationFilter {
@@ -5759,12 +5470,8 @@ func (b0 InvitationFilter_builder) Build() *InvitationFilter {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_Tenant = b.Tenant
-	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
-		x.xxx_hidden_Account = b.Account
-	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
 		x.xxx_hidden_State = b.State
 	}
 	return m0
@@ -6001,7 +5708,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x06offset\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06offset\"U\n" +
 	"\x13PartySearchResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.loft.PartyR\x05items\x12\x1b\n" +
-	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\"\x8b\x04\n" +
+	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\"\xdb\x03\n" +
 	"\x14InvitationAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12)\n" +
@@ -6009,20 +5716,18 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x05email\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x05email\x12\x19\n" +
 	"\x04role\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12$\n" +
-	"\x05party\x18\v \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x18\n" +
-	"\aaccount\x18\f \x01(\fR\aaccount\x12=\n" +
+	"\x05party\x18\v \x01(\v2\x0e.loft.PartyRefR\x05party\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1b\n" +
 	"\x05state\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05state\x12=\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
 	"\fdate_settled\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\vdateSettled\x12'\n" +
-	"\x06holder\x18\x13 \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x14\n" +
-	"\x05claim\x18\x14 \x01(\fR\x05claim\"m\n" +
+	"\x06holder\x18\x13 \x01(\v2\x0f.loft.HolderRefR\x06holder\"m\n" +
 	"\x14InvitationGetRequest\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12.\n" +
 	"\x06select\x18\x02 \x01(\v2\x16.loft.InvitationSelectR\x06select\"(\n" +
 	"\rInvitationRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xf0\x03\n" +
+	"\x03key\"\xc0\x03\n" +
 	"\x10InvitationSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12,\n" +
@@ -6030,8 +5735,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x05email\x18\t \x01(\bR\x05email\x12\x12\n" +
 	"\x04role\x18\n" +
 	" \x01(\bR\x04role\x12'\n" +
-	"\x05party\x18\v \x01(\v2\x11.loft.PartySelectR\x05party\x12\x18\n" +
-	"\aaccount\x18\f \x01(\bR\aaccount\x12!\n" +
+	"\x05party\x18\v \x01(\v2\x11.loft.PartySelectR\x05party\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
@@ -6039,16 +5743,13 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x05state\x18\x10 \x01(\bR\x05state\x12!\n" +
 	"\fdate_expires\x18\x11 \x01(\bR\vdateExpires\x12!\n" +
 	"\fdate_settled\x18\x12 \x01(\bR\vdateSettled\x12*\n" +
-	"\x06holder\x18\x13 \x01(\v2\x12.loft.HolderSelectR\x06holder\x12\x14\n" +
-	"\x05claim\x18\x14 \x01(\bR\x05claim\"\x83\x05\n" +
+	"\x06holder\x18\x13 \x01(\v2\x12.loft.HolderSelectR\x06holder\"\x91\x04\n" +
 	"\x16InvitationPatchRequest\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12\x14\n" +
 	"\x05email\x18\x12 \x01(\tR\x05email\x12$\n" +
 	"\x05party\x18\x16 \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x1d\n" +
 	"\n" +
-	"party_null\x18\x17 \x01(\bR\tpartyNull\x12\x18\n" +
-	"\aaccount\x18\x18 \x01(\fR\aaccount\x12!\n" +
-	"\faccount_null\x18\x19 \x01(\bR\vaccountNull\x12=\n" +
+	"party_null\x18\x17 \x01(\bR\tpartyNull\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x14\n" +
 	"\x05state\x18  \x01(\tR\x05state\x12=\n" +
@@ -6057,10 +5758,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x11date_settled_null\x18% \x01(\bR\x0fdateSettledNull\x12'\n" +
 	"\x06holder\x18& \x01(\v2\x0f.loft.HolderRefR\x06holder\x12\x1f\n" +
 	"\vholder_null\x18' \x01(\bR\n" +
-	"holderNull\x12\x14\n" +
-	"\x05claim\x18( \x01(\fR\x05claim\x12\x1d\n" +
-	"\n" +
-	"claim_null\x18) \x01(\bR\tclaimNull\"c\n" +
+	"holderNull\"c\n" +
 	"\x16InvitationApplyRequest\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"1\n" +
@@ -6073,12 +5771,11 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"[\n" +
 	"\x16InvitationListResponse\x12&\n" +
 	"\x05items\x18\x01 \x03(\v2\x10.loft.InvitationR\x05items\x12\x19\n" +
-	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x92\x01\n" +
+	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"x\n" +
 	"\x10InvitationFilter\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x18\n" +
-	"\aaccount\x18\x03 \x01(\fR\aaccount\x12\x14\n" +
-	"\x05state\x18\x04 \x01(\tR\x05state\"@\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x14\n" +
+	"\x05state\x18\x03 \x01(\tR\x05state\"@\n" +
 	"\x17InvitationRevokeRequest\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.loft.InvitationRefR\x03ref2\xc5\x06\n" +
 	"\fPartyService\x12)\n" +
@@ -6107,8 +5804,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x05Erase\x12\x13.loft.InvitationRef\x1a\x1d.loft.InvitationEraseResponse\x12A\n" +
 	"\x04List\x12\x1b.loft.InvitationListRequest\x1a\x1c.loft.InvitationListResponse\x129\n" +
 	"\x06Revoke\x12\x1d.loft.InvitationRevokeRequest\x1a\x10.loft.Invitation2\x11\n" +
-	"\x0fCliLoginService2\x12\n" +
-	"\x10AliasHoldService2\x16\n" +
+	"\x0fCliLoginService2\x16\n" +
 	"\x14SignInFailureServiceB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
 var file_loft_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
@@ -6305,7 +6001,7 @@ func file_loft_org_svc_g_proto_init() {
 			NumEnums:      0,
 			NumMessages:   41,
 			NumExtensions: 0,
-			NumServices:   6,
+			NumServices:   5,
 		},
 		GoTypes:           file_loft_org_svc_g_proto_goTypes,
 		DependencyIndexes: file_loft_org_svc_g_proto_depIdxs,

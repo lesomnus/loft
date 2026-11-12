@@ -20,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	OperatorTenantService_Show_FullMethodName      = "/loft.OperatorTenantService/Show"
-	OperatorTenantService_Move_FullMethodName      = "/loft.OperatorTenantService/Move"
 	OperatorTenantService_NameOwner_FullMethodName = "/loft.OperatorTenantService/NameOwner"
 	OperatorTenantService_Retired_FullMethodName   = "/loft.OperatorTenantService/Retired"
 	OperatorTenantService_Retire_FullMethodName    = "/loft.OperatorTenantService/Retire"
@@ -39,11 +38,6 @@ type OperatorTenantServiceClient interface {
 	// its contracts and its legal holds, and what its own settings, its
 	// contracts and its holds come to now.
 	Show(ctx context.Context, in *OperatorTenantShowRequest, opts ...grpc.CallOption) (*OperatorTenantShowResponse, error)
-	// Move gives a workspace another address (D29): one a workspace may have
-	// and nobody has, and the old one is held -- sending whoever arrives at it
-	// on -- for as long as a destroyed workspace's is. Nobody in a workspace
-	// moves its address (`TenantService.Patch` refuses one).
-	Move(ctx context.Context, in *OperatorTenantMoveRequest, opts ...grpc.CallOption) (*OperatorTenantMoveResponse, error)
 	// NameOwner makes a member of a workspace one of its owners (decision 17):
 	// for one whose owners are gone, or who asked. Whoever owned it still does.
 	NameOwner(ctx context.Context, in *OperatorTenantNameOwnerRequest, opts ...grpc.CallOption) (*Holder, error)
@@ -56,15 +50,15 @@ type OperatorTenantServiceClient interface {
 	// deployment's floors are on of its trail until they pass; Purge takes all
 	// of it, what the floors are on too (payday#115). Each is the closing
 	// sweep's destruction by an operator's hand (`closing.Destroy`): its rows,
-	// its files, the accounts of the roster in this process that were there
-	// alone, its final reading for levyan, and its address held. What it is at
-	// while it works, and last what it took -- or, for a dry run, would.
+	// its files, and its final reading for levyan. What it is at while it
+	// works, and last what it took -- or, for a dry run, would.
 	Retire(ctx context.Context, in *OperatorTenantDestroyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTenantDestroyResponse], error)
 	Purge(ctx context.Context, in *OperatorTenantDestroyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorTenantDestroyResponse], error)
-	// Import restores a workspace from its signed export, into a deployment
-	// that does not have it -- the one it was purged from, or another (D34).
-	// The first message says how, and every other holds the next of the
-	// export's bytes; the file is the caller's.
+	// Import restores the workspace from its signed export, into a deployment
+	// that does not have it -- the one it was purged from, or another (D34) --
+	// when it is the tenant at roster the deployment serves, at that tenant's
+	// address (D86). The first message says how, and every other holds the
+	// next of the export's bytes; the file is the caller's.
 	Import(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[OperatorTenantImportRequest, OperatorTenantImportResponse], error)
 }
 
@@ -80,16 +74,6 @@ func (c *operatorTenantServiceClient) Show(ctx context.Context, in *OperatorTena
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(OperatorTenantShowResponse)
 	err := c.cc.Invoke(ctx, OperatorTenantService_Show_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *operatorTenantServiceClient) Move(ctx context.Context, in *OperatorTenantMoveRequest, opts ...grpc.CallOption) (*OperatorTenantMoveResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OperatorTenantMoveResponse)
-	err := c.cc.Invoke(ctx, OperatorTenantService_Move_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -178,11 +162,6 @@ type OperatorTenantServiceServer interface {
 	// its contracts and its legal holds, and what its own settings, its
 	// contracts and its holds come to now.
 	Show(context.Context, *OperatorTenantShowRequest) (*OperatorTenantShowResponse, error)
-	// Move gives a workspace another address (D29): one a workspace may have
-	// and nobody has, and the old one is held -- sending whoever arrives at it
-	// on -- for as long as a destroyed workspace's is. Nobody in a workspace
-	// moves its address (`TenantService.Patch` refuses one).
-	Move(context.Context, *OperatorTenantMoveRequest) (*OperatorTenantMoveResponse, error)
 	// NameOwner makes a member of a workspace one of its owners (decision 17):
 	// for one whose owners are gone, or who asked. Whoever owned it still does.
 	NameOwner(context.Context, *OperatorTenantNameOwnerRequest) (*Holder, error)
@@ -195,15 +174,15 @@ type OperatorTenantServiceServer interface {
 	// deployment's floors are on of its trail until they pass; Purge takes all
 	// of it, what the floors are on too (payday#115). Each is the closing
 	// sweep's destruction by an operator's hand (`closing.Destroy`): its rows,
-	// its files, the accounts of the roster in this process that were there
-	// alone, its final reading for levyan, and its address held. What it is at
-	// while it works, and last what it took -- or, for a dry run, would.
+	// its files, and its final reading for levyan. What it is at while it
+	// works, and last what it took -- or, for a dry run, would.
 	Retire(*OperatorTenantDestroyRequest, grpc.ServerStreamingServer[OperatorTenantDestroyResponse]) error
 	Purge(*OperatorTenantDestroyRequest, grpc.ServerStreamingServer[OperatorTenantDestroyResponse]) error
-	// Import restores a workspace from its signed export, into a deployment
-	// that does not have it -- the one it was purged from, or another (D34).
-	// The first message says how, and every other holds the next of the
-	// export's bytes; the file is the caller's.
+	// Import restores the workspace from its signed export, into a deployment
+	// that does not have it -- the one it was purged from, or another (D34) --
+	// when it is the tenant at roster the deployment serves, at that tenant's
+	// address (D86). The first message says how, and every other holds the
+	// next of the export's bytes; the file is the caller's.
 	Import(grpc.ClientStreamingServer[OperatorTenantImportRequest, OperatorTenantImportResponse]) error
 	mustEmbedUnimplementedOperatorTenantServiceServer()
 }
@@ -217,9 +196,6 @@ type UnimplementedOperatorTenantServiceServer struct{}
 
 func (UnimplementedOperatorTenantServiceServer) Show(context.Context, *OperatorTenantShowRequest) (*OperatorTenantShowResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Show not implemented")
-}
-func (UnimplementedOperatorTenantServiceServer) Move(context.Context, *OperatorTenantMoveRequest) (*OperatorTenantMoveResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Move not implemented")
 }
 func (UnimplementedOperatorTenantServiceServer) NameOwner(context.Context, *OperatorTenantNameOwnerRequest) (*Holder, error) {
 	return nil, status.Error(codes.Unimplemented, "method NameOwner not implemented")
@@ -271,24 +247,6 @@ func _OperatorTenantService_Show_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OperatorTenantServiceServer).Show(ctx, req.(*OperatorTenantShowRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _OperatorTenantService_Move_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OperatorTenantMoveRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OperatorTenantServiceServer).Move(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: OperatorTenantService_Move_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OperatorTenantServiceServer).Move(ctx, req.(*OperatorTenantMoveRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -368,10 +326,6 @@ var OperatorTenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Show",
 			Handler:    _OperatorTenantService_Show_Handler,
-		},
-		{
-			MethodName: "Move",
-			Handler:    _OperatorTenantService_Move_Handler,
 		},
 		{
 			MethodName: "NameOwner",
@@ -1249,28 +1203,27 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// OperatorIdentityService is who people are, which is roster's (design
-// 9.10): an account given to each member who names none, an account leaving
-// every workspace it is in, and every account asked about again.
+// OperatorIdentityService is who the members are, which is roster's (design
+// 9.10): each member made at roster who is not there, a member leaving now,
+// and every member asked about again.
 type OperatorIdentityServiceClient interface {
-	// Link gives an account to every membership that names none, with the
-	// membership's identifier (D27), and links the membership to it -- the
-	// members of a workspace restored from an export whose accounts this
-	// deployment's roster does not have: on the roster in this process, an
-	// account for each, with a password said once; for a roster of its own,
-	// what its operator makes there, and the ones made already linked. Run
-	// again it makes nothing. A message for each membership, and last what it
-	// came to.
+	// Link makes at roster every member of the workspace this deployment serves
+	// whom roster does not have, by the identifier they have here (D85) -- the
+	// members of a workspace restored from an export: on the roster in this
+	// process, each with a password said once, and the tenant too when it is
+	// not there; for a roster of its own, what its operator makes there. Run
+	// again it makes nothing. A message for each member it is about, and last
+	// what it came to.
 	Link(ctx context.Context, in *OperatorIdentityLinkRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OperatorIdentityLinkResponse], error)
-	// Depart is an account leaving every workspace it is in, now, rather than
-	// when roster's grace is over -- for somebody who asked to be forgotten at
-	// once: its person records pseudonymized, its memberships ended, a last
-	// owner's workspace handed on. It cannot be undone.
+	// Depart is a member leaving the workspace now, rather than when roster's
+	// grace is over -- for somebody who asked to be forgotten at once: their
+	// person record pseudonymized, their membership ended, the workspace handed
+	// on when they were its last owner. It cannot be undone.
 	Depart(ctx context.Context, in *OperatorIdentityDepartRequest, opts ...grpc.CallOption) (*OperatorIdentityDepartResponse, error)
-	// Reconcile asks roster about every account with a membership here, marks
-	// those it has nobody by as leaving -- from now, so that they wait the
-	// whole grace -- and unmarks those it has again: what a served deployment
-	// does every `app.accounts.reconcile`, asked for now.
+	// Reconcile asks roster about every member, marks those it has nobody by as
+	// leaving -- from now, so that they wait the whole grace -- and unmarks
+	// those it has again: what a served deployment does every
+	// `app.members.reconcile`, asked for now.
 	Reconcile(ctx context.Context, in *OperatorIdentityReconcileRequest, opts ...grpc.CallOption) (*OperatorIdentityReconcileResponse, error)
 }
 
@@ -1325,28 +1278,27 @@ func (c *operatorIdentityServiceClient) Reconcile(ctx context.Context, in *Opera
 // All implementations must embed UnimplementedOperatorIdentityServiceServer
 // for forward compatibility.
 //
-// OperatorIdentityService is who people are, which is roster's (design
-// 9.10): an account given to each member who names none, an account leaving
-// every workspace it is in, and every account asked about again.
+// OperatorIdentityService is who the members are, which is roster's (design
+// 9.10): each member made at roster who is not there, a member leaving now,
+// and every member asked about again.
 type OperatorIdentityServiceServer interface {
-	// Link gives an account to every membership that names none, with the
-	// membership's identifier (D27), and links the membership to it -- the
-	// members of a workspace restored from an export whose accounts this
-	// deployment's roster does not have: on the roster in this process, an
-	// account for each, with a password said once; for a roster of its own,
-	// what its operator makes there, and the ones made already linked. Run
-	// again it makes nothing. A message for each membership, and last what it
-	// came to.
+	// Link makes at roster every member of the workspace this deployment serves
+	// whom roster does not have, by the identifier they have here (D85) -- the
+	// members of a workspace restored from an export: on the roster in this
+	// process, each with a password said once, and the tenant too when it is
+	// not there; for a roster of its own, what its operator makes there. Run
+	// again it makes nothing. A message for each member it is about, and last
+	// what it came to.
 	Link(*OperatorIdentityLinkRequest, grpc.ServerStreamingServer[OperatorIdentityLinkResponse]) error
-	// Depart is an account leaving every workspace it is in, now, rather than
-	// when roster's grace is over -- for somebody who asked to be forgotten at
-	// once: its person records pseudonymized, its memberships ended, a last
-	// owner's workspace handed on. It cannot be undone.
+	// Depart is a member leaving the workspace now, rather than when roster's
+	// grace is over -- for somebody who asked to be forgotten at once: their
+	// person record pseudonymized, their membership ended, the workspace handed
+	// on when they were its last owner. It cannot be undone.
 	Depart(context.Context, *OperatorIdentityDepartRequest) (*OperatorIdentityDepartResponse, error)
-	// Reconcile asks roster about every account with a membership here, marks
-	// those it has nobody by as leaving -- from now, so that they wait the
-	// whole grace -- and unmarks those it has again: what a served deployment
-	// does every `app.accounts.reconcile`, asked for now.
+	// Reconcile asks roster about every member, marks those it has nobody by as
+	// leaving -- from now, so that they wait the whole grace -- and unmarks
+	// those it has again: what a served deployment does every
+	// `app.members.reconcile`, asked for now.
 	Reconcile(context.Context, *OperatorIdentityReconcileRequest) (*OperatorIdentityReconcileResponse, error)
 	mustEmbedUnimplementedOperatorIdentityServiceServer()
 }
@@ -1471,17 +1423,18 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// OperatorHolderService is an account and its memberships, on the roster in
-// this process (design 9.10, D27): what the people screen does, for the
-// operator who has no screen to do it from -- the owner who lost their
-// password above all. A deployment whose roster is one of its own refuses
-// both: its accounts are made and given passwords there.
+// OperatorHolderService is a member, on the roster in this process (design
+// 9.10, D85): what the people screen does, for the operator who has no screen
+// to do it from -- the owner who lost their password above all. A deployment
+// whose roster is one of its own refuses both: its people are made and given
+// passwords there.
 type OperatorHolderServiceClient interface {
-	// Add puts an account in a workspace, making the account -- with a
-	// password said once -- when it is new.
+	// Add makes somebody a member: a holder of the tenant at the roster in this
+	// process -- with a password said once, when they are new there -- and
+	// their membership and person record here.
 	Add(ctx context.Context, in *OperatorHolderAddRequest, opts ...grpc.CallOption) (*OperatorHolderAddResponse, error)
-	// Password gives an account a new password, said once, and ends
-	// everywhere it is signed in.
+	// Password gives a member a new password, said once, and ends everywhere
+	// they are signed in.
 	Password(ctx context.Context, in *OperatorHolderPasswordRequest, opts ...grpc.CallOption) (*OperatorHolderPasswordResponse, error)
 }
 
@@ -1517,17 +1470,18 @@ func (c *operatorHolderServiceClient) Password(ctx context.Context, in *Operator
 // All implementations must embed UnimplementedOperatorHolderServiceServer
 // for forward compatibility.
 //
-// OperatorHolderService is an account and its memberships, on the roster in
-// this process (design 9.10, D27): what the people screen does, for the
-// operator who has no screen to do it from -- the owner who lost their
-// password above all. A deployment whose roster is one of its own refuses
-// both: its accounts are made and given passwords there.
+// OperatorHolderService is a member, on the roster in this process (design
+// 9.10, D85): what the people screen does, for the operator who has no screen
+// to do it from -- the owner who lost their password above all. A deployment
+// whose roster is one of its own refuses both: its people are made and given
+// passwords there.
 type OperatorHolderServiceServer interface {
-	// Add puts an account in a workspace, making the account -- with a
-	// password said once -- when it is new.
+	// Add makes somebody a member: a holder of the tenant at the roster in this
+	// process -- with a password said once, when they are new there -- and
+	// their membership and person record here.
 	Add(context.Context, *OperatorHolderAddRequest) (*OperatorHolderAddResponse, error)
-	// Password gives an account a new password, said once, and ends
-	// everywhere it is signed in.
+	// Password gives a member a new password, said once, and ends everywhere
+	// they are signed in.
 	Password(context.Context, *OperatorHolderPasswordRequest) (*OperatorHolderPasswordResponse, error)
 	mustEmbedUnimplementedOperatorHolderServiceServer()
 }

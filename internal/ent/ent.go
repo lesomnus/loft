@@ -11,7 +11,6 @@ import (
 
 	"github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/accessreview"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/allocation"
 	"github.com/lesomnus/loft/internal/ent/archived"
 	"github.com/lesomnus/loft/internal/ent/asset"
@@ -120,7 +119,6 @@ func checkColumn(t, c string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			access.Table:          access.ValidColumn,
 			accessreview.Table:    accessreview.ValidColumn,
-			aliashold.Table:       aliashold.ValidColumn,
 			allocation.Table:      allocation.ValidColumn,
 			archived.Table:        archived.ValidColumn,
 			asset.Table:           asset.ValidColumn,

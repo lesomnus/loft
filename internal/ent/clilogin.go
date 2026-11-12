@@ -28,8 +28,8 @@ type CliLogin struct {
 	Origin string `json:"origin,omitempty"`
 	// Address holds the value of the "address" field.
 	Address string `json:"address,omitempty"`
-	// Account holds the value of the "account" field.
-	Account *uuid.UUID `json:"account,omitempty"`
+	// Holder holds the value of the "holder" field.
+	Holder *uuid.UUID `json:"holder,omitempty"`
 	// Grant holds the value of the "grant" field.
 	Grant []byte `json:"grant,omitempty"`
 	// State holds the value of the "state" field.
@@ -56,7 +56,7 @@ func (*CliLogin) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case clilogin.FieldDateExpires, clilogin.FieldDateUpdated, clilogin.FieldDateErased, clilogin.FieldDateCreated:
 			values[i] = new(sql.NullTime)
-		case clilogin.FieldAccount:
+		case clilogin.FieldHolder:
 			values[i] = new(sql.Null[uuid.UUID])
 		case clilogin.FieldId:
 			values[i] = new(uuid.UUID)
@@ -114,12 +114,12 @@ func (_m *CliLogin) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Address = value.String
 			}
-		case clilogin.FieldAccount:
+		case clilogin.FieldHolder:
 			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
-				return fmt.Errorf("unexpected type %T for field account", values[i])
+				return fmt.Errorf("unexpected type %T for field holder", values[i])
 			} else if value.Valid {
-				_m.Account = new(uuid.UUID)
-				*_m.Account = value.V
+				_m.Holder = new(uuid.UUID)
+				*_m.Holder = value.V
 			}
 		case clilogin.FieldGrant:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -212,8 +212,8 @@ func (_m *CliLogin) String() string {
 	builder.WriteString("address=")
 	builder.WriteString(_m.Address)
 	builder.WriteString(", ")
-	if v := _m.Account; v != nil {
-		builder.WriteString("account=")
+	if v := _m.Holder; v != nil {
+		builder.WriteString("holder=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")

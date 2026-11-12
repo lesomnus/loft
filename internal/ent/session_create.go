@@ -23,9 +23,9 @@ type SessionCreate struct {
 	stored   **Session
 }
 
-// SetAccount sets the "account" field.
-func (_c *SessionCreate) SetAccount(v uuid.UUID) *SessionCreate {
-	_c.mutation.SetAccount(v)
+// SetHolder sets the "holder" field.
+func (_c *SessionCreate) SetHolder(v uuid.UUID) *SessionCreate {
+	_c.mutation.SetHolder(v)
 	return _c
 }
 
@@ -152,8 +152,8 @@ func (_c *SessionCreate) check() error {
 	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
 		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Session.%s" was assigned an expression, which only an update writes`, fs[0])}
 	}
-	if _, ok := _c.mutation.Account(); !ok {
-		return &ValidationError{Name: "account", err: errors.New(`ent: missing required field "Session.account"`)}
+	if _, ok := _c.mutation.Holder(); !ok {
+		return &ValidationError{Name: "holder", err: errors.New(`ent: missing required field "Session.holder"`)}
 	}
 	if _, ok := _c.mutation.Secret(); !ok {
 		return &ValidationError{Name: "secret", err: errors.New(`ent: missing required field "Session.secret"`)}
@@ -215,9 +215,9 @@ func (_c *SessionCreate) createSpec() (*Session, *sqlgraph.CreateSpec) {
 		_node.Id = id
 		_spec.Id.Value = &id
 	}
-	if value, ok := _c.mutation.Account(); ok {
-		_spec.SetField(session.FieldAccount, field.TypeUuid, value)
-		_node.Account = value
+	if value, ok := _c.mutation.Holder(); ok {
+		_spec.SetField(session.FieldHolder, field.TypeUuid, value)
+		_node.Holder = value
 	}
 	if value, ok := _c.mutation.Secret(); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, value)
