@@ -19,7 +19,7 @@
 
 ## 처음 띄우기
 
-- [`deploy/compose`](../../deploy/compose/README.md)는 한 대의 서버에 띄우는 운영 구성 전체입니다. PostgreSQL, 마이그레이션, `loft serve` 두 대, 운영자 진입점, 인증서를 받는 Caddy가 들어 있습니다. 운영자가 채울 것은 도메인과 비밀값(`.env`, `secrets/`)이고, 이미지는 저장소 루트의 `Dockerfile` 로 짓습니다(`docker build -t loft .`).
+- [`deploy/compose`](../../deploy/compose/README.md)는 한 대의 서버에 띄우는 self-hosted 구성 전체입니다. PostgreSQL, 곁에 둔 roster와 그 사람 화면, 마이그레이션, `loft serve` 두 대, 운영자 진입점, 인증서를 받는 Caddy가 들어 있습니다. roster를 먼저 띄워 테넌트를 만들고 Loft를 설치한 뒤 Loft를 띄웁니다. 운영자가 채울 것은 도메인 둘(Loft와 roster의 화면)과 비밀값(`.env`, `secrets/`)이고, 이미지는 저장소 루트의 `Dockerfile` 로 짓습니다(`docker build -t loft .`).
 - Kubernetes에 띄우는 참조 배포는 [`deploy/k8s`](../../deploy/k8s/README.md)입니다. 운영의 기준이고, main의 빌드는 CI가 `ghcr.io/lesomnus/loft` 로 올립니다.
 - 관측(로그, 추적, 지표, 대시보드)은 [`deploy/observe`](../../deploy/observe/README.md)와 [관측 런북](../runbook/observe.md)에 있습니다.
 - 운영 전에 정할 것: `app.public_url`(라벨 QR이 담으므로 **라벨을 인쇄하기 전에 정하고 바꾸지 않습니다**), `app.signing_key`, `app.trusted_proxies`, `app.mail`, 감사 기록의 보존 기간(`audit.by`), 감사 기록의 서명 키와 지문의 키. 무엇인지는 두 `deploy/` README의 표와 [보안](../dev/security.md), [기록과 보존](../dev/retention.md)에 있습니다.
@@ -27,8 +27,9 @@
 배포는 roster 테넌트 하나를 섬기고, 그 테넌트가 곧 워크스페이스입니다(design 9.10, D85). 워크스페이스와 그 소유자는 서버 상자의 `init` 이 세웁니다.
 
 ```sh
-# 외부 roster: roster 운영자가 테넌트를 만들고 Loft를 설치하고 키를 준 뒤([roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때))
-loft init --name "ACME" --login owner --person "홍길동" --email owner@example.com
+# roster를 곁에 둔 배포(self-hosted): roster 운영자가 테넌트를 만들고 Loft를 설치하고 키를 준 뒤
+# ([roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때), deploy/compose의 "처음 띄우기")
+loft init --name "ACME"                     # 소유자는 테넌트의 관리자 admin(또는 --login의 사람)
 # 내장 roster(시험과 써 보기): 테넌트와 소유자까지 만들고 체험용 데이터도
 loft init --name "우리 회사" --password admin1234 --demo
 ```
@@ -59,7 +60,7 @@ loft config env --set # 설정이 읽는 환경변수 가운데 정해진 것
 사람과 비밀번호는 roster의 것입니다([사람과 로그인](../dev/identity.md)). 구성원을 넣고 빼는 일은 roster의 화면에서 하고, Loft에 초대는 없습니다(D87).
 
 - **내장 roster**(`auth.roster.addr` 를 비우면): Loft 프로세스 안에서 함께 뜨고, DB는 Loft의 것 옆에 하나 더 있습니다. 시험과 써 보기용이라, 운영처럼 보이는 배포(PostgreSQL이거나 `app.public_url` 이 이 기계가 아님)에서는 `serve` 가 시작할 때 경고합니다. 사람을 넣고 빼는 roster의 화면이 없습니다.
-- **외부 roster**: 직접 운영하는 배포는 roster를 따로 띄웁니다. 사람을 넣고 빼는 화면(user console)이 roster에 있고, 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다. 그 화면의 주소를 `auth.roster.console_url` 에 주면 Loft의 사람 화면이 그리로 가는 링크를 보입니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
+- **roster를 곁에 둔 배포**(self-hosted, D91): 사람이 쓰는 배포는 roster를 따로 띄웁니다. 사람을 넣고 빼는 화면(user console)이 roster에 있고, 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다. 그 화면의 주소를 `auth.roster.console_url` 에 주면 Loft의 사람 화면이 그리로 가는 링크를 보입니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
 - **Loft 자신의 역할 바꾸기**: 외부 roster에서 Loft가 roster에 묻는 역할(`loft-app`)은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#loft-자신의-역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다. 사람의 역할(`loft-owner` 등)은 테넌트의 관리자가 roster에서 묶고 고칩니다([관리자·소유자 안내서의 역할](admin.md#역할)).
 - **SSO**: roster의 issuer로 로그인하게 하는 설정과 roster 쪽에 필요한 것은 [SSO](../dev/identity.md#sso)에 있습니다.
 

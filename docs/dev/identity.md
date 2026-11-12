@@ -19,25 +19,36 @@ roster를 Loft 프로세스 안에서 함께 띄우는 **내장** 모드는 따�
 **운영처럼 보이는 배포에서 내장 roster를 쓰면 `loft serve` 가 시작할 때 경고합니다.** 거부하지는 않습니다. 운영처럼 보인다는 것은 DB가 PostgreSQL(`db.driver: pgx`)이거나, `app.public_url` 이 이 기계(`localhost`, `*.localhost`, 루프백 주소)가 아닌 경우입니다. 경고에는 둘 중 무엇 때문인지가 함께 나옵니다.
 
 - 그 프로세스만 roster에 닿고, 사람과 비밀번호가 Loft의 데이터 옆에 있으며, 다른 앱은 그 사람들을 쓸 수 없습니다.
-- roster의 화면(사람을 넣고 빼는 곳)이 없습니다. self-hosted는 loft와 roster를 따로 띄웁니다(아래).
+- roster의 화면(사람을 넣고 빼는 곳)이 없습니다. 사람이 쓰는 배포(self-hosted)는 loft와 roster를 따로 띄웁니다(아래, D91).
 
 ## roster를 따로 운영할 때
 
-self-hosted의 순서입니다. roster 운영자가 테넌트를 만들고, Loft를 설치하고, 그 테넌트의 키를 만듭니다. Loft는 그 키로 붙어 `loft init` 을 합니다.
+self-hosted의 순서입니다(D91). roster 운영자가 테넌트를 만들고, 사람 화면의 호스트가 그 테넌트의 것이라고 적고, Loft를 설치하고, 그 테넌트의 키를 만듭니다. Loft는 그 키로 붙어 `loft init` 을 합니다. 한 대에서 그대로 따라 하는 구성이 [`deploy/compose`](../../deploy/compose/README.md#처음-띄우기)이고, CI의 `bundle` 작업이 이 순서를 처음부터 로그인까지 돌립니다.
 
 ```sh
-# roster 운영자
-roster --as <운영자> tenant add @acme '{"name": "ACME"}'
-roster app install --tenant acme --role '/roster.VouchService/Verify,/roster.HolderService/Get,/roster.HolderService/Reaches,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen,/roster.BindingService/Add,/loft.*/*' --administer '/loft.*/*' loft
-roster key add --tenant acme --holder loft --name loft --allow '<위의 --role과 같은 목록>'   # rt_… 출력
+# roster 운영자 (roster의 상자에서)
+roster init                                                   # roster 운영자 admin. 한 번만
+roster --as admin tenant add @acme '{"name": "ACME"}'         # 테넌트와 그 관리자 admin
+roster vouch reset @acme/admin                                # 그 관리자의 비밀번호, 한 번 출력
+roster --as admin host add '{"tenant": {"alias": "acme"}, "name": "id.example.com"}'   # 사람 화면의 호스트
+m=/roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get
+m=$m,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
+m=$m,/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen,/roster.BindingService/Add
+m=$m,'/loft.*/*'
+roster app install --tenant acme --role "$m" --administer '/loft.*/*' loft
+roster key add --tenant acme --holder loft --name loft --allow "$m"   # rt_… 출력
 
 # Loft: 그 키로 붙고, 그 테넌트를 워크스페이스로 세운다
-LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rt_… loft init
-LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rt_… loft serve
+export LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rt_…
+export LOFT_AUTH_ROSTER_TENANT=acme LOFT_AUTH_ROSTER_CONSOLE_URL=https://id.example.com/
+loft init
+loft serve
 ```
 
+- 목록 `m` 은 Loft가 roster에 묻는 메서드 전부(`identity.AgentMethods`)입니다. Loft가 테넌트에 써 넣는 처음 역할을 쓰고 넓히고 첫 소유자에게 묶는 데 드는 메서드(`RoleService/Add`·`Get`·`Widen`, `BindingService/Add`)가 그 안에 있습니다(D89). `/loft.*/*` 를 쥐어야 Loft의 메서드로 된 역할을 쓸 수 있고, `--administer` 가 있어야 테넌트의 관리자가 그 역할을 사람에게 줄 수 있습니다(roster `docs/apps.md` 의 *The roles an app ships*). 키도 허용한 메서드로 좁혀지므로 같은 목록을 줍니다.
+- 사람 화면은 roster의 설정에서 켭니다: `sign_in.enabled: true`, `user_console.dir: /usr/share/roster/user`. 데이터 플레인의 HTTP 리스너(`server.http`)가 그 화면을 내고, 앞의 프록시가 화면만의 호스트를 그리로 보냅니다. Loft와 다른 호스트입니다. 세션 쿠키(`__Host-`)가 호스트에만 붙고, roster는 그 이름으로 어느 테넌트인지 압니다(roster `docs/operating.md` 의 *The user console*).
+
 - 키는 그 테넌트의 키(`rt_…`)입니다(roster `docs/apps.md` 의 C 모양). 키 하나가 테넌트 하나에만 닿습니다. `auth.roster.tenant` 는 비워 두면 키의 테넌트이고, 적으면 그것과 맞아야 합니다.
-- `--administer '/loft.*/*'` 는 테넌트의 관리자에게 Loft의 메서드를 남에게 줄 수 있게 합니다. 없으면 테넌트의 관리자가 Loft의 역할을 아무에게도 묶지 못합니다(roster의 권한 상승 규칙: 가진 것만 남에게 줍니다).
 - `loft init` 은 그 테넌트를 같은 ID와 주소로 워크스페이스로 세우고, Loft의 처음 역할 다섯을 roster에 쓰고(아래 *Loft의 역할*), `--login` 의 사람(기본은 roster가 테넌트를 만들 때 넣는 `admin`)에게 `loft-owner` 를 묶어 소유자로 둡니다. 그 사람은 테넌트의 관리자가 roster에서 미리 비밀번호나 로그인 방법을 줍니다. `--password` 와 `--demo` 는 받지 않습니다.
 - 이때 `loft holder add|password` 는 거부되고, 사람을 넣고 빼는 일과 비밀번호는 roster의 화면에서 합니다(아래 *roster의 화면*).
 - 내장 roster에서 옮기는 순서와 Kubernetes에서 키를 붙이는 곳은 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.

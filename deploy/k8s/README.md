@@ -7,7 +7,9 @@ resources:
   - github.com/lesomnus/loft//deploy/k8s?ref=<커밋>   # 브랜치가 아니라 커밋으로 고정합니다
 ```
 
-`scripts/cluster.sh`가 이 base를 오버레이(`scripts/cluster/`)째로 k3d에 띄워 확인하고, CI의 `cluster` 작업이 PR마다 같은 것을 돌립니다. 그래서 매니페스트가 조용히 깨지지 않습니다. `scripts/cluster/`는 그대로 오버레이의 작성 예이기도 합니다(Secret만 빼고. Secret은 스크립트가 만듭니다).
+**roster는 따로 배포합니다**(self-hosted의 모양, design 9.10). 사람과 로그인, 테넌트의 관리자가 구성원을 넣고 빼는 화면(user console)은 roster의 것이고, Loft는 roster의 테넌트 하나를 워크스페이스로 섬기는 앱입니다(D85, D87). roster의 배포는 roster의 참조 배포(roster의 `deploy/`)를 오버레이로 띄웁니다. Loft의 base는 그 roster에 테넌트의 키로 붙는 설정으로 시작합니다(아래 12).
+
+`scripts/cluster.sh`가 이 base를 오버레이(`scripts/cluster/`)째로 k3d에 띄워 확인하고, CI의 `cluster` 작업이 PR마다 같은 것을 돌립니다. 그래서 매니페스트가 조용히 깨지지 않습니다. `scripts/cluster/`는 그대로 오버레이의 작성 예이기도 합니다(Secret만 빼고. Secret은 스크립트가 만듭니다). **그 rig은 roster를 따로 띄우지 않고 내장 roster로 돕니다**(`scripts/cluster/config.yaml`의 `auth.roster.db`). roster를 곁에 둔 모양은 `deploy/compose`가 CI의 `bundle` 작업에서 처음부터 로그인까지 확인합니다.
 
 ## 무엇이 있나
 
@@ -41,7 +43,7 @@ resources:
    | Secret | 키 | 내용 | 만드는 법 |
    | --- | --- | --- | --- |
    | `loft` | `db-dsn` | Loft의 DB 주소. 예: `postgres://loft:…@db:5432/loft?sslmode=require` | |
-   | | `roster-db-dsn` | 내장 roster의 DB 주소. Loft와 다른 데이터베이스입니다. 외부 roster면 두지 않습니다(아래 12) | |
+   | | `roster-db-dsn` | 내장 roster의 DB 주소. 내장 roster로 써 볼 때만 둡니다(아래 12). Loft와 다른 데이터베이스입니다 | |
    | | `signing-key` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키([세션의 키](../../docs/dev/security.md#세션의-키)). 모든 프로세스가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `loft-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
@@ -49,7 +51,7 @@ resources:
    | `loft-admin` | 운영자 이름마다 파일 하나(`operator`) | 운영자 키, 32자 이상. 운영자를 더하면 `admin.keys`에도 이름을 더합니다 | `openssl rand -hex 32` |
    | `loft-search` | `password`, `ca.pem` | 검색 클러스터의 Loft 사용자 비밀번호와 그 클러스터의 CA. 검색을 켤 때만 둡니다(아래 9) | |
    | `loft-levyan-key` | `key` | levyan이 이 배포에 발급한 제품 키(`lvk_…`, `levyan-admin key issue`). 과금을 켤 때만 둡니다(아래 11) | |
-   | `loft-roster-key` | `key` | Loft가 외부 roster를 부르는 키. 이 배포가 섬기는 테넌트의 키(`rt_…`)이고, roster 운영자가 만듭니다. 외부 roster일 때만 둡니다(아래 12) | |
+   | `loft-roster-key` | `key` | Loft가 roster를 부르는 키. 이 배포가 섬기는 테넌트의 키(`rt_…`)이고, roster 운영자가 Loft를 그 테넌트에 설치한 뒤 만듭니다(아래 12). 내장 roster로 써 볼 때는 두지 않습니다 | |
 
 3. **설정.** base의 `config.yaml`을 복사해 채우고 바꿔 끼웁니다.
 
@@ -63,6 +65,7 @@ resources:
 
    채울 것:
    - `app.public_url`: 반드시 넣습니다. 없으면 서버가 뜨지 않습니다(loft#40). 라벨 QR이 이 주소를 담으므로 라벨을 인쇄하기 전에 정하고 바꾸지 않습니다.
+   - `auth.roster`: roster의 주소, 섬기는 테넌트(`tenant`), roster 화면의 주소(`console_url`). 아래 12.
    - `app.trusted_proxies`: 인그레스 컨트롤러의 주소입니다(아래 5).
    - `app.mail`, `audit.by`: 정해지는 대로 넣습니다(loft#35).
    - 감사 기록의 보존 기간(`audit.retain`, `audit.by`)이 하나도 없으면 보존 패스가 돌지 않아 체크포인트도 남지 않습니다. 지우지 않는 기간이라도 하나 둡니다(`docs/runbook/restore.md`).
@@ -89,7 +92,7 @@ resources:
 
      `loft-witness`는 보관소와 다른 스토리지에, DB·보관소와 다른 권한으로 둡니다. 삭제를 거부하는 클래스면 더 좋습니다. 보관소와 같은 디스크의 증인은 증인이 아닙니다. 둘 다에 손댈 수 있는 사람은 둘에서 함께 지웁니다.
 7. **이미지.** 태그가 아니라 digest로 고정합니다: `images: [{name: ghcr.io/lesomnus/loft, digest: sha256:…}]`.
-8. **PostgreSQL.** Loft와 내장 roster의 데이터베이스 두 개가 필요합니다. 외부 roster면 Loft의 것 하나이고, roster의 것은 roster의 배포가 씁니다(아래 12).
+8. **PostgreSQL.** Loft의 데이터베이스 하나입니다. roster의 것은 roster의 배포가 씁니다(아래 12). 내장 roster로 써 볼 때만 그 데이터베이스가 하나 더 필요합니다.
    - 필요한 확장은 `btree_gist` 하나입니다. 검색은 9의 검색 엔진이 답하고, 없으면 데이터베이스가 인덱스 없이 답합니다.
    - 어디서 돌릴지(operator인지 관리형인지)는 백업과 함께 정합니다(loft#37).
    - LISTEN과 세션 잠금은 트랜잭션 모드 풀러를 거치면 안 됩니다. 풀러를 쓴다면 `watch.dsn`과 `spin.dsn`에 DB로 바로 가는 주소를 줍니다.
@@ -111,9 +114,27 @@ resources:
     - `config.yaml`의 `app.billing` 주석을 풀어 levyan의 주소를 넣습니다. levyan의 참조 배포는 클러스터 안에서 평문 gRPC(50051)이므로 `insecure: true`를 씁니다. 그 밖이면 TLS이고, 사설 CA는 `tls.ca_file`로 줍니다.
     - levyan의 NetworkPolicy가 Loft의 파드(`app.kubernetes.io/name: loft`, namespace의 이름)만 받도록 좁힙니다(levyan의 `deploy/k8s/README.md` 4). Loft의 NetworkPolicy는 들어오는 것만 막으므로 나가는 길은 열려 있습니다.
     - 키가 없거나 `lvk_`로 시작하지 않으면 서버가 뜨지 않습니다. levyan이 답하지 않으면 서버는 그대로 돌고, 그 값을 다시 보냅니다. 그동안 복구 기간이 지난 워크스페이스는 마지막 측정 없이 파기되고, 경고 로그에 남습니다(design 7.3).
-12. **외부 roster(선택).** 사람을 Loft 프로세스 안의 roster가 아니라 따로 도는 roster에 둡니다. 직접 운영하는 배포는 이렇게 합니다. 사람을 넣고 빼는 화면이 roster에 있고, 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)).
-    - **base가 하는 것.** Secret `loft-roster-key`의 `key`를 세 컨테이너(`migrate`, `loft`, `loft-admin`)의 `/run/secrets/loft-roster/`에 붙입니다. 셋 모두 설정의 roster를 열고, 열 때 키를 읽기 때문입니다. 이 Secret도, Secret `loft`의 `roster-db-dsn`도 `optional`입니다. 그래서 외부 roster의 배포는 `roster-db-dsn` 대신 이 Secret을 두면 되고, 오버레이에서 패치할 것이 없습니다.
-    - **설정.** `auth.roster`에서 `db:`를 지우고(내장 roster의 것입니다) 주소와 키를 적습니다. 섬기는 테넌트는 키의 테넌트이고, `tenant:`를 적으면 그것과 맞아야 합니다. roster의 참조 배포는 클러스터 안에서 평문 gRPC(Service `roster-data`, 8080)이므로 `insecure: true`를 씁니다. 그 참조 배포에는 NetworkPolicy가 없으니, roster의 오버레이가 Loft의 파드(와 roster를 묻는 다른 앱의 파드)만 그 포트에 닿게 합니다. 그 밖이면 TLS이고, 사설 CA는 `ca_file`로 줍니다.
+12. **roster.** 사람과 로그인, 구성원을 넣고 빼는 화면이 roster의 것입니다. 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)).
+    - **roster의 배포.** roster의 참조 배포(roster의 `deploy/`)를 커밋으로 고정해 오버레이로 띄웁니다. 데이터 플레인과 컨트롤 플레인의 DB, Secret, 호스트는 그 오버레이의 것입니다(roster의 `deploy/README.md`). roster의 커밋은 Loft가 링크한 것(Loft의 `go.mod`)이거나 그 뒤의 것으로 고릅니다.
+    - **사람 화면(user console).** roster의 설정에서 켭니다: `sign_in.enabled: true`, `user_console.dir: /usr/share/roster/user`(이미지에 들어 있습니다). 화면은 데이터 플레인의 HTTP 리스너(Service `roster-data`의 `http`, 8081)에서 열리므로, 인그레스가 화면만의 호스트(예: `id.example.com`)를 그리로 보냅니다. Loft와 다른 호스트입니다. 세션 쿠키(`__Host-`)가 호스트에만 붙고, roster는 브라우저가 연 이름(`X-Forwarded-Host`)으로 어느 테넌트인지 압니다.
+    - **roster에서 할 일**은 roster 운영자가 roster의 상자에서 합니다. 목록은 Loft가 roster에 묻는 메서드 전부(`identity.AgentMethods`)이고, Loft가 테넌트에 써 넣는 처음 역할을 쓰고 넓히고 첫 소유자에게 묶는 데 드는 메서드가 그 안에 있습니다(D89)([`deploy/compose`의 처음 띄우기](../compose/README.md#처음-띄우기)와 같습니다).
+
+      ```sh
+      r() { kubectl -n roster exec -i deploy/roster -c roster -- /usr/local/bin/roster --config /config/config.yaml "$@"; }
+      r init                                                  # roster 운영자 admin. 한 번만
+      r --as admin tenant add @acme '{"name": "ACME"}'        # 테넌트와 그 관리자 admin
+      r vouch reset @acme/admin                               # 테넌트 관리자의 비밀번호, 한 번 출력
+      r --as admin host add '{"tenant": {"alias": "acme"}, "name": "id.example.com"}'
+      m=/roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get
+      m=$m,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
+      m=$m,/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen,/roster.BindingService/Add
+      m=$m,'/loft.*/*'
+      r app install --tenant acme --role "$m" --administer '/loft.*/*' loft
+      r key add --tenant acme --holder loft --name loft --allow "$m"   # rt_… → Secret loft-roster-key의 key
+      ```
+
+    - **base가 하는 것.** Secret `loft-roster-key`의 `key`를 세 컨테이너(`migrate`, `loft`, `loft-admin`)의 `/run/secrets/loft-roster/`에 붙입니다. 셋 모두 설정의 roster를 열고, 열 때 키를 읽기 때문입니다. 이 Secret도, Secret `loft`의 `roster-db-dsn`도 `optional`입니다. 그래서 같은 base로 내장 roster도 띄웁니다.
+    - **설정.** base의 `config.yaml`이 이 모양입니다. 섬기는 테넌트는 키의 테넌트이고, `tenant:`를 적으면 그것과 맞아야 합니다. roster의 참조 배포는 클러스터 안에서 평문 gRPC(Service `roster-data`, 8080)이므로 `insecure: true`를 씁니다. 그 참조 배포에는 NetworkPolicy가 없으니, roster의 오버레이가 Loft의 파드(와 roster를 묻는 다른 앱의 파드)만 그 포트에 닿게 합니다. 그 밖이면 TLS이고, 사설 CA는 `ca_file`로 줍니다.
 
       ```yaml
       auth:
@@ -121,43 +142,46 @@ resources:
           addr: roster-data.roster.svc:8080
           insecure: true
           key: file:/run/secrets/loft-roster/key
-          tenant: loft
+          tenant: acme
+          console_url: https://id.example.com/
       ```
 
+    - **내장 roster로 써 볼 때**는 `auth.roster`에 `db:`만 두고(Secret `loft`의 `roster-db-dsn`), `loft init`이 테넌트와 소유자까지 만듭니다. 사람을 넣고 빼는 화면이 없으므로 시험과 써 보기용입니다. `scripts/cluster/`가 그 예입니다.
     - **내장 roster에서 옮길 때**는 이 순서로 합니다. 사람과 비밀번호가 내장 roster의 DB에 있으므로, 그 DB가 그대로 외부 roster의 것이 됩니다.
       1. **같은 데이터베이스.** `roster-db-dsn`이 가리키던 DB를 그대로 씁니다. 옮기거나 복사하지 않습니다. 사람과 비밀번호, 테넌트(따로 적지 않았다면 `loft`), 내장 roster가 그 안에 만든 홀더 `loft`와 역할 `loft`가 모두 그대로 있습니다.
       2. **roster의 Deployment.** roster의 참조 배포(roster의 `deploy/`)를 오버레이로 띄우고, 데이터 플레인의 `db:`를 그 DB로 바꿉니다. 컨트롤 플레인의 DB(`control.db`)는 따로 둡니다(참조 배포는 자기 볼륨에). 컨트롤 플레인이 없는 roster는 키를 읽지 않고 부르는 쪽이 말하는 이름을 믿으므로, 빼지 않습니다. roster의 커밋은 지금 Loft가 링크한 것(Loft의 `go.mod`)이거나 그 뒤의 것으로 고릅니다. 내장 roster가 DB를 그 판의 모양으로 마이그레이션해 두었기 때문입니다.
-      3. **키.** 홀더 `@loft/loft`에 그 테넌트의 키(`rt_…`)를 만들어 Secret `loft-roster-key`의 `key`에 넣습니다. 허용하는 메서드는 Loft가 roster에 묻는 것 전부입니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)의 `roster app install`의 `--role`과 같은 목록). 키는 한 번만 출력되므로 바로 Secret에 넣습니다.
+      3. **키.** 홀더 `@loft/loft`에 그 테넌트의 키(`rt_…`)를 만들어 Secret `loft-roster-key`의 `key`에 넣습니다. 허용하는 메서드는 위의 목록 `m` 입니다. 내장 roster가 만든 역할 `@loft/loft`가 그 목록을 다 갖지 않았으면 먼저 넓힙니다([역할 바꾸기](../../docs/dev/identity.md#loft-자신의-역할-바꾸기-roster-role-patch)). 키는 한 번만 출력되므로 바로 Secret에 넣습니다. 사람 화면의 호스트도 그 테넌트의 것으로 적습니다(`host add`, 위).
 
          ```sh
-         kubectl -n <roster의 namespace> exec deploy/roster -c roster -- roster --config /config/config.yaml \
-           key add --tenant loft --holder loft --name loft \
-           --allow /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
+         r key add --tenant loft --holder loft --name loft --allow "$m"
          ```
 
       4. **설정.** `auth.roster`를 위의 모양으로 바꿔 sync합니다. 새 파드부터 Loft가 그 roster에 묻습니다. `roster-db-dsn`은 Loft가 더 읽지 않으므로 지워도 되고, 되돌릴 때를 위해 두어도 됩니다.
 
       앞의 것이 없는 채로 설정을 바꾸면 새 파드가 뜨지 않거나(키가 없으면 `auth.roster.key`를 읽지 못합니다), 로그인과 세션이 거부됩니다(roster에 닿지 않으면 503). 되돌릴 때는 roster의 Deployment를 내리고 설정을 내장 roster의 것으로 되돌립니다. 같은 DB이므로 그 사이 roster에서 바꾼 사람과 비밀번호도 그대로입니다.
-    - **역할의 이름.** 내장 roster에서 옮긴 배포의 역할은 내장 roster가 만든 **`loft`**(`@loft/loft`)입니다. `roster app install`로 들인 배포의 역할은 `loft-app`입니다. 외부 roster에서 역할은 roster 운영자가 `roster role patch`로 바꿉니다([역할 바꾸기](../../docs/dev/identity.md#loft-자신의-역할-바꾸기-roster-role-patch)). 테넌트의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 역할을 바꾸면 키도 새로 만듭니다.
+    - **Loft의 holder가 가진 역할의 이름.** 내장 roster에서 옮긴 배포의 것은 내장 roster가 만든 **`loft`**(`@loft/loft`)이고, `roster app install`로 들인 배포의 것은 `loft-app`입니다. 그 역할은 roster 운영자가 `roster role patch`로 바꿉니다. 사람에게 묶는 Loft의 역할(`loft-owner` 등, D89)과는 다릅니다([역할 바꾸기](../../docs/dev/identity.md#loft-자신의-역할-바꾸기-roster-role-patch)). 테넌트의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 역할을 바꾸면 키도 새로 만듭니다.
 
 ## 처음 띄우기
 
+roster가 먼저입니다. Loft는 roster의 테넌트에 설치되는 앱이고, 그 테넌트의 키로 뜨기 때문입니다.
+
 ```sh
-# 1. 데이터베이스 둘. roster의 것은 Loft의 것 옆에 하나 더(외부 roster면 Loft의 것만, 위 12):
-#      CREATE DATABASE roster OWNER loft;
-# 2. Secret 셋 (위의 표)
+# 1. roster: 그 오버레이를 띄우고, 운영자·테넌트·화면의 호스트·Loft의 설치·키 (위 12)
+# 2. Loft의 데이터베이스 하나와 Secret 넷(위의 표, loft-roster-key에 1의 키)
 # 3. sync. Argo CD가 아니라면:
 kubectl apply -k <오버레이>
 kubectl -n loft rollout status deploy/loft
 
-# 4. 워크스페이스와 소유자: 섬기는 roster 테넌트를 같은 ID로 세운다. 외부 roster면 --login의 사람이
-#    roster에 있어야 하고(기본 admin), 내장 roster면 테넌트와 소유자까지 만들고 비밀번호를 한 번 보여 준다.
-#    내장 roster의 테넌트는 config.yaml의 auth.roster.tenant(비우면 loft)이고, 세운 뒤에는 바꾸지 않는다.
-kubectl -n loft exec deploy/loft -c loft -- loft --config /etc/loft/loft.yaml init \
-  --name "ACME" --login owner --person "홍길동" --email owner@example.com
+# 4. 워크스페이스와 소유자: 섬기는 roster 테넌트를 같은 ID로 세우고, 테넌트의 관리자(--login, 기본 admin)를
+#    소유자로 둡니다. 그 사람은 1에서 받은 비밀번호로 Loft에 로그인합니다.
+kubectl -n loft exec deploy/loft -c loft -- loft --config /etc/loft/loft.yaml init --name "ACME"
 
 curl https://<호스트>/healthz   # ok
 ```
+
+구성원은 테넌트의 관리자가 roster의 화면(`console_url`)에서 넣습니다. 넣은 사람이 처음 Loft에 로그인하면 구성원이 됩니다.
+
+내장 roster로 써 볼 때는 1 대신 Loft의 데이터베이스 옆에 roster의 것을 하나 더 두고(`CREATE DATABASE roster OWNER loft;`, Secret `loft`의 `roster-db-dsn`), 4의 `loft init`이 테넌트(`auth.roster.tenant`, 비우면 `loft`)와 소유자를 만들고 비밀번호를 한 번 보여 줍니다(`--login owner --person "홍길동" --email owner@example.com`).
 
 ## 새 버전 올리기
 
@@ -219,7 +243,7 @@ loft tenant import --file acme.zip --yes
 
 ## 스테이징
 
-같은 base에 오버레이를 하나 더 둡니다. namespace, 데이터베이스 둘, 호스트, Secret을 모두 따로 갖습니다. 운영 키는 쓰지 않습니다. 라벨 QR이 `public_url`을 담으므로 스테이징에서 인쇄한 라벨은 운영에서 쓸 수 없습니다.
+같은 base에 오버레이를 하나 더 둡니다. namespace, 데이터베이스, 호스트, Secret을 모두 따로 갖고, roster도 스테이징의 것(또는 같은 roster의 다른 테넌트)을 씁니다. 운영 키는 쓰지 않습니다. 라벨 QR이 `public_url`을 담으므로 스테이징에서 인쇄한 라벨은 운영에서 쓸 수 없습니다.
 
 ## 시험해 보기
 
@@ -235,7 +259,9 @@ k3d와 Docker가 필요합니다. 이 체크아웃으로 이미지를 빌드해�
 - 운영자 진입점은 port-forward로는 키에 답하고, 인그레스 컨트롤러가 아닌 파드에서는 서버에도 진입점에도 닿지 않습니다.
 - 새 빌드가 파드를 바꾸고 `rollout undo`가 이전 것을 되돌립니다. 그 사이에도 처음 로그인한 세션이 그대로 살아 있습니다.
 
-기본 kubeconfig는 건드리지 않습니다. k3d에 그러지 말라고 하고, 스크립트도 그 파일을 읽지 않습니다.
+roster는 따로 띄우지 않고 내장 roster로 돕니다. roster를 곁에 둔 모양은 `deploy/compose`가 CI의 `bundle` 작업에서 확인합니다.
+
+기본 kubeconfig는 건드리지 않습니다. 스크립트의 k3d 호출은 모두(지우는 것까지) 실행마다 따로 둔 kubeconfig를 씁니다. `--hold`로 남긴 클러스터를 보거나 내릴 때도 자기 kubeconfig로 합니다(스크립트가 그 명령을 출력합니다).
 
 ## 이 구성에 없는 것
 

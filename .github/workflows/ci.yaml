@@ -351,8 +351,11 @@ jobs:
         run: |
           cp .env.example .env
           sed -i -e "s/^LOFT_DOMAIN=.*/LOFT_DOMAIN=localhost/" \
+            -e "s/^ROSTER_DOMAIN=.*/ROSTER_DOMAIN=id.localhost/" \
             -e "s/^LOFT_TENANT=.*/LOFT_TENANT=acme/" \
             -e "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" \
+            -e "s/^ROSTER_DB_PASSWORD=.*/ROSTER_DB_PASSWORD=$(openssl rand -hex 24)/" \
+            -e "s|^ROSTER_VOUCH_KEY=.*|ROSTER_VOUCH_KEY=$(openssl rand -base64 32)|" \
             -e "s/^LOFT_SIGNING_KEY=.*/LOFT_SIGNING_KEY=$(openssl rand -hex 32)/" \
             -e "s/^LOFT_VERSION=.*/LOFT_VERSION=ci/" .env
           mkdir -m 700 secrets
@@ -363,6 +366,36 @@ jobs:
           # Search on, as deploy/compose/README.md's "검색을 켜려면" turns it on.
           ./search-init.sh
           echo 'COMPOSE_FILE=compose.yaml:compose.search.yaml' >> .env
+      - name: roster first, and the tenant at it Loft is installed in
+        run: |
+          # As README.md's "처음 띄우기" goes: roster beside Loft, its first
+          # operator, the tenant and its administrator's password, the name
+          # its page answers at, Loft installed in it -- with the role
+          # roster's docs/apps.md gives an app that writes its own roles --
+          # and the tenant's key, which Loft acts with.
+          docker compose up -d postgres roster caddy
+          for i in $(seq 1 90); do
+            curl -skf --resolve id.localhost:443:127.0.0.1 -o /dev/null https://id.localhost/ && break
+            sleep 2
+          done
+          roster() { docker compose exec -T roster /usr/local/bin/roster "$@"; }
+          roster init > /dev/null
+          roster --as admin tenant add @acme '{"name":"ACME"}' > /dev/null
+          printf '%s' 'admin-pass-1234' | roster vouch set --password-stdin @acme/admin
+          roster --as admin host add '{"tenant":{"alias":"acme"},"name":"id.localhost"}' > /dev/null
+          m=/roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get
+          m=${m},/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
+          m=${m},/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen,/roster.BindingService/Add
+          m=${m},'/loft.*/*'
+          roster app install --tenant acme --role "${m}" --administer '/loft.*/*' loft
+          key="$(roster key add --tenant acme --holder loft --name loft --allow "${m}")"
+          sed -i "s|^ROSTER_KEY=.*|ROSTER_KEY=${key}|" .env
+          # The tenant's page, signed in to by its administrator: which
+          # tenant is the name the browser arrived at.
+          curl -skf --resolve id.localhost:443:127.0.0.1 -o /dev/null -c roster-jar \
+            -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
+            -d '{"alias":"admin","password":"admin-pass-1234"}' https://id.localhost/roster.AuthService/SignIn
+          grep -q __Host- roster-jar
       - run: docker compose up -d --build
       - name: it answers through the proxy
         run: |
@@ -370,10 +403,11 @@ jobs:
           exit 1
       - name: a workspace, signed in to and asked
         run: |
-          docker compose run --rm loft --config /etc/loft/loft.yaml init \
-            --name ACME --login owner --person Owner --email owner@example.com --password owner-pass-1234
+          # The tenant at roster, put up as the workspace, its administrator
+          # there its owner; signed in to with the password roster holds.
+          docker compose run --rm loft --config /etc/loft/loft.yaml init --name ACME
           curl -skf -c jar -H 'content-type: application/json' \
-            -d '{"login":"owner","password":"owner-pass-1234"}' https://localhost/session
+            -d '{"login":"admin","password":"admin-pass-1234"}' https://localhost/session
           # Each to whichever replica Caddy picks: a session is the database's.
           for i in 1 2 3 4; do
             curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
