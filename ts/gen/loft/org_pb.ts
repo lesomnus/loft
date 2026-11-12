@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/org.proto.
  */
 export const file_loft_org: GenFile = /*@__PURE__*/
-  fileDesc("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DCABKAxCBqrBFgIIARIWCgZwYXJlbnQYECABKAxCBuqCFgIQQBI5CgxkYXRlX2V4cGlyZXMYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADqQAsr8FToaFhIGc2VjcmV0GgoKBnNlY3JldBAIMAEaIBIMZGF0ZV9leHBpcmVzGhAKDGRhdGVfZXhwaXJlcxARirsWzQEIMEICCgBSwgESvwEKvAFhIGNvZGUgYSBicm93c2VyIGNhcnJpZXMgZnJvbSB0aGUgc2VydmljZSdzIGFkZHJlc3MgdG8gYSB3b3Jrc3BhY2UncyBkb21haW4sIGdvb2Qgb25jZSBmb3IgYSBtaW51dGU7IHRoZSBzZXNzaW9uIGl0IGJlY29tZXMgaXMgbm8gYWN0IGVpdGhlciwgYW5kIHdobyBzaWduZWQgaW4gd2hlcmUgaXMgdGhlIGFjY2VzcyByZWNvcmQncyoAQjJaGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCyscWDzINCgsKB2FjY291bnQQCWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_holder, file_loft_payday_tenant]);
+  fileDesc("Cg5sb2Z0L29yZy5wcm90bxIEbG9mdCLLBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESFAoEbmFtZRgFIAEoCUIGqsEWAhgBEhQKBGRlc2MYBiABKAlCBqrBFgIYARIvCgZsYWJlbHMYByADKAsyFy5sb2Z0LlBhcnR5LkxhYmVsc0VudHJ5QgaqwRYCGAESFAoEa2luZBgIIAEoCUIGqsEWAhgAEhsKCXBhcmVudF9pZBgJIAEoDEII6oIWBBBAOAESJAoGaG9sZGVyGAogASgLMgwubG9mdC5Ib2xkZXJCBvKCFgI4ARIVCgVlbWFpbBgLIAEoCUIGqsEWAhgBEhUKBXBob25lGAwgASgJQgaqwRYCGAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhQKBGNvZGUYECABKAlCBqrBFgIYARotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOqcByvwVShICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhYSBmhvbGRlchoKCgZob2xkZXIQCjABirsWVQgKMk8KEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaBgoEa2luZBoLCglwYXJlbnRfaWQaCAoGaG9sZGVyGggKBmxhYmVscyAyKPQDOgAi2AQKB1Nlc3Npb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhcKB2FjY291bnQYCCABKAxCBuqCFgIQQBIWCgZzZWNyZXQYCSABKAxCBqrBFgIIARINCgVncmFudBgKIAEoDBI4CgxkYXRlX2V4cGlyZXMYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESNQoJZGF0ZV9pZGxlGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEhoKBGhlbGQYECABKAxCDOqCFgI4AarBFgIIARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6tAHK/BUuGhQSBnNlY3JldBoKCgZzZWNyZXQQCRoWEgdhY2NvdW50GgsKB2FjY291bnQQCIq7Fn4IJlJ4EnYKdGEgc2lnbi1pbiwgd2hvc2UgaWRsZSBjbG9jayBtb3ZlcyBvbiBldmVyeSByZXF1ZXN0OyB3aG8gc2lnbmVkIGluLCBhbmQgZnJvbSB3aGVyZSwgaXMgdGhlIGFjY2VzcyByZWNvcmQncyAobG9mdCMxMzYpKgAiqgYKCkludml0YXRpb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESJQoHaW52aXRlchgIIAEoCzIMLmxvZnQuSG9sZGVyQgbyghYCQAESFQoFZW1haWwYCSABKAlCBqrBFgIYARIaCgRyb2xlGAogASgJQgzqghYCQAGqwRYCGAASIgoFcGFydHkYCyABKAsyCy5sb2Z0LlBhcnR5QgbyghYCOAESGQoHYWNjb3VudBgMIAEoDEII6oIWBBBAOAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhUKBXN0YXRlGBAgASgJQgaqwRYCGAASOQoMZGF0ZV9leHBpcmVzGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI4CgxkYXRlX3NldHRsZWQYEiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESJAoGaG9sZGVyGBMgASgLMgwubG9mdC5Ib2xkZXJCBvKCFgI4ARIbCgVjbGFpbRgUIAEoDEIM6oIWAjgBqsEWAggBOsIByvwVchICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhISBWNsYWltGgkKBWNsYWltEBQaFhIHYWNjb3VudBoLCgdhY2NvdW50EAwaEhIFZW1haWwaCQoFZW1haWwQCYq7FkgIKTJEChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGggKBnRlbmFudBoJCgdhY2NvdW50GgcKBXN0YXRlIDIoyAEijAQKCENsaUxvZ2luEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIWCgZzZWNyZXQYCCABKAxCBqrBFgIIARIMCgRjb2RlGAkgASgJEg4KBmNsaWVudBgKIAEoCRIOCgZvcmlnaW4YCyABKAkSFwoHYWRkcmVzcxgSIAEoCUIGqsEWAhgAEhkKB2FjY291bnQYDCABKAxCCOqCFgQQQDgBEg0KBWdyYW50GBMgASgMEg0KBXN0YXRlGBAgASgJEjkKDGRhdGVfZXhwaXJlcxgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOmLK/BVSGhASBGNvZGUaCAoEY29kZRAJGhQSBnNlY3JldBoKCgZzZWNyZXQQCBooEgdhZGRyZXNzGgsKB2FkZHJlc3MQEhoQCgxkYXRlX2NyZWF0ZWQQD4q7FggIKlICCgAqACL7AgoJQWxpYXNIb2xkEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIMCgRoZWxkGAggASgJEg4KBnJlYXNvbhgJIAEoCRIQCghtb3ZlZF90bxgKIAEoCRIWCgZ0ZW5hbnQYCyABKAxCBuqCFgIQQBI3CgpkYXRlX3VudGlsGBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6Isr8FRIaEBIEaGVsZBoICgRoZWxkEAiKuxYICCtSAgoAKgAivgIKDVNpZ25JbkZhaWx1cmUSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhcKB3N1YmplY3QYCCABKAxCBqrBFgIIARI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6vQHK/BVMGigSB3N1YmplY3QaCwoHc3ViamVjdBAIGhAKDGRhdGVfY3JlYXRlZBAPGiASDGRhdGVfY3JlYXRlZBoQCgxkYXRlX2NyZWF0ZWQQD4q7FmkILUICCgBSXxJdClthIGNvdW50IG9mIHRoZSBzaWduLWlucyBhbiBhZGRyZXNzIGdvdCB3cm9uZywga2VwdCBmb3IgaG91cnMgdG8gc2xvdyB0aGUgbmV4dDsgbm9ib2R5J3MgYWN0KgBCMloYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCALKxxYPMg0KCwoHYWNjb3VudBAJYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_holder, file_loft_payday_tenant]);
 
 /**
  * Party is a person, a team, an organization or a vendor: whoever an asset is
@@ -135,10 +135,6 @@ export const PartySchema: GenMessage<Party> = /*@__PURE__*/
  * (`server/session`) -- which is what a cookie is looked up by, and which
  * nobody who may only write the database can make for a key of their own.
  *
- * One handed to a workspace's own domain (loft#155) is the exception: a
- * cookie of that host's alone, bound to that workspace (`workspace`), and
- * handed from a sign-in here (`parent`).
- *
  * @generated from message loft.Session
  */
 export type Session = Message<"loft.Session"> & {
@@ -183,26 +179,6 @@ export type Session = Message<"loft.Session"> & {
    * @generated from field: bytes held = 16;
    */
   held: Uint8Array;
-
-  /**
-   * The workspace a session handed to that workspace's own domain is bound
-   * to (loft#155): it is served as the account's membership of that
-   * workspace, on a host that pins it, and nowhere else. Null for a sign-in
-   * at the service's address, which names the account alone.
-   *
-   * @generated from field: bytes workspace = 17;
-   */
-  workspace: Uint8Array;
-
-  /**
-   * The sign-in at the service's address a session on a workspace's domain
-   * was handed from (`Handoff`): it is good while that one is, keeps that one
-   * from idling out while it is used, and signing out on the domain ends that
-   * one with it. Null for a sign-in at the service's.
-   *
-   * @generated from field: bytes parent = 18;
-   */
-  parent: Uint8Array;
 
   /**
    * @generated from field: google.protobuf.Timestamp date_updated = 13;
@@ -596,84 +572,4 @@ export type SignInFailure = Message<"loft.SignInFailure"> & {
  */
 export const SignInFailureSchema: GenMessage<SignInFailure> = /*@__PURE__*/
   messageDesc(file_loft_org, 5);
-
-/**
- * Handoff is a sign-in on its way from the service's address to a
- * workspace's own domain (loft#155, design 9.9): a code the service gave a
- * browser signed in there, which the browser exchanges on the domain for a
- * session of the domain's own.
- *
- * A code is good once, for a minute, for the account, the workspace and the
- * host it was made for, and for the round trip that host started (`state`).
- * It is never written down -- `secret` is what it is kept as, as a session's
- * key is -- and its row is gone when it is exchanged, whatever the exchange
- * comes to. It is the deployment's (`global`), written only through ent by
- * `server/session`, and the policy opens no RPC of it.
- *
- * @generated from message loft.Handoff
- */
-export type Handoff = Message<"loft.Handoff"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * What the code is kept as, as a session's key is.
-   *
-   * @generated from field: bytes secret = 8;
-   */
-  secret: Uint8Array;
-
-  /**
-   * Who it signs in, to which workspace, on which of that workspace's
-   * domains: an active `app` one when the code was made.
-   *
-   * @generated from field: bytes account = 9;
-   */
-  account: Uint8Array;
-
-  /**
-   * @generated from field: bytes workspace = 10;
-   */
-  workspace: Uint8Array;
-
-  /**
-   * @generated from field: string host = 11;
-   */
-  host: string;
-
-  /**
-   * What the state the host started the round trip with is kept as: the code
-   * is good for that round trip and no other.
-   *
-   * @generated from field: bytes state = 12;
-   */
-  state: Uint8Array;
-
-  /**
-   * The sign-in at the service's address the code was given to, which the
-   * session it is exchanged for is handed from (`Session.parent`).
-   *
-   * @generated from field: bytes parent = 16;
-   */
-  parent: Uint8Array;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 17;
-   */
-  dateExpires?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message loft.Handoff.
- * Use `create(HandoffSchema)` to create a new message.
- */
-export const HandoffSchema: GenMessage<Handoff> = /*@__PURE__*/
-  messageDesc(file_loft_org, 6);
 

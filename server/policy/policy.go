@@ -51,7 +51,7 @@ const (
 	Member
 	// Manager runs the register: assets, hand-overs, counts, stock, work.
 	Manager
-	// Admin runs the tenant: people, roles, types, domains.
+	// Admin runs the tenant: people, roles, types.
 	Admin
 	// Owner is the tenant's.
 	Owner
@@ -126,7 +126,7 @@ func init() {
 	// history is told by the layer that writes it, as what each row was, with
 	// the names it is about.
 	for _, s := range []string{
-		"Asset", "AssetType", "ItemModel", "Attachment", "Label", "Domain",
+		"Asset", "AssetType", "ItemModel", "Attachment", "Label",
 		"Party",
 		"Bookable", "Reservation",
 		"Custody",
@@ -190,9 +190,6 @@ func init() {
 	// Which of the account's workspaces a label is in (D28, D73): the
 	// account's own, asked across every workspace it is in.
 	allow(Account, "LabelService", "Locate")
-
-	allow(Read, "DomainService", "Status")
-	allow(Admin, "DomainService", "Add", "Verify", "Activate", "Retire")
 
 	allow(Read, "AttachmentService", "Url")
 	allow(Member, "AttachmentService", "Upload")

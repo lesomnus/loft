@@ -35,7 +35,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/countfinding"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
-	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/holder"
@@ -207,9 +206,6 @@ var Exported = map[string]reader{
 	"custodyline": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.CustodyLine).Proto)(db.CustodyLine.Query().Where(custodyline.TenantId(t), after(last)).Order(ent.Asc(custodyline.FieldDateCreated, custodyline.FieldId)).Limit(n).All(ctx))
 	},
-	"domain": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
-		return each((*ent.Domain).Proto)(db.Domain.Query().Where(entdomain.TenantId(t), after(last)).Order(ent.Asc(entdomain.FieldDateCreated, entdomain.FieldId)).Limit(n).All(ctx))
-	},
 	"event": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.Event).Proto)(db.Event.Query().Where(event.TenantId(t), after(last)).Order(ent.Asc(event.FieldDateCreated, event.FieldId)).Limit(n).All(ctx))
 	},
@@ -290,7 +286,6 @@ var Withheld = map[string]string{
 	"clilogin":      "a terminal waiting to be signed in, which is nobody's yet",
 	"aliashold":     "the deployment's: addresses nobody may take for a while",
 	"signinfailure": "the deployment's: how often an address got a sign-in wrong lately",
-	"handoff":       "a sign-in on its way to a workspace's own domain, good for a minute",
 	"searchstale":   "the deployment's queue of what the search index has yet to hear of",
 	"levyannotice":  "the deployment's: what levyan was told, and is to be told, of who pays for a workspace",
 	"entitlement":   "the copy of what levyan grants it, which levyan says again to a deployment it is restored into",

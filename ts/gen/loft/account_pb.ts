@@ -13,7 +13,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/account.proto.
  */
 export const file_loft_account: GenFile = /*@__PURE__*/
-  fileDesc("ChJsb2Z0L2FjY291bnQucHJvdG8SBGxvZnQi0wEKEFRlbmFudE1lbWJlcnNoaXASCgoCaWQYASABKAwSDQoFYWxpYXMYAiABKAkSDAoEbmFtZRgDIAEoCRIMCgRyb2xlGAQgASgJEi8KC2RhdGVfY2xvc2VkGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX2Rlc3Ryb3kYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD2FsaWFzX2hvbGRfZGF5cxgHIAEoDRIMCgRob21lGAggASgJQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp]);
+  fileDesc("ChJsb2Z0L2FjY291bnQucHJvdG8SBGxvZnQixQEKEFRlbmFudE1lbWJlcnNoaXASCgoCaWQYASABKAwSDQoFYWxpYXMYAiABKAkSDAoEbmFtZRgDIAEoCRIMCgRyb2xlGAQgASgJEi8KC2RhdGVfY2xvc2VkGAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX2Rlc3Ryb3kYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKD2FsaWFzX2hvbGRfZGF5cxgHIAEoDUIfWhhnaXRodWIuY29tL2xlc29tbnVzL2xvZnSSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp]);
 
 /**
  * TenantMembership is a workspace an account is in, as the account is told it
@@ -70,14 +70,6 @@ export type TenantMembership = Message<"loft.TenantMembership"> & {
    * @generated from field: uint32 alias_hold_days = 7;
    */
   aliasHoldDays: number;
-
-  /**
-   * Where its app is when that is a domain of its own (loft#155): the address
-   * a page of it begins with there. Empty while it is the service's.
-   *
-   * @generated from field: string home = 8;
-   */
-  home: string;
 };
 
 /**

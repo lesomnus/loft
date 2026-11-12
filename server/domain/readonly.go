@@ -192,16 +192,11 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.AssetService_ReadSheet_FullMethodName:        Reads,
 
 	// The workspace itself: its settings and what a change of them would
-	// take, its domains, its contract and its legal holds, its memberships,
-	// its invitations, what it tells people, its trail, and who saw whose
-	// data.
+	// take, its contract and its legal holds, its memberships, its
+	// invitations, what it tells people, its trail, and who saw whose data.
 	app.TenantService_Get_FullMethodName:          Reads,
 	app.TenantService_List_FullMethodName:         Reads,
 	app.TenantService_Preview_FullMethodName:      Reads,
-	app.DomainService_Get_FullMethodName:          Reads,
-	app.DomainService_List_FullMethodName:         Reads,
-	app.DomainService_Watch_FullMethodName:        Reads,
-	app.DomainService_Status_FullMethodName:       Reads,
 	app.TenantContractService_Get_FullMethodName:  Reads,
 	app.TenantContractService_List_FullMethodName: Reads,
 	app.LegalHoldService_Get_FullMethodName:       Reads,

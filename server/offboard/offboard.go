@@ -123,13 +123,11 @@ var Trail = []string{"audit", "archived", "access", "rowseal", "owed"}
 
 // Shared is the deployment's own tables, which no tenant has rows in: a
 // session is an account's, and an account is in no workspace (D27); a failed
-// sign-in is an address's, before anybody is anybody; a code on its way to a
-// workspace's own domain is good for a minute, and a session handed there is
-// good on that domain alone, which goes with the workspace (loft#155); and
-// what the search index has yet to hear of is the deployment's work, which a
-// purge adds to rather than takes from; and so is what levyan is to be told
-// of who pays, which outlives the workspace it is about (design 7.6).
-var Shared = []string{"session", "clilogin", "aliashold", "signinfailure", "handoff", "searchstale", "levyannotice"}
+// sign-in is an address's, before anybody is anybody; what the search index
+// has yet to hear of is the deployment's work, which a purge adds to rather
+// than takes from; and so is what levyan is to be told of who pays, which
+// outlives the workspace it is about (design 7.6).
+var Shared = []string{"session", "clilogin", "aliashold", "signinfailure", "searchstale", "levyannotice"}
 
 // Tables is every table a tenant has rows in, each before every table it
 // points at, so that deleting in this order leaves no reference dangling. The

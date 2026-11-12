@@ -74,30 +74,20 @@ export function Switcher(props: { account: Account; current: string }): ReactNod
 					</li>
 				))}
 			</ul>
-			{/* On a workspace's own domain, what the account does beside it is the service's. */}
-			{props.account.pinned !== undefined && props.account.service !== undefined && (
-				<a className="link" href={`${props.account.service}/?workspaces`}>
-					다른 워크스페이스 ↗
+			<a className="link invites" href="/invitations">
+				받은 초대{waiting > 0 && <span className="badge info">{waiting}</span>}
+			</a>
+			{props.account.billing === true && (
+				<a className="link" href="/billing">
+					결제
 				</a>
 			)}
-			{props.account.pinned === undefined && (
-				<>
-					<a className="link invites" href="/invitations">
-						받은 초대{waiting > 0 && <span className="badge info">{waiting}</span>}
-					</a>
-					{props.account.billing === true && (
-						<a className="link" href="/billing">
-							결제
-						</a>
-					)}
-					{making ? (
-						<Make onCancel={() => setMaking(false)} />
-					) : (
-						<button className="link" onClick={() => setMaking(true)} title={full ? '더 만들려면 결제가 필요합니다' : undefined}>
-							+ 새 워크스페이스
-						</button>
-					)}
-				</>
+			{making ? (
+				<Make onCancel={() => setMaking(false)} />
+			) : (
+				<button className="link" onClick={() => setMaking(true)} title={full ? '더 만들려면 결제가 필요합니다' : undefined}>
+					+ 새 워크스페이스
+				</button>
 			)}
 		</details>
 	)

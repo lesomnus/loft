@@ -9,7 +9,6 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent/dialect/sql"
@@ -173,40 +172,9 @@ func (_u *LabelUpdate) ClearCode() *LabelUpdate {
 	return _u
 }
 
-// SetDomainId sets the "domain_id" field.
-func (_u *LabelUpdate) SetDomainId(v uuid.UUID) *LabelUpdate {
-	_u.mutation.SetDomainId(v)
-	return _u
-}
-
-// SetNillableDomainId sets the "domain_id" field if the given value is not nil.
-func (_u *LabelUpdate) SetNillableDomainId(v *uuid.UUID) *LabelUpdate {
-	if v != nil {
-		_u.SetDomainId(*v)
-	}
-	return _u
-}
-
-// ClearDomainId clears the value of the "domain_id" field.
-func (_u *LabelUpdate) ClearDomainId() *LabelUpdate {
-	_u.mutation.ClearDomainId()
-	return _u
-}
-
-// SetDomain sets the "domain" edge to the Domain entity.
-func (_u *LabelUpdate) SetDomain(v *Domain) *LabelUpdate {
-	return _u.SetDomainId(v.Id)
-}
-
 // Mutation returns the LabelMutation object of the builder.
 func (_u *LabelUpdate) Mutation() *LabelMutation {
 	return _u.mutation
-}
-
-// ClearDomain clears the "domain" edge to the Domain entity.
-func (_u *LabelUpdate) ClearDomain() *LabelUpdate {
-	_u.mutation.ClearDomain()
-	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -327,35 +295,6 @@ func (_u *LabelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.CodeCleared() {
 		_spec.ClearField(label.FieldCode, field.TypeString)
-	}
-	if _u.mutation.DomainCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   label.DomainTable,
-			Columns: []string{label.DomainColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.DomainIds(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   label.DomainTable,
-			Columns: []string{label.DomainColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -521,40 +460,9 @@ func (_u *LabelUpdateOne) ClearCode() *LabelUpdateOne {
 	return _u
 }
 
-// SetDomainId sets the "domain_id" field.
-func (_u *LabelUpdateOne) SetDomainId(v uuid.UUID) *LabelUpdateOne {
-	_u.mutation.SetDomainId(v)
-	return _u
-}
-
-// SetNillableDomainId sets the "domain_id" field if the given value is not nil.
-func (_u *LabelUpdateOne) SetNillableDomainId(v *uuid.UUID) *LabelUpdateOne {
-	if v != nil {
-		_u.SetDomainId(*v)
-	}
-	return _u
-}
-
-// ClearDomainId clears the value of the "domain_id" field.
-func (_u *LabelUpdateOne) ClearDomainId() *LabelUpdateOne {
-	_u.mutation.ClearDomainId()
-	return _u
-}
-
-// SetDomain sets the "domain" edge to the Domain entity.
-func (_u *LabelUpdateOne) SetDomain(v *Domain) *LabelUpdateOne {
-	return _u.SetDomainId(v.Id)
-}
-
 // Mutation returns the LabelMutation object of the builder.
 func (_u *LabelUpdateOne) Mutation() *LabelMutation {
 	return _u.mutation
-}
-
-// ClearDomain clears the "domain" edge to the Domain entity.
-func (_u *LabelUpdateOne) ClearDomain() *LabelUpdateOne {
-	_u.mutation.ClearDomain()
-	return _u
 }
 
 // Where appends a list predicates to the LabelUpdate builder.
@@ -705,35 +613,6 @@ func (_u *LabelUpdateOne) sqlSave(ctx context.Context) (_node *Label, err error)
 	}
 	if _u.mutation.CodeCleared() {
 		_spec.ClearField(label.FieldCode, field.TypeString)
-	}
-	if _u.mutation.DomainCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   label.DomainTable,
-			Columns: []string{label.DomainColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.DomainIds(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   label.DomainTable,
-			Columns: []string{label.DomainColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Label{config: _u.config}

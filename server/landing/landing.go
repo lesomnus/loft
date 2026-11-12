@@ -1,8 +1,7 @@
 // Package landing is where a browser is sent at the end of a round trip a
-// link started -- signing in through the issuer (`server/sso`), a sign-in
-// handed to a workspace's own domain (`server/session`) -- which is a path on
-// the host it was asked on, and never another site: a link that named one
-// would land somebody who just signed in on a page made to look like this
+// link started -- signing in through the issuer (`server/sso`) -- which is a
+// path on the host it was asked on, and never another site: a link that named
+// one would land somebody who just signed in on a page made to look like this
 // one.
 package landing
 

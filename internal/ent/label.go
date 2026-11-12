@@ -8,7 +8,6 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
@@ -40,8 +39,6 @@ type Label struct {
 	Code *string `json:"code,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
-	// DomainId holds the value of the "domain_id" field.
-	DomainId uuid.UUID `json:"domain_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the LabelQuery when eager-loading is set.
 	Edges        LabelEdges `json:"edges"`
@@ -52,11 +49,9 @@ type Label struct {
 type LabelEdges struct {
 	// Tenant holds the value of the tenant edge.
 	Tenant *Tenant `json:"tenant,omitempty"`
-	// Domain holds the value of the domain edge.
-	Domain *Domain `json:"domain,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [1]bool
 }
 
 // TenantOrErr returns the Tenant value or an error if the edge
@@ -70,17 +65,6 @@ func (e LabelEdges) TenantOrErr() (*Tenant, error) {
 	return nil, &NotLoadedError{edge: "tenant"}
 }
 
-// DomainOrErr returns the Domain value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e LabelEdges) DomainOrErr() (*Domain, error) {
-	if e.Domain != nil {
-		return e.Domain, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: domain.Label}
-	}
-	return nil, &NotLoadedError{edge: "domain"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Label) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -90,7 +74,7 @@ func (*Label) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case label.FieldDateBound, label.FieldDatePrinted, label.FieldDateUpdated, label.FieldDateErased, label.FieldDateCreated:
 			values[i] = new(sql.NullTime)
-		case label.FieldSubjectId, label.FieldDomainId:
+		case label.FieldSubjectId:
 			values[i] = new(sql.Null[uuid.UUID])
 		case label.FieldId, label.FieldTenantId:
 			values[i] = new(uuid.UUID)
@@ -180,12 +164,6 @@ func (_m *Label) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				_m.TenantId = *value
 			}
-		case label.FieldDomainId:
-			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
-				return fmt.Errorf("unexpected type %T for field domain_id", values[i])
-			} else if value.Valid {
-				_m.DomainId = value.V
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -202,11 +180,6 @@ func (_m *Label) Value(name string) (ent.Value, error) {
 // QueryTenant queries the "tenant" edge of the Label entity.
 func (_m *Label) QueryTenant() *TenantQuery {
 	return NewLabelClient(_m.config).QueryTenant(_m)
-}
-
-// QueryDomain queries the "domain" edge of the Label entity.
-func (_m *Label) QueryDomain() *DomainQuery {
-	return NewLabelClient(_m.config).QueryDomain(_m)
 }
 
 // Update returns a builder for updating this Label.
@@ -271,9 +244,6 @@ func (_m *Label) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))
-	builder.WriteString(", ")
-	builder.WriteString("domain_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DomainId))
 	builder.WriteByte(')')
 	return builder.String()
 }

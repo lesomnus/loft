@@ -97,12 +97,6 @@ func (Session) Fields() []ent.Field {
 		field.Bytes("held").
 			Nillable().
 			Optional(),
-		field.Uuid("workspace").
-			Nillable().
-			Optional(),
-		field.Uuid("parent").
-			Nillable().
-			Optional(),
 		field.Time("date_updated"),
 		field.Time("date_erased").
 			Nillable().
@@ -119,8 +113,6 @@ func (Session) Indexes() []ent.Index {
 			StorageKey("session_secret"),
 		index.Fields("account").
 			StorageKey("session_account"),
-		index.Fields("parent").
-			StorageKey("session_parent"),
 	}
 }
 
@@ -326,44 +318,5 @@ func (SignInFailure) Indexes() []ent.Index {
 func (SignInFailure) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "signinfailure"},
-	}
-}
-
-type Handoff struct {
-	ent.Schema
-}
-
-func (Handoff) Fields() []ent.Field {
-	return []ent.Field{
-		field.Uuid("id").
-			Unique().
-			Immutable(),
-		field.Bytes("secret"),
-		field.Uuid("account"),
-		field.Uuid("workspace"),
-		field.String("host"),
-		field.Bytes("state"),
-		field.Uuid("parent"),
-		field.Time("date_expires").
-			Optional(),
-		field.Time("date_created").
-			Immutable().
-			Optional(),
-	}
-}
-
-func (Handoff) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("secret").
-			StorageKey("handoff_secret").
-			Unique(),
-		index.Fields("date_expires").
-			StorageKey("handoff_date_expires"),
-	}
-}
-
-func (Handoff) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{Table: "handoff"},
 	}
 }

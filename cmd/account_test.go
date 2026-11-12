@@ -42,7 +42,7 @@ func TestAnAccountIsToldWhereItIsManaged(t *testing.T) {
 	x.Equal("https://id.example/", me.GetAccountUrl())
 
 	mux := http.NewServeMux()
-	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity, Workspaces: w.s.Workspaces(w.c), Manage: "https://id.example/"}.Mount(mux)
+	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity, Manage: "https://id.example/"}.Mount(mux)
 	r := httptest.NewRequest(http.MethodGet, "/account", nil)
 	r.Header.Set("Cookie", cookieOf(w.owner))
 	rec := httptest.NewRecorder()

@@ -3,9 +3,9 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import type { Label } from '../../gen/loft/asset_pb.js'
-import { DomainService, LabelService, errorText, idBytes, idStr, labelCodeText } from '../api.js'
+import { LabelService, errorText, idBytes, idStr, labelCodeText } from '../api.js'
 import { useCatalog } from '../catalog.js'
-import { call, useRpc } from '../rpc.js'
+import { call } from '../rpc.js'
 import { useAssets } from '../pickers.js'
 import { Spinner } from '../ui.js'
 
@@ -41,14 +41,12 @@ export function LabelSheet(): ReactNode {
 	const c = useCatalog()
 	const ids = (sp.get('assets') ?? '').split(',').filter((v) => v !== '')
 	const blank = Number(sp.get('count') ?? '0')
-	const status = useRpc(DomainService.method.status, {})
 	const [got, setGot] = useState<{ labels: Label[]; urls: string[]; qr: string[] }>()
 	const [err, setErr] = useState('')
 	const [size, setSize] = useState(sp.get('size') ?? 'm')
 	const assets = useAssets(ids.map((s) => idBytes(s)))
 
 	useEffect(() => {
-		if (status.data === undefined) return
 		let live = true
 		void (async () => {
 			try {
@@ -70,7 +68,7 @@ export function LabelSheet(): ReactNode {
 			live = false
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [status.data === undefined])
+	}, [])
 
 	if (err !== '') return <div className="print-page bad">{err}</div>
 	if (got === undefined) return <div className="boot"><Spinner /></div>
@@ -80,7 +78,7 @@ export function LabelSheet(): ReactNode {
 			<div className="no-print toolbar">
 				<Link to="/assets">← 돌아가기</Link>
 				<span>
-					라벨 {got.labels.length}장 · {status.data?.active?.host ?? hostOf(got.urls[0])}
+					라벨 {got.labels.length}장 · {hostOf(got.urls[0])}
 				</span>
 				<select value={size} onChange={(e) => setSize(e.target.value)}>
 					<option value="s">작게 (40×20mm)</option>

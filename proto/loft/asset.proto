@@ -190,80 +190,9 @@ message TagCounter {
   };
 }
 
-// Domain is a domain of a workspace's (design 9.9): one its whole app is on
-// (`app`), or one its QR labels print with (`label`). Only a workspace has
-// domains, so it is called what it is (D72), and so are the messages of its
-// events, `DomainAdded` and the rest.
-message Domain {
-  bytes id = 1 [(orm.field) = {
-    type: TYPE_UUID
-    key: true
-    default: ""
-  }];
-  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
-
-  // A lowercase host name, unique across the deployment.
-  string host = 8 [(orm.field) = {unique: true}];
-  // app | label
-  string purpose = 9;
-  // pending | ready | active | legacy | lapsed | retired
-  string state = 10;
-  // The value the TXT record has to hold.
-  string token = 11;
-  // custom | default
-  string source = 12;
-
-  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
-  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
-  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
-    immutable: true
-    default: ""
-  }];
-
-  google.protobuf.Timestamp date_verified = 16 [
-    (orm.field) = {nullable: true},
-    (payday.field) = {stamped: true}
-  ];
-
-  // An active custom domain's DNS is asked about again every hour (loft#155):
-  // whether its TXT record still holds `token`, and whether it still points
-  // here. `date_checked` is when it was last asked, and `failures` how many
-  // answers in a row since `date_failing` said no -- one that said nothing,
-  // a timeout, is none; 0 for a domain made, which no answer has said no to. A domain whose DNS said no often enough for long
-  // enough lapses (`server/domain`'s sweep): `lapsed`, since `date_lapsed`,
-  // and active again only once its TXT record verifies again.
-  google.protobuf.Timestamp date_checked = 18 [(orm.field) = {nullable: true}];
-  uint32 failures = 19 [(orm.field) = {default: "0"}];
-  google.protobuf.Timestamp date_failing = 20 [(orm.field) = {nullable: true}];
-  google.protobuf.Timestamp date_lapsed = 17 [(orm.field) = {nullable: true}];
-
-  // For an `app` domain made legacy by another's activation: until when its
-  // pages send a browser on to where the workspace's app is now.
-  google.protobuf.Timestamp date_redirect_until = 21 [(orm.field) = {nullable: true}];
-
-  option (orm.message) = {
-    rpc: {crud: true}
-    indexes: [
-      {
-        name: "page"
-        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
-      }
-    ]
-  };
-  option (payday.entity) = {
-    domain: 24
-    list: {
-      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
-      by: [{name: "ref"}, {name: "state"}, {name: "purpose"}]
-      size: 50
-      max: 100
-    }
-    watch: {}
-  };
-}
-
-// Label is a printed QR label. It is printed with the tenant's label domain,
-// bound to an asset when it is stuck on, and can be voided and replaced.
+// Label is a printed QR label. It is printed with this deployment's own
+// address (design 9.9), bound to an asset when it is stuck on, and can be
+// voided and replaced.
 message Label {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -272,7 +201,6 @@ message Label {
   }];
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  Domain domain = 8 [(orm.edge) = {nullable: true}];
   // The asset it is stuck on, by identifier.
   bytes subject_id = 9 [(orm.field) = {
     type: TYPE_UUID

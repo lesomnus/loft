@@ -15,10 +15,10 @@ import type { EntityDesc } from '@lesomnus/payday/store'
 
 import { AccessSchema } from './loft/payday/access_pb.js'
 import { AccessReviewSchema, LegalHoldSchema, NotificationSchema, TenantContractSchema } from './loft/ops_pb.js'
-import { AliasHoldSchema, CliLoginSchema, HandoffSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './loft/org_pb.js'
+import { AliasHoldSchema, CliLoginSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './loft/org_pb.js'
 import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './loft/booking_pb.js'
 import { ArchivedSchema } from './loft/payday/archived_pb.js'
-import { AssetSchema, AttachmentSchema, DomainSchema, LabelSchema, TagCounterSchema, TreeLockSchema } from './loft/asset_pb.js'
+import { AssetSchema, AttachmentSchema, LabelSchema, TagCounterSchema, TreeLockSchema } from './loft/asset_pb.js'
 import { AssetTypeSchema, ItemModelSchema } from './loft/catalog_pb.js'
 import { AuditSchema } from './loft/payday/audit_pb.js'
 import { CountFindingSchema, InventoryCountSchema } from './loft/count_pb.js'
@@ -38,10 +38,10 @@ import { StockSchema, StockMovementSchema } from './loft/stock_pb.js'
 import { TenantSchema } from './loft/payday/tenant_pb.js'
 import { AccessService } from './loft/payday/access_svc_pb.js'
 import { AccessReviewService, LegalHoldService, NotificationService, TenantContractService } from './loft/ops_svc_pb.js'
-import { AliasHoldService, CliLoginService, HandoffService, InvitationService, PartyService, SessionService, SignInFailureService } from './loft/org_svc_pb.js'
+import { AliasHoldService, CliLoginService, InvitationService, PartyService, SessionService, SignInFailureService } from './loft/org_svc_pb.js'
 import { AllocationService, BookableService, ReservationService, ReservationItemService } from './loft/booking_svc_pb.js'
 import { ArchivedService } from './loft/payday/archived_svc_pb.js'
-import { AssetService, AttachmentService, DomainService, LabelService, TagCounterService, TreeLockService } from './loft/asset_svc_pb.js'
+import { AssetService, AttachmentService, LabelService, TagCounterService, TreeLockService } from './loft/asset_svc_pb.js'
 import { AssetTypeService, ItemModelService } from './loft/catalog_svc_pb.js'
 import { AuditService } from './loft/payday/audit_svc_pb.js'
 import { CountFindingService, InventoryCountService } from './loft/count_svc_pb.js'
@@ -221,18 +221,6 @@ export const CustodyLine = {
 	service: CustodyLineService,
 } as const satisfies EntityDesc
 
-/** loft.Domain, as the store holds it. */
-export const Domain = {
-	typeName: "loft.Domain",
-	schema: DomainSchema,
-	domain: 24,
-	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "loft.Tenant" }],
-	key: "id",
-	ids: ["id"],
-	service: DomainService,
-} as const satisfies EntityDesc
-
 /** loft.Entitlement, as the store holds it. */
 export const Entitlement = {
 	typeName: "loft.Entitlement",
@@ -267,17 +255,6 @@ export const Fact = {
 	key: "id",
 	ids: ["id", "subjectId", "eventId", "supersededBy"],
 	service: FactService,
-} as const satisfies EntityDesc
-
-/** loft.Handoff, as the store holds it. */
-export const Handoff = {
-	typeName: "loft.Handoff",
-	schema: HandoffSchema,
-	domain: 48,
-	key: "id",
-	ids: ["id", "account", "workspace", "parent"],
-	secrets: ["secret", "state"],
-	service: HandoffService,
 } as const satisfies EntityDesc
 
 /** loft.Holder, as the store holds it. */
@@ -336,7 +313,7 @@ export const Label = {
 	schema: LabelSchema,
 	domain: 18,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "loft.Tenant" }, { field: "domain", to: "loft.Domain" }],
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
 	key: "id",
 	ids: ["id", "subjectId"],
 	service: LabelService,
@@ -506,7 +483,7 @@ export const Session = {
 	domain: 38,
 	version: "dateUpdated",
 	key: "id",
-	ids: ["id", "account", "workspace", "parent"],
+	ids: ["id", "account"],
 	secrets: ["secret", "held"],
 	service: SessionService,
 } as const satisfies EntityDesc
@@ -618,5 +595,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Domain, Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TreeLock, WorkOrder] as const
+export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TreeLock, WorkOrder] as const
 

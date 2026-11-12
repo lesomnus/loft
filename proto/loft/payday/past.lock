@@ -23,11 +23,6 @@
     "custody.issue": "loft.CustodyIssued",
     "custody.overdue": "loft.CustodyOverdue",
     "custody.return": "loft.CustodyReturned",
-    "domain.activate": "loft.DomainActivated",
-    "domain.add": "loft.DomainAdded",
-    "domain.lapse": "loft.DomainLapsed",
-    "domain.retire": "loft.DomainRetired",
-    "domain.verify": "loft.DomainVerified",
     "event.redact": "loft.EventRedacted",
     "invitation.accept": "loft.InvitationAccepted",
     "invitation.add": "loft.InvitationAdded",
@@ -474,101 +469,6 @@
       "8": {
         "json": "to",
         "kind": "bytes"
-      }
-    },
-    "loft.DomainActivated": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      }
-    },
-    "loft.DomainAdded": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      },
-      "4": {
-        "json": "source",
-        "kind": "string"
-      }
-    },
-    "loft.DomainLapsed": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      },
-      "5": {
-        "json": "dateFailing",
-        "kind": "message",
-        "type": "google.protobuf.Timestamp"
-      },
-      "6": {
-        "json": "failures",
-        "kind": "uint32"
-      }
-    },
-    "loft.DomainRetired": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      },
-      "7": {
-        "json": "force",
-        "kind": "bool"
-      },
-      "8": {
-        "json": "labels",
-        "kind": "uint32"
-      }
-    },
-    "loft.DomainVerified": {
-      "1": {
-        "json": "domain",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "host",
-        "kind": "string"
-      },
-      "3": {
-        "json": "purpose",
-        "kind": "string"
-      },
-      "9": {
-        "json": "again",
-        "kind": "bool"
       }
     },
     "loft.EventRedacted": {

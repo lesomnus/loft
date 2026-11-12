@@ -40,16 +40,12 @@ type Tx struct {
 	Custody *CustodyClient
 	// CustodyLine is the client for interacting with the CustodyLine builders.
 	CustodyLine *CustodyLineClient
-	// Domain is the client for interacting with the Domain builders.
-	Domain *DomainClient
 	// Entitlement is the client for interacting with the Entitlement builders.
 	Entitlement *EntitlementClient
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
 	// Fact is the client for interacting with the Fact builders.
 	Fact *FactClient
-	// Handoff is the client for interacting with the Handoff builders.
-	Handoff *HandoffClient
 	// Holder is the client for interacting with the Holder builders.
 	Holder *HolderClient
 	// InventoryCount is the client for interacting with the InventoryCount builders.
@@ -253,11 +249,9 @@ func (tx *Tx) init() {
 	tx.CountFinding = NewCountFindingClient(tx.config)
 	tx.Custody = NewCustodyClient(tx.config)
 	tx.CustodyLine = NewCustodyLineClient(tx.config)
-	tx.Domain = NewDomainClient(tx.config)
 	tx.Entitlement = NewEntitlementClient(tx.config)
 	tx.Event = NewEventClient(tx.config)
 	tx.Fact = NewFactClient(tx.config)
-	tx.Handoff = NewHandoffClient(tx.config)
 	tx.Holder = NewHolderClient(tx.config)
 	tx.InventoryCount = NewInventoryCountClient(tx.config)
 	tx.Invitation = NewInvitationClient(tx.config)

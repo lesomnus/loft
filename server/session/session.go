@@ -14,11 +14,6 @@
 // A session names an **account** and not a membership (D27). Which workspace a
 // call is about is the call's to say, and `cmd.Resolver` turns the account and
 // that workspace into the holder the call is served as.
-//
-// But for one, a session handed to a workspace's own domain ([Handoff],
-// loft#155): it is bound to that workspace -- its tenant is that one's, which
-// payday holds every call to -- and it is handed from a sign-in at the
-// service's address, which it lives no longer than.
 package session
 
 import (
@@ -35,7 +30,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"uuid"
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/auth"
@@ -43,11 +37,9 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
-	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/handoff"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/internal/ent/session"
@@ -84,8 +76,8 @@ type Held interface {
 
 var _ authsession.Store = Store{}
 
-// KeyFrom is the key sessions, terminals' sign-ins and handoff codes are kept
-// under, made from `app.signing_key` (HKDF, with a label of its own): a key
+// KeyFrom is the key sessions and terminals' sign-ins are kept under, made
+// from `app.signing_key` (HKDF, with a label of its own): a key
 // every process of a deployment holds, and no database does -- the one place
 // the trail's adversary is not. The signing key signs download links as well,
 // and the label is what keeps what one is used for from saying anything of the
@@ -98,8 +90,8 @@ func KeyFrom(signing []byte) []byte {
 	return k
 }
 
-// Kept is what a key -- a session's, a handoff's code -- is kept and looked up
-// as: the HMAC, under [Store.Key], of its SHA-256.
+// Kept is what a session's key is kept and looked up as: the HMAC, under
+// [Store.Key], of its SHA-256.
 func (s Store) Kept(key string) []byte {
 	sum := sha256.Sum256([]byte(key))
 	return s.KeptSum(sum[:])
@@ -183,11 +175,8 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 		SetNillableDateExpires(nonzero(v.Expires)).
 		SetDateUpdated(now).
 		Save(ctx)
-	if err != nil {
+	if err != nil || n > 0 {
 		return err
-	}
-	if n > 0 {
-		return s.keep(ctx, v)
 	}
 
 	create := s.Db.Session.Create().
@@ -202,36 +191,7 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 	if held != nil {
 		create.SetHeld(held)
 	}
-	// One handed to a workspace's domain: bound to that workspace, and handed
-	// from a sign-in, or not made at all.
-	parent, handed := ctx.Value(handedKey{}).(uuid.UUID)
-	if v.TenantId != "" || handed {
-		ws, err := pdid.Parse(v.TenantId)
-		if err != nil || !handed {
-			return errors.New("session: one bound to a workspace is handed from a sign-in, and names it")
-		}
-		create.SetWorkspace(ws.Uuid()).SetParent(parent)
-	}
 	return create.Exec(ctx)
-}
-
-// keep moves the idle clock of the sign-in a session on a workspace's domain
-// was handed from with its own, so that the one it is good while outlives it:
-// a domain somebody works on all day is not signed out because the service's
-// address was left alone.
-func (s Store) keep(ctx context.Context, v authsession.Session) error {
-	if v.TenantId == "" || v.Idle.IsZero() {
-		return nil
-	}
-	row, err := s.Db.Session.Query().Where(session.Secret(s.Kept(v.Key))).Only(ctx)
-	if err != nil || row.Parent == nil {
-		return err
-	}
-	_, err = s.Db.Session.Update().
-		Where(session.Id(*row.Parent), session.DateIdleLT(v.Idle)).
-		SetDateIdle(v.Idle).
-		Save(ctx)
-	return err
 }
 
 func (s Store) Get(ctx context.Context, key string) (authsession.Session, error) {
@@ -241,20 +201,6 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 			return authsession.Session{}, authsession.ErrNoSession
 		}
 		return authsession.Session{}, err
-	}
-	if v.Parent != nil {
-		// Handed to a workspace's domain, and good while the sign-in it was
-		// handed from is: signing out at the service's ends it too.
-		ok, err := s.Db.Session.Query().Where(append(live(time.Now()), session.Id(*v.Parent))...).Exist(ctx)
-		if err != nil {
-			return authsession.Session{}, err
-		}
-		if !ok {
-			if _, err := s.Db.Session.Delete().Where(session.Id(v.Id)).Exec(ctx); err != nil {
-				log.From(ctx).WarnContext(ctx, "session: ending one whose sign-in is over", slog.Any("err", err))
-			}
-			return authsession.Session{}, authsession.ErrNoSession
-		}
 	}
 	if s.People != nil {
 		switch err := s.People.Held(ctx, pdid.Id(v.Account), v.DateCreated); {
@@ -271,8 +217,7 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 		}
 	}
 	// No tenant: an account is in none, and which workspace a call is about
-	// is the call's to say -- but for one handed to a workspace's domain,
-	// which is that workspace's.
+	// is the call's to say.
 	g, err := grantOf(v.Grant)
 	if err != nil {
 		return authsession.Session{}, fmt.Errorf("session: what it allows: %w", err)
@@ -281,9 +226,6 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 		Key:   key,
 		Id:    pdid.Id(v.Account).String(),
 		Grant: g,
-	}
-	if v.Workspace != nil {
-		out.TenantId = pdid.Id(*v.Workspace).String()
 	}
 	if v.DateExpires != nil {
 		out.Expires = *v.DateExpires
@@ -302,41 +244,6 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 func (s Store) Del(ctx context.Context, key string) error {
 	_, err := s.Db.Session.Delete().Where(session.Secret(s.Kept(key))).Exec(ctx)
 	return err
-}
-
-// Leave is signing out on a workspace's domain ([Handoff]): the session `key`
-// names ends, and so does the sign-in at the service's it was handed from,
-// with everything else that one handed out. It answers what that sign-in
-// kept, for signing out at the issuer too; nothing for a key that names no
-// session.
-func (s Store) Leave(ctx context.Context, key string) (map[string]string, error) {
-	if key == "" {
-		return nil, nil
-	}
-	v, err := s.Db.Session.Query().Where(session.Secret(s.Kept(key))).Only(ctx)
-	switch {
-	case ent.IsNotFound(err):
-		return nil, nil
-	case err != nil:
-		return nil, err
-	}
-	ids := []uuid.UUID{v.Id}
-	var held map[string]string
-	if v.Parent != nil {
-		ids = append(ids, *v.Parent)
-		p, err := s.Db.Session.Get(ctx, *v.Parent)
-		switch {
-		case ent.IsNotFound(err):
-		case err != nil:
-			return nil, err
-		case p.Held != nil && len(*p.Held) > 0:
-			if err := json.Unmarshal(*p.Held, &held); err != nil {
-				return nil, fmt.Errorf("session: what it held: %w", err)
-			}
-		}
-	}
-	_, err = s.Db.Session.Delete().Where(session.Or(session.IdIn(ids...), session.ParentIn(ids...))).Exec(ctx)
-	return held, err
 }
 
 // Adopt makes a session whose key somebody else holds: a terminal that made
@@ -379,28 +286,13 @@ func (s Store) End(ctx context.Context, account pdid.Id, before time.Time) (int,
 }
 
 // Sweep deletes sessions that are over, for the table not to keep every
-// sign-in there ever was: those that ran out, and those handed to a
-// workspace's domain from a sign-in that is gone.
+// sign-in there ever was.
 func (s Store) Sweep(ctx context.Context) error {
 	now := time.Now()
 	_, err := s.Db.Session.Delete().Where(session.Or(
 		session.DateExpiresLT(now),
 		session.DateIdleLT(now),
 	)).Exec(ctx)
-	if err != nil {
-		return err
-	}
-	_, err = s.Db.Session.Delete().Where(session.ParentNotNil(), func(sel *sql.Selector) {
-		t := sql.Table(session.Table).As("handed_from")
-		sel.Where(sql.NotIn(sel.C(session.FieldParent), sql.Select(t.C(session.FieldId)).From(t)))
-	}).Exec(ctx)
-	return err
-}
-
-// SweepHandoffs deletes the codes nobody brought back in their minute
-// ([Handoff]).
-func (s Store) SweepHandoffs(ctx context.Context) error {
-	_, err := s.Db.Handoff.Delete().Where(handoff.DateExpiresLT(time.Now())).Exec(ctx)
 	return err
 }
 

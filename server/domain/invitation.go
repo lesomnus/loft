@@ -29,7 +29,6 @@ import (
 	entparty "github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/policy"
@@ -841,10 +840,9 @@ func (d *Deps) mailInvitation(ctx context.Context, v *app.Invitation, code, invi
 	if d.Mail == nil {
 		return nil
 	}
-	// At the service's address, whatever domain the workspace has: the
-	// account answers it in its inbox, as itself, and is nobody's member in
-	// the workspace yet.
-	link := d.Links.Home(apphost.Page) + "/invitations?code=" + code
+	// The account answers it in its inbox, as itself, and is nobody's member
+	// in the workspace yet.
+	link := d.Links.Page() + "/invitations?code=" + code
 	role := roleWords[v.GetRole()]
 	until := v.GetDateExpires().AsTime().In(zone).Format("2006년 1월 2일")
 	body := fmt.Sprintf(`%s님이 Loft의 %s에 %s%s 초대했습니다.

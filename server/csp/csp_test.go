@@ -44,9 +44,6 @@ func TestThePolicyIsWhatThePageLoads(t *testing.T) {
 	x.Equal("csp", d["report-to"])
 
 	x.Equal("'self'", directives(csp.Policy(""))["form-action"], "no issuer, no form goes anywhere else")
-	x.Equal("'self' https://loft.example https://app.loft.example https://id.example.com",
-		directives(csp.Policy("https://id.example.com/oauth2/", "https://loft.example", "https://app.loft.example/", "https://loft.example/"))["form-action"],
-		"a sign-out on a workspace's own domain is a form that lands at the service's address, once each")
 
 	for v, want := range map[string]csp.Mode{"": csp.ReportOnly, "report-only": csp.ReportOnly, "enforce": csp.Enforce, "off": csp.Off} {
 		got, err := csp.Parse(v)
@@ -66,17 +63,17 @@ func TestThePolicyIsWhatThePageLoads(t *testing.T) {
 func TestAPageThatLoadsMoreHasThePolicyAndMore(t *testing.T) {
 	x := require.New(t)
 
-	base := csp.Policy("https://id.example.com/oauth2", "https://loft.example.com")
-	x.Equal(base, csp.With(nil, "https://id.example.com/oauth2", "https://loft.example.com"))
+	base := csp.Policy("https://id.example.com/oauth2")
+	x.Equal(base, csp.With(nil, "https://id.example.com/oauth2"))
 
 	more := csp.With(map[string][]string{
 		"script-src": {"https://cdn.example.com"},
 		"frame-src":  {"https://pay.example.com"},
-	}, "https://id.example.com/oauth2", "https://loft.example.com")
+	}, "https://id.example.com/oauth2")
 	x.Contains(more, "script-src 'self' https://cdn.example.com; ")
 	x.Contains(more, "manifest-src 'self'; frame-src https://pay.example.com; object-src 'none'; ")
 	x.Contains(more, "style-src 'self'; ")
-	x.Contains(more, "form-action 'self' https://loft.example.com https://id.example.com; ")
+	x.Contains(more, "form-action 'self' https://id.example.com; ")
 	x.True(strings.HasSuffix(more, "frame-ancestors 'none'; report-uri /csp-report; report-to csp"))
 }
 

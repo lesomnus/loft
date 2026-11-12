@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import type { Bookable } from '../../gen/loft/booking_pb.js'
 import type { AssetType, AttributeDef, ItemModel } from '../../gen/loft/catalog_pb.js'
-import type { Domain } from '../../gen/loft/asset_pb.js'
 import type { Party } from '../../gen/loft/org_pb.js'
 import type { Tenant } from '../../gen/loft/payday/tenant_pb.js'
 import type { TenantPreviewResponse } from '../../gen/loft/payday/tenant_svc_pb.js'
@@ -14,7 +13,6 @@ import {
 	AssetTypeService,
 	AuditService,
 	BookableService,
-	DomainService,
 	EventService,
 	ItemModelService,
 	TenantService,
@@ -35,8 +33,8 @@ import { modelName, useCatalog } from '../catalog.js'
 import { PaymentTab } from '../billing.js'
 import { TypeSelect, useAssets } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
-import { Badge, Card, Confirm, Empty, Field, FormModal, Load, OrderSelect, PageHead, Select, Tabs, type Order } from '../ui.js'
-import { attrTypeWord, domainWord, kindWord } from '../words.js'
+import { Card, Empty, Field, FormModal, Load, OrderSelect, PageHead, Select, Tabs, type Order } from '../ui.js'
+import { attrTypeWord, kindWord } from '../words.js'
 
 export function Settings(props: { account: Account }): ReactNode {
 	const c = useCatalog()
@@ -45,7 +43,7 @@ export function Settings(props: { account: Account }): ReactNode {
 		{ key: 'types', label: '유형' },
 		{ key: 'models', label: '모델' },
 		{ key: 'bookables', label: '예약 자원' },
-		{ key: 'labels', label: '도메인과 라벨' },
+		{ key: 'labels', label: '라벨' },
 		// The workspace's records -- what was done and why, every write, who
 		// saw whose data -- are read by the people who run it and by its
 		// auditors (`server/policy`, D79). What happened to one asset is on
@@ -405,140 +403,19 @@ function BookableForm(props: { b: Bookable; pool: boolean; onClose: () => void }
 }
 
 /**
- * The workspace's domains, and where its labels print (loft#155): with its
- * active domain when it has one, and with the deployment's own address when it
- * has none -- with a code that is one in the whole deployment either way
- * (D28). A custom domain is the workspace's own: an `app` domain, which the
- * app is on once it is in use and its labels print with. A default subdomain,
- * where the deployment offers one, is for its labels alone.
+ * Where the workspace's labels print: with this deployment's own address and
+ * a code that is one in the whole deployment (D28, D82).
  */
 function Labels(): ReactNode {
-	const c = useCatalog()
-	const act = useAct()
-	const status = useRpc(DomainService.method.status, {})
-	const list = useRpc(DomainService.method.list, { size: 50 })
-	const [adding, setAdding] = useState(false)
 	return (
-		<Load q={status}>
-			{(s) => (
-				<Card title="도메인과 라벨" actions={c.can('admin') && <button className="primary small" onClick={() => setAdding(true)}>+ 도메인</button>}>
-					<p>
-						새 라벨은 <code>{s.active !== undefined ? `${s.active.host}/l/코드` : `${s.base}/l/코드`}</code> 주소로 인쇄됩니다.{' '}
-						<Link to="/labels/print?count=24">빈 라벨 24장 인쇄</Link>
-					</p>
-					<p className="mute small">
-						코드는 서비스 전체에서 하나뿐이라, 어느 주소로 인쇄했든 어느 워크스페이스의 라벨인지는 코드가 정합니다. 다른 워크스페이스의 라벨을 스캔하면, 그 워크스페이스의 구성원이라면 그곳에서 열립니다. 카메라가 읽지 못할 때는 라벨 아래의 코드(예: 7K3M-Q9TX)를 스캔 화면에 입력하세요.
-					</p>
-					<Load q={list}>
-						{(d) =>
-							d.items.length === 0 ? (
-								<p className="mute">이 워크스페이스의 도메인이 없어 라벨은 서비스 주소로 인쇄됩니다.</p>
-							) : (
-								<ul className="rows">
-									{d.items.map((x) => (
-										<DomainRow key={idStr(x.id)} d={x} target={s.target} admin={c.can('admin')} act={act} />
-									))}
-								</ul>
-							)
-						}
-					</Load>
-					<p className="mute small">
-						인쇄한 라벨은 그 주소를 계속 씁니다. 도메인을 바꾸면 이전 도메인은 '이전 주소'로 남아 기존 라벨도 계속 열리고, 이전 앱 도메인은 한동안 새 도메인으로 페이지를 보냅니다. 중지하면 그 주소로 인쇄된 라벨이 더 이상 열리지 않습니다.
-					</p>
-					{adding && <NewDomain suffix={s.defaultSuffix} onClose={() => setAdding(false)} />}
-				</Card>
-			)}
-		</Load>
-	)
-}
-
-function DomainRow(props: { d: Domain; target: string; admin: boolean; act: ReturnType<typeof useAct> }): ReactNode {
-	const d = props.d
-	return (
-		<li>
-			<span>
-				<code>{d.host}</code> <Badge v={d.state} words={domainWord} />
-				<span className="mute small">
-					{' '}
-					{d.source === 'default' ? '기본 주소' : '자체 도메인'} · {d.purpose === 'app' ? '앱과 라벨' : '라벨'}
-				</span>
-				{d.state === 'lapsed' && (
-					<div className="small bad">
-						DNS가 {fmt(d.dateFailing)}부터 이 서비스를 가리키지 않거나 TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔습니다.
-					</div>
-				)}
-				{d.state === 'active' && d.failures > 0 && (
-					<div className="small bad">
-						DNS 확인이 {fmt(d.dateFailing)}부터 {d.failures}번 연속 실패했습니다. 여섯 번 연속 실패하면 사용을 멈춥니다.
-					</div>
-				)}
-				{(d.state === 'pending' || d.state === 'lapsed') && (
-					<div className="small">
-						DNS에 TXT 레코드 <code>_loft-challenge.{d.host}</code> = <code>{d.token}</code>
-						{props.target !== '' && (
-							<>
-								{' '}
-								와 CNAME <code>{d.host}</code> → <code>{props.target}</code>
-							</>
-						)}{' '}
-						를 추가하세요. 몇 분마다 자동으로 확인합니다. 확인된 뒤에도 레코드를 지우지 마세요. 쓰는 동안 한 시간마다 다시 확인합니다.
-					</div>
-				)}
-			</span>
-			{props.admin && (
-				<span className="inline">
-					{(d.state === 'pending' || d.state === 'lapsed') && (
-						<button className="small" onClick={() => void props.act(DomainService.method.verify, { ref: ref(d.id) }, { ok: '확인되었습니다.' })}>
-							지금 확인
-						</button>
-					)}
-					{['ready', 'legacy'].includes(d.state) && (
-						<button
-							className="small primary"
-							onClick={() => void props.act(DomainService.method.activate, { ref: ref(d.id) }, { ok: d.purpose === 'app' ? '이제 이 도메인을 씁니다.' : '이제 이 주소로 인쇄합니다.' })}
-						>
-							사용
-						</button>
-					)}
-					{d.state !== 'retired' && (
-						<Confirm
-							className="small danger"
-							label="중지"
-							danger
-							question={`${d.host}를 중지합니다. 이 주소로 인쇄된 라벨은 더 이상 열리지 않습니다.`}
-							onYes={() => props.act(DomainService.method.retire, { ref: ref(d.id), force: true }, { ok: '중지했습니다.' })}
-						/>
-					)}
-				</span>
-			)}
-		</li>
-	)
-}
-
-function NewDomain(props: { suffix: string; onClose: () => void }): ReactNode {
-	const act = useAct()
-	const [how, setHow] = useState('custom')
-	const [v, setV] = useState('')
-	return (
-		<FormModal
-			title="도메인 추가"
-			onClose={props.onClose}
-			onSubmit={async () => (await act(DomainService.method.add, how === 'sub' ? { sub: v } : { host: v }, { ok: '추가했습니다.' })) !== undefined}
-		>
-			<Field label="종류">
-				<Select
-					value={how}
-					onChange={setHow}
-					options={[
-						{ value: 'custom', label: '자체 도메인 — 앱과 라벨 (DNS 확인 필요)' },
-						...(props.suffix !== '' ? [{ value: 'sub', label: `기본 주소 (*.${props.suffix}) — 라벨만` }] : []),
-					]}
-				/>
-			</Field>
-			<Field label={how === 'sub' ? '이름' : '호스트'} hint={how === 'sub' ? `→ 이름.${props.suffix}` : '예: assets.example.com'}>
-				<input value={v} onChange={(e) => setV(e.target.value)} required />
-			</Field>
-		</FormModal>
+		<Card title="라벨">
+			<p>
+				새 라벨은 이 서비스의 주소(<code>/l/코드</code>)로 인쇄됩니다. <Link to="/labels/print?count=24">빈 라벨 24장 인쇄</Link>
+			</p>
+			<p className="mute small">
+				코드는 서비스 전체에서 하나뿐이라, 어느 워크스페이스의 라벨인지는 코드가 정합니다. 다른 워크스페이스의 라벨을 스캔하면, 그 워크스페이스의 구성원이라면 그곳에서 열립니다. 카메라가 읽지 못할 때는 라벨 아래의 코드(예: 7K3M-Q9TX)를 스캔 화면에 입력하세요.
+			</p>
+		</Card>
 	)
 }
 

@@ -8,7 +8,6 @@ import (
 	"math"
 	"uuid"
 
-	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/lesomnus/loft/internal/ent/tenant"
@@ -26,7 +25,6 @@ type LabelQuery struct {
 	inters     []Interceptor
 	predicates []predicate.Label
 	withTenant *TenantQuery
-	withDomain *DomainQuery
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -79,28 +77,6 @@ func (_q *LabelQuery) QueryTenant() *TenantQuery {
 			sqlgraph.From(label.Table, label.FieldId, selector),
 			sqlgraph.To(tenant.Table, tenant.FieldId),
 			sqlgraph.Edge(sqlgraph.M2O, false, label.TenantTable, label.TenantColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryDomain chains the current query on the "domain" edge.
-func (_q *LabelQuery) QueryDomain() *DomainQuery {
-	query := (&DomainClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(label.Table, label.FieldId, selector),
-			sqlgraph.To(domain.Table, domain.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, label.DomainTable, label.DomainColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -301,7 +277,6 @@ func (_q *LabelQuery) Clone() *LabelQuery {
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.Label{}, _q.predicates...),
 		withTenant: _q.withTenant.Clone(),
-		withDomain: _q.withDomain.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -317,17 +292,6 @@ func (_q *LabelQuery) WithTenant(opts ...func(*TenantQuery)) *LabelQuery {
 		opt(query)
 	}
 	_q.withTenant = query
-	return _q
-}
-
-// WithDomain tells the query-builder to eager-load the nodes that are connected to
-// the "domain" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *LabelQuery) WithDomain(opts ...func(*DomainQuery)) *LabelQuery {
-	query := (&DomainClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withDomain = query
 	return _q
 }
 
@@ -409,9 +373,8 @@ func (_q *LabelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Label,
 	var (
 		nodes       = []*Label{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [1]bool{
 			_q.withTenant != nil,
-			_q.withDomain != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -441,12 +404,6 @@ func (_q *LabelQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Label,
 			return nil, err
 		}
 	}
-	if query := _q.withDomain; query != nil {
-		if err := _q.loadDomain(ctx, query, nodes, nil,
-			func(n *Label, e *Domain) { n.Edges.Domain = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
@@ -472,35 +429,6 @@ func (_q *LabelQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes 
 		nodes, ok := nodeids[n.Id]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "tenant_id" returned %v`, n.Id)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (_q *LabelQuery) loadDomain(ctx context.Context, query *DomainQuery, nodes []*Label, init func(*Label), assign func(*Label, *Domain)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Label)
-	for i := range nodes {
-		fk := nodes[i].DomainId
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(domain.IdIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.Id]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "domain_id" returned %v`, n.Id)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -539,9 +467,6 @@ func (_q *LabelQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withTenant != nil {
 			_spec.Node.AddColumnOnce(label.FieldTenantId)
-		}
-		if _q.withDomain != nil {
-			_spec.Node.AddColumnOnce(label.FieldDomainId)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

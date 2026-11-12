@@ -177,18 +177,6 @@ func (f CustodyLineFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CustodyLineMutation", m)
 }
 
-// The DomainFunc type is an adapter to allow the use of ordinary
-// function as Domain mutator.
-type DomainFunc func(context.Context, *ent.DomainMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f DomainFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.DomainMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DomainMutation", m)
-}
-
 // The EntitlementFunc type is an adapter to allow the use of ordinary
 // function as Entitlement mutator.
 type EntitlementFunc func(context.Context, *ent.EntitlementMutation) (ent.Value, error)
@@ -223,18 +211,6 @@ func (f FactFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FactMutation", m)
-}
-
-// The HandoffFunc type is an adapter to allow the use of ordinary
-// function as Handoff mutator.
-type HandoffFunc func(context.Context, *ent.HandoffMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f HandoffFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.HandoffMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.HandoffMutation", m)
 }
 
 // The HolderFunc type is an adapter to allow the use of ordinary

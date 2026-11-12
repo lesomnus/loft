@@ -14,7 +14,6 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
-	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 )
 
 // TestALabelIsOpenedInTheWorkspaceItIsIn: a label's code is one in the whole
@@ -39,7 +38,7 @@ func TestALabelIsOpenedInTheWorkspaceItIsIn(t *testing.T) {
 	printed, err := labels.Print(at("beta"), app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)
 	code := printed.GetLabels()[0].GetCode()
-	x.Equal("http://localhost:8080/l/"+code, printed.GetUrls()[0], "the deployment's own address, and no domain of the workspace's")
+	x.Equal("http://localhost:8080/l/"+code, printed.GetUrls()[0], "the deployment's own address")
 	_, err = labels.Resolve(at("acme"), app.LabelResolveRequest_builder{Code: printed.GetUrls()[0]}.Build())
 	x.Equal(codes.NotFound, status.Code(err), "acme has no such label")
 
@@ -85,44 +84,4 @@ func (w *world) post(ctx context.Context, path, body string) *httptest.ResponseR
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, r)
 	return rec
-}
-
-// TestAWorkspaceStartsWithNoDomain: a suffix to make default subdomains
-// under is one a workspace may ask a domain under, and none is given to a new
-// one (loft#155): its labels print with the deployment's own address until it
-// adds a domain of its own -- which it may, wherever it is.
-func TestAWorkspaceStartsWithNoDomain(t *testing.T) {
-	w := newWorldWith(t, func(c *cmd.Config) { c.App.Labels.Suffix = "l.test" })
-	x := w.x
-	ctx := context.Background()
-
-	lee := w.holder("lee", "member")
-	made, err := app.NewTenantServiceClient(w.conn).Create(w.session(lee), app.TenantCreateRequest_builder{Name: "이의 팀"}.Build())
-	x.NoError(err)
-	id, err := pdid.From(made.GetId())
-	x.NoError(err)
-	n, err := w.s.Ent.Domain.Query().Where(entdomain.TenantId(id.Uuid())).Count(ctx)
-	x.NoError(err)
-	x.Zero(n, "a domain nobody asked for")
-}
-
-// TestALabelOpensFromTheHostItWasPrintedWith: what a label's QR names is
-// `/l/<code>` on the host it was printed with -- the deployment's own
-// address, or a domain of the workspace's, active then and perhaps legacy now
-// -- and each sends it to the app's scan page, which asks. Labels printed
-// under both of the modes there were before loft#155 open as they did.
-func TestALabelOpensFromTheHostItWasPrintedWith(t *testing.T) {
-	w := newWorld(t)
-	x := w.x
-
-	for _, host := range []string{"localhost:8080", "acme.l.test:8080", "assets.acme.example"} {
-		mux := http.NewServeMux()
-		w.s.Routes(mux, w.c)
-		r := httptest.NewRequest(http.MethodGet, "/l/7K3MQ9TX", nil)
-		r.Host = host
-		rec := httptest.NewRecorder()
-		mux.ServeHTTP(rec, r)
-		x.Equal(http.StatusFound, rec.Code, host)
-		x.Equal("http://localhost:8080/scan/7K3MQ9TX", rec.Header().Get("Location"), host)
-	}
 }

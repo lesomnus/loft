@@ -146,7 +146,8 @@ spin:
 #     reconcile: 24h                     # every account asked about again; 0 is off
 app:
   # Where a browser reaches the HTTP listener. Its scheme says whether the
-  # session cookie needs HTTPS.
+  # session cookie needs HTTPS, and labels print with it and a code unique in
+  # the deployment, `<public_url>/l/7K3MQ9TX` (D28).
   public_url: http://localhost:8080
   # The proxies in front whose X-Forwarded-For is believed: a network or an
   # address each. Empty believes nobody's, which is right with nothing in
@@ -164,15 +165,6 @@ app:
   # says neither. Framing is refused whatever this says.
   # csp: report-only
   files: data/files
-  labels:
-    # A workspace prints its labels with its active domain when it has one,
-    # and with `public_url` and a code unique in the deployment otherwise,
-    # `<public_url>/l/7K3MQ9TX` (D28, loft#155). Any workspace may add a
-    # domain of its own -- what its CNAME points at is `target` -- or a
-    # default one under `suffix`, which needs no DNS work and is for labels
-    # alone: `<name>.l.localhost` here, which a browser resolves to this
-    # machine. A deployment names its own, such as `l.loft.example`, or none.
-    suffix: l.localhost
   session:
     idle: 24h
     lifetime: 168h

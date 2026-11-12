@@ -48,7 +48,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/treelock"
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/opensearch"
 	"github.com/lesomnus/loft/server/operator"
@@ -69,20 +68,9 @@ type Deps struct {
 	Files storage.Store
 	Sign  storage.Signer
 
-	// LabelSuffix is what a default label subdomain ends with, such as
-	// "l.localhost": a tenant's default host is `<sub>.<LabelSuffix>`.
-	LabelSuffix string
-	// LabelTarget is what a custom label domain's CNAME points at.
-	LabelTarget string
-	// ServiceHosts is this deployment's own hosts -- where people sign in,
-	// and where the app is when a workspace has no domain of its own -- which
-	// no workspace may take as its domain, nor any name under them.
-	ServiceHosts []string
-
-	// Links is where every link made here begins: a workspace's on its
-	// active app domain, and the rest at the service's address (loft#155).
-	// A label, a signed file and a mail's link alike are made by it.
-	Links apphost.Links
+	// Links is where every link made here begins: the service's address. A
+	// label, a signed file and a mail's link alike are made by it.
+	Links Links
 
 	// RestoreWithin is how long a closed workspace may be restored before it
 	// is destroyed (D29); zero is 30 days. AliasHold is how long its address
@@ -90,19 +78,6 @@ type Deps struct {
 	// a year.
 	RestoreWithin time.Duration
 	AliasHold     time.Duration
-
-	// LookupTXT reads TXT records, for verifying a custom domain; and
-	// LookupCNAME and LookupHost what a domain points at, for whether it
-	// points here (`net.Resolver`'s). Nil reads nothing, and a deployment
-	// that cannot read DNS verifies nothing and lapses nothing.
-	LookupTXT   func(ctx context.Context, name string) ([]string, error)
-	LookupCNAME func(ctx context.Context, host string) (string, error)
-	LookupHost  func(ctx context.Context, host string) ([]string, error)
-
-	// DomainRedirect is how long a workspace's app domain that another took
-	// the place of sends its pages on to where the app is now (loft#155);
-	// zero is 90 days.
-	DomainRedirect time.Duration
 
 	// Locale is what a workspace that says nothing of its own is told in: its
 	// zone and its currency (`app.locale`, #144).

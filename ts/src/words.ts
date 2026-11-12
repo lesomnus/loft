@@ -109,15 +109,6 @@ export const movementWord: Record<string, string> = {
 
 export const labelWord: Record<string, string> = { new: '미부착', bound: '부착', void: '폐기' }
 
-export const domainWord: Record<string, string> = {
-	pending: '확인 대기',
-	ready: '확인됨',
-	active: '사용 중',
-	legacy: '이전 주소',
-	lapsed: 'DNS 확인 실패',
-	retired: '중지',
-}
-
 export const attrTypeWord: Record<string, string> = {
 	text: '글',
 	number: '숫자',

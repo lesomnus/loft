@@ -77,7 +77,7 @@ func newCmdServe(c *cmd.Config) *xli.Command {
 			}
 			defer s.Close()
 
-			routes := admin.Routes{S: s, C: *c, Operators: ops, Ask: admin.NewIssuance(c.Admin.Ask)}
+			routes := admin.Routes{S: s, C: *c, Operators: ops}
 			h, err := routes.Handler(ctx)
 			if err != nil {
 				return err
@@ -88,31 +88,11 @@ func newCmdServe(c *cmd.Config) *xli.Command {
 			}
 			log.From(ctx).InfoContext(ctx, "admin", slog.String("addr", l.Addr().String()), slog.Int("operators", len(ops)))
 			srv := serving(ctx, h)
-			// The ask alone, on a listener of its own, for a proxy that
-			// faces the internet (`admin.ask.addr`).
-			var ask *http.Server
-			if addr := c.Admin.Ask.Addr; addr != "" {
-				al, err := net.Listen("tcp", addr)
-				if err != nil {
-					l.Close()
-					return err
-				}
-				log.From(ctx).InfoContext(ctx, "admin: tls-ask", slog.String("addr", al.Addr().String()))
-				ask = serving(ctx, routes.AskHandler())
-				go func() {
-					if err := ask.Serve(al); err != nil && !errors.Is(err, http.ErrServerClosed) {
-						log.From(ctx).ErrorContext(ctx, "admin: tls-ask", slog.Any("err", err))
-					}
-				}()
-			}
 			go func() {
 				<-ctx.Done()
 				shut, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
 				_ = srv.Shutdown(shut)
-				if ask != nil {
-					_ = ask.Shutdown(shut)
-				}
 			}()
 			if err := srv.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				return err

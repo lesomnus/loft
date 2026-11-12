@@ -66,7 +66,7 @@ self.addEventListener('fetch', (e) => {
  * no page of the app's: kept as the app's, it would be what opens offline.
  */
 function page(path) {
-	return !/^\/(sso|session|account|files|l|healthz|handoff|billing\/checkout)(\/|$)/.test(path)
+	return !/^\/(sso|session|account|files|l|healthz|billing\/checkout)(\/|$)/.test(path)
 }
 
 async function navigate(req) {

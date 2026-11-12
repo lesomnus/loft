@@ -437,15 +437,6 @@ function workspaceNames(account: Account): (id: string) => string {
 	return (id) => by.get(id) ?? '이 계정이 들어 있지 않은 워크스페이스'
 }
 
-/**
- * Where the account's own page is: here, and at the service's address on a
- * workspace's own domain, which serves nothing of the account's beside the
- * workspace (loft#155) -- as the invitations are.
- */
-function billingPage(account: Account): string {
-	return account.pinned !== undefined && account.service !== undefined ? `${account.service}/billing` : '/billing'
-}
-
 // ---------------------------------------------------------------------------
 // The account's own page.
 
@@ -1600,15 +1591,14 @@ export function PaymentTab(props: { account: Account }): ReactNode {
 		if (account === props.account.id) return '나'
 		return members.get(account)?.name ?? '이 워크스페이스에 없는 계정'
 	}
-	// The owner taking it on themself, in one go, where the account's own
-	// calls are made: never on the workspace's own domain (loft#155).
+	// The owner taking it on themself, in one go, as the account.
 	const mine = members.get(props.account.id)
-	const takes = c.can('owner') && props.account.pinned === undefined && mine !== undefined && !mine.leaving
+	const takes = c.can('owner') && mine !== undefined && !mine.leaving
 	const credits = payer.data?.payer?.credits ?? []
 	return (
 		<>
 			<Card title="결제 담당" actions={takes && payer.data !== undefined && <TakeOver payer={payer.data.payer} me={props.account.id} holder={mine?.holder} />}>
-				<Load q={payer}>{(v) => <PayerSaid payer={v.payer} nameOf={nameOf} me={props.account.id} page={billingPage(props.account)} />}</Load>
+				<Load q={payer}>{(v) => <PayerSaid payer={v.payer} nameOf={nameOf} me={props.account.id} page="/billing" />}</Load>
 			</Card>
 			{c.can('owner') && (
 				<Load q={payer}>{(v) => <OfferCard payer={v.payer} members={members} me={props.account.id} takes={takes} />}</Load>
@@ -2164,10 +2154,9 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 	const admin = c.can('admin')
 	const payer = useRpc(PaymentService.method.getPayer, billed && admin ? {} : null, { poll: 10 * 60_000 })
 	const p = payer.data?.payer
-	// The account's own calls are its own, outside every workspace, and a
-	// workspace's own domain serves none of them.
+	// The account's own calls are its own, outside every workspace.
 	const ws = props.account.workspaces.find((w) => w.alias === workspace)?.id ?? ''
-	const mine = usePaysHere(ws, billed && !admin && props.account.pinned === undefined)
+	const mine = usePaysHere(ws, billed && !admin)
 	const now = new Date()
 
 	// What restricts it, or will: having no payer, and the invoice that
@@ -2202,7 +2191,7 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 		// run it, who alone read who pays for it.
 		const state = p?.collection?.state
 		if (!admin || state === undefined || collectionDo[state] === undefined) return null
-		return <CollectionBanner state={state} payerIsMe={payerIsMe} owner={c.can('owner')} page={billingPage(props.account)} />
+		return <CollectionBanner state={state} payerIsMe={payerIsMe} owner={c.can('owner')} page="/billing" />
 	}
 	const grows = '자산 등록, 초대, 첨부 올리기처럼 청구되는 것을 늘리는 일'
 
@@ -2269,7 +2258,7 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 
 	// Where to go: the payer's own page for what is theirs to settle, the
 	// workspace's settings for its owner and administrators.
-	const page = billingPage(props.account)
+	const page = '/billing'
 	let go: ReactNode
 	if (offeredToMe) {
 		go = <a href={page}>결제 담당 제안을 받았습니다. 결제 화면에서 받아들이기 →</a>

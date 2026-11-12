@@ -20,8 +20,8 @@ import (
 // browser -- the first person's name, the second person's cookie -- is
 // refused as `Unauthenticated`, where it would otherwise be served as the
 // second person. A second sign-in of the same person is the same name, which
-// is what lets what the page kept for them wait for it. On a workspace's own
-// domain the same, and a call naming no store is served as before.
+// is what lets what the page kept for them wait for it. A call naming no
+// store is served as before.
 func TestACallSaysWhoseStoreItIsFor(t *testing.T) {
 	w := newHosted(t)
 	x := w.x
@@ -32,36 +32,29 @@ func TestACallSaysWhoseStoreItIsFor(t *testing.T) {
 	lee, err := w.s.Identity.AddPerson(ctx, "lee", "Lee", pdid.Nil)
 	x.NoError(err)
 	inKim, inLee := w.here(kim, "member"), w.here(lee, "member")
-	const service, own = "loft.example", "assets.acme.example"
-	w.domain(w.tenant, own, "app", "active")
 
-	named := func(as context.Context, host string) string {
-		res := w.at(as, host, http.MethodGet, "/account", "")
+	named := func(as context.Context) string {
+		res := w.at(as, http.MethodGet, "/account", "")
 		x.Equal(http.StatusOK, res.Code, res.Body.String())
 		var a account.Account
 		x.NoError(json.Unmarshal(res.Body.Bytes(), &a))
 		x.NotEmpty(a.Identity)
 		return a.Identity
 	}
-	me := func(as context.Context, host, store string) int {
+	me := func(as context.Context, store string) int {
 		h := []string{"Content-Type", "application/json", "Connect-Protocol-Version", "1", cmd.WorkspaceHeader, "acme"}
 		if store != "" {
 			h = append(h, authsession.IdentityHeader, store)
 		}
-		return w.at(as, host, http.MethodPost, "/loft.PartyService/Me", "{}", h...).Code
+		return w.at(as, http.MethodPost, "/loft.PartyService/Me", "{}", h...).Code
 	}
 
 	asKim, asLee := w.session(inKim), w.session(inLee)
-	kims, lees := named(asKim, service), named(asLee, service)
+	kims, lees := named(asKim), named(asLee)
 	x.NotEqual(kims, lees)
-	x.Equal(kims, named(w.session(inKim), service), "a sign-in again is the same store")
+	x.Equal(kims, named(w.session(inKim)), "a sign-in again is the same store")
 
-	x.Equal(http.StatusOK, me(asKim, service, kims), "a call for the caller's own store")
-	x.Equal(http.StatusUnauthorized, me(asLee, service, kims), "one for somebody else's store, with this browser's cookie")
-	x.Equal(http.StatusOK, me(asLee, service, ""), "and one naming no store, as before")
-
-	// On a workspace's own domain, which hands the header on as it is.
-	x.Equal(kims, named(asKim, own))
-	x.Equal(http.StatusOK, me(asKim, own, kims))
-	x.Equal(http.StatusUnauthorized, me(asLee, own, kims))
+	x.Equal(http.StatusOK, me(asKim, kims), "a call for the caller's own store")
+	x.Equal(http.StatusUnauthorized, me(asLee, kims), "one for somebody else's store, with this browser's cookie")
+	x.Equal(http.StatusOK, me(asLee, ""), "and one naming no store, as before")
 }

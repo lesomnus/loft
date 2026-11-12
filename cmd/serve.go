@@ -41,7 +41,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/account"
-	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/bare"
 	"github.com/lesomnus/loft/server/checkout"
 	"github.com/lesomnus/loft/server/clientaddr"
@@ -136,10 +135,6 @@ type Server struct {
 	// Logins is a terminal signed in by somebody approving it in a browser
 	// (`loft auth login`, `server/clilogin`).
 	Logins *clilogin.Logins
-
-	// Handoff is signing in on a workspace's own domain: done at the
-	// service's address, and handed there (loft#155, `server/session`).
-	Handoff session.Handoff
 
 	// Closing is what becomes of a closed workspace and of a workspace's
 	// address (D29, `server/closing`).
@@ -483,14 +478,6 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		db.Close()
 		return nil, err
 	}
-	// And on a workspace's own domain, where nobody signs in: the service
-	// hands a sign-in there, to an account that has agreed to what it asks,
-	// and signing out there goes on to the issuer as it does here.
-	s.Handoff = session.Handoff{
-		Db: client, Sessions: s.Sessions, Store: store, Agreed: s.Consents, Issuer: s.Sso,
-		Links: c.App.Links(),
-	}
-
 	// Who read or wrote whose personal data (loft#136). A read's row is
 	// written a second later with the others, by a loop each process runs for
 	// itself and that writes what it holds once more as the process stops.
@@ -507,9 +494,6 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		spinEvery("loft.sessions", time.Hour, store.Sweep),
 		spinEvery("loft.sign-in-failures", session.Window, session.Failures{Db: client}.Sweep),
 		spinEvery("loft.cli-logins", time.Hour, s.Logins.Sweep),
-		// Codes nobody brought back, every minute they would have been good
-		// for: a table of them is never more than a minute's.
-		spinEvery("loft.handoffs", session.CodeTtl, store.SweepHandoffs),
 		// Closed workspaces whose window is over, destroyed unless held.
 		// Read when it runs: s.Closing is put together after the trail.
 		spinEvery("loft.closing", or(c.App.Workspaces.Every, time.Hour), func(ctx context.Context) error { return s.Closing.Sweep(ctx) }),
@@ -885,9 +869,7 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 	// an ordinary route cannot collide with one.
 	s.Routes(h.ServeMux, c)
 
-	// And all of it behind what the host a request came to decides: a
-	// workspace's own domain serves that workspace alone (loft#155).
-	front, err := Front(c, s.Hosts(c).Handler(h))
+	front, err := Front(c, h)
 	if err != nil {
 		return nil, err
 	}
@@ -984,13 +966,13 @@ func Front(c Config, h http.Handler) (http.Handler, error) {
 	// The page Paddle's checkout opens on loads Paddle's script, and is the
 	// one page that does (design 7.7): what it loads from Paddle is in its
 	// policy alone, and in nobody's while no checkout is configured.
-	issuer, service := c.Auth.Sso.Issuer, []string{c.App.App(), c.App.Public().String()}
+	issuer := c.Auth.Sso.Issuer
 	pages := map[string]string{}
 	if co := c.App.Billing.Checkout; co.On() {
-		pages[checkout.Path] = csp.With(checkout.Sources(co.Environment), issuer, service...)
+		pages[checkout.Path] = csp.With(checkout.Sources(co.Environment), issuer)
 	}
 
-	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(issuer, service...), pages), nil
+	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(issuer), pages), nil
 }
 
 // depsOf is what the domain layer is told by the configuration.
@@ -1023,22 +1005,15 @@ func depsOf(c Config) (*domain.Deps, error) {
 	}
 
 	return &domain.Deps{
-		Files:          storage.Dir(files),
-		Sign:           storage.Signer{Key: key, TTL: 10 * time.Minute},
-		LabelSuffix:    c.App.Labels.Suffix,
-		LabelTarget:    c.App.Labels.Target,
-		ServiceHosts:   c.App.ServiceHosts(),
-		Links:          c.App.Links(),
-		LookupTXT:      net.DefaultResolver.LookupTXT,
-		LookupCNAME:    net.DefaultResolver.LookupCNAME,
-		LookupHost:     net.DefaultResolver.LookupHost,
-		DomainRedirect: c.App.Workspaces.Redirect(),
-		NoShowAfter:    c.App.NoShowAfter,
-		Locale:         locale,
-		RestoreWithin:  c.App.Workspaces.Restore(),
-		AliasHold:      c.App.Workspaces.Hold(),
-		Retention:      c.App.Retention.Defaults(),
-		Mail:           sender,
+		Files:         storage.Dir(files),
+		Sign:          storage.Signer{Key: key, TTL: 10 * time.Minute},
+		Links:         c.App.Links(),
+		NoShowAfter:   c.App.NoShowAfter,
+		Locale:        locale,
+		RestoreWithin: c.App.Workspaces.Restore(),
+		AliasHold:     c.App.Workspaces.Hold(),
+		Retention:     c.App.Retention.Defaults(),
+		Mail:          sender,
 		Invitations: domain.InvitationRules{
 			Ttl:     c.App.Invitations.Ttl,
 			Pending: c.App.Invitations.Pending,
@@ -1077,12 +1052,8 @@ func spinEvery(name string, d time.Duration, f func(ctx context.Context) error) 
 
 // Routes is what this app serves over HTTP besides its Rpcs.
 func (s *Server) Routes(mux *http.ServeMux, c Config) {
-	// Where every link made here begins (loft#155).
-	links := c.App.Links()
-
 	// Signing in and out. What is checked is a password, by roster, and an
 	// account in no workspace is given one; see `server/session`.
-	ws := s.Workspaces(c)
 	login := session.SignIn(s.Sessions, s.Identity, s.Ent, s.Arrive(c))
 	if c.Auth.SsoOnly {
 		// No form to post to, rather than one that answers no: a password is
@@ -1103,33 +1074,16 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// ways in; see `server/sso`.
 	s.Sso.Mount(mux)
 
-	// On a workspace's own domain, a sign-in handed there from here, and
-	// signing out; see `server/session`'s handoff.
-	s.Handoff.Mount(mux)
-
-	// What an account has outside any one workspace: which it is in, and a
-	// new one.
+	// What a session is told of itself beside the RPCs, and what it agrees
+	// to; see `server/account`.
 	account.Routes{
-		Sessions:   s.Sessions,
-		People:     s.Identity,
-		Workspaces: ws,
-		// What an answer showed of somebody: the owner a workspace with no
-		// name of its own is called after (D57, loft#136).
-		Access: s.Access,
-		Manage: s.Identity.AccountPage(),
-		// What the owner of a closed workspace is told its address is then
-		// held for (D29).
-		AliasHold: c.App.Workspaces.Hold(),
+		Sessions: s.Sessions,
+		People:   s.Identity,
+		Manage:   s.Identity.AccountPage(),
 		// What it agrees to before anything else, and the workspace an
 		// account that just agreed is given (design 9.11).
 		Consent: s.Consents,
 		Arrive:  s.Arrive(c),
-		// Where a workspace's app is when it has a domain of its own, for
-		// the page to open it there (loft#155).
-		Home: func(ctx context.Context, ws pdid.Id) (string, error) {
-			return s.appOf(ctx, links, ws)
-		},
-		Service: links.Home(apphost.Page),
 		// Whether the page offers what an account pays with, and a
 		// workspace's billing (design 7.9).
 		Billing: c.App.Billing.Levyan.On(),
@@ -1148,30 +1102,16 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// for it.
 	c.App.Billing.Checkout.Mount(mux)
 
-	// A printed label: whatever host it was printed with, the code is sent to
-	// the page that resolves it. The page asks the API, through the wall, so
-	// a label of another tenant reads as nothing there -- and then asks, as
-	// the account, which of its own it is in (`LabelService.Locate`, D73).
-	//
-	// The page is where the host's workspace is (loft#155): on a workspace's
-	// own domain, that domain; on one of its domains that pins nothing -- a
-	// label domain, an address it moved off -- its app domain while it has
-	// one; at the service's address otherwise. Which workspace a code is
-	// never decides it: the host does, so that a label says no more than
-	// what was printed on it.
+	// A printed label: the code is sent to the page that resolves it, at the
+	// service's address. The page asks the API, through the wall, so a label
+	// of another tenant reads as nothing there -- and then asks, as the
+	// account, which of its own it is in (`LabelService.Locate`, D73). Which
+	// workspace a code is never decides where it is sent, so that a label
+	// says no more than what was printed on it.
+	page := c.App.Links().Page()
 	mux.HandleFunc("GET /l/{code}", func(w http.ResponseWriter, r *http.Request) {
-		at, err := s.scanning(r, links)
-		if err != nil {
-			log.From(r.Context()).ErrorContext(r.Context(), "label: where its page is could not be told", "host", r.Host, "err", err)
-			http.Error(w, "cannot say just now", http.StatusServiceUnavailable)
-			return
-		}
-		http.Redirect(w, r, at+"/scan/"+url.PathEscape(r.PathValue("code")), http.StatusFound)
+		http.Redirect(w, r, page+"/scan/"+url.PathEscape(r.PathValue("code")), http.StatusFound)
 	})
-
-	// What a reverse proxy issuing certificates on demand asks is the
-	// operator's entry point's to answer (`loft-admin serve`), which this
-	// binary does not link (design 6장).
 
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
@@ -1201,24 +1141,6 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 					}
 					http.Redirect(w, r, u, http.StatusFound)
 					return
-				}
-				// A workspace whose app is on a domain of its own is opened
-				// there, the same page (loft#155), and the handoff signs the
-				// browser in on it. Not from that domain, whose pages these
-				// are, and not to a domain that is not in use: that one's
-				// workspace is the service's (`apphost.Links`). This is where
-				// the app is and no wall -- the service answers the
-				// workspace's calls all the same -- so a page whose domain
-				// cannot be told just now is served here.
-				if _, pinned := apphost.From(r.Context()); !pinned {
-					at, err := s.domainOf(r.Context(), links, alias)
-					if err != nil {
-						log.From(r.Context()).ErrorContext(r.Context(), "page: where a workspace's app is could not be told", "alias", alias, "err", err)
-					}
-					if at != "" {
-						http.Redirect(w, r, at+r.URL.RequestURI(), http.StatusFound)
-						return
-					}
 				}
 			}
 			p := filepath.Join(dir, filepath.FromSlash(filepath.Clean("/"+r.URL.Path)))

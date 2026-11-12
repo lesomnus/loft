@@ -35,7 +35,6 @@ type TenantMembership struct {
 	xxx_hidden_DateClosed    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_closed,json=dateClosed"`
 	xxx_hidden_DateDestroy   *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_destroy,json=dateDestroy"`
 	xxx_hidden_AliasHoldDays uint32                 `protobuf:"varint,7,opt,name=alias_hold_days,json=aliasHoldDays"`
-	xxx_hidden_Home          string                 `protobuf:"bytes,8,opt,name=home"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -114,13 +113,6 @@ func (x *TenantMembership) GetAliasHoldDays() uint32 {
 	return 0
 }
 
-func (x *TenantMembership) GetHome() string {
-	if x != nil {
-		return x.xxx_hidden_Home
-	}
-	return ""
-}
-
 func (x *TenantMembership) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -150,10 +142,6 @@ func (x *TenantMembership) SetDateDestroy(v *timestamppb.Timestamp) {
 
 func (x *TenantMembership) SetAliasHoldDays(v uint32) {
 	x.xxx_hidden_AliasHoldDays = v
-}
-
-func (x *TenantMembership) SetHome(v string) {
-	x.xxx_hidden_Home = v
 }
 
 func (x *TenantMembership) HasDateClosed() bool {
@@ -196,9 +184,6 @@ type TenantMembership_builder struct {
 	DateClosed    *timestamppb.Timestamp
 	DateDestroy   *timestamppb.Timestamp
 	AliasHoldDays uint32
-	// Where its app is when that is a domain of its own (loft#155): the address
-	// a page of it begins with there. Empty while it is the service's.
-	Home string
 }
 
 func (b0 TenantMembership_builder) Build() *TenantMembership {
@@ -212,7 +197,6 @@ func (b0 TenantMembership_builder) Build() *TenantMembership {
 	x.xxx_hidden_DateClosed = b.DateClosed
 	x.xxx_hidden_DateDestroy = b.DateDestroy
 	x.xxx_hidden_AliasHoldDays = b.AliasHoldDays
-	x.xxx_hidden_Home = b.Home
 	return m0
 }
 
@@ -220,7 +204,7 @@ var File_loft_account_proto protoreflect.FileDescriptor
 
 const file_loft_account_proto_rawDesc = "" +
 	"\n" +
-	"\x12loft/account.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\"\x98\x02\n" +
+	"\x12loft/account.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\"\x84\x02\n" +
 	"\x10TenantMembership\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x14\n" +
 	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x12\n" +
@@ -229,8 +213,7 @@ const file_loft_account_proto_rawDesc = "" +
 	"\vdate_closed\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"dateClosed\x12=\n" +
 	"\fdate_destroy\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vdateDestroy\x12&\n" +
-	"\x0falias_hold_days\x18\a \x01(\rR\raliasHoldDays\x12\x12\n" +
-	"\x04home\x18\b \x01(\tR\x04homeB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x0falias_hold_days\x18\a \x01(\rR\raliasHoldDaysB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_loft_account_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_loft_account_proto_goTypes = []any{

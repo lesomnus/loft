@@ -6494,8 +6494,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x002\x11\n" +
 	"\x0fCliLoginService2\x12\n" +
 	"\x10AliasHoldService2\x16\n" +
-	"\x14SignInFailureService2\x10\n" +
-	"\x0eHandoffServiceB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
+	"\x14SignInFailureServiceB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
 var file_loft_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
 var file_loft_org_svc_g_proto_goTypes = []any{
@@ -6707,7 +6706,7 @@ func file_loft_org_svc_g_proto_init() {
 			NumEnums:      0,
 			NumMessages:   46,
 			NumExtensions: 0,
-			NumServices:   7,
+			NumServices:   6,
 		},
 		GoTypes:           file_loft_org_svc_g_proto_goTypes,
 		DependencyIndexes: file_loft_org_svc_g_proto_depIdxs,

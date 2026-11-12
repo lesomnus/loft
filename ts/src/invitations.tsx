@@ -59,8 +59,6 @@ async function waiting(): Promise<Invitation[]> {
 export function useWaiting(account: Account): number {
 	const [n, setN] = useState(0)
 	useEffect(() => {
-		// On a workspace's own domain the invitations are the service's to ask.
-		if (account.pinned !== undefined) return
 		let gone = false
 		waiting()
 			.then((v) => !gone && setN(v.length))

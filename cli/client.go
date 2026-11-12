@@ -84,7 +84,7 @@ var reads = []string{
 	"/loft.*/Get", "/loft.*/List", "/loft.*/Watch", "/loft.*/Search", "/loft.*/Recent",
 	"/loft.AssetService/Timeline", "/loft.AssetService/QueryAt", "/loft.AssetService/Diff", "/loft.AssetService/Report",
 	"/loft.ReservationService/Calendar", "/loft.ReservationService/Timeline", "/loft.BookableService/Availability",
-	"/loft.PartyService/Me", "/loft.LabelService/Resolve", "/loft.DomainService/Status",
+	"/loft.PartyService/Me", "/loft.LabelService/Resolve",
 	"/loft.AttachmentService/Url", "/loft.NotificationService/Inbox",
 	// What the account is in, and which of them a label is in: its own reads
 	// (D73), which were HTTP every session might ask.
