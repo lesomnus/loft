@@ -84,11 +84,9 @@ var Grows = map[string]string{
 	// through this, over HTTP as any of its calls.
 	app.AttachmentService_Upload_FullMethodName: "첨부를 올릴 수 없습니다",
 	// A new member, which `loft.members` counts: a login given to a person
-	// record, an invitation sent, and one accepted -- sent before the
-	// workspace was restricted, too.
-	app.PartyService_Invite_FullMethodName:      "로그인을 새로 발급할 수 없습니다",
-	app.InvitationService_Add_FullMethodName:    "구성원을 초대할 수 없습니다",
-	app.InvitationService_Accept_FullMethodName: "초대를 받아들일 수 없습니다",
+	// record, and an invitation sent.
+	app.PartyService_Invite_FullMethodName:   "로그인을 새로 발급할 수 없습니다",
+	app.InvitationService_Add_FullMethodName: "구성원을 초대할 수 없습니다",
 
 	GrowsAssetBack:      "분실·폐기한 자산을 다시 쓰는 상태로 바꿀 수 없습니다",
 	GrowsKeptLonger:     "이력을 지금보다 오래 보관하도록 바꿀 수 없습니다",

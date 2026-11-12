@@ -18,7 +18,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/cmd"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/server/operator"
@@ -46,12 +45,12 @@ func TestTheDeploymentsAccessRecordIsTheOperatorsToRead(t *testing.T) {
 
 	// Who is in acme, read by its owner from inside and by the operator at
 	// the entry point.
-	_, cookie, err := e.s.Sessions.Mint(bg, authsession.Session{Id: pdid.Id(*owner.Account).String(), Grant: frame.Whole()})
+	_, cookie, err := e.s.Sessions.Mint(bg, authsession.Session{Id: pdid.Id(owner.Id).String(), Grant: frame.Whole()})
 	x.NoError(err)
 	g, err := e.s.Grpc(t.Context(), e.c)
 	x.NoError(err)
 	public := pdtest.Serve(t, g)
-	asOwner := metadata.AppendToOutgoingContext(bg, "cookie", cookie.Name+"="+cookie.Value, cmd.WorkspaceHeader, "acme")
+	asOwner := metadata.AppendToOutgoingContext(bg, "cookie", cookie.Name+"="+cookie.Value)
 	_, err = app.NewHolderServiceClient(public).List(asOwner, app.HolderListRequest_builder{}.Build())
 	x.NoError(err)
 	x.NoError(e.s.Access.Flush(bg), "the public server writes its rows a batch at a time")

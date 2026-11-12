@@ -10,11 +10,11 @@
 //     only its SHA-256 (`POST /cli/logins`); it is shown a code and a link;
 //  2. the person opens the link signed in, sees the code and where the asking
 //     came from, and approves it (`POST /cli/logins/approve`) -- which makes
-//     the session for **their** account, under the hash the terminal sent;
+//     the session for **them**, under the hash the terminal sent;
 //  3. the terminal, asking all the while (`POST /cli/logins/{id}/poll`), hears
 //     it was approved and uses the key it kept.
 //
-// A terminal may ask for less than its account may do: the methods it lists
+// A terminal may ask for less than its member may do: the methods it lists
 // (`loft auth login --allow`, D33), which the page shows and the session is
 // narrowed to -- an assistant handed that terminal can do that much and no
 // more, whatever it does with the key.
@@ -58,7 +58,6 @@ import (
 	entclilogin "github.com/lesomnus/loft/internal/ent/clilogin"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	entsession "github.com/lesomnus/loft/internal/ent/session"
-	"github.com/lesomnus/loft/server/account"
 	"github.com/lesomnus/loft/server/clientaddr"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/session"
@@ -97,7 +96,6 @@ type Logins struct {
 	Db       *ent.Client
 	Sessions *authsession.Sessions
 	Store    session.Store
-	People   account.People
 
 	// Cookie is the name the session cookie goes by, which a terminal sends
 	// its key under; Idle and Lifetime are what the session it gets is held
@@ -205,7 +203,7 @@ type Asking struct {
 	Created time.Time `json:"created"`
 	Expires time.Time `json:"expires"`
 	// Allow is the methods it asked to be narrowed to; absent is all that
-	// the account may do.
+	// the member may do.
 	Allow []string `json:"allow,omitempty"`
 }
 
@@ -383,7 +381,7 @@ func (l *Logins) poll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (l *Logins) show(w http.ResponseWriter, r *http.Request) {
-	if _, ok := account.SignedIn(w, r, l.Sessions, l.People); !ok {
+	if _, ok := session.SignedIn(w, r, l.Sessions, l.Db); !ok {
 		return
 	}
 	v, ok := l.waiting(w, r, r.URL.Query().Get("code"))
@@ -402,14 +400,14 @@ func (l *Logins) show(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// answer approves a terminal or turns it away, for the account signed in.
+// answer approves a terminal or turns it away, for the member signed in.
 func (l *Logins) answer(to string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// A body that is JSON, which a form on another site cannot send.
 		if !jsonBody(w, r) {
 			return
 		}
-		p, ok := account.SignedIn(w, r, l.Sessions, l.People)
+		h, ok := session.SignedIn(w, r, l.Sessions, l.Db)
 		if !ok {
 			return
 		}
@@ -431,16 +429,17 @@ func (l *Logins) answer(to string) http.HandlerFunc {
 		if to == approved {
 			act = Approved
 		}
-		// Answered by the account signed in at the page, which is who the
+		// Answered by the member signed in at the page, which is who the
 		// trail says answered.
-		as := frame.Into(ctx, frame.New(p.Id, pdid.Nil, frame.Grant{}))
+		p := pdid.Id(h.Id)
+		as := frame.Into(ctx, frame.New(p, pdid.Nil, frame.Grant{}))
 		_, err := l.recorded(as, act, func(db *ent.Client) (*ent.CliLogin, error) {
 			u := db.CliLogin.UpdateOneId(v.Id).
 				Where(entclilogin.State(pending)).
 				SetState(to).
 				SetDateUpdated(now)
 			if to == approved {
-				u = u.SetAccount(p.Id.Uuid())
+				u = u.SetAccount(p.Uuid())
 			}
 			return u.Save(ctx)
 		})
@@ -453,12 +452,12 @@ func (l *Logins) answer(to string) http.HandlerFunc {
 			return
 		}
 		if to == approved {
-			if err := l.Store.Adopt(ctx, p.Id, v.Secret, v.Grant, now.Add(l.Idle), now.Add(l.Lifetime)); err != nil {
+			if err := l.Store.Adopt(ctx, p, v.Secret, v.Grant, now.Add(l.Idle), now.Add(l.Lifetime)); err != nil {
 				fail(w, r, err)
 				return
 			}
 			allow, _ := session.Actions(v.Grant)
-			log.From(ctx).InfoContext(ctx, "cli: a terminal was signed in", "account", p.Id.String(), "client", v.Client, "origin", v.Origin, "allow", strings.Join(allow, " "))
+			log.From(ctx).InfoContext(ctx, "cli: a terminal was signed in", "member", p.String(), "client", v.Client, "origin", v.Origin, "allow", strings.Join(allow, " "))
 		}
 		w.WriteHeader(http.StatusNoContent)
 	}

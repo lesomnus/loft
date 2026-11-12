@@ -1322,8 +1322,6 @@ type OperatorTenantDestroyed struct {
 	xxx_hidden_Retired        bool                   `protobuf:"varint,10,opt,name=retired"`
 	xxx_hidden_Kept           map[string]uint32      `protobuf:"bytes,11,rep,name=kept" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
 	xxx_hidden_DateKeptUntil  *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_kept_until,json=dateKeptUntil"`
-	xxx_hidden_Embedded       bool                   `protobuf:"varint,13,opt,name=embedded"`
-	xxx_hidden_Forgotten      uint32                 `protobuf:"varint,14,opt,name=forgotten"`
 	xxx_hidden_Bills          bool                   `protobuf:"varint,15,opt,name=bills"`
 	xxx_hidden_Unmeasured     string                 `protobuf:"bytes,16,opt,name=unmeasured"`
 	xxx_hidden_Tells          bool                   `protobuf:"varint,17,opt,name=tells"`
@@ -1441,20 +1439,6 @@ func (x *OperatorTenantDestroyed) GetDateKeptUntil() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *OperatorTenantDestroyed) GetEmbedded() bool {
-	if x != nil {
-		return x.xxx_hidden_Embedded
-	}
-	return false
-}
-
-func (x *OperatorTenantDestroyed) GetForgotten() uint32 {
-	if x != nil {
-		return x.xxx_hidden_Forgotten
-	}
-	return 0
-}
-
 func (x *OperatorTenantDestroyed) GetBills() bool {
 	if x != nil {
 		return x.xxx_hidden_Bills
@@ -1534,14 +1518,6 @@ func (x *OperatorTenantDestroyed) SetDateKeptUntil(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateKeptUntil = v
 }
 
-func (x *OperatorTenantDestroyed) SetEmbedded(v bool) {
-	x.xxx_hidden_Embedded = v
-}
-
-func (x *OperatorTenantDestroyed) SetForgotten(v uint32) {
-	x.xxx_hidden_Forgotten = v
-}
-
 func (x *OperatorTenantDestroyed) SetBills(v bool) {
 	x.xxx_hidden_Bills = v
 }
@@ -1590,10 +1566,6 @@ type OperatorTenantDestroyed_builder struct {
 	Retired       bool
 	Kept          map[string]uint32
 	DateKeptUntil *timestamppb.Timestamp
-	// On the roster in this process (`embedded`), the accounts that were in
-	// this workspace and no other, which went with it.
-	Embedded  bool
-	Forgotten uint32
 	// For a deployment that bills (`bills`): why its final reading could not
 	// be handed to levyan, which bills it by its last daily one -- empty when
 	// it was; and that levyan is to be told it was destroyed (`tells`).
@@ -1621,8 +1593,6 @@ func (b0 OperatorTenantDestroyed_builder) Build() *OperatorTenantDestroyed {
 	x.xxx_hidden_Retired = b.Retired
 	x.xxx_hidden_Kept = b.Kept
 	x.xxx_hidden_DateKeptUntil = b.DateKeptUntil
-	x.xxx_hidden_Embedded = b.Embedded
-	x.xxx_hidden_Forgotten = b.Forgotten
 	x.xxx_hidden_Bills = b.Bills
 	x.xxx_hidden_Unmeasured = b.Unmeasured
 	x.xxx_hidden_Tells = b.Tells
@@ -8293,7 +8263,7 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\adry_run\x18\x02 \x01(\bR\x06dryRun\"x\n" +
 	"\x1dOperatorTenantDestroyResponse\x12\x1a\n" +
 	"\bprogress\x18\x01 \x01(\tR\bprogress\x12;\n" +
-	"\tdestroyed\x18\x02 \x01(\v2\x1d.loft.OperatorTenantDestroyedR\tdestroyed\"\xf0\x05\n" +
+	"\tdestroyed\x18\x02 \x01(\v2\x1d.loft.OperatorTenantDestroyedR\tdestroyed\"\xb6\x05\n" +
 	"\x17OperatorTenantDestroyed\x12\x16\n" +
 	"\x06tenant\x18\x01 \x01(\fR\x06tenant\x12\x14\n" +
 	"\x05alias\x18\x02 \x01(\tR\x05alias\x12\x17\n" +
@@ -8307,9 +8277,7 @@ const file_loft_operator_proto_rawDesc = "" +
 	"\aretired\x18\n" +
 	" \x01(\bR\aretired\x12;\n" +
 	"\x04kept\x18\v \x03(\v2'.loft.OperatorTenantDestroyed.KeptEntryR\x04kept\x12B\n" +
-	"\x0fdate_kept_until\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\rdateKeptUntil\x12\x1a\n" +
-	"\bembedded\x18\r \x01(\bR\bembedded\x12\x1c\n" +
-	"\tforgotten\x18\x0e \x01(\rR\tforgotten\x12\x14\n" +
+	"\x0fdate_kept_until\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\rdateKeptUntil\x12\x14\n" +
 	"\x05bills\x18\x0f \x01(\bR\x05bills\x12\x1e\n" +
 	"\n" +
 	"unmeasured\x18\x10 \x01(\tR\n" +

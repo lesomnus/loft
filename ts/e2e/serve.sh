@@ -101,6 +101,8 @@ if [ -n "${E2E_OPENSEARCH:-}" ]; then
 	export LOFT_APP_SEARCH_OPENSEARCH_INDEX="e2e-$port"
 fi
 export LOFT_DB_MIGRATE=true
+# The roster tenant it serves, which is its workspace (D85).
+export LOFT_AUTH_ROSTER_TENANT=acme
 export LOFT_WATCH_BROKER=memory
 export LOFT_SPIN_LEASE=local
 export LOFT_SERVER_ADDR=127.0.0.1:$((port + 1))
@@ -134,7 +136,7 @@ served=
 trap 'status=$?; [ -z "$served" ] || kill "$served" 2>/dev/null; [ "$status" -eq 0 ] || tail -n 40 "$log" >&2' EXIT
 
 cd "$dir"
-"$bin" init --tenant acme --login owner --password owner-pass-1234 --demo >"$log" 2>&1
+"$bin" init --login owner --password owner-pass-1234 --demo >"$log" 2>&1
 if [ -n "${E2E_OPENSEARCH:-}" ]; then
 	# What a run before left there is another database's: taken out, and made
 	# again from this one, by the operator's entry point -- asked by loft, on a

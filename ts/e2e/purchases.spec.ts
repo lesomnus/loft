@@ -1,6 +1,6 @@
 import type { Locator } from '@playwright/test'
 
-import { choose, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
+import { choose, expect, field, people, said, signIn, test, unique } from './loft.js'
 
 // 구매 and 재고: what is ordered is received as assets one by one and as stock
 // by the count, and stock is used, falls below what it should keep, and is
@@ -12,7 +12,7 @@ test('a purchase is ordered, and received as assets one by one and as stock by t
 	const prefix = `PO${Math.random().toString(36).slice(2, 5).toUpperCase()}`
 	await signIn(page, people.assets.login)
 
-	await page.goto(`${workspace}/purchases`)
+	await page.goto(`/purchases`)
 	await page.getByRole('button', { name: '+ 구매 등록' }).click()
 	const order = page.getByRole('dialog')
 	await field(order, '이름').fill(name)
@@ -55,14 +55,14 @@ test('a purchase is ordered, and received as assets one by one and as stock by t
 	}
 
 	// The batteries are a count, kept where they came.
-	await page.goto(`${workspace}/stock`)
+	await page.goto(`/stock`)
 	const kept = page
 		.getByRole('row')
 		.filter({ hasText: 'AA 건전지' })
 		.filter({ hasText: '경영지원팀 사무실' })
 	await expect(kept).toContainText('30 개')
 
-	await page.goto(`${workspace}/purchases`)
+	await page.goto(`/purchases`)
 	await expect(page.getByRole('row').filter({ hasText: name })).toContainText('입고 완료')
 })
 
@@ -70,7 +70,7 @@ test('stock is used, falls to what it should keep, and is received again; its hi
 	const name = unique('e2e 복사용지')
 	await signIn(page, people.assets.login)
 
-	await page.goto(`${workspace}/stock`)
+	await page.goto(`/stock`)
 	await page.getByRole('button', { name: '+ 재고 품목' }).click()
 	const make = page.getByRole('dialog')
 	await choose(field(make, '모델'), 'A4 복사용지')
@@ -86,7 +86,7 @@ test('stock is used, falls to what it should keep, and is received again; its hi
 
 	// A member takes what they need: using stock is everybody's.
 	const theirs = await as(people.stock.login)
-	await theirs.goto(`${workspace}/stock`)
+	await theirs.goto(`/stock`)
 	const there = theirs.getByRole('row').filter({ hasText: name })
 	await expect(there.getByRole('button', { name: '입고' })).toHaveCount(0)
 	await there.getByRole('button', { name: '사용', exact: true }).click()

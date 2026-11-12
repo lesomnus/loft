@@ -2,14 +2,14 @@
  * The services, and the small conversions every page needs.
  *
  * A page reads through `useRpc` and writes through `useAct` (`rpc.tsx`), over
- * the one transport here: every call says the workspace it is about, and whose
- * the page is (`callAs`). What is not an RPC -- signing in, the account, a
- * download, an upload -- is a `fetch` of its own.
+ * the one transport here: every call says whose the page is (`callAs`). What
+ * is not an RPC -- signing in, who the session is, a download, an upload -- is
+ * a `fetch` of its own.
  *
  * @module
  */
 
-import { create, isFieldSet, type DescMessage, type MessageInitShape } from '@bufbuild/protobuf'
+import { create, type DescMessage, type MessageInitShape } from '@bufbuild/protobuf'
 import { timestampDate, timestampFromDate, type Timestamp, TimestampSchema } from '@bufbuild/protobuf/wkt'
 import { BinaryReader, WireType } from '@bufbuild/protobuf/wire'
 import { Code, ConnectError, createClient, type Interceptor } from '@connectrpc/connect'
@@ -34,8 +34,7 @@ import { HolderService } from '../gen/loft/payday/holder_svc_pb.js'
 import { AccessReviewService, NotificationService } from '../gen/loft/ops_svc_pb.js'
 import { PurchaseLineService, PurchaseService, WorkOrderService } from '../gen/loft/work_svc_pb.js'
 import { StockMovementService, StockService } from '../gen/loft/stock_svc_pb.js'
-import { TenantMineResponseSchema, TenantService } from '../gen/loft/payday/tenant_svc_pb.js'
-import type { TenantMembership } from '../gen/loft/account_pb.js'
+import { TenantService } from '../gen/loft/payday/tenant_svc_pb.js'
 import { PaymentService } from '../gen/loft/payment_pb.js'
 
 export {
@@ -69,25 +68,8 @@ export {
 }
 
 /**
- * The workspace this page is about: the `@alias` its address begins with, and
- * empty when it begins with none (design 9.11). A page is about one workspace
- * for as long as it is open; going to another is loading the page again, so
- * nothing read in one is drawn in another.
- */
-export const workspace: string = (() => {
-	const m = /^\/@([^/]+)/.exec(location.pathname)
-	return m === null ? '' : decodeURIComponent(m[1] ?? '')
-})()
-
-/** Every call names the workspace it is about, which is what it is served as a member of. */
-const inWorkspace: Interceptor = (next) => async (req) => {
-	if (workspace !== '') req.header.set('Loft-Workspace', workspace)
-	return next(req)
-}
-
-/**
- * Whose the page's calls are: the name of what it keeps for the account it was
- * drawn for, as `GET /account` said it (`Account.identity`), and empty while it
+ * Whose the page's calls are: the name of what it keeps for the member it was
+ * drawn for, as `GET /session` said it (`Session.identity`), and empty while it
  * is drawn for nobody.
  *
  * Every call says it (`payday-identity`), and the server serves a call that
@@ -120,61 +102,49 @@ const asCaller: Interceptor = (next) => async (req) => {
  */
 export const transport = createConnectTransport({
 	baseUrl: location.origin,
-	interceptors: [inWorkspace, asCaller],
+	interceptors: [asCaller],
 	jsonOptions: { registry: events },
 })
 
 /**
- * A workspace an account is in, as the account is told it by
- * `TenantService.Mine` (`TenantMembership`, D73).
+ * The workspace the deployment serves (D85), as `GET /session` tells the page
+ * of it before it calls anything: enough to draw what a closed one shows,
+ * since every call into it is refused (D83).
  */
 export interface Workspace {
 	id: string
 	alias: string
-	/** What it is called: its own name, or after its owner for one that has none (D57). */
+	/** What it is called as it keeps it, or its address for one that keeps none. */
 	name: string
-	role: string
-	/** When it was closed, and when it goes unless restored (D29). */
+	/** Where its dates are drawn: its own zone, or the deployment's. */
+	timezone?: string
+	/** When it was closed, and when it goes unless an operator restores it (D29). */
 	closed?: string
 	destroy?: string
 	/** For a closed one: how many days its address is then held (D29). */
 	alias_hold_days?: number
 }
 
-/**
- * The account signed in, as `GET /account` answers it, and the workspaces it
- * is in, as `TenantService.Mine` does ({@link signedIn}).
- */
-export interface Account {
+/** Who this browser is signed in as, as `GET /session` answers it. */
+export interface Session {
+	/** The member, which is their holder at roster too (D85). */
 	id: string
 	login: string
 	name: string
-	/** What it is in. */
-	workspaces: Workspace[]
-	/** How many of them it owns, and may own: another past that is paid for. */
-	owns: number
-	may?: number
-	/** roster's page where the account itself is managed, and deleted where its directory offers that. */
-	manage?: string
+	/** The methods the session is narrowed to (`loft auth login --allow`, D33); absent is all. */
+	allow?: string[]
 	/**
-	 * Whether this deployment's workspaces are billed, by levyan: what the page
-	 * offers a workspace's billing for (design 7.9).
+	 * Whether this deployment's workspace is billed, by levyan: what the page
+	 * offers its billing for (design 7.9).
 	 */
 	billing?: boolean
-	/**
-	 * The deployment's zone, as an IANA name (`app.locale`, the zone a
-	 * workspace that says none of its own is told in): where a page about no
-	 * workspace -- the account's invitations -- draws its dates, and never
-	 * the browser's (design 7.9). A workspace's pages draw
-	 * theirs in the workspace's own (`localize`, `CatalogProvider`).
-	 */
-	timezone?: string
 	/**
 	 * What the session asking lets its caller see, as a name: what the page
 	 * keeps its answers and its unsent writes for, and says on every call
 	 * (`callAs`). Another sign-in of the same person is the same name.
 	 */
 	identity: string
+	workspace: Workspace
 }
 
 /** Where somebody deletes their account on roster's account page: its `#leave` section. */
@@ -182,44 +152,15 @@ export function leavePage(manage: string): string {
 	return manage.split('#')[0] + '#leave'
 }
 
-/**
- * The account this browser is signed in as, or `out` for none: what `GET
- * /account` says of the session, and the workspaces it is in, which the
- * account asks as itself (`TenantService.Mine`, D73).
- */
-export async function signedIn(): Promise<Account | 'out'> {
-	const res = await fetch('/account')
+/** Who this browser is signed in as, or `out` for none: what `GET /session` says. */
+export async function signedIn(): Promise<Session | 'out'> {
+	const res = await fetch('/session')
 	if (res.status === 401) return 'out'
-	if (!res.ok) throw new Error(`계정을 읽을 수 없습니다 (${res.status})`)
-	const a = (await res.json()) as Account
-	try {
-		const mine = await raw.tenant.mine({})
-		return {
-			...a,
-			workspaces: mine.workspaces.map(workspaceOf),
-			owns: mine.owns,
-			may: isFieldSet(mine, TenantMineResponseSchema.field.may) ? mine.may : undefined,
-		}
-	} catch (err) {
-		if (isUnauthenticated(err)) return 'out'
-		throw err
-	}
+	if (!res.ok) throw new Error(`로그인을 읽을 수 없습니다 (${res.status})`)
+	return (await res.json()) as Session
 }
 
-/** A workspace as the account is told it, in the shape the page keeps it. */
-export function workspaceOf(m: TenantMembership): Workspace {
-	return {
-		id: idStr(m.id),
-		alias: m.alias,
-		name: m.name,
-		role: m.role,
-		closed: m.dateClosed === undefined ? undefined : timestampDate(m.dateClosed).toISOString(),
-		destroy: m.dateDestroy === undefined ? undefined : timestampDate(m.dateDestroy).toISOString(),
-		alias_hold_days: m.aliasHoldDays === 0 ? undefined : m.aliasHoldDays,
-	}
-}
-
-/** One way in the sign-in page offers: a connection of the directory at roster. */
+/** One way in the sign-in page offers: a connection of the tenant at roster. */
 export interface Provider {
 	connection: string
 	label: string
@@ -266,52 +207,10 @@ export function signOutThroughIssuer(): void {
 	f.submit()
 }
 
-/** A new workspace the account owns, with an alias nobody chose: made as the account (D73). */
-export async function makeWorkspace(name: string): Promise<Workspace> {
-	try {
-		return workspaceOf(await raw.tenant.create({ name }))
-	} catch (err) {
-		throw new Error(errorText(err))
-	}
-}
-
 /** A label's code as it is printed under its QR: in two fours, to be read out. */
 export function labelCodeText(code: string | undefined): string {
 	if (code === undefined || code.length !== 8) return ''
 	return `${code.slice(0, 4)}-${code.slice(4)}`
-}
-
-const lastKey = 'loft.workspace'
-
-/** The workspace this browser was last in, which a page with none in its address opens. */
-export function lastWorkspace(): string {
-	try {
-		return localStorage.getItem(lastKey) ?? ''
-	} catch {
-		return ''
-	}
-}
-
-/** Remembers the workspace this browser is in, for a page with none in its address. */
-export function rememberWorkspace(alias: string): void {
-	try {
-		localStorage.setItem(lastKey, alias)
-	} catch {
-		// A browser that keeps nothing opens the first workspace next time.
-	}
-}
-
-/**
- * Opens a workspace: the page again, at its address. `instead` replaces this
- * page in the history rather than following it, for a page that was only on
- * its way somewhere.
- */
-export function openWorkspace(w: string | Workspace, rest = '/', instead = false): void {
-	const alias = typeof w === 'string' ? w : w.alias
-	rememberWorkspace(alias)
-	const to = `/@${encodeURIComponent(alias)}${rest}`
-	if (instead) location.replace(to)
-	else location.assign(to)
 }
 
 export const raw = {
@@ -319,7 +218,6 @@ export const raw = {
 	asset: createClient(AssetService, transport),
 	attachment: createClient(AttachmentService, transport),
 	label: createClient(LabelService, transport),
-	// What the account is in, makes, and takes out of one it owns (D73).
 	tenant: createClient(TenantService, transport),
 	// What the reports' files are asked of (pages/reports.tsx).
 	custody: createClient(CustodyService, transport),

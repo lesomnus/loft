@@ -1,5 +1,5 @@
 import { printed, video } from './qr.js'
-import { expect, heed, people, signIn, test, workspace } from './loft.js'
+import { expect, heed, people, signIn, test } from './loft.js'
 
 // The scan page's camera, with a label held up to it: Chromium plays a video
 // of the label's QR as its camera, and the page reads it as it reads a real
@@ -7,7 +7,7 @@ import { expect, heed, people, signIn, test, workspace } from './loft.js'
 
 test('a label held up to the camera opens what it is on', async ({ page, playwright, baseURL, breaches }, info) => {
 	await signIn(page, people.labels.login)
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill('NB-051')
 	await expect(page.getByRole('row').filter({ hasText: 'NB-051' })).toHaveCount(1)
 	await page.getByRole('link', { name: '예비 노트북', exact: true }).click()

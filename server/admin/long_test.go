@@ -93,7 +93,8 @@ func TestALongCheckSaysItIsAtItAndStopsWithItsCall(t *testing.T) {
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
-	x.NoError(run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234"))
+	c.Auth.Roster.Tenant = "acme"
+	x.NoError(run(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234"))
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
@@ -163,7 +164,8 @@ func TestAReindexSaysItIsAtItAndStopsWithItsCall(t *testing.T) {
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 	c.App.Search.Opensearch = opensearchtest.Config(t)
-	x.NoError(run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234", "--demo"))
+	c.Auth.Roster.Tenant = "acme"
+	x.NoError(run(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234", "--demo"))
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })

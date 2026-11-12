@@ -3,7 +3,6 @@ package cli
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -46,12 +45,7 @@ func operatorFor(ctx context.Context, self *xli.Command) (grpc.ClientConnInterfa
 	if c.Kind != Operator {
 		return nil, status.Errorf(codes.PermissionDenied, "%s is the operator's, and this is a person's connection: use an operator's (--key, or `loft auth login --operator`)", called(self))
 	}
-	// What names a person's workspace names none here.
-	said, _ := ctx.Value(workspaceKey{}).(string)
-	if said == "" {
-		said = os.Getenv("LOFT_WORKSPACE")
-	}
-	return c.dial(said)
+	return c.dial()
 }
 
 // yes is whether the command was told to do it: without it, a command says

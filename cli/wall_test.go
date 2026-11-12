@@ -18,7 +18,6 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
-	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -354,9 +353,10 @@ func leaks(m protoreflect.Message, v victim, path string) string {
 
 // furnish gives a demo workspace one of each kind of row the demo does not
 // make, so that a call naming one names a real row of it: a label, a count
-// and what it found, an attachment, an invitation -- as its owner, over the
-// wire -- and the operator's legal hold and contract.
-func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login string) {
+// and what it found, an attachment, an invitation -- as its owner, through
+// the stack with the wall, since nobody of a workspace from elsewhere signs
+// in here -- and the operator's legal hold and contract.
+func furnish(t *testing.T, s *cmd.Server, alias, login string) {
 	t.Helper()
 	x := require.New(t)
 	ctx := context.Background()
@@ -364,30 +364,29 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 	x.NoError(err)
 	owner, err := s.Ent.Holder.Query().Where(holder.Alias(login), holder.TenantId(tid)).Only(ctx)
 	x.NoError(err)
-	_, cookie, err := s.Sessions.Mint(ctx, authsession.Session{Id: pdid.Id(*owner.Account).String(), Grant: frame.Whole()})
-	x.NoError(err)
-	as := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value, cmd.WorkspaceHeader, alias)
+	as := frame.Into(ctx, frame.New(pdid.Id(owner.Id), pdid.Id(tid), frame.Whole()).WithScope(frame.Only(pdid.Id(tid))).WithRow(owner.Proto()))
+	w := s.Walled
 
 	space, err := s.Ent.Asset.Query().Where(asset.TenantId(tid), asset.Kind("space")).First(ctx)
 	x.NoError(err)
 	item, err := s.Ent.Asset.Query().Where(asset.TenantId(tid), asset.Kind("item")).First(ctx)
 	x.NoError(err)
 
-	_, err = app.NewLabelServiceClient(conn).Print(as, app.LabelPrintRequest_builder{Count: 1}.Build())
+	_, err = w.Label().Print(as, app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)
-	count, err := app.NewInventoryCountServiceClient(conn).Add(as, app.InventoryCountAddRequest_builder{
+	count, err := w.InventoryCount().Add(as, app.InventoryCountAddRequest_builder{
 		Name: "실사", Scope: app.AssetRef_builder{Id: pdid.Id(space.Id).Bytes()}.Build(),
 	}.Build())
 	x.NoError(err)
-	_, err = app.NewInventoryCountServiceClient(conn).Scan(as, app.InventoryCountScanRequest_builder{
+	_, err = w.InventoryCount().Scan(as, app.InventoryCountScanRequest_builder{
 		Ref: app.InventoryCountRef_builder{Id: count.GetId()}.Build(), Asset: app.AssetRef_builder{Id: pdid.Id(item.Id).Bytes()}.Build(),
 	}.Build())
 	x.NoError(err)
-	_, err = app.NewAttachmentServiceClient(conn).Upload(as, app.AttachmentUploadRequest_builder{
+	_, err = w.Attachment().Upload(as, app.AttachmentUploadRequest_builder{
 		SubjectId: pdid.Id(item.Id).Bytes(), Name: "영수증.txt", ContentType: "text/plain", Data: []byte("영수증"),
 	}.Build())
 	x.NoError(err)
-	_, err = app.NewInvitationServiceClient(conn).Add(as, app.InvitationAddRequest_builder{Email: "someone@example.com", Role: "member"}.Build())
+	_, err = w.Invitation().Add(as, app.InvitationAddRequest_builder{Email: "someone@example.com", Role: "member"}.Build())
 	x.NoError(err)
 
 	tref := app.TenantRef_builder{Id: pdid.Id(tid).Bytes()}.Build()
@@ -399,12 +398,12 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 
 // TestNoCallReachesAnotherWorkspace: the M1 sweep, every method the policy
 // table opens -- so a method added to it is in here without anybody writing a
-// line -- called as the owner of one workspace with the identifiers of
-// another's rows wherever the request can carry one. None answers with
-// anything of the other workspace, none fails in a way that says it got past
-// every check (Internal, Unknown), and the other workspace is as it was --
-// though the session's account is a member of the other workspace as well, and
-// reaches it by naming it.
+// line -- called as the owner of the workspace the deployment serves with the
+// identifiers of another's rows wherever the request can carry one: one put
+// back from another deployment, whose people sign in nowhere here (D85). None
+// answers with anything of the other workspace, none fails in a way that says
+// it got past every check (Internal, Unknown), and the other workspace is as
+// it was.
 func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
@@ -414,8 +413,9 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
-	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
-	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "boss", "--password", "boss12345", "--demo")
+	c.Auth.Roster.Tenant = "acme"
+	run(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234")
+	cli.Elsewhere(t, c, "beta", "boss", true)
 
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)
@@ -426,28 +426,20 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 
 	owner, err := s.Ent.Holder.Query().Where(holder.Role("owner"), holder.HasTenantWith(tenant.Alias("acme"))).Only(ctx)
 	x.NoError(err)
-	_, cookie, err := s.Sessions.Mint(ctx, authsession.Session{Id: pdid.Id(*owner.Account).String(), Grant: frame.Whole()})
+	_, cookie, err := s.Sessions.Mint(ctx, authsession.Session{Id: pdid.Id(owner.Id).String(), Grant: frame.Whole()})
 	x.NoError(err)
-	as := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value, cmd.WorkspaceHeader, "acme")
+	as := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value)
 
-	// A credential that sees both: the account is a member of the other
-	// workspace too, and the same session reaches it when it names it. What
-	// it is not is a way into one from the other (plan M2).
-	bid, err := s.Ent.Tenant.Query().Where(tenant.Alias("beta")).OnlyId(ctx)
+	// Nobody of the other workspace is anybody here: a session of its owner
+	// is nobody's.
+	boss, err := s.Ent.Holder.Query().Where(holder.Alias("boss"), holder.HasTenantWith(tenant.Alias("beta"))).Only(ctx)
 	x.NoError(err)
-	_, err = s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Tenant:  app.TenantRef_builder{Id: bid[:]}.Build(),
-		Alias:   "from-acme",
-		Role:    z.Ptr("member"),
-		Account: owner.Account[:],
-	}.Build())
+	_, theirs, err := s.Sessions.Mint(ctx, authsession.Session{Id: pdid.Id(boss.Id).String(), Grant: frame.Whole()})
 	x.NoError(err)
-	inBeta := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value, cmd.WorkspaceHeader, "beta")
-	theirs, err := app.NewAssetServiceClient(conn).Search(inBeta, app.AssetSearchRequest_builder{}.Build())
-	x.NoError(err)
-	x.NotEmpty(theirs.GetItems(), "the session sees the other workspace when it names it")
+	_, err = app.NewAssetServiceClient(conn).Search(metadata.AppendToOutgoingContext(ctx, "cookie", theirs.Name+"="+theirs.Value), app.AssetSearchRequest_builder{}.Build())
+	x.Equal(codes.Unauthenticated, status.Code(err), "a member of a workspace from elsewhere signed in")
 
-	furnish(t, s, conn, "beta", "boss")
+	furnish(t, s, "beta", "boss")
 	beta := victimOf(t, s, "beta")
 	kinds := []string{}
 	for d, ids := range beta.byKind {
@@ -572,14 +564,7 @@ func (w *sweep) call(full string, md protoreflect.MethodDescriptor, req protoref
 			t.Logf("%-55s %v %s", full, status.Code(err), status.Convert(err).Message())
 		}
 		if got != nil {
-			v := beta
-			if pd.AccountMethod(full) {
-				// The account's own (payday#184, D73): it is a member of the
-				// other workspace, so which workspaces it is in names that
-				// one -- and nothing else of it.
-				v = beta.besides(beta.tenant)
-			}
-			if where := leaks(got, v, ""); where != "" {
+			if where := leaks(got, beta, ""); where != "" {
 				t.Errorf("%s answered with another workspace's row at %s", full, where)
 			}
 		}

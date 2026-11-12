@@ -9,7 +9,7 @@
  * that cannot asks to be polled.
  *
  * A read the network does not reach answers what it answered last, kept for
- * the account and workspace it was read as (`offline.ts`), and a write is
+ * the member and workspace it was read as (`offline.ts`), and a write is
  * refused until the network is back.
  *
  * payday's store would do better than this -- one copy of a row however many
@@ -109,7 +109,7 @@ export function useReadOnly(): boolean {
 /**
  * read is a call that answers what it answered last when the network does not
  * reach the server, and says the page is offline. What it answers is kept for
- * the account and workspace this is, and only for them.
+ * the member and workspace this is, and only for them.
  */
 export async function read<I extends DescMessage, O extends DescMessage>(
 	method: DescMethodUnary<I, O>,

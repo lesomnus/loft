@@ -43,7 +43,7 @@ import {
 	type BillingStatement,
 	type BillingUsage,
 } from '../gen/loft/payment_pb.js'
-import { HolderService, PaymentService, dateOf, fmt, idStr, money, type Account } from './api.js'
+import { HolderService, PaymentService, dateOf, fmt, idStr, money, type Session } from './api.js'
 import { useCatalog } from './catalog.js'
 import { useAct, useReadOnly, useRestricted, useRpc } from './rpc.js'
 import { Badge, Card, Empty, Field, Kv, Load, Modal, Select } from './ui.js'
@@ -279,7 +279,7 @@ function useMembers(): Map<string, Member> {
  * prices include -- and its statements; and, for its owner, asking a member
  * to pay. What a payer does with what it pays with is not here (D81).
  */
-export function PaymentTab(props: { account: Account }): ReactNode {
+export function PaymentTab(props: { session: Session }): ReactNode {
 	const c = useCatalog()
 	const payer = useRpc(PaymentService.method.getPayer, {})
 	const usage = useRpc(PaymentService.method.getUsage, {})
@@ -287,7 +287,7 @@ export function PaymentTab(props: { account: Account }): ReactNode {
 	const members = useMembers()
 	const nameOf = (account: string | undefined): string => {
 		if (account === undefined || account === '') return ''
-		if (account === props.account.id) return '나'
+		if (account === props.session.id) return '나'
 		return members.get(account)?.name ?? '이 워크스페이스에 없는 계정'
 	}
 	const credits = payer.data?.payer?.credits ?? []
@@ -296,7 +296,7 @@ export function PaymentTab(props: { account: Account }): ReactNode {
 			<Card title="결제 담당">
 				<Load q={payer}>{(v) => <PayerSaid payer={v.payer} nameOf={nameOf} />}</Load>
 			</Card>
-			{c.can('owner') && <Load q={payer}>{(v) => <OfferCard payer={v.payer} members={members} me={props.account.id} />}</Load>}
+			{c.can('owner') && <Load q={payer}>{(v) => <OfferCard payer={v.payer} members={members} me={props.session.id} />}</Load>}
 			<WorkspaceCredit credits={credits} />
 			<Card title="이번 기간 사용량과 예상 금액">
 				<Load q={usage}>{(v) => (v.usage === undefined ? <Empty /> : <UsageSaid usage={v.usage} credits={credits} />)}</Load>
@@ -682,11 +682,11 @@ function soonest(dates: (Date | undefined)[]): Date | undefined {
  * the billing account it is paid for with cannot be collected from yet
  * (`GetPayer`'s collection, `CollectionBanner`), which restricts nothing.
  */
-export function BillingBanner(props: { account: Account }): ReactNode {
+export function BillingBanner(props: { session: Session }): ReactNode {
 	const c = useCatalog()
 	const refused = useRestricted()
 	const refusedReadOnly = useReadOnly()
-	const billed = props.account.billing === true
+	const billed = props.session.billing === true
 	const admin = c.can('admin')
 	const payer = useRpc(PaymentService.method.getPayer, billed && admin ? {} : null, { poll: 10 * 60_000 })
 	const p = payer.data?.payer
@@ -714,7 +714,7 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 			? ` ${fmt(readOnlyFrom, 'date')}부터는 읽기 전용이 되어 워크스페이스의 데이터를 바꿀 수 없게 됩니다. 보기, 내보내기, 결제, 떠나기는 그때도 할 수 있습니다.`
 			: ''
 
-	const payerIsMe = p?.current !== undefined && p.current.account === props.account.id
+	const payerIsMe = p?.current !== undefined && p.current.account === props.session.id
 	const payerless = payerlessFrom !== undefined
 	if (!restricted && payerlessFrom === undefined && dunning === undefined && readOnlyFrom === undefined) {
 		// Nothing failed, and nothing is restricted: whether the billing

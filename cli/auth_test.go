@@ -56,7 +56,7 @@ func fails(t *testing.T, k *xli.Command, args ...string) error {
 // the entry point who the key is before it keeps anything, and keeps where the
 // key is and never the key -- refused written out, and refused when the entry
 // point does not know it. Kept beside a person's, either is the one in use as
-// `loft auth switch` says, and says who it is; what is an account's is refused
+// `loft auth switch` says, and says who it is; what is a person's is refused
 // on the operator's.
 func TestAnOperatorKeepsWhereTheirKeyIs(t *testing.T) {
 	s := serve(t)
@@ -94,19 +94,9 @@ func TestAnOperatorKeepsWhereTheirKeyIs(t *testing.T) {
 	x.Contains(run(t, cli.NewCmdAuth(), "whoami"), "alice, an operator")
 	x.ErrorContains(fails(t, cli.NewCmdAuth(), "switch", "nowhere"), `no connection "nowhere"`)
 
-	// What is an account's has no operator's to be: its workspace, its
-	// workspaces, and an assistant speaking as it.
-	for _, v := range []struct {
-		k    *xli.Command
-		args []string
-	}{
-		{cli.NewCmdUse(), []string{"acme"}},
-		{root(), []string{"tenant", "mine"}},
-	} {
-		x.ErrorContains(fails(t, v.k, v.args...), "this is an operator's connection", v.k.Name)
-	}
+	// What is a person's has no operator's to be: an assistant speaking as
+	// them.
 	x.Contains(s.assistant().refused("whoami", nil), "this is an operator's connection")
-	x.ErrorContains(fails(t, root(), "--workspace", "acme", "asset", "ls"), "an operator names the workspace in each command")
 
 	// The key is read where it is, each call: one moved is none.
 	x.NoError(os.Rename(file, file+".moved"))

@@ -29,8 +29,6 @@ const (
 	TenantService_Restore_FullMethodName   = "/loft.TenantService/Restore"
 	TenantService_Configure_FullMethodName = "/loft.TenantService/Configure"
 	TenantService_Preview_FullMethodName   = "/loft.TenantService/Preview"
-	TenantService_Mine_FullMethodName      = "/loft.TenantService/Mine"
-	TenantService_Create_FullMethodName    = "/loft.TenantService/Create"
 	TenantService_Export_FullMethodName    = "/loft.TenantService/Export"
 )
 
@@ -72,14 +70,6 @@ type TenantServiceClient interface {
 	// its access record would come to, and when, changing nothing: what its
 	// owner is shown before Configure saves it. A field left out is as it is.
 	Preview(ctx context.Context, in *TenantPreviewRequest, opts ...grpc.CallOption) (*TenantPreviewResponse, error)
-	// Mine is the workspaces the caller's account is in, each as it is told
-	// it, and how many it owns and may (D73). The account's own (payday#184):
-	// served as the account, in no workspace.
-	Mine(ctx context.Context, in *TenantMineRequest, opts ...grpc.CallOption) (*TenantMineResponse, error)
-	// Create makes a workspace the caller's account owns, called `name`, with
-	// an address nobody chose (design 9.11, D73): what a sign-in gives an
-	// account in none, asked for. The account's own.
-	Create(ctx context.Context, in *TenantCreateRequest, opts ...grpc.CallOption) (*TenantMembership, error)
 	// Export is everything the workspace has, as one zip (D29, D34), open or
 	// closed: the operator's to take out, at the entry point, for its owner or
 	// for one that is leaving, and no role's in the workspace (D83). A download
@@ -197,26 +187,6 @@ func (c *tenantServiceClient) Preview(ctx context.Context, in *TenantPreviewRequ
 	return out, nil
 }
 
-func (c *tenantServiceClient) Mine(ctx context.Context, in *TenantMineRequest, opts ...grpc.CallOption) (*TenantMineResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantMineResponse)
-	err := c.cc.Invoke(ctx, TenantService_Mine_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *tenantServiceClient) Create(ctx context.Context, in *TenantCreateRequest, opts ...grpc.CallOption) (*TenantMembership, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantMembership)
-	err := c.cc.Invoke(ctx, TenantService_Create_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *tenantServiceClient) Export(ctx context.Context, in *TenantExportRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TenantExportResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &TenantService_ServiceDesc.Streams[0], TenantService_Export_FullMethodName, cOpts...)
@@ -274,14 +244,6 @@ type TenantServiceServer interface {
 	// its access record would come to, and when, changing nothing: what its
 	// owner is shown before Configure saves it. A field left out is as it is.
 	Preview(context.Context, *TenantPreviewRequest) (*TenantPreviewResponse, error)
-	// Mine is the workspaces the caller's account is in, each as it is told
-	// it, and how many it owns and may (D73). The account's own (payday#184):
-	// served as the account, in no workspace.
-	Mine(context.Context, *TenantMineRequest) (*TenantMineResponse, error)
-	// Create makes a workspace the caller's account owns, called `name`, with
-	// an address nobody chose (design 9.11, D73): what a sign-in gives an
-	// account in none, asked for. The account's own.
-	Create(context.Context, *TenantCreateRequest) (*TenantMembership, error)
 	// Export is everything the workspace has, as one zip (D29, D34), open or
 	// closed: the operator's to take out, at the entry point, for its owner or
 	// for one that is leaving, and no role's in the workspace (D83). A download
@@ -328,12 +290,6 @@ func (UnimplementedTenantServiceServer) Configure(context.Context, *TenantConfig
 }
 func (UnimplementedTenantServiceServer) Preview(context.Context, *TenantPreviewRequest) (*TenantPreviewResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Preview not implemented")
-}
-func (UnimplementedTenantServiceServer) Mine(context.Context, *TenantMineRequest) (*TenantMineResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Mine not implemented")
-}
-func (UnimplementedTenantServiceServer) Create(context.Context, *TenantCreateRequest) (*TenantMembership, error) {
-	return nil, status.Error(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedTenantServiceServer) Export(*TenantExportRequest, grpc.ServerStreamingServer[TenantExportResponse]) error {
 	return status.Error(codes.Unimplemented, "method Export not implemented")
@@ -539,42 +495,6 @@ func _TenantService_Preview_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TenantService_Mine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantMineRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TenantServiceServer).Mine(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TenantService_Mine_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantServiceServer).Mine(ctx, req.(*TenantMineRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TenantService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TenantCreateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TenantServiceServer).Create(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TenantService_Create_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TenantServiceServer).Create(ctx, req.(*TenantCreateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _TenantService_Export_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(TenantExportRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -632,14 +552,6 @@ var TenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Preview",
 			Handler:    _TenantService_Preview_Handler,
-		},
-		{
-			MethodName: "Mine",
-			Handler:    _TenantService_Mine_Handler,
-		},
-		{
-			MethodName: "Create",
-			Handler:    _TenantService_Create_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

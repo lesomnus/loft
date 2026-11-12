@@ -77,7 +77,8 @@ func open(t *testing.T) *entry {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
-	x.NoError(run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234"))
+	c.Auth.Roster.Tenant = "acme"
+	x.NoError(run(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234"))
 
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
@@ -163,7 +164,6 @@ func TestEveryMethodAnswersAnOperatorsKeyAndNothingElse(t *testing.T) {
 		app.TenantService_Configure_FullMethodName,
 		app.TenantService_Patch_FullMethodName,
 		app.TenantService_Erase_FullMethodName,
-		app.TenantService_Mine_FullMethodName,
 		app.HolderService_Patch_FullMethodName,
 		app.EventService_Recent_FullMethodName,
 		app.EventService_List_FullMethodName,
@@ -340,12 +340,12 @@ func TestWhatAnOperatorDoesIsRecordedAsTheirs(t *testing.T) {
 	// The workspace's own review of its record calls them the operator.
 	owner, err := e.s.Ent.Holder.Query().Where(holder.TenantId(acme), holder.Alias("owner")).Only(bg)
 	x.NoError(err)
-	_, cookie, err := e.s.Sessions.Mint(bg, authsession.Session{Id: pdid.Id(*owner.Account).String(), Grant: frame.Whole()})
+	_, cookie, err := e.s.Sessions.Mint(bg, authsession.Session{Id: pdid.Id(owner.Id).String(), Grant: frame.Whole()})
 	x.NoError(err)
 	g, err := e.s.Grpc(t.Context(), e.c)
 	x.NoError(err)
 	public := pdtest.Serve(t, g)
-	asOwner := metadata.AppendToOutgoingContext(bg, "cookie", cookie.Name+"="+cookie.Value, cmd.WorkspaceHeader, "acme")
+	asOwner := metadata.AppendToOutgoingContext(bg, "cookie", cookie.Name+"="+cookie.Value)
 	now := time.Now()
 	review, err := app.NewAccessServiceClient(public).Review(asOwner, app.AccessReviewRequest_builder{
 		DateFrom: timestamppb.New(now.Add(-time.Hour)),

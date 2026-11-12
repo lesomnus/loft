@@ -1,10 +1,10 @@
-import { expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
+import { expect, field, people, said, signIn, test, unique } from './loft.js'
 
 test('a member reports a fault on an asset, and it is on the work list', async ({ page }) => {
 	const symptom = unique('e2e 화면이 깜빡임')
 	await signIn(page, people.reporter.login)
 
-	await page.goto(`${workspace}/work`)
+	await page.goto(`/work`)
 	await page.getByRole('button', { name: '+ 고장 신고' }).click()
 	const report = page.getByRole('dialog')
 	// The demo's MN-003 is this member's monitor.

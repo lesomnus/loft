@@ -17,14 +17,14 @@ import (
 
 // What a workspace is called (D57).
 //
-// A workspace is called by its own name, which whoever made it chose -- the
-// account that made it, or an operator (`loft init`) -- and which is nobody's:
-// the name of a thing, which payday's Tenant declares about no one
-// (payday#180) and the trail keeps as a value, as it keeps any thing's
-// (design 8.2). The workspace an account is given when it arrives
-// ([Workspaces.Arrive]) has none. What it would be called is a person's name,
-// and written there it would be a person in a field about no one -- on the
-// trail as a value, where nothing that forgets them reaches it. So it is said
+// A workspace is called by its own name, which whoever put it up chose (`loft
+// init --name`, or the tenant's at roster) or its owner gave it since, and
+// which is nobody's: the name of a thing, which payday's Tenant declares about
+// no one (payday#180) and the trail keeps as a value, as it keeps any thing's
+// (design 8.2). One put up with neither has none. What it would be called is a
+// person's name, and written there it would be a person in a field about no
+// one -- on the trail as a value, where nothing that forgets them reaches it.
+// So it is said
 // where it is read: "<이름>의 워크스페이스", after its first owner, named as
 // the history names whoever did something -- by the person record of their
 // membership, or the membership's own name. It is the name they go by now: a

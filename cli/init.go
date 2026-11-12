@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -22,20 +23,24 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
-	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/tenancy"
 )
 
-// NewCmdInit is `loft init`: a workspace, the account that owns it, and the
-// types an asset register starts with.
+// NewCmdInit is `loft init`: the workspace -- the roster tenant this
+// deployment serves (`auth.roster.tenant`), by the same identifier (D85) --
+// its first owner, and the types an asset register starts with.
 //
-// The account is in the directory at the roster in this process, which is
-// where it signs in, and `init` makes the directory too when there is none
-// (design 9.10, D27). An account there already keeps its password and is
-// made the owner of another workspace. The workspace is Loft's own, and so is
-// its identifier. A deployment whose roster is one of its own makes no
-// accounts: they are roster's.
+// On a roster of its own the tenant and its people are there already: its
+// operator made the tenant and installed Loft in it, and the key Loft holds is
+// that tenant's (roster's `docs/apps.md` shape C). `init` reads the tenant,
+// and makes its owner the holder `--login` names there -- `admin`, the one
+// roster makes every tenant with, unless it names another -- whom the
+// tenant's administrator gave a way to sign in. On the roster in this process,
+// which is for tests and for trying Loft (#327's decision 5), `init` makes the
+// tenant and its first person too, with a password shown once, and `--demo`
+// people at both.
 //
 // It exists because there is nowhere else it could happen. A tenant is not put
 // up from inside one, so the first row of a deployment cannot arrive over the
@@ -43,9 +48,9 @@ import (
 // anybody holds: it is a server instance this process was handed, reachable
 // from this command and from nowhere a request can get to.
 //
-// Running it twice is an error rather than a no-op, because an alias is unique
-// and the database says so. That is the right answer -- an `init` that quietly
-// did nothing is one somebody runs against the wrong deployment and believes.
+// Running it twice is an error rather than a no-op, because a deployment
+// serves one workspace. That is the right answer -- an `init` that quietly did
+// nothing is one somebody runs against the wrong deployment and believes.
 //
 // A configuration that names the trail an archive and no key to sign its
 // account with -- which `serve` and the trail's commands refuse (payday#115)
@@ -57,16 +62,15 @@ import (
 func NewCmdInit(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "init",
-		Brief: "put up the first tenant and its owner",
+		Brief: "put up the workspace and its first owner",
 
 		Flags: flg.Flags{
-			&flg.String{Name: "tenant", Brief: "the workspace's alias, in its address: /@<alias>"},
-			&flg.String{Name: "name", Brief: "the workspace's name"},
-			&flg.String{Name: "login", Brief: "the owner's login: an account in the directory, made when it is not there"},
-			&flg.String{Name: "person", Brief: "the owner's name"},
+			&flg.String{Name: "name", Brief: "the workspace's name; the tenant's at roster by default"},
+			&flg.String{Name: "login", Brief: "the owner's login in the tenant at roster; made there, on the roster in this process, when it is not there"},
+			&flg.String{Name: "person", Brief: "the owner's name; roster's by default, and \"관리자\" for one made on the roster in this process"},
 			&flg.String{Name: "email", Brief: "the owner's e-mail, kept on their person record"},
-			&flg.String{Name: "password", Brief: "the owner's password; empty makes one up"},
-			&flg.Switch{Name: "demo", Brief: "also fill it with teams, people, spaces and assets to try things on"},
+			&flg.String{Name: "password", Brief: "on the roster in this process, the owner's password; empty makes one up"},
+			&flg.Switch{Name: "demo", Brief: "on the roster in this process, also fill it with teams, people, spaces and assets to try things on"},
 		},
 
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
@@ -77,10 +81,9 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 				}
 				return strings.TrimSpace(v)
 			}
-			alias := get("tenant", "loft")
-			name := get("name", alias)
-			login := get("login", "admin")
-			person := get("person", "관리자")
+			name := get("name", "")
+			login := get("login", identity.RosterAdministrator)
+			person := get("person", "")
 			email := get("email", "")
 			pw := get("password", "")
 			demo, _ := flg.Find[bool](self, "demo")
@@ -104,8 +107,8 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 				return err
 			}
 			defer s.Close()
-			if !s.Identity.Embedded() {
-				return errors.New("auth.roster names a roster of its own, and accounts are made there; a workspace is made by somebody signed in")
+			if !s.Identity.Embedded() && (pw != "" || demo) {
+				return errors.New("--password and --demo are the roster in this process's: on a roster of its own, people are made and given passwords there")
 			}
 
 			// The schema, so that a fresh database is one this can run against.
@@ -114,22 +117,21 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			}
 
 			// Here first, since a workspace already here is the error, and
-			// roster would otherwise keep an account made for it.
-			if here, err := s.Ent.Tenant.Query().Where(enttenant.Alias(alias)).Exist(ctx); err != nil {
+			// roster would otherwise keep a tenant made for it.
+			if here, err := s.Ent.Tenant.Query().First(ctx); err == nil {
+				return fmt.Errorf("the workspace @%s is here already: a deployment serves one", here.Alias)
+			} else if !ent.IsNotFound(err) {
 				return err
-			} else if here {
-				return fmt.Errorf("workspace %q is here already", alias)
 			}
 
-			// The account, in the directory at roster, which is where it
-			// signs in.
-			p, made, err := ownerAccount(ctx, s, login, person)
+			// The tenant at roster and its owner there.
+			t, p, made, err := owner(ctx, s, name, login, person)
 			if err != nil {
 				return fmt.Errorf("roster: %w", err)
 			}
 			if pw != "" {
 				if made == "" {
-					return fmt.Errorf("--password: %s is an account already, with a password of its own; `loft holder password` changes it", login)
+					return fmt.Errorf("--password: %s is at roster already, with a password of its own; `loft holder password` changes it", login)
 				}
 				if err := s.Identity.SetPassword(ctx, p.Id, pw); err != nil {
 					return fmt.Errorf("roster: %w", err)
@@ -137,30 +139,14 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 				made = ""
 			}
 
-			// And the workspace, which is Loft's, with the account's
-			// membership of it, in one transaction.
-			t, h, err := initWorkspace(ctx, s, alias, name, login, person, email, p)
+			ws, err := putUp(ctx, s, t, cmp.Or(name, t.Name), p, cmp.Or(person, p.Name), email, demo, self)
 			if err != nil {
 				return err
 			}
 
-			// From here on it is the owner doing it, through the domain layer,
-			// so that what it writes reads as theirs.
-			tid, _ := pdid.From(t.GetId())
-			hid, _ := pdid.From(h.GetId())
-			ctx = frame.Into(ctx, frame.New(hid, tid, frame.Whole()).WithScope(frame.Only(tid)).WithRow(h))
-
-			if err := tenancy.SetUp(ctx, s.Ungated); err != nil {
-				return err
-			}
-			if demo {
-				if err := seedDemo(ctx, s.Ungated, self); err != nil {
-					return fmt.Errorf("demo: %w", err)
-				}
-			}
-
-			self.Printf("workspace @%s (%s)\n", alias, tid)
-			self.Printf("owner     %s (account %s)\n", p.Alias, p.Id)
+			tid, _ := pdid.From(ws.GetId())
+			self.Printf("workspace @%s (%s)\n", ws.GetAlias(), tid)
+			self.Printf("owner     %s (%s)\n", p.Alias, p.Id)
 			if made != "" {
 				self.Printf("password  %s\n", made)
 			}
@@ -170,9 +156,36 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 	}
 }
 
-// initWorkspace puts up the workspace `init` makes, and its owner's membership
+// putUp is what `init` does once it has the tenant at roster and its owner
+// there: the workspace and the owner's membership of it ([initWorkspace]),
+// then -- as the owner, through the domain layer, so that what it writes reads
+// as theirs -- what an asset register starts with, and with `demo` people and
+// things to try it on.
+func putUp(ctx context.Context, s *cmd.Server, t identity.Tenant, name string, p identity.Person, person, email string, demo bool, out *xli.Command) (*app.Tenant, error) {
+	ws, h, err := initWorkspace(ctx, s, t, name, p, person, email)
+	if err != nil {
+		return nil, err
+	}
+
+	tid, _ := pdid.From(ws.GetId())
+	hid, _ := pdid.From(h.GetId())
+	ctx = frame.Into(ctx, frame.New(hid, tid, frame.Whole()).WithScope(frame.Only(tid)).WithRow(h))
+	if err := tenancy.SetUp(ctx, s.Ungated); err != nil {
+		return nil, err
+	}
+	if demo {
+		if err := seedDemo(ctx, s.Ungated, out); err != nil {
+			return nil, fmt.Errorf("demo: %w", err)
+		}
+	}
+
+	return ws, nil
+}
+
+// initWorkspace puts up the workspace `init` makes -- the tenant at roster, by
+// its identifier and alias -- and its owner's membership, by theirs at roster,
 // and person record: one transaction.
-func initWorkspace(ctx context.Context, s *cmd.Server, alias, name, login, person, email string, p identity.Person) (*app.Tenant, *app.Holder, error) {
+func initWorkspace(ctx context.Context, s *cmd.Server, t identity.Tenant, name string, p identity.Person, person, email string) (*app.Tenant, *app.Holder, error) {
 	tdrv, tx, err := dialect.BeginTx(ctx, s.Drv)
 	if err != nil {
 		return nil, nil, err
@@ -183,24 +196,25 @@ func initWorkspace(ctx context.Context, s *cmd.Server, alias, name, login, perso
 		return nil, nil, err
 	}
 
-	t, err := base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: name}.Build())
+	ws, err := base.Tenant().Add(ctx, app.TenantAddRequest_builder{Id: t.Id.Bytes(), Alias: t.Alias, Name: name}.Build())
 	if err != nil {
-		return nil, nil, fmt.Errorf("workspace %q: %w", alias, err)
+		return nil, nil, fmt.Errorf("workspace @%s: %w", t.Alias, err)
 	}
-	tenant := app.TenantRef_builder{Id: t.GetId()}.Build()
+	tenant := app.TenantRef_builder{Id: ws.GetId()}.Build()
 	h, err := base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Id:      p.Id.Bytes(),
 		Tenant:  tenant,
 		Alias:   p.Alias,
-		Name:    person,
+		Name:    cmp.Or(person, p.Alias),
 		Role:    z.Ptr("owner"),
 		Account: p.Id.Bytes(),
 	}.Build())
 	if err != nil {
-		return nil, nil, fmt.Errorf("holder %q: %w", login, err)
+		return nil, nil, fmt.Errorf("holder %q: %w", p.Alias, err)
 	}
 	if _, err := base.Party().Add(ctx, app.PartyAddRequest_builder{
 		Tenant: tenant,
-		Name:   person,
+		Name:   cmp.Or(person, p.Alias),
 		Kind:   "person",
 		Email:  email,
 		Holder: app.HolderRef_builder{Id: h.GetId()}.Build(),
@@ -211,38 +225,47 @@ func initWorkspace(ctx context.Context, s *cmd.Server, alias, name, login, perso
 		return nil, nil, err
 	}
 
-	return t, h, nil
+	return ws, h, nil
 }
 
-// ownerAccount is the account `init` makes the owner: the one in the directory
-// by that login, or a new one, with the password made for it when it is new.
-// The directory is made with it when there is none.
-func ownerAccount(ctx context.Context, s *cmd.Server, login, name string) (identity.Person, string, error) {
-	_, err := s.Identity.Directory(ctx)
-	if errors.Is(err, identity.ErrNoDirectory) {
-		return s.Identity.MakeDirectory(ctx, login, name)
+// madeOwner is what the owner the roster in this process is given is called,
+// when `--person` names nobody: who they are to everybody they work with.
+const madeOwner = "관리자"
+
+// owner is the tenant at roster and the person `init` makes its owner: on the
+// roster in this process the tenant made with them when there is none, and
+// them made in it when they are not there, each with a password made for
+// them; on a roster of its own, the tenant the key is of and the person there
+// by that login, made by its administrator.
+func owner(ctx context.Context, s *cmd.Server, name, login, person string) (identity.Tenant, identity.Person, string, error) {
+	t, err := s.Identity.Tenant(ctx)
+	if errors.Is(err, identity.ErrNoTenant) && s.Identity.Embedded() {
+		return s.Identity.MakeTenant(ctx, name, login, cmp.Or(person, madeOwner))
 	}
 	if err != nil {
-		return identity.Person{}, "", err
+		return identity.Tenant{}, identity.Person{}, "", err
 	}
 	p, err := s.Identity.Lookup(ctx, login)
 	if err == nil {
-		return p, "", nil
+		return t, p, "", nil
 	}
 	if !errors.Is(err, identity.ErrNoPerson) {
-		return identity.Person{}, "", err
+		return identity.Tenant{}, identity.Person{}, "", err
 	}
-	p, err = s.Identity.AddPerson(ctx, login, name, pdid.Nil)
+	if !s.Identity.Embedded() {
+		return identity.Tenant{}, identity.Person{}, "", fmt.Errorf("@%s/%s is nobody there: the tenant's administrator makes them first, or --login names somebody who is", t.Alias, login)
+	}
+	p, err = s.Identity.AddPerson(ctx, login, cmp.Or(person, madeOwner), pdid.Nil)
 	if err != nil {
-		return identity.Person{}, "", err
+		return identity.Tenant{}, identity.Person{}, "", err
 	}
 	made, err := s.Identity.IssuePassword(ctx, p.Id)
 	if err != nil {
 		s.Identity.ForgetPerson(ctx, p.Id)
-		return identity.Person{}, "", err
+		return identity.Tenant{}, identity.Person{}, "", err
 	}
 
-	return p, made, nil
+	return t, p, made, nil
 }
 
 // keyFor writes a key for the trail's archive to sign its account with, made

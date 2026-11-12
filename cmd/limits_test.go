@@ -80,8 +80,8 @@ func TestEveryProcessCountsTheSameSignInFailures(t *testing.T) {
 	other := w.another(t)
 
 	ra, rb := &asked{People: w.s.Identity}, &asked{People: other.Identity}
-	a := session.SignIn(w.s.Sessions, ra, w.s.Ent, nil)
-	b := session.SignIn(other.Sessions, rb, other.Ent, nil)
+	a := session.SignIn(w.s.Sessions, ra, w.s.Ent, w.s.Members)
+	b := session.SignIn(other.Sessions, rb, other.Ent, other.Members)
 	both := func() int { return ra.count() + rb.count() }
 
 	// Nobody by this name, so that roster has no account to lock and what
@@ -151,7 +151,7 @@ func TestALockedAccountIsRefusedAsAWrongAnswerIs(t *testing.T) {
 	x.NoError(w.s.Identity.SetPassword(ctx, lee.Id, "correct horse"))
 
 	r := &asked{People: w.s.Identity}
-	h := session.SignIn(w.s.Sessions, r, w.s.Ent, nil)
+	h := session.SignIn(w.s.Sessions, r, w.s.Ent, w.s.Members)
 
 	// From a new address every time, so that Loft's limit on a pair never
 	// comes into it and what locks is roster.

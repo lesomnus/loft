@@ -119,18 +119,16 @@ export type Holder = Message<"loft.Holder"> & {
   role: string;
 
   /**
-   * The account this is a membership of: a holder at roster, in this
-   * deployment's directory (design 9.10, D27). An account belongs to many
-   * workspaces with one holder in each, every one its own row with its own
-   * identifier, and what a session names is the account. Null on a membership
-   * a workspace's restore put back with no account -- one this deployment's
-   * roster does not have (`offboard.Restored.Unlinked`) -- which nobody signs
-   * in as until `loft identity link` gives it one.
+   * The holder at roster this membership is: the one of the tenant this
+   * deployment serves, whose identifier the membership has too (design 9.10,
+   * D85). What reads a membership by what roster says of somebody -- roster's
+   * word on them (`server/lifecycle`), a password, their mail -- reads it
+   * here. Null on a membership a workspace's restore put back that this
+   * deployment's roster does not have (`offboard.Restored.Unlinked`), which
+   * nobody signs in as until `loft identity link` gives it one there.
    *
-   * It is what a call is resolved by (`(payday.app).accounts`, payday#184),
-   * so which account a membership is of is the deployment's to say: the
-   * generated gate refuses it to a request, and what makes a membership --
-   * an invitation accepted, a workspace made, a login given -- writes it
+   * Which holder a membership is, is the deployment's to say: what makes a
+   * membership -- a first sign-in, `loft init`, a login given -- writes it
    * through the servers the deployment holds.
    *
    * @generated from field: bytes account = 9;

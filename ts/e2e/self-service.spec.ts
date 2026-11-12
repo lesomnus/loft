@@ -1,5 +1,5 @@
 import { printed } from './qr.js'
-import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
+import { card, choose, expect, field, people, said, signIn, test, unique } from './loft.js'
 
 // M4's self-service (plan.md 5장): what is handed over is confirmed by the
 // person it went to, who scans its label -- 스캔 → 인수 확인 -- with nobody
@@ -11,7 +11,7 @@ test('a member scans the label on what was handed over, and confirms they have i
 	await signIn(page, people.custody.login)
 
 	// Handed over, and labelled, by a manager.
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill('PH-004')
 	await page.getByRole('link', { name: '업무폰 4', exact: true }).click()
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('PH-004')
@@ -41,7 +41,7 @@ test('a member scans the label on what was handed over, and confirms they have i
 	await expect(theirs.getByRole('button', { name: '인수 확인', exact: true })).toHaveCount(0)
 
 	// Nothing of it waits for them any more,
-	await theirs.goto(`${workspace}/me`)
+	await theirs.goto(`/me`)
 	await expect(card(theirs, '인수 확인이 필요한 것')).not.toContainText(memo)
 	// and the manager sees when it was confirmed.
 	await page.goto(custody)

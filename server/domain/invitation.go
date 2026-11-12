@@ -2,9 +2,6 @@ package domain
 
 import (
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"log/slog"
 	netmail "net/mail"
@@ -14,7 +11,6 @@ import (
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/access"
-	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -24,10 +20,8 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/invitation"
 	entparty "github.com/lesomnus/loft/internal/ent/party"
-	"github.com/lesomnus/loft/internal/ent/predicate"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/pd"
@@ -37,33 +31,17 @@ import (
 
 // The invitations of a workspace (design 9.11).
 //
-// # Two sides, and the wall serves one
-//
-// The people who run a workspace invite into it and see what they sent: that
-// is the workspace's own rows, written and read as their membership, behind
-// the wall like everything else (`Add`, `List`, `Revoke`). The account an
-// invitation is addressed to is nobody's member there. It reads its
-// invitations out of every workspace that sent one, and its answer writes into
-// a workspace it cannot see -- so `Inbox`, `Claim`, `Accept` and `Deny` are
-// the account's own (payday#184): served as the account, in no workspace,
-// reading nothing through the walled servers (`pd.AccountReads`, an empty
-// `pd.Reads`), and what the wall would have kept is kept here, a rule at a
-// time:
-//
-//   - an account reads the invitations addressed to it, and nothing else: the
-//     ones it holds, and the ones sent to an address roster holds as checked
-//     for it ([identity.Store.Addresses]) -- never to an address nobody
-//     checked, which any directory's administrator can put on a user of their
-//     own (nOAuth);
-//   - a workspace's own invitations are read by somebody who runs it, as
-//     their membership of it, and of no other workspace;
-//   - an answer is written in the invitation's workspace as the deployment's
-//     own work ([Deps.System]), and what it makes is what the invitation says.
+// The people who run a workspace invite into it and see what they sent: the
+// workspace's own rows, written and read as their membership, behind the wall
+// like everything else (`Add`, `List`, `Revoke`). Answering one is nobody's
+// call here any more (D85): who is a member is who roster has in the tenant
+// this deployment serves, made here the first time they sign in, and what
+// takes the place of an invitation is #332's.
 //
 // # What the people who invite learn
 //
 // What became of what they sent, and nothing about who was asked: whether an
-// address belongs to an account here is not said by an invitation going out,
+// address belongs to somebody here is not said by an invitation going out,
 // nor by the mail, which is the same one either way.
 
 // The states an invitation is in. One still pending after it expires is
@@ -129,7 +107,7 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 	}
 
 	var out *app.Invitation
-	var code, inviter, workspace string
+	var inviter, workspace string
 	zone := DefaultZone
 	err = s.tx(ctx, func(t *Tx) error {
 		me, err := t.db.Holder.Get(t.ctx, t.actor.Uuid())
@@ -202,7 +180,6 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 		inviter = nameOf(t.ctx, t.db, me)
 		zone = t.zone()
 
-		code = secret()
 		id := pdid.New(pd.InvitationDomain)
 		said := app.InvitationAdded_builder{Invitation: id.Bytes(), Role: role}.Build()
 		if party != nil {
@@ -220,7 +197,6 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 			Party:       party,
 			State:       invitePending,
 			DateExpires: ts(t.now.Add(rules.ttl())),
-			Claim:       digest(code),
 		}.Build())
 		return err
 	})
@@ -229,12 +205,11 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 	}
 
 	// After the invitation is kept: a mail that did not go is an invitation
-	// that is still there, and still in the inbox of an account roster holds
-	// the address of. It is said, and sent again by inviting again.
-	if err := s.deps.mailInvitation(ctx, out, code, inviter, workspace, zone); err != nil {
+	// that is still there. It is said, and sent again by inviting again.
+	if err := s.deps.mailInvitation(ctx, out, inviter, workspace, zone); err != nil {
 		log.From(ctx).WarnContext(ctx, "invitation: the mail did not go", "invitation", idOf(out.GetId()).String(), slog.Any("err", err))
 	}
-	return withoutCode(out), nil
+	return out, nil
 }
 
 // Revoke takes back an invitation nobody answered.
@@ -255,7 +230,6 @@ func (s domainInvitation) Revoke(ctx context.Context, req *app.InvitationRevokeR
 			Ref:              app.InvitationRef_builder{Id: v.GetId()}.Build(),
 			State:            z.Ptr(inviteRevoked),
 			DateSettled:      ts(t.now),
-			ClaimNull:        z.Ptr(true),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
 		return err
@@ -263,12 +237,12 @@ func (s domainInvitation) Revoke(ctx context.Context, req *app.InvitationRevokeR
 	if err != nil {
 		return nil, err
 	}
-	return withoutCode(out), nil
+	return out, nil
 }
 
 // List is the invitations a workspace sent, for somebody who runs it: the
 // caller's own workspace, named (`tenant`), which is the one question it
-// answers. The ones addressed to an account are [domainInvitation.Inbox].
+// answers.
 //
 // It is served as the caller's membership, which the policy holds to an
 // administrator's. The rows are read past the wall, for what they are shown
@@ -278,7 +252,7 @@ func (s domainInvitation) Revoke(ctx context.Context, req *app.InvitationRevokeR
 func (s domainInvitation) List(ctx context.Context, req *app.InvitationListRequest) (*app.InvitationListResponse, error) {
 	fs := req.GetFilters()
 	if len(fs) != 1 || fs[0].GetTenant() == nil || len(fs[0].GetAccount()) > 0 || fs[0].GetRef() != nil {
-		return nil, invalid("filters", "보낸 초대는 워크스페이스(tenant) 하나로 찾습니다. 받은 초대는 초대함(Inbox)에 있습니다")
+		return nil, invalid("filters", "보낸 초대는 워크스페이스(tenant) 하나로 찾습니다")
 	}
 	f := fs[0]
 	fr, err := gate.Actor(ctx)
@@ -311,46 +285,6 @@ func (s domainInvitation) List(ctx context.Context, req *app.InvitationListReque
 	return app.InvitationListResponse_builder{Items: items}.Build(), nil
 }
 
-// Inbox is the invitations addressed to the caller's account, from every
-// workspace that sent one ([domainInvitation.addressed]): the ones waiting for
-// an answer, or the ones in `state`.
-//
-// It is the account's own (payday#184), so it reads nothing through the
-// walled servers -- there is no workspace to narrow by -- and what it reads
-// past them is held here to the account's own.
-func (s domainInvitation) Inbox(ctx context.Context, req *app.InvitationInboxRequest) (*app.InvitationInboxResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.InvitationService_Inbox_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	me, err := accountOf(ctx)
-	if err != nil {
-		return nil, err
-	}
-	db := ent.NewClient(ent.Driver(s.drv))
-	now := s.deps.now()
-
-	mine, err := s.addressed(ctx, me)
-	if err != nil {
-		return nil, err
-	}
-	state := invitePending
-	if req.HasState() {
-		state = req.GetState()
-	}
-	rows, err := byState(db.Invitation.Query().Where(mine, invitation.DateErasedIsNil()), state, now).
-		Order(ent.Desc(invitation.FieldDateCreated)).Limit(sizeOf(int(req.GetSize()))).WithInviter().WithTenant().All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	items, err := shown(ctx, db, rows, now)
-	if err != nil {
-		return nil, err
-	}
-	return app.InvitationInboxResponse_builder{Items: items}.Build(), nil
-}
-
 // sizeOf is how many a list answers with: what it asked for, up to 200, and
 // 200 when it asked for none.
 func sizeOf(v int) int {
@@ -360,7 +294,7 @@ func sizeOf(v int) int {
 	return v
 }
 
-// shown is invitations as either side reads them ([protoOf]).
+// shown is invitations as the people who sent them read them ([protoOf]).
 func shown(ctx context.Context, db *ent.Client, rows []*ent.Invitation, now time.Time) ([]*app.Invitation, error) {
 	names := inviterNames(ctx, db, rows)
 	called, err := workspaceNames(ctx, db, rows)
@@ -374,276 +308,9 @@ func shown(ctx context.Context, db *ent.Client, rows []*ent.Invitation, now time
 	return out, nil
 }
 
-// Claim makes the invitation whose mail carried this code the caller's: the
-// proof is that the caller read that mailbox. It is how an account whose
-// address roster holds no check of -- a Microsoft account with no `xms_edov` --
-// is reached at all.
-func (s domainInvitation) Claim(ctx context.Context, req *app.InvitationClaimRequest) (*app.Invitation, error) {
-	ctx, err := pd.AccountReads(ctx, app.InvitationService_Claim_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	me, err := accountOf(ctx)
-	if err != nil {
-		return nil, err
-	}
-	gone := status.Error(codes.NotFound, "이 초대 링크는 쓸 수 없습니다. 이미 쓰였거나, 취소되었거나, 기한이 지났습니다")
-	code := strings.TrimSpace(req.GetCode())
-	if code == "" {
-		return nil, gone
-	}
-	db := ent.NewClient(ent.Driver(s.drv))
-	now := s.deps.now()
-	v, err := db.Invitation.Query().Where(invitation.Claim(digest(code)), invitation.DateErasedIsNil()).Only(ctx)
-	if err != nil || v.State != invitePending || !now.Before(v.DateExpires) || (v.Account != nil && *v.Account != me.Uuid()) {
-		// One answer for a code nobody sent, one spent, and somebody else's.
-		return nil, gone
-	}
-
-	err = s.answer(ctx, v, pdid.Nil, func(t *Tx) error {
-		if err := t.begin(nil, "invitation.claim", pdid.Id(v.Id), t.now, "", app.InvitationChanged_builder{Invitation: pdid.Id(v.Id).Bytes()}.Build()); err != nil {
-			return err
-		}
-		_, err := t.next.Invitation().Patch(t.ctx, app.InvitationPatchRequest_builder{
-			Ref:              app.InvitationRef_builder{Id: pdid.Id(v.Id).Bytes()}.Build(),
-			Account:          me.Bytes(),
-			ClaimNull:        z.Ptr(true),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build())
-		return err
-	})
-	if err != nil {
-		return nil, err
-	}
-	return s.mine(ctx, db, v.Id, now)
-}
-
-// Accept makes the caller a member of the invitation's workspace, as what it
-// says, and the person record it names -- or a new one -- theirs.
-func (s domainInvitation) Accept(ctx context.Context, req *app.InvitationAcceptRequest) (*app.Invitation, error) {
-	ctx, err := pd.AccountReads(ctx, app.InvitationService_Accept_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	me, err := accountOf(ctx)
-	if err != nil {
-		return nil, err
-	}
-	db := ent.NewClient(ent.Driver(s.drv))
-	now := s.deps.now()
-	v, err := s.toAnswer(ctx, db, me, req.GetRef(), now)
-	if err != nil {
-		return nil, err
-	}
-	if s.deps.People == nil {
-		return nil, status.Error(codes.Unimplemented, "invitations cannot be answered on this deployment")
-	}
-	who, err := s.deps.People.ById(ctx, me.String())
-	if err != nil {
-		return nil, err
-	}
-
-	// As the membership it makes, so that what follows reads as theirs.
-	hid := pdid.New(pd.HolderDomain)
-	err = s.answer(ctx, v, hid, func(t *Tx) error {
-		if in, err := t.db.Holder.Query().Where(holder.TenantId(v.TenantId), holder.Account(me.Uuid()), holder.DateErasedIsNil()).Exist(t.ctx); err != nil {
-			return err
-		} else if in {
-			return failed("이미 이 워크스페이스의 구성원입니다")
-		}
-
-		if err := t.begin(nil, "invitation.accept", pdid.Id(v.Id), t.now, "", app.InvitationAccepted_builder{
-			Invitation: pdid.Id(v.Id).Bytes(),
-			Role:       v.Role,
-			Holder:     hid.Bytes(),
-		}.Build()); err != nil {
-			return err
-		}
-		alias, err := freeAlias(t, v.TenantId, who.Alias)
-		if err != nil {
-			return err
-		}
-		name := or(who.Name, who.Alias)
-		h, err := t.next.Holder().Add(t.ctx, app.HolderAddRequest_builder{
-			Id:      hid.Bytes(),
-			Tenant:  t.tenantRef(),
-			Alias:   alias,
-			Name:    name,
-			Role:    z.Ptr(v.Role),
-			Account: me.Bytes(),
-		}.Build())
-		if err != nil {
-			return err
-		}
-		href := app.HolderRef_builder{Id: h.GetId()}.Build()
-
-		// The person record: the one the invitation names, while nobody else
-		// became it, or a new one.
-		linked := false
-		if v.PartyId != (uuid.UUID{}) {
-			p, err := t.db.Party.Get(t.ctx, v.PartyId)
-			if err != nil && !ent.IsNotFound(err) {
-				return err
-			}
-			if err == nil && p.DateErased == nil && !hasHolder(t, p.Id) {
-				if _, err := t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
-					Ref:              app.PartyRef_builder{Id: pdid.Id(p.Id).Bytes()}.Build(),
-					Holder:           href,
-					DateUpdatedForce: z.Ptr(true),
-				}.Build()); err != nil {
-					return err
-				}
-				linked = true
-			}
-		}
-		if !linked {
-			if _, err := t.next.Party().Add(t.ctx, app.PartyAddRequest_builder{
-				Tenant: t.tenantRef(),
-				Name:   name,
-				Kind:   "person",
-				Email:  v.Email,
-				Holder: href,
-			}.Build()); err != nil {
-				return err
-			}
-		}
-
-		_, err = t.next.Invitation().Patch(t.ctx, app.InvitationPatchRequest_builder{
-			Ref:              app.InvitationRef_builder{Id: pdid.Id(v.Id).Bytes()}.Build(),
-			State:            z.Ptr(inviteAccepted),
-			Account:          me.Bytes(),
-			Holder:           href,
-			DateSettled:      ts(t.now),
-			ClaimNull:        z.Ptr(true),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build())
-		return err
-	})
-	if err != nil {
-		return nil, err
-	}
-	return s.mine(ctx, db, v.Id, now)
-}
-
-// Deny says no. The people who invited see that it was answered so.
-func (s domainInvitation) Deny(ctx context.Context, req *app.InvitationDenyRequest) (*app.Invitation, error) {
-	ctx, err := pd.AccountReads(ctx, app.InvitationService_Deny_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	me, err := accountOf(ctx)
-	if err != nil {
-		return nil, err
-	}
-	db := ent.NewClient(ent.Driver(s.drv))
-	now := s.deps.now()
-	v, err := s.toAnswer(ctx, db, me, req.GetRef(), now)
-	if err != nil {
-		return nil, err
-	}
-	err = s.answer(ctx, v, pdid.Nil, func(t *Tx) error {
-		if err := t.begin(nil, "invitation.deny", pdid.Id(v.Id), t.now, "", app.InvitationChanged_builder{Invitation: pdid.Id(v.Id).Bytes()}.Build()); err != nil {
-			return err
-		}
-		_, err := t.next.Invitation().Patch(t.ctx, app.InvitationPatchRequest_builder{
-			Ref:              app.InvitationRef_builder{Id: pdid.Id(v.Id).Bytes()}.Build(),
-			State:            z.Ptr(inviteDenied),
-			Account:          me.Bytes(),
-			DateSettled:      ts(t.now),
-			ClaimNull:        z.Ptr(true),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build())
-		return err
-	})
-	if err != nil {
-		return nil, err
-	}
-	return s.mine(ctx, db, v.Id, now)
-}
-
-// toAnswer is an invitation the caller may answer: addressed to them, and
-// still waiting. One that is not addressed to them is one there is not.
-func (s domainInvitation) toAnswer(ctx context.Context, db *ent.Client, me pdid.Id, ref *app.InvitationRef, now time.Time) (*ent.Invitation, error) {
-	nobody := status.Error(codes.NotFound, "그런 초대가 없습니다")
-	id, err := pdid.From(ref.GetId())
-	if err != nil {
-		return nil, nobody
-	}
-	mine, err := s.addressed(ctx, me)
-	if err != nil {
-		return nil, err
-	}
-	v, err := db.Invitation.Query().Where(invitation.Id(id.Uuid()), mine, invitation.DateErasedIsNil()).Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, nobody
-		}
-		return nil, err
-	}
-	switch {
-	case v.State != invitePending:
-		return nil, failed("이미 답했거나 취소된 초대입니다")
-	case !now.Before(v.DateExpires):
-		return nil, failed("기한이 지난 초대입니다. 초대한 사람에게 다시 보내 달라고 해 주세요")
-	}
-	return v, nil
-}
-
-// addressed is the invitations addressed to an account: the ones it holds,
-// and the ones nobody holds yet sent to an address roster holds as checked for
-// it.
-func (s domainInvitation) addressed(ctx context.Context, me pdid.Id) (predicate.Invitation, error) {
-	held := invitation.Account(me.Uuid())
-	if s.deps.People == nil {
-		return held, nil
-	}
-	addrs, err := s.deps.People.Addresses(ctx, me)
-	if err != nil {
-		return nil, err
-	}
-	if len(addrs) == 0 {
-		return held, nil
-	}
-	return invitation.Or(held, invitation.And(invitation.AccountIsNil(), invitation.EmailIn(addrs...))), nil
-}
-
-// answer runs `f` in the invitation's workspace as the deployment's own work,
-// as `actor` there -- the membership an acceptance is about to make, or
-// nobody: the account answering is nobody there yet, and the wall would show
-// it nothing to write.
-//
-// Through the stack with neither the wall nor this layer, as a workspace is
-// put up (`tenancy.Workspaces`): what `f` writes is written as it says, and a
-// layer reading the account's frame would write it into no workspace at all.
-func (s domainInvitation) answer(ctx context.Context, v *ent.Invitation, actor pdid.Id, f func(t *Tx) error) error {
-	if s.deps.Base == nil {
-		return status.Error(codes.Unimplemented, "invitations cannot be answered on this deployment")
-	}
-	tenant := pdid.Id(v.TenantId)
-	as := frame.Into(ctx, frame.New(actor, tenant, frame.Whole()).WithScope(frame.Only(tenant)))
-	return s.deps.System(as, s.deps.Base, s.drv, tenant, func(t *Tx) error {
-		t.actor = actor
-		return f(t)
-	})
-}
-
-// mine is an invitation as the account it is addressed to is shown it.
-func (s domainInvitation) mine(ctx context.Context, db *ent.Client, id uuid.UUID, now time.Time) (*app.Invitation, error) {
-	v, err := db.Invitation.Query().Where(invitation.Id(id)).WithInviter().WithTenant().Only(ctx)
-	if err != nil {
-		return nil, err
-	}
-	rows := []*ent.Invitation{v}
-	called, err := workspaceNames(ctx, db, rows)
-	if err != nil {
-		return nil, err
-	}
-	return protoOf(v, now, inviterNames(ctx, db, rows), called), nil
-}
-
-// protoOf is an invitation as either side reads it: the workspace by what it
-// is called and its alias, who invited by their name, and never the code its
-// mail carried.
+// protoOf is an invitation as the people who sent it read it: the workspace by
+// what it is called and its alias, who invited by their name, and never the
+// code its mail carried.
 func protoOf(v *ent.Invitation, now time.Time, names map[uuid.UUID]string, called map[uuid.UUID]tenancy.Name) *app.Invitation {
 	b := app.Invitation_builder{
 		Id:          pdid.Id(v.Id).Bytes(),
@@ -675,15 +342,6 @@ func protoOf(v *ent.Invitation, now time.Time, names map[uuid.UUID]string, calle
 		b.Holder = app.Holder_builder{Id: pdid.Id(v.HolderId).Bytes()}.Build()
 	}
 	return b.Build()
-}
-
-// withoutCode is an invitation as written, without the code its mail carried.
-func withoutCode(v *app.Invitation) *app.Invitation {
-	if v == nil {
-		return nil
-	}
-	v.SetClaim(nil)
-	return v
 }
 
 func stateOf(v *ent.Invitation, now time.Time) string {
@@ -773,41 +431,6 @@ func workspaceOf(ctx context.Context, db *ent.Client, ref *app.TenantRef) (uuid.
 	return uuid.UUID{}, status.Error(codes.PermissionDenied, "이 워크스페이스의 초대는 관리자가 봅니다")
 }
 
-// accountOf is the account a call is from, as its frame says (payday#184):
-// the one making a call as itself, or the one a membership's call came from.
-// A call that names no account -- a credential of a holder's own -- is nobody
-// an invitation is addressed to.
-func accountOf(ctx context.Context) (pdid.Id, error) {
-	if a := frame.Must(ctx).Account; !a.IsZero() {
-		return a, nil
-	}
-	return pdid.Nil, status.Error(codes.PermissionDenied, "계정으로 로그인한 사람만 초대를 받습니다")
-}
-
-// freeAlias is what a new membership is called in a workspace: the account's
-// own alias, or that with a number when the workspace already has one by it.
-func freeAlias(t *Tx, tenant uuid.UUID, want string) (string, error) {
-	for i := 0; i < 20; i++ {
-		alias := want
-		if i > 0 {
-			alias = fmt.Sprintf("%s-%d", want, i+1)
-		}
-		taken, err := t.db.Holder.Query().Where(holder.TenantId(tenant), holder.Alias(alias), holder.DateErasedIsNil()).Exist(t.ctx)
-		if err != nil {
-			return "", err
-		}
-		if !taken {
-			return alias, nil
-		}
-	}
-	return "", failed("이 워크스페이스에 %s(으)로 시작하는 아이디가 너무 많습니다", want)
-}
-
-func hasHolder(t *Tx, party uuid.UUID) bool {
-	n, err := t.db.Party.Query().Where(entparty.Id(party), entparty.HasHolder()).Exist(t.ctx)
-	return err != nil || n
-}
-
 // addressOf is an address as one is compared: trimmed and folded.
 func addressOf(v string) (string, error) {
 	v = strings.ToLower(strings.TrimSpace(v))
@@ -818,37 +441,22 @@ func addressOf(v string) (string, error) {
 	return v, nil
 }
 
-func digest(code string) []byte {
-	v := sha256.Sum256([]byte(code))
-	return v[:]
-}
-
-// secret is a code a mail carries: 24 random bytes.
-func secret() string {
-	b := make([]byte, 24)
-	if _, err := rand.Read(b); err != nil {
-		panic(err)
-	}
-	return base64.RawURLEncoding.EncodeToString(b)
-}
-
 // mailInvitation writes to the address an invitation went to: who asked, into
-// what, and the link that brings an account to its inbox -- signing up first,
-// for an address that is no account's yet. One mail either way, so that what
-// is sent says nothing about who the address belongs to.
-func (d *Deps) mailInvitation(ctx context.Context, v *app.Invitation, code, inviter, workspace string, zone *time.Location) error {
+// what, and where the workspace is signed in to -- as a holder of the tenant
+// at roster this deployment serves, which is who comes to be a member (D85),
+// and whom its administrator there makes. One mail either way, so that what is
+// sent says nothing about who the address belongs to.
+func (d *Deps) mailInvitation(ctx context.Context, v *app.Invitation, inviter, workspace string, zone *time.Location) error {
 	if d.Mail == nil {
 		return nil
 	}
-	// The account answers it in its inbox, as itself, and is nobody's member
-	// in the workspace yet.
-	link := d.Links.Page() + "/invitations?code=" + code
+	link := d.Links.Page()
 	role := roleWords[v.GetRole()]
 	until := v.GetDateExpires().AsTime().In(zone).Format("2006년 1월 2일")
 	body := fmt.Sprintf(`%s님이 Loft의 %s에 %s%s 초대했습니다.
 
-아래 링크를 열고 로그인하면 초대함에서 수락하거나 거절할 수 있습니다.
-Loft 계정이 아직 없다면 같은 화면에서 Google, Microsoft, GitHub 계정으로 가입할 수 있습니다.
+아래 주소에서 이 워크스페이스의 계정으로 로그인하면 들어올 수 있습니다.
+계정이 아직 없다면 이 워크스페이스의 관리자에게 요청하세요.
 
 %s
 

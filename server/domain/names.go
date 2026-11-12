@@ -301,8 +301,7 @@ func (n *namer) person(ctx context.Context, id uuid.UUID) called {
 // names it ([namer.readApart]) and a membership as the person record it is,
 // so that saying them reads none of them again, a few hundred to a
 // statement, however many sentences name them. A membership that is no
-// person record's, and an account -- whoever did what an account does as
-// itself (D73) -- are read as each is named, as they always were. A namer
+// person record's is read as it is named, as it always was. A namer
 // that names people by their names alone reads nothing here.
 func (n *namer) readSaid(evs []past.EventRow, more ...pdid.Id) error {
 	if !n.tellApart {
@@ -423,17 +422,9 @@ func (n *namer) ofHolder(ctx context.Context, id uuid.UUID) called {
 	return n.look(ctx, &n.members, id, n.ofMember)
 }
 
-// ofMember is a membership as [namer.member] names it -- or, for the
-// identifier of an account, its membership of this workspace: who a call an
-// account made as itself names (payday#184, D73), the workspaces it is in or
-// a label of theirs, filed under each it showed something of.
+// ofMember is a membership as [namer.member] names it.
 func (n *namer) ofMember(ctx context.Context, id uuid.UUID) called {
 	h, err := n.t.db.Holder.Query().Where(holder.Id(id), holder.TenantId(n.t.tenant.Uuid())).Only(ctx)
-	if ent.IsNotFound(err) {
-		if h, err = n.membershipOf(ctx, id); err == nil {
-			return n.ofHolder(ctx, h.Id)
-		}
-	}
 	if err != nil {
 		return missing(err)
 	}
@@ -444,17 +435,6 @@ func (n *namer) ofMember(ctx context.Context, id uuid.UUID) called {
 		v.name = h.Name
 	}
 	return v
-}
-
-// membershipOf is the account's membership of this workspace: the one it has,
-// or else the last it had.
-func (n *namer) membershipOf(ctx context.Context, account uuid.UUID) (*ent.Holder, error) {
-	q := n.t.db.Holder.Query().Where(holder.Account(account), holder.TenantId(n.t.tenant.Uuid()))
-	h, err := q.Clone().Where(holder.DateErasedIsNil()).Order(ent.Desc(holder.FieldDateCreated)).First(ctx)
-	if ent.IsNotFound(err) {
-		return q.Order(ent.Desc(holder.FieldDateCreated)).First(ctx)
-	}
-	return h, err
 }
 
 func (n *namer) ofKind(ctx context.Context, id uuid.UUID) called {

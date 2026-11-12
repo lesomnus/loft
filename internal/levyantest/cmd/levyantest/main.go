@@ -9,6 +9,9 @@
 // says on the control address, as a Go test calls the fake's methods:
 //
 //	GET  /healthz                                   up
+//	POST /e2e/reset                                 who pays, how, what was given and the readings a
+//	                                                test had it keep forgotten, and every grant in
+//	                                                force ended: a workspace it has just met
 //	POST /e2e/payerless?workspace=ID&from=RFC3339[&readonly=RFC3339]
 //	                                                nobody pays for it since now, restricted from
 //	                                                `from`, and read-only from `readonly`: sixty
@@ -88,6 +91,10 @@ func main() {
 
 	m := http.NewServeMux()
 	m.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { w.Write([]byte("ok")) })
+	m.HandleFunc("POST /e2e/reset", func(w http.ResponseWriter, r *http.Request) {
+		v.Reset()
+		w.WriteHeader(http.StatusNoContent)
+	})
 	m.HandleFunc("POST /e2e/payerless", func(w http.ResponseWriter, r *http.Request) {
 		ws, err := pdid.Parse(r.URL.Query().Get("workspace"))
 		if err != nil {

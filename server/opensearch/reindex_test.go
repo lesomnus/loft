@@ -28,7 +28,8 @@ func TestAReindexTurnsPagesInKeyOrder(t *testing.T) {
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 	c.App.Search.Opensearch = opensearchtest.Config(t)
-	x.NoError(cli.NewCmdInit(&c).Run(ctx, []string{"--tenant", "acme", "--login", "owner", "--password", "owner1234", "--demo"}))
+	c.Auth.Roster.Tenant = "acme"
+	x.NoError(cli.NewCmdInit(&c).Run(ctx, []string{"--login", "owner", "--password", "owner1234", "--demo"}))
 
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)

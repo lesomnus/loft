@@ -4,56 +4,145 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 	"time"
 
+	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 	"github.com/stretchr/testify/require"
 
 	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent/party"
-	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/identity"
 )
 
-// TestTheOwnerInitMakesIsCalledTheSameEverywhere.
-//
-// The account `init` makes is called at roster what its person record is
-// called here, so that a workspace it makes later calls its owner that and
-// not their login.
-func TestTheOwnerInitMakesIsCalledTheSameEverywhere(t *testing.T) {
+// TestInitPutsUpTheTenantAndItsOwner (D85): on the roster in this process,
+// `init` makes the tenant `auth.roster.tenant` names and its first person,
+// and puts the workspace up by the tenant's identifier and its owner by the
+// person's -- called at roster what their person record is called here. A
+// deployment serves one workspace, and `init` again is refused. With nothing
+// named, the tenant is `loft`, its owner `admin`, called "관리자".
+func TestInitPutsUpTheTenantAndItsOwner(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	c := embeddedConfig(t)
+	c.Auth.Roster.Tenant = "acme"
+	run(t, cli.NewCmdInit(&c), "--name", "ACME 연구소", "--login", "kim", "--person", "김민준", "--password", "kim-password")
 
-	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "kim", "--person", "김민준", "--password", "kim-password")
+	on(t, c, func(s *cmd.Server) {
+		rt, err := s.Identity.Tenant(ctx)
+		x.NoError(err)
+		x.Equal("acme", rt.Alias)
+		x.Equal("ACME 연구소", rt.Name)
+		ws, err := s.Ent.Tenant.Get(ctx, rt.Id.Uuid())
+		x.NoError(err, "the workspace is the tenant at roster, by its identifier")
+		x.Equal("acme", ws.Alias)
+		x.Equal("ACME 연구소", ws.Name)
 
-	s, err := cmd.Build(ctx, c)
-	x.NoError(err)
-	defer s.Close()
-	p, err := s.Identity.Lookup(ctx, "kim")
-	x.NoError(err)
-	x.Equal("김민준", p.Name)
+		p, err := s.Identity.Verify(ctx, "kim", "kim-password")
+		x.NoError(err)
+		x.Equal("김민준", p.Name)
+		h, err := s.Ent.Holder.Get(ctx, p.Id.Uuid())
+		x.NoError(err, "the owner is the holder at roster, by its identifier")
+		x.Equal("owner", h.Role)
+		x.Equal(rt.Id.Uuid(), h.TenantId)
+		record, err := s.Ent.Party.Query().Where(party.HolderId(h.Id)).Only(ctx)
+		x.NoError(err)
+		x.Equal("김민준", record.Name, "called here what roster calls them")
+	})
 
-	m, err := s.Workspaces(c).Create(ctx, p, "두 번째")
-	x.NoError(err)
-	owner, err := s.Ent.Party.Query().Where(party.TenantId(m.Workspace.Uuid())).Only(ctx)
-	x.NoError(err)
-	x.Equal("김민준", owner.Name)
+	err := cli.NewCmdInit(&c).Run(ctx, []string{"--login", "lee", "--password", "lee-password"})
+	x.ErrorContains(err, "a deployment serves one")
+	on(t, c, func(s *cmd.Server) {
+		_, err := s.Identity.Lookup(ctx, "lee")
+		x.ErrorIs(err, identity.ErrNoPerson, "a refused init made somebody at roster")
+	})
 
-	// And with no name given, what `init` calls the person it made.
-	c = embeddedConfig(t)
-	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "lee")
-	s2, err := cmd.Build(ctx, c)
-	x.NoError(err)
-	defer s2.Close()
-	p, err = s2.Identity.Lookup(ctx, "lee")
-	x.NoError(err)
-	t2, err := s2.Ent.Tenant.Query().Where(enttenant.Alias("beta")).Only(ctx)
-	x.NoError(err)
-	here, err := s2.Ent.Party.Query().Where(party.TenantId(t2.Id)).Only(ctx)
-	x.NoError(err)
-	x.Equal(here.Name, p.Name)
+	t.Run("named nothing", func(t *testing.T) {
+		x := require.New(t)
+		c := embeddedConfig(t)
+		out := run(t, cli.NewCmdInit(&c))
+		x.Contains(out, "workspace @loft (")
+		m := regexp.MustCompile(`(?m)^password  (\S+)$`).FindStringSubmatch(out)
+		x.NotNil(m, "the owner's password is said once: %s", out)
+		on(t, c, func(s *cmd.Server) {
+			p, err := s.Identity.Verify(ctx, identity.RosterAdministrator, m[1])
+			x.NoError(err)
+			x.Equal("관리자", p.Name)
+		})
+	})
+}
+
+// TestInitTakesAnOwnerRosterHasAsTheyAre: somebody the tenant at roster has
+// already is made the owner as they are -- given no new password, and one
+// that would change theirs is refused.
+func TestInitTakesAnOwnerRosterHasAsTheyAre(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+	c := embeddedConfig(t)
+	c.Auth.Roster.Tenant = "acme"
+	var owner pdid.Id
+	on(t, c, func(s *cmd.Server) {
+		_, p, _, err := s.Identity.MakeTenant(ctx, "", "owner", "")
+		x.NoError(err)
+		x.NoError(s.Identity.SetPassword(ctx, p.Id, "owner1234"))
+		owner = p.Id
+	})
+
+	x.Error(cli.NewCmdInit(&c).Run(ctx, []string{"--login", "owner", "--password", "something-else"}),
+		"a password changed by putting a workspace up")
+	out := run(t, cli.NewCmdInit(&c), "--login", "owner")
+	x.NotContains(out, "password", "somebody there already is given a password")
+	on(t, c, func(s *cmd.Server) {
+		p, err := s.Identity.Verify(ctx, "owner", "owner1234")
+		x.NoError(err, "their own password")
+		x.Equal(owner, p.Id)
+		h, err := s.Ent.Holder.Get(ctx, owner.Uuid())
+		x.NoError(err)
+		x.Equal("owner", h.Role)
+	})
+}
+
+// TestInitOnARosterOfItsOwnTakesWhatIsThere: on a roster of its own the
+// tenant and its people are its operator's, and `init` makes neither: it
+// puts the workspace up by the identifier of the tenant the key is of, and
+// its owner as the holder `--login` names there -- `admin`, whom roster makes
+// every tenant with, unless it names another -- and makes no password.
+func TestInitOnARosterOfItsOwnTakesWhatIsThere(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+	addr, key, roster := external(t, pdid.Nil)
+	c := embeddedConfig(t)
+	c.Auth.Roster = cmd.Config{}.Auth.Roster
+	c.Auth.Roster.Addr = addr
+	c.Auth.Roster.Insecure = true
+	c.Auth.Roster.Key = key
+
+	for _, args := range [][]string{
+		{"--password", "owner1234"},
+		{"--demo"},
+	} {
+		x.ErrorContains(cli.NewCmdInit(&c).Run(ctx, args), "the roster in this process's", "%v", args)
+	}
+	x.ErrorContains(cli.NewCmdInit(&c).Run(ctx, []string{"--login", "nobody"}), "is nobody there")
+
+	out := run(t, cli.NewCmdInit(&c))
+	x.Contains(out, "workspace @acme (")
+	x.NotContains(out, "password")
+	on(t, c, func(s *cmd.Server) {
+		rt, err := s.Identity.Tenant(ctx)
+		x.NoError(err)
+		_, err = s.Ent.Tenant.Get(ctx, rt.Id.Uuid())
+		x.NoError(err, "the workspace is the tenant at roster, by its identifier")
+		admin, err := s.Identity.Lookup(ctx, identity.RosterAdministrator)
+		x.NoError(err)
+		h, err := s.Ent.Holder.Get(ctx, admin.Id.Uuid())
+		x.NoError(err)
+		x.Equal("owner", h.Role)
+	})
+	_ = roster
 }
 
 // TestInitGivesAnArchiveAKeyOfItsOwn: an archive is kept with a key that signs
@@ -81,7 +170,8 @@ func TestInitGivesAnArchiveAKeyOfItsOwn(t *testing.T) {
 
 	c := keyless()
 	given := c
-	out := run(t, cli.NewCmdInit(&given), "--tenant", "acme", "--login", "kim", "--password", "kim-password")
+	given.Auth.Roster.Tenant = "acme"
+	out := run(t, cli.NewCmdInit(&given), "--login", "kim", "--password", "kim-password")
 	path := c.Audit.Archive + "-checkpoints.pem"
 	x.Contains(out, path, "init did not say where the key is")
 	x.Equal(path, given.Audit.Checkpoints.Key, "init signed with a key other than the one it wrote")
@@ -105,29 +195,11 @@ func TestInitGivesAnArchiveAKeyOfItsOwn(t *testing.T) {
 
 		again := c
 		again.Audit.Checkpoints.Key = ""
-		err := cli.NewCmdInit(&again).Run(ctx, []string{"--tenant", "beta", "--login", "lee", "--password", "lee-password"})
+		err := cli.NewCmdInit(&again).Run(ctx, []string{"--login", "lee", "--password", "lee-password"})
 		x.ErrorContains(err, "is one already")
 
 		now, err := os.ReadFile(path)
 		x.NoError(err)
 		x.Equal(doc, now, "init wrote over a key that was there")
-	})
-}
-
-// TestAWorkspaceInitMakesForAnAccountThereAlreadyIsItsAsItIs: a second
-// workspace for an account the roster in this process has already takes the
-// account as it is -- it is given no new password, and one that would change
-// its own is refused.
-func TestAWorkspaceInitMakesForAnAccountThereAlreadyIsItsAsItIs(t *testing.T) {
-	x := require.New(t)
-	c := embeddedConfig(t)
-	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
-	out := run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
-	x.NotContains(out, "password", "an account there already is given a password")
-	x.Error(cli.NewCmdInit(&c).Run(t.Context(), []string{"--tenant", "gamma", "--login", "owner", "--password", "something-else"}),
-		"an account's password changed by making a workspace")
-	on(t, c, func(s *cmd.Server) {
-		_, err := s.Identity.Verify(t.Context(), "owner", "owner1234")
-		x.NoError(err, "its own password")
 	})
 }

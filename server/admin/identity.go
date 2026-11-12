@@ -36,22 +36,27 @@ type operatorIdentity struct {
 	a Routes
 }
 
-// Link gives an account to every membership that names none (D27): a
-// workspace restored from an export, whose members this deployment's roster
-// does not have -- from another deployment, or forgotten here when the
-// workspace was destroyed (`offboard.Restored.Unlinked`). Nobody of them can
-// sign in until then. On the roster in this process it makes the directory
-// when there is none and writes every such membership into it as an account
-// with the identifier the membership has, so that what the trail says each did
-// is still theirs; each is given a new password, said once, and the
-// membership linked to it. A login another workspace has too gets that
-// workspace's address beside it. Somebody roster has by that identifier
-// already is linked as they are. A roster of its own is its operator's to
-// write to, so for one this says what to make there, and links what was made.
-// Each link is the operator's write.
+// Link gives a holder at roster to every member of the workspace this
+// deployment serves who names none: a workspace restored from an export,
+// whose members this deployment's roster does not have -- from another
+// deployment, or forgotten at this one's since (`offboard.Restored.Unlinked`).
+// Nobody of them can sign in until then. On
+// the roster in this process it makes the tenant, by the workspace's
+// identifier, when it is not there (D85), and writes every such member into it
+// with the identifier they have here, so that what the trail says each did is
+// still theirs; each is given a new password, said once, and linked to it.
+// Somebody roster has by that identifier already is linked as they are. A
+// roster of its own is its operator's to write to, so for one this says what
+// to make there, and links what was made. Each link is the operator's write.
+// A workspace this deployment does not serve is nobody's to link: who signs
+// in to it is no roster's here.
 func (s operatorIdentity) Link(req *app.OperatorIdentityLinkRequest, out grpc.ServerStreamingServer[app.OperatorIdentityLinkResponse]) error {
 	ctx := operator.Frame(out.Context(), pdid.Nil)
-	ts, err := s.a.S.Ent.Tenant.Query().Order(ent.Asc(enttenant.FieldAlias)).All(ctx)
+	served, err := s.a.S.Identity.TenantAlias(ctx)
+	if err != nil {
+		return fmt.Errorf("roster: %w", err)
+	}
+	ts, err := s.a.S.Ent.Tenant.Query().Where(enttenant.Alias(served)).All(ctx)
 	if err != nil {
 		return err
 	}
@@ -92,8 +97,9 @@ func (s operatorIdentity) link(ctx context.Context, h *ent.Holder) error {
 	return err
 }
 
-// freeAlias is a login for a holder in the directory: its own alias when
-// nobody there has it, and otherwise that alias with its workspace's beside it.
+// freeAlias is a login for a holder in the tenant at roster: its own alias
+// when nobody there has it, and otherwise that alias with its workspace's
+// beside it.
 func (s operatorIdentity) freeAlias(ctx context.Context, alias, workspace string, chosen map[string]bool) (string, error) {
 	for i := 0; ; i++ {
 		v := alias
@@ -116,8 +122,8 @@ func (s operatorIdentity) freeAlias(ctx context.Context, alias, workspace string
 	}
 }
 
-// aliasFree says whether nobody in the directory has a login. The
-// administrator roster makes a directory with is nobody: no holder here is it,
+// aliasFree says whether nobody in the tenant at roster has a login. The
+// administrator roster makes a tenant with is nobody: no holder here is it,
 // and it has no way to sign in.
 func (s operatorIdentity) aliasFree(ctx context.Context, alias string) (bool, error) {
 	p, err := s.a.S.Identity.Lookup(ctx, alias)
@@ -132,11 +138,13 @@ func (s operatorIdentity) aliasFree(ctx context.Context, alias string) (bool, er
 }
 
 func (s operatorIdentity) adopt(ctx context.Context, ts []*ent.Tenant, password string, send func(*ent.Holder, *app.OperatorIdentityAdopted) error, done *app.OperatorIdentityLinked) error {
-	if _, err := s.a.S.Identity.EnsureDirectory(ctx); err != nil {
-		return fmt.Errorf("roster: %w", err)
-	}
 	chosen := map[string]bool{}
 	for _, t := range ts {
+		// The tenant at roster is the workspace, by its identifier (D85):
+		// made with it when it is not there.
+		if _, err := s.a.S.Identity.EnsureTenant(ctx, identity.Tenant{Id: pdid.Id(t.Id), Alias: t.Alias, Name: t.Name}); err != nil {
+			return fmt.Errorf("roster: %w", err)
+		}
 		hs, err := s.unlinked(ctx, t)
 		if err != nil {
 			return err
@@ -187,7 +195,7 @@ func (s operatorIdentity) adopt(ctx context.Context, ts []*ent.Tenant, password 
 }
 
 func (s operatorIdentity) describe(ctx context.Context, ts []*ent.Tenant, send func(*ent.Holder, *app.OperatorIdentityAdopted) error, done *app.OperatorIdentityLinked) error {
-	d, err := s.a.S.Identity.Directory(ctx)
+	d, err := s.a.S.Identity.Tenant(ctx)
 	if err != nil {
 		return fmt.Errorf("roster: %w", err)
 	}
@@ -422,6 +430,13 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 	if err != nil {
 		return nil, err
 	}
+	// A member is a holder of the tenant at roster by the same identifier
+	// (D85): of the workspace that tenant is, and of no other.
+	if rt, err := s.a.S.Identity.Tenant(ctx); err != nil {
+		return nil, fmt.Errorf("roster: %w", err)
+	} else if rt.Id != pdid.Id(t.Id) {
+		return nil, status.Errorf(codes.FailedPrecondition, "tenant: @%s is not the workspace this deployment serves, @%s", t.Alias, rt.Alias)
+	}
 
 	made, fresh := "", false
 	p, err := s.a.S.Identity.Lookup(ctx, login)
@@ -454,11 +469,15 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 		}
 	}
 
-	if in, err := s.a.S.Ent.Holder.Query().Where(holder.TenantId(t.Id), holder.Account(p.Id.Uuid()), holder.DateErasedIsNil()).Exist(ctx); err != nil {
+	if was, err := s.a.S.Ent.Holder.Get(ctx, p.Id.Uuid()); err == nil {
+		undo()
+		if was.DateErased != nil {
+			return nil, status.Errorf(codes.FailedPrecondition, "login: %s was a member of @%s, whose membership was ended", login, t.Alias)
+		}
+		return nil, status.Errorf(codes.AlreadyExists, "login: %s is in @%s already", login, t.Alias)
+	} else if !ent.IsNotFound(err) {
 		undo()
 		return nil, err
-	} else if in {
-		return nil, status.Errorf(codes.AlreadyExists, "login: %s is in @%s already", login, t.Alias)
 	}
 	if taken, err := s.a.S.Ent.Holder.Query().Where(holder.TenantId(t.Id), holder.Alias(p.Alias), holder.DateErasedIsNil()).Exist(ctx); err != nil {
 		undo()
@@ -471,6 +490,7 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 	as := operator.Frame(ctx, pdid.Nil)
 	tref := app.TenantRef_builder{Id: t.Id[:]}.Build()
 	h, err := s.a.S.Base.Holder().Add(as, app.HolderAddRequest_builder{
+		Id:      p.Id.Bytes(),
 		Tenant:  tref,
 		Alias:   p.Alias,
 		Name:    name,

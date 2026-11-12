@@ -1,12 +1,12 @@
 import type { Locator } from '@playwright/test'
 
-import { card, choose, expect, field, idOf, momentAt, owner, people, refusal, refused, rpc, said, signIn, test, unique, weekdayAt, workspace } from './loft.js'
+import { card, choose, expect, field, idOf, momentAt, owner, people, refusal, refused, rpc, said, signIn, test, unique, weekdayAt } from './loft.js'
 
 test('a booking of a room that needs approval waits for a manager, who approves it', async ({ page, as }) => {
 	const title = unique('e2e 분기 회의')
 	await signIn(page, people.booker.login)
 
-	await page.goto(`${workspace}/reservations`)
+	await page.goto(`/reservations`)
 	await page.getByRole('button', { name: '+ 예약' }).click()
 	const book = page.getByRole('dialog')
 	// 대회의실 is the demo's one room that asks a manager first; three weeks
@@ -25,7 +25,7 @@ test('a booking of a room that needs approval waits for a manager, who approves 
 	await expect(mine).toContainText('승인 대기')
 
 	const manager = await as(people.approver.login)
-	await manager.goto(`${workspace}/reservations`)
+	await manager.goto(`/reservations`)
 	await manager.getByRole('tab', { name: '승인' }).click()
 	const asked = card(manager, '승인 대기').getByRole('listitem').filter({ hasText: title })
 	await asked.getByRole('button', { name: '승인', exact: true }).click()
@@ -55,7 +55,7 @@ test('a booking says in its history who booked it, who approved it and why, and 
 	// A manager opens the request where it waits for them, and reads who
 	// booked what for when.
 	const manager = await as(people.approver.login)
-	await manager.goto(`${workspace}/reservations?tab=approve`)
+	await manager.goto(`/reservations?tab=approve`)
 	await card(manager, '승인 대기').getByRole('listitem').filter({ hasText: title }).getByRole('button', { name: title }).click()
 	const asked = manager.getByRole('dialog').getByRole('list', { name: '이력' }).getByRole('listitem')
 	await expect(asked).toHaveCount(1)
@@ -83,12 +83,12 @@ test('a booking says in its history who booked it, who approved it and why, and 
 		await dialog.getByRole('button', { name: '닫기' }).click()
 		await expect(dialog).toHaveCount(0)
 	}
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	await page.getByRole('row').filter({ hasText: title }).click()
 	await read(page)
 
 	// And so does a manager, from the whole list.
-	await manager.goto(`${workspace}/reservations?tab=all`)
+	await manager.goto(`/reservations?tab=all`)
 	await manager.getByRole('row').filter({ hasText: title }).click()
 	await read(manager)
 
@@ -127,12 +127,12 @@ test('a booking opens in its dialog wherever it is listed: from the dashboard, w
 	}
 
 	// Its booker opens it from the dashboard's week.
-	await page.goto(`${workspace}/`)
+	await page.goto(`/`)
 	await card(page, '이번 주 내 예약').getByRole('button', { name: title }).click()
 	await read(page, '승인 대기', [booking])
 
 	// And from the page of what it books.
-	await page.goto(`${workspace}/assets/${idOf(camera.id)}`)
+	await page.goto(`/assets/${idOf(camera.id)}`)
 	await page.getByRole('tab', { name: '예약', exact: true }).click()
 	await card(page, '다가오는 예약 (60일)').getByRole('button', { name: title }).click()
 	await read(page, '승인 대기', [booking])
@@ -140,7 +140,7 @@ test('a booking opens in its dialog wherever it is listed: from the dashboard, w
 	// A manager opens the request from the dashboard, reads who asked for
 	// what, and approves it there.
 	const manager = await as(people.approver.login)
-	await manager.goto(`${workspace}/`)
+	await manager.goto(`/`)
 	const waiting = card(manager, '승인 대기 예약')
 	await waiting.getByRole('button', { name: title }).click()
 	const asked = manager.getByRole('dialog')
@@ -156,7 +156,7 @@ test('a booking opens in its dialog wherever it is listed: from the dashboard, w
 
 	// Its booker finds it approved where it is listed, and its history says
 	// by whom.
-	await page.goto(`${workspace}/`)
+	await page.goto(`/`)
 	const week = card(page, '이번 주 내 예약').getByRole('listitem').filter({ hasText: title })
 	await expect(week).toContainText('확정')
 	await week.getByRole('button', { name: title }).click()
@@ -171,7 +171,7 @@ test('a kit booking waits for a member the kit is given that is booked elsewhere
 	// The projector for a morning five weeks out, and the demo's camera kit
 	// for all of it. Nothing else books either.
 	const book = async (what: string, title: string, from: number, to: number) => {
-		await page.goto(`${workspace}/reservations`)
+		await page.goto(`/reservations`)
 		await page.getByRole('button', { name: '+ 예약' }).click()
 		const form = page.getByRole('dialog')
 		await choose(field(form, '무엇을'), what)
@@ -186,7 +186,7 @@ test('a kit booking waits for a member the kit is given that is booked elsewhere
 
 	// And then the kit needs the projector: the change is made, and the
 	// projector is not taken from the booking that has it.
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill('PJ-001')
 	await page.getByRole('link', { name: '빔프로젝터 1', exact: true }).click()
 	await page.getByRole('button', { name: '키트·그룹 연결' }).click()
@@ -198,7 +198,7 @@ test('a kit booking waits for a member the kit is given that is booked elsewhere
 	await said(page, '연결했습니다.')
 
 	// The kit's booking says so in the list, opened, and at its pickup.
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	const shooting = page.getByRole('row').filter({ hasText: shoot })
 	await expect(shooting).toContainText('구성품 충돌')
 	await shooting.click()
@@ -243,7 +243,7 @@ test('a kit is picked up with the members its booking holds, and without one it 
 
 	// Its pickup hands out the camera the booking holds, and says the light
 	// is held elsewhere rather than putting it in.
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	await page.getByRole('row').filter({ hasText: shoot }).click()
 	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
 	const pickup = page.getByRole('dialog')
@@ -278,7 +278,7 @@ test('a pool books as many as its members in use, the booking made last waits on
 	}
 
 	// Made reservable from its page, as a pool of what is in it.
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill(tag.pool)
 	await page.getByRole('link', { name, exact: true }).click()
 	await page.getByRole('button', { name: '예약 가능하게' }).click()
@@ -295,7 +295,7 @@ test('a pool books as many as its members in use, the booking made last waits on
 
 	// One of the cameras disposed of: the pool has one, and the booking made
 	// last waits -- in the list, and opened.
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill(tag.two)
 	await page.getByRole('link', { name: `e2e 풀 카메라 ${tag.two}`, exact: true }).click()
 	await page.getByRole('button', { name: '정보·상태 변경' }).click()
@@ -304,7 +304,7 @@ test('a pool books as many as its members in use, the booking made last waits on
 	await set.getByRole('button', { name: '저장', exact: true }).click()
 	await said(page, '바꿨습니다.')
 
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	const waiting = page.getByRole('row').filter({ hasText: later })
 	await expect(waiting).toContainText('수량 부족')
 	await expect(page.getByRole('row').filter({ hasText: first })).not.toContainText('수량 부족')
@@ -344,7 +344,7 @@ test('a pool books as many as its members in use, the booking made last waits on
 
 	// The camera handed out is that booking's until it ends: the other's
 	// pickup is offered the one left, and not that one.
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	await page.getByRole('row').filter({ hasText: later }).click()
 	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
 	const next = page.getByRole('dialog')
@@ -379,7 +379,7 @@ test('what is disposed of, or found lost by a count, is offered out of its kit; 
 
 	// The tripod is disposed of, and taken out of the kit in the same
 	// change, which the booking let go of it for -- as its history says.
-	await page.goto(`${workspace}/assets/${idOf(tripod.id)}`)
+	await page.goto(`/assets/${idOf(tripod.id)}`)
 	await page.getByRole('button', { name: '정보·상태 변경' }).click()
 	const set = page.getByRole('dialog')
 	await expect(offer(set)).toHaveCount(0)
@@ -393,7 +393,7 @@ test('what is disposed of, or found lost by a count, is offered out of its kit; 
 	await expect(history.filter({ hasText: '예약에서 빠짐' }).filter({ hasText: shoot })).toBeVisible()
 
 	// The lens the count never saw is lost, and out of the kit as well.
-	await page.goto(`${workspace}/counts/${idOf(count.id)}`)
+	await page.goto(`/counts/${idOf(count.id)}`)
 	await card(page, '결과').getByRole('listitem').filter({ hasText: tag.lens }).getByRole('button', { name: '처리', exact: true }).click()
 	const resolve = page.getByRole('dialog')
 	await expect(field(resolve, '처리')).toHaveValue('lost')
@@ -403,7 +403,7 @@ test('what is disposed of, or found lost by a count, is offered out of its kit; 
 
 	// The battery is retired by the owner, at a desk of their own, and kept
 	// in the kit, its box unticked: the booking still holds it.
-	await admin.goto(`${workspace}/assets/${idOf(battery.id)}`)
+	await admin.goto(`/assets/${idOf(battery.id)}`)
 	await admin.getByRole('button', { name: '정보·상태 변경' }).click()
 	const retire = admin.getByRole('dialog')
 	await choose(field(retire, '상태'), '불용')
@@ -413,11 +413,11 @@ test('what is disposed of, or found lost by a count, is offered out of its kit; 
 
 	// Whose booking it is hears of it before anybody comes for it: told so,
 	// and the booking marked where it is listed and said in its dialog.
-	await page.goto(`${workspace}/notifications`)
+	await page.goto(`/notifications`)
 	const notice = page.getByRole('listitem').filter({ hasText: shoot })
 	await expect(notice).toContainText(`예약 자산 불용: ${shoot}`)
 	await expect(notice).toContainText(`${tag.battery} e2e 처분 배터리은(는) 불용 상태라 수령할 때 건네지 않습니다`)
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	const booked = page.getByRole('row').filter({ hasText: shoot })
 	await expect(booked).toContainText('건넬 수 없는 자산')
 	await booked.click()
@@ -455,7 +455,7 @@ test('what is out of use is not booked anew: the booking form says so of a retir
 	await rpc(admin, 'AssetService/SetAttributes', { ref: { id: camera.id }, set: { status: 'retired' } })
 
 	await signIn(page, people.booker.login)
-	await page.goto(`${workspace}/reservations`)
+	await page.goto(`/reservations`)
 	await page.getByRole('button', { name: '+ 예약' }).click()
 	const book = page.getByRole('dialog')
 	await choose(field(book, '무엇을'), `${name} (물품) · 불용`)
@@ -483,14 +483,14 @@ test('a room that goes out of use: its booking says so and its booker is told, i
 	const from = new Date(Date.now() + 5 * 60_000)
 	const to = new Date(from.getTime() + 60 * 60_000)
 	const r = await rpc(page, 'ReservationService/Add', { name: talk, items: [{ resource: { id: room.id } }], dateStart: from.toISOString(), dateEnd: to.toISOString() })
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	const booked = page.getByRole('row').filter({ hasText: talk })
 	await booked.click()
 	await expect(page.getByRole('dialog').getByRole('button', { name: '체크인' })).toBeVisible()
 	await page.getByRole('dialog').getByRole('button', { name: '닫기' }).click()
 
 	// The owner retires it, at a desk of their own.
-	await admin.goto(`${workspace}/assets/${idOf(room.id)}`)
+	await admin.goto(`/assets/${idOf(room.id)}`)
 	await admin.getByRole('button', { name: '정보·상태 변경' }).click()
 	const retire = admin.getByRole('dialog')
 	await choose(field(retire, '상태'), '불용')
@@ -500,11 +500,11 @@ test('a room that goes out of use: its booking says so and its booker is told, i
 	// Whose booking it is is told, and the booking is marked where it is
 	// listed and said in its dialog, which offers no check-in -- nor does the
 	// server check it in.
-	await page.goto(`${workspace}/notifications`)
+	await page.goto(`/notifications`)
 	const notice = page.getByRole('listitem').filter({ hasText: talk })
 	await expect(notice).toContainText(`예약 공간 불용: ${talk}`)
 	await expect(notice).toContainText(`${tag} ${name}은(는) 불용 상태라 체크인할 수 없습니다`)
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	await expect(booked).toContainText('쓸 수 없는 공간')
 	await booked.click()
 	const open = page.getByRole('dialog')
@@ -516,7 +516,7 @@ test('a room that goes out of use: its booking says so and its booker is told, i
 	expect(await refusal(page, 'ReservationService/CheckIn', { ref: { id: r.id } })).toContain(`체크인할 수 없습니다: ${tag} ${name}(불용)`)
 
 	// And it is not booked anew.
-	await page.goto(`${workspace}/reservations`)
+	await page.goto(`/reservations`)
 	await page.getByRole('button', { name: '+ 예약' }).click()
 	const book = page.getByRole('dialog')
 	await choose(field(book, '무엇을'), `${name} · 불용`)
@@ -544,7 +544,7 @@ test('a group deleted as registered by mistake: its booking says so and its book
 	const r = await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: pool.id } }], dateStart: from, dateEnd: to })
 
 	// The owner deletes the group from its page, at a desk of their own.
-	await admin.goto(`${workspace}/assets/${idOf(pool.id)}`)
+	await admin.goto(`/assets/${idOf(pool.id)}`)
 	await admin.getByRole('button', { name: '삭제', exact: true }).click()
 	await admin.getByRole('dialog').getByRole('button', { name: '삭제', exact: true }).click()
 	await said(admin, '삭제했습니다.')
@@ -552,11 +552,11 @@ test('a group deleted as registered by mistake: its booking says so and its book
 	// Whose booking it is is told, and the booking is marked where it is
 	// listed and said in its dialog -- out of use for good, and not short of
 	// cameras -- and it is not picked up.
-	await page.goto(`${workspace}/notifications`)
+	await page.goto(`/notifications`)
 	const notice = page.getByRole('listitem').filter({ hasText: shoot })
 	await expect(notice).toContainText(`예약 자산 삭제: ${shoot}`)
 	await expect(notice).toContainText(`${tag.pool} ${name}은(는) 삭제되어 수령할 수 없습니다`)
-	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.goto(`/reservations?tab=mine`)
 	const booked = page.getByRole('row').filter({ hasText: shoot })
 	await expect(booked).toContainText('건넬 수 없는 자산')
 	await expect(booked).not.toContainText('수량 부족')

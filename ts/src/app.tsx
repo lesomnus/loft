@@ -7,7 +7,7 @@
 import { useState, type ReactNode } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
-import { NotificationService, workspace, type Account } from './api.js'
+import { NotificationService, type Session } from './api.js'
 import { CatalogProvider, useCatalog } from './catalog.js'
 import { AssetPage } from './pages/asset.js'
 import { Assets } from './pages/assets.js'
@@ -30,7 +30,6 @@ import { Work } from './pages/work.js'
 import { Offline, useRpc } from './rpc.js'
 import { BillingBanner } from './billing.js'
 import { roleWord } from './words.js'
-import { Switcher } from './workspaces.js'
 
 // `auditor` lets an auditor see one below `min`, as the role table lets one
 // read what it exists for (`server/policy`).
@@ -59,7 +58,7 @@ function Bell(): ReactNode {
 	)
 }
 
-function Frame(props: { account: Account; onSignOut: () => void; children: ReactNode }): ReactNode {
+function Frame(props: { session: Session; onSignOut: () => void; children: ReactNode }): ReactNode {
 	const c = useCatalog()
 	const go = useNavigate()
 	const [q, setQ] = useState('')
@@ -75,9 +74,7 @@ function Frame(props: { account: Account; onSignOut: () => void; children: React
 						<strong>Loft</strong>
 					</div>
 				</div>
-				<div onClick={(e) => e.stopPropagation()}>
-					<Switcher account={props.account} current={c.me.workspaceName || workspace} />
-				</div>
+				<div className="workspace-name">{c.me.workspaceName || props.session.workspace.name}</div>
 				<nav>
 					{nav
 						.filter((n) => n.min === undefined || c.can(n.min) || (n.auditor === true && c.role === 'auditor'))
@@ -118,25 +115,25 @@ function Frame(props: { account: Account; onSignOut: () => void; children: React
 					<Bell />
 				</header>
 				<Offline />
-				<BillingBanner account={props.account} />
+				<BillingBanner session={props.session} />
 				<main className="content">{props.children}</main>
 			</div>
 		</div>
 	)
 }
 
-export function App(props: { account: Account; onSignOut: () => void }): ReactNode {
-	// Every route is inside the workspace's address, so a link written `/assets`
-	// is `/@<alias>/assets`.
+export function App(props: { session: Session; onSignOut: () => void }): ReactNode {
+	// The page is the one workspace the deployment serves (D85): every route
+	// is at the root.
 	return (
-		<BrowserRouter basename={`/@${encodeURIComponent(workspace)}`}>
+		<BrowserRouter>
 			<CatalogProvider>
 				<Routes>
 					<Route path="/labels/print" element={<LabelSheet />} />
 					<Route
 						path="*"
 						element={
-							<Frame account={props.account} onSignOut={props.onSignOut}>
+							<Frame session={props.session} onSignOut={props.onSignOut}>
 								<Routes>
 									<Route path="/" element={<Dashboard />} />
 									<Route path="/assets" element={<Assets />} />
@@ -153,7 +150,7 @@ export function App(props: { account: Account; onSignOut: () => void }): ReactNo
 									<Route path="/purchases" element={<Purchases />} />
 									<Route path="/reports" element={<Reports />} />
 									<Route path="/people" element={<People />} />
-									<Route path="/settings" element={<Settings account={props.account} />} />
+									<Route path="/settings" element={<Settings session={props.session} />} />
 									<Route path="/scan" element={<Scan />} />
 									<Route path="/scan/:code" element={<Scan />} />
 									<Route path="/notifications" element={<Notifications />} />

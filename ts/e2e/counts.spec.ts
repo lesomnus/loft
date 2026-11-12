@@ -1,10 +1,10 @@
-import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
+import { card, choose, expect, field, people, said, signIn, test, unique } from './loft.js'
 
 test('an inventory count of a room finds what is scanned in it', async ({ page }) => {
 	const name = unique('e2e 서버실 실사')
 	await signIn(page, people.counts.login)
 
-	await page.goto(`${workspace}/counts`)
+	await page.goto(`/counts`)
 	await page.getByRole('button', { name: '+ 실사 시작' }).click()
 	const start = page.getByRole('dialog')
 	await choose(field(start, '범위 (공간)'), '서버실')

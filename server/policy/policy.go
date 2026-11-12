@@ -39,12 +39,6 @@ type Level int
 const (
 	// Nobody is a method no role is given.
 	Nobody Level = iota
-	// Account is anybody signed in, as their account and not as a membership:
-	// the calls an account makes before it is anybody's member, which the
-	// schema marks as its own (`pd.AccountMethods`, payday#184) and the domain
-	// layer holds to its own rows. A method of this level is an account's and
-	// nobody else's: a membership is not given it, whatever its role.
-	Account
 	// Read is everybody signed in, auditors included.
 	Read
 	// Member is everybody who works here: reserve, report, take supplies.
@@ -108,8 +102,8 @@ func closed(service string, methods ...string) {
 
 var reads = []string{"Get", "List", "Watch"}
 
-// Given is whether somebody may call `method` here -- a role of a workspace,
-// or an account as itself: a method the table names and has not closed. What
+// Given is whether somebody may call `method` here -- a role of the
+// workspace: a method the table names and has not closed. What
 // no role is given, the operator's entry point may still serve
 // (`server/operator`'s table), and the terminal says a command of it is the
 // operator's (design 9.16).
@@ -203,9 +197,6 @@ func init() {
 	// operator's, at the entry point (`server/operator`'s table), and no role
 	// here is given them.
 	allow(Owner, "TenantService", "Patch", "Configure", "Preview")
-	// What an account is in, and one it makes: its own (D73), answered as
-	// itself and never as a membership.
-	allow(Account, "TenantService", "Mine", "Create")
 
 	allow(Read, "BookableService", "Availability")
 	allow(Admin, "BookableService", "Add", "Update")
@@ -252,15 +243,9 @@ func init() {
 	report("StockService", "Flow", "ExportFlow")
 
 	// Inviting into the workspace is its administrators', up to their own
-	// role, which the domain layer checks. The answer is the account's it is
-	// addressed to, and so is reading it: served as the account, held by the
-	// domain layer to the invitations addressed to it -- and a workspace's own
-	// to somebody who runs that workspace.
-	// A workspace's invitations are its administrators': sent, read and
-	// taken back as their membership of it. The ones addressed to an account
-	// are that account's own, answered as itself.
+	// role, which the domain layer checks: sent, read and taken back as their
+	// membership of it. Answering one is nobody's here (D85).
 	allow(Admin, "InvitationService", "Add", "List", "Revoke")
-	allow(Account, "InvitationService", "Inbox", "Claim", "Accept", "Deny")
 
 	// How a workspace is paid for (design 7.9): who pays for it, what it has
 	// used and its statements are for the people who run it to read; and
@@ -294,12 +279,8 @@ func Role(c gate.Call) string {
 	return ""
 }
 
-// levelOf is how much the caller may do: their membership's role, or no more
-// than an account's for a call an account makes as itself (payday#184).
+// levelOf is how much the caller may do: their membership's role.
 func levelOf(c gate.Call) Level {
-	if c.AsAccount {
-		return Account
-	}
 	return Levels[Role(c)]
 }
 
@@ -319,17 +300,6 @@ func (Policy) May(ctx context.Context, c gate.Call) error {
 	}
 	role := Role(c)
 	lv := levelOf(c)
-	// The account's own methods are called as the account, and nothing else
-	// is: payday refuses such a call every other method before this is asked,
-	// and this refuses a membership the account's own.
-	switch {
-	case r.min == Account && lv == Account:
-		return nil
-	case r.min == Account:
-		return status.Errorf(codes.PermissionDenied, "계정 자신으로 부르는 작업입니다 (%s)", c.Action)
-	case lv == Account:
-		return status.Errorf(codes.PermissionDenied, "워크스페이스의 구성원으로 부르는 작업입니다 (%s)", c.Action)
-	}
 	if lv >= r.min && lv > Nobody {
 		return nil
 	}

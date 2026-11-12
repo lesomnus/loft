@@ -64,7 +64,7 @@ type PartyServiceClient interface {
 	// once in that first message and once as a change that happened while it was
 	// being read -- and that is harmless for the same reason.
 	Watch(ctx context.Context, in *PartyWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[PartyWatchResponse], error)
-	// Me answers who is calling: the account, the person it is, the tenant and
+	// Me answers who is calling: the member, the person it is, the tenant and
 	// the role.
 	Me(ctx context.Context, in *PartyMeRequest, opts ...grpc.CallOption) (*PartyMeResponse, error)
 	// Update changes a party's own fields.
@@ -280,7 +280,7 @@ type PartyServiceServer interface {
 	// once in that first message and once as a change that happened while it was
 	// being read -- and that is harmless for the same reason.
 	Watch(*PartyWatchRequest, grpc.ServerStreamingServer[PartyWatchResponse]) error
-	// Me answers who is calling: the account, the person it is, the tenant and
+	// Me answers who is calling: the member, the person it is, the tenant and
 	// the role.
 	Me(context.Context, *PartyMeRequest) (*PartyMeResponse, error)
 	// Update changes a party's own fields.
@@ -780,10 +780,6 @@ const (
 	InvitationService_Erase_FullMethodName  = "/loft.InvitationService/Erase"
 	InvitationService_List_FullMethodName   = "/loft.InvitationService/List"
 	InvitationService_Revoke_FullMethodName = "/loft.InvitationService/Revoke"
-	InvitationService_Inbox_FullMethodName  = "/loft.InvitationService/Inbox"
-	InvitationService_Claim_FullMethodName  = "/loft.InvitationService/Claim"
-	InvitationService_Accept_FullMethodName = "/loft.InvitationService/Accept"
-	InvitationService_Deny_FullMethodName   = "/loft.InvitationService/Deny"
 )
 
 // InvitationServiceClient is the client API for InvitationService service.
@@ -804,18 +800,6 @@ type InvitationServiceClient interface {
 	List(ctx context.Context, in *InvitationListRequest, opts ...grpc.CallOption) (*InvitationListResponse, error)
 	// Revoke takes back an invitation nobody has answered.
 	Revoke(ctx context.Context, in *InvitationRevokeRequest, opts ...grpc.CallOption) (*Invitation, error)
-	// Inbox is the invitations addressed to the caller's account, from every
-	// workspace that sent one: the ones the account holds, and the ones sent to
-	// an address roster holds as checked for it. A workspace's own are `List`.
-	Inbox(ctx context.Context, in *InvitationInboxRequest, opts ...grpc.CallOption) (*InvitationInboxResponse, error)
-	// Claim makes the invitation a mail carried a code for the caller's: the
-	// proof is reading that mailbox, for an account roster holds no checked
-	// address of.
-	Claim(ctx context.Context, in *InvitationClaimRequest, opts ...grpc.CallOption) (*Invitation, error)
-	// Accept makes the caller a member of the workspace, as what it says.
-	Accept(ctx context.Context, in *InvitationAcceptRequest, opts ...grpc.CallOption) (*Invitation, error)
-	// Deny says no.
-	Deny(ctx context.Context, in *InvitationDenyRequest, opts ...grpc.CallOption) (*Invitation, error)
 }
 
 type invitationServiceClient struct {
@@ -896,46 +880,6 @@ func (c *invitationServiceClient) Revoke(ctx context.Context, in *InvitationRevo
 	return out, nil
 }
 
-func (c *invitationServiceClient) Inbox(ctx context.Context, in *InvitationInboxRequest, opts ...grpc.CallOption) (*InvitationInboxResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(InvitationInboxResponse)
-	err := c.cc.Invoke(ctx, InvitationService_Inbox_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) Claim(ctx context.Context, in *InvitationClaimRequest, opts ...grpc.CallOption) (*Invitation, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Invitation)
-	err := c.cc.Invoke(ctx, InvitationService_Claim_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) Accept(ctx context.Context, in *InvitationAcceptRequest, opts ...grpc.CallOption) (*Invitation, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Invitation)
-	err := c.cc.Invoke(ctx, InvitationService_Accept_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *invitationServiceClient) Deny(ctx context.Context, in *InvitationDenyRequest, opts ...grpc.CallOption) (*Invitation, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Invitation)
-	err := c.cc.Invoke(ctx, InvitationService_Deny_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // InvitationServiceServer is the server API for InvitationService service.
 // All implementations must embed UnimplementedInvitationServiceServer
 // for forward compatibility.
@@ -954,18 +898,6 @@ type InvitationServiceServer interface {
 	List(context.Context, *InvitationListRequest) (*InvitationListResponse, error)
 	// Revoke takes back an invitation nobody has answered.
 	Revoke(context.Context, *InvitationRevokeRequest) (*Invitation, error)
-	// Inbox is the invitations addressed to the caller's account, from every
-	// workspace that sent one: the ones the account holds, and the ones sent to
-	// an address roster holds as checked for it. A workspace's own are `List`.
-	Inbox(context.Context, *InvitationInboxRequest) (*InvitationInboxResponse, error)
-	// Claim makes the invitation a mail carried a code for the caller's: the
-	// proof is reading that mailbox, for an account roster holds no checked
-	// address of.
-	Claim(context.Context, *InvitationClaimRequest) (*Invitation, error)
-	// Accept makes the caller a member of the workspace, as what it says.
-	Accept(context.Context, *InvitationAcceptRequest) (*Invitation, error)
-	// Deny says no.
-	Deny(context.Context, *InvitationDenyRequest) (*Invitation, error)
 	mustEmbedUnimplementedInvitationServiceServer()
 }
 
@@ -996,18 +928,6 @@ func (UnimplementedInvitationServiceServer) List(context.Context, *InvitationLis
 }
 func (UnimplementedInvitationServiceServer) Revoke(context.Context, *InvitationRevokeRequest) (*Invitation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Revoke not implemented")
-}
-func (UnimplementedInvitationServiceServer) Inbox(context.Context, *InvitationInboxRequest) (*InvitationInboxResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Inbox not implemented")
-}
-func (UnimplementedInvitationServiceServer) Claim(context.Context, *InvitationClaimRequest) (*Invitation, error) {
-	return nil, status.Error(codes.Unimplemented, "method Claim not implemented")
-}
-func (UnimplementedInvitationServiceServer) Accept(context.Context, *InvitationAcceptRequest) (*Invitation, error) {
-	return nil, status.Error(codes.Unimplemented, "method Accept not implemented")
-}
-func (UnimplementedInvitationServiceServer) Deny(context.Context, *InvitationDenyRequest) (*Invitation, error) {
-	return nil, status.Error(codes.Unimplemented, "method Deny not implemented")
 }
 func (UnimplementedInvitationServiceServer) mustEmbedUnimplementedInvitationServiceServer() {}
 func (UnimplementedInvitationServiceServer) testEmbeddedByValue()                           {}
@@ -1156,78 +1076,6 @@ func _InvitationService_Revoke_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InvitationService_Inbox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationInboxRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Inbox(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Inbox_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Inbox(ctx, req.(*InvitationInboxRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_Claim_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationClaimRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Claim(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Claim_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Claim(ctx, req.(*InvitationClaimRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_Accept_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationAcceptRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Accept(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Accept_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Accept(ctx, req.(*InvitationAcceptRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InvitationService_Deny_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InvitationDenyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InvitationServiceServer).Deny(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InvitationService_Deny_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InvitationServiceServer).Deny(ctx, req.(*InvitationDenyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // InvitationService_ServiceDesc is the grpc.ServiceDesc for InvitationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1262,22 +1110,6 @@ var InvitationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Revoke",
 			Handler:    _InvitationService_Revoke_Handler,
-		},
-		{
-			MethodName: "Inbox",
-			Handler:    _InvitationService_Inbox_Handler,
-		},
-		{
-			MethodName: "Claim",
-			Handler:    _InvitationService_Claim_Handler,
-		},
-		{
-			MethodName: "Accept",
-			Handler:    _InvitationService_Accept_Handler,
-		},
-		{
-			MethodName: "Deny",
-			Handler:    _InvitationService_Deny_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

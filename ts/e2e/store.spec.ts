@@ -1,10 +1,10 @@
 import type { Page } from '@playwright/test'
 
-import { card, choose, escape, expect, field, owner, people, said, signIn, submitSignIn, test, unique, workspace } from './loft.js'
+import { card, choose, escape, expect, field, owner, people, said, session, signIn, submitSignIn, test, unique } from './loft.js'
 
 // What a page keeps is its caller's, as payday's store is (`offline.ts`): the
-// answers it was given and the scans it could not send, kept for one person in
-// one workspace and said on every call it makes (`payday-identity`). A
+// answers it was given and the scans it could not send, kept for one member of
+// the workspace and said on every call it makes (`payday-identity`). A
 // sign-out forgets it, in every tab; a session that ends by itself does not,
 // and what waited goes once the same person is back; and nobody else's page
 // keeps any of it, or is answered as them.
@@ -15,7 +15,7 @@ import { card, choose, escape, expect, field, owner, people, said, signIn, submi
  */
 async function started(as: (login: string, password?: string) => Promise<Page>): Promise<string> {
 	const o = await as(owner.login, owner.password)
-	await o.goto(`${workspace}/counts`)
+	await o.goto(`/counts`)
 	await o.getByRole('button', { name: '+ 실사 시작' }).click()
 	const start = o.getByRole('dialog')
 	await choose(field(start, '범위 (공간)'), '창고')
@@ -26,14 +26,12 @@ async function started(as: (login: string, password?: string) => Promise<Page>):
 	return new URL(o.url()).pathname
 }
 
-/** The account the browser is signed in as, by its identifier. */
-async function account(page: Page): Promise<string> {
-	const res = await page.request.get('/account')
-	expect(res.status()).toBe(200)
-	return ((await res.json()) as { id: string }).id
+/** The member the browser is signed in as, by their identifier. */
+async function member(page: Page): Promise<string> {
+	return (await session(page)).id
 }
 
-/** What this browser keeps for account `id`: answers, and writes waiting to be sent. */
+/** What this browser keeps for member `id`: answers, and writes waiting to be sent. */
 async function kept(page: Page, id: string): Promise<{ answers: number; waiting: number }> {
 	return page.evaluate(async (id) => {
 		const mine = (k: unknown): boolean => String(k).startsWith(`${id}/`)
@@ -79,7 +77,7 @@ const nothing = { answers: 0, waiting: 0 }
 test("a sign-out forgets what the page kept for the person, and the next person's page has none of it", async ({ page, as }) => {
 	const count = await started(as)
 	await signIn(page, people.keeps.login)
-	const id = await account(page)
+	const id = await member(page)
 	await page.goto(count)
 	await unsent(page, 'RK-001')
 	const was = await kept(page, id)
@@ -124,7 +122,7 @@ test('a session that ends by itself is not a sign-out: what could not be sent wa
 test("somebody else's sign-in keeps nothing of the person before, and a page left behind by it is refused rather than answered as them", async ({ page, as }) => {
 	const count = await started(as)
 	await signIn(page, people.leftBehind.login)
-	const first = await account(page)
+	const first = await member(page)
 	await page.goto(count)
 	await unsent(page, 'RK-001')
 	await expect(who(page, people.leftBehind.name)).toBeVisible()

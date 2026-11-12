@@ -63,7 +63,8 @@ func deployWith(t *testing.T, with func(*cmd.Config)) *deployment {
 	if with != nil {
 		with(&c)
 	}
-	_, err := run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	c.Auth.Roster.Tenant = "acme"
+	_, err := run(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
 
 	s, err := cmd.Build(t.Context(), c)

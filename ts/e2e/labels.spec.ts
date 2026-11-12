@@ -1,4 +1,4 @@
-import { expect, field, people, said, signIn, test, workspace } from './loft.js'
+import { expect, field, people, said, signIn, test } from './loft.js'
 
 // D28: a label is found by the eight characters printed under its QR, as well
 // as by the address in it -- in any case, with or without the dash.
@@ -9,13 +9,13 @@ test('a label printed blank is found by the code under its QR and put on an asse
 
 	// Opening the sheet is printing: it asks for the labels, which print with
 	// this deployment's own address (D28, D82).
-	await page.goto(`${workspace}/labels/print?count=1`)
+	await page.goto(`/labels/print?count=1`)
 	await expect(page.getByText(`라벨 1장 · ${new URL(page.url()).host}`)).toBeVisible()
 	await expect(page.getByText('미부착 라벨')).toBeVisible()
 	const code = (await page.getByText(printed).innerText()).match(printed)?.[0]
 	expect(code).toBeDefined()
 
-	await page.goto(`${workspace}/scan`)
+	await page.goto(`/scan`)
 	await page.getByPlaceholder('태그 또는 라벨 주소').fill(code!.replace('-', '').toLowerCase())
 	await page.getByRole('button', { name: '찾기' }).click()
 	await expect(page.getByRole('heading', { name: '아직 아무 자산에도 붙지 않은 라벨' })).toBeVisible()
@@ -28,6 +28,6 @@ test('a label printed blank is found by the code under its QR and put on an asse
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('NB-053')
 
 	// Bound, the same code opens the asset.
-	await page.goto(`${workspace}/scan/${code}`)
+	await page.goto(`/scan/${code}`)
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('NB-053')
 })

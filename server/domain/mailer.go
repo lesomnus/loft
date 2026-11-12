@@ -225,18 +225,10 @@ func (m Mailer) addressOf(ctx context.Context, db *ent.Client, h *ent.Holder) (s
 }
 
 // message is what a notification says, as a mail: its title, its words, and
-// the link that opens what it is about, on `at`: where its workspace is,
-// which it is called `workspace`.
+// the link that opens what it is about, on `at`: the page, which is the
+// workspace (D85), called `workspace`.
 func (m Mailer) message(h *ent.Holder, n *ent.Notification, at, to, workspace string) mail.Message {
-	alias := ""
-	if t := h.Edges.Tenant; t != nil {
-		alias = t.Alias
-	}
-	link := at
-	if alias != "" {
-		link += "/@" + alias
-	}
-	link += n.Link
+	link := at + n.Link
 
 	body := n.Desc
 	if body != "" {

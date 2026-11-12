@@ -48,9 +48,9 @@ func embeddedStore(t *testing.T) *Store {
 	return s
 }
 
-// TestTheRosterInThisProcessIsLoftsOwn is the embedded roster: its directory
-// is made here, its accounts are made and given passwords here, and what it
-// says of them is what a session is held to.
+// TestTheRosterInThisProcessIsLoftsOwn is the embedded roster: its tenant is
+// made here, its people are made and given passwords here, and what it says
+// of them is what a session is held to.
 func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
@@ -58,15 +58,16 @@ func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 	x.True(s.Embedded())
 
 	_, err := s.Verify(ctx, "kim", "anything")
-	x.ErrorIs(err, ErrNoDirectory, "a sign-in before there is anywhere to sign in to")
+	x.ErrorIs(err, ErrNoTenant, "a sign-in before there is anywhere to sign in to")
 
-	kim, secret, err := s.MakeDirectory(ctx, "kim", "Kim")
+	made, kim, secret, err := s.MakeTenant(ctx, "", "kim", "Kim")
 	x.NoError(err)
-	x.NotEmpty(secret, "the first account's password is shown once")
-	x.Equal(DefaultDirectory, kim.TenantAlias)
-	x.Equal("Kim", kim.Name, "the first account is called what it was made as")
-	_, _, err = s.MakeDirectory(ctx, "lee", "")
-	x.Error(err, "a second directory")
+	x.NotEmpty(secret, "the first person's password is shown once")
+	x.Equal(DefaultTenant, kim.TenantAlias)
+	x.Equal(Tenant{Id: kim.Tenant, Alias: DefaultTenant}, made, "named nothing")
+	x.Equal("Kim", kim.Name, "the first person is called what they were made as")
+	_, _, _, err = s.MakeTenant(ctx, "", "lee", "")
+	x.Error(err, "a second tenant")
 
 	t.Run("a password is checked there", func(t *testing.T) {
 		x := require.New(t)
@@ -85,7 +86,7 @@ func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 		x := require.New(t)
 
 		own := s.em.rs.Ungated
-		tref := rstr.TenantRef_builder{Alias: z.Ptr(DefaultDirectory)}.Build()
+		tref := rstr.TenantRef_builder{Alias: z.Ptr(DefaultTenant)}.Build()
 		h, err := own.Holder().Get(ctx, rstr.HolderGetRequest_builder{
 			Ref: rstr.HolderRef_builder{Slug: rstr.HolderRefBySlug_builder{Alias: z.Ptr(Agent), Tenant: tref}.Build()}.Build(),
 		}.Build())
@@ -102,15 +103,19 @@ func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 		x.Len(vs.GetItems(), 1)
 	})
 
-	t.Run("the directory is where every account is", func(t *testing.T) {
+	t.Run("the tenant is where everybody is", func(t *testing.T) {
 		x := require.New(t)
 
-		d, err := s.Directory(ctx)
+		d, err := s.Tenant(ctx)
 		x.NoError(err)
-		x.Equal(Directory{Id: kim.Tenant, Alias: DefaultDirectory, Name: d.Name}, d)
-		again, err := s.EnsureDirectory(ctx)
+		x.Equal(made, d)
+		again, err := s.EnsureTenant(ctx, d)
 		x.NoError(err)
-		x.Equal(d, again, "a directory there already is made again")
+		x.Equal(d, again, "a tenant there already is made again")
+		_, err = s.EnsureTenant(ctx, Tenant{Id: pdid.New(pdid.Domain(1)), Alias: DefaultTenant})
+		x.Error(err, "the tenant there is another workspace")
+		_, err = s.EnsureTenant(ctx, Tenant{Id: d.Id, Alias: "acme"})
+		x.ErrorContains(err, "auth.roster.tenant", "a workspace this deployment does not serve")
 
 		p, err := s.Lookup(ctx, "kim")
 		x.NoError(err)
@@ -122,14 +127,14 @@ func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 		x.ErrorIs(err, ErrNoPerson)
 	})
 
-	t.Run("an account is made, given a password and given another", func(t *testing.T) {
+	t.Run("somebody is made, given a password and given another", func(t *testing.T) {
 		x := require.New(t)
 
 		lee, err := s.AddPerson(ctx, "lee", "Lee", pdid.Nil)
 		x.NoError(err)
 		x.Equal(kim.Tenant, lee.Tenant)
 		_, err = s.Verify(ctx, "lee", pw)
-		x.ErrorIs(err, ErrRefused, "an account nobody gave a password signs in with none")
+		x.ErrorIs(err, ErrRefused, "somebody nobody gave a password signs in with none")
 
 		x.NoError(s.SetPassword(ctx, lee.Id, pw))
 		p, err := s.Verify(ctx, "lee", pw)
@@ -163,9 +168,9 @@ func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 		x.NoError(err)
 		x.False(st.Good(time.Now().Add(time.Second)), "suspended, and good")
 		_, err = s.Verify(ctx, "kim", secret)
-		x.ErrorIs(err, ErrRefused, "a suspended account signed in")
+		x.ErrorIs(err, ErrRefused, "somebody suspended signed in")
 		after := time.Now().Add(time.Second)
-		x.ErrorIs(s.Held(ctx, kim.Id, after), ErrRefused, "a session of a suspended account")
+		x.ErrorIs(s.Held(ctx, kim.Id, after), ErrRefused, "a session of somebody suspended")
 
 		x.NoError(s.Enable(ctx, kim.Id))
 		_, err = s.Verify(ctx, "kim", secret)
@@ -176,7 +181,7 @@ func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 		x.ErrorIs(err, ErrNoPerson)
 	})
 
-	t.Run("an account forgotten is nobody there, and its login is free", func(t *testing.T) {
+	t.Run("somebody forgotten is nobody there, and their login is free", func(t *testing.T) {
 		x := require.New(t)
 
 		park, err := s.AddPerson(ctx, "park", "Park", pdid.Nil)
@@ -213,6 +218,26 @@ func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 	})
 }
 
+// TestTheRosterInThisProcessServesTheTenantItIsTold: `auth.roster.tenant`
+// names the tenant the roster in this process makes and serves, and its name
+// is what the workspace is called (D85).
+func TestTheRosterInThisProcessServesTheTenantItIsTold(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+	drv, dsn := pdtest.DB(t)
+	s, err := Open(ctx, Config{Db: config.DbConfig{Driver: drv, Dsn: dsn}, Tenant: "acme"}, t.TempDir(), slog.Default())
+	x.NoError(err)
+	t.Cleanup(func() { s.Close() })
+
+	made, kim, _, err := s.MakeTenant(ctx, "ACME 연구소", RosterAdministrator, "")
+	x.NoError(err)
+	x.Equal("acme", made.Alias)
+	x.Equal("ACME 연구소", made.Name)
+	x.Equal(made.Id, kim.Tenant)
+	x.Equal(RosterAdministrator, kim.Alias, "the administrator roster makes every tenant with")
+	x.Equal(RosterAdministrator, kim.Name, "called by their login, named nothing else")
+}
+
 // TestTheRosterInThisProcessOutlivesItsHousekeeping is the embedded roster
 // once its housekeeping has stopped. Under a lease that is whenever the lease
 // is lost -- the database gone for a moment -- and it starts again when the
@@ -222,7 +247,7 @@ func TestTheRosterInThisProcessOutlivesItsHousekeeping(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
 	s := embeddedStore(t)
-	kim, secret, err := s.MakeDirectory(ctx, "kim", "Kim")
+	_, kim, secret, err := s.MakeTenant(ctx, "", "kim", "Kim")
 	x.NoError(err)
 
 	for i := range 2 {
@@ -246,7 +271,7 @@ func TestTheRosterInThisProcessWritesItsRecordInEveryProcess(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
 	s := embeddedStore(t)
-	_, _, err := s.MakeDirectory(ctx, "kim", "Kim")
+	_, _, _, err := s.MakeTenant(ctx, "", "kim", "Kim")
 	x.NoError(err)
 	dir, err := s.em.rs.Ent.Tenant.Query().First(ctx)
 	x.NoError(err)
@@ -275,20 +300,19 @@ func TestTheRosterInThisProcessWritesItsRecordInEveryProcess(t *testing.T) {
 
 // external is a roster deployment of its own -- data plane, control plane and
 // a key ring for second factors -- served on a TCP listener, the way a roster
-// operator stands one up: `init`, a tenant with a person in it, and a
-// deployment key for Loft installed into it.
+// operator stands one up: `init`, a tenant with a person in it, Loft installed
+// into it and the tenant's own key for it (roster's docs/apps.md, shape C).
 type external struct {
 	c    rostercmd.Config
 	s    *rostercmd.Server
 	addr string
 
-	// key is a deployment key acme nominated; tenantKey is acme's own key for
-	// Loft's holder there. operator is this roster's own operator, who
-	// suspends and erases people over the wire -- which is the only way the
-	// sync stream hears of it.
-	key, tenantKey, operator string
-	acme, beta               pdid.Id
-	kim                      pdid.Id
+	// key is acme's own key for Loft's holder there. operator is this
+	// roster's own operator, who suspends and erases people over the wire --
+	// which is the only way the sync stream hears of it.
+	key, operator string
+	acme, beta    pdid.Id
+	kim           pdid.Id
 }
 
 func newExternal(t *testing.T) *external {
@@ -332,12 +356,11 @@ func newExternal(t *testing.T) *external {
 	x.NoError(err)
 	x.NoError(s.Close())
 
-	// What docs/apps.md says an app beside roster is given: a deployment key
-	// allowed nothing but its own nominations, installed into the tenants it
-	// serves -- acme, and not beta.
-	e.key = stdoutOf(t, rostercli.NewCmdControl(&c), "key", "add", "--allow", "/roster.NominationService/List", Agent)
+	// What docs/apps.md says an app that serves one tenant is given: it is
+	// installed into that tenant -- acme, and not beta -- and the key is the
+	// tenant's own, on the holder installing it made.
 	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "acme", "--role", strings.Join(AgentMethods, ","), Agent}))
-	e.tenantKey = stdoutOf(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", Agent, "--name", "loft", "--allow", strings.Join(AgentMethods, ","))
+	e.key = stdoutOf(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", Agent, "--name", "loft", "--allow", strings.Join(AgentMethods, ","))
 	e.operator = stdoutOf(t, rostercli.NewCmdControl(&c), "key", "add", "--allow",
 		"/roster.HolderService/Invalidate,/roster.HolderService/Disable,/roster.HolderService/Erase,"+
 			"/roster.TenantService/Get,/roster.TenantService/Update,/roster.TenantService/Close,/roster.TenantService/Restore", "operator")
@@ -381,9 +404,9 @@ func (e *external) role(t *testing.T, methods []string) {
 		`{"methods": [` + strings.Join(quoted, ",") + `], "date_updated_force": true}`}))
 }
 
-func (e *external) open(t *testing.T, key, directory string) *Store {
+func (e *external) open(t *testing.T, key, tenant string) *Store {
 	t.Helper()
-	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: key, Directory: directory}, "", slog.Default())
+	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: key, Tenant: tenant}, "", slog.Default())
 	require.NoError(t, err)
 	t.Cleanup(func() { s.Close() })
 
@@ -411,19 +434,19 @@ func stdoutOf(t *testing.T, k *xli.Command, args ...string) string {
 	return strings.TrimSpace(string(b))
 }
 
-// rosterUnder is one of the two places this deployment's accounts can be --
+// rosterUnder is one of the two places this deployment's people can be --
 // the roster in this process, or one of its own over TCP with the key it gave
-// -- with an account in it, and roster's own door to it: what its operator
+// -- with somebody in it, and roster's own door to them: what its operator
 // does there, which this deployment is not told of until it asks again.
 type rosterUnder struct {
-	name    string
-	s       *Store
-	account pdid.Id
-	login   string
-	pass    string
-	// makes says whether accounts are made from here.
+	name   string
+	s      *Store
+	person pdid.Id
+	login  string
+	pass   string
+	// makes says whether people are made from here.
 	makes bool
-	// invalidate signs the account out everywhere, and suspend suspends it.
+	// invalidate signs them out everywhere, and suspend suspends them.
 	invalidate, suspend func() error
 }
 
@@ -432,7 +455,7 @@ func bothRosters(t *testing.T) []rosterUnder {
 	ctx := t.Context()
 
 	em := embeddedStore(t)
-	kim, secret, err := em.MakeDirectory(ctx, "kim", "Kim")
+	_, kim, secret, err := em.MakeTenant(ctx, "", "kim", "Kim")
 	require.NoError(t, err)
 	inProcess := func() rstr.HolderRef_builder { return rstr.HolderRef_builder{Id: kim.Id.Bytes()} }
 
@@ -442,7 +465,7 @@ func bothRosters(t *testing.T) []rosterUnder {
 
 	return []rosterUnder{
 		{
-			name: "in this process", s: em, account: kim.Id, login: "kim", pass: secret, makes: true,
+			name: "in this process", s: em, person: kim.Id, login: "kim", pass: secret, makes: true,
 			invalidate: func() error {
 				_, err := em.em.rs.Ungated.Holder().Invalidate(ctx, rstr.HolderInvalidateRequest_builder{Ref: inProcess().Build()}.Build())
 				return err
@@ -453,7 +476,7 @@ func bothRosters(t *testing.T) []rosterUnder {
 			},
 		},
 		{
-			name: "of its own", s: e.open(t, e.key, "acme"), account: e.kim, login: "kim", pass: pw, makes: false,
+			name: "of its own", s: e.open(t, e.key, "acme"), person: e.kim, login: "kim", pass: pw, makes: false,
 			invalidate: func() error {
 				_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: theirs}.Build())
 				return err
@@ -467,8 +490,8 @@ func bothRosters(t *testing.T) []rosterUnder {
 }
 
 // TestTheSameIdentityOnEitherRoster: what this deployment asks of roster, and
-// holds a session to, is the same whichever roster its accounts are in (plan
-// M2) -- a password checked, an account found by its identifier, signed out
+// holds a session to, is the same whichever roster its people are in (plan
+// M2) -- a password checked, somebody found by their identifier, signed out
 // everywhere and suspended reaching a session -- and a suspension nobody told
 // it of reaches a session already open no later than [HeldTtl] after roster
 // was last asked.
@@ -483,7 +506,7 @@ func TestTheSameIdentityOnEitherRoster(t *testing.T) {
 
 			p, err := s.Verify(ctx, r.login, r.pass)
 			x.NoError(err)
-			x.Equal(r.account, p.Id)
+			x.Equal(r.person, p.Id)
 			// A session, from the sign-in on.
 			began := time.Now()
 			_, err = s.Verify(ctx, r.login, "not it")
@@ -491,33 +514,33 @@ func TestTheSameIdentityOnEitherRoster(t *testing.T) {
 			_, err = s.Verify(ctx, "nobody", r.pass)
 			x.ErrorIs(err, ErrRefused, "nobody by that name is the same answer as a wrong password")
 
-			p, err = s.ById(ctx, r.account.String())
+			p, err = s.ById(ctx, r.person.String())
 			x.NoError(err)
 			x.Equal(r.login, p.Alias)
 			_, err = s.ById(ctx, pdid.New(pdid.Domain(1)).String())
 			x.ErrorIs(err, ErrNoPerson)
 
-			x.NoError(s.Held(ctx, r.account, began))
+			x.NoError(s.Held(ctx, r.person, began))
 
 			// Signed out everywhere, and asked again: the sessions from
 			// before end, and one after is good.
 			x.NoError(r.invalidate())
-			s.Recheck(r.account)
-			x.ErrorIs(s.Held(ctx, r.account, began), ErrRefused, "a session from before")
+			s.Recheck(r.person)
+			x.ErrorIs(s.Held(ctx, r.person, began), ErrRefused, "a session from before")
 			after := time.Now().Add(time.Second)
-			x.NoError(s.Held(ctx, r.account, after), "and one that began after it")
+			x.NoError(s.Held(ctx, r.person, after), "and one that began after it")
 
 			// Suspended, and nobody told: believed as roster last said for
 			// HeldTtl, and refused once that is over.
 			x.NoError(r.suspend())
 			now = now.Add(HeldTtl - time.Second)
-			x.NoError(s.Held(ctx, r.account, after), "what roster said last, within HeldTtl")
+			x.NoError(s.Held(ctx, r.person, after), "what roster said last, within HeldTtl")
 			now = now.Add(2 * time.Second)
-			x.ErrorIs(s.Held(ctx, r.account, after), ErrRefused, "suspended, and no later than HeldTtl")
+			x.ErrorIs(s.Held(ctx, r.person, after), ErrRefused, "suspended, and no later than HeldTtl")
 			_, err = s.Verify(ctx, r.login, r.pass)
 			x.ErrorIs(err, ErrRefused, "and no sign-in")
 
-			// Accounts are made from here, or are roster's to make.
+			// People are made from here, or are roster's to make.
 			_, err = s.AddPerson(ctx, "lee", "Lee", pdid.Nil)
 			if r.makes {
 				x.NoError(err)
@@ -577,13 +600,13 @@ func cutBy(t *testing.T, s *Store) *cutting {
 }
 
 // TestACallThatEndsWhileRosterIsAskedSaysNothingOfRoster: a call that ends
-// while roster is being asked about its account -- its page was left half
+// while roster is being asked about its member -- its page was left half
 // loaded, or it ran out of its own time -- is not roster failing to answer,
-// and the account's next call is served at once. Kept as roster's failing, it
-// refused every call the account made for HeldRetry: two tests of loft#233's
+// and the member's next call is served at once. Kept as roster's failing, it
+// refused every call the member made for HeldRetry: two tests of loft#233's
 // e2e that had nothing to do with each other failed on it. So whatever the
-// call was cut short asking -- the directory, the tenants a deployment key
-// serves, or the account -- and on either roster.
+// call was cut short asking -- the tenant, whose the key is, or the member --
+// and on either roster.
 //
 // A roster that cannot be asked is still a refusal, and is still not asked
 // again for HeldRetry.
@@ -599,52 +622,52 @@ func TestACallThatEndsWhileRosterIsAskedSaysNothingOfRoster(t *testing.T) {
 			c := cutBy(t, s)
 
 			// Left half loaded: at the first thing it asks roster, whatever
-			// that is, and at asking about the account.
+			// that is, and at asking about the member.
 			for _, at := range []string{"", rstr.HolderService_Get_FullMethodName} {
-				s.Recheck(r.account)
+				s.Recheck(r.person)
 				cctx, leave := context.WithCancel(ctx)
 				c.cut.Store(&cut{method: at, end: leave})
-				x.ErrorIs(s.Held(cctx, r.account, began), context.Canceled, "cut short at %q", at)
+				x.ErrorIs(s.Held(cctx, r.person, began), context.Canceled, "cut short at %q", at)
 				x.Nil(c.cut.Load(), "it ended asking roster")
-				x.NoError(s.Held(ctx, r.account, began), "the next call, cut short at %q", at)
+				x.NoError(s.Held(ctx, r.person, began), "the next call, cut short at %q", at)
 			}
 
 			// Out of its own time.
-			s.Recheck(r.account)
+			s.Recheck(r.person)
 			cctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
 			defer cancel()
 			c.cut.Store(&cut{method: rstr.HolderService_Get_FullMethodName, end: func() { <-cctx.Done() }})
-			x.ErrorIs(s.Held(cctx, r.account, began), context.DeadlineExceeded)
-			x.NoError(s.Held(ctx, r.account, began), "the next call, after one that ran out of time")
+			x.ErrorIs(s.Held(cctx, r.person, began), context.DeadlineExceeded)
+			x.NoError(s.Held(ctx, r.person, began), "the next call, after one that ran out of time")
 
 			// Roster's own failing is a refusal, and kept as one.
-			s.Recheck(r.account)
+			s.Recheck(r.person)
 			c.down.Store(true)
-			x.ErrorIs(s.Held(ctx, r.account, began), ErrUnreachable)
+			x.ErrorIs(s.Held(ctx, r.person, began), ErrUnreachable)
 			c.down.Store(false)
 			asked := c.asked.Load()
-			x.ErrorIs(s.Held(ctx, r.account, began), ErrUnreachable, "within HeldRetry, as it was")
+			x.ErrorIs(s.Held(ctx, r.person, began), ErrUnreachable, "within HeldRetry, as it was")
 			x.Equal(asked, c.asked.Load(), "roster asked again within HeldRetry")
 			now = now.Add(HeldRetry)
-			x.NoError(s.Held(ctx, r.account, began), "and asked again once it is over")
+			x.NoError(s.Held(ctx, r.person, began), "and asked again once it is over")
 		})
 	}
 }
 
 // TestARosterOfItsOwnIsReachedWithTheKeyItGave is the external roster, the
-// default: a deployment key serves the tenants that nominated it, and the
-// directory is the one of them the configuration names; every call names it
-// beside the key. Accounts are roster's to make there.
+// default: the tenant's own key, on the holder installing Loft made there,
+// and the tenant it serves is the key's (D85). People are roster's to make
+// there.
 func TestARosterOfItsOwnIsReachedWithTheKeyItGave(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
 	e := newExternal(t)
-	s := e.open(t, e.key, "acme")
+	s := e.open(t, e.key, "")
 	x.False(s.Embedded())
 
-	d, err := s.Directory(ctx)
+	d, err := s.Tenant(ctx)
 	x.NoError(err)
-	x.Equal(e.acme, d.Id)
+	x.Equal(Tenant{Id: e.acme, Alias: "acme", Name: "ACME"}, d, "the key's own")
 
 	p, err := s.Verify(ctx, "kim", pw)
 	x.NoError(err)
@@ -661,42 +684,32 @@ func TestARosterOfItsOwnIsReachedWithTheKeyItGave(t *testing.T) {
 	x.NoError(err)
 	x.True(st.Good(time.Now()))
 
-	_, _, err = s.MakeDirectory(ctx, "lee", "Lee")
+	_, _, _, err = s.MakeTenant(ctx, "", "lee", "Lee")
 	x.ErrorIs(err, ErrExternal)
-	_, err = s.EnsureDirectory(ctx)
+	_, err = s.EnsureTenant(ctx, d)
 	x.ErrorIs(err, ErrExternal)
 	_, err = s.AddPerson(ctx, "lee", "Lee", pdid.Nil)
 	x.ErrorIs(err, ErrExternal)
 	_, err = s.IssuePassword(ctx, e.kim)
 	x.ErrorIs(err, ErrExternal)
 
-	t.Run("a directory that did not nominate the key is not served", func(t *testing.T) {
+	t.Run("a tenant named is held to the key's", func(t *testing.T) {
 		x := require.New(t)
 
-		_, err := e.open(t, e.key, "beta").Verify(ctx, "kim", pw)
-		x.ErrorIs(err, ErrNoTenant)
-		_, err = e.open(t, e.key, "").Verify(ctx, "kim", pw)
-		x.ErrorContains(err, "auth.roster.directory", "a deployment key, and nothing saying which tenant is the directory")
-	})
-
-	t.Run("and a tenant key's directory is its own tenant", func(t *testing.T) {
-		x := require.New(t)
-
-		s := e.open(t, e.tenantKey, "")
-		p, err := s.Verify(ctx, "kim", pw)
+		p, err := e.open(t, e.key, "acme").Verify(ctx, "kim", pw)
 		x.NoError(err)
 		x.Equal(e.kim, p.Id)
-		_, err = e.open(t, e.tenantKey, "beta").Verify(ctx, "kim", pw)
-		x.ErrorContains(err, "auth.roster.directory")
+		_, err = e.open(t, e.key, "beta").Verify(ctx, "kim", pw)
+		x.ErrorContains(err, "auth.roster.tenant")
 	})
 
-	t.Run("and no key is no way in", func(t *testing.T) {
+	t.Run("and only a tenant's own key is a way in", func(t *testing.T) {
 		x := require.New(t)
 
-		_, err := Open(ctx, Config{Addr: e.addr, Insecure: true}, "", slog.Default())
-		x.ErrorContains(err, "auth.roster.key")
-		_, err = Open(ctx, Config{Addr: e.addr, Insecure: true, Key: "something"}, "", slog.Default())
-		x.ErrorContains(err, "auth.roster.key")
+		for _, key := range []string{"", "something", "rk_a-deployment-key"} {
+			_, err := Open(ctx, Config{Addr: e.addr, Insecure: true, Key: key}, "", slog.Default())
+			x.ErrorContains(err, "auth.roster.key", "%q", key)
+		}
 	})
 }
 
@@ -726,7 +739,7 @@ func TestAPasswordAloneIsNoSignInForSomebodyWithASecondFactor(t *testing.T) {
 	x.NoError(err)
 	x.True(ok.GetOk())
 
-	_, err = e.open(t, e.key, "acme").Verify(ctx, "kim", pw)
+	_, err = e.open(t, e.key, "").Verify(ctx, "kim", pw)
 	x.ErrorIs(err, ErrSecondFactor)
 }
 
@@ -785,15 +798,15 @@ func follow(t *testing.T, s *Store) <-chan Standing {
 	return got
 }
 
-// TestRostersWordArrivesAsItHappens: what roster says of an account comes down
+// TestRostersWordArrivesAsItHappens: what roster says of somebody comes down
 // its stream as it is said -- signed out everywhere, suspended, erased -- to a
-// deployment with a roster of its own, asked as Loft asks it: the deployment
-// key, in the directory it names. What the stream promises beyond that is
-// roster's `standing`'s, and its tests' (`standing/follow_test.go`).
+// deployment with a roster of its own, asked as Loft asks it: with the
+// tenant's own key. What the stream promises beyond that is roster's
+// `standing`'s, and its tests' (`standing/follow_test.go`).
 func TestRostersWordArrivesAsItHappens(t *testing.T) {
 	x := require.New(t)
 	e := newExternal(t)
-	got := follow(t, e.open(t, e.key, "acme"))
+	got := follow(t, e.open(t, e.key, ""))
 	op, as := e.overTheWire(t)
 	ref := rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()
 
@@ -826,12 +839,12 @@ func TestRostersWordArrivesAsItHappens(t *testing.T) {
 }
 
 // TestAnAccountPageIsAnExternalRostersOwn: the page where somebody manages
-// their own account is roster's, at its front door; the roster in this process
+// how they sign in is roster's, at its front door; the roster in this process
 // has none to name.
 func TestAnAccountPageIsAnExternalRostersOwn(t *testing.T) {
 	x := require.New(t)
 	e := newExternal(t)
-	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: e.key, Directory: "acme", AccountUrl: "https://id.example/"}, "", slog.Default())
+	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: e.key, AccountUrl: "https://id.example/"}, "", slog.Default())
 	x.NoError(err)
 	t.Cleanup(func() { s.Close() })
 	x.Equal("https://id.example/", s.AccountPage())

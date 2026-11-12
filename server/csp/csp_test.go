@@ -73,7 +73,7 @@ func TestWhatABrowserReportsIsALineInTheLog(t *testing.T) {
 	}
 
 	x.Equal(http.StatusNoContent, post("application/csp-report", `{"csp-report": {
-		"document-uri": "https://loft.example.com/@acme/assets?q=secret#x",
+		"document-uri": "https://loft.example.com/assets?q=secret#x",
 		"violated-directive": "img-src",
 		"effective-directive": "img-src",
 		"blocked-uri": "https://loft.example.com/files/a.png?sig=abc&exp=1",
@@ -84,7 +84,7 @@ func TestWhatABrowserReportsIsALineInTheLog(t *testing.T) {
 	line := said.String()
 	x.Contains(line, "directive=img-src")
 	x.Contains(line, "blocked=https://loft.example.com/files/a.png ")
-	x.Contains(line, "page=https://loft.example.com/@acme/assets ")
+	x.Contains(line, "page=https://loft.example.com/assets ")
 	x.Contains(line, "line=12")
 	x.NotContains(line, "sig=", "an attachment's signature in the log")
 	x.NotContains(line, "secret")
@@ -92,7 +92,7 @@ func TestWhatABrowserReportsIsALineInTheLog(t *testing.T) {
 	said.Reset()
 	x.Equal(http.StatusNoContent, post("application/reports+json", `[
 		{"type": "csp-violation", "url": "https://loft.example.com/", "body": {
-			"documentURL": "https://loft.example.com/@acme/labels",
+			"documentURL": "https://loft.example.com/labels",
 			"effectiveDirective": "img-src",
 			"blockedURL": "data:image/png;base64,iVBORw0KGgo=",
 			"disposition": "report"

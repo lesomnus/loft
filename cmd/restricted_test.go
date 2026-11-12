@@ -63,12 +63,13 @@ func restrict(w *world, fake *levyantest.Levyan) []byte {
 // restricts a workspace, every way it adds to what it is billed for is
 // refused -- a new asset of any kind, many at once, stock made assets, an
 // asset brought back from disposed or lost, a purchase received as assets, a
-// file, a member by a login, an invitation sent or accepted, its history
-// kept longer -- with a reason a page tells it by. Everything else it does as
-// it did: reads and downloads, hands things out and takes them back, books,
-// moves, changes what bills nothing, disposes of and deletes, keeps its
-// history shorter, takes stock in, and ends a membership; and its operator
-// closes it (D83). Once levyan ends the grant, it grows again.
+// file, a member by a login, an invitation sent, its history kept longer --
+// with a reason a page tells it by. Everything else it does as it did: reads
+// and downloads, hands things out and takes them back, books, moves, changes
+// what bills nothing, disposes of and deletes, keeps its history shorter,
+// takes stock in, ends a membership and makes one of somebody the tenant at
+// roster has who signs in (D85); and its operator closes it (D83). Once
+// levyan ends the grant, it grows again.
 func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	fake := levyantest.Start(t)
 	w := newInvites(t, func(c *cmd.Config) {
@@ -125,9 +126,6 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(365))}.Build())
 	x.NoError(err)
 	time.Sleep(10 * time.Millisecond)
-	lee := w.account("lee", []string{"lee@example.com"}, nil)
-	sent, err := w.invite(w.owner, "lee@example.com", "member")
-	x.NoError(err, "an invitation sent before the workspace was restricted")
 	member := partyOf(w.world, w.holder("choi", "member"))
 	booker := w.holder("yun", "member")
 	partyOf(w.world, booker)
@@ -170,11 +168,9 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	_, err = parties.Invite(w.owner, app.PartyInviteRequest_builder{Ref: app.PartyRef_builder{Id: park.GetId()}.Build(), Alias: "park", Role: "member"}.Build())
 	w.refusedRestricted(err, "로그인을 새로 발급할 수 없습니다")
 	_, err = w.s.Identity.Lookup(ctx, "park")
-	x.Error(err, "and no account was made for it at roster")
+	x.Error(err, "and nobody was made for it at roster")
 	_, err = w.invite(w.owner, "kim@example.com", "member")
 	w.refusedRestricted(err, "구성원을 초대할 수 없습니다")
-	_, err = w.svc.Accept(w.as(lee), app.InvitationAcceptRequest_builder{Ref: ref(sent)}.Build())
-	w.refusedRestricted(err, "초대를 받아들일 수 없습니다")
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(730))}.Build())
 	w.refusedRestricted(err, "이력을 지금보다 오래 보관하도록 바꿀 수 없습니다")
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, KeepDays: z.Ptr(uint32(0))}.Build())
@@ -214,6 +210,13 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	x.NoError(err, "the history kept shorter, and a setting that bills nothing")
 	_, err = parties.Deactivate(w.owner, app.PartyDeactivateRequest_builder{Ref: app.PartyRef_builder{Id: member.GetId()}.Build()}.Build())
 	x.NoError(err, "a membership ended")
+	// Somebody the tenant at roster has signs in, and is a member: who is in
+	// the workspace is roster's to say (D85), and the workspace is billed
+	// for its members rather than held back from having them.
+	han, err := w.s.Identity.AddPerson(ctx, "han", "Han", pdid.Nil)
+	x.NoError(err)
+	_, err = w.s.Members.Of(ctx, han)
+	x.NoError(err, "a first sign-in")
 
 	// levyan ends the grant: the workspace grows again.
 	fake.End(grant)
@@ -222,8 +225,6 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	x.False(w.restricted(w.tenant))
 	_, err = assets.Add(w.owner, app.AssetAddRequest_builder{Name: "키보드"}.Build())
 	x.NoError(err, "a grant ended is a restriction lifted")
-	_, err = w.svc.Accept(w.as(lee), app.InvitationAcceptRequest_builder{Ref: ref(sent)}.Build())
-	x.NoError(err, "and what was sent before it, accepted")
 
 	// And its operator closes it, restricted or not, at the entry point.
 	restrict(w.world, fake)

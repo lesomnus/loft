@@ -123,9 +123,6 @@ func newCmdAuthLogin() *xli.Command {
 				if err != nil {
 					return err
 				}
-				if was, ok := cs.Connections[name]; ok && was.Kind == Person && was.Url == c.Url {
-					c.Workspace = was.Workspace
-				}
 			}
 			cs.Connections[name] = c
 			cs.Current = name
@@ -133,17 +130,10 @@ func newCmdAuthLogin() *xli.Command {
 				return err
 			}
 			if c.Kind == Person {
-				var me struct {
-					Login string `json:"login"`
-				}
-				_, err := c.do(ctx, http.MethodGet, "/account", nil, &me)
-				mine, merr := app.NewTenantServiceClient(c.person("")).Mine(ctx, &app.TenantMineRequest{})
-				switch {
-				case err == nil && merr == nil:
-					self.Printf("signed in as %s, in %d workspace(s)\n", me.Login, len(mine.GetWorkspaces()))
-				case err == nil:
-					self.Printf("signed in as %s\n", me.Login)
-				default:
+				var me sessionSaid
+				if _, err := c.do(ctx, http.MethodGet, "/session", nil, &me); err == nil {
+					self.Printf("signed in as %s, in @%s\n", me.Login, me.Workspace.Alias)
+				} else {
 					self.Printf("signed in\n")
 				}
 			}
@@ -155,7 +145,7 @@ func newCmdAuthLogin() *xli.Command {
 // whoOperator is who the entry point says the key of `c` is, refused when it
 // is nobody's.
 func whoOperator(ctx context.Context, c *Connection) (*app.OperatorAuthWhoamiResponse, error) {
-	conn, err := c.dial("")
+	conn, err := c.dial()
 	if err != nil {
 		return nil, err
 	}
@@ -263,12 +253,12 @@ func newCmdAuthLogout() *xli.Command {
 }
 
 // newCmdAuthWhoami is `loft auth whoami`: who the connection in use is -- a
-// person's account and the workspaces it is in, or the operator the entry
+// member of the workspace the deployment serves, or the operator the entry
 // point says its key is.
 func newCmdAuthWhoami() *xli.Command {
 	return &xli.Command{
 		Name:  "whoami",
-		Brief: "who the connection in use is: a person's account and its workspaces, or the operator its key is",
+		Brief: "who the connection in use is: a member of the deployment's workspace, or the operator its key is",
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			return whoami(ctx, self)
 		}),
@@ -292,32 +282,28 @@ func whoami(ctx context.Context, self *xli.Command) error {
 	if !c.signedIn() {
 		return errNoLogin
 	}
-	var me struct {
-		Id    string   `json:"id"`
-		Login string   `json:"login"`
-		Name  string   `json:"name"`
-		Allow []string `json:"allow"`
-	}
-	if _, err := c.do(ctx, http.MethodGet, "/account", nil, &me); err != nil {
+	var me sessionSaid
+	if _, err := c.do(ctx, http.MethodGet, "/session", nil, &me); err != nil {
 		return err
 	}
-	self.Printf("%s (%s) at %s\n", me.Login, me.Name, c.Url)
+	self.Printf("%s (%s) at %s, in @%s\t%s\n", me.Login, me.Name, c.Url, me.Workspace.Alias, me.Workspace.Name)
 	if len(me.Allow) > 0 {
 		self.Printf("  allowed only: %s\n", strings.Join(me.Allow, ", "))
 	}
-	// What it is in, asked as the account (D73).
-	mine, err := app.NewTenantServiceClient(c.person("")).Mine(ctx, &app.TenantMineRequest{})
-	if err != nil {
-		return err
-	}
-	for _, w := range mine.GetWorkspaces() {
-		mark := " "
-		if w.GetAlias() == c.Workspace {
-			mark = "*"
-		}
-		self.Printf("%s @%s\t%s\t%s\n", mark, w.GetAlias(), w.GetRole(), w.GetName())
-	}
 	return nil
+}
+
+// sessionSaid is what `GET /session` says of a person's session: who they
+// are, and the workspace (`session.Answer`).
+type sessionSaid struct {
+	Id        string   `json:"id"`
+	Login     string   `json:"login"`
+	Name      string   `json:"name"`
+	Allow     []string `json:"allow"`
+	Workspace struct {
+		Alias string `json:"alias"`
+		Name  string `json:"name"`
+	} `json:"workspace"`
 }
 
 // newCmdAuthList is `loft auth list`: the connections the file keeps, the
@@ -337,11 +323,7 @@ func newCmdAuthList() *xli.Command {
 				if name == cs.Current {
 					mark = "*"
 				}
-				ws := ""
-				if c.Workspace != "" {
-					ws = "\t@" + c.Workspace
-				}
-				self.Printf("%s %s\t%s\t%s%s\n", mark, name, c.Kind, c.Url, ws)
+				self.Printf("%s %s\t%s\t%s\n", mark, name, c.Kind, c.Url)
 			}
 			if len(cs.Connections) == 0 {
 				self.Printf("none: `loft auth login`\n")

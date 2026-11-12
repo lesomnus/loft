@@ -33,6 +33,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/searchstale"
+	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/opensearch"
@@ -501,17 +502,20 @@ func TestAClosedWorkspaceIsRestoredOpen(t *testing.T) {
 // TestAMemberIsRestoredWithTheAccountThisRosterHas: a member keeps an account
 // the deployment's roster has, and one from another deployment's -- an
 // identifier nobody here is -- is restored naming none, for `loft identity
-// migrate` to give one to.
+// link` to give one to.
 func TestAMemberIsRestoredWithTheAccountThisRosterHas(t *testing.T) {
-	a, pub := signed(t)
+	a, pub := signed(t, func(c *cmd.Config) { c.Auth.Roster.Tenant = "acme" })
 	ctx := context.Background()
 	acme := a.tenant("acme")
 
-	_, err := a.s.Identity.EnsureDirectory(ctx)
+	// The tenant at roster this deployment serves, by the workspace's
+	// identifier, and somebody in it a member here by theirs (D85).
+	_, err := a.s.Identity.EnsureTenant(ctx, identity.Tenant{Id: acme.id, Alias: "acme"})
 	a.x.NoError(err)
-	kim, err := a.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.New(pd.HolderDomain))
+	kim, err := a.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
 	a.x.NoError(err)
 	_, err = a.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Id:      kim.Id.Bytes(),
 		Tenant:  app.TenantRef_builder{Id: acme.id.Bytes()}.Build(),
 		Alias:   "kim",
 		Name:    "Kim",

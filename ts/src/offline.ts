@@ -3,12 +3,12 @@
  * app itself, which a service worker keeps (`ts/sw.js`), and the last answer
  * of every read a page made, which is kept here.
  *
- * An answer is somebody's, in some workspace, so it is kept **for one account
- * in one workspace** -- under the account's identifier and the workspace's, as
- * `GET /account` and `TenantService.Mine` name them -- and never served to
- * another: what this browser kept for others is dropped the moment it is known
- * whose turn it is ({@link keepOnly}), and every tab's is dropped when the
- * account signs out ({@link forget}). The page says on every call whose it is
+ * An answer is somebody's, in the workspace, so it is kept **for one member of
+ * one workspace** -- under the member's identifier and the workspace's, as
+ * `GET /session` names them -- and never served to another: what this browser
+ * kept for others is dropped the moment it is known whose turn it is
+ * ({@link keepOnly}), and every tab's is dropped when the member signs out
+ * ({@link forget}). The page says on every call whose it is
  * (`callAs`), so a page left behind by somebody else's sign-in is refused
  * rather than answered as them, and never keeps their answers as the first
  * person's.
@@ -16,7 +16,7 @@
  * Offline the app is for reading. A read that cannot reach the server answers
  * what it answered last and the page says that is what it is (`<Offline>`); a
  * write is refused with the reason (`useAct`), except a count's scans, which
- * wait to be sent ({@link wait}) -- as the account and in the workspace they
+ * wait to be sent ({@link wait}) -- as the member and in the workspace they
  * were made in, and as nobody else. A session that ends by itself is not a
  * sign-out: the page lets go ({@link letGo}), and what was waiting goes once
  * the same person signs in again, as payday's store keeps its writes.
@@ -36,11 +36,11 @@ const keepFor = 30 * 86400_000
 let scope = ''
 
 /**
- * keepAs says whose the reads are: an account in a workspace, by their
+ * keepAs says whose the reads are: a member of a workspace, by their
  * identifiers. Empty is nobody's, and nothing is kept or served.
  */
-export function keepAs(account: string, workspace: string): void {
-	scope = account === '' || workspace === '' ? '' : `${account}/${workspace}/`
+export function keepAs(member: string, workspace: string): void {
+	scope = member === '' || workspace === '' ? '' : `${member}/${workspace}/`
 }
 
 let opening: Promise<IDBDatabase | undefined> | undefined
@@ -84,7 +84,7 @@ function answer<T>(req: IDBRequest<T>): Promise<T> {
 type Kept = { at: number; v: Uint8Array }
 
 /**
- * remember keeps what a read answered, under each of `keys`, for the account
+ * remember keeps what a read answered, under each of `keys`, for the member
  * and workspace this is.
  */
 export async function remember(keys: string[], v: Uint8Array): Promise<void> {
@@ -102,7 +102,7 @@ export async function remember(keys: string[], v: Uint8Array): Promise<void> {
 	}
 }
 
-/** recall is what a read answered last, for the account and workspace this is. */
+/** recall is what a read answered last, for the member and workspace this is. */
 export async function recall(key: string): Promise<Uint8Array | undefined> {
 	const s = scope
 	if (s === '') return undefined
@@ -117,14 +117,14 @@ export async function recall(key: string): Promise<Uint8Array | undefined> {
 }
 
 /**
- * keepOnly drops what was kept for anybody but this account, in any workspace
+ * keepOnly drops what was kept for anybody but this member, in any workspace
  * but these -- what they were answered and what they could not send -- and
- * any answer older than is worth keeping. Asked once the account is known,
+ * any answer older than is worth keeping. Asked once the member is known,
  * and not waited on: a browser somebody else signs in at keeps nothing of
  * the person before.
  */
-export async function keepOnly(account: string, workspaces: string[]): Promise<void> {
-	const mine = workspaces.map((w) => `${account}/${w}/`)
+export async function keepOnly(member: string, workspaces: string[]): Promise<void> {
+	const mine = workspaces.map((w) => `${member}/${w}/`)
 	putWaiting(allWaiting().filter((w) => mine.includes(w.scope)))
 	removeKey(unscoped)
 	const d = await db()
@@ -147,7 +147,7 @@ export async function keepOnly(account: string, workspaces: string[]): Promise<v
 }
 
 /**
- * forget drops everything this browser kept, for every account: what a
+ * forget drops everything this browser kept, for everybody: what a
  * sign-out does, in the tab that signs out, for every tab of this address.
  * What was waiting to be sent goes with it.
  */
@@ -220,7 +220,7 @@ function removeKey(k: string): void {
 }
 
 /**
- * wait keeps a write of `kind` to be sent once it can be, as the account and
+ * wait keeps a write of `kind` to be sent once it can be, as the member and
  * in the workspace this is: false when the page is nobody's, or the browser
  * keeps nothing, and it is not kept.
  */
@@ -232,7 +232,7 @@ export function wait<T>(kind: string, v: T): boolean {
 
 /**
  * waiting is the writes of `kind` waiting to be sent that were made as the
- * account and in the workspace this is -- and nobody else's, which is never
+ * member and in the workspace this is -- and nobody else's, which is never
  * sent as them.
  */
 export function waiting<T>(kind: string): T[] {
@@ -255,23 +255,23 @@ export function sent<T>(kind: string, vs: T[]): void {
  * lastSeen is who this browser was signed in as and how it signs in, as the
  * server last answered: what the page opens with when it cannot ask.
  */
-export async function lastSeen<A, W>(): Promise<{ account: A; ways: W } | undefined> {
+export async function lastSeen<S, W>(): Promise<{ session: S; ways: W } | undefined> {
 	const d = await db()
 	if (d === undefined) return undefined
 	try {
-		return (await answer(d.transaction(META).objectStore(META).get('signed-in'))) as { account: A; ways: W } | undefined
+		return (await answer(d.transaction(META).objectStore(META).get('session'))) as { session: S; ways: W } | undefined
 	} catch {
 		return undefined
 	}
 }
 
 /** seen keeps who this browser is signed in as, for {@link lastSeen}. */
-export async function seen<A, W>(account: A, ways: W): Promise<void> {
+export async function seen<S, W>(session: S, ways: W): Promise<void> {
 	const d = await db()
 	if (d === undefined) return
 	try {
 		const tx = d.transaction(META, 'readwrite')
-		tx.objectStore(META).put({ account, ways }, 'signed-in')
+		tx.objectStore(META).put({ session, ways }, 'session')
 		await done(tx)
 	} catch {
 		// Not openable offline, then.

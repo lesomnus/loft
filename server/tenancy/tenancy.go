@@ -1,9 +1,10 @@
-// Package tenancy is what a workspace starts with, and how one is made
-// (design 9.11).
+// Package tenancy is what a workspace starts with, and how somebody comes to
+// be in it (design 9.10, 9.11).
 //
-// A workspace is a Loft tenant and is Loft's alone: roster's tenant is the
-// directory accounts are in, which is a different layer (D27). Who is in a
-// workspace is its holders, each the membership of one account.
+// The deployment serves one roster tenant, and that is its workspace, by the
+// same identifier (D85). Who is in it is its holders, each a holder of the
+// tenant at roster by the same identifier, made here the first time they sign
+// in ([Members]).
 package tenancy
 
 import (

@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
+import { card, choose, expect, field, people, said, signIn, test, unique } from './loft.js'
 
 test('an asset is registered, found, opened and moved, and its timeline says so', async ({ page }) => {
 	const name = unique('e2e 의자')
@@ -39,7 +39,7 @@ test('an asset is registered, found, opened and moved, and its timeline says so'
 
 test('the register is exported as a CSV to read', async ({ page }, info) => {
 	await signIn(page, people.exports.login)
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 
 	// It names people, so it says what for first, and the access record
 	// keeps that (loft#136).

@@ -27,7 +27,6 @@ import (
 	entaudit "github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/internal/loftest"
 	"github.com/lesomnus/loft/server/admin"
 	"github.com/lesomnus/loft/server/offboard"
@@ -36,7 +35,8 @@ import (
 
 // archived is a deployment that keeps a trail's archive and signs it, digests
 // its rows, and keeps a floor -- what a retirement is for -- with two
-// workspaces: acme, its owner and kim, and beta, the owner's too.
+// workspaces: acme, the one it serves, with its owner and kim; and beta, put
+// back from another deployment.
 func archived(t *testing.T) *deployment {
 	t.Helper()
 	x := require.New(t)
@@ -49,10 +49,10 @@ func archived(t *testing.T) *deployment {
 	c.Audit.Checkpoints.Key = pdtest.Key(t)
 	c.Audit.By = map[string]config.AuditKeepConfig{"holder": {Min: config.AuditMinConfig{Destroy: 365 * 24 * time.Hour}}}
 	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
-	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	c.Auth.Roster.Tenant = "acme"
+	_, err := ran(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
-	_, err = ran(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
-	x.NoError(err)
+	cli.Elsewhere(t, c, "beta", "owner", false)
 
 	s, err := cmd.Build(t.Context(), c)
 	x.NoError(err)
@@ -162,7 +162,7 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	out = must("tenant", "purge", "acme")
 	x.Contains(out, "its contract retires it", "a purge against its contract says so")
 	x.NotContains(out, "kept until")
-	x.Contains(out, "roster in this process: would forget 1 account(s)")
+	x.NotContains(out, "forget", "its people are the tenant's at roster (D85)")
 	here, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
 	x.True(here, "nothing was taken")
@@ -171,12 +171,10 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 
 	out = must("tenant", "purge", "--yes", "acme")
 	x.Contains(out, "acme: took")
-	x.Contains(out, "roster in this process: forgot 1 account(s)")
 	here, err = d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
 	x.False(here)
-	x.ErrorIs(signsIn("kim", "kim-password"), identity.ErrRefused, "an account in no other workspace goes with it")
-	x.NoError(signsIn("owner", "owner1234"), "one another workspace has stays")
+	x.NoError(signsIn("kim", "kim-password"), "its people are the tenant's at roster, and stay there (D85)")
 	// What outlives it -- its address, held -- is on the trail as the
 	// operator's.
 	hold, err := d.s.Ent.AliasHold.Query().Where(aliashold.Held("acme")).Only(ctx)
@@ -188,7 +186,7 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	before = written(t, d)
 	out = must("tenant", "import", "--file", zip)
 	x.Contains(out, "@acme: would put back")
-	x.Contains(out, "1 member(s) whose accounts this roster does not have, restored with none: kim")
+	x.NotContains(out, "restored with none", "every member is somebody this roster has")
 	x.Contains(out, "`--yes` does it")
 	here, err = d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
@@ -210,13 +208,8 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	// Every row put back is on the trail as the restore that put it there
 	// (payday#108), so a check of the rows finds nothing.
 	must("trail", "rows")
-	x.NoError(signsIn("owner", "owner1234"), "the owner's account is the one it had")
-	x.Error(signsIn("kim", "kim-password"), "an account the purge forgot")
-	m := must("identity", "link")
-	_, after, ok := strings.Cut(m, "@acme/kim  login kim  password ")
-	x.True(ok, "%s", m)
-	password, _, _ := strings.Cut(after, "\n")
-	x.NoError(signsIn("kim", strings.TrimSpace(password)), "given an account by `identity link`")
+	x.NoError(signsIn("owner", "owner1234"), "as they were")
+	x.Contains(must("identity", "link"), "nobody to bring in", "every member is linked as they were")
 	must("trail", "rows")
 	back, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)

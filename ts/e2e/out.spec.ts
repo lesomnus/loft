@@ -1,4 +1,4 @@
-import { choose, expect, field, momentAt, owner, people, refused, rpc, said, signIn, test, unique, weekdayAt, workspace } from './loft.js'
+import { choose, expect, field, momentAt, owner, people, refused, rpc, said, signIn, test, unique, weekdayAt } from './loft.js'
 
 // What is out takes its time (design 4, D53): a thing lent at the desk is not
 // booked by anybody for the hours it is out, and a booking made before it was
@@ -21,7 +21,7 @@ test('a camera lent at the desk is not booked for the hours it is out, and a boo
 	// The desk lends it until eleven that day. The form says what is booked
 	// of it over that time, and it is handed out all the same.
 	await signIn(page, owner.login, owner.password)
-	await page.goto(`${workspace}/custody`)
+	await page.goto(`/custody`)
 	await page.getByRole('button', { name: '+ 지급·대여' }).click()
 	const give = page.getByRole('dialog')
 	await choose(field(give, '받는 사람'), people.borrows.name)
@@ -37,7 +37,7 @@ test('a camera lent at the desk is not booked for the hours it is out, and a boo
 
 	// The booking made first keeps its time and says the camera is out then:
 	// in the list, and in the booking itself.
-	await booker.goto(`${workspace}/reservations?tab=mine`)
+	await booker.goto(`/reservations?tab=mine`)
 	const row = booker.getByRole('row').filter({ hasText: title })
 	await expect(row).toContainText('확정')
 	await expect(row).toContainText('대여 중')
@@ -49,7 +49,7 @@ test('a camera lent at the desk is not booked for the hours it is out, and a boo
 
 	// And nobody books it for the hours it is out, even where nothing else
 	// was booked: the refusal says until when.
-	await page.goto(`${workspace}/reservations`)
+	await page.goto(`/reservations`)
 	await page.getByRole('button', { name: '+ 예약' }).click()
 	const book = page.getByRole('dialog')
 	await choose(field(book, '무엇을'), name)

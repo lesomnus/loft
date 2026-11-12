@@ -14,7 +14,7 @@
 //     address is held. `loft tenant retire` and `purge` are the same
 //     destruction by an operator's hand ([Closing.Destroy]);
 //   - [Closing.Rename]: an operator moving a workspace to another address,
-//     which holds the old one and sends whoever arrives at it on.
+//     which holds the old one.
 //
 // A legal hold on a workspace stops the destroying, not the closing: the
 // workspace stays closed, and is destroyed once the hold is lifted.
@@ -48,9 +48,7 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/aliashold"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/offboard"
@@ -62,9 +60,6 @@ import (
 type Closing struct {
 	Db       *ent.Client
 	Offboard offboard.Deployment
-	// People is roster: on the one in this process, the accounts a destroyed
-	// workspace held and nobody else does go with it.
-	People *identity.Store
 
 	// Base, Drv and Deps are what an operator's change is written through,
 	// as the deployment's own work in the workspace.
@@ -151,10 +146,6 @@ const (
 type Destroyed struct {
 	offboard.Purged
 
-	// Forgotten is the accounts of the roster in this process that were here
-	// and in no other workspace, which went with it.
-	Forgotten int
-
 	// Unmeasured is why its final reading was not measured and handed to
 	// levyan before it went, and nil when it was -- or when the deployment
 	// bills nobody, or for a dry run, which measures nothing.
@@ -182,18 +173,11 @@ func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) 
 		return Destroyed{Purged: plan}, err
 	}
 
-	// The accounts of the roster in this process that were here and nowhere
-	// else go with it, and before it: a destroy that stops after them is run
-	// again and finishes. An account at a roster of its own is never Loft's
-	// to take.
-	var accounts []pdid.Id
-	if c.People != nil && c.People.Embedded() {
-		if accounts, err = OnlyHere(ctx, c.Db, t.Id); err != nil {
-			return Destroyed{Purged: plan}, err
-		}
-	}
+	// Its people are the tenant's at roster, and stay there (D85): who they
+	// are is roster's, and the workspace put back from its export finds
+	// them as they were.
 	if dry {
-		return Destroyed{Purged: plan, Forgotten: len(accounts)}, nil
+		return Destroyed{Purged: plan}, nil
 	}
 
 	// What it held, measured now and handed to levyan as its final reading,
@@ -240,13 +224,6 @@ func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) 
 	if err := c.hold(ctx, at, t.Alias, reason, "", id); err != nil {
 		return out, err
 	}
-	for _, a := range accounts {
-		if err := c.People.ForgetPerson(ctx, a); err != nil {
-			return out, fmt.Errorf("roster: %d of %d accounts forgotten: %w", out.Forgotten, len(accounts), err)
-		}
-		out.Forgotten++
-	}
-
 	if out.Purged, err = c.leave(ctx, id, how, false); err != nil {
 		return out, err
 	}
@@ -268,9 +245,9 @@ func (c Closing) leave(ctx context.Context, id pdid.Id, how How, dry bool) (offb
 }
 
 // Rename moves a workspace to another address, as an operator: the address is
-// one a workspace may have and nobody has, and the old one is held -- sending
-// whoever arrives at it on to the new -- for as long as a destroyed
-// workspace's is. `reuse` takes an address that is held anyway, and says so.
+// one a workspace may have and nobody has, and the old one is held for as long
+// as a destroyed workspace's is. `reuse` takes an address that is held anyway,
+// and says so.
 func (c Closing) Rename(ctx context.Context, from, to string, reuse bool) error {
 	t, h, err := c.Renaming(ctx, from, to, reuse)
 	if err != nil {
@@ -400,34 +377,3 @@ const (
 	Held   = "loft.alias.hold"
 	Reused = "loft.alias.reuse"
 )
-
-// OnlyHere is the accounts of a workspace's members that are members of no
-// other workspace.
-func OnlyHere(ctx context.Context, db *ent.Client, workspace uuid.UUID) ([]pdid.Id, error) {
-	hs, err := db.Holder.Query().Where(holder.TenantId(workspace), holder.AccountNotNil()).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	seen := map[uuid.UUID]bool{}
-	out := []pdid.Id{}
-	for _, h := range hs {
-		a := *h.Account
-		if seen[a] {
-			continue
-		}
-		seen[a] = true
-		elsewhere, err := db.Holder.Query().Where(
-			holder.Account(a),
-			holder.TenantIdNEQ(workspace),
-			holder.DateErasedIsNil(),
-		).Exist(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if !elsewhere {
-			out = append(out, pdid.Id(a))
-		}
-	}
-
-	return out, nil
-}

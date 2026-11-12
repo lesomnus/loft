@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/cmd"
 )
 
 func envOf(vs map[string]string) func(string) string {
@@ -137,28 +136,25 @@ func TestAKeyIsNamedAndNeverKept(t *testing.T) {
 	x.Equal(cs, got)
 }
 
-// TestAConnectionSaysWhoItIs: a person's carries their session and the
-// workspace they speak to; an operator's carries their key, and refuses a
-// workspace, which an operator names in each command.
+// TestAConnectionSaysWhoItIs: a person's carries their session, and an
+// operator's their key. Neither names a workspace: a deployment serves one
+// (D85).
 func TestAConnectionSaysWhoItIs(t *testing.T) {
 	x := require.New(t)
 	t.Setenv("LOFT_TEST_OPERATOR_KEY", "a-key-of-a-good-length")
 
 	p := &Connection{Kind: Person, Url: "https://loft.example/", Cookie: "loft_session", Key: "session-key"}
-	c, err := p.dial("@acme")
+	c, err := p.dial()
 	x.NoError(err)
 	x.Equal("https://loft.example", c.base)
 	x.Equal("loft_session=session-key", c.header.Get("Cookie"))
-	x.Equal("acme", c.header.Get(cmd.WorkspaceHeader))
 	x.Empty(c.header.Get("Authorization"))
 
 	o := &Connection{Kind: Operator, Url: "http://127.0.0.1:8081", Key: "env:LOFT_TEST_OPERATOR_KEY"}
-	c, err = o.dial("")
+	c, err = o.dial()
 	x.NoError(err)
 	x.Equal("Bearer a-key-of-a-good-length", c.header.Get("Authorization"))
 	x.Empty(c.header.Get("Cookie"))
-	_, err = o.dial("acme")
-	x.ErrorContains(err, "an operator names the workspace in each command")
 }
 
 // TestOnlyACallOfTheOtherKindIsToldWhichConnection: what a refusal says is

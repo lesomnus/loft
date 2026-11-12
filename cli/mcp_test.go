@@ -10,6 +10,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
+	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/loft"
@@ -140,13 +141,11 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 				Alias string `json:"alias"`
 				Role  string `json:"role"`
 			} `json:"workspace"`
-			Workspaces []struct{ Alias string } `json:"workspaces"`
 		}
 		a.call("whoami", nil, &v)
 		x.Equal("owner", v.Login)
 		x.Equal("acme", v.Workspace.Alias)
 		x.Equal("owner", v.Workspace.Role)
-		x.Len(v.Workspaces, 1)
 	}
 
 	// A search, with where each is and who has it.
@@ -470,18 +469,23 @@ func pid(t *testing.T, v string) pdid.Id {
 	return id
 }
 
-// TestAnAssistantSeesWhatItsPersonMay: the wall, as the page has it -- one
-// workspace's things are not another's -- whoever the terminal is signed in
-// as at the moment of the call, and nothing without a sign-in.
+// TestAnAssistantSeesWhatItsPersonMay: the wall, as the page has it -- the
+// workspace the deployment serves, and nothing of another one the database
+// holds -- whoever the terminal is signed in as at the moment of the call,
+// and nothing without a sign-in.
 func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 	s := serve(t)
 	x := s.x
+	ctx := context.Background()
 	s.signIn("owner", "owner1234")
-	run(t, root(), "--workspace", "acme", "asset", "add", "-o", "json", `{"name": "공용 프린터", "kind": "item", "tag": "PR-1"}`)
-	var made struct{ Alias string }
-	x.NoError(json.Unmarshal([]byte(run(t, root(), "tenant", "create", "-o", "json", `{"name": "연구실"}`)), &made))
-	lab := made.Alias
-	run(t, root(), "--workspace", lab, "asset", "add", "-o", "json", `{"name": "연구용 프린터", "kind": "item", "tag": "PR-1"}`)
+	run(t, root(), "asset", "add", "-o", "json", `{"name": "공용 프린터", "kind": "item", "tag": "PR-1"}`)
+	// A workspace put back from elsewhere, with a printer of the same tag.
+	lab := cli.Elsewhere(t, s.c, "lab", "boss", false)
+	boss, err := s.s.Ent.Holder.Query().Where(holder.TenantId(lab.Uuid()), holder.Alias("boss")).Only(ctx)
+	x.NoError(err)
+	inLab := frame.Into(ctx, frame.New(pdid.Id(boss.Id), lab, frame.Whole()).WithScope(frame.Only(lab)).WithRow(boss.Proto()))
+	_, err = s.s.Walled.Asset().Add(inLab, app.AssetAddRequest_builder{Name: "연구용 프린터", Kind: "item", Tag: "PR-1"}.Build())
+	x.NoError(err)
 
 	type found struct {
 		Total int        `json:"total"`
@@ -495,18 +499,13 @@ func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 		return out
 	}
 	var v found
-	s.assistant("--workspace", "acme").call("search_assets", map[string]any{"query": "프린터"}, &v)
-	x.Equal([]string{"공용 프린터"}, names(v))
-	inLab := s.assistant("--workspace", lab)
-	inLab.call("search_assets", map[string]any{"query": "프린터"}, &v)
-	x.Equal([]string{"연구용 프린터"}, names(v), "the same tag, in a workspace of its own")
+	s.assistant().call("search_assets", map[string]any{"query": "프린터"}, &v)
+	x.Equal([]string{"공용 프린터"}, names(v), "not the same tag of another workspace")
 	var me struct {
-		Workspace  struct{ Alias string }   `json:"workspace"`
-		Workspaces []struct{ Alias string } `json:"workspaces"`
+		Workspace struct{ Alias string } `json:"workspace"`
 	}
-	inLab.call("whoami", nil, &me)
-	x.Equal(lab, me.Workspace.Alias)
-	x.Len(me.Workspaces, 2)
+	s.assistant().call("whoami", nil, &me)
+	x.Equal("acme", me.Workspace.Alias)
 
 	// Signed in again, as somebody in one of them and narrowed to reading:
 	// the next call is theirs, and says so.

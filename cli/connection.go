@@ -16,7 +16,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/policy"
 )
@@ -52,10 +51,6 @@ type Connection struct {
 	// and no process list.
 	Cookie string `json:"cookie,omitempty"`
 	Key    string `json:"key,omitempty"`
-
-	// Workspace is a person's, the one their commands speak to unless they
-	// name another (`loft use`).
-	Workspace string `json:"workspace,omitempty"`
 }
 
 // connections is the client's file: every connection by its name, and the
@@ -299,8 +294,8 @@ func chooseFor(ctx context.Context) (*connections, chosen, error) {
 }
 
 // personFor is the connection the command running on `ctx` uses, which has
-// to be a person's: a command that is an account's -- its session, its
-// workspaces, an assistant speaking as it -- has no operator's to be.
+// to be a person's: a command that is a person's -- their session, an
+// assistant speaking as them -- has no operator's to be.
 func personFor(ctx context.Context, what string) (*connections, chosen, error) {
 	cs, c, err := chooseFor(ctx)
 	if err != nil {
@@ -313,19 +308,15 @@ func personFor(ctx context.Context, what string) (*connections, chosen, error) {
 }
 
 // dial is a connection to where `c` goes, as who `c` is: a person's with
-// their session and the workspace `ws` (empty is none named), an operator's
-// with their key and no workspace, which an operator names in each command.
-func (c *Connection) dial(ws string) (*connectConn, error) {
+// their session, in the workspace the deployment serves (D85), and an
+// operator's with their key, who names the workspace in each command.
+func (c *Connection) dial() (*connectConn, error) {
 	h := http.Header{}
 	h.Set("User-Agent", "loft-cli")
-	ws = strings.TrimPrefix(strings.TrimSpace(ws), "@")
 	switch c.Kind {
 	case Person:
-		return c.person(ws), nil
+		return c.person(), nil
 	case Operator:
-		if ws != "" {
-			return nil, fmt.Errorf("@%s: an operator names the workspace in each command; --workspace, LOFT_WORKSPACE and `loft use` are a person's", ws)
-		}
 		key, err := keyOf(c.Key)
 		if err != nil {
 			return nil, fmt.Errorf("the operator's key: %w", err)
@@ -340,16 +331,12 @@ func (c *Connection) dial(ws string) (*connectConn, error) {
 // signedIn is whether a person's connection holds a session.
 func (c *Connection) signedIn() bool { return c.Kind == Person && c.Url != "" && c.Key != "" }
 
-// person is a connection to the app as the person whose connection `c` is,
-// to the workspace `ws` (empty is none named, which an account in one
-// workspace needs no more than). Only of a person's.
-func (c *Connection) person(ws string) *connectConn {
+// person is a connection to the app as the person whose connection `c` is.
+// Only of a person's.
+func (c *Connection) person() *connectConn {
 	h := http.Header{}
 	h.Set("User-Agent", "loft-cli")
 	h.Set("Cookie", c.Cookie+"="+c.Key)
-	if ws = strings.TrimPrefix(strings.TrimSpace(ws), "@"); ws != "" {
-		h.Set(cmd.WorkspaceHeader, ws)
-	}
 	return &connectConn{base: strings.TrimSuffix(c.Url, "/"), client: &http.Client{Timeout: 0}, header: h, kind: Person}
 }
 

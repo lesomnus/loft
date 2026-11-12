@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -33,7 +34,7 @@ import (
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/operator"
-	"github.com/lesomnus/loft/server/tenancy"
+	"github.com/lesomnus/loft/server/session"
 )
 
 // closingWorld is the world with the page built, so the routes that only
@@ -141,9 +142,9 @@ func (w *world) refusedClosed(err error, what string) {
 // a workspace is the operator's, at the entry point -- nobody in it closes
 // it, restores it or takes all of it out, its owner neither. Closing destroys
 // nothing and shuts everybody out, its owner too: every call into it is
-// refused, with the reason a page tells it by, and the page is told which of
-// an account's workspaces is closed and until when. The operator takes its
-// data out while it is closed, and restoring puts it back as it was.
+// refused, with the reason a page tells it by, and the page is told it is
+// closed and until when (`GET /session`). The operator takes its data out
+// while it is closed, and restoring puts it back as it was.
 func TestAWorkspaceIsClosedAndRestoredByItsOperator(t *testing.T) {
 	w := closingWorld(t)
 	x := w.x
@@ -187,14 +188,18 @@ func TestAWorkspaceIsClosedAndRestoredByItsOperator(t *testing.T) {
 		w.refusedClosed(err, who)
 	}
 
-	// What the page is told, which is no call into it: which of the
-	// account's workspaces are closed, until when, and how long their
-	// address is then held -- the deployment's, a year unset.
-	mine, err := tenants.Mine(w.owner, &app.TenantMineRequest{})
-	x.NoError(err)
-	x.True(mine.GetWorkspaces()[0].HasDateClosed())
-	x.True(mine.GetWorkspaces()[0].HasDateDestroy())
-	x.EqualValues(365, mine.GetWorkspaces()[0].GetAliasHoldDays())
+	// What the page is told, which is no call into it: that it is closed,
+	// until when, and how long its address is then held -- the
+	// deployment's, a year unset.
+	for _, as := range []context.Context{w.owner, kim} {
+		rec := w.page(as, http.MethodGet, "/session")
+		x.Equal(http.StatusOK, rec.Code, rec.Body.String())
+		var said session.Answer
+		x.NoError(json.Unmarshal(rec.Body.Bytes(), &said))
+		x.NotNil(said.Workspace.Closed)
+		x.WithinDuration(v.GetDateDestroy().AsTime(), *said.Workspace.Destroy, time.Second)
+		x.EqualValues(365, said.Workspace.AliasHoldDays)
+	}
 
 	// What it has, taken out by the operator before it goes.
 	b, name, err := exported(byOperator(), entry, ref, "closing")
@@ -333,61 +338,30 @@ func TestAnAddressIsNotTheOwnersToChange(t *testing.T) {
 	x.NoError(w.s.Closing.Rename(ctx, old, "lab-2", false))
 	x.Equal("lab-2", w.tenantRow().GetAlias())
 
-	res := w.page(context.Background(), http.MethodGet, "/@"+old+"/assets?q=1")
-	x.Equal(http.StatusFound, res.Code)
-	x.Equal("/@lab-2/assets?q=1", res.Header().Get("Location"), "the old address sends people on")
-
 	other, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "beta"}.Build())
 	x.NoError(err)
 	x.ErrorContains(w.s.Closing.Rename(ctx, other.GetAlias(), old, false), "held")
 	x.NoError(w.s.Closing.Rename(ctx, other.GetAlias(), old, true), "taken anyway, on purpose")
 }
 
-// TestTheLastToLeaveClosesTheWorkspace: an account leaving a workspace it was
-// the only one in closes it, so that it goes the way a closed workspace goes.
+// TestTheLastToLeaveClosesTheWorkspace: a member leaving a workspace nobody
+// else is in closes it, so that it goes the way a closed workspace goes.
 func TestTheLastToLeaveClosesTheWorkspace(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
-	kim, err := w.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
-	x.NoError(err)
-	alone, err := w.s.Workspaces(w.c).Create(ctx, kim, "김의 워크스페이스")
-	x.NoError(err)
-	w.here(kim, "member")
+	owner := w.ownerHolder()
 
-	gone, err := w.s.Lifecycle.Depart(ctx, kim.Id)
+	gone, err := w.s.Lifecycle.Depart(ctx, w.accountOf(owner))
 	x.NoError(err)
-	closed := map[pdid.Id]bool{}
-	for _, v := range gone {
-		closed[v.Workspace] = v.Closed
-	}
-	x.True(closed[alone.Workspace], "nobody left in it")
+	x.Len(gone, 1)
 	acme, err := pdid.From(w.tenant.GetId())
 	x.NoError(err)
-	x.False(closed[acme], "acme has its owner")
+	x.Equal(acme, gone[0].Workspace)
+	x.True(gone[0].Closed, "nobody left in it")
 
-	v, err := w.s.Ent.Tenant.Get(ctx, alone.Workspace.Uuid())
+	v, err := w.s.Ent.Tenant.Get(ctx, acme.Uuid())
 	x.NoError(err)
 	x.NotNil(v.DateClosed)
 	x.Equal("deployment", v.ClosedBy)
-}
-
-// TestAClosedWorkspaceIsNotOneMoreAnAccountOwns: it is on its way out, so an
-// owner whose workspace was closed may make another.
-func TestAClosedWorkspaceIsNotOneMoreAnAccountOwns(t *testing.T) {
-	w := newWorldWith(t, func(c *cmd.Config) { c.App.Workspaces.Owned = 1 })
-	x := w.x
-	ctx := context.Background()
-	kim, err := w.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
-	x.NoError(err)
-	ws := w.s.Workspaces(w.c)
-	mine, err := ws.Create(ctx, kim, "하나")
-	x.NoError(err)
-	_, err = ws.Create(ctx, kim, "둘")
-	x.ErrorIs(err, tenancy.ErrOwnsEnough)
-
-	_, err = w.s.Deps.CloseWorkspace(atOperatorsWord(), w.s.Base, w.s.Drv, mine.Workspace, domain.ClosedByOperator, "")
-	x.NoError(err)
-	_, err = ws.Create(ctx, kim, "둘")
-	x.NoError(err)
 }

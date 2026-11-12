@@ -51,7 +51,8 @@ func serveWith(t *testing.T, with func(*cmd.Config)) *served {
 	if with != nil {
 		with(&c)
 	}
-	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	c.Auth.Roster.Tenant = "acme"
+	run(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234")
 
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)
@@ -66,7 +67,6 @@ func serveWith(t *testing.T, with func(*cmd.Config)) *served {
 	t.Cleanup(srv.Close)
 
 	t.Setenv("LOFT_CLIENT_CONFIG", filepath.Join(t.TempDir(), "client.json"))
-	t.Setenv("LOFT_WORKSPACE", "")
 	return &served{t: t, x: x, c: c, s: s, url: srv.URL}
 }
 
@@ -190,7 +190,7 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 
 	out := run(t, cli.NewCmdAuth(), "whoami")
 	x.Contains(out, "owner")
-	x.Contains(out, "@acme\towner")
+	x.Contains(out, "in @acme", "the workspace the deployment serves")
 
 	out = run(t, root(), "asset", "add", "-o", "json", `{"name": "노트북", "tag": "NB-1"}`)
 	x.Contains(out, "노트북")
@@ -198,41 +198,30 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 	x.Contains(out, "NB-1", "a domain operation, beside the verbs")
 	out = run(t, root(), "call", "loft.AssetService.Search", `{"q": "NB"}`)
 	x.Contains(out, "노트북", "any method by name")
-	out = run(t, root(), "--workspace", "acme", "party", "me", "-o", "json")
-	x.Contains(out, "owner", "naming the workspace")
-
-	out = run(t, root(), "tenant", "create", `{"name": "연구실"}`)
-	x.Contains(out, "연구실", "what an account has outside any one workspace")
-	out = run(t, root(), "workspace", "mine")
-	x.Contains(out, "연구실", "a tenant is what a person calls a workspace")
-	x.Error(cli.NewCmdUse().Run(context.Background(), []string{"nowhere"}), "a workspace it is not in")
-	run(t, cli.NewCmdUse(), "acme")
-	out = run(t, cli.NewCmdAuth(), "whoami")
-	x.Contains(out, "* @acme")
+	out = run(t, root(), "party", "me", "-o", "json")
+	x.Contains(out, "owner")
+	out = run(t, root(), "workspace", "get", "-o", "json", "@acme")
+	x.Contains(out, `"alias": "acme"`, "a tenant is what a person calls a workspace")
 
 	run(t, cli.NewCmdAuth(), "logout")
 	err := cli.NewCmdAuth().Run(context.Background(), []string{"whoami"})
 	x.ErrorContains(err, "no connection", "signed out, and forgotten")
 }
 
-// TestATerminalNamesAWorkspaceItsAccountOwns (D58): what a workspace is called,
-// said from the terminal as its settings say it (`tenant configure`, its
-// owner's one door) -- and none of its own, and it is called after its owner
-// (D57). Its owner's alone.
-func TestATerminalNamesAWorkspaceItsAccountOwns(t *testing.T) {
+// TestATerminalNamesTheWorkspaceItsOwnerOwns (D58): what a workspace is
+// called, said from the terminal as its settings say it (`tenant configure`,
+// its owner's one door) -- and none of its own, and it is called after its
+// owner (D57). Its owner's alone.
+func TestATerminalNamesTheWorkspaceItsOwnerOwns(t *testing.T) {
 	s := serve(t)
 	x := s.x
 	ctx := context.Background()
 	s.signIn("owner", "owner1234")
 	called := func() string {
-		var mine struct {
-			Workspaces []struct{ Alias, Name string }
-		}
-		out := run(t, root(), "tenant", "mine", "-o", "json")
-		x.NoError(json.Unmarshal([]byte(out), &mine), out)
-		x.Len(mine.Workspaces, 1)
-		x.Equal("acme", mine.Workspaces[0].Alias)
-		return mine.Workspaces[0].Name
+		var me struct{ WorkspaceName string }
+		out := run(t, root(), "party", "me", "-o", "json")
+		x.NoError(json.Unmarshal([]byte(out), &me), out)
+		return me.WorkspaceName
 	}
 
 	x.Contains(run(t, root(), "tenant", "configure", "@acme", `{"name": "연구실 장비"}`), "연구실 장비")
@@ -259,9 +248,9 @@ func TestATerminalIsHeldToWhatItsAccountMay(t *testing.T) {
 
 // TestATerminalMayBeNarrowed to some methods (D33): what it asked for is on
 // the page that approves it, and on every call after it the server holds it
-// to them -- whatever its account may do, and whoever holds its key. Beside
-// the RPCs it reads what its account is, and does nothing an account does:
-// it approves no terminal, takes no data out, makes no workspace.
+// to them -- whatever its member may do, and whoever holds its key. Beside
+// the RPCs it reads who it is (`GET /session`), and does nothing else: it
+// approves no terminal, and takes no data out.
 func TestATerminalMayBeNarrowed(t *testing.T) {
 	s := serve(t)
 	x := s.x
@@ -283,15 +272,11 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 	x.ErrorContains(err, "this credential is not for that", "though the owner may")
 
 	narrowed := s.terminal()
-	status, body := s.http(http.MethodGet, "/account", narrowed, nil)
+	status, body := s.http(http.MethodGet, "/session", narrowed, nil)
 	x.Equal(http.StatusOK, status, body)
 	x.Contains(body, `"allow":[`)
-	out = run(t, root(), "tenant", "mine")
-	x.Contains(out, "acme", "what it is in, which it reads")
 	err = root().Run(context.Background(), []string{"--reason", "몰래", "asset", "export"})
 	x.ErrorContains(err, "this credential is not for that", "no data out")
-	err = root().Run(context.Background(), []string{"tenant", "create", `{"name": "몰래"}`})
-	x.ErrorContains(err, "this credential is not for that", "no workspace made")
 
 	// Nor another terminal approved, which would be one that may do all of it.
 	other := s.login(func(code string) {

@@ -125,7 +125,7 @@ type mcpPlanned struct {
 }
 
 // allows says whether this terminal's sign-in may call method: what `loft
-// login --allow` narrowed it to, as GET /account says. The server holds every
+// login --allow` narrowed it to, as GET /session says. The server holds every
 // call to it whatever this says; asked here, a plan the sign-in could not
 // carry out is not put before the person.
 func (c *mcpCall) allows(method string) (bool, error) {
@@ -133,7 +133,7 @@ func (c *mcpCall) allows(method string) (bool, error) {
 		var v struct {
 			Allow []string `json:"allow"`
 		}
-		if _, err := c.client.do(c.ctx, http.MethodGet, "/account", nil, &v); err != nil {
+		if _, err := c.client.do(c.ctx, http.MethodGet, "/session", nil, &v); err != nil {
 			return false, err
 		}
 		c.allow = append([]string{}, v.Allow...)

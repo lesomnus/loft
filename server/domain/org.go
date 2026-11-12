@@ -233,8 +233,14 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 			return invalid("alias", "이미 있는 아이디입니다")
 		}
 
-		// The account first, in the directory at roster, which is where they
-		// sign in; the holder here is its membership of this workspace.
+		// Them first, in the tenant at roster, which is where they sign
+		// in; the holder here is their membership, by the same identifier
+		// (D85) -- of the workspace that tenant is, and of no other.
+		if rt, err := people.Tenant(t.ctx); err != nil {
+			return err
+		} else if rt.Id != t.tenant {
+			return failed("이 배포가 섬기는 워크스페이스(@%s)가 아닙니다", rt.Alias)
+		}
 		person, err := people.AddPerson(t.ctx, alias, p.GetName(), pdid.Nil)
 		if err != nil {
 			if status.Code(err) == codes.AlreadyExists {
@@ -252,16 +258,16 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 			return err
 		}
 
-		// Which account the membership is of is not a request's to say
-		// (payday#184), and the gate refuses it to one: it is written
-		// through the deployment's own servers, on this transaction, as the
-		// caller and in the caller's workspace -- the account the one just
-		// made for it.
+		// Which holder at roster the membership is, is not a request's to
+		// say, and the gate refuses it to one: it is written through the
+		// deployment's own servers, on this transaction, as the caller and
+		// in the caller's workspace -- the one just made for it.
 		base, err := t.deployment()
 		if err != nil {
 			return err
 		}
 		h, err := base.Holder().Add(t.ctx, app.HolderAddRequest_builder{
+			Id:      person.Id.Bytes(),
 			Tenant:  t.tenantRef(),
 			Alias:   alias,
 			Name:    p.GetName(),
@@ -357,13 +363,9 @@ func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) 
 	return out, err
 }
 
-// SetPassword changes an account's password: the caller's own after checking
-// the current one, or somebody else's for an admin, which the policy decides.
-//
-// A password is the account's, and the account may be in workspaces this
-// admin has nothing to do with (D27). So somebody else's is changed only when
-// this workspace is the only one their account is in; otherwise it is theirs to
-// change, or the operator's (`loft holder password`).
+// SetPassword changes somebody's password at roster: the caller's own after
+// checking the current one, or another member's for an admin, which the policy
+// decides.
 func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordRequest) (*app.PartySetPasswordResponse, error) {
 	people, err := s.deps.here()
 	if err != nil {
@@ -410,18 +412,6 @@ func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordR
 				}
 				return err
 			}
-		} else {
-			elsewhere, err := t.db.Holder.Query().Where(
-				holder.Account(account.Uuid()),
-				holder.TenantIdNEQ(t.tenant.Uuid()),
-				holder.DateErasedIsNil(),
-			).Exist(t.ctx)
-			if err != nil {
-				return err
-			}
-			if elsewhere {
-				return failed("다른 워크스페이스에도 있는 계정이라 여기서 비밀번호를 바꿀 수 없습니다")
-			}
 		}
 		if err := t.begin(nil, "party.password", pdid.Nil, t.now, "", app.PartyPasswordSet_builder{
 			Party:  whose,
@@ -451,10 +441,10 @@ func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordR
 
 // Deactivate ends a login and keeps the person and their history.
 //
-// What ends is the membership of this workspace. The account is the person's
-// and may be in other workspaces (D27), so it is not touched, and neither are
-// its sessions: a call about this workspace stops finding a holder to be
-// served as the moment the membership is gone.
+// What ends is the membership of this workspace. Their holder at roster is
+// the tenant's, and is not touched; nor are their sessions: a call stops
+// finding a holder to be served as the moment the membership is gone, and a
+// sign-in finds the membership ended (`tenancy.ErrEnded`).
 func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateRequest) (*app.Party, error) {
 	var out *app.Party
 	err := s.tx(ctx, func(t *Tx) error {
@@ -506,9 +496,8 @@ func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateReq
 // erasure request; the event says how much, and asking again once the hold is
 // lifted finishes it.
 //
-// It forgets them **in this workspace**. Their account is theirs and may be in
-// others (D27); leaving the deployment altogether is the account's own act
-// (design 8.4).
+// It forgets them **in this workspace**. Their holder at roster is the
+// tenant's, which roster forgets (design 8.4).
 func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymizeRequest) (*app.Party, error) {
 	var out *app.Party
 	err := s.tx(ctx, func(t *Tx) error {
@@ -788,8 +777,7 @@ func (s domainItemModel) Update(ctx context.Context, req *app.ItemModelUpdateReq
 	return out, err
 }
 
-// signOut ends every session an account has, in every workspace: a session is
-// the account's.
+// signOut ends every session a member has.
 func (t *Tx) signOut(account pdid.Id) error {
 	_, err := t.db.Session.Delete().Where(session.Account(account.Uuid())).Exec(t.ctx)
 	return err

@@ -7,18 +7,15 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/lesomnus/xli"
-	"github.com/lesomnus/xli/flg"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -29,31 +26,27 @@ import (
 )
 
 // NewCmdMcp is `loft mcp`: an MCP server on stdin and stdout, for an
-// assistant -- Claude Code, Claude Desktop -- to read a workspace with, as the
-// account this terminal signed in as (D32, loft#91).
+// assistant -- Claude Code, Claude Desktop -- to read the workspace with, as
+// the member this terminal signed in as (D32, loft#91).
 //
 // It is a terminal command like the schema's, and holds nothing of its own. A
 // tool is RPCs to the address a browser reaches the deployment at, with this
 // terminal's session: what an assistant can read is what its person can,
 // through the same policy and the same wall as the page, and the deployment
 // does not know there is an assistant. The sign-in is read again for every
-// call, so that `loft auth login` and `loft use` take effect without starting
-// this again.
+// call, so that `loft auth login` takes effect without starting this again.
 //
 // Every tool reads. One that writes waits for a way for the person to say yes
 // to what it is about to do.
 func NewCmdMcp() *xli.Command {
 	return &xli.Command{
 		Name:  "mcp",
-		Brief: "an MCP server on stdin and stdout: an assistant reads the workspace as this terminal's account (`loft auth login` first)",
-		Flags: flg.Flags{
-			&flg.String{Name: "workspace", Brief: "the workspace it reads, by alias; `loft use` sets the default"},
-		},
+		Brief: "an MCP server on stdin and stdout: an assistant reads the workspace as this terminal's member (`loft auth login` first)",
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			// Stdout is the protocol's; anything else said goes to stderr,
 			// which a client keeps as the server's log.
 			log := slog.New(slog.NewTextHandler(self.ErrWriter, &slog.HandlerOptions{Level: slog.LevelWarn}))
-			s := newMcp(flag(self, "workspace"), log)
+			s := newMcp(log)
 			err := s.Run(ctx, &mcp.IOTransport{Reader: self.ReadCloser, Writer: nopWriteCloser{self.Writer}})
 			if err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, io.EOF) {
 				return err
@@ -77,13 +70,13 @@ const mcpInstructions = `Loft is the register of a workspace's tangible assets: 
 - What may be done is the person's role's to say, and a terminal signed in with loft auth login --allow is held to what it allows.`
 
 // newMcp is the server `loft mcp` runs: the tools, each of them reads, over
-// the connection the terminal's sign-in makes for `ws`.
-func newMcp(ws string, log *slog.Logger) *mcp.Server {
+// the connection the terminal's sign-in makes.
+func newMcp(log *slog.Logger) *mcp.Server {
 	s := mcp.NewServer(&mcp.Implementation{Name: "loft", Version: version.Get().Short()}, &mcp.ServerOptions{
 		Instructions: mcpInstructions,
 		Logger:       log,
 	})
-	t := mcpTools{ws: ws, plans: &mcpPlans{m: map[string]*plan{}}}
+	t := mcpTools{plans: &mcpPlans{m: map[string]*plan{}}}
 	read := &mcp.ToolAnnotations{ReadOnlyHint: true}
 	plans := &mcp.ToolAnnotations{ReadOnlyHint: true, Title: "plan a change"}
 	yes := true
@@ -91,7 +84,7 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "whoami",
-		Description: "Who these tools read as: the account, the workspace and its role there, the person it is in the workspace, and every workspace the account is in.",
+		Description: "Who these tools read as: the member signed in, the workspace the deployment serves and their role there, and the person record they are in it.",
 		Annotations: read,
 	}, t.whoami)
 	mcp.AddTool(s, &mcp.Tool{
@@ -304,9 +297,6 @@ func mcpSchema[In any](enums map[string][]any) *jsonschema.Schema {
 }
 
 type mcpTools struct {
-	// The workspace named on the command line, over `LOFT_WORKSPACE` and `loft
-	// use`.
-	ws string
 	// The plans made and not yet applied, for every call of this process.
 	plans *mcpPlans
 }
@@ -321,18 +311,10 @@ func (t mcpTools) call(ctx context.Context) (*mcpCall, error) {
 	if err != nil {
 		return nil, err
 	}
-	ws := t.ws
-	if ws == "" {
-		ws = os.Getenv("LOFT_WORKSPACE")
-	}
-	if ws == "" {
-		ws = c.Workspace
-	}
 	return &mcpCall{
 		ctx:     ctx,
 		client:  c.Connection,
-		ws:      ws,
-		conn:    c.person(ws),
+		conn:    c.person(),
 		assets:  map[pdid.Id]*app.Asset{},
 		parties: map[pdid.Id]string{},
 		holders: map[pdid.Id]string{},
@@ -345,11 +327,10 @@ func (t mcpTools) call(ctx context.Context) (*mcpCall, error) {
 type mcpCall struct {
 	ctx    context.Context
 	client *Connection
-	ws     string
 	conn   grpc.ClientConnInterface
 
 	me *app.PartyMeResponse
-	// allow is what GET /account said the sign-in is narrowed to, once asked:
+	// allow is what GET /session said the sign-in is narrowed to, once asked:
 	// empty for nothing.
 	allow []string
 
@@ -637,14 +618,13 @@ type mcpWorkspace struct {
 }
 
 type mcpWhoami struct {
-	Deployment string         `json:"deployment" jsonschema:"the address of the deployment"`
-	Login      string         `json:"login"`
-	Name       string         `json:"name"`
-	Workspace  *mcpWorkspace  `json:"workspace,omitempty" jsonschema:"the workspace these tools read"`
-	Person     *mcpRef        `json:"person,omitempty" jsonschema:"the person this account is in that workspace"`
-	History    string         `json:"history" jsonschema:"how far back the workspace keeps its history"`
-	Workspaces []mcpWorkspace `json:"workspaces" jsonschema:"every workspace the account is in; another is read by starting loft mcp --workspace ALIAS"`
-	Allow      []string       `json:"allow,omitempty" jsonschema:"the only methods this terminal's sign-in may call (loft auth login --allow); absent is all that the account may do"`
+	Deployment string        `json:"deployment" jsonschema:"the address of the deployment"`
+	Login      string        `json:"login"`
+	Name       string        `json:"name"`
+	Workspace  *mcpWorkspace `json:"workspace,omitempty" jsonschema:"the workspace these tools read: the one the deployment serves"`
+	Person     *mcpRef       `json:"person,omitempty" jsonschema:"the person record of who is signed in, in the workspace"`
+	History    string        `json:"history" jsonschema:"how far back the workspace keeps its history"`
+	Allow      []string      `json:"allow,omitempty" jsonschema:"the only methods this terminal's sign-in may call (loft auth login --allow); absent is all that the member may do"`
 }
 
 func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoamiIn) (*mcp.CallToolResult, mcpWhoami, error) {
@@ -653,40 +633,17 @@ func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoam
 	if err != nil {
 		return nil, out, err
 	}
-	var account struct {
-		Login string   `json:"login"`
-		Name  string   `json:"name"`
-		Allow []string `json:"allow"`
-	}
-	if _, err := c.client.do(ctx, http.MethodGet, "/account", nil, &account); err != nil {
+	var said sessionSaid
+	if _, err := c.client.do(ctx, http.MethodGet, "/session", nil, &said); err != nil {
 		return nil, out, err
 	}
-	out.Deployment, out.Login, out.Name, out.Allow = c.client.Url, account.Login, account.Name, account.Allow
-	out.Workspaces = []mcpWorkspace{}
-	// What it is in, asked as the account (D73) -- which a sign-in narrowed
-	// to less than reading may not ask, and is then told none of.
-	mine, err := app.NewTenantServiceClient(c.client.person("")).Mine(ctx, &app.TenantMineRequest{})
-	switch {
-	case err == nil:
-		for _, w := range mine.GetWorkspaces() {
-			out.Workspaces = append(out.Workspaces, mcpWorkspace{Alias: w.GetAlias(), Name: w.GetName(), Role: w.GetRole()})
-		}
-	case status.Code(err) != codes.PermissionDenied:
-		return nil, out, err
-	}
+	out.Deployment, out.Login, out.Name, out.Allow = c.client.Url, said.Login, said.Name, said.Allow
 
 	me, err := c.whom()
 	if err != nil {
 		return nil, out, err
 	}
-	for _, w := range out.Workspaces {
-		if w.Alias == me.GetTenant().GetAlias() {
-			out.Workspace = &w
-		}
-	}
-	if out.Workspace == nil {
-		out.Workspace = &mcpWorkspace{Alias: me.GetTenant().GetAlias(), Name: me.GetWorkspaceName(), Role: me.GetRole()}
-	}
+	out.Workspace = &mcpWorkspace{Alias: me.GetTenant().GetAlias(), Name: me.GetWorkspaceName(), Role: me.GetRole()}
 	if p := me.GetParty(); len(p.GetId()) > 0 {
 		out.Person = &mcpRef{Id: idString(p.GetId()), Name: p.GetName()}
 	}

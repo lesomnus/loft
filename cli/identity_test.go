@@ -31,10 +31,8 @@ import (
 	"github.com/lesomnus/loft/internal/ent"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/holder"
-	"github.com/lesomnus/loft/internal/ent/levyannotice"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	entsession "github.com/lesomnus/loft/internal/ent/session"
-	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/internal/levyantest"
 	"github.com/lesomnus/loft/server/admin"
@@ -61,9 +59,10 @@ func entry(t *testing.T, c cmd.Config) *deployment {
 }
 
 // unlinked is a deployment whose logins name no account, as a restore of an
-// export from another deployment leaves its members: two workspaces, both
-// with somebody called kim; the owner called `admin`, the name roster gives
-// the first holder of every tenant it makes; and a login that ended.
+// export from another deployment leaves its members: the workspace it serves,
+// acme, with its owner called `admin` -- the name roster gives the first
+// holder of every tenant it makes -- kim, and a login that ended; and another
+// workspace, beta, with somebody called kim too.
 type unlinked struct {
 	acme, beta                     pdid.Id
 	admin, kim, gone, kimElsewhere pdid.Id
@@ -117,26 +116,31 @@ func passwordsOf(out string) map[string]adopted {
 	return v
 }
 
-// TestMembersWithNoAccountAreGivenOne: every login that names no account is
-// made an account in the directory at the roster in this process with the
-// identifier it has here, given a new password said once, its membership
-// linked as the operator's write -- and run again it makes nothing.
+// TestMembersWithNoAccountAreGivenOne: every login of the workspace this
+// deployment serves that names no account is made a holder of the tenant at
+// the roster in this process -- made by the workspace's identifier (D85) --
+// with the identifier it has here, given a new password said once, and linked
+// as the operator's write; and run again it makes nothing. Another
+// workspace's are nobody's to link.
 func TestMembersWithNoAccountAreGivenOne(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	c := embeddedConfig(t)
+	c.Auth.Roster.Tenant = "acme"
 	was := membersWithNoAccount(t, c)
 	d := entry(t, c)
 
 	out, err := d.loft(t, "identity", "link")
 	x.NoError(err, out)
 	got := passwordsOf(out)
-	x.Len(got, 3, out)
+	x.Len(got, 2, out)
 	x.Equal("admin", got["acme/admin"].login, "roster's own admin kept the name from the person who had it")
 	x.Equal("kim", got["acme/kim"].login)
-	x.Equal("kim-beta", got["beta/kim"].login, "two kims and one directory")
+	rt, err := d.s.Identity.Tenant(ctx)
+	x.NoError(err)
+	x.Equal(was.acme, rt.Id, "the tenant at roster is the workspace")
 
-	for at, id := range map[string]pdid.Id{"acme/admin": was.admin, "acme/kim": was.kim, "beta/kim": was.kimElsewhere} {
+	for at, id := range map[string]pdid.Id{"acme/admin": was.admin, "acme/kim": was.kim} {
 		p, err := d.s.Identity.Verify(ctx, got[at].login, got[at].password)
 		x.NoError(err, at)
 		x.Equal(id, p.Id, "%s is somebody new at roster", at)
@@ -147,6 +151,9 @@ func TestMembersWithNoAccountAreGivenOne(t *testing.T) {
 	h, err := d.s.Ent.Holder.Query().Where(holder.Id(was.gone.Uuid())).Only(ctx)
 	x.NoError(err)
 	x.Nil(h.Account, "a login that ended was brought in")
+	h, err = d.s.Ent.Holder.Get(ctx, was.kimElsewhere.Uuid())
+	x.NoError(err)
+	x.Nil(h.Account, "a workspace this deployment does not serve")
 	n, err := d.s.Ent.Access.Query().Where(entaccess.Kind("write"), entaccess.ActorId(operator.Id("alice").Uuid())).Count(ctx)
 	x.NoError(err)
 	x.Positive(n, "the links are the operator's writes")
@@ -163,6 +170,7 @@ func TestMembersToTryThingsOnAreGivenOnePassword(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	c := embeddedConfig(t)
+	c.Auth.Roster.Tenant = "acme"
 	membersWithNoAccount(t, c)
 	d := entry(t, c)
 
@@ -170,16 +178,18 @@ func TestMembersToTryThingsOnAreGivenOnePassword(t *testing.T) {
 	x.ErrorContains(err, "admin")
 	out, err := d.loft(t, "identity", "link", "--password", "demo1234")
 	x.NoError(err, out)
-	x.Contains(out, "3 account(s), every one with the password given")
-	for _, login := range []string{"admin", "kim", "kim-beta"} {
+	x.Contains(out, "2 account(s), every one with the password given")
+	for _, login := range []string{"admin", "kim"} {
 		_, err := d.s.Identity.Verify(ctx, login, "demo1234")
 		x.NoError(err, login)
 	}
 }
 
-// external is a roster of its own on a TCP listener, with a directory and a
-// deployment key installed into it: what a roster operator stands up.
-func external(t *testing.T) (addr, key string, s *rostercmd.Server) {
+// external is a roster of its own on a TCP listener, with the tenant acme --
+// by the identifier `acme`, the workspace's -- Loft installed into it, and the
+// tenant's own key for it (roster's docs/apps.md, shape C): what a roster
+// operator stands up.
+func external(t *testing.T, acme pdid.Id) (addr, key string, s *rostercmd.Server) {
 	t.Helper()
 	x := require.New(t)
 	ctx := t.Context()
@@ -195,14 +205,18 @@ func external(t *testing.T) (addr, key string, s *rostercmd.Server) {
 	x.NoError(k.Run(ctx, nil))
 	s, err := rostercmd.Build(ctx, c)
 	x.NoError(err)
-	_, err = s.Ungated.Tenant().Add(ctx, rstr.TenantAddRequest_builder{Alias: "accounts"}.Build())
+	req := rstr.TenantAddRequest_builder{Alias: "acme"}
+	if acme != pdid.Nil {
+		req.Id = acme.Bytes()
+	}
+	_, err = s.Ungated.Tenant().Add(ctx, req.Build())
 	x.NoError(err)
 	x.NoError(s.Close())
 
-	out, err := ran(t, rostercli.NewCmdControl(&c), "key", "add", "--allow", "/roster.NominationService/List", identity.Agent)
+	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "acme", "--role", strings.Join(identity.AgentMethods, ","), identity.Agent}))
+	out, err := ran(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", identity.Agent, "--name", "loft", "--allow", strings.Join(identity.AgentMethods, ","))
 	x.NoError(err, out)
 	key = strings.TrimSpace(out)
-	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "accounts", "--role", strings.Join(identity.AgentMethods, ","), identity.Agent}))
 
 	s, err = rostercmd.Build(ctx, c)
 	x.NoError(err)
@@ -224,23 +238,22 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 	ctx := context.Background()
 	c := embeddedConfig(t)
 	was := membersWithNoAccount(t, c)
-	addr, rkey, roster := external(t)
+	addr, rkey, roster := external(t, was.acme)
 	c.Auth.Roster = cmd.Config{}.Auth.Roster
 	c.Auth.Roster.Addr = addr
 	c.Auth.Roster.Insecure = true
 	c.Auth.Roster.Key = rkey
-	c.Auth.Roster.Directory = "accounts"
 	d := entry(t, c)
 
 	out, err := d.loft(t, "identity", "link")
 	x.NoError(err, out)
-	x.Contains(out, `roster holder add @accounts/kim '{"id":"`+was.kim.String()+`","name":"kim"}'`)
-	x.Contains(out, `roster holder add @accounts/kim '{"id":"`+was.kimElsewhere.String()+`","name":"kim"}'`)
+	x.Contains(out, `roster holder add @acme/kim '{"id":"`+was.kim.String()+`","name":"kim"}'`)
+	x.NotContains(out, was.kimElsewhere.String(), "a workspace this deployment does not serve")
 	x.NotContains(out, was.gone.String(), "a login that ended")
 
 	_, err = roster.Ungated.Holder().Add(ctx, rstr.HolderAddRequest_builder{
 		Id:     was.kim.Bytes(),
-		Tenant: rstr.TenantRef_builder{Alias: z.Ptr("accounts")}.Build(),
+		Tenant: rstr.TenantRef_builder{Alias: z.Ptr("acme")}.Build(),
 		Alias:  "kim",
 	}.Build())
 	x.NoError(err)
@@ -263,14 +276,14 @@ func TestARosterOfItsOwnIsToldWhatToMake(t *testing.T) {
 		x.ErrorContains(err, "auth.roster names a roster of its own: accounts are made and given passwords there", "%v", args)
 	}
 	_, err = roster.Ungated.Holder().Get(ctx, rstr.HolderGetRequest_builder{Ref: rstr.HolderRef_builder{Slug: rstr.HolderRefBySlug_builder{
-		Tenant: rstr.TenantRef_builder{Alias: z.Ptr("accounts")}.Build(),
+		Tenant: rstr.TenantRef_builder{Alias: z.Ptr("acme")}.Build(),
 		Alias:  z.Ptr("lee"),
 	}.Build()}.Build()}.Build())
 	x.Equal(codes.NotFound, status.Code(err), "lee was made at roster: %v", err)
 }
 
-// aDeployment is the roster in this process with acme's owner, kim and lee
-// -- put there by the operator -- and kim's own workspace beta.
+// aDeployment is the roster in this process with acme's owner, and kim and
+// lee, put there by the operator.
 func aDeployment(t *testing.T, opts ...func(*cmd.Config)) *deployment {
 	t.Helper()
 	x := require.New(t)
@@ -278,7 +291,8 @@ func aDeployment(t *testing.T, opts ...func(*cmd.Config)) *deployment {
 	for _, opt := range opts {
 		opt(&c)
 	}
-	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	c.Auth.Roster.Tenant = "acme"
+	_, err := ran(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
 	d := entry(t, c)
 	for _, login := range []string{"kim", "lee"} {
@@ -286,8 +300,6 @@ func aDeployment(t *testing.T, opts ...func(*cmd.Config)) *deployment {
 		x.NoError(err, out)
 		x.Contains(out, "holder   @acme/"+login)
 	}
-	_, err = ran(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "kim")
-	x.NoError(err)
 	return d
 }
 
@@ -371,7 +383,6 @@ func TestAnOperatorDepartsAnAccountAtOnce(t *testing.T) {
 	out, err := d.loft(t, "identity", "depart", "--member", "@acme/kim")
 	x.NoError(err, out)
 	x.Contains(out, "@acme: @kim, member")
-	x.Contains(out, "@beta: @kim, owner")
 	x.Contains(out, "nothing was done")
 	_, err = d.s.Identity.Verify(ctx, "kim", "kim-password")
 	x.NoError(err, "only asked about")
@@ -379,7 +390,6 @@ func TestAnOperatorDepartsAnAccountAtOnce(t *testing.T) {
 	out, err = d.loft(t, "identity", "depart", "--member", "@acme/kim", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "left @acme\n")
-	x.Contains(out, "left @beta; its last owner, and nobody was there to hand it to")
 	x.Contains(out, "forgot "+kim.String())
 	_, err = d.s.Identity.Verify(ctx, "kim", "kim-password")
 	x.ErrorIs(err, identity.ErrRefused)
@@ -395,26 +405,27 @@ func TestAnOperatorDepartsAnAccountAtOnce(t *testing.T) {
 }
 
 // TestADepartureAskedAboutChangesNothing: without `--yes` a departure says,
-// by the rules it then follows, what it would do in each workspace -- a last
-// owner's handed on, and to whom, or to nobody; one nobody would be left in
-// closed -- and changes nothing: no table of the deployment's or of the
-// roster in this process, levyan told nothing, nobody signed out; only the
-// access record says the operator saw whose memberships they are. Done, it
-// does what it said.
+// by the rules it then follows, what it would do -- a last owner's workspace
+// handed on, and to whom -- and changes nothing: no table of the deployment's
+// or of the roster in this process, levyan told nothing, nobody signed out;
+// only the access record says the operator saw whose memberships they are.
+// Done, it does what it said.
 func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	d := aDeployment(t, func(c *cmd.Config) { c.App.Billing.Levyan = levyantest.Start(t).Config() })
-	// kim is a member of acme, owns beta -- which lee manages -- and owns
-	// gamma alone.
-	out, err := d.loft(t, "holder", "add", "--tenant", "beta", "--login", "lee", "--role", "manager")
-	x.NoError(err, out)
-	_, err = ran(t, cli.NewCmdInit(&d.c), "--tenant", "gamma", "--login", "kim")
-	x.NoError(err)
+	// kim is the workspace's last owner, and lee its manager, next; the one
+	// it was put up for audits it.
+	for login, role := range map[string]string{"owner": "auditor", "kim": "owner", "lee": "manager"} {
+		_, err := d.s.Base.Holder().Patch(ctx, app.HolderPatchRequest_builder{
+			Ref:              app.HolderRef_builder{Id: accountOf(t, d.s, login).Bytes()}.Build(),
+			Role:             z.Ptr(role),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
+		x.NoError(err, login)
+	}
 	kim, lee := accountOf(t, d.s, "kim"), accountOf(t, d.s, "lee")
-	_, _, err = d.s.Sessions.Mint(ctx, authsession.Session{Id: kim.String(), Grant: frame.Whole()})
-	x.NoError(err)
-	gamma, err := d.s.Ent.Tenant.Query().Where(enttenant.Alias("gamma")).Only(ctx)
+	_, _, err := d.s.Sessions.Mint(ctx, authsession.Session{Id: kim.String(), Grant: frame.Whole()})
 	x.NoError(err)
 
 	deployment := func() map[string]string { return tablesOf(t, d.c.Db.Driver, d.c.Db.Dsn) }
@@ -426,11 +437,9 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 	}
 	wasDeployment, wasRoster, wasNotices := deployment(), roster(), notices()
 
-	out, err = d.loft(t, "identity", "depart", "--member", "@acme/kim")
+	out, err := d.loft(t, "identity", "depart", "--member", "@acme/kim")
 	x.NoError(err, out)
-	x.Contains(out, "@acme: @kim, member\n")
-	x.Contains(out, "@beta: @kim, owner; its last owner, so it would be @lee's\n")
-	x.Contains(out, "@gamma: @kim, owner; its last owner, and nobody is there to hand it to; nobody would be left in it, so it would close\n")
+	x.Contains(out, "@acme: @kim, owner; its last owner, so it would be @lee's\n")
 	x.Contains(out, "(nothing was done: `--yes` does it. It cannot be undone)")
 
 	now := deployment()
@@ -454,28 +463,15 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 			saw[pdid.Id(v)] = true
 		}
 	}
-	for _, h := range membershipsOf(t, d.s, kim) {
-		x.True(saw[pdid.Id(h.Id)], "the operator saw kim in %s", pdid.Id(h.TenantId))
-	}
-	for _, h := range membershipsOf(t, d.s, lee) {
-		x.Equal(h.Role == "manager", saw[pdid.Id(h.Id)], "the operator saw who beta would go to, and nobody else")
-	}
+	x.True(saw[kim], "the operator saw kim")
+	x.True(saw[lee], "and who the workspace would go to")
+	x.False(saw[accountOf(t, d.s, "owner")], "and nobody else")
 
 	out, err = d.loft(t, "identity", "depart", "--member", "@acme/kim", "--yes")
 	x.NoError(err, out)
-	x.Contains(out, "left @acme\n")
-	x.Contains(out, "left @beta; its last owner, so it is @lee's now\n")
-	x.Contains(out, "left @gamma; its last owner, and nobody was there to hand it to; nobody was left in it, so it is closed\n")
-	x.Equal(1, notices(levyannotice.Workspace(gamma.Id), levyannotice.KindEQ("close")), "levyan is told gamma is closed")
-	x.Equal(wasNotices+1, notices(), "and nothing else: who pays is the portal's to tell it (D84)")
-	for _, h := range membershipsOf(t, d.s, lee) {
-		if h.Role != "member" {
-			x.Equal("owner", h.Role, "beta is lee's")
-		}
-	}
-	gamma, err = d.s.Ent.Tenant.Get(ctx, gamma.Id)
-	x.NoError(err)
-	x.NotNil(gamma.DateClosed)
+	x.Contains(out, "left @acme; its last owner, so it is @lee's now\n")
+	x.Equal(wasNotices, notices(), "levyan is told nothing: who pays is the portal's to tell it (D84)")
+	x.Equal("owner", d.s.Ent.Holder.GetX(ctx, lee.Uuid()).Role, "the workspace is lee's")
 	n, err := d.s.Ent.Session.Query().Where(entsession.Account(kim.Uuid())).Count(ctx)
 	x.NoError(err)
 	x.Zero(n, "where they were signed in")
@@ -505,7 +501,7 @@ func TestADepartureIsForgottenUnderTheDeploymentsDigestKey(t *testing.T) {
 // TestReconcilingFindsWhatTheStreamMissed: every account with a membership
 // here asked about at roster, the ones it has nobody by marked from now, the
 // ones it has again unmarked -- and none marked when roster has nobody at
-// all, which is a wrong directory far more often than everybody leaving.
+// all, which is a wrong tenant far more often than everybody leaving.
 func TestReconcilingFindsWhatTheStreamMissed(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
@@ -527,7 +523,7 @@ func TestReconcilingFindsWhatTheStreamMissed(t *testing.T) {
 	x.NoError(err, out)
 	unchanged(t, was, tablesOf(t, d.c.Db.Driver, d.c.Db.Dsn), entaccess.Table)
 	x.Contains(out, "3 account(s) with a membership here; roster has 2 of them")
-	x.Contains(out, "gone at roster, not yet leaving here: "+kim.String()+" (@acme/kim, @beta/kim)")
+	x.Contains(out, "gone at roster, not yet leaving here: "+kim.String()+" (@acme/kim)")
 	x.Contains(out, "leaving here, and roster has it again: "+lee.String())
 	x.Contains(out, "nothing was done")
 	x.Zero(leaving(kim))
@@ -537,7 +533,7 @@ func TestReconcilingFindsWhatTheStreamMissed(t *testing.T) {
 	out, err = d.loft(t, "identity", "reconcile", "--yes")
 	x.NoError(err, out)
 	x.Contains(out, "marked 1 as leaving, and 1 as not")
-	x.Equal(2, leaving(kim), "in both its workspaces")
+	x.Equal(1, leaving(kim))
 	x.Zero(leaving(lee))
 	for _, h := range membershipsOf(t, d.s, kim) {
 		x.False(h.DateLeaving.Before(since.Add(-time.Second)), "from now, to wait the whole grace")
@@ -549,7 +545,7 @@ func TestReconcilingFindsWhatTheStreamMissed(t *testing.T) {
 	x.NoError(d.s.Identity.ForgetPerson(ctx, lee))
 	x.NoError(d.s.Identity.ForgetPerson(ctx, owner))
 	_, err = d.loft(t, "identity", "reconcile", "--yes")
-	x.ErrorContains(err, "auth.roster.directory")
+	x.ErrorContains(err, "auth.roster.tenant")
 	x.Zero(leaving(lee))
 	x.Zero(leaving(owner))
 }

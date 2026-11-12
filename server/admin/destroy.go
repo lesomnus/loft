@@ -119,8 +119,6 @@ func (s operatorTenants) destroy(req *app.OperatorTenantDestroyRequest, out grpc
 		TrailChunks:    uint32(x.Trail.Chunks),
 		Retired:        x.Retired,
 		Kept:           counts(x.Trail.Kept),
-		Embedded:       s.a.S.Identity.Embedded(),
-		Forgotten:      uint32(x.Forgotten),
 		Bills:          s.a.S.Meters != nil,
 		Tells:          s.a.S.Notices != nil,
 		ContractPurges: w.Purge,

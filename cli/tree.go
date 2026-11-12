@@ -22,7 +22,7 @@ import (
 // name> <verb>`, at the root beside the utilities. An entity's group is
 // payday's tree of its verbs (pdcmd), and every other method of its service
 // is one more verb beside them, called what the RPC is called (`asset move`,
-// `tenant mine`); the one service that is no entity's has a group of its
+// `tenant configure`); the one service that is no entity's has a group of its
 // own (`payment`). Who a command is, is its connection's: the same command
 // is a person's through the app's policy and wall, or the operator's at the
 // entry point.

@@ -1,4 +1,4 @@
-import { expect, people, submitSignIn, test, workspace } from './loft.js'
+import { expect, people, submitSignIn, test } from './loft.js'
 
 test('a password signs in to the workspace, a wrong one does not, and signing out ends it', async ({ page }) => {
 	const p = people.signIn
@@ -8,8 +8,8 @@ test('a password signs in to the workspace, a wrong one does not, and signing ou
 	await expect(page.getByText('아이디 또는 비밀번호가 맞지 않습니다.')).toBeVisible()
 
 	await submitSignIn(page, p.login)
-	// An account in one workspace is taken into it.
-	await expect(page).toHaveURL(new RegExp(`${workspace}/$`))
+	// Into the workspace the deployment serves, which is all of it (D85).
+	await expect(page).toHaveURL(/\/$/)
 	await expect(page.getByRole('link', { name: new RegExp(`^${p.name}`) })).toBeVisible()
 
 	await page.getByRole('button', { name: '로그아웃', exact: true }).click()

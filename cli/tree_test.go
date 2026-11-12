@@ -40,7 +40,8 @@ func TestTheTreeIsTheSchemasWords(t *testing.T) {
 	root := root()
 	words(t, "loft", root.Commands)
 
-	utilities := []string{"version", "config", "init", "migrate", "serve", "auth", "use", "call", "scan", "mcp"}
+	utilities := []string{"version", "config", "init", "migrate", "serve", "auth", "call", "scan", "mcp"}
+	x.Nil(root.Commands.Get("use"), "a deployment serves one workspace, and nobody chooses it (D85)")
 	for _, name := range utilities {
 		x.NotNil(root.Commands.Get(name), name)
 	}
@@ -123,7 +124,6 @@ func TestTheHelpIsTheSameOnEveryConnection(t *testing.T) {
 	x := require.New(t)
 	conf := filepath.Join(t.TempDir(), "client.json")
 	t.Setenv("LOFT_CLIENT_CONFIG", conf)
-	t.Setenv("LOFT_WORKSPACE", "")
 	help := func(args ...string) string {
 		t.Helper()
 		return run(t, root(), append(args, "--help")...)

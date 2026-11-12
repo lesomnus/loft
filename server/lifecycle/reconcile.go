@@ -36,11 +36,11 @@ type Reconciled struct {
 
 // NobodyError is a reconciling that would have marked every account here as
 // leaving, and was refused: nobody at all is far more often the wrong
-// directory, or a key that sees none of it, than everybody having left.
+// tenant, or a key that sees none of it, than everybody having left.
 type NobodyError struct{ Accounts int }
 
 func (e *NobodyError) Error() string {
-	return fmt.Sprintf("roster has none of the %d account(s) here, which is more likely `auth.roster.directory` or the key than all of them leaving; nothing was marked", e.Accounts)
+	return fmt.Sprintf("roster has none of the %d account(s) here, which is more likely `auth.roster.tenant` or the key than all of them leaving; nothing was marked", e.Accounts)
 }
 
 // Reconcile asks roster about every account with a membership here, and --

@@ -1,16 +1,14 @@
 /**
- * A terminal asking to be signed in as this account: `loft auth login` printed
+ * A terminal asking to be signed in as this member: `loft auth login` printed
  * this page's address with a code, and the person approves it here, signed in
  * (`server/clilogin`).
- *
- * A page about no workspace, like the inbox: what it signs in is the account.
  *
  * @module
  */
 
 import { useEffect, useState, type ReactNode } from 'react'
 
-import { fmt, type Account } from './api.js'
+import { fmt, type Session } from './api.js'
 
 /** What the server shows of a terminal waiting. */
 type Asking = {
@@ -19,7 +17,7 @@ type Asking = {
 	origin: string
 	created: string
 	expires: string
-	/** The methods it asked to be narrowed to (`loft auth login --allow`); absent is all of the account's. */
+	/** The methods it asked to be narrowed to (`loft auth login --allow`); absent is all of the member's. */
 	allow?: string[]
 }
 
@@ -31,7 +29,7 @@ type State =
 	| { at: 'denied' }
 	| { at: 'failed'; why: string }
 
-export function Terminal(props: { account: Account; onSignOut: () => void }): ReactNode {
+export function Terminal(props: { session: Session; onSignOut: () => void }): ReactNode {
 	const code = new URLSearchParams(location.search).get('code') ?? ''
 	const [state, setState] = useState<State>({ at: 'loading' })
 	const [busy, setBusy] = useState(false)
@@ -90,7 +88,7 @@ export function Terminal(props: { account: Account; onSignOut: () => void }): Re
 				{state.at === 'asking' && (
 					<>
 						<p>
-							<strong>{props.account.login}</strong> 계정으로 터미널이 로그인하려고 합니다.
+							<strong>{props.session.login}</strong>(으)로 터미널이 로그인하려고 합니다.
 						</p>
 						<dl className="kv">
 							<dt>코드</dt>

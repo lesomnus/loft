@@ -7,15 +7,18 @@ import { defineConfig, devices } from '@playwright/test'
 // E2E_OPENSEARCH searching on that cluster, on indexes of its own.
 // `npx playwright test`, on a desk as in CI; docs/dev/testing.md has the rest.
 //
-// Three of them, since one signs people in through an issuer (`auth.sso`), the
-// test's own (e2e/issuer.sh), which the others have no reason to ask, and one
-// bills its workspaces: to a levyan of the test's own (`app.billing.levyan`,
-// e2e/levyan.sh), which no other has.
+// Four of them, since one signs people in through an issuer (`auth.sso`), the
+// test's own (e2e/issuer.sh), which the others have no reason to ask; one
+// bills its workspace: to a levyan of the test's own (`app.billing.levyan`,
+// e2e/levyan.sh), which no other has; and one is for the tests that change
+// where the workspace is and what it keeps. A deployment serves one workspace
+// (D85), and the dates and amounts of every other test are in it.
 const port = Number(process.env.E2E_PORT ?? 18510)
 const app = `http://127.0.0.1:${port}`
 const sso = `http://127.0.0.1:${port + 20}`
 const issuer = `http://127.0.0.1:${port + 30}`
 const billing = `http://127.0.0.1:${port + 40}`
+const workspace = `http://127.0.0.1:${port + 60}`
 // levyan's gRPC, which the billing server reaches, and where a test tells it
 // what to say of a workspace.
 const levyan = port + 50
@@ -54,9 +57,10 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 	},
 	projects: [
-		{ name: 'app', testIgnore: /(sso|billing)\.spec\.ts/, use: { baseURL: app } },
+		{ name: 'app', testIgnore: /(sso|billing|settings)\.spec\.ts/, use: { baseURL: app } },
 		{ name: 'sso', testMatch: /sso\.spec\.ts/, use: { baseURL: sso }, metadata: { issuer } },
 		{ name: 'billing', testMatch: /billing\.spec\.ts/, use: { baseURL: billing }, metadata: { levyan: levyanControl } },
+		{ name: 'workspace', testMatch: /settings\.spec\.ts/, use: { baseURL: workspace } },
 	],
 	webServer: [
 		server(port),
@@ -70,6 +74,7 @@ export default defineConfig({
 			reuseExistingServer: false,
 		},
 		server(port + 40, 'billing', String(levyan)),
+		server(port + 60),
 		{
 			command: `sh e2e/issuer.sh ${port + 30} ${sso}`,
 			url: `${issuer}/.well-known/openid-configuration`,
