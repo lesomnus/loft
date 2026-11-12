@@ -138,8 +138,8 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
   5. **생명주기**: `SyncService/Watch`를 따라가 roster의 중지·모든 곳에서 로그아웃은 세션 종료로, 계정의 탈퇴는 그 계정이 속한 모든 워크스페이스에서의 가명화(Party·trail)로 이어 간다. 탈퇴는 roster의 유예만큼 '떠나는 중'으로 기다렸다가 roster에 다시 묻고 한다. 마지막 소유자가 떠나면 남은 사람에게 넘긴다 — loft#16(스트림·세션·떠나는 중), loft#17(유예 뒤 탈퇴, `loft identity depart`·`reconcile`), roster#104(스트림이 처음 듣는 사람의 삭제도 보낸다, 머지). roster가 디렉터리를 닫으면 그 계정들의 세션이 끝나고(roster#105), 계정 삭제는 roster의 계정 페이지에서 한다(roster#106, `auth.roster.account_url`로 링크). `reconcile`은 서버가 하루에 한 번 스스로도 한다(2026-10-12 결정, `app.accounts.reconcile`) — loft#25.
 - **API와 터미널**(2026-10-12 결정): 모든 기능을 API로 열고 터미널에서도 쓴다. `loft auth login`(브라우저에서 승인하는 터미널 로그인)과 `loft <스키마 이름> <동사>`(모든 RPC를 명령으로, 브라우저와 같은 주소로. 이름은 D75에서 지금의 것이 됐다).
 - 워크스페이스 닫기(닫기·복구·파기 sweep, D29)와 alias(무작위 7자, 사용자는 못 바꾸고 운영자가 바꿈, 예약어, 보류) — 완료(2026-10-12).
-- 약관·개인정보 처리방침 동의(2026-10-12 결정 9) — 계정마다 문서·버전·시각을 기록하고, 동의 전에는 모든 호출을 거부하며, 개인 워크스페이스는 동의 뒤에 만든다(`app.consent`, `loft consent`). 기록은 roster의 동의 원장에 두고 Loft는 묻기만 한다(D37, 2026-10-22). 보존 기간은 roster의 `consent.keep`이다.
-- 라벨의 전역 코드(D28) — 완료(2026-10-12): Crockford base32 8자를 서비스 주소(`/l/<코드>`)로 인쇄하고, 다른 워크스페이스의 라벨은 계정 조회(`GET /account/labels/{code}`, `loft scan`)로 그 워크스페이스에서 연다. 테넌트 도메인(D23)은 `app.labels.tenant_domains`를 켤 때만 쓴다.
+- 약관·개인정보 처리방침 동의(2026-10-12 결정 9) — 계정마다 문서·버전·시각을 기록하고, 동의 전에는 모든 호출을 거부하며, 개인 워크스페이스는 동의 뒤에 만든다(`app.consent`, `loft consent`). 기록은 roster의 동의 원장에 두고 Loft는 묻기만 한다(D37, 2026-10-22). 보존 기간은 roster의 `consent.keep`이다. **D84가 걷어냈다**(2026-11-12): 서비스 약관은 포털이 받는다(loft#327의 결정 14, design 9.11절).
+- 라벨의 전역 코드(D28) — 완료(2026-10-12): Crockford base32 8자를 서비스 주소(`/l/<코드>`)로 인쇄하고, 다른 워크스페이스의 라벨은 계정 조회(`GET /account/labels/{code}`, `loft scan`)로 그 워크스페이스에서 연다. 테넌트 도메인(D23)은 `app.labels.tenant_domains`를 켤 때만 쓴다. **D84가 다른 워크스페이스의 라벨 찾기를 걷어냈다**(2026-11-12): 스캔은 연 워크스페이스에서만 푼다(loft#327의 결정 15).
 - **오프라인과 실시간**(2026-10-12 결정) — 완료(2026-10-12): 앱은 오프라인에서도 열려 마지막으로 본 내용을 읽기 전용으로 보여 준다(쓰기는 실사 스캔 큐만). 본 내용은 계정·워크스페이스별로 두고 로그아웃하면 지운다. 자산 상세·예약 캘린더·실사 진행 화면은 그 화면을 대표하는 행을 Watch해 다른 사람의 변경을 바로 반영한다(실사에 `findings_version`을 더했다).
 - 작업 기록(Event)이 사람을 이름이 아니라 ID로 기억하고, 읽을 때 지금의 이름(잊힌 사람은 가명)을 붙인다(design 8.2, 2026-10-12 결정). 그 전의 기록은 쓴 그대로다. `loft init`은 roster 계정에도 소유자의 이름을 준다 — loft#25.
 - Holder overlay `role`, 메서드별 최소 역할 표로 Policy 구현. 같은 Policy를 batch guard에 넘긴다.
@@ -179,7 +179,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 ### M5 — MVP 마감과 파일럿 (약 2주)
 
 - 사용량 계량은 Loft가 자기 테이블에서 재서 levyan에 넘긴다(design 7장, D59). 처음에 둔 `UsageSnapshot` spin 루프는 지웠다(D35).
-- levyan의 권한을 사본으로 두고(`Entitlement` 50, `loft.restricted`), 지불자를 정하는 데 필요한 것(워크스페이스를 만든 사람, 떠난 계정)을 알린다(`LevyanNotice` 51; design 7.5·7.6절, D60). 제한의 2단계인 읽기 전용(`loft.readonly`)은 되는 것의 표 하나로 그 밖의 쓰기를 모두 막는다(design 7.10절, D64). 워크스페이스를 닫고, 되돌리고, 파기한 것도 같은 알림으로 알린다(design 7.8절, D62). 지불자 제안, 설정 › 결제, 연체의 배너는 `loft.PaymentService`로 levyan에 묻는다(design 7.9절, D63). levyan의 운영자가 준 추가 무료량·사용량 크레딧·금액 크레딧은 설정 › 결제에 보이기만 하고, Loft는 아무것도 주지 않는다(design 7.11절, D65). 지불자의 결제 화면(결제 계정, 결제창, 청구서와 그 줄의 명세서)은 포털로 갔다(design 7.7·7.9·7.12절, D81).
+- levyan의 권한을 사본으로 두고(`Entitlement` 50, `loft.restricted`), 지불자를 정하는 데 필요한 것(워크스페이스를 만든 사람, 떠난 계정)을 알린다(`LevyanNotice` 51; design 7.5·7.6절, D60). **D84가 그 알림을 걷어냈다**(2026-11-12): 포털이 levyan에 알린다. 제한의 2단계인 읽기 전용(`loft.readonly`)은 되는 것의 표 하나로 그 밖의 쓰기를 모두 막는다(design 7.10절, D64). 워크스페이스를 닫고, 되돌리고, 파기한 것도 같은 알림으로 알린다(design 7.8절, D62). 지불자 제안, 설정 › 결제, 연체의 배너는 `loft.PaymentService`로 levyan에 묻는다(design 7.9절, D63). levyan의 운영자가 준 추가 무료량·사용량 크레딧·금액 크레딧은 설정 › 결제에 보이기만 하고, Loft는 아무것도 주지 않는다(design 7.11절, D65). 지불자의 결제 화면(결제 계정, 결제창, 청구서와 그 줄의 명세서)은 포털로 갔다(design 7.7·7.9·7.12절, D81).
 - trail 보존 설정: Holder는 `pipa` 이상(`audit.min` 또는 `audit.by`), 이력 도메인은 조직의 계약이 정하는 보존 기간(design 8.2절, `server/retention`).
 - 운영 환경: Kubernetes(`deploy/k8s`, 2026-10-13 결정). `deploy/compose`는 같은 이미지를 한 대에 띄워 보는 시험용이다.
   - kustomize base와 k3d 시험(`scripts/cluster.sh`, CI `cluster`), 실제 배포는 그 위의 오버레이(GitOps).

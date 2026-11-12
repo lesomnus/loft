@@ -87,20 +87,17 @@ levyan-admin meter add --unit d --kind stock --aggregation last --unbounded-zero
 
 ## 지불자
 
-지불자(design 7.6)는 levyan이 정합니다. Loft는 워크스페이스를 만들 때와 구성원 자격이 끝날 때, 같은 트랜잭션에 levyan에 알릴 것을 남기고(`LevyanNotice`), 루프 `loft.levyan.notices` 가 10초마다 levyan의 `WorkspaceService`(`Arrive`, `Leave`)로 보냅니다.
-
-- 워크스페이스마다 일어난 순서대로입니다. levyan이 멈춰도 Loft의 쓰기는 기다리지도 실패하지도 않고, 알림이 기다렸다가 levyan이 돌아오면 나갑니다.
-- 루프가 처음 돌 때, levyan에 알린 적 없는 워크스페이스를 한 번씩 만든 때와 첫 소유자로 알립니다(levyan을 붙이기 전에 있던 것).
-- 기다리는 알림이 있는데 levyan이 답하지 않으면 경고 로그(`levyan: what it is to be told of the workspaces waits`)가 남습니다.
+지불자(design 7.6)는 levyan이 정합니다. 워크스페이스를 누가 만들었고 누가 떠났는지는 포털이 levyan에 알립니다. Loft는 levyan에 계정에 관한 것을 알리지 않습니다(D84).
 
 ## 생애 사건
 
 생애 사건(design 7.8)은 워크스페이스를 닫을 때와 되돌릴 때(운영자, 구성원이 아무도 남지 않아 배포가 닫는 것 모두), 그리고 파기할 때입니다.
 
-- 닫기와 되돌리기는 그 트랜잭션에 levyan에 알릴 것을 남기고, 파기는 마지막 측정을 넘긴 뒤 무엇이든 지우기 전에 남깁니다. 같은 루프가 `WorkspaceService`(`Close`, `Restore`, `Destroy`)로 일어난 시각과 함께 보냅니다.
-- levyan이 그 워크스페이스를 들은 적 없다고 답하면(`NotFound`) `Arrive` 를 먼저 보내고 다시 보냅니다.
-- levyan이 거부한 것은 Loft의 잘못이라 경고 로그(`levyan: what became of a workspace was refused, which is a fault of Loft's`)에 남기고 다시 보내지 않습니다.
-- 루프가 처음 돌 때 그 전의 일을 한 번 알립니다. 남아 있는 닫기·되돌리기 이벤트를 오래된 것부터, 기록이 없는 곳은 지금 닫혀 있는 워크스페이스를, 그리고 levyan에 알린 워크스페이스 가운데 파기된 것을 주소 보류의 시각으로 알립니다. 로그 `levyan: what became of the workspaces before it was told of it is to be told it` 가 몇 건인지 말합니다.
+- 닫기와 되돌리기는 그 트랜잭션에 levyan에 알릴 것을 남기고(`LevyanNotice`), 파기는 마지막 측정을 넘긴 뒤 무엇이든 지우기 전에 남깁니다. 루프 `loft.levyan.notices` 가 10초마다 `WorkspaceService`(`Close`, `Restore`, `Destroy`)로 일어난 시각과 함께 보냅니다.
+- 워크스페이스마다 일어난 순서대로입니다. levyan이 멈춰도 Loft의 쓰기는 기다리지도 실패하지도 않고, 알림이 기다렸다가 levyan이 돌아오면 나갑니다. 기다리는 알림이 있는데 levyan이 답하지 않으면 경고 로그(`levyan: what it is to be told of the workspaces waits`)가 남습니다.
+- levyan이 그 워크스페이스를 들은 적 없다고 답하면(`NotFound`) 아무도 그 워크스페이스가 생겼다고 알리지 않은 것이라 levyan은 누구에게도 청구하지 않습니다. 보낸 것으로 표시하고 다시 보내지 않습니다(로그 `levyan: what became of a workspace it heard nothing of is not told again`).
+- 그 밖에 levyan이 거부한 것은 Loft의 잘못이라 경고 로그(`levyan: what became of a workspace was refused, which is a fault of Loft's`)에 남기고 다시 보내지 않습니다.
+- 루프가 처음 돌 때 그 전의 일을 한 번 알립니다. 남아 있는 닫기·되돌리기 이벤트를 오래된 것부터, 기록이 없는 곳은 지금 닫혀 있는 워크스페이스를, 그리고 파기된 워크스페이스를 주소 보류의 시각으로 알립니다. 로그 `levyan: what became of the workspaces before it was told of it is to be told it` 가 몇 건인지 말합니다.
 
 ## 파기 전의 마지막 측정
 
@@ -125,4 +122,4 @@ levyan-admin meter add --unit d --kind stock --aggregation last --unbounded-zero
 
 ## 테스트
 
-Go 테스트와 브라우저 테스트는 가짜 levyan(`internal/levyantest`)에 청구합니다. Loft 밖에서 지불자가 하는 일(결제 계정 열기, 제안 받아들이기)은 테스트가 그 가짜에게 말합니다([테스트](testing.md#브라우저-테스트-playwright)).
+Go 테스트와 브라우저 테스트는 가짜 levyan(`internal/levyantest`)에 청구합니다. Loft 밖에서 하는 일(포털이 알리는 워크스페이스를 만든 사람, 지불자의 결제 계정 열기와 제안 받아들이기)은 테스트가 그 가짜에게 말합니다([테스트](testing.md#브라우저-테스트-playwright)).

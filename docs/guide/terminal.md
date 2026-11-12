@@ -65,7 +65,7 @@ loft auth logout <이름>                  # 연결을 잊음 (사람의 것은 
   3. `loft auth switch` 로 고른 것
 - 운영자의 연결은 `loft auth login --operator --url http://127.0.0.1:8081 --key file:/경로/키` 로 둡니다. 키 자체가 아니라 키가 있는 곳(`env:이름`, `file:경로`)만 받고 그것만 저장하며, 두기 전에 진입점에 그 키가 누구인지 묻습니다. 파일에 두지 않고 그 명령만 부를 때는 `loft --url http://127.0.0.1:8081 --key file:/경로/키 <명령>` 입니다.
 - `--workspace`, `LOFT_WORKSPACE`, `loft use` 는 사람의 연결의 것입니다. 운영자는 명령마다 워크스페이스를 주소로 주고, 운영자의 연결에 이것을 주면 거부됩니다.
-- 계정의 일인 `loft use`, `loft consent`, `loft mcp` 는 운영자의 연결로는 거부됩니다. 다른 종류의 연결로 부른 작업은 어느 연결을 쓰라고 말합니다(`… is a person's, and this is an operator's connection: use a person's`).
+- 계정의 일인 `loft use`, `loft mcp` 는 운영자의 연결로는 거부됩니다. 다른 종류의 연결로 부른 작업은 어느 연결을 쓰라고 말합니다(`… is a person's, and this is an operator's connection: use a person's`).
 
 ## 스키마의 명령: 모든 RPC를 명령으로
 
@@ -150,12 +150,10 @@ loft tenant configure @<주소> '{"name": "연구지원팀 장비"}'       # 소
 ### 그 밖의 명령
 
 ```sh
-loft scan 7K3M-Q9TX                                # 라벨이 가리키는 것 (내 다른 워크스페이스의 라벨도)
+loft scan 7K3M-Q9TX                                # 라벨이 가리키는 것
 loft asset form 양식.csv                            # 대량 등록 양식
 loft asset add-many 입고.csv                        # 무엇이 등록될지와 문제를 줄마다 (아무것도 바꾸지 않음)
 loft asset add-many --yes --reason "11월 입고" 입고.csv
-loft consent                                       # 동의해야 할 문서와 주소
-loft consent --agree                               # 읽은 뒤 동의
 ```
 
 터미널의 명령은 서버의 설정을 읽지 않습니다. 서버의 설정을 읽는 것은 서버 상자에서 쓰는 `init`, `migrate`, `serve`, `config` 뿐입니다([배포 운영자](operator.md)).

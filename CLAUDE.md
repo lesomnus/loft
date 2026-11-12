@@ -297,17 +297,15 @@ issuer that holds a relying party to what it has to send.
 
 An account in no workspace is given one of its own when it signs in
 (`tenancy.Workspaces.Arrive`), makes more with `TenantService.Create`, and
-`TenantService.Mine` is what it is in -- the account's own RPCs (D73), as
-`LabelService.Locate`, which of them a label is in, is. What stays HTTP
-beside `/session` (`server/account`) is what a session is told of itself,
-`GET /account`, and what it agrees to (`/account/consents`): an account that
-owes an agreement is refused every RPC but what it has (`cmd.WhileOwing`), so
-the way out cannot be behind the refusal.
+`TenantService.Mine` is what it is in -- the account's own RPCs (D73). What
+stays HTTP beside `/session` (`server/account`) is what a session is told of
+itself, `GET /account`. There are no terms to agree to: the service's terms
+are the portal's (D84).
 
 **Some calls are served as an account** (D30, D73): the invitations
 addressed to it -- nobody's member in that workspace yet --
 `InvitationService.Inbox`, `Claim`, `Accept` and `Deny`, and what it is in,
-`TenantService.Mine`, `Create` and `LabelService.Locate`. Each is marked
+`TenantService.Mine` and `Create`. Each is marked
 `(payday.method) = {account: {}}` (payday#184): `pd.AccountResolver` serves
 them as the account itself (`frame.OfAccount`, no tenant), payday refuses such
 a frame every other method, the policy gives them to the account alone
@@ -413,8 +411,8 @@ switch` chose; a call of the other kind is told which connection it wants
 (`operator.Own`, `operator.Table`). These commands read no server
 configuration. A new feature is an RPC, so it is a command too -- and what is
 HTTP beside the RPCs (`/account`) is only what a session is told of itself
-(`loft auth whoami`, `loft consent`); the account's workspaces are RPCs
-(`loft tenant mine|create`, D73).
+(`loft auth whoami`); the account's workspaces are RPCs (`loft tenant
+mine|create`, D73).
 
 A terminal may sign in narrowed (`loft auth login --allow PATTERN`, D33): the page
 that approves it shows the methods, and the session is narrowed to them --
@@ -580,22 +578,10 @@ one of these needs ships a release before anything writes it, so that the
 oldest build a deployment runs (CI's `OLDEST`, which follows staging) reads
 it.
 
-Who pays for a workspace is levyan's, and what it cannot know Loft tells it
-(design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and
-`Leave` (an account no longer in it), written as a `LevyanNotice` (domain
-51, global, `trail: off`) in the transaction of the change -- by
-`tenancy.Workspaces`' making (sign-in, `TenantService.Create`), `loft
-init`, `loft tenant import`, and by `levyan.Notices.Recorder` on every
-`HolderService.Erase` through the servers -- and told by `levyan.Teller`
-(`loft.levyan.notices`, under the lease), a workspace's in the order they
-happened, a levyan that is down holding nothing up. A notice told is kept,
-marked `date_told`. The loop's first pass in a process tells levyan of every
-workspace it never told arrived, by its first owner (`tenancy.FirstOwners`,
-D57's). roster's erase mark (`Holder.date_leaving`) tells nothing: the
-account is told left when it leaves (`Deps.Depart`), since a mark is acted on
-only once roster is asked again, and a `Leave` levyan heard is not undone by
-roster restoring the account. The free-workspace rule is not built yet;
-`ErrOwnsEnough` stays the deployment's cap until collection runs.
+Who pays for a workspace is levyan's, and who made one or left it is the
+portal's to tell it (design 7.6, D84): nothing here tells levyan of an
+account. The free-workspace rule is not built yet; `ErrOwnsEnough` stays the
+deployment's cap until collection runs.
 
 How a workspace is paid for is levyan's, and Loft asks and shows, storing
 nothing of it (design 7.9, D63): `loft.PaymentService` (`proto/loft/payment.proto`,
@@ -625,23 +611,25 @@ six digits: read exactly, and shown to one digit after the point. The
 workspace's statements (`ListStatements`) are its administrators', under
 settings › 결제.
 
-What became of a workspace is told the same way (design 7.8, D62): `close`
-and `restore`, written by `Tx.closeWorkspace` and `restoreWorkspace` in their
-transaction (`domain.Deps.Closings`) whoever closes it -- an operator, the
-deployment when nobody is left -- of the moment it happened;
-and `destroy`, written by `closing.Destroy` once its final reading is handed
-over, whatever became of that, and before anything is taken: at a moment
-after the reading, which its `AliasHold` is held from, once of a workspace. A
-dry run writes nothing. A notice of these levyan answers it never heard of the
-workspace for (NotFound) is told after the workspace's `Arrive`
-(`Teller.unheard`): one waiting, the one levyan was told before again, or by
-its first owner (origin `notfound`); one gone that levyan never heard arrive,
-or one no account owns, is marked told with why. levyan refusing one is a
-fault of Loft's, logged and not told again. The first pass also writes, once,
-the `workspace.close` and `workspace.restore` events still kept (the mark
-`past`), and as every pass starts, every workspace closed now and every one
-destroyed that levyan was told arrived -- not one here again, which is
-levyan's open question.
+What became of a workspace Loft tells levyan (design 7.8, D62), by
+`levyan.v1.WorkspaceService`, written as a `LevyanNotice` (domain 51,
+global, `trail: off`) in the transaction of the change and told by
+`levyan.Teller` (`loft.levyan.notices`, under the lease), a workspace's in
+the order they happened, a levyan that is down holding nothing up. A notice
+told is kept, marked `date_told`. `close` and `restore` are written by
+`Tx.closeWorkspace` and `restoreWorkspace` in their transaction
+(`domain.Deps.Closings`) whoever closes it -- an operator, the deployment
+when nobody is left -- of the moment it happened; and `destroy`, written by
+`closing.Destroy` once its final reading is handed over, whatever became of
+that, and before anything is taken: at a moment after the reading, which its
+`AliasHold` is held from, once of a workspace. A dry run writes nothing.
+levyan refusing one is marked told with what it said, logged, and not told
+again: a workspace it heard nothing of (NotFound) is one nobody told it
+arrived, which it bills nobody for, and anything else a fault of Loft's. The
+loop's first pass in a process also writes, once, the `workspace.close` and
+`workspace.restore` events still kept (the mark `past`), and as every pass
+starts, every workspace closed now and every one destroyed -- not one here
+again, which is levyan's open question.
 
 ## What may be called
 
