@@ -151,7 +151,7 @@ type Routes struct {
 	// Manage is roster's account page (`auth.roster.account_url`).
 	Manage string
 	// AliasHold is how long a destroyed workspace's address is kept from
-	// anybody else, which the owner of a closed one is told.
+	// anybody else, which an account in a closed one is told.
 	AliasHold time.Duration
 	// Consent is what an account agrees to first; nil asks nothing.
 	Consent *consent.Consents

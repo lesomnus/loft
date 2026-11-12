@@ -198,10 +198,10 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"workspace.configure", app.WorkspaceConfigured_builder{Name: z.Ptr("")}.Build(), "워크스페이스 이름 지움 (소유자의 이름으로 부름)"},
 		{"workspace.configure", app.WorkspaceConfigured_builder{Name: z.Ptr("연구실 장비"), Timezone: z.Ptr("Asia/Seoul")}.Build(), "워크스페이스 설정 변경 (이름: 연구실 장비)"},
 		{"workspace.configure", app.WorkspaceConfigured_builder{Name: z.Ptr(""), RestoreDays: z.Ptr(uint32(90))}.Build(), "워크스페이스 설정 변경 (이름 지움)"},
-		{"workspace.close", app.WorkspaceClosed_builder{By: "owner", DateDestroy: timestamppb.New(at)}.Build(), "워크스페이스 닫기"},
+		{"workspace.close", app.WorkspaceClosed_builder{DateDestroy: timestamppb.New(at)}.Build(), "워크스페이스 닫기"},
 		{"workspace.close", app.WorkspaceClosed_builder{By: "operator"}.Build(), "워크스페이스 닫기 (운영자)"},
 		{"workspace.close", app.WorkspaceClosed_builder{By: "deployment"}.Build(), "워크스페이스 닫기 (남은 구성원 없음)"},
-		{"workspace.restore", app.WorkspaceRestored_builder{By: "owner"}.Build(), "워크스페이스 복구"},
+		{"workspace.restore", app.WorkspaceRestored_builder{By: "operator"}.Build(), "워크스페이스 복구"},
 		// Declared by D70 a release before D71 wrote it: how many of its
 		// reservations whose time passed while it was closed it let go of.
 		{"workspace.restore", app.WorkspaceRestored_builder{By: "operator", Expired: 3}.Build(), "워크스페이스 복구: 닫혀 있던 동안 시간이 지난 예약 3건 만료"},

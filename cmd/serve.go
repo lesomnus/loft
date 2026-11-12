@@ -1104,7 +1104,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		// name of its own is called after (D57, loft#136).
 		Access: s.Access,
 		Manage: s.Identity.AccountPage(),
-		// What the owner of a closed workspace is told its address is then
+		// What an account in a closed workspace is told its address is then
 		// held for (D29).
 		AliasHold: c.App.Workspaces.Hold(),
 		// What it agrees to before anything else, and the workspace an

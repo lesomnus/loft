@@ -76,8 +76,8 @@ export type LevyanNotice = Message<"loft.LevyanNotice"> & {
    * The account at roster: the one that made the workspace, or that left it.
    * An identifier, and nothing of the person's. None -- the nil identifier --
    * for what became of the workspace itself, which levyan is told of no
-   * account: whoever closed it, its owner, an operator or the deployment, is
-   * the workspace's own history.
+   * account: whoever closed it, an operator or the deployment, is the
+   * workspace's own history.
    *
    * @generated from field: bytes account = 10;
    */
