@@ -106,11 +106,6 @@ func TenantId(v uuid.UUID) predicate.Label {
 	return predicate.Label(sql.FieldEQ(FieldTenantId, v))
 }
 
-// DomainId applies equality check predicate on the "domain_id" field. It's identical to DomainIdEQ.
-func DomainId(v uuid.UUID) predicate.Label {
-	return predicate.Label(sql.FieldEQ(FieldDomainId, v))
-}
-
 // SubjectIdEQ applies the EQ predicate on the "subject_id" field.
 func SubjectIdEQ(v uuid.UUID) predicate.Label {
 	return predicate.Label(sql.FieldEQ(FieldSubjectId, v))
@@ -626,36 +621,6 @@ func TenantIdNotIn(vs ...uuid.UUID) predicate.Label {
 	return predicate.Label(sql.FieldNotIn(FieldTenantId, vs...))
 }
 
-// DomainIdEQ applies the EQ predicate on the "domain_id" field.
-func DomainIdEQ(v uuid.UUID) predicate.Label {
-	return predicate.Label(sql.FieldEQ(FieldDomainId, v))
-}
-
-// DomainIdNEQ applies the NEQ predicate on the "domain_id" field.
-func DomainIdNEQ(v uuid.UUID) predicate.Label {
-	return predicate.Label(sql.FieldNEQ(FieldDomainId, v))
-}
-
-// DomainIdIn applies the In predicate on the "domain_id" field.
-func DomainIdIn(vs ...uuid.UUID) predicate.Label {
-	return predicate.Label(sql.FieldIn(FieldDomainId, vs...))
-}
-
-// DomainIdNotIn applies the NotIn predicate on the "domain_id" field.
-func DomainIdNotIn(vs ...uuid.UUID) predicate.Label {
-	return predicate.Label(sql.FieldNotIn(FieldDomainId, vs...))
-}
-
-// DomainIdIsNil applies the IsNil predicate on the "domain_id" field.
-func DomainIdIsNil() predicate.Label {
-	return predicate.Label(sql.FieldIsNull(FieldDomainId))
-}
-
-// DomainIdNotNil applies the NotNil predicate on the "domain_id" field.
-func DomainIdNotNil() predicate.Label {
-	return predicate.Label(sql.FieldNotNull(FieldDomainId))
-}
-
 // HasTenant applies the HasEdge predicate on the "tenant" edge.
 func HasTenant() predicate.Label {
 	return predicate.Label(func(s *sql.Selector) {
@@ -671,29 +636,6 @@ func HasTenant() predicate.Label {
 func HasTenantWith(preds ...predicate.Tenant) predicate.Label {
 	return predicate.Label(func(s *sql.Selector) {
 		step := newTenantStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasDomain applies the HasEdge predicate on the "domain" edge.
-func HasDomain() predicate.Label {
-	return predicate.Label(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, DomainTable, DomainColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasDomainWith applies the HasEdge predicate on the "domain" edge with a given conditions (other predicates).
-func HasDomainWith(preds ...predicate.Domain) predicate.Label {
-	return predicate.Label(func(s *sql.Selector) {
-		step := newDomainStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

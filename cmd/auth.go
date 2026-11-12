@@ -13,7 +13,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/lesomnus/payday/account"
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
@@ -22,7 +21,6 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/consent"
 	"github.com/lesomnus/loft/server/pd"
 )
@@ -57,40 +55,14 @@ import (
 // closed workspace is refused last, whoever makes it and whatever it asks
 // ([refusedClosed]): what becomes of a closed workspace is its operator's
 // (D83).
-//
-// A call that came to a workspace's own domain is pinned to that workspace
-// ([apphost.From], loft#155), and served as a membership of it or not at all:
-// a session is bound to it before it is resolved, so a [WorkspaceHeader] that
-// names another is refused rather than re-pointed, and so is a call an
-// account makes as itself across its workspaces; and a credential of another
-// workspace's holder is refused.
-//
-// A session handed to a workspace's own domain (`server/session`'s handoff)
-// is bound to that workspace, and is nobody but on a host that pins it: at
-// the service's address, or on another workspace's domain, it is no
-// credential at all. Its tenant is that workspace's, which payday holds the
-// frame to besides ([auth.Identity.TenantId]).
 func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Resolver {
 	accounts := pd.AccountResolver(db, WorkspaceHeader, signedIn, holders(s))
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
-		pin, pinned := apphost.From(ctx)
 		if signedIn(id) {
-			if id.TenantId != "" && (!pinned || id.TenantId != pin.Workspace.String()) {
-				return nil, fmt.Errorf("%w: this sign-in was handed to a workspace's own domain, and is good there alone", auth.ErrNoCredential)
-			}
 			if m, _ := grpc.Method(ctx); !WhileOwing[m] {
 				if err := settled(ctx, consents, id.Id); err != nil {
 					return nil, err
 				}
-			}
-			if pinned {
-				if err := pinnedTo(ctx, pin); err != nil {
-					return nil, err
-				}
-				// Bound to the domain's workspace, as a sign-in handed to
-				// it is: served as the account's membership of it, and as
-				// nothing an account does outside every workspace.
-				id.TenantId = pin.Workspace.String()
 			}
 		}
 
@@ -111,10 +83,6 @@ func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Res
 		v, _ := f.Row.(*app.Holder)
 		if v.GetTenant().HasDateClosed() {
 			return nil, refusedClosed()
-		}
-		// Whatever the credential named, a pinned call is of its workspace.
-		if pinned && f.Tenant != pin.Workspace {
-			return nil, status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace", pin.Alias)
 		}
 
 		return f, nil
@@ -174,21 +142,6 @@ func holders(s app.Server) auth.Resolver {
 		// so a resolver cannot widen a token by forgetting.
 		return frame.New(actor, tenant, frame.Grant{}).WithRow(v), nil
 	})
-}
-
-// pinnedTo refuses a call to a workspace's own domain that names another
-// workspace (loft#155): one named otherwise is refused, rather than served as
-// the account's membership somewhere else, and none named is the domain's.
-func pinnedTo(ctx context.Context, pin apphost.Pinned) error {
-	in, err := account.SelectorOf(ctx, WorkspaceHeader)
-	if err != nil {
-		return err
-	}
-	if in.IsZero() || in.Id == pin.Workspace || (in.Alias != "" && in.Alias == pin.Alias) {
-		return nil
-	}
-
-	return status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace: %s is at the service's", pin.Alias, in)
 }
 
 // ErrorClosed is the reason a call into a closed workspace is refused with

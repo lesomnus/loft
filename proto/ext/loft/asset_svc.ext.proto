@@ -410,7 +410,7 @@ message AssetCensusRow {
 }
 
 service LabelService {
-  // Print makes labels for the tenant's active label domain: new ones to bind
+  // Print makes labels, with this deployment's own address: new ones to bind
   // later, or one for each asset given, bound already.
   rpc Print(LabelPrintRequest) returns (LabelPrintResponse);
   rpc Bind(LabelBindRequest) returns (Label);
@@ -464,50 +464,6 @@ message LabelResolveRequest {
 message LabelResolveResponse {
   Label label = 1;
   Asset asset = 2;
-}
-
-service DomainService {
-  // Verify checks the TXT record of a pending custom domain.
-  rpc Verify(DomainVerifyRequest) returns (Domain);
-  // Activate makes a verified domain the one new labels are printed with; the
-  // active one before it becomes legacy and keeps resolving.
-  rpc Activate(DomainActivateRequest) returns (Domain);
-  rpc Retire(DomainRetireRequest) returns (Domain);
-  // Status answers whether labels are on for this tenant, and with what.
-  rpc Status(DomainStatusRequest) returns (DomainStatusResponse);
-}
-
-message DomainAddRequest {
-  // The label for a default subdomain; the host is made from it.
-  string sub = 100;
-}
-
-message DomainVerifyRequest {
-  DomainRef ref = 1;
-}
-
-message DomainActivateRequest {
-  DomainRef ref = 1;
-}
-
-message DomainRetireRequest {
-  DomainRef ref = 1;
-  // Retire even though labels were printed with it.
-  bool force = 2 [features.field_presence = IMPLICIT];
-}
-
-message DomainStatusRequest {}
-
-message DomainStatusResponse {
-  // The domain new labels print with, and that the app is on (an `app`
-  // domain); none prints with `base`.
-  Domain active = 2;
-  // The host a custom domain's CNAME has to point at.
-  string target = 3 [features.field_presence = IMPLICIT];
-  // The suffix a default subdomain gets; empty offers none.
-  string default_suffix = 4 [features.field_presence = IMPLICIT];
-  // What a label prints with when it has no domain to: `<base>/l/<code>`.
-  string base = 6 [features.field_presence = IMPLICIT];
 }
 
 service AttachmentService {

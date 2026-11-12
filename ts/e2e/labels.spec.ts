@@ -7,9 +7,10 @@ const printed = /[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}/
 test('a label printed blank is found by the code under its QR and put on an asset', async ({ page }) => {
 	await signIn(page, people.labels.login)
 
-	// Opening the sheet is printing: it asks for the labels.
+	// Opening the sheet is printing: it asks for the labels, which print with
+	// this deployment's own address (D28, D82).
 	await page.goto(`${workspace}/labels/print?count=1`)
-	await expect(page.getByText('라벨 1장')).toBeVisible()
+	await expect(page.getByText(`라벨 1장 · ${new URL(page.url()).host}`)).toBeVisible()
 	await expect(page.getByText('미부착 라벨')).toBeVisible()
 	const code = (await page.getByText(printed).innerText()).match(printed)?.[0]
 	expect(code).toBeDefined()

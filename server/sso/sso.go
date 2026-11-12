@@ -49,7 +49,6 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/landing"
 )
 
@@ -96,10 +95,6 @@ type Ways struct {
 	Providers []Provider `json:"providers"`
 	// Password says whether the form is offered beside them.
 	Password bool `json:"password"`
-	// Handoff says that this is a workspace's own domain, where nobody signs
-	// in: the page sends the browser to the service's address to be signed
-	// in, and back (`server/session`'s handoff, loft#155).
-	Handoff bool `json:"handoff,omitempty"`
 }
 
 // People is who an issuer's `sub` is, at roster.
@@ -210,9 +205,6 @@ func (rp *Rp) ways(w http.ResponseWriter, r *http.Request) {
 	v := Ways{Sso: rp.c.On(), Providers: []Provider{}, Password: rp.password}
 	if rp.c.On() {
 		v.Providers = append(v.Providers, rp.c.Providers...)
-	}
-	if _, ok := apphost.From(r.Context()); ok {
-		v = Ways{Providers: []Provider{}, Handoff: true}
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
@@ -381,20 +373,19 @@ func (rp *Rp) logout(w http.ResponseWriter, r *http.Request) {
 	}
 	http.SetCookie(w, rp.sessions.End(ctx, key))
 
-	to := rp.EndSession(ctx, held)
+	to := rp.endSession(ctx, held)
 	if to == "" {
 		to = "/"
 	}
 	http.Redirect(w, r, to, http.StatusSeeOther)
 }
 
-// EndSession is where a browser goes to end its session at the issuer too,
+// endSession is where a browser goes to end its session at the issuer too,
 // for a sign-in that kept the issuer's token (`held`, `Session.held`), and
 // comes back to this deployment's `/`: empty for one that kept none, and for
 // an issuer that publishes no way to end its own session -- the session here
-// is ended, and that is what there is. Signing out on a workspace's domain
-// goes there too (`server/session`'s handoff).
-func (rp *Rp) EndSession(ctx context.Context, held map[string]string) string {
+// is ended, and that is what there is.
+func (rp *Rp) endSession(ctx context.Context, held map[string]string) string {
 	token := held[hint]
 	if token == "" || !rp.c.On() {
 		return ""

@@ -71,64 +71,6 @@ func AssetGetByTag(tag string, tenant *TenantRef) *AssetGetRequest {
 	return AssetGetRequest_builder{Ref: AssetByTag(tag, tenant)}.Build()
 }
 
-func (x *DomainRef) Pick() *DomainGetRequest {
-	return DomainGetRequest_builder{Ref: x}.Build()
-}
-
-func (x *Domain) Ref() *DomainRef {
-	if v := x.GetId(); len(v) > 0 {
-		return DomainById(v)
-	}
-	if v := x.GetHost(); len(v) > 0 {
-		return DomainByHost(v)
-	}
-
-	return nil
-}
-
-func (x *Domain) Pick() *DomainGetRequest {
-	return x.Ref().Pick()
-}
-
-func (x *DomainRef) Picks(v *Domain) bool {
-	switch x.WhichKey() {
-	case DomainRef_Id_case:
-		return bytes.Equal(x.GetId(), v.GetId())
-	case DomainRef_Host_case:
-		return x.GetHost() == v.GetHost()
-	default:
-		return false
-	}
-}
-
-func (x *DomainGetRequest) WithSelect(f func(s *DomainSelect)) *DomainGetRequest {
-	if !x.HasSelect() {
-		x.SetSelect(&DomainSelect{})
-	}
-	f(x.GetSelect())
-	return x
-}
-
-func DomainById(v []byte) *DomainRef {
-	x := &DomainRef{}
-	x.SetId(v)
-	return x
-}
-
-func DomainByHost(v string) *DomainRef {
-	x := &DomainRef{}
-	x.SetHost(v)
-	return x
-}
-
-func DomainGetById(v []byte) *DomainGetRequest {
-	return DomainGetRequest_builder{Ref: DomainById(v)}.Build()
-}
-
-func DomainGetByHost(v string) *DomainGetRequest {
-	return DomainGetRequest_builder{Ref: DomainByHost(v)}.Build()
-}
-
 func (x *LabelRef) Pick() *LabelGetRequest {
 	return LabelGetRequest_builder{Ref: x}.Build()
 }

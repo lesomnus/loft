@@ -24,14 +24,12 @@ import (
 	"github.com/lesomnus/loft/internal/ent/asset"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
-	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/lesomnus/loft/internal/ent/reservation"
 	"github.com/lesomnus/loft/internal/ent/reservationitem"
-	entsession "github.com/lesomnus/loft/internal/ent/session"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/ent/workorder"
 )
@@ -78,7 +76,6 @@ var sweeps = []sweep{
 	{"kits", sweepKits},
 	{"loans", sweepLoans},
 	{"work", sweepWork},
-	{"domains", sweepDomains},
 }
 
 // Pass runs every sweep in every tenant once. One that fails is logged and the
@@ -1011,148 +1008,4 @@ func sweepWork(t *Tx) error {
 		}
 	}
 	return nil
-}
-
-// sweepDomains asks about the DNS of a workspace's custom domains (loft#155):
-//
-//   - A pending one every few minutes for a week from when it was added, and
-//     a lapsed one for a week from when it lapsed. One whose TXT record holds
-//     its token and that points here is verified, and made active when the
-//     workspace has no active domain -- a lapsed one comes back so -- and left
-//     for a person to switch to otherwise: changing the host labels are
-//     printed with is a decision.
-//   - The active one every [RecheckEvery], which lapses once its DNS said no
-//     [RecheckFailures] times in a row, over [RecheckSpan] ([Tx.lapse]).
-func sweepDomains(t *Tx) error {
-	if t.deps.LookupTXT == nil {
-		return nil
-	}
-	week := t.now.Add(-7 * 24 * time.Hour)
-	ds, err := t.db.Domain.Query().Where(
-		entdomain.TenantId(t.tenant.Uuid()),
-		entdomain.Or(
-			entdomain.And(entdomain.State(domainPending), entdomain.DateCreatedGT(week)),
-			entdomain.And(entdomain.State(domainLapsed), entdomain.DateLapsedGT(week)),
-		),
-		entdomain.DateUpdatedLT(t.now.Add(-5*time.Minute)),
-		entdomain.DateErasedIsNil(),
-	).Limit(20).All(t.ctx)
-	if err != nil {
-		return err
-	}
-	for _, d := range ds {
-		if t.deps.isHere(t.ctx, d.Host, d.Token) != heardYes {
-			// Looked at, so the next look is five minutes from now.
-			if _, err := t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
-				Ref:              app.DomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
-				DateUpdatedForce: z.Ptr(true),
-			}.Build()); err != nil {
-				return err
-			}
-			continue
-		}
-		if _, err := t.verified(pdid.Id(d.Id).Bytes(), d.Purpose, d.Host, d.State == domainLapsed, true); err != nil {
-			return err
-		}
-	}
-	return t.recheckDomains()
-}
-
-// recheckDomains asks again about the active custom domain's DNS, once every
-// [RecheckEvery]: a yes starts the count of noes again, a no is counted, and
-// an answer that says nothing is not.
-func (t *Tx) recheckDomains() error {
-	ds, err := t.db.Domain.Query().Where(
-		entdomain.TenantId(t.tenant.Uuid()),
-		entdomain.State(domainActive),
-		entdomain.Source("custom"),
-		entdomain.Or(entdomain.DateCheckedIsNil(), entdomain.DateCheckedLTE(t.now.Add(-RecheckEvery))),
-		entdomain.DateErasedIsNil(),
-	).Limit(20).All(t.ctx)
-	if err != nil {
-		return err
-	}
-	for _, d := range ds {
-		patch := app.DomainPatchRequest_builder{
-			Ref:              app.DomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
-			DateChecked:      ts(t.now),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build()
-		switch t.deps.isHere(t.ctx, d.Host, d.Token) {
-		case heardYes:
-			patch.SetFailures(0)
-			patch.SetDateFailingNull(true)
-		case heardNo:
-			since := t.now
-			if d.DateFailing != nil {
-				since = *d.DateFailing
-			}
-			n := d.Failures + 1
-			if n >= RecheckFailures && !t.now.Before(since.Add(RecheckSpan)) {
-				if err := t.lapse(d, n, since); err != nil {
-					return err
-				}
-				continue
-			}
-			patch.SetFailures(n)
-			patch.SetDateFailing(ts(since))
-		}
-		if _, err := t.next.Domain().Patch(t.ctx, patch); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// lapse takes an active domain whose DNS no longer says it is here out of
-// use (loft#155). No sign-in is handed to it and no certificate asked for it
-// (`/internal/tls-ask`), the sessions handed to it end, and links to the
-// workspace are made at the service's address again (`apphost.Links`); labels
-// printed with it still open while it points here. Whoever may act on it is
-// told, by mail as well. It is active again only once its TXT record verifies
-// again: the sweep asks for a week, and a person may at any time (`Verify`).
-func (t *Tx) lapse(d *ent.Domain, failures uint32, since time.Time) error {
-	words := domainWords(d.Purpose)
-	// Why is the deployment's to say, and is what the event holds: no
-	// person's words, which a reason is (payday#151).
-	if err := t.begin(nil, "domain.lapse", pdid.Nil, t.now, "", app.DomainLapsed_builder{
-		Domain:      pdid.Id(d.Id).Bytes(),
-		Host:        d.Host,
-		Purpose:     d.Purpose,
-		DateFailing: ts(since),
-		Failures:    failures,
-	}.Build()); err != nil {
-		return err
-	}
-	if _, err := t.next.Domain().Patch(t.ctx, app.DomainPatchRequest_builder{
-		Ref:              app.DomainRef_builder{Id: pdid.Id(d.Id).Bytes()}.Build(),
-		State:            z.Ptr(domainLapsed),
-		DateLapsed:       ts(t.now),
-		DateChecked:      ts(t.now),
-		Failures:         z.Ptr(failures),
-		DateFailing:      ts(since),
-		DateUpdatedForce: z.Ptr(true),
-	}.Build()); err != nil {
-		return err
-	}
-	// The sessions handed to it: every session bound to this workspace is
-	// one handed to its domain (`server/session`). A session is no act on the
-	// trail, and is written through ent, as its own package writes it.
-	if _, err := t.db.Session.Delete().Where(entsession.Workspace(t.tenant.Uuid())).Exec(t.ctx); err != nil {
-		return err
-	}
-	// What a person may do of it is said only while they may: a read-only
-	// workspace takes no `Verify` (D64), and the sweep asks again all the
-	// same (D68).
-	again := "레코드를 되돌리면 일주일 동안 저절로 다시 확인하고, 설정에서 바로 확인할 수도 있습니다."
-	quiet, err := t.readonly()
-	if err != nil {
-		return err
-	}
-	if quiet {
-		again = "레코드를 되돌리면 일주일 동안 저절로 다시 확인합니다."
-	}
-	return t.notifyAdmins("domain.lapsed", words+" 사용 중지: "+d.Host,
-		"DNS가 "+t.when(since)+"부터 이 서비스를 가리키지 않거나 _loft-challenge TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔고, 이 주소로 인쇄한 라벨은 DNS가 이곳을 가리키는 동안 계속 열립니다. "+again,
-		pdid.Id(d.Id), "/settings")
 }

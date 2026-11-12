@@ -99,44 +99,6 @@ func (e *TagCounter) Proto() *loft.TagCounter {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }
-func (e *Domain) Proto() *loft.Domain {
-	x := &loft.Domain{}
-	x.SetId(e.Id[:])
-	if v := e.Edges.Tenant; v != nil {
-		x.SetTenant(v.Proto())
-	} else if v := e.TenantId; v != *new(uuid.UUID) {
-		r := &loft.Tenant{}
-		r.SetId(v[:])
-		x.SetTenant(r)
-	}
-	x.SetHost(e.Host)
-	x.SetPurpose(e.Purpose)
-	x.SetState(e.State)
-	x.SetToken(e.Token)
-	x.SetSource(e.Source)
-	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
-	if e.DateErased != nil {
-		x.SetDateErased(timestamppb.New(*e.DateErased))
-	}
-	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	if e.DateVerified != nil {
-		x.SetDateVerified(timestamppb.New(*e.DateVerified))
-	}
-	if e.DateChecked != nil {
-		x.SetDateChecked(timestamppb.New(*e.DateChecked))
-	}
-	x.SetFailures(e.Failures)
-	if e.DateFailing != nil {
-		x.SetDateFailing(timestamppb.New(*e.DateFailing))
-	}
-	if e.DateLapsed != nil {
-		x.SetDateLapsed(timestamppb.New(*e.DateLapsed))
-	}
-	if e.DateRedirectUntil != nil {
-		x.SetDateRedirectUntil(timestamppb.New(*e.DateRedirectUntil))
-	}
-	return x
-}
 func (e *Label) Proto() *loft.Label {
 	x := &loft.Label{}
 	x.SetId(e.Id[:])
@@ -146,13 +108,6 @@ func (e *Label) Proto() *loft.Label {
 		r := &loft.Tenant{}
 		r.SetId(v[:])
 		x.SetTenant(r)
-	}
-	if v := e.Edges.Domain; v != nil {
-		x.SetDomain(v.Proto())
-	} else if v := e.DomainId; v != *new(uuid.UUID) {
-		r := &loft.Domain{}
-		r.SetId(v[:])
-		x.SetDomain(r)
 	}
 	if e.SubjectId != nil {
 		x.SetSubjectId(e.SubjectId[:])

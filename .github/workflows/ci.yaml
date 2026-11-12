@@ -324,10 +324,10 @@ jobs:
 
   # The deployment bundle (Dockerfile, deploy/compose) as an operator brings
   # it up: the image built, PostgreSQL, the migration, two `loft serve` behind
-  # Caddy and the operator's entry point, search on OpenSearch and
-  # workspaces' own domains as deploy/compose/README.md turns them on -- and a workspace made,
-  # signed in to and asked through the proxy, searched, listed at the entry
-  # point, and served on a domain of its own. Nothing is pushed anywhere.
+  # Caddy and the operator's entry point, and search on OpenSearch as
+  # deploy/compose/README.md turns it on -- and a workspace made, signed in to
+  # and asked through the proxy, searched, and listed at the entry point.
+  # Nothing is pushed anywhere.
   bundle:
     runs-on: ubuntu-26.04
     defaults:
@@ -359,12 +359,9 @@ jobs:
           openssl rand -base64 32 > secrets/digest.key
           openssl rand -hex 32 > secrets/admin_key
           chmod 444 secrets/*
-          # Search on, as deploy/compose/README.md's "검색을 켜려면" turns it on, and
-          # workspaces' own domains as "워크스페이스 도메인" does -- on Caddy's
-          # own CA, since nothing here is reached for Let's Encrypt to ask.
+          # Search on, as deploy/compose/README.md's "검색을 켜려면" turns it on.
           ./search-init.sh
-          echo 'COMPOSE_FILE=compose.yaml:compose.search.yaml:compose.domains.yaml' >> .env
-          sed -i -e "s/^LOFT_EDGE_OPTIONS=.*/LOFT_EDGE_OPTIONS=local_certs/" .env
+          echo 'COMPOSE_FILE=compose.yaml:compose.search.yaml' >> .env
       - run: docker compose up -d --build
       - name: it answers through the proxy
         run: |
@@ -421,26 +418,6 @@ jobs:
           echo "${out}"
           docker compose logs loft | grep search
           exit 1
-      - name: a workspace's own domain, on a certificate taken on demand
-        run: |
-          # Added as its settings page adds it, and verified as its DNS would
-          # be: the runner serves no DNS of its own.
-          curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
-            -d '{"host":"assets.acme.test"}' https://localhost/loft.DomainService/Add > /dev/null
-          docker compose exec -T postgres psql -U loft -d loft -qc \
-            "UPDATE domain SET state = 'active', date_verified = now() WHERE host = 'assets.acme.test'"
-          # Served, on a certificate Caddy took once the entry point said
-          # yes; and none for a host nobody verified.
-          for i in $(seq 1 30); do
-            out="$(curl -sk --max-time 10 --resolve assets.acme.test:443:127.0.0.1 https://assets.acme.test/healthz || true)"
-            [ "${out}" = "ok" ] && break
-            sleep 2
-          done
-          [ "${out}" = "ok" ] || { echo "the domain was not served: ${out}"; exit 1; }
-          if curl -sk --max-time 10 --resolve nobody.acme.test:443:127.0.0.1 https://nobody.acme.test/healthz; then
-            echo "a host nobody verified was given a certificate"
-            exit 1
-          fi
       - if: failure()
         run: docker compose ps -a && docker compose logs
 

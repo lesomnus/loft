@@ -22,11 +22,9 @@ import (
 	countfinding "github.com/lesomnus/loft/internal/ent/countfinding"
 	custody "github.com/lesomnus/loft/internal/ent/custody"
 	custodyline "github.com/lesomnus/loft/internal/ent/custodyline"
-	domain "github.com/lesomnus/loft/internal/ent/domain"
 	entitlement "github.com/lesomnus/loft/internal/ent/entitlement"
 	event "github.com/lesomnus/loft/internal/ent/event"
 	fact "github.com/lesomnus/loft/internal/ent/fact"
-	handoff "github.com/lesomnus/loft/internal/ent/handoff"
 	holder "github.com/lesomnus/loft/internal/ent/holder"
 	inventorycount "github.com/lesomnus/loft/internal/ent/inventorycount"
 	invitation "github.com/lesomnus/loft/internal/ent/invitation"
@@ -417,11 +415,9 @@ type Scope interface {
 	CliLoginScope(ctx context.Context) (predicate.CliLogin, error)
 	AliasHoldScope(ctx context.Context) (predicate.AliasHold, error)
 	SignInFailureScope(ctx context.Context) (predicate.SignInFailure, error)
-	HandoffScope(ctx context.Context) (predicate.Handoff, error)
 	AssetScope(ctx context.Context) (predicate.Asset, error)
 	TreeLockScope(ctx context.Context) (predicate.TreeLock, error)
 	TagCounterScope(ctx context.Context) (predicate.TagCounter, error)
-	DomainScope(ctx context.Context) (predicate.Domain, error)
 	LabelScope(ctx context.Context) (predicate.Label, error)
 	AttachmentScope(ctx context.Context) (predicate.Attachment, error)
 	LevyanNoticeScope(ctx context.Context) (predicate.LevyanNotice, error)
@@ -499,9 +495,6 @@ func (Unscoped) AliasHoldScope(_ context.Context) (predicate.AliasHold, error) {
 func (Unscoped) SignInFailureScope(_ context.Context) (predicate.SignInFailure, error) {
 	return nil, nil
 }
-func (Unscoped) HandoffScope(_ context.Context) (predicate.Handoff, error) {
-	return nil, nil
-}
 func (Unscoped) AssetScope(_ context.Context) (predicate.Asset, error) {
 	return nil, nil
 }
@@ -509,9 +502,6 @@ func (Unscoped) TreeLockScope(_ context.Context) (predicate.TreeLock, error) {
 	return nil, nil
 }
 func (Unscoped) TagCounterScope(_ context.Context) (predicate.TagCounter, error) {
-	return nil, nil
-}
-func (Unscoped) DomainScope(_ context.Context) (predicate.Domain, error) {
 	return nil, nil
 }
 func (Unscoped) LabelScope(_ context.Context) (predicate.Label, error) {
@@ -833,26 +823,6 @@ func (ss Scopes) SignInFailureScope(ctx context.Context) (predicate.SignInFailur
 	return signinfailure.And(ps...), nil
 }
 
-func (ss Scopes) HandoffScope(ctx context.Context) (predicate.Handoff, error) {
-	ps := make([]predicate.Handoff, 0, len(ss))
-	for _, s := range ss {
-		p, err := s.HandoffScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if p == nil {
-			continue
-		}
-
-		ps = append(ps, p)
-	}
-	if len(ps) == 0 {
-		return nil, nil
-	}
-
-	return handoff.And(ps...), nil
-}
-
 func (ss Scopes) AssetScope(ctx context.Context) (predicate.Asset, error) {
 	ps := make([]predicate.Asset, 0, len(ss))
 	for _, s := range ss {
@@ -911,26 +881,6 @@ func (ss Scopes) TagCounterScope(ctx context.Context) (predicate.TagCounter, err
 	}
 
 	return tagcounter.And(ps...), nil
-}
-
-func (ss Scopes) DomainScope(ctx context.Context) (predicate.Domain, error) {
-	ps := make([]predicate.Domain, 0, len(ss))
-	for _, s := range ss {
-		p, err := s.DomainScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if p == nil {
-			continue
-		}
-
-		ps = append(ps, p)
-	}
-	if len(ps) == 0 {
-		return nil, nil
-	}
-
-	return domain.And(ps...), nil
 }
 
 func (ss Scopes) LabelScope(ctx context.Context) (predicate.Label, error) {
@@ -1728,7 +1678,7 @@ func ItemError(i int, err error) error {
 // is rendered for that dialect, not just what this server writes.
 //
 // That set is also what a soft erasure needs, so this is the whole
-// check. AliasHold, Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Domain, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract and WorkOrder free the names they held when a row
+// check. AliasHold, Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract and WorkOrder free the names they held when a row
 // is erased, which is a unique index covering only the rows that are
 // still there -- a partial index, and the dialects above are the ones
 // that have one. MySQL does not, and ent writes the annotation out for
@@ -1786,14 +1736,12 @@ func (s Server) AliasHold() loft.AliasHoldServiceServer {
 func (s Server) SignInFailure() loft.SignInFailureServiceServer {
 	return SignInFailureServiceServer{Store: s.Store}
 }
-func (s Server) Handoff() loft.HandoffServiceServer   { return HandoffServiceServer{Store: s.Store} }
 func (s Server) Asset() loft.AssetServiceServer       { return AssetServiceServer{Store: s.Store} }
 func (s Server) TreeLock() loft.TreeLockServiceServer { return TreeLockServiceServer{Store: s.Store} }
 func (s Server) TagCounter() loft.TagCounterServiceServer {
 	return TagCounterServiceServer{Store: s.Store}
 }
-func (s Server) Domain() loft.DomainServiceServer { return DomainServiceServer{Store: s.Store} }
-func (s Server) Label() loft.LabelServiceServer   { return LabelServiceServer{Store: s.Store} }
+func (s Server) Label() loft.LabelServiceServer { return LabelServiceServer{Store: s.Store} }
 func (s Server) Attachment() loft.AttachmentServiceServer {
 	return AttachmentServiceServer{Store: s.Store}
 }

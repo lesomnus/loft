@@ -32,12 +32,8 @@ const (
 	FieldCode = "code"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
-	// FieldDomainId holds the string denoting the domain_id field in the database.
-	FieldDomainId = "domain_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
 	EdgeTenant = "tenant"
-	// EdgeDomain holds the string denoting the domain edge name in mutations.
-	EdgeDomain = "domain"
 	// Table holds the table name of the label in the database.
 	Table = "label"
 	// TenantTable is the table that holds the tenant relation/edge.
@@ -47,13 +43,6 @@ const (
 	TenantInverseTable = "tenant"
 	// TenantColumn is the table column denoting the tenant relation/edge.
 	TenantColumn = "tenant_id"
-	// DomainTable is the table that holds the domain relation/edge.
-	DomainTable = "label"
-	// DomainInverseTable is the table name for the Domain entity.
-	// It exists in this package in order to avoid circular dependency with the "domain" package.
-	DomainInverseTable = "domain"
-	// DomainColumn is the table column denoting the domain relation/edge.
-	DomainColumn = "domain_id"
 )
 
 // Columns holds all SQL columns for label fields.
@@ -69,7 +58,6 @@ var Columns = []string{
 	FieldBatch,
 	FieldCode,
 	FieldTenantId,
-	FieldDomainId,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -140,22 +128,10 @@ func ByTenantId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTenantId, opts...).ToFunc()
 }
 
-// ByDomainId orders the results by the domain_id field.
-func ByDomainId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDomainId, opts...).ToFunc()
-}
-
 // ByTenantField orders the results by tenant field.
 func ByTenantField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newTenantStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByDomainField orders the results by domain field.
-func ByDomainField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newDomainStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newTenantStep() *sqlgraph.Step {
@@ -163,12 +139,5 @@ func newTenantStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldId),
 		sqlgraph.To(TenantInverseTable, FieldId),
 		sqlgraph.Edge(sqlgraph.M2O, false, TenantTable, TenantColumn),
-	)
-}
-func newDomainStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldId),
-		sqlgraph.To(DomainInverseTable, FieldId),
-		sqlgraph.Edge(sqlgraph.M2O, false, DomainTable, DomainColumn),
 	)
 }

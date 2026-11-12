@@ -13,7 +13,6 @@ import (
 	"net"
 	"net/url"
 	"path/filepath"
-	"slices"
 	"strings"
 	"time"
 
@@ -22,8 +21,8 @@ import (
 	"github.com/lesomnus/payday/trail"
 
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/consent"
+	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/opensearch"
@@ -85,55 +84,6 @@ type AdminConfig struct {
 	// `file:PATH` or the key itself: a request carries one as a bearer token,
 	// and what it did is logged with the name. None is a door nobody opens.
 	Keys map[string]string `yaml:"keys"`
-
-	// Ask is what the reverse proxy in front of workspaces' own domains asks
-	// before it takes a certificate for a host (`/internal/tls-ask`,
-	// loft#155).
-	Ask AskConfig `yaml:"ask"`
-}
-
-// AskConfig is where the proxy that takes certificates on demand asks
-// whether it may take one, and how often it is told yes.
-//
-// The proxy asks before every certificate it loads or takes that it does not
-// hold in memory: so on every handshake for a host while it has none, since
-// it keeps no account of an attempt that failed, and once for every host when
-// it starts. A yes is held to a rate for each host and for all of them, and
-// an answer past it is no for now (429), which the proxy asks again later.
-type AskConfig struct {
-	// Addr is a listener of its own that answers the ask and nothing else,
-	// so that a proxy facing the internet reaches no operator's door. Empty
-	// answers it on `admin.addr` alone.
-	Addr string `yaml:"addr"`
-
-	// HostBurst is how many yes answers one host is given at once, and
-	// HostEvery how often one more after. Unset are 10 and five minutes: a
-	// page opens a few connections at once, each a handshake the proxy asks
-	// for; one a host keeps failing to validate is then tried twelve times
-	// an hour, rather than on every handshake that reaches it -- about the
-	// failed validations Let's Encrypt holds a host to (five an hour).
-	HostBurst int           `yaml:"host_burst"`
-	HostEvery time.Duration `yaml:"host_every"`
-
-	// Burst and Every are the same for all hosts together. Unset are 300 and
-	// 30 seconds: a proxy that starts with every certificate in its storage
-	// asks for each of them once, and one more every 30 seconds is 120 an
-	// hour, under the 300 new orders in three hours Let's Encrypt allows an
-	// account.
-	Burst int           `yaml:"burst"`
-	Every time.Duration `yaml:"every"`
-}
-
-// HostRate is how many yes answers one host is given at once, and how often
-// one more after.
-func (c AskConfig) HostRate() (int, time.Duration) {
-	return or(c.HostBurst, 10), or(c.HostEvery, 5*time.Minute)
-}
-
-// Rate is how many yes answers all hosts together are given at once, and how
-// often one more after.
-func (c AskConfig) Rate() (int, time.Duration) {
-	return or(c.Burst, 300), or(c.Every, 30*time.Second)
 }
 
 // ListenAddr is where the operator's entry point listens.
@@ -263,8 +213,8 @@ func local(host string) bool {
 // AppConfig is loft's own part of the configuration.
 type AppConfig struct {
 	// PublicUrl is where a browser reaches this server's HTTP listener, such
-	// as http://localhost:8080. Download links are made on it, and its scheme
-	// says whether the session cookie needs HTTPS.
+	// as http://localhost:8080. Download links and labels are made on it, and
+	// its scheme says whether the session cookie needs HTTPS.
 	PublicUrl string `yaml:"public_url"`
 	// TrustedProxies is the proxies in front of this deployment whose
 	// X-Forwarded-For is believed, each a network (`10.0.0.0/8`) or one
@@ -290,15 +240,14 @@ type AppConfig struct {
 	Files string `yaml:"files"`
 	// SigningKey signs the short-lived download links, and is what a key the
 	// sessions' keys are kept under is made from (`session.KeyFrom`): a
-	// session's key, a terminal's, a handoff's code are kept as an HMAC under
-	// it, which nobody who may only write the database can make. Rotating it
+	// session's key and a terminal's are kept as an HMAC under it, which
+	// nobody who may only write the database can make. Rotating it
 	// signs everybody out. Empty makes one per process, which means a link
 	// stops working and everybody is signed out when the process restarts --
 	// and, in a deployment of several, on every process but the one that
 	// signed it, which `serve` refuses (see [Config.Replicas]).
 	SigningKey string `yaml:"signing_key"`
 
-	Labels  LabelConfig   `yaml:"labels"`
 	Session SessionConfig `yaml:"session"`
 
 	// Locale is what a workspace that says nothing of its own is told in: its
@@ -486,17 +435,6 @@ type WorkspacesConfig struct {
 	AliasHold     time.Duration `yaml:"alias_hold"`
 	// Every is how often closed workspaces are looked at. Unset is an hour.
 	Every time.Duration `yaml:"every"`
-	// DomainRedirect is how long a workspace's app domain that another took
-	// the place of sends its pages on to the new one (loft#155): long enough
-	// for the links in the mail sent before and the bookmarks of everybody
-	// who works there to be followed, and learned anew. Unset is 90 days.
-	// Labels printed with it open on it for as long as it points here.
-	DomainRedirect time.Duration `yaml:"domain_redirect"`
-}
-
-// Redirect is how long a workspace's old app domain sends its pages on.
-func (c WorkspacesConfig) Redirect() time.Duration {
-	return or(c.DomainRedirect, 90*24*time.Hour)
 }
 
 // Restore is how long a closed workspace may be restored.
@@ -600,20 +538,6 @@ type LocaleConfig struct {
 	Currency string `yaml:"currency"`
 }
 
-// LabelConfig is how printed labels are addressed (design 9.9).
-type LabelConfig struct {
-	// Suffix is what a tenant's default label host ends with: a tenant that
-	// asks for `acme` prints `acme.<suffix>`, with no DNS work of its own.
-	// Empty offers no default subdomain. A tenant with no domain prints with
-	// this deployment's own address (D28).
-	Suffix string `yaml:"suffix"`
-	// Target is what a custom domain's CNAME points at.
-	Target string `yaml:"target"`
-}
-
-// Default is the suffix a workspace is given a default label host under when
-// it is made: none where workspaces have no domains of their own.
-
 // SessionConfig is how long a browser stays signed in.
 type SessionConfig struct {
 	// Idle ends a session nobody used for this long.
@@ -631,23 +555,10 @@ func (c AppConfig) Public() *url.URL {
 	return u
 }
 
-// ServiceHosts is this deployment's own hosts: the public address's, and the
-// UI's when it is served from another. No workspace may take one as its
-// domain, nor any name under it (loft#155).
-func (c AppConfig) ServiceHosts() []string {
-	out := []string{strings.ToLower(c.Public().Hostname())}
-	if u, err := url.Parse(c.AppUrl); err == nil && u.Hostname() != "" {
-		if h := strings.ToLower(u.Hostname()); !slices.Contains(out, h) {
-			out = append(out, h)
-		}
-	}
-	return out
-}
-
-// Links is where every link this deployment makes begins: a workspace's on
-// its active app domain, and the rest at this address (loft#155).
-func (c AppConfig) Links() apphost.Links {
-	return apphost.Links{App: c.App(), Public: c.Public().String()}
+// Links is where every link this deployment makes begins: its own address
+// (design 9.9).
+func (c AppConfig) Links() domain.Links {
+	return domain.Links{App: c.App(), Public: c.Public().String()}
 }
 
 // App is AppUrl, or the public address when the UI is served from it.

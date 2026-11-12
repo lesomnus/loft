@@ -160,12 +160,11 @@ export async function forget(): Promise<void> {
 /**
  * letGo is what the page does when it finds its caller signed out short of a
  * sign-out -- a session that ended by itself, or one ended somewhere it cannot
- * tell from that, as a workspace's own domain ends this address's: it keeps and
- * serves nothing more as them, and drops what they were answered and who this
- * browser was signed in as, which a sign-in reads again. What they made and
- * could not send is not read again, and waits for them ({@link wait}): it goes
- * once they sign in again, and with the rest of theirs when somebody else
- * does ({@link keepOnly}).
+ * tell from that: it keeps and serves nothing more as them, and drops what
+ * they were answered and who this browser was signed in as, which a sign-in
+ * reads again. What they made and could not send is not read again, and
+ * waits for them ({@link wait}): it goes once they sign in again, and with the
+ * rest of theirs when somebody else does ({@link keepOnly}).
  */
 export async function letGo(): Promise<void> {
 	scope = ''

@@ -23,11 +23,9 @@ import (
 	"github.com/lesomnus/loft/internal/ent/countfinding"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
-	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/entitlement"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
-	"github.com/lesomnus/loft/internal/ent/handoff"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/inventorycount"
 	"github.com/lesomnus/loft/internal/ent/invitation"
@@ -134,11 +132,9 @@ func checkColumn(t, c string) error {
 			countfinding.Table:    countfinding.ValidColumn,
 			custody.Table:         custody.ValidColumn,
 			custodyline.Table:     custodyline.ValidColumn,
-			domain.Table:          domain.ValidColumn,
 			entitlement.Table:     entitlement.ValidColumn,
 			event.Table:           event.ValidColumn,
 			fact.Table:            fact.ValidColumn,
-			handoff.Table:         handoff.ValidColumn,
 			holder.Table:          holder.ValidColumn,
 			inventorycount.Table:  inventorycount.ValidColumn,
 			invitation.Table:      invitation.ValidColumn,

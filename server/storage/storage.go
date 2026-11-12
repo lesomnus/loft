@@ -98,8 +98,7 @@ func (d Dir) Delete(_ context.Context, key string) error {
 }
 
 // Signer makes and checks download addresses. Where one begins is the
-// caller's to say (`apphost.Links`): the file's workspace's domain, or the
-// service's address.
+// caller's to say: the service's address (`domain.Links`).
 type Signer struct {
 	Key []byte
 	TTL time.Duration

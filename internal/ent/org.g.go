@@ -58,12 +58,6 @@ func (e *Session) Proto() *loft.Session {
 	if e.Held != nil {
 		x.SetHeld(*e.Held)
 	}
-	if e.Workspace != nil {
-		x.SetWorkspace(e.Workspace[:])
-	}
-	if e.Parent != nil {
-		x.SetParent(e.Parent[:])
-	}
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))
@@ -162,19 +156,6 @@ func (e *SignInFailure) Proto() *loft.SignInFailure {
 	x := &loft.SignInFailure{}
 	x.SetId(e.Id[:])
 	x.SetSubject(e.Subject)
-	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	return x
-}
-func (e *Handoff) Proto() *loft.Handoff {
-	x := &loft.Handoff{}
-	x.SetId(e.Id[:])
-	x.SetSecret(e.Secret)
-	x.SetAccount(e.Account[:])
-	x.SetWorkspace(e.Workspace[:])
-	x.SetHost(e.Host)
-	x.SetState(e.State)
-	x.SetParent(e.Parent[:])
-	x.SetDateExpires(timestamppb.New(e.DateExpires))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }

@@ -23,7 +23,6 @@ var Mailed = map[string]bool{
 	"reservation.decided":    true, // to whoever asked
 	"custody.overdue":        true, // to who has it, and who manages it
 	"work.due":               true, // maintenance coming due, to who manages it
-	"domain.lapsed":          true, // a workspace's domain taken out of use, to who runs it
 	"reservation.conflict":   true, // a kit's member, or a pool's units, its reservation waits for, to who runs it and whose it is
 	"reservation.out_of_use": true, // an item a reservation takes is out of use, to who runs it and whose it is
 	"reservation.out":        true, // a thing a reservation takes is out with somebody over its time, to who runs it and whose it is
@@ -70,14 +69,6 @@ var ReadOnlyTells = map[string]Telling{
 	"reservation.expired":  TellsStill, // its time began before anybody approved it (sweepRequests), or nobody could check in or pick up while it was read-only (sweepNoShows, D70)
 	"reservation.no_show":  TellsStill, // nobody checked in, or picked up, in time (sweepNoShows)
 	"reservation.resolved": TellsStill, // what it waited for is its now (sweepKits, and what a booking let go of)
-
-	// What the deployment found of the workspace's own domains: how people
-	// reach it, which is how they read it, take its data out and pay for it.
-	// What a lapsed one asks is done at its DNS, not here, and the sweep
-	// asks again while the workspace is read-only; switching to a ready one
-	// is a choice with no time to it, there to be made once it writes.
-	"domain.lapsed": TellsStill, // links and sign-in went back to the service's address (sweepDomains)
-	"domain.ready":  TellsStill, // one verified, beside the one in use (sweepDomains)
 
 	// What asks somebody to act on it soon.
 	"custody.due":          TellsOnceWritable, // return it by its due, within a day: asked again every pass while it is so, and told once (sweepLoans)
@@ -152,28 +143,6 @@ func (t *Tx) notifyManagers(kind, title, body string, subject pdid.Id, link stri
 	hs, err := t.db.Holder.Query().Where(
 		holder.TenantId(t.tenant.Uuid()),
 		holder.RoleIn("owner", "admin", "manager"),
-		holder.DateErasedIsNil(),
-	).Ids(t.ctx)
-	if err != nil {
-		return err
-	}
-	for _, h := range hs {
-		if pdid.Id(h) == t.actor {
-			continue
-		}
-		if err := t.notify(h, kind, title, body, subject, link); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// notifyAdmins tells whoever runs the workspace: its owners and
-// administrators, who may act on its domains and its people.
-func (t *Tx) notifyAdmins(kind, title, body string, subject pdid.Id, link string) error {
-	hs, err := t.db.Holder.Query().Where(
-		holder.TenantId(t.tenant.Uuid()),
-		holder.RoleIn("owner", "admin"),
 		holder.DateErasedIsNil(),
 	).Ids(t.ctx)
 	if err != nil {

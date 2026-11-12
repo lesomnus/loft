@@ -102,41 +102,6 @@ service TreeLockService {}
 
 service TagCounterService {}
 
-service DomainService {
-  // Add creates a new Domain
-  rpc Add(DomainAddRequest) returns (Domain);
-  // Get retrieves a Domain
-  rpc Get(DomainGetRequest) returns (Domain);
-  // Patch updates an existing Domain
-  rpc Patch(DomainPatchRequest) returns (Domain);
-  // Apply applies a patch document to an existing Domain
-  rpc Apply(DomainApplyRequest) returns (Domain);
-  // Erase deletes a Domain
-  rpc Erase(DomainRef) returns (DomainEraseResponse);
-  // List reads Domains a page at a time.
-  rpc List(DomainListRequest) returns (DomainListResponse);
-  // Watch the Domains this caller may see, as they are now and as they change.
-  //
-  // What arrives is **state and never a delta**, so a client converges rather
-  // than replays: it keeps what it was last told about a row and replaces it.
-  // An event it did not receive is one it does not need, since the next one
-  // about that row carries the whole of it.
-  //
-  // The first message is everything that matches right now, so a client does
-  // not have to List first and race the subscription. A row may arrive twice --
-  // once in that first message and once as a change that happened while it was
-  // being read -- and that is harmless for the same reason.
-  rpc Watch(DomainWatchRequest) returns (stream DomainWatchResponse);
-  // Verify checks the TXT record of a pending custom domain.
-  rpc Verify(DomainVerifyRequest) returns (Domain);
-  // Activate makes a verified domain the one new labels are printed with; the
-  // active one before it becomes legacy and keeps resolving.
-  rpc Activate(DomainActivateRequest) returns (Domain);
-  rpc Retire(DomainRetireRequest) returns (Domain);
-  // Status answers whether labels are on for this tenant, and with what.
-  rpc Status(DomainStatusRequest) returns (DomainStatusResponse);
-}
-
 service LabelService {
   // Add creates a new Label
   rpc Add(LabelAddRequest) returns (Label);
@@ -162,7 +127,7 @@ service LabelService {
   // once in that first message and once as a change that happened while it was
   // being read -- and that is harmless for the same reason.
   rpc Watch(LabelWatchRequest) returns (stream LabelWatchResponse);
-  // Print makes labels for the tenant's active label domain: new ones to bind
+  // Print makes labels, with this deployment's own address: new ones to bind
   // later, or one for each asset given, bound already.
   rpc Print(LabelPrintRequest) returns (LabelPrintResponse);
   rpc Bind(LabelBindRequest) returns (Label);
@@ -781,246 +746,9 @@ message AssetCensusRow {
   uint32 within = 7 [features.field_presence = IMPLICIT];
 }
 
-message DomainAddRequest {
-  bytes id = 1;
-  TenantRef tenant = 2;
-  string host = 8 [features.field_presence = IMPLICIT];
-  string purpose = 9 [features.field_presence = IMPLICIT];
-  string state = 10 [features.field_presence = IMPLICIT];
-  string token = 11 [features.field_presence = IMPLICIT];
-  string source = 12 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp date_created = 15;
-  google.protobuf.Timestamp date_verified = 16;
-  google.protobuf.Timestamp date_checked = 18;
-  uint32 failures = 19;
-  google.protobuf.Timestamp date_failing = 20;
-  google.protobuf.Timestamp date_lapsed = 17;
-  google.protobuf.Timestamp date_redirect_until = 21;
-  // The label for a default subdomain; the host is made from it.
-  string sub = 100;
-}
-
-message DomainGetRequest {
-  DomainRef ref = 1;
-  DomainSelect select = 2;
-}
-
-message DomainRef {
-  oneof key {
-    bytes id = 1;
-    string host = 8;
-  }
-}
-
-message DomainSelect {
-  bool all = 1;
-  TenantSelect tenant = 2;
-  bool host = 8;
-  bool purpose = 9;
-  bool state = 10;
-  bool token = 11;
-  bool source = 12;
-  bool date_updated = 13;
-  bool date_erased = 14;
-  bool date_created = 15;
-  bool date_verified = 16;
-  bool date_checked = 18;
-  bool failures = 19;
-  bool date_failing = 20;
-  bool date_lapsed = 17;
-  bool date_redirect_until = 21;
-}
-
-message DomainPatchRequest {
-  DomainRef ref = 1;
-  string host = 16;
-  string purpose = 18;
-  string state = 20;
-  string token = 22;
-  string source = 24;
-  // The version this update requires the stored date_updated to be.
-  // It is a precondition, not a write: the update applies only if the row
-  // still holds this value, and the server stamps the new version itself.
-  // Setting it together with date_updated_force is an error --
-  // the version is the token every client's compare-and-swap is measured
-  // against, so it is not the caller's to choose.
-  google.protobuf.Timestamp date_updated = 26;
-  // Update whatever the stored date_updated is, with no precondition.
-  // The server still stamps a new version, so other clients' tokens are
-  // invalidated as usual; this declines the check for THIS update only.
-  // One of date_updated or this must be set. An omitted version is
-  // refused rather than assumed, because an unset field cannot be told
-  // apart from a caller who never considered locking at all.
-  bool date_updated_force = 27;
-  google.protobuf.Timestamp date_verified = 32;
-  // Clear date_verified instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and date_verified clears.
-  bool date_verified_null = 33;
-  google.protobuf.Timestamp date_checked = 36;
-  // Clear date_checked instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and date_checked clears.
-  bool date_checked_null = 37;
-  uint32 failures = 38;
-  google.protobuf.Timestamp date_failing = 40;
-  // Clear date_failing instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and date_failing clears.
-  bool date_failing_null = 41;
-  google.protobuf.Timestamp date_lapsed = 34;
-  // Clear date_lapsed instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and date_lapsed clears.
-  bool date_lapsed_null = 35;
-  google.protobuf.Timestamp date_redirect_until = 42;
-  // Clear date_redirect_until instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and date_redirect_until clears.
-  bool date_redirect_until_null = 43;
-}
-
-message DomainApplyRequest {
-  DomainRef ref = 1;
-  patch.Patch patch = 2;
-}
-
-message DomainEraseResponse {
-  // Erased is whether this call is the one that erased the row.
-  //
-  // False for a row that was already gone, was never there, or is out
-  // of this caller's reach -- which are one answer on purpose, and the
-  // reason the RPC does not fail instead.
-  bool erased = 1;
-}
-
-message DomainListRequest {
-  // Bounded because the work is: each filter is a predicate in the same query,
-  // so this is what says how much of the database one request may read.
-  repeated DomainFilter filters = 1;
-
-  // How many to answer with. Nothing said is what the schema declared, and more
-  // than the cap is the cap -- a caller asking for more than there is meant no
-  // harm, so it is not an error and it is not the whole table either.
-  int32 size = 2 [features.field_presence = IMPLICIT];
-
-  // Where to carry on from: the "next" of the answer before. It names the last
-  // row of that page rather than counting rows from the start, so a row added
-  // ahead of the page does not shift it and a caller reading through never sees
-  // one twice or misses one.
-  string after = 3 [features.field_presence = IMPLICIT];
-
-  // Read the order the other way round, every column of it at once -- newest
-  // first where it is oldest first -- which the index the order walks walks
-  // from the other end. A cursor is of the way it was read, so the next page
-  // carries on that way, and one of the other way is refused.
-  bool reverse = 4 [features.field_presence = IMPLICIT];
-}
-
-message DomainListResponse {
-  repeated Domain items = 1;
-
-  // What to ask for next, and empty when this was the last of them.
-  //
-  // Empty means there is no more *for now*: a list is read as it is, and one
-  // that has grown since answers a fresh call. It is not empty merely because
-  // the page came back short -- a page is short when the last row of it was the
-  // last row there was, which is a thing the server can only know by having
-  // looked.
-  string next = 2 [features.field_presence = IMPLICIT];
-}
-
-message DomainFilter {
-  DomainRef ref = 1;
-  string state = 2;
-  string purpose = 3;
-}
-
-message DomainWatchRequest {
-  // Which rows to watch, in the same words List takes them: what is watched is
-  // what that list would answer with, now and afterwards.
-  //
-  // Required, and bounded the way a List is -- for a heavier reason. A list
-  // runs its filters once; a watch runs them again for every write that touches
-  // the entity, for as long as the stream is open. A watch with no filters is
-  // the whole table, forever, which is the one shape that has no cap at all.
-  repeated DomainFilter filters = 1;
-
-  // Skip what is there now and send only what changes from here.
-  //
-  // Off by default, and the default is the safe one: a client that does not
-  // know the current state and did not ask for it holds something wrong until
-  // the next write happens to correct it.
-  bool skip_snapshot = 2 [features.field_presence = IMPLICIT];
-}
-
-message DomainWatchResponse {
-  // What changed, or -- in the first message -- everything that matches.
-  repeated DomainWatchItem items = 1;
-}
-
-message DomainWatchItem {
-  // Which row. Always said, since one that is gone still has to be named.
-  bytes id = 1;
-
-  // The row as it is now, and **absent when it is no longer one this caller may
-  // see**: erased, or moved out of the filters this stream named.
-  //
-  // Absence is the whole of how a removal is said. There is no flag for it, and
-  // there is deliberately no way to tell those two apart -- a stream that
-  // distinguished "erased" from "no longer yours" would be telling a caller
-  // about rows that stopped being theirs, which is the thing the wall is for.
-  //
-  // It is only ever said about a row this stream has already carried. One that
-  // never matched is not news.
-  Domain value = 2;
-
-  // The RPC that changed it, by the name gRPC knows it by. It is what the
-  // caller of *that* RPC asked for and not the write it became, so an RPC
-  // written by hand is here under its own name.
-  //
-  // Empty in the first message, which is not something anybody asked for -- it
-  // is what is already there.
-  string action = 3 [features.field_presence = IMPLICIT];
-}
-
-message DomainVerifyRequest {
-  DomainRef ref = 1;
-}
-
-message DomainActivateRequest {
-  DomainRef ref = 1;
-}
-
-message DomainRetireRequest {
-  DomainRef ref = 1;
-  // Retire even though labels were printed with it.
-  bool force = 2 [features.field_presence = IMPLICIT];
-}
-
-message DomainStatusRequest {}
-
-message DomainStatusResponse {
-  // The domain new labels print with, and that the app is on (an `app`
-  // domain); none prints with `base`.
-  Domain active = 2;
-  // The host a custom domain's CNAME has to point at.
-  string target = 3 [features.field_presence = IMPLICIT];
-  // The suffix a default subdomain gets; empty offers none.
-  string default_suffix = 4 [features.field_presence = IMPLICIT];
-  // What a label prints with when it has no domain to: `<base>/l/<code>`.
-  string base = 6 [features.field_presence = IMPLICIT];
-}
-
 message LabelAddRequest {
   bytes id = 1;
   TenantRef tenant = 2;
-  DomainRef domain = 8;
   bytes subject_id = 9;
   string state = 10 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_bound = 11;
@@ -1045,7 +773,6 @@ message LabelRef {
 message LabelSelect {
   bool all = 1;
   TenantSelect tenant = 2;
-  DomainSelect domain = 8;
   bool subject_id = 9;
   bool state = 10;
   bool date_bound = 11;
@@ -1059,12 +786,6 @@ message LabelSelect {
 
 message LabelPatchRequest {
   LabelRef ref = 1;
-  DomainRef domain = 16;
-  // Clear domain instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and domain clears.
-  bool domain_null = 17;
   bytes subject_id = 18;
   // Clear subject_id instead of writing it.
   // It takes a field of its own because an unset value already means

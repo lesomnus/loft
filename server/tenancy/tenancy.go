@@ -15,11 +15,6 @@ import (
 // SetUp is what a tenant starts with: the types an asset register of an office
 // has. It is written as whoever `ctx` is in the tenant, through the stack with
 // the domain layer.
-//
-// No domain: a tenant prints its labels with this deployment's address until
-// it adds one of its own, and a default subdomain is one it asks for
-// (loft#155). Starting every tenant on one was how a deployment whose labels
-// needed a domain gave them labels at all, which none does now.
 func SetUp(ctx context.Context, s app.Server) error {
 	return seedTypes(ctx, s)
 }

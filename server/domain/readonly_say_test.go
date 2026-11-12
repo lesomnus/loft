@@ -1,7 +1,6 @@
 package domain_test
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -9,8 +8,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/internal/ent/holder"
-	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/server/domain"
 )
 
@@ -95,65 +92,6 @@ func TestAReadOnlyWorkspaceSaysNobodyCouldTakeUpWhatItLetGo(t *testing.T) {
 			x.NotContains(n.GetDesc(), "읽기 전용")
 		}
 	}
-}
-
-// TestAReadOnlyWorkspacesDomainIsToldWhatCanBeDone (D68): a read-only
-// workspace takes no `Verify` and no `Activate` (D64), and its domains are
-// asked about all the same. A domain that lapses then tells whoever runs it
-// that it is asked about again once its records are back -- and not that they
-// may check it in the settings, which they may not -- and is: once they are,
-// it is the workspace's again. One verified beside it is told ready, to be
-// switched to once the workspace writes again.
-func TestAReadOnlyWorkspacesDomainIsToldWhatCanBeDone(t *testing.T) {
-	e := newPaying(t)
-	x := e.x
-	ctx := context.Background()
-	d := &dns{}
-	e.reading(d)
-	v := e.pointed(d, "assets.acme.example")
-	e.later(10 * time.Minute)
-	x.Equal("active", e.domainRow(v).State)
-	// And one added beside it, whose records are not there yet.
-	other, err := e.app().Domain().Add(e.owner, app.DomainAddRequest_builder{Host: "app.acme.example"}.Build())
-	x.NoError(err)
-	owner, err := e.s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.TenantId(e.tenant.Uuid())).Only(ctx)
-	x.NoError(err)
-	told := func(kind string) []string {
-		t.Helper()
-		ns, err := e.s.Ent.Notification.Query().Where(notification.HolderId(owner.Id), notification.Kind(kind)).All(ctx)
-		x.NoError(err)
-		out := []string{}
-		for _, n := range ns {
-			out = append(out, n.Desc)
-		}
-		return out
-	}
-
-	e.readOnly()
-	token := v.GetToken()
-	d.set(func(d *dns) { delete(d.txt, "_loft-challenge.assets.acme.example") })
-	for range 6 {
-		e.later(time.Hour)
-	}
-	x.Equal("lapsed", e.domainRow(v).State)
-	lapsed := told("domain.lapsed")
-	x.Len(lapsed, 1)
-	x.Contains(lapsed[0], "저절로 다시 확인합니다")
-	x.NotContains(lapsed[0], "설정에서 바로 확인할 수도 있습니다")
-
-	d.set(func(d *dns) { d.txt["_loft-challenge.assets.acme.example"] = []string{token} })
-	e.later(10 * time.Minute)
-	x.Equal("active", e.domainRow(v).State, "asked about again, read-only or not")
-
-	d.set(func(d *dns) {
-		d.txt["_loft-challenge.app.acme.example"] = []string{other.GetToken()}
-		d.cname["app.acme.example"] = edge
-	})
-	e.later(10 * time.Minute)
-	x.Equal("ready", e.domainRow(other).State)
-	ready := told("domain.ready")
-	x.Len(ready, 1)
-	x.Contains(ready[0], "다시 바꿀 수 있게 되면 설정에서 활성화할 수 있고")
 }
 
 // TestAnOperatorsNoticesAreToldInAReadOnlyWorkspace (D68): an operator's

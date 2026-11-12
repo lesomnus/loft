@@ -160,18 +160,6 @@ option (payday.app) = {
 //   14  units          uint32                     -- how many of a pool it takes, waits for or lets go of
 //   15  workspace      string                     -- what its workspace was as its time came, when that is why nobody took it up: readonly | closed
 //
-// domain.* holds, by number:
-//
-//    1  domain         bytes                      -- the workspace's domain
-//    2  host           string                     -- its host name
-//    3  purpose        string                     -- what it is for: app | label
-//    4  source         string                     -- whose it is: custom | default
-//    5  date_failing   google.protobuf.Timestamp  -- since when its DNS has said no
-//    6  failures       uint32                     -- how many times running it has
-//    7  force          bool                       -- stopped though labels printed with it stop opening
-//    8  labels         uint32                     -- how many labels printed with it stopped opening
-//    9  again          bool                       -- verified again, after it lapsed
-//
 // invitation.* holds, by number:
 //
 //    1  invitation     bytes                      -- the invitation
@@ -696,63 +684,6 @@ message ReservationAllocationChanged {
   string asset_name = 10;
   bool override = 11;
   uint32 units = 14;
-}
-
-// DomainAdded is a domain of the workspace's registered (`domain.add`):
-// its own, or a default subdomain of the deployment's.
-message DomainAdded {
-  option (payday.event) = {kinds: "domain.add"};
-
-  bytes domain = 1;
-  string host = 2;
-  string purpose = 3;
-  string source = 4;
-}
-
-// DomainVerified is a domain whose DNS checked out (`domain.verify`),
-// `again` when it had lapsed.
-message DomainVerified {
-  option (payday.event) = {kinds: "domain.verify"};
-
-  bytes domain = 1;
-  string host = 2;
-  string purpose = 3;
-  bool again = 9;
-}
-
-// DomainActivated is a domain made the one the workspace is on and its
-// labels print with (`domain.activate`).
-message DomainActivated {
-  option (payday.event) = {kinds: "domain.activate"};
-
-  bytes domain = 1;
-  string host = 2;
-  string purpose = 3;
-}
-
-// DomainRetired is a domain stopped (`domain.retire`): `labels` is how
-// many labels printed with it stopped opening, which `force` was said for.
-message DomainRetired {
-  option (payday.event) = {kinds: "domain.retire"};
-
-  bytes domain = 1;
-  string host = 2;
-  string purpose = 3;
-  bool force = 7;
-  uint32 labels = 8;
-}
-
-// DomainLapsed is the active domain taken out of use by the deployment
-// (`domain.lapse`): its DNS said no `failures` times running, from
-// `date_failing` (loft#155).
-message DomainLapsed {
-  option (payday.event) = {kinds: "domain.lapse"};
-
-  bytes domain = 1;
-  string host = 2;
-  string purpose = 3;
-  google.protobuf.Timestamp date_failing = 5;
-  uint32 failures = 6;
 }
 
 // InvitationAdded is somebody invited to the workspace (`invitation.add`), as

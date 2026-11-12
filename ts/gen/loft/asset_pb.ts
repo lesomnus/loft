@@ -21,7 +21,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/asset.proto.
  */
 export const file_loft_asset: GenFile = /*@__PURE__*/
-  fileDesc("ChBsb2Z0L2Fzc2V0LnByb3RvEgRsb2Z0IuwICgVBc3NldBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSJwoGbGFiZWxzGAcgAygLMhcubG9mdC5Bc3NldC5MYWJlbHNFbnRyeRIMCgRraW5kGAggASgJEiUKBHR5cGUYCSABKAsyDy5sb2Z0LkFzc2V0VHlwZUIG8oIWAjgBEiYKBW1vZGVsGAogASgLMg8ubG9mdC5JdGVtTW9kZWxCBvKCFgI4ARILCgN0YWcYCyABKAkSDgoGc2VyaWFsGAwgASgJEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIOCgZzdGF0dXMYECABKAkSEQoJY29uZGl0aW9uGBEgASgJEhsKCXBhcmVudF9pZBgSIAEoDEII6oIWBBBAOAESFgoOcGxhY2VtZW50X21vZGUYEyABKAkSDAoEc2xvdBgUIAEoCRImCgljdXN0b2RpYW4YFSABKAsyCy5sb2Z0LlBhcnR5QgbyghYCOAESLwoKYXR0cmlidXRlcxgWIAMoCzIbLmxvZnQuQXNzZXQuQXR0cmlidXRlc0VudHJ5EjkKDWRhdGVfYWNxdWlyZWQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOQoNZGF0ZV9kaXNwb3NlZBgYIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIXCg9jb250ZW50X3ZlcnNpb24YGSABKAQaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoxCg9BdHRyaWJ1dGVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqCAsr8FW4SBxABggECEgAaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhwSA3RhZxoHCgN0YWcQCxoKCgZ0ZW5hbnQQAjABGhcSBnBhcmVudBoNCglwYXJlbnRfaWQQEoq7FosBCAcyhAEKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaBgoEa2luZBoICgZzdGF0dXMaBgoEdHlwZRoHCgVtb2RlbBoLCglwYXJlbnRfaWQaCwoJY3VzdG9kaWFuGgUKA3RhZxoICgZsYWJlbHMaDAoKYXR0cmlidXRlcyAyKPQDMAg6ACLcAgoIVHJlZUxvY2sSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESDwoHdmVyc2lvbhgIIAEoBBI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADqHAcr8FRgaFhIGdGVuYW50GgoKBnRlbmFudBACMAGKuxZnCAxCAgoAUl8SXQpbdGhlIGxvY2sgZXZlcnkgY2hhbmdlIG9mIHRoZSBwbGFjZW1lbnQgdHJlZSB0YWtlcywgYW5kIGl0cyB2ZXJzaW9uOiBib29ra2VlcGluZywgbm90IGEgZmFjdCLFAwoKVGFnQ291bnRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIOCgZwcmVmaXgYCCABKAkSDAoEbGFzdBgJIAEoBBI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADrhAcr8FSQaIhIGcHJlZml4GgoKBnRlbmFudBACGgoKBnByZWZpeBAIMAGKuxa0AQgxQgIKAFKrARKoAQqlAXRoZSBsYXN0IG51bWJlciBtYWRlIHVwIGZvciBhIHRhZywgYW5kIHRoZSBsb2NrIHRoYXQgbnVtYmVyaW5nIHRha2VzOiBib29ra2VlcGluZywgYXMgdGhlIHRyZWUgbG9jayBpczsgdGhlIHRhZyBpdHNlbGYgaXMgb24gdGhlIHRyYWlsIHdpdGggdGhlIGFzc2V0IGl0IHdhcyBnaXZlbiB0byKUBgoGRG9tYWluEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5sb2Z0LlRlbmFudEIG8oIWAkABEhQKBGhvc3QYCCABKAlCBuqCFgIwARIPCgdwdXJwb3NlGAkgASgJEg0KBXN0YXRlGAogASgJEg0KBXRva2VuGAsgASgJEg4KBnNvdXJjZRgMIAEoCRI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASPwoNZGF0ZV92ZXJpZmllZBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCDOqCFgI4AarBFgIQARI4CgxkYXRlX2NoZWNrZWQYEiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGgoIZmFpbHVyZXMYEyABKA1CCOqCFgSCAQEwEjgKDGRhdGVfZmFpbGluZxgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI3CgtkYXRlX2xhcHNlZBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI/ChNkYXRlX3JlZGlyZWN0X3VudGlsGBUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBOnnK/BUyEgIQARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAGKuxY/CBgyOQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoHCgVzdGF0ZRoJCgdwdXJwb3NlIDIoZDoAIogFCgVMYWJlbBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIkCgZkb21haW4YCCABKAsyDC5sb2Z0LkRvbWFpbkIG8oIWAjgBEhwKCnN1YmplY3RfaWQYCSABKAxCCOqCFgQQQDgBEg0KBXN0YXRlGAogASgJEjYKCmRhdGVfYm91bmQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOAoMZGF0ZV9wcmludGVkGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABINCgViYXRjaBgQIAEoCRIWCgRjb2RlGBEgASgJQgjqghYEMAE4ATqhAcr8FU0SAhABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoZEgdzdWJqZWN0Gg4KCnN1YmplY3RfaWQQCYq7FkwIEjJGChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgwKCnN1YmplY3RfaWQaBwoFc3RhdGUaBwoFYmF0Y2ggZCj0AzoAIocECgpBdHRhY2htZW50EhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5sb2Z0LlRlbmFudEIG8oIWAkABEgwKBG5hbWUYBSABKAkSGgoKc3ViamVjdF9pZBgIIAEoDEIG6oIWAhBAEhIKCm9iamVjdF9rZXkYCSABKAkSEgoKc2l6ZV9ieXRlcxgKIAEoBBIUCgxjb250ZW50X3R5cGUYCyABKAkSDgoGc2hhMjU2GAwgASgMEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADqPAcr8FU0SAhABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoZEgdzdWJqZWN0Gg4KCnN1YmplY3RfaWQQCIq7FjoIEzI0ChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgwKCnN1YmplY3RfaWQgMijIAToAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_catalog, file_loft_org, file_loft_payday_tenant]);
+  fileDesc("ChBsb2Z0L2Fzc2V0LnByb3RvEgRsb2Z0IuwICgVBc3NldBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSJwoGbGFiZWxzGAcgAygLMhcubG9mdC5Bc3NldC5MYWJlbHNFbnRyeRIMCgRraW5kGAggASgJEiUKBHR5cGUYCSABKAsyDy5sb2Z0LkFzc2V0VHlwZUIG8oIWAjgBEiYKBW1vZGVsGAogASgLMg8ubG9mdC5JdGVtTW9kZWxCBvKCFgI4ARILCgN0YWcYCyABKAkSDgoGc2VyaWFsGAwgASgJEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIOCgZzdGF0dXMYECABKAkSEQoJY29uZGl0aW9uGBEgASgJEhsKCXBhcmVudF9pZBgSIAEoDEII6oIWBBBAOAESFgoOcGxhY2VtZW50X21vZGUYEyABKAkSDAoEc2xvdBgUIAEoCRImCgljdXN0b2RpYW4YFSABKAsyCy5sb2Z0LlBhcnR5QgbyghYCOAESLwoKYXR0cmlidXRlcxgWIAMoCzIbLmxvZnQuQXNzZXQuQXR0cmlidXRlc0VudHJ5EjkKDWRhdGVfYWNxdWlyZWQYFyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOQoNZGF0ZV9kaXNwb3NlZBgYIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIXCg9jb250ZW50X3ZlcnNpb24YGSABKAQaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARoxCg9BdHRyaWJ1dGVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqCAsr8FW4SBxABggECEgAaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhwSA3RhZxoHCgN0YWcQCxoKCgZ0ZW5hbnQQAjABGhcSBnBhcmVudBoNCglwYXJlbnRfaWQQEoq7FosBCAcyhAEKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaBgoEa2luZBoICgZzdGF0dXMaBgoEdHlwZRoHCgVtb2RlbBoLCglwYXJlbnRfaWQaCwoJY3VzdG9kaWFuGgUKA3RhZxoICgZsYWJlbHMaDAoKYXR0cmlidXRlcyAyKPQDMAg6ACLcAgoIVHJlZUxvY2sSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESDwoHdmVyc2lvbhgIIAEoBBI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADqHAcr8FRgaFhIGdGVuYW50GgoKBnRlbmFudBACMAGKuxZnCAxCAgoAUl8SXQpbdGhlIGxvY2sgZXZlcnkgY2hhbmdlIG9mIHRoZSBwbGFjZW1lbnQgdHJlZSB0YWtlcywgYW5kIGl0cyB2ZXJzaW9uOiBib29ra2VlcGluZywgbm90IGEgZmFjdCLFAwoKVGFnQ291bnRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIOCgZwcmVmaXgYCCABKAkSDAoEbGFzdBgJIAEoBBI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADrhAcr8FSQaIhIGcHJlZml4GgoKBnRlbmFudBACGgoKBnByZWZpeBAIMAGKuxa0AQgxQgIKAFKrARKoAQqlAXRoZSBsYXN0IG51bWJlciBtYWRlIHVwIGZvciBhIHRhZywgYW5kIHRoZSBsb2NrIHRoYXQgbnVtYmVyaW5nIHRha2VzOiBib29ra2VlcGluZywgYXMgdGhlIHRyZWUgbG9jayBpczsgdGhlIHRhZyBpdHNlbGYgaXMgb24gdGhlIHRyYWlsIHdpdGggdGhlIGFzc2V0IGl0IHdhcyBnaXZlbiB0byLiBAoFTGFiZWwSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESHAoKc3ViamVjdF9pZBgJIAEoDEII6oIWBBBAOAESDQoFc3RhdGUYCiABKAkSNgoKZGF0ZV9ib3VuZBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI4CgxkYXRlX3ByaW50ZWQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEg0KBWJhdGNoGBAgASgJEhYKBGNvZGUYESABKAlCCOqCFgQwATgBOqEByvwVTRICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhkSB3N1YmplY3QaDgoKc3ViamVjdF9pZBAJirsWTAgSMkYKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaDAoKc3ViamVjdF9pZBoHCgVzdGF0ZRoHCgViYXRjaCBkKPQDOgAihwQKCkF0dGFjaG1lbnQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLmxvZnQuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIaCgpzdWJqZWN0X2lkGAggASgMQgbqghYCEEASEgoKb2JqZWN0X2tleRgJIAEoCRISCgpzaXplX2J5dGVzGAogASgEEhQKDGNvbnRlbnRfdHlwZRgLIAEoCRIOCgZzaGEyNTYYDCABKAwSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOo8ByvwVTRICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhkSB3N1YmplY3QaDgoKc3ViamVjdF9pZBAIirsWOggTMjQKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaDAoKc3ViamVjdF9pZCAyKMgBOgBCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_catalog, file_loft_org, file_loft_payday_tenant]);
 
 /**
  * Asset is everything loft tracks the identity of: an item, a space, a kit or
@@ -268,126 +268,9 @@ export const TagCounterSchema: GenMessage<TagCounter> = /*@__PURE__*/
   messageDesc(file_loft_asset, 2);
 
 /**
- * Domain is a domain of a workspace's (design 9.9): one its whole app is on
- * (`app`), or one its QR labels print with (`label`). Only a workspace has
- * domains, so it is called what it is (D72), and so are the messages of its
- * events, `DomainAdded` and the rest.
- *
- * @generated from message loft.Domain
- */
-export type Domain = Message<"loft.Domain"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: loft.Tenant tenant = 2;
-   */
-  tenant?: Tenant | undefined;
-
-  /**
-   * A lowercase host name, unique across the deployment.
-   *
-   * @generated from field: string host = 8;
-   */
-  host: string;
-
-  /**
-   * app | label
-   *
-   * @generated from field: string purpose = 9;
-   */
-  purpose: string;
-
-  /**
-   * pending | ready | active | legacy | lapsed | retired
-   *
-   * @generated from field: string state = 10;
-   */
-  state: string;
-
-  /**
-   * The value the TXT record has to hold.
-   *
-   * @generated from field: string token = 11;
-   */
-  token: string;
-
-  /**
-   * custom | default
-   *
-   * @generated from field: string source = 12;
-   */
-  source: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_updated = 13;
-   */
-  dateUpdated?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_erased = 14;
-   */
-  dateErased?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_verified = 16;
-   */
-  dateVerified?: Timestamp | undefined;
-
-  /**
-   * An active custom domain's DNS is asked about again every hour (loft#155):
-   * whether its TXT record still holds `token`, and whether it still points
-   * here. `date_checked` is when it was last asked, and `failures` how many
-   * answers in a row since `date_failing` said no -- one that said nothing,
-   * a timeout, is none; 0 for a domain made, which no answer has said no to. A domain whose DNS said no often enough for long
-   * enough lapses (`server/domain`'s sweep): `lapsed`, since `date_lapsed`,
-   * and active again only once its TXT record verifies again.
-   *
-   * @generated from field: google.protobuf.Timestamp date_checked = 18;
-   */
-  dateChecked?: Timestamp | undefined;
-
-  /**
-   * @generated from field: uint32 failures = 19;
-   */
-  failures: number;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_failing = 20;
-   */
-  dateFailing?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_lapsed = 17;
-   */
-  dateLapsed?: Timestamp | undefined;
-
-  /**
-   * For an `app` domain made legacy by another's activation: until when its
-   * pages send a browser on to where the workspace's app is now.
-   *
-   * @generated from field: google.protobuf.Timestamp date_redirect_until = 21;
-   */
-  dateRedirectUntil?: Timestamp | undefined;
-};
-
-/**
- * Describes the message loft.Domain.
- * Use `create(DomainSchema)` to create a new message.
- */
-export const DomainSchema: GenMessage<Domain> = /*@__PURE__*/
-  messageDesc(file_loft_asset, 3);
-
-/**
- * Label is a printed QR label. It is printed with the tenant's label domain,
- * bound to an asset when it is stuck on, and can be voided and replaced.
+ * Label is a printed QR label. It is printed with this deployment's own
+ * address (design 9.9), bound to an asset when it is stuck on, and can be
+ * voided and replaced.
  *
  * @generated from message loft.Label
  */
@@ -401,11 +284,6 @@ export type Label = Message<"loft.Label"> & {
    * @generated from field: loft.Tenant tenant = 2;
    */
   tenant?: Tenant | undefined;
-
-  /**
-   * @generated from field: loft.Domain domain = 8;
-   */
-  domain?: Domain | undefined;
 
   /**
    * The asset it is stuck on, by identifier.
@@ -469,7 +347,7 @@ export type Label = Message<"loft.Label"> & {
  * Use `create(LabelSchema)` to create a new message.
  */
 export const LabelSchema: GenMessage<Label> = /*@__PURE__*/
-  messageDesc(file_loft_asset, 4);
+  messageDesc(file_loft_asset, 3);
 
 /**
  * Attachment is a file kept for something: a photo of an asset, a receipt.
@@ -540,5 +418,5 @@ export type Attachment = Message<"loft.Attachment"> & {
  * Use `create(AttachmentSchema)` to create a new message.
  */
 export const AttachmentSchema: GenMessage<Attachment> = /*@__PURE__*/
-  messageDesc(file_loft_asset, 5);
+  messageDesc(file_loft_asset, 4);
 

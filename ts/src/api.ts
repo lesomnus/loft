@@ -22,7 +22,7 @@ import { events } from '../gen/events.js'
 import { unreachable } from './offline.js'
 
 import { AllocationService, BookableService, ReservationService } from '../gen/loft/booking_svc_pb.js'
-import { AssetService, AttachmentService, DomainService, LabelService } from '../gen/loft/asset_svc_pb.js'
+import { AssetService, AttachmentService, LabelService } from '../gen/loft/asset_svc_pb.js'
 import { AssetTypeService, ItemModelService } from '../gen/loft/catalog_svc_pb.js'
 import { AccessService } from '../gen/loft/payday/access_svc_pb.js'
 import { AuditService } from '../gen/loft/payday/audit_svc_pb.js'
@@ -50,7 +50,6 @@ export {
 	CountFindingService,
 	CustodyLineService,
 	CustodyService,
-	DomainService,
 	EventService,
 	HolderService,
 	InventoryCountService,
@@ -126,9 +125,8 @@ export const transport = createConnectTransport({
 })
 
 /**
- * A workspace an account is in, as the account is told it: by
- * `TenantService.Mine` (`TenantMembership`, D73), or `GET /account`'s `here`
- * on a workspace's own domain.
+ * A workspace an account is in, as the account is told it by
+ * `TenantService.Mine` (`TenantMembership`, D73).
  */
 export interface Workspace {
 	id: string
@@ -141,11 +139,6 @@ export interface Workspace {
 	destroy?: string
 	/** For a closed one: how many days its address is then held (D29). */
 	alias_hold_days?: number
-	/**
-	 * Where its app is when that is a domain of its own (loft#155): the
-	 * address a page of it begins with there, which opening it goes to.
-	 */
-	home?: string
 }
 
 /**
@@ -156,24 +149,15 @@ export interface Account {
 	id: string
 	login: string
 	name: string
-	/** What it is in; on a workspace's own domain, that one alone (`here`). */
+	/** What it is in. */
 	workspaces: Workspace[]
 	/** How many of them it owns, and may own: another past that is paid for. */
 	owns: number
 	may?: number
-	/** The workspace a workspace's own domain serves, as the account is told it there. */
-	here?: Workspace
 	/** roster's page where the account itself is managed, and deleted where its directory offers that. */
 	manage?: string
 	/** What it has to agree to before it uses anything here (design 9.11). */
 	owes?: ConsentDocument[]
-	/**
-	 * The workspace this address serves alone, when it is a workspace's own
-	 * domain (loft#155): nothing of the account's beside it is offered here.
-	 */
-	pinned?: string
-	/** The service's address, said where `pinned` is: where the account's other workspaces are. */
-	service?: string
 	/**
 	 * Whether this deployment's workspaces are billed, by levyan: what the page
 	 * offers a workspace's billing for (design 7.9).
@@ -236,19 +220,13 @@ export function leavePage(manage: string): string {
 /**
  * The account this browser is signed in as, or `out` for none: what `GET
  * /account` says of the session, and the workspaces it is in, which the
- * account asks as itself (`TenantService.Mine`, D73) -- but on a workspace's
- * own domain, where nothing of the account's own is served and the one
- * workspace there is all it is told (`here`).
+ * account asks as itself (`TenantService.Mine`, D73).
  */
 export async function signedIn(): Promise<Account | 'out'> {
 	const res = await fetch('/account')
 	if (res.status === 401) return 'out'
 	if (!res.ok) throw new Error(`계정을 읽을 수 없습니다 (${res.status})`)
 	const a = (await res.json()) as Account
-	if (a.pinned !== undefined) {
-		const here = a.here === undefined ? [] : [a.here]
-		return { ...a, workspaces: here, owns: here.filter((w) => w.role === 'owner').length, may: undefined }
-	}
 	try {
 		const mine = await raw.tenant.mine({})
 		return {
@@ -273,7 +251,6 @@ export function workspaceOf(m: TenantMembership): Workspace {
 		closed: m.dateClosed === undefined ? undefined : timestampDate(m.dateClosed).toISOString(),
 		destroy: m.dateDestroy === undefined ? undefined : timestampDate(m.dateDestroy).toISOString(),
 		alias_hold_days: m.aliasHoldDays === 0 ? undefined : m.aliasHoldDays,
-		home: m.home === '' ? undefined : m.home,
 	}
 }
 
@@ -291,12 +268,6 @@ export interface Ways {
 	providers: Provider[]
 	/** Whether the password form is offered beside them. */
 	password: boolean
-	/**
-	 * Whether this is a workspace's own domain, where nobody signs in: the
-	 * page sends the browser to the service's address to be signed in, and it
-	 * comes back with a session of this host's (loft#155).
-	 */
-	handoff?: boolean
 }
 
 /** The ways in this deployment offers. A server with no `/sso` offers a password. */
@@ -328,56 +299,6 @@ export function signOutThroughIssuer(): void {
 	f.action = '/sso/logout'
 	document.body.append(f)
 	f.submit()
-}
-
-/** How many times a page sends the browser off to be signed in, in a while, before it stops and asks. */
-const handoffs = { max: 3, within: 60_000, key: 'loft-handoffs' }
-
-/**
- * Sends the browser from a workspace's own domain to the service's address to
- * be signed in, and back to where it is now. Unless somebody `asked` -- a
- * button -- it answers false, sending nothing, when it has gone round more
- * than a few times in a minute: something on the way does not take, and a
- * button is better than a loop.
- */
-export function handOff(asked = false): boolean {
-	const now = Date.now()
-	let recent: number[] = []
-	try {
-		recent = (JSON.parse(sessionStorage.getItem(handoffs.key) ?? '[]') as number[]).filter((t) => now - t < handoffs.within)
-	} catch {
-		// Nothing kept, which is the same as nothing recent.
-	}
-	if (!asked && recent.length >= handoffs.max) return false
-	try {
-		sessionStorage.setItem(handoffs.key, JSON.stringify([...recent, now]))
-	} catch {
-		// A browser that keeps nothing goes round as often as it is sent.
-	}
-	location.replace('/handoff/start?' + new URLSearchParams({ next: location.pathname + location.search }).toString())
-	return true
-}
-
-/**
- * Signs out on a workspace's own domain: this host's session, and the sign-in
- * at the service's address it was handed from. A form, as signing out at the
- * issuer is, because the browser goes on to where that one ends.
- */
-export function signOutThroughHandoff(): void {
-	const f = document.createElement('form')
-	f.method = 'post'
-	f.action = '/handoff/logout'
-	document.body.append(f)
-	f.submit()
-}
-
-/**
- * Where a sign-in at the service's address goes on to: the handoff that sent
- * the browser here to be signed in (`?next=/handoff?...`), and nowhere else.
- */
-export function handingOff(): string {
-	const next = new URLSearchParams(location.search).get('next') ?? ''
-	return next.startsWith('/handoff?') ? next : ''
 }
 
 /** A new workspace the account owns, with an alias nobody chose: made as the account (D73). */
@@ -430,16 +351,14 @@ export function rememberWorkspace(alias: string): void {
 }
 
 /**
- * Opens a workspace: the page again, at its address -- on the domain of its
- * own its app is on, when it has one (loft#155), where the service would send
- * the page anyway. `instead` replaces this page in the history rather than
- * following it, for a page that was only on its way somewhere.
+ * Opens a workspace: the page again, at its address. `instead` replaces this
+ * page in the history rather than following it, for a page that was only on
+ * its way somewhere.
  */
 export function openWorkspace(w: string | Workspace, rest = '/', instead = false): void {
 	const alias = typeof w === 'string' ? w : w.alias
-	const home = typeof w === 'string' ? '' : (w.home ?? '')
 	rememberWorkspace(alias)
-	const to = `${home}/@${encodeURIComponent(alias)}${rest}`
+	const to = `/@${encodeURIComponent(alias)}${rest}`
 	if (instead) location.replace(to)
 	else location.assign(to)
 }

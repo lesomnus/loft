@@ -43,10 +43,10 @@ func TestALandingIsAPathHere(t *testing.T) {
 
 		// And where a browser sent there lands: this host.
 		res := httptest.NewRecorder()
-		http.Redirect(res, httptest.NewRequest(http.MethodGet, "/handoff/callback", nil), got, http.StatusSeeOther)
+		http.Redirect(res, httptest.NewRequest(http.MethodGet, "/sso/callback", nil), got, http.StatusSeeOther)
 		ref, err := url.Parse(res.Header().Get("Location"))
 		require.NoError(t, err, next)
-		here, err := url.Parse("https://acme.example/handoff/callback")
+		here, err := url.Parse("https://acme.example/sso/callback")
 		require.NoError(t, err)
 		require.Equal(t, "acme.example", here.ResolveReference(ref).Host, next)
 	}

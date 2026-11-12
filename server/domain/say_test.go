@@ -163,15 +163,6 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", DateStart: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약에서 빠짐: 삼각대 (제품 촬영 10-24 10:30)"},
 		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", DateStart: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 2}.Build(), "예약에서 빠짐: Canon R5 2개 (촬영 10-24 10:30)"},
 
-		{"domain.add", app.DomainAdded_builder{Host: "assets.acme.example", Purpose: "app", Source: "custom"}.Build(), "워크스페이스 도메인 등록: assets.acme.example"},
-		{"domain.add", app.DomainAdded_builder{Host: "acme.l.test", Purpose: "label", Source: "default"}.Build(), "라벨 도메인 등록: acme.l.test"},
-		{"domain.verify", app.DomainVerified_builder{Host: "assets.acme.example", Purpose: "app"}.Build(), "워크스페이스 도메인 확인: assets.acme.example"},
-		{"domain.verify", app.DomainVerified_builder{Host: "assets.acme.example", Purpose: "app", Again: true}.Build(), "워크스페이스 도메인 다시 확인: assets.acme.example"},
-		{"domain.activate", app.DomainActivated_builder{Host: "assets.acme.example", Purpose: "app"}.Build(), "워크스페이스 도메인 활성화: assets.acme.example"},
-		{"domain.retire", app.DomainRetired_builder{Host: "acme.l.test", Purpose: "label", Force: true, Labels: 3}.Build(), "라벨 도메인 은퇴: acme.l.test"},
-		// What was the reason, loft's own words, said by the sentence.
-		{"domain.lapse", app.DomainLapsed_builder{Host: "assets.acme.example", Purpose: "app", DateFailing: timestamppb.New(time.Date(2026, 10, 23, 3, 0, 0, 0, time.UTC)), Failures: 6}.Build(),
-			"워크스페이스 도메인 사용 중지: assets.acme.example (DNS가 10월 23일 12:00부터 이 서비스를 가리키지 않거나 TXT 레코드가 없습니다)"},
 		{"label.print", app.LabelsPrinted_builder{Batch: "2026-10-24 10:30", Count: 20}.Build(), "라벨 인쇄: 2026-10-24 10:30"},
 		{"label.bind", app.LabelBound_builder{Asset: asset.Bytes(), Tag: "NB-1"}.Build(), "NB-1 라벨 부착"},
 		{"label.unbind", app.LabelUnbound_builder{Asset: asset.Bytes(), Void: true}.Build(), "라벨 떼어냄"},

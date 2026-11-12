@@ -302,9 +302,7 @@ An account in no workspace is given one of its own when it signs in
 beside `/session` (`server/account`) is what a session is told of itself,
 `GET /account`, and what it agrees to (`/account/consents`): an account that
 owes an agreement is refused every RPC but what it has (`cmd.WhileOwing`), so
-the way out cannot be behind the refusal, and a session on a workspace's own
-domain is never the account, so `GET /account` tells the page there the one
-workspace it serves (`here`).
+the way out cannot be behind the refusal.
 
 **Some calls are served as an account** (D30, D73): the invitations
 addressed to it -- nobody's member in that workspace yet --
@@ -550,18 +548,17 @@ unpaid workspace is still closed and restored there (D83).
 
 What the deployment's own work tells a read-only workspace is a table too
 (design 7.13, D67): `domain.ReadOnlyTells`, every kind of notice a sweep
-sends, told while it is read-only (`TellsStill`: what became of a booking,
-what was found of a domain) or held back -- written nowhere, in the app or
-by mail -- and told once it writes again (`TellsOnceWritable`: what asks
-somebody to act by a time, a return, a booking to settle, the work). The
-sweeps' changes go on as ever: holds run out, loans go late. `Tx.notify`
-holds a notice back, and each sweep tells what is so once the workspace
-writes again, once: a reminder is asked again every pass (`noticed` never
-saw what was held back), and a loan found late that no notice since its due
-told is told then, with what its being late did to bookings
-(`Tx.lateUntold`, `Tx.retellLate`). A kind a sweep is given goes in the
-table, or `server/domain/readonly_notice_test.go`, which reads the sweeps'
-source, fails.
+sends, told while it is read-only (`TellsStill`: what became of a booking) or
+held back -- written nowhere, in the app or by mail -- and told once it
+writes again (`TellsOnceWritable`: what asks somebody to act by a time, a
+return, a booking to settle, the work). The sweeps' changes go on as ever:
+holds run out, loans go late. `Tx.notify` holds a notice back, and each
+sweep tells what is so once the workspace writes again, once: a reminder is
+asked again every pass (`noticed` never saw what was held back), and a loan
+found late that no notice since its due told is told then, with what its
+being late did to bookings (`Tx.lateUntold`, `Tx.retellLate`). A kind a
+sweep is given goes in the table, or `server/domain/readonly_notice_test.go`,
+which reads the sweeps' source, fails.
 
 Holding back is the sweeps' alone (design 7.14, D68): `Tx.sweeping` marks the
 transaction, and an operator's command writes its notices whatever their

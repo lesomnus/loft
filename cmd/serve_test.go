@@ -539,7 +539,7 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	x.Equal(1, n, "a second sign-in gave it a second workspace")
 
 	acc := http.NewServeMux()
-	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity, Workspaces: ws}.Mount(acc)
+	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity}.Mount(acc)
 	var got account.Account
 	r := httptest.NewRequest(http.MethodGet, "/account", nil)
 	r.Header.Set("Cookie", cookie.Name+"="+cookie.Value)
@@ -548,7 +548,6 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	x.Equal(http.StatusOK, rec.Code)
 	x.NoError(json.Unmarshal(rec.Body.Bytes(), &got))
 	x.Equal("park", got.Login)
-	x.Nil(got.Here, "at the service's address, what it is in is TenantService.Mine's")
 
 	// What it is in, and more of its own, asked as the account (D73).
 	tenants := app.NewTenantServiceClient(w.conn)

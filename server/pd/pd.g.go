@@ -31,11 +31,9 @@ import (
 	entCountFinding "github.com/lesomnus/loft/internal/ent/countfinding"
 	entCustody "github.com/lesomnus/loft/internal/ent/custody"
 	entCustodyLine "github.com/lesomnus/loft/internal/ent/custodyline"
-	entDomain "github.com/lesomnus/loft/internal/ent/domain"
 	entEntitlement "github.com/lesomnus/loft/internal/ent/entitlement"
 	entEvent "github.com/lesomnus/loft/internal/ent/event"
 	entFact "github.com/lesomnus/loft/internal/ent/fact"
-	entHandoff "github.com/lesomnus/loft/internal/ent/handoff"
 	entHolder "github.com/lesomnus/loft/internal/ent/holder"
 	entInventoryCount "github.com/lesomnus/loft/internal/ent/inventorycount"
 	entInvitation "github.com/lesomnus/loft/internal/ent/invitation"
@@ -153,11 +151,9 @@ const (
 	CountFindingDomain    pdid.Domain = 32  // "count-finding"
 	CustodyDomain         pdid.Domain = 21  // "custody"
 	CustodyLineDomain     pdid.Domain = 22  // "custody-line"
-	DomainDomain          pdid.Domain = 24  // "domain"
 	EntitlementDomain     pdid.Domain = 50  // "entitlement"
 	EventDomain           pdid.Domain = 17  // "event"
 	FactDomain            pdid.Domain = 16  // "fact"
-	HandoffDomain         pdid.Domain = 48  // "handoff"
 	HolderDomain          pdid.Domain = 2   // "holder"
 	InventoryCountDomain  pdid.Domain = 31  // "inventory-count"
 	InvitationDomain      pdid.Domain = 41  // "invitation"
@@ -204,11 +200,9 @@ func init() {
 	pdid.Register("loft.CountFinding", CountFindingDomain, "count-finding")
 	pdid.Register("loft.Custody", CustodyDomain, "custody")
 	pdid.Register("loft.CustodyLine", CustodyLineDomain, "custody-line")
-	pdid.Register("loft.Domain", DomainDomain, "domain")
 	pdid.Register("loft.Entitlement", EntitlementDomain, "entitlement")
 	pdid.Register("loft.Event", EventDomain, "event")
 	pdid.Register("loft.Fact", FactDomain, "fact")
-	pdid.Register("loft.Handoff", HandoffDomain, "handoff")
 	pdid.Register("loft.Holder", HolderDomain, "holder")
 	pdid.Register("loft.InventoryCount", InventoryCountDomain, "inventory-count")
 	pdid.Register("loft.Invitation", InvitationDomain, "invitation")
@@ -259,11 +253,9 @@ var Domains = map[string]pdid.Domain{
 	"loft.CountFinding":    CountFindingDomain,
 	"loft.Custody":         CustodyDomain,
 	"loft.CustodyLine":     CustodyLineDomain,
-	"loft.Domain":          DomainDomain,
 	"loft.Entitlement":     EntitlementDomain,
 	"loft.Event":           EventDomain,
 	"loft.Fact":            FactDomain,
-	"loft.Handoff":         HandoffDomain,
 	"loft.Holder":          HolderDomain,
 	"loft.InventoryCount":  InventoryCountDomain,
 	"loft.Invitation":      InvitationDomain,
@@ -327,11 +319,6 @@ var EventKinds = map[string]protoreflect.MessageType{
 	"custody.issue":        (*loft.CustodyIssued)(nil).ProtoReflect().Type(),
 	"custody.overdue":      (*loft.CustodyOverdue)(nil).ProtoReflect().Type(),
 	"custody.return":       (*loft.CustodyReturned)(nil).ProtoReflect().Type(),
-	"domain.activate":      (*loft.DomainActivated)(nil).ProtoReflect().Type(),
-	"domain.add":           (*loft.DomainAdded)(nil).ProtoReflect().Type(),
-	"domain.lapse":         (*loft.DomainLapsed)(nil).ProtoReflect().Type(),
-	"domain.retire":        (*loft.DomainRetired)(nil).ProtoReflect().Type(),
-	"domain.verify":        (*loft.DomainVerified)(nil).ProtoReflect().Type(),
 	"event.redact":         (*loft.EventRedacted)(nil).ProtoReflect().Type(),
 	"invitation.accept":    (*loft.InvitationAccepted)(nil).ProtoReflect().Type(),
 	"invitation.add":       (*loft.InvitationAdded)(nil).ProtoReflect().Type(),
@@ -691,24 +678,6 @@ func (wall) CustodyLineScope(ctx context.Context) (predicate.CustodyLine, error)
 	return entCustodyLine.TenantIdIn(vs...), nil
 }
 
-// DomainScope: a row belongs to the tenant its "tenant" reaches.
-func (wall) DomainScope(ctx context.Context) (predicate.Domain, error) {
-	if a, r, ok := accountReads(ctx); ok {
-		if r.Domain == nil {
-			return nothing[predicate.Domain](), nil
-		}
-
-		return r.Domain(ctx, a)
-	}
-
-	vs, all, err := frame.Narrow(ctx)
-	if all || err != nil {
-		return nil, err
-	}
-
-	return entDomain.TenantIdIn(vs...), nil
-}
-
 // EntitlementScope: a row belongs to the tenant its "tenant" reaches.
 func (wall) EntitlementScope(ctx context.Context) (predicate.Entitlement, error) {
 	if a, r, ok := accountReads(ctx); ok {
@@ -761,19 +730,6 @@ func (wall) FactScope(ctx context.Context) (predicate.Fact, error) {
 	}
 
 	return entFact.TenantIdIn(vs...), nil
-}
-
-// HandoffScope: declared `global`, so it is not behind the wall at all.
-func (wall) HandoffScope(ctx context.Context) (predicate.Handoff, error) {
-	if a, r, ok := accountReads(ctx); ok {
-		if r.Handoff == nil {
-			return nothing[predicate.Handoff](), nil
-		}
-
-		return r.Handoff(ctx, a)
-	}
-
-	return nil, nil
 }
 
 // HolderScope: a row belongs to the tenant its "tenant" reaches.
@@ -5656,394 +5612,6 @@ func filterCustodyLine(f *loft.CustodyLineFilter) (predicate.CustodyLine, error)
 	}
 
 	return entCustodyLine.And(ps...), nil
-}
-
-type sinkDomain struct {
-	loft.DomainServiceServer
-	store  bare.Store
-	w      *watch.Watch
-	namer  slug.Namer
-	joined bool
-}
-
-func (s Sink) Domain() loft.DomainServiceServer {
-	return sinkDomain{s.Server.Domain(), s.Server.Store, s.w, s.namer, s.joined}
-}
-
-// Erase forgets what the transaction was told about the row, before it is
-// erased: whether a frame may see it, and where a walk from it arrives.
-// Neither is true of a row that is gone, nor of another put under its
-// key. See [seen.Forget].
-func (s sinkDomain) Erase(ctx context.Context, req *loft.DomainRef) (*loft.DomainEraseResponse, error) {
-	seen.Forget(s.store.Db.Driver(), "Domain", req)
-
-	return s.DomainServiceServer.Erase(ctx, req)
-}
-
-// Apply forgets what the transaction was told about the row, before it is
-// written: a document may move it to a set the caller cannot see. See
-// [seen.Forget].
-func (s sinkDomain) Apply(ctx context.Context, req *loft.DomainApplyRequest) (*loft.Domain, error) {
-	seen.Forget(s.store.Db.Driver(), "Domain", req.GetRef())
-
-	return s.DomainServiceServer.Apply(ctx, req)
-}
-
-// Patch forgets what the transaction was told about the row, before it is
-// written; see [sinkDomain.Apply].
-func (s sinkDomain) Patch(ctx context.Context, req *loft.DomainPatchRequest) (*loft.Domain, error) {
-	seen.Forget(s.store.Db.Driver(), "Domain", req.GetRef())
-
-	return s.DomainServiceServer.Patch(ctx, req)
-}
-
-// orderDomain is how Domains come back.
-//
-// The last column is the key, and it is not decoration: a cursor cannot
-// tell apart two rows equal in every column of the order, so the page after
-// the first of them either repeats the second or skips it. Rows written by
-// one request are stamped a moment apart at best.
-var orderDomain = []sqlpage.Order{
-	{Column: entDomain.FieldDateCreated, Desc: false},
-	{Column: entDomain.FieldId, Desc: false},
-}
-
-func afterDomain(v string, by []sqlpage.Order, tag string) (func(*sql.Selector), error) {
-	var (
-		at0 time.Time
-		at1 uuid.UUID
-	)
-	if err := pdAfter(v, tag, &at0, &at1); err != nil {
-		return nil, err
-	}
-
-	return sqlpage.After(by, []any{at0, at1})
-}
-
-func nextDomain(last *ent.Domain, tag string) (string, error) {
-	return pdNext(tag, last.DateCreated, last.Id)
-}
-
-// orderByDomain is an order as ent orders a query by it.
-func orderByDomain(by []sqlpage.Order) []entDomain.OrderOption {
-	out := make([]entDomain.OrderOption, len(by))
-	for i, o := range by {
-		if o.Desc {
-			out[i] = sql.OrderByField(o.Column, sql.OrderDesc()).ToFunc()
-			continue
-		}
-
-		out[i] = sql.OrderByField(o.Column).ToFunc()
-	}
-
-	return out
-}
-
-const (
-	// DomainPageSize is what a request that did not say gets, and
-	// DomainPageLimit is the most it gets however loudly it asks.
-	DomainPageSize  = 50
-	DomainPageLimit = 100
-
-	// DomainFilterLimit is how many filters one request may carry. Each is a
-	// predicate in the same query, so it is what says how much of the
-	// database a request may ask to read -- and it is refused rather than
-	// clamped, because dropping half the filters would answer a question
-	// nobody asked.
-	DomainFilterLimit = 32
-)
-
-// List answers with the Domains that match any of the given filters, or with
-// every one there is if the request named none, a page at a time.
-func (s sinkDomain) List(ctx context.Context, req *loft.DomainListRequest) (*loft.DomainListResponse, error) {
-	q := s.store.Db.Domain.Query()
-
-	// Through the same narrowing every generated read goes through, and not
-	// by asking the scope alone: what narrows a read is the wall today and
-	// the wall and something else tomorrow, and a list that reached past it
-	// would be the one read that missed the something else.
-	if p, err := bare.DomainNarrow(ctx, s.store.Scope, nil); err != nil {
-		return nil, err
-	} else if p != nil {
-		q.Where(p)
-	}
-
-	if fs := req.GetFilters(); len(fs) > 0 {
-		if len(fs) > DomainFilterLimit {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"filters: %d of them, and %d is the most one list carries", len(fs), DomainFilterLimit)
-		}
-
-		ps := make([]predicate.Domain, 0, len(fs))
-		for i, f := range fs {
-			p, err := filterDomain(f)
-			if err != nil {
-				return nil, status.Errorf(codes.InvalidArgument, "filters[%d]: %s", i, err)
-			}
-
-			ps = append(ps, p)
-		}
-
-		q.Where(entDomain.Or(ps...))
-	}
-
-	// Which order, and which way: one the schema declared, and never one a
-	// request makes up, since an order is a walk of an index.
-	by, after, next, tag := orderDomain, afterDomain, nextDomain, ""
-	if req.GetReverse() {
-		// The same index, walked from the other end.
-		by, tag = pdReverse(by), tag+"/reverse"
-	}
-
-	if v := req.GetAfter(); v != "" {
-		p, err := after(v, by, tag)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "after: %s", err)
-		}
-
-		q.Where(p)
-	}
-
-	// One row more than the page, which is how "is there another" is answered
-	// without a second query and without a count. The extra is dropped before
-	// the answer is built; it was only ever asked for to see whether it was
-	// there -- so a full last page answers with no cursor rather than sending
-	// the caller back for an empty one.
-	size := sqlpage.Size(int(req.GetSize()), DomainPageSize, DomainPageLimit)
-	us, err := q.Order(orderByDomain(by)...).Limit(size + 1).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	more := len(us) > size
-	if more {
-		us = us[:size]
-	}
-
-	items := make([]*loft.Domain, len(us))
-	for i, u := range us {
-		items[i] = u.Proto()
-	}
-
-	res := loft.DomainListResponse_builder{Items: items}.Build()
-	if more {
-		v, err := next(us[len(us)-1], tag)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "next: %s", err)
-		}
-
-		res.SetNext(v)
-	}
-
-	return res, nil
-}
-
-// filterDomain turns one filter into the predicate that selects what it
-// names. Naming nothing is refused, since the request asked for "these" and
-// did not say which.
-func filterDomain(f *loft.DomainFilter) (predicate.Domain, error) {
-	ps := make([]predicate.Domain, 0, 1)
-	if f.HasRef() {
-		p, err := bare.DomainPick(f.GetRef())
-		if err != nil {
-			return nil, err
-		}
-
-		ps = append(ps, p)
-	}
-	if f.HasState() {
-		ps = append(ps, entDomain.StateEQ(f.GetState()))
-	}
-	if f.HasPurpose() {
-		ps = append(ps, entDomain.PurposeEQ(f.GetPurpose()))
-	}
-	if len(ps) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "a filter that names nothing")
-	}
-
-	return entDomain.And(ps...), nil
-}
-
-// DomainService is the prefix of every Rpc of that service, which is how a
-// change is known to be about a Domain. A service is named for the entity it
-// is about, so the name carries it.
-var DomainService = watch.ServiceOf(loft.DomainService_Get_FullMethodName)
-
-// Watch answers with the Domains this caller may see, as they are now and as
-// they change.
-//
-// What is sent is **state and never a delta**, which is what makes a stream
-// that missed something still correct: the next item about a row carries the
-// whole of it, so a client converges rather than replays. It is also what
-// makes the first message safe to duplicate against the ones after it.
-func (s sinkDomain) Watch(req *loft.DomainWatchRequest, out grpc.ServerStreamingServer[loft.DomainWatchResponse]) error {
-	ctx := out.Context()
-
-	// A watch with no filters is the whole table, forever. It is the one
-	// shape that has no cap at all, so it is the one shape refused.
-	fs := req.GetFilters()
-	switch {
-	case len(fs) == 0:
-		return status.Error(codes.InvalidArgument,
-			"filters: a watch says which rows it is about; one that says nothing is the whole table, for as long as it is open")
-	case len(fs) > DomainFilterLimit:
-		return status.Errorf(codes.InvalidArgument,
-			"filters: %d of them, and %d is the most one watch carries", len(fs), DomainFilterLimit)
-	}
-
-	// Resolved before anything is subscribed to, so a name that names
-	// nothing is an answer rather than a stream that quietly watches none.
-	watching, err := s.watchDomainKeys(ctx, fs)
-	if err != nil {
-		return err
-	}
-
-	var snapshot func(watch.Seen) error
-	if !req.GetSkipSnapshot() {
-		snapshot = func(sent watch.Seen) error { return s.watchNow(ctx, req, out, sent) }
-	}
-
-	if s.w == nil {
-		return status.Error(codes.Unimplemented,
-			"this deployment publishes no changes; see WithWatch")
-	}
-
-	return watch.Stream(ctx, s.w, DomainService, snapshot,
-		func(ks map[pdid.Id]string, sent watch.Seen) error {
-			items := make([]*loft.DomainWatchItem, 0, len(ks))
-			for k, action := range ks {
-				u, err := s.watchRead(ctx, watching, k)
-				if err != nil {
-					return err
-				}
-				if u == nil && !sent[k] {
-					// Not theirs, or not what they asked for, and they
-					// have never been told about it. A row that never
-					// matched is not news.
-					continue
-				}
-
-				sent[k] = u != nil
-				items = append(items, loft.DomainWatchItem_builder{
-					Id:     k.Bytes(),
-					Value:  u,
-					Action: action,
-				}.Build())
-			}
-			if len(items) == 0 {
-				return nil
-			}
-
-			return out.Send(loft.DomainWatchResponse_builder{Items: items}.Build())
-		})
-}
-
-// watchNow sends what matches right now, through the same List a caller
-// would have called -- so what a stream begins with and what a list answers
-// cannot disagree, and a client does not have to do both and race them.
-func (s sinkDomain) watchNow(
-	ctx context.Context, req *loft.DomainWatchRequest, out grpc.ServerStreamingServer[loft.DomainWatchResponse],
-	sent watch.Seen,
-) error {
-	after := ""
-	for {
-		res, err := s.List(ctx, loft.DomainListRequest_builder{
-			Filters: req.GetFilters(),
-			After:   after,
-		}.Build())
-		if err != nil {
-			return err
-		}
-
-		items := make([]*loft.DomainWatchItem, 0, len(res.GetItems()))
-		for _, u := range res.GetItems() {
-			k, err := pdid.From(u.GetId())
-			if err != nil {
-				return err
-			}
-
-			sent[k] = true
-			// No action: this is not something anybody asked for, it is
-			// what is already there.
-			items = append(items, loft.DomainWatchItem_builder{Id: u.GetId(), Value: u}.Build())
-		}
-		if len(items) > 0 {
-			if err := out.Send(loft.DomainWatchResponse_builder{Items: items}.Build()); err != nil {
-				return err
-			}
-		}
-
-		if after = res.GetNext(); after == "" {
-			return nil
-		}
-	}
-}
-
-// watchRead answers with the row as it is now, or nil when it is no longer
-// one this caller may see -- erased, walled off, or no longer matching what
-// they asked for. The three are deliberately indistinguishable to a caller:
-// a stream that told them apart would be saying which rows stopped being
-// theirs, which is the thing the wall is for.
-//
-// The Get is what keeps the wall out of this file. It goes through the same
-// server every other read does, with the context of the caller who asked, so
-// a row they may not see comes back NotFound and is never sent.
-func (s sinkDomain) watchRead(
-	ctx context.Context, watching []pdid.Id, k pdid.Id,
-) (*loft.Domain, error) {
-	// Not one of the rows this stream is about. Asked before the read, so a
-	// busy table costs a stream nothing for the rows it does not watch.
-	if !slices.Contains(watching, k) {
-		return nil, nil
-	}
-
-	v, err := s.Get(ctx, loft.DomainGetRequest_builder{
-		Ref: loft.DomainRef_builder{Id: k.Bytes()}.Build(),
-	}.Build())
-	if err != nil {
-		if status.Code(err) == codes.NotFound {
-			return nil, nil
-		}
-
-		return nil, err
-	}
-
-	return v, nil
-}
-
-// watchDomainKeys is the rows a stream is about, resolved once when it opens.
-//
-// A filter names a row and a row is named several ways -- by identifier, or
-// by whatever unique index the schema declared. Resolving them here rather
-// than comparing them per event does three things: the comparison afterwards
-// is an identifier against an identifier, a name that names nothing is
-// refused when the stream opens rather than silently watching nothing, and a
-// row renamed while the stream is open goes on being the row that was asked
-// for -- which is what somebody watching a thing meant.
-func (s sinkDomain) watchDomainKeys(
-	ctx context.Context, fs []*loft.DomainFilter,
-) ([]pdid.Id, error) {
-	ks := make([]pdid.Id, 0, len(fs))
-	for i, f := range fs {
-		if !f.HasRef() {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"filters[%d]: a watch says which rows it is about by naming them", i)
-		}
-
-		v, err := s.Get(ctx, loft.DomainGetRequest_builder{Ref: f.GetRef()}.Build())
-		if err != nil {
-			return nil, err
-		}
-
-		k, err := pdid.From(v.GetId())
-		if err != nil {
-			return nil, err
-		}
-
-		ks = append(ks, k)
-	}
-
-	return ks, nil
 }
 
 type sinkEvent struct {
@@ -15213,54 +14781,6 @@ func (s gateCustodyLine) admit(ctx context.Context, req *loft.CustodyLineAddRequ
 	return req, nil
 }
 
-type gateDomain struct {
-	Gate
-	loft.DomainServiceServer
-}
-
-func (s Gate) Domain() loft.DomainServiceServer {
-	v := gateDomain{s, s.Next().Domain()}
-	v.DomainServiceServer = bare.DomainWithAddRule(v.DomainServiceServer, v.admit)
-	return accountsDomain{v}
-}
-
-// admit refuses a Domain put into a Tenant this caller cannot see.
-//
-// The wall is a predicate and an Add has no query, so without this the
-// identifier in `tenant` becomes a foreign key with nothing consulted.
-// The row is then invisible to whoever planted it and visible to whoever
-// holds that Tenant, which is the shape of the bug rather than a
-// mitigation of it.
-//
-// NotFound rather than a refusal, for the reason on `gateHolder.admit`:
-// that a row exists is itself something a caller who may not see it
-// should not be told.
-//
-// It is what an Add is asked, and an AddMany of every item it carries;
-// see [Gate.Domain].
-func (s gateDomain) admit(ctx context.Context, req *loft.DomainAddRequest) (*loft.DomainAddRequest, error) {
-	if req.HasDateVerified() {
-		return nil, pderr.Invalidf("date_verified", "is established by this deployment and not asserted by a request")
-	}
-
-	if ref := req.GetTenant(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, loft.TenantGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Tenant")
-			}
-
-			return nil, err
-		}
-	}
-
-	return req, nil
-}
-
 type gateEvent struct {
 	Gate
 	loft.EventServiceServer
@@ -15781,97 +15301,8 @@ func (s gateLabel) admit(ctx context.Context, req *loft.LabelAddRequest) (*loft.
 		}
 	}
 
-	if ref := req.GetDomain(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Domain", ref, func() error {
-			_, err := s.Gate.Next().Domain().Get(ctx, loft.DomainGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Domain")
-			}
-
-			return nil, err
-		}
-	}
-
 	return req, nil
 }
-
-// Patch refuses an edge moved onto a row this caller cannot see.
-//
-// The wall narrows the row being written and says nothing about what the
-// write points **at**. An edge is a read -- a `Select` walks it -- so one
-// moved out of the caller's scope is a way through the wall one hop later,
-// exactly as it would have been at `Add`.
-func (s gateLabel) Patch(ctx context.Context, req *loft.LabelPatchRequest) (*loft.Label, error) {
-	if ref := req.GetDomain(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Domain", ref, func() error {
-			_, err := s.Gate.Next().Domain().Get(ctx, loft.DomainGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Domain")
-			}
-
-			return nil, err
-		}
-	}
-
-	return s.LabelServiceServer.Patch(ctx, req)
-}
-
-// Apply refuses a document that moves an edge onto a row this caller cannot
-// see, as Patch refuses a request that does.
-//
-// A document names the row an edge points at by its key, and the server
-// behind writes that key into the column as it is -- compiling a document
-// reads nothing. So the read Patch is asked is asked here of the key the
-// document lands in the column, compiled the way the server behind will.
-func (s gateLabel) Apply(ctx context.Context, req *loft.LabelApplyRequest) (*loft.Label, error) {
-	if !req.HasPatch() {
-		// Nothing written, and the server behind refuses it in its own words.
-		return s.LabelServiceServer.Apply(ctx, req)
-	}
-
-	plan, err := ormpatch.Compile(gateLabelEntity, req.GetPatch())
-	if err != nil {
-		// Refused here rather than passed on, in the codes the server behind
-		// gives the same document: one this layer cannot read is one it can
-		// say nothing about.
-		if errors.Is(err, ormpatch.ErrUnsupported) {
-			return nil, status.Errorf(codes.Unimplemented, "%s", err)
-		}
-
-		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
-	}
-	if w, ok := plan.WriteTo(8); ok {
-		if k, ok := w.Op.(ormpatch.SetEdge); ok {
-			ref := loft.DomainRef_builder{Id: k.Key.Bytes()}.Build()
-			if err := seen.Visible(ctx, s.Gate.drv, "Domain", ref, func() error {
-				_, err := s.Gate.Next().Domain().Get(ctx, loft.DomainGetRequest_builder{
-					Ref: ref,
-				}.Build())
-				return err
-			}); err != nil {
-				if status.Code(err) == codes.NotFound {
-					return nil, gate.ErrNotFound("Domain")
-				}
-
-				return nil, err
-			}
-		}
-	}
-
-	return s.LabelServiceServer.Apply(ctx, req)
-}
-
-// gateLabelEntity is what a Label document is compiled against: the entity
-// parsed from the file that declares it, as the server behind parses it.
-var gateLabelEntity = ormpatch.MustEntityOf((*loft.Label)(nil).ProtoReflect().Descriptor().ParentFile(), "Label")
 
 type gateLegalHold struct {
 	Gate
@@ -17803,99 +17234,6 @@ func (s accountsAsset) ExportCensus(ctx context.Context, req *loft.AssetCensusRe
 	}
 
 	return s.AssetServiceServer.ExportCensus(ctx, req)
-}
-
-// accountsDomain is DomainService as the gate serves it to a call an account
-// makes as itself: refused every method but the ones the schema marks the
-// account's own. See [gate.AsAccount].
-type accountsDomain struct{ loft.DomainServiceServer }
-
-func (s accountsDomain) Add(ctx context.Context, req *loft.DomainAddRequest) (*loft.Domain, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Add_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Add(ctx, req)
-}
-
-func (s accountsDomain) Get(ctx context.Context, req *loft.DomainGetRequest) (*loft.Domain, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Get_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Get(ctx, req)
-}
-
-func (s accountsDomain) Patch(ctx context.Context, req *loft.DomainPatchRequest) (*loft.Domain, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Patch_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Patch(ctx, req)
-}
-
-func (s accountsDomain) Apply(ctx context.Context, req *loft.DomainApplyRequest) (*loft.Domain, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Apply_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Apply(ctx, req)
-}
-
-func (s accountsDomain) Erase(ctx context.Context, req *loft.DomainRef) (*loft.DomainEraseResponse, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Erase_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Erase(ctx, req)
-}
-
-func (s accountsDomain) List(ctx context.Context, req *loft.DomainListRequest) (*loft.DomainListResponse, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_List_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.List(ctx, req)
-}
-
-func (s accountsDomain) Watch(req *loft.DomainWatchRequest, out grpc.ServerStreamingServer[loft.DomainWatchResponse]) error {
-	if err := gate.AsAccount(out.Context(), loft.DomainService_Watch_FullMethodName, AccountMethod); err != nil {
-		return err
-	}
-
-	return s.DomainServiceServer.Watch(req, out)
-}
-
-func (s accountsDomain) Verify(ctx context.Context, req *loft.DomainVerifyRequest) (*loft.Domain, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Verify_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Verify(ctx, req)
-}
-
-func (s accountsDomain) Activate(ctx context.Context, req *loft.DomainActivateRequest) (*loft.Domain, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Activate_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Activate(ctx, req)
-}
-
-func (s accountsDomain) Retire(ctx context.Context, req *loft.DomainRetireRequest) (*loft.Domain, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Retire_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Retire(ctx, req)
-}
-
-func (s accountsDomain) Status(ctx context.Context, req *loft.DomainStatusRequest) (*loft.DomainStatusResponse, error) {
-	if err := gate.AsAccount(ctx, loft.DomainService_Status_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.DomainServiceServer.Status(ctx, req)
 }
 
 // accountsLabel is LabelService as the gate serves it to a call an account
@@ -20119,16 +19457,12 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedCustody.md, describedCustody.secret, describedCustody.personal
 	case CustodyLineDomain:
 		return describedCustodyLine.md, describedCustodyLine.secret, describedCustodyLine.personal
-	case DomainDomain:
-		return describedDomain.md, describedDomain.secret, describedDomain.personal
 	case EntitlementDomain:
 		return describedEntitlement.md, describedEntitlement.secret, describedEntitlement.personal
 	case EventDomain:
 		return describedEvent.md, describedEvent.secret, describedEvent.personal
 	case FactDomain:
 		return describedFact.md, describedFact.secret, describedFact.personal
-	case HandoffDomain:
-		return describedHandoff.md, describedHandoff.secret, describedHandoff.personal
 	case HolderDomain:
 		return describedHolder.md, describedHolder.secret, describedHolder.personal
 	case InventoryCountDomain:
@@ -20254,9 +19588,6 @@ var (
 	describedCustodyLine = describe((*loft.CustodyLine)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedDomain = describe((*loft.Domain)(nil),
-		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
 	describedEntitlement = describe((*loft.Entitlement)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -20265,9 +19596,6 @@ var (
 		[]protoreflect.FieldNumber{11})
 	describedFact = describe((*loft.Fact)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
-	describedHandoff = describe((*loft.Handoff)(nil),
-		[]protoreflect.FieldNumber{8, 12},
 		[]protoreflect.FieldNumber{})
 	describedHolder = describe((*loft.Holder)(nil),
 		[]protoreflect.FieldNumber{},
@@ -20387,7 +19715,6 @@ func added(by string) bool {
 		loft.CountFindingService_Add_FullMethodName,
 		loft.CustodyService_Add_FullMethodName,
 		loft.CustodyLineService_Add_FullMethodName,
-		loft.DomainService_Add_FullMethodName,
 		loft.EventService_Add_FullMethodName,
 		loft.EventService_AddMany_FullMethodName,
 		loft.FactService_Add_FullMethodName,
@@ -20710,33 +20037,6 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 
 	case CustodyLineDomain:
 		row, ok := image.(*loft.CustodyLine)
-		if !ok {
-			return uuid.Nil(), []byte{}, nil
-		}
-
-		b := []byte{}
-		if keep {
-			kept := row
-			v, err := proto.Marshal(kept)
-			if err != nil {
-				return uuid.Nil(), nil, err
-			}
-			b = v
-		}
-
-		if !row.HasTenant() {
-			return uuid.Nil(), b, nil
-		}
-
-		k, err := entuuid.FromBytes(row.GetTenant().GetId())
-		if err != nil {
-			return uuid.Nil(), nil, err
-		}
-
-		return k, b, nil
-
-	case DomainDomain:
-		row, ok := image.(*loft.Domain)
 		if !ok {
 			return uuid.Nil(), []byte{}, nil
 		}
@@ -21471,16 +20771,12 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 		vs, err = rowsCustody(ctx, s.Db, entCustody.IdEQ(uuid.UUID(key)))
 	case CustodyLineDomain:
 		vs, err = rowsCustodyLine(ctx, s.Db, entCustodyLine.IdEQ(uuid.UUID(key)))
-	case DomainDomain:
-		vs, err = rowsDomain(ctx, s.Db, entDomain.IdEQ(uuid.UUID(key)))
 	case EntitlementDomain:
 		vs, err = rowsEntitlement(ctx, s.Db, entEntitlement.IdEQ(uuid.UUID(key)))
 	case EventDomain:
 		vs, err = rowsEvent(ctx, s.Db, entEvent.IdEQ(uuid.UUID(key)))
 	case FactDomain:
 		vs, err = rowsFact(ctx, s.Db, entFact.IdEQ(uuid.UUID(key)))
-	case HandoffDomain:
-		vs, err = rowsHandoff(ctx, s.Db, entHandoff.IdEQ(uuid.UUID(key)))
 	case HolderDomain:
 		vs, err = rowsHolder(ctx, s.Db, entHolder.IdEQ(uuid.UUID(key)))
 	case InventoryCountDomain:
@@ -21895,7 +21191,6 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 	}
 
 	out := audit.Rows{Skipped: []audit.Skipped{
-		{Kind: "handoff", Why: "a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's"},
 		{Kind: "levyan-notice", Why: "levyan's queue: what it is to be told of a workspace -- who pays for it, what became of it -- written beside the change that tells it, which the trail has; levyan's own trail keeps what it was told"},
 		{Kind: "search-stale", Why: "the search index's queue: that a document is to be made again, which the indexer takes within seconds"},
 		{Kind: "session", Why: "a sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (loft#136)"},
@@ -21935,9 +21230,6 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 	}
 	if err := audit.CheckKind(ctx, d, checkedCustodyLine(db), archived, &out); err != nil {
 		return out, fmt.Errorf("custody-line: %w", err)
-	}
-	if err := audit.CheckKind(ctx, d, checkedDomain(db), archived, &out); err != nil {
-		return out, fmt.Errorf("domain: %w", err)
 	}
 	if err := audit.CheckKind(ctx, d, checkedEntitlement(db), archived, &out); err != nil {
 		return out, fmt.Errorf("entitlement: %w", err)
@@ -22523,52 +21815,6 @@ func checkedCustodyLine(db *ent.Client) audit.Kind {
 			var out map[pdid.Id]*audit.Recorded
 			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
 				rows, err := rowsCustodyLine(ctx, db, entCustodyLine.IdIn(uuids(ids)...))
-				if err != nil {
-					return err
-				}
-
-				out, err = goneOf(ctx, db, ids, rows)
-				return err
-			})
-
-			return out, err
-		},
-	}
-}
-
-// checkedDomain is what a check of the rows reads of the domain kind.
-func checkedDomain(db *ent.Client) audit.Kind {
-	read := func(ctx context.Context, ps ...predicate.Domain) (audit.Page, error) {
-		var out audit.Page
-		err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-			rows, err := rowsDomain(ctx, db, ps...)
-			if err != nil {
-				return err
-			}
-
-			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
-			return err
-		})
-
-		return out, err
-	}
-
-	return audit.Kind{
-		Domain: DomainDomain,
-		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
-			return read(ctx, entDomain.IdGT(uuid.UUID(after)))
-		},
-		Of: func(ctx context.Context, ids []pdid.Id) (audit.Page, error) {
-			return read(ctx, entDomain.IdIn(uuids(ids)...))
-		},
-		Trail: func(ctx context.Context, yield func([]pdid.Id) error) error {
-			return trailObjects(ctx, db, DomainDomain, yield)
-		},
-		Gone: func(ctx context.Context, ids []pdid.Id) (map[pdid.Id]*audit.Recorded, error) {
-			var out map[pdid.Id]*audit.Recorded
-			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-				rows, err := rowsDomain(ctx, db, entDomain.IdIn(uuids(ids)...))
 				if err != nil {
 					return err
 				}
@@ -23918,26 +23164,6 @@ func rowsCustodyLine(ctx context.Context, db *ent.Client, ps ...predicate.Custod
 	return out, nil
 }
 
-// rowsDomain is the rows `ps` says of the domain kind -- every row there is,
-// live or erased softly -- at most a page of them in identifier order, each as
-// a Get reads it.
-func rowsDomain(ctx context.Context, db *ent.Client, ps ...predicate.Domain) ([]audit.Live, error) {
-	q := db.Domain.Query().Where(ps...)
-	bare.DomainSelectInit(q, nil)
-
-	vs, err := q.Order(entDomain.ById()).Limit(audit.RowsPage).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]audit.Live, len(vs))
-	for i, v := range vs {
-		out[i] = audit.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
-	}
-
-	return out, nil
-}
-
 // rowsEntitlement is the rows `ps` says of the entitlement kind -- every row there is,
 // live or erased softly -- at most a page of them in identifier order, each as
 // a Get reads it.
@@ -23985,25 +23211,6 @@ func rowsFact(ctx context.Context, db *ent.Client, ps ...predicate.Fact) ([]audi
 	bare.FactSelectInit(q, nil)
 
 	vs, err := q.Order(entFact.ById()).Limit(audit.RowsPage).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]audit.Live, len(vs))
-	for i, v := range vs {
-		out[i] = audit.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
-	}
-
-	return out, nil
-}
-
-// rowsHandoff is the rows `ps` says of the handoff kind -- every row there is,
-// live or erased softly -- at most a page of them in identifier order, each as
-// a Get reads it.
-func rowsHandoff(ctx context.Context, db *ent.Client, ps ...predicate.Handoff) ([]audit.Live, error) {
-	q := db.Handoff.Query().Where(ps...)
-
-	vs, err := q.Order(entHandoff.ById()).Limit(audit.RowsPage).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -24775,8 +23982,6 @@ func record(ctx context.Context, db *ent.Client, content audit.Contents, action 
 				rows, err = rowsCustody(ctx, db, entCustody.IdIn(uuids(page)...))
 			case CustodyLineDomain:
 				rows, err = rowsCustodyLine(ctx, db, entCustodyLine.IdIn(uuids(page)...))
-			case DomainDomain:
-				rows, err = rowsDomain(ctx, db, entDomain.IdIn(uuids(page)...))
 			case EntitlementDomain:
 				rows, err = rowsEntitlement(ctx, db, entEntitlement.IdIn(uuids(page)...))
 			case EventDomain:
@@ -24959,8 +24164,6 @@ func (s trailStore) Carry(ctx context.Context, digest *audit.Digest, d pdid.Doma
 			rows, err = rowsCustody(ctx, s.db, entCustody.IdIn(uuids(ids)...))
 		case CustodyLineDomain:
 			rows, err = rowsCustodyLine(ctx, s.db, entCustodyLine.IdIn(uuids(ids)...))
-		case DomainDomain:
-			rows, err = rowsDomain(ctx, s.db, entDomain.IdIn(uuids(ids)...))
 		case EntitlementDomain:
 			rows, err = rowsEntitlement(ctx, s.db, entEntitlement.IdIn(uuids(ids)...))
 		case EventDomain:
@@ -25775,70 +24978,6 @@ func (s interceptAsset) Census(ctx context.Context, req *loft.AssetCensusRequest
 func (s interceptAsset) ExportCensus(ctx context.Context, req *loft.AssetCensusRequest) (*loft.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
 		loft.AssetService_ExportCensus_FullMethodName, req, s.AssetServiceServer.ExportCensus)
-}
-
-func (s Intercept) Domain() loft.DomainServiceServer {
-	return interceptDomain{s, s.Next().Domain()}
-}
-
-type interceptDomain struct {
-	Intercept
-	loft.DomainServiceServer
-}
-
-func (s interceptDomain) Add(ctx context.Context, req *loft.DomainAddRequest) (*loft.Domain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Add_FullMethodName, req, s.DomainServiceServer.Add)
-}
-
-func (s interceptDomain) Get(ctx context.Context, req *loft.DomainGetRequest) (*loft.Domain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Get_FullMethodName, req, s.DomainServiceServer.Get)
-}
-
-func (s interceptDomain) Patch(ctx context.Context, req *loft.DomainPatchRequest) (*loft.Domain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Patch_FullMethodName, req, s.DomainServiceServer.Patch)
-}
-
-func (s interceptDomain) Apply(ctx context.Context, req *loft.DomainApplyRequest) (*loft.Domain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Apply_FullMethodName, req, s.DomainServiceServer.Apply)
-}
-
-func (s interceptDomain) Erase(ctx context.Context, req *loft.DomainRef) (*loft.DomainEraseResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Erase_FullMethodName, req, s.DomainServiceServer.Erase)
-}
-
-func (s interceptDomain) List(ctx context.Context, req *loft.DomainListRequest) (*loft.DomainListResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_List_FullMethodName, req, s.DomainServiceServer.List)
-}
-
-func (s interceptDomain) Watch(req *loft.DomainWatchRequest, out grpc.ServerStreamingServer[loft.DomainWatchResponse]) error {
-	return grpcx.RunStream(s.stream, s.DomainServiceServer,
-		loft.DomainService_Watch_FullMethodName, req, out, s.DomainServiceServer.Watch)
-}
-
-func (s interceptDomain) Verify(ctx context.Context, req *loft.DomainVerifyRequest) (*loft.Domain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Verify_FullMethodName, req, s.DomainServiceServer.Verify)
-}
-
-func (s interceptDomain) Activate(ctx context.Context, req *loft.DomainActivateRequest) (*loft.Domain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Activate_FullMethodName, req, s.DomainServiceServer.Activate)
-}
-
-func (s interceptDomain) Retire(ctx context.Context, req *loft.DomainRetireRequest) (*loft.Domain, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Retire_FullMethodName, req, s.DomainServiceServer.Retire)
-}
-
-func (s interceptDomain) Status(ctx context.Context, req *loft.DomainStatusRequest) (*loft.DomainStatusResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.DomainServiceServer,
-		loft.DomainService_Status_FullMethodName, req, s.DomainServiceServer.Status)
 }
 
 func (s Intercept) Label() loft.LabelServiceServer {
@@ -28530,17 +27669,12 @@ func (s pastStore) TenantOf(ctx context.Context, ids []pdid.Id) (map[pdid.Id]pdi
 				rows, err = rowsCustody(ctx, s.db, entCustody.IdIn(uuids(page)...))
 			case CustodyLineDomain:
 				rows, err = rowsCustodyLine(ctx, s.db, entCustodyLine.IdIn(uuids(page)...))
-			case DomainDomain:
-				rows, err = rowsDomain(ctx, s.db, entDomain.IdIn(uuids(page)...))
 			case EntitlementDomain:
 				rows, err = rowsEntitlement(ctx, s.db, entEntitlement.IdIn(uuids(page)...))
 			case EventDomain:
 				rows, err = rowsEvent(ctx, s.db, entEvent.IdIn(uuids(page)...))
 			case FactDomain:
 				rows, err = rowsFact(ctx, s.db, entFact.IdIn(uuids(page)...))
-			case HandoffDomain:
-				rows, err = rowsHandoff(ctx, s.db, entHandoff.IdIn(uuids(page)...))
-				global = true
 			case HolderDomain:
 				rows, err = rowsHolder(ctx, s.db, entHolder.IdIn(uuids(page)...))
 			case InventoryCountDomain:
@@ -29465,11 +28599,9 @@ type Reads struct {
 	CountFinding    func(ctx context.Context, account pdid.Id) (predicate.CountFinding, error)
 	Custody         func(ctx context.Context, account pdid.Id) (predicate.Custody, error)
 	CustodyLine     func(ctx context.Context, account pdid.Id) (predicate.CustodyLine, error)
-	Domain          func(ctx context.Context, account pdid.Id) (predicate.Domain, error)
 	Entitlement     func(ctx context.Context, account pdid.Id) (predicate.Entitlement, error)
 	Event           func(ctx context.Context, account pdid.Id) (predicate.Event, error)
 	Fact            func(ctx context.Context, account pdid.Id) (predicate.Fact, error)
-	Handoff         func(ctx context.Context, account pdid.Id) (predicate.Handoff, error)
 	Holder          func(ctx context.Context, account pdid.Id) (predicate.Holder, error)
 	InventoryCount  func(ctx context.Context, account pdid.Id) (predicate.InventoryCount, error)
 	Invitation      func(ctx context.Context, account pdid.Id) (predicate.Invitation, error)
@@ -30236,11 +29368,9 @@ func Resources(w *watch.Watch, project resource.Project) (*resource.Server, erro
 		&loft.CountFinding{},
 		&loft.Custody{},
 		&loft.CustodyLine{},
-		&loft.Domain{},
 		&loft.Entitlement{},
 		&loft.Event{},
 		&loft.Fact{},
-		&loft.Handoff{},
 		&loft.Holder{},
 		&loft.InventoryCount{},
 		&loft.Invitation{},
@@ -30276,10 +29406,6 @@ func Resources(w *watch.Watch, project resource.Project) (*resource.Server, erro
 var resourceSecrets = map[protoreflect.FullName][]protoreflect.FieldNumber{
 	"loft.CliLogin": {
 		8,
-	},
-	"loft.Handoff": {
-		8,
-		12,
 	},
 	"loft.Invitation": {
 		20,
@@ -30741,49 +29867,6 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard resource.Guard) r
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *loft.Domain:
-			ctx, err := guard.Allow(ctx, loft.DomainService_Get_FullMethodName)
-			if err != nil {
-				switch status.Code(err) {
-				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
-					return nil, nil
-				}
-				return nil, err
-			}
-			pred, err := bare.DomainNarrow(ctx, scope, nil)
-			if err != nil {
-				return nil, err
-			}
-			row, err := resourcesql.Row(db.Dialect(), entDomain.Table, []resourcesql.Column{
-				{Number: 1, Name: entDomain.FieldId, Type: 64, Nullable: false, Key: 0},
-				{Number: 2, Name: entDomain.TenantColumn, Type: 64, Nullable: false, Key: 1},
-				{Number: 8, Name: entDomain.FieldHost, Type: 9, Nullable: false, Key: 0},
-				{Number: 9, Name: entDomain.FieldPurpose, Type: 9, Nullable: false, Key: 0},
-				{Number: 10, Name: entDomain.FieldState, Type: 9, Nullable: false, Key: 0},
-				{Number: 11, Name: entDomain.FieldToken, Type: 9, Nullable: false, Key: 0},
-				{Number: 12, Name: entDomain.FieldSource, Type: 9, Nullable: false, Key: 0},
-				{Number: 13, Name: entDomain.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
-				{Number: 14, Name: entDomain.FieldDateErased, Type: 65, Nullable: true, Key: 0},
-				{Number: 15, Name: entDomain.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-				{Number: 16, Name: entDomain.FieldDateVerified, Type: 65, Nullable: true, Key: 0},
-				{Number: 18, Name: entDomain.FieldDateChecked, Type: 65, Nullable: true, Key: 0},
-				{Number: 19, Name: entDomain.FieldFailures, Type: 13, Nullable: false, Key: 0},
-				{Number: 20, Name: entDomain.FieldDateFailing, Type: 65, Nullable: true, Key: 0},
-				{Number: 17, Name: entDomain.FieldDateLapsed, Type: 65, Nullable: true, Key: 0},
-				{Number: 21, Name: entDomain.FieldDateRedirectUntil, Type: 65, Nullable: true, Key: 0},
-			}, v)
-			if err != nil {
-				return nil, err
-			}
-			query := db.Domain.Query()
-			if pred != nil {
-				query.Where(pred)
-			}
-			ok, err := query.Modify(func(q *sql.Selector) { q.From(row) }).Exist(ctx)
-			if err != nil || !ok {
-				return nil, err
-			}
-			return publicResource(v), nil
 		case *loft.Event:
 			ctx, err := guard.Allow(ctx, loft.EventService_Get_FullMethodName)
 			if err != nil {
@@ -31029,7 +30112,6 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard resource.Guard) r
 			row, err := resourcesql.Row(db.Dialect(), entLabel.Table, []resourcesql.Column{
 				{Number: 1, Name: entLabel.FieldId, Type: 64, Nullable: false, Key: 0},
 				{Number: 2, Name: entLabel.TenantColumn, Type: 64, Nullable: false, Key: 1},
-				{Number: 8, Name: entLabel.DomainColumn, Type: 64, Nullable: true, Key: 1},
 				{Number: 10, Name: entLabel.FieldState, Type: 9, Nullable: false, Key: 0},
 				{Number: 11, Name: entLabel.FieldDateBound, Type: 65, Nullable: true, Key: 0},
 				{Number: 12, Name: entLabel.FieldDatePrinted, Type: 65, Nullable: true, Key: 0},
@@ -31753,14 +30835,6 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
 	case loft.CustodyLineService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case loft.DomainService_Add_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case loft.DomainService_Patch_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case loft.DomainService_Apply_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case loft.DomainService_Erase_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case loft.EventService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case loft.EventService_AddMany_FullMethodName:
@@ -31953,7 +31027,7 @@ func (r resourceRecorder) Record(ctx context.Context, s bare.Server, c bare.Chan
 		return nil
 	}
 	switch image.ProtoReflect().Descriptor().FullName() {
-	case "loft.Access", "loft.AccessReview", "loft.Allocation", "loft.Asset", "loft.AssetType", "loft.Attachment", "loft.Audit", "loft.Bookable", "loft.CountFinding", "loft.Custody", "loft.CustodyLine", "loft.Domain", "loft.Event", "loft.Fact", "loft.Holder", "loft.InventoryCount", "loft.Invitation", "loft.ItemModel", "loft.Label", "loft.LegalHold", "loft.Link", "loft.Notification", "loft.Party", "loft.Placement", "loft.Purchase", "loft.PurchaseLine", "loft.Reservation", "loft.ReservationItem", "loft.Stewardship", "loft.Stock", "loft.StockMovement", "loft.Tenant", "loft.TenantContract", "loft.WorkOrder":
+	case "loft.Access", "loft.AccessReview", "loft.Allocation", "loft.Asset", "loft.AssetType", "loft.Attachment", "loft.Audit", "loft.Bookable", "loft.CountFinding", "loft.Custody", "loft.CustodyLine", "loft.Event", "loft.Fact", "loft.Holder", "loft.InventoryCount", "loft.Invitation", "loft.ItemModel", "loft.Label", "loft.LegalHold", "loft.Link", "loft.Notification", "loft.Party", "loft.Placement", "loft.Purchase", "loft.PurchaseLine", "loft.Reservation", "loft.ReservationItem", "loft.Stewardship", "loft.Stock", "loft.StockMovement", "loft.Tenant", "loft.TenantContract", "loft.WorkOrder":
 	default:
 		return nil
 	}

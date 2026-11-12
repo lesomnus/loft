@@ -16,7 +16,6 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/tenancy"
 )
@@ -53,7 +52,7 @@ func (s Domain) workspaces() (*tenancy.Workspaces, error) {
 // membership is one workspace of an account's as it is told it, and whose
 // personal data telling it shows -- the owner one with no name of its own is
 // called after (D57) -- on the access record, as a read of theirs.
-func (s Domain) membership(ctx context.Context, db *ent.Client, m tenancy.Membership) (*app.TenantMembership, error) {
+func (s Domain) membership(ctx context.Context, m tenancy.Membership) *app.TenantMembership {
 	v := app.TenantMembership_builder{
 		Id:    m.Workspace.Bytes(),
 		Alias: m.Alias,
@@ -67,18 +66,9 @@ func (s Domain) membership(ctx context.Context, db *ent.Client, m tenancy.Member
 	if m.Destroy != nil {
 		v.SetDateDestroy(timestamppb.New(*m.Destroy))
 	}
-	// Where its app is, when that is a domain of its own (loft#155): what a
-	// page opens it at.
-	at, err := s.deps.Links.Of(ctx, db, m.Workspace, apphost.Page)
-	if err != nil {
-		return nil, err
-	}
-	if at != s.deps.Links.Home(apphost.Page) {
-		v.SetHome(at)
-	}
 	access.Saw(ctx, m.Saw...)
 
-	return v, nil
+	return v
 }
 
 // Mine is every workspace the caller's account is in, in the order it came to
@@ -101,14 +91,9 @@ func (s domainTenant) Mine(ctx context.Context, _ *app.TenantMineRequest) (*app.
 		return nil, err
 	}
 
-	db := ent.NewClient(ent.Driver(s.drv))
 	out := &app.TenantMineResponse{}
 	for _, m := range ms {
-		v, err := s.membership(ctx, db, m)
-		if err != nil {
-			return nil, err
-		}
-		out.SetWorkspaces(append(out.GetWorkspaces(), v))
+		out.SetWorkspaces(append(out.GetWorkspaces(), s.membership(ctx, m)))
 		if m.Role == "owner" {
 			out.SetOwns(out.GetOwns() + 1)
 		}
@@ -163,7 +148,7 @@ func (s domainTenant) Create(ctx context.Context, req *app.TenantCreateRequest) 
 		return nil, err
 	}
 
-	return s.membership(ctx, ent.NewClient(ent.Driver(s.drv)), m)
+	return s.membership(ctx, m), nil
 }
 
 // Locate is which of the caller's account's workspaces a scanned code is a
@@ -195,7 +180,7 @@ func (s domainLabel) Locate(ctx context.Context, req *app.LabelLocateRequest) (*
 	}
 	for _, m := range ms {
 		if at && m.Workspace == in {
-			return s.membership(ctx, db, m)
+			return s.membership(ctx, m), nil
 		}
 	}
 

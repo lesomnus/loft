@@ -29,8 +29,4 @@ message TenantMembership {
   google.protobuf.Timestamp date_closed = 5;
   google.protobuf.Timestamp date_destroy = 6;
   uint32 alias_hold_days = 7;
-
-  // Where its app is when that is a domain of its own (loft#155): the address
-  // a page of it begins with there. Empty while it is the service's.
-  string home = 8;
 }

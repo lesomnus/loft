@@ -30,8 +30,6 @@ type Mutation struct {
 	exprs         map[string]sql.Querier
 	tenant        *uuid.UUID
 	clearedtenant bool
-	domain        *uuid.UUID
-	cleareddomain bool
 	predicates    []predicate.Label
 }
 
@@ -344,39 +342,6 @@ func (m *Mutation) ResetTenantId() {
 	m.tenant = nil
 }
 
-// SetDomainId sets the "domain_id" field.
-func (m *Mutation) SetDomainId(u uuid.UUID) {
-	m.domain = &u
-	delete(m.clearedFields, FieldDomainId)
-}
-
-// DomainId returns the value of the "domain_id" field in the mutation.
-func (m *Mutation) DomainId() (r uuid.UUID, exists bool) {
-	v := m.domain
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearDomainId clears the value of the "domain_id" field.
-func (m *Mutation) ClearDomainId() {
-	m.domain = nil
-	m.clearedFields[FieldDomainId] = struct{}{}
-}
-
-// DomainIdCleared returns if the "domain_id" field was cleared in this mutation.
-func (m *Mutation) DomainIdCleared() bool {
-	_, ok := m.clearedFields[FieldDomainId]
-	return ok
-}
-
-// ResetDomainId resets all changes to the "domain_id" field.
-func (m *Mutation) ResetDomainId() {
-	m.domain = nil
-	delete(m.clearedFields, FieldDomainId)
-}
-
 // ClearTenant clears the "tenant" edge to the Tenant entity.
 func (m *Mutation) ClearTenant() {
 	m.clearedtenant = true
@@ -402,33 +367,6 @@ func (m *Mutation) TenantIds() (ids []uuid.UUID) {
 func (m *Mutation) ResetTenant() {
 	m.tenant = nil
 	m.clearedtenant = false
-}
-
-// ClearDomain clears the "domain" edge to the Domain entity.
-func (m *Mutation) ClearDomain() {
-	m.cleareddomain = true
-	m.clearedFields[FieldDomainId] = struct{}{}
-}
-
-// DomainCleared reports if the "domain" edge to the Domain entity was cleared.
-func (m *Mutation) DomainCleared() bool {
-	return m.DomainIdCleared() || m.cleareddomain
-}
-
-// DomainIds returns the "domain" edge Ids in the mutation.
-// Note that Ids always returns len(Ids) <= 1 for unique edges, and you should use
-// DomainId instead. It exists only for internal usage by the builders.
-func (m *Mutation) DomainIds() (ids []uuid.UUID) {
-	if id := m.domain; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetDomain resets all changes to the "domain" edge.
-func (m *Mutation) ResetDomain() {
-	m.domain = nil
-	m.cleareddomain = false
 }
 
 // Where appends a list predicates to the Mutation builder.
@@ -465,7 +403,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 10)
 	if m.subject_id != nil || m.exprs[FieldSubjectId] != nil {
 		fields = append(fields, FieldSubjectId)
 	}
@@ -495,9 +433,6 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
-	}
-	if m.domain != nil {
-		fields = append(fields, FieldDomainId)
 	}
 	return fields
 }
@@ -533,8 +468,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Code()
 	case FieldTenantId:
 		return m.TenantId()
-	case FieldDomainId:
-		return m.DomainId()
 	}
 	return nil, false
 }
@@ -654,16 +587,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTenantId(v)
 		return nil
-	case FieldDomainId:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDomainId(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Label field %s", name)
 }
@@ -705,8 +628,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 	case FieldCode:
 		m.ResetCode()
 	case FieldTenantId:
-		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
-	case FieldDomainId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	default:
 		return fmt.Errorf("unknown Label field %s", name)
@@ -800,9 +721,6 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldCode) {
 		fields = append(fields, FieldCode)
 	}
-	if m.FieldCleared(FieldDomainId) {
-		fields = append(fields, FieldDomainId)
-	}
 	return fields
 }
 
@@ -834,9 +752,6 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldCode:
 		m.ClearCode()
-		return nil
-	case FieldDomainId:
-		m.ClearDomainId()
 		return nil
 	}
 	return fmt.Errorf("unknown Label nullable field %s", name)
@@ -876,21 +791,15 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldTenantId:
 		m.ResetTenantId()
 		return nil
-	case FieldDomainId:
-		m.ResetDomainId()
-		return nil
 	}
 	return fmt.Errorf("unknown Label field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *Mutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	if m.tenant != nil {
 		edges = append(edges, EdgeTenant)
-	}
-	if m.domain != nil {
-		edges = append(edges, EdgeDomain)
 	}
 	return edges
 }
@@ -903,17 +812,13 @@ func (m *Mutation) AddedIds(name string) []ent.Value {
 		if id := m.tenant; id != nil {
 			return []ent.Value{*id}
 		}
-	case EdgeDomain:
-		if id := m.domain; id != nil {
-			return []ent.Value{*id}
-		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *Mutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -925,12 +830,9 @@ func (m *Mutation) RemovedIds(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *Mutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	if m.clearedtenant {
 		edges = append(edges, EdgeTenant)
-	}
-	if m.cleareddomain {
-		edges = append(edges, EdgeDomain)
 	}
 	return edges
 }
@@ -941,8 +843,6 @@ func (m *Mutation) EdgeCleared(name string) bool {
 	switch name {
 	case EdgeTenant:
 		return m.clearedtenant
-	case EdgeDomain:
-		return m.cleareddomain
 	}
 	return false
 }
@@ -954,9 +854,6 @@ func (m *Mutation) ClearEdge(name string) error {
 	case EdgeTenant:
 		m.ClearTenant()
 		return nil
-	case EdgeDomain:
-		m.ClearDomain()
-		return nil
 	}
 	return fmt.Errorf("unknown Label unique edge %s", name)
 }
@@ -967,9 +864,6 @@ func (m *Mutation) ResetEdge(name string) error {
 	switch name {
 	case EdgeTenant:
 		m.ResetTenant()
-		return nil
-	case EdgeDomain:
-		m.ResetDomain()
 		return nil
 	}
 	return fmt.Errorf("unknown Label edge %s", name)

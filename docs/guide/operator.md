@@ -55,7 +55,7 @@ loft config env --set # 설정이 읽는 환경변수 가운데 정해진 것
 계정과 비밀번호는 roster의 것입니다([계정과 로그인](../dev/identity.md)).
 
 - **내장 roster**(기본): Loft 프로세스 안에서 함께 뜨고, DB는 Loft의 것 옆에 하나 더 있습니다. 서버 한 대의 배포를 간단하게 하려는 것이라, 운영처럼 보이는 배포(PostgreSQL이거나 `app.public_url` 이 이 기계가 아님)에서는 `serve` 가 시작할 때 경고합니다. 서버 한 대의 CE라면 그대로 두어도 됩니다.
-- **외부 roster**: 서버가 여러 대이거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 roster를 따로 운영합니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 13에 있습니다.
+- **외부 roster**: 서버가 여러 대이거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 roster를 따로 운영합니다. 설정, roster에서 실행할 명령, Loft가 roster에 묻는 메서드는 [roster를 따로 운영할 때](../dev/identity.md#roster를-따로-운영할-때)에, 내장 roster에서 옮기는 순서는 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
 - **역할 바꾸기**: 외부 roster에서 Loft의 역할은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다.
 - **SSO**: roster의 issuer로 로그인하게 하는 설정과 roster 쪽에 필요한 것은 [SSO](../dev/identity.md#sso)에 있습니다.
 
@@ -81,7 +81,6 @@ loft identity link                                                       # 계�
 | `app.workspaces.owned` | 계정마다 결제 없이 더 만들 수 있는 워크스페이스 | 3. 음수면 제한 없음 |
 | `app.workspaces.alias_length` | 새 주소의 길이 | 7 |
 | `app.workspaces.reserved` | 더 막을 주소 | 없음(앱이 막는 것만) |
-| `app.workspaces.domain_redirect` | 이전 앱 도메인이 새 도메인으로 넘겨 주는 기간 | 90일 |
 | `app.retention.apply` | 보관 기간으로 기록을 지울지 | 끔 |
 | `app.retention.grace` | 줄인 보관 기간이 기다리는 유예 | 30일 |
 | `app.retention.every` | 보존 패스의 주기 | 1시간 |
@@ -110,18 +109,10 @@ loft search remove --yes     # 이 배포가 만든 인덱스와 별칭을 모�
 
 ## 과금 붙이기
 
-`app.billing.levyan` 으로 청구 서비스 levyan을 붙이면 워크스페이스마다 잰 것을 넘기고, levyan이 준 권한으로 제한하고, 누가 내는지에 필요한 것을 알립니다. levyan의 운영자가 할 일(제품, 키, 미터)과 설정은 [과금과 결제](../dev/billing.md)에, Kubernetes에서 키를 붙이는 곳은 `deploy/k8s/README.md` 의 12에 있습니다.
+`app.billing.levyan` 으로 청구 서비스 levyan을 붙이면 워크스페이스마다 잰 것을 넘기고, levyan이 준 권한으로 제한하고, 누가 내는지에 필요한 것을 알립니다. levyan의 운영자가 할 일(제품, 키, 미터)과 설정은 [과금과 결제](../dev/billing.md)에, Kubernetes에서 키를 붙이는 곳은 `deploy/k8s/README.md` 의 11에 있습니다.
 
 - levyan이 답하지 않아도 Loft는 그대로 돌고, 잰 값과 알림은 기다렸다가 다시 보냅니다.
 - 운영자의 명령(`loft holder add` 같은 것)은 제한이나 읽기 전용에 막히지 않습니다.
-
-## 워크스페이스 도메인
-
-워크스페이스가 자기 도메인에서 앱을 쓰게 하려면 그 도메인의 인증서를 요청 시점에 받는 프런트를 켭니다. compose는 `compose.domains.yaml`(`deploy/compose/README.md` 의 "워크스페이스 도메인을 받으려면"), Kubernetes는 컴포넌트 `deploy/k8s/domains`(`deploy/k8s/README.md` 의 11)입니다.
-
-- 프런트는 인증서를 받기 전에 운영자 진입점의 `/internal/tls-ask`(`admin.ask`)에 묻습니다. 확인된 도메인에만, 정해진 횟수 안에서 받습니다.
-- `app.labels.target` 에 고객의 CNAME이 가리킬 이름(프런트를 가리키는 DNS 이름)을 넣습니다. 기본 주소(라벨만 쓰는 하위 도메인)를 주려면 `app.labels.suffix` 를 둡니다.
-- 고객이 할 일은 [관리자·소유자 안내서](admin.md#도메인과-라벨)에, 호스트마다 무엇을 받는지는 [라벨과 워크스페이스 도메인](../dev/domains.md)에 있습니다.
 
 ## 운영자 진입점 (loft-admin)
 
@@ -189,7 +180,6 @@ loft access-review list --tenant loft                                           
 - `loft` 에 주는 키는 있는 곳(`env:이름`, `file:경로`)으로만 씁니다. 키를 바로 쓰면 셸의 기록과 프로세스 목록에 남으므로 거부합니다.
 - 사람의 연결로 운영자의 명령을 부르면 아무것도 묻지 않고 운영자의 연결을 쓰라고 말합니다. `tenant list` 와 `access-review list` 는 두 연결이 같이 씁니다. 워크스페이스를 닫고, 되돌리고, 모두 내보내는 것(`tenant close|restore|export`)은 운영자만 합니다(design D83). 소유자도 워크스페이스 안에서는 하지 못하므로 운영자에게 요청합니다. 운영자는 주소로 닫습니다.
 - RPC를 그대로 부를 수도 있습니다: `curl -H "authorization: Bearer $KEY" -H 'content-type: application/json' -H 'connect-protocol-version: 1' -d '{}' http://127.0.0.1:8081/loft.TenantService/List`. 진입점이 내는 메서드는 `server/operator` 의 표(`Table`)에 있습니다.
-- 리버스 프록시의 on-demand TLS 확인(`/internal/tls-ask`)도 이 진입점으로 옮겼습니다(키 없이 답함). 공개 서버에는 더 이상 없습니다.
 - Kubernetes에서는 Service가 없고 NetworkPolicy가 닫으므로 `kubectl port-forward` 로만 들어옵니다. compose에서는 호스트의 루프백에만 열리므로 SSH 터널로 들어옵니다. 각 README의 "운영자 진입점"에 있습니다.
 - 셸의 운영자 명령은 모두 진입점의 RPC가 됐고(loft#285), `loft` 가 운영자의 연결로 부릅니다. 서버 상자에서 도는 것은 `init`, `migrate`, `serve`, `config`, `version` 뿐입니다. 운영자 웹 화면은 나중입니다.
 

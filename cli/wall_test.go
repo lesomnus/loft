@@ -153,7 +153,7 @@ var referent = map[string]string{
 	"parent": "Asset", "child": "Asset", "resource": "Asset", "scope": "Asset", "space": "Asset",
 	"source": "Asset", "target": "Asset", "subject": "Asset", "item": "Asset", "root": "Asset",
 	"vendor": "Party", "custodian": "Party", "person": "Party", "inviter": "Holder", "actor": "Holder",
-	"type": "AssetType", "model": "ItemModel", "count": "InventoryCount", "domain": "Domain",
+	"type": "AssetType", "model": "ItemModel", "count": "InventoryCount",
 	"row": "Placement", "line": "CustodyLine",
 }
 
@@ -353,9 +353,9 @@ func leaks(m protoreflect.Message, v victim, path string) string {
 }
 
 // furnish gives a demo workspace one of each kind of row the demo does not
-// make, so that a call naming one names a real row of it: a label domain and a
-// label, a count and what it found, an attachment, an invitation -- as its
-// owner, over the wire -- and the operator's legal hold and contract.
+// make, so that a call naming one names a real row of it: a label, a count
+// and what it found, an attachment, an invitation -- as its owner, over the
+// wire -- and the operator's legal hold and contract.
 func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login string) {
 	t.Helper()
 	x := require.New(t)
@@ -373,10 +373,6 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 	item, err := s.Ent.Asset.Query().Where(asset.TenantId(tid), asset.Kind("item")).First(ctx)
 	x.NoError(err)
 
-	// A default subdomain, which a workspace asks for under the suffix the
-	// deployment offers (loft#155).
-	_, err = app.NewDomainServiceClient(conn).Add(as, app.DomainAddRequest_builder{Sub: z.Ptr(alias)}.Build())
-	x.NoError(err)
 	_, err = app.NewLabelServiceClient(conn).Print(as, app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)
 	count, err := app.NewInventoryCountServiceClient(conn).Add(as, app.InventoryCountAddRequest_builder{
@@ -418,9 +414,6 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
-	// Domains are rows a workspace has, and the wall is tried on them too: a
-	// default subdomain is one each workspace adds (`furnish`).
-	c.App.Labels.Suffix = "l.test"
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "boss", "--password", "boss12345", "--demo")
 

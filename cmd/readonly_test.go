@@ -71,9 +71,9 @@ func makeReadOnly(w *world, fake *levyantest.Levyan) []byte {
 // levyan makes a workspace read-only, every write of every kind is refused --
 // the register and its catalog, files, labels, bookings, hand-overs, stock,
 // counts, work, purchases, people and their roles, invitations sent and
-// answered, the record of an access review, its settings and its domains,
-// and a write that begins no operation as one that does -- with the reason a
-// page tells it by. What it still does, as levyan's `docs/apps.md` says an
+// answered, the record of an access review, the workspace's settings, and a
+// write that begins no operation as one that does -- with the reason a page
+// tells it by. What it still does, as levyan's `docs/apps.md` says an
 // app takes of one, it does: reads and reports, takes its data out and its
 // files, is paid for, and lets its members leave and a person be forgotten;
 // and a password, which is the account's, is changed, and what a person is
@@ -100,7 +100,6 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	purchases := app.NewPurchaseServiceClient(w.conn)
 	parties := app.NewPartyServiceClient(w.conn)
 	tenants := app.NewTenantServiceClient(w.conn)
-	domains := app.NewDomainServiceClient(w.conn)
 	notifications := app.NewNotificationServiceClient(w.conn)
 	tref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
 	aref := func(a *app.Asset) *app.AssetRef { return app.AssetRef_builder{Id: a.GetId()}.Build() }
@@ -235,8 +234,6 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	w.refusedReadOnly(err, app.InvitationService_Accept_FullMethodName)
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, Timezone: z.Ptr("Asia/Tokyo")}.Build())
 	w.refusedReadOnly(err, app.TenantService_Configure_FullMethodName)
-	_, err = domains.Add(w.owner, app.DomainAddRequest_builder{Host: "assets.acme.example"}.Build())
-	w.refusedReadOnly(err, app.DomainService_Add_FullMethodName)
 
 	// Nothing of any of it was written.
 	got, err := assets.Search(w.owner, app.AssetSearchRequest_builder{}.Build())

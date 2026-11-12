@@ -18,7 +18,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/tenancy"
@@ -136,10 +135,7 @@ func (m Mailer) one(ctx context.Context, db *ent.Client, n *ent.Notification) er
 		return err
 	}
 
-	at, err := m.Deps.Links.Of(ctx, db, pdid.Id(h.TenantId), apphost.Page)
-	if err != nil {
-		return err
-	}
+	at := m.Deps.Links.Page()
 	// What the workspace is called, as its pages call it (D57): after its
 	// owner, for one with no name of its own.
 	workspace := ""

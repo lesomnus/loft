@@ -68,7 +68,6 @@ func newEnvWith(t *testing.T, with func(c *cmd.Config)) *env {
 	c.Db.Dsn = dsn
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
-	c.App.Labels.Suffix = "l.test"
 	c.App.NoShowAfter = 15 * time.Minute
 	// The roster in this process, on a database of its own beside.
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
@@ -83,7 +82,6 @@ func newEnvWith(t *testing.T, with func(c *cmd.Config)) *env {
 
 	e := &env{t: t, x: x, s: s, cfg: c, now: time.Now().Truncate(time.Second)}
 	s.Deps.Now = func() time.Time { return e.now }
-	s.Deps.LookupTXT = nil
 	// Whatever a test did, each event it recorded holds its kind's message,
 	// and of it only what its kind uses; and each notice and row it wrote
 	// that says somebody's words is one taking them out finds.

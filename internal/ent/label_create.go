@@ -9,7 +9,6 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/loft/internal/ent/domain"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/protobuf-orm/ent/dialect/sql"
@@ -133,20 +132,6 @@ func (_c *LabelCreate) SetTenantId(v uuid.UUID) *LabelCreate {
 	return _c
 }
 
-// SetDomainId sets the "domain_id" field.
-func (_c *LabelCreate) SetDomainId(v uuid.UUID) *LabelCreate {
-	_c.mutation.SetDomainId(v)
-	return _c
-}
-
-// SetNillableDomainId sets the "domain_id" field if the given value is not nil.
-func (_c *LabelCreate) SetNillableDomainId(v *uuid.UUID) *LabelCreate {
-	if v != nil {
-		_c.SetDomainId(*v)
-	}
-	return _c
-}
-
 // SetId sets the "id" field.
 func (_c *LabelCreate) SetId(v uuid.UUID) *LabelCreate {
 	_c.mutation.SetId(v)
@@ -156,11 +141,6 @@ func (_c *LabelCreate) SetId(v uuid.UUID) *LabelCreate {
 // SetTenant sets the "tenant" edge to the Tenant entity.
 func (_c *LabelCreate) SetTenant(v *Tenant) *LabelCreate {
 	return _c.SetTenantId(v.Id)
-}
-
-// SetDomain sets the "domain" edge to the Domain entity.
-func (_c *LabelCreate) SetDomain(v *Domain) *LabelCreate {
-	return _c.SetDomainId(v.Id)
 }
 
 // Mutation returns the LabelMutation object of the builder.
@@ -317,23 +297,6 @@ func (_c *LabelCreate) createSpec() (*Label, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.TenantId = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.DomainIds(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   label.DomainTable,
-			Columns: []string{label.DomainColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(domain.FieldId, field.TypeUuid),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.DomainId = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

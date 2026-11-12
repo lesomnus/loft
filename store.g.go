@@ -36,11 +36,9 @@ type Server interface {
 	CliLogin() CliLoginServiceServer
 	AliasHold() AliasHoldServiceServer
 	SignInFailure() SignInFailureServiceServer
-	Handoff() HandoffServiceServer
 	Asset() AssetServiceServer
 	TreeLock() TreeLockServiceServer
 	TagCounter() TagCounterServiceServer
-	Domain() DomainServiceServer
 	Label() LabelServiceServer
 	Attachment() AttachmentServiceServer
 	LevyanNotice() LevyanNoticeServiceServer
@@ -91,11 +89,9 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterCliLoginServiceServer(g, s.CliLogin())
 	RegisterAliasHoldServiceServer(g, s.AliasHold())
 	RegisterSignInFailureServiceServer(g, s.SignInFailure())
-	RegisterHandoffServiceServer(g, s.Handoff())
 	RegisterAssetServiceServer(g, s.Asset())
 	RegisterTreeLockServiceServer(g, s.TreeLock())
 	RegisterTagCounterServiceServer(g, s.TagCounter())
-	RegisterDomainServiceServer(g, s.Domain())
 	RegisterLabelServiceServer(g, s.Label())
 	RegisterAttachmentServiceServer(g, s.Attachment())
 	RegisterLevyanNoticeServiceServer(g, s.LevyanNotice())
@@ -142,11 +138,9 @@ type UnimplementedServer struct {
 	CliLoginServer        CliLoginServiceServer
 	AliasHoldServer       AliasHoldServiceServer
 	SignInFailureServer   SignInFailureServiceServer
-	HandoffServer         HandoffServiceServer
 	AssetServer           AssetServiceServer
 	TreeLockServer        TreeLockServiceServer
 	TagCounterServer      TagCounterServiceServer
-	DomainServer          DomainServiceServer
 	LabelServer           LabelServiceServer
 	AttachmentServer      AttachmentServiceServer
 	LevyanNoticeServer    LevyanNoticeServiceServer
@@ -204,16 +198,14 @@ func (UnimplementedServer) AliasHold() AliasHoldServiceServer {
 func (UnimplementedServer) SignInFailure() SignInFailureServiceServer {
 	return UnimplementedSignInFailureServiceServer{}
 }
-func (UnimplementedServer) Handoff() HandoffServiceServer { return UnimplementedHandoffServiceServer{} }
-func (UnimplementedServer) Asset() AssetServiceServer     { return UnimplementedAssetServiceServer{} }
+func (UnimplementedServer) Asset() AssetServiceServer { return UnimplementedAssetServiceServer{} }
 func (UnimplementedServer) TreeLock() TreeLockServiceServer {
 	return UnimplementedTreeLockServiceServer{}
 }
 func (UnimplementedServer) TagCounter() TagCounterServiceServer {
 	return UnimplementedTagCounterServiceServer{}
 }
-func (UnimplementedServer) Domain() DomainServiceServer { return UnimplementedDomainServiceServer{} }
-func (UnimplementedServer) Label() LabelServiceServer   { return UnimplementedLabelServiceServer{} }
+func (UnimplementedServer) Label() LabelServiceServer { return UnimplementedLabelServiceServer{} }
 func (UnimplementedServer) Attachment() AttachmentServiceServer {
 	return UnimplementedAttachmentServiceServer{}
 }
@@ -302,11 +294,9 @@ type StaticServer struct {
 	CliLoginServer        CliLoginServiceServer
 	AliasHoldServer       AliasHoldServiceServer
 	SignInFailureServer   SignInFailureServiceServer
-	HandoffServer         HandoffServiceServer
 	AssetServer           AssetServiceServer
 	TreeLockServer        TreeLockServiceServer
 	TagCounterServer      TagCounterServiceServer
-	DomainServer          DomainServiceServer
 	LabelServer           LabelServiceServer
 	AttachmentServer      AttachmentServiceServer
 	LevyanNoticeServer    LevyanNoticeServiceServer
@@ -352,11 +342,9 @@ func (s StaticServer) Invitation() InvitationServiceServer           { return s.
 func (s StaticServer) CliLogin() CliLoginServiceServer               { return s.CliLoginServer }
 func (s StaticServer) AliasHold() AliasHoldServiceServer             { return s.AliasHoldServer }
 func (s StaticServer) SignInFailure() SignInFailureServiceServer     { return s.SignInFailureServer }
-func (s StaticServer) Handoff() HandoffServiceServer                 { return s.HandoffServer }
 func (s StaticServer) Asset() AssetServiceServer                     { return s.AssetServer }
 func (s StaticServer) TreeLock() TreeLockServiceServer               { return s.TreeLockServer }
 func (s StaticServer) TagCounter() TagCounterServiceServer           { return s.TagCounterServer }
-func (s StaticServer) Domain() DomainServiceServer                   { return s.DomainServer }
 func (s StaticServer) Label() LabelServiceServer                     { return s.LabelServer }
 func (s StaticServer) Attachment() AttachmentServiceServer           { return s.AttachmentServer }
 func (s StaticServer) LevyanNotice() LevyanNoticeServiceServer       { return s.LevyanNoticeServer }
@@ -402,11 +390,9 @@ type Client interface {
 	CliLogin() CliLoginServiceClient
 	AliasHold() AliasHoldServiceClient
 	SignInFailure() SignInFailureServiceClient
-	Handoff() HandoffServiceClient
 	Asset() AssetServiceClient
 	TreeLock() TreeLockServiceClient
 	TagCounter() TagCounterServiceClient
-	Domain() DomainServiceClient
 	Label() LabelServiceClient
 	Attachment() AttachmentServiceClient
 	LevyanNotice() LevyanNoticeServiceClient
@@ -454,11 +440,9 @@ func NewClient(c *grpc.ClientConn) Client {
 		_CliLogin:        NewCliLoginServiceClient(c),
 		_AliasHold:       NewAliasHoldServiceClient(c),
 		_SignInFailure:   NewSignInFailureServiceClient(c),
-		_Handoff:         NewHandoffServiceClient(c),
 		_Asset:           NewAssetServiceClient(c),
 		_TreeLock:        NewTreeLockServiceClient(c),
 		_TagCounter:      NewTagCounterServiceClient(c),
-		_Domain:          NewDomainServiceClient(c),
 		_Label:           NewLabelServiceClient(c),
 		_Attachment:      NewAttachmentServiceClient(c),
 		_LevyanNotice:    NewLevyanNoticeServiceClient(c),
@@ -506,11 +490,9 @@ type client struct {
 	_CliLogin        CliLoginServiceClient
 	_AliasHold       AliasHoldServiceClient
 	_SignInFailure   SignInFailureServiceClient
-	_Handoff         HandoffServiceClient
 	_Asset           AssetServiceClient
 	_TreeLock        TreeLockServiceClient
 	_TagCounter      TagCounterServiceClient
-	_Domain          DomainServiceClient
 	_Label           LabelServiceClient
 	_Attachment      AttachmentServiceClient
 	_LevyanNotice    LevyanNoticeServiceClient
@@ -556,11 +538,9 @@ func (c *client) Invitation() InvitationServiceClient           { return c._Invi
 func (c *client) CliLogin() CliLoginServiceClient               { return c._CliLogin }
 func (c *client) AliasHold() AliasHoldServiceClient             { return c._AliasHold }
 func (c *client) SignInFailure() SignInFailureServiceClient     { return c._SignInFailure }
-func (c *client) Handoff() HandoffServiceClient                 { return c._Handoff }
 func (c *client) Asset() AssetServiceClient                     { return c._Asset }
 func (c *client) TreeLock() TreeLockServiceClient               { return c._TreeLock }
 func (c *client) TagCounter() TagCounterServiceClient           { return c._TagCounter }
-func (c *client) Domain() DomainServiceClient                   { return c._Domain }
 func (c *client) Label() LabelServiceClient                     { return c._Label }
 func (c *client) Attachment() AttachmentServiceClient           { return c._Attachment }
 func (c *client) LevyanNotice() LevyanNoticeServiceClient       { return c._LevyanNotice }

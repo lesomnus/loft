@@ -187,76 +187,6 @@ func (TagCounter) Annotations() []schema.Annotation {
 	}
 }
 
-type Domain struct {
-	ent.Schema
-}
-
-func (Domain) Fields() []ent.Field {
-	return []ent.Field{
-		field.Uuid("id").
-			Unique().
-			Immutable(),
-		field.String("host"),
-		field.String("purpose"),
-		field.String("state"),
-		field.String("token"),
-		field.String("source"),
-		field.Time("date_updated"),
-		field.Time("date_erased").
-			Nillable().
-			Optional(),
-		field.Time("date_created").
-			Immutable().
-			Optional(),
-		field.Time("date_verified").
-			Nillable().
-			Optional(),
-		field.Time("date_checked").
-			Nillable().
-			Optional(),
-		field.Uint32("failures").
-			Optional().
-			Default(0),
-		field.Time("date_failing").
-			Nillable().
-			Optional(),
-		field.Time("date_lapsed").
-			Nillable().
-			Optional(),
-		field.Time("date_redirect_until").
-			Nillable().
-			Optional(),
-		field.Uuid("tenant_id").
-			Immutable(),
-	}
-}
-
-func (Domain) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("tenant", Tenant.Type).
-			Unique().
-			Field("tenant_id").
-			Required().
-			Immutable(),
-	}
-}
-
-func (Domain) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id").
-			StorageKey("domain_page"),
-		index.Fields("host").
-			Unique().
-			Annotations(entsql.IndexWhere("date_erased IS NULL")),
-	}
-}
-
-func (Domain) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{Table: "domain"},
-	}
-}
-
 type Label struct {
 	ent.Schema
 }
@@ -289,8 +219,6 @@ func (Label) Fields() []ent.Field {
 			Optional(),
 		field.Uuid("tenant_id").
 			Immutable(),
-		field.Uuid("domain_id").
-			Optional(),
 	}
 }
 
@@ -301,9 +229,6 @@ func (Label) Edges() []ent.Edge {
 			Field("tenant_id").
 			Required().
 			Immutable(),
-		edge.To("domain", Domain.Type).
-			Unique().
-			Field("domain_id"),
 	}
 }
 

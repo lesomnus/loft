@@ -54,9 +54,6 @@ export const CustodyDomain = 21
 /** The domain identifiers of loft.CustodyLine carry. */
 export const CustodyLineDomain = 22
 
-/** The domain identifiers of loft.Domain carry. */
-export const DomainDomain = 24
-
 /** The domain identifiers of loft.Entitlement carry. */
 export const EntitlementDomain = 50
 
@@ -65,9 +62,6 @@ export const EventDomain = 17
 
 /** The domain identifiers of loft.Fact carry. */
 export const FactDomain = 16
-
-/** The domain identifiers of loft.Handoff carry. */
-export const HandoffDomain = 48
 
 /** The domain identifiers of loft.Holder carry. */
 export const HolderDomain = 2
@@ -172,11 +166,9 @@ pdid.register("loft.CliLogin", CliLoginDomain, "cli-login")
 pdid.register("loft.CountFinding", CountFindingDomain, "count-finding")
 pdid.register("loft.Custody", CustodyDomain, "custody")
 pdid.register("loft.CustodyLine", CustodyLineDomain, "custody-line")
-pdid.register("loft.Domain", DomainDomain, "domain")
 pdid.register("loft.Entitlement", EntitlementDomain, "entitlement")
 pdid.register("loft.Event", EventDomain, "event")
 pdid.register("loft.Fact", FactDomain, "fact")
-pdid.register("loft.Handoff", HandoffDomain, "handoff")
 pdid.register("loft.Holder", HolderDomain, "holder")
 pdid.register("loft.InventoryCount", InventoryCountDomain, "inventory-count")
 pdid.register("loft.Invitation", InvitationDomain, "invitation")

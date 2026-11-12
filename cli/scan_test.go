@@ -6,11 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lesomnus/payday/pdtest"
-	"github.com/stretchr/testify/require"
-
 	"github.com/lesomnus/loft/cli"
-	"github.com/lesomnus/loft/cmd"
 )
 
 // TestAScanFindsALabelInAnotherOfTheAccountsWorkspaces: `loft scan` asks what
@@ -46,25 +42,4 @@ func TestAScanFindsALabelInAnotherOfTheAccountsWorkspaces(t *testing.T) {
 	s.signIn("kim", "kim-password")
 	err := cli.NewCmdScan().Run(context.Background(), []string{code})
 	x.ErrorContains(err, "NotFound", "a label in a workspace kim is not in")
-}
-
-// TestInitGivesNoLabelDomainWhereWorkspacesHaveNone: a suffix to make default
-// subdomains under is nothing `loft init` gives a workspace while labels
-// print with the deployment's own address (D28).
-func TestInitGivesNoLabelDomainWhereWorkspacesHaveNone(t *testing.T) {
-	x := require.New(t)
-	c := cmd.Config{}
-	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
-	c.Watch.Broker = "memory"
-	c.App.Files = t.TempDir()
-	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
-	c.App.Labels.Suffix = "l.test"
-	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
-
-	s, err := cmd.Build(t.Context(), c)
-	x.NoError(err)
-	t.Cleanup(func() { s.Close() })
-	n, err := s.Ent.Domain.Query().Count(t.Context())
-	x.NoError(err)
-	x.Zero(n, "a label domain nothing prints with")
 }

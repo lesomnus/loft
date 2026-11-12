@@ -22,8 +22,8 @@ import (
 	"github.com/lesomnus/loft/server/pd"
 )
 
-// TestARowPutPastTheServersSignsNobodyIn: a session's key, a handoff's code
-// and a terminal's are kept as an HMAC under a key the database does not hold
+// TestARowPutPastTheServersSignsNobodyIn: a session's key and a terminal's
+// are kept as an HMAC under a key the database does not hold
 // (`session.KeyFrom`, of `app.signing_key`). So a row somebody who may only
 // write the database puts there for a key of their own -- its SHA-256, as rows
 // were kept before -- signs nobody in, and neither does a terminal's sign-in
@@ -67,38 +67,12 @@ func TestARowPutPastTheServersSignsNobodyIn(t *testing.T) {
 	row(known, known2[:])
 	x.Equal(codes.Unauthenticated, me(authsession.DefaultCookie+"="+known), "a row kept as the SHA-256 of a known key")
 
-	// A handoff code put there the same way, for a round trip its writer
-	// started on the domain -- and even with its state as the server keeps
-	// it: the code alone is what it is taken by.
-	w.domain(w.tenant, ownHost, "app", "active")
-	parent := w.rowOf(cookieIn(w.session(h)))
-	tr := w.start(ownHost, "/")
-	tr.code = "a code somebody who may write the database made up"
-	codeSum := sha256.Sum256([]byte(tr.code))
-	tid, err := pdid.From(w.tenant.GetId())
-	x.NoError(err)
-	x.NoError(w.s.Ent.Handoff.Create().
-		SetId(pdid.New(pd.HandoffDomain).Uuid()).
-		SetSecret(codeSum[:]).
-		SetAccount(account.Uuid()).
-		SetWorkspace(tid.Uuid()).
-		SetHost(ownHost).
-		SetState(w.s.Handoff.Store.Kept(tr.value)).
-		SetParent(parent.Id).
-		SetDateExpires(time.Now().Add(time.Minute)).
-		SetDateCreated(time.Now()).
-		Exec(ctx))
-	res := w.take(nil, ownHost, tr, tr.state)
-	x.Equal("/?signin=failed", res.Header().Get("Location"), "a code kept as its SHA-256")
-	x.Nil(setCookie(res, authsession.DefaultCookie))
-
 	// A terminal's sign-in whose secret was rewritten before it was approved:
 	// the session approving it makes is for no key the rewrite knew.
 	ask := func(secret []byte) (id, code string) {
 		body, err := json.Marshal(map[string]string{"secret": base64.RawURLEncoding.EncodeToString(secret)})
 		x.NoError(err)
 		r := httptest.NewRequest(http.MethodPost, "/cli/logins", strings.NewReader(string(body)))
-		r.Host = serviceHost
 		r.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		w.h.ServeHTTP(rec, r)
@@ -113,7 +87,6 @@ func TestARowPutPastTheServersSignsNobodyIn(t *testing.T) {
 	rewritten := sha256.Sum256([]byte(known))
 	x.NoError(w.s.Ent.CliLogin.Update().Where(entclilogin.Code(code)).SetSecret(rewritten[:]).Exec(ctx))
 	r := httptest.NewRequest(http.MethodPost, "/cli/logins/approve", strings.NewReader(`{"code":"`+code+`"}`))
-	r.Host = serviceHost
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("Cookie", cookieOf(w.session(h)))
 	rec := httptest.NewRecorder()

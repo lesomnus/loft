@@ -62,14 +62,6 @@
 /loft.CustodyService/Outstanding	manager +auditor
 /loft.CustodyService/Return	manager
 /loft.CustodyService/Watch	read
-/loft.DomainService/Activate	admin
-/loft.DomainService/Add	admin
-/loft.DomainService/Get	read
-/loft.DomainService/List	read
-/loft.DomainService/Retire	admin
-/loft.DomainService/Status	read
-/loft.DomainService/Verify	admin
-/loft.DomainService/Watch	read
 /loft.EventService/Get	admin +auditor
 /loft.EventService/List	admin +auditor
 /loft.EventService/Recent	admin +auditor
