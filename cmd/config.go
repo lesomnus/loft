@@ -21,7 +21,6 @@ import (
 	"github.com/lesomnus/payday/trail"
 
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/consent"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/mail"
@@ -280,10 +279,6 @@ type AppConfig struct {
 	// (design 9.10).
 	Accounts AccountsConfig `yaml:"accounts"`
 
-	// Consent is what an account agrees to before it uses this deployment
-	// (design 9.11).
-	Consent ConsentConfig `yaml:"consent"`
-
 	// Search is what answers a search (D31, design 9.5).
 	Search SearchConfig `yaml:"search"`
 
@@ -305,57 +300,6 @@ type BillingConfig struct {
 // enough not to need one.
 type SearchConfig struct {
 	Opensearch opensearch.Config `yaml:"opensearch"`
-}
-
-// ConsentConfig is what an account agrees to before it uses this deployment:
-// its terms of use and its privacy policy, each at the version in force and
-// read where it is published. A document with no version is not asked for,
-// and asking for none is the default -- a team running its own Loft has no
-// terms to put in front of itself.
-//
-// A new version is agreed to again: every account is asked at its next page,
-// and refused every call until it has.
-//
-// Which documents is all this says. That an account agreed is roster's to
-// keep (D37), and so is for how long once the account is gone: a roster of
-// its own's `consent.keep`, or `auth.roster.consent_keep` for the one in this
-// process.
-type ConsentConfig struct {
-	Terms   DocumentConfig `yaml:"terms"`
-	Privacy DocumentConfig `yaml:"privacy"`
-}
-
-// DocumentConfig is one document an account agrees to.
-type DocumentConfig struct {
-	// Version is the one in force: a date it took effect, say. An agreement
-	// records it.
-	Version string `yaml:"version"`
-	// Url is where it is read.
-	Url string `yaml:"url"`
-}
-
-// Documents is what an account is asked to agree to, or an error for one
-// that has a version and nowhere to be read.
-func (c ConsentConfig) Documents() ([]consent.Document, error) {
-	out := []consent.Document{}
-	for _, d := range []struct {
-		key, name, title string
-		v                DocumentConfig
-	}{
-		{"terms", "terms", "이용약관", c.Terms},
-		{"privacy", "privacy", "개인정보 처리방침", c.Privacy},
-	} {
-		v := strings.TrimSpace(d.v.Version)
-		if v == "" {
-			continue
-		}
-		u, err := url.Parse(strings.TrimSpace(d.v.Url))
-		if err != nil || u.Host == "" || (u.Scheme != "https" && u.Scheme != "http") {
-			return nil, fmt.Errorf("app.consent.%s: a version with no url to read it at is nothing anybody can agree to", d.key)
-		}
-		out = append(out, consent.Document{Name: d.name, Title: d.title, Version: v, Url: u.String()})
-	}
-	return out, nil
 }
 
 // AccountsConfig is how long the memberships of an account roster erased

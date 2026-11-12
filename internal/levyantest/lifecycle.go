@@ -92,22 +92,17 @@ func (l *lives) read(rs []*levyanv1.Reading) map[int]bool {
 
 func moment(v time.Time) time.Time { return v.UTC().Truncate(time.Microsecond) }
 
-// arrived keeps that the workspace an arrival is of arrived, from when it was
-// made -- or now, unset -- unless it was told so before: levyan keeps the
-// first.
-func (v *Levyan) arrived(t Told) {
+// arrived keeps that `workspace` arrived, from when it was made, unless it
+// was told so before: levyan keeps the first.
+func (v *Levyan) arrived(workspace string, at time.Time) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 	v.lives.init()
-	delete(v.lives.forgot, t.Workspace)
-	if _, ok := v.lives.arrived[t.Workspace]; ok {
+	delete(v.lives.forgot, workspace)
+	if _, ok := v.lives.arrived[workspace]; ok {
 		return
 	}
-	at := t.Created
-	if at.IsZero() {
-		at = time.Now()
-	}
-	v.lives.arrived[t.Workspace] = moment(at)
+	v.lives.arrived[workspace] = moment(at)
 }
 
 // Forget has the fake know nothing of `workspace` -- as a levyan made again,
@@ -191,7 +186,7 @@ func (v *Levyan) end(ctx context.Context, kind, workspace string, has bool, at t
 	}
 	since, ok := v.lives.since(workspace)
 	if !ok {
-		return nil, status.Errorf(codes.NotFound, "levyantest: workspace %s has not arrived; say it arrived first (Arrive)", workspace)
+		return nil, status.Errorf(codes.NotFound, "levyantest: workspace %s has not arrived; say it arrived first (Arrived)", workspace)
 	}
 	if at.Before(since) {
 		return nil, status.Errorf(codes.InvalidArgument, "levyantest: at: %s is before workspace %s arrived, at %s", at.Format(time.RFC3339Nano), workspace, since.Format(time.RFC3339Nano))

@@ -2,14 +2,10 @@ package cmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log/slog"
 
-	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/z"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -20,8 +16,6 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/consent"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -47,25 +41,12 @@ import (
 // other credential names a holder, as before, and so does the membership a
 // session's call was resolved to: both are read here ([holders]).
 //
-// What is the app's around that stays here. A session's account that has not
-// agreed to what this deployment asks (`consents`, design 9.11) -- which
-// roster's ledger says (D37) -- is refused every call first, with
-// [ConsentOwed], but for what it has ([WhileOwing]): what it agrees to is HTTP
-// beside the RPCs (`server/account`), and its first page. And a call into a
-// closed workspace is refused last, whoever makes it and whatever it asks
-// ([refusedClosed]): what becomes of a closed workspace is its operator's
-// (D83).
-func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Resolver {
+// What is the app's around that stays here: a call into a closed workspace is
+// refused, whoever makes it and whatever it asks ([refusedClosed]) -- what
+// becomes of a closed workspace is its operator's (D83).
+func Resolver(s app.Server, db *ent.Client) auth.Resolver {
 	accounts := pd.AccountResolver(db, WorkspaceHeader, signedIn, holders(s))
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
-		if signedIn(id) {
-			if m, _ := grpc.Method(ctx); !WhileOwing[m] {
-				if err := settled(ctx, consents, id.Id); err != nil {
-					return nil, err
-				}
-			}
-		}
-
 		f, err := accounts.Resolve(ctx, id)
 		if err != nil {
 			return nil, err
@@ -158,47 +139,6 @@ func refusedClosed() error {
 		return st.Err()
 	}
 	return v.Err()
-}
-
-// WhileOwing is what an account still calls while it owes an agreement to what
-// this deployment asks (design 9.11): what it has, which is its own whether or
-// not it agrees to what comes next -- the workspaces it is in (D73).
-// Everything else waits for the agreement, which is HTTP beside the RPCs
-// (`server/account`) for that reason: it is the way out of being refused.
-var WhileOwing = map[string]bool{
-	app.TenantService_Mine_FullMethodName: true,
-}
-
-// ConsentOwed is what a call is refused with while its account has not agreed
-// to what this deployment asks. A page that is told it reads `loft consent`
-// in it and loads again, which is the agreement; a terminal is told to run it.
-const ConsentOwed = "이용약관과 개인정보 처리방침에 동의해야 이용할 수 있습니다 (loft consent)"
-
-// settled refuses a session whose account has not agreed to what this
-// deployment asks, and one whose agreement roster could not be asked about:
-// not owed, but not known to be settled either -- as a session is refused
-// while roster cannot say what its account is (`session.Store`).
-func settled(ctx context.Context, consents *consent.Consents, account string) error {
-	if !consents.Asks() {
-		return nil
-	}
-	a, err := pdid.Parse(account)
-	if err != nil {
-		return fmt.Errorf("%w: %s", auth.ErrNoCredential, err)
-	}
-	ok, err := consents.Settled(ctx, a)
-	switch {
-	case errors.Is(err, identity.ErrNoPerson):
-		return fmt.Errorf("%w: %w", auth.ErrNoCredential, err)
-	case err != nil:
-		// What roster said stays here: it is about this deployment's
-		// standing at roster, and not the caller's to read.
-		log.From(ctx).WarnContext(ctx, "consent: what an account agreed to could not be asked", slog.Any("err", err))
-		return status.Error(codes.Unavailable, "cannot say just now whether this account agreed to the terms")
-	case !ok:
-		return status.Error(codes.FailedPrecondition, ConsentOwed)
-	}
-	return nil
 }
 
 // WorkspaceHeader is the metadata a call names its workspace in: an alias,

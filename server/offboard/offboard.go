@@ -27,7 +27,6 @@ import (
 
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/migrate"
-	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/retention"
 	"github.com/lesomnus/loft/server/storage"
 )
@@ -73,13 +72,6 @@ type Deployment struct {
 	// member keeps its account when it does, and is restored with none when
 	// it does not. Nil keeps every account as the export has it.
 	Known func(ctx context.Context, account pdid.Id) (bool, error)
-
-	// Notices is told, in the transaction that restores a workspace, that it
-	// was made -- when it was, by its first owner, since an export says no
-	// more of who made it than the deployment it came from knew -- which
-	// levyan is to hear as who pays for it (design 7.6). Nil tells nobody,
-	// as a deployment that bills nobody does.
-	Notices *levyan.Notices
 }
 
 // Aliases is what a restore asks about addresses.

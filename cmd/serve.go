@@ -44,7 +44,6 @@ import (
 	"github.com/lesomnus/loft/server/clientaddr"
 	"github.com/lesomnus/loft/server/clilogin"
 	"github.com/lesomnus/loft/server/closing"
-	"github.com/lesomnus/loft/server/consent"
 	"github.com/lesomnus/loft/server/csp"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/levyan"
@@ -148,11 +147,10 @@ type Server struct {
 	// Follower keeps this deployment's copy of what levyan grants each
 	// workspace, from levyan's `payday.GrantService`, under the lease
 	// (payday#185, design 7.5): what a restricted workspace is held to
-	// (`domain.Grows`). Notices is what levyan is to be told of a workspace
-	// -- who pays for it, what became of it -- written beside the change that
-	// tells it, and Teller the loop that tells it (design 7.6, 7.8). All
-	// three are nil for a deployment that bills nobody, which keeps no copy,
-	// restricts nothing and tells nothing.
+	// (`domain.Grows`). Notices is what levyan is to be told became of a
+	// workspace, written beside the change that tells it, and Teller the loop
+	// that tells it (design 7.8). All three are nil for a deployment that
+	// bills nobody, which keeps no copy, restricts nothing and tells nothing.
 	Follower *entitle.Follower
 	Notices  *levyan.Notices
 	Teller   *levyan.Teller
@@ -170,11 +168,6 @@ type Server struct {
 	// Sso is this deployment as a relying party of roster's issuer, and what
 	// the sign-in page is told about the ways in.
 	Sso *sso.Rp
-
-	// Consents is what an account agrees to before it uses this deployment,
-	// asked of roster's ledger, which keeps the record that it did (design
-	// 9.11, D37, `server/consent`).
-	Consents *consent.Consents
 
 	// Auth is how a credential is read, and nothing that faces anybody is
 	// [auth.Plain] -- which believes what the caller writes about themselves.
@@ -316,13 +309,11 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		rec = append(rec, opensearch.Recorder())
 		log.From(ctx).InfoContext(ctx, "search: OpenSearch answers, from the indexes of assets, parties and models", "assets", engine.Alias(opensearch.Assets))
 	}
-	// And for a deployment that bills, that levyan is to be told a
-	// membership ended, written with the write that ends it (design 7.6):
-	// whoever paid for the workspace with that account pays no longer.
+	// What levyan is to be told became of a workspace, for a deployment
+	// that bills (design 7.8).
 	var notices *levyan.Notices
 	if c.App.Billing.Levyan.On() {
 		notices = &levyan.Notices{}
-		rec = append(rec, notices.Recorder())
 	}
 	if c.Watch.Outbox {
 		// Last, so that a queue this could not be written to undoes a write
@@ -449,13 +440,6 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	if c.Auth.Sso.On() && people.Embedded() {
 		log.From(ctx).WarnContext(ctx, "auth.sso: the roster in this process has no issuer of its own; the issuer named has to vouch for accounts in it")
 	}
-	docs, err := c.App.Consent.Documents()
-	if err != nil {
-		people.Close()
-		db.Close()
-		return nil, err
-	}
-	s.Consents = &consent.Consents{Ledger: people, Documents: docs}
 	if s.Sso, err = sso.New(c.Auth.Sso, c.App.App(), !c.Auth.SsoOnly, s.Sessions, people, s.Arrive(c)); err != nil {
 		people.Close()
 		db.Close()
@@ -629,11 +613,10 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		s.Spin = append(s.Spin, s.Follower)
 		deps.Entitlements = pd.Entitlements
 
-		// And who pays for each workspace, and what became of it, told
-		// from the notices the changes wrote, a workspace's in the order
-		// they happened, under the lease (design 7.6, 7.8). The first pass
-		// writes what levyan was never told: the workspaces it was never
-		// told arrived, and what became of them before.
+		// And what became of each workspace, told from the notices the
+		// changes wrote, a workspace's in the order they happened, under the
+		// lease (design 7.8). The first pass writes what levyan was never
+		// told: what became of the workspaces before.
 		s.Teller = &levyan.Teller{Db: client, Levyan: s.Levyan, Now: deps.Clock}
 		s.Spin = append(s.Spin, spinEvery(levyan.NoticesName, levyan.NoticesEvery, s.Teller.Pass))
 	}
@@ -675,25 +658,13 @@ func (s *Server) Workspaces(c Config) tenancy.Workspaces {
 		Owned:    c.App.Workspaces.OwnedMax(),
 		Aliases:  s.Aliases(c),
 	}
-	// Who made it, for levyan: who pays for it (design 7.6).
-	if s.Notices != nil {
-		ws.Told = s.Notices
-	}
 	return ws
 }
 
 // Arrive is what an account signing in is given: a workspace of its own when it
-// is in none -- once it has agreed to what this deployment asks (design 9.11).
-// Until then it is given nothing, and the workspace is made when it agrees
-// (`POST /account/consents`).
+// is in none (design 9.11).
 func (s *Server) Arrive(c Config) func(ctx context.Context, p identity.Person) error {
-	ws := s.Workspaces(c)
-	return func(ctx context.Context, p identity.Person) error {
-		if ok, err := s.Consents.Settled(ctx, p.Id); err != nil || !ok {
-			return err
-		}
-		return ws.Arrive(ctx, p)
-	}
+	return s.Workspaces(c).Arrive
 }
 
 // Aliases is what decides a workspace's address.
@@ -719,9 +690,6 @@ func (s *Server) Offboard(c Config) offboard.Deployment {
 		d.Reindex = opensearch.Remember
 	}
 	d.Aliases = s.Aliases(c)
-	// A workspace restored is one levyan is told was made, by its first
-	// owner (design 7.6).
-	d.Notices = s.Notices
 	if s.Identity != nil {
 		d.Known = func(ctx context.Context, account pdid.Id) (bool, error) {
 			_, err := s.Identity.StandingOf(ctx, account)
@@ -761,8 +729,8 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	}
 
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
-		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
-		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
+		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
+		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
 		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), gate.ByTenant(), pd.Cost)).
 		With(s.accessed().Interceptor()).
 		With(gate.Interceptor(s.Policy)).
@@ -1045,16 +1013,12 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// ways in; see `server/sso`.
 	s.Sso.Mount(mux)
 
-	// What a session is told of itself beside the RPCs, and what it agrees
-	// to; see `server/account`.
+	// What a session is told of itself beside the RPCs; see
+	// `server/account`.
 	account.Routes{
 		Sessions: s.Sessions,
 		People:   s.Identity,
 		Manage:   s.Identity.AccountPage(),
-		// What it agrees to before anything else, and the workspace an
-		// account that just agreed is given (design 9.11).
-		Consent: s.Consents,
-		Arrive:  s.Arrive(c),
 		// Whether the page offers a workspace's billing (design 7.9).
 		Billing: c.App.Billing.Levyan.On(),
 		// Where the account's pages outside every workspace draw their
@@ -1068,10 +1032,9 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 
 	// A printed label: the code is sent to the page that resolves it, at the
 	// service's address. The page asks the API, through the wall, so a label
-	// of another tenant reads as nothing there -- and then asks, as the
-	// account, which of its own it is in (`LabelService.Locate`, D73). Which
-	// workspace a code is never decides where it is sent, so that a label
-	// says no more than what was printed on it.
+	// of another tenant reads as nothing there. Which workspace a code is
+	// never decides where it is sent, so that a label says no more than what
+	// was printed on it.
 	page := c.App.Links().Page()
 	mux.HandleFunc("GET /l/{code}", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, page+"/scan/"+url.PathEscape(r.PathValue("code")), http.StatusFound)

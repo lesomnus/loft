@@ -95,14 +95,13 @@ func TestAnOperatorKeepsWhereTheirKeyIs(t *testing.T) {
 	x.ErrorContains(fails(t, cli.NewCmdAuth(), "switch", "nowhere"), `no connection "nowhere"`)
 
 	// What is an account's has no operator's to be: its workspace, its
-	// workspaces, its consents, and an assistant speaking as it.
+	// workspaces, and an assistant speaking as it.
 	for _, v := range []struct {
 		k    *xli.Command
 		args []string
 	}{
 		{cli.NewCmdUse(), []string{"acme"}},
 		{root(), []string{"tenant", "mine"}},
-		{cli.NewCmdConsent(), nil},
 	} {
 		x.ErrorContains(fails(t, v.k, v.args...), "this is an operator's connection", v.k.Name)
 	}

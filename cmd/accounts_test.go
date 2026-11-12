@@ -72,10 +72,9 @@ func TestAnAccountReachesItsOwnMethodsAndNoOthers(t *testing.T) {
 		app.InvitationService_Claim_FullMethodName,
 		app.InvitationService_Accept_FullMethodName,
 		app.InvitationService_Deny_FullMethodName,
-		// What it is in, a new one, and which of them a label is in (D73).
+		// What it is in, and a new one (D73).
 		app.TenantService_Mine_FullMethodName,
 		app.TenantService_Create_FullMethodName,
-		app.LabelService_Locate_FullMethodName,
 	}, pd.AccountMethods, "the invitations addressed to it, what it is in, and nothing else")
 
 	// No membership is given them, whatever its role -- and the table gives

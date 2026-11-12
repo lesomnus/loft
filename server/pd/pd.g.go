@@ -17329,14 +17329,6 @@ func (s accountsLabel) Resolve(ctx context.Context, req *loft.LabelResolveReques
 	return s.LabelServiceServer.Resolve(ctx, req)
 }
 
-func (s accountsLabel) Locate(ctx context.Context, req *loft.LabelLocateRequest) (*loft.TenantMembership, error) {
-	if err := gate.AsAccount(ctx, loft.LabelService_Locate_FullMethodName, AccountMethod); err != nil {
-		return nil, err
-	}
-
-	return s.LabelServiceServer.Locate(ctx, req)
-}
-
 // accountsAttachment is AttachmentService as the gate serves it to a call an account
 // makes as itself: refused every method but the ones the schema marks the
 // account's own. See [gate.AsAccount].
@@ -25044,11 +25036,6 @@ func (s interceptLabel) Resolve(ctx context.Context, req *loft.LabelResolveReque
 		loft.LabelService_Resolve_FullMethodName, req, s.LabelServiceServer.Resolve)
 }
 
-func (s interceptLabel) Locate(ctx context.Context, req *loft.LabelLocateRequest) (*loft.TenantMembership, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.LabelServiceServer,
-		loft.LabelService_Locate_FullMethodName, req, s.LabelServiceServer.Locate)
-}
-
 func (s Intercept) Attachment() loft.AttachmentServiceServer {
 	return interceptAttachment{s, s.Next().Attachment()}
 }
@@ -28484,7 +28471,6 @@ var AccountMethods = []string{
 	loft.InvitationService_Claim_FullMethodName,
 	loft.InvitationService_Accept_FullMethodName,
 	loft.InvitationService_Deny_FullMethodName,
-	loft.LabelService_Locate_FullMethodName,
 }
 
 var accountMethods = func() map[string]bool {

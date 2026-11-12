@@ -45,8 +45,9 @@ func TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer(t *testing.T) {
 	pay := w.payments()
 	ws := tenantId(x, w.tenant)
 
-	// levyan is told who made the workspace, who pays for it from then.
-	x.NoError(w.s.Teller.Pass(ctx))
+	// levyan is told who made the workspace, who pays for it from then: by
+	// the portal, and not by this deployment (D84).
+	w.arrived(fake, ws, w.accountOf(w.ownerHolder()))
 	p, err := pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
 	x.NoError(err)
 	x.Equal(ws.String(), p.GetPayer().GetWorkspace())
@@ -297,7 +298,7 @@ func TestWhatLevyanRefusesIsSaid(t *testing.T) {
 	pay := w.payments()
 
 	// Who pays for it already, asked to: levyan refuses it, in its words.
-	x.NoError(w.s.Teller.Pass(context.Background()))
+	w.arrived(fake, tenantId(x, w.tenant), w.accountOf(w.ownerHolder()))
 	_, err := pay.Offer(w.owner, app.PaymentOfferRequest_builder{Holder: w.ownerHolder().GetId()}.Build())
 	x.Equal(codes.FailedPrecondition, status.Code(err))
 	x.Equal("결제 서비스가 받지 않았습니다: the account pays for the workspace already", status.Convert(err).Message())
@@ -333,13 +334,12 @@ func TestWhatLevyanRefusesIsSaid(t *testing.T) {
 func TestWhetherAWorkspacesBillingAccountCanCollectIsSaid(t *testing.T) {
 	w, fake := paid(t)
 	x := w.x
-	ctx := context.Background()
 	pay := w.payments()
 
 	// The owner's, opened before levyan is told who made the workspace: what
 	// it is paid for with from then.
 	ba := fake.OpenBillingAccount(w.accountOf(w.ownerHolder()).String(), "회사용").GetId()
-	x.NoError(w.s.Teller.Pass(ctx))
+	w.arrived(fake, tenantId(x, w.tenant), w.accountOf(w.ownerHolder()))
 	state := func() app.BillingCollectionState {
 		t.Helper()
 		p, err := pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())

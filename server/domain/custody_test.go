@@ -421,34 +421,16 @@ func TestLabels(t *testing.T) {
 	x.NoError(err)
 	x.True(sameId(a.GetId(), r.GetAsset().GetId()))
 
-	// Another workspace reads it as nothing, through the wall; which
-	// workspace it is in is the deployment's to say, for an account to be
-	// told which of its own to look in.
+	// Another workspace reads it as nothing, through the wall.
 	_, other := e.newTenant("other")
 	_, err = e.app().Label().Resolve(other, app.LabelResolveRequest_builder{Code: code}.Build())
 	x.Equal(codes.NotFound, codeOf(err), "another workspace's label reads as nothing")
-	aid, err := pdid.From(a.GetId())
-	x.NoError(err)
-	for _, v := range []string{code, typed, blank.GetUrls()[0], domain.LabelCode(oldId), aid.String()} {
-		in, ok, err := domain.LabelWorkspace(ctx, e.s.Ent, v)
-		x.NoError(err, v)
-		x.True(ok, v)
-		x.Equal(e.tenant, in, v)
-	}
-	for _, v := range []string{"ZZZZZZZZ", "NB-7", "", "https://example.com/"} {
-		_, ok, err := domain.LabelWorkspace(ctx, e.s.Ent, v)
-		x.NoError(err, v)
-		x.False(ok, v)
-	}
 	gone := blank.GetLabels()[2]
 	goneId, err := pdid.From(gone.GetId())
 	x.NoError(err)
 	x.NoError(e.s.Ent.Label.UpdateOneId(goneId.Uuid()).SetDateErased(e.now).Exec(ctx))
-	_, ok, err := domain.LabelWorkspace(ctx, e.s.Ent, gone.GetCode())
-	x.NoError(err)
-	x.False(ok, "an erased label is in no workspace")
 	_, err = e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: gone.GetCode()}.Build())
-	x.Equal(codes.NotFound, codeOf(err), "nor read in its own")
+	x.Equal(codes.NotFound, codeOf(err), "an erased label is read as nothing in its own")
 
 	// One code, one label, in the whole deployment -- which the database
 	// holds as well.

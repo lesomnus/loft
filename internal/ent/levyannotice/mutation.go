@@ -19,7 +19,6 @@ type Mutation struct {
 	typ           string
 	kind          *string
 	workspace     *uuid.UUID
-	account       *uuid.UUID
 	date_occurred *time.Time
 	date_told     *time.Time
 	date_created  *time.Time
@@ -84,27 +83,6 @@ func (m *Mutation) Workspace() (r uuid.UUID, exists bool) {
 func (m *Mutation) ResetWorkspace() {
 	m.workspace = nil
 	delete(m.exprs, FieldWorkspace)
-}
-
-// SetAccount sets the "account" field.
-func (m *Mutation) SetAccount(u uuid.UUID) {
-	m.account = &u
-	delete(m.exprs, FieldAccount)
-}
-
-// Account returns the value of the "account" field in the mutation.
-func (m *Mutation) Account() (r uuid.UUID, exists bool) {
-	v := m.account
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetAccount resets all changes to the "account" field.
-func (m *Mutation) ResetAccount() {
-	m.account = nil
-	delete(m.exprs, FieldAccount)
 }
 
 // SetDateOccurred sets the "date_occurred" field.
@@ -288,15 +266,12 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 7)
 	if m.kind != nil || m.exprs[FieldKind] != nil {
 		fields = append(fields, FieldKind)
 	}
 	if m.workspace != nil || m.exprs[FieldWorkspace] != nil {
 		fields = append(fields, FieldWorkspace)
-	}
-	if m.account != nil || m.exprs[FieldAccount] != nil {
-		fields = append(fields, FieldAccount)
 	}
 	if m.date_occurred != nil || m.exprs[FieldDateOccurred] != nil {
 		fields = append(fields, FieldDateOccurred)
@@ -331,8 +306,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Kind()
 	case FieldWorkspace:
 		return m.Workspace()
-	case FieldAccount:
-		return m.Account()
 	case FieldDateOccurred:
 		return m.DateOccurred()
 	case FieldDateTold:
@@ -381,16 +354,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetWorkspace(v)
-		return nil
-	case FieldAccount:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAccount(v)
 		return nil
 	case FieldDateOccurred:
 		v, ok := value.(time.Time)
@@ -468,8 +431,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetKind()
 	case FieldWorkspace:
 		m.ResetWorkspace()
-	case FieldAccount:
-		m.ResetAccount()
 	case FieldDateOccurred:
 		m.ResetDateOccurred()
 	case FieldDateTold:
@@ -506,9 +467,6 @@ func (m *Mutation) ExprFields() []string {
 	}
 	if _, ok := m.exprs[FieldWorkspace]; ok {
 		fields = append(fields, FieldWorkspace)
-	}
-	if _, ok := m.exprs[FieldAccount]; ok {
-		fields = append(fields, FieldAccount)
 	}
 	if _, ok := m.exprs[FieldDateOccurred]; ok {
 		fields = append(fields, FieldDateOccurred)
@@ -596,9 +554,6 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldWorkspace:
 		m.ResetWorkspace()
-		return nil
-	case FieldAccount:
-		m.ResetAccount()
 		return nil
 	case FieldDateOccurred:
 		m.ResetDateOccurred()

@@ -22,7 +22,6 @@ import { createRoot } from 'react-dom/client'
 import '../gen/domains.js'
 import {
 	callAs,
-	labelWorkspace,
 	lastWorkspace,
 	localize,
 	openWorkspace,
@@ -44,7 +43,6 @@ import { Spinner, Toasts, useToast } from './ui.js'
 import { Inbox } from './invitations.js'
 import { Terminal } from './terminal.js'
 import { Closed, Elsewhere } from './workspaces.js'
-import { Consent } from './consent.js'
 import './style.css'
 
 /** What a sign-in through the issuer came back as (`/?signin=`), in words. */
@@ -166,22 +164,6 @@ function PasswordForm(props: {
 }
 
 /**
- * The workspace of the account's that a label scanned at an address naming
- * none is in (`/scan/<code>`, where `/l/<code>` lands): opened there, rather
- * than in the one last opened. Nothing when the address is no label's, or the
- * label is none of the account's.
- */
-async function scannedIn(): Promise<Workspace | undefined> {
-	const m = /^\/scan\/([^/]+)$/.exec(location.pathname)
-	if (m === null) return undefined
-	try {
-		return await labelWorkspace(decodeURIComponent(m[1]))
-	} catch {
-		return undefined
-	}
-}
-
-/**
  * Where a sign-out in one tab is said to every other tab of this address: each
  * lets go of what it holds and asks again who is signed in. What this browser
  * kept was forgotten by the tab that signed out (`forget`), for all of them.
@@ -192,7 +174,6 @@ type State =
 	| { at: 'checking' }
 	| { at: 'out'; ways: Ways }
 	| { at: 'unknown'; why: string }
-	| { at: 'consent'; account: Account }
 	| { at: 'elsewhere'; account: Account }
 	| { at: 'inbox'; account: Account }
 	| { at: 'terminal'; account: Account }
@@ -252,12 +233,6 @@ function Boot(): ReactNode {
 				void seen(a, w)
 				void keepOnly(a.id, a.workspaces.map((v) => v.id))
 			}
-			// What the deployment asks of an account comes before anything
-			// it has: every call is refused until it agrees (design 9.11).
-			if ((a.owes ?? []).length > 0) {
-				setState({ at: 'consent', account: a })
-				return
-			}
 			// The invitations waiting for the account: about no workspace, and
 			// opened by the link an invitation's mail carries.
 			if (location.pathname === '/invitations') {
@@ -271,10 +246,9 @@ function Boot(): ReactNode {
 			}
 			if (workspace === '') {
 				// An address that names no workspace -- the root, or a label
-				// scanned -- opens the one the label is in, or else the one
-				// this browser was last in, and the first one otherwise, with
-				// the rest of the address kept.
-				const pick = (await scannedIn()) ?? a.workspaces.find((w) => w.alias === lastWorkspace()) ?? a.workspaces[0]
+				// scanned -- opens the one this browser was last in, and the
+				// first one otherwise, with the rest of the address kept.
+				const pick = a.workspaces.find((w) => w.alias === lastWorkspace()) ?? a.workspaces[0]
 				if (pick !== undefined) {
 					openWorkspace(pick, location.pathname + location.search, true)
 					return
@@ -393,8 +367,6 @@ function Boot(): ReactNode {
 					</div>
 				</div>
 			)
-		case 'consent':
-			return <Consent account={state.account} onDone={() => setN((v) => v + 1)} onSignOut={signOut} />
 		case 'elsewhere':
 			return <Elsewhere account={state.account} onSignOut={signOut} />
 		case 'inbox':

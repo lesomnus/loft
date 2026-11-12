@@ -2,6 +2,7 @@ package levyan
 
 import (
 	"context"
+	"slices"
 	"time"
 	"uuid"
 
@@ -35,13 +36,12 @@ func (e ended) total() int { return e.closed + e.restored + e.destroyed }
 //     of its history is gone, and what it said with it.
 //   - **Every workspace closed now**, from when it says it was
 //     (`Tenant.date_closed`): what its events no longer say, and one closed
-//     while this deployment told levyan nothing. Every pass that starts, as
-//     the arrivals are.
-//   - **Every workspace destroyed here that levyan was told arrived**, from
-//     when its address was held, which was after its final reading: told
-//     nothing, levyan goes on taking somebody to pay for it, who would have
-//     one free workspace fewer for good. One levyan was never told arrived
-//     has no payer there. One that is here again -- put back from its export
+//     while this deployment told levyan nothing. Every pass that starts.
+//   - **Every workspace destroyed here**, from when its address was held,
+//     which was after its final reading: told nothing, levyan goes on taking
+//     somebody to pay for it, who would have one free workspace fewer for
+//     good. One levyan heard nothing of answers so, and is marked told
+//     ([Teller.refusal]). One that is here again -- put back from its export
 //     under its identifiers -- is not destroyed now, and is not told it was:
 //     what levyan is to make of that is its open question (its design 17,
 //     104). Every pass that starts.
@@ -78,7 +78,7 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 			return false
 		}
 		have[k] = true
-		creates = append(creates, notices.create(t.Db, kind, pdid.Id(workspace), pdid.Nil, at, ByBackfill))
+		creates = append(creates, notices.create(t.Db, kind, pdid.Id(workspace), at, ByBackfill))
 		return true
 	}
 
@@ -151,22 +151,8 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 		if err != nil {
 			return out, err
 		}
-		arrived, err := t.Db.LevyanNotice.Query().
-			Where(levyannotice.KindEQ(Arrived), levyannotice.RefusedEQ(""), levyannotice.WorkspaceIn(page...)).
-			Select(levyannotice.FieldWorkspace).
-			All(ctx)
-		if err != nil {
-			return out, err
-		}
-		known := map[uuid.UUID]bool{}
-		for _, v := range arrived {
-			known[v.Workspace] = true
-		}
-		for _, id := range here {
-			known[id] = false
-		}
 		for _, id := range page {
-			if known[id] && add(Destroyed, id, when[id]) {
+			if !slices.Contains(here, id) && add(Destroyed, id, when[id]) {
 				out.destroyed++
 			}
 		}
@@ -183,7 +169,7 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 	// And the mark that the events were read, after what they said.
 	if !past {
 		now := t.now()
-		if err := notices.create(t.Db, Past, pdid.Nil, pdid.Nil, now, ByBackfill).SetDateTold(now).Exec(ctx); err != nil {
+		if err := notices.create(t.Db, Past, pdid.Nil, now, ByBackfill).SetDateTold(now).Exec(ctx); err != nil {
 			return out, err
 		}
 	}

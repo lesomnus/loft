@@ -22,6 +22,9 @@
 //	                                                with, restricting it from `restricted` and
 //	                                                making it read-only from `readonly` (sixty
 //	                                                days after it failed, unsaid)
+//	POST /e2e/arrive?workspace=ID&account=ID         the workspace made by the roster account ID,
+//	                                                who pays for it from now: what the portal tells
+//	                                                levyan, and nothing this deployment says (D84)
 //	POST /e2e/account?account=ID&name=N             a billing account of the roster account ID's,
 //	                                                called N, on the merchant of record: what a
 //	                                                workspace it makes is paid for with, opened as
@@ -170,6 +173,18 @@ func main() {
 		v.Dun(d, ws.String())
 		w.WriteHeader(http.StatusNoContent)
 	})
+	m.HandleFunc("POST /e2e/arrive", said(func(q url.Values) error {
+		ws, err := pdid.Parse(q.Get("workspace"))
+		if err != nil {
+			return fmt.Errorf("workspace: %w", err)
+		}
+		account, err := pdid.Parse(q.Get("account"))
+		if err != nil {
+			return fmt.Errorf("account: %w", err)
+		}
+		v.Arrived(ws, account, time.Now())
+		return nil
+	}))
 	m.HandleFunc("POST /e2e/account", said(func(q url.Values) error {
 		account, err := pdid.Parse(q.Get("account"))
 		if err != nil {

@@ -32,10 +32,6 @@ auth:
     db:
       driver: pgx
       # dsn: LOFT_AUTH_ROSTER_DB_DSN, from .env.
-    # How long what an erased account agreed to (`app.consent`) is kept
-    # before this roster destroys it, once decided with legal review
-    # (loft#35). Unset keeps it for good.
-    # consent_keep: 26280h
 
 app:
   # public_url: LOFT_APP_PUBLIC_URL, https://<LOFT_DOMAIN>, from .env.
@@ -47,12 +43,6 @@ app:
 
   # mail: LOFT_APP_MAIL_*, from .env. With no host every invitation is
   # written to the log instead.
-
-  # What an account agrees to before it uses anything here, once the
-  # documents are published (loft#35).
-  # consent:
-  #   terms: { version: "2026-11-01", url: https://loft.example/terms }
-  #   privacy: { version: "2026-11-01", url: https://loft.example/privacy }
 
 audit:
   # Where the trail goes once it leaves the database, and the checkpoints of

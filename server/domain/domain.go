@@ -152,9 +152,8 @@ type Deps struct {
 	Closings Closings
 
 	// Workspaces is how an account comes to be in a workspace of its own, and
-	// what it is in (`tenancy.Workspaces`): what `TenantService.Mine`,
-	// `Create` and `LabelService.Locate` read and write as the account (D73).
-	// Nil serves none of them.
+	// what it is in (`tenancy.Workspaces`): what `TenantService.Mine` and
+	// `Create` read and write as the account (D73). Nil serves neither.
 	Workspaces *tenancy.Workspaces
 }
 

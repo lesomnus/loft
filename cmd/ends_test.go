@@ -5,13 +5,15 @@ import (
 	"testing"
 	"time"
 
-	levyanv1 "github.com/lesomnus/levyan/api/levyan/v1"
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/aliashold"
+	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/levyannotice"
 	"github.com/lesomnus/loft/internal/identity"
@@ -23,7 +25,52 @@ import (
 )
 
 // What became of a workspace -- closed, restored, destroyed -- as levyan is
-// told it (design 7.8, levyan's `docs/apps.md` 5).
+// told it (design 7.8, levyan's `docs/apps.md` 5). Who pays for it is what
+// the portal tells levyan, and nothing here does (D84): a test says it of
+// the fake ([levyantest.Levyan.Arrived]).
+
+// notices is every notice for levyan, in the order the teller tells them:
+// not the first pass's mark, which is no notice ([levyan.Past]).
+func (w *world) notices() []*ent.LevyanNotice {
+	vs, err := w.s.Ent.LevyanNotice.Query().
+		Where(levyannotice.KindNEQ(levyan.Past)).
+		Order(ent.Asc(levyannotice.FieldDateOccurred), ent.Asc(levyannotice.FieldId)).
+		All(context.Background())
+	w.x.NoError(err)
+	return vs
+}
+
+// waiting is the notices levyan has not answered.
+func (w *world) waiting() int {
+	n, err := w.s.Ent.LevyanNotice.Query().Where(levyannotice.DateToldIsNil()).Count(context.Background())
+	w.x.NoError(err)
+	return n
+}
+
+// madeAt is when a workspace was made, as its row says.
+func (w *world) madeAt(id pdid.Id) time.Time {
+	v, err := w.s.Ent.Tenant.Get(context.Background(), id.Uuid())
+	w.x.NoError(err)
+	return v.DateCreated.UTC().Truncate(time.Microsecond)
+}
+
+// workspace is one more workspace, put up as an operator puts one up, with an
+// account of its own its one owner.
+func (w *world) workspace(alias string) (pdid.Id, identity.Person) {
+	ctx := context.Background()
+	p, err := w.s.Identity.AddPerson(ctx, alias, alias, pdid.Nil)
+	w.x.NoError(err)
+	t, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: alias}.Build())
+	w.x.NoError(err)
+	w.member(t, p, "owner")
+	return tenantId(w.x, t), p
+}
+
+// arrived has the fake told what the portal tells levyan: that the workspace
+// was made, by `owner`, when its row says it was.
+func (w *world) arrived(fake *levyantest.Levyan, ws, owner pdid.Id) {
+	fake.Arrived(ws, owner, w.madeAt(ws))
+}
 
 // kinds is what levyan took of `ws`, in the order it came.
 func kinds(fake *levyantest.Levyan, ws pdid.Id) []string {
@@ -90,20 +137,20 @@ func kindsOf(vs []*ent.LevyanNotice) []string {
 
 // TestEveryWayAWorkspaceEndsIsToldToLevyan (design 7.8): a workspace closed --
 // by an operator, or the deployment when an account leaving left nobody in it
-// -- restored, and destroyed, by the sweep or an operator's hand,
-// is written in the transaction that does it, or before a destruction takes
-// anything, of the moment it happened; and told to levyan once, after the
-// workspace's arrival, in the order it happened. A dry run tells nothing.
+// -- restored, and destroyed, by the sweep or an operator's hand, is written
+// in the transaction that does it, or before a destruction takes anything, of
+// the moment it happened; and told to levyan once, in the order it happened.
+// A membership that ends is no notice (D84), and a dry run tells nothing.
 func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 	w, fake := billed(t)
 	x := w.x
 	ctx := context.Background()
 	acme := tenantId(x, w.tenant)
+	w.arrived(fake, acme, w.accountOf(w.firstOwner()))
 
-	// The world's own workspace, made past every way an account makes one,
-	// arrives by the first pass.
+	// Open, with no history: the first pass has nothing to tell of it.
 	x.NoError(w.s.Teller.Pass(ctx))
-	x.Equal([]string{levyan.Arrived}, kinds(fake, acme))
+	x.Empty(kinds(fake, acme))
 
 	// An operator closes it, and restores it; and does again.
 	v := w.closeIt("잠시 닫습니다")
@@ -120,37 +167,33 @@ func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 	x.Equal(w.occurred(acme), ats(vs), "each of the moment its event says")
 	for _, v := range vs {
 		x.Equal(levyan.ByChange, v.Origin)
-		x.Equal(pdid.Nil.Uuid(), v.Account, "of no account")
 		x.Nil(v.DateTold, "told when the teller tells it, and not before")
 	}
 
 	// An account leaving the one workspace it was in: nobody is left, and the
 	// deployment closes it. Its window over, the sweep destroys it.
-	kim, err := w.s.Identity.AddPerson(ctx, "kim", "김", pdid.Nil)
-	x.NoError(err)
-	alone, err := w.s.Workspaces(w.c).Create(ctx, kim, "김의 워크스페이스")
-	x.NoError(err)
+	alone, kim := w.workspace("alone")
+	w.arrived(fake, alone, kim.Id)
 	_, err = w.s.Lifecycle.Depart(ctx, kim.Id)
 	x.NoError(err)
-	x.Equal([]string{levyan.Closed}, kindsOf(w.ends(alone.Workspace)))
-	x.NoError(w.s.Ent.Tenant.UpdateOneId(alone.Workspace.Uuid()).SetDateDestroy(time.Now().Add(-time.Minute)).Exec(ctx))
+	x.Equal([]string{levyan.Closed}, kindsOf(w.ends(alone)))
+	x.Len(w.notices(), 5, "and nothing of the membership that ended")
+	x.NoError(w.s.Ent.Tenant.UpdateOneId(alone.Uuid()).SetDateDestroy(time.Now().Add(-time.Minute)).Exec(ctx))
 	x.NoError(w.s.Closing.Sweep(ctx))
 
 	// And an operator's hand, on a workspace that is open: said first, and
 	// then done.
-	lee, err := w.s.Identity.AddPerson(ctx, "lee", "이", pdid.Nil)
-	x.NoError(err)
-	theirs, err := w.s.Workspaces(w.c).Create(ctx, lee, "연구실")
-	x.NoError(err)
-	row, err := w.s.Ent.Tenant.Get(ctx, theirs.Workspace.Uuid())
+	theirs, lee := w.workspace("lab")
+	w.arrived(fake, theirs, lee.Id)
+	row, err := w.s.Ent.Tenant.Get(ctx, theirs.Uuid())
 	x.NoError(err)
 	_, err = w.s.Closing.Destroy(ctx, row, closing.Purge, true)
 	x.NoError(err)
-	x.Empty(w.ends(theirs.Workspace), "a dry run tells nothing")
+	x.Empty(w.ends(theirs), "a dry run tells nothing")
 	_, err = w.s.Closing.Destroy(ctx, row, closing.Purge, false)
 	x.NoError(err)
 
-	for _, ws := range []pdid.Id{alone.Workspace, theirs.Workspace} {
+	for _, ws := range []pdid.Id{alone, theirs} {
 		vs := w.ends(ws)
 		d := vs[len(vs)-1]
 		x.Equal(levyan.Destroyed, d.Kind)
@@ -169,27 +212,27 @@ func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 
 	told, err := w.s.Teller.Tell(ctx)
 	x.NoError(err)
-	x.Equal(levyan.Told{Told: 10}, told)
-	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored, levyan.Closed, levyan.Restored}, kinds(fake, acme))
+	x.Equal(levyan.Told{Told: 7}, told)
+	x.Equal([]string{levyan.Closed, levyan.Restored, levyan.Closed, levyan.Restored}, kinds(fake, acme))
 	x.Equal(w.occurred(acme), moments(fake, acme), "of the moments they happened")
-	x.Equal([]string{levyan.Arrived, levyan.Left, levyan.Closed, levyan.Destroyed}, kinds(fake, alone.Workspace), "after its arrival")
-	x.Equal([]string{levyan.Arrived, levyan.Destroyed}, kinds(fake, theirs.Workspace))
+	x.Equal([]string{levyan.Closed, levyan.Destroyed}, kinds(fake, alone))
+	x.Equal([]string{levyan.Destroyed}, kinds(fake, theirs))
 	x.Zero(w.waiting())
 
 	life, err := w.s.Levyan.Lifecycle(ctx, acme)
 	x.NoError(err)
 	x.False(life.HasDateClosed(), "open, as it was last restored")
 	x.False(life.HasDateDestroyed())
-	life, err = w.s.Levyan.Lifecycle(ctx, alone.Workspace)
+	life, err = w.s.Levyan.Lifecycle(ctx, alone)
 	x.NoError(err)
-	x.Equal(w.ends(alone.Workspace)[0].DateOccurred.UTC(), life.GetDateClosed().AsTime().UTC(), "destroyed as it was closed")
+	x.Equal(w.ends(alone)[0].DateOccurred.UTC(), life.GetDateClosed().AsTime().UTC(), "destroyed as it was closed")
 	x.True(life.HasDateDestroyed())
 
 	// Told once.
 	told, err = w.s.Teller.Tell(ctx)
 	x.NoError(err)
 	x.Equal(levyan.Told{}, told)
-	x.Len(fake.Heard(), 11)
+	x.Len(fake.Heard(), 7)
 }
 
 // TestAWorkspacesEndWaitsForALevyanThatIsDown (design 7.8): nothing of
@@ -200,124 +243,112 @@ func TestAWorkspacesEndWaitsForALevyanThatIsDown(t *testing.T) {
 	x := w.x
 	ctx := context.Background()
 	acme := tenantId(x, w.tenant)
+	w.arrived(fake, acme, w.accountOf(w.firstOwner()))
+	theirs, lee := w.workspace("lab")
+	w.arrived(fake, theirs, lee.Id)
 	x.NoError(w.s.Teller.Pass(ctx))
 
 	fake.Down(status.Error(codes.Unavailable, "levyantest: down"))
 	w.closeIt("")
 	_, err := w.restoreIt()
 	x.NoError(err, "restored")
-	lee, err := w.s.Identity.AddPerson(ctx, "lee", "이", pdid.Nil)
-	x.NoError(err)
-	theirs, err := w.s.Workspaces(w.c).Create(ctx, lee, "연구실")
-	x.NoError(err)
-	row, err := w.s.Ent.Tenant.Get(ctx, theirs.Workspace.Uuid())
+	row, err := w.s.Ent.Tenant.Get(ctx, theirs.Uuid())
 	x.NoError(err)
 	_, err = w.s.Closing.Destroy(ctx, row, closing.Purge, false)
 	x.NoError(err, "destroyed")
 
 	told, err := w.s.Teller.Tell(ctx)
 	x.Equal(codes.Unavailable, status.Code(err))
-	x.Equal(levyan.Told{Waiting: 4}, told)
+	x.Equal(levyan.Told{Waiting: 3}, told)
 	x.NoError(w.s.Teller.Pass(ctx), "a pass that could not tell levyan stops nothing")
-	x.Equal(4, w.waiting())
+	x.Equal(3, w.waiting())
 
 	fake.Down(nil)
 	told, err = w.s.Teller.Tell(ctx)
 	x.NoError(err)
-	x.Equal(levyan.Told{Told: 4}, told)
-	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored}, kinds(fake, acme))
+	x.Equal(levyan.Told{Told: 3}, told)
+	x.Equal([]string{levyan.Closed, levyan.Restored}, kinds(fake, acme))
 	x.Equal(w.occurred(acme), moments(fake, acme), "of the moments they happened, and not of their telling")
-	x.Equal([]string{levyan.Arrived, levyan.Destroyed}, kinds(fake, theirs.Workspace))
+	x.Equal([]string{levyan.Destroyed}, kinds(fake, theirs))
 	x.Zero(w.waiting())
+
+	// Nobody there at all: the same.
+	gone := newWorldWith(t, func(c *cmd.Config) { c.App.Billing.Levyan = levyantest.Gone(t) })
+	gone.closeIt("")
+	_, err = gone.s.Teller.Tell(ctx)
+	gone.x.Equal(codes.Unavailable, status.Code(err))
+	gone.x.Equal(1, gone.waiting())
 }
 
-// TestALevyanThatHeardNothingOfAWorkspaceIsToldItArrivedFirst (design 7.8):
-// what became of a workspace levyan answers it heard nothing of (NotFound) is
-// told again once levyan is told the workspace arrived -- as it was told
-// before, or by its first owner -- and one destroyed before levyan heard of
-// it is nobody levyan bills, and is not told.
-func TestALevyanThatHeardNothingOfAWorkspaceIsToldItArrivedFirst(t *testing.T) {
+// TestAWorkspacesNoticesAreToldInOrder (design 7.8): one workspace's notices
+// are told in the order they happened, each once levyan took the one before
+// it, and another workspace's are told meanwhile.
+func TestAWorkspacesNoticesAreToldInOrder(t *testing.T) {
 	w, fake := billed(t)
 	x := w.x
 	ctx := context.Background()
-	ws := w.s.Workspaces(w.c)
-	made := func(alias string) (pdid.Id, identity.Person) {
-		p, err := w.s.Identity.AddPerson(ctx, alias, alias, pdid.Nil)
-		x.NoError(err)
-		m, err := ws.Create(ctx, p, alias)
-		x.NoError(err)
-		return m.Workspace, p
-	}
-	closed := func(id pdid.Id) {
-		_, err := w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, id, domain.ClosedByOperator, "")
-		x.NoError(err)
-	}
-	arrivals := func(id pdid.Id) []*ent.LevyanNotice {
-		vs, err := w.s.Ent.LevyanNotice.Query().
-			Where(levyannotice.Workspace(id.Uuid()), levyannotice.KindEQ(levyan.Arrived)).
-			Order(ent.Asc(levyannotice.FieldDateCreated), ent.Asc(levyannotice.FieldId)).
-			All(ctx)
-		x.NoError(err)
-		return vs
-	}
 
-	// A levyan made again knows nothing of what it was told: it is told the
-	// workspace arrived as it was told before, and then that it was closed.
-	again, park := made("park")
-	// Its arrival refused when it was told: by its first owner, now.
-	refused, lee := made("lee")
-	// And one destroyed before levyan heard of it: its arrival refused, and
-	// its final reading never handed over.
-	gone, _ := made("choi")
-	fake.Fail(refused, status.Error(codes.InvalidArgument, "levyantest: not now"))
-	fake.Fail(gone, status.Error(codes.InvalidArgument, "levyantest: not now"))
+	cycled := func(alias string) pdid.Id {
+		ws, p := w.workspace(alias)
+		w.arrived(fake, ws, p.Id)
+		_, err := w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, ws, domain.ClosedByOperator, "")
+		x.NoError(err)
+		_, err = w.s.Deps.RestoreWorkspace(ctx, w.s.Base, w.s.Drv, ws)
+		x.NoError(err)
+		return ws
+	}
+	a := cycled("alpha")
+	b := cycled("beta")
+
+	fake.Fail(a, status.Error(codes.Internal, "levyantest: blinked"))
 	told, err := w.s.Teller.Tell(ctx)
 	x.NoError(err)
-	x.Equal(levyan.Told{Told: 1, Refused: 2}, told)
-	fake.Fail(refused, nil)
-	fake.Fail(gone, nil)
-	fake.Forget(again)
+	x.Equal(levyan.Told{Told: 2, Waiting: 2}, told)
+	x.Empty(kinds(fake, a), "alpha's close not taken, and so neither its restore")
+	x.Equal([]string{levyan.Closed, levyan.Restored}, kinds(fake, b))
 
-	closed(again)
-	closed(refused)
-	fake.Answer(func(context.Context, *levyanv1.RecordRequest) (*levyanv1.RecordResponse, error) {
-		return nil, status.Error(codes.Unavailable, "levyantest: down for the reading")
-	})
-	row, err := w.s.Ent.Tenant.Get(ctx, gone.Uuid())
-	x.NoError(err)
-	d, err := w.s.Closing.Destroy(ctx, row, closing.Purge, false)
-	x.NoError(err)
-	x.Error(d.Unmeasured)
-	fake.Answer(nil)
-
-	ctx, said := logged(ctx)
+	fake.Fail(a, nil)
 	told, err = w.s.Teller.Tell(ctx)
 	x.NoError(err)
-	x.Equal(levyan.Told{Told: 4, Refused: 1}, told)
+	x.Equal(levyan.Told{Told: 2}, told)
+	x.Equal([]string{levyan.Closed, levyan.Restored}, kinds(fake, a), "alpha's in the order they happened")
+	x.Equal(w.occurred(a), moments(fake, a))
+}
 
-	x.Equal([]string{levyan.Arrived, levyan.Arrived, levyan.Closed}, kinds(fake, again), "its arrival again, then the close")
-	vs := arrivals(again)
-	x.Len(vs, 2)
-	x.Equal(levyan.ByNotFound, vs[1].Origin)
-	x.Equal(vs[0].Account, vs[1].Account, "as levyan was told it before")
-	x.Equal(park.Id.Uuid(), vs[1].Account)
-	x.Equal(vs[0].DateOccurred, vs[1].DateOccurred, "from when it was made")
-	x.NotNil(vs[1].DateTold)
+// TestWhatBecameOfAWorkspaceLevyanHeardNothingOfIsNotToldAgain (design 7.8):
+// levyan answering it heard nothing of a workspace (NotFound) is a workspace
+// nobody told it arrived -- the portal's to tell it (D84) -- and so nobody it
+// bills: what became of it is marked told with what levyan said, logged, and
+// not told again, and another workspace's notices go on.
+func TestWhatBecameOfAWorkspaceLevyanHeardNothingOfIsNotToldAgain(t *testing.T) {
+	w, fake := billed(t)
+	x := w.x
+	ctx := context.Background()
 
-	x.Equal([]string{levyan.Arrived, levyan.Closed}, kinds(fake, refused), "its arrival by its first owner, then the close")
-	vs = arrivals(refused)
-	x.Len(vs, 2)
-	x.NotEmpty(vs[0].Refused)
-	x.Equal(levyan.ByNotFound, vs[1].Origin)
-	x.Equal(lee.Id.Uuid(), vs[1].Account)
-	x.Equal(w.madeAt(refused), vs[1].DateOccurred.UTC())
+	heard, p := w.workspace("heard")
+	w.arrived(fake, heard, p.Id)
+	unheard, _ := w.workspace("unheard")
+	for _, ws := range []pdid.Id{heard, unheard} {
+		_, err := w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, ws, domain.ClosedByOperator, "")
+		x.NoError(err)
+	}
 
-	x.Empty(kinds(fake, gone), "nobody levyan bills")
-	es := w.ends(gone)
-	x.Len(es, 1)
-	x.NotNil(es[0].DateTold)
-	x.Contains(es[0].Refused, "it is gone, and levyan was never told it arrived")
-	x.Contains(said.String(), "is not told, since nobody is billed for it")
+	ctx, said := logged(ctx)
+	told, err := w.s.Teller.Tell(ctx)
+	x.NoError(err)
+	x.Equal(levyan.Told{Told: 1, Refused: 1}, told)
+	x.Equal([]string{levyan.Closed}, kinds(fake, heard))
+	x.Empty(kinds(fake, unheard))
+	vs := w.ends(unheard)
+	x.Len(vs, 1)
+	x.NotNil(vs[0].DateTold)
+	x.Contains(vs[0].Refused, "has not arrived")
+	x.Contains(said.String(), "is not told again, since nobody is billed for it")
+	x.NotContains(said.String(), "a fault of Loft's")
+
+	told, err = w.s.Teller.Tell(ctx)
+	x.NoError(err)
+	x.Equal(levyan.Told{}, told, "not told again")
 	x.Zero(w.waiting())
 }
 
@@ -330,6 +361,7 @@ func TestWhatLevyanRefusesOfAWorkspacesEndIsNotToldAgain(t *testing.T) {
 	x := w.x
 	ctx := context.Background()
 	acme := tenantId(x, w.tenant)
+	w.arrived(fake, acme, w.accountOf(w.firstOwner()))
 	x.NoError(w.s.Teller.Pass(ctx))
 
 	// One clock that stands still: closed and restored at one moment.
@@ -368,29 +400,21 @@ func TestWhatLevyanRefusesOfAWorkspacesEndIsNotToldAgain(t *testing.T) {
 	told, err = w.s.Teller.Tell(ctx)
 	x.NoError(err)
 	x.Equal(levyan.Told{}, told, "not told again")
-	x.Equal([]string{levyan.Arrived, levyan.Closed}, kinds(fake, acme))
+	x.Equal([]string{levyan.Closed}, kinds(fake, acme))
 }
 
 // TestWhatBecameOfTheWorkspacesBeforeIsToldOnce (design 7.8): the first pass
 // of a deployment that comes to tell levyan writes what became of the
 // workspaces before it did -- the closes and restores their events keep,
 // oldest first; a workspace closed now whose events no longer say so, from
-// when it says it was; a workspace destroyed that levyan was told arrived,
-// from when its address was held -- after each workspace's arrival, and
-// once: nothing it told is told again, by this process or the next.
+// when it says it was; a workspace destroyed, from when its address was held
+// -- and once: nothing it told is told again, by this process or the next. A
+// destroyed one levyan heard nothing of is marked told with what it said.
 func TestWhatBecameOfTheWorkspacesBeforeIsToldOnce(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
 	acme := tenantId(x, w.tenant)
-	ws := w.s.Workspaces(w.c)
-	made := func(alias string) (pdid.Id, identity.Person) {
-		p, err := w.s.Identity.AddPerson(ctx, alias, alias, pdid.Nil)
-		x.NoError(err)
-		m, err := ws.Create(ctx, p, alias)
-		x.NoError(err)
-		return m.Workspace, p
-	}
 	destroy := func(id pdid.Id) {
 		row, err := w.s.Ent.Tenant.Get(ctx, id.Uuid())
 		x.NoError(err)
@@ -406,27 +430,20 @@ func TestWhatBecameOfTheWorkspacesBeforeIsToldOnce(t *testing.T) {
 	_, err = w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, acme, domain.ClosedByOperator, "")
 	x.NoError(err)
 	// beta: closed, its history since taken by its window.
-	beta, _ := made("beta")
+	beta, _ := w.workspace("beta")
 	_, err = w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, beta, domain.ClosedByOperator, "")
 	x.NoError(err)
 	_, err = w.s.Ent.Event.Delete().Where(event.TenantId(beta.Uuid())).Exec(ctx)
 	x.NoError(err)
-	// gamma: told arrived by the build before, and destroyed.
-	fake := levyantest.Start(t)
-	client, err := levyan.Dial(fake.Config(), identity.ResolveRef)
-	x.NoError(err)
-	t.Cleanup(func() { client.Close() })
-	gamma, park := made("gamma")
-	x.NoError(client.Arrive(ctx, gamma, park.Id, w.madeAt(gamma)))
-	x.NoError((&levyan.Notices{}).Arrive(ctx, w.s.Ent, gamma, park.Id, w.madeAt(gamma)))
-	x.NoError(w.s.Ent.LevyanNotice.Update().Where(levyannotice.Workspace(gamma.Uuid())).SetDateTold(time.Now()).Exec(ctx))
+	// gamma: destroyed; levyan heard of it.
+	gamma, park := w.workspace("gamma")
 	destroy(gamma)
-	// delta: destroyed, and levyan never told it arrived.
-	delta, _ := made("delta")
+	// delta: destroyed, and levyan heard nothing of it.
+	delta, _ := w.workspace("delta")
 	destroy(delta)
 	// epsilon: closed and restored, open now; and its address held as a
 	// destroyed one's is, as a workspace put back from its export is.
-	epsilon, _ := made("epsilon")
+	epsilon, _ := w.workspace("epsilon")
 	_, err = w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, epsilon, domain.ClosedByOperator, "")
 	x.NoError(err)
 	_, err = w.s.Deps.RestoreWorkspace(ctx, w.s.Base, w.s.Drv, epsilon)
@@ -435,12 +452,23 @@ func TestWhatBecameOfTheWorkspacesBeforeIsToldOnce(t *testing.T) {
 		SetId(pdid.New(pd.AliasHoldDomain).Uuid()).SetHeld("epsilon-was").SetReason("destroyed").SetMovedTo("").SetTenant(epsilon.Uuid()).
 		SetDateUntil(time.Now().Add(time.Hour)).SetDateCreated(time.Now()).SetDateUpdated(time.Now()).
 		Exec(ctx))
-	x.Len(w.notices(), 1, "nothing written for levyan while nothing bills, but what the build before told")
+	x.Empty(w.notices(), "nothing written for levyan while nothing bills")
 
 	acmeAt := w.occurred(acme)
 	x.Len(acmeAt, 3)
 	betaClosed := *must(w.s.Ent.Tenant.Get(ctx, beta.Uuid())).DateClosed
 	gammaHeld := must(w.s.Ent.AliasHold.Query().Where(aliashold.Tenant(gamma.Uuid())).Only(ctx)).DateCreated
+
+	// What the portal told levyan meanwhile: which workspaces there are.
+	fake := levyantest.Start(t)
+	client, err := levyan.Dial(fake.Config(), identity.ResolveRef)
+	x.NoError(err)
+	t.Cleanup(func() { client.Close() })
+	owner := w.accountOf(w.firstOwner())
+	for _, ws := range []pdid.Id{acme, beta, epsilon} {
+		fake.Arrived(ws, owner, w.madeAt(ws))
+	}
+	fake.Arrived(gamma, park.Id, gammaHeld.Add(-time.Hour))
 
 	// And then it tells levyan.
 	teller := &levyan.Teller{Db: w.s.Ent, Levyan: client}
@@ -448,14 +476,14 @@ func TestWhatBecameOfTheWorkspacesBeforeIsToldOnce(t *testing.T) {
 	x.NoError(teller.Pass(ctx))
 	x.Contains(said.String(), "what became of the workspaces before it was told of it is to be told it")
 
-	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored, levyan.Closed}, kinds(fake, acme), "after its arrival, oldest first")
+	x.Equal([]string{levyan.Closed, levyan.Restored, levyan.Closed}, kinds(fake, acme), "oldest first")
 	x.Equal(acmeAt, moments(fake, acme), "of the moments its events say")
-	x.Equal([]string{levyan.Arrived, levyan.Closed}, kinds(fake, beta), "closed now, as it says")
+	x.Equal([]string{levyan.Closed}, kinds(fake, beta), "closed now, as it says")
 	x.Equal([]time.Time{betaClosed.UTC().Truncate(time.Microsecond)}, moments(fake, beta))
-	x.Equal([]string{levyan.Arrived, levyan.Destroyed}, kinds(fake, gamma), "levyan was told it arrived")
+	x.Equal([]string{levyan.Destroyed}, kinds(fake, gamma))
 	x.Equal([]time.Time{gammaHeld.UTC().Truncate(time.Microsecond)}, moments(fake, gamma), "from when its address was held")
-	x.Empty(kinds(fake, delta), "levyan never heard of it")
-	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored}, kinds(fake, epsilon), "not destroyed now, and not told it was")
+	x.Empty(kinds(fake, delta), "levyan heard nothing of it")
+	x.Equal([]string{levyan.Closed, levyan.Restored}, kinds(fake, epsilon), "not destroyed now, and not told it was")
 	for _, id := range []pdid.Id{acme, beta, gamma, epsilon} {
 		for _, v := range w.ends(id) {
 			x.Equal(levyan.ByBackfill, v.Origin)
@@ -463,6 +491,11 @@ func TestWhatBecameOfTheWorkspacesBeforeIsToldOnce(t *testing.T) {
 			x.Empty(v.Refused)
 		}
 	}
+	vs := w.ends(delta)
+	x.Len(vs, 1)
+	x.Equal(levyan.Destroyed, vs[0].Kind)
+	x.NotNil(vs[0].DateTold)
+	x.Contains(vs[0].Refused, "has not arrived")
 	marks, err := w.s.Ent.LevyanNotice.Query().Where(levyannotice.KindEQ(levyan.Past)).All(ctx)
 	x.NoError(err)
 	x.Len(marks, 1, "the events read, once")
@@ -489,8 +522,11 @@ func TestADeploymentThatBillsNobodyTellsNothingOfAWorkspacesEnd(t *testing.T) {
 	x := w.x
 	ctx := context.Background()
 
+	x.Nil(w.s.Notices)
+	x.Nil(w.s.Teller)
 	x.Nil(w.s.Deps.Closings)
 	x.Nil(w.s.Closing.Notices)
+	x.NotContains(spun(w.s), levyan.NoticesName)
 	w.closeIt("")
 	_, err := w.restoreIt()
 	x.NoError(err)
@@ -498,6 +534,16 @@ func TestADeploymentThatBillsNobodyTellsNothingOfAWorkspacesEnd(t *testing.T) {
 	x.NoError(w.s.Closing.Sweep(ctx))
 	x.True(w.gone())
 	x.Empty(w.notices())
+}
+
+// firstOwner is the world's workspace's first owner.
+func (w *world) firstOwner() *app.Holder {
+	h, err := w.s.Ent.Holder.Query().
+		Where(holder.TenantId(tenantId(w.x, w.tenant).Uuid()), holder.Role("owner")).
+		Order(ent.Asc(holder.FieldDateCreated)).
+		First(context.Background())
+	w.x.NoError(err)
+	return app.Holder_builder{Id: pdid.Id(h.Id).Bytes()}.Build()
 }
 
 // must is v, which err says nothing went wrong in making.

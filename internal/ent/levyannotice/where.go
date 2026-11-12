@@ -65,11 +65,6 @@ func Workspace(v uuid.UUID) predicate.LevyanNotice {
 	return predicate.LevyanNotice(sql.FieldEQ(FieldWorkspace, v))
 }
 
-// Account applies equality check predicate on the "account" field. It's identical to AccountEQ.
-func Account(v uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldEQ(FieldAccount, v))
-}
-
 // DateOccurred applies equality check predicate on the "date_occurred" field. It's identical to DateOccurredEQ.
 func DateOccurred(v time.Time) predicate.LevyanNotice {
 	return predicate.LevyanNotice(sql.FieldEQ(FieldDateOccurred, v))
@@ -198,46 +193,6 @@ func WorkspaceLT(v uuid.UUID) predicate.LevyanNotice {
 // WorkspaceLTE applies the LTE predicate on the "workspace" field.
 func WorkspaceLTE(v uuid.UUID) predicate.LevyanNotice {
 	return predicate.LevyanNotice(sql.FieldLTE(FieldWorkspace, v))
-}
-
-// AccountEQ applies the EQ predicate on the "account" field.
-func AccountEQ(v uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldEQ(FieldAccount, v))
-}
-
-// AccountNEQ applies the NEQ predicate on the "account" field.
-func AccountNEQ(v uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldNEQ(FieldAccount, v))
-}
-
-// AccountIn applies the In predicate on the "account" field.
-func AccountIn(vs ...uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldIn(FieldAccount, vs...))
-}
-
-// AccountNotIn applies the NotIn predicate on the "account" field.
-func AccountNotIn(vs ...uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldNotIn(FieldAccount, vs...))
-}
-
-// AccountGT applies the GT predicate on the "account" field.
-func AccountGT(v uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldGT(FieldAccount, v))
-}
-
-// AccountGTE applies the GTE predicate on the "account" field.
-func AccountGTE(v uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldGTE(FieldAccount, v))
-}
-
-// AccountLT applies the LT predicate on the "account" field.
-func AccountLT(v uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldLT(FieldAccount, v))
-}
-
-// AccountLTE applies the LTE predicate on the "account" field.
-func AccountLTE(v uuid.UUID) predicate.LevyanNotice {
-	return predicate.LevyanNotice(sql.FieldLTE(FieldAccount, v))
 }
 
 // DateOccurredEQ applies the EQ predicate on the "date_occurred" field.

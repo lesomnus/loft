@@ -1074,10 +1074,7 @@ export const TenantService: GenService<{
   /**
    * Mine is the workspaces the caller's account is in, each as it is told
    * it, and how many it owns and may (D73). The account's own (payday#184):
-   * served as the account, in no workspace -- so never on a workspace's own
-   * domain, whose page is told the one workspace there by `GET /account` --
-   * and while it owes an agreement, since what it has is its own whether or
-   * not it agrees to what comes next.
+   * served as the account, in no workspace.
    *
    * @generated from rpc loft.TenantService.Mine
    */
@@ -1089,8 +1086,7 @@ export const TenantService: GenService<{
   /**
    * Create makes a workspace the caller's account owns, called `name`, with
    * an address nobody chose (design 9.11, D73): what a sign-in gives an
-   * account in none, asked for. The account's own, at the service's address
-   * and once it has agreed to what the deployment asks.
+   * account in none, asked for. The account's own.
    *
    * @generated from rpc loft.TenantService.Create
    */

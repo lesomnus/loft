@@ -300,8 +300,7 @@ func chooseFor(ctx context.Context) (*connections, chosen, error) {
 
 // personFor is the connection the command running on `ctx` uses, which has
 // to be a person's: a command that is an account's -- its session, its
-// workspaces, its consents, an assistant speaking as it -- has no operator's
-// to be.
+// workspaces, an assistant speaking as it -- has no operator's to be.
 func personFor(ctx context.Context, what string) (*connections, chosen, error) {
 	cs, c, err := chooseFor(ctx)
 	if err != nil {

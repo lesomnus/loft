@@ -5,7 +5,8 @@ import { card, choose, expect, field, makeWorkspace, owner, people, refused, sai
 // Run against the server that bills (playwright.config.ts): to a levyan of
 // the test's own (e2e/levyan.sh, internal/levyantest). Nothing reaches
 // levyan's. What a payer does where a payer pays -- a billing account opened,
-// an offer accepted -- is none of this deployment's (D81): the test has its
+// an offer accepted -- is none of this deployment's (D81), and nor is who
+// made a workspace, which the portal tells levyan (D84): the test has its
 // levyan say it.
 
 /** Has the test's levyan say something of a workspace (cmd/levyantest). */
@@ -15,9 +16,14 @@ async function levyan(request: APIRequestContext, what: string, q: Record<string
 	expect(res.status(), await res.text()).toBe(204)
 }
 
-/** A workspace of its own, made by whoever `page` is signed in as. */
-async function made(page: Page, name: string): Promise<{ id: string; alias: string }> {
-	return await makeWorkspace(page, name)
+/**
+ * A workspace of its own, made by whoever `page` is signed in as -- who pays
+ * for it from then, as the portal tells levyan (D84).
+ */
+async function made(page: Page, request: APIRequestContext, name: string): Promise<{ id: string; alias: string }> {
+	const ws = await makeWorkspace(page, name)
+	await levyan(request, 'arrive', { workspace: ws.id, account: await accountOf(page) })
+	return ws
 }
 
 /** The roster account whoever `page` is signed in as is, as `GET /account` says. */
@@ -33,13 +39,12 @@ test('the owner sees who pays and what was used, and the member they ask pays fr
 	expect(acme).toBeDefined()
 	await page.goto(`${workspace}/settings?tab=billing`)
 
-	// levyan is told who made the workspace -- who pays for it from then --
-	// by the loop that tells it what changed, every ten seconds.
+	// Who made the workspace -- who pays for it from then -- is what the
+	// portal tells levyan (D84).
+	await levyan(request, 'arrive', { workspace: acme?.id ?? '', account: await accountOf(page) })
+	await page.reload()
 	const payer = card(page, '결제 담당')
-	await expect(async () => {
-		await page.reload()
-		await expect(payer).toContainText('지금 내는 사람', { timeout: 1000 })
-	}).toPass({ timeout: 30_000 })
+	await expect(payer).toContainText('지금 내는 사람')
 	await expect(payer).toContainText('나 ·')
 	const usage = card(page, '이번 기간 사용량과 예상 금액')
 	await expect(usage).toContainText('활성 자산')
@@ -65,7 +70,7 @@ test('the owner sees who pays and what was used, and the member they ask pays fr
 
 test('a workspace nobody pays for says so above every page, and that it is restricted once its day passed', async ({ page, request }) => {
 	await signIn(page, people.workspaces.login)
-	const ws = await made(page, unique('e2e 결제 담당 없음'))
+	const ws = await made(page, request, unique('e2e 결제 담당 없음'))
 
 	await levyan(request, 'payerless', { workspace: ws.id, from: new Date(Date.now() + 30 * 24 * 3600_000).toISOString() })
 	await page.goto(`/@${ws.alias}/`)
@@ -87,7 +92,7 @@ test('a workspace nobody pays for says so above every page, and that it is restr
 
 test('a write a restricted workspace refused is said above every page, to whoever made it', async ({ page, request }) => {
 	await signIn(page, people.stock.login)
-	const ws = await made(page, unique('e2e 제한'))
+	const ws = await made(page, request, unique('e2e 제한'))
 	await levyan(request, 'restrict', { workspace: ws.id })
 
 	// levyan's grant reaches this deployment's copy a moment later.
@@ -117,7 +122,7 @@ test('a write a restricted workspace refused is said above every page, to whoeve
 
 test('a workspace made read-only says so above every page, and refuses a write as the page makes it', async ({ page, request }) => {
 	await signIn(page, people.readOnly.login)
-	const ws = await made(page, unique('e2e 읽기 전용'))
+	const ws = await made(page, request, unique('e2e 읽기 전용'))
 	const add = (name: string) =>
 		page.request.post('/loft.AssetService/Add', {
 			headers: { 'connect-protocol-version': '1', 'loft-workspace': ws.alias },
@@ -166,7 +171,7 @@ test('a workspace made read-only says so above every page, and refuses a write a
 
 test('an invoice billing a workspace whose charge failed is said above its pages, that it is restricted once its day passed, and read-only once that one did', async ({ page, request }) => {
 	await signIn(page, people.counts.login)
-	const ws = await made(page, unique('e2e 결제 실패'))
+	const ws = await made(page, request, unique('e2e 결제 실패'))
 
 	await levyan(request, 'dunning', { workspace: ws.id, kind: 'temporary', restricted: new Date(Date.now() + 7 * 24 * 3600_000).toISOString() })
 	await page.goto(`/@${ws.alias}/`)
@@ -209,16 +214,11 @@ test('a billing account that cannot be collected from yet is said above the work
 	// Opened where a payer pays, before the workspace it pays for, which is
 	// paid for with it from when it was made.
 	await levyan(request, 'account', { account: await accountOf(page), name: '회사용' })
-	const ws = await made(page, unique('e2e 결제수단 없음'))
+	const ws = await made(page, request, unique('e2e 결제수단 없음'))
 
-	// levyan is told who made it -- who pays for it, and with what -- by the
-	// loop that tells it what changed, every ten seconds.
 	await page.goto(`/@${ws.alias}/`)
 	const banner = page.getByRole('status').filter({ hasText: '이 워크스페이스를 내는 결제 계정으로 지금 결제할 수 없습니다' })
-	await expect(async () => {
-		await page.reload()
-		await expect(banner).toBeVisible({ timeout: 1000 })
-	}).toPass({ timeout: 30_000 })
+	await expect(banner).toBeVisible()
 	await expect(banner).toContainText('결제수단 없음.')
 	await expect(banner).toContainText('결제수단을 등록하세요. 이 때문에 제한된 것은 없습니다.')
 	await expect(page.getByRole('alert')).toHaveCount(0)
@@ -260,7 +260,7 @@ async function lastDays(page: Page, ...ends: string[]): Promise<string[]> {
 
 test("what levyan's operator gave a workspace is said to whoever runs it, and each line says what it gave and took", async ({ page, request }) => {
 	await signIn(page, people.benefits.login)
-	const ws = await made(page, unique('e2e 혜택'))
+	const ws = await made(page, request, unique('e2e 혜택'))
 
 	// What levyan was handed of it -- the deployment measures a workspace it
 	// made at midnight -- and what its operator gave it from the period
@@ -338,7 +338,7 @@ test.describe('on a phone', () => {
 	test("a workspace's billing settings never scroll sideways, nor the offer its owner makes there", async ({ page, request }) => {
 		await signIn(page, people.phoneOwner.login)
 		const name = unique('e2e 휴대폰 설정')
-		const ws = await made(page, name)
+		const ws = await made(page, request, name)
 		// Nobody pays for it; it was used and given more, and credited, and its
 		// period before closed.
 		await levyan(request, 'payerless', { workspace: ws.id, from: new Date(Date.now() + 30 * 24 * 3600_000).toISOString() })

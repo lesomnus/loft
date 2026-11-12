@@ -208,7 +208,6 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.InvitationService_List_FullMethodName:     Reads,
 	app.InvitationService_Inbox_FullMethodName:    Reads,
 	app.TenantService_Mine_FullMethodName:         Account,
-	app.LabelService_Locate_FullMethodName:        Account,
 	app.NotificationService_Inbox_FullMethodName:  Reads,
 	app.AuditService_Get_FullMethodName:           Reads,
 	app.AuditService_List_FullMethodName:          Reads,
