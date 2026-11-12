@@ -28,7 +28,7 @@
 - SaaS의 Loft는 roster 운영자가 만든 배포 키(`rk_…`)를 쓰고, 계정은 모두 그 디렉터리 하나에 있습니다.
 - 한 조직이 직접 운영하는 Loft는 그 조직의 키(`rt_…`)를 쓰고, 디렉터리는 그 키의 테넌트입니다.
 - 이때 `loft init`, `loft holder`, 사람 화면의 로그인 발급·비밀번호 변경은 거부되고 roster에서 합니다.
-- 내장 roster에서 옮기는 순서와 Kubernetes에서 키를 붙이는 곳은 [`deploy/k8s`](../../deploy/k8s/README.md)의 13에 있습니다.
+- 내장 roster에서 옮기는 순서와 Kubernetes에서 키를 붙이는 곳은 [`deploy/k8s`](../../deploy/k8s/README.md)의 12에 있습니다.
 - roster의 박스에서 `tenant`, `role` 같은 명령을 할 때는 그 명령을 하는 운영자를 `--as <운영자>` 로 밝힙니다(control plane이 있는 roster, roster#221). roster의 접속기록이 그 사람을 남기고, 밝히지 않으면 거부됩니다. `app install` 과 `control key add` 에는 필요 없습니다.
 
 ```sh
@@ -83,7 +83,7 @@ roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchServic
 - 호출마다 어느 워크스페이스인지를 `loft-workspace` 헤더로 밝힙니다(화면은 `/@<워크스페이스>` 주소에서 저절로). 워크스페이스가 하나뿐인 계정은 밝히지 않아도 됩니다.
 - 로그인한 사람이 roster에서 중지·삭제되거나 "모든 곳에서 로그아웃"되면 Loft의 세션도 끝납니다. 외부 roster면 roster가 말하는 즉시(roster의 동기화 스트림), 그렇지 않아도 30초 안에 끝납니다. roster에 물을 수 없으면 로그인과 세션이 거부됩니다(503).
 - 처음 로그인한 계정이 어느 워크스페이스에도 없으면 자기 워크스페이스가 하나 생깁니다(`tenancy.Workspaces.Arrive`). 그 뒤로 만드는 워크스페이스는 `TenantService.Create` 이고, `TenantService.Mine` 이 계정이 속한 것을 답합니다. 둘 다 계정으로 부르는 메서드입니다(payday#184, D73). 어느 워크스페이스의 구성원 자격도 아닌 계정 자신으로 처리되므로 워크스페이스를 고르기 전에 부릅니다.
-- RPC 옆의 HTTP로 남은 것은 세션이 자기에 대해 듣는 것뿐입니다. `GET /account` 는 누구인지, 동의할 것, `--allow`, 그리고 워크스페이스의 자기 도메인에서는 그 워크스페이스(`here`)를 답하고, 약관 동의는 `GET`·`POST /account/consents` 입니다. 동의하지 않은 계정은 가진 것(`Mine`, 자기 워크스페이스의 내보내기) 말고는 모든 RPC가 거절되므로, 동의는 그 거절 밖에 있어야 합니다.
+- RPC 옆의 HTTP로 남은 것은 세션이 자기에 대해 듣는 것뿐입니다. `GET /account` 는 누구인지, 동의할 것, `--allow` 를 답하고, 약관 동의는 `GET`·`POST /account/consents` 입니다. 동의하지 않은 계정은 가진 것(`Mine`, 자기 워크스페이스의 내보내기) 말고는 모든 RPC가 거절되므로, 동의는 그 거절 밖에 있어야 합니다.
 - 터미널의 로그인(`loft auth login`)은 브라우저에서 승인하는 같은 계정의 세션입니다([터미널과 비서](../guide/terminal.md)). 로그인 실패와 터미널 로그인의 제한은 [보안](security.md#로그인-제한)에 있습니다.
 
 ## SSO
