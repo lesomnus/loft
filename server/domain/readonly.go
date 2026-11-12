@@ -75,8 +75,10 @@ const (
 	Exports Allowed = "exports"
 
 	// Pays is how the workspace is paid for (결제, design 7.9): every call of
-	// `loft.PaymentService`, the payer's own and the workspace's, which Loft
-	// relays to levyan and keeps nothing of. Paying is how it ends.
+	// `loft.PaymentService` -- who pays for it, what it used, its statements,
+	// a member asked to pay for it -- which Loft relays to levyan and keeps
+	// nothing of. Paying, which its payer does where a payer pays and not
+	// here (D81), is how it ends.
 	Pays Allowed = "pays"
 
 	// Leaves is a member leaving it (떠나기): a membership ended, and a
@@ -230,28 +232,11 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.AttachmentService_Url_FullMethodName:               Exports,
 	app.AssetService_Form_FullMethodName:                   Exports,
 
-	// Paying for it, which is how this ends.
-	app.PaymentService_ListBillingAccounts_FullMethodName:  Pays,
-	app.PaymentService_CreateBillingAccount_FullMethodName: Pays,
-	app.PaymentService_UpdateBillingAccount_FullMethodName: Pays,
-	app.PaymentService_GetBillingAccount_FullMethodName:    Pays,
-	app.PaymentService_StartCheckout_FullMethodName:        Pays,
-	app.PaymentService_CompleteCheckout_FullMethodName:     Pays,
-	app.PaymentService_ListOffers_FullMethodName:           Pays,
-	app.PaymentService_Accept_FullMethodName:               Pays,
-	app.PaymentService_Decline_FullMethodName:              Pays,
-	app.PaymentService_ListLinks_FullMethodName:            Pays,
-	app.PaymentService_Use_FullMethodName:                  Pays,
-	app.PaymentService_Stop_FullMethodName:                 Pays,
-	app.PaymentService_ListInvoices_FullMethodName:         Pays,
-	app.PaymentService_GetInvoice_FullMethodName:           Pays,
-	app.PaymentService_ListCreditNotes_FullMethodName:      Pays,
-	app.PaymentService_ListPayerStatements_FullMethodName:  Pays,
-	app.PaymentService_GetPayerStatement_FullMethodName:    Pays,
-	app.PaymentService_GetPayer_FullMethodName:             Pays,
-	app.PaymentService_GetUsage_FullMethodName:             Pays,
-	app.PaymentService_ListStatements_FullMethodName:       Pays,
-	app.PaymentService_Offer_FullMethodName:                Pays,
+	// Who pays for it, and asking a member to: paying is how this ends.
+	app.PaymentService_GetPayer_FullMethodName:       Pays,
+	app.PaymentService_GetUsage_FullMethodName:       Pays,
+	app.PaymentService_ListStatements_FullMethodName: Pays,
+	app.PaymentService_Offer_FullMethodName:          Pays,
 
 	// Leaving it.
 	app.PartyService_Deactivate_FullMethodName:   Leaves,

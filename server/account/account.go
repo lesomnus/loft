@@ -73,14 +73,14 @@ type Account struct {
 	// account's other workspaces are opened from (`/?workspaces` there).
 	Service string `json:"service,omitempty"`
 	// Billing says this deployment's workspaces are billed, by levyan: the
-	// page offers the account's payments (`/billing`) and a workspace's
-	// (design 7.9). Absent for one that bills nobody.
+	// page offers a workspace's billing (design 7.9). Absent for one that
+	// bills nobody.
 	Billing bool `json:"billing,omitempty"`
 	// Timezone is the deployment's zone (`app.locale.timezone`, Asia/Seoul
 	// unset), as an IANA name: where a page about no workspace -- the
-	// account's payments, its invitations -- draws its dates, as a
-	// workspace's pages draw theirs on its own wall (`PartyService.Me`) and
-	// never on the browser's (design 7.9).
+	// account's invitations -- draws its dates, as a workspace's pages draw
+	// theirs on its own wall (`PartyService.Me`) and never on the browser's
+	// (design 7.9).
 	Timezone string `json:"timezone,omitempty"`
 	// Identity is what the session asking lets its caller see, named as
 	// `authsession.IdentityOf` names it: what the page keeps what it was
@@ -166,8 +166,7 @@ type Routes struct {
 	Service string
 
 	// Billing says this deployment's workspaces are billed (`app.billing.
-	// levyan`): what the page draws the account's payments and a workspace's
-	// for (design 7.9).
+	// levyan`): what the page draws a workspace's billing for (design 7.9).
 	Billing bool
 
 	// Zone is the deployment's zone, by its IANA name (`domain.Locale.Zone`):

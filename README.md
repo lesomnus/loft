@@ -19,7 +19,7 @@
 - **사람과 역할**: 조직도, 초대, 역할 다섯(소유자 · 관리자 · 매니저 · 구성원 · 감사자), 로그인 중지와 개인정보 삭제
 - **워크스페이스**: 계정 하나가 여러 워크스페이스에. 워크스페이스마다 시간대·통화·노쇼 규칙과 기록 보관 기간, 자기 도메인. 닫기·복구·내보내기는 운영자가 합니다
 - **기록**: 무엇을 왜 했는지(작업 기록), 누가 무엇을 바꿨는지(감사 기록), 누가 누구의 개인정보를 보았는지(접속기록)와 그 점검
-- **결제**: 청구 서비스 [levyan](https://github.com/lesomnus/levyan)이 매기고, 결제 화면과 제한·읽기 전용을 Loft가 보입니다
+- **결제**: 청구 서비스 [levyan](https://github.com/lesomnus/levyan)이 매기고, 워크스페이스의 사용량과 결제 담당, 제한·읽기 전용을 Loft가 보입니다. 결제 계정과 결제수단, 청구서는 Loft의 것이 아닙니다
 - **어디서나**: 휴대폰 브라우저(PWA)와 라벨 스캔, 오프라인에서 마지막으로 본 화면, 다른 사람이 바꾼 것이 바로 보이는 화면, 모든 기능을 부르는 터미널(`loft`)과 비서(`loft mcp`)
 
 무엇을 누가 할 수 있는지는 [`server/policy/policy.go`](server/policy/policy.go)의 표 하나가 정하고, 표에 없는 것은 거부됩니다.
@@ -30,7 +30,6 @@
 - **매니저**: 자산을 등록하고 건네고 돌려받고, 예약을 승인하고, 실사와 재고와 수리를 챙깁니다 → [매니저 안내서](docs/guide/manager.md)
 - **관리자·소유자**: 워크스페이스와 사람, 역할, 설정, 기록 보관을 맡습니다 → [관리자·소유자 안내서](docs/guide/admin.md)
 - **감사자**: 이력과 감사 기록을 읽고 접속기록을 점검합니다 → [감사자 안내서](docs/guide/auditor.md)
-- **결제 담당**: 결제 계정과 결제수단, 청구서와 크레딧을 맡습니다 → [결제 담당 안내서](docs/guide/payer.md)
 - **배포 운영자**: 서버를 띄우고 올리고, 워크스페이스의 닫기·복구·내보내기 같은 요청을 운영자 진입점(`loft-admin serve`)에 운영자의 연결로 묻는 `loft` 로 처리합니다 → [배포 운영자 안내서](docs/guide/operator.md)
 - **모두**: 터미널(`loft auth login`, `loft <엔터티> <작업>`)과 비서(`loft mcp`) → [터미널과 비서](docs/guide/terminal.md)
 
@@ -72,7 +71,7 @@ loft asset search -o wide '{"q": "노트북"}'
 | [PostgreSQL](docs/dev/postgres.md) | PostgreSQL로 띄우기, 마이그레이션, 여러 대로 띄우기 |
 | [검색 엔진](docs/dev/search.md) | OpenSearch와 nori, 색인, 명령, 개발용 클러스터 |
 | [계정과 로그인](docs/dev/identity.md) | roster(내장과 외부), SSO, 약관 동의, 초대, 계정이 떠날 때 |
-| [과금과 결제](docs/dev/billing.md) | levyan, 미터, 제한과 읽기 전용, 결제 화면, Paddle 결제 링크 페이지 |
+| [과금과 결제](docs/dev/billing.md) | levyan, 미터, 제한과 읽기 전용, 워크스페이스의 결제 설정과 배너 |
 | [라벨과 워크스페이스 도메인](docs/dev/domains.md) | 라벨 코드, 워크스페이스의 도메인과 호스트마다 받는 것 |
 | [보안](docs/dev/security.md) | 콘텐츠 보안 정책, 세션의 키, 믿는 프록시, 로그인 제한 |
 | [기록과 보존](docs/dev/retention.md) | 이력의 보존, 감사 기록과 보관소, 접속기록, 워크스페이스의 파기와 내보내기 |

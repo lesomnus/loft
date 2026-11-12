@@ -53,16 +53,9 @@ export const people = {
 	booksFirst: { login: 'gunwoo-yoon', name: '윤건우' },
 	borrows: { login: 'naeun-jang', name: '장나은' },
 	renames: { login: 'hyunwoo-lee', name: '이현우' },
-	namesAccounts: { login: 'doyun-park', name: '박도윤' },
-	zone: { login: 'jimin-choi', name: '최지민' },
 	collects: { login: 'gunwoo-jung', name: '정건우' },
-	billedTo: { login: 'naeun-kang', name: '강나은' },
-	takesOver: { login: 'seoyun-cho', name: '조서윤' },
 	readOnly: { login: 'juwon-yoon', name: '윤주원' },
 	benefits: { login: 'soyun-jang', name: '장소윤' },
-	credits: { login: 'seoyeon-lim', name: '임서연' },
-	statements: { login: 'junseo-lim', name: '임준서' },
-	phonePayer: { login: 'seoyun-choi', name: '최서윤' },
 	phoneOwner: { login: 'juwon-jung', name: '정주원' },
 } as const
 

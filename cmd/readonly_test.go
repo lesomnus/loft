@@ -292,15 +292,12 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	_, err = app.NewAccessReviewServiceClient(w.conn).Add(w.owner, app.AccessReviewAddRequest_builder{DateStart: timestamppb.New(from), DateEnd: timestamppb.New(to), Desc: "이상 없음"}.Build())
 	w.refusedReadOnly(err, app.AccessReviewService_Add_FullMethodName)
 
-	// Paid for: who pays for it, asked by the people who run it, and the
-	// payer's own billing accounts, asked as the account.
+	// Paid for: who pays for it, asked by the people who run it, and a
+	// member asked to pay for it by its owner.
 	_, err = w.payments().GetPayer(w.owner, &app.PaymentGetPayerRequest{})
 	x.NoError(err)
-	owner := w.session(w.ownerHolder())
-	made, err := w.payments().CreateBillingAccount(owner, app.PaymentCreateBillingAccountRequest_builder{Country: "KR"}.Build())
-	x.NoError(err, "a billing account to pay with")
-	_, err = w.payments().GetBillingAccount(owner, app.PaymentGetBillingAccountRequest_builder{Id: made.GetBillingAccount().GetId()}.Build())
-	x.NoError(err)
+	_, err = w.payments().Offer(w.owner, app.PaymentOfferRequest_builder{Holder: jung.GetId()}.Build())
+	x.NoError(err, "a member asked to pay for it")
 
 	// A password, which is the account's at roster and how it signs in.
 	_, err = parties.SetPassword(asJung, app.PartySetPasswordRequest_builder{Current: "password1234", Password: "another1234"}.Build())

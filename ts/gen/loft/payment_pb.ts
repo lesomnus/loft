@@ -7,768 +7,13 @@ import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobu
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
-import { file_payday } from "../payday_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file loft/payment.proto.
  */
 export const file_loft_payment: GenFile = /*@__PURE__*/
-  fileDesc("ChJsb2Z0L3BheW1lbnQucHJvdG8SBGxvZnQiIwohUGF5bWVudExpc3RCaWxsaW5nQWNjb3VudHNSZXF1ZXN0IlQKIlBheW1lbnRMaXN0QmlsbGluZ0FjY291bnRzUmVzcG9uc2USLgoQYmlsbGluZ19hY2NvdW50cxgBIAMoCzIULmxvZnQuQmlsbGluZ0FjY291bnQilwEKIlBheW1lbnRDcmVhdGVCaWxsaW5nQWNjb3VudFJlcXVlc3QSDAoEbmFtZRgBIAEoCRIPCgdjb3VudHJ5GAIgASgJEikKCXJlY2lwaWVudBgDIAEoCzIWLmxvZnQuQmlsbGluZ1JlY2lwaWVudBInCghidXNpbmVzcxgEIAEoCzIVLmxvZnQuQmlsbGluZ0J1c2luZXNzIlQKI1BheW1lbnRDcmVhdGVCaWxsaW5nQWNjb3VudFJlc3BvbnNlEi0KD2JpbGxpbmdfYWNjb3VudBgBIAEoCzIULmxvZnQuQmlsbGluZ0FjY291bnQisQEKIlBheW1lbnRVcGRhdGVCaWxsaW5nQWNjb3VudFJlcXVlc3QSCgoCaWQYASABKAkSEwoEbmFtZRgCIAEoCUIFqgECCAESKQoJcmVjaXBpZW50GAMgASgLMhYubG9mdC5CaWxsaW5nUmVjaXBpZW50EicKCGJ1c2luZXNzGAQgASgLMhUubG9mdC5CaWxsaW5nQnVzaW5lc3MSFgoOY2xlYXJfYnVzaW5lc3MYBSABKAgiVAojUGF5bWVudFVwZGF0ZUJpbGxpbmdBY2NvdW50UmVzcG9uc2USLQoPYmlsbGluZ19hY2NvdW50GAEgASgLMhQubG9mdC5CaWxsaW5nQWNjb3VudCItCh9QYXltZW50R2V0QmlsbGluZ0FjY291bnRSZXF1ZXN0EgoKAmlkGAEgASgJIo0CCiBQYXltZW50R2V0QmlsbGluZ0FjY291bnRSZXNwb25zZRItCg9iaWxsaW5nX2FjY291bnQYASABKAsyFC5sb2Z0LkJpbGxpbmdBY2NvdW50EisKCmNvbGxlY3Rpb24YAiABKAsyFy5sb2Z0LkJpbGxpbmdDb2xsZWN0aW9uEi8KDHN1YnNjcmlwdGlvbhgDIAEoCzIZLmxvZnQuQmlsbGluZ1N1YnNjcmlwdGlvbhIlCgdkdW5uaW5nGAQgAygLMhQubG9mdC5CaWxsaW5nRHVubmluZxIkCgdjcmVkaXRzGAUgAygLMhMubG9mdC5CaWxsaW5nQ3JlZGl0Eg8KB2JhbGFuY2UYBiABKAMiSwobUGF5bWVudFN0YXJ0Q2hlY2tvdXRSZXF1ZXN0EhcKD2JpbGxpbmdfYWNjb3VudBgBIAEoCRITCgtzdWNjZXNzX3VybBgCIAEoCSJHChxQYXltZW50U3RhcnRDaGVja291dFJlc3BvbnNlEicKCGNoZWNrb3V0GAEgASgLMhUubG9mdC5CaWxsaW5nQ2hlY2tvdXQiMgoeUGF5bWVudENvbXBsZXRlQ2hlY2tvdXRSZXF1ZXN0EhAKCGNoZWNrb3V0GAEgASgJIqgBCh9QYXltZW50Q29tcGxldGVDaGVja291dFJlc3BvbnNlEicKCGNoZWNrb3V0GAEgASgLMhUubG9mdC5CaWxsaW5nQ2hlY2tvdXQSLwoMc3Vic2NyaXB0aW9uGAIgASgLMhkubG9mdC5CaWxsaW5nU3Vic2NyaXB0aW9uEisKCmNvbGxlY3Rpb24YAyABKAsyFy5sb2Z0LkJpbGxpbmdDb2xsZWN0aW9uIhoKGFBheW1lbnRMaXN0T2ZmZXJzUmVxdWVzdCI/ChlQYXltZW50TGlzdE9mZmVyc1Jlc3BvbnNlEiIKBm9mZmVycxgBIAMoCzISLmxvZnQuQmlsbGluZ09mZmVyIj4KFFBheW1lbnRBY2NlcHRSZXF1ZXN0Eg0KBW9mZmVyGAEgASgJEhcKD2JpbGxpbmdfYWNjb3VudBgCIAEoCSI4ChVQYXltZW50QWNjZXB0UmVzcG9uc2USHwoEbGluaxgBIAEoCzIRLmxvZnQuQmlsbGluZ0xpbmsiJgoVUGF5bWVudERlY2xpbmVSZXF1ZXN0Eg0KBW9mZmVyGAEgASgJIhgKFlBheW1lbnREZWNsaW5lUmVzcG9uc2UiGQoXUGF5bWVudExpc3RMaW5rc1JlcXVlc3QiPAoYUGF5bWVudExpc3RMaW5rc1Jlc3BvbnNlEiAKBWxpbmtzGAEgAygLMhEubG9mdC5CaWxsaW5nTGluayI/ChFQYXltZW50VXNlUmVxdWVzdBIRCgl3b3Jrc3BhY2UYASABKAkSFwoPYmlsbGluZ19hY2NvdW50GAIgASgJIjUKElBheW1lbnRVc2VSZXNwb25zZRIfCgRsaW5rGAEgASgLMhEubG9mdC5CaWxsaW5nTGluayInChJQYXltZW50U3RvcFJlcXVlc3QSEQoJd29ya3NwYWNlGAEgASgJIjYKE1BheW1lbnRTdG9wUmVzcG9uc2USHwoEbGluaxgBIAEoCzIRLmxvZnQuQmlsbGluZ0xpbmsiXAoaUGF5bWVudExpc3RJbnZvaWNlc1JlcXVlc3QSFwoPYmlsbGluZ19hY2NvdW50GAEgASgJEhEKCXBhZ2Vfc2l6ZRgCIAEoBRISCgpwYWdlX3Rva2VuGAMgASgJIl4KG1BheW1lbnRMaXN0SW52b2ljZXNSZXNwb25zZRImCghpbnZvaWNlcxgBIAMoCzIULmxvZnQuQmlsbGluZ0ludm9pY2USFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIiYKGFBheW1lbnRHZXRJbnZvaWNlUmVxdWVzdBIKCgJpZBgBIAEoCSKYAQoZUGF5bWVudEdldEludm9pY2VSZXNwb25zZRIlCgdpbnZvaWNlGAEgASgLMhQubG9mdC5CaWxsaW5nSW52b2ljZRItCgxjcmVkaXRfbm90ZXMYAiADKAsyFy5sb2Z0LkJpbGxpbmdDcmVkaXROb3RlEiUKB2R1bm5pbmcYAyABKAsyFC5sb2Z0LkJpbGxpbmdEdW5uaW5nIkkKHVBheW1lbnRMaXN0Q3JlZGl0Tm90ZXNSZXF1ZXN0EhcKD2JpbGxpbmdfYWNjb3VudBgBIAEoCRIPCgdpbnZvaWNlGAIgASgJIk8KHlBheW1lbnRMaXN0Q3JlZGl0Tm90ZXNSZXNwb25zZRItCgxjcmVkaXRfbm90ZXMYASADKAsyFy5sb2Z0LkJpbGxpbmdDcmVkaXROb3RlImMKIVBheW1lbnRMaXN0UGF5ZXJTdGF0ZW1lbnRzUmVxdWVzdBIXCg9iaWxsaW5nX2FjY291bnQYASABKAkSEQoJcGFnZV9zaXplGAIgASgFEhIKCnBhZ2VfdG9rZW4YAyABKAkiaQoiUGF5bWVudExpc3RQYXllclN0YXRlbWVudHNSZXNwb25zZRIqCgpzdGF0ZW1lbnRzGAEgAygLMhYubG9mdC5CaWxsaW5nU3RhdGVtZW50EhcKD25leHRfcGFnZV90b2tlbhgCIAEoCSItCh9QYXltZW50R2V0UGF5ZXJTdGF0ZW1lbnRSZXF1ZXN0EgoKAmlkGAEgASgJIk0KIFBheW1lbnRHZXRQYXllclN0YXRlbWVudFJlc3BvbnNlEikKCXN0YXRlbWVudBgBIAEoCzIWLmxvZnQuQmlsbGluZ1N0YXRlbWVudCIYChZQYXltZW50R2V0UGF5ZXJSZXF1ZXN0IjwKF1BheW1lbnRHZXRQYXllclJlc3BvbnNlEiEKBXBheWVyGAEgASgLMhIubG9mdC5CaWxsaW5nUGF5ZXIiGAoWUGF5bWVudEdldFVzYWdlUmVxdWVzdCI8ChdQYXltZW50R2V0VXNhZ2VSZXNwb25zZRIhCgV1c2FnZRgBIAEoCzISLmxvZnQuQmlsbGluZ1VzYWdlIksKHFBheW1lbnRMaXN0U3RhdGVtZW50c1JlcXVlc3QSEQoJcGFnZV9zaXplGAIgASgFEhIKCnBhZ2VfdG9rZW4YAyABKAlKBAgBEAIiZAodUGF5bWVudExpc3RTdGF0ZW1lbnRzUmVzcG9uc2USKgoKc3RhdGVtZW50cxgBIAMoCzIWLmxvZnQuQmlsbGluZ1N0YXRlbWVudBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiJQoTUGF5bWVudE9mZmVyUmVxdWVzdBIOCgZob2xkZXIYASABKAwiOQoUUGF5bWVudE9mZmVyUmVzcG9uc2USIQoFb2ZmZXIYASABKAsyEi5sb2Z0LkJpbGxpbmdPZmZlciL6AQoOQmlsbGluZ0FjY291bnQSCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdjb3VudHJ5GAMgASgJEiUKB2NoYW5uZWwYBCABKA4yFC5sb2Z0LkJpbGxpbmdDaGFubmVsEhAKCGN1cnJlbmN5GAUgASgJEikKCXJlY2lwaWVudBgGIAEoCzIWLmxvZnQuQmlsbGluZ1JlY2lwaWVudBInCghidXNpbmVzcxgHIAEoCzIVLmxvZnQuQmlsbGluZ0J1c2luZXNzEjAKDGRhdGVfY3JlYXRlZBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiQAoQQmlsbGluZ1JlY2lwaWVudBIMCgRuYW1lGAEgASgJEg0KBWVtYWlsGAIgASgJEg8KB2FkZHJlc3MYAyABKAkiiQEKD0JpbGxpbmdCdXNpbmVzcxIUCgxyZWdpc3RyYXRpb24YASABKAkSDAoEbmFtZRgCIAEoCRIWCg5yZXByZXNlbnRhdGl2ZRgDIAEoCRIPCgdhZGRyZXNzGAQgASgJEgwKBGtpbmQYBSABKAkSDAoEaXRlbRgGIAEoCRINCgVlbWFpbBgHIAEoCSKfAQoRQmlsbGluZ0NvbGxlY3Rpb24SKwoFc3RhdGUYASABKA4yHC5sb2Z0LkJpbGxpbmdDb2xsZWN0aW9uU3RhdGUSLgoKZGF0ZV9zaW5jZRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJZGF0ZV9lbmRzGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCK9BAoTQmlsbGluZ1N1YnNjcmlwdGlvbhIKCgJpZBgBIAEoCRIQCghtZXJjaGFudBgCIAEoCRIvCgZzdGF0dXMYAyABKA4yHy5sb2Z0LkJpbGxpbmdTdWJzY3JpcHRpb25TdGF0dXMSEAoIY3VycmVuY3kYBCABKAkSNQoRZGF0ZV9wZXJpb2Rfc3RhcnQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjMKD2RhdGVfcGVyaW9kX2VuZBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASNAoQZGF0ZV9uZXh0X2JpbGxlZBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoGY2hhbmdlGAggASgOMh8ubG9mdC5CaWxsaW5nU3Vic2NyaXB0aW9uQ2hhbmdlEi8KC2RhdGVfY2hhbmdlGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIxCg1kYXRlX2NhbmNlbGVkGAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIqCgZtZXRob2QYCyABKAsyGi5sb2Z0LkJpbGxpbmdQYXltZW50TWV0aG9kEjAKDGRhdGVfdXBkYXRlZBgMIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGF0ZV9jaGVja2VkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJCChRCaWxsaW5nUGF5bWVudE1ldGhvZBIMCgR0eXBlGAEgASgJEg0KBWJyYW5kGAIgASgJEg0KBWxhc3Q0GAMgASgJIu8BCg9CaWxsaW5nQ2hlY2tvdXQSCgoCaWQYASABKAkSFwoPYmlsbGluZ19hY2NvdW50GAIgASgJEikKBXN0YXRlGAMgASgOMhoubG9mdC5CaWxsaW5nQ2hlY2tvdXRTdGF0ZRIwCgxkYXRlX3N0YXJ0ZWQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KCWRhdGVfZG9uZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKwoGd2luZG93GAYgASgLMhsubG9mdC5CaWxsaW5nQ2hlY2tvdXRXaW5kb3cilwEKFUJpbGxpbmdDaGVja291dFdpbmRvdxIQCghtZXJjaGFudBgBIAEoCRITCgtlbnZpcm9ubWVudBgCIAEoCRITCgt0cmFuc2FjdGlvbhgDIAEoCRIUCgxjbGllbnRfdG9rZW4YBCABKAkSDgoGc2NyaXB0GAUgASgJEgsKA3VybBgGIAEoCRIPCgdjb3VudHJ5GAcgASgJInAKDEJpbGxpbmdPZmZlchIKCgJpZBgBIAEoCRIRCgl3b3Jrc3BhY2UYAiABKAkSDwoHYWNjb3VudBgDIAEoCRIwCgxkYXRlX29mZmVyZWQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIoICCgtCaWxsaW5nTGluaxIKCgJpZBgBIAEoCRIRCgl3b3Jrc3BhY2UYAiABKAkSDwoHYWNjb3VudBgDIAEoCRIXCg9iaWxsaW5nX2FjY291bnQYBCABKAkSLgoKZGF0ZV9zdGFydBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9lbmQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiUKBWJlZ2FuGAcgASgOMhYubG9mdC5CaWxsaW5nTGlua0JlZ2FuEiUKBWVuZGVkGAggASgOMhYubG9mdC5CaWxsaW5nTGlua0VuZGVkIocFCg5CaWxsaW5nSW52b2ljZRIKCgJpZBgBIAEoCRIXCg9iaWxsaW5nX2FjY291bnQYAiABKAkSKAoFc3RhdGUYAyABKA4yGS5sb2Z0LkJpbGxpbmdJbnZvaWNlU3RhdGUSLgoKZGF0ZV9zdGFydBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9lbmQYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiUKB2NoYW5uZWwYBiABKA4yFC5sb2Z0LkJpbGxpbmdDaGFubmVsEhAKCGN1cnJlbmN5GAcgASgJEhAKCHN1YnRvdGFsGAggASgDEgsKA3RheBgJIAEoAxINCgV0b3RhbBgKIAEoAxIQCghjcmVkaXRlZBgLIAEoAxILCgNkdWUYDCABKAMSDAoEcGFpZBgNIAEoAxIPCgdyZWR1Y2VkGA4gASgDEhEKCXJlbWFpbmluZxgPIAEoAxIOCgZudW1iZXIYECABKAMSMgoOZGF0ZV9maW5hbGl6ZWQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRhdGVfZHVlGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX3NldHRsZWQYEyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhYKDmNoYW5uZWxfbnVtYmVyGBQgASgJEicKBWxpbmVzGBUgAygLMhgubG9mdC5CaWxsaW5nSW52b2ljZUxpbmUSKwoHY3JlZGl0cxgWIAMoCzIaLmxvZnQuQmlsbGluZ0ludm9pY2VDcmVkaXQiewoUQmlsbGluZ0ludm9pY2VDcmVkaXQSDgoGY3JlZGl0GAEgASgJEg4KBmFtb3VudBgCIAEoAxIRCgl3b3Jrc3BhY2UYAyABKAkSMAoMZGF0ZV9leHBpcmVzGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLcAQoNQmlsbGluZ0NyZWRpdBIKCgJpZBgBIAEoCRIRCgl3b3Jrc3BhY2UYAiABKAkSFwoPYmlsbGluZ19hY2NvdW50GAMgASgJEg8KB2dyYW50ZWQYBCABKAMSDAoEbGVmdBgFIAEoAxIQCghjdXJyZW5jeRgGIAEoCRIwCgxkYXRlX2V4cGlyZXMYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfY3JlYXRlZBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAifQoSQmlsbGluZ0ludm9pY2VMaW5lEhEKCXN0YXRlbWVudBgBIAEoCRIRCgl3b3Jrc3BhY2UYAiABKAkSDQoFbGFiZWwYAyABKAkSIwoGcGVyaW9kGAQgASgLMhMubG9mdC5CaWxsaW5nUGVyaW9kEg0KBXRvdGFsGAUgASgDIoICChFCaWxsaW5nQ3JlZGl0Tm90ZRIKCgJpZBgBIAEoCRIPCgdpbnZvaWNlGAIgASgJEi0KBnJlYXNvbhgDIAEoDjIdLmxvZnQuQmlsbGluZ0NyZWRpdE5vdGVSZWFzb24SDgoGYW1vdW50GAQgASgDEgsKA3RheBgFIAEoAxINCgV0b3RhbBgGIAEoAxIPCgdyZWR1Y2VkGAcgASgDEhAKCHJlZnVuZGVkGAggASgDEhAKCGNyZWRpdGVkGAkgASgDEg4KBm51bWJlchgKIAEoAxIwCgxkYXRlX2NyZWF0ZWQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wInsKDUJpbGxpbmdQZXJpb2QSLgoKZGF0ZV9zdGFydBgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9lbmQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEgwKBHpvbmUYAyABKAkinwMKDEJpbGxpbmdQYXllchIRCgl3b3Jrc3BhY2UYASABKAkSIgoHY3VycmVudBgCIAEoCzIRLmxvZnQuQmlsbGluZ0xpbmsSHwoEbmV4dBgDIAEoCzIRLmxvZnQuQmlsbGluZ0xpbmsSIQoFb2ZmZXIYBCABKAsyEi5sb2Z0LkJpbGxpbmdPZmZlchIyCg5kYXRlX3BheWVybGVzcxgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPZGF0ZV9yZXN0cmljdGVkGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIrCgpjb2xsZWN0aW9uGAcgASgLMhcubG9mdC5CaWxsaW5nQ29sbGVjdGlvbhIlCgdkdW5uaW5nGAggAygLMhQubG9mdC5CaWxsaW5nRHVubmluZxIxCg1kYXRlX3JlYWRvbmx5GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIkCgdjcmVkaXRzGAogAygLMhMubG9mdC5CaWxsaW5nQ3JlZGl0IuUCCg5CaWxsaW5nRHVubmluZxIPCgdpbnZvaWNlGAEgASgJEhcKD2JpbGxpbmdfYWNjb3VudBgCIAEoCRImCgRraW5kGAMgASgOMhgubG9mdC5CaWxsaW5nRGVjbGluZUtpbmQSLwoLZGF0ZV9mYWlsZWQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjMKD2RhdGVfbmV4dF9yZXRyeRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPZGF0ZV9ncmFjZV9lbmRzGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIzCg9kYXRlX3Jlc3RyaWN0ZWQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjEKDWRhdGVfcmVhZG9ubHkYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIq4CCgxCaWxsaW5nVXNhZ2USEQoJd29ya3NwYWNlGAEgASgJEiMKBnBlcmlvZBgCIAEoCzITLmxvZnQuQmlsbGluZ1BlcmlvZBIuCgpkYXRlX2FzX29mGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIlCgdjaGFubmVsGAQgASgOMhQubG9mdC5CaWxsaW5nQ2hhbm5lbBIQCghjdXJyZW5jeRgFIAEoCRIgCgVsaW5lcxgGIAMoCzIRLmxvZnQuQmlsbGluZ0xpbmUSDQoFdG90YWwYByABKAMSKgoKYWxsb3dhbmNlcxgIIAMoCzIWLmxvZnQuQmlsbGluZ0FsbG93YW5jZRIgCgVwb29scxgJIAMoCzIRLmxvZnQuQmlsbGluZ1Bvb2wipQEKEEJpbGxpbmdBbGxvd2FuY2USCgoCaWQYASABKAkSDQoFbWV0ZXIYAiABKAkSEAoIcXVhbnRpdHkYAyABKAMSMgoOZGF0ZV9lZmZlY3RpdmUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfZXhwaXJlcxgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAirQEKC0JpbGxpbmdQb29sEgoKAmlkGAEgASgJEg0KBW1ldGVyGAIgASgJEg8KB2dyYW50ZWQYAyABKAMSDAoEbGVmdBgEIAEoCRIyCg5kYXRlX2VmZmVjdGl2ZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGF0ZV9leHBpcmVzGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLxAQoQQmlsbGluZ1N0YXRlbWVudBIKCgJpZBgBIAEoCRIRCgl3b3Jrc3BhY2UYAiABKAkSIwoGcGVyaW9kGAMgASgLMhMubG9mdC5CaWxsaW5nUGVyaW9kEiUKB2NoYW5uZWwYBCABKA4yFC5sb2Z0LkJpbGxpbmdDaGFubmVsEhAKCGN1cnJlbmN5GAUgASgJEiAKBWxpbmVzGAYgAygLMhEubG9mdC5CaWxsaW5nTGluZRINCgV0b3RhbBgHIAEoAxIvCgtkYXRlX2Nsb3NlZBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAingIKC0JpbGxpbmdMaW5lEg0KBW1ldGVyGAEgASgJEgwKBHVuaXQYAiABKAkSIwoEa2luZBgDIAEoDjIVLmxvZnQuQmlsbGluZ0xpbmVLaW5kEiUKCGNvcnJlY3RzGAQgASgLMhMubG9mdC5CaWxsaW5nUGVyaW9kEg0KBXVzYWdlGAUgASgJEhAKCGluY2x1ZGVkGAYgASgJEhAKCGJpbGxhYmxlGAcgASgJEg4KBmFtb3VudBgIIAEoCRIOCgZiaWxsZWQYCiABKAkSEQoJYWxsb3dhbmNlGAwgASgJEg4KBnBvb2xlZBgNIAEoCRIkCgVwb29scxgOIAMoCzIVLmxvZnQuQmlsbGluZ0xpbmVQb29sSgQICRAKSgQICxAMIi4KD0JpbGxpbmdMaW5lUG9vbBIMCgRwb29sGAEgASgJEg0KBXRha2VuGAIgASgJKoIBCg5CaWxsaW5nQ2hhbm5lbBIfChtCSUxMSU5HX0NIQU5ORUxfVU5TUEVDSUZJRUQQABIXChNCSUxMSU5HX0NIQU5ORUxfTU9SEAESGQoVQklMTElOR19DSEFOTkVMX1BHX0tSEAISGwoXQklMTElOR19DSEFOTkVMX0JBTktfS1IQAyq4AgoWQmlsbGluZ0NvbGxlY3Rpb25TdGF0ZRIoCiRCSUxMSU5HX0NPTExFQ1RJT05fU1RBVEVfVU5TUEVDSUZJRUQQABIoCiRCSUxMSU5HX0NPTExFQ1RJT05fU1RBVEVfQ09MTEVDVEFCTEUQARIsCihCSUxMSU5HX0NPTExFQ1RJT05fU1RBVEVfTk9fU1VCU0NSSVBUSU9OEAISJQohQklMTElOR19DT0xMRUNUSU9OX1NUQVRFX1BBU1RfRFVFEAMSIwofQklMTElOR19DT0xMRUNUSU9OX1NUQVRFX1BBVVNFRBAEEiUKIUJJTExJTkdfQ09MTEVDVElPTl9TVEFURV9DQU5DRUxFRBAFEikKJUJJTExJTkdfQ09MTEVDVElPTl9TVEFURV9ORUVEU19BQ1RJT04QBiqWAgoZQmlsbGluZ1N1YnNjcmlwdGlvblN0YXR1cxIrCidCSUxMSU5HX1NVQlNDUklQVElPTl9TVEFUVVNfVU5TUEVDSUZJRUQQABImCiJCSUxMSU5HX1NVQlNDUklQVElPTl9TVEFUVVNfQUNUSVZFEAESKAokQklMTElOR19TVUJTQ1JJUFRJT05fU1RBVFVTX1RSSUFMSU5HEAISKAokQklMTElOR19TVUJTQ1JJUFRJT05fU1RBVFVTX1BBU1RfRFVFEAMSJgoiQklMTElOR19TVUJTQ1JJUFRJT05fU1RBVFVTX1BBVVNFRBAEEigKJEJJTExJTkdfU1VCU0NSSVBUSU9OX1NUQVRVU19DQU5DRUxFRBAFKr8BChlCaWxsaW5nU3Vic2NyaXB0aW9uQ2hhbmdlEisKJ0JJTExJTkdfU1VCU0NSSVBUSU9OX0NIQU5HRV9VTlNQRUNJRklFRBAAEiYKIkJJTExJTkdfU1VCU0NSSVBUSU9OX0NIQU5HRV9DQU5DRUwQARIlCiFCSUxMSU5HX1NVQlNDUklQVElPTl9DSEFOR0VfUEFVU0UQAhImCiJCSUxMSU5HX1NVQlNDUklQVElPTl9DSEFOR0VfUkVTVU1FEAMqqgEKFEJpbGxpbmdDaGVja291dFN0YXRlEiYKIkJJTExJTkdfQ0hFQ0tPVVRfU1RBVEVfVU5TUEVDSUZJRUQQABIfChtCSUxMSU5HX0NIRUNLT1VUX1NUQVRFX09QRU4QARIkCiBCSUxMSU5HX0NIRUNLT1VUX1NUQVRFX0NPTVBMRVRFRBACEiMKH0JJTExJTkdfQ0hFQ0tPVVRfU1RBVEVfQ0FOQ0VMRUQQAyq0AQoQQmlsbGluZ0xpbmtCZWdhbhIiCh5CSUxMSU5HX0xJTktfQkVHQU5fVU5TUEVDSUZJRUQQABIeChpCSUxMSU5HX0xJTktfQkVHQU5fQVJSSVZFRBABEh8KG0JJTExJTkdfTElOS19CRUdBTl9BQ0NFUFRFRBACEhsKF0JJTExJTkdfTElOS19CRUdBTl9VU0VEEAMSHgoaQklMTElOR19MSU5LX0JFR0FOX1JFU1VNRUQQBCr3AQoQQmlsbGluZ0xpbmtFbmRlZBIiCh5CSUxMSU5HX0xJTktfRU5ERURfVU5TUEVDSUZJRUQQABIfChtCSUxMSU5HX0xJTktfRU5ERURfUkVQTEFDRUQQARIeChpCSUxMSU5HX0xJTktfRU5ERURfU1RPUFBFRBACEhsKF0JJTExJTkdfTElOS19FTkRFRF9MRUZUEAMSIAocQklMTElOR19MSU5LX0VOREVEX1NVU1BFTkRFRBAEEh0KGUJJTExJTkdfTElOS19FTkRFRF9FUkFTRUQQBRIgChxCSUxMSU5HX0xJTktfRU5ERURfREVTVFJPWUVEEAYqrwIKE0JpbGxpbmdJbnZvaWNlU3RhdGUSJQohQklMTElOR19JTlZPSUNFX1NUQVRFX1VOU1BFQ0lGSUVEEAASHwobQklMTElOR19JTlZPSUNFX1NUQVRFX0RSQUZUEAESHgoaQklMTElOR19JTlZPSUNFX1NUQVRFX09QRU4QAhIeChpCSUxMSU5HX0lOVk9JQ0VfU1RBVEVfUEFJRBADEicKI0JJTExJTkdfSU5WT0lDRV9TVEFURV9VTkNPTExFQ1RJQkxFEAQSHgoaQklMTElOR19JTlZPSUNFX1NUQVRFX1ZPSUQQBRIlCiFCSUxMSU5HX0lOVk9JQ0VfU1RBVEVfV1JJVFRFTl9PRkYQBhIgChxCSUxMSU5HX0lOVk9JQ0VfU1RBVEVfU0hBRE9XEAcqxAEKF0JpbGxpbmdDcmVkaXROb3RlUmVhc29uEioKJkJJTExJTkdfQ1JFRElUX05PVEVfUkVBU09OX1VOU1BFQ0lGSUVEEAASKQolQklMTElOR19DUkVESVRfTk9URV9SRUFTT05fQ09SUkVDVElPThABEiUKIUJJTExJTkdfQ1JFRElUX05PVEVfUkVBU09OX1JFRlVORBACEisKJ0JJTExJTkdfQ1JFRElUX05PVEVfUkVBU09OX0NBTkNFTExBVElPThADKqABChJCaWxsaW5nRGVjbGluZUtpbmQSJAogQklMTElOR19ERUNMSU5FX0tJTkRfVU5TUEVDSUZJRUQQABIiCh5CSUxMSU5HX0RFQ0xJTkVfS0lORF9URU1QT1JBUlkQARIgChxCSUxMSU5HX0RFQ0xJTkVfS0lORF9SRVBMQUNFEAISHgoaQklMTElOR19ERUNMSU5FX0tJTkRfRlJBVUQQAypzCg9CaWxsaW5nTGluZUtpbmQSIQodQklMTElOR19MSU5FX0tJTkRfVU5TUEVDSUZJRUQQABIbChdCSUxMSU5HX0xJTkVfS0lORF9VU0FHRRABEiAKHEJJTExJTkdfTElORV9LSU5EX0NPUlJFQ1RJT04QAjKRDwoOUGF5bWVudFNlcnZpY2UScAoTTGlzdEJpbGxpbmdBY2NvdW50cxInLmxvZnQuUGF5bWVudExpc3RCaWxsaW5nQWNjb3VudHNSZXF1ZXN0GigubG9mdC5QYXltZW50TGlzdEJpbGxpbmdBY2NvdW50c1Jlc3BvbnNlIgbqzRYCCgAScwoUQ3JlYXRlQmlsbGluZ0FjY291bnQSKC5sb2Z0LlBheW1lbnRDcmVhdGVCaWxsaW5nQWNjb3VudFJlcXVlc3QaKS5sb2Z0LlBheW1lbnRDcmVhdGVCaWxsaW5nQWNjb3VudFJlc3BvbnNlIgbqzRYCCgAScwoUVXBkYXRlQmlsbGluZ0FjY291bnQSKC5sb2Z0LlBheW1lbnRVcGRhdGVCaWxsaW5nQWNjb3VudFJlcXVlc3QaKS5sb2Z0LlBheW1lbnRVcGRhdGVCaWxsaW5nQWNjb3VudFJlc3BvbnNlIgbqzRYCCgASagoRR2V0QmlsbGluZ0FjY291bnQSJS5sb2Z0LlBheW1lbnRHZXRCaWxsaW5nQWNjb3VudFJlcXVlc3QaJi5sb2Z0LlBheW1lbnRHZXRCaWxsaW5nQWNjb3VudFJlc3BvbnNlIgbqzRYCCgASXgoNU3RhcnRDaGVja291dBIhLmxvZnQuUGF5bWVudFN0YXJ0Q2hlY2tvdXRSZXF1ZXN0GiIubG9mdC5QYXltZW50U3RhcnRDaGVja291dFJlc3BvbnNlIgbqzRYCCgASZwoQQ29tcGxldGVDaGVja291dBIkLmxvZnQuUGF5bWVudENvbXBsZXRlQ2hlY2tvdXRSZXF1ZXN0GiUubG9mdC5QYXltZW50Q29tcGxldGVDaGVja291dFJlc3BvbnNlIgbqzRYCCgASVQoKTGlzdE9mZmVycxIeLmxvZnQuUGF5bWVudExpc3RPZmZlcnNSZXF1ZXN0Gh8ubG9mdC5QYXltZW50TGlzdE9mZmVyc1Jlc3BvbnNlIgbqzRYCCgASSQoGQWNjZXB0EhoubG9mdC5QYXltZW50QWNjZXB0UmVxdWVzdBobLmxvZnQuUGF5bWVudEFjY2VwdFJlc3BvbnNlIgbqzRYCCgASTAoHRGVjbGluZRIbLmxvZnQuUGF5bWVudERlY2xpbmVSZXF1ZXN0GhwubG9mdC5QYXltZW50RGVjbGluZVJlc3BvbnNlIgbqzRYCCgASUgoJTGlzdExpbmtzEh0ubG9mdC5QYXltZW50TGlzdExpbmtzUmVxdWVzdBoeLmxvZnQuUGF5bWVudExpc3RMaW5rc1Jlc3BvbnNlIgbqzRYCCgASQAoDVXNlEhcubG9mdC5QYXltZW50VXNlUmVxdWVzdBoYLmxvZnQuUGF5bWVudFVzZVJlc3BvbnNlIgbqzRYCCgASQwoEU3RvcBIYLmxvZnQuUGF5bWVudFN0b3BSZXF1ZXN0GhkubG9mdC5QYXltZW50U3RvcFJlc3BvbnNlIgbqzRYCCgASWwoMTGlzdEludm9pY2VzEiAubG9mdC5QYXltZW50TGlzdEludm9pY2VzUmVxdWVzdBohLmxvZnQuUGF5bWVudExpc3RJbnZvaWNlc1Jlc3BvbnNlIgbqzRYCCgASVQoKR2V0SW52b2ljZRIeLmxvZnQuUGF5bWVudEdldEludm9pY2VSZXF1ZXN0Gh8ubG9mdC5QYXltZW50R2V0SW52b2ljZVJlc3BvbnNlIgbqzRYCCgASZAoPTGlzdENyZWRpdE5vdGVzEiMubG9mdC5QYXltZW50TGlzdENyZWRpdE5vdGVzUmVxdWVzdBokLmxvZnQuUGF5bWVudExpc3RDcmVkaXROb3Rlc1Jlc3BvbnNlIgbqzRYCCgAScAoTTGlzdFBheWVyU3RhdGVtZW50cxInLmxvZnQuUGF5bWVudExpc3RQYXllclN0YXRlbWVudHNSZXF1ZXN0GigubG9mdC5QYXltZW50TGlzdFBheWVyU3RhdGVtZW50c1Jlc3BvbnNlIgbqzRYCCgASagoRR2V0UGF5ZXJTdGF0ZW1lbnQSJS5sb2Z0LlBheW1lbnRHZXRQYXllclN0YXRlbWVudFJlcXVlc3QaJi5sb2Z0LlBheW1lbnRHZXRQYXllclN0YXRlbWVudFJlc3BvbnNlIgbqzRYCCgASRwoIR2V0UGF5ZXISHC5sb2Z0LlBheW1lbnRHZXRQYXllclJlcXVlc3QaHS5sb2Z0LlBheW1lbnRHZXRQYXllclJlc3BvbnNlEkcKCEdldFVzYWdlEhwubG9mdC5QYXltZW50R2V0VXNhZ2VSZXF1ZXN0Gh0ubG9mdC5QYXltZW50R2V0VXNhZ2VSZXNwb25zZRJZCg5MaXN0U3RhdGVtZW50cxIiLmxvZnQuUGF5bWVudExpc3RTdGF0ZW1lbnRzUmVxdWVzdBojLmxvZnQuUGF5bWVudExpc3RTdGF0ZW1lbnRzUmVzcG9uc2USPgoFT2ZmZXISGS5sb2Z0LlBheW1lbnRPZmZlclJlcXVlc3QaGi5sb2Z0LlBheW1lbnRPZmZlclJlc3BvbnNlQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_payday]);
-
-/**
- * @generated from message loft.PaymentListBillingAccountsRequest
- */
-export type PaymentListBillingAccountsRequest = Message<"loft.PaymentListBillingAccountsRequest"> & {
-};
-
-/**
- * Describes the message loft.PaymentListBillingAccountsRequest.
- * Use `create(PaymentListBillingAccountsRequestSchema)` to create a new message.
- */
-export const PaymentListBillingAccountsRequestSchema: GenMessage<PaymentListBillingAccountsRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 0);
-
-/**
- * @generated from message loft.PaymentListBillingAccountsResponse
- */
-export type PaymentListBillingAccountsResponse = Message<"loft.PaymentListBillingAccountsResponse"> & {
-  /**
-   * @generated from field: repeated loft.BillingAccount billing_accounts = 1;
-   */
-  billingAccounts: BillingAccount[];
-};
-
-/**
- * Describes the message loft.PaymentListBillingAccountsResponse.
- * Use `create(PaymentListBillingAccountsResponseSchema)` to create a new message.
- */
-export const PaymentListBillingAccountsResponseSchema: GenMessage<PaymentListBillingAccountsResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 1);
-
-/**
- * @generated from message loft.PaymentCreateBillingAccountRequest
- */
-export type PaymentCreateBillingAccountRequest = Message<"loft.PaymentCreateBillingAccountRequest"> & {
-  /**
-   * What the account calls it.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-
-  /**
-   * ISO 3166-1 alpha-2: KR.
-   *
-   * @generated from field: string country = 2;
-   */
-  country: string;
-
-  /**
-   * @generated from field: loft.BillingRecipient recipient = 3;
-   */
-  recipient?: BillingRecipient | undefined;
-
-  /**
-   * @generated from field: loft.BillingBusiness business = 4;
-   */
-  business?: BillingBusiness | undefined;
-};
-
-/**
- * Describes the message loft.PaymentCreateBillingAccountRequest.
- * Use `create(PaymentCreateBillingAccountRequestSchema)` to create a new message.
- */
-export const PaymentCreateBillingAccountRequestSchema: GenMessage<PaymentCreateBillingAccountRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 2);
-
-/**
- * @generated from message loft.PaymentCreateBillingAccountResponse
- */
-export type PaymentCreateBillingAccountResponse = Message<"loft.PaymentCreateBillingAccountResponse"> & {
-  /**
-   * @generated from field: loft.BillingAccount billing_account = 1;
-   */
-  billingAccount?: BillingAccount | undefined;
-};
-
-/**
- * Describes the message loft.PaymentCreateBillingAccountResponse.
- * Use `create(PaymentCreateBillingAccountResponseSchema)` to create a new message.
- */
-export const PaymentCreateBillingAccountResponseSchema: GenMessage<PaymentCreateBillingAccountResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 3);
-
-/**
- * @generated from message loft.PaymentUpdateBillingAccountRequest
- */
-export type PaymentUpdateBillingAccountRequest = Message<"loft.PaymentUpdateBillingAccountRequest"> & {
-  /**
-   * The billing account, by its identifier.
-   *
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string name = 2 [features.field_presence = EXPLICIT];
-   */
-  name: string;
-
-  /**
-   * @generated from field: loft.BillingRecipient recipient = 3;
-   */
-  recipient?: BillingRecipient | undefined;
-
-  /**
-   * @generated from field: loft.BillingBusiness business = 4;
-   */
-  business?: BillingBusiness | undefined;
-
-  /**
-   * Clears what is said of a business: the account is billed as a person.
-   *
-   * @generated from field: bool clear_business = 5;
-   */
-  clearBusiness: boolean;
-};
-
-/**
- * Describes the message loft.PaymentUpdateBillingAccountRequest.
- * Use `create(PaymentUpdateBillingAccountRequestSchema)` to create a new message.
- */
-export const PaymentUpdateBillingAccountRequestSchema: GenMessage<PaymentUpdateBillingAccountRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 4);
-
-/**
- * @generated from message loft.PaymentUpdateBillingAccountResponse
- */
-export type PaymentUpdateBillingAccountResponse = Message<"loft.PaymentUpdateBillingAccountResponse"> & {
-  /**
-   * @generated from field: loft.BillingAccount billing_account = 1;
-   */
-  billingAccount?: BillingAccount | undefined;
-};
-
-/**
- * Describes the message loft.PaymentUpdateBillingAccountResponse.
- * Use `create(PaymentUpdateBillingAccountResponseSchema)` to create a new message.
- */
-export const PaymentUpdateBillingAccountResponseSchema: GenMessage<PaymentUpdateBillingAccountResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 5);
-
-/**
- * @generated from message loft.PaymentGetBillingAccountRequest
- */
-export type PaymentGetBillingAccountRequest = Message<"loft.PaymentGetBillingAccountRequest"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message loft.PaymentGetBillingAccountRequest.
- * Use `create(PaymentGetBillingAccountRequestSchema)` to create a new message.
- */
-export const PaymentGetBillingAccountRequestSchema: GenMessage<PaymentGetBillingAccountRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 6);
-
-/**
- * @generated from message loft.PaymentGetBillingAccountResponse
- */
-export type PaymentGetBillingAccountResponse = Message<"loft.PaymentGetBillingAccountResponse"> & {
-  /**
-   * @generated from field: loft.BillingAccount billing_account = 1;
-   */
-  billingAccount?: BillingAccount | undefined;
-
-  /**
-   * Whether what it is billed can be collected now.
-   *
-   * @generated from field: loft.BillingCollection collection = 2;
-   */
-  collection?: BillingCollection | undefined;
-
-  /**
-   * Its live subscription, or the last it had; unset for none.
-   *
-   * @generated from field: loft.BillingSubscription subscription = 3;
-   */
-  subscription?: BillingSubscription | undefined;
-
-  /**
-   * Its invoices whose charge failed and that are still owed, with what is
-   * done of each: the one that restricts soonest first.
-   *
-   * @generated from field: repeated loft.BillingDunning dunning = 4;
-   */
-  dunning: BillingDunning[];
-
-  /**
-   * The credit levyan's operator granted that its next invoices may be paid
-   * with, neither spent nor expired: its own, and that of the workspaces it
-   * pays for now or will from the end of the period, the soonest to expire
-   * first.
-   *
-   * @generated from field: repeated loft.BillingCredit credits = 5;
-   */
-  credits: BillingCredit[];
-
-  /**
-   * What it is owed beside them -- of an invoice that came to less than
-   * nothing, a credit note, a payment of more than was due -- in its
-   * currency's minor unit: never expires, and is spent after them.
-   *
-   * @generated from field: int64 balance = 6;
-   */
-  balance: bigint;
-};
-
-/**
- * Describes the message loft.PaymentGetBillingAccountResponse.
- * Use `create(PaymentGetBillingAccountResponseSchema)` to create a new message.
- */
-export const PaymentGetBillingAccountResponseSchema: GenMessage<PaymentGetBillingAccountResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 7);
-
-/**
- * @generated from message loft.PaymentStartCheckoutRequest
- */
-export type PaymentStartCheckoutRequest = Message<"loft.PaymentStartCheckoutRequest"> & {
-  /**
-   * The billing account it subscribes, by its identifier.
-   *
-   * @generated from field: string billing_account = 1;
-   */
-  billingAccount: string;
-
-  /**
-   * Where Paddle sends the payer once they have finished: an absolute URL
-   * of this deployment's, which then calls `CompleteCheckout`.
-   *
-   * @generated from field: string success_url = 2;
-   */
-  successUrl: string;
-};
-
-/**
- * Describes the message loft.PaymentStartCheckoutRequest.
- * Use `create(PaymentStartCheckoutRequestSchema)` to create a new message.
- */
-export const PaymentStartCheckoutRequestSchema: GenMessage<PaymentStartCheckoutRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 8);
-
-/**
- * @generated from message loft.PaymentStartCheckoutResponse
- */
-export type PaymentStartCheckoutResponse = Message<"loft.PaymentStartCheckoutResponse"> & {
-  /**
-   * The checkout, open, with what a page opens it with.
-   *
-   * @generated from field: loft.BillingCheckout checkout = 1;
-   */
-  checkout?: BillingCheckout | undefined;
-};
-
-/**
- * Describes the message loft.PaymentStartCheckoutResponse.
- * Use `create(PaymentStartCheckoutResponseSchema)` to create a new message.
- */
-export const PaymentStartCheckoutResponseSchema: GenMessage<PaymentStartCheckoutResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 9);
-
-/**
- * @generated from message loft.PaymentCompleteCheckoutRequest
- */
-export type PaymentCompleteCheckoutRequest = Message<"loft.PaymentCompleteCheckoutRequest"> & {
-  /**
-   * The checkout, by levyan's identifier of it, never the merchant's.
-   *
-   * @generated from field: string checkout = 1;
-   */
-  checkout: string;
-};
-
-/**
- * Describes the message loft.PaymentCompleteCheckoutRequest.
- * Use `create(PaymentCompleteCheckoutRequestSchema)` to create a new message.
- */
-export const PaymentCompleteCheckoutRequestSchema: GenMessage<PaymentCompleteCheckoutRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 10);
-
-/**
- * @generated from message loft.PaymentCompleteCheckoutResponse
- */
-export type PaymentCompleteCheckoutResponse = Message<"loft.PaymentCompleteCheckoutResponse"> & {
-  /**
-   * @generated from field: loft.BillingCheckout checkout = 1;
-   */
-  checkout?: BillingCheckout | undefined;
-
-  /**
-   * @generated from field: loft.BillingSubscription subscription = 2;
-   */
-  subscription?: BillingSubscription | undefined;
-
-  /**
-   * @generated from field: loft.BillingCollection collection = 3;
-   */
-  collection?: BillingCollection | undefined;
-};
-
-/**
- * Describes the message loft.PaymentCompleteCheckoutResponse.
- * Use `create(PaymentCompleteCheckoutResponseSchema)` to create a new message.
- */
-export const PaymentCompleteCheckoutResponseSchema: GenMessage<PaymentCompleteCheckoutResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 11);
-
-/**
- * @generated from message loft.PaymentListOffersRequest
- */
-export type PaymentListOffersRequest = Message<"loft.PaymentListOffersRequest"> & {
-};
-
-/**
- * Describes the message loft.PaymentListOffersRequest.
- * Use `create(PaymentListOffersRequestSchema)` to create a new message.
- */
-export const PaymentListOffersRequestSchema: GenMessage<PaymentListOffersRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 12);
-
-/**
- * @generated from message loft.PaymentListOffersResponse
- */
-export type PaymentListOffersResponse = Message<"loft.PaymentListOffersResponse"> & {
-  /**
-   * @generated from field: repeated loft.BillingOffer offers = 1;
-   */
-  offers: BillingOffer[];
-};
-
-/**
- * Describes the message loft.PaymentListOffersResponse.
- * Use `create(PaymentListOffersResponseSchema)` to create a new message.
- */
-export const PaymentListOffersResponseSchema: GenMessage<PaymentListOffersResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 13);
-
-/**
- * @generated from message loft.PaymentAcceptRequest
- */
-export type PaymentAcceptRequest = Message<"loft.PaymentAcceptRequest"> & {
-  /**
-   * The offer, by its identifier.
-   *
-   * @generated from field: string offer = 1;
-   */
-  offer: string;
-
-  /**
-   * The billing account to pay with, by its identifier; empty is none yet.
-   *
-   * @generated from field: string billing_account = 2;
-   */
-  billingAccount: string;
-};
-
-/**
- * Describes the message loft.PaymentAcceptRequest.
- * Use `create(PaymentAcceptRequestSchema)` to create a new message.
- */
-export const PaymentAcceptRequestSchema: GenMessage<PaymentAcceptRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 14);
-
-/**
- * @generated from message loft.PaymentAcceptResponse
- */
-export type PaymentAcceptResponse = Message<"loft.PaymentAcceptResponse"> & {
-  /**
-   * @generated from field: loft.BillingLink link = 1;
-   */
-  link?: BillingLink | undefined;
-};
-
-/**
- * Describes the message loft.PaymentAcceptResponse.
- * Use `create(PaymentAcceptResponseSchema)` to create a new message.
- */
-export const PaymentAcceptResponseSchema: GenMessage<PaymentAcceptResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 15);
-
-/**
- * @generated from message loft.PaymentDeclineRequest
- */
-export type PaymentDeclineRequest = Message<"loft.PaymentDeclineRequest"> & {
-  /**
-   * @generated from field: string offer = 1;
-   */
-  offer: string;
-};
-
-/**
- * Describes the message loft.PaymentDeclineRequest.
- * Use `create(PaymentDeclineRequestSchema)` to create a new message.
- */
-export const PaymentDeclineRequestSchema: GenMessage<PaymentDeclineRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 16);
-
-/**
- * @generated from message loft.PaymentDeclineResponse
- */
-export type PaymentDeclineResponse = Message<"loft.PaymentDeclineResponse"> & {
-};
-
-/**
- * Describes the message loft.PaymentDeclineResponse.
- * Use `create(PaymentDeclineResponseSchema)` to create a new message.
- */
-export const PaymentDeclineResponseSchema: GenMessage<PaymentDeclineResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 17);
-
-/**
- * @generated from message loft.PaymentListLinksRequest
- */
-export type PaymentListLinksRequest = Message<"loft.PaymentListLinksRequest"> & {
-};
-
-/**
- * Describes the message loft.PaymentListLinksRequest.
- * Use `create(PaymentListLinksRequestSchema)` to create a new message.
- */
-export const PaymentListLinksRequestSchema: GenMessage<PaymentListLinksRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 18);
-
-/**
- * @generated from message loft.PaymentListLinksResponse
- */
-export type PaymentListLinksResponse = Message<"loft.PaymentListLinksResponse"> & {
-  /**
-   * @generated from field: repeated loft.BillingLink links = 1;
-   */
-  links: BillingLink[];
-};
-
-/**
- * Describes the message loft.PaymentListLinksResponse.
- * Use `create(PaymentListLinksResponseSchema)` to create a new message.
- */
-export const PaymentListLinksResponseSchema: GenMessage<PaymentListLinksResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 19);
-
-/**
- * @generated from message loft.PaymentUseRequest
- */
-export type PaymentUseRequest = Message<"loft.PaymentUseRequest"> & {
-  /**
-   * The workspace, by its identifier's canonical text.
-   *
-   * @generated from field: string workspace = 1;
-   */
-  workspace: string;
-
-  /**
-   * The billing account to pay with from the end of the period.
-   *
-   * @generated from field: string billing_account = 2;
-   */
-  billingAccount: string;
-};
-
-/**
- * Describes the message loft.PaymentUseRequest.
- * Use `create(PaymentUseRequestSchema)` to create a new message.
- */
-export const PaymentUseRequestSchema: GenMessage<PaymentUseRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 20);
-
-/**
- * @generated from message loft.PaymentUseResponse
- */
-export type PaymentUseResponse = Message<"loft.PaymentUseResponse"> & {
-  /**
-   * @generated from field: loft.BillingLink link = 1;
-   */
-  link?: BillingLink | undefined;
-};
-
-/**
- * Describes the message loft.PaymentUseResponse.
- * Use `create(PaymentUseResponseSchema)` to create a new message.
- */
-export const PaymentUseResponseSchema: GenMessage<PaymentUseResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 21);
-
-/**
- * @generated from message loft.PaymentStopRequest
- */
-export type PaymentStopRequest = Message<"loft.PaymentStopRequest"> & {
-  /**
-   * @generated from field: string workspace = 1;
-   */
-  workspace: string;
-};
-
-/**
- * Describes the message loft.PaymentStopRequest.
- * Use `create(PaymentStopRequestSchema)` to create a new message.
- */
-export const PaymentStopRequestSchema: GenMessage<PaymentStopRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 22);
-
-/**
- * @generated from message loft.PaymentStopResponse
- */
-export type PaymentStopResponse = Message<"loft.PaymentStopResponse"> & {
-  /**
-   * The link that ends, and when.
-   *
-   * @generated from field: loft.BillingLink link = 1;
-   */
-  link?: BillingLink | undefined;
-};
-
-/**
- * Describes the message loft.PaymentStopResponse.
- * Use `create(PaymentStopResponseSchema)` to create a new message.
- */
-export const PaymentStopResponseSchema: GenMessage<PaymentStopResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 23);
-
-/**
- * @generated from message loft.PaymentListInvoicesRequest
- */
-export type PaymentListInvoicesRequest = Message<"loft.PaymentListInvoicesRequest"> & {
-  /**
-   * Of one billing account; empty is of every one.
-   *
-   * @generated from field: string billing_account = 1;
-   */
-  billingAccount: string;
-
-  /**
-   * How many: 20 when unset, and at most 100.
-   *
-   * @generated from field: int32 page_size = 2;
-   */
-  pageSize: number;
-
-  /**
-   * @generated from field: string page_token = 3;
-   */
-  pageToken: string;
-};
-
-/**
- * Describes the message loft.PaymentListInvoicesRequest.
- * Use `create(PaymentListInvoicesRequestSchema)` to create a new message.
- */
-export const PaymentListInvoicesRequestSchema: GenMessage<PaymentListInvoicesRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 24);
-
-/**
- * @generated from message loft.PaymentListInvoicesResponse
- */
-export type PaymentListInvoicesResponse = Message<"loft.PaymentListInvoicesResponse"> & {
-  /**
-   * The latest first, without their lines.
-   *
-   * @generated from field: repeated loft.BillingInvoice invoices = 1;
-   */
-  invoices: BillingInvoice[];
-
-  /**
-   * @generated from field: string next_page_token = 2;
-   */
-  nextPageToken: string;
-};
-
-/**
- * Describes the message loft.PaymentListInvoicesResponse.
- * Use `create(PaymentListInvoicesResponseSchema)` to create a new message.
- */
-export const PaymentListInvoicesResponseSchema: GenMessage<PaymentListInvoicesResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 25);
-
-/**
- * @generated from message loft.PaymentGetInvoiceRequest
- */
-export type PaymentGetInvoiceRequest = Message<"loft.PaymentGetInvoiceRequest"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message loft.PaymentGetInvoiceRequest.
- * Use `create(PaymentGetInvoiceRequestSchema)` to create a new message.
- */
-export const PaymentGetInvoiceRequestSchema: GenMessage<PaymentGetInvoiceRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 26);
-
-/**
- * @generated from message loft.PaymentGetInvoiceResponse
- */
-export type PaymentGetInvoiceResponse = Message<"loft.PaymentGetInvoiceResponse"> & {
-  /**
-   * @generated from field: loft.BillingInvoice invoice = 1;
-   */
-  invoice?: BillingInvoice | undefined;
-
-  /**
-   * Its credit notes, the earliest first.
-   *
-   * @generated from field: repeated loft.BillingCreditNote credit_notes = 2;
-   */
-  creditNotes: BillingCreditNote[];
-
-  /**
-   * What is done of it since its charge failed; unset while it is in none.
-   *
-   * @generated from field: loft.BillingDunning dunning = 3;
-   */
-  dunning?: BillingDunning | undefined;
-};
-
-/**
- * Describes the message loft.PaymentGetInvoiceResponse.
- * Use `create(PaymentGetInvoiceResponseSchema)` to create a new message.
- */
-export const PaymentGetInvoiceResponseSchema: GenMessage<PaymentGetInvoiceResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 27);
-
-/**
- * @generated from message loft.PaymentListCreditNotesRequest
- */
-export type PaymentListCreditNotesRequest = Message<"loft.PaymentListCreditNotesRequest"> & {
-  /**
-   * @generated from field: string billing_account = 1;
-   */
-  billingAccount: string;
-
-  /**
-   * @generated from field: string invoice = 2;
-   */
-  invoice: string;
-};
-
-/**
- * Describes the message loft.PaymentListCreditNotesRequest.
- * Use `create(PaymentListCreditNotesRequestSchema)` to create a new message.
- */
-export const PaymentListCreditNotesRequestSchema: GenMessage<PaymentListCreditNotesRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 28);
-
-/**
- * @generated from message loft.PaymentListCreditNotesResponse
- */
-export type PaymentListCreditNotesResponse = Message<"loft.PaymentListCreditNotesResponse"> & {
-  /**
-   * @generated from field: repeated loft.BillingCreditNote credit_notes = 1;
-   */
-  creditNotes: BillingCreditNote[];
-};
-
-/**
- * Describes the message loft.PaymentListCreditNotesResponse.
- * Use `create(PaymentListCreditNotesResponseSchema)` to create a new message.
- */
-export const PaymentListCreditNotesResponseSchema: GenMessage<PaymentListCreditNotesResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 29);
-
-/**
- * @generated from message loft.PaymentListPayerStatementsRequest
- */
-export type PaymentListPayerStatementsRequest = Message<"loft.PaymentListPayerStatementsRequest"> & {
-  /**
-   * Of one of the account's billing accounts; empty is of every one. One
-   * that is not the account's is NotFound.
-   *
-   * @generated from field: string billing_account = 1;
-   */
-  billingAccount: string;
-
-  /**
-   * How many: 20 when unset, and at most 100.
-   *
-   * @generated from field: int32 page_size = 2;
-   */
-  pageSize: number;
-
-  /**
-   * @generated from field: string page_token = 3;
-   */
-  pageToken: string;
-};
-
-/**
- * Describes the message loft.PaymentListPayerStatementsRequest.
- * Use `create(PaymentListPayerStatementsRequestSchema)` to create a new message.
- */
-export const PaymentListPayerStatementsRequestSchema: GenMessage<PaymentListPayerStatementsRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 30);
-
-/**
- * @generated from message loft.PaymentListPayerStatementsResponse
- */
-export type PaymentListPayerStatementsResponse = Message<"loft.PaymentListPayerStatementsResponse"> & {
-  /**
-   * The latest period first, each with its lines.
-   *
-   * @generated from field: repeated loft.BillingStatement statements = 1;
-   */
-  statements: BillingStatement[];
-
-  /**
-   * @generated from field: string next_page_token = 2;
-   */
-  nextPageToken: string;
-};
-
-/**
- * Describes the message loft.PaymentListPayerStatementsResponse.
- * Use `create(PaymentListPayerStatementsResponseSchema)` to create a new message.
- */
-export const PaymentListPayerStatementsResponseSchema: GenMessage<PaymentListPayerStatementsResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 31);
-
-/**
- * @generated from message loft.PaymentGetPayerStatementRequest
- */
-export type PaymentGetPayerStatementRequest = Message<"loft.PaymentGetPayerStatementRequest"> & {
-  /**
-   * The statement, by its identifier: `BillingInvoiceLine.statement`.
-   *
-   * @generated from field: string id = 1;
-   */
-  id: string;
-};
-
-/**
- * Describes the message loft.PaymentGetPayerStatementRequest.
- * Use `create(PaymentGetPayerStatementRequestSchema)` to create a new message.
- */
-export const PaymentGetPayerStatementRequestSchema: GenMessage<PaymentGetPayerStatementRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 32);
-
-/**
- * @generated from message loft.PaymentGetPayerStatementResponse
- */
-export type PaymentGetPayerStatementResponse = Message<"loft.PaymentGetPayerStatementResponse"> & {
-  /**
-   * @generated from field: loft.BillingStatement statement = 1;
-   */
-  statement?: BillingStatement | undefined;
-};
-
-/**
- * Describes the message loft.PaymentGetPayerStatementResponse.
- * Use `create(PaymentGetPayerStatementResponseSchema)` to create a new message.
- */
-export const PaymentGetPayerStatementResponseSchema: GenMessage<PaymentGetPayerStatementResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 33);
+  fileDesc("ChJsb2Z0L3BheW1lbnQucHJvdG8SBGxvZnQiGAoWUGF5bWVudEdldFBheWVyUmVxdWVzdCI8ChdQYXltZW50R2V0UGF5ZXJSZXNwb25zZRIhCgVwYXllchgBIAEoCzISLmxvZnQuQmlsbGluZ1BheWVyIhgKFlBheW1lbnRHZXRVc2FnZVJlcXVlc3QiPAoXUGF5bWVudEdldFVzYWdlUmVzcG9uc2USIQoFdXNhZ2UYASABKAsyEi5sb2Z0LkJpbGxpbmdVc2FnZSJLChxQYXltZW50TGlzdFN0YXRlbWVudHNSZXF1ZXN0EhEKCXBhZ2Vfc2l6ZRgCIAEoBRISCgpwYWdlX3Rva2VuGAMgASgJSgQIARACImQKHVBheW1lbnRMaXN0U3RhdGVtZW50c1Jlc3BvbnNlEioKCnN0YXRlbWVudHMYASADKAsyFi5sb2Z0LkJpbGxpbmdTdGF0ZW1lbnQSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJIiUKE1BheW1lbnRPZmZlclJlcXVlc3QSDgoGaG9sZGVyGAEgASgMIjkKFFBheW1lbnRPZmZlclJlc3BvbnNlEiEKBW9mZmVyGAEgASgLMhIubG9mdC5CaWxsaW5nT2ZmZXIinwEKEUJpbGxpbmdDb2xsZWN0aW9uEisKBXN0YXRlGAEgASgOMhwubG9mdC5CaWxsaW5nQ29sbGVjdGlvblN0YXRlEi4KCmRhdGVfc2luY2UYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi0KCWRhdGVfZW5kcxgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAicAoMQmlsbGluZ09mZmVyEgoKAmlkGAEgASgJEhEKCXdvcmtzcGFjZRgCIAEoCRIPCgdhY2NvdW50GAMgASgJEjAKDGRhdGVfb2ZmZXJlZBgEIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiggIKC0JpbGxpbmdMaW5rEgoKAmlkGAEgASgJEhEKCXdvcmtzcGFjZRgCIAEoCRIPCgdhY2NvdW50GAMgASgJEhcKD2JpbGxpbmdfYWNjb3VudBgEIAEoCRIuCgpkYXRlX3N0YXJ0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghkYXRlX2VuZBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJQoFYmVnYW4YByABKA4yFi5sb2Z0LkJpbGxpbmdMaW5rQmVnYW4SJQoFZW5kZWQYCCABKA4yFi5sb2Z0LkJpbGxpbmdMaW5rRW5kZWQi3AEKDUJpbGxpbmdDcmVkaXQSCgoCaWQYASABKAkSEQoJd29ya3NwYWNlGAIgASgJEhcKD2JpbGxpbmdfYWNjb3VudBgDIAEoCRIPCgdncmFudGVkGAQgASgDEgwKBGxlZnQYBSABKAMSEAoIY3VycmVuY3kYBiABKAkSMAoMZGF0ZV9leHBpcmVzGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX2NyZWF0ZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wInsKDUJpbGxpbmdQZXJpb2QSLgoKZGF0ZV9zdGFydBgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9lbmQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEgwKBHpvbmUYAyABKAkinwMKDEJpbGxpbmdQYXllchIRCgl3b3Jrc3BhY2UYASABKAkSIgoHY3VycmVudBgCIAEoCzIRLmxvZnQuQmlsbGluZ0xpbmsSHwoEbmV4dBgDIAEoCzIRLmxvZnQuQmlsbGluZ0xpbmsSIQoFb2ZmZXIYBCABKAsyEi5sb2Z0LkJpbGxpbmdPZmZlchIyCg5kYXRlX3BheWVybGVzcxgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPZGF0ZV9yZXN0cmljdGVkGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIrCgpjb2xsZWN0aW9uGAcgASgLMhcubG9mdC5CaWxsaW5nQ29sbGVjdGlvbhIlCgdkdW5uaW5nGAggAygLMhQubG9mdC5CaWxsaW5nRHVubmluZxIxCg1kYXRlX3JlYWRvbmx5GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIkCgdjcmVkaXRzGAogAygLMhMubG9mdC5CaWxsaW5nQ3JlZGl0IuUCCg5CaWxsaW5nRHVubmluZxIPCgdpbnZvaWNlGAEgASgJEhcKD2JpbGxpbmdfYWNjb3VudBgCIAEoCRImCgRraW5kGAMgASgOMhgubG9mdC5CaWxsaW5nRGVjbGluZUtpbmQSLwoLZGF0ZV9mYWlsZWQYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjMKD2RhdGVfbmV4dF9yZXRyeRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMwoPZGF0ZV9ncmFjZV9lbmRzGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIzCg9kYXRlX3Jlc3RyaWN0ZWQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjEKDWRhdGVfcmVhZG9ubHkYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIq4CCgxCaWxsaW5nVXNhZ2USEQoJd29ya3NwYWNlGAEgASgJEiMKBnBlcmlvZBgCIAEoCzITLmxvZnQuQmlsbGluZ1BlcmlvZBIuCgpkYXRlX2FzX29mGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIlCgdjaGFubmVsGAQgASgOMhQubG9mdC5CaWxsaW5nQ2hhbm5lbBIQCghjdXJyZW5jeRgFIAEoCRIgCgVsaW5lcxgGIAMoCzIRLmxvZnQuQmlsbGluZ0xpbmUSDQoFdG90YWwYByABKAMSKgoKYWxsb3dhbmNlcxgIIAMoCzIWLmxvZnQuQmlsbGluZ0FsbG93YW5jZRIgCgVwb29scxgJIAMoCzIRLmxvZnQuQmlsbGluZ1Bvb2wipQEKEEJpbGxpbmdBbGxvd2FuY2USCgoCaWQYASABKAkSDQoFbWV0ZXIYAiABKAkSEAoIcXVhbnRpdHkYAyABKAMSMgoOZGF0ZV9lZmZlY3RpdmUYBCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfZXhwaXJlcxgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAirQEKC0JpbGxpbmdQb29sEgoKAmlkGAEgASgJEg0KBW1ldGVyGAIgASgJEg8KB2dyYW50ZWQYAyABKAMSDAoEbGVmdBgEIAEoCRIyCg5kYXRlX2VmZmVjdGl2ZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGF0ZV9leHBpcmVzGAYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCLxAQoQQmlsbGluZ1N0YXRlbWVudBIKCgJpZBgBIAEoCRIRCgl3b3Jrc3BhY2UYAiABKAkSIwoGcGVyaW9kGAMgASgLMhMubG9mdC5CaWxsaW5nUGVyaW9kEiUKB2NoYW5uZWwYBCABKA4yFC5sb2Z0LkJpbGxpbmdDaGFubmVsEhAKCGN1cnJlbmN5GAUgASgJEiAKBWxpbmVzGAYgAygLMhEubG9mdC5CaWxsaW5nTGluZRINCgV0b3RhbBgHIAEoAxIvCgtkYXRlX2Nsb3NlZBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAingIKC0JpbGxpbmdMaW5lEg0KBW1ldGVyGAEgASgJEgwKBHVuaXQYAiABKAkSIwoEa2luZBgDIAEoDjIVLmxvZnQuQmlsbGluZ0xpbmVLaW5kEiUKCGNvcnJlY3RzGAQgASgLMhMubG9mdC5CaWxsaW5nUGVyaW9kEg0KBXVzYWdlGAUgASgJEhAKCGluY2x1ZGVkGAYgASgJEhAKCGJpbGxhYmxlGAcgASgJEg4KBmFtb3VudBgIIAEoCRIOCgZiaWxsZWQYCiABKAkSEQoJYWxsb3dhbmNlGAwgASgJEg4KBnBvb2xlZBgNIAEoCRIkCgVwb29scxgOIAMoCzIVLmxvZnQuQmlsbGluZ0xpbmVQb29sSgQICRAKSgQICxAMIi4KD0JpbGxpbmdMaW5lUG9vbBIMCgRwb29sGAEgASgJEg0KBXRha2VuGAIgASgJKoIBCg5CaWxsaW5nQ2hhbm5lbBIfChtCSUxMSU5HX0NIQU5ORUxfVU5TUEVDSUZJRUQQABIXChNCSUxMSU5HX0NIQU5ORUxfTU9SEAESGQoVQklMTElOR19DSEFOTkVMX1BHX0tSEAISGwoXQklMTElOR19DSEFOTkVMX0JBTktfS1IQAyq4AgoWQmlsbGluZ0NvbGxlY3Rpb25TdGF0ZRIoCiRCSUxMSU5HX0NPTExFQ1RJT05fU1RBVEVfVU5TUEVDSUZJRUQQABIoCiRCSUxMSU5HX0NPTExFQ1RJT05fU1RBVEVfQ09MTEVDVEFCTEUQARIsCihCSUxMSU5HX0NPTExFQ1RJT05fU1RBVEVfTk9fU1VCU0NSSVBUSU9OEAISJQohQklMTElOR19DT0xMRUNUSU9OX1NUQVRFX1BBU1RfRFVFEAMSIwofQklMTElOR19DT0xMRUNUSU9OX1NUQVRFX1BBVVNFRBAEEiUKIUJJTExJTkdfQ09MTEVDVElPTl9TVEFURV9DQU5DRUxFRBAFEikKJUJJTExJTkdfQ09MTEVDVElPTl9TVEFURV9ORUVEU19BQ1RJT04QBiq0AQoQQmlsbGluZ0xpbmtCZWdhbhIiCh5CSUxMSU5HX0xJTktfQkVHQU5fVU5TUEVDSUZJRUQQABIeChpCSUxMSU5HX0xJTktfQkVHQU5fQVJSSVZFRBABEh8KG0JJTExJTkdfTElOS19CRUdBTl9BQ0NFUFRFRBACEhsKF0JJTExJTkdfTElOS19CRUdBTl9VU0VEEAMSHgoaQklMTElOR19MSU5LX0JFR0FOX1JFU1VNRUQQBCr3AQoQQmlsbGluZ0xpbmtFbmRlZBIiCh5CSUxMSU5HX0xJTktfRU5ERURfVU5TUEVDSUZJRUQQABIfChtCSUxMSU5HX0xJTktfRU5ERURfUkVQTEFDRUQQARIeChpCSUxMSU5HX0xJTktfRU5ERURfU1RPUFBFRBACEhsKF0JJTExJTkdfTElOS19FTkRFRF9MRUZUEAMSIAocQklMTElOR19MSU5LX0VOREVEX1NVU1BFTkRFRBAEEh0KGUJJTExJTkdfTElOS19FTkRFRF9FUkFTRUQQBRIgChxCSUxMSU5HX0xJTktfRU5ERURfREVTVFJPWUVEEAYqoAEKEkJpbGxpbmdEZWNsaW5lS2luZBIkCiBCSUxMSU5HX0RFQ0xJTkVfS0lORF9VTlNQRUNJRklFRBAAEiIKHkJJTExJTkdfREVDTElORV9LSU5EX1RFTVBPUkFSWRABEiAKHEJJTExJTkdfREVDTElORV9LSU5EX1JFUExBQ0UQAhIeChpCSUxMSU5HX0RFQ0xJTkVfS0lORF9GUkFVRBADKnMKD0JpbGxpbmdMaW5lS2luZBIhCh1CSUxMSU5HX0xJTkVfS0lORF9VTlNQRUNJRklFRBAAEhsKF0JJTExJTkdfTElORV9LSU5EX1VTQUdFEAESIAocQklMTElOR19MSU5FX0tJTkRfQ09SUkVDVElPThACMr0CCg5QYXltZW50U2VydmljZRJHCghHZXRQYXllchIcLmxvZnQuUGF5bWVudEdldFBheWVyUmVxdWVzdBodLmxvZnQuUGF5bWVudEdldFBheWVyUmVzcG9uc2USRwoIR2V0VXNhZ2USHC5sb2Z0LlBheW1lbnRHZXRVc2FnZVJlcXVlc3QaHS5sb2Z0LlBheW1lbnRHZXRVc2FnZVJlc3BvbnNlElkKDkxpc3RTdGF0ZW1lbnRzEiIubG9mdC5QYXltZW50TGlzdFN0YXRlbWVudHNSZXF1ZXN0GiMubG9mdC5QYXltZW50TGlzdFN0YXRlbWVudHNSZXNwb25zZRI+CgVPZmZlchIZLmxvZnQuUGF5bWVudE9mZmVyUmVxdWVzdBoaLmxvZnQuUGF5bWVudE9mZmVyUmVzcG9uc2VCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp]);
 
 /**
  * @generated from message loft.PaymentGetPayerRequest
@@ -781,7 +26,7 @@ export type PaymentGetPayerRequest = Message<"loft.PaymentGetPayerRequest"> & {
  * Use `create(PaymentGetPayerRequestSchema)` to create a new message.
  */
 export const PaymentGetPayerRequestSchema: GenMessage<PaymentGetPayerRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 34);
+  messageDesc(file_loft_payment, 0);
 
 /**
  * @generated from message loft.PaymentGetPayerResponse
@@ -798,7 +43,7 @@ export type PaymentGetPayerResponse = Message<"loft.PaymentGetPayerResponse"> & 
  * Use `create(PaymentGetPayerResponseSchema)` to create a new message.
  */
 export const PaymentGetPayerResponseSchema: GenMessage<PaymentGetPayerResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 35);
+  messageDesc(file_loft_payment, 1);
 
 /**
  * @generated from message loft.PaymentGetUsageRequest
@@ -811,7 +56,7 @@ export type PaymentGetUsageRequest = Message<"loft.PaymentGetUsageRequest"> & {
  * Use `create(PaymentGetUsageRequestSchema)` to create a new message.
  */
 export const PaymentGetUsageRequestSchema: GenMessage<PaymentGetUsageRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 36);
+  messageDesc(file_loft_payment, 2);
 
 /**
  * @generated from message loft.PaymentGetUsageResponse
@@ -828,7 +73,7 @@ export type PaymentGetUsageResponse = Message<"loft.PaymentGetUsageResponse"> & 
  * Use `create(PaymentGetUsageResponseSchema)` to create a new message.
  */
 export const PaymentGetUsageResponseSchema: GenMessage<PaymentGetUsageResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 37);
+  messageDesc(file_loft_payment, 3);
 
 /**
  * @generated from message loft.PaymentListStatementsRequest
@@ -852,7 +97,7 @@ export type PaymentListStatementsRequest = Message<"loft.PaymentListStatementsRe
  * Use `create(PaymentListStatementsRequestSchema)` to create a new message.
  */
 export const PaymentListStatementsRequestSchema: GenMessage<PaymentListStatementsRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 38);
+  messageDesc(file_loft_payment, 4);
 
 /**
  * @generated from message loft.PaymentListStatementsResponse
@@ -874,7 +119,7 @@ export type PaymentListStatementsResponse = Message<"loft.PaymentListStatementsR
  * Use `create(PaymentListStatementsResponseSchema)` to create a new message.
  */
 export const PaymentListStatementsResponseSchema: GenMessage<PaymentListStatementsResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 39);
+  messageDesc(file_loft_payment, 5);
 
 /**
  * @generated from message loft.PaymentOfferRequest
@@ -894,7 +139,7 @@ export type PaymentOfferRequest = Message<"loft.PaymentOfferRequest"> & {
  * Use `create(PaymentOfferRequestSchema)` to create a new message.
  */
 export const PaymentOfferRequestSchema: GenMessage<PaymentOfferRequest> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 40);
+  messageDesc(file_loft_payment, 6);
 
 /**
  * @generated from message loft.PaymentOfferResponse
@@ -911,142 +156,7 @@ export type PaymentOfferResponse = Message<"loft.PaymentOfferResponse"> & {
  * Use `create(PaymentOfferResponseSchema)` to create a new message.
  */
 export const PaymentOfferResponseSchema: GenMessage<PaymentOfferResponse> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 41);
-
-/**
- * BillingAccount is what an account pays with: levyan's.
- *
- * @generated from message loft.BillingAccount
- */
-export type BillingAccount = Message<"loft.BillingAccount"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * The country it is billed in, and what the deployment sold that country
-   * through when it was made.
-   *
-   * @generated from field: string country = 3;
-   */
-  country: string;
-
-  /**
-   * @generated from field: loft.BillingChannel channel = 4;
-   */
-  channel: BillingChannel;
-
-  /**
-   * @generated from field: string currency = 5;
-   */
-  currency: string;
-
-  /**
-   * @generated from field: loft.BillingRecipient recipient = 6;
-   */
-  recipient?: BillingRecipient | undefined;
-
-  /**
-   * @generated from field: loft.BillingBusiness business = 7;
-   */
-  business?: BillingBusiness | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 8;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message loft.BillingAccount.
- * Use `create(BillingAccountSchema)` to create a new message.
- */
-export const BillingAccountSchema: GenMessage<BillingAccount> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 42);
-
-/**
- * BillingRecipient is who receives what a billing account is billed.
- *
- * @generated from message loft.BillingRecipient
- */
-export type BillingRecipient = Message<"loft.BillingRecipient"> & {
-  /**
-   * @generated from field: string name = 1;
-   */
-  name: string;
-
-  /**
-   * @generated from field: string email = 2;
-   */
-  email: string;
-
-  /**
-   * @generated from field: string address = 3;
-   */
-  address: string;
-};
-
-/**
- * Describes the message loft.BillingRecipient.
- * Use `create(BillingRecipientSchema)` to create a new message.
- */
-export const BillingRecipientSchema: GenMessage<BillingRecipient> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 43);
-
-/**
- * BillingBusiness is the business a billing account is billed to.
- *
- * @generated from message loft.BillingBusiness
- */
-export type BillingBusiness = Message<"loft.BillingBusiness"> & {
-  /**
-   * @generated from field: string registration = 1;
-   */
-  registration: string;
-
-  /**
-   * @generated from field: string name = 2;
-   */
-  name: string;
-
-  /**
-   * @generated from field: string representative = 3;
-   */
-  representative: string;
-
-  /**
-   * @generated from field: string address = 4;
-   */
-  address: string;
-
-  /**
-   * @generated from field: string kind = 5;
-   */
-  kind: string;
-
-  /**
-   * @generated from field: string item = 6;
-   */
-  item: string;
-
-  /**
-   * @generated from field: string email = 7;
-   */
-  email: string;
-};
-
-/**
- * Describes the message loft.BillingBusiness.
- * Use `create(BillingBusinessSchema)` to create a new message.
- */
-export const BillingBusinessSchema: GenMessage<BillingBusiness> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 44);
+  messageDesc(file_loft_payment, 7);
 
 /**
  * BillingCollection is whether what a billing account is billed can be
@@ -1081,231 +191,7 @@ export type BillingCollection = Message<"loft.BillingCollection"> & {
  * Use `create(BillingCollectionSchema)` to create a new message.
  */
 export const BillingCollectionSchema: GenMessage<BillingCollection> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 45);
-
-/**
- * BillingSubscription is a subscription the merchant of record runs for a
- * billing account, as levyan mirrors it.
- *
- * @generated from message loft.BillingSubscription
- */
-export type BillingSubscription = Message<"loft.BillingSubscription"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string merchant = 2;
-   */
-  merchant: string;
-
-  /**
-   * @generated from field: loft.BillingSubscriptionStatus status = 3;
-   */
-  status: BillingSubscriptionStatus;
-
-  /**
-   * @generated from field: string currency = 4;
-   */
-  currency: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_period_start = 5;
-   */
-  datePeriodStart?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_period_end = 6;
-   */
-  datePeriodEnd?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_next_billed = 7;
-   */
-  dateNextBilled?: Timestamp | undefined;
-
-  /**
-   * What the merchant will do to it, and when.
-   *
-   * @generated from field: loft.BillingSubscriptionChange change = 8;
-   */
-  change: BillingSubscriptionChange;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_change = 9;
-   */
-  dateChange?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_canceled = 10;
-   */
-  dateCanceled?: Timestamp | undefined;
-
-  /**
-   * How the payer pays: the kind, the brand and the last four digits, and
-   * never more of a card.
-   *
-   * @generated from field: loft.BillingPaymentMethod method = 11;
-   */
-  method?: BillingPaymentMethod | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_updated = 12;
-   */
-  dateUpdated?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_checked = 13;
-   */
-  dateChecked?: Timestamp | undefined;
-};
-
-/**
- * Describes the message loft.BillingSubscription.
- * Use `create(BillingSubscriptionSchema)` to create a new message.
- */
-export const BillingSubscriptionSchema: GenMessage<BillingSubscription> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 46);
-
-/**
- * BillingPaymentMethod is how a payer pays, and never more of a card than
- * this.
- *
- * @generated from message loft.BillingPaymentMethod
- */
-export type BillingPaymentMethod = Message<"loft.BillingPaymentMethod"> & {
-  /**
-   * Paddle's name of the kind: card, south_korea_local_card, kakao_pay, ….
-   *
-   * @generated from field: string type = 1;
-   */
-  type: string;
-
-  /**
-   * A card's brand or its company; empty for what is no card.
-   *
-   * @generated from field: string brand = 2;
-   */
-  brand: string;
-
-  /**
-   * @generated from field: string last4 = 3;
-   */
-  last4: string;
-};
-
-/**
- * Describes the message loft.BillingPaymentMethod.
- * Use `create(BillingPaymentMethodSchema)` to create a new message.
- */
-export const BillingPaymentMethodSchema: GenMessage<BillingPaymentMethod> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 47);
-
-/**
- * BillingCheckout is a checkout begun with the merchant of record.
- *
- * @generated from message loft.BillingCheckout
- */
-export type BillingCheckout = Message<"loft.BillingCheckout"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string billing_account = 2;
-   */
-  billingAccount: string;
-
-  /**
-   * @generated from field: loft.BillingCheckoutState state = 3;
-   */
-  state: BillingCheckoutState;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_started = 4;
-   */
-  dateStarted?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_done = 5;
-   */
-  dateDone?: Timestamp | undefined;
-
-  /**
-   * What a page opens it with: answered by `StartCheckout` alone.
-   *
-   * @generated from field: loft.BillingCheckoutWindow window = 6;
-   */
-  window?: BillingCheckoutWindow | undefined;
-};
-
-/**
- * Describes the message loft.BillingCheckout.
- * Use `create(BillingCheckoutSchema)` to create a new message.
- */
-export const BillingCheckoutSchema: GenMessage<BillingCheckout> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 48);
-
-/**
- * BillingCheckoutWindow is what a page opens the merchant's checkout with.
- *
- * @generated from message loft.BillingCheckoutWindow
- */
-export type BillingCheckoutWindow = Message<"loft.BillingCheckoutWindow"> & {
-  /**
-   * "paddle".
-   *
-   * @generated from field: string merchant = 1;
-   */
-  merchant: string;
-
-  /**
-   * "sandbox" or "production".
-   *
-   * @generated from field: string environment = 2;
-   */
-  environment: string;
-
-  /**
-   * Paddle's transaction, which its checkout opens.
-   *
-   * @generated from field: string transaction = 3;
-   */
-  transaction: string;
-
-  /**
-   * @generated from field: string client_token = 4;
-   */
-  clientToken: string;
-
-  /**
-   * @generated from field: string script = 5;
-   */
-  script: string;
-
-  /**
-   * Paddle's own page for it: the default payment link with `_ptxn`.
-   *
-   * @generated from field: string url = 6;
-   */
-  url: string;
-
-  /**
-   * The billing account's country.
-   *
-   * @generated from field: string country = 7;
-   */
-  country: string;
-};
-
-/**
- * Describes the message loft.BillingCheckoutWindow.
- * Use `create(BillingCheckoutWindowSchema)` to create a new message.
- */
-export const BillingCheckoutWindowSchema: GenMessage<BillingCheckoutWindow> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 49);
+  messageDesc(file_loft_payment, 8);
 
 /**
  * BillingOffer is a workspace's owner asking an account to pay for it.
@@ -1343,7 +229,7 @@ export type BillingOffer = Message<"loft.BillingOffer"> & {
  * Use `create(BillingOfferSchema)` to create a new message.
  */
 export const BillingOfferSchema: GenMessage<BillingOffer> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 50);
+  messageDesc(file_loft_payment, 9);
 
 /**
  * BillingLink is an account paying for a workspace, from when to when.
@@ -1399,180 +285,7 @@ export type BillingLink = Message<"loft.BillingLink"> & {
  * Use `create(BillingLinkSchema)` to create a new message.
  */
 export const BillingLinkSchema: GenMessage<BillingLink> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 51);
-
-/**
- * BillingInvoice is what a billing account is asked to pay for a period.
- * Every amount is a whole number of the currency's minor unit.
- *
- * @generated from message loft.BillingInvoice
- */
-export type BillingInvoice = Message<"loft.BillingInvoice"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string billing_account = 2;
-   */
-  billingAccount: string;
-
-  /**
-   * @generated from field: loft.BillingInvoiceState state = 3;
-   */
-  state: BillingInvoiceState;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_start = 4;
-   */
-  dateStart?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_end = 5;
-   */
-  dateEnd?: Timestamp | undefined;
-
-  /**
-   * @generated from field: loft.BillingChannel channel = 6;
-   */
-  channel: BillingChannel;
-
-  /**
-   * @generated from field: string currency = 7;
-   */
-  currency: string;
-
-  /**
-   * @generated from field: int64 subtotal = 8;
-   */
-  subtotal: bigint;
-
-  /**
-   * @generated from field: int64 tax = 9;
-   */
-  tax: bigint;
-
-  /**
-   * @generated from field: int64 total = 10;
-   */
-  total: bigint;
-
-  /**
-   * @generated from field: int64 credited = 11;
-   */
-  credited: bigint;
-
-  /**
-   * @generated from field: int64 due = 12;
-   */
-  due: bigint;
-
-  /**
-   * @generated from field: int64 paid = 13;
-   */
-  paid: bigint;
-
-  /**
-   * @generated from field: int64 reduced = 14;
-   */
-  reduced: bigint;
-
-  /**
-   * @generated from field: int64 remaining = 15;
-   */
-  remaining: bigint;
-
-  /**
-   * @generated from field: int64 number = 16;
-   */
-  number: bigint;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_finalized = 17;
-   */
-  dateFinalized?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_due = 18;
-   */
-  dateDue?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_settled = 19;
-   */
-  dateSettled?: Timestamp | undefined;
-
-  /**
-   * The merchant of record's own number, once it collected.
-   *
-   * @generated from field: string channel_number = 20;
-   */
-  channelNumber: string;
-
-  /**
-   * Its lines: in `GetInvoice`'s answer.
-   *
-   * @generated from field: repeated loft.BillingInvoiceLine lines = 21;
-   */
-  lines: BillingInvoiceLine[];
-
-  /**
-   * What paid `credited`, in `GetInvoice`'s answer: each credit that paid
-   * some of it, the soonest to expire first, and the balance last.
-   *
-   * @generated from field: repeated loft.BillingInvoiceCredit credits = 22;
-   */
-  credits: BillingInvoiceCredit[];
-};
-
-/**
- * Describes the message loft.BillingInvoice.
- * Use `create(BillingInvoiceSchema)` to create a new message.
- */
-export const BillingInvoiceSchema: GenMessage<BillingInvoice> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 52);
-
-/**
- * BillingInvoiceCredit is what of an invoice's total one credit paid, before
- * anything was asked of its channel.
- *
- * @generated from message loft.BillingInvoiceCredit
- */
-export type BillingInvoiceCredit = Message<"loft.BillingInvoiceCredit"> & {
-  /**
-   * The credit (`BillingCredit.id`); empty for the billing account's
-   * balance.
-   *
-   * @generated from field: string credit = 1;
-   */
-  credit: string;
-
-  /**
-   * @generated from field: int64 amount = 2;
-   */
-  amount: bigint;
-
-  /**
-   * The workspace whose lines alone it paid, for a workspace's; and when it
-   * expires.
-   *
-   * @generated from field: string workspace = 3;
-   */
-  workspace: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 4;
-   */
-  dateExpires?: Timestamp | undefined;
-};
-
-/**
- * Describes the message loft.BillingInvoiceCredit.
- * Use `create(BillingInvoiceCreditSchema)` to create a new message.
- */
-export const BillingInvoiceCreditSchema: GenMessage<BillingInvoiceCredit> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 53);
+  messageDesc(file_loft_payment, 10);
 
 /**
  * BillingCredit is money levyan's operator granted -- of a promotion, of a
@@ -1635,120 +348,7 @@ export type BillingCredit = Message<"loft.BillingCredit"> & {
  * Use `create(BillingCreditSchema)` to create a new message.
  */
 export const BillingCreditSchema: GenMessage<BillingCredit> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 54);
-
-/**
- * BillingInvoiceLine is one statement on an invoice.
- *
- * @generated from message loft.BillingInvoiceLine
- */
-export type BillingInvoiceLine = Message<"loft.BillingInvoiceLine"> & {
-  /**
-   * The statement, which its payer reads with `GetPayerStatement`.
-   *
-   * @generated from field: string statement = 1;
-   */
-  statement: string;
-
-  /**
-   * The workspace, and what this deployment called it when the line was
-   * written.
-   *
-   * @generated from field: string workspace = 2;
-   */
-  workspace: string;
-
-  /**
-   * @generated from field: string label = 3;
-   */
-  label: string;
-
-  /**
-   * @generated from field: loft.BillingPeriod period = 4;
-   */
-  period?: BillingPeriod | undefined;
-
-  /**
-   * @generated from field: int64 total = 5;
-   */
-  total: bigint;
-};
-
-/**
- * Describes the message loft.BillingInvoiceLine.
- * Use `create(BillingInvoiceLineSchema)` to create a new message.
- */
-export const BillingInvoiceLineSchema: GenMessage<BillingInvoiceLine> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 55);
-
-/**
- * BillingCreditNote takes some or all of a finalized invoice back.
- *
- * @generated from message loft.BillingCreditNote
- */
-export type BillingCreditNote = Message<"loft.BillingCreditNote"> & {
-  /**
-   * @generated from field: string id = 1;
-   */
-  id: string;
-
-  /**
-   * @generated from field: string invoice = 2;
-   */
-  invoice: string;
-
-  /**
-   * @generated from field: loft.BillingCreditNoteReason reason = 3;
-   */
-  reason: BillingCreditNoteReason;
-
-  /**
-   * @generated from field: int64 amount = 4;
-   */
-  amount: bigint;
-
-  /**
-   * @generated from field: int64 tax = 5;
-   */
-  tax: bigint;
-
-  /**
-   * @generated from field: int64 total = 6;
-   */
-  total: bigint;
-
-  /**
-   * @generated from field: int64 reduced = 7;
-   */
-  reduced: bigint;
-
-  /**
-   * @generated from field: int64 refunded = 8;
-   */
-  refunded: bigint;
-
-  /**
-   * @generated from field: int64 credited = 9;
-   */
-  credited: bigint;
-
-  /**
-   * @generated from field: int64 number = 10;
-   */
-  number: bigint;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 11;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message loft.BillingCreditNote.
- * Use `create(BillingCreditNoteSchema)` to create a new message.
- */
-export const BillingCreditNoteSchema: GenMessage<BillingCreditNote> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 56);
+  messageDesc(file_loft_payment, 11);
 
 /**
  * BillingPeriod is one period of billing: a calendar month in a zone.
@@ -1779,7 +379,7 @@ export type BillingPeriod = Message<"loft.BillingPeriod"> & {
  * Use `create(BillingPeriodSchema)` to create a new message.
  */
 export const BillingPeriodSchema: GenMessage<BillingPeriod> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 57);
+  messageDesc(file_loft_payment, 12);
 
 /**
  * BillingPayer is who pays for a workspace.
@@ -1867,15 +467,15 @@ export type BillingPayer = Message<"loft.BillingPayer"> & {
  * Use `create(BillingPayerSchema)` to create a new message.
  */
 export const BillingPayerSchema: GenMessage<BillingPayer> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 58);
+  messageDesc(file_loft_payment, 13);
 
 /**
  * BillingDunning is what is done of an invoice its channel failed to collect,
  * by levyan's table of each kind of decline: when it is charged again, when
  * its grace ends, from when every workspace it bills is restricted, and from
  * when they are read-only.
- * levyan tells nobody: this deployment shows it, to the payer and to the
- * people who run the workspaces it bills.
+ * levyan tells nobody: this deployment shows it to the people who run the
+ * workspaces it bills.
  *
  * @generated from message loft.BillingDunning
  */
@@ -1937,7 +537,7 @@ export type BillingDunning = Message<"loft.BillingDunning"> & {
  * Use `create(BillingDunningSchema)` to create a new message.
  */
 export const BillingDunningSchema: GenMessage<BillingDunning> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 59);
+  messageDesc(file_loft_payment, 14);
 
 /**
  * BillingUsage is what a workspace has used in a period not closed yet, and
@@ -2010,7 +610,7 @@ export type BillingUsage = Message<"loft.BillingUsage"> & {
  * Use `create(BillingUsageSchema)` to create a new message.
  */
 export const BillingUsageSchema: GenMessage<BillingUsage> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 60);
+  messageDesc(file_loft_payment, 15);
 
 /**
  * BillingAllowance is more of a meter levyan's operator gave a workspace for
@@ -2060,7 +660,7 @@ export type BillingAllowance = Message<"loft.BillingAllowance"> & {
  * Use `create(BillingAllowanceSchema)` to create a new message.
  */
 export const BillingAllowanceSchema: GenMessage<BillingAllowance> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 61);
+  messageDesc(file_loft_payment, 16);
 
 /**
  * BillingPool is a bundle of a meter levyan's operator gave a workspace --
@@ -2116,7 +716,7 @@ export type BillingPool = Message<"loft.BillingPool"> & {
  * Use `create(BillingPoolSchema)` to create a new message.
  */
 export const BillingPoolSchema: GenMessage<BillingPool> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 62);
+  messageDesc(file_loft_payment, 17);
 
 /**
  * BillingStatement is what one workspace came to over one closed period.
@@ -2170,7 +770,7 @@ export type BillingStatement = Message<"loft.BillingStatement"> & {
  * Use `create(BillingStatementSchema)` to create a new message.
  */
 export const BillingStatementSchema: GenMessage<BillingStatement> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 63);
+  messageDesc(file_loft_payment, 18);
 
 /**
  * BillingLine is what one meter came to over a period, or how much what an
@@ -2260,7 +860,7 @@ export type BillingLine = Message<"loft.BillingLine"> & {
  * Use `create(BillingLineSchema)` to create a new message.
  */
 export const BillingLineSchema: GenMessage<BillingLine> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 64);
+  messageDesc(file_loft_payment, 19);
 
 /**
  * BillingLinePool is what one pool was taken of for a line, in the meter's
@@ -2287,7 +887,7 @@ export type BillingLinePool = Message<"loft.BillingLinePool"> & {
  * Use `create(BillingLinePoolSchema)` to create a new message.
  */
 export const BillingLinePoolSchema: GenMessage<BillingLinePool> = /*@__PURE__*/
-  messageDesc(file_loft_payment, 65);
+  messageDesc(file_loft_payment, 20);
 
 /**
  * BillingChannel is what a billing account is sold through.
@@ -2377,109 +977,6 @@ export const BillingCollectionStateSchema: GenEnum<BillingCollectionState> = /*@
   enumDesc(file_loft_payment, 1);
 
 /**
- * @generated from enum loft.BillingSubscriptionStatus
- */
-export enum BillingSubscriptionStatus {
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_STATUS_ACTIVE = 1;
-   */
-  ACTIVE = 1,
-
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_STATUS_TRIALING = 2;
-   */
-  TRIALING = 2,
-
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_STATUS_PAST_DUE = 3;
-   */
-  PAST_DUE = 3,
-
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_STATUS_PAUSED = 4;
-   */
-  PAUSED = 4,
-
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_STATUS_CANCELED = 5;
-   */
-  CANCELED = 5,
-}
-
-/**
- * Describes the enum loft.BillingSubscriptionStatus.
- */
-export const BillingSubscriptionStatusSchema: GenEnum<BillingSubscriptionStatus> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 2);
-
-/**
- * @generated from enum loft.BillingSubscriptionChange
- */
-export enum BillingSubscriptionChange {
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_CHANGE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_CHANGE_CANCEL = 1;
-   */
-  CANCEL = 1,
-
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_CHANGE_PAUSE = 2;
-   */
-  PAUSE = 2,
-
-  /**
-   * @generated from enum value: BILLING_SUBSCRIPTION_CHANGE_RESUME = 3;
-   */
-  RESUME = 3,
-}
-
-/**
- * Describes the enum loft.BillingSubscriptionChange.
- */
-export const BillingSubscriptionChangeSchema: GenEnum<BillingSubscriptionChange> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 3);
-
-/**
- * @generated from enum loft.BillingCheckoutState
- */
-export enum BillingCheckoutState {
-  /**
-   * @generated from enum value: BILLING_CHECKOUT_STATE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: BILLING_CHECKOUT_STATE_OPEN = 1;
-   */
-  OPEN = 1,
-
-  /**
-   * @generated from enum value: BILLING_CHECKOUT_STATE_COMPLETED = 2;
-   */
-  COMPLETED = 2,
-
-  /**
-   * @generated from enum value: BILLING_CHECKOUT_STATE_CANCELED = 3;
-   */
-  CANCELED = 3,
-}
-
-/**
- * Describes the enum loft.BillingCheckoutState.
- */
-export const BillingCheckoutStateSchema: GenEnum<BillingCheckoutState> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 4);
-
-/**
  * @generated from enum loft.BillingLinkBegan
  */
 export enum BillingLinkBegan {
@@ -2513,7 +1010,7 @@ export enum BillingLinkBegan {
  * Describes the enum loft.BillingLinkBegan.
  */
 export const BillingLinkBeganSchema: GenEnum<BillingLinkBegan> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 5);
+  enumDesc(file_loft_payment, 2);
 
 /**
  * @generated from enum loft.BillingLinkEnded
@@ -2559,89 +1056,7 @@ export enum BillingLinkEnded {
  * Describes the enum loft.BillingLinkEnded.
  */
 export const BillingLinkEndedSchema: GenEnum<BillingLinkEnded> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 6);
-
-/**
- * @generated from enum loft.BillingInvoiceState
- */
-export enum BillingInvoiceState {
-  /**
-   * @generated from enum value: BILLING_INVOICE_STATE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: BILLING_INVOICE_STATE_DRAFT = 1;
-   */
-  DRAFT = 1,
-
-  /**
-   * @generated from enum value: BILLING_INVOICE_STATE_OPEN = 2;
-   */
-  OPEN = 2,
-
-  /**
-   * @generated from enum value: BILLING_INVOICE_STATE_PAID = 3;
-   */
-  PAID = 3,
-
-  /**
-   * @generated from enum value: BILLING_INVOICE_STATE_UNCOLLECTIBLE = 4;
-   */
-  UNCOLLECTIBLE = 4,
-
-  /**
-   * @generated from enum value: BILLING_INVOICE_STATE_VOID = 5;
-   */
-  VOID = 5,
-
-  /**
-   * @generated from enum value: BILLING_INVOICE_STATE_WRITTEN_OFF = 6;
-   */
-  WRITTEN_OFF = 6,
-
-  /**
-   * @generated from enum value: BILLING_INVOICE_STATE_SHADOW = 7;
-   */
-  SHADOW = 7,
-}
-
-/**
- * Describes the enum loft.BillingInvoiceState.
- */
-export const BillingInvoiceStateSchema: GenEnum<BillingInvoiceState> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 7);
-
-/**
- * @generated from enum loft.BillingCreditNoteReason
- */
-export enum BillingCreditNoteReason {
-  /**
-   * @generated from enum value: BILLING_CREDIT_NOTE_REASON_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: BILLING_CREDIT_NOTE_REASON_CORRECTION = 1;
-   */
-  CORRECTION = 1,
-
-  /**
-   * @generated from enum value: BILLING_CREDIT_NOTE_REASON_REFUND = 2;
-   */
-  REFUND = 2,
-
-  /**
-   * @generated from enum value: BILLING_CREDIT_NOTE_REASON_CANCELLATION = 3;
-   */
-  CANCELLATION = 3,
-}
-
-/**
- * Describes the enum loft.BillingCreditNoteReason.
- */
-export const BillingCreditNoteReasonSchema: GenEnum<BillingCreditNoteReason> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 8);
+  enumDesc(file_loft_payment, 3);
 
 /**
  * BillingDeclineKind is which kind of decline a payer's method refused a
@@ -2683,7 +1098,7 @@ export enum BillingDeclineKind {
  * Describes the enum loft.BillingDeclineKind.
  */
 export const BillingDeclineKindSchema: GenEnum<BillingDeclineKind> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 9);
+  enumDesc(file_loft_payment, 4);
 
 /**
  * @generated from enum loft.BillingLineKind
@@ -2709,226 +1124,32 @@ export enum BillingLineKind {
  * Describes the enum loft.BillingLineKind.
  */
 export const BillingLineKindSchema: GenEnum<BillingLineKind> = /*@__PURE__*/
-  enumDesc(file_loft_payment, 10);
+  enumDesc(file_loft_payment, 5);
 
 /**
  * PaymentService is how a workspace here is paid for, as levyan -- the billing
  * service its workspaces are billed by (levyan#14, design 7.9) -- says it:
  * relayed, and kept nowhere here.
  *
- * Two halves, each relayed to levyan with this deployment's product key:
+ * It is the workspace's: who pays for it, what it has used this period and
+ * what that would come to, the statements of the periods closed, and the
+ * owner asking a member to pay for it. Served as a membership, relayed to
+ * levyan's `WorkspaceService` and `BillingService` with this deployment's
+ * product key, about the caller's workspace and no other.
  *
- *   - **The account's own**, `(payday.method) = {account: {}}`: what a payer
- *     -- a roster account -- does with what it pays with: its billing
- *     accounts, the checkout that starts the subscription one is collected
- *     through, the offers to pay for a workspace and the workspaces it pays
- *     for, its invoices, and the statements their lines are. Served as the account itself, in no workspace,
- *     and relayed to levyan's `PayerService` as that account
- *     (`levyan-account`): levyan asks roster about the account, and answers
- *     with the account's own and the product's.
- *   - **The workspace's**: who pays for it, what it has used this period and
- *     what that would come to, the statements of the periods closed, and the
- *     owner asking a member to pay for it. Served as a membership, relayed to
- *     levyan's `WorkspaceService` and `BillingService` as the product, about
- *     the caller's workspace and no other.
+ * What a payer does with what it pays with -- its billing accounts, the
+ * checkout, answering an offer, its invoices -- is none of this deployment's:
+ * it is the portal's (#326, D81), which relays it to levyan's `PayerService`
+ * as the payer.
  *
  * What levyan answers is answered as it is: the messages here are levyan's
  * own, field for field, number for number (`server/payment`'s tests hold them
- * to it), and no card is ever anywhere here -- of how a payer pays, levyan
- * answers the kind, the brand and the last four digits, and so does this. A
- * deployment that names no levyan answers every method FailedPrecondition.
+ * to it). A deployment that names no levyan answers every method
+ * FailedPrecondition.
  *
  * @generated from service loft.PaymentService
  */
 export const PaymentService: GenService<{
-  /**
-   * ListBillingAccounts is the account's billing accounts, in the order it
-   * made them.
-   *
-   * @generated from rpc loft.PaymentService.ListBillingAccounts
-   */
-  listBillingAccounts: {
-    methodKind: "unary";
-    input: typeof PaymentListBillingAccountsRequestSchema;
-    output: typeof PaymentListBillingAccountsResponseSchema;
-  },
-  /**
-   * CreateBillingAccount makes one, in a country: the channel it is sold
-   * through and the currency it is billed in are levyan's to say of the
-   * country, as it is made, and never change.
-   *
-   * @generated from rpc loft.PaymentService.CreateBillingAccount
-   */
-  createBillingAccount: {
-    methodKind: "unary";
-    input: typeof PaymentCreateBillingAccountRequestSchema;
-    output: typeof PaymentCreateBillingAccountResponseSchema;
-  },
-  /**
-   * UpdateBillingAccount says again who receives what one is billed, and the
-   * business it is billed to.
-   *
-   * @generated from rpc loft.PaymentService.UpdateBillingAccount
-   */
-  updateBillingAccount: {
-    methodKind: "unary";
-    input: typeof PaymentUpdateBillingAccountRequestSchema;
-    output: typeof PaymentUpdateBillingAccountResponseSchema;
-  },
-  /**
-   * GetBillingAccount is one, with whether what it is billed can be collected
-   * now, and the subscription it is collected through.
-   *
-   * @generated from rpc loft.PaymentService.GetBillingAccount
-   */
-  getBillingAccount: {
-    methodKind: "unary";
-    input: typeof PaymentGetBillingAccountRequestSchema;
-    output: typeof PaymentGetBillingAccountResponseSchema;
-  },
-  /**
-   * StartCheckout begins the subscription a billing account on the merchant
-   * of record's channel is collected through: what a page opens Paddle's
-   * checkout with.
-   *
-   * @generated from rpc loft.PaymentService.StartCheckout
-   */
-  startCheckout: {
-    methodKind: "unary";
-    input: typeof PaymentStartCheckoutRequestSchema;
-    output: typeof PaymentStartCheckoutResponseSchema;
-  },
-  /**
-   * CompleteCheckout asks about a checkout as the payer comes back from it:
-   * open until the merchant has made the subscription.
-   *
-   * @generated from rpc loft.PaymentService.CompleteCheckout
-   */
-  completeCheckout: {
-    methodKind: "unary";
-    input: typeof PaymentCompleteCheckoutRequestSchema;
-    output: typeof PaymentCompleteCheckoutResponseSchema;
-  },
-  /**
-   * ListOffers is the offers made to the account to pay for a workspace, not
-   * answered yet.
-   *
-   * @generated from rpc loft.PaymentService.ListOffers
-   */
-  listOffers: {
-    methodKind: "unary";
-    input: typeof PaymentListOffersRequestSchema;
-    output: typeof PaymentListOffersResponseSchema;
-  },
-  /**
-   * Accept accepts one: the account pays for the workspace from the end of
-   * the period now open.
-   *
-   * @generated from rpc loft.PaymentService.Accept
-   */
-  accept: {
-    methodKind: "unary";
-    input: typeof PaymentAcceptRequestSchema;
-    output: typeof PaymentAcceptResponseSchema;
-  },
-  /**
-   * Decline declines one.
-   *
-   * @generated from rpc loft.PaymentService.Decline
-   */
-  decline: {
-    methodKind: "unary";
-    input: typeof PaymentDeclineRequestSchema;
-    output: typeof PaymentDeclineResponseSchema;
-  },
-  /**
-   * ListLinks is the workspaces the account pays for, or will from the end of
-   * the period.
-   *
-   * @generated from rpc loft.PaymentService.ListLinks
-   */
-  listLinks: {
-    methodKind: "unary";
-    input: typeof PaymentListLinksRequestSchema;
-    output: typeof PaymentListLinksResponseSchema;
-  },
-  /**
-   * Use pays for a workspace with another of the account's billing accounts,
-   * from the end of the period now open.
-   *
-   * @generated from rpc loft.PaymentService.Use
-   */
-  use: {
-    methodKind: "unary";
-    input: typeof PaymentUseRequestSchema;
-    output: typeof PaymentUseResponseSchema;
-  },
-  /**
-   * Stop stops paying for a workspace as the period now open ends.
-   *
-   * @generated from rpc loft.PaymentService.Stop
-   */
-  stop: {
-    methodKind: "unary";
-    input: typeof PaymentStopRequestSchema;
-    output: typeof PaymentStopResponseSchema;
-  },
-  /**
-   * ListInvoices is the invoices of the account's billing accounts, the
-   * latest first.
-   *
-   * @generated from rpc loft.PaymentService.ListInvoices
-   */
-  listInvoices: {
-    methodKind: "unary";
-    input: typeof PaymentListInvoicesRequestSchema;
-    output: typeof PaymentListInvoicesResponseSchema;
-  },
-  /**
-   * GetInvoice is one, with its lines and its credit notes.
-   *
-   * @generated from rpc loft.PaymentService.GetInvoice
-   */
-  getInvoice: {
-    methodKind: "unary";
-    input: typeof PaymentGetInvoiceRequestSchema;
-    output: typeof PaymentGetInvoiceResponseSchema;
-  },
-  /**
-   * ListCreditNotes is the credit notes of them.
-   *
-   * @generated from rpc loft.PaymentService.ListCreditNotes
-   */
-  listCreditNotes: {
-    methodKind: "unary";
-    input: typeof PaymentListCreditNotesRequestSchema;
-    output: typeof PaymentListCreditNotesResponseSchema;
-  },
-  /**
-   * ListPayerStatements is the statements of the workspaces the account's
-   * billing accounts paid for -- each of a period one of them paid for its
-   * workspace -- the latest period first: levyan's
-   * `PayerService.ListStatements` (levyan#47). A period somebody else paid
-   * for is theirs, and not the account's.
-   *
-   * @generated from rpc loft.PaymentService.ListPayerStatements
-   */
-  listPayerStatements: {
-    methodKind: "unary";
-    input: typeof PaymentListPayerStatementsRequestSchema;
-    output: typeof PaymentListPayerStatementsResponseSchema;
-  },
-  /**
-   * GetPayerStatement is one of them, by its identifier: what a line of the
-   * account's invoice names, with its lines.
-   *
-   * @generated from rpc loft.PaymentService.GetPayerStatement
-   */
-  getPayerStatement: {
-    methodKind: "unary";
-    input: typeof PaymentGetPayerStatementRequestSchema;
-    output: typeof PaymentGetPayerStatementResponseSchema;
-  },
   /**
    * GetPayer is who pays for the caller's workspace now and next, what is
    * offered, and since when it has had nobody paying for it.
@@ -2964,7 +1185,8 @@ export const PaymentService: GenService<{
   },
   /**
    * Offer asks a member of the caller's workspace to pay for it, which they
-   * answer as themselves (`Accept`). It withdraws what was offered before.
+   * answer as themselves where a payer pays -- the portal, and not this
+   * deployment. It withdraws what was offered before.
    *
    * @generated from rpc loft.PaymentService.Offer
    */

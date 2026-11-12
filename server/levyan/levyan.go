@@ -11,9 +11,10 @@
 //     destroyed -- told to levyan's `levyan.v1.WorkspaceService` from a queue
 //     written beside the change that tells it ([Notices], [Teller], design
 //     7.6, 7.8);
-//   - how a workspace is paid for, asked of levyan's `PayerService`,
-//     `WorkspaceService` and `BillingService` as an account or as the product
-//     ([Client.As], [Client.AsProduct]) by `server/payment`, design 7.9.
+//   - how a workspace is paid for, asked of levyan's `WorkspaceService` and
+//     `BillingService` as the product ([Client.AsProduct]) by
+//     `server/payment`, design 7.9. What a payer asks as itself is asked by
+//     the portal, and by nothing here (D81).
 //
 // It speaks levyan's own API module (`github.com/lesomnus/levyan/api`), which
 // is levyan's promise to the products it bills and holds Loft to nothing of
@@ -43,7 +44,6 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/auth"
@@ -113,7 +113,6 @@ type Client struct {
 	metering   levyanv1.MeteringServiceClient
 	grants     pdpb.GrantServiceClient
 	workspaces levyanv1.WorkspaceServiceClient
-	payers     levyanv1.PayerServiceClient
 	billing    levyanv1.BillingServiceClient
 	key        string
 	timeout    time.Duration
@@ -163,7 +162,6 @@ func Dial(c Config, resolve func(string) (string, error)) (*Client, error) {
 		metering:   levyanv1.NewMeteringServiceClient(conn),
 		grants:     pdpb.NewGrantServiceClient(conn),
 		workspaces: levyanv1.NewWorkspaceServiceClient(conn),
-		payers:     levyanv1.NewPayerServiceClient(conn),
 		billing:    levyanv1.NewBillingServiceClient(conn),
 		key:        key,
 		timeout:    timeout,
@@ -394,30 +392,11 @@ func (c *Client) Lifecycle(ctx context.Context, workspace pdid.Id) (*levyanv1.Li
 	return res.GetLifecycle(), nil
 }
 
-// AccountHeader is the metadata a call relayed for one of this deployment's
-// accounts names the account in (levyan's `docs/apps.md`, "지불자의 화면"):
-// the canonical text of its identifier at roster, beside the product key that
-// vouches for it.
-const AccountHeader = "levyan-account"
-
-// As is `ctx` as levyan hears a call this deployment relays for `account`,
-// one it signed in through roster (`server/payment`): the product key, the
-// account in [AccountHeader], and an end of its own. levyan asks roster about
-// the account before it serves it, and serves the account's own billing
-// accounts and the product's offers and workspaces.
-func (c *Client) As(ctx context.Context, account pdid.Id) (context.Context, context.CancelFunc) {
-	call, cancel := c.call(ctx)
-	return metadata.AppendToOutgoingContext(call, AccountHeader, account.String()), cancel
-}
-
 // AsProduct is `ctx` as levyan hears this deployment itself: the product key,
 // and an end of its own.
 func (c *Client) AsProduct(ctx context.Context) (context.Context, context.CancelFunc) {
 	return c.call(ctx)
 }
-
-// Payers is levyan's `PayerService`, called [Client.As] an account.
-func (c *Client) Payers() levyanv1.PayerServiceClient { return c.payers }
 
 // Workspaces is levyan's `WorkspaceService`, called [Client.AsProduct].
 func (c *Client) Workspaces() levyanv1.WorkspaceServiceClient { return c.workspaces }

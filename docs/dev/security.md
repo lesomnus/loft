@@ -8,7 +8,6 @@ Loft의 보안 장치가 어떻게 동작하는지입니다. 운영을 시작하
 
 - 페이지는 이 서버의 스크립트·스타일·이미지와 직접 그린 QR(`data:`), 이 서버의 API만 씁니다.
 - 폼은 이 서버, 서비스 주소, SSO issuer로만 보냅니다. 워크스페이스 도메인에서 로그아웃하는 폼은 서비스 주소에서 끝나고, 브라우저는 폼이 넘겨 가는 곳도 정책으로 따지기 때문입니다.
-- Paddle의 결제 링크 페이지(`/billing/checkout`, `app.billing.checkout` 이 있을 때)만은 Paddle의 것을 더한 정책으로 나갑니다. `script-src` 에 `https://cdn.paddle.com`, `frame-src` 에 그 환경의 결제창(샌드박스 `https://sandbox-buy.paddle.com`, live `https://buy.paddle.com`), `style-src` 에 그 환경의 CDN(샌드박스 `https://sandbox-cdn.paddle.com`, live `https://cdn.paddle.com`)과 `'unsafe-inline'` 입니다. Paddle.js가 결제창의 틀을 `style` 속성으로 놓기 때문입니다. Paddle은 이 목록을 문서로 내지 않아서, 문서가 말하는 것과 Paddle.js가 실제로 부르는 것으로 정했습니다(design 7.7). live의 Paddle.js가 부르는 Retain(`https://public.profitwell.com`)은 결제창이 아니라서 넣지 않았고, report-only에서는 그것이 로그에 보고됩니다.
 - 지금은 `app.csp: report-only`(기본)라 막지는 않습니다. 브라우저가 정책을 어긴 것을 `/csp-report` 로 보내면 서버 로그에 `csp: a page did what the policy does not allow` 로 남깁니다. 로그는 1분에 30줄까지이고, 넘친 것은 다음 줄에 개수만 남습니다. 주소의 쿼리는 지웁니다(첨부 주소의 서명 등).
 - 운영에서 이 로그가 조용한 것을 확인한 뒤 `enforce` 로 바꾸면 막습니다(loft#35). `off` 는 둘 다 하지 않습니다. 다른 사이트가 화면을 틀에 넣는 것은 설정과 상관없이 늘 막습니다.
 - e2e는 어느 화면이든 정책을 어기면 실패합니다(`ts/e2e/loft.ts`).

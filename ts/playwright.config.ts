@@ -11,10 +11,9 @@ import { defineConfig, devices } from '@playwright/test'
 // others must not -- every sign-in there begins with it -- one signs people
 // in through an issuer (`auth.sso`), the test's own (e2e/issuer.sh), which the
 // others have no reason to ask, and one bills its workspaces: to a levyan of
-// the test's own (`app.billing.levyan`, e2e/levyan.sh), with Paddle's default
-// payment link (`app.billing.checkout`), which no other has. A workspace's
-// own domain is the first server under another name, which its project's
-// browser resolves there.
+// the test's own (`app.billing.levyan`, e2e/levyan.sh), which no other has. A
+// workspace's own domain is the first server under another name, which its
+// project's browser resolves there.
 const port = Number(process.env.E2E_PORT ?? 18510)
 const app = `http://127.0.0.1:${port}`
 const consent = `http://127.0.0.1:${port + 10}`
@@ -59,7 +58,7 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 	},
 	projects: [
-		{ name: 'app', testIgnore: /(consent|sso|domains|checkout|billing)\.spec\.ts/, use: { baseURL: app } },
+		{ name: 'app', testIgnore: /(consent|sso|domains|billing)\.spec\.ts/, use: { baseURL: app } },
 		// A workspace's own domain (loft#155): any `*.test` the browser asks for
 		// is the same server, as a workspace's DNS would make it.
 		{
@@ -69,7 +68,7 @@ export default defineConfig({
 		},
 		{ name: 'consent', testMatch: /consent\.spec\.ts/, use: { baseURL: consent } },
 		{ name: 'sso', testMatch: /sso\.spec\.ts/, use: { baseURL: sso }, metadata: { issuer } },
-		{ name: 'billing', testMatch: /(checkout|billing)\.spec\.ts/, use: { baseURL: billing }, metadata: { levyan: levyanControl } },
+		{ name: 'billing', testMatch: /billing\.spec\.ts/, use: { baseURL: billing }, metadata: { levyan: levyanControl } },
 	],
 	webServer: [
 		server(port),

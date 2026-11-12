@@ -42,7 +42,6 @@ import (
 	"github.com/lesomnus/loft/server/account"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/bare"
-	"github.com/lesomnus/loft/server/checkout"
 	"github.com/lesomnus/loft/server/clientaddr"
 	"github.com/lesomnus/loft/server/clilogin"
 	"github.com/lesomnus/loft/server/closing"
@@ -163,10 +162,10 @@ type Server struct {
 	Notices  *levyan.Notices
 	Teller   *levyan.Teller
 
-	// Payment is how a workspace is paid for, relayed to levyan (design 7.9,
-	// `server/payment`): a payer's own calls as the account, a workspace's as
-	// the product. Served whatever is configured, and answering every method
-	// FailedPrecondition while no levyan is named.
+	// Payment is how a workspace is paid for, relayed to levyan as the
+	// product (design 7.9, `server/payment`): the workspace's own calls. Served
+	// whatever is configured, and answering every method FailedPrecondition
+	// while no levyan is named.
 	Payment payment.Service
 
 	// Search is the OpenSearch cluster the index of assets is kept on, and
@@ -261,12 +260,6 @@ func Open(ctx context.Context, c Config) (*Server, error) {
 // with the domain of its entity and refuses one of another, [pd.Wall] narrows
 // every read to the tenants the caller may see.
 func Build(ctx context.Context, c Config) (*Server, error) {
-	// What the loader refuses where it is written, refused of a configuration
-	// put together by hand too, before anything is opened.
-	if err := c.App.Billing.Checkout.Check(); err != nil {
-		return nil, err
-	}
-
 	db, dialect, err := c.Db.Open(ctx)
 	if err != nil {
 		return nil, err
@@ -662,7 +655,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	}
 	// How a workspace is paid for, relayed (design 7.9): what an offer reads
 	// of the member it asks is read through the walled stack, as the caller.
-	s.Payment = payment.Service{Levyan: s.Levyan, Walled: stacked, Checkout: c.App.Billing.Checkout}
+	s.Payment = payment.Service{Levyan: s.Levyan, Walled: stacked}
 	// The trail's erasure in the operation's transaction, the archive's half
 	// owed there, and paid once it has committed (payday#115).
 	deps.Forget = func(ctx context.Context, db *ent.Client, objects []pdid.Id) (int, error) {
@@ -968,16 +961,7 @@ func Front(c Config, h http.Handler) (http.Handler, error) {
 		return nil, fmt.Errorf("app.csp: %w", err)
 	}
 
-	// The page Paddle's checkout opens on loads Paddle's script, and is the
-	// one page that does (design 7.7): what it loads from Paddle is in its
-	// policy alone, and in nobody's while no checkout is configured.
-	issuer, service := c.Auth.Sso.Issuer, []string{c.App.App(), c.App.Public().String()}
-	pages := map[string]string{}
-	if co := c.App.Billing.Checkout; co.On() {
-		pages[checkout.Path] = csp.With(checkout.Sources(co.Environment), issuer, service...)
-	}
-
-	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(issuer, service...), pages), nil
+	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(c.Auth.Sso.Issuer, c.App.App(), c.App.Public().String())), nil
 }
 
 // depsOf is what the domain layer is told by the configuration.
@@ -1117,8 +1101,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 			return s.appOf(ctx, links, ws)
 		},
 		Service: links.Home(apphost.Page),
-		// Whether the page offers what an account pays with, and a
-		// workspace's billing (design 7.9).
+		// Whether the page offers a workspace's billing (design 7.9).
 		Billing: c.App.Billing.Levyan.On(),
 		// Where the account's pages outside every workspace draw their
 		// dates: the deployment's zone, as a workspace that says none of its
@@ -1128,12 +1111,6 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 
 	// Attachments, by the signed links the API answers with.
 	mux.Handle("GET /files/", s.Deps.Sign.Handler(s.Deps.Files, time.Now))
-
-	// The page Paddle's default payment link is, which opens the checkout of
-	// the transaction its address names; nobody signs in to it (design 7.7).
-	// With no checkout configured it answers 404, and nothing else answers
-	// for it.
-	c.App.Billing.Checkout.Mount(mux)
 
 	// A printed label: whatever host it was printed with, the code is sent to
 	// the page that resolves it. The page asks the API, through the wall, so
