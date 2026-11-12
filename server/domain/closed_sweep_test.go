@@ -11,6 +11,8 @@ import (
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/operator"
 )
 
 // What the deployment's own work does to a closed workspace (D68, design
@@ -20,21 +22,31 @@ import (
 // restore lets go of (D70, design 7.15), and the next pass does the rest of
 // what the time passed meanwhile did, of what is so then, and tells it once.
 
-// closeIt is the workspace closed by its owner, typing its name.
-func (e *env) closeIt() {
-	e.t.Helper()
-	ws := app.TenantRef_builder{Id: e.tenant.Bytes()}.Build()
-	cur, err := e.app().Tenant().Get(e.owner, app.TenantGetRequest_builder{Ref: ws}.Build())
-	e.x.NoError(err)
-	_, err = e.app().Tenant().Close(e.owner, app.TenantCloseRequest_builder{Ref: ws, Confirm: cur.GetName()}.Build())
-	e.x.NoError(err)
+// asOperator is an operator's call at the entry point (`server/admin`, D74):
+// the deployment's own work in the workspace, at their word.
+func asOperator() context.Context {
+	return operator.Into(context.Background(), operator.Named("alice"))
 }
 
-// restoreIt is the closed workspace restored by its owner.
+// closeIt is the workspace closed by an operator, as the entry point closes
+// one (D83): nobody in it closes it.
+func (e *env) closeIt() {
+	e.t.Helper()
+	e.closeWhy("")
+}
+
+// closeWhy is the workspace closed by an operator, in `why`'s words.
+func (e *env) closeWhy(why string) *app.Tenant {
+	e.t.Helper()
+	v, err := e.s.Deps.CloseWorkspace(asOperator(), e.s.Base, e.s.Drv, e.tenant, domain.ClosedByOperator, why)
+	e.x.NoError(err)
+	return v
+}
+
+// restoreIt is the closed workspace restored by an operator.
 func (e *env) restoreIt() {
 	e.t.Helper()
-	ws := app.TenantRef_builder{Id: e.tenant.Bytes()}.Build()
-	_, err := e.app().Tenant().Restore(e.owner, app.TenantRestoreRequest_builder{Ref: ws}.Build())
+	_, err := e.s.Deps.RestoreWorkspace(asOperator(), e.s.Base, e.s.Drv, e.tenant)
 	e.x.NoError(err)
 }
 
@@ -52,8 +64,8 @@ func (e *env) toldAndDone() (notices, events int) {
 // TestAClosedWorkspaceIsSweptOnceItIsRestored (D68): while a workspace is
 // closed for days, the sweeps leave it as it was -- a hold past its time,
 // a request whose time began, a room nobody came to, a loan past its due,
-// work whose time came -- writing no event, no notice and no mail. Once its
-// owner restores it, the restore lets go of the hold, the request and the
+// work whose time came -- writing no event, no notice and no mail. Once an
+// operator restores it, the restore lets go of the hold, the request and the
 // room, which nobody could take up, as expiries it tells nobody of (D70);
 // and the next pass does the rest of what the time did, of what is so then:
 // the loan is found late, once, and holds what it lent until it is back,

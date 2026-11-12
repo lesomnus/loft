@@ -17,8 +17,6 @@ import (
 	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/loft"
@@ -365,36 +363,4 @@ func TestAnUnsignedExportIsSaidToBe(t *testing.T) {
 	x.Positive(st.Size())
 	_, err = d.loft(t, "tenant", "verify", "--file", zip)
 	x.ErrorContains(err, "nothing to hold a file to")
-}
-
-// TestAnOwnerClosesAndRestoresTheirWorkspaceFromATerminal: `tenant close`
-// and `tenant restore` are either kind's, as their RPCs are -- an owner's on
-// their connection says what it would do until `--yes`, and closes only once
-// they type the workspace's name, as the page asks; a member is refused by
-// the server, as the page's member is.
-func TestAnOwnerClosesAndRestoresTheirWorkspaceFromATerminal(t *testing.T) {
-	s := serve(t)
-	x := s.x
-	s.signIn("owner", "owner1234")
-
-	x.Contains(run(t, root(), "tenant", "ls"), "@acme\t", "the workspaces an owner sees")
-	out := run(t, root(), "tenant", "close", "acme")
-	x.Contains(out, "would close @acme (acme)")
-	x.Contains(out, "`--confirm \"acme\" --yes` does it")
-	x.ErrorContains(fails(t, root(), "tenant", "close", "--yes", "acme"), "--confirm")
-	err := fails(t, root(), "tenant", "close", "--confirm", "엉뚱한 이름", "--yes", "acme")
-	x.Equal(codes.InvalidArgument, status.Code(err), "the server holds an owner to the name")
-
-	out = run(t, root(), "tenant", "close", "--reason", "실험 끝", "--confirm", "acme", "--yes", "acme")
-	x.Contains(out, "@acme\t")
-	x.Contains(out, "closed ")
-	x.Contains(run(t, root(), "tenant", "close", "acme"), "@acme is closed already")
-	x.Contains(run(t, root(), "tenant", "restore", "acme"), "would restore @acme (closed ")
-	out = run(t, root(), "tenant", "restore", "--yes", "acme")
-	x.Contains(out, "\topen")
-
-	s.signIn("kim", "kim-password")
-	err = fails(t, root(), "tenant", "close", "--confirm", "acme", "--yes", "acme")
-	x.Equal(codes.PermissionDenied, status.Code(err), "a member closes nothing")
-	x.NotContains(err.Error(), "connection", "either kind's: refused as kim, and not as the other kind")
 }

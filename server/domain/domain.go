@@ -22,12 +22,10 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 	"uuid"
 
 	"github.com/lesomnus/otx/log"
-	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/entitle"
 	"github.com/lesomnus/payday/frame"
@@ -86,8 +84,8 @@ type Deps struct {
 
 	// RestoreWithin is how long a closed workspace may be restored before it
 	// is destroyed (D29); zero is 30 days. AliasHold is how long its address
-	// is kept from anybody else after that, which its owner is told; zero is
-	// a year.
+	// is kept from anybody else after that, which an account in it is told
+	// while it is closed (`TenantService.Mine`).
 	RestoreWithin time.Duration
 	AliasHold     time.Duration
 
@@ -183,20 +181,12 @@ type Deps struct {
 	// `Create` and `LabelService.Locate` read and write as the account (D73).
 	// Nil serves none of them.
 	Workspaces *tenancy.Workspaces
-
-	// Export writes everything a workspace has, as one zip
-	// (`offboard.Deployment.Export`), and Carried is whose personal data one
-	// carries: what `TenantService.Export` hands its owner, and says on the
-	// access record it handed out (loft#136). Nil exports nothing.
-	Export  func(ctx context.Context, workspace pdid.Id, w io.Writer) error
-	Carried func(ctx context.Context, workspace pdid.Id) ([]access.Subject, error)
 }
 
 // Closings is what hears that a workspace was closed or restored at `at`,
 // written on `db`, a client of the transaction that does it -- so that one
-// that commits is told, and one rolled back is not. Whoever closed it -- its
-// owner, an operator, the deployment when nobody was left in it -- it is
-// told the same.
+// that commits is told, and one rolled back is not. Whoever closed it -- an
+// operator, the deployment when nobody was left in it -- it is told the same.
 type Closings interface {
 	Close(ctx context.Context, db *ent.Client, workspace pdid.Id, at time.Time) error
 	Restore(ctx context.Context, db *ent.Client, workspace pdid.Id, at time.Time) error

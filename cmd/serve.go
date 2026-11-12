@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"net"
 	"net/http"
@@ -413,18 +412,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people, Search: engine, Notices: notices}
 	s.Contents = func() (audit.Contents, error) { return content, nil }
 	deps.Finder = engine
-	// What an account is in and makes, asked as the account (D73), and a
-	// workspace's export for its owner: read when it is asked, since what an
-	// export is written with -- the trail -- is put together below.
+	// What an account is in and makes, asked as the account (D73).
 	ws := s.Workspaces(c)
 	deps.Workspaces = &ws
-	deps.Export = func(ctx context.Context, t pdid.Id, w io.Writer) error {
-		_, err := s.Offboard(c).Export(ctx, t, w)
-		return err
-	}
-	deps.Carried = func(ctx context.Context, t pdid.Id) ([]access.Subject, error) {
-		return s.Offboard(c).People(ctx, t)
-	}
 
 	// Who is calling is a session cookie, held on every call to what roster
 	// says of its person, and what they may do is their role.
@@ -931,9 +921,6 @@ var Downloads = []string{
 	// Who has what is out, by name (design 9.14). The other reports' CSVs
 	// name nobody, and are no download of anybody.
 	app.CustodyService_ExportOutstanding_FullMethodName,
-	// Everything a workspace has, everybody in it among it: what its owner
-	// takes out (D29, D73).
-	app.TenantService_Export_FullMethodName,
 }
 
 // accessed is what the access record's interceptor is told of this app: whose
@@ -1101,7 +1088,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		// name of its own is called after (D57, loft#136).
 		Access: s.Access,
 		Manage: s.Identity.AccountPage(),
-		// What the owner of a closed workspace is told its address is then
+		// What an account in a closed workspace is told its address is then
 		// held for (D29).
 		AliasHold: c.App.Workspaces.Hold(),
 		// What it agrees to before anything else, and the workspace an

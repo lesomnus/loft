@@ -14,8 +14,7 @@
 // The rest of what an account has outside any one workspace is the account's
 // own RPCs (D73): the workspaces it is in and a new one
 // (`TenantService.Mine`, `Create`), which of them a label is in
-// (`LabelService.Locate`); and one workspace's data out is its owner's
-// (`TenantService.Export`).
+// (`LabelService.Locate`).
 package account
 
 import (
@@ -152,7 +151,7 @@ type Routes struct {
 	// Manage is roster's account page (`auth.roster.account_url`).
 	Manage string
 	// AliasHold is how long a destroyed workspace's address is kept from
-	// anybody else, which the owner of a closed one is told.
+	// anybody else, which an account in a closed one is told.
 	AliasHold time.Duration
 	// Consent is what an account agrees to first; nil asks nothing.
 	Consent *consent.Consents

@@ -13,10 +13,11 @@ import (
 	app "github.com/lesomnus/loft"
 )
 
-// exported is a workspace's export as its owner takes it out over the RPC
-// (`TenantService.Export`, D73): every part, put together, and what the first
-// said the file is called. `why` is what it is for, said as a download says
-// it (`payday-reason-bin`); empty says nothing.
+// exported is a workspace's export over the RPC (`TenantService.Export`), as
+// the operator takes it out at the entry point (D83) -- or as anybody else
+// asks for it on `conn`: every part, put together, and what the first said
+// the file is called. `why` is what it is for, said as a download says it
+// (`payday-reason-bin`); empty says nothing.
 func exported(ctx context.Context, conn grpc.ClientConnInterface, ref *app.TenantRef, why string) ([]byte, string, error) {
 	if why != "" {
 		ctx = metadata.AppendToOutgoingContext(ctx, access.ReasonKey, why)

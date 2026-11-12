@@ -10,7 +10,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/event"
@@ -90,8 +89,8 @@ func kindsOf(vs []*ent.LevyanNotice) []string {
 }
 
 // TestEveryWayAWorkspaceEndsIsToldToLevyan (design 7.8): a workspace closed --
-// by its owner, an operator, or the deployment when an account leaving left
-// nobody in it -- restored, and destroyed, by the sweep or an operator's hand,
+// by an operator, or the deployment when an account leaving left nobody in it
+// -- restored, and destroyed, by the sweep or an operator's hand,
 // is written in the transaction that does it, or before a destruction takes
 // anything, of the moment it happened; and told to levyan once, after the
 // workspace's arrival, in the order it happened. A dry run tells nothing.
@@ -99,20 +98,17 @@ func TestEveryWayAWorkspaceEndsIsToldToLevyan(t *testing.T) {
 	w, fake := billed(t)
 	x := w.x
 	ctx := context.Background()
-	tenants := app.NewTenantServiceClient(w.conn)
 	acme := tenantId(x, w.tenant)
-	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
 
 	// The world's own workspace, made past every way an account makes one,
 	// arrives by the first pass.
 	x.NoError(w.s.Teller.Pass(ctx))
 	x.Equal([]string{levyan.Arrived}, kinds(fake, acme))
 
-	// Its owner closes it, and restores it; an operator does, too.
-	v, err := tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called(), Reason: "잠시 닫습니다"}.Build())
-	x.NoError(err)
+	// An operator closes it, and restores it; and does again.
+	v := w.closeIt("잠시 닫습니다")
 	closedAt := v.GetDateClosed().AsTime().UTC()
-	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	_, err := w.restoreIt()
 	x.NoError(err)
 	_, err = w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, acme, domain.ClosedByOperator, "미납")
 	x.NoError(err)
@@ -203,15 +199,12 @@ func TestAWorkspacesEndWaitsForALevyanThatIsDown(t *testing.T) {
 	w, fake := billed(t)
 	x := w.x
 	ctx := context.Background()
-	tenants := app.NewTenantServiceClient(w.conn)
 	acme := tenantId(x, w.tenant)
-	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
 	x.NoError(w.s.Teller.Pass(ctx))
 
 	fake.Down(status.Error(codes.Unavailable, "levyantest: down"))
-	_, err := tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
-	x.NoError(err, "closed, with levyan down")
-	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	w.closeIt("")
+	_, err := w.restoreIt()
 	x.NoError(err, "restored")
 	lee, err := w.s.Identity.AddPerson(ctx, "lee", "이", pdid.Nil)
 	x.NoError(err)
@@ -336,18 +329,15 @@ func TestWhatLevyanRefusesOfAWorkspacesEndIsNotToldAgain(t *testing.T) {
 	w, fake := billed(t)
 	x := w.x
 	ctx := context.Background()
-	tenants := app.NewTenantServiceClient(w.conn)
 	acme := tenantId(x, w.tenant)
-	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
 	x.NoError(w.s.Teller.Pass(ctx))
 
 	// One clock that stands still: closed and restored at one moment.
 	at := time.Now().UTC().Truncate(time.Microsecond)
 	w.s.Deps.Now = func() time.Time { return at }
 	t.Cleanup(func() { w.s.Deps.Now = nil })
-	_, err := tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
-	x.NoError(err)
-	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	w.closeIt("")
+	_, err := w.restoreIt()
 	x.NoError(err)
 	w.s.Deps.Now = nil
 
@@ -392,9 +382,7 @@ func TestWhatBecameOfTheWorkspacesBeforeIsToldOnce(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
-	tenants := app.NewTenantServiceClient(w.conn)
 	acme := tenantId(x, w.tenant)
-	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
 	ws := w.s.Workspaces(w.c)
 	made := func(alias string) (pdid.Id, identity.Person) {
 		p, err := w.s.Identity.AddPerson(ctx, alias, alias, pdid.Nil)
@@ -412,9 +400,8 @@ func TestWhatBecameOfTheWorkspacesBeforeIsToldOnce(t *testing.T) {
 
 	// What there was before this deployment told levyan of it, told nothing.
 	// acme: closed, restored, and closed again.
-	_, err := tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
-	x.NoError(err)
-	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	w.closeIt("")
+	_, err := w.restoreIt()
 	x.NoError(err)
 	_, err = w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, acme, domain.ClosedByOperator, "")
 	x.NoError(err)
@@ -501,14 +488,11 @@ func TestADeploymentThatBillsNobodyTellsNothingOfAWorkspacesEnd(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
-	tenants := app.NewTenantServiceClient(w.conn)
-	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
 
 	x.Nil(w.s.Deps.Closings)
 	x.Nil(w.s.Closing.Notices)
-	_, err := tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
-	x.NoError(err)
-	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	w.closeIt("")
+	_, err := w.restoreIt()
 	x.NoError(err)
 	w.closed()
 	x.NoError(w.s.Closing.Sweep(ctx))

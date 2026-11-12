@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
@@ -25,16 +24,16 @@ import (
 //	close → restore window (30 days) → destroy → address held (a year) → free
 //	           ↑ restore                 ↑ a legal hold waits it out
 //
-// Closing destroys nothing: the workspace's rows stay as they are, nobody but
-// its owner gets in (`server/policy`), and the owner only to restore it or take
-// its data out. Destroying is the deployment's, once the window is over and
-// nothing holds it (`server/closing`). Whoever closes it -- the owner, an
-// operator, or the deployment when an account leaving left nobody in it -- the
-// window is the same.
+// Closing destroys nothing: the workspace's rows stay as they are, and nobody
+// gets in, its owner neither (`cmd.Resolver`). What becomes of it is the
+// deployment's (D83): an operator closes it, restores it and takes its data
+// out at the entry point (`server/admin`), and the deployment closes it when
+// an account leaving left nobody in it, and destroys it once the window is
+// over and nothing holds it (`server/closing`). Whoever closes it, the window
+// is the same.
 
-// The states of a workspace an event names.
+// Who closed or restored a workspace, as an event names them.
 const (
-	ClosedByOwner      = "owner"
 	ClosedByOperator   = "operator"
 	ClosedByDeployment = "deployment"
 )
@@ -48,7 +47,8 @@ func (s Domain) Tenant() app.TenantServiceServer { return domainTenant{s, s.Next
 
 // Patch is a workspace's own settings, less what is not its owner's to write:
 // its address, which nobody chose and only an operator moves (`loft tenant
-// move`), and whether it is closed, which Close and Restore say. Its name
+// move`), and whether it is closed, which an operator says (`loft tenant
+// close|restore`, D83). Its name
 // (D58), its zone, currency and check-in rule are its own (#144), and are held
 // to what can be told in; and how long it keeps its history (D36), which a
 // grace holds a shorter window to: all of them Configure's, with its event.
@@ -68,7 +68,7 @@ func (s domainTenant) Patch(ctx context.Context, req *app.TenantPatchRequest) (*
 		return nil, invalid("alias", "워크스페이스 주소는 바꿀 수 없습니다. 바꿔야 한다면 운영자에게 요청하세요")
 	}
 	if req.HasDateClosed() || req.GetDateClosedNull() || req.HasClosedBy() || req.HasCloseReason() || req.HasDateDestroy() || req.GetDateDestroyNull() {
-		return nil, invalid("date_closed", "닫기와 복구는 TenantService.Close와 Restore로 합니다")
+		return nil, invalid("date_closed", "워크스페이스를 닫고 복구하는 것은 운영자에게 요청하세요")
 	}
 	return s.TenantServiceServer.Patch(ctx, req)
 }
@@ -147,45 +147,9 @@ func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureReq
 	return out, err
 }
 
-// Close is the owner closing their workspace. They type its name, which is
-// what keeps a click from doing it: what it is called, as the page shows it
-// (D57), so that one with no name of its own takes typing as well.
-func (s domainTenant) Close(ctx context.Context, req *app.TenantCloseRequest) (*app.Tenant, error) {
-	var out *app.Tenant
-	err := s.tx(ctx, func(t *Tx) error {
-		if err := t.mine(req.GetRef()); err != nil {
-			return err
-		}
-		called, err := t.workspaceName()
-		if err != nil {
-			return err
-		}
-		if strings.TrimSpace(req.GetConfirm()) != strings.TrimSpace(called.Said) {
-			access.Saw(t.ctx, called.Saw...)
-			return invalid("confirm", "닫으려면 워크스페이스 이름(%s)을 그대로 입력하세요", called.Said)
-		}
-		out, err = t.closeWorkspace(ClosedByOwner, strings.TrimSpace(req.GetReason()))
-		return err
-	})
-	return out, err
-}
-
-// Restore is the owner opening their closed workspace again.
-func (s domainTenant) Restore(ctx context.Context, req *app.TenantRestoreRequest) (*app.Tenant, error) {
-	var out *app.Tenant
-	err := s.tx(ctx, func(t *Tx) error {
-		if err := t.mine(req.GetRef()); err != nil {
-			return err
-		}
-		var err error
-		out, err = t.restoreWorkspace(ClosedByOwner)
-		return err
-	})
-	return out, err
-}
-
 // CloseWorkspace is a workspace closed as the deployment's own work: by an
-// operator, or because an account leaving left nobody in it.
+// operator, or because an account leaving left nobody in it. Nobody in a
+// workspace closes it (D83).
 func (d *Deps) CloseWorkspace(ctx context.Context, server app.Server, drv dialect.Driver, tenant pdid.Id, by, reason string) (*app.Tenant, error) {
 	var out *app.Tenant
 	err := d.System(ctx, server, drv, tenant, func(t *Tx) error {
@@ -196,7 +160,8 @@ func (d *Deps) CloseWorkspace(ctx context.Context, server app.Server, drv dialec
 	return out, err
 }
 
-// RestoreWorkspace is a closed workspace opened again by an operator.
+// RestoreWorkspace is a closed workspace opened again by an operator, while
+// its window lasts: nobody in it restores it (D83).
 func (d *Deps) RestoreWorkspace(ctx context.Context, server app.Server, drv dialect.Driver, tenant pdid.Id) (*app.Tenant, error) {
 	var out *app.Tenant
 	err := d.System(ctx, server, drv, tenant, func(t *Tx) error {
@@ -272,15 +237,6 @@ func (d *Deps) restoreWithin() time.Duration {
 	return d.RestoreWithin
 }
 
-// aliasHold is how long a destroyed workspace's address is kept from anybody
-// else.
-func (d *Deps) aliasHold() time.Duration {
-	if d == nil || d.AliasHold <= 0 {
-		return 365 * 24 * time.Hour
-	}
-	return d.AliasHold
-}
-
 // workspaceName is what this workspace is called where it is read (D57): its
 // own name, or after its owner, with whose data saying it shows.
 func (t *Tx) workspaceName() (tenancy.Name, error) {
@@ -298,7 +254,7 @@ func (t *Tx) mine(ref *app.TenantRef) error {
 		return nil
 	}
 	if id := idOf(ref.GetId()); !id.IsZero() && id != t.tenant {
-		return invalid("ref", "자기 워크스페이스만 닫거나 복구합니다")
+		return invalid("ref", "자기 워크스페이스의 설정만 다룹니다")
 	}
 	if a := ref.GetAlias(); a != "" {
 		cur, err := t.next.Tenant().Get(t.ctx, app.TenantGetRequest_builder{Ref: t.tenantRef()}.Build())
@@ -306,7 +262,7 @@ func (t *Tx) mine(ref *app.TenantRef) error {
 			return err
 		}
 		if cur.GetAlias() != a {
-			return invalid("ref", "자기 워크스페이스만 닫거나 복구합니다")
+			return invalid("ref", "자기 워크스페이스의 설정만 다룹니다")
 		}
 	}
 	return nil

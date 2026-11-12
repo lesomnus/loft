@@ -12,7 +12,7 @@
 import { create, isFieldSet, type DescMessage, type MessageInitShape } from '@bufbuild/protobuf'
 import { timestampDate, timestampFromDate, type Timestamp, TimestampSchema } from '@bufbuild/protobuf/wkt'
 import { BinaryReader, WireType } from '@bufbuild/protobuf/wire'
-import { Code, ConnectError, createClient, encodeBinaryHeader, type Interceptor } from '@connectrpc/connect'
+import { Code, ConnectError, createClient, type Interceptor } from '@connectrpc/connect'
 import { createConnectTransport } from '@connectrpc/connect-web'
 import { from, newId, parse } from '@lesomnus/payday/pdid'
 import { IDENTITY_HEADER } from '@lesomnus/payday/query'
@@ -403,27 +403,6 @@ export async function labelWorkspace(code: string): Promise<Workspace | undefine
 	}
 }
 
-/**
- * Everything a workspace has, as one zip, downloaded by its owner (D29, D34):
- * a download of everybody in it, so it says what for (`why`, loft#136), and is
- * asked in that workspace. Its parts are put together as they come, and saved
- * once the last has.
- */
-export async function exportWorkspace(ws: Workspace, why: string): Promise<void> {
-	const parts: Uint8Array[] = []
-	let name = `${ws.alias}.zip`
-	let type = 'application/zip'
-	// What it is for, as every download says it (`payday-reason-bin`, the
-	// header `reason.tsx` names), and in the workspace it is of.
-	const headers = { 'payday-reason-bin': encodeBinaryHeader(why), 'Loft-Workspace': ws.alias }
-	for await (const v of raw.tenant.export({ ref: ref(idBytes(ws.id)) }, { headers })) {
-		if (v.name !== '') name = v.name
-		if (v.contentType !== '') type = v.contentType
-		if (v.data.length > 0) parts.push(v.data)
-	}
-	download(parts, name, type)
-}
-
 /** A label's code as it is printed under its QR: in two fours, to be read out. */
 export function labelCodeText(code: string | undefined): string {
 	if (code === undefined || code.length !== 8) return ''
@@ -752,6 +731,16 @@ function reasonOf(b: Uint8Array): string | undefined {
 
 export function isUnauthenticated(err: unknown): boolean {
 	return err instanceof ConnectError && err.code === Code.Unauthenticated
+}
+
+/**
+ * Whether a call was refused for its workspace being closed (D29, D83):
+ * `FailedPrecondition` with an `ErrorInfo` of reason `CLOSED`, whoever made
+ * it. Loading the page again is what draws the notice a closed workspace
+ * shows (`Closed`).
+ */
+export function isClosed(err: unknown): boolean {
+	return refusedAs(err, 'CLOSED')
 }
 
 /**

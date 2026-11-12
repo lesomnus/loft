@@ -56,8 +56,8 @@ message LevyanNotice {
   // The account at roster: the one that made the workspace, or that left it.
   // An identifier, and nothing of the person's. None -- the nil identifier --
   // for what became of the workspace itself, which levyan is told of no
-  // account: whoever closed it, its owner, an operator or the deployment, is
-  // the workspace's own history.
+  // account: whoever closed it, an operator or the deployment, is the
+  // workspace's own history.
   bytes account = 10 [(orm.field) = {type: TYPE_UUID}];
 
   // When it happened: when the workspace was made, or the membership ended;

@@ -119,7 +119,7 @@ loft asset watch -o table <자산 ID>                            # 바뀔 때마
 
 ### 내려받기
 
-개인정보가 담긴 내려받기(자산 대장 CSV, 대여 현황 CSV, 워크스페이스의 모든 데이터)는 무엇에 쓰는지 명령 앞의 `--reason` 으로 밝혀야 하고, 그 이유는 접속기록에 남습니다. CSV는 답의 `data` 에 base64로 옵니다.
+개인정보가 담긴 내려받기(자산 대장 CSV, 대여 현황 CSV)는 무엇에 쓰는지 명령 앞의 `--reason` 으로 밝혀야 하고, 그 이유는 접속기록에 남습니다. 워크스페이스의 모든 데이터(`tenant export`)는 운영자의 명령입니다(design D83). CSV는 답의 `data` 에 base64로 옵니다.
 
 ```sh
 loft --reason "11월 자산 점검" asset export -o 'template={{.data}}' | base64 -d > 자산.csv
@@ -143,8 +143,9 @@ loft call /loft.PartyService/Me
 loft tenant mine                                              # 속한 워크스페이스
 loft tenant create '{"name": "연구실"}'                         # 워크스페이스 만들기
 loft tenant configure @<주소> '{"name": "연구지원팀 장비"}'       # 소유한 워크스페이스의 이름 ("" 이면 소유자의 이름으로 부름)
-loft --reason "보관" tenant export <주소>                        # 소유한 워크스페이스의 모든 데이터 (화면의 내려받기와 같음, --out 파일)
 ```
+
+워크스페이스를 닫고, 되돌리고, 모든 데이터를 받는 것(`tenant close|restore|export`)은 운영자의 명령입니다(design D83). 사람의 연결로 부르면 아무것도 묻지 않고 운영자의 연결을 쓰라고 말합니다. 필요하면 운영자에게 요청합니다([배포 운영자](operator.md#워크스페이스의-문의)).
 
 ### 그 밖의 명령
 

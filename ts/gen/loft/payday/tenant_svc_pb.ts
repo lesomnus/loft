@@ -1018,9 +1018,10 @@ export const TenantService: GenService<{
     output: typeof TenantListResponseSchema;
   },
   /**
-   * Close shuts a workspace (D29): nobody gets in but its owner, who may
-   * restore it or take its data out, until it is destroyed. `confirm` is its
-   * name, typed by whoever closes it.
+   * Close shuts a workspace (D29): nobody gets in, its owner neither, until
+   * it is restored or destroyed. The operator's, at the entry point (D74), and
+   * no role's in the workspace (D83). `confirm` is its address, typed by the
+   * operator who closes it.
    *
    * @generated from rpc loft.TenantService.Close
    */
@@ -1030,7 +1031,8 @@ export const TenantService: GenService<{
     output: typeof TenantSchema;
   },
   /**
-   * Restore opens a closed workspace again, while its restore window lasts.
+   * Restore opens a closed workspace again, while its restore window lasts:
+   * the operator's, as Close is.
    *
    * @generated from rpc loft.TenantService.Restore
    */
@@ -1098,12 +1100,12 @@ export const TenantService: GenService<{
     output: typeof TenantMembershipSchema;
   },
   /**
-   * Export is everything the workspace has, as one zip (D29, D34): its
-   * owner's to take out, open or closed, read-only or not, and whether or not
-   * they agreed to what comes next. A download of everybody in it -- what it
-   * is for is said in `payday-reason-bin`, and on the access record before
-   * anything is read for it (loft#136) -- made whole before its bytes are
-   * sent.
+   * Export is everything the workspace has, as one zip (D29, D34), open or
+   * closed: the operator's to take out, at the entry point, for its owner or
+   * for one that is leaving, and no role's in the workspace (D83). A download
+   * of everybody in it -- what it is for is said in `payday-reason-bin`, and
+   * on the access record before anything is read for it (loft#136) -- made
+   * whole before its bytes are sent.
    *
    * @generated from rpc loft.TenantService.Export
    */

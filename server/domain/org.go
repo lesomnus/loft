@@ -114,7 +114,6 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 		Timezone:      t.zone().String(),
 		Currency:      t.settings().currency,
 		RestoreDays:   uint32(t.restoreWithin() / (24 * time.Hour)),
-		AliasHoldDays: uint32(s.deps.aliasHold() / (24 * time.Hour)),
 		WorkspaceName: called.Said,
 	}.Build()
 	access.Saw(ctx, called.Saw...)

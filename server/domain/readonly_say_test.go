@@ -196,6 +196,6 @@ func TestAReadOnlyRefusalSaysWhatItStillDoes(t *testing.T) {
 	x.Equal(domain.ErrorReadOnly, reasonOf(err))
 	said := status.Convert(err).Message()
 	x.Contains(said, "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다")
-	x.Contains(said, "보기, 내보내기, 결제, 닫기, 떠나기는 할 수 있고")
+	x.Contains(said, "보기, 내보내기, 결제, 떠나기는 할 수 있고")
 	x.NotContains(said, "만 할 수 있")
 }

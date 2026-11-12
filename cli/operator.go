@@ -21,9 +21,9 @@ import (
 // `loft-admin` asked before, each saying what it would do until `--yes`, what
 // a long call is at on stderr and what it did on stdout, and failing when a
 // check found something, so that a schedule can run it. Most are the
-// operator's alone and say so in their help; a few -- a workspace's list,
-// its closing and restoring, its export, its access reviews -- are either
-// kind's, as the RPCs they call are.
+// operator's alone and say so in their help -- a workspace's closing,
+// restoring and export among them (D83); a few -- a workspace's list, its
+// access reviews -- are either kind's, as the RPCs they call are.
 
 // called is how the command running was written: `loft tenant move`.
 func called(self *xli.Command) string {

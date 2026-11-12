@@ -37,7 +37,6 @@ export const people = {
 	lent: { login: 'yerin-choi', name: '최예린' },
 	selfService: { login: 'daeun-cho', name: '조다은' },
 	camera: { login: 'sunwoo-yoon', name: '윤선우' },
-	closer: { login: 'eunwoo-kang', name: '강은우' },
 	inviter: { login: 'jiwoo-lee', name: '이지우' },
 	invitee: { login: 'daeun-choi', name: '최다은' },
 	declines: { login: 'sunwoo-jung', name: '정선우' },
