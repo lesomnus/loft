@@ -423,8 +423,7 @@ type Tenant_builder struct {
 	DateCreated *timestamppb.Timestamp
 	// When it was closed. Null is open.
 	DateClosed *timestamppb.Timestamp
-	// Who closed it: `owner`, `operator`, or `deployment` when nobody was left
-	// in it.
+	// Who closed it: `operator`, or `deployment` when nobody was left in it.
 	ClosedBy string
 	// Why, in the words of whoever closed it: what `workspace.close` says as
 	// its reason, and so personal as every reason is (payday#92). Taking that
@@ -469,7 +468,7 @@ type Tenant_builder struct {
 	// RestoreDays is how long it may be restored once closed, in days, before it
 	// is destroyed (D29). 0 is the deployment's `app.workspaces.restore_within`.
 	// Read when it is closed: the date of its destruction then is what its
-	// owner is told.
+	// members are told.
 	RestoreDays uint32
 	// What KeepDays and AccessKeepDays said before each was last made shorter,
 	// and when. A shorter window waits out the deployment's grace

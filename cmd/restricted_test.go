@@ -67,8 +67,8 @@ func restrict(w *world, fake *levyantest.Levyan) []byte {
 // kept longer -- with a reason a page tells it by. Everything else it does as
 // it did: reads and downloads, hands things out and takes them back, books,
 // moves, changes what bills nothing, disposes of and deletes, keeps its
-// history shorter, takes stock in, ends a membership, and closes. Once levyan
-// ends the grant, it grows again.
+// history shorter, takes stock in, and ends a membership; and its operator
+// closes it (D83). Once levyan ends the grant, it grows again.
 func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	fake := levyantest.Start(t)
 	w := newInvites(t, func(c *cmd.Config) {
@@ -225,11 +225,9 @@ func TestARestrictedWorkspaceGrowsNothingElse(t *testing.T) {
 	_, err = w.svc.Accept(w.as(lee), app.InvitationAcceptRequest_builder{Ref: ref(sent)}.Build())
 	x.NoError(err, "and what was sent before it, accepted")
 
-	// And it closes, restricted or not: by what it is called (D57).
+	// And its operator closes it, restricted or not, at the entry point.
 	restrict(w.world, fake)
-	me, err := parties.Me(w.owner, &app.PartyMeRequest{})
-	x.NoError(err)
-	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: tref, Confirm: me.GetWorkspaceName()}.Build())
+	_, err = app.NewTenantServiceClient(w.entryPoint(t)).Close(byOperator(), app.TenantCloseRequest_builder{Ref: tref, Confirm: w.tenant.GetAlias()}.Build())
 	x.NoError(err, "closing")
 }
 

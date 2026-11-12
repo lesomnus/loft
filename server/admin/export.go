@@ -18,12 +18,16 @@ import (
 const exportPart = 512 << 10
 
 // Export is everything a workspace has, as one zip (D29, D34), of any
-// workspace: what its owner takes out from inside, taken out by the operator
-// -- for a workspace that is leaving, before its retirement or purge (design
-// 8.2). A download of everybody in it: what it is for is said in
-// `payday-reason-bin`, and the access record names whose data it carries, by
-// the identifiers its rows carry, before its first message leaves. Made whole
-// before its bytes are sent, as the owner's is.
+// workspace, open or closed: taken out by the operator, at its owner's
+// request or for a workspace that is leaving, before its retirement or purge
+// (design 8.2). Nobody in a workspace takes all of it out (D83). A download
+// of everybody in it: what it is for is said in `payday-reason-bin`, and the
+// access record names whose data it carries, by the identifiers its rows
+// carry, before its first message leaves. Made whole before its bytes are
+// sent (loft#120), so that the moment it is read in is held while the
+// database is read and not while somebody takes their time over the
+// download, and one that fails is an answer that says so rather than a zip
+// that stops part of the way.
 func (s tenants) Export(req *app.TenantExportRequest, out grpc.ServerStreamingServer[app.TenantExportResponse]) error {
 	ctx := out.Context()
 	t, err := s.a.workspace(ctx, req.GetRef())

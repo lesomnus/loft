@@ -897,20 +897,15 @@ func TestAReasonIsTakenOutOfTheWorkspaceItClosed(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 	ctx := context.Background()
-	ws := app.TenantRef_builder{Id: e.tenant.Bytes()}.Build()
-	cur, err := e.app().Tenant().Get(e.owner, app.TenantGetRequest_builder{Ref: ws}.Build())
-	x.NoError(err)
 	closing := func() *ent.Event {
 		e.now = e.now.Add(time.Minute)
-		_, err := e.app().Tenant().Close(e.owner, app.TenantCloseRequest_builder{Ref: ws, Confirm: cur.GetName(), Reason: asked}.Build())
-		x.NoError(err)
+		e.closeWhy(asked)
 		vs := e.eventsOf("workspace.close")
 		return slices.MaxFunc(vs, func(a, b *ent.Event) int { return a.DateCreated.Compare(b.DateCreated) })
 	}
 	first := closing()
 	e.now = e.now.Add(time.Minute)
-	_, err = e.app().Tenant().Restore(e.owner, app.TenantRestoreRequest_builder{Ref: ws}.Build())
-	x.NoError(err)
+	e.restoreIt()
 	second := closing()
 	x.NotEqual(first.Id, second.Id)
 	was, err := e.s.Ent.Tenant.Get(ctx, e.tenant.Uuid())

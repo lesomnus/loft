@@ -1,13 +1,8 @@
 package cmd_test
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
-	"encoding/binary"
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -90,50 +85,6 @@ func (w *hosted) at(ctx context.Context, host, method, path, body string, header
 	rec := httptest.NewRecorder()
 	w.h.ServeHTTP(rec, r)
 	return rec
-}
-
-// streamed is a server stream as a page calls it, over Connect (`path`, the
-// request `body` as JSON): the messages it sent, and the code it ended with,
-// as Connect writes one -- empty for none.
-func (w *hosted) streamed(ctx context.Context, host, path, body string, header ...string) ([]json.RawMessage, string) {
-	var b bytes.Buffer
-	b.WriteByte(0)
-	n := make([]byte, 4)
-	binary.BigEndian.PutUint32(n, uint32(len(body)))
-	b.Write(n)
-	b.WriteString(body)
-	h := append([]string{"Content-Type", "application/connect+json", "Connect-Protocol-Version", "1"}, header...)
-	res := w.at(ctx, host, http.MethodPost, path, b.String(), h...)
-	if res.Code != http.StatusOK {
-		return nil, fmt.Sprintf("http %d", res.Code)
-	}
-
-	out := []json.RawMessage{}
-	r := bytes.NewReader(res.Body.Bytes())
-	for {
-		head := make([]byte, 5)
-		if _, err := io.ReadFull(r, head); err != nil {
-			return out, "unterminated"
-		}
-		v := make([]byte, binary.BigEndian.Uint32(head[1:]))
-		if _, err := io.ReadFull(r, v); err != nil {
-			return out, "unterminated"
-		}
-		if head[0]&0x02 == 0 {
-			out = append(out, v)
-			continue
-		}
-		var end struct {
-			Error *struct {
-				Code string `json:"code"`
-			} `json:"error"`
-		}
-		w.x.NoError(json.Unmarshal(v, &end))
-		if end.Error != nil {
-			return out, end.Error.Code
-		}
-		return out, ""
-	}
 }
 
 // me is `PartyService.Me` as a page calls it, naming the workspace in `ws`
@@ -244,19 +195,8 @@ func TestAWorkspacesDomainServesItAlone(t *testing.T) {
 	x.Equal(http.StatusForbidden, invitations(own, cmd.WorkspaceHeader, "acme"), "named as the domain's own, still the account's")
 	x.Equal(http.StatusOK, invitations(service))
 
-	// And a workspace's export is of the workspace a call is in: another's
-	// is nothing here, and this one's is its owner's here as anywhere. Which
-	// of the account's workspaces a label is in is the account's own, and the
-	// service's.
-	why := base64.StdEncoding.EncodeToString([]byte("a test"))
-	exportOf := func(ctx context.Context, host, ws string) string {
-		_, code := w.streamed(ctx, host, "/loft.TenantService/Export", `{"ref":{"alias":"`+ws+`"}}`, cmd.WorkspaceHeader, ws, "payday-reason-bin", why)
-		return code
-	}
-	x.Equal("permission_denied", exportOf(as, own, "beta"), "beta's export, on acme's address")
-	x.Equal("", exportOf(as, service, "beta"), "beta's owner takes it out at the service's")
-	x.Equal("permission_denied", exportOf(as, own, "acme"), "acme's, to somebody who is not its owner")
-	x.Equal("", exportOf(w.owner, own, "acme"), "acme's owner takes it out on its own address too")
+	// Which of the account's workspaces a label is in is the account's own,
+	// and the service's.
 	inBeta := metadata.AppendToOutgoingContext(as, cmd.WorkspaceHeader, "beta")
 	label, err := app.NewLabelServiceClient(w.conn).Print(inBeta, app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)

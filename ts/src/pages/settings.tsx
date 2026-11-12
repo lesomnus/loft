@@ -978,7 +978,7 @@ function KeepCard(props: { t: Tenant }): ReactNode {
 			<Field label="접속기록 보관 (일)" hint="누가 누구의 정보를 읽고 바꾸고 내려받았는지의 기록입니다. 비우면 배포의 기본값입니다.">
 				<input type="number" min={1} max={36500} value={access} onChange={(e) => setAccess(e.target.value)} />
 			</Field>
-			<Field label="닫은 뒤 복구 기간 (일)" hint={`워크스페이스를 닫은 뒤 이 기간 안에 복구할 수 있고, 지나면 모든 데이터가 지워집니다. 비우면 배포의 기본값입니다. 지금은 ${daysWord(c.me.restoreDays)}입니다.`}>
+			<Field label="닫은 뒤 복구 기간 (일)" hint={`워크스페이스가 닫힌 뒤 이 기간 안에는 운영자가 복구할 수 있고, 지나면 모든 데이터가 지워집니다. 비우면 배포의 기본값입니다. 지금은 ${daysWord(c.me.restoreDays)}입니다.`}>
 				<input type="number" min={1} max={36500} value={restore} onChange={(e) => setRestore(e.target.value)} />
 			</Field>
 			<Load q={now}>
@@ -1101,15 +1101,12 @@ function NameCard(props: { t: Tenant }): ReactNode {
 
 /**
  * The workspace itself, for its owner: what it is called (D58) -- after its
- * owner, for one with no name of its own (D57) -- where it is, how long it
- * keeps its history, and closing it (D29).
+ * owner, for one with no name of its own (D57) -- where it is, and how long
+ * it keeps its history. Closing it, restoring it and taking all of it out are
+ * its operator's (D83), and no door of this page's.
  */
 function WorkspaceTab(): ReactNode {
-	const act = useAct()
-	const c = useCatalog()
 	const t = useRpc(TenantService.method.get, { ref: { key: { case: 'alias', value: workspace } } })
-	const [confirm, setConfirm] = useState('')
-	const [reason, setReason] = useState('')
 	return (
 		<Load q={t}>
 			{(v) => (
@@ -1117,30 +1114,6 @@ function WorkspaceTab(): ReactNode {
 					<NameCard t={v} />
 					<PlaceCard t={v} />
 					<KeepCard t={v} />
-					<Card title="워크스페이스 닫기">
-						<p>
-							닫으면 소유자 말고는 아무도 들어오지 못합니다. 소유자는 {c.me.restoreDays}일 안에 복구하거나 모든 데이터를 내려받을 수 있고, 그 뒤에는 이 워크스페이스의 모든 데이터가 지워집니다. 다만 법이 보관 기간을 정한 기록(접속기록 등)은 계약이 달리 정하지 않았다면 그 기간이 지난 뒤에 지워집니다. 법적 보존이 걸려 있으면 풀릴 때까지 지우지 않습니다. 주소 @{v.alias}는 {daysWord(c.me.aliasHoldDays)} 동안 아무도 쓰지 못하게 보류됩니다.
-						</p>
-						<Field label={`확인을 위해 워크스페이스 이름(${c.me.workspaceName})을 그대로 입력하세요`}>
-							<input value={confirm} onChange={(e) => setConfirm(e.target.value)} />
-						</Field>
-						<Field label="닫는 이유 (선택)">
-							<input value={reason} onChange={(e) => setReason(e.target.value)} />
-						</Field>
-						<div className="actions">
-							<button
-								className="danger"
-								disabled={confirm.trim() !== c.me.workspaceName.trim()}
-								onClick={() =>
-									void act(TenantService.method.close, { ref: ref(v.id), confirm, reason }, { ok: '닫았습니다.' }).then((r) => {
-										if (r !== undefined) location.reload()
-									})
-								}
-							>
-								워크스페이스 닫기
-							</button>
-						</div>
-					</Card>
 				</>
 			)}
 		</Load>

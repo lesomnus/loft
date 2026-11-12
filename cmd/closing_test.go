@@ -14,8 +14,11 @@ import (
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -26,7 +29,10 @@ import (
 	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/admin"
+	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/tenancy"
 )
 
@@ -72,20 +78,73 @@ func (w *world) tenantRow() *app.Tenant {
 	return v
 }
 
-// called is what the world's workspace is called, as its owner is told it
-// and types it to close it: the world's has no name of its own, and is called
-// after its owner (D57).
-func (w *world) called() string {
-	me, err := app.NewPartyServiceClient(w.conn).Me(w.owner, &app.PartyMeRequest{})
+// operatorKey is the key alice, the world's operator, holds at its entry
+// point.
+const operatorKey = "an-operators-key-long-enough-to-be-one"
+
+// entryPoint is the world's operator's entry point (`server/admin`, D74),
+// served beside the public server: where a workspace is closed, restored and
+// taken out (D83). A call on it carries alice's key ([byOperator]).
+func (w *world) entryPoint(t *testing.T) *grpc.ClientConn {
+	ops, err := admin.Operators(map[string]string{"alice": operatorKey})
 	w.x.NoError(err)
-	return me.GetWorkspaceName()
+	g, err := admin.Routes{S: w.s, C: w.c, Operators: ops}.Grpc(t.Context())
+	w.x.NoError(err)
+	return pdtest.Serve(t, g)
 }
 
-// TestAWorkspaceIsClosedByItsOwnerAndRestored.
-//
-// Closing destroys nothing and shuts everybody out -- its owner too, but for
-// seeing it and restoring it -- and restoring puts it back as it was.
-func TestAWorkspaceIsClosedByItsOwnerAndRestored(t *testing.T) {
+// byOperator is a call carrying alice's key, as `loft` makes one on an
+// operator's connection.
+func byOperator() context.Context {
+	return metadata.AppendToOutgoingContext(context.Background(), "authorization", "Bearer "+operatorKey)
+}
+
+// atOperatorsWord is the deployment's own work at alice's word, as the entry
+// point does it once her key is read: what [world.closeIt] and
+// [world.restoreIt] do without a call.
+func atOperatorsWord() context.Context {
+	return operator.Into(context.Background(), operator.Named("alice"))
+}
+
+// closeIt closes the world's workspace as the entry point closes one (`loft
+// tenant close`, D83), in `why`'s words.
+func (w *world) closeIt(why string) *app.Tenant {
+	v, err := w.s.Deps.CloseWorkspace(atOperatorsWord(), w.s.Base, w.s.Drv, tenantId(w.x, w.tenant), domain.ClosedByOperator, why)
+	w.x.NoError(err)
+	return v
+}
+
+// restoreIt opens the world's workspace again as the entry point opens one
+// (`loft tenant restore`).
+func (w *world) restoreIt() (*app.Tenant, error) {
+	return w.s.Deps.RestoreWorkspace(atOperatorsWord(), w.s.Base, w.s.Drv, tenantId(w.x, w.tenant))
+}
+
+// refusedClosed says that `err` is a call into a closed workspace refused:
+// FailedPrecondition, saying who to ask, with the reason a page tells it by
+// (D83).
+func (w *world) refusedClosed(err error, what string) {
+	w.x.Equal(codes.FailedPrecondition, status.Code(err), "%s: %v", what, err)
+	w.x.Contains(status.Convert(err).Message(), "운영자에게 문의하세요", what)
+	var info *errdetails.ErrorInfo
+	for _, d := range status.Convert(err).Details() {
+		if v, ok := d.(*errdetails.ErrorInfo); ok {
+			info = v
+		}
+	}
+	w.x.NotNil(info, "%s: no reason a page can tell it by", what)
+	w.x.Equal(cmd.ErrorClosed, info.GetReason(), what)
+	w.x.Equal("loft", info.GetDomain(), what)
+}
+
+// TestAWorkspaceIsClosedAndRestoredByItsOperator (D29, D83): what becomes of
+// a workspace is the operator's, at the entry point -- nobody in it closes
+// it, restores it or takes all of it out, its owner neither. Closing destroys
+// nothing and shuts everybody out, its owner too: every call into it is
+// refused, with the reason a page tells it by, and the page is told which of
+// an account's workspaces is closed and until when. The operator takes its
+// data out while it is closed, and restoring puts it back as it was.
+func TestAWorkspaceIsClosedAndRestoredByItsOperator(t *testing.T) {
 	w := closingWorld(t)
 	x := w.x
 	kim := w.signIn(w.holder("kim", "admin"))
@@ -95,46 +154,58 @@ func TestAWorkspaceIsClosedByItsOwnerAndRestored(t *testing.T) {
 	_, err := assets.Add(w.owner, app.AssetAddRequest_builder{Name: "노트북"}.Build())
 	x.NoError(err)
 
-	_, err = tenants.Close(kim, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
-	x.Equal(codes.PermissionDenied, status.Code(err), "an admin does not close the owner's workspace")
-	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: "something else"}.Build())
-	x.Equal(codes.InvalidArgument, status.Code(err), "closed by typing its name")
-	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref}.Build())
-	x.Equal(codes.InvalidArgument, status.Code(err), "one with no name of its own by typing what it is called, and not nothing")
-	v, err := tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called(), Reason: "그만 씁니다"}.Build())
+	// None of it is anybody's in the workspace: the table gives no role any
+	// of it.
+	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.tenant.GetAlias()}.Build())
+	x.True(refusedByTable(err, app.TenantService_Close_FullMethodName), "its owner closes nothing: %v", err)
+	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	x.True(refusedByTable(err, app.TenantService_Restore_FullMethodName), "%v", err)
+	_, _, err = exported(w.owner, w.conn, ref, "closing")
+	x.True(refusedByTable(err, app.TenantService_Export_FullMethodName), "nor takes all of it out: %v", err)
+
+	// The operator closes it, by its address.
+	entry := w.entryPoint(t)
+	operated := app.NewTenantServiceClient(entry)
+	v, err := operated.Close(byOperator(), app.TenantCloseRequest_builder{Ref: ref, Confirm: "@" + w.tenant.GetAlias(), Reason: "그만 씁니다"}.Build())
 	x.NoError(err)
 	x.True(v.HasDateClosed())
-	x.Equal("owner", v.GetClosedBy())
+	x.Equal(domain.ClosedByOperator, v.GetClosedBy())
 	x.WithinDuration(time.Now().Add(30*24*time.Hour), v.GetDateDestroy().AsTime(), time.Minute)
 
-	_, err = assets.Search(kim, app.AssetSearchRequest_builder{}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err), "nobody uses a closed workspace")
-	_, err = assets.Search(w.owner, app.AssetSearchRequest_builder{}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err), "its owner neither")
-	_, err = tenants.Restore(kim, app.TenantRestoreRequest_builder{Ref: ref}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err), "nor restores it but its owner")
-	_, err = tenants.Get(w.owner, app.TenantGetRequest_builder{Ref: ref}.Build())
-	x.NoError(err, "who sees it")
+	// Every call into it is refused, whoever makes it: the workspace itself,
+	// what its people read first, its restore and its export among them.
+	for who, as := range map[string]context.Context{"its owner": w.owner, "kim": kim} {
+		_, err = assets.Search(as, app.AssetSearchRequest_builder{}.Build())
+		w.refusedClosed(err, who)
+		_, err = tenants.Get(as, app.TenantGetRequest_builder{Ref: ref}.Build())
+		w.refusedClosed(err, who)
+		_, err = app.NewPartyServiceClient(w.conn).Me(as, &app.PartyMeRequest{})
+		w.refusedClosed(err, who)
+		_, err = tenants.Restore(as, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+		w.refusedClosed(err, who)
+		_, _, err = exported(as, w.conn, ref, "closing")
+		w.refusedClosed(err, who)
+	}
 
-	// What the page is told: which workspaces are closed, until when, and
-	// how long their address is then held -- the deployment's, a year unset.
+	// What the page is told, which is no call into it: which of the
+	// account's workspaces are closed, until when, and how long their
+	// address is then held -- the deployment's, a year unset.
 	mine, err := tenants.Mine(w.owner, &app.TenantMineRequest{})
 	x.NoError(err)
 	x.True(mine.GetWorkspaces()[0].HasDateClosed())
 	x.True(mine.GetWorkspaces()[0].HasDateDestroy())
 	x.EqualValues(365, mine.GetWorkspaces()[0].GetAliasHoldDays())
 
-	// And what its owner takes out before it goes.
-	b, name, err := exported(w.owner, w.conn, ref, "closing")
+	// What it has, taken out by the operator before it goes.
+	b, name, err := exported(byOperator(), entry, ref, "closing")
 	x.NoError(err)
 	zr, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
 	x.NoError(err, "a zip")
 	x.NotEmpty(zr.File)
 	x.Contains(name, w.tenant.GetAlias()+"-")
-	_, _, err = exported(kim, w.conn, ref, "closing")
-	x.Equal(codes.FailedPrecondition, status.Code(err), "nobody else uses a closed workspace")
 
-	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	// And restored by the operator, as it was.
+	_, err = operated.Restore(byOperator(), app.TenantRestoreRequest_builder{Ref: ref}.Build())
 	x.NoError(err)
 	x.False(w.tenantRow().HasDateClosed())
 	got, err := assets.Search(kim, app.AssetSearchRequest_builder{Q: "노트북"}.Build())
@@ -151,16 +222,14 @@ func TestAClosedWorkspaceIsDestroyedOnceItsWindowIsOver(t *testing.T) {
 	ctx := context.Background()
 	id, err := pdid.From(w.tenant.GetId())
 	x.NoError(err)
-	tenants := app.NewTenantServiceClient(w.conn)
 	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
-	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
-	x.NoError(err)
+	w.closeIt("")
 
 	past := func() {
 		x.NoError(w.s.Ent.Tenant.UpdateOneId(id.Uuid()).SetDateDestroy(time.Now().Add(-time.Minute)).Exec(ctx))
 	}
 	past()
-	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	_, err = w.restoreIt()
 	x.Equal(codes.FailedPrecondition, status.Code(err), "too late to restore")
 
 	// Held: it waits.
@@ -208,10 +277,8 @@ func TestAClosedWorkspaceThatCannotRetireWaits(t *testing.T) {
 	ctx := context.Background()
 	id, err := pdid.From(w.tenant.GetId())
 	x.NoError(err)
-	tenants := app.NewTenantServiceClient(w.conn)
 	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
-	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
-	x.NoError(err)
+	w.closeIt("")
 	x.NoError(w.s.Ent.Tenant.UpdateOneId(id.Uuid()).SetDateDestroy(time.Now().Add(-time.Minute)).Exec(ctx))
 
 	alive := func() bool {
@@ -259,7 +326,7 @@ func TestAnAddressIsNotTheOwnersToChange(t *testing.T) {
 	_, err = w.s.Ungated.Tenant().Patch(as, app.TenantPatchRequest_builder{Ref: ref, Alias: z.Ptr("mine"), DateUpdatedForce: z.Ptr(true)}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err))
 	_, err = w.s.Ungated.Tenant().Patch(as, app.TenantPatchRequest_builder{Ref: ref, DateClosedNull: z.Ptr(true), DateUpdatedForce: z.Ptr(true)}.Build())
-	x.Equal(codes.InvalidArgument, status.Code(err), "closing is Close's")
+	x.Equal(codes.InvalidArgument, status.Code(err), "closing is the operator's")
 
 	old := w.tenant.GetAlias()
 	x.ErrorContains(w.s.Closing.Rename(ctx, old, "admin", false), "kept for this app")
@@ -306,7 +373,7 @@ func TestTheLastToLeaveClosesTheWorkspace(t *testing.T) {
 }
 
 // TestAClosedWorkspaceIsNotOneMoreAnAccountOwns: it is on its way out, so an
-// owner who closed one may make another.
+// owner whose workspace was closed may make another.
 func TestAClosedWorkspaceIsNotOneMoreAnAccountOwns(t *testing.T) {
 	w := newWorldWith(t, func(c *cmd.Config) { c.App.Workspaces.Owned = 1 })
 	x := w.x
@@ -319,7 +386,7 @@ func TestAClosedWorkspaceIsNotOneMoreAnAccountOwns(t *testing.T) {
 	_, err = ws.Create(ctx, kim, "둘")
 	x.ErrorIs(err, tenancy.ErrOwnsEnough)
 
-	_, err = w.s.Deps.CloseWorkspace(ctx, w.s.Base, w.s.Drv, mine.Workspace, "owner", "")
+	_, err = w.s.Deps.CloseWorkspace(atOperatorsWord(), w.s.Base, w.s.Drv, mine.Workspace, domain.ClosedByOperator, "")
 	x.NoError(err)
 	_, err = ws.Create(ctx, kim, "둘")
 	x.NoError(err)

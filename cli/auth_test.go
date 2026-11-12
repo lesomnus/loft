@@ -172,10 +172,12 @@ func TestACommandIsToldItsConnection(t *testing.T) {
 }
 
 // TestACallOfTheOtherKindSaysWhichConnectionItWants (design 9.16): the
-// operator's own methods asked on a person's connection, and a person's asked
-// on an operator's, are refused with the code the server answered and the
+// operator's own methods asked on a person's connection -- and an entity's no
+// role is given, as a workspace's closing is (D83) -- and a person's asked on
+// an operator's, are refused with the code the server answered and the
 // connection they want -- a call and a stream alike. An entity's method the
-// entry point serves is either kind's, and its refusal is the server's own.
+// entry point serves and a role is given is either kind's, and its refusal is
+// the server's own.
 func TestACallOfTheOtherKindSaysWhichConnectionItWants(t *testing.T) {
 	s := serve(t)
 	x := s.x
@@ -187,7 +189,10 @@ func TestACallOfTheOtherKindSaysWhichConnectionItWants(t *testing.T) {
 	x.Equal(codes.Unimplemented, status.Code(err))
 	x.ErrorContains(err, "/loft.OperatorTrailService/Owed is the operator's, and this is a person's connection: use an operator's (--key")
 	err = fails(t, root(), "call", "loft.TenantService.Close", `{}`)
-	x.Equal(codes.PermissionDenied, status.Code(err), "kim is no owner of acme: %v", err)
+	x.Equal(codes.PermissionDenied, status.Code(err))
+	x.ErrorContains(err, "/loft.TenantService/Close is the operator's, and this is a person's connection: use an operator's (--key")
+	err = fails(t, root(), "call", "loft.HolderService.List", `{}`)
+	x.Equal(codes.PermissionDenied, status.Code(err), "kim is a member, who reads nobody's membership: %v", err)
 	x.NotContains(err.Error(), "connection", "either kind's, refused as kim")
 
 	t.Setenv("LOFT_ADMIN_URL", ep)

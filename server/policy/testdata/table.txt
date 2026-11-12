@@ -184,16 +184,13 @@
 /loft.StockService/Watch	read
 /loft.TenantContractService/Get	read
 /loft.TenantContractService/List	read
-/loft.TenantService/Close	owner
 /loft.TenantService/Configure	owner
 /loft.TenantService/Create	account
-/loft.TenantService/Export	owner
 /loft.TenantService/Get	read
 /loft.TenantService/List	read
 /loft.TenantService/Mine	account
 /loft.TenantService/Patch	owner
 /loft.TenantService/Preview	owner
-/loft.TenantService/Restore	owner
 /loft.WorkOrderService/Add	member
 /loft.WorkOrderService/Cancel	manager
 /loft.WorkOrderService/Complete	manager

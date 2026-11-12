@@ -28,10 +28,11 @@ import (
 	"github.com/lesomnus/loft/server/offboard"
 )
 
-// A workspace, as its owner and the operator ask of it (design 8.2, 9.11):
-// finding one, closing and restoring it, its export and its return from one,
-// its address moved, an owner named, its contract and its legal holds, and
-// its end by the operator's hand.
+// A workspace, as the operator asks of it (design 8.2, 9.11): finding one,
+// closing and restoring it, its export and its return from one, its address
+// moved, an owner named, its contract and its legal holds, and its end by
+// the operator's hand. Of these a person's connection asks only for the list:
+// what becomes of a workspace is the operator's (D83).
 
 // tenantWritten is the workspace's commands written here, at their schema
 // paths: `tenant`'s, `tenant-contract add` and `legal-hold add|patch`.
@@ -70,70 +71,6 @@ func named(path string) string {
 		return "stdin"
 	}
 	return path
-}
-
-// asked is the connection in use, signed in when it is a person's: what a
-// command either kind runs asks with.
-func asked(ctx context.Context) (chosen, error) {
-	_, c, err := chooseFor(ctx)
-	if err != nil {
-		return chosen{}, err
-	}
-	if c.Kind == Person && !c.signedIn() {
-		return chosen{}, errNoLogin
-	}
-	return c, nil
-}
-
-// on is a connection for a call about the workspace `ws` names, by its
-// address: a person's speaks to it as their membership of it -- the one in
-// use when none is named -- and an operator's names it in the request alone,
-// and is told no workspace the way a person's is. It answers the address.
-func (c chosen) on(ctx context.Context, ws string) (*connectConn, string, error) {
-	ws = strings.TrimPrefix(strings.TrimSpace(ws), "@")
-	said, _ := ctx.Value(workspaceKey{}).(string)
-	if said == "" {
-		said = os.Getenv("LOFT_WORKSPACE")
-	}
-	switch c.Kind {
-	case Person:
-		if ws == "" {
-			ws = strings.TrimPrefix(said, "@")
-		}
-		if ws == "" {
-			ws = c.Workspace
-		}
-		if ws == "" {
-			return nil, "", errors.New("WORKSPACE: which one (`loft tenant mine` lists them)")
-		}
-		return c.person(ws), ws, nil
-	case Operator:
-		conn, err := c.dial(said)
-		if err != nil {
-			return nil, "", err
-		}
-		if ws == "" {
-			return nil, "", errors.New("WORKSPACE: which one, by its address (`loft tenant list`)")
-		}
-		return conn, ws, nil
-	}
-	return nil, "", fmt.Errorf("a connection of kind %q", c.Kind)
-}
-
-// membership is the workspace `ws` names as the account a person's connection
-// is told of it (`TenantService.Mine`): what it is called, and whether it is
-// closed and until when.
-func (c chosen) membership(ctx context.Context, ws string) (*app.TenantMembership, error) {
-	mine, err := app.NewTenantServiceClient(c.person("")).Mine(ctx, &app.TenantMineRequest{})
-	if err != nil {
-		return nil, err
-	}
-	for _, w := range mine.GetWorkspaces() {
-		if w.GetAlias() == ws {
-			return w, nil
-		}
-	}
-	return nil, fmt.Errorf("@%s: not a workspace this account is in (`loft tenant mine`)", ws)
 }
 
 // errNoKeys is a deployment that signs with no key and trusts none: what it
@@ -452,114 +389,56 @@ func newCmdTenantShow() *xli.Command {
 	}
 }
 
-// newCmdTenantClose is `loft tenant close`: a workspace closed -- by its
-// owner, who types its name as the page asks (`--confirm`), or by the
-// operator, who names it by its address -- and destroyed once its restore
-// window is over unless it is restored.
+// newCmdTenantClose is `loft tenant close`: a workspace closed by the
+// operator, who names it by its address -- unpaid, a breach of the terms, its
+// owner's request -- and destroyed once its restore window is over unless it
+// is restored. Nobody in it closes it (D83).
 func newCmdTenantClose() *xli.Command {
-	return &xli.Command{
-		Brief: "close a workspace: its owner's, typing its name (--confirm), or the operator's; it may be restored within its window",
-		Flags: flg.Flags{
-			&flg.String{Name: "reason", Brief: "why, in words; the workspace's history keeps it"},
-			&flg.String{Name: "confirm", Brief: "its owner's: the workspace's name, as `loft tenant mine` says it"},
-			yesFlag(),
-		},
-		Args: arg.Args{workspaceArg},
-		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			c, err := asked(ctx)
+	return change("close a workspace; it may be restored within its window, and is destroyed after it",
+		flg.Flags{&flg.String{Name: "reason", Brief: "why, in words; the workspace's history keeps it"}},
+		func(ctx context.Context, self *xli.Command, conn grpc.ClientConnInterface, ws string) error {
+			v, err := show(ctx, conn, byAlias(ws))
 			if err != nil {
 				return err
 			}
-			conn, ws, err := c.on(ctx, alias(self))
-			if err != nil {
-				return err
+			t := v.GetTenant()
+			if t.HasDateClosed() {
+				self.Printf("@%s is closed already, since %s; destroyed after %s\n", t.GetAlias(), dayOf(t.GetDateClosed()), dayOf(t.GetDateDestroy()))
+				return nil
 			}
-			confirm := ws
-			if c.Kind == Person {
-				w, err := c.membership(ctx, ws)
-				if err != nil {
-					return err
-				}
-				if w.HasDateClosed() {
-					self.Printf("@%s is closed already, since %s; destroyed after %s\n", ws, dayOf(w.GetDateClosed()), dayOf(w.GetDateDestroy()))
-					return next(ctx)
-				}
-				if !yes(self) {
-					self.Printf("would close @%s (%s); it is destroyed once its restore window is over, unless its owner restores it\n", ws, w.GetName())
-					self.Printf("(nothing was done: `--confirm %q --yes` does it)\n", w.GetName())
-					return next(ctx)
-				}
-				if confirm = str(self, "confirm"); confirm == "" {
-					return errors.New("--confirm: an owner closes a workspace by typing its name, as `loft tenant mine` says it")
-				}
-			} else {
-				v, err := show(ctx, conn, byAlias(ws))
-				if err != nil {
-					return err
-				}
-				t := v.GetTenant()
-				if t.HasDateClosed() {
-					self.Printf("@%s is closed already, since %s; destroyed after %s\n", t.GetAlias(), dayOf(t.GetDateClosed()), dayOf(t.GetDateDestroy()))
-					return next(ctx)
-				}
-				if !yes(self) {
-					until := time.Now().Add(time.Duration(v.GetWindow().GetRestoreDays()) * 24 * time.Hour)
-					self.Printf("would close @%s; it is destroyed after %s unless restored\n", t.GetAlias(), dayOf(timestamppb.New(until)))
-					nothing(self)
-					return next(ctx)
-				}
+			if !yes(self) {
+				until := time.Now().Add(time.Duration(v.GetWindow().GetRestoreDays()) * 24 * time.Hour)
+				self.Printf("would close @%s; it is destroyed after %s unless restored\n", t.GetAlias(), dayOf(timestamppb.New(until)))
+				nothing(self)
+				return nil
 			}
-			t, err := app.NewTenantServiceClient(conn).Close(ctx, app.TenantCloseRequest_builder{
+			closed, err := app.NewTenantServiceClient(conn).Close(ctx, app.TenantCloseRequest_builder{
 				Ref:     app.TenantRef_builder{Alias: z.Ptr(ws)}.Build(),
-				Confirm: confirm,
+				Confirm: ws,
 				Reason:  str(self, "reason"),
 			}.Build())
 			if err != nil {
 				return err
 			}
-			printTenant(self, t)
-			return next(ctx)
-		}),
-	}
+			printTenant(self, closed)
+			return nil
+		})
 }
 
 // newCmdTenantRestore is `loft tenant restore`: a closed workspace open
-// again, while its restore window lasts -- its owner's, or the operator's.
+// again, while its restore window lasts -- by the operator, at its owner's
+// request or once what it was closed for is settled (D83).
 func newCmdTenantRestore() *xli.Command {
-	return &xli.Command{
-		Brief: "open a closed workspace again, while its restore window lasts",
-		Flags: flg.Flags{yesFlag()},
-		Args:  arg.Args{workspaceArg},
-		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			c, err := asked(ctx)
-			if err != nil {
-				return err
-			}
-			conn, ws, err := c.on(ctx, alias(self))
-			if err != nil {
-				return err
-			}
+	return change("open a closed workspace again, while its restore window lasts", nil,
+		func(ctx context.Context, self *xli.Command, conn grpc.ClientConnInterface, ws string) error {
 			if !yes(self) {
-				said := ""
-				if c.Kind == Person {
-					w, err := c.membership(ctx, ws)
-					if err != nil {
-						return err
-					}
-					said = "open"
-					if w.HasDateClosed() {
-						said = fmt.Sprintf("closed %s, destroyed %s", dayOf(w.GetDateClosed()), dayOf(w.GetDateDestroy()))
-					}
-				} else {
-					v, err := show(ctx, conn, byAlias(ws))
-					if err != nil {
-						return err
-					}
-					said = state(v.GetTenant())
+				v, err := show(ctx, conn, byAlias(ws))
+				if err != nil {
+					return err
 				}
-				self.Printf("would restore @%s (%s)\n", ws, said)
+				self.Printf("would restore @%s (%s)\n", ws, state(v.GetTenant()))
 				nothing(self)
-				return next(ctx)
+				return nil
 			}
 			t, err := app.NewTenantServiceClient(conn).Restore(ctx, app.TenantRestoreRequest_builder{
 				Ref: app.TenantRef_builder{Alias: z.Ptr(ws)}.Build(),
@@ -568,9 +447,8 @@ func newCmdTenantRestore() *xli.Command {
 				return err
 			}
 			printTenant(self, t)
-			return next(ctx)
-		}),
-	}
+			return nil
+		})
 }
 
 // newCmdTenantMove is `loft tenant move`: a workspace at another address,
@@ -634,26 +512,23 @@ func newCmdTenantNameOwner() *xli.Command {
 }
 
 // newCmdTenantExport is `loft tenant export`: everything a workspace has, as
-// one zip (`TenantService.Export`) -- its owner's, as their membership of it,
-// or the operator's, for one that is leaving (design 8.2). A download, so it
-// says what it is for (`--reason`, before the command). The operator's is
-// read back and held to the keys the deployment signs with.
+// one zip (`TenantService.Export`), open or closed -- the operator's, at its
+// owner's request or for one that is leaving (design 8.2, D83). A download,
+// so it says what it is for (`--reason`, before the command). It is read back
+// and held to the keys the deployment signs with.
 func newCmdTenantExport() *xli.Command {
 	return &xli.Command{
 		Brief: "everything a workspace has, as one zip archive: everybody in it, handed out (--reason first)",
 		Flags: flg.Flags{
 			&flg.String{Name: "out", Brief: "where to write it, which must not be there; what the deployment calls it by default, and - is stdout"},
 		},
-		Args: arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by its address; a person's default is the one `loft use` names", Optional: true}},
+		Args: arg.Args{workspaceArg},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			c, err := asked(ctx)
+			conn, err := operatorFor(ctx, self)
 			if err != nil {
 				return err
 			}
-			conn, ws, err := c.on(ctx, alias(self))
-			if err != nil {
-				return err
-			}
+			ws := alias(self)
 			if reasonOf(ctx) == "" {
 				return errors.New("--reason, before the command: what the export is for -- it hands everybody in the workspace out, and is recorded with why")
 			}
@@ -717,10 +592,6 @@ func newCmdTenantExport() *xli.Command {
 			}
 			if out == stdio {
 				fmt.Fprintf(say, "stdout: %d bytes; `loft tenant verify --file -` says what they hold\n", n)
-				return next(ctx)
-			}
-			if c.Kind == Person {
-				fmt.Fprintf(say, "%s\n", out)
 				return next(ctx)
 			}
 

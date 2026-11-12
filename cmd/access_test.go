@@ -27,6 +27,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/server/operator"
 )
 
 // person is somebody of the world's workspace who signs in nowhere: a person
@@ -356,21 +357,23 @@ func TestWhatIsOutIsAReadOfWhoHasIt(t *testing.T) {
 }
 
 // TestAWorkspacesExportSaysWhatItIsFor: everybody's data, out of the
-// deployment, so it is refused without a reason and recorded with one, before
-// the first byte goes.
+// deployment, by the operator alone (D83) -- so it is refused without a
+// reason and recorded with one, as the operator's, before the first byte
+// goes. Nobody in the workspace takes all of it out, its owner neither.
 func TestAWorkspacesExportSaysWhatItIsFor(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	park := w.person("박지민", "park@acme.example")
 	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
+	entry := w.entryPoint(t)
 
-	_, _, err := exported(w.owner, w.conn, ref, "")
+	_, _, err := exported(byOperator(), entry, ref, "")
 	x.Equal(codes.InvalidArgument, status.Code(err), "no reason")
 	n, err := w.s.Ent.Access.Query().Count(context.Background())
 	x.NoError(err)
 	x.Zero(n, "a refused export was recorded")
 
-	got, _, err := exported(w.owner, w.conn, ref, "폐업 전 보관")
+	got, _, err := exported(byOperator(), entry, ref, "폐업 전 보관")
 	x.NoError(err)
 
 	rs, err := w.s.Ent.Access.Query().Where(entaccess.KindEQ("download")).All(context.Background())
@@ -380,9 +383,7 @@ func TestAWorkspacesExportSaysWhatItIsFor(t *testing.T) {
 	x.Equal("폐업 전 보관", detailOf(t, rs[0]).GetReason())
 	x.Contains(rs[0].Subjects, park.GetId())
 	x.GreaterOrEqual(rs[0].SubjectCount, uint32(2), "the person record and the owner's membership")
-	owner, err := pdid.From(w.ownerHolder().GetId())
-	x.NoError(err)
-	x.Equal(owner.Uuid(), rs[0].ActorId, "by the owner's membership")
+	x.Equal(operator.Id("alice").Uuid(), rs[0].ActorId, "by the operator")
 
 	// And the workspace takes its access record out with it -- this export's
 	// own row among it, written before anything was read for the file.
@@ -394,9 +395,11 @@ func TestAWorkspacesExportSaysWhatItIsFor(t *testing.T) {
 	x.NoError(err)
 	x.Contains(string(b), app.TenantService_Export_FullMethodName)
 
-	// Its owner's alone.
-	_, _, err = exported(w.signIn(w.holder("kim", "admin")), w.conn, ref, "폐업 전 보관")
-	x.True(refusedByTable(err, app.TenantService_Export_FullMethodName), "%v", err)
+	// The operator's alone.
+	for who, as := range map[string]context.Context{"its owner": w.owner, "an admin": w.signIn(w.holder("kim", "admin"))} {
+		_, _, err = exported(as, w.conn, ref, "폐업 전 보관")
+		x.True(refusedByTable(err, app.TenantService_Export_FullMethodName), "%s: %v", who, err)
+	}
 }
 
 // TestAMonthOfTheRecordIsReviewed is loft#136's other half: the workspace's

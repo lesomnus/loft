@@ -8,6 +8,7 @@ import (
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/z"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -52,8 +53,10 @@ import (
 // agreed to what this deployment asks (`consents`, design 9.11) -- which
 // roster's ledger says (D37) -- is refused every call first, with
 // [ConsentOwed], but for what it has ([WhileOwing]): what it agrees to is HTTP
-// beside the RPCs (`server/account`), and its first page. And a closed
-// workspace is refused last, to all but its owner's [WhileClosed].
+// beside the RPCs (`server/account`), and its first page. And a call into a
+// closed workspace is refused last, whoever makes it and whatever it asks
+// ([refusedClosed]): what becomes of a closed workspace is its operator's
+// (D83).
 //
 // A call that came to a workspace's own domain is pinned to that workspace
 // ([apphost.From], loft#155), and served as a membership of it or not at all:
@@ -101,16 +104,13 @@ func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Res
 			return f, nil
 		}
 
-		// A closed workspace is nobody's to use, and its owner's to restore or
-		// to read (D29). Here, at the call that came in, and not in the
-		// policy: what the domain layer calls on the way to a restore goes
-		// through the gate too, as the same owner.
+		// A closed workspace is nobody's to use, its owner's neither (D29,
+		// D83): restoring it and taking it out are the operator's, at the
+		// entry point. Here, at the call that came in, so that nothing of it
+		// is read for whoever asked.
 		v, _ := f.Row.(*app.Holder)
 		if v.GetTenant().HasDateClosed() {
-			m, _ := grpc.Method(ctx)
-			if v.GetRole() != "owner" || !WhileClosed[m] {
-				return nil, status.Error(codes.FailedPrecondition, "닫힌 워크스페이스입니다")
-			}
+			return nil, refusedClosed()
 		}
 		// Whatever the credential named, a pinned call is of its workspace.
 		if pinned && f.Tenant != pin.Workspace {
@@ -191,23 +191,29 @@ func pinnedTo(ctx context.Context, pin apphost.Pinned) error {
 	return status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace: %s is at the service's", pin.Alias, in)
 }
 
-// WhileClosed is what a closed workspace's owner may still call: the
-// workspace itself, to see it, its restore, and its data taken out (D29).
-var WhileClosed = map[string]bool{
-	app.TenantService_Get_FullMethodName:     true,
-	app.TenantService_Restore_FullMethodName: true,
-	app.TenantService_Export_FullMethodName:  true,
+// ErrorClosed is the reason a call into a closed workspace is refused with
+// (`errdetails.ErrorInfo`, domain `loft`): for a page to tell it from any
+// other refusal, and draw what a closed workspace shows (D83).
+const ErrorClosed = "CLOSED"
+
+// refusedClosed is what a call into a closed workspace is answered: that it is
+// closed, and who to ask about it -- nobody in it can do anything about it.
+func refusedClosed() error {
+	st := status.New(codes.FailedPrecondition, "닫힌 워크스페이스입니다. 다시 열거나 데이터를 받으려면 운영자에게 문의하세요")
+	v, err := st.WithDetails(&errdetails.ErrorInfo{Reason: ErrorClosed, Domain: "loft"})
+	if err != nil {
+		return st.Err()
+	}
+	return v.Err()
 }
 
 // WhileOwing is what an account still calls while it owes an agreement to what
 // this deployment asks (design 9.11): what it has, which is its own whether or
-// not it agrees to what comes next -- the workspaces it is in, and one it owns
-// taken out (D73). Everything else waits for the agreement, which is HTTP
-// beside the RPCs (`server/account`) for that reason: it is the way out of
-// being refused.
+// not it agrees to what comes next -- the workspaces it is in (D73).
+// Everything else waits for the agreement, which is HTTP beside the RPCs
+// (`server/account`) for that reason: it is the way out of being refused.
 var WhileOwing = map[string]bool{
-	app.TenantService_Mine_FullMethodName:   true,
-	app.TenantService_Export_FullMethodName: true,
+	app.TenantService_Mine_FullMethodName: true,
 }
 
 // ConsentOwed is what a call is refused with while its account has not agreed

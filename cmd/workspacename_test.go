@@ -150,15 +150,6 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 	rs = w.accessed(t, app.TenantService_Mine_FullMethodName)
 	x.Len(rs, 2, "a row for each answer that showed somebody")
 	x.Equal(ws.Uuid(), rs[1].TenantId, "and of the workspace that did")
-
-	// Closing it takes typing what it is called: there is no name to leave
-	// empty.
-	there := metadata.AppendToOutgoingContext(asPark, cmd.WorkspaceHeader, me.GetTenant().GetAlias())
-	_, err = tenants.Close(there, app.TenantCloseRequest_builder{Ref: ref}.Build())
-	x.Equal(codes.InvalidArgument, status.Code(err), "closed by typing nothing")
-	x.Contains(status.Convert(err).Message(), "박서준의 워크스페이스")
-	_, err = tenants.Close(there, app.TenantCloseRequest_builder{Ref: ref, Confirm: "박서준의 워크스페이스"}.Build())
-	x.NoError(err)
 }
 
 // TestAWorkspaceIsRenamedByItsOwnerAlone is D58 over the wire: the owner of the

@@ -138,8 +138,7 @@ message Tenant {
   };
   // When it was closed. Null is open.
   google.protobuf.Timestamp date_closed = 8 [(orm.field) = {nullable: true}];
-  // Who closed it: `owner`, `operator`, or `deployment` when nobody was left
-  // in it.
+  // Who closed it: `operator`, or `deployment` when nobody was left in it.
   string closed_by = 9 [(payday.field) = {personal: false}];
   // Why, in the words of whoever closed it: what `workspace.close` says as
   // its reason, and so personal as every reason is (payday#92). Taking that
@@ -190,7 +189,7 @@ message Tenant {
   // RestoreDays is how long it may be restored once closed, in days, before it
   // is destroyed (D29). 0 is the deployment's `app.workspaces.restore_within`.
   // Read when it is closed: the date of its destruction then is what its
-  // owner is told.
+  // members are told.
   uint32 restore_days = 20 [(orm.field) = {default: ""}];
   // What KeepDays and AccessKeepDays said before each was last made shorter,
   // and when. A shorter window waits out the deployment's grace

@@ -258,13 +258,13 @@ test('a workspace made read-only says so above every page, and refuses a write a
 
 	// Every member's page says so as it is drawn, by the copy its writes are
 	// held to: that what is the workspace's is changed in nothing, and that
-	// it is read, taken out, paid for, closed and left -- and where to go
+	// it is read, taken out, paid for and left -- and where to go
 	// about it. Not that nothing else is changed: what is a person's own is
 	// (design 7.13, 7.14).
 	await page.goto(`/@${ws.alias}/assets`)
 	const banner = page.getByRole('alert')
 	await expect(banner).toContainText('이 워크스페이스는 읽기 전용입니다.')
-	await expect(banner).toContainText('워크스페이스의 데이터는 바꿀 수 없습니다. 보기, 내보내기, 결제, 닫기, 떠나기는 할 수 있습니다.')
+	await expect(banner).toContainText('워크스페이스의 데이터는 바꿀 수 없습니다. 보기, 내보내기, 결제, 떠나기는 할 수 있습니다.')
 	await expect(banner.getByRole('link')).toBeVisible()
 	// What it has is read as it was.
 	await expect(page.getByText(laptop)).toBeVisible()

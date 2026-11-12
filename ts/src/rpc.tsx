@@ -33,7 +33,7 @@ import {
 import { Code, ConnectError, createClient } from '@connectrpc/connect'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 
-import { errorText, isConsentOwed, isReadOnly, isRestricted, isUnauthenticated, transport } from './api.js'
+import { errorText, isClosed, isConsentOwed, isReadOnly, isRestricted, isUnauthenticated, transport } from './api.js'
 import { recall, remember, setOffline, unreachable, useOffline } from './offline.js'
 import { useToast } from './ui.js'
 
@@ -226,7 +226,9 @@ export function useRpc<I extends DescMessage, O extends DescMessage>(
 			(error) => {
 				if (ctl.signal.aborted) return
 				if (isUnauthenticated(error)) onRefused()
-				if (isConsentOwed(error)) location.reload()
+				// What the deployment asks first, and a workspace its operator
+				// closed meanwhile (D83): the page loaded again draws either.
+				if (isConsentOwed(error) || isClosed(error)) location.reload()
 				setAt((v) => ({ key, state: 'error', data: v.key === key ? v.data : undefined, error }))
 			},
 		)
@@ -297,7 +299,7 @@ export function useAct(): Act {
 					return undefined
 				}
 				if (isUnauthenticated(err)) onRefused()
-				if (isConsentOwed(err)) location.reload()
+				if (isConsentOwed(err) || isClosed(err)) location.reload()
 				if (!opts.quiet) toast(errorText(err), 'bad')
 				return undefined
 			}

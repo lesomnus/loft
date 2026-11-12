@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"fmt"
 	"slices"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/lesomnus/payday/entitle"
 
 	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/operator"
 )
 
 // A workspace levyan restricts (levyan#14, design 7.5, D60).
@@ -104,14 +106,23 @@ var Unmetered = []string{"disposed", "lost"}
 const ErrorRestricted = "RESTRICTED"
 
 // growing refuses the method the caller asked for, when it is one of [Grows]
-// and the workspace is restricted. A call nobody made over the wire -- an
-// operator's command, a sweep -- asks no method, and is not refused.
+// and the workspace is restricted. A call nobody made over the wire -- a
+// sweep -- asks no method, and is not refused; nor is an operator's at the
+// entry point, which writes as the deployment (D60).
 func (t *Tx) growing() error {
 	m, ok := grpc.Method(t.base)
-	if !ok {
+	if !ok || operated(t.base) {
 		return nil
 	}
 	return t.grows(m)
+}
+
+// operated is whether `ctx` is an operator's call at the entry point
+// (`server/admin`, D74): the deployment's own work at their word, which what
+// levyan makes of a workspace does not hold back.
+func operated(ctx context.Context) bool {
+	_, ok := operator.From(ctx)
+	return ok
 }
 
 // grows refuses what `key` names in [Grows] while the workspace is restricted,

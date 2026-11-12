@@ -1,9 +1,11 @@
 // Package closing is what becomes of a closed workspace, and of a workspace's
 // address (D29, design 8.4).
 //
-// A workspace is closed and restored by the domain layer (`TenantService.Close`
-// and `Restore`, `domain.Deps.CloseWorkspace`), which destroys nothing. What is
-// here is what comes after, and it is here because it destroys:
+// A workspace is closed and restored by the domain layer, as the
+// deployment's own work (`domain.Deps.CloseWorkspace` and `RestoreWorkspace`:
+// an operator's `TenantService.Close` and `Restore` at the entry point, D83,
+// or nobody left in it), which destroys nothing. What is here is what comes
+// after, and it is here because it destroys:
 //
 //   - [Closing.Sweep]: a workspace still closed once its restore window is
 //     over, and held by nothing, is destroyed -- every row and file of it,

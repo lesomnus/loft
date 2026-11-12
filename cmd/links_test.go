@@ -3,7 +3,6 @@ package cmd_test
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,7 +11,6 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/cmd"
 	entdomain "github.com/lesomnus/loft/internal/ent/domain"
 )
 
@@ -49,25 +47,6 @@ func TestALabelOpensWhereItsWorkspaceIs(t *testing.T) {
 	_, err = w.s.Ent.Domain.Update().SetState("legacy").Save(ctx)
 	x.NoError(err)
 	opens("old.acme.example", "https://"+serviceHost+"/scan/7K3MQ9TX")
-}
-
-// TestAWorkspacesDataIsTakenOutOnItsDomain: a workspace's export is its
-// owner's call in it (`TenantService.Export`, D73), on whichever host the page
-// is -- its own domain, with the session handed there, or the service's
-// address.
-func TestAWorkspacesDataIsTakenOutOnItsDomain(t *testing.T) {
-	w := newHosted(t)
-	x := w.x
-
-	w.domain(w.tenant, ownHost, "app", "active")
-	why := base64.StdEncoding.EncodeToString([]byte("keeping"))
-	handed := w.handOff(w.owner, ownHost)
-	parts, code := w.streamed(withCookie(handed), ownHost, "/loft.TenantService/Export", `{"ref":{"alias":"acme"}}`, "payday-reason-bin", why)
-	x.Empty(code)
-	x.Greater(len(parts), 1, "what the file is called, and then the file")
-	x.Contains(string(parts[0]), `"contentType":"application/zip"`)
-	_, code = w.streamed(w.owner, serviceHost, "/loft.TenantService/Export", `{"ref":{"alias":"acme"}}`, cmd.WorkspaceHeader, "acme", "payday-reason-bin", why)
-	x.Empty(code)
 }
 
 // TestALegacyDomainSendsItsPagesOn: an app domain another took the place of
