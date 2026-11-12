@@ -514,8 +514,8 @@ func (t *Tx) finish(rs []*ent.Reservation) error {
 // (sweepRequests), a room nobody checked in to past its grace and equipment
 // nobody picked up past the end of its time, or its grace when that is later
 // (sweepNoShows, sweepFinished). Nobody could take any of it up: a closed
-// workspace takes no call but its owner's look and restore (D29). Its
-// restore lets go of it ([Tx.expireClosed]).
+// workspace takes no call at all (D29, D83). Its restore lets go of it
+// ([Tx.expireClosed]).
 //
 // What was due before the workspace closed was due while it was open, and
 // is the sweeps' still; what is due from now on is the people's again. A

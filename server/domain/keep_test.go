@@ -81,11 +81,8 @@ func TestAWorkspaceSaysHowLongItKeepsItsHistory(t *testing.T) {
 
 	me, err := e.app().Party().Me(e.owner, &app.PartyMeRequest{})
 	x.NoError(err)
-	x.EqualValues(90, me.GetRestoreDays(), "what the owner is told before the close")
-	cur, err := e.app().Tenant().Get(e.owner, app.TenantGetRequest_builder{Ref: ws}.Build())
-	x.NoError(err)
-	closed, err := e.app().Tenant().Close(e.owner, app.TenantCloseRequest_builder{Ref: ws, Confirm: cur.GetName()}.Build())
-	x.NoError(err)
+	x.EqualValues(90, me.GetRestoreDays(), "what the owner is told of it")
+	closed := e.closeWhy("")
 	x.WithinDuration(e.now.Add(90*day), closed.GetDateDestroy().AsTime(), time.Minute, "destroyed on its own window, not the deployment's")
 }
 

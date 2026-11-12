@@ -67,7 +67,7 @@ func makeReadOnly(w *world, fake *levyantest.Levyan) []byte {
 	return id
 }
 
-// TestAReadOnlyWorkspaceIsReadPaidForAndClosed (design 7.10, D64): while
+// TestAReadOnlyWorkspaceIsReadAndPaidFor (design 7.10, D64): while
 // levyan makes a workspace read-only, every write of every kind is refused --
 // the register and its catalog, files, labels, bookings, hand-overs, stock,
 // counts, work, purchases, people and their roles, invitations sent and
@@ -78,8 +78,9 @@ func makeReadOnly(w *world, fake *levyantest.Levyan) []byte {
 // files, is paid for, and lets its members leave and a person be forgotten;
 // and a password, which is the account's, is changed, and what a person is
 // told, which is theirs (D67), is marked read and kept off their mail. Once
-// levyan ends the grant it writes again; and read-only or not, it closes.
-func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
+// levyan ends the grant it writes again. Closing it is its operator's, and
+// no role's in it (D83): TestAnOperatorClosesAndRestoresAReadOnlyWorkspace.
+func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	fake := levyantest.Start(t)
 	w := newInvites(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
 	x := w.x
@@ -267,8 +268,9 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	x.NoError(err)
 	x.True(me.GetReadonly())
 
-	// Its data taken out: a CSV of the register, a file it keeps, and all of
-	// it -- the file by the door that is no RPC, which only reads.
+	// Its data taken out: a CSV of the register, and a file it keeps -- by
+	// the door that is no RPC, which only reads. All of it at once is the
+	// operator's (D83).
 	_, err = assets.Export(metadata.AppendToOutgoingContext(w.owner, access.ReasonKey, "결제 정리"), &app.AssetExportRequest{})
 	x.NoError(err, "the register's CSV")
 	link, err := attachments.Url(w.owner, app.AttachmentUrlRequest_builder{Ref: fref}.Build())
@@ -278,10 +280,6 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	res := w.page(context.Background(), http.MethodGet, u.RequestURI())
 	x.Equal(http.StatusOK, res.Code, "a file it keeps, downloaded: %s", res.Body.String())
 	x.Equal("%PDF-1.7 warranty", res.Body.String())
-	all, _, err := exported(w.owner, w.conn, app.TenantRef_builder{Id: w.tenant.GetId()}.Build(), "결제 정리")
-	x.NoError(err, "all of it")
-	_, err = zip.NewReader(bytes.NewReader(all), int64(len(all)))
-	x.NoError(err, "a zip")
 
 	// Who saw whose data, read -- and not a review of it recorded, which is
 	// a write.
@@ -334,16 +332,47 @@ func TestAReadOnlyWorkspaceIsReadPaidForAndClosed(t *testing.T) {
 	me, err = parties.Me(w.owner, &app.PartyMeRequest{})
 	x.NoError(err)
 	x.False(me.GetReadonly())
+}
 
-	// And it closes, read-only or not -- by what it is called (D57) -- and
-	// is not restored until it is paid: restoring is opening it again.
-	makeReadOnly(w.world, fake)
-	me, err = parties.Me(w.owner, &app.PartyMeRequest{})
-	x.NoError(err)
-	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: tref, Confirm: me.GetWorkspaceName()}.Build())
-	x.NoError(err, "closing")
-	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: tref}.Build())
-	w.refusedReadOnly(err, app.TenantService_Restore_FullMethodName)
+// TestAnOperatorClosesAndRestoresAReadOnlyWorkspace (D83, as D64): what
+// becomes of a workspace is its operator's, and an unpaid one is the first
+// they close. At the entry point their word is the deployment's, which what
+// levyan makes of a workspace does not hold back: a read-only workspace is
+// closed, taken out and restored there -- and is read-only still, once it is
+// open again, until it is paid for.
+func TestAnOperatorClosesAndRestoresAReadOnlyWorkspace(t *testing.T) {
+	w, fake := billed(t)
+	x := w.x
+	makeReadOnly(w, fake)
+	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
+	entry := w.entryPoint(t)
+	operated := app.NewTenantServiceClient(entry)
+
+	v, err := operated.Close(byOperator(), app.TenantCloseRequest_builder{Ref: ref, Confirm: w.tenant.GetAlias(), Reason: "미납"}.Build())
+	x.NoError(err, "closed, read-only")
+	x.True(v.HasDateClosed())
+	_, err = app.NewAssetServiceClient(w.conn).Search(w.owner, app.AssetSearchRequest_builder{}.Build())
+	w.refusedClosed(err, "its owner")
+	all, _, err := exported(byOperator(), entry, ref, "미납 정리")
+	x.NoError(err, "taken out")
+	_, err = zip.NewReader(bytes.NewReader(all), int64(len(all)))
+	x.NoError(err, "a zip")
+
+	_, err = operated.Restore(byOperator(), app.TenantRestoreRequest_builder{Ref: ref}.Build())
+	x.NoError(err, "restored, read-only")
+	x.False(w.tenantRow().HasDateClosed())
+	x.True(w.readOnly(w.tenant), "and read-only until it is paid for")
+	_, err = app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "키보드"}.Build())
+	w.refusedReadOnly(err, app.AssetService_Add_FullMethodName)
+
+	// And what else the operator writes there, which no table of a
+	// read-only workspace's names: an owner named.
+	w.holder("kim", "member")
+	_, err = app.NewOperatorTenantServiceClient(entry).NameOwner(byOperator(), app.OperatorTenantNameOwnerRequest_builder{
+		Ref:    app.OperatorTenantRef_builder{Alias: z.Ptr(w.tenant.GetAlias())}.Build(),
+		Member: "kim",
+	}.Build())
+	x.NoError(err, "an owner named, read-only")
 }
 
 // ownerHolder is the membership the world's owner signs in as.

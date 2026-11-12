@@ -222,7 +222,7 @@ option (payday.app) = {
 //
 // workspace.* holds, by number:
 //
-//    1  by             string                     -- who closed or restored it: owner | operator | deployment
+//    1  by             string                     -- who closed or restored it: operator | deployment (D83)
 //    2  date_destroy   google.protobuf.Timestamp  -- when it is destroyed unless it is restored
 //    3  timezone       string                     -- the zone it says its own times in
 //    4  currency       string                     -- the currency it prices in
@@ -922,9 +922,9 @@ message WorkOrderFinished {
   string currency = 8;
 }
 
-// WorkspaceClosed is the workspace closed (`workspace.close`, D29) `by` its
-// owner, an operator, or the deployment when nobody was left in it; and when
-// it is destroyed unless it is restored.
+// WorkspaceClosed is the workspace closed (`workspace.close`, D29) `by` an
+// operator, or the deployment when nobody was left in it (D83); and when it
+// is destroyed unless it is restored.
 message WorkspaceClosed {
   option (payday.event) = {kinds: "workspace.close"};
 
@@ -933,7 +933,7 @@ message WorkspaceClosed {
 }
 
 // WorkspaceRestored is a closed workspace opened again
-// (`workspace.restore`) by its owner or an operator -- and how many of its
+// (`workspace.restore`) by an operator (D83) -- and how many of its
 // reservations whose time passed while it was closed it let go of as it
 // opened (`expired`, D70): a hold nobody could confirm, a request nobody
 // could decide, a booking nobody could check in to or pick up. Each is an

@@ -81,11 +81,11 @@ func (s tenants) List(ctx context.Context, req *app.TenantListRequest) (*app.Ten
 	return s.a.S.Base.Tenant().List(ctx, req)
 }
 
-// Close closes a workspace as an operator -- unpaid, a breach of the terms, a
-// request by mail (D29) -- with its address typed in `confirm`, which is how
-// an operator knows a workspace (design 9.11): its owner types its name, as it
-// is shown to them. It is closed as the owner's is, and its owner may restore
-// it while the window lasts.
+// Close closes a workspace as an operator -- unpaid, a breach of the terms,
+// its owner's request (D29) -- with its address typed in `confirm`, which is
+// how an operator knows a workspace (design 9.11). Nobody in it closes it, or
+// gets into it once it is closed (D83): it is the operator who restores it
+// while the window lasts, or takes its data out.
 func (s tenants) Close(ctx context.Context, req *app.TenantCloseRequest) (*app.Tenant, error) {
 	t, err := s.a.workspace(ctx, req.GetRef())
 	if err != nil {
@@ -97,7 +97,8 @@ func (s tenants) Close(ctx context.Context, req *app.TenantCloseRequest) (*app.T
 	return s.a.S.Deps.CloseWorkspace(ctx, s.a.S.Base, s.a.S.Drv, pdid.Id(t.Id), domain.ClosedByOperator, strings.TrimSpace(req.GetReason()))
 }
 
-// Restore opens a closed workspace again, while its window lasts.
+// Restore opens a closed workspace again, while its window lasts: at its
+// owner's request, or once what it was closed for is settled.
 func (s tenants) Restore(ctx context.Context, req *app.TenantRestoreRequest) (*app.Tenant, error) {
 	t, err := s.a.workspace(ctx, req.GetRef())
 	if err != nil {

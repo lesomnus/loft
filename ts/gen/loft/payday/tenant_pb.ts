@@ -103,8 +103,7 @@ export type Tenant = Message<"loft.Tenant"> & {
   dateClosed?: Timestamp | undefined;
 
   /**
-   * Who closed it: `owner`, `operator`, or `deployment` when nobody was left
-   * in it.
+   * Who closed it: `operator`, or `deployment` when nobody was left in it.
    *
    * @generated from field: string closed_by = 9;
    */
@@ -189,7 +188,7 @@ export type Tenant = Message<"loft.Tenant"> & {
    * RestoreDays is how long it may be restored once closed, in days, before it
    * is destroyed (D29). 0 is the deployment's `app.workspaces.restore_within`.
    * Read when it is closed: the date of its destruction then is what its
-   * owner is told.
+   * members are told.
    *
    * @generated from field: uint32 restore_days = 20;
    */

@@ -1631,9 +1631,9 @@ export const WorkOrderFinishedSchema: GenMessage<WorkOrderFinished> = /*@__PURE_
   messageDesc(file_loft_past, 44);
 
 /**
- * WorkspaceClosed is the workspace closed (`workspace.close`, D29) `by` its
- * owner, an operator, or the deployment when nobody was left in it; and when
- * it is destroyed unless it is restored.
+ * WorkspaceClosed is the workspace closed (`workspace.close`, D29) `by` an
+ * operator, or the deployment when nobody was left in it (D83); and when it
+ * is destroyed unless it is restored.
  *
  * @generated from message loft.WorkspaceClosed
  */
@@ -1658,7 +1658,7 @@ export const WorkspaceClosedSchema: GenMessage<WorkspaceClosed> = /*@__PURE__*/
 
 /**
  * WorkspaceRestored is a closed workspace opened again
- * (`workspace.restore`) by its owner or an operator -- and how many of its
+ * (`workspace.restore`) by an operator (D83) -- and how many of its
  * reservations whose time passed while it was closed it let go of as it
  * opened (`expired`, D70): a hold nobody could confirm, a request nobody
  * could decide, a booking nobody could check in to or pick up. Each is an

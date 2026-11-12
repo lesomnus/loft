@@ -4833,9 +4833,9 @@ func (b0 WorkOrderFinished_builder) Build() *WorkOrderFinished {
 	return m0
 }
 
-// WorkspaceClosed is the workspace closed (`workspace.close`, D29) `by` its
-// owner, an operator, or the deployment when nobody was left in it; and when
-// it is destroyed unless it is restored.
+// WorkspaceClosed is the workspace closed (`workspace.close`, D29) `by` an
+// operator, or the deployment when nobody was left in it (D83); and when it
+// is destroyed unless it is restored.
 type WorkspaceClosed struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_By          string                 `protobuf:"bytes,1,opt,name=by"`
@@ -4919,7 +4919,7 @@ func (b0 WorkspaceClosed_builder) Build() *WorkspaceClosed {
 }
 
 // WorkspaceRestored is a closed workspace opened again
-// (`workspace.restore`) by its owner or an operator -- and how many of its
+// (`workspace.restore`) by an operator (D83) -- and how many of its
 // reservations whose time passed while it was closed it let go of as it
 // opened (`expired`, D70): a hold nobody could confirm, a request nobody
 // could decide, a booking nobody could check in to or pick up. Each is an

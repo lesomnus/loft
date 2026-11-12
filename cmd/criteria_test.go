@@ -21,7 +21,6 @@ import (
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -61,15 +60,6 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
-
-	// A workspace with a name, so that a close confirmed by nothing is not a
-	// close: the calls below are made with empty requests.
-	_, err := w.s.Base.Tenant().Patch(ctx, app.TenantPatchRequest_builder{
-		Ref:              app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
-		Name:             z.Ptr("Acme"),
-		DateUpdatedForce: z.Ptr(true),
-	}.Build())
-	x.NoError(err)
 
 	roles := []string{"auditor", "member", "manager", "admin", "owner"}
 	as := map[string]context.Context{"owner": w.owner}

@@ -189,8 +189,8 @@ func (n *Notices) Leave(ctx context.Context, db *ent.Client, workspace, account 
 }
 
 // Close is `workspace` closed at `at`, which is what it says it was
-// (`Tenant.date_closed`): by its owner, an operator, or the deployment when
-// nobody was left in it, whoever closed it.
+// (`Tenant.date_closed`): by an operator, or the deployment when nobody was
+// left in it, whoever closed it.
 func (n *Notices) Close(ctx context.Context, db *ent.Client, workspace pdid.Id, at time.Time) error {
 	if n == nil {
 		return nil

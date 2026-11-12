@@ -50,11 +50,13 @@ type TenantServiceClient interface {
 	Erase(ctx context.Context, in *TenantRef, opts ...grpc.CallOption) (*TenantEraseResponse, error)
 	// List reads Tenants a page at a time.
 	List(ctx context.Context, in *TenantListRequest, opts ...grpc.CallOption) (*TenantListResponse, error)
-	// Close shuts a workspace (D29): nobody gets in but its owner, who may
-	// restore it or take its data out, until it is destroyed. `confirm` is its
-	// name, typed by whoever closes it.
+	// Close shuts a workspace (D29): nobody gets in, its owner neither, until
+	// it is restored or destroyed. The operator's, at the entry point (D74), and
+	// no role's in the workspace (D83). `confirm` is its address, typed by the
+	// operator who closes it.
 	Close(ctx context.Context, in *TenantCloseRequest, opts ...grpc.CallOption) (*Tenant, error)
-	// Restore opens a closed workspace again, while its restore window lasts.
+	// Restore opens a closed workspace again, while its restore window lasts:
+	// the operator's, as Close is.
 	Restore(ctx context.Context, in *TenantRestoreRequest, opts ...grpc.CallOption) (*Tenant, error)
 	// Configure is the workspace's own settings, its owner's to say (#144):
 	// what it is called (D58), where it is -- the zone its dates are told in,
@@ -82,12 +84,12 @@ type TenantServiceClient interface {
 	// account in none, asked for. The account's own, at the service's address
 	// and once it has agreed to what the deployment asks.
 	Create(ctx context.Context, in *TenantCreateRequest, opts ...grpc.CallOption) (*TenantMembership, error)
-	// Export is everything the workspace has, as one zip (D29, D34): its
-	// owner's to take out, open or closed, read-only or not, and whether or not
-	// they agreed to what comes next. A download of everybody in it -- what it
-	// is for is said in `payday-reason-bin`, and on the access record before
-	// anything is read for it (loft#136) -- made whole before its bytes are
-	// sent.
+	// Export is everything the workspace has, as one zip (D29, D34), open or
+	// closed: the operator's to take out, at the entry point, for its owner or
+	// for one that is leaving, and no role's in the workspace (D83). A download
+	// of everybody in it -- what it is for is said in `payday-reason-bin`, and
+	// on the access record before anything is read for it (loft#136) -- made
+	// whole before its bytes are sent.
 	Export(ctx context.Context, in *TenantExportRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TenantExportResponse], error)
 }
 
@@ -254,11 +256,13 @@ type TenantServiceServer interface {
 	Erase(context.Context, *TenantRef) (*TenantEraseResponse, error)
 	// List reads Tenants a page at a time.
 	List(context.Context, *TenantListRequest) (*TenantListResponse, error)
-	// Close shuts a workspace (D29): nobody gets in but its owner, who may
-	// restore it or take its data out, until it is destroyed. `confirm` is its
-	// name, typed by whoever closes it.
+	// Close shuts a workspace (D29): nobody gets in, its owner neither, until
+	// it is restored or destroyed. The operator's, at the entry point (D74), and
+	// no role's in the workspace (D83). `confirm` is its address, typed by the
+	// operator who closes it.
 	Close(context.Context, *TenantCloseRequest) (*Tenant, error)
-	// Restore opens a closed workspace again, while its restore window lasts.
+	// Restore opens a closed workspace again, while its restore window lasts:
+	// the operator's, as Close is.
 	Restore(context.Context, *TenantRestoreRequest) (*Tenant, error)
 	// Configure is the workspace's own settings, its owner's to say (#144):
 	// what it is called (D58), where it is -- the zone its dates are told in,
@@ -286,12 +290,12 @@ type TenantServiceServer interface {
 	// account in none, asked for. The account's own, at the service's address
 	// and once it has agreed to what the deployment asks.
 	Create(context.Context, *TenantCreateRequest) (*TenantMembership, error)
-	// Export is everything the workspace has, as one zip (D29, D34): its
-	// owner's to take out, open or closed, read-only or not, and whether or not
-	// they agreed to what comes next. A download of everybody in it -- what it
-	// is for is said in `payday-reason-bin`, and on the access record before
-	// anything is read for it (loft#136) -- made whole before its bytes are
-	// sent.
+	// Export is everything the workspace has, as one zip (D29, D34), open or
+	// closed: the operator's to take out, at the entry point, for its owner or
+	// for one that is leaving, and no role's in the workspace (D83). A download
+	// of everybody in it -- what it is for is said in `payday-reason-bin`, and
+	// on the access record before anything is read for it (loft#136) -- made
+	// whole before its bytes are sent.
 	Export(*TenantExportRequest, grpc.ServerStreamingServer[TenantExportResponse]) error
 	mustEmbedUnimplementedTenantServiceServer()
 }

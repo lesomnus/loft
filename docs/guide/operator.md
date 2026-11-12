@@ -130,7 +130,7 @@ loft auth whoami                                 # 키가 누구인지 진입점
 loft tenant ls --q 우리                          # 주소·이름의 일부로 찾기 (--closed: 닫힌 것만)
 loft tenant show loft                            # 구성원, 보관 기간과 줄어든 기간의 기한, 계약, hold
 loft tenant close --reason "요청" loft            # 무엇을 할지만
-loft tenant close --reason "요청" --yes loft      # 닫기 (소유자는 복구 기간 안에 복구할 수 있음)
+loft tenant close --reason "요청" --yes loft      # 닫기 (복구 기간 안에는 운영자가 복구할 수 있음)
 loft tenant restore --yes loft
 loft tenant name-owner --member gunwoo-lee --yes loft  # 구성원을 소유자로 지정
 loft tenant move --to woori --yes loft           # 주소 바꾸기 (이전 주소는 보류되고 새 주소로 넘김)
@@ -178,7 +178,7 @@ loft access-review list --tenant loft                                           
 
 - 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve` 가 시작하지 않습니다. 운영자가 여럿이면 이름마다 키를 하나씩 둡니다. 키를 바꿔도 이름이 같으면 기록에는 같은 운영자입니다.
 - `loft` 에 주는 키는 있는 곳(`env:이름`, `file:경로`)으로만 씁니다. 키를 바로 쓰면 셸의 기록과 프로세스 목록에 남으므로 거부합니다.
-- 사람의 연결로 운영자의 명령을 부르면 아무것도 묻지 않고 운영자의 연결을 쓰라고 말합니다. `tenant list|close|restore|export` 와 `access-review list` 는 두 연결이 같이 씁니다. 소유자는 이름을 쳐서(`--confirm`) 닫고, 운영자는 주소로 닫습니다.
+- 사람의 연결로 운영자의 명령을 부르면 아무것도 묻지 않고 운영자의 연결을 쓰라고 말합니다. `tenant list` 와 `access-review list` 는 두 연결이 같이 씁니다. 워크스페이스를 닫고, 되돌리고, 모두 내보내는 것(`tenant close|restore|export`)은 운영자만 합니다(design D83). 소유자도 워크스페이스 안에서는 하지 못하므로 운영자에게 요청합니다. 운영자는 주소로 닫습니다.
 - RPC를 그대로 부를 수도 있습니다: `curl -H "authorization: Bearer $KEY" -H 'content-type: application/json' -H 'connect-protocol-version: 1' -d '{}' http://127.0.0.1:8081/loft.TenantService/List`. 진입점이 내는 메서드는 `server/operator` 의 표(`Table`)에 있습니다.
 - Kubernetes에서는 Service가 없고 NetworkPolicy가 닫으므로 `kubectl port-forward` 로만 들어옵니다. compose에서는 호스트의 루프백에만 열리므로 SSH 터널로 들어옵니다. 각 README의 "운영자 진입점"에 있습니다.
 - 셸의 운영자 명령은 모두 진입점의 RPC가 됐고(loft#285), `loft` 가 운영자의 연결로 부릅니다. 서버 상자에서 도는 것은 `init`, `migrate`, `serve`, `config`, `version` 뿐입니다. 운영자 웹 화면은 나중입니다.
@@ -187,7 +187,7 @@ loft access-review list --tenant loft                                           
 
 - **주소를 바꿔 달라**: 주소는 사용자가 바꿀 수 없습니다. 운영자가 바꾸면 이전 주소는 1년(`app.workspaces.alias_hold`) 동안 아무도 쓰지 못하게 보류되고 그동안 새 주소로 넘겨 줍니다. 예약어(`www`, `api`, `admin`, `l`, `sso`, `login` 등, `app.workspaces.reserved` 로 더함)는 쓸 수 없습니다. 보류된 주소를 굳이 쓰려면 `--reuse` 입니다.
 - **소유자가 없다, 소유자를 바꿔 달라**: `loft tenant name-owner` 로 구성원을 소유자로 지정합니다.
-- **대신 닫아 달라, 다시 열어 달라**: 닫힌 워크스페이스는 소유자만 들어오고, 복구 기간이 지나면 파기됩니다.
+- **닫아 달라, 다시 열어 달라, 데이터를 달라**: 워크스페이스 안에서는 소유자도 닫고, 되돌리고, 모두 내보내지 못하므로 운영자가 합니다(design D83). 요청한 사람이 그 워크스페이스의 소유자인지 확인하고(`loft tenant show` 의 소유자), 닫을 때는 까닭을 `--reason` 에 적습니다. 닫힌 워크스페이스에는 소유자도 들어오지 못하고, 화면은 운영자에게 문의하라고만 말합니다. 복구 기간 안에는 되돌릴 수 있고, 지나면 파기됩니다. 내보낸 파일은 모든 사람의 데이터이므로 소유자에게 안전하게 건넵니다.
 - 워크스페이스의 이름은 운영자가 바꾸지 않습니다. `loft tenant ls|show` 는 저장된 이름을 보이므로, 소유자의 이름으로 부르는 워크스페이스(이름이 없는 것)는 빈칸입니다. 주소와 소유자의 아이디로 찾습니다.
 - 워크스페이스는 계정마다 3개까지 더 만들 수 있습니다(`app.workspaces.owned`, 닫은 것은 세지 않음). 주소의 길이는 `app.workspaces.alias_length` 입니다.
 
@@ -196,6 +196,7 @@ loft tenant move --to woori loft                 # 무엇을 할지만
 loft tenant move --to woori --yes loft
 loft tenant close --reason "요청" --yes loft       # 복구 기간이 지나면 파기
 loft tenant restore --yes loft
+loft --reason "소유자의 요청" tenant export --out loft.zip loft   # 닫혀 있어도 됨
 ```
 
 ## 계정을 지워 달라는 요청

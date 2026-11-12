@@ -201,10 +201,11 @@ func init() {
 	allow(Read, "PartyService", "SetPassword")
 	allow(Admin, "PartyService", "Add", "Update", "Invite", "SetRole", "Deactivate", "Pseudonymize")
 
-	allow(Owner, "TenantService", "Patch", "Close", "Restore", "Configure", "Preview")
-	// What a workspace has, all of it, out: its owner's (D29, D34), as their
-	// membership of it, and a download (`cmd.Downloads`).
-	allow(Owner, "TenantService", "Export")
+	// A workspace's settings are its owner's. Its end is not anybody's in it
+	// (D83): closing it, restoring it and taking all of it out are the
+	// operator's, at the entry point (`server/operator`'s table), and no role
+	// here is given them.
+	allow(Owner, "TenantService", "Patch", "Configure", "Preview")
 	// What an account is in, and one it makes: its own (D73), answered as
 	// itself and never as a membership.
 	allow(Account, "TenantService", "Mine", "Create")

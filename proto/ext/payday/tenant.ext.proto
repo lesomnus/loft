@@ -6,16 +6,15 @@ package payday;
 // the settings that are the workspace's own (#144) -- how long it keeps its
 // history among them (design 8, D36).
 //
-// Closing destroys nothing. Nobody but the owner gets in -- and the owner only
-// to restore it or take its data out -- until the restore window has run out
-// and nothing holds it, when it is destroyed and its alias is held for a while
-// so that nobody else can be that address to the people who knew it.
+// Closing destroys nothing. Nobody gets in, its owner neither -- the operator
+// restores it or takes its data out (D83) -- until the restore window has run
+// out and nothing holds it, when it is destroyed and its alias is held for a
+// while so that nobody else can be that address to the people who knew it.
 message Tenant {
   // When it was closed. Null is open.
   google.protobuf.Timestamp date_closed = 8 [(orm.field) = {nullable: true}];
 
-  // Who closed it: `owner`, `operator`, or `deployment` when nobody was left
-  // in it.
+  // Who closed it: `operator`, or `deployment` when nobody was left in it.
   string closed_by = 9 [(payday.field) = {personal: false}];
   // Why, in the words of whoever closed it: what `workspace.close` says as
   // its reason, and so personal as every reason is (payday#92). Taking that
@@ -67,7 +66,7 @@ message Tenant {
   // RestoreDays is how long it may be restored once closed, in days, before it
   // is destroyed (D29). 0 is the deployment's `app.workspaces.restore_within`.
   // Read when it is closed: the date of its destruction then is what its
-  // owner is told.
+  // members are told.
   uint32 restore_days = 20 [(orm.field) = {default: ""}];
 
   // What KeepDays and AccessKeepDays said before each was last made shorter,

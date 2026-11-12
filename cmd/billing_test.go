@@ -365,12 +365,11 @@ func TestARefusedReadingDoesNotHoldADestructionUp(t *testing.T) {
 	x.Len(fake.Calls(), 1)
 }
 
-// closed closes the world's workspace and has its restore window over.
+// closed closes the world's workspace, as its operator does, and has its
+// restore window over.
 func (w *world) closed() {
 	ctx := context.Background()
-	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
-	_, err := app.NewTenantServiceClient(w.conn).Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
-	w.x.NoError(err)
+	w.closeIt("")
 	w.x.NoError(w.s.Ent.Tenant.UpdateOneId(tenantId(w.x, w.tenant).Uuid()).SetDateDestroy(time.Now().Add(-time.Minute)).Exec(ctx))
 }
 

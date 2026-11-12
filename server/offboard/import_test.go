@@ -477,7 +477,7 @@ func TestAClosedWorkspaceIsRestoredOpen(t *testing.T) {
 	x := e.x
 	ctx := context.Background()
 	acme := e.tenant("acme")
-	_, err := e.s.Deps.CloseWorkspace(ctx, e.s.Base, e.s.Drv, acme.id, domain.ClosedByOwner, "")
+	_, err := e.s.Deps.CloseWorkspace(ctx, e.s.Base, e.s.Drv, acme.id, domain.ClosedByOperator, "")
 	x.NoError(err)
 	x.True(e.tenantRow(acme.id).HasDateClosed())
 

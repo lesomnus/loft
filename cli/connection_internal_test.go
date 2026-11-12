@@ -169,7 +169,7 @@ func TestAConnectionSaysWhoItIs(t *testing.T) {
 func TestOnlyACallOfTheOtherKindIsToldWhichConnection(t *testing.T) {
 	x := require.New(t)
 	owed := app.OperatorTrailService_Owed_FullMethodName
-	closing := app.TenantService_Close_FullMethodName
+	members := app.HolderService_List_FullMethodName
 	list := app.AssetService_List_FullMethodName
 
 	for _, v := range []struct {
@@ -181,12 +181,13 @@ func TestOnlyACallOfTheOtherKindIsToldWhichConnection(t *testing.T) {
 		{Person, owed, codes.Unimplemented, "is the operator's, and this is a person's connection"},
 		{Person, owed, codes.PermissionDenied, "is the operator's, and this is a person's connection"},
 		{Person, app.TenantContractService_Add_FullMethodName, codes.PermissionDenied, "is the operator's, and this is a person's connection"},
+		{Person, app.TenantService_Close_FullMethodName, codes.PermissionDenied, "is the operator's, and this is a person's connection"},
 		{Operator, list, codes.Unimplemented, "is a person's, and this is an operator's connection"},
 		{Operator, list, codes.PermissionDenied, "is a person's, and this is an operator's connection"},
 		{Person, owed, codes.Unavailable, "as it was"},
 		{Operator, list, codes.NotFound, "as it was"},
-		{Person, closing, codes.PermissionDenied, "as it was"},
-		{Operator, closing, codes.PermissionDenied, "as it was"},
+		{Person, members, codes.PermissionDenied, "as it was"},
+		{Operator, members, codes.PermissionDenied, "as it was"},
 		{Person, list, codes.PermissionDenied, "as it was"},
 		{Operator, owed, codes.Unimplemented, "as it was"},
 		{"", owed, codes.Unimplemented, "as it was"},
@@ -214,8 +215,11 @@ func TestWhatIsTheOperatorsAloneIsWhatNoRoleIsGiven(t *testing.T) {
 		app.TenantContractService_Add_FullMethodName:   true,
 		app.LegalHoldService_Patch_FullMethodName:      true,
 		app.EventService_Redact_FullMethodName:         true,
-		app.TenantService_Close_FullMethodName:         false,
+		app.TenantService_Close_FullMethodName:         true,
+		app.TenantService_Restore_FullMethodName:       true,
+		app.TenantService_Export_FullMethodName:        true,
 		app.TenantService_List_FullMethodName:          false,
+		app.HolderService_List_FullMethodName:          false,
 		app.TenantContractService_List_FullMethodName:  false,
 		app.AccessReviewService_List_FullMethodName:    false,
 		app.AssetService_List_FullMethodName:           false,

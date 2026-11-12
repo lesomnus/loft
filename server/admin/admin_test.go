@@ -205,7 +205,7 @@ func TestTheTableIsWhatIsServed(t *testing.T) {
 		x.Contains(g.GetServiceInfo(), string(sd.FullName()), "the operator's own %s is served", sd.FullName())
 		x.True(operator.Own("/" + string(sd.FullName()) + "/" + string(sd.Methods().Get(0).Name())))
 	}
-	x.False(operator.Own(app.TenantService_Close_FullMethodName), "an entity's, which the public server serves too")
+	x.False(operator.Own(app.TenantService_Close_FullMethodName), "an entity's, whose service the public server serves too, though it gives this method no role (D83)")
 }
 
 // TestThePublicServerServesNoneOfTheOperators: the public server registers no

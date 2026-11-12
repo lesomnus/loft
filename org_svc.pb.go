@@ -2443,7 +2443,6 @@ type PartyMeResponse struct {
 	xxx_hidden_Timezone      string                 `protobuf:"bytes,9,opt,name=timezone"`
 	xxx_hidden_Currency      string                 `protobuf:"bytes,10,opt,name=currency"`
 	xxx_hidden_RestoreDays   uint32                 `protobuf:"varint,11,opt,name=restore_days,json=restoreDays"`
-	xxx_hidden_AliasHoldDays uint32                 `protobuf:"varint,12,opt,name=alias_hold_days,json=aliasHoldDays"`
 	xxx_hidden_WorkspaceName string                 `protobuf:"bytes,13,opt,name=workspace_name,json=workspaceName"`
 	xxx_hidden_Restricted    bool                   `protobuf:"varint,14,opt,name=restricted"`
 	xxx_hidden_Readonly      bool                   `protobuf:"varint,15,opt,name=readonly"`
@@ -2539,13 +2538,6 @@ func (x *PartyMeResponse) GetRestoreDays() uint32 {
 	return 0
 }
 
-func (x *PartyMeResponse) GetAliasHoldDays() uint32 {
-	if x != nil {
-		return x.xxx_hidden_AliasHoldDays
-	}
-	return 0
-}
-
 func (x *PartyMeResponse) GetWorkspaceName() string {
 	if x != nil {
 		return x.xxx_hidden_WorkspaceName
@@ -2601,10 +2593,6 @@ func (x *PartyMeResponse) SetCurrency(v string) {
 
 func (x *PartyMeResponse) SetRestoreDays(v uint32) {
 	x.xxx_hidden_RestoreDays = v
-}
-
-func (x *PartyMeResponse) SetAliasHoldDays(v uint32) {
-	x.xxx_hidden_AliasHoldDays = v
 }
 
 func (x *PartyMeResponse) SetWorkspaceName(v string) {
@@ -2675,9 +2663,6 @@ type PartyMeResponse_builder struct {
 	// How many days a closed workspace may be restored in (#144): its own, or
 	// the deployment's where it says none.
 	RestoreDays uint32
-	// And how many days its address is then kept from anybody else: the
-	// deployment's `app.workspaces.alias_hold`.
-	AliasHoldDays uint32
 	// What the workspace is called, as the server tells it (D57): its own name,
 	// or, for one that has none -- the workspace an account is given when it
 	// arrives -- "<이름>의 워크스페이스" after its first owner, named as they are
@@ -2691,9 +2676,9 @@ type PartyMeResponse_builder struct {
 	Restricted bool
 	// Whether levyan makes the workspace read-only now, as the copy says
 	// (`loft.readonly`, design 7.10): the second stage, which every member's
-	// page says above it -- that it is read, taken out, paid for and closed,
-	// and changed in nothing else until it is paid. Never on a deployment
-	// that bills nobody.
+	// page says above it -- that it is read, taken out and paid for, and
+	// changed in nothing else until it is paid. Never on a deployment that
+	// bills nobody.
 	Readonly bool
 }
 
@@ -2710,7 +2695,6 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_Timezone = b.Timezone
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_RestoreDays = b.RestoreDays
-	x.xxx_hidden_AliasHoldDays = b.AliasHoldDays
 	x.xxx_hidden_WorkspaceName = b.WorkspaceName
 	x.xxx_hidden_Restricted = b.Restricted
 	x.xxx_hidden_Readonly = b.Readonly
@@ -6304,7 +6288,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.loft.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\x86\x04\n" +
+	"\x0ePartyMeRequest\"\xd7\x03\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.loft.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.loft.PartyR\x05party\x12$\n" +
@@ -6316,8 +6300,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\btimezone\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\btimezone\x12!\n" +
 	"\bcurrency\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12(\n" +
-	"\frestore_days\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\x12-\n" +
-	"\x0falias_hold_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\raliasHoldDays\x12,\n" +
+	"\frestore_days\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\x12,\n" +
 	"\x0eworkspace_name\x18\r \x01(\tB\x05\xaa\x01\x02\b\x02R\rworkspaceName\x12%\n" +
 	"\n" +
 	"restricted\x18\x0e \x01(\bB\x05\xaa\x01\x02\b\x02R\n" +

@@ -10,10 +10,8 @@
 
 import { useState, type ReactNode } from 'react'
 
-import { TenantService, daysWord, errorText, exportWorkspace, fmt, idBytes, leavePage, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
+import { daysWord, fmt, leavePage, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
 import { useWaiting } from './invitations.js'
-import { ReasonModal } from './reason.js'
-import { call } from './rpc.js'
 
 /** The form that makes a workspace and opens it. */
 function Make(props: { onCancel?: () => void }): ReactNode {
@@ -140,58 +138,26 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 	)
 }
 
-/** A closed workspace (D29): its owner restores it or takes its data out, and everybody else is told. */
+/**
+ * A closed workspace (D29, D83): nobody uses it, its owner neither, and what
+ * becomes of it -- restored, taken out, destroyed -- is the deployment's
+ * operator's, whom everybody in it is told to ask. What else it says is when
+ * it was closed and what goes when: what the account is told of it
+ * (`TenantService.Mine`), since every call into it is refused.
+ */
 export function Closed(props: { account: Account; ws: Workspace; onSignOut: () => void }): ReactNode {
-	const [busy, setBusy] = useState(false)
-	const [bad, setBad] = useState('')
-	// Everybody's data, so the export says what for (loft#136): asked of the
-	// workspace as its owner, and saved once all of it has come (D73).
-	const [exporting, setExporting] = useState(false)
-	const takeOut = async (why: string): Promise<boolean> => {
-		try {
-			await exportWorkspace(props.ws, why)
-			return true
-		} catch (err) {
-			setBad(errorText(err))
-			return false
-		}
-	}
-	const owner = props.ws.role === 'owner'
-	const restore = async (): Promise<void> => {
-		setBusy(true)
-		setBad('')
-		try {
-			await call(TenantService.method.restore, { ref: { key: { case: 'id', value: idBytes(props.ws.id) } } })
-			location.reload()
-		} catch (err) {
-			setBad(errorText(err))
-		} finally {
-			setBusy(false)
-		}
-	}
 	const on = (v?: string): string => (v === undefined ? '' : fmt(new Date(v), 'date'))
 	return (
 		<div className="login">
 			<div className="elsewhere">
 				<h2>{props.ws.name || props.ws.alias} — 닫힌 워크스페이스</h2>
-				<p>
-					{on(props.ws.closed)}에 닫혔습니다. 복구하지 않으면 {on(props.ws.destroy)} 이후 이 워크스페이스의 모든 데이터가 지워지고, 주소(@{props.ws.alias})는 {daysWord(props.ws.alias_hold_days ?? 365)} 동안 아무도 쓰지 못하게 보류됩니다.
+				<p>{on(props.ws.closed)}에 닫혔습니다. 다시 열거나 데이터를 받으려면 운영자에게 문의하세요.</p>
+				<p className="mute">
+					복구하지 않으면 {on(props.ws.destroy)} 이후 이 워크스페이스의 모든 데이터가 지워지고, 주소(@{props.ws.alias})는 {daysWord(props.ws.alias_hold_days ?? 365)} 동안 아무도 쓰지 못하게 보류됩니다.
 				</p>
-				{owner ? (
-					<div className="actions">
-						<button onClick={() => setExporting(true)}>데이터 내려받기 (zip)</button>
-						<button className="primary" disabled={busy} onClick={() => void restore()}>
-							복구
-						</button>
-					</div>
-				) : (
-					<p className="mute">소유자만 복구할 수 있습니다.</p>
-				)}
-				{bad !== '' && <p className="bad">{bad}</p>}
 				<p className="mute small">
 					<a href="/">다른 워크스페이스로</a> · <a onClick={props.onSignOut}>로그아웃</a>
 				</p>
-				{exporting && <ReasonModal title="워크스페이스 데이터 내려받기" onClose={() => setExporting(false)} onReason={takeOut} />}
 			</div>
 		</div>
 	)

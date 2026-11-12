@@ -302,9 +302,7 @@ An account in no workspace is given one of its own when it signs in
 beside `/session` (`server/account`) is what a session is told of itself,
 `GET /account`, and what it agrees to (`/account/consents`): an account that
 owes an agreement is refused every RPC but what it has (`cmd.WhileOwing`), so
-the way out cannot be behind the refusal. A workspace's export is its
-owner's, as their membership of it (`TenantService.Export`), and so works
-while it is closed.
+the way out cannot be behind the refusal.
 
 **Some calls are served as an account** (D30, D73): the invitations
 addressed to it -- nobody's member in that workspace yet --
@@ -337,11 +335,15 @@ mint a session with `Server.Sessions.Mint` and send its cookie (plus
 
 ## A workspace's end
 
-A workspace is closed by its owner (`TenantService.Close`, typing its name) or
-an operator (`loft tenant close`), or by the deployment when an account
-leaving left nobody in it, and closing destroys nothing: `cmd.Resolver` refuses
-every call into a closed workspace but its owner's `Get` and `Restore`, and the
-owner can take its data out (`TenantService.Export`). Once
+A workspace is closed by an operator (`loft tenant close`, at the entry
+point), or by the deployment when an account leaving left nobody in it --
+never by anybody in it, its owner neither (D83) -- and closing destroys
+nothing: `cmd.Resolver` refuses every call into a closed workspace, whoever
+makes it, with an `ErrorInfo` of reason `CLOSED` (`cmd.ErrorClosed`), and the
+page draws a notice that says to ask the operator. Restoring it and taking
+its data out are the operator's too (`loft tenant restore|export`): the policy
+table gives no role `TenantService.Close`, `Restore` or `Export`, which the
+entry point alone serves. Once
 its restore window is over -- its own `restore_days` (D36), or
 `app.workspaces.restore_within` -- and nothing holds it, `server/closing`
 destroys it and holds its address (`AliasHold`, whose reason says how it
@@ -511,20 +513,21 @@ nothing bills) and refused `FailedPrecondition` with an
 `errdetails.ErrorInfo` of reason `RESTRICTED`. That is the owner's first
 stage of two (levyan#1's question 3, answered 2026-11-01: after the grace,
 the day's work goes on and nothing grows); what growing is, that table, is
-Claude's. A method gRPC does not name -- an operator's command, a sweep -- is
-not refused: `loft holder add` included, which is the operator's door and not
-a workspace's. A new RPC that adds to a meter goes in the table, or it is a
-way around the restriction.
+Claude's. A method gRPC does not name -- a sweep -- is not refused, nor an
+operator's call at the entry point (`operator.From`, D83): `loft holder add`
+included, which is the operator's door and not a workspace's. A new RPC that
+adds to a meter goes in the table, or it is a way around the restriction.
 
 The second stage is `loft.readonly` (design 7.10, D64): sixty days after an
 invoice billing the workspace first failed to be charged, or after it last
 had a payer, levyan makes it read-only until it is paid for. Its table is
 the other way round: what a read-only workspace **still does**,
 `domain.ReadOnlyAllows` -- what levyan's `docs/apps.md` (3, "제한의 두 단계")
-says an app takes of one: reading, taking its data out, paying, closing, its
-members leaving; and a password, which is the account's, and a person's own
-notices, read and kept off their mail (`domain.Own`, D67) -- each with why,
-and every other write is refused. Keep it matching that chapter. Refused as
+says an app takes of one: reading, taking its data out, paying, its members
+leaving -- closing is the operator's (D83), and in no row of it -- and a
+password, which is the account's, and a person's own notices, read and kept
+off their mail (`domain.Own`, D67) -- each with why, and every other write is
+refused. Keep it matching that chapter. Refused as
 its operation begins (`Tx.begin`, `Tx.held`: read-only first, then
 `Grows`), and, for a write that begins none, as the domain layer's
 transaction a caller's method opened would commit (`Deps.run`); the
@@ -538,8 +541,10 @@ table says why it is not, and a new read goes in it as `domain.Reads`**:
 method that is neither in it nor served by this layer in a transaction of
 its own, read off the layer's source. The doors that are no RPC -- a
 file's download, signing in -- read or are an account's, and are not
-refused; nor are the account's own methods (`Account`), nor the workspace's
-export (`Exports`).
+refused; nor are the account's own methods (`Account`). Nor is an
+operator's call at the entry point, which writes as the deployment: `Tx.writing`
+and `Tx.growing` read the operator from the context (`operator.From`), so an
+unpaid workspace is still closed and restored there (D83).
 
 What the deployment's own work tells a read-only workspace is a table too
 (design 7.13, D67): `domain.ReadOnlyTells`, every kind of notice a sweep
@@ -622,8 +627,8 @@ settings › 결제.
 
 What became of a workspace is told the same way (design 7.8, D62): `close`
 and `restore`, written by `Tx.closeWorkspace` and `restoreWorkspace` in their
-transaction (`domain.Deps.Closings`) whoever closes it -- its owner, an
-operator, the deployment when nobody is left -- of the moment it happened;
+transaction (`domain.Deps.Closings`) whoever closes it -- an operator, the
+deployment when nobody is left -- of the moment it happened;
 and `destroy`, written by `closing.Destroy` once its final reading is handed
 over, whatever became of that, and before anything is taken: at a moment
 after the reading, which its `AliasHold` is held from, once of a workspace. A
@@ -739,9 +744,10 @@ document is called is not (design 8.2, D56): a field of free text a person
 writes says which, and `pd doctor` asks of each on a kind that holds people. What no declaration sees -- a name
 a sentence says (`who`, `say.go`), a column of a CSV, a name put in a mail --
 says `access.Saw` in the call that shows it. A download, which hands people's
-data out to be kept elsewhere, is in `cmd.Downloads` (the workspace's export among
-them, `TenantService.Export`, which says whose data it carries before its
-first message leaves): it says what it is for in
+data out to be kept elsewhere, is in `cmd.Downloads` -- or, at the entry
+point, `operator.Downloads`, the workspace's export among them
+(`TenantService.Export`, which says whose data it carries before its first
+message leaves): it says what it is for in
 `payday-reason-bin` -- base64, as every `-bin` key is -- or is refused. A file
 that names nobody is no download, and is a method of its own
 (`AssetService.Form`).

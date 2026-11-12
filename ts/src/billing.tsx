@@ -711,7 +711,7 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 	// What the banner says of the second stage before it comes.
 	const becomesReadOnly =
 		!readOnly && readOnlyFrom !== undefined
-			? ` ${fmt(readOnlyFrom, 'date')}부터는 읽기 전용이 되어 워크스페이스의 데이터를 바꿀 수 없게 됩니다. 보기, 내보내기, 결제, 닫기, 떠나기는 그때도 할 수 있습니다.`
+			? ` ${fmt(readOnlyFrom, 'date')}부터는 읽기 전용이 되어 워크스페이스의 데이터를 바꿀 수 없게 됩니다. 보기, 내보내기, 결제, 떠나기는 그때도 할 수 있습니다.`
 			: ''
 
 	const payerIsMe = p?.current !== undefined && p.current.account === props.account.id
@@ -741,7 +741,7 @@ export function BillingBanner(props: { account: Account }): ReactNode {
 			<>
 				<strong>이 워크스페이스는 {passed(readOnlyFrom) ? `${fmt(readOnlyFrom, 'date')}부터 ` : ''}읽기 전용입니다.</strong>
 				<span>
-					{why} 워크스페이스의 데이터는 바꿀 수 없습니다. 보기, 내보내기, 결제, 닫기, 떠나기는 할 수 있습니다. {ends} 곧 다시 바꿀 수 있습니다.
+					{why} 워크스페이스의 데이터는 바꿀 수 없습니다. 보기, 내보내기, 결제, 떠나기는 할 수 있습니다. {ends} 곧 다시 바꿀 수 있습니다.
 				</span>
 			</>
 		)

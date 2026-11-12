@@ -22,8 +22,9 @@ import (
 // pays for it (levyan's `docs/apps.md`, 3, "제한의 두 단계"). The first stage,
 // [Restricted], holds it to what it is billed by ([Grows]); this one holds it
 // to what levyan's chapter says an app takes of it: reading, taking its data
-// out, paying, closing, and its members leaving it. What is an account's
-// rather than the workspace's -- signing in -- stays the account's, and what a
+// out, paying, and its members leaving it -- and closing, which is the
+// operator's (D83) and no method of a role's. What is an account's rather
+// than the workspace's -- signing in -- stays the account's, and what a
 // person is told stays theirs to quiet. Every other write is refused.
 //
 // So the table is of what it still does, [ReadOnlyAllows], and not of what it
@@ -37,13 +38,14 @@ import (
 // its driver.
 //
 // It fails open as the first stage does: no grant of the key in force is not
-// read-only, and a deployment that bills nobody reads no copy. A method gRPC
-// does not name -- an operator's command, a sweep, a door that is no RPC -- is
-// not refused: the doors that are no RPC read (a file's download) or are an
-// account's (signing in, its sessions, what it agrees to), and an operator
-// writes as the deployment. An account's own methods -- the workspaces it is
-// in, one it makes, which of them a label is in -- are in no workspace, and
-// are here as the account's (D73).
+// read-only, and a deployment that bills nobody reads no copy. What no caller
+// of a workspace asks -- an operator's command at the entry point, a sweep, a
+// door that is no RPC -- is not refused: the doors that are no RPC read (a
+// file's download) or are an account's (signing in, its sessions, what it
+// agrees to), and an operator writes as the deployment -- closing a workspace
+// and restoring it among it (D83). An account's own methods -- the workspaces
+// it is in, one it makes, which of them a label is in -- are in no workspace,
+// and are here as the account's (D73).
 
 // ReadOnly is the key levyan grants a workspace it makes read-only: on, while
 // it is.
@@ -67,9 +69,9 @@ const (
 	Reads Allowed = "reads"
 
 	// Exports is its data taken out and its files downloaded (내보내기와
-	// 내려받기): the register's CSV and the reports', a file it keeps, the
-	// blank form a sheet is filled in on, and all of it at once, the
-	// workspace's export (`TenantService.Export`, D73).
+	// 내려받기): the register's CSV and the reports', a file it keeps, and the
+	// blank form a sheet is filled in on. All of it at once is the
+	// operator's (`TenantService.Export` at the entry point, D83).
 	Exports Allowed = "exports"
 
 	// Pays is how the workspace is paid for (결제, design 7.9): every call of
@@ -78,10 +80,6 @@ const (
 	// nothing of. Paying, which its payer does where a payer pays and not
 	// here (D81), is how it ends.
 	Pays Allowed = "pays"
-
-	// Closes is the workspace closed by its owner (닫기), which destroys
-	// nothing until its restore window is over (D29).
-	Closes Allowed = "closes"
 
 	// Leaves is a member leaving it (떠나기): a membership ended, and a
 	// person forgotten in it (개인정보 삭제) -- which ends their membership,
@@ -109,7 +107,8 @@ const (
 // assistant's `apply`.
 //
 // That it reads, takes its data out, pays and closes is the owner's
-// (levyan#1, 2026-11-01). That its members may leave it and that what is an
+// (levyan#1, 2026-11-01); closing is the operator's since (D83), and so in
+// no row here. That its members may leave it and that what is an
 // account's stays the account's is Claude's, as is that what a person is told
 // stays theirs to quiet (D67). Which methods those are is said here, and held
 // to what levyan's `docs/apps.md` says an app takes -- but for a password,
@@ -227,18 +226,12 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.StockService_ExportFlow_FullMethodName:             Exports,
 	app.AttachmentService_Url_FullMethodName:               Exports,
 	app.AssetService_Form_FullMethodName:                   Exports,
-	app.TenantService_Export_FullMethodName:                Exports,
 
 	// Who pays for it, and asking a member to: paying is how this ends.
 	app.PaymentService_GetPayer_FullMethodName:       Pays,
 	app.PaymentService_GetUsage_FullMethodName:       Pays,
 	app.PaymentService_ListStatements_FullMethodName: Pays,
 	app.PaymentService_Offer_FullMethodName:          Pays,
-
-	// Closing it. Restoring one closed is not here: that is the workspace
-	// open again, and what an open workspace does while it is read-only is
-	// this table.
-	app.TenantService_Close_FullMethodName: Closes,
 
 	// Leaving it.
 	app.PartyService_Deactivate_FullMethodName:   Leaves,
@@ -260,7 +253,7 @@ var ReadOnlyAllows = map[string]Allowed{
 // readOnlyRefusal is what a read-only workspace says of a write it refuses:
 // that it is read-only, what it still does, and how it ends. Not that it does
 // nothing else: what is an account's, or a person's own, it does (D68).
-const readOnlyRefusal = "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다. 보기, 내보내기, 결제, 닫기, 떠나기는 할 수 있고, 결제를 정리하면 다시 바꿀 수 있습니다"
+const readOnlyRefusal = "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다. 보기, 내보내기, 결제, 떠나기는 할 수 있고, 결제를 정리하면 다시 바꿀 수 있습니다"
 
 // passing is a write this layer adds nothing to -- a generated one a role is
 // given, served as it is -- but what levyan's grants hold the workspace back
@@ -291,11 +284,13 @@ func (t *Tx) held() error {
 
 // writing refuses the method the caller asked for while the workspace is
 // read-only, unless [ReadOnlyAllows] names it. A call nobody made over the
-// wire -- an operator's command, a sweep -- asks no method, and is not
-// refused.
+// wire -- a sweep -- asks no method, and is not refused; nor is an
+// operator's at the entry point, which writes as the deployment (D64, as
+// D60) -- an unpaid workspace closed or restored by its operator among it
+// (D83).
 func (t *Tx) writing() error {
 	m, ok := grpc.Method(t.base)
-	if !ok {
+	if !ok || operated(t.base) {
 		return nil
 	}
 	if _, ok := ReadOnlyAllows[m]; ok {

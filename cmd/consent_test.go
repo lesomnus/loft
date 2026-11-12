@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -38,8 +37,8 @@ func consentWorld(t *testing.T) *world {
 
 // TestNothingIsServedBeforeTheAccountAgrees: a deployment that asks for its
 // terms and its privacy policy to be agreed to serves an account nothing until
-// it has -- every call refused, a new workspace refused, though its own data
-// it still takes out -- and then records each at its version in roster's
+// it has -- every call refused, a new workspace refused, though it is still
+// told what it is in -- and then records each at its version in roster's
 // ledger (D37), and asks again when one changes (design 9.11).
 func TestNothingIsServedBeforeTheAccountAgrees(t *testing.T) {
 	w := consentWorld(t)
@@ -70,10 +69,6 @@ func TestNothingIsServedBeforeTheAccountAgrees(t *testing.T) {
 	mine, err := tenants.Mine(w.owner, &app.TenantMineRequest{})
 	x.NoError(err, "what it has is its own, agreed or not")
 	x.Len(mine.GetWorkspaces(), 1)
-	b, name, err := exported(w.owner, w.conn, app.TenantRef_builder{Alias: z.Ptr("acme")}.Build(), "keeping")
-	x.NoError(err, "and it takes it out")
-	x.NotEmpty(b)
-	x.Contains(name, ".zip")
 
 	// One of the two, or another version than the one in force, is not an
 	// agreement; nothing is recorded of either.

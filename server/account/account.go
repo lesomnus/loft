@@ -10,8 +10,7 @@
 // The rest of what an account has outside any one workspace is the account's
 // own RPCs (D73): the workspaces it is in and a new one
 // (`TenantService.Mine`, `Create`), which of them a label is in
-// (`LabelService.Locate`); and one workspace's data out is its owner's
-// (`TenantService.Export`).
+// (`LabelService.Locate`).
 package account
 
 import (

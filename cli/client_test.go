@@ -288,7 +288,7 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 	x.Contains(body, `"allow":[`)
 	out = run(t, root(), "tenant", "mine")
 	x.Contains(out, "acme", "what it is in, which it reads")
-	err = root().Run(context.Background(), []string{"--reason", "몰래", "tenant", "export", "--out", filepath.Join(t.TempDir(), "x.zip"), "acme"})
+	err = root().Run(context.Background(), []string{"--reason", "몰래", "asset", "export"})
 	x.ErrorContains(err, "this credential is not for that", "no data out")
 	err = root().Run(context.Background(), []string{"tenant", "create", `{"name": "몰래"}`})
 	x.ErrorContains(err, "this credential is not for that", "no workspace made")

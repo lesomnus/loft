@@ -3,16 +3,12 @@ package domain
 import (
 	"context"
 	"errors"
-	"fmt"
-	"io"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -33,10 +29,6 @@ import (
 // Each reads nothing through the walled servers -- there is no workspace to
 // narrow by -- and what it reads past them is held here to the account's own:
 // its memberships, as `tenancy.Workspaces` finds them by its identifier.
-//
-// A workspace's export is its owner's membership's instead, and so is no
-// method of the account's: it is of one workspace, which it is asked in,
-// open or closed (`cmd.WhileClosed`).
 
 // caller is the account calling as itself (payday#184), which only a session
 // is.
@@ -157,85 +149,6 @@ func (s domainTenant) Create(ctx context.Context, req *app.TenantCreateRequest) 
 	}
 
 	return s.membership(ctx, m), nil
-}
-
-// exportPart is how much of an export one message holds.
-const exportPart = 512 << 10
-
-// Export is everything the workspace has, as one zip, for its owner to take
-// out (D29, D34): what `loft tenant export` writes, written whole before its
-// first part goes, so that the moment it is read in is held while the
-// database is read and not while somebody takes their time over the download,
-// and one that fails is an answer that says so rather than a zip that stops
-// part of the way (loft#120).
-//
-// It is a download of everybody in it (`cmd.Downloads`), and says so before
-// anything is read for it (loft#136): its first message is what the file is
-// called, and the access record's row of whose data it carries -- by the
-// owner's membership, from where, and what for -- is written before that
-// message leaves, or nothing does. So the export holds its own row. The
-// reason is the interceptor's to have asked for.
-func (s domainTenant) Export(req *app.TenantExportRequest, out grpc.ServerStreamingServer[app.TenantExportResponse]) error {
-	ctx := out.Context()
-	if s.deps == nil || s.deps.Export == nil || s.deps.Carried == nil {
-		return status.Error(codes.Unimplemented, "이 배포는 워크스페이스를 내보내지 않습니다")
-	}
-	t, err := s.read(ctx)
-	if err != nil {
-		return err
-	}
-	if t.tenant.IsZero() {
-		return status.Error(codes.PermissionDenied, "워크스페이스의 소유자가 그 워크스페이스에서 내보냅니다")
-	}
-	if err := t.mine(req.GetRef()); err != nil {
-		return err
-	}
-	cur, err := t.db.Tenant.Get(ctx, t.tenant.Uuid())
-	if err != nil {
-		return err
-	}
-
-	people, err := s.deps.Carried(ctx, t.tenant)
-	if err != nil {
-		return err
-	}
-	access.Saw(ctx, people...)
-	if err := out.Send(app.TenantExportResponse_builder{
-		Name:        fmt.Sprintf("%s-%s.zip", cur.Alias, t.now.In(t.zone()).Format("20060102")),
-		ContentType: "application/zip",
-	}.Build()); err != nil {
-		return err
-	}
-
-	f, err := os.CreateTemp("", "loft-export-*.zip")
-	if err != nil {
-		return err
-	}
-	defer os.Remove(f.Name())
-	defer f.Close()
-	if err := s.deps.Export(ctx, t.tenant, f); err != nil {
-		return fmt.Errorf("export of @%s: %w", cur.Alias, err)
-	}
-	if _, err := f.Seek(0, io.SeekStart); err != nil {
-		return err
-	}
-	for {
-		// A part of its own each time: a message sent is not the sender's to
-		// change, whatever reads it after.
-		buf := make([]byte, exportPart)
-		n, err := io.ReadFull(f, buf)
-		if n > 0 {
-			if err := out.Send(app.TenantExportResponse_builder{Data: buf[:n]}.Build()); err != nil {
-				return err
-			}
-		}
-		if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
-	}
 }
 
 // Locate is which of the caller's account's workspaces a scanned code is a

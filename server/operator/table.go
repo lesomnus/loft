@@ -39,13 +39,15 @@ const (
 // operator: the same request, and the deployment's work in the workspace it
 // names. The rest are the operator's own services, which no other server has.
 var Table = map[string]Kind{
-	// Finding a workspace, closing and opening it: what its owner does from
-	// inside, done for them.
+	// Finding a workspace, of any; and closing and opening it, which is the
+	// operator's alone (D83) -- at its owner's request, or for what it was
+	// closed for -- and no role's in it.
 	app.TenantService_Get_FullMethodName:     Read,
 	app.TenantService_List_FullMethodName:    Read,
 	app.TenantService_Close_FullMethodName:   Write,
 	app.TenantService_Restore_FullMethodName: Write,
-	// And everything it has, out: for one that is leaving (design 8.2).
+	// And everything it has, out: for its owner, or one that is leaving
+	// (design 8.2).
 	app.TenantService_Export_FullMethodName: Download,
 
 	// What the deployment's agreement with a workspace says, and its legal
