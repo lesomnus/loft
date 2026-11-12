@@ -7,7 +7,6 @@
 package loft
 
 import (
-	_ "github.com/lesomnus/payday/pdpb"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -130,153 +129,6 @@ func (x BillingCollectionState) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-type BillingSubscriptionStatus int32
-
-const (
-	BillingSubscriptionStatus_BILLING_SUBSCRIPTION_STATUS_UNSPECIFIED BillingSubscriptionStatus = 0
-	BillingSubscriptionStatus_BILLING_SUBSCRIPTION_STATUS_ACTIVE      BillingSubscriptionStatus = 1
-	BillingSubscriptionStatus_BILLING_SUBSCRIPTION_STATUS_TRIALING    BillingSubscriptionStatus = 2
-	BillingSubscriptionStatus_BILLING_SUBSCRIPTION_STATUS_PAST_DUE    BillingSubscriptionStatus = 3
-	BillingSubscriptionStatus_BILLING_SUBSCRIPTION_STATUS_PAUSED      BillingSubscriptionStatus = 4
-	BillingSubscriptionStatus_BILLING_SUBSCRIPTION_STATUS_CANCELED    BillingSubscriptionStatus = 5
-)
-
-// Enum value maps for BillingSubscriptionStatus.
-var (
-	BillingSubscriptionStatus_name = map[int32]string{
-		0: "BILLING_SUBSCRIPTION_STATUS_UNSPECIFIED",
-		1: "BILLING_SUBSCRIPTION_STATUS_ACTIVE",
-		2: "BILLING_SUBSCRIPTION_STATUS_TRIALING",
-		3: "BILLING_SUBSCRIPTION_STATUS_PAST_DUE",
-		4: "BILLING_SUBSCRIPTION_STATUS_PAUSED",
-		5: "BILLING_SUBSCRIPTION_STATUS_CANCELED",
-	}
-	BillingSubscriptionStatus_value = map[string]int32{
-		"BILLING_SUBSCRIPTION_STATUS_UNSPECIFIED": 0,
-		"BILLING_SUBSCRIPTION_STATUS_ACTIVE":      1,
-		"BILLING_SUBSCRIPTION_STATUS_TRIALING":    2,
-		"BILLING_SUBSCRIPTION_STATUS_PAST_DUE":    3,
-		"BILLING_SUBSCRIPTION_STATUS_PAUSED":      4,
-		"BILLING_SUBSCRIPTION_STATUS_CANCELED":    5,
-	}
-)
-
-func (x BillingSubscriptionStatus) Enum() *BillingSubscriptionStatus {
-	p := new(BillingSubscriptionStatus)
-	*p = x
-	return p
-}
-
-func (x BillingSubscriptionStatus) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (BillingSubscriptionStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[2].Descriptor()
-}
-
-func (BillingSubscriptionStatus) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[2]
-}
-
-func (x BillingSubscriptionStatus) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-type BillingSubscriptionChange int32
-
-const (
-	BillingSubscriptionChange_BILLING_SUBSCRIPTION_CHANGE_UNSPECIFIED BillingSubscriptionChange = 0
-	BillingSubscriptionChange_BILLING_SUBSCRIPTION_CHANGE_CANCEL      BillingSubscriptionChange = 1
-	BillingSubscriptionChange_BILLING_SUBSCRIPTION_CHANGE_PAUSE       BillingSubscriptionChange = 2
-	BillingSubscriptionChange_BILLING_SUBSCRIPTION_CHANGE_RESUME      BillingSubscriptionChange = 3
-)
-
-// Enum value maps for BillingSubscriptionChange.
-var (
-	BillingSubscriptionChange_name = map[int32]string{
-		0: "BILLING_SUBSCRIPTION_CHANGE_UNSPECIFIED",
-		1: "BILLING_SUBSCRIPTION_CHANGE_CANCEL",
-		2: "BILLING_SUBSCRIPTION_CHANGE_PAUSE",
-		3: "BILLING_SUBSCRIPTION_CHANGE_RESUME",
-	}
-	BillingSubscriptionChange_value = map[string]int32{
-		"BILLING_SUBSCRIPTION_CHANGE_UNSPECIFIED": 0,
-		"BILLING_SUBSCRIPTION_CHANGE_CANCEL":      1,
-		"BILLING_SUBSCRIPTION_CHANGE_PAUSE":       2,
-		"BILLING_SUBSCRIPTION_CHANGE_RESUME":      3,
-	}
-)
-
-func (x BillingSubscriptionChange) Enum() *BillingSubscriptionChange {
-	p := new(BillingSubscriptionChange)
-	*p = x
-	return p
-}
-
-func (x BillingSubscriptionChange) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (BillingSubscriptionChange) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[3].Descriptor()
-}
-
-func (BillingSubscriptionChange) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[3]
-}
-
-func (x BillingSubscriptionChange) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-type BillingCheckoutState int32
-
-const (
-	BillingCheckoutState_BILLING_CHECKOUT_STATE_UNSPECIFIED BillingCheckoutState = 0
-	BillingCheckoutState_BILLING_CHECKOUT_STATE_OPEN        BillingCheckoutState = 1
-	BillingCheckoutState_BILLING_CHECKOUT_STATE_COMPLETED   BillingCheckoutState = 2
-	BillingCheckoutState_BILLING_CHECKOUT_STATE_CANCELED    BillingCheckoutState = 3
-)
-
-// Enum value maps for BillingCheckoutState.
-var (
-	BillingCheckoutState_name = map[int32]string{
-		0: "BILLING_CHECKOUT_STATE_UNSPECIFIED",
-		1: "BILLING_CHECKOUT_STATE_OPEN",
-		2: "BILLING_CHECKOUT_STATE_COMPLETED",
-		3: "BILLING_CHECKOUT_STATE_CANCELED",
-	}
-	BillingCheckoutState_value = map[string]int32{
-		"BILLING_CHECKOUT_STATE_UNSPECIFIED": 0,
-		"BILLING_CHECKOUT_STATE_OPEN":        1,
-		"BILLING_CHECKOUT_STATE_COMPLETED":   2,
-		"BILLING_CHECKOUT_STATE_CANCELED":    3,
-	}
-)
-
-func (x BillingCheckoutState) Enum() *BillingCheckoutState {
-	p := new(BillingCheckoutState)
-	*p = x
-	return p
-}
-
-func (x BillingCheckoutState) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (BillingCheckoutState) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[4].Descriptor()
-}
-
-func (BillingCheckoutState) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[4]
-}
-
-func (x BillingCheckoutState) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
 type BillingLinkBegan int32
 
 const (
@@ -316,11 +168,11 @@ func (x BillingLinkBegan) String() string {
 }
 
 func (BillingLinkBegan) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[5].Descriptor()
+	return file_loft_payment_proto_enumTypes[2].Descriptor()
 }
 
 func (BillingLinkBegan) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[5]
+	return &file_loft_payment_proto_enumTypes[2]
 }
 
 func (x BillingLinkBegan) Number() protoreflect.EnumNumber {
@@ -372,120 +224,14 @@ func (x BillingLinkEnded) String() string {
 }
 
 func (BillingLinkEnded) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[6].Descriptor()
+	return file_loft_payment_proto_enumTypes[3].Descriptor()
 }
 
 func (BillingLinkEnded) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[6]
+	return &file_loft_payment_proto_enumTypes[3]
 }
 
 func (x BillingLinkEnded) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-type BillingInvoiceState int32
-
-const (
-	BillingInvoiceState_BILLING_INVOICE_STATE_UNSPECIFIED   BillingInvoiceState = 0
-	BillingInvoiceState_BILLING_INVOICE_STATE_DRAFT         BillingInvoiceState = 1
-	BillingInvoiceState_BILLING_INVOICE_STATE_OPEN          BillingInvoiceState = 2
-	BillingInvoiceState_BILLING_INVOICE_STATE_PAID          BillingInvoiceState = 3
-	BillingInvoiceState_BILLING_INVOICE_STATE_UNCOLLECTIBLE BillingInvoiceState = 4
-	BillingInvoiceState_BILLING_INVOICE_STATE_VOID          BillingInvoiceState = 5
-	BillingInvoiceState_BILLING_INVOICE_STATE_WRITTEN_OFF   BillingInvoiceState = 6
-	BillingInvoiceState_BILLING_INVOICE_STATE_SHADOW        BillingInvoiceState = 7
-)
-
-// Enum value maps for BillingInvoiceState.
-var (
-	BillingInvoiceState_name = map[int32]string{
-		0: "BILLING_INVOICE_STATE_UNSPECIFIED",
-		1: "BILLING_INVOICE_STATE_DRAFT",
-		2: "BILLING_INVOICE_STATE_OPEN",
-		3: "BILLING_INVOICE_STATE_PAID",
-		4: "BILLING_INVOICE_STATE_UNCOLLECTIBLE",
-		5: "BILLING_INVOICE_STATE_VOID",
-		6: "BILLING_INVOICE_STATE_WRITTEN_OFF",
-		7: "BILLING_INVOICE_STATE_SHADOW",
-	}
-	BillingInvoiceState_value = map[string]int32{
-		"BILLING_INVOICE_STATE_UNSPECIFIED":   0,
-		"BILLING_INVOICE_STATE_DRAFT":         1,
-		"BILLING_INVOICE_STATE_OPEN":          2,
-		"BILLING_INVOICE_STATE_PAID":          3,
-		"BILLING_INVOICE_STATE_UNCOLLECTIBLE": 4,
-		"BILLING_INVOICE_STATE_VOID":          5,
-		"BILLING_INVOICE_STATE_WRITTEN_OFF":   6,
-		"BILLING_INVOICE_STATE_SHADOW":        7,
-	}
-)
-
-func (x BillingInvoiceState) Enum() *BillingInvoiceState {
-	p := new(BillingInvoiceState)
-	*p = x
-	return p
-}
-
-func (x BillingInvoiceState) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (BillingInvoiceState) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[7].Descriptor()
-}
-
-func (BillingInvoiceState) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[7]
-}
-
-func (x BillingInvoiceState) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-type BillingCreditNoteReason int32
-
-const (
-	BillingCreditNoteReason_BILLING_CREDIT_NOTE_REASON_UNSPECIFIED  BillingCreditNoteReason = 0
-	BillingCreditNoteReason_BILLING_CREDIT_NOTE_REASON_CORRECTION   BillingCreditNoteReason = 1
-	BillingCreditNoteReason_BILLING_CREDIT_NOTE_REASON_REFUND       BillingCreditNoteReason = 2
-	BillingCreditNoteReason_BILLING_CREDIT_NOTE_REASON_CANCELLATION BillingCreditNoteReason = 3
-)
-
-// Enum value maps for BillingCreditNoteReason.
-var (
-	BillingCreditNoteReason_name = map[int32]string{
-		0: "BILLING_CREDIT_NOTE_REASON_UNSPECIFIED",
-		1: "BILLING_CREDIT_NOTE_REASON_CORRECTION",
-		2: "BILLING_CREDIT_NOTE_REASON_REFUND",
-		3: "BILLING_CREDIT_NOTE_REASON_CANCELLATION",
-	}
-	BillingCreditNoteReason_value = map[string]int32{
-		"BILLING_CREDIT_NOTE_REASON_UNSPECIFIED":  0,
-		"BILLING_CREDIT_NOTE_REASON_CORRECTION":   1,
-		"BILLING_CREDIT_NOTE_REASON_REFUND":       2,
-		"BILLING_CREDIT_NOTE_REASON_CANCELLATION": 3,
-	}
-)
-
-func (x BillingCreditNoteReason) Enum() *BillingCreditNoteReason {
-	p := new(BillingCreditNoteReason)
-	*p = x
-	return p
-}
-
-func (x BillingCreditNoteReason) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (BillingCreditNoteReason) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[8].Descriptor()
-}
-
-func (BillingCreditNoteReason) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[8]
-}
-
-func (x BillingCreditNoteReason) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
@@ -531,11 +277,11 @@ func (x BillingDeclineKind) String() string {
 }
 
 func (BillingDeclineKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[9].Descriptor()
+	return file_loft_payment_proto_enumTypes[4].Descriptor()
 }
 
 func (BillingDeclineKind) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[9]
+	return &file_loft_payment_proto_enumTypes[4]
 }
 
 func (x BillingDeclineKind) Number() protoreflect.EnumNumber {
@@ -575,2544 +321,15 @@ func (x BillingLineKind) String() string {
 }
 
 func (BillingLineKind) Descriptor() protoreflect.EnumDescriptor {
-	return file_loft_payment_proto_enumTypes[10].Descriptor()
+	return file_loft_payment_proto_enumTypes[5].Descriptor()
 }
 
 func (BillingLineKind) Type() protoreflect.EnumType {
-	return &file_loft_payment_proto_enumTypes[10]
+	return &file_loft_payment_proto_enumTypes[5]
 }
 
 func (x BillingLineKind) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
-}
-
-type PaymentListBillingAccountsRequest struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PaymentListBillingAccountsRequest) Reset() {
-	*x = PaymentListBillingAccountsRequest{}
-	mi := &file_loft_payment_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListBillingAccountsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListBillingAccountsRequest) ProtoMessage() {}
-
-func (x *PaymentListBillingAccountsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type PaymentListBillingAccountsRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 PaymentListBillingAccountsRequest_builder) Build() *PaymentListBillingAccountsRequest {
-	m0 := &PaymentListBillingAccountsRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
-type PaymentListBillingAccountsResponse struct {
-	state                      protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_BillingAccounts *[]*BillingAccount     `protobuf:"bytes,1,rep,name=billing_accounts,json=billingAccounts"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
-}
-
-func (x *PaymentListBillingAccountsResponse) Reset() {
-	*x = PaymentListBillingAccountsResponse{}
-	mi := &file_loft_payment_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListBillingAccountsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListBillingAccountsResponse) ProtoMessage() {}
-
-func (x *PaymentListBillingAccountsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListBillingAccountsResponse) GetBillingAccounts() []*BillingAccount {
-	if x != nil {
-		if x.xxx_hidden_BillingAccounts != nil {
-			return *x.xxx_hidden_BillingAccounts
-		}
-	}
-	return nil
-}
-
-func (x *PaymentListBillingAccountsResponse) SetBillingAccounts(v []*BillingAccount) {
-	x.xxx_hidden_BillingAccounts = &v
-}
-
-type PaymentListBillingAccountsResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	BillingAccounts []*BillingAccount
-}
-
-func (b0 PaymentListBillingAccountsResponse_builder) Build() *PaymentListBillingAccountsResponse {
-	m0 := &PaymentListBillingAccountsResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_BillingAccounts = &b.BillingAccounts
-	return m0
-}
-
-type PaymentCreateBillingAccountRequest struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name      string                 `protobuf:"bytes,1,opt,name=name"`
-	xxx_hidden_Country   string                 `protobuf:"bytes,2,opt,name=country"`
-	xxx_hidden_Recipient *BillingRecipient      `protobuf:"bytes,3,opt,name=recipient"`
-	xxx_hidden_Business  *BillingBusiness       `protobuf:"bytes,4,opt,name=business"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
-}
-
-func (x *PaymentCreateBillingAccountRequest) Reset() {
-	*x = PaymentCreateBillingAccountRequest{}
-	mi := &file_loft_payment_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentCreateBillingAccountRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentCreateBillingAccountRequest) ProtoMessage() {}
-
-func (x *PaymentCreateBillingAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentCreateBillingAccountRequest) GetName() string {
-	if x != nil {
-		return x.xxx_hidden_Name
-	}
-	return ""
-}
-
-func (x *PaymentCreateBillingAccountRequest) GetCountry() string {
-	if x != nil {
-		return x.xxx_hidden_Country
-	}
-	return ""
-}
-
-func (x *PaymentCreateBillingAccountRequest) GetRecipient() *BillingRecipient {
-	if x != nil {
-		return x.xxx_hidden_Recipient
-	}
-	return nil
-}
-
-func (x *PaymentCreateBillingAccountRequest) GetBusiness() *BillingBusiness {
-	if x != nil {
-		return x.xxx_hidden_Business
-	}
-	return nil
-}
-
-func (x *PaymentCreateBillingAccountRequest) SetName(v string) {
-	x.xxx_hidden_Name = v
-}
-
-func (x *PaymentCreateBillingAccountRequest) SetCountry(v string) {
-	x.xxx_hidden_Country = v
-}
-
-func (x *PaymentCreateBillingAccountRequest) SetRecipient(v *BillingRecipient) {
-	x.xxx_hidden_Recipient = v
-}
-
-func (x *PaymentCreateBillingAccountRequest) SetBusiness(v *BillingBusiness) {
-	x.xxx_hidden_Business = v
-}
-
-func (x *PaymentCreateBillingAccountRequest) HasRecipient() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Recipient != nil
-}
-
-func (x *PaymentCreateBillingAccountRequest) HasBusiness() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Business != nil
-}
-
-func (x *PaymentCreateBillingAccountRequest) ClearRecipient() {
-	x.xxx_hidden_Recipient = nil
-}
-
-func (x *PaymentCreateBillingAccountRequest) ClearBusiness() {
-	x.xxx_hidden_Business = nil
-}
-
-type PaymentCreateBillingAccountRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// What the account calls it.
-	Name string
-	// ISO 3166-1 alpha-2: KR.
-	Country   string
-	Recipient *BillingRecipient
-	Business  *BillingBusiness
-}
-
-func (b0 PaymentCreateBillingAccountRequest_builder) Build() *PaymentCreateBillingAccountRequest {
-	m0 := &PaymentCreateBillingAccountRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Name = b.Name
-	x.xxx_hidden_Country = b.Country
-	x.xxx_hidden_Recipient = b.Recipient
-	x.xxx_hidden_Business = b.Business
-	return m0
-}
-
-type PaymentCreateBillingAccountResponse struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_BillingAccount *BillingAccount        `protobuf:"bytes,1,opt,name=billing_account,json=billingAccount"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentCreateBillingAccountResponse) Reset() {
-	*x = PaymentCreateBillingAccountResponse{}
-	mi := &file_loft_payment_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentCreateBillingAccountResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentCreateBillingAccountResponse) ProtoMessage() {}
-
-func (x *PaymentCreateBillingAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentCreateBillingAccountResponse) GetBillingAccount() *BillingAccount {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return nil
-}
-
-func (x *PaymentCreateBillingAccountResponse) SetBillingAccount(v *BillingAccount) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *PaymentCreateBillingAccountResponse) HasBillingAccount() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_BillingAccount != nil
-}
-
-func (x *PaymentCreateBillingAccountResponse) ClearBillingAccount() {
-	x.xxx_hidden_BillingAccount = nil
-}
-
-type PaymentCreateBillingAccountResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	BillingAccount *BillingAccount
-}
-
-func (b0 PaymentCreateBillingAccountResponse_builder) Build() *PaymentCreateBillingAccountResponse {
-	m0 := &PaymentCreateBillingAccountResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	return m0
-}
-
-type PaymentUpdateBillingAccountRequest struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id            string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Name          *string                `protobuf:"bytes,2,opt,name=name"`
-	xxx_hidden_Recipient     *BillingRecipient      `protobuf:"bytes,3,opt,name=recipient"`
-	xxx_hidden_Business      *BillingBusiness       `protobuf:"bytes,4,opt,name=business"`
-	xxx_hidden_ClearBusiness bool                   `protobuf:"varint,5,opt,name=clear_business,json=clearBusiness"`
-	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
-	XXX_presence             [1]uint32
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
-}
-
-func (x *PaymentUpdateBillingAccountRequest) Reset() {
-	*x = PaymentUpdateBillingAccountRequest{}
-	mi := &file_loft_payment_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentUpdateBillingAccountRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentUpdateBillingAccountRequest) ProtoMessage() {}
-
-func (x *PaymentUpdateBillingAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentUpdateBillingAccountRequest) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *PaymentUpdateBillingAccountRequest) GetName() string {
-	if x != nil {
-		if x.xxx_hidden_Name != nil {
-			return *x.xxx_hidden_Name
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *PaymentUpdateBillingAccountRequest) GetRecipient() *BillingRecipient {
-	if x != nil {
-		return x.xxx_hidden_Recipient
-	}
-	return nil
-}
-
-func (x *PaymentUpdateBillingAccountRequest) GetBusiness() *BillingBusiness {
-	if x != nil {
-		return x.xxx_hidden_Business
-	}
-	return nil
-}
-
-func (x *PaymentUpdateBillingAccountRequest) GetClearBusiness() bool {
-	if x != nil {
-		return x.xxx_hidden_ClearBusiness
-	}
-	return false
-}
-
-func (x *PaymentUpdateBillingAccountRequest) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-func (x *PaymentUpdateBillingAccountRequest) SetName(v string) {
-	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
-}
-
-func (x *PaymentUpdateBillingAccountRequest) SetRecipient(v *BillingRecipient) {
-	x.xxx_hidden_Recipient = v
-}
-
-func (x *PaymentUpdateBillingAccountRequest) SetBusiness(v *BillingBusiness) {
-	x.xxx_hidden_Business = v
-}
-
-func (x *PaymentUpdateBillingAccountRequest) SetClearBusiness(v bool) {
-	x.xxx_hidden_ClearBusiness = v
-}
-
-func (x *PaymentUpdateBillingAccountRequest) HasName() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
-}
-
-func (x *PaymentUpdateBillingAccountRequest) HasRecipient() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Recipient != nil
-}
-
-func (x *PaymentUpdateBillingAccountRequest) HasBusiness() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Business != nil
-}
-
-func (x *PaymentUpdateBillingAccountRequest) ClearName() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_Name = nil
-}
-
-func (x *PaymentUpdateBillingAccountRequest) ClearRecipient() {
-	x.xxx_hidden_Recipient = nil
-}
-
-func (x *PaymentUpdateBillingAccountRequest) ClearBusiness() {
-	x.xxx_hidden_Business = nil
-}
-
-type PaymentUpdateBillingAccountRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The billing account, by its identifier.
-	Id        string
-	Name      *string
-	Recipient *BillingRecipient
-	Business  *BillingBusiness
-	// Clears what is said of a business: the account is billed as a person.
-	ClearBusiness bool
-}
-
-func (b0 PaymentUpdateBillingAccountRequest_builder) Build() *PaymentUpdateBillingAccountRequest {
-	m0 := &PaymentUpdateBillingAccountRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
-		x.xxx_hidden_Name = b.Name
-	}
-	x.xxx_hidden_Recipient = b.Recipient
-	x.xxx_hidden_Business = b.Business
-	x.xxx_hidden_ClearBusiness = b.ClearBusiness
-	return m0
-}
-
-type PaymentUpdateBillingAccountResponse struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_BillingAccount *BillingAccount        `protobuf:"bytes,1,opt,name=billing_account,json=billingAccount"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentUpdateBillingAccountResponse) Reset() {
-	*x = PaymentUpdateBillingAccountResponse{}
-	mi := &file_loft_payment_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentUpdateBillingAccountResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentUpdateBillingAccountResponse) ProtoMessage() {}
-
-func (x *PaymentUpdateBillingAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentUpdateBillingAccountResponse) GetBillingAccount() *BillingAccount {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return nil
-}
-
-func (x *PaymentUpdateBillingAccountResponse) SetBillingAccount(v *BillingAccount) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *PaymentUpdateBillingAccountResponse) HasBillingAccount() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_BillingAccount != nil
-}
-
-func (x *PaymentUpdateBillingAccountResponse) ClearBillingAccount() {
-	x.xxx_hidden_BillingAccount = nil
-}
-
-type PaymentUpdateBillingAccountResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	BillingAccount *BillingAccount
-}
-
-func (b0 PaymentUpdateBillingAccountResponse_builder) Build() *PaymentUpdateBillingAccountResponse {
-	m0 := &PaymentUpdateBillingAccountResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	return m0
-}
-
-type PaymentGetBillingAccountRequest struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id string                 `protobuf:"bytes,1,opt,name=id"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PaymentGetBillingAccountRequest) Reset() {
-	*x = PaymentGetBillingAccountRequest{}
-	mi := &file_loft_payment_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentGetBillingAccountRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentGetBillingAccountRequest) ProtoMessage() {}
-
-func (x *PaymentGetBillingAccountRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentGetBillingAccountRequest) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *PaymentGetBillingAccountRequest) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-type PaymentGetBillingAccountRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id string
-}
-
-func (b0 PaymentGetBillingAccountRequest_builder) Build() *PaymentGetBillingAccountRequest {
-	m0 := &PaymentGetBillingAccountRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	return m0
-}
-
-type PaymentGetBillingAccountResponse struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_BillingAccount *BillingAccount        `protobuf:"bytes,1,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_Collection     *BillingCollection     `protobuf:"bytes,2,opt,name=collection"`
-	xxx_hidden_Subscription   *BillingSubscription   `protobuf:"bytes,3,opt,name=subscription"`
-	xxx_hidden_Dunning        *[]*BillingDunning     `protobuf:"bytes,4,rep,name=dunning"`
-	xxx_hidden_Credits        *[]*BillingCredit      `protobuf:"bytes,5,rep,name=credits"`
-	xxx_hidden_Balance        int64                  `protobuf:"varint,6,opt,name=balance"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentGetBillingAccountResponse) Reset() {
-	*x = PaymentGetBillingAccountResponse{}
-	mi := &file_loft_payment_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentGetBillingAccountResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentGetBillingAccountResponse) ProtoMessage() {}
-
-func (x *PaymentGetBillingAccountResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentGetBillingAccountResponse) GetBillingAccount() *BillingAccount {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return nil
-}
-
-func (x *PaymentGetBillingAccountResponse) GetCollection() *BillingCollection {
-	if x != nil {
-		return x.xxx_hidden_Collection
-	}
-	return nil
-}
-
-func (x *PaymentGetBillingAccountResponse) GetSubscription() *BillingSubscription {
-	if x != nil {
-		return x.xxx_hidden_Subscription
-	}
-	return nil
-}
-
-func (x *PaymentGetBillingAccountResponse) GetDunning() []*BillingDunning {
-	if x != nil {
-		if x.xxx_hidden_Dunning != nil {
-			return *x.xxx_hidden_Dunning
-		}
-	}
-	return nil
-}
-
-func (x *PaymentGetBillingAccountResponse) GetCredits() []*BillingCredit {
-	if x != nil {
-		if x.xxx_hidden_Credits != nil {
-			return *x.xxx_hidden_Credits
-		}
-	}
-	return nil
-}
-
-func (x *PaymentGetBillingAccountResponse) GetBalance() int64 {
-	if x != nil {
-		return x.xxx_hidden_Balance
-	}
-	return 0
-}
-
-func (x *PaymentGetBillingAccountResponse) SetBillingAccount(v *BillingAccount) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *PaymentGetBillingAccountResponse) SetCollection(v *BillingCollection) {
-	x.xxx_hidden_Collection = v
-}
-
-func (x *PaymentGetBillingAccountResponse) SetSubscription(v *BillingSubscription) {
-	x.xxx_hidden_Subscription = v
-}
-
-func (x *PaymentGetBillingAccountResponse) SetDunning(v []*BillingDunning) {
-	x.xxx_hidden_Dunning = &v
-}
-
-func (x *PaymentGetBillingAccountResponse) SetCredits(v []*BillingCredit) {
-	x.xxx_hidden_Credits = &v
-}
-
-func (x *PaymentGetBillingAccountResponse) SetBalance(v int64) {
-	x.xxx_hidden_Balance = v
-}
-
-func (x *PaymentGetBillingAccountResponse) HasBillingAccount() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_BillingAccount != nil
-}
-
-func (x *PaymentGetBillingAccountResponse) HasCollection() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Collection != nil
-}
-
-func (x *PaymentGetBillingAccountResponse) HasSubscription() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Subscription != nil
-}
-
-func (x *PaymentGetBillingAccountResponse) ClearBillingAccount() {
-	x.xxx_hidden_BillingAccount = nil
-}
-
-func (x *PaymentGetBillingAccountResponse) ClearCollection() {
-	x.xxx_hidden_Collection = nil
-}
-
-func (x *PaymentGetBillingAccountResponse) ClearSubscription() {
-	x.xxx_hidden_Subscription = nil
-}
-
-type PaymentGetBillingAccountResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	BillingAccount *BillingAccount
-	// Whether what it is billed can be collected now.
-	Collection *BillingCollection
-	// Its live subscription, or the last it had; unset for none.
-	Subscription *BillingSubscription
-	// Its invoices whose charge failed and that are still owed, with what is
-	// done of each: the one that restricts soonest first.
-	Dunning []*BillingDunning
-	// The credit levyan's operator granted that its next invoices may be paid
-	// with, neither spent nor expired: its own, and that of the workspaces it
-	// pays for now or will from the end of the period, the soonest to expire
-	// first.
-	Credits []*BillingCredit
-	// What it is owed beside them -- of an invoice that came to less than
-	// nothing, a credit note, a payment of more than was due -- in its
-	// currency's minor unit: never expires, and is spent after them.
-	Balance int64
-}
-
-func (b0 PaymentGetBillingAccountResponse_builder) Build() *PaymentGetBillingAccountResponse {
-	m0 := &PaymentGetBillingAccountResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	x.xxx_hidden_Collection = b.Collection
-	x.xxx_hidden_Subscription = b.Subscription
-	x.xxx_hidden_Dunning = &b.Dunning
-	x.xxx_hidden_Credits = &b.Credits
-	x.xxx_hidden_Balance = b.Balance
-	return m0
-}
-
-type PaymentStartCheckoutRequest struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_BillingAccount string                 `protobuf:"bytes,1,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_SuccessUrl     string                 `protobuf:"bytes,2,opt,name=success_url,json=successUrl"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentStartCheckoutRequest) Reset() {
-	*x = PaymentStartCheckoutRequest{}
-	mi := &file_loft_payment_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentStartCheckoutRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentStartCheckoutRequest) ProtoMessage() {}
-
-func (x *PaymentStartCheckoutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentStartCheckoutRequest) GetBillingAccount() string {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return ""
-}
-
-func (x *PaymentStartCheckoutRequest) GetSuccessUrl() string {
-	if x != nil {
-		return x.xxx_hidden_SuccessUrl
-	}
-	return ""
-}
-
-func (x *PaymentStartCheckoutRequest) SetBillingAccount(v string) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *PaymentStartCheckoutRequest) SetSuccessUrl(v string) {
-	x.xxx_hidden_SuccessUrl = v
-}
-
-type PaymentStartCheckoutRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The billing account it subscribes, by its identifier.
-	BillingAccount string
-	// Where Paddle sends the payer once they have finished: an absolute URL
-	// of this deployment's, which then calls `CompleteCheckout`.
-	SuccessUrl string
-}
-
-func (b0 PaymentStartCheckoutRequest_builder) Build() *PaymentStartCheckoutRequest {
-	m0 := &PaymentStartCheckoutRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	x.xxx_hidden_SuccessUrl = b.SuccessUrl
-	return m0
-}
-
-type PaymentStartCheckoutResponse struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Checkout *BillingCheckout       `protobuf:"bytes,1,opt,name=checkout"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *PaymentStartCheckoutResponse) Reset() {
-	*x = PaymentStartCheckoutResponse{}
-	mi := &file_loft_payment_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentStartCheckoutResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentStartCheckoutResponse) ProtoMessage() {}
-
-func (x *PaymentStartCheckoutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentStartCheckoutResponse) GetCheckout() *BillingCheckout {
-	if x != nil {
-		return x.xxx_hidden_Checkout
-	}
-	return nil
-}
-
-func (x *PaymentStartCheckoutResponse) SetCheckout(v *BillingCheckout) {
-	x.xxx_hidden_Checkout = v
-}
-
-func (x *PaymentStartCheckoutResponse) HasCheckout() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Checkout != nil
-}
-
-func (x *PaymentStartCheckoutResponse) ClearCheckout() {
-	x.xxx_hidden_Checkout = nil
-}
-
-type PaymentStartCheckoutResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The checkout, open, with what a page opens it with.
-	Checkout *BillingCheckout
-}
-
-func (b0 PaymentStartCheckoutResponse_builder) Build() *PaymentStartCheckoutResponse {
-	m0 := &PaymentStartCheckoutResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Checkout = b.Checkout
-	return m0
-}
-
-type PaymentCompleteCheckoutRequest struct {
-	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Checkout string                 `protobuf:"bytes,1,opt,name=checkout"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *PaymentCompleteCheckoutRequest) Reset() {
-	*x = PaymentCompleteCheckoutRequest{}
-	mi := &file_loft_payment_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentCompleteCheckoutRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentCompleteCheckoutRequest) ProtoMessage() {}
-
-func (x *PaymentCompleteCheckoutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentCompleteCheckoutRequest) GetCheckout() string {
-	if x != nil {
-		return x.xxx_hidden_Checkout
-	}
-	return ""
-}
-
-func (x *PaymentCompleteCheckoutRequest) SetCheckout(v string) {
-	x.xxx_hidden_Checkout = v
-}
-
-type PaymentCompleteCheckoutRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The checkout, by levyan's identifier of it, never the merchant's.
-	Checkout string
-}
-
-func (b0 PaymentCompleteCheckoutRequest_builder) Build() *PaymentCompleteCheckoutRequest {
-	m0 := &PaymentCompleteCheckoutRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Checkout = b.Checkout
-	return m0
-}
-
-type PaymentCompleteCheckoutResponse struct {
-	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Checkout     *BillingCheckout       `protobuf:"bytes,1,opt,name=checkout"`
-	xxx_hidden_Subscription *BillingSubscription   `protobuf:"bytes,2,opt,name=subscription"`
-	xxx_hidden_Collection   *BillingCollection     `protobuf:"bytes,3,opt,name=collection"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
-}
-
-func (x *PaymentCompleteCheckoutResponse) Reset() {
-	*x = PaymentCompleteCheckoutResponse{}
-	mi := &file_loft_payment_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentCompleteCheckoutResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentCompleteCheckoutResponse) ProtoMessage() {}
-
-func (x *PaymentCompleteCheckoutResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentCompleteCheckoutResponse) GetCheckout() *BillingCheckout {
-	if x != nil {
-		return x.xxx_hidden_Checkout
-	}
-	return nil
-}
-
-func (x *PaymentCompleteCheckoutResponse) GetSubscription() *BillingSubscription {
-	if x != nil {
-		return x.xxx_hidden_Subscription
-	}
-	return nil
-}
-
-func (x *PaymentCompleteCheckoutResponse) GetCollection() *BillingCollection {
-	if x != nil {
-		return x.xxx_hidden_Collection
-	}
-	return nil
-}
-
-func (x *PaymentCompleteCheckoutResponse) SetCheckout(v *BillingCheckout) {
-	x.xxx_hidden_Checkout = v
-}
-
-func (x *PaymentCompleteCheckoutResponse) SetSubscription(v *BillingSubscription) {
-	x.xxx_hidden_Subscription = v
-}
-
-func (x *PaymentCompleteCheckoutResponse) SetCollection(v *BillingCollection) {
-	x.xxx_hidden_Collection = v
-}
-
-func (x *PaymentCompleteCheckoutResponse) HasCheckout() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Checkout != nil
-}
-
-func (x *PaymentCompleteCheckoutResponse) HasSubscription() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Subscription != nil
-}
-
-func (x *PaymentCompleteCheckoutResponse) HasCollection() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Collection != nil
-}
-
-func (x *PaymentCompleteCheckoutResponse) ClearCheckout() {
-	x.xxx_hidden_Checkout = nil
-}
-
-func (x *PaymentCompleteCheckoutResponse) ClearSubscription() {
-	x.xxx_hidden_Subscription = nil
-}
-
-func (x *PaymentCompleteCheckoutResponse) ClearCollection() {
-	x.xxx_hidden_Collection = nil
-}
-
-type PaymentCompleteCheckoutResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Checkout     *BillingCheckout
-	Subscription *BillingSubscription
-	Collection   *BillingCollection
-}
-
-func (b0 PaymentCompleteCheckoutResponse_builder) Build() *PaymentCompleteCheckoutResponse {
-	m0 := &PaymentCompleteCheckoutResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Checkout = b.Checkout
-	x.xxx_hidden_Subscription = b.Subscription
-	x.xxx_hidden_Collection = b.Collection
-	return m0
-}
-
-type PaymentListOffersRequest struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PaymentListOffersRequest) Reset() {
-	*x = PaymentListOffersRequest{}
-	mi := &file_loft_payment_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListOffersRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListOffersRequest) ProtoMessage() {}
-
-func (x *PaymentListOffersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type PaymentListOffersRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 PaymentListOffersRequest_builder) Build() *PaymentListOffersRequest {
-	m0 := &PaymentListOffersRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
-type PaymentListOffersResponse struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Offers *[]*BillingOffer       `protobuf:"bytes,1,rep,name=offers"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *PaymentListOffersResponse) Reset() {
-	*x = PaymentListOffersResponse{}
-	mi := &file_loft_payment_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListOffersResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListOffersResponse) ProtoMessage() {}
-
-func (x *PaymentListOffersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListOffersResponse) GetOffers() []*BillingOffer {
-	if x != nil {
-		if x.xxx_hidden_Offers != nil {
-			return *x.xxx_hidden_Offers
-		}
-	}
-	return nil
-}
-
-func (x *PaymentListOffersResponse) SetOffers(v []*BillingOffer) {
-	x.xxx_hidden_Offers = &v
-}
-
-type PaymentListOffersResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Offers []*BillingOffer
-}
-
-func (b0 PaymentListOffersResponse_builder) Build() *PaymentListOffersResponse {
-	m0 := &PaymentListOffersResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Offers = &b.Offers
-	return m0
-}
-
-type PaymentAcceptRequest struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Offer          string                 `protobuf:"bytes,1,opt,name=offer"`
-	xxx_hidden_BillingAccount string                 `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentAcceptRequest) Reset() {
-	*x = PaymentAcceptRequest{}
-	mi := &file_loft_payment_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentAcceptRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentAcceptRequest) ProtoMessage() {}
-
-func (x *PaymentAcceptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentAcceptRequest) GetOffer() string {
-	if x != nil {
-		return x.xxx_hidden_Offer
-	}
-	return ""
-}
-
-func (x *PaymentAcceptRequest) GetBillingAccount() string {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return ""
-}
-
-func (x *PaymentAcceptRequest) SetOffer(v string) {
-	x.xxx_hidden_Offer = v
-}
-
-func (x *PaymentAcceptRequest) SetBillingAccount(v string) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-type PaymentAcceptRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The offer, by its identifier.
-	Offer string
-	// The billing account to pay with, by its identifier; empty is none yet.
-	BillingAccount string
-}
-
-func (b0 PaymentAcceptRequest_builder) Build() *PaymentAcceptRequest {
-	m0 := &PaymentAcceptRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Offer = b.Offer
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	return m0
-}
-
-type PaymentAcceptResponse struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Link *BillingLink           `protobuf:"bytes,1,opt,name=link"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *PaymentAcceptResponse) Reset() {
-	*x = PaymentAcceptResponse{}
-	mi := &file_loft_payment_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentAcceptResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentAcceptResponse) ProtoMessage() {}
-
-func (x *PaymentAcceptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentAcceptResponse) GetLink() *BillingLink {
-	if x != nil {
-		return x.xxx_hidden_Link
-	}
-	return nil
-}
-
-func (x *PaymentAcceptResponse) SetLink(v *BillingLink) {
-	x.xxx_hidden_Link = v
-}
-
-func (x *PaymentAcceptResponse) HasLink() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Link != nil
-}
-
-func (x *PaymentAcceptResponse) ClearLink() {
-	x.xxx_hidden_Link = nil
-}
-
-type PaymentAcceptResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Link *BillingLink
-}
-
-func (b0 PaymentAcceptResponse_builder) Build() *PaymentAcceptResponse {
-	m0 := &PaymentAcceptResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Link = b.Link
-	return m0
-}
-
-type PaymentDeclineRequest struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Offer string                 `protobuf:"bytes,1,opt,name=offer"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *PaymentDeclineRequest) Reset() {
-	*x = PaymentDeclineRequest{}
-	mi := &file_loft_payment_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentDeclineRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentDeclineRequest) ProtoMessage() {}
-
-func (x *PaymentDeclineRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentDeclineRequest) GetOffer() string {
-	if x != nil {
-		return x.xxx_hidden_Offer
-	}
-	return ""
-}
-
-func (x *PaymentDeclineRequest) SetOffer(v string) {
-	x.xxx_hidden_Offer = v
-}
-
-type PaymentDeclineRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Offer string
-}
-
-func (b0 PaymentDeclineRequest_builder) Build() *PaymentDeclineRequest {
-	m0 := &PaymentDeclineRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Offer = b.Offer
-	return m0
-}
-
-type PaymentDeclineResponse struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PaymentDeclineResponse) Reset() {
-	*x = PaymentDeclineResponse{}
-	mi := &file_loft_payment_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentDeclineResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentDeclineResponse) ProtoMessage() {}
-
-func (x *PaymentDeclineResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type PaymentDeclineResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 PaymentDeclineResponse_builder) Build() *PaymentDeclineResponse {
-	m0 := &PaymentDeclineResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
-type PaymentListLinksRequest struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PaymentListLinksRequest) Reset() {
-	*x = PaymentListLinksRequest{}
-	mi := &file_loft_payment_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListLinksRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListLinksRequest) ProtoMessage() {}
-
-func (x *PaymentListLinksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type PaymentListLinksRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 PaymentListLinksRequest_builder) Build() *PaymentListLinksRequest {
-	m0 := &PaymentListLinksRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
-type PaymentListLinksResponse struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Links *[]*BillingLink        `protobuf:"bytes,1,rep,name=links"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *PaymentListLinksResponse) Reset() {
-	*x = PaymentListLinksResponse{}
-	mi := &file_loft_payment_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListLinksResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListLinksResponse) ProtoMessage() {}
-
-func (x *PaymentListLinksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListLinksResponse) GetLinks() []*BillingLink {
-	if x != nil {
-		if x.xxx_hidden_Links != nil {
-			return *x.xxx_hidden_Links
-		}
-	}
-	return nil
-}
-
-func (x *PaymentListLinksResponse) SetLinks(v []*BillingLink) {
-	x.xxx_hidden_Links = &v
-}
-
-type PaymentListLinksResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Links []*BillingLink
-}
-
-func (b0 PaymentListLinksResponse_builder) Build() *PaymentListLinksResponse {
-	m0 := &PaymentListLinksResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Links = &b.Links
-	return m0
-}
-
-type PaymentUseRequest struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Workspace      string                 `protobuf:"bytes,1,opt,name=workspace"`
-	xxx_hidden_BillingAccount string                 `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentUseRequest) Reset() {
-	*x = PaymentUseRequest{}
-	mi := &file_loft_payment_proto_msgTypes[20]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentUseRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentUseRequest) ProtoMessage() {}
-
-func (x *PaymentUseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[20]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentUseRequest) GetWorkspace() string {
-	if x != nil {
-		return x.xxx_hidden_Workspace
-	}
-	return ""
-}
-
-func (x *PaymentUseRequest) GetBillingAccount() string {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return ""
-}
-
-func (x *PaymentUseRequest) SetWorkspace(v string) {
-	x.xxx_hidden_Workspace = v
-}
-
-func (x *PaymentUseRequest) SetBillingAccount(v string) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-type PaymentUseRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The workspace, by its identifier's canonical text.
-	Workspace string
-	// The billing account to pay with from the end of the period.
-	BillingAccount string
-}
-
-func (b0 PaymentUseRequest_builder) Build() *PaymentUseRequest {
-	m0 := &PaymentUseRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Workspace = b.Workspace
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	return m0
-}
-
-type PaymentUseResponse struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Link *BillingLink           `protobuf:"bytes,1,opt,name=link"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *PaymentUseResponse) Reset() {
-	*x = PaymentUseResponse{}
-	mi := &file_loft_payment_proto_msgTypes[21]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentUseResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentUseResponse) ProtoMessage() {}
-
-func (x *PaymentUseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[21]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentUseResponse) GetLink() *BillingLink {
-	if x != nil {
-		return x.xxx_hidden_Link
-	}
-	return nil
-}
-
-func (x *PaymentUseResponse) SetLink(v *BillingLink) {
-	x.xxx_hidden_Link = v
-}
-
-func (x *PaymentUseResponse) HasLink() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Link != nil
-}
-
-func (x *PaymentUseResponse) ClearLink() {
-	x.xxx_hidden_Link = nil
-}
-
-type PaymentUseResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Link *BillingLink
-}
-
-func (b0 PaymentUseResponse_builder) Build() *PaymentUseResponse {
-	m0 := &PaymentUseResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Link = b.Link
-	return m0
-}
-
-type PaymentStopRequest struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Workspace string                 `protobuf:"bytes,1,opt,name=workspace"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
-}
-
-func (x *PaymentStopRequest) Reset() {
-	*x = PaymentStopRequest{}
-	mi := &file_loft_payment_proto_msgTypes[22]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentStopRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentStopRequest) ProtoMessage() {}
-
-func (x *PaymentStopRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[22]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentStopRequest) GetWorkspace() string {
-	if x != nil {
-		return x.xxx_hidden_Workspace
-	}
-	return ""
-}
-
-func (x *PaymentStopRequest) SetWorkspace(v string) {
-	x.xxx_hidden_Workspace = v
-}
-
-type PaymentStopRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Workspace string
-}
-
-func (b0 PaymentStopRequest_builder) Build() *PaymentStopRequest {
-	m0 := &PaymentStopRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Workspace = b.Workspace
-	return m0
-}
-
-type PaymentStopResponse struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Link *BillingLink           `protobuf:"bytes,1,opt,name=link"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *PaymentStopResponse) Reset() {
-	*x = PaymentStopResponse{}
-	mi := &file_loft_payment_proto_msgTypes[23]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentStopResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentStopResponse) ProtoMessage() {}
-
-func (x *PaymentStopResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[23]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentStopResponse) GetLink() *BillingLink {
-	if x != nil {
-		return x.xxx_hidden_Link
-	}
-	return nil
-}
-
-func (x *PaymentStopResponse) SetLink(v *BillingLink) {
-	x.xxx_hidden_Link = v
-}
-
-func (x *PaymentStopResponse) HasLink() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Link != nil
-}
-
-func (x *PaymentStopResponse) ClearLink() {
-	x.xxx_hidden_Link = nil
-}
-
-type PaymentStopResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The link that ends, and when.
-	Link *BillingLink
-}
-
-func (b0 PaymentStopResponse_builder) Build() *PaymentStopResponse {
-	m0 := &PaymentStopResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Link = b.Link
-	return m0
-}
-
-type PaymentListInvoicesRequest struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_BillingAccount string                 `protobuf:"bytes,1,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_PageSize       int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize"`
-	xxx_hidden_PageToken      string                 `protobuf:"bytes,3,opt,name=page_token,json=pageToken"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentListInvoicesRequest) Reset() {
-	*x = PaymentListInvoicesRequest{}
-	mi := &file_loft_payment_proto_msgTypes[24]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListInvoicesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListInvoicesRequest) ProtoMessage() {}
-
-func (x *PaymentListInvoicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[24]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListInvoicesRequest) GetBillingAccount() string {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return ""
-}
-
-func (x *PaymentListInvoicesRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.xxx_hidden_PageSize
-	}
-	return 0
-}
-
-func (x *PaymentListInvoicesRequest) GetPageToken() string {
-	if x != nil {
-		return x.xxx_hidden_PageToken
-	}
-	return ""
-}
-
-func (x *PaymentListInvoicesRequest) SetBillingAccount(v string) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *PaymentListInvoicesRequest) SetPageSize(v int32) {
-	x.xxx_hidden_PageSize = v
-}
-
-func (x *PaymentListInvoicesRequest) SetPageToken(v string) {
-	x.xxx_hidden_PageToken = v
-}
-
-type PaymentListInvoicesRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// Of one billing account; empty is of every one.
-	BillingAccount string
-	// How many: 20 when unset, and at most 100.
-	PageSize  int32
-	PageToken string
-}
-
-func (b0 PaymentListInvoicesRequest_builder) Build() *PaymentListInvoicesRequest {
-	m0 := &PaymentListInvoicesRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	x.xxx_hidden_PageSize = b.PageSize
-	x.xxx_hidden_PageToken = b.PageToken
-	return m0
-}
-
-type PaymentListInvoicesResponse struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Invoices      *[]*BillingInvoice     `protobuf:"bytes,1,rep,name=invoices"`
-	xxx_hidden_NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
-}
-
-func (x *PaymentListInvoicesResponse) Reset() {
-	*x = PaymentListInvoicesResponse{}
-	mi := &file_loft_payment_proto_msgTypes[25]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListInvoicesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListInvoicesResponse) ProtoMessage() {}
-
-func (x *PaymentListInvoicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[25]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListInvoicesResponse) GetInvoices() []*BillingInvoice {
-	if x != nil {
-		if x.xxx_hidden_Invoices != nil {
-			return *x.xxx_hidden_Invoices
-		}
-	}
-	return nil
-}
-
-func (x *PaymentListInvoicesResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.xxx_hidden_NextPageToken
-	}
-	return ""
-}
-
-func (x *PaymentListInvoicesResponse) SetInvoices(v []*BillingInvoice) {
-	x.xxx_hidden_Invoices = &v
-}
-
-func (x *PaymentListInvoicesResponse) SetNextPageToken(v string) {
-	x.xxx_hidden_NextPageToken = v
-}
-
-type PaymentListInvoicesResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The latest first, without their lines.
-	Invoices      []*BillingInvoice
-	NextPageToken string
-}
-
-func (b0 PaymentListInvoicesResponse_builder) Build() *PaymentListInvoicesResponse {
-	m0 := &PaymentListInvoicesResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Invoices = &b.Invoices
-	x.xxx_hidden_NextPageToken = b.NextPageToken
-	return m0
-}
-
-type PaymentGetInvoiceRequest struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id string                 `protobuf:"bytes,1,opt,name=id"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PaymentGetInvoiceRequest) Reset() {
-	*x = PaymentGetInvoiceRequest{}
-	mi := &file_loft_payment_proto_msgTypes[26]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentGetInvoiceRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentGetInvoiceRequest) ProtoMessage() {}
-
-func (x *PaymentGetInvoiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[26]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentGetInvoiceRequest) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *PaymentGetInvoiceRequest) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-type PaymentGetInvoiceRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id string
-}
-
-func (b0 PaymentGetInvoiceRequest_builder) Build() *PaymentGetInvoiceRequest {
-	m0 := &PaymentGetInvoiceRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	return m0
-}
-
-type PaymentGetInvoiceResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Invoice     *BillingInvoice        `protobuf:"bytes,1,opt,name=invoice"`
-	xxx_hidden_CreditNotes *[]*BillingCreditNote  `protobuf:"bytes,2,rep,name=credit_notes,json=creditNotes"`
-	xxx_hidden_Dunning     *BillingDunning        `protobuf:"bytes,3,opt,name=dunning"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *PaymentGetInvoiceResponse) Reset() {
-	*x = PaymentGetInvoiceResponse{}
-	mi := &file_loft_payment_proto_msgTypes[27]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentGetInvoiceResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentGetInvoiceResponse) ProtoMessage() {}
-
-func (x *PaymentGetInvoiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[27]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentGetInvoiceResponse) GetInvoice() *BillingInvoice {
-	if x != nil {
-		return x.xxx_hidden_Invoice
-	}
-	return nil
-}
-
-func (x *PaymentGetInvoiceResponse) GetCreditNotes() []*BillingCreditNote {
-	if x != nil {
-		if x.xxx_hidden_CreditNotes != nil {
-			return *x.xxx_hidden_CreditNotes
-		}
-	}
-	return nil
-}
-
-func (x *PaymentGetInvoiceResponse) GetDunning() *BillingDunning {
-	if x != nil {
-		return x.xxx_hidden_Dunning
-	}
-	return nil
-}
-
-func (x *PaymentGetInvoiceResponse) SetInvoice(v *BillingInvoice) {
-	x.xxx_hidden_Invoice = v
-}
-
-func (x *PaymentGetInvoiceResponse) SetCreditNotes(v []*BillingCreditNote) {
-	x.xxx_hidden_CreditNotes = &v
-}
-
-func (x *PaymentGetInvoiceResponse) SetDunning(v *BillingDunning) {
-	x.xxx_hidden_Dunning = v
-}
-
-func (x *PaymentGetInvoiceResponse) HasInvoice() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Invoice != nil
-}
-
-func (x *PaymentGetInvoiceResponse) HasDunning() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Dunning != nil
-}
-
-func (x *PaymentGetInvoiceResponse) ClearInvoice() {
-	x.xxx_hidden_Invoice = nil
-}
-
-func (x *PaymentGetInvoiceResponse) ClearDunning() {
-	x.xxx_hidden_Dunning = nil
-}
-
-type PaymentGetInvoiceResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Invoice *BillingInvoice
-	// Its credit notes, the earliest first.
-	CreditNotes []*BillingCreditNote
-	// What is done of it since its charge failed; unset while it is in none.
-	Dunning *BillingDunning
-}
-
-func (b0 PaymentGetInvoiceResponse_builder) Build() *PaymentGetInvoiceResponse {
-	m0 := &PaymentGetInvoiceResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Invoice = b.Invoice
-	x.xxx_hidden_CreditNotes = &b.CreditNotes
-	x.xxx_hidden_Dunning = b.Dunning
-	return m0
-}
-
-type PaymentListCreditNotesRequest struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_BillingAccount string                 `protobuf:"bytes,1,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_Invoice        string                 `protobuf:"bytes,2,opt,name=invoice"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentListCreditNotesRequest) Reset() {
-	*x = PaymentListCreditNotesRequest{}
-	mi := &file_loft_payment_proto_msgTypes[28]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListCreditNotesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListCreditNotesRequest) ProtoMessage() {}
-
-func (x *PaymentListCreditNotesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[28]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListCreditNotesRequest) GetBillingAccount() string {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return ""
-}
-
-func (x *PaymentListCreditNotesRequest) GetInvoice() string {
-	if x != nil {
-		return x.xxx_hidden_Invoice
-	}
-	return ""
-}
-
-func (x *PaymentListCreditNotesRequest) SetBillingAccount(v string) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *PaymentListCreditNotesRequest) SetInvoice(v string) {
-	x.xxx_hidden_Invoice = v
-}
-
-type PaymentListCreditNotesRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	BillingAccount string
-	Invoice        string
-}
-
-func (b0 PaymentListCreditNotesRequest_builder) Build() *PaymentListCreditNotesRequest {
-	m0 := &PaymentListCreditNotesRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	x.xxx_hidden_Invoice = b.Invoice
-	return m0
-}
-
-type PaymentListCreditNotesResponse struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_CreditNotes *[]*BillingCreditNote  `protobuf:"bytes,1,rep,name=credit_notes,json=creditNotes"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *PaymentListCreditNotesResponse) Reset() {
-	*x = PaymentListCreditNotesResponse{}
-	mi := &file_loft_payment_proto_msgTypes[29]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListCreditNotesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListCreditNotesResponse) ProtoMessage() {}
-
-func (x *PaymentListCreditNotesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[29]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListCreditNotesResponse) GetCreditNotes() []*BillingCreditNote {
-	if x != nil {
-		if x.xxx_hidden_CreditNotes != nil {
-			return *x.xxx_hidden_CreditNotes
-		}
-	}
-	return nil
-}
-
-func (x *PaymentListCreditNotesResponse) SetCreditNotes(v []*BillingCreditNote) {
-	x.xxx_hidden_CreditNotes = &v
-}
-
-type PaymentListCreditNotesResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	CreditNotes []*BillingCreditNote
-}
-
-func (b0 PaymentListCreditNotesResponse_builder) Build() *PaymentListCreditNotesResponse {
-	m0 := &PaymentListCreditNotesResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_CreditNotes = &b.CreditNotes
-	return m0
-}
-
-type PaymentListPayerStatementsRequest struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_BillingAccount string                 `protobuf:"bytes,1,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_PageSize       int32                  `protobuf:"varint,2,opt,name=page_size,json=pageSize"`
-	xxx_hidden_PageToken      string                 `protobuf:"bytes,3,opt,name=page_token,json=pageToken"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *PaymentListPayerStatementsRequest) Reset() {
-	*x = PaymentListPayerStatementsRequest{}
-	mi := &file_loft_payment_proto_msgTypes[30]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListPayerStatementsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListPayerStatementsRequest) ProtoMessage() {}
-
-func (x *PaymentListPayerStatementsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[30]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListPayerStatementsRequest) GetBillingAccount() string {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return ""
-}
-
-func (x *PaymentListPayerStatementsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.xxx_hidden_PageSize
-	}
-	return 0
-}
-
-func (x *PaymentListPayerStatementsRequest) GetPageToken() string {
-	if x != nil {
-		return x.xxx_hidden_PageToken
-	}
-	return ""
-}
-
-func (x *PaymentListPayerStatementsRequest) SetBillingAccount(v string) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *PaymentListPayerStatementsRequest) SetPageSize(v int32) {
-	x.xxx_hidden_PageSize = v
-}
-
-func (x *PaymentListPayerStatementsRequest) SetPageToken(v string) {
-	x.xxx_hidden_PageToken = v
-}
-
-type PaymentListPayerStatementsRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// Of one of the account's billing accounts; empty is of every one. One
-	// that is not the account's is NotFound.
-	BillingAccount string
-	// How many: 20 when unset, and at most 100.
-	PageSize  int32
-	PageToken string
-}
-
-func (b0 PaymentListPayerStatementsRequest_builder) Build() *PaymentListPayerStatementsRequest {
-	m0 := &PaymentListPayerStatementsRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	x.xxx_hidden_PageSize = b.PageSize
-	x.xxx_hidden_PageToken = b.PageToken
-	return m0
-}
-
-type PaymentListPayerStatementsResponse struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Statements    *[]*BillingStatement   `protobuf:"bytes,1,rep,name=statements"`
-	xxx_hidden_NextPageToken string                 `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
-}
-
-func (x *PaymentListPayerStatementsResponse) Reset() {
-	*x = PaymentListPayerStatementsResponse{}
-	mi := &file_loft_payment_proto_msgTypes[31]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentListPayerStatementsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentListPayerStatementsResponse) ProtoMessage() {}
-
-func (x *PaymentListPayerStatementsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[31]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentListPayerStatementsResponse) GetStatements() []*BillingStatement {
-	if x != nil {
-		if x.xxx_hidden_Statements != nil {
-			return *x.xxx_hidden_Statements
-		}
-	}
-	return nil
-}
-
-func (x *PaymentListPayerStatementsResponse) GetNextPageToken() string {
-	if x != nil {
-		return x.xxx_hidden_NextPageToken
-	}
-	return ""
-}
-
-func (x *PaymentListPayerStatementsResponse) SetStatements(v []*BillingStatement) {
-	x.xxx_hidden_Statements = &v
-}
-
-func (x *PaymentListPayerStatementsResponse) SetNextPageToken(v string) {
-	x.xxx_hidden_NextPageToken = v
-}
-
-type PaymentListPayerStatementsResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The latest period first, each with its lines.
-	Statements    []*BillingStatement
-	NextPageToken string
-}
-
-func (b0 PaymentListPayerStatementsResponse_builder) Build() *PaymentListPayerStatementsResponse {
-	m0 := &PaymentListPayerStatementsResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Statements = &b.Statements
-	x.xxx_hidden_NextPageToken = b.NextPageToken
-	return m0
-}
-
-type PaymentGetPayerStatementRequest struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id string                 `protobuf:"bytes,1,opt,name=id"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PaymentGetPayerStatementRequest) Reset() {
-	*x = PaymentGetPayerStatementRequest{}
-	mi := &file_loft_payment_proto_msgTypes[32]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentGetPayerStatementRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentGetPayerStatementRequest) ProtoMessage() {}
-
-func (x *PaymentGetPayerStatementRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[32]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentGetPayerStatementRequest) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *PaymentGetPayerStatementRequest) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-type PaymentGetPayerStatementRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The statement, by its identifier: `BillingInvoiceLine.statement`.
-	Id string
-}
-
-func (b0 PaymentGetPayerStatementRequest_builder) Build() *PaymentGetPayerStatementRequest {
-	m0 := &PaymentGetPayerStatementRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	return m0
-}
-
-type PaymentGetPayerStatementResponse struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Statement *BillingStatement      `protobuf:"bytes,1,opt,name=statement"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
-}
-
-func (x *PaymentGetPayerStatementResponse) Reset() {
-	*x = PaymentGetPayerStatementResponse{}
-	mi := &file_loft_payment_proto_msgTypes[33]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PaymentGetPayerStatementResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PaymentGetPayerStatementResponse) ProtoMessage() {}
-
-func (x *PaymentGetPayerStatementResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[33]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *PaymentGetPayerStatementResponse) GetStatement() *BillingStatement {
-	if x != nil {
-		return x.xxx_hidden_Statement
-	}
-	return nil
-}
-
-func (x *PaymentGetPayerStatementResponse) SetStatement(v *BillingStatement) {
-	x.xxx_hidden_Statement = v
-}
-
-func (x *PaymentGetPayerStatementResponse) HasStatement() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Statement != nil
-}
-
-func (x *PaymentGetPayerStatementResponse) ClearStatement() {
-	x.xxx_hidden_Statement = nil
-}
-
-type PaymentGetPayerStatementResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Statement *BillingStatement
-}
-
-func (b0 PaymentGetPayerStatementResponse_builder) Build() *PaymentGetPayerStatementResponse {
-	m0 := &PaymentGetPayerStatementResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Statement = b.Statement
-	return m0
 }
 
 type PaymentGetPayerRequest struct {
@@ -3123,7 +340,7 @@ type PaymentGetPayerRequest struct {
 
 func (x *PaymentGetPayerRequest) Reset() {
 	*x = PaymentGetPayerRequest{}
-	mi := &file_loft_payment_proto_msgTypes[34]
+	mi := &file_loft_payment_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3135,7 +352,7 @@ func (x *PaymentGetPayerRequest) String() string {
 func (*PaymentGetPayerRequest) ProtoMessage() {}
 
 func (x *PaymentGetPayerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[34]
+	mi := &file_loft_payment_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3167,7 +384,7 @@ type PaymentGetPayerResponse struct {
 
 func (x *PaymentGetPayerResponse) Reset() {
 	*x = PaymentGetPayerResponse{}
-	mi := &file_loft_payment_proto_msgTypes[35]
+	mi := &file_loft_payment_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3179,7 +396,7 @@ func (x *PaymentGetPayerResponse) String() string {
 func (*PaymentGetPayerResponse) ProtoMessage() {}
 
 func (x *PaymentGetPayerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[35]
+	mi := &file_loft_payment_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3234,7 +451,7 @@ type PaymentGetUsageRequest struct {
 
 func (x *PaymentGetUsageRequest) Reset() {
 	*x = PaymentGetUsageRequest{}
-	mi := &file_loft_payment_proto_msgTypes[36]
+	mi := &file_loft_payment_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3246,7 +463,7 @@ func (x *PaymentGetUsageRequest) String() string {
 func (*PaymentGetUsageRequest) ProtoMessage() {}
 
 func (x *PaymentGetUsageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[36]
+	mi := &file_loft_payment_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3278,7 +495,7 @@ type PaymentGetUsageResponse struct {
 
 func (x *PaymentGetUsageResponse) Reset() {
 	*x = PaymentGetUsageResponse{}
-	mi := &file_loft_payment_proto_msgTypes[37]
+	mi := &file_loft_payment_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3290,7 +507,7 @@ func (x *PaymentGetUsageResponse) String() string {
 func (*PaymentGetUsageResponse) ProtoMessage() {}
 
 func (x *PaymentGetUsageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[37]
+	mi := &file_loft_payment_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3347,7 +564,7 @@ type PaymentListStatementsRequest struct {
 
 func (x *PaymentListStatementsRequest) Reset() {
 	*x = PaymentListStatementsRequest{}
-	mi := &file_loft_payment_proto_msgTypes[38]
+	mi := &file_loft_payment_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3359,7 +576,7 @@ func (x *PaymentListStatementsRequest) String() string {
 func (*PaymentListStatementsRequest) ProtoMessage() {}
 
 func (x *PaymentListStatementsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[38]
+	mi := &file_loft_payment_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3419,7 +636,7 @@ type PaymentListStatementsResponse struct {
 
 func (x *PaymentListStatementsResponse) Reset() {
 	*x = PaymentListStatementsResponse{}
-	mi := &file_loft_payment_proto_msgTypes[39]
+	mi := &file_loft_payment_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3431,7 +648,7 @@ func (x *PaymentListStatementsResponse) String() string {
 func (*PaymentListStatementsResponse) ProtoMessage() {}
 
 func (x *PaymentListStatementsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[39]
+	mi := &file_loft_payment_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3491,7 +708,7 @@ type PaymentOfferRequest struct {
 
 func (x *PaymentOfferRequest) Reset() {
 	*x = PaymentOfferRequest{}
-	mi := &file_loft_payment_proto_msgTypes[40]
+	mi := &file_loft_payment_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3503,7 +720,7 @@ func (x *PaymentOfferRequest) String() string {
 func (*PaymentOfferRequest) ProtoMessage() {}
 
 func (x *PaymentOfferRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[40]
+	mi := &file_loft_payment_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3553,7 +770,7 @@ type PaymentOfferResponse struct {
 
 func (x *PaymentOfferResponse) Reset() {
 	*x = PaymentOfferResponse{}
-	mi := &file_loft_payment_proto_msgTypes[41]
+	mi := &file_loft_payment_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3565,7 +782,7 @@ func (x *PaymentOfferResponse) String() string {
 func (*PaymentOfferResponse) ProtoMessage() {}
 
 func (x *PaymentOfferResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[41]
+	mi := &file_loft_payment_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3612,425 +829,6 @@ func (b0 PaymentOfferResponse_builder) Build() *PaymentOfferResponse {
 	return m0
 }
 
-// BillingAccount is what an account pays with: levyan's.
-type BillingAccount struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Name        string                 `protobuf:"bytes,2,opt,name=name"`
-	xxx_hidden_Country     string                 `protobuf:"bytes,3,opt,name=country"`
-	xxx_hidden_Channel     BillingChannel         `protobuf:"varint,4,opt,name=channel,enum=loft.BillingChannel"`
-	xxx_hidden_Currency    string                 `protobuf:"bytes,5,opt,name=currency"`
-	xxx_hidden_Recipient   *BillingRecipient      `protobuf:"bytes,6,opt,name=recipient"`
-	xxx_hidden_Business    *BillingBusiness       `protobuf:"bytes,7,opt,name=business"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_created,json=dateCreated"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *BillingAccount) Reset() {
-	*x = BillingAccount{}
-	mi := &file_loft_payment_proto_msgTypes[42]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingAccount) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingAccount) ProtoMessage() {}
-
-func (x *BillingAccount) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[42]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingAccount) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *BillingAccount) GetName() string {
-	if x != nil {
-		return x.xxx_hidden_Name
-	}
-	return ""
-}
-
-func (x *BillingAccount) GetCountry() string {
-	if x != nil {
-		return x.xxx_hidden_Country
-	}
-	return ""
-}
-
-func (x *BillingAccount) GetChannel() BillingChannel {
-	if x != nil {
-		return x.xxx_hidden_Channel
-	}
-	return BillingChannel_BILLING_CHANNEL_UNSPECIFIED
-}
-
-func (x *BillingAccount) GetCurrency() string {
-	if x != nil {
-		return x.xxx_hidden_Currency
-	}
-	return ""
-}
-
-func (x *BillingAccount) GetRecipient() *BillingRecipient {
-	if x != nil {
-		return x.xxx_hidden_Recipient
-	}
-	return nil
-}
-
-func (x *BillingAccount) GetBusiness() *BillingBusiness {
-	if x != nil {
-		return x.xxx_hidden_Business
-	}
-	return nil
-}
-
-func (x *BillingAccount) GetDateCreated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return nil
-}
-
-func (x *BillingAccount) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-func (x *BillingAccount) SetName(v string) {
-	x.xxx_hidden_Name = v
-}
-
-func (x *BillingAccount) SetCountry(v string) {
-	x.xxx_hidden_Country = v
-}
-
-func (x *BillingAccount) SetChannel(v BillingChannel) {
-	x.xxx_hidden_Channel = v
-}
-
-func (x *BillingAccount) SetCurrency(v string) {
-	x.xxx_hidden_Currency = v
-}
-
-func (x *BillingAccount) SetRecipient(v *BillingRecipient) {
-	x.xxx_hidden_Recipient = v
-}
-
-func (x *BillingAccount) SetBusiness(v *BillingBusiness) {
-	x.xxx_hidden_Business = v
-}
-
-func (x *BillingAccount) SetDateCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCreated = v
-}
-
-func (x *BillingAccount) HasRecipient() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Recipient != nil
-}
-
-func (x *BillingAccount) HasBusiness() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Business != nil
-}
-
-func (x *BillingAccount) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCreated != nil
-}
-
-func (x *BillingAccount) ClearRecipient() {
-	x.xxx_hidden_Recipient = nil
-}
-
-func (x *BillingAccount) ClearBusiness() {
-	x.xxx_hidden_Business = nil
-}
-
-func (x *BillingAccount) ClearDateCreated() {
-	x.xxx_hidden_DateCreated = nil
-}
-
-type BillingAccount_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id   string
-	Name string
-	// The country it is billed in, and what the deployment sold that country
-	// through when it was made.
-	Country     string
-	Channel     BillingChannel
-	Currency    string
-	Recipient   *BillingRecipient
-	Business    *BillingBusiness
-	DateCreated *timestamppb.Timestamp
-}
-
-func (b0 BillingAccount_builder) Build() *BillingAccount {
-	m0 := &BillingAccount{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Name = b.Name
-	x.xxx_hidden_Country = b.Country
-	x.xxx_hidden_Channel = b.Channel
-	x.xxx_hidden_Currency = b.Currency
-	x.xxx_hidden_Recipient = b.Recipient
-	x.xxx_hidden_Business = b.Business
-	x.xxx_hidden_DateCreated = b.DateCreated
-	return m0
-}
-
-// BillingRecipient is who receives what a billing account is billed.
-type BillingRecipient struct {
-	state              protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name    string                 `protobuf:"bytes,1,opt,name=name"`
-	xxx_hidden_Email   string                 `protobuf:"bytes,2,opt,name=email"`
-	xxx_hidden_Address string                 `protobuf:"bytes,3,opt,name=address"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *BillingRecipient) Reset() {
-	*x = BillingRecipient{}
-	mi := &file_loft_payment_proto_msgTypes[43]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingRecipient) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingRecipient) ProtoMessage() {}
-
-func (x *BillingRecipient) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[43]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingRecipient) GetName() string {
-	if x != nil {
-		return x.xxx_hidden_Name
-	}
-	return ""
-}
-
-func (x *BillingRecipient) GetEmail() string {
-	if x != nil {
-		return x.xxx_hidden_Email
-	}
-	return ""
-}
-
-func (x *BillingRecipient) GetAddress() string {
-	if x != nil {
-		return x.xxx_hidden_Address
-	}
-	return ""
-}
-
-func (x *BillingRecipient) SetName(v string) {
-	x.xxx_hidden_Name = v
-}
-
-func (x *BillingRecipient) SetEmail(v string) {
-	x.xxx_hidden_Email = v
-}
-
-func (x *BillingRecipient) SetAddress(v string) {
-	x.xxx_hidden_Address = v
-}
-
-type BillingRecipient_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Name    string
-	Email   string
-	Address string
-}
-
-func (b0 BillingRecipient_builder) Build() *BillingRecipient {
-	m0 := &BillingRecipient{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Name = b.Name
-	x.xxx_hidden_Email = b.Email
-	x.xxx_hidden_Address = b.Address
-	return m0
-}
-
-// BillingBusiness is the business a billing account is billed to.
-type BillingBusiness struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Registration   string                 `protobuf:"bytes,1,opt,name=registration"`
-	xxx_hidden_Name           string                 `protobuf:"bytes,2,opt,name=name"`
-	xxx_hidden_Representative string                 `protobuf:"bytes,3,opt,name=representative"`
-	xxx_hidden_Address        string                 `protobuf:"bytes,4,opt,name=address"`
-	xxx_hidden_Kind           string                 `protobuf:"bytes,5,opt,name=kind"`
-	xxx_hidden_Item           string                 `protobuf:"bytes,6,opt,name=item"`
-	xxx_hidden_Email          string                 `protobuf:"bytes,7,opt,name=email"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *BillingBusiness) Reset() {
-	*x = BillingBusiness{}
-	mi := &file_loft_payment_proto_msgTypes[44]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingBusiness) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingBusiness) ProtoMessage() {}
-
-func (x *BillingBusiness) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[44]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingBusiness) GetRegistration() string {
-	if x != nil {
-		return x.xxx_hidden_Registration
-	}
-	return ""
-}
-
-func (x *BillingBusiness) GetName() string {
-	if x != nil {
-		return x.xxx_hidden_Name
-	}
-	return ""
-}
-
-func (x *BillingBusiness) GetRepresentative() string {
-	if x != nil {
-		return x.xxx_hidden_Representative
-	}
-	return ""
-}
-
-func (x *BillingBusiness) GetAddress() string {
-	if x != nil {
-		return x.xxx_hidden_Address
-	}
-	return ""
-}
-
-func (x *BillingBusiness) GetKind() string {
-	if x != nil {
-		return x.xxx_hidden_Kind
-	}
-	return ""
-}
-
-func (x *BillingBusiness) GetItem() string {
-	if x != nil {
-		return x.xxx_hidden_Item
-	}
-	return ""
-}
-
-func (x *BillingBusiness) GetEmail() string {
-	if x != nil {
-		return x.xxx_hidden_Email
-	}
-	return ""
-}
-
-func (x *BillingBusiness) SetRegistration(v string) {
-	x.xxx_hidden_Registration = v
-}
-
-func (x *BillingBusiness) SetName(v string) {
-	x.xxx_hidden_Name = v
-}
-
-func (x *BillingBusiness) SetRepresentative(v string) {
-	x.xxx_hidden_Representative = v
-}
-
-func (x *BillingBusiness) SetAddress(v string) {
-	x.xxx_hidden_Address = v
-}
-
-func (x *BillingBusiness) SetKind(v string) {
-	x.xxx_hidden_Kind = v
-}
-
-func (x *BillingBusiness) SetItem(v string) {
-	x.xxx_hidden_Item = v
-}
-
-func (x *BillingBusiness) SetEmail(v string) {
-	x.xxx_hidden_Email = v
-}
-
-type BillingBusiness_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Registration   string
-	Name           string
-	Representative string
-	Address        string
-	Kind           string
-	Item           string
-	Email          string
-}
-
-func (b0 BillingBusiness_builder) Build() *BillingBusiness {
-	m0 := &BillingBusiness{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Registration = b.Registration
-	x.xxx_hidden_Name = b.Name
-	x.xxx_hidden_Representative = b.Representative
-	x.xxx_hidden_Address = b.Address
-	x.xxx_hidden_Kind = b.Kind
-	x.xxx_hidden_Item = b.Item
-	x.xxx_hidden_Email = b.Email
-	return m0
-}
-
 // BillingCollection is whether what a billing account is billed can be
 // collected now, and why not.
 type BillingCollection struct {
@@ -4044,7 +842,7 @@ type BillingCollection struct {
 
 func (x *BillingCollection) Reset() {
 	*x = BillingCollection{}
-	mi := &file_loft_payment_proto_msgTypes[45]
+	mi := &file_loft_payment_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4056,7 +854,7 @@ func (x *BillingCollection) String() string {
 func (*BillingCollection) ProtoMessage() {}
 
 func (x *BillingCollection) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[45]
+	mi := &file_loft_payment_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4143,722 +941,6 @@ func (b0 BillingCollection_builder) Build() *BillingCollection {
 	return m0
 }
 
-// BillingSubscription is a subscription the merchant of record runs for a
-// billing account, as levyan mirrors it.
-type BillingSubscription struct {
-	state                      protoimpl.MessageState    `protogen:"opaque.v1"`
-	xxx_hidden_Id              string                    `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Merchant        string                    `protobuf:"bytes,2,opt,name=merchant"`
-	xxx_hidden_Status          BillingSubscriptionStatus `protobuf:"varint,3,opt,name=status,enum=loft.BillingSubscriptionStatus"`
-	xxx_hidden_Currency        string                    `protobuf:"bytes,4,opt,name=currency"`
-	xxx_hidden_DatePeriodStart *timestamppb.Timestamp    `protobuf:"bytes,5,opt,name=date_period_start,json=datePeriodStart"`
-	xxx_hidden_DatePeriodEnd   *timestamppb.Timestamp    `protobuf:"bytes,6,opt,name=date_period_end,json=datePeriodEnd"`
-	xxx_hidden_DateNextBilled  *timestamppb.Timestamp    `protobuf:"bytes,7,opt,name=date_next_billed,json=dateNextBilled"`
-	xxx_hidden_Change          BillingSubscriptionChange `protobuf:"varint,8,opt,name=change,enum=loft.BillingSubscriptionChange"`
-	xxx_hidden_DateChange      *timestamppb.Timestamp    `protobuf:"bytes,9,opt,name=date_change,json=dateChange"`
-	xxx_hidden_DateCanceled    *timestamppb.Timestamp    `protobuf:"bytes,10,opt,name=date_canceled,json=dateCanceled"`
-	xxx_hidden_Method          *BillingPaymentMethod     `protobuf:"bytes,11,opt,name=method"`
-	xxx_hidden_DateUpdated     *timestamppb.Timestamp    `protobuf:"bytes,12,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateChecked     *timestamppb.Timestamp    `protobuf:"bytes,13,opt,name=date_checked,json=dateChecked"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
-}
-
-func (x *BillingSubscription) Reset() {
-	*x = BillingSubscription{}
-	mi := &file_loft_payment_proto_msgTypes[46]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingSubscription) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingSubscription) ProtoMessage() {}
-
-func (x *BillingSubscription) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[46]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingSubscription) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *BillingSubscription) GetMerchant() string {
-	if x != nil {
-		return x.xxx_hidden_Merchant
-	}
-	return ""
-}
-
-func (x *BillingSubscription) GetStatus() BillingSubscriptionStatus {
-	if x != nil {
-		return x.xxx_hidden_Status
-	}
-	return BillingSubscriptionStatus_BILLING_SUBSCRIPTION_STATUS_UNSPECIFIED
-}
-
-func (x *BillingSubscription) GetCurrency() string {
-	if x != nil {
-		return x.xxx_hidden_Currency
-	}
-	return ""
-}
-
-func (x *BillingSubscription) GetDatePeriodStart() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DatePeriodStart
-	}
-	return nil
-}
-
-func (x *BillingSubscription) GetDatePeriodEnd() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DatePeriodEnd
-	}
-	return nil
-}
-
-func (x *BillingSubscription) GetDateNextBilled() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateNextBilled
-	}
-	return nil
-}
-
-func (x *BillingSubscription) GetChange() BillingSubscriptionChange {
-	if x != nil {
-		return x.xxx_hidden_Change
-	}
-	return BillingSubscriptionChange_BILLING_SUBSCRIPTION_CHANGE_UNSPECIFIED
-}
-
-func (x *BillingSubscription) GetDateChange() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateChange
-	}
-	return nil
-}
-
-func (x *BillingSubscription) GetDateCanceled() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCanceled
-	}
-	return nil
-}
-
-func (x *BillingSubscription) GetMethod() *BillingPaymentMethod {
-	if x != nil {
-		return x.xxx_hidden_Method
-	}
-	return nil
-}
-
-func (x *BillingSubscription) GetDateUpdated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateUpdated
-	}
-	return nil
-}
-
-func (x *BillingSubscription) GetDateChecked() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateChecked
-	}
-	return nil
-}
-
-func (x *BillingSubscription) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-func (x *BillingSubscription) SetMerchant(v string) {
-	x.xxx_hidden_Merchant = v
-}
-
-func (x *BillingSubscription) SetStatus(v BillingSubscriptionStatus) {
-	x.xxx_hidden_Status = v
-}
-
-func (x *BillingSubscription) SetCurrency(v string) {
-	x.xxx_hidden_Currency = v
-}
-
-func (x *BillingSubscription) SetDatePeriodStart(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DatePeriodStart = v
-}
-
-func (x *BillingSubscription) SetDatePeriodEnd(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DatePeriodEnd = v
-}
-
-func (x *BillingSubscription) SetDateNextBilled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateNextBilled = v
-}
-
-func (x *BillingSubscription) SetChange(v BillingSubscriptionChange) {
-	x.xxx_hidden_Change = v
-}
-
-func (x *BillingSubscription) SetDateChange(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateChange = v
-}
-
-func (x *BillingSubscription) SetDateCanceled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCanceled = v
-}
-
-func (x *BillingSubscription) SetMethod(v *BillingPaymentMethod) {
-	x.xxx_hidden_Method = v
-}
-
-func (x *BillingSubscription) SetDateUpdated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateUpdated = v
-}
-
-func (x *BillingSubscription) SetDateChecked(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateChecked = v
-}
-
-func (x *BillingSubscription) HasDatePeriodStart() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DatePeriodStart != nil
-}
-
-func (x *BillingSubscription) HasDatePeriodEnd() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DatePeriodEnd != nil
-}
-
-func (x *BillingSubscription) HasDateNextBilled() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateNextBilled != nil
-}
-
-func (x *BillingSubscription) HasDateChange() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateChange != nil
-}
-
-func (x *BillingSubscription) HasDateCanceled() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCanceled != nil
-}
-
-func (x *BillingSubscription) HasMethod() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Method != nil
-}
-
-func (x *BillingSubscription) HasDateUpdated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateUpdated != nil
-}
-
-func (x *BillingSubscription) HasDateChecked() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateChecked != nil
-}
-
-func (x *BillingSubscription) ClearDatePeriodStart() {
-	x.xxx_hidden_DatePeriodStart = nil
-}
-
-func (x *BillingSubscription) ClearDatePeriodEnd() {
-	x.xxx_hidden_DatePeriodEnd = nil
-}
-
-func (x *BillingSubscription) ClearDateNextBilled() {
-	x.xxx_hidden_DateNextBilled = nil
-}
-
-func (x *BillingSubscription) ClearDateChange() {
-	x.xxx_hidden_DateChange = nil
-}
-
-func (x *BillingSubscription) ClearDateCanceled() {
-	x.xxx_hidden_DateCanceled = nil
-}
-
-func (x *BillingSubscription) ClearMethod() {
-	x.xxx_hidden_Method = nil
-}
-
-func (x *BillingSubscription) ClearDateUpdated() {
-	x.xxx_hidden_DateUpdated = nil
-}
-
-func (x *BillingSubscription) ClearDateChecked() {
-	x.xxx_hidden_DateChecked = nil
-}
-
-type BillingSubscription_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id              string
-	Merchant        string
-	Status          BillingSubscriptionStatus
-	Currency        string
-	DatePeriodStart *timestamppb.Timestamp
-	DatePeriodEnd   *timestamppb.Timestamp
-	DateNextBilled  *timestamppb.Timestamp
-	// What the merchant will do to it, and when.
-	Change       BillingSubscriptionChange
-	DateChange   *timestamppb.Timestamp
-	DateCanceled *timestamppb.Timestamp
-	// How the payer pays: the kind, the brand and the last four digits, and
-	// never more of a card.
-	Method      *BillingPaymentMethod
-	DateUpdated *timestamppb.Timestamp
-	DateChecked *timestamppb.Timestamp
-}
-
-func (b0 BillingSubscription_builder) Build() *BillingSubscription {
-	m0 := &BillingSubscription{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Merchant = b.Merchant
-	x.xxx_hidden_Status = b.Status
-	x.xxx_hidden_Currency = b.Currency
-	x.xxx_hidden_DatePeriodStart = b.DatePeriodStart
-	x.xxx_hidden_DatePeriodEnd = b.DatePeriodEnd
-	x.xxx_hidden_DateNextBilled = b.DateNextBilled
-	x.xxx_hidden_Change = b.Change
-	x.xxx_hidden_DateChange = b.DateChange
-	x.xxx_hidden_DateCanceled = b.DateCanceled
-	x.xxx_hidden_Method = b.Method
-	x.xxx_hidden_DateUpdated = b.DateUpdated
-	x.xxx_hidden_DateChecked = b.DateChecked
-	return m0
-}
-
-// BillingPaymentMethod is how a payer pays, and never more of a card than
-// this.
-type BillingPaymentMethod struct {
-	state            protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Type  string                 `protobuf:"bytes,1,opt,name=type"`
-	xxx_hidden_Brand string                 `protobuf:"bytes,2,opt,name=brand"`
-	xxx_hidden_Last4 string                 `protobuf:"bytes,3,opt,name=last4"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
-}
-
-func (x *BillingPaymentMethod) Reset() {
-	*x = BillingPaymentMethod{}
-	mi := &file_loft_payment_proto_msgTypes[47]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingPaymentMethod) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingPaymentMethod) ProtoMessage() {}
-
-func (x *BillingPaymentMethod) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[47]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingPaymentMethod) GetType() string {
-	if x != nil {
-		return x.xxx_hidden_Type
-	}
-	return ""
-}
-
-func (x *BillingPaymentMethod) GetBrand() string {
-	if x != nil {
-		return x.xxx_hidden_Brand
-	}
-	return ""
-}
-
-func (x *BillingPaymentMethod) GetLast4() string {
-	if x != nil {
-		return x.xxx_hidden_Last4
-	}
-	return ""
-}
-
-func (x *BillingPaymentMethod) SetType(v string) {
-	x.xxx_hidden_Type = v
-}
-
-func (x *BillingPaymentMethod) SetBrand(v string) {
-	x.xxx_hidden_Brand = v
-}
-
-func (x *BillingPaymentMethod) SetLast4(v string) {
-	x.xxx_hidden_Last4 = v
-}
-
-type BillingPaymentMethod_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// Paddle's name of the kind: card, south_korea_local_card, kakao_pay, ….
-	Type string
-	// A card's brand or its company; empty for what is no card.
-	Brand string
-	Last4 string
-}
-
-func (b0 BillingPaymentMethod_builder) Build() *BillingPaymentMethod {
-	m0 := &BillingPaymentMethod{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Type = b.Type
-	x.xxx_hidden_Brand = b.Brand
-	x.xxx_hidden_Last4 = b.Last4
-	return m0
-}
-
-// BillingCheckout is a checkout begun with the merchant of record.
-type BillingCheckout struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id             string                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_BillingAccount string                 `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_State          BillingCheckoutState   `protobuf:"varint,3,opt,name=state,enum=loft.BillingCheckoutState"`
-	xxx_hidden_DateStarted    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_started,json=dateStarted"`
-	xxx_hidden_DateDone       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=date_done,json=dateDone"`
-	xxx_hidden_Window         *BillingCheckoutWindow `protobuf:"bytes,6,opt,name=window"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *BillingCheckout) Reset() {
-	*x = BillingCheckout{}
-	mi := &file_loft_payment_proto_msgTypes[48]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingCheckout) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingCheckout) ProtoMessage() {}
-
-func (x *BillingCheckout) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[48]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingCheckout) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *BillingCheckout) GetBillingAccount() string {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return ""
-}
-
-func (x *BillingCheckout) GetState() BillingCheckoutState {
-	if x != nil {
-		return x.xxx_hidden_State
-	}
-	return BillingCheckoutState_BILLING_CHECKOUT_STATE_UNSPECIFIED
-}
-
-func (x *BillingCheckout) GetDateStarted() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateStarted
-	}
-	return nil
-}
-
-func (x *BillingCheckout) GetDateDone() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateDone
-	}
-	return nil
-}
-
-func (x *BillingCheckout) GetWindow() *BillingCheckoutWindow {
-	if x != nil {
-		return x.xxx_hidden_Window
-	}
-	return nil
-}
-
-func (x *BillingCheckout) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-func (x *BillingCheckout) SetBillingAccount(v string) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *BillingCheckout) SetState(v BillingCheckoutState) {
-	x.xxx_hidden_State = v
-}
-
-func (x *BillingCheckout) SetDateStarted(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateStarted = v
-}
-
-func (x *BillingCheckout) SetDateDone(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateDone = v
-}
-
-func (x *BillingCheckout) SetWindow(v *BillingCheckoutWindow) {
-	x.xxx_hidden_Window = v
-}
-
-func (x *BillingCheckout) HasDateStarted() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateStarted != nil
-}
-
-func (x *BillingCheckout) HasDateDone() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateDone != nil
-}
-
-func (x *BillingCheckout) HasWindow() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Window != nil
-}
-
-func (x *BillingCheckout) ClearDateStarted() {
-	x.xxx_hidden_DateStarted = nil
-}
-
-func (x *BillingCheckout) ClearDateDone() {
-	x.xxx_hidden_DateDone = nil
-}
-
-func (x *BillingCheckout) ClearWindow() {
-	x.xxx_hidden_Window = nil
-}
-
-type BillingCheckout_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id             string
-	BillingAccount string
-	State          BillingCheckoutState
-	DateStarted    *timestamppb.Timestamp
-	DateDone       *timestamppb.Timestamp
-	// What a page opens it with: answered by `StartCheckout` alone.
-	Window *BillingCheckoutWindow
-}
-
-func (b0 BillingCheckout_builder) Build() *BillingCheckout {
-	m0 := &BillingCheckout{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	x.xxx_hidden_State = b.State
-	x.xxx_hidden_DateStarted = b.DateStarted
-	x.xxx_hidden_DateDone = b.DateDone
-	x.xxx_hidden_Window = b.Window
-	return m0
-}
-
-// BillingCheckoutWindow is what a page opens the merchant's checkout with.
-type BillingCheckoutWindow struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Merchant    string                 `protobuf:"bytes,1,opt,name=merchant"`
-	xxx_hidden_Environment string                 `protobuf:"bytes,2,opt,name=environment"`
-	xxx_hidden_Transaction string                 `protobuf:"bytes,3,opt,name=transaction"`
-	xxx_hidden_ClientToken string                 `protobuf:"bytes,4,opt,name=client_token,json=clientToken"`
-	xxx_hidden_Script      string                 `protobuf:"bytes,5,opt,name=script"`
-	xxx_hidden_Url         string                 `protobuf:"bytes,6,opt,name=url"`
-	xxx_hidden_Country     string                 `protobuf:"bytes,7,opt,name=country"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *BillingCheckoutWindow) Reset() {
-	*x = BillingCheckoutWindow{}
-	mi := &file_loft_payment_proto_msgTypes[49]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingCheckoutWindow) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingCheckoutWindow) ProtoMessage() {}
-
-func (x *BillingCheckoutWindow) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[49]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingCheckoutWindow) GetMerchant() string {
-	if x != nil {
-		return x.xxx_hidden_Merchant
-	}
-	return ""
-}
-
-func (x *BillingCheckoutWindow) GetEnvironment() string {
-	if x != nil {
-		return x.xxx_hidden_Environment
-	}
-	return ""
-}
-
-func (x *BillingCheckoutWindow) GetTransaction() string {
-	if x != nil {
-		return x.xxx_hidden_Transaction
-	}
-	return ""
-}
-
-func (x *BillingCheckoutWindow) GetClientToken() string {
-	if x != nil {
-		return x.xxx_hidden_ClientToken
-	}
-	return ""
-}
-
-func (x *BillingCheckoutWindow) GetScript() string {
-	if x != nil {
-		return x.xxx_hidden_Script
-	}
-	return ""
-}
-
-func (x *BillingCheckoutWindow) GetUrl() string {
-	if x != nil {
-		return x.xxx_hidden_Url
-	}
-	return ""
-}
-
-func (x *BillingCheckoutWindow) GetCountry() string {
-	if x != nil {
-		return x.xxx_hidden_Country
-	}
-	return ""
-}
-
-func (x *BillingCheckoutWindow) SetMerchant(v string) {
-	x.xxx_hidden_Merchant = v
-}
-
-func (x *BillingCheckoutWindow) SetEnvironment(v string) {
-	x.xxx_hidden_Environment = v
-}
-
-func (x *BillingCheckoutWindow) SetTransaction(v string) {
-	x.xxx_hidden_Transaction = v
-}
-
-func (x *BillingCheckoutWindow) SetClientToken(v string) {
-	x.xxx_hidden_ClientToken = v
-}
-
-func (x *BillingCheckoutWindow) SetScript(v string) {
-	x.xxx_hidden_Script = v
-}
-
-func (x *BillingCheckoutWindow) SetUrl(v string) {
-	x.xxx_hidden_Url = v
-}
-
-func (x *BillingCheckoutWindow) SetCountry(v string) {
-	x.xxx_hidden_Country = v
-}
-
-type BillingCheckoutWindow_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// "paddle".
-	Merchant string
-	// "sandbox" or "production".
-	Environment string
-	// Paddle's transaction, which its checkout opens.
-	Transaction string
-	ClientToken string
-	Script      string
-	// Paddle's own page for it: the default payment link with `_ptxn`.
-	Url string
-	// The billing account's country.
-	Country string
-}
-
-func (b0 BillingCheckoutWindow_builder) Build() *BillingCheckoutWindow {
-	m0 := &BillingCheckoutWindow{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Merchant = b.Merchant
-	x.xxx_hidden_Environment = b.Environment
-	x.xxx_hidden_Transaction = b.Transaction
-	x.xxx_hidden_ClientToken = b.ClientToken
-	x.xxx_hidden_Script = b.Script
-	x.xxx_hidden_Url = b.Url
-	x.xxx_hidden_Country = b.Country
-	return m0
-}
-
 // BillingOffer is a workspace's owner asking an account to pay for it.
 type BillingOffer struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
@@ -4872,7 +954,7 @@ type BillingOffer struct {
 
 func (x *BillingOffer) Reset() {
 	*x = BillingOffer{}
-	mi := &file_loft_payment_proto_msgTypes[50]
+	mi := &file_loft_payment_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4884,7 +966,7 @@ func (x *BillingOffer) String() string {
 func (*BillingOffer) ProtoMessage() {}
 
 func (x *BillingOffer) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[50]
+	mi := &file_loft_payment_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4989,7 +1071,7 @@ type BillingLink struct {
 
 func (x *BillingLink) Reset() {
 	*x = BillingLink{}
-	mi := &file_loft_payment_proto_msgTypes[51]
+	mi := &file_loft_payment_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5001,7 +1083,7 @@ func (x *BillingLink) String() string {
 func (*BillingLink) ProtoMessage() {}
 
 func (x *BillingLink) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[51]
+	mi := &file_loft_payment_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5151,538 +1233,6 @@ func (b0 BillingLink_builder) Build() *BillingLink {
 	return m0
 }
 
-// BillingInvoice is what a billing account is asked to pay for a period.
-// Every amount is a whole number of the currency's minor unit.
-type BillingInvoice struct {
-	state                     protoimpl.MessageState   `protogen:"opaque.v1"`
-	xxx_hidden_Id             string                   `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_BillingAccount string                   `protobuf:"bytes,2,opt,name=billing_account,json=billingAccount"`
-	xxx_hidden_State          BillingInvoiceState      `protobuf:"varint,3,opt,name=state,enum=loft.BillingInvoiceState"`
-	xxx_hidden_DateStart      *timestamppb.Timestamp   `protobuf:"bytes,4,opt,name=date_start,json=dateStart"`
-	xxx_hidden_DateEnd        *timestamppb.Timestamp   `protobuf:"bytes,5,opt,name=date_end,json=dateEnd"`
-	xxx_hidden_Channel        BillingChannel           `protobuf:"varint,6,opt,name=channel,enum=loft.BillingChannel"`
-	xxx_hidden_Currency       string                   `protobuf:"bytes,7,opt,name=currency"`
-	xxx_hidden_Subtotal       int64                    `protobuf:"varint,8,opt,name=subtotal"`
-	xxx_hidden_Tax            int64                    `protobuf:"varint,9,opt,name=tax"`
-	xxx_hidden_Total          int64                    `protobuf:"varint,10,opt,name=total"`
-	xxx_hidden_Credited       int64                    `protobuf:"varint,11,opt,name=credited"`
-	xxx_hidden_Due            int64                    `protobuf:"varint,12,opt,name=due"`
-	xxx_hidden_Paid           int64                    `protobuf:"varint,13,opt,name=paid"`
-	xxx_hidden_Reduced        int64                    `protobuf:"varint,14,opt,name=reduced"`
-	xxx_hidden_Remaining      int64                    `protobuf:"varint,15,opt,name=remaining"`
-	xxx_hidden_Number         int64                    `protobuf:"varint,16,opt,name=number"`
-	xxx_hidden_DateFinalized  *timestamppb.Timestamp   `protobuf:"bytes,17,opt,name=date_finalized,json=dateFinalized"`
-	xxx_hidden_DateDue        *timestamppb.Timestamp   `protobuf:"bytes,18,opt,name=date_due,json=dateDue"`
-	xxx_hidden_DateSettled    *timestamppb.Timestamp   `protobuf:"bytes,19,opt,name=date_settled,json=dateSettled"`
-	xxx_hidden_ChannelNumber  string                   `protobuf:"bytes,20,opt,name=channel_number,json=channelNumber"`
-	xxx_hidden_Lines          *[]*BillingInvoiceLine   `protobuf:"bytes,21,rep,name=lines"`
-	xxx_hidden_Credits        *[]*BillingInvoiceCredit `protobuf:"bytes,22,rep,name=credits"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
-}
-
-func (x *BillingInvoice) Reset() {
-	*x = BillingInvoice{}
-	mi := &file_loft_payment_proto_msgTypes[52]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingInvoice) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingInvoice) ProtoMessage() {}
-
-func (x *BillingInvoice) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[52]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingInvoice) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *BillingInvoice) GetBillingAccount() string {
-	if x != nil {
-		return x.xxx_hidden_BillingAccount
-	}
-	return ""
-}
-
-func (x *BillingInvoice) GetState() BillingInvoiceState {
-	if x != nil {
-		return x.xxx_hidden_State
-	}
-	return BillingInvoiceState_BILLING_INVOICE_STATE_UNSPECIFIED
-}
-
-func (x *BillingInvoice) GetDateStart() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateStart
-	}
-	return nil
-}
-
-func (x *BillingInvoice) GetDateEnd() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateEnd
-	}
-	return nil
-}
-
-func (x *BillingInvoice) GetChannel() BillingChannel {
-	if x != nil {
-		return x.xxx_hidden_Channel
-	}
-	return BillingChannel_BILLING_CHANNEL_UNSPECIFIED
-}
-
-func (x *BillingInvoice) GetCurrency() string {
-	if x != nil {
-		return x.xxx_hidden_Currency
-	}
-	return ""
-}
-
-func (x *BillingInvoice) GetSubtotal() int64 {
-	if x != nil {
-		return x.xxx_hidden_Subtotal
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetTax() int64 {
-	if x != nil {
-		return x.xxx_hidden_Tax
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetTotal() int64 {
-	if x != nil {
-		return x.xxx_hidden_Total
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetCredited() int64 {
-	if x != nil {
-		return x.xxx_hidden_Credited
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetDue() int64 {
-	if x != nil {
-		return x.xxx_hidden_Due
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetPaid() int64 {
-	if x != nil {
-		return x.xxx_hidden_Paid
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetReduced() int64 {
-	if x != nil {
-		return x.xxx_hidden_Reduced
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetRemaining() int64 {
-	if x != nil {
-		return x.xxx_hidden_Remaining
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetNumber() int64 {
-	if x != nil {
-		return x.xxx_hidden_Number
-	}
-	return 0
-}
-
-func (x *BillingInvoice) GetDateFinalized() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateFinalized
-	}
-	return nil
-}
-
-func (x *BillingInvoice) GetDateDue() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateDue
-	}
-	return nil
-}
-
-func (x *BillingInvoice) GetDateSettled() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateSettled
-	}
-	return nil
-}
-
-func (x *BillingInvoice) GetChannelNumber() string {
-	if x != nil {
-		return x.xxx_hidden_ChannelNumber
-	}
-	return ""
-}
-
-func (x *BillingInvoice) GetLines() []*BillingInvoiceLine {
-	if x != nil {
-		if x.xxx_hidden_Lines != nil {
-			return *x.xxx_hidden_Lines
-		}
-	}
-	return nil
-}
-
-func (x *BillingInvoice) GetCredits() []*BillingInvoiceCredit {
-	if x != nil {
-		if x.xxx_hidden_Credits != nil {
-			return *x.xxx_hidden_Credits
-		}
-	}
-	return nil
-}
-
-func (x *BillingInvoice) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-func (x *BillingInvoice) SetBillingAccount(v string) {
-	x.xxx_hidden_BillingAccount = v
-}
-
-func (x *BillingInvoice) SetState(v BillingInvoiceState) {
-	x.xxx_hidden_State = v
-}
-
-func (x *BillingInvoice) SetDateStart(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateStart = v
-}
-
-func (x *BillingInvoice) SetDateEnd(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateEnd = v
-}
-
-func (x *BillingInvoice) SetChannel(v BillingChannel) {
-	x.xxx_hidden_Channel = v
-}
-
-func (x *BillingInvoice) SetCurrency(v string) {
-	x.xxx_hidden_Currency = v
-}
-
-func (x *BillingInvoice) SetSubtotal(v int64) {
-	x.xxx_hidden_Subtotal = v
-}
-
-func (x *BillingInvoice) SetTax(v int64) {
-	x.xxx_hidden_Tax = v
-}
-
-func (x *BillingInvoice) SetTotal(v int64) {
-	x.xxx_hidden_Total = v
-}
-
-func (x *BillingInvoice) SetCredited(v int64) {
-	x.xxx_hidden_Credited = v
-}
-
-func (x *BillingInvoice) SetDue(v int64) {
-	x.xxx_hidden_Due = v
-}
-
-func (x *BillingInvoice) SetPaid(v int64) {
-	x.xxx_hidden_Paid = v
-}
-
-func (x *BillingInvoice) SetReduced(v int64) {
-	x.xxx_hidden_Reduced = v
-}
-
-func (x *BillingInvoice) SetRemaining(v int64) {
-	x.xxx_hidden_Remaining = v
-}
-
-func (x *BillingInvoice) SetNumber(v int64) {
-	x.xxx_hidden_Number = v
-}
-
-func (x *BillingInvoice) SetDateFinalized(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateFinalized = v
-}
-
-func (x *BillingInvoice) SetDateDue(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateDue = v
-}
-
-func (x *BillingInvoice) SetDateSettled(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateSettled = v
-}
-
-func (x *BillingInvoice) SetChannelNumber(v string) {
-	x.xxx_hidden_ChannelNumber = v
-}
-
-func (x *BillingInvoice) SetLines(v []*BillingInvoiceLine) {
-	x.xxx_hidden_Lines = &v
-}
-
-func (x *BillingInvoice) SetCredits(v []*BillingInvoiceCredit) {
-	x.xxx_hidden_Credits = &v
-}
-
-func (x *BillingInvoice) HasDateStart() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateStart != nil
-}
-
-func (x *BillingInvoice) HasDateEnd() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateEnd != nil
-}
-
-func (x *BillingInvoice) HasDateFinalized() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateFinalized != nil
-}
-
-func (x *BillingInvoice) HasDateDue() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateDue != nil
-}
-
-func (x *BillingInvoice) HasDateSettled() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateSettled != nil
-}
-
-func (x *BillingInvoice) ClearDateStart() {
-	x.xxx_hidden_DateStart = nil
-}
-
-func (x *BillingInvoice) ClearDateEnd() {
-	x.xxx_hidden_DateEnd = nil
-}
-
-func (x *BillingInvoice) ClearDateFinalized() {
-	x.xxx_hidden_DateFinalized = nil
-}
-
-func (x *BillingInvoice) ClearDateDue() {
-	x.xxx_hidden_DateDue = nil
-}
-
-func (x *BillingInvoice) ClearDateSettled() {
-	x.xxx_hidden_DateSettled = nil
-}
-
-type BillingInvoice_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id             string
-	BillingAccount string
-	State          BillingInvoiceState
-	DateStart      *timestamppb.Timestamp
-	DateEnd        *timestamppb.Timestamp
-	Channel        BillingChannel
-	Currency       string
-	Subtotal       int64
-	Tax            int64
-	Total          int64
-	Credited       int64
-	Due            int64
-	Paid           int64
-	Reduced        int64
-	Remaining      int64
-	Number         int64
-	DateFinalized  *timestamppb.Timestamp
-	DateDue        *timestamppb.Timestamp
-	DateSettled    *timestamppb.Timestamp
-	// The merchant of record's own number, once it collected.
-	ChannelNumber string
-	// Its lines: in `GetInvoice`'s answer.
-	Lines []*BillingInvoiceLine
-	// What paid `credited`, in `GetInvoice`'s answer: each credit that paid
-	// some of it, the soonest to expire first, and the balance last.
-	Credits []*BillingInvoiceCredit
-}
-
-func (b0 BillingInvoice_builder) Build() *BillingInvoice {
-	m0 := &BillingInvoice{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_BillingAccount = b.BillingAccount
-	x.xxx_hidden_State = b.State
-	x.xxx_hidden_DateStart = b.DateStart
-	x.xxx_hidden_DateEnd = b.DateEnd
-	x.xxx_hidden_Channel = b.Channel
-	x.xxx_hidden_Currency = b.Currency
-	x.xxx_hidden_Subtotal = b.Subtotal
-	x.xxx_hidden_Tax = b.Tax
-	x.xxx_hidden_Total = b.Total
-	x.xxx_hidden_Credited = b.Credited
-	x.xxx_hidden_Due = b.Due
-	x.xxx_hidden_Paid = b.Paid
-	x.xxx_hidden_Reduced = b.Reduced
-	x.xxx_hidden_Remaining = b.Remaining
-	x.xxx_hidden_Number = b.Number
-	x.xxx_hidden_DateFinalized = b.DateFinalized
-	x.xxx_hidden_DateDue = b.DateDue
-	x.xxx_hidden_DateSettled = b.DateSettled
-	x.xxx_hidden_ChannelNumber = b.ChannelNumber
-	x.xxx_hidden_Lines = &b.Lines
-	x.xxx_hidden_Credits = &b.Credits
-	return m0
-}
-
-// BillingInvoiceCredit is what of an invoice's total one credit paid, before
-// anything was asked of its channel.
-type BillingInvoiceCredit struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Credit      string                 `protobuf:"bytes,1,opt,name=credit"`
-	xxx_hidden_Amount      int64                  `protobuf:"varint,2,opt,name=amount"`
-	xxx_hidden_Workspace   string                 `protobuf:"bytes,3,opt,name=workspace"`
-	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date_expires,json=dateExpires"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *BillingInvoiceCredit) Reset() {
-	*x = BillingInvoiceCredit{}
-	mi := &file_loft_payment_proto_msgTypes[53]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingInvoiceCredit) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingInvoiceCredit) ProtoMessage() {}
-
-func (x *BillingInvoiceCredit) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[53]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingInvoiceCredit) GetCredit() string {
-	if x != nil {
-		return x.xxx_hidden_Credit
-	}
-	return ""
-}
-
-func (x *BillingInvoiceCredit) GetAmount() int64 {
-	if x != nil {
-		return x.xxx_hidden_Amount
-	}
-	return 0
-}
-
-func (x *BillingInvoiceCredit) GetWorkspace() string {
-	if x != nil {
-		return x.xxx_hidden_Workspace
-	}
-	return ""
-}
-
-func (x *BillingInvoiceCredit) GetDateExpires() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateExpires
-	}
-	return nil
-}
-
-func (x *BillingInvoiceCredit) SetCredit(v string) {
-	x.xxx_hidden_Credit = v
-}
-
-func (x *BillingInvoiceCredit) SetAmount(v int64) {
-	x.xxx_hidden_Amount = v
-}
-
-func (x *BillingInvoiceCredit) SetWorkspace(v string) {
-	x.xxx_hidden_Workspace = v
-}
-
-func (x *BillingInvoiceCredit) SetDateExpires(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateExpires = v
-}
-
-func (x *BillingInvoiceCredit) HasDateExpires() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateExpires != nil
-}
-
-func (x *BillingInvoiceCredit) ClearDateExpires() {
-	x.xxx_hidden_DateExpires = nil
-}
-
-type BillingInvoiceCredit_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The credit (`BillingCredit.id`); empty for the billing account's
-	// balance.
-	Credit string
-	Amount int64
-	// The workspace whose lines alone it paid, for a workspace's; and when it
-	// expires.
-	Workspace   string
-	DateExpires *timestamppb.Timestamp
-}
-
-func (b0 BillingInvoiceCredit_builder) Build() *BillingInvoiceCredit {
-	m0 := &BillingInvoiceCredit{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Credit = b.Credit
-	x.xxx_hidden_Amount = b.Amount
-	x.xxx_hidden_Workspace = b.Workspace
-	x.xxx_hidden_DateExpires = b.DateExpires
-	return m0
-}
-
 // BillingCredit is money levyan's operator granted -- of a promotion, of a
 // contract -- taken off what is billed before the channel is asked for
 // anything: to a billing account, or to one workspace, whose lines alone it
@@ -5704,7 +1254,7 @@ type BillingCredit struct {
 
 func (x *BillingCredit) Reset() {
 	*x = BillingCredit{}
-	mi := &file_loft_payment_proto_msgTypes[54]
+	mi := &file_loft_payment_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5716,7 +1266,7 @@ func (x *BillingCredit) String() string {
 func (*BillingCredit) ProtoMessage() {}
 
 func (x *BillingCredit) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[54]
+	mi := &file_loft_payment_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5868,343 +1418,6 @@ func (b0 BillingCredit_builder) Build() *BillingCredit {
 	return m0
 }
 
-// BillingInvoiceLine is one statement on an invoice.
-type BillingInvoiceLine struct {
-	state                protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Statement string                 `protobuf:"bytes,1,opt,name=statement"`
-	xxx_hidden_Workspace string                 `protobuf:"bytes,2,opt,name=workspace"`
-	xxx_hidden_Label     string                 `protobuf:"bytes,3,opt,name=label"`
-	xxx_hidden_Period    *BillingPeriod         `protobuf:"bytes,4,opt,name=period"`
-	xxx_hidden_Total     int64                  `protobuf:"varint,5,opt,name=total"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
-}
-
-func (x *BillingInvoiceLine) Reset() {
-	*x = BillingInvoiceLine{}
-	mi := &file_loft_payment_proto_msgTypes[55]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingInvoiceLine) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingInvoiceLine) ProtoMessage() {}
-
-func (x *BillingInvoiceLine) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[55]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingInvoiceLine) GetStatement() string {
-	if x != nil {
-		return x.xxx_hidden_Statement
-	}
-	return ""
-}
-
-func (x *BillingInvoiceLine) GetWorkspace() string {
-	if x != nil {
-		return x.xxx_hidden_Workspace
-	}
-	return ""
-}
-
-func (x *BillingInvoiceLine) GetLabel() string {
-	if x != nil {
-		return x.xxx_hidden_Label
-	}
-	return ""
-}
-
-func (x *BillingInvoiceLine) GetPeriod() *BillingPeriod {
-	if x != nil {
-		return x.xxx_hidden_Period
-	}
-	return nil
-}
-
-func (x *BillingInvoiceLine) GetTotal() int64 {
-	if x != nil {
-		return x.xxx_hidden_Total
-	}
-	return 0
-}
-
-func (x *BillingInvoiceLine) SetStatement(v string) {
-	x.xxx_hidden_Statement = v
-}
-
-func (x *BillingInvoiceLine) SetWorkspace(v string) {
-	x.xxx_hidden_Workspace = v
-}
-
-func (x *BillingInvoiceLine) SetLabel(v string) {
-	x.xxx_hidden_Label = v
-}
-
-func (x *BillingInvoiceLine) SetPeriod(v *BillingPeriod) {
-	x.xxx_hidden_Period = v
-}
-
-func (x *BillingInvoiceLine) SetTotal(v int64) {
-	x.xxx_hidden_Total = v
-}
-
-func (x *BillingInvoiceLine) HasPeriod() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Period != nil
-}
-
-func (x *BillingInvoiceLine) ClearPeriod() {
-	x.xxx_hidden_Period = nil
-}
-
-type BillingInvoiceLine_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	// The statement, which its payer reads with `GetPayerStatement`.
-	Statement string
-	// The workspace, and what this deployment called it when the line was
-	// written.
-	Workspace string
-	Label     string
-	Period    *BillingPeriod
-	Total     int64
-}
-
-func (b0 BillingInvoiceLine_builder) Build() *BillingInvoiceLine {
-	m0 := &BillingInvoiceLine{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Statement = b.Statement
-	x.xxx_hidden_Workspace = b.Workspace
-	x.xxx_hidden_Label = b.Label
-	x.xxx_hidden_Period = b.Period
-	x.xxx_hidden_Total = b.Total
-	return m0
-}
-
-// BillingCreditNote takes some or all of a finalized invoice back.
-type BillingCreditNote struct {
-	state                  protoimpl.MessageState  `protogen:"opaque.v1"`
-	xxx_hidden_Id          string                  `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Invoice     string                  `protobuf:"bytes,2,opt,name=invoice"`
-	xxx_hidden_Reason      BillingCreditNoteReason `protobuf:"varint,3,opt,name=reason,enum=loft.BillingCreditNoteReason"`
-	xxx_hidden_Amount      int64                   `protobuf:"varint,4,opt,name=amount"`
-	xxx_hidden_Tax         int64                   `protobuf:"varint,5,opt,name=tax"`
-	xxx_hidden_Total       int64                   `protobuf:"varint,6,opt,name=total"`
-	xxx_hidden_Reduced     int64                   `protobuf:"varint,7,opt,name=reduced"`
-	xxx_hidden_Refunded    int64                   `protobuf:"varint,8,opt,name=refunded"`
-	xxx_hidden_Credited    int64                   `protobuf:"varint,9,opt,name=credited"`
-	xxx_hidden_Number      int64                   `protobuf:"varint,10,opt,name=number"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp  `protobuf:"bytes,11,opt,name=date_created,json=dateCreated"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *BillingCreditNote) Reset() {
-	*x = BillingCreditNote{}
-	mi := &file_loft_payment_proto_msgTypes[56]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BillingCreditNote) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BillingCreditNote) ProtoMessage() {}
-
-func (x *BillingCreditNote) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[56]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *BillingCreditNote) GetId() string {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return ""
-}
-
-func (x *BillingCreditNote) GetInvoice() string {
-	if x != nil {
-		return x.xxx_hidden_Invoice
-	}
-	return ""
-}
-
-func (x *BillingCreditNote) GetReason() BillingCreditNoteReason {
-	if x != nil {
-		return x.xxx_hidden_Reason
-	}
-	return BillingCreditNoteReason_BILLING_CREDIT_NOTE_REASON_UNSPECIFIED
-}
-
-func (x *BillingCreditNote) GetAmount() int64 {
-	if x != nil {
-		return x.xxx_hidden_Amount
-	}
-	return 0
-}
-
-func (x *BillingCreditNote) GetTax() int64 {
-	if x != nil {
-		return x.xxx_hidden_Tax
-	}
-	return 0
-}
-
-func (x *BillingCreditNote) GetTotal() int64 {
-	if x != nil {
-		return x.xxx_hidden_Total
-	}
-	return 0
-}
-
-func (x *BillingCreditNote) GetReduced() int64 {
-	if x != nil {
-		return x.xxx_hidden_Reduced
-	}
-	return 0
-}
-
-func (x *BillingCreditNote) GetRefunded() int64 {
-	if x != nil {
-		return x.xxx_hidden_Refunded
-	}
-	return 0
-}
-
-func (x *BillingCreditNote) GetCredited() int64 {
-	if x != nil {
-		return x.xxx_hidden_Credited
-	}
-	return 0
-}
-
-func (x *BillingCreditNote) GetNumber() int64 {
-	if x != nil {
-		return x.xxx_hidden_Number
-	}
-	return 0
-}
-
-func (x *BillingCreditNote) GetDateCreated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return nil
-}
-
-func (x *BillingCreditNote) SetId(v string) {
-	x.xxx_hidden_Id = v
-}
-
-func (x *BillingCreditNote) SetInvoice(v string) {
-	x.xxx_hidden_Invoice = v
-}
-
-func (x *BillingCreditNote) SetReason(v BillingCreditNoteReason) {
-	x.xxx_hidden_Reason = v
-}
-
-func (x *BillingCreditNote) SetAmount(v int64) {
-	x.xxx_hidden_Amount = v
-}
-
-func (x *BillingCreditNote) SetTax(v int64) {
-	x.xxx_hidden_Tax = v
-}
-
-func (x *BillingCreditNote) SetTotal(v int64) {
-	x.xxx_hidden_Total = v
-}
-
-func (x *BillingCreditNote) SetReduced(v int64) {
-	x.xxx_hidden_Reduced = v
-}
-
-func (x *BillingCreditNote) SetRefunded(v int64) {
-	x.xxx_hidden_Refunded = v
-}
-
-func (x *BillingCreditNote) SetCredited(v int64) {
-	x.xxx_hidden_Credited = v
-}
-
-func (x *BillingCreditNote) SetNumber(v int64) {
-	x.xxx_hidden_Number = v
-}
-
-func (x *BillingCreditNote) SetDateCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCreated = v
-}
-
-func (x *BillingCreditNote) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCreated != nil
-}
-
-func (x *BillingCreditNote) ClearDateCreated() {
-	x.xxx_hidden_DateCreated = nil
-}
-
-type BillingCreditNote_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id          string
-	Invoice     string
-	Reason      BillingCreditNoteReason
-	Amount      int64
-	Tax         int64
-	Total       int64
-	Reduced     int64
-	Refunded    int64
-	Credited    int64
-	Number      int64
-	DateCreated *timestamppb.Timestamp
-}
-
-func (b0 BillingCreditNote_builder) Build() *BillingCreditNote {
-	m0 := &BillingCreditNote{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Invoice = b.Invoice
-	x.xxx_hidden_Reason = b.Reason
-	x.xxx_hidden_Amount = b.Amount
-	x.xxx_hidden_Tax = b.Tax
-	x.xxx_hidden_Total = b.Total
-	x.xxx_hidden_Reduced = b.Reduced
-	x.xxx_hidden_Refunded = b.Refunded
-	x.xxx_hidden_Credited = b.Credited
-	x.xxx_hidden_Number = b.Number
-	x.xxx_hidden_DateCreated = b.DateCreated
-	return m0
-}
-
 // BillingPeriod is one period of billing: a calendar month in a zone.
 type BillingPeriod struct {
 	state                protoimpl.MessageState `protogen:"opaque.v1"`
@@ -6217,7 +1430,7 @@ type BillingPeriod struct {
 
 func (x *BillingPeriod) Reset() {
 	*x = BillingPeriod{}
-	mi := &file_loft_payment_proto_msgTypes[57]
+	mi := &file_loft_payment_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6229,7 +1442,7 @@ func (x *BillingPeriod) String() string {
 func (*BillingPeriod) ProtoMessage() {}
 
 func (x *BillingPeriod) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[57]
+	mi := &file_loft_payment_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6333,7 +1546,7 @@ type BillingPayer struct {
 
 func (x *BillingPayer) Reset() {
 	*x = BillingPayer{}
-	mi := &file_loft_payment_proto_msgTypes[58]
+	mi := &file_loft_payment_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6345,7 +1558,7 @@ func (x *BillingPayer) String() string {
 func (*BillingPayer) ProtoMessage() {}
 
 func (x *BillingPayer) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[58]
+	mi := &file_loft_payment_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6600,8 +1813,8 @@ func (b0 BillingPayer_builder) Build() *BillingPayer {
 // by levyan's table of each kind of decline: when it is charged again, when
 // its grace ends, from when every workspace it bills is restricted, and from
 // when they are read-only.
-// levyan tells nobody: this deployment shows it, to the payer and to the
-// people who run the workspaces it bills.
+// levyan tells nobody: this deployment shows it to the people who run the
+// workspaces it bills.
 type BillingDunning struct {
 	state                     protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Invoice        string                 `protobuf:"bytes,1,opt,name=invoice"`
@@ -6618,7 +1831,7 @@ type BillingDunning struct {
 
 func (x *BillingDunning) Reset() {
 	*x = BillingDunning{}
-	mi := &file_loft_payment_proto_msgTypes[59]
+	mi := &file_loft_payment_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6630,7 +1843,7 @@ func (x *BillingDunning) String() string {
 func (*BillingDunning) ProtoMessage() {}
 
 func (x *BillingDunning) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[59]
+	mi := &file_loft_payment_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6838,7 +2051,7 @@ type BillingUsage struct {
 
 func (x *BillingUsage) Reset() {
 	*x = BillingUsage{}
-	mi := &file_loft_payment_proto_msgTypes[60]
+	mi := &file_loft_payment_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6850,7 +2063,7 @@ func (x *BillingUsage) String() string {
 func (*BillingUsage) ProtoMessage() {}
 
 func (x *BillingUsage) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[60]
+	mi := &file_loft_payment_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7044,7 +2257,7 @@ type BillingAllowance struct {
 
 func (x *BillingAllowance) Reset() {
 	*x = BillingAllowance{}
-	mi := &file_loft_payment_proto_msgTypes[61]
+	mi := &file_loft_payment_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7056,7 +2269,7 @@ func (x *BillingAllowance) String() string {
 func (*BillingAllowance) ProtoMessage() {}
 
 func (x *BillingAllowance) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[61]
+	mi := &file_loft_payment_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7190,7 +2403,7 @@ type BillingPool struct {
 
 func (x *BillingPool) Reset() {
 	*x = BillingPool{}
-	mi := &file_loft_payment_proto_msgTypes[62]
+	mi := &file_loft_payment_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7202,7 +2415,7 @@ func (x *BillingPool) String() string {
 func (*BillingPool) ProtoMessage() {}
 
 func (x *BillingPool) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[62]
+	mi := &file_loft_payment_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7347,7 +2560,7 @@ type BillingStatement struct {
 
 func (x *BillingStatement) Reset() {
 	*x = BillingStatement{}
-	mi := &file_loft_payment_proto_msgTypes[63]
+	mi := &file_loft_payment_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7359,7 +2572,7 @@ func (x *BillingStatement) String() string {
 func (*BillingStatement) ProtoMessage() {}
 
 func (x *BillingStatement) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[63]
+	mi := &file_loft_payment_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7532,7 +2745,7 @@ type BillingLine struct {
 
 func (x *BillingLine) Reset() {
 	*x = BillingLine{}
-	mi := &file_loft_payment_proto_msgTypes[64]
+	mi := &file_loft_payment_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7544,7 +2757,7 @@ func (x *BillingLine) String() string {
 func (*BillingLine) ProtoMessage() {}
 
 func (x *BillingLine) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[64]
+	mi := &file_loft_payment_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7758,7 +2971,7 @@ type BillingLinePool struct {
 
 func (x *BillingLinePool) Reset() {
 	*x = BillingLinePool{}
-	mi := &file_loft_payment_proto_msgTypes[65]
+	mi := &file_loft_payment_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7770,7 +2983,7 @@ func (x *BillingLinePool) String() string {
 func (*BillingLinePool) ProtoMessage() {}
 
 func (x *BillingLinePool) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_payment_proto_msgTypes[65]
+	mi := &file_loft_payment_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7824,106 +3037,7 @@ var File_loft_payment_proto protoreflect.FileDescriptor
 
 const file_loft_payment_proto_rawDesc = "" +
 	"\n" +
-	"\x12loft/payment.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\fpayday.proto\"#\n" +
-	"!PaymentListBillingAccountsRequest\"e\n" +
-	"\"PaymentListBillingAccountsResponse\x12?\n" +
-	"\x10billing_accounts\x18\x01 \x03(\v2\x14.loft.BillingAccountR\x0fbillingAccounts\"\xbb\x01\n" +
-	"\"PaymentCreateBillingAccountRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
-	"\acountry\x18\x02 \x01(\tR\acountry\x124\n" +
-	"\trecipient\x18\x03 \x01(\v2\x16.loft.BillingRecipientR\trecipient\x121\n" +
-	"\bbusiness\x18\x04 \x01(\v2\x15.loft.BillingBusinessR\bbusiness\"d\n" +
-	"#PaymentCreateBillingAccountResponse\x12=\n" +
-	"\x0fbilling_account\x18\x01 \x01(\v2\x14.loft.BillingAccountR\x0ebillingAccount\"\xdf\x01\n" +
-	"\"PaymentUpdateBillingAccountRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
-	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x01R\x04name\x124\n" +
-	"\trecipient\x18\x03 \x01(\v2\x16.loft.BillingRecipientR\trecipient\x121\n" +
-	"\bbusiness\x18\x04 \x01(\v2\x15.loft.BillingBusinessR\bbusiness\x12%\n" +
-	"\x0eclear_business\x18\x05 \x01(\bR\rclearBusiness\"d\n" +
-	"#PaymentUpdateBillingAccountResponse\x12=\n" +
-	"\x0fbilling_account\x18\x01 \x01(\v2\x14.loft.BillingAccountR\x0ebillingAccount\"1\n" +
-	"\x1fPaymentGetBillingAccountRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xd2\x02\n" +
-	" PaymentGetBillingAccountResponse\x12=\n" +
-	"\x0fbilling_account\x18\x01 \x01(\v2\x14.loft.BillingAccountR\x0ebillingAccount\x127\n" +
-	"\n" +
-	"collection\x18\x02 \x01(\v2\x17.loft.BillingCollectionR\n" +
-	"collection\x12=\n" +
-	"\fsubscription\x18\x03 \x01(\v2\x19.loft.BillingSubscriptionR\fsubscription\x12.\n" +
-	"\adunning\x18\x04 \x03(\v2\x14.loft.BillingDunningR\adunning\x12-\n" +
-	"\acredits\x18\x05 \x03(\v2\x13.loft.BillingCreditR\acredits\x12\x18\n" +
-	"\abalance\x18\x06 \x01(\x03R\abalance\"g\n" +
-	"\x1bPaymentStartCheckoutRequest\x12'\n" +
-	"\x0fbilling_account\x18\x01 \x01(\tR\x0ebillingAccount\x12\x1f\n" +
-	"\vsuccess_url\x18\x02 \x01(\tR\n" +
-	"successUrl\"Q\n" +
-	"\x1cPaymentStartCheckoutResponse\x121\n" +
-	"\bcheckout\x18\x01 \x01(\v2\x15.loft.BillingCheckoutR\bcheckout\"<\n" +
-	"\x1ePaymentCompleteCheckoutRequest\x12\x1a\n" +
-	"\bcheckout\x18\x01 \x01(\tR\bcheckout\"\xcc\x01\n" +
-	"\x1fPaymentCompleteCheckoutResponse\x121\n" +
-	"\bcheckout\x18\x01 \x01(\v2\x15.loft.BillingCheckoutR\bcheckout\x12=\n" +
-	"\fsubscription\x18\x02 \x01(\v2\x19.loft.BillingSubscriptionR\fsubscription\x127\n" +
-	"\n" +
-	"collection\x18\x03 \x01(\v2\x17.loft.BillingCollectionR\n" +
-	"collection\"\x1a\n" +
-	"\x18PaymentListOffersRequest\"G\n" +
-	"\x19PaymentListOffersResponse\x12*\n" +
-	"\x06offers\x18\x01 \x03(\v2\x12.loft.BillingOfferR\x06offers\"U\n" +
-	"\x14PaymentAcceptRequest\x12\x14\n" +
-	"\x05offer\x18\x01 \x01(\tR\x05offer\x12'\n" +
-	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\">\n" +
-	"\x15PaymentAcceptResponse\x12%\n" +
-	"\x04link\x18\x01 \x01(\v2\x11.loft.BillingLinkR\x04link\"-\n" +
-	"\x15PaymentDeclineRequest\x12\x14\n" +
-	"\x05offer\x18\x01 \x01(\tR\x05offer\"\x18\n" +
-	"\x16PaymentDeclineResponse\"\x19\n" +
-	"\x17PaymentListLinksRequest\"C\n" +
-	"\x18PaymentListLinksResponse\x12'\n" +
-	"\x05links\x18\x01 \x03(\v2\x11.loft.BillingLinkR\x05links\"Z\n" +
-	"\x11PaymentUseRequest\x12\x1c\n" +
-	"\tworkspace\x18\x01 \x01(\tR\tworkspace\x12'\n" +
-	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\";\n" +
-	"\x12PaymentUseResponse\x12%\n" +
-	"\x04link\x18\x01 \x01(\v2\x11.loft.BillingLinkR\x04link\"2\n" +
-	"\x12PaymentStopRequest\x12\x1c\n" +
-	"\tworkspace\x18\x01 \x01(\tR\tworkspace\"<\n" +
-	"\x13PaymentStopResponse\x12%\n" +
-	"\x04link\x18\x01 \x01(\v2\x11.loft.BillingLinkR\x04link\"\x81\x01\n" +
-	"\x1aPaymentListInvoicesRequest\x12'\n" +
-	"\x0fbilling_account\x18\x01 \x01(\tR\x0ebillingAccount\x12\x1b\n" +
-	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x1d\n" +
-	"\n" +
-	"page_token\x18\x03 \x01(\tR\tpageToken\"w\n" +
-	"\x1bPaymentListInvoicesResponse\x120\n" +
-	"\binvoices\x18\x01 \x03(\v2\x14.loft.BillingInvoiceR\binvoices\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"*\n" +
-	"\x18PaymentGetInvoiceRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xb7\x01\n" +
-	"\x19PaymentGetInvoiceResponse\x12.\n" +
-	"\ainvoice\x18\x01 \x01(\v2\x14.loft.BillingInvoiceR\ainvoice\x12:\n" +
-	"\fcredit_notes\x18\x02 \x03(\v2\x17.loft.BillingCreditNoteR\vcreditNotes\x12.\n" +
-	"\adunning\x18\x03 \x01(\v2\x14.loft.BillingDunningR\adunning\"b\n" +
-	"\x1dPaymentListCreditNotesRequest\x12'\n" +
-	"\x0fbilling_account\x18\x01 \x01(\tR\x0ebillingAccount\x12\x18\n" +
-	"\ainvoice\x18\x02 \x01(\tR\ainvoice\"\\\n" +
-	"\x1ePaymentListCreditNotesResponse\x12:\n" +
-	"\fcredit_notes\x18\x01 \x03(\v2\x17.loft.BillingCreditNoteR\vcreditNotes\"\x88\x01\n" +
-	"!PaymentListPayerStatementsRequest\x12'\n" +
-	"\x0fbilling_account\x18\x01 \x01(\tR\x0ebillingAccount\x12\x1b\n" +
-	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\x12\x1d\n" +
-	"\n" +
-	"page_token\x18\x03 \x01(\tR\tpageToken\"\x84\x01\n" +
-	"\"PaymentListPayerStatementsResponse\x126\n" +
-	"\n" +
-	"statements\x18\x01 \x03(\v2\x16.loft.BillingStatementR\n" +
-	"statements\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"1\n" +
-	"\x1fPaymentGetPayerStatementRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"X\n" +
-	" PaymentGetPayerStatementResponse\x124\n" +
-	"\tstatement\x18\x01 \x01(\v2\x16.loft.BillingStatementR\tstatement\"\x18\n" +
+	"\x12loft/payment.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\"\x18\n" +
 	"\x16PaymentGetPayerRequest\"C\n" +
 	"\x17PaymentGetPayerResponse\x12(\n" +
 	"\x05payer\x18\x01 \x01(\v2\x12.loft.BillingPayerR\x05payer\"\x18\n" +
@@ -7942,68 +3056,12 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\x13PaymentOfferRequest\x12\x16\n" +
 	"\x06holder\x18\x01 \x01(\fR\x06holder\"@\n" +
 	"\x14PaymentOfferResponse\x12(\n" +
-	"\x05offer\x18\x01 \x01(\v2\x12.loft.BillingOfferR\x05offer\"\xc2\x02\n" +
-	"\x0eBillingAccount\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
-	"\acountry\x18\x03 \x01(\tR\acountry\x12.\n" +
-	"\achannel\x18\x04 \x01(\x0e2\x14.loft.BillingChannelR\achannel\x12\x1a\n" +
-	"\bcurrency\x18\x05 \x01(\tR\bcurrency\x124\n" +
-	"\trecipient\x18\x06 \x01(\v2\x16.loft.BillingRecipientR\trecipient\x121\n" +
-	"\bbusiness\x18\a \x01(\v2\x15.loft.BillingBusinessR\bbusiness\x12=\n" +
-	"\fdate_created\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"V\n" +
-	"\x10BillingRecipient\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05email\x18\x02 \x01(\tR\x05email\x12\x18\n" +
-	"\aaddress\x18\x03 \x01(\tR\aaddress\"\xc9\x01\n" +
-	"\x0fBillingBusiness\x12\"\n" +
-	"\fregistration\x18\x01 \x01(\tR\fregistration\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12&\n" +
-	"\x0erepresentative\x18\x03 \x01(\tR\x0erepresentative\x12\x18\n" +
-	"\aaddress\x18\x04 \x01(\tR\aaddress\x12\x12\n" +
-	"\x04kind\x18\x05 \x01(\tR\x04kind\x12\x12\n" +
-	"\x04item\x18\x06 \x01(\tR\x04item\x12\x14\n" +
-	"\x05email\x18\a \x01(\tR\x05email\"\xbb\x01\n" +
+	"\x05offer\x18\x01 \x01(\v2\x12.loft.BillingOfferR\x05offer\"\xbb\x01\n" +
 	"\x11BillingCollection\x122\n" +
 	"\x05state\x18\x01 \x01(\x0e2\x1c.loft.BillingCollectionStateR\x05state\x129\n" +
 	"\n" +
 	"date_since\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tdateSince\x127\n" +
-	"\tdate_ends\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bdateEnds\"\xd1\x05\n" +
-	"\x13BillingSubscription\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\bmerchant\x18\x02 \x01(\tR\bmerchant\x127\n" +
-	"\x06status\x18\x03 \x01(\x0e2\x1f.loft.BillingSubscriptionStatusR\x06status\x12\x1a\n" +
-	"\bcurrency\x18\x04 \x01(\tR\bcurrency\x12F\n" +
-	"\x11date_period_start\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x0fdatePeriodStart\x12B\n" +
-	"\x0fdate_period_end\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\rdatePeriodEnd\x12D\n" +
-	"\x10date_next_billed\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0edateNextBilled\x127\n" +
-	"\x06change\x18\b \x01(\x0e2\x1f.loft.BillingSubscriptionChangeR\x06change\x12;\n" +
-	"\vdate_change\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"dateChange\x12?\n" +
-	"\rdate_canceled\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\fdateCanceled\x122\n" +
-	"\x06method\x18\v \x01(\v2\x1a.loft.BillingPaymentMethodR\x06method\x12=\n" +
-	"\fdate_updated\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12=\n" +
-	"\fdate_checked\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\vdateChecked\"V\n" +
-	"\x14BillingPaymentMethod\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\x12\x14\n" +
-	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x14\n" +
-	"\x05last4\x18\x03 \x01(\tR\x05last4\"\xa9\x02\n" +
-	"\x0fBillingCheckout\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
-	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\x120\n" +
-	"\x05state\x18\x03 \x01(\x0e2\x1a.loft.BillingCheckoutStateR\x05state\x12=\n" +
-	"\fdate_started\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vdateStarted\x127\n" +
-	"\tdate_done\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bdateDone\x123\n" +
-	"\x06window\x18\x06 \x01(\v2\x1b.loft.BillingCheckoutWindowR\x06window\"\xde\x01\n" +
-	"\x15BillingCheckoutWindow\x12\x1a\n" +
-	"\bmerchant\x18\x01 \x01(\tR\bmerchant\x12 \n" +
-	"\venvironment\x18\x02 \x01(\tR\venvironment\x12 \n" +
-	"\vtransaction\x18\x03 \x01(\tR\vtransaction\x12!\n" +
-	"\fclient_token\x18\x04 \x01(\tR\vclientToken\x12\x16\n" +
-	"\x06script\x18\x05 \x01(\tR\x06script\x12\x10\n" +
-	"\x03url\x18\x06 \x01(\tR\x03url\x12\x18\n" +
-	"\acountry\x18\a \x01(\tR\acountry\"\x95\x01\n" +
+	"\tdate_ends\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bdateEnds\"\x95\x01\n" +
 	"\fBillingOffer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12\x18\n" +
@@ -8018,37 +3076,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"date_start\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
 	"\bdate_end\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12,\n" +
 	"\x05began\x18\a \x01(\x0e2\x16.loft.BillingLinkBeganR\x05began\x12,\n" +
-	"\x05ended\x18\b \x01(\x0e2\x16.loft.BillingLinkEndedR\x05ended\"\xd4\x06\n" +
-	"\x0eBillingInvoice\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
-	"\x0fbilling_account\x18\x02 \x01(\tR\x0ebillingAccount\x12/\n" +
-	"\x05state\x18\x03 \x01(\x0e2\x19.loft.BillingInvoiceStateR\x05state\x129\n" +
-	"\n" +
-	"date_start\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
-	"\bdate_end\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\adateEnd\x12.\n" +
-	"\achannel\x18\x06 \x01(\x0e2\x14.loft.BillingChannelR\achannel\x12\x1a\n" +
-	"\bcurrency\x18\a \x01(\tR\bcurrency\x12\x1a\n" +
-	"\bsubtotal\x18\b \x01(\x03R\bsubtotal\x12\x10\n" +
-	"\x03tax\x18\t \x01(\x03R\x03tax\x12\x14\n" +
-	"\x05total\x18\n" +
-	" \x01(\x03R\x05total\x12\x1a\n" +
-	"\bcredited\x18\v \x01(\x03R\bcredited\x12\x10\n" +
-	"\x03due\x18\f \x01(\x03R\x03due\x12\x12\n" +
-	"\x04paid\x18\r \x01(\x03R\x04paid\x12\x18\n" +
-	"\areduced\x18\x0e \x01(\x03R\areduced\x12\x1c\n" +
-	"\tremaining\x18\x0f \x01(\x03R\tremaining\x12\x16\n" +
-	"\x06number\x18\x10 \x01(\x03R\x06number\x12A\n" +
-	"\x0edate_finalized\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\rdateFinalized\x125\n" +
-	"\bdate_due\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\adateDue\x12=\n" +
-	"\fdate_settled\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampR\vdateSettled\x12%\n" +
-	"\x0echannel_number\x18\x14 \x01(\tR\rchannelNumber\x12.\n" +
-	"\x05lines\x18\x15 \x03(\v2\x18.loft.BillingInvoiceLineR\x05lines\x124\n" +
-	"\acredits\x18\x16 \x03(\v2\x1a.loft.BillingInvoiceCreditR\acredits\"\xa3\x01\n" +
-	"\x14BillingInvoiceCredit\x12\x16\n" +
-	"\x06credit\x18\x01 \x01(\tR\x06credit\x12\x16\n" +
-	"\x06amount\x18\x02 \x01(\x03R\x06amount\x12\x1c\n" +
-	"\tworkspace\x18\x03 \x01(\tR\tworkspace\x12=\n" +
-	"\fdate_expires\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\"\xae\x02\n" +
+	"\x05ended\x18\b \x01(\x0e2\x16.loft.BillingLinkEndedR\x05ended\"\xae\x02\n" +
 	"\rBillingCredit\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12'\n" +
@@ -8057,26 +3085,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\x04left\x18\x05 \x01(\x03R\x04left\x12\x1a\n" +
 	"\bcurrency\x18\x06 \x01(\tR\bcurrency\x12=\n" +
 	"\fdate_expires\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
-	"\fdate_created\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"\xa9\x01\n" +
-	"\x12BillingInvoiceLine\x12\x1c\n" +
-	"\tstatement\x18\x01 \x01(\tR\tstatement\x12\x1c\n" +
-	"\tworkspace\x18\x02 \x01(\tR\tworkspace\x12\x14\n" +
-	"\x05label\x18\x03 \x01(\tR\x05label\x12+\n" +
-	"\x06period\x18\x04 \x01(\v2\x13.loft.BillingPeriodR\x06period\x12\x14\n" +
-	"\x05total\x18\x05 \x01(\x03R\x05total\"\xdd\x02\n" +
-	"\x11BillingCreditNote\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
-	"\ainvoice\x18\x02 \x01(\tR\ainvoice\x125\n" +
-	"\x06reason\x18\x03 \x01(\x0e2\x1d.loft.BillingCreditNoteReasonR\x06reason\x12\x16\n" +
-	"\x06amount\x18\x04 \x01(\x03R\x06amount\x12\x10\n" +
-	"\x03tax\x18\x05 \x01(\x03R\x03tax\x12\x14\n" +
-	"\x05total\x18\x06 \x01(\x03R\x05total\x12\x18\n" +
-	"\areduced\x18\a \x01(\x03R\areduced\x12\x1a\n" +
-	"\brefunded\x18\b \x01(\x03R\brefunded\x12\x1a\n" +
-	"\bcredited\x18\t \x01(\x03R\bcredited\x12\x16\n" +
-	"\x06number\x18\n" +
-	" \x01(\x03R\x06number\x12=\n" +
-	"\fdate_created\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"\x95\x01\n" +
+	"\fdate_created\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"\x95\x01\n" +
 	"\rBillingPeriod\x129\n" +
 	"\n" +
 	"date_start\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tdateStart\x125\n" +
@@ -8172,24 +3181,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"!BILLING_COLLECTION_STATE_PAST_DUE\x10\x03\x12#\n" +
 	"\x1fBILLING_COLLECTION_STATE_PAUSED\x10\x04\x12%\n" +
 	"!BILLING_COLLECTION_STATE_CANCELED\x10\x05\x12)\n" +
-	"%BILLING_COLLECTION_STATE_NEEDS_ACTION\x10\x06*\x96\x02\n" +
-	"\x19BillingSubscriptionStatus\x12+\n" +
-	"'BILLING_SUBSCRIPTION_STATUS_UNSPECIFIED\x10\x00\x12&\n" +
-	"\"BILLING_SUBSCRIPTION_STATUS_ACTIVE\x10\x01\x12(\n" +
-	"$BILLING_SUBSCRIPTION_STATUS_TRIALING\x10\x02\x12(\n" +
-	"$BILLING_SUBSCRIPTION_STATUS_PAST_DUE\x10\x03\x12&\n" +
-	"\"BILLING_SUBSCRIPTION_STATUS_PAUSED\x10\x04\x12(\n" +
-	"$BILLING_SUBSCRIPTION_STATUS_CANCELED\x10\x05*\xbf\x01\n" +
-	"\x19BillingSubscriptionChange\x12+\n" +
-	"'BILLING_SUBSCRIPTION_CHANGE_UNSPECIFIED\x10\x00\x12&\n" +
-	"\"BILLING_SUBSCRIPTION_CHANGE_CANCEL\x10\x01\x12%\n" +
-	"!BILLING_SUBSCRIPTION_CHANGE_PAUSE\x10\x02\x12&\n" +
-	"\"BILLING_SUBSCRIPTION_CHANGE_RESUME\x10\x03*\xaa\x01\n" +
-	"\x14BillingCheckoutState\x12&\n" +
-	"\"BILLING_CHECKOUT_STATE_UNSPECIFIED\x10\x00\x12\x1f\n" +
-	"\x1bBILLING_CHECKOUT_STATE_OPEN\x10\x01\x12$\n" +
-	" BILLING_CHECKOUT_STATE_COMPLETED\x10\x02\x12#\n" +
-	"\x1fBILLING_CHECKOUT_STATE_CANCELED\x10\x03*\xb4\x01\n" +
+	"%BILLING_COLLECTION_STATE_NEEDS_ACTION\x10\x06*\xb4\x01\n" +
 	"\x10BillingLinkBegan\x12\"\n" +
 	"\x1eBILLING_LINK_BEGAN_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aBILLING_LINK_BEGAN_ARRIVED\x10\x01\x12\x1f\n" +
@@ -8203,21 +3195,7 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\x17BILLING_LINK_ENDED_LEFT\x10\x03\x12 \n" +
 	"\x1cBILLING_LINK_ENDED_SUSPENDED\x10\x04\x12\x1d\n" +
 	"\x19BILLING_LINK_ENDED_ERASED\x10\x05\x12 \n" +
-	"\x1cBILLING_LINK_ENDED_DESTROYED\x10\x06*\xaf\x02\n" +
-	"\x13BillingInvoiceState\x12%\n" +
-	"!BILLING_INVOICE_STATE_UNSPECIFIED\x10\x00\x12\x1f\n" +
-	"\x1bBILLING_INVOICE_STATE_DRAFT\x10\x01\x12\x1e\n" +
-	"\x1aBILLING_INVOICE_STATE_OPEN\x10\x02\x12\x1e\n" +
-	"\x1aBILLING_INVOICE_STATE_PAID\x10\x03\x12'\n" +
-	"#BILLING_INVOICE_STATE_UNCOLLECTIBLE\x10\x04\x12\x1e\n" +
-	"\x1aBILLING_INVOICE_STATE_VOID\x10\x05\x12%\n" +
-	"!BILLING_INVOICE_STATE_WRITTEN_OFF\x10\x06\x12 \n" +
-	"\x1cBILLING_INVOICE_STATE_SHADOW\x10\a*\xc4\x01\n" +
-	"\x17BillingCreditNoteReason\x12*\n" +
-	"&BILLING_CREDIT_NOTE_REASON_UNSPECIFIED\x10\x00\x12)\n" +
-	"%BILLING_CREDIT_NOTE_REASON_CORRECTION\x10\x01\x12%\n" +
-	"!BILLING_CREDIT_NOTE_REASON_REFUND\x10\x02\x12+\n" +
-	"'BILLING_CREDIT_NOTE_REASON_CANCELLATION\x10\x03*\xa0\x01\n" +
+	"\x1cBILLING_LINK_ENDED_DESTROYED\x10\x06*\xa0\x01\n" +
 	"\x12BillingDeclineKind\x12$\n" +
 	" BILLING_DECLINE_KIND_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eBILLING_DECLINE_KIND_TEMPORARY\x10\x01\x12 \n" +
@@ -8226,286 +3204,107 @@ const file_loft_payment_proto_rawDesc = "" +
 	"\x0fBillingLineKind\x12!\n" +
 	"\x1dBILLING_LINE_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17BILLING_LINE_KIND_USAGE\x10\x01\x12 \n" +
-	"\x1cBILLING_LINE_KIND_CORRECTION\x10\x022\x91\x0f\n" +
-	"\x0ePaymentService\x12p\n" +
-	"\x13ListBillingAccounts\x12'.loft.PaymentListBillingAccountsRequest\x1a(.loft.PaymentListBillingAccountsResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12s\n" +
-	"\x14CreateBillingAccount\x12(.loft.PaymentCreateBillingAccountRequest\x1a).loft.PaymentCreateBillingAccountResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12s\n" +
-	"\x14UpdateBillingAccount\x12(.loft.PaymentUpdateBillingAccountRequest\x1a).loft.PaymentUpdateBillingAccountResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12j\n" +
-	"\x11GetBillingAccount\x12%.loft.PaymentGetBillingAccountRequest\x1a&.loft.PaymentGetBillingAccountResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12^\n" +
-	"\rStartCheckout\x12!.loft.PaymentStartCheckoutRequest\x1a\".loft.PaymentStartCheckoutResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12g\n" +
-	"\x10CompleteCheckout\x12$.loft.PaymentCompleteCheckoutRequest\x1a%.loft.PaymentCompleteCheckoutResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12U\n" +
-	"\n" +
-	"ListOffers\x12\x1e.loft.PaymentListOffersRequest\x1a\x1f.loft.PaymentListOffersResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12I\n" +
-	"\x06Accept\x12\x1a.loft.PaymentAcceptRequest\x1a\x1b.loft.PaymentAcceptResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12L\n" +
-	"\aDecline\x12\x1b.loft.PaymentDeclineRequest\x1a\x1c.loft.PaymentDeclineResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12R\n" +
-	"\tListLinks\x12\x1d.loft.PaymentListLinksRequest\x1a\x1e.loft.PaymentListLinksResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12@\n" +
-	"\x03Use\x12\x17.loft.PaymentUseRequest\x1a\x18.loft.PaymentUseResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12C\n" +
-	"\x04Stop\x12\x18.loft.PaymentStopRequest\x1a\x19.loft.PaymentStopResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12[\n" +
-	"\fListInvoices\x12 .loft.PaymentListInvoicesRequest\x1a!.loft.PaymentListInvoicesResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12U\n" +
-	"\n" +
-	"GetInvoice\x12\x1e.loft.PaymentGetInvoiceRequest\x1a\x1f.loft.PaymentGetInvoiceResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12d\n" +
-	"\x0fListCreditNotes\x12#.loft.PaymentListCreditNotesRequest\x1a$.loft.PaymentListCreditNotesResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12p\n" +
-	"\x13ListPayerStatements\x12'.loft.PaymentListPayerStatementsRequest\x1a(.loft.PaymentListPayerStatementsResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12j\n" +
-	"\x11GetPayerStatement\x12%.loft.PaymentGetPayerStatementRequest\x1a&.loft.PaymentGetPayerStatementResponse\"\x06\xea\xcd\x16\x02\n" +
-	"\x00\x12G\n" +
+	"\x1cBILLING_LINE_KIND_CORRECTION\x10\x022\xbd\x02\n" +
+	"\x0ePaymentService\x12G\n" +
 	"\bGetPayer\x12\x1c.loft.PaymentGetPayerRequest\x1a\x1d.loft.PaymentGetPayerResponse\x12G\n" +
 	"\bGetUsage\x12\x1c.loft.PaymentGetUsageRequest\x1a\x1d.loft.PaymentGetUsageResponse\x12Y\n" +
 	"\x0eListStatements\x12\".loft.PaymentListStatementsRequest\x1a#.loft.PaymentListStatementsResponse\x12>\n" +
 	"\x05Offer\x12\x19.loft.PaymentOfferRequest\x1a\x1a.loft.PaymentOfferResponseB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_loft_payment_proto_enumTypes = make([]protoimpl.EnumInfo, 11)
-var file_loft_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 66)
+var file_loft_payment_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_loft_payment_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_loft_payment_proto_goTypes = []any{
-	(BillingChannel)(0),                         // 0: loft.BillingChannel
-	(BillingCollectionState)(0),                 // 1: loft.BillingCollectionState
-	(BillingSubscriptionStatus)(0),              // 2: loft.BillingSubscriptionStatus
-	(BillingSubscriptionChange)(0),              // 3: loft.BillingSubscriptionChange
-	(BillingCheckoutState)(0),                   // 4: loft.BillingCheckoutState
-	(BillingLinkBegan)(0),                       // 5: loft.BillingLinkBegan
-	(BillingLinkEnded)(0),                       // 6: loft.BillingLinkEnded
-	(BillingInvoiceState)(0),                    // 7: loft.BillingInvoiceState
-	(BillingCreditNoteReason)(0),                // 8: loft.BillingCreditNoteReason
-	(BillingDeclineKind)(0),                     // 9: loft.BillingDeclineKind
-	(BillingLineKind)(0),                        // 10: loft.BillingLineKind
-	(*PaymentListBillingAccountsRequest)(nil),   // 11: loft.PaymentListBillingAccountsRequest
-	(*PaymentListBillingAccountsResponse)(nil),  // 12: loft.PaymentListBillingAccountsResponse
-	(*PaymentCreateBillingAccountRequest)(nil),  // 13: loft.PaymentCreateBillingAccountRequest
-	(*PaymentCreateBillingAccountResponse)(nil), // 14: loft.PaymentCreateBillingAccountResponse
-	(*PaymentUpdateBillingAccountRequest)(nil),  // 15: loft.PaymentUpdateBillingAccountRequest
-	(*PaymentUpdateBillingAccountResponse)(nil), // 16: loft.PaymentUpdateBillingAccountResponse
-	(*PaymentGetBillingAccountRequest)(nil),     // 17: loft.PaymentGetBillingAccountRequest
-	(*PaymentGetBillingAccountResponse)(nil),    // 18: loft.PaymentGetBillingAccountResponse
-	(*PaymentStartCheckoutRequest)(nil),         // 19: loft.PaymentStartCheckoutRequest
-	(*PaymentStartCheckoutResponse)(nil),        // 20: loft.PaymentStartCheckoutResponse
-	(*PaymentCompleteCheckoutRequest)(nil),      // 21: loft.PaymentCompleteCheckoutRequest
-	(*PaymentCompleteCheckoutResponse)(nil),     // 22: loft.PaymentCompleteCheckoutResponse
-	(*PaymentListOffersRequest)(nil),            // 23: loft.PaymentListOffersRequest
-	(*PaymentListOffersResponse)(nil),           // 24: loft.PaymentListOffersResponse
-	(*PaymentAcceptRequest)(nil),                // 25: loft.PaymentAcceptRequest
-	(*PaymentAcceptResponse)(nil),               // 26: loft.PaymentAcceptResponse
-	(*PaymentDeclineRequest)(nil),               // 27: loft.PaymentDeclineRequest
-	(*PaymentDeclineResponse)(nil),              // 28: loft.PaymentDeclineResponse
-	(*PaymentListLinksRequest)(nil),             // 29: loft.PaymentListLinksRequest
-	(*PaymentListLinksResponse)(nil),            // 30: loft.PaymentListLinksResponse
-	(*PaymentUseRequest)(nil),                   // 31: loft.PaymentUseRequest
-	(*PaymentUseResponse)(nil),                  // 32: loft.PaymentUseResponse
-	(*PaymentStopRequest)(nil),                  // 33: loft.PaymentStopRequest
-	(*PaymentStopResponse)(nil),                 // 34: loft.PaymentStopResponse
-	(*PaymentListInvoicesRequest)(nil),          // 35: loft.PaymentListInvoicesRequest
-	(*PaymentListInvoicesResponse)(nil),         // 36: loft.PaymentListInvoicesResponse
-	(*PaymentGetInvoiceRequest)(nil),            // 37: loft.PaymentGetInvoiceRequest
-	(*PaymentGetInvoiceResponse)(nil),           // 38: loft.PaymentGetInvoiceResponse
-	(*PaymentListCreditNotesRequest)(nil),       // 39: loft.PaymentListCreditNotesRequest
-	(*PaymentListCreditNotesResponse)(nil),      // 40: loft.PaymentListCreditNotesResponse
-	(*PaymentListPayerStatementsRequest)(nil),   // 41: loft.PaymentListPayerStatementsRequest
-	(*PaymentListPayerStatementsResponse)(nil),  // 42: loft.PaymentListPayerStatementsResponse
-	(*PaymentGetPayerStatementRequest)(nil),     // 43: loft.PaymentGetPayerStatementRequest
-	(*PaymentGetPayerStatementResponse)(nil),    // 44: loft.PaymentGetPayerStatementResponse
-	(*PaymentGetPayerRequest)(nil),              // 45: loft.PaymentGetPayerRequest
-	(*PaymentGetPayerResponse)(nil),             // 46: loft.PaymentGetPayerResponse
-	(*PaymentGetUsageRequest)(nil),              // 47: loft.PaymentGetUsageRequest
-	(*PaymentGetUsageResponse)(nil),             // 48: loft.PaymentGetUsageResponse
-	(*PaymentListStatementsRequest)(nil),        // 49: loft.PaymentListStatementsRequest
-	(*PaymentListStatementsResponse)(nil),       // 50: loft.PaymentListStatementsResponse
-	(*PaymentOfferRequest)(nil),                 // 51: loft.PaymentOfferRequest
-	(*PaymentOfferResponse)(nil),                // 52: loft.PaymentOfferResponse
-	(*BillingAccount)(nil),                      // 53: loft.BillingAccount
-	(*BillingRecipient)(nil),                    // 54: loft.BillingRecipient
-	(*BillingBusiness)(nil),                     // 55: loft.BillingBusiness
-	(*BillingCollection)(nil),                   // 56: loft.BillingCollection
-	(*BillingSubscription)(nil),                 // 57: loft.BillingSubscription
-	(*BillingPaymentMethod)(nil),                // 58: loft.BillingPaymentMethod
-	(*BillingCheckout)(nil),                     // 59: loft.BillingCheckout
-	(*BillingCheckoutWindow)(nil),               // 60: loft.BillingCheckoutWindow
-	(*BillingOffer)(nil),                        // 61: loft.BillingOffer
-	(*BillingLink)(nil),                         // 62: loft.BillingLink
-	(*BillingInvoice)(nil),                      // 63: loft.BillingInvoice
-	(*BillingInvoiceCredit)(nil),                // 64: loft.BillingInvoiceCredit
-	(*BillingCredit)(nil),                       // 65: loft.BillingCredit
-	(*BillingInvoiceLine)(nil),                  // 66: loft.BillingInvoiceLine
-	(*BillingCreditNote)(nil),                   // 67: loft.BillingCreditNote
-	(*BillingPeriod)(nil),                       // 68: loft.BillingPeriod
-	(*BillingPayer)(nil),                        // 69: loft.BillingPayer
-	(*BillingDunning)(nil),                      // 70: loft.BillingDunning
-	(*BillingUsage)(nil),                        // 71: loft.BillingUsage
-	(*BillingAllowance)(nil),                    // 72: loft.BillingAllowance
-	(*BillingPool)(nil),                         // 73: loft.BillingPool
-	(*BillingStatement)(nil),                    // 74: loft.BillingStatement
-	(*BillingLine)(nil),                         // 75: loft.BillingLine
-	(*BillingLinePool)(nil),                     // 76: loft.BillingLinePool
-	(*timestamppb.Timestamp)(nil),               // 77: google.protobuf.Timestamp
+	(BillingChannel)(0),                   // 0: loft.BillingChannel
+	(BillingCollectionState)(0),           // 1: loft.BillingCollectionState
+	(BillingLinkBegan)(0),                 // 2: loft.BillingLinkBegan
+	(BillingLinkEnded)(0),                 // 3: loft.BillingLinkEnded
+	(BillingDeclineKind)(0),               // 4: loft.BillingDeclineKind
+	(BillingLineKind)(0),                  // 5: loft.BillingLineKind
+	(*PaymentGetPayerRequest)(nil),        // 6: loft.PaymentGetPayerRequest
+	(*PaymentGetPayerResponse)(nil),       // 7: loft.PaymentGetPayerResponse
+	(*PaymentGetUsageRequest)(nil),        // 8: loft.PaymentGetUsageRequest
+	(*PaymentGetUsageResponse)(nil),       // 9: loft.PaymentGetUsageResponse
+	(*PaymentListStatementsRequest)(nil),  // 10: loft.PaymentListStatementsRequest
+	(*PaymentListStatementsResponse)(nil), // 11: loft.PaymentListStatementsResponse
+	(*PaymentOfferRequest)(nil),           // 12: loft.PaymentOfferRequest
+	(*PaymentOfferResponse)(nil),          // 13: loft.PaymentOfferResponse
+	(*BillingCollection)(nil),             // 14: loft.BillingCollection
+	(*BillingOffer)(nil),                  // 15: loft.BillingOffer
+	(*BillingLink)(nil),                   // 16: loft.BillingLink
+	(*BillingCredit)(nil),                 // 17: loft.BillingCredit
+	(*BillingPeriod)(nil),                 // 18: loft.BillingPeriod
+	(*BillingPayer)(nil),                  // 19: loft.BillingPayer
+	(*BillingDunning)(nil),                // 20: loft.BillingDunning
+	(*BillingUsage)(nil),                  // 21: loft.BillingUsage
+	(*BillingAllowance)(nil),              // 22: loft.BillingAllowance
+	(*BillingPool)(nil),                   // 23: loft.BillingPool
+	(*BillingStatement)(nil),              // 24: loft.BillingStatement
+	(*BillingLine)(nil),                   // 25: loft.BillingLine
+	(*BillingLinePool)(nil),               // 26: loft.BillingLinePool
+	(*timestamppb.Timestamp)(nil),         // 27: google.protobuf.Timestamp
 }
 var file_loft_payment_proto_depIdxs = []int32{
-	53,  // 0: loft.PaymentListBillingAccountsResponse.billing_accounts:type_name -> loft.BillingAccount
-	54,  // 1: loft.PaymentCreateBillingAccountRequest.recipient:type_name -> loft.BillingRecipient
-	55,  // 2: loft.PaymentCreateBillingAccountRequest.business:type_name -> loft.BillingBusiness
-	53,  // 3: loft.PaymentCreateBillingAccountResponse.billing_account:type_name -> loft.BillingAccount
-	54,  // 4: loft.PaymentUpdateBillingAccountRequest.recipient:type_name -> loft.BillingRecipient
-	55,  // 5: loft.PaymentUpdateBillingAccountRequest.business:type_name -> loft.BillingBusiness
-	53,  // 6: loft.PaymentUpdateBillingAccountResponse.billing_account:type_name -> loft.BillingAccount
-	53,  // 7: loft.PaymentGetBillingAccountResponse.billing_account:type_name -> loft.BillingAccount
-	56,  // 8: loft.PaymentGetBillingAccountResponse.collection:type_name -> loft.BillingCollection
-	57,  // 9: loft.PaymentGetBillingAccountResponse.subscription:type_name -> loft.BillingSubscription
-	70,  // 10: loft.PaymentGetBillingAccountResponse.dunning:type_name -> loft.BillingDunning
-	65,  // 11: loft.PaymentGetBillingAccountResponse.credits:type_name -> loft.BillingCredit
-	59,  // 12: loft.PaymentStartCheckoutResponse.checkout:type_name -> loft.BillingCheckout
-	59,  // 13: loft.PaymentCompleteCheckoutResponse.checkout:type_name -> loft.BillingCheckout
-	57,  // 14: loft.PaymentCompleteCheckoutResponse.subscription:type_name -> loft.BillingSubscription
-	56,  // 15: loft.PaymentCompleteCheckoutResponse.collection:type_name -> loft.BillingCollection
-	61,  // 16: loft.PaymentListOffersResponse.offers:type_name -> loft.BillingOffer
-	62,  // 17: loft.PaymentAcceptResponse.link:type_name -> loft.BillingLink
-	62,  // 18: loft.PaymentListLinksResponse.links:type_name -> loft.BillingLink
-	62,  // 19: loft.PaymentUseResponse.link:type_name -> loft.BillingLink
-	62,  // 20: loft.PaymentStopResponse.link:type_name -> loft.BillingLink
-	63,  // 21: loft.PaymentListInvoicesResponse.invoices:type_name -> loft.BillingInvoice
-	63,  // 22: loft.PaymentGetInvoiceResponse.invoice:type_name -> loft.BillingInvoice
-	67,  // 23: loft.PaymentGetInvoiceResponse.credit_notes:type_name -> loft.BillingCreditNote
-	70,  // 24: loft.PaymentGetInvoiceResponse.dunning:type_name -> loft.BillingDunning
-	67,  // 25: loft.PaymentListCreditNotesResponse.credit_notes:type_name -> loft.BillingCreditNote
-	74,  // 26: loft.PaymentListPayerStatementsResponse.statements:type_name -> loft.BillingStatement
-	74,  // 27: loft.PaymentGetPayerStatementResponse.statement:type_name -> loft.BillingStatement
-	69,  // 28: loft.PaymentGetPayerResponse.payer:type_name -> loft.BillingPayer
-	71,  // 29: loft.PaymentGetUsageResponse.usage:type_name -> loft.BillingUsage
-	74,  // 30: loft.PaymentListStatementsResponse.statements:type_name -> loft.BillingStatement
-	61,  // 31: loft.PaymentOfferResponse.offer:type_name -> loft.BillingOffer
-	0,   // 32: loft.BillingAccount.channel:type_name -> loft.BillingChannel
-	54,  // 33: loft.BillingAccount.recipient:type_name -> loft.BillingRecipient
-	55,  // 34: loft.BillingAccount.business:type_name -> loft.BillingBusiness
-	77,  // 35: loft.BillingAccount.date_created:type_name -> google.protobuf.Timestamp
-	1,   // 36: loft.BillingCollection.state:type_name -> loft.BillingCollectionState
-	77,  // 37: loft.BillingCollection.date_since:type_name -> google.protobuf.Timestamp
-	77,  // 38: loft.BillingCollection.date_ends:type_name -> google.protobuf.Timestamp
-	2,   // 39: loft.BillingSubscription.status:type_name -> loft.BillingSubscriptionStatus
-	77,  // 40: loft.BillingSubscription.date_period_start:type_name -> google.protobuf.Timestamp
-	77,  // 41: loft.BillingSubscription.date_period_end:type_name -> google.protobuf.Timestamp
-	77,  // 42: loft.BillingSubscription.date_next_billed:type_name -> google.protobuf.Timestamp
-	3,   // 43: loft.BillingSubscription.change:type_name -> loft.BillingSubscriptionChange
-	77,  // 44: loft.BillingSubscription.date_change:type_name -> google.protobuf.Timestamp
-	77,  // 45: loft.BillingSubscription.date_canceled:type_name -> google.protobuf.Timestamp
-	58,  // 46: loft.BillingSubscription.method:type_name -> loft.BillingPaymentMethod
-	77,  // 47: loft.BillingSubscription.date_updated:type_name -> google.protobuf.Timestamp
-	77,  // 48: loft.BillingSubscription.date_checked:type_name -> google.protobuf.Timestamp
-	4,   // 49: loft.BillingCheckout.state:type_name -> loft.BillingCheckoutState
-	77,  // 50: loft.BillingCheckout.date_started:type_name -> google.protobuf.Timestamp
-	77,  // 51: loft.BillingCheckout.date_done:type_name -> google.protobuf.Timestamp
-	60,  // 52: loft.BillingCheckout.window:type_name -> loft.BillingCheckoutWindow
-	77,  // 53: loft.BillingOffer.date_offered:type_name -> google.protobuf.Timestamp
-	77,  // 54: loft.BillingLink.date_start:type_name -> google.protobuf.Timestamp
-	77,  // 55: loft.BillingLink.date_end:type_name -> google.protobuf.Timestamp
-	5,   // 56: loft.BillingLink.began:type_name -> loft.BillingLinkBegan
-	6,   // 57: loft.BillingLink.ended:type_name -> loft.BillingLinkEnded
-	7,   // 58: loft.BillingInvoice.state:type_name -> loft.BillingInvoiceState
-	77,  // 59: loft.BillingInvoice.date_start:type_name -> google.protobuf.Timestamp
-	77,  // 60: loft.BillingInvoice.date_end:type_name -> google.protobuf.Timestamp
-	0,   // 61: loft.BillingInvoice.channel:type_name -> loft.BillingChannel
-	77,  // 62: loft.BillingInvoice.date_finalized:type_name -> google.protobuf.Timestamp
-	77,  // 63: loft.BillingInvoice.date_due:type_name -> google.protobuf.Timestamp
-	77,  // 64: loft.BillingInvoice.date_settled:type_name -> google.protobuf.Timestamp
-	66,  // 65: loft.BillingInvoice.lines:type_name -> loft.BillingInvoiceLine
-	64,  // 66: loft.BillingInvoice.credits:type_name -> loft.BillingInvoiceCredit
-	77,  // 67: loft.BillingInvoiceCredit.date_expires:type_name -> google.protobuf.Timestamp
-	77,  // 68: loft.BillingCredit.date_expires:type_name -> google.protobuf.Timestamp
-	77,  // 69: loft.BillingCredit.date_created:type_name -> google.protobuf.Timestamp
-	68,  // 70: loft.BillingInvoiceLine.period:type_name -> loft.BillingPeriod
-	8,   // 71: loft.BillingCreditNote.reason:type_name -> loft.BillingCreditNoteReason
-	77,  // 72: loft.BillingCreditNote.date_created:type_name -> google.protobuf.Timestamp
-	77,  // 73: loft.BillingPeriod.date_start:type_name -> google.protobuf.Timestamp
-	77,  // 74: loft.BillingPeriod.date_end:type_name -> google.protobuf.Timestamp
-	62,  // 75: loft.BillingPayer.current:type_name -> loft.BillingLink
-	62,  // 76: loft.BillingPayer.next:type_name -> loft.BillingLink
-	61,  // 77: loft.BillingPayer.offer:type_name -> loft.BillingOffer
-	77,  // 78: loft.BillingPayer.date_payerless:type_name -> google.protobuf.Timestamp
-	77,  // 79: loft.BillingPayer.date_restricted:type_name -> google.protobuf.Timestamp
-	56,  // 80: loft.BillingPayer.collection:type_name -> loft.BillingCollection
-	70,  // 81: loft.BillingPayer.dunning:type_name -> loft.BillingDunning
-	77,  // 82: loft.BillingPayer.date_readonly:type_name -> google.protobuf.Timestamp
-	65,  // 83: loft.BillingPayer.credits:type_name -> loft.BillingCredit
-	9,   // 84: loft.BillingDunning.kind:type_name -> loft.BillingDeclineKind
-	77,  // 85: loft.BillingDunning.date_failed:type_name -> google.protobuf.Timestamp
-	77,  // 86: loft.BillingDunning.date_next_retry:type_name -> google.protobuf.Timestamp
-	77,  // 87: loft.BillingDunning.date_grace_ends:type_name -> google.protobuf.Timestamp
-	77,  // 88: loft.BillingDunning.date_restricted:type_name -> google.protobuf.Timestamp
-	77,  // 89: loft.BillingDunning.date_readonly:type_name -> google.protobuf.Timestamp
-	68,  // 90: loft.BillingUsage.period:type_name -> loft.BillingPeriod
-	77,  // 91: loft.BillingUsage.date_as_of:type_name -> google.protobuf.Timestamp
-	0,   // 92: loft.BillingUsage.channel:type_name -> loft.BillingChannel
-	75,  // 93: loft.BillingUsage.lines:type_name -> loft.BillingLine
-	72,  // 94: loft.BillingUsage.allowances:type_name -> loft.BillingAllowance
-	73,  // 95: loft.BillingUsage.pools:type_name -> loft.BillingPool
-	77,  // 96: loft.BillingAllowance.date_effective:type_name -> google.protobuf.Timestamp
-	77,  // 97: loft.BillingAllowance.date_expires:type_name -> google.protobuf.Timestamp
-	77,  // 98: loft.BillingPool.date_effective:type_name -> google.protobuf.Timestamp
-	77,  // 99: loft.BillingPool.date_expires:type_name -> google.protobuf.Timestamp
-	68,  // 100: loft.BillingStatement.period:type_name -> loft.BillingPeriod
-	0,   // 101: loft.BillingStatement.channel:type_name -> loft.BillingChannel
-	75,  // 102: loft.BillingStatement.lines:type_name -> loft.BillingLine
-	77,  // 103: loft.BillingStatement.date_closed:type_name -> google.protobuf.Timestamp
-	10,  // 104: loft.BillingLine.kind:type_name -> loft.BillingLineKind
-	68,  // 105: loft.BillingLine.corrects:type_name -> loft.BillingPeriod
-	76,  // 106: loft.BillingLine.pools:type_name -> loft.BillingLinePool
-	11,  // 107: loft.PaymentService.ListBillingAccounts:input_type -> loft.PaymentListBillingAccountsRequest
-	13,  // 108: loft.PaymentService.CreateBillingAccount:input_type -> loft.PaymentCreateBillingAccountRequest
-	15,  // 109: loft.PaymentService.UpdateBillingAccount:input_type -> loft.PaymentUpdateBillingAccountRequest
-	17,  // 110: loft.PaymentService.GetBillingAccount:input_type -> loft.PaymentGetBillingAccountRequest
-	19,  // 111: loft.PaymentService.StartCheckout:input_type -> loft.PaymentStartCheckoutRequest
-	21,  // 112: loft.PaymentService.CompleteCheckout:input_type -> loft.PaymentCompleteCheckoutRequest
-	23,  // 113: loft.PaymentService.ListOffers:input_type -> loft.PaymentListOffersRequest
-	25,  // 114: loft.PaymentService.Accept:input_type -> loft.PaymentAcceptRequest
-	27,  // 115: loft.PaymentService.Decline:input_type -> loft.PaymentDeclineRequest
-	29,  // 116: loft.PaymentService.ListLinks:input_type -> loft.PaymentListLinksRequest
-	31,  // 117: loft.PaymentService.Use:input_type -> loft.PaymentUseRequest
-	33,  // 118: loft.PaymentService.Stop:input_type -> loft.PaymentStopRequest
-	35,  // 119: loft.PaymentService.ListInvoices:input_type -> loft.PaymentListInvoicesRequest
-	37,  // 120: loft.PaymentService.GetInvoice:input_type -> loft.PaymentGetInvoiceRequest
-	39,  // 121: loft.PaymentService.ListCreditNotes:input_type -> loft.PaymentListCreditNotesRequest
-	41,  // 122: loft.PaymentService.ListPayerStatements:input_type -> loft.PaymentListPayerStatementsRequest
-	43,  // 123: loft.PaymentService.GetPayerStatement:input_type -> loft.PaymentGetPayerStatementRequest
-	45,  // 124: loft.PaymentService.GetPayer:input_type -> loft.PaymentGetPayerRequest
-	47,  // 125: loft.PaymentService.GetUsage:input_type -> loft.PaymentGetUsageRequest
-	49,  // 126: loft.PaymentService.ListStatements:input_type -> loft.PaymentListStatementsRequest
-	51,  // 127: loft.PaymentService.Offer:input_type -> loft.PaymentOfferRequest
-	12,  // 128: loft.PaymentService.ListBillingAccounts:output_type -> loft.PaymentListBillingAccountsResponse
-	14,  // 129: loft.PaymentService.CreateBillingAccount:output_type -> loft.PaymentCreateBillingAccountResponse
-	16,  // 130: loft.PaymentService.UpdateBillingAccount:output_type -> loft.PaymentUpdateBillingAccountResponse
-	18,  // 131: loft.PaymentService.GetBillingAccount:output_type -> loft.PaymentGetBillingAccountResponse
-	20,  // 132: loft.PaymentService.StartCheckout:output_type -> loft.PaymentStartCheckoutResponse
-	22,  // 133: loft.PaymentService.CompleteCheckout:output_type -> loft.PaymentCompleteCheckoutResponse
-	24,  // 134: loft.PaymentService.ListOffers:output_type -> loft.PaymentListOffersResponse
-	26,  // 135: loft.PaymentService.Accept:output_type -> loft.PaymentAcceptResponse
-	28,  // 136: loft.PaymentService.Decline:output_type -> loft.PaymentDeclineResponse
-	30,  // 137: loft.PaymentService.ListLinks:output_type -> loft.PaymentListLinksResponse
-	32,  // 138: loft.PaymentService.Use:output_type -> loft.PaymentUseResponse
-	34,  // 139: loft.PaymentService.Stop:output_type -> loft.PaymentStopResponse
-	36,  // 140: loft.PaymentService.ListInvoices:output_type -> loft.PaymentListInvoicesResponse
-	38,  // 141: loft.PaymentService.GetInvoice:output_type -> loft.PaymentGetInvoiceResponse
-	40,  // 142: loft.PaymentService.ListCreditNotes:output_type -> loft.PaymentListCreditNotesResponse
-	42,  // 143: loft.PaymentService.ListPayerStatements:output_type -> loft.PaymentListPayerStatementsResponse
-	44,  // 144: loft.PaymentService.GetPayerStatement:output_type -> loft.PaymentGetPayerStatementResponse
-	46,  // 145: loft.PaymentService.GetPayer:output_type -> loft.PaymentGetPayerResponse
-	48,  // 146: loft.PaymentService.GetUsage:output_type -> loft.PaymentGetUsageResponse
-	50,  // 147: loft.PaymentService.ListStatements:output_type -> loft.PaymentListStatementsResponse
-	52,  // 148: loft.PaymentService.Offer:output_type -> loft.PaymentOfferResponse
-	128, // [128:149] is the sub-list for method output_type
-	107, // [107:128] is the sub-list for method input_type
-	107, // [107:107] is the sub-list for extension type_name
-	107, // [107:107] is the sub-list for extension extendee
-	0,   // [0:107] is the sub-list for field type_name
+	19, // 0: loft.PaymentGetPayerResponse.payer:type_name -> loft.BillingPayer
+	21, // 1: loft.PaymentGetUsageResponse.usage:type_name -> loft.BillingUsage
+	24, // 2: loft.PaymentListStatementsResponse.statements:type_name -> loft.BillingStatement
+	15, // 3: loft.PaymentOfferResponse.offer:type_name -> loft.BillingOffer
+	1,  // 4: loft.BillingCollection.state:type_name -> loft.BillingCollectionState
+	27, // 5: loft.BillingCollection.date_since:type_name -> google.protobuf.Timestamp
+	27, // 6: loft.BillingCollection.date_ends:type_name -> google.protobuf.Timestamp
+	27, // 7: loft.BillingOffer.date_offered:type_name -> google.protobuf.Timestamp
+	27, // 8: loft.BillingLink.date_start:type_name -> google.protobuf.Timestamp
+	27, // 9: loft.BillingLink.date_end:type_name -> google.protobuf.Timestamp
+	2,  // 10: loft.BillingLink.began:type_name -> loft.BillingLinkBegan
+	3,  // 11: loft.BillingLink.ended:type_name -> loft.BillingLinkEnded
+	27, // 12: loft.BillingCredit.date_expires:type_name -> google.protobuf.Timestamp
+	27, // 13: loft.BillingCredit.date_created:type_name -> google.protobuf.Timestamp
+	27, // 14: loft.BillingPeriod.date_start:type_name -> google.protobuf.Timestamp
+	27, // 15: loft.BillingPeriod.date_end:type_name -> google.protobuf.Timestamp
+	16, // 16: loft.BillingPayer.current:type_name -> loft.BillingLink
+	16, // 17: loft.BillingPayer.next:type_name -> loft.BillingLink
+	15, // 18: loft.BillingPayer.offer:type_name -> loft.BillingOffer
+	27, // 19: loft.BillingPayer.date_payerless:type_name -> google.protobuf.Timestamp
+	27, // 20: loft.BillingPayer.date_restricted:type_name -> google.protobuf.Timestamp
+	14, // 21: loft.BillingPayer.collection:type_name -> loft.BillingCollection
+	20, // 22: loft.BillingPayer.dunning:type_name -> loft.BillingDunning
+	27, // 23: loft.BillingPayer.date_readonly:type_name -> google.protobuf.Timestamp
+	17, // 24: loft.BillingPayer.credits:type_name -> loft.BillingCredit
+	4,  // 25: loft.BillingDunning.kind:type_name -> loft.BillingDeclineKind
+	27, // 26: loft.BillingDunning.date_failed:type_name -> google.protobuf.Timestamp
+	27, // 27: loft.BillingDunning.date_next_retry:type_name -> google.protobuf.Timestamp
+	27, // 28: loft.BillingDunning.date_grace_ends:type_name -> google.protobuf.Timestamp
+	27, // 29: loft.BillingDunning.date_restricted:type_name -> google.protobuf.Timestamp
+	27, // 30: loft.BillingDunning.date_readonly:type_name -> google.protobuf.Timestamp
+	18, // 31: loft.BillingUsage.period:type_name -> loft.BillingPeriod
+	27, // 32: loft.BillingUsage.date_as_of:type_name -> google.protobuf.Timestamp
+	0,  // 33: loft.BillingUsage.channel:type_name -> loft.BillingChannel
+	25, // 34: loft.BillingUsage.lines:type_name -> loft.BillingLine
+	22, // 35: loft.BillingUsage.allowances:type_name -> loft.BillingAllowance
+	23, // 36: loft.BillingUsage.pools:type_name -> loft.BillingPool
+	27, // 37: loft.BillingAllowance.date_effective:type_name -> google.protobuf.Timestamp
+	27, // 38: loft.BillingAllowance.date_expires:type_name -> google.protobuf.Timestamp
+	27, // 39: loft.BillingPool.date_effective:type_name -> google.protobuf.Timestamp
+	27, // 40: loft.BillingPool.date_expires:type_name -> google.protobuf.Timestamp
+	18, // 41: loft.BillingStatement.period:type_name -> loft.BillingPeriod
+	0,  // 42: loft.BillingStatement.channel:type_name -> loft.BillingChannel
+	25, // 43: loft.BillingStatement.lines:type_name -> loft.BillingLine
+	27, // 44: loft.BillingStatement.date_closed:type_name -> google.protobuf.Timestamp
+	5,  // 45: loft.BillingLine.kind:type_name -> loft.BillingLineKind
+	18, // 46: loft.BillingLine.corrects:type_name -> loft.BillingPeriod
+	26, // 47: loft.BillingLine.pools:type_name -> loft.BillingLinePool
+	6,  // 48: loft.PaymentService.GetPayer:input_type -> loft.PaymentGetPayerRequest
+	8,  // 49: loft.PaymentService.GetUsage:input_type -> loft.PaymentGetUsageRequest
+	10, // 50: loft.PaymentService.ListStatements:input_type -> loft.PaymentListStatementsRequest
+	12, // 51: loft.PaymentService.Offer:input_type -> loft.PaymentOfferRequest
+	7,  // 52: loft.PaymentService.GetPayer:output_type -> loft.PaymentGetPayerResponse
+	9,  // 53: loft.PaymentService.GetUsage:output_type -> loft.PaymentGetUsageResponse
+	11, // 54: loft.PaymentService.ListStatements:output_type -> loft.PaymentListStatementsResponse
+	13, // 55: loft.PaymentService.Offer:output_type -> loft.PaymentOfferResponse
+	52, // [52:56] is the sub-list for method output_type
+	48, // [48:52] is the sub-list for method input_type
+	48, // [48:48] is the sub-list for extension type_name
+	48, // [48:48] is the sub-list for extension extendee
+	0,  // [0:48] is the sub-list for field type_name
 }
 
 func init() { file_loft_payment_proto_init() }
@@ -8518,8 +3317,8 @@ func file_loft_payment_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payment_proto_rawDesc), len(file_loft_payment_proto_rawDesc)),
-			NumEnums:      11,
-			NumMessages:   66,
+			NumEnums:      6,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

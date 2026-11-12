@@ -17,14 +17,12 @@ import (
 // allowances, more of a meter each period; pools, bundles of a meter that
 // what a period is billable for past what is included is taken out of
 // first; and credit, money an invoice is paid with before its channel is
-// asked for anything -- lots of a billing account's or of one workspace's,
-// and a billing account's balance. And the readings a test hands over
-// itself ([Levyan.Handed]).
+// asked for anything -- lots of a billing account's or of one workspace's.
+// And the readings a test hands over itself ([Levyan.Handed]).
 type benefits struct {
 	allowances map[string][]*levyanv1.Allowance // by workspace, in the order given
 	pools      map[string][]*levyanv1.Pool      // by workspace: `left` is what the periods closed left
 	credits    []*levyanv1.Credit               // every lot, in the order given
-	balances   map[string]int64                 // by billing account
 	handed     []*levyanv1.Reading
 }
 
@@ -32,7 +30,6 @@ func newBenefits() benefits {
 	return benefits{
 		allowances: map[string][]*levyanv1.Allowance{},
 		pools:      map[string][]*levyanv1.Pool{},
-		balances:   map[string]int64{},
 	}
 }
 
@@ -121,15 +118,6 @@ func (v *Levyan) Credit(c *levyanv1.Credit) *levyanv1.Credit {
 	return proto.CloneOf(c)
 }
 
-// Balance has billing account `id` owed `amount` beside its lots -- of an
-// invoice that came to less than nothing, a credit note, a payment of more
-// than was due -- which never expires and is spent after them.
-func (v *Levyan) Balance(id string, amount int64) {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	v.balances[id] = amount
-}
-
 // Handed has the fake keep `r` as a reading the deployment handed over: what
 // a browser test has a workspace it made be measured at, which the deployment
 // measures at midnight.
@@ -146,9 +134,8 @@ func (v *Levyan) Handed(r *levyanv1.Reading) {
 
 // ClosePeriod closes the period before the one now open for `workspace`, as
 // levyan closes one: its statement is what the workspace comes to over that
-// period ([Levyan.rated]) -- kept, and answered, and its payer's to read
-// ([Levyan.paid]) -- and what it took of each pool is taken off what is left
-// of it.
+// period ([Levyan.rated]) -- kept, and answered -- and what it took of each
+// pool is taken off what is left of it.
 func (v *Levyan) ClosePeriod(workspace string) *levyanv1.Statement {
 	now := time.Now()
 	start, end := PeriodBefore(now)
@@ -167,129 +154,12 @@ func (v *Levyan) ClosePeriod(workspace string) *levyanv1.Statement {
 		DateClosed: timestamppb.New(now),
 	}.Build()
 	v.statements[workspace] = append(v.statements[workspace], st)
-	v.paid(st)
 	for _, p := range v.pools[workspace] {
 		if n, ok := took[p.GetId()]; ok {
 			p.SetLeft(decimal(new(big.Rat).Sub(rat(p.GetLeft()), n)))
 		}
 	}
 	return proto.CloneOf(st)
-}
-
-// Finalize bills billing account `ba` an invoice of the period before the
-// one now open, of `lines` -- a statement each -- finalized as levyan
-// finalizes one (its `Invoices.decide`, design 19): paid first with the
-// credit it may be paid with, in its currency and neither spent nor expired,
-// the soonest to expire first -- a workspace's no further than what that
-// workspace's own lines come to, the billing account's own lots counting as
-// having paid the other lines first -- and then with its balance; what is
-// left is due, and one that leaves nothing due is paid. It answers the
-// invoice as GetInvoice does.
-func (v *Levyan) Finalize(ba string, lines ...*levyanv1.InvoiceLine) *levyanv1.Invoice {
-	now := time.Now()
-	start, end := PeriodBefore(now)
-
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	inv := levyanv1.Invoice_builder{
-		Id:             newId(),
-		BillingAccount: ba,
-		DateStart:      timestamppb.New(start),
-		DateEnd:        timestamppb.New(end),
-		Channel:        levyanv1.Channel_CHANNEL_MOR,
-		Currency:       "KRW",
-		DateFinalized:  timestamppb.New(now),
-	}.Build()
-	if b := v.billingAccount(ba); b != nil {
-		inv.SetChannel(b.GetChannel())
-		inv.SetCurrency(b.GetCurrency())
-	}
-	var total int64
-	of := map[string]int64{} // what each workspace's lines come to
-	for _, l := range lines {
-		l = proto.CloneOf(l)
-		if !l.HasPeriod() {
-			l.SetPeriod(levyanv1.Period_builder{DateStart: timestamppb.New(start), DateEnd: timestamppb.New(end), Zone: "Asia/Seoul"}.Build())
-		}
-		inv.SetLines(append(inv.GetLines(), l))
-		total += l.GetTotal()
-		of[l.GetWorkspace()] += l.GetTotal()
-	}
-	inv.SetSubtotal(total)
-	inv.SetTotal(total)
-
-	lots := []*levyanv1.Credit{}
-	for _, c := range v.credits {
-		mine := c.GetBillingAccount() == ba || (c.GetWorkspace() != "" && of[c.GetWorkspace()] > 0)
-		if mine && c.GetLeft() > 0 && c.GetCurrency() == inv.GetCurrency() && c.GetDateExpires().AsTime().After(now) {
-			lots = append(lots, c)
-		}
-	}
-	soonestFirst(lots)
-
-	var paid int64
-	byOwn := map[string]int64{} // what each workspace's own lots paid
-	for _, c := range lots {
-		n := min(c.GetLeft(), total-paid)
-		if w := c.GetWorkspace(); w != "" {
-			// What was paid of the invoice beside its own lots is counted
-			// against the other workspaces' lines first.
-			beside := paid - byOwn[w]
-			n = min(n, of[w]-byOwn[w]-max(0, beside-(total-of[w])))
-			byOwn[w] += max(n, 0)
-		}
-		if n <= 0 {
-			continue
-		}
-		c.SetLeft(c.GetLeft() - n)
-		paid += n
-		inv.SetCredits(append(inv.GetCredits(), levyanv1.InvoiceCredit_builder{
-			Credit: c.GetId(), Amount: n, Workspace: c.GetWorkspace(), DateExpires: c.GetDateExpires(),
-		}.Build()))
-	}
-	if b := v.balances[ba]; b > 0 && paid < total {
-		n := min(b, total-paid)
-		v.balances[ba] -= n
-		paid += n
-		inv.SetCredits(append(inv.GetCredits(), levyanv1.InvoiceCredit_builder{Amount: n}.Build()))
-	}
-
-	inv.SetCredited(paid)
-	inv.SetDue(total - paid)
-	if inv.GetDue() == 0 {
-		inv.SetState(levyanv1.InvoiceState_INVOICE_STATE_PAID)
-		inv.SetDateSettled(timestamppb.New(now))
-	} else {
-		inv.SetState(levyanv1.InvoiceState_INVOICE_STATE_OPEN)
-		inv.SetRemaining(inv.GetDue())
-	}
-	v.invoices[ba] = append(v.invoices[ba], inv)
-	return proto.CloneOf(inv)
-}
-
-// Note has the invoice billing account `ba` was billed last have a credit
-// note take `total` back of it, for `reason`, as levyan's operator writes
-// one: what the payer's page lists beside its invoices. Nil when the billing
-// account was billed nothing.
-func (v *Levyan) Note(ba string, reason levyanv1.CreditNoteReason, total int64) *levyanv1.CreditNote {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	invs := v.invoices[ba]
-	if len(invs) == 0 {
-		return nil
-	}
-	inv := invs[len(invs)-1]
-	n := levyanv1.CreditNote_builder{
-		Id:          newId(),
-		Invoice:     inv.GetId(),
-		Reason:      reason,
-		Amount:      total,
-		Total:       total,
-		Refunded:    total,
-		DateCreated: timestamppb.New(time.Now()),
-	}.Build()
-	v.notes[inv.GetId()] = append(v.notes[inv.GetId()], n)
-	return proto.CloneOf(n)
 }
 
 // creditOf is the lots of `workspace`'s neither spent nor expired, the
@@ -303,38 +173,6 @@ func (v *Levyan) creditOf(workspace string, now time.Time) []*levyanv1.Credit {
 	}
 	soonestFirst(out)
 	return out
-}
-
-// creditFor is what billing account `ba`'s next invoices may be paid with:
-// its own lots, and those of the workspaces it pays for now or will from the
-// end of the period, neither spent nor expired, the soonest to expire first.
-func (v *Levyan) creditFor(ba string, now time.Time) []*levyanv1.Credit {
-	out := []*levyanv1.Credit{}
-	for _, c := range v.credits {
-		if c.GetLeft() <= 0 || !c.GetDateExpires().AsTime().After(now) {
-			continue
-		}
-		if c.GetBillingAccount() == ba || (c.GetWorkspace() != "" && v.paysFor(ba, c.GetWorkspace())) {
-			out = append(out, proto.CloneOf(c))
-		}
-	}
-	soonestFirst(out)
-	return out
-}
-
-// paysFor is whether billing account `ba` pays for `workspace` now, or will
-// from the end of the period.
-func (v *Levyan) paysFor(ba, workspace string) bool {
-	p, ok := v.workspaces[workspace]
-	if !ok || ba == "" {
-		return false
-	}
-	for _, l := range []*levyanv1.Link{p.current, p.next} {
-		if l != nil && l.GetBillingAccount() == ba {
-			return true
-		}
-	}
-	return false
 }
 
 // billingAccount is billing account `id`, whoever's it is, or nil.

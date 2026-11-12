@@ -85,11 +85,6 @@ export function Switcher(props: { account: Account; current: string }): ReactNod
 					<a className="link invites" href="/invitations">
 						받은 초대{waiting > 0 && <span className="badge info">{waiting}</span>}
 					</a>
-					{props.account.billing === true && (
-						<a className="link" href="/billing">
-							결제
-						</a>
-					)}
 					{making ? (
 						<Make onCancel={() => setMaking(false)} />
 					) : (
@@ -137,11 +132,6 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 				<a className="link" href="/invitations">
 					받은 초대 보기
 				</a>
-				{props.account.billing === true && (
-					<a className="link" href="/billing">
-						결제
-					</a>
-				)}
 				{props.account.manage !== undefined && (
 					<>
 						<a className="link" href={props.account.manage}>
