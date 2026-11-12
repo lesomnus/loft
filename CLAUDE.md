@@ -378,7 +378,7 @@ view window. In the domain layer that is
 dates, the day a count falls on, all in the workspace's zone, never a fixed
 one. `PartyService.Me` answers what the server tells it in -- and `GET
 /account`'s `timezone`, the deployment's `app.locale`, for the pages outside
-any workspace (`/billing`, the inbox) -- and the page draws
+any workspace (the inbox) -- and the page draws
 and reads dates on that wall whatever the browser's zone (`localize`;
 `fromInput` and never `new Date(v)` for an input, `wall`, `at` and `shift` for
 a calendar's days). An amount is a whole number of its currency's minor unit
@@ -595,50 +595,30 @@ roster restoring the account. The free-workspace rule is not built yet;
 How a workspace is paid for is levyan's, and Loft asks and shows, storing
 nothing of it (design 7.9, D63): `loft.PaymentService` (`proto/loft/payment.proto`,
 `server/payment`), the one service that is no entity's, registered beside
-the stack. A payer's seventeen methods are the account's own (`(payday.method)
-= {account: {}}`, policy `Account`), each declaring it reads nothing
-(`pd.AccountReads` with an empty `pd.Reads`, naming its constant -- the doctor
-reads the call) and relayed to levyan's `PayerService` as the account
-(`levyan.Client.As`: the product key and `levyan-account`). The workspace's
-four -- `GetPayer`, `GetUsage`, `ListStatements` (admin), `Offer` (owner) --
-ask about the caller's workspace alone, as the product. The messages are
+the stack. It is the workspace's four -- `GetPayer`, `GetUsage`,
+`ListStatements` (admin), `Offer` (owner) -- which ask about the caller's
+workspace alone, as the product. What a payer does with what it pays with --
+billing accounts, the checkout, answering an offer, invoices -- is the
+portal's, relayed to levyan's `PayerService` as the payer there, and nothing
+here asks it or links to it (#326, D81): the page says what the payer is to
+do and sends whoever runs the workspace to settings › 결제. The messages are
 levyan's API's copied number for number (`Billing*`), moved by marshalling,
 and `server/payment`'s test holds every field to levyan's: bump
-`github.com/lesomnus/levyan/api`, run it, and mirror what moved. A checkout
-is opened on the checkout page, never in the app's document (whose policy
-would have to let Paddle in everywhere). The page's account side is
-`/billing` (`ts/src/billing.tsx`), a workspace's is settings › 결제, and the
-banner reads `PartyService.Me`'s `restricted` and `readonly` -- the copy -- for every member,
-`GetPayer` (payerless, `dunning`) for whoever runs it, and for a member who
-pays the account's own calls (`ListLinks`, `GetBillingAccount`). The browser
-tests bill to `internal/levyantest` served by its command
-(`ts/e2e/levyan.sh`), told what to say on its control address.
+`github.com/lesomnus/levyan/api`, run it, and mirror what moved. The page's
+side is settings › 결제 (`ts/src/billing.tsx`), and the banner reads
+`PartyService.Me`'s `restricted` and `readonly` -- the copy -- for every
+member, and `GetPayer` (payerless, `dunning`, `collection`) for whoever runs
+it. The browser tests bill to `internal/levyantest` served by its command
+(`ts/e2e/levyan.sh`), told what to say on its control address -- what a
+payer did where a payer pays among it.
 
-What levyan's operator gives a workspace or a billing account -- an
-allowance, a pool, credit (levyan#43, design 7.11, D65) -- both halves show
-and nothing here grants: `GetUsage`'s allowances and pools and each line's
-`allowance` and `pooled`, `GetPayer`'s credit, and the payer's
-`GetBillingAccount` credit and balance and `GetInvoice` credits. A quantity
-is levyan's decimal, exact to six digits: read exactly, and shown to one
-digit after the point. An invoice's every line shows its statement, read as
-the payer (`ListPayerStatements`, `GetPayerStatement`: levyan's
-`PayerService.ListStatements` and `GetStatement`, levyan#47, D66) and never
-with the product's key, which would show a payer what levyan gives it not;
-the workspace's own (`ListStatements`) are its administrators', under
+What levyan's operator gives a workspace -- an allowance, a pool, credit
+(levyan#43, design 7.11, D65) -- settings › 결제 shows and nothing here
+grants: `GetUsage`'s allowances and pools and each line's `allowance` and
+`pooled`, and `GetPayer`'s credit. A quantity is levyan's decimal, exact to
+six digits: read exactly, and shown to one digit after the point. The
+workspace's statements (`ListStatements`) are its administrators', under
 settings › 결제.
-
-Paddle's default payment link is `/billing/checkout` (`server/checkout`,
-design 7.7, D61): with `app.billing.checkout` -- Paddle's environment and the
-client-side token, both public by Paddle's design -- it loads Paddle.js, which
-opens the checkout of the transaction in `_ptxn` by itself; unset, it answers
-404. Nobody signs in to it, and it reads and writes nothing. It is the one page
-whose Content Security Policy names Paddle (`csp.With`, chosen by path in
-`cmd.Front`): a host Paddle needs goes in `checkout.Sources` and nowhere else,
-and only one Paddle.js is seen to load -- Paddle publishes no list. A token is
-refused where it is written (`checkout.Token.Validate`; the block's
-`Validate`, which the loader asks first, hands it the environment). The
-browser tests replace Paddle.js (`ts/e2e/paddle.ts`), and nothing reaches
-Paddle.
 
 What became of a workspace is told the same way (design 7.8, D62): `close`
 and `restore`, written by `Tx.closeWorkspace` and `restoreWorkspace` in their

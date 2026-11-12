@@ -160,15 +160,14 @@ export interface Account {
 	owes?: ConsentDocument[]
 	/**
 	 * Whether this deployment's workspaces are billed, by levyan: what the page
-	 * offers the account's payments (`/billing`) and a workspace's for (design
-	 * 7.9).
+	 * offers a workspace's billing for (design 7.9).
 	 */
 	billing?: boolean
 	/**
 	 * The deployment's zone, as an IANA name (`app.locale`, the zone a
 	 * workspace that says none of its own is told in): where a page about no
-	 * workspace -- the account's payments, its invitations -- draws its
-	 * dates, and never the browser's (design 7.9). A workspace's pages draw
+	 * workspace -- the account's invitations -- draws its dates, and never
+	 * the browser's (design 7.9). A workspace's pages draw
 	 * theirs in the workspace's own (`localize`, `CatalogProvider`).
 	 */
 	timezone?: string

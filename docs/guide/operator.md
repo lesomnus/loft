@@ -109,7 +109,7 @@ loft search remove --yes     # 이 배포가 만든 인덱스와 별칭을 모�
 
 ## 과금 붙이기
 
-`app.billing.levyan` 으로 청구 서비스 levyan을 붙이면 워크스페이스마다 잰 것을 넘기고, levyan이 준 권한으로 제한하고, 누가 내는지에 필요한 것을 알립니다. 결제수단 등록에는 `app.billing.checkout`(Paddle의 결제 링크 페이지)도 둡니다. levyan의 운영자가 할 일(제품, 키, 미터)과 설정은 [과금과 결제](../dev/billing.md)에, Kubernetes에서 키를 붙이는 곳은 `deploy/k8s/README.md` 의 11에 있습니다.
+`app.billing.levyan` 으로 청구 서비스 levyan을 붙이면 워크스페이스마다 잰 것을 넘기고, levyan이 준 권한으로 제한하고, 누가 내는지에 필요한 것을 알립니다. levyan의 운영자가 할 일(제품, 키, 미터)과 설정은 [과금과 결제](../dev/billing.md)에, Kubernetes에서 키를 붙이는 곳은 `deploy/k8s/README.md` 의 11에 있습니다.
 
 - levyan이 답하지 않아도 Loft는 그대로 돌고, 잰 값과 알림은 기다렸다가 다시 보냅니다.
 - 운영자의 명령(`loft holder add` 같은 것)은 제한이나 읽기 전용에 막히지 않습니다.

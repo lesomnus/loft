@@ -2,34 +2,18 @@ package levyantest
 
 import (
 	"context"
-	"crypto/rand"
-	"net/url"
 	"slices"
 	"sort"
-	"strings"
 	"time"
 
 	levyanv1 "github.com/lesomnus/levyan/api/levyan/v1"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/pdid"
-
-	"github.com/lesomnus/loft/server/levyan"
 )
-
-// NoRoster is what levyan answers an account's call while it has no roster to
-// ask about the account (levyan's `server/relay`): what a deployment shows
-// while its levyan is set up so.
-const NoRoster = "levyan asks roster whether an account is in good standing before it serves a call made as one, and no roster is configured (auth.roster)"
-
-// ClientToken is the client-side token the fake's checkouts are opened with:
-// made up, of the shape Paddle documents.
-const ClientToken = "test_000000000000000000000000000"
 
 // Grace is how long after its last payer left a workspace is restricted, and
 // ReadOnlyAfter how long after it is read-only, as levyan's policy table's row
@@ -41,51 +25,40 @@ const (
 
 // payers is what the fake keeps of who pays (levyan's design 14) and of how
 // (12, 15): as much of levyan as a product's pages ask of it, kept under the
-// fake's lock.
+// fake's lock. What a payer does with what it pays with -- its billing
+// accounts, an offer answered -- is done where a payer pays and not by the
+// product, so a test says it with [Levyan.OpenBillingAccount] and
+// [Levyan.Accept].
 type payers struct {
 	billing    map[string][]*levyanv1.BillingAccount // by roster account
-	checkouts  []*checkout
-	subs       map[string]*levyanv1.Subscription // by billing account
 	offers     []*offer
-	workspaces map[string]*paying                // by workspace
-	invoices   map[string][]*levyanv1.Invoice    // by billing account
-	notes      map[string][]*levyanv1.CreditNote // by invoice
-	statements map[string][]*levyanv1.Statement  // by workspace
-	paidBy     map[string]string                 // the billing account that paid for each statement's period, by statement
-	collected  map[string]*levyanv1.Collection   // by billing account, as Collect says it
+	workspaces map[string]*paying               // by workspace
+	statements map[string][]*levyanv1.Statement // by workspace
+	collected  map[string]*levyanv1.Collection  // by billing account, as Collect says it
 	dunning    []*dunned
-	relayed    []Relayed
-	noRoster   bool
-	opens      int
 }
 
 func newPayers() payers {
 	return payers{
 		billing:    map[string][]*levyanv1.BillingAccount{},
-		subs:       map[string]*levyanv1.Subscription{},
 		workspaces: map[string]*paying{},
-		invoices:   map[string][]*levyanv1.Invoice{},
-		notes:      map[string][]*levyanv1.CreditNote{},
 		statements: map[string][]*levyanv1.Statement{},
-		paidBy:     map[string]string{},
 		collected:  map[string]*levyanv1.Collection{},
-		opens:      1,
 	}
 }
 
-// Bank opens a billing account of `account`'s paid by transfer, called
-// `name`: in Korea, in won, billed to `business` by its registration -- as
-// levyan's operator opens one after a contract (levyan's #9), since no
-// account opens one itself. The business it is billed to is then the
-// contract's, which the account may not change ([Levyan.UpdateBillingAccount]).
-func (v *Levyan) Bank(account, name string, business *levyanv1.Business) *levyanv1.BillingAccount {
+// OpenBillingAccount is a billing account of `account`'s, called `name`, on
+// the merchant of record in Korea, in won -- as its payer makes one where a
+// payer pays (levyan's `PayerService.CreateBillingAccount`), with nothing to
+// collect through yet: a workspace that account makes is paid for with the
+// first one it opened.
+func (v *Levyan) OpenBillingAccount(account, name string) *levyanv1.BillingAccount {
 	b := levyanv1.BillingAccount_builder{
 		Id:          newId(),
 		Name:        name,
 		Country:     "KR",
-		Channel:     levyanv1.Channel_CHANNEL_BANK_KR,
+		Channel:     levyanv1.Channel_CHANNEL_MOR,
 		Currency:    "KRW",
-		Business:    proto.CloneOf(business),
 		DateCreated: timestamppb.Now(),
 	}.Build()
 
@@ -95,11 +68,11 @@ func (v *Levyan) Bank(account, name string, business *levyanv1.Business) *levyan
 	return proto.CloneOf(b)
 }
 
-// Collect has billing account `id` collected as `state` says from now,
-// whatever its subscription says: what the merchant of record says of it
-// (levyan's 12) -- a charge failing and tried again, a subscription paused
-// or ended, a payment waiting on the payer. UNSPECIFIED has it said by its
-// subscription again, as a checkout completed does.
+// Collect has billing account `id` collected as `state` says from now: what
+// the merchant of record says of it (levyan's 12) -- collectable, a charge
+// failing and tried again, a subscription paused or ended, a payment waiting
+// on the payer. UNSPECIFIED has it said as one with nothing to collect
+// through again.
 func (v *Levyan) Collect(id string, state levyanv1.CollectionState) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -108,12 +81,6 @@ func (v *Levyan) Collect(id string, state levyanv1.CollectionState) {
 		return
 	}
 	v.collected[id] = levyanv1.Collection_builder{State: state, DateSince: timestamppb.Now()}.Build()
-}
-
-type checkout struct {
-	v       *levyanv1.Checkout
-	account string
-	asked   int
 }
 
 type offer struct {
@@ -140,8 +107,8 @@ type dunned struct {
 
 // Dun has `d` be what is done of its invoice, whose charge failed, which
 // bills `workspaces`: what levyan's dunning says of it (levyan's
-// `docs/apps.md`, 6), answered with the billing account, the invoice and who
-// pays for each workspace -- the one that restricts soonest first.
+// `docs/apps.md`, 6), answered with who pays for each workspace -- the one
+// that restricts soonest first.
 func (v *Levyan) Dun(d *levyanv1.Dunning, workspaces ...string) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
@@ -149,36 +116,6 @@ func (v *Levyan) Dun(d *levyanv1.Dunning, workspaces ...string) {
 	sort.SliceStable(v.dunning, func(i, j int) bool {
 		return v.dunning[i].v.GetDateRestricted().AsTime().Before(v.dunning[j].v.GetDateRestricted().AsTime())
 	})
-}
-
-// Relayed is one call of PayerService that came with the key: the method, and
-// the account it was relayed for.
-type Relayed struct {
-	Method  string
-	Account string
-}
-
-// Relays is every PayerService call it was asked, in the order they came.
-func (v *Levyan) Relays() []Relayed {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	return slices.Clone(v.relayed)
-}
-
-// WithoutRoster has every PayerService call refused as levyan refuses it when
-// it has no roster to ask ([NoRoster]); false takes them again.
-func (v *Levyan) WithoutRoster(on bool) {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	v.noRoster = on
-}
-
-// Opens has a checkout asked about `n` times before it is completed: the
-// payer back before the merchant made the subscription. Unset is once.
-func (v *Levyan) Opens(n int) {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	v.opens = n
 }
 
 // Payerless has `workspace` paid for by nobody since now, restricted from
@@ -203,76 +140,46 @@ func (v *Levyan) PayerlessUntil(workspace string, from, readonly time.Time) {
 	p.readonlyFrom = readonly.UTC().Truncate(time.Microsecond)
 }
 
-// Turn is the period over for `workspace`, as levyan turns it at its end:
-// whoever was to pay from then -- having accepted an offer -- pays from now,
-// with the billing account they named, and whoever paid until now does no
-// longer. With nobody to pay from then, nothing changes.
-func (v *Levyan) Turn(workspace string) {
+// Accept is what is offered for `workspace` accepted by the account it is
+// offered to, where a payer pays (levyan's `PayerService.Accept`): it pays
+// for the workspace from the end of the period, with the first billing
+// account it opened, if it opened one, and the workspace is restricted no
+// longer. Nil when nothing is offered.
+func (v *Levyan) Accept(workspace string) *levyanv1.Link {
 	v.mu.Lock()
 	defer v.mu.Unlock()
+	var o *offer
+	for _, x := range v.offers {
+		if x.v.GetWorkspace() == workspace && !x.answered {
+			o = x
+		}
+	}
+	if o == nil {
+		return nil
+	}
+	_, end := period(time.Now())
+	l := levyanv1.Link_builder{
+		Id:        newId(),
+		Workspace: workspace,
+		Account:   o.v.GetAccount(),
+		DateStart: timestamppb.New(end),
+		Began:     levyanv1.LinkBegan_LINK_BEGAN_ACCEPTED,
+	}.Build()
+	if bs := v.billing[o.v.GetAccount()]; len(bs) > 0 {
+		l.SetBillingAccount(bs[0].GetId())
+	}
+	o.answered = true
 	p := v.paying(workspace)
-	if p.next == nil {
-		return
-	}
-	now := timestamppb.New(time.Now().UTC().Truncate(time.Microsecond))
-	l := proto.CloneOf(p.next)
-	l.SetDateStart(now)
-	p.current, p.next = l, nil
+	p.next = l
+	p.payerlessSince, p.restrictedFrom, p.readonlyFrom = time.Time{}, time.Time{}, time.Time{}
+	return proto.CloneOf(l)
 }
 
-// Bill has the billing account `inv` names billed it, with what `notes` take
-// back of it.
-func (v *Levyan) Bill(inv *levyanv1.Invoice, notes ...*levyanv1.CreditNote) {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	v.invoices[inv.GetBillingAccount()] = append(v.invoices[inv.GetBillingAccount()], proto.CloneOf(inv))
-	for _, n := range notes {
-		v.notes[inv.GetId()] = append(v.notes[inv.GetId()], proto.CloneOf(n))
-	}
-}
-
-// State has `st` be one of its workspace's statements, of a period paid for
-// with the billing account its workspace is paid for with now ([Levyan.paid]).
+// State has `st` be one of its workspace's statements.
 func (v *Levyan) State(st *levyanv1.Statement) {
 	v.mu.Lock()
 	defer v.mu.Unlock()
 	v.statements[st.GetWorkspace()] = append(v.statements[st.GetWorkspace()], proto.CloneOf(st))
-	v.paid(st)
-}
-
-// paid has statement `st` be of a period its workspace was paid for with the
-// billing account it is paid for with now, if any: levyan says the billing
-// account of the link in force through the period (levyan#47), and the fake,
-// which keeps who pays now and next and not who paid when, takes the one now
-// for it -- so a test closes a period before it turns it ([Levyan.Turn]).
-func (v *Levyan) paid(st *levyanv1.Statement) {
-	if p, ok := v.workspaces[st.GetWorkspace()]; ok && p.current != nil && p.current.GetBillingAccount() != "" {
-		v.paidBy[st.GetId()] = p.current.GetBillingAccount()
-	}
-}
-
-// Statement is the statement of `workspace` of the period that begins at
-// `start`, or nil: what a test has an invoice's line be.
-func (v *Levyan) Statement(workspace string, start time.Time) *levyanv1.Statement {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	for _, st := range v.statements[workspace] {
-		if st.GetPeriod().GetDateStart().AsTime().Equal(start) {
-			return proto.CloneOf(st)
-		}
-	}
-	return nil
-}
-
-// BillingAccounts is what `account` pays with.
-func (v *Levyan) BillingAccounts(account string) []*levyanv1.BillingAccount {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	out := []*levyanv1.BillingAccount{}
-	for _, b := range v.billing[account] {
-		out = append(out, proto.CloneOf(b))
-	}
-	return out
 }
 
 // Payer is who pays for `workspace`, as GetPayer answers.
@@ -394,28 +301,12 @@ func (v *Levyan) payerOf(workspace string) *levyanv1.Payer {
 	return out
 }
 
-// own is billing account `id` of `account`'s, or NotFound.
-func (v *Levyan) own(account, id string) (*levyanv1.BillingAccount, error) {
-	for _, b := range v.billing[account] {
-		if b.GetId() == id {
-			return b, nil
-		}
-	}
-	return nil, status.Errorf(codes.NotFound, "levyantest: no billing account %q of the account's", id)
-}
-
 // collection is whether what billing account `id` is billed can be collected:
-// nil for none, and nothing said -- UNSPECIFIED -- of one on a channel that is
-// no merchant of record's, as levyan says it.
+// nil for none, nothing said -- UNSPECIFIED -- of one on a channel that is no
+// merchant of record's, as levyan says it, and no subscription to collect
+// through for one a test said nothing of ([Levyan.Collect]).
 func (v *Levyan) collection(id string) *levyanv1.Collection {
-	var b *levyanv1.BillingAccount
-	for _, bs := range v.billing {
-		for _, c := range bs {
-			if c.GetId() == id {
-				b = c
-			}
-		}
-	}
+	b := v.billingAccount(id)
 	switch {
 	case b == nil:
 		return nil
@@ -425,462 +316,7 @@ func (v *Levyan) collection(id string) *levyanv1.Collection {
 	if c, ok := v.collected[id]; ok {
 		return proto.CloneOf(c)
 	}
-	if s, ok := v.subs[id]; ok && s.GetStatus() == levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE {
-		return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE, DateSince: s.GetDatePeriodStart()}.Build()
-	}
 	return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_NO_SUBSCRIPTION, DateSince: b.GetDateCreated()}.Build()
-}
-
-// relayedFor is the account a PayerService call was relayed for: the key, and
-// the account beside it, held to what levyan holds them to.
-func (v *Levyan) relayedFor(ctx context.Context) (string, error) {
-	if err := keyed(ctx); err != nil {
-		return "", err
-	}
-	md, _ := metadata.FromIncomingContext(ctx)
-	as := md.Get(levyan.AccountHeader)
-	if len(as) != 1 {
-		return "", status.Error(codes.PermissionDenied, "levyantest: a product's own key is refused every method of a payer's")
-	}
-	if _, err := pdid.Parse(as[0]); err != nil {
-		return "", status.Errorf(codes.InvalidArgument, "levyantest: %q is not an account's identifier", as[0])
-	}
-	m, _ := grpc.Method(ctx)
-
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	v.relayed = append(v.relayed, Relayed{Method: m, Account: as[0]})
-	if v.noRoster {
-		return "", status.Error(codes.FailedPrecondition, NoRoster)
-	}
-	return as[0], nil
-}
-
-func (v *Levyan) ListBillingAccounts(ctx context.Context, req *levyanv1.ListBillingAccountsRequest) (*levyanv1.ListBillingAccountsResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return levyanv1.ListBillingAccountsResponse_builder{BillingAccounts: v.BillingAccounts(a)}.Build(), nil
-}
-
-// CreateBillingAccount bills one in a country as levyan does by default: the
-// merchant of record, in won in KR and in US dollars anywhere else.
-func (v *Levyan) CreateBillingAccount(ctx context.Context, req *levyanv1.CreateBillingAccountRequest) (*levyanv1.CreateBillingAccountResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	c := req.GetCountry()
-	if len(c) != 2 || strings.ToUpper(c) != c {
-		return nil, status.Errorf(codes.InvalidArgument, "country: %q is no country as ISO 3166-1 alpha-2 writes one in capitals", c)
-	}
-	currency := "USD"
-	if c == "KR" {
-		currency = "KRW"
-	}
-	b := levyanv1.BillingAccount_builder{
-		Id:          newId(),
-		Name:        req.GetName(),
-		Country:     c,
-		Channel:     levyanv1.Channel_CHANNEL_MOR,
-		Currency:    currency,
-		Recipient:   req.GetRecipient(),
-		Business:    req.GetBusiness(),
-		DateCreated: timestamppb.Now(),
-	}.Build()
-
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	v.billing[a] = append(v.billing[a], b)
-	return levyanv1.CreateBillingAccountResponse_builder{BillingAccount: proto.CloneOf(b)}.Build(), nil
-}
-
-func (v *Levyan) UpdateBillingAccount(ctx context.Context, req *levyanv1.UpdateBillingAccountRequest) (*levyanv1.UpdateBillingAccountResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	b, err := v.own(a, req.GetId())
-	if err != nil {
-		return nil, err
-	}
-	if b.GetChannel() == levyanv1.Channel_CHANNEL_BANK_KR && (req.HasBusiness() || req.GetClearBusiness()) {
-		// levyan's words (`server/payers`): the account's call is refused
-		// whole, and changes nothing.
-		return nil, status.Error(codes.FailedPrecondition, "the business a billing account paid by transfer is billed to is its contract's, and an operator's to change")
-	}
-	if req.HasName() {
-		b.SetName(req.GetName())
-	}
-	if req.HasRecipient() {
-		b.SetRecipient(req.GetRecipient())
-	}
-	if req.HasBusiness() {
-		b.SetBusiness(req.GetBusiness())
-	}
-	if req.GetClearBusiness() {
-		b.ClearBusiness()
-	}
-	return levyanv1.UpdateBillingAccountResponse_builder{BillingAccount: proto.CloneOf(b)}.Build(), nil
-}
-
-func (v *Levyan) GetBillingAccount(ctx context.Context, req *levyanv1.GetBillingAccountRequest) (*levyanv1.GetBillingAccountResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	b, err := v.own(a, req.GetId())
-	if err != nil {
-		return nil, err
-	}
-	out := levyanv1.GetBillingAccountResponse_builder{
-		BillingAccount: proto.CloneOf(b),
-		Collection:     v.collection(b.GetId()),
-		Credits:        v.creditFor(b.GetId(), time.Now()),
-		Balance:        v.balances[b.GetId()],
-	}.Build()
-	if s, ok := v.subs[b.GetId()]; ok {
-		out.SetSubscription(proto.CloneOf(s))
-	}
-	for _, d := range v.dunning {
-		if d.v.GetBillingAccount() == b.GetId() {
-			out.SetDunning(append(out.GetDunning(), proto.CloneOf(d.v)))
-		}
-	}
-	return out, nil
-}
-
-// StartCheckout opens a checkout as levyan's Paddle adapter does: of a
-// transaction made up, in the sandbox, opened with [ClientToken] -- and the
-// one open already, when there is one.
-func (v *Levyan) StartCheckout(ctx context.Context, req *levyanv1.StartCheckoutRequest) (*levyanv1.StartCheckoutResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if u, err := url.Parse(req.GetSuccessUrl()); err != nil || !u.IsAbs() {
-		return nil, status.Error(codes.InvalidArgument, "success_url: where the checkout sends the payer back, an absolute URL")
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	b, err := v.own(a, req.GetBillingAccount())
-	if err != nil {
-		return nil, err
-	}
-	if c := b.GetChannel(); c != levyanv1.Channel_CHANNEL_MOR {
-		return nil, status.Errorf(codes.FailedPrecondition, "the billing account is billed through %s, which takes no checkout of the merchant of record's", c)
-	}
-	if s, ok := v.subs[b.GetId()]; ok && s.GetStatus() == levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE {
-		return nil, status.Error(codes.FailedPrecondition, "the billing account is subscribed already (active): one subscription is collected through at a time")
-	}
-	for _, c := range v.checkouts {
-		if c.v.GetBillingAccount() == b.GetId() && c.v.GetState() == levyanv1.CheckoutState_CHECKOUT_STATE_OPEN {
-			return levyanv1.StartCheckoutResponse_builder{Checkout: proto.CloneOf(c.v)}.Build(), nil
-		}
-	}
-
-	txn := "txn_" + word(26)
-	c := &checkout{account: a, v: levyanv1.Checkout_builder{
-		Id:             newId(),
-		BillingAccount: b.GetId(),
-		State:          levyanv1.CheckoutState_CHECKOUT_STATE_OPEN,
-		DateStarted:    timestamppb.Now(),
-		Window: levyanv1.CheckoutWindow_builder{
-			Merchant:    "paddle",
-			Environment: "sandbox",
-			Transaction: txn,
-			ClientToken: ClientToken,
-			Script:      "https://cdn.paddle.com/paddle/v2/paddle.js",
-			Url:         "https://loft.example/billing/checkout?_ptxn=" + txn,
-			Country:     b.GetCountry(),
-		}.Build(),
-	}.Build()}
-	v.checkouts = append(v.checkouts, c)
-	return levyanv1.StartCheckoutResponse_builder{Checkout: proto.CloneOf(c.v)}.Build(), nil
-}
-
-// CompleteCheckout completes a checkout once it was asked about [Levyan.Opens]
-// times -- the merchant making the subscription meanwhile -- with a card's
-// subscription, paid up.
-func (v *Levyan) CompleteCheckout(ctx context.Context, req *levyanv1.CompleteCheckoutRequest) (*levyanv1.CompleteCheckoutResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	var c *checkout
-	for _, x := range v.checkouts {
-		if x.v.GetId() == req.GetCheckout() && x.account == a {
-			c = x
-		}
-	}
-	if c == nil {
-		return nil, status.Errorf(codes.NotFound, "levyantest: no checkout %q of the account's", req.GetCheckout())
-	}
-	ba := c.v.GetBillingAccount()
-	if c.v.GetState() == levyanv1.CheckoutState_CHECKOUT_STATE_OPEN {
-		c.asked++
-		if c.asked > v.opens {
-			now := time.Now()
-			start, end := period(now)
-			c.v.SetState(levyanv1.CheckoutState_CHECKOUT_STATE_COMPLETED)
-			c.v.SetDateDone(timestamppb.New(now))
-			// Collected through the subscription it made from now, whatever
-			// the merchant said of the one before.
-			delete(v.collected, ba)
-			b, _ := v.own(a, ba)
-			v.subs[ba] = levyanv1.Subscription_builder{
-				Id:              newId(),
-				Merchant:        "paddle",
-				Status:          levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE,
-				Currency:        b.GetCurrency(),
-				DatePeriodStart: timestamppb.New(start),
-				DatePeriodEnd:   timestamppb.New(end),
-				DateNextBilled:  timestamppb.New(end),
-				Method:          levyanv1.PaymentMethod_builder{Type: "card", Brand: "visa", Last4: "4242"}.Build(),
-				DateUpdated:     timestamppb.New(now),
-				DateChecked:     timestamppb.New(now),
-			}.Build()
-		}
-	}
-	out := levyanv1.CompleteCheckoutResponse_builder{Checkout: proto.CloneOf(c.v), Collection: v.collection(ba)}.Build()
-	if c.v.GetState() == levyanv1.CheckoutState_CHECKOUT_STATE_COMPLETED {
-		out.SetSubscription(proto.CloneOf(v.subs[ba]))
-	}
-	return out, nil
-}
-
-func (v *Levyan) ListOffers(ctx context.Context, req *levyanv1.ListOffersRequest) (*levyanv1.ListOffersResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	out := levyanv1.ListOffersResponse_builder{}.Build()
-	for _, o := range v.offers {
-		if o.v.GetAccount() == a && !o.answered {
-			out.SetOffers(append(out.GetOffers(), proto.CloneOf(o.v)))
-		}
-	}
-	return out, nil
-}
-
-// Accept is the account paying for the offer's workspace from the end of the
-// period, with the billing account it names or none yet: the workspace is
-// restricted no longer.
-func (v *Levyan) Accept(ctx context.Context, req *levyanv1.AcceptRequest) (*levyanv1.AcceptResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	o, err := v.offerOf(a, req.GetOffer())
-	if err != nil {
-		return nil, err
-	}
-	if ba := req.GetBillingAccount(); ba != "" {
-		if _, err := v.own(a, ba); err != nil {
-			return nil, err
-		}
-	}
-	_, end := period(time.Now())
-	l := levyanv1.Link_builder{
-		Id:             newId(),
-		Workspace:      o.v.GetWorkspace(),
-		Account:        a,
-		BillingAccount: req.GetBillingAccount(),
-		DateStart:      timestamppb.New(end),
-		Began:          levyanv1.LinkBegan_LINK_BEGAN_ACCEPTED,
-	}.Build()
-	o.answered = true
-	p := v.paying(o.v.GetWorkspace())
-	p.next = l
-	p.payerlessSince, p.restrictedFrom, p.readonlyFrom = time.Time{}, time.Time{}, time.Time{}
-	return levyanv1.AcceptResponse_builder{Link: proto.CloneOf(l)}.Build(), nil
-}
-
-func (v *Levyan) Decline(ctx context.Context, req *levyanv1.DeclineRequest) (*levyanv1.DeclineResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	o, err := v.offerOf(a, req.GetOffer())
-	if err != nil {
-		return nil, err
-	}
-	o.answered = true
-	return &levyanv1.DeclineResponse{}, nil
-}
-
-func (v *Levyan) offerOf(account, id string) (*offer, error) {
-	for _, o := range v.offers {
-		if o.v.GetId() == id && o.v.GetAccount() == account {
-			if o.answered {
-				return nil, status.Error(codes.FailedPrecondition, "the offer was answered already")
-			}
-			return o, nil
-		}
-	}
-	return nil, status.Errorf(codes.NotFound, "levyantest: no offer %q to the account", id)
-}
-
-// ListLinks is what the account pays for now, or will from the end of the
-// period.
-func (v *Levyan) ListLinks(ctx context.Context, req *levyanv1.ListLinksRequest) (*levyanv1.ListLinksResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	out := levyanv1.ListLinksResponse_builder{}.Build()
-	keys := make([]string, 0, len(v.workspaces))
-	for k := range v.workspaces {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		p := v.workspaces[k]
-		for _, l := range []*levyanv1.Link{p.current, p.next} {
-			if l != nil && l.GetAccount() == a {
-				out.SetLinks(append(out.GetLinks(), proto.CloneOf(l)))
-			}
-		}
-	}
-	return out, nil
-}
-
-func (v *Levyan) Use(ctx context.Context, req *levyanv1.UseRequest) (*levyanv1.UseResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	p := v.paying(req.GetWorkspace())
-	pays := (p.current != nil && p.current.GetAccount() == a) || (p.next != nil && p.next.GetAccount() == a)
-	if !pays {
-		return nil, status.Errorf(codes.FailedPrecondition, "the account does not pay for workspace %s from the end of the period", req.GetWorkspace())
-	}
-	if _, err := v.own(a, req.GetBillingAccount()); err != nil {
-		return nil, err
-	}
-	_, end := period(time.Now())
-	p.next = levyanv1.Link_builder{
-		Id:             newId(),
-		Workspace:      req.GetWorkspace(),
-		Account:        a,
-		BillingAccount: req.GetBillingAccount(),
-		DateStart:      timestamppb.New(end),
-		Began:          levyanv1.LinkBegan_LINK_BEGAN_USED,
-	}.Build()
-	return levyanv1.UseResponse_builder{Link: proto.CloneOf(p.next)}.Build(), nil
-}
-
-// Stop ends what the account pays for a workspace at the end of the period.
-func (v *Levyan) Stop(ctx context.Context, req *levyanv1.StopRequest) (*levyanv1.StopResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	p := v.paying(req.GetWorkspace())
-	if p.current == nil || p.current.GetAccount() != a {
-		return nil, status.Errorf(codes.FailedPrecondition, "the account does not pay for workspace %s", req.GetWorkspace())
-	}
-	_, end := period(time.Now())
-	p.current.SetDateEnd(timestamppb.New(end))
-	p.current.SetEnded(levyanv1.LinkEnded_LINK_ENDED_STOPPED)
-	p.next = nil
-	return levyanv1.StopResponse_builder{Link: proto.CloneOf(p.current)}.Build(), nil
-}
-
-// ListInvoices is the invoices [Levyan.Bill] gave the account's billing
-// accounts, the latest first.
-func (v *Levyan) ListInvoices(ctx context.Context, req *levyanv1.ListInvoicesRequest) (*levyanv1.ListInvoicesResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	vs := []*levyanv1.Invoice{}
-	for _, b := range v.billing[a] {
-		if f := req.GetBillingAccount(); f != "" && f != b.GetId() {
-			continue
-		}
-		for _, inv := range v.invoices[b.GetId()] {
-			// Its lines, and which credit paid what of it, are
-			// GetInvoice's.
-			c := proto.CloneOf(inv)
-			c.SetLines(nil)
-			c.SetCredits(nil)
-			vs = append(vs, c)
-		}
-	}
-	sort.SliceStable(vs, func(i, j int) bool { return vs[i].GetDateStart().AsTime().After(vs[j].GetDateStart().AsTime()) })
-	return levyanv1.ListInvoicesResponse_builder{Invoices: vs}.Build(), nil
-}
-
-func (v *Levyan) GetInvoice(ctx context.Context, req *levyanv1.GetInvoiceRequest) (*levyanv1.GetInvoiceResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	for _, b := range v.billing[a] {
-		for _, inv := range v.invoices[b.GetId()] {
-			if inv.GetId() == req.GetId() {
-				out := levyanv1.GetInvoiceResponse_builder{Invoice: proto.CloneOf(inv)}.Build()
-				for _, n := range v.notes[inv.GetId()] {
-					out.SetCreditNotes(append(out.GetCreditNotes(), proto.CloneOf(n)))
-				}
-				for _, d := range v.dunning {
-					if d.v.GetInvoice() == inv.GetId() {
-						out.SetDunning(proto.CloneOf(d.v))
-					}
-				}
-				return out, nil
-			}
-		}
-	}
-	return nil, status.Errorf(codes.NotFound, "levyantest: no invoice %q of the account's", req.GetId())
-}
-
-func (v *Levyan) ListCreditNotes(ctx context.Context, req *levyanv1.ListCreditNotesRequest) (*levyanv1.ListCreditNotesResponse, error) {
-	a, err := v.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	out := levyanv1.ListCreditNotesResponse_builder{}.Build()
-	for _, b := range v.billing[a] {
-		if f := req.GetBillingAccount(); f != "" && f != b.GetId() {
-			continue
-		}
-		for _, inv := range v.invoices[b.GetId()] {
-			if f := req.GetInvoice(); f != "" && f != inv.GetId() {
-				continue
-			}
-			for _, n := range v.notes[inv.GetId()] {
-				out.SetCreditNotes(append(out.GetCreditNotes(), proto.CloneOf(n)))
-			}
-		}
-	}
-	return out, nil
 }
 
 // Offer asks an account to pay for a workspace, withdrawing what was offered
@@ -1004,82 +440,4 @@ func (v *Levyan) GetStatement(ctx context.Context, req *levyanv1.GetStatementReq
 		}
 	}
 	return nil, status.Errorf(codes.NotFound, "levyantest: no statement is %q", req.GetId())
-}
-
-// payerServer is the fake's PayerService: the fake, but for the two methods
-// BillingService has methods of the same names as, which a payer is
-// answered by here (levyan#47).
-type payerServer struct{ *Levyan }
-
-// ListStatements is the statements of the periods the account's billing
-// accounts paid for, as the fake keeps who did ([Levyan.paid]) -- of one of
-// them, or of all of them -- the latest period first. Another's billing
-// account is NotFound.
-func (s payerServer) ListStatements(ctx context.Context, req *levyanv1.PayerServiceListStatementsRequest) (*levyanv1.PayerServiceListStatementsResponse, error) {
-	a, err := s.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	of := map[string]bool{}
-	if f := req.GetBillingAccount(); f != "" {
-		if _, err := s.own(a, f); err != nil {
-			return nil, err
-		}
-		of[f] = true
-	} else {
-		for _, b := range s.billing[a] {
-			of[b.GetId()] = true
-		}
-	}
-	vs := []*levyanv1.Statement{}
-	for _, sts := range s.statements {
-		for _, st := range sts {
-			if of[s.paidBy[st.GetId()]] {
-				vs = append(vs, proto.CloneOf(st))
-			}
-		}
-	}
-	sort.SliceStable(vs, func(i, j int) bool {
-		a, b := vs[i].GetPeriod().GetDateStart().AsTime(), vs[j].GetPeriod().GetDateStart().AsTime()
-		if !a.Equal(b) {
-			return a.After(b)
-		}
-		return vs[i].GetId() > vs[j].GetId()
-	})
-	return levyanv1.PayerServiceListStatementsResponse_builder{Statements: vs}.Build(), nil
-}
-
-// GetStatement is one of them, or NotFound.
-func (s payerServer) GetStatement(ctx context.Context, req *levyanv1.PayerServiceGetStatementRequest) (*levyanv1.PayerServiceGetStatementResponse, error) {
-	a, err := s.relayedFor(ctx)
-	if err != nil {
-		return nil, err
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	for _, sts := range s.statements {
-		for _, st := range sts {
-			if st.GetId() != req.GetId() {
-				continue
-			}
-			if _, err := s.own(a, s.paidBy[st.GetId()]); err != nil {
-				break
-			}
-			return levyanv1.PayerServiceGetStatementResponse_builder{Statement: proto.CloneOf(st)}.Build(), nil
-		}
-	}
-	return nil, status.Errorf(codes.NotFound, "levyantest: no statement %q of the account's", req.GetId())
-}
-
-// word is n lower-case letters and digits, made up.
-func word(n int) string {
-	const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
-	b := make([]byte, n)
-	rand.Read(b)
-	for i := range b {
-		b[i] = letters[int(b[i])%len(letters)]
-	}
-	return string(b)
 }

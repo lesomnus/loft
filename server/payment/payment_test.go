@@ -15,42 +15,8 @@ import (
 )
 
 // pairs is every message this package moves, beside levyan's it is moved
-// from or to: what a page reads, and what a payer's request is.
+// from: what a page reads.
 var pairs = []struct{ ours, levyans proto.Message }{
-	{&app.PaymentListBillingAccountsRequest{}, &levyanv1.ListBillingAccountsRequest{}},
-	{&app.PaymentListBillingAccountsResponse{}, &levyanv1.ListBillingAccountsResponse{}},
-	{&app.PaymentCreateBillingAccountRequest{}, &levyanv1.CreateBillingAccountRequest{}},
-	{&app.PaymentCreateBillingAccountResponse{}, &levyanv1.CreateBillingAccountResponse{}},
-	{&app.PaymentUpdateBillingAccountRequest{}, &levyanv1.UpdateBillingAccountRequest{}},
-	{&app.PaymentUpdateBillingAccountResponse{}, &levyanv1.UpdateBillingAccountResponse{}},
-	{&app.PaymentGetBillingAccountRequest{}, &levyanv1.GetBillingAccountRequest{}},
-	{&app.PaymentGetBillingAccountResponse{}, &levyanv1.GetBillingAccountResponse{}},
-	{&app.PaymentStartCheckoutRequest{}, &levyanv1.StartCheckoutRequest{}},
-	{&app.PaymentStartCheckoutResponse{}, &levyanv1.StartCheckoutResponse{}},
-	{&app.PaymentCompleteCheckoutRequest{}, &levyanv1.CompleteCheckoutRequest{}},
-	{&app.PaymentCompleteCheckoutResponse{}, &levyanv1.CompleteCheckoutResponse{}},
-	{&app.PaymentListOffersRequest{}, &levyanv1.ListOffersRequest{}},
-	{&app.PaymentListOffersResponse{}, &levyanv1.ListOffersResponse{}},
-	{&app.PaymentAcceptRequest{}, &levyanv1.AcceptRequest{}},
-	{&app.PaymentAcceptResponse{}, &levyanv1.AcceptResponse{}},
-	{&app.PaymentDeclineRequest{}, &levyanv1.DeclineRequest{}},
-	{&app.PaymentDeclineResponse{}, &levyanv1.DeclineResponse{}},
-	{&app.PaymentListLinksRequest{}, &levyanv1.ListLinksRequest{}},
-	{&app.PaymentListLinksResponse{}, &levyanv1.ListLinksResponse{}},
-	{&app.PaymentUseRequest{}, &levyanv1.UseRequest{}},
-	{&app.PaymentUseResponse{}, &levyanv1.UseResponse{}},
-	{&app.PaymentStopRequest{}, &levyanv1.StopRequest{}},
-	{&app.PaymentStopResponse{}, &levyanv1.StopResponse{}},
-	{&app.PaymentListInvoicesRequest{}, &levyanv1.ListInvoicesRequest{}},
-	{&app.PaymentListInvoicesResponse{}, &levyanv1.ListInvoicesResponse{}},
-	{&app.PaymentGetInvoiceRequest{}, &levyanv1.GetInvoiceRequest{}},
-	{&app.PaymentGetInvoiceResponse{}, &levyanv1.GetInvoiceResponse{}},
-	{&app.PaymentListCreditNotesRequest{}, &levyanv1.ListCreditNotesRequest{}},
-	{&app.PaymentListCreditNotesResponse{}, &levyanv1.ListCreditNotesResponse{}},
-	{&app.PaymentListPayerStatementsRequest{}, &levyanv1.PayerServiceListStatementsRequest{}},
-	{&app.PaymentListPayerStatementsResponse{}, &levyanv1.PayerServiceListStatementsResponse{}},
-	{&app.PaymentGetPayerStatementRequest{}, &levyanv1.PayerServiceGetStatementRequest{}},
-	{&app.PaymentGetPayerStatementResponse{}, &levyanv1.PayerServiceGetStatementResponse{}},
 	{&app.PaymentGetPayerResponse{}, &levyanv1.GetPayerResponse{}},
 	{&app.PaymentGetUsageResponse{}, &levyanv1.GetUsageResponse{}},
 	{&app.PaymentListStatementsResponse{}, &levyanv1.ListStatementsResponse{}},
@@ -122,12 +88,12 @@ func same(ours, levyans protoreflect.MessageDescriptor, seen map[protoreflect.Fu
 	return out
 }
 
-// TestTheMessagesAreLevyans: what a payer's request is moved into and what
-// levyan answers is moved out of are levyan's own messages, field for field
-// and number for number, down to every message and enum they hold -- so that
-// moving one is reading back what was written, and nothing is said under a
-// number levyan means otherwise. What this build leaves out of levyan's it
-// reserves (a line's parts and its unpriced stretches).
+// TestTheMessagesAreLevyans: what levyan answers is moved out of levyan's
+// own messages, field for field and number for number, down to every message
+// and enum they hold -- so that moving one is reading back what was written,
+// and nothing is said under a number levyan means otherwise. What this build
+// leaves out of levyan's it reserves (a line's parts and its unpriced
+// stretches).
 func TestTheMessagesAreLevyans(t *testing.T) {
 	seen := map[protoreflect.FullName]bool{}
 	var out []string
@@ -135,44 +101,41 @@ func TestTheMessagesAreLevyans(t *testing.T) {
 		out = append(out, same(p.ours.ProtoReflect().Descriptor(), p.levyans.ProtoReflect().Descriptor(), seen)...)
 	}
 	require.Empty(t, out)
-	require.Greater(t, len(seen), 30, "every message under them")
+	require.Greater(t, len(seen), 15, "every message under them")
 
 	// What levyan#43 added -- an allowance, a pool and what a line took of
-	// it, credit and what paid an invoice -- is held here, and not reserved
-	// as a line's parts are.
-	for _, m := range []protoreflect.FullName{"loft.BillingAllowance", "loft.BillingPool", "loft.BillingLinePool", "loft.BillingCredit", "loft.BillingInvoiceCredit"} {
+	// it, and credit -- is held here, and not reserved as a line's parts are.
+	for _, m := range []protoreflect.FullName{"loft.BillingAllowance", "loft.BillingPool", "loft.BillingLinePool", "loft.BillingCredit"} {
 		require.True(t, seen[m], "%s is levyan's, field for field", m)
 	}
 
 	// And it sees what is not levyan's: another message, one field off.
-	require.NotEmpty(t, same((&app.BillingAccount{}).ProtoReflect().Descriptor(), (&levyanv1.Recipient{}).ProtoReflect().Descriptor(), map[protoreflect.FullName]bool{}))
+	require.NotEmpty(t, same((&app.BillingOffer{}).ProtoReflect().Descriptor(), (&levyanv1.Link{}).ProtoReflect().Descriptor(), map[protoreflect.FullName]bool{}))
 	require.NotEmpty(t, same((&app.BillingLine{}).ProtoReflect().Descriptor(), (&levyanv1.LinePart{}).ProtoReflect().Descriptor(), map[protoreflect.FullName]bool{}))
 }
 
 // TestWhatIsMovedIsWhatWasSaid: levyan's answer, moved, reads as what levyan
-// said -- a card as its kind, brand and last four digits -- and what this
-// build does not declare is left out rather than carried along unread.
+// said -- who pays and with what, whether that can be collected, and a
+// charge that failed -- and what this build does not declare is left out
+// rather than carried along unread.
 func TestWhatIsMovedIsWhatWasSaid(t *testing.T) {
 	x := require.New(t)
 
 	now := timestamppb.Now()
-	v := levyanv1.GetBillingAccountResponse_builder{
-		BillingAccount: levyanv1.BillingAccount_builder{Id: "ba", Country: "KR", Channel: levyanv1.Channel_CHANNEL_MOR, Currency: "KRW", DateCreated: now}.Build(),
-		Collection:     levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE, DateSince: now}.Build(),
-		Subscription: levyanv1.Subscription_builder{
-			Status: levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE,
-			Change: levyanv1.SubscriptionChange_SUBSCRIPTION_CHANGE_CANCEL, DateChange: now,
-			Method: levyanv1.PaymentMethod_builder{Type: "south_korea_local_card", Brand: "hyundai", Last4: "0004"}.Build(),
-		}.Build(),
-	}.Build()
-	got := &app.PaymentGetBillingAccountResponse{}
+	v := levyanv1.GetPayerResponse_builder{Payer: levyanv1.Payer_builder{
+		Workspace:  "ws",
+		Current:    levyanv1.Link_builder{Id: "ln", Workspace: "ws", Account: "ac", BillingAccount: "ba", DateStart: now, Began: levyanv1.LinkBegan_LINK_BEGAN_ACCEPTED}.Build(),
+		Collection: levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_PAST_DUE, DateSince: now}.Build(),
+		Dunning:    []*levyanv1.Dunning{levyanv1.Dunning_builder{Invoice: "inv", Kind: levyanv1.DeclineKind_DECLINE_KIND_REPLACE, DateReadonly: now}.Build()},
+	}.Build()}.Build()
+	got := &app.PaymentGetPayerResponse{}
 	x.NoError(move(v, got))
-	x.Equal("KRW", got.GetBillingAccount().GetCurrency())
-	x.Equal(app.BillingChannel_BILLING_CHANNEL_MOR, got.GetBillingAccount().GetChannel())
-	x.Equal(app.BillingCollectionState_BILLING_COLLECTION_STATE_COLLECTABLE, got.GetCollection().GetState())
-	x.Equal(app.BillingSubscriptionChange_BILLING_SUBSCRIPTION_CHANGE_CANCEL, got.GetSubscription().GetChange())
-	x.Equal("hyundai", got.GetSubscription().GetMethod().GetBrand())
-	x.Equal("0004", got.GetSubscription().GetMethod().GetLast4())
+	p := got.GetPayer()
+	x.Equal("ba", p.GetCurrent().GetBillingAccount())
+	x.Equal(app.BillingLinkBegan_BILLING_LINK_BEGAN_ACCEPTED, p.GetCurrent().GetBegan())
+	x.Equal(app.BillingCollectionState_BILLING_COLLECTION_STATE_PAST_DUE, p.GetCollection().GetState())
+	x.Equal(app.BillingDeclineKind_BILLING_DECLINE_KIND_REPLACE, p.GetDunning()[0].GetKind())
+	x.True(now.AsTime().Equal(p.GetDunning()[0].GetDateReadonly().AsTime()))
 
 	// A line's parts are levyan's to say: moved, they are not carried.
 	u := levyanv1.GetUsageResponse_builder{Usage: levyanv1.Usage_builder{
@@ -190,10 +153,9 @@ func TestWhatIsMovedIsWhatWasSaid(t *testing.T) {
 }
 
 // TestWhatLevyansOperatorGaveIsMovedAsSaid (levyan#43): what levyan says a
-// workspace and a billing account were given -- the allowances and the pools
-// a period is rated with, what each line was given and took, credit and what
-// paid an invoice -- reads as levyan said it once moved, a decimal as the
-// text it was and a moment as the moment.
+// workspace was given -- the allowances and the pools a period is rated with,
+// what each line was given and took, and credit -- reads as levyan said it
+// once moved, a decimal as the text it was and a moment as the moment.
 func TestWhatLevyansOperatorGaveIsMovedAsSaid(t *testing.T) {
 	x := require.New(t)
 	until := timestamppb.New(time.Date(2027, 4, 30, 15, 0, 0, 0, time.UTC))
@@ -226,69 +188,5 @@ func TestWhatLevyansOperatorGaveIsMovedAsSaid(t *testing.T) {
 	x.NoError(move(levyanv1.GetPayerResponse_builder{Payer: levyanv1.Payer_builder{Workspace: "ws-1", Credits: []*levyanv1.Credit{credit}}.Build()}.Build(), payer))
 	c := payer.GetPayer().GetCredits()[0]
 	x.Equal([]any{"cr-1", "ws-1", int64(100000), int64(70000), "KRW"}, []any{c.GetId(), c.GetWorkspace(), c.GetGranted(), c.GetLeft(), c.GetCurrency()})
-
-	got := &app.PaymentGetBillingAccountResponse{}
-	x.NoError(move(levyanv1.GetBillingAccountResponse_builder{
-		BillingAccount: levyanv1.BillingAccount_builder{Id: "ba"}.Build(),
-		Credits:        []*levyanv1.Credit{credit, levyanv1.Credit_builder{Id: "cr-2", BillingAccount: "ba", Granted: 30000, Left: 30000, Currency: "KRW"}.Build()},
-		Balance:        5000,
-	}.Build(), got))
-	x.Len(got.GetCredits(), 2)
-	x.Equal("ba", got.GetCredits()[1].GetBillingAccount())
-	x.EqualValues(5000, got.GetBalance())
-
-	inv := &app.PaymentGetInvoiceResponse{}
-	x.NoError(move(levyanv1.GetInvoiceResponse_builder{Invoice: levyanv1.Invoice_builder{
-		Id: "inv", Total: 80000, Credited: 75000, Due: 5000,
-		Credits: []*levyanv1.InvoiceCredit{
-			levyanv1.InvoiceCredit_builder{Credit: "cr-1", Amount: 70000, Workspace: "ws-1", DateExpires: expires}.Build(),
-			levyanv1.InvoiceCredit_builder{Amount: 5000}.Build(),
-		},
-	}.Build()}.Build(), inv))
-	paid := inv.GetInvoice().GetCredits()
-	x.Len(paid, 2)
-	x.Equal([]any{"cr-1", int64(70000), "ws-1"}, []any{paid[0].GetCredit(), paid[0].GetAmount(), paid[0].GetWorkspace()})
-	x.Equal([]any{"", int64(5000)}, []any{paid[1].GetCredit(), paid[1].GetAmount()}, "the balance's names no credit")
-	x.EqualValues(5000, inv.GetInvoice().GetDue())
-}
-
-// TestAPayersStatementIsMovedAsSaid (levyan#47): a statement levyan answers
-// a payer -- its billing account's, of a period it paid for -- reads as it
-// was said once moved, each line with what was given and taken, and the
-// request names the billing account and the page as levyan's does.
-func TestAPayersStatementIsMovedAsSaid(t *testing.T) {
-	x := require.New(t)
-	start := timestamppb.New(time.Date(2026, 9, 30, 15, 0, 0, 0, time.UTC))
-	end := timestamppb.New(time.Date(2026, 10, 31, 15, 0, 0, 0, time.UTC))
-
-	req := &levyanv1.PayerServiceListStatementsRequest{}
-	x.NoError(move(app.PaymentListPayerStatementsRequest_builder{BillingAccount: "ba", PageSize: 5, PageToken: "next"}.Build(), req))
-	x.Equal([]any{"ba", int32(5), "next"}, []any{req.GetBillingAccount(), req.GetPageSize(), req.GetPageToken()})
-
-	st := levyanv1.Statement_builder{
-		Id: "st-1", Workspace: "ws-1", Channel: levyanv1.Channel_CHANNEL_MOR, Currency: "KRW", Total: 1000, DateClosed: end,
-		Period: levyanv1.Period_builder{DateStart: start, DateEnd: end, Zone: "Asia/Seoul"}.Build(),
-		Lines: []*levyanv1.Line{levyanv1.Line_builder{
-			Meter: "loft.assets.active", Unit: "{asset}", Kind: levyanv1.LineKind_LINE_KIND_USAGE,
-			Usage: "1200", Included: "500", Allowance: "500", Billable: "700", Pooled: "700",
-			Pools:  []*levyanv1.LinePool{levyanv1.LinePool_builder{Pool: "pl-1", Taken: "700"}.Build()},
-			Amount: "0",
-			Parts:  []*levyanv1.LinePart{levyanv1.LinePart_builder{Price: "p", Amount: "0"}.Build()},
-		}.Build()},
-	}.Build()
-	got := &app.PaymentGetPayerStatementResponse{}
-	x.NoError(move(levyanv1.PayerServiceGetStatementResponse_builder{Statement: st}.Build(), got))
-	s := got.GetStatement()
-	x.Equal([]any{"st-1", "ws-1", app.BillingChannel_BILLING_CHANNEL_MOR, "KRW", int64(1000)}, []any{s.GetId(), s.GetWorkspace(), s.GetChannel(), s.GetCurrency(), s.GetTotal()})
-	x.Equal("Asia/Seoul", s.GetPeriod().GetZone())
-	x.True(start.AsTime().Equal(s.GetPeriod().GetDateStart().AsTime()))
-	l := s.GetLines()[0]
-	x.Equal([]string{"1200", "500", "500", "700", "700", "0"}, []string{l.GetUsage(), l.GetIncluded(), l.GetAllowance(), l.GetBillable(), l.GetPooled(), l.GetAmount()})
-	x.Equal([]string{"pl-1", "700"}, []string{l.GetPools()[0].GetPool(), l.GetPools()[0].GetTaken()})
-	x.Empty(l.ProtoReflect().GetUnknown(), "a line's parts are levyan's to say, and left out")
-
-	list := &app.PaymentListPayerStatementsResponse{}
-	x.NoError(move(levyanv1.PayerServiceListStatementsResponse_builder{Statements: []*levyanv1.Statement{st}, NextPageToken: "more"}.Build(), list))
-	x.Len(list.GetStatements(), 1)
-	x.Equal("more", list.GetNextPageToken())
+	x.True(expires.AsTime().Equal(c.GetDateExpires().AsTime()))
 }

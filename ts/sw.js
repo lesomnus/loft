@@ -60,13 +60,9 @@ self.addEventListener('fetch', (e) => {
 	}
 })
 
-/**
- * Whether an address is the app's, rather than something the server answers
- * itself -- among them the page Paddle's checkout opens on, which is HTML and
- * no page of the app's: kept as the app's, it would be what opens offline.
- */
+/** Whether an address is the app's, rather than something the server answers itself. */
 function page(path) {
-	return !/^\/(sso|session|account|files|l|healthz|billing\/checkout)(\/|$)/.test(path)
+	return !/^\/(sso|session|account|files|l|healthz)(\/|$)/.test(path)
 }
 
 async function navigate(req) {

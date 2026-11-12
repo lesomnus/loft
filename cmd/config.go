@@ -21,7 +21,6 @@ import (
 	"github.com/lesomnus/payday/trail"
 
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/checkout"
 	"github.com/lesomnus/loft/server/consent"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/levyan"
@@ -299,12 +298,6 @@ type AppConfig struct {
 // destroyed (`meter.Reader`, `server/closing`).
 type BillingConfig struct {
 	Levyan levyan.Config `yaml:"levyan"`
-
-	// Checkout is the page Paddle's default payment link is,
-	// `/billing/checkout` (`server/checkout`, design 7.7): Paddle's
-	// environment and the client-side token Paddle.js is initialized with
-	// there, both public. Unset is no page.
-	Checkout checkout.Config `yaml:"checkout"`
 }
 
 // SearchConfig is what answers a search: the OpenSearch cluster it names, or

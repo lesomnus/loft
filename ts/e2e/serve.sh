@@ -11,9 +11,7 @@
 # `sso` signs people in through the issuer at ISSUER as well (`auth.sso`):
 # the test's own, which e2e/issuer.sh stands up, and `billing` bills its
 # workspaces to the levyan whose gRPC is on 127.0.0.1:LEVYAN -- the test's
-# own, which e2e/levyan.sh stands up -- and serves Paddle's default payment
-# link in the sandbox (`app.billing.checkout`), with a client-side token made
-# up: Paddle.js is the test's own too (e2e/paddle.ts).
+# own, which e2e/levyan.sh stands up.
 #
 # E2E_POSTGRES names a PostgreSQL to run on instead -- postgres://…, as one
 # who may make databases there. Each server then has two of its own, Loft's
@@ -133,8 +131,6 @@ billing)
 	export LOFT_APP_BILLING_LEVYAN_ADDR=127.0.0.1:${3:?"usage: sh e2e/serve.sh PORT billing LEVYAN"}
 	export LOFT_APP_BILLING_LEVYAN_KEY=lvk_levyantest-not-a-key-anybody-issued
 	export LOFT_APP_BILLING_LEVYAN_INSECURE=true
-	export LOFT_APP_BILLING_CHECKOUT_ENVIRONMENT=sandbox
-	export LOFT_APP_BILLING_CHECKOUT_CLIENT_TOKEN=test_000000000000000000000000000
 	;;
 esac
 

@@ -14,13 +14,11 @@ import (
 // HTTPS, to be asked for over HTTPS only.
 //
 // And the Content Security Policy, held as `mode` says (`server/csp`) beside
-// the framing, which is refused whatever it says: `policy`, or the one
-// `pages` holds for a page that loads more than the rest -- by its path, as
-// the page Paddle's checkout opens on does (`server/checkout`).
+// the framing, which is refused whatever it says.
 //
 // An attachment says its own (`server/storage`): it is served to be shown,
 // sandboxed, and is left to.
-func guarded(h http.Handler, https bool, mode csp.Mode, policy string, pages map[string]string) http.Handler {
+func guarded(h http.Handler, https bool, mode csp.Mode, policy string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		v := w.Header()
 		v.Set("X-Content-Type-Options", "nosniff")
@@ -28,11 +26,7 @@ func guarded(h http.Handler, https bool, mode csp.Mode, policy string, pages map
 		if !strings.HasPrefix(r.URL.Path, "/files/") {
 			v.Set("X-Frame-Options", "DENY")
 			v.Set("Content-Security-Policy", "frame-ancestors 'none'")
-			p, ok := pages[r.URL.Path]
-			if !ok {
-				p = policy
-			}
-			csp.Headers(v, mode, p)
+			csp.Headers(v, mode, policy)
 		}
 		if https {
 			v.Set("Strict-Transport-Security", "max-age=31536000")

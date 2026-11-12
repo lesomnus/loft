@@ -89,9 +89,7 @@ func mount(root *xli.Command) error {
 	}
 
 	// And the one service that is no entity's: how a workspace is paid for,
-	// relayed to levyan (design 7.9) -- `loft payment get-payer`, the
-	// workspace's, and `loft payment list-billing-accounts`, the account's
-	// own.
+	// relayed to levyan (design 7.9) -- `loft payment get-payer`.
 	pay := app.File_loft_payment_proto.Services().ByName("PaymentService")
 	if err := t.Add("payment", &xli.Command{Brief: "how a workspace is paid for, as levyan says it", Handler: xli.RequireSubcommand()}); err != nil {
 		return err

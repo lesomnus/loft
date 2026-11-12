@@ -10,18 +10,15 @@
 //   - its WorkspaceService's Arrive and Leave, every call kept in the order it
 //     came, taken unless a test says levyan is down -- and who pays for each
 //     workspace, as levyan works it out of them, what is offered (`Offer`)
-//     and `GetPayer` (payers.go);
-//   - its PayerService, the payers' own: billing accounts, checkouts that a
-//     test's Paddle completes, offers, links, invoices, and the statements
-//     of the periods each billing account paid for (payers.go, levyan#47);
+//     and `GetPayer` (payers.go); and what a payer does where a payer pays,
+//     which no product asks of it, as a test says it: a billing account
+//     opened, whether it can be collected, an offer accepted;
 //   - its BillingService's usage, worked out of the readings it kept, and the
 //     statements a test gives (payers.go) or closes ([Levyan.ClosePeriod]);
 //   - what levyan's operator gives beyond what the prices include
 //     (levyan#43): allowances and pools, which the usage and the statements
-//     it closes are rated with, and credit -- a billing account's or a
-//     workspace's lots, and a billing account's balance -- which GetPayer and
-//     GetBillingAccount answer and an invoice it finalizes is paid with first
-//     (benefits.go);
+//     it closes are rated with, and a workspace's credit, which GetPayer
+//     answers (benefits.go);
 //   - and its Close, Restore, Destroy and GetLifecycle: what became of each
 //     workspace, read in the order of its moments and answered and refused as
 //     levyan's own are (levyan's `docs/apps.md`, 5) -- a workspace it heard
@@ -31,8 +28,7 @@
 //     measured once a workspace was destroyed is refused.
 //
 // It holds a call to what levyan holds one to: the product key it was given,
-// as `authorization: Bearer lvk_…`, or Unauthenticated; and a payer's call
-// to the account it is relayed for, in `levyan-account`.
+// as `authorization: Bearer lvk_…`, or Unauthenticated.
 //
 // A browser test bills to one served by a command of its own
 // (`cmd/levyantest`, `ts/e2e/levyan.sh`).
@@ -70,7 +66,6 @@ const Key = "lvk_levyantest-not-a-key-anybody-issued"
 type Levyan struct {
 	levyanv1.UnimplementedMeteringServiceServer
 	levyanv1.UnimplementedWorkspaceServiceServer
-	levyanv1.UnimplementedPayerServiceServer
 	levyanv1.UnimplementedBillingServiceServer
 	pdpb.UnimplementedGrantServiceServer
 
@@ -142,7 +137,6 @@ func Serve(l net.Listener) (*Levyan, *grpc.Server) {
 	g := grpc.NewServer()
 	levyanv1.RegisterMeteringServiceServer(g, v)
 	levyanv1.RegisterWorkspaceServiceServer(g, v)
-	levyanv1.RegisterPayerServiceServer(g, payerServer{v})
 	levyanv1.RegisterBillingServiceServer(g, v)
 	pdpb.RegisterGrantServiceServer(g, v)
 	go g.Serve(l)
