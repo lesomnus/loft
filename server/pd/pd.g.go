@@ -316,8 +316,10 @@ var EventKinds = map[string]protoreflect.MessageType{
 	"model.add":            (*loft.ItemModelSaved)(nil).ProtoReflect().Type(),
 	"model.update":         (*loft.ItemModelSaved)(nil).ProtoReflect().Type(),
 	"party.add":            (*loft.PartySaved)(nil).ProtoReflect().Type(),
+	"party.link":           (*loft.PartyLinked)(nil).ProtoReflect().Type(),
 	"party.pseudonymize":   (*loft.PartyPseudonymized)(nil).ProtoReflect().Type(),
 	"party.role":           (*loft.PartyRoleSet)(nil).ProtoReflect().Type(),
+	"party.unlink":         (*loft.PartyUnlinked)(nil).ProtoReflect().Type(),
 	"party.update":         (*loft.PartySaved)(nil).ProtoReflect().Type(),
 	"purchase.add":         (*loft.PurchaseAdded)(nil).ProtoReflect().Type(),
 	"purchase.receive":     (*loft.PurchaseReceived)(nil).ProtoReflect().Type(),
@@ -21174,6 +21176,16 @@ func (s interceptParty) SetRole(ctx context.Context, req *loft.PartySetRoleReque
 func (s interceptParty) Pseudonymize(ctx context.Context, req *loft.PartyPseudonymizeRequest) (*loft.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
 		loft.PartyService_Pseudonymize_FullMethodName, req, s.PartyServiceServer.Pseudonymize)
+}
+
+func (s interceptParty) LinkMember(ctx context.Context, req *loft.PartyLinkMemberRequest) (*loft.Party, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
+		loft.PartyService_LinkMember_FullMethodName, req, s.PartyServiceServer.LinkMember)
+}
+
+func (s interceptParty) UnlinkMember(ctx context.Context, req *loft.PartyUnlinkMemberRequest) (*loft.Party, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
+		loft.PartyService_UnlinkMember_FullMethodName, req, s.PartyServiceServer.UnlinkMember)
 }
 
 func (s interceptParty) Search(ctx context.Context, req *loft.PartySearchRequest) (*loft.PartySearchResponse, error) {

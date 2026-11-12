@@ -48,7 +48,6 @@ import (
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/clientaddr"
 	"github.com/lesomnus/loft/server/pd"
-	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Store is an [authsession.Store] over the Session table. The key is never
@@ -324,8 +323,8 @@ type People interface {
 }
 
 // Members is who somebody roster vouched for is here: their membership, made
-// the first time they sign in ([tenancy.Members.Of]) -- [tenancy.ErrEnded]
-// for one ended here, [tenancy.ErrNoWorkspace] before `loft init`.
+// the first time they sign in and taken up again by one ended here
+// ([tenancy.Members.Of]) -- [tenancy.ErrNoWorkspace] before `loft init`.
 type Members interface {
 	Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
 }
@@ -403,11 +402,7 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, membe
 		}
 
 		h, err := members.Of(ctx, p)
-		switch {
-		case errors.Is(err, tenancy.ErrEnded):
-			http.Error(w, "this login was ended here", http.StatusForbidden)
-			return
-		case err != nil:
+		if err != nil {
 			log.From(ctx).ErrorContext(ctx, "session: somebody roster vouched for is no member here", slog.Any("err", err))
 			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
 			return

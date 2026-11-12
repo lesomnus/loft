@@ -18,7 +18,7 @@
 
 import { createRegistry, type DescMessage } from '@bufbuild/protobuf'
 
-import { AccessReviewedSchema, AccountDepartedSchema, AssetAddedSchema, AssetAssignedSchema, AssetAttributesSetSchema, AssetCorrectedSchema, AssetMovedSchema, AssetRelatedSchema, AssetTypeSavedSchema, AssetVoidedSchema, AssetsAddedSchema, AttachmentAddedSchema, BookableSavedSchema, CountDelimitedSchema, CountReconciledSchema, CountResolvedSchema, CountScannedSchema, CustodyAcknowledgedSchema, CustodyExtendedSchema, CustodyIssuedSchema, CustodyOverdueSchema, CustodyReturnedSchema, EventRedactedSchema, ItemModelSavedSchema, LabelBoundSchema, LabelUnboundSchema, LabelsPrintedSchema, PartyPseudonymizedSchema, PartyRoleSetSchema, PartySavedSchema, PurchaseAddedSchema, PurchaseReceivedSchema, ReservationAddedSchema, ReservationAllocationChangedSchema, ReservationConfirmedSchema, ReservationDecidedSchema, ReservationReleasedSchema, RetentionExpiredSchema, StockAddedSchema, StockChangedSchema, StockConvertedSchema, StockTransferredSchema, WorkOrderFinishedSchema, WorkOrderSavedSchema, WorkspaceClosedSchema, WorkspaceConfiguredSchema, WorkspaceImportedSchema, WorkspaceRestoredSchema } from './loft/past_pb.js'
+import { AccessReviewedSchema, AccountDepartedSchema, AssetAddedSchema, AssetAssignedSchema, AssetAttributesSetSchema, AssetCorrectedSchema, AssetMovedSchema, AssetRelatedSchema, AssetTypeSavedSchema, AssetVoidedSchema, AssetsAddedSchema, AttachmentAddedSchema, BookableSavedSchema, CountDelimitedSchema, CountReconciledSchema, CountResolvedSchema, CountScannedSchema, CustodyAcknowledgedSchema, CustodyExtendedSchema, CustodyIssuedSchema, CustodyOverdueSchema, CustodyReturnedSchema, EventRedactedSchema, ItemModelSavedSchema, LabelBoundSchema, LabelUnboundSchema, LabelsPrintedSchema, PartyLinkedSchema, PartyPseudonymizedSchema, PartyRoleSetSchema, PartySavedSchema, PartyUnlinkedSchema, PurchaseAddedSchema, PurchaseReceivedSchema, ReservationAddedSchema, ReservationAllocationChangedSchema, ReservationConfirmedSchema, ReservationDecidedSchema, ReservationReleasedSchema, RetentionExpiredSchema, StockAddedSchema, StockChangedSchema, StockConvertedSchema, StockTransferredSchema, WorkOrderFinishedSchema, WorkOrderSavedSchema, WorkspaceClosedSchema, WorkspaceConfiguredSchema, WorkspaceImportedSchema, WorkspaceRestoredSchema } from './loft/past_pb.js'
 
 /** The message each kind of event holds, by kind: several kinds may hold one. */
 export const kinds = {
@@ -52,8 +52,10 @@ export const kinds = {
 	"model.add": ItemModelSavedSchema,
 	"model.update": ItemModelSavedSchema,
 	"party.add": PartySavedSchema,
+	"party.link": PartyLinkedSchema,
 	"party.pseudonymize": PartyPseudonymizedSchema,
 	"party.role": PartyRoleSetSchema,
+	"party.unlink": PartyUnlinkedSchema,
 	"party.update": PartySavedSchema,
 	"purchase.add": PurchaseAddedSchema,
 	"purchase.receive": PurchaseReceivedSchema,
@@ -90,5 +92,5 @@ export const kinds = {
 } as const satisfies Readonly<Record<string, DescMessage>>
 
 /** Every event message, once, for a transport's `jsonOptions` and for `anyUnpack`. */
-export const events = createRegistry(AccessReviewedSchema, AccountDepartedSchema, AssetAddedSchema, AssetAssignedSchema, AssetAttributesSetSchema, AssetCorrectedSchema, AssetMovedSchema, AssetRelatedSchema, AssetTypeSavedSchema, AssetVoidedSchema, AssetsAddedSchema, AttachmentAddedSchema, BookableSavedSchema, CountDelimitedSchema, CountReconciledSchema, CountResolvedSchema, CountScannedSchema, CustodyAcknowledgedSchema, CustodyExtendedSchema, CustodyIssuedSchema, CustodyOverdueSchema, CustodyReturnedSchema, EventRedactedSchema, ItemModelSavedSchema, LabelBoundSchema, LabelUnboundSchema, LabelsPrintedSchema, PartyPseudonymizedSchema, PartyRoleSetSchema, PartySavedSchema, PurchaseAddedSchema, PurchaseReceivedSchema, ReservationAddedSchema, ReservationAllocationChangedSchema, ReservationConfirmedSchema, ReservationDecidedSchema, ReservationReleasedSchema, RetentionExpiredSchema, StockAddedSchema, StockChangedSchema, StockConvertedSchema, StockTransferredSchema, WorkOrderFinishedSchema, WorkOrderSavedSchema, WorkspaceClosedSchema, WorkspaceConfiguredSchema, WorkspaceImportedSchema, WorkspaceRestoredSchema)
+export const events = createRegistry(AccessReviewedSchema, AccountDepartedSchema, AssetAddedSchema, AssetAssignedSchema, AssetAttributesSetSchema, AssetCorrectedSchema, AssetMovedSchema, AssetRelatedSchema, AssetTypeSavedSchema, AssetVoidedSchema, AssetsAddedSchema, AttachmentAddedSchema, BookableSavedSchema, CountDelimitedSchema, CountReconciledSchema, CountResolvedSchema, CountScannedSchema, CustodyAcknowledgedSchema, CustodyExtendedSchema, CustodyIssuedSchema, CustodyOverdueSchema, CustodyReturnedSchema, EventRedactedSchema, ItemModelSavedSchema, LabelBoundSchema, LabelUnboundSchema, LabelsPrintedSchema, PartyLinkedSchema, PartyPseudonymizedSchema, PartyRoleSetSchema, PartySavedSchema, PartyUnlinkedSchema, PurchaseAddedSchema, PurchaseReceivedSchema, ReservationAddedSchema, ReservationAllocationChangedSchema, ReservationConfirmedSchema, ReservationDecidedSchema, ReservationReleasedSchema, RetentionExpiredSchema, StockAddedSchema, StockChangedSchema, StockConvertedSchema, StockTransferredSchema, WorkOrderFinishedSchema, WorkOrderSavedSchema, WorkspaceClosedSchema, WorkspaceConfiguredSchema, WorkspaceImportedSchema, WorkspaceRestoredSchema)
 

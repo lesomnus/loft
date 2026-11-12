@@ -358,7 +358,9 @@ func (s operatorHolder) embedded() error {
 // holder of its tenant at the roster in this process -- made with a password
 // said once when they are new there -- and their membership and person record
 // here, written through the servers as the operator's, by the same
-// identifier (D85).
+// identifier (D85). A membership ended here is taken up again (D88) -- while
+// roster has them: one it has suspended is refused, which is roster's to
+// undo first.
 func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddRequest) (*app.OperatorHolderAddResponse, error) {
 	login := strings.TrimSpace(req.GetLogin())
 	if login == "" {
@@ -387,6 +389,8 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 		if req.GetPassword() != "" {
 			return nil, status.Errorf(codes.FailedPrecondition, "password: %s is at roster already, with a password of their own; `holder password` changes it", login)
 		}
+	case errors.Is(err, identity.ErrRefused):
+		return nil, status.Errorf(codes.FailedPrecondition, "login: roster has %s suspended, which is roster's to undo first", login)
 	case errors.Is(err, identity.ErrNoPerson):
 		p, err = s.a.S.Identity.AddPerson(ctx, login, cmp.Or(name, login), pdid.Nil)
 		if err != nil {
@@ -412,11 +416,10 @@ func (s operatorHolder) Add(ctx context.Context, req *app.OperatorHolderAddReque
 	}
 
 	if was, err := s.a.S.Ent.Holder.Get(ctx, p.Id.Uuid()); err == nil {
-		undo()
-		if was.DateErased != nil {
-			return nil, status.Errorf(codes.FailedPrecondition, "login: %s was a member here, whose membership was ended", login)
+		if was.DateErased == nil {
+			undo()
+			return nil, status.Errorf(codes.AlreadyExists, "login: %s is a member here already", login)
 		}
-		return nil, status.Errorf(codes.AlreadyExists, "login: %s is a member here already", login)
 	} else if !ent.IsNotFound(err) {
 		undo()
 		return nil, err

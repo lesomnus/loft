@@ -217,14 +217,17 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	x.Equal("/", res.Header.Get("Location"))
 	x.Equal(1, members())
 
-	// Until their membership is ended here, which the sign-in page is told.
+	// A membership ended here is theirs again the next time the issuer
+	// vouches for them (D88): who is a member is roster's.
 	_, err = w.s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: park.Id.Bytes()}.Build())
 	x.NoError(err)
 	b = w.browser()
 	res = w.through(b, "with=google")
-	x.Equal("/?signin=ended", res.Header.Get("Location"))
-	code, _ = w.who(b)
-	x.Equal(http.StatusUnauthorized, code)
+	x.Equal("/", res.Header.Get("Location"))
+	code, a = w.who(b)
+	x.Equal(http.StatusOK, code)
+	x.Equal(park.Id.String(), a["id"])
+	x.Equal(1, members())
 }
 
 func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {

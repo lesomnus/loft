@@ -417,8 +417,14 @@ func (n *namer) ofHolder(ctx context.Context, id uuid.UUID) called {
 	return n.look(ctx, &n.members, id, n.ofMember)
 }
 
+// member is a membership by its own name: the one it signs in with.
+func (n *namer) member(id uuid.UUID) string {
+	return n.show(n.look(n.t.ctx, &n.members, id, n.ofMember))
+}
+
 // ofMember is a membership by its own name, `@` and the one it signs in
-// with, as [namer.ofHolder] names one that is no person record's.
+// with: as [namer.member] names one, and [namer.ofHolder] one that is no
+// person record's.
 func (n *namer) ofMember(ctx context.Context, id uuid.UUID) called {
 	h, err := n.t.db.Holder.Query().Where(holder.Id(id), holder.TenantId(n.t.tenant.Uuid())).Only(ctx)
 	if err != nil {

@@ -190,6 +190,7 @@ option (payday.app) = {
 //    4  role           string                     -- what the membership may do from then on
 //    6  by             string                     -- who said it, where no person did: succession | operator
 //    7  held           uint32                     -- how many of the trail's rows a legal hold kept as they were
+//    8  was            bytes                      -- the person record a membership was before it was linked to another
 //
 // purchase.* holds, by number:
 //
@@ -770,6 +771,27 @@ message PartyRoleSet {
   bytes holder = 2;
   string role = 4;
   string by = 6;
+}
+
+// PartyLinked is a membership made by hand the person record it is
+// (`party.link`, D88): `party` the record, and `was` the one it was before,
+// when it was one's.
+message PartyLinked {
+  option (payday.event) = {kinds: "party.link"};
+
+  bytes party = 1;
+  bytes holder = 2;
+  bytes was = 8;
+}
+
+// PartyUnlinked is a membership taken off its person record by hand
+// (`party.unlink`, D88): it is no record's from then until one is linked to
+// it, and the record keeps its history.
+message PartyUnlinked {
+  option (payday.event) = {kinds: "party.unlink"};
+
+  bytes party = 1;
+  bytes holder = 2;
 }
 
 // PartyPseudonymized is a person forgotten in the workspace

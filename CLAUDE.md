@@ -287,9 +287,15 @@ stay Loft's (`Holder.role`). Who is a member is roster's (D87): they are
 added and taken away, and how they sign in is set, at roster's screens --
 the people screen links to its user console, `auth.roster.console_url` --
 and Loft keeps the person records, which membership each is, and the role.
-A membership ended here (pseudonymized) stays ended, whatever roster says:
-its sign-in is refused (`tenancy.ErrEnded`). Nothing is chosen -- there is
-no workspace in a request, no `/@alias`, and no account layer.
+A membership ended here -- the person forgotten, or gone from roster past
+its grace -- is theirs again when roster vouches for them again (D88): the
+same row taken up again (on the trail as `tenancy.Readmitted`), a member,
+with a person record found or made as for anybody new and none of the
+sessions it had; `loft holder add` does the same while roster has them. An
+administrator links a person record to a membership by hand
+(`PartyService.LinkMember`, `UnlinkMember`), and a membership taken off its
+record is no record's until one is linked to it. Nothing is chosen -- there
+is no workspace in a request, no `/@alias`, and no account layer.
 
 **The address is roster's (D86).** The workspace's alias is the tenant's at
 roster: `init` writes it, a restore takes it (`offboard.Deployment.Serves`),
