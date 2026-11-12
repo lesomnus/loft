@@ -40,6 +40,11 @@ session names the member. An epoch-3 store keys memberships by identifiers
 of their own and sessions by accounts, and its people would sign in as
 somebody new.
 
+Epoch 5 is D86 (#331): a member is the holder at roster by identifier alone,
+and the workspace's address is the tenant's at roster. An epoch-4 store keeps
+`session.account`, NOT NULL, `holder.account` and the `aliashold` table, and
+its exports hold `Holder.account`.
+
 From launch the rules below that keep an earlier build's data readable
 apply, and the epoch does not move without the owner's word.
 
@@ -269,12 +274,21 @@ tenant of its key, which is that tenant's own (`rt_`, roster's `docs/apps.md`
 shape C), and a tenant named is held to it -- and that tenant **is** the
 workspace: `loft init` puts the Loft tenant up by its identifier and alias. A
 member is a holder of that tenant at roster, and their `Holder` here has the
-same identifier, made the first time they sign in (`tenancy.Members`): a
-member, with the person record this workspace keeps at an address roster holds
-as checked for them, or a new one. Roles stay Loft's (`Holder.role`). A
-membership ended here (deactivated, pseudonymized) stays ended, whatever
-roster says: its sign-in is refused (`tenancy.ErrEnded`). Nothing is chosen --
-there is no workspace in a request, no `/@alias`, and no account layer.
+same identifier and nothing else that says so (D86): made the first time they
+sign in (`tenancy.Members`), a member, with the person record this workspace
+keeps at an address roster holds as checked for them, or a new one. Roles
+stay Loft's (`Holder.role`). A membership ended here (deactivated,
+pseudonymized) stays ended, whatever roster says: its sign-in is refused
+(`tenancy.ErrEnded`). Nothing is chosen -- there is no workspace in a
+request, no `/@alias`, and no account layer.
+
+**The address is roster's (D86).** The workspace's alias is the tenant's at
+roster: `init` writes it, a restore takes it (`offboard.Deployment.Serves`),
+and `serve` takes it again as it starts (`Server.Follow`, `tenancy.Follow`),
+so a tenant renamed at roster is the workspace's address from the next start
+-- and signs people in meanwhile, since nothing asks roster by it. Nobody
+here moves it: the domain layer refuses an alias in `TenantService.Patch`,
+and an operator has no command for it.
 
 A browser signs in at `POST /session` (`server/session`): the password goes to
 roster's `VouchService.Verify`, and the session -- a `global` row, written
@@ -294,12 +308,12 @@ suspended or erased ends them all, and erased marks the membership
 stream too since roster#215 -- a restore is an event about somebody that is
 no erasure, and clears the mark -- but the stream does not replay what was
 said while Loft was not listening, so whatever acts on a mark asks roster
-first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, a member
+first. That is `Lifecycle.Sweep`: past `app.members.forget_after`, a member
 roster still has nobody by leaves (`domain.Deps.Depart`: pseudonymized as
 개인정보 삭제 is, and the workspace handed on when they were its last owner),
 and one roster has again stops leaving. `loft identity depart` does it now
 for one member, and `Lifecycle.Reconcile` finds what the stream missed -- it
-replays nothing -- every `app.accounts.reconcile` by itself, and now with
+replays nothing -- every `app.members.reconcile` by itself, and now with
 `loft identity reconcile`. The role Loft is installed with carries every
 method in `identity.AgentMethods`; installing again leaves an existing role as
 it is, and a role is changed with `roster role patch`, the whole list
@@ -328,7 +342,9 @@ people and set passwords there; on an external one they are refused, and are
 done at roster. Ending a membership (deactivate, pseudonymize) never touches
 the holder at roster, and destroying the workspace does not either: its
 people are the tenant's. A member a restore put back whom this deployment's
-roster does not have is given a holder there by `loft identity link`.
+roster does not have is made there by `loft identity link` (by the
+identifier they have here), unless roster erased somebody by it, which link
+says and makes nobody.
 `auth.Plain` is not wired; tests mint a session with `Server.Sessions.Mint`,
 naming the member, and send its cookie, and set `c.Auth.Roster.Db` to a
 `pdtest.DB` of its own -- the default is a file -- and `c.Auth.Roster.Tenant`
@@ -349,8 +365,8 @@ table gives no role `TenantService.Close`, `Restore` or `Export`, which the
 entry point alone serves. Once
 its restore window is over -- its own `restore_days` (D36), or
 `app.workspaces.restore_within` -- and nothing holds it, `server/closing`
-destroys it and holds its address (`AliasHold`, whose reason says how it
-went); its people stay at roster, the tenant's (D85). Destroying retires
+destroys it; its people and its address stay at roster, the tenant's (D85,
+D86). Destroying retires
 it unless the contract in force then says
 `purge_floors` (payday#115): what the deployment's floors (`audit.min`,
 `audit.by.<kind>.min`) are on stays in the trail until each has passed, and
@@ -360,11 +376,10 @@ that bills measures the workspace before either takes anything, as well as
 that can be done (Billing, below). With floors and no
 archive a retirement is refused before anything is taken
 (`offboard.ErrNoArchive`), and the sweep leaves the workspace closed. A
-retired workspace imported back under its identifiers is first taken back
-from the trail (`Policy.Return`, in `loft tenant import`), or the trail would
-take what it writes. Addresses are made up (`tenancy.Aliases`) and nobody but
-an operator moves one (`loft tenant move`); the domain layer refuses an alias
-in `TenantService.Patch`. A deployment that bills tells levyan each step --
+retired workspace imported back under its identifiers -- one the trail keeps
+the record of (`Policy.Retired`) -- is first taken back from the trail
+(`Policy.Return`, in `loft tenant import`), or the trail would take what it
+writes. A deployment that bills tells levyan each step --
 closed, restored, destroyed (Billing, below) -- so a new way to close or
 destroy a workspace goes through `Tx.closeWorkspace`, `restoreWorkspace` or
 `closing.Destroy`, or levyan bills it as if it were open.
@@ -625,15 +640,15 @@ told is kept, marked `date_told`. `close` and `restore` are written by
 (`domain.Deps.Closings`) whoever closes it -- an operator, the deployment
 when nobody is left -- of the moment it happened; and `destroy`, written by
 `closing.Destroy` once its final reading is handed over, whatever became of
-that, and before anything is taken: at a moment after the reading, which its
-`AliasHold` is held from, once of a workspace. A dry run writes nothing.
+that, and before anything is taken: at a moment after the reading, once of a
+workspace. A dry run writes nothing.
 levyan refusing one is marked told with what it said, logged, and not told
 again: a workspace it heard nothing of (NotFound) is one nobody told it
 arrived, which it bills nobody for, and anything else a fault of Loft's. The
 loop's first pass in a process also writes, once, the `workspace.close` and
 `workspace.restore` events still kept (the mark `past`), and as every pass
-starts, every workspace closed now and every one destroyed -- not one here
-again, which is levyan's open question.
+starts, every workspace closed now. A workspace destroyed while nothing was
+told levyan is told nothing after: nothing of it is left to say so (D86).
 
 ## What may be called
 
@@ -721,7 +736,7 @@ condition, a restore -- put it on the trail as the act it is, in the same
 transaction: `pd.Record` with `Deps.Audit`, as the mailer and `tenant import`
 do. A kind no server writes says in its schema how its writes reach the trail
 (`payday.entity`'s `trail`): `recorded`, and each write is recorded -- a
-terminal's sign-in, an alias hold -- or `off: {why: ...}`, and it is not
+terminal's sign-in -- or `off: {why: ...}`, and it is not
 checked -- a session, the tree lock. `pd gen` refuses one that says neither.
 Whether a kind has RPCs is a separate question, about its API. An UPDATE that
 changes nothing, to take a row's lock, is fine.

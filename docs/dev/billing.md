@@ -96,7 +96,7 @@ levyan-admin meter add --unit d --kind stock --aggregation last --unbounded-zero
 - 워크스페이스마다 일어난 순서대로입니다. levyan이 멈춰도 Loft의 쓰기는 기다리지도 실패하지도 않고, 알림이 기다렸다가 levyan이 돌아오면 나갑니다. 기다리는 알림이 있는데 levyan이 답하지 않으면 경고 로그(`levyan: what it is to be told of the workspaces waits`)가 남습니다.
 - levyan이 그 워크스페이스를 들은 적 없다고 답하면(`NotFound`) 아무도 그 워크스페이스가 생겼다고 알리지 않은 것이라 levyan은 누구에게도 청구하지 않습니다. 보낸 것으로 표시하고 다시 보내지 않습니다(로그 `levyan: what became of a workspace it heard nothing of is not told again`).
 - 그 밖에 levyan이 거부한 것은 Loft의 잘못이라 경고 로그(`levyan: what became of a workspace was refused, which is a fault of Loft's`)에 남기고 다시 보내지 않습니다.
-- 루프가 처음 돌 때 그 전의 일을 한 번 알립니다. 남아 있는 닫기·되돌리기 이벤트를 오래된 것부터, 기록이 없는 곳은 지금 닫혀 있는 워크스페이스를, 그리고 파기된 워크스페이스를 주소 보류의 시각으로 알립니다. 로그 `levyan: what became of the workspaces before it was told of it is to be told it` 가 몇 건인지 말합니다.
+- 루프가 처음 돌 때 그 전의 일을 한 번 알립니다. 남아 있는 닫기·되돌리기 이벤트를 오래된 것부터, 기록이 없는 곳은 지금 닫혀 있는 워크스페이스를 알립니다. 로그 `levyan: what became of the workspaces before it was told of it is to be told it` 가 몇 건인지 말합니다. levyan에 알리지 않던 동안 파기한 워크스페이스는 알리지 않습니다. 그것이 있었다는 것이 이 배포에 남지 않기 때문입니다(D86).
 
 ## 파기 전의 마지막 측정
 

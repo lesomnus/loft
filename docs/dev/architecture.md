@@ -8,7 +8,7 @@ proto/ext/loft/*.ext.proto  엔터티에 더한 RPC
 server/domain/              도메인 계층: 시간 기록, 예약 충돌, 지급, 재고, 실사 … 그리고 백그라운드 작업
 server/policy/              역할 → 호출할 수 있는 RPC
 server/session/             로그인(roster에 묻는다)과 DB에 두는 세션, GET /session
-server/tenancy/             워크스페이스가 처음 갖는 것과, 처음 로그인한 사람이 구성원이 되는 일
+server/tenancy/             워크스페이스가 처음 갖는 것, 처음 로그인한 사람이 구성원이 되는 일, 주소가 roster의 것을 따르는 일
 internal/identity/          roster: 따로 운영하는 것(gRPC) 또는 프로세스 안의 것(bufconn)
 server/storage/             첨부 파일과 서명된 다운로드 주소
 cmd/, cli/                  서버 조립, init, serve

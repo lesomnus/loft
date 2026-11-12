@@ -66,9 +66,11 @@ spin:
 #
 # `tenant` is the roster tenant this deployment serves (D85), which is its
 # workspace: `loft init` puts it up by the same identifier, and a holder of it
-# is a member from the first time they sign in. Empty is the key's own tenant
-# on a roster of its own -- named, it is held to the key's -- and `loft` on
-# the roster in this process.
+# is a member from the first time they sign in. Its alias is the workspace's
+# address, taken again as the server starts (D86). Empty is the key's own
+# tenant on a roster of its own -- named, it is held to the key's, so a
+# tenant renamed there is renamed here too -- and `loft` on the roster in
+# this process.
 #
 # `account_url` is roster's account page, at the tenant's front door: the
 # page "내 정보" sends somebody to for how they sign in, and to its `#leave`
@@ -130,11 +132,8 @@ spin:
 #     pending: 50                        # waiting at once, per workspace
 #     daily: 100                         # sent in a day, per workspace
 #   workspaces:
-#     alias_length: 7                    # an address a restore makes up; grows by itself when crowded
-#     reserved: [acme-corp]              # beside the app's own (`tenancy.Reserved`)
 #     restore_within: 720h               # a closed workspace may be restored for 30 days, or as its contract says
-#     alias_hold: 8760h                  # then its address is nobody's for a year
-#   accounts:
+#   members:
 #     forget_after: 720h                 # 30 days, roster's default
 #     every: 1h                          # how often the leaving are looked at
 #     reconcile: 24h                     # every member asked about again; 0 is off
