@@ -23,7 +23,6 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/payday/trail"
-	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -83,7 +82,7 @@ func (e *env) tenant(alias string) tenant {
 	t, err := e.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: alias}.Build())
 	x.NoError(err)
 	tref := app.TenantRef_builder{Id: t.GetId()}.Build()
-	h, err := e.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{Tenant: tref, Alias: "owner", Name: "Owner", Role: z.Ptr("owner")}.Build())
+	h, err := e.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{Tenant: tref, Alias: "owner", Name: "Owner"}.Build())
 	x.NoError(err)
 	p, err := e.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{Tenant: tref, Name: "Owner of " + alias, Kind: "person", Holder: app.HolderRef_builder{Id: h.GetId()}.Build()}.Build())
 	x.NoError(err)

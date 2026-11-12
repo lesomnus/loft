@@ -28,7 +28,6 @@ func (e *Holder) Proto() *loft.Holder {
 		x.SetDateErased(timestamppb.New(*e.DateErased))
 	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	x.SetRole(e.Role)
 	if e.DateLeaving != nil {
 		x.SetDateLeaving(timestamppb.New(*e.DateLeaving))
 	}

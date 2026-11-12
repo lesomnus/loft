@@ -15,14 +15,13 @@ export function Stocks(): ReactNode {
 	const list = useRpc(StockService.method.list, { size: 500 })
 	const [adding, setAdding] = useState(false)
 	const [open, setOpen] = useState<{ s: Stock; mode: Mode }>()
-	const mgr = c.can('manager')
 
 	return (
 		<>
 			<PageHead
 				title="재고"
 				sub="하나하나 추적하지 않는 소모품과 비품을 수량으로 관리합니다. 기준 이하로 떨어지면 관리자에게 알립니다."
-				actions={mgr && <button className="primary" onClick={() => setAdding(true)}>+ 재고 품목</button>}
+				actions={c.may(StockService.method.add) && <button className="primary" onClick={() => setAdding(true)}>+ 재고 품목</button>}
 			/>
 			<Load q={list}>
 				{(d) =>
@@ -58,21 +57,25 @@ export function Stocks(): ReactNode {
 													<button className="small" onClick={() => setOpen({ s, mode: 'consume' })}>
 														사용
 													</button>
-													{mgr && (
-														<>
-															<button className="small" onClick={() => setOpen({ s, mode: 'receive' })}>
-																입고
-															</button>
-															<button className="small" onClick={() => setOpen({ s, mode: 'adjust' })}>
-																조정
-															</button>
-															<button className="small" onClick={() => setOpen({ s, mode: 'transfer' })}>
-																이동
-															</button>
-															<button className="small" onClick={() => setOpen({ s, mode: 'convert' })}>
-																자산으로
-															</button>
-														</>
+													{c.may(StockService.method.receive) && (
+														<button className="small" onClick={() => setOpen({ s, mode: 'receive' })}>
+															입고
+														</button>
+													)}
+													{c.may(StockService.method.adjust) && (
+														<button className="small" onClick={() => setOpen({ s, mode: 'adjust' })}>
+															조정
+														</button>
+													)}
+													{c.may(StockService.method.transfer) && (
+														<button className="small" onClick={() => setOpen({ s, mode: 'transfer' })}>
+															이동
+														</button>
+													)}
+													{c.may(StockService.method.convert) && (
+														<button className="small" onClick={() => setOpen({ s, mode: 'convert' })}>
+															자산으로
+														</button>
 													)}
 													<button className="small link" onClick={() => setOpen({ s, mode: 'history' })}>
 														내역

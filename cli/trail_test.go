@@ -223,9 +223,9 @@ func TestTheLiveRowsAreCheckedAgainstTheTrail(t *testing.T) {
 	_, err := d.loft(t, "trail", "rows")
 	x.NoError(err)
 
-	owner, err := d.s.Ent.Holder.Query().Where(holder.Role("owner")).Only(ctx)
+	owner, err := d.s.Ent.Holder.Query().Where(holder.Alias("owner")).Only(ctx)
 	x.NoError(err)
-	x.NoError(d.s.Ent.Holder.UpdateOneId(owner.Id).SetRole("member").Exec(ctx))
+	x.NoError(d.s.Ent.Holder.UpdateOneId(owner.Id).SetName("written past the servers").Exec(ctx))
 
 	out, err := d.loft(t, "trail", "rows")
 	x.ErrorContains(err, "1 findings")
@@ -314,7 +314,7 @@ func TestRowsFromBeforeSealsAreSealedByAnAcceptance(t *testing.T) {
 
 	cs, err := d.c.Audit.Contents()
 	x.NoError(err)
-	owner, err := d.s.Ent.Holder.Query().Where(holder.Role("owner")).Only(ctx)
+	owner, err := d.s.Ent.Holder.Query().Where(holder.Alias("owner")).Only(ctx)
 	x.NoError(err)
 	sealed := func() bool {
 		ok, err := d.s.Ent.RowSeal.Query().Where(rowseal.IdEQ(owner.Id)).Exist(ctx)

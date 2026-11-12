@@ -8,6 +8,7 @@
  * @module
  */
 
+import type { DescMethod } from '@bufbuild/protobuf'
 import { createContext, useContext, useMemo, type ReactNode } from 'react'
 
 import type { Asset } from '../gen/loft/asset_pb.js'
@@ -19,14 +20,21 @@ import { AssetService, AssetTypeService, BookableService, ItemModelService, Part
 import { useRpc } from './rpc.js'
 import { Spinner } from './ui.js'
 
-/** The levels the server's role table uses; see `server/policy`. */
-const levels: Record<string, number> = { auditor: 1, member: 2, manager: 3, admin: 4, owner: 5 }
+/** A method as gRPC names it: `/loft.AssetService/Add`. */
+export function methodName(m: DescMethod): string {
+	return `/${m.parent.typeName}/${m.name}`
+}
 
 export interface Catalog {
 	me: PartyMeResponse
-	role: string
-	/** Whether the signed-in person is at least `role`. */
-	can: (role: 'member' | 'manager' | 'admin' | 'owner') => boolean
+	/**
+	 * Whether the signed-in person may call `method` -- an RPC, or a permission
+	 * of `PermissionService`'s -- as roster says it (D89): what the server
+	 * told the page of them (`PartyService.Me`'s `methods`). Which role they
+	 * hold is roster's, and no name the page knows: a menu or a button is
+	 * drawn for what it calls.
+	 */
+	may: (method: DescMethod) => boolean
 
 	types: AssetType[]
 	models: ItemModel[]
@@ -113,7 +121,7 @@ export function CatalogProvider(props: { children: ReactNode }): ReactNode {
 		const called = calledApart(parties.data?.items ?? [], p)
 		const s = byId(spaces.data?.items ?? [])
 		const b = new Map((bookables.data?.items ?? []).map((v) => [idStr(v.asset?.id), v]))
-		const role = me.data.role
+		const methods = new Set(me.data.methods)
 		const path = (id: Uint8Array | undefined): string => {
 			const names: string[] = []
 			let at = s.get(idStr(id))
@@ -125,8 +133,7 @@ export function CatalogProvider(props: { children: ReactNode }): ReactNode {
 		}
 		return {
 			me: me.data,
-			role,
-			can: (r) => (levels[role] ?? 0) >= (levels[r] ?? 9),
+			may: (m) => methods.has(methodName(m)),
 			types: types.data?.items ?? [],
 			models: models.data?.items ?? [],
 			parties: parties.data?.items ?? [],

@@ -342,12 +342,12 @@ func (c *Connection) person() *connectConn {
 
 // operatorOnly is whether `method` is the operator's alone: what the entry
 // point serves ([operator.Table]) and no role of a workspace is given
-// ([policy.Given]) -- the operator's own services, and an entity's methods
+// ([policy.Grantable]) -- the operator's own services, and an entity's methods
 // only an operator calls, as a workspace's contracts and legal holds are
 // written. A command that calls nothing else says it is the operator's.
 func operatorOnly(method string) bool {
 	_, served := operator.Table[method]
-	return served && !policy.Given(method)
+	return served && !policy.Grantable(method)
 }
 
 // refusal is what a refusal of `method` says on a connection of `kind` when

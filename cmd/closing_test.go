@@ -318,7 +318,7 @@ func TestTheAddressIsTheTenantsAtRoster(t *testing.T) {
 	// layer refuses it besides, for whatever opens it one day.
 	_, err := tenants.Patch(w.owner, app.TenantPatchRequest_builder{Ref: ref, Alias: z.Ptr("mine"), DateUpdatedForce: z.Ptr(true)}.Build())
 	x.Error(err)
-	owner, err := w.s.Ent.Holder.Query().Where(holder.Role("owner")).First(ctx)
+	owner, err := w.s.Ent.Holder.Query().Where(holder.Alias("owner")).First(ctx)
 	x.NoError(err)
 	tid, _ := pdid.From(w.tenant.GetId())
 	as := frame.Into(ctx, frame.New(pdid.Id(owner.Id), tid, frame.Whole()).WithScope(frame.Only(tid)))

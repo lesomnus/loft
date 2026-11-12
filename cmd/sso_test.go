@@ -125,6 +125,7 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 
 	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
 	x.NoError(err)
+	w.bind(park.Id, "member")
 	w.is.Subject = park.Id.String()
 	b := w.browser()
 
@@ -236,6 +237,7 @@ func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {
 
 	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
 	w.x.NoError(err)
+	w.bind(park.Id, "member")
 	w.is.Subject = park.Id.String()
 
 	// signedIn is whether a browser ended the round trip with a session --
@@ -351,6 +353,7 @@ func TestAPasswordIsNoWayInWhereTheIssuerIsTheOnlyOne(t *testing.T) {
 
 	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
 	x.NoError(err)
+	w.bind(park.Id, "member")
 	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
 
 	res, err := w.browser().Post(w.app.URL+"/session", "application/json", bytes.NewBufferString(`{"login":"park","password":"correct horse"}`))
@@ -391,6 +394,7 @@ func TestASessionAPasswordMadeEndsHereAlone(t *testing.T) {
 
 	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
 	x.NoError(err)
+	w.bind(park.Id, "member")
 	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
 
 	b := w.browser()

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/loft/asset_pb.js'
 import type { Custody, CustodyLine } from '../../gen/loft/custody_pb.js'
-import { AssetService, BookableService, CustodyLineService, CustodyService, StockService, dateOf, fmt, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, ts } from '../api.js'
+import { AssetService, BookableService, CustodyLineService, CustodyService, PermissionService, StockService, dateOf, fmt, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect, SpaceSelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -29,7 +29,7 @@ export function Custodies(): ReactNode {
 			<PageHead
 				title="지급·대여"
 				sub="자산을 사람에게 건네고 돌려받는 기록입니다. 지급은 기한 없이, 대여는 반납 기한이 있습니다."
-				actions={c.can('manager') && <button className="primary" onClick={() => setAdding(true)}>+ 지급·대여</button>}
+				actions={c.may(CustodyService.method.add) && <button className="primary" onClick={() => setAdding(true)}>+ 지급·대여</button>}
 			/>
 			<div className="filters">
 				<Select
@@ -118,18 +118,16 @@ function CustodyView(props: { c: Custody }): ReactNode {
 				sub={<Badge v={late ? 'missing' : x.status} words={late ? { missing: '연체' } : custodyWord} />}
 				actions={
 					<>
-						{x.status === 'open' && x.dateAcknowledged === undefined && (mine || c.can('manager')) && (
+						{x.status === 'open' && x.dateAcknowledged === undefined && (mine || c.may(PermissionService.method.acknowledgeForOthers)) && (
 							<button className="primary" onClick={() => void act(CustodyService.method.acknowledge, { ref: ref(x.id) }, { ok: '인수를 확인했습니다.' })}>
 								인수 확인
 							</button>
 						)}
-						{x.status === 'open' && c.can('manager') && (
-							<>
-								<button onClick={() => setDialog('extend')}>기한 연장</button>
-								<button className="primary" onClick={() => setDialog('return')}>
-									반납 받기
-								</button>
-							</>
+						{x.status === 'open' && c.may(CustodyService.method.extend) && <button onClick={() => setDialog('extend')}>기한 연장</button>}
+						{x.status === 'open' && c.may(CustodyService.method.return) && (
+							<button className="primary" onClick={() => setDialog('return')}>
+								반납 받기
+							</button>
 						)}
 					</>
 				}

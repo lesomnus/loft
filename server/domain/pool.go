@@ -610,7 +610,7 @@ func (t *Tx) tellShort(ws []poolWait) error {
 	for _, k := range order {
 		vs := byPool[k]
 		pr := vs[0].pool
-		if err := t.notifyManagers("reservation.conflict", "풀 수량 부족: "+tagged(pr.asset),
+		if err := t.notifyWhoMay(app.PermissionService_ActOnOthersBookings_FullMethodName, "reservation.conflict", "풀 수량 부족: "+tagged(pr.asset),
 			fmt.Sprintf("%s은(는) 그 시간에 쓸 수 있는 것이 모자라 예약 %d건이 기다립니다. 다시 생기면 먼저 기다린 예약부터 잡습니다.", tagged(pr.asset), len(vs)),
 			pdid.Id(k), "/reservations?tab=all"); err != nil {
 			return err

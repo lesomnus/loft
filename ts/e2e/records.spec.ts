@@ -64,7 +64,7 @@ test("a member and a manager are not shown the workspace's records, and read an 
 	await page.goto(`/settings?tab=events`)
 	await expect(card(page, '자산 유형')).toBeVisible()
 	await expect(card(page, '최근 작업 기록')).toHaveCount(0)
-	expect(await refusal(page, 'EventService/Recent', {})).toContain('구성원 역할로는 할 수 없는 작업입니다')
+	expect(await refusal(page, 'EventService/Recent', {})).toContain('roster에서 받은 역할로는 할 수 없는 작업입니다')
 
 	// Their own laptop, which the demo put at their desk.
 	await page.goto(`/assets`)
@@ -76,5 +76,5 @@ test("a member and a manager are not shown the workspace's records, and read an 
 	await manager.goto(`/settings`)
 	await expect(manager.getByRole('tab', { name: '유형' })).toBeVisible()
 	await expect(manager.getByRole('tab', { name: '작업 기록', exact: true })).toHaveCount(0)
-	expect(await refusal(manager, 'EventService/List', {})).toContain('매니저 역할로는 할 수 없는 작업입니다')
+	expect(await refusal(manager, 'EventService/List', {})).toContain('roster에서 받은 역할로는 할 수 없는 작업입니다')
 })

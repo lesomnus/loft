@@ -833,7 +833,6 @@ var (
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
-		{Name: "role", Type: field.TypeString, Nullable: true, Default: "member"},
 		{Name: "date_leaving", Type: field.TypeTime, Nullable: true},
 		{Name: "mail_off", Type: field.TypeBool},
 		{Name: "tenant_id", Type: field.TypeUuid},
@@ -846,7 +845,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "holder_tenant_tenant",
-				Columns:    []*schema.Column{HolderColumns[11]},
+				Columns:    []*schema.Column{HolderColumns[10]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -855,7 +854,7 @@ var (
 			{
 				Name:    "holder_slug",
 				Unique:  true,
-				Columns: []*schema.Column{HolderColumns[1], HolderColumns[11]},
+				Columns: []*schema.Column{HolderColumns[1], HolderColumns[10]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "date_erased IS NULL",
 				},
@@ -863,7 +862,7 @@ var (
 			{
 				Name:    "holder_page",
 				Unique:  false,
-				Columns: []*schema.Column{HolderColumns[11], HolderColumns[7], HolderColumns[0]},
+				Columns: []*schema.Column{HolderColumns[10], HolderColumns[7], HolderColumns[0]},
 			},
 		},
 	}

@@ -20,13 +20,13 @@ import (
 	"github.com/lesomnus/loft/server/session"
 )
 
-// TestAWorkspaceWithNoNameIsCalledAfterItsOwner is D57: a workspace put up
-// with no name -- neither `loft init --name` nor the tenant's at roster --
-// keeps none of its own, since its person's name would be in a field the
-// trail keeps as a value, where nothing that forgets them reaches it. It is
-// called after its owner wherever it is read, as they are called now, on the
-// access record of whoever it is shown to.
-func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
+// TestAWorkspaceWithNoNameIsCalledByItsAddress is D57 as D89 leaves it: a
+// workspace put up with no name -- neither `loft init --name` nor the tenant's
+// at roster -- keeps none of its own, and is called by its address wherever it
+// is read, which is the tenant's at roster and nobody's. It was called after
+// its owner while Loft knew who that was; who holds the owner's role is
+// roster's now, and saying the workspace shows nobody.
+func TestAWorkspaceWithNoNameIsCalledByItsAddress(t *testing.T) {
 	web := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<html></html>"), 0o644))
 	w := newWorldWith(t, func(c *cmd.Config) {
@@ -37,7 +37,7 @@ func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
 	ctx := context.Background()
 	parties := app.NewPartyServiceClient(w.conn)
 
-	// The owner's person record, which is what they are called.
+	// The owner's person record, whose name is nowhere it is called.
 	owner, err := w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
 		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
 		Name:   "박지민", Kind: "person",
@@ -48,7 +48,7 @@ func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
 	me, err := parties.Me(w.owner, &app.PartyMeRequest{})
 	x.NoError(err)
 	x.Empty(me.GetTenant().GetName(), "the workspace holds nobody's name")
-	x.Equal("박지민의 워크스페이스", me.GetWorkspaceName(), "and is called after its owner")
+	x.Equal(w.tenant.GetAlias(), me.GetWorkspaceName(), "and is called by its address")
 	ws, err := pdid.From(me.GetTenant().GetId())
 	x.NoError(err)
 
@@ -60,35 +60,21 @@ func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
 		x.False(bytes.Contains(v.Value, []byte("박지민")), "the trail keeps the owner's name at %s", v.Action)
 	}
 
-	// The name they go by now: renamed, the workspace is called after the
-	// new one.
-	_, err = parties.Update(w.owner, app.PartyUpdateRequest_builder{
-		Ref:  app.PartyRef_builder{Id: owner.GetId()}.Build(),
-		Name: "박서준",
-	}.Build())
-	x.NoError(err)
-	me, err = parties.Me(w.owner, &app.PartyMeRequest{})
-	x.NoError(err)
-	x.Equal("박서준의 워크스페이스", me.GetWorkspaceName())
-
-	// A member is told it, and the call says whose name it showed.
+	// A member is told it, and the call shows them nobody's name.
 	kh := w.holder("kim", "member")
 	kid, err := pdid.From(kh.GetId())
 	x.NoError(err)
 	seen, err := parties.Me(w.signIn(kh), &app.PartyMeRequest{})
 	x.NoError(err)
-	x.Equal("박서준의 워크스페이스", seen.GetWorkspaceName())
-	found := false
+	x.Equal(w.tenant.GetAlias(), seen.GetWorkspaceName())
 	for _, v := range w.accessed(t, app.PartyService_Me_FullMethodName) {
 		if v.ActorId == kid.Uuid() {
-			x.Contains(v.Subjects, owner.GetId(), "Me showed the member the owner's name")
-			found = true
+			x.NotContains(v.Subjects, owner.GetId(), "Me showed the member the owner's name")
 		}
 	}
-	x.True(found, "the member's Me is not on the record")
 
 	// What `GET /session` says of it -- for the page of a closed one, which
-	// no call is there to say otherwise -- is its address, and shows nobody.
+	// no call is there to say otherwise -- is its address too.
 	rec := w.page(w.signIn(kh), http.MethodGet, "/session")
 	x.Equal(http.StatusOK, rec.Code, rec.Body.String())
 	var said session.Answer
@@ -98,10 +84,10 @@ func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
 
 // TestAWorkspaceIsRenamedByItsOwnerAlone is D58 over the wire: the owner of a
 // workspace names it, and it is called so wherever it is read -- showing
-// nobody -- and takes the name back, and it is called after its owner again
-// (D57). An administrator of it may not: what it is called is its owner's to
-// say, as all of TenantService's writes are. And the general write stays
-// closed.
+// nobody -- and takes the name back, and it is called by its address again
+// (D57, D89). An administrator of it may not: what it is called is said with
+// `TenantService.Configure`, which the owner's role Loft ships holds and the
+// administrator's does not. And the general write stays closed.
 func TestAWorkspaceIsRenamedByItsOwnerAlone(t *testing.T) {
 	web := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<html></html>"), 0o644))
@@ -161,7 +147,7 @@ func TestAWorkspaceIsRenamedByItsOwnerAlone(t *testing.T) {
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("")}.Build())
 	x.NoError(err)
 	inside, said := called(asKim)
-	x.Equal("박지민의 워크스페이스", inside)
-	x.Equal(w.tenant.GetAlias(), said, "its address, where no call is there to say more")
-	x.True(showedOwner(), "called after its owner again, which shows them")
+	x.Equal(w.tenant.GetAlias(), inside, "its address again")
+	x.Equal(w.tenant.GetAlias(), said)
+	x.False(showedOwner(), "which shows nobody")
 }

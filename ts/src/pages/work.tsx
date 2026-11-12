@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/loft/asset_pb.js'
 import type { WorkOrder } from '../../gen/loft/work_pb.js'
-import { AssetService, WorkOrderService, amountIn, amountStep, amountText, dateOf, fmt, fromInput, idBytes, idStr, localInput, money, place, ref, ts, unitOf } from '../api.js'
+import { AssetService, PermissionService, WorkOrderService, amountIn, amountStep, amountText, dateOf, fmt, fromInput, idBytes, idStr, localInput, money, place, ref, ts, unitOf } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -27,7 +27,7 @@ export function Work(): ReactNode {
 			<PageHead
 				title="작업"
 				sub="수리, 점검, 정비. 막아 두기를 켠 작업은 그 시간 동안 예약을 받지 않습니다."
-				actions={<button className="primary" onClick={() => setAdding(true)}>{c.can('manager') ? '+ 작업 등록' : '+ 고장 신고'}</button>}
+				actions={<button className="primary" onClick={() => setAdding(true)}>{c.may(PermissionService.method.runWork) ? '+ 작업 등록' : '+ 고장 신고'}</button>}
 			/>
 			<div className="filters">
 				<Select
@@ -98,7 +98,8 @@ function WorkAsset(props: { id: Uint8Array | undefined }): ReactNode {
 export function NewWorkOrder(props: { asset?: Asset; onClose: () => void }): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
-	const mgr = c.can('manager')
+	// Deciding work rather than reporting it broken (D89).
+	const mgr = c.may(PermissionService.method.runWork)
 	const [asset, setAsset] = useState<Asset | undefined>(props.asset)
 	const [kind, setKind] = useState('repair')
 	const [name, setName] = useState('')
@@ -214,7 +215,7 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 					]}
 				/>
 				{w.desc !== '' && <p className="desc">{w.desc}</p>}
-				{live && c.can('manager') && (
+				{live && c.may(WorkOrderService.method.update) && (
 					<footer className="modal-actions">
 						<button onClick={() => setMode('cancel')}>취소</button>
 						<button onClick={() => setMode('edit')}>수정</button>

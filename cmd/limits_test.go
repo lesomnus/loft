@@ -114,6 +114,7 @@ func TestEveryProcessCountsTheSameSignInFailures(t *testing.T) {
 		park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
 		x.NoError(err)
 		x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
+		w.bind(park.Id, "member")
 
 		// One short of the limit, and one short of roster's lockout.
 		for i := range session.MaxFailures - 1 {

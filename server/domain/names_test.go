@@ -8,7 +8,6 @@ import (
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/z"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
@@ -60,7 +59,6 @@ func TestARowIsNamedAsThePastAsks(t *testing.T) {
 		Tenant: app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
 		Alias:  "bot",
 		Name:   "Bot",
-		Role:   z.Ptr("member"),
 	}.Build())
 	x.NoError(err)
 	n, saw = name(bot.GetId())

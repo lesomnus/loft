@@ -32,7 +32,6 @@
     "party.add": "loft.PartySaved",
     "party.link": "loft.PartyLinked",
     "party.pseudonymize": "loft.PartyPseudonymized",
-    "party.role": "loft.PartyRoleSet",
     "party.unlink": "loft.PartyUnlinked",
     "party.update": "loft.PartySaved",
     "purchase.add": "loft.PurchaseAdded",
@@ -101,10 +100,6 @@
       "1": {
         "json": "held",
         "kind": "uint32"
-      },
-      "2": {
-        "json": "ownerless",
-        "kind": "bool"
       }
     },
     "loft.AssetAdded": {
@@ -546,24 +541,6 @@
       "7": {
         "json": "held",
         "kind": "uint32"
-      }
-    },
-    "loft.PartyRoleSet": {
-      "1": {
-        "json": "party",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "holder",
-        "kind": "bytes"
-      },
-      "4": {
-        "json": "role",
-        "kind": "string"
-      },
-      "6": {
-        "json": "by",
-        "kind": "string"
       }
     },
     "loft.PartySaved": {

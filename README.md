@@ -68,10 +68,10 @@ loft asset search -o wide '{"q": "노트북"}'
 
 1. **roster를 띄웁니다.** 데이터 플레인과 컨트롤 플레인의 DB, 사람 화면(`sign_in.enabled`, `user_console.dir`)과 그 화면의 호스트를 둡니다. 화면은 Loft와 다른 호스트에 둡니다. 세션 쿠키가 호스트에만 붙기 때문입니다.
 2. **roster의 운영자와 조직의 테넌트를 만듭니다.** `roster init`, `roster --as admin tenant add @acme`. 테넌트를 만들면 그 관리자 `admin` 이 함께 생기고, 비밀번호는 `roster vouch reset @acme/admin` 이 한 번 보여 줍니다. 화면의 호스트가 그 테넌트의 것이라고 적습니다(`roster --as admin host add`).
-3. **그 테넌트에 Loft를 설치하고 키를 만듭니다.** `roster app install --tenant acme --role <목록> --administer '/loft.*/*' loft`, 그리고 `roster key add --tenant acme --holder loft --allow <같은 목록>` 이 테넌트의 키(`rt_…`)를 한 번 보여 줍니다. 목록은 Loft가 roster에 묻는 메서드와, Loft가 테넌트에 써 넣는 기본 역할(#334)을 쓰고 넓히는 데 드는 메서드입니다([`deploy/compose`의 처음 띄우기](deploy/compose/README.md#처음-띄우기)).
+3. **그 테넌트에 Loft를 설치하고 키를 만듭니다.** `roster app install --tenant acme --role <목록> --administer '/loft.*/*' loft`, 그리고 `roster key add --tenant acme --holder loft --allow <같은 목록>` 이 테넌트의 키(`rt_…`)를 한 번 보여 줍니다. 목록은 Loft가 roster에 묻는 메서드와, Loft가 테넌트에 써 넣는 처음 역할을 쓰고 넓히고 첫 소유자에게 묶는 데 드는 메서드입니다(`identity.AgentMethods`, [`deploy/compose`의 처음 띄우기](deploy/compose/README.md#처음-띄우기)). `--administer` 는 테넌트의 관리자가 Loft의 역할을 사람에게 묶을 수 있게 합니다.
 4. **Loft를 설정합니다.** roster의 주소와 키, 섬기는 테넌트, roster 화면의 주소: `auth.roster.addr`, `auth.roster.key`, `auth.roster.tenant`, `auth.roster.console_url`.
-5. **`loft init`** 이 그 테넌트를 같은 ID로 워크스페이스로 세우고, 테넌트의 관리자 `admin`(또는 `--login` 의 사람)을 소유자로 둡니다. 그다음 `loft serve`.
-6. **구성원**은 테넌트의 관리자가 roster의 화면에서 넣고, 넣은 사람이 처음 Loft에 로그인하면 구성원이 됩니다.
+5. **`loft init`** 이 그 테넌트를 같은 ID로 워크스페이스로 세우고, Loft의 처음 역할 다섯(`loft-owner`, `loft-admin`, `loft-manager`, `loft-member`, `loft-auditor`)을 roster에 쓰고, 테넌트의 관리자 `admin`(또는 `--login` 의 사람)에게 `loft-owner` 를 묶어 소유자로 둡니다(D89). 그다음 `loft serve`.
+6. **구성원**은 테넌트의 관리자가 roster의 화면에서 넣고 Loft의 역할을 묶으며, 그 사람이 처음 Loft에 로그인하면 구성원이 됩니다. 누가 무엇을 할 수 있는지는 그 역할이 정하고, 역할은 roster에서 고칩니다(D89).
 
 설정과 roster에서 할 일의 자세한 것은 [사람과 로그인](docs/dev/identity.md#roster를-따로-운영할-때), Kubernetes는 [`deploy/k8s`](deploy/k8s/README.md)에 있습니다.
 

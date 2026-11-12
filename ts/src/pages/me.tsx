@@ -6,7 +6,7 @@ import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Kv, Load, PageHead } from '../ui.js'
-import { custodyKindWord, roleWord, statusWord } from '../words.js'
+import { custodyKindWord, statusWord } from '../words.js'
 
 export function Me(): ReactNode {
 	const c = useCatalog()
@@ -46,7 +46,6 @@ export function Me(): ReactNode {
 							['아이디', c.me.holder?.alias ?? '-'],
 							['이메일', p?.email || '-'],
 							['소속', c.called(p?.parentId) || '-'],
-							['역할', roleWord[c.role] ?? c.role],
 							['조직', c.me.workspaceName || '-'],
 						]}
 					/>

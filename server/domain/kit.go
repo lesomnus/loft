@@ -863,7 +863,7 @@ func (t *Tx) tellWaiting(ws []kitWait) error {
 		if err != nil {
 			return err
 		}
-		if err := t.notifyManagers("reservation.conflict", "키트 구성품 충돌: "+tagged(kit),
+		if err := t.notifyWhoMay(app.PermissionService_ActOnOthersBookings_FullMethodName, "reservation.conflict", "키트 구성품 충돌: "+tagged(kit),
 			fmt.Sprintf("%s은(는) 그 시간에 다른 예약이나 정비가 있어 이 키트의 예약 %d건에 잡지 못했습니다. 비면 그 예약이 잡습니다.", waitedFor(vs), len(reservationsOf(vs))),
 			pdid.Id(k), "/reservations?tab=all"); err != nil {
 			return err

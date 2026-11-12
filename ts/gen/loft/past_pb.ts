@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/past.proto.
  */
 export const file_loft_past: GenFile = /*@__PURE__*/
-  fileDesc("Cg9sb2Z0L3Bhc3QucHJvdG8SBGxvZnQiVQoKQXNzZXRBZGRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSDAoEbmFtZRgFIAEoCRIMCgRraW5kGAYgASgJOg+SuxYLCglhc3NldC5hZGQiMgoLQXNzZXRzQWRkZWQSDQoFY291bnQYByABKA06FJK7FhAKDmFzc2V0LmFkZF9tYW55IpABCgpBc3NldE1vdmVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIKCgJ0bxgOIAEoDBIOCgZ0b190YWcYDyABKAkSDAoEbW9kZRgQIAEoCRIMCgRzbG90GBEgASgJEg4KBnVfZnJvbRgSIAEoBRIMCgR1X3RvGBMgASgFOhCSuxYMCgphc3NldC5tb3ZlIl8KEkFzc2V0QXR0cmlidXRlc1NldBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSCwoDc2V0GAwgAygJEg8KB2NsZWFyZWQYDSADKAk6D5K7FgsKCWFzc2V0LnNldCJcCg1Bc3NldEFzc2lnbmVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIMCgRyb2xlGAMgASgJEg0KBXBhcnR5GAQgASgMOhKSuxYOCgxhc3NldC5hc3NpZ24ikwEKDEFzc2V0UmVsYXRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSDgoGdGFyZ2V0GBQgASgMEhIKCnRhcmdldF90YWcYFSABKAkSEAoIcmVsYXRpb24YFiABKAkSCwoDZW5kGBcgASgIEhAKCHJlcXVpcmVkGBggASgIOhKSuxYOCgxhc3NldC5yZWxhdGUiqgEKDkFzc2V0Q29ycmVjdGVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIMCgRyb2xlGAMgASgJEgsKA3JvdxgIIAEoDBILCgNrZXkYCSABKAkSDwoHcmV0cmFjdBgKIAEoCBIuCgpkYXRlX3N0YXJ0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoTkrsWDwoNYXNzZXQuY29ycmVjdCI7CgtBc3NldFZvaWRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAk6EJK7FgwKCmFzc2V0LnZvaWQifgoKU3RvY2tBZGRlZBINCgVzdG9jaxgBIAEoDBIMCgRuYW1lGAIgASgJEhAKCHF1YW50aXR5GAQgASgDEg0KBW1vZGVsGAUgASgMEg0KBXNwYWNlGAYgASgMEhIKCnNwYWNlX25hbWUYByABKAk6D5K7FgsKCXN0b2NrLmFkZCJsCgxTdG9ja0NoYW5nZWQSDQoFc3RvY2sYASABKAwSDAoEbmFtZRgCIAEoCRINCgVkZWx0YRgDIAEoAzowkrsWLAoNc3RvY2sucmVjZWl2ZQoNc3RvY2suY29uc3VtZQoMc3RvY2suYWRqdXN0IoABChBTdG9ja1RyYW5zZmVycmVkEg0KBXN0b2NrGAEgASgMEgwKBG5hbWUYAiABKAkSEAoIcXVhbnRpdHkYBCABKAMSEAoIdG9fc3BhY2UYCCABKAwSFQoNdG9fc3BhY2VfbmFtZRgJIAEoCToUkrsWEAoOc3RvY2sudHJhbnNmZXIiVAoOU3RvY2tDb252ZXJ0ZWQSDQoFc3RvY2sYASABKAwSDAoEbmFtZRgCIAEoCRIQCghxdWFudGl0eRgEIAEoAzoTkrsWDwoNc3RvY2suY29udmVydCKzAQoNQ3VzdG9keUlzc3VlZBIPCgdjdXN0b2R5GAEgASgMEg0KBXBhcnR5GAIgASgMEiwKCGRhdGVfZHVlGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIMCgRraW5kGAQgASgJEg0KBWxpbmVzGAUgASgNEhMKC3Jlc2VydmF0aW9uGAYgASgMEg0KBWFzc2V0GAcgASgMOhOSuxYPCg1jdXN0b2R5Lmlzc3VlIkEKE0N1c3RvZHlBY2tub3dsZWRnZWQSDwoHY3VzdG9keRgBIAEoDDoZkrsWFQoTY3VzdG9keS5hY2tub3dsZWRnZSJmCg9DdXN0b2R5RXh0ZW5kZWQSDwoHY3VzdG9keRgBIAEoDBIsCghkYXRlX2R1ZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6FJK7FhAKDmN1c3RvZHkuZXh0ZW5kInUKDkN1c3RvZHlPdmVyZHVlEg8KB2N1c3RvZHkYASABKAwSLAoIZGF0ZV9kdWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWFzc2V0GAcgASgMOhWSuxYRCg9jdXN0b2R5Lm92ZXJkdWUiUwoPQ3VzdG9keVJldHVybmVkEg8KB2N1c3RvZHkYASABKAwSDQoFYXNzZXQYByABKAwSCgoCdG8YCCABKAw6FJK7FhAKDmN1c3RvZHkucmV0dXJuIlwKDkNvdW50RGVsaW1pdGVkEg0KBWNvdW50GAEgASgMEgwKBG5hbWUYAiABKAkSDQoFc2NvcGUYAyABKAw6HpK7FhoKC2NvdW50LnN0YXJ0Cgtjb3VudC5jbG9zZSJqCgxDb3VudFNjYW5uZWQSDQoFY291bnQYASABKAwSDQoFYXNzZXQYBiABKAwSDQoFbGFiZWwYCCABKAwSDQoFc3BhY2UYCSABKAwSDAoEY29kZRgKIAEoCToQkrsWDAoKY291bnQuc2NhbiJICg9Db3VudFJlY29uY2lsZWQSDQoFY291bnQYASABKAwSDwoHbWlzc2luZxgEIAEoDToVkrsWEQoPY291bnQucmVjb25jaWxlImcKDUNvdW50UmVzb2x2ZWQSDQoFY291bnQYASABKAwSDwoHZmluZGluZxgFIAEoDBINCgVhc3NldBgGIAEoDBISCgpyZXNvbHV0aW9uGAcgASgJOhOSuxYPCg1jb3VudC5yZXNvbHZlImIKDUJvb2thYmxlU2F2ZWQSEAoIYm9va2FibGUYASABKAwSDQoFYXNzZXQYAiABKAwSCwoDdGFnGAMgASgJOiOSuxYfCgxib29rYWJsZS5hZGQKD2Jvb2thYmxlLnVwZGF0ZSKFAgoQUmVzZXJ2YXRpb25BZGRlZBITCgtyZXNlcnZhdGlvbhgBIAEoDBIOCgZzdGF0dXMYBCABKAkSDQoFcGFydHkYBSABKAwSEwoLb2NjdXJyZW5jZXMYBiABKA0SLgoKZGF0ZV9zdGFydBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9lbmQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWFzc2V0GAkgASgMEhIKCmFzc2V0X25hbWUYCiABKAkSEAoIb3ZlcnJpZGUYCyABKAg6FZK7FhEKD3Jlc2VydmF0aW9uLmFkZCJkChRSZXNlcnZhdGlvbkNvbmZpcm1lZBITCgtyZXNlcnZhdGlvbhgBIAEoDBIMCgRuYW1lGAIgASgJEg4KBnN0YXR1cxgEIAEoCToZkrsWFQoTcmVzZXJ2YXRpb24uY29uZmlybSLEAQoSUmVzZXJ2YXRpb25EZWNpZGVkEhMKC3Jlc2VydmF0aW9uGAEgASgMEgwKBG5hbWUYAiABKAkSDgoGc2VyaWVzGAMgASgIEg0KBWVuZGVkGAwgASgIOmySuxZoChNyZXNlcnZhdGlvbi5hcHByb3ZlChJyZXNlcnZhdGlvbi5yZWplY3QKEnJlc2VydmF0aW9uLmNhbmNlbAoTcmVzZXJ2YXRpb24uY2hlY2tpbgoUcmVzZXJ2YXRpb24uY29tcGxldGUiiAEKE1Jlc2VydmF0aW9uUmVsZWFzZWQSEwoLcmVzZXJ2YXRpb24YASABKAwSDAoEbmFtZRgCIAEoCRIMCgRmcm9tGA0gASgJEhEKCXdvcmtzcGFjZRgPIAEoCTotkrsWKQoScmVzZXJ2YXRpb24uZXhwaXJlChNyZXNlcnZhdGlvbi5ub19zaG93IogCChxSZXNlcnZhdGlvbkFsbG9jYXRpb25DaGFuZ2VkEhMKC3Jlc2VydmF0aW9uGAEgASgMEgwKBG5hbWUYAiABKAkSLgoKZGF0ZV9zdGFydBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDQoFYXNzZXQYCSABKAwSEgoKYXNzZXRfbmFtZRgKIAEoCRIQCghvdmVycmlkZRgLIAEoCBINCgV1bml0cxgOIAEoDTpRkrsWTQoQcmVzZXJ2YXRpb24udGFrZQoQcmVzZXJ2YXRpb24ud2FpdAoTcmVzZXJ2YXRpb24ucmVzb2x2ZQoScmVzZXJ2YXRpb24ubGV0X2dvIlAKDUxhYmVsc1ByaW50ZWQSDQoFYmF0Y2gYBSABKAkSDQoFY291bnQYBiABKA0SDgoGYXNzZXRzGAcgAygMOhGSuxYNCgtsYWJlbC5wcmludCJJCgpMYWJlbEJvdW5kEg0KBWxhYmVsGAEgASgMEg0KBWFzc2V0GAIgASgMEgsKA3RhZxgDIAEoCToQkrsWDAoKbGFiZWwuYmluZCJOCgxMYWJlbFVuYm91bmQSDQoFbGFiZWwYASABKAwSDQoFYXNzZXQYAiABKAwSDAoEdm9pZBgEIAEoCDoSkrsWDgoMbGFiZWwudW5iaW5kIlsKDkl0ZW1Nb2RlbFNhdmVkEg0KBW1vZGVsGAEgASgMEgwKBG5hbWUYAiABKAkSDQoFbWFrZXIYAyABKAk6HZK7FhkKCW1vZGVsLmFkZAoMbW9kZWwudXBkYXRlIlcKDkFzc2V0VHlwZVNhdmVkEgwKBHR5cGUYASABKAwSDAoEbmFtZRgCIAEoCRIMCgRraW5kGAMgASgJOhuSuxYXCgh0eXBlLmFkZAoLdHlwZS51cGRhdGUiSAoKUGFydHlTYXZlZBINCgVwYXJ0eRgBIAEoDBIMCgRraW5kGAMgASgJOh2SuxYZCglwYXJ0eS5hZGQKDHBhcnR5LnVwZGF0ZSJZCgxQYXJ0eVJvbGVTZXQSDQoFcGFydHkYASABKAwSDgoGaG9sZGVyGAIgASgMEgwKBHJvbGUYBCABKAkSCgoCYnkYBiABKAk6EJK7FgwKCnBhcnR5LnJvbGUiSwoLUGFydHlMaW5rZWQSDQoFcGFydHkYASABKAwSDgoGaG9sZGVyGAIgASgMEgsKA3dhcxgIIAEoDDoQkrsWDAoKcGFydHkubGluayJCCg1QYXJ0eVVubGlua2VkEg0KBXBhcnR5GAEgASgMEg4KBmhvbGRlchgCIAEoDDoSkrsWDgoMcGFydHkudW5saW5rIjwKElBhcnR5UHNldWRvbnltaXplZBIMCgRoZWxkGAcgASgNOhiSuxYUChJwYXJ0eS5wc2V1ZG9ueW1pemUigwEKDVB1cmNoYXNlQWRkZWQSEAoIcHVyY2hhc2UYASABKAwSDAoEbmFtZRgCIAEoCRINCgV0b3RhbBgDIAEoAxIQCghjdXJyZW5jeRgEIAEoCRINCgVsaW5lcxgFIAEoDRIOCgZ2ZW5kb3IYBiABKAw6EpK7Fg4KDHB1cmNoYXNlLmFkZCJYChBQdXJjaGFzZVJlY2VpdmVkEhAKCHB1cmNoYXNlGAEgASgMEgwKBG5hbWUYAiABKAkSDAoEaW50bxgHIAEoDDoWkrsWEgoQcHVyY2hhc2UucmVjZWl2ZSKKAQoOV29ya09yZGVyU2F2ZWQSEgoKd29ya19vcmRlchgBIAEoDBINCgVhc3NldBgCIAEoDBIMCgRuYW1lGAMgASgJEgsKA3RhZxgEIAEoCRIMCgRraW5kGAUgASgJEg4KBnN0YXR1cxgGIAEoCTockrsWGAoJd29yay5vcGVuCgt3b3JrLnVwZGF0ZSKFAQoRV29ya09yZGVyRmluaXNoZWQSEgoKd29ya19vcmRlchgBIAEoDBINCgVhc3NldBgCIAEoDBIMCgRuYW1lGAMgASgJEgwKBGNvc3QYByABKAMSEAoIY3VycmVuY3kYCCABKAk6H5K7FhsKCXdvcmsuZG9uZQoOd29yay5jYW5jZWxsZWQiZgoPV29ya3NwYWNlQ2xvc2VkEgoKAmJ5GAEgASgJEjAKDGRhdGVfZGVzdHJveRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6FZK7FhEKD3dvcmtzcGFjZS5jbG9zZSJJChFXb3Jrc3BhY2VSZXN0b3JlZBIKCgJieRgBIAEoCRIPCgdleHBpcmVkGBYgASgNOheSuxYTChF3b3Jrc3BhY2UucmVzdG9yZSLoAgoTV29ya3NwYWNlQ29uZmlndXJlZBIXCgh0aW1lem9uZRgDIAEoCUIFqgECCAESFwoIY3VycmVuY3kYBCABKAlCBaoBAggBEh4KD25vX3Nob3dfbWludXRlcxgFIAEoBUIFqgECCAESGAoJa2VlcF9kYXlzGAYgASgNQgWqAQIIARI3ChNkYXRlX2tlZXBfZWZmZWN0aXZlGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIfChBhY2Nlc3Nfa2VlcF9kYXlzGAggASgNQgWqAQIIARI+ChpkYXRlX2FjY2Vzc19rZWVwX2VmZmVjdGl2ZRgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGwoMcmVzdG9yZV9kYXlzGAogASgNQgWqAQIIARITCgRuYW1lGBUgASgJQgWqAQIIAToZkrsWFQoTd29ya3NwYWNlLmNvbmZpZ3VyZSLlAQoRV29ya3NwYWNlSW1wb3J0ZWQSMQoNZGF0ZV9leHBvcnRlZBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIbWFuaWZlc3QYDCABKAkSEQoJc2lnbmVkX2J5GA0gASgJEgwKBHJvd3MYDiABKA0SDQoFZmlsZXMYDyABKA0SDQoFYXNrZWQYECABKAkSEAoIcmVsZWFzZWQYESADKAkSEAoIdW5saW5rZWQYEiABKA0SEAoIcmVvcGVuZWQYEyABKAg6FpK7FhIKEHdvcmtzcGFjZS5pbXBvcnQixgEKDkFjY2Vzc1Jldmlld2VkEg4KBnJldmlldxgBIAEoDBIuCgpkYXRlX3N0YXJ0GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIsCghkYXRlX2VuZBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDQoFY2FsbHMYBCABKA0SEQoJZG93bmxvYWRzGAUgASgNEg8KB3JlZnVzZWQYBiABKA06E5K7Fg8KDWFjY2Vzcy5yZXZpZXciSAoPQWNjb3VudERlcGFydGVkEgwKBGhlbGQYASABKA0SEQoJb3duZXJsZXNzGAIgASgIOhSSuxYQCg5hY2NvdW50LmRlcGFydCJ+Cg9BdHRhY2htZW50QWRkZWQSEgoKYXR0YWNobWVudBgBIAEoDBIPCgdzdWJqZWN0GAIgASgMEgwKBG5hbWUYAyABKAkSFAoMY29udGVudF90eXBlGAQgASgJEgwKBHNpemUYBSABKAQ6FJK7FhAKDmF0dGFjaG1lbnQuYWRkIrACChBSZXRlbnRpb25FeHBpcmVkEi8KC2RhdGVfYmVmb3JlGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBISCgpwbGFjZW1lbnRzGAIgASgNEg0KBWxpbmtzGAMgASgNEhQKDHN0ZXdhcmRzaGlwcxgEIAEoDRINCgVmYWN0cxgFIAEoDRIOCgZldmVudHMYBiABKA0SFAoMcmVzZXJ2YXRpb25zGAcgASgNEhEKCWN1c3RvZGllcxgIIAEoDRIOCgZjb3VudHMYCSABKA0SEwoLd29ya19vcmRlcnMYCiABKA0SFwoPc3RvY2tfbW92ZW1lbnRzGAsgASgNEhMKC2F0dGFjaG1lbnRzGAwgASgNOheSuxYTChFyZXRlbnRpb24uZXhwaXJlZCIyCg1FdmVudFJlZGFjdGVkEg0KBWV2ZW50GAEgASgMOhKSuxYOCgxldmVudC5yZWRhY3RCKVoYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCALKxxYGCgQIERAQYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_payday]);
+  fileDesc("Cg9sb2Z0L3Bhc3QucHJvdG8SBGxvZnQiVQoKQXNzZXRBZGRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSDAoEbmFtZRgFIAEoCRIMCgRraW5kGAYgASgJOg+SuxYLCglhc3NldC5hZGQiMgoLQXNzZXRzQWRkZWQSDQoFY291bnQYByABKA06FJK7FhAKDmFzc2V0LmFkZF9tYW55IpABCgpBc3NldE1vdmVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIKCgJ0bxgOIAEoDBIOCgZ0b190YWcYDyABKAkSDAoEbW9kZRgQIAEoCRIMCgRzbG90GBEgASgJEg4KBnVfZnJvbRgSIAEoBRIMCgR1X3RvGBMgASgFOhCSuxYMCgphc3NldC5tb3ZlIl8KEkFzc2V0QXR0cmlidXRlc1NldBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSCwoDc2V0GAwgAygJEg8KB2NsZWFyZWQYDSADKAk6D5K7FgsKCWFzc2V0LnNldCJcCg1Bc3NldEFzc2lnbmVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIMCgRyb2xlGAMgASgJEg0KBXBhcnR5GAQgASgMOhKSuxYOCgxhc3NldC5hc3NpZ24ikwEKDEFzc2V0UmVsYXRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSDgoGdGFyZ2V0GBQgASgMEhIKCnRhcmdldF90YWcYFSABKAkSEAoIcmVsYXRpb24YFiABKAkSCwoDZW5kGBcgASgIEhAKCHJlcXVpcmVkGBggASgIOhKSuxYOCgxhc3NldC5yZWxhdGUiqgEKDkFzc2V0Q29ycmVjdGVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIMCgRyb2xlGAMgASgJEgsKA3JvdxgIIAEoDBILCgNrZXkYCSABKAkSDwoHcmV0cmFjdBgKIAEoCBIuCgpkYXRlX3N0YXJ0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoTkrsWDwoNYXNzZXQuY29ycmVjdCI7CgtBc3NldFZvaWRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAk6EJK7FgwKCmFzc2V0LnZvaWQifgoKU3RvY2tBZGRlZBINCgVzdG9jaxgBIAEoDBIMCgRuYW1lGAIgASgJEhAKCHF1YW50aXR5GAQgASgDEg0KBW1vZGVsGAUgASgMEg0KBXNwYWNlGAYgASgMEhIKCnNwYWNlX25hbWUYByABKAk6D5K7FgsKCXN0b2NrLmFkZCJsCgxTdG9ja0NoYW5nZWQSDQoFc3RvY2sYASABKAwSDAoEbmFtZRgCIAEoCRINCgVkZWx0YRgDIAEoAzowkrsWLAoNc3RvY2sucmVjZWl2ZQoNc3RvY2suY29uc3VtZQoMc3RvY2suYWRqdXN0IoABChBTdG9ja1RyYW5zZmVycmVkEg0KBXN0b2NrGAEgASgMEgwKBG5hbWUYAiABKAkSEAoIcXVhbnRpdHkYBCABKAMSEAoIdG9fc3BhY2UYCCABKAwSFQoNdG9fc3BhY2VfbmFtZRgJIAEoCToUkrsWEAoOc3RvY2sudHJhbnNmZXIiVAoOU3RvY2tDb252ZXJ0ZWQSDQoFc3RvY2sYASABKAwSDAoEbmFtZRgCIAEoCRIQCghxdWFudGl0eRgEIAEoAzoTkrsWDwoNc3RvY2suY29udmVydCKzAQoNQ3VzdG9keUlzc3VlZBIPCgdjdXN0b2R5GAEgASgMEg0KBXBhcnR5GAIgASgMEiwKCGRhdGVfZHVlGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIMCgRraW5kGAQgASgJEg0KBWxpbmVzGAUgASgNEhMKC3Jlc2VydmF0aW9uGAYgASgMEg0KBWFzc2V0GAcgASgMOhOSuxYPCg1jdXN0b2R5Lmlzc3VlIkEKE0N1c3RvZHlBY2tub3dsZWRnZWQSDwoHY3VzdG9keRgBIAEoDDoZkrsWFQoTY3VzdG9keS5hY2tub3dsZWRnZSJmCg9DdXN0b2R5RXh0ZW5kZWQSDwoHY3VzdG9keRgBIAEoDBIsCghkYXRlX2R1ZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6FJK7FhAKDmN1c3RvZHkuZXh0ZW5kInUKDkN1c3RvZHlPdmVyZHVlEg8KB2N1c3RvZHkYASABKAwSLAoIZGF0ZV9kdWUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWFzc2V0GAcgASgMOhWSuxYRCg9jdXN0b2R5Lm92ZXJkdWUiUwoPQ3VzdG9keVJldHVybmVkEg8KB2N1c3RvZHkYASABKAwSDQoFYXNzZXQYByABKAwSCgoCdG8YCCABKAw6FJK7FhAKDmN1c3RvZHkucmV0dXJuIlwKDkNvdW50RGVsaW1pdGVkEg0KBWNvdW50GAEgASgMEgwKBG5hbWUYAiABKAkSDQoFc2NvcGUYAyABKAw6HpK7FhoKC2NvdW50LnN0YXJ0Cgtjb3VudC5jbG9zZSJqCgxDb3VudFNjYW5uZWQSDQoFY291bnQYASABKAwSDQoFYXNzZXQYBiABKAwSDQoFbGFiZWwYCCABKAwSDQoFc3BhY2UYCSABKAwSDAoEY29kZRgKIAEoCToQkrsWDAoKY291bnQuc2NhbiJICg9Db3VudFJlY29uY2lsZWQSDQoFY291bnQYASABKAwSDwoHbWlzc2luZxgEIAEoDToVkrsWEQoPY291bnQucmVjb25jaWxlImcKDUNvdW50UmVzb2x2ZWQSDQoFY291bnQYASABKAwSDwoHZmluZGluZxgFIAEoDBINCgVhc3NldBgGIAEoDBISCgpyZXNvbHV0aW9uGAcgASgJOhOSuxYPCg1jb3VudC5yZXNvbHZlImIKDUJvb2thYmxlU2F2ZWQSEAoIYm9va2FibGUYASABKAwSDQoFYXNzZXQYAiABKAwSCwoDdGFnGAMgASgJOiOSuxYfCgxib29rYWJsZS5hZGQKD2Jvb2thYmxlLnVwZGF0ZSKFAgoQUmVzZXJ2YXRpb25BZGRlZBITCgtyZXNlcnZhdGlvbhgBIAEoDBIOCgZzdGF0dXMYBCABKAkSDQoFcGFydHkYBSABKAwSEwoLb2NjdXJyZW5jZXMYBiABKA0SLgoKZGF0ZV9zdGFydBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLAoIZGF0ZV9lbmQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWFzc2V0GAkgASgMEhIKCmFzc2V0X25hbWUYCiABKAkSEAoIb3ZlcnJpZGUYCyABKAg6FZK7FhEKD3Jlc2VydmF0aW9uLmFkZCJkChRSZXNlcnZhdGlvbkNvbmZpcm1lZBITCgtyZXNlcnZhdGlvbhgBIAEoDBIMCgRuYW1lGAIgASgJEg4KBnN0YXR1cxgEIAEoCToZkrsWFQoTcmVzZXJ2YXRpb24uY29uZmlybSLEAQoSUmVzZXJ2YXRpb25EZWNpZGVkEhMKC3Jlc2VydmF0aW9uGAEgASgMEgwKBG5hbWUYAiABKAkSDgoGc2VyaWVzGAMgASgIEg0KBWVuZGVkGAwgASgIOmySuxZoChNyZXNlcnZhdGlvbi5hcHByb3ZlChJyZXNlcnZhdGlvbi5yZWplY3QKEnJlc2VydmF0aW9uLmNhbmNlbAoTcmVzZXJ2YXRpb24uY2hlY2tpbgoUcmVzZXJ2YXRpb24uY29tcGxldGUiiAEKE1Jlc2VydmF0aW9uUmVsZWFzZWQSEwoLcmVzZXJ2YXRpb24YASABKAwSDAoEbmFtZRgCIAEoCRIMCgRmcm9tGA0gASgJEhEKCXdvcmtzcGFjZRgPIAEoCTotkrsWKQoScmVzZXJ2YXRpb24uZXhwaXJlChNyZXNlcnZhdGlvbi5ub19zaG93IogCChxSZXNlcnZhdGlvbkFsbG9jYXRpb25DaGFuZ2VkEhMKC3Jlc2VydmF0aW9uGAEgASgMEgwKBG5hbWUYAiABKAkSLgoKZGF0ZV9zdGFydBgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDQoFYXNzZXQYCSABKAwSEgoKYXNzZXRfbmFtZRgKIAEoCRIQCghvdmVycmlkZRgLIAEoCBINCgV1bml0cxgOIAEoDTpRkrsWTQoQcmVzZXJ2YXRpb24udGFrZQoQcmVzZXJ2YXRpb24ud2FpdAoTcmVzZXJ2YXRpb24ucmVzb2x2ZQoScmVzZXJ2YXRpb24ubGV0X2dvIlAKDUxhYmVsc1ByaW50ZWQSDQoFYmF0Y2gYBSABKAkSDQoFY291bnQYBiABKA0SDgoGYXNzZXRzGAcgAygMOhGSuxYNCgtsYWJlbC5wcmludCJJCgpMYWJlbEJvdW5kEg0KBWxhYmVsGAEgASgMEg0KBWFzc2V0GAIgASgMEgsKA3RhZxgDIAEoCToQkrsWDAoKbGFiZWwuYmluZCJOCgxMYWJlbFVuYm91bmQSDQoFbGFiZWwYASABKAwSDQoFYXNzZXQYAiABKAwSDAoEdm9pZBgEIAEoCDoSkrsWDgoMbGFiZWwudW5iaW5kIlsKDkl0ZW1Nb2RlbFNhdmVkEg0KBW1vZGVsGAEgASgMEgwKBG5hbWUYAiABKAkSDQoFbWFrZXIYAyABKAk6HZK7FhkKCW1vZGVsLmFkZAoMbW9kZWwudXBkYXRlIlcKDkFzc2V0VHlwZVNhdmVkEgwKBHR5cGUYASABKAwSDAoEbmFtZRgCIAEoCRIMCgRraW5kGAMgASgJOhuSuxYXCgh0eXBlLmFkZAoLdHlwZS51cGRhdGUiSAoKUGFydHlTYXZlZBINCgVwYXJ0eRgBIAEoDBIMCgRraW5kGAMgASgJOh2SuxYZCglwYXJ0eS5hZGQKDHBhcnR5LnVwZGF0ZSJLCgtQYXJ0eUxpbmtlZBINCgVwYXJ0eRgBIAEoDBIOCgZob2xkZXIYAiABKAwSCwoDd2FzGAggASgMOhCSuxYMCgpwYXJ0eS5saW5rIkIKDVBhcnR5VW5saW5rZWQSDQoFcGFydHkYASABKAwSDgoGaG9sZGVyGAIgASgMOhKSuxYOCgxwYXJ0eS51bmxpbmsiPAoSUGFydHlQc2V1ZG9ueW1pemVkEgwKBGhlbGQYByABKA06GJK7FhQKEnBhcnR5LnBzZXVkb255bWl6ZSKDAQoNUHVyY2hhc2VBZGRlZBIQCghwdXJjaGFzZRgBIAEoDBIMCgRuYW1lGAIgASgJEg0KBXRvdGFsGAMgASgDEhAKCGN1cnJlbmN5GAQgASgJEg0KBWxpbmVzGAUgASgNEg4KBnZlbmRvchgGIAEoDDoSkrsWDgoMcHVyY2hhc2UuYWRkIlgKEFB1cmNoYXNlUmVjZWl2ZWQSEAoIcHVyY2hhc2UYASABKAwSDAoEbmFtZRgCIAEoCRIMCgRpbnRvGAcgASgMOhaSuxYSChBwdXJjaGFzZS5yZWNlaXZlIooBCg5Xb3JrT3JkZXJTYXZlZBISCgp3b3JrX29yZGVyGAEgASgMEg0KBWFzc2V0GAIgASgMEgwKBG5hbWUYAyABKAkSCwoDdGFnGAQgASgJEgwKBGtpbmQYBSABKAkSDgoGc3RhdHVzGAYgASgJOhySuxYYCgl3b3JrLm9wZW4KC3dvcmsudXBkYXRlIoUBChFXb3JrT3JkZXJGaW5pc2hlZBISCgp3b3JrX29yZGVyGAEgASgMEg0KBWFzc2V0GAIgASgMEgwKBG5hbWUYAyABKAkSDAoEY29zdBgHIAEoAxIQCghjdXJyZW5jeRgIIAEoCTofkrsWGwoJd29yay5kb25lCg53b3JrLmNhbmNlbGxlZCJmCg9Xb3Jrc3BhY2VDbG9zZWQSCgoCYnkYASABKAkSMAoMZGF0ZV9kZXN0cm95GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoVkrsWEQoPd29ya3NwYWNlLmNsb3NlIkkKEVdvcmtzcGFjZVJlc3RvcmVkEgoKAmJ5GAEgASgJEg8KB2V4cGlyZWQYFiABKA06F5K7FhMKEXdvcmtzcGFjZS5yZXN0b3JlIugCChNXb3Jrc3BhY2VDb25maWd1cmVkEhcKCHRpbWV6b25lGAMgASgJQgWqAQIIARIXCghjdXJyZW5jeRgEIAEoCUIFqgECCAESHgoPbm9fc2hvd19taW51dGVzGAUgASgFQgWqAQIIARIYCglrZWVwX2RheXMYBiABKA1CBaoBAggBEjcKE2RhdGVfa2VlcF9lZmZlY3RpdmUYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh8KEGFjY2Vzc19rZWVwX2RheXMYCCABKA1CBaoBAggBEj4KGmRhdGVfYWNjZXNzX2tlZXBfZWZmZWN0aXZlGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIbCgxyZXN0b3JlX2RheXMYCiABKA1CBaoBAggBEhMKBG5hbWUYFSABKAlCBaoBAggBOhmSuxYVChN3b3Jrc3BhY2UuY29uZmlndXJlIuUBChFXb3Jrc3BhY2VJbXBvcnRlZBIxCg1kYXRlX2V4cG9ydGVkGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCghtYW5pZmVzdBgMIAEoCRIRCglzaWduZWRfYnkYDSABKAkSDAoEcm93cxgOIAEoDRINCgVmaWxlcxgPIAEoDRINCgVhc2tlZBgQIAEoCRIQCghyZWxlYXNlZBgRIAMoCRIQCgh1bmxpbmtlZBgSIAEoDRIQCghyZW9wZW5lZBgTIAEoCDoWkrsWEgoQd29ya3NwYWNlLmltcG9ydCLGAQoOQWNjZXNzUmV2aWV3ZWQSDgoGcmV2aWV3GAEgASgMEi4KCmRhdGVfc3RhcnQYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiwKCGRhdGVfZW5kGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBINCgVjYWxscxgEIAEoDRIRCglkb3dubG9hZHMYBSABKA0SDwoHcmVmdXNlZBgGIAEoDToTkrsWDwoNYWNjZXNzLnJldmlldyI1Cg9BY2NvdW50RGVwYXJ0ZWQSDAoEaGVsZBgBIAEoDToUkrsWEAoOYWNjb3VudC5kZXBhcnQifgoPQXR0YWNobWVudEFkZGVkEhIKCmF0dGFjaG1lbnQYASABKAwSDwoHc3ViamVjdBgCIAEoDBIMCgRuYW1lGAMgASgJEhQKDGNvbnRlbnRfdHlwZRgEIAEoCRIMCgRzaXplGAUgASgEOhSSuxYQCg5hdHRhY2htZW50LmFkZCKwAgoQUmV0ZW50aW9uRXhwaXJlZBIvCgtkYXRlX2JlZm9yZRgBIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEgoKcGxhY2VtZW50cxgCIAEoDRINCgVsaW5rcxgDIAEoDRIUCgxzdGV3YXJkc2hpcHMYBCABKA0SDQoFZmFjdHMYBSABKA0SDgoGZXZlbnRzGAYgASgNEhQKDHJlc2VydmF0aW9ucxgHIAEoDRIRCgljdXN0b2RpZXMYCCABKA0SDgoGY291bnRzGAkgASgNEhMKC3dvcmtfb3JkZXJzGAogASgNEhcKD3N0b2NrX21vdmVtZW50cxgLIAEoDRITCgthdHRhY2htZW50cxgMIAEoDToXkrsWEwoRcmV0ZW50aW9uLmV4cGlyZWQiMgoNRXZlbnRSZWRhY3RlZBINCgVldmVudBgBIAEoDDoSkrsWDgoMZXZlbnQucmVkYWN0QilaGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCyscWBgoECBEQEGIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_payday]);
 
 /**
  * AssetAdded is an asset registered (`asset.add`): by itself, from a stock
@@ -1238,41 +1238,6 @@ export const PartySavedSchema: GenMessage<PartySaved> = /*@__PURE__*/
   messageDesc(file_loft_past, 32);
 
 /**
- * PartyRoleSet is what a member may do, changed (`party.role`): by somebody
- * who may, or `by` the deployment.
- *
- * @generated from message loft.PartyRoleSet
- */
-export type PartyRoleSet = Message<"loft.PartyRoleSet"> & {
-  /**
-   * @generated from field: bytes party = 1;
-   */
-  party: Uint8Array;
-
-  /**
-   * @generated from field: bytes holder = 2;
-   */
-  holder: Uint8Array;
-
-  /**
-   * @generated from field: string role = 4;
-   */
-  role: string;
-
-  /**
-   * @generated from field: string by = 6;
-   */
-  by: string;
-};
-
-/**
- * Describes the message loft.PartyRoleSet.
- * Use `create(PartyRoleSetSchema)` to create a new message.
- */
-export const PartyRoleSetSchema: GenMessage<PartyRoleSet> = /*@__PURE__*/
-  messageDesc(file_loft_past, 33);
-
-/**
  * PartyLinked is a membership made by hand the person record it is
  * (`party.link`, D88): `party` the record, and `was` the one it was before,
  * when it was one's.
@@ -1301,7 +1266,7 @@ export type PartyLinked = Message<"loft.PartyLinked"> & {
  * Use `create(PartyLinkedSchema)` to create a new message.
  */
 export const PartyLinkedSchema: GenMessage<PartyLinked> = /*@__PURE__*/
-  messageDesc(file_loft_past, 34);
+  messageDesc(file_loft_past, 33);
 
 /**
  * PartyUnlinked is a membership taken off its person record by hand
@@ -1327,7 +1292,7 @@ export type PartyUnlinked = Message<"loft.PartyUnlinked"> & {
  * Use `create(PartyUnlinkedSchema)` to create a new message.
  */
 export const PartyUnlinkedSchema: GenMessage<PartyUnlinked> = /*@__PURE__*/
-  messageDesc(file_loft_past, 35);
+  messageDesc(file_loft_past, 34);
 
 /**
  * PartyPseudonymized is a person forgotten in the workspace
@@ -1347,7 +1312,7 @@ export type PartyPseudonymized = Message<"loft.PartyPseudonymized"> & {
  * Use `create(PartyPseudonymizedSchema)` to create a new message.
  */
 export const PartyPseudonymizedSchema: GenMessage<PartyPseudonymized> = /*@__PURE__*/
-  messageDesc(file_loft_past, 36);
+  messageDesc(file_loft_past, 35);
 
 /**
  * PurchaseAdded is a purchase recorded with what was bought in it
@@ -1392,7 +1357,7 @@ export type PurchaseAdded = Message<"loft.PurchaseAdded"> & {
  * Use `create(PurchaseAddedSchema)` to create a new message.
  */
 export const PurchaseAddedSchema: GenMessage<PurchaseAdded> = /*@__PURE__*/
-  messageDesc(file_loft_past, 37);
+  messageDesc(file_loft_past, 36);
 
 /**
  * PurchaseReceived is what arrived of a purchase taken in, into a space
@@ -1423,7 +1388,7 @@ export type PurchaseReceived = Message<"loft.PurchaseReceived"> & {
  * Use `create(PurchaseReceivedSchema)` to create a new message.
  */
 export const PurchaseReceivedSchema: GenMessage<PurchaseReceived> = /*@__PURE__*/
-  messageDesc(file_loft_past, 38);
+  messageDesc(file_loft_past, 37);
 
 /**
  * WorkOrderSaved is work on an asset opened, and changed: the one written, as
@@ -1472,7 +1437,7 @@ export type WorkOrderSaved = Message<"loft.WorkOrderSaved"> & {
  * Use `create(WorkOrderSavedSchema)` to create a new message.
  */
 export const WorkOrderSavedSchema: GenMessage<WorkOrderSaved> = /*@__PURE__*/
-  messageDesc(file_loft_past, 39);
+  messageDesc(file_loft_past, 38);
 
 /**
  * WorkOrderFinished is a work order finished: completed, and what it cost; or
@@ -1515,7 +1480,7 @@ export type WorkOrderFinished = Message<"loft.WorkOrderFinished"> & {
  * Use `create(WorkOrderFinishedSchema)` to create a new message.
  */
 export const WorkOrderFinishedSchema: GenMessage<WorkOrderFinished> = /*@__PURE__*/
-  messageDesc(file_loft_past, 40);
+  messageDesc(file_loft_past, 39);
 
 /**
  * WorkspaceClosed is the workspace closed (`workspace.close`, D29) `by` an
@@ -1541,7 +1506,7 @@ export type WorkspaceClosed = Message<"loft.WorkspaceClosed"> & {
  * Use `create(WorkspaceClosedSchema)` to create a new message.
  */
 export const WorkspaceClosedSchema: GenMessage<WorkspaceClosed> = /*@__PURE__*/
-  messageDesc(file_loft_past, 41);
+  messageDesc(file_loft_past, 40);
 
 /**
  * WorkspaceRestored is a closed workspace opened again
@@ -1571,13 +1536,13 @@ export type WorkspaceRestored = Message<"loft.WorkspaceRestored"> & {
  * Use `create(WorkspaceRestoredSchema)` to create a new message.
  */
 export const WorkspaceRestoredSchema: GenMessage<WorkspaceRestored> = /*@__PURE__*/
-  messageDesc(file_loft_past, 42);
+  messageDesc(file_loft_past, 41);
 
 /**
- * WorkspaceConfigured is what the workspace's owner said of its own settings
+ * WorkspaceConfigured is what was said of the workspace's own settings
  * (`workspace.configure`, #144, D36): only what was said, and of a window made
  * shorter, from when it is. Its name too: what it is called, which is nobody's
- * (payday#180), or none -- and then it is called after its owner (D57).
+ * (payday#180), or none -- and then it is called by its address (D89).
  *
  * @generated from message loft.WorkspaceConfigured
  */
@@ -1633,7 +1598,7 @@ export type WorkspaceConfigured = Message<"loft.WorkspaceConfigured"> & {
  * Use `create(WorkspaceConfiguredSchema)` to create a new message.
  */
 export const WorkspaceConfiguredSchema: GenMessage<WorkspaceConfigured> = /*@__PURE__*/
-  messageDesc(file_loft_past, 43);
+  messageDesc(file_loft_past, 42);
 
 /**
  * WorkspaceImported is a workspace put back from an export by an operator
@@ -1694,7 +1659,7 @@ export type WorkspaceImported = Message<"loft.WorkspaceImported"> & {
  * Use `create(WorkspaceImportedSchema)` to create a new message.
  */
 export const WorkspaceImportedSchema: GenMessage<WorkspaceImported> = /*@__PURE__*/
-  messageDesc(file_loft_past, 44);
+  messageDesc(file_loft_past, 43);
 
 /**
  * AccessReviewed is a stretch of the workspace's access record looked over
@@ -1739,14 +1704,13 @@ export type AccessReviewed = Message<"loft.AccessReviewed"> & {
  * Use `create(AccessReviewedSchema)` to create a new message.
  */
 export const AccessReviewedSchema: GenMessage<AccessReviewed> = /*@__PURE__*/
-  messageDesc(file_loft_past, 45);
+  messageDesc(file_loft_past, 44);
 
 /**
  * AccountDeparted is a member leaving the workspace once roster erased their
  * holder (`account.depart`, named when a member was an account's): their
- * person record pseudonymized as a person forgotten is, and the workspace
- * handed on when they were its last owner -- or `ownerless`, with nobody to
- * hand it to.
+ * person record pseudonymized as a person forgotten is. Who may run the
+ * workspace then is roster's, by the roles the tenant binds there (D89).
  *
  * @generated from message loft.AccountDeparted
  */
@@ -1755,11 +1719,6 @@ export type AccountDeparted = Message<"loft.AccountDeparted"> & {
    * @generated from field: uint32 held = 1;
    */
   held: number;
-
-  /**
-   * @generated from field: bool ownerless = 2;
-   */
-  ownerless: boolean;
 };
 
 /**
@@ -1767,7 +1726,7 @@ export type AccountDeparted = Message<"loft.AccountDeparted"> & {
  * Use `create(AccountDepartedSchema)` to create a new message.
  */
 export const AccountDepartedSchema: GenMessage<AccountDeparted> = /*@__PURE__*/
-  messageDesc(file_loft_past, 46);
+  messageDesc(file_loft_past, 45);
 
 /**
  * AttachmentAdded is a file kept for something (`attachment.add`): an asset,
@@ -1807,7 +1766,7 @@ export type AttachmentAdded = Message<"loft.AttachmentAdded"> & {
  * Use `create(AttachmentAddedSchema)` to create a new message.
  */
 export const AttachmentAddedSchema: GenMessage<AttachmentAdded> = /*@__PURE__*/
-  messageDesc(file_loft_past, 47);
+  messageDesc(file_loft_past, 46);
 
 /**
  * RetentionExpired is what the workspace's keep window no longer reached,
@@ -1883,7 +1842,7 @@ export type RetentionExpired = Message<"loft.RetentionExpired"> & {
  * Use `create(RetentionExpiredSchema)` to create a new message.
  */
 export const RetentionExpiredSchema: GenMessage<RetentionExpired> = /*@__PURE__*/
-  messageDesc(file_loft_past, 48);
+  messageDesc(file_loft_past, 47);
 
 /**
  * EventRedacted is an event's reason taken out (`event.redact`, payday#151's
@@ -1905,5 +1864,5 @@ export type EventRedacted = Message<"loft.EventRedacted"> & {
  * Use `create(EventRedactedSchema)` to create a new message.
  */
 export const EventRedactedSchema: GenMessage<EventRedacted> = /*@__PURE__*/
-  messageDesc(file_loft_past, 49);
+  messageDesc(file_loft_past, 48);
 

@@ -275,12 +275,11 @@ func TestWhatAnOperatorDoesIsRecordedAsTheirs(t *testing.T) {
 	// A write of a membership: the event, the trail and the access record.
 	kim, err := e.s.Ent.Holder.Query().Where(holder.TenantId(acme), holder.Alias("kim")).Only(bg)
 	x.NoError(err)
-	_, err = app.NewOperatorTenantServiceClient(e.conn).NameOwner(ctx, app.OperatorTenantNameOwnerRequest_builder{
-		Ref:    app.OperatorTenantRef_builder{Alias: z.Ptr("acme")}.Build(),
-		Member: "@kim",
+	_, err = app.NewOperatorIdentityServiceClient(e.conn).Depart(ctx, app.OperatorIdentityDepartRequest_builder{
+		Member: "kim",
 	}.Build())
 	x.NoError(err)
-	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme), event.Kind("party.role")).Only(bg)
+	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme), event.Kind("account.depart")).Only(bg)
 	x.NoError(err)
 	x.NotNil(ev.ActorId)
 	x.Equal(alice.Uuid(), *ev.ActorId, "the operator did it")

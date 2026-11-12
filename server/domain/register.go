@@ -27,7 +27,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/lesomnus/loft/server/bare"
 	"github.com/lesomnus/loft/server/pd"
-	"github.com/lesomnus/loft/server/policy"
 )
 
 // MaxRegisterRows is the most assets one bulk registration makes; a larger
@@ -326,7 +325,12 @@ func (t *Tx) intake(items []*app.AssetAddRequest, op []byte) (*intake, error) {
 // once, through the stack, which is the wall's check that the caller may see
 // it -- before any row is read.
 func (in *intake) lookUp(t *Tx, items []*app.AssetAddRequest) error {
-	admin := policy.Levels[t.roleOf()] >= policy.Admin
+	// A type it names that is not there is one it adds, which is
+	// AssetTypeService.Add's: the same act, asked as that method (D89).
+	admin, err := t.mayTo(app.AssetTypeService_Add_FullMethodName)
+	if err != nil {
+		return err
+	}
 
 	// Types: by id, and by name in one query.
 	names := []string{}

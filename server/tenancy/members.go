@@ -9,6 +9,7 @@ import (
 
 	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/roster/reach"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
 	"github.com/protobuf-orm/protoc-gen-orm-ent/runtime/enttx"
@@ -21,6 +22,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/session"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/policy"
 )
 
 var (
@@ -35,19 +37,35 @@ var (
 
 	// ErrMember is somebody who is a member here already.
 	ErrMember = errors.New("a member here already")
+
+	// ErrNoRole is somebody roster has in the tenant who may call nothing
+	// here: no role of Loft's bound to them there (D89). They come no
+	// further, and are no member for having tried.
+	ErrNoRole = errors.New("roster binds them no role of Loft's")
+
+	// ErrRole is a role Loft does not ship (`policy.Roles`).
+	ErrRole = errors.New("not a role Loft ships: owner, admin, manager, member or auditor")
 )
 
-// Addresses is what roster holds as checked of somebody: the addresses a
-// person record here is found by ([identity.Store.Addresses]).
-type Addresses interface {
+// People is roster, as a membership is made with it: the addresses it holds as
+// checked of somebody, which a person record here is found by
+// ([identity.Store.Addresses]), and the binding of somebody it made to a role
+// ([identity.Store.Bind]).
+type People interface {
 	Addresses(ctx context.Context, holder pdid.Id) ([]string, error)
+	Bind(ctx context.Context, role string, holder pdid.Id) error
+	// Enters is whether roster binds somebody any role of Loft's at all
+	// ([identity.Store.Enters]).
+	Enters(ctx context.Context, holder pdid.Id) error
 }
 
 // Members is how somebody roster vouched for comes to be a member of the
 // workspace (D85, #327's decision 11): the first time they sign in, with
 // roster's identifier for them -- the holder they are in the tenant this
-// deployment serves -- and as a member, which somebody who runs the workspace
-// makes more of. The workspace's first owner is who `loft init` made it for.
+// deployment serves. What they may call is roster's too (D89): the roles the
+// tenant binds them at roster, which a membership made here gives them none
+// of. The workspace's first owner is who `loft init` bound the owner's role
+// for.
 //
 // Who is a member is roster's (D87), so a membership ended here -- the person
 // forgotten, or gone from roster past its grace -- is theirs again when
@@ -60,8 +78,9 @@ type Members struct {
 	Drv  dialect.Driver
 
 	// People is roster, asked for the addresses it holds as checked of
-	// somebody, which their person record here is found by. Nil finds none.
-	People Addresses
+	// somebody, which their person record here is found by, and told the role
+	// of somebody [Members.Admit] makes. Nil finds none, and binds nobody.
+	People People
 
 	// Audit is what the trail keeps of a row (`audit.content`): a membership
 	// taken up again is on it as that act ([Readmitted]).
@@ -77,12 +96,28 @@ const Readmitted = "loft.holder.readmit"
 // transaction with the person record it is: the one this workspace keeps
 // already of somebody at an address roster holds as checked for them, when
 // there is exactly one, or a new one. [ErrNoWorkspace] is a deployment with
-// no workspace for the tenant.
+// no workspace for the tenant, and [ErrNoRole] somebody roster binds no role
+// of Loft's, who comes no further (D89) -- asked at every sign-in, so that a
+// membership whose roles roster took away signs in to nothing either, and one
+// ended here is not taken up again for it.
 func (m Members) Of(ctx context.Context, p identity.Person) (*ent.Holder, error) {
 	db := ent.NewClient(ent.Driver(m.Drv))
+	// The workspace first: before `loft init` there is nothing to come in
+	// to, and roster has no role of Loft's to say so with.
+	if _, err := db.Tenant.Get(ctx, p.Tenant.Uuid()); ent.IsNotFound(err) {
+		return nil, ErrNoWorkspace
+	} else if err != nil {
+		return nil, err
+	}
 	h, err := m.here(ctx, db, p)
-	if err == nil || !errors.Is(err, errNotYet) && !errors.Is(err, errEnded) {
-		return h, err
+	if err != nil && !errors.Is(err, errNotYet) && !errors.Is(err, errEnded) {
+		return nil, err
+	}
+	if err := m.enters(ctx, p.Id); err != nil {
+		return nil, err
+	}
+	if h != nil {
+		return h, nil
 	}
 
 	if err := m.make(ctx, p); err != nil {
@@ -101,6 +136,19 @@ var (
 	errEnded  = errors.New("a membership ended here")
 )
 
+// enters is nil for somebody roster binds a role of Loft's, [ErrNoRole] for
+// somebody it binds none, and a roster that could not be asked as itself.
+func (m Members) enters(ctx context.Context, holder pdid.Id) error {
+	if m.People == nil {
+		return nil
+	}
+	err := m.People.Enters(ctx, holder)
+	if errors.Is(err, reach.ErrDenied) {
+		return ErrNoRole
+	}
+	return err
+}
+
 func (m Members) here(ctx context.Context, db *ent.Client, p identity.Person) (*ent.Holder, error) {
 	h, err := db.Holder.Get(ctx, p.Id.Uuid())
 	switch {
@@ -117,27 +165,40 @@ func (m Members) here(ctx context.Context, db *ent.Client, p identity.Person) (*
 }
 
 func (m Members) make(ctx context.Context, p identity.Person) error {
-	return m.admit(ctx, p, "member", pdid.Nil, "", true)
+	return m.admit(ctx, p, pdid.Nil, "", true)
 }
 
-// Admit makes somebody roster has a member of the workspace with `role`: their
-// membership by their identifier there (D85), and the person record they are
-// -- `record`, one this workspace keeps that no login is linked to, or a new
-// one called as roster calls them, with `email` on it. What an operator does
-// at the roster in this process (`loft holder add`) and `init --demo`, which
-// make the people at roster first: one transaction, the deployment's own
-// work. Who comes to be a member by signing in is [Members.Of]'s.
+// Admit makes somebody roster has a member of the workspace: their membership
+// by their identifier there (D85), and the person record they are -- `record`,
+// one this workspace keeps that no login is linked to, or a new one called as
+// roster calls them, with `email` on it -- and binds them at roster to `role`,
+// one of the roles Loft ships by its word (`manager`, `policy.RoleOf`), unless
+// it is empty. What an operator does at the roster in this process (`loft
+// holder add`) and `init --demo`, which make the people at roster first: one
+// transaction, the deployment's own work, and the binding after it. Who comes
+// to be a member by signing in is [Members.Of]'s, and is bound nothing here.
 //
 // A membership ended here is taken up again (D88): the row it was, by the
 // same identifier, is live again -- on the trail as [Readmitted], since no
-// server writes a row back -- called as roster calls them now, with `role`,
-// leaving nothing and mailed as anybody new is; what it was signed in with
-// before ends with it. A person record it was that was forgotten stays so,
-// and it is given one found or made as anybody new is; one that was not, and
-// is its own still, it keeps.
+// server writes a row back -- called as roster calls them now, leaving
+// nothing and mailed as anybody new is; what it was signed in with before
+// ends with it. A person record it was that was forgotten stays so, and it is
+// given one found or made as anybody new is; one that was not, and is its
+// own still, it keeps.
 func (m Members) Admit(ctx context.Context, p identity.Person, role string, record pdid.Id, email string) (*ent.Holder, error) {
-	if err := m.admit(ctx, p, role, record, email, false); err != nil {
+	r, ok := policy.Role{}, role == ""
+	if !ok {
+		if r, ok = policy.RoleOf(role); !ok {
+			return nil, fmt.Errorf("%w: %q", ErrRole, role)
+		}
+	}
+	if err := m.admit(ctx, p, record, email, false); err != nil {
 		return nil, err
+	}
+	if r.Alias != "" && m.People != nil {
+		if err := m.People.Bind(ctx, r.Alias, p.Id); err != nil {
+			return nil, err
+		}
 	}
 	return ent.NewClient(ent.Driver(m.Drv)).Holder.Get(ctx, p.Id.Uuid())
 }
@@ -145,7 +206,7 @@ func (m Members) Admit(ctx context.Context, p identity.Person, role string, reco
 // admit is a new membership and the person record it is, in one transaction:
 // `record` when it names one, the one found at an address roster checked when
 // `find`, or a new one.
-func (m Members) admit(ctx context.Context, p identity.Person, role string, record pdid.Id, email string, find bool) error {
+func (m Members) admit(ctx context.Context, p identity.Person, record pdid.Id, email string, find bool) error {
 	tdrv, tx, err := dialect.BeginTx(ctx, m.Drv)
 	if err != nil {
 		return err
@@ -187,14 +248,13 @@ func (m Members) admit(ctx context.Context, p identity.Person, role string, reco
 	name := or(p.Name, p.Alias)
 	var h *app.Holder
 	if ended {
-		h, err = m.readmit(ctx, db, base, p.Id, alias, name, role)
+		h, err = m.readmit(ctx, db, base, p.Id, alias, name)
 	} else {
 		h, err = base.Holder().Add(ctx, app.HolderAddRequest_builder{
 			Id:     p.Id.Bytes(),
 			Tenant: tref,
 			Alias:  alias,
 			Name:   name,
-			Role:   z.Ptr(role),
 		}.Build())
 	}
 	if err != nil {
@@ -258,9 +318,10 @@ func (m Members) admit(ctx context.Context, p identity.Person, role string, reco
 // readmit makes the membership `member`, ended here, live again (D88): the
 // row back through ent, and on the trail as the act it is, in the same
 // transaction; the sessions it had, which a live row would answer to again,
-// gone; and then, through the servers, what it is called, its role, and
-// nothing left of its leaving or of the choice its person made before.
-func (m Members) readmit(ctx context.Context, db *ent.Client, base app.Server, member pdid.Id, alias, name, role string) (*app.Holder, error) {
+// gone; and then, through the servers, what it is called, and nothing left
+// of its leaving or of the choice its person made before. What it may call is
+// what roster binds it (D89), which taking it up again leaves as it is.
+func (m Members) readmit(ctx context.Context, db *ent.Client, base app.Server, member pdid.Id, alias, name string) (*app.Holder, error) {
 	// Taken up once: a sign-in beside this one that took it up first has
 	// it, and this one reads what that made.
 	n, err := db.Holder.Update().Where(holder.Id(member.Uuid()), holder.DateErasedNotNil()).ClearDateErased().Save(ctx)
@@ -280,7 +341,6 @@ func (m Members) readmit(ctx context.Context, db *ent.Client, base app.Server, m
 		Ref:              app.HolderRef_builder{Id: member.Bytes()}.Build(),
 		Alias:            z.Ptr(alias),
 		Name:             z.Ptr(name),
-		Role:             z.Ptr(role),
 		DateLeavingNull:  z.Ptr(true),
 		MailOff:          z.Ptr(false),
 		DateUpdatedForce: z.Ptr(true),

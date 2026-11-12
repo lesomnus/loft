@@ -294,7 +294,11 @@ func (s domainCustody) Acknowledge(ctx context.Context, req *app.CustodyAcknowle
 			out = c
 			return nil
 		}
-		if !manages(t.roleOf()) {
+		forOthers, err := t.mayTo(app.PermissionService_AcknowledgeForOthers_FullMethodName)
+		if err != nil {
+			return err
+		}
+		if !forOthers {
 			me, err := t.partyOf()
 			if err != nil {
 				return err

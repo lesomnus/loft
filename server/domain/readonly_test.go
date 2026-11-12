@@ -42,8 +42,9 @@ func TestReadOnlyRefusesEveryWriteItDoesNotAllow(t *testing.T) {
 	x := assert.New(t)
 
 	writes := []string{"tx", "run", "System"}
-	for m := range policy.Table {
-		if grpcx.GeneralWrite(m) {
+	for _, m := range policy.Named() {
+		if grpcx.GeneralWrite(m) || strings.HasPrefix(m, "/loft.PermissionService/") {
+			// A permission is a name a role holds, which nothing serves.
 			continue
 		}
 		svc, name, ok := strings.Cut(strings.TrimPrefix(m, "/loft."), "/")
@@ -66,8 +67,7 @@ func TestReadOnlyRefusesEveryWriteItDoesNotAllow(t *testing.T) {
 	}
 
 	for m := range domain.ReadOnlyAllows {
-		_, ok := policy.Table[m]
-		x.True(ok, "%s is no method anybody may call", m)
+		x.True(policy.Grantable(m), "%s is no method anybody may call", m)
 	}
 }
 

@@ -187,7 +187,7 @@ func TestLevyanIsToldWhatAnOperatorEnds(t *testing.T) {
 	}
 	acme, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)
-	owner, err := d.s.Ent.Holder.Query().Where(holder.TenantId(acme.Id), holder.Role("owner")).Only(ctx)
+	owner, err := d.s.Ent.Holder.Query().Where(holder.TenantId(acme.Id), holder.Alias("owner")).Only(ctx)
 	x.NoError(err)
 	fake.Arrived(pdid.Id(acme.Id), pdid.Id(owner.Id), acme.DateCreated)
 

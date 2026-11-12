@@ -2,17 +2,13 @@ edition = "2023";
 
 package payday;
 
-// What loft adds to payday's Holder: the role it acts with.
+// What loft adds to payday's Holder: what roster says of the membership, and
+// the member's own choice about mail.
 //
-// A string rather than an enum because the generated List filters only on
-// scalars, and "who are the admins" is a list somebody asks for. The values
-// are checked by the policy (server/policy): owner, admin, manager, member,
-// auditor.
+// What a member may call is not here. It is roster's, asked of it at every
+// call (`server/policy`, D89): the roles are the tenant's at roster, and Loft
+// knows none of their names.
 message Holder {
-  // `member` when what makes the membership says no other. Not personal: who
-  // made somebody an administrator is the record (payday#92).
-  string role = 8 [(orm.field) = {default: "member"}, (payday.field) = {personal: false}];
-
   // When roster erased the holder this membership is -- the holder of the
   // tenant this deployment serves by the membership's own identifier (design
   // 9.10, D85) -- and so when it began to leave: it signs in nowhere from

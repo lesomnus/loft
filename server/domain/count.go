@@ -85,8 +85,10 @@ func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanReques
 		if c.GetStatus() != "open" {
 			return failed("종료된 실사입니다")
 		}
-		if !c.GetSelfService() && !manages(t.roleOf()) {
-			return status.Error(codes.PermissionDenied, "이 실사는 매니저만 스캔합니다. 자가 실사에서는 누구나 스캔할 수 있습니다")
+		if !c.GetSelfService() {
+			if err := t.may(app.PermissionService_ScanAnyCount_FullMethodName, "자가 실사가 아닌 실사는 스캔할 수 있는 역할이 있는 사람만 스캔합니다. 자가 실사에서는 누구나 스캔할 수 있습니다"); err != nil {
+				return err
+			}
 		}
 		seen, err := t.at(req.GetDateSeen(), "date_seen")
 		if err != nil {

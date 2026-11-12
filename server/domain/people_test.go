@@ -53,9 +53,10 @@ func TestAPersonForgottenHereEndsTheMembership(t *testing.T) {
 // TestAMemberEndedHereIsOneAgainWhileRosterHasThem (D88): who is a member is
 // roster's, so somebody forgotten here whom roster still has is a member
 // again the next time they sign in -- the same membership, called as roster
-// calls them, a member and no more, with a person record found or made as
-// for anybody new; the record forgotten stays so. What they were signed in
-// with before is gone, and the trail says the row was taken up again.
+// calls them, with a person record found or made as for anybody new; the
+// record forgotten stays so. What they may call is what roster binds them,
+// which Loft neither gave nor takes away (D89). What they were signed in with
+// before is gone, and the trail says the row was taken up again.
 func TestAMemberEndedHereIsOneAgainWhileRosterHasThem(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
@@ -76,7 +77,7 @@ func TestAMemberEndedHereIsOneAgainWhileRosterHasThem(t *testing.T) {
 	x.Nil(h.DateErased)
 	x.Equal("p1", h.Alias)
 	x.Equal("manager 1", h.Name)
-	x.Equal("member", h.Role, "what they could do before")
+	x.NoError(e.s.Identity.Reach().May(ctx, who, app.ReservationService_Approve_FullMethodName), "what they may call is what roster binds them, as it was (D89)")
 
 	rec, err := e.s.Ent.Party.Query().Where(party.HolderId(who.Uuid()), party.DateErasedIsNil()).Only(ctx)
 	x.NoError(err)

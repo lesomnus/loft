@@ -12,9 +12,10 @@
 //
 // Whichever it is, Loft talks to it the same way: as the holder `loft` in the
 // tenant, holding the role that lets it check a password, read a person and
-// their tenant. On an external roster that is the tenant's own key, which
-// hangs on that holder (`rt_`, roster's `docs/apps.md` shape C: the tenant
-// runs it). On the embedded one Loft writes that holder and its role itself.
+// their tenant, ask what somebody may call, and write the roles Loft ships.
+// On an external roster that is the tenant's own key, which hangs on that
+// holder (`rt_`, roster's `docs/apps.md` shape C: the tenant runs it). On the
+// embedded one Loft writes that holder and its role itself.
 //
 // shale was here first (its `internal/identity`), and this is the same shape,
 // cut to what Loft asks.
@@ -45,10 +46,13 @@ import (
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/roster/reach"
 	"github.com/lesomnus/roster/rstr"
 	rostercore "github.com/lesomnus/roster/server/core"
 	"github.com/lesomnus/roster/server/front"
 	"github.com/lesomnus/roster/standing"
+
+	"github.com/lesomnus/loft/server/policy"
 )
 
 // Config is `auth.roster`.
@@ -113,17 +117,31 @@ const Agent = "loft"
 // somebody can administer it, with no way to sign in until it is given one.
 const RosterAdministrator = rostercore.Administers
 
-// AgentMethods is what that holder may call: what roster's `standing` asks
-// for ([standing.Methods]: somebody's standing, the stream of what stopped
-// being good about somebody, and the addresses somebody checked for them --
-// which is how their person record here is found, and where their mail
-// goes), and what Loft asks itself -- checking a password, reading the
-// tenant, and whose the key is. It is the `--role` an external roster
-// installs Loft with, and what the tenant's key allows:
+// AgentMethods is what that holder may call:
 //
-//	roster app install --tenant acme --role /roster.HolderService/Get,\
-//	  /roster.SyncService/Watch,/roster.EmailService/List,/roster.EmailService/Get,\
-//	  /roster.VouchService/Verify,/roster.TenantService/Get,/roster.MeService/Get loft
+//   - what roster's `standing` asks for ([standing.Methods]: somebody's
+//     standing, the stream of what stopped being good about somebody, and the
+//     addresses somebody checked for them -- which is how their person record
+//     here is found, and where their mail goes);
+//   - what roster's `reach` asks for ([reach.Methods]: what somebody may call,
+//     and the stream that says when that may have changed), which every call
+//     here is decided by (D89);
+//   - what Loft asks itself: checking a password, reading the tenant, and
+//     whose the key is;
+//   - and the roles Loft ships (`policy.Roles`, #327's decision 31): written
+//     into the tenant and read back (`RoleService/Add`, `Get`), widened by
+//     what a release brings (`Widen`), and the first owner bound to one
+//     (`BindingService/Add`) -- with every method of Loft's, `/loft.*/*`,
+//     since nobody writes a role or a binding that grants what they do not
+//     hold themselves (roster's escalation rule). It gives nobody anything
+//     here: Loft asks roster about whoever calls it, and is never called as
+//     itself.
+//
+// It is the `--role` an external roster installs Loft with, and what the
+// tenant's key allows; `--administer` gives the tenant's administrators Loft's
+// methods too, without which nobody there could bind the roles it writes:
+//
+//	roster app install --tenant acme --role <AgentMethods, by commas> --administer '/loft.*/*' loft
 //	roster key add --tenant acme --holder loft --name loft --allow <the same>
 //
 // Installing again leaves a role the tenant has as the tenant has it
@@ -136,17 +154,36 @@ const RosterAdministrator = rostercore.Administers
 // control plane (roster#221) --
 //
 // While the role lacks one of them, nobody's person record is found by the
-// address they checked at roster, and a session learns what roster says of
-// its member only when it next asks.
+// address they checked at roster, a session learns what roster says of its
+// member only when it next asks, or -- lacking `HolderService/Reaches` --
+// nothing at all is served.
 //
 // People are made, given passwords and suspended at roster, by whoever
 // administers the tenant there; on the embedded roster Loft does those through
 // the deployment's own door, which is not a role.
-var AgentMethods = append(slices.Clone(standing.Methods),
-	"/roster.VouchService/Verify",
-	"/roster.TenantService/Get",
-	"/roster.MeService/Get",
-)
+var AgentMethods = func() []string {
+	out := []string{}
+	for _, m := range slices.Concat(standing.Methods, reach.Methods, []string{
+		rstr.VouchService_Verify_FullMethodName,
+		rstr.TenantService_Get_FullMethodName,
+		rstr.MeService_Get_FullMethodName,
+		rstr.RoleService_Add_FullMethodName,
+		rstr.RoleService_Get_FullMethodName,
+		rstr.RoleService_Widen_FullMethodName,
+		rstr.BindingService_Add_FullMethodName,
+		LoftMethods,
+	}) {
+		if !slices.Contains(out, m) {
+			out = append(out, m)
+		}
+	}
+	return out
+}()
+
+// LoftMethods is every method of Loft's, as a pattern: what Loft's own role
+// holds so that the roles it writes are grants it may make, and what the
+// tenant's administrators are given with it (`--administer`).
+const LoftMethods = "/loft.*/*"
 
 // prefixTenantKey is what a tenant's key begins with, the way roster reads
 // it.
@@ -213,6 +250,9 @@ type Store struct {
 	// accounts is roster's `standing` on this connection: what a session is
 	// held to, the stream, and the asking again ([Store.Accounts]).
 	accounts *standing.Accounts
+	// reaches is roster's `reach` on it: what somebody may call, which every
+	// call here is decided by ([Store.Reach], D89).
+	reaches *reach.Holders
 
 	// The tenant, once it was found.
 	dmu    sync.Mutex
@@ -301,27 +341,46 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 	return s, nil
 }
 
-// keepAsking is roster's `standing` on the connection, either roster's: what
-// Loft keeps asking roster after a sign-in, written once in roster for every
-// app that does (roster's `docs/relying-app.md`). It asks as Loft's holder in
-// the tenant, as everything here does.
+// keepAsking is roster's `standing` and `reach` on the connection, either
+// roster's: what Loft keeps asking roster after a sign-in, and what somebody
+// may call, each written once in roster for every app that asks it (roster's
+// `docs/relying-app.md`, `docs/apps.md`). Both ask as Loft's holder in the
+// tenant, as everything here does.
 func (s *Store) keepAsking() error {
+	as := func(ctx context.Context) (context.Context, error) {
+		as, _, err := s.inTenant(ctx)
+		return as, err
+	}
 	v, err := standing.New(standing.Config{
 		Conn: s.conn,
 		Log:  s.log,
-		As: func(ctx context.Context) (context.Context, error) {
-			as, _, err := s.inTenant(ctx)
-			return as, err
-		},
-		Now: func() time.Time { return s.now() },
+		As:   as,
+		Now:  func() time.Time { return s.now() },
 	})
 	if err != nil {
 		return err
 	}
 	s.accounts = v
+	r, err := reach.New(reach.Config{
+		Conn: s.conn,
+		Log:  s.log,
+		As:   as,
+		Now:  func() time.Time { return s.now() },
+	})
+	if err != nil {
+		return err
+	}
+	s.reaches = r
 
 	return nil
 }
+
+// Reach is what the tenant's people may call, as roster says it -- roster's
+// `reach`: asked at every call by the gate and by the domain layer
+// ([reach.Holders.May]), kept for [HeldTtl], and dropped by roster's stream
+// ([reach.Holders.Follower], which an external roster's deployment runs in
+// every process) or by [Store.Bind], for a change made from here.
+func (s *Store) Reach() *reach.Holders { return s.reaches }
 
 // Accounts is the tenant's people as roster has them -- roster's `standing`:
 // what a session is held to ([Store.Held]), roster's stream as a loop
@@ -696,3 +755,85 @@ func (s *Store) Held(ctx context.Context, holder pdid.Id, began time.Time) error
 // Recheck drops what is known of a person, for a change made here to be seen
 // on the next call rather than after [HeldTtl].
 func (s *Store) Recheck(holder pdid.Id) { s.accounts.Recheck(holder) }
+
+// WriteRoles writes the roles Loft ships into the tenant, as the holder Loft is
+// there (#327's decisions 9, 31): each under its alias, with what it holds at
+// first. A role the tenant has under that alias already is the tenant's and
+// left as it is, whatever it holds -- narrowed, widened, or another's -- since
+// from the first write on it is theirs to change in roster's screens. It
+// answers the aliases it wrote.
+//
+// It is `loft init`'s, on either roster: the embedded one is asked over the
+// wire like any other, as the holder this process writes there.
+func (s *Store) WriteRoles(ctx context.Context, roles []policy.Role) ([]string, error) {
+	as, d, err := s.inTenant(ctx)
+	if err != nil {
+		return nil, err
+	}
+	c := rstr.NewRoleServiceClient(s.conn)
+	tref := rstr.TenantRef_builder{Id: d.Id.Bytes()}.Build()
+	wrote := []string{}
+	for _, r := range roles {
+		_, err := c.Get(as, rstr.RoleGetRequest_builder{
+			Ref: rstr.RoleRef_builder{Slug: rstr.RoleRefBySlug_builder{Alias: z.Ptr(r.Alias), Tenant: tref}.Build()}.Build(),
+		}.Build())
+		if err == nil {
+			continue
+		}
+		if status.Code(err) != codes.NotFound {
+			return wrote, fmt.Errorf("roster: role %s: %w", r.Alias, err)
+		}
+		if _, err := c.Add(as, rstr.RoleAddRequest_builder{
+			Tenant: tref, Alias: r.Alias, Name: r.Name, Desc: r.Desc, Methods: r.Methods,
+		}.Build()); err != nil {
+			if status.Code(err) == codes.AlreadyExists {
+				// Written meanwhile, by another `init`: the tenant's.
+				continue
+			}
+			return wrote, fmt.Errorf("roster: role %s: %w", r.Alias, err)
+		}
+		wrote = append(wrote, r.Alias)
+	}
+
+	return wrote, nil
+}
+
+// Bind binds somebody in the tenant to one of its roles, by the role's alias,
+// as the holder Loft is there: what `loft init` does for the first owner, and
+// the demo and `loft holder add` for the people they make on the roster in
+// this process. A binding that is there already is no error. What is kept of
+// what they may call is dropped at once ([reach.Holders.Recheck]): roster's
+// stream says so too on a roster of its own, and the one in this process has
+// none.
+func (s *Store) Bind(ctx context.Context, role string, holder pdid.Id) error {
+	as, d, err := s.inTenant(ctx)
+	if err != nil {
+		return err
+	}
+	_, err = rstr.NewBindingServiceClient(s.conn).Add(as, rstr.BindingAddRequest_builder{
+		Role: rstr.RoleRef_builder{Slug: rstr.RoleRefBySlug_builder{
+			Alias:  z.Ptr(role),
+			Tenant: rstr.TenantRef_builder{Id: d.Id.Bytes()}.Build(),
+		}.Build()}.Build(),
+		Holder: rstr.HolderRef_builder{Id: holder.Bytes()}.Build(),
+	}.Build())
+	if err != nil && status.Code(err) != codes.AlreadyExists {
+		return fmt.Errorf("roster: binding %s to %s: %w", holder, role, err)
+	}
+	s.reaches.Recheck(holder)
+
+	return nil
+}
+
+// Enters says whether roster says somebody may come in at all: call
+// `PartyService.Me`, which every page asks first and every role Loft ships
+// holds (D89). Nil when it does; [reach.ErrDenied] when it does not -- no role
+// of Loft's bound to them at roster, which a sign-in is refused for and told;
+// and anything else for a roster that could not be asked.
+func (s *Store) Enters(ctx context.Context, holder pdid.Id) error {
+	return s.reaches.May(ctx, holder, Enters)
+}
+
+// Enters is the method somebody has to be able to call to come in: who they
+// are, the first thing a page asks.
+const Enters = "/loft.PartyService/Me"

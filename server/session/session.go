@@ -48,6 +48,7 @@ import (
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/clientaddr"
 	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Store is an [authsession.Store] over the Session table. The key is never
@@ -322,9 +323,16 @@ type People interface {
 	Embedded() bool
 }
 
+// NoRole is what a sign-in roster binds no role of Loft's for is answered
+// with, beside 403: somebody the tenant has who may do nothing here, and who
+// is told to ask its administrators at roster rather than that their
+// password is wrong (D89).
+const NoRole = "no role of loft's at roster"
+
 // Members is who somebody roster vouched for is here: their membership, made
 // the first time they sign in and taken up again by one ended here
-// ([tenancy.Members.Of]) -- [tenancy.ErrNoWorkspace] before `loft init`.
+// ([tenancy.Members.Of]) -- [tenancy.ErrNoWorkspace] before `loft init`, and
+// [tenancy.ErrNoRole] for somebody roster binds no role of Loft's.
 type Members interface {
 	Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
 }
@@ -402,7 +410,13 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, membe
 		}
 
 		h, err := members.Of(ctx, p)
-		if err != nil {
+		switch {
+		case errors.Is(err, tenancy.ErrNoRole):
+			// Somebody roster binds no role of Loft's comes no further, and
+			// is told to ask at roster rather than that a password is wrong.
+			http.Error(w, NoRole, http.StatusForbidden)
+			return
+		case err != nil:
 			log.From(ctx).ErrorContext(ctx, "session: somebody roster vouched for is no member here", slog.Any("err", err))
 			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
 			return

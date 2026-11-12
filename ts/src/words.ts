@@ -34,14 +34,6 @@ export const conditionWord: Record<string, string> = { good: '양호', damaged: 
 
 export const modeWord: Record<string, string> = { located: '놓임', installed: '장착', part: '구성품' }
 
-export const roleWord: Record<string, string> = {
-	owner: '소유자',
-	admin: '관리자',
-	manager: '매니저',
-	member: '구성원',
-	auditor: '감사자',
-}
-
 export const partyKindWord: Record<string, string> = { person: '사람', team: '팀', org: '조직', vendor: '거래처' }
 
 export const stewardWord: Record<string, string> = { owner: '소유', manager: '관리 담당', custodian: '보유' }

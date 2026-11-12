@@ -374,8 +374,10 @@ func furnish(t *testing.T, s *cmd.Server, alias, login string) {
 
 	_, err = w.Label().Print(as, app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)
+	// A self-audit, which everybody scans: the other workspace's people are
+	// nobody at this deployment's roster, which says what they may call (D89).
 	count, err := w.InventoryCount().Add(as, app.InventoryCountAddRequest_builder{
-		Name: "실사", Scope: app.AssetRef_builder{Id: pdid.Id(space.Id).Bytes()}.Build(),
+		Name: "실사", Scope: app.AssetRef_builder{Id: pdid.Id(space.Id).Bytes()}.Build(), SelfService: true,
 	}.Build())
 	x.NoError(err)
 	_, err = w.InventoryCount().Scan(as, app.InventoryCountScanRequest_builder{
@@ -394,9 +396,10 @@ func furnish(t *testing.T, s *cmd.Server, alias, login string) {
 	x.NoError(err)
 }
 
-// TestNoCallReachesAnotherWorkspace: the M1 sweep, every method the policy
-// table opens -- so a method added to it is in here without anybody writing a
-// line -- called as the owner of the workspace the deployment serves with the
+// TestNoCallReachesAnotherWorkspace: the M1 sweep, every method a role may be
+// given (`policy.Methods`) -- so a method added to one is in here without
+// anybody writing a line -- called as the owner of the workspace the
+// deployment serves with the
 // identifiers of another's rows wherever the request can carry one: one put
 // back from another deployment, whose people sign in nowhere here (D85). None
 // answers with anything of the other workspace, none fails in a way that says
@@ -422,7 +425,7 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	x.NoError(err)
 	conn := pdtest.Serve(t, g)
 
-	owner, err := s.Ent.Holder.Query().Where(holder.Role("owner"), holder.HasTenantWith(tenant.Alias("acme"))).Only(ctx)
+	owner, err := s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.HasTenantWith(tenant.Alias("acme"))).Only(ctx)
 	x.NoError(err)
 	_, cookie, err := s.Sessions.Mint(ctx, authsession.Session{Id: pdid.Id(owner.Id).String(), Grant: frame.Whole()})
 	x.NoError(err)
@@ -449,10 +452,13 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	before := snapshot(t, s, beta.tenant)
 
 	methods := []string{}
-	for m := range policy.Table {
+	for _, m := range policy.Methods() {
+		if strings.HasPrefix(m, "/loft.PermissionService/") {
+			// A permission: a name a role holds, which nothing serves.
+			continue
+		}
 		methods = append(methods, m)
 	}
-	sort.Strings(methods)
 
 	codesOf := map[codes.Code][]string{}
 	absent := []string{}

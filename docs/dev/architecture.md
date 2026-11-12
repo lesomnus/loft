@@ -6,7 +6,7 @@ Loft는 [payday](https://github.com/lesomnus/payday) 앱입니다. 대부분은 
 proto/loft/*.proto          엔터티 (스키마의 원천)
 proto/ext/loft/*.ext.proto  엔터티에 더한 RPC
 server/domain/              도메인 계층: 시간 기록, 예약 충돌, 지급, 재고, 실사 … 그리고 백그라운드 작업
-server/policy/              역할 → 호출할 수 있는 RPC
+server/policy/              처음 역할 다섯과 줄 수 있는 RPC, roster에 묻는 게이트
 server/session/             로그인(roster에 묻는다)과 DB에 두는 세션, GET /session
 server/tenancy/             워크스페이스가 처음 갖는 것, 처음 로그인한 사람이 구성원이 되는 일, 주소가 roster의 것을 따르는 일
 internal/identity/          roster: 따로 운영하는 것(gRPC) 또는 프로세스 안의 것(bufconn)
@@ -29,11 +29,13 @@ go tool pd gen --check .  # 생성물이 스키마와 같은지 (CI가 하는 �
 
 ## 역할과 정책
 
-역할은 **소유자 · 관리자 · 매니저 · 구성원 · 감사자**입니다. 무엇을 누가 할 수 있는지는 [`server/policy/policy.go`](../../server/policy/policy.go)의 표 하나가 정하고, 표에 없는 것은 거부됩니다. 새 RPC는 표에 더하기 전까지 닫혀 있습니다. 역할마다 하는 일은 [안내서](../guide/README.md)에 있습니다.
+누가 무엇을 할 수 있는지는 **roster의 역할**입니다(D89). 게이트는 호출마다 부르는 사람이 그 RPC를 부를 수 있는지 roster에 묻고(`policy.Policy`, roster의 `reach`), 어떤 역할인지는 묻지 않습니다. 역할마다 하는 일은 [안내서](../guide/README.md)에 있습니다.
 
-- 표는 메서드마다 가장 낮은 역할을 정합니다. 감사자는 읽기에 더해, 관리자의 것인 감사 기록·접속기록 읽기와 리포트를 받습니다.
+- 처음 역할은 **소유자 · 관리자 · 매니저 · 구성원 · 감사자**(`loft-owner` … `loft-auditor`)입니다. 처음 담는 메서드는 [`server/policy/policy.go`](../../server/policy/policy.go)가 정하고 `server/policy/testdata/roles.txt` 에 메서드마다 적혀 있습니다. `loft init` 이 roster에 쓰고, 그 뒤로는 테넌트가 roster에서 고칩니다.
+- 처음 역할 어디에도 없는 메서드는 roster에 묻기 전에 거부됩니다. 새 RPC는 `policy.go` 의 역할에 더하기 전까지 닫혀 있습니다. 감사자는 읽기에 더해, 관리자의 것인 감사 기록·접속기록 읽기와 리포트를 받습니다.
+- 메서드보다 잘게 나눈 권한은 `PermissionService` 의 메서드이고(`proto/loft/permission.proto`), 도메인 계층이 roster에 묻습니다(`Tx.may`). 화면은 `PartyService.Me` 의 `methods` 로 메뉴와 버튼을 그립니다.
 - 모든 호출은 그 배포가 섬기는 워크스페이스의 구성원으로 처리합니다(D85).
-- 아직 어느 역할에도 주지 않은 메서드(예: `EventService.Redact`)는 표에 닫힌 것으로 적혀 있습니다. 워크스페이스를 닫고, 되돌리고, 모두 내보내는 것(`TenantService.Close`·`Restore`·`Export`)은 운영자의 것이라 표에 없습니다(design D83).
+- 아직 어느 역할에도 주지 않은 메서드(예: `EventService.Redact`)는 닫힌 것으로 적혀 있어 roster에서 담아도 거부됩니다. 워크스페이스를 닫고, 되돌리고, 모두 내보내는 것(`TenantService.Close`·`Restore`·`Export`)은 운영자의 것이라 어느 역할에도 없습니다(design D83).
 - 도메인 계층(`server/domain`)은 게이트 위에서 생성된 동사를 완성하고(`Asset.Add`, `Reservation.Add` …) 나머지를 더합니다. 작업 하나가 트랜잭션 하나이고, 작업 기록(Event)을 남기며, 그것이 말하는 상태와 함께 시간 행을 씁니다.
 
 ## 실시간

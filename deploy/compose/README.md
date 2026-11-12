@@ -75,7 +75,7 @@ roster --as admin host add '{"tenant": {"alias": "acme"}, "name": "id.example.co
 # 2. Loft를 그 테넌트에 설치하고, 테넌트의 키를 만듭니다
 m=/roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get
 m=$m,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
-m=$m,/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen
+m=$m,/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen,/roster.BindingService/Add
 m=$m,'/loft.*/*'
 roster app install --tenant acme --role "$m" --administer '/loft.*/*' loft
 roster key add --tenant acme --holder loft --name loft --allow "$m"   # rt_… 를 한 번 보여 줍니다 → .env의 ROSTER_KEY
@@ -88,9 +88,9 @@ docker compose run --rm loft --config /etc/loft/loft.yaml init --name "ACME"
 curl https://$LOFT_DOMAIN/healthz     # ok
 ```
 
-- **`m`** 은 Loft가 roster에 묻는 메서드(`identity.AgentMethods`), 그리고 Loft가 테넌트에 써 넣는 기본 역할(#334)을 쓰고 넓히는 데 드는 메서드입니다. `/loft.*/*` 를 쥐어야 자기 메서드로 된 역할을 쓸 수 있고, `--administer '/loft.*/*'` 가 있어야 테넌트의 관리자가 그 역할을 사람에게 줄 수 있습니다(roster `docs/apps.md` 의 *The roles an app ships*). 키는 허용한 메서드로도 좁혀지므로 `--allow` 에 같은 목록을 줍니다.
-- **소유자**는 `loft init --login` 의 사람이고, 기본은 테넌트를 만들 때 roster가 넣은 관리자 `admin` 입니다. 그 사람이 `https://$LOFT_DOMAIN` 에 roster의 비밀번호로 로그인합니다.
-- **구성원**은 테넌트의 관리자가 `https://$ROSTER_DOMAIN` 에 로그인해 roster의 화면에서 넣습니다. 넣은 사람이 처음 Loft에 로그인하면 구성원이 됩니다([관리자 안내서](../../docs/guide/admin.md#사람-들이기)).
+- **`m`** 은 Loft가 roster에 묻는 메서드 전부(`identity.AgentMethods`)입니다. Loft가 테넌트에 써 넣는 처음 역할을 쓰고 넓히고 첫 소유자에게 묶는 데 드는 메서드(`RoleService/Add`·`Get`·`Widen`, `BindingService/Add`)가 그 안에 있습니다(D89). `/loft.*/*` 를 쥐어야 자기 메서드로 된 역할을 쓸 수 있고, `--administer '/loft.*/*'` 가 있어야 테넌트의 관리자가 그 역할을 사람에게 줄 수 있습니다(roster `docs/apps.md` 의 *The roles an app ships*). 키는 허용한 메서드로도 좁혀지므로 `--allow` 에 같은 목록을 줍니다.
+- **소유자**는 `loft init --login` 의 사람이고, 기본은 테넌트를 만들 때 roster가 넣은 관리자 `admin` 입니다. `init` 이 Loft의 처음 역할 다섯을 roster에 쓰고 그 사람에게 `loft-owner` 를 묶습니다(D89). 그 사람이 `https://$LOFT_DOMAIN` 에 roster의 비밀번호로 로그인합니다.
+- **구성원**은 테넌트의 관리자가 `https://$ROSTER_DOMAIN` 에 로그인해 roster의 화면에서 넣고 Loft의 역할(보통 `loft-member`)을 묶습니다. 그 사람이 처음 Loft에 로그인하면 구성원이 됩니다. 역할이 하나도 없으면 로그인이 거절됩니다([관리자 안내서](../../docs/guide/admin.md#사람-들이기)).
 - roster 운영자의 명령은 상자에서, 그 운영자의 이름으로(`--as`) 합니다. roster의 접속기록이 그 사람을 남깁니다(roster `docs/operating.md` 의 *The CLI on the box is the deployment*).
 
 ## 검색을 켜려면 (OpenSearch)

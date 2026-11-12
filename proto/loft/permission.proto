@@ -1,0 +1,48 @@
+edition = "2023";
+
+package loft;
+
+option go_package = "github.com/lesomnus/loft";
+
+// PermissionService is what a role may hold that is finer than one RPC
+// (#327's decision 8, D89): the same act as a method of Loft's, over more than
+// the caller's own -- somebody else's reservation, a count that is not a
+// self-audit. Nothing serves it. A role at roster names its methods as it names
+// any other (`/loft.PermissionService/BookForOthers`), and Loft asks roster
+// whether somebody may call one (`domain.Tx.may`) -- never which role they
+// hold, which is the tenant's to rename, split or narrow.
+//
+// An act that is another act altogether is an RPC of its own rather than a
+// method here, and is asked as that RPC: deciding on a reservation is
+// `ReservationService.Approve` and `Reject`, and a type a bulk registration
+// adds is `AssetTypeService.Add`'s.
+service PermissionService {
+  // BookForOthers is reserving for somebody else: `ReservationService.Add`
+  // naming a party who is not the caller's.
+  rpc BookForOthers(PermissionRequest) returns (PermissionResponse);
+  // BookOverConflicts is reserving over what is booked already, saying why:
+  // `ReservationService.Add` with `override`.
+  rpc BookOverConflicts(PermissionRequest) returns (PermissionResponse);
+  // ActOnOthersBookings is cancelling, checking in and completing a
+  // reservation that is somebody else's -- and being told what keeps one
+  // from going ahead.
+  rpc ActOnOthersBookings(PermissionRequest) returns (PermissionResponse);
+  // ReadEveryReservation is reading the history of a reservation that is not
+  // the caller's (D45).
+  rpc ReadEveryReservation(PermissionRequest) returns (PermissionResponse);
+  // AcknowledgeForOthers is saying a hand-over was received, for whoever
+  // received it.
+  rpc AcknowledgeForOthers(PermissionRequest) returns (PermissionResponse);
+  // ScanAnyCount is scanning in a count that is not a self-audit.
+  rpc ScanAnyCount(PermissionRequest) returns (PermissionResponse);
+  // RunWork is deciding work rather than reporting something broken: a kind
+  // other than repair, a schedule, a cost, a vendor, or that it stops what it
+  // is about from being booked.
+  rpc RunWork(PermissionRequest) returns (PermissionResponse);
+}
+
+// PermissionRequest and PermissionResponse are nothing: a permission is a
+// name a role holds, and nobody calls it.
+message PermissionRequest {}
+
+message PermissionResponse {}

@@ -12,10 +12,12 @@ import (
 	"github.com/lesomnus/payday/trail"
 	"github.com/stretchr/testify/require"
 
+	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/policy"
 )
 
 // TestInitPutsUpTheTenantAndItsOwner (D85): on the roster in this process,
@@ -29,7 +31,8 @@ func TestInitPutsUpTheTenantAndItsOwner(t *testing.T) {
 	ctx := context.Background()
 	c := embeddedConfig(t)
 	c.Auth.Roster.Tenant = "acme"
-	run(t, cli.NewCmdInit(&c), "--name", "ACME 연구소", "--login", "kim", "--person", "김민준", "--password", "kim-password")
+	out := run(t, cli.NewCmdInit(&c), "--name", "ACME 연구소", "--login", "kim", "--person", "김민준", "--password", "kim-password")
+	x.Contains(out, "roles     loft-owner, loft-admin, loft-manager, loft-member, loft-auditor, written at roster\n")
 
 	on(t, c, func(s *cmd.Server) {
 		rt, err := s.Identity.Tenant(ctx)
@@ -46,7 +49,10 @@ func TestInitPutsUpTheTenantAndItsOwner(t *testing.T) {
 		x.Equal("김민준", p.Name)
 		h, err := s.Ent.Holder.Get(ctx, p.Id.Uuid())
 		x.NoError(err, "the owner is the holder at roster, by its identifier")
-		x.Equal("owner", h.Role)
+		x.NoError(s.Identity.Reach().May(ctx, p.Id, app.TenantService_Configure_FullMethodName), "bound the owner's role at roster (D89)")
+		wrote, err := s.Identity.WriteRoles(ctx, policy.Roles)
+		x.NoError(err)
+		x.Empty(wrote, "every role Loft ships is the tenant's at roster already, and written again is left as it is")
 		x.Equal(rt.Id.Uuid(), h.TenantId)
 		record, err := s.Ent.Party.Query().Where(party.HolderId(h.Id)).Only(ctx)
 		x.NoError(err)
@@ -99,9 +105,9 @@ func TestInitTakesAnOwnerRosterHasAsTheyAre(t *testing.T) {
 		p, err := s.Identity.Verify(ctx, "owner", "owner1234")
 		x.NoError(err, "their own password")
 		x.Equal(owner, p.Id)
-		h, err := s.Ent.Holder.Get(ctx, owner.Uuid())
+		_, err = s.Ent.Holder.Get(ctx, owner.Uuid())
 		x.NoError(err)
-		x.Equal("owner", h.Role)
+		x.NoError(s.Identity.Reach().May(ctx, owner, app.TenantService_Configure_FullMethodName), "bound the owner's role at roster")
 	})
 }
 
@@ -138,9 +144,9 @@ func TestInitOnARosterOfItsOwnTakesWhatIsThere(t *testing.T) {
 		x.NoError(err, "the workspace is the tenant at roster, by its identifier")
 		admin, err := s.Identity.Lookup(ctx, identity.RosterAdministrator)
 		x.NoError(err)
-		h, err := s.Ent.Holder.Get(ctx, admin.Id.Uuid())
+		_, err = s.Ent.Holder.Get(ctx, admin.Id.Uuid())
 		x.NoError(err)
-		x.Equal("owner", h.Role)
+		x.NoError(s.Identity.Reach().May(ctx, admin.Id, app.TenantService_Configure_FullMethodName), "bound the owner's role at roster, as the holder Loft is there")
 	})
 	_ = roster
 }

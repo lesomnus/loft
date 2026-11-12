@@ -19,7 +19,6 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/access"
-	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
@@ -40,34 +39,30 @@ import (
 )
 
 // refusedByTable says whether a call was refused by `server/policy` itself: a
-// refusal that names the method, in the table's own words. A refusal the
-// domain layer gives a call the table let through -- somebody else's
-// reservation, say -- names none.
+// refusal that names the method, in its own words. A refusal the domain layer
+// gives a call the gate let through -- somebody else's reservation, say --
+// names none.
 func refusedByTable(err error, method string) bool {
 	s, ok := status.FromError(err)
 	return ok && s.Code() == codes.PermissionDenied && strings.Contains(s.Message(), "("+method+")")
 }
 
-// TestEveryMethodIsAsTheTableSaysForEveryRole is the role × method table in
-// whole (plan M2): every method the served stack has, called by every role
-// over the wire, is let through exactly when `server/policy` says so -- and
-// what the table does not name is refused to everybody, owner included. A
-// method an account calls as itself (payday#184) is called so whatever the
-// account's role in a workspace, so what the table says of it is what it says
-// of the account.
-func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
+// TestEveryMethodIsAsTheRolesSayForEveryRole is the role × method table in
+// whole (plan M2), with the roles where they are now (D89): every method the
+// served stack has, called over the wire by somebody bound at roster to each
+// role Loft ships, is let through exactly when that role holds it
+// (`policy.Roles`, `server/policy/testdata/roles.txt`) -- and what no role
+// holds is refused to everybody, owner included, before roster is asked.
+func TestEveryMethodIsAsTheRolesSayForEveryRole(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
 
 	roles := []string{"auditor", "member", "manager", "admin", "owner"}
 	as := map[string]context.Context{"owner": w.owner}
-	rows := map[string]*app.Holder{}
 	for _, r := range roles {
-		h := w.holder("as-"+r, r)
-		rows[r] = h
 		if r != "owner" {
-			as[r] = w.signIn(h)
+			as[r] = w.signIn(w.holder("as-"+r, r))
 		}
 	}
 
@@ -140,10 +135,15 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 		opened   = map[string]int{}
 	)
 	for _, r := range roles {
+		role, ok := policy.RoleOf(r)
+		x.True(ok, r)
 		var wg sync.WaitGroup
 		sem := make(chan struct{}, 16)
 		for _, c := range calls {
-			want := policy.Policy{}.May(ctx, gate.Call{Action: c.full, Row: rows[r]})
+			var want error
+			if !slices.Contains(role.Methods, c.full) {
+				want = errors.New("no role holds it")
+			}
 			wg.Add(1)
 			sem <- struct{}{}
 			go func() {
@@ -155,15 +155,15 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 				defer mu.Unlock()
 				switch {
 				case want == nil && refused:
-					problems = append(problems, fmt.Sprintf("%s %s: the table lets it through, and the stack refused it: %v", r, c.full, err))
+					problems = append(problems, fmt.Sprintf("%s %s: the role holds it, and the stack refused it: %v", r, c.full, err))
 				case want == nil:
 					opened[r]++
 				case err == nil:
-					problems = append(problems, fmt.Sprintf("%s %s: the table refuses it, and the stack answered", r, c.full))
+					problems = append(problems, fmt.Sprintf("%s %s: the role does not hold it, and the stack answered", r, c.full))
 				case !refused && status.Code(err) != codes.Unimplemented:
 					// Unimplemented is a general write payday closes before
-					// any table is asked; anything else got past the table.
-					problems = append(problems, fmt.Sprintf("%s %s: the table refuses it, and the stack answered %v", r, c.full, err))
+					// the gate is asked; anything else got past the gate.
+					problems = append(problems, fmt.Sprintf("%s %s: the role does not hold it, and the stack answered %v", r, c.full, err))
 				}
 			}()
 		}

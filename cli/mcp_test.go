@@ -138,14 +138,14 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 		var v struct {
 			Login     string `json:"login"`
 			Workspace struct {
-				Alias string `json:"alias"`
-				Role  string `json:"role"`
+				Alias string   `json:"alias"`
+				May   []string `json:"may"`
 			} `json:"workspace"`
 		}
 		a.call("whoami", nil, &v)
 		x.Equal("owner", v.Login)
 		x.Equal("acme", v.Workspace.Alias)
-		x.Equal("owner", v.Workspace.Role)
+		x.Contains(v.Workspace.May, app.TenantService_Configure_FullMethodName, "the methods roster says they may call, and no role's name")
 	}
 
 	// A search, with where each is and who has it.
@@ -555,7 +555,7 @@ func TestAnAssistantReadsTheWorkLogAsWhoeverRunsTheWorkspaceOrAuditsIt(t *testin
 	s.signIn("kim", "kim-password")
 	refused := a.refused("recent_events", nil)
 	x.Contains(refused, "PermissionDenied")
-	x.Contains(refused, "구성원 역할로는 할 수 없는 작업입니다 (/loft.EventService/Recent)", "the role is why")
+	x.Contains(refused, "roster에서 받은 역할로는 할 수 없는 작업입니다 (/loft.EventService/Recent)", "what roster binds them is why")
 	var h struct {
 		Entries []struct {
 			Kind      string `json:"kind"`

@@ -26,8 +26,6 @@ const (
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
-	// FieldRole holds the string denoting the role field in the database.
-	FieldRole = "role"
 	// FieldDateLeaving holds the string denoting the date_leaving field in the database.
 	FieldDateLeaving = "date_leaving"
 	// FieldMailOff holds the string denoting the mail_off field in the database.
@@ -57,7 +55,6 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
-	FieldRole,
 	FieldDateLeaving,
 	FieldMailOff,
 	FieldTenantId,
@@ -72,11 +69,6 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
-
-var (
-	// DefaultRole holds the default value on creation for the "role" field.
-	DefaultRole string
-)
 
 // OrderOption defines the ordering options for the Holder queries.
 type OrderOption func(*sql.Selector)
@@ -114,11 +106,6 @@ func ByDateErased(opts ...sql.OrderTermOption) OrderOption {
 // ByDateCreated orders the results by the date_created field.
 func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
-}
-
-// ByRole orders the results by the role field.
-func ByRole(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRole, opts...).ToFunc()
 }
 
 // ByDateLeaving orders the results by the date_leaving field.

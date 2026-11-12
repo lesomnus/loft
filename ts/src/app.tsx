@@ -7,7 +7,7 @@
 import { useState, type ReactNode } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
-import { NotificationService, type Session } from './api.js'
+import { AssetService, NotificationService, PurchaseService, type Session } from './api.js'
 import { CatalogProvider, useCatalog } from './catalog.js'
 import { AssetPage } from './pages/asset.js'
 import { Assets } from './pages/assets.js'
@@ -27,13 +27,13 @@ import { Settings } from './pages/settings.js'
 import { Spaces } from './pages/spaces.js'
 import { Stocks } from './pages/stock.js'
 import { Work } from './pages/work.js'
+import type { DescMethod } from '@bufbuild/protobuf'
 import { Offline, useRpc } from './rpc.js'
 import { BillingBanner } from './billing.js'
-import { roleWord } from './words.js'
 
-// `auditor` lets an auditor see one below `min`, as the role table lets one
-// read what it exists for (`server/policy`).
-const nav: { to: string; label: string; icon: string; min?: 'manager' | 'admin'; auditor?: boolean }[] = [
+// `may` is what a page is for, which somebody roster says may not call it
+// does not see in the menu (D89).
+const nav: { to: string; label: string; icon: string; may?: DescMethod }[] = [
 	{ to: '/', label: '대시보드', icon: '◎' },
 	{ to: '/assets', label: '자산', icon: '▦' },
 	{ to: '/spaces', label: '공간', icon: '⌂' },
@@ -42,8 +42,8 @@ const nav: { to: string; label: string; icon: string; min?: 'manager' | 'admin';
 	{ to: '/stock', label: '재고', icon: '▤' },
 	{ to: '/counts', label: '실사', icon: '✓' },
 	{ to: '/work', label: '작업', icon: '⚒' },
-	{ to: '/purchases', label: '구매', icon: '¤', min: 'manager' },
-	{ to: '/reports', label: '리포트', icon: '▥', min: 'manager', auditor: true },
+	{ to: '/purchases', label: '구매', icon: '¤', may: PurchaseService.method.add },
+	{ to: '/reports', label: '리포트', icon: '▥', may: AssetService.method.census },
 	{ to: '/people', label: '사람', icon: '☺' },
 	{ to: '/settings', label: '설정', icon: '⚙' },
 ]
@@ -77,7 +77,7 @@ function Frame(props: { session: Session; onSignOut: () => void; children: React
 				<div className="workspace-name">{c.me.workspaceName || props.session.workspace.name}</div>
 				<nav>
 					{nav
-						.filter((n) => n.min === undefined || c.can(n.min) || (n.auditor === true && c.role === 'auditor'))
+						.filter((n) => n.may === undefined || c.may(n.may))
 						.map((n) => (
 							<NavLink key={n.to} to={n.to} end={n.to === '/'}>
 								<span className="icon">{n.icon}</span>
@@ -88,7 +88,6 @@ function Frame(props: { session: Session; onSignOut: () => void; children: React
 				<div className="who">
 					<NavLink to="/me">
 						<strong>{name}</strong>
-						<span>{roleWord[c.role] ?? c.role}</span>
 					</NavLink>
 					<button className="link" onClick={props.onSignOut}>
 						로그아웃

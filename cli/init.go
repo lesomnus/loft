@@ -12,7 +12,6 @@ import (
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
-	"github.com/lesomnus/z"
 
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
@@ -25,6 +24,7 @@ import (
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/policy"
 	"github.com/lesomnus/loft/server/tenancy"
 )
 
@@ -167,6 +167,22 @@ func putUp(ctx context.Context, s *cmd.Server, t identity.Tenant, name string, p
 		return nil, err
 	}
 
+	// The roles Loft ships, into the tenant at roster, and its first owner
+	// bound to the owner's (#327's decisions 9, 31, D89): from then on they
+	// are the tenant's, to change in roster's screens. A role the tenant has
+	// under its alias already is the tenant's, and left as it is.
+	wrote, err := s.Identity.WriteRoles(ctx, policy.Roles)
+	if err != nil {
+		return nil, fmt.Errorf("roster: %w", err)
+	}
+	if len(wrote) > 0 {
+		out.Printf("roles     %s, written at roster\n", strings.Join(wrote, ", "))
+	}
+	owns, _ := policy.RoleOf("owner")
+	if err := s.Identity.Bind(ctx, owns.Alias, p.Id); err != nil {
+		return nil, fmt.Errorf("roster: %w", err)
+	}
+
 	tid, _ := pdid.From(ws.GetId())
 	hid, _ := pdid.From(h.GetId())
 	ctx = frame.Into(ctx, frame.New(hid, tid, frame.Whole()).WithScope(frame.Only(tid)).WithRow(h))
@@ -206,7 +222,6 @@ func initWorkspace(ctx context.Context, s *cmd.Server, t identity.Tenant, name s
 		Tenant: tenant,
 		Alias:  p.Alias,
 		Name:   cmp.Or(person, p.Alias),
-		Role:   z.Ptr("owner"),
 	}.Build())
 	if err != nil {
 		return nil, nil, fmt.Errorf("holder %q: %w", p.Alias, err)

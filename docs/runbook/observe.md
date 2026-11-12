@@ -34,7 +34,7 @@ Loft가 내보내는 것과, 그중 무엇을 대시보드에 두고 무엇에 �
 | `mail: a notification was given up on after every try` | 메일이 나가지 않음 | SMTP 서버와 `app.mail`을 봅니다 |
 | `csp: a page did what the policy does not allow` | 화면이 콘텐츠 보안 정책을 어김. `report-only`라 막지는 않았음 | 무엇을 어겼는지 봅니다. 조용해야 `enforce`로 바꿀 수 있습니다([보안](../dev/security.md#콘텐츠-보안-정책-csp)의 "콘텐츠 보안 정책") |
 | `admin: a request without an operator's key` | 운영자 진입점에 키 없는 요청 | 누가 port-forward를 열었는지 봅니다 |
-| `lifecycle: a workspace's last owner left, …`, `lifecycle: only auditors are left …` | 돌볼 사람이 없는 워크스페이스 | 그 워크스페이스에 소유자를 정합니다 |
+| `lifecycle: nobody left in a workspace may change anything a member may, …` | 돌볼 사람이 없는 워크스페이스: 남은 사람에게 roster가 묶은 역할로는 구성원이 바꿀 수 있는 것도 바꾸지 못함 | 그 테넌트의 roster 관리자가 누군가에게 Loft의 역할(`loft-owner` 등)을 묶습니다(design D89) |
 
 **지표와 요청 로그로:**
 

@@ -33,9 +33,6 @@ func (Holder) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.String("role").
-			Optional().
-			Default("member"),
 		field.Time("date_leaving").
 			Nillable().
 			Optional(),

@@ -54,15 +54,19 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 		if strings.TrimSpace(req.GetName()) == "" {
 			return invalid("name", "작업 내용을 적어 주세요")
 		}
-		mgr := manages(t.roleOf())
+		mgr, err := t.mayTo(app.PermissionService_RunWork_FullMethodName)
+		if err != nil {
+			return err
+		}
 		if !mgr {
-			// What a member can do is report something broken. When it is
-			// looked at, by whom and for how much is a manager's to decide.
+			// What everybody can do is report something broken. When it is
+			// looked at, by whom and for how much is whoever runs the work's
+			// to decide (`PermissionService.RunWork`).
 			if kind != "repair" {
-				return grpcstatus.Error(codes.PermissionDenied, "구성원은 고장 신고만 할 수 있습니다")
+				return grpcstatus.Error(codes.PermissionDenied, "고장 신고만 할 수 있는 역할입니다")
 			}
 			if req.GetBlocking() || req.HasDateStart() || req.HasDateEnd() || req.GetEveryDays() != 0 || req.GetCost() != 0 || req.HasVendor() {
-				return grpcstatus.Error(codes.PermissionDenied, "일정과 비용은 매니저가 정합니다")
+				return grpcstatus.Error(codes.PermissionDenied, "일정과 비용은 작업을 정할 수 있는 역할이 정합니다")
 			}
 		}
 		status := "open"
@@ -117,7 +121,7 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 			return err
 		}
 		if !mgr {
-			if err := t.notifyManagers("work.reported", "고장 신고: "+a.GetTag()+" "+a.GetName(), w.GetName(), idOf(w.GetId()), "/work"); err != nil {
+			if err := t.notifyWhoMay(app.WorkOrderService_Update_FullMethodName, "work.reported", "고장 신고: "+a.GetTag()+" "+a.GetName(), w.GetName(), idOf(w.GetId()), "/work"); err != nil {
 				return err
 			}
 		}

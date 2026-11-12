@@ -1,6 +1,6 @@
 # 터미널과 비서
 
-모든 기능은 API(RPC)이고, 같은 기능을 터미널에서도 씁니다. 터미널은 브라우저와 같은 주소로 접속하고, 같은 권한 표와 같은 벽을 따릅니다. 이 문서는 모두에게 같은 부분입니다. 역할마다 쓰는 명령은 각 안내서에 있습니다.
+모든 기능은 API(RPC)이고, 같은 기능을 터미널에서도 씁니다. 터미널은 브라우저와 같은 주소로 접속하고, 같은 권한(roster의 역할)과 같은 벽을 따릅니다. 이 문서는 모두에게 같은 부분입니다. 역할마다 쓰는 명령은 각 안내서에 있습니다.
 
 ## 설치
 
@@ -24,7 +24,7 @@ loft auth logout
 ```
 
 - 승인 화면(`/cli?code=…`)은 요청한 터미널과 위치를 보여 줍니다. **내 터미널에서 방금 `loft auth login` 을 실행했고 같은 코드가 보일 때만 승인하세요.**
-- 승인하면 그 사람의 세션이 터미널에 생깁니다. 브라우저와 같은 권한 표를 따르고, 유지 시간도 같으며, roster에서 그 사람이 중지·삭제되면 함께 끝납니다.
+- 승인하면 그 사람의 세션이 터미널에 생깁니다. 브라우저와 같은 권한(roster의 역할)을 따르고, 유지 시간도 같으며, roster에서 그 사람이 중지·삭제되면 함께 끝납니다.
 - 로그인은 연결(아래)로 `~/.config/loft/client.json` 에 주인만 읽을 수 있게 저장됩니다. 세션 키가 들어 있습니다. 다른 곳에 두려면 `LOFT_CLIENT_CONFIG` 에 경로를 줍니다. 연결이 생기기 전에 만든 파일은 읽지 않으니, `loft auth login` 을 다시 합니다.
 - 배포는 워크스페이스 하나를 섬기므로(D85) 명령은 워크스페이스를 밝히지 않습니다.
 - 한 주소에서 하는 터미널 로그인은 10분에 20번까지입니다.
@@ -79,12 +79,12 @@ loft call loft.AssetService.Search '{"q": "노트북"}'     # 아무 RPC나 이�
 loft [--reason 이유] <엔터티> <작업> [-o 형식] [REF] [요청 JSON]
 ```
 
-- **명령은 스키마의 이름이고, 작업은 RPC의 이름입니다.** `AddMany` 는 `add-many`, `SetRole` 은 `set-role` 입니다. 다른 말은 셋뿐입니다: `list` 의 `ls`, `tenant` 의 `workspace`·`ws`, `tenant configure` 의 `conf`·`config`.
+- **명령은 스키마의 이름이고, 작업은 RPC의 이름입니다.** `AddMany` 는 `add-many`, `LinkMember` 는 `link-member` 입니다. 다른 말은 셋뿐입니다: `list` 의 `ls`, `tenant` 의 `workspace`·`ws`, `tenant configure` 의 `conf`·`config`.
 - **플래그는 인자보다 앞에 씁니다.** `loft asset search '{"q": "x"}' -o wide` 는 `flag must come before arguments` 로 거부됩니다. 명령 앞의 플래그(`--reason`, `--connection`)는 명령 이름보다 앞에 씁니다.
 - **요청**은 JSON입니다. 필드 이름은 스키마의 이름(`date_start`, `dateStart` 모두 됨)이고, ID는 UUID로 씁니다. `-` 를 주면 stdin에서 읽습니다.
 - **REF**는 그 행의 ID(UUID)입니다. 워크스페이스는 `@주소`(`@loft`), 구성원 자격은 `@워크스페이스/아이디`(`@loft/haeun-lee`)로도 씁니다.
 - **출력**(`-o`)은 `pretty`(기본), `json`, `table`, `wide`(이름과 ID), `name`(ID만 한 줄에 하나), `protojson`, `prototext`, `template=…`(Go 템플릿, ID는 base64)입니다.
-- 엔터티마다 할 수 있는 작업은 `loft <엔터티> --help` 가, 모든 명령은 `loft --help-all` 이 보여 줍니다. 도움말은 연결과 상관없이 같습니다. 할 수 없는 작업은 서버가 역할 표로 거부합니다(`구성원 역할로는 할 수 없는 작업입니다`).
+- 엔터티마다 할 수 있는 작업은 `loft <엔터티> --help` 가, 모든 명령은 `loft --help-all` 이 보여 줍니다. 도움말은 연결과 상관없이 같습니다. 할 수 없는 작업은 서버가 roster에 물어 거부합니다(`roster에서 받은 역할로는 할 수 없는 작업입니다`).
 - 다른 작업이 쓰는 행(`placement`, `link`, `stewardship`, `fact`, `reservation-item`, `allocation`, `custody-line`, `stock-movement`, `purchase-line`)은 도움말에 없지만, 이름으로 부르면 돌고(`loft fact list`) `loft call` 로도 닿습니다. 부를 수 있는지는 다른 작업처럼 서버가 정합니다.
 
 ### ID 찾기
@@ -138,7 +138,7 @@ loft call /loft.PartyService/Me
 
 ```sh
 loft auth whoami                                              # 붙어 있는 워크스페이스
-loft tenant configure @<주소> '{"name": "연구지원팀 장비"}'       # 소유자: 워크스페이스의 이름 ("" 이면 소유자의 이름으로 부름)
+loft tenant configure @<주소> '{"name": "연구지원팀 장비"}'       # 소유자: 워크스페이스의 이름 ("" 이면 주소로 부름)
 ```
 
 워크스페이스를 닫고, 되돌리고, 모든 데이터를 받는 것(`tenant close|restore|export`)은 운영자의 명령입니다(design D83). 사람의 연결로 부르면 아무것도 묻지 않고 운영자의 연결을 쓰라고 말합니다. 필요하면 운영자에게 요청합니다([배포 운영자](operator.md#워크스페이스의-문의)).
@@ -195,7 +195,7 @@ Claude Desktop은 설정 파일(`claude_desktop_config.json`)의 `mcpServers` �
   - 토큰은 10분 동안, 한 번만 쓰입니다. 같은 작업을 다시 보내도 서버는 한 번으로 처리합니다.
   - 이력에는 그 사람이 한 것으로 남습니다.
 - **비서가 할 수 있는 것을 좁히려면** 그 터미널을 `loft auth login --allow` 로 로그인합니다. 예를 들어 `--allow read` 면 읽기만 하고, 미리보기 단계에서 거부됩니다.
-- 브라우저와 같은 권한 표와 벽을 따르므로, 비서는 그 사람이 볼 수 있는 것만 봅니다. 서버는 MCP를 모르고, 새로 여는 것도 없습니다.
+- 브라우저와 같은 권한(roster의 역할)과 벽을 따르므로, 비서는 그 사람이 볼 수 있는 것만 봅니다. 서버는 MCP를 모르고, 새로 여는 것도 없습니다.
 - 로그인은 부를 때마다 다시 읽습니다. `loft auth login` 은 비서를 다시 띄우지 않아도 다음 호출부터 적용됩니다.
 - 도구의 답(자산과 사람의 이름 등)은 비서를 제공하는 쪽으로 갑니다. 그래서 사람의 이메일과 전화번호는 답에 넣지 않습니다.
 - 결제(`loft payment ...`)는 비서의 도구에 아직 없습니다.

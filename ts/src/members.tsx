@@ -4,8 +4,7 @@ import type { Party } from '../gen/loft/org_pb.js'
 import { HolderService, PartyService, idBytes, idStr, ref } from './api.js'
 import { useCatalog } from './catalog.js'
 import { useAct, useRpc } from './rpc.js'
-import { Badge, Card, Field, FormModal, Select } from './ui.js'
-import { roleWord } from './words.js'
+import { Card, Field, FormModal, Select } from './ui.js'
 
 /** Whether a person record is one forgotten here: called what forgetting it called it. */
 export function forgotten(p: Party): boolean {
@@ -15,11 +14,11 @@ export function forgotten(p: Party): boolean {
 /**
  * The members here that no person record is (D88): each taken off its record
  * by hand, until one is linked to it -- which signing in does not do. Shown
- * to the people who run the workspace, who link them.
+ * to whoever may link them (D89).
  */
 export function Recordless(): ReactNode {
 	const c = useCatalog()
-	const members = useRpc(HolderService.method.list, c.can('admin') ? { size: 500 } : null)
+	const members = useRpc(HolderService.method.list, c.may(PartyService.method.linkMember) && c.may(HolderService.method.list) ? { size: 500 } : null)
 	const none = (members.data?.items ?? []).filter((h) => h.dateErased === undefined && !c.parties.some((p) => idStr(p.holder?.id) === idStr(h.id)))
 	if (none.length === 0) return null
 	return (
@@ -30,7 +29,6 @@ export function Recordless(): ReactNode {
 						<span>
 							<strong>{h.name}</strong> <span className="mute small">@{h.alias}</span>
 						</span>
-						<Badge v={h.role === 'member' ? 'mute' : 'info'}>{roleWord[h.role] ?? h.role}</Badge>
 					</li>
 				))}
 			</ul>

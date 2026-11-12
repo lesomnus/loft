@@ -385,7 +385,7 @@ jobs:
           roster --as admin host add '{"tenant":{"alias":"acme"},"name":"id.localhost"}' > /dev/null
           m=/roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get
           m=${m},/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
-          m=${m},/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen
+          m=${m},/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen,/roster.BindingService/Add
           m=${m},'/loft.*/*'
           roster app install --tenant acme --role "${m}" --administer '/loft.*/*' loft
           key="$(roster key add --tenant acme --holder loft --name loft --allow "${m}")"

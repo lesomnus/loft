@@ -28,7 +28,6 @@ const (
 	PartyService_Watch_FullMethodName        = "/loft.PartyService/Watch"
 	PartyService_Me_FullMethodName           = "/loft.PartyService/Me"
 	PartyService_Update_FullMethodName       = "/loft.PartyService/Update"
-	PartyService_SetRole_FullMethodName      = "/loft.PartyService/SetRole"
 	PartyService_Pseudonymize_FullMethodName = "/loft.PartyService/Pseudonymize"
 	PartyService_LinkMember_FullMethodName   = "/loft.PartyService/LinkMember"
 	PartyService_UnlinkMember_FullMethodName = "/loft.PartyService/UnlinkMember"
@@ -63,12 +62,11 @@ type PartyServiceClient interface {
 	// once in that first message and once as a change that happened while it was
 	// being read -- and that is harmless for the same reason.
 	Watch(ctx context.Context, in *PartyWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[PartyWatchResponse], error)
-	// Me answers who is calling: the member, the person it is, the tenant and
-	// the role.
+	// Me answers who is calling: the member, the person it is, the tenant, and
+	// what they may call.
 	Me(ctx context.Context, in *PartyMeRequest, opts ...grpc.CallOption) (*PartyMeResponse, error)
 	// Update changes a party's own fields.
 	Update(ctx context.Context, in *PartyUpdateRequest, opts ...grpc.CallOption) (*Party, error)
-	SetRole(ctx context.Context, in *PartySetRoleRequest, opts ...grpc.CallOption) (*Party, error)
 	// Pseudonymize answers a request to forget a person (design 8.2).
 	Pseudonymize(ctx context.Context, in *PartyPseudonymizeRequest, opts ...grpc.CallOption) (*Party, error)
 	// LinkMember makes a person record the one a membership is, by hand
@@ -193,16 +191,6 @@ func (c *partyServiceClient) Update(ctx context.Context, in *PartyUpdateRequest,
 	return out, nil
 }
 
-func (c *partyServiceClient) SetRole(ctx context.Context, in *PartySetRoleRequest, opts ...grpc.CallOption) (*Party, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Party)
-	err := c.cc.Invoke(ctx, PartyService_SetRole_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *partyServiceClient) Pseudonymize(ctx context.Context, in *PartyPseudonymizeRequest, opts ...grpc.CallOption) (*Party, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Party)
@@ -271,12 +259,11 @@ type PartyServiceServer interface {
 	// once in that first message and once as a change that happened while it was
 	// being read -- and that is harmless for the same reason.
 	Watch(*PartyWatchRequest, grpc.ServerStreamingServer[PartyWatchResponse]) error
-	// Me answers who is calling: the member, the person it is, the tenant and
-	// the role.
+	// Me answers who is calling: the member, the person it is, the tenant, and
+	// what they may call.
 	Me(context.Context, *PartyMeRequest) (*PartyMeResponse, error)
 	// Update changes a party's own fields.
 	Update(context.Context, *PartyUpdateRequest) (*Party, error)
-	SetRole(context.Context, *PartySetRoleRequest) (*Party, error)
 	// Pseudonymize answers a request to forget a person (design 8.2).
 	Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error)
 	// LinkMember makes a person record the one a membership is, by hand
@@ -328,9 +315,6 @@ func (UnimplementedPartyServiceServer) Me(context.Context, *PartyMeRequest) (*Pa
 }
 func (UnimplementedPartyServiceServer) Update(context.Context, *PartyUpdateRequest) (*Party, error) {
 	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
-}
-func (UnimplementedPartyServiceServer) SetRole(context.Context, *PartySetRoleRequest) (*Party, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetRole not implemented")
 }
 func (UnimplementedPartyServiceServer) Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error) {
 	return nil, status.Error(codes.Unimplemented, "method Pseudonymize not implemented")
@@ -520,24 +504,6 @@ func _PartyService_Update_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PartyService_SetRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PartySetRoleRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PartyServiceServer).SetRole(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: PartyService_SetRole_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PartyServiceServer).SetRole(ctx, req.(*PartySetRoleRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _PartyService_Pseudonymize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PartyPseudonymizeRequest)
 	if err := dec(in); err != nil {
@@ -648,10 +614,6 @@ var PartyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Update",
 			Handler:    _PartyService_Update_Handler,
-		},
-		{
-			MethodName: "SetRole",
-			Handler:    _PartyService_SetRole_Handler,
 		},
 		{
 			MethodName: "Pseudonymize",

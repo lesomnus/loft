@@ -117,7 +117,7 @@ resources:
 12. **roster.** 사람과 로그인, 구성원을 넣고 빼는 화면이 roster의 것입니다. 다른 앱(levyan 등)도 같은 사람을 물을 수 있습니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)).
     - **roster의 배포.** roster의 참조 배포(roster의 `deploy/`)를 커밋으로 고정해 오버레이로 띄웁니다. 데이터 플레인과 컨트롤 플레인의 DB, Secret, 호스트는 그 오버레이의 것입니다(roster의 `deploy/README.md`). roster의 커밋은 Loft가 링크한 것(Loft의 `go.mod`)이거나 그 뒤의 것으로 고릅니다.
     - **사람 화면(user console).** roster의 설정에서 켭니다: `sign_in.enabled: true`, `user_console.dir: /usr/share/roster/user`(이미지에 들어 있습니다). 화면은 데이터 플레인의 HTTP 리스너(Service `roster-data`의 `http`, 8081)에서 열리므로, 인그레스가 화면만의 호스트(예: `id.example.com`)를 그리로 보냅니다. Loft와 다른 호스트입니다. 세션 쿠키(`__Host-`)가 호스트에만 붙고, roster는 브라우저가 연 이름(`X-Forwarded-Host`)으로 어느 테넌트인지 압니다.
-    - **roster에서 할 일**은 roster 운영자가 roster의 상자에서 합니다. 목록은 Loft가 roster에 묻는 메서드와, Loft가 테넌트에 써 넣는 기본 역할(#334)을 쓰고 넓히는 데 드는 메서드입니다([`deploy/compose`의 처음 띄우기](../compose/README.md#처음-띄우기)와 같습니다).
+    - **roster에서 할 일**은 roster 운영자가 roster의 상자에서 합니다. 목록은 Loft가 roster에 묻는 메서드 전부(`identity.AgentMethods`)이고, Loft가 테넌트에 써 넣는 처음 역할을 쓰고 넓히고 첫 소유자에게 묶는 데 드는 메서드가 그 안에 있습니다(D89)([`deploy/compose`의 처음 띄우기](../compose/README.md#처음-띄우기)와 같습니다).
 
       ```sh
       r() { kubectl -n roster exec -i deploy/roster -c roster -- /usr/local/bin/roster --config /config/config.yaml "$@"; }
@@ -127,7 +127,7 @@ resources:
       r --as admin host add '{"tenant": {"alias": "acme"}, "name": "id.example.com"}'
       m=/roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get
       m=$m,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
-      m=$m,/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen
+      m=$m,/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen,/roster.BindingService/Add
       m=$m,'/loft.*/*'
       r app install --tenant acme --role "$m" --administer '/loft.*/*' loft
       r key add --tenant acme --holder loft --name loft --allow "$m"   # rt_… → Secret loft-roster-key의 key
@@ -150,7 +150,7 @@ resources:
     - **내장 roster에서 옮길 때**는 이 순서로 합니다. 사람과 비밀번호가 내장 roster의 DB에 있으므로, 그 DB가 그대로 외부 roster의 것이 됩니다.
       1. **같은 데이터베이스.** `roster-db-dsn`이 가리키던 DB를 그대로 씁니다. 옮기거나 복사하지 않습니다. 사람과 비밀번호, 테넌트(따로 적지 않았다면 `loft`), 내장 roster가 그 안에 만든 홀더 `loft`와 역할 `loft`가 모두 그대로 있습니다.
       2. **roster의 Deployment.** roster의 참조 배포(roster의 `deploy/`)를 오버레이로 띄우고, 데이터 플레인의 `db:`를 그 DB로 바꿉니다. 컨트롤 플레인의 DB(`control.db`)는 따로 둡니다(참조 배포는 자기 볼륨에). 컨트롤 플레인이 없는 roster는 키를 읽지 않고 부르는 쪽이 말하는 이름을 믿으므로, 빼지 않습니다. roster의 커밋은 지금 Loft가 링크한 것(Loft의 `go.mod`)이거나 그 뒤의 것으로 고릅니다. 내장 roster가 DB를 그 판의 모양으로 마이그레이션해 두었기 때문입니다.
-      3. **키.** 홀더 `@loft/loft`에 그 테넌트의 키(`rt_…`)를 만들어 Secret `loft-roster-key`의 `key`에 넣습니다. 허용하는 메서드는 위의 목록 `m` 입니다. 내장 roster가 만든 역할 `@loft/loft`가 그 목록을 다 갖지 않았으면 먼저 넓힙니다([역할 바꾸기](../../docs/dev/identity.md#역할-바꾸기-roster-role-patch)). 키는 한 번만 출력되므로 바로 Secret에 넣습니다. 사람 화면의 호스트도 그 테넌트의 것으로 적습니다(`host add`, 위).
+      3. **키.** 홀더 `@loft/loft`에 그 테넌트의 키(`rt_…`)를 만들어 Secret `loft-roster-key`의 `key`에 넣습니다. 허용하는 메서드는 위의 목록 `m` 입니다. 내장 roster가 만든 역할 `@loft/loft`가 그 목록을 다 갖지 않았으면 먼저 넓힙니다([역할 바꾸기](../../docs/dev/identity.md#loft-자신의-역할-바꾸기-roster-role-patch)). 키는 한 번만 출력되므로 바로 Secret에 넣습니다. 사람 화면의 호스트도 그 테넌트의 것으로 적습니다(`host add`, 위).
 
          ```sh
          r key add --tenant loft --holder loft --name loft --allow "$m"
@@ -159,7 +159,7 @@ resources:
       4. **설정.** `auth.roster`를 위의 모양으로 바꿔 sync합니다. 새 파드부터 Loft가 그 roster에 묻습니다. `roster-db-dsn`은 Loft가 더 읽지 않으므로 지워도 되고, 되돌릴 때를 위해 두어도 됩니다.
 
       앞의 것이 없는 채로 설정을 바꾸면 새 파드가 뜨지 않거나(키가 없으면 `auth.roster.key`를 읽지 못합니다), 로그인과 세션이 거부됩니다(roster에 닿지 않으면 503). 되돌릴 때는 roster의 Deployment를 내리고 설정을 내장 roster의 것으로 되돌립니다. 같은 DB이므로 그 사이 roster에서 바꾼 사람과 비밀번호도 그대로입니다.
-    - **Loft의 holder가 가진 역할의 이름.** 내장 roster에서 옮긴 배포의 것은 내장 roster가 만든 **`loft`**(`@loft/loft`)이고, `roster app install`로 들인 배포의 것은 `loft-app`입니다. 그 역할은 roster 운영자가 `roster role patch`로 바꿉니다([역할 바꾸기](../../docs/dev/identity.md#역할-바꾸기-roster-role-patch)). 테넌트의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 역할을 바꾸면 키도 새로 만듭니다.
+    - **Loft의 holder가 가진 역할의 이름.** 내장 roster에서 옮긴 배포의 것은 내장 roster가 만든 **`loft`**(`@loft/loft`)이고, `roster app install`로 들인 배포의 것은 `loft-app`입니다. 그 역할은 roster 운영자가 `roster role patch`로 바꿉니다. 사람에게 묶는 Loft의 역할(`loft-owner` 등, D89)과는 다릅니다([역할 바꾸기](../../docs/dev/identity.md#loft-자신의-역할-바꾸기-roster-role-patch)). 테넌트의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 역할을 바꾸면 키도 새로 만듭니다.
 
 ## 처음 띄우기
 

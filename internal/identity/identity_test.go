@@ -310,10 +310,11 @@ type external struct {
 
 	// key is acme's own key for Loft's holder there. operator is this
 	// roster's own operator, who suspends and erases people over the wire --
-	// which is the only way the sync stream hears of it.
-	key, operator string
-	acme, beta    pdid.Id
-	kim           pdid.Id
+	// which is the only way the sync stream hears of it -- and admin acme's
+	// own administrator, who binds and changes its roles there the same way.
+	key, operator, admin string
+	acme, beta           pdid.Id
+	kim                  pdid.Id
 }
 
 func newExternal(t *testing.T) *external {
@@ -358,10 +359,12 @@ func newExternal(t *testing.T) *external {
 	x.NoError(s.Close())
 
 	// What docs/apps.md says an app that serves one tenant is given: it is
-	// installed into that tenant -- acme, and not beta -- and the key is the
-	// tenant's own, on the holder installing it made.
-	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "acme", "--role", strings.Join(AgentMethods, ","), Agent}))
+	// installed into that tenant -- acme, and not beta -- with its methods
+	// for acme's administrators to hand on, and the key is the tenant's own,
+	// on the holder installing it made.
+	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "acme", "--role", strings.Join(AgentMethods, ","), "--administer", LoftMethods, Agent}))
 	e.key = stdoutOf(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", Agent, "--name", "loft", "--allow", strings.Join(AgentMethods, ","))
+	e.admin = stdoutOf(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", "admin", "--name", "admin", "--allow", "/roster.*/*")
 	e.operator = stdoutOf(t, rostercli.NewCmdControl(&c), "key", "add", "--allow",
 		"/roster.HolderService/Invalidate,/roster.HolderService/Disable,/roster.HolderService/Erase,"+
 			"/roster.TenantService/Get,/roster.TenantService/Update,/roster.TenantService/Close,/roster.TenantService/Restore", "operator")

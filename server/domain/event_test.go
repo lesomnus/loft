@@ -66,8 +66,6 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	kimCtx, kim := e.person("member")
 	_, err := e.reserve(kimCtx, room, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
 	x.NoError(err)
-	_, err = e.app().Party().SetRole(e.owner, app.PartySetRoleRequest_builder{Ref: ref[app.PartyRef](kim.GetId()), Role: "manager"}.Build())
-	x.NoError(err)
 	_, err = e.app().Asset().Assign(e.owner, app.AssetAssignRequest_builder{Ref: assetRef(laptop), Role: "owner", Party: ref[app.PartyRef](kim.GetId())}.Build())
 	x.NoError(err)
 	_, err = e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
@@ -80,16 +78,15 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	alias := "@" + e.holderRow(kim.GetHolder().GetId()).Alias
 	x.Equal(map[string]string{
 		"party.add":     "추가: " + name,
-		"party.role":    "역할 변경: " + name + " → 매니저",
 		"asset.assign":  "NB-1 소유: " + name,
 		"custody.issue": "지급: " + name,
-	}, pick(e.events(), "party.add", "party.role", "asset.assign", "custody.issue"))
+	}, pick(e.events(), "party.add", "asset.assign", "custody.issue"))
 	x.Equal("NB-1 소유: "+name, summaryOf(e.timeline(laptop, false), "asset.assign"))
 
 	// Renamed, they are called what they are called now.
 	_, err = e.app().Party().Update(e.owner, app.PartyUpdateRequest_builder{Ref: ref[app.PartyRef](kim.GetId()), Name: "김 대리"}.Build())
 	x.NoError(err)
-	x.Equal("역할 변경: 김 대리 → 매니저", e.events()["party.role"])
+	x.Equal("NB-1 소유: 김 대리", summaryOf(e.timeline(laptop, false), "asset.assign"))
 
 	_, lee := e.person("member")
 
@@ -111,10 +108,9 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	got := e.events()
 	x.Equal(map[string]string{
 		"party.update":  "수정: " + called,
-		"party.role":    "역할 변경: " + called + " → 매니저",
 		"asset.assign":  "NB-1 소유: " + called,
 		"custody.issue": "지급: " + called,
-	}, pick(got, "party.update", "party.role", "asset.assign", "custody.issue"))
+	}, pick(got, "party.update", "asset.assign", "custody.issue"))
 	x.Equal("NB-1 소유: "+called, summaryOf(e.timeline(laptop, false), "asset.assign"))
 	for _, said := range e.said("party.add") {
 		x.NotContains(said, name)

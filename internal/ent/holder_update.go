@@ -117,26 +117,6 @@ func (_u *HolderUpdate) ClearDateErased() *HolderUpdate {
 	return _u
 }
 
-// SetRole sets the "role" field.
-func (_u *HolderUpdate) SetRole(v string) *HolderUpdate {
-	_u.mutation.SetRole(v)
-	return _u
-}
-
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (_u *HolderUpdate) SetNillableRole(v *string) *HolderUpdate {
-	if v != nil {
-		_u.SetRole(*v)
-	}
-	return _u
-}
-
-// ClearRole clears the value of the "role" field.
-func (_u *HolderUpdate) ClearRole() *HolderUpdate {
-	_u.mutation.ClearRole()
-	return _u
-}
-
 // SetDateLeaving sets the "date_leaving" field.
 func (_u *HolderUpdate) SetDateLeaving(v time.Time) *HolderUpdate {
 	_u.mutation.SetDateLeaving(v)
@@ -274,15 +254,6 @@ func (_u *HolderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(holder.FieldDateCreated, field.TypeTime)
 	}
-	if value, ok := _u.mutation.Role(); ok {
-		_spec.SetField(holder.FieldRole, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(holder.FieldRole); ok {
-		_spec.SetField(holder.FieldRole, field.TypeString, e)
-	}
-	if _u.mutation.RoleCleared() {
-		_spec.ClearField(holder.FieldRole, field.TypeString)
-	}
 	if value, ok := _u.mutation.DateLeaving(); ok {
 		_spec.SetField(holder.FieldDateLeaving, field.TypeTime, value)
 	}
@@ -405,26 +376,6 @@ func (_u *HolderUpdateOne) SetNillableDateErased(v *time.Time) *HolderUpdateOne 
 // ClearDateErased clears the value of the "date_erased" field.
 func (_u *HolderUpdateOne) ClearDateErased() *HolderUpdateOne {
 	_u.mutation.ClearDateErased()
-	return _u
-}
-
-// SetRole sets the "role" field.
-func (_u *HolderUpdateOne) SetRole(v string) *HolderUpdateOne {
-	_u.mutation.SetRole(v)
-	return _u
-}
-
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (_u *HolderUpdateOne) SetNillableRole(v *string) *HolderUpdateOne {
-	if v != nil {
-		_u.SetRole(*v)
-	}
-	return _u
-}
-
-// ClearRole clears the value of the "role" field.
-func (_u *HolderUpdateOne) ClearRole() *HolderUpdateOne {
-	_u.mutation.ClearRole()
 	return _u
 }
 
@@ -594,15 +545,6 @@ func (_u *HolderUpdateOne) sqlSave(ctx context.Context) (_node *Holder, err erro
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(holder.FieldDateCreated, field.TypeTime)
-	}
-	if value, ok := _u.mutation.Role(); ok {
-		_spec.SetField(holder.FieldRole, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(holder.FieldRole); ok {
-		_spec.SetField(holder.FieldRole, field.TypeString, e)
-	}
-	if _u.mutation.RoleCleared() {
-		_spec.ClearField(holder.FieldRole, field.TypeString)
 	}
 	if value, ok := _u.mutation.DateLeaving(); ok {
 		_spec.SetField(holder.FieldDateLeaving, field.TypeTime, value)

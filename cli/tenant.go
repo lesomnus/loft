@@ -42,7 +42,6 @@ func tenantWritten() []written {
 		{path: "tenant/show", cmd: newCmdTenantShow(), calls: []string{app.OperatorTenantService_Show_FullMethodName}},
 		{path: "tenant/close", replace: true, cmd: newCmdTenantClose(), calls: []string{app.TenantService_Close_FullMethodName}},
 		{path: "tenant/restore", replace: true, cmd: newCmdTenantRestore(), calls: []string{app.TenantService_Restore_FullMethodName}},
-		{path: "tenant/name-owner", cmd: newCmdTenantNameOwner(), calls: []string{app.OperatorTenantService_NameOwner_FullMethodName}},
 		{path: "tenant/export", cmd: newCmdTenantExport(), calls: []string{app.TenantService_Export_FullMethodName}},
 		// A file held to the deployment's keys asks nobody with --trust.
 		{path: "tenant/verify", cmd: newCmdTenantVerify()},
@@ -209,24 +208,14 @@ func printTenant(self *xli.Command, t *app.Tenant) {
 	self.Printf("@%s\t%s\t%s\n", t.GetAlias(), t.GetName(), state(t))
 }
 
-// printShow is a workspace as `tenant show` says it: its line, who owns it
-// and how many are in it, what its own settings and the deployment's come to
-// now -- and a window made shorter that is still waiting out the grace --
-// its members, its contracts and its holds.
+// printShow is a workspace as `tenant show` says it: its line and how many
+// are in it, what its own settings and the deployment's come to now -- and a
+// window made shorter that is still waiting out the grace -- its members, its
+// contracts and its holds. Who holds which role is roster's (D89), and said
+// there.
 func printShow(self *xli.Command, v *app.OperatorTenantShowResponse) {
 	t := v.GetTenant()
-	owners := []string{}
-	for _, m := range v.GetMembers() {
-		if m.GetRole() == "owner" {
-			owners = append(owners, m.GetAlias())
-		}
-	}
-	slices.Sort(owners)
-	who := strings.Join(owners, ",")
-	if who == "" {
-		who = "(none)"
-	}
-	self.Printf("@%s\t%s\t%d people\towners %s\t%s\n", t.GetAlias(), t.GetName(), len(v.GetMembers()), who, state(t))
+	self.Printf("@%s\t%s\t%d people\t%s\n", t.GetAlias(), t.GetName(), len(v.GetMembers()), state(t))
 	self.Printf("  settings\thistory %s, access record %s, restore %s\n",
 		days(t.GetKeepDays(), "forever"), days(t.GetAccessKeepDays(), "the deployment's"), days(t.GetRestoreDays(), "the deployment's"))
 	w := v.GetWindow()
@@ -243,7 +232,7 @@ func printShow(self *xli.Command, v *app.OperatorTenantShowResponse) {
 		if m.HasDateLeaving() {
 			leaving = "\tleaving since " + dayOf(m.GetDateLeaving())
 		}
-		self.Printf("  member\t@%s\t%s\t%s%s\n", m.GetAlias(), m.GetRole(), m.GetName(), leaving)
+		self.Printf("  member\t@%s\t%s%s\n", m.GetAlias(), m.GetName(), leaving)
 	}
 	for _, c := range v.GetContracts() {
 		desc := ""
@@ -446,36 +435,6 @@ func newCmdTenantRestore() *xli.Command {
 				return err
 			}
 			printTenant(self, t)
-			return nil
-		})
-}
-
-// newCmdTenantNameOwner is `loft tenant name-owner`: a member made one of a
-// workspace's owners, for one whose owner cannot.
-func newCmdTenantNameOwner() *xli.Command {
-	return change("make a member one of the workspace's owners",
-		flg.Flags{&flg.String{Name: "member", Brief: "the membership, by its @alias in the workspace"}},
-		func(ctx context.Context, self *xli.Command, conn grpc.ClientConnInterface, ws string) error {
-			member := strings.TrimPrefix(str(self, "member"), "@")
-			if member == "" {
-				return errors.New("--member: the membership, by its @alias in the workspace")
-			}
-			if !yes(self) {
-				self.Printf("would make @%s one of @%s's owners; whoever owns it still does\n", member, ws)
-				nothing(self)
-				return nil
-			}
-			if _, err := app.NewOperatorTenantServiceClient(conn).NameOwner(ctx, app.OperatorTenantNameOwnerRequest_builder{
-				Ref:    byAlias(ws),
-				Member: member,
-			}.Build()); err != nil {
-				return err
-			}
-			v, err := show(ctx, conn, byAlias(ws))
-			if err != nil {
-				return err
-			}
-			printShow(self, v)
 			return nil
 		})
 }

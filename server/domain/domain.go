@@ -110,6 +110,12 @@ type Deps struct {
 	// where a member's mail goes and where its pages are. Nil asks it nothing.
 	People People
 
+	// Reaches is what the tenant's people may call, as roster says it
+	// ([Reaches], D89). Nil is a deployment nobody may call anything finer
+	// than a method in, and whose people are told nothing that is somebody's
+	// to act on.
+	Reaches Reaches
+
 	// Mail sends what goes to somebody's mailbox -- a notification -- with a
 	// link [Deps.Links] makes. Nil sends nothing.
 	Mail mail.Sender

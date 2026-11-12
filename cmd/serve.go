@@ -351,6 +351,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 	deps.People = people
+	// And what they may call is roster's too (D89): the domain layer asks it
+	// of a permission finer than a method, as the gate does of the method.
+	deps.Reaches = people.Reach()
 
 	// One clock for every stamp, the domain layer's and the servers' alike.
 	opts := []bare.Option{bare.WithMinter(pd.Minter()), bare.WithRecorder(rec), bare.WithClock(deps.Clock)}
@@ -403,7 +406,8 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Members = tenancy.Members{Base: base, Drv: drv, People: people, Audit: content}
 
 	// Who is calling is a session cookie, held on every call to what roster
-	// says of its person, and what they may do is their role.
+	// says of its person, and what they may call is what roster says of them
+	// too, asked at every call (`server/policy`, D89).
 	store := session.Store{Db: client, People: people, Key: session.KeyFrom(deps.Sign.Key)}
 	opts2 := []authsession.Option{
 		authsession.WithIdle(or(c.App.Session.Idle, 24*time.Hour)),
@@ -414,7 +418,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	}
 	s.Sessions = authsession.New(store, opts2...)
 	s.Auth = s.Sessions.Handler()
-	s.Policy = policy.Policy{}
+	s.Policy = policy.Policy{Reach: people.Reach()}
 	cookie := authsession.DefaultCookie
 	if c.App.Public().Scheme != "https" {
 		cookie = authsession.InsecureCookie
@@ -481,6 +485,14 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		// (roster's `standing`, `docs/relying-app.md`), and what it writes
 		// here comes to the same thing written twice.
 		s.Spin = append(s.Spin, spin.InEveryProcess(people.Accounts().Follower("loft.roster-stream", s.Lifecycle.Apply)))
+		// And a second stream, for what somebody may call (roster's
+		// `reach`, `SYNC_REASON_REACH`): a role bound, widened, narrowed or
+		// taken away at roster reaches the next call here at once rather
+		// than once what was kept is half a minute old. Every process's own,
+		// since what it drops is what that process kept; the roster in this
+		// process has none, and a role Loft binds there is dropped by
+		// `identity.Store.Bind`.
+		s.Spin = append(s.Spin, spin.InEveryProcess(people.Reach().Follower("loft.roster-reach")))
 	}
 	// And the members still erased once roster's grace is over, leaving.
 	s.Spin = append(s.Spin, spinEvery("loft.departures", c.App.Members.Interval(), s.Lifecycle.Sweep))

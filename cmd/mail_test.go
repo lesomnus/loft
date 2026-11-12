@@ -131,8 +131,8 @@ func TestAnOperationUndoneMailsNothing(t *testing.T) {
 	x.Len(box.sent, 1, "the same request on its own is mailed")
 	x.Equal("owner@acme.example", box.sent[0].To)
 	// From the workspace by what it is called: the world's has no name of
-	// its own, and its owner no person record (D57).
-	x.Contains(box.sent[0].Body, "Loft의 owner의 워크스페이스에서 온 알림입니다.")
+	// its own, and is called by its address (D57, D89).
+	x.Contains(box.sent[0].Body, "Loft의 acme 워크스페이스에서 온 알림입니다.")
 
 	sent, err := w.s.Ent.Notification.Query().Where(notification.Kind("reservation.requested")).Only(ctx)
 	x.NoError(err)
