@@ -7,6 +7,7 @@ import (
 	"strings"
 	"uuid"
 
+	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
@@ -17,15 +18,12 @@ import (
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/party"
 	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/session"
 	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 var (
-	// ErrEnded is somebody whose membership was ended here: a login stopped
-	// here stays stopped, whatever roster says of them, until somebody who
-	// runs the workspace gives them one again.
-	ErrEnded = errors.New("this membership was ended here")
-
 	// ErrNoWorkspace is a sign-in into a deployment with no workspace yet,
 	// or into a tenant this one does not serve: `loft init` puts the
 	// workspace up.
@@ -34,6 +32,9 @@ var (
 	// ErrRecord is a person record a member cannot be linked to: none of
 	// this workspace's, or somebody else's already.
 	ErrRecord = errors.New("not a person record a member can be")
+
+	// ErrMember is somebody who is a member here already.
+	ErrMember = errors.New("a member here already")
 )
 
 // Addresses is what roster holds as checked of somebody: the addresses a
@@ -47,6 +48,10 @@ type Addresses interface {
 // roster's identifier for them -- the holder they are in the tenant this
 // deployment serves -- and as a member, which somebody who runs the workspace
 // makes more of. The workspace's first owner is who `loft init` made it for.
+//
+// Who is a member is roster's (D87), so a membership ended here -- the person
+// forgotten, or gone from roster past its grace -- is theirs again when
+// roster vouches for them again (D88): it says they are one of the tenant.
 type Members struct {
 	// Base is the stack with no wall and no domain layer, and Drv the driver
 	// it writes through: the deployment's own work, before there is anybody
@@ -57,17 +62,26 @@ type Members struct {
 	// People is roster, asked for the addresses it holds as checked of
 	// somebody, which their person record here is found by. Nil finds none.
 	People Addresses
+
+	// Audit is what the trail keeps of a row (`audit.content`): a membership
+	// taken up again is on it as that act ([Readmitted]).
+	Audit audit.Contents
 }
 
-// Of is the membership of somebody roster vouched for: theirs, or made now,
-// in one transaction with the person record it is -- the one this workspace
-// keeps already of somebody at an address roster holds as checked for them,
-// when there is exactly one, or a new one. [ErrEnded] is a membership ended
-// here, and [ErrNoWorkspace] a deployment with no workspace for the tenant.
+// Readmitted is the act a membership ended here and taken up again is on the
+// trail as: the row is live again, which no server writes (D88).
+const Readmitted = "loft.holder.readmit"
+
+// Of is the membership of somebody roster vouched for: theirs, made now, or
+// theirs again -- one ended here, taken up again ([Members.Admit]) -- in one
+// transaction with the person record it is: the one this workspace keeps
+// already of somebody at an address roster holds as checked for them, when
+// there is exactly one, or a new one. [ErrNoWorkspace] is a deployment with
+// no workspace for the tenant.
 func (m Members) Of(ctx context.Context, p identity.Person) (*ent.Holder, error) {
 	db := ent.NewClient(ent.Driver(m.Drv))
 	h, err := m.here(ctx, db, p)
-	if err == nil || !errors.Is(err, errNotYet) {
+	if err == nil || !errors.Is(err, errNotYet) && !errors.Is(err, errEnded) {
 		return h, err
 	}
 
@@ -82,7 +96,10 @@ func (m Members) Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
 	return m.here(ctx, db, p)
 }
 
-var errNotYet = errors.New("not a member yet")
+var (
+	errNotYet = errors.New("not a member yet")
+	errEnded  = errors.New("a membership ended here")
+)
 
 func (m Members) here(ctx context.Context, db *ent.Client, p identity.Person) (*ent.Holder, error) {
 	h, err := db.Holder.Get(ctx, p.Id.Uuid())
@@ -92,7 +109,7 @@ func (m Members) here(ctx context.Context, db *ent.Client, p identity.Person) (*
 	case err != nil:
 		return nil, err
 	case h.DateErased != nil:
-		return nil, ErrEnded
+		return nil, errEnded
 	case pdid.Id(h.TenantId) != p.Tenant:
 		return nil, fmt.Errorf("%w: a member of another workspace", ErrNoWorkspace)
 	}
@@ -110,6 +127,14 @@ func (m Members) make(ctx context.Context, p identity.Person) error {
 // at the roster in this process (`loft holder add`) and `init --demo`, which
 // make the people at roster first: one transaction, the deployment's own
 // work. Who comes to be a member by signing in is [Members.Of]'s.
+//
+// A membership ended here is taken up again (D88): the row it was, by the
+// same identifier, is live again -- on the trail as [Readmitted], since no
+// server writes a row back -- called as roster calls them now, with `role`,
+// leaving nothing and mailed as anybody new is; what it was signed in with
+// before ends with it. A person record it was that was forgotten stays so,
+// and it is given one found or made as anybody new is; one that was not, and
+// is its own still, it keeps.
 func (m Members) Admit(ctx context.Context, p identity.Person, role string, record pdid.Id, email string) (*ent.Holder, error) {
 	if err := m.admit(ctx, p, role, record, email, false); err != nil {
 		return nil, err
@@ -139,6 +164,19 @@ func (m Members) admit(ctx context.Context, p identity.Person, role string, reco
 	}
 	tref := app.TenantRef_builder{Id: p.Tenant.Bytes()}.Build()
 
+	ended := false
+	switch was, err := db.Holder.Get(ctx, p.Id.Uuid()); {
+	case ent.IsNotFound(err):
+	case err != nil:
+		return err
+	case pdid.Id(was.TenantId) != p.Tenant:
+		return fmt.Errorf("%w: a member of another workspace", ErrNoWorkspace)
+	case was.DateErased == nil:
+		return fmt.Errorf("@%s: %w", p.Alias, ErrMember)
+	default:
+		ended = true
+	}
+
 	// Called here as roster calls them, unless somebody here goes by that
 	// already -- one whose holder at roster is gone and the name taken by
 	// somebody new -- when it is that with a number after it.
@@ -147,17 +185,33 @@ func (m Members) admit(ctx context.Context, p identity.Person, role string, reco
 		return err
 	}
 	name := or(p.Name, p.Alias)
-	h, err := base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Id:     p.Id.Bytes(),
-		Tenant: tref,
-		Alias:  alias,
-		Name:   name,
-		Role:   z.Ptr(role),
-	}.Build())
+	var h *app.Holder
+	if ended {
+		h, err = m.readmit(ctx, db, base, p.Id, alias, name, role)
+	} else {
+		h, err = base.Holder().Add(ctx, app.HolderAddRequest_builder{
+			Id:     p.Id.Bytes(),
+			Tenant: tref,
+			Alias:  alias,
+			Name:   name,
+			Role:   z.Ptr(role),
+		}.Build())
+	}
 	if err != nil {
 		return fmt.Errorf("@%s/%s: %w", p.TenantAlias, alias, err)
 	}
 	href := app.HolderRef_builder{Id: h.GetId()}.Build()
+
+	// A membership ended with its person record left as it was -- not
+	// forgotten -- is that record's still.
+	if ended {
+		switch _, err := db.Party.Query().Where(party.TenantId(p.Tenant.Uuid()), party.HolderId(p.Id.Uuid()), party.DateErasedIsNil()).First(ctx); {
+		case err == nil:
+			return tx.Commit()
+		case !ent.IsNotFound(err):
+			return err
+		}
+	}
 
 	var found *ent.Party
 	switch {
@@ -199,6 +253,38 @@ func (m Members) admit(ctx context.Context, p identity.Person, role string, reco
 	}
 
 	return tx.Commit()
+}
+
+// readmit makes the membership `member`, ended here, live again (D88): the
+// row back through ent, and on the trail as the act it is, in the same
+// transaction; the sessions it had, which a live row would answer to again,
+// gone; and then, through the servers, what it is called, its role, and
+// nothing left of its leaving or of the choice its person made before.
+func (m Members) readmit(ctx context.Context, db *ent.Client, base app.Server, member pdid.Id, alias, name, role string) (*app.Holder, error) {
+	// Taken up once: a sign-in beside this one that took it up first has
+	// it, and this one reads what that made.
+	n, err := db.Holder.Update().Where(holder.Id(member.Uuid()), holder.DateErasedNotNil()).ClearDateErased().Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if n == 0 {
+		return nil, ErrMember
+	}
+	if _, err := pd.Record(ctx, db, m.Audit, Readmitted, []pdid.Id{member}); err != nil {
+		return nil, err
+	}
+	if _, err := db.Session.Delete().Where(session.Holder(member.Uuid())).Exec(ctx); err != nil {
+		return nil, err
+	}
+	return base.Holder().Patch(ctx, app.HolderPatchRequest_builder{
+		Ref:              app.HolderRef_builder{Id: member.Bytes()}.Build(),
+		Alias:            z.Ptr(alias),
+		Name:             z.Ptr(name),
+		Role:             z.Ptr(role),
+		DateLeavingNull:  z.Ptr(true),
+		MailOff:          z.Ptr(false),
+		DateUpdatedForce: z.Ptr(true),
+	}.Build())
 }
 
 // record is the person record somebody new is, by an address roster holds as

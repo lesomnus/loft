@@ -45,6 +45,7 @@ export const people = {
 	signsInNext: { login: 'doyun-kang', name: '강도윤' },
 	booksFirst: { login: 'gunwoo-yoon', name: '윤건우' },
 	borrows: { login: 'naeun-jang', name: '장나은' },
+	linked: { login: 'juwon-yoon', name: '윤주원' },
 } as const
 
 /** A name nothing else in the run has. */

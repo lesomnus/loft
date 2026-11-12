@@ -368,17 +368,21 @@ func TestSignIn(t *testing.T) {
 		x.Equal("member", v.GetRole(), "and nothing of the other's")
 	})
 
-	t.Run("a login ended here stays ended, and the holder at roster with it", func(t *testing.T) {
+	t.Run("a membership ended here is theirs again when roster vouches for them, and nothing it was signed in with", func(t *testing.T) {
 		x := require.New(t)
 
 		_, err := w.s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: park.Id.Bytes()}.Build())
 		x.NoError(err)
 		_, err = me.Me(md, &app.PartyMeRequest{})
 		x.Equal(codes.Unauthenticated, status.Code(err), "the session of a membership ended")
-		x.Equal(http.StatusForbidden, post(`{"login":"park","password":"correct horse"}`).Code, "a sign-in made them a member again")
-		x.Equal(1, members(park.Id))
 		_, err = w.s.Identity.Verify(ctx, "park", "correct horse")
 		x.NoError(err, "the holder at roster went with the membership")
+
+		// Who is a member is roster's (D88).
+		x.Equal(http.StatusNoContent, post(`{"login":"park","password":"correct horse"}`).Code)
+		x.Equal(1, members(park.Id))
+		_, err = me.Me(md, &app.PartyMeRequest{})
+		x.Equal(codes.Unauthenticated, status.Code(err), "the session from before came back with the membership")
 	})
 
 	t.Run("and an address that keeps getting it wrong is refused for a while", func(t *testing.T) {

@@ -53,7 +53,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/landing"
-	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Config is the issuer this deployment signs people in through.
@@ -107,7 +106,8 @@ type People interface {
 }
 
 // Members is who somebody roster vouched for is here: their membership, made
-// the first time they sign in ([tenancy.Members.Of]).
+// the first time they sign in and taken up again by one ended here
+// ([tenancy.Members.Of]).
 type Members interface {
 	Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
 }
@@ -258,8 +258,8 @@ func (rp *Rp) login(w http.ResponseWriter, r *http.Request) {
 //
 // What went wrong past the state is not the browser's to be told in detail: it
 // lands on the sign-in page with `?signin=refused` when the person said no at
-// the issuer, `ended` when their membership was ended here, `unavailable` when
-// roster could not be asked, and `failed` for the rest, which the log says.
+// the issuer, `unavailable` when roster could not be asked, and `failed` for
+// the rest, which the log says.
 func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	http.SetCookie(w, &http.Cookie{Name: stateCookie, Path: "/sso", MaxAge: -1, HttpOnly: true, Secure: rp.secure, SameSite: http.SameSiteLaxMode})
@@ -332,11 +332,7 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h, err := rp.members.Of(ctx, p)
-	switch {
-	case errors.Is(err, tenancy.ErrEnded):
-		http.Redirect(w, r, "/?signin=ended", http.StatusSeeOther)
-		return
-	case err != nil:
+	if err != nil {
 		log.From(ctx).ErrorContext(ctx, "sso: somebody roster vouched for is no member here", slog.Any("err", err))
 		http.Redirect(w, r, "/?signin=unavailable", http.StatusSeeOther)
 		return

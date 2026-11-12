@@ -16,6 +16,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/party"
@@ -269,6 +270,103 @@ func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymiz
 		// What a hold kept of the trail in the database; what it keeps in
 		// the archive is learnt after the commit, and stays owed.
 		return t.begin(nil, "party.pseudonymize", pdid.Nil, t.now, "", app.PartyPseudonymized_builder{Held: uint32(held)}.Build())
+	})
+	return out, err
+}
+
+// LinkMember makes the person record `ref` the one the membership `holder`
+// is, by hand (D88): for a member whose first sign-in found none of the
+// records an address roster checked could be -- none, or more than one -- or
+// found the wrong one. The record is a person's that no membership is, and not one
+// forgotten: what was forgotten is nobody's to take up again. The membership
+// is a member's of this workspace. One that was another record's leaves it,
+// and that record keeps its history and is nobody's login from then.
+func (s domainParty) LinkMember(ctx context.Context, req *app.PartyLinkMemberRequest) (*app.Party, error) {
+	var out *app.Party
+	err := s.tx(ctx, func(t *Tx) error {
+		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
+		if err != nil {
+			return err
+		}
+		switch {
+		case p.GetKind() != "person":
+			return invalid("ref", "구성원은 사람 기록과만 잇습니다")
+		case forgotten(p):
+			return failed("개인정보를 삭제한 기록에는 구성원을 잇지 않습니다")
+		case p.HasHolder():
+			return failed("%s은(는) 이미 구성원과 이어져 있습니다. 먼저 끊으세요", p.GetName())
+		}
+		h, err := t.next.Holder().Get(t.ctx, app.HolderGetRequest_builder{Ref: req.GetHolder()}.Build())
+		if status.Code(err) == codes.NotFound {
+			return invalid("holder", "이 워크스페이스의 구성원이 아닙니다")
+		}
+		if err != nil {
+			return err
+		}
+		member := idOf(h.GetId())
+
+		// The record it is now, which lets it go: a membership is one record
+		// at a time.
+		var was []byte
+		if v, err := t.db.Party.Query().Where(party.TenantId(t.tenant.Uuid()), party.HolderId(member.Uuid())).First(t.ctx); err == nil {
+			was = pdid.Id(v.Id).Bytes()
+		} else if !ent.IsNotFound(err) {
+			return err
+		}
+
+		if err := t.begin(nil, "party.link", pdid.Nil, t.now, "", app.PartyLinked_builder{
+			Party:  p.GetId(),
+			Holder: member.Bytes(),
+			Was:    was,
+		}.Build()); err != nil {
+			return err
+		}
+		if was != nil {
+			if _, err := t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
+				Ref:              app.PartyRef_builder{Id: was}.Build(),
+				HolderNull:       z.Ptr(true),
+				DateUpdatedForce: z.Ptr(true),
+			}.Build()); err != nil {
+				return err
+			}
+		}
+		out, err = t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
+			Ref:              app.PartyRef_builder{Id: p.GetId()}.Build(),
+			Holder:           app.HolderRef_builder{Id: member.Bytes()}.Build(),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
+		return err
+	})
+	return out, err
+}
+
+// UnlinkMember takes the membership off the person record `ref`, by hand
+// (D88): the record keeps its history and is nobody's login from then, and the
+// membership is no record's until one is linked to it -- signing in again
+// does not find it one, which would find the same record again.
+func (s domainParty) UnlinkMember(ctx context.Context, req *app.PartyUnlinkMemberRequest) (*app.Party, error) {
+	var out *app.Party
+	err := s.tx(ctx, func(t *Tx) error {
+		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
+		if err != nil {
+			return err
+		}
+		member := idOf(p.GetHolder().GetId())
+		if member.IsZero() {
+			return failed("%s은(는) 구성원과 이어져 있지 않습니다", p.GetName())
+		}
+		if err := t.begin(nil, "party.unlink", pdid.Nil, t.now, "", app.PartyUnlinked_builder{
+			Party:  p.GetId(),
+			Holder: member.Bytes(),
+		}.Build()); err != nil {
+			return err
+		}
+		out, err = t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
+			Ref:              app.PartyRef_builder{Id: p.GetId()}.Build(),
+			HolderNull:       z.Ptr(true),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
+		return err
 	})
 	return out, err
 }

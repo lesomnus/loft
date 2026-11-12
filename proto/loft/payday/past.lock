@@ -30,8 +30,10 @@
     "model.add": "loft.ItemModelSaved",
     "model.update": "loft.ItemModelSaved",
     "party.add": "loft.PartySaved",
+    "party.link": "loft.PartyLinked",
     "party.pseudonymize": "loft.PartyPseudonymized",
     "party.role": "loft.PartyRoleSet",
+    "party.unlink": "loft.PartyUnlinked",
     "party.update": "loft.PartySaved",
     "purchase.add": "loft.PurchaseAdded",
     "purchase.receive": "loft.PurchaseReceived",
@@ -526,6 +528,20 @@
         "list": true
       }
     },
+    "loft.PartyLinked": {
+      "1": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "holder",
+        "kind": "bytes"
+      },
+      "8": {
+        "json": "was",
+        "kind": "bytes"
+      }
+    },
     "loft.PartyPseudonymized": {
       "7": {
         "json": "held",
@@ -558,6 +574,16 @@
       "3": {
         "json": "kind",
         "kind": "string"
+      }
+    },
+    "loft.PartyUnlinked": {
+      "1": {
+        "json": "party",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "holder",
+        "kind": "bytes"
       }
     },
     "loft.PurchaseAdded": {

@@ -3047,6 +3047,170 @@ func (b0 PartyPseudonymizeRequest_builder) Build() *PartyPseudonymizeRequest {
 	return m0
 }
 
+type PartyLinkMemberRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref    *PartyRef              `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Holder *HolderRef             `protobuf:"bytes,2,opt,name=holder"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *PartyLinkMemberRequest) Reset() {
+	*x = PartyLinkMemberRequest{}
+	mi := &file_loft_org_svc_g_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PartyLinkMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PartyLinkMemberRequest) ProtoMessage() {}
+
+func (x *PartyLinkMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_org_svc_g_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *PartyLinkMemberRequest) GetRef() *PartyRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *PartyLinkMemberRequest) GetHolder() *HolderRef {
+	if x != nil {
+		return x.xxx_hidden_Holder
+	}
+	return nil
+}
+
+func (x *PartyLinkMemberRequest) SetRef(v *PartyRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *PartyLinkMemberRequest) SetHolder(v *HolderRef) {
+	x.xxx_hidden_Holder = v
+}
+
+func (x *PartyLinkMemberRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *PartyLinkMemberRequest) HasHolder() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Holder != nil
+}
+
+func (x *PartyLinkMemberRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *PartyLinkMemberRequest) ClearHolder() {
+	x.xxx_hidden_Holder = nil
+}
+
+type PartyLinkMemberRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// A person record of the workspace's that no membership is, and that was
+	// not forgotten.
+	Ref *PartyRef
+	// A membership of the workspace's, which roster has.
+	Holder *HolderRef
+}
+
+func (b0 PartyLinkMemberRequest_builder) Build() *PartyLinkMemberRequest {
+	m0 := &PartyLinkMemberRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Holder = b.Holder
+	return m0
+}
+
+type PartyUnlinkMemberRequest struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref *PartyRef              `protobuf:"bytes,1,opt,name=ref"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *PartyUnlinkMemberRequest) Reset() {
+	*x = PartyUnlinkMemberRequest{}
+	mi := &file_loft_org_svc_g_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PartyUnlinkMemberRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PartyUnlinkMemberRequest) ProtoMessage() {}
+
+func (x *PartyUnlinkMemberRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_loft_org_svc_g_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *PartyUnlinkMemberRequest) GetRef() *PartyRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *PartyUnlinkMemberRequest) SetRef(v *PartyRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *PartyUnlinkMemberRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *PartyUnlinkMemberRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+type PartyUnlinkMemberRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref *PartyRef
+}
+
+func (b0 PartyUnlinkMemberRequest_builder) Build() *PartyUnlinkMemberRequest {
+	m0 := &PartyUnlinkMemberRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	return m0
+}
+
 type PartySearchRequest struct {
 	state             protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Q      string                 `protobuf:"bytes,1,opt,name=q"`
@@ -3059,7 +3223,7 @@ type PartySearchRequest struct {
 
 func (x *PartySearchRequest) Reset() {
 	*x = PartySearchRequest{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[19]
+	mi := &file_loft_org_svc_g_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3071,7 +3235,7 @@ func (x *PartySearchRequest) String() string {
 func (*PartySearchRequest) ProtoMessage() {}
 
 func (x *PartySearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[19]
+	mi := &file_loft_org_svc_g_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3157,7 +3321,7 @@ type PartySearchResponse struct {
 
 func (x *PartySearchResponse) Reset() {
 	*x = PartySearchResponse{}
-	mi := &file_loft_org_svc_g_proto_msgTypes[20]
+	mi := &file_loft_org_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3169,7 +3333,7 @@ func (x *PartySearchResponse) String() string {
 func (*PartySearchResponse) ProtoMessage() {}
 
 func (x *PartySearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_loft_org_svc_g_proto_msgTypes[20]
+	mi := &file_loft_org_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3360,6 +3524,11 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x19\n" +
 	"\x04role\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\"<\n" +
 	"\x18PartyPseudonymizeRequest\x12 \n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\"c\n" +
+	"\x16PartyLinkMemberRequest\x12 \n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12'\n" +
+	"\x06holder\x18\x02 \x01(\v2\x0f.loft.HolderRefR\x06holder\"<\n" +
+	"\x18PartyUnlinkMemberRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\"~\n" +
 	"\x12PartySearchRequest\x12\x13\n" +
 	"\x01q\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x01q\x12\x19\n" +
@@ -3368,7 +3537,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x06offset\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06offset\"U\n" +
 	"\x13PartySearchResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.loft.PartyR\x05items\x12\x1b\n" +
-	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total2\xff\x04\n" +
+	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total2\xf5\x05\n" +
 	"\fPartyService\x12)\n" +
 	"\x03Add\x12\x15.loft.PartyAddRequest\x1a\v.loft.Party\x12)\n" +
 	"\x03Get\x12\x15.loft.PartyGetRequest\x1a\v.loft.Party\x12-\n" +
@@ -3380,13 +3549,16 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x02Me\x12\x14.loft.PartyMeRequest\x1a\x15.loft.PartyMeResponse\x12/\n" +
 	"\x06Update\x12\x18.loft.PartyUpdateRequest\x1a\v.loft.Party\x121\n" +
 	"\aSetRole\x12\x19.loft.PartySetRoleRequest\x1a\v.loft.Party\x12;\n" +
-	"\fPseudonymize\x12\x1e.loft.PartyPseudonymizeRequest\x1a\v.loft.Party\x12=\n" +
+	"\fPseudonymize\x12\x1e.loft.PartyPseudonymizeRequest\x1a\v.loft.Party\x127\n" +
+	"\n" +
+	"LinkMember\x12\x1c.loft.PartyLinkMemberRequest\x1a\v.loft.Party\x12;\n" +
+	"\fUnlinkMember\x12\x1e.loft.PartyUnlinkMemberRequest\x1a\v.loft.Party\x12=\n" +
 	"\x06Search\x12\x18.loft.PartySearchRequest\x1a\x19.loft.PartySearchResponse2\x10\n" +
 	"\x0eSessionService2\x11\n" +
 	"\x0fCliLoginService2\x16\n" +
 	"\x14SignInFailureServiceB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_loft_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_loft_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_loft_org_svc_g_proto_goTypes = []any{
 	(*PartyAddRequest)(nil),          // 0: loft.PartyAddRequest
 	(*PartyGetRequest)(nil),          // 1: loft.PartyGetRequest
@@ -3407,84 +3579,93 @@ var file_loft_org_svc_g_proto_goTypes = []any{
 	(*PartyUpdateRequest)(nil),       // 16: loft.PartyUpdateRequest
 	(*PartySetRoleRequest)(nil),      // 17: loft.PartySetRoleRequest
 	(*PartyPseudonymizeRequest)(nil), // 18: loft.PartyPseudonymizeRequest
-	(*PartySearchRequest)(nil),       // 19: loft.PartySearchRequest
-	(*PartySearchResponse)(nil),      // 20: loft.PartySearchResponse
-	nil,                              // 21: loft.PartyAddRequest.LabelsEntry
-	nil,                              // 22: loft.PartyPatchRequest.LabelsEntry
-	nil,                              // 23: loft.PartyFilter.LabelsEntry
-	nil,                              // 24: loft.PartyUpdateRequest.LabelsEntry
-	(*TenantRef)(nil),                // 25: loft.TenantRef
-	(*HolderRef)(nil),                // 26: loft.HolderRef
-	(*timestamppb.Timestamp)(nil),    // 27: google.protobuf.Timestamp
-	(*TenantSelect)(nil),             // 28: loft.TenantSelect
-	(*HolderSelect)(nil),             // 29: loft.HolderSelect
-	(*patchpb.Patch)(nil),            // 30: patch.Patch
-	(*Party)(nil),                    // 31: loft.Party
-	(*Holder)(nil),                   // 32: loft.Holder
-	(*Tenant)(nil),                   // 33: loft.Tenant
+	(*PartyLinkMemberRequest)(nil),   // 19: loft.PartyLinkMemberRequest
+	(*PartyUnlinkMemberRequest)(nil), // 20: loft.PartyUnlinkMemberRequest
+	(*PartySearchRequest)(nil),       // 21: loft.PartySearchRequest
+	(*PartySearchResponse)(nil),      // 22: loft.PartySearchResponse
+	nil,                              // 23: loft.PartyAddRequest.LabelsEntry
+	nil,                              // 24: loft.PartyPatchRequest.LabelsEntry
+	nil,                              // 25: loft.PartyFilter.LabelsEntry
+	nil,                              // 26: loft.PartyUpdateRequest.LabelsEntry
+	(*TenantRef)(nil),                // 27: loft.TenantRef
+	(*HolderRef)(nil),                // 28: loft.HolderRef
+	(*timestamppb.Timestamp)(nil),    // 29: google.protobuf.Timestamp
+	(*TenantSelect)(nil),             // 30: loft.TenantSelect
+	(*HolderSelect)(nil),             // 31: loft.HolderSelect
+	(*patchpb.Patch)(nil),            // 32: patch.Patch
+	(*Party)(nil),                    // 33: loft.Party
+	(*Holder)(nil),                   // 34: loft.Holder
+	(*Tenant)(nil),                   // 35: loft.Tenant
 }
 var file_loft_org_svc_g_proto_depIdxs = []int32{
-	25, // 0: loft.PartyAddRequest.tenant:type_name -> loft.TenantRef
-	21, // 1: loft.PartyAddRequest.labels:type_name -> loft.PartyAddRequest.LabelsEntry
-	26, // 2: loft.PartyAddRequest.holder:type_name -> loft.HolderRef
-	27, // 3: loft.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	27, // 0: loft.PartyAddRequest.tenant:type_name -> loft.TenantRef
+	23, // 1: loft.PartyAddRequest.labels:type_name -> loft.PartyAddRequest.LabelsEntry
+	28, // 2: loft.PartyAddRequest.holder:type_name -> loft.HolderRef
+	29, // 3: loft.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,  // 4: loft.PartyGetRequest.ref:type_name -> loft.PartyRef
 	4,  // 5: loft.PartyGetRequest.select:type_name -> loft.PartySelect
 	3,  // 6: loft.PartyRef.holder:type_name -> loft.PartyRefByHolder
-	26, // 7: loft.PartyRefByHolder.holder:type_name -> loft.HolderRef
-	28, // 8: loft.PartySelect.tenant:type_name -> loft.TenantSelect
-	29, // 9: loft.PartySelect.holder:type_name -> loft.HolderSelect
+	28, // 7: loft.PartyRefByHolder.holder:type_name -> loft.HolderRef
+	30, // 8: loft.PartySelect.tenant:type_name -> loft.TenantSelect
+	31, // 9: loft.PartySelect.holder:type_name -> loft.HolderSelect
 	2,  // 10: loft.PartyPatchRequest.ref:type_name -> loft.PartyRef
-	22, // 11: loft.PartyPatchRequest.labels:type_name -> loft.PartyPatchRequest.LabelsEntry
-	26, // 12: loft.PartyPatchRequest.holder:type_name -> loft.HolderRef
-	27, // 13: loft.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	24, // 11: loft.PartyPatchRequest.labels:type_name -> loft.PartyPatchRequest.LabelsEntry
+	28, // 12: loft.PartyPatchRequest.holder:type_name -> loft.HolderRef
+	29, // 13: loft.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,  // 14: loft.PartyApplyRequest.ref:type_name -> loft.PartyRef
-	30, // 15: loft.PartyApplyRequest.patch:type_name -> patch.Patch
+	32, // 15: loft.PartyApplyRequest.patch:type_name -> patch.Patch
 	10, // 16: loft.PartyListRequest.filters:type_name -> loft.PartyFilter
-	31, // 17: loft.PartyListResponse.items:type_name -> loft.Party
+	33, // 17: loft.PartyListResponse.items:type_name -> loft.Party
 	2,  // 18: loft.PartyFilter.ref:type_name -> loft.PartyRef
-	26, // 19: loft.PartyFilter.holder:type_name -> loft.HolderRef
-	23, // 20: loft.PartyFilter.labels:type_name -> loft.PartyFilter.LabelsEntry
+	28, // 19: loft.PartyFilter.holder:type_name -> loft.HolderRef
+	25, // 20: loft.PartyFilter.labels:type_name -> loft.PartyFilter.LabelsEntry
 	10, // 21: loft.PartyWatchRequest.filters:type_name -> loft.PartyFilter
 	13, // 22: loft.PartyWatchResponse.items:type_name -> loft.PartyWatchItem
-	31, // 23: loft.PartyWatchItem.value:type_name -> loft.Party
-	32, // 24: loft.PartyMeResponse.holder:type_name -> loft.Holder
-	31, // 25: loft.PartyMeResponse.party:type_name -> loft.Party
-	33, // 26: loft.PartyMeResponse.tenant:type_name -> loft.Tenant
+	33, // 23: loft.PartyWatchItem.value:type_name -> loft.Party
+	34, // 24: loft.PartyMeResponse.holder:type_name -> loft.Holder
+	33, // 25: loft.PartyMeResponse.party:type_name -> loft.Party
+	35, // 26: loft.PartyMeResponse.tenant:type_name -> loft.Tenant
 	2,  // 27: loft.PartyUpdateRequest.ref:type_name -> loft.PartyRef
-	24, // 28: loft.PartyUpdateRequest.labels:type_name -> loft.PartyUpdateRequest.LabelsEntry
+	26, // 28: loft.PartyUpdateRequest.labels:type_name -> loft.PartyUpdateRequest.LabelsEntry
 	2,  // 29: loft.PartySetRoleRequest.ref:type_name -> loft.PartyRef
 	2,  // 30: loft.PartyPseudonymizeRequest.ref:type_name -> loft.PartyRef
-	31, // 31: loft.PartySearchResponse.items:type_name -> loft.Party
-	0,  // 32: loft.PartyService.Add:input_type -> loft.PartyAddRequest
-	1,  // 33: loft.PartyService.Get:input_type -> loft.PartyGetRequest
-	5,  // 34: loft.PartyService.Patch:input_type -> loft.PartyPatchRequest
-	6,  // 35: loft.PartyService.Apply:input_type -> loft.PartyApplyRequest
-	2,  // 36: loft.PartyService.Erase:input_type -> loft.PartyRef
-	8,  // 37: loft.PartyService.List:input_type -> loft.PartyListRequest
-	11, // 38: loft.PartyService.Watch:input_type -> loft.PartyWatchRequest
-	14, // 39: loft.PartyService.Me:input_type -> loft.PartyMeRequest
-	16, // 40: loft.PartyService.Update:input_type -> loft.PartyUpdateRequest
-	17, // 41: loft.PartyService.SetRole:input_type -> loft.PartySetRoleRequest
-	18, // 42: loft.PartyService.Pseudonymize:input_type -> loft.PartyPseudonymizeRequest
-	19, // 43: loft.PartyService.Search:input_type -> loft.PartySearchRequest
-	31, // 44: loft.PartyService.Add:output_type -> loft.Party
-	31, // 45: loft.PartyService.Get:output_type -> loft.Party
-	31, // 46: loft.PartyService.Patch:output_type -> loft.Party
-	31, // 47: loft.PartyService.Apply:output_type -> loft.Party
-	7,  // 48: loft.PartyService.Erase:output_type -> loft.PartyEraseResponse
-	9,  // 49: loft.PartyService.List:output_type -> loft.PartyListResponse
-	12, // 50: loft.PartyService.Watch:output_type -> loft.PartyWatchResponse
-	15, // 51: loft.PartyService.Me:output_type -> loft.PartyMeResponse
-	31, // 52: loft.PartyService.Update:output_type -> loft.Party
-	31, // 53: loft.PartyService.SetRole:output_type -> loft.Party
-	31, // 54: loft.PartyService.Pseudonymize:output_type -> loft.Party
-	20, // 55: loft.PartyService.Search:output_type -> loft.PartySearchResponse
-	44, // [44:56] is the sub-list for method output_type
-	32, // [32:44] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	2,  // 31: loft.PartyLinkMemberRequest.ref:type_name -> loft.PartyRef
+	28, // 32: loft.PartyLinkMemberRequest.holder:type_name -> loft.HolderRef
+	2,  // 33: loft.PartyUnlinkMemberRequest.ref:type_name -> loft.PartyRef
+	33, // 34: loft.PartySearchResponse.items:type_name -> loft.Party
+	0,  // 35: loft.PartyService.Add:input_type -> loft.PartyAddRequest
+	1,  // 36: loft.PartyService.Get:input_type -> loft.PartyGetRequest
+	5,  // 37: loft.PartyService.Patch:input_type -> loft.PartyPatchRequest
+	6,  // 38: loft.PartyService.Apply:input_type -> loft.PartyApplyRequest
+	2,  // 39: loft.PartyService.Erase:input_type -> loft.PartyRef
+	8,  // 40: loft.PartyService.List:input_type -> loft.PartyListRequest
+	11, // 41: loft.PartyService.Watch:input_type -> loft.PartyWatchRequest
+	14, // 42: loft.PartyService.Me:input_type -> loft.PartyMeRequest
+	16, // 43: loft.PartyService.Update:input_type -> loft.PartyUpdateRequest
+	17, // 44: loft.PartyService.SetRole:input_type -> loft.PartySetRoleRequest
+	18, // 45: loft.PartyService.Pseudonymize:input_type -> loft.PartyPseudonymizeRequest
+	19, // 46: loft.PartyService.LinkMember:input_type -> loft.PartyLinkMemberRequest
+	20, // 47: loft.PartyService.UnlinkMember:input_type -> loft.PartyUnlinkMemberRequest
+	21, // 48: loft.PartyService.Search:input_type -> loft.PartySearchRequest
+	33, // 49: loft.PartyService.Add:output_type -> loft.Party
+	33, // 50: loft.PartyService.Get:output_type -> loft.Party
+	33, // 51: loft.PartyService.Patch:output_type -> loft.Party
+	33, // 52: loft.PartyService.Apply:output_type -> loft.Party
+	7,  // 53: loft.PartyService.Erase:output_type -> loft.PartyEraseResponse
+	9,  // 54: loft.PartyService.List:output_type -> loft.PartyListResponse
+	12, // 55: loft.PartyService.Watch:output_type -> loft.PartyWatchResponse
+	15, // 56: loft.PartyService.Me:output_type -> loft.PartyMeResponse
+	33, // 57: loft.PartyService.Update:output_type -> loft.Party
+	33, // 58: loft.PartyService.SetRole:output_type -> loft.Party
+	33, // 59: loft.PartyService.Pseudonymize:output_type -> loft.Party
+	33, // 60: loft.PartyService.LinkMember:output_type -> loft.Party
+	33, // 61: loft.PartyService.UnlinkMember:output_type -> loft.Party
+	22, // 62: loft.PartyService.Search:output_type -> loft.PartySearchResponse
+	49, // [49:63] is the sub-list for method output_type
+	35, // [35:49] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_loft_org_svc_g_proto_init() }
@@ -3507,7 +3688,7 @@ func file_loft_org_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_org_svc_g_proto_rawDesc), len(file_loft_org_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   25,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   4,
 		},

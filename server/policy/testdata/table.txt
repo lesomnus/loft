@@ -100,11 +100,13 @@
 /loft.NotificationService/SetMail	read
 /loft.PartyService/Add	admin
 /loft.PartyService/Get	read
+/loft.PartyService/LinkMember	admin
 /loft.PartyService/List	read
 /loft.PartyService/Me	read
 /loft.PartyService/Pseudonymize	admin
 /loft.PartyService/Search	read
 /loft.PartyService/SetRole	admin
+/loft.PartyService/UnlinkMember	admin
 /loft.PartyService/Update	admin
 /loft.PartyService/Watch	read
 /loft.PaymentService/GetPayer	admin

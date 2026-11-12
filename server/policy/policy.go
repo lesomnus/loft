@@ -188,8 +188,9 @@ func init() {
 
 	allow(Read, "PartyService", "Me", "Search")
 	// Who is a member, and how they sign in, is roster's (D87): what is here
-	// is the person records, and the roles until #334.
-	allow(Admin, "PartyService", "Add", "Update", "SetRole", "Pseudonymize")
+	// is the person records, which membership each is (D88), and the roles
+	// until #334.
+	allow(Admin, "PartyService", "Add", "Update", "SetRole", "Pseudonymize", "LinkMember", "UnlinkMember")
 
 	// A workspace's settings are its owner's. Its end is not anybody's in it
 	// (D83): closing it, restoring it and taking all of it out are the
