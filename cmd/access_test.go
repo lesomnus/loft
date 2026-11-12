@@ -21,11 +21,9 @@ import (
 	"github.com/lesomnus/payday/pdpb"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/event"
-	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/server/operator"
 )
@@ -498,52 +496,4 @@ func TestAMonthOfTheRecordIsReviewed(t *testing.T) {
 		DateStart: timestamppb.New(time.Now().Add(time.Hour)), DateEnd: timestamppb.New(time.Now().Add(2 * time.Hour)),
 	}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err), "a stretch not come yet")
-}
-
-// TestAnAccountsOwnCallIsReviewedByItsMembership (D73): what an account asks as
-// itself is on the record of each workspace it showed something of -- the
-// owner a workspace with no name of its own is called after -- naming the
-// account, which asked in no workspace (payday#184); and the workspace's
-// review names it by its membership there, as it names any other call.
-func TestAnAccountsOwnCallIsReviewedByItsMembership(t *testing.T) {
-	w := newWorld(t)
-	x := w.x
-	ctx := context.Background()
-
-	// A workspace with no name of its own, called after its owner, and a
-	// member of it who asks what they are in.
-	park, err := w.s.Identity.AddPerson(ctx, "park", "박지민", pdid.Nil)
-	x.NoError(err)
-	x.NoError(w.s.Workspaces(w.c).Arrive(ctx, park))
-	kim, err := w.s.Identity.AddPerson(ctx, "kim", "김", pdid.Nil)
-	x.NoError(err)
-	ms, err := w.s.Workspaces(w.c).Of(ctx, park.Id)
-	x.NoError(err)
-	x.Len(ms, 1)
-	theirs, err := w.s.Base.Tenant().Get(ctx, app.TenantGetRequest_builder{Ref: app.TenantRef_builder{Id: ms[0].Workspace.Bytes()}.Build()}.Build())
-	x.NoError(err)
-	kh := w.member(theirs, kim, "member")
-	mine, err := app.NewTenantServiceClient(w.conn).Mine(w.session(kh), &app.TenantMineRequest{})
-	x.NoError(err)
-	x.Equal("박지민의 워크스페이스", mine.GetWorkspaces()[0].GetName())
-	x.NoError(w.s.Access.Flush(ctx))
-
-	// Read by the workspace's owner, who reviews its record.
-	ph, err := w.s.Ent.Holder.Query().Where(holder.Account(park.Id.Uuid())).Only(ctx)
-	x.NoError(err)
-	owner := metadata.AppendToOutgoingContext(w.session(ph.Proto()), cmd.WorkspaceHeader, theirs.GetAlias())
-	got, err := app.NewAccessServiceClient(w.conn).Review(owner, app.AccessReviewRequest_builder{
-		DateFrom: timestamppb.New(time.Now().Add(-time.Hour)), DateTo: timestamppb.New(time.Now().Add(time.Hour)),
-	}.Build())
-	x.NoError(err)
-	found := false
-	for _, e := range got.GetItems() {
-		if e.GetAction() != app.TenantService_Mine_FullMethodName {
-			continue
-		}
-		found = true
-		x.Equal(kim.Id.Bytes(), e.GetActor(), "the account, which asked as itself")
-		x.Equal("@kim", e.GetActorName(), "named by its membership of the workspace")
-	}
-	x.True(found, "the account's answer is not on the workspace's record")
 }

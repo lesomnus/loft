@@ -23,8 +23,8 @@ import (
 // [Restricted], holds it to what it is billed by ([Grows]); this one holds it
 // to what levyan's chapter says an app takes of it: reading, taking its data
 // out, paying, and its members leaving it -- and closing, which is the
-// operator's (D83) and no method of a role's. What is an account's rather
-// than the workspace's -- signing in -- stays the account's, and what a
+// operator's (D83) and no method of a role's. What is the person's at roster
+// rather than the workspace's -- signing in -- stays theirs, and what a
 // person is told stays theirs to quiet. Every other write is refused.
 //
 // So the table is of what it still does, [ReadOnlyAllows], and not of what it
@@ -41,11 +41,9 @@ import (
 // read-only, and a deployment that bills nobody reads no copy. What no caller
 // of a workspace asks -- an operator's command at the entry point, a sweep, a
 // door that is no RPC -- is not refused: the doors that are no RPC read (a
-// file's download) or are an account's (signing in, its sessions, what it
-// agrees to), and an operator writes as the deployment -- closing a workspace
-// and restoring it among it (D83). An account's own methods -- the workspaces
-// it is in, one it makes, which of them a label is in -- are in no workspace,
-// and are here as the account's (D73).
+// file's download) or are a person's (signing in, their sessions), and an
+// operator writes as the deployment -- closing a workspace and restoring it
+// among it (D83).
 
 // ReadOnly is the key levyan grants a workspace it makes read-only: on, while
 // it is.
@@ -57,8 +55,8 @@ const ReadOnly = "loft.readonly"
 const ErrorReadOnly = "READONLY"
 
 // Allowed is why a read-only workspace still does something: what levyan's
-// `docs/apps.md` (3, "제한의 두 단계") says an app takes of one, what is an
-// account's and not the workspace's, and what is a person's own.
+// `docs/apps.md` (3, "제한의 두 단계") says an app takes of one, what is the
+// person's at roster and not the workspace's, and what is a person's own.
 type Allowed string
 
 const (
@@ -87,11 +85,10 @@ const (
 	// a workspace's destruction waits for none (D59).
 	Leaves Allowed = "leaves"
 
-	// Account is an account's and not the workspace's (D27): how it signs
-	// in, a password, which is the account's at roster -- its own, or one an
-	// administrator sets for a member in no other workspace, who could not
-	// get in to read, take out or pay otherwise.
-	Account Allowed = "account"
+	// SignIn is the person's at roster and not the workspace's (D85): how
+	// they sign in, a password -- their own, or one an administrator sets for
+	// a member who could not get in to read, take out or pay otherwise.
+	SignIn Allowed = "sign-in"
 
 	// Own is a person's own of what the deployment tells them here (D67): a
 	// notice marked read, and whether one comes by mail as well -- their own
@@ -108,11 +105,11 @@ const (
 //
 // That it reads, takes its data out, pays and closes is the owner's
 // (levyan#1, 2026-11-01); closing is the operator's since (D83), and so in
-// no row here. That its members may leave it and that what is an
-// account's stays the account's is Claude's, as is that what a person is told
-// stays theirs to quiet (D67). Which methods those are is said here, and held
-// to what levyan's `docs/apps.md` says an app takes -- but for a password,
-// which is the account's, and what a person is told, which is theirs.
+// no row here. That its members may leave it and that what is the person's
+// at roster stays theirs is Claude's, as is that what a person is told stays
+// theirs to quiet (D67). Which methods those are is said here, and held to
+// what levyan's `docs/apps.md` says an app takes -- but for a password,
+// which is the person's at roster, and what a person is told, which is theirs.
 var ReadOnlyAllows = map[string]Allowed{
 	// What it has, and what became of it: the register and its catalog, its
 	// people, bookings, hand-overs, stock, counts, work and purchases, as they
@@ -206,8 +203,6 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.HolderService_List_FullMethodName:         Reads,
 	app.HolderService_Watch_FullMethodName:        Reads,
 	app.InvitationService_List_FullMethodName:     Reads,
-	app.InvitationService_Inbox_FullMethodName:    Reads,
-	app.TenantService_Mine_FullMethodName:         Account,
 	app.NotificationService_Inbox_FullMethodName:  Reads,
 	app.AuditService_Get_FullMethodName:           Reads,
 	app.AuditService_List_FullMethodName:          Reads,
@@ -236,12 +231,8 @@ var ReadOnlyAllows = map[string]Allowed{
 	app.PartyService_Deactivate_FullMethodName:   Leaves,
 	app.PartyService_Pseudonymize_FullMethodName: Leaves,
 
-	// Signing in, which is the account's.
-	app.PartyService_SetPassword_FullMethodName: Account,
-
-	// A workspace of the account's own, which is no write of this one's
-	// (D73).
-	app.TenantService_Create_FullMethodName: Account,
+	// Signing in, which is the person's at roster.
+	app.PartyService_SetPassword_FullMethodName: SignIn,
 
 	// What a person is told here, which is their own: read, and by mail or
 	// not.
@@ -251,7 +242,7 @@ var ReadOnlyAllows = map[string]Allowed{
 
 // readOnlyRefusal is what a read-only workspace says of a write it refuses:
 // that it is read-only, what it still does, and how it ends. Not that it does
-// nothing else: what is an account's, or a person's own, it does (D68).
+// nothing else: what is the person's at roster, or their own, it does (D68).
 const readOnlyRefusal = "이 워크스페이스는 읽기 전용이라 바꿀 수 없습니다. 보기, 내보내기, 결제, 떠나기는 할 수 있고, 결제를 정리하면 다시 바꿀 수 있습니다"
 
 // passing is a write this layer adds nothing to -- a generated one a role is
@@ -315,7 +306,7 @@ func (t *Tx) writing() error {
 // readonly is whether levyan makes the workspace read-only now: whether the
 // copy holds a grant of [ReadOnly] in force, read in this transaction and
 // once for all of it. Never on a deployment that bills nobody, and never for
-// a call that is in no workspace -- an account's own.
+// a call that is in no workspace.
 func (t *Tx) readonly() (bool, error) {
 	if t.deps == nil || t.deps.Entitlements == nil || t.tenant.IsZero() {
 		return false, nil

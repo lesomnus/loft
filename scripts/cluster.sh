@@ -294,7 +294,7 @@ done
 
 echo "== a workspace, signed in to"
 kube "kubectl -n ${NS} exec deploy/loft -c loft -- loft --config /etc/loft/loft.yaml init \
-	--tenant acme --name ACME --login owner --person Owner --email owner@example.com \
+	--name ACME --login owner --person Owner --email owner@example.com \
 	--password owner-pass-1234 >/dev/null"
 web -o /dev/null -c /w/jar -H 'content-type: application/json' \
 	-d '{"login":"owner","password":"owner-pass-1234"}' https://loft.localhost/session

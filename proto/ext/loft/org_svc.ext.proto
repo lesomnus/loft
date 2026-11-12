@@ -2,16 +2,14 @@ edition = "2023";
 
 package loft;
 
-import "google/protobuf/timestamp.proto";
 import "loft/org.proto";
 import "loft/payday/holder.proto";
 import "loft/payday/tenant.proto";
-import "payday.proto";
 
 option go_package = "github.com/lesomnus/loft";
 
 service PartyService {
-  // Me answers who is calling: the account, the person it is, the tenant and
+  // Me answers who is calling: the member, the person it is, the tenant and
   // the role.
   rpc Me(PartyMeRequest) returns (PartyMeResponse);
   // Update changes a party's own fields.
@@ -57,8 +55,8 @@ message PartyMeResponse {
   // this process -- or at a roster of its own, by whoever administers the
   // tenant there (design 9.10).
   bool accounts_here = 7 [features.field_presence = IMPLICIT];
-  // Where the account itself is managed at roster -- how it signs in, and
-  // deleting it where its directory offers that -- for a roster of its own
+  // Where the member manages how they sign in at roster -- and deletes their
+  // holder there, where the tenant offers that -- for a roster of its own
   // (`auth.roster.account_url`). Empty is no such page.
   string account_url = 8 [features.field_presence = IMPLICIT];
 
@@ -72,9 +70,9 @@ message PartyMeResponse {
   uint32 restore_days = 11 [features.field_presence = IMPLICIT];
 
   // What the workspace is called, as the server tells it (D57): its own name,
-  // or, for one that has none -- the workspace an account is given when it
-  // arrives -- "<이름>의 워크스페이스" after its first owner, named as they are
-  // called now. `tenant.name` is what the row holds, and holds nobody's name.
+  // or, for one that has none -- put up with no name, here or at roster --
+  // "<이름>의 워크스페이스" after its first owner, named as they are called
+  // now. `tenant.name` is what the row holds, and holds nobody's name.
   string workspace_name = 13 [features.field_presence = IMPLICIT];
 
   // Whether levyan restricts the workspace now, as this deployment's copy of
@@ -143,64 +141,15 @@ message PartyPseudonymizeRequest {
 }
 
 // What an invitation is answered with, beside the generated Add and List,
-// which the domain layer completes (`server/domain/invitation.go`).
-//
-// `Add`, `List` and `Revoke` are the workspace's, by somebody who runs it,
-// served as their membership of it. `Inbox`, `Claim`, `Accept` and `Deny` are
-// the account's own (payday#184): the account an invitation is addressed to
-// is no member of the workspace yet, so they are served as the account, in no
-// workspace, and a call made that way reaches these and nothing else. What
-// each reads is said by the domain layer, not by the wall.
+// which the domain layer completes (`server/domain/invitation.go`): the
+// workspace's, by somebody who runs it, served as their membership of it.
+// Answering one is no call of this deployment's any more (D85): its member
+// is who roster has in its tenant.
 service InvitationService {
   // Revoke takes back an invitation nobody has answered.
   rpc Revoke(InvitationRevokeRequest) returns (Invitation);
-  // Inbox is the invitations addressed to the caller's account, from every
-  // workspace that sent one: the ones the account holds, and the ones sent to
-  // an address roster holds as checked for it. A workspace's own are `List`.
-  rpc Inbox(InvitationInboxRequest) returns (InvitationInboxResponse) {
-    option (payday.method) = {account: {}};
-  }
-  // Claim makes the invitation a mail carried a code for the caller's: the
-  // proof is reading that mailbox, for an account roster holds no checked
-  // address of.
-  rpc Claim(InvitationClaimRequest) returns (Invitation) {
-    option (payday.method) = {account: {}};
-  }
-  // Accept makes the caller a member of the workspace, as what it says.
-  rpc Accept(InvitationAcceptRequest) returns (Invitation) {
-    option (payday.method) = {account: {}};
-  }
-  // Deny says no.
-  rpc Deny(InvitationDenyRequest) returns (Invitation) {
-    option (payday.method) = {account: {}};
-  }
 }
 
 message InvitationRevokeRequest {
-  InvitationRef ref = 1;
-}
-
-message InvitationInboxRequest {
-  // `pending`, `accepted`, `denied`, `revoked` or `expired`; unset is
-  // `pending`, the ones waiting for an answer.
-  string state = 1;
-  // At most this many, the newest first; zero is 200, which is also the most.
-  uint32 size = 2 [features.field_presence = IMPLICIT];
-}
-
-message InvitationInboxResponse {
-  repeated Invitation items = 1;
-}
-
-message InvitationClaimRequest {
-  // The code the mail's link carried.
-  string code = 1 [features.field_presence = IMPLICIT];
-}
-
-message InvitationAcceptRequest {
-  InvitationRef ref = 1;
-}
-
-message InvitationDenyRequest {
   InvitationRef ref = 1;
 }

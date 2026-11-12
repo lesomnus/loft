@@ -1,4 +1,4 @@
-import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt, workspace } from './loft.js'
+import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt } from './loft.js'
 
 // A hand-over started where the thing is: the asset's own page, which puts the
 // asset in the dialog, and which afterwards says who has it.
@@ -8,7 +8,7 @@ test('a phone is lent from its own page, and the page then says who has it', asy
 	const member = people.lent
 	await signIn(page, people.custody.login)
 
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill('PH-003')
 	await page.getByRole('link', { name: '업무폰 3', exact: true }).click()
 	const head = page.getByRole('heading', { level: 1 })

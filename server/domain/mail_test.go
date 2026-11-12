@@ -98,7 +98,7 @@ func TestAnApprovalIsAskedAndAnsweredByMail(t *testing.T) {
 		got := box.to(addr)
 		x.Len(got, 1, "%s: once", addr)
 		x.Contains(got[0].Subject, "승인 요청")
-		x.Contains(got[0].Body, "https://loft.example/@acme/reservations")
+		x.Contains(got[0].Body, "https://loft.example/reservations")
 	}
 	x.Empty(box.to(kimP.GetEmail()), "not to whoever asked")
 

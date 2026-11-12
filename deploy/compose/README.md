@@ -24,6 +24,7 @@ cp .env.example .env && chmod 600 .env
 | 값 | 무엇 | 만드는 법 |
 | --- | --- | --- |
 | `LOFT_DOMAIN` | 사람들이 여는 주소. 라벨 QR이 이 주소를 담으므로 **라벨을 인쇄하기 전에 정하고 바꾸지 않습니다**(loft#35) | |
+| `LOFT_TENANT` | 워크스페이스의 주소. 이 배포가 섬기는 내장 roster의 테넌트(`auth.roster.tenant`)이고 `loft init`이 세웁니다. 비우면 `loft`. **`init` 전에 정하고 바꾸지 않습니다** | |
 | `POSTGRES_PASSWORD` | DB 비밀번호. 영숫자만(DB 주소에 그대로 들어갑니다) | `openssl rand -hex 24` |
 | `LOFT_SIGNING_KEY` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키([세션의 키](../../docs/dev/security.md#세션의-키)). 모든 서버가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
 | `LOFT_MAIL_*` | 초대 메일을 보낼 SMTP. 비우면 메일 대신 로그에 남습니다 | |
@@ -56,9 +57,10 @@ chmod 444 secrets/*   # 컨테이너 안의 사용자가 읽게. 디렉터리가
 docker compose up -d --build
 docker compose ps                     # migrate는 Exited (0), 나머지는 running
 
-# 첫 워크스페이스와 소유자. --password를 빼면 만들어서 한 번 보여 줍니다.
+# 워크스페이스와 소유자: 내장 roster의 테넌트(.env의 LOFT_TENANT, 비우면 loft)를 세웁니다.
+# --password를 빼면 만들어서 한 번 보여 줍니다.
 docker compose run --rm loft --config /etc/loft/loft.yaml init \
-  --tenant acme --name "ACME" --login owner --person "홍길동" --email owner@example.com
+  --name "ACME" --login owner --person "홍길동" --email owner@example.com
 
 curl https://$LOFT_DOMAIN/healthz     # ok
 ```

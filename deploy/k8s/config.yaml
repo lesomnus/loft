@@ -51,10 +51,10 @@ spin:
 
 # The roster in this process, on a database of its own beside Loft's.
 #
-# Or a roster of its own (README.md, 13), in place of `db`, which is the
-# roster in this process's: where it is, the directory its accounts are in,
-# and the key Loft calls it with, from the Secret `loft-roster-key` the base
-# mounts. In plaintext inside the cluster, as roster's own reference
+# Or a roster of its own (README.md, 12), in place of `db`, which is the
+# roster in this process's: where it is, and the key Loft calls it with -- the
+# key of the tenant this deployment serves, which is its workspace (D85) --
+# from the Secret `loft-roster-key` the base mounts. In plaintext inside the cluster, as roster's own reference
 # deployment serves it, behind a NetworkPolicy its overlay writes; anything
 # else is TLS, with `ca_file` for a private CA.
 #
@@ -63,12 +63,16 @@ spin:
 #     addr: roster-data.roster.svc:8080
 #     insecure: true
 #     key: file:/run/secrets/loft-roster/key
-#     directory: loft
+#     # tenant: loft
 auth:
   roster:
     db:
       driver: pgx
       # dsn: LOFT_AUTH_ROSTER_DB_DSN, from the Secret `loft`.
+    # The tenant this deployment serves, which is its workspace and the
+    # address it goes by (D85): `loft` unless it says. Said before `loft init`
+    # puts it up, and not changed after.
+    # tenant: loft
 
 app:
   # Where people open it, and what a label's QR code carries: decided before

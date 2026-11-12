@@ -770,7 +770,7 @@ func TestWordsTakenOutOfANoticeAreNotMailed(t *testing.T) {
 			x.Contains(v.Body, before, "sent before anybody asked")
 		case strings.Contains(v.Subject, "둘째 회의"):
 			x.NotContains(v.Body, "박지민", "sent as it says now")
-			x.Contains(v.Body, "https://loft.example/@acme/reservations", "and still what it is about")
+			x.Contains(v.Body, "https://loft.example/reservations", "and still what it is about")
 		default:
 			x.Fail("a mail of neither", v.Subject)
 		}

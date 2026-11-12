@@ -30,7 +30,7 @@ func TestEveryAnswerSaysHowItMayBeUsed(t *testing.T) {
 		return rec.Header()
 	}
 
-	for _, path := range []string{"/", "/@acme/assets", "/loft.AssetService/Search", "/account"} {
+	for _, path := range []string{"/", "/assets", "/loft.AssetService/Search", "/session"} {
 		v := ask(false, csp.ReportOnly, path)
 		x.Equal("nosniff", v.Get("X-Content-Type-Options"), path)
 		x.Equal("same-origin", v.Get("Referrer-Policy"), path)

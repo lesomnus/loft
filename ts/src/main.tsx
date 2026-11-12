@@ -3,11 +3,10 @@
  *
  * The session is an HttpOnly cookie the server set -- at the end of a sign-in
  * through roster's issuer (`/sso/callback`), or at `POST /session` for a
- * password -- so the page never holds a credential; it only asks who it is, at
- * `GET /account`, and which workspaces that is in, as the account
- * (`TenantService.Mine`, D73). Which ways in to draw is the server's to say
- * (`GET /sso`). The page is about the workspace its address names
- * (`/@<alias>/...`), and one that names none opens the last one.
+ * password -- so the page never holds a credential; it only asks who it is,
+ * and the workspace, at `GET /session`. Which ways in to draw is the server's
+ * to say (`GET /sso`). The page is about the one workspace the deployment
+ * serves (D85).
  *
  * With no network the page opens as who it was last signed in as, from what
  * it last saw (`offline.ts`); signing out, or being found signed out, drops
@@ -20,29 +19,14 @@ import { StrictMode, useCallback, useEffect, useRef, useState, type ReactNode } 
 import { createRoot } from 'react-dom/client'
 
 import '../gen/domains.js'
-import {
-	callAs,
-	lastWorkspace,
-	localize,
-	openWorkspace,
-	rememberWorkspace,
-	signedIn,
-	signInThrough,
-	signOutThroughIssuer,
-	waysIn,
-	workspace,
-	type Account,
-	type Ways,
-	type Workspace,
-} from './api.js'
+import { callAs, localize, signedIn, signInThrough, signOutThroughIssuer, waysIn, type Session, type Ways } from './api.js'
 import { App } from './app.js'
 import { Mark } from './marks.js'
 import { forget, keepAs, keepOnly, keepTheApp, lastSeen, letGo, seen, setOffline, unreachable } from './offline.js'
 import { Rpc } from './rpc.js'
 import { Spinner, Toasts, useToast } from './ui.js'
-import { Inbox } from './invitations.js'
 import { Terminal } from './terminal.js'
-import { Closed, Elsewhere } from './workspaces.js'
+import { Closed } from './closed.js'
 import './style.css'
 
 /** What a sign-in through the issuer came back as (`/?signin=`), in words. */
@@ -50,6 +34,7 @@ const cameBack: Record<string, string> = {
 	refused: '로그인을 취소했습니다.',
 	failed: '로그인하지 못했습니다. 다시 해 보세요.',
 	unavailable: '지금은 로그인을 확인할 수 없습니다. 잠시 뒤에 다시 해 보세요.',
+	ended: '이 워크스페이스에서 로그인이 중지된 사람입니다. 관리자에게 문의하세요.',
 }
 
 /** What the last round trip came to, read once and taken out of the address. */
@@ -137,9 +122,11 @@ function PasswordForm(props: {
 					setBad(
 						res.status === 401
 							? '아이디 또는 비밀번호가 맞지 않습니다.'
-							: res.status === 503
-								? '지금은 로그인을 확인할 수 없습니다. 잠시 뒤에 다시 해 보세요.'
-								: `로그인할 수 없습니다 (${res.status}).`,
+							: res.status === 403
+								? (cameBack['ended'] ?? '')
+								: res.status === 503
+									? '지금은 로그인을 확인할 수 없습니다. 잠시 뒤에 다시 해 보세요.'
+									: `로그인할 수 없습니다 (${res.status}).`,
 					)
 				} catch {
 					setBad('서버에 연결할 수 없습니다.')
@@ -174,25 +161,23 @@ type State =
 	| { at: 'checking' }
 	| { at: 'out'; ways: Ways }
 	| { at: 'unknown'; why: string }
-	| { at: 'elsewhere'; account: Account }
-	| { at: 'inbox'; account: Account }
-	| { at: 'terminal'; account: Account }
-	| { at: 'closed'; account: Account; ws: Workspace }
-	| { at: 'in'; account: Account }
+	| { at: 'terminal'; session: Session }
+	| { at: 'closed'; session: Session }
+	| { at: 'in'; session: Session }
 
 function Boot(): ReactNode {
 	const toast = useToast()
 	const [state, setState] = useState<State>({ at: 'checking' })
 	const [ways, setWays] = useState<Ways>({ sso: false, providers: [], password: true })
 	const [n, setN] = useState(0)
-	// Whose the page is drawn for: the name `GET /account` gave the session it
+	// Whose the page is drawn for: the name `GET /session` gave the session it
 	// was drawn as, which every call says (`callAs`). Empty for nobody.
 	const drawn = useRef('')
 
 	const check = useCallback(async () => {
 		setState({ at: 'checking' })
 		try {
-			let a: Account | 'out'
+			let a: Session | 'out'
 			let w: Ways
 			let fresh = true
 			try {
@@ -201,10 +186,10 @@ function Boot(): ReactNode {
 				// No network: who this browser was signed in as when the server
 				// last said, and the pages as they were last seen.
 				if (!unreachable(err)) throw err
-				const last = await lastSeen<Account, Ways>()
+				const last = await lastSeen<Session, Ways>()
 				if (last === undefined) throw new Error('서버에 연결할 수 없습니다. 이 브라우저에서 아직 열어 본 적이 없어 오프라인으로 보여 줄 것이 없습니다.')
 				setOffline(true)
-				a = last.account
+				a = last.session
 				w = last.ways
 				fresh = false
 			}
@@ -221,53 +206,27 @@ function Boot(): ReactNode {
 			}
 			drawn.current = a.identity ?? ''
 			callAs(drawn.current)
-			// Where the dates are, before anything is drawn: the deployment's
-			// zone, as the server tells it, for every page about no workspace
-			// -- the account's invitations (design 7.9) -- and never the
-			// browser's. A workspace's pages are told the workspace's own as it
-			// is read (`CatalogProvider`).
-			localize({ timezone: a.timezone })
+			// Where the dates are, before anything is drawn: the workspace's
+			// zone, as the server tells it, and never the browser's (design
+			// 7.9) -- for what a closed one says too.
+			localize({ timezone: a.workspace.timezone })
 			if (fresh) {
-				// Kept for this account and the workspaces it is in now, and
-				// for nobody and nowhere else.
+				// Kept for this member and the workspace, and for nobody and
+				// nowhere else.
 				void seen(a, w)
-				void keepOnly(a.id, a.workspaces.map((v) => v.id))
+				void keepOnly(a.id, [a.workspace.id])
 			}
-			// The invitations waiting for the account: about no workspace, and
-			// opened by the link an invitation's mail carries.
-			if (location.pathname === '/invitations') {
-				setState({ at: 'inbox', account: a })
-				return
-			}
-			// A terminal asking to be signed in as the account (`loft auth login`).
+			// A terminal asking to be signed in as the member (`loft auth login`).
 			if (location.pathname === '/cli') {
-				setState({ at: 'terminal', account: a })
+				setState({ at: 'terminal', session: a })
 				return
 			}
-			if (workspace === '') {
-				// An address that names no workspace -- the root, or a label
-				// scanned -- opens the one this browser was last in, and the
-				// first one otherwise, with the rest of the address kept.
-				const pick = a.workspaces.find((w) => w.alias === lastWorkspace()) ?? a.workspaces[0]
-				if (pick !== undefined) {
-					openWorkspace(pick, location.pathname + location.search, true)
-					return
-				}
-				setState({ at: 'elsewhere', account: a })
+			if (a.workspace.closed !== undefined) {
+				setState({ at: 'closed', session: a })
 				return
 			}
-			const here = a.workspaces.find((w) => w.alias === workspace)
-			if (here === undefined) {
-				setState({ at: 'elsewhere', account: a })
-				return
-			}
-			if (here.closed !== undefined) {
-				setState({ at: 'closed', account: a, ws: here })
-				return
-			}
-			rememberWorkspace(workspace)
-			keepAs(a.id, here.id)
-			setState({ at: 'in', account: a })
+			keepAs(a.id, a.workspace.id)
+			setState({ at: 'in', session: a })
 		} catch (err) {
 			setState({ at: 'unknown', why: err instanceof Error ? err.message : String(err) })
 		}
@@ -367,18 +326,14 @@ function Boot(): ReactNode {
 					</div>
 				</div>
 			)
-		case 'elsewhere':
-			return <Elsewhere account={state.account} onSignOut={signOut} />
-		case 'inbox':
-			return <Inbox account={state.account} onSignOut={signOut} />
 		case 'terminal':
-			return <Terminal account={state.account} onSignOut={signOut} />
+			return <Terminal session={state.session} onSignOut={signOut} />
 		case 'closed':
-			return <Closed account={state.account} ws={state.ws} onSignOut={signOut} />
+			return <Closed session={state.session} onSignOut={signOut} />
 		case 'in':
 			return (
 				<Rpc onRefused={lost}>
-					<App account={state.account} onSignOut={signOut} />
+					<App session={state.session} onSignOut={signOut} />
 				</Rpc>
 			)
 	}

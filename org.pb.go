@@ -304,7 +304,7 @@ type Party_builder struct {
 	Kind string
 	// The team a person is in, or the organization a team is in.
 	ParentId []byte
-	// The login account, for a person who has one. Named after its target:
+	// The membership, for a person who signs in. Named after its target:
 	// a unique index over an edge named otherwise does not generate
 	// (protobuf-orm/protoc-gen-orm-ent#1).
 	Holder      *Holder
@@ -338,10 +338,8 @@ func (b0 Party_builder) Build() *Party {
 	return m0
 }
 
-// Session is a signed-in browser, and what it names is an account rather than a
-// membership: one sign-in reaches every workspace the account belongs to, and
-// which one a request is about is the request's to say (design 9.11). So it is
-// the deployment's and not any workspace's -- `global` -- and it is written
+// Session is a signed-in browser, and what it names is a member of the
+// workspace (D85). It is the deployment's -- `global` -- and it is written
 // only by the server, through ent (`server/session`); the policy opens no RPC
 // of it. The key itself is never stored: `secret` is what it is kept as -- an
 // HMAC of its SHA-256 under a key the database does not hold
@@ -572,8 +570,8 @@ type Session_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Id []byte
-	// The account signed in: a holder at roster, in this deployment's
-	// directory.
+	// Who signed in: a holder of the roster tenant this deployment serves,
+	// which is their membership here by the same identifier (D85).
 	Account     []byte
 	Secret      []byte
 	Grant       []byte
@@ -605,26 +603,16 @@ func (b0 Session_builder) Build() *Session {
 	return m0
 }
 
-// Invitation is an account asked into a workspace, by address, with a role
-// (design 9.11, M2 step 4).
+// Invitation is somebody asked into a workspace, by address, with a role
+// (design 9.11, M2 step 4): what the people who run the workspace send and
+// take back. Nothing here answers one any more -- somebody comes to be a
+// member by signing in as a holder of the tenant at roster (D85) -- and the
+// rest goes with #332.
 //
 // It is the workspace's row: who invited whom, as what, and what became of it
-// are this workspace's history, and leave with it. Two sides read it -- the
-// people who run the workspace, and the account it is addressed to, who is
-// not a member yet and can read nothing here. So `InvitationService.Inbox`,
-// `Claim`, `Accept` and `Deny` are the account's own methods, served as the
-// account rather than as a membership (payday#184), and which rows each side
-// reads is said by the domain layer, not by the wall
-// (`server/domain/invitation.go`).
-//
-// # Whose it is
-//
-// The account whose address it is, and only an address somebody checked: one
-// roster holds as verified, because any directory's administrator may put any
-// address on a user of their own (nOAuth), or one whose link it was mailed with
-// was opened by the account (`Claim`), since reading that mailbox is the proof.
-// Nothing here says whether an address is anybody's: the people who invite
-// learn what became of the invitation, and nothing about who was asked.
+// are this workspace's history, and leave with it. Nothing here says whether
+// an address is anybody's: the people who invite learn what became of the
+// invitation, and nothing about who was asked.
 type Invitation struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -963,8 +951,9 @@ type Invitation_builder struct {
 	// The person record an account that accepts becomes: one this workspace
 	// already keeps, or empty for one made then.
 	Party *Party
-	// The account it is for, once that is known -- its link was opened by it,
-	// or it answered -- and empty while it is only an address.
+	// Who it was for at roster, once that was known -- its link was opened, or
+	// it was answered -- and empty while it is only an address. Nothing writes
+	// it any more (D85).
 	Account     []byte
 	DateUpdated *timestamppb.Timestamp
 	DateErased  *timestamppb.Timestamp
@@ -978,7 +967,8 @@ type Invitation_builder struct {
 	DateSettled *timestamppb.Timestamp
 	// The membership accepting it made.
 	Holder *Holder
-	// The SHA-256 of the code its mail carried, until an account opens it.
+	// The SHA-256 of the code its mail carried, while one opened it to answer.
+	// Nothing writes it any more (D85).
 	Claim []byte
 }
 
@@ -1011,7 +1001,7 @@ func (b0 Invitation_builder) Build() *Invitation {
 // its SHA-256, which is kept as a browser's key is (`Session.secret`): `secret`
 // is what the session will be looked up by. A person signed in at the app approves the
 // `code` the terminal shows them, and the approval makes that session for
-// their account. So no key is written here or sent back, and the row holds
+// them. So no key is written here or sent back, and the row holds
 // nothing a reader of the database could sign in with. It is the
 // deployment's (`global`), written only through ent by `server/clilogin`,
 // and the policy opens no RPC of it. Each write is on the trail as its act,
@@ -1277,11 +1267,11 @@ type CliLogin_builder struct {
 	// (`server/clilogin`). Not personal, on purpose (#119): an access record
 	// keeps where a sign-in came from, and so does the trail.
 	Address string
-	// The account that approved it, once one has.
+	// Who approved it, once somebody has: the member signed in at the page.
 	Account []byte
 	// What the terminal asked to be allowed, which the page shows and the
 	// session it gets is narrowed to: `Session.grant`'s bytes, `whole` for all
-	// that the account may do (`loft auth login --allow`, D33).
+	// that the member may do (`loft auth login --allow`, D33).
 	Grant []byte
 	// `pending`, `approved` or `denied`. One still pending after
 	// `date_expires` is expired, which is said where it is read.
@@ -1314,9 +1304,9 @@ func (b0 CliLogin_builder) Build() *CliLogin {
 
 // AliasHold is a workspace address nobody may take for a while: one a
 // destroyed workspace went by, or one a workspace was moved off (D29, design
-// 8.4). A name that found somebody is still how people find them -- bookmarks,
-// links in old mail -- and a workspace that took it the next day would be that
-// name to all of them. A renamed one is also sent on to where it moved.
+// 8.4). A name a workspace went by is still how people know it -- an
+// operator's notes, its export's file name, mail that named it -- and a
+// workspace that took it the next day would be that name to all of them.
 //
 // The deployment's (`global`), written only by `server/tenancy`, and the
 // policy opens no RPC of it.
@@ -1807,9 +1797,7 @@ const file_loft_org_proto_rawDesc = "" +
 	"\fdate_created\x10\x0f\x1a \x12\fdate_created\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x8a\xbb\x16i\b-B\x02\n" +
 	"\x00R_\x12]\n" +
-	"[a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act*\x00B2\xca\xc7\x16\x0f2\r\n" +
-	"\v\n" +
-	"\aaccount\x10\tZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"[a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_loft_org_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_loft_org_proto_goTypes = []any{

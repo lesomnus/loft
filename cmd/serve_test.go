@@ -3,7 +3,6 @@ package cmd_test
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"slices"
@@ -25,7 +24,6 @@ import (
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/account"
 	"github.com/lesomnus/loft/server/session"
 )
 
@@ -38,46 +36,49 @@ type world struct {
 	owner  context.Context
 }
 
-// signIn mints a session for a holder's account and answers a context that
-// carries its cookie and names the world's workspace, the way a browser's call
-// from `/@acme/...` arrives.
-func (w *world) signIn(h *app.Holder) context.Context {
-	return metadata.AppendToOutgoingContext(w.session(h), cmd.WorkspaceHeader, w.tenant.GetAlias())
-}
+// signIn mints a session for a member and answers a context that carries its
+// cookie, the way a browser's call arrives.
+func (w *world) signIn(h *app.Holder) context.Context { return w.session(h) }
 
-// session is a context that carries a session for a holder's account, and
-// names no workspace.
+// session is a context that carries a session for a member.
 func (w *world) session(h *app.Holder) context.Context {
 	_, c, err := w.s.Sessions.Mint(context.Background(), authsession.Session{Id: w.accountOf(h).String(), Grant: frame.Whole()})
 	w.x.NoError(err)
 	return metadata.AppendToOutgoingContext(context.Background(), "cookie", c.Name+"="+c.Value)
 }
 
+// accountOf is the holder at roster a member is, which is their identifier
+// here too (D85).
 func (w *world) accountOf(h *app.Holder) pdid.Id {
 	id, err := pdid.From(h.GetId())
 	w.x.NoError(err)
 	v, err := w.s.Ent.Holder.Get(context.Background(), id.Uuid())
 	w.x.NoError(err)
 	w.x.NotNil(v.Account)
+	w.x.Equal(id, pdid.Id(*v.Account))
 	return pdid.Id(*v.Account)
 }
 
-// holder is an account in the directory at roster -- where it signs in and
-// what a session is held to -- and its membership of the world's workspace,
-// with a role.
+// holder is somebody in the tenant at roster -- where they sign in and what a
+// session is held to -- and their membership of the world's workspace, by the
+// same identifier, with a role.
 func (w *world) holder(alias, role string) *app.Holder {
 	p, err := w.s.Identity.AddPerson(context.Background(), alias, alias, pdid.Nil)
 	w.x.NoError(err)
 	return w.here(p, role)
 }
 
-// here is an account's membership of the world's workspace.
+// here is somebody at roster's membership of the world's workspace.
 func (w *world) here(p identity.Person, role string) *app.Holder {
 	return w.member(w.tenant, p, role)
 }
 
+// member is a membership of `t` by the identifier `p` has at roster: of the
+// world's workspace, which is the tenant at roster; of another, a membership
+// nobody at roster is.
 func (w *world) member(t *app.Tenant, p identity.Person, role string) *app.Holder {
 	h, err := w.s.Base.Holder().Add(context.Background(), app.HolderAddRequest_builder{
+		Id:      p.Id.Bytes(),
 		Tenant:  app.TenantRef_builder{Id: t.GetId()}.Build(),
 		Alias:   p.Alias,
 		Role:    z.Ptr(role),
@@ -101,6 +102,7 @@ func newWorldWith(t *testing.T, with func(*cmd.Config)) *world {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Auth.Roster.Tenant = "acme"
 	if with != nil {
 		with(&c)
 	}
@@ -110,11 +112,11 @@ func newWorldWith(t *testing.T, with func(*cmd.Config)) *world {
 	t.Cleanup(func() { s.Close() })
 	x.NoError(cli.Migrate(ctx, s))
 
-	// The directory and its first account at roster, then the workspace
-	// here, as `loft init` does.
-	owner, _, err := s.Identity.MakeDirectory(ctx, "owner", "")
+	// The tenant and its first person at roster, then the workspace here by
+	// the same identifier, as `loft init` does (D85).
+	rt, owner, _, err := s.Identity.MakeTenant(ctx, "", "owner", "")
 	x.NoError(err)
-	tn, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "acme"}.Build())
+	tn, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Id: rt.Id.Bytes(), Alias: rt.Alias}.Build())
 	x.NoError(err)
 
 	g, err := s.Grpc(ctx, c)
@@ -229,8 +231,6 @@ func TestTheWorkLogIsReadByWhoeverRunsTheWorkspaceOrAuditsIt(t *testing.T) {
 	}
 }
 
-// TestSignIn is a password roster checked, and a session for the account: the
-// workspaces it reaches are the ones it is a member of.
 // TestASignInAFormOfAnotherSiteCouldPostIsRefused: a page on another site
 // can post a form at `/session` -- `text/plain` whose body is JSON, or the
 // form encoding -- and nothing stops a browser from following it. Answered,
@@ -246,7 +246,7 @@ func TestASignInAFormOfAnotherSiteCouldPostIsRefused(t *testing.T) {
 	x.NoError(err)
 	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
 
-	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, nil)
+	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, w.s.Members)
 	post := func(ct, body string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(body))
 		if ct != "" {
@@ -269,18 +269,32 @@ func TestASignInAFormOfAnotherSiteCouldPostIsRefused(t *testing.T) {
 	x.NotEmpty(res.Result().Cookies())
 }
 
+// TestSignIn is a password roster checked, and a session for the member it is
+// here (D85): somebody in the tenant at roster is a member of its workspace
+// from the first time they sign in, by roster's identifier for them, with the
+// person record this workspace keeps already at an address roster holds as
+// checked for them.
 func TestSignIn(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
 	me := app.NewPartyServiceClient(w.conn)
 
-	// An account at roster that is in no workspace yet.
+	// Somebody at roster nobody here has met, and their person record here,
+	// at an address roster holds as checked for them.
 	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
 	x.NoError(err)
 	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
+	x.NoError(w.s.Identity.AddAddress(ctx, park.Id, "park@example.com", true))
+	record, err := w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "박지성",
+		Kind:   "person",
+		Email:  "Park@Example.com",
+	}.Build())
+	x.NoError(err)
 
-	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, nil)
+	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, w.s.Members)
 	post := func(body string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(body))
 		r.Header.Set("Content-Type", "application/json")
@@ -291,35 +305,30 @@ func TestSignIn(t *testing.T) {
 	}
 	signedIn := func(body string) context.Context {
 		res := post(body)
-		x.Equal(http.StatusNoContent, res.Code)
+		x.Equal(http.StatusNoContent, res.Code, res.Body.String())
 		cookie := res.Result().Cookies()[0]
 		return metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value)
+	}
+	members := func(id pdid.Id) int {
+		n, err := w.s.Ent.Holder.Query().Where(holder.Id(id.Uuid())).Count(ctx)
+		x.NoError(err)
+		return n
 	}
 
 	x.Equal(http.StatusUnauthorized, post(`{"login":"park","password":"wrong one"}`).Code)
 	x.Equal(http.StatusUnauthorized, post(`{"login":"nobody","password":"correct horse"}`).Code)
+	x.Zero(members(park.Id), "a sign-in refused made a member")
 
 	md := signedIn(`{"login":"park","password":"correct horse"}`)
-	_, err = me.Me(md, &app.PartyMeRequest{})
-	x.Equal(codes.FailedPrecondition, status.Code(err), "an account in no workspace is served as nobody in particular")
-	n, err := w.s.Ent.Holder.Query().Where(holder.Account(park.Id.Uuid())).Count(ctx)
-	x.NoError(err)
-	x.Zero(n, "a sign-in made a membership")
-
-	// In the workspace, with the person record beside the membership.
-	h := w.here(park, "member")
-	_, err = w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
-		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
-		Name:   "박",
-		Kind:   "person",
-		Email:  "park@example.com",
-		Holder: app.HolderRef_builder{Id: h.GetId()}.Build(),
-	}.Build())
-	x.NoError(err)
 	v, err := me.Me(md, &app.PartyMeRequest{})
-	x.NoError(err, "the one workspace, when the call names none")
+	x.NoError(err, "a member from the first sign-in")
+	x.Equal(park.Id.Bytes(), v.GetHolder().GetId(), "by roster's identifier for them")
 	x.Equal("park", v.GetHolder().GetAlias())
+	x.Equal("박", v.GetHolder().GetName())
 	x.Equal("member", v.GetRole())
+	x.Equal(record.GetId(), v.GetParty().GetId(), "the person record at the address roster holds as checked")
+	signedIn(`{"login":"park","password":"correct horse"}`)
+	x.Equal(1, members(park.Id), "a second sign-in made a second member")
 
 	t.Run("by the address on their person record, on the roster in this process", func(t *testing.T) {
 		x := require.New(t)
@@ -341,35 +350,40 @@ func TestSignIn(t *testing.T) {
 		x.NoError(err, "and a sign-in after it is a session that is good")
 	})
 
-	t.Run("a login ended here ends the workspace, and not the account", func(t *testing.T) {
+	t.Run("a name is no membership", func(t *testing.T) {
 		x := require.New(t)
 
-		_, err := w.s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: h.GetId()}.Build())
-		x.NoError(err)
-		_, err = me.Me(metadata.AppendToOutgoingContext(md, cmd.WorkspaceHeader, "acme"), &app.PartyMeRequest{})
-		x.Equal(codes.PermissionDenied, status.Code(err), "the session reached a workspace it is no member of any more")
-		x.Equal(http.StatusNoContent, post(`{"login":"park","password":"correct horse"}`).Code, "the account went with the membership")
-	})
-
-	t.Run("a holder that names no account is nobody's membership", func(t *testing.T) {
-		x := require.New(t)
-
-		// A login that names no account -- as a restore puts back a member
-		// this roster does not have -- and an account of the same name at
-		// roster.
+		// A member nobody at roster is -- as a restore puts back one from
+		// another deployment -- and somebody at roster by the same name.
 		_, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
 			Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
 			Alias:  "choi",
 			Name:   "최",
-			Role:   z.Ptr("member"),
+			Role:   z.Ptr("admin"),
 		}.Build())
 		x.NoError(err)
 		choi, err := w.s.Identity.AddPerson(ctx, "choi", "최", pdid.Nil)
 		x.NoError(err)
 		x.NoError(w.s.Identity.SetPassword(ctx, choi.Id, "correct horse"))
 
-		_, err = me.Me(signedIn(`{"login":"choi","password":"correct horse"}`), &app.PartyMeRequest{})
-		x.Equal(codes.FailedPrecondition, status.Code(err), "a name is not a membership")
+		v, err := me.Me(signedIn(`{"login":"choi","password":"correct horse"}`), &app.PartyMeRequest{})
+		x.NoError(err)
+		x.Equal(choi.Id.Bytes(), v.GetHolder().GetId(), "a member of their own")
+		x.Equal("choi-2", v.GetHolder().GetAlias(), "called by their name and a number, while somebody here goes by it")
+		x.Equal("member", v.GetRole(), "and nothing of the other's")
+	})
+
+	t.Run("a login ended here stays ended, and the holder at roster with it", func(t *testing.T) {
+		x := require.New(t)
+
+		_, err := w.s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: park.Id.Bytes()}.Build())
+		x.NoError(err)
+		_, err = me.Me(md, &app.PartyMeRequest{})
+		x.Equal(codes.Unauthenticated, status.Code(err), "the session of a membership ended")
+		x.Equal(http.StatusForbidden, post(`{"login":"park","password":"correct horse"}`).Code, "a sign-in made them a member again")
+		x.Equal(1, members(park.Id))
+		_, err = w.s.Identity.Verify(ctx, "park", "correct horse")
+		x.NoError(err, "the holder at roster went with the membership")
 	})
 
 	t.Run("and an address that keeps getting it wrong is refused for a while", func(t *testing.T) {
@@ -385,45 +399,78 @@ func TestSignIn(t *testing.T) {
 	})
 }
 
-// TestOneAccountInTwoWorkspaces is the wall between workspaces, for one
-// account that is in both: each call is served as its membership of the
-// workspace the call names, and sees that workspace alone.
-func TestOneAccountInTwoWorkspaces(t *testing.T) {
+// TestASignInBeforeInitIsNobodysYet: roster vouching for somebody before
+// `loft init` put the workspace up is a sign-in with nothing to sign in to --
+// not a wrong password, and no member of anything.
+func TestASignInBeforeInitIsNobodysYet(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	t.Cleanup(func() { s.Close() })
+	x.NoError(cli.Migrate(ctx, s))
+	_, _, secret, err := s.Identity.MakeTenant(ctx, "", "owner", "")
+	x.NoError(err)
+
+	r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"owner","password":"`+secret+`"}`))
+	r.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	session.SignIn(s.Sessions, s.Identity, s.Ent, s.Members).ServeHTTP(rec, r)
+	x.Equal(http.StatusServiceUnavailable, rec.Code)
+	x.Empty(rec.Result().Cookies())
+	n, err := s.Ent.Holder.Query().Count(ctx)
+	x.NoError(err)
+	x.Zero(n)
+}
+
+// TestAMemberSeesTheirWorkspaceAlone is the wall, which keeps a workspace's
+// rows to it whatever else the database holds -- a workspace restored from
+// another deployment's export, whose members nobody at roster is -- and a
+// session of such a member is nobody's.
+func TestAMemberSeesTheirWorkspaceAlone(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	ctx := context.Background()
 	assets := app.NewAssetServiceClient(w.conn)
 
-	kim, err := w.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
-	x.NoError(err)
 	beta, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "beta"}.Build())
 	x.NoError(err)
-	inAcme := w.here(kim, "member")
-	w.member(beta, kim, "owner")
-	md := w.session(inAcme)
-	at := func(ws string) context.Context { return metadata.AppendToOutgoingContext(md, cmd.WorkspaceHeader, ws) }
+	theirs, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: beta.GetId()}.Build(),
+		Alias:  "owner",
+		Role:   z.Ptr("owner"),
+	}.Build())
+	x.NoError(err)
+	box, err := w.s.Ungated.Asset().Add(frameOf(x, theirs), app.AssetAddRequest_builder{Name: "beta의 노트북"}.Build())
+	x.NoError(err)
 
-	_, err = assets.Search(md, app.AssetSearchRequest_builder{}.Build())
-	x.Equal(codes.InvalidArgument, status.Code(err), "two workspaces, and a call that names neither")
-
-	mine, err := assets.Add(at("beta"), app.AssetAddRequest_builder{Name: "beta의 노트북"}.Build())
-	x.NoError(err, "an owner of beta")
-	_, err = assets.Add(at("@acme"), app.AssetAddRequest_builder{Name: "x"}.Build())
-	x.Equal(codes.PermissionDenied, status.Code(err), "and a member of acme, who adds nothing there")
-
-	got, err := assets.Search(at("acme"), app.AssetSearchRequest_builder{}.Build())
+	got, err := assets.Search(w.owner, app.AssetSearchRequest_builder{}.Build())
 	x.NoError(err)
 	x.Empty(got.GetItems(), "acme's register shows beta's asset")
-	_, err = assets.Get(at("acme"), app.AssetGetRequest_builder{Ref: app.AssetRef_builder{Id: mine.GetId()}.Build()}.Build())
+	_, err = assets.Get(w.owner, app.AssetGetRequest_builder{Ref: app.AssetRef_builder{Id: box.GetId()}.Build()}.Build())
 	x.Equal(codes.NotFound, status.Code(err))
-	got, err = assets.Search(at(idString(beta.GetId())), app.AssetSearchRequest_builder{}.Build())
-	x.NoError(err, "a workspace named by its identifier")
-	x.Len(got.GetItems(), 1)
 
-	_, err = assets.Search(at("gamma"), app.AssetSearchRequest_builder{}.Build())
-	x.Equal(codes.PermissionDenied, status.Code(err), "a workspace there is no such of")
-	_, err = assets.Search(at("acme"), app.AssetSearchRequest_builder{}.Build())
+	tid, err := pdid.From(theirs.GetId())
 	x.NoError(err)
+	_, c, err := w.s.Sessions.Mint(ctx, authsession.Session{Id: tid.String(), Grant: frame.Whole()})
+	x.NoError(err)
+	_, err = assets.Search(metadata.AppendToOutgoingContext(ctx, "cookie", c.Name+"="+c.Value), app.AssetSearchRequest_builder{}.Build())
+	x.Equal(codes.Unauthenticated, status.Code(err), "a member nobody at roster is")
+}
+
+// frameOf is a call made as `h`, past the gRPC chain: what the deployment's
+// own work in a workspace is.
+func frameOf(x *require.Assertions, h *app.Holder) context.Context {
+	hid, err := pdid.From(h.GetId())
+	x.NoError(err)
+	tid, err := pdid.From(h.GetTenant().GetId())
+	x.NoError(err)
+	return frame.Into(context.Background(), frame.New(hid, tid, frame.Whole()).WithScope(frame.Only(tid)).WithRow(h))
 }
 
 func idString(b []byte) string {
@@ -448,7 +495,7 @@ func TestARosterThatCannotBeAskedServesNoSession(t *testing.T) {
 	_, err = me.Me(w.owner, &app.PartyMeRequest{})
 	x.Equal(codes.Unavailable, status.Code(err))
 
-	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, nil)
+	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, w.s.Members)
 	r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"owner","password":"anything at all"}`))
 	r.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
@@ -497,112 +544,4 @@ func TestAContractIsTheOperators(t *testing.T) {
 	x.NoError(err)
 	_, err = holds.Add(w.owner, app.LegalHoldAddRequest_builder{Name: "mine"}.Build())
 	x.Equal(codes.PermissionDenied, code(err), "an owner placed a hold")
-}
-
-// TestAnAccountInNoWorkspaceIsGivenOne is signing up (design 9.11): an
-// account that signs in and is in no workspace is given one of its own, and
-// makes more until another one is paid for.
-func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
-	w := newWorld(t)
-	x := w.x
-	ctx := context.Background()
-
-	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
-	x.NoError(err)
-	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
-
-	ws := w.s.Workspaces(w.c)
-	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, ws.Arrive)
-	signIn := func() *http.Cookie {
-		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"park","password":"correct horse"}`))
-		r.Header.Set("Content-Type", "application/json")
-		rec := httptest.NewRecorder()
-		login.ServeHTTP(rec, r)
-		x.Equal(http.StatusNoContent, rec.Code)
-		return rec.Result().Cookies()[0]
-	}
-	cookie := signIn()
-	md := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value)
-
-	me, err := app.NewPartyServiceClient(w.conn).Me(md, &app.PartyMeRequest{})
-	x.NoError(err, "the workspace it was given")
-	x.Equal("owner", me.GetRole())
-	x.Empty(me.GetTenant().GetName(), "a workspace named after its person (D57)")
-	x.Equal("박의 워크스페이스", me.GetWorkspaceName())
-	types, err := app.NewAssetTypeServiceClient(w.conn).List(md, app.AssetTypeListRequest_builder{}.Build())
-	x.NoError(err)
-	x.NotEmpty(types.GetItems(), "a workspace that does not start with what a register starts with")
-
-	signIn()
-	n, err := w.s.Ent.Holder.Query().Where(holder.Account(park.Id.Uuid())).Count(ctx)
-	x.NoError(err)
-	x.Equal(1, n, "a second sign-in gave it a second workspace")
-
-	acc := http.NewServeMux()
-	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity}.Mount(acc)
-	var got account.Account
-	r := httptest.NewRequest(http.MethodGet, "/account", nil)
-	r.Header.Set("Cookie", cookie.Name+"="+cookie.Value)
-	rec := httptest.NewRecorder()
-	acc.ServeHTTP(rec, r)
-	x.Equal(http.StatusOK, rec.Code)
-	x.NoError(json.Unmarshal(rec.Body.Bytes(), &got))
-	x.Equal("park", got.Login)
-
-	// What it is in, and more of its own, asked as the account (D73).
-	tenants := app.NewTenantServiceClient(w.conn)
-	mine, err := tenants.Mine(md, &app.TenantMineRequest{})
-	x.NoError(err)
-	x.Len(mine.GetWorkspaces(), 1)
-	x.Equal(me.GetTenant().GetAlias(), mine.GetWorkspaces()[0].GetAlias())
-	x.Equal("박의 워크스페이스", mine.GetWorkspaces()[0].GetName())
-	x.Equal("owner", mine.GetWorkspaces()[0].GetRole())
-	x.EqualValues(1, mine.GetOwns())
-	x.EqualValues(cmd.DefaultOwned, mine.GetMay())
-
-	for i := 1; i < cmd.DefaultOwned; i++ {
-		made, err := tenants.Create(md, app.TenantCreateRequest_builder{Name: "팀 " + string(rune('A'+i))}.Build())
-		x.NoError(err)
-		x.Equal("owner", made.GetRole())
-		x.Equal("팀 "+string(rune('A'+i)), made.GetName())
-	}
-	_, err = tenants.Create(md, app.TenantCreateRequest_builder{Name: "하나 더"}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err), "one more than an account owns for nothing")
-	_, err = tenants.Create(md, app.TenantCreateRequest_builder{Name: ""}.Build())
-	x.Equal(codes.InvalidArgument, status.Code(err))
-	_, err = tenants.Create(md, app.TenantCreateRequest_builder{Name: "팀\nBcc: x@example.com"}.Build())
-	x.Equal(codes.InvalidArgument, status.Code(err), "more than the one line a mail's subject is")
-
-	mine, err = tenants.Mine(md, &app.TenantMineRequest{})
-	x.NoError(err)
-	x.Len(mine.GetWorkspaces(), cmd.DefaultOwned)
-	_, err = app.NewPartyServiceClient(w.conn).Me(md, &app.PartyMeRequest{})
-	x.Equal(codes.InvalidArgument, status.Code(err), "more than one workspace, and a call that names none")
-	_, err = app.NewPartyServiceClient(w.conn).Me(metadata.AppendToOutgoingContext(md, cmd.WorkspaceHeader, mine.GetWorkspaces()[1].GetAlias()), &app.PartyMeRequest{})
-	x.NoError(err)
-
-	t.Run("nobody is asked about without a session", func(t *testing.T) {
-		r := httptest.NewRequest(http.MethodGet, "/account", nil)
-		rec := httptest.NewRecorder()
-		acc.ServeHTTP(rec, r)
-		require.Equal(t, http.StatusUnauthorized, rec.Code)
-	})
-
-	t.Run("and a deployment that gives none gives none", func(t *testing.T) {
-		x := require.New(t)
-
-		lee, err := w.s.Identity.AddPerson(ctx, "lee", "이", pdid.Nil)
-		x.NoError(err)
-		x.NoError(w.s.Identity.SetPassword(ctx, lee.Id, "correct horse"))
-		ws := w.s.Workspaces(w.c)
-		ws.Personal = false
-		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"lee","password":"correct horse"}`))
-		r.Header.Set("Content-Type", "application/json")
-		rec := httptest.NewRecorder()
-		session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, ws.Arrive).ServeHTTP(rec, r)
-		x.Equal(http.StatusNoContent, rec.Code)
-		n, err := w.s.Ent.Holder.Query().Where(holder.Account(lee.Id.Uuid())).Count(ctx)
-		x.NoError(err)
-		x.Zero(n)
-	})
 }

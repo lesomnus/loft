@@ -81,8 +81,7 @@ func TestAnOperatorTakesAnEventsReasonOut(t *testing.T) {
 		x.NoError(err)
 		return e.Reason
 	}
-	_, err = ran(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "lee")
-	x.NoError(err)
+	cli.Elsewhere(t, d.c, "beta", "lee", false)
 
 	for want, args := range map[string][]string{
 		"--why":                 {"--tenant", "acme", "--event", id.String()},
@@ -384,8 +383,7 @@ func TestAnOperatorReadsTheAccessRecordAndItsReviews(t *testing.T) {
 	x.NoError(err, out)
 	x.Contains(out, "  acme  ")
 	x.Contains(out, `"이상 없음"`)
-	_, err = ran(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "lee")
-	x.NoError(err)
+	cli.Elsewhere(t, d.c, "beta", "lee", false)
 	out, err = d.loft(t, "access-review", "list", "--tenant", "beta")
 	x.NoError(err, out)
 	x.Contains(out, "no review recorded")

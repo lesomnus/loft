@@ -9,11 +9,10 @@ import (
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/server/account"
+	"github.com/lesomnus/loft/server/session"
 )
 
-// TestACallSaysWhoseStoreItIsFor: `GET /account` names the session asking as
+// TestACallSaysWhoseStoreItIsFor: `GET /session` names the session asking as
 // the server reads it (`authsession.IdentityOf`), the page says that name on
 // every call it makes, and a call saying it is served as that caller and
 // nobody else. A page left behind by somebody else's sign-in in the same
@@ -34,15 +33,15 @@ func TestACallSaysWhoseStoreItIsFor(t *testing.T) {
 	inKim, inLee := w.here(kim, "member"), w.here(lee, "member")
 
 	named := func(as context.Context) string {
-		res := w.at(as, http.MethodGet, "/account", "")
+		res := w.at(as, http.MethodGet, "/session", "")
 		x.Equal(http.StatusOK, res.Code, res.Body.String())
-		var a account.Account
+		var a session.Answer
 		x.NoError(json.Unmarshal(res.Body.Bytes(), &a))
 		x.NotEmpty(a.Identity)
 		return a.Identity
 	}
 	me := func(as context.Context, store string) int {
-		h := []string{"Content-Type", "application/json", "Connect-Protocol-Version", "1", cmd.WorkspaceHeader, "acme"}
+		h := []string{"Content-Type", "application/json", "Connect-Protocol-Version", "1"}
 		if store != "" {
 			h = append(h, authsession.IdentityHeader, store)
 		}

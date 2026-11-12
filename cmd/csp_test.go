@@ -28,7 +28,7 @@ func TestABrowsersReportReachesTheLog(t *testing.T) {
 	x.NoError(err)
 
 	var said bytes.Buffer
-	r := httptest.NewRequest(http.MethodPost, "/csp-report", strings.NewReader(`{"csp-report": {"violated-directive": "img-src", "blocked-uri": "https://elsewhere.example/x.png", "document-uri": "https://loft.example/@acme/"}}`))
+	r := httptest.NewRequest(http.MethodPost, "/csp-report", strings.NewReader(`{"csp-report": {"violated-directive": "img-src", "blocked-uri": "https://elsewhere.example/x.png", "document-uri": "https://loft.example/"}}`))
 	r.Header.Set("Content-Type", "application/csp-report")
 	r = r.WithContext(log.Into(r.Context(), slog.New(slog.NewTextHandler(&said, nil))))
 	rec := httptest.NewRecorder()

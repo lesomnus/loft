@@ -20,7 +20,6 @@ var update = flag.Bool("update", false, "write testdata/table.txt from the table
 
 var levelWord = map[Level]string{
 	Nobody:  "nobody",
-	Account: "account",
 	Read:    "read",
 	Member:  "member",
 	Manager: "manager",

@@ -2,21 +2,21 @@ import { expect, test as base, type BrowserContext, type Locator, type Page } fr
 
 export { expect }
 
-/** The workspace `loft init --demo` makes, which every address is under. */
-export const workspace = '/@acme'
-
 /** The password `--demo` gives everybody it makes but the owner. */
 export const demoPassword = 'demo1234'
 
-/** Who `e2e/serve.sh` makes the owner. */
-export const owner = { login: 'owner', password: 'owner-pass-1234' }
+/**
+ * Who `e2e/serve.sh` makes the owner of the workspace the deployment serves,
+ * and what `init` calls them.
+ */
+export const owner = { login: 'owner', password: 'owner-pass-1234', name: '관리자' }
 
 /**
  * The demo's people the tests sign in as, named for what each is there for.
  *
  * Tests run beside each other on one server, so each test that changes
- * something about a person -- what they hold, which workspaces they are in --
- * has people nobody else's test uses.
+ * something about a person -- what they hold, what they are told -- has
+ * people nobody else's test uses.
  */
 export const people = {
 	signIn: { login: 'jia-lim', name: '임지아' },
@@ -31,19 +31,13 @@ export const people = {
 	historian: { login: 'jimin-cho', name: '조지민' },
 	opener: { login: 'seoyun-lim', name: '임서윤' },
 	counts: { login: 'gunwoo-lee', name: '이건우' },
-	workspaces: { login: 'yejun-kang', name: '강예준' },
 	reporter: { login: 'yujun-park', name: '박유준' },
 	stock: { login: 'jia-cho', name: '조지아' },
 	lent: { login: 'yerin-choi', name: '최예린' },
 	selfService: { login: 'daeun-cho', name: '조다은' },
 	camera: { login: 'sunwoo-yoon', name: '윤선우' },
-	inviter: { login: 'jiwoo-lee', name: '이지우' },
-	invitee: { login: 'daeun-choi', name: '최다은' },
-	declines: { login: 'sunwoo-jung', name: '정선우' },
 	sso: { login: 'eunwoo-jang', name: '장은우' },
-	place: { login: 'hyunwoo-yoon', name: '윤현우' },
 	reviewer: { login: 'naeun-park', name: '박나은' },
-	keeper: { login: 'doyun-jang', name: '장도윤' },
 	keeps: { login: 'sunwoo-lee', name: '이선우' },
 	keepsNext: { login: 'eunwoo-park', name: '박은우' },
 	waits: { login: 'jia-choi', name: '최지아' },
@@ -51,11 +45,6 @@ export const people = {
 	signsInNext: { login: 'doyun-kang', name: '강도윤' },
 	booksFirst: { login: 'gunwoo-yoon', name: '윤건우' },
 	borrows: { login: 'naeun-jang', name: '장나은' },
-	renames: { login: 'hyunwoo-lee', name: '이현우' },
-	collects: { login: 'gunwoo-jung', name: '정건우' },
-	readOnly: { login: 'juwon-yoon', name: '윤주원' },
-	benefits: { login: 'soyun-jang', name: '장소윤' },
-	phoneOwner: { login: 'juwon-jung', name: '정주원' },
 } as const
 
 /** A name nothing else in the run has. */
@@ -72,7 +61,7 @@ export async function submitSignIn(page: Page, login: string, password = demoPas
 
 /** Signs in through the form, as a person does, and waits for the workspace. */
 export async function signIn(page: Page, login: string, password = demoPassword): Promise<void> {
-	await page.goto(`${workspace}/`)
+	await page.goto('/')
 	await submitSignIn(page, login, password)
 	await expect(page.getByRole('button', { name: '로그아웃', exact: true })).toBeVisible()
 }
@@ -233,10 +222,7 @@ export type Reply = { id: string } & Record<string, unknown>
  * through those forms already. It fails with what the server said.
  */
 export async function rpc(page: Page, method: string, req: object): Promise<Reply> {
-	const res = await page.request.post(`/loft.${method}`, {
-		headers: { 'connect-protocol-version': '1', 'loft-workspace': workspace.slice(2) },
-		data: req,
-	})
+	const res = await page.request.post(`/loft.${method}`, { headers: { 'connect-protocol-version': '1' }, data: req })
 	expect(res.status(), `${method}: ${await res.text()}`).toBe(200)
 	return (await res.json()) as Reply
 }
@@ -246,34 +232,22 @@ export async function rpc(page: Page, method: string, req: object): Promise<Repl
  * what a test holds the server to beside a page that does not offer it.
  */
 export async function refusal(page: Page, method: string, req: object): Promise<string> {
-	const res = await page.request.post(`/loft.${method}`, {
-		headers: { 'connect-protocol-version': '1', 'loft-workspace': workspace.slice(2) },
-		data: req,
-	})
+	const res = await page.request.post(`/loft.${method}`, { headers: { 'connect-protocol-version': '1' }, data: req })
 	expect(res.status(), `${method} was not refused`).not.toBe(200)
 	return ((await res.json()) as { message?: string }).message ?? ''
 }
 
-/** A workspace as the account is told it (`TenantMembership`), its identifier as a page's address writes it. */
-export type Membership = { id: string; alias: string; name: string; role: string }
-
 /**
- * A workspace of the account's own, made by whoever `page` is signed in as,
- * as the account (`TenantService.Create`, D73).
+ * Who `page` is signed in as and the workspace, as `GET /session` says them
+ * (`server/session`): identifiers as a page's address writes them.
  */
-export async function makeWorkspace(page: Page, name: string): Promise<Membership> {
-	const res = await page.request.post('/loft.TenantService/Create', { headers: { 'connect-protocol-version': '1' }, data: { name } })
-	expect(res.status(), `TenantService.Create: ${await res.text()}`).toBe(200)
-	const v = (await res.json()) as Membership
-	return { ...v, id: idOf(v.id) }
-}
+export type Session = { id: string; login: string; workspace: { id: string; alias: string } }
 
-/** The workspaces whoever `page` is signed in as is in, asked as the account (`TenantService.Mine`, D73). */
-export async function workspacesOf(page: Page): Promise<Membership[]> {
-	const res = await page.request.post('/loft.TenantService/Mine', { headers: { 'connect-protocol-version': '1' }, data: {} })
-	expect(res.status(), `TenantService.Mine: ${await res.text()}`).toBe(200)
-	const v = (await res.json()) as { workspaces?: Membership[] }
-	return (v.workspaces ?? []).map((w) => ({ ...w, id: idOf(w.id) }))
+/** What `GET /session` says of whoever `page` is signed in as. */
+export async function session(page: Page): Promise<Session> {
+	const res = await page.request.get('/session')
+	expect(res.ok(), `GET /session: ${await res.text()}`).toBeTruthy()
+	return (await res.json()) as Session
 }
 
 /** An identifier a call answered, in base64, as a page's address writes it. */

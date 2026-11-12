@@ -264,7 +264,7 @@ type AppConfig struct {
 	// destroys anything at all, and the grace a shorter one waits out.
 	Retention RetentionConfig `yaml:"retention"`
 
-	// Workspaces is what an account may make (design 9.11).
+	// Workspaces is a workspace's address and its end (D29).
 	Workspaces WorkspacesConfig `yaml:"workspaces"`
 
 	// Mail is the SMTP server what goes to a mailbox is sent through -- an
@@ -354,17 +354,11 @@ type InvitationsConfig struct {
 	Daily   int `yaml:"daily"`
 }
 
-// WorkspacesConfig is what an account may make.
+// WorkspacesConfig is a workspace's address and its end (D29).
 type WorkspacesConfig struct {
-	// Personal says whether an account in no workspace is given one of its
-	// own when it signs in, which is what signing up to SaaS is. Unset is yes.
-	Personal *bool `yaml:"personal"`
-	// Owned is how many workspaces one account may own before another needs
-	// paying for. Zero is [DefaultOwned]; a negative number is no limit.
-	Owned int `yaml:"owned"`
-
-	// AliasLength is how many characters a new workspace's address is made
-	// of: 7 unless said. It grows by itself when that many are crowded.
+	// AliasLength is how many characters an address made up for a workspace
+	// is -- one restored where its own is taken (`loft tenant import`): 7
+	// unless said. It grows by itself when that many are crowded.
 	AliasLength int `yaml:"alias_length"`
 	// Reserved is addresses no workspace may have, beside the ones this app
 	// keeps for itself (`tenancy.Reserved`).
@@ -389,21 +383,6 @@ func (c WorkspacesConfig) Hold() time.Duration { return or(c.AliasHold, 365*24*t
 
 // Length is how many characters a new address is made of.
 func (c WorkspacesConfig) Length() int { return or(c.AliasLength, 7) }
-
-// DefaultOwned is how many workspaces an account owns before another needs
-// paying for, when the configuration says nothing.
-const DefaultOwned = 3
-
-// PersonalOn says whether an account in no workspace is given one.
-func (c WorkspacesConfig) PersonalOn() bool { return c.Personal == nil || *c.Personal }
-
-// OwnedMax is how many workspaces one account may own; negative is no limit.
-func (c WorkspacesConfig) OwnedMax() int {
-	if c.Owned == 0 {
-		return DefaultOwned
-	}
-	return c.Owned
-}
 
 // RetentionConfig is the deployment's half of design 8: whether a window
 // destroys anything at all, how long a window made shorter waits, and how

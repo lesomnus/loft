@@ -3,9 +3,7 @@ edition = "2023";
 package loft;
 
 import "google/protobuf/timestamp.proto";
-import "loft/account.proto";
 import "loft/payday/tenant.proto";
-import "payday.proto";
 
 option go_package = "github.com/lesomnus/loft";
 
@@ -33,18 +31,6 @@ service TenantService {
   // owner is shown before Configure saves it. A field left out is as it is.
   rpc Preview(TenantPreviewRequest) returns (TenantPreviewResponse);
 
-  // Mine is the workspaces the caller's account is in, each as it is told
-  // it, and how many it owns and may (D73). The account's own (payday#184):
-  // served as the account, in no workspace.
-  rpc Mine(TenantMineRequest) returns (TenantMineResponse) {
-    option (payday.method) = {account: {}};
-  }
-  // Create makes a workspace the caller's account owns, called `name`, with
-  // an address nobody chose (design 9.11, D73): what a sign-in gives an
-  // account in none, asked for. The account's own.
-  rpc Create(TenantCreateRequest) returns (TenantMembership) {
-    option (payday.method) = {account: {}};
-  }
   // Export is everything the workspace has, as one zip (D29, D34), open or
   // closed: the operator's to take out, at the entry point, for its owner or
   // for one that is leaving, and no role's in the workspace (D83). A download
@@ -52,23 +38,6 @@ service TenantService {
   // on the access record before anything is read for it (loft#136) -- made
   // whole before its bytes are sent.
   rpc Export(TenantExportRequest) returns (stream TenantExportResponse);
-}
-
-message TenantMineRequest {}
-
-message TenantMineResponse {
-  // In the order the account came to be in them.
-  repeated TenantMembership workspaces = 1;
-  // How many of them it owns, and how many it may own: another past that is
-  // paid for. `may` is unset for no limit.
-  uint32 owns = 2 [features.field_presence = IMPLICIT];
-  uint32 may = 3;
-}
-
-message TenantCreateRequest {
-  // What it is called: one line, up to 80 characters -- the workspace's, and
-  // nobody's, so no person's name (D58).
-  string name = 1 [features.field_presence = IMPLICIT];
 }
 
 message TenantExportRequest {

@@ -35,7 +35,8 @@ func demo(t *testing.T, search bool) (cmd.Config, *cmd.Server) {
 	if search {
 		c.App.Search.Opensearch = opensearchtest.Config(t)
 	}
-	require.NoError(t, cli.NewCmdInit(&c).Run(ctx, []string{"--tenant", "acme", "--login", "owner", "--password", "owner1234", "--demo"}))
+	c.Auth.Roster.Tenant = "acme"
+	require.NoError(t, cli.NewCmdInit(&c).Run(ctx, []string{"--login", "owner", "--password", "owner1234", "--demo"}))
 
 	s, err := cmd.Build(ctx, c)
 	require.NoError(t, err)

@@ -1408,71 +1408,15 @@ ul.state-tree .space {
 	opacity: 1;
 }
 
-/* Which workspace, and going to another (workspaces.tsx). */
-.switcher {
+/* The workspace the deployment serves (D85): what it is called. */
+.workspace-name {
 	margin: 0 12px 8px;
+	padding: 8px 10px;
 	border-radius: 8px;
 	background: rgba(255, 255, 255, 0.06);
-	color: #c9d0e2;
-}
-.switcher summary {
-	cursor: pointer;
-	padding: 8px 10px;
 	color: white;
 	font-weight: 600;
-	list-style: none;
-}
-.switcher summary::after {
-	content: ' ▾';
-	color: #9aa6c3;
-	font-weight: 400;
-}
-.switcher[open] summary::after {
-	content: ' ▴';
-}
-.switcher ul {
-	list-style: none;
-	margin: 0;
-	padding: 0 4px 4px;
-}
-.switcher li button,
-.switcher > button {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	width: 100%;
-	padding: 6px 8px;
-	border-radius: 6px;
-	color: #c9d0e2;
-	text-align: left;
-}
-.switcher li button:hover,
-.switcher > button:hover {
-	background: rgba(255, 255, 255, 0.08);
-}
-.switcher li button[aria-current='page'] {
-	color: white;
-	background: rgba(255, 255, 255, 0.12);
-}
-.switcher .mute {
-	color: #9aa6c3;
-}
-.switcher .make-workspace {
-	padding: 4px 8px 8px;
-}
-.make-workspace {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 6px;
-	align-items: center;
-}
-.make-workspace input {
-	flex: 1 1 160px;
-	min-width: 0;
-}
-.make-workspace .bad {
-	flex-basis: 100%;
-	margin: 0;
+	overflow-wrap: anywhere;
 }
 .elsewhere {
 	display: flex;
@@ -1483,9 +1427,6 @@ ul.state-tree .space {
 	background: var(--panel);
 	border-radius: var(--radius);
 	box-shadow: var(--shadow);
-}
-.elsewhere .make-workspace button {
-	padding: 6px 12px;
 }
 .elsewhere > .link {
 	align-self: center;
@@ -1499,91 +1440,13 @@ ul.state-tree .space {
 	gap: 4px;
 }
 
-/* the invitations waiting for an account */
-.login > .inbox {
-	background: white;
-	padding: 28px;
-	border-radius: 16px;
-	width: min(520px, 100%);
-	/* Never wider than the screen for what it holds: a table wider than a
-	   phone slides sideways in its own wrap, as in a dialog (`.modal`),
-	   rather than push the page wider. */
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 14px;
-	box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-}
-.inbox ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-/*
- * A row -- an invitation -- is what it is beside what can be done with it,
- * and the buttons go under the words where the two do not fit side by side,
- * and onto a line of their own where they do not fit on one: a row is never
- * wider than the screen, nor a long name in it.
- */
-.inbox li {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	align-items: center;
-	gap: 12px;
-	padding: 12px;
-	border: 1px solid var(--line);
-	border-radius: 10px;
-}
-.inbox li > div:first-child {
-	flex: 1 1 240px;
-	overflow-wrap: anywhere;
-}
-.inbox li p {
-	margin: 4px 0 0;
-	color: var(--mute);
-}
-.inbox .answer,
 .rows .answer {
 	display: flex;
 	gap: 8px;
 	align-items: center;
 	flex: none;
 }
-.inbox .answer {
-	flex: 0 1 auto;
-	flex-wrap: wrap;
-}
-.inbox .leave {
-	display: flex;
-	justify-content: space-between;
-}
-.switcher summary .dot {
-	display: inline-block;
-	width: 7px;
-	height: 7px;
-	margin-left: 6px;
-	border-radius: 50%;
-	background: #f59e0b;
-	vertical-align: middle;
-}
-.switcher .invites {
-	display: flex;
-	gap: 6px;
-	align-items: center;
-	text-decoration: none;
-}
 @media (max-width: 520px) {
-	.inbox li {
-		flex-direction: column;
-		align-items: stretch;
-	}
-	.inbox li > div:first-child {
-		flex: none;
-	}
 	ol.timeline.compact li {
 		grid-template-columns: 1fr;
 		grid-template-areas: 'when' 'what' 'who';

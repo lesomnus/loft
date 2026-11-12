@@ -31,6 +31,15 @@ column of Loft's is gone. A store an epoch-1 build made still has
 `event.desc`, NOT NULL with no default, and a migration drops no column: in
 it, every event written after `loft migrate` would fail. Nothing drops it.
 
+Epoch 3 is D84 (loft#342): nothing tells levyan of an account, and a store an
+epoch-2 build made keeps `levyannotice.account`, NOT NULL.
+
+Epoch 4 is D85 (#331): a deployment serves one roster tenant, the workspace
+and a member are the roster tenant and holder by their identifiers, and a
+session names the member. An epoch-3 store keys memberships by identifiers
+of their own and sessions by accounts, and its people would sign in as
+somebody new.
+
 From launch the rules below that keep an earlier build's data readable
 apply, and the epoch does not move without the owner's word.
 
@@ -212,15 +221,16 @@ is decided.
 ## Running
 
 ```sh
-go run ./cmd/loft init --demo   # the first tenant, its owner, and five teams to try things on
+go run ./cmd/loft init --demo   # the workspace, its owner `admin`, and five teams to try things on
 go run ./cmd/loft serve         # :8080 serves the UI in ts/dist and the API
 go run ./cmd/loft config env    # every variable this can be told through
 
 cd ts && npm install && npm run build   # or `npm run dev` on :5173, proxied to :8080
 ```
 
-`init` prints the owner's login; everybody `--demo` makes signs in with
-`demo1234`. Delete `data/` to start over -- and when the epoch has moved,
+`init` puts up the roster tenant `auth.roster.tenant` names -- `loft`
+unless it names another -- as the workspace, and prints the owner's
+password; everybody `--demo` makes signs in with `demo1234`. Delete `data/` to start over -- and when the epoch has moved,
 since nothing migrates across one. PostgreSQL is
 `LOFT_DB_DRIVER=pgx LOFT_DB_DSN=...`, and `cli.Migrate` then also installs
 `cli/pg.sql` -- the constraints the schema cannot state. The roster in this
@@ -233,6 +243,10 @@ checkout, `init --demo`, a database in `ts/test-results/`, or with
 `E2E_POSTGRES` two made fresh on that PostgreSQL -- so they never touch
 `data/`; and for the server that signs in through `auth.sso`, an issuer of
 its own (`e2e/issuer.sh`: `internal/oidctest`, served by its `cmd/oidctest`).
+A deployment serves one workspace, so a test that changes the workspace
+itself -- where it is, what it keeps -- runs on a server of its own
+(`playwright.config.ts`), and the billing tests run one after another on
+theirs, each from what the test's levyan says of a workspace it has just met.
 CI runs them on both databases. A change to a page a flow goes through is not
 done until they pass; find things by role and label, as a person does.
 
@@ -246,95 +260,86 @@ controls inside a <label> of your own.
 People, their passwords and whether they may sign in are **roster's**
 (`internal/identity`, design 9.10). `auth.roster.addr` names an external one;
 empty runs one in this process on its own database (`roster.db` beside Loft's
-SQLite file, or `auth.roster.db`), reached over `bufconn`.
+SQLite file, or `auth.roster.db`), reached over `bufconn` -- for tests and for
+trying Loft.
 
-**Two layers of tenant (D27).** A roster tenant is the **directory** accounts
-are in -- one per deployment, `auth.roster.directory` (`loft` on the embedded
-roster; the key's own tenant for an `rt_`) -- and a Loft tenant is a
-**workspace**. A `Holder` is an account's membership of one workspace: an
-identifier of its own, the roster account in `account`, and the `role`. Never
-pass a workspace id where `identity.Store` wants an account, or the other way:
-the store's API takes no tenant at all.
+**One tenant (D85).** A deployment serves one roster tenant,
+`auth.roster.tenant` -- `loft` on the embedded roster; on an external one the
+tenant of its key, which is that tenant's own (`rt_`, roster's `docs/apps.md`
+shape C), and a tenant named is held to it -- and that tenant **is** the
+workspace: `loft init` puts the Loft tenant up by its identifier and alias. A
+member is a holder of that tenant at roster, and their `Holder` here has the
+same identifier, made the first time they sign in (`tenancy.Members`): a
+member, with the person record this workspace keeps at an address roster holds
+as checked for them, or a new one. Roles stay Loft's (`Holder.role`). A
+membership ended here (deactivated, pseudonymized) stays ended, whatever
+roster says: its sign-in is refused (`tenancy.ErrEnded`). Nothing is chosen --
+there is no workspace in a request, no `/@alias`, and no account layer.
 
 A browser signs in at `POST /session` (`server/session`): the password goes to
 roster's `VouchService.Verify`, and the session -- a `global` row, written
-through ent, served by no RPC -- names the **account**. Every call names its
-workspace in `loft-workspace` (alias or id; `cmd.WorkspaceHeader`), or names
-none when the account has one membership, and `cmd.Resolver` frames the call as
-that membership. Every call is also held to what roster says of the account
+through ent, served by no RPC -- names the **member**. `cmd.Resolver` frames
+every call as that holder, and every call is held to what roster says of them
 now (`identity.Store.Held`, cached `HeldTtl`); a roster that cannot be asked
-serves no session.
+serves no session. `GET /session` (`session.Who`) is what the page asks first:
+who the session is, what it is narrowed to, and the workspace -- its zone, and
+whether it is closed and until when, which no RPC answers then.
 
 An external roster's sync stream (roster's `standing` package, roster#210:
 `identity.Store.Accounts().Follower`, run from `cmd/serve.go` in every
 process) is handed to `server/lifecycle`, so that roster's word lands
 when it is said: signed out everywhere ends the sessions that began before it,
-suspended or erased ends them all, and erased marks each of the account's
-memberships `Holder.date_leaving`. roster's `restore` and `forget` are on the
-stream too since roster#215 -- a restore is an event about the account that is
+suspended or erased ends them all, and erased marks the membership
+`Holder.date_leaving`. roster's `restore` and `forget` are on the
+stream too since roster#215 -- a restore is an event about somebody that is
 no erasure, and clears the mark -- but the stream does not replay what was
 said while Loft was not listening, so whatever acts on a mark asks roster
-first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, an
-account roster still has nobody by leaves every workspace it is in
-(`domain.Deps.Depart`: pseudonymized as 개인정보 삭제 is, and a last owner's
-workspace handed on), and one roster has again stops leaving. `loft identity
-depart` does it now for one account, and `Lifecycle.Reconcile` finds what the
-stream missed -- it replays nothing -- every `app.accounts.reconcile` by
-itself, and now with `loft identity reconcile`. The role Loft is installed with carries every method in
-`identity.AgentMethods`; installing again leaves an existing role as it is, and
-a role is changed with `roster role patch`, the whole list
+first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, a member
+roster still has nobody by leaves (`domain.Deps.Depart`: pseudonymized as
+개인정보 삭제 is, and the workspace handed on when they were its last owner),
+and one roster has again stops leaving. `loft identity depart` does it now
+for one member, and `Lifecycle.Reconcile` finds what the stream missed -- it
+replays nothing -- every `app.accounts.reconcile` by itself, and now with
+`loft identity reconcile`. The role Loft is installed with carries every
+method in `identity.AgentMethods`; installing again leaves an existing role as
+it is, and a role is changed with `roster role patch`, the whole list
 (`docs/dev/identity.md`).
 
 Through roster's issuer instead (`auth.sso`, `server/sso`), Loft is a relying
 party in the `itself` shape of roster's `docs/relying-party.md`: `GET
 /sso/login?with=<connection>` sends the browser to Hydra naming the button's
 connection, `GET /sso/callback` exchanges the code (state in a cookie, nonce,
-PKCE, the secret in the header) and mints the same account session, keeping
-the ID token beside it (`Session.held`) for `POST /sso/logout` to hand back as
-`id_token_hint`. `GET /sso` is what the sign-in page draws. `auth.sso_only`
-answers `POST /session` with 403. Tests sign in through `internal/oidctest`, an
-issuer that holds a relying party to what it has to send.
+PKCE, the secret in the header) and mints the same session for the member
+`sub` names, keeping the ID token beside it (`Session.held`) for `POST
+/sso/logout` to hand back as `id_token_hint`. `GET /sso` is what the sign-in
+page draws. `auth.sso_only` answers `POST /session` with 403. Tests sign in
+through `internal/oidctest`, an issuer that holds a relying party to what it
+has to send. There are no terms to agree to: the service's terms are the
+portal's (D84).
 
-An account in no workspace is given one of its own when it signs in
-(`tenancy.Workspaces.Arrive`), makes more with `TenantService.Create`, and
-`TenantService.Mine` is what it is in -- the account's own RPCs (D73). What
-stays HTTP beside `/session` (`server/account`) is what a session is told of
-itself, `GET /account`. There are no terms to agree to: the service's terms
-are the portal's (D84).
+Invitations are what the people who run the workspace send and take back
+(`InvitationService.Add`, `List`, `Revoke`), and their mail says where the
+workspace is signed in to. Nothing here answers one: who is a member is who
+signs in as a holder of the tenant (D85), and the rest goes with #332. Mail is
+`app.mail`, SMTP, and logged when it names no server.
 
-**Some calls are served as an account** (D30, D73): the invitations
-addressed to it -- nobody's member in that workspace yet --
-`InvitationService.Inbox`, `Claim`, `Accept` and `Deny`, and what it is in,
-`TenantService.Mine` and `Create`. Each is marked
-`(payday.method) = {account: {}}` (payday#184): `pd.AccountResolver` serves
-them as the account itself (`frame.OfAccount`, no tenant), payday refuses such
-a frame every other method, the policy gives them to the account alone
-(`policy.Account`, never a membership),
-and each declares it reads nothing through the walled servers
-(`pd.AccountReads`). The access record names the account as who made such a
-call, and its review names it by its membership of the workspace
-(`namer.ofMember`). `InvitationService.List` is the workspace's side, for its
-administrators. `server/domain/invitation.go` says which rows each side
-reads -- the account's own, by an address roster holds as checked
-(`identity.Store.Addresses`) or a code its mail carried, and a workspace's own
-for its administrators. An answer is written through `Deps.Base` as the
-deployment's work in that workspace. Mail is `app.mail`, SMTP, and logged when
-it names no server.
-
-Roles stay Loft's. On the embedded roster the people screen and `loft holder
-add|password` make accounts and set passwords there; on an external one they
-are refused, and are done at roster. Ending a membership (deactivate,
-pseudonymize) never touches the account. A member a restore put back with
-no account -- one this deployment's roster does not have -- is given one by
-`loft identity link`. `auth.Plain` is not wired; tests
-mint a session with `Server.Sessions.Mint` and send its cookie (plus
-`loft-workspace` when the account has more than one membership), and set
-`c.Auth.Roster.Db` to a `pdtest.DB` of its own -- the default is a file.
+On the embedded roster the people screen and `loft holder add|password` make
+people and set passwords there; on an external one they are refused, and are
+done at roster. Ending a membership (deactivate, pseudonymize) never touches
+the holder at roster, and destroying the workspace does not either: its
+people are the tenant's. A member a restore put back whom this deployment's
+roster does not have is given a holder there by `loft identity link`.
+`auth.Plain` is not wired; tests mint a session with `Server.Sessions.Mint`,
+naming the member, and send its cookie, and set `c.Auth.Roster.Db` to a
+`pdtest.DB` of its own -- the default is a file -- and `c.Auth.Roster.Tenant`
+to the workspace they put up. Another workspace in the database -- one
+`tenant import` put back -- is walled off as ever, and nobody signs in to it
+(`cli.Elsewhere` puts one up for a test).
 
 ## A workspace's end
 
 A workspace is closed by an operator (`loft tenant close`, at the entry
-point), or by the deployment when an account leaving left nobody in it --
+point), or by the deployment when a member leaving left nobody in it --
 never by anybody in it, its owner neither (D83) -- and closing destroys
 nothing: `cmd.Resolver` refuses every call into a closed workspace, whoever
 makes it, with an `ErrorInfo` of reason `CLOSED` (`cmd.ErrorClosed`), and the
@@ -345,7 +350,8 @@ entry point alone serves. Once
 its restore window is over -- its own `restore_days` (D36), or
 `app.workspaces.restore_within` -- and nothing holds it, `server/closing`
 destroys it and holds its address (`AliasHold`, whose reason says how it
-went). Destroying retires it unless the contract in force then says
+went); its people stay at roster, the tenant's (D85). Destroying retires
+it unless the contract in force then says
 `purge_floors` (payday#115): what the deployment's floors (`audit.min`,
 `audit.by.<kind>.min`) are on stays in the trail until each has passed, and
 the rest goes now; a purge takes that too. `loft tenant retire|purge` are the
@@ -377,8 +383,8 @@ view window. In the domain layer that is
 `t.zone()`, `t.when(at)` and `t.settings()`: a date a person reads, a file's
 dates, the day a count falls on, all in the workspace's zone, never a fixed
 one. `PartyService.Me` answers what the server tells it in -- and `GET
-/account`'s `timezone`, the deployment's `app.locale`, for the pages outside
-any workspace (the inbox) -- and the page draws
+/session`'s `workspace.timezone`, for what a closed one draws -- and the page
+draws
 and reads dates on that wall whatever the browser's zone (`localize`;
 `fromInput` and never `new Date(v)` for an input, `wall`, `at` and `shift` for
 a calendar's days). An amount is a whole number of its currency's minor unit
@@ -408,19 +414,19 @@ and where their key is (`env:`/`file:`, never the key), asked who it is
 connection `--connection` (or `--key` with `--url`, for the command alone)
 names, else `LOFT_CONNECTION` (or `LOFT_ADMIN_KEY`), else the one `loft auth
 switch` chose; a call of the other kind is told which connection it wants
-(`operator.Own`, `operator.Table`). These commands read no server
-configuration. A new feature is an RPC, so it is a command too -- and what is
-HTTP beside the RPCs (`/account`) is only what a session is told of itself
-(`loft auth whoami`); the account's workspaces are RPCs (`loft tenant
-mine|create`, D73).
+(`operator.Own`, `operator.Table`). No command names a workspace: the
+deployment serves one (D85). These commands read no server configuration. A
+new feature is an RPC, so it is a command too -- and what is HTTP beside the
+RPCs (`GET /session`) is only what a session is told of itself (`loft auth
+whoami`).
 
 A terminal may sign in narrowed (`loft auth login --allow PATTERN`, D33): the page
 that approves it shows the methods, and the session is narrowed to them --
 `Session.grant`, a payday `frame.Grant` that the gRPC chain holds every call
 to, so whoever holds the key can do that much and no more. Beside the RPCs a
-narrowed session only reads what its account is (`account.Reading`);
-everything else asks `account.SignedIn`, which refuses it -- a narrowed
-terminal that could approve another would have been narrowed to nothing.
+narrowed session only reads who it is (`session.Reading`); everything else
+asks `session.SignedIn`, which refuses it -- a narrowed terminal that could
+approve another would have been narrowed to nothing.
 
 `loft mcp` is that terminal as an MCP server on stdin and stdout (`cli/mcp.go`,
 D32): Claude Code or Claude Desktop starts it, and every tool is RPCs as the
@@ -523,7 +529,7 @@ the other way round: what a read-only workspace **still does**,
 `domain.ReadOnlyAllows` -- what levyan's `docs/apps.md` (3, "제한의 두 단계")
 says an app takes of one: reading, taking its data out, paying, its members
 leaving -- closing is the operator's (D83), and in no row of it -- and a
-password, which is the account's, and a person's own notices, read and kept
+password, which is the person's at roster, and a person's own notices, read and kept
 off their mail (`domain.Own`, D67) -- each with why, and every other write is
 refused. Keep it matching that chapter. Refused as
 its operation begins (`Tx.begin`, `Tx.held`: read-only first, then
@@ -538,8 +544,8 @@ table says why it is not, and a new read goes in it as `domain.Reads`**:
 `server/domain/readonly_test.go` walks `server/policy`'s table and fails a
 method that is neither in it nor served by this layer in a transaction of
 its own, read off the layer's source. The doors that are no RPC -- a
-file's download, signing in -- read or are an account's, and are not
-refused; nor are the account's own methods (`Account`). Nor is an
+file's download, signing in -- read or are a person's, and are not
+refused. Nor is an
 operator's call at the entry point, which writes as the deployment: `Tx.writing`
 and `Tx.growing` read the operator from the context (`operator.From`), so an
 unpaid workspace is still closed and restored there (D83).
@@ -579,9 +585,7 @@ oldest build a deployment runs (CI's `OLDEST`, which follows staging) reads
 it.
 
 Who pays for a workspace is levyan's, and who made one or left it is the
-portal's to tell it (design 7.6, D84): nothing here tells levyan of an
-account. The free-workspace rule is not built yet; `ErrOwnsEnough` stays the
-deployment's cap until collection runs.
+portal's to tell it (design 7.6, D84): nothing here tells levyan of anybody.
 
 How a workspace is paid for is levyan's, and Loft asks and shows, storing
 nothing of it (design 7.9, D63): `loft.PaymentService` (`proto/loft/payment.proto`,

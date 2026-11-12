@@ -77,12 +77,12 @@ func TestALinkIsAtTheServicesAddress(t *testing.T) {
 		x.Len(got, 1)
 		_, rest, ok := strings.Cut(got[0].Body, "https://")
 		x.True(ok, got[0].Body)
-		link, _, _ := strings.Cut(rest, "?")
+		link, _, _ := strings.Cut(rest, "\n")
 		return "https://" + link
 	}
 
 	x.True(strings.HasPrefix(label(), "https://loft.example/l/"), "a label")
 	x.True(strings.HasPrefix(signed(), "https://loft.example/files/"), "a file")
-	x.Equal("https://app.loft.example/@acme/assets", mailed(), "a notification's mail")
-	x.Equal("https://app.loft.example/invitations", invitation(), "an invitation's")
+	x.Equal("https://app.loft.example/assets", mailed(), "a notification's mail")
+	x.Equal("https://app.loft.example", invitation(), "an invitation's: where its workspace is signed in to")
 }

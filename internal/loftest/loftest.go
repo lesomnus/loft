@@ -16,10 +16,11 @@ import (
 	"github.com/lesomnus/loft/internal/identity"
 )
 
-// Member puts the account `login` in the workspace `alias` as `role`, with a
-// person record, and answers the membership: the account made on the roster
-// in this process with `password` when there is none by that login, as `loft
-// holder add` made it before an operator asked the entry point for it (D74).
+// Member puts `login` in the workspace `alias` as `role`, with a person
+// record, and answers the membership: by their identifier at roster (D85),
+// made on the roster in this process with `password` when there is nobody by
+// that login, as `loft holder add` made them before an operator asked the
+// entry point for it (D74).
 // The deployment's own writes, through the servers, by no operator and no
 // member, so that what a test then holds an operator's or a member's rows to
 // is theirs alone.
@@ -40,6 +41,7 @@ func Member(t testing.TB, s *cmd.Server, alias, login, role, password string) pd
 
 	ref := app.TenantRef_builder{Id: tn.Id[:]}.Build()
 	h, err := s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Id:      p.Id.Bytes(),
 		Tenant:  ref,
 		Alias:   p.Alias,
 		Name:    login,

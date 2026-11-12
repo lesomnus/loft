@@ -39,7 +39,6 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
-	"github.com/lesomnus/loft/server/account"
 	"github.com/lesomnus/loft/server/bare"
 	"github.com/lesomnus/loft/server/clientaddr"
 	"github.com/lesomnus/loft/server/clilogin"
@@ -125,13 +124,17 @@ type Server struct {
 	// Sessions mints and reads the cookie a browser signs in with.
 	Sessions *authsession.Sessions
 
-	// Lifecycle is what roster's word about an account does here: its
-	// sessions ended, its memberships leaving (`server/lifecycle`).
+	// Lifecycle is what roster's word about somebody does here: their
+	// sessions ended, their membership leaving (`server/lifecycle`).
 	Lifecycle lifecycle.Lifecycle
 
 	// Logins is a terminal signed in by somebody approving it in a browser
 	// (`loft auth login`, `server/clilogin`).
 	Logins *clilogin.Logins
+
+	// Members is how somebody roster vouched for comes to be a member here:
+	// the first time they sign in (`tenancy.Members`, D85).
+	Members tenancy.Members
 
 	// Closing is what becomes of a closed workspace and of a workspace's
 	// address (D29, `server/closing`).
@@ -391,16 +394,16 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 	ungated := domain.New(base, drv, deps)
-	// What an account's answer to an invitation is written through, in a
-	// workspace it is not a member of yet: the domain layer's alone.
+	// What the domain layer writes as the deployment's own work in a
+	// workspace, past the gate.
 	deps.Base = base
 
 	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people, Search: engine, Notices: notices}
 	s.Contents = func() (audit.Contents, error) { return content, nil }
 	deps.Finder = engine
-	// What an account is in and makes, asked as the account (D73).
-	ws := s.Workspaces(c)
-	deps.Workspaces = &ws
+	// Who somebody roster vouched for is here: a member, made the first time
+	// they sign in (D85).
+	s.Members = tenancy.Members{Base: base, Drv: drv, People: people}
 
 	// Who is calling is a session cookie, held on every call to what roster
 	// says of its person, and what they may do is their role.
@@ -420,7 +423,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		cookie = authsession.InsecureCookie
 	}
 	s.Logins = &clilogin.Logins{
-		Db: client, Sessions: s.Sessions, Store: store, People: people, Cookie: cookie,
+		Db: client, Sessions: s.Sessions, Store: store, Cookie: cookie,
 		Idle: or(c.App.Session.Idle, 24*time.Hour), Lifetime: or(c.App.Session.Lifetime, 7*24*time.Hour),
 		App: c.App.App(), Audit: content,
 	}
@@ -438,9 +441,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, errors.New("auth.sso_only: with no auth.sso.issuer, nobody could sign in")
 	}
 	if c.Auth.Sso.On() && people.Embedded() {
-		log.From(ctx).WarnContext(ctx, "auth.sso: the roster in this process has no issuer of its own; the issuer named has to vouch for accounts in it")
+		log.From(ctx).WarnContext(ctx, "auth.sso: the roster in this process has no issuer of its own; the issuer named has to vouch for people in its tenant")
 	}
-	if s.Sso, err = sso.New(c.Auth.Sso, c.App.App(), !c.Auth.SsoOnly, s.Sessions, people, s.Arrive(c)); err != nil {
+	if s.Sso, err = sso.New(c.Auth.Sso, c.App.App(), !c.Auth.SsoOnly, s.Sessions, people, s.Members); err != nil {
 		people.Close()
 		db.Close()
 		return nil, err
@@ -471,21 +474,20 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// process as loft's does.
 	s.Spin = append(s.Spin, people.Spinners()...)
 	if !people.Embedded() {
-		// What roster says of an account as it says it: sessions that end
-		// when roster ends them rather than at their next call, and an
-		// erased account beginning to leave. The roster in this process has
+		// What roster says of somebody as it says it: sessions that end
+		// when roster ends them rather than at their next call, and a
+		// member erased there beginning to leave. The roster in this process has
 		// no stream, and every change to its people is made from here.
 		//
 		// Each process holds a stream of its own: what roster says is also
-		// what each process's own answers about an account are dropped by
+		// what each process's own answers about somebody are dropped by
 		// (roster's `standing`, `docs/relying-app.md`), and what it writes
 		// here comes to the same thing written twice.
 		s.Spin = append(s.Spin, spin.InEveryProcess(people.Accounts().Follower("loft.roster-stream", s.Lifecycle.Apply)))
 	}
-	// And the accounts still erased once roster's grace is over, leaving
-	// every workspace they were in.
+	// And the members still erased once roster's grace is over, leaving.
 	s.Spin = append(s.Spin, spinEvery("loft.departures", c.App.Accounts.Interval(), s.Lifecycle.Sweep))
-	// And every account asked about again, for an erasure the stream did not
+	// And every member asked about again, for an erasure the stream did not
 	// carry because this was not listening (design 9.10).
 	if d := c.App.Accounts.ReconcileEvery(); d > 0 {
 		s.Spin = append(s.Spin, spinEvery("loft.reconcile", d, s.Lifecycle.Reconciling))
@@ -565,7 +567,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Trail.Tenants = retention.Trail(client, p, RetentionDefaults(c, p))
 	// After the trail's policy, which a destroy purges by.
 	s.Closing = closing.Closing{
-		Db: client, Offboard: s.Offboard(c), People: people,
+		Db: client, Offboard: s.Offboard(c),
 		Base: base, Drv: drv, Deps: deps,
 		Aliases: s.Aliases(c), Hold: c.App.Workspaces.Hold(),
 		// A workspace destroyed, told to levyan before anything of it is
@@ -648,25 +650,6 @@ func (s *Server) Close() error {
 	return errors.Join(s.Levyan.Close(), s.Identity.Close(), s.Db.Close())
 }
 
-// Workspaces is how an account comes to be in a workspace of its own.
-func (s *Server) Workspaces(c Config) tenancy.Workspaces {
-	ws := tenancy.Workspaces{
-		Base:     s.Base,
-		Drv:      s.Drv,
-		Ungated:  s.Ungated,
-		Personal: c.App.Workspaces.PersonalOn(),
-		Owned:    c.App.Workspaces.OwnedMax(),
-		Aliases:  s.Aliases(c),
-	}
-	return ws
-}
-
-// Arrive is what an account signing in is given: a workspace of its own when it
-// is in none (design 9.11).
-func (s *Server) Arrive(c Config) func(ctx context.Context, p identity.Person) error {
-	return s.Workspaces(c).Arrive
-}
-
 // Aliases is what decides a workspace's address.
 func (s *Server) Aliases(c Config) tenancy.Aliases {
 	return tenancy.Aliases{Db: s.Ent, Length: c.App.Workspaces.Length(), Reserved: c.App.Workspaces.Reserved, Now: s.Deps.Clock}
@@ -693,9 +676,9 @@ func (s *Server) Offboard(c Config) offboard.Deployment {
 	if s.Identity != nil {
 		d.Known = func(ctx context.Context, account pdid.Id) (bool, error) {
 			_, err := s.Identity.StandingOf(ctx, account)
-			// A roster with no directory yet -- a deployment made to restore
+			// A roster with no tenant yet -- a deployment made to restore
 			// into -- has nobody.
-			if errors.Is(err, identity.ErrNoPerson) || errors.Is(err, identity.ErrNoDirectory) {
+			if errors.Is(err, identity.ErrNoPerson) || errors.Is(err, identity.ErrNoTenant) {
 				return false, nil
 			}
 			return err == nil, err
@@ -729,8 +712,8 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	}
 
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
-		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
-		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
+		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated), auth.PublicDefault)).
+		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated), auth.PublicDefault)).
 		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), gate.ByTenant(), pd.Cost)).
 		With(s.accessed().Interceptor()).
 		With(gate.Interceptor(s.Policy)).
@@ -950,7 +933,6 @@ func depsOf(c Config) (*domain.Deps, error) {
 		NoShowAfter:   c.App.NoShowAfter,
 		Locale:        locale,
 		RestoreWithin: c.App.Workspaces.Restore(),
-		AliasHold:     c.App.Workspaces.Hold(),
 		Retention:     c.App.Retention.Defaults(),
 		Mail:          sender,
 		Invitations: domain.InvitationRules{
@@ -991,9 +973,9 @@ func spinEvery(name string, d time.Duration, f func(ctx context.Context) error) 
 
 // Routes is what this app serves over HTTP besides its Rpcs.
 func (s *Server) Routes(mux *http.ServeMux, c Config) {
-	// Signing in and out. What is checked is a password, by roster, and an
-	// account in no workspace is given one; see `server/session`.
-	login := session.SignIn(s.Sessions, s.Identity, s.Ent, s.Arrive(c))
+	// Signing in and out. What is checked is a password, by roster, and
+	// somebody new to the workspace is made a member; see `server/session`.
+	login := session.SignIn(s.Sessions, s.Identity, s.Ent, s.Members)
 	if c.Auth.SsoOnly {
 		// No form to post to, rather than one that answers no: a password is
 		// not a way in here (D28).
@@ -1004,6 +986,16 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		mux.Handle("POST /session", login)
 	}
 	mux.Handle("DELETE /session", login)
+	// Who the session is, and the workspace it is in: what the page asks
+	// first, which a closed workspace answers too (D83, D85).
+	mux.Handle("GET /session", session.Who{
+		Sessions: s.Sessions,
+		Db:       s.Ent,
+		Zone:     s.Deps.Locale.Zone(),
+		Hold:     c.App.Workspaces.Hold(),
+		// Whether the page offers the workspace's billing (design 7.9).
+		Billing: c.App.Billing.Levyan.On(),
+	})
 
 	// A terminal signed in by somebody approving it here; see
 	// `server/clilogin`.
@@ -1012,20 +1004,6 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// Through roster's issuer, and what the sign-in page is told about the
 	// ways in; see `server/sso`.
 	s.Sso.Mount(mux)
-
-	// What a session is told of itself beside the RPCs; see
-	// `server/account`.
-	account.Routes{
-		Sessions: s.Sessions,
-		People:   s.Identity,
-		Manage:   s.Identity.AccountPage(),
-		// Whether the page offers a workspace's billing (design 7.9).
-		Billing: c.App.Billing.Levyan.On(),
-		// Where the account's pages outside every workspace draw their
-		// dates: the deployment's zone, as a workspace that says none of its
-		// own is told in (design 7.9).
-		Zone: s.Deps.Locale.Zone().String(),
-	}.Mount(mux)
 
 	// Attachments, by the signed links the API answers with.
 	mux.Handle("GET /files/", s.Deps.Sign.Handler(s.Deps.Files, time.Now))
@@ -1052,24 +1030,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// which is how a page that routes on the client is served.
 	if dir := c.App.Web; dir != "" {
 		files := http.FileServer(http.Dir(dir))
-		aliases := s.Aliases(c)
 		mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-			// An address a workspace moved off sends whoever arrives at it on,
-			// for as long as it is held (D29).
-			if rest, ok := strings.CutPrefix(r.URL.Path, "/@"); ok {
-				alias, tail, _ := strings.Cut(rest, "/")
-				if to, err := aliases.Moved(r.Context(), alias); err == nil && to != "" {
-					u := "/@" + to
-					if tail != "" {
-						u += "/" + tail
-					}
-					if r.URL.RawQuery != "" {
-						u += "?" + r.URL.RawQuery
-					}
-					http.Redirect(w, r, u, http.StatusFound)
-					return
-				}
-			}
 			p := filepath.Join(dir, filepath.FromSlash(filepath.Clean("/"+r.URL.Path)))
 			if st, err := os.Stat(p); err != nil || st.IsDir() {
 				if strings.HasPrefix(r.URL.Path, "/static/") {

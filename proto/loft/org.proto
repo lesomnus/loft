@@ -11,20 +11,10 @@ import "loft/payday/tenant.proto";
 option features.field_presence = IMPLICIT;
 option go_package = "github.com/lesomnus/loft";
 
-// A holder is a membership of an account (design 9.10, D27): one of the
-// deployment's directory at roster, which signs in once and is a member of
-// every workspace it has a holder in, by the holder's `account`. payday
-// serves a call as one of them (payday#184): a session names the account,
-// and the call is its membership of the workspace it names in
-// `loft-workspace`, or its only one (`cmd.Resolver`). A method marked
-// `(payday.method) = {account: {}}` is the account's own instead -- the
-// invitations addressed to it, from workspaces it is no member of yet -- and
-// is served as the account, in no workspace.
-option (payday.app) = {
-  accounts: {
-    field: {name: "account", number: 9}
-  }
-};
+// A holder is a member of the workspace (design 9.10, D85): a holder of the
+// roster tenant this deployment serves, by the same identifier, made here the
+// first time they sign in. A session names it, and every call is served as
+// it (`cmd.Resolver`).
 
 // Party is a person, a team, an organization or a vendor: whoever an asset is
 // owned by, managed by or held by. Personal data lives here and nowhere else;
@@ -54,7 +44,7 @@ message Party {
     type: TYPE_UUID
     nullable: true
   }];
-  // The login account, for a person who has one. Named after its target:
+  // The membership, for a person who signs in. Named after its target:
   // a unique index over an edge named otherwise does not generate
   // (protobuf-orm/protoc-gen-orm-ent#1).
   Holder holder = 10 [(orm.edge) = {nullable: true}];
@@ -97,10 +87,8 @@ message Party {
   };
 }
 
-// Session is a signed-in browser, and what it names is an account rather than a
-// membership: one sign-in reaches every workspace the account belongs to, and
-// which one a request is about is the request's to say (design 9.11). So it is
-// the deployment's and not any workspace's -- `global` -- and it is written
+// Session is a signed-in browser, and what it names is a member of the
+// workspace (D85). It is the deployment's -- `global` -- and it is written
 // only by the server, through ent (`server/session`); the policy opens no RPC
 // of it. The key itself is never stored: `secret` is what it is kept as -- an
 // HMAC of its SHA-256 under a key the database does not hold
@@ -113,8 +101,8 @@ message Session {
     default: ""
   }];
 
-  // The account signed in: a holder at roster, in this deployment's
-  // directory.
+  // Who signed in: a holder of the roster tenant this deployment serves,
+  // which is their membership here by the same identifier (D85).
   bytes account = 8 [(orm.field) = {type: TYPE_UUID}];
   bytes secret = 9 [(payday.field) = {secret: true}];
   bytes grant = 10;
@@ -156,26 +144,16 @@ message Session {
 }
 
 
-// Invitation is an account asked into a workspace, by address, with a role
-// (design 9.11, M2 step 4).
+// Invitation is somebody asked into a workspace, by address, with a role
+// (design 9.11, M2 step 4): what the people who run the workspace send and
+// take back. Nothing here answers one any more -- somebody comes to be a
+// member by signing in as a holder of the tenant at roster (D85) -- and the
+// rest goes with #332.
 //
 // It is the workspace's row: who invited whom, as what, and what became of it
-// are this workspace's history, and leave with it. Two sides read it -- the
-// people who run the workspace, and the account it is addressed to, who is
-// not a member yet and can read nothing here. So `InvitationService.Inbox`,
-// `Claim`, `Accept` and `Deny` are the account's own methods, served as the
-// account rather than as a membership (payday#184), and which rows each side
-// reads is said by the domain layer, not by the wall
-// (`server/domain/invitation.go`).
-//
-// # Whose it is
-//
-// The account whose address it is, and only an address somebody checked: one
-// roster holds as verified, because any directory's administrator may put any
-// address on a user of their own (nOAuth), or one whose link it was mailed with
-// was opened by the account (`Claim`), since reading that mailbox is the proof.
-// Nothing here says whether an address is anybody's: the people who invite
-// learn what became of the invitation, and nothing about who was asked.
+// are this workspace's history, and leave with it. Nothing here says whether
+// an address is anybody's: the people who invite learn what became of the
+// invitation, and nothing about who was asked.
 message Invitation {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -203,8 +181,9 @@ message Invitation {
   // already keeps, or empty for one made then.
   Party party = 11 [(orm.edge) = {nullable: true}];
 
-  // The account it is for, once that is known -- its link was opened by it,
-  // or it answered -- and empty while it is only an address.
+  // Who it was for at roster, once that was known -- its link was opened, or
+  // it was answered -- and empty while it is only an address. Nothing writes
+  // it any more (D85).
   bytes account = 12 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
@@ -228,7 +207,8 @@ message Invitation {
   // The membership accepting it made.
   Holder holder = 19 [(orm.edge) = {nullable: true}];
 
-  // The SHA-256 of the code its mail carried, until an account opens it.
+  // The SHA-256 of the code its mail carried, while one opened it to answer.
+  // Nothing writes it any more (D85).
   bytes claim = 20 [
     (orm.field) = {nullable: true},
     (payday.field) = {secret: true}
@@ -274,7 +254,7 @@ message Invitation {
 // its SHA-256, which is kept as a browser's key is (`Session.secret`): `secret`
 // is what the session will be looked up by. A person signed in at the app approves the
 // `code` the terminal shows them, and the approval makes that session for
-// their account. So no key is written here or sent back, and the row holds
+// them. So no key is written here or sent back, and the row holds
 // nothing a reader of the database could sign in with. It is the
 // deployment's (`global`), written only through ent by `server/clilogin`,
 // and the policy opens no RPC of it. Each write is on the trail as its act,
@@ -304,7 +284,7 @@ message CliLogin {
   // keeps where a sign-in came from, and so does the trail.
   string address = 18 [(payday.field) = {personal: false}];
 
-  // The account that approved it, once one has.
+  // Who approved it, once somebody has: the member signed in at the page.
   bytes account = 12 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
@@ -312,7 +292,7 @@ message CliLogin {
 
   // What the terminal asked to be allowed, which the page shows and the
   // session it gets is narrowed to: `Session.grant`'s bytes, `whole` for all
-  // that the account may do (`loft auth login --allow`, D33).
+  // that the member may do (`loft auth login --allow`, D33).
   bytes grant = 19;
 
   // `pending`, `approved` or `denied`. One still pending after
@@ -356,9 +336,9 @@ message CliLogin {
 
 // AliasHold is a workspace address nobody may take for a while: one a
 // destroyed workspace went by, or one a workspace was moved off (D29, design
-// 8.4). A name that found somebody is still how people find them -- bookmarks,
-// links in old mail -- and a workspace that took it the next day would be that
-// name to all of them. A renamed one is also sent on to where it moved.
+// 8.4). A name a workspace went by is still how people know it -- an
+// operator's notes, its export's file name, mail that named it -- and a
+// workspace that took it the next day would be that name to all of them.
 //
 // The deployment's (`global`), written only by `server/tenancy`, and the
 // policy opens no RPC of it.

@@ -71,15 +71,16 @@ func makeReadOnly(w *world, fake *levyantest.Levyan) []byte {
 // levyan makes a workspace read-only, every write of every kind is refused --
 // the register and its catalog, files, labels, bookings, hand-overs, stock,
 // counts, work, purchases, people and their roles, invitations sent and
-// answered, the record of an access review, the workspace's settings, and a
+// taken back, the record of an access review, the workspace's settings, and a
 // write that begins no operation as one that does -- with the reason a page
 // tells it by. What it still does, as levyan's `docs/apps.md` says an
 // app takes of one, it does: reads and reports, takes its data out and its
 // files, is paid for, and lets its members leave and a person be forgotten;
-// and a password, which is the account's, is changed, and what a person is
-// told, which is theirs (D67), is marked read and kept off their mail. Once
-// levyan ends the grant it writes again. Closing it is its operator's, and
-// no role's in it (D83): TestAnOperatorClosesAndRestoresAReadOnlyWorkspace.
+// and a password, which is the person's at roster, is changed, and what a
+// person is told, which is theirs (D67), is marked read and kept off their
+// mail. Once levyan ends the grant it writes again. Closing it is its
+// operator's, and no role's in it (D83):
+// TestAnOperatorClosesAndRestoresAReadOnlyWorkspace.
 func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	fake := levyantest.Start(t)
 	w := newInvites(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
@@ -145,9 +146,6 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	jung := w.holder("jung", "member")
 	x.NoError(w.s.Identity.SetPassword(ctx, w.accountOf(jung), "password1234"))
 	asJung := w.signIn(jung)
-	lee := w.account("lee", []string{"lee@example.com"}, nil)
-	sent, err := w.invite(w.owner, "lee@example.com", "member")
-	x.NoError(err)
 	held, err := w.invite(w.owner, "han@example.com", "member")
 	x.NoError(err)
 
@@ -221,7 +219,7 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	_, err = parties.Invite(w.owner, app.PartyInviteRequest_builder{Ref: pref(park), Alias: "park", Role: "member"}.Build())
 	w.refusedReadOnly(err, app.PartyService_Invite_FullMethodName)
 	_, err = w.s.Identity.Lookup(ctx, "park")
-	x.Error(err, "and no account was made for it at roster")
+	x.Error(err, "and nobody was made for it at roster")
 	_, err = parties.SetRole(w.owner, app.PartySetRoleRequest_builder{Ref: pref(leaving), Role: "manager"}.Build())
 	w.refusedReadOnly(err, app.PartyService_SetRole_FullMethodName)
 	mailed := len(w.box.sent)
@@ -230,8 +228,6 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	x.Len(w.box.sent, mailed, "and nobody was mailed")
 	_, err = w.svc.Revoke(w.owner, app.InvitationRevokeRequest_builder{Ref: ref(held)}.Build())
 	w.refusedReadOnly(err, app.InvitationService_Revoke_FullMethodName)
-	_, err = w.svc.Accept(w.as(lee), app.InvitationAcceptRequest_builder{Ref: ref(sent)}.Build())
-	w.refusedReadOnly(err, app.InvitationService_Accept_FullMethodName)
 	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: tref, Timezone: z.Ptr("Asia/Tokyo")}.Build())
 	w.refusedReadOnly(err, app.TenantService_Configure_FullMethodName)
 
@@ -296,7 +292,7 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	_, err = w.payments().Offer(w.owner, app.PaymentOfferRequest_builder{Holder: jung.GetId()}.Build())
 	x.NoError(err, "a member asked to pay for it")
 
-	// A password, which is the account's at roster and how it signs in.
+	// A password, which is the member's at roster and how they sign in.
 	_, err = parties.SetPassword(asJung, app.PartySetPasswordRequest_builder{Current: "password1234", Password: "another1234"}.Build())
 	x.NoError(err, "a password changed")
 	// And what a person is told here, which is theirs (D67): marked read,
@@ -310,9 +306,6 @@ func TestAReadOnlyWorkspaceIsReadAndPaidFor(t *testing.T) {
 	me, err = parties.Me(asJung, &app.PartyMeRequest{})
 	x.NoError(err)
 	x.True(me.GetHolder().GetMailOff(), "what the person's page reads")
-	// But an invitation into it turned down is the workspace's own.
-	_, err = w.svc.Deny(w.as(lee), app.InvitationDenyRequest_builder{Ref: ref(sent)}.Build())
-	w.refusedReadOnly(err, app.InvitationService_Deny_FullMethodName)
 
 	// Members leaving it, and a person forgotten.
 	_, err = parties.Deactivate(w.owner, app.PartyDeactivateRequest_builder{Ref: pref(leaving)}.Build())
@@ -380,46 +373,6 @@ func (w *world) ownerHolder() *app.Holder {
 	v, err := app.NewPartyServiceClient(w.conn).Me(w.owner, &app.PartyMeRequest{})
 	w.x.NoError(err)
 	return v.GetHolder()
-}
-
-// TestReadOnlyIsTheWorkspacesAlone (D64): a workspace's being read-only holds
-// that workspace, and not the accounts in it -- one of its members accepts an
-// invitation to another workspace and writes there, and is told there that it
-// is not read-only.
-func TestReadOnlyIsTheWorkspacesAlone(t *testing.T) {
-	fake := levyantest.Start(t)
-	w := newInvites(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
-	x := w.x
-	ctx := context.Background()
-
-	choi := w.account("choi", []string{"choi@example.com"}, nil)
-	w.here(choi, "manager")
-	beta, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "beta"}.Build())
-	x.NoError(err)
-	bob := w.account("bob", nil, nil)
-	w.member(beta, bob, "owner")
-	inBeta := func(as context.Context) context.Context {
-		return metadata.AppendToOutgoingContext(as, cmd.WorkspaceHeader, "beta")
-	}
-	v, err := w.svc.Add(inBeta(w.as(bob)), app.InvitationAddRequest_builder{
-		Tenant: app.TenantRef_builder{Id: beta.GetId()}.Build(),
-		Email:  "choi@example.com",
-		Role:   "manager",
-	}.Build())
-	x.NoError(err)
-
-	makeReadOnly(w.world, fake)
-	assets := app.NewAssetServiceClient(w.conn)
-	_, err = assets.Add(metadata.AppendToOutgoingContext(w.as(choi), cmd.WorkspaceHeader, "acme"), app.AssetAddRequest_builder{Name: "노트북"}.Build())
-	w.refusedReadOnly(err, app.AssetService_Add_FullMethodName)
-
-	_, err = w.svc.Accept(w.as(choi), app.InvitationAcceptRequest_builder{Ref: ref(v)}.Build())
-	x.NoError(err, "an invitation to another workspace, accepted")
-	_, err = assets.Add(inBeta(w.as(choi)), app.AssetAddRequest_builder{Name: "노트북"}.Build())
-	x.NoError(err, "and written in")
-	me, err := app.NewPartyServiceClient(w.conn).Me(inBeta(w.as(choi)), &app.PartyMeRequest{})
-	x.NoError(err)
-	x.False(me.GetReadonly())
 }
 
 // TestAMissingGrantIsNotReadOnly (design 7.10, levyan's design 13): what

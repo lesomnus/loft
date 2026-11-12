@@ -23,6 +23,9 @@ auth:
   roster:
     db:
       driver: pgx
+    # The workspace the rig puts up and signs in to: the tenant of the roster
+    # in this process it serves, which the base leaves at `loft`.
+    tenant: acme
 
 app:
   public_url: https://loft.localhost

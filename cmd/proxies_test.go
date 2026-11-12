@@ -58,7 +58,7 @@ func TestAnAddressACallerWritesDoesNotMoveTheLimits(t *testing.T) {
 		x := require.New(t)
 
 		ra := &asked{People: w.s.Identity}
-		h := clientaddr.Proxies{}.Handler(session.SignIn(w.s.Sessions, ra, w.s.Ent, nil))
+		h := clientaddr.Proxies{}.Handler(session.SignIn(w.s.Sessions, ra, w.s.Ent, w.s.Members))
 		for i := range session.MaxFailures {
 			x.Equal(http.StatusUnauthorized, post(h, "203.0.113.5", fmt.Sprintf("198.51.100.%d", i)))
 		}
@@ -71,7 +71,7 @@ func TestAnAddressACallerWritesDoesNotMoveTheLimits(t *testing.T) {
 		x := require.New(t)
 
 		ra := &asked{People: w.s.Identity}
-		h := trusted.Handler(session.SignIn(w.s.Sessions, ra, w.s.Ent, nil))
+		h := trusted.Handler(session.SignIn(w.s.Sessions, ra, w.s.Ent, w.s.Members))
 		for range session.MaxFailures {
 			x.Equal(http.StatusUnauthorized, post(h, "10.9.0.1", "198.51.100.1"))
 		}

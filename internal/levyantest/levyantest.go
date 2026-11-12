@@ -466,6 +466,30 @@ func (v *Levyan) Heard() []Told {
 	return slices.Clone(v.told)
 }
 
+// Reset forgets who pays for every workspace, how, and what levyan's operator
+// gave them, and the readings a test had it keep, and ends every grant it gave
+// that is in force -- telling everybody watching -- as levyan would have it
+// of a workspace it had just met: what a browser test of billing starts each
+// test from, on the one workspace its deployment serves (D85). What the
+// deployment handed it, and what it knows of each workspace's life, it keeps.
+func (v *Levyan) Reset() {
+	now := time.Now()
+	v.mu.Lock()
+	ending := [][]byte{}
+	for _, g := range v.grants {
+		if g.GetOn() && (!g.HasDateExpires() || g.GetDateExpires().AsTime().After(now)) {
+			ending = append(ending, g.GetId())
+		}
+	}
+	v.payers = newPayers()
+	v.benefits = newBenefits()
+	v.mu.Unlock()
+
+	for _, id := range ending {
+		v.End(id)
+	}
+}
+
 // Arrived is what the portal tells levyan of a workspace (#326): that it was
 // made, by `creator`, at `created` -- who pays for it from then, with the
 // first billing account they opened, if they opened one. levyan keeps the

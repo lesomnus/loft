@@ -3,9 +3,9 @@
  * (decided 2026-10-12).
  *
  * It keeps the page and its files and **nothing a page reads**. A read is
- * somebody's in some workspace, and a worker sees neither -- the session is a
- * cookie it cannot read and the workspace a header -- so what a page read is
- * the page's to keep, for whom it was read (`src/offline.ts`). Every request
+ * somebody's, and a worker cannot see whose -- the session is a cookie it
+ * cannot read -- so what a page read is the page's to keep, for whom it was
+ * read (`src/offline.ts`). Every request
  * that is not the app's own files goes past this untouched.
  *
  * `vite.config.ts` writes `VERSION` and `FILES` above this when it builds:
@@ -62,7 +62,7 @@ self.addEventListener('fetch', (e) => {
 
 /** Whether an address is the app's, rather than something the server answers itself. */
 function page(path) {
-	return !/^\/(sso|session|account|files|l|healthz)(\/|$)/.test(path)
+	return !/^\/(sso|session|files|l|healthz)(\/|$)/.test(path)
 }
 
 async function navigate(req) {

@@ -15,6 +15,7 @@ x-loft: &loft
   environment: &env
     LOFT_DB_DSN: postgres://loft:${POSTGRES_PASSWORD:?}@postgres:5432/loft?sslmode=disable
     LOFT_AUTH_ROSTER_DB_DSN: postgres://loft:${POSTGRES_PASSWORD:?}@postgres:5432/roster?sslmode=disable
+    LOFT_AUTH_ROSTER_TENANT: ${LOFT_TENANT:-}
     LOFT_APP_PUBLIC_URL: https://${LOFT_DOMAIN:?}
     LOFT_APP_SIGNING_KEY: ${LOFT_SIGNING_KEY:?}
     LOFT_APP_MAIL_HOST: ${LOFT_MAIL_HOST:-}

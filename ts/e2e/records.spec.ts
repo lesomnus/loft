@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test'
 
-import { card, expect, people, refusal, signIn, test, workspace } from './loft.js'
+import { card, expect, people, refusal, signIn, test } from './loft.js'
 
 // The workspace's records of what was done -- its operations, and the trail of
 // every write -- read a page at a time, each page from the row the one before
@@ -29,7 +29,7 @@ async function toTheEnd(page: Page, list: Locator, method: string): Promise<numb
 test("a workspace's operations and its trail are read back a page at a time, to the first thing it holds", async ({ page }) => {
 	await signIn(page, people.reviewer.login)
 
-	await page.goto(`${workspace}/settings?tab=events`)
+	await page.goto(`/settings?tab=events`)
 	const events = card(page, '최근 작업 기록')
 	await expect(events.getByRole('row').nth(1)).toBeVisible()
 	await expect(events.getByRole('button', { name: '‹ 앞 페이지' })).toHaveCount(0)
@@ -56,24 +56,24 @@ test("a workspace's operations and its trail are read back a page at a time, to 
 // refuses them the log; what happened to one asset is still on its page.
 test("a member and a manager are not shown the workspace's records, and read an asset's history on its page", async ({ page, as }) => {
 	await signIn(page, people.member.login)
-	await page.goto(`${workspace}/settings`)
+	await page.goto(`/settings`)
 	await expect(page.getByRole('tab', { name: '유형' })).toBeVisible()
 	for (const name of ['작업 기록', '감사 기록', '접속기록']) {
 		await expect(page.getByRole('tab', { name, exact: true })).toHaveCount(0)
 	}
-	await page.goto(`${workspace}/settings?tab=events`)
+	await page.goto(`/settings?tab=events`)
 	await expect(card(page, '자산 유형')).toBeVisible()
 	await expect(card(page, '최근 작업 기록')).toHaveCount(0)
 	expect(await refusal(page, 'EventService/Recent', {})).toContain('구성원 역할로는 할 수 없는 작업입니다')
 
 	// Their own laptop, which the demo put at their desk.
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill('NB-002')
 	await page.getByRole('link', { name: `${people.member.name} 노트북`, exact: true }).click()
 	await expect(card(page, '이력').getByRole('listitem').filter({ hasText: '자리 배치' }).first()).toBeVisible()
 
 	const manager = await as(people.approver.login)
-	await manager.goto(`${workspace}/settings`)
+	await manager.goto(`/settings`)
 	await expect(manager.getByRole('tab', { name: '유형' })).toBeVisible()
 	await expect(manager.getByRole('tab', { name: '작업 기록', exact: true })).toHaveCount(0)
 	expect(await refusal(manager, 'EventService/List', {})).toContain('매니저 역할로는 할 수 없는 작업입니다')

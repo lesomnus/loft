@@ -36,7 +36,6 @@ import (
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent/migrate"
 	"github.com/lesomnus/loft/server/clilogin"
-	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/policy"
 )
 
@@ -144,12 +143,7 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 		var wg sync.WaitGroup
 		sem := make(chan struct{}, 16)
 		for _, c := range calls {
-			asked := gate.Call{Action: c.full, Row: rows[r]}
-			if pd.AccountMethod(c.full) {
-				a := w.accountOf(rows[r])
-				asked = gate.Call{Action: c.full, Actor: a, Account: a, AsAccount: true}
-			}
-			want := policy.Policy{}.May(ctx, asked)
+			want := policy.Policy{}.May(ctx, gate.Call{Action: c.full, Row: rows[r]})
 			wg.Add(1)
 			sem <- struct{}{}
 			go func() {

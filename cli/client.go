@@ -4,31 +4,24 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 
-	"github.com/lesomnus/xli"
-	"github.com/lesomnus/xli/arg"
-	"github.com/lesomnus/xli/flg"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/dynamicpb"
 
 	"github.com/lesomnus/payday/pdcmd"
-
-	app "github.com/lesomnus/loft"
 )
 
 // The terminal's half of this app: everything it can do, asked of a running
 // deployment as the connection in use says (design 9.16) -- a person's, over
-// the address a browser reaches it at, as an account signed in by approving
+// the address a browser reaches it at, as a member signed in by approving
 // the terminal there (`loft auth login`, `server/clilogin`), through the same
 // policy and the same wall as the page; or an operator's, of the entry point
 // with their key (D74).
@@ -36,8 +29,8 @@ import (
 // It is not the box's, which runs with the database where there is no server
 // to ask (`loft init`, `loft migrate`); these run anywhere.
 
-// do is one plain HTTP call beside the RPCs, as a person: `/account`,
-// `/cli/...`, `/session`.
+// do is one plain HTTP call beside the RPCs, as a person: `/session`,
+// `/cli/...`.
 func (c *Connection) do(ctx context.Context, method, path string, body any, out any) (int, error) {
 	var rd io.Reader
 	if body != nil {
@@ -86,9 +79,6 @@ var reads = []string{
 	"/loft.ReservationService/Calendar", "/loft.ReservationService/Timeline", "/loft.BookableService/Availability",
 	"/loft.PartyService/Me", "/loft.LabelService/Resolve",
 	"/loft.AttachmentService/Url", "/loft.NotificationService/Inbox",
-	// What the account is in: its own read (D73), which was HTTP every
-	// session might ask.
-	"/loft.TenantService/Mine",
 }
 
 // expand is what `--allow` named, with `read` as [reads].
@@ -123,68 +113,9 @@ func openBrowser(addr string) {
 	_ = c.Start()
 }
 
-// NewCmdUse is `loft use`: which workspace the terminal speaks to when a
-// command names none.
-func NewCmdUse() *xli.Command {
-	return &xli.Command{
-		Name:  "use",
-		Brief: "the workspace commands speak to unless --workspace says otherwise",
-		Flags: flg.Flags{&flg.Switch{Name: "none", Brief: "name none: an account in one workspace needs none"}},
-		Args:  arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; none prints the one in use", Optional: true}},
-		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			cs, c, err := signedInFor(ctx, "`loft use`")
-			if err != nil {
-				return err
-			}
-			if c.Name == "" {
-				return errors.New("`loft use` keeps the workspace in a connection the file keeps; this one is the command line's")
-			}
-			none, _ := flg.Find[bool](self, "none")
-			named, _ := arg.Get[string](self, "WORKSPACE")
-			switch {
-			case none:
-				c.Workspace = ""
-			case named == "":
-				if c.Workspace == "" {
-					self.Printf("none\n")
-				} else {
-					self.Printf("@%s\n", c.Workspace)
-				}
-				return next(ctx)
-			default:
-				ws := strings.TrimPrefix(named, "@")
-				mine, err := app.NewTenantServiceClient(c.person("")).Mine(ctx, &app.TenantMineRequest{})
-				if err != nil {
-					return err
-				}
-				found := false
-				for _, w := range mine.GetWorkspaces() {
-					found = found || w.GetAlias() == ws
-				}
-				if !found {
-					return fmt.Errorf("@%s: not a workspace this account is in (`loft auth whoami`)", ws)
-				}
-				c.Workspace = ws
-			}
-			if err := cs.save(); err != nil {
-				return err
-			}
-			if c.Workspace == "" {
-				self.Printf("speaking to no workspace in particular\n")
-			} else {
-				self.Printf("speaking to @%s\n", c.Workspace)
-			}
-			return next(ctx)
-		}),
-	}
-}
-
-type workspaceKey struct{}
-
-// remote is the connector of the API's commands: the connection the
-// command line, the environment or the client's file names (design 9.16),
-// to the workspace the command line, `LOFT_WORKSPACE` or `loft use` names
-// when it is a person's.
+// remote is the connector of the API's commands: the connection the command
+// line, the environment or the client's file names (design 9.16), to the
+// workspace the deployment serves (D85).
 type remote struct{}
 
 func (remote) Connect(ctx context.Context) (pdcmd.Conn, func(), error) {
@@ -195,14 +126,7 @@ func (remote) Connect(ctx context.Context) (pdcmd.Conn, func(), error) {
 	if c.Kind == Person && !c.signedIn() {
 		return nil, nil, errNoLogin
 	}
-	ws, _ := ctx.Value(workspaceKey{}).(string)
-	if ws == "" {
-		ws = os.Getenv("LOFT_WORKSPACE")
-	}
-	if ws == "" && c.Kind == Person {
-		ws = c.Workspace
-	}
-	conn, err := c.dial(ws)
+	conn, err := c.dial()
 	if err != nil {
 		return nil, nil, err
 	}

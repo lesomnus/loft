@@ -1,6 +1,6 @@
 # Loft
 
-물리 자산과 공간을 관리하는 멀티 테넌트 서비스입니다. 무엇이 어디에 있었고 누가 가지고 있었는지를 **시간을 따라** 기록하고, 공간과 장비의 예약, 지급·대여, 재고, 실사, 정비, 구매를 한곳에서 다룹니다. 컴퓨터와 모니터뿐 아니라 촬영 장비, 공구, 회의실과 창고까지 같은 대장에 둡니다.
+물리 자산과 공간을 관리하는 서비스입니다. 배포 하나가 조직 하나, [roster](https://github.com/lesomnus/roster)의 테넌트 하나를 섬깁니다. 무엇이 어디에 있었고 누가 가지고 있었는지를 **시간을 따라** 기록하고, 공간과 장비의 예약, 지급·대여, 재고, 실사, 정비, 구매를 한곳에서 다룹니다. 컴퓨터와 모니터뿐 아니라 촬영 장비, 공구, 회의실과 창고까지 같은 대장에 둡니다.
 
 > 이 저장소는 공개되어 있지만 오픈소스가 아닙니다. [`LICENSE`](LICENSE)를 보세요.
 
@@ -17,7 +17,7 @@
 - **구매**: 주문, 입고 때 자산이나 재고로 등록
 - **리포트**: 자산 현황, 대여 현황, 예약 이용률, 실사 결과, 재고 소모와 그 CSV
 - **사람과 역할**: 조직도, 초대, 역할 다섯(소유자 · 관리자 · 매니저 · 구성원 · 감사자), 로그인 중지와 개인정보 삭제
-- **워크스페이스**: 계정 하나가 여러 워크스페이스에. 워크스페이스마다 시간대·통화·노쇼 규칙과 기록 보관 기간. 닫기·복구·내보내기는 운영자가 합니다
+- **워크스페이스**: 배포가 섬기는 roster 테넌트가 곧 워크스페이스이고, 그 사람들이 처음 로그인하면 구성원이 됩니다. 시간대·통화·노쇼 규칙과 기록 보관 기간. 닫기·복구·내보내기는 운영자가 합니다
 - **기록**: 무엇을 왜 했는지(작업 기록), 누가 무엇을 바꿨는지(감사 기록), 누가 누구의 개인정보를 보았는지(접속기록)와 그 점검
 - **결제**: 청구 서비스 [levyan](https://github.com/lesomnus/levyan)이 매기고, 워크스페이스의 사용량과 결제 담당, 제한·읽기 전용을 Loft가 보입니다. 결제 계정과 결제수단, 청구서는 Loft의 것이 아닙니다
 - **어디서나**: 휴대폰 브라우저(PWA)와 라벨 스캔, 오프라인에서 마지막으로 본 화면, 다른 사람이 바꾼 것이 바로 보이는 화면, 모든 기능을 부르는 터미널(`loft`)과 비서(`loft mcp`)
@@ -43,8 +43,8 @@
 # UI 빌드 (한 번)
 cd ts && npm install && npm run build && cd ..
 
-# 첫 워크스페이스와 소유자, 그리고 체험용 데이터(5개 팀 50명, 공간, 자산 140여 개)
-go run ./cmd/loft init --tenant loft --name "우리 회사" --login admin --password admin1234 --demo
+# 워크스페이스(내장 roster의 테넌트 loft)와 소유자 admin, 그리고 체험용 데이터(5개 팀 50명, 공간, 자산 140여 개)
+go run ./cmd/loft init --name "우리 회사" --password admin1234 --demo
 
 # 서버
 go run ./cmd/loft serve
@@ -60,7 +60,19 @@ loft auth login --url http://localhost:8080     # 나온 주소를 로그인한 
 loft asset search -o wide '{"q": "노트북"}'
 ```
 
-설정, UI 개발, 휴대폰에서 써 보기는 [로컬에서 실행하기](docs/dev/running.md)에 있습니다.
+설정, UI 개발, 휴대폰에서 써 보기는 [로컬에서 실행하기](docs/dev/running.md)에 있습니다. 내장 roster는 시험과 써 보기용입니다.
+
+## 직접 운영하기
+
+Loft와 [roster](https://github.com/lesomnus/roster)를 따로 띄웁니다. 사람과 로그인, 사람을 넣고 빼는 화면은 roster의 것이고, Loft는 roster의 테넌트 하나를 워크스페이스로 섬깁니다.
+
+1. roster를 띄우고, 조직의 테넌트를 만듭니다(`roster tenant add @acme`).
+2. 그 테넌트에 Loft를 설치하고(`roster app install --tenant acme --role <Loft가 묻는 메서드> loft`), Loft의 키를 만듭니다(`roster key add --tenant acme --holder loft`, `rt_…`).
+3. Loft의 설정에 roster의 주소와 그 키를 적습니다(`auth.roster.addr`, `auth.roster.key`).
+4. `loft init` 이 그 테넌트를 같은 ID로 워크스페이스로 세우고, roster가 테넌트를 만들 때 넣은 `admin`(또는 `--login` 의 사람)을 소유자로 둡니다.
+5. `loft serve`. 그 테넌트의 사람은 처음 로그인할 때 구성원이 됩니다.
+
+명령과 메서드 목록은 [사람과 로그인](docs/dev/identity.md#roster를-따로-운영할-때), 배포 구성은 아래의 운영 문서에 있습니다.
 
 ## 개발 문서
 
@@ -70,7 +82,7 @@ loft asset search -o wide '{"q": "노트북"}'
 | [구조](docs/dev/architecture.md) | 디렉터리, 생성, 역할과 정책, 실시간과 오프라인, 백그라운드 작업 |
 | [PostgreSQL](docs/dev/postgres.md) | PostgreSQL로 띄우기, 마이그레이션, 여러 대로 띄우기 |
 | [검색 엔진](docs/dev/search.md) | OpenSearch와 nori, 색인, 명령, 개발용 클러스터 |
-| [계정과 로그인](docs/dev/identity.md) | roster(내장과 외부), SSO, 약관 동의, 초대, 계정이 떠날 때 |
+| [사람과 로그인](docs/dev/identity.md) | roster(내장과 외부), 테넌트 하나, SSO, 초대, 사람이 떠날 때 |
 | [과금과 결제](docs/dev/billing.md) | levyan, 미터, 제한과 읽기 전용, 워크스페이스의 결제 설정과 배너 |
 | [라벨](docs/dev/labels.md) | 라벨 코드와 그 주소, 스캔 |
 | [보안](docs/dev/security.md) | 콘텐츠 보안 정책, 세션의 키, 믿는 프록시, 로그인 제한 |

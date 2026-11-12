@@ -26,8 +26,7 @@ import {
 	ref,
 	ts,
 	wall,
-	workspace,
-	type Account,
+	type Session,
 } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { PaymentTab } from '../billing.js'
@@ -36,7 +35,7 @@ import { useAct, useRpc } from '../rpc.js'
 import { Card, Empty, Field, FormModal, Load, OrderSelect, PageHead, Select, Tabs, type Order } from '../ui.js'
 import { attrTypeWord, kindWord } from '../words.js'
 
-export function Settings(props: { account: Account }): ReactNode {
+export function Settings(props: { session: Session }): ReactNode {
 	const c = useCatalog()
 	const [sp, setSp] = useSearchParams()
 	const tabs = [
@@ -58,7 +57,7 @@ export function Settings(props: { account: Account }): ReactNode {
 		...(c.can('owner') ? [{ key: 'workspace', label: '워크스페이스' }] : []),
 		// Who pays for the workspace, what it used and its statements (design
 		// 7.9): read by the people who run it, on a deployment that bills.
-		...(props.account.billing === true && c.can('admin') ? [{ key: 'billing', label: '결제' }] : []),
+		...(props.session.billing === true && c.can('admin') ? [{ key: 'billing', label: '결제' }] : []),
 	]
 	// A tab this person is not shown -- in a link kept from before, or made
 	// by somebody else -- opens the first one, and not a refusal.
@@ -76,7 +75,7 @@ export function Settings(props: { account: Account }): ReactNode {
 			{tab === 'audit' && <Audit />}
 			{tab === 'access' && <Access />}
 			{tab === 'workspace' && <WorkspaceTab />}
-			{tab === 'billing' && props.account.billing === true && c.can('admin') && <PaymentTab account={props.account} />}
+			{tab === 'billing' && props.session.billing === true && c.can('admin') && <PaymentTab session={props.session} />}
 		</>
 	)
 }
@@ -983,7 +982,9 @@ function NameCard(props: { t: Tenant }): ReactNode {
  * its operator's (D83), and no door of this page's.
  */
 function WorkspaceTab(): ReactNode {
-	const t = useRpc(TenantService.method.get, { ref: { key: { case: 'alias', value: workspace } } })
+	const c = useCatalog()
+	const id = c.me.tenant?.id
+	const t = useRpc(TenantService.method.get, id === undefined ? null : { ref: { key: { case: 'id', value: id } } })
 	return (
 		<Load q={t}>
 			{(v) => (

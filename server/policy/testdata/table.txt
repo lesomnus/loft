@@ -79,11 +79,7 @@
 /loft.InventoryCountService/Results	manager +auditor
 /loft.InventoryCountService/Scan	member
 /loft.InventoryCountService/Watch	read
-/loft.InvitationService/Accept	account
 /loft.InvitationService/Add	admin
-/loft.InvitationService/Claim	account
-/loft.InvitationService/Deny	account
-/loft.InvitationService/Inbox	account
 /loft.InvitationService/List	admin
 /loft.InvitationService/Revoke	admin
 /loft.ItemModelService/Add	manager
@@ -159,10 +155,8 @@
 /loft.TenantContractService/Get	read
 /loft.TenantContractService/List	read
 /loft.TenantService/Configure	owner
-/loft.TenantService/Create	account
 /loft.TenantService/Get	read
 /loft.TenantService/List	read
-/loft.TenantService/Mine	account
 /loft.TenantService/Patch	owner
 /loft.TenantService/Preview	owner
 /loft.WorkOrderService/Add	member

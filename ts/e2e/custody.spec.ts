@@ -1,11 +1,11 @@
-import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt, workspace } from './loft.js'
+import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt } from './loft.js'
 
 test('a loan is handed over, acknowledged by the member it went to, and returned', async ({ page, as }) => {
 	const memo = unique('e2e 출장')
 	const member = people.member
 	await signIn(page, people.custody.login)
 
-	await page.goto(`${workspace}/custody`)
+	await page.goto(`/custody`)
 	await page.getByRole('button', { name: '+ 지급·대여' }).click()
 	const give = page.getByRole('dialog')
 	await choose(field(give, '받는 사람'), member.name)
@@ -22,7 +22,7 @@ test('a loan is handed over, acknowledged by the member it went to, and returned
 
 	// The member, at a desk of their own, says it arrived.
 	const theirs = await as(member.login)
-	await theirs.goto(`${workspace}/me`)
+	await theirs.goto(`/me`)
 	const waiting = card(theirs, '인수 확인이 필요한 것').getByRole('listitem').filter({ hasText: memo })
 	await waiting.getByRole('button', { name: '받았습니다' }).click()
 	await said(theirs, '확인했습니다.')
@@ -39,7 +39,7 @@ test('a loan is handed over, acknowledged by the member it went to, and returned
 test('an issue of two is returned in part, and stays open until the rest is back', async ({ page }) => {
 	await signIn(page, people.custody.login)
 
-	await page.goto(`${workspace}/custody`)
+	await page.goto(`/custody`)
 	await page.getByRole('button', { name: '+ 지급·대여' }).click()
 	const give = page.getByRole('dialog')
 	await choose(field(give, '받는 사람'), people.issued.name)

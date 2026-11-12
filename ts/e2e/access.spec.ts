@@ -1,4 +1,4 @@
-import { card, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
+import { card, expect, field, people, said, signIn, test, unique } from './loft.js'
 
 // The access record reviewed (loft#136): who read whose data, a month at a
 // time, and that somebody looked it over -- what PIPA's safety measures ask
@@ -9,10 +9,10 @@ test("a workspace's access record is read a month at a time, and its review reco
 	await signIn(page, people.reviewer.login)
 
 	// Something to find: the list of people, which shows everybody's name.
-	await page.goto(`${workspace}/people`)
+	await page.goto(`/people`)
 	await expect(page.getByText(people.member.name, { exact: true }).first()).toBeVisible()
 
-	await page.goto(`${workspace}/settings?tab=access`)
+	await page.goto(`/settings?tab=access`)
 	const record = page.locator('section').filter({ has: page.getByRole('heading', { name: /^접속기록 — / }) })
 	// It opens on last month, which is the one usually reviewed.
 	await record.getByRole('button', { name: '다음 달 ›' }).click()

@@ -91,7 +91,6 @@ func Cmd(c *cmd.Config) *xli.Command {
 			&flg.String{Name: "connection", Brief: "the connection to use, by name (`loft auth list`); LOFT_CONNECTION, or the one `loft auth switch` chose"},
 			&flg.String{Name: "url", Brief: "with --key, the operator's entry point for this command alone; LOFT_ADMIN_URL, or http://127.0.0.1:8081"},
 			&flg.String{Name: "key", Brief: "the operator's key, as env:NAME or file:PATH -- never the key -- for this command alone; LOFT_ADMIN_KEY"},
-			&flg.String{Name: "workspace", Brief: "a person's: the workspace to speak to, by alias; LOFT_WORKSPACE, or the one `loft use` chose"},
 			&flg.String{Name: "reason", Brief: "what a download is for -- `tenant export`, `asset export` hand people's data out and are refused without one; it is recorded"},
 		},
 
@@ -105,7 +104,6 @@ func Cmd(c *cmd.Config) *xli.Command {
 			migrate,
 			serve,
 			NewCmdAuth(),
-			NewCmdUse(),
 			newCmdCall(),
 			NewCmdScan(),
 			NewCmdMcp(),
@@ -123,14 +121,10 @@ func Cmd(c *cmd.Config) *xli.Command {
 
 	root.Handler = xli.Chain(
 		cfg.Load(l, terminal...),
-		// Who the terminal's commands are, and to which workspace and why,
-		// as the command line says it (design 9.16): read where they
-		// connect.
+		// Who the terminal's commands are, and why, as the command line
+		// says it (design 9.16): read where they connect.
 		xli.OnRunPass(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			ctx = withChoice(ctx, Choice{Name: flag(self, "connection"), Url: flag(self, "url"), Key: flag(self, "key")})
-			if ws := flag(self, "workspace"); ws != "" {
-				ctx = context.WithValue(ctx, workspaceKey{}, ws)
-			}
 			// Said to every call, and read by the downloads: what the access
 			// record keeps beside who took what (loft#136).
 			if why := strings.TrimSpace(flag(self, "reason")); why != "" {

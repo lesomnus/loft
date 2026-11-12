@@ -193,80 +193,103 @@ func (e *embedded) agent(ctx context.Context, tenant string) error {
 	return nil
 }
 
-// MakeDirectory makes the directory at the embedded roster, with its first
-// account -- called `name`, or its login when that is empty -- bound to the
-// role that administers it there and a password shown once: what `loft init`
-// does on a deployment that has none. An external roster refuses: its
-// operator makes the directory.
-func (s *Store) MakeDirectory(ctx context.Context, login, name string) (Person, string, error) {
+// MakeTenant makes the tenant at the embedded roster -- called `name`, or by
+// its alias when that is empty -- with its first person, by the login `login`
+// and called `person` (their login when that is empty), bound to the role that
+// administers it there and given a password shown once: what `loft init` does
+// on a deployment that has none. An external roster refuses: its operator
+// makes the tenant.
+func (s *Store) MakeTenant(ctx context.Context, name, login, person string) (Tenant, Person, string, error) {
 	if s.em == nil {
-		return Person{}, "", ErrExternal
+		return Tenant{}, Person{}, "", ErrExternal
 	}
-	alias, err := s.directoryAlias(ctx)
+	alias, err := s.tenantAlias(ctx)
 	if err != nil {
-		return Person{}, "", err
-	}
-	ctx, cancel := unframed(ctx)
-	defer cancel()
-	seeded, err := rostercmd.Seed(ctx, s.em.rs, rostercmd.Seeding{Tenant: alias, Holder: login})
-	if err != nil {
-		return Person{}, "", err
-	}
-	// A seeding names nobody. The account's name is what a workspace it
-	// makes calls its owner, and one with none goes by its login there.
-	if _, err := s.em.rs.Ungated.Holder().Patch(ctx, rstr.HolderPatchRequest_builder{
-		Ref:              rstr.HolderRef_builder{Id: seeded.Holder.Bytes()}.Build(),
-		Name:             z.Ptr(cmp.Or(name, login)),
-		DateUpdatedForce: z.Ptr(true),
-	}.Build()); err != nil {
-		return Person{}, "", err
-	}
-	secret, err := s.issue(ctx, seeded.Holder)
-	if err != nil {
-		return Person{}, "", err
-	}
-	p, err := s.lookupOwn(ctx, seeded.Holder)
-	if err != nil {
-		return Person{}, "", err
-	}
-
-	return p, secret, nil
-}
-
-// EnsureDirectory is the directory at the embedded roster, made with nobody in
-// it but the administrator roster makes every tenant with when it is not
-// there: what giving accounts to members who name none starts from, on a
-// deployment that has only ever restored workspaces (`loft identity
-// migrate`).
-func (s *Store) EnsureDirectory(ctx context.Context) (Directory, error) {
-	if s.em == nil {
-		return Directory{}, ErrExternal
-	}
-	d, err := s.Directory(ctx)
-	if !errors.Is(err, ErrNoDirectory) {
-		return d, err
-	}
-	alias, err := s.directoryAlias(ctx)
-	if err != nil {
-		return Directory{}, err
+		return Tenant{}, Person{}, "", err
 	}
 	uctx, cancel := unframed(ctx)
 	defer cancel()
-	if _, err := s.em.rs.Ungated.Tenant().Add(uctx, rstr.TenantAddRequest_builder{Alias: alias, Name: alias}.Build()); err != nil {
-		return Directory{}, fmt.Errorf("directory @%s: %w", alias, err)
+	seeded, err := rostercmd.Seed(uctx, s.em.rs, rostercmd.Seeding{Tenant: alias, Holder: login})
+	if err != nil {
+		return Tenant{}, Person{}, "", err
+	}
+	if name != "" && name != alias {
+		if _, err := s.em.rs.Ungated.Tenant().Patch(uctx, rstr.TenantPatchRequest_builder{
+			Ref:              rstr.TenantRef_builder{Alias: z.Ptr(alias)}.Build(),
+			Name:             z.Ptr(name),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build()); err != nil {
+			return Tenant{}, Person{}, "", err
+		}
+	}
+	// A seeding names nobody. Their name is what the workspace calls them,
+	// and one with none goes by their login there.
+	if _, err := s.em.rs.Ungated.Holder().Patch(uctx, rstr.HolderPatchRequest_builder{
+		Ref:              rstr.HolderRef_builder{Id: seeded.Holder.Bytes()}.Build(),
+		Name:             z.Ptr(cmp.Or(person, login)),
+		DateUpdatedForce: z.Ptr(true),
+	}.Build()); err != nil {
+		return Tenant{}, Person{}, "", err
+	}
+	secret, err := s.issue(uctx, seeded.Holder)
+	if err != nil {
+		return Tenant{}, Person{}, "", err
+	}
+	p, err := s.lookupOwn(uctx, seeded.Holder)
+	if err != nil {
+		return Tenant{}, Person{}, "", err
+	}
+	t, err := s.Tenant(ctx)
+	if err != nil {
+		return Tenant{}, Person{}, "", err
 	}
 
-	return s.Directory(ctx)
+	return t, p, secret, nil
 }
 
-// AddPerson makes an account in the directory of the embedded roster, with no
-// way to sign in yet: IssuePassword or SetPassword gives it one. `id` is the
-// identifier it is given, and the nil one mints a fresh one.
+// EnsureTenant is the tenant at the embedded roster, made with nobody in it
+// but the administrator roster makes every tenant with when it is not there:
+// by the identifier, alias and name of the workspace here (D85), as a
+// workspace restored from another deployment's export has them -- what giving
+// its members a way in starts from (`loft identity link`). One there already
+// with another identifier is refused.
+func (s *Store) EnsureTenant(ctx context.Context, want Tenant) (Tenant, error) {
+	if s.em == nil {
+		return Tenant{}, ErrExternal
+	}
+	alias, err := s.tenantAlias(ctx)
+	if err != nil {
+		return Tenant{}, err
+	}
+	if want.Alias != alias {
+		return Tenant{}, fmt.Errorf("the workspace here is @%s, and this deployment serves @%s (auth.roster.tenant)", want.Alias, alias)
+	}
+	t, err := s.Tenant(ctx)
+	switch {
+	case err == nil && t.Id != want.Id:
+		return Tenant{}, fmt.Errorf("@%s at roster is %s, and the workspace here is %s", alias, t.Id, want.Id)
+	case !errors.Is(err, ErrNoTenant):
+		return t, err
+	}
+	uctx, cancel := unframed(ctx)
+	defer cancel()
+	if _, err := s.em.rs.Ungated.Tenant().Add(uctx, rstr.TenantAddRequest_builder{
+		Id: want.Id.Bytes(), Alias: alias, Name: cmp.Or(want.Name, alias),
+	}.Build()); err != nil {
+		return Tenant{}, fmt.Errorf("tenant @%s: %w", alias, err)
+	}
+
+	return s.Tenant(ctx)
+}
+
+// AddPerson makes somebody in the tenant of the embedded roster, with no way
+// to sign in yet: IssuePassword or SetPassword gives them one. `id` is the
+// identifier they are given, and the nil one mints a fresh one.
 func (s *Store) AddPerson(ctx context.Context, alias, name string, id pdid.Id) (Person, error) {
 	if s.em == nil {
 		return Person{}, ErrExternal
 	}
-	d, err := s.Directory(ctx)
+	d, err := s.Tenant(ctx)
 	if err != nil {
 		return Person{}, err
 	}
@@ -292,7 +315,7 @@ func (s *Store) AddPerson(ctx context.Context, alias, name string, id pdid.Id) (
 	return s.lookupOwn(ctx, made)
 }
 
-// AddAddress puts an address on an account of the embedded roster, checked or
+// AddAddress puts an address on somebody at the embedded roster, checked or
 // not, as the deployment says: what a deployment that runs roster here knows
 // of its people, which no link was sent to prove.
 func (s *Store) AddAddress(ctx context.Context, account pdid.Id, address string, verified bool) error {
@@ -399,8 +422,7 @@ func (s *Store) Invalidate(ctx context.Context, holder pdid.Id) error {
 // ForgetPerson destroys what the embedded roster holds about a person -- their
 // addresses, their password, their sessions there and the trail's copies of
 // them -- and leaves their row an identifier naming nobody, which frees their
-// alias (roster's `forget`). It is what a login ending in Loft means when the
-// login is Loft's alone, and it is done at once: the grace roster gives an
+// alias (roster's `forget`). It is done at once: the grace roster gives an
 // erase is for undoing it, which Loft does not offer, and a grace with nothing
 // to undo is only a delay. At an external roster the person is the tenant's,
 // and Loft leaves them.
@@ -474,19 +496,18 @@ type Adoptee struct {
 	Name  string
 }
 
-// Adopt writes members who name no account into the directory of the
-// embedded roster as accounts, with the identifiers they already have, and
-// issues each of them a password -- `password`, or one made up for each when
-// it is empty: the members of a workspace restored from an export whose
-// accounts this roster does not have (design 9.10, `loft identity link`).
-// Somebody roster has already is left alone, so it can be run again. It
-// answers the passwords by alias, for the accounts it made. The directory has
-// to be there ([Store.EnsureDirectory]).
+// Adopt writes members roster does not have into the tenant of the embedded
+// roster, with the identifiers they already have, and issues each of them a
+// password -- `password`, or one made up for each when it is empty: the
+// members of a workspace restored from an export of another deployment's
+// (design 9.10, `loft identity link`). Somebody roster has already is left
+// alone, so it can be run again. It answers the passwords by alias, for the
+// people it made. The tenant has to be there ([Store.EnsureTenant]).
 func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (map[string]string, error) {
 	if s.em == nil {
 		return nil, ErrExternal
 	}
-	d, err := s.Directory(ctx)
+	d, err := s.Tenant(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -831,13 +831,6 @@ func printDestroyed(self *xli.Command, how string, x *app.OperatorTenantDestroye
 			self.Printf("  kept until %s, for the deployment's floors: %s\n", dayOf(x.GetDateKeptUntil()), strings.Join(kept, ", "))
 		}
 	}
-	if x.GetEmbedded() {
-		verb := "forgot"
-		if dry {
-			verb = "would forget"
-		}
-		self.Printf("  roster in this process: %s %d account(s) in no other workspace, and what its trail said of them\n", verb, x.GetForgotten())
-	}
 	if len(x.GetLost()) > 0 {
 		self.Printf("  files that could not be removed: %s\n", strings.Join(x.GetLost(), ", "))
 	}

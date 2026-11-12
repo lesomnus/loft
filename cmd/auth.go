@@ -10,13 +10,10 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/lesomnus/payday/auth"
-	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/server/pd"
 )
 
 // Resolver turns a claim into the frame a request is served in.
@@ -32,29 +29,20 @@ import (
 // behind the wall would be asking a question whose answer it needs in order to
 // ask it.
 //
-// A session names an **account** and not a holder (D27), and which of its
-// memberships a call is is payday's to work out (`pd.AccountResolver`,
-// payday#184): the one of the workspace the call names in [WorkspaceHeader] --
-// by alias or by identifier -- or its only one when the call names none; and
-// for a method the schema marks as the account's own (`pd.AccountMethods`, the
-// invitations addressed to it), the account itself, in no workspace. Every
-// other credential names a holder, as before, and so does the membership a
-// session's call was resolved to: both are read here ([holders]).
+// Every credential names a holder ([holders]): a session the member it was
+// signed in as, who is a holder of the roster tenant this deployment serves
+// and its member by the same identifier (D85). There is no workspace to
+// choose: the deployment's is the one.
 //
 // What is the app's around that stays here: a call into a closed workspace is
 // refused, whoever makes it and whatever it asks ([refusedClosed]) -- what
 // becomes of a closed workspace is its operator's (D83).
-func Resolver(s app.Server, db *ent.Client) auth.Resolver {
-	accounts := pd.AccountResolver(db, WorkspaceHeader, signedIn, holders(s))
+func Resolver(s app.Server) auth.Resolver {
+	members := holders(s)
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
-		f, err := accounts.Resolve(ctx, id)
+		f, err := members.Resolve(ctx, id)
 		if err != nil {
 			return nil, err
-		}
-		if f.AsAccount() {
-			// The account itself, for a method of its own: in no workspace,
-			// so in no closed one either.
-			return f, nil
 		}
 
 		// A closed workspace is nobody's to use, its owner's neither (D29,
@@ -70,15 +58,9 @@ func Resolver(s app.Server, db *ent.Client) auth.Resolver {
 	})
 }
 
-// signedIn says whether a credential is a session, which names an account:
-// what [pd.AccountResolver] serves as one of its memberships, or as itself.
-func signedIn(id auth.Identity) bool { return id.Method == authsession.Method }
-
-// holders resolves a credential that names a holder: every credential but a
-// session, and the membership a session's call was resolved to, which
-// [pd.AccountResolver] asks about by its identifier. The holder is read with
-// its tenant, since almost every rule about a request is about the tenant it
-// is from.
+// holders resolves a credential that names a holder, by its identifier or by
+// its alias in a tenant. The holder is read with its tenant, since almost
+// every rule about a request is about the tenant it is from.
 func holders(s app.Server) auth.Resolver {
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
 		ref, err := refOf(id)
@@ -140,12 +122,6 @@ func refusedClosed() error {
 	}
 	return v.Err()
 }
-
-// WorkspaceHeader is the metadata a call names its workspace in: an alias,
-// with or without its `@`, or a tenant identifier, as payday reads it
-// (`account.ParseSelector`). A page served at `/@<alias>/...` sends the alias
-// on every call (design 9.11).
-const WorkspaceHeader = "loft-workspace"
 
 // refOf is the claim as a reference: an identifier when the credential named
 // one, and otherwise the pair that names a holder inside a tenant.

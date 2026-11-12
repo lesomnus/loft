@@ -18,7 +18,7 @@ export function People(): ReactNode {
 	const [open, setOpen] = useState<Party>()
 	const holders = useRpc(HolderService.method.list, c.can('admin') ? { size: 500 } : null)
 	const roles = useMemo(() => new Map((holders.data?.items ?? []).map((h) => [idStr(h.id), h.role])), [holders.data])
-	// Memberships whose account roster erased, which are leaving from then.
+	// Memberships whose holder roster erased, which are leaving from then.
 	const leaving = useMemo(() => new Set((holders.data?.items ?? []).filter((h) => h.dateLeaving !== undefined).map((h) => idStr(h.id))), [holders.data])
 
 	const teams = c.parties.filter((p) => p.kind === 'team' || p.kind === 'org')

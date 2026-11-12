@@ -1,4 +1,4 @@
-import { card, expect, field, owner, said, signIn, test, unique, workspace } from './loft.js'
+import { card, expect, field, owner, said, signIn, test, unique } from './loft.js'
 
 /** A sheet in the form, as a file the page is given. */
 function sheet(rows: string[][]): { name: string; mimeType: string; buffer: Buffer } {
@@ -13,7 +13,7 @@ test('new assets are registered from a sheet, shown first, as one intake', async
 	// The owner: the type the sheet names is one only an admin makes.
 	await signIn(page, owner.login, owner.password)
 
-	await page.goto(`${workspace}/assets`)
+	await page.goto(`/assets`)
 	await page.getByRole('link', { name: '대량 등록', exact: true }).click()
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('대량 등록')
 

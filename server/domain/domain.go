@@ -52,7 +52,6 @@ import (
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/retention"
 	"github.com/lesomnus/loft/server/storage"
-	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Deps is what every copy of the layer shares, however often a transaction
@@ -71,11 +70,8 @@ type Deps struct {
 	Links Links
 
 	// RestoreWithin is how long a closed workspace may be restored before it
-	// is destroyed (D29); zero is 30 days. AliasHold is how long its address
-	// is kept from anybody else after that, which an account in it is told
-	// while it is closed (`TenantService.Mine`).
+	// is destroyed (D29); zero is 30 days.
 	RestoreWithin time.Duration
-	AliasHold     time.Duration
 
 	// Locale is what a workspace that says nothing of its own is told in: its
 	// zone and its currency (`app.locale`, #144).
@@ -150,11 +146,6 @@ type Deps struct {
 	// workspace for none of the time it is closed (`levyan.Notices`, design
 	// 7.8). Nil tells nobody, as a deployment that bills nobody does.
 	Closings Closings
-
-	// Workspaces is how an account comes to be in a workspace of its own, and
-	// what it is in (`tenancy.Workspaces`): what `TenantService.Mine` and
-	// `Create` read and write as the account (D73). Nil serves neither.
-	Workspaces *tenancy.Workspaces
 }
 
 // Closings is what hears that a workspace was closed or restored at `at`,
@@ -172,6 +163,9 @@ type Closings interface {
 // are roster's, and the operations that would do them are refused.
 type People interface {
 	Embedded() bool
+	// Tenant is the roster tenant the deployment serves: its workspace, by
+	// the same identifier (D85).
+	Tenant(ctx context.Context) (identity.Tenant, error)
 	AddPerson(ctx context.Context, alias, name string, id pdid.Id) (identity.Person, error)
 	ById(ctx context.Context, sub string) (identity.Person, error)
 	SetPassword(ctx context.Context, account pdid.Id, password string) error
@@ -179,16 +173,16 @@ type People interface {
 	Verify(ctx context.Context, login, password string) (identity.Person, error)
 	Invalidate(ctx context.Context, account pdid.Id) error
 	ForgetPerson(ctx context.Context, account pdid.Id) error
-	// Addresses is an account's addresses somebody checked: what an
-	// invitation is found by.
+	// Addresses is somebody's addresses that somebody checked: where their
+	// mail goes.
 	Addresses(ctx context.Context, account pdid.Id) ([]string, error)
-	// AccountPage is roster's page where somebody manages their own
-	// account, for a roster of its own; empty for none.
+	// AccountPage is roster's page where somebody manages how they sign in,
+	// for a roster of its own; empty for none.
 	AccountPage() string
 }
 
-// here answers the people an account is made and changed at, or the refusal a
-// deployment whose accounts are an external roster's gives.
+// here answers the people somebody is made and changed at, or the refusal a
+// deployment whose people are an external roster's gives.
 func (d *Deps) here() (People, error) {
 	if d.People == nil || !d.People.Embedded() {
 		return nil, failed("계정과 비밀번호는 roster에서 관리합니다")

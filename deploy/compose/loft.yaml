@@ -32,6 +32,7 @@ auth:
     db:
       driver: pgx
       # dsn: LOFT_AUTH_ROSTER_DB_DSN, from .env.
+    # tenant: LOFT_TENANT, from .env -- the workspace this deployment serves.
 
 app:
   # public_url: LOFT_APP_PUBLIC_URL, https://<LOFT_DOMAIN>, from .env.

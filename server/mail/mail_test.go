@@ -113,7 +113,7 @@ func TestAMessageIsSentAsTheConfigurationSays(t *testing.T) {
 	}, func(ref string) (string, error) { return "the password", nil }, nil)
 	x.NoError(err)
 
-	body := "김민수님이 Loft의 연구실 워크스페이스에 구성원으로 초대했습니다.\n\nhttps://loft.example/invitations?code=abc\n"
+	body := "김민수님이 Loft의 연구실 워크스페이스에 구성원으로 초대했습니다.\n\nhttps://loft.example\n"
 	x.NoError(sender.Send(context.Background(), loftmail.Message{
 		To: "kim@acme.example", Subject: "김민수님이 Loft의 연구실에 초대했습니다", Body: body,
 	}))

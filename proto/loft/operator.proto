@@ -198,11 +198,6 @@ message OperatorTenantDestroyed {
   map<string, uint32> kept = 11;
   google.protobuf.Timestamp date_kept_until = 12;
 
-  // On the roster in this process (`embedded`), the accounts that were in
-  // this workspace and no other, which went with it.
-  bool embedded = 13;
-  uint32 forgotten = 14;
-
   // For a deployment that bills (`bills`): why its final reading could not
   // be handed to levyan, which bills it by its last daily one -- empty when
   // it was; and that levyan is to be told it was destroyed (`tells`).

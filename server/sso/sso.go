@@ -1,16 +1,17 @@
 // Package sso is this deployment as a relying party of roster's issuer: the
-// sign-in that goes to Google, Microsoft or GitHub and comes back as an account
+// sign-in that goes to Google, Microsoft or GitHub and comes back as a member
 // (design 9.10, D28).
 //
 // # Why roster's issuer, and not Google's
 //
 // Because who somebody is, is roster's (D26). Google, Microsoft and GitHub are
-// connections of the deployment's directory at roster, and what comes back here
-// is roster's token for an account in that directory: `sub` is the account,
-// the same one a password names where a deployment has passwords. So the
-// session this mints is the one `POST /session` mints, and nothing after the
-// callback knows which way somebody came in -- every call is still held to
-// what roster says of the account now.
+// connections of the tenant this deployment serves at roster, and what comes
+// back here is roster's token for a holder in that tenant: `sub` is the
+// holder, the same one a password names where a deployment has passwords,
+// which is their membership here by the same identifier (D85). So the session
+// this mints is the one `POST /session` mints, and nothing after the callback
+// knows which way somebody came in -- every call is still held to what roster
+// says of them now.
 //
 // # What it is, in roster's words
 //
@@ -46,10 +47,13 @@ import (
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
+	"github.com/lesomnus/payday/pdid"
 	"golang.org/x/oauth2"
 
+	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/landing"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Config is the issuer this deployment signs people in through.
@@ -102,9 +106,11 @@ type People interface {
 	ById(ctx context.Context, sub string) (identity.Person, error)
 }
 
-// Arrive is what an account signing in is given: a workspace of its own when it
-// is in none ([tenancy.Workspaces.Arrive]).
-type Arrive func(ctx context.Context, p identity.Person) error
+// Members is who somebody roster vouched for is here: their membership, made
+// the first time they sign in ([tenancy.Members.Of]).
+type Members interface {
+	Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
+}
 
 // The cookie that binds a browser to the round trip it started, and the one
 // thing a session keeps from it.
@@ -126,7 +132,7 @@ type Rp struct {
 
 	sessions *authsession.Sessions
 	people   People
-	arrive   Arrive
+	members  Members
 
 	// found is held by its own lock, which is held while the issuer is
 	// asked; flows by another, which is never held across a call.
@@ -158,8 +164,8 @@ type flow struct {
 // Nothing is asked of the issuer here: discovery is done at the first sign-in
 // and kept once it worked, so an issuer that is down when this starts is one
 // that is asked again rather than a deployment that does not start.
-func New(c Config, base string, password bool, sessions *authsession.Sessions, people People, arrive Arrive) (*Rp, error) {
-	rp := &Rp{c: c, password: password, sessions: sessions, people: people, arrive: arrive, flows: map[string]flow{}}
+func New(c Config, base string, password bool, sessions *authsession.Sessions, people People, members Members) (*Rp, error) {
+	rp := &Rp{c: c, password: password, sessions: sessions, people: people, members: members, flows: map[string]flow{}}
 	if !c.On() {
 		return rp, nil
 	}
@@ -248,12 +254,12 @@ func (rp *Rp) login(w http.ResponseWriter, r *http.Request) {
 }
 
 // callback finishes a sign-in: the code exchanged, the token checked, and this
-// deployment's session for the account it names.
+// deployment's session for the member it names.
 //
 // What went wrong past the state is not the browser's to be told in detail: it
 // lands on the sign-in page with `?signin=refused` when the person said no at
-// the issuer, `unavailable` when roster could not be asked, and `failed` for
-// the rest, which the log says.
+// the issuer, `ended` when their membership was ended here, `unavailable` when
+// roster could not be asked, and `failed` for the rest, which the log says.
 func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	http.SetCookie(w, &http.Cookie{Name: stateCookie, Path: "/sso", MaxAge: -1, HttpOnly: true, Secure: rp.secure, SameSite: http.SameSiteLaxMode})
@@ -311,13 +317,13 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// `sub` is the account, and nothing else in the token is who they are.
+	// `sub` is the holder, and nothing else in the token is who they are.
 	p, err := rp.people.ById(ctx, id.Subject)
 	switch {
 	case errors.Is(err, identity.ErrNoPerson):
-		// The issuer vouched for somebody the directory does not have: an
-		// issuer in front of another directory than this deployment's.
-		failed("the issuer named nobody in this directory", err)
+		// The issuer vouched for somebody the tenant does not have: an
+		// issuer in front of another tenant than this deployment's.
+		failed("the issuer named nobody in this tenant", err)
 		return
 	case err != nil:
 		log.From(ctx).WarnContext(ctx, "sso: a sign-in nobody could check", slog.Any("err", err))
@@ -325,16 +331,19 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// A workspace that could not be made is not a sign-in refused: the
-	// account is who it is, and is told it is in no workspace.
-	if rp.arrive != nil {
-		if err := rp.arrive(ctx, p); err != nil {
-			log.From(ctx).ErrorContext(ctx, "sso: an account arrived and was not given what it is given", slog.Any("err", err))
-		}
+	h, err := rp.members.Of(ctx, p)
+	switch {
+	case errors.Is(err, tenancy.ErrEnded):
+		http.Redirect(w, r, "/?signin=ended", http.StatusSeeOther)
+		return
+	case err != nil:
+		log.From(ctx).ErrorContext(ctx, "sso: somebody roster vouched for is no member here", slog.Any("err", err))
+		http.Redirect(w, r, "/?signin=unavailable", http.StatusSeeOther)
+		return
 	}
 
 	_, cookie, err := rp.sessions.Mint(ctx, authsession.Session{
-		Id:    p.Id.String(),
+		Id:    pdid.Id(h.Id).String(),
 		Grant: frame.Whole(),
 		// Kept, and only for signing out.
 		Held: map[string]string{hint: raw},

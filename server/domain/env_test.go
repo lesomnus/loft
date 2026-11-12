@@ -2,7 +2,6 @@ package domain_test
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -33,7 +32,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/migrate"
 	"github.com/lesomnus/loft/internal/ent/notification"
-	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/domain"
 	"github.com/lesomnus/loft/server/pd"
 )
@@ -69,8 +67,10 @@ func newEnvWith(t *testing.T, with func(c *cmd.Config)) *env {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.App.NoShowAfter = 15 * time.Minute
-	// The roster in this process, on a database of its own beside.
+	// The roster in this process, on a database of its own beside, serving
+	// the workspace every test starts in.
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Auth.Roster.Tenant = "acme"
 	if with != nil {
 		with(&c)
 	}
@@ -288,30 +288,30 @@ func aboutRow(ev *ent.Event, d pdid.Domain, id uuid.UUID, points []uuid.UUID) bo
 	return named
 }
 
-// newTenant puts up a workspace and its owner the way `loft init` does -- the
-// owner an account in the directory at roster, the workspace here and the
-// owner's membership of it -- and answers with the owner signed in.
+// newTenant puts up a workspace and its owner, and answers with the owner
+// signed in. The tenant at roster this deployment serves is put up the way
+// `loft init` does (D85) -- the tenant and its owner made there, and here by
+// the same identifiers -- and any other is a workspace of this database alone,
+// as an import puts one up, whom nobody at roster is the owner of: what the
+// wall keeps apart.
 func (e *env) newTenant(alias string) (pdid.Id, context.Context) {
 	ctx := context.Background()
-	login := "owner-" + alias
-	_, err := e.s.Identity.Directory(ctx)
-	var p identity.Person
-	if errors.Is(err, identity.ErrNoDirectory) {
-		p, _, err = e.s.Identity.MakeDirectory(ctx, login, "Owner of "+alias)
-	} else {
+	tid, hid := pdid.New(pd.TenantDomain), pdid.New(pd.HolderDomain)
+	if alias == e.cfg.Auth.Roster.Tenant {
+		t, p, _, err := e.s.Identity.MakeTenant(ctx, alias, "owner-"+alias, "Owner of "+alias)
 		e.x.NoError(err)
-		p, err = e.s.Identity.AddPerson(ctx, login, "Owner of "+alias, pdid.Nil)
+		tid, hid = t.Id, p.Id
 	}
-	e.x.NoError(err)
-	t, err := e.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: alias}.Build())
+	t, err := e.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Id: tid.Bytes(), Alias: alias, Name: alias}.Build())
 	e.x.NoError(err)
 	tenant := app.TenantRef_builder{Id: t.GetId()}.Build()
 	h, err := e.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Id:      hid.Bytes(),
 		Tenant:  tenant,
 		Alias:   "owner",
 		Name:    "Owner",
 		Role:    z.Ptr("owner"),
-		Account: p.Id.Bytes(),
+		Account: hid.Bytes(),
 	}.Build())
 	e.x.NoError(err)
 	_, err = e.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
@@ -322,7 +322,6 @@ func (e *env) newTenant(alias string) (pdid.Id, context.Context) {
 	}.Build())
 	e.x.NoError(err)
 
-	tid, _ := pdid.From(t.GetId())
 	return tid, e.as(h)
 }
 

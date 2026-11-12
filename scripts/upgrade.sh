@@ -58,6 +58,8 @@ for v in $(env | sed -n 's/^\(LOFT_[A-Za-z0-9_]*\)=.*/\1/p'); do
 	unset "$v"
 done
 export LOFT_DB_MIGRATE=true
+# The roster tenant both builds serve, which is the workspace (D85).
+export LOFT_AUTH_ROSTER_TENANT=acme
 export LOFT_WATCH_BROKER=memory
 export LOFT_SPIN_LEASE=local
 export LOFT_APP_SIGNING_KEY=loft-upgrade-signing-key-not-a-secret
@@ -170,7 +172,7 @@ held() {
 check() {
 	trap unserve EXIT
 	log=$dir/$1.log
-	run "$log" "$before/loft" init --tenant acme --login owner --password owner-pass-1234 --demo
+	run "$log" "$before/loft" init --login owner --password owner-pass-1234 --demo
 	# A contract, and an export the build before wrote, for this one to
 	# restore once it has migrated (below): an export is a contract with
 	# whoever kept it (D34).

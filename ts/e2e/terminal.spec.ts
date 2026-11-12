@@ -25,10 +25,10 @@ test('a terminal sign-in is approved at the page, and the terminal then holds a 
 	const polled = await request.post(`/cli/logins/${started.id}/poll`, { data: { secret } })
 	expect(await polled.json()).toEqual({ state: 'approved' })
 
-	// The key it kept is a session of the account that approved it.
-	const account = await request.get('/account', { headers: { cookie: `${started.cookie}=${key}` } })
-	expect(account.status()).toBe(200)
-	expect(await account.json()).toMatchObject({ login: owner.login })
+	// The key it kept is a session of the member who approved it.
+	const who = await request.get('/session', { headers: { cookie: `${started.cookie}=${key}` } })
+	expect(who.status()).toBe(200)
+	expect(await who.json()).toMatchObject({ login: owner.login })
 })
 
 // `loft auth login --allow` (D33): what the terminal asks to be narrowed to is on
@@ -52,8 +52,8 @@ test('a terminal that asks for less is shown so, and its session does no more', 
 	await request.post(`/cli/logins/${started.id}/poll`, { data: { secret } })
 
 	const cookie = `${started.cookie}=${key}`
-	const account = await request.get('/account', { headers: { cookie } })
-	expect(await account.json()).toMatchObject({ login: owner.login, allow })
+	const who = await request.get('/session', { headers: { cookie } })
+	expect(await who.json()).toMatchObject({ login: owner.login, allow })
 	// A write it did not ask for, though the owner may.
 	const add = await request.post('/loft.AssetService/Add', {
 		headers: { cookie, 'connect-protocol-version': '1' },

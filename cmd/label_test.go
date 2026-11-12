@@ -7,19 +7,17 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/cmd"
 )
 
 // TestALabelOpensTheScanPage: a label is printed with the deployment's own
 // address, its QR opens the scan page, which reads the code in the workspace
-// it is open in -- and another workspace reads it as no label at all, the
-// same as a code nobody printed (D28).
+// -- and another workspace in the database, as an import puts one there,
+// reads it as no label at all, the same as a code nobody printed.
 func TestALabelOpensTheScanPage(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
@@ -43,10 +41,13 @@ func TestALabelOpensTheScanPage(t *testing.T) {
 
 	beta, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "beta"}.Build())
 	x.NoError(err)
-	kim, err := w.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
+	theirs, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: beta.GetId()}.Build(),
+		Alias:  "owner",
+		Role:   z.Ptr("owner"),
+	}.Build())
 	x.NoError(err)
-	inBeta := metadata.AppendToOutgoingContext(w.session(w.member(beta, kim, "owner")), cmd.WorkspaceHeader, "beta")
-	_, err = labels.Resolve(inBeta, app.LabelResolveRequest_builder{Code: code}.Build())
+	_, err = w.s.Walled.Label().Resolve(frameOf(x, theirs), app.LabelResolveRequest_builder{Code: code}.Build())
 	x.Equal(codes.NotFound, status.Code(err), "beta has no such label")
 	_, err = labels.Resolve(context.Background(), app.LabelResolveRequest_builder{Code: code}.Build())
 	x.Equal(codes.Unauthenticated, status.Code(err), "nobody is told without a session")

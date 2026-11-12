@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"slices"
-	"strings"
 	"time"
 
 	"github.com/lesomnus/otx/log"
@@ -17,12 +16,15 @@ import (
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 )
 
-// A workspace's address: `/@<alias>` (design 9.11, D28, D29).
+// A workspace's address: its alias (design 9.11, D29) -- the tenant's at
+// roster, for the workspace `loft init` put up (D85) -- which is what an
+// operator names it by and what it is called where it keeps no name. No page
+// is at it: the deployment serves its one workspace at its root.
 //
-// Nobody chooses one. A workspace is given seven characters at random, and
-// keeps them: the owner cannot change them (the policy opens no write of it,
-// `server/domain`), and an operator can (`loft tenant move`), which holds the
-// old one for a year and sends whoever arrives at it on to the new one.
+// Nobody in it chooses one: the owner cannot change it (the policy opens no
+// write of it, `server/domain`), and an operator can (`loft tenant move`),
+// which holds the old one for a year. A workspace restored under an address
+// another has is given seven characters at random ([Aliases.Make]).
 
 // The characters an address is made up of: lower case letters and digits, less
 // the ones read for each other -- i, l and o, 0 and 1 -- since an address is
@@ -163,32 +165,4 @@ func (a Aliases) make(ctx context.Context, free func(context.Context, string) (b
 		}
 	}
 	return "", errors.New("workspaces: no address came free")
-}
-
-// Moved is where an address went, when a workspace was moved off it and the
-// hold says where to: followed a few steps, for an address moved twice.
-func (a Aliases) Moved(ctx context.Context, v string) (string, error) {
-	seen := map[string]bool{v: true}
-	to := ""
-	for range 5 {
-		h, err := a.Held(ctx, v)
-		if err != nil || h == nil || h.MovedTo == "" || seen[h.MovedTo] {
-			return to, err
-		}
-		to, v = h.MovedTo, h.MovedTo
-		seen[v] = true
-		live, err := a.Db.Tenant.Query().Where(enttenant.Alias(v)).Exist(ctx)
-		if err != nil {
-			return "", err
-		}
-		if live {
-			return to, nil
-		}
-	}
-	return to, nil
-}
-
-// fold is an address as it is compared.
-func fold(v string) string {
-	return strings.ToLower(strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), "@")))
 }

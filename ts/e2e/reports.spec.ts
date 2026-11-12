@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { card, expect, field, momentAt, owner, people, rpc, signIn, test, unique, workspace, type Reply } from './loft.js'
+import { card, expect, field, momentAt, owner, people, rpc, signIn, test, unique, type Reply } from './loft.js'
 import type { Locator, Page } from '@playwright/test'
 
 // The reports (design 9.14): one screen, a table each and its CSV. What each
@@ -11,7 +11,7 @@ import type { Locator, Page } from '@playwright/test'
 
 /** The reports screen, at the report named `tab`, as the navigation opens it. */
 async function report(page: Page, tab: string): Promise<void> {
-	await page.goto(`${workspace}/`)
+	await page.goto(`/`)
 	await page.getByRole('navigation').getByRole('link', { name: /리포트/ }).click()
 	await page.getByRole('tab', { name: tab }).click()
 }
@@ -116,7 +116,7 @@ test('what is late: two of a name, told apart by their teams wherever it is list
 
 	// The dashboard's card of what is late says it as the report does, and
 	// so does the list it leads to.
-	await page.goto(`${workspace}/`)
+	await page.goto(`/`)
 	const late = card(page, '연체된 대여')
 	for (const who of told) {
 		await expect(late.getByRole('listitem').filter({ hasText: who })).toContainText(today ? '오늘 지남' : '1일 지남')

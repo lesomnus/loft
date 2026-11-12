@@ -3,31 +3,30 @@ package cmd_test
 import (
 	"bytes"
 	"context"
+	"encoding/json"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
-	"uuid"
 
-	"github.com/lesomnus/payday/auth/authsession"
-	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/session"
 )
 
-// TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner is D57: the workspace an
-// account is given when it arrives has no name of its own -- its person's name
-// would be in a field the trail keeps as a value, where nothing that forgets
-// them reaches it -- and is called after its owner wherever it is read, as
-// they are called now, on the access record of whoever it is shown to.
-func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
+// TestAWorkspaceWithNoNameIsCalledAfterItsOwner is D57: a workspace put up
+// with no name -- neither `loft init --name` nor the tenant's at roster --
+// keeps none of its own, since its person's name would be in a field the
+// trail keeps as a value, where nothing that forgets them reaches it. It is
+// called after its owner wherever it is read, as they are called now, on the
+// access record of whoever it is shown to.
+func TestAWorkspaceWithNoNameIsCalledAfterItsOwner(t *testing.T) {
 	web := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<html></html>"), 0o644))
 	w := newWorldWith(t, func(c *cmd.Config) {
@@ -38,22 +37,18 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 	ctx := context.Background()
 	box := &mailbox{}
 	w.s.Deps.Mail = box
-	as := func(p identity.Person) context.Context {
-		_, c, err := w.s.Sessions.Mint(ctx, authsession.Session{Id: p.Id.String(), Grant: frame.Whole()})
-		x.NoError(err)
-		return metadata.AppendToOutgoingContext(ctx, "cookie", c.Name+"="+c.Value)
-	}
 	parties := app.NewPartyServiceClient(w.conn)
-	tenants := app.NewTenantServiceClient(w.conn)
 
-	park, err := w.s.Identity.AddPerson(ctx, "park", "박지민", pdid.Nil)
+	// The owner's person record, which is what they are called.
+	owner, err := w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "박지민", Kind: "person",
+		Holder: app.HolderRef_builder{Id: w.ownerHolder().GetId()}.Build(),
+	}.Build())
 	x.NoError(err)
-	x.NoError(w.s.Workspaces(w.c).Arrive(ctx, park))
-	asPark := as(park)
 
-	me, err := parties.Me(asPark, &app.PartyMeRequest{})
+	me, err := parties.Me(w.owner, &app.PartyMeRequest{})
 	x.NoError(err)
-	x.Equal("owner", me.GetRole())
 	x.Empty(me.GetTenant().GetName(), "the workspace holds nobody's name")
 	x.Equal("박지민의 워크스페이스", me.GetWorkspaceName(), "and is called after its owner")
 	ws, err := pdid.From(me.GetTenant().GetId())
@@ -70,147 +65,115 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 
 	// The name they go by now: renamed, the workspace is called after the
 	// new one.
-	_, err = parties.Update(asPark, app.PartyUpdateRequest_builder{
-		Ref:  app.PartyRef_builder{Id: me.GetParty().GetId()}.Build(),
+	_, err = parties.Update(w.owner, app.PartyUpdateRequest_builder{
+		Ref:  app.PartyRef_builder{Id: owner.GetId()}.Build(),
 		Name: "박서준",
 	}.Build())
 	x.NoError(err)
-	me, err = parties.Me(asPark, &app.PartyMeRequest{})
+	me, err = parties.Me(w.owner, &app.PartyMeRequest{})
 	x.NoError(err)
 	x.Equal("박서준의 워크스페이스", me.GetWorkspaceName())
 
-	// A member is told it in their account and in the workspace, and both
-	// say whose name they showed.
-	kim, err := w.s.Identity.AddPerson(ctx, "kim", "김", pdid.Nil)
-	x.NoError(err)
-	kh := w.member(me.GetTenant(), kim, "member")
-	asKim := as(kim)
-	acc, err := tenants.Mine(asKim, &app.TenantMineRequest{})
-	x.NoError(err)
-	x.Len(acc.GetWorkspaces(), 1)
-	x.Equal("박서준의 워크스페이스", acc.GetWorkspaces()[0].GetName())
-	rs := w.accessed(t, app.TenantService_Mine_FullMethodName)
-	x.Len(rs, 1, "the account's answer showed the owner's name")
-	x.Equal(ws.Uuid(), rs[0].TenantId)
+	// A member is told it, and the call says whose name it showed.
+	kh := w.holder("kim", "member")
 	kid, err := pdid.From(kh.GetId())
 	x.NoError(err)
-	x.Equal(kim.Id.Uuid(), rs[0].ActorId, "by the account, which asked as itself (payday#184)")
-	x.Equal(uuid.UUID{}, rs[0].ActorTenantId, "in no workspace")
-	x.Equal("read", rs[0].Kind)
-	x.Contains(rs[0].Subjects, me.GetParty().GetId(), "of the owner's person record")
-
-	seen, err := parties.Me(asKim, &app.PartyMeRequest{})
+	seen, err := parties.Me(w.signIn(kh), &app.PartyMeRequest{})
 	x.NoError(err)
 	x.Equal("박서준의 워크스페이스", seen.GetWorkspaceName())
 	found := false
 	for _, v := range w.accessed(t, app.PartyService_Me_FullMethodName) {
 		if v.ActorId == kid.Uuid() {
-			x.Contains(v.Subjects, me.GetParty().GetId(), "Me showed the member the owner's name")
+			x.Contains(v.Subjects, owner.GetId(), "Me showed the member the owner's name")
 			found = true
 		}
 	}
 	x.True(found, "the member's Me is not on the record")
 
-	// An invitation out of it, in the mail and in the inbox of the account
-	// it is addressed to.
-	lee, err := w.s.Identity.AddPerson(ctx, "lee", "이", pdid.Nil)
-	x.NoError(err)
-	x.NoError(w.s.Identity.AddAddress(ctx, lee.Id, "lee@example.com", true))
-	_, err = app.NewInvitationServiceClient(w.conn).Add(asPark, app.InvitationAddRequest_builder{
+	// What `GET /session` says of it -- for the page of a closed one, which
+	// no call is there to say otherwise -- is its address, and shows nobody.
+	rec := w.page(w.signIn(kh), http.MethodGet, "/session")
+	x.Equal(http.StatusOK, rec.Code, rec.Body.String())
+	var said session.Answer
+	x.NoError(json.Unmarshal(rec.Body.Bytes(), &said))
+	x.Equal(w.tenant.GetAlias(), said.Workspace.Name)
+
+	// An invitation out of it, in the mail.
+	_, err = app.NewInvitationServiceClient(w.conn).Add(w.owner, app.InvitationAddRequest_builder{
 		Tenant: ref, Email: "lee@example.com", Role: "member",
 	}.Build())
 	x.NoError(err)
 	x.Len(box.sent, 1)
 	x.Equal("박서준님이 Loft의 박서준의 워크스페이스에 초대했습니다", box.sent[0].Subject)
 	x.Contains(box.sent[0].Body, "박서준님이 Loft의 박서준의 워크스페이스에 구성원으로 초대했습니다.")
-	inbox, err := app.NewInvitationServiceClient(w.conn).Inbox(as(lee), app.InvitationInboxRequest_builder{}.Build())
-	x.NoError(err)
-	x.Len(inbox.GetItems(), 1)
-	x.Equal("박서준의 워크스페이스", inbox.GetItems()[0].GetTenant().GetName())
-	found = false
-	for _, v := range w.accessed(t, app.InvitationService_Inbox_FullMethodName) {
-		if v.TenantId == ws.Uuid() {
-			x.Contains(v.Subjects, me.GetParty().GetId(), "the inbox showed the owner's name")
-			found = true
-		}
-	}
-	x.True(found, "the inbox is not on the workspace's record")
-
-	// One the account makes has the name it chose, and saying it shows
-	// nobody: its account's answer is on the record of the one called after
-	// its owner alone.
-	lab, err := tenants.Create(asPark, app.TenantCreateRequest_builder{Name: "연구실"}.Build())
-	x.NoError(err)
-	x.Equal("연구실", lab.GetName())
-	acc, err = tenants.Mine(asPark, &app.TenantMineRequest{})
-	x.NoError(err)
-	x.Len(acc.GetWorkspaces(), 2)
-	x.Equal("박서준의 워크스페이스", acc.GetWorkspaces()[0].GetName())
-	x.Equal("연구실", acc.GetWorkspaces()[1].GetName())
-	rs = w.accessed(t, app.TenantService_Mine_FullMethodName)
-	x.Len(rs, 2, "a row for each answer that showed somebody")
-	x.Equal(ws.Uuid(), rs[1].TenantId, "and of the workspace that did")
 }
 
-// TestAWorkspaceIsRenamedByItsOwnerAlone is D58 over the wire: the owner of the
-// workspace an account was given names it, and it is called so wherever it is
-// read -- showing nobody -- and takes the name back, and it is called after
-// its owner again (D57). An administrator of it may not: what it is called is
-// its owner's to say, as all of TenantService's writes are. And the general
-// write stays closed.
+// TestAWorkspaceIsRenamedByItsOwnerAlone is D58 over the wire: the owner of a
+// workspace names it, and it is called so wherever it is read -- showing
+// nobody -- and takes the name back, and it is called after its owner again
+// (D57). An administrator of it may not: what it is called is its owner's to
+// say, as all of TenantService's writes are. And the general write stays
+// closed.
 func TestAWorkspaceIsRenamedByItsOwnerAlone(t *testing.T) {
 	web := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<html></html>"), 0o644))
 	w := newWorldWith(t, func(c *cmd.Config) { c.App.Web = web })
 	x := w.x
 	ctx := context.Background()
-	as := func(p identity.Person) context.Context {
-		_, c, err := w.s.Sessions.Mint(ctx, authsession.Session{Id: p.Id.String(), Grant: frame.Whole()})
-		x.NoError(err)
-		return metadata.AppendToOutgoingContext(ctx, "cookie", c.Name+"="+c.Value)
-	}
 	parties := app.NewPartyServiceClient(w.conn)
 	tenants := app.NewTenantServiceClient(w.conn)
+	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
+
+	owner, err := w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
+		Tenant: ref, Name: "박지민", Kind: "person",
+		Holder: app.HolderRef_builder{Id: w.ownerHolder().GetId()}.Build(),
+	}.Build())
+	x.NoError(err)
+	kh := w.holder("kim", "admin")
+	kid, err := pdid.From(kh.GetId())
+	x.NoError(err)
+	asKim := w.signIn(kh)
 	called := func(as context.Context) (string, string) {
 		me, err := parties.Me(as, &app.PartyMeRequest{})
 		x.NoError(err)
-		acc, err := tenants.Mine(as, &app.TenantMineRequest{})
-		x.NoError(err)
-		x.Len(acc.GetWorkspaces(), 1)
-		return me.GetWorkspaceName(), acc.GetWorkspaces()[0].GetName()
+		rec := w.page(as, http.MethodGet, "/session")
+		x.Equal(http.StatusOK, rec.Code, rec.Body.String())
+		var said session.Answer
+		x.NoError(json.Unmarshal(rec.Body.Bytes(), &said))
+		return me.GetWorkspaceName(), said.Workspace.Name
 	}
-
-	park, err := w.s.Identity.AddPerson(ctx, "park", "박지민", pdid.Nil)
-	x.NoError(err)
-	x.NoError(w.s.Workspaces(w.c).Arrive(ctx, park))
-	asPark := as(park)
-	me, err := parties.Me(asPark, &app.PartyMeRequest{})
-	x.NoError(err)
-	ref := app.TenantRef_builder{Id: me.GetTenant().GetId()}.Build()
-	kim, err := w.s.Identity.AddPerson(ctx, "kim", "김", pdid.Nil)
-	x.NoError(err)
-	w.member(me.GetTenant(), kim, "admin")
-	asKim := as(kim)
+	showedOwner := func() bool {
+		shown := false
+		for _, v := range w.accessed(t, app.PartyService_Me_FullMethodName) {
+			if v.ActorId == kid.Uuid() {
+				shown = false
+				for _, s := range v.Subjects {
+					shown = shown || bytes.Equal(s, owner.GetId())
+				}
+			}
+		}
+		return shown
+	}
 
 	_, err = tenants.Configure(asKim, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("김의 장비")}.Build())
 	x.Equal(codes.PermissionDenied, status.Code(err), "named by an administrator")
-	_, err = tenants.Patch(asPark, app.TenantPatchRequest_builder{Ref: ref, Name: z.Ptr("연구실 장비"), DateUpdatedForce: z.Ptr(true)}.Build())
+	_, err = tenants.Patch(w.owner, app.TenantPatchRequest_builder{Ref: ref, Name: z.Ptr("연구실 장비"), DateUpdatedForce: z.Ptr(true)}.Build())
 	x.Equal(codes.Unimplemented, status.Code(err), "named by the general write")
 
-	v, err := tenants.Configure(asPark, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("연구실 장비")}.Build())
+	v, err := tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("연구실 장비")}.Build())
 	x.NoError(err)
 	x.Equal("연구실 장비", v.GetName())
-	for _, who := range []context.Context{asPark, asKim} {
-		inside, outside := called(who)
+	for _, who := range []context.Context{w.owner, asKim} {
+		inside, said := called(who)
 		x.Equal("연구실 장비", inside)
-		x.Equal("연구실 장비", outside)
+		x.Equal("연구실 장비", said)
 	}
-	x.Empty(w.accessed(t, app.TenantService_Mine_FullMethodName), "its own name shows nobody")
+	x.False(showedOwner(), "its own name shows nobody")
 
-	_, err = tenants.Configure(asPark, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("")}.Build())
+	_, err = tenants.Configure(w.owner, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("")}.Build())
 	x.NoError(err)
-	inside, outside := called(asKim)
+	inside, said := called(asKim)
 	x.Equal("박지민의 워크스페이스", inside)
-	x.Equal("박지민의 워크스페이스", outside)
-	x.Len(w.accessed(t, app.TenantService_Mine_FullMethodName), 1, "called after its owner again, which shows them")
+	x.Equal(w.tenant.GetAlias(), said, "its address, where no call is there to say more")
+	x.True(showedOwner(), "called after its owner again, which shows them")
 }

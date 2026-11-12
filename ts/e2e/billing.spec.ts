@@ -1,13 +1,17 @@
 import type { APIRequestContext, Page } from '@playwright/test'
 
-import { card, choose, expect, field, makeWorkspace, owner, people, refused, said, signIn, test, unique, workspace, workspacesOf } from './loft.js'
+import { card, choose, expect, field, owner, people, refused, rpc, said, session, signIn, test, unique, type Session } from './loft.js'
 
 // Run against the server that bills (playwright.config.ts): to a levyan of
 // the test's own (e2e/levyan.sh, internal/levyantest). Nothing reaches
 // levyan's. What a payer does where a payer pays -- a billing account opened,
 // an offer accepted -- is none of this deployment's (D81), and nor is who
-// made a workspace, which the portal tells levyan (D84): the test has its
+// made the workspace, which the portal tells levyan (D84): the test has its
 // levyan say it.
+//
+// The server serves one workspace (D85), and every test here is about it: one
+// after another, as the tests of a file run, each from what levyan says of a
+// workspace it has just met (`meet`).
 
 /** Has the test's levyan say something of a workspace (cmd/levyantest). */
 async function levyan(request: APIRequestContext, what: string, q: Record<string, string>): Promise<void> {
@@ -17,32 +21,42 @@ async function levyan(request: APIRequestContext, what: string, q: Record<string
 }
 
 /**
- * A workspace of its own, made by whoever `page` is signed in as -- who pays
- * for it from then, as the portal tells levyan (D84).
+ * The workspace as levyan has just met it: what it was told of who pays and
+ * how, what its operator gave and the readings a test had it keep forgotten,
+ * and the grants it gave ended -- once this deployment's copy of them has
+ * heard (`loft.restricted`, `loft.readonly`). Signed in as its owner.
  */
-async function made(page: Page, request: APIRequestContext, name: string): Promise<{ id: string; alias: string }> {
-	const ws = await makeWorkspace(page, name)
-	await levyan(request, 'arrive', { workspace: ws.id, account: await accountOf(page) })
-	return ws
+async function meet(page: Page, request: APIRequestContext): Promise<Session> {
+	await levyan(request, 'reset', {})
+	await signIn(page, owner.login, owner.password)
+	await expect
+		.poll(
+			async () => {
+				const me = await rpc(page, 'PartyService/Me', {})
+				return Boolean(me.restricted) || Boolean(me.readonly)
+			},
+			{ message: "what levyan ended reached this deployment's copy" },
+		)
+		.toBe(false)
+	return session(page)
 }
 
-/** The roster account whoever `page` is signed in as is, as `GET /account` says. */
-async function accountOf(page: Page): Promise<string> {
-	const res = await page.request.get('/account')
-	expect(res.ok(), await res.text()).toBeTruthy()
-	return ((await res.json()) as { id: string }).id
+/** Who pays for the workspace from now: its owner, as the portal tells levyan (D84). */
+async function arrive(request: APIRequestContext, s: Session): Promise<void> {
+	await levyan(request, 'arrive', { workspace: s.workspace.id, account: s.id })
+}
+
+/** {@link meet}, and {@link arrive}: what most tests here start from. */
+async function fresh(page: Page, request: APIRequestContext): Promise<Session> {
+	const s = await meet(page, request)
+	await arrive(request, s)
+	return s
 }
 
 test('the owner sees who pays and what was used, and the member they ask pays from the next period once they accept', async ({ page, request }) => {
-	await signIn(page, owner.login, owner.password)
-	const acme = (await workspacesOf(page)).find((w) => `/@${w.alias}` === workspace)
-	expect(acme).toBeDefined()
-	await page.goto(`${workspace}/settings?tab=billing`)
-
-	// Who made the workspace -- who pays for it from then -- is what the
-	// portal tells levyan (D84).
-	await levyan(request, 'arrive', { workspace: acme?.id ?? '', account: await accountOf(page) })
-	await page.reload()
+	// Who pays for it is what the portal tells levyan (D84).
+	const s = await fresh(page, request)
+	await page.goto('/settings?tab=billing')
 	const payer = card(page, '결제 담당')
 	await expect(payer).toContainText('지금 내는 사람')
 	await expect(payer).toContainText('나 ·')
@@ -63,17 +77,16 @@ test('the owner sees who pays and what was used, and the member they ask pays fr
 	await expect(payer.getByRole('link')).toHaveCount(0)
 
 	// They accept it there.
-	await levyan(request, 'accept', { workspace: acme?.id ?? '' })
+	await levyan(request, 'accept', { workspace: s.workspace.id })
 	await page.reload()
 	await expect(card(page, '결제 담당')).toContainText(`다음 기간부터${people.member.name}`)
 })
 
 test('a workspace nobody pays for says so above every page, and that it is restricted once its day passed', async ({ page, request }) => {
-	await signIn(page, people.workspaces.login)
-	const ws = await made(page, request, unique('e2e 결제 담당 없음'))
+	const ws = (await fresh(page, request)).workspace
 
 	await levyan(request, 'payerless', { workspace: ws.id, from: new Date(Date.now() + 30 * 24 * 3600_000).toISOString() })
-	await page.goto(`/@${ws.alias}/`)
+	await page.goto('/')
 	const banner = page.getByRole('alert')
 	await expect(banner).toContainText('이 워크스페이스에는 결제 담당이 없습니다.')
 	await expect(banner).toContainText('제한되어 자산 등록, 초대, 첨부 올리기처럼')
@@ -90,16 +103,15 @@ test('a workspace nobody pays for says so above every page, and that it is restr
 	await expect(card(page, '결제 담당')).toContainText('부터는 읽기 전용이 됩니다.')
 })
 
-test('a write a restricted workspace refused is said above every page, to whoever made it', async ({ page, request }) => {
-	await signIn(page, people.stock.login)
-	const ws = await made(page, request, unique('e2e 제한'))
+test('a write a restricted workspace refused is said above every page, to whoever runs it', async ({ page, request }) => {
+	const ws = (await fresh(page, request)).workspace
 	await levyan(request, 'restrict', { workspace: ws.id })
 
 	// levyan's grant reaches this deployment's copy a moment later.
 	await expect
 		.poll(async () => {
 			const res = await page.request.post('/loft.AssetService/Add', {
-				headers: { 'connect-protocol-version': '1', 'loft-workspace': ws.alias },
+				headers: { 'connect-protocol-version': '1' },
 				data: { name: unique('e2e 노트북') },
 			})
 			return res.status()
@@ -108,7 +120,7 @@ test('a write a restricted workspace refused is said above every page, to whoeve
 
 	// Every member's page says so as it is drawn, by the copy its writes are
 	// held to, and the write is refused all the same.
-	await page.goto(`/@${ws.alias}/assets`)
+	await page.goto('/assets')
 	const banner = page.getByRole('alert')
 	await expect(banner).toContainText('이 워크스페이스는 제한되었습니다.')
 	await expect(banner).toContainText('청구되는 것을 늘리는 일을 할 수 없습니다')
@@ -121,11 +133,10 @@ test('a write a restricted workspace refused is said above every page, to whoeve
 })
 
 test('a workspace made read-only says so above every page, and refuses a write as the page makes it', async ({ page, request }) => {
-	await signIn(page, people.readOnly.login)
-	const ws = await made(page, request, unique('e2e 읽기 전용'))
+	const ws = (await fresh(page, request)).workspace
 	const add = (name: string) =>
 		page.request.post('/loft.AssetService/Add', {
-			headers: { 'connect-protocol-version': '1', 'loft-workspace': ws.alias },
+			headers: { 'connect-protocol-version': '1' },
 			data: { name },
 		})
 	const laptop = unique('e2e 노트북')
@@ -141,7 +152,7 @@ test('a workspace made read-only says so above every page, and refuses a write a
 	// it is read, taken out, paid for and left -- and where to go
 	// about it. Not that nothing else is changed: what is a person's own is
 	// (design 7.13, 7.14).
-	await page.goto(`/@${ws.alias}/assets`)
+	await page.goto('/assets')
 	const banner = page.getByRole('alert')
 	await expect(banner).toContainText('이 워크스페이스는 읽기 전용입니다.')
 	await expect(banner).toContainText('워크스페이스의 데이터는 바꿀 수 없습니다. 보기, 내보내기, 결제, 떠나기는 할 수 있습니다.')
@@ -156,10 +167,10 @@ test('a workspace made read-only says so above every page, and refuses a write a
 
 	// What a person is told stays theirs (design 7.13): marked read, and kept
 	// off their mail.
-	await page.goto(`/@${ws.alias}/notifications`)
+	await page.goto('/notifications')
 	await page.getByRole('button', { name: '모두 읽음' }).click()
 	await said(page, '모두 읽음으로 표시했습니다.')
-	await page.goto(`/@${ws.alias}/me`)
+	await page.goto('/me')
 	const mail = page.getByRole('checkbox', { name: '알림을 메일로도 받기' })
 	await expect(mail).toBeChecked()
 	// The box says what the server answered, and turns once it has: clicked,
@@ -170,11 +181,10 @@ test('a workspace made read-only says so above every page, and refuses a write a
 })
 
 test('an invoice billing a workspace whose charge failed is said above its pages, that it is restricted once its day passed, and read-only once that one did', async ({ page, request }) => {
-	await signIn(page, people.counts.login)
-	const ws = await made(page, request, unique('e2e 결제 실패'))
+	const ws = (await fresh(page, request)).workspace
 
 	await levyan(request, 'dunning', { workspace: ws.id, kind: 'temporary', restricted: new Date(Date.now() + 7 * 24 * 3600_000).toISOString() })
-	await page.goto(`/@${ws.alias}/`)
+	await page.goto('/')
 	const banner = page.getByRole('alert')
 	await expect(banner).toContainText('이 워크스페이스를 청구한 청구서의 결제가 실패했습니다.')
 	await expect(banner).toContainText('까지 결제되지 않으면 제한되어')
@@ -209,14 +219,15 @@ test('an invoice billing a workspace whose charge failed is said above its pages
 })
 
 test('a billing account that cannot be collected from yet is said above the workspace it pays for, to whoever runs it, before anything fails', async ({ page, request }) => {
-	await signIn(page, people.collects.login)
+	const s = await meet(page, request)
 
 	// Opened where a payer pays, before the workspace it pays for, which is
 	// paid for with it from when it was made.
-	await levyan(request, 'account', { account: await accountOf(page), name: '회사용' })
-	const ws = await made(page, request, unique('e2e 결제수단 없음'))
+	await levyan(request, 'account', { account: s.id, name: '회사용' })
+	await arrive(request, s)
+	const ws = s.workspace
 
-	await page.goto(`/@${ws.alias}/`)
+	await page.goto('/')
 	const banner = page.getByRole('status').filter({ hasText: '이 워크스페이스를 내는 결제 계정으로 지금 결제할 수 없습니다' })
 	await expect(banner).toBeVisible()
 	await expect(banner).toContainText('결제수단 없음.')
@@ -233,13 +244,13 @@ test('a billing account that cannot be collected from yet is said above the work
 
 	// A charge the merchant failed and tries again.
 	await levyan(request, 'collection', { workspace: ws.id, state: 'past_due' })
-	await page.goto(`/@${ws.alias}/`)
+	await page.goto('/')
 	await expect(banner).toContainText('결제 실패, 다시 시도 중.')
 	await expect(banner).toContainText('Paddle이 보낸 메일에서 결제수단을 바꿀 수 있습니다.')
 
 	// And once it can be collected, nothing is said above the workspace.
 	await levyan(request, 'collection', { workspace: ws.id, state: 'collectable' })
-	await page.goto(`/@${ws.alias}/settings?tab=billing`)
+	await page.goto('/settings?tab=billing')
 	await expect(card(page, '결제 담당')).toContainText('결제 가능')
 	await expect(banner).toHaveCount(0)
 })
@@ -259,13 +270,12 @@ async function lastDays(page: Page, ...ends: string[]): Promise<string[]> {
 }
 
 test("what levyan's operator gave a workspace is said to whoever runs it, and each line says what it gave and took", async ({ page, request }) => {
-	await signIn(page, people.benefits.login)
-	const ws = await made(page, request, unique('e2e 혜택'))
+	const ws = (await fresh(page, request)).workspace
 
-	// What levyan was handed of it -- the deployment measures a workspace it
-	// made at midnight -- and what its operator gave it from the period
-	// before: 500 more assets each period, a pool of 10,000 asset-months,
-	// and 70,000원 of credit.
+	// What levyan was handed of it, later than what the deployment handed it
+	// as it started, and what its operator gave it from the period before:
+	// 500 more assets each period, a pool of 10,000 asset-months, and
+	// 70,000원 of credit.
 	const from = monthStart(-1)
 	const until = monthStart(6)
 	const expires = monthStart(12)
@@ -278,7 +288,7 @@ test("what levyan's operator gave a workspace is said to whoever runs it, and ea
 	// for past the 500 included: 700.
 	await levyan(request, 'close', { workspace: ws.id })
 
-	await page.goto(`/@${ws.alias}/settings?tab=billing`)
+	await page.goto('/settings?tab=billing')
 	const [untilDay, expiresDay] = await lastDays(page, until, expires)
 	const usage = card(page, '이번 기간 사용량과 예상 금액')
 	await expect(usage.getByRole('listitem').filter({ hasText: '프로모션 무료량' })).toHaveText(`프로모션 무료량: 활성 자산 +500개 (${untilDay}까지)`)
@@ -336,9 +346,7 @@ test.describe('on a phone', () => {
 	test.use({ viewport: { width: 390, height: 844 } })
 
 	test("a workspace's billing settings never scroll sideways, nor the offer its owner makes there", async ({ page, request }) => {
-		await signIn(page, people.phoneOwner.login)
-		const name = unique('e2e 휴대폰 설정')
-		const ws = await made(page, request, name)
+		const ws = (await fresh(page, request)).workspace
 		// Nobody pays for it; it was used and given more, and credited, and its
 		// period before closed.
 		await levyan(request, 'payerless', { workspace: ws.id, from: new Date(Date.now() + 30 * 24 * 3600_000).toISOString() })
@@ -350,7 +358,7 @@ test.describe('on a phone', () => {
 		await levyan(request, 'credit', { workspace: ws.id, amount: '70000', expires: monthStart(12) })
 		await levyan(request, 'close', { workspace: ws.id })
 
-		await page.goto(`/@${ws.alias}/settings?tab=billing`)
+		await page.goto('/settings?tab=billing')
 		await expect(page.getByRole('alert')).toContainText('이 워크스페이스에는 결제 담당이 없습니다.')
 		await expect(card(page, '결제 담당')).toContainText('결제 담당이 없습니다.')
 		await expect(card(page, '이번 기간 사용량과 예상 금액').getByRole('row').filter({ hasText: '활성 자산' })).toBeVisible()
@@ -367,7 +375,7 @@ test.describe('on a phone', () => {
 		const offer = card(page, '결제 담당 제안')
 		await choose(field(offer, '제안할 구성원'), '(나)')
 		await offer.getByRole('button', { name: '제안', exact: true }).click()
-		await said(page, `${people.phoneOwner.name}님에게 결제 담당을 제안했습니다.`)
+		await said(page, `${owner.name}님에게 결제 담당을 제안했습니다.`)
 		await expect(card(page, '결제 담당')).toContainText('나 ·')
 		await onTheScreen(page)
 	})

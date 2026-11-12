@@ -1,5 +1,5 @@
-// Package session keeps browser sessions in the database, and signs an account
-// in once roster has checked its password (design 9.10).
+// Package session keeps browser sessions in the database, and signs somebody
+// in once roster has checked their password (design 9.10).
 //
 // A session row is bookkeeping, not a fact anybody audits: it is written
 // through ent directly, outside the trail, the way payday's own stores are.
@@ -7,13 +7,14 @@
 // recorded with its holder.
 //
 // The session is Loft's, so that it can be ended at once (report 3); the
-// account is roster's, so every call a session makes is held to what roster
-// says of it now: suspended, erased or signed out everywhere since it began is
-// a session that is over.
+// person is roster's, so every call a session makes is held to what roster
+// says of them now: suspended, erased or signed out everywhere since it began
+// is a session that is over.
 //
-// A session names an **account** and not a membership (D27). Which workspace a
-// call is about is the call's to say, and `cmd.Resolver` turns the account and
-// that workspace into the holder the call is served as.
+// A session names a **member** (D85): a holder of the roster tenant this
+// deployment serves, which is their membership of its workspace by the same
+// identifier, made the first time they sign in (`tenancy.Members`). Every call
+// is served as it (`cmd.Resolver`).
 package session
 
 import (
@@ -47,6 +48,7 @@ import (
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/clientaddr"
 	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Store is an [authsession.Store] over the Session table. The key is never
@@ -71,7 +73,7 @@ type Store struct {
 // Held is roster's word on whether a session that began at `began` is still
 // good: [identity.Store.Held].
 type Held interface {
-	Held(ctx context.Context, account pdid.Id, began time.Time) error
+	Held(ctx context.Context, member pdid.Id, began time.Time) error
 }
 
 var _ authsession.Store = Store{}
@@ -112,7 +114,7 @@ var whole = []byte("whole")
 // none, which is what a password and a terminal that asked for nothing get,
 // or payday's Grant listing the methods it may call (`loft auth login --allow`,
 // D33). Every tenant and every set: a terminal is narrowed by what it may do,
-// and where is its account's.
+// and where is its member's.
 func Grant(actions []string) ([]byte, error) {
 	if len(actions) == 0 {
 		return whole, nil
@@ -135,7 +137,7 @@ func Actions(b []byte) ([]string, error) {
 }
 
 // grantOf is what a row's grant allows, read back as payday reads one off a
-// token: an attenuation of whatever the account may do, which the gRPC chain
+// token: an attenuation of whatever the member may do, which the gRPC chain
 // holds every call to. A row says [whole] for none: every sign-in writes
 // one or the other.
 func grantOf(b []byte) (frame.Grant, error) {
@@ -154,7 +156,7 @@ func grantOf(b []byte) (frame.Grant, error) {
 }
 
 func (s Store) Put(ctx context.Context, v authsession.Session) error {
-	account, err := pdid.Parse(v.Id)
+	member, err := pdid.Parse(v.Id)
 	if err != nil {
 		return err
 	}
@@ -181,7 +183,7 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 
 	create := s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
-		SetAccount(account.Uuid()).
+		SetAccount(member.Uuid()).
 		SetSecret(s.Kept(v.Key)).
 		SetGrant(whole).
 		SetNillableDateIdle(nonzero(v.Idle)).
@@ -216,8 +218,7 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 			return authsession.Session{}, fmt.Errorf("%w: %w", auth.ErrUnavailable, err)
 		}
 	}
-	// No tenant: an account is in none, and which workspace a call is about
-	// is the call's to say.
+	// No tenant: the member's row says it, and the resolver reads that.
 	g, err := grantOf(v.Grant)
 	if err != nil {
 		return authsession.Session{}, fmt.Errorf("session: what it allows: %w", err)
@@ -248,10 +249,10 @@ func (s Store) Del(ctx context.Context, key string) error {
 
 // Adopt makes a session whose key somebody else holds: a terminal that made
 // one up and sent only its SHA-256 (`server/clilogin`), which is kept as
-// `kept` ([Store.KeptSum]). It is the row [Store.Put] writes, for an account,
+// `kept` ([Store.KeptSum]). It is the row [Store.Put] writes, for a member,
 // beginning now and good until `idle` and `expires`, narrowed to `grant`
 // ([Grant]; empty is [whole]), and the key is never seen here.
-func (s Store) Adopt(ctx context.Context, account pdid.Id, kept, grant []byte, idle, expires time.Time) error {
+func (s Store) Adopt(ctx context.Context, member pdid.Id, kept, grant []byte, idle, expires time.Time) error {
 	if len(kept) != sha256.Size {
 		return errors.New("session: a key is kept as an HMAC-SHA-256")
 	}
@@ -264,7 +265,7 @@ func (s Store) Adopt(ctx context.Context, account pdid.Id, kept, grant []byte, i
 	now := time.Now()
 	return s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
-		SetAccount(account.Uuid()).
+		SetAccount(member.Uuid()).
 		SetSecret(kept).
 		SetGrant(grant).
 		SetNillableDateIdle(nonzero(idle)).
@@ -274,11 +275,11 @@ func (s Store) Adopt(ctx context.Context, account pdid.Id, kept, grant []byte, i
 		Exec(ctx)
 }
 
-// End deletes an account's sessions that began before `before`, or all of
-// them when it is zero: what roster said of the account voids them, and a row
-// left would be a cookie answered with no until it ran out.
-func (s Store) End(ctx context.Context, account pdid.Id, before time.Time) (int, error) {
-	q := s.Db.Session.Delete().Where(session.Account(account.Uuid()))
+// End deletes a member's sessions that began before `before`, or all of them
+// when it is zero: what roster said of them voids them, and a row left would
+// be a cookie answered with no until it ran out.
+func (s Store) End(ctx context.Context, member pdid.Id, before time.Time) (int, error) {
+	q := s.Db.Session.Delete().Where(session.Account(member.Uuid()))
 	if !before.IsZero() {
 		q = q.Where(session.DateCreatedLT(before))
 	}
@@ -307,10 +308,9 @@ func nonzero(t time.Time) *time.Time {
 //
 //	{"login": "kim", "password": "..."}
 //
-// `login` is an account's alias in the directory, or the address it is
-// reached at: on the roster in this process the one on a person record here,
-// and on a roster of its own one it verified. Which workspace is not said:
-// a session is the account's, and every workspace it belongs to is open to it.
+// `login` is somebody's alias in the tenant at roster, or the address they
+// are reached at: on the roster in this process the one on a person record
+// here, and on a roster of its own one it verified.
 type Login struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
@@ -323,19 +323,22 @@ type People interface {
 	Embedded() bool
 }
 
-// Arrive is what an account signing in is given, once roster vouched for it:
-// a workspace of its own when it is in none ([tenancy.Workspaces.Arrive]).
-type Arrive func(ctx context.Context, p identity.Person) error
+// Members is who somebody roster vouched for is here: their membership, made
+// the first time they sign in ([tenancy.Members.Of]) -- [tenancy.ErrEnded]
+// for one ended here, [tenancy.ErrNoWorkspace] before `loft init`.
+type Members interface {
+	Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
+}
 
 // SignIn is `POST /session` and `DELETE /session`: a password roster checked,
-// what the account is given on arriving, then Loft's session cookie for it.
+// the membership it is here, then Loft's session cookie for it.
 //
 // A refusal is one answer whatever was wrong -- nobody by that name, the wrong
-// password, an address that keeps getting it wrong, an account roster has
+// password, an address that keeps getting it wrong, somebody roster has
 // locked -- and a roster that cannot be asked is another, since telling
 // somebody their password is wrong when nobody could check it is the answer
 // that sends them to reset it.
-func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arrive Arrive) http.Handler {
+func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, members Members) http.Handler {
 	failures := Failures{Db: db}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -353,8 +356,8 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 		// Asked as JSON, which a page of another site cannot do without this
 		// one agreeing to it first (CORS). A form can post anything else --
 		// `text/plain` whose body happens to be JSON -- and a sign-in it
-		// could post is somebody's browser signed in as an account of the
-		// form's choosing, which then keeps whatever they put in (loft#40).
+		// could post is somebody's browser signed in as a member of the
+		// form's choosing, who then keeps whatever they put in (loft#40).
 		if ct, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); ct != "application/json" {
 			http.Error(w, "asked as JSON", http.StatusUnsupportedMediaType)
 			return
@@ -399,15 +402,18 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 			log.From(ctx).WarnContext(ctx, "session: failures that could not be forgotten", slog.Any("err", err))
 		}
 
-		// A workspace that could not be made is not a sign-in refused: the
-		// account is who it is, and is told it is in no workspace.
-		if arrive != nil {
-			if err := arrive(ctx, p); err != nil {
-				log.From(ctx).ErrorContext(ctx, "session: an account arrived and was not given what it is given", slog.Any("err", err))
-			}
+		h, err := members.Of(ctx, p)
+		switch {
+		case errors.Is(err, tenancy.ErrEnded):
+			http.Error(w, "this login was ended here", http.StatusForbidden)
+			return
+		case err != nil:
+			log.From(ctx).ErrorContext(ctx, "session: somebody roster vouched for is no member here", slog.Any("err", err))
+			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
+			return
 		}
 
-		_, c, err := sessions.Mint(ctx, authsession.Session{Id: p.Id.String(), Grant: frame.Whole()})
+		_, c, err := sessions.Mint(ctx, authsession.Session{Id: pdid.Id(h.Id).String(), Grant: frame.Whole()})
 		if err != nil {
 			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
 			return
@@ -427,12 +433,12 @@ func verify(ctx context.Context, people People, db *ent.Client, in Login) (ident
 		// reached at is on their person record here, as it was before roster
 		// held them. An address nobody here has goes to roster as it is,
 		// which refuses it the way it refuses anybody.
-		account, err := accountAt(ctx, db, login)
+		member, err := memberAt(ctx, db, login)
 		if err != nil {
 			return identity.Person{}, err
 		}
-		if account != pdid.Nil {
-			p, err := people.ById(ctx, account.String())
+		if member != pdid.Nil {
+			p, err := people.ById(ctx, member.String())
 			switch {
 			case err == nil:
 				login = p.Alias
@@ -454,30 +460,30 @@ func verify(ctx context.Context, people People, db *ent.Client, in Login) (ident
 	return p, nil
 }
 
-// accountAt is the one account whose person records here have this address, in
-// any workspace, and nil for nobody or for more than one.
-func accountAt(ctx context.Context, db *ent.Client, address string) (pdid.Id, error) {
+// memberAt is the one member whose person record here has this address, and
+// nil for nobody or for more than one.
+func memberAt(ctx context.Context, db *ent.Client, address string) (pdid.Id, error) {
 	vs, err := db.Party.Query().
 		Where(
 			party.EmailEqualFold(address),
 			party.DateErasedIsNil(),
-			party.HasHolderWith(holder.DateErasedIsNil(), holder.AccountNotNil()),
+			party.HasHolderWith(holder.DateErasedIsNil()),
 		).
 		WithHolder().
 		All(ctx)
 	if err != nil {
 		return pdid.Nil, err
 	}
-	var account pdid.Id
+	var member pdid.Id
 	for _, v := range vs {
-		a := pdid.Id(*v.Edges.Holder.Account)
-		if account != pdid.Nil && account != a {
+		h := pdid.Id(v.Edges.Holder.Id)
+		if member != pdid.Nil && member != h {
 			return pdid.Nil, nil
 		}
-		account = a
+		member = h
 	}
 
-	return account, nil
+	return member, nil
 }
 
 // Failures is how many wrong answers a pair -- the address a sign-in came from
@@ -495,7 +501,7 @@ func accountAt(ctx context.Context, db *ent.Client, address string) (pdid.Id, er
 // requests that arrive together may each be the tenth. That is a limit held
 // to within the requests in flight, which is what it was in one process too.
 //
-// Roster's own lockout is the account's -- ten wrong in a row, whatever they
+// Roster's own lockout is the person's -- ten wrong in a row, whatever they
 // came from -- and this is the address's, which only Loft sees: roster is
 // asked by Loft, and every request reaches it from here.
 type Failures struct {

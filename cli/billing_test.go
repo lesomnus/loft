@@ -41,8 +41,7 @@ func TestAPurgeHandsLevyanTheWorkspacesFinalReading(t *testing.T) {
 
 	fake := levyantest.Start(t)
 	d := deployWith(t, func(c *cmd.Config) { c.App.Billing.Levyan = fake.Config() })
-	_, err = ran(t, cli.NewCmdInit(&d.c), "--tenant", "beta", "--login", "owner")
-	x.NoError(err)
+	cli.Elsewhere(t, d.c, "beta", "owner", false)
 	alive := func(alias string) bool {
 		v, err := d.s.Ent.Tenant.Query().Where(tenant.Alias(alias)).Exist(ctx)
 		x.NoError(err)
@@ -109,10 +108,10 @@ func (d *deployment) notices(t *testing.T) []*ent.LevyanNotice {
 	return vs
 }
 
-// TestWhatAnOperatorMakesTellsLevyanNothingOfWhoPays (D84): a workspace
-// `loft init` puts up -- with `--demo`'s teams and people in it -- and one
-// `tenant import` puts back are told to levyan by nobody here: who made it,
-// and who pays for it, is the portal's to tell it. What levyan grants one put
+// TestWhatAnOperatorMakesTellsLevyanNothingOfWhoPays (D84): the workspace
+// `loft init` puts up -- with `--demo`'s teams and people in it -- and put
+// back by `tenant import` is told to levyan by nobody here: who made it, and
+// who pays for it, is the portal's to tell it. What levyan grants one put
 // back is copied at once. An operator's `holder add` writes as the
 // deployment's work at their word, and a workspace levyan restricts takes it
 // (D60).
@@ -122,18 +121,14 @@ func TestWhatAnOperatorMakesTellsLevyanNothingOfWhoPays(t *testing.T) {
 	fake := levyantest.Start(t)
 	c := billed(t, fake)
 
-	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234", "--demo")
+	c.Auth.Roster.Tenant = "acme"
+	_, err := ran(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234", "--demo")
 	x.NoError(err)
 	d := entry(t, c)
 	v, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)
 	acme := pdid.Id(v.Id)
 	x.Empty(d.notices(t), "nothing of who made it")
-	// The owner is in another workspace too, so its account outlives the
-	// purge below.
-	_, err = ran(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
-	x.NoError(err)
-	x.Empty(d.notices(t))
 
 	// Restricted, and an operator's hand all the same.
 	fake.Restrict(acme)
@@ -179,7 +174,8 @@ func TestLevyanIsToldWhatAnOperatorEnds(t *testing.T) {
 	ctx := context.Background()
 	fake := levyantest.Start(t)
 	c := billed(t, fake)
-	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	c.Auth.Roster.Tenant = "acme"
+	_, err := ran(t, cli.NewCmdInit(&c), "--login", "owner", "--password", "owner1234")
 	x.NoError(err)
 	d := entry(t, c)
 	kinds := func() []string {

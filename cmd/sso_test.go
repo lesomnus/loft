@@ -17,10 +17,10 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/oidctest"
 	"github.com/lesomnus/loft/server/sso"
 )
@@ -106,23 +106,9 @@ func (w *ssoWorld) through(b *http.Client, query string) *http.Response {
 	return get(w.x, b, res.Header.Get("Location"))
 }
 
-// mine is what the account this browser is signed in as is in, asked as the
-// account with the browser's session (`TenantService.Mine`, D73).
-func (w *ssoWorld) mine(b *http.Client) *app.TenantMineResponse {
-	u, err := url.Parse(w.app.URL)
-	w.x.NoError(err)
-	cookies := []string{}
-	for _, c := range b.Jar.Cookies(u) {
-		cookies = append(cookies, c.Name+"="+c.Value)
-	}
-	v, err := app.NewTenantServiceClient(w.conn).Mine(metadata.AppendToOutgoingContext(context.Background(), "cookie", strings.Join(cookies, "; ")), &app.TenantMineRequest{})
-	w.x.NoError(err)
-	return v
-}
-
-// account is what `GET /account` answers this browser.
-func (w *ssoWorld) account(b *http.Client) (int, map[string]any) {
-	res, err := b.Get(w.app.URL + "/account")
+// who is what `GET /session` answers this browser.
+func (w *ssoWorld) who(b *http.Client) (int, map[string]any) {
+	res, err := b.Get(w.app.URL + "/session")
 	w.x.NoError(err)
 	defer res.Body.Close()
 	var v map[string]any
@@ -155,7 +141,7 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 
 	// The button: to the issuer, naming the connection, with PKCE and a
 	// nonce, and the state bound to this browser.
-	res = get(x, b, w.app.URL+"/sso/login?with=github&next="+url.QueryEscape("/@acme/assets?q=rack"))
+	res = get(x, b, w.app.URL+"/sso/login?with=github&next="+url.QueryEscape("/assets?q=rack"))
 	x.Equal(http.StatusFound, res.StatusCode)
 	to, err := url.Parse(res.Header.Get("Location"))
 	x.NoError(err)
@@ -184,7 +170,7 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	x.Equal(http.StatusFound, res.StatusCode)
 	res = get(x, b, res.Header.Get("Location"))
 	x.Equal(http.StatusSeeOther, res.StatusCode)
-	x.Equal("/@acme/assets?q=rack", res.Header.Get("Location"))
+	x.Equal("/assets?q=rack", res.Header.Get("Location"))
 
 	// The secret went in the header, as the client is registered, and the
 	// verifier for the challenge went with the code.
@@ -193,14 +179,18 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	x.Empty(form.Get("client_secret"), "the secret was sent in the body as well")
 	x.NotEmpty(form.Get("code_verifier"))
 
-	// Signed in as the account `sub` names, and given a workspace of its
-	// own for having none.
-	code, a := w.account(b)
+	// Signed in as the holder `sub` names, a member of the workspace from
+	// this first sign-in, by the same identifier (D85).
+	code, a := w.who(b)
 	x.Equal(http.StatusOK, code)
 	x.Equal("park", a["login"])
-	mine := w.mine(b)
-	x.Len(mine.GetWorkspaces(), 1)
-	x.Equal("박의 워크스페이스", mine.GetWorkspaces()[0].GetName())
+	x.Equal(park.Id.String(), a["id"])
+	members := func() int {
+		n, err := w.s.Ent.Holder.Query().Where(holder.Id(park.Id.Uuid())).Count(ctx)
+		x.NoError(err)
+		return n
+	}
+	x.Equal(1, members())
 
 	// Signing out ends the session here, then sends the browser to the
 	// issuer with the token it signed in with, which brings it back to `/`.
@@ -215,18 +205,26 @@ func TestSomebodySignsInThroughTheIssuer(t *testing.T) {
 	x.Equal(w.is.Issued()[0], end.Query().Get("id_token_hint"))
 	x.Equal(w.app.URL+"/", end.Query().Get("post_logout_redirect_uri"))
 
-	code, _ = w.account(b)
+	code, _ = w.who(b)
 	x.Equal(http.StatusUnauthorized, code, "the session outlived signing out")
 	res = get(x, b, end.String())
 	x.Equal(http.StatusFound, res.StatusCode, "the issuer would not send the browser back")
 	x.Equal(w.app.URL+"/", res.Header.Get("Location"))
 
-	// And the same account again is the same account, with the workspace it
-	// already has.
+	// And the same person again is the same member.
 	res = w.through(b, "with=google")
 	x.Equal(http.StatusSeeOther, res.StatusCode)
 	x.Equal("/", res.Header.Get("Location"))
-	x.Len(w.mine(b).GetWorkspaces(), 1)
+	x.Equal(1, members())
+
+	// Until their membership is ended here, which the sign-in page is told.
+	_, err = w.s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: park.Id.Bytes()}.Build())
+	x.NoError(err)
+	b = w.browser()
+	res = w.through(b, "with=google")
+	x.Equal("/?signin=ended", res.Header.Get("Location"))
+	code, _ = w.who(b)
+	x.Equal(http.StatusUnauthorized, code)
 }
 
 func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {
@@ -246,7 +244,7 @@ func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {
 		return n
 	}
 	signedIn := func(b *http.Client) bool {
-		code, _ := w.account(b)
+		code, _ := w.who(b)
 		return code == http.StatusOK
 	}
 
@@ -297,7 +295,7 @@ func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {
 		{"a token for another client", map[string]any{"aud": "another-app"}},
 		{"a token from another issuer", map[string]any{"iss": "https://elsewhere.example"}},
 		{"a token that has run out", map[string]any{"exp": 1700000000}},
-		{"a token naming nobody in the directory", map[string]any{"sub": pdid.New(1).String()}},
+		{"a token naming nobody in the tenant", map[string]any{"sub": pdid.New(1).String()}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			x := require.New(t)
@@ -368,7 +366,7 @@ func TestAPasswordIsNoWayInWhereTheIssuerIsTheOnlyOne(t *testing.T) {
 	w.is.Subject = park.Id.String()
 	b := w.browser()
 	x.Equal(http.StatusSeeOther, w.through(b, "with=google").StatusCode)
-	code, _ := w.account(b)
+	code, _ := w.who(b)
 	x.Equal(http.StatusOK, code)
 
 	t.Run("and with no issuer it is nobody's", func(t *testing.T) {
@@ -405,6 +403,6 @@ func TestASessionAPasswordMadeEndsHereAlone(t *testing.T) {
 	x.Equal(http.StatusSeeOther, res.StatusCode, string(body))
 	x.Equal("/", res.Header.Get("Location"))
 	x.Nil(w.is.Ended(), "the issuer was asked to end a session it never had")
-	code, _ := w.account(b)
+	code, _ := w.who(b)
 	x.Equal(http.StatusUnauthorized, code)
 }

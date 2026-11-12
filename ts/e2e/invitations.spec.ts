@@ -1,101 +1,59 @@
 import { readFile } from 'node:fs/promises'
 
-import { choose, escape, expect, field, people, said, signIn, test, unique } from './loft.js'
+import { choose, expect, field, owner, said, signIn, test, unique } from './loft.js'
 
-// Invitations (D30): the people who run a workspace invite an address into it;
-// the mail carries the way in; the account that opens it says yes or no, and
-// the workspace sees which.
+// Invitations (D30): the people who run a workspace invite an address into it,
+// the mail says who asked and where to sign in, and they see what they sent
+// and take it back. Nobody answers one here any more: who is a member is who
+// signs in as a holder of the tenant at roster (D85), and the rest goes with
+// #332.
 
-test('an invitation is sent, received by the link its mail carries, and accepted; another is denied', async ({ page, as, baseURL }) => {
-	const name = unique('e2e 초대하는 곳')
-	await signIn(page, people.inviter.login)
-
-	// A workspace of the inviter's own, which nobody else is in yet.
-	const switcher = page.locator('summary')
-	await switcher.click()
-	await page.getByRole('button', { name: '+ 새 워크스페이스' }).click()
-	await page.getByPlaceholder('워크스페이스 이름').fill(name)
-	await page.getByRole('button', { name: '만들기', exact: true }).click()
-	await expect(switcher).toHaveText(name)
-	const home = page.url()
+test('an invitation is sent and mailed, and seen and taken back by the people who run the workspace', async ({ page, baseURL }) => {
+	const to = `${unique('e2e-invited').replace(' ', '-')}@example.com`
+	await signIn(page, owner.login, owner.password)
 
 	await page.getByRole('navigation').getByRole('link', { name: /사람/ }).click()
-	for (const [who, role] of [
-		[people.invitee, '구성원'],
-		[people.declines, '매니저'],
-	] as const) {
-		await page.getByRole('button', { name: '+ 초대' }).click()
-		const invite = page.getByRole('dialog')
-		await field(invite, '이메일').fill(address(who))
-		await choose(field(invite, '역할'), role)
-		await invite.getByRole('button', { name: '초대 보내기' }).click()
-		await said(page, `${address(who)}에 초대를 보냈습니다.`)
-	}
+	await page.getByRole('button', { name: '+ 초대' }).click()
+	const invite = page.getByRole('dialog')
+	await field(invite, '이메일').fill(to)
+	await choose(field(invite, '역할'), '매니저')
+	await invite.getByRole('button', { name: '초대 보내기' }).click()
+	await said(page, `${to}에 초대를 보냈습니다.`)
+
+	// The mail: who asked, into what, and where to sign in.
+	const mail = await mailed(baseURL!, to)
+	expect(mail).toContain(`${owner.name}님이 Loft의`)
+	expect(mail).toContain('매니저로 초대했습니다')
+	expect(mail).toContain(baseURL!)
+
 	await page.getByRole('tab', { name: '초대' }).click()
-	const sent = page.getByRole('listitem')
-	await expect(sent.filter({ hasText: address(people.invitee) })).toContainText('기다리는 중')
-	await expect(sent.filter({ hasText: address(people.declines) })).toContainText('기다리는 중')
+	const sent = page.getByRole('listitem').filter({ hasText: to })
+	await expect(sent).toContainText('기다리는 중')
 
-	// The one it is for opens the link in their mail, signed in, and says yes.
-	const yes = await as(people.invitee.login)
-	await yes.goto(await mailed(baseURL!, address(people.invitee)))
-	await expect(yes.getByRole('heading', { name: '받은 초대' })).toBeVisible()
-	const offer = yes.getByRole('listitem').filter({ hasText: name })
-	await expect(offer).toContainText(`${people.inviter.name}님이 구성원으로 초대했습니다`)
-	await offer.getByRole('button', { name: '수락', exact: true }).click()
-	await expect(yes).toHaveURL(new RegExp(`^${escape(home)}$`))
-	await expect(yes.locator('summary')).toHaveText(name)
-
-	// The other opens theirs and goes back to their workspace first: what
-	// waits for an account is its own to ask, and is counted there.
-	const no = await as(people.declines.login)
-	await no.goto(await mailed(baseURL!, address(people.declines)))
-	const other = no.getByRole('listitem').filter({ hasText: name })
-	await expect(other).toContainText(`${people.inviter.name}님이 매니저로 초대했습니다`)
-	await no.getByRole('button', { name: '워크스페이스로 돌아가기' }).click()
-	await no.locator('summary').click()
-	const inbox = no.getByRole('link', { name: /받은 초대/ })
-	await expect(inbox).toContainText('1')
-
-	// And says no, and nothing is left waiting for them.
-	await inbox.click()
-	await other.getByRole('button', { name: '거절', exact: true }).click()
-	await expect(no.getByText('기다리는 초대가 없습니다.')).toBeVisible()
-
-	// What became of each, where it was sent from.
-	await page.reload()
-	await page.getByRole('tab', { name: '초대' }).click()
-	await expect(sent.filter({ hasText: address(people.invitee) })).toContainText('수락함')
-	await expect(sent.filter({ hasText: address(people.declines) })).toContainText('거절함')
-	// And who is in it now: the one who said yes, as what they were asked to be.
-	await page.getByRole('tab', { name: '조직도' }).click()
-	await expect(page.getByRole('listitem').filter({ hasText: people.invitee.name })).toContainText('구성원')
-	await expect(page.getByRole('listitem').filter({ hasText: people.declines.name })).toHaveCount(0)
+	// Taken back.
+	await sent.getByRole('button', { name: '초대 취소', exact: true }).click()
+	await page.getByRole('dialog').getByRole('button', { name: '초대 취소', exact: true }).click()
+	await said(page, '취소했습니다.')
+	await expect(sent).toContainText('취소함')
 })
 
-/** The address `--demo` gives a person. */
-function address(p: { login: string }): string {
-	return `${p.login}@example.com`
-}
-
 /**
- * The link the last invitation mailed to `to` carries. The server names no
+ * The last mail to `to`, as the server's log says it. The server names no
  * mail server, so it writes each mail to its log instead (server/mail), and
  * the log is where a test reads its mail: `e2e/serve.sh` keeps it in
  * test-results/loft-PORT.
  */
 async function mailed(baseURL: string, to: string): Promise<string> {
 	const log = `test-results/loft-${new URL(baseURL).port}/loft.log`
-	let link: string | undefined
+	let mail: string | undefined
 	await expect
 		.poll(
 			async () => {
-				const mails = (await readFile(log, 'utf8')).split('\n').filter((l) => l.includes('mail: not sent') && l.includes(`to=${to} `))
-				link = mails.at(-1)?.match(/https?:\/\/[^\s\\"]+\/invitations\?code=[A-Za-z0-9_-]+/)?.[0]
-				return link
+				mail = (await readFile(log, 'utf8')).split('\n').filter((l) => l.includes('mail: not sent') && l.includes(`to=${to} `)).at(-1)
+				return mail
 			},
 			{ message: `a mail to ${to} in ${log}` },
 		)
 		.toBeDefined()
-	return link!
+	return mail!
 }
