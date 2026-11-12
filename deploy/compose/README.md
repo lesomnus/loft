@@ -1,17 +1,20 @@
-# 운영 구성을 한 대에서 띄워 보기
+# Loft와 roster를 한 대에 띄우기 (self-hosted)
 
-운영 배포는 Kubernetes입니다(`deploy/k8s`). 이 디렉터리는 같은 이미지와 같은 설정을 `docker compose` 하나로 한 대에 띄워 봅니다. 운영의 모양을 로컬에서 시험하고, CI의 `bundle` 작업이 이미지·마이그레이션·두 복제본·프록시를 PR마다 확인하는 데 씁니다.
+직접 운영하는 배포의 모양입니다. **roster**가 Loft 곁에서 사람과 로그인을 맡고, 테넌트의 관리자가 roster의 화면(user console)에서 구성원을 넣고 뺍니다(design 9.10, D87). Loft는 그 테넌트에 설치된 앱이고, 테넌트의 키로 roster에 묻습니다. 운영의 기준은 Kubernetes(`deploy/k8s`)이고, 이 디렉터리는 같은 이미지와 같은 설정을 `docker compose` 하나로 한 대에 띄웁니다. CI의 `bundle` 작업이 roster부터 로그인까지 PR마다 그대로 확인합니다.
+
+**한 대에서 써 보기만 할 때**는 roster를 따로 띄우지 않아도 됩니다. Loft 프로세스 안의 roster(내장 roster)로 `loft init --demo` 를 하면 됩니다([저장소의 README](../../README.md#바로-써-보기)). 내장 roster는 시험과 개발, 써 보기용이고 사람을 넣고 빼는 화면이 없습니다. 사람이 쓰는 배포는 이 디렉터리의 모양입니다.
 
 | 서비스 | 하는 일 |
 | --- | --- |
-| `postgres` | PostgreSQL 18(공식 이미지). Loft와 내장 roster가 데이터베이스를 하나씩 씁니다(`loft`, `roster`) |
+| `postgres` | PostgreSQL 18(공식 이미지). Loft의 데이터베이스(`loft`)와, 사용자가 따로인 roster의 데이터베이스 둘(`roster`, `roster_control`)이 있습니다 |
+| `roster` | 사람, 로그인, 구성원인지가 이것의 것입니다. Loft는 compose 네트워크 안에서 gRPC(50051)로 묻고, 사람 화면(user console)은 Caddy를 거쳐 `ROSTER_DOMAIN`에서 열립니다. roster 운영자의 일은 상자에서 합니다(`docker compose exec roster roster …`) |
 | `migrate` | 이 빌드의 스키마로 테이블을 맞추고 끝납니다(`loft migrate`). 서버는 이것이 끝난 뒤에 뜨고, 스스로는 테이블을 바꾸지 않습니다(`db.migrate: false`) |
 | `loft` ×2 | `loft serve`. 백그라운드 작업은 리스로 한 대만 돌고(`spin.lease: postgres`), 변경 알림은 DB로 주고받습니다(`watch.broker: postgres`) |
 | `loft-admin` | 운영자 진입점. 호스트의 `127.0.0.1:8081`에만 열립니다 |
-| `caddy` | 80/443. Let's Encrypt 인증서를 받고 두 `loft`에 나눠 보냅니다 |
+| `caddy` | 80/443. Let's Encrypt 인증서를 받고, `LOFT_DOMAIN`은 두 `loft`에, `ROSTER_DOMAIN`은 roster의 화면에 보냅니다 |
 | `opensearch` | 선택. 켜면 검색을 OpenSearch와 한국어 분석기 nori가 답합니다(`compose.search.yaml`, 아래 "검색을 켜려면") |
 
-서버 한 대에 이대로 올릴 수도 있습니다(Let's Encrypt까지 됩니다). 그럴 때 붙일 것은 리눅스 서버 한 대(Docker와 compose), 그 서버를 가리키는 도메인(DNS A 레코드), 열린 80/443 포트입니다. 운영의 기준은 `deploy/k8s`입니다.
+서버 한 대에 이대로 올릴 수도 있습니다(Let's Encrypt까지 됩니다). 그럴 때 붙일 것은 리눅스 서버 한 대(Docker와 compose), 그 서버를 가리키는 도메인 둘(Loft의 것과 roster 화면의 것, DNS A 레코드), 열린 80/443 포트입니다. 운영의 기준은 `deploy/k8s`입니다.
 
 ## 채울 값
 
@@ -24,11 +27,16 @@ cp .env.example .env && chmod 600 .env
 | 값 | 무엇 | 만드는 법 |
 | --- | --- | --- |
 | `LOFT_DOMAIN` | 사람들이 여는 주소. 라벨 QR이 이 주소를 담으므로 **라벨을 인쇄하기 전에 정하고 바꾸지 않습니다**(loft#35) | |
-| `LOFT_TENANT` | 워크스페이스의 주소. 이 배포가 섬기는 내장 roster의 테넌트(`auth.roster.tenant`)이고 `loft init`이 세웁니다. 비우면 `loft`. **`init` 전에 정하고 바꾸지 않습니다** | |
-| `POSTGRES_PASSWORD` | DB 비밀번호. 영숫자만(DB 주소에 그대로 들어갑니다) | `openssl rand -hex 24` |
+| `ROSTER_DOMAIN` | roster 화면의 주소. 테넌트의 관리자가 여기서 구성원을 넣고 뺍니다. 세션 쿠키가 호스트에만 붙으므로 Loft와 다른 호스트입니다. Loft의 사람 화면이 이리로 갑니다(`auth.roster.console_url`) | |
+| `LOFT_TENANT` | 이 배포가 섬기는 roster 테넌트의 별칭(`auth.roster.tenant`). 그 테넌트가 곧 워크스페이스입니다(D85). roster에 먼저 만들고(아래 "처음 띄우기"), `loft init`이 세웁니다 | |
+| `POSTGRES_PASSWORD` | Loft의 DB 비밀번호. 영숫자만(DB 주소에 그대로 들어갑니다) | `openssl rand -hex 24` |
+| `ROSTER_DB_PASSWORD` | roster의 DB 사용자 비밀번호. Loft의 사용자는 roster의 행에 닿지 않습니다. 영숫자만 | `openssl rand -hex 24` |
+| `ROSTER_VOUCH_KEY` | roster가 2단계 인증의 비밀을 봉하는 키. 누가 2단계 인증을 쓰기 시작한 뒤에는 바꾸지 않고, **백업에 함께 넣습니다** | `openssl rand -base64 32` |
+| `ROSTER_KEY` | Loft가 roster에 묻는 키. 테넌트의 키(`rt_…`)이고, Loft를 테넌트에 설치한 뒤 `roster key add`가 한 번 보여 줍니다(아래). 그 전에는 비워 두고, 비어 있으면 Loft가 뜨지 않습니다 | |
 | `LOFT_SIGNING_KEY` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키([세션의 키](../../docs/dev/security.md#세션의-키)). 모든 서버가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
 | `LOFT_MAIL_*` | 알림 메일을 보낼 SMTP. 비우면 메일로 보내지 않고 앱에서만 알립니다 | |
 | `LOFT_VERSION` | 이미지 이름과 `loft version`이 말할 릴리스 이름 | `git describe --tags --always` |
+| `ROSTER_IMAGE` | roster의 이미지. 비우면 `compose.yaml`이 고른 것(이 빌드의 Loft와 맞는 roster)입니다. 운영에서는 digest로 고정합니다 | |
 
 ### `secrets/` (파일로 주는 키)
 
@@ -49,21 +57,41 @@ chmod 444 secrets/*   # 컨테이너 안의 사용자가 읽게. 디렉터리가
 
 - **감사 기록 보존 기간**(`audit.by`): 정하기 전에는 아무것도 보관소로 옮기거나 지우지 않습니다. 규제에 맞는 값을 고릅니다(plan M5 제안: 구성원 자격은 `pipa`).
 - `app.csp`: `report-only`로 시작합니다([콘텐츠 보안 정책](../../docs/dev/security.md#콘텐츠-보안-정책-csp)).
-- SSO(roster의 발급자, `auth.sso`)와 외부 roster(`auth.roster.addr`)는 이 구성에 없습니다. 지금은 Loft 안의 roster에 비밀번호로 로그인합니다.
+- roster는 곁의 `roster` 서비스입니다(`auth.roster.addr: roster:50051`, compose 네트워크 안이라 평문 gRPC). 사람은 roster의 비밀번호로 Loft에 로그인합니다. SSO(roster의 발급자, `auth.sso`)는 이 구성에 없습니다.
 
 ## 처음 띄우기
 
+roster가 먼저입니다. Loft는 roster의 테넌트에 설치되는 앱이고, 그 테넌트의 키로 뜨기 때문입니다.
+
 ```sh
+# 1. roster: 운영자, 테넌트와 그 관리자, 화면의 주소
+docker compose up -d postgres roster caddy
+roster() { docker compose exec -T roster /usr/local/bin/roster "$@"; }
+roster init                                            # roster 운영자 admin. 비밀번호를 한 번 보여 줍니다
+roster --as admin tenant add @acme '{"name": "ACME"}'  # 테넌트(.env의 LOFT_TENANT)와 그 관리자 admin
+roster vouch reset @acme/admin                         # 테넌트 관리자의 비밀번호. 한 번 보여 줍니다
+roster --as admin host add '{"tenant": {"alias": "acme"}, "name": "id.example.com"}'   # ROSTER_DOMAIN이 이 테넌트의 화면
+
+# 2. Loft를 그 테넌트에 설치하고, 테넌트의 키를 만듭니다
+m=/roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get
+m=$m,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
+m=$m,/roster.HolderService/Reaches,/roster.RoleService/Add,/roster.RoleService/Get,/roster.RoleService/Widen
+m=$m,'/loft.*/*'
+roster app install --tenant acme --role "$m" --administer '/loft.*/*' loft
+roster key add --tenant acme --holder loft --name loft --allow "$m"   # rt_… 를 한 번 보여 줍니다 → .env의 ROSTER_KEY
+
+# 3. Loft: 그 테넌트를 워크스페이스로 세우고, 테넌트의 관리자를 소유자로 둡니다
 docker compose up -d --build
 docker compose ps                     # migrate는 Exited (0), 나머지는 running
-
-# 워크스페이스와 소유자: 내장 roster의 테넌트(.env의 LOFT_TENANT, 비우면 loft)를 세웁니다.
-# --password를 빼면 만들어서 한 번 보여 줍니다.
-docker compose run --rm loft --config /etc/loft/loft.yaml init \
-  --name "ACME" --login owner --person "홍길동" --email owner@example.com
+docker compose run --rm loft --config /etc/loft/loft.yaml init --name "ACME"
 
 curl https://$LOFT_DOMAIN/healthz     # ok
 ```
+
+- **`m`** 은 Loft가 roster에 묻는 메서드(`identity.AgentMethods`), 그리고 Loft가 테넌트에 써 넣는 기본 역할(#334)을 쓰고 넓히는 데 드는 메서드입니다. `/loft.*/*` 를 쥐어야 자기 메서드로 된 역할을 쓸 수 있고, `--administer '/loft.*/*'` 가 있어야 테넌트의 관리자가 그 역할을 사람에게 줄 수 있습니다(roster `docs/apps.md` 의 *The roles an app ships*). 키는 허용한 메서드로도 좁혀지므로 `--allow` 에 같은 목록을 줍니다.
+- **소유자**는 `loft init --login` 의 사람이고, 기본은 테넌트를 만들 때 roster가 넣은 관리자 `admin` 입니다. 그 사람이 `https://$LOFT_DOMAIN` 에 roster의 비밀번호로 로그인합니다.
+- **구성원**은 테넌트의 관리자가 `https://$ROSTER_DOMAIN` 에 로그인해 roster의 화면에서 넣습니다. 넣은 사람이 처음 Loft에 로그인하면 구성원이 됩니다([관리자 안내서](../../docs/guide/admin.md#사람-들이기)).
+- roster 운영자의 명령은 상자에서, 그 운영자의 이름으로(`--as`) 합니다. roster의 접속기록이 그 사람을 남깁니다(roster `docs/operating.md` 의 *The CLI on the box is the deployment*).
 
 ## 검색을 켜려면 (OpenSearch)
 
@@ -127,7 +155,7 @@ LOFT_VERSION=$(git describe --tags --always) docker compose up -d --build
 
 | 볼륨 | 내용 |
 | --- | --- |
-| `postgres` | Loft와 roster의 DB |
+| `postgres` | Loft의 DB와 roster의 DB 둘(데이터 플레인과 컨트롤 플레인) |
 | `files` | 첨부 파일 |
 | `audit` | 감사 기록 보관소 |
 | `checkpoints` | 감사 기록 체크포인트. 삭제를 거부하는 디스크에 두면 더 좋습니다(`docs/runbook/trail-integrity.md`) |
@@ -135,9 +163,11 @@ LOFT_VERSION=$(git describe --tags --always) docker compose up -d --build
 | `caddy_data` | 인증서 |
 | `opensearch` | 검색 색인. 켰을 때만 있고, DB로 다시 만들 수 있어서 백업하지 않아도 됩니다 |
 
-백업할 것은 이 볼륨들과 `.env`, `secrets/`입니다. PostgreSQL 시점 복원, 백업을 다른 장소로 보내기, 복구 리허설은 loft#37입니다. DB를 백업에서 복원한 뒤에는 런북의 "DB를 백업에서 복원했을 때"를 따릅니다.
+백업할 것은 이 볼륨들과 `.env`(roster의 `ROSTER_VOUCH_KEY`까지), `secrets/`입니다. PostgreSQL 시점 복원, 백업을 다른 장소로 보내기, 복구 리허설은 loft#37입니다. DB를 백업에서 복원한 뒤에는 런북의 "DB를 백업에서 복원했을 때"를 따릅니다.
 
 ## 이 구성에 없는 것
+
+- roster의 발급자(Hydra와 Login App)를 거치는 SSO(`auth.sso`), roster의 front door(계정 페이지, `auth.roster.account_url`): roster의 `deploy/`와 `docs/operating.md`
 
 - 백업과 복구 리허설: loft#37
 - 관측(수집기, 대시보드, 경보): loft#38

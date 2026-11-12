@@ -60,7 +60,7 @@ levyan-admin meter add --unit d --kind stock --aggregation last --unbounded-zero
 
 - levyan이 답하지 않거나 늦으면(`timeout`) 그 값을 1분 뒤부터 점점 길게, 다음 자정 전까지 그대로 다시 보냅니다. levyan은 같은 값(워크스페이스, 미터, 잰 시각)을 한 번만 남기므로 다시 보내도 됩니다.
 - levyan이 거부한 값(가격표에 없는 미터, 미터의 것이 아닌 단위)은 경고 로그(`levyan: a reading was refused`)에 남기고 다시 보내지 않습니다. 가격표에 미터를 더하면 다음 측정부터 받습니다.
-- **연결:** 미터, 권한, 지불자 알림이 연결 하나를 씁니다. 권한의 스트림이 늘 열려 있으므로 5분마다 keepalive를 보냅니다. levyan의 `server.keepalive.min_time` 은 5분보다 짧아야 합니다(짧지 않으면 levyan이 `too_many_pings` 로 끊고, 사본은 다시 연결해 맞춥니다).
+- **연결:** 미터, 권한, 워크스페이스의 소식(닫기·되돌리기·파기)이 연결 하나를 씁니다. 권한의 스트림이 늘 열려 있으므로 5분마다 keepalive를 보냅니다. levyan의 `server.keepalive.min_time` 은 5분보다 짧아야 합니다(짧지 않으면 levyan이 `too_many_pings` 로 끊고, 사본은 다시 연결해 맞춥니다).
 
 ## 제한
 

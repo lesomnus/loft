@@ -8,7 +8,7 @@ Kubernetes 참조 배포(`deploy/k8s`)를 무엇으로 백업하고, 잃었을 �
 
 | 대상 | 들어 있는 곳 | 백업 | 주기 |
 | --- | --- | --- | --- |
-| Loft의 DB와 내장 roster의 DB | PostgreSQL | WAL 보관과 베이스 백업(CNPG의 barman-cloud 플러그인 → S3) | WAL은 계속, 베이스 백업은 매일 |
+| Loft의 DB(내장 roster로 쓸 때는 그 DB도) | PostgreSQL | WAL 보관과 베이스 백업(CNPG의 barman-cloud 플러그인 → S3) | WAL은 계속, 베이스 백업은 매일 |
 | 첨부 | `loft-files` 볼륨 | S3로 복사 | 매시 |
 | 감사 기록 보관소 | `loft-audit` 볼륨 | S3로 복사, 바뀐 파일은 거부 | 매시 |
 | 그 체크포인트 | `loft-checkpoints` 볼륨 | S3로 복사, 바뀐 파일은 거부. 아래 "체크포인트는 따로"도 봅니다 | 매시 |
@@ -65,9 +65,9 @@ spec:
           serverName: <원래 클러스터 이름>
 ```
 
-- 내장 roster의 DB도 같은 클러스터에 있으므로 함께 돌아옵니다.
+- 내장 roster로 쓰는 배포는 그 DB도 같은 클러스터에 있으므로 함께 돌아옵니다. roster를 곁에 둔 배포에서 사람과 비밀번호는 roster의 DB에 있고, 그 백업과 복구는 roster의 배포가 합니다(roster의 `docs/operating.md`).
 - 되살린 클러스터가 WAL을 보낼 곳은 **원래와 다른 이름**으로 정합니다(`plugins`의 `serverName`). 같은 경로에 두 클러스터가 쓰면 두 역사가 한곳에 섞입니다.
-- 되살린 클러스터의 app Secret(`<클러스터>-app`)의 비밀번호로 Secret `loft`의 `db-dsn`과 `roster-db-dsn`을 새로 만듭니다.
+- 되살린 클러스터의 app Secret(`<클러스터>-app`)의 비밀번호로 Secret `loft`의 `db-dsn`(내장 roster면 `roster-db-dsn`도)을 새로 만듭니다.
 - 정한 시각까지의 WAL이 버킷에 없으면 복원은 실패합니다(PostgreSQL이 목표 시각에 닿지 못했다고 멈춥니다). 그때는 시각을 앞당기거나 남은 WAL을 모두 씁니다.
 
 ### 2. 볼륨
@@ -115,6 +115,5 @@ spec:
 
 ## 알려진 것
 
-- **내장 roster:** #100 이전의 빌드는 DB가 잠깐이라도 끊기면 그 뒤로 로그인한 모든 요청에 503으로 답합니다(`roster: ... Error while dialing: closed`). 프로세스를 다시 시작할 때까지 그렇고, `/healthz`는 그동안에도 `ok`입니다. 그런 빌드라면 DB가 돌아온 뒤 `kubectl rollout restart deploy/loft`를 실행합니다.
 - **체크포인트 사본이 오래된 복원:** 이 빌드 이전의 payday는 건너뛴 체크포인트 번호를 보고하지 않았습니다(payday#80). 위의 "체크포인트는 따로"를 봅니다.
 - **처음 배포한 뒤의 `emptied`:** 이 빌드 이전에는 첫 보존 패스가 행이 없는 체크포인트를 남기면 다음 패스가 `emptied`를 잘못 찾았습니다(payday#81). 지금은 찾지 않습니다.

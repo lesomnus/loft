@@ -60,19 +60,20 @@ loft auth login --url http://localhost:8080     # 나온 주소를 로그인한 
 loft asset search -o wide '{"q": "노트북"}'
 ```
 
-설정, UI 개발, 휴대폰에서 써 보기는 [로컬에서 실행하기](docs/dev/running.md)에 있습니다. 내장 roster는 시험과 써 보기용입니다.
+설정, UI 개발, 휴대폰에서 써 보기는 [로컬에서 실행하기](docs/dev/running.md)에 있습니다. 여기의 roster는 Loft 프로세스 안에서 함께 뜨는 **내장 roster**이고, 시험과 개발, 써 보기용입니다. 사람을 넣고 빼는 화면이 없습니다.
 
-## 직접 운영하기
+## 직접 운영하기 (self-hosted)
 
-Loft와 [roster](https://github.com/lesomnus/roster)를 따로 띄웁니다. 사람과 로그인, 사람을 넣고 빼는 화면은 roster의 것이고, Loft는 roster의 테넌트 하나를 워크스페이스로 섬깁니다.
+사람이 쓰는 배포는 Loft와 [roster](https://github.com/lesomnus/roster)를 따로 띄웁니다. 사람과 로그인, 구성원을 넣고 빼는 화면(user console)은 roster의 것이고, Loft는 roster의 테넌트 하나를 워크스페이스로 섬기는 앱입니다(design 9.10). 처음부터 띄우는 순서는 이렇습니다. 한 대에 그대로 따라 할 수 있는 구성이 [`deploy/compose`](deploy/compose/README.md)이고, CI가 PR마다 이 순서를 그대로 돌립니다.
 
-1. roster를 띄우고, 조직의 테넌트를 만듭니다(`roster tenant add @acme`).
-2. 그 테넌트에 Loft를 설치하고(`roster app install --tenant acme --role <Loft가 묻는 메서드> loft`), Loft의 키를 만듭니다(`roster key add --tenant acme --holder loft`, `rt_…`).
-3. Loft의 설정에 roster의 주소와 그 키를 적습니다(`auth.roster.addr`, `auth.roster.key`).
-4. `loft init` 이 그 테넌트를 같은 ID로 워크스페이스로 세우고, roster가 테넌트를 만들 때 넣은 `admin`(또는 `--login` 의 사람)을 소유자로 둡니다.
-5. `loft serve`. 그 테넌트의 사람은 처음 로그인할 때 구성원이 됩니다.
+1. **roster를 띄웁니다.** 데이터 플레인과 컨트롤 플레인의 DB, 사람 화면(`sign_in.enabled`, `user_console.dir`)과 그 화면의 호스트를 둡니다. 화면은 Loft와 다른 호스트에 둡니다. 세션 쿠키가 호스트에만 붙기 때문입니다.
+2. **roster의 운영자와 조직의 테넌트를 만듭니다.** `roster init`, `roster --as admin tenant add @acme`. 테넌트를 만들면 그 관리자 `admin` 이 함께 생기고, 비밀번호는 `roster vouch reset @acme/admin` 이 한 번 보여 줍니다. 화면의 호스트가 그 테넌트의 것이라고 적습니다(`roster --as admin host add`).
+3. **그 테넌트에 Loft를 설치하고 키를 만듭니다.** `roster app install --tenant acme --role <목록> --administer '/loft.*/*' loft`, 그리고 `roster key add --tenant acme --holder loft --allow <같은 목록>` 이 테넌트의 키(`rt_…`)를 한 번 보여 줍니다. 목록은 Loft가 roster에 묻는 메서드와, Loft가 테넌트에 써 넣는 기본 역할(#334)을 쓰고 넓히는 데 드는 메서드입니다([`deploy/compose`의 처음 띄우기](deploy/compose/README.md#처음-띄우기)).
+4. **Loft를 설정합니다.** roster의 주소와 키, 섬기는 테넌트, roster 화면의 주소: `auth.roster.addr`, `auth.roster.key`, `auth.roster.tenant`, `auth.roster.console_url`.
+5. **`loft init`** 이 그 테넌트를 같은 ID로 워크스페이스로 세우고, 테넌트의 관리자 `admin`(또는 `--login` 의 사람)을 소유자로 둡니다. 그다음 `loft serve`.
+6. **구성원**은 테넌트의 관리자가 roster의 화면에서 넣고, 넣은 사람이 처음 Loft에 로그인하면 구성원이 됩니다.
 
-명령과 메서드 목록은 [사람과 로그인](docs/dev/identity.md#roster를-따로-운영할-때), 배포 구성은 아래의 운영 문서에 있습니다.
+설정과 roster에서 할 일의 자세한 것은 [사람과 로그인](docs/dev/identity.md#roster를-따로-운영할-때), Kubernetes는 [`deploy/k8s`](deploy/k8s/README.md)에 있습니다.
 
 ## 개발 문서
 
@@ -91,7 +92,7 @@ Loft와 [roster](https://github.com/lesomnus/roster)를 따로 띄웁니다. 사
 
 ## 운영 문서
 
-- [`deploy/compose`](deploy/compose/README.md): 한 대에 띄우는 운영 구성
+- [`deploy/compose`](deploy/compose/README.md): Loft와 roster를 한 대에 띄우는 self-hosted 구성
 - [`deploy/k8s`](deploy/k8s/README.md): Kubernetes 참조 배포
 - [`deploy/observe`](deploy/observe/README.md): 대시보드
 - 런북: [판을 올릴 때](docs/runbook/upgrade.md), [백업과 복구](docs/runbook/restore.md), [감사 기록 위변조 감지 대응](docs/runbook/trail-integrity.md), [보존 요청 대응](docs/runbook/preserve.md), [관측](docs/runbook/observe.md)

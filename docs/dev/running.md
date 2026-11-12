@@ -29,7 +29,7 @@ go run ./cmd/loft serve
 - 워크스페이스는 roster의 테넌트이고, 그 주소는 `auth.roster.tenant`(기본 `loft`)입니다. `--login` 을 빼면 소유자의 아이디는 `admin` 입니다. 배포는 워크스페이스 하나를 섬기므로 `init` 을 다시 하면 거절됩니다.
 - 처음부터 다시 하려면 `data/` 디렉터리를 지웁니다.
 
-사람은 Loft 프로세스 안에서 함께 뜨는 roster에 있습니다. roster의 DB는 Loft의 SQLite 파일 옆 `data/roster.db` 입니다([사람과 로그인](identity.md)).
+사람은 Loft 프로세스 안에서 함께 뜨는 roster에 있습니다. roster의 DB는 Loft의 SQLite 파일 옆 `data/roster.db` 입니다([사람과 로그인](identity.md)). 이 내장 roster는 시험과 개발, 써 보기용입니다. 사람이 쓰는 배포는 roster를 곁에 따로 띄웁니다([`deploy/compose`](../../deploy/compose/README.md), design D91).
 
 ## 설정
 

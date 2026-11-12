@@ -1,9 +1,14 @@
-# Loft on one host: PostgreSQL, the migration that runs before anything
-# serves, two `loft serve`, the operator's entry point, and Caddy in front
-# with a certificate from Let's Encrypt. What to fill in, and in which order
-# to start it, is README.md.
+# Loft self-hosted on one host: PostgreSQL; roster beside it, which has the
+# people and the page their administrators manage them on (design 9.10, D87);
+# the migration that runs before anything serves, two `loft serve`, the
+# operator's entry point, and Caddy in front of Loft and of roster's page, with
+# certificates from Let's Encrypt. What to fill in, and in which order to start
+# it -- roster first, since Loft is installed in a tenant there -- is
+# README.md.
 #
 #   cp .env.example .env    # then fill it in
+#   docker compose up -d postgres roster caddy
+#   ...                     # the tenant at roster, Loft installed in it, its key
 #   docker compose up -d --build
 
 name: loft
@@ -14,8 +19,15 @@ x-loft: &loft
   pull_policy: never
   environment: &env
     LOFT_DB_DSN: postgres://loft:${POSTGRES_PASSWORD:?}@postgres:5432/loft?sslmode=disable
-    LOFT_AUTH_ROSTER_DB_DSN: postgres://loft:${POSTGRES_PASSWORD:?}@postgres:5432/roster?sslmode=disable
-    LOFT_AUTH_ROSTER_TENANT: ${LOFT_TENANT:-}
+    # The tenant at roster this deployment serves, which is its workspace
+    # (D85), and the key Loft acts with in it: the tenant's own (`rt_`), made
+    # at roster after Loft is installed there. Empty until then, and Loft
+    # does not start without it.
+    LOFT_AUTH_ROSTER_TENANT: ${LOFT_TENANT:?}
+    LOFT_AUTH_ROSTER_KEY: ${ROSTER_KEY:-}
+    # roster's own page, where the tenant's administrators add and take
+    # away its members (D87): the people screen links to it.
+    LOFT_AUTH_ROSTER_CONSOLE_URL: https://${ROSTER_DOMAIN:?}/
     LOFT_APP_PUBLIC_URL: https://${LOFT_DOMAIN:?}
     LOFT_APP_SIGNING_KEY: ${LOFT_SIGNING_KEY:?}
     LOFT_APP_MAIL_HOST: ${LOFT_MAIL_HOST:-}
@@ -45,6 +57,9 @@ services:
       POSTGRES_USER: loft
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
       POSTGRES_DB: loft
+      # roster's own user and databases, made once by initdb/ when the
+      # volume is new: Loft's user reaches none of roster's rows.
+      ROSTER_DB_PASSWORD: ${ROSTER_DB_PASSWORD:?}
     volumes:
       - postgres:/var/lib/postgresql
       - ./initdb:/docker-entrypoint-initdb.d:ro
@@ -53,6 +68,47 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+    networks: [loft]
+    restart: unless-stopped
+
+  # roster: the people, how they sign in, and whether they are a member at
+  # all, for Loft and for any other app of the same people. Its two planes on
+  # databases of their own: the data plane, which Loft calls over gRPC with
+  # the tenant's key and which serves the user console at ROSTER_DOMAIN, and
+  # the control plane, of the roster operators. Nothing reaches it from
+  # outside but the page, through Caddy; its operators work at the box
+  # (`docker compose exec roster roster ...`, README.md).
+  roster:
+    image: ${ROSTER_IMAGE:-ghcr.io/lesomnus/roster:261112-r43219357562}
+    environment:
+      ROSTER_DB_DRIVER: pgx
+      ROSTER_DB_DSN: postgres://roster:${ROSTER_DB_PASSWORD:?}@postgres:5432/roster?sslmode=disable
+      ROSTER_DB_MIGRATE: "true"
+      ROSTER_CONTROL_DB_DRIVER: pgx
+      ROSTER_CONTROL_DB_DSN: postgres://roster:${ROSTER_DB_PASSWORD:?}@postgres:5432/roster_control?sslmode=disable
+      ROSTER_CONTROL_DB_MIGRATE: "true"
+      # What a command at the box writes reaches the process that serves,
+      # and the stream Loft follows, through the database.
+      ROSTER_WATCH_BROKER: postgres
+      ROSTER_CONTROL_WATCH_BROKER: postgres
+      ROSTER_SPIN_LEASE: postgres
+      # The data plane: gRPC for Loft, and the same over HTTP for the page.
+      ROSTER_SERVER_ADDR: ":50051"
+      ROSTER_SERVER_HTTP_ADDR: ":8080"
+      ROSTER_SERVER_HTTP_ALLOW_WEB: "true"
+      # The user console: the tenant's own people sign in to roster at
+      # ROSTER_DOMAIN, which a `Host` row says is the tenant's, and their
+      # administrators add and take away members and give them a way in.
+      # Its own host and not a path under Loft's: its session cookie is
+      # host-only (`__Host-`).
+      ROSTER_SIGN_IN_ENABLED: "true"
+      ROSTER_USER_CONSOLE_DIR: /usr/share/roster/user
+      # What a second factor's seed is sealed under: the same, in the same
+      # order, for as long as anybody keeps a factor (roster's
+      # docs/operating.md, "Passwords, and what closes an account").
+      ROSTER_VOUCH_KEYS: '["one:${ROSTER_VOUCH_KEY:?}"]'
+    depends_on:
+      postgres: { condition: service_healthy }
     networks: [loft]
     restart: unless-stopped
 
@@ -68,6 +124,8 @@ services:
     command: ["--config", "/etc/loft/loft.yaml", "migrate"]
     depends_on:
       postgres: { condition: service_healthy }
+      # Every process of Loft opens the roster it is told of, with its key.
+      roster: { condition: service_started }
     restart: "no"
 
   loft:
@@ -96,6 +154,7 @@ services:
     image: caddy:2
     environment:
       LOFT_DOMAIN: ${LOFT_DOMAIN:?}
+      ROSTER_DOMAIN: ${ROSTER_DOMAIN:?}
     ports:
       - 80:80
       - 443:443
@@ -108,7 +167,6 @@ services:
       loft:
         # The one address `app.trusted_proxies` believes.
         ipv4_address: 10.88.0.10
-    depends_on: [loft]
     restart: unless-stopped
 
 networks:
