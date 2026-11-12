@@ -2,7 +2,9 @@ package cmd_test
 
 import (
 	"context"
+	"fmt"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/lesomnus/payday/pdid"
@@ -60,4 +62,40 @@ func TestAServedDeploymentGivesTheRolesWhatTheReleasesSinceAdded(t *testing.T) {
 
 	x.NoError(w.s.WidenRoles(ctx))
 	x.Equal(1, roster.asked, "nothing left to give, and roster asked nothing")
+}
+
+// TestTheRolesLoopSaysWhatItDecided (D90): what the loop decides of the roles
+// is in the log as it decides it, since what a later release gives them
+// follows from it -- once, the release it took them as having when the
+// workspace recorded none, and what it gave each role, by its methods. A pass
+// with nothing to give says nothing.
+func TestTheRolesLoopSaysWhatItDecided(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	ctx, said := logged(t.Context())
+	where := tenant.Alias(w.tenant.GetAlias())
+	last := policy.Releases.Latest()
+
+	// A workspace that recorded nothing of its roles.
+	x.NoError(w.s.Ent.Tenant.Update().Where(where).SetRolesRelease(0).Exec(ctx))
+	x.NoError(w.s.WidenRoles(ctx))
+	x.Equal(1, strings.Count(said.String(), "taken as given the last"), "%s", said)
+	x.Contains(said.String(), fmt.Sprintf("release=%d", last))
+	said.Reset()
+	x.NoError(w.s.WidenRoles(ctx))
+	x.Empty(said.String(), "recorded now, and nothing to say")
+
+	// A release after the one they have, which gives two roles something.
+	types, census := app.AssetTypeService_Add_FullMethodName, app.AssetService_Census_FullMethodName
+	w.s.Roles.Ledger = append(slices.Clone(policy.Releases), policy.Release{Name: "next", Adds: map[string][]string{
+		"loft-member":  {types, census},
+		"loft-auditor": {types},
+	}})
+	x.NoError(w.s.WidenRoles(ctx))
+	line := said.String()
+	x.Equal(1, strings.Count(line, "given at roster what the releases since theirs added"), "%s", line)
+	x.Contains(line, fmt.Sprintf("from=%d to=%d", last, last+1))
+	x.Contains(line, "given.loft-member="+census+","+types)
+	x.Contains(line, "given.loft-auditor="+types)
+	x.NotContains(line, "taken as given")
 }
