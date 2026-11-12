@@ -3,23 +3,13 @@
 // deployment's workspaces are billed by -- with the product key, and kept
 // nowhere here.
 //
-// Two halves, as the service says:
-//
-//   - **The account's own**, a payer's: its billing accounts, the checkout
-//     that starts the subscription one is collected through, the offers to
-//     pay for a workspace and the workspaces it pays for, its invoices and
-//     the statements their lines are (levyan#47). Served
-//     as the account itself (`(payday.method) = {account: {}}`, the policy's
-//     `Account`), and relayed to levyan's `PayerService` as that account
-//     (`levyan-account`, [levyan.Client.As]): levyan asks roster about it,
-//     and answers with what is the account's own and the product's. What each
-//     reads through the walled servers is nothing ([pd.AccountReads], an
-//     empty `pd.Reads`): every answer is levyan's.
-//   - **The workspace's**: who pays for the caller's workspace, its usage and
-//     estimate this period, its statements, and asking a member to pay for
-//     it. Served as a membership, relayed to `WorkspaceService` and
-//     `BillingService` as the product ([levyan.Client.AsProduct]), about the
-//     caller's workspace and no other -- no request names one.
+// It is the workspace's: who pays for the caller's workspace, its usage and
+// estimate this period, its statements, and asking a member to pay for it.
+// Served as a membership, relayed to `WorkspaceService` and `BillingService`
+// as the product ([levyan.Client.AsProduct]), about the caller's workspace and
+// no other -- no request names one. What a payer does with what it pays with
+// is the portal's, which relays it to levyan as the payer, and none of this
+// deployment's (#326, D81).
 //
 // # What it answers
 //
@@ -27,23 +17,19 @@
 // field for field and number for number, so a message is moved by being
 // written and read back ([move]) -- and what levyan says that this build does
 // not know is left out, since what a page is shown is what this build
-// declares. No card is anywhere here: of how a payer pays, levyan answers the
-// kind, the brand and the last four digits, and so does this.
+// declares.
 //
 // A refusal is levyan's code with its words after this deployment's
 // ([said]). A deployment that names no levyan answers every method
-// FailedPrecondition, and one with no checkout page (`app.billing.checkout`)
-// begins no checkout: there is nowhere to open it.
+// FailedPrecondition.
 package payment
 
 import (
 	"context"
 	"log/slog"
-	"net/url"
 
 	levyanv1 "github.com/lesomnus/levyan/api/levyan/v1"
 	"github.com/lesomnus/otx/log"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -52,9 +38,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/server/checkout"
 	"github.com/lesomnus/loft/server/levyan"
-	"github.com/lesomnus/loft/server/pd"
 )
 
 // Service is `loft.PaymentService`.
@@ -67,30 +51,12 @@ type Service struct {
 	// Walled is the stack a caller reaches, walled to the caller's workspace:
 	// what an offer reads the member it asks through.
 	Walled app.Server
-
-	// Checkout is the page a checkout opens on (`server/checkout`): its
-	// environment is the one a checkout levyan begins is to be of.
-	Checkout checkout.Config
 }
 
 var _ app.PaymentServiceServer = Service{}
 
 // ErrNoBilling is every method's answer on a deployment that names no levyan.
 var ErrNoBilling = status.Error(codes.FailedPrecondition, "이 배포는 결제를 다루지 않습니다 (청구 서비스 levyan이 설정되지 않았습니다)")
-
-// account is the account a call is the account's own of.
-func (s Service) account(ctx context.Context) (pdid.Id, error) {
-	if s.Levyan == nil {
-		return pdid.Nil, ErrNoBilling
-	}
-	f, ok := frame.From(ctx)
-	if !ok || !f.AsAccount() || f.Account == pdid.Nil {
-		// The policy gives these to an account's own call alone; this is
-		// what a layer above it would see were it wired otherwise.
-		return pdid.Nil, status.Error(codes.PermissionDenied, "계정 자신으로 부르는 작업입니다")
-	}
-	return f.Account, nil
-}
 
 // workspace is the workspace of the membership a call is served as.
 func (s Service) workspace(ctx context.Context) (pdid.Id, error) {
@@ -116,26 +82,6 @@ func move(from, to proto.Message) error {
 		return status.Errorf(codes.Internal, "payment: %v", err)
 	}
 	return nil
-}
-
-// relay is a call of the account's own, `req` moved into levyan's `in`,
-// made of levyan's PayerService as the account, and its answer moved into
-// `out`.
-func relay[I, O proto.Message](ctx context.Context, s Service, req proto.Message, in I, out proto.Message, call func(levyanv1.PayerServiceClient, context.Context, I, ...grpc.CallOption) (O, error)) error {
-	account, err := s.account(ctx)
-	if err != nil {
-		return err
-	}
-	if err := move(req, in); err != nil {
-		return err
-	}
-	ctx, cancel := s.Levyan.As(ctx, account)
-	defer cancel()
-	v, err := call(s.Levyan.Payers(), ctx, in)
-	if err != nil {
-		return said(ctx, err)
-	}
-	return move(v, out)
 }
 
 // said is a refusal of levyan's in this deployment's words: its code, and
@@ -168,227 +114,6 @@ func said(ctx context.Context, err error) error {
 	default:
 		return status.Errorf(st.Code(), "결제 서비스: %s", m)
 	}
-}
-
-func (s Service) ListBillingAccounts(ctx context.Context, req *app.PaymentListBillingAccountsRequest) (*app.PaymentListBillingAccountsResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_ListBillingAccounts_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentListBillingAccountsResponse{}
-	if err := relay(ctx, s, req, &levyanv1.ListBillingAccountsRequest{}, out, levyanv1.PayerServiceClient.ListBillingAccounts); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) CreateBillingAccount(ctx context.Context, req *app.PaymentCreateBillingAccountRequest) (*app.PaymentCreateBillingAccountResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_CreateBillingAccount_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentCreateBillingAccountResponse{}
-	if err := relay(ctx, s, req, &levyanv1.CreateBillingAccountRequest{}, out, levyanv1.PayerServiceClient.CreateBillingAccount); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) UpdateBillingAccount(ctx context.Context, req *app.PaymentUpdateBillingAccountRequest) (*app.PaymentUpdateBillingAccountResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_UpdateBillingAccount_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentUpdateBillingAccountResponse{}
-	if err := relay(ctx, s, req, &levyanv1.UpdateBillingAccountRequest{}, out, levyanv1.PayerServiceClient.UpdateBillingAccount); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) GetBillingAccount(ctx context.Context, req *app.PaymentGetBillingAccountRequest) (*app.PaymentGetBillingAccountResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_GetBillingAccount_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentGetBillingAccountResponse{}
-	if err := relay(ctx, s, req, &levyanv1.GetBillingAccountRequest{}, out, levyanv1.PayerServiceClient.GetBillingAccount); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// StartCheckout begins a checkout only where it can be opened: a deployment
-// with a checkout page (`app.billing.checkout`), whose environment is the
-// one levyan began it in -- Paddle.js initialized for one environment opens
-// no checkout of the other's.
-func (s Service) StartCheckout(ctx context.Context, req *app.PaymentStartCheckoutRequest) (*app.PaymentStartCheckoutResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_StartCheckout_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	if s.Levyan != nil && !s.Checkout.On() {
-		return nil, status.Error(codes.FailedPrecondition, "이 배포에는 결제창을 여는 페이지가 없습니다 (app.billing.checkout)")
-	}
-	if u, err := url.Parse(req.GetSuccessUrl()); err != nil || !u.IsAbs() {
-		return nil, status.Error(codes.InvalidArgument, "success_url: 결제를 마친 뒤 돌아올 이 배포의 주소입니다")
-	}
-	out := &app.PaymentStartCheckoutResponse{}
-	if err := relay(ctx, s, req, &levyanv1.StartCheckoutRequest{}, out, levyanv1.PayerServiceClient.StartCheckout); err != nil {
-		return nil, err
-	}
-	if w := out.GetCheckout().GetWindow(); !s.Checkout.Opens(w.GetEnvironment()) {
-		return nil, status.Errorf(codes.FailedPrecondition, "결제창은 Paddle의 %s 환경의 것인데, 이 배포의 결제 페이지는 %s 환경의 것입니다", w.GetEnvironment(), s.Checkout.Environment)
-	}
-	return out, nil
-}
-
-func (s Service) CompleteCheckout(ctx context.Context, req *app.PaymentCompleteCheckoutRequest) (*app.PaymentCompleteCheckoutResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_CompleteCheckout_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentCompleteCheckoutResponse{}
-	if err := relay(ctx, s, req, &levyanv1.CompleteCheckoutRequest{}, out, levyanv1.PayerServiceClient.CompleteCheckout); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) ListOffers(ctx context.Context, req *app.PaymentListOffersRequest) (*app.PaymentListOffersResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_ListOffers_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentListOffersResponse{}
-	if err := relay(ctx, s, req, &levyanv1.ListOffersRequest{}, out, levyanv1.PayerServiceClient.ListOffers); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) Accept(ctx context.Context, req *app.PaymentAcceptRequest) (*app.PaymentAcceptResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_Accept_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentAcceptResponse{}
-	if err := relay(ctx, s, req, &levyanv1.AcceptRequest{}, out, levyanv1.PayerServiceClient.Accept); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) Decline(ctx context.Context, req *app.PaymentDeclineRequest) (*app.PaymentDeclineResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_Decline_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentDeclineResponse{}
-	if err := relay(ctx, s, req, &levyanv1.DeclineRequest{}, out, levyanv1.PayerServiceClient.Decline); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) ListLinks(ctx context.Context, req *app.PaymentListLinksRequest) (*app.PaymentListLinksResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_ListLinks_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentListLinksResponse{}
-	if err := relay(ctx, s, req, &levyanv1.ListLinksRequest{}, out, levyanv1.PayerServiceClient.ListLinks); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) Use(ctx context.Context, req *app.PaymentUseRequest) (*app.PaymentUseResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_Use_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentUseResponse{}
-	if err := relay(ctx, s, req, &levyanv1.UseRequest{}, out, levyanv1.PayerServiceClient.Use); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) Stop(ctx context.Context, req *app.PaymentStopRequest) (*app.PaymentStopResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_Stop_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentStopResponse{}
-	if err := relay(ctx, s, req, &levyanv1.StopRequest{}, out, levyanv1.PayerServiceClient.Stop); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) ListInvoices(ctx context.Context, req *app.PaymentListInvoicesRequest) (*app.PaymentListInvoicesResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_ListInvoices_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentListInvoicesResponse{}
-	if err := relay(ctx, s, req, &levyanv1.ListInvoicesRequest{}, out, levyanv1.PayerServiceClient.ListInvoices); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) GetInvoice(ctx context.Context, req *app.PaymentGetInvoiceRequest) (*app.PaymentGetInvoiceResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_GetInvoice_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentGetInvoiceResponse{}
-	if err := relay(ctx, s, req, &levyanv1.GetInvoiceRequest{}, out, levyanv1.PayerServiceClient.GetInvoice); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) ListCreditNotes(ctx context.Context, req *app.PaymentListCreditNotesRequest) (*app.PaymentListCreditNotesResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_ListCreditNotes_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentListCreditNotesResponse{}
-	if err := relay(ctx, s, req, &levyanv1.ListCreditNotesRequest{}, out, levyanv1.PayerServiceClient.ListCreditNotes); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// ListPayerStatements is the statements levyan answers the account, of the
-// periods its billing accounts paid for (levyan#47): never read with the
-// product key and handed on, which would be this deployment giving a payer
-// what levyan did not.
-func (s Service) ListPayerStatements(ctx context.Context, req *app.PaymentListPayerStatementsRequest) (*app.PaymentListPayerStatementsResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_ListPayerStatements_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentListPayerStatementsResponse{}
-	if err := relay(ctx, s, req, &levyanv1.PayerServiceListStatementsRequest{}, out, levyanv1.PayerServiceClient.ListStatements); err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (s Service) GetPayerStatement(ctx context.Context, req *app.PaymentGetPayerStatementRequest) (*app.PaymentGetPayerStatementResponse, error) {
-	ctx, err := pd.AccountReads(ctx, app.PaymentService_GetPayerStatement_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	out := &app.PaymentGetPayerStatementResponse{}
-	if err := relay(ctx, s, req, &levyanv1.PayerServiceGetStatementRequest{}, out, levyanv1.PayerServiceClient.GetStatement); err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (s Service) GetPayer(ctx context.Context, req *app.PaymentGetPayerRequest) (*app.PaymentGetPayerResponse, error) {

@@ -20,9 +20,8 @@ import (
 )
 
 // An account's own methods (payday#184): what a session calls as the account
-// itself, in no workspace -- the invitations addressed to it, and what it pays
-// with (design 7.9) -- and what keeps that apart from everything a membership
-// calls.
+// itself, in no workspace -- the invitations addressed to it, and what it is
+// in -- and what keeps that apart from everything a membership calls.
 
 // TestAnAccountReachesItsOwnMethodsAndNoOthers: a call framed as the account
 // itself -- what a session's call to a method the schema marks is resolved to
@@ -77,26 +76,7 @@ func TestAnAccountReachesItsOwnMethodsAndNoOthers(t *testing.T) {
 		app.TenantService_Mine_FullMethodName,
 		app.TenantService_Create_FullMethodName,
 		app.LabelService_Locate_FullMethodName,
-		// And what a payer does with what it pays with, relayed to levyan as
-		// the account (design 7.9).
-		app.PaymentService_ListBillingAccounts_FullMethodName,
-		app.PaymentService_CreateBillingAccount_FullMethodName,
-		app.PaymentService_UpdateBillingAccount_FullMethodName,
-		app.PaymentService_GetBillingAccount_FullMethodName,
-		app.PaymentService_StartCheckout_FullMethodName,
-		app.PaymentService_CompleteCheckout_FullMethodName,
-		app.PaymentService_ListOffers_FullMethodName,
-		app.PaymentService_Accept_FullMethodName,
-		app.PaymentService_Decline_FullMethodName,
-		app.PaymentService_ListLinks_FullMethodName,
-		app.PaymentService_Use_FullMethodName,
-		app.PaymentService_Stop_FullMethodName,
-		app.PaymentService_ListInvoices_FullMethodName,
-		app.PaymentService_GetInvoice_FullMethodName,
-		app.PaymentService_ListCreditNotes_FullMethodName,
-		app.PaymentService_ListPayerStatements_FullMethodName,
-		app.PaymentService_GetPayerStatement_FullMethodName,
-	}, pd.AccountMethods, "the invitations addressed to it, a payer's own, and nothing else")
+	}, pd.AccountMethods, "the invitations addressed to it, what it is in, and nothing else")
 
 	// No membership is given them, whatever its role -- and the table gives
 	// the account nothing else.

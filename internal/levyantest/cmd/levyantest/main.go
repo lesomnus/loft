@@ -15,25 +15,24 @@
 //	                                                days from now, unsaid
 //	POST /e2e/restrict?workspace=ID                 `loft.restricted` granted it, on, for a week
 //	POST /e2e/readonly?workspace=ID                 `loft.readonly` granted it, on, for a week
-//	POST /e2e/turn?workspace=ID                     its period over: who was to pay from then pays now
-//	POST /e2e/dunning?workspace=ID&kind=K&restricted=RFC3339[&readonly=RFC3339][&billing_account=BA]
+//	POST /e2e/dunning?workspace=ID&kind=K&restricted=RFC3339[&readonly=RFC3339]
 //	                                                an invoice billing it whose charge failed, of
 //	                                                the kind K declined (temporary, replace,
-//	                                                fraud), restricting it from `restricted` and
+//	                                                fraud), of the billing account it is paid for
+//	                                                with, restricting it from `restricted` and
 //	                                                making it read-only from `readonly` (sixty
-//	                                                days after it failed, unsaid): of the billing
-//	                                                account BA, or the one that pays for it;
-//	                                                without a workspace, of BA alone
-//	POST /e2e/collection?billing_account=BA&state=S the billing account BA collected as S says from
-//	                                                now (past_due, paused, canceled, needs_action,
-//	                                                no_subscription; or as its subscription says,
-//	                                                as_subscribed)
-//	POST /e2e/bank?account=ID&name=N&business=B&registration=R&email=E
-//	                                                a billing account of the roster account ID's
-//	                                                paid by transfer, called N, billed to the
-//	                                                business B by its registration R, its tax
-//	                                                invoices to E: opened as levyan's operator
-//	                                                opens one
+//	                                                days after it failed, unsaid)
+//	POST /e2e/account?account=ID&name=N             a billing account of the roster account ID's,
+//	                                                called N, on the merchant of record: what a
+//	                                                workspace it makes is paid for with, opened as
+//	                                                its payer opens one where a payer pays
+//	POST /e2e/collection?workspace=ID&state=S       the billing account it is paid for with
+//	                                                collected as S says from now (collectable,
+//	                                                past_due, paused, canceled, needs_action,
+//	                                                no_subscription)
+//	POST /e2e/accept?workspace=ID                   what is offered for it accepted, as the account
+//	                                                offered to accepts it where a payer pays: it
+//	                                                pays from the end of the period
 //	POST /e2e/reading?workspace=ID&meter=M&value=N  a reading of its meter M, as though the
 //	                                                deployment had handed it over now: a workspace
 //	                                                a test made is measured at midnight
@@ -46,22 +45,12 @@
 //	                                                from `from` (now) until `expires` (a year
 //	                                                after)
 //	POST /e2e/credit?workspace=ID&amount=N[&expires=RFC3339]
-//	POST /e2e/credit?billing_account=BA&amount=N[&expires=RFC3339]
 //	                                                N of credit, in the minor unit, granted the
-//	                                                workspace or the billing account BA, expiring
-//	                                                at `expires` (a year from now)
-//	POST /e2e/balance?billing_account=BA&amount=N   BA owed N beside its credit, which never expires
+//	                                                workspace, expiring at `expires` (a year from
+//	                                                now)
 //	POST /e2e/close?workspace=ID                    the period before the one now open closed for
-//	                                                it: its statement -- its payer's to read, by
-//	                                                the billing account it is paid for with now --
-//	                                                and what it took of the pools taken off them
-//	POST /e2e/invoice?billing_account=BA&workspace=ID[&total=N][&label=L]
-//	                                                an invoice of the period before billing BA the
-//	                                                workspace's N, called L, finalized: paid first
-//	                                                with the credit it may be paid with. Its line
-//	                                                is the workspace's statement of that period
-//	                                                when it has one, and comes to what that does
-//	                                                unless N says otherwise
+//	                                                it: its statement, and what it took of the
+//	                                                pools taken off them
 package main
 
 import (
@@ -135,30 +124,14 @@ func main() {
 		v.ReadOnly(ws)
 		w.WriteHeader(http.StatusNoContent)
 	})
-	m.HandleFunc("POST /e2e/turn", func(w http.ResponseWriter, r *http.Request) {
-		ws, err := pdid.Parse(r.URL.Query().Get("workspace"))
+	m.HandleFunc("POST /e2e/dunning", func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		ws, err := pdid.Parse(q.Get("workspace"))
 		if err != nil {
 			http.Error(w, "workspace: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		v.Turn(ws.String())
-		w.WriteHeader(http.StatusNoContent)
-	})
-	m.HandleFunc("POST /e2e/dunning", func(w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-		var bills []string
-		ba := q.Get("billing_account")
-		if at := q.Get("workspace"); at != "" {
-			ws, err := pdid.Parse(at)
-			if err != nil {
-				http.Error(w, "workspace: "+err.Error(), http.StatusBadRequest)
-				return
-			}
-			bills = append(bills, ws.String())
-			if ba == "" {
-				ba = v.Payer(ws.String()).GetCurrent().GetBillingAccount()
-			}
-		}
+		ba := v.Payer(ws.String()).GetCurrent().GetBillingAccount()
 		from, err := time.Parse(time.RFC3339, q.Get("restricted"))
 		if err != nil {
 			http.Error(w, "restricted: "+err.Error(), http.StatusBadRequest)
@@ -194,45 +167,50 @@ func main() {
 		if kind == levyanv1.DeclineKind_DECLINE_KIND_TEMPORARY {
 			d.SetDateNextRetry(timestamppb.New(now.Add(24 * time.Hour)))
 		}
-		v.Dun(d, bills...)
+		v.Dun(d, ws.String())
 		w.WriteHeader(http.StatusNoContent)
 	})
-	m.HandleFunc("POST /e2e/collection", func(w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
+	m.HandleFunc("POST /e2e/account", said(func(q url.Values) error {
+		account, err := pdid.Parse(q.Get("account"))
+		if err != nil {
+			return fmt.Errorf("account: %w", err)
+		}
+		v.OpenBillingAccount(account.String(), q.Get("name"))
+		return nil
+	}))
+	m.HandleFunc("POST /e2e/collection", said(func(q url.Values) error {
 		state, ok := map[string]levyanv1.CollectionState{
+			"collectable":     levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE,
 			"past_due":        levyanv1.CollectionState_COLLECTION_STATE_PAST_DUE,
 			"paused":          levyanv1.CollectionState_COLLECTION_STATE_PAUSED,
 			"canceled":        levyanv1.CollectionState_COLLECTION_STATE_CANCELED,
 			"needs_action":    levyanv1.CollectionState_COLLECTION_STATE_NEEDS_ACTION,
 			"no_subscription": levyanv1.CollectionState_COLLECTION_STATE_NO_SUBSCRIPTION,
-			"as_subscribed":   levyanv1.CollectionState_COLLECTION_STATE_UNSPECIFIED,
 		}[q.Get("state")]
 		if !ok {
-			http.Error(w, "state: past_due, paused, canceled, needs_action, no_subscription or as_subscribed", http.StatusBadRequest)
-			return
+			return fmt.Errorf("state: collectable, past_due, paused, canceled, needs_action or no_subscription")
 		}
-		ba := q.Get("billing_account")
-		if _, err := pdid.Parse(ba); err != nil {
-			http.Error(w, "billing_account: "+err.Error(), http.StatusBadRequest)
-			return
+		ws, err := workspace(q)
+		if err != nil {
+			return err
+		}
+		ba := v.Payer(ws).GetCurrent().GetBillingAccount()
+		if ba == "" {
+			return fmt.Errorf("workspace: paid for with no billing account")
 		}
 		v.Collect(ba, state)
-		w.WriteHeader(http.StatusNoContent)
-	})
-	m.HandleFunc("POST /e2e/bank", func(w http.ResponseWriter, r *http.Request) {
-		q := r.URL.Query()
-		account, err := pdid.Parse(q.Get("account"))
+		return nil
+	}))
+	m.HandleFunc("POST /e2e/accept", said(func(q url.Values) error {
+		ws, err := workspace(q)
 		if err != nil {
-			http.Error(w, "account: "+err.Error(), http.StatusBadRequest)
-			return
+			return err
 		}
-		v.Bank(account.String(), q.Get("name"), levyanv1.Business_builder{
-			Registration: q.Get("registration"),
-			Name:         q.Get("business"),
-			Email:        q.Get("email"),
-		}.Build())
-		w.WriteHeader(http.StatusNoContent)
-	})
+		if v.Accept(ws) == nil {
+			return fmt.Errorf("workspace: nothing is offered for it")
+		}
+		return nil
+	}))
 
 	m.HandleFunc("POST /e2e/reading", said(func(q url.Values) error {
 		ws, err := workspace(q)
@@ -290,42 +268,19 @@ func main() {
 		return nil
 	}))
 	m.HandleFunc("POST /e2e/credit", said(func(q url.Values) error {
+		ws, err := workspace(q)
+		if err != nil {
+			return err
+		}
 		n, err := number(q, "amount")
 		if err != nil {
 			return err
 		}
-		c := levyanv1.Credit_builder{Granted: n}.Build()
-		switch {
-		case q.Get("workspace") != "":
-			ws, err := workspace(q)
-			if err != nil {
-				return err
-			}
-			c.SetWorkspace(ws)
-		case q.Get("billing_account") != "":
-			if _, err := pdid.Parse(q.Get("billing_account")); err != nil {
-				return fmt.Errorf("billing_account: %w", err)
-			}
-			c.SetBillingAccount(q.Get("billing_account"))
-		default:
-			return fmt.Errorf("workspace or billing_account: whose the credit is")
-		}
+		c := levyanv1.Credit_builder{Workspace: ws, Granted: n}.Build()
 		if err := moment(q, "expires", c.SetDateExpires); err != nil {
 			return err
 		}
 		v.Credit(c)
-		return nil
-	}))
-	m.HandleFunc("POST /e2e/balance", said(func(q url.Values) error {
-		ba := q.Get("billing_account")
-		if _, err := pdid.Parse(ba); err != nil {
-			return fmt.Errorf("billing_account: %w", err)
-		}
-		n, err := number(q, "amount")
-		if err != nil {
-			return err
-		}
-		v.Balance(ba, n)
 		return nil
 	}))
 	m.HandleFunc("POST /e2e/close", said(func(q url.Values) error {
@@ -334,59 +289,6 @@ func main() {
 			return err
 		}
 		v.ClosePeriod(ws)
-		return nil
-	}))
-	m.HandleFunc("POST /e2e/invoice", said(func(q url.Values) error {
-		ba := q.Get("billing_account")
-		if _, err := pdid.Parse(ba); err != nil {
-			return fmt.Errorf("billing_account: %w", err)
-		}
-		ws, err := workspace(q)
-		if err != nil {
-			return err
-		}
-		// The line is the workspace's statement of the period before, when
-		// it has one (`close`), and comes to what that does unless the
-		// question says otherwise.
-		line := levyanv1.InvoiceLine_builder{Statement: "st-" + pdid.New(29).String(), Workspace: ws, Label: q.Get("label")}.Build()
-		start, _ := levyantest.PeriodBefore(time.Now())
-		st := v.Statement(ws, start)
-		if st != nil {
-			line.SetStatement(st.GetId())
-			line.SetTotal(st.GetTotal())
-		}
-		if st == nil || q.Has("total") {
-			n, err := number(q, "total")
-			if err != nil {
-				return err
-			}
-			line.SetTotal(n)
-		}
-		v.Finalize(ba, line)
-		return nil
-	}))
-	// A credit note taking `total` back of the invoice the billing account
-	// was billed last, for `reason`: correction, refund or cancellation.
-	m.HandleFunc("POST /e2e/note", said(func(q url.Values) error {
-		ba := q.Get("billing_account")
-		if _, err := pdid.Parse(ba); err != nil {
-			return fmt.Errorf("billing_account: %w", err)
-		}
-		reason, ok := map[string]levyanv1.CreditNoteReason{
-			"correction":   levyanv1.CreditNoteReason_CREDIT_NOTE_REASON_CORRECTION,
-			"refund":       levyanv1.CreditNoteReason_CREDIT_NOTE_REASON_REFUND,
-			"cancellation": levyanv1.CreditNoteReason_CREDIT_NOTE_REASON_CANCELLATION,
-		}[q.Get("reason")]
-		if !ok {
-			return fmt.Errorf("reason: one of correction, refund, cancellation")
-		}
-		n, err := number(q, "total")
-		if err != nil {
-			return err
-		}
-		if v.Note(ba, reason, n) == nil {
-			return fmt.Errorf("billing_account: billed nothing yet")
-		}
 		return nil
 	}))
 
