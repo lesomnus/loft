@@ -1,6 +1,6 @@
-# `deploy/k8s/config.yaml` with the rig's answers: where it is opened, and the
-# proxy in front. Everything else is as the base says, so that what the rig
-# runs is what a deployment starts from.
+# `deploy/k8s/config.yaml` with the rig's answers: where it is opened, the
+# proxy in front, and the roster in this process. Everything else is as the
+# base says, so that what the rig runs is what a deployment starts from.
 
 db:
   driver: pgx
@@ -19,12 +19,14 @@ watch:
 spin:
   lease: postgres
 
+# The roster in this process, where the base has roster beside Loft: the rig
+# stands up no roster of its own, and `deploy/compose` is what runs that shape
+# end to end (the `bundle` job). The workspace the rig puts up and signs in to
+# is the tenant of that roster it serves.
 auth:
   roster:
     db:
       driver: pgx
-    # The workspace the rig puts up and signs in to: the tenant of the roster
-    # in this process it serves, which the base leaves at `loft`.
     tenant: acme
 
 app:

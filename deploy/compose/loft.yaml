@@ -26,13 +26,17 @@ watch:
 spin:
   lease: postgres
 
-# The roster in this process, on a database of its own beside Loft's.
+# roster beside Loft (compose.yaml), on the compose network: plain gRPC to
+# its data plane, with the tenant's own key (design 9.10, D85).
 auth:
   roster:
-    db:
-      driver: pgx
-      # dsn: LOFT_AUTH_ROSTER_DB_DSN, from .env.
-    # tenant: LOFT_TENANT, from .env -- the workspace this deployment serves.
+    addr: roster:50051
+    insecure: true
+    # key: LOFT_AUTH_ROSTER_KEY, ROSTER_KEY from .env -- the tenant's `rt_`.
+    # tenant: LOFT_AUTH_ROSTER_TENANT, LOFT_TENANT from .env -- the tenant at
+    #   roster this deployment serves, which is its workspace.
+    # console_url: LOFT_AUTH_ROSTER_CONSOLE_URL, https://<ROSTER_DOMAIN>/ --
+    #   roster's page, which the people screen links to (D87).
 
 app:
   # public_url: LOFT_APP_PUBLIC_URL, https://<LOFT_DOMAIN>, from .env.

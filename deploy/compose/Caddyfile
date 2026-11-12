@@ -1,6 +1,7 @@
-# In front of every `loft serve`: a certificate for LOFT_DOMAIN from Let's
-# Encrypt (Caddy's own CA for `localhost`), and each request to one of them.
-# Loft says its own security headers, so nothing here adds any.
+# In front of every `loft serve`, and of roster's page: a certificate for
+# LOFT_DOMAIN and ROSTER_DOMAIN from Let's Encrypt (Caddy's own CA for
+# `localhost` and `*.localhost`), and each request to the one it is for. Loft
+# and roster say their own security headers, so nothing here adds any.
 #
 # An ACME account needs no e-mail; to give one, a global block with
 # `email ops@example.com` above the site.
@@ -17,6 +18,18 @@
 		lb_policy round_robin
 		lb_try_duration 5s
 		# A watch is a stream: each part goes on as it is written.
+		flush_interval -1
+	}
+}
+
+# roster's user console, where the tenant's administrators manage its members
+# (D87): the page and every call it makes, on a host of its own -- its session
+# cookie is host-only. roster reads which tenant this is from the name the
+# browser arrived at (X-Forwarded-Host, which Caddy sets), and a `Host` row at
+# roster says the name is the tenant's (README.md).
+{$ROSTER_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy roster:8080 {
 		flush_interval -1
 	}
 }

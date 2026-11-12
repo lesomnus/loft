@@ -129,10 +129,9 @@ spec:
 
       # The tables brought into this build's shape, before anything serves.
       # Only the databases: `loft migrate` opens no file, no trail and no key
-      # of the trail's, so none of the volumes are mounted here. But the key a
-      # roster of its own is called with, as in the two below: the migration
-      # opens the configuration's roster as they do, and reads the key as it
-      # opens it.
+      # of the trail's, so none of the volumes are mounted here. But the key
+      # roster is called with, as in the two below: the migration opens the
+      # configuration's roster as they do, and reads the key as it opens it.
       initContainers:
         - name: migrate
           image: ghcr.io/lesomnus/loft
@@ -141,8 +140,9 @@ spec:
             - name: LOFT_DB_DSN
               valueFrom: { secretKeyRef: { name: loft, key: db-dsn } }
             # The database of the roster in this process (`auth.roster.db`),
-            # which migrates itself whenever it is opened, here too; none on a
-            # roster of its own, whose key is mounted instead (README.md, 13).
+            # for trying it out, which migrates itself whenever it is opened,
+            # here too; none beside roster, whose key is mounted instead
+            # (README.md, 12).
             - name: LOFT_AUTH_ROSTER_DB_DSN
               valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn, optional: true } }
             # What Loft signs in to its search cluster with, when the
@@ -173,8 +173,8 @@ spec:
           env:
             - name: LOFT_DB_DSN
               valueFrom: { secretKeyRef: { name: loft, key: db-dsn } }
-            # The database of the roster in this process; none on a roster of
-            # its own (README.md, 13).
+            # The database of the roster in this process, for trying it out;
+            # none beside roster (README.md, 12).
             - name: LOFT_AUTH_ROSTER_DB_DSN
               valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn, optional: true } }
             # What Loft signs in to its search cluster with, when the
@@ -292,10 +292,9 @@ spec:
         # migration, which measures nothing.
         - name: levyan
           secret: { secretName: loft-levyan-key, optional: true, defaultMode: 288 }
-        # The key Loft calls a roster of its own with, `key`
-        # (`auth.roster.key`): in all three, since each opens the
-        # configuration's roster -- and none, for the roster in this process,
-        # which needs no key (README.md, 13).
+        # The key Loft calls roster with, `key` (`auth.roster.key`): in all
+        # three, since each opens the configuration's roster -- and none, for
+        # the roster in this process, which needs no key (README.md, 12).
         - name: roster
           secret: { secretName: loft-roster-key, optional: true, defaultMode: 288 }
         # Somewhere writable, since the root is not.
