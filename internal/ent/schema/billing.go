@@ -22,7 +22,6 @@ func (LevyanNotice) Fields() []ent.Field {
 			Immutable(),
 		field.String("kind"),
 		field.Uuid("workspace"),
-		field.Uuid("account"),
 		field.Time("date_occurred").
 			Optional(),
 		field.Time("date_told").

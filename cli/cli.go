@@ -108,7 +108,6 @@ func Cmd(c *cmd.Config) *xli.Command {
 			NewCmdUse(),
 			newCmdCall(),
 			NewCmdScan(),
-			NewCmdConsent(),
 			NewCmdMcp(),
 		},
 	}

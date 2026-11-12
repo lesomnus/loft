@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"path/filepath"
 	"testing"
-	"time"
 
 	levyanv1 "github.com/lesomnus/levyan/api/levyan/v1"
 	"github.com/lesomnus/payday/pdid"
@@ -110,14 +109,14 @@ func (d *deployment) notices(t *testing.T) []*ent.LevyanNotice {
 	return vs
 }
 
-// TestLevyanIsToldOfWhatAnOperatorMakes (design 7.6): a workspace `loft
-// init` puts up -- with `--demo`'s teams and people in it, which are of that
-// one workspace -- is told to levyan as made by its owner, in the transaction
-// that makes it; and one `tenant import` puts back as made when it was, by
-// its first owner, with what levyan grants it copied at once. An operator's
-// `holder add` writes as the deployment's work at their word, and a
-// workspace levyan restricts takes it (D60).
-func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
+// TestWhatAnOperatorMakesTellsLevyanNothingOfWhoPays (D84): a workspace
+// `loft init` puts up -- with `--demo`'s teams and people in it -- and one
+// `tenant import` puts back are told to levyan by nobody here: who made it,
+// and who pays for it, is the portal's to tell it. What levyan grants one put
+// back is copied at once. An operator's `holder add` writes as the
+// deployment's work at their word, and a workspace levyan restricts takes it
+// (D60).
+func TestWhatAnOperatorMakesTellsLevyanNothingOfWhoPays(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	fake := levyantest.Start(t)
@@ -126,30 +125,15 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 	_, err := ran(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234", "--demo")
 	x.NoError(err)
 	d := entry(t, c)
-	workspace := func(alias string) (pdid.Id, time.Time) {
-		v, err := d.s.Ent.Tenant.Query().Where(tenant.Alias(alias)).Only(ctx)
-		x.NoError(err)
-		return pdid.Id(v.Id), v.DateCreated.UTC().Truncate(time.Microsecond)
-	}
-	ownerOf := func(alias string) pdid.Id {
-		h, err := d.s.Ent.Holder.Query().Where(holder.HasTenantWith(tenant.Alias(alias)), holder.Role("owner")).Order(ent.Asc(holder.FieldDateCreated)).First(ctx)
-		x.NoError(err)
-		return pdid.Id(*h.Account)
-	}
-
-	acme, made := workspace("acme")
-	vs := d.notices(t)
-	x.Len(vs, 1, "one workspace, whatever `--demo` puts in it")
-	x.Equal(levyan.Arrived, vs[0].Kind)
-	x.Equal(acme.Uuid(), vs[0].Workspace)
-	x.Equal(ownerOf("acme").Uuid(), vs[0].Account)
-	x.Equal(made, vs[0].DateOccurred.UTC())
-	x.Equal(levyan.ByChange, vs[0].Origin)
+	v, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	acme := pdid.Id(v.Id)
+	x.Empty(d.notices(t), "nothing of who made it")
 	// The owner is in another workspace too, so its account outlives the
 	// purge below.
 	_, err = ran(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
 	x.NoError(err)
-	x.Len(d.notices(t), 2)
+	x.Empty(d.notices(t))
 
 	// Restricted, and an operator's hand all the same.
 	fake.Restrict(acme)
@@ -158,34 +142,22 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 	out, err := d.loft(t, "holder", "add", "--tenant", "acme", "--login", "kim", "--password", "kim-password")
 	x.NoError(err, out)
 
-	// Out, gone, and back: told as made when it was, by its first owner.
+	// Out, gone, and back: what levyan grants it copied, and nothing told.
 	zip := filepath.Join(t.TempDir(), "acme.zip")
 	out, err = d.loft(t, "--reason", "leaving", "tenant", "export", "--out", zip, "acme")
 	x.NoError(err, out)
 	out, err = d.loft(t, "tenant", "purge", "--yes", "acme")
 	x.NoError(err, out)
-	vs = d.notices(t)
-	x.Len(vs, 3, "and that it was destroyed (TestLevyanIsToldWhatAnOperatorEnds)")
-	x.Equal(levyan.Destroyed, vs[2].Kind)
+	vs := d.notices(t)
+	x.Len(vs, 1, "that it was destroyed (TestLevyanIsToldWhatAnOperatorEnds)")
+	x.Equal(levyan.Destroyed, vs[0].Kind)
 	dry, err := d.loft(t, "tenant", "import", "--file", zip)
 	x.NoError(err, dry)
 	x.NotContains(dry, "levyan grants")
-	x.Len(d.notices(t), 3, "a dry run tells nothing")
 	done, err := d.loft(t, "tenant", "import", "--file", zip, "--yes")
 	x.NoError(err, done)
 	x.Contains(done, "what levyan grants it is copied")
-	vs = d.notices(t)
-	x.Len(vs, 4)
-	back := vs[0]
-	for _, v := range vs {
-		if v.Workspace == acme.Uuid() && v.Kind == levyan.Arrived && v.Id != vs[0].Id {
-			back = v
-		}
-	}
-	x.NotEqual(vs[0].Id, back.Id)
-	x.Equal(levyan.Arrived, back.Kind)
-	x.Equal(ownerOf("acme").Uuid(), back.Account)
-	x.Equal(made, back.DateOccurred.UTC(), "made when it was, as levyan was told first")
+	x.Len(d.notices(t), 1, "nothing of who made it")
 	n, err := d.s.Ent.Entitlement.Query().Count(ctx)
 	x.NoError(err)
 	x.Equal(1, n, "what levyan says of it, copied: the restriction")
@@ -200,8 +172,8 @@ func TestLevyanIsToldOfWhatAnOperatorMakes(t *testing.T) {
 // closes and restores at the entry point (`tenant close|restore`) is written,
 // in the transaction that does it, as what levyan is to be told; and one
 // `tenant purge` destroys, before anything of it is taken -- which a dry run
-// does not. `loft serve`'s teller tells them, after its arrival, in the order
-// they happened.
+// does not. `loft serve`'s teller tells them, in the order they happened, to
+// a levyan the portal told the workspace arrived.
 func TestLevyanIsToldWhatAnOperatorEnds(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
@@ -217,33 +189,38 @@ func TestLevyanIsToldWhatAnOperatorEnds(t *testing.T) {
 		}
 		return out
 	}
+	acme, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	owner, err := d.s.Ent.Holder.Query().Where(holder.TenantId(acme.Id), holder.Role("owner")).Only(ctx)
+	x.NoError(err)
+	fake.Arrived(pdid.Id(acme.Id), pdid.Id(*owner.Account), acme.DateCreated)
 
 	out, err := d.loft(t, "tenant", "close", "--reason", "미납", "acme")
 	x.NoError(err, out)
-	x.Equal([]string{levyan.Arrived}, kinds(), "without --yes, nothing is done")
+	x.Empty(kinds(), "without --yes, nothing is done")
 	out, err = d.loft(t, "tenant", "close", "--reason", "미납", "--yes", "acme")
 	x.NoError(err, out)
 	out, err = d.loft(t, "tenant", "restore", "--yes", "acme")
 	x.NoError(err, out)
-	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored}, kinds())
+	x.Equal([]string{levyan.Closed, levyan.Restored}, kinds())
 
 	dry, err := d.loft(t, "tenant", "purge", "acme")
 	x.NoError(err, dry)
 	x.Contains(dry, "levyan: it is told the workspace was destroyed")
-	x.Len(kinds(), 3, "a dry run tells nothing")
+	x.Len(kinds(), 2, "a dry run tells nothing")
 	done, err := d.loft(t, "tenant", "purge", "--yes", "acme")
 	x.NoError(err, done)
 	x.Contains(done, "levyan: it is to be told the workspace was destroyed")
-	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored, levyan.Destroyed}, kinds())
+	x.Equal([]string{levyan.Closed, levyan.Restored, levyan.Destroyed}, kinds())
 
 	told, err := d.s.Teller.Tell(ctx)
 	x.NoError(err)
-	x.Equal(levyan.Told{Told: 4}, told)
+	x.Equal(levyan.Told{Told: 3}, told)
 	got := []string{}
 	for _, v := range fake.Heard() {
 		got = append(got, v.Kind)
 	}
-	x.Equal([]string{levyan.Arrived, levyan.Closed, levyan.Restored, levyan.Destroyed}, got)
+	x.Equal([]string{levyan.Closed, levyan.Restored, levyan.Destroyed}, got)
 
 	// And every row is what the trail says it is: the notices are kept off it.
 	out, err = d.loft(t, "trail", "rows")

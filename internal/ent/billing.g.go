@@ -13,7 +13,6 @@ func (e *LevyanNotice) Proto() *loft.LevyanNotice {
 	x.SetId(e.Id[:])
 	x.SetKind(e.Kind)
 	x.SetWorkspace(e.Workspace[:])
-	x.SetAccount(e.Account[:])
 	x.SetDateOccurred(timestamppb.New(e.DateOccurred))
 	if e.DateTold != nil {
 		x.SetDateTold(timestamppb.New(*e.DateTold))

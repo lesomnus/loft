@@ -3,11 +3,10 @@
 # built from this checkout, `init --demo` on a SQLite database of its own, and
 # serving the built page (ts/dist) on 127.0.0.1:PORT.
 #
-#   sh e2e/serve.sh PORT [consent | sso ISSUER | billing LEVYAN]
+#   sh e2e/serve.sh PORT [sso ISSUER | billing LEVYAN]
 #
 # Its database, files and log are in test-results/loft-PORT, which Playwright
 # empties before every run and leaves after one, for a failure to be read.
-# `consent` also asks everybody to agree to terms first (`app.consent`),
 # `sso` signs people in through the issuer at ISSUER as well (`auth.sso`):
 # the test's own, which e2e/issuer.sh stands up, and `billing` bills its
 # workspaces to the levyan whose gRPC is on 127.0.0.1:LEVYAN -- the test's
@@ -38,7 +37,7 @@ set -eu
 port=${1:-}
 case $port in
 '' | *[!0-9]*)
-	echo "usage: sh e2e/serve.sh PORT [consent | sso ISSUER | billing LEVYAN]" >&2
+	echo "usage: sh e2e/serve.sh PORT [sso ISSUER | billing LEVYAN]" >&2
 	exit 2
 	;;
 esac
@@ -112,12 +111,6 @@ export LOFT_APP_WEB=$ts/dist
 export LOFT_APP_FILES=$dir/files
 export LOFT_APP_SIGNING_KEY=loft-e2e-signing-key-not-a-secret-$port
 case ${2:-} in
-consent)
-	export LOFT_APP_CONSENT_TERMS_VERSION=2026-10-01
-	export LOFT_APP_CONSENT_TERMS_URL=https://example.com/terms
-	export LOFT_APP_CONSENT_PRIVACY_VERSION=2026-10-01
-	export LOFT_APP_CONSENT_PRIVACY_URL=https://example.com/privacy
-	;;
 sso)
 	# The client e2e/issuer.sh registers, with one button.
 	export LOFT_AUTH_SSO_ISSUER=${3:?"usage: sh e2e/serve.sh PORT sso ISSUER"}

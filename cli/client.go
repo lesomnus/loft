@@ -86,9 +86,9 @@ var reads = []string{
 	"/loft.ReservationService/Calendar", "/loft.ReservationService/Timeline", "/loft.BookableService/Availability",
 	"/loft.PartyService/Me", "/loft.LabelService/Resolve",
 	"/loft.AttachmentService/Url", "/loft.NotificationService/Inbox",
-	// What the account is in, and which of them a label is in: its own reads
-	// (D73), which were HTTP every session might ask.
-	"/loft.TenantService/Mine", "/loft.LabelService/Locate",
+	// What the account is in: its own read (D73), which was HTTP every
+	// session might ask.
+	"/loft.TenantService/Mine",
 }
 
 // expand is what `--allow` named, with `read` as [reads].

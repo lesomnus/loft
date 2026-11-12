@@ -1,11 +1,10 @@
-import { Code, ConnectError } from '@connectrpc/connect'
 import jsQR from 'jsqr'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import type { Label } from '../../gen/loft/asset_pb.js'
 import type { Asset } from '../../gen/loft/asset_pb.js'
-import { LabelService, errorText, idStr, labelWorkspace, openWorkspace, ref, workspace } from '../api.js'
+import { LabelService, errorText, idStr, ref } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetPicker } from '../pickers.js'
 import { read, useAct } from '../rpc.js'
@@ -116,19 +115,6 @@ export function Scan(): ReactNode {
 			}
 			setErr('아무것도 찾지 못했습니다.')
 		} catch (e) {
-			// Not a label here: perhaps one in another workspace of the
-			// account's, which is opened at the same scan (D28).
-			if (e instanceof ConnectError && e.code === Code.NotFound) {
-				try {
-					const w = await labelWorkspace(t)
-					if (w !== undefined && w.alias !== workspace) {
-						openWorkspace(w, `/scan/${encodeURIComponent(t)}`, code !== undefined)
-						return
-					}
-				} catch {
-					// The answer here stands.
-				}
-			}
 			setErr(errorText(e))
 		} finally {
 			setBusy(false)

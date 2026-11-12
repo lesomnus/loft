@@ -58,20 +58,6 @@ func (_u *LevyanNoticeUpdate) SetNillableWorkspace(v *uuid.UUID) *LevyanNoticeUp
 	return _u
 }
 
-// SetAccount sets the "account" field.
-func (_u *LevyanNoticeUpdate) SetAccount(v uuid.UUID) *LevyanNoticeUpdate {
-	_u.mutation.SetAccount(v)
-	return _u
-}
-
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_u *LevyanNoticeUpdate) SetNillableAccount(v *uuid.UUID) *LevyanNoticeUpdate {
-	if v != nil {
-		_u.SetAccount(*v)
-	}
-	return _u
-}
-
 // SetDateOccurred sets the "date_occurred" field.
 func (_u *LevyanNoticeUpdate) SetDateOccurred(v time.Time) *LevyanNoticeUpdate {
 	_u.mutation.SetDateOccurred(v)
@@ -199,12 +185,6 @@ func (_u *LevyanNoticeUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldWorkspace); ok {
 		_spec.SetField(levyannotice.FieldWorkspace, field.TypeUuid, e)
 	}
-	if value, ok := _u.mutation.Account(); ok {
-		_spec.SetField(levyannotice.FieldAccount, field.TypeUuid, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldAccount); ok {
-		_spec.SetField(levyannotice.FieldAccount, field.TypeUuid, e)
-	}
 	if value, ok := _u.mutation.DateOccurred(); ok {
 		_spec.SetField(levyannotice.FieldDateOccurred, field.TypeTime, value)
 	}
@@ -284,20 +264,6 @@ func (_u *LevyanNoticeUpdateOne) SetWorkspace(v uuid.UUID) *LevyanNoticeUpdateOn
 func (_u *LevyanNoticeUpdateOne) SetNillableWorkspace(v *uuid.UUID) *LevyanNoticeUpdateOne {
 	if v != nil {
 		_u.SetWorkspace(*v)
-	}
-	return _u
-}
-
-// SetAccount sets the "account" field.
-func (_u *LevyanNoticeUpdateOne) SetAccount(v uuid.UUID) *LevyanNoticeUpdateOne {
-	_u.mutation.SetAccount(v)
-	return _u
-}
-
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_u *LevyanNoticeUpdateOne) SetNillableAccount(v *uuid.UUID) *LevyanNoticeUpdateOne {
-	if v != nil {
-		_u.SetAccount(*v)
 	}
 	return _u
 }
@@ -458,12 +424,6 @@ func (_u *LevyanNoticeUpdateOne) sqlSave(ctx context.Context) (_node *LevyanNoti
 	}
 	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldWorkspace); ok {
 		_spec.SetField(levyannotice.FieldWorkspace, field.TypeUuid, e)
-	}
-	if value, ok := _u.mutation.Account(); ok {
-		_spec.SetField(levyannotice.FieldAccount, field.TypeUuid, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(levyannotice.FieldAccount); ok {
-		_spec.SetField(levyannotice.FieldAccount, field.TypeUuid, e)
 	}
 	if value, ok := _u.mutation.DateOccurred(); ok {
 		_spec.SetField(levyannotice.FieldDateOccurred, field.TypeTime, value)

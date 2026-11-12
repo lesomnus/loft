@@ -24,11 +24,10 @@ const (
 )
 
 // LevyanNotice is something levyan is to be told of a workspace, and whether
-// it was (levyan#14, design 7.6, 7.8): that a workspace was made and by whom,
-// who pays for it from then -- `levyan.v1.WorkspaceService/Arrive` -- and that
-// an account is no longer in one, which pays for it no longer if it did
-// (`Leave`); and what became of a workspace, which is when it is billed and
-// when not: closed (`Close`), restored (`Restore`), destroyed (`Destroy`).
+// it was (levyan#14, design 7.8): what became of it, which is when it is
+// billed and when not -- closed (`levyan.v1.WorkspaceService/Close`),
+// restored (`Restore`), destroyed (`Destroy`). Who pays for it is the
+// portal's to tell levyan (#326, D84).
 //
 // It is written in the transaction of the change it tells, so that a change
 // that commits is one levyan is told of and one rolled back is not, and told
@@ -44,15 +43,14 @@ const (
 // Nothing writes one on a deployment that bills nobody (`app.billing.levyan`
 // unset). A notice levyan answered stays, marked told: the record of what
 // levyan was told and when, and what the loop's first pass asks of a workspace
-// to know whether levyan was ever told it arrived, and of what became of it. No
-// RPCs: nobody's to read, and a notice a caller could write is somebody made to
-// pay by whoever could call it.
+// to know what levyan was told became of it. No RPCs: nobody's to read, and a
+// notice a caller could write is a workspace billed or not by whoever could
+// call it.
 type LevyanNotice struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_Kind         string                 `protobuf:"bytes,8,opt,name=kind"`
 	xxx_hidden_Workspace    []byte                 `protobuf:"bytes,9,opt,name=workspace"`
-	xxx_hidden_Account      []byte                 `protobuf:"bytes,10,opt,name=account"`
 	xxx_hidden_DateOccurred *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_occurred,json=dateOccurred"`
 	xxx_hidden_DateTold     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_told,json=dateTold"`
 	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
@@ -108,13 +106,6 @@ func (x *LevyanNotice) GetWorkspace() []byte {
 	return nil
 }
 
-func (x *LevyanNotice) GetAccount() []byte {
-	if x != nil {
-		return x.xxx_hidden_Account
-	}
-	return nil
-}
-
 func (x *LevyanNotice) GetDateOccurred() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateOccurred
@@ -166,13 +157,6 @@ func (x *LevyanNotice) SetWorkspace(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Workspace = v
-}
-
-func (x *LevyanNotice) SetAccount(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Account = v
 }
 
 func (x *LevyanNotice) SetDateOccurred(v *timestamppb.Timestamp) {
@@ -232,9 +216,7 @@ type LevyanNotice_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Id []byte
-	// What it tells: `arrive`, the workspace made by `account`, who pays for it
-	// from `date_occurred`; `leave`, `account` no longer a member of it from
-	// `date_occurred`; `close`, `restore` and `destroy`, the workspace closed,
+	// What it tells: `close`, `restore` and `destroy`, the workspace closed,
 	// opened again and destroyed at `date_occurred`. And `past`, which is no
 	// call of levyan's: written told, once, the mark that the closes and
 	// restores the workspaces' events kept from before were written to be told
@@ -243,16 +225,10 @@ type LevyanNotice_builder struct {
 	// The workspace, by its identifier. A column and not an edge, as the
 	// trail's are: a notice outlives the rows of the workspace it is about.
 	Workspace []byte
-	// The account at roster: the one that made the workspace, or that left it.
-	// An identifier, and nothing of the person's. None -- the nil identifier --
-	// for what became of the workspace itself, which levyan is told of no
-	// account: whoever closed it, an operator or the deployment, is the
-	// workspace's own history.
-	Account []byte
-	// When it happened: when the workspace was made, or the membership ended;
-	// when it was closed -- what the workspace says it was (`date_closed`) --
-	// restored, which nothing else keeps once it is, or destroyed, a moment
-	// after its final reading, at which its address is held. levyan reads a
+	// When it happened: when the workspace was closed -- what it says it was
+	// (`date_closed`) -- restored, which nothing else keeps once it is, or
+	// destroyed, a moment after its final reading, at which its address is
+	// held. levyan reads a
 	// workspace's life in the order of these moments and not of their telling,
 	// so one told late takes its place; told again, it is told of the same one.
 	DateOccurred *timestamppb.Timestamp
@@ -261,12 +237,8 @@ type LevyanNotice_builder struct {
 	DateTold    *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	// How it came to be written: `change`, by the change it tells, in its
-	// transaction; `backfill`, by the loop's first pass, for a workspace made
-	// before this deployment told levyan of any -- whose maker nothing
-	// recorded, so it says its first owner (`tenancy.FirstOwners`) -- and for
-	// what became of the workspaces before this deployment told levyan of it;
-	// or `notfound`, an arrival told first because levyan answered a notice of
-	// the workspace that it had heard nothing of it.
+	// transaction; or `backfill`, by the loop's first pass, for what became of
+	// the workspaces before this deployment told levyan of it.
 	Origin string
 	// What levyan said when it refused it, which it would say again, and empty
 	// for one it took: a refused notice is told, and is not told again.
@@ -280,7 +252,6 @@ func (b0 LevyanNotice_builder) Build() *LevyanNotice {
 	x.xxx_hidden_Id = b.Id
 	x.xxx_hidden_Kind = b.Kind
 	x.xxx_hidden_Workspace = b.Workspace
-	x.xxx_hidden_Account = b.Account
 	x.xxx_hidden_DateOccurred = b.DateOccurred
 	x.xxx_hidden_DateTold = b.DateTold
 	x.xxx_hidden_DateCreated = b.DateCreated
@@ -293,13 +264,11 @@ var File_loft_billing_proto protoreflect.FileDescriptor
 
 const file_loft_billing_proto_rawDesc = "" +
 	"\n" +
-	"\x12loft/billing.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xdb\x05\n" +
+	"\x12loft/billing.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xb9\x05\n" +
 	"\fLevyanNotice\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1a\n" +
 	"\x04kind\x18\b \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12$\n" +
-	"\tworkspace\x18\t \x01(\fB\x06\xea\x82\x16\x02\x10@R\tworkspace\x12 \n" +
-	"\aaccount\x18\n" +
-	" \x01(\fB\x06\xea\x82\x16\x02\x10@R\aaccount\x12H\n" +
+	"\tworkspace\x18\t \x01(\fB\x06\xea\x82\x16\x02\x10@R\tworkspace\x12H\n" +
 	"\rdate_occurred\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\fdateOccurred\x12?\n" +
 	"\tdate_told\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bdateTold\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x1e\n" +

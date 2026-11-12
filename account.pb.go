@@ -22,10 +22,9 @@ const (
 )
 
 // TenantMembership is a workspace an account is in, as the account is told it
-// (D73): what `TenantService.Mine` lists, `Create` makes, and
-// `LabelService.Locate` finds a label in. It is the account's view of a
-// membership, and no entity: the membership is a Holder, and the workspace a
-// Tenant.
+// (D73): what `TenantService.Mine` lists and `Create` makes. It is the
+// account's view of a membership, and no entity: the membership is a Holder,
+// and the workspace a Tenant.
 type TenantMembership struct {
 	state                    protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`

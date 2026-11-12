@@ -35,12 +35,6 @@ func (_c *LevyanNoticeCreate) SetWorkspace(v uuid.UUID) *LevyanNoticeCreate {
 	return _c
 }
 
-// SetAccount sets the "account" field.
-func (_c *LevyanNoticeCreate) SetAccount(v uuid.UUID) *LevyanNoticeCreate {
-	_c.mutation.SetAccount(v)
-	return _c
-}
-
 // SetDateOccurred sets the "date_occurred" field.
 func (_c *LevyanNoticeCreate) SetDateOccurred(v time.Time) *LevyanNoticeCreate {
 	_c.mutation.SetDateOccurred(v)
@@ -144,9 +138,6 @@ func (_c *LevyanNoticeCreate) check() error {
 	if _, ok := _c.mutation.Workspace(); !ok {
 		return &ValidationError{Name: "workspace", err: errors.New(`ent: missing required field "LevyanNotice.workspace"`)}
 	}
-	if _, ok := _c.mutation.Account(); !ok {
-		return &ValidationError{Name: "account", err: errors.New(`ent: missing required field "LevyanNotice.account"`)}
-	}
 	if _, ok := _c.mutation.Origin(); !ok {
 		return &ValidationError{Name: "origin", err: errors.New(`ent: missing required field "LevyanNotice.origin"`)}
 	}
@@ -211,10 +202,6 @@ func (_c *LevyanNoticeCreate) createSpec() (*LevyanNotice, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.Workspace(); ok {
 		_spec.SetField(levyannotice.FieldWorkspace, field.TypeUuid, value)
 		_node.Workspace = value
-	}
-	if value, ok := _c.mutation.Account(); ok {
-		_spec.SetField(levyannotice.FieldAccount, field.TypeUuid, value)
-		_node.Account = value
 	}
 	if value, ok := _c.mutation.DateOccurred(); ok {
 		_spec.SetField(levyannotice.FieldDateOccurred, field.TypeTime, value)

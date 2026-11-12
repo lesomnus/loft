@@ -8,10 +8,9 @@ option features.field_presence = IMPLICIT;
 option go_package = "github.com/lesomnus/loft";
 
 // TenantMembership is a workspace an account is in, as the account is told it
-// (D73): what `TenantService.Mine` lists, `Create` makes, and
-// `LabelService.Locate` finds a label in. It is the account's view of a
-// membership, and no entity: the membership is a Holder, and the workspace a
-// Tenant.
+// (D73): what `TenantService.Mine` lists and `Create` makes. It is the
+// account's view of a membership, and no entity: the membership is a Holder,
+// and the workspace a Tenant.
 message TenantMembership {
   bytes id = 1;
   string alias = 2;

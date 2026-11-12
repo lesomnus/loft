@@ -7,14 +7,12 @@ import { defineConfig, devices } from '@playwright/test'
 // E2E_OPENSEARCH searching on that cluster, on indexes of its own.
 // `npx playwright test`, on a desk as in CI; docs/dev/testing.md has the rest.
 //
-// Four of them, since one asks for agreement to terms (`app.consent`) and the
-// others must not -- every sign-in there begins with it -- one signs people
-// in through an issuer (`auth.sso`), the test's own (e2e/issuer.sh), which the
-// others have no reason to ask, and one bills its workspaces: to a levyan of
-// the test's own (`app.billing.levyan`, e2e/levyan.sh), which no other has.
+// Three of them, since one signs people in through an issuer (`auth.sso`), the
+// test's own (e2e/issuer.sh), which the others have no reason to ask, and one
+// bills its workspaces: to a levyan of the test's own (`app.billing.levyan`,
+// e2e/levyan.sh), which no other has.
 const port = Number(process.env.E2E_PORT ?? 18510)
 const app = `http://127.0.0.1:${port}`
-const consent = `http://127.0.0.1:${port + 10}`
 const sso = `http://127.0.0.1:${port + 20}`
 const issuer = `http://127.0.0.1:${port + 30}`
 const billing = `http://127.0.0.1:${port + 40}`
@@ -56,17 +54,15 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 	},
 	projects: [
-		{ name: 'app', testIgnore: /(consent|sso|billing)\.spec\.ts/, use: { baseURL: app } },
-		{ name: 'consent', testMatch: /consent\.spec\.ts/, use: { baseURL: consent } },
+		{ name: 'app', testIgnore: /(sso|billing)\.spec\.ts/, use: { baseURL: app } },
 		{ name: 'sso', testMatch: /sso\.spec\.ts/, use: { baseURL: sso }, metadata: { issuer } },
 		{ name: 'billing', testMatch: /billing\.spec\.ts/, use: { baseURL: billing }, metadata: { levyan: levyanControl } },
 	],
 	webServer: [
 		server(port),
-		server(port + 10, 'consent'),
 		server(port + 20, 'sso', issuer),
 		// Before the server that bills to it, which measures every workspace
-		// and tells it who made each as it starts.
+		// as it starts.
 		{
 			command: `sh e2e/levyan.sh ${levyan}`,
 			url: `${levyanControl}/healthz`,

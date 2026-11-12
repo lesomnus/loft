@@ -35,7 +35,7 @@
 # roster 운영자: 배포 키를 만들고(rk_… 출력), 디렉터리에 Loft를 설치
 roster control key add --allow /roster.NominationService/List loft
 roster --as <운영자> tenant add @accounts '{"name": "Loft accounts"}'
-roster app install --tenant accounts --role /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,/roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List loft
+roster app install --tenant accounts --role /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch loft
 
 # Loft
 LOFT_AUTH_ROSTER_ADDR=roster.example.com:443 LOFT_AUTH_ROSTER_DIRECTORY=accounts \
@@ -49,7 +49,6 @@ LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rk_… loft serve
 - `VouchService/Verify`: 비밀번호 로그인. `HolderService/Get`, `TenantService/Get`, `MeService/Get`: 계정과 디렉터리를 읽습니다.
 - `EmailService` 의 두 권한은 초대(D30)를 위한 것입니다. 초대장은 roster가 확인한 주소를 가진 계정의 초대함에 보이고, Loft는 그 주소를 이 권한으로 읽습니다.
 - `SyncService/Watch` 는 roster의 동기화 스트림입니다. roster가 계정을 중지·삭제하거나 모든 곳에서 로그아웃시키면 Loft가 그 자리에서 세션을 끝내고, 삭제된 계정을 떠나는 중으로 표시합니다. roster가 디렉터리를 닫으면(`roster tenant close`, roster#105) 그 디렉터리의 모든 계정의 세션이 끝나고, 닫혀 있는 동안은 아무도 로그인하지 못합니다. 아무것도 지우지 않으므로 디렉터리를 복구하면 다시 로그인할 수 있습니다.
-- `ConsentService` 의 세 권한은 약관 동의(`app.consent`, D37)를 위한 것입니다. Loft는 계정이 무엇을 빚졌는지 묻고(`Settled`), 동의를 기록하고(`Agree`), 동의한 문서를 읽습니다(`List`). Loft가 묻는 문서는 모두 필수라서 철회(`Withdraw`)는 쓰지 않습니다.
 
 ### 계정 페이지
 
@@ -63,18 +62,17 @@ LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rk_… loft serve
 
 ```sh
 # roster app install로 설치한 배포 (위의 예: 디렉터리 accounts)
-roster --as <운영자> role patch @accounts/loft-app '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch", "/roster.ConsentService/Agree", "/roster.ConsentService/Settled", "/roster.ConsentService/List"], "date_updated_force": true}'
+roster --as <운영자> role patch @accounts/loft-app '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch"], "date_updated_force": true}'
 # 내장 roster에서 옮긴 배포 (디렉터리 loft)
-roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch", "/roster.ConsentService/Agree", "/roster.ConsentService/Settled", "/roster.ConsentService/List"], "date_updated_force": true}'
+roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch"], "date_updated_force": true}'
 ```
 
 역할에 이 메서드가 없으면 이렇습니다.
 
 - 초대 메일의 링크로 받은 초대장만 초대함에 보입니다.
 - 세션은 다음 호출에서(30초 안에) 끝나며, 삭제된 계정은 떠나는 중으로 표시되지 않습니다.
-- 약관 동의를 묻는 배포는 계정이 동의했는지 알 수 없으므로 모든 계정의 호출이 거부됩니다(503, 서버 로그에 `roster role patch` 가 적힙니다).
 
-스트림을 거부당한 Loft는 서버 로그에 오류를 한 번 남기고 10분마다 다시 청하고, 동의 원장은 다음 호출에서 다시 물으므로, 역할을 고친 뒤 다시 시작하지 않아도 됩니다. 조직의 키(`rt_…`)로 붙은 배포는 키가 허용한 메서드에도 들어 있어야 하므로 키를 새로 만듭니다.
+스트림을 거부당한 Loft는 서버 로그에 오류를 한 번 남기고 10분마다 다시 청하므로, 역할을 고친 뒤 다시 시작하지 않아도 됩니다. 조직의 키(`rt_…`)로 붙은 배포는 키가 허용한 메서드에도 들어 있어야 하므로 키를 새로 만듭니다.
 
 ## 로그인과 세션
 
@@ -83,7 +81,7 @@ roster --as <운영자> role patch @loft/loft '{"methods": ["/roster.VouchServic
 - 호출마다 어느 워크스페이스인지를 `loft-workspace` 헤더로 밝힙니다(화면은 `/@<워크스페이스>` 주소에서 저절로). 워크스페이스가 하나뿐인 계정은 밝히지 않아도 됩니다.
 - 로그인한 사람이 roster에서 중지·삭제되거나 "모든 곳에서 로그아웃"되면 Loft의 세션도 끝납니다. 외부 roster면 roster가 말하는 즉시(roster의 동기화 스트림), 그렇지 않아도 30초 안에 끝납니다. roster에 물을 수 없으면 로그인과 세션이 거부됩니다(503).
 - 처음 로그인한 계정이 어느 워크스페이스에도 없으면 자기 워크스페이스가 하나 생깁니다(`tenancy.Workspaces.Arrive`). 그 뒤로 만드는 워크스페이스는 `TenantService.Create` 이고, `TenantService.Mine` 이 계정이 속한 것을 답합니다. 둘 다 계정으로 부르는 메서드입니다(payday#184, D73). 어느 워크스페이스의 구성원 자격도 아닌 계정 자신으로 처리되므로 워크스페이스를 고르기 전에 부릅니다.
-- RPC 옆의 HTTP로 남은 것은 세션이 자기에 대해 듣는 것뿐입니다. `GET /account` 는 누구인지, 동의할 것, `--allow` 를 답하고, 약관 동의는 `GET`·`POST /account/consents` 입니다. 동의하지 않은 계정은 가진 것(`Mine`, 자기 워크스페이스의 내보내기) 말고는 모든 RPC가 거절되므로, 동의는 그 거절 밖에 있어야 합니다.
+- RPC 옆의 HTTP로 남은 것은 세션이 자기에 대해 듣는 것뿐입니다. `GET /account` 는 누구인지와 `--allow` 를 답합니다.
 - 터미널의 로그인(`loft auth login`)은 브라우저에서 승인하는 같은 계정의 세션입니다([터미널과 비서](../guide/terminal.md)). 로그인 실패와 터미널 로그인의 제한은 [보안](security.md#로그인-제한)에 있습니다.
 
 ## SSO
@@ -113,17 +111,6 @@ roster 쪽에 필요한 것:
 - **누구나 가입**하게 하려면 Login App의 `login.enrol: enrolling`.
 
 테스트는 `internal/oidctest` 의 issuer로 로그인합니다([테스트](testing.md)).
-
-## 약관 동의
-
-`app.consent.terms` 와 `app.consent.privacy` 에 버전과 문서 주소를 주면, 계정은 처음 들어올 때(그리고 버전이 바뀔 때마다) 동의 화면을 봅니다(design 9.11).
-
-- 동의하기 전에는 모든 호출이 거부되고, 터미널에는 `loft consent`(무엇에 동의해야 하는지와 주소)와 `loft consent --agree` 가 있습니다.
-- 개인 워크스페이스는 동의한 뒤에 생깁니다. 동의하지 않아도 자기가 속한 워크스페이스의 목록은 받습니다(`TenantService.Mine`).
-- 문서 내용은 운영자가 따로 게시합니다. 버전을 비워 두면(기본값) 아무것도 묻지 않고, roster에도 묻지 않습니다.
-- 동의 기록은 roster의 동의 원장(`ConsentService`)에 있습니다(D37). Loft의 설정에는 어느 문서의 어느 버전이 시행 중인지만 있고, 계정이 어느 문서의 어느 버전에 언제, 화면과 터미널 중 어디서 동의했는지는 roster가 고치지 않는 행으로 남깁니다(내 정보 › 동의한 문서). 동의는 roster의 감사 기록에도 남습니다.
-- 호출마다 roster에 동의했는지 묻습니다. 동의했다는 답은 30초 동안 믿고, 동의하지 않았다는 답은 매번 다시 묻습니다. roster에 물을 수 없으면 호출이 거부됩니다(503).
-- 계정이 roster에서 삭제되어도 동의 기록은 증거로 남고, roster의 `consent.keep` 이 지나면 roster가 지웁니다. 내장 roster면 그 기간이 `auth.roster.consent_keep`(예: `26280h`)입니다. 비워 두면(기본값) 지우지 않습니다. 기간은 법률 검토 뒤에 정합니다(loft#35).
 
 ## 초대
 

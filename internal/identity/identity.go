@@ -92,14 +92,6 @@ type Config struct {
 	// the directory offers it (roster's `TenantConfig.leave`), deletes their
 	// account (`#leave`). It is an external roster's; empty draws no link.
 	AccountUrl string `yaml:"account_url"`
-
-	// ConsentKeep is how long the roster in this process keeps what an account
-	// agreed to (`app.consent`) once the account was erased -- its consent
-	// ledger's `consent.keep` -- and then destroys it. Unset keeps it for good,
-	// roster's default, until the period is decided with legal review
-	// (loft#35). It is the embedded roster's: a roster of its own says it in
-	// its own configuration.
-	ConsentKeep time.Duration `yaml:"consent_keep"`
 }
 
 // DefaultDirectory is the directory of the roster in this process when the
@@ -127,18 +119,12 @@ const RosterAdministrator = rostercore.Administers
 // for ([standing.Methods]: an account's standing, the stream of what stopped
 // being good about somebody, and the addresses somebody checked for them --
 // which is whose an invitation is), and what Loft asks itself -- checking a
-// password, reading a tenant, the ledger of what an account agreed to of this
-// deployment's documents (`Store.Owed`, `Store.Agree`, `Store.Agreements`),
-// and, for a tenant key, whose key it is. It is the `--role` an external
-// roster installs Loft with:
+// password, reading a tenant, and, for a tenant key, whose key it is. It is
+// the `--role` an external roster installs Loft with:
 //
 //	roster app install --tenant acme --role /roster.HolderService/Get,\
 //	  /roster.SyncService/Watch,/roster.EmailService/List,/roster.EmailService/Get,\
-//	  /roster.VouchService/Verify,/roster.TenantService/Get,/roster.MeService/Get,\
-//	  /roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List loft
-//
-// Not `ConsentService/Withdraw`: every document Loft asks for is required,
-// and leaving one is leaving the deployment, which is the account's erase.
+//	  /roster.VouchService/Verify,/roster.TenantService/Get,/roster.MeService/Get loft
 //
 // Installing again leaves a role the tenant has as the tenant has it
 // (roster's `docs/apps.md`): a role is changed by patching it, with the whole
@@ -150,10 +136,8 @@ const RosterAdministrator = rostercore.Administers
 // control plane (roster#221) --
 //
 // While the role lacks one of them, an account sees only the invitations it
-// holds a link for, a session learns what roster says of its account only
-// when it next asks, and on a deployment that asks for its documents to be
-// agreed to (`app.consent`) every account is refused, since whether it agreed
-// cannot be told.
+// holds a link for, and a session learns what roster says of its account only
+// when it next asks.
 //
 // People are made, given passwords and suspended at roster, by whoever
 // administers the tenant there; on the embedded roster Loft does those through
@@ -162,9 +146,6 @@ var AgentMethods = append(slices.Clone(standing.Methods),
 	"/roster.VouchService/Verify",
 	"/roster.TenantService/Get",
 	"/roster.MeService/Get",
-	"/roster.ConsentService/Agree",
-	"/roster.ConsentService/Settled",
-	"/roster.ConsentService/List",
 )
 
 // The prefixes a key is read by, the way roster reads them.
@@ -299,11 +280,6 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 		return s, nil
 	}
 
-	if cfg.ConsentKeep != 0 {
-		// Refused rather than ignored: a window nothing here applies would
-		// read as one that is kept.
-		return nil, errors.New("auth.roster.consent_keep is the roster in this process's: a roster of its own destroys consents as its own `consent.keep` says")
-	}
 	if cfg.Key == "" {
 		return nil, errors.New("auth.roster.key: an external roster is reached with a key -- " + prefixDeploymentKey + " or " + prefixTenantKey)
 	}

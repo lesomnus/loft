@@ -425,7 +425,6 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 		return n
 	}
 	wasDeployment, wasRoster, wasNotices := deployment(), roster(), notices()
-	x.Positive(wasNotices, "a deployment that bills, which tells levyan who arrived")
 
 	out, err = d.loft(t, "identity", "depart", "--member", "@acme/kim")
 	x.NoError(err, out)
@@ -467,9 +466,8 @@ func TestADepartureAskedAboutChangesNothing(t *testing.T) {
 	x.Contains(out, "left @acme\n")
 	x.Contains(out, "left @beta; its last owner, so it is @lee's now\n")
 	x.Contains(out, "left @gamma; its last owner, and nobody was there to hand it to; nobody was left in it, so it is closed\n")
-	x.Equal(3, notices(levyannotice.Account(kim.Uuid()), levyannotice.KindEQ("leave")), "levyan is told kim left all three")
-	x.Equal(1, notices(levyannotice.Workspace(gamma.Id), levyannotice.KindEQ("close")), "and that gamma is closed")
-	x.Equal(wasNotices+4, notices(), "and nothing else")
+	x.Equal(1, notices(levyannotice.Workspace(gamma.Id), levyannotice.KindEQ("close")), "levyan is told gamma is closed")
+	x.Equal(wasNotices+1, notices(), "and nothing else: who pays is the portal's to tell it (D84)")
 	for _, h := range membershipsOf(t, d.s, lee) {
 		if h.Role != "member" {
 			x.Equal("owner", h.Role, "beta is lee's")

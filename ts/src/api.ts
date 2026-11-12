@@ -156,8 +156,6 @@ export interface Account {
 	may?: number
 	/** roster's page where the account itself is managed, and deleted where its directory offers that. */
 	manage?: string
-	/** What it has to agree to before it uses anything here (design 9.11). */
-	owes?: ConsentDocument[]
 	/**
 	 * Whether this deployment's workspaces are billed, by levyan: what the page
 	 * offers a workspace's billing for (design 7.9).
@@ -177,39 +175,6 @@ export interface Account {
 	 * (`callAs`). Another sign-in of the same person is the same name.
 	 */
 	identity: string
-}
-
-/** One document an account agrees to, at the version in force. */
-export interface ConsentDocument {
-	name: string
-	title: string
-	version: string
-	url: string
-}
-
-/** One agreement an account made. */
-export interface Agreement {
-	document: string
-	version: string
-	at: string
-	client?: string
-}
-
-/** Agrees to every document named, at the version read. */
-export async function agree(docs: ConsentDocument[]): Promise<void> {
-	const res = await fetch('/account/consents', {
-		method: 'POST',
-		headers: { 'content-type': 'application/json' },
-		body: JSON.stringify({ agree: Object.fromEntries(docs.map((d) => [d.name, d.version])) }),
-	})
-	if (!res.ok) throw new Error((await res.text()).trim() || `동의를 기록하지 못했습니다 (${res.status})`)
-}
-
-/** What the account agreed to, newest first. */
-export async function agreements(): Promise<{ owed: ConsentDocument[]; agreed: Agreement[] }> {
-	const res = await fetch('/account/consents')
-	if (!res.ok) throw new Error(`동의 기록을 읽을 수 없습니다 (${res.status})`)
-	return (await res.json()) as { owed: ConsentDocument[]; agreed: Agreement[] }
 }
 
 /** Where somebody deletes their account on roster's account page: its `#leave` section. */
@@ -307,20 +272,6 @@ export async function makeWorkspace(name: string): Promise<Workspace> {
 		return workspaceOf(await raw.tenant.create({ name }))
 	} catch (err) {
 		throw new Error(errorText(err))
-	}
-}
-
-/**
- * Which of the account's workspaces a scanned code is a label in, for a scan
- * made in another; undefined for none of them. A label in a workspace the
- * account is not in reads as none. Asked as the account (D73).
- */
-export async function labelWorkspace(code: string): Promise<Workspace | undefined> {
-	try {
-		return workspaceOf(await raw.label.locate({ code }))
-	} catch (err) {
-		if (ConnectError.from(err).code === Code.NotFound) return undefined
-		throw new Error(`라벨을 찾을 수 없습니다 (${errorText(err)})`)
 	}
 }
 
@@ -660,15 +611,6 @@ export function isUnauthenticated(err: unknown): boolean {
  */
 export function isClosed(err: unknown): boolean {
 	return refusedAs(err, 'CLOSED')
-}
-
-/**
- * Whether a call was refused because the account has not agreed to a document
- * in force -- one that changed while the page was open (`cmd.ConsentOwed`).
- * Loading the page again is what asks for the agreement.
- */
-export function isConsentOwed(err: unknown): boolean {
-	return err instanceof ConnectError && err.code === Code.FailedPrecondition && err.rawMessage.includes('loft consent')
 }
 
 /** A fresh op id for a write a retry must not repeat. */

@@ -15,8 +15,6 @@ const (
 	FieldKind = "kind"
 	// FieldWorkspace holds the string denoting the workspace field in the database.
 	FieldWorkspace = "workspace"
-	// FieldAccount holds the string denoting the account field in the database.
-	FieldAccount = "account"
 	// FieldDateOccurred holds the string denoting the date_occurred field in the database.
 	FieldDateOccurred = "date_occurred"
 	// FieldDateTold holds the string denoting the date_told field in the database.
@@ -36,7 +34,6 @@ var Columns = []string{
 	FieldId,
 	FieldKind,
 	FieldWorkspace,
-	FieldAccount,
 	FieldDateOccurred,
 	FieldDateTold,
 	FieldDateCreated,
@@ -70,11 +67,6 @@ func ByKind(opts ...sql.OrderTermOption) OrderOption {
 // ByWorkspace orders the results by the workspace field.
 func ByWorkspace(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWorkspace, opts...).ToFunc()
-}
-
-// ByAccount orders the results by the account field.
-func ByAccount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccount, opts...).ToFunc()
 }
 
 // ByDateOccurred orders the results by the date_occurred field.

@@ -64,7 +64,7 @@ resources:
    채울 것:
    - `app.public_url`: 반드시 넣습니다. 없으면 서버가 뜨지 않습니다(loft#40). 라벨 QR이 이 주소를 담으므로 라벨을 인쇄하기 전에 정하고 바꾸지 않습니다.
    - `app.trusted_proxies`: 인그레스 컨트롤러의 주소입니다(아래 5).
-   - `app.mail`, `app.consent`, `auth.roster.consent_keep`, `audit.by`: 정해지는 대로 넣습니다(loft#35).
+   - `app.mail`, `audit.by`: 정해지는 대로 넣습니다(loft#35).
    - 감사 기록의 보존 기간(`audit.retain`, `audit.by`)이 하나도 없으면 보존 패스가 돌지 않아 체크포인트도 남지 않습니다. 지우지 않는 기간이라도 하나 둡니다(`docs/runbook/restore.md`).
 4. **인그레스.** 호스트, TLS(cert-manager 등), 백엔드 `loft:8080`을 정합니다.
    - 실시간 화면(watch)은 끝나지 않는 응답입니다. 그래서 프록시가 응답을 모아 두거나 일찍 끊으면 안 됩니다.
@@ -113,7 +113,7 @@ resources:
     - 키가 없거나 `lvk_`로 시작하지 않으면 서버가 뜨지 않습니다. levyan이 답하지 않으면 서버는 그대로 돌고, 그 값을 다시 보냅니다. 그동안 복구 기간이 지난 워크스페이스는 마지막 측정 없이 파기되고, 경고 로그에 남습니다(design 7.3).
 12. **외부 roster(선택).** 계정을 Loft 프로세스 안의 roster가 아니라 따로 도는 roster에 둡니다. 서버를 여러 대 띄우거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 이렇게 합니다([roster를 따로 운영할 때](../../docs/dev/identity.md#roster를-따로-운영할-때)).
     - **base가 하는 것.** Secret `loft-roster-key`의 `key`를 세 컨테이너(`migrate`, `loft`, `loft-admin`)의 `/run/secrets/loft-roster/`에 붙입니다. 셋 모두 설정의 roster를 열고, 열 때 키를 읽기 때문입니다. 이 Secret도, Secret `loft`의 `roster-db-dsn`도 `optional`입니다. 그래서 외부 roster의 배포는 `roster-db-dsn` 대신 이 Secret을 두면 되고, 오버레이에서 패치할 것이 없습니다.
-    - **설정.** `auth.roster`에서 `db:`와 `consent_keep`을 지우고(내장 roster의 것입니다) 주소, 디렉터리, 키를 적습니다. roster의 참조 배포는 클러스터 안에서 평문 gRPC(Service `roster-data`, 8080)이므로 `insecure: true`를 씁니다. 그 참조 배포에는 NetworkPolicy가 없으니, roster의 오버레이가 Loft의 파드(와 roster를 묻는 다른 앱의 파드)만 그 포트에 닿게 합니다. 그 밖이면 TLS이고, 사설 CA는 `ca_file`로 줍니다.
+    - **설정.** `auth.roster`에서 `db:`를 지우고(내장 roster의 것입니다) 주소, 디렉터리, 키를 적습니다. roster의 참조 배포는 클러스터 안에서 평문 gRPC(Service `roster-data`, 8080)이므로 `insecure: true`를 씁니다. 그 참조 배포에는 NetworkPolicy가 없으니, roster의 오버레이가 Loft의 파드(와 roster를 묻는 다른 앱의 파드)만 그 포트에 닿게 합니다. 그 밖이면 TLS이고, 사설 CA는 `ca_file`로 줍니다.
 
       ```yaml
       auth:
@@ -132,7 +132,7 @@ resources:
          ```sh
          kubectl -n <roster의 namespace> exec deploy/roster -c roster -- roster --config /config/config.yaml \
            key add --tenant loft --holder loft --name loft \
-           --allow /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,/roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List
+           --allow /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch
          ```
 
       4. **설정.** `auth.roster`를 위의 모양으로 바꿔 sync합니다. 새 파드부터 Loft가 그 roster에 묻습니다. `roster-db-dsn`은 Loft가 더 읽지 않으므로 지워도 되고, 되돌릴 때를 위해 두어도 됩니다.

@@ -1140,7 +1140,6 @@ var (
 		{Name: "id", Type: field.TypeUuid, Unique: true},
 		{Name: "kind", Type: field.TypeString},
 		{Name: "workspace", Type: field.TypeUuid},
-		{Name: "account", Type: field.TypeUuid},
 		{Name: "date_occurred", Type: field.TypeTime, Nullable: true},
 		{Name: "date_told", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
@@ -1156,7 +1155,7 @@ var (
 			{
 				Name:    "levyannotice_waiting",
 				Unique:  false,
-				Columns: []*schema.Column{LevyannoticeColumns[5], LevyannoticeColumns[4]},
+				Columns: []*schema.Column{LevyannoticeColumns[4], LevyannoticeColumns[3]},
 			},
 			{
 				Name:    "levyannotice_workspace",

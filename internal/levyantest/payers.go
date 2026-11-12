@@ -215,53 +215,24 @@ func period(now time.Time) (time.Time, time.Time) {
 // madeBy is a workspace made by its creator: who pays for it from when it was
 // made, with the first billing account they made, if they made one; said
 // again, it changes nothing.
-func (v *Levyan) madeBy(t Told) *levyanv1.Payer {
+func (v *Levyan) madeBy(workspace, creator string, at time.Time) *levyanv1.Payer {
 	v.mu.Lock()
 	defer v.mu.Unlock()
-	p := v.paying(t.Workspace)
+	p := v.paying(workspace)
 	if p.current == nil && p.next == nil && p.payerlessSince.IsZero() {
-		at := t.Created
-		if at.IsZero() {
-			at = time.Now()
-		}
 		l := levyanv1.Link_builder{
 			Id:        newId(),
-			Workspace: t.Workspace,
-			Account:   t.Account,
+			Workspace: workspace,
+			Account:   creator,
 			DateStart: timestamppb.New(at),
 			Began:     levyanv1.LinkBegan_LINK_BEGAN_ARRIVED,
 		}.Build()
-		if bs := v.billing[t.Account]; len(bs) > 0 {
+		if bs := v.billing[creator]; len(bs) > 0 {
 			l.SetBillingAccount(bs[0].GetId())
 		}
 		p.current = l
 	}
-	return v.payerOf(t.Workspace)
-}
-
-// goneFrom is an account gone from a workspace: if it paid for it, nobody
-// does from now, and the workspace is restricted [Grace] after and read-only
-// [ReadOnlyAfter] after; what was offered to it is withdrawn.
-func (v *Levyan) goneFrom(t Told) *levyanv1.Payer {
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	p := v.paying(t.Workspace)
-	if p.next != nil && p.next.GetAccount() == t.Account {
-		p.next = nil
-	}
-	if p.current != nil && p.current.GetAccount() == t.Account {
-		p.current = nil
-		if p.next == nil {
-			now := time.Now().UTC().Truncate(time.Microsecond)
-			p.payerlessSince, p.restrictedFrom, p.readonlyFrom = now, now.Add(Grace), now.Add(ReadOnlyAfter)
-		}
-	}
-	for _, o := range v.offers {
-		if o.v.GetWorkspace() == t.Workspace && o.v.GetAccount() == t.Account {
-			o.answered = true
-		}
-	}
-	return v.payerOf(t.Workspace)
+	return v.payerOf(workspace)
 }
 
 // payerOf is who pays for a workspace, as levyan says it, and the credit

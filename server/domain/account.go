@@ -14,7 +14,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/loft"
-	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/tenancy"
@@ -149,40 +148,4 @@ func (s domainTenant) Create(ctx context.Context, req *app.TenantCreateRequest) 
 	}
 
 	return s.membership(ctx, m), nil
-}
-
-// Locate is which of the caller's account's workspaces a scanned code is a
-// label in (D28). One of a workspace it is not in reads as no label at all,
-// and its memberships are asked first either way, so that the two take the
-// same asking.
-func (s domainLabel) Locate(ctx context.Context, req *app.LabelLocateRequest) (*app.TenantMembership, error) {
-	ctx, err := pd.AccountReads(ctx, app.LabelService_Locate_FullMethodName, pd.Reads{})
-	if err != nil {
-		return nil, err
-	}
-	me, err := caller(ctx)
-	if err != nil {
-		return nil, err
-	}
-	ws, err := s.workspaces()
-	if err != nil {
-		return nil, err
-	}
-	ms, err := ws.Of(ctx, me)
-	if err != nil {
-		return nil, err
-	}
-
-	db := ent.NewClient(ent.Driver(s.drv))
-	in, at, err := LabelWorkspace(ctx, db, req.GetCode())
-	if err != nil {
-		return nil, err
-	}
-	for _, m := range ms {
-		if at && m.Workspace == in {
-			return s.membership(ctx, m), nil
-		}
-	}
-
-	return nil, status.Error(codes.NotFound, "no workspace of yours has this label")
 }

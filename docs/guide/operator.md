@@ -22,7 +22,7 @@
 - [`deploy/compose`](../../deploy/compose/README.md)는 한 대의 서버에 띄우는 운영 구성 전체입니다. PostgreSQL, 마이그레이션, `loft serve` 두 대, 운영자 진입점, 인증서를 받는 Caddy가 들어 있습니다. 운영자가 채울 것은 도메인과 비밀값(`.env`, `secrets/`)이고, 이미지는 저장소 루트의 `Dockerfile` 로 짓습니다(`docker build -t loft .`).
 - Kubernetes에 띄우는 참조 배포는 [`deploy/k8s`](../../deploy/k8s/README.md)입니다. 운영의 기준이고, main의 빌드는 CI가 `ghcr.io/lesomnus/loft` 로 올립니다.
 - 관측(로그, 추적, 지표, 대시보드)은 [`deploy/observe`](../../deploy/observe/README.md)와 [관측 런북](../runbook/observe.md)에 있습니다.
-- 운영 전에 정할 것: `app.public_url`(라벨 QR이 담으므로 **라벨을 인쇄하기 전에 정하고 바꾸지 않습니다**), `app.signing_key`, `app.trusted_proxies`, `app.mail`, `app.consent`, 감사 기록의 보존 기간(`audit.by`), 감사 기록의 서명 키와 지문의 키. 무엇인지는 두 `deploy/` README의 표와 [보안](../dev/security.md), [기록과 보존](../dev/retention.md)에 있습니다.
+- 운영 전에 정할 것: `app.public_url`(라벨 QR이 담으므로 **라벨을 인쇄하기 전에 정하고 바꾸지 않습니다**), `app.signing_key`, `app.trusted_proxies`, `app.mail`, 감사 기록의 보존 기간(`audit.by`), 감사 기록의 서명 키와 지문의 키. 무엇인지는 두 `deploy/` README의 표와 [보안](../dev/security.md), [기록과 보존](../dev/retention.md)에 있습니다.
 
 첫 워크스페이스와 그 소유자는 서버 상자에서 만듭니다. `--password` 를 빼면 만들어서 한 번 보여 줍니다.
 
@@ -109,7 +109,7 @@ loft search remove --yes     # 이 배포가 만든 인덱스와 별칭을 모�
 
 ## 과금 붙이기
 
-`app.billing.levyan` 으로 청구 서비스 levyan을 붙이면 워크스페이스마다 잰 것을 넘기고, levyan이 준 권한으로 제한하고, 누가 내는지에 필요한 것을 알립니다. levyan의 운영자가 할 일(제품, 키, 미터)과 설정은 [과금과 결제](../dev/billing.md)에, Kubernetes에서 키를 붙이는 곳은 `deploy/k8s/README.md` 의 11에 있습니다.
+`app.billing.levyan` 으로 청구 서비스 levyan을 붙이면 워크스페이스마다 잰 것을 넘기고, levyan이 준 권한으로 제한하고, 워크스페이스를 닫고 되돌리고 파기한 것을 알립니다. 누가 내는지는 포털이 levyan에 알립니다. levyan의 운영자가 할 일(제품, 키, 미터)과 설정은 [과금과 결제](../dev/billing.md)에, Kubernetes에서 키를 붙이는 곳은 `deploy/k8s/README.md` 의 11에 있습니다.
 
 - levyan이 답하지 않아도 Loft는 그대로 돌고, 잰 값과 알림은 기다렸다가 다시 보냅니다.
 - 운영자의 명령(`loft holder add` 같은 것)은 제한이나 읽기 전용에 막히지 않습니다.

@@ -187,9 +187,6 @@ func init() {
 
 	allow(Read, "LabelService", "Resolve")
 	allow(Manager, "LabelService", "Print", "Bind", "Unbind")
-	// Which of the account's workspaces a label is in (D28, D73): the
-	// account's own, asked across every workspace it is in.
-	allow(Account, "LabelService", "Locate")
 
 	allow(Read, "AttachmentService", "Url")
 	allow(Member, "AttachmentService", "Upload")

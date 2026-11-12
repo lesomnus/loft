@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"path"
 	"strings"
-	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -300,43 +299,6 @@ func (s domainLabel) Resolve(ctx context.Context, req *app.LabelResolveRequest) 
 	}
 
 	return t.resolved(id)
-}
-
-// LabelWorkspace is the workspace a scanned code is in, whichever workspace it
-// was scanned from: a label's by its code, or by its identifier for one
-// printed before codes, or an asset's by its own -- or false for none. It reads
-// past the wall, and is only for telling an account which of its own
-// workspaces to look in (`LabelService.Locate`, D73).
-func LabelWorkspace(ctx context.Context, db *ent.Client, v string) (pdid.Id, bool, error) {
-	var (
-		tenant uuid.UUID
-		err    error
-	)
-	if c, ok := NormalLabelCode(v); ok {
-		var l *ent.Label
-		if l, err = db.Label.Query().Where(label.Code(c), label.DateErasedIsNil()).Only(ctx); err == nil {
-			tenant = l.TenantId
-		}
-	} else if id, ok := ParseLabel(v); !ok {
-		return pdid.Nil, false, nil
-	} else if id.Domain() == pd.AssetDomain {
-		var a *ent.Asset
-		if a, err = db.Asset.Query().Where(asset.Id(id.Uuid()), asset.DateErasedIsNil()).Only(ctx); err == nil {
-			tenant = a.TenantId
-		}
-	} else {
-		var l *ent.Label
-		if l, err = db.Label.Query().Where(label.Id(id.Uuid()), label.DateErasedIsNil()).Only(ctx); err == nil {
-			tenant = l.TenantId
-		}
-	}
-	switch {
-	case ent.IsNotFound(err):
-		return pdid.Nil, false, nil
-	case err != nil:
-		return pdid.Nil, false, err
-	}
-	return pdid.Id(tenant), true, nil
 }
 
 // resolved is what a label of this tenant's answers to a scan: itself, and

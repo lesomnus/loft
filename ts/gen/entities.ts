@@ -336,7 +336,7 @@ export const LevyanNotice = {
 	schema: LevyanNoticeSchema,
 	domain: 51,
 	key: "id",
-	ids: ["id", "workspace", "account"],
+	ids: ["id", "workspace"],
 	service: LevyanNoticeService,
 } as const satisfies EntityDesc
 

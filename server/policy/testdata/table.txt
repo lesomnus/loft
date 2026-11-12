@@ -96,7 +96,6 @@
 /loft.LabelService/Bind	manager
 /loft.LabelService/Get	read
 /loft.LabelService/List	read
-/loft.LabelService/Locate	account
 /loft.LabelService/Print	manager
 /loft.LabelService/Resolve	read
 /loft.LabelService/Unbind	manager

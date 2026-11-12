@@ -17,10 +17,9 @@ export const file_loft_account: GenFile = /*@__PURE__*/
 
 /**
  * TenantMembership is a workspace an account is in, as the account is told it
- * (D73): what `TenantService.Mine` lists, `Create` makes, and
- * `LabelService.Locate` finds a label in. It is the account's view of a
- * membership, and no entity: the membership is a Holder, and the workspace a
- * Tenant.
+ * (D73): what `TenantService.Mine` lists and `Create` makes. It is the
+ * account's view of a membership, and no entity: the membership is a Holder,
+ * and the workspace a Tenant.
  *
  * @generated from message loft.TenantMembership
  */

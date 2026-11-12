@@ -22,7 +22,6 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/ent"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/tenancy"
@@ -139,9 +138,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			}
 
 			// And the workspace, which is Loft's, with the account's
-			// membership of it -- and, on a deployment that bills, levyan's
-			// notice that the account made it, which is who pays for it
-			// (design 7.6) -- in one transaction.
+			// membership of it, in one transaction.
 			t, h, err := initWorkspace(ctx, s, alias, name, login, person, email, p)
 			if err != nil {
 				return err
@@ -173,9 +170,8 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 	}
 }
 
-// initWorkspace puts up the workspace `init` makes, its owner's membership and
-// person record, and what levyan is to be told of it: one transaction, so that
-// a workspace there is one levyan hears of.
+// initWorkspace puts up the workspace `init` makes, and its owner's membership
+// and person record: one transaction.
 func initWorkspace(ctx context.Context, s *cmd.Server, alias, name, login, person, email string, p identity.Person) (*app.Tenant, *app.Holder, error) {
 	tdrv, tx, err := dialect.BeginTx(ctx, s.Drv)
 	if err != nil {
@@ -210,13 +206,6 @@ func initWorkspace(ctx context.Context, s *cmd.Server, alias, name, login, perso
 		Holder: app.HolderRef_builder{Id: h.GetId()}.Build(),
 	}.Build()); err != nil {
 		return nil, nil, err
-	}
-	tid, err := pdid.From(t.GetId())
-	if err != nil {
-		return nil, nil, err
-	}
-	if err := s.Notices.Arrive(ctx, ent.NewClient(ent.Driver(tdrv)), tid, p.Id, t.GetDateCreated().AsTime()); err != nil {
-		return nil, nil, fmt.Errorf("levyan: %w", err)
 	}
 	if err := tx.Commit(); err != nil {
 		return nil, nil, err

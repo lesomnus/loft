@@ -22,8 +22,6 @@ type LevyanNotice struct {
 	Kind string `json:"kind,omitempty"`
 	// Workspace holds the value of the "workspace" field.
 	Workspace uuid.UUID `json:"workspace,omitempty"`
-	// Account holds the value of the "account" field.
-	Account uuid.UUID `json:"account,omitempty"`
 	// DateOccurred holds the value of the "date_occurred" field.
 	DateOccurred time.Time `json:"date_occurred,omitempty"`
 	// DateTold holds the value of the "date_told" field.
@@ -46,7 +44,7 @@ func (*LevyanNotice) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case levyannotice.FieldDateOccurred, levyannotice.FieldDateTold, levyannotice.FieldDateCreated:
 			values[i] = new(sql.NullTime)
-		case levyannotice.FieldId, levyannotice.FieldWorkspace, levyannotice.FieldAccount:
+		case levyannotice.FieldId, levyannotice.FieldWorkspace:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -80,12 +78,6 @@ func (_m *LevyanNotice) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field workspace", values[i])
 			} else if value != nil {
 				_m.Workspace = *value
-			}
-		case levyannotice.FieldAccount:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field account", values[i])
-			} else if value != nil {
-				_m.Account = *value
 			}
 		case levyannotice.FieldDateOccurred:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -159,9 +151,6 @@ func (_m *LevyanNotice) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("workspace=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Workspace))
-	builder.WriteString(", ")
-	builder.WriteString("account=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Account))
 	builder.WriteString(", ")
 	builder.WriteString("date_occurred=")
 	builder.WriteString(_m.DateOccurred.Format(time.ANSIC))

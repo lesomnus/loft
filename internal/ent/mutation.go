@@ -8286,23 +8286,6 @@ func (m *LevyanNoticeMutation) OldWorkspace(ctx context.Context) (v uuid.UUID, e
 	return oldValue.Workspace, nil
 }
 
-// OldAccount returns the old "account" field's value of the LevyanNotice entity.
-// If the LevyanNotice object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *LevyanNoticeMutation) OldAccount(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldAccount is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldAccount requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAccount: %w", err)
-	}
-	return oldValue.Account, nil
-}
-
 // OldDateOccurred returns the old "date_occurred" field's value of the LevyanNotice entity.
 // If the LevyanNotice object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -8397,8 +8380,6 @@ func (m *LevyanNoticeMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldKind(ctx)
 	case levyannotice.FieldWorkspace:
 		return m.OldWorkspace(ctx)
-	case levyannotice.FieldAccount:
-		return m.OldAccount(ctx)
 	case levyannotice.FieldDateOccurred:
 		return m.OldDateOccurred(ctx)
 	case levyannotice.FieldDateTold:

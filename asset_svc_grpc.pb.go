@@ -1212,7 +1212,6 @@ const (
 	LabelService_Bind_FullMethodName    = "/loft.LabelService/Bind"
 	LabelService_Unbind_FullMethodName  = "/loft.LabelService/Unbind"
 	LabelService_Resolve_FullMethodName = "/loft.LabelService/Resolve"
-	LabelService_Locate_FullMethodName  = "/loft.LabelService/Locate"
 )
 
 // LabelServiceClient is the client API for LabelService service.
@@ -1250,12 +1249,6 @@ type LabelServiceClient interface {
 	Unbind(ctx context.Context, in *LabelUnbindRequest, opts ...grpc.CallOption) (*Label, error)
 	// Resolve reads what a scanned code names.
 	Resolve(ctx context.Context, in *LabelResolveRequest, opts ...grpc.CallOption) (*LabelResolveResponse, error)
-	// Locate is which of the caller's account's workspaces a scanned code is a
-	// label in (D28, D73): for one scanned in another, or at an address that
-	// names none. A label of a workspace the account is not in is NotFound, as
-	// no label at all is: which codes are somebody's is nobody else's to learn.
-	// The account's own (payday#184).
-	Locate(ctx context.Context, in *LabelLocateRequest, opts ...grpc.CallOption) (*TenantMembership, error)
 }
 
 type labelServiceClient struct {
@@ -1385,16 +1378,6 @@ func (c *labelServiceClient) Resolve(ctx context.Context, in *LabelResolveReques
 	return out, nil
 }
 
-func (c *labelServiceClient) Locate(ctx context.Context, in *LabelLocateRequest, opts ...grpc.CallOption) (*TenantMembership, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TenantMembership)
-	err := c.cc.Invoke(ctx, LabelService_Locate_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // LabelServiceServer is the server API for LabelService service.
 // All implementations must embed UnimplementedLabelServiceServer
 // for forward compatibility.
@@ -1430,12 +1413,6 @@ type LabelServiceServer interface {
 	Unbind(context.Context, *LabelUnbindRequest) (*Label, error)
 	// Resolve reads what a scanned code names.
 	Resolve(context.Context, *LabelResolveRequest) (*LabelResolveResponse, error)
-	// Locate is which of the caller's account's workspaces a scanned code is a
-	// label in (D28, D73): for one scanned in another, or at an address that
-	// names none. A label of a workspace the account is not in is NotFound, as
-	// no label at all is: which codes are somebody's is nobody else's to learn.
-	// The account's own (payday#184).
-	Locate(context.Context, *LabelLocateRequest) (*TenantMembership, error)
 	mustEmbedUnimplementedLabelServiceServer()
 }
 
@@ -1478,9 +1455,6 @@ func (UnimplementedLabelServiceServer) Unbind(context.Context, *LabelUnbindReque
 }
 func (UnimplementedLabelServiceServer) Resolve(context.Context, *LabelResolveRequest) (*LabelResolveResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Resolve not implemented")
-}
-func (UnimplementedLabelServiceServer) Locate(context.Context, *LabelLocateRequest) (*TenantMembership, error) {
-	return nil, status.Error(codes.Unimplemented, "method Locate not implemented")
 }
 func (UnimplementedLabelServiceServer) mustEmbedUnimplementedLabelServiceServer() {}
 func (UnimplementedLabelServiceServer) testEmbeddedByValue()                      {}
@@ -1694,24 +1668,6 @@ func _LabelService_Resolve_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _LabelService_Locate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LabelLocateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LabelServiceServer).Locate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: LabelService_Locate_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LabelServiceServer).Locate(ctx, req.(*LabelLocateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // LabelService_ServiceDesc is the grpc.ServiceDesc for LabelService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1758,10 +1714,6 @@ var LabelService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Resolve",
 			Handler:    _LabelService_Resolve_Handler,
-		},
-		{
-			MethodName: "Locate",
-			Handler:    _LabelService_Locate_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

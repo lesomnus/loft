@@ -7,12 +7,11 @@
 //     `loft.restricted` and `loft.readonly` among them -- streamed to whoever
 //     watches and listed to whoever asks, as levyan's own does (levyan's
 //     design 13);
-//   - its WorkspaceService's Arrive and Leave, every call kept in the order it
-//     came, taken unless a test says levyan is down -- and who pays for each
-//     workspace, as levyan works it out of them, what is offered (`Offer`)
-//     and `GetPayer` (payers.go); and what a payer does where a payer pays,
-//     which no product asks of it, as a test says it: a billing account
-//     opened, whether it can be collected, an offer accepted;
+//   - who pays for each workspace (payers.go): what the portal tells it --
+//     that a workspace was made, and by whom ([Levyan.Arrived]) -- and what
+//     a payer does where a payer pays, which no product asks of it, as a test
+//     says it: a billing account opened, whether it can be collected, an
+//     offer accepted; and what is offered (`Offer`) and `GetPayer`;
 //   - its BillingService's usage, worked out of the readings it kept, and the
 //     statements a test gives (payers.go) or closes ([Levyan.ClosePeriod]);
 //   - what levyan's operator gives beyond what the prices include
@@ -82,8 +81,8 @@ type Levyan struct {
 	watchers map[chan *pdpb.EntitlementGrant]chan struct{}
 	lists    int
 
-	// What it was told of who pays, and whether it takes it: from nobody
-	// while it is down, and of a workspace it fails.
+	// What it was told became of the workspaces, and whether it takes it:
+	// from nobody while it is down, and of a workspace it fails.
 	told    []Told
 	down    error
 	failing map[string]error
@@ -98,15 +97,12 @@ type Levyan struct {
 	benefits
 }
 
-// Told is one call of WorkspaceService that came with the key: `arrive` or
-// `leave`, of a workspace and an account, and when an arrival says it was
-// made; or `close`, `restore` or `destroy`, of a workspace, and the moment it
-// says. A call levyan was down for, or refused, is not kept.
+// Told is one call of WorkspaceService that came with the key: `close`,
+// `restore` or `destroy`, of a workspace, and the moment it says. A call
+// levyan was down for, or refused, is not kept.
 type Told struct {
 	Kind      string
 	Workspace string
-	Account   string
-	Created   time.Time
 	At        time.Time
 }
 
@@ -470,45 +466,15 @@ func (v *Levyan) Heard() []Told {
 	return slices.Clone(v.told)
 }
 
-func (v *Levyan) hear(ctx context.Context, t Told) error {
-	if err := keyed(ctx); err != nil {
-		return err
+// Arrived is what the portal tells levyan of a workspace (#326): that it was
+// made, by `creator`, at `created` -- who pays for it from then, with the
+// first billing account they opened, if they opened one. levyan keeps the
+// first it was told. No product tells it this any more (D84), so a test says
+// it.
+func (v *Levyan) Arrived(workspace, creator pdid.Id, created time.Time) *levyanv1.Payer {
+	if created.IsZero() {
+		created = time.Now()
 	}
-
-	v.mu.Lock()
-	defer v.mu.Unlock()
-	if v.down != nil {
-		return v.down
-	}
-	if err := v.failing[t.Workspace]; err != nil {
-		return err
-	}
-	if _, err := pdid.Parse(t.Workspace); err != nil {
-		return status.Errorf(codes.InvalidArgument, "levyantest: %q is not a workspace", t.Workspace)
-	}
-	if _, err := pdid.Parse(t.Account); err != nil {
-		return status.Errorf(codes.InvalidArgument, "levyantest: %q is not an account", t.Account)
-	}
-	v.told = append(v.told, t)
-	return nil
-}
-
-func (v *Levyan) Arrive(ctx context.Context, req *levyanv1.ArriveRequest) (*levyanv1.ArriveResponse, error) {
-	t := Told{Kind: "arrive", Workspace: req.GetWorkspace(), Account: req.GetCreator()}
-	if req.HasDateCreated() {
-		t.Created = req.GetDateCreated().AsTime()
-	}
-	if err := v.hear(ctx, t); err != nil {
-		return nil, err
-	}
-	v.arrived(t)
-	return levyanv1.ArriveResponse_builder{Payer: v.madeBy(t)}.Build(), nil
-}
-
-func (v *Levyan) Leave(ctx context.Context, req *levyanv1.LeaveRequest) (*levyanv1.LeaveResponse, error) {
-	t := Told{Kind: "leave", Workspace: req.GetWorkspace(), Account: req.GetAccount()}
-	if err := v.hear(ctx, t); err != nil {
-		return nil, err
-	}
-	return levyanv1.LeaveResponse_builder{Payer: v.goneFrom(t)}.Build(), nil
+	v.arrived(workspace.String(), created)
+	return v.madeBy(workspace.String(), creator.String(), created)
 }

@@ -279,36 +279,6 @@ func (g grants) List(ctx context.Context, in *pdpb.GrantListRequest, opts ...grp
 	return g.c.grants.List(call, in, opts...)
 }
 
-// Arrive tells levyan that `workspace` was made by `creator` at `created`:
-// who pays for it from then, until somebody else says they will
-// (`levyan.v1.WorkspaceService/Arrive`). levyan takes it once; said again, it
-// changes nothing.
-func (c *Client) Arrive(ctx context.Context, workspace, creator pdid.Id, created time.Time) error {
-	call, cancel := c.call(ctx)
-	defer cancel()
-
-	_, err := c.workspaces.Arrive(call, levyanv1.ArriveRequest_builder{
-		Workspace:   workspace.String(),
-		Creator:     creator.String(),
-		DateCreated: timestamppb.New(created),
-	}.Build())
-	return err
-}
-
-// Leave tells levyan that `account` is no longer in `workspace`: if it paid
-// for it, it pays no longer (`levyan.v1.WorkspaceService/Leave`). Said again,
-// it changes nothing.
-func (c *Client) Leave(ctx context.Context, workspace, account pdid.Id) error {
-	call, cancel := c.call(ctx)
-	defer cancel()
-
-	_, err := c.workspaces.Leave(call, levyanv1.LeaveRequest_builder{
-		Workspace: workspace.String(),
-		Account:   account.String(),
-	}.Build())
-	return err
-}
-
 // CloseWorkspace tells levyan that `workspace` was closed at `at`: from then
 // until it is restored it is billed for none of what it holds, though it is
 // still measured, and its payer stays its payer

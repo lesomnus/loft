@@ -72,7 +72,7 @@ loft asset search -o wide '{"q": "노트북"}'
 | [검색 엔진](docs/dev/search.md) | OpenSearch와 nori, 색인, 명령, 개발용 클러스터 |
 | [계정과 로그인](docs/dev/identity.md) | roster(내장과 외부), SSO, 약관 동의, 초대, 계정이 떠날 때 |
 | [과금과 결제](docs/dev/billing.md) | levyan, 미터, 제한과 읽기 전용, 워크스페이스의 결제 설정과 배너 |
-| [라벨](docs/dev/labels.md) | 라벨 코드와 그 주소, 다른 워크스페이스의 라벨 |
+| [라벨](docs/dev/labels.md) | 라벨 코드와 그 주소, 스캔 |
 | [보안](docs/dev/security.md) | 콘텐츠 보안 정책, 세션의 키, 믿는 프록시, 로그인 제한 |
 | [기록과 보존](docs/dev/retention.md) | 이력의 보존, 감사 기록과 보관소, 접속기록, 워크스페이스의 파기와 내보내기 |
 | [테스트](docs/dev/testing.md) | Go 테스트, PostgreSQL과 OpenSearch에서, 브라우저 테스트(Playwright) |

@@ -40,7 +40,7 @@ func TestTheTreeIsTheSchemasWords(t *testing.T) {
 	root := root()
 	words(t, "loft", root.Commands)
 
-	utilities := []string{"version", "config", "init", "migrate", "serve", "auth", "use", "call", "scan", "consent", "mcp"}
+	utilities := []string{"version", "config", "init", "migrate", "serve", "auth", "use", "call", "scan", "mcp"}
 	for _, name := range utilities {
 		x.NotNil(root.Commands.Get(name), name)
 	}
