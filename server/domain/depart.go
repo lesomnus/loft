@@ -93,7 +93,7 @@ func (t *Tx) depart(member pdid.Id) (Departure, error) {
 // many of the trail's rows a legal hold kept as they were.
 func (t *Tx) pseudonymize(p *app.Party) (*app.Party, int, error) {
 	id := idOf(p.GetId())
-	name := "익명 " + id.String()[:8]
+	name := pseudonymOf(id)
 	objects := []pdid.Id{id}
 
 	out, err := t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
@@ -113,6 +113,18 @@ func (t *Tx) pseudonymize(p *app.Party) (*app.Party, int, error) {
 
 	held, err := t.endMembership(idOf(p.GetHolder().GetId()), id, objects)
 	return out, held, err
+}
+
+// pseudonymOf is what a person record forgotten, or a membership of
+// somebody forgotten, is called from then: "익명" and the start of its
+// identifier.
+func pseudonymOf(id pdid.Id) string { return "익명 " + id.String()[:8] }
+
+// forgotten is whether a person record is one forgotten here: called what
+// forgetting it called it.
+func forgotten(p *app.Party) bool {
+	id := idOf(p.GetId())
+	return !id.IsZero() && p.GetName() == pseudonymOf(id)
 }
 
 // Pseudonymized is the act a membership's own name going is on the trail as.
@@ -137,9 +149,9 @@ func (t *Tx) endMembership(member, person pdid.Id, objects []pdid.Id) (int, erro
 				return 0, err
 			}
 		}
-		pseudonym := "익명 " + member.String()[:8]
+		pseudonym := pseudonymOf(member)
 		if !person.IsZero() {
-			pseudonym = "익명 " + person.String()[:8]
+			pseudonym = pseudonymOf(person)
 		}
 		if err := t.db.Holder.UpdateOneId(member.Uuid()).
 			SetAlias("").

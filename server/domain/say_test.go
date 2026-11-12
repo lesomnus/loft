@@ -41,6 +41,7 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 
 	tenant := pdid.New(pd.TenantDomain)
 	kim, kimHolder := pdid.New(pd.PartyDomain), pdid.New(pd.HolderDomain)
+	lee := pdid.New(pd.PartyDomain)
 	nobody := pdid.New(pd.PartyDomain)
 	asset, other := pdid.New(pd.AssetDomain), pdid.New(pd.AssetDomain)
 	stock := pdid.New(pd.StockDomain)
@@ -52,7 +53,7 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 
 	n := &namer{
 		t:       &Tx{ctx: ctx, tenant: tenant},
-		parties: map[uuid.UUID]called{kim.Uuid(): {found: true, name: "김철수"}},
+		parties: map[uuid.UUID]called{kim.Uuid(): {found: true, name: "김철수"}, lee.Uuid(): {found: true, name: "이영희"}},
 		holders: map[uuid.UUID]called{kimHolder.Uuid(): {found: true, name: "김철수"}},
 		members: map[uuid.UUID]called{kimHolder.Uuid(): {found: true, name: "@kim"}},
 		// The laptop's type calls its attribute `cpu` "CPU", and gives `gpu`
@@ -171,6 +172,9 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"party.add", app.PartySaved_builder{Party: kim.Bytes(), Kind: "person"}.Build(), "추가: 김철수"},
 		{"party.update", app.PartySaved_builder{Party: kim.Bytes()}.Build(), "수정: 김철수"},
 		{"party.update", app.PartySaved_builder{Party: nobody.Bytes()}.Build(), "수정: ?"},
+		{"party.link", app.PartyLinked_builder{Party: kim.Bytes(), Holder: kimHolder.Bytes()}.Build(), "구성원 연결: 김철수 (@kim)"},
+		{"party.link", app.PartyLinked_builder{Party: kim.Bytes(), Holder: kimHolder.Bytes(), Was: lee.Bytes()}.Build(), "구성원 연결: 김철수 (@kim, 이영희에서 옮김)"},
+		{"party.unlink", app.PartyUnlinked_builder{Party: kim.Bytes(), Holder: kimHolder.Bytes()}.Build(), "구성원 연결 끊기: 김철수 (@kim)"},
 		{"party.pseudonymize", app.PartyPseudonymized_builder{Held: 2}.Build(), "개인정보 삭제"},
 		{"type.add", app.AssetTypeSaved_builder{Name: "노트북", Kind: "item"}.Build(), "유형 추가: 노트북"},
 		{"type.update", app.AssetTypeSaved_builder{Name: "노트북"}.Build(), "유형 수정: 노트북"},

@@ -257,6 +257,15 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "party.update", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartySaved) string {
 		return "수정: " + who(r, m.GetParty())
 	})
+	past.SayKind(s, "party.link", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyLinked) string {
+		if len(m.GetWas()) > 0 {
+			return fmt.Sprintf("구성원 연결: %s (%s, %s에서 옮김)", who(r, m.GetParty()), alias(r, m.GetHolder()), who(r, m.GetWas()))
+		}
+		return fmt.Sprintf("구성원 연결: %s (%s)", who(r, m.GetParty()), alias(r, m.GetHolder()))
+	})
+	past.SayKind(s, "party.unlink", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyUnlinked) string {
+		return fmt.Sprintf("구성원 연결 끊기: %s (%s)", who(r, m.GetParty()), alias(r, m.GetHolder()))
+	})
 	past.SayKind(s, "party.pseudonymize", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyPseudonymized) string {
 		return "개인정보 삭제"
 	})
@@ -371,6 +380,18 @@ func who(r *past.Reading, b []byte) string {
 		return v
 	}
 	return "?"
+}
+
+// alias is a membership by the name it signs in with, `@` and it, or the
+// pseudonym of somebody forgotten: what the namer the reading is for says,
+// which puts whose it is on the access record as [who] does.
+func alias(r *past.Reading, b []byte) string {
+	n := namerOf(r.Context())
+	id := idOf(b)
+	if n == nil || id.IsZero() {
+		return "?"
+	}
+	return n.member(id.Uuid())
 }
 
 // attribute is an asset's attribute `key` as a sentence says it: by the label

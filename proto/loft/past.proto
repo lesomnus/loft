@@ -185,8 +185,10 @@ option (payday.app) = {
 // party.* holds, by number:
 //
 //    1  party          bytes                      -- the person, team, organization or vendor
+//    2  holder         bytes                      -- the membership: a login of the workspace
 //    3  kind           string                     -- what the party is: person | team | org | vendor
 //    7  held           uint32                     -- how many of the trail's rows a legal hold kept as they were
+//    8  was            bytes                      -- the person record a membership was before it was linked to another
 //
 // purchase.* holds, by number:
 //
@@ -755,6 +757,27 @@ message PartySaved {
 
   bytes party = 1;
   string kind = 3;
+}
+
+// PartyLinked is a membership made by hand the person record it is
+// (`party.link`, D88): `party` the record, and `was` the one it was before,
+// when it was one's.
+message PartyLinked {
+  option (payday.event) = {kinds: "party.link"};
+
+  bytes party = 1;
+  bytes holder = 2;
+  bytes was = 8;
+}
+
+// PartyUnlinked is a membership taken off its person record by hand
+// (`party.unlink`, D88): it is no record's from then until one is linked to
+// it, and the record keeps its history.
+message PartyUnlinked {
+  option (payday.event) = {kinds: "party.unlink"};
+
+  bytes party = 1;
+  bytes holder = 2;
 }
 
 // PartyPseudonymized is a person forgotten in the workspace

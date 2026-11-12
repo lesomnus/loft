@@ -107,7 +107,8 @@ type People interface {
 }
 
 // Members is who somebody roster vouched for is here: their membership, made
-// the first time they sign in ([tenancy.Members.Of]).
+// the first time they sign in and taken up again by one ended here
+// ([tenancy.Members.Of]).
 type Members interface {
 	Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
 }
@@ -258,8 +259,8 @@ func (rp *Rp) login(w http.ResponseWriter, r *http.Request) {
 //
 // What went wrong past the state is not the browser's to be told in detail: it
 // lands on the sign-in page with `?signin=refused` when the person said no at
-// the issuer, `ended` when their membership was ended here, `unavailable` when
-// roster could not be asked, and `failed` for the rest, which the log says.
+// the issuer, `unavailable` when roster could not be asked, and `failed` for
+// the rest, which the log says.
 func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	http.SetCookie(w, &http.Cookie{Name: stateCookie, Path: "/sso", MaxAge: -1, HttpOnly: true, Secure: rp.secure, SameSite: http.SameSiteLaxMode})
@@ -333,9 +334,6 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 
 	h, err := rp.members.Of(ctx, p)
 	switch {
-	case errors.Is(err, tenancy.ErrEnded):
-		http.Redirect(w, r, "/?signin=ended", http.StatusSeeOther)
-		return
 	case errors.Is(err, tenancy.ErrNoRole):
 		// Somebody roster binds no role of Loft's comes no further (D89).
 		http.Redirect(w, r, "/?signin=norole", http.StatusSeeOther)

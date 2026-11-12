@@ -402,8 +402,8 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Contents = func() (audit.Contents, error) { return content, nil }
 	deps.Finder = engine
 	// Who somebody roster vouched for is here: a member, made the first time
-	// they sign in (D85).
-	s.Members = tenancy.Members{Base: base, Drv: drv, People: people}
+	// they sign in (D85), and taken up again by one ended here (D88).
+	s.Members = tenancy.Members{Base: base, Drv: drv, People: people, Audit: content}
 
 	// Who is calling is a session cookie, held on every call to what roster
 	// says of its person, and what they may call is what roster says of them

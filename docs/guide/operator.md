@@ -63,10 +63,10 @@ loft config env --set # 설정이 읽는 환경변수 가운데 정해진 것
 - **역할 바꾸기**: 외부 roster에서 Loft의 역할은 roster 운영자가 `roster role patch` 로 바꿉니다([역할 바꾸기](../dev/identity.md#역할-바꾸기-roster-role-patch)). 역할에 Loft가 묻는 메서드가 없으면 서버 로그에 `roster role patch` 가 적힙니다.
 - **SSO**: roster의 issuer로 로그인하게 하는 설정과 roster 쪽에 필요한 것은 [SSO](../dev/identity.md#sso)에 있습니다.
 
-내장 roster에는 사람을 넣는 화면이 없으므로, 운영자 진입점에서 사람을 만들어 구성원으로 넣고 비밀번호를 줍니다(예: 새로 온 사람, 소유자가 비밀번호를 잊었을 때). `loft init --demo` 의 사람도 같은 길로 만듭니다. 외부 roster면 둘 다 거부되고 roster의 화면에서 합니다.
+내장 roster에는 사람을 넣는 화면이 없으므로, 운영자 진입점에서 사람을 만들어 구성원으로 넣고 비밀번호를 줍니다(예: 새로 온 사람, 소유자가 비밀번호를 잊었을 때). `loft init --demo` 의 사람도 같은 길로 만듭니다. 여기서 구성원 자격이 끝난 사람에게 `holder add` 를 하면 그 자격을 다시 들입니다(D88). roster가 그 사람을 멈춰 두었으면 거절합니다. 외부 roster면 둘 다 거부되고 roster의 화면에서 합니다.
 
 ```sh
-loft holder add --login minsu --name 김민수 --role member   # roster에 없으면 만들고 비밀번호를 한 번 출력
+loft holder add --login minsu --name 김민수 --role member   # roster에 없으면 만들고 비밀번호를 한 번 출력, 여기서 끝낸 구성원이면 다시 들임
 loft holder password --login admin                          # 새 비밀번호를 한 번 출력, 로그인된 곳은 모두 끝남
 loft identity link                                          # roster에 없는 구성원(복구한 워크스페이스)을 같은 ID로 roster에 만듦
 ```
@@ -161,7 +161,7 @@ loft retention plan --tenant loft                   # 보관 기간이 지금 �
 loft retention run                                  # app.retention.apply가 켜져 있을 때만 가져감
 
 # 사람 (내장 roster) 과 roster
-loft holder add --login minsu --name 김민수 --role member   # roster에 없으면 만들고 비밀번호를 한 번 출력
+loft holder add --login minsu --name 김민수 --role member   # roster에 없으면 만들고 비밀번호를 한 번 출력, 여기서 끝낸 구성원이면 다시 들임
 loft holder password --login admin                  # 새 비밀번호를 한 번 출력, 로그인된 곳은 모두 끝남
 loft identity depart --member minsu                 # 할 일: 누구에게 넘어가는지, 닫히는지 (아무것도 바꾸지 않음)
 loft identity depart --member minsu --yes           # 지금 떠남

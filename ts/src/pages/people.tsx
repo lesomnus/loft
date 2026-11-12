@@ -3,6 +3,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import type { Party } from '../../gen/loft/org_pb.js'
 import { AssetService, HolderService, PartyService, idBytes, idStr, ref } from '../api.js'
 import { useCatalog } from '../catalog.js'
+import { LinkMember, Recordless, forgotten } from '../members.js'
 import { AssetLink, PartySelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Kv, Load, Modal, PageHead, Search, Select, Tabs } from '../ui.js'
@@ -78,6 +79,7 @@ export function People(): ReactNode {
 				/>
 				<Search value={q} onChange={setQ} placeholder="이름, 이메일, 사번" />
 			</div>
+			{tab === 'org' && c.may(PartyService.method.linkMember) && <Recordless />}
 			{tab === 'org' && (
 				<div className="team-grid">
 					{teams
@@ -193,8 +195,15 @@ function PartyDialog(props: { p: Party; onClose: () => void }): ReactNode {
 	const p = props.p
 	const [mode, setMode] = useState<'view' | 'edit'>('view')
 	const holds = useRpc(AssetService.method.search, p.kind === 'vendor' ? null : { custodian: ref(p.id), size: 100 })
-	const admin = c.may(PartyService.method.update)
 	const self = idStr(c.me.party?.id) === idStr(p.id)
+	const may = {
+		update: c.may(PartyService.method.update),
+		pseudonymize: p.kind === 'person' && !self && c.may(PartyService.method.pseudonymize),
+		link: p.kind === 'person' && p.holder === undefined && !forgotten(p) && c.may(PartyService.method.linkMember),
+		unlink: p.kind === 'person' && p.holder !== undefined && !self && c.may(PartyService.method.unlinkMember),
+	}
+	const [linking, setLinking] = useState(false)
+	if (linking) return <LinkMember p={p} onClose={props.onClose} />
 
 	if (mode === 'edit') return <PartyForm kind={p.kind} p={p} onClose={props.onClose} />
 
@@ -229,16 +238,27 @@ function PartyDialog(props: { p: Party; onClose: () => void }): ReactNode {
 					</Load>
 				</Card>
 			)}
-			{admin && (
+			{(may.update || may.pseudonymize || may.link || may.unlink) && (
 				<footer className="modal-actions">
-					<button onClick={() => setMode('edit')}>수정</button>
-					{p.kind === 'person' && !self && (
+					{may.update && <button onClick={() => setMode('edit')}>수정</button>}
+					{may.pseudonymize && (
 						<Confirm
 							label="개인정보 삭제"
 							danger
 							question={`${p.name}의 이름, 연락처를 지우고 익명으로 바꿉니다. 이력의 기록은 '익명'으로 남습니다. 되돌릴 수 없습니다.`}
 							onYes={async () => {
 								const v = await act(PartyService.method.pseudonymize, { ref: ref(p.id) }, { ok: '익명으로 바꿨습니다.' })
+								if (v !== undefined) props.onClose()
+							}}
+						/>
+					)}
+					{may.link && <button onClick={() => setLinking(true)}>구성원과 잇기</button>}
+					{may.unlink && (
+						<Confirm
+							label="구성원 연결 끊기"
+							question={`${p.name}에서 구성원을 떼어 냅니다. 기록과 이력은 남고, 그 구성원은 다른 사람 기록과 이을 때까지 사람 기록이 없습니다.`}
+							onYes={async () => {
+								const v = await act(PartyService.method.unlinkMember, { ref: ref(p.id) }, { ok: '끊었습니다.' })
 								if (v !== undefined) props.onClose()
 							}}
 						/>

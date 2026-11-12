@@ -29,6 +29,8 @@ const (
 	PartyService_Me_FullMethodName           = "/loft.PartyService/Me"
 	PartyService_Update_FullMethodName       = "/loft.PartyService/Update"
 	PartyService_Pseudonymize_FullMethodName = "/loft.PartyService/Pseudonymize"
+	PartyService_LinkMember_FullMethodName   = "/loft.PartyService/LinkMember"
+	PartyService_UnlinkMember_FullMethodName = "/loft.PartyService/UnlinkMember"
 	PartyService_Search_FullMethodName       = "/loft.PartyService/Search"
 )
 
@@ -67,6 +69,15 @@ type PartyServiceClient interface {
 	Update(ctx context.Context, in *PartyUpdateRequest, opts ...grpc.CallOption) (*Party, error)
 	// Pseudonymize answers a request to forget a person (design 8.2).
 	Pseudonymize(ctx context.Context, in *PartyPseudonymizeRequest, opts ...grpc.CallOption) (*Party, error)
+	// LinkMember makes a person record the one a membership is, by hand
+	// (D88): for a member whose first sign-in found none of the records an
+	// address roster checked could be, or the wrong one. A membership that
+	// was another record's leaves it.
+	LinkMember(ctx context.Context, in *PartyLinkMemberRequest, opts ...grpc.CallOption) (*Party, error)
+	// UnlinkMember takes a person record's membership off it, by hand (D88):
+	// the record keeps its history, and the membership is no record's until
+	// one is linked to it.
+	UnlinkMember(ctx context.Context, in *PartyUnlinkMemberRequest, opts ...grpc.CallOption) (*Party, error)
 	// Search finds people, teams, organizations and vendors by what a person
 	// types: a name or part of it, a code, the team one is in. A deployment
 	// that names a search engine asks it (D31, loft#91).
@@ -190,6 +201,26 @@ func (c *partyServiceClient) Pseudonymize(ctx context.Context, in *PartyPseudony
 	return out, nil
 }
 
+func (c *partyServiceClient) LinkMember(ctx context.Context, in *PartyLinkMemberRequest, opts ...grpc.CallOption) (*Party, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Party)
+	err := c.cc.Invoke(ctx, PartyService_LinkMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *partyServiceClient) UnlinkMember(ctx context.Context, in *PartyUnlinkMemberRequest, opts ...grpc.CallOption) (*Party, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Party)
+	err := c.cc.Invoke(ctx, PartyService_UnlinkMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *partyServiceClient) Search(ctx context.Context, in *PartySearchRequest, opts ...grpc.CallOption) (*PartySearchResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PartySearchResponse)
@@ -235,6 +266,15 @@ type PartyServiceServer interface {
 	Update(context.Context, *PartyUpdateRequest) (*Party, error)
 	// Pseudonymize answers a request to forget a person (design 8.2).
 	Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error)
+	// LinkMember makes a person record the one a membership is, by hand
+	// (D88): for a member whose first sign-in found none of the records an
+	// address roster checked could be, or the wrong one. A membership that
+	// was another record's leaves it.
+	LinkMember(context.Context, *PartyLinkMemberRequest) (*Party, error)
+	// UnlinkMember takes a person record's membership off it, by hand (D88):
+	// the record keeps its history, and the membership is no record's until
+	// one is linked to it.
+	UnlinkMember(context.Context, *PartyUnlinkMemberRequest) (*Party, error)
 	// Search finds people, teams, organizations and vendors by what a person
 	// types: a name or part of it, a code, the team one is in. A deployment
 	// that names a search engine asks it (D31, loft#91).
@@ -278,6 +318,12 @@ func (UnimplementedPartyServiceServer) Update(context.Context, *PartyUpdateReque
 }
 func (UnimplementedPartyServiceServer) Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error) {
 	return nil, status.Error(codes.Unimplemented, "method Pseudonymize not implemented")
+}
+func (UnimplementedPartyServiceServer) LinkMember(context.Context, *PartyLinkMemberRequest) (*Party, error) {
+	return nil, status.Error(codes.Unimplemented, "method LinkMember not implemented")
+}
+func (UnimplementedPartyServiceServer) UnlinkMember(context.Context, *PartyUnlinkMemberRequest) (*Party, error) {
+	return nil, status.Error(codes.Unimplemented, "method UnlinkMember not implemented")
 }
 func (UnimplementedPartyServiceServer) Search(context.Context, *PartySearchRequest) (*PartySearchResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Search not implemented")
@@ -476,6 +522,42 @@ func _PartyService_Pseudonymize_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PartyService_LinkMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PartyLinkMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PartyServiceServer).LinkMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PartyService_LinkMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PartyServiceServer).LinkMember(ctx, req.(*PartyLinkMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PartyService_UnlinkMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PartyUnlinkMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PartyServiceServer).UnlinkMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PartyService_UnlinkMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PartyServiceServer).UnlinkMember(ctx, req.(*PartyUnlinkMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PartyService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PartySearchRequest)
 	if err := dec(in); err != nil {
@@ -536,6 +618,14 @@ var PartyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Pseudonymize",
 			Handler:    _PartyService_Pseudonymize_Handler,
+		},
+		{
+			MethodName: "LinkMember",
+			Handler:    _PartyService_LinkMember_Handler,
+		},
+		{
+			MethodName: "UnlinkMember",
+			Handler:    _PartyService_UnlinkMember_Handler,
 		},
 		{
 			MethodName: "Search",

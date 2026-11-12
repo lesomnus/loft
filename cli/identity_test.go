@@ -383,6 +383,34 @@ func TestAnOperatorPutsAMemberInAndGivesThemAPassword(t *testing.T) {
 	x.ErrorContains(err, "nobody at roster signs in as nobody")
 }
 
+// TestAnOperatorTakesUpAMembershipEndedHere (D88): `holder add` for somebody
+// whose membership was ended here makes it theirs again while roster has
+// them, binding there the role it says -- and not while roster has them suspended,
+// which is roster's to undo first.
+func TestAnOperatorTakesUpAMembershipEndedHere(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+	d := aDeployment(t)
+	kim := memberIdOf(t, d.s, "kim")
+	_, err := d.s.Base.Holder().Erase(ctx, app.HolderRef_builder{Id: kim.Bytes()}.Build())
+	x.NoError(err)
+
+	x.NoError(d.s.Identity.Disable(ctx, kim))
+	_, err = d.loft(t, "holder", "add", "--login", "kim", "--role", "manager")
+	x.ErrorContains(err, "roster has kim suspended")
+	x.NotNil(row(t, d.s, kim).DateErased, "taken up while roster has them suspended")
+	x.NoError(d.s.Identity.Enable(ctx, kim))
+
+	out, err := d.loft(t, "holder", "add", "--login", "kim", "--role", "manager")
+	x.NoError(err, out)
+	h := row(t, d.s, kim)
+	x.Nil(h.DateErased)
+	x.Equal("kim", h.Alias)
+	x.NoError(d.s.Identity.Reach().May(ctx, kim, app.ReservationService_Approve_FullMethodName), "bound a manager at roster (D89)")
+	_, err = d.loft(t, "holder", "add", "--login", "kim")
+	x.ErrorContains(err, "is a member here already")
+}
+
 // TestAnOperatorDepartsAMemberAtOnce: somebody who asked to be forgotten now
 // leaves the workspace, is told what became of it, is signed out where they
 // were, and -- on the roster in this process -- leaves it too. Asked about

@@ -43,6 +43,15 @@ service PartyService {
   rpc Update(PartyUpdateRequest) returns (Party);
   // Pseudonymize answers a request to forget a person (design 8.2).
   rpc Pseudonymize(PartyPseudonymizeRequest) returns (Party);
+  // LinkMember makes a person record the one a membership is, by hand
+  // (D88): for a member whose first sign-in found none of the records an
+  // address roster checked could be, or the wrong one. A membership that
+  // was another record's leaves it.
+  rpc LinkMember(PartyLinkMemberRequest) returns (Party);
+  // UnlinkMember takes a person record's membership off it, by hand (D88):
+  // the record keeps its history, and the membership is no record's until
+  // one is linked to it.
+  rpc UnlinkMember(PartyUnlinkMemberRequest) returns (Party);
   // Search finds people, teams, organizations and vendors by what a person
   // types: a name or part of it, a code, the team one is in. A deployment
   // that names a search engine asks it (D31, loft#91).
@@ -312,6 +321,18 @@ message PartyUpdateRequest {
 }
 
 message PartyPseudonymizeRequest {
+  PartyRef ref = 1;
+}
+
+message PartyLinkMemberRequest {
+  // A person record of the workspace's that no membership is, and that was
+  // not forgotten.
+  PartyRef ref = 1;
+  // A membership of the workspace's, which roster has.
+  HolderRef holder = 2;
+}
+
+message PartyUnlinkMemberRequest {
   PartyRef ref = 1;
 }
 

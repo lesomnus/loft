@@ -330,8 +330,8 @@ type People interface {
 const NoRole = "no role of loft's at roster"
 
 // Members is who somebody roster vouched for is here: their membership, made
-// the first time they sign in ([tenancy.Members.Of]) -- [tenancy.ErrEnded]
-// for one ended here, [tenancy.ErrNoWorkspace] before `loft init`, and
+// the first time they sign in and taken up again by one ended here
+// ([tenancy.Members.Of]) -- [tenancy.ErrNoWorkspace] before `loft init`, and
 // [tenancy.ErrNoRole] for somebody roster binds no role of Loft's.
 type Members interface {
 	Of(ctx context.Context, p identity.Person) (*ent.Holder, error)
@@ -411,9 +411,6 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, membe
 
 		h, err := members.Of(ctx, p)
 		switch {
-		case errors.Is(err, tenancy.ErrEnded):
-			http.Error(w, "this login was ended here", http.StatusForbidden)
-			return
 		case errors.Is(err, tenancy.ErrNoRole):
 			// Somebody roster binds no role of Loft's comes no further, and
 			// is told to ask at roster rather than that a password is wrong.
