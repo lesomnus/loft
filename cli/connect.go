@@ -37,7 +37,8 @@ import (
 type connectConn struct {
 	base   string
 	client *http.Client
-	// header is sent with every call: the session cookie, the workspace.
+	// header is sent with every call: a person's session cookie, or an
+	// operator's key.
 	header http.Header
 	// kind is whose connection this is, for what a call that went to the
 	// wrong kind is told ([refusal]); empty tells it nothing more.
