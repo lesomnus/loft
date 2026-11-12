@@ -26,8 +26,12 @@
 #
 # k3d writes every cluster it makes into the default kubeconfig and switches to
 # it, unless it is told not to -- and the default kubeconfig is where a
-# person's real clusters are. So it is told not to, and nothing here reads that
-# file either.
+# person's real clusters are. `cluster create` can be told not to, and
+# `cluster delete` cannot: it takes the cluster out of whichever kubeconfig is
+# the default, and switches the current context away when it was that one. So
+# every k3d call here runs with a kubeconfig of the run's own (`KUBECONFIG`,
+# below), as roster's rig does (roster#246), and nothing here reads or writes
+# the person's file.
 #
 # # Why everything runs in a container
 #
@@ -61,6 +65,11 @@ for bin in k3d docker; do
 done
 
 work="$(mktemp -d)"
+# The kubeconfig k3d calls its default, which is this run's own: `cluster
+# delete` rewrites whichever file that is, and on a desk the one it would find
+# is somebody's real clusters. `kube` has its own (below), and `--hold` says how
+# to get one.
+export KUBECONFIG="${work}/k3d.yaml"
 vol="loft-cluster-$$"
 docker volume create "${vol}" >/dev/null
 carry() { tar -C "${work}" -cf - . | docker run --rm -i -v "${vol}:/w" "${ALPINE_IMAGE}" sh -c 'tar -C /w -xf -'; }
@@ -90,19 +99,22 @@ cleanup() {
 		diagnose
 	fi
 
-	rm -rf "${work}"
 	docker volume rm -f "${vol}" >/dev/null 2>&1 || true
 	if [ -z "${hold}" ]; then
+		# Into the run's own kubeconfig, which goes with `work` after it.
 		k3d cluster delete "${CLUSTER}" >/dev/null 2>&1 || true
 		# The names it gave what it built, and not the layers, which the
 		# next run builds on.
 		docker image rm "loft-cluster:rig" "loft-cluster:next" "loft-postgres:rig" >/dev/null 2>&1 || true
 	else
 		echo
-		echo "cluster: left up, with its kubeconfig written nowhere. To look:"
-		echo "  k3d kubeconfig get ${CLUSTER} > ./rig.kubeconfig && KUBECONFIG=./rig.kubeconfig kubectl -n ${NS} get pods"
-		echo "and to take it down: k3d cluster delete ${CLUSTER}"
+		echo "cluster: left up, with its kubeconfig written nowhere. To look, and to take"
+		echo "it down, with a kubeconfig of its own -- never the default one:"
+		echo "  export KUBECONFIG=./rig.kubeconfig"
+		echo "  k3d kubeconfig get ${CLUSTER} > \"\${KUBECONFIG}\" && kubectl -n ${NS} get pods"
+		echo "  k3d cluster delete ${CLUSTER}"
 	fi
+	rm -rf "${work}"
 }
 trap cleanup EXIT
 
