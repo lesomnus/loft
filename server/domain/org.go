@@ -204,7 +204,7 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 	var out *app.PartyInviteResponse
 	var made pdid.Id
 	err = s.tx(ctx, func(t *Tx) error {
-		// Before an account is made at roster for it, which a transaction
+		// Before somebody is made at roster for it, which a transaction
 		// undone would leave there (D60, D64).
 		if err := t.held(); err != nil {
 			return err
@@ -258,21 +258,21 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 			return err
 		}
 
-		// Which holder at roster the membership is, is not a request's to
-		// say, and the gate refuses it to one: it is written through the
-		// deployment's own servers, on this transaction, as the caller and
-		// in the caller's workspace -- the one just made for it.
+		// Which holder at roster the membership is -- its identifier -- is
+		// not a request's to say, and the gate refuses it to one: it is
+		// written through the deployment's own servers, on this
+		// transaction, as the caller and in the caller's workspace -- the
+		// identifier of the one just made for it.
 		base, err := t.deployment()
 		if err != nil {
 			return err
 		}
 		h, err := base.Holder().Add(t.ctx, app.HolderAddRequest_builder{
-			Id:      person.Id.Bytes(),
-			Tenant:  t.tenantRef(),
-			Alias:   alias,
-			Name:    p.GetName(),
-			Role:    z.Ptr(role),
-			Account: person.Id.Bytes(),
+			Id:     person.Id.Bytes(),
+			Tenant: t.tenantRef(),
+			Alias:  alias,
+			Name:   p.GetName(),
+			Role:   z.Ptr(role),
 		}.Build())
 		if err != nil {
 			return err
@@ -296,7 +296,7 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 		return nil
 	})
 	if err != nil && made != pdid.Nil {
-		// Loft kept nothing of them, so roster keeps nothing of the account
+		// Loft kept nothing of them, so roster keeps nothing of the holder
 		// made for it either.
 		if e := people.ForgetPerson(ctx, made); e != nil {
 			err = fmt.Errorf("%w (and the person made at roster for it is still there: %v)", err, e)
@@ -397,12 +397,11 @@ func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordR
 		}
 
 		h, err := t.db.Holder.Get(t.ctx, target.Uuid())
-		if err != nil || h.DateErased != nil || h.Account == nil {
+		if err != nil || h.DateErased != nil {
 			return failed("바꿀 비밀번호가 없는 사람입니다")
 		}
-		account := pdid.Id(*h.Account)
 		if own {
-			p, err := people.ById(t.ctx, account.String())
+			p, err := people.ById(t.ctx, target.String())
 			if err != nil {
 				return err
 			}
@@ -420,16 +419,16 @@ func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordR
 		}.Build()); err != nil {
 			return err
 		}
-		if err := people.SetPassword(t.ctx, account, req.GetPassword()); err != nil {
+		if err := people.SetPassword(t.ctx, target, req.GetPassword()); err != nil {
 			return passwordRefused(err)
 		}
 		if !own {
 			// A password reset by somebody else is somebody being locked out
 			// of wherever they are signed in: here, and at roster.
-			if err := people.Invalidate(t.ctx, account); err != nil {
+			if err := people.Invalidate(t.ctx, target); err != nil {
 				return err
 			}
-			return t.signOut(account)
+			return t.signOut(target)
 		}
 		return nil
 	})
@@ -778,7 +777,7 @@ func (s domainItemModel) Update(ctx context.Context, req *app.ItemModelUpdateReq
 }
 
 // signOut ends every session a member has.
-func (t *Tx) signOut(account pdid.Id) error {
-	_, err := t.db.Session.Delete().Where(session.Account(account.Uuid())).Exec(t.ctx)
+func (t *Tx) signOut(member pdid.Id) error {
+	_, err := t.db.Session.Delete().Where(session.Holder(member.Uuid())).Exec(t.ctx)
 	return err
 }

@@ -247,12 +247,14 @@ func (s *Store) MakeTenant(ctx context.Context, name, login, person string) (Ten
 	return t, p, secret, nil
 }
 
-// EnsureTenant is the tenant at the embedded roster, made with nobody in it
-// but the administrator roster makes every tenant with when it is not there:
-// by the identifier, alias and name of the workspace here (D85), as a
-// workspace restored from another deployment's export has them -- what giving
-// its members a way in starts from (`loft identity link`). One there already
-// with another identifier is refused.
+// EnsureTenant is the tenant this deployment serves at the embedded roster,
+// made with nobody in it but the administrator roster makes every tenant with
+// when it is not there: by the identifier and name of the workspace here
+// (D85), as a workspace restored from another deployment's export has them --
+// what giving its members a way in starts from (`loft identity link`) -- and
+// at the address the deployment serves (`auth.roster.tenant`), which is the
+// workspace's from then (D86). One there already with another identifier is
+// refused.
 func (s *Store) EnsureTenant(ctx context.Context, want Tenant) (Tenant, error) {
 	if s.em == nil {
 		return Tenant{}, ErrExternal
@@ -260,9 +262,6 @@ func (s *Store) EnsureTenant(ctx context.Context, want Tenant) (Tenant, error) {
 	alias, err := s.tenantAlias(ctx)
 	if err != nil {
 		return Tenant{}, err
-	}
-	if want.Alias != alias {
-		return Tenant{}, fmt.Errorf("the workspace here is @%s, and this deployment serves @%s (auth.roster.tenant)", want.Alias, alias)
 	}
 	t, err := s.Tenant(ctx)
 	switch {
@@ -318,14 +317,14 @@ func (s *Store) AddPerson(ctx context.Context, alias, name string, id pdid.Id) (
 // AddAddress puts an address on somebody at the embedded roster, checked or
 // not, as the deployment says: what a deployment that runs roster here knows
 // of its people, which no link was sent to prove.
-func (s *Store) AddAddress(ctx context.Context, account pdid.Id, address string, verified bool) error {
+func (s *Store) AddAddress(ctx context.Context, holder pdid.Id, address string, verified bool) error {
 	if s.em == nil {
 		return ErrExternal
 	}
 	ctx, cancel := unframed(ctx)
 	defer cancel()
 	v, err := s.em.rs.Ungated.Email().Add(ctx, rstr.EmailAddRequest_builder{
-		Holder:  rstr.HolderRef_builder{Id: account.Bytes()}.Build(),
+		Holder:  rstr.HolderRef_builder{Id: holder.Bytes()}.Build(),
 		Address: strings.ToLower(strings.TrimSpace(address)),
 	}.Build())
 	if err != nil || !verified {
@@ -496,20 +495,31 @@ type Adoptee struct {
 	Name  string
 }
 
+// Adopted is what [Store.Adopt] did: the passwords of the people it made, by
+// alias, and the people it could not make, by identifier, because roster
+// erased somebody by it -- and forgot them, or will once its grace is over --
+// and makes nobody else under it.
+type Adopted struct {
+	Passwords map[string]string
+	Erased    []pdid.Id
+}
+
 // Adopt writes members roster does not have into the tenant of the embedded
 // roster, with the identifiers they already have, and issues each of them a
 // password -- `password`, or one made up for each when it is empty: the
 // members of a workspace restored from an export of another deployment's
 // (design 9.10, `loft identity link`). Somebody roster has already is left
-// alone, so it can be run again. It answers the passwords by alias, for the
-// people it made. The tenant has to be there ([Store.EnsureTenant]).
-func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (map[string]string, error) {
+// alone, so it can be run again; somebody it erased is said
+// ([Adopted.Erased]) and made nobody. The tenant has to be there
+// ([Store.EnsureTenant]).
+func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (Adopted, error) {
+	out := Adopted{Passwords: map[string]string{}}
 	if s.em == nil {
-		return nil, ErrExternal
+		return out, ErrExternal
 	}
 	d, err := s.Tenant(ctx)
 	if err != nil {
-		return nil, err
+		return out, err
 	}
 	alias := d.Alias
 	ctx, cancel := unframed(ctx)
@@ -517,15 +527,21 @@ func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (m
 	own := s.em.rs.Ungated
 	tref := rstr.TenantRef_builder{Id: d.Id.Bytes()}.Build()
 
-	passwords := map[string]string{}
 	for _, p := range people {
 		if p.Alias == Agent {
-			return nil, fmt.Errorf("@%s/%s: the name Loft acts by at roster; nobody else can have it there", alias, p.Alias)
+			return out, fmt.Errorf("@%s/%s: the name Loft acts by at roster; nobody else can have it there", alias, p.Alias)
 		}
 		if _, err := own.Holder().Get(ctx, rstr.HolderGetRequest_builder{Ref: rstr.HolderRef_builder{Id: p.Id.Bytes()}.Build()}.Build()); err == nil {
 			continue
 		} else if status.Code(err) != codes.NotFound {
-			return nil, err
+			return out, err
+		}
+		// A read leaves out somebody erased, whose row stays -- an
+		// identifier naming nobody, once forgotten -- and is nobody to make
+		// again.
+		if _, err := s.em.rs.Ent.Holder.Get(ctx, p.Id.Uuid()); err == nil {
+			out.Erased = append(out.Erased, p.Id)
+			continue
 		}
 		v, err := own.Holder().Get(ctx, rstr.HolderGetRequest_builder{
 			Ref: rstr.HolderRef_builder{Slug: rstr.HolderRefBySlug_builder{Alias: z.Ptr(p.Alias), Tenant: tref}.Build()}.Build(),
@@ -537,18 +553,18 @@ func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (m
 			// of that name is who it was for.
 			id, err := pdid.From(v.GetId())
 			if err != nil {
-				return nil, err
+				return out, err
 			}
 			if err := s.ForgetPerson(ctx, id); err != nil {
-				return nil, fmt.Errorf("@%s/%s: %w", alias, p.Alias, err)
+				return out, fmt.Errorf("@%s/%s: %w", alias, p.Alias, err)
 			}
 		case err == nil:
-			return nil, fmt.Errorf("@%s/%s: somebody else at roster already", alias, p.Alias)
+			return out, fmt.Errorf("@%s/%s: somebody else at roster already", alias, p.Alias)
 		case status.Code(err) != codes.NotFound:
-			return nil, err
+			return out, err
 		}
 		if _, err := own.Holder().Add(ctx, rstr.HolderAddRequest_builder{Id: p.Id.Bytes(), Tenant: tref, Alias: p.Alias, Name: p.Name}.Build()); err != nil {
-			return nil, fmt.Errorf("@%s/%s: %w", alias, p.Alias, err)
+			return out, fmt.Errorf("@%s/%s: %w", alias, p.Alias, err)
 		}
 		secret := password
 		if secret == "" {
@@ -564,12 +580,12 @@ func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (m
 			if e := s.em.rs.Ent.Holder.DeleteOneId(p.Id.Uuid()).Exec(ctx); e != nil {
 				err = fmt.Errorf("%w (and they are at roster with no password: %v)", err, e)
 			}
-			return nil, fmt.Errorf("@%s/%s: %w", alias, p.Alias, err)
+			return out, fmt.Errorf("@%s/%s: %w", alias, p.Alias, err)
 		}
-		passwords[p.Alias] = secret
+		out.Passwords[p.Alias] = secret
 	}
 
-	return passwords, nil
+	return out, nil
 }
 
 func (s *Store) lookupOwn(ctx context.Context, holder pdid.Id) (Person, error) {

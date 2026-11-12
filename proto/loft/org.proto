@@ -103,7 +103,7 @@ message Session {
 
   // Who signed in: a holder of the roster tenant this deployment serves,
   // which is their membership here by the same identifier (D85).
-  bytes account = 8 [(orm.field) = {type: TYPE_UUID}];
+  bytes holder = 8 [(orm.field) = {type: TYPE_UUID}];
   bytes secret = 9 [(payday.field) = {secret: true}];
   bytes grant = 10;
   google.protobuf.Timestamp date_expires = 11 [(orm.field) = {nullable: true}];
@@ -131,8 +131,8 @@ message Session {
         refs: [{name: "secret", number: 9}]
       },
       {
-        name: "account"
-        refs: [{name: "account", number: 8}]
+        name: "holder"
+        refs: [{name: "holder", number: 8}]
       }
     ]
   };
@@ -146,9 +146,9 @@ message Session {
 
 // Invitation is somebody asked into a workspace, by address, with a role
 // (design 9.11, M2 step 4): what the people who run the workspace send and
-// take back. Nothing here answers one any more -- somebody comes to be a
-// member by signing in as a holder of the tenant at roster (D85) -- and the
-// rest goes with #332.
+// take back. Nothing here answers one -- somebody comes to be a member by
+// signing in as a holder of the tenant at roster (D85) -- and the rest goes
+// with #332.
 //
 // It is the workspace's row: who invited whom, as what, and what became of it
 // are this workspace's history, and leave with it. Nothing here says whether
@@ -168,26 +168,18 @@ message Invitation {
 
   // The address it was sent to, folded as an address is compared. Written
   // once, and emptied when the person it was for is forgotten -- by the
-  // workspace, or by their account leaving (`server/domain/depart.go`) -- which
-  // is the one write it takes and why it is not immutable. Personal
-  // (payday#92): on the trail as having been set, and never as what to.
+  // workspace, or by their leaving it (`server/domain/depart.go`) -- which is
+  // the one write it takes and why it is not immutable. Personal (payday#92):
+  // on the trail as having been set, and never as what to.
   string email = 9 [(payday.field) = {personal: true}];
 
-  // What an account that accepts is here: a role, which is the record and not
-  // the person.
+  // What the person it is for is to be here: a role, which is the record and
+  // not the person.
   string role = 10 [(orm.field) = {immutable: true}, (payday.field) = {personal: false}];
 
-  // The person record an account that accepts becomes: one this workspace
-  // already keeps, or empty for one made then.
+  // The person record they are: one this workspace already keeps, or empty
+  // for one made when they come.
   Party party = 11 [(orm.edge) = {nullable: true}];
-
-  // Who it was for at roster, once that was known -- its link was opened, or
-  // it was answered -- and empty while it is only an address. Nothing writes
-  // it any more (D85).
-  bytes account = 12 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
 
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
@@ -207,27 +199,12 @@ message Invitation {
   // The membership accepting it made.
   Holder holder = 19 [(orm.edge) = {nullable: true}];
 
-  // The SHA-256 of the code its mail carried, while one opened it to answer.
-  // Nothing writes it any more (D85).
-  bytes claim = 20 [
-    (orm.field) = {nullable: true},
-    (payday.field) = {secret: true}
-  ];
-
   option (orm.message) = {
     rpc: {crud: true}
     indexes: [
       {
         name: "page"
         refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
-      },
-      {
-        name: "claim"
-        refs: [{name: "claim", number: 20}]
-      },
-      {
-        name: "account"
-        refs: [{name: "account", number: 12}]
       },
       {
         name: "email"
@@ -239,7 +216,7 @@ message Invitation {
     domain: 41
     list: {
       order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
-      by: [{name: "ref"}, {name: "tenant"}, {name: "account"}, {name: "state"}]
+      by: [{name: "ref"}, {name: "tenant"}, {name: "state"}]
       size: 50
       max: 200
     }
@@ -285,7 +262,7 @@ message CliLogin {
   string address = 18 [(payday.field) = {personal: false}];
 
   // Who approved it, once somebody has: the member signed in at the page.
-  bytes account = 12 [(orm.field) = {
+  bytes holder = 12 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
   }];
@@ -333,61 +310,6 @@ message CliLogin {
   };
 }
 
-
-// AliasHold is a workspace address nobody may take for a while: one a
-// destroyed workspace went by, or one a workspace was moved off (D29, design
-// 8.4). A name a workspace went by is still how people know it -- an
-// operator's notes, its export's file name, mail that named it -- and a
-// workspace that took it the next day would be that name to all of them.
-//
-// The deployment's (`global`), written only by `server/tenancy`, and the
-// policy opens no RPC of it.
-message AliasHold {
-  bytes id = 1 [(orm.field) = {
-    type: TYPE_UUID
-    key: true
-    default: ""
-  }];
-
-  // The address held.
-  string held = 8;
-
-  // `destroyed`, `retired` or `renamed`, and for a rename the address it
-  // moved to. A hold of a destroyed workspace is also this deployment's word
-  // that it was destroyed here, and `retired` that it left keeping what the
-  // deployment's floors are on of its trail, which a restore of it under its
-  // identifier has the trail take back first (`trail.Policy.Return`): it
-  // stays when the hold is over.
-  string reason = 9;
-  string moved_to = 10;
-
-  // Whose it was.
-  bytes tenant = 11 [(orm.field) = {type: TYPE_UUID}];
-
-  // Until when nobody may take it.
-  google.protobuf.Timestamp date_until = 16 [(orm.field) = {default: ""}];
-
-  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
-  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
-  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
-    immutable: true
-    default: ""
-  }];
-
-  option (orm.message) = {
-    indexes: [
-      {
-        name: "held"
-        refs: [{name: "held", number: 8}]
-      }
-    ]
-  };
-  option (payday.entity) = {
-    domain: 43
-    global: {}
-    trail: {recorded: {}}
-  };
-}
 
 // SignInFailure is one wrong answer at the sign-in form, counted against the
 // address it came from and the name it was for (`server/session`): ten in

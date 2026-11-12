@@ -42,21 +42,17 @@ func (w *world) signIn(h *app.Holder) context.Context { return w.session(h) }
 
 // session is a context that carries a session for a member.
 func (w *world) session(h *app.Holder) context.Context {
-	_, c, err := w.s.Sessions.Mint(context.Background(), authsession.Session{Id: w.accountOf(h).String(), Grant: frame.Whole()})
+	_, c, err := w.s.Sessions.Mint(context.Background(), authsession.Session{Id: w.memberId(h).String(), Grant: frame.Whole()})
 	w.x.NoError(err)
 	return metadata.AppendToOutgoingContext(context.Background(), "cookie", c.Name+"="+c.Value)
 }
 
-// accountOf is the holder at roster a member is, which is their identifier
-// here too (D85).
-func (w *world) accountOf(h *app.Holder) pdid.Id {
+// memberId is a member's identifier, which is their holder's at roster too
+// (D85).
+func (w *world) memberId(h *app.Holder) pdid.Id {
 	id, err := pdid.From(h.GetId())
 	w.x.NoError(err)
-	v, err := w.s.Ent.Holder.Get(context.Background(), id.Uuid())
-	w.x.NoError(err)
-	w.x.NotNil(v.Account)
-	w.x.Equal(id, pdid.Id(*v.Account))
-	return pdid.Id(*v.Account)
+	return id
 }
 
 // holder is somebody in the tenant at roster -- where they sign in and what a
@@ -78,11 +74,10 @@ func (w *world) here(p identity.Person, role string) *app.Holder {
 // nobody at roster is.
 func (w *world) member(t *app.Tenant, p identity.Person, role string) *app.Holder {
 	h, err := w.s.Base.Holder().Add(context.Background(), app.HolderAddRequest_builder{
-		Id:      p.Id.Bytes(),
-		Tenant:  app.TenantRef_builder{Id: t.GetId()}.Build(),
-		Alias:   p.Alias,
-		Role:    z.Ptr(role),
-		Account: p.Id.Bytes(),
+		Id:     p.Id.Bytes(),
+		Tenant: app.TenantRef_builder{Id: t.GetId()}.Build(),
+		Alias:  p.Alias,
+		Role:   z.Ptr(role),
 	}.Build())
 	w.x.NoError(err)
 	return h
@@ -490,7 +485,7 @@ func TestARosterThatCannotBeAskedServesNoSession(t *testing.T) {
 	x.NoError(err)
 
 	x.NoError(w.s.Identity.Close())
-	w.s.Identity.Recheck(w.accountOf(v.GetHolder()))
+	w.s.Identity.Recheck(w.memberId(v.GetHolder()))
 
 	_, err = me.Me(w.owner, &app.PartyMeRequest{})
 	x.Equal(codes.Unavailable, status.Code(err))

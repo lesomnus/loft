@@ -5651,9 +5651,11 @@ func (b0 AccessReviewed_builder) Build() *AccessReviewed {
 	return m0
 }
 
-// AccountDeparted is an account leaving the workspace (`account.depart`):
-// pseudonymized as a person forgotten is, and a workspace whose last owner it
-// was handed on -- or `ownerless`, with nobody to hand it to.
+// AccountDeparted is a member leaving the workspace once roster erased their
+// holder (`account.depart`, named when a member was an account's): their
+// person record pseudonymized as a person forgotten is, and the workspace
+// handed on when they were its last owner -- or `ownerless`, with nobody to
+// hand it to.
 type AccountDeparted struct {
 	state                protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Held      uint32                 `protobuf:"varint,1,opt,name=held"`

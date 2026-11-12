@@ -104,19 +104,6 @@ message Holder {
             number: 1
           }
         ]
-      },
-      {
-        name: "by_account"
-        refs: [
-          {
-            name: "account"
-            number: 9
-          },
-          {
-            name: "tenant"
-            number: 2
-          }
-        ]
       }
     ]
   };
@@ -191,26 +178,12 @@ message Holder {
     (orm.field) = {default: "member"},
     (payday.field) = {personal: false}
   ];
-  // The holder at roster this membership is: the one of the tenant this
-  // deployment serves, whose identifier the membership has too (design 9.10,
-  // D85). What reads a membership by what roster says of somebody -- roster's
-  // word on them (`server/lifecycle`), a password, their mail -- reads it
-  // here. Null on a membership a workspace's restore put back that this
-  // deployment's roster does not have (`offboard.Restored.Unlinked`), which
-  // nobody signs in as until `loft identity link` gives it one there.
-  //
-  // Which holder a membership is, is the deployment's to say: what makes a
-  // membership -- a first sign-in, `loft init`, a login given -- writes it
-  // through the servers the deployment holds.
-  bytes account = 9 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
-  // When roster erased the account this is a membership of, and so when it
-  // began to leave: it signs in nowhere from then, and roster may still
-  // restore it within its grace (design 9.10). Null is an account in good
-  // standing, or one roster restored. Written by the deployment from what
-  // roster says (`server/lifecycle`), and by nobody else.
+  // When roster erased the holder this membership is -- the holder of the
+  // tenant this deployment serves by the membership's own identifier (design
+  // 9.10, D85) -- and so when it began to leave: it signs in nowhere from
+  // then, and roster may still restore it within its grace. Null is a member
+  // in good standing, or one roster restored. Written by the deployment from
+  // what roster says (`server/lifecycle`), and by nobody else.
   google.protobuf.Timestamp date_leaving = 10 [(orm.field) = {nullable: true}];
   // The person's own choice not to be mailed what they are told of here: the
   // notifications still come, in the app. Theirs to set and nobody else's

@@ -11,8 +11,8 @@ const (
 	Label = "session"
 	// FieldId holds the string denoting the id field in the database.
 	FieldId = "id"
-	// FieldAccount holds the string denoting the account field in the database.
-	FieldAccount = "account"
+	// FieldHolder holds the string denoting the holder field in the database.
+	FieldHolder = "holder"
 	// FieldSecret holds the string denoting the secret field in the database.
 	FieldSecret = "secret"
 	// FieldGrant holds the string denoting the grant field in the database.
@@ -36,7 +36,7 @@ const (
 // Columns holds all SQL columns for session fields.
 var Columns = []string{
 	FieldId,
-	FieldAccount,
+	FieldHolder,
 	FieldSecret,
 	FieldGrant,
 	FieldDateExpires,
@@ -65,9 +65,9 @@ func ById(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldId, opts...).ToFunc()
 }
 
-// ByAccount orders the results by the account field.
-func ByAccount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccount, opts...).ToFunc()
+// ByHolder orders the results by the holder field.
+func ByHolder(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHolder, opts...).ToFunc()
 }
 
 // ByDateExpires orders the results by the date_expires field.

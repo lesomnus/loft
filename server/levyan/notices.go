@@ -104,12 +104,6 @@ const (
 	restoreKind = "workspace.restore"
 )
 
-// What an address held says of how its workspace went (`AliasHold.reason`,
-// `offboard.ReasonDestroyed` and `ReasonRetired`): a workspace destroyed here,
-// whatever became of its trail. The third, `renamed`, is a workspace that
-// moved.
-var gone = []string{"destroyed", "retired"}
-
 // Notices writes what levyan is to be told of what became of a workspace, on
 // the client of the transaction of the change that tells it. A nil one writes
 // nothing: a deployment that bills nobody tells levyan nothing.
@@ -452,7 +446,7 @@ func (t *Teller) backfill(ctx context.Context) (int, error) {
 	}
 	if e.total() > 0 {
 		log.From(ctx).InfoContext(ctx, "levyan: what became of the workspaces before it was told of it is to be told it",
-			"closed", e.closed, "restored", e.restored, "destroyed", e.destroyed)
+			"closed", e.closed, "restored", e.restored)
 	}
 	return e.total(), nil
 }

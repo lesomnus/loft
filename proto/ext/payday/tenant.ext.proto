@@ -8,8 +8,8 @@ package payday;
 //
 // Closing destroys nothing. Nobody gets in, its owner neither -- the operator
 // restores it or takes its data out (D83) -- until the restore window has run
-// out and nothing holds it, when it is destroyed and its alias is held for a
-// while so that nobody else can be that address to the people who knew it.
+// out and nothing holds it, when it is destroyed. Its alias is the tenant's at
+// roster (D86), which is roster's to keep or give to another.
 message Tenant {
   // When it was closed. Null is open.
   google.protobuf.Timestamp date_closed = 8 [(orm.field) = {nullable: true}];

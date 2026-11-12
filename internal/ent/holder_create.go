@@ -96,20 +96,6 @@ func (_c *HolderCreate) SetNillableRole(v *string) *HolderCreate {
 	return _c
 }
 
-// SetAccount sets the "account" field.
-func (_c *HolderCreate) SetAccount(v uuid.UUID) *HolderCreate {
-	_c.mutation.SetAccount(v)
-	return _c
-}
-
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_c *HolderCreate) SetNillableAccount(v *uuid.UUID) *HolderCreate {
-	if v != nil {
-		_c.SetAccount(*v)
-	}
-	return _c
-}
-
 // SetDateLeaving sets the "date_leaving" field.
 func (_c *HolderCreate) SetDateLeaving(v time.Time) *HolderCreate {
 	_c.mutation.SetDateLeaving(v)
@@ -312,10 +298,6 @@ func (_c *HolderCreate) createSpec() (*Holder, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Role(); ok {
 		_spec.SetField(holder.FieldRole, field.TypeString, value)
 		_node.Role = value
-	}
-	if value, ok := _c.mutation.Account(); ok {
-		_spec.SetField(holder.FieldAccount, field.TypeUuid, value)
-		_node.Account = &value
 	}
 	if value, ok := _c.mutation.DateLeaving(); ok {
 		_spec.SetField(holder.FieldDateLeaving, field.TypeTime, value)

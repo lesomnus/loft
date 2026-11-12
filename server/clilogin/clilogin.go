@@ -439,7 +439,7 @@ func (l *Logins) answer(to string) http.HandlerFunc {
 				SetState(to).
 				SetDateUpdated(now)
 			if to == approved {
-				u = u.SetAccount(p.Uuid())
+				u = u.SetHolder(p.Uuid())
 			}
 			return u.Save(ctx)
 		})

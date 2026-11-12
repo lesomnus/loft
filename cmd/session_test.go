@@ -94,7 +94,6 @@ func TestASessionIsToldWhoItIsAndItsWorkspace(t *testing.T) {
 	x.NotNil(got.Workspace.Closed)
 	x.WithinDuration(closed.GetDateClosed().AsTime(), *got.Workspace.Closed, time.Second)
 	x.NotNil(got.Workspace.Destroy)
-	x.EqualValues(365, got.Workspace.AliasHoldDays)
 
 	t.Run("one the deployment names", func(t *testing.T) {
 		w := newWorldWith(t, func(c *cmd.Config) { c.App.Locale.Timezone = "America/Los_Angeles" })
@@ -120,7 +119,7 @@ func TestASessionNarrowedIsToldWhatItMayCall(t *testing.T) {
 	g, err := session.Grant([]string{"/loft.AssetService/Get"})
 	x.NoError(err)
 	l := w.s.Logins
-	x.NoError(l.Store.Adopt(t.Context(), w.accountOf(kim), l.Store.KeptSum(sum[:]), g, time.Now().Add(time.Hour), time.Now().Add(time.Hour)))
+	x.NoError(l.Store.Adopt(t.Context(), w.memberId(kim), l.Store.KeptSum(sum[:]), g, time.Now().Add(time.Hour), time.Now().Add(time.Hour)))
 	narrowed := metadata.AppendToOutgoingContext(t.Context(), "cookie", l.Cookie+"="+key)
 	rec := w.page(narrowed, http.MethodGet, "/session")
 	x.Equal(http.StatusOK, rec.Code, rec.Body.String())

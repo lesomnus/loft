@@ -46,26 +46,6 @@ func (_u *InvitationUpdate) SetNillableEmail(v *string) *InvitationUpdate {
 	return _u
 }
 
-// SetAccount sets the "account" field.
-func (_u *InvitationUpdate) SetAccount(v uuid.UUID) *InvitationUpdate {
-	_u.mutation.SetAccount(v)
-	return _u
-}
-
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_u *InvitationUpdate) SetNillableAccount(v *uuid.UUID) *InvitationUpdate {
-	if v != nil {
-		_u.SetAccount(*v)
-	}
-	return _u
-}
-
-// ClearAccount clears the value of the "account" field.
-func (_u *InvitationUpdate) ClearAccount() *InvitationUpdate {
-	_u.mutation.ClearAccount()
-	return _u
-}
-
 // SetDateUpdated sets the "date_updated" field.
 func (_u *InvitationUpdate) SetDateUpdated(v time.Time) *InvitationUpdate {
 	_u.mutation.SetDateUpdated(v)
@@ -151,18 +131,6 @@ func (_u *InvitationUpdate) SetNillableDateSettled(v *time.Time) *InvitationUpda
 // ClearDateSettled clears the value of the "date_settled" field.
 func (_u *InvitationUpdate) ClearDateSettled() *InvitationUpdate {
 	_u.mutation.ClearDateSettled()
-	return _u
-}
-
-// SetClaim sets the "claim" field.
-func (_u *InvitationUpdate) SetClaim(v []byte) *InvitationUpdate {
-	_u.mutation.SetClaim(v)
-	return _u
-}
-
-// ClearClaim clears the value of the "claim" field.
-func (_u *InvitationUpdate) ClearClaim() *InvitationUpdate {
-	_u.mutation.ClearClaim()
 	return _u
 }
 
@@ -295,15 +263,6 @@ func (_u *InvitationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if e, ok := _u.mutation.FieldExpr(invitation.FieldEmail); ok {
 		_spec.SetField(invitation.FieldEmail, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.Account(); ok {
-		_spec.SetField(invitation.FieldAccount, field.TypeUuid, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(invitation.FieldAccount); ok {
-		_spec.SetField(invitation.FieldAccount, field.TypeUuid, e)
-	}
-	if _u.mutation.AccountCleared() {
-		_spec.ClearField(invitation.FieldAccount, field.TypeUuid)
-	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(invitation.FieldDateUpdated, field.TypeTime, value)
 	}
@@ -345,15 +304,6 @@ func (_u *InvitationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if _u.mutation.DateSettledCleared() {
 		_spec.ClearField(invitation.FieldDateSettled, field.TypeTime)
-	}
-	if value, ok := _u.mutation.Claim(); ok {
-		_spec.SetField(invitation.FieldClaim, field.TypeBytes, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(invitation.FieldClaim); ok {
-		_spec.SetField(invitation.FieldClaim, field.TypeBytes, e)
-	}
-	if _u.mutation.ClaimCleared() {
-		_spec.ClearField(invitation.FieldClaim, field.TypeBytes)
 	}
 	if _u.mutation.PartyCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -449,26 +399,6 @@ func (_u *InvitationUpdateOne) SetNillableEmail(v *string) *InvitationUpdateOne 
 	return _u
 }
 
-// SetAccount sets the "account" field.
-func (_u *InvitationUpdateOne) SetAccount(v uuid.UUID) *InvitationUpdateOne {
-	_u.mutation.SetAccount(v)
-	return _u
-}
-
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_u *InvitationUpdateOne) SetNillableAccount(v *uuid.UUID) *InvitationUpdateOne {
-	if v != nil {
-		_u.SetAccount(*v)
-	}
-	return _u
-}
-
-// ClearAccount clears the value of the "account" field.
-func (_u *InvitationUpdateOne) ClearAccount() *InvitationUpdateOne {
-	_u.mutation.ClearAccount()
-	return _u
-}
-
 // SetDateUpdated sets the "date_updated" field.
 func (_u *InvitationUpdateOne) SetDateUpdated(v time.Time) *InvitationUpdateOne {
 	_u.mutation.SetDateUpdated(v)
@@ -554,18 +484,6 @@ func (_u *InvitationUpdateOne) SetNillableDateSettled(v *time.Time) *InvitationU
 // ClearDateSettled clears the value of the "date_settled" field.
 func (_u *InvitationUpdateOne) ClearDateSettled() *InvitationUpdateOne {
 	_u.mutation.ClearDateSettled()
-	return _u
-}
-
-// SetClaim sets the "claim" field.
-func (_u *InvitationUpdateOne) SetClaim(v []byte) *InvitationUpdateOne {
-	_u.mutation.SetClaim(v)
-	return _u
-}
-
-// ClearClaim clears the value of the "claim" field.
-func (_u *InvitationUpdateOne) ClearClaim() *InvitationUpdateOne {
-	_u.mutation.ClearClaim()
 	return _u
 }
 
@@ -728,15 +646,6 @@ func (_u *InvitationUpdateOne) sqlSave(ctx context.Context) (_node *Invitation, 
 	if e, ok := _u.mutation.FieldExpr(invitation.FieldEmail); ok {
 		_spec.SetField(invitation.FieldEmail, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.Account(); ok {
-		_spec.SetField(invitation.FieldAccount, field.TypeUuid, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(invitation.FieldAccount); ok {
-		_spec.SetField(invitation.FieldAccount, field.TypeUuid, e)
-	}
-	if _u.mutation.AccountCleared() {
-		_spec.ClearField(invitation.FieldAccount, field.TypeUuid)
-	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(invitation.FieldDateUpdated, field.TypeTime, value)
 	}
@@ -778,15 +687,6 @@ func (_u *InvitationUpdateOne) sqlSave(ctx context.Context) (_node *Invitation, 
 	}
 	if _u.mutation.DateSettledCleared() {
 		_spec.ClearField(invitation.FieldDateSettled, field.TypeTime)
-	}
-	if value, ok := _u.mutation.Claim(); ok {
-		_spec.SetField(invitation.FieldClaim, field.TypeBytes, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(invitation.FieldClaim); ok {
-		_spec.SetField(invitation.FieldClaim, field.TypeBytes, e)
-	}
-	if _u.mutation.ClaimCleared() {
-		_spec.ClearField(invitation.FieldClaim, field.TypeBytes)
 	}
 	if _u.mutation.PartyCleared() {
 		edge := &sqlgraph.EdgeSpec{

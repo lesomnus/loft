@@ -20,7 +20,6 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/levyantest"
 	"github.com/lesomnus/loft/server/pd"
@@ -261,15 +260,16 @@ func TestAWorkspaceIsMeasuredBeforeItIsDestroyed(t *testing.T) {
 	// What the workspace was when levyan was told: read in levyan's handler,
 	// and said here.
 	type state struct {
-		alive, held bool
-		err         error
+		alive  bool
+		assets int
+		err    error
 	}
 	seen := make(chan state, 1)
 	fake.Answer(func(ctx context.Context, req *levyanv1.RecordRequest) (*levyanv1.RecordResponse, error) {
 		var v state
 		v.alive, v.err = w.s.Ent.Tenant.Query().Where(enttenant.Id(id.Uuid())).Exist(ctx)
 		if v.err == nil {
-			v.held, v.err = w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Exist(ctx)
+			v.assets, v.err = w.s.Ent.Asset.Query().Count(ctx)
 		}
 		seen <- v
 		return kept(req), nil
@@ -279,7 +279,7 @@ func TestAWorkspaceIsMeasuredBeforeItIsDestroyed(t *testing.T) {
 	v := <-seen
 	x.NoError(v.err)
 	x.True(v.alive, "measured while it was there")
-	x.False(v.held, "and before its address was held")
+	x.Positive(v.assets, "and before anything of it was taken")
 	x.Equal(map[string]int64{
 		"loft.assets.active": 1, "loft.attachments.bytes": 0, "loft.members": 1, "loft.history.retention_days": 0,
 	}, held(x, fake, w.tenant))
@@ -294,15 +294,12 @@ func logged(ctx context.Context) (context.Context, *bytes.Buffer) {
 	return log.Into(ctx, slog.New(slog.NewTextHandler(&b, nil))), &b
 }
 
-// gone says whether the world's workspace was destroyed: its row gone and its
-// address held.
+// gone says whether the world's workspace was destroyed: its row gone.
 func (w *world) gone() bool {
 	ctx := context.Background()
 	alive, err := w.s.Ent.Tenant.Query().Where(enttenant.Id(tenantId(w.x, w.tenant).Uuid())).Exist(ctx)
 	w.x.NoError(err)
-	held, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Exist(ctx)
-	w.x.NoError(err)
-	return !alive && held
+	return !alive
 }
 
 // TestAWorkspaceIsDestroyedWhenLevyanCannotBeReached (D59): measuring before

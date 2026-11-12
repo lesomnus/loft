@@ -170,7 +170,7 @@ func TestTheOperatorsCommandsSaySo(t *testing.T) {
 	}
 	walk("", root().Commands)
 	x.Equal(map[string]bool{
-		"tenant/show": true, "tenant/move": true, "tenant/name-owner": true,
+		"tenant/show": true, "tenant/name-owner": true,
 		"tenant/close": true, "tenant/restore": true, "tenant/export": true,
 		"tenant/import": true, "tenant/retired": true, "tenant/retire": true, "tenant/purge": true,
 		"tenant-contract/add": true, "legal-hold/add": true, "legal-hold/patch": true,

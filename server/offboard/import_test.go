@@ -29,7 +29,6 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/searchstale"
@@ -123,7 +122,7 @@ func TestARestoreIsTheWorkspaceAsItWasExported(t *testing.T) {
 	x.Equal(plan.Rows, got.Rows, "the restore put back other than the dry run said")
 	x.Equal(len(before["asset"]), got.Rows["asset"])
 	x.Empty(got.Missing)
-	x.Empty(got.Unlinked)
+	x.Equal([]string{"owner"}, got.Unlinked, "the owner the test put up is nobody at roster")
 
 	after := e.rows(acme.id)
 	for k := range before {
@@ -388,85 +387,48 @@ func TestARestoreIsAllOfItOrNoneOfIt(t *testing.T) {
 	x.False(e.file(acme.photo.GetObjectKey()))
 }
 
-// TestARestoreFindsTheWorkspaceItsAddress: the export's when nobody has it,
-// taken back from the hold put on it when the workspace left, another when
-// another workspace has it -- and never one another workspace's hold is on
-// without the operator saying so.
-func TestARestoreFindsTheWorkspaceItsAddress(t *testing.T) {
-	hold := func(e *env, alias string, tenant pdid.Id, reason string) {
-		now := time.Now()
-		e.x.NoError(e.s.Ent.AliasHold.Create().
-			SetId(pdid.New(pd.AliasHoldDomain).Uuid()).
-			SetHeld(alias).
-			SetReason(reason).
-			SetMovedTo("").
-			SetTenant(tenant.Uuid()).
-			SetDateUntil(now.Add(time.Hour)).
-			SetDateCreated(now).
-			SetDateUpdated(now).
-			Exec(context.Background()))
-	}
-	held := func(e *env, alias string) bool {
-		v, err := e.s.Ent.AliasHold.Query().Where(aliashold.Held(alias), aliashold.DateErasedIsNil()).Exist(context.Background())
-		e.x.NoError(err)
-		return v
-	}
-	gone := func(t *testing.T) (*env, tenant, []byte) {
-		e, _ := signed(t)
+// TestARestoreIsAtTheTenantsAddress (D86): a restore is of the tenant at
+// roster this deployment serves, at the address it goes by there -- renamed
+// since, the export's address is said and left -- and of no other; a roster
+// with no tenant yet takes the workspace at the export's address.
+func TestARestoreIsAtTheTenantsAddress(t *testing.T) {
+	gone := func(t *testing.T, opts ...func(*cmd.Config)) (*env, tenant, []byte) {
+		e, _ := signed(t, opts...)
 		acme := e.tenant("acme")
 		b := e.export(acme.id)
 		_, err := e.s.Offboard(e.c).Purge(context.Background(), acme.id, false)
 		e.x.NoError(err)
 		return e, acme, b
 	}
+	lab := func(c *cmd.Config) { c.Auth.Roster.Tenant = "lab" }
 
-	t.Run("held for it", func(t *testing.T) {
+	t.Run("no tenant at roster yet", func(t *testing.T) {
 		e, acme, b := gone(t)
-		hold(e, "acme", acme.id, "destroyed")
 		got, err := e.restore(b, offboard.ImportOptions{})
 		e.x.NoError(err)
 		e.x.Equal("acme", got.Alias)
-		e.x.Equal([]string{"destroyed"}, got.Released)
-		e.x.False(held(e, "acme"))
+		e.x.Empty(got.Asked)
+		e.x.Equal("acme", e.tenantRow(acme.id).GetAlias())
 	})
-	t.Run("held for another", func(t *testing.T) {
-		e, _, b := gone(t)
-		other := e.tenant("other")
-		hold(e, "acme", other.id, "renamed")
-
-		_, err := e.restore(b, offboard.ImportOptions{})
-		e.x.ErrorContains(err, "--reuse")
-		e.x.True(held(e, "acme"))
-
-		got, err := e.restore(b, offboard.ImportOptions{Reuse: true})
+	t.Run("the tenant's address at roster", func(t *testing.T) {
+		e, acme, b := gone(t, lab)
+		_, err := e.s.Identity.EnsureTenant(context.Background(), identity.Tenant{Id: acme.id, Name: "ACME"})
 		e.x.NoError(err)
-		e.x.Equal("acme", got.Alias)
-		e.x.Equal([]string{"renamed"}, got.Released)
-		e.x.False(held(e, "acme"))
-	})
-	t.Run("another workspace's", func(t *testing.T) {
-		e, acme, b := gone(t)
-		e.tenant("acme")
-
-		_, err := e.restore(b, offboard.ImportOptions{Alias: "acme"})
-		e.x.ErrorContains(err, "another workspace's")
 
 		got, err := e.restore(b, offboard.ImportOptions{})
 		e.x.NoError(err)
+		e.x.Equal("lab", got.Alias)
 		e.x.Equal("acme", got.Asked)
-		e.x.NotEqual("acme", got.Alias)
-		e.x.Equal(got.Alias, e.tenantRow(acme.id).GetAlias())
+		e.x.Equal("lab", e.tenantRow(acme.id).GetAlias())
 	})
-	t.Run("asked for", func(t *testing.T) {
-		e, acme, b := gone(t)
-		_, err := e.restore(b, offboard.ImportOptions{Alias: "x"})
-		e.x.Error(err, "an address no workspace may have")
-
-		got, err := e.restore(b, offboard.ImportOptions{Alias: "@acme-again"})
+	t.Run("another tenant's", func(t *testing.T) {
+		e, acme, b := gone(t, lab)
+		_, err := e.s.Identity.EnsureTenant(context.Background(), identity.Tenant{Id: pdid.New(pd.TenantDomain), Name: "LAB"})
 		e.x.NoError(err)
-		e.x.Equal("acme-again", got.Alias)
-		e.x.Equal("acme", got.Asked)
-		e.x.Equal("acme-again", e.tenantRow(acme.id).GetAlias())
+
+		_, err = e.restore(b, offboard.ImportOptions{})
+		e.x.ErrorIs(err, offboard.ErrNotServed)
+		e.x.Empty(e.count(acme.id), "nothing was put back")
 	})
 }
 
@@ -499,39 +461,30 @@ func TestAClosedWorkspaceIsRestoredOpen(t *testing.T) {
 	x.True(imported(t, ev).GetReopened())
 }
 
-// TestAMemberIsRestoredWithTheAccountThisRosterHas: a member keeps an account
-// the deployment's roster has, and one from another deployment's -- an
-// identifier nobody here is -- is restored naming none, for `loft identity
-// link` to give one to.
-func TestAMemberIsRestoredWithTheAccountThisRosterHas(t *testing.T) {
+// TestAMemberRosterDoesNotHaveIsSaid: a member is the holder at roster by
+// their own identifier (D85), so one the deployment's roster has signs in as
+// they did, and one from another deployment's -- an identifier nobody at this
+// roster is -- is restored as they are and said, for `loft identity link` to
+// make there.
+func TestAMemberRosterDoesNotHaveIsSaid(t *testing.T) {
 	a, pub := signed(t, func(c *cmd.Config) { c.Auth.Roster.Tenant = "acme" })
 	ctx := context.Background()
 	acme := a.tenant("acme")
 
 	// The tenant at roster this deployment serves, by the workspace's
 	// identifier, and somebody in it a member here by theirs (D85).
-	_, err := a.s.Identity.EnsureTenant(ctx, identity.Tenant{Id: acme.id, Alias: "acme"})
+	_, err := a.s.Identity.EnsureTenant(ctx, identity.Tenant{Id: acme.id})
 	a.x.NoError(err)
 	kim, err := a.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
 	a.x.NoError(err)
 	_, err = a.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Id:      kim.Id.Bytes(),
-		Tenant:  app.TenantRef_builder{Id: acme.id.Bytes()}.Build(),
-		Alias:   "kim",
-		Name:    "Kim",
-		Account: kim.Id.Bytes(),
+		Id:     kim.Id.Bytes(),
+		Tenant: app.TenantRef_builder{Id: acme.id.Bytes()}.Build(),
+		Alias:  "kim",
+		Name:   "Kim",
 	}.Build())
 	a.x.NoError(err)
 	b := a.export(acme.id)
-
-	accountOf := func(t *testing.T, e *env, alias string) []byte {
-		h, err := e.s.Ent.Holder.Query().Where(holder.TenantId(acme.id.Uuid()), holder.Alias(alias)).Only(ctx)
-		require.NoError(t, err)
-		if h.Account == nil {
-			return nil
-		}
-		return h.Account[:]
-	}
 
 	t.Run("the roster it came from", func(t *testing.T) {
 		x := require.New(t)
@@ -539,20 +492,21 @@ func TestAMemberIsRestoredWithTheAccountThisRosterHas(t *testing.T) {
 		x.NoError(err)
 		got, err := a.restore(b, offboard.ImportOptions{})
 		x.NoError(err)
-		x.Empty(got.Unlinked)
-		x.Equal(kim.Id.Bytes(), accountOf(t, a, "kim"))
+		x.Equal([]string{"owner"}, got.Unlinked, "the owner the test put up is nobody at roster")
+		h, err := a.s.Ent.Holder.Query().Where(holder.TenantId(acme.id.Uuid()), holder.Alias("kim")).Only(ctx)
+		x.NoError(err)
+		x.Equal(kim.Id.Uuid(), h.Id, "kim, as roster has them")
 	})
 	t.Run("another deployment's", func(t *testing.T) {
 		e := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Trust = []string{pub} })
 		x := e.x
 		got, err := e.restore(b, offboard.ImportOptions{})
 		x.NoError(err)
-		x.Equal([]string{"kim"}, got.Unlinked)
-		x.Nil(accountOf(t, e, "kim"))
+		x.ElementsMatch([]string{"owner", "kim"}, got.Unlinked)
 
 		ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
 		x.NoError(err)
-		x.Equal(uint32(1), imported(t, ev).GetUnlinked())
+		x.Equal(uint32(2), imported(t, ev).GetUnlinked())
 	})
 }
 

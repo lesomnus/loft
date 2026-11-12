@@ -65,7 +65,6 @@ var Table = map[string]Kind{
 	app.HolderService_List_FullMethodName: Read,
 
 	app.OperatorTenantService_Show_FullMethodName:      Read,
-	app.OperatorTenantService_Move_FullMethodName:      Write,
 	app.OperatorTenantService_NameOwner_FullMethodName: Write,
 	// A workspace's end by the operator's hand, and its return from an
 	// export (design 8.2, D34).
@@ -96,8 +95,8 @@ var Table = map[string]Kind{
 	app.OperatorRetentionService_Plan_FullMethodName: Read,
 	app.OperatorRetentionService_Run_FullMethodName:  Write,
 
-	// Who people are, which is roster's (design 9.10), and an account and
-	// its memberships on the roster in this process.
+	// Who the members are, which is roster's (design 9.10), and a member on
+	// the roster in this process.
 	app.OperatorIdentityService_Link_FullMethodName:      Write,
 	app.OperatorIdentityService_Depart_FullMethodName:    Write,
 	app.OperatorIdentityService_Reconcile_FullMethodName: Write,

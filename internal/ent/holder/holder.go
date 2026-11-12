@@ -28,8 +28,6 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
-	// FieldAccount holds the string denoting the account field in the database.
-	FieldAccount = "account"
 	// FieldDateLeaving holds the string denoting the date_leaving field in the database.
 	FieldDateLeaving = "date_leaving"
 	// FieldMailOff holds the string denoting the mail_off field in the database.
@@ -62,7 +60,6 @@ var Columns = []string{
 	FieldDateErased,
 	FieldDateCreated,
 	FieldRole,
-	FieldAccount,
 	FieldDateLeaving,
 	FieldMailOff,
 	FieldParty,
@@ -125,11 +122,6 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 // ByRole orders the results by the role field.
 func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
-}
-
-// ByAccount orders the results by the account field.
-func ByAccount(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccount, opts...).ToFunc()
 }
 
 // ByDateLeaving orders the results by the date_leaving field.

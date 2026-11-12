@@ -46,7 +46,7 @@ func (e *Party) Proto() *loft.Party {
 func (e *Session) Proto() *loft.Session {
 	x := &loft.Session{}
 	x.SetId(e.Id[:])
-	x.SetAccount(e.Account[:])
+	x.SetHolder(e.Holder[:])
 	x.SetSecret(e.Secret)
 	x.SetGrant(e.Grant)
 	if e.DateExpires != nil {
@@ -91,9 +91,6 @@ func (e *Invitation) Proto() *loft.Invitation {
 		r.SetId(v[:])
 		x.SetParty(r)
 	}
-	if e.Account != nil {
-		x.SetAccount(e.Account[:])
-	}
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))
@@ -111,9 +108,6 @@ func (e *Invitation) Proto() *loft.Invitation {
 		r.SetId(v[:])
 		x.SetHolder(r)
 	}
-	if e.Claim != nil {
-		x.SetClaim(*e.Claim)
-	}
 	return x
 }
 func (e *CliLogin) Proto() *loft.CliLogin {
@@ -124,27 +118,12 @@ func (e *CliLogin) Proto() *loft.CliLogin {
 	x.SetClient(e.Client)
 	x.SetOrigin(e.Origin)
 	x.SetAddress(e.Address)
-	if e.Account != nil {
-		x.SetAccount(e.Account[:])
+	if e.Holder != nil {
+		x.SetHolder(e.Holder[:])
 	}
 	x.SetGrant(e.Grant)
 	x.SetState(e.State)
 	x.SetDateExpires(timestamppb.New(e.DateExpires))
-	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
-	if e.DateErased != nil {
-		x.SetDateErased(timestamppb.New(*e.DateErased))
-	}
-	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	return x
-}
-func (e *AliasHold) Proto() *loft.AliasHold {
-	x := &loft.AliasHold{}
-	x.SetId(e.Id[:])
-	x.SetHeld(e.Held)
-	x.SetReason(e.Reason)
-	x.SetMovedTo(e.MovedTo)
-	x.SetTenant(e.Tenant[:])
-	x.SetDateUntil(timestamppb.New(e.DateUntil))
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))

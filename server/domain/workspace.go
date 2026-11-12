@@ -21,14 +21,14 @@ import (
 
 // A workspace closing (D29, design 8.4).
 //
-//	close → restore window (30 days) → destroy → address held (a year) → free
+//	close → restore window (30 days) → destroy
 //	           ↑ restore                 ↑ a legal hold waits it out
 //
 // Closing destroys nothing: the workspace's rows stay as they are, and nobody
 // gets in, its owner neither (`cmd.Resolver`). What becomes of it is the
 // deployment's (D83): an operator closes it, restores it and takes its data
 // out at the entry point (`server/admin`), and the deployment closes it when
-// an account leaving left nobody in it, and destroys it once the window is
+// a member leaving left nobody in it, and destroys it once the window is
 // over and nothing holds it (`server/closing`). Whoever closes it, the window
 // is the same.
 
@@ -148,7 +148,7 @@ func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureReq
 }
 
 // CloseWorkspace is a workspace closed as the deployment's own work: by an
-// operator, or because an account leaving left nobody in it. Nobody in a
+// operator, or because a member leaving left nobody in it. Nobody in a
 // workspace closes it (D83).
 func (d *Deps) CloseWorkspace(ctx context.Context, server app.Server, drv dialect.Driver, tenant pdid.Id, by, reason string) (*app.Tenant, error) {
 	var out *app.Tenant
@@ -190,8 +190,6 @@ func (d *Deps) NameOwner(ctx context.Context, server app.Server, drv dialect.Dri
 			return nil
 		case h.DateLeaving != nil:
 			return failed("떠나는 중인 구성원은 소유자가 될 수 없습니다")
-		case h.Account == nil:
-			return failed("계정이 없는 구성원은 소유자가 될 수 없습니다")
 		}
 		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "", app.PartyRoleSet_builder{
 			Holder: member.Bytes(),

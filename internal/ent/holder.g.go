@@ -29,9 +29,6 @@ func (e *Holder) Proto() *loft.Holder {
 	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	x.SetRole(e.Role)
-	if e.Account != nil {
-		x.SetAccount(e.Account[:])
-	}
 	if e.DateLeaving != nil {
 		x.SetDateLeaving(timestamppb.New(*e.DateLeaving))
 	}

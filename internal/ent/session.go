@@ -18,8 +18,8 @@ type Session struct {
 	config `json:"-"`
 	// Id of the ent.
 	Id uuid.UUID `json:"id,omitempty"`
-	// Account holds the value of the "account" field.
-	Account uuid.UUID `json:"account,omitempty"`
+	// Holder holds the value of the "holder" field.
+	Holder uuid.UUID `json:"holder,omitempty"`
 	// Secret holds the value of the "secret" field.
 	Secret []byte `json:"secret,omitempty"`
 	// Grant holds the value of the "grant" field.
@@ -48,7 +48,7 @@ func (*Session) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case session.FieldDateExpires, session.FieldDateIdle, session.FieldDateUpdated, session.FieldDateErased, session.FieldDateCreated:
 			values[i] = new(sql.NullTime)
-		case session.FieldId, session.FieldAccount:
+		case session.FieldId, session.FieldHolder:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -71,11 +71,11 @@ func (_m *Session) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				_m.Id = *value
 			}
-		case session.FieldAccount:
+		case session.FieldHolder:
 			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field account", values[i])
+				return fmt.Errorf("unexpected type %T for field holder", values[i])
 			} else if value != nil {
-				_m.Account = *value
+				_m.Holder = *value
 			}
 		case session.FieldSecret:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -170,8 +170,8 @@ func (_m *Session) String() string {
 	var builder strings.Builder
 	builder.WriteString("Session(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.Id))
-	builder.WriteString("account=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Account))
+	builder.WriteString("holder=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Holder))
 	builder.WriteString(", ")
 	builder.WriteString("secret=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Secret))

@@ -215,14 +215,9 @@ var Exported = map[string]reader{
 	"holder": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.Holder).Proto)(db.Holder.Query().Where(holder.TenantId(t), after(last)).Order(ent.Asc(holder.FieldDateCreated, holder.FieldId)).Limit(n).All(ctx))
 	},
-	// Who was invited, as what, and what became of it -- without the code a
-	// mail carried, which is a way in and nothing the tenant needs back.
+	// Who was invited, as what, and what became of it.
 	"invitation": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
-		return each(func(v *ent.Invitation) proto.Message {
-			m := v.Proto()
-			m.SetClaim(nil)
-			return m
-		})(db.Invitation.Query().Where(invitation.TenantId(t), after(last)).Order(ent.Asc(invitation.FieldDateCreated, invitation.FieldId)).Limit(n).All(ctx))
+		return each((*ent.Invitation).Proto)(db.Invitation.Query().Where(invitation.TenantId(t), after(last)).Order(ent.Asc(invitation.FieldDateCreated, invitation.FieldId)).Limit(n).All(ctx))
 	},
 	"inventorycount": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.InventoryCount).Proto)(db.InventoryCount.Query().Where(inventorycount.TenantId(t), after(last)).Order(ent.Asc(inventorycount.FieldDateCreated, inventorycount.FieldId)).Limit(n).All(ctx))
@@ -284,7 +279,6 @@ var Withheld = map[string]string{
 	"owed":          "the trail's erasures owed and not yet paid: the deployment's, every tenant's at once",
 	"session":       "who is signed in",
 	"clilogin":      "a terminal waiting to be signed in, which is nobody's yet",
-	"aliashold":     "the deployment's: addresses nobody may take for a while",
 	"signinfailure": "the deployment's: how often an address got a sign-in wrong lately",
 	"searchstale":   "the deployment's queue of what the search index has yet to hear of",
 	"levyannotice":  "the deployment's: what levyan was told, and is to be told, of who pays for a workspace",

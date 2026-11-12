@@ -17,7 +17,6 @@ import (
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/server/closing"
 	"github.com/lesomnus/loft/server/offboard"
@@ -54,7 +53,6 @@ func TestARetirementKeepsWhatAFloorIsOn(t *testing.T) {
 	ctx := context.Background()
 	acme, other := e.tenant("acme"), e.tenant("other")
 	d := e.s.Offboard(e.c)
-	x.True(d.Floored())
 
 	before, theirs := e.count(acme.id), e.count(other.id)
 	plan, err := d.Retire(ctx, acme.id, true)
@@ -155,8 +153,7 @@ func TestAWorkspaceLeavesAsItsContractSays(t *testing.T) {
 // (`trail.Policy.Return`, payday#141) -- and what it writes afterwards is
 // kept, and archived when its window says, as any workspace's is. A dry run
 // takes nothing back. A purge leaves the trail no such record, and a purged
-// workspace comes back as it always has. Each destruction holds the address,
-// saying which it was.
+// workspace comes back as it always has.
 func TestAWorkspaceThatRetiredIsRestoredUnderItsIdentifier(t *testing.T) {
 	archive := t.TempDir()
 	e, pub := signed(t, floorOnHolders, func(c *cmd.Config) {
@@ -167,11 +164,6 @@ func TestAWorkspaceThatRetiredIsRestoredUnderItsIdentifier(t *testing.T) {
 	ctx := context.Background()
 	store := pd.TrailStore(e.s.Ent)
 	acme, again := e.tenant("acme"), e.tenant("again")
-	reason := func(t pdid.Id) string {
-		v, err := e.s.Ent.AliasHold.Query().Where(aliashold.Tenant(t.Uuid())).Only(ctx)
-		x.NoError(err)
-		return v.Reason
-	}
 	retired := func(t pdid.Id) bool {
 		vs, err := e.s.Trail.Retired(ctx, store)
 		x.NoError(err)
@@ -182,7 +174,6 @@ func TestAWorkspaceThatRetiredIsRestoredUnderItsIdentifier(t *testing.T) {
 	b := e.export(acme.id)
 	_, err := e.s.Closing.Destroy(ctx, e.row(acme.id), closing.Retire, false)
 	x.NoError(err)
-	x.Equal(offboard.ReasonRetired, reason(acme.id))
 	x.True(retired(acme.id), "the trail has no record that acme left")
 
 	got, err := e.restore(b, offboard.ImportOptions{Dry: true})
@@ -235,7 +226,7 @@ func TestAWorkspaceThatRetiredIsRestoredUnderItsIdentifier(t *testing.T) {
 	b = e.export(again.id)
 	_, err = e.s.Closing.Destroy(ctx, e.row(again.id), closing.Purge, false)
 	x.NoError(err)
-	x.Equal(offboard.ReasonDestroyed, reason(again.id))
+	x.False(retired(again.id), "a purge leaves the trail no record of it")
 	got, err = e.restore(b, offboard.ImportOptions{})
 	x.NoError(err, "a purged workspace is not restored where it was purged")
 	x.False(got.Retired)

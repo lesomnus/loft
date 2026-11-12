@@ -22,7 +22,7 @@ type Mutation struct {
 	client        *string
 	origin        *string
 	address       *string
-	account       *uuid.UUID
+	holder        *uuid.UUID
 	grant         *[]byte
 	state         *string
 	date_expires  *time.Time
@@ -153,40 +153,40 @@ func (m *Mutation) ResetAddress() {
 	delete(m.exprs, FieldAddress)
 }
 
-// SetAccount sets the "account" field.
-func (m *Mutation) SetAccount(u uuid.UUID) {
-	m.account = &u
-	delete(m.clearedFields, FieldAccount)
-	delete(m.exprs, FieldAccount)
+// SetHolder sets the "holder" field.
+func (m *Mutation) SetHolder(u uuid.UUID) {
+	m.holder = &u
+	delete(m.clearedFields, FieldHolder)
+	delete(m.exprs, FieldHolder)
 }
 
-// Account returns the value of the "account" field in the mutation.
-func (m *Mutation) Account() (r uuid.UUID, exists bool) {
-	v := m.account
+// Holder returns the value of the "holder" field in the mutation.
+func (m *Mutation) Holder() (r uuid.UUID, exists bool) {
+	v := m.holder
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearAccount clears the value of the "account" field.
-func (m *Mutation) ClearAccount() {
-	m.account = nil
-	delete(m.exprs, FieldAccount)
-	m.clearedFields[FieldAccount] = struct{}{}
+// ClearHolder clears the value of the "holder" field.
+func (m *Mutation) ClearHolder() {
+	m.holder = nil
+	delete(m.exprs, FieldHolder)
+	m.clearedFields[FieldHolder] = struct{}{}
 }
 
-// AccountCleared returns if the "account" field was cleared in this mutation.
-func (m *Mutation) AccountCleared() bool {
-	_, ok := m.clearedFields[FieldAccount]
+// HolderCleared returns if the "holder" field was cleared in this mutation.
+func (m *Mutation) HolderCleared() bool {
+	_, ok := m.clearedFields[FieldHolder]
 	return ok
 }
 
-// ResetAccount resets all changes to the "account" field.
-func (m *Mutation) ResetAccount() {
-	m.account = nil
-	delete(m.clearedFields, FieldAccount)
-	delete(m.exprs, FieldAccount)
+// ResetHolder resets all changes to the "holder" field.
+func (m *Mutation) ResetHolder() {
+	m.holder = nil
+	delete(m.clearedFields, FieldHolder)
+	delete(m.exprs, FieldHolder)
 }
 
 // SetGrant sets the "grant" field.
@@ -407,8 +407,8 @@ func (m *Mutation) Fields() []string {
 	if m.address != nil || m.exprs[FieldAddress] != nil {
 		fields = append(fields, FieldAddress)
 	}
-	if m.account != nil || m.exprs[FieldAccount] != nil {
-		fields = append(fields, FieldAccount)
+	if m.holder != nil || m.exprs[FieldHolder] != nil {
+		fields = append(fields, FieldHolder)
 	}
 	if m.grant != nil || m.exprs[FieldGrant] != nil {
 		fields = append(fields, FieldGrant)
@@ -452,8 +452,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Origin()
 	case FieldAddress:
 		return m.Address()
-	case FieldAccount:
-		return m.Account()
+	case FieldHolder:
+		return m.Holder()
 	case FieldGrant:
 		return m.Grant()
 	case FieldState:
@@ -535,7 +535,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAddress(v)
 		return nil
-	case FieldAccount:
+	case FieldHolder:
 		v, ok := value.(uuid.UUID)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
@@ -543,7 +543,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetAccount(v)
+		m.SetHolder(v)
 		return nil
 	case FieldGrant:
 		v, ok := value.([]byte)
@@ -637,8 +637,8 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetOrigin()
 	case FieldAddress:
 		m.ResetAddress()
-	case FieldAccount:
-		m.ResetAccount()
+	case FieldHolder:
+		m.ResetHolder()
 	case FieldGrant:
 		m.ResetGrant()
 	case FieldState:
@@ -687,8 +687,8 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldAddress]; ok {
 		fields = append(fields, FieldAddress)
 	}
-	if _, ok := m.exprs[FieldAccount]; ok {
-		fields = append(fields, FieldAccount)
+	if _, ok := m.exprs[FieldHolder]; ok {
+		fields = append(fields, FieldHolder)
 	}
 	if _, ok := m.exprs[FieldGrant]; ok {
 		fields = append(fields, FieldGrant)
@@ -734,8 +734,8 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldAccount) {
-		fields = append(fields, FieldAccount)
+	if m.FieldCleared(FieldHolder) {
+		fields = append(fields, FieldHolder)
 	}
 	if m.FieldCleared(FieldDateExpires) {
 		fields = append(fields, FieldDateExpires)
@@ -760,8 +760,8 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldAccount:
-		m.ClearAccount()
+	case FieldHolder:
+		m.ClearHolder()
 		return nil
 	case FieldDateExpires:
 		m.ClearDateExpires()
@@ -795,8 +795,8 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldAddress:
 		m.ResetAddress()
 		return nil
-	case FieldAccount:
-		m.ResetAccount()
+	case FieldHolder:
+		m.ResetHolder()
 		return nil
 	case FieldGrant:
 		m.ResetGrant()

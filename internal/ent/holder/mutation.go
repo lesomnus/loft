@@ -25,7 +25,6 @@ type Mutation struct {
 	date_erased   *time.Time
 	date_created  *time.Time
 	role          *string
-	account       *uuid.UUID
 	date_leaving  *time.Time
 	mail_off      *bool
 	party         *uuid.UUID
@@ -275,42 +274,6 @@ func (m *Mutation) ResetRole() {
 	delete(m.exprs, FieldRole)
 }
 
-// SetAccount sets the "account" field.
-func (m *Mutation) SetAccount(u uuid.UUID) {
-	m.account = &u
-	delete(m.clearedFields, FieldAccount)
-	delete(m.exprs, FieldAccount)
-}
-
-// Account returns the value of the "account" field in the mutation.
-func (m *Mutation) Account() (r uuid.UUID, exists bool) {
-	v := m.account
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearAccount clears the value of the "account" field.
-func (m *Mutation) ClearAccount() {
-	m.account = nil
-	delete(m.exprs, FieldAccount)
-	m.clearedFields[FieldAccount] = struct{}{}
-}
-
-// AccountCleared returns if the "account" field was cleared in this mutation.
-func (m *Mutation) AccountCleared() bool {
-	_, ok := m.clearedFields[FieldAccount]
-	return ok
-}
-
-// ResetAccount resets all changes to the "account" field.
-func (m *Mutation) ResetAccount() {
-	m.account = nil
-	delete(m.clearedFields, FieldAccount)
-	delete(m.exprs, FieldAccount)
-}
-
 // SetDateLeaving sets the "date_leaving" field.
 func (m *Mutation) SetDateLeaving(t time.Time) {
 	m.date_leaving = &t
@@ -484,7 +447,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 12)
 	if m.alias != nil || m.exprs[FieldAlias] != nil {
 		fields = append(fields, FieldAlias)
 	}
@@ -508,9 +471,6 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.role != nil || m.exprs[FieldRole] != nil {
 		fields = append(fields, FieldRole)
-	}
-	if m.account != nil || m.exprs[FieldAccount] != nil {
-		fields = append(fields, FieldAccount)
 	}
 	if m.date_leaving != nil || m.exprs[FieldDateLeaving] != nil {
 		fields = append(fields, FieldDateLeaving)
@@ -554,8 +514,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case FieldRole:
 		return m.Role()
-	case FieldAccount:
-		return m.Account()
 	case FieldDateLeaving:
 		return m.DateLeaving()
 	case FieldMailOff:
@@ -663,16 +621,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRole(v)
 		return nil
-	case FieldAccount:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAccount(v)
-		return nil
 	case FieldDateLeaving:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -751,8 +699,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
 	case FieldRole:
 		m.ResetRole()
-	case FieldAccount:
-		m.ResetAccount()
 	case FieldDateLeaving:
 		m.ResetDateLeaving()
 	case FieldMailOff:
@@ -802,9 +748,6 @@ func (m *Mutation) ExprFields() []string {
 	}
 	if _, ok := m.exprs[FieldRole]; ok {
 		fields = append(fields, FieldRole)
-	}
-	if _, ok := m.exprs[FieldAccount]; ok {
-		fields = append(fields, FieldAccount)
 	}
 	if _, ok := m.exprs[FieldDateLeaving]; ok {
 		fields = append(fields, FieldDateLeaving)
@@ -856,9 +799,6 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldRole) {
 		fields = append(fields, FieldRole)
 	}
-	if m.FieldCleared(FieldAccount) {
-		fields = append(fields, FieldAccount)
-	}
 	if m.FieldCleared(FieldDateLeaving) {
 		fields = append(fields, FieldDateLeaving)
 	}
@@ -890,9 +830,6 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldRole:
 		m.ClearRole()
-		return nil
-	case FieldAccount:
-		m.ClearAccount()
 		return nil
 	case FieldDateLeaving:
 		m.ClearDateLeaving()
@@ -931,9 +868,6 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldRole:
 		m.ResetRole()
-		return nil
-	case FieldAccount:
-		m.ResetAccount()
 		return nil
 	case FieldDateLeaving:
 		m.ResetDateLeaving()

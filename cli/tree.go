@@ -38,9 +38,8 @@ var hidden = []string{
 }
 
 // internal is what the server keeps for itself and serves to nobody, which is
-// no command at all: a person's session, a terminal waiting, the tree's lock,
-// an address held.
-var internal = []string{"session", "cli-login", "tree-lock", "alias-hold"}
+// no command at all: a person's session, a terminal waiting, the tree's lock.
+var internal = []string{"session", "cli-login", "tree-lock"}
 
 // mount puts the schema's commands on `root`, beside what it holds already,
 // and refuses a word that would answer two (pdcmd's Mount).

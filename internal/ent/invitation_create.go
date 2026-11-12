@@ -38,20 +38,6 @@ func (_c *InvitationCreate) SetRole(v string) *InvitationCreate {
 	return _c
 }
 
-// SetAccount sets the "account" field.
-func (_c *InvitationCreate) SetAccount(v uuid.UUID) *InvitationCreate {
-	_c.mutation.SetAccount(v)
-	return _c
-}
-
-// SetNillableAccount sets the "account" field if the given value is not nil.
-func (_c *InvitationCreate) SetNillableAccount(v *uuid.UUID) *InvitationCreate {
-	if v != nil {
-		_c.SetAccount(*v)
-	}
-	return _c
-}
-
 // SetDateUpdated sets the "date_updated" field.
 func (_c *InvitationCreate) SetDateUpdated(v time.Time) *InvitationCreate {
 	_c.mutation.SetDateUpdated(v)
@@ -117,12 +103,6 @@ func (_c *InvitationCreate) SetNillableDateSettled(v *time.Time) *InvitationCrea
 	if v != nil {
 		_c.SetDateSettled(*v)
 	}
-	return _c
-}
-
-// SetClaim sets the "claim" field.
-func (_c *InvitationCreate) SetClaim(v []byte) *InvitationCreate {
-	_c.mutation.SetClaim(v)
 	return _c
 }
 
@@ -312,10 +292,6 @@ func (_c *InvitationCreate) createSpec() (*Invitation, *sqlgraph.CreateSpec) {
 		_spec.SetField(invitation.FieldRole, field.TypeString, value)
 		_node.Role = value
 	}
-	if value, ok := _c.mutation.Account(); ok {
-		_spec.SetField(invitation.FieldAccount, field.TypeUuid, value)
-		_node.Account = &value
-	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(invitation.FieldDateUpdated, field.TypeTime, value)
 		_node.DateUpdated = value
@@ -339,10 +315,6 @@ func (_c *InvitationCreate) createSpec() (*Invitation, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateSettled(); ok {
 		_spec.SetField(invitation.FieldDateSettled, field.TypeTime, value)
 		_node.DateSettled = &value
-	}
-	if value, ok := _c.mutation.Claim(); ok {
-		_spec.SetField(invitation.FieldClaim, field.TypeBytes, value)
-		_node.Claim = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

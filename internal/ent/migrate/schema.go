@@ -93,31 +93,6 @@ var (
 			},
 		},
 	}
-	// AliasholdColumns holds the columns for the "aliashold" table.
-	AliasholdColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "held", Type: field.TypeString},
-		{Name: "reason", Type: field.TypeString},
-		{Name: "moved_to", Type: field.TypeString},
-		{Name: "tenant", Type: field.TypeUuid},
-		{Name: "date_until", Type: field.TypeTime, Nullable: true},
-		{Name: "date_updated", Type: field.TypeTime},
-		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
-		{Name: "date_created", Type: field.TypeTime, Nullable: true},
-	}
-	// AliasholdTable holds the schema information for the "aliashold" table.
-	AliasholdTable = &schema.Table{
-		Name:       "aliashold",
-		Columns:    AliasholdColumns,
-		PrimaryKey: []*schema.Column{AliasholdColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "aliashold_held",
-				Unique:  false,
-				Columns: []*schema.Column{AliasholdColumns[1]},
-			},
-		},
-	}
 	// AllocationColumns holds the columns for the "allocation" table.
 	AllocationColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -487,7 +462,7 @@ var (
 		{Name: "client", Type: field.TypeString},
 		{Name: "origin", Type: field.TypeString},
 		{Name: "address", Type: field.TypeString},
-		{Name: "account", Type: field.TypeUuid, Nullable: true},
+		{Name: "holder", Type: field.TypeUuid, Nullable: true},
 		{Name: "grant", Type: field.TypeBytes},
 		{Name: "state", Type: field.TypeString},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
@@ -859,7 +834,6 @@ var (
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "role", Type: field.TypeString, Nullable: true, Default: "member"},
-		{Name: "account", Type: field.TypeUuid, Nullable: true},
 		{Name: "date_leaving", Type: field.TypeTime, Nullable: true},
 		{Name: "mail_off", Type: field.TypeBool},
 		{Name: "party", Type: field.TypeUuid, Nullable: true},
@@ -873,7 +847,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "holder_tenant_tenant",
-				Columns:    []*schema.Column{HolderColumns[13]},
+				Columns:    []*schema.Column{HolderColumns[12]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -882,7 +856,7 @@ var (
 			{
 				Name:    "holder_slug",
 				Unique:  true,
-				Columns: []*schema.Column{HolderColumns[1], HolderColumns[13]},
+				Columns: []*schema.Column{HolderColumns[1], HolderColumns[12]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "date_erased IS NULL",
 				},
@@ -890,12 +864,7 @@ var (
 			{
 				Name:    "holder_page",
 				Unique:  false,
-				Columns: []*schema.Column{HolderColumns[13], HolderColumns[7], HolderColumns[0]},
-			},
-			{
-				Name:    "holder_by_account",
-				Unique:  false,
-				Columns: []*schema.Column{HolderColumns[9], HolderColumns[13]},
+				Columns: []*schema.Column{HolderColumns[12], HolderColumns[7], HolderColumns[0]},
 			},
 		},
 	}
@@ -948,14 +917,12 @@ var (
 		{Name: "id", Type: field.TypeUuid, Unique: true},
 		{Name: "email", Type: field.TypeString},
 		{Name: "role", Type: field.TypeString},
-		{Name: "account", Type: field.TypeUuid, Nullable: true},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "state", Type: field.TypeString},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
 		{Name: "date_settled", Type: field.TypeTime, Nullable: true},
-		{Name: "claim", Type: field.TypeBytes, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
 		{Name: "inviter_id", Type: field.TypeUuid},
 		{Name: "party_id", Type: field.TypeUuid, Nullable: true},
@@ -969,25 +936,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "invitation_tenant_tenant",
-				Columns:    []*schema.Column{InvitationColumns[11]},
+				Columns:    []*schema.Column{InvitationColumns[9]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "invitation_holder_inviter",
-				Columns:    []*schema.Column{InvitationColumns[12]},
+				Columns:    []*schema.Column{InvitationColumns[10]},
 				RefColumns: []*schema.Column{HolderColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "invitation_party_party",
-				Columns:    []*schema.Column{InvitationColumns[13]},
+				Columns:    []*schema.Column{InvitationColumns[11]},
 				RefColumns: []*schema.Column{PartyColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "invitation_holder_holder",
-				Columns:    []*schema.Column{InvitationColumns[14]},
+				Columns:    []*schema.Column{InvitationColumns[12]},
 				RefColumns: []*schema.Column{HolderColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -996,17 +963,7 @@ var (
 			{
 				Name:    "invitation_page",
 				Unique:  false,
-				Columns: []*schema.Column{InvitationColumns[11], InvitationColumns[6], InvitationColumns[0]},
-			},
-			{
-				Name:    "invitation_claim",
-				Unique:  false,
-				Columns: []*schema.Column{InvitationColumns[10]},
-			},
-			{
-				Name:    "invitation_account",
-				Unique:  false,
-				Columns: []*schema.Column{InvitationColumns[3]},
+				Columns: []*schema.Column{InvitationColumns[9], InvitationColumns[5], InvitationColumns[0]},
 			},
 			{
 				Name:    "invitation_email",
@@ -1688,7 +1645,7 @@ var (
 	// SessionColumns holds the columns for the "session" table.
 	SessionColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "account", Type: field.TypeUuid},
+		{Name: "holder", Type: field.TypeUuid},
 		{Name: "secret", Type: field.TypeBytes},
 		{Name: "grant", Type: field.TypeBytes},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
@@ -1710,7 +1667,7 @@ var (
 				Columns: []*schema.Column{SessionColumns[2]},
 			},
 			{
-				Name:    "session_account",
+				Name:    "session_holder",
 				Unique:  false,
 				Columns: []*schema.Column{SessionColumns[1]},
 			},
@@ -2103,7 +2060,6 @@ var (
 	Tables = []*schema.Table{
 		AccessTable,
 		AccessreviewTable,
-		AliasholdTable,
 		AllocationTable,
 		ArchivedTable,
 		AssetTable,
@@ -2158,9 +2114,6 @@ func init() {
 	AccessreviewTable.ForeignKeys[1].RefTable = HolderTable
 	AccessreviewTable.Annotation = &entsql.Annotation{
 		Table: "accessreview",
-	}
-	AliasholdTable.Annotation = &entsql.Annotation{
-		Table: "aliashold",
 	}
 	AllocationTable.ForeignKeys[0].RefTable = TenantTable
 	AllocationTable.ForeignKeys[1].RefTable = AssetTable

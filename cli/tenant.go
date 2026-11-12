@@ -29,9 +29,9 @@ import (
 )
 
 // A workspace, as the operator asks of it (design 8.2, 9.11): finding one,
-// closing and restoring it, its export and its return from one, its address
-// moved, an owner named, its contract and its legal holds, and its end by
-// the operator's hand. Of these a person's connection asks only for the list:
+// closing and restoring it, its export and its return from one, an owner
+// named, its contract and its legal holds, and its end by the operator's
+// hand. Of these a person's connection asks only for the list:
 // what becomes of a workspace is the operator's (D83).
 
 // tenantWritten is the workspace's commands written here, at their schema
@@ -42,7 +42,6 @@ func tenantWritten() []written {
 		{path: "tenant/show", cmd: newCmdTenantShow(), calls: []string{app.OperatorTenantService_Show_FullMethodName}},
 		{path: "tenant/close", replace: true, cmd: newCmdTenantClose(), calls: []string{app.TenantService_Close_FullMethodName}},
 		{path: "tenant/restore", replace: true, cmd: newCmdTenantRestore(), calls: []string{app.TenantService_Restore_FullMethodName}},
-		{path: "tenant/move", cmd: newCmdTenantMove(), calls: []string{app.OperatorTenantService_Move_FullMethodName}},
 		{path: "tenant/name-owner", cmd: newCmdTenantNameOwner(), calls: []string{app.OperatorTenantService_NameOwner_FullMethodName}},
 		{path: "tenant/export", cmd: newCmdTenantExport(), calls: []string{app.TenantService_Export_FullMethodName}},
 		// A file held to the deployment's keys asks nobody with --trust.
@@ -451,36 +450,6 @@ func newCmdTenantRestore() *xli.Command {
 		})
 }
 
-// newCmdTenantMove is `loft tenant move`: a workspace at another address,
-// which nobody but the operator moves (`tenancy.Aliases`).
-func newCmdTenantMove() *xli.Command {
-	return change("move a workspace to another address; the old one is held and sends people on",
-		flg.Flags{
-			&flg.String{Name: "to", Brief: "the new address"},
-			&flg.Switch{Name: "reuse", Brief: "take an address that is held anyway"},
-		},
-		func(ctx context.Context, self *xli.Command, conn grpc.ClientConnInterface, ws string) error {
-			reuse, _ := flg.Find[bool](self, "reuse")
-			v, err := app.NewOperatorTenantServiceClient(conn).Move(ctx, app.OperatorTenantMoveRequest_builder{
-				Ref:    byAlias(ws),
-				To:     str(self, "to"),
-				Reuse:  reuse,
-				DryRun: !yes(self),
-			}.Build())
-			if err != nil {
-				return err
-			}
-			if !yes(self) {
-				self.Printf("would move @%s to @%s, holding @%s until %s\n", v.GetFrom(), strings.TrimPrefix(str(self, "to"), "@"), v.GetFrom(), dayOf(v.GetDateHeldUntil()))
-				nothing(self)
-				return nil
-			}
-			self.Printf("moved @%s to @%s; @%s sends people on until %s\n", v.GetFrom(), v.GetTenant().GetAlias(), v.GetFrom(), dayOf(v.GetDateHeldUntil()))
-			printTenant(self, v.GetTenant())
-			return nil
-		})
-}
-
 // newCmdTenantNameOwner is `loft tenant name-owner`: a member made one of a
 // workspace's owners, for one whose owner cannot.
 func newCmdTenantNameOwner() *xli.Command {
@@ -678,8 +647,6 @@ func newCmdTenantImport() *xli.Command {
 		Brief: "restore a workspace from its signed export, into a deployment that does not have it",
 		Flags: flg.Flags{
 			&flg.String{Name: "file", Brief: "the export, or - to read it from stdin"},
-			&flg.String{Name: "alias", Brief: "the address to restore it at, instead of the export's"},
-			&flg.Switch{Name: "reuse", Brief: "take the address though another workspace's hold is on it"},
 			&flg.Switch{Name: "yes", Brief: "do it; without this it only says what it would put back"},
 		},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
@@ -687,7 +654,6 @@ func newCmdTenantImport() *xli.Command {
 			if path == "" {
 				return errors.New("--file: the export to restore")
 			}
-			reuse, _ := flg.Find[bool](self, "reuse")
 			conn, err := operatorFor(ctx, self)
 			if err != nil {
 				return err
@@ -706,7 +672,7 @@ func newCmdTenantImport() *xli.Command {
 				return err
 			}
 			if err := stream.Send(app.OperatorTenantImportRequest_builder{
-				Options: app.OperatorTenantImportOptions_builder{Alias: str(self, "alias"), Reuse: reuse, DryRun: !yes(self)}.Build(),
+				Options: app.OperatorTenantImportOptions_builder{DryRun: !yes(self)}.Build(),
 			}.Build()); err != nil {
 				return err
 			}
@@ -877,10 +843,7 @@ func printImported(self *xli.Command, x *app.OperatorTenantImportResponse) {
 	self.Printf("@%s: %s %d rows (%s), %d files\n", x.GetAlias(), verb, total, strings.Join(parts, ", "), x.GetFiles())
 	self.Printf("  from the export whose manifest is %s, signed by %s: keep it, for the trail it holds is not put back\n", x.GetManifest(), x.GetKey())
 	if x.GetAsked() != "" {
-		self.Printf("  at @%s: the export's @%s is another workspace's here, or not one this deployment gives\n", x.GetAlias(), x.GetAsked())
-	}
-	for _, r := range x.GetReleased() {
-		self.Printf("  the address was held (%s), and is taken back\n", r)
+		self.Printf("  at @%s, the tenant's address at roster: the export says @%s\n", x.GetAlias(), x.GetAsked())
 	}
 	if x.GetReopened() {
 		self.Printf("  it was closed when it was exported, and is open\n")
@@ -896,8 +859,8 @@ func printImported(self *xli.Command, x *app.OperatorTenantImportResponse) {
 		self.Printf("  files the export did not have, as the store it came from did not: %s\n", strings.Join(x.GetMissing(), ", "))
 	}
 	if len(x.GetUnlinked()) > 0 {
-		self.Printf("  %d member(s) whose accounts this roster does not have, restored with none: %s\n", len(x.GetUnlinked()), strings.Join(x.GetUnlinked(), ", "))
-		self.Printf("  (nobody of them signs in until `loft identity link` gives each an account)\n")
+		self.Printf("  %d member(s) this deployment's roster does not have: %s\n", len(x.GetUnlinked()), strings.Join(x.GetUnlinked(), ", "))
+		self.Printf("  (nobody of them signs in until `loft identity link` makes them there)\n")
 	}
 	if dry {
 		self.Printf("(nothing was put back: `--yes` does it)\n")

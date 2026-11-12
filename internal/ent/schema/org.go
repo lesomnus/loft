@@ -85,7 +85,7 @@ func (Session) Fields() []ent.Field {
 		field.Uuid("id").
 			Unique().
 			Immutable(),
-		field.Uuid("account"),
+		field.Uuid("holder"),
 		field.Bytes("secret"),
 		field.Bytes("grant"),
 		field.Time("date_expires").
@@ -111,8 +111,8 @@ func (Session) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("secret").
 			StorageKey("session_secret"),
-		index.Fields("account").
-			StorageKey("session_account"),
+		index.Fields("holder").
+			StorageKey("session_holder"),
 	}
 }
 
@@ -134,9 +134,6 @@ func (Invitation) Fields() []ent.Field {
 		field.String("email"),
 		field.String("role").
 			Immutable(),
-		field.Uuid("account").
-			Nillable().
-			Optional(),
 		field.Time("date_updated"),
 		field.Time("date_erased").
 			Nillable().
@@ -148,9 +145,6 @@ func (Invitation) Fields() []ent.Field {
 		field.Time("date_expires").
 			Optional(),
 		field.Time("date_settled").
-			Nillable().
-			Optional(),
-		field.Bytes("claim").
 			Nillable().
 			Optional(),
 		field.Uuid("tenant_id").
@@ -189,10 +183,6 @@ func (Invitation) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("tenant_id", "date_created", "id").
 			StorageKey("invitation_page"),
-		index.Fields("claim").
-			StorageKey("invitation_claim"),
-		index.Fields("account").
-			StorageKey("invitation_account"),
 		index.Fields("email").
 			StorageKey("invitation_email"),
 	}
@@ -218,7 +208,7 @@ func (CliLogin) Fields() []ent.Field {
 		field.String("client"),
 		field.String("origin"),
 		field.String("address"),
-		field.Uuid("account").
+		field.Uuid("holder").
 			Nillable().
 			Optional(),
 		field.Bytes("grant"),
@@ -249,44 +239,6 @@ func (CliLogin) Indexes() []ent.Index {
 func (CliLogin) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "clilogin"},
-	}
-}
-
-type AliasHold struct {
-	ent.Schema
-}
-
-func (AliasHold) Fields() []ent.Field {
-	return []ent.Field{
-		field.Uuid("id").
-			Unique().
-			Immutable(),
-		field.String("held"),
-		field.String("reason"),
-		field.String("moved_to"),
-		field.Uuid("tenant"),
-		field.Time("date_until").
-			Optional(),
-		field.Time("date_updated"),
-		field.Time("date_erased").
-			Nillable().
-			Optional(),
-		field.Time("date_created").
-			Immutable().
-			Optional(),
-	}
-}
-
-func (AliasHold) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("held").
-			StorageKey("aliashold_held"),
-	}
-}
-
-func (AliasHold) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{Table: "aliashold"},
 	}
 }
 

@@ -13,7 +13,6 @@ import (
 
 	"github.com/lesomnus/loft/internal/ent/access"
 	"github.com/lesomnus/loft/internal/ent/accessreview"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/allocation"
 	"github.com/lesomnus/loft/internal/ent/archived"
 	"github.com/lesomnus/loft/internal/ent/asset"
@@ -70,8 +69,6 @@ type Client struct {
 	Access *AccessClient
 	// AccessReview is the client for interacting with the AccessReview builders.
 	AccessReview *AccessReviewClient
-	// AliasHold is the client for interacting with the AliasHold builders.
-	AliasHold *AliasHoldClient
 	// Allocation is the client for interacting with the Allocation builders.
 	Allocation *AllocationClient
 	// Archived is the client for interacting with the Archived builders.
@@ -170,7 +167,6 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Access = NewAccessClient(c.config)
 	c.AccessReview = NewAccessReviewClient(c.config)
-	c.AliasHold = NewAliasHoldClient(c.config)
 	c.Allocation = NewAllocationClient(c.config)
 	c.Archived = NewArchivedClient(c.config)
 	c.Asset = NewAssetClient(c.config)
@@ -308,7 +304,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:          cfg,
 		Access:          NewAccessClient(cfg),
 		AccessReview:    NewAccessReviewClient(cfg),
-		AliasHold:       NewAliasHoldClient(cfg),
 		Allocation:      NewAllocationClient(cfg),
 		Archived:        NewArchivedClient(cfg),
 		Asset:           NewAssetClient(cfg),
@@ -373,7 +368,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:          cfg,
 		Access:          NewAccessClient(cfg),
 		AccessReview:    NewAccessReviewClient(cfg),
-		AliasHold:       NewAliasHoldClient(cfg),
 		Allocation:      NewAllocationClient(cfg),
 		Archived:        NewArchivedClient(cfg),
 		Asset:           NewAssetClient(cfg),
@@ -492,15 +486,14 @@ func (c *Client) InTx() bool {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Access, c.AccessReview, c.AliasHold, c.Allocation, c.Archived, c.Asset,
-		c.AssetType, c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding,
-		c.Custody, c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Holder,
-		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
-		c.LevyanNotice, c.Link, c.Notification, c.Outbox, c.Owed, c.Party, c.Placement,
-		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal,
-		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
-		c.StockMovement, c.TagCounter, c.Tenant, c.TenantContract, c.TreeLock,
-		c.WorkOrder,
+		c.Access, c.AccessReview, c.Allocation, c.Archived, c.Asset, c.AssetType,
+		c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding, c.Custody,
+		c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Holder, c.InventoryCount,
+		c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.LevyanNotice, c.Link,
+		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
+		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
+		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement,
+		c.TagCounter, c.Tenant, c.TenantContract, c.TreeLock, c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -510,15 +503,14 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Access, c.AccessReview, c.AliasHold, c.Allocation, c.Archived, c.Asset,
-		c.AssetType, c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding,
-		c.Custody, c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Holder,
-		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
-		c.LevyanNotice, c.Link, c.Notification, c.Outbox, c.Owed, c.Party, c.Placement,
-		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal,
-		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
-		c.StockMovement, c.TagCounter, c.Tenant, c.TenantContract, c.TreeLock,
-		c.WorkOrder,
+		c.Access, c.AccessReview, c.Allocation, c.Archived, c.Asset, c.AssetType,
+		c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding, c.Custody,
+		c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Holder, c.InventoryCount,
+		c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.LevyanNotice, c.Link,
+		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
+		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
+		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement,
+		c.TagCounter, c.Tenant, c.TenantContract, c.TreeLock, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -531,8 +523,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Access.mutate(ctx, m)
 	case *AccessReviewMutation:
 		return c.AccessReview.mutate(ctx, m)
-	case *AliasHoldMutation:
-		return c.AliasHold.mutate(ctx, m)
 	case *AllocationMutation:
 		return c.Allocation.mutate(ctx, m)
 	case *ArchivedMutation:
@@ -919,139 +909,6 @@ func (c *AccessReviewClient) mutate(ctx context.Context, m *AccessReviewMutation
 		return (&AccessReviewDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AccessReview mutation op: %q", m.Op())
-	}
-}
-
-// AliasHoldClient is a client for the AliasHold schema.
-type AliasHoldClient struct {
-	config
-}
-
-// NewAliasHoldClient returns a client for the AliasHold from the given config.
-func NewAliasHoldClient(c config) *AliasHoldClient {
-	return &AliasHoldClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `aliashold.Hooks(f(g(h())))`.
-func (c *AliasHoldClient) Use(hooks ...Hook) {
-	c.hooks.AliasHold = append(c.hooks.AliasHold, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `aliashold.Intercept(f(g(h())))`.
-func (c *AliasHoldClient) Intercept(interceptors ...Interceptor) {
-	c.inters.AliasHold = append(c.inters.AliasHold, interceptors...)
-}
-
-// Create returns a builder for creating a AliasHold entity.
-func (c *AliasHoldClient) Create() *AliasHoldCreate {
-	mutation := newAliasHoldMutation(c.config, OpCreate)
-	return &AliasHoldCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of AliasHold entities.
-func (c *AliasHoldClient) CreateBulk(builders ...*AliasHoldCreate) *AliasHoldCreateBulk {
-	return &AliasHoldCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *AliasHoldClient) MapCreateBulk(slice any, setFunc func(*AliasHoldCreate, int)) *AliasHoldCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &AliasHoldCreateBulk{err: fmt.Errorf("calling to AliasHoldClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*AliasHoldCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &AliasHoldCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for AliasHold.
-func (c *AliasHoldClient) Update() *AliasHoldUpdate {
-	mutation := newAliasHoldMutation(c.config, OpUpdate)
-	return &AliasHoldUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *AliasHoldClient) UpdateOne(_m *AliasHold) *AliasHoldUpdateOne {
-	mutation := newAliasHoldMutation(c.config, OpUpdateOne, withAliasHold(_m))
-	return &AliasHoldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneId returns an update builder for the given id.
-func (c *AliasHoldClient) UpdateOneId(id uuid.UUID) *AliasHoldUpdateOne {
-	mutation := newAliasHoldMutation(c.config, OpUpdateOne, withAliasHoldId(id))
-	return &AliasHoldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for AliasHold.
-func (c *AliasHoldClient) Delete() *AliasHoldDelete {
-	mutation := newAliasHoldMutation(c.config, OpDelete)
-	return &AliasHoldDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *AliasHoldClient) DeleteOne(_m *AliasHold) *AliasHoldDeleteOne {
-	return c.DeleteOneId(_m.Id)
-}
-
-// DeleteOneId returns a builder for deleting the given entity by its id.
-func (c *AliasHoldClient) DeleteOneId(id uuid.UUID) *AliasHoldDeleteOne {
-	builder := c.Delete().Where(aliashold.Id(id))
-	builder.mutation.id = &id
-	builder.mutation.SetOp(OpDeleteOne)
-	return &AliasHoldDeleteOne{builder}
-}
-
-// Query returns a query builder for AliasHold.
-func (c *AliasHoldClient) Query() *AliasHoldQuery {
-	return &AliasHoldQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeAliasHold},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a AliasHold entity by its id.
-func (c *AliasHoldClient) Get(ctx context.Context, id uuid.UUID) (*AliasHold, error) {
-	return c.Query().Where(aliashold.Id(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *AliasHoldClient) GetX(ctx context.Context, id uuid.UUID) *AliasHold {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *AliasHoldClient) Hooks() []Hook {
-	return c.hooks.AliasHold
-}
-
-// Interceptors returns the client interceptors.
-func (c *AliasHoldClient) Interceptors() []Interceptor {
-	return c.inters.AliasHold
-}
-
-func (c *AliasHoldClient) mutate(ctx context.Context, m *AliasHoldMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&AliasHoldCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&AliasHoldUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&AliasHoldUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&AliasHoldDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown AliasHold mutation op: %q", m.Op())
 	}
 }
 
@@ -7849,21 +7706,21 @@ func (c *WorkOrderClient) mutate(ctx context.Context, m *WorkOrderMutation) (Val
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
-		Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine,
-		Entitlement, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label,
-		LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement,
-		Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale,
-		Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
+		Access, AccessReview, Allocation, Archived, Asset, AssetType, Attachment, Audit,
+		Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event,
+		Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold,
+		LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
+		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
+		SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
 		TenantContract, TreeLock, WorkOrder []ent.Hook
 	}
 	inters struct {
-		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
-		Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine,
-		Entitlement, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label,
-		LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement,
-		Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale,
-		Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
+		Access, AccessReview, Allocation, Archived, Asset, AssetType, Attachment, Audit,
+		Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event,
+		Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold,
+		LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
+		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
+		SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
 		TenantContract, TreeLock, WorkOrder []ent.Interceptor
 	}
 )

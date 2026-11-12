@@ -47,7 +47,7 @@ func TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer(t *testing.T) {
 
 	// levyan is told who made the workspace, who pays for it from then: by
 	// the portal, and not by this deployment (D84).
-	w.arrived(fake, ws, w.accountOf(w.ownerHolder()))
+	w.arrived(fake, ws, w.memberId(w.ownerHolder()))
 	p, err := pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
 	x.NoError(err)
 	x.Equal(ws.String(), p.GetPayer().GetWorkspace())
@@ -68,13 +68,13 @@ func TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer(t *testing.T) {
 	x.Equal(codes.PermissionDenied, status.Code(err), "asking is the owner's")
 	offered, err := pay.Offer(w.owner, app.PaymentOfferRequest_builder{Holder: member.GetId()}.Build())
 	x.NoError(err)
-	x.Equal(w.accountOf(member).String(), offered.GetOffer().GetAccount())
+	x.Equal(w.memberId(member).String(), offered.GetOffer().GetAccount())
 	x.Equal(ws.String(), offered.GetOffer().GetWorkspace())
 	p, err = pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
 	x.NoError(err)
 	x.Equal(offered.GetOffer().GetId(), p.GetPayer().GetOffer().GetId())
 
-	// Not of another workspace, nor of a membership that is no account's.
+	// Not of another workspace.
 	elsewhere, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "hooli"}.Build())
 	x.NoError(err)
 	stranger, err := w.s.Identity.AddPerson(ctx, "choi", "최", pdid.Nil)
@@ -82,19 +82,13 @@ func TestWhoPaysIsTheWorkspacesToReadAndItsOwnersToOffer(t *testing.T) {
 	theirs := w.member(elsewhere, stranger, "member")
 	_, err = pay.Offer(w.owner, app.PaymentOfferRequest_builder{Holder: theirs.GetId()}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err))
-	nobody, err := w.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(), Alias: "robot",
-	}.Build())
-	x.NoError(err)
-	_, err = pay.Offer(w.owner, app.PaymentOfferRequest_builder{Holder: nobody.GetId()}.Build())
-	x.Equal(codes.FailedPrecondition, status.Code(err))
 
 	// The member answers where a payer pays.
 	x.NotNil(fake.Accept(ws.String()))
 	p, err = pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
 	x.NoError(err)
 	x.Equal(owner, p.GetPayer().GetCurrent().GetAccount(), "who pays now pays until the end of the period")
-	x.Equal(w.accountOf(member).String(), p.GetPayer().GetNext().GetAccount())
+	x.Equal(w.memberId(member).String(), p.GetPayer().GetNext().GetAccount())
 	x.Equal(app.BillingLinkBegan_BILLING_LINK_BEGAN_ACCEPTED, p.GetPayer().GetNext().GetBegan())
 	x.False(p.GetPayer().HasOffer(), "what was offered is answered")
 
@@ -298,7 +292,7 @@ func TestWhatLevyanRefusesIsSaid(t *testing.T) {
 	pay := w.payments()
 
 	// Who pays for it already, asked to: levyan refuses it, in its words.
-	w.arrived(fake, tenantId(x, w.tenant), w.accountOf(w.ownerHolder()))
+	w.arrived(fake, tenantId(x, w.tenant), w.memberId(w.ownerHolder()))
 	_, err := pay.Offer(w.owner, app.PaymentOfferRequest_builder{Holder: w.ownerHolder().GetId()}.Build())
 	x.Equal(codes.FailedPrecondition, status.Code(err))
 	x.Equal("결제 서비스가 받지 않았습니다: the account pays for the workspace already", status.Convert(err).Message())
@@ -338,8 +332,8 @@ func TestWhetherAWorkspacesBillingAccountCanCollectIsSaid(t *testing.T) {
 
 	// The owner's, opened before levyan is told who made the workspace: what
 	// it is paid for with from then.
-	ba := fake.OpenBillingAccount(w.accountOf(w.ownerHolder()).String(), "회사용").GetId()
-	w.arrived(fake, tenantId(x, w.tenant), w.accountOf(w.ownerHolder()))
+	ba := fake.OpenBillingAccount(w.memberId(w.ownerHolder()).String(), "회사용").GetId()
+	w.arrived(fake, tenantId(x, w.tenant), w.memberId(w.ownerHolder()))
 	state := func() app.BillingCollectionState {
 		t.Helper()
 		p, err := pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())

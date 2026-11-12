@@ -10,7 +10,6 @@ import (
 	ent "github.com/lesomnus/loft/internal/ent"
 	access "github.com/lesomnus/loft/internal/ent/access"
 	accessreview "github.com/lesomnus/loft/internal/ent/accessreview"
-	aliashold "github.com/lesomnus/loft/internal/ent/aliashold"
 	allocation "github.com/lesomnus/loft/internal/ent/allocation"
 	archived "github.com/lesomnus/loft/internal/ent/archived"
 	asset "github.com/lesomnus/loft/internal/ent/asset"
@@ -413,7 +412,6 @@ type Scope interface {
 	SessionScope(ctx context.Context) (predicate.Session, error)
 	InvitationScope(ctx context.Context) (predicate.Invitation, error)
 	CliLoginScope(ctx context.Context) (predicate.CliLogin, error)
-	AliasHoldScope(ctx context.Context) (predicate.AliasHold, error)
 	SignInFailureScope(ctx context.Context) (predicate.SignInFailure, error)
 	AssetScope(ctx context.Context) (predicate.Asset, error)
 	TreeLockScope(ctx context.Context) (predicate.TreeLock, error)
@@ -487,9 +485,6 @@ func (Unscoped) InvitationScope(_ context.Context) (predicate.Invitation, error)
 	return nil, nil
 }
 func (Unscoped) CliLoginScope(_ context.Context) (predicate.CliLogin, error) {
-	return nil, nil
-}
-func (Unscoped) AliasHoldScope(_ context.Context) (predicate.AliasHold, error) {
 	return nil, nil
 }
 func (Unscoped) SignInFailureScope(_ context.Context) (predicate.SignInFailure, error) {
@@ -781,26 +776,6 @@ func (ss Scopes) CliLoginScope(ctx context.Context) (predicate.CliLogin, error) 
 	}
 
 	return clilogin.And(ps...), nil
-}
-
-func (ss Scopes) AliasHoldScope(ctx context.Context) (predicate.AliasHold, error) {
-	ps := make([]predicate.AliasHold, 0, len(ss))
-	for _, s := range ss {
-		p, err := s.AliasHoldScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if p == nil {
-			continue
-		}
-
-		ps = append(ps, p)
-	}
-	if len(ps) == 0 {
-		return nil, nil
-	}
-
-	return aliashold.And(ps...), nil
 }
 
 func (ss Scopes) SignInFailureScope(ctx context.Context) (predicate.SignInFailure, error) {
@@ -1678,7 +1653,7 @@ func ItemError(i int, err error) error {
 // is rendered for that dialect, not just what this server writes.
 //
 // That set is also what a soft erasure needs, so this is the whole
-// check. AliasHold, Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract and WorkOrder free the names they held when a row
+// check. Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract and WorkOrder free the names they held when a row
 // is erased, which is a unique index covering only the rows that are
 // still there -- a partial index, and the dialects above are the ones
 // that have one. MySQL does not, and ent writes the annotation out for
@@ -1730,9 +1705,6 @@ func (s Server) Invitation() loft.InvitationServiceServer {
 	return InvitationServiceServer{Store: s.Store}
 }
 func (s Server) CliLogin() loft.CliLoginServiceServer { return CliLoginServiceServer{Store: s.Store} }
-func (s Server) AliasHold() loft.AliasHoldServiceServer {
-	return AliasHoldServiceServer{Store: s.Store}
-}
 func (s Server) SignInFailure() loft.SignInFailureServiceServer {
 	return SignInFailureServiceServer{Store: s.Store}
 }

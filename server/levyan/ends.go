@@ -2,14 +2,12 @@ package levyan
 
 import (
 	"context"
-	"slices"
 	"time"
 	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/levyannotice"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
@@ -18,17 +16,17 @@ import (
 // ended is how many notices of what became of the workspaces the first pass
 // wrote ([Teller.ends]).
 type ended struct {
-	closed, restored, destroyed int
+	closed, restored int
 }
 
-func (e ended) total() int { return e.closed + e.restored + e.destroyed }
+func (e ended) total() int { return e.closed + e.restored }
 
 // ends writes what became of the workspaces before this deployment told
-// levyan of it -- closed, restored, destroyed -- and answers how much of it
+// levyan of it -- closed, restored -- and answers how much of it
 // ([Teller.Backfill]), so that levyan does not go on billing a workspace that
 // was closed before it was told it could be. Nothing told already, or waiting
 // to be, is written again: a notice of the same workspace, kind and moment is
-// that one, and a workspace's destruction is told once.
+// that one.
 //
 //   - **The closes and restores the workspaces' events keep**, oldest first,
 //     each of its own moment: once, since they are read off every event there
@@ -37,14 +35,11 @@ func (e ended) total() int { return e.closed + e.restored + e.destroyed }
 //   - **Every workspace closed now**, from when it says it was
 //     (`Tenant.date_closed`): what its events no longer say, and one closed
 //     while this deployment told levyan nothing. Every pass that starts.
-//   - **Every workspace destroyed here**, from when its address was held,
-//     which was after its final reading: told nothing, levyan goes on taking
-//     somebody to pay for it, who would have one free workspace fewer for
-//     good. One levyan heard nothing of answers so, and is marked told
-//     ([Teller.refusal]). One that is here again -- put back from its export
-//     under its identifiers -- is not destroyed now, and is not told it was:
-//     what levyan is to make of that is its open question (its design 17,
-//     104). Every pass that starts.
+//
+// A workspace destroyed is told as it is destroyed (`closing.Destroy`, design
+// 7.8), and one destroyed while this deployment told levyan nothing is not
+// told after: nothing of it is left here to say it was (D86) -- a deployment
+// serves its one workspace, and one whose workspace is gone bills nobody.
 func (t *Teller) ends(ctx context.Context) (ended, error) {
 	var out ended
 
@@ -55,19 +50,15 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 		at        time.Time
 	}
 	vs, err := t.Db.LevyanNotice.Query().
-		Where(levyannotice.KindIn(Closed, Restored, Destroyed)).
+		Where(levyannotice.KindIn(Closed, Restored)).
 		Select(levyannotice.FieldWorkspace, levyannotice.FieldKind, levyannotice.FieldDateOccurred).
 		All(ctx)
 	if err != nil {
 		return out, err
 	}
 	have := map[said]bool{}
-	destroyed := map[uuid.UUID]bool{}
 	for _, v := range vs {
 		have[said{v.Workspace, v.Kind, moment(v.DateOccurred)}] = true
-		if v.Kind == Destroyed {
-			destroyed[v.Workspace] = true
-		}
 	}
 
 	notices := &Notices{Now: t.Now}
@@ -122,39 +113,6 @@ func (t *Teller) ends(ctx context.Context) (ended, error) {
 	for _, v := range closed {
 		if add(Closed, v.Id, *v.DateClosed) {
 			out.closed++
-		}
-	}
-
-	// Destroyed, from when its address was held: the first hold of it that
-	// says it went, whether or not an operator let the address go since.
-	holds, err := t.Db.AliasHold.Query().
-		Where(aliashold.ReasonIn(gone...)).
-		Order(ent.Asc(aliashold.FieldDateCreated), ent.Asc(aliashold.FieldId)).
-		All(ctx)
-	if err != nil {
-		return out, err
-	}
-	when := map[uuid.UUID]time.Time{}
-	ids := []uuid.UUID{}
-	for _, h := range holds {
-		if _, ok := when[h.Tenant]; ok || destroyed[h.Tenant] {
-			continue
-		}
-		when[h.Tenant] = h.DateCreated
-		ids = append(ids, h.Tenant)
-	}
-	for len(ids) > 0 {
-		page := ids[:min(len(ids), tenantsPage)]
-		ids = ids[len(page):]
-
-		here, err := t.Db.Tenant.Query().Where(enttenant.IdIn(page...)).Ids(ctx)
-		if err != nil {
-			return out, err
-		}
-		for _, id := range page {
-			if !slices.Contains(here, id) && add(Destroyed, id, when[id]) {
-				out.destroyed++
-			}
 		}
 	}
 

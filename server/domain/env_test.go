@@ -306,12 +306,11 @@ func (e *env) newTenant(alias string) (pdid.Id, context.Context) {
 	e.x.NoError(err)
 	tenant := app.TenantRef_builder{Id: t.GetId()}.Build()
 	h, err := e.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Id:      hid.Bytes(),
-		Tenant:  tenant,
-		Alias:   "owner",
-		Name:    "Owner",
-		Role:    z.Ptr("owner"),
-		Account: hid.Bytes(),
+		Id:     hid.Bytes(),
+		Tenant: tenant,
+		Alias:  "owner",
+		Name:   "Owner",
+		Role:   z.Ptr("owner"),
 	}.Build())
 	e.x.NoError(err)
 	_, err = e.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{

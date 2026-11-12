@@ -41,12 +41,11 @@ func Member(t testing.TB, s *cmd.Server, alias, login, role, password string) pd
 
 	ref := app.TenantRef_builder{Id: tn.Id[:]}.Build()
 	h, err := s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Id:      p.Id.Bytes(),
-		Tenant:  ref,
-		Alias:   p.Alias,
-		Name:    login,
-		Role:    z.Ptr(role),
-		Account: p.Id.Bytes(),
+		Id:     p.Id.Bytes(),
+		Tenant: ref,
+		Alias:  p.Alias,
+		Name:   login,
+		Role:   z.Ptr(role),
 	}.Build())
 	x.NoError(err)
 	_, err = s.Base.Party().Add(ctx, app.PartyAddRequest_builder{

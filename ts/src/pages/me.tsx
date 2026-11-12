@@ -57,7 +57,7 @@ export function Me(): ReactNode {
 				{c.me.accountUrl !== '' && (
 					<Card title="계정 탈퇴">
 						<p>
-							계정을 지우면 모든 워크스페이스에서 나가게 됩니다. 지운 뒤 유예 기간 동안은 roster에서 되살릴 수 있고, 그 뒤에는 기록에 남은 이름이 지워집니다. 내가 마지막 소유자인 워크스페이스는 다른
+							계정을 지우면 이 워크스페이스에서 나가게 됩니다. 지운 뒤 유예 기간 동안은 roster에서 되살릴 수 있고, 그 뒤에는 기록에 남은 이름이 지워집니다. 내가 마지막 소유자이면 워크스페이스는 다른
 							구성원에게 넘어가고, 아무도 없으면 닫힙니다.
 						</p>
 						<a className="button" href={leavePage(c.me.accountUrl)}>

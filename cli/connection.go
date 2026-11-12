@@ -66,9 +66,9 @@ const defaultEntryPoint = "http://127.0.0.1:8081"
 
 // TerminalReads is what the terminal reads of the environment itself, under
 // the deployment's prefix and beside its configuration: which connection, the
-// entry point's, and the client's own file and workspace. A loader told of
-// them takes none of them for a typo of its own.
-var TerminalReads = cfg.Reads("CLIENT_CONFIG", "WORKSPACE", "CONNECTION", "ADMIN_URL", "ADMIN_KEY")
+// entry point's, and the client's own file. A loader told of them takes none
+// of them for a typo of its own.
+var TerminalReads = cfg.Reads("CLIENT_CONFIG", "CONNECTION", "ADMIN_URL", "ADMIN_KEY")
 
 var (
 	errNoConnection = errors.New("no connection: `loft auth login --url <the app's address>`, or the entry point's with --url and --key (LOFT_ADMIN_URL, LOFT_ADMIN_KEY)")

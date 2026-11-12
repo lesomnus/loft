@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -17,19 +16,20 @@ import (
 	"github.com/lesomnus/loft/server/pd"
 )
 
-// An account leaving the deployment (design 9.10, M2 step 5).
+// A member leaving the workspace (design 9.10, M2 step 5).
 //
-// roster erases an account and its memberships here begin to leave
-// (`server/lifecycle`). Once roster's grace is over and roster has not
-// restored it, the account leaves every workspace it was in, one membership
-// at a time and each as the deployment's own work there ([Deps.Depart]).
+// roster erases the holder a member is -- the holder of the tenant this
+// deployment serves, by the member's own identifier (D85) -- and the
+// membership here begins to leave (`server/lifecycle`). Once roster's grace is
+// over and roster has not restored them, the member leaves, as the
+// deployment's own work in the workspace ([Deps.Depart]).
 //
-// Leaving a workspace is what an administrator's 개인정보 삭제 does to the
-// person ([Tx.pseudonymize]), done by the deployment -- and one thing more: a
+// Leaving is what an administrator's 개인정보 삭제 does to the person
+// ([Tx.pseudonymize]), done by the deployment -- and one thing more: a
 // workspace whose last owner this was is handed on ([Tx.succeed]), since
 // nobody would be left who may.
 
-// Departure is what an account leaving a workspace did there.
+// Departure is what a member leaving did.
 type Departure struct {
 	// Party is the person record forgotten, when the workspace kept one.
 	Party pdid.Id
@@ -44,9 +44,8 @@ type Departure struct {
 	Held int
 }
 
-// Depart is the account a membership is of leaving that membership's
-// workspace. `server` is the ungated stack. A membership already ended is
-// nothing to do, so asking twice is asking once.
+// Depart is a member leaving the workspace. `server` is the ungated stack. A
+// membership already ended is nothing to do, so asking twice is asking once.
 func (d *Deps) Depart(ctx context.Context, server app.Server, drv dialect.Driver, tenant, member pdid.Id) (Departure, error) {
 	var out Departure
 	err := d.System(ctx, server, drv, tenant, func(t *Tx) error {
@@ -55,22 +54,6 @@ func (d *Deps) Depart(ctx context.Context, server app.Server, drv dialect.Driver
 		return err
 	})
 	return out, err
-}
-
-// Unaddress takes an account's address off what a workspace it was never a
-// member of sent it: an invitation it claimed or answered there, and nothing
-// else, since nothing else there is about it. What is left of an account
-// leaving, beside its memberships.
-func (d *Deps) Unaddress(ctx context.Context, server app.Server, drv dialect.Driver, tenant, account pdid.Id) error {
-	return d.System(ctx, server, drv, tenant, func(t *Tx) error {
-		a := account.Uuid()
-		ids, err := t.forgetInvitations(pdid.Nil, pdid.Nil, &a)
-		if err != nil || len(ids) == 0 {
-			return err
-		}
-		_, err = t.forget(ids)
-		return err
-	})
 }
 
 func (t *Tx) depart(member pdid.Id) (Departure, error) {
@@ -180,13 +163,11 @@ const Pseudonymized = "loft.holder.pseudonymize"
 // membership from then is the pseudonym its person record took, or one of its
 // own.
 func (t *Tx) endMembership(member, person pdid.Id, objects []pdid.Id) (int, error) {
-	var account *uuid.UUID
 	if !member.IsZero() {
 		h, err := t.db.Holder.Get(t.ctx, member.Uuid())
 		if err != nil {
 			return 0, err
 		}
-		account = h.Account
 		if h.DateErased == nil {
 			if _, err := t.next.Holder().Erase(t.ctx, app.HolderRef_builder{Id: member.Bytes()}.Build()); err != nil {
 				return 0, err
@@ -214,7 +195,7 @@ func (t *Tx) endMembership(member, person pdid.Id, objects []pdid.Id) (int, erro
 		objects = append(objects, member)
 	}
 
-	sent, err := t.forgetInvitations(member, person, account)
+	sent, err := t.forgetInvitations(member, person)
 	if err != nil {
 		return 0, err
 	}
@@ -226,24 +207,19 @@ func (t *Tx) endMembership(member, person pdid.Id, objects []pdid.Id) (int, erro
 }
 
 // forgetInvitations takes the address off this workspace's invitations to
-// somebody being forgotten -- the ones their account answered or claimed, the
-// one that made their membership, the ones naming their person record -- and
-// takes back any still waiting. It answers which they were, for the trail's
-// copies of them to go too.
+// somebody being forgotten -- the one that made their membership, the ones
+// naming their person record -- and takes back any still waiting. It answers
+// which they were, for the trail's copies of them to go too.
 //
-// One sent to an address nobody claimed is not theirs to anybody's knowledge
-// here, and stays: what roster could have said of the address went with the
-// account.
-func (t *Tx) forgetInvitations(member, person pdid.Id, account *uuid.UUID) ([]pdid.Id, error) {
+// One sent to an address that names neither is not theirs to anybody's
+// knowledge here, and stays.
+func (t *Tx) forgetInvitations(member, person pdid.Id) ([]pdid.Id, error) {
 	whose := []predicate.Invitation{}
 	if !member.IsZero() {
 		whose = append(whose, invitation.HolderId(member.Uuid()))
 	}
 	if !person.IsZero() {
 		whose = append(whose, invitation.PartyId(person.Uuid()))
-	}
-	if account != nil {
-		whose = append(whose, invitation.Account(*account))
 	}
 	if len(whose) == 0 {
 		return nil, nil
@@ -263,7 +239,6 @@ func (t *Tx) forgetInvitations(member, person pdid.Id, account *uuid.UUID) ([]pd
 		if v.State == invitePending {
 			req.SetState(inviteRevoked)
 			req.SetDateSettled(ts(t.now))
-			req.SetClaimNull(true)
 		}
 		if _, err := t.next.Invitation().Patch(t.ctx, req); err != nil {
 			return nil, err
@@ -303,13 +278,12 @@ func (t *Tx) succeed(h *ent.Holder) (pdid.Id, bool, error) {
 
 // Successor is who a workspace goes to when `h` leaves it, as its last
 // owner: the most senior member who remains -- the widest role, then whoever
-// joined first -- among those who can sign in and are not leaving
-// themselves, and never an auditor, whose role is to change nothing. Nobody
-// when `h` is no owner or another owner remains; ownerless when there is
-// nobody to take it.
+// joined first -- among those not leaving themselves, and never an auditor,
+// whose role is to change nothing. Nobody when `h` is no owner or another
+// owner remains; ownerless when there is nobody to take it.
 //
-// It writes nothing, so what an account leaving would do is said before it
-// is done (`lifecycle.Lifecycle.Departing`), by the rule that then does it.
+// It writes nothing, so what a member leaving would do is said before it is
+// done (`lifecycle.Lifecycle.Departing`), by the rule that then does it.
 func Successor(ctx context.Context, db *ent.Client, h *ent.Holder) (*ent.Holder, bool, error) {
 	if h.Role != "owner" {
 		return nil, false, nil
@@ -320,7 +294,6 @@ func Successor(ctx context.Context, db *ent.Client, h *ent.Holder) (*ent.Holder,
 			holder.IdNEQ(h.Id),
 			holder.DateErasedIsNil(),
 			holder.DateLeavingIsNil(),
-			holder.AccountNotNil(),
 		)
 	}
 	others, err := live(db.Holder.Query()).Where(holder.Role("owner")).Exist(ctx)

@@ -174,10 +174,10 @@ func (s Service) ListStatements(ctx context.Context, req *app.PaymentListStateme
 	return out, nil
 }
 
-// Offer asks a member of the caller's workspace to pay for it: the account
-// its membership is of, read through the walled servers -- so a membership of
-// another workspace is none -- and only one that is an account's and is not
-// leaving.
+// Offer asks a member of the caller's workspace to pay for it: the holder at
+// roster the membership is, by its own identifier (D85), read through the
+// walled servers -- so a membership of another workspace is none -- and only
+// one that is not leaving.
 func (s Service) Offer(ctx context.Context, req *app.PaymentOfferRequest) (*app.PaymentOfferResponse, error) {
 	ws, err := s.workspace(ctx)
 	if err != nil {
@@ -197,17 +197,13 @@ func (s Service) Offer(ctx context.Context, req *app.PaymentOfferRequest) (*app.
 	if t, err := pdid.From(h.GetTenant().GetId()); err != nil || t != ws {
 		return nil, status.Error(codes.InvalidArgument, "holder: 이 워크스페이스의 구성원이 아닙니다")
 	}
-	account, err := pdid.From(h.GetAccount())
-	if err != nil || account == pdid.Nil {
-		return nil, status.Error(codes.FailedPrecondition, "로그인하는 계정이 없는 구성원에게는 결제 담당을 제안할 수 없습니다")
-	}
 	if h.HasDateLeaving() {
-		return nil, status.Error(codes.FailedPrecondition, "떠나는 중인 계정에게는 결제 담당을 제안할 수 없습니다")
+		return nil, status.Error(codes.FailedPrecondition, "떠나는 중인 구성원에게는 결제 담당을 제안할 수 없습니다")
 	}
 
 	call, cancel := s.Levyan.AsProduct(ctx)
 	defer cancel()
-	v, err := s.Levyan.Workspaces().Offer(call, levyanv1.OfferRequest_builder{Workspace: ws.String(), Account: account.String()}.Build())
+	v, err := s.Levyan.Workspaces().Offer(call, levyanv1.OfferRequest_builder{Workspace: ws.String(), Account: id.String()}.Build())
 	if err != nil {
 		return nil, said(ctx, err)
 	}

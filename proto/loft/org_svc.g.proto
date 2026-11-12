@@ -78,8 +78,6 @@ service InvitationService {
 
 service CliLoginService {}
 
-service AliasHoldService {}
-
 service SignInFailureService {}
 
 message PartyAddRequest {
@@ -390,13 +388,11 @@ message InvitationAddRequest {
   string email = 9 [features.field_presence = IMPLICIT];
   string role = 10 [features.field_presence = IMPLICIT];
   PartyRef party = 11;
-  bytes account = 12;
   google.protobuf.Timestamp date_created = 15;
   string state = 16 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_expires = 17;
   google.protobuf.Timestamp date_settled = 18;
   HolderRef holder = 19;
-  bytes claim = 20;
 }
 
 message InvitationGetRequest {
@@ -417,7 +413,6 @@ message InvitationSelect {
   bool email = 9;
   bool role = 10;
   PartySelect party = 11;
-  bool account = 12;
   bool date_updated = 13;
   bool date_erased = 14;
   bool date_created = 15;
@@ -425,7 +420,6 @@ message InvitationSelect {
   bool date_expires = 17;
   bool date_settled = 18;
   HolderSelect holder = 19;
-  bool claim = 20;
 }
 
 message InvitationPatchRequest {
@@ -437,12 +431,6 @@ message InvitationPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and party clears.
   bool party_null = 23;
-  bytes account = 24;
-  // Clear account instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and account clears.
-  bool account_null = 25;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.
@@ -471,12 +459,6 @@ message InvitationPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and holder clears.
   bool holder_null = 39;
-  bytes claim = 40;
-  // Clear claim instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and claim clears.
-  bool claim_null = 41;
 }
 
 message InvitationApplyRequest {
@@ -532,8 +514,7 @@ message InvitationListResponse {
 message InvitationFilter {
   InvitationRef ref = 1;
   TenantRef tenant = 2;
-  bytes account = 3;
-  string state = 4;
+  string state = 3;
 }
 
 message InvitationRevokeRequest {

@@ -27,14 +27,15 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/holder"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/admin"
 	"github.com/lesomnus/loft/server/domain"
-	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/operator"
+	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/session"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // closingWorld is the world with the page built, so the routes that only
@@ -189,8 +190,7 @@ func TestAWorkspaceIsClosedAndRestoredByItsOperator(t *testing.T) {
 	}
 
 	// What the page is told, which is no call into it: that it is closed,
-	// until when, and how long its address is then held -- the
-	// deployment's, a year unset.
+	// and until when.
 	for _, as := range []context.Context{w.owner, kim} {
 		rec := w.page(as, http.MethodGet, "/session")
 		x.Equal(http.StatusOK, rec.Code, rec.Body.String())
@@ -198,7 +198,6 @@ func TestAWorkspaceIsClosedAndRestoredByItsOperator(t *testing.T) {
 		x.NoError(json.Unmarshal(rec.Body.Bytes(), &said))
 		x.NotNil(said.Workspace.Closed)
 		x.WithinDuration(v.GetDateDestroy().AsTime(), *said.Workspace.Destroy, time.Second)
-		x.EqualValues(365, said.Workspace.AliasHoldDays)
 	}
 
 	// What it has, taken out by the operator before it goes.
@@ -219,8 +218,7 @@ func TestAWorkspaceIsClosedAndRestoredByItsOperator(t *testing.T) {
 }
 
 // TestAClosedWorkspaceIsDestroyedOnceItsWindowIsOver: unless something holds
-// it, which keeps it closed until the hold is lifted -- and its address is
-// then nobody's for a year.
+// it, which keeps it closed until the hold is lifted.
 func TestAClosedWorkspaceIsDestroyedOnceItsWindowIsOver(t *testing.T) {
 	w := closingWorld(t)
 	x := w.x
@@ -246,9 +244,9 @@ func TestAClosedWorkspaceIsDestroyedOnceItsWindowIsOver(t *testing.T) {
 	alive, err := w.s.Ent.Tenant.Query().Where(enttenant.Alias(w.tenant.GetAlias())).Exist(ctx)
 	x.NoError(err)
 	x.True(alive, "a hold keeps it")
-	n, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Count(ctx)
+	n, err := w.s.Ent.Holder.Query().Where(holder.TenantId(id.Uuid())).Count(ctx)
 	x.NoError(err)
-	x.Zero(n, "and nothing of its end has begun")
+	x.Positive(n, "and nothing of it has gone")
 
 	_, err = w.s.Base.LegalHold().Patch(ctx, app.LegalHoldPatchRequest_builder{
 		Ref: app.LegalHoldRef_builder{Id: hold.GetId()}.Build(), DateLifted: timestampNow(),
@@ -258,14 +256,9 @@ func TestAClosedWorkspaceIsDestroyedOnceItsWindowIsOver(t *testing.T) {
 	alive, err = w.s.Ent.Tenant.Query().Where(enttenant.Alias(w.tenant.GetAlias())).Exist(ctx)
 	x.NoError(err)
 	x.False(alive, "destroyed once nothing holds it")
-
-	held, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Only(ctx)
+	n, err = w.s.Ent.Holder.Query().Where(holder.TenantId(id.Uuid())).Count(ctx)
 	x.NoError(err)
-	x.Equal("destroyed", held.Reason)
-	x.WithinDuration(time.Now().Add(365*24*time.Hour), held.DateUntil, time.Minute)
-	free, err := w.s.Aliases(w.c).Free(ctx, w.tenant.GetAlias())
-	x.NoError(err)
-	x.False(free, "nobody else is that address to the people who knew it")
+	x.Zero(n, "and everything of it")
 }
 
 // TestAClosedWorkspaceThatCannotRetireWaits (payday#115): a closed workspace
@@ -293,9 +286,9 @@ func TestAClosedWorkspaceThatCannotRetireWaits(t *testing.T) {
 	}
 	x.NoError(w.s.Closing.Sweep(ctx), "a workspace that cannot retire failed the sweep")
 	x.True(alive(), "destroyed, and what the floors are on with it")
-	n, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Count(ctx)
+	n, err := w.s.Ent.Holder.Query().Count(ctx)
 	x.NoError(err)
-	x.Zero(n, "and nothing of its end has begun")
+	x.Positive(n, "and nothing of it has gone")
 
 	_, err = w.s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{
 		Tenant:        ref,
@@ -306,14 +299,15 @@ func TestAClosedWorkspaceThatCannotRetireWaits(t *testing.T) {
 	x.NoError(err)
 	x.NoError(w.s.Closing.Sweep(ctx))
 	x.False(alive(), "purged once its contract says so")
-	held, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Only(ctx)
+	retired, err := w.s.Trail.Retired(ctx, pd.TrailStore(w.s.Ent))
 	x.NoError(err)
-	x.Equal(offboard.ReasonDestroyed, held.Reason)
+	x.NotContains(retired, id, "and the trail keeps no record of it, which a retirement would leave")
 }
 
-// TestAnAddressIsNotTheOwnersToChange: nobody chose it, and an operator alone
-// moves it -- holding the old one, which sends people on.
-func TestAnAddressIsNotTheOwnersToChange(t *testing.T) {
+// TestTheAddressIsTheTenantsAtRoster (D86): nobody here changes it -- not
+// its owner, and no operator's command -- and it is what the tenant is called
+// at roster, taken again as the deployment starts.
+func TestTheAddressIsTheTenantsAtRoster(t *testing.T) {
 	w := closingWorld(t)
 	x := w.x
 	ctx := context.Background()
@@ -333,15 +327,19 @@ func TestAnAddressIsNotTheOwnersToChange(t *testing.T) {
 	_, err = w.s.Ungated.Tenant().Patch(as, app.TenantPatchRequest_builder{Ref: ref, DateClosedNull: z.Ptr(true), DateUpdatedForce: z.Ptr(true)}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err), "closing is the operator's")
 
-	old := w.tenant.GetAlias()
-	x.ErrorContains(w.s.Closing.Rename(ctx, old, "admin", false), "kept for this app")
-	x.NoError(w.s.Closing.Rename(ctx, old, "lab-2", false))
-	x.Equal("lab-2", w.tenantRow().GetAlias())
-
-	other, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "beta"}.Build())
+	// What roster calls it is what it is at: the tenant renamed there is
+	// followed, and followed back.
+	was, err := w.s.Follow(ctx)
 	x.NoError(err)
-	x.ErrorContains(w.s.Closing.Rename(ctx, other.GetAlias(), old, false), "held")
-	x.NoError(w.s.Closing.Rename(ctx, other.GetAlias(), old, true), "taken anyway, on purpose")
+	x.Empty(was, "at roster's address already")
+	was, err = tenancy.Follow(ctx, w.s.Base, identity.Tenant{Id: tid, Alias: "lab-2"})
+	x.NoError(err)
+	x.Equal(w.tenant.GetAlias(), was)
+	x.Equal("lab-2", w.tenantRow().GetAlias())
+	was, err = w.s.Follow(ctx)
+	x.NoError(err)
+	x.Equal("lab-2", was)
+	x.Equal(w.tenant.GetAlias(), w.tenantRow().GetAlias(), "roster's, as roster says it now")
 }
 
 // TestTheLastToLeaveClosesTheWorkspace: a member leaving a workspace nobody
@@ -352,13 +350,13 @@ func TestTheLastToLeaveClosesTheWorkspace(t *testing.T) {
 	ctx := context.Background()
 	owner := w.ownerHolder()
 
-	gone, err := w.s.Lifecycle.Depart(ctx, w.accountOf(owner))
+	gone, err := w.s.Lifecycle.Depart(ctx, w.memberId(owner))
 	x.NoError(err)
-	x.Len(gone, 1)
+	x.NotNil(gone)
 	acme, err := pdid.From(w.tenant.GetId())
 	x.NoError(err)
-	x.Equal(acme, gone[0].Workspace)
-	x.True(gone[0].Closed, "nobody left in it")
+	x.Equal(acme, gone.Workspace)
+	x.True(gone.Closed, "nobody left in it")
 
 	v, err := w.s.Ent.Tenant.Get(ctx, acme.Uuid())
 	x.NoError(err)

@@ -238,8 +238,8 @@ option (payday.app) = {
 //   14  rows           uint32                     -- how many rows it held
 //   15  files          uint32                     -- how many files it held
 //   16  asked          string                     -- the address the export said, when the workspace is at another now
-//   17  released       repeated string            -- the holds on addresses the restore took back
-//   18  unlinked       uint32                     -- how many rows were put back unlinked from what this deployment has
+//   17  released       repeated string            -- the holds on addresses the restore took back (none since D86, which holds none)
+//   18  unlinked       uint32                     -- how many of its members this deployment's roster does not have
 //   19  reopened       bool                       -- it was put back open
 //   21  name           string                     -- what it is called from then on; empty for no name of its own, and then after its owner
 //   22  expired        uint32                     -- how many of its reservations whose time passed while it was closed expired as it was restored
@@ -994,9 +994,11 @@ message AccessReviewed {
   uint32 refused = 6;
 }
 
-// AccountDeparted is an account leaving the workspace (`account.depart`):
-// pseudonymized as a person forgotten is, and a workspace whose last owner it
-// was handed on -- or `ownerless`, with nobody to hand it to.
+// AccountDeparted is a member leaving the workspace once roster erased their
+// holder (`account.depart`, named when a member was an account's): their
+// person record pseudonymized as a person forgotten is, and the workspace
+// handed on when they were its last owner -- or `ownerless`, with nobody to
+// hand it to.
 message AccountDeparted {
   option (payday.event) = {kinds: "account.depart"};
 

@@ -114,8 +114,9 @@ func TestTheRosterInThisProcessIsLoftsOwn(t *testing.T) {
 		x.Equal(d, again, "a tenant there already is made again")
 		_, err = s.EnsureTenant(ctx, Tenant{Id: pdid.New(pdid.Domain(1)), Alias: DefaultTenant})
 		x.Error(err, "the tenant there is another workspace")
-		_, err = s.EnsureTenant(ctx, Tenant{Id: d.Id, Alias: "acme"})
-		x.ErrorContains(err, "auth.roster.tenant", "a workspace this deployment does not serve")
+		again, err = s.EnsureTenant(ctx, Tenant{Id: d.Id, Alias: "acme"})
+		x.NoError(err)
+		x.Equal(d, again, "at the address this deployment serves, whatever the workspace's said: the workspace takes roster's (D86)")
 
 		p, err := s.Lookup(ctx, "kim")
 		x.NoError(err)

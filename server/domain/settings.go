@@ -79,8 +79,7 @@ func priced(currency string) error {
 }
 
 // Zone is the zone a workspace that says none of its own is told in: the
-// deployment's, which is also where a page about no workspace -- the
-// account's payments (design 7.9) -- draws its dates.
+// deployment's.
 func (l Locale) Zone() *time.Location { return l.zone() }
 
 func (l Locale) zone() *time.Location {

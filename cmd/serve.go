@@ -375,7 +375,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// the gate: every write it makes on a caller's behalf goes through the
 	// same edge checks the caller's own would (design D20). The policy is
 	// asked once, about the method the caller named, before any of this.
-	stacked, err := app.Build(walled.WithWatch(w), pd.AuditBuild(), pd.SecretBuild(), pd.GateBuild(), domain.Build(drv, deps))
+	stacked, err := app.Build(walled.WithWatch(w), pd.AuditBuild(), pd.GateBuild(), domain.Build(drv, deps))
 	if err != nil {
 		people.Close()
 		db.Close()
@@ -387,7 +387,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// holds: it is an instance somebody was handed, so going around the wall
 	// is a line of wiring a reader can find rather than a rule that opens up
 	// whenever nobody is asking.
-	base, err := app.Build(sink.WithWatch(w), pd.AuditBuild(), pd.SecretBuild())
+	base, err := app.Build(sink.WithWatch(w), pd.AuditBuild())
 	if err != nil {
 		people.Close()
 		db.Close()
@@ -429,7 +429,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	}
 	s.Lifecycle = lifecycle.Lifecycle{
 		Db: client, Sessions: store, Base: base,
-		People: people, Deps: deps, Drv: drv, Grace: c.App.Accounts.Grace(),
+		People: people, Deps: deps, Drv: drv, Grace: c.App.Members.Grace(),
 	}
 
 	// Signing in through roster's issuer. With no password beside it, an
@@ -486,10 +486,10 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		s.Spin = append(s.Spin, spin.InEveryProcess(people.Accounts().Follower("loft.roster-stream", s.Lifecycle.Apply)))
 	}
 	// And the members still erased once roster's grace is over, leaving.
-	s.Spin = append(s.Spin, spinEvery("loft.departures", c.App.Accounts.Interval(), s.Lifecycle.Sweep))
+	s.Spin = append(s.Spin, spinEvery("loft.departures", c.App.Members.Interval(), s.Lifecycle.Sweep))
 	// And every member asked about again, for an erasure the stream did not
 	// carry because this was not listening (design 9.10).
-	if d := c.App.Accounts.ReconcileEvery(); d > 0 {
+	if d := c.App.Members.ReconcileEvery(); d > 0 {
 		s.Spin = append(s.Spin, spinEvery("loft.reconcile", d, s.Lifecycle.Reconciling))
 	}
 
@@ -567,9 +567,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Trail.Tenants = retention.Trail(client, p, RetentionDefaults(c, p))
 	// After the trail's policy, which a destroy purges by.
 	s.Closing = closing.Closing{
-		Db: client, Offboard: s.Offboard(c),
-		Base: base, Drv: drv, Deps: deps,
-		Aliases: s.Aliases(c), Hold: c.App.Workspaces.Hold(),
+		Db: client, Offboard: s.Offboard(c), Deps: deps,
 		// A workspace destroyed, told to levyan before anything of it is
 		// taken (design 7.8); nil for a deployment that bills nobody.
 		Notices: s.Notices,
@@ -650,9 +648,20 @@ func (s *Server) Close() error {
 	return errors.Join(s.Levyan.Close(), s.Identity.Close(), s.Db.Close())
 }
 
-// Aliases is what decides a workspace's address.
-func (s *Server) Aliases(c Config) tenancy.Aliases {
-	return tenancy.Aliases{Db: s.Ent, Length: c.App.Workspaces.Length(), Reserved: c.App.Workspaces.Reserved, Now: s.Deps.Clock}
+// Follow makes the workspace's address the tenant's at roster as roster has
+// it now (D86), which `serve` does as it starts: a tenant renamed at roster is
+// the workspace's address from the next start on. A roster with no tenant yet,
+// or a deployment with no workspace of it yet, is nothing to follow. It
+// answers the address the workspace was at, when it moved.
+func (s *Server) Follow(ctx context.Context) (string, error) {
+	t, err := s.Identity.Tenant(ctx)
+	if errors.Is(err, identity.ErrNoTenant) {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return tenancy.Follow(ctx, s.Base, t)
 }
 
 // Offboard is what a tenant's export and purge work on.
@@ -672,10 +681,19 @@ func (s *Server) Offboard(c Config) offboard.Deployment {
 		d.Unindex = opensearch.Forget
 		d.Reindex = opensearch.Remember
 	}
-	d.Aliases = s.Aliases(c)
 	if s.Identity != nil {
-		d.Known = func(ctx context.Context, account pdid.Id) (bool, error) {
-			_, err := s.Identity.StandingOf(ctx, account)
+		// The tenant at roster a restore is of, and the address it is at
+		// (D86): none, on a roster with none yet, which `loft identity
+		// link` then makes.
+		d.Serves = func(ctx context.Context) (pdid.Id, string, error) {
+			t, err := s.Identity.Tenant(ctx)
+			if errors.Is(err, identity.ErrNoTenant) {
+				return pdid.Nil, "", nil
+			}
+			return t.Id, t.Alias, err
+		}
+		d.Known = func(ctx context.Context, member pdid.Id) (bool, error) {
+			_, err := s.Identity.StandingOf(ctx, member)
 			// A roster with no tenant yet -- a deployment made to restore
 			// into -- has nobody.
 			if errors.Is(err, identity.ErrNoPerson) || errors.Is(err, identity.ErrNoTenant) {
@@ -992,7 +1010,6 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		Sessions: s.Sessions,
 		Db:       s.Ent,
 		Zone:     s.Deps.Locale.Zone(),
-		Hold:     c.App.Workspaces.Hold(),
 		// Whether the page offers the workspace's billing (design 7.9).
 		Billing: c.App.Billing.Levyan.On(),
 	})

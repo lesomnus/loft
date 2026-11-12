@@ -18,9 +18,6 @@ export const AccessDomain = 6
 /** The domain identifiers of loft.AccessReview carry. */
 export const AccessReviewDomain = 47
 
-/** The domain identifiers of loft.AliasHold carry. */
-export const AliasHoldDomain = 43
-
 /** The domain identifiers of loft.Allocation carry. */
 export const AllocationDomain = 28
 
@@ -154,7 +151,6 @@ export const WorkOrderDomain = 33
 // whole of what an app does with it.
 pdid.register("loft.Access", AccessDomain, "access")
 pdid.register("loft.AccessReview", AccessReviewDomain, "access-review")
-pdid.register("loft.AliasHold", AliasHoldDomain, "alias-hold")
 pdid.register("loft.Allocation", AllocationDomain, "allocation")
 pdid.register("loft.Archived", ArchivedDomain, "archived")
 pdid.register("loft.Asset", AssetDomain, "asset")

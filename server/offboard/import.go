@@ -28,7 +28,6 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	"github.com/lesomnus/loft/internal/ent/attachment"
 	"github.com/lesomnus/loft/internal/ent/migrate"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
@@ -38,15 +37,6 @@ import (
 
 // ImportOptions is what an operator says of a restore beyond the export.
 type ImportOptions struct {
-	// Alias is the address to restore the workspace at instead of the
-	// export's.
-	Alias string
-
-	// Reuse takes the address though another workspace's hold is on it, as
-	// `loft tenant move --reuse` does. A hold put on it when this workspace
-	// left is taken back without being asked: it was held for this one.
-	Reuse bool
-
 	// Dry does all of it and keeps none of it: what a restore would put back.
 	Dry bool
 }
@@ -55,26 +45,21 @@ type ImportOptions struct {
 type Restored struct {
 	Tenant pdid.Id
 
-	// Alias is the address the workspace is at, and Asked the export's when
-	// that is another: another workspace has it here, or it is not one this
-	// deployment gives.
+	// Alias is the address the workspace is at -- the tenant's at roster
+	// ([Deployment.Serves], D86) -- and Asked the export's when that is
+	// another: the tenant was renamed at roster since.
 	Alias, Asked string
-
-	// Released is the holds on the address that were taken back, by why
-	// they were put.
-	Released []string
 
 	// Reopened says it was closed when it was exported, and is open: a
 	// restore is to have it back, and one closed past its window would be
 	// destroyed again by the next sweep.
 	Reopened bool
 
-	// Retired says the workspace retired from this deployment (its address
-	// is held `retired`), and Returned how many records of that the trail
-	// lifted taking it back before anything of it was written
-	// (`trail.Policy.Return`, payday#141): none on a dry run, which takes
-	// nothing back, and none once its floors had all passed and the trail
-	// had purged it.
+	// Retired says the workspace retired from this deployment -- the trail
+	// keeps the record that it left (`trail.Policy.Retired`) -- and Returned
+	// how many records of that the trail lifted taking it back before
+	// anything of it was written (`trail.Policy.Return`, payday#141): none on
+	// a dry run, which takes nothing back.
 	Retired  bool
 	Returned int
 
@@ -86,10 +71,11 @@ type Restored struct {
 	Files   int
 	Missing []string
 
-	// Unlinked is the members, by alias, whose accounts this deployment's
-	// roster does not have: an export from another deployment, or from this
-	// one after its roster forgot them. They are restored naming no account,
-	// which is what `loft identity link` gives one to.
+	// Unlinked is the members, by alias, whom this deployment's roster does
+	// not have ([Deployment.Known]): an export from another deployment's, or
+	// from this one's after its roster forgot them. They are restored as they
+	// are, and nobody signs in as them until `loft identity link` makes them
+	// there.
 	Unlinked []string
 
 	// Manifest and Key are the export's [Fingerprints], which the restore's
@@ -111,10 +97,16 @@ func (x Restored) Total() int {
 // keeps an old export from turning a workspace back.
 var ErrNotNew = errors.New("the deployment has the workspace already")
 
+// ErrNotServed is a restore of a workspace that is not the tenant at roster
+// the deployment serves (D85): nobody there could sign in to it.
+var ErrNotServed = errors.New("the workspace is not the tenant this deployment serves")
+
 // Import restores a workspace from its export into a deployment that does not
 // have it: every row as it was exported, under the identifier it had, so that
 // what pointed at it -- a printed label, a link -- still does (design D34). It
-// is the one the workspace was purged from, or another.
+// is the one the workspace was purged from, or another serving the same
+// tenant at roster ([Deployment.Serves]); and it is at that tenant's address,
+// whatever the export says (D86).
 //
 // Only an export [Verify] answers for is read, and the whole of it is one
 // transaction: a restore is all of the workspace or none of it. The files its
@@ -140,11 +132,11 @@ var ErrNotNew = errors.New("the deployment has the workspace already")
 // A retirement leaves the trail what the deployment's floors are on and a
 // record that the tenant left, which every pass goes by whatever the app
 // answers: what such a tenant writes goes at the next pass, and its whole
-// trail and its key once the last floor has passed. So a workspace whose
-// address this deployment holds as `retired` is taken back by the trail first
-// (`trail.Policy.Return`, payday#141), before anything of it is written --
-// after which its windows are its contract's again, and what the retirement
-// kept is its own. A dry run takes nothing back, and says it would
+// trail and its key once the last floor has passed. So a workspace the trail
+// keeps that record of (`trail.Policy.Retired`) is taken back by the trail
+// first (`trail.Policy.Return`, payday#141), before anything of it is written
+// -- after which its windows are its contract's again, and what the
+// retirement kept is its own. A dry run takes nothing back, and says it would
 // ([Restored.Retired]). A purge leaves the trail no such record, and a purged
 // workspace needs nothing taken back.
 //
@@ -168,6 +160,29 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	out.Tenant = pdid.Id(tid)
 	if out.Manifest, out.Key, err = Fingerprints(r, size); err != nil {
 		return out, err
+	}
+
+	// The tenant at roster this deployment serves, and the address it goes
+	// by there, which is the workspace's (D86). A roster with no tenant yet
+	// -- the one in this process, before a restore it is made for -- takes
+	// any, at the export's address, and `loft identity link` makes the
+	// tenant by the workspace's identifier.
+	out.Alias = t.GetAlias()
+	if d.Serves != nil {
+		served, alias, err := d.Serves(ctx)
+		if err != nil {
+			return out, fmt.Errorf("roster: %w", err)
+		}
+		if !served.IsZero() {
+			if served != out.Tenant {
+				return out, fmt.Errorf("%w: it is %s (@%s), and the tenant at roster is %s (@%s)", ErrNotServed, out.Tenant, t.GetAlias(), served, alias)
+			}
+			out.Alias = alias
+		}
+	}
+	if out.Alias != t.GetAlias() {
+		out.Asked = t.GetAlias()
+		t.SetAlias(out.Alias)
 	}
 
 	z, err := zip.NewReader(r, size)
@@ -215,10 +230,11 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	} else if here {
 		return out, fmt.Errorf("%w: %s (@%s) is here; a restore is into a deployment that does not have it", ErrNotNew, out.Tenant, t.GetAlias())
 	}
-	if out.Retired, err = d.Ent.AliasHold.Query().Where(aliashold.Tenant(tid), aliashold.Reason(ReasonRetired)).Exist(ctx); err != nil {
-		return out, err
+	retired, err := d.Trail.Retired(ctx, pd.TrailStore(d.Ent))
+	if err != nil {
+		return out, fmt.Errorf("the trail, whether the workspace retired from here: %w", err)
 	}
-	if out.Retired && !o.Dry {
+	if _, out.Retired = retired[out.Tenant]; out.Retired && !o.Dry {
 		back, err := d.Trail.Return(ctx, pd.TrailStore(d.Ent), out.Tenant)
 		if err != nil {
 			return out, fmt.Errorf("the trail, taking back a workspace that retired from here: %w", err)
@@ -239,15 +255,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, fmt.Errorf("%w: %s (@%s) is here; a restore is into a deployment that does not have it", ErrNotNew, out.Tenant, t.GetAlias())
 	}
 
-	var releasedHolds []pdid.Id
-	out.Alias, out.Released, releasedHolds, err = d.address(ctx, db, out.Tenant, t.GetAlias(), o)
-	if err != nil {
-		return out, err
-	}
-	if out.Alias != t.GetAlias() {
-		out.Asked = t.GetAlias()
-		t.SetAlias(out.Alias)
-	}
 	if t.HasDateClosed() {
 		out.Reopened = true
 		t.ClearDateClosed()
@@ -259,9 +266,8 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, fmt.Errorf("tenant: %w", err)
 	}
 
-	// Every row put back, for the trail to say so -- and the holds on its
-	// address the restore took back, erased past the servers here.
-	restored := append([]pdid.Id{out.Tenant}, releasedHolds...)
+	// Every row put back, for the trail to say so.
+	restored := []pdid.Id{out.Tenant}
 	for _, p := range plans {
 		n, err := d.restore(ctx, db, z, p, tid, &out, &restored)
 		if err != nil {
@@ -284,7 +290,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		Rows:         uint32(out.Total()),
 		Files:        uint32(m.Files),
 		Asked:        out.Asked,
-		Released:     out.Released,
 		Unlinked:     uint32(len(out.Unlinked)),
 		Reopened:     out.Reopened,
 	}.Build())
@@ -368,70 +373,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	return out, nil
 }
 
-// address is where a restored workspace is: the export's address when it may
-// be had here, and the one asked for or one made up when it may not -- and the
-// holds on it that were taken back, by why each was placed and by identifier.
-func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id, exported string, o ImportOptions) (string, []string, []pdid.Id, error) {
-	want := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(o.Alias), "@"))
-	asked := want != ""
-	if !asked {
-		want = exported
-	}
-
-	ok := true
-	if d.Aliases != nil {
-		if err := d.Aliases.Valid(want); err != nil {
-			if asked {
-				return "", nil, nil, err
-			}
-			// Not one this deployment gives: reserved here, say.
-			ok = false
-		}
-	}
-	if ok {
-		taken, err := db.Tenant.Query().Where(enttenant.Alias(want)).Exist(ctx)
-		if err != nil {
-			return "", nil, nil, err
-		}
-		if taken {
-			if asked {
-				return "", nil, nil, fmt.Errorf("@%s is another workspace's", want)
-			}
-			ok = false
-		}
-	}
-	if !ok {
-		if d.Aliases == nil {
-			return "", nil, nil, fmt.Errorf("@%s is another workspace's here; restore it at another (--alias)", want)
-		}
-		v, err := d.Aliases.Make(ctx)
-		return v, nil, nil, err
-	}
-
-	now := d.now()
-	holds, err := db.AliasHold.Query().
-		Where(aliashold.Held(want), aliashold.DateUntilGT(now), aliashold.DateErasedIsNil()).
-		All(ctx)
-	if err != nil {
-		return "", nil, nil, err
-	}
-	for _, h := range holds {
-		if pdid.Id(h.Tenant) != tenant && !o.Reuse {
-			return "", nil, nil, fmt.Errorf("@%s is held until %s (%s); --reuse takes it anyway, and --alias restores it at another", want, h.DateUntil.Format(time.DateOnly), h.Reason)
-		}
-	}
-	released := []string{}
-	ids := []pdid.Id{}
-	for _, h := range holds {
-		if err := db.AliasHold.UpdateOneId(h.Id).SetDateErased(now).SetDateUpdated(now).Exec(ctx); err != nil {
-			return "", nil, nil, err
-		}
-		released = append(released, h.Reason)
-		ids = append(ids, pdid.Id(h.Id))
-	}
-	return want, released, ids, nil
-}
-
 // Imported is the act a restore is on the trail as.
 const Imported = "loft.workspace.import"
 
@@ -500,24 +441,24 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 // adjusts is what a restore makes of a row of a table, beside writing it as
 // it was.
 var adjusts = map[string]func(ctx context.Context, d Deployment, v protoreflect.Message, out *Restored) error{
-	// A member whose account is not this roster's names none: an account by
-	// an identifier this directory does not have is nobody here, and the
-	// member is somebody to give one to (`loft identity link`).
+	// A member is the holder at roster by their own identifier (D85): one
+	// this deployment's roster does not have is restored as they are, and
+	// said, for `loft identity link` to make there. An ended membership is
+	// nobody to make.
 	"holder": func(ctx context.Context, d Deployment, v protoreflect.Message, out *Restored) error {
 		h := v.Interface().(*app.Holder)
-		if len(h.GetAccount()) == 0 || d.Known == nil {
+		if d.Known == nil || h.HasDateErased() {
 			return nil
 		}
-		a, err := keyOf(h.GetAccount())
+		id, err := keyOf(h.GetId())
 		if err != nil {
-			return fmt.Errorf("%w: its account: %v", ErrFormat, err)
+			return fmt.Errorf("%w: a member: %v", ErrFormat, err)
 		}
-		known, err := d.Known(ctx, pdid.Id(a))
+		known, err := d.Known(ctx, pdid.Id(id))
 		if err != nil {
 			return fmt.Errorf("roster: %w", err)
 		}
 		if !known {
-			h.SetAccount(nil)
 			out.Unlinked = append(out.Unlinked, h.GetAlias())
 		}
 		return nil

@@ -119,10 +119,11 @@ type Deps struct {
 	// may have out.
 	Invitations InvitationRules
 
-	// Base is the stack with neither the wall nor this layer: what an
-	// account's answer to an invitation is written through, in a workspace it
-	// is not a member of yet. Never handed to anything a caller reaches; this
-	// layer writes through it, after its own checks, and nothing else does.
+	// Base is the stack with neither the wall nor this layer: what a
+	// membership made by a login given is written through, by the identifier
+	// of the holder made at roster for it, which no request may say. Never
+	// handed to anything a caller reaches; this layer writes through it,
+	// after its own checks, and nothing else does.
 	Base app.Server
 
 	// Audit is what the trail keeps of each kind's writes (`audit.content`,
@@ -157,10 +158,11 @@ type Closings interface {
 	Restore(ctx context.Context, db *ent.Client, workspace pdid.Id, at time.Time) error
 }
 
-// People is roster, as the people operations reach it: the accounts of this
-// deployment's directory (design 9.10, D27). On the roster in this process
-// Loft makes accounts and gives them passwords there; on an external one those
-// are roster's, and the operations that would do them are refused.
+// People is roster, as the people operations reach it: the holders of the
+// tenant this deployment serves, each a member here by the same identifier
+// (design 9.10, D85). On the roster in this process Loft makes them and gives
+// them passwords there; on an external one those are roster's, and the
+// operations that would do them are refused.
 type People interface {
 	Embedded() bool
 	// Tenant is the roster tenant the deployment serves: its workspace, by
@@ -168,14 +170,14 @@ type People interface {
 	Tenant(ctx context.Context) (identity.Tenant, error)
 	AddPerson(ctx context.Context, alias, name string, id pdid.Id) (identity.Person, error)
 	ById(ctx context.Context, sub string) (identity.Person, error)
-	SetPassword(ctx context.Context, account pdid.Id, password string) error
-	IssuePassword(ctx context.Context, account pdid.Id) (string, error)
+	SetPassword(ctx context.Context, holder pdid.Id, password string) error
+	IssuePassword(ctx context.Context, holder pdid.Id) (string, error)
 	Verify(ctx context.Context, login, password string) (identity.Person, error)
-	Invalidate(ctx context.Context, account pdid.Id) error
-	ForgetPerson(ctx context.Context, account pdid.Id) error
+	Invalidate(ctx context.Context, holder pdid.Id) error
+	ForgetPerson(ctx context.Context, holder pdid.Id) error
 	// Addresses is somebody's addresses that somebody checked: where their
 	// mail goes.
-	Addresses(ctx context.Context, account pdid.Id) ([]string, error)
+	Addresses(ctx context.Context, holder pdid.Id) ([]string, error)
 	// AccountPage is roster's page where somebody manages how they sign in,
 	// for a roster of its own; empty for none.
 	AccountPage() string
@@ -502,7 +504,7 @@ func (t *Tx) layer() Domain { return New(t.next, t.drv, t.deps) }
 
 // deployment is the deployment's own servers ([Deps.Base], neither the wall
 // nor the gate) on this transaction: for a write a layer above the gate makes
-// that no request may, which account a membership is of (payday#184). What
+// that no request may, which holder at roster a membership is (D85). What
 // goes through it is checked here first, and is written as the caller, in the
 // caller's workspace.
 func (t *Tx) deployment() (app.Server, error) {
@@ -606,7 +608,7 @@ func (t *Tx) seen(op pdid.Id) error {
 // Who did it and in which tenant are the caller's frame, which the past reads
 // for itself; and when the transaction is part of an operation that called
 // this one ([Tx.layer]), the event is part of that. One transaction that
-// records more than one -- a sweep, an account leaving that hands its
+// records more than one -- a sweep, a member leaving that hands the
 // workspace on -- records each beside the others, none part of another. What
 // the operation writes from then on points at the last ([Tx.ev]), and its
 // facts are its own.

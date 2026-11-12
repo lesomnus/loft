@@ -30,9 +30,8 @@ import (
 
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/internal/ent"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
-	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/operator"
 	"github.com/lesomnus/loft/server/pd"
 )
@@ -61,7 +60,7 @@ func (s operatorTrail) Export(req *app.OperatorTrailExportRequest, out grpc.Serv
 	if err != nil {
 		return status.Errorf(codes.InvalidArgument, "to: %v", err)
 	}
-	tenant, alias, err := trailOf(ctx, s.a.S.Ent, req.GetTenant())
+	tenant, alias, err := trailOf(ctx, s.a.S.Ent, s.a.S.Identity, req.GetTenant())
 	if err != nil {
 		return err
 	}
@@ -175,9 +174,9 @@ func (s operatorTrail) Export(req *app.OperatorTrailExportRequest, out grpc.Serv
 }
 
 // trailOf is the workspace `v` names: by its identifier, or by its address --
-// a live workspace's, or a destroyed one's as the newest hold on it says,
-// which is all that is left of what it was called.
-func trailOf(ctx context.Context, db *ent.Client, v string) (pdid.Id, string, error) {
+// a live workspace's, or, for one destroyed here, the tenant's at roster this
+// deployment serves, which is the address it went by (D86).
+func trailOf(ctx context.Context, db *ent.Client, people *identity.Store, v string) (pdid.Id, string, error) {
 	v = strings.TrimPrefix(strings.TrimSpace(v), "@")
 	if v == "" {
 		return pdid.Nil, "", status.Error(codes.InvalidArgument, "tenant: which workspace -- its identifier, or its address")
@@ -194,17 +193,16 @@ func trailOf(ctx context.Context, db *ent.Client, v string) (pdid.Id, string, er
 		return pdid.Nil, "", err
 	}
 
-	h, err := db.AliasHold.Query().
-		Where(aliashold.Held(v), aliashold.ReasonIn(offboard.ReasonDestroyed, offboard.ReasonRetired)).
-		Order(ent.Desc(aliashold.FieldDateCreated)).
-		First(ctx)
-	if ent.IsNotFound(err) {
-		return pdid.Nil, "", status.Errorf(codes.NotFound, "no workspace is @%s, nor was one destroyed under it", v)
+	if people != nil {
+		served, err := people.Tenant(ctx)
+		if err == nil && served.Alias == v {
+			return served.Id, v, nil
+		}
+		if err != nil && !errors.Is(err, identity.ErrNoTenant) {
+			return pdid.Nil, "", fmt.Errorf("roster: %w", err)
+		}
 	}
-	if err != nil {
-		return pdid.Nil, "", err
-	}
-	return pdid.Id(h.Tenant), v, nil
+	return pdid.Nil, "", status.Errorf(codes.NotFound, "no workspace is @%s, nor is the tenant this deployment serves at roster: name a destroyed one by its identifier", v)
 }
 
 // carried is everybody a workspace's trail carries the data of, by the

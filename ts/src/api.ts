@@ -121,8 +121,6 @@ export interface Workspace {
 	/** When it was closed, and when it goes unless an operator restores it (D29). */
 	closed?: string
 	destroy?: string
-	/** For a closed one: how many days its address is then held (D29). */
-	alias_hold_days?: number
 }
 
 /** Who this browser is signed in as, as `GET /session` answers it. */

@@ -19,14 +19,12 @@ type Mutation struct {
 	typ            string
 	email          *string
 	role           *string
-	account        *uuid.UUID
 	date_updated   *time.Time
 	date_erased    *time.Time
 	date_created   *time.Time
 	state          *string
 	date_expires   *time.Time
 	date_settled   *time.Time
-	claim          *[]byte
 	clearedFields  map[string]struct{}
 	exprs          map[string]sql.Querier
 	tenant         *uuid.UUID
@@ -92,42 +90,6 @@ func (m *Mutation) Role() (r string, exists bool) {
 // ResetRole resets all changes to the "role" field.
 func (m *Mutation) ResetRole() {
 	m.role = nil
-}
-
-// SetAccount sets the "account" field.
-func (m *Mutation) SetAccount(u uuid.UUID) {
-	m.account = &u
-	delete(m.clearedFields, FieldAccount)
-	delete(m.exprs, FieldAccount)
-}
-
-// Account returns the value of the "account" field in the mutation.
-func (m *Mutation) Account() (r uuid.UUID, exists bool) {
-	v := m.account
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearAccount clears the value of the "account" field.
-func (m *Mutation) ClearAccount() {
-	m.account = nil
-	delete(m.exprs, FieldAccount)
-	m.clearedFields[FieldAccount] = struct{}{}
-}
-
-// AccountCleared returns if the "account" field was cleared in this mutation.
-func (m *Mutation) AccountCleared() bool {
-	_, ok := m.clearedFields[FieldAccount]
-	return ok
-}
-
-// ResetAccount resets all changes to the "account" field.
-func (m *Mutation) ResetAccount() {
-	m.account = nil
-	delete(m.clearedFields, FieldAccount)
-	delete(m.exprs, FieldAccount)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -311,42 +273,6 @@ func (m *Mutation) ResetDateSettled() {
 	m.date_settled = nil
 	delete(m.clearedFields, FieldDateSettled)
 	delete(m.exprs, FieldDateSettled)
-}
-
-// SetClaim sets the "claim" field.
-func (m *Mutation) SetClaim(b []byte) {
-	m.claim = &b
-	delete(m.clearedFields, FieldClaim)
-	delete(m.exprs, FieldClaim)
-}
-
-// Claim returns the value of the "claim" field in the mutation.
-func (m *Mutation) Claim() (r []byte, exists bool) {
-	v := m.claim
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearClaim clears the value of the "claim" field.
-func (m *Mutation) ClearClaim() {
-	m.claim = nil
-	delete(m.exprs, FieldClaim)
-	m.clearedFields[FieldClaim] = struct{}{}
-}
-
-// ClaimCleared returns if the "claim" field was cleared in this mutation.
-func (m *Mutation) ClaimCleared() bool {
-	_, ok := m.clearedFields[FieldClaim]
-	return ok
-}
-
-// ResetClaim resets all changes to the "claim" field.
-func (m *Mutation) ResetClaim() {
-	m.claim = nil
-	delete(m.clearedFields, FieldClaim)
-	delete(m.exprs, FieldClaim)
 }
 
 // SetTenantId sets the "tenant_id" field.
@@ -595,15 +521,12 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 12)
 	if m.email != nil || m.exprs[FieldEmail] != nil {
 		fields = append(fields, FieldEmail)
 	}
 	if m.role != nil {
 		fields = append(fields, FieldRole)
-	}
-	if m.account != nil || m.exprs[FieldAccount] != nil {
-		fields = append(fields, FieldAccount)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -622,9 +545,6 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.date_settled != nil || m.exprs[FieldDateSettled] != nil {
 		fields = append(fields, FieldDateSettled)
-	}
-	if m.claim != nil || m.exprs[FieldClaim] != nil {
-		fields = append(fields, FieldClaim)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -656,8 +576,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case FieldRole:
 		return m.Role()
-	case FieldAccount:
-		return m.Account()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateErased:
@@ -670,8 +588,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateExpires()
 	case FieldDateSettled:
 		return m.DateSettled()
-	case FieldClaim:
-		return m.Claim()
 	case FieldTenantId:
 		return m.TenantId()
 	case FieldInviterId:
@@ -718,16 +634,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRole(v)
-		return nil
-	case FieldAccount:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAccount(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -788,16 +694,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateSettled(v)
-		return nil
-	case FieldClaim:
-		v, ok := value.([]byte)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetClaim(v)
 		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
@@ -865,8 +761,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetEmail()
 	case FieldRole:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
-	case FieldAccount:
-		m.ResetAccount()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateErased:
@@ -879,8 +773,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetDateExpires()
 	case FieldDateSettled:
 		m.ResetDateSettled()
-	case FieldClaim:
-		m.ResetClaim()
 	case FieldTenantId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	case FieldInviterId:
@@ -913,9 +805,6 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldEmail]; ok {
 		fields = append(fields, FieldEmail)
 	}
-	if _, ok := m.exprs[FieldAccount]; ok {
-		fields = append(fields, FieldAccount)
-	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
 	}
@@ -930,9 +819,6 @@ func (m *Mutation) ExprFields() []string {
 	}
 	if _, ok := m.exprs[FieldDateSettled]; ok {
 		fields = append(fields, FieldDateSettled)
-	}
-	if _, ok := m.exprs[FieldClaim]; ok {
-		fields = append(fields, FieldClaim)
 	}
 	return fields
 }
@@ -963,9 +849,6 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldAccount) {
-		fields = append(fields, FieldAccount)
-	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
 	}
@@ -977,9 +860,6 @@ func (m *Mutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(FieldDateSettled) {
 		fields = append(fields, FieldDateSettled)
-	}
-	if m.FieldCleared(FieldClaim) {
-		fields = append(fields, FieldClaim)
 	}
 	if m.FieldCleared(FieldPartyId) {
 		fields = append(fields, FieldPartyId)
@@ -1001,9 +881,6 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldAccount:
-		m.ClearAccount()
-		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
 		return nil
@@ -1015,9 +892,6 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldDateSettled:
 		m.ClearDateSettled()
-		return nil
-	case FieldClaim:
-		m.ClearClaim()
 		return nil
 	case FieldPartyId:
 		m.ClearPartyId()
@@ -1039,9 +913,6 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldRole:
 		m.ResetRole()
 		return nil
-	case FieldAccount:
-		m.ResetAccount()
-		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 		return nil
@@ -1059,9 +930,6 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldDateSettled:
 		m.ResetDateSettled()
-		return nil
-	case FieldClaim:
-		m.ResetClaim()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

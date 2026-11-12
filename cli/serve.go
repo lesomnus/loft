@@ -63,7 +63,7 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 			// operator's to decide (docs/dev/identity.md, "내장 roster").
 			if why := c.EmbeddedInProduction(); len(why) > 0 {
 				log.From(ctx).WarnContext(ctx, "identity: roster runs in this process, and this deployment looks like production: "+
-					"it answers this process alone, keeps people and passwords beside Loft's own data, and no other app can use the accounts. "+
+					"it answers this process alone, keeps people and passwords beside Loft's own data, and no other app can use them. "+
 					"A deployment beyond one server runs roster apart (auth.roster.addr); see docs/dev/identity.md#내장-roster",
 					slog.String("because", strings.Join(why, ", ")))
 			}
@@ -109,6 +109,17 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 				// restart would be an outage until somebody had built it
 				// again. `loft migrate` is what refuses it (payday#176).
 				log.From(ctx).WarnContext(ctx, "db: serving over an index PostgreSQL left invalid", slog.Any("err", err))
+			}
+
+			// The workspace's address is the tenant's at roster (D86), taken
+			// again as roster has it now: a tenant renamed there is the
+			// workspace's address from this start on. Said, and served over:
+			// a roster that cannot be asked signs nobody in either, which is
+			// what an operator looks at first.
+			if was, err := s.Follow(ctx); err != nil {
+				log.From(ctx).WarnContext(ctx, "identity: the workspace's address could not be taken from roster", slog.Any("err", err))
+			} else if was != "" {
+				log.From(ctx).InfoContext(ctx, "identity: the workspace is at the tenant's address at roster", slog.String("was", was))
 			}
 
 			l, err := net.Listen("tcp", c.Server.ListenAddr())

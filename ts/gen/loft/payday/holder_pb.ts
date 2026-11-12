@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/payday/holder.proto.
  */
 export const file_loft_payday_holder: GenFile = /*@__PURE__*/
-  fileDesc("Chhsb2Z0L3BheWRheS9ob2xkZXIucHJvdG8SBGxvZnQijAYKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIVCgVhbGlhcxgEIAEoCUIGqsEWAhgBEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESMAoGbGFiZWxzGAcgAygLMhgubG9mdC5Ib2xkZXIuTGFiZWxzRW50cnlCBqrBFgIYARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASIQoEcm9sZRgIIAEoCUIT6oIWCYIBBm1lbWJlcqrBFgIYABIZCgdhY2NvdW50GAkgASgMQgjqghYEEEA4ARI4CgxkYXRlX2xlYXZpbmcYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEAoIbWFpbF9vZmYYCyABKAgSHQoFcGFydHkYDCABKAxCDuqCFgQQQDgBqsEWAhABGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6wwHK/BV6EgIQARofEgRzbHVnGgkKBWFsaWFzEAQaCgoGdGVuYW50EAIwARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaJRIKYnlfYWNjb3VudBoLCgdhY2NvdW50EAkaCgoGdGVuYW50EAKKuxZBCAIyOQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZ0ZW5hbnQaCAoGbGFiZWxzIBQoZDoASAJCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
+  fileDesc("Chhsb2Z0L3BheWRheS9ob2xkZXIucHJvdG8SBGxvZnQiygUKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwubG9mdC5UZW5hbnRCBvKCFgJAARIVCgVhbGlhcxgEIAEoCUIGqsEWAhgBEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESMAoGbGFiZWxzGAcgAygLMhgubG9mdC5Ib2xkZXIuTGFiZWxzRW50cnlCBqrBFgIYARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASIQoEcm9sZRgIIAEoCUIT6oIWCYIBBm1lbWJlcqrBFgIYABI4CgxkYXRlX2xlYXZpbmcYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEAoIbWFpbF9vZmYYCyABKAgSHQoFcGFydHkYDCABKAxCDuqCFgQQQDgBqsEWAhABGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6nAHK/BVTEgIQARofEgRzbHVnGgkKBWFsaWFzEAQaCgoGdGVuYW50EAIwARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAGKuxZBCAIyOQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZ0ZW5hbnQaCAoGbGFiZWxzIBQoZDoASAJCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9sb2Z0kgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_loft_payday_tenant]);
 
 /**
  * Holder is who a request is from.
@@ -119,28 +119,12 @@ export type Holder = Message<"loft.Holder"> & {
   role: string;
 
   /**
-   * The holder at roster this membership is: the one of the tenant this
-   * deployment serves, whose identifier the membership has too (design 9.10,
-   * D85). What reads a membership by what roster says of somebody -- roster's
-   * word on them (`server/lifecycle`), a password, their mail -- reads it
-   * here. Null on a membership a workspace's restore put back that this
-   * deployment's roster does not have (`offboard.Restored.Unlinked`), which
-   * nobody signs in as until `loft identity link` gives it one there.
-   *
-   * Which holder a membership is, is the deployment's to say: what makes a
-   * membership -- a first sign-in, `loft init`, a login given -- writes it
-   * through the servers the deployment holds.
-   *
-   * @generated from field: bytes account = 9;
-   */
-  account: Uint8Array;
-
-  /**
-   * When roster erased the account this is a membership of, and so when it
-   * began to leave: it signs in nowhere from then, and roster may still
-   * restore it within its grace (design 9.10). Null is an account in good
-   * standing, or one roster restored. Written by the deployment from what
-   * roster says (`server/lifecycle`), and by nobody else.
+   * When roster erased the holder this membership is -- the holder of the
+   * tenant this deployment serves by the membership's own identifier (design
+   * 9.10, D85) -- and so when it began to leave: it signs in nowhere from
+   * then, and roster may still restore it within its grace. Null is a member
+   * in good standing, or one roster restored. Written by the deployment from
+   * what roster says (`server/lifecycle`), and by nobody else.
    *
    * @generated from field: google.protobuf.Timestamp date_leaving = 10;
    */

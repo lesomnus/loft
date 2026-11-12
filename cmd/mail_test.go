@@ -46,7 +46,7 @@ func TestAnOperationUndoneMailsNothing(t *testing.T) {
 	w.s.Deps.Mail = box
 	owner, err := w.s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.DateErasedIsNil()).First(ctx)
 	x.NoError(err)
-	x.NoError(w.s.Identity.AddAddress(ctx, pdid.Id(*owner.Account), "owner@acme.example", true))
+	x.NoError(w.s.Identity.AddAddress(ctx, pdid.Id(owner.Id), "owner@acme.example", true))
 
 	assets := app.NewAssetServiceClient(w.conn)
 	hall, err := assets.Add(w.owner, app.AssetAddRequest_builder{Name: "강당", Kind: "space"}.Build())

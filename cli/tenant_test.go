@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/config"
+	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/stretchr/testify/require"
@@ -23,7 +24,6 @@ import (
 	"github.com/lesomnus/loft/cli"
 	"github.com/lesomnus/loft/cmd"
 	entaccess "github.com/lesomnus/loft/internal/ent/access"
-	"github.com/lesomnus/loft/internal/ent/aliashold"
 	entaudit "github.com/lesomnus/loft/internal/ent/audit"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/tenant"
@@ -82,8 +82,6 @@ func written(t *testing.T, d *deployment) map[string]int {
 	out["event"], err = d.s.Ent.Event.Query().Count(ctx)
 	x.NoError(err)
 	out["audit"], err = d.s.Ent.Audit.Query().Count(ctx)
-	x.NoError(err)
-	out["alias-hold"], err = d.s.Ent.AliasHold.Query().Count(ctx)
 	x.NoError(err)
 	out["levyan-notice"], err = d.s.Ent.LevyanNotice.Query().Count(ctx)
 	x.NoError(err)
@@ -175,18 +173,11 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	x.NoError(err)
 	x.False(here)
 	x.NoError(signsIn("kim", "kim-password"), "its people are the tenant's at roster, and stay there (D85)")
-	// What outlives it -- its address, held -- is on the trail as the
-	// operator's.
-	hold, err := d.s.Ent.AliasHold.Query().Where(aliashold.Held("acme")).Only(ctx)
-	x.NoError(err)
-	n, err := d.s.Ent.Audit.Query().Where(entaudit.ObjectId(hold.Id), entaudit.ActorId(alice)).Count(ctx)
-	x.NoError(err)
-	x.Positive(n, "the address it held is the operator's act")
 
 	before = written(t, d)
 	out = must("tenant", "import", "--file", zip)
 	x.Contains(out, "@acme: would put back")
-	x.NotContains(out, "restored with none", "every member is somebody this roster has")
+	x.NotContains(out, "roster does not have", "every member is somebody this roster has")
 	x.Contains(out, "`--yes` does it")
 	here, err = d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
@@ -209,7 +200,7 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	// (payday#108), so a check of the rows finds nothing.
 	must("trail", "rows")
 	x.NoError(signsIn("owner", "owner1234"), "as they were")
-	x.Contains(must("identity", "link"), "nobody to bring in", "every member is linked as they were")
+	x.Contains(must("identity", "link"), "nobody to make: roster has every member here", "every member is roster's as they were")
 	must("trail", "rows")
 	back, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)
@@ -217,7 +208,7 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	x.NoError(err)
 	x.NotNil(ev.ActorId)
 	x.Equal(alice, *ev.ActorId, "the restore is the operator's")
-	n, err = d.s.Ent.Audit.Query().Where(entaudit.Action(offboard.Imported), entaudit.ActorId(alice)).Count(ctx)
+	n, err := d.s.Ent.Audit.Query().Where(entaudit.Action(offboard.Imported), entaudit.ActorId(alice)).Count(ctx)
 	x.NoError(err)
 	x.Positive(n, "and so is what the trail says it put back")
 
@@ -227,11 +218,15 @@ func TestAWorkspaceLeavesAndComesBackThroughTheEntryPoint(t *testing.T) {
 	out = must("tenant-contract", "add", "--name", "abroad", "--desc", "under another law", "--purge-floors", "--yes", "acme")
 	x.Contains(out, "then purge\tunder another law")
 	x.Contains(must("tenant", "retire", "acme"), "its contract purges it", "a retirement against its contract says so")
+	beta, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("beta")).Only(ctx)
+	x.NoError(err)
 	out = must("tenant", "retire", "--yes", "beta")
 	x.Contains(out, "beta: took")
 	x.Contains(out, "kept until ")
+	// Named by its identifier alone: its address is no tenant's this
+	// deployment serves at roster, and nothing else of it is left here.
 	out = must("tenant", "retired")
-	x.Contains(out, "@beta\t")
+	x.Contains(out, "-\t"+pdid.Id(beta.Id).String()+"\t")
 	x.Contains(out, "kept until")
 }
 

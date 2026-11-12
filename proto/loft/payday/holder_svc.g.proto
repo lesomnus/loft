@@ -44,7 +44,6 @@ message HolderAddRequest {
   map<string, string> labels = 7;
   google.protobuf.Timestamp date_created = 15;
   string role = 8;
-  bytes account = 9;
   google.protobuf.Timestamp date_leaving = 10;
   bool mail_off = 11 [features.field_presence = IMPLICIT];
   bytes party = 12;
@@ -78,7 +77,6 @@ message HolderSelect {
   bool date_erased = 14;
   bool date_created = 15;
   bool role = 8;
-  bool account = 9;
   bool date_leaving = 10;
   bool mail_off = 11;
   bool party = 12;
@@ -105,12 +103,6 @@ message HolderPatchRequest {
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
   string role = 16;
-  bytes account = 18;
-  // Clear account instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and account clears.
-  bool account_null = 19;
   google.protobuf.Timestamp date_leaving = 20;
   // Clear date_leaving instead of writing it.
   // It takes a field of its own because an unset value already means

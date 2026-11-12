@@ -80,9 +80,9 @@ func Address(v string) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldEQ(FieldAddress, v))
 }
 
-// Account applies equality check predicate on the "account" field. It's identical to AccountEQ.
-func Account(v uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldEQ(FieldAccount, v))
+// Holder applies equality check predicate on the "holder" field. It's identical to HolderEQ.
+func Holder(v uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldEQ(FieldHolder, v))
 }
 
 // Grant applies equality check predicate on the "grant" field. It's identical to GrantEQ.
@@ -415,54 +415,54 @@ func AddressContainsFold(v string) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldContainsFold(FieldAddress, v))
 }
 
-// AccountEQ applies the EQ predicate on the "account" field.
-func AccountEQ(v uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldEQ(FieldAccount, v))
+// HolderEQ applies the EQ predicate on the "holder" field.
+func HolderEQ(v uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldEQ(FieldHolder, v))
 }
 
-// AccountNEQ applies the NEQ predicate on the "account" field.
-func AccountNEQ(v uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldNEQ(FieldAccount, v))
+// HolderNEQ applies the NEQ predicate on the "holder" field.
+func HolderNEQ(v uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNEQ(FieldHolder, v))
 }
 
-// AccountIn applies the In predicate on the "account" field.
-func AccountIn(vs ...uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldIn(FieldAccount, vs...))
+// HolderIn applies the In predicate on the "holder" field.
+func HolderIn(vs ...uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldIn(FieldHolder, vs...))
 }
 
-// AccountNotIn applies the NotIn predicate on the "account" field.
-func AccountNotIn(vs ...uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldNotIn(FieldAccount, vs...))
+// HolderNotIn applies the NotIn predicate on the "holder" field.
+func HolderNotIn(vs ...uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNotIn(FieldHolder, vs...))
 }
 
-// AccountGT applies the GT predicate on the "account" field.
-func AccountGT(v uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldGT(FieldAccount, v))
+// HolderGT applies the GT predicate on the "holder" field.
+func HolderGT(v uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldGT(FieldHolder, v))
 }
 
-// AccountGTE applies the GTE predicate on the "account" field.
-func AccountGTE(v uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldGTE(FieldAccount, v))
+// HolderGTE applies the GTE predicate on the "holder" field.
+func HolderGTE(v uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldGTE(FieldHolder, v))
 }
 
-// AccountLT applies the LT predicate on the "account" field.
-func AccountLT(v uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldLT(FieldAccount, v))
+// HolderLT applies the LT predicate on the "holder" field.
+func HolderLT(v uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldLT(FieldHolder, v))
 }
 
-// AccountLTE applies the LTE predicate on the "account" field.
-func AccountLTE(v uuid.UUID) predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldLTE(FieldAccount, v))
+// HolderLTE applies the LTE predicate on the "holder" field.
+func HolderLTE(v uuid.UUID) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldLTE(FieldHolder, v))
 }
 
-// AccountIsNil applies the IsNil predicate on the "account" field.
-func AccountIsNil() predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldIsNull(FieldAccount))
+// HolderIsNil applies the IsNil predicate on the "holder" field.
+func HolderIsNil() predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldIsNull(FieldHolder))
 }
 
-// AccountNotNil applies the NotNil predicate on the "account" field.
-func AccountNotNil() predicate.CliLogin {
-	return predicate.CliLogin(sql.FieldNotNull(FieldAccount))
+// HolderNotNil applies the NotNil predicate on the "holder" field.
+func HolderNotNil() predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNotNull(FieldHolder))
 }
 
 // GrantEQ applies the EQ predicate on the "grant" field.
