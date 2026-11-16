@@ -24,7 +24,7 @@ RUN npm run build
 # so its fixes arrive only by building with the release that has them -- and
 # this image's Go is the one that builds (it does not fetch the `toolchain`
 # go.mod names). The two say the same release (loft#40).
-FROM golang:1.27.3-bookworm AS go
+FROM golang:1.27.4-bookworm AS go
 ARG VERSION=
 WORKDIR /src
 COPY go.mod go.sum ./
